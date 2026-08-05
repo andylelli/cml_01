@@ -20,7 +20,7 @@ import dotenv from "dotenv";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const workspaceRoot = path.resolve(__dirname, "..", "..", "..", "..");
 dotenv.config({ path: path.join(workspaceRoot, ".env") });
-dotenv.config({ path: path.join(workspaceRoot, ".env.local") });
+dotenv.config({ path: path.join(workspaceRoot, ".env.local"), override: true });
 
 import { AzureOpenAIClient, LLMLogger } from "@cml/llm-client";
 

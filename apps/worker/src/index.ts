@@ -7,7 +7,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // dist/index.js lives at apps/worker/dist — 3 levels up reaches workspace root.
 const workspaceRoot = path.resolve(__dirname, "..", "..", "..");
 config({ path: path.join(workspaceRoot, ".env") });
-config({ path: path.join(workspaceRoot, ".env.local") });
+config({ path: path.join(workspaceRoot, ".env.local"), override: true });
 
 import { startWorker } from "./runner.js";
 

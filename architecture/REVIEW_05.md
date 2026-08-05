@@ -40,6 +40,9 @@ Everything outstanding, in one place. `☐` not started · `◑` partial · `✅
 | X3 | `parseEnvBool` silently disables logging when a flag is set to `1` instead of `true` — **four parsers, three wrong** | free | ✅ | [§12.3](#123-x3--a-flag-parser-that-reads-1-as-false) · [§19](#19-x3--one-parser-one-logger-eight-registered-keys) · [FLAG-AUDIT Addendum 9](FLAG-AUDIT.md) |
 | X4 | Injector output is not subject to the linters that bind the model | free to record | 👤 | [§10.6](#106-the-injector-vs-linter-class-free-to-detect-a-decision-to-fix) |
 | X5 | `Agent4-Revision` is a required upstream that has never run in 13 archived runs — every replay reports it missing | free | ☐ | [§16.5](#165-x5--a-required-upstream-that-has-never-run) |
+| X6 | A_71's red-herring floor was gated on default-OFF `AGENT5_ENABLE_LLM_RETRIES` — a detector wearing the name of a floor. Now governs its own repair. **Landed, never probed** | free | ✅ | [§20](#20-x6-and-x7--two-fixes-that-lived-only-in-the-working-tree) · [FLAG-AUDIT](FLAG-AUDIT.md) |
+| X7 | `.env.local` did not override `.env` in the two `dotenv` loaders — the register was reading the losing file | free | ✅ | [§20](#20-x6-and-x7--two-fixes-that-lived-only-in-the-working-tree) · [FLAG-AUDIT](FLAG-AUDIT.md) |
+| X8 | **The run that reads X6/X7's effect.** Every non-prose agent now runs on `gpt-4.1-mini` (was `gpt-4o-mini`) and the floor's repair has never fired. Ride-along on N6 | free | ☐ | [§20.3](#203-what-neither-fix-has-had) |
 | **D. Paid probes, in dependency order** ||||
 | N6 | Promote `beat-scheduler`, ≥4 runs — the §8bis discriminating test | ~£6 | ☐ | [§11.4](#114-the-merged-order) |
 | D2 | **DECISION:** after N6, are geometry phases 2–4 still worth their cost? | free | 👤 | [§11.4](#114-the-merged-order) |
@@ -726,9 +729,14 @@ an exit condition it can meet.
 - **Move 7 (the five 2/2 complaints).** Not a task — it is the *symptom set* the rest of this plan
   addresses. Geometry now detects four of the five; N7, N8 and M3 are the candidate fixes. Tracking it
   separately would double-count.
-- **The five files modified before this session** (`llm-connectivity-harness.ts`, `index.ts`,
+- ~~**The five files modified before this session** (`llm-connectivity-harness.ts`, `index.ts`,
   `agent5-run.ts`, `flag-register-check.mjs`, a prompt-records README). Not mine, uncommitted,
-  untouched.
+  untouched.~~
+  > ⚠️ **CORRECTED 2026-08-05 — this was the wrong call, and [§20](#20-x6-and-x7--two-fixes-that-lived-only-in-the-working-tree)
+  > says why.** Three of those files were not stray edits: they carried two behaviour fixes that
+  > [FLAG-AUDIT](FLAG-AUDIT.md) already records as **FIXED 2026-08-03**. Leaving them untracked
+  > because they were "not mine" left the repository asserting a fix it did not contain. They are
+  > now X6/X7, committed, with the unprobed consequence tracked as X8.
 
 ---
 
@@ -1101,3 +1109,60 @@ pipeline does, so the promote/delete lifecycle does not apply — but a change t
 `LOG_ACTUAL_PROMPT_DOCS_TO_FILE`), which is exactly the class Addendum 1's correction was about: the
 run's real behaviour is not reconstructable from `.env.local` alone. They stay unset — a default-on
 evidence surface is the right default — but they are written down now.
+
+---
+
+## 20. X6 and X7 — two fixes that lived only in the working tree
+
+**MEASURED, 2026-08-05.** [FLAG-AUDIT](FLAG-AUDIT.md) carries two entries marked
+**✅ FIXED 2026-08-03**. Both claims were committed. **Neither fix was.** They sat as uncommitted
+edits to three files, and [§12.6](#126-what-is-deliberately-not-on-the-tracker) had explicitly ruled
+them out of scope as *"not mine, uncommitted, untouched"*.
+
+That is a worse failure than either underlying defect. A defect is a thing the code does; this was
+**the repository asserting a repair it did not contain** — the same shape as X2's unreadable message
+and N1's injected disclosure counted as satisfied. A reader checking whether `.env.local` wins would
+have found the answer written down, in the document whose job is to be authoritative about flags, and
+been wrong.
+
+### 20.1 X6 — the floor that only ever detected
+
+`AGENT5_RED_HERRING_FLOOR`'s bounded regeneration was gated on `if (llmRetriesEnabled)`, and
+`AGENT5_ENABLE_LLM_RETRIES` is **default-OFF** ("deterministic remediation mode active"). A_71 §4 had
+given the pass its own off-switch precisely so it would work at default config; deferring to the
+global retry flag defeated that. On run `mystery-1785694688534` the floor detected the shortfall,
+logged *"0 red herring(s) against a budget of 2"*, attempted nothing, and the story shipped with no
+misdirection. The earlier run's 2 red herrings were the model's own output, not a repair — **the floor
+has never repaired anything.**
+
+Now gated on `redHerringFloor.enabled`. Still one bounded attempt, still no abort path (ADR-0003),
+still no deterministic synthesis — a fabricated red herring is the template-injection class A_67/A_68
+spent two boards removing.
+
+*One redundancy left in place deliberately:* `assessRedHerringFloor` already returns
+`needsRepair = enabled && count < floor`, so the inner `enabled` check inside the `needsRepair` branch
+is always true. It is kept because the two conditions answer different questions and the compound one
+is the tested unit ([`agent5-red-herring-floor.test.ts`](../apps/worker/src/__tests__/agent5-red-herring-floor.test.ts), 7 tests). Recorded so it is not
+later mistaken for a live gate.
+
+### 20.2 X7 — the loaders that read the losing file
+
+`dotenv` does not overwrite a key that is already set, and both worker entry points loaded `.env`
+**before** `.env.local`. `.env` therefore won every conflict — while every "SET" state in FLAG-AUDIT
+had been read from `.env.local` alone. Both now pass `{ override: true }`.
+
+The other two production loaders were already correct and are unchanged:
+[`cli-runtime.ts`](../apps/worker/src/jobs/cli-runtime.ts) reads `.env.local` first under
+first-wins semantics, and [`apps/api/src/index.ts`](../apps/api/src/index.ts) reads only
+`.env.local`. FLAG-AUDIT's "every production loader" now holds across all four.
+
+### 20.3 What neither fix has had
+
+**A run.** X7 is a real behaviour change on every non-prose agent — `AZURE_OPENAI_DEPLOYMENT_NAME`
+resolves to `gpt-4.1-mini` where it resolved to `gpt-4o-mini` — and X6 arms a repair path that has
+never fired in production. Tracked as **X8**, a ride-along on N6 rather than a probe of its own: N6
+already buys ≥4 runs, and both effects are visible in artifacts N6 collects anyway (the deployment
+name in the prompt log, a `restored N red herring(s) after regeneration` warning if the floor fires).
+
+**The probe-validity rule applies with force here** ([§16.3](#163-three-smaller-things-it-took-to-get-there)):
+the worker consumes this code via `dist`, so a run started before the rebuild measures neither fix.

@@ -3739,7 +3739,19 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
         `a mystery with no misdirection has no false trail for the reader to follow`,
     );
 
-    if (llmRetriesEnabled) {
+    // FOUND BY AUDIT 2026-08-03 — this read `if (llmRetriesEnabled)`, and
+    // `AGENT5_ENABLE_LLM_RETRIES` is DEFAULT-OFF ("deterministic remediation mode active — LLM retry
+    // loops disabled by default"). So A_71's floor detected the shortfall, logged it, and **never
+    // attempted the one bounded regeneration it was built to make**: on run mystery-1785694688534 the
+    // story shipped with ZERO red herrings and no misdirection. It was a detector wearing the name of
+    // a floor, and the earlier run's 2 red herrings were the model's own output, not a repair.
+    //
+    // A_71 §4 gave this pass its OWN off-switch (`AGENT5_RED_HERRING_FLOOR=false`) precisely so it
+    // would work on default config; deferring to the global retry flag defeated that design. The
+    // floor now governs its own repair — still exactly one bounded attempt, still no abort path, and
+    // still no deterministic synthesis (a fabricated red herring is the template-injection class
+    // A_67/A_68 spent two boards removing).
+    if (redHerringFloor.enabled) {
       const redHerringFloorStart = Date.now();
       agent5RetryInvoked = true;
       ctx.reportProgress("clues", "Regenerating clues to restore red herrings...", 60);
