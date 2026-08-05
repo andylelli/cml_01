@@ -35,9 +35,30 @@ import {
   SchedulerInfeasibleError,
 } from "@cml/beat-scheduler";
 
+/**
+ * FOUND BY PRE-SPEND AUDIT 2026-08-05 (REVIEW_05 §24) — all four flags below were module-level
+ * `const`s, and that made **N6's own lever unsettable**.
+ *
+ * Static `import` statements are hoisted and evaluated before any top-level statement in the
+ * importing file, and both the worker entry (`index.ts`) and every canary harness call dotenv's
+ * `config()` AFTER their imports. So a `const X = process.env.FLAG` here froze to its default before
+ * `.env`/`.env.local` was ever read. Measured, with the real load order:
+ *
+ *     module-const (frozen at import): false      ← what the run would have used
+ *     runtime getter (read at call)  : true       ← what .env actually said
+ *
+ * `AGENT7_SCHEDULER_AUTHORITATIVE` is exactly the lever N6 promotes over four paid runs. Set in
+ * `.env.local`, it would have read `false` on all four, and the probe would have measured the control
+ * arm four times at full price while reporting a promotion. Same class as the A_66 run that burned
+ * £1.50, and as `module-const-flags-frozen-before-dotenv` — the rule `agent9/flags.ts` was written to
+ * state. Getters, evaluated per call, are the fix; a flag set in the shell still works exactly as
+ * before, which is why this went unnoticed.
+ */
+
 /** Shadow-only: log the deterministic scene grid next to the live outline. Default ON (logs only,
  * acts on nothing); set `AGENT7_SCHEDULER_SHADOW=0` to silence. */
-const AGENT7_SCHEDULER_SHADOW = !/^(0|false|no|off)$/i.test(process.env.AGENT7_SCHEDULER_SHADOW ?? "");
+export const isAgent7SchedulerShadowEnabled = (): boolean =>
+  !/^(0|false|no|off)$/i.test(process.env.AGENT7_SCHEDULER_SHADOW ?? "");
 
 /** P1.3: promote the deterministic scheduler from shadow-only to authoritative. When ON: (1) the
  * per-scene word budget is derived from the story-length pacing curve (leaner setup, fuller climax)
@@ -45,7 +66,8 @@ const AGENT7_SCHEDULER_SHADOW = !/^(0|false|no|off)$/i.test(process.env.AGENT7_S
  * job is taken from the grid, which places every reveal in exactly one slot, so a clue is dramatized
  * once instead of being re-revealed across adjacent chapters (T1.2 — the dominant pacing smear).
  * Default OFF; never enable in the same run as another retry-gated lever. */
-const AGENT7_SCHEDULER_AUTHORITATIVE = /^(1|true|yes|on)$/i.test(process.env.AGENT7_SCHEDULER_AUTHORITATIVE ?? "");
+export const isAgent7SchedulerAuthoritative = (): boolean =>
+  /^(1|true|yes|on)$/i.test(process.env.AGENT7_SCHEDULER_AUTHORITATIVE ?? "");
 
 /** A_53 P8 (scheduler-authority-dark-no-safe-enable-path): split the scheduler-authority lever into
  * its two independent halves so the non-destructive one is safely enableable on its own. This flag
@@ -53,7 +75,8 @@ const AGENT7_SCHEDULER_AUTHORITATIVE = /^(1|true|yes|on)$/i.test(process.env.AGE
  * now additive + (act, act-scene-number)-aligned + coverage-re-validated, so enabling it can no longer
  * delete an LLM-assigned clue. Default OFF; `AGENT7_SCHEDULER_AUTHORITATIVE` alone now ships only the
  * safe pacing-shaped word budgets. */
-const AGENT7_CLUE_JOB_AUTHORITY = /^(1|true|yes|on)$/i.test(process.env.AGENT7_CLUE_JOB_AUTHORITY ?? "");
+export const isAgent7ClueJobAuthorityEnabled = (): boolean =>
+  /^(1|true|yes|on)$/i.test(process.env.AGENT7_CLUE_JOB_AUTHORITY ?? "");
 
 /** A_52 item 4 (mechanism-early-leak): the mechanism-reveal gate is a safe, targeted prompt hint —
  * withhold the full HOW-it-was-done explanation until the discriminating-test scene — that on its own
@@ -61,7 +84,8 @@ const AGENT7_CLUE_JOB_AUTHORITY = /^(1|true|yes|on)$/i.test(process.env.AGENT7_C
  * scheduler-authority experiment, so on normal runs the prose was NEVER told to withhold the mechanism
  * and the honest rubric correctly capped plot_structure/pacing ≤6 for the early leak. Decoupled here:
  * default ON, reversible via AGENT7_MECHANISM_GATE=0. */
-const AGENT7_MECHANISM_GATE = !/^(0|false|no|off)$/i.test(process.env.AGENT7_MECHANISM_GATE ?? "");
+export const isAgent7MechanismGateEnabled = (): boolean =>
+  !/^(0|false|no|off)$/i.test(process.env.AGENT7_MECHANISM_GATE ?? "");
 
 /** A_61 RC3.5 — guarantee the body-discovery scene references a cause-of-death "key tell" clue. Default
  * OFF (structural lever; N≥4 before default-on), read at runtime. Additive-only: appends one clue id to
@@ -233,7 +257,7 @@ function makeAgent7GridCache(ctx: OrchestratorContext): Agent7GridCache {
 
 /** Build + invariant-check the deterministic grid for the produced outline, logging the comparison. */
 function runAgent7SchedulerShadow(ctx: OrchestratorContext, narrative: NarrativeOutline, gridCache: Agent7GridCache): void {
-  if (!AGENT7_SCHEDULER_SHADOW) return;
+  if (!isAgent7SchedulerShadowEnabled()) return;
   try {
     const liveScenes =
       (narrative as any).totalScenes ??
@@ -263,7 +287,7 @@ function runAgent7SchedulerShadow(ctx: OrchestratorContext, narrative: Narrative
 /** P1.3: when the scheduler is authoritative, stamp a pacing-shaped per-scene word budget onto the
  * outline so Agent 9 produces varied chapter lengths (climax fuller, setup leaner). No-op by default. */
 function applyAgent7SchedulerAuthority(ctx: OrchestratorContext, narrative: NarrativeOutline, gridCache: Agent7GridCache): void {
-  if (!AGENT7_SCHEDULER_AUTHORITATIVE) return;
+  if (!isAgent7SchedulerAuthoritative()) return;
   const sceneRefs = flattenNarrativeScenes(narrative);
   if (sceneRefs.length === 0) return;
 
@@ -302,7 +326,7 @@ function applyAgent7ClueJobAuthority(
   sceneRefs: ReturnType<typeof flattenNarrativeScenes>,
   gridCache: Agent7GridCache,
 ): void {
-  if (!AGENT7_CLUE_JOB_AUTHORITY) return;
+  if (!isAgent7ClueJobAuthorityEnabled()) return;
   // Job authority (T1.2): the grid assigns every reveal obligation to exactly one slot, so a clue is
   // dramatized in a single chapter instead of being re-revealed across adjacent ones. Guarded: an
   // infeasible grid (or per-act count mismatch) keeps the existing LLM distribution untouched.
@@ -379,7 +403,7 @@ function reassertClueCoverage(ctx: OrchestratorContext, narrative: NarrativeOutl
  * so it isn't telegraphed in Act 1 (judge: "explained too early"). Pure metadata stamp + prompt hint —
  * it does not reorder scenes or move clues, so it is safe to run unconditionally. */
 function applyMechanismRevealGate(ctx: OrchestratorContext, narrative: NarrativeOutline): void {
-  if (!AGENT7_MECHANISM_GATE) return;
+  if (!isAgent7MechanismGateEnabled()) return;
   const sceneRefs = flattenNarrativeScenes(narrative);
   if (sceneRefs.length === 0) return;
   try {

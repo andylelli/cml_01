@@ -42,6 +42,7 @@ Everything outstanding, in one place. `☐` not started · `◑` partial · `✅
 | X5 | `Agent4-Revision` is a required upstream that has never run in 13 archived runs — every replay reports it missing | free | ✅ | [§16.5](#165-x5--a-required-upstream-that-has-never-run) · [§21](#21-x5--conditional-is-not-the-same-as-legacy) |
 | X6 | A_71's red-herring floor was gated on default-OFF `AGENT5_ENABLE_LLM_RETRIES` — a detector wearing the name of a floor. Now governs its own repair. **Landed, never probed** | free | ✅ | [§20](#20-x6-and-x7--two-fixes-that-lived-only-in-the-working-tree) · [FLAG-AUDIT](FLAG-AUDIT.md) |
 | X7 | `.env.local` did not override `.env` in the two `dotenv` loaders — the register was reading the losing file | free | ✅ | [§20](#20-x6-and-x7--two-fixes-that-lived-only-in-the-working-tree) · [FLAG-AUDIT](FLAG-AUDIT.md) |
+| X9 | **N6's lever could not be set.** Agent 7's four flags were module-consts, frozen before dotenv — `AGENT7_SCHEDULER_AUTHORITATIVE` from `.env.local` read `false`. Now runtime getters | free | ✅ | [§24](#24-the-pre-spend-audit--n6s-lever-could-not-be-set) |
 | X8 | **The run that reads X6/X7's effect.** Every non-prose agent now runs on `gpt-4.1-mini` (was `gpt-4o-mini`) and the floor's repair has never fired. Ride-along on N6 | free | ☐ | [§20.3](#203-what-neither-fix-has-had) |
 | **D. Paid probes, in dependency order** ||||
 | N6 | Promote `beat-scheduler`, ≥4 runs — the §8bis discriminating test | ~£6 | ☐ | [§11.4](#114-the-merged-order) |
@@ -1348,3 +1349,60 @@ every run takes the scoring fallback, and behaviour is byte-identical. This is a
 on promotion, and CS1 is the probe that collects it — which is also the argument for having built it
 now rather than as part of CS1: promoting a package and changing what it derives in the same run
 would leave the result unattributable, the one-lever rule N6 rests on.
+
+---
+
+## 24. The pre-spend audit — N6's lever could not be set
+
+Before spending £6 on N6, one question: **do the instruments N6 is supposed to read actually emit,
+and does its lever actually move?** Four of the five answers were yes. The fifth was the expensive one.
+
+### 24.1 X9 — the lever was frozen shut
+
+All four `AGENT7_*` flags were module-level `const`s:
+
+```ts
+const AGENT7_SCHEDULER_AUTHORITATIVE = /^(1|true|yes|on)$/i.test(process.env.AGENT7_SCHEDULER_AUTHORITATIVE ?? "");
+```
+
+Static `import` statements are hoisted and evaluated **before any top-level statement** in the
+importing file, and the worker entry ([`index.ts`](../apps/worker/src/index.ts)) and every canary
+harness call dotenv's `config()` *after* their imports. So the const froze to its default before
+`.env` or `.env.local` was read. **MEASURED**, reproducing the real load order:
+
+```
+module-const (frozen at import): false      ← what the run would have used
+runtime getter (read at call)  : true       ← what the env file actually said
+```
+
+`AGENT7_SCHEDULER_AUTHORITATIVE` is exactly the lever N6 promotes across four paid runs. Set in
+`.env.local` — the documented way to record a lever choice — it would have read `false` on all four.
+**N6 would have measured the control arm four times, at full price, and reported a promotion.** The
+mirror-image failure is just as real: the two default-ON flags could not have been turned *off*
+either, so a run trying to isolate the mechanism gate would have silently kept it on.
+
+This is `module-const-flags-frozen-before-dotenv` — the rule
+[`agent9/flags.ts`](../apps/worker/src/jobs/agents/agent9/flags.ts) exists to state, applied
+everywhere except the module holding N6's lever. It went unnoticed because a flag exported in the
+*shell* works fine, which is how these were presumably last exercised.
+
+All four are now getters. The test that pins it mutates `process.env` **after** the import has been
+evaluated — a test that merely set the variable first would have passed against the broken version
+too, which is how a frozen flag survives a test suite.
+
+### 24.2 The four that were already sound
+
+| Ride-along | Read | Verdict |
+|---|---|---|
+| **S7** — coercion counters | `emitAgent7CoercionTelemetry(ctx)` at [`agent7-run.ts:2378`](../apps/worker/src/jobs/agents/agent7-run.ts#L2378), in the run path, emitting even at zero | ready |
+| **M3** — full-story diagnostic | `resolveFullStoryDiagnosticMode()` is already a runtime getter, so `AGENT9_FULLSTORY_DIAGNOSTIC=shadow` in `.env.local` will take. Currently unset (`off`) — **add the line when N6 runs** | ready, one line |
+| **R5** — kill-and-resume | hydration no longer reports a phantom missing upstream on every replay ([§21](#21-x5--conditional-is-not-the-same-as-legacy)), so a real failure is now legible | ready |
+| **X8** — which model answered | `llm-prompts-full.jsonl` records `model` per call; the last line already reads `gpt-4.1-mini` | ready |
+
+### 24.3 Two conditions on N6 that are now cheap to state
+
+1. **Rebuild before launching.** The worker consumes `@cml/*` through `dist`, and Node caches modules
+   at process start ([§16.3](#163-three-smaller-things-it-took-to-get-there)). Everything in
+   §20–§24 reaches a run only after a build that precedes it. A mid-run rebuild reaches nothing.
+2. **Set the lever where a getter can see it.** Either `.env.local` or the shell now works. Before
+   X9, only the shell did — and nothing said so.
