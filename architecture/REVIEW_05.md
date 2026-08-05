@@ -42,6 +42,7 @@ Everything outstanding, in one place. `☐` not started · `◑` partial · `✅
 | X5 | `Agent4-Revision` is a required upstream that has never run in 13 archived runs — every replay reports it missing | free | ✅ | [§16.5](#165-x5--a-required-upstream-that-has-never-run) · [§21](#21-x5--conditional-is-not-the-same-as-legacy) |
 | X6 | A_71's red-herring floor was gated on default-OFF `AGENT5_ENABLE_LLM_RETRIES` — a detector wearing the name of a floor. Now governs its own repair. **Landed, never probed** | free | ✅ | [§20](#20-x6-and-x7--two-fixes-that-lived-only-in-the-working-tree) · [FLAG-AUDIT](FLAG-AUDIT.md) |
 | X7 | `.env.local` did not override `.env` in the two `dotenv` loaders — the register was reading the losing file | free | ✅ | [§20](#20-x6-and-x7--two-fixes-that-lived-only-in-the-working-tree) · [FLAG-AUDIT](FLAG-AUDIT.md) |
+| X10 | `npm test` ran 8 of 17 workspaces — **`beat-scheduler` (N6's own package) and `rubric-score` (M1b's) were both outside it**, and a mid-chain failure could not change the exit code | free | ✅ | [§24.4](#244-x10--npm-test-ran-8-of-17-workspaces) |
 | X9 | **N6's lever could not be set.** Agent 7's four flags were module-consts, frozen before dotenv — `AGENT7_SCHEDULER_AUTHORITATIVE` from `.env.local` read `false`. Now runtime getters | free | ✅ | [§24](#24-the-pre-spend-audit--n6s-lever-could-not-be-set) |
 | X8 | **The run that reads X6/X7's effect.** Every non-prose agent now runs on `gpt-4.1-mini` (was `gpt-4o-mini`) and the floor's repair has never fired. Ride-along on N6 | free | ☐ | [§20.3](#203-what-neither-fix-has-had) |
 | **D. Paid probes, in dependency order** ||||
@@ -1406,3 +1407,31 @@ too, which is how a frozen flag survives a test suite.
    §20–§24 reaches a run only after a build that precedes it. A mid-run rebuild reaches nothing.
 2. **Set the lever where a getter can see it.** Either `.env.local` or the shell now works. Before
    X9, only the shell did — and nothing said so.
+
+### 24.4 X10 — `npm test` ran 8 of 17 workspaces
+
+The sweep that closed this session found the suite itself was partial. The root `test` script named
+eight workspaces by hand. Seventeen have tests.
+
+**The nine that never ran** — 367 passing tests nobody was running — include the two packages the
+next two board items turn on:
+
+| Package | Tests | Why it matters here |
+|---|---|---|
+| **`@cml/beat-scheduler`** | 17 | **N6 promotes this package.** Its tests were outside the suite |
+| **`@cml/rubric-score`** | 87 | **M1b re-scores through this.** Also outside |
+| `@cml/clue-spec` | 22 | CS1/CS2 |
+| `cml-core` · `period-kb` · `prose-guard` · `device-library` · `novelty` · `style-contract` | 241 | — |
+
+All nine were green, so this bought no bug — it removed the possibility of a silent one in the two
+packages about to carry a paid probe.
+
+**The second half is worse than the first.** The eight were chained with `;`, so the script's exit
+code was whatever the *last* one returned: any failure before `@cml/cml` left `npm test` exiting 0.
+A green suite that cannot go red is the same defect as a zero that is never written — the shape §16
+and [§22.3](#223-records-never-refuses--and-counts-what-it-does-not-object-to) keep circling.
+
+Now `npm run test --workspaces --if-present`: **2,684 tests across 17 workspaces**, and the exit code
+propagates — verified against a throwaway workspace pair, one passing and one failing, which exits 1.
+The hand-maintained list is gone rather than kept as a second body; a new package with a `test` script
+is now in the suite by existing.
