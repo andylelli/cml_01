@@ -38,6 +38,10 @@ const MANIFEST = join(ROOT, "eval", "results", "external-read", "manifest.json")
 const PROMPTS = join(ROOT, "documentation", "prompts", "actual");
 const DRY = process.argv.includes("--dry");
 const WRITE = process.argv.includes("--write");
+const flagValue = (name) => {
+  const i = process.argv.indexOf(name);
+  return i >= 0 && process.argv[i + 1] && !process.argv[i + 1].startsWith("--") ? process.argv[i + 1] : null;
+};
 
 // `.env.local` first, then `.env`, first-wins — the precedence every production loader has had since
 // X7. Reading `.env` alone meant scoring against the key the pipeline ignores (REVIEW_05 §20.2).
@@ -184,6 +188,68 @@ const judge = createLLMRubricJudge(
 );
 
 console.log(`\n  judge: ${judgeModel}\n${"─".repeat(78)}`);
+
+/**
+ * M1c — how much does ONE score wander?
+ *
+ * Every number this project has ever drawn a conclusion from is a single scoring: the ledger, the
+ * 42.9%, the 84.2% that replaced it, every A/B delta in every board. If the judge's total moves by
+ * several marks on identical input, all of them carry an error bar nobody has drawn — and a lever
+ * whose measured effect is smaller than that bar was never measured at all.
+ *
+ * Deliberately run on a story whose caps DO NOT fire. A cap clamps the total, which suppresses exactly
+ * the variance being measured, so a capped story would report a reassuring number for the wrong
+ * reason. `2026-08-02-1810` scored `caps: none`, so its total is the judge's raw marks.
+ *
+ * Fresh judge call every repeat — the opposite of the memoisation the cap comparison needs.
+ */
+if (process.argv.includes("--variance")) {
+  const key = flagValue("--only") ?? "5";
+  const repeats = Number(flagValue("--repeats") ?? 5);
+  const row = rows.find((r) => r.entry.key === key);
+  if (!row?.manuscript) {
+    console.error(`  --variance: entry ${key} is not re-scorable.`);
+    process.exit(1);
+  }
+  const prose = row.manuscript.chapters.map((c) => c.paragraphs.join("\n\n")).join("\n\n");
+  const cml = row.cml.CASE ?? row.cml;
+  console.log(`  ${repeats}× ${row.entry.bundleId}  (external ${row.entry.externalFinal})\n`);
+
+  const totals = [];
+  const perCategory = {};
+  for (let i = 0; i < repeats; i += 1) {
+    const r = await scoreStory({ prose, cml, judge, noResolutionVerdict: row.noResolutionVerdict });
+    totals.push(r.final);
+    // `categories` is a CategoryMark[] — {category, mark} — NOT a map. Treating it as one made every
+    // spread NaN, which the `> 0` filter then dropped, and the line printed a reassuring
+    // "categories that moved: none" beside totals that had moved by six. A vacuous zero, in the
+    // reporting of the very run measuring whether numbers can be trusted.
+    for (const c of Array.isArray(r.categories) ? r.categories : []) {
+      (perCategory[c.category] ??= []).push(c.mark);
+    }
+    console.log(`    run ${i + 1}   final ${r.final}   raw ${r.rawTotal}   caps: ${r.capsApplied?.join("; ") || "none"}`);
+  }
+
+  const mean = totals.reduce((a, b) => a + b, 0) / totals.length;
+  const sd = Math.sqrt(totals.reduce((a, b) => a + (b - mean) ** 2, 0) / totals.length);
+  const spread = Math.max(...totals) - Math.min(...totals);
+  console.log(`\n    totals   ${totals.join(", ")}`);
+  console.log(`    mean     ${mean.toFixed(2)}   sd ${sd.toFixed(2)}   spread ${spread} mark(s)`);
+
+  const noisy = Object.entries(perCategory)
+    .map(([cat, marks]) => [cat, Math.max(...marks) - Math.min(...marks)])
+    .filter(([, s]) => s > 0)
+    .sort((a, b) => b[1] - a[1]);
+  console.log(`    categories that moved: ${noisy.length ? noisy.map(([c, s]) => `${c} ±${s}`).join(", ") : "none"}`);
+
+  console.log(
+    `\n    READ THIS AGAINST: the corpus bias is -10.57 (sd 4.08) and ranking agreement is 84.2%.\n` +
+      `    A spread of ${spread} mark(s) is ${spread >= 4 ? "LARGE ENOUGH TO MATTER" : "small"} next to those numbers,\n` +
+      `    and next to the deltas this project's A/B probes are asked to detect.`,
+  );
+  console.log(`\n  cost: $${client.getCostTracker?.().getTotalCost?.().toFixed?.(4) ?? "n/a"}\n`);
+  process.exit(0);
+}
 /**
  * ONE judge call per story, scored TWICE.
  *

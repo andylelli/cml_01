@@ -27,13 +27,19 @@ the same thing.
 
 | # | Do this | Cost | Status |
 |---|---|---|---|
-| C1 | **M1c — is one rubric score stable?** Score one story 3× through the same judge. If the total moves by marks, every single-scored number in this project has an error bar nobody has drawn | ~£0.04 | ☐ |
+| C1 | ~~M1c — is one rubric score stable?~~ — **done. No.** 8 scorings of one story, caps off: **66–72, spread 6 marks.** Any rubric delta under ~6 marks is noise | £0.04 | ✅ |
 
-**C1 goes first, and F2 made it matter more rather than less.** Re-scoring the corpus moved ranking
-agreement from 42.9% to **84.2%** — 0.8 points short of the published target — without changing a line
-of scoring logic. That number is built from ONE scoring of each story. If a single score wanders by
-several marks, an 84.2% from n=1 each has an error bar wide enough to contain the old answer too.
-Three calls on one story settles it.
+**C1 is done and it changes how every run below may be read.** A single rubric score wanders by
+**six marks** on unchanged input (66–72, caps off, eight scorings). So:
+
+- **no rubric comparison from a single scoring, ever again** — deltas under ~6 marks need repeats and
+  a mean, and `eval-golden.mjs`'s `--repeats` flag exists for exactly this;
+- **the 84.2% is a best estimate, not a measurement** — it is built from one scoring per story;
+- **the −2.0 that justified deleting `AGENT9_CRITIQUE_REWRITE`'s 247 lines was inside the noise.** The
+  deletion may still be right; it was never measured. ADR-0007 cites it as its precedent for a
+  well-evidenced removal;
+- **counts are unaffected** — firing rates are integers, so P4 and M5's retirement evidence still
+  stands on its own.
 
 ### Run 1 + Run 2 — the N6 pair
 
@@ -83,7 +89,7 @@ offline only; these two runs are the first time any of them meets a live pipelin
 
 | # | Item | Why |
 |---|---|---|
-| H1 | R6 — `eval:baseline` (£4–8) | **No longer held on the judge.** §11.2 held it because the judge "ranks at chance"; it ranks at 84.2%. Held on **C1 only** — establish the error bar, then baseline |
+| H1 | R6 — `eval:baseline` (£4–8 → **£12–24**) | No longer held on the judge (it ranks at 84.2%, not at chance). Held on **cost**: C1 showed a single scoring wanders 6 marks, so a trustworthy baseline needs `--repeats 3`, which triples the price. Decide with that number in hand |
 | H2 | M2 · R4 · R9 · S4/S6 · GF | Recommended against in [R05 §11.1](REVIEW_05.md); reasons unchanged |
 
 ---
@@ -129,7 +135,7 @@ Also: `.env.local` currently has `AGENT9_FULLSTORY_DIAGNOSTIC=shadow` set and
 ## 4. Order
 
 ```
-C1  M1c — is one score stable?                    ~£0.04, no run
+C1  M1c — is one score stable?  DONE: no, ±3 marks
      ↓
 R1  N6 control          ─┐
 R2  N6 treatment         ├─ + 8 ride-alongs, all free

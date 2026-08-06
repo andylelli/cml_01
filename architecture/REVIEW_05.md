@@ -61,7 +61,7 @@ Everything outstanding, in one place. `☐` not started · `◑` partial · `✅
 | **A. Measurement — gates every quality claim** ||||
 | M1 | ~~Rewrite the judge as the external rubric~~ → **diagnosed**, then **tested**: the deterministic `noResolution` is wired correctly and moves no score (§28). The blind-spot hypothesis is not supported, and §13.1's numbers rest on internals that no longer reproduce | ~1 day | ✅ | [§13](#13-m1--what-the-judge-diagnosis-actually-found) · [§28](#28-m1b--the-answer-is-no-and-the-corpus-is-the-bigger-finding) |
 | M1b | Re-scored 2026-08-06, $0.0122. **Wiring correct; effect ZERO** — the new cap is redundant with one already firing. Hypothesis not supported, and the ledger's internals do not reproduce (1936: 73 → 64) | ~£1 | ✅ | [§28](#28-m1b--the-answer-is-no-and-the-corpus-is-the-bigger-finding) |
-| M1c | **Is a single rubric score even stable?** Score one story 3× through the same judge; if variance spans marks, every single-scored number in this project has an undrawn error bar | ~£0.04 | ☐ | [§28.4](#284-what-m1b-actually-established-and-what-it-costs-to-finish) |
+| M1c | **No.** 8 scorings of one story, caps off: **66–72, spread 6 marks, sd ~2.4.** Any rubric delta under ~6 is noise — including the −2.0 that justified deleting `AGENT9_CRITIQUE_REWRITE` | £0.04 | ✅ | [§30](#30-m1c--one-score-is-worth-3-marks-and-that-invalidates-a-deletion) |
 | M1d | ~~The calibration corpus is 2 of 7~~ → **all five found by grep** (paths had elided IDs). Re-scored on one basis: **ranking agreement 42.9% → 84.2%**, and the geometry verdict contributed zero. The judge was never the problem | free | ✅ | [§29](#29-the-judge-was-not-the-problem--the-corpus-was) |
 | R10 | Ratify the 12 ADRs — **signed 2026-08-06.** 11 Accepted, ADR-0012 stays `Proposed` with its probe owed; ADR-0004's rule is now enforced by a lint, not stated | ~15 min | ✅ | [§25](#25-r10--the-ratification-brief) |
 | **B. Free instrument fixes — geometry can't be trusted to read a probe until these land** ||||
@@ -2077,3 +2077,65 @@ that would notice.**
 The honest summary of the whole M1 line: **a real defect was found, a correct fix was built for it,
 and the defect was not what was causing the symptom.** The fix stays — a reveal that discloses nowhere
 should cap the ending, and X11's null path is load-bearing — but it earned none of the 42 points.
+
+---
+
+## 30. M1c — one score is worth ±3 marks, and that invalidates a deletion
+
+**2026-08-06, $0.0504, eight scorings of one story.** `2026-08-02-1810`, chosen because its caps do
+not fire — a cap clamps the total and would suppress the very variance being measured.
+
+```
+5×  70, 66, 69, 69, 72      mean 69.20  sd 1.94  spread 6
+3×  72, 66, 66              mean 68.00  sd 2.83  spread 6
+                            ── all eight: 66–72, spread 6 marks ──
+```
+
+Identical prose, identical CML, identical judge, `caps: none` every time. **A single rubric score
+carries roughly ±3 marks.** Six categories each wobble by ±1 — `plot_structure`, `dialogue`,
+`atmosphere`, `clues`, `pacing`, `ending` — and they compound.
+
+### 30.1 What this retrospectively breaks
+
+**[ADR-0007](decisions/0007-repair-ladder-ordering.md)'s deletion precedent is inside the noise.**
+`AGENT9_CRITIQUE_REWRITE` was probed, recorded as *"prose −1.00, rubric −2.0"*, and its **247 lines
+were deleted on that evidence** — cited in [§11.1](#111-the-assessment) and again in ADR-0007's own
+*What would change our mind* as the model of a well-evidenced removal. A −2.0 rubric delta is a third
+of the spread a single scoring produces on unchanged input. **That verdict was not distinguishable
+from noise**, and neither is any other delta this project has drawn from single scorings.
+
+This does not mean the deletion was wrong — it means it was never measured. The distinction matters
+because ADR-0011 says a deletion needs the same evidence as an activation, and this one had less than
+it appeared to.
+
+**And it puts an error bar on [§29](#29-the-judge-was-not-the-problem--the-corpus-was)'s own result.**
+The 84.2% is built from one scoring per story. Each internal could move ±3, which is enough to reorder
+adjacent pairs. 84.2% is the best estimate available, not a measurement — and saying so is the whole
+point of having run this.
+
+### 30.2 The rule this forces
+
+**No rubric comparison from a single scoring, ever again.** Any delta smaller than ~6 marks needs
+repeats and a mean, and `eval-golden.mjs` already carries the `--repeats` flag for exactly this — it
+was built by someone who suspected this and never confirmed it.
+
+Concretely, for the board:
+
+- **N6's two runs cannot be read on rubric total.** Their honest output was always a mechanism verdict
+  ([REVIEW_06 §2](REVIEW_06.md)); this closes the door on reading anything else into them.
+- **R6 (`eval:baseline`) must run `--repeats 3` minimum**, which triples its cost. That is the real
+  price of a trustworthy baseline and it should be decided with the number in hand.
+- **P4 and M5's retirement evidence is unaffected** — they are gated on *firing counts*, which are
+  integers a run either produces or does not. Counts do not wobble.
+
+### 30.3 The defect found in the measuring, again
+
+The first run of this printed **`categories that moved: none`** beside totals that had moved by six.
+`categories` is a `CategoryMark[]`, not a map; treating it as one made every spread `NaN`, and the
+`> 0` filter silently dropped them all.
+
+A vacuous zero, printed reassuringly, in the reporting of the run whose entire purpose was to find out
+whether numbers can be trusted. It is [§16](#16-n5--done-and-the-two-runs-that-were-replaying-the-wrong-story),
+[§22.3](#223-records-never-refuses--and-counts-what-it-does-not-object-to),
+[§24.4](#244-x10--npm-test-ran-8-of-17-workspaces) and [§27.2](#272-x12--the-corpus-probe-was-blind-to-the-two-fixes-it-was-meant-to-check)
+for the fifth time in one document. Fixed, and the re-run produced the per-category breakdown above.
