@@ -54,7 +54,7 @@ Everything outstanding, in one place. `☐` not started · `◑` partial · `✅
 | M6 | Give Agent 9 the real rubric — only readable after M1 | ~£3 | ☐ | [§11.1](#111-the-assessment) |
 | **E. Ride-alongs — need runs, not runs of their own. Attach to N6.** ||||
 | S7 | Retire dead coercion sites — 4 runs at `firings=0` | free | ◑ 1 of 4 | [§11.3](#113-ride-alongs--things-that-need-runs-but-not-runs-of-their-own) |
-| M3 | Whole-manuscript revision: `AGENT9_FULLSTORY_DIAGNOSTIC=shadow` | free | ☐ | [§11.3](#113-ride-alongs--things-that-need-runs-but-not-runs-of-their-own) |
+| M3 | Whole-manuscript revision: `AGENT9_FULLSTORY_DIAGNOSTIC=shadow` — **lever set and verified live**; awaits N6's runs | free | ◑ | [§11.3](#113-ride-alongs--things-that-need-runs-but-not-runs-of-their-own) · [§26](#26-the-free-board-closed-out) |
 | R5 | Live kill-and-resume drill | free | ☐ | [§11.3](#113-ride-alongs--things-that-need-runs-but-not-runs-of-their-own) |
 | **F. Deferred — real value, wrong time** ||||
 | P4 | Geometry phase 4: retire `applyPlantBeforeReveal`, the aftermath classifier, `enforceSuspectEliminationPresence` | free | ☐ | [§12.4](#124-p4--m5--retiring-the-band-aids) |
@@ -62,7 +62,7 @@ Everything outstanding, in one place. `☐` not started · `◑` partial · `✅
 | CS1 | Promote `@cml/clue-spec` out of shadow | ~£3 | ☐ | [§12.5](#125-the-smaller-carried-over-items) |
 | CS2 | Add a clincher slot type to `clue-spec` — **shipped**, plus geometry preferring a declared clincher over scoring. Inert until CS1 promotes clue-spec | free | ✅ | [§12.5](#125-the-smaller-carried-over-items) · [§23](#23-cs2--the-clincher-stops-being-whatever-scored-highest) |
 | ENV | Delete the duplicated `.env` keys `flags:check` has reported for three sessions — **and six loaders X7 had missed** | 2 min | ✅ | [§12.5](#125-the-smaller-carried-over-items) · [§20.4](#204-env--and-the-six-loaders-x7-did-not-reach) |
-| R10 | Ratify the 12 ADRs | ~1 h | 👤 | [§11.1](#111-the-assessment) |
+| R10 | Ratify the 12 ADRs — **brief prepared**: 11 ratifiable as written, ADR-0012 must stay `Proposed` (its probe has never run). Owner signs | ~1 h → ~15 min | ◑ 👤 | [§11.1](#111-the-assessment) · [§25](#25-r10--the-ratification-brief) |
 | **G. Recommended against** ||||
 | M2 | Write the reveal first | days | ⛔ | N8 tests the same hypothesis for £3 |
 | R4 | Structured outputs on Agent 7 | ~£3 | ⛔ | Coercion `firings=0` — it fixes a problem that is not occurring |
@@ -1435,3 +1435,186 @@ Now `npm run test --workspaces --if-present`: **2,684 tests across 17 workspaces
 propagates — verified against a throwaway workspace pair, one passing and one failing, which exits 1.
 The hand-maintained list is gone rather than kept as a second body; a new package with a `test` script
 is now in the suite by existing.
+
+---
+
+## 25. R10 — the ratification brief
+
+**Prepared 2026-08-06.** R10 has sat at 👤 since REVIEW_05 opened, costed at *~1 h*, which is what it
+takes to **read** twelve records. Ratifying them is a different act, and it needs one thing an agent
+can produce and cannot perform: for each decision, whether anything measured since it was written
+disturbs it. That is below. **The signature is still yours** — [§11.1](#111-the-assessment) is right
+that an agent can reconstruct what was decided and cannot ratify it.
+
+Read the *Disturbed by* column. Where it says **no**, ratification is a formality. Three say
+something else, and those three are the meeting.
+
+| ADR | The decision, in a line | Disturbed by this session's evidence? |
+|---|---|---|
+| **0001** CML is the single source of truth | Structure is frozen before prose; every check asks "does the prose render the CML?" | **Pressure, not contradiction** — see 25.1 |
+| **0002** Sequential chaining, not an autonomous agent | The stage list is a property of the genre; we can still write it down in advance | no |
+| **0003** Never abort; deterministic floor underneath | Ship with an injected sentence rather than ship nothing, *and log the firing as a floor* | **Its second clause only became true this session** — see 25.2 |
+| **0004** Flag-gated, default-OFF, promoted on N≥4 | Runtime-read, never a module const; matched pairs; N≥4 per arm | **X9 is a fresh violation of its own load-bearing detail** — see 25.3 |
+| **0005** Freeze the Story Bible | Derive once; every consumer dereferences, nobody re-derives | no |
+| **0006** `run_outcome` from the release gate | The gate's verdict is the outcome; phase scores inform it | no — and §2 pointed at its stated reversal condition without meeting it (25.4) |
+| **0007** Repair ladder: retry → regen → injection | Quality order, stop at first success, the deterministic rung always exists | no — §2 is a defect *in* a rung, not in the ordering |
+| **0008** Azure primary, Anthropic for polish | Two orthogonal axes: `AGENT9_MODEL_POLISH` and `AGENT9_POLISH_PROVIDER` | no — its A/B is still owed, and the ADR says so |
+| **0009** File-backed store, no database | JSON on disk; forensics is the dominant read pattern | no — N5 leaned on `data/store.json` as its *strongest* evidence class ([§16](#16-n5--done-and-the-two-runs-that-were-replaying-the-wrong-story)) |
+| **0010** The report is the durable record | Anything needed to explain a run reaches the report; the terminal is a convenience | no — reinforced four times over ([§22.3](#223-records-never-refuses--and-counts-what-it-does-not-object-to), [§20.4](#204-env--and-the-six-loaders-x7-did-not-reach)) |
+| **0011** Measurement before promotion — *including deletions* | A deletion needs the same evidence as an activation | no — it is what holds P4 and M5 shut |
+| **0012** Own the HTTP call to the provider | Hand-rolled POST behind `LLM_HTTP_TRANSPORT`, default-OFF | **Cannot be ratified to Accepted** — see 25.5 |
+
+### 25.1 ADR-0001 is where this review applies pressure
+
+Its second reversal condition is *"if the rendering gap proved unclosable — if prose generated from a
+frozen structure has a quality ceiling free generation does not."* Every headline defect in this
+document is a **rendering-gap** defect: the CML named its culprit and the prose did not
+([§2](#2-issue-a--the-storys-only-disclosure-is-machine-written)); the contract named a false accusation
+and the prose never made it ([§12.1](#121-x1--the-false-solution-chapter-does-not-accuse-anyone)).
+The structure was sound in both cases and the rendering lost it.
+
+That is **not** the reversal condition being met — the ADR requires a demonstrated *ceiling*, and what
+we have is a gap nobody has yet tried to close with the two mechanisms already designed for it (N7,
+N8). But it is the first time the condition has had live evidence pointed at it, and the honest
+ratification is *"accepted, and N8 is the test of its second clause"* rather than *"accepted, nothing
+to see."*
+
+### 25.2 ADR-0003 described the system only as of this session
+
+The decision reads: *"when it does [fire] it is **logged as a floor firing** rather than as a
+success."* Until [N1](#14-n1--done-and-what-it-revealed-about-the-ordering) and
+[X4](#22-x4--the-injectors-now-report-themselves) landed, that sentence was **aspirational**. The
+08-04 run recorded the injected disclosure as an obligation *met*, which is precisely what the ADR
+says does not happen.
+
+Ratify it — the decision was always right, and it is now also true. But note that an ADR asserting a
+property the code did not have is the X6/X7 shape ([§20](#20-x6-and-x7--two-fixes-that-lived-only-in-the-working-tree))
+in a different folder: **a document being authoritative about a repair the repository did not
+contain.** The lesson generalises past this record — a *Consequences* clause is a claim, and claims in
+this project are supposed to carry their measurement.
+
+### 25.3 ADR-0004's fine print was violated in the module holding N6's lever
+
+The ADR names *"runtime-read, never a module const"* as load-bearing and adds *"this has actually
+happened."* [X9](#241-x9--the-lever-was-frozen-shut) is it happening again, after the record was
+written, in `agent7-run.ts` — the one module holding the lever of the next £6 probe.
+
+This **strengthens** the ADR rather than weakening it: the rule was right, the codebase had an
+exception, and the exception was caught by a pre-spend audit that the ADR's own N≥4 discipline
+motivated. The note worth attaching at ratification is that the rule needs an **enforcement** and not
+just a statement — a lint or a register check that fails on `const X = process.env.Y` at module
+scope. A rule that has now been broken *after* being written down, in the module that mattered most,
+is not being held by the writing down.
+
+### 25.4 ADR-0006's reversal condition was pointed at, and held
+
+Its first reversal: *"if the release gate were shown to pass stories that a reader would reject
+outright, the gate would need strengthening — but the fix would be a stronger gate, not a switch to
+phase thresholds."*
+
+[§2](#2-issue-a--the-storys-only-disclosure-is-machine-written) is exactly that case: the gate passed
+a story whose only disclosure was machine-written. And the response taken was the one the ADR
+prescribes — N1 strengthened the gate's inputs (`met_by_injection`), and nobody proposed switching to
+phase thresholds. **The record predicted our own behaviour under a case it had not seen.** That is the
+strongest ratification evidence in the set.
+
+### 25.5 ADR-0012 must not be ratified to Accepted
+
+It is the only record still marked **Proposed**, and it has to stay there. Its own decision text says
+the SDK path *"remains and stays the default until the transport has a probed run behind it
+([0004](decisions/0004-flag-gated-default-off.md))"*, and its reversal condition names the probe
+precisely: *one run per arm on a fixed premise, artifacts equivalent, no new error classes.*
+
+**MEASURED 2026-08-06:** `LLM_HTTP_TRANSPORT` is commented out in `.env.local` and unset. The probe
+has never run. Promoting the record to Accepted would be promoting an unprobed lever **by
+documentation** — the exact act ADR-0004 and ADR-0011 forbid, performed on the ADR that cites them.
+
+**Ratify it as `Proposed`, with the probe recorded as owed.** That is not a deferral; it is the
+correct terminal state for a decision whose evidence has not been collected. The cheap route to
+Accepted is a ride-along rather than a probe of its own — the transport arm is settled by *artifact
+equivalence*, not by prose quality, so it can share a premise with a future run instead of buying one.
+It cannot share a *run*: a transport change and a behaviour lever in one run is the batching
+[§10.8](#108-sequencing-constraints) forbids.
+
+### 25.6 What this brief deliberately does not do
+
+Change any `Status:` line. Eleven ratifications and one Proposed-with-probe-owed are the *recommended*
+outcome of a meeting that has not happened. An agent editing twelve records to read "Accepted" on its
+own recommendation would be manufacturing the ratification rather than preparing it — and R10 exists
+because settled questions get re-litigated by people who cannot tell a decision from a rationalisation.
+
+---
+
+## 26. The free board, closed out
+
+**2026-08-06.** Everything on the tracker costing £0 and not blocked on a run is now done. This
+section is the durable record for the two parts that live in git-ignored files
+([ADR-0010](decisions/0010-report-is-the-durable-record.md); the same argument as
+[§20.4](#204-env--and-the-six-loaders-x7-did-not-reach)).
+
+### 26.1 The verification sweep at HEAD
+
+Free, offline, and the continuation of [§24](#24-the-pre-spend-audit--n6s-lever-could-not-be-set). All
+five green on `07ab0f23`, working tree clean:
+
+| Check | Result |
+|---|---|
+| `npm test` | **2,684 tests across 17 workspaces, exit 0**, zero failures — the number [§24.4](#244-x10--npm-test-ran-8-of-17-workspaces) promised, now confirmed on a clean tree rather than at the moment of the fix |
+| `npm run flags:check` | `code reads 90 · config sets 33 · register documents 93` — **clean**, and still clean after the config change below |
+| `npm run probe:geometry-backtest` | **PASS** — all three named defects flagged, and signal separation holds (3 violations unique to the 68-scoring story, 2 unique to the 80) |
+| `npm run probe:validators` | 13 runs; a new error would reach Agent 4 on **2 (15%)** — a minority, so §11.1's demotion trigger is not met and the timeline invariant stays an error |
+| `npm run build:all` | 16 packages, 56 s, exit 0 |
+
+The build is not housekeeping. [§24.3](#243-two-conditions-on-n6-that-are-now-cheap-to-state) makes it
+a **precondition of N6**: the worker consumes `@cml/*` through `dist`, Node caches modules at process
+start, and a run launched before this build would have measured none of §20–§24. Verified in the
+**built output** rather than the source, because grepping the module you just edited proves nothing
+about what the run loads:
+
+```
+apps/worker/dist/jobs/agents/agent7-run.js:47    export const isAgent7SchedulerAuthoritative = () => ...   <- X9, a getter
+apps/worker/dist/index.js:9                      config({ path: ... ".env.local", override: true })        <- X7
+apps/worker/dist/jobs/agents/agent5-run.js:3136  if (redHerringFloor.enabled)                              <- X6
+```
+
+**This build goes stale the moment anything is committed.** It is a precondition, not a completed
+item: rebuild again immediately before launching N6.
+
+### 26.2 The two config lines, and why one of them is deliberately not set
+
+`.env.local` is git-ignored, so this table is the only durable record that these exist.
+
+| Key | State | Why |
+|---|---|---|
+| `AGENT9_FULLSTORY_DIAGNOSTIC` | **`shadow` — set** | M3's ride-along ([§11.3](#113-ride-alongs--things-that-need-runs-but-not-runs-of-their-own)). Read-only: one extra call per run, no prose change, so it does not spend N6's one-lever budget. Set now rather than at launch because *"the line nobody remembered to add"* is the X9 failure class one layer up |
+| `AGENT7_SCHEDULER_AUTHORITATIVE` | **present, commented, unset** | N6's lever, and it **alternates by arm**. A fixed value here would run four treatment arms and no control — the mirror of the failure X9 prevented, reached from the opposite direction. The block records both arm values instead |
+
+Verified the way [X9](#241-x9--the-lever-was-frozen-shut) says to verify — through a loader, after
+dotenv, at the resolver rather than at `process.env`:
+
+```
+resolveFullStoryDiagnosticMode()   ->  shadow
+AZURE_OPENAI_DEPLOYMENT_NAME       ->  gpt-4.1-mini      (X7's effect, still resolving correctly)
+AGENT7_SCHEDULER_AUTHORITATIVE     ->  unset             (as intended)
+```
+
+`flags:check` moved from 32 configured keys to 33 and stayed clean, so the new key is registered
+rather than invisible — which is the whole point of the register.
+
+### 26.3 What is left, and what it costs
+
+Nothing free and unblocked remains. The board is now exactly two moves wide:
+
+- **M1b — ~£1, offline, no pipeline run.** Re-score the archived stories with the deterministic
+  `noResolution` verdict wired ([facts.ts](../packages/rubric-score/src/facts.ts):
+  `deterministic.noResolution ?? fromJudge.noResolution`, detector-wins as
+  [§13.3](#133-the-fix-and-what-it-deliberately-does-not-do) specified) and re-run `eval:calibrate`.
+  It tests [§13.1](#131-three-findings-that-killed-the-planned-fix)'s 43% → 60/86% hypothesis, and
+  **R6 and M6 are both meaningless until it lands.** Cheapest information on the board by a wide
+  margin.
+- **N6 — ~£6, four runs.** Now fully instrumented: S7's counters emit at zero, M3 is set, R5 needs
+  nothing enabled, X8 reads the model name off the prompt log, X4's injector telemetry writes even
+  when every count is zero — and the lever can finally be moved at all. Its four ride-alongs cost
+  nothing extra, and P4, M5, D2, X8 and S7 all unblock on its output.
+
+Everything else on the tracker is downstream of one of those two.
