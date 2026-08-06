@@ -489,7 +489,15 @@ const paragraphIndexOfFragment = (paragraphs: ReadonlyArray<string>, fragment: s
  * Each transform keeps every fact value in the sentence (names, times, support clauses) and removes
  * only the detector-signature phrasing.
  */
-const SCAFFOLD_EXHAUSTION_FLOORS: ReadonlyArray<{ rule: string; re: RegExp; replacement: string }> = [
+/**
+ * EXPORTED for X13's totality test, not for use.
+ *
+ * Every entry here REWRITES a sentence an injector wrote, which means every `replacement` is a shape
+ * `INJECTED_SENTENCE_PATTERNS` must recognise — the laundered form is what SHIPS, and a registry that
+ * knows only the injector's phrasing matched nothing on the run that motivated REVIEW_05 §10.1. The
+ * test asserts that correspondence so a third floor cannot be added without it.
+ */
+export const SCAFFOLD_EXHAUSTION_FLOORS: ReadonlyArray<{ rule: string; re: RegExp; replacement: string }> = [
   // A3 — "accounted for X's movements elsewhere" → "placed X elsewhere". Matches the template's own
   // possessive shape (deterministic-repair.ts clearance patch); paraphrases stay unresolved rather
   // than risk a botched capture.

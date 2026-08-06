@@ -466,8 +466,13 @@ export const checkManuscriptGeometry = (
 
       if (geometry.methodSignature && geometry.methodSignature.keyTerms.length > 0) {
         const lower = text.toLowerCase();
+        // X15 — `needle(t)`, not `t`. This was the ONE comparison in the file that held a case-model
+        // value up against the page without crossing the folding boundary, in the file whose header
+        // says every such value does. Unreachable while method key terms are the hardcoded ASCII list
+        // in `derive.ts`, and that is exactly why it survived: §6's defect 5 was a fix applied to one
+        // side of a comparison, and a boundary with one exception is a boundary that will grow more.
         const methodStated =
-          geometry.methodSignature.keyTerms.some((t) => lower.includes(t)) ||
+          geometry.methodSignature.keyTerms.some((t) => lower.includes(needle(t).toLowerCase())) ||
           lower.includes(needle(geometry.methodSignature.method).toLowerCase());
         record({ field: "chapter_contract", code: "reveal_method_absent", chapter: contract.chapter, verdict: methodStated ? "met" : "unmet" }, {
           scope: "chapter",

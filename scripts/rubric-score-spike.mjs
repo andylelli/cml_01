@@ -74,7 +74,15 @@ async function main() {
   loadEnv();
   const endpoint = process.env.AZURE_OPENAI_ENDPOINT || "";
   const apiKey = process.env.AZURE_OPENAI_API_KEY || "";
-  const deployment = process.env.AZURE_OPENAI_DEPLOYMENT_NAME || "gpt-4o-mini";
+  // X14 — M1b re-scores through this script. A silent fallback would re-baseline the judge on a
+  // different model than the runs it is scoring, which is the one thing a calibration must not do.
+  const deployment = process.env.AZURE_OPENAI_DEPLOYMENT_NAME || "";
+  if (!deployment) {
+    throw new Error(
+      "AZURE_OPENAI_DEPLOYMENT_NAME is not set. It is deliberately not defaulted (REVIEW_05 X14): " +
+        "scoring on a different model than the runs being scored silently invalidates the comparison.",
+    );
+  }
   const apiVersion = process.env.AZURE_OPENAI_API_VERSION || "2024-10-21";
   if (!endpoint || !apiKey) {
     console.log("No Azure creds in .env — cannot run the live rubric judge.");

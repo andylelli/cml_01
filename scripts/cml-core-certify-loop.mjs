@@ -32,7 +32,8 @@ const startingCase = (CASES[CASE_KEY] || clockSetFastBroken);
 
 const ENDPOINT = process.env.AZURE_OPENAI_ENDPOINT || "";
 const API_KEY = process.env.AZURE_OPENAI_API_KEY || "";
-const DEPLOYMENT = process.env.AZURE_OPENAI_DEPLOYMENT_NAME || "gpt-4o-mini";
+// X14 — not defaulted; a certification run must state which model certified.
+const DEPLOYMENT = process.env.AZURE_OPENAI_DEPLOYMENT_NAME || "";
 const API_VERSION = process.env.AZURE_OPENAI_API_VERSION || "2024-10-21";
 const MAX_TURNS = Number(process.env.CML_LOOP_MAX_TURNS || 6);
 

@@ -107,15 +107,22 @@ async function main() {
   const apiKey = process.env.AZURE_OPENAI_API_KEY ?? "";
   const forceFreshUpstream = parseBooleanEnv(process.env.CANARY_FORCE_FRESH_UPSTREAM, false);
 
-  if (!endpoint || !apiKey) {
+  // X14 — the deployment name is a credential. See canary-core.mjs for why a default is not safe
+  // here: §20.4's whole finding was a probe measuring a model the product does not use, silently.
+  const deployment = process.env.AZURE_OPENAI_DEPLOYMENT_NAME ?? "";
+
+  if (!endpoint || !apiKey || !deployment) {
     console.log("CANARY_SKIPPED_MISSING_AZURE_ENV");
+    if (endpoint && apiKey) {
+      console.log("  reason: AZURE_OPENAI_DEPLOYMENT_NAME is unset — set it in .env.local, it is not defaulted.");
+    }
     process.exit(2);
   }
 
   const client = new AzureOpenAIClient({
     endpoint,
     apiKey,
-    defaultModel: process.env.AZURE_OPENAI_DEPLOYMENT_NAME ?? "gpt-4o-mini",
+    defaultModel: deployment,
     apiVersion: process.env.AZURE_OPENAI_API_VERSION ?? "2024-10-21",
     requestsPerMinute: Number(process.env.LLM_RATE_LIMIT_PER_MINUTE ?? 60),
     // X3 — one body, in @cml/worker. Three copies of this literal had already drifted twice.

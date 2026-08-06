@@ -121,7 +121,9 @@ async function main() {
   loadEnv();
   const endpoint = process.env.AZURE_OPENAI_ENDPOINT || "";
   const apiKey = process.env.AZURE_OPENAI_API_KEY || "";
-  const deployment = process.env.AZURE_OPENAI_DEPLOYMENT_NAME || "gpt-4o-mini";
+  // X14 — no silent model substitution on a variance measurement.
+  const deployment = process.env.AZURE_OPENAI_DEPLOYMENT_NAME || "";
+  if (!deployment) throw new Error("AZURE_OPENAI_DEPLOYMENT_NAME is not set (REVIEW_05 X14; not defaulted).");
   const apiVersion = process.env.AZURE_OPENAI_API_VERSION || "2024-10-21";
   if (!endpoint || !apiKey) {
     console.log("No Azure creds in .env — Spike A skipped. (Spike B above still stands.)\n");

@@ -82,6 +82,36 @@ export function buildLlmLogger(workspaceRoot: string): LLMLogger {
   });
 }
 
+/**
+ * X14 (REVIEW_05 §27.3) — THE DEPLOYMENT NAME IS A CREDENTIAL, and there is one body for saying so.
+ *
+ * `?? "gpt-4o-mini"` appeared at ELEVEN call sites. §20.4 found the harnesses resolving `gpt-4o-mini`
+ * while the pipeline resolved `gpt-4.1-mini` — *"a £6 four-run probe would have measured a model the
+ * product does not use, and nothing in the report would have said so"* — fixed the loader precedence,
+ * and then deleted the key from `.env`, leaving it in a git-ignored file only. Every silent default
+ * was one missing key away from restoring the defect, undetectably, and §12.5 records that two
+ * sources for this one key is *"how the `gpt-4o-mini` shadowing survived for months"*.
+ *
+ * Eleven copies of a default is the two-bodies trap at scale, so the fix is one function rather than
+ * eleven edits: the correspondence between them was never going to be maintained by hand.
+ *
+ * Callers that must not start without it use `require`; callers that legitimately degrade (the API's
+ * optional client, the worker's `null` path) use `resolve` and handle the empty string themselves.
+ */
+export const resolveAzureDeployment = (): string => process.env.AZURE_OPENAI_DEPLOYMENT_NAME ?? "";
+
+export function requireAzureDeployment(): string {
+  const deployment = resolveAzureDeployment();
+  if (!deployment) {
+    throw new Error(
+      "AZURE_OPENAI_DEPLOYMENT_NAME is not set. It is deliberately NOT defaulted: a run that silently " +
+        "uses a different model than the one being measured is worse than a run that does not start " +
+        "(REVIEW_05 §20.4 / X14). Set it in .env.local at the workspace root.",
+    );
+  }
+  return deployment;
+}
+
 /** Mirrors `apps/api`'s client construction, including the logger. Credentials are never printed. */
 export function buildClient(workspaceRoot: string): AzureOpenAIClient {
   const endpoint = process.env.AZURE_OPENAI_ENDPOINT ?? "";
@@ -91,10 +121,14 @@ export function buildClient(workspaceRoot: string): AzureOpenAIClient {
       "Missing Azure credentials. Set AZURE_OPENAI_ENDPOINT and AZURE_OPENAI_API_KEY (or put them in .env.local at the workspace root).",
     );
   }
+  // This is the client `resume-run` builds, which is R5's kill-and-resume drill: a resume that
+  // silently continued a `gpt-4.1-mini` run on `gpt-4o-mini` would mix two models inside one probe
+  // run, and nothing would say so.
+  const deployment = requireAzureDeployment();
   return new AzureOpenAIClient({
     endpoint,
     apiKey,
-    defaultModel: process.env.AZURE_OPENAI_DEPLOYMENT_NAME ?? "gpt-4o-mini",
+    defaultModel: deployment,
     apiVersion: process.env.AZURE_OPENAI_API_VERSION ?? "2024-10-21",
     requestsPerMinute: Number(process.env.LLM_RATE_LIMIT_PER_MINUTE ?? 60),
     logger: buildLlmLogger(workspaceRoot),

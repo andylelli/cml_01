@@ -8,7 +8,11 @@ import { validateCml } from "@cml/cml";
 import { AzureOpenAIClient } from "@cml/llm-client";
 import { deriveStoryTitle, generateCharacterProfiles } from "@cml/prompts-llm";
 import { FileReportRepository, type AggregateStats } from "@cml/story-validation";
-import { buildLlmLogger as buildWorkerLlmLogger } from "@cml/worker/jobs/cli-runtime.js";
+import {
+  buildLlmLogger as buildWorkerLlmLogger,
+  requireAzureDeployment,
+  resolveAzureDeployment,
+} from "@cml/worker/jobs/cli-runtime.js";
 import { generateMystery } from "@cml/worker/jobs/mystery-orchestrator.js";
 import { saveReadableStory } from "@cml/worker/jobs/save-readable-story.js";
 import type { MysteryGenerationInputs } from "@cml/worker/jobs/mystery-orchestrator.js";
@@ -357,13 +361,15 @@ const buildLlmClient = () => {
   const config = {
     endpoint: process.env.AZURE_OPENAI_ENDPOINT || "",
     apiKey: process.env.AZURE_OPENAI_API_KEY || "",
-    defaultModel: process.env.AZURE_OPENAI_DEPLOYMENT_NAME || "gpt-4o-mini",
+    // X14 — no `|| "gpt-4o-mini"`. A missing deployment name makes this client absent, exactly as a
+    // missing key does; it must never silently become a different model (REVIEW_05 §20.4).
+    defaultModel: resolveAzureDeployment(),
     apiVersion: process.env.AZURE_OPENAI_API_VERSION || "2024-10-21",
     requestsPerMinute: Number(process.env.LLM_RATE_LIMIT_PER_MINUTE || 60),
     logger: buildLlmLogger(),
   };
 
-  if (!config.endpoint || !config.apiKey) {
+  if (!config.endpoint || !config.apiKey || !config.defaultModel) {
     return null;
   }
 
@@ -648,7 +654,10 @@ const runPipeline = async (
     const config = {
       endpoint: process.env.AZURE_OPENAI_ENDPOINT || "",
       apiKey: process.env.AZURE_OPENAI_API_KEY || "",
-      defaultModel: process.env.AZURE_OPENAI_DEPLOYMENT_NAME || "gpt-4o-mini",
+      // X14 — the pipeline's own client. `|| "gpt-4o-mini"` here is how a whole product silently
+      // runs the wrong model; §12.5 records that this key having two sources is "how the gpt-4o-mini
+      // shadowing survived for months". `requireAzureDeployment` throws with the reason.
+      defaultModel: requireAzureDeployment(),
       apiVersion: process.env.AZURE_OPENAI_API_VERSION || "2024-10-21",
       requestsPerMinute: Number(process.env.LLM_RATE_LIMIT_PER_MINUTE || 60),
       logger: buildLlmLogger(),

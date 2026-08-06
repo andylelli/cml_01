@@ -10,6 +10,7 @@
     "build:all": "node scripts/build-all.mjs",
     "dev": "npm run build:all && npm run -w @cml/api dev",
     "lint": "echo \"lint: TODO\"",
+    "pretest": "node scripts/build-all.mjs",
     "test": "npm run test --workspaces --if-present",
     "test:canary-loop": "node --test scripts/canary-loop/__tests__/*.test.mjs",
     "test:exp-regen-clue": "node --test scripts/exp-regen-clue/__tests__/analyze-lib.test.mjs",

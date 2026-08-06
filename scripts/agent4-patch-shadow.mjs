@@ -115,11 +115,11 @@ async function main() {
     const client = new AzureOpenAIClient({
       endpoint: ENDPOINT,
       apiKey: API_KEY,
-      defaultModel: process.env.AZURE_OPENAI_DEPLOYMENT_NAME || "gpt-4o-mini",
+      defaultModel: process.env.AZURE_OPENAI_DEPLOYMENT_NAME || "", // X14 — not defaulted
       apiVersion: process.env.AZURE_OPENAI_API_VERSION || "2024-10-21",
     });
     propose = makeLlmPatchProposer(client, { runId: "agent4-patch-shadow" });
-    proposerName = `live LLM (${process.env.AZURE_OPENAI_DEPLOYMENT_NAME || "gpt-4o-mini"})`;
+    proposerName = `live LLM (${process.env.AZURE_OPENAI_DEPLOYMENT_NAME || "UNSET"})`;
   }
 
   line(`\nRunning patchCmlNode (proposer: ${proposerName})…\n`);

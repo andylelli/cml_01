@@ -14,15 +14,34 @@ config({ path: path.join(root, ".env.local"), override: true });
 const endpoint = process.env.AZURE_OPENAI_ENDPOINT ?? "";
 const apiKey = process.env.AZURE_OPENAI_API_KEY ?? "";
 
-if (!endpoint || !apiKey) {
+/**
+ * X14 (REVIEW_05 §27.3) — THE DEPLOYMENT NAME IS A CREDENTIAL, not a preference.
+ *
+ * This read `?? "gpt-4o-mini"`. §20.4 found that the harnesses were resolving `gpt-4o-mini` while the
+ * pipeline resolved `gpt-4.1-mini` — *"a £6 four-run probe would have measured a model the product
+ * does not use, and nothing in the report would have said so"* — and fixed the `.env.local` override
+ * that caused it. It then DELETED the key from `.env`, so the value now lives only in a git-ignored
+ * file. A silent default put the whole of §20.4 one missing key away from returning, on a paid probe,
+ * undetectably.
+ *
+ * Skipping is the same answer this script already gives for a missing endpoint or key, and for the
+ * same reason: a run that cannot be attributed to a model is not cheaper than no run.
+ */
+const deployment = process.env.AZURE_OPENAI_DEPLOYMENT_NAME ?? "";
+
+if (!endpoint || !apiKey || !deployment) {
   console.log("CANARY_SKIPPED_MISSING_AZURE_ENV");
+  if (endpoint && apiKey) {
+    console.log("  reason: AZURE_OPENAI_DEPLOYMENT_NAME is unset. Set it in .env.local — it is not");
+    console.log("  defaulted, because a probe that silently measures the wrong model is worse than none.");
+  }
   process.exit(2);
 }
 
 const client = new AzureOpenAIClient({
   endpoint,
   apiKey,
-  defaultModel: process.env.AZURE_OPENAI_DEPLOYMENT_NAME ?? "gpt-4o-mini",
+  defaultModel: deployment,
   apiVersion: process.env.AZURE_OPENAI_API_VERSION ?? "2024-10-21",
   requestsPerMinute: Number(process.env.LLM_RATE_LIMIT_PER_MINUTE ?? 60),
   logger: buildLlmLogger(root),

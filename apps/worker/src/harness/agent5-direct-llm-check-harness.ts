@@ -429,7 +429,8 @@ async function main(): Promise<void> {
   const client = new AzureOpenAIClient({
     endpoint,
     apiKey,
-    defaultModel: process.env.AZURE_OPENAI_DEPLOYMENT_NAME || "gpt-4o-mini",
+    // X14 — not defaulted; a direct-LLM check that names the wrong model proves nothing.
+    defaultModel: process.env.AZURE_OPENAI_DEPLOYMENT_NAME || "",
     apiVersion: process.env.AZURE_OPENAI_API_VERSION || "2024-10-21",
     requestsPerMinute: Number(process.env.LLM_RATE_LIMIT_PER_MINUTE || 60),
     logger,

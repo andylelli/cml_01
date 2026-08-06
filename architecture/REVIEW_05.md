@@ -46,10 +46,10 @@ Everything outstanding, in one place. `☐` not started · `◑` partial · `✅
 | X9 | **N6's lever could not be set.** Agent 7's four flags were module-consts, frozen before dotenv — `AGENT7_SCHEDULER_AUTHORITATIVE` from `.env.local` read `false`. Now runtime getters | free | ✅ | [§24](#24-the-pre-spend-audit--n6s-lever-could-not-be-set) |
 | X11 | **M1's deterministic `noResolution` read the BOUND CHAPTER, not the manuscript** — inverting §14.4 on every run whose disclosure lands outside the contract. Now a story-level `manuscriptDisclosure` verdict | free | ✅ | [§27.1](#271-x11--m1-was-reading-the-wrong-question) |
 | X12 | **`geometry-backtest.mjs` could not exercise N1 or N2** — no `injectionTemplates`, no `lockedFacts` — and its summary line read a field N1 deleted, so it printed `0/11 satisfied` on every run | free | ✅ | [§27.2](#272-x12--the-corpus-probe-was-blind-to-the-two-fixes-it-was-meant-to-check) |
-| X13 | The injection registry is a hand-list with no totality test against `SCAFFOLD_EXHAUSTION_FLOORS` — §10.1 records the test as shipped | free | ☐ | [§27.3](#273-x13-x14-x15--found-not-yet-fixed) |
-| X14 | Three `?? "gpt-4o-mini"` fallbacks survive in the scripts that will run N6 and R5 | free | ☐ | [§27.3](#273-x13-x14-x15--found-not-yet-fixed) |
-| X15 | One `accept.ts` call site bypasses N3's folding boundary (unreachable today) | free | ☐ | [§27.3](#273-x13-x14-x15--found-not-yet-fixed) |
-| X16 | **`npm test` cannot catch a type error** — vitest compiles from `src`, so a green suite coexists with a `build:all` that fails. X10's neighbour | free | ☐ | [§27.5](#275-x16--the-suite-that-cannot-catch-a-type-error) |
+| X13 | The injection registry had no totality test against `SCAFFOLD_EXHAUSTION_FLOORS` — §10.1 recorded one as shipped. Built, and verified to go red on an unregistered floor | free | ✅ | [§27.3](#273-x13-x14-x15--found-and-fixed) |
+| X14 | **Eleven** `gpt-4o-mini` fallbacks, not the three first reported — including both production entry points. One resolver, no silent default | free | ✅ | [§27.3](#273-x13-x14-x15--found-and-fixed) |
+| X15 | One `accept.ts` call site bypassed N3's folding boundary (unreachable today) | free | ✅ | [§27.3](#273-x13-x14-x15--found-and-fixed) |
+| X16 | **`npm test` could not catch a type error** — vitest compiles from `src`. Now gated by `pretest`, verified to fail the suite on a planted error. X10's neighbour | free | ✅ | [§27.5](#275-x16--the-suite-that-could-not-catch-a-type-error) |
 | X8 | **The run that reads X6/X7's effect.** Every non-prose agent now runs on `gpt-4.1-mini` (was `gpt-4o-mini`) and the floor's repair has never fired. Ride-along on N6 | free | ☐ | [§20.3](#203-what-neither-fix-has-had) |
 | **D. Paid probes, in dependency order** ||||
 | N6 | Promote `beat-scheduler`, ≥4 runs — the §8bis discriminating test | ~£6 | ☐ | [§11.4](#114-the-merged-order) |
@@ -1618,6 +1618,11 @@ rather than invisible — which is the whole point of the register.
 
 ### 26.3 What is left, and what it costs
 
+> ⚠️ **SUPERSEDED 2026-08-06 by [§27](#27-reviewing-this-documents-own-work--six-defects-all-fixed).**
+> "Nothing free and unblocked remains" was true of the *board* and false of the *code*: reviewing this
+> session's own commits found six defects, all free, and all six are now fixed. The two moves below
+> are still the two moves — but M1b must not run before X11, which repaired what its verdict reads.
+
 Nothing free and unblocked remains. The board is now exactly two moves wide:
 
 - **M1b — ~£1, offline, no pipeline run.** Re-score the archived stories with the deterministic
@@ -1636,11 +1641,15 @@ Everything else on the tracker is downstream of one of those two.
 
 ---
 
-## 27. Reviewing this document's own work — five defects, two fixed
+## 27. Reviewing this document's own work — six defects, all fixed
 
 **2026-08-06.** The sixteen code commits behind §13–§24 were read against the current source, with the
-empirical claims re-run rather than taken on trust. Five defects. Two are fixed here because they sit
-directly under M1b — the next action on the board — and both were free.
+empirical claims re-run rather than taken on trust. Five defects, then a sixth found by making it.
+**All six are fixed**, and all six were free.
+
+Two of them (X11, X12) were done first because they sit directly under M1b, the next action on the
+board. The rest followed, and two turned out to be larger than the findings that named them: X14 was
+eleven call sites rather than three, and X16 was found only because the X11 fix tripped over it.
 
 The shape is worth naming before the details: **four of the five are instruments, not the pipeline.**
 §6 said *"a detector that has never been run against real prose is not a detector, it is a
@@ -1719,35 +1728,77 @@ What the corrected probe reports, immediately:
 - The accounted set and the manuscript-disclosure verdict are now **printed**. An empty accounted set
   is how this defect stayed invisible for two days, and it is one line to show.
 
-### 27.3 X13, X14, X15 — found, not yet fixed
+### 27.3 X13, X14, X15 — found, and fixed
 
-Left open deliberately: none is under M1b, and each is a decision rather than a typo.
+First recorded as "left open — each is a decision rather than a typo". All three are now closed, and
+two of them were larger than the finding that named them.
 
-**X13 — the injection registry has no totality test.** `INJECTED_SENTENCE_PATTERNS` is a hand-typed
-list of six regexes, and nothing asserts that every `SCAFFOLD_EXHAUSTION_FLOORS` replacement appears
-in it. Both current floors (A3, B5) *are* covered, so there is no live defect —
-but [§10.1](#101-n1--record-an-injected-disclosure-as-a-floored-failure-free) records the mitigation as
-shipped: *"asserted by a test that every `SCAFFOLD_EXHAUSTION_FLOORS` entry appears in it."* It was
-not built. A third floor would launder an injected sentence past the detector in silence, and
-`met_by_injection_count` — the one number N1 exists to produce, and the exit metric for M5 and P4 —
-would under-report with nothing saying so. **This is the X6/X7 shape**: a document authoritative about
-a guard the repository does not contain, in the item written to close that class.
+**X13 — the injection registry now has its totality test.** `INJECTED_SENTENCE_PATTERNS` is a
+hand-typed list, and nothing asserted that every `SCAFFOLD_EXHAUSTION_FLOORS` replacement appears in
+it — although [§10.1](#101-n1--record-an-injected-disclosure-as-a-floored-failure-free) recorded the
+test as shipped. Both current floors *were* covered, so nothing was broken; what was missing is the
+thing that keeps them covered. A third floor would have laundered an injected sentence past the
+detector in silence, and `met_by_injection_count` — the exit metric THINK_01 Move 5 and
+[§12.4](#124-p4--m5--retiring-the-band-aids) both depend on — would have under-reported with nothing
+saying so.
 
-**X14 — three `?? "gpt-4o-mini"` fallbacks survive.** `canary-core.mjs:25`,
-`canary-agent-boundary.mjs:118` and `cli-runtime.ts:97` (the last feeding `resume-run`, which is R5's
-drill) all default the deployment to the old model when `AZURE_OPENAI_DEPLOYMENT_NAME` is unset.
-[§20.4](#204-env--and-the-six-loaders-x7-did-not-reach) removed the *shadowing* that made the
-harnesses resolve `gpt-4o-mini` while the pipeline resolved `gpt-4.1-mini` — and then deleted the key
-from `.env`, so it now lives **only** in git-ignored `.env.local`. One missing or renamed key
-reproduces §20.4's defect exactly, on a £6 probe, and the report would not say so. The credentials
-check two lines above the fallback throws; the model should too. *Owner's call because refusing to
-start is a behaviour change to every harness.*
+`SCAFFOLD_EXHAUSTION_FLOORS` is now exported *for the test and not for use*, and
+[`injection-registry-totality.test.ts`](../packages/prompts-llm/src/__tests__/injection-registry-totality.test.ts)
+asserts the correspondence in both directions: every floor's **output** is recognised as machine text,
+and every injector's **own** sentence is too, since a floor only fires when its pattern matches and on
+a run where none does the original phrasing is what ships. Two guards come with it — authored prose
+about responsibility must NOT match (the constraint that keeps §3's widening safe), and no pattern may
+contain a character name.
 
-**X15 — one call site bypasses N3's folding boundary.** `accept.ts`'s `reveal_method_absent` uses the
-raw key term where the three checks around it use `needle(term)`. Unreachable today — method key terms
-are a hardcoded ASCII list — but it is the single site in the file whose header states that *every*
-value crossing from the case model to the page goes through the boundary, and half-applied folding is
-[§6](#6-issue-e--the-instruments-keep-being-wrong-in-one-specific-way)'s defect 5 exactly.
+It asserts the **correspondence**, not the wording: floors may say what they like so long as what they
+produce is recognisable. And it was checked against a hypothetical unregistered floor before being
+believed — `false`, as required. A totality test that cannot go red is the defect it exists to prevent.
+
+> §10.1 also promised the registry would be *"derived from the floor table rather than a hand-list"*.
+> It is not, and should not be: a floor's `replacement` is a `String.replace` template carrying `$1`,
+> so a regex cannot be generated from it without inventing the bounds on what may sit between the
+> fixed words — which is where the false-positive risk lives. The test does the job the derivation was
+> meant to do, and the hand-list stays legible.
+
+**X14 — eleven silent model defaults, not three.**
+
+> ⚠️ **The finding that named this item under-counted by eight.** It reported three
+> `?? "gpt-4o-mini"` fallbacks; a full sweep found **eleven**, including
+> [`apps/api/src/server.ts`](../apps/api/src/server.ts) and
+> [`apps/worker/src/jobs/index.ts`](../apps/worker/src/jobs/index.ts) — **the production pipeline's own
+> clients**, not just the probe harnesses. This is X3's shape precisely (*"§12.3 described one parser.
+> There were four"*) and it is now the second time in this document that a defect was described from
+> the call sites that happened to be in hand rather than from a sweep. Grep for the *class*, not for
+> the *instance*.
+
+[§20.4](#204-env--and-the-six-loaders-x7-did-not-reach) found the harnesses resolving `gpt-4o-mini`
+while the pipeline resolved `gpt-4.1-mini` — *"a £6 four-run probe would have measured a model the
+product does not use, and nothing in the report would have said so"* — fixed the loader precedence,
+then deleted the key from `.env` so it lives only in a git-ignored file.
+[§12.5](#125-the-smaller-carried-over-items) records that two sources for this one key is *"how the
+`gpt-4o-mini` shadowing survived for months"*. Every silent default was one missing key away from
+restoring that, undetectably, and two of them would have restored it **for the product**, not the
+probe.
+
+Eleven copies of a default is the two-bodies trap at scale, so the fix is one function rather than
+eleven edits — the correspondence between them was never going to be maintained by hand.
+`resolveAzureDeployment()` and `requireAzureDeployment()` live in
+[`cli-runtime.ts`](../apps/worker/src/jobs/cli-runtime.ts) beside X3's logger, for the same reason.
+Callers that must not start without it **throw with the reason stated**; callers that legitimately
+degrade (the API's optional client, the worker's `null` path) treat an absent deployment exactly as
+they already treat an absent key. The canary harnesses print `CANARY_SKIPPED_MISSING_AZURE_ENV` and
+say which variable is missing, because a probe that skips loudly is cheaper than one that runs wrong.
+
+`rubric-score-spike.mjs` is called out on its own: **M1b re-scores through it**, and a calibration run
+on a different model than the runs it scores is the one thing a calibration must never do.
+
+**X15 — the one call site that bypassed N3's folding boundary.** `accept.ts`'s `reveal_method_absent`
+held a raw key term against the folded page where the three checks around it use `needle(term)`.
+Unreachable today — method key terms are a hardcoded ASCII list — and fixed anyway, because it is the
+single exception in the file whose header states that *every* value crossing from the case model to
+the page goes through the boundary. Half-applied folding is
+[§6](#6-issue-e--the-instruments-keep-being-wrong-in-one-specific-way)'s defect 5 exactly, and a
+boundary with one exception is a boundary that grows more.
 
 *Also noted, not tracked:* N5's title matcher strips a `Chapter N:` prefix from manuscript titles and
 not from outline titles before comparing them with exact equality. Observed agreement is 8/10 and 7/9,
@@ -1767,7 +1818,7 @@ One suspected defect was **chased and dropped**: hydrating agent code `3` from t
 post-revision CML, but there is only one `cml` artifact write, after Agent 4 runs inside `runAgent3`
 — so that is what the run committed, and `committed.mjs` honours its stated contract.
 
-### 27.5 X16 — the suite that cannot catch a type error
+### 27.5 X16 — the suite that could not catch a type error
 
 Found by making the mistake. The X11 fix changed `manuscriptDisclosure` to be nullable and one new
 test still read `.verdict` off it directly. **`npm test` passed — 2,689 tests, exit 0 — while
@@ -1783,12 +1834,26 @@ This is [X10](#244-x10--npm-test-ran-8-of-17-workspaces)'s neighbour and the sam
 suite's **breadth** — 8 workspaces to 17 — and left its **depth** untouched. The class it cannot fail
 on is not a corner: it is every type error in a TypeScript monorepo.
 
-**Not fixed here**, because the fix is a decision about what `npm test` means. The narrow version is
-one line — add `tsc --noEmit` (or the existing `build:all`) to the root `test` script, so the command
-the maintenance rule points at is the command that would have caught this. The argument against is
-runtime: `build:all` is ~50 s against the suite's ~90 s, which is a real cost on every invocation and
-an easy one to start skipping. Recorded as X16 rather than settled unilaterally.
+**Fixed with one line: `pretest`.** npm runs it automatically before `test` and aborts the suite if
+it fails, so `npm test` now compiles the tree first and vitest never starts on code that does not
+build. It reuses `build:all` rather than adding a second `tsc --noEmit` invocation — a separate
+typecheck command would be a second body of "does this compile", which is the trap this document
+spends most of its length on.
 
-**Until it is settled, `npm run build:all` is not optional before a commit** — and it is already a
-stated precondition of N6 for a different reason ([§24.3](#243-two-conditions-on-n6-that-are-now-cheap-to-state),
-[§26.1](#261-the-verification-sweep-at-head)). Two independent arguments now point at the same habit.
+The cost is real and worth stating rather than hiding: `npm test` goes from ~90 s to ~150 s. That is
+the argument that had this recorded as a decision, and it loses to the alternative on the evidence of
+this very session — the suite was green on a commit whose `tsc` failed, and the commit shipped.
+
+**It emits `dist` as a side effect, and that is a second reason to prefer it.** The worker consumes
+`@cml/*` through `dist` and Node caches modules at process start
+([§16.3](#163-three-smaller-things-it-took-to-get-there)), so a stale `dist` is how a probe measures
+code that is not in the tree. Running the suite now refreshes it. That does **not** retire
+[§24.3](#243-two-conditions-on-n6-that-are-now-cheap-to-state)'s rebuild-before-N6 condition — a build
+still has to happen after the last commit and before the run starts — but it removes one way of
+forgetting.
+
+**Verified against a planted error rather than assumed.** A file with `const x: number = "not a
+number"` was added to `packages/story-geometry/src`, `npm test` exited **1** with `TS2322`, and vitest
+did not run at all. The file was then removed. A gate that has never been seen to fail is
+[§6](#6-issue-e--the-instruments-keep-being-wrong-in-one-specific-way)'s rule with the subject changed:
+a guard that has never met a real failure is a hypothesis.

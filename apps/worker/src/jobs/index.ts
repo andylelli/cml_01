@@ -1,4 +1,5 @@
 import { AzureOpenAIClient, LLMLogger, LogLevel } from "@cml/llm-client";
+import { requireAzureDeployment, resolveAzureDeployment } from "./cli-runtime.js";
 import type { ProgressCallback } from "./mystery-orchestrator.js";
 import { generateMysterySimple } from "./mystery-orchestrator.js";
 
@@ -47,14 +48,15 @@ const buildLlmClient = () => {
   const endpoint = process.env.AZURE_OPENAI_ENDPOINT || "";
   const apiKey = process.env.AZURE_OPENAI_API_KEY || "";
 
-  if (!endpoint || !apiKey) {
+  if (!endpoint || !apiKey || !resolveAzureDeployment()) {
     return null;
   }
 
   return new AzureOpenAIClient({
     endpoint,
     apiKey,
-    defaultModel: process.env.AZURE_OPENAI_DEPLOYMENT_NAME || "gpt-4o-mini",
+    // X14 — absent rather than defaulted, matching the endpoint/key guard three lines above.
+    defaultModel: requireAzureDeployment(),
     apiVersion: process.env.AZURE_OPENAI_API_VERSION || "2024-10-21",
     requestsPerMinute: Number(process.env.LLM_RATE_LIMIT_PER_MINUTE || 60),
     logger: buildLlmLogger(),
