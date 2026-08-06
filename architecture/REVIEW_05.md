@@ -25,8 +25,10 @@ Everything outstanding, in one place. `☐` not started · `◑` partial · `✅
 | ID | Item | Cost | Status | § |
 |---|---|---|---|---|
 | **A. Measurement — gates every quality claim** ||||
-| M1 | ~~Rewrite the judge as the external rubric~~ → **diagnosed:** rubric already matches the external ten; caps are not the distortion; one blind spot (an undisclosed reveal) drags 86% → 50%. Deterministic `noResolution` now wired from geometry | ~1 day | ◑ | [§13](#13-m1--what-the-judge-diagnosis-actually-found) |
-| M1b | Re-score the archived stories with the verdict wired in; re-run `eval:calibrate` — **do not run before X11**, which fixed what the verdict was reading | ~£1 | ☐ | [§13.4](#134-what-this-changes-upstream) · [§27.1](#271-x11--m1-was-reading-the-wrong-question) |
+| M1 | ~~Rewrite the judge as the external rubric~~ → **diagnosed**, then **tested**: the deterministic `noResolution` is wired correctly and moves no score (§28). The blind-spot hypothesis is not supported, and §13.1's numbers rest on internals that no longer reproduce | ~1 day | ✅ | [§13](#13-m1--what-the-judge-diagnosis-actually-found) · [§28](#28-m1b--the-answer-is-no-and-the-corpus-is-the-bigger-finding) |
+| M1b | Re-scored 2026-08-06, $0.0122. **Wiring correct; effect ZERO** — the new cap is redundant with one already firing. Hypothesis not supported, and the ledger's internals do not reproduce (1936: 73 → 64) | ~£1 | ✅ | [§28](#28-m1b--the-answer-is-no-and-the-corpus-is-the-bigger-finding) |
+| M1c | **Is a single rubric score even stable?** Score one story 3× through the same judge; if variance spans marks, every single-scored number in this project has an undrawn error bar | ~£0.04 | ☐ | [§28.4](#284-what-m1b-actually-established-and-what-it-costs-to-finish) |
+| M1d | **The calibration corpus is 2 of 7** — five manifest entries name paths that do not exist, and the manifest was git-ignored, which is likely why. Now tracked (◑); recovering the five manuscripts needs a human | 👤 | ◑ | [§28.4](#284-what-m1b-actually-established-and-what-it-costs-to-finish) |
 | **B. Free instrument fixes — geometry can't be trusted to read a probe until these land** ||||
 | N1 | Record an injected disclosure as `met_by_injection`, not as satisfied | free | ✅ | [§14](#14-n1--done-and-what-it-revealed-about-the-ordering) |
 | N2 | `unaccounted_time` instead of `third_time` (locked-fact times are accounted) | free | ✅ | [§10.2](#102-n2--unaccounted-time-instead-of-third-time-free) |
@@ -817,6 +819,15 @@ Meanwhile geometry's `reveal_culprit_not_named` — which requires the culprit's
 - **§11.1's M1 row was wrong as written.** "Rewrite the internal judge as the external rubric, ~1 day" describes work that would not have helped. The tracker now reads `◑` with the real finding, and M1b carries the remaining test.
 - **It is the first time geometry has paid for itself in another system.** Its value here is not that it improves a story — it is that it supplies a fact the scoring instrument could not compute for itself.
 - **The next step is cheap and falsifiable:** re-score the archived stories with the deterministic verdict wired in and re-run `eval:calibrate`. If agreement moves toward 60/86%, the hypothesis holds and cap severity becomes worth tuning on a larger corpus. If it does not, the judge's problem is broader than one blind spot and [THINK_01 §8](THINK_01.md)'s harder question applies.
+
+> ⚠️ **RUN 2026-08-06, and the answer is the second one — see [§28](#28-m1b--the-answer-is-no-and-the-corpus-is-the-bigger-finding).**
+> The verdict is wired correctly, fires on 1936 exactly as designed, and **moves the score by zero**:
+> a pre-existing cap already bound the ending. §13.3's simulation said 73 → 72 and missed the cap
+> *interaction*. Worse for this section: the ledger internals it reasons from **do not reproduce** —
+> 1936 scores **64** today against the 73 recorded here, inverting its gap from +5 to −4. The 42.9%,
+> the ≥8-gap misses and the 1936 outlier are all computed from numbers the current scorer does not
+> produce, so §13.1's diagnosis is not falsified so much as **unfooted**. M1c and M1d carry what is
+> needed to put it back on a footing.
 
 ---
 
@@ -1857,3 +1868,111 @@ number"` was added to `packages/story-geometry/src`, `npm test` exited **1** wit
 did not run at all. The file was then removed. A gate that has never been seen to fail is
 [§6](#6-issue-e--the-instruments-keep-being-wrong-in-one-specific-way)'s rule with the subject changed:
 a guard that has never met a real failure is a hypothesis.
+
+---
+
+## 28. M1b — the answer is no, and the corpus is the bigger finding
+
+**Run 2026-08-06, cost $0.0122.** [§13.4](#134-what-this-changes-upstream) set the test: *"re-score the
+archived stories with the deterministic verdict wired in and re-run `eval:calibrate`. If agreement
+moves toward 60/86%, the hypothesis holds. If it does not, the judge's problem is broader than one
+blind spot."*
+
+It does not. And getting to that answer turned up something that matters more.
+
+### 28.1 M1b had no instrument, so one was built
+
+Nothing on disk performed M1b. `rubric-score-spike.mjs` scores three **synthetic** mysteries to
+demonstrate the cap engine; `eval-golden.mjs` **replays Agent 9** at £4–8 a pass. Neither re-scores an
+archived manuscript and neither passes `noResolutionVerdict` — so running either would have produced a
+number that does not contain the change M1b exists to measure. That is [X12](#272-x12--the-corpus-probe-was-blind-to-the-two-fixes-it-was-meant-to-check)'s
+defect one directory over, and it is now the third time in this document that the instrument for a
+measurement did not measure the thing.
+
+[`eval-rescore.mjs`](../scripts/eval-rescore.mjs) does it, with `--dry` for the free wiring check that
+should precede any paid re-score. Its four artifact readers come from the new
+[`corpus-artifacts.mjs`](../scripts/corpus-artifacts.mjs), which `geometry-backtest.mjs` now imports
+rather than defining — a second copy of `shippedOutline` would have been the defect that script exists
+to report on.
+
+**One judge call per story, scored twice.** The obvious shape — score once with the verdict, compare
+against the ledger — is unattributable: the ledger's number came from a different call on a different
+day, so the delta mixes the cap with the judge's own variance. Memoising the judge makes both scorings
+read the SAME marks, so what separates them is the deterministic cap and nothing else. It is
+[ADR-0004](decisions/0004-flag-gated-default-off.md)'s one-lever rule applied to a scoring run.
+
+### 28.2 The verdict is correctly wired, fires as designed, and is worth nothing
+
+| | ledger | judge unchallenged | + geometry verdict | external |
+|---|---|---|---|---|
+| 1810 `the_clockwork_deceit` | 68 | **67** | **67** | 80 |
+| 1936 `the_clock_s_deception` | 73 | **64** | **64** | 68 |
+
+On 1936 — the story the whole of §13 was built from — geometry reports the culprit named **nowhere**,
+supplies `noResolution = true`, and the cap fires exactly as designed:
+
+```
++ geometry verdict   caps: no confession / exposure / arrest / consequence → ending ≤ 5;
+                           weak murder method (concealment explained, death not) → ending ≤ 6;
+                           weak murder method → overall ≤ 75
+```
+
+**And the final does not move.** A pre-existing cap already held `ending ≤ 6`, and the total was bound
+by `overall ≤ 75` regardless. The new cap is redundant with one already there.
+
+[§13.3](#133-the-fix-and-what-it-deliberately-does-not-do) simulated this and got 73 → 72. The real
+answer is **zero**, and the reason the simulation missed it is cap *interaction* — it modelled the new
+cap alone rather than against the caps already firing. A simulation of one rule in a system of rules
+is a hypothesis about the rule, not about the system.
+
+On 1810 the verdict is `null` — the case names no culprit, so the question is unanswerable — and the
+score is untouched. That is [X11](#271-x11--m1-was-reading-the-wrong-question)'s null path working on
+real data, and it is the half of M1 that was worth building: without it this story would have been
+capped for failing to disclose a culprit it never had.
+
+### 28.3 The finding that outranks the answer: the ledger's internals are not reproducible
+
+**1936 scores 64 today against a ledger value of 73.** 1810 scores 67 against 68. The 1936 gap to the
+external reader inverts, +5 to −4: the story §13 diagnosed as **over**-scored is now **under**-scored.
+
+Every number in [§13.1](#131-three-findings-that-killed-the-planned-fix) — the 42.9%, the ≥8-gap
+misses, the 1936 outlier that the whole diagnosis rests on — comes from `internalFinal` values the
+current scorer does not produce. Three candidate causes, none checked yet: the judge model has moved
+(the ledger predates the `gpt-4.1-mini` pin), caps have been added since (A_68's structural family),
+or the judge is simply this variable. **Any of the three makes the calibration corpus stale**, and the
+third would be the most serious, because it would mean single-scoring anything is unsound.
+
+*Illustration, not a result:* patching the two fresh scores into the manifest and leaving the other
+five at ledger values gives **61.9%** against the standing 42.9%. That is a nineteen-point move, and
+it would be very easy to report as M1b succeeding. It is not. **The verdict contributed zero to it** —
+that is what the double-scoring proves — so the entire move comes from re-scoring 1936 at all. The
+manifest was deliberately **not** written: five stale internals beside two fresh ones is a corpus that
+can produce a number and cannot support a conclusion.
+
+### 28.4 What M1b actually established, and what it costs to finish
+
+- **The wiring is correct and end-to-end.** Verified on real manuscripts through the real path, twice,
+  with the effect isolated. That part of M1 is done and needs nothing further.
+- **The blind-spot hypothesis is not supported.** The deterministic verdict does not move the score on
+  the one story it fires on. §13.4's own words apply: *"the judge's problem is broader than one blind
+  spot"*, and [THINK_01 §8](THINK_01.md)'s harder question is now the live one.
+- **The corpus is 2 of 7.** Five of the seven manifest entries name paths that do not exist
+  (`corpus/mystery-…1161277` and four like it — transcribed from TARGET_80_LEDGER, never files). No
+  re-scoring can include them, so no honest recalibration is available at any price until those
+  manuscripts are found or the pairs are rebuilt.
+- **And the manifest is git-ignored** (`.gitignore:65`, `results/`), which is almost certainly *why*.
+  The definition of the calibration corpus — the ground truth every quality claim is checked against
+  — lives outside version control, on one machine, with no history. The five dead paths are what that
+  looks like after a few months. `runFolder` was added to the two live entries as part of this work
+  and it, too, exists only here; this section is its record, exactly as
+  [§26.2](#262-the-two-config-lines-and-why-one-of-them-is-deliberately-not-set) is `.env.local`'s.
+  **Tracking `eval/results/external-read/manifest.json` is free and is the first half of M1d** — it
+  holds seven scores and no secrets. **Done in this commit** (`git add -f`, since the `results/` rule
+  is otherwise right: everything else under it is regenerated output). The corpus definition now has
+  a history; recovering the five manuscripts is the half that needs a human.
+
+**The next question is not M1b's, and it is nearly free:** score one story three times through the
+same judge and see how far the total moves. If judge variance alone spans several marks, then every
+single-scored number in this project — including the ledger, including the 42.9% — has an error bar
+nobody has drawn, and R6's `--repeats` flag exists precisely because someone suspected this. That is
+one story, three calls, about four pence. Tracked as **M1c**.

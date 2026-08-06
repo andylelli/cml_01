@@ -1,0 +1,103 @@
+[
+  {
+    "bundleId": "s0-1-poison",
+    "storyPath": "corpus/mystery-\u20261161277",
+    "internalFinal": 59,
+    "externalFinal": 75,
+    "gap": -16,
+    "internalCategories": {},
+    "externalCategories": {},
+    "source": "TARGET_80_LEDGER \u00a71 row S0-1 (2026-07-13) \u2014 internal = shipped rubric total (caps: []), external = ChatGPT cold read",
+    "readBy": "ChatGPT (external, human-run)"
+  },
+  {
+    "bundleId": "s0-2-tide",
+    "storyPath": "corpus/mystery-\u20262181080",
+    "internalFinal": 66,
+    "externalFinal": 69,
+    "gap": -3,
+    "internalCategories": {},
+    "externalCategories": {},
+    "source": "TARGET_80_LEDGER \u00a71 row S0-2 (2026-07-13) \u2014 internal 66 capped (raw 70), 3 caps",
+    "readBy": "ChatGPT (external, human-run)"
+  },
+  {
+    "bundleId": "s0-3-acoustic",
+    "storyPath": "corpus/mystery-\u20264840251",
+    "internalFinal": 60,
+    "externalFinal": 73,
+    "gap": -13,
+    "internalCategories": {},
+    "externalCategories": {},
+    "source": "TARGET_80_LEDGER \u00a71 row S0-3 (2026-07-13) \u2014 internal 60 capped (raw 63), 5 caps",
+    "readBy": "ChatGPT (external, human-run)"
+  },
+  {
+    "bundleId": "s0-4-identity",
+    "storyPath": "corpus/mystery-\u20266096323",
+    "internalFinal": 70,
+    "externalFinal": 76,
+    "gap": -6,
+    "internalCategories": {},
+    "externalCategories": {},
+    "source": "TARGET_80_LEDGER \u00a71 row S0-4 (2026-07-13) \u2014 internal 70 (caps: []), best external of the batch",
+    "readBy": "ChatGPT (external, human-run)"
+  },
+  {
+    "bundleId": "probe-1-clockwork-deception",
+    "storyPath": "corpus/the_clockwork_deception",
+    "internalFinal": 69,
+    "externalFinal": 78,
+    "gap": -9,
+    "internalCategories": {},
+    "externalCategories": {},
+    "source": "commits 7cda7440 (internal: 'zero caps, rubric 69 recorded') + 034f7972 (external: '78/100, +9 offset, S0 replicated')",
+    "readBy": "ChatGPT (external, human-run)"
+  },
+  {
+    "bundleId": "2026-08-02-1810-clockwork-deceit",
+    "storyPath": "stories/story_20260802-1810/the_clockwork_deceit.md",
+    "internalFinal": 68,
+    "externalFinal": 80,
+    "gap": -12,
+    "internalCategories": {},
+    "externalCategories": {
+      "premise": 8,
+      "opening_hook": 8,
+      "plot_structure": 8,
+      "character_clarity": 8,
+      "dialogue": 7,
+      "atmosphere": 8,
+      "clues": 8,
+      "pacing": 8,
+      "ending": 8,
+      "prose": 7
+    },
+    "source": "run mystery-1785689662702 (internal rubric 68, raw 70); external chatgpt.txt 2026-08-03",
+    "readBy": "ChatGPT (external, human-run)",
+    "runFolder": "run_20260802-1654_mystery"
+  },
+  {
+    "bundleId": "2026-08-02-1936-clocks-deception",
+    "storyPath": "stories/story_20260802-1936/the_clock_s_deception.md",
+    "internalFinal": 73,
+    "externalFinal": 68,
+    "gap": 5,
+    "internalCategories": {},
+    "externalCategories": {
+      "premise": 8,
+      "opening_hook": 8,
+      "plot_structure": 6,
+      "character_clarity": 7,
+      "dialogue": 7,
+      "atmosphere": 8,
+      "clues": 5,
+      "pacing": 7,
+      "ending": 4,
+      "prose": 6
+    },
+    "source": "run mystery-1785694688534 (internal rubric 73, raw 74); external chatgpt-review.txt 2026-08-03",
+    "readBy": "ChatGPT (external, human-run)",
+    "runFolder": "run_20260802-1818_mystery"
+  }
+]
