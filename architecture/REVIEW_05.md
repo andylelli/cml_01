@@ -10,6 +10,40 @@
 
 ---
 
+## Status — 2026-08-06
+
+**Every free item on this board is closed.** What is left costs money or needs a person.
+
+| | |
+|---|---|
+| **Done** | 22 items ✅ — N1–N5 (the free instrument fixes), X2–X7, X9–X16, CS2, ENV, M1/M1b |
+| **Open, free, unblocked** | **none** |
+| **Open, needs a run** | X8 · S7 · M3 · R5 — all ride-alongs on N6, none needing spend of their own |
+| **Open, needs money** | N6 ~£6 · N7/N8 ~£3 each · CS1 ~£3 · M6 ~£3 · R6 £4–8 · M1c ~£0.04 |
+| **Open, needs you** | R10 (sign the ratification brief, ~15 min) · D2 (after N6) · X4 Option 1 (after N7) · M1d (find five manuscripts) |
+
+**The board changed shape twice since it was written, both times for the same reason.**
+
+1. **Reviewing this session's own commits found six more defects** ([§27](#27-reviewing-this-documents-own-work--six-defects-all-fixed)),
+   four of them in *instruments* rather than the pipeline. §6 said *"a detector that has never been
+   run against real prose is a hypothesis"*; that rule had not been applied to the detectors this
+   session shipped. All six are fixed.
+2. **M1b came back negative** ([§28](#28-m1b--the-answer-is-no-and-the-corpus-is-the-bigger-finding)).
+   The deterministic `noResolution` verdict is wired correctly, fires exactly as designed, and moves
+   the score by **zero** — a pre-existing cap already bound the ending. More seriously, the ledger
+   internals that §13's whole diagnosis reasons from **do not reproduce** (1936: 73 → 64), and five of
+   the seven calibration pairs name manuscripts that are not on disk.
+
+**So the measurement track is in worse shape than §11 assumed, not better.** §11.1 held R6 and M6 back
+*"until Move 1 lands"*; Move 1 has landed and it did not repair the judge. The cheapest next question
+is no longer M1b but **M1c** — score one story three times and find out whether a single rubric number
+is stable at all, for about four pence. Every paid item below is judged by that instrument, N6 included.
+
+**Recommended next:** M1c (~£0.04, offline) → then N6 (~£6) with its four ride-alongs. R10 needs
+fifteen minutes of yours whenever convenient and blocks nothing.
+
+---
+
 ## Progress tracker
 
 Everything outstanding, in one place. `☐` not started · `◑` partial · `✅` done · `👤` owner's call · `⛔` recommended against, with reasons.
