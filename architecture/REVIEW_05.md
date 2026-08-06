@@ -49,6 +49,7 @@ Everything outstanding, in one place. `☐` not started · `◑` partial · `✅
 | X13 | The injection registry is a hand-list with no totality test against `SCAFFOLD_EXHAUSTION_FLOORS` — §10.1 records the test as shipped | free | ☐ | [§27.3](#273-x13-x14-x15--found-not-yet-fixed) |
 | X14 | Three `?? "gpt-4o-mini"` fallbacks survive in the scripts that will run N6 and R5 | free | ☐ | [§27.3](#273-x13-x14-x15--found-not-yet-fixed) |
 | X15 | One `accept.ts` call site bypasses N3's folding boundary (unreachable today) | free | ☐ | [§27.3](#273-x13-x14-x15--found-not-yet-fixed) |
+| X16 | **`npm test` cannot catch a type error** — vitest compiles from `src`, so a green suite coexists with a `build:all` that fails. X10's neighbour | free | ☐ | [§27.5](#275-x16--the-suite-that-cannot-catch-a-type-error) |
 | X8 | **The run that reads X6/X7's effect.** Every non-prose agent now runs on `gpt-4.1-mini` (was `gpt-4o-mini`) and the floor's repair has never fired. Ride-along on N6 | free | ☐ | [§20.3](#203-what-neither-fix-has-had) |
 | **D. Paid probes, in dependency order** ||||
 | N6 | Promote `beat-scheduler`, ≥4 runs — the §8bis discriminating test | ~£6 | ☐ | [§11.4](#114-the-merged-order) |
@@ -1765,3 +1766,29 @@ slot, with no camelCase/snake_case trap; N1's third verdict raising no violation
 One suspected defect was **chased and dropped**: hydrating agent code `3` from the store returns the
 post-revision CML, but there is only one `cml` artifact write, after Agent 4 runs inside `runAgent3`
 — so that is what the run committed, and `committed.mjs` honours its stated contract.
+
+### 27.5 X16 — the suite that cannot catch a type error
+
+Found by making the mistake. The X11 fix changed `manuscriptDisclosure` to be nullable and one new
+test still read `.verdict` off it directly. **`npm test` passed — 2,689 tests, exit 0 — while
+`npm run build:all` failed on that exact line.** The first commit of §27 therefore shipped a state
+whose `tsc` does not compile, and the suite said nothing.
+
+The cause is the one already on record: **vitest transpiles from `src` and does not typecheck**, which
+is `worker-consumes-cml-packages-via-dist` seen from the other end. Every type error in the tree is
+invisible to the command whose name promises otherwise.
+
+This is [X10](#244-x10--npm-test-ran-8-of-17-workspaces)'s neighbour and the same sentence applies:
+*a green suite that cannot go red is the same defect as a zero that is never written.* X10 fixed the
+suite's **breadth** — 8 workspaces to 17 — and left its **depth** untouched. The class it cannot fail
+on is not a corner: it is every type error in a TypeScript monorepo.
+
+**Not fixed here**, because the fix is a decision about what `npm test` means. The narrow version is
+one line — add `tsc --noEmit` (or the existing `build:all`) to the root `test` script, so the command
+the maintenance rule points at is the command that would have caught this. The argument against is
+runtime: `build:all` is ~50 s against the suite's ~90 s, which is a real cost on every invocation and
+an easy one to start skipping. Recorded as X16 rather than settled unilaterally.
+
+**Until it is settled, `npm run build:all` is not optional before a commit** — and it is already a
+stated precondition of N6 for a different reason ([§24.3](#243-two-conditions-on-n6-that-are-now-cheap-to-state),
+[§26.1](#261-the-verification-sweep-at-head)). Two independent arguments now point at the same habit.

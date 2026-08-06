@@ -544,7 +544,7 @@ describe("manuscriptDisclosure — the story-level question, not the bound chapt
     const report = reportFor(chapters);
 
     // §14.4 — the culprit IS named on the page, badly. It caps nothing; it is counted.
-    expect(report.manuscriptDisclosure.verdict).toBe("met_by_injection");
+    expect(report.manuscriptDisclosure).toEqual({ verdict: "met_by_injection", chapter: 10 });
   });
 
   it("still reads `unmet` when NO chapter discloses — the story-1936 shape M1 exists to catch", () => {
