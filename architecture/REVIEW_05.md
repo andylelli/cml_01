@@ -26,7 +26,7 @@ Everything outstanding, in one place. `☐` not started · `◑` partial · `✅
 |---|---|---|---|---|
 | **A. Measurement — gates every quality claim** ||||
 | M1 | ~~Rewrite the judge as the external rubric~~ → **diagnosed:** rubric already matches the external ten; caps are not the distortion; one blind spot (an undisclosed reveal) drags 86% → 50%. Deterministic `noResolution` now wired from geometry | ~1 day | ◑ | [§13](#13-m1--what-the-judge-diagnosis-actually-found) |
-| M1b | Re-score the archived stories with the verdict wired in; re-run `eval:calibrate` | ~£1 | ☐ | [§13.4](#134-what-this-changes-upstream) |
+| M1b | Re-score the archived stories with the verdict wired in; re-run `eval:calibrate` — **do not run before X11**, which fixed what the verdict was reading | ~£1 | ☐ | [§13.4](#134-what-this-changes-upstream) · [§27.1](#271-x11--m1-was-reading-the-wrong-question) |
 | **B. Free instrument fixes — geometry can't be trusted to read a probe until these land** ||||
 | N1 | Record an injected disclosure as `met_by_injection`, not as satisfied | free | ✅ | [§14](#14-n1--done-and-what-it-revealed-about-the-ordering) |
 | N2 | `unaccounted_time` instead of `third_time` (locked-fact times are accounted) | free | ✅ | [§10.2](#102-n2--unaccounted-time-instead-of-third-time-free) |
@@ -44,6 +44,11 @@ Everything outstanding, in one place. `☐` not started · `◑` partial · `✅
 | X7 | `.env.local` did not override `.env` in the two `dotenv` loaders — the register was reading the losing file | free | ✅ | [§20](#20-x6-and-x7--two-fixes-that-lived-only-in-the-working-tree) · [FLAG-AUDIT](FLAG-AUDIT.md) |
 | X10 | `npm test` ran 8 of 17 workspaces — **`beat-scheduler` (N6's own package) and `rubric-score` (M1b's) were both outside it**, and a mid-chain failure could not change the exit code | free | ✅ | [§24.4](#244-x10--npm-test-ran-8-of-17-workspaces) |
 | X9 | **N6's lever could not be set.** Agent 7's four flags were module-consts, frozen before dotenv — `AGENT7_SCHEDULER_AUTHORITATIVE` from `.env.local` read `false`. Now runtime getters | free | ✅ | [§24](#24-the-pre-spend-audit--n6s-lever-could-not-be-set) |
+| X11 | **M1's deterministic `noResolution` read the BOUND CHAPTER, not the manuscript** — inverting §14.4 on every run whose disclosure lands outside the contract. Now a story-level `manuscriptDisclosure` verdict | free | ✅ | [§27.1](#271-x11--m1-was-reading-the-wrong-question) |
+| X12 | **`geometry-backtest.mjs` could not exercise N1 or N2** — no `injectionTemplates`, no `lockedFacts` — and its summary line read a field N1 deleted, so it printed `0/11 satisfied` on every run | free | ✅ | [§27.2](#272-x12--the-corpus-probe-was-blind-to-the-two-fixes-it-was-meant-to-check) |
+| X13 | The injection registry is a hand-list with no totality test against `SCAFFOLD_EXHAUSTION_FLOORS` — §10.1 records the test as shipped | free | ☐ | [§27.3](#273-x13-x14-x15--found-not-yet-fixed) |
+| X14 | Three `?? "gpt-4o-mini"` fallbacks survive in the scripts that will run N6 and R5 | free | ☐ | [§27.3](#273-x13-x14-x15--found-not-yet-fixed) |
+| X15 | One `accept.ts` call site bypasses N3's folding boundary (unreachable today) | free | ☐ | [§27.3](#273-x13-x14-x15--found-not-yet-fixed) |
 | X8 | **The run that reads X6/X7's effect.** Every non-prose agent now runs on `gpt-4.1-mini` (was `gpt-4o-mini`) and the floor's repair has never fired. Ride-along on N6 | free | ☐ | [§20.3](#203-what-neither-fix-has-had) |
 | **D. Paid probes, in dependency order** ||||
 | N6 | Promote `beat-scheduler`, ≥4 runs — the §8bis discriminating test | ~£6 | ☐ | [§11.4](#114-the-merged-order) |
@@ -377,6 +382,15 @@ locked fact of the device, printed 7 times because the injector prints locked fa
 **Proof.** The backtest must still flag both 08-02 stories — the 1936 extras (`ten minutes past
 eleven`, `a quarter past ten`, `five to eight`) are unaccounted by any locked fact and must survive.
 The 08-04 treatment run must drop from 2 extras to 1, losing only `half past two`.
+
+> ⚠️ **CORRECTED 2026-08-06 — this proof was never run, and it is wrong.** The backtest did not pass
+> `lockedFacts` at all, so `accountedTimes` was empty on every case and the script was reporting the
+> OLD rule's verdicts ([§27.2](#272-x12--the-corpus-probe-was-blind-to-the-two-fixes-it-was-meant-to-check)).
+> With the locked facts actually supplied, **two of the three 1936 extras named above — `ten minutes
+> past eleven` and `a quarter past ten` — ARE locked facts of the device** and are correctly no longer
+> flagged. 1936 drops from 5 unaccounted times to 3, and the §10 criterion still passes. The verdict
+> survives; the stated proof did not, and it could not have, because the instrument was not running
+> the rule.
 
 **Risk.** Widening an allowed set weakens a detector. Bounded: only clock-valued *locked facts*
 widen it, and a wrong device time is `checkLockedFactTimeAlignment`'s job, not this check's.
@@ -1618,3 +1632,136 @@ Nothing free and unblocked remains. The board is now exactly two moves wide:
   nothing extra, and P4, M5, D2, X8 and S7 all unblock on its output.
 
 Everything else on the tracker is downstream of one of those two.
+
+---
+
+## 27. Reviewing this document's own work — five defects, two fixed
+
+**2026-08-06.** The sixteen code commits behind §13–§24 were read against the current source, with the
+empirical claims re-run rather than taken on trust. Five defects. Two are fixed here because they sit
+directly under M1b — the next action on the board — and both were free.
+
+The shape is worth naming before the details: **four of the five are instruments, not the pipeline.**
+§6 said *"a detector that has never been run against real prose is not a detector, it is a
+hypothesis"*, and this session's own instruments were shipped without that check being applied to
+them. §9's summary — "five real defects, none of them geometry's, all found by building a checker and
+pointing it at real output" — now has a second half: point the checker at the checkers.
+
+### 27.1 X11 — M1 was reading the wrong question
+
+`runRubricScoring` derived its deterministic `noResolution` from `reveal_culprit_not_named`. That
+check asks **whether the chapter the contract BOUND discloses** — the right question for a repair
+pass, which must name the chapter it would regenerate. `noResolution` asks **whether the reader ever
+gets an answer.** While the beat labels misbind the reveal those are different questions, and
+[§15.1](#151-verified-against-all-three-archived-outlines) measures the misbinding on **2 of the 3**
+archived outlines.
+
+On the 08-04 run they gave opposite answers. The contract bound chapter 8; the disclosure landed in
+chapter 10; the check returned `unmet` about a manuscript that names its murderer on the page.
+[§14.3](#143-the-coupling-nobody-planned-for-n1s-reach-depends-on-n4) recorded that mechanism —
+and [§14.4](#144-one-judge-decision-recorded) had, twelve lines later, decided that such a disclosure
+**counts as a resolution**. The wiring inverted the decision it was written to implement, on a fact
+that WINS over the judge by design, so nothing downstream could correct it: `ending` caps at 5 on a
+story that resolves.
+
+**The fix is a new story-level verdict, not a suppression.** `findManuscriptDisclosure` scans every
+chapter for a sentence naming the culprit as guilty, and reports which chapter and — via N1's
+registry — who wrote it. Both verdicts are now reported and neither is derived from the other, because
+they answer different questions and a repair pass still needs the bound-chapter one.
+
+**The obvious fix would have been wrong, and the corpus said so.** The first version withheld the
+verdict (`null`) whenever N4 reported the binding uncertain. That is defensible in the abstract and
+destroys M1: N4's note fires on run 1818 — **story 1936, the one story the entire §13 diagnosis was
+built from.** Withholding there would have thrown away the single data point that motivated the work,
+to fix a problem on the other two.
+
+**And the corrected instrument immediately caught a defect in the fix.** The 80-scoring story's CML has
+an **empty `culprits` array** — the `culprits_empty` class `probe:validators` measures on 3 of 13 runs
+— so there is no name to search for, and the first implementation returned `unmet`: *"this story never
+resolves"*, about the best story in the corpus, because the question could not be asked. It returns
+`null` now. That is [§13.3](#133-the-fix-and-what-it-deliberately-does-not-do)'s rule in a third
+direction — *not measured* must read as neither yes nor no — and it took under a minute to find once
+the probe could see the field. Which is the argument for 27.2.
+
+**Verified** on both archived runs: 1810 → `UNANSWERABLE` (no culprit named in the case) → the judge's
+view stands; 1936 → `NOWHERE` → `noResolution` fires, M1's original catch intact. Five tests pin the
+out-of-contract, injected, absent, authored-beats-injected and unanswerable cases.
+
+### 27.2 X12 — the corpus probe was blind to the two fixes it was meant to check
+
+`scripts/geometry-backtest.mjs` is the instrument [§10](#10-the-fix-implementation-plan)'s Rule 1
+makes mandatory: *"No detector ships without a corpus run."* It had three defects, and together they
+meant the rule was not being enforced on N1 or N2 at all.
+
+| | What | Consequence |
+|---|---|---|
+| 1 | Never passed `lockedFacts` to `deriveStoryGeometry` | `accountedTimes` empty on every case — `unaccounted_time` was running the **old `third_time` rule** and reporting its verdicts under the new name |
+| 2 | Never passed `injectionTemplates` to `checkManuscriptGeometry` | Per `types.ts`, no check can then return `met_by_injection` — the probe was **structurally incapable** of seeing N1's third verdict |
+| 3 | Summary line counted `c.satisfied`, the field N1 **replaced** with `verdict` | Printed `0/11 checks satisfied` next to 6 violations, on every run since N1 landed |
+
+Defect 3 is the sharpest, and it was on screen the whole time: a summary that says *zero of eleven*
+beside a list of six failures is arithmetically impossible, and it was read past — by me, hours before
+this review, when I reported the probe's PASS. **A number that cannot go above zero is the same defect
+as a zero that is never written**, which is the shape [§16](#16-n5--done-and-the-two-runs-that-were-replaying-the-wrong-story),
+[§22.3](#223-records-never-refuses--and-counts-what-it-does-not-object-to) and
+[§24.4](#244-x10--npm-test-ran-8-of-17-workspaces) keep circling. This is its fourth appearance in one
+document.
+
+What the corrected probe reports, immediately:
+
+- **1936 drops from 5 unaccounted times to 3.** Two of the three extras §10.2 named as proof — `ten
+  minutes past eleven` and `a quarter past ten` — are locked facts of the device. §10.2's stated proof
+  is now corrected in place; the §10 verdict still passes.
+- **`unaccounted_time` becomes unique to the 68-scoring story.** It had been firing on both, which is
+  precisely the noise §10's own acceptance note warns would ship the moment acceptance moves to
+  `apply`.
+- The accounted set and the manuscript-disclosure verdict are now **printed**. An empty accounted set
+  is how this defect stayed invisible for two days, and it is one line to show.
+
+### 27.3 X13, X14, X15 — found, not yet fixed
+
+Left open deliberately: none is under M1b, and each is a decision rather than a typo.
+
+**X13 — the injection registry has no totality test.** `INJECTED_SENTENCE_PATTERNS` is a hand-typed
+list of six regexes, and nothing asserts that every `SCAFFOLD_EXHAUSTION_FLOORS` replacement appears
+in it. Both current floors (A3, B5) *are* covered, so there is no live defect —
+but [§10.1](#101-n1--record-an-injected-disclosure-as-a-floored-failure-free) records the mitigation as
+shipped: *"asserted by a test that every `SCAFFOLD_EXHAUSTION_FLOORS` entry appears in it."* It was
+not built. A third floor would launder an injected sentence past the detector in silence, and
+`met_by_injection_count` — the one number N1 exists to produce, and the exit metric for M5 and P4 —
+would under-report with nothing saying so. **This is the X6/X7 shape**: a document authoritative about
+a guard the repository does not contain, in the item written to close that class.
+
+**X14 — three `?? "gpt-4o-mini"` fallbacks survive.** `canary-core.mjs:25`,
+`canary-agent-boundary.mjs:118` and `cli-runtime.ts:97` (the last feeding `resume-run`, which is R5's
+drill) all default the deployment to the old model when `AZURE_OPENAI_DEPLOYMENT_NAME` is unset.
+[§20.4](#204-env--and-the-six-loaders-x7-did-not-reach) removed the *shadowing* that made the
+harnesses resolve `gpt-4o-mini` while the pipeline resolved `gpt-4.1-mini` — and then deleted the key
+from `.env`, so it now lives **only** in git-ignored `.env.local`. One missing or renamed key
+reproduces §20.4's defect exactly, on a £6 probe, and the report would not say so. The credentials
+check two lines above the fallback throws; the model should too. *Owner's call because refusing to
+start is a behaviour change to every harness.*
+
+**X15 — one call site bypasses N3's folding boundary.** `accept.ts`'s `reveal_method_absent` uses the
+raw key term where the three checks around it use `needle(term)`. Unreachable today — method key terms
+are a hardcoded ASCII list — but it is the single site in the file whose header states that *every*
+value crossing from the case model to the page goes through the boundary, and half-applied folding is
+[§6](#6-issue-e--the-instruments-keep-being-wrong-in-one-specific-way)'s defect 5 exactly.
+
+*Also noted, not tracked:* N5's title matcher strips a `Chapter N:` prefix from manuscript titles and
+not from outline titles before comparing them with exact equality. Observed agreement is 8/10 and 7/9,
+so it is not biting; it would degrade silently to the highest-sequence guess if outline titles ever
+carried the prefix.
+
+### 27.4 What was checked and found sound
+
+Recorded because a review that lists only what it found reads as a survey of everything: X9's four
+getters, with **no module-const env flag left anywhere** in `apps/worker/src` or `packages/*/src`;
+X3's logger consolidation; X4's registry — no `g` flags, so no `lastIndex` state bug, and the
+telemetry emitter is unconditional in the run path with `ctx.scoreAggregator` genuinely populated;
+X1's partition test; N2's `lockedFactRegistry` wiring (Agent 3b, before Agent 7.5); CS2's clincher
+slot, with no camelCase/snake_case trap; N1's third verdict raising no violation; X10's exit code.
+
+One suspected defect was **chased and dropped**: hydrating agent code `3` from the store returns the
+post-revision CML, but there is only one `cml` artifact write, after Agent 4 runs inside `runAgent3`
+— so that is what the run committed, and `committed.mjs` honours its stated contract.

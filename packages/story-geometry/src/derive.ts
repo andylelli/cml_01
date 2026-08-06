@@ -454,11 +454,17 @@ export const deriveStoryGeometry = (input: GeometryDeriveInput): StoryGeometry =
     // Two sentences, in scene. "The clearances are logical but too mechanical" / "the Eleanor-alibi
     // section is validation logic, not story" — the same complaint, both reads.
     clearanceBudget: { maxSentences: 2, inScene: true },
-    closure: { closed: false, unmet: [], waived: [], notes: [] },
+    closure: { closed: false, unmet: [], waived: [], notes: [], revealBindingUncertain: false },
   };
 
   geometry.closure = checkGeometryClosure(geometry, caseData);
   const bindingNote = scenes.length > 0 ? checkRevealBinding(scenes, revealChapter) : null;
-  if (bindingNote) geometry.closure.notes.push(bindingNote);
+  if (bindingNote) {
+    geometry.closure.notes.push(bindingNote);
+    // The same finding, in the form a consumer can act on. The note is for a human reading the
+    // report; this is for the scoring path, which must not read a bound-chapter verdict as a verdict
+    // about the story (REVIEW_05 §14.3).
+    geometry.closure.revealBindingUncertain = true;
+  }
   return geometry;
 };

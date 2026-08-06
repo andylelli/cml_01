@@ -23,6 +23,7 @@ import type {
   GeometryAcceptanceReport,
   GeometryChapter,
   GeometryCheck,
+  GeometryVerdict,
   GeometryViolation,
   StoryGeometry,
 } from "./types.js";
@@ -226,6 +227,53 @@ const namesCulpritAsGuilty = (text: string, culpritRe: RegExp | null): boolean =
 const disclosingSentence = (text: string, culpritRe: RegExp | null): string | null => {
   if (!culpritRe) return null;
   return sentencesOf(text).find((sentence) => culpritRe.test(sentence) && GUILT_MARKER.test(sentence)) ?? null;
+};
+
+/**
+ * Does the manuscript name its culprit ANYWHERE, and who wrote the sentence that does?
+ *
+ * FOUND ON REVIEW 2026-08-06. The bound-chapter check (`reveal_culprit_not_named`) was being read by
+ * the scoring path as though it answered this, and it does not. On the 08-04 run the contract bound
+ * chapter 8, the disclosure landed in chapter 10, and the check returned `unmet` about a manuscript
+ * that names its culprit on the page — so the judge was handed "this story never resolves" for a
+ * story §14.4 had just decided counts as resolved. The detector WINS over the judge, so nothing
+ * downstream could correct it.
+ *
+ * Scanned over every chapter on purpose, and NOT over the contract: the contract's binding is exactly
+ * the thing in doubt (§5, and N4 measures the disagreement on 2 of 3 archived outlines). A repair
+ * pass still needs the bound-chapter verdict — it names the chapter that would be regenerated — so
+ * both are reported and neither is derived from the other.
+ *
+ * Chapter order matters to the answer: the FIRST disclosure is the one the reader receives, and an
+ * authored sentence anywhere outranks an injected one, because a story that discloses properly in
+ * chapter 9 is not made machine-written by a floor firing in chapter 10.
+ *
+ * `null` — NOT `unmet` — when the case names no culprit, because then there is no name to look for
+ * and the question is unanswerable rather than answered "no". FOUND immediately by the corrected
+ * backtest: the CML of the 80-scoring story has an empty `culprits` array (the `culprits_empty`
+ * class the validator corpus check measures on 3 of 13 runs), and returning `unmet` there would have
+ * capped the ending on the best story in the corpus. It is §13.3's rule in the third direction: a
+ * fact nobody could compute must never be reported as a fact.
+ */
+export const findManuscriptDisclosure = (
+  chapters: ReadonlyArray<GeometryChapter>,
+  culprit: string | null | undefined,
+  injectionTemplates: ReadonlyArray<RegExp> = [],
+): { verdict: GeometryVerdict; chapter: number | null } | null => {
+  const culpritRe = culprit ? nameMatcher(culprit) : null;
+  if (!culpritRe) return null;
+
+  let injectedAt: number | null = null;
+  for (const [index, chapter] of chapters.entries()) {
+    const chapterNumber = Number.isFinite(Number(chapter?.chapterNumber)) ? Number(chapter!.chapterNumber) : index + 1;
+    for (const paragraph of paragraphsOf(chapter)) {
+      const sentence = disclosingSentence(paragraph, culpritRe);
+      if (sentence === null) continue;
+      if (!injectionTemplates.some((re) => re.test(sentence))) return { verdict: "met", chapter: chapterNumber };
+      if (injectedAt === null) injectedAt = chapterNumber;
+    }
+  }
+  return injectedAt === null ? { verdict: "unmet", chapter: null } : { verdict: "met_by_injection", chapter: injectedAt };
 };
 
 // ── the test ─────────────────────────────────────────────────────────────────
@@ -508,7 +556,13 @@ export const checkManuscriptGeometry = (
     }
   }
 
-  return { violations, checks, extraTimes };
+  return {
+    violations,
+    checks,
+    extraTimes,
+    // Story-level, deliberately not derived from the reveal check above — see the function's header.
+    manuscriptDisclosure: findManuscriptDisclosure(chapters, geometry.culprit, options.injectionTemplates ?? []),
+  };
 };
 
 /** Chapter-local violations — the ones a scoped regeneration can act on. */

@@ -55,6 +55,7 @@ export {
   chapterScopedViolations,
   checkManuscriptGeometry,
   detectAftermathRepeatParagraphs,
+  findManuscriptDisclosure,
   foldTypography,
   nameMatcher,
 } from "./accept.js";

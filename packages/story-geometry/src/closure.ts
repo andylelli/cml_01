@@ -161,5 +161,8 @@ export const checkGeometryClosure = (geometry: StoryGeometry, caseData: any): Ge
     );
   }
 
-  return { closed: unmet.length === 0, unmet, waived, notes };
+  // `revealBindingUncertain` is not decidable here — it compares the bound chapter against the
+  // OUTLINE's own words, which `checkRevealBinding` owns. Stated false and set by the caller, rather
+  // than left optional: an absent flag and a false one must not be the same value to a consumer.
+  return { closed: unmet.length === 0, unmet, waived, notes, revealBindingUncertain: false };
 };

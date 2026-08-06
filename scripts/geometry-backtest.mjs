@@ -28,6 +28,7 @@ import { join } from "node:path";
 
 import { deriveStoryGeometry, checkManuscriptGeometry } from "../packages/story-geometry/dist/index.js";
 import { checkCaseTimelineDeception, parseClockTime } from "../packages/prompts-llm/dist/timeline-deception.js";
+import { INJECTED_SENTENCE_PATTERNS } from "../packages/prompts-llm/dist/agent9-prose/injection-templates.js";
 
 const ROOT = process.env.CML_WORKSPACE_ROOT || process.cwd();
 const PROMPTS = join(ROOT, "documentation", "prompts", "actual");
@@ -156,6 +157,7 @@ for (const testCase of CASES) {
   const generated = lastResponseFor(runDir, /Agent3-CMLGenerator/);
   const cml = revision.parsed ?? generated.parsed;
   const clueDoc = lastResponseFor(runDir, /Agent5-ClueExtraction/).parsed;
+  const deviceDoc = lastResponseFor(runDir, /Agent3b-HardLogicDeviceGenerator/).parsed;
   const manuscript = readManuscript(storyDir);
   const outlinePick = shippedOutline(runDir, manuscript);
   const outline = outlinePick.parsed;
@@ -179,9 +181,25 @@ for (const testCase of CASES) {
     clues: Array.isArray(clueDoc?.clues) ? clueDoc.clues : [],
     narrative: outline,
     timelineViolations: checkCaseTimelineDeception(caseData).map((v) => ({ code: v.code, message: v.message })),
+    // FOUND ON REVIEW 2026-08-06 — N2 WAS NOT BEING EXERCISED HERE AT ALL.
+    //
+    // Without these, `accountedTimes` is empty on every case, so `unaccounted_time` behaves exactly
+    // like the `third_time` rule it replaced and this backtest silently reports the OLD detector's
+    // verdicts. §10.2's stated proof — the 08-04 run dropping from 2 extras to 1, losing only the
+    // timer setting — cannot come from a run of this script. The registry the pipeline builds is
+    // Agent 3b's primary device (agent3b-run.ts), so that is what is reconstructed here.
+    lockedFacts: (Array.isArray(deviceDoc?.devices) ? deviceDoc.devices[0]?.lockedFacts ?? [] : []).filter(
+      (f) => typeof f?.id === "string" && typeof f?.value === "string" && f.value.trim().length > 0,
+    ),
   });
 
-  const acceptance = checkManuscriptGeometry(geometry, manuscript.chapters, { parseClockTime });
+  // And the same omission on the other side: without the templates NO check can return
+  // `met_by_injection` (types.ts), so the corpus probe was structurally incapable of seeing N1 — the
+  // verdict this review exists to have introduced. Imported from the injectors, never re-typed.
+  const acceptance = checkManuscriptGeometry(geometry, manuscript.chapters, {
+    parseClockTime,
+    injectionTemplates: INJECTED_SENTENCE_PATTERNS,
+  });
 
   results.push({
     ...testCase,
@@ -236,21 +254,45 @@ for (const r of results) {
   for (const w of g.closure.waived) console.log(`    ~ ${w.field} waived — ${w.reason}`);
 
   const a = r.acceptance;
-  const satisfied = a.checks.filter((c) => c.satisfied).length;
-  console.log(`\n  ACCEPTANCE (against the shipped manuscript)  → ${satisfied}/${a.checks.length} checks satisfied, ${a.violations.length} violation(s)`);
+  // FOUND ON REVIEW 2026-08-06. This read `c.satisfied`, which N1 REPLACED with `verdict` — so it
+  // was counting `undefined` and printing "0/11 satisfied" next to 6 violations on every run since.
+  // A summary line that cannot go above zero is the same defect as a zero that is never written.
+  const met = a.checks.filter((c) => c.verdict === "met").length;
+  const byInjection = a.checks.filter((c) => c.verdict === "met_by_injection").length;
+  console.log(
+    `\n  ACCEPTANCE (against the shipped manuscript)  → ${met}/${a.checks.length} checks met` +
+      `${byInjection > 0 ? ` (+${byInjection} MET BY INJECTION — the pipeline's own sentence)` : ""}, ` +
+      `${a.violations.length} violation(s)`,
+  );
+  const d = a.manuscriptDisclosure;
+  const disclosure = !d
+    ? "UNANSWERABLE — the case names no culprit to look for"
+    : d.verdict === "unmet"
+      ? "NOWHERE"
+      : `${d.verdict} @ch${d.chapter}`;
+  console.log(
+    `    manuscript names its culprit: ${disclosure}` +
+      `${g.closure.revealBindingUncertain ? "   [N4: reveal contract may be bound to the wrong chapter]" : ""}`,
+  );
   for (const v of a.violations) {
     console.log(`    ✗ ${v.code}${v.chapter ? ` [ch${v.chapter}]` : " [manuscript]"}`);
     console.log(`        ${v.message}`);
     if (v.paragraphIndices?.length) console.log(`        paragraphs: ${v.paragraphIndices.join(", ")}`);
   }
   if (a.extraTimes.length > 0) {
-    console.log(`    times on the page that are neither anchor:`);
+    console.log(`    times on the page that nothing accounts for:`);
     for (const t of a.extraTimes) console.log(`        ch${t.chapter}  "${t.phrase}"`);
   }
+  // N2 is only visible if the accounted set is printed: an empty one means the locked facts never
+  // arrived, and the check has silently reverted to "exactly two times".
+  console.log(
+    `    accounted times (locked facts): ${g.timeModel.accountedTimes?.length ? g.timeModel.accountedTimes.join(", ") : "— none"}`,
+  );
   if (VERBOSE) {
     console.log(`\n  ALL CHECKS`);
     for (const c of a.checks) {
-      console.log(`    ${c.satisfied ? "✓" : "✗"} ${c.code}${c.chapter ? ` [ch${c.chapter}]` : ""}`);
+      const mark = c.verdict === "met" ? "✓" : c.verdict === "met_by_injection" ? "⊘" : "✗";
+      console.log(`    ${mark} ${c.code}${c.chapter ? ` [ch${c.chapter}]` : ""}`);
     }
   }
 }

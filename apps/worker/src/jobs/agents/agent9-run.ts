@@ -6513,6 +6513,15 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
         // floored failure, and it has never been counted before.
         met_by_injection_count: report.checks.filter((c) => c.verdict === "met_by_injection").length,
         met_by_injection: report.checks.filter((c) => c.verdict === "met_by_injection"),
+        // REVIEW_05 §14.3 — travels WITH the checks it qualifies. The acceptance test only ever sees
+        // the chapters the contract binds, so when N4 reports the reveal bound to a chapter that does
+        // not disclose, `reveal_culprit_not_named` is a statement about that chapter and not about the
+        // manuscript. Reported so a reader of the report knows which of the two below to trust.
+        reveal_binding_uncertain: geometry.closure.revealBindingUncertain === true,
+        // The story-level question, scanned over every chapter rather than the bound one. This is what
+        // the rubric's `noResolution` fact means, and reading the bound-chapter check as if it meant
+        // the same thing inverted §14.4 on the run that motivated this whole document.
+        manuscript_disclosure: report.manuscriptDisclosure,
         extra_times: report.extraTimes,
         violations_before_repair: before,
         repaired,

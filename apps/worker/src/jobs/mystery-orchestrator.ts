@@ -601,16 +601,27 @@ async function runRubricScoring(args: {
    * measured" must not read as "the reveal disclosed".
    */
   const geometryAcceptance = (args.prose as any)?.validationDetails?.storyGeometry;
-  const revealChecks = (geometryAcceptance?.checks ?? []).filter(
-    (c: any) => c?.code === "reveal_culprit_not_named",
-  );
   // `met_by_injection` counts as a resolution for the JUDGE: the culprit IS named on the page, badly.
   // The story that broke calibration (2026-08-02-1936) had no such sentence at all — it ends on "the
   // truth poised to emerge" — so `unmet` is the state that must cap the ending. Treating an injected
   // disclosure as `noResolution` would cap every run the floor fires on, which is a scoring change
   // made on n=1. It is counted separately instead (REVIEW_05 §10.1).
-  const noResolutionVerdict: boolean | null =
-    revealChecks.length > 0 ? revealChecks[0].verdict === "unmet" : null;
+  //
+  // FOUND ON REVIEW 2026-08-06 — AND IT MUST BE THE STORY-LEVEL VERDICT, NOT THE BOUND CHAPTER'S.
+  //
+  // This read `reveal_culprit_not_named`, which asks whether the chapter the CONTRACT BOUND discloses.
+  // That is the right question for a repair pass and the wrong one for scoring. On the 08-04 run the
+  // contract bound chapter 8 while the disclosure landed in chapter 10 (§14.3), so the check returned
+  // `unmet` about a manuscript that names its culprit on the page — inverting the decision §14.4 had
+  // just made, on a fact the detector WINS with, so nothing downstream could correct it. N4 measures
+  // that misbinding on 2 of 3 archived outlines (§15.1): the common case, not the edge.
+  //
+  // `manuscriptDisclosure` scans every chapter, which is what `noResolution` has always meant. It also
+  // keeps M1's original catch: story 1936 discloses NOWHERE, so it still reads `unmet` — where merely
+  // withholding the verdict on an uncertain binding would have thrown away the one story the whole
+  // diagnosis was built from.
+  const disclosure = geometryAcceptance?.manuscript_disclosure;
+  const noResolutionVerdict: boolean | null = disclosure?.verdict ? disclosure.verdict === "unmet" : null;
   const mode = (process.env.RUBRIC_SCORING_MODE ?? "shadow").toLowerCase();
   if (mode === "off") return;
   try {
@@ -655,6 +666,15 @@ async function runRubricScoring(args: {
       args.warnings.push(
         `Final-story rubric: noResolution supplied deterministically by geometry = ${noResolutionVerdict} ` +
           `(judge's own view: ${r.facts?.noResolution === noResolutionVerdict ? "agreed" : "OVERRIDDEN"}).`,
+      );
+    } else {
+      // Written down for the same reason the counters are: a run where the deterministic verdict was
+      // UNAVAILABLE must be distinguishable from one where it was never wired. M1b reads this to know
+      // which archived scores rest on the judge's own opinion of the ending.
+      args.warnings.push(
+        `Final-story rubric: noResolution NOT supplied — geometry produced no manuscript-level ` +
+          `disclosure verdict this run (acceptance off, or the case names no culprit). The judge's own ` +
+          `view of the ending stands unchallenged.`,
       );
     }
     args.aggregator?.upsertDiagnostic("rubric_score", "scoring", "Final-Story Rubric", "rubric_score", {

@@ -164,6 +164,20 @@ export interface GeometryClosure {
    * assumption is invisible on the report.
    */
   notes: string[];
+  /**
+   * N4's reveal-binding disagreement, as a FACT rather than as prose in `notes`.
+   *
+   * REVIEW_05 §14.3: the acceptance test only ever sees the chapters the contract binds, so when the
+   * beat label binds the reveal to a chapter that does not disclose, `reveal_culprit_not_named`
+   * returns `unmet` about a manuscript that may disclose perfectly well one chapter later. Every
+   * consumer that reads a reveal verdict as a statement about THE STORY — rather than about the bound
+   * chapter — has to know that, and a consumer cannot be asked to regex the note text for it: that is
+   * the two-bodies trap, with the second body being a sentence.
+   *
+   * `true` means the reveal verdict is about a chapter the contract may have picked wrongly. It does
+   * not mean the verdict is wrong; it means it is not evidence about the story either way.
+   */
+  revealBindingUncertain: boolean;
 }
 
 // ── The object ───────────────────────────────────────────────────────────────
@@ -235,6 +249,26 @@ export interface GeometryAcceptanceReport {
   checks: GeometryCheck[];
   /** Times found on the page that are neither the true nor the apparent time, with where they sit. */
   extraTimes: Array<{ chapter: number; phrase: string; minutes: number }>;
+  /**
+   * Does the MANUSCRIPT name its culprit — anywhere?
+   *
+   * A DIFFERENT QUESTION from `reveal_culprit_not_named`, and the difference is the whole reason this
+   * exists. That check asks whether the chapter the contract BOUND discloses, which is the right
+   * question for a repair pass: it names the chapter that owes the reader disclosure and would be
+   * regenerated. This asks whether the reader ever gets an answer, which is the right question for
+   * SCORING — and while the beat labels misbind the reveal (§14.3, and N4 measures it on 2 of 3
+   * archived outlines) the two answers routinely differ.
+   *
+   * Reading the bound-chapter verdict as if it were this one inverts §14.4 on every run whose
+   * injected disclosure lands outside the bound chapter, which is what the 08-04 run did.
+   *
+   * `chapter` is where the disclosure was found, or null when there is none.
+   *
+   * The whole field is `null` when the case names no culprit: there is then no name to search for, so
+   * the question is unanswerable rather than answered "no". A consumer must treat that as "not
+   * measured" — the same discipline §13.3 applied to the judge's verdict.
+   */
+  manuscriptDisclosure: { verdict: GeometryVerdict; chapter: number | null } | null;
 }
 
 // ── Permissive structural inputs ─────────────────────────────────────────────

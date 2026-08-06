@@ -507,3 +507,75 @@ describe("the folding boundary holds on both sides (N3)", () => {
     expect(offending).toEqual([0]);
   });
 });
+
+/**
+ * FOUND ON REVIEW 2026-08-06 — the scoring path was reading the bound-chapter verdict as if it were
+ * the manuscript's.
+ *
+ * `reveal_culprit_not_named` asks whether the chapter the CONTRACT BOUND discloses; that is the right
+ * question for a repair pass, which has to name the chapter it would regenerate. `noResolution` asks
+ * whether the READER ever gets an answer. While the beat labels misbind the reveal — N4 measures it
+ * on 2 of 3 archived outlines — those two questions have different answers, and on the 08-04 run the
+ * difference inverted §14.4: the disclosure sat in chapter 10, the contract bound chapter 8, and the
+ * judge was handed "this story never resolves" about a story that names its murderer.
+ */
+describe("manuscriptDisclosure — the story-level question, not the bound chapter's", () => {
+  const TEMPLATES = [/\bwas responsible;\s*the evidence allowed no other reading\b/i];
+  const reportFor = (chapters: GeometryChapter[]) =>
+    checkManuscriptGeometry(geometry, chapters, { parseClockTime, injectionTemplates: TEMPLATES });
+
+  it("finds an authored disclosure in a chapter the contract does not bind", () => {
+    const chapters = cleanManuscript();
+    // Chapter 9 is the bound reveal; empty it and move the disclosure to chapter 10, which the
+    // contract binds as aftermath. This is the 08-04 shape.
+    chapters[8] = chapter(["Everything pointed toward Hugo Hale, and the hour was late."]);
+    chapters[9] = chapter(["Hugo Hale had strangled him, and the cord was still in his coat."]);
+    const report = reportFor(chapters);
+
+    expect(report.checks.find((c) => c.code === "reveal_culprit_not_named")!.verdict).toBe("unmet");
+    // …and yet the manuscript plainly discloses. Both are true; only one of them is `noResolution`.
+    expect(report.manuscriptDisclosure).toEqual({ verdict: "met", chapter: 10 });
+  });
+
+  it("reports an out-of-contract INJECTED disclosure as met_by_injection, never as unmet", () => {
+    const chapters = cleanManuscript();
+    chapters[8] = chapter(["Everything pointed toward Hugo Hale."]);
+    chapters[9] = chapter(["Hugo Hale was responsible; the evidence allowed no other reading."]);
+    const report = reportFor(chapters);
+
+    // §14.4 — the culprit IS named on the page, badly. It caps nothing; it is counted.
+    expect(report.manuscriptDisclosure.verdict).toBe("met_by_injection");
+  });
+
+  it("still reads `unmet` when NO chapter discloses — the story-1936 shape M1 exists to catch", () => {
+    const chapters = cleanManuscript();
+    chapters[8] = chapter(["Everything pointed toward Hugo Hale.", "The truth was poised to emerge in the hours ahead."]);
+    chapters[9] = chapter(["The house emptied slowly, and the rain kept on."]);
+    const report = reportFor(chapters);
+
+    expect(report.manuscriptDisclosure).toEqual({ verdict: "unmet", chapter: null });
+  });
+
+  it("prefers an AUTHORED disclosure over an injected one later in the book", () => {
+    const chapters = cleanManuscript();
+    chapters[9] = chapter(["Hugo Hale was responsible; the evidence allowed no other reading."]);
+    // Chapter 9 still carries the authored reveal from the control manuscript.
+    expect(reportFor(chapters).manuscriptDisclosure).toEqual({ verdict: "met", chapter: 9 });
+  });
+
+  /**
+   * FOUND BY THE CORRECTED BACKTEST, within a minute of it running. The 80-scoring story's CML has an
+   * empty `culprits` array — the `culprits_empty` class the validator corpus check measures on 3 of
+   * 13 archived runs — so an `unmet` here would have capped the ending on the best story in the
+   * corpus, for the sole reason that there was no name to search for.
+   */
+  it("is NULL, not `unmet`, when the case names no culprit — the question is unanswerable", () => {
+    const noCulprit = deriveStoryGeometry({
+      cml: { CASE: { ...CML.CASE, culpability: { culprits: [] } } },
+      clues: CLUES,
+      narrative: TEN_CHAPTER_OUTLINE,
+    });
+    const report = checkManuscriptGeometry(noCulprit, cleanManuscript(), { parseClockTime });
+    expect(report.manuscriptDisclosure).toBeNull();
+  });
+});
