@@ -1,6 +1,6 @@
 # 0001 — CML is the single source of truth; prose is a rendering
 
-**Status:** Accepted · **Decided:** pre-A_40, reaffirmed continuously
+**Status:** Accepted · **Decided:** pre-A_40, reaffirmed continuously · **Ratified:** 2026-08-06 (owner)
 
 ## Context
 
@@ -40,6 +40,15 @@ never "is the prose self-consistent?" — the latter is unanswerable without a r
   correctness-first.
 
 ## What would change our mind
+
+> **Ratification note, 2026-08-06.** Accepted, and the second condition below is now the live one.
+> Every headline defect in [REVIEW_05](../REVIEW_05.md) is a RENDERING-gap defect — the CML named its
+> culprit and the prose did not (§2); the contract named a false accusation and the prose never made
+> it (§12.1). The structure was sound both times and the rendering lost it. That is not the reversal
+> condition being met — it requires a demonstrated *ceiling*, and what we have is a gap nobody has yet
+> tried to close with the two mechanisms designed for it — but **N8 is the test of it**, and the
+> answer should be recorded here when it lands.
+
 
 - If a frontier model could be shown, on a matched set, to produce **structurally sound** mysteries
   directly from a premise — verified by the same Agent 6 audit — the structure-first pipeline would be

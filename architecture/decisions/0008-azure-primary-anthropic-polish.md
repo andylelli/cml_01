@@ -1,6 +1,6 @@
 # 0008 — Azure OpenAI as the primary provider; Anthropic for the polish pass
 
-**Status:** Accepted · **Decided:** A_71 (`AGENT9_POLISH_PROVIDER=anthropic`)
+**Status:** Accepted · **Decided:** A_71 (`AGENT9_POLISH_PROVIDER=anthropic`) · **Ratified:** 2026-08-06 (owner)
 
 ## Context
 

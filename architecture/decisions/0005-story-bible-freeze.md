@@ -1,6 +1,6 @@
 # 0005 — Freeze the Story Bible: dereference, never re-derive
 
-**Status:** Accepted · **Decided:** A_61 RC-2 era (`AGENT9_BIBLE_AUTHORITATIVE`)
+**Status:** Accepted · **Decided:** A_61 RC-2 era (`AGENT9_BIBLE_AUTHORITATIVE`) · **Ratified:** 2026-08-06 (owner)
 
 ## Context
 

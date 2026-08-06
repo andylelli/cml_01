@@ -1,6 +1,6 @@
 # 0003 — Never-abort release gate, with a deterministic floor under it
 
-**Status:** Accepted · **Decided:** ~A_55, load-bearing through the corpus era
+**Status:** Accepted · **Decided:** ~A_55, load-bearing through the corpus era · **Ratified:** 2026-08-06 (owner)
 
 ## Context
 
@@ -54,6 +54,14 @@ running the control arm, which corrupts the measurement this project's every dec
 The distinction: *never abort a story that could still ship* · *always abort a run that cannot*.
 
 ## What would change our mind
+
+> **Ratification note, 2026-08-06.** Accepted. One correction to the record above: the clause *"when
+> it does fire it is logged as a floor firing rather than as a success"* was **aspirational until
+> 2026-08-04**. The 08-04 run recorded an injected disclosure as an obligation *met*, which is exactly
+> what this ADR says does not happen. It became true with N1's `met_by_injection` verdict and X4's
+> injector telemetry ([REVIEW_05 §14](../REVIEW_05.md), §22). Noted because a Consequences clause is a
+> claim, and claims in this project are supposed to carry their measurement.
+
 
 - If the LLM rungs reached a high enough success rate that the floor fired approximately never, the
   floor would become dead code and could be demoted to an error path. The evidence is a floor-firing

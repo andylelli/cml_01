@@ -62,7 +62,8 @@ Everything outstanding, in one place. `☐` not started · `◑` partial · `✅
 | M1 | ~~Rewrite the judge as the external rubric~~ → **diagnosed**, then **tested**: the deterministic `noResolution` is wired correctly and moves no score (§28). The blind-spot hypothesis is not supported, and §13.1's numbers rest on internals that no longer reproduce | ~1 day | ✅ | [§13](#13-m1--what-the-judge-diagnosis-actually-found) · [§28](#28-m1b--the-answer-is-no-and-the-corpus-is-the-bigger-finding) |
 | M1b | Re-scored 2026-08-06, $0.0122. **Wiring correct; effect ZERO** — the new cap is redundant with one already firing. Hypothesis not supported, and the ledger's internals do not reproduce (1936: 73 → 64) | ~£1 | ✅ | [§28](#28-m1b--the-answer-is-no-and-the-corpus-is-the-bigger-finding) |
 | M1c | **Is a single rubric score even stable?** Score one story 3× through the same judge; if variance spans marks, every single-scored number in this project has an undrawn error bar | ~£0.04 | ☐ | [§28.4](#284-what-m1b-actually-established-and-what-it-costs-to-finish) |
-| M1d | **The calibration corpus is 2 of 7** — five manifest entries name paths that do not exist, and the manifest was git-ignored, which is likely why. Now tracked (◑); recovering the five manuscripts needs a human | 👤 | ◑ | [§28.4](#284-what-m1b-actually-established-and-what-it-costs-to-finish) |
+| M1d | ~~The calibration corpus is 2 of 7~~ → **all five found by grep** (paths had elided IDs). Re-scored on one basis: **ranking agreement 42.9% → 84.2%**, and the geometry verdict contributed zero. The judge was never the problem | free | ✅ | [§29](#29-the-judge-was-not-the-problem--the-corpus-was) |
+| R10 | Ratify the 12 ADRs — **signed 2026-08-06.** 11 Accepted, ADR-0012 stays `Proposed` with its probe owed; ADR-0004's rule is now enforced by a lint, not stated | ~15 min | ✅ | [§25](#25-r10--the-ratification-brief) |
 | **B. Free instrument fixes — geometry can't be trusted to read a probe until these land** ||||
 | N1 | Record an injected disclosure as `met_by_injection`, not as satisfied | free | ✅ | [§14](#14-n1--done-and-what-it-revealed-about-the-ordering) |
 | N2 | `unaccounted_time` instead of `third_time` (locked-fact times are accounted) | free | ✅ | [§10.2](#102-n2--unaccounted-time-instead-of-third-time-free) |
@@ -104,7 +105,6 @@ Everything outstanding, in one place. `☐` not started · `◑` partial · `✅
 | CS1 | Promote `@cml/clue-spec` out of shadow | ~£3 | ☐ | [§12.5](#125-the-smaller-carried-over-items) |
 | CS2 | Add a clincher slot type to `clue-spec` — **shipped**, plus geometry preferring a declared clincher over scoring. Inert until CS1 promotes clue-spec | free | ✅ | [§12.5](#125-the-smaller-carried-over-items) · [§23](#23-cs2--the-clincher-stops-being-whatever-scored-highest) |
 | ENV | Delete the duplicated `.env` keys `flags:check` has reported for three sessions — **and six loaders X7 had missed** | 2 min | ✅ | [§12.5](#125-the-smaller-carried-over-items) · [§20.4](#204-env--and-the-six-loaders-x7-did-not-reach) |
-| R10 | Ratify the 12 ADRs — **brief prepared**: 11 ratifiable as written, ADR-0012 must stay `Proposed` (its probe has never run). Owner signs | ~1 h → ~15 min | ◑ 👤 | [§11.1](#111-the-assessment) · [§25](#25-r10--the-ratification-brief) |
 | **G. Recommended against** ||||
 | M2 | Write the reveal first | days | ⛔ | N8 tests the same hypothesis for £3 |
 | R4 | Structured outputs on Agent 7 | ~£3 | ⛔ | Coercion `firings=0` — it fixes a problem that is not occurring |
@@ -2010,3 +2010,70 @@ same judge and see how far the total moves. If judge variance alone spans severa
 single-scored number in this project — including the ledger, including the 42.9% — has an error bar
 nobody has drawn, and R6's `--repeats` flag exists precisely because someone suspected this. That is
 one story, three calls, about four pence. Tracked as **M1c**.
+
+---
+
+## 29. The judge was not the problem — the corpus was
+
+**2026-08-06, $0.0458, seven judge calls.** [§28](#28-m1b--the-answer-is-no-and-the-corpus-is-the-bigger-finding)
+ended with the corpus at 2 of 7 and called finding the other five a job for a human. It took a grep.
+All five manuscripts were on disk the whole time; the manifest recorded them with their IDs elided
+(`corpus/mystery-…1161277`), so nothing resolved and nobody had checked.
+
+With the paths repaired and **all seven re-scored through today's judge on the same basis**:
+
+```
+                       BEFORE            AFTER
+ranking agreement      42.9%             84.2%      (target 85%)
+bias sd                7.11              4.08
+```
+
+**Forty-two to eighty-four, and the deterministic verdict contributed zero to every one of the seven.**
+The double-scoring says so directly: each story was scored with the verdict and without it, off one
+memoised judge call, and the two totals are identical in all seven cases.
+
+### 29.1 What this means, and it is not a small correction
+
+[§13.1](#131-three-findings-that-killed-the-planned-fix) diagnosed a judge with **one blind spot** — an
+undisclosed reveal — and built M1 to close it. That diagnosis is now dead. The judge does not have a
+blind spot worth 42 points; **it was being compared against internals it did not produce.** The ledger
+numbers came from a mix of dates, models and cap generations, and re-scoring on one basis moved
+agreement to within **0.8 points of the published 85% target** without changing a single line of
+scoring logic.
+
+The instrument was never as broken as the board believed. The *record* of what it had said was.
+
+That is the same defect this entire document keeps finding, at one more level up: X6/X7 were a
+repository asserting a fix it did not contain, X2 was a message nobody could read, X12 was a probe
+that could not see the thing it checked — and this is a calibration computed against numbers that no
+longer existed. **Four instances, one shape: the record and the reality drifting apart with nothing
+that would notice.**
+
+### 29.2 What it does not license
+
+- **Five of the seven were scored prose-only.** Their CML is gone (no run artifacts before 2026-07-24,
+  nothing in the store), so `cml: {}` — prose-derived facts still fire, CML-derived caps cannot. Their
+  totals are therefore *not* produced exactly as a live run would produce them. Recorded per row in
+  the manifest rather than averaged away.
+- **84.2% is not 85%**, and the verdict line still reads NOT CALIBRATED. It is one pair from passing,
+  which is a different situation from being at chance, but it is not passing.
+- **sd 4.08 is still too wide for a constant offset**, so the harness cannot yet be corrected by
+  subtracting a bias.
+- **Every number here is single-scored.** [M1c](#284-what-m1b-actually-established-and-what-it-costs-to-finish)
+  now matters MORE, not less: if one story scored three times spans several marks, an 84.2% built from
+  one scoring each has an error bar wide enough to contain both the old answer and the new one. Four
+  pence.
+
+### 29.3 What changes on the board
+
+- **R6 (`eval:baseline`, £4–8) is no longer held on the judge.** [§11.2](#112-the-two-assessments-that-changed-my-mind-while-writing-this)
+  held it because *"a baseline is only as good as the instrument that measures it, and this one ranks
+  at chance"*. It does not rank at chance. It is held on M1c instead — establish the error bar first,
+  then baseline.
+- **M6 (rubric-in-prompt) becomes readable.** Its effect was only ever visible through the judge.
+- **M1's own row is unchanged in substance**: the wiring is correct and its effect is zero. What has
+  changed is that the *problem it was built for* turns out not to have been there.
+
+The honest summary of the whole M1 line: **a real defect was found, a correct fix was built for it,
+and the defect was not what was causing the symptom.** The fix stays — a reveal that discloses nowhere
+should cap the ending, and X11's null path is load-bearing — but it earned none of the 42 points.

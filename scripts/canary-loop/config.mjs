@@ -34,8 +34,17 @@ export const MAJOR_REWORK_DEFAULTS = {
   enforceNarrativeAcceptanceGates: true,
 };
 
-export const MIN_CONFIDENCE = Number.parseFloat(process.env.CANARY_MIN_SIGNATURE_CONFIDENCE ?? "0.6");
-export const MIN_ROOT_CAUSE_CONFIDENCE = Number.parseFloat(process.env.CANARY_MIN_ROOT_CAUSE_CONFIDENCE ?? "0.7");
+/**
+ * ADR-0004 — read at CALL time, not at import.
+ *
+ * These were module consts, and `scripts/module-const-flag-check.mjs` found them on its first run.
+ * The entry points import this module before calling dotenv's `config()`, so both froze to their
+ * defaults and neither `CANARY_MIN_SIGNATURE_CONFIDENCE` nor `CANARY_MIN_ROOT_CAUSE_CONFIDENCE` could
+ * be set from `.env` at all — the X9 shape, one directory over, on thresholds that decide whether the
+ * canary loop stops.
+ */
+export const minConfidence = () => Number.parseFloat(process.env.CANARY_MIN_SIGNATURE_CONFIDENCE ?? "0.6");
+export const minRootCauseConfidence = () => Number.parseFloat(process.env.CANARY_MIN_ROOT_CAUSE_CONFIDENCE ?? "0.7");
 export const MAX_FILES_PER_ITERATION = 4;
 export const GENERATED_ARTIFACT_DENY_GLOBS = ["documentation/prompts/actual/run_*/**"];
 export const SHARED_FILE_CONFIRM_GLOBS = [

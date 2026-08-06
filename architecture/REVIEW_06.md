@@ -18,9 +18,10 @@ the same thing.
 
 | # | Do this | Status | Where |
 |---|---|---|---|
-| F1 | Sign off the 12 ADRs. Brief is written: 11 ratifiable as-is, ADR-0012 stays `Proposed`. ~15 min | 👤 | [R05 §25](REVIEW_05.md) |
-| F2 | Find the five missing calibration manuscripts, or rebuild the pairs. Corpus is 2 of 7 | 👤 | [R05 §28.4](REVIEW_05.md) |
+| F1 | ~~Sign off the 12 ADRs~~ — **done 2026-08-06.** 11 Accepted and stamped, ADR-0012 stays `Proposed` with its probe owed, and ADR-0004's rule is now enforced by `npm run flags:runtime` rather than stated | ✅ | [R05 §25](REVIEW_05.md) |
+| F2 | ~~Find the five missing calibration manuscripts~~ — **done, by grep.** All five were on disk; the manifest had elided their IDs. Re-scored all seven on one basis: **agreement 42.9% → 84.2%** | ✅ | [R05 §29](REVIEW_05.md) |
 | F3 | Finish REVIEW_05's consistency pass: stale R6/M6 gating, §26.3, §11.4 Track A, the "done this session" line | ☐ | §5 below |
+| F4 | Fix the two frozen canary thresholds the new lint found on its first run (`CANARY_MIN_*_CONFIDENCE`) | ✅ | §5 below |
 
 ### Cheap — judge calls only, no pipeline run
 
@@ -28,8 +29,11 @@ the same thing.
 |---|---|---|---|
 | C1 | **M1c — is one rubric score stable?** Score one story 3× through the same judge. If the total moves by marks, every single-scored number in this project has an error bar nobody has drawn | ~£0.04 | ☐ |
 
-**C1 goes first.** Everything paid below is judged by that instrument, and M1b showed the ledger's own
-numbers do not reproduce. Three calls on one story is the cheapest question on the board.
+**C1 goes first, and F2 made it matter more rather than less.** Re-scoring the corpus moved ranking
+agreement from 42.9% to **84.2%** — 0.8 points short of the published target — without changing a line
+of scoring logic. That number is built from ONE scoring of each story. If a single score wanders by
+several marks, an 84.2% from n=1 each has an error bar wide enough to contain the old answer too.
+Three calls on one story settles it.
 
 ### Run 1 + Run 2 — the N6 pair
 
@@ -79,7 +83,7 @@ offline only; these two runs are the first time any of them meets a live pipelin
 
 | # | Item | Why |
 |---|---|---|
-| H1 | R6 — `eval:baseline` (£4–8) | Was "after M1". M1 landed and did not repair the judge. Now gated on C1 **and** F2 — baselining against a 2-of-7 corpus buys noise |
+| H1 | R6 — `eval:baseline` (£4–8) | **No longer held on the judge.** §11.2 held it because the judge "ranks at chance"; it ranks at 84.2%. Held on **C1 only** — establish the error bar, then baseline |
 | H2 | M2 · R4 · R9 · S4/S6 · GF | Recommended against in [R05 §11.1](REVIEW_05.md); reasons unchanged |
 
 ---
@@ -137,14 +141,22 @@ R4  N8 phase-2 contract →  D5
 R5  CS1 clue-spec
 R6  M6 rubric-in-prompt (after C1)
      ↓
-H1  R6 eval:baseline — only once C1 and F2 are done
+H1  R6 eval:baseline — once C1 has drawn the error bar
 ```
 
-**Six runs, ~£9, plus four pence.** F1 and F2 are yours and block nothing except H1.
+**Six runs, ~£9, plus four pence.** F1 and F2 are done; F3 is the only free item left.
 
 ---
 
-## 5. F3 — the REVIEW_05 consistency pass
+## 5. F3 / F4 — the small free items
+
+**F4 is done.** ADR-0004's new lint (`npm run flags:runtime`, and in `pretest`) found two frozen flags
+on its first run: `CANARY_MIN_SIGNATURE_CONFIDENCE` and `CANARY_MIN_ROOT_CAUSE_CONFIDENCE` in
+`scripts/canary-loop/config.mjs`, both module consts, both therefore unsettable from `.env` — the X9
+shape on the thresholds that decide whether the canary loop stops. Now getters. The lint was also
+checked against a planted frozen flag before being believed.
+
+### F3 — the REVIEW_05 consistency pass
 
 Small, free, and listed so it is not lost. REVIEW_05's tracker rows are current; four framing
 statements are not:

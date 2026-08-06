@@ -1,6 +1,6 @@
 # 0006 — `run_outcome` derives from the release gate, not from phase thresholds
 
-**Status:** Accepted · **Decided:** A_63 era, contested in most batch-gate tallies since
+**Status:** Accepted · **Decided:** A_63 era, contested in most batch-gate tallies since · **Ratified:** 2026-08-06 (owner)
 
 ## Context
 

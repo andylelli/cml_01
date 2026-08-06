@@ -1,6 +1,6 @@
 # 0011 — Nothing is promoted without measurement — and that includes deletions
 
-**Status:** Accepted · **Decided:** implicit since the corpus era; stated explicitly by
+**Status:** Accepted · **Decided:** implicit since the corpus era; stated explicitly by · **Ratified:** 2026-08-06 (owner)
 [FLAG-AUDIT.md](../FLAG-AUDIT.md) and REVIEW's S7
 
 ## Context

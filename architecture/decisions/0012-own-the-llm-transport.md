@@ -1,6 +1,18 @@
 # 0012 — Own the HTTP call to the model provider
 
-**Status:** Proposed · **Decided:** 2026-08-02 (REVIEW_02 §4.1) · **Supersedes nothing; scopes [0008](0008-azure-primary-anthropic-polish.md)**
+**Status:** Proposed · **Decided:** 2026-08-02 (REVIEW_02 §4.1) · **Supersedes nothing; scopes [0008](0008-azure-primary-anthropic-polish.md)** · **Ratified as PROPOSED:** 2026-08-06 (owner) — probe owed
+
+> **Ratification note, 2026-08-06.** Deliberately **not** promoted to Accepted, and that is the
+> decision rather than a deferral. MEASURED: `LLM_HTTP_TRANSPORT` is unset and this record's own probe
+> — *one run per arm on a fixed premise, artifacts equivalent, no new error classes* — has never run.
+> Promoting it would be promoting an unprobed lever **by documentation**, which is the act
+> [0004](0004-flag-gated-default-off.md) and [0011](0011-measurement-before-promotion.md) forbid,
+> performed on the ADR that cites them.
+>
+> The cheap route to Accepted is a ride-along, not a probe of its own: the transport arm is settled by
+> *artifact equivalence*, not prose quality, so it can share a premise with a future run rather than
+> buying one. It cannot share a *run* — a transport change and a behaviour lever together is the
+> batching [REVIEW_05 §10.8](../REVIEW_05.md) forbids.
 
 ## Context
 

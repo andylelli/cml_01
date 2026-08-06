@@ -57,9 +57,31 @@ const entries = Object.entries(manifest).map(([key, value]) => ({ key, ...value 
 function verdictFor(entry) {
   const storyAbs = join(ROOT, entry.storyPath);
   if (!existsSync(storyAbs)) return { reason: "manuscript not on disk" };
-  if (!entry.runFolder) return { reason: "no runFolder recorded in the manifest" };
+
+  /**
+   * A manuscript with no run artifacts is still re-scorable, and that matters more than the verdict.
+   *
+   * M1b's finding was that the ledger's internals do not reproduce, which makes the whole corpus
+   * stale — a problem that is fixed by re-scoring through today's judge and does NOT need geometry.
+   * The four 2026-07-13 stories and the 07-22 probe pre-date prompt archiving (the earliest run
+   * folder is 07-24) and their CML is gone from the store, so they get `cml: {}`: prose-derived facts
+   * still fire, CML-derived ones cannot. That is recorded per row rather than averaged away.
+   */
+  const manuscriptOnly = !entry.runFolder || !existsSync(join(PROMPTS, entry.runFolder));
+  if (manuscriptOnly) {
+    const manuscript = readManuscript(storyAbs);
+    if (manuscript.chapters.length === 0) return { reason: "manuscript has no chapters" };
+    return {
+      manuscript,
+      cml: {},
+      cmlAvailable: false,
+      disclosure: null,
+      noResolutionVerdict: null,
+      revealBindingUncertain: false,
+    };
+  }
+
   const runDir = join(PROMPTS, entry.runFolder);
-  if (!existsSync(runDir)) return { reason: `run folder not on disk (${entry.runFolder})` };
 
   const cml = lastResponseFor(runDir, /Agent4-Revision/).parsed ?? lastResponseFor(runDir, /Agent3-CMLGenerator/).parsed;
   if (!cml) return { reason: "no CML in the run folder" };
@@ -85,6 +107,7 @@ function verdictFor(entry) {
   return {
     manuscript,
     cml,
+    cmlAvailable: true,
     disclosure,
     // X11 — null, never false, when the case names no culprit: the question is unanswerable, and a
     // fact nobody could compute must not be reported as a fact.
@@ -107,7 +130,13 @@ for (const row of rows) {
     continue;
   }
   const d = row.disclosure;
-  const shown = !d ? "UNANSWERABLE (no culprit in the case)" : d.verdict === "unmet" ? "NOWHERE" : `${d.verdict} @ch${d.chapter}`;
+  const shown = !row.cmlAvailable
+    ? "not assessed — no run artifacts survive for this story"
+    : !d
+      ? "UNANSWERABLE (no culprit in the case)"
+      : d.verdict === "unmet"
+        ? "NOWHERE"
+        : `${d.verdict} @ch${d.chapter}`;
   console.log(`${head} int ${entry.internalFinal} / ext ${entry.externalFinal}`);
   console.log(`${" ".repeat(38)}discloses: ${shown}`);
   console.log(`${" ".repeat(38)}noResolution supplied: ${row.noResolutionVerdict === null ? "null (not measured)" : row.noResolutionVerdict}`);
@@ -192,7 +221,7 @@ for (const row of rows) {
     after: withVerdict.final,
     result: withVerdict,
   });
-  console.log(`  ${row.entry.bundleId}   (ledger ${ledger}, external ${row.entry.externalFinal})`);
+  console.log(`  ${row.entry.bundleId}   (ledger ${ledger}, external ${row.entry.externalFinal})${row.cmlAvailable ? "" : "   [prose-only: no CML survives]"}`);
   console.log(`      judge unchallenged   ${withoutVerdict.final}   caps: ${withoutVerdict.capsApplied?.join("; ") || "none"}`);
   console.log(`      + geometry verdict   ${withVerdict.final}   caps: ${withVerdict.capsApplied?.join("; ") || "none"}`);
   console.log(

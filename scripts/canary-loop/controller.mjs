@@ -5,8 +5,8 @@ import path from "path";
 import {
   DEFAULTS,
   MAJOR_REWORK_DEFAULTS,
-  MIN_CONFIDENCE,
-  MIN_ROOT_CAUSE_CONFIDENCE,
+  minConfidence,
+  minRootCauseConfidence,
   loadRegisteredAgentCodes,
   normalizeAgentInput,
   getAgentMappingConformance,
@@ -200,13 +200,13 @@ export async function runCanaryLoop({ workspaceRoot, request }) {
   );
   await logNarration(`Issue: ${compactIssueMessage(initialSignature.message)}`);
 
-  if (initialSignature.confidence < MIN_CONFIDENCE && !allowLowConfidenceBypass) {
+  if (initialSignature.confidence < minConfidence() && !allowLowConfidenceBypass) {
     const entry = buildIterationRecord({
       iteration: 1,
       request,
       signature: initialSignature,
       decision: "stop",
-      stopReason: `Low confidence signature (${initialSignature.confidence} < ${MIN_CONFIDENCE}).`,
+      stopReason: `Low confidence signature (${initialSignature.confidence} < ${minConfidence()}).`,
     });
     await appendLedgerEntry(ledger, entry);
     await logNarration(
@@ -222,7 +222,7 @@ export async function runCanaryLoop({ workspaceRoot, request }) {
     };
   }
 
-  if (initialSignature.confidence < MIN_CONFIDENCE && allowLowConfidenceBypass) {
+  if (initialSignature.confidence < minConfidence() && allowLowConfidenceBypass) {
     await logNarration(
       "Warning: Signature confidence is below threshold, but downstream agent markers are strong; continuing in apply mode with guarded low-confidence bypass."
     );
@@ -233,14 +233,14 @@ export async function runCanaryLoop({ workspaceRoot, request }) {
     `Root cause: ${describeRootCauseLayer(rootCause.sourceLayer)} (confidence ${rootCause.confidence.toFixed(2)}).`
   );
   await logNarration(`Cause: ${compactIssueMessage(rootCause.hypothesis)}`);
-  if (rootCause.confidence < MIN_ROOT_CAUSE_CONFIDENCE && !allowLowConfidenceBypass) {
+  if (rootCause.confidence < minRootCauseConfidence() && !allowLowConfidenceBypass) {
     const entry = buildIterationRecord({
       iteration: 1,
       request,
       signature: initialSignature,
       rootCause,
       decision: "stop",
-      stopReason: `Low confidence root-cause hypothesis (${rootCause.confidence} < ${MIN_ROOT_CAUSE_CONFIDENCE}).`,
+      stopReason: `Low confidence root-cause hypothesis (${rootCause.confidence} < ${minRootCauseConfidence()}).`,
     });
     await appendLedgerEntry(ledger, entry);
     await logNarration(
@@ -257,7 +257,7 @@ export async function runCanaryLoop({ workspaceRoot, request }) {
     };
   }
 
-  if (rootCause.confidence < MIN_ROOT_CAUSE_CONFIDENCE && allowLowConfidenceBypass) {
+  if (rootCause.confidence < minRootCauseConfidence() && allowLowConfidenceBypass) {
     await logNarration(
       "Warning: Root-cause confidence is below threshold, but downstream agent markers are strong; continuing in apply mode to gather higher-fidelity signatures."
     );
@@ -450,7 +450,7 @@ function canSelfHydrateBoundary(canaryCommand) {
 }
 
 function recoverLowConfidenceSignature({ signature, agent, artifactBundle }) {
-  if (!signature || signature.confidence >= MIN_CONFIDENCE) {
+  if (!signature || signature.confidence >= minConfidence()) {
     return signature;
   }
 
@@ -1424,7 +1424,7 @@ async function runApplyLoop({
 
       currentSignature = outputSignature;
       currentRootCause = analyzeRootCause(outputSignature);
-      if (currentRootCause.confidence < MIN_ROOT_CAUSE_CONFIDENCE) {
+      if (currentRootCause.confidence < minRootCauseConfidence()) {
         await logNarration(
           "Warning: New root-cause confidence dropped below safe threshold. Loop stopped."
         );
@@ -1439,7 +1439,7 @@ async function runApplyLoop({
           exitCode: 1,
           status: "stop_low_confidence_root_cause",
           messages: [
-            `Low confidence root-cause hypothesis (${currentRootCause.confidence} < ${MIN_ROOT_CAUSE_CONFIDENCE}).`,
+            `Low confidence root-cause hypothesis (${currentRootCause.confidence} < ${minRootCauseConfidence()}).`,
             ...precheckWarnings,
           ],
           ledger,
@@ -2537,12 +2537,12 @@ export function decideLoopContinuation({
   classHistory = [],
 }) {
   if (
-    outputSignature.confidence < MIN_CONFIDENCE
+    outputSignature.confidence < minConfidence()
     && !isLowConfidenceOutputBypassEligible({ request, outputSignature })
   ) {
     return {
       decision: "stop",
-      stopReason: `Low confidence output signature (${outputSignature.confidence} < ${MIN_CONFIDENCE}).`,
+      stopReason: `Low confidence output signature (${outputSignature.confidence} < ${minConfidence()}).`,
       nextUnchangedCount: unchangedCount,
     };
   }

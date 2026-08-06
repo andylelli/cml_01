@@ -1,6 +1,6 @@
 # 0007 — The repair ladder: LLM rungs first, deterministic floor last, and the floor stays
 
-**Status:** Accepted · **Decided:** A_57 → A_68, continuously refined
+**Status:** Accepted · **Decided:** A_57 → A_68, continuously refined · **Ratified:** 2026-08-06 (owner)
 
 ## Context
 

@@ -1,6 +1,6 @@
 # 0004 — Flag-gated, default-OFF, promoted only on an N≥4 matched-pair probe
 
-**Status:** Accepted · **Decided:** corpus era (§2.8 regime), reaffirmed by [FLAG-AUDIT.md](../FLAG-AUDIT.md)
+**Status:** Accepted · **Decided:** corpus era (§2.8 regime), reaffirmed by [FLAG-AUDIT.md](../FLAG-AUDIT.md) · **Ratified:** 2026-08-06 (owner)
 
 ## Context
 
@@ -45,6 +45,14 @@ Three details are load-bearing:
   promote on faith, and correctly identifying what would unblock it.
 
 ## What would change our mind
+
+> **Ratification note, 2026-08-06.** Accepted, **and the rule is now enforced rather than stated.**
+> "Runtime-read, never a module const" was broken AFTER this record was written, in `agent7-run.ts` —
+> the one module holding the lever of the next paid probe ([REVIEW_05 §24.1](../REVIEW_05.md)). A rule
+> that has been broken after being written down is not being held by the writing down, so
+> `scripts/module-const-flag-check.mjs` now fails the build on a module-scope `const X =
+> process.env.Y`, and runs on every `npm test`.
+
 
 - Not the cost. Cheap measurement (R6) does not weaken this decision — it *strengthens* it, by making
   the probe requirement affordable rather than aspirational.

@@ -1,6 +1,6 @@
 # 0010 — The report is the durable record; chain logs are ephemeral
 
-**Status:** Accepted · **Decided:** A_64 §2 F5, after the 7.5-pool autopsy
+**Status:** Accepted · **Decided:** A_64 §2 F5, after the 7.5-pool autopsy · **Ratified:** 2026-08-06 (owner)
 
 ## Context
 

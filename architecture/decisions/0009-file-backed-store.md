@@ -1,6 +1,6 @@
 # 0009 — A file-backed artifact store, not a database
 
-**Status:** Accepted · **Decided:** original design
+**Status:** Accepted · **Decided:** original design · **Ratified:** 2026-08-06 (owner)
 
 ## Context
 
