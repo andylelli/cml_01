@@ -145,9 +145,9 @@
     "bundleId": "2026-08-06-2255-weighted-pendulum",
     "storyPath": "stories/story_20260806-2255/the_weighted_pendulum_deception.md",
     "runFolder": "run_20260806-2134_mystery",
-    "internalFinal": 70,
+    "internalFinal": 73,
     "externalFinal": 86,
-    "gap": -16,
+    "gap": -13,
     "internalCategories": {},
     "externalCategories": {
       "premise": 9,
@@ -161,7 +161,7 @@
       "ending": 9,
       "prose": 8
     },
-    "source": "N6 treatment arm (REVIEW_05 \u00a731). Internal INCLUDES a noResolution cap now believed to be a false positive (\u00a732); external = ChatGPT cold read, stories/story_20260806-2255/chatgpt-review.txt",
+    "source": "N6 treatment arm (REVIEW_05 \u00a731). Internal CORRECTED 2026-08-07 from 70 to 73 by X18: the run's only cap was the noResolution one, which \u00a732.3 showed was a false positive on this story (raw 73 -> final 70). Restoring raw is arithmetic on the run's own recorded numbers, not a re-score, so the change is attributable to X18 rather than to judge variance. External = ChatGPT cold read, stories/story_20260806-2255/chatgpt-review.txt",
     "readBy": "ChatGPT (external, human-run)",
     "rescored": "live run 2026-08-06"
   }

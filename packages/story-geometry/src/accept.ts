@@ -112,14 +112,31 @@ const COMMON_WORD_SURNAMES = new Set([
   "rice", "stone", "wood", "young", "cook", "field", "brook", "marsh", "ward", "west", "banks",
 ]);
 
-export const nameMatcher = (name: string): RegExp | null => {
+export const nameMatcher = (name: string, options?: { includeFirstName?: boolean }): RegExp | null => {
   const full = needle(name).trim();
   if (!full) return null;
   const parts = full.split(/\s+/);
   const surname = parts[parts.length - 1] ?? "";
   const alternatives = [escapeRe(full)];
-  if (parts.length > 1 && surname.length >= 4 && !COMMON_WORD_SURNAMES.has(surname.toLowerCase())) {
-    alternatives.push(escapeRe(surname));
+  const distinctive = (part: string) => part.length >= 4 && !COMMON_WORD_SURNAMES.has(part.toLowerCase());
+  if (parts.length > 1 && distinctive(surname)) alternatives.push(escapeRe(surname));
+  /**
+   * X18 — the FIRST name, on request only.
+   *
+   * Prose introduces a character in full and then refers to them familiarly, so a reveal can name the
+   * culprit a dozen times without ever repeating the surname: *"Hugo's mask of indifference cracked"*.
+   * Requiring the full name or surname made the disclosure test blind to that, and geometry reported
+   * `unmet` on a reveal an external reader scored 9/10 (REVIEW_05 §32.3).
+   *
+   * Opt-in rather than default because the two callers want different things. Disclosure asks "was the
+   * reader told?", where a familiar reference counts. The clincher and false-solution checks ask
+   * whether a specific NAMED person appears, and a bare first name is weaker evidence there.
+   *
+   * Same distinctiveness guard as the surname: "Hugo" qualifies, a culprit called "Grace" or "Hope"
+   * would not, because a reveal chapter is full of both.
+   */
+  if (options?.includeFirstName && parts.length > 1 && distinctive(parts[0]!)) {
+    alternatives.push(escapeRe(parts[0]!));
   }
   return new RegExp(`\\b(?:${alternatives.join("|")})\\b`, "i");
 };
@@ -141,7 +158,7 @@ export const nameMatcher = (name: string): RegExp | null => {
  * arrangements, the household, or the noise.
  */
 const GUILT_MARKER =
-  /\b(?:killed|murdered|strangled|poisoned|stabbed|shot|bludgeoned|smothered|is\s+(?:the|our|your)\s+(?:murderer|killer|culprit)|was\s+(?:the|our)\s+(?:murderer|killer|culprit)|committed\s+the\s+murder|confess(?:ed|es|ion)|guilty|arrested?|took\s+the\s+life|(?:was|is|were|had\s+been|held)\s+responsible|to\s+blame)\b/i;
+  /\b(?:killed|murdered|strangled|poisoned|stabbed|shot|bludgeoned|smothered|is\s+(?:the|our|your)\s+(?:murderer|killer|culprit)|was\s+(?:the|our)\s+(?:murderer|killer|culprit)|committed\s+the\s+murder|confess(?:ed|es|ion)|guilty|guilt|arrested?|took\s+the\s+life|(?:was|is|were|had\s+been|held)\s+responsible|to\s+blame|(?:had\s+)?tampered\s+with|admitted\s+(?:it|everything|the\s+truth)|had\s+done\s+it|did\s+it)\b/i;
 
 const MOTIVE_MARKER =
   /\b(?:motive|because|in\s+order\s+to|so\s+that|to\s+protect|to\s+conceal|to\s+silence|revenge|inheritance|blackmail|jealous(?:y)?|ruin|debt|disgrace|exposure)\b/i;
@@ -183,7 +200,10 @@ export const detectAftermathRepeatParagraphs = (
   paragraphs: ReadonlyArray<string>,
   args: { culprit?: string | null; methodTerms?: ReadonlyArray<string> },
 ): number[] => {
-  const culpritRe = args.culprit ? nameMatcher(args.culprit) : null;
+  // X19 — the SAME matcher as disclosure, and for the same reason. This detector asks "does the
+  // aftermath re-deliver the reveal?", which a familiar reference does just as well as a full name.
+  // Sharing the narrow matcher is why it missed the repeat two external readers both named.
+  const culpritRe = disclosureMatcher(args.culprit);
   const methodTerms = (args.methodTerms ?? []).map((t) => needle(t).toLowerCase()).filter(Boolean);
   const offending: number[] = [];
   paragraphs.forEach((paragraph, index) => {
@@ -230,6 +250,16 @@ const disclosingSentence = (text: string, culpritRe: RegExp | null): string | nu
 };
 
 /**
+ * X18 — the matcher the DISCLOSURE question uses, which is not the one the other checks use.
+ *
+ * "Was the reader told who did it?" is satisfied by a familiar reference; "does this chapter name
+ * this specific person?" is not. Built once per call site rather than threaded through, because the
+ * distinction is the point and a shared matcher is what got this wrong.
+ */
+const disclosureMatcher = (culprit: string | null | undefined): RegExp | null =>
+  culprit ? nameMatcher(culprit, { includeFirstName: true }) : null;
+
+/**
  * Does the manuscript name its culprit ANYWHERE, and who wrote the sentence that does?
  *
  * FOUND ON REVIEW 2026-08-06. The bound-chapter check (`reveal_culprit_not_named`) was being read by
@@ -260,7 +290,7 @@ export const findManuscriptDisclosure = (
   culprit: string | null | undefined,
   injectionTemplates: ReadonlyArray<RegExp> = [],
 ): { verdict: GeometryVerdict; chapter: number | null } | null => {
-  const culpritRe = culprit ? nameMatcher(culprit) : null;
+  const culpritRe = disclosureMatcher(culprit);
   if (!culpritRe) return null;
 
   let injectedAt: number | null = null;
@@ -385,7 +415,11 @@ export const checkManuscriptGeometry = (
     }
   }
 
-  const culpritRe = geometry.culprit ? nameMatcher(geometry.culprit) : null;
+  // X18 — the bound-chapter reveal check uses the disclosure matcher too. Its message says the chapter
+  // "owes the reader disclosure", so it must accept the same evidence a reader does; leaving it narrow
+  // would keep the false positive alive in `apply` mode, where it would regenerate a chapter that had
+  // already told the reader who did it.
+  const culpritRe = disclosureMatcher(geometry.culprit);
   const revealChapterNumber = geometry.chapterContract.find((c) => c.role === "reveal")?.chapter ?? null;
 
   // ── method_signature: present in chapter 1 ────────────────────────────────

@@ -92,9 +92,9 @@ Everything outstanding, in one place. `☐` not started · `◑` partial · `✅
 | X14 | **Eleven** `gpt-4o-mini` fallbacks, not the three first reported — including both production entry points. One resolver, no silent default | free | ✅ | [§27.3](#273-x13-x14-x15--found-and-fixed) |
 | X15 | One `accept.ts` call site bypassed N3's folding boundary (unreachable today) | free | ✅ | [§27.3](#273-x13-x14-x15--found-and-fixed) |
 | X16 | **`npm test` could not catch a type error** — vitest compiles from `src`. Now gated by `pretest`, verified to fail the suite on a planted error. X10's neighbour | free | ✅ | [§27.5](#275-x16--the-suite-that-could-not-catch-a-type-error) |
-| X17 | **The N6 lever's confirmation goes to `console.info`, not the report** — so a probe's treatment arm cannot be identified from its durable record. Found by briefly mis-reading N6 as not having fired | free | ☐ | [§31.1](#311-the-lever-fired--verified-in-the-artifact-not-the-terminal) |
-| X18 | **The `noResolution` cap fired wrongly on the better story.** Geometry's disclosure test wants a name + guilt verb in ONE sentence; the reader gave that same dramatised reveal 9/10. Cost it 3 marks | free to diagnose | ☐ | [§32.3](#323-x18--geometry-called-that-reveal-unmet-and-the-cap-cost-it-three-marks) |
-| X19 | **`aftermath_repeat` missed what the reader saw** — flagged on the control, silent on the treatment, where the external read names ch10 repeating ch9 | free | ☐ | [§32.4](#324-x19--aftermath_repeat-missed-what-the-reader-saw) |
+| X17 | ~~The N6 lever's confirmation goes to `console.info`~~ — **fixed**: both the shadow and the authority stamp now push to `ctx.warnings`, and the shadow states the arm even when authority is off — so a probe's treatment arm cannot be identified from its durable record. Found by briefly mis-reading N6 as not having fired | free | ✅ | [§31.1](#311-the-lever-fired--verified-in-the-artifact-not-the-terminal) |
+| X18 | ~~The `noResolution` cap fired wrongly on the better story~~ — **fixed**: the disclosure test now accepts a distinctive first name, `guilt` the noun, and attribution by action. Discrimination verified — 1936 still reads NOWHERE Geometry's disclosure test wants a name + guilt verb in ONE sentence; the reader gave that same dramatised reveal 9/10. Cost it 3 marks | free to diagnose | ✅ | [§32.3](#323-x18--geometry-called-that-reveal-unmet-and-the-cap-cost-it-three-marks) |
+| X19 | ~~`aftermath_repeat` missed what the reader saw~~ — **fixed by the same root cause**: it shared the narrow matcher. Treatment ch10 now flags 1 paragraph (was 0), control 4 (was 1) — both matching the readers — flagged on the control, silent on the treatment, where the external read names ch10 repeating ch9 | free | ✅ | [§32.4](#324-x19--aftermath_repeat-missed-what-the-reader-saw) |
 | M5 | Delete the deterministic injectors — **first external evidence**: the reader struck out the injected sentence by name; the arm that injected nothing scored higher on ending and prose | free | ◑ | [§32.2](#322-the-reader-objects-to-the-injected-sentence-by-name) |
 | X8 | **Read on N6's control arm:** 21 calls `gpt-4.1-mini`, 25 `gpt-4.1`, 5 `claude-sonnet-5`, **zero `gpt-4o-mini`**. X7 confirmed in production; X6's floor fired (2 herrings sanitised) | free | ✅ | [§31.2](#312-what-the-pair-settles) |
 | **D. Paid probes, in dependency order** ||||
@@ -102,8 +102,8 @@ Everything outstanding, in one place. `☐` not started · `◑` partial · `✅
 | D2 | **DECISION:** after N6, are geometry phases 2–4 still worth their cost? N6's input is in §31.4 — the scheduler works mechanically but does not deliver the structural claim it was promoted on, so N8 is the only untried mechanism aimed at the misbinding | free | 👤 | [§31.4](#314-d1--what-this-gives-the-decision) |
 | N7 | Culprit-evidence regen on the edit-list channel | ~£3 | ☐ | [§10.7](#107-the-paid-items--what-ready-means) |
 | N8 | Phase-2 geometry contract probe (`AGENT9_GEOMETRY_CONTRACT`) | ~£3 | ☐ | [§10.7](#107-the-paid-items--what-ready-means) |
-| R6 | `eval:baseline` — **after M1, not before** | £4–8 | ☐ | [§11.2](#112-the-two-assessments-that-changed-my-mind-while-writing-this) |
-| M6 | Give Agent 9 the real rubric — only readable after M1 | ~£3 | ☐ | [§11.1](#111-the-assessment) |
+| R6 | `eval:baseline` — ~~after M1~~ → **the judge is now CALIBRATED**, so the original hold is gone. Held on cost: M1c means it needs `--repeats 3`, tripling it to £12–24 | £12–24 | ☐ | [§32.1](#321-the-judge-is-calibrated) · [§30.2](#302-the-rule-this-forces) |
+| M6 | Give Agent 9 the real rubric — **readable now**: the judge its effect would be measured through is calibrated | ~£1.5 | ☐ | [§32.1](#321-the-judge-is-calibrated) |
 | **E. Ride-alongs — need runs, not runs of their own. Attach to N6.** ||||
 | S7 | Retire dead coercion sites — 4 runs at `firings=0`. **N6's pair added two more zeros** | free | ◑ 3 of 4 | [§31.2](#312-what-the-pair-settles) |
 | M3 | Whole-manuscript revision — **emitted on both N6 runs** (control: 5 findings, 4 anchored, 1 discarded). Whether `apply` is worth it still needs the anchoring rate across more runs | free | ◑ | [§31.2](#312-what-the-pair-settles) |
@@ -120,7 +120,9 @@ Everything outstanding, in one place. `☐` not started · `◑` partial · `✅
 | S4/S6 | Split `agent9-run.ts` / extract `agent9-prose` | days | ⛔ *for now* | Refactoring while the central question is unanswered |
 | GF | `geometry_feedback` prompt block | — | ⛔ | No reachable producer; §8.9 forbids the placement it would need |
 
-**Done this session, for context:** the geometry stage and its acceptance test · culprit-integrity and false-time validators · the warning channel (which unblocked S7 and made the rest of this visible) · `AGENT3_DEVICE_TIME_BINDING` (built, probed, PASS) · the canary collision assertion · five instrument defects.
+**Done on 2026-08-04, the session this document opens with:** the geometry stage and its acceptance test · culprit-integrity and false-time validators · the warning channel (which unblocked S7 and made the rest of this visible) · `AGENT3_DEVICE_TIME_BINDING` (built, probed, PASS) · the canary collision assertion · five instrument defects.
+
+**Everything after that is dated in its own section.** The short version, to 2026-08-07: N1–N5 landed, then reviewing that work found six more defects (§27), M1b came back negative (§28), the calibration corpus turned out to be the real problem (§29), a single rubric score was measured at ±3 marks (§30), the N6 pair ran (§31), and an external read put two stories at 84 and 86 with the judge finally calibrated (§32). The live board is [REVIEW_07](REVIEW_07.md).
 
 ---
 
@@ -649,13 +651,19 @@ add anything that alters prose to those runs.**
 
 ### 11.4 The merged order
 
+> ⚠️ **SUPERSEDED 2026-08-07.** Track A's "Move 1 — rewrite the judge" was diagnosed (§13),
+> built, and tested (§28): the rewrite was never the fix, and the judge is now calibrated because
+> the CORPUS was repaired (§29, §32.1). Track B's five free items all landed. The order below is
+> kept as written because the reasoning is the record; the live order is [REVIEW_07](REVIEW_07.md) §4.
+
+
 Free work first, then paid, with the two independent tracks marked — Move 1 does not block the
 instrument fixes and should proceed in parallel.
 
 ```
 TRACK A (judgement)                    TRACK B (geometry + instruments)
 ─────────────────────────────          ────────────────────────────────
-1. Move 1 — rewrite the judge          1. N1  injected disclosure recorded   free
+1. Move 1 - rewrite the judge          1. N1  injected disclosure recorded   free
    ~1 day, ~£1, no new run             2. N2  unaccounted time               free
    Re-score the 7 existing pairs       3. N3  normalise at the boundary      free
    Re-run eval:calibrate               4. N4  beat/content disagreement      free
@@ -1674,7 +1682,8 @@ rather than invisible — which is the whole point of the register.
 > ⚠️ **SUPERSEDED 2026-08-06 by [§27](#27-reviewing-this-documents-own-work--six-defects-all-fixed).**
 > "Nothing free and unblocked remains" was true of the *board* and false of the *code*: reviewing this
 > session's own commits found six defects, all free, and all six are now fixed. The two moves below
-> are still the two moves — but M1b must not run before X11, which repaired what its verdict reads.
+> were the two moves. **Both are now done**: M1b came back negative (§28) and the N6 pair ran (§31).
+> The live board is [REVIEW_07](REVIEW_07.md).
 
 Nothing free and unblocked remains. The board is now exactly two moves wide:
 

@@ -54,13 +54,16 @@ readers independently said is wrong. That is the central finding of this documen
 
 ### Free — instrument defects, all found by the external read or by reviewing our own work
 
-| # | Item | Why it matters |
+> **ALL FIVE DONE 2026-08-07** — see §6. Calibration recomputed after A1: **88.2%**, sd 3.63 (was
+> 87.9%, sd 3.98). Steps 1–5 of §4 are complete; the board now starts at step 6.
+
+| # | Item | Status |
 |---|---|---|
-| **A1** | **X18** — the disclosure test wants a name + guilt verb in ONE sentence; the reader gave that dramatised reveal 9/10. Cap cost it 3 marks | Actively distorting a judge that has just become trustworthy |
-| **A2** | **X19** — `aftermath_repeat` false negative on the treatment run | It is complaint #1, and the detector for it is blind |
-| **A3** | **X17** — the N6 lever's confirmation goes to `console.info`, not the report | A probe whose arm cannot be identified from its record is unattributable |
-| **A4** | Re-run `eval:calibrate` after A1 lands | A1 changes an internal score in the corpus; the 87.9% must be recomputed, not assumed |
-| **A5** | **F3** — REVIEW_05's four stale framing statements | Cheap, and the document is the record |
+| **A1** | **X18** — disclosure test widened: distinctive first name, `guilt` the noun, attribution by action | ✅ discrimination verified |
+| **A2** | **X19** — same root cause, fixed with it | ✅ both stories now match the readers |
+| **A3** | **X17** — scheduler shadow + authority now push to `ctx.warnings` | ✅ |
+| **A4** | Re-run `eval:calibrate` | ✅ 88.2%, still CALIBRATED |
+| **A5** | **F3** — REVIEW_05's four stale framing statements | ✅ |
 
 ### Free but blocked on runs
 
@@ -135,3 +138,54 @@ integers do not wobble — which is why the mechanism reads in §3's B-list are 
 **One run settles a fact; it cannot settle a quality delta.** Everything in the B-list and every
 ride-along is a fact — a flag took effect, a counter emitted, a stage resumed. Quality needs repeats,
 and after step 14 there will be a baseline to compare against.
+
+---
+
+## 6. Steps 1–5, as built (2026-08-07)
+
+**X18 — the disclosure test.** `nameMatcher` gained an opt-in `includeFirstName`, used only by the
+disclosure question; the clincher and false-solution checks keep the strict matcher, because "was the
+reader told?" and "does this chapter name this person?" are different questions. `GUILT_MARKER` gained
+`guilt` the noun, `tampered with`, `admitted it`, `did it`, `had done it`.
+
+The risk was never the fix, it was the *over*-fix — [§14.2](REVIEW_05.md) records why a wider vocabulary
+was dangerous. So it was measured on four stories before shipping:
+
+| story | expected | got |
+|---|---|---|
+| 1936 `the_clock_s_deception` (external: *"no completed culprit exposure"*) | must stay **NOWHERE** | unmet |
+| N6 treatment (external ending 9/10) | must become **disclosed** | met @ch9 |
+| N6 control | — | met @ch8 |
+| 1810 (CML names no culprit) | null | null |
+
+**The control case corrected an assumption of mine.** I expected `met_by_injection`; it returned `met`
+at chapter 8 — *"Beatrice stood silent, her confession hanging in the air"*, which the external reviewer
+describes as *"Beatrice exposed, confession"*. So that story **had already disclosed in authored prose
+when the injector fired anyway** and pasted a verdict into chapter 10 that the same reviewer struck
+out. That is a stronger M5 datapoint than §32.2 had: the injector is not only writing prose readers
+dislike, it is doing so on stories that did not need it.
+
+**X19 — the same root cause.** `detectAftermathRepeatParagraphs` shared the narrow matcher, so it was
+blind for the same reason. Sharing the disclosure matcher fixes both: the treatment's final chapter now
+flags 1 offending paragraph (was 0) and the control's 4 (was 1) — both now agreeing with what two
+independent readers said.
+
+**X17 — attribution.** Both scheduler paths push to `ctx.warnings`, and the shadow line states
+`AGENT7_SCHEDULER_AUTHORITATIVE=ON|off` on every run, so a probe's arm is legible from its durable
+record whether or not the authority path fired.
+
+**A4 — the recalibration, done attributably.** The treatment run's internal was corrected 70 → 73 by
+**arithmetic on its own recorded numbers** (raw 73, one cap, and that cap is the false positive X18
+removed) rather than by re-scoring. A re-score would have introduced fresh ±3 variance and made the
+change unattributable — the mistake M1b was built to avoid.
+
+```
+             before A1        after A1
+agreement    87.9%            88.2%     (target 85%)
+bias sd      3.98             3.63
+VERDICT      CALIBRATED       CALIBRATED
+```
+
+Removing a false positive tightened the spread, which is the direction it should move.
+
+**Verification:** 2,696 tests, exit 0 · `build:all` clean · ADR-0004 lint clean · one test run.

@@ -269,11 +269,15 @@ function runAgent7SchedulerShadow(ctx: OrchestratorContext, narrative: Narrative
     const complete = checkComplete(grid, obligations);
     const ordered = checkOrdered(grid);
     const coverage = checkCoverage(grid);
-    console.info(
+    // X17 — the shadow reaches the report too, so a run's record states which arm it was even when
+    // the authority path did not fire. A probe needs the negative recorded as much as the positive.
+    const shadowLine =
       `[Agent 7 scheduler shadow] grid @${grid.sceneCount} (${grid.actCounts.act1}/${grid.actCounts.act2}/${grid.actCounts.act3}) ` +
-        `from ${obligations.length} obligations: complete=${complete.ok} ordered=${ordered.ok} ` +
-        `coverage=${Math.round(coverage.ratio * 100)}% (ratioOk=${coverage.ratioOk}) | live outline scenes=${liveScenes}`,
-    );
+      `from ${obligations.length} obligations: complete=${complete.ok} ordered=${ordered.ok} ` +
+      `coverage=${Math.round(coverage.ratio * 100)}% (ratioOk=${coverage.ratioOk}) | live outline scenes=${liveScenes} | ` +
+      `AGENT7_SCHEDULER_AUTHORITATIVE=${isAgent7SchedulerAuthoritative() ? "ON" : "off"}`;
+    console.info(shadowLine);
+    ctx.warnings.push(shadowLine);
     if (!ordered.ok) console.info(`[Agent 7 scheduler shadow] ordering note: ${ordered.violations[0]}`);
   } catch (e) {
     if (e instanceof SchedulerInfeasibleError) {
@@ -308,10 +312,19 @@ function applyAgent7SchedulerAuthority(ctx: OrchestratorContext, narrative: Narr
     );
   });
 
-  console.info(
+  /**
+   * X17 (REVIEW_05 §31.1) — this reaches the REPORT, not just the terminal.
+   *
+   * It used to be `console.info` alone. On the N6 pair I read the treatment arm as "the lever did not
+   * fire" because my terminal capture was truncated, and only the committed outline settled it. A
+   * probe whose treatment arm cannot be identified from its durable record is unattributable by
+   * construction — which is [ADR-0010] exactly: the terminal is a convenience, never the record.
+   */
+  const stamp =
     `[Agent 7 scheduler authority] stamped pacing-shaped budgets on ${sceneRefs.length} scenes ` +
-      `(${budgets[0]}…${budgets[budgets.length - 1]} words).`,
-  );
+    `(${budgets[0]}…${budgets[budgets.length - 1]} words). AGENT7_SCHEDULER_AUTHORITATIVE=ON.`;
+  console.info(stamp);
+  ctx.warnings.push(stamp);
 
   // A_53 P8 (scheduler-authority-dark-no-safe-enable-path): the destructive clue-job half is now a
   // SEPARATE opt-in (AGENT7_CLUE_JOB_AUTHORITY) so the word budgets above can ship on their own.
