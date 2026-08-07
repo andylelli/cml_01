@@ -78,7 +78,7 @@ readers independently said is wrong. That is the central finding of this documen
 
 | # | Item | Cost | Ready? |
 |---|---|---|---|
-| C1 | ~~Aftermath-repeat regen~~ — **BLOCKED, and a $0.0081 rehearsal is why.** The pass was set up to fail (X20, fixed) and the clearance budget was counting throat-clearing (X21, fixed) — but the contract binds ONE aftermath chapter and the repeats are often in another (**X23**), so on a control-shaped run the pass would not fire at all | 1 run | ⛔ until X23 |
+| C1 | **Aftermath-repeat regen** — **UNBLOCKED.** X20/X21 fixed the detector, X23 bound every chapter after the reveal, and both stories now flag exactly what the readers named. Caveat: X22 means the pass gets *some* of the repeats, not all | 1 run | **ready** |
 | C2 | **N8** — phase-2 geometry contract | 1 run | now (the only untried mechanism for the misbinding) |
 | C3 | **N7** — culprit-evidence regen on the edit-list channel | 1 run | after A1 — X18 may remove its premise |
 | C4 | **CS1** — promote `@cml/clue-spec` | 1 run | now |
@@ -101,7 +101,7 @@ readers independently said is wrong. That is the central finding of this documen
 Sequential. Each step is doable when the one above it is done, and nothing here needs a decision
 before it starts except where marked 👤.
 
-> **Step 6 is now blocked — see [R05 §33](REVIEW_05.md).** A rehearsal for less than a penny found the
+> **Step 6 was blocked and is now CLEAR — see [R05 §33](REVIEW_05.md) and [§34](REVIEW_05.md).** A rehearsal for less than a penny found the
 > pass could not succeed, fixed two detector defects, and surfaced X23: the aftermath contract binds
 > one chapter and the repetition two readers named sits in the one it does not bind. **X23 goes where
 > step 6 was** — it is free, and without it the run is a coin-flip on which shape of story it generates.
@@ -115,9 +115,8 @@ FREE — fix the instruments before trusting them further
  5  A5  F3    REVIEW_05's stale framing statements
 
 PAID — aimed at what the readers actually said, cheapest first
- 6  X23       bind the aftermath contract to where the story ENDS, not reveal+1   FREE
-              (blocks C1: on a control-shaped run the pass would not fire at all)
- 6b C1        aftermath-repeat regen, 1 run      ← complaint #1, pass exists, never fired
+ 6  C1        aftermath-repeat regen, 1 run      ← complaint #1, pass exists, never fired
+              X20/X21/X23 done — both story shapes now flag what the readers named
               rides along: S7 (B1, the 4th zero) · R5 (B3) · M3 (B2)
  7  👤 D1     promote the scheduler? decide on pacing, with §31/§32 in hand
  8  C2  N8    phase-2 geometry contract, 1 run   ← the misbinding's only untried mechanism

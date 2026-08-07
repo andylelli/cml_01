@@ -398,9 +398,28 @@ const deriveChapterContracts = (
     ["any question left standing about who did it", "a deferral of the answer to a later scene"],
   );
 
-  if (revealChapter < chapterCount) {
+  /**
+   * X23 — EVERY chapter after the reveal is aftermath, not just the next one.
+   *
+   * This bound `revealChapter + 1` alone. MEASURED on the N6 pair, and the asymmetry is the whole
+   * finding: the treatment's reveal is chapter 9 of 10, so the single aftermath contract happened to
+   * cover its only remaining chapter and the detector saw its repeats. The control's reveal is
+   * chapter 8 of 10 — so chapter 9 was bound, chapter 10 was **not bound at all**, and the three
+   * repeated paragraphs an external reader called *"the biggest structural weakness"* sat outside
+   * the contract where nothing could see them.
+   *
+   * That also explains why the aftermath regen pass has never fired usefully: on a control-shaped
+   * story it is pointed at the wrong chapter.
+   *
+   * The obligation is not "the chapter after the reveal owes consequence" — it is "once the reader
+   * has been told, no later chapter may argue the case again". Binding every subsequent chapter says
+   * that, and needs no guess about which one is *the* aftermath. Deliberately NOT a re-binding of the
+   * reveal: [§10.4](../../../architecture/REVIEW_05.md) declined that, and the reveal binding turns
+   * out to be correct on both N6 runs anyway (disclosure found in the bound chapter both times).
+   */
+  for (let n = revealChapter + 1; n <= chapterCount; n += 1) {
     add(
-      revealChapter + 1,
+      n,
       "aftermath",
       ["the consequence of, and the human reaction to, what chapter " + revealChapter + " disclosed"],
       [

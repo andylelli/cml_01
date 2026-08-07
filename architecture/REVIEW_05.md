@@ -98,7 +98,8 @@ Everything outstanding, in one place. `☐` not started · `◑` partial · `✅
 | X20 | **The aftermath detector flagged legitimate references, and the pass could not repair them.** Naming now needs corroboration. Found by a $0.0081 rehearsal | free | ✅ | [§33.1](#331-x20--the-pass-was-set-up-to-fail-and-this-is-what-it-was-failing-on) |
 | X21 | **A third of the 2-sentence clearance budget was "cleared her throat".** Idioms excluded; dramatised clearances added | free | ✅ | [§33.2](#332-x21--a-third-of-the-clearance-budget-was-people-clearing-their-throats) |
 | X22 | The detector still misses a restatement carried by a pronoun and an evidence list — §8's fourth bullet, recorded not chased | — | ☐ | [§33.4](#334-x22--the-residual-and-it-is-not-a-regex-away) |
-| X23 | **The aftermath contract binds one chapter and the repeats are often in another.** On a control-shaped run the pass would not fire at all | free to diagnose | ☐ | [§33.5](#335-the-finding-that-actually-blocks-step-6) |
+| X23 | ~~The aftermath contract binds one chapter~~ — **fixed**: every chapter after the reveal is now bound. The control's ch10 was outside the contract entirely; it now reports the exact three paragraphs the reader named | free | ✅ | [§34](#34-x23--the-aftermath-was-one-chapter-and-the-story-had-two) |
+| X24 | **N4's reveal-binding note is a false positive** — it fired on two runs whose binding was correct. It compares a beat label to a TITLE; `manuscriptDisclosure` now gives it something to be measured against | free | ☐ | [§34.1](#341-the-reveal-binding-is-correct--n4s-note-is-the-false-positive) |
 | M5 | Delete the deterministic injectors — **first external evidence**: the reader struck out the injected sentence by name; the arm that injected nothing scored higher on ending and prose | free | ◑ | [§32.2](#322-the-reader-objects-to-the-injected-sentence-by-name) |
 | X8 | **Read on N6's control arm:** 21 calls `gpt-4.1-mini`, 25 `gpt-4.1`, 5 `claude-sonnet-5`, **zero `gpt-4o-mini`**. X7 confirmed in production; X6's floor fired (2 herrings sanitised) | free | ✅ | [§31.2](#312-what-the-pair-settles) |
 | **D. Paid probes, in dependency order** ||||
@@ -2471,3 +2472,75 @@ contract's idea of where a thing belongs, versus where the story put it.
 
 **Step 6 should not be booked until that is settled** — the run would be a coin-flip on which shape of
 story it happened to generate.
+
+---
+
+## 34. X23 — the aftermath was one chapter, and the story had two
+
+**2026-08-07, free.** [§33.5](#335-the-finding-that-actually-blocks-step-6) called this a misbinding.
+It is not, and checking rather than assuming changed the fix.
+
+### 34.1 The reveal binding is correct — N4's note is the false positive
+
+MEASURED on both N6 runs, comparing where the contract binds the reveal against where
+`manuscriptDisclosure` finds the disclosure:
+
+| | reveal bound | actual disclosure | agree? |
+|---|---|---|---|
+| control | ch8 | **ch8** | yes |
+| treatment | ch9 | **ch9** | yes |
+
+**Both correct.** So [N4](#15-n4--done-and-the-control-that-nearly-passed-silently)'s *"the contract
+may be bound to the wrong chapter"* note has now fired on **two runs where the binding was right** —
+it compares a beat label against a chapter TITLE, and the titles misled it both times. Recorded as
+**X24**: the note is a weaker signal than its wording implies, and it now has a disclosure-based check
+to be measured against, which it did not have when it was written.
+
+That also retires the framing of §33.5. Nothing is bound to the wrong chapter.
+
+### 34.2 What was actually wrong: `revealChapter + 1`
+
+The aftermath contract bound exactly one chapter — the next one. The asymmetry between the two runs is
+the whole finding:
+
+| | reveal | chapters after it | aftermath bound | result |
+|---|---|---|---|---|
+| treatment | ch9 of 10 | ch10 | ch10 | the repeats were seen |
+| control | ch8 of 10 | ch9, **ch10** | ch9 only | **ch10 was not bound at all** |
+
+The control's chapter 10 — holding the three repeated paragraphs an external reader called *"the
+biggest structural weakness"* — sat **outside the contract**, where no check could reach it. It was
+never a detector failure. The contract was not looking there.
+
+This is also why the aftermath regen pass has never fired usefully: on a control-shaped story it is
+pointed at a chapter that does not contain the defect.
+
+### 34.3 The fix, and why it needs no guess
+
+Every chapter after the reveal is bound as aftermath. The obligation is not *"the chapter after the
+reveal owes consequence"* — it is *"once the reader has been told, no later chapter may argue the case
+again"*, which is true of all of them and requires no judgement about which one is **the** aftermath.
+
+Deliberately **not** a re-binding of the reveal: [§10.4](#104-n4--warn-when-the-beat-label-and-the-chapter-disagree-free)
+declined that on the grounds that titles are as model-authored as beats, and 34.1 shows the reveal
+binding was never the problem.
+
+**Verified against what the readers said:**
+
+```
+control    aftermath bound [9, 10]   aftermath_repeat ch10 paragraphs [1, 8, 10]
+treatment  aftermath bound [10]      aftermath_repeat ch10 paragraph  [6]
+```
+
+Control ch9 stays clean — X20 removed its false positive — and ch10 now reports exactly the three
+paragraphs the reader named. **Both stories now say what a reader said**, which is the first time any
+detector in this document has managed that on both arms at once.
+
+### 34.4 What this unblocks
+
+Step 6 was blocked because on a control-shaped run the pass would not fire at all. It now fires on the
+chapter that holds the defect, on both story shapes. The remaining risk is
+[X22](#334-x22--the-residual-and-it-is-not-a-regex-away) — restatements carried by a pronoun and an
+evidence list are still invisible — so the pass will be handed *some* of the repeats, not all of them.
+That is a floor on how much one run can fix, and should be read that way rather than as the pass
+underperforming.
