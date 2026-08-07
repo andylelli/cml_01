@@ -116,5 +116,53 @@
     "readBy": "ChatGPT (external, human-run)",
     "runFolder": "run_20260802-1818_mystery",
     "rescored": "2026-08-06 (gpt-4.1-mini judge; M1b/F2)"
+  },
+  {
+    "bundleId": "2026-08-06-2230-pendulum-secret-chime",
+    "storyPath": "stories/story_20260806-2230/the_pendulum_s_secret_chime.md",
+    "runFolder": "run_20260806-2112_mystery",
+    "internalFinal": 74,
+    "externalFinal": 84,
+    "gap": -10,
+    "internalCategories": {},
+    "externalCategories": {
+      "premise": 9,
+      "opening_hook": 8,
+      "plot_structure": 8,
+      "character_clarity": 8,
+      "dialogue": 7,
+      "atmosphere": 8,
+      "clues": 8,
+      "pacing": 8,
+      "ending": 8,
+      "prose": 7
+    },
+    "source": "N6 control arm (REVIEW_05 \u00a731). Internal = the run's own shipped rubric; external = ChatGPT cold read, stories/story_20260806-2230/chatgpt-txt",
+    "readBy": "ChatGPT (external, human-run)",
+    "rescored": "live run 2026-08-06"
+  },
+  {
+    "bundleId": "2026-08-06-2255-weighted-pendulum",
+    "storyPath": "stories/story_20260806-2255/the_weighted_pendulum_deception.md",
+    "runFolder": "run_20260806-2134_mystery",
+    "internalFinal": 70,
+    "externalFinal": 86,
+    "gap": -16,
+    "internalCategories": {},
+    "externalCategories": {
+      "premise": 9,
+      "opening_hook": 8,
+      "plot_structure": 9,
+      "character_clarity": 8,
+      "dialogue": 7,
+      "atmosphere": 8,
+      "clues": 9,
+      "pacing": 8,
+      "ending": 9,
+      "prose": 8
+    },
+    "source": "N6 treatment arm (REVIEW_05 \u00a731). Internal INCLUDES a noResolution cap now believed to be a false positive (\u00a732); external = ChatGPT cold read, stories/story_20260806-2255/chatgpt-review.txt",
+    "readBy": "ChatGPT (external, human-run)",
+    "rescored": "live run 2026-08-06"
   }
 ]

@@ -62,7 +62,7 @@ Everything outstanding, in one place. `☐` not started · `◑` partial · `✅
 | M1 | ~~Rewrite the judge as the external rubric~~ → **diagnosed**, then **tested**: the deterministic `noResolution` is wired correctly and moves no score (§28). The blind-spot hypothesis is not supported, and §13.1's numbers rest on internals that no longer reproduce | ~1 day | ✅ | [§13](#13-m1--what-the-judge-diagnosis-actually-found) · [§28](#28-m1b--the-answer-is-no-and-the-corpus-is-the-bigger-finding) |
 | M1b | Re-scored 2026-08-06, $0.0122. **Wiring correct; effect ZERO** — the new cap is redundant with one already firing. Hypothesis not supported, and the ledger's internals do not reproduce (1936: 73 → 64) | ~£1 | ✅ | [§28](#28-m1b--the-answer-is-no-and-the-corpus-is-the-bigger-finding) |
 | M1c | **No.** 8 scorings of one story, caps off: **66–72, spread 6 marks, sd ~2.4.** Any rubric delta under ~6 is noise — including the −2.0 that justified deleting `AGENT9_CRITIQUE_REWRITE` | £0.04 | ✅ | [§30](#30-m1c--one-score-is-worth-3-marks-and-that-invalidates-a-deletion) |
-| M1d | ~~The calibration corpus is 2 of 7~~ → **all five found by grep** (paths had elided IDs). Re-scored on one basis: **ranking agreement 42.9% → 84.2%**, and the geometry verdict contributed zero. The judge was never the problem | free | ✅ | [§29](#29-the-judge-was-not-the-problem--the-corpus-was) |
+| M1d | ~~The calibration corpus is 2 of 7~~ → all five found by grep, re-scored on one basis (42.9% → 84.2%), then **the two N6 pairs took it to n=9 and 87.9% — CALIBRATED**, offset usable for the first time | free | ✅ | [§29](#29-the-judge-was-not-the-problem--the-corpus-was) · [§32.1](#321-the-judge-is-calibrated) |
 | R10 | Ratify the 12 ADRs — **signed 2026-08-06.** 11 Accepted, ADR-0012 stays `Proposed` with its probe owed; ADR-0004's rule is now enforced by a lint, not stated | ~15 min | ✅ | [§25](#25-r10--the-ratification-brief) |
 | **B. Free instrument fixes — geometry can't be trusted to read a probe until these land** ||||
 | N1 | Record an injected disclosure as `met_by_injection`, not as satisfied | free | ✅ | [§14](#14-n1--done-and-what-it-revealed-about-the-ordering) |
@@ -88,6 +88,9 @@ Everything outstanding, in one place. `☐` not started · `◑` partial · `✅
 | X15 | One `accept.ts` call site bypassed N3's folding boundary (unreachable today) | free | ✅ | [§27.3](#273-x13-x14-x15--found-and-fixed) |
 | X16 | **`npm test` could not catch a type error** — vitest compiles from `src`. Now gated by `pretest`, verified to fail the suite on a planted error. X10's neighbour | free | ✅ | [§27.5](#275-x16--the-suite-that-could-not-catch-a-type-error) |
 | X17 | **The N6 lever's confirmation goes to `console.info`, not the report** — so a probe's treatment arm cannot be identified from its durable record. Found by briefly mis-reading N6 as not having fired | free | ☐ | [§31.1](#311-the-lever-fired--verified-in-the-artifact-not-the-terminal) |
+| X18 | **The `noResolution` cap fired wrongly on the better story.** Geometry's disclosure test wants a name + guilt verb in ONE sentence; the reader gave that same dramatised reveal 9/10. Cost it 3 marks | free to diagnose | ☐ | [§32.3](#323-x18--geometry-called-that-reveal-unmet-and-the-cap-cost-it-three-marks) |
+| X19 | **`aftermath_repeat` missed what the reader saw** — flagged on the control, silent on the treatment, where the external read names ch10 repeating ch9 | free | ☐ | [§32.4](#324-x19--aftermath_repeat-missed-what-the-reader-saw) |
+| M5 | Delete the deterministic injectors — **first external evidence**: the reader struck out the injected sentence by name; the arm that injected nothing scored higher on ending and prose | free | ◑ | [§32.2](#322-the-reader-objects-to-the-injected-sentence-by-name) |
 | X8 | **Read on N6's control arm:** 21 calls `gpt-4.1-mini`, 25 `gpt-4.1`, 5 `claude-sonnet-5`, **zero `gpt-4o-mini`**. X7 confirmed in production; X6's floor fired (2 herrings sanitised) | free | ✅ | [§31.2](#312-what-the-pair-settles) |
 | **D. Paid probes, in dependency order** ||||
 | N6 | **Pair run 2026-08-06/07, ~£3.** Lever fired (verified in the artifact). Budgets honoured (+8% vs −33%) — but the reveal misbinding survives BOTH arms, which was the argument for promoting it | ~£3 | ✅ | [§31](#31-n6--the-pair-ran-and-the-scheduler-does-not-fix-what-it-was-promoted-to-fix) |
@@ -102,7 +105,6 @@ Everything outstanding, in one place. `☐` not started · `◑` partial · `✅
 | R5 | Live kill-and-resume drill | free | ☐ | [§11.3](#113-ride-alongs--things-that-need-runs-but-not-runs-of-their-own) |
 | **F. Deferred — real value, wrong time** ||||
 | P4 | Geometry phase 4: retire `applyPlantBeforeReveal`, the aftermath classifier, `enforceSuspectEliminationPresence` | free | ☐ | [§12.4](#124-p4--m5--retiring-the-band-aids) |
-| M5 | Delete the deterministic injectors | free | ☐ | [§12.4](#124-p4--m5--retiring-the-band-aids) |
 | CS1 | Promote `@cml/clue-spec` out of shadow | ~£3 | ☐ | [§12.5](#125-the-smaller-carried-over-items) |
 | CS2 | Add a clincher slot type to `clue-spec` — **shipped**, plus geometry preferring a declared clincher over scoring. Inert until CS1 promotes clue-spec | free | ✅ | [§12.5](#125-the-smaller-carried-over-items) · [§23](#23-cs2--the-clincher-stops-being-whatever-scored-highest) |
 | ENV | Delete the duplicated `.env` keys `flags:check` has reported for three sessions — **and six loaders X7 had missed** | 2 min | ✅ | [§12.5](#125-the-smaller-carried-over-items) · [§20.4](#204-env--and-the-six-loaders-x7-did-not-reach) |
@@ -2253,3 +2255,122 @@ their cost. The pair's honest input:
 - **Promotion is therefore a pacing decision, not a structural one**, and should be argued on whether
   10,763 words is the right length for "short" — a question this pair can answer and the board has
   never asked.
+
+---
+
+## 32. The external read of the N6 pair — 84 and 86, and the injector is the thing the reader objects to
+
+**2026-08-07.** Both N6 stories came back from an external cold read. They are the **two best scores
+this project has recorded**, and both clear the 80 target:
+
+| | internal | external | ending | prose |
+|---|---|---|---|---|
+| control `the_pendulum_s_secret_chime` | 74 | **84** | 8/10 | 7/10 |
+| treatment `the_weighted_pendulum_deception` | 70 | **86** | **9/10** | 8/10 |
+
+The reader compared them unprompted — *"I'd put it slightly below the weighted-pendulum Hugo
+version"* — so the ordering is theirs, not a construction of ours.
+
+### 32.1 The judge is calibrated
+
+Adding both pairs takes the corpus from 7 to 9, and they are the only two that are fully modern: same
+judge, same caps, run artifacts intact, internals produced by the run itself rather than reconstructed.
+
+```
+                    n=7 (§29)        n=9 (now)
+ranking agreement   84.2%            87.9%      target 85%
+bias                −10.57           −11.11
+bias sd             4.08             3.98
+VERDICT             NOT CALIBRATED   ***CALIBRATED***
+OFFSET              not usable       usable — add ~11 to estimate the external read
+```
+
+**This is the first time the rubric judge has passed its own calibration bar.** REVIEW_01 §2.3 set it,
+R7 has carried it since, and every board for months has qualified its numbers with *"the judge is
+uncalibrated"*. It no longer is — for ranking, at n=9, with a stated ±3 single-score error bar
+([§30](#30-m1c--one-score-is-worth-3-marks-and-that-invalidates-a-deletion)) that has not gone away.
+
+Sanity check on the offset: internal 74 → estimated 85 (actual 84); internal 70 → estimated 81
+(actual 86). The second is off by five, which is what an sd of ~4 looks like. Use the offset to
+estimate, never to conclude.
+
+### 32.2 The reader objects to the injected sentence, by name
+
+The control run's injector fired once. [X4](#22-x4--the-injectors-now-report-themselves) recorded it
+and flagged two model-bound rule violations. The external reader, with no access to any of that, wrote:
+
+> **Some generated validation prose remains.** Lines like these should be removed or fictionalized:
+> … *"Beatrice Quill was responsible; the evidence allowed no other reading."*
+> They are logically useful, but they sound like a case-summary generator rather than a mystery story.
+
+**That is the injected sentence, quoted verbatim, identified independently as a defect.** It is the
+same sentence — the same B5-laundered template — that [§2](#2-issue-a--the-storys-only-disclosure-is-machine-written)
+opened this entire document with, on a different run, four days earlier.
+
+And the treatment run tells the other half:
+
+```
+control    injections=1  violations=2      external 84   ending 8/10   prose 7/10
+treatment  injections=0  violations=0      external 86   ending 9/10   prose 8/10
+```
+
+The run that injected nothing dramatised its reveal instead — *"All eyes returned to Hugo Vane"*,
+*"Hugo Vane stood undone, the weight of his choices pressing as heavily as the pendulum he had
+tampered with"* — and the reader called that ending *"complete, physical, and emotionally motivated"*.
+
+**This is the first external evidence for [THINK_01](THINK_01.md) Move 5 / M5.** The argument for
+keeping the injector is ADR-0003's: a bad sentence beats a missing disclosure. Here the story with no
+injected sentence had no missing disclosure — it had a *better* one — and the story with the injected
+sentence had the reader striking it out. One pair is not a retirement decision, but it is the first
+time the trade has been priced by someone outside the pipeline.
+
+### 32.3 X18 — geometry called that reveal `unmet`, and the cap cost it three marks
+
+The treatment manuscript contains **zero sentences** pairing the culprit's name with a guilt verb —
+I checked, and geometry is right on its own terms. `findManuscriptDisclosure` returned `unmet`,
+`noResolution` was supplied `true`, and the cap fired:
+
+```
+raw 73 → final 70    caps: no confession / exposure / arrest / consequence → ending ≤ 5
+```
+
+**The external reader scored that same ending 9/10.**
+
+So the definition is wrong, not the implementation. "The culprit's name and a guilt marker in one
+sentence" is narrower than what a reader accepts as disclosure, and the gap is exactly the difference
+between *stating* a verdict and *dramatising* one — which is the quality the whole regen programme
+exists to produce. The detector rewards the shape the reader dislikes and penalises the shape they
+prefer.
+
+Concretely, it misses:
+- **first-name-only reference** — `nameMatcher` requires the full name or a distinctive surname, so
+  *"Hugo's mask of indifference cracked"* and *"in it saw not only guilt"* never combine;
+- **`guilt` the noun**, where `GUILT_MARKER` carries `guilty` the adjective;
+- **attribution by action** — *"the pendulum he had tampered with"* names the culprit and the deed in
+  one clause and matches nothing.
+
+This is not a reason to widen the regex casually: [§14.2](#142-the-ordering-mattered-and-it-was-the-reverse-of-the-obvious-one)
+records why a wider vocabulary was dangerous before the third verdict existed. It is a reason to ask
+whether a sentence-scoped regex can express "the reader was told", and the honest answer may be no —
+which is [§8](#8-what-would-change-my-mind)'s fourth bullet arriving from an unexpected direction.
+
+**Until it is settled, the `noResolution` cap is doing net harm**: it fired once across this pair, and
+that once was wrong, on the better story. Tracked as **X18**.
+
+### 32.4 X19 — `aftermath_repeat` missed what the reader saw
+
+Both reviews name the same structural weakness. Control: *"Chapter 9 repeats the clearances. Chapter
+10 repeats the mechanism and clearances again… This is the biggest structural weakness."* Treatment:
+*"Chapter 10 repeats Chapter 9."*
+
+Geometry flagged `aftermath_repeat` on the **control** and not on the **treatment** — where the
+reviewer still saw it. A false negative in `detectAftermathRepeatParagraphs`, on the defect it was
+purpose-built for, confirmed by an independent reader. Tracked as **X19**.
+
+### 32.5 What the pair now says about D1
+
+[§31.4](#314-d1--what-this-gives-the-decision) framed the promotion decision on pacing. The external
+read adds one number to that: the shorter, scheduler-budgeted book scored **higher** (86 vs 84), with
+a better ending and better prose marks. That is n=1 on two different stories and must not be read as
+"the scheduler improves quality" — but it removes the worry that halving the length would cost
+anything, which was the live objection.

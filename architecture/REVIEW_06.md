@@ -82,6 +82,14 @@ offline only; these two runs are the first time any of them meets a live pipelin
 | R5 | **CS1 — promote `@cml/clue-spec` out of shadow.** CS2's clincher slot is inert until this | 1 run | — | ☐ |
 | R6 | **M6 — give Agent 9 the real rubric in its prompt** | 1 run | C1 (needs a judge worth reading) | ☐ |
 
+### New, from the external read of the N6 pair ([R05 §32](REVIEW_05.md))
+
+| # | Do this | Cost | Status |
+|---|---|---|---|
+| N1 | **X18 — the `noResolution` cap fired wrongly on the better story.** Geometry wants a name + guilt verb in one sentence; the reader gave that dramatised reveal 9/10. Diagnose before the cap does more harm | free | ☐ |
+| N2 | **X19 — `aftermath_repeat` missed a repeat the reader named.** False negative on the defect it exists for | free | ☐ |
+| N3 | **M5 has its first external evidence.** The reader struck out the injected sentence by name; the arm that injected nothing scored higher on ending and prose. Not yet a retirement — but the trade has been priced from outside | free | ◑ |
+
 ### Decisions after the runs
 
 | # | Decide | After | Status |
@@ -96,7 +104,7 @@ offline only; these two runs are the first time any of them meets a live pipelin
 
 | # | Item | Why |
 |---|---|---|
-| H1 | R6 — `eval:baseline` (£4–8 → **£12–24**) | No longer held on the judge (it ranks at 84.2%, not at chance). Held on **cost**: C1 showed a single scoring wanders 6 marks, so a trustworthy baseline needs `--repeats 3`, which triples the price. Decide with that number in hand |
+| H1 | R6 — `eval:baseline` (£4–8 → **£12–24**) | **The judge is now CALIBRATED** (87.9%, n=9, offset usable) — the original reason to hold it is gone. Held only on cost: M1c means a trustworthy baseline needs `--repeats 3`. Decide with that number in hand |
 | H2 | M2 · R4 · R9 · S4/S6 · GF | Recommended against in [R05 §11.1](REVIEW_05.md); reasons unchanged |
 
 ---
