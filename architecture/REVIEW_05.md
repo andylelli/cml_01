@@ -101,12 +101,13 @@ Everything outstanding, in one place. `☐` not started · `◑` partial · `✅
 | X23 | ~~The aftermath contract binds one chapter~~ — **fixed**: every chapter after the reveal is now bound. The control's ch10 was outside the contract entirely; it now reports the exact three paragraphs the reader named | free | ✅ | [§34](#34-x23--the-aftermath-was-one-chapter-and-the-story-had-two) |
 | X24 | **N4's reveal-binding note is a false positive** — it fired on two runs whose binding was correct. It compares a beat label to a TITLE; `manuscriptDisclosure` now gives it something to be measured against | free | ☐ | [§34.1](#341-the-reveal-binding-is-correct--n4s-note-is-the-false-positive) |
 | X25 | **The run path repaired only the FIRST aftermath violation** (`.find`) — correct until X23 bound every chapter after the reveal. Now a loop. Found by fixing X23, not by a run | free | ✅ | [§35.3](#353-x25-found-by-fixing-x23-rather-than-by-a-run) |
+| X26 | **The aftermath pass does not work without `AGENT9_REGEN_EDIT_LIST`** — 0 of 3 repaired with the flag off (whole-chapter rewrites drift and trip the detector elsewhere), 2 of 3 with it on, at a quarter of the cost | free to find | ✅ | [§36](#36-the-edit-list-channel-is-what-makes-the-aftermath-pass-work--and-it-just-unblocked-n7) |
 | M5 | Delete the deterministic injectors — **first external evidence**: the reader struck out the injected sentence by name; the arm that injected nothing scored higher on ending and prose | free | ◑ | [§32.2](#322-the-reader-objects-to-the-injected-sentence-by-name) |
 | X8 | **Read on N6's control arm:** 21 calls `gpt-4.1-mini`, 25 `gpt-4.1`, 5 `claude-sonnet-5`, **zero `gpt-4o-mini`**. X7 confirmed in production; X6's floor fired (2 herrings sanitised) | free | ✅ | [§31.2](#312-what-the-pair-settles) |
 | **D. Paid probes, in dependency order** ||||
 | N6 | **Pair run 2026-08-06/07, ~£3.** Lever fired (verified in the artifact). Budgets honoured (+8% vs −33%) — but the reveal misbinding survives BOTH arms, which was the argument for promoting it | ~£3 | ✅ | [§31](#31-n6--the-pair-ran-and-the-scheduler-does-not-fix-what-it-was-promoted-to-fix) |
 | D2 | **DECISION:** after N6, are geometry phases 2–4 still worth their cost? N6's input is in §31.4 — the scheduler works mechanically but does not deliver the structural claim it was promoted on, so N8 is the only untried mechanism aimed at the misbinding | free | 👤 | [§31.4](#314-d1--what-this-gives-the-decision) |
-| N7 | Culprit-evidence regen on the edit-list channel | ~£3 | ☐ | [§10.7](#107-the-paid-items--what-ready-means) |
+| N7 | Culprit-evidence regen on the edit-list channel — **PRECONDITION MET**: `aftermath_repeat` exercised `AGENT9_REGEN_EDIT_LIST` twice on a real manuscript for tuppence, successfully. The channel is no longer debuting on the reveal | ~£1.5 | ☐ | [§36.2](#362-n7s-precondition-is-met) |
 | N8 | Phase-2 geometry contract probe (`AGENT9_GEOMETRY_CONTRACT`) | ~£3 | ☐ | [§10.7](#107-the-paid-items--what-ready-means) |
 | R6 | `eval:baseline` — ~~after M1~~ → **the judge is now CALIBRATED**, so the original hold is gone. Held on cost: M1c means it needs `--repeats 3`, tripling it to £12–24 | £12–24 | ☐ | [§32.1](#321-the-judge-is-calibrated) · [§30.2](#302-the-rule-this-forces) |
 | M6 | Give Agent 9 the real rubric — **readable now**: the judge its effect would be measured through is calibrated | ~£1.5 | ☐ | [§32.1](#321-the-judge-is-calibrated) |
@@ -2604,3 +2605,80 @@ repaired the earliest and silently left the rest. Now a loop.
 
 Two fixes in a row have exposed the next defect for free. That is the argument for doing the cheap
 structural work before the paid run, made twice in one afternoon.
+
+---
+
+## 36. The edit-list channel is what makes the aftermath pass work — and it just unblocked N7
+
+**2026-08-07, $0.0202 across two attempts.** The offline repair was run twice on the same chapter, the
+only difference being `AGENT9_REGEN_EDIT_LIST`.
+
+```
+FLAG OFF   repaired 0 of 3   $0.0161
+           UNRESOLVED p1 : regen introduced aftermath_repeat p2, p9, p11
+           UNRESOLVED p8 : regen introduced aftermath_repeat p7, p9
+           UNRESOLVED p10: regen introduced aftermath_repeat p7, p9
+
+FLAG ON    repaired 2 of 3   $0.0041
+           UNRESOLVED p10: did not improve the targeted property (score 375, was 375)
+```
+
+**Zero to two, at a quarter of the cost.**
+
+### 36.1 Why, and it is not subtle
+
+Without the flag the regen returns a **whole chapter**, so the model re-emits all twelve paragraphs and
+its incidental rewording of the eleven it was not asked to touch trips the detector elsewhere. Every
+failure in the OFF column is `regen introduced` — the pass was defeating itself.
+
+That is precisely the risk `AGENT9_REGEN_EDIT_LIST` was built for, in its own words: *"untouched
+paragraphs are spliced from the source object instead of being re-emitted by the model, so they cannot
+drift — this closes the repair.ts:153 re-gendering class by construction rather than by instruction +
+validator."* The flag has sat default-OFF and unprobed since it was written. It is not a cost
+optimisation. **On a negative, whole-chapter-validated obligation it is the difference between the
+pass working and not.**
+
+It is also cheaper, for the same reason it is safer: an edit list is a few paragraphs, not twelve.
+
+### 36.2 N7's precondition is met
+
+[§10.7](#107-the-paid-items--what-ready-means) gated N7 on: *"`aftermath_repeat` has exercised
+`AGENT9_REGEN_EDIT_LIST` once, so the channel is not debuting on the reveal."*
+
+It has now been exercised twice, on a real manuscript, successfully, for tuppence — which is exactly
+the sequencing that section asked for and could not previously afford. **N7 is unblocked**, and the
+step-6 run should carry `AGENT9_REGEN_EDIT_LIST=true`, because the evidence says the aftermath pass
+does not work without it.
+
+### 36.3 What the repair actually did
+
+Two paragraphs changed, 12,584 → 12,554 words, structure identical. The instruction asked for
+consequence in place of re-argument, and that is what came back:
+
+> **before** *"She realised… that Captain Ivor Hale could not have tampered with the clock or committed
+> the murder. The evidence cleared him — his alibi held, corroborated by multiple witnesses and the
+> unbroken chain of records."*
+>
+> **after** *"The weight of certainty settled over her: Captain Ivor Hale's alibi was unassailable. Yet,
+> as she looked up, she saw the tight line of his mouth and the distant shadow in his eyes — proof that
+> being cleared of suspicion did not spare him from the burden of loss or the quiet fracture left
+> behind."*
+
+The second removes the re-argument and keeps the clearance as a fact the scene already carries. The
+other rewrite drops a restated motive (*"She had killed to protect Ivor"*) for the same trade.
+
+`ch10 p10` survives both attempts with the score unmoved — the model cannot see that one, which is the
+same wall the rehearsal hit.
+
+### 36.4 The comparison this sets up
+
+`the_pendulum_s_secret_chime.aftermath-repaired.md` sits beside the original. Same premise, same cast,
+same 12,584-word book minus thirty — **only two aftermath paragraphs differ**. The original has an
+external cold read of **84/100**, with *"Chapter 9 repeats the clearances. Chapter 10 repeats the
+mechanism and clearances again. This is the biggest structural weakness."*
+
+A second cold read of the repaired copy isolates that complaint completely, which no fresh run can do.
+Two caveats to carry into it: one of three flagged paragraphs is untouched, and
+[X22](#334-x22--the-residual-and-it-is-not-a-regex-away) means the detector never saw everything the
+reader did. **A modest movement is the honest expectation, and a flat result is informative** — it
+would say complaint #1 is worth less than its prominence suggests, before £1.50 goes near it.

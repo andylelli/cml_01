@@ -78,9 +78,9 @@ readers independently said is wrong. That is the central finding of this documen
 
 | # | Item | Cost | Ready? |
 |---|---|---|---|
-| C1 | **Aftermath-repeat regen** — **UNBLOCKED.** X20/X21 fixed the detector, X23 bound every chapter after the reveal, and both stories now flag exactly what the readers named. Caveat: X22 means the pass gets *some* of the repeats, not all | 1 run | **ready** |
+| C1 | **Aftermath-repeat regen** — **ready, and it MUST carry `AGENT9_REGEN_EDIT_LIST=true`**: without it the pass repairs 0 of 3, with it 2 of 3 at a quarter the cost ([R05 §36](REVIEW_05.md)) | 1 run | **ready** |
 | C2 | **N8** — phase-2 geometry contract | 1 run | now (the only untried mechanism for the misbinding) |
-| C3 | **N7** — culprit-evidence regen on the edit-list channel | 1 run | after A1 — X18 may remove its premise |
+| C3 | **N7** — culprit-evidence regen on the edit-list channel | 1 run | **precondition met** — the channel has now been exercised twice, successfully, for tuppence |
 | C4 | **CS1** — promote `@cml/clue-spec` | 1 run | now |
 | C5 | **M6** — give Agent 9 the real rubric | 1 run | now the judge is calibrated |
 | C6 | **R6** — `eval:baseline` with `--repeats 3` | £12–24 | after A4 |
@@ -117,6 +117,7 @@ FREE — fix the instruments before trusting them further
 PAID — aimed at what the readers actually said, cheapest first
  6  C1        aftermath-repeat regen, 1 run      ← complaint #1, pass exists, never fired
               X20/X21/X23 done — both story shapes now flag what the readers named
+              MUST set AGENT9_REGEN_EDIT_LIST=true (0 of 3 repaired without it)
               rides along: S7 (B1, the 4th zero) · R5 (B3) · M3 (B2)
  7  👤 D1     promote the scheduler? decide on pacing, with §31/§32 in hand
  8  C2  N8    phase-2 geometry contract, 1 run   ← the misbinding's only untried mechanism
