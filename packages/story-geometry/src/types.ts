@@ -269,6 +269,20 @@ export interface GeometryAcceptanceReport {
    * measured" — the same discipline §13.3 applied to the judge's verdict.
    */
   manuscriptDisclosure: { verdict: GeometryVerdict; chapter: number | null } | null;
+  /**
+   * X24 — whether the manuscript CONFIRMS the chapter the contract bound as the reveal.
+   *
+   * N4's `closure.notes` warning is computed before any prose exists, from a beat label against a
+   * chapter title, and it has fired on two runs whose binding was correct. This is the same question
+   * asked after the fact, when it is answerable: the contract bound a chapter, and the disclosure was
+   * found in one. `not_measurable` when the case names no culprit or nothing discloses — never
+   * "confirmed", because an unanswerable question is not a passing one.
+   */
+  revealBinding: {
+    boundChapter: number | null;
+    disclosureChapter: number | null;
+    verdict: "confirmed" | "refuted" | "not_measurable";
+  };
 }
 
 // ── Permissive structural inputs ─────────────────────────────────────────────

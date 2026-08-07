@@ -250,7 +250,12 @@ export const detectAftermathRepeatParagraphs = (
       methodTerms.some((t) => text.toLowerCase().includes(t)),
       CONCEALMENT_MARKER.test(text),
       MOTIVE_MARKER.test(text) && GUILT_MARKER.test(text),
-      isClearanceSentence(text),
+      // SENTENCE-scoped, not paragraph-scoped. FOUND ON REVIEW 2026-08-07, hours after X21 shipped:
+      // `isClearanceSentence` is a conjunction (a clearance word AND not an idiom), so applying it to a
+      // whole paragraph lets ONE "cleared her throat" mask a genuine clearance elsewhere in the same
+      // paragraph. That is §6's scope-mismatch family — defects 1 and 3 — reintroduced by the fix for
+      // a different false positive. A conjunction is only evidence at the granularity it is evaluated.
+      sentencesOf(text).some(isClearanceSentence),
     ].filter(Boolean).length;
     if ((namesCulpritAsDiscovery && restatements >= 1) || restatements >= 2) offending.push(index);
   });
@@ -632,12 +637,41 @@ export const checkManuscriptGeometry = (
     }
   }
 
+  const manuscriptDisclosure = findManuscriptDisclosure(chapters, geometry.culprit, options.injectionTemplates ?? []);
+
+  /**
+   * X24 — settle N4's pre-prose guess against the finished manuscript.
+   *
+   * `checkRevealBinding` runs at DERIVE time, before any prose exists, so all it can do is compare a
+   * beat label against a chapter TITLE. It has now fired on two runs whose binding was correct
+   * (REVIEW_05 §34.1), and because it feeds `revealBindingUncertain` onto the run diagnostic it was
+   * telling readers to distrust a binding that was right.
+   *
+   * Once the manuscript exists the question is no longer a guess: the contract bound a chapter, and
+   * `manuscriptDisclosure` says which chapter actually discloses. Reporting that comparison turns a
+   * hunch into a fact, which is the move X11 already made for the disclosure verdict itself.
+   *
+   * `not_measurable` when the case names no culprit — never "confirmed", because an unanswerable
+   * question is not a passing one (§13.3's rule, third application).
+   */
+  const revealBinding: GeometryAcceptanceReport["revealBinding"] =
+    revealChapterNumber === null
+      ? { boundChapter: null, disclosureChapter: manuscriptDisclosure?.chapter ?? null, verdict: "not_measurable" }
+      : manuscriptDisclosure === null || manuscriptDisclosure.chapter === null
+        ? { boundChapter: revealChapterNumber, disclosureChapter: null, verdict: "not_measurable" }
+        : {
+            boundChapter: revealChapterNumber,
+            disclosureChapter: manuscriptDisclosure.chapter,
+            verdict: manuscriptDisclosure.chapter === revealChapterNumber ? "confirmed" : "refuted",
+          };
+
   return {
     violations,
     checks,
     extraTimes,
     // Story-level, deliberately not derived from the reveal check above — see the function's header.
-    manuscriptDisclosure: findManuscriptDisclosure(chapters, geometry.culprit, options.injectionTemplates ?? []),
+    manuscriptDisclosure,
+    revealBinding,
   };
 };
 

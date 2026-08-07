@@ -6528,6 +6528,10 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
         // not disclose, `reveal_culprit_not_named` is a statement about that chapter and not about the
         // manuscript. Reported so a reader of the report knows which of the two below to trust.
         reveal_binding_uncertain: geometry.closure.revealBindingUncertain === true,
+        // X24 — and whether the finished manuscript CONFIRMED that pre-prose worry or refuted it.
+        // N4's note is a title-based guess made before any prose exists; this is the same question
+        // answered from the page, and it has already shown the note wrong on two runs.
+        reveal_binding: report.revealBinding,
         // The story-level question, scanned over every chapter rather than the bound one. This is what
         // the rubric's `noResolution` fact means, and reading the bound-chapter check as if it meant
         // the same thing inverted §14.4 on the run that motivated this whole document.
@@ -6536,6 +6540,28 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
         violations_before_repair: before,
         repaired,
       };
+      /**
+       * X24 — close N4's pre-prose worry out loud.
+       *
+       * `checkRevealBinding` pushes a `closure.notes` warning at derive time, from a beat label
+       * against a chapter title. It has fired on two runs whose binding was correct, so leaving it
+       * unanswered on the report trains readers to discount it — the §21 lesson about a warning that
+       * always fires. The manuscript can now settle it, so say which way it went.
+       */
+      if (geometry.closure.revealBindingUncertain) {
+        const rb = report.revealBinding;
+        ctx.warnings.push(
+          rb.verdict === "confirmed"
+            ? `[Agent 7.5] reveal-binding worry RESOLVED: the contract bound chapter ${rb.boundChapter} and the ` +
+              `manuscript discloses there. The pre-prose note compared a beat label against a title and was wrong.`
+            : rb.verdict === "refuted"
+              ? `[Agent 7.5] reveal-binding worry CONFIRMED: the contract bound chapter ${rb.boundChapter} but the ` +
+                `manuscript discloses in chapter ${rb.disclosureChapter}. Every reveal check read the wrong chapter.`
+              : `[Agent 7.5] reveal-binding worry NOT MEASURABLE: nothing in the manuscript discloses, so the ` +
+                `binding cannot be confirmed or refuted from the page.`,
+        );
+      }
+
       (prose as any).validationDetails = {
         ...((prose as any).validationDetails ?? {}),
         storyGeometry: geometryDiagnostic,

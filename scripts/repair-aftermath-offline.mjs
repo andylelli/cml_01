@@ -147,7 +147,17 @@ for (let mi = 0; mi < marks.length; mi += 1) {
     if (!norm || norm === "---") return seg;
     paraIndex += 1;
     const hit = forThis.find((r) => r.index === paraIndex);
-    return hit ? seg.replace(norm, hit.to).replace(/^(\s*)[\s\S]*$/, `$1${hit.to}`) : seg;
+    /**
+     * A REPLACER FUNCTION, not a replacement string. FOUND ON REVIEW 2026-08-07.
+     *
+     * This was `.replace(norm, hit.to).replace(/^(\s*)[\s\S]*$/, `$1${hit.to}`)`, which had two
+     * defects. The first replace was dead — `norm` is whitespace-collapsed and `seg` is not, so it
+     * never matched. The second interpolated the repaired prose into a REPLACEMENT STRING, where
+     * `$&`, `$1`…`$9`, `` $` `` and `$'` are substitution patterns: a rewrite containing any of them
+     * would have been silently corrupted into a mangled splice. A function replacer disables all of
+     * that, which is the only safe way to put model output into `String.replace`.
+     */
+    return hit ? seg.replace(/^(\s*)[\s\S]*$/, (_match, lead) => `${lead}${hit.to}`) : seg;
   });
   out += rebuilt.join("");
 }
