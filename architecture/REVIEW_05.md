@@ -100,6 +100,7 @@ Everything outstanding, in one place. `☐` not started · `◑` partial · `✅
 | X22 | The detector still misses a restatement carried by a pronoun and an evidence list — §8's fourth bullet, recorded not chased | — | ☐ | [§33.4](#334-x22--the-residual-and-it-is-not-a-regex-away) |
 | X23 | ~~The aftermath contract binds one chapter~~ — **fixed**: every chapter after the reveal is now bound. The control's ch10 was outside the contract entirely; it now reports the exact three paragraphs the reader named | free | ✅ | [§34](#34-x23--the-aftermath-was-one-chapter-and-the-story-had-two) |
 | X24 | **N4's reveal-binding note is a false positive** — it fired on two runs whose binding was correct. It compares a beat label to a TITLE; `manuscriptDisclosure` now gives it something to be measured against | free | ☐ | [§34.1](#341-the-reveal-binding-is-correct--n4s-note-is-the-false-positive) |
+| X25 | **The run path repaired only the FIRST aftermath violation** (`.find`) — correct until X23 bound every chapter after the reveal. Now a loop. Found by fixing X23, not by a run | free | ✅ | [§35.3](#353-x25-found-by-fixing-x23-rather-than-by-a-run) |
 | M5 | Delete the deterministic injectors — **first external evidence**: the reader struck out the injected sentence by name; the arm that injected nothing scored higher on ending and prose | free | ◑ | [§32.2](#322-the-reader-objects-to-the-injected-sentence-by-name) |
 | X8 | **Read on N6's control arm:** 21 calls `gpt-4.1-mini`, 25 `gpt-4.1`, 5 `claude-sonnet-5`, **zero `gpt-4o-mini`**. X7 confirmed in production; X6's floor fired (2 herrings sanitised) | free | ✅ | [§31.2](#312-what-the-pair-settles) |
 | **D. Paid probes, in dependency order** ||||
@@ -2544,3 +2545,62 @@ chapter that holds the defect, on both story shapes. The remaining risk is
 evidence list are still invisible — so the pass will be handed *some* of the repeats, not all of them.
 That is a floor on how much one run can fix, and should be read that way rather than as the pass
 underperforming.
+
+---
+
+## 35. The second rehearsal — the pass works, and clears one repeat in three
+
+**2026-08-07, $0.0161, five model calls.** With X20/X21/X23 landed, the rehearsal was re-pointed at
+the chapter that actually holds the repeats — the control's chapter 10, which X23 had just brought
+inside the contract for the first time.
+
+```
+ran true · 5 regen calls · repaired 1 · flagged 3 -> 2 · words 1589 -> 1556 (floor -15%)
+
+repaired    aftermath_repeat_ch10_p1
+UNRESOLVED  p8 : regen introduced: aftermath_repeat:p7
+UNRESOLVED  p10: regen did not improve the targeted property (score 350, was 350)
+```
+
+**A live model can satisfy this validator.** `aftermath_repeat_ch10_p1` is the first paragraph this
+pass has ever successfully repaired, in a project where it has been shipped, flag-gated and unfired
+since it was written. The rewrite kept the staff-log detail and replaced the re-argument with weight:
+*"The porter's initials stood beside them, a silent witness. The weight of what had b…"*
+
+**And it clears one in three.** That is the honest number, and it is worth more than a green light.
+
+### 35.1 The two failure modes, which are different
+
+**p8 — the model MOVED the restatement rather than removing it.** The rewrite cleared p8 and created a
+new offence at p7, which the whole-chapter validator caught and rejected. That is the validator doing
+exactly its job: a paragraph-scoped repair judged against the whole chapter cannot launder a defect
+into its neighbour. It is also the [§18](#18-x2--the-diagnosis-was-wrong-and-the-message-is-why)
+lesson holding — the message names what it introduced, so the failure is legible rather than a bare
+score.
+
+**p10 — the model could not see the fix.** Two attempts, `score 350, was 350`: no movement at all.
+Raising `maxAttemptsPerDefect` would buy more calls at the same wall, so the constraint is the
+instruction or the model, not the budget.
+
+### 35.2 What this means for step 6
+
+The run is worth buying, and it should be booked with the right expectation:
+
+- **the pass fires and repairs** — proven, not hoped;
+- **it will clear roughly a third** of what the detector flags, on this evidence;
+- **[X22](#334-x22--the-residual-and-it-is-not-a-regex-away) sits underneath that** — the detector
+  itself only sees some of what the readers saw, so "a third of the flagged" is a third of a subset;
+- the cost of the pass inside a run is ~$0.016, i.e. **noise against the ~£1.50 run**.
+
+So the run's honest question is no longer *"does the thirteenth pass work?"* — that is answered — but
+*"does a partially de-duplicated aftermath read better to a human?"*, which needs the external read
+that turned the N6 pair into evidence.
+
+### 35.3 X25, found by fixing X23 rather than by a run
+
+The run path selected the aftermath violation with `.find` — correct while the contract bound exactly
+one aftermath chapter, and wrong the moment X23 bound every chapter after the reveal. It would have
+repaired the earliest and silently left the rest. Now a loop.
+
+Two fixes in a row have exposed the next defect for free. That is the argument for doing the cheap
+structural work before the paid run, made twice in one afternoon.

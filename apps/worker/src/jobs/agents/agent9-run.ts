@@ -6455,15 +6455,25 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
 
         // ── the one NEW pass: the negative obligation (§8.6) ─────────────────
         if (isAftermathRepeatRegenEnabled()) {
-          const aftermath = report.violations.find((v) => v.code === "aftermath_repeat" && v.chapter !== null);
+          /**
+           * X25 — EVERY aftermath chapter, not just the first.
+           *
+           * This was `.find`, which was correct while the contract bound exactly one aftermath
+           * chapter. X23 binds every chapter after the reveal, so a story can now carry more than one
+           * `aftermath_repeat` violation, and `.find` would repair the earliest and silently leave the
+           * rest. Exposed by the fix rather than by a run, which is the cheap way round.
+           */
+          const aftermathViolations = report.violations.filter(
+            (v) => v.code === "aftermath_repeat" && v.chapter !== null,
+          );
           const revealChapter = geometry.chapterContract.find((c) => c.role === "reveal")?.chapter ?? 0;
-          if (aftermath?.chapter) {
-            const index = chapterIndexFor((prose.chapters ?? []) as any[], aftermath.chapter);
+          for (const aftermath of aftermathViolations) {
+            const index = chapterIndexFor((prose.chapters ?? []) as any[], aftermath.chapter as number);
             const chapter = index >= 0 ? (prose.chapters ?? [])[index] : undefined;
             if (chapter) {
               const pass = await runAftermathRepeatRegenPass({
                 chapter,
-                chapterNumber: aftermath.chapter,
+                chapterNumber: aftermath.chapter as number,
                 paragraphIndices: aftermath.paragraphIndices ?? [],
                 culprit: geometry.culprit,
                 methodTerms: geometry.methodSignature?.keyTerms ?? [],

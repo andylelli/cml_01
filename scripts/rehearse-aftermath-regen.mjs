@@ -60,8 +60,21 @@ const geometry = deriveStoryGeometry({
 });
 
 const revealChapter = geometry.chapterContract.find((c) => c.role === "reveal")?.chapter ?? 0;
-const aftermathNumber =
-  geometry.chapterContract.find((c) => c.role === "aftermath")?.chapter ?? manuscript.chapters.length;
+/**
+ * X23 binds EVERY chapter after the reveal, so pick the one that actually carries repeats — which is
+ * what the run path now does too (X25). `--chapter N` overrides.
+ */
+const aftermathChapters = geometry.chapterContract.filter((c) => c.role === "aftermath").map((c) => c.chapter);
+const override = Number(arg("--chapter", "")) || null;
+const withRepeats = aftermathChapters.find((n) => {
+  const c = manuscript.chapters.find((x) => x.chapterNumber === n);
+  return c && detectAftermathRepeatParagraphs(c.paragraphs, {
+    culprit: geometry.culprit,
+    methodTerms: geometry.methodSignature?.keyTerms ?? [],
+  }).length > 0;
+});
+const aftermathNumber = override ?? withRepeats ?? aftermathChapters[0] ?? manuscript.chapters.length;
+console.log(`  aftermath bound: ${JSON.stringify(aftermathChapters)} → rehearsing ch${aftermathNumber}`);
 const target = manuscript.chapters.find((c) => c.chapterNumber === aftermathNumber);
 if (!target) {
   console.error(`No chapter ${aftermathNumber} in ${STORY}`);
