@@ -167,7 +167,25 @@ const CONCEALMENT_MARKER =
   /\b(?:staged|rigged|faked|forged|contrived|tampered|set\s+the\s+(?:clock|hands)|moved\s+the\s+hands|wound\s+the\s+clock|deception|concealment|alibi\s+was\s+manufactured)\b/i;
 
 const CLEARANCE_MARKER =
-  /\b(?:cleared|ruled\s+out|eliminated|in\s+the\s+clear|not\s+the\s+(?:culprit|killer|murderer)|innocent|alibi\s+(?:holds|held|is\s+confirmed|checks\s+out)|could\s+not\s+have\s+(?:done|killed))\b/i;
+  /\b(?:cleared|ruled\s+out|eliminated|in\s+the\s+clear|not\s+the\s+(?:culprit|killer|murderer)|innocent|alibi\s+(?:holds|held|is\s+confirmed|checks\s+out)|could\s+not\s+have\s+(?:done|killed)|freed\s+from\s+suspicion|above\s+suspicion)\b/i;
+
+/**
+ * X21 — "cleared" is a verb a novelist uses constantly, and almost never about a suspect.
+ *
+ * MEASURED 2026-08-07 across the two N6 manuscripts: 4 of 13 clearance matches in the control and 2
+ * of 11 in the treatment are idioms — throats, tables, the air. `clearanceBudget.maxSentences` is
+ * **2**, so a third of the budget was being spent on people clearing their throats, and
+ * `clearance_over_budget` fired on the treatment while partly counting them.
+ *
+ * Same family as the `Bell`/`Frost` surname guard above: a word that is evidence in one register and
+ * furniture in another needs the register pinned before it counts.
+ */
+const CLEARANCE_IDIOM =
+  /\bclear(?:ed|ing|s)?\s+(?:h(?:is|er)\s+throat|the\s+(?:throat|table|room|air|plates|dishes)|a\s+space|away|out)\b/i;
+
+/** A clearance sentence, with the idioms excluded. */
+const isClearanceSentence = (sentence: string): boolean =>
+  CLEARANCE_MARKER.test(sentence) && !CLEARANCE_IDIOM.test(sentence);
 
 
 /**
@@ -192,9 +210,28 @@ const TIME_MENTION = new RegExp(
  * second implementation of "is it still repeating?" can pass its own check and fail the real one.
  * That is the two-bodies-for-one-concept trap, and this codebase has paid for it repeatedly.
  *
- * A paragraph offends when it names the culprit as a discovery, or when it stacks two or more
- * restatements — the method, the concealment, a motive-plus-guilt clause, a suspect clearance. One
- * alone is fair: the aftermath may mention that a man was arrested. Two is the case being re-argued.
+ * A paragraph offends when it RE-ARGUES the case, not when it refers back to it.
+ *
+ * X20, FOUND BY A LIVE REHEARSAL 2026-08-07 for $0.0081. The rule was `namesCulpritAsGuilty ||
+ * restatements >= 2`, so naming the culprit beside a guilt word was sufficient on its own. That
+ * flagged this, in the aftermath of the run it was meant to repair:
+ *
+ *   "The hush that followed Beatrice Quill's confession still pressed close, but now it was
+ *    tinged with a kind of exhausted relief."
+ *
+ * Zero restatements — no method, no motive, no concealment, no clearance. It is an aftermath
+ * paragraph doing exactly its job: acknowledging what happened and showing what it cost. The header
+ * above already said *"names the culprit as a DISCOVERY"*; the implementation only tested naming.
+ *
+ * And the pass could not repair it. The instruction forbids deleting, `preserveChapterLengthValidator`
+ * forbids shrinking, and any rewrite that keeps the emotional reference keeps the flag — so the regen
+ * burned two attempts and reported `score 375, was 375`. That is §2's "set up to fail" class, in the
+ * thirteenth pass, and a full run would have discovered it at ~£1.50 instead of a penny.
+ *
+ * Naming now needs corroboration: the culprit named as guilty AND at least one restatement, or two
+ * restatements without naming. Checked against what two external readers actually complained about —
+ * ch9 *"repeats the clearances"* (naming + a clearance) and ch10 *"repeats the mechanism and
+ * clearances"* (two restatements) — both still flag.
  */
 export const detectAftermathRepeatParagraphs = (
   paragraphs: ReadonlyArray<string>,
@@ -213,9 +250,9 @@ export const detectAftermathRepeatParagraphs = (
       methodTerms.some((t) => text.toLowerCase().includes(t)),
       CONCEALMENT_MARKER.test(text),
       MOTIVE_MARKER.test(text) && GUILT_MARKER.test(text),
-      CLEARANCE_MARKER.test(text),
+      isClearanceSentence(text),
     ].filter(Boolean).length;
-    if (namesCulpritAsDiscovery || restatements >= 2) offending.push(index);
+    if ((namesCulpritAsDiscovery && restatements >= 1) || restatements >= 2) offending.push(index);
   });
   return offending;
 };
@@ -583,7 +620,7 @@ export const checkManuscriptGeometry = (
        * the 08-04 run's ch9=2 (within budget — its clearances are dramatized in dialogue, which is
        * what `inScene` asks for).
        */
-      const registerSentences = sentencesOf(textOf(chapter)).filter((s) => CLEARANCE_MARKER.test(s));
+      const registerSentences = sentencesOf(textOf(chapter)).filter(isClearanceSentence);
       const satisfied = registerSentences.length <= geometry.clearanceBudget.maxSentences;
       record({ field: "clearance_budget", code: "clearance_over_budget", chapter: chapterNumber, verdict: satisfied ? "met" : "unmet" }, {
         scope: "chapter",

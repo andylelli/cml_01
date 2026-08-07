@@ -95,6 +95,10 @@ Everything outstanding, in one place. `☐` not started · `◑` partial · `✅
 | X17 | ~~The N6 lever's confirmation goes to `console.info`~~ — **fixed**: both the shadow and the authority stamp now push to `ctx.warnings`, and the shadow states the arm even when authority is off — so a probe's treatment arm cannot be identified from its durable record. Found by briefly mis-reading N6 as not having fired | free | ✅ | [§31.1](#311-the-lever-fired--verified-in-the-artifact-not-the-terminal) |
 | X18 | ~~The `noResolution` cap fired wrongly on the better story~~ — **fixed**: the disclosure test now accepts a distinctive first name, `guilt` the noun, and attribution by action. Discrimination verified — 1936 still reads NOWHERE Geometry's disclosure test wants a name + guilt verb in ONE sentence; the reader gave that same dramatised reveal 9/10. Cost it 3 marks | free to diagnose | ✅ | [§32.3](#323-x18--geometry-called-that-reveal-unmet-and-the-cap-cost-it-three-marks) |
 | X19 | ~~`aftermath_repeat` missed what the reader saw~~ — **fixed by the same root cause**: it shared the narrow matcher. Treatment ch10 now flags 1 paragraph (was 0), control 4 (was 1) — both matching the readers — flagged on the control, silent on the treatment, where the external read names ch10 repeating ch9 | free | ✅ | [§32.4](#324-x19--aftermath_repeat-missed-what-the-reader-saw) |
+| X20 | **The aftermath detector flagged legitimate references, and the pass could not repair them.** Naming now needs corroboration. Found by a $0.0081 rehearsal | free | ✅ | [§33.1](#331-x20--the-pass-was-set-up-to-fail-and-this-is-what-it-was-failing-on) |
+| X21 | **A third of the 2-sentence clearance budget was "cleared her throat".** Idioms excluded; dramatised clearances added | free | ✅ | [§33.2](#332-x21--a-third-of-the-clearance-budget-was-people-clearing-their-throats) |
+| X22 | The detector still misses a restatement carried by a pronoun and an evidence list — §8's fourth bullet, recorded not chased | — | ☐ | [§33.4](#334-x22--the-residual-and-it-is-not-a-regex-away) |
+| X23 | **The aftermath contract binds one chapter and the repeats are often in another.** On a control-shaped run the pass would not fire at all | free to diagnose | ☐ | [§33.5](#335-the-finding-that-actually-blocks-step-6) |
 | M5 | Delete the deterministic injectors — **first external evidence**: the reader struck out the injected sentence by name; the arm that injected nothing scored higher on ending and prose | free | ◑ | [§32.2](#322-the-reader-objects-to-the-injected-sentence-by-name) |
 | X8 | **Read on N6's control arm:** 21 calls `gpt-4.1-mini`, 25 `gpt-4.1`, 5 `claude-sonnet-5`, **zero `gpt-4o-mini`**. X7 confirmed in production; X6's floor fired (2 herrings sanitised) | free | ✅ | [§31.2](#312-what-the-pair-settles) |
 | **D. Paid probes, in dependency order** ||||
@@ -2388,3 +2392,82 @@ read adds one number to that: the shorter, scheduler-budgeted book scored **high
 a better ending and better prose marks. That is n=1 on two different stories and must not be read as
 "the scheduler improves quality" — but it removes the worry that halving the length would cost
 anything, which was the live objection.
+
+---
+
+## 33. The rehearsal — $0.0081 to stop a £1.50 run that would have taught nothing
+
+[REVIEW_07](REVIEW_07.md) step 6 was a full run to fire the thirteenth regen pass for the first time.
+Before booking it, the pass was driven against a chapter already on disk with one live model call.
+
+```
+ran true · 2 regen calls · repaired 0 · flagged 1 -> 1
+UNRESOLVED  aftermath_repeat_ch9_p0: regen did not improve the targeted property
+            (score 375, was 375; still failing: aftermath_repeat:p0)
+```
+
+### 33.1 X20 — the pass was set up to fail, and this is what it was failing on
+
+> *"The hush that followed Beatrice Quill's confession still pressed close, but now it was tinged
+> with a kind of exhausted relief."*
+
+**Zero restatements** — no method, no motive, no concealment, no clearance. An aftermath paragraph
+doing precisely its job: acknowledging what happened and showing what it cost.
+
+It flagged because the rule was `namesCulpritAsGuilty || restatements >= 2`, so the culprit's name
+beside a guilt word was sufficient alone. The header above it had always said *"names the culprit as a
+DISCOVERY"*; the implementation only ever tested naming.
+
+And **the pass could not repair it**. The instruction forbids deleting, `preserveChapterLengthValidator`
+forbids shrinking, and any rewrite keeping the emotional reference keeps the flag. Two attempts, score
+unmoved. That is [§2](#2-issue-a--the-storys-only-disclosure-is-machine-written)'s "set up to fail"
+class in the thirteenth pass — the same shape as the culprit-evidence pass, found for less than a penny
+instead of at full price.
+
+Naming now needs corroboration: named-as-guilty **and** at least one restatement, or two restatements
+without naming.
+
+### 33.2 X21 — a third of the clearance budget was people clearing their throats
+
+`CLEARANCE_MARKER` matched *"Eleanor cleared her throat"*. MEASURED across both N6 manuscripts: **4 of
+13** clearance matches in the control and **2 of 11** in the treatment are idioms — throats, tables,
+the air. The budget is **two sentences**, and `clearance_over_budget` fired on the treatment while
+partly counting them. Idioms are now excluded, and `freed from suspicion` / `above suspicion` added,
+which is how the readers' dramatised clearances actually read.
+
+### 33.3 Where the detector now stands against the readers
+
+| | flagged | what the reader said |
+|---|---|---|
+| control ch9 | **0** (was 1) | *"repeats the clearances"* — its only match was the throat idiom |
+| control ch10 | **3** | *"repeats the mechanism and clearances again"* ✓ |
+| treatment ch10 | **1** (was 0 after X20) | *"repeats Chapter 9"* — partially seen |
+
+### 33.4 X22 — the residual, and it is not a regex away
+
+Treatment ch10 p5 is still missed:
+
+> *"the truth of his actions and his confession the night before had settled over the group… The
+> evidence—his fingerprints on the mechanism, the matching tool marks, the weighted pendulum"*
+
+That is the whole case restated, and the detector cannot see it: the culprit appears as **"his"**, and
+the evidence list carries no method, concealment or clearance vocabulary. Widening further would mean
+matching pronouns to a referent and recognising an evidence list as a restatement — which is
+[§8](#8-what-would-change-my-mind)'s fourth bullet arriving on schedule: *the problem may be that these
+detectors are regex over prose at all.* Recorded, not chased, because two stories is not enough to
+tune against without over-fitting.
+
+### 33.5 The finding that actually blocks step 6
+
+**The contract binds ONE aftermath chapter, and on both stories the repetition the readers name is in
+the chapter it does not bind.** Control: reveal ch8, aftermath ch9 — which now flags 0 — while the
+repeats sit in ch10, outside the contract. Treatment: reveal ch9, aftermath ch10, which does flag.
+
+So on a control-shaped run **the pass would not fire at all**, and the defect two readers called the
+biggest structural weakness would go untouched — not because the detector missed it, but because the
+contract was not looking there. It is [N4](#15-n4--done-and-the-control-that-nearly-passed-silently)'s
+misbinding and [X11](#271-x11--m1-was-reading-the-wrong-question)'s root cause for the third time: the
+contract's idea of where a thing belongs, versus where the story put it.
+
+**Step 6 should not be booked until that is settled** — the run would be a coin-flip on which shape of
+story it happened to generate.
