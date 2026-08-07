@@ -753,3 +753,38 @@ describe("X24 — the pre-prose binding guess, settled from the page", () => {
     expect(report.revealBinding.verdict).toBe("not_measurable");
   });
 });
+
+/**
+ * X27 — the guilt verbs that are also ordinary English.
+ *
+ * Found by the first apply-mode run: the ONLY sentence in a nine-chapter manuscript pairing the
+ * culprit with a guilt marker was "He shot a pointed glance at Captain Ivor Hale", so geometry
+ * certified a disclosure in a story that never discloses and handed the judge `noResolution = false`.
+ */
+describe("X27 — 'shot a glance' is not a shooting", () => {
+  const disclosureIn = (paragraphs: string[]) => {
+    const chapters = cleanManuscript();
+    chapters[8] = chapter(paragraphs);
+    return checkManuscriptGeometry(geometry, chapters, { parseClockTime }).manuscriptDisclosure;
+  };
+
+  it("does not read an idiomatic glance as an accusation", () => {
+    expect(disclosureIn(["He shot a pointed glance at Hugo Hale, who bristled but said nothing."]))
+      .toEqual({ verdict: "unmet", chapter: null });
+  });
+
+  it("still reads a real shooting as one", () => {
+    expect(disclosureIn(["Hugo Hale shot him at close range, and the powder burns proved it."])?.verdict).toBe("met");
+  });
+
+  /**
+   * The X21 lesson, applied in advance. A guard that REJECTED any sentence containing an idiom would
+   * let one glance mask a real accusation beside it. Stripping the idiom and testing what remains
+   * cannot mask anything.
+   */
+  it("finds the accusation in a sentence that ALSO contains the idiom", () => {
+    expect(
+      disclosureIn(["He shot a glance at Hugo Hale, the man who had strangled his own brother."])?.verdict,
+    ).toBe("met");
+  });
+});

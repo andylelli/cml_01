@@ -160,6 +160,32 @@ export const nameMatcher = (name: string, options?: { includeFirstName?: boolean
 const GUILT_MARKER =
   /\b(?:killed|murdered|strangled|poisoned|stabbed|shot|bludgeoned|smothered|is\s+(?:the|our|your)\s+(?:murderer|killer|culprit)|was\s+(?:the|our)\s+(?:murderer|killer|culprit)|committed\s+the\s+murder|confess(?:ed|es|ion)|guilty|guilt|arrested?|took\s+the\s+life|(?:was|is|were|had\s+been|held)\s+responsible|to\s+blame|(?:had\s+)?tampered\s+with|admitted\s+(?:it|everything|the\s+truth)|had\s+done\s+it|did\s+it)\b/i;
 
+/**
+ * X27 — the guilt verbs that are also ordinary English.
+ *
+ * FOUND BY THE FIRST APPLY-MODE RUN, 2026-08-07. In a nine-chapter manuscript the ONLY sentence
+ * pairing the culprit with a guilt marker was:
+ *
+ *   "He shot a pointed glance at Captain Ivor Hale, who bristled but said nothing."
+ *
+ * `shot` is in `GUILT_MARKER` as a murder method, and "shot a glance" is one of the commonest idioms
+ * in English. So geometry reported `manuscriptDisclosure: met @ch4` for a story that never discloses,
+ * `revealBinding: refuted` on a binding that may be sound, and — worst — handed the judge
+ * `noResolution = false`, so the ending cap did NOT fire on a story that never names its murderer.
+ * That is M1's original defect reproduced, and the FALSE CERTIFICATION §14.2 warned the widening
+ * would risk. It arrived through a pre-existing marker rather than through X18, but the effect is the
+ * one that section named.
+ *
+ * STRIPPED, NOT REJECTED, and the distinction is this morning's X21 bug. A guard of the form
+ * "contains an idiom → not a disclosure" lets one glance mask a real accusation in the same sentence.
+ * Removing the idiomatic spans first and testing what remains cannot mask anything.
+ */
+const GUILT_IDIOM =
+  /\b(?:shot\s+(?:a|an|the)?\s*(?:pointed|quick|sharp|sidelong|warning|dark|nervous)?\s*(?:glance|look|glare|smile|grin)|shot\s+back|shot\s+to\s+h(?:is|er)\s+feet|shot\s+up|killed\s+the\s+(?:engine|lights|conversation|time)|stabbed\s+at|a\s+stab\s+of|arrested\s+h(?:is|er)\s+attention)\b/gi;
+
+/** The sentence with its idiomatic guilt-words removed, so what remains is what the verb means. */
+const withoutGuiltIdioms = (sentence: string): string => sentence.replace(GUILT_IDIOM, " ");
+
 const MOTIVE_MARKER =
   /\b(?:motive|because|in\s+order\s+to|so\s+that|to\s+protect|to\s+conceal|to\s+silence|revenge|inheritance|blackmail|jealous(?:y)?|ruin|debt|disgrace|exposure)\b/i;
 
@@ -288,7 +314,7 @@ const namesCulpritAsGuilty = (text: string, culpritRe: RegExp | null): boolean =
  */
 const disclosingSentence = (text: string, culpritRe: RegExp | null): string | null => {
   if (!culpritRe) return null;
-  return sentencesOf(text).find((sentence) => culpritRe.test(sentence) && GUILT_MARKER.test(sentence)) ?? null;
+  return sentencesOf(text).find((sentence) => culpritRe.test(sentence) && GUILT_MARKER.test(withoutGuiltIdioms(sentence))) ?? null;
 };
 
 /**
