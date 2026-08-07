@@ -579,3 +579,177 @@ describe("manuscriptDisclosure — the story-level question, not the bound chapt
     expect(report.manuscriptDisclosure).toBeNull();
   });
 });
+
+/**
+ * The 2026-08-07 fixes, pinned.
+ *
+ * Every one of these shipped verified against the corpus and NOTHING in the unit suite held it. That
+ * is how X21 was able to introduce a scope mismatch hours after it fixed a false positive: the corpus
+ * check said "the measured cases are unchanged", which was true and not the same as correct.
+ */
+describe("X18 — the disclosure test accepts what a reader accepts", () => {
+  const TEMPLATES = [/\bwas responsible;\s*the evidence allowed no other reading\b/i];
+  const disclosureIn = (paragraphs: string[]) => {
+    const chapters = cleanManuscript();
+    chapters[8] = chapter(paragraphs);
+    return checkManuscriptGeometry(geometry, chapters, { parseClockTime, injectionTemplates: TEMPLATES })
+      .manuscriptDisclosure;
+  };
+
+  it("accepts a FIRST-NAME reference — prose stops using surnames after the introduction", () => {
+    // "Hugo's mask of indifference cracked" is how the N6 treatment disclosed, and the strict matcher
+    // could not see it. That reveal was scored 9/10 by an external reader while geometry said `unmet`.
+    expect(disclosureIn(["Hugo had strangled him, and the cord was still in his coat."])?.verdict).toBe("met");
+  });
+
+  it("accepts `guilt` the noun, not only `guilty` the adjective", () => {
+    expect(disclosureIn(["She met Hugo's gaze and saw guilt in it, plain as the cord on the table."])?.verdict).toBe("met");
+  });
+
+  it("accepts attribution by ACTION — naming the deed is naming the doer", () => {
+    expect(disclosureIn(["Hugo Hale stood undone, beside the clock he had tampered with."])?.verdict).toBe("met");
+  });
+
+  /**
+   * THE GUARD THAT MATTERS. §14.2 records why widening the vocabulary was dangerous before the third
+   * verdict existed: it converts a false negative into a false CERTIFICATION. Story 1936 points at its
+   * culprit for a whole chapter and never accuses him — an external reader called it "no completed
+   * culprit exposure" — and it must keep reading as undisclosed.
+   */
+  it("still refuses a story that POINTS at the culprit without accusing him — the 1936 shape", () => {
+    expect(
+      disclosureIn([
+        "Eleanor's gaze landed at last on Hugo Hale.",
+        "Finding this here means Hugo Hale must have been near the clock when it was set back.",
+        "A flicker of fear crossed Hugo Hale's features, quickly masked by defiance.",
+      ]),
+    ).toEqual({ verdict: "unmet", chapter: null });
+  });
+
+  it("keeps the STRICT matcher where the question is 'does this chapter name this person'", () => {
+    // The false-solution check asks whether the accused appears, and a bare first name is weaker
+    // evidence there. Widening it was never part of X18.
+    const chapters = cleanManuscript();
+    chapters[5] = chapter(["Eleanor had no account of her evening, and the room decided that settled it."]);
+    const report = checkManuscriptGeometry(geometry, chapters, { parseClockTime });
+    expect(report.violations.map((v) => v.code)).toContain("false_solution_absent");
+  });
+});
+
+describe("X20 — the aftermath re-ARGUES, or it does not offend", () => {
+  const terms = ["strangl", "ligature", "cord"];
+
+  it("does not flag a paragraph that merely refers back to the confession", () => {
+    // The exact shape a $0.0081 rehearsal caught: zero restatements, and the regen could not repair it
+    // because deleting the reference is forbidden and keeping it keeps the flag.
+    const offending = detectAftermathRepeatParagraphs(
+      ["The hush that followed Hugo Hale's confession still pressed close, tinged with exhausted relief."],
+      { culprit: "Hugo Hale", methodTerms: terms },
+    );
+    expect(offending).toEqual([]);
+  });
+
+  it("flags naming PLUS one restatement", () => {
+    const offending = detectAftermathRepeatParagraphs(
+      ["Hugo Hale had confessed, and the ligature was produced again for the room to see."],
+      { culprit: "Hugo Hale", methodTerms: terms },
+    );
+    expect(offending).toEqual([0]);
+  });
+
+  it("flags two restatements even when nobody is named", () => {
+    const offending = detectAftermathRepeatParagraphs(
+      // Two restatements and no name: the concealment ("deception") and a suspect clearance
+      // ("alibi held"). The first draft of this fixture said "wound back to fake the hour", which
+      // matches NEITHER — the marker carries `wound the clock` and `faked` — so it scored one
+      // restatement and the test failed against correct code. Left recorded: a fixture that does not
+      // contain what it claims is a test of nothing.
+      ["The whole deception rested on the clock, and Eleanor's alibi held after all."],
+      { culprit: "Hugo Hale", methodTerms: terms },
+    );
+    expect(offending).toEqual([0]);
+  });
+});
+
+describe("X21 — 'cleared' is a verb novelists use, and almost never about a suspect", () => {
+  it("does not spend the clearance budget on people clearing their throats", () => {
+    const chapters = cleanManuscript();
+    chapters[8] = chapter([
+      "Eleanor cleared her throat.",
+      "The maid cleared the table without a word.",
+      "He cleared the air with a joke nobody laughed at.",
+    ]);
+    const report = checkManuscriptGeometry(geometry, chapters, { parseClockTime });
+    expect(report.violations.map((v) => v.code)).not.toContain("clearance_over_budget");
+  });
+
+  /**
+   * REGRESSION, and it is the reason this block exists. `isClearanceSentence` is a conjunction — a
+   * clearance word AND not an idiom — so applying it to a whole PARAGRAPH let one throat-clearing mask
+   * a genuine clearance elsewhere in the same paragraph. Introduced and found on the same day.
+   */
+  it("still counts a real clearance in a paragraph that ALSO contains an idiom", () => {
+    const offending = detectAftermathRepeatParagraphs(
+      [
+        "Eleanor cleared her throat. \"Hugo Hale is ruled out — his alibi holds.\" " +
+          "The cord lay where it had fallen, and nobody touched it.",
+      ],
+      { culprit: "Hugo Hale", methodTerms: ["cord"] },
+    );
+    expect(offending).toEqual([0]);
+  });
+});
+
+describe("X23 — every chapter after the reveal is aftermath, not just the next one", () => {
+  const outlineWithRevealAt8: GeometryOutline = {
+    acts: [
+      {
+        scenes: [
+          { beat: "gathering" }, { beat: "crime" }, { beat: "first_enquiries" }, { beat: "motives" },
+          { beat: "alibis" }, { beat: "false_solution" }, { beat: "secrets" }, { beat: "final_trap" },
+          { beat: "consequences" }, { beat: "epilogue" },
+        ],
+      },
+    ],
+  };
+
+  it("binds BOTH trailing chapters when the reveal is not the penultimate one", () => {
+    // The N6 control's shape: reveal at 8 of 10, so ch9 AND ch10 owe aftermath. Binding only ch9 left
+    // the three repeated paragraphs an external reader named sitting outside the contract entirely.
+    const g = deriveStoryGeometry({ cml: CML, clues: CLUES, narrative: outlineWithRevealAt8 });
+    const aftermath = g.chapterContract.filter((c) => c.role === "aftermath").map((c) => c.chapter);
+    expect(aftermath).toEqual([9, 10]);
+  });
+
+  it("binds nothing when the reveal is the last chapter", () => {
+    const g = deriveStoryGeometry({
+      cml: CML,
+      clues: CLUES,
+      narrative: { acts: [{ scenes: [{ beat: "gathering" }, { beat: "crime" }, { beat: "final_trap" }] }] },
+    });
+    expect(g.chapterContract.filter((c) => c.role === "aftermath")).toEqual([]);
+  });
+});
+
+describe("X24 — the pre-prose binding guess, settled from the page", () => {
+  it("CONFIRMS the binding when the bound chapter is where the disclosure is", () => {
+    const report = checkManuscriptGeometry(geometry, cleanManuscript(), { parseClockTime });
+    expect(report.revealBinding).toEqual({ boundChapter: 9, disclosureChapter: 9, verdict: "confirmed" });
+  });
+
+  it("REFUTES it when the story discloses somewhere else", () => {
+    const chapters = cleanManuscript();
+    chapters[8] = chapter(["Everything pointed toward Hugo Hale, and the hour was late."]);
+    chapters[9] = chapter(["Hugo Hale had strangled him, and the cord told them how."]);
+    const report = checkManuscriptGeometry(geometry, chapters, { parseClockTime });
+    expect(report.revealBinding).toEqual({ boundChapter: 9, disclosureChapter: 10, verdict: "refuted" });
+  });
+
+  it("is NOT_MEASURABLE when nothing discloses — an unanswerable question is not a passing one", () => {
+    const chapters = cleanManuscript();
+    chapters[8] = chapter(["The truth was poised to emerge in the hours ahead."]);
+    chapters[9] = chapter(["The house emptied slowly, and the rain kept on."]);
+    const report = checkManuscriptGeometry(geometry, chapters, { parseClockTime });
+    expect(report.revealBinding.verdict).toBe("not_measurable");
+  });
+});
