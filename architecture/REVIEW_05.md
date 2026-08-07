@@ -87,17 +87,18 @@ Everything outstanding, in one place. `☐` not started · `◑` partial · `✅
 | X14 | **Eleven** `gpt-4o-mini` fallbacks, not the three first reported — including both production entry points. One resolver, no silent default | free | ✅ | [§27.3](#273-x13-x14-x15--found-and-fixed) |
 | X15 | One `accept.ts` call site bypassed N3's folding boundary (unreachable today) | free | ✅ | [§27.3](#273-x13-x14-x15--found-and-fixed) |
 | X16 | **`npm test` could not catch a type error** — vitest compiles from `src`. Now gated by `pretest`, verified to fail the suite on a planted error. X10's neighbour | free | ✅ | [§27.5](#275-x16--the-suite-that-could-not-catch-a-type-error) |
-| X8 | **The run that reads X6/X7's effect.** Every non-prose agent now runs on `gpt-4.1-mini` (was `gpt-4o-mini`) and the floor's repair has never fired. Ride-along on N6 | free | ☐ | [§20.3](#203-what-neither-fix-has-had) |
+| X17 | **The N6 lever's confirmation goes to `console.info`, not the report** — so a probe's treatment arm cannot be identified from its durable record. Found by briefly mis-reading N6 as not having fired | free | ☐ | [§31.1](#311-the-lever-fired--verified-in-the-artifact-not-the-terminal) |
+| X8 | **Read on N6's control arm:** 21 calls `gpt-4.1-mini`, 25 `gpt-4.1`, 5 `claude-sonnet-5`, **zero `gpt-4o-mini`**. X7 confirmed in production; X6's floor fired (2 herrings sanitised) | free | ✅ | [§31.2](#312-what-the-pair-settles) |
 | **D. Paid probes, in dependency order** ||||
-| N6 | Promote `beat-scheduler`, ≥4 runs — the §8bis discriminating test | ~£6 | ☐ | [§11.4](#114-the-merged-order) |
-| D2 | **DECISION:** after N6, are geometry phases 2–4 still worth their cost? | free | 👤 | [§11.4](#114-the-merged-order) |
+| N6 | **Pair run 2026-08-06/07, ~£3.** Lever fired (verified in the artifact). Budgets honoured (+8% vs −33%) — but the reveal misbinding survives BOTH arms, which was the argument for promoting it | ~£3 | ✅ | [§31](#31-n6--the-pair-ran-and-the-scheduler-does-not-fix-what-it-was-promoted-to-fix) |
+| D2 | **DECISION:** after N6, are geometry phases 2–4 still worth their cost? N6's input is in §31.4 — the scheduler works mechanically but does not deliver the structural claim it was promoted on, so N8 is the only untried mechanism aimed at the misbinding | free | 👤 | [§31.4](#314-d1--what-this-gives-the-decision) |
 | N7 | Culprit-evidence regen on the edit-list channel | ~£3 | ☐ | [§10.7](#107-the-paid-items--what-ready-means) |
 | N8 | Phase-2 geometry contract probe (`AGENT9_GEOMETRY_CONTRACT`) | ~£3 | ☐ | [§10.7](#107-the-paid-items--what-ready-means) |
 | R6 | `eval:baseline` — **after M1, not before** | £4–8 | ☐ | [§11.2](#112-the-two-assessments-that-changed-my-mind-while-writing-this) |
 | M6 | Give Agent 9 the real rubric — only readable after M1 | ~£3 | ☐ | [§11.1](#111-the-assessment) |
 | **E. Ride-alongs — need runs, not runs of their own. Attach to N6.** ||||
-| S7 | Retire dead coercion sites — 4 runs at `firings=0` | free | ◑ 1 of 4 | [§11.3](#113-ride-alongs--things-that-need-runs-but-not-runs-of-their-own) |
-| M3 | Whole-manuscript revision: `AGENT9_FULLSTORY_DIAGNOSTIC=shadow` — **lever set and verified live**; awaits N6's runs | free | ◑ | [§11.3](#113-ride-alongs--things-that-need-runs-but-not-runs-of-their-own) · [§26](#26-the-free-board-closed-out) |
+| S7 | Retire dead coercion sites — 4 runs at `firings=0`. **N6's pair added two more zeros** | free | ◑ 3 of 4 | [§31.2](#312-what-the-pair-settles) |
+| M3 | Whole-manuscript revision — **emitted on both N6 runs** (control: 5 findings, 4 anchored, 1 discarded). Whether `apply` is worth it still needs the anchoring rate across more runs | free | ◑ | [§31.2](#312-what-the-pair-settles) |
 | R5 | Live kill-and-resume drill | free | ☐ | [§11.3](#113-ride-alongs--things-that-need-runs-but-not-runs-of-their-own) |
 | **F. Deferred — real value, wrong time** ||||
 | P4 | Geometry phase 4: retire `applyPlantBeforeReveal`, the aftermath classifier, `enforceSuspectEliminationPresence` | free | ☐ | [§12.4](#124-p4--m5--retiring-the-band-aids) |
@@ -2139,3 +2140,116 @@ whether numbers can be trusted. It is [§16](#16-n5--done-and-the-two-runs-that-
 [§22.3](#223-records-never-refuses--and-counts-what-it-does-not-object-to),
 [§24.4](#244-x10--npm-test-ran-8-of-17-workspaces) and [§27.2](#272-x12--the-corpus-probe-was-blind-to-the-two-fixes-it-was-meant-to-check)
 for the fifth time in one document. Fixed, and the re-run produced the per-category breakdown above.
+
+---
+
+## 31. N6 — the pair ran, and the scheduler does not fix what it was promoted to fix
+
+**2026-08-06/07, two runs, same premise, ~£3.** `mystery-1786050720246` (control) and
+`mystery-1786052056540` (treatment, `AGENT7_SCHEDULER_AUTHORITATIVE=true`).
+
+### 31.1 The lever fired — verified in the artifact, not the terminal
+
+`distributeChapterWordBudget` stamps a pacing-shaped budget on every scene when the scheduler is
+authoritative. The two committed outlines:
+
+```
+control     estimatedWordCount  [1800, 1500, 2000, 1800, 2000, 1700, 1900, 2200, 1800, 2100]
+treatment                       [ 900,  900,  900, 1000, 1000, 1000, 1000, 1200, 1200, 1000]
+```
+
+Irregular LLM guesses against a smooth curve — leaner setup, fuller climax. **This is the first time
+in this project's history that `AGENT7_SCHEDULER_AUTHORITATIVE` has demonstrably taken effect**, and
+X9 is why: before 2026-08-05 the flag was a module const and could not be set at all.
+
+**I briefly concluded the opposite, and the mistake is worth recording.** The lever's own confirmation
+(`[Agent 7 scheduler authority] stamped pacing-shaped budgets…`) goes to `console.info`, and I had
+captured both runs through `| tail -N`. Agent 7 finishes long before the end of a run, so the line was
+truncated away, and its absence read as "the lever did not fire". The durable artifact settled it in
+one query. That is [ADR-0010](decisions/0010-report-is-the-durable-record.md) demonstrated by
+violating it — *the terminal is a convenience, never the record* — and it is also the second time in
+two days that a `| tail` of my own has produced a false reading (the other cost §27.2's `npm test`).
+
+**Worth fixing:** the lever's confirmation should reach `ctx.warnings`, not just the terminal. A probe
+whose treatment arm cannot be identified from the report is unattributable by construction. Tracked as
+**X17**.
+
+### 31.2 What the pair settles
+
+**1. The scheduler's budgets are honoured; the LLM's own estimates are not.**
+
+| | planned | shipped | error |
+|---|---|---|---|
+| control | 18,900 | 12,584 | **−33%** |
+| treatment | 10,000 | 10,763 | **+8%** |
+
+This is a *plan-versus-actual* claim inside each run, not a quality delta between them, so one pair
+carries it honestly. The outline's own word estimates are decorative — Agent 9 misses them by a third.
+The scheduler's are followed. If predictable pacing is the goal, that is the lever working.
+
+It also means **promoting the scheduler nearly halves the book** at `targetLength: short`. Whether
+10,763 or 12,584 words is the right answer for "short" is a product decision nobody has recorded, and
+it should be made deliberately rather than inherited from whichever component happens to be
+authoritative.
+
+**2. The scheduler does NOT fix the reveal misbinding — and that was the argument for promoting it.**
+
+[§5](#5-issue-d--the-contract-bound-the-wrong-chapter-for-the-third-run-running) proposed D3 —
+*"promote `beat-scheduler` so the beats are authoritative by construction… if the grid assigns beats,
+the label and the content agree by construction"* — and [§11.1](#111-the-assessment) called N6 "the
+§8bis discriminating test" partly on that basis.
+
+```
+control     reveal bound to ch8   revealBindingUncertain: TRUE
+treatment   reveal bound to ch9   revealBindingUncertain: TRUE
+```
+
+Both arms misbind. These are the **third and fourth consecutive runs** where the beat label points the
+reveal contract at a chapter that does not disclose, and the scheduler being authoritative changed
+nothing about it — because the scheduler assigns *word budgets and clue jobs*, not the semantic
+question of which chapter actually discloses. The construction argument does not hold.
+
+**3. Every instrument built in this document executed live, first time.**
+
+| | control | treatment |
+|---|---|---|
+| **X8** model per call | 21 `gpt-4.1-mini` · 25 `gpt-4.1` · 5 `claude-sonnet-5` · **0 `gpt-4o-mini`** | same shape |
+| **X4** injector-vs-lint | `injections=1 violations=2` — caught `enforceCulpritEvidencePresence` breaking two model-bound rules in ch10 | emitted |
+| **X11** story-level disclosure | culprit found in ch10 → `noResolution=false`, judge agreed | **no disclosure anywhere → cap fired, `ending ≤ 5`** |
+| **N4** binding note | fired | fired |
+| **N2** unaccounted_time | 4 times, against a 3-fact locked registry | fired |
+| **S7** `[R4] firings=` | **0** | 0 — two of the four zeros S7 needs |
+| **M3** full-story diagnostic | 5 findings, 4 anchored | emitted |
+| **X6** red-herring floor | 2 overlapping herrings sanitised | fired |
+
+**X11 earned its place on the control arm.** The bound chapter (8) reported `reveal_culprit_not_named`
+while the manuscript disclosed in chapter 10. Under the pre-X11 wiring that would have supplied
+`noResolution = true` and capped the ending on a story that resolves — the exact inversion
+[§27.1](#271-x11--m1-was-reading-the-wrong-question) was written to prevent, reproduced live within a
+day of the fix. On the treatment arm the same code correctly supplied `true`, because that manuscript
+names its culprit nowhere at all.
+
+### 31.3 What the pair does NOT settle
+
+**The rubric totals.** 74 (control) against 70 (treatment) is inside
+[M1c](#30-m1c--one-score-is-worth-3-marks-and-that-invalidates-a-deletion)'s ±3 band before you even
+account for the two runs being *different stories from the same premise*. Nothing about story quality
+is readable here, exactly as [REVIEW_06 §2](REVIEW_06.md) said in advance.
+
+The same applies to every count that depends on the prose rather than the machinery — pronoun drift
+(23 vs 15), warning totals (105 vs 95), clue counts (21 vs 17). Those are single samples of a
+stochastic generator, not lever effects.
+
+### 31.4 D1 — what this gives the decision
+
+REVIEW_04 §11.4 D2 / [REVIEW_06](REVIEW_06.md) D1 asks whether geometry phases 2–4 are still worth
+their cost. The pair's honest input:
+
+- **The scheduler works mechanically and is safe to run.** Budgets land, no aborts, gate at warning on
+  both arms, integrity assertions pass.
+- **It does not deliver the structural argument it was promoted on.** The reveal misbinding survives
+  it, so N8's phase-2 contract — *tell the chapter what it owes* — is now the only untried mechanism
+  aimed at that defect. §5's D1-vs-D3 framing resolves toward D3 having been the weaker bet.
+- **Promotion is therefore a pacing decision, not a structural one**, and should be argued on whether
+  10,763 words is the right length for "short" — a question this pair can answer and the board has
+  never asked.

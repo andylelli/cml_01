@@ -47,21 +47,28 @@ One run per arm. Same premise, matched.
 
 | # | Do this | Arm | Status |
 |---|---|---|---|
-| R1 | **N6 — promote `beat-scheduler`.** `AGENT7_SCHEDULER_AUTHORITATIVE=false` | control | ☐ |
-| R2 | **N6 — treatment.** `AGENT7_SCHEDULER_AUTHORITATIVE=true` | treatment | ☐ |
+| R1 | ~~N6 control~~ — **run `mystery-1786050720246`**, 12,584 words, rubric 74, gate warning | control | ✅ |
+| R2 | ~~N6 treatment~~ — **run `mystery-1786052056540`**, lever verified in the artifact, 10,763 words, rubric 70, gate warning | treatment | ✅ |
+
+**Result ([R05 §31](REVIEW_05.md)):** the lever fired for the first time in the project's history — X9
+is why. The scheduler's word budgets are honoured (+8% actual-vs-plan) where the LLM's own are not
+(−33%), so promoting it nearly halves the book at `targetLength: short`. **But the reveal misbinding
+survives both arms** (`revealBindingUncertain: true` on each), and that construction argument was the
+case for promoting it. All eight ride-alongs read. Rubric totals are NOT readable — 74 vs 70 is inside
+M1c's ±3 before you account for them being different stories.
 
 **Rides along free on both** (nothing to enable except where noted):
 
 | # | Reads | Settles it in one run? |
 |---|---|---|
-| A1 | X8 — which model answered (`model` per call in `llm-prompts-full.jsonl`) | **yes** — it is a string |
-| A2 | S7 — `[R4] … firings=` coercion counters | **yes** if non-zero; 4 zeros to retire the sites |
-| A3 | R5 — kill run 2 mid-flight, resume it. 0 LLM calls for restored stages | **yes** — binary |
-| A4 | M3 — `AGENT9_FULLSTORY_DIAGNOSTIC=shadow` (already set) finding count + class mix | **yes** for "does it emit"; no for "is `apply` worth it" |
-| A5 | X6 — red-herring floor fires and repairs (`restored N red herring(s)`) | **yes** if it fires |
-| A6 | N1 — `met_by_injection_count` on the report | **yes** — it is a count |
-| A7 | N4 — reveal-binding note; X11 — `manuscript_disclosure` verdict | **yes** — both are printed |
-| A8 | X4 — injector-vs-lint counters (`injections=`, `violations=`) | **yes** — emitted even at zero |
+| A1 | ✅ X8 — 21 `gpt-4.1-mini`, 25 `gpt-4.1`, 5 `claude-sonnet-5`, **0 `gpt-4o-mini`**. X7 confirmed live |
+| A2 | ✅ S7 — `firings=0` on both. Three of the four zeros now on record |
+| A3 | ☐ R5 — deferred: killing a live run risks £1.5 and N6 mattered more. Rides on a later run |
+| A4 | ✅ M3 — emitted: 5 findings, 4 anchored, 1 discarded. `apply` still needs more runs |
+| A5 | ✅ X6 — floor acted: 2 overlapping red herrings sanitised |
+| A6 | ✅ N1/X4 — `injections=1 violations=2`, catching the injector breaking two model-bound rules |
+| A7 | ✅ N4 fired on BOTH arms. X11 paid for itself on control: disclosure in ch10 → cap correctly withheld |
+| A8 | ✅ N2 — `unaccounted_time` on a 3-fact locked registry, so accountedTimes populated live |
 
 **Everything in REVIEW_05 that has never executed is on this list.** The instruments were verified
 offline only; these two runs are the first time any of them meets a live pipeline.
