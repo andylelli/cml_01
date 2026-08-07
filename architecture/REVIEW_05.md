@@ -12,6 +12,11 @@
 
 ## Status — 2026-08-06
 
+> **The live board is now [REVIEW_07](REVIEW_07.md).** This section and the tracker below record
+> what was done; REVIEW_07 orders what is left. The headline since: the 80 target was hit twice
+> (external 84 and 86), the judge is CALIBRATED at 87.9%, and two instruments are provably wrong
+> (§32.3, §32.4).
+
 **Every free item on this board is closed.** What is left costs money or needs a person.
 
 | | |

@@ -1,5 +1,11 @@
 # Architecture Review 06 — the to-do list
 
+> ⚠️ **SUPERSEDED 2026-08-07 by [REVIEW_07](REVIEW_07.md).** This list was built before the N6
+> pair ran and before the external read came back. Both changed what is worth doing: the 80
+> target was hit (84 and 86), the judge became calibrated, and two instruments turned out to be
+> wrong. Kept for its §2 (what one run can and cannot settle) and §3 (before any run), which
+> REVIEW_07 still relies on.
+
 **Written:** 2026-08-06 · **Type:** a working tracker, not an assessment. [REVIEW_05](REVIEW_05.md) is
 the analysis; this is what is left of it plus everything it opened. Read REVIEW_05 for *why*; read
 this for *what next*.
