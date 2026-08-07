@@ -275,7 +275,12 @@ export const detectAftermathRepeatParagraphs = (
     const restatements = [
       methodTerms.some((t) => text.toLowerCase().includes(t)),
       CONCEALMENT_MARKER.test(text),
-      MOTIVE_MARKER.test(text) && GUILT_MARKER.test(text),
+      // SENTENCE-scoped and idiom-stripped, for the two reasons this file keeps re-learning.
+      // The header calls this "a motive-plus-guilt CLAUSE", but the test was paragraph-scoped, so a
+      // motive word in the first sentence and a guilt word in the ninth counted as one clause (X21's
+      // scope mismatch). And X27 stripped the "shot a glance" idiom in `disclosingSentence` and not
+      // here, which is §6 defect 5 exactly — a fix applied to one side of the same comparison.
+      sentencesOf(text).some((s) => MOTIVE_MARKER.test(s) && GUILT_MARKER.test(withoutGuiltIdioms(s))),
       // SENTENCE-scoped, not paragraph-scoped. FOUND ON REVIEW 2026-08-07, hours after X21 shipped:
       // `isClearanceSentence` is a conjunction (a clearance word AND not an idiom), so applying it to a
       // whole paragraph lets ONE "cleared her throat" mask a genuine clearance elsewhere in the same
