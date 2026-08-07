@@ -1283,6 +1283,20 @@ export async function runSuspectEliminationRegenPass(args: {
   regen: RegenFn;
   maxAttemptsPerDefect?: number;
   onUnresolved?: (defect: ProseDefect, reason: string) => void;
+  /**
+   * X29 — the last chapter a clearance may be placed in, 1-based. Chapters after it are AFTERMATH.
+   *
+   * FOUND ON THE FIRST APPLY-MODE RUN (REVIEW_08 §3). This pass targets "the last chapter that names
+   * the suspect", falling back to the final chapter — which lands it squarely in the aftermath. The
+   * aftermath contract's `mustNotContain` says "any suspect clearance", so on that run both this pass
+   * and `aftermath_repeat` worked on chapter 9, pulling it in opposite directions, and it shipped two
+   * paragraphs shorter with its confession reference gone.
+   *
+   * Two obligations that contradict each other on the same chapter is not a tuning problem, it is a
+   * contract defect. Suspects are cleared during the investigation and the reveal; the aftermath owes
+   * consequence. Omitted ⇒ unbounded, which is the old behaviour.
+   */
+  lastClearanceChapter?: number;
 }): Promise<CulpritEvidenceRegenResult> {
   const chapters = [...args.chapters];
   const repaired: string[] = [];
@@ -1298,11 +1312,16 @@ export async function runSuspectEliminationRegenPass(args: {
     if (!suspect) continue;
     if (chapters.some((c) => clearancePresenceValidator(suspect)(c).ok)) continue;
     const re = nameOrSurnameRe(suspect);
+    // X29 — never later than the last chapter a clearance is allowed in.
+    const ceiling =
+      typeof args.lastClearanceChapter === "number" && args.lastClearanceChapter >= 1
+        ? Math.min(args.lastClearanceChapter - 1, chapters.length - 1)
+        : chapters.length - 1;
     let targetIdx = -1;
-    for (let i = chapters.length - 1; i >= 0; i--) {
+    for (let i = ceiling; i >= 0; i--) {
       if (re.test(chapterText(chapters[i]))) { targetIdx = i; break; }
     }
-    if (targetIdx < 0) targetIdx = chapters.length - 1;
+    if (targetIdx < 0) targetIdx = ceiling;
     if (targetIdx < 0) continue;
     const arr = byTarget.get(targetIdx);
     if (arr) arr.push(suspect);

@@ -5569,6 +5569,9 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
             suspects: elimSuspects,
             bible: regenBibleRc14,
             regen: regenFnRc14,
+            // X29 — a clearance may not land in the aftermath, which forbids one. Geometry knows where
+            // the reveal is; without it the pass keeps its old unbounded behaviour.
+            lastClearanceChapter: ctx.storyGeometry?.chapterContract?.find((c: any) => c.role === "reveal")?.chapter,
             onUnresolved: (d, reason) => ctx.warnings.push(`[Agent 9] regen-suspect-elimination UNRESOLVED ${d.obligationRef}: ${reason} (injector floor applies).`),
           });
           if (pass.ran) {

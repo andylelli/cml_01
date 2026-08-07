@@ -150,11 +150,13 @@ score carries ±3, so 90 must be demonstrated with **repeats**, not one read.
 
 ## 5. The order
 
+> **Steps 1–3 done 2026-08-07 — see §7.**
+
 ```
 FREE — and X29 blocks the next run
- 1  X29   stop missing_clearance and aftermath_repeat fighting over one chapter
- 2  X30   detect the malformed voice-tic lines — the dialogue ceiling, 0-10 per story
- 3  X22   decide: widen the aftermath detector, or accept regex has reached its limit
+ 1  X29   stop missing_clearance and aftermath_repeat fighting over one chapter   DONE
+ 2  X30   detect the malformed voice-tic lines — the dialogue ceiling             MEASURED, not shipped
+ 3  X22   decide: widen the aftermath detector, or accept regex has reached its limit   DECIDED: stop
 
 PAID — cheapest decisive first
  4  N7    the reveal repair on a channel that may modify        ~£1.5   ← worth most
@@ -183,3 +185,56 @@ story, and the three-read sample is small enough that the category table above s
 the best available estimate, not a measurement.
 
 The first thing R6 buys is the right to stop saying that.
+
+---
+
+## 7. Steps 1–3, as built
+
+**X29 — the contradiction is gone.** `runSuspectEliminationRegenPass` targeted *"the last chapter that
+names the suspect"*, falling back to the final chapter, which put clearances squarely in the aftermath
+— whose contract forbids them. It now takes `lastClearanceChapter`, wired from geometry's reveal
+chapter, so a clearance can never land after the reveal. Suspects are cleared during the investigation;
+the aftermath owes consequence. Omitting the argument keeps the old unbounded behaviour, so nothing
+outside the geometry path changes.
+
+**X30 — measured, and deliberately not shipped.** The first detector counted near-duplicate dialogue
+and flagged the BEST-scoring story as heavily as the worst, because it could not tell two things
+apart:
+
+| | |
+|---|---|
+| legitimate | a suspect restating their alibi — *"I was in the dining hall from half past eight until just before nine"* — which a mystery requires |
+| the defect | a character recycling a content-free catchphrase — *"We must consider the implications, don't you agree?"* |
+
+The discriminator is **case content**: an alibi carries a time, a place or a name; a tic carries none.
+With that filter:
+
+```
+story                external   dialogue   tics per 100 lines
+clockwork_deceit          80        —            0.0
+clocks_deception          68        —            0.0
+secret_chime              84        7            0.8
+weighted_pendulum         86        7            3.9
+silent_deception          76        6            6.9
+```
+
+It fires hardest on the story readers marked lowest for dialogue, and the instances it flags on that
+story are the exact lines the reviewer quoted. **But n = 5, and 84 versus 86 does not separate**, so it
+is a MEASUREMENT and not a gate — [§6](REVIEW_05.md)'s rule, applied to a detector I wanted to be true.
+`npm run probe:dialogue-tics`.
+
+The two pre-voice-contract stories score 0.0, which is consistent with the defect having been
+introduced by the character-voice system rather than being inherent to the model. That is a testable
+lead and the cheapest next step on dialogue.
+
+**X22 — decided: stop widening.** The aftermath detector misses restatements carried by a pronoun and
+an evidence list. Catching those means resolving pronouns to a referent and reading an evidence list as
+an argument, which is not a regex. Combined with X20, X21, X27 and X28 — four false-positive or
+scope defects in one day, all in the same family — [§8](REVIEW_05.md)'s fourth bullet has arrived:
+*the problem may be that these detectors are regex over prose at all.* Recorded as the honest limit
+rather than chased.
+
+**One flake, twice now.** `npm test` exited 1 with `Worker exited unexpectedly` in `@cml/api` and
+`@cml/llm-client`, then passed on re-run at the full 2,714. The earlier occurrence named a different
+workspace. A moving failure across workspaces is a runner/resource problem rather than a code defect,
+but it is the guard everything rests on and it has now happened twice. Watch it.

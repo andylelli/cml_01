@@ -44,7 +44,8 @@
     "canary:agent9": "npm run canary:agent-loop -- --agent Agent9-Prose --startFromAgent Agent9-Prose --hydratePriorFromRun true",
     "probe:time-binding": "node scripts/probe-time-binding.mjs",
     "probe:validators": "node scripts/validator-corpus-check.mjs",
-    "probe:geometry-backtest": "node scripts/geometry-backtest.mjs"
+    "probe:geometry-backtest": "node scripts/geometry-backtest.mjs",
+    "probe:dialogue-tics": "node scripts/probe-dialogue-tics.mjs"
   },
   "devDependencies": {
     "typescript": "^5.5.4"
