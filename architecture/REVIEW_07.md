@@ -1,5 +1,10 @@
 # Architecture Review 07 — the target was hit, and the queue is now aimed at the wrong things
 
+> ⚠️ **SUPERSEDED 2026-08-07 by [REVIEW_08](REVIEW_08.md).** The target moved from 80 to 90, and a
+> three-story category analysis changed the ordering: the four categories this board targets
+> (premise, plot, clues, ending) ALREADY reach 9, while six others never have and dialogue has never
+> exceeded 7. §2 and §3 of this document still bind — what one run can settle, and the pre-run rules.
+
 **Written:** 2026-08-07 · **Type:** the working board. Supersedes [REVIEW_06](REVIEW_06.md), whose
 list was built before the N6 pair ran and before the external read came back.
 [REVIEW_05](REVIEW_05.md) remains the analysis — read it for *why*; read this for *what next*.
