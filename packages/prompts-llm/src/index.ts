@@ -161,6 +161,8 @@ export {
   runVoiceLeakageRegenPass,
   // Agent 7.5 geometry — the negative-obligation pass (§8.5/§8.6).
   runAftermathRepeatRegenPass,
+  // N7 — the reveal repair, on a channel that may modify (REVIEW_08 §3).
+  runRevealRepairRegenPass,
   runInsertionRegenPass,
   pronounsFromBible,
   genderMapFromBible,

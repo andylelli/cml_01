@@ -1464,3 +1464,97 @@ export async function runAftermathRepeatRegenPass(args: {
   );
   return finishRegenPass(result.chapter, defects, result.unresolved);
 }
+
+/**
+ * N7 (REVIEW_08 §3) — THE REVEAL REPAIR, ON A CHANNEL THAT MAY MODIFY.
+ *
+ * THE DEFECT THIS EXISTS FOR, measured on the 08-07 apply-mode run:
+ *
+ * ```
+ * geometry regen UNRESOLVED in ch8: regen introduced: modified_or_dropped_original_paragraph:1   ×3
+ * ```
+ *
+ * The manuscript never named its culprit, `reveal_culprit_not_named@8` detected that correctly, and
+ * the repair failed three times for the same reason each time — it ran on `runInsertionRegenPass`,
+ * whose `preserveOriginalParagraphsValidator` rejects any candidate that changes an existing
+ * paragraph.
+ *
+ * **A reveal cannot be inserted.** Planting a clue is something a chapter can be given one more
+ * paragraph of; disclosing the culprit is what an existing paragraph must be made to SAY. Asked to
+ * name the killer, the model rewrote the paragraph that came closest — the correct authorial move —
+ * and the guard threw it away three times running. That is a repair path that cannot succeed, not a
+ * model that failed.
+ *
+ * THE GUARD IS TRADED, NOT DROPPED. Insertion-only buys exactly one thing: nothing outside the repair
+ * can drift. This pass keeps that guarantee by other means, all of them deterministic:
+ *   • **the detector itself, re-run** — supplied by the caller, so this pass never re-implements
+ *     "is it fixed?" (§8.5's rule: a regen validated against a paraphrase of the detector can pass its
+ *     own check and fail the one that ships);
+ *   • **locked-fact preservation** — every canonical value on the page today is on the page after;
+ *   • **a length floor** — the cheapest way to satisfy a positive obligation is to write less around
+ *     it, and a reveal that arrives with the chapter 15% shorter has cut the scene, not repaired it;
+ *   • **`noRegressionValidator`** (optional, and the one that actually replaces insertion-only) — the
+ *     caller's "no NEW violation in this chapter" probe, which is what stops a rewrite fixing the
+ *     reveal and breaking something else in the same chapter.
+ *
+ * AND THE CHANNEL MATTERS AS MUCH AS THE GUARD. Run this over the edit-list `RegenFn`
+ * (`makeRegenFn({ editList: true })`): the model returns only the paragraphs it changed and every
+ * other one is spliced from the source object, so "nothing else drifted" stops being a hope checked
+ * afterwards and becomes structural. §36 measured that difference on the aftermath pass — 0 of 3
+ * repaired without the channel, 2 of 3 with it, at a quarter of the cost.
+ *
+ * No-op (`ran: false`, no LLM call, no cost) when there are no defects.
+ */
+export async function runRevealRepairRegenPass(args: {
+  chapter: ProseChapter;
+  defects: ReadonlyArray<ProseDefect>;
+  bible: RegenBible;
+  regen: RegenFn;
+  /** The REAL detector, re-run on the candidate — never a second implementation of the check. */
+  presenceValidatorFor: (defect: ProseDefect) => (c: ProseChapter) => ValidatorResult;
+  /** Optional: reject a candidate that introduces any NEW violation in this chapter. */
+  noRegressionValidator?: (c: ProseChapter) => ValidatorResult;
+  maxAttemptsPerDefect?: number;
+  onUnresolved?: (defect: ProseDefect, reason: string) => void;
+}): Promise<InsertionRegenPassResult> {
+  if (args.defects.length === 0) {
+    return regenPassDidNotRun(args.chapter);
+  }
+
+  const text = chapterText(args.chapter);
+  const requiredValues = lockedFactValues(args.bible)
+    .map((f) => f.value)
+    .filter((v) => v && text.includes(v));
+  const originalWords = text.split(/\s+/).filter(Boolean).length;
+
+  const validate = composeChapterValidator(
+    ...args.defects.map((d) => args.presenceValidatorFor(d)),
+    preserveLockedFactsValidator(requiredValues),
+    preserveChapterLengthValidator(originalWords),
+    ...(args.noRegressionValidator ? [args.noRegressionValidator] : []),
+  );
+
+  const result = await runRegenRepair(
+    args.chapter,
+    args.defects,
+    (chapter, defect) => {
+      const request = buildRegenRequest(chapter, defect, args.bible);
+      // The shared instruction says WHAT to render and is silent on whether an existing paragraph may
+      // change — so the model guesses, and on this obligation it guessed "rewrite" three times
+      // running. Say it outright, and say what still may not move.
+      return {
+        ...request,
+        instruction:
+          `${request.instruction} You MAY REWRITE the paragraph that comes closest to carrying this ` +
+          `moment — this repair is NOT insertion-only, and folding the disclosure into the scene that ` +
+          `already exists is better than appending a new one. Change nothing else: leave every other ` +
+          `paragraph as it stands, keep the chapter at its present length (replace, never delete), and ` +
+          `keep every locked-fact value exactly as written.`,
+      };
+    },
+    args.regen,
+    validate,
+    { maxAttemptsPerDefect: args.maxAttemptsPerDefect ?? 2, onUnresolved: args.onUnresolved },
+  );
+  return finishRegenPass(result.chapter, args.defects, result.unresolved);
+}

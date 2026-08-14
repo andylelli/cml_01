@@ -171,6 +171,28 @@ export const REGEN_PASS_REGISTRY: ReadonlyArray<RegenPassSpec> = [
     family: "rewrite",
     detects: "a speaker uses another character's signature phrase in their own dialogue",
   },
+  {
+    /**
+     * N7 (REVIEW_08 §8) — the SECOND pass on `missing_resolution`, and the registry is the right place
+     * to justify that rather than the place to hide it.
+     *
+     * `resolution` above asks whether the FINAL chapter closes in-scene naming the culprit's surname,
+     * and repairs it by ADDING. This one answers geometry's contract question — does the chapter the
+     * contract BOUND as the reveal disclose? — and cannot repair it by adding, because the disclosure
+     * is what an existing paragraph has to say. Two detectors, two scopes (the last chapter vs the
+     * bound one), two channels. Same split the dual-value pair records: two scopes of one repair, not
+     * two bodies of it.
+     *
+     * `rewrite` family, and the only pass that pins its own channel: `makeRegenFn({ editList: true })`,
+     * so untouched paragraphs are spliced from the source rather than re-emitted.
+     */
+    id: "reveal_repair",
+    runner: "runRevealRepairRegenPass",
+    defectKinds: ["missing_resolution"],
+    flag: "AGENT9_REGEN_REVEAL_MODIFY",
+    family: "rewrite",
+    detects: "the chapter geometry BOUND as the reveal does not name the culprit, the method or the motive",
+  },
 ];
 
 /** Defect kinds with an LLM repair path. Everything else falls to the deterministic floor. */

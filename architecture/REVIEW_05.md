@@ -113,7 +113,7 @@ Everything outstanding, in one place. `☐` not started · `◑` partial · `✅
 | **D. Paid probes, in dependency order** ||||
 | N6 | **Pair run 2026-08-06/07, ~£3.** Lever fired (verified in the artifact). Budgets honoured (+8% vs −33%) — but the reveal misbinding survives BOTH arms, which was the argument for promoting it | ~£3 | ✅ | [§31](#31-n6--the-pair-ran-and-the-scheduler-does-not-fix-what-it-was-promoted-to-fix) |
 | D2 | **DECISION:** after N6, are geometry phases 2–4 still worth their cost? N6's input is in §31.4 — the scheduler works mechanically but does not deliver the structural claim it was promoted on, so N8 is the only untried mechanism aimed at the misbinding | free | 👤 | [§31.4](#314-d1--what-this-gives-the-decision) |
-| N7 | Culprit-evidence regen on the edit-list channel — **PRECONDITION MET**: `aftermath_repeat` exercised `AGENT9_REGEN_EDIT_LIST` twice on a real manuscript for tuppence, successfully. The channel is no longer debuting on the reveal | ~£1.5 | ☐ | [§36.2](#362-n7s-precondition-is-met) |
+| N7 | The reveal repair on a channel that MAY MODIFY — **BUILT AND REHEARSED, unrun.** `runRevealRepairRegenPass` + `AGENT9_REGEN_REVEAL_MODIFY` (default off). Rehearsed on the manuscript that failed: the two reveal violations the 08-07 run could not repair in three attempts cleared for **$0.0038** | ~£1.5 → **$0.004 so far** | ◑ | [§38](#38-n7--the-reveal-repair-needed-a-channel-that-may-modify-and-it-repairs-for-tuppence) · [REVIEW_08 §8](REVIEW_08.md) |
 | N8 | Phase-2 geometry contract probe (`AGENT9_GEOMETRY_CONTRACT`) | ~£3 | ☐ | [§10.7](#107-the-paid-items--what-ready-means) |
 | R6 | `eval:baseline` — ~~after M1~~ → **the judge is now CALIBRATED**, so the original hold is gone. Held on cost: M1c means it needs `--repeats 3`, tripling it to £12–24 | £12–24 | ☐ | [§32.1](#321-the-judge-is-calibrated) · [§30.2](#302-the-rule-this-forces) |
 | M6 | Give Agent 9 the real rubric — **readable now**: the judge its effect would be measured through is calibrated | ~£1.5 | ☐ | [§32.1](#321-the-judge-is-calibrated) |
@@ -2696,3 +2696,106 @@ Two caveats to carry into it: one of three flagged paragraphs is untouched, and
 [X22](#334-x22--the-residual-and-it-is-not-a-regex-away) means the detector never saw everything the
 reader did. **A modest movement is the honest expectation, and a flat result is informative** — it
 would say complaint #1 is worth less than its prominence suggests, before £1.50 goes near it.
+
+---
+
+## 38. N7 — the reveal repair needed a channel that may modify, and it repairs for tuppence
+
+**2026-08-14. Built, rehearsed at $0.0038, not yet run.**
+
+### 38.1 The repair path could not succeed, and the run proved it three times
+
+[REVIEW_08 §3](REVIEW_08.md) records what the 08-07 apply-mode run did with the defect it correctly
+detected:
+
+```
+geometry regen UNRESOLVED in ch8: regen introduced: modified_or_dropped_original_paragraph:1   ×3
+```
+
+`reveal_culprit_not_named@8` was right — the manuscript never names Captain Ivor Hale — and the model's
+answer was right too: asked to disclose the culprit, it rewrote the paragraph that came closest. The
+channel threw that away three times, because geometry routed the violation to `runInsertionRegenPass`
+and its `preserveOriginalParagraphsValidator` rejects any candidate that changes an existing paragraph.
+
+**A reveal cannot be inserted.** A clue is something a chapter can carry one more observation of; the
+disclosure is what an existing paragraph must be made to SAY. Insertion-only is the right guard for the
+additive obligations and a contradiction for this one — the repair was not failing, it was forbidden.
+
+### 38.2 What N7 is
+
+`runRevealRepairRegenPass` — the third pass shape in the file, after "make something appear" and
+"make something stop appearing": **make an existing paragraph say something it does not.** Insertion-only
+is traded for four deterministic guards, three of them the aftermath pass's and one new:
+
+| guard | stops |
+|---|---|
+| the real detector, re-run by the caller | a repair validated against a paraphrase of the check that ships (§8.5) |
+| locked-fact preservation | the canonical clock value quietly dropped on the way past |
+| a length floor (−15%) | a reveal "delivered" by deleting the scene around it |
+| **no-regression: no NEW violation, anywhere** | the rewrite that fixes the reveal and breaks the aftermath |
+
+The last one is what actually replaces insertion-only, and its shape is load-bearing: the baseline is
+read from the CURRENT manuscript at pass time, because `acceptanceReason` only blocks violations that
+are new relative to `before` — a guard that also fails on the original would be carried in the baseline
+and block nothing at all. (That was a real bug in the first draft of its test, caught by the test
+disagreeing with the run path.)
+
+**The channel is pinned, not flagged.** `makeRegenFn({ editList: true })` gives this pass the edit list
+whatever `AGENT9_REGEN_EDIT_LIST` says, and that is not a convenience — the two channels are not
+interchangeable per pass. `applyParagraphEdits` DROPS an out-of-range index rather than appending
+unreviewed prose, so an edit list can only replace paragraphs that already exist: exactly wrong for the
+insertion passes, exactly right for this one. One global flag cannot serve both, so [§36.2](#362-n7s-precondition-is-met)'s
+"the step-6 run should carry `AGENT9_REGEN_EDIT_LIST=true`" needs qualifying — it is the right channel
+for the rewrite passes and the wrong one for everything that has to add a paragraph.
+
+Behind `AGENT9_REGEN_REVEAL_MODIFY` (default off). Off, the three reveal codes go down the insertion
+channel exactly as on 08-07, failures included.
+
+**And S3's registry caught it before the suite finished.** `missing_resolution` now has TWO passes, and
+the registry test failed until that was declared. It is the dual-value split again rather than a second
+repair body: `resolution` asks whether the FINAL chapter closes in-scene naming the culprit's surname and
+repairs by adding; `reveal_repair` asks geometry's question — does the chapter the contract BOUND as the
+reveal disclose? — and can only repair by rewriting. Two detectors, two scopes, two channels, both now
+asserted by `passesForDefectKind("missing_resolution")`. A registry that can drift from the code is worth
+nothing; this is the second time it has paid for itself by refusing to.
+
+### 38.3 The rehearsal — the same chapter, and it clears
+
+`npm run probe:reveal-repair` drives the pass against
+`stories/story_20260807-1412/the_clock_s_silent_deception.md` — the 76-scoring manuscript that failed —
+with the real detector, the real geometry, and the real model.
+
+```
+violations   6 → 4        reveal_culprit_not_named@8  CLEARED
+                          reveal_method_absent@8      CLEARED
+words        1179 → 1360  (floor is −15%: it grew, it did not cut)
+paragraphs   9 → 9        (edit-list: p8 replaced in place, nothing else regenerated)
+regen calls  4            cost $0.0038
+```
+
+> **before** *"Only one name remained, one set of hands with the knowledge and opportunity to make time
+> itself a weapon. As the lamplight flickered and the wind rattled the panes, Eleanor felt the shape of
+> the truth settle into place, cold and inexorable as the winter night beyond."*
+>
+> **after** *"Only one name remained, one set of hands with the knowledge and opportunity to make time
+> itself a weapon. Eleanor turned sharply, her eyes locking on Captain Ivor Hale, who had stood silently
+> by the far wall, his expression unreadable until now. \"It was you,\" she said quietly but firmly. \"You
+> manipu…"*
+
+That is precisely the complaint the external reader made of this manuscript — *"the story skips the
+actual culprit reveal"*, ending 5/10 — answered on the page, for a third of a penny.
+
+### 38.4 What this does and does not settle
+
+**Settles:** the repair path can land. A live model, on the chapter that beat it, satisfies the detector
+and all three collateral guards, and the edit-list channel keeps the other eight paragraphs byte-identical.
+
+**Does not settle:** anything about the score. One chapter is not a story, [§6](#6-the-rule-that-survives)'s
+rule stands, and the run this was rehearsing still has to happen with `AGENT9_REGEN_REVEAL_MODIFY=true`
+and acceptance in `apply` — on a manuscript that is generated with the pass in place rather than repaired
+after the fact. The two other violations in that chapter (`clincher_absent_at_payoff@8`,
+`clearance_over_budget@8`) are untouched by this pass and stay untouched: neither is the reveal.
+
+**And the cheap half went first.** £1.50 bought the knowledge that the repair was blocked; $0.0038 bought
+the knowledge that it is not any more. [§33](#33-the-rehearsal--00081-to-stop-a-150-run-that-would-have-taught-nothing)'s
+lesson, applied to its own follow-up.

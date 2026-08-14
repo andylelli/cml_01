@@ -73,6 +73,7 @@ import {
   // Agent 7.5 geometry (architecture/GEOMETRY-AGENT-DESIGN.md §8.5/§8.6) — the negative-obligation
   // repair pass, and the one clock-time parser the acceptance test must share.
   runAftermathRepeatRegenPass,
+  runRevealRepairRegenPass,
   parseClockTime,
   // REVIEW_05 §10.1 — the pipeline's own sentences, and the patterns that recognise them.
   buildCulpritEvidenceSentence,
@@ -3438,6 +3439,32 @@ const isAftermathRepeatRegenEnabled = (env: NodeJS.ProcessEnv = process.env): bo
   /^(1|true|yes|on)$/i.test(String(env.AGENT9_REGEN_AFTERMATH_REPEAT ?? ""));
 
 /**
+ * N7 (REVIEW_08 §3) — route the REVEAL family off the insertion-only channel and onto one that may
+ * modify. Default OFF, runtime-read.
+ *
+ * With the flag off, `reveal_culprit_not_named` / `reveal_method_absent` / `reveal_motive_absent` keep
+ * going to `runInsertionRegenPass` exactly as on the 08-07 run — where all three attempts failed with
+ * `modified_or_dropped_original_paragraph`, because a reveal is not something a chapter can be given
+ * one more paragraph of. On, they go to `runRevealRepairRegenPass` over the pinned edit-list channel.
+ */
+const isRevealModifyRegenEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT9_REGEN_REVEAL_MODIFY ?? ""));
+
+/**
+ * The geometry codes whose repair REQUIRES modifying an existing paragraph — the N7 partition.
+ *
+ * Everything else geometry routes is additive: a method signature, a clincher plant and a clincher
+ * payoff are all things a chapter can carry one more observation of, and insertion-only is the
+ * stronger guard when it can work at all. These three are the chapter's own climax; there is no
+ * paragraph to add that makes the reveal have happened.
+ */
+export const GEOMETRY_CODES_NEEDING_MODIFY: ReadonlySet<string> = new Set([
+  "reveal_culprit_not_named",
+  "reveal_method_absent",
+  "reveal_motive_absent",
+]);
+
+/**
  * The defect kinds geometry violations map onto — all of them pre-existing (§8.5 "reuse").
  * `aftermath_repeat` is deliberately absent: it is the one violation with no reusable pass, and it
  * has its own runner rather than a mapping.
@@ -6457,8 +6484,59 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
           const still = probed.violations.some((v) => v.code === code && v.chapter === chapterNumber);
           return { ok: !still, score: still ? 0 : 100, violations: still ? [`geometry:${code}`] : [] };
         };
+        /**
+         * N7 — a candidate must not introduce a violation the manuscript does not have YET.
+         *
+         * `validatorForCode` asks "is the targeted defect gone?"; on the insertion channel the answer
+         * was enough, because `preserveOriginalParagraphsValidator` made collateral impossible. A
+         * rewrite can trade one violation for another, so the guard that replaces insertion-only is
+         * this one: re-run the whole acceptance test and reject anything NEW, anywhere.
+         *
+         * The baseline is read at pass time rather than from `report`, because chapters repaired
+         * earlier in this same loop have already changed the manuscript — comparing against the
+         * pre-repair report would charge this candidate for an earlier pass's collateral.
+         */
+        const noRegressionValidatorFor = (chapterIndex: number) => {
+          const key = (v: { code: string; chapter: number | null }) => `${v.code}@${v.chapter ?? "-"}`;
+          const baseline = new Set(
+            checkManuscriptGeometry(geometry, (prose.chapters ?? []) as any[], {
+              parseClockTime,
+              injectionTemplates: INJECTED_SENTENCE_PATTERNS,
+            }).violations.map(key),
+          );
+          return (candidate: any) => {
+            const probe = (prose.chapters ?? []).slice();
+            probe[chapterIndex] = candidate;
+            const introduced = checkManuscriptGeometry(geometry, probe as any[], {
+              parseClockTime,
+              injectionTemplates: INJECTED_SENTENCE_PATTERNS,
+            })
+              .violations.map(key)
+              .filter((k) => !baseline.has(k));
+            return {
+              ok: introduced.length === 0,
+              score: introduced.length === 0 ? 100 : 0,
+              violations: introduced.map((k) => `geometry_introduced:${k}`),
+            };
+          };
+        };
+
         const geometryBible = { ...worldState, beatSheet: [] } as any;
         const geometryRegen = makeRegenFn({ client, model: regenDeployment, runId: ctx.runId, projectId: ctx.projectId });
+        /**
+         * N7 — the reveal repair pins the EDIT-LIST channel rather than reading
+         * `AGENT9_REGEN_EDIT_LIST`, for two reasons that pull the same way: an edit list is the only
+         * channel on which untouched paragraphs cannot drift (§36 measured 0/3 → 2/3 on the aftermath
+         * pass), and it is the channel a rewrite wants — it can only replace paragraphs that already
+         * exist, which is precisely this repair and precisely NOT the additive ones above.
+         */
+        const revealRegen = makeRegenFn({
+          client,
+          model: regenDeployment,
+          runId: ctx.runId,
+          projectId: ctx.projectId,
+          editList: true,
+        });
 
         // ── the reused passes (§8.5) ─────────────────────────────────────────
         // Each geometry violation maps onto a defect kind that already has an instruction and a
@@ -6473,32 +6551,65 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
           list.push(violation);
           byChapter.set(violation.chapter as number, list);
         }
+        // N7 — which channel a violation goes down. Flag off ⇒ everything stays on insertion-only,
+        // byte-identical to the 08-07 run (including its three failures on the reveal).
+        const needsModifyChannel = (code: string): boolean =>
+          isRevealModifyRegenEnabled() && GEOMETRY_CODES_NEEDING_MODIFY.has(code);
         for (const [chapterNumber, violations] of byChapter) {
           const index = chapterIndexFor((prose.chapters ?? []) as any[], chapterNumber);
           const chapter = index >= 0 ? (prose.chapters ?? [])[index] : undefined;
           if (!chapter) continue;
-          const defects = violations.map((v) => ({
+          const defectFor = (v: (typeof violations)[number]) => ({
             chapter: chapterNumber,
             kind: DEFECT_KIND_BY_CODE[v.code]!,
             detail: v.message,
             obligationRef: `geometry_${v.code}`,
             severity: "hard" as const,
-          }));
-          const pass = await runInsertionRegenPass({
-            chapter,
-            defects,
-            bible: geometryBible,
-            regen: geometryRegen,
-            presenceValidatorFor: (defect: any) => {
-              const code = String(defect.obligationRef ?? "").replace(/^geometry_/, "");
-              return validatorForCode(index, chapterNumber, code);
-            },
-            onUnresolved: (_d: any, reason: string) =>
-              ctx.warnings.push(`[Agent 9] geometry regen UNRESOLVED in ch${chapterNumber}: ${reason}.`),
           });
-          if (pass.ran && pass.repaired.length > 0) {
-            prose.chapters[index] = pass.chapter;
-            repaired.push(...pass.repaired);
+          const presenceValidatorFor = (defect: any) => {
+            const code = String(defect.obligationRef ?? "").replace(/^geometry_/, "");
+            return validatorForCode(index, chapterNumber, code);
+          };
+          const insertionDefects = violations.filter((v) => !needsModifyChannel(v.code)).map(defectFor);
+          const modifyDefects = violations.filter((v) => needsModifyChannel(v.code)).map(defectFor);
+
+          if (insertionDefects.length > 0) {
+            const pass = await runInsertionRegenPass({
+              chapter: (prose.chapters ?? [])[index],
+              defects: insertionDefects,
+              bible: geometryBible,
+              regen: geometryRegen,
+              presenceValidatorFor,
+              onUnresolved: (_d: any, reason: string) =>
+                ctx.warnings.push(`[Agent 9] geometry regen UNRESOLVED in ch${chapterNumber}: ${reason}.`),
+            });
+            if (pass.ran && pass.repaired.length > 0) {
+              prose.chapters[index] = pass.chapter;
+              repaired.push(...pass.repaired);
+            }
+          }
+
+          // N7 — the reveal family, on the channel that may modify. Runs AFTER the additive repairs
+          // above so it sees (and its no-regression baseline includes) whatever they planted.
+          if (modifyDefects.length > 0) {
+            const pass = await runRevealRepairRegenPass({
+              chapter: (prose.chapters ?? [])[index],
+              defects: modifyDefects,
+              bible: geometryBible,
+              regen: revealRegen,
+              presenceValidatorFor,
+              noRegressionValidator: noRegressionValidatorFor(index),
+              onUnresolved: (_d: any, reason: string) =>
+                ctx.warnings.push(`[Agent 9] geometry reveal-repair UNRESOLVED in ch${chapterNumber}: ${reason}.`),
+            });
+            if (pass.ran && pass.repaired.length > 0) {
+              prose.chapters[index] = pass.chapter;
+              repaired.push(...pass.repaired);
+              ctx.warnings.push(
+                `[Agent 9] N7 reveal-repair rewrote ch${chapterNumber} to satisfy [${pass.repaired.join(", ")}] ` +
+                  `(modify channel, edit-list).`,
+              );
+            }
           }
         }
 

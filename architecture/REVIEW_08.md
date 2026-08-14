@@ -107,11 +107,15 @@ inserted — it requires modifying a paragraph. [§2](REVIEW_05.md) predicted th
 the insertion guard still forbids modifying originals. **N7 is the fix, and this is its first live
 justification.**
 
+**Built and rehearsed 2026-08-14 (§8).** `runRevealRepairRegenPass` behind `AGENT9_REGEN_REVEAL_MODIFY`,
+and on the very manuscript above it clears `reveal_culprit_not_named@8` and `reveal_method_absent@8`
+for **$0.0038**. The run that was going to answer this is now the run that confirms it in situ.
+
 ### Paid, ready
 
 | # | Item | Cost |
 |---|---|---|
-| N7 | Culprit-evidence / missing-resolution on a channel that may modify | ~£1.5 |
+| N7 | Culprit-evidence / missing-resolution on a channel that may modify — **BUILT + REHEARSED ($0.0038, §8); the run is what is left** | ~£1.5 |
 | N8 | Phase-2 geometry contract | ~£1.5 |
 | CS1 | Promote `@cml/clue-spec` | ~£1.5 |
 | M6 | Rubric in Agent 9's prompt | ~£1.5 |
@@ -160,7 +164,8 @@ CLOSED — the free block (§7)
  ⛔ X22   widen the aftermath detector, or accept the limit        DECIDED: stop — ⛔ on the tracker
 
 NEXT — paid, cheapest decisive first
- 1  N7    the reveal repair on a channel that may modify        ~£1.5   ← worth most; unblocks apply mode
+ 1  N7    the reveal repair on a channel that may modify        ~£1.5   ← BUILT + REHEARSED ($0.004, §8);
+                                                                          only the confirming run is left
  2  M6    the rubric in Agent 9's prompt                        ~£1.5   ← the cheapest probe at the craft ceiling
  3  N8    phase-2 contract                                      ~£1.5
  4  CS1   clue-spec                                             ~£1.5
@@ -268,3 +273,49 @@ workspace. A moving failure across workspaces is a runner/resource problem rathe
 but it is the guard everything rests on and it has now happened twice. Watch it. **2026-08-14: two
 consecutive clean full runs** at 2,721 (the X29 floor tests are the +7), neither flaking. Two
 occurrences, none since; the watch stays open — X31.
+
+---
+
+## 8. N7, as built — and the £1.50 question it already answered for a third of a penny
+
+**Step 1 of §5, 2026-08-14.** Full record in [REVIEW_05 §38](REVIEW_05.md).
+
+**The repair was forbidden, not failing.** §3's three UNRESOLVED attempts on `reveal_culprit_not_named@8`
+all read `modified_or_dropped_original_paragraph` — geometry routed the violation to
+`runInsertionRegenPass`, whose guard rejects any candidate that changes an existing paragraph, and the
+model kept doing the only thing that can disclose a culprit: rewriting the paragraph that came closest.
+A clue is something a chapter can carry one more observation of. The reveal is what a paragraph already
+there has to say.
+
+**`runRevealRepairRegenPass`** takes the three reveal codes off that channel and trades insertion-only
+for four deterministic guards — the real detector re-run, locked-fact preservation, a −15% length floor,
+and *no NEW violation anywhere* measured against a baseline read at pass time. It pins the edit-list
+channel itself, so untouched paragraphs are spliced from the source and cannot drift. Behind
+`AGENT9_REGEN_REVEAL_MODIFY`, default off; off, the reveal family goes down the old channel including its
+failures.
+
+**And the rehearsal, on the manuscript that beat it** (`npm run probe:reveal-repair`):
+
+```
+violations   6 → 4       reveal_culprit_not_named@8 and reveal_method_absent@8 both CLEARED
+words        1179 → 1360 it grew — the floor stops a reveal "delivered" by cutting the scene
+paragraphs   9 → 9       edit-list replaced p8 in place; the other eight are byte-identical
+cost         $0.0038
+```
+
+> *"Eleanor turned sharply, her eyes locking on Captain Ivor Hale… \"It was you,\" she said quietly but
+> firmly."*
+
+The external reader's complaint about this exact story was *"the story skips the actual culprit reveal"*,
+ending 5/10. That is now answerable on the page.
+
+**What is left of N7 is the run** — `AGENT9_REGEN_REVEAL_MODIFY=true` with acceptance in `apply`, on a
+story generated with the pass in place rather than one repaired after the fact. §6's rule still holds: a
+cleared violation is not a score, and one chapter is not a story.
+
+**One correction to carry forward.** [REVIEW_05 §36.2](REVIEW_05.md) said the next apply-mode run should
+carry `AGENT9_REGEN_EDIT_LIST=true`. That is right for the rewrite passes and wrong globally: an edit list
+can only replace paragraphs that already exist (`applyParagraphEdits` drops an out-of-range index rather
+than appending unreviewed prose), so with the flag on, every pass whose repair is an INSERTION — clue
+planting, clearance dramatization — can no longer add its paragraph. The channel now belongs to the pass,
+not to the run: N7 pins its own and leaves the global flag off.

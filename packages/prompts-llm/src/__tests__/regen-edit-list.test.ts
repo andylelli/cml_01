@@ -14,12 +14,13 @@
  * damage a chapter instead of failing cleanly.
  */
 
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import {
   applyParagraphEdits,
   buildRegenPrompt,
   isRegenEditListEnabled,
+  makeRegenFn,
   parseEditListResponse,
 } from "../agent9-prose/regen-llm.js";
 import type { ProseChapter } from "../agent9-prose/types.js";
@@ -156,5 +157,79 @@ describe("buildRegenPrompt", () => {
     expect(user).toContain("[1] The clock on the mantel");
     // Telling the model NOT to echo unchanged paragraphs is the cost saving.
     expect(user).toContain("Do NOT return unchanged paragraphs");
+  });
+});
+
+/**
+ * N7 — the channel is per-PASS, not only per-run.
+ *
+ * The two channels are not interchangeable: an edit list can only replace a paragraph that already
+ * exists (see "DROPS an out-of-range index" above), so a pass whose repair is an INSERTION needs the
+ * whole-chapter channel, while a pass whose repair is a REWRITE wants the edit list precisely because
+ * untouched paragraphs cannot drift. One global flag cannot express both, so a pass may pin its own.
+ */
+describe("makeRegenFn — the channel a pass pins (N7)", () => {
+  const req = {
+    chapter: chapter(),
+    instruction: "Name the culprit in this chapter.",
+    constraints: { lockedFacts: [], pronouns: {}, mustNotReveal: [] },
+    defect: { chapter: 8, kind: "missing_resolution", detail: "d", severity: "hard" },
+  } as any;
+
+  const clientReturning = (content: string) => {
+    const chat = vi.fn(async () => ({ content }));
+    return { client: { chat } as any, chat };
+  };
+
+  it("uses the edit-list contract when a pass pins it, with the flag unset", async () => {
+    const previous = process.env.AGENT9_REGEN_EDIT_LIST;
+    delete process.env.AGENT9_REGEN_EDIT_LIST;
+    try {
+      const { client, chat } = clientReturning('{"edits":[{"index":2,"text":"She named him at last."}]}');
+      const out = await makeRegenFn({ client, editList: true })(req);
+      expect(String(chat.mock.calls[0][0].messages[1].content)).toContain('{"edits":[{"index":0,"text":');
+      // Parsed as an edit list: the pinned paragraph changed, the others are the source strings.
+      expect(out.paragraphs![2]).toBe("She named him at last.");
+      expect(out.paragraphs![0]).toBe(req.chapter.paragraphs[0]);
+    } finally {
+      if (previous === undefined) delete process.env.AGENT9_REGEN_EDIT_LIST;
+      else process.env.AGENT9_REGEN_EDIT_LIST = previous;
+    }
+  });
+
+  it("still reads the flag per call when a pass pins nothing — unchanged behaviour", async () => {
+    const previous = process.env.AGENT9_REGEN_EDIT_LIST;
+    delete process.env.AGENT9_REGEN_EDIT_LIST;
+    try {
+      const full = JSON.stringify({ chapter: { title: "Chapter 3", paragraphs: ["Only this."] } });
+      const { client, chat } = clientReturning(full);
+      const regen = makeRegenFn({ client });
+      await regen(req);
+      expect(String(chat.mock.calls[0][0].messages[1].content)).toContain("SOURCE CHAPTER JSON:");
+
+      process.env.AGENT9_REGEN_EDIT_LIST = "true";
+      const { client: c2, chat: chat2 } = clientReturning('{"edits":[{"index":0,"text":"Edited."}]}');
+      await makeRegenFn({ client: c2 })(req);
+      expect(String(chat2.mock.calls[0][0].messages[1].content)).toContain('{"edits":[{"index":0,"text":');
+    } finally {
+      if (previous === undefined) delete process.env.AGENT9_REGEN_EDIT_LIST;
+      else process.env.AGENT9_REGEN_EDIT_LIST = previous;
+    }
+  });
+
+  it("a pass may also pin the whole-chapter channel while the flag is ON", async () => {
+    const previous = process.env.AGENT9_REGEN_EDIT_LIST;
+    process.env.AGENT9_REGEN_EDIT_LIST = "true";
+    try {
+      const full = JSON.stringify({ chapter: { title: "Chapter 3", paragraphs: ["A.", "B.", "C.", "D."] } });
+      const { client, chat } = clientReturning(full);
+      const out = await makeRegenFn({ client, editList: false })(req);
+      expect(String(chat.mock.calls[0][0].messages[1].content)).toContain("SOURCE CHAPTER JSON:");
+      // The channel that CAN add a paragraph — which the edit list, by design, cannot.
+      expect(out.paragraphs).toHaveLength(4);
+    } finally {
+      if (previous === undefined) delete process.env.AGENT9_REGEN_EDIT_LIST;
+      else process.env.AGENT9_REGEN_EDIT_LIST = previous;
+    }
   });
 });

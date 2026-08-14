@@ -98,6 +98,15 @@ describe("defect-kind coverage", () => {
 
     const clearance = passesForDefectKind("missing_clearance");
     expect(clearance.map((s) => s.id).sort()).toEqual(["clearance", "suspect_elimination"]);
+
+    // N7 — `missing_resolution` acquired a second pass, and the two are not interchangeable: one asks
+    // whether the FINAL chapter closes and repairs by adding; the other asks whether the chapter
+    // geometry BOUND as the reveal discloses, and can only repair by rewriting. Pinned here so the
+    // pair stays a recorded decision rather than the "second repair body" S3 exists to catch.
+    const resolution = passesForDefectKind("missing_resolution");
+    expect(resolution.map((s) => s.id).sort()).toEqual(["resolution", "reveal_repair"]);
+    expect(regenPassById("resolution")?.family).toBe("insertion");
+    expect(regenPassById("reveal_repair")?.family).toBe("rewrite");
   });
 
   it("exposes the repairable set so the deterministic floor's scope is explicit", () => {

@@ -45,7 +45,8 @@
     "probe:time-binding": "node scripts/probe-time-binding.mjs",
     "probe:validators": "node scripts/validator-corpus-check.mjs",
     "probe:geometry-backtest": "node scripts/geometry-backtest.mjs",
-    "probe:dialogue-tics": "node scripts/probe-dialogue-tics.mjs"
+    "probe:dialogue-tics": "node scripts/probe-dialogue-tics.mjs",
+    "probe:reveal-repair": "node --use-system-ca scripts/probe-reveal-repair.mjs"
   },
   "devDependencies": {
     "typescript": "^5.5.4"

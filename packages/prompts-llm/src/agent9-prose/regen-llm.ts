@@ -182,6 +182,19 @@ export interface MakeRegenFnOptions {
   maxTokens?: number;
   runId?: string;
   projectId?: string;
+  /**
+   * N7 — pin the channel for ONE pass instead of reading `AGENT9_REGEN_EDIT_LIST`.
+   *
+   * The flag is global and the two channels are not interchangeable per pass. An edit list can only
+   * REPLACE a paragraph that already exists (`applyParagraphEdits` drops an out-of-range index rather
+   * than appending unreviewed prose at the end of a chapter), so the passes that must ADD a paragraph
+   * — clue planting, clearance dramatization — need the whole-chapter channel, while a rewrite pass
+   * wants the edit list precisely because untouched paragraphs cannot drift.
+   *
+   * So a pass whose repair IS a rewrite pins `true` here and gets the safe channel whatever the flag
+   * says; everything else keeps reading the flag. Undefined ⇒ read the flag, per call.
+   */
+  editList?: boolean;
 }
 
 /**
@@ -193,8 +206,9 @@ export interface MakeRegenFnOptions {
 export function makeRegenFn(opts: MakeRegenFnOptions): RegenFn {
   return async (req: RegenRequest): Promise<ProseChapter> => {
     // Read the flag per CALL, not per factory: the factory is built once per pass, and a module- or
-    // closure-frozen read is the trap that has killed levers here before.
-    const editList = isRegenEditListEnabled();
+    // closure-frozen read is the trap that has killed levers here before. An explicit `editList`
+    // pins the channel for a pass that needs a specific one (N7) and skips the flag entirely.
+    const editList = opts.editList ?? isRegenEditListEnabled();
     const { system, user } = buildRegenPrompt(req, { editList });
     const response = await opts.client.chat({
       messages: [
