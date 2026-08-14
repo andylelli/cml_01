@@ -97,13 +97,17 @@ Everything outstanding, in one place. `☐` not started · `◑` partial · `✅
 | X19 | ~~`aftermath_repeat` missed what the reader saw~~ — **fixed by the same root cause**: it shared the narrow matcher. Treatment ch10 now flags 1 paragraph (was 0), control 4 (was 1) — both matching the readers — flagged on the control, silent on the treatment, where the external read names ch10 repeating ch9 | free | ✅ | [§32.4](#324-x19--aftermath_repeat-missed-what-the-reader-saw) |
 | X20 | **The aftermath detector flagged legitimate references, and the pass could not repair them.** Naming now needs corroboration. Found by a $0.0081 rehearsal | free | ✅ | [§33.1](#331-x20--the-pass-was-set-up-to-fail-and-this-is-what-it-was-failing-on) |
 | X21 | **A third of the 2-sentence clearance budget was "cleared her throat".** Idioms excluded; dramatised clearances added | free | ✅ | [§33.2](#332-x21--a-third-of-the-clearance-budget-was-people-clearing-their-throats) |
-| X22 | The detector still misses a restatement carried by a pronoun and an evidence list — §8's fourth bullet, recorded not chased | — | ☐ | [§33.4](#334-x22--the-residual-and-it-is-not-a-regex-away) |
+| X22 | The detector still misses a restatement carried by a pronoun and an evidence list — §8's fourth bullet, recorded not chased. **DECIDED 2026-08-07: stop widening**, four same-family defects in one day | — | ⛔ | [§33.4](#334-x22--the-residual-and-it-is-not-a-regex-away) · [REVIEW_08 §7](REVIEW_08.md) |
 | X23 | ~~The aftermath contract binds one chapter~~ — **fixed**: every chapter after the reveal is now bound. The control's ch10 was outside the contract entirely; it now reports the exact three paragraphs the reader named | free | ✅ | [§34](#34-x23--the-aftermath-was-one-chapter-and-the-story-had-two) |
 | X24 | **N4's reveal-binding note is a false positive** — it fired on two runs whose binding was correct. It compares a beat label to a TITLE; `manuscriptDisclosure` now gives it something to be measured against | free | ☐ | [§34.1](#341-the-reveal-binding-is-correct--n4s-note-is-the-false-positive) |
 | X25 | **The run path repaired only the FIRST aftermath violation** (`.find`) — correct until X23 bound every chapter after the reveal. Now a loop. Found by fixing X23, not by a run | free | ✅ | [§35.3](#353-x25-found-by-fixing-x23-rather-than-by-a-run) |
 | X26 | **The aftermath pass does not work without `AGENT9_REGEN_EDIT_LIST`** — 0 of 3 repaired with the flag off (whole-chapter rewrites drift and trip the detector elsewhere), 2 of 3 with it on, at a quarter of the cost | free to find | ✅ | [§36](#36-the-edit-list-channel-is-what-makes-the-aftermath-pass-work--and-it-just-unblocked-n7) |
 | X27 | **"He shot a pointed glance at Captain Ivor Hale" certified a disclosure** in a story that never discloses — so `noResolution` went to the judge as false and the ending cap never fired. Idioms are now STRIPPED, not rejected (X21's lesson). **Externally corroborated**: the cold read says *"the story skips the actual culprit reveal"*, ending 5/10 | free | ✅ | [§37](#37-the-first-apply-mode-run-and-what-an-external-reader-confirmed) |
 | X28 | `MOTIVE && GUILT` in the aftermath detector was paragraph-scoped and not idiom-stripped — X27 fixed one side of the same comparison, §6's defect 5 | free | ✅ | [§37.3](#373-and-the-fix-stopped-one-function-short) |
+| X29 | **`missing_clearance` and `aftermath_repeat` fought over the same chapter** — one dramatizes a suspect clearance, the other forbids one; ch9 of the 08-07 run lost 2 of 8 paragraphs. **Both** writers that target "the last chapter naming the suspect" are now bounded by the reveal chapter: the regen pass and the deterministic injector floor | free | ✅ | [REVIEW_08 §7](REVIEW_08.md) |
+| X30 | **Dialogue tics have no detector** — dialogue has never scored above 7 externally, and all three readers name recycled content-free lines. Measured (`probe:dialogue-tics`), NOT gated: n=5 does not separate 84 from 86 | free | ◑ | [REVIEW_08 §7](REVIEW_08.md) |
+| X31 | **`npm test` has flaked twice** — `Worker exited unexpectedly`, a different workspace each time, passing on re-run. A moving failure reads as a runner problem, but it is the guard everything rests on | free to watch | ☐ | [REVIEW_08 §7](REVIEW_08.md) |
+| X32 | **A third writer of clearance prose is unbounded by chapter ROLE** — `buildDeterministicClearanceParagraph` (3 call sites) pastes where `suspect_clearance_scenes` and the act-scoped fallback in `resolveBatchMatchingClearances` say, so a clearance scheduled in the final act can still reach an aftermath chapter. Found by code-read while closing X29; **not measured on a run**, and `aftermath_repeat` is what would report it | free to detect | ☐ | [REVIEW_08 §7](REVIEW_08.md) |
 | M5 | Delete the deterministic injectors — **first external evidence**: the reader struck out the injected sentence by name; the arm that injected nothing scored higher on ending and prose | free | ◑ | [§32.2](#322-the-reader-objects-to-the-injected-sentence-by-name) |
 | X8 | **Read on N6's control arm:** 21 calls `gpt-4.1-mini`, 25 `gpt-4.1`, 5 `claude-sonnet-5`, **zero `gpt-4o-mini`**. X7 confirmed in production; X6's floor fired (2 herrings sanitised) | free | ✅ | [§31.2](#312-what-the-pair-settles) |
 | **D. Paid probes, in dependency order** ||||
@@ -2461,6 +2465,14 @@ matching pronouns to a referent and recognising an evidence list as a restatemen
 [§8](#8-what-would-change-my-mind)'s fourth bullet arriving on schedule: *the problem may be that these
 detectors are regex over prose at all.* Recorded, not chased, because two stories is not enough to
 tune against without over-fitting.
+
+**Decided 2026-08-07: stop widening — ⛔, not ☐.** X20, X21, X27 and X28 are four false-positive or
+scope defects in this one detector family, all found in a single day, three of them by reviewing the
+fix for the previous one. That is the profile §8's fourth bullet describes, and the next widening
+would need pronoun resolution and list-as-argument reading — a different instrument, not a longer
+regex. The residual above ships undetected and is recorded as the honest limit of this approach
+([REVIEW_08 §7](REVIEW_08.md)). Reopen it only with that different instrument, never with another
+alternation.
 
 ### 33.5 The finding that actually blocks step 6
 

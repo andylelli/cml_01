@@ -2116,8 +2116,21 @@ const injectSentenceIfAbsent = (
   buildSentence: (target: string) => string,
   logTag: string,
   onInject?: InjectionRecorder,
+  /**
+   * X29 — the last chapter this sentence may be injected into, 1-based. Omitted ⇒ the final chapter,
+   * which is the behaviour every caller had. Only the clearance floor passes it: culprit-evidence and
+   * resolution BELONG at the end, and bounding them would move the reveal out of the reveal.
+   */
+  lastChapterAllowed?: number,
 ): any => {
   const chapters = (prose.chapters as any[]).slice();
+  const ceiling =
+    typeof lastChapterAllowed === 'number' && lastChapterAllowed >= 1
+      ? Math.min(lastChapterAllowed - 1, chapters.length - 1)
+      : chapters.length - 1;
+  // No chapter to write into (an empty manuscript, or a ceiling below chapter 1) — inject nothing
+  // rather than index past the end.
+  if (ceiling < 0) return prose;
   for (const target of targets) {
     const alreadyPresent = chapters.some((ch: any) => {
       const text = Array.isArray(ch.paragraphs) ? (ch.paragraphs as string[]).join('\n\n') : '';
@@ -2125,8 +2138,8 @@ const injectSentenceIfAbsent = (
     });
     if (alreadyPresent) continue;
 
-    let targetIdx = chapters.length - 1;
-    for (let i = chapters.length - 1; i >= 0; i--) {
+    let targetIdx = ceiling;
+    for (let i = ceiling; i >= 0; i--) {
       const text = Array.isArray(chapters[i].paragraphs) ? (chapters[i].paragraphs as string[]).join('\n\n') : '';
       if (nameInTextShared(target, text)) { targetIdx = i; break; }
     }
@@ -2190,7 +2203,22 @@ export const computeEliminationSuspects = (cml: any, castDesign?: any): string[]
   );
 };
 
-export const enforceSuspectEliminationPresence = (prose: any, cml: any, castDesign?: any, onInject?: InjectionRecorder): any => {
+/**
+ * X29 (REVIEW_08 §7) — `lastClearanceChapter` is geometry's reveal chapter, 1-based, and it bounds the
+ * FLOOR the same way it bounds the regen pass above it.
+ *
+ * The pass was bounded first, and that was half a fix: the floor is the path that runs when regen
+ * cannot dramatize a clearance (and the only path at all when `AGENT9_REGEN_SUSPECT_ELIM` is off), it
+ * targets "the last chapter that names the suspect", and the aftermath names everyone. So the sentence
+ * the aftermath contract forbids kept its own route into the aftermath. Omitted ⇒ unbounded.
+ */
+export const enforceSuspectEliminationPresence = (
+  prose: any,
+  cml: any,
+  castDesign?: any,
+  onInject?: InjectionRecorder,
+  lastClearanceChapter?: number,
+): any => {
   const suspects = computeEliminationSuspects(cml, castDesign);
   if (suspects.length === 0) {
     if (!Array.isArray(castDesign?.characters) && !Array.isArray(cml?.CASE?.cast)) {
@@ -2209,6 +2237,7 @@ export const enforceSuspectEliminationPresence = (prose: any, cml: any, castDesi
     (suspect) => buildSuspectClearanceSentence(extractSurname(suspect)),
     'enforceSuspectEliminationPresence',
     onInject,
+    lastClearanceChapter,
   );
 };
 
@@ -5502,6 +5531,21 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       }
     }
   }
+  /**
+   * X29 — the last chapter a suspect clearance may land in, 1-based: geometry's reveal chapter.
+   *
+   * Every chapter after it is AFTERMATH, whose contract's `mustNotContain` forbids a suspect clearance,
+   * so a clearance written there is detected as `aftermath_repeat` and repaired back out again. Two
+   * obligations pulling one chapter in opposite directions is a contract defect, not a tuning problem;
+   * on the 08-07 run it cost ch9 two of its eight paragraphs (REVIEW_08 §7).
+   *
+   * Read ONCE and handed to both writers of clearance prose — the regen pass and the deterministic
+   * injector floor — because bounding only one of them leaves the other free to start the same fight.
+   * `undefined` (geometry off, or no reveal in the contract) ⇒ unbounded, the pre-X29 behaviour.
+   */
+  const lastClearanceChapter: number | undefined =
+    ctx.storyGeometry?.chapterContract?.find((c) => c.role === "reveal")?.chapter;
+
   // A_61 RC1.4 — inject→regen for culprit-evidence (B5) and resolution (B6). Each runs BEFORE its
   // deterministic injector so a successful regen makes the injector a logged no-op floor; on failure the
   // injector fires exactly as today. Wrapped so any regen failure leaves prose untouched.
@@ -5571,7 +5615,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
             regen: regenFnRc14,
             // X29 — a clearance may not land in the aftermath, which forbids one. Geometry knows where
             // the reveal is; without it the pass keeps its old unbounded behaviour.
-            lastClearanceChapter: ctx.storyGeometry?.chapterContract?.find((c: any) => c.role === "reveal")?.chapter,
+            lastClearanceChapter,
             onUnresolved: (d, reason) => ctx.warnings.push(`[Agent 9] regen-suspect-elimination UNRESOLVED ${d.obligationRef}: ${reason} (injector floor applies).`),
           });
           if (pass.ran) {
@@ -5662,7 +5706,8 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   prose = enforceCulpritEvidencePresence(prose, cml, recordInjection);
   // Phase 6 Layer 3: Backstop resolution injector — guarantees resolution markers exist in final chapter
   prose = injectResolutionIfAbsent(prose, cml, recordInjection);
-  prose = enforceSuspectEliminationPresence(prose, cml, castDesign, recordInjection); // P1-7: pass castDesign
+  // X29 — bounded by the reveal chapter: the floor may not write a clearance into the aftermath either.
+  prose = enforceSuspectEliminationPresence(prose, cml, castDesign, recordInjection, lastClearanceChapter); // P1-7: pass castDesign
   prose = applyLifecycleContinuityGuard(prose, castDesign.characters as CastEntry[], cml).prose;
   if (pronounRepairEnabled) {
     // D5-guarded: the broad pronoun sweep is the canonical fix, but the §3.3 bug was a sweep that
@@ -5816,6 +5861,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       cml,
       castDesign, // P1-7: pass castDesign
       recordInjection,
+      lastClearanceChapter, // X29 — the repair path injects too, and was unbounded the same way
     );
     const withLifecycleGuard = applyLifecycleContinuityGuard(
       repairedInner,

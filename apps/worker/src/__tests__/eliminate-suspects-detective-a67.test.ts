@@ -104,3 +104,66 @@ describe("computeEliminationSuspects — victim exclusion (A_68 probe)", () => {
     expect(text).not.toMatch(/Ellsworth was thoroughly cleared by the evidence/i);
   });
 });
+
+// X29 (REVIEW_08 §7) — the clearance and the aftermath contracts fought over one chapter. The regen
+// pass was bounded by the reveal first, and that was half a fix: this FLOOR is what runs when regen
+// cannot dramatize a clearance (and the only writer at all with AGENT9_REGEN_SUSPECT_ELIM off), it
+// targets "the last chapter that names the suspect", and the aftermath names everyone. So the sentence
+// the aftermath contract forbids kept a route into the aftermath, where `aftermath_repeat` then spends
+// an LLM call taking it back out — ch9 of the 08-07 run shipped two of its eight paragraphs short.
+describe("enforceSuspectEliminationPresence — bounded by the reveal chapter (X29)", () => {
+  const castDesign = {
+    characters: [
+      { name: "Inspector Hale", roleArchetype: "detective" },
+      { name: "Edward Marwood", roleArchetype: "suspect" },
+      { name: "Grace Wend", roleArchetype: "suspect" },
+    ],
+  };
+  const makeProse = () => ({
+    chapters: [
+      { paragraphs: ["Edward Marwood met them at the door of the mill."] },
+      { paragraphs: ["Hale named Grace Wend, and Edward Marwood watched the constable close the notebook."] },
+      { paragraphs: ["The mill wheel turned again that spring, and Edward Marwood took the tenancy."] },
+    ],
+  });
+  const clearanceRe = /Marwood was thoroughly cleared by the evidence/i;
+  const chapterText = (out: any, idx: number) => (out.chapters[idx].paragraphs as string[]).join(" ");
+
+  it("injects into the reveal chapter, not the aftermath chapter that also names the suspect", () => {
+    const out = enforceSuspectEliminationPresence(makeProse(), cml, castDesign, undefined, 2);
+    expect(chapterText(out, 1)).toMatch(clearanceRe);
+    expect(chapterText(out, 2)).not.toMatch(clearanceRe);
+    // The aftermath paragraph is returned byte-identical — nothing to repair back out.
+    expect(chapterText(out, 2)).toBe("The mill wheel turned again that spring, and Edward Marwood took the tenancy.");
+  });
+
+  it("falls back to the reveal chapter when no chapter up to it names the suspect", () => {
+    const prose = {
+      chapters: [
+        { paragraphs: ["The mill stood silent."] },
+        { paragraphs: ["Hale named Grace Wend at last."] },
+        { paragraphs: ["Edward Marwood took the tenancy that spring."] },
+      ],
+    };
+    const out = enforceSuspectEliminationPresence(prose, cml, castDesign, undefined, 2);
+    expect(chapterText(out, 1)).toMatch(clearanceRe);
+    expect(chapterText(out, 2)).not.toMatch(clearanceRe);
+  });
+
+  it("is unbounded when the ceiling is omitted — the pre-X29 behaviour for a run without geometry", () => {
+    const out = enforceSuspectEliminationPresence(makeProse(), cml, castDesign, undefined);
+    expect(chapterText(out, 2)).toMatch(clearanceRe); // the last chapter that names him: the aftermath
+  });
+
+  it("still no-ops when the suspect is already cleared in scene ANYWHERE, aftermath included", () => {
+    const prose = {
+      chapters: [
+        { paragraphs: ["Two witnesses saw Marwood in town; his alibi confirmed he could not have been at the mill."] },
+        { paragraphs: ["Hale named Grace Wend."] },
+        { paragraphs: ["Edward Marwood took the tenancy."] },
+      ],
+    };
+    const out = enforceSuspectEliminationPresence(prose, cml, castDesign, undefined, 2);
+    expect(out.chapters.map((c: any) => (c.paragraphs as string[]).join(" ")).join(" ")).not.toMatch(clearanceRe);
+  });
+});

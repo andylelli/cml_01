@@ -506,6 +506,69 @@ describe("runSuspectEliminationRegenPass — A_67 FIX-1(b) multi-chapter clearan
     expect(res.repaired).toEqual([]);
     expect(res.unresolved).toContain("Edward Mallory");
   });
+
+  // X29 (REVIEW_08 §7) — the pass targeted "the last chapter that names the suspect", falling back to
+  // the final chapter, and the aftermath names everyone. That put a clearance in the one chapter whose
+  // contract forbids one, so `aftermath_repeat` repaired it straight back out: on the 08-07 run ch9
+  // shipped two of its eight paragraphs short. The reveal chapter is the ceiling.
+  describe("X29 — a clearance may never land after the reveal", () => {
+    const aftermath: ProseChapter = {
+      title: "Ch3",
+      paragraphs: ["The house was quiet again, and Edward Mallory left on the morning train."],
+    };
+    const clearanceReturn = (title: string, originals: string[]) => ({
+      content: JSON.stringify({
+        chapter: {
+          title,
+          paragraphs: [
+            ...originals,
+            "Two witnesses had seen Mallory in town all afternoon; his alibi held, and he could not have been at the manor.",
+          ],
+        },
+      }),
+    });
+
+    it("targets the reveal chapter, not the later chapter that names the suspect", async () => {
+      const ch2 = makeCh2();
+      const client = { chat: vi.fn(async () => clearanceReturn("Ch2", ch2.paragraphs)) } as any;
+      const res = await runSuspectEliminationRegenPass({
+        chapters: [ch1, ch2, aftermath],
+        suspects: ["Edward Mallory"],
+        bible,
+        regen: makeRegenFn({ client }),
+        lastClearanceChapter: 2, // ch2 is the reveal; ch3 is aftermath
+      });
+      expect(res.repaired).toContain("Edward Mallory");
+      expect(res.chapters[2]).toEqual(aftermath); // the aftermath is untouched
+      expect((res.chapters[1].paragraphs ?? []).join(" ")).toMatch(/alibi held/);
+    });
+
+    it("falls back to the reveal chapter — not the final chapter — when no earlier chapter names them", async () => {
+      const unnamed: ProseChapter = { title: "Ch2", paragraphs: ["The drawing room was tense."] };
+      const client = { chat: vi.fn(async () => clearanceReturn("Ch2", unnamed.paragraphs)) } as any;
+      const res = await runSuspectEliminationRegenPass({
+        chapters: [ch1, unnamed, aftermath],
+        suspects: ["Edward Mallory"],
+        bible,
+        regen: makeRegenFn({ client }),
+        lastClearanceChapter: 2,
+      });
+      expect(res.chapters[2]).toEqual(aftermath);
+      expect((res.chapters[1].paragraphs ?? []).join(" ")).toMatch(/alibi held/);
+    });
+
+    it("is unbounded when the argument is omitted — the pre-X29 behaviour, for callers without geometry", async () => {
+      const client = { chat: vi.fn(async () => clearanceReturn("Ch3", aftermath.paragraphs)) } as any;
+      const res = await runSuspectEliminationRegenPass({
+        chapters: [ch1, makeCh2(), aftermath],
+        suspects: ["Edward Mallory"],
+        bible,
+        regen: makeRegenFn({ client }),
+      });
+      expect(res.repaired).toContain("Edward Mallory");
+      expect((res.chapters[2].paragraphs ?? []).join(" ")).toMatch(/alibi held/); // the last naming chapter
+    });
+  });
 });
 
 describe("runScaffoldRegenPass — RC1.2/RC1.3 endgame de-templating (P4)", () => {
