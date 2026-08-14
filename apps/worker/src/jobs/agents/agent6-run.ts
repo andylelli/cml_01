@@ -16,6 +16,8 @@ import {
 } from "@cml/prompts-llm";
 import type { FairPlayAuditResult, StructuralAuditResult, StructuralGap, BlindReaderResult } from "@cml/prompts-llm";
 import type { CaseData } from "@cml/cml";
+// X33 — the one class of failure a fair-play read may survive: the provider refusing the premise.
+import { isContentFilterRefusal } from "@cml/llm-client";
 import { getGenerationParams, validateGenreStructure, type PhaseScore, type TestResult } from "@cml/story-validation";
 import {
   type OrchestratorContext,
@@ -1768,10 +1770,42 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
     return representative;
   };
 
-  if (castNamesForBlind.length > 0 && falseAssumptionStatement && actualCulpritName) {
+  /**
+   * X33 — an Azure content-filter refusal here used to abort the whole run.
+   *
+   * FOUND BY THE N7 RUN, 2026-08-14. The blind-reader prompt carries the case's own death method; on
+   * a story whose method was a stabbing, Azure refused it (`ResponsibleAIPolicyViolation`,
+   * violence/medium) and the throw propagated out of Agent 6, killing a paid run at the fair-play
+   * stage — before Agent 9, before anything the run was bought to measure.
+   *
+   * A_71 measured this refusal class on Agent 9's regens and recorded that "the never-abort gate held
+   * and the story shipped"; that gate does not exist here. The refusal is not retryable (the same
+   * prompt earns the same refusal), so the honest degradation is the one §13.3 keeps insisting on:
+   * the blind read is NOT MEASURED — not passed, not failed — and the pipeline continues. Every other
+   * fair-play check is deterministic and unaffected.
+   *
+   * Narrow on purpose: only a content-filter refusal is swallowed. Any other error still propagates,
+   * because "the model is down" and "the model refused this premise" are different facts.
+   */
+  let primaryBlindRead: BlindReaderResult | null = null;
+  const blindReadEligible =
+    castNamesForBlind.length > 0 && Boolean(falseAssumptionStatement) && Boolean(actualCulpritName);
+  if (blindReadEligible) {
     ctx.reportProgress("fairplay", "Running blind reader simulation...", 73);
+    try {
+      primaryBlindRead = await runPrimaryBlindRead();
+    } catch (err) {
+      if (!isContentFilterRefusal(err)) throw err;
+      ctx.warnings.push(
+        `[Agent 6] blind reader NOT MEASURED — Azure refused the prompt (content filter; the case's ` +
+          `death method is in it). The gate is SKIPPED, not passed, and its remediation loop does not ` +
+          `run. Counted in the run's content-filter telemetry (A_71).`,
+      );
+    }
+  }
 
-    const blindResult = await runPrimaryBlindRead();
+  if (blindReadEligible && primaryBlindRead) {
+    const blindResult = primaryBlindRead;
 
     ctx.agentCosts["agent6_blind_reader"] = blindResult.cost;
     ctx.agentDurations["agent6_blind_reader"] = blindResult.durationMs;

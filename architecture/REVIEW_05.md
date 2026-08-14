@@ -108,6 +108,7 @@ Everything outstanding, in one place. `☐` not started · `◑` partial · `✅
 | X30 | **Dialogue tics have no detector** — dialogue has never scored above 7 externally, and all three readers name recycled content-free lines. Measured (`probe:dialogue-tics`), NOT gated: n=5 does not separate 84 from 86 | free | ◑ | [REVIEW_08 §7](REVIEW_08.md) |
 | X31 | **`npm test` has flaked twice** — `Worker exited unexpectedly`, a different workspace each time, passing on re-run. A moving failure reads as a runner problem, but it is the guard everything rests on | free to watch | ☐ | [REVIEW_08 §7](REVIEW_08.md) |
 | X32 | **A third writer of clearance prose is unbounded by chapter ROLE** — `buildDeterministicClearanceParagraph` (3 call sites) pastes where `suspect_clearance_scenes` and the act-scoped fallback in `resolveBatchMatchingClearances` say, so a clearance scheduled in the final act can still reach an aftermath chapter. Found by code-read while closing X29; **not measured on a run**, and `aftermath_repeat` is what would report it | free to detect | ☐ | [REVIEW_08 §7](REVIEW_08.md) |
+| X33 | **An Azure content-filter refusal on the blind-reader prompt ABORTED a paid run** — the prompt carries the case's death method, a stabbing earned `violence/medium`, and the throw propagated out of Agent 6 at the fair-play stage, before Agent 9 and before anything the run was bought to measure. A_71's "never-abort gate held" was true of Agent 9 and false here. Now: refusal ⇒ the blind read is NOT MEASURED (skipped, not passed), run continues | free | ✅ | [§38.5](#385-x33--a-refused-prompt-killed-a-paid-run-at-agent-6) |
 | M5 | Delete the deterministic injectors — **first external evidence**: the reader struck out the injected sentence by name; the arm that injected nothing scored higher on ending and prose | free | ◑ | [§32.2](#322-the-reader-objects-to-the-injected-sentence-by-name) |
 | X8 | **Read on N6's control arm:** 21 calls `gpt-4.1-mini`, 25 `gpt-4.1`, 5 `claude-sonnet-5`, **zero `gpt-4o-mini`**. X7 confirmed in production; X6's floor fired (2 herrings sanitised) | free | ✅ | [§31.2](#312-what-the-pair-settles) |
 | **D. Paid probes, in dependency order** ||||
@@ -2799,3 +2800,37 @@ after the fact. The two other violations in that chapter (`clincher_absent_at_pa
 **And the cheap half went first.** £1.50 bought the knowledge that the repair was blocked; $0.0038 bought
 the knowledge that it is not any more. [§33](#33-the-rehearsal--00081-to-stop-a-150-run-that-would-have-taught-nothing)'s
 lesson, applied to its own follow-up.
+
+### 38.5 X33 — a refused prompt killed a paid run at Agent 6
+
+**The N7 run, 2026-08-14, died before it reached N7.**
+
+```
+PROGRESS fairplay - Running blind reader simulation...
+Pipeline failure: content_filter / ResponsibleAIPolicyViolation
+  violence: filtered=true, severity=medium      param: "prompt"
+```
+
+The blind-reader prompt carries the case's own death method. This CML's was a stabbing, Azure refused
+the prompt, and the throw propagated out of Agent 6 and killed the run — at the fair-play stage, with
+Agent 9 and the entire thing the run was bought to measure still ahead of it. Twelve calls in.
+
+**A_71 measured this exact class and recorded that the system degraded correctly** — 10 refusals on the
+07-27 run, all `Agent9-Regen-Ch*-missing_clue`, *"the never-abort gate held and the story shipped"*.
+That was true of Agent 9 and false everywhere else: the refusal is counted centrally in
+`ContentFilterTracker` (every call passes through it) but survived only where a caller happened to
+have a floor. Agent 6's blind read had none. This is the A_70/A_71 shape again — a capability whose
+read path does not exist on the path that matters — and it cost a run rather than a chapter.
+
+**The fix is the honest degradation, not a retry.** The refusal is not retryable (the same prompt earns
+the same refusal), and the blind read is an advisory gate over a case whose other fair-play checks are
+deterministic. So a refusal now means the read is **NOT MEASURED** — not passed, not failed, its
+remediation loop skipped — and the run continues, with the fact in `run_warnings` and in the run's
+content-filter telemetry. Narrow on purpose: only a content-filter refusal is swallowed, because "the
+model is down" and "the model refused this premise" are different facts. Pinned by a test carrying the
+verbatim 400 body from this run.
+
+**Two costs worth separating.** The £1.50 was not spent — the run died twelve calls in, well before
+Agent 9, which is where the money goes. What was spent is the wall-clock and the fact that N7 is still
+unmeasured in situ. That is the second time in this document that a paid run has taught something other
+than what it was bought to teach, and both times the lesson was cheaper than the run.

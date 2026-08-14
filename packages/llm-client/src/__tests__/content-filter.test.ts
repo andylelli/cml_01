@@ -26,6 +26,20 @@ describe("isContentFilterRefusal", () => {
     ).toBe(true);
   });
 
+  it("detects the refusal that killed the N7 run — a whole 400 body, on the fair-play read", () => {
+    // 2026-08-14, verbatim: the blind-reader prompt carries the case's death method, and a stabbing
+    // earned violence/medium. It aborted the run at Agent 6, so the shape the detector has to catch
+    // is not only Agent 9's — it is the raw serialized body, thrown from the transport (X33).
+    const body =
+      'Mystery generation failed: {"message":"The response was filtered due to the prompt triggering ' +
+      "Azure OpenAI's content management policy. Please modify your prompt and retry. To learn more " +
+      'about our content filtering policies please read our documentation: ' +
+      'https://go.microsoft.com/fwlink/?linkid=2198766","type":null,"param":"prompt",' +
+      '"code":"content_filter","status":400,"innererror":{"code":"ResponsibleAIPolicyViolation",' +
+      '"content_filter_result":{"violence":{"filtered":true,"severity":"medium"}}}}';
+    expect(isContentFilterRefusal(new Error(body))).toBe(true);
+  });
+
   it("accepts a bare string and an error-shaped object", () => {
     expect(isContentFilterRefusal(AZURE_REFUSAL)).toBe(true);
     expect(isContentFilterRefusal({ message: AZURE_REFUSAL })).toBe(true);
