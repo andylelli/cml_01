@@ -87,6 +87,8 @@ That is the uncomfortable half of this document.
 | ~~X29~~ | ~~`missing_clearance` and `aftermath_repeat` fight over the same chapter~~ | free | ✅ **FIXED** — both last-chapter writers take `lastClearanceChapter`: the regen pass *and* the injector floor beneath it, so a clearance can never land after the reveal (§7) |
 | X30 | **Malformed voice-tic lines have no detector** — the dialogue ceiling | free | ◑ **MEASURED, not shipped**: `npm run probe:dialogue-tics`. Fires hardest on the worst-scored dialogue, but n=5 does not separate 84 from 86 (§7) |
 | X22 | The aftermath detector misses restatements carried by a pronoun and an evidence list | — | ⛔ **DECIDED: stop widening.** Four same-family defects in one day; §8's fourth bullet has arrived (§7) |
+| **X34** | **A first-person confession cannot satisfy `reveal_culprit_not_named`** — name in the attribution, guilt in the quoted "I did it", and the check wants both in one sentence | free | ☐ **New, and it blocks N7** — measured twice on the 08-14 run against two valid reveals (§8) |
+| X35 | The reveal repair never tells the model the death method — attempt 2 confessed to strangling in a stabbing case | free | ☐ **New, from the N7 run** (§8) |
 | X32 | A third writer of clearance prose (`buildDeterministicClearanceParagraph`) is bounded by the ledger's act, not by chapter role | free to detect | ☐ **New, from closing X29** — a clearance scheduled in the final act can still reach an aftermath chapter (§7) |
 | X1 | `false_solution_absent` has no repair path | — | gated on N8 |
 | X4 | Option 1 — refuse an injection that breaks a model-bound rule | 👤 | after N7 |
@@ -115,7 +117,7 @@ for **$0.0038**. The run that was going to answer this is now the run that confi
 
 | # | Item | Cost |
 |---|---|---|
-| N7 | Culprit-evidence / missing-resolution on a channel that may modify — **BUILT + REHEARSED ($0.0038, §8); the run is what is left** | ~£1.5 |
+| N7 | Culprit-evidence / missing-resolution on a channel that may modify — **BUILT, REHEARSED, RUN ($1.22, §8). Blocked on X34**, not on itself | ~£1.5 spent |
 | N8 | Phase-2 geometry contract | ~£1.5 |
 | CS1 | Promote `@cml/clue-spec` | ~£1.5 |
 | M6 | Rubric in Agent 9's prompt | ~£1.5 |
@@ -309,9 +311,18 @@ cost         $0.0038
 The external reader's complaint about this exact story was *"the story skips the actual culprit reveal"*,
 ending 5/10. That is now answerable on the page.
 
-**What is left of N7 is the run** — `AGENT9_REGEN_REVEAL_MODIFY=true` with acceptance in `apply`, on a
-story generated with the pass in place rather than one repaired after the fact. §6's rule still holds: a
-cleared violation is not a score, and one chapter is not a story.
+**THE RUN HAPPENED — 2026-08-14, $1.22, and it did not confirm what it set out to.** The pass fired on
+the right channel with the right instruction, and the model returned two paragraph rewrites that are
+proper Golden-Age reveals (*"\"I did it. I stopped the clock at a quarter to ten…\""*). The acceptance
+test scored both `unmet`, and the reason is a defect in the CHECK, not the repair: `disclosingSentence`
+wants the culprit's name and a guilt marker in one sentence, and a confession puts the name in the
+attribution and the guilt in the quoted first person. **The most idiomatic reveal in the genre cannot
+satisfy the check that asks whether the reveal happened** — X34, the false-negative mirror of X27/X28,
+and now the thing blocking N7. Two smaller finds came with it: the repair prompt never names the case's
+death method and attempt 2 invented a strangling in a stabbing case (X35), and the contract had bound
+ch8 while the manuscript disclosed in ch10 — the first CONFIRMED reveal misbinding, which is N8's
+territory. Full record in [REVIEW_05 §38.6](REVIEW_05.md). The flag is back OFF: it buys nothing while
+the gate cannot read its output.
 
 **One correction to carry forward.** [REVIEW_05 §36.2](REVIEW_05.md) said the next apply-mode run should
 carry `AGENT9_REGEN_EDIT_LIST=true`. That is right for the rewrite passes and wrong globally: an edit list

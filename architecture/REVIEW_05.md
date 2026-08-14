@@ -109,12 +109,14 @@ Everything outstanding, in one place. `☐` not started · `◑` partial · `✅
 | X31 | **`npm test` has flaked twice** — `Worker exited unexpectedly`, a different workspace each time, passing on re-run. A moving failure reads as a runner problem, but it is the guard everything rests on | free to watch | ☐ | [REVIEW_08 §7](REVIEW_08.md) |
 | X32 | **A third writer of clearance prose is unbounded by chapter ROLE** — `buildDeterministicClearanceParagraph` (3 call sites) pastes where `suspect_clearance_scenes` and the act-scoped fallback in `resolveBatchMatchingClearances` say, so a clearance scheduled in the final act can still reach an aftermath chapter. Found by code-read while closing X29; **not measured on a run**, and `aftermath_repeat` is what would report it | free to detect | ☐ | [REVIEW_08 §7](REVIEW_08.md) |
 | X33 | **An Azure content-filter refusal on the blind-reader prompt ABORTED a paid run** — the prompt carries the case's death method, a stabbing earned `violence/medium`, and the throw propagated out of Agent 6 at the fair-play stage, before Agent 9 and before anything the run was bought to measure. A_71's "never-abort gate held" was true of Agent 9 and false here. Now: refusal ⇒ the blind read is NOT MEASURED (skipped, not passed), run continues | free | ✅ | [§38.5](#385-x33--a-refused-prompt-killed-a-paid-run-at-agent-6) |
+| X34 | **A first-person confession cannot satisfy the disclosure check** — `disclosingSentence` needs the culprit's name and a guilt marker in ONE sentence, and a confession puts the name in the attribution and the guilt in the quoted "I did it". Measured twice on the N7 run against two independently generated reveals. The false-negative mirror of X27/X28, and it is what blocks N7 from landing | free | ☐ | [§38.6](#386-the-n7-run--the-pass-fired-the-model-wrote-the-reveal-and-the-detector-refused-it) |
+| X35 | **The reveal repair never tells the model the death method, and it invented one** — attempt 2 confessed to strangling in a stabbing case. `CASE.death_method` is not in the regen Bible slice and not in the violation message. Caught only because the disclosure check rejected the edit for an unrelated reason | free | ☐ | [§38.6](#386-the-n7-run--the-pass-fired-the-model-wrote-the-reveal-and-the-detector-refused-it) |
 | M5 | Delete the deterministic injectors — **first external evidence**: the reader struck out the injected sentence by name; the arm that injected nothing scored higher on ending and prose | free | ◑ | [§32.2](#322-the-reader-objects-to-the-injected-sentence-by-name) |
 | X8 | **Read on N6's control arm:** 21 calls `gpt-4.1-mini`, 25 `gpt-4.1`, 5 `claude-sonnet-5`, **zero `gpt-4o-mini`**. X7 confirmed in production; X6's floor fired (2 herrings sanitised) | free | ✅ | [§31.2](#312-what-the-pair-settles) |
 | **D. Paid probes, in dependency order** ||||
 | N6 | **Pair run 2026-08-06/07, ~£3.** Lever fired (verified in the artifact). Budgets honoured (+8% vs −33%) — but the reveal misbinding survives BOTH arms, which was the argument for promoting it | ~£3 | ✅ | [§31](#31-n6--the-pair-ran-and-the-scheduler-does-not-fix-what-it-was-promoted-to-fix) |
 | D2 | **DECISION:** after N6, are geometry phases 2–4 still worth their cost? N6's input is in §31.4 — the scheduler works mechanically but does not deliver the structural claim it was promoted on, so N8 is the only untried mechanism aimed at the misbinding | free | 👤 | [§31.4](#314-d1--what-this-gives-the-decision) |
-| N7 | The reveal repair on a channel that MAY MODIFY — **BUILT AND REHEARSED, unrun.** `runRevealRepairRegenPass` + `AGENT9_REGEN_REVEAL_MODIFY` (default off). Rehearsed on the manuscript that failed: the two reveal violations the 08-07 run could not repair in three attempts cleared for **$0.0038** | ~£1.5 → **$0.004 so far** | ◑ | [§38](#38-n7--the-reveal-repair-needed-a-channel-that-may-modify-and-it-repairs-for-tuppence) · [REVIEW_08 §8](REVIEW_08.md) |
+| N7 | The reveal repair on a channel that MAY MODIFY — **BUILT, REHEARSED, AND RUN.** Rehearsal cleared both reveal violations for $0.0038. The live run ($1.22) fired the pass on the right channel and the model wrote two proper confessions — and the acceptance test refused both, because it cannot see a first-person confession (**X34**). Flag back OFF: it buys nothing until the gate can read its output | ~£1.5 → **$1.23 spent** | ◑ | [§38](#38-n7--the-reveal-repair-needed-a-channel-that-may-modify-and-it-repairs-for-tuppence) · [§38.6](#386-the-n7-run--the-pass-fired-the-model-wrote-the-reveal-and-the-detector-refused-it) |
 | N8 | Phase-2 geometry contract probe (`AGENT9_GEOMETRY_CONTRACT`) | ~£3 | ☐ | [§10.7](#107-the-paid-items--what-ready-means) |
 | R6 | `eval:baseline` — ~~after M1~~ → **the judge is now CALIBRATED**, so the original hold is gone. Held on cost: M1c means it needs `--repeats 3`, tripling it to £12–24 | £12–24 | ☐ | [§32.1](#321-the-judge-is-calibrated) · [§30.2](#302-the-rule-this-forces) |
 | M6 | Give Agent 9 the real rubric — **readable now**: the judge its effect would be measured through is calibrated | ~£1.5 | ☐ | [§32.1](#321-the-judge-is-calibrated) |
@@ -2834,3 +2836,81 @@ verbatim 400 body from this run.
 Agent 9, which is where the money goes. What was spent is the wall-clock and the fact that N7 is still
 unmeasured in situ. That is the second time in this document that a paid run has taught something other
 than what it was bought to teach, and both times the lesson was cheaper than the run.
+
+### 38.6 The N7 run — the pass fired, the model wrote the reveal, and the DETECTOR refused it
+
+**2026-08-14, `mystery-1786734784184`, $1.22 by the per-call estimate.** `AGENT9_REGEN_REVEAL_MODIFY=true`
+with acceptance in `apply`. The run completed (status `warning`), and it bought something better than a
+confirmation.
+
+**The pass fired, on the right channel, with the right instruction.** The prompt log has it verbatim:
+
+> *"…You MAY REWRITE the paragraph that comes closest to carrying this moment — this repair is NOT
+> insertion-only… keep the chapter at its present length (replace, never delete)…"*
+
+sent as an edit list (`{"edits":[{"index":…`). Both attempts came back with a paragraph rewritten in
+place — the thing the insertion channel could not do on 08-07.
+
+**And both attempts were real reveals:**
+
+> *"Hugo Vane sank into the nearest chair, the composure gone out of him entirely… \"I did it. I stopped
+> the clock at a quarter to ten, but the truth is, Dr. Finch died at ten minutes past ten… Arrest me,
+> Captain.\""*
+>
+> *"Hugo's shoulders sagged… \"I strangled her,\" he confessed in a low voice… \"The clock's stopped time
+> was my false alibi.\""*
+
+**The acceptance test scored both `unmet`.** Not "the regen drifted", not "it dropped a locked fact" —
+the targeted property did not move: *"score 400, was 400; still failing: geometry:reveal_culprit_not_named,
+geometry:reveal_method_absent"*.
+
+#### X34 — a confession is the one reveal the detector cannot see
+
+`disclosingSentence` requires the culprit's NAME and a guilt marker **in the same sentence**. That
+scoping is deliberate and was right: [§37](#37) made it sentence-scoped because a paragraph-scoped
+version certified a clearance register as a disclosure. But a confession is written the way English
+writes confessions — the name in the attribution sentence, the guilt in the quoted first person:
+
+```
+"Hugo Vane sank into the nearest chair…"        name,  no guilt word
+"\"I did it. I stopped the clock…\""             guilt, no name
+→ findManuscriptDisclosure  ⇒  { verdict: "unmet", chapter: null }
+```
+
+Verified directly against the shipped detector on the exact paragraph. **The most idiomatic reveal in
+the genre cannot satisfy the check that asks whether the reveal happened**, and it is a false NEGATIVE
+of the same conjunction-scope family as X27/X28 — the mirror image, found by the fix for the other side.
+This is what now blocks N7 from landing: the repair works and the gate cannot recognise its output.
+
+#### X35 — the repair prompt does not carry the death method, and the model invented one
+
+The case's method is a stabbing (`clue_early_stab_wound`, and the contract's own clincher names *"a
+puncture wound… a torn garment sleeve"*). Attempt 2 confessed to **strangling** — *"I used the wire from
+the clock… then slipped it around her throat"*. `reveal_method_absent`'s message says only that the
+chapter *"does not state how the murder was physically done"*; it never says what the method IS, and the
+Bible slice the regen dereferences carries locked facts, pronouns and culprits — not `CASE.death_method`.
+Had the disclosure check accepted attempt 2, a contradictory reveal would have shipped. It was caught by
+an unrelated rejection, which is luck, not a guard.
+
+#### And the chapter was the wrong chapter anyway
+
+> *"[Agent 7.5] reveal-binding worry CONFIRMED: the contract bound chapter 8 but the manuscript discloses
+> in chapter 10. Every reveal check read the wrong chapter."*
+
+X24's machinery answered N4's question from the page for the first time in the affirmative: ch8 is the
+discriminating test, ch10 is the disclosure, and `reveal_culprit_not_named@8` was a statement about a
+chapter that never owed a reveal. So N7 was pointed at the wrong chapter by a binding defect — N8's
+territory, and now with a live instance rather than a suspicion.
+
+#### What the £1.22 bought
+
+Not "N7 works" and not "N7 fails". It bought three defects that were invisible from the fixture side:
+X34 (the detector cannot see a confession), X35 (the repair may invent a method), and the first
+CONFIRMED reveal misbinding. The rehearsal's verdict stands unchanged — the repair path can land, on a
+manuscript whose binding is right — and the flag goes back OFF, because turning it on buys nothing while
+the gate cannot recognise a confession.
+
+**X33 also earned its keep on this run.** The same content filter refused the blind-reader prompt again
+(this premise family keeps producing stabbings), and the run continued with the read recorded as NOT
+MEASURED. Without the fix committed an hour earlier, this run would have died in the same place as the
+one before it, and none of the above would be known.
