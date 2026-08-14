@@ -149,30 +149,37 @@ score carries ±3, so 90 must be demonstrated with **repeats**, not one read.
 
 ## 5. The order
 
-> **Steps 1–3 closed — see §7.** Started 2026-08-07; X29's second writer (the injector floor) bounded
-> 2026-08-14, which is when the FREE block actually stopped blocking the next run.
+> **The free block is closed — see §7.** Opened 2026-08-07, closed 2026-08-14 when X29's *second*
+> writer (the deterministic injector floor) was bounded. Nothing free blocks the next run any more, so
+> the order below starts at the money.
 
 ```
-FREE — and X29 blocks the next run
- 1  X29   stop missing_clearance and aftermath_repeat fighting over one chapter   DONE — both writers
- 2  X30   detect the malformed voice-tic lines — the dialogue ceiling             MEASURED, not shipped
- 3  X22   decide: widen the aftermath detector, or accept regex has reached its limit   DECIDED: stop (⛔ on the tracker)
+CLOSED — the free block (§7)
+ ✅ X29   missing_clearance vs aftermath_repeat over one chapter   BOTH writers bounded by the reveal
+ ◑ X30   the malformed voice-tic lines — the dialogue ceiling      MEASURED (probe), deliberately not gated
+ ⛔ X22   widen the aftermath detector, or accept the limit        DECIDED: stop — ⛔ on the tracker
 
-PAID — cheapest decisive first
- 4  N7    the reveal repair on a channel that may modify        ~£1.5   ← worth most
- 5  M6    the rubric in Agent 9's prompt                        ~£1.5   ← craft, now readable
- 6  N8    phase-2 contract                                      ~£1.5
- 7  CS1   clue-spec                                             ~£1.5
- 8  R6    baseline --repeats 3                                  £12-24  ← the 90 measurement
+NEXT — paid, cheapest decisive first
+ 1  N7    the reveal repair on a channel that may modify        ~£1.5   ← worth most; unblocks apply mode
+ 2  M6    the rubric in Agent 9's prompt                        ~£1.5   ← the cheapest probe at the craft ceiling
+ 3  N8    phase-2 contract                                      ~£1.5
+ 4  CS1   clue-spec                                             ~£1.5
+ 5  R6    baseline --repeats 3                                  £12-24  ← the 90 measurement
+
+FREE, AND NOT BLOCKING — do them alongside, not before
+ -  X32   the third clearance writer, bounded by the act and not by chapter role (§7)
+ -  X31   the `npm test` flake — two clean runs since; keep counting rather than explaining
 
 DECISIONS
- 9  M5    retire the injectors — prose complaint #2, evidence in hand
-10  D1    promote the scheduler (pacing)
-11  Move 4  a frontier model for generation, if the craft ceiling holds after 5
+ 6  M5    retire the injectors — prose complaint #2, evidence in hand
+ 7  D1    promote the scheduler (pacing)
+ 8  Move 4  a frontier model for generation, if the craft ceiling holds after M6
 ```
 
-**Steps 1–3 are free. Steps 4–7 are four runs, ~£6.** R6 is the only large number and it is what
-turns "we think it is 90" into "it is 90, with an error bar".
+**Everything free is now done, measured or decided. Steps 1–4 are four runs, ~£6**, and R6 is the only
+large number — it is what turns "we think it is 90" into "it is 90, with an error bar". The substance
+of the order has not moved since 08-07: **N7 first**, because a collapsed ending cost the 76 run about
+ten points on its own and nothing else on the board is worth as much.
 
 ---
 
