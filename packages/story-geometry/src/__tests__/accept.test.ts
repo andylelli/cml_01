@@ -788,3 +788,76 @@ describe("X27 — 'shot a glance' is not a shooting", () => {
     ).toBe("met");
   });
 });
+
+/**
+ * X34 — a confession is a disclosure (REVIEW_05 §38.6).
+ *
+ * The paragraphs below are VERBATIM from the 08-14 N7 run, both of them repairs the pass produced and
+ * the acceptance test rejected. They are the reason this rule exists, so they are the fixture: the
+ * check now has to accept the prose the genre actually writes, while still refusing a confession that
+ * belongs to someone else.
+ */
+describe("disclosure — a confession, and whose it is (X34)", () => {
+  const revealChapter = (paragraphs: string[]): GeometryChapter[] => {
+    const before = [filler, filler, filler, filler, filler, filler, filler, filler];
+    return [...before, chapter(paragraphs), chapter(["The house emptied slowly, and the rain kept on."])];
+  };
+  const verdictFor = (paragraphs: string[]) =>
+    checkManuscriptGeometry(geometry, revealChapter(paragraphs), { parseClockTime }).manuscriptDisclosure?.verdict;
+
+  it("accepts the confession the N7 pass wrote and the old check refused (attempt 1)", () => {
+    expect(
+      verdictFor([
+        "Hugo Hale sank into the nearest chair, the composure gone out of him entirely. He raised his " +
+          'hands slowly, voice low but clear. "I did it. I stopped the clock at 8:50, but the truth is, ' +
+          'she died at 10:15. She was going to expose me, and I could not let that happen. Arrest me, Captain."',
+      ]),
+    ).toBe("met");
+  });
+
+  it("accepts a confession attributed by pronoun after the culprit is named (attempt 2)", () => {
+    expect(
+      verdictFor([
+        "Hugo Hale's shoulders sagged, and he looked away, then back with a haunted edge. " +
+          '"I strangled her," he confessed in a low voice, eyes fixed on the floor. The room fell silent.',
+      ]),
+    ).toBe("met");
+  });
+
+  it("REFUSES the false-confession trope — someone else admits it, the culprit is named after", () => {
+    // The ordering clause doing its work: a reader of this paragraph does not learn that Hugo did it.
+    expect(
+      verdictFor([
+        'Beatrice\'s hands shook. "I killed her," she said. Hugo Hale watched without expression.',
+      ]),
+    ).toBe("unmet");
+  });
+
+  it("REFUSES a confession explicitly attributed to another character", () => {
+    expect(
+      verdictFor([
+        'Hugo Hale stiffened by the window. "I killed her," said Beatrice Quill, and the room turned.',
+      ]),
+    ).toBe("unmet");
+  });
+
+  it("REFUSES the culprit denying it in the first person", () => {
+    expect(
+      verdictFor(['Hugo Hale shook his head. "I did nothing of the kind," he said, and looked away.']),
+    ).toBe("unmet");
+  });
+
+  it("leaves the third-person disclosure exactly as it was", () => {
+    expect(verdictFor(["Hugo Hale had strangled her, and the ligature told them how."])).toBe("met");
+  });
+
+  it("still reports NOT MEASURED when the case has no culprit to look for", () => {
+    const noCulprit = deriveStoryGeometry({
+      cml: { CASE: { ...CML.CASE, culpability: { culprits: [] } } },
+      clues: CLUES,
+      narrative: TEN_CHAPTER_OUTLINE,
+    });
+    const report = checkManuscriptGeometry(noCulprit, revealChapter(['"I did it," he said.']), { parseClockTime });
+    expect(report.manuscriptDisclosure).toBeNull();
+  });
+});

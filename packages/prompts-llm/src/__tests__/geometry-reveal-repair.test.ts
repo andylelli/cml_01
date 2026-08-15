@@ -125,6 +125,36 @@ describe("N7 — the reveal repair needs a channel that may modify", () => {
     expect(instruction).toMatch(/Render the resolution in-scene/);
   });
 
+  // X35 — the N7 run's attempt 2 confessed to STRANGLING in a stabbing case, because nothing in the
+  // message or the Bible slice ever told the model what the method was.
+  it("names the case's death method, so the reveal cannot invent one", async () => {
+    const regen = vi.fn(async () => ({ ...UNDISCLOSING, paragraphs: REWRITTEN }));
+    await runRevealRepairRegenPass(
+      args({ regen, deathMethod: "stabbed with a decorative letter opener" }) as any,
+    );
+    const instruction = String(regen.mock.calls[0][0].instruction);
+    expect(instruction).toMatch(/stabbed with a decorative letter opener/);
+    expect(instruction).toMatch(/never substitute another method/);
+  });
+
+  // X34/class-#5 — the writer and the gate must agree on scope, or the pass produces prose its own
+  // detector cannot read, which is exactly how the 08-14 run wasted its repair.
+  it("asks for the disclosure in the shape the detector can read (culprit named before the admission)", async () => {
+    const regen = vi.fn(async () => ({ ...UNDISCLOSING, paragraphs: REWRITTEN }));
+    await runRevealRepairRegenPass(args({ regen, culprit: "Hugo Hale" }) as any);
+    const instruction = String(regen.mock.calls[0][0].instruction);
+    expect(instruction).toMatch(/Hugo Hale is NAMED IN FULL in the paragraph BEFORE the moment of admission/);
+    expect(instruction).toMatch(/keep other characters' names out of that paragraph/);
+  });
+
+  it("says nothing about method or naming when the caller supplies neither — no empty clauses", async () => {
+    const regen = vi.fn(async () => ({ ...UNDISCLOSING, paragraphs: REWRITTEN }));
+    await runRevealRepairRegenPass(args({ regen }) as any);
+    const instruction = String(regen.mock.calls[0][0].instruction);
+    expect(instruction).not.toMatch(/THE MURDER WAS COMMITTED BY/);
+    expect(instruction).not.toMatch(/NAMED IN FULL/);
+  });
+
   it("rejects a rewrite that drops a locked-fact value on the way past", async () => {
     const regen = vi.fn(async () => ({
       ...UNDISCLOSING,

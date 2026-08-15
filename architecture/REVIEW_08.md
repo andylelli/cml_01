@@ -139,10 +139,11 @@ score carries ±3, so 90 must be demonstrated with **repeats**, not one read.
 
 1. **Stop the ending collapsing.** 5/10 on the 76 run cost roughly ten points on its own. The detector
    works; the repair is blocked. **N7.** Nothing else on the board is worth more.
-2. **Kill the generated-prose families.** X30 (now measured — §7 — with a lead worth more than the
-   detector: both pre-voice-contract stories score ZERO) and M5 (evidenced, needs a
-   decision). Together they are the whole of the prose and dialogue complaint, and dialogue is the only
-   category two marks short.
+2. **Kill the generated-prose families.** X30 (measured — §7 — and the "both pre-voice-contract stories
+   score ZERO" lead this step used to rest on is **dead**: those zeros were the probe reading only
+   double-quoted dialogue, and on the fixed instrument they are 2.7 and 1.1 per 100 lines, §9) and M5
+   (evidenced, needs a decision). Together they are the whole of the prose and dialogue complaint, and
+   dialogue is the only category two marks short.
 3. **Then the craft ceiling** — hook, character, atmosphere, pacing, stuck at 8 with nobody complaining.
    No detector will move these. This is prompt and model work: M6 (give Agent 9 the rubric it is judged
    by) is the cheapest probe, and [THINK_01](THINK_01.md) Move 4 (a frontier model for generation) is
@@ -344,3 +345,71 @@ can only replace paragraphs that already exist (`applyParagraphEdits` drops an o
 than appending unreviewed prose), so with the flag on, every pass whose repair is an INSERTION — clue
 planting, clearance dramatization — can no longer add its paragraph. The channel now belongs to the pass,
 not to the run: N7 pins its own and leaves the global flag off.
+
+---
+
+## 9. X34, X35 and X30b — what the cold read and the run cost the instruments
+
+**2026-08-15, free, before the second N7 run.** Three fixes, all of them to things that MEASURE rather
+than to things that write. Full record in [REVIEW_05 §38.6](REVIEW_05.md).
+
+### 9.1 X34 — a confession is a disclosure
+
+`disclosingSentence` wanted the culprit's name and a guilt marker in ONE sentence. English writes a
+confession with the name in the attribution and the guilt in the quoted first person, so the check
+scored `unmet` on both reveals the N7 pass produced, and the only prose that COULD satisfy it was the
+third-person "X was responsible" shape — the injector's own template. **The check was steering the
+manuscript toward the machine-written form.**
+
+The rule now also accepts a confession, under three clauses, each one aimed at a false certification
+(X27's lesson: certifying a reveal that did not happen is the worst outcome available):
+
+1. the culprit is NAMED in the paragraph, and
+2. AFTER that name, a first-person admission appears ("I killed", "I did it", "it was me"), and
+3. if that admission carries an attribution naming a person, it names the CULPRIT.
+
+Clause 2's ordering refuses the false-confession trope; clause 3 refuses another character confessing
+in a paragraph the culprit occupies. What stays unreachable is a pronoun-attributed confession by a
+third party in a paragraph the culprit is named in first — X22's wall, recorded rather than chased.
+The corpus backtest is unchanged (8 violations on the 68, 5 on the 80, same unique lists), and the
+paragraph the 08-14 run wrote and the old check refused now reads `met @ch8`.
+
+**A note on scope, because it looks like a reversal.** X27/X28 made a CONJUNCTION sentence-scoped: a
+name and a guilt word thirty words apart are not evidence about each other. This is a different shape —
+a first-person admission is self-contained evidence that someone confessed, and the paragraph is the
+unit that says who. The first draft got it wrong in a way worth recording: it required the admission to
+sit inside a quoted span, and its extractor treated `'` as a delimiter, so *"Hugo Hale's shoulders
+sagged"* opened a span at the possessive. The fixture caught it before the run did.
+
+### 9.2 X35 — the repair now knows how the victim died
+
+`CASE.death_method` goes into the reveal-repair instruction verbatim, with the culprit and a placement
+clause asking for the disclosure in the shape X34 can read — the class-#5 rule, the writer and the gate
+agreeing on scope. The run that lacked it confessed to strangling in a stabbing case.
+
+### 9.3 X30b — the dialogue probe was reading a third of the page
+
+The 08-14 cold read marked dialogue **7** and quoted four malformed lines from a story
+`probe:dialogue-tics` scored **0.0**. Both causes were in the instrument: it extracted only
+double-quoted spans (every manuscript here mixes both, and two of the three instances of the line the
+reviewer quoted were single-quoted), and its trigram metric scores one-word-apart lines at 25%, under
+its own 60% bar. Fixed: both quote styles, with the apostrophe care single quotes need; a
+one-substitution rule for short lines; and a third stream for the shape §7's duplication reframe
+dropped — the impersonal `one must…` clause wearing a `shall we?` tag that belongs to another subject,
+which is two of the four lines the reviewer quoted.
+
+```
+story                lines  exact  near  malformed  per-100   external   (was)
+84  secret_chime       124      0     1          0      0.8      84       0.8
+86  weighted_pendulum  105      2     1          0      2.9      86       3.9
+76  silent_deception    83      2     4          2      9.6      76       6.9
+80  clockwork_deceit   110      2     0          1      2.7      80      *0.0*
+68  clocks_deception    94      1     0          0      1.1      68      *0.0*
+84  frozen_hour        116      1     2          4      6.0      84      *0.0*
+```
+
+**The lead is dead.** §4's step 2 rested on "both pre-voice-contract stories score ZERO" — evidence that
+the character-voice system introduced the defect. They score 2.7 and 1.1; the zeros were the extractor.
+The detector still ranks the worst dialogue highest (9.6 on the only 6/10), and it still does not
+separate stories a reader scored the same (0.8 vs 6.0, both 84, both dialogue 7). **Still a
+measurement, not a gate** — but an honest one, and no longer carrying a conclusion it cannot support.

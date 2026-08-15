@@ -1514,6 +1514,18 @@ export async function runRevealRepairRegenPass(args: {
   presenceValidatorFor: (defect: ProseDefect) => (c: ProseChapter) => ValidatorResult;
   /** Optional: reject a candidate that introduces any NEW violation in this chapter. */
   noRegressionValidator?: (c: ProseChapter) => ValidatorResult;
+  /**
+   * X35 — `CASE.death_method`, verbatim ("stabbed with a decorative letter opener").
+   *
+   * MEASURED ON THE N7 RUN: `reveal_method_absent`'s message says only that the chapter "does not state
+   * how the murder was physically done" — it never says what the method IS, and the Bible slice this
+   * pass dereferences carries locked facts, pronouns and culprits but not the method. So attempt 2
+   * confessed to STRANGLING in a stabbing case. Had the disclosure check accepted it, a contradictory
+   * reveal would have shipped; it was caught by an unrelated rejection, which is luck and not a guard.
+   */
+  deathMethod?: string | null;
+  /** The culprit, so the instruction can ask for the disclosure the detector is able to READ (X34). */
+  culprit?: string | null;
   maxAttemptsPerDefect?: number;
   onUnresolved?: (defect: ProseDefect, reason: string) => void;
 }): Promise<InsertionRegenPassResult> {
@@ -1542,6 +1554,14 @@ export async function runRevealRepairRegenPass(args: {
       // The shared instruction says WHAT to render and is silent on whether an existing paragraph may
       // change — so the model guesses, and on this obligation it guessed "rewrite" three times
       // running. Say it outright, and say what still may not move.
+      //
+      // X35 names the method, because the run that did not proved the model will invent one. The
+      // placement clause is the class-#5 rule — the gate and the writer agree on scope: X34 reads a
+      // confession only where the culprit is named BEFORE it, in the same paragraph, so that is what
+      // this asks for. An instruction that produces prose its own detector cannot read is the defect
+      // this pass exists because of.
+      const method = String(args.deathMethod ?? "").trim();
+      const culprit = String(args.culprit ?? "").trim();
       return {
         ...request,
         instruction:
@@ -1549,7 +1569,16 @@ export async function runRevealRepairRegenPass(args: {
           `moment — this repair is NOT insertion-only, and folding the disclosure into the scene that ` +
           `already exists is better than appending a new one. Change nothing else: leave every other ` +
           `paragraph as it stands, keep the chapter at its present length (replace, never delete), and ` +
-          `keep every locked-fact value exactly as written.`,
+          `keep every locked-fact value exactly as written.` +
+          (method
+            ? ` THE MURDER WAS COMMITTED BY: ${method}. That is the story's own fact — state it, and ` +
+              `never substitute another method.`
+            : "") +
+          (culprit
+            ? ` Write the disclosure so ${culprit} is NAMED IN FULL in the paragraph BEFORE the moment ` +
+              `of admission, and keep other characters' names out of that paragraph — a reader (and the ` +
+              `check that reads this chapter) must be able to tell whose confession it is.`
+            : ""),
       };
     },
     args.regen,

@@ -6599,6 +6599,10 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
               regen: revealRegen,
               presenceValidatorFor,
               noRegressionValidator: noRegressionValidatorFor(index),
+              // X35 — the method the case actually specifies, so the reveal cannot invent one; and the
+              // culprit, so the disclosure is written in the shape X34's check can read.
+              deathMethod: (cml as any)?.CASE?.death_method ?? null,
+              culprit: geometry.culprit ?? null,
               onUnresolved: (_d: any, reason: string) =>
                 ctx.warnings.push(`[Agent 9] geometry reveal-repair UNRESOLVED in ch${chapterNumber}: ${reason}.`),
             });

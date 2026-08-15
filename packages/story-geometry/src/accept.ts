@@ -319,7 +319,90 @@ const namesCulpritAsGuilty = (text: string, culpritRe: RegExp | null): boolean =
  */
 const disclosingSentence = (text: string, culpritRe: RegExp | null): string | null => {
   if (!culpritRe) return null;
-  return sentencesOf(text).find((sentence) => culpritRe.test(sentence) && GUILT_MARKER.test(withoutGuiltIdioms(sentence))) ?? null;
+  const thirdPerson =
+    sentencesOf(text).find((sentence) => culpritRe.test(sentence) && GUILT_MARKER.test(withoutGuiltIdioms(sentence))) ?? null;
+  return thirdPerson ?? confessionDisclosure(text, culpritRe);
+};
+
+/**
+ * X34 — A CONFESSION IS A DISCLOSURE, and until 2026-08-14 this file could not see one.
+ *
+ * MEASURED, on the N7 run. The repair pass was asked to make the reveal chapter disclose, and twice it
+ * came back with exactly what the genre asks for:
+ *
+ *   "Hugo Vane sank into the nearest chair… \"I did it. I stopped the clock at a quarter to ten…\""
+ *
+ * `disclosingSentence` scored both `unmet`, because it wants the culprit's NAME and a guilt marker in
+ * ONE sentence — and English writes a confession with the name in the attribution and the guilt in the
+ * quoted first person. **The most idiomatic reveal in the genre could not satisfy the check that asks
+ * whether the reveal happened**, so the only prose that COULD satisfy it was third-person narration of
+ * the "X was responsible" shape — which is the injector's own template, and the sentence external
+ * readers strike out by name (REVIEW_05 §32.2). The check was steering the manuscript toward the
+ * machine-written form. That is the false-negative mirror of X27, and it cost a £1.22 run.
+ *
+ * THE RULE, and every clause of it is load-bearing against a FALSE CERTIFICATION (X27's lesson: the
+ * worst outcome available here is certifying a reveal that did not happen):
+ *
+ *   1. the culprit is NAMED in the paragraph, and
+ *   2. AFTER that name, a QUOTED span contains a first-person admission of the killing, and
+ *   3. if that quote carries an explicit attribution naming a person, it names the CULPRIT.
+ *
+ * Clause 2's ordering is what rejects the false-confession trope — *"Beatrice's hands shook. 'I killed
+ * her,' she said. Hugo Vane watched without expression."* — where the culprit is named only AFTER
+ * someone else's admission. Clause 3 rejects the other half: another character confessing in a
+ * paragraph the culprit already occupies. What remains unreachable by regex is a pronoun-attributed
+ * confession by a third party in a paragraph the culprit is named in FIRST, which is X22's wall and is
+ * recorded rather than chased.
+ *
+ * PARAGRAPH-SCOPED ON PURPOSE, and that is not a reversal of X27/X28. Those made a CONJUNCTION
+ * sentence-scoped, because a name and a guilt word thirty words apart are not evidence about each
+ * other. This is a different shape: a quoted admission is self-contained evidence that someone
+ * confessed, and the paragraph is the unit that says who.
+ */
+const FIRST_PERSON_ADMISSION =
+  /\bI\s+(?:killed|murdered|strangled|poisoned|stabbed|shot|bludgeoned|smothered|drowned|did\s+it|took\s+(?:his|her|their)\s+life|struck\s+(?:him|her|them)\s+down)\b|\bit\s+was\s+me\b|\bI\s+confess\b|\bI\s+(?:am|was)\s+(?:the\s+)?(?:guilty|the\s+(?:killer|murderer|culprit))\b/i;
+
+/**
+ * The name an admission is explicitly attributed to, if the attribution names anyone.
+ *
+ * Read in a window AFTER the admission, which is where English puts it: `"I killed her," said Beatrice`.
+ */
+const ADMISSION_ATTRIBUTION =
+  /\b(?:said|replied|answered|whispered|murmured|admitted|confessed|breathed|snapped|told|cried)\s+(?:(?:Dr|Mr|Mrs|Ms|Miss|Captain|Col|Colonel|Major|Sir|Lady|Lord|Inspector|Prof|Professor|Reverend|Rev)\.?\s+)*([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/;
+
+/**
+ * NO QUOTE-SPAN EXTRACTION, and that is a correction rather than a shortcut.
+ *
+ * The first draft of this rule required the admission to sit inside a quoted span, and its extractor
+ * treated `'` as a delimiter — so *"Hugo Hale's shoulders sagged"* opened a span at the possessive and
+ * swallowed the real speech that followed. The fixture caught it. Manuscripts here mix straight,
+ * curly, single and double quotes with possessives and contractions in every paragraph, so quote
+ * pairing is not a reliable instrument on this corpus (the same defect is why `probe:dialogue-tics`
+ * under-reads — X30b).
+ *
+ * `FIRST_PERSON_ADMISSION` is narrow enough to carry the weight without it: "I killed", "I did it",
+ * "it was me". Negations do not match, because the patterns are contiguous — *"I did not kill her"*
+ * and *"I didn't do it"* both fail to match "I killed"/"I did it".
+ */
+const confessionDisclosure = (paragraph: string, culpritRe: RegExp | null): string | null => {
+  if (!culpritRe) return null;
+  const namedAt = paragraph.search(culpritRe);
+  if (namedAt < 0) return null;
+
+  for (const sentence of sentencesOf(paragraph)) {
+    const at = paragraph.indexOf(sentence);
+    // The culprit must be named BEFORE the admission — the clause that refuses the false-confession
+    // trope, where another character admits it and the culprit is merely named afterwards.
+    if (at >= 0 && at < namedAt) continue;
+    const admission = FIRST_PERSON_ADMISSION.exec(sentence);
+    if (!admission) continue;
+    // An attribution naming someone else is someone else's confession.
+    const after = paragraph.slice(at + (admission.index ?? 0), at + (admission.index ?? 0) + 160);
+    const attributed = ADMISSION_ATTRIBUTION.exec(after);
+    if (attributed && !culpritRe.test(attributed[1])) continue;
+    return sentence;
+  }
+  return null;
 };
 
 /**
