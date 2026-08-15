@@ -313,8 +313,15 @@ export {
   checkCaseTimelineDeception,
   parseClockTime,
   parseTimeWindow,
+  // X38/X39 (REVIEW_09 §3) — the case checked against ITSELF, before any prose exists.
+  checkCaseTimeCoherence,
+  parseDurationMinutes,
 } from "./timeline-deception.js";
-export type { TimelineDeceptionInput, TimelineDeceptionViolation } from "./timeline-deception.js";
+export type {
+  TimelineDeceptionInput,
+  TimelineDeceptionViolation,
+  CaseTimeCoherenceViolation,
+} from "./timeline-deception.js";
 
 // REVIEW_05 §10.1 (N1) — the sentences the pipeline writes for itself, and their patterns.
 export {

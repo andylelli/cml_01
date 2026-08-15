@@ -147,6 +147,18 @@ describe("N7 — the reveal repair needs a channel that may modify", () => {
     expect(instruction).toMatch(/keep other characters' names out of that paragraph/);
   });
 
+  // X41 — the 08-15 reveal satisfied the check and the reader still marked it down: "Hugo confesses,
+  // but the final proof is too abrupt". The gate cannot ask whether a disclosure was earned, so the
+  // instruction does, in the order the reader asked for it.
+  it("asks for the case to be put BEFORE the admission, so the confession answers something", async () => {
+    const regen = vi.fn(async () => ({ ...UNDISCLOSING, paragraphs: REWRITTEN }));
+    await runRevealRepairRegenPass(args({ regen, culprit: "Hugo Hale" }) as any);
+    const instruction = String(regen.mock.calls[0][0].instruction);
+    expect(instruction).toMatch(/Earn it before it lands/);
+    expect(instruction).toMatch(/physical evidence that only fits them, then the opportunity, then the motive/);
+    expect(instruction).toMatch(/precedes its proof reads as abrupt/);
+  });
+
   it("says nothing about method or naming when the caller supplies neither — no empty clauses", async () => {
     const regen = vi.fn(async () => ({ ...UNDISCLOSING, paragraphs: REWRITTEN }));
     await runRevealRepairRegenPass(args({ regen }) as any);

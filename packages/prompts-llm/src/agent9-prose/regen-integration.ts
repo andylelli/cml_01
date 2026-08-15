@@ -1577,7 +1577,14 @@ export async function runRevealRepairRegenPass(args: {
           (culprit
             ? ` Write the disclosure so ${culprit} is NAMED IN FULL in the paragraph BEFORE the moment ` +
               `of admission, and keep other characters' names out of that paragraph — a reader (and the ` +
-              `check that reads this chapter) must be able to tell whose confession it is.`
+              `check that reads this chapter) must be able to tell whose confession it is.` +
+              // X41 — EARN IT. The 08-15 reveal satisfied the obligation and the reader still marked it
+              // down: "Hugo confesses, but the final proof is too abrupt". The check can only ask
+              // whether the chapter discloses; nothing asks whether the disclosure was built. So the
+              // instruction does, naming the beats the reader asked for in the order they asked.
+              ` Earn it before it lands: put the case to ${culprit} FIRST — the physical evidence that ` +
+              `only fits them, then the opportunity, then the motive — and let the admission answer that, ` +
+              `rather than arriving on its own. A confession that precedes its proof reads as abrupt.`
             : ""),
       };
     },

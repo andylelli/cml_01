@@ -23,7 +23,8 @@ import {
   extractThemeMechanismFamilies,
   scoreDeviceThemeMatch,
 } from "@cml/prompts-llm";
-import { validateArtifact } from "@cml/cml";
+// X38 — the case checked against itself, at the £0.03 end of the pipeline (REVIEW_09 §3).
+import { validateArtifact, checkCaseTimeCoherence } from "@cml/cml";
 import { HardLogicScorer, scoreRealHardLogic } from "@cml/story-validation";
 import { adaptHardLogicForScoring } from "../scoring-adapters/index.js";
 import {
@@ -347,6 +348,22 @@ export async function runAgent3b(ctx: OrchestratorContext): Promise<void> {
       `Pillar 1: locked fact registry built with ${ctx.lockedFactRegistry.length} fact(s): ` +
         ctx.lockedFactRegistry.map((f) => `${f.id}="${f.value}"`).join(", "),
     );
+
+    /**
+     * X38 (REVIEW_09 §3) — the device's own arithmetic, at the cheapest end of the pipeline.
+     *
+     * The 08-15 device declared `murder_time_displayed` 7:15, `chime_recorded_time` 7:05 and
+     * `pendulum_delay_duration` "fourteen minutes". 7:15 − 7:05 is ten. These values are injected into
+     * the prose VERBATIM, so the contradiction shipped, and the cold read led with it and marked the
+     * clue logic 6/10.
+     *
+     * Here rather than at acceptance because Agent 9 cannot repair it: a locked fact is contractual,
+     * and a chapter rewritten to reconcile the numbers would contradict the registry. This is the
+     * moment the case is still cheap to fix — before an outline, before £1 of prose written against it.
+     */
+    for (const violation of checkCaseTimeCoherence({ lockedFacts: ctx.lockedFactRegistry })) {
+      ctx.warnings.push(`[X38] Pillar 1 case-time incoherence (${violation.code}): ${violation.message}`);
+    }
   }
 
   ctx.reportProgress("hard_logic_devices", `Generated ${ctx.hardLogicDevices!.devices.length} novel hard-logic devices`, 31);

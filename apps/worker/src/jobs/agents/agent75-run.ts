@@ -20,7 +20,8 @@
  * since it was written.
  */
 
-import { checkCaseTimelineDeception } from "@cml/prompts-llm";
+// X39 — the case's two temporal spines, checked while a repair is still cheap (REVIEW_09 §3).
+import { checkCaseTimelineDeception, checkCaseTimeCoherence } from "@cml/prompts-llm";
 import {
   applyGeometryOutlineRepair,
   caseOf,
@@ -239,6 +240,27 @@ export async function runAgent75(ctx: OrchestratorContext): Promise<void> {
       // not stop the run. Calling it a hard gate would claim an enforcement strength it does not have.
       const result = applyGeometryOutlineRepair(geometry, (ctx.narrative as any) ?? null, ctx.cml);
       repairs = result.repairs;
+    }
+
+    /**
+     * X39 (REVIEW_09 §3) — the case keeps time twice, and this is the first stage that can see both.
+     *
+     * Agent 3b owns the device's locked clock values; Agent 3 owns the mechanism's two anchors; and
+     * geometry binds its whole time model to the latter. On the 08-15 run those were 8:15/8:45 while
+     * the device locked 7:15/7:05 — and because locked facts are injected verbatim, the manuscript
+     * printed the device's pair and the anchors reached the page ZERO times. Every temporal check that
+     * run was measuring times the book does not contain, and the acceptance test could only say so
+     * after £1 of prose had been written against them.
+     *
+     * Reported here, before the outline is spent on: a case that keeps time twice is an upstream
+     * defect, and the manuscript-side `time_anchors_absent` is its symptom rather than its cause.
+     */
+    for (const violation of checkCaseTimeCoherence({
+      lockedFacts: ctx.lockedFactRegistry ?? [],
+      apparentTime: geometry.timeModel.apparentTime,
+      actualTime: geometry.timeModel.trueTime,
+    })) {
+      ctx.warnings.push(`[X39] Agent 7.5 case-time incoherence (${violation.code}): ${violation.message}`);
     }
 
     ctx.storyGeometry = geometry;

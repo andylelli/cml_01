@@ -173,3 +173,43 @@ describe("detectReportStyleClearance — verdict prose fires, dramatized deducti
     expect(outcome.reason).toMatch(/report_style_clearance/);
   });
 });
+
+/**
+ * X40 (REVIEW_09 §4) — the pipeline narrating its own analysis.
+ *
+ * The three fixtures below are verbatim from the 08-15 manuscript, quoted by that story's cold read
+ * under "Generated/report language is still visible" beside a dialogue mark of 6/10 — the lowest in
+ * five reads. `detectScaffoldNotProse` returned CLEAN on every one. They are not injector output,
+ * which is why the seed list missed them: they are the model adopting the vocabulary of the machinery
+ * around it — state updates, revised meanings, seeded herrings. A novelist writes what a character
+ * notices; this writes what a data structure did.
+ */
+describe("scaffold — the pipeline narrating itself (X40)", () => {
+  it("catches the three lines a reader quoted and the detector called clean", () => {
+    const quoted = [
+      "The detective's understanding updated: the contradiction was not merely technical but rooted in habit.",
+      "The revised meaning of the clues was clear: the time discrepancy between the ship and the clock.",
+      "The red herring was seeded early, and nobody questioned it at the time.",
+    ];
+    for (const line of quoted) {
+      expect(detectScaffoldNotProse(line), line.slice(0, 40)).not.toEqual([]);
+    }
+  });
+
+  it("leaves ordinary prose about understanding, clues and herrings alone", () => {
+    const clean = [
+      "Her understanding of him changed that evening, and she never said so aloud.",
+      "She turned the clue over again and found it meant something else entirely.",
+      '"You planted that glove to mislead us," she said, and did not look away.',
+      "The meaning of the scratches was clear enough once she held the file against them.",
+    ];
+    for (const line of clean) {
+      expect(detectScaffoldNotProse(line), line.slice(0, 40)).toEqual([]);
+    }
+  });
+
+  it("names the rule that fired, so a hit points at the mole", () => {
+    const hits = detectScaffoldNotProse("The detective's understanding updated: the timeline was wrong.");
+    expect(hits[0]!.rule).toMatch(/^X40:/);
+  });
+});

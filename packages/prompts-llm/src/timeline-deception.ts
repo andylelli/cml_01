@@ -16,6 +16,9 @@ export {
   checkTimelineDeception,
   parseClockTime,
   parseTimeWindow,
+  checkCaseTimeCoherence,
+  parseDurationMinutes,
   type TimelineDeceptionInput,
   type TimelineDeceptionViolation,
+  type CaseTimeCoherenceViolation,
 } from "@cml/cml";

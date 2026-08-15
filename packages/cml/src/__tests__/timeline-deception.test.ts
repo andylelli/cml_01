@@ -7,7 +7,13 @@
  * notice, because no field held either time.
  */
 import { describe, expect, it } from "vitest";
-import { checkTimelineDeception, parseClockTime, parseTimeWindow } from "../timeline-deception.js";
+import {
+  checkTimelineDeception,
+  checkCaseTimeCoherence,
+  parseClockTime,
+  parseDurationMinutes,
+  parseTimeWindow,
+} from "../timeline-deception.js";
 
 describe("parseClockTime", () => {
   it("parses digital times", () => {
@@ -152,5 +158,92 @@ describe("parseClockTime — must not read times out of ordinary prose", () => {
 
   it("still parses a worded bare-hour window", () => {
     expect(parseTimeWindow("nine to ten")).toEqual([540, 600]);
+  });
+});
+
+/**
+ * X38/X39 (REVIEW_09 §3) — the case checked against ITSELF, before any prose exists.
+ *
+ * Both fixtures are the 08-15 run's real values, because both defects shipped in it and a cold read
+ * led with the consequence: "the story cannot say 7:05 vs 7:15 and call it a fourteen-minute lag".
+ * Agent 9 could not have repaired either — locked facts are contractual — which is why these run at
+ * the £0.03 end of the pipeline rather than at acceptance.
+ */
+describe("checkCaseTimeCoherence — the case against itself (X38/X39)", () => {
+  const DEVICE = [
+    { id: "pendulum_delay_duration", value: "fourteen minutes" },
+    { id: "murder_time_displayed", value: "a quarter past seven in the evening" },
+    { id: "chime_recorded_time", value: "five minutes past seven in the evening" },
+  ];
+  const codes = (v: Array<{ code: string }>) => v.map((x) => x.code);
+
+  it("X38 — flags the 08-15 device: ten minutes apart, fourteen declared", () => {
+    const out = checkCaseTimeCoherence({ lockedFacts: DEVICE });
+    expect(codes(out)).toContain("locked_time_arithmetic");
+    expect(out.find((v) => v.code === "locked_time_arithmetic")!.message).toMatch(/10 minutes apart/);
+  });
+
+  it("X38 — silent when the arithmetic agrees", () => {
+    const fixed = [{ ...DEVICE[0]!, value: "ten minutes" }, DEVICE[1]!, DEVICE[2]!];
+    expect(codes(checkCaseTimeCoherence({ lockedFacts: fixed }))).not.toContain("locked_time_arithmetic");
+  });
+
+  it("X38 — does not guess at shapes it cannot read: one clock, or two durations", () => {
+    expect(codes(checkCaseTimeCoherence({ lockedFacts: [DEVICE[0]!, DEVICE[1]!] }))).toEqual([]);
+    expect(
+      codes(checkCaseTimeCoherence({ lockedFacts: [...DEVICE, { id: "chime_length", value: "two minutes" }] })),
+    ).not.toContain("locked_time_arithmetic");
+  });
+
+  it("X39 — flags a case that keeps time twice (the device's pair share nothing with the anchors)", () => {
+    const out = checkCaseTimeCoherence({
+      lockedFacts: DEVICE,
+      apparentTime: "a quarter past eight",
+      actualTime: "a quarter to nine",
+    });
+    expect(codes(out)).toContain("time_spines_disagree");
+    expect(out.find((v) => v.code === "time_spines_disagree")!.message).toMatch(/will not appear on the page/);
+  });
+
+  it("X39 — silent when one anchor IS a locked value: one story about time", () => {
+    const shared = [
+      { id: "delay", value: "ten minutes" },
+      { id: "murder_time_displayed", value: "a quarter past eight" },
+      { id: "chime_recorded_time", value: "five minutes past eight" },
+    ];
+    const out = checkCaseTimeCoherence({
+      lockedFacts: shared,
+      apparentTime: "a quarter past eight",
+      actualTime: "a quarter to nine",
+    });
+    expect(codes(out)).not.toContain("time_spines_disagree");
+  });
+
+  it("is total on absent or unparseable input — a generator that omits the fields is never blocked", () => {
+    expect(checkCaseTimeCoherence({})).toEqual([]);
+    expect(checkCaseTimeCoherence({ lockedFacts: [{ id: "x", value: "a brass key" }] })).toEqual([]);
+    expect(checkCaseTimeCoherence({ lockedFacts: DEVICE, apparentTime: "whenever", actualTime: "later" }))
+      .toEqual([expect.objectContaining({ code: "locked_time_arithmetic" })]);
+  });
+});
+
+describe("parseDurationMinutes — an offset, never a position (X38)", () => {
+  it("reads the word and digit forms devices write", () => {
+    expect(parseDurationMinutes("fourteen minutes")).toBe(14);
+    expect(parseDurationMinutes("14 minutes")).toBe(14);
+    expect(parseDurationMinutes("twenty-five minutes")).toBe(25);
+    expect(parseDurationMinutes("one minute")).toBe(1);
+  });
+
+  it("REFUSES clock readings, which is the whole point of being a separate parser", () => {
+    for (const clock of ["a quarter past seven", "five minutes past seven", "ten to nine", "seven o'clock"]) {
+      expect(parseDurationMinutes(clock), clock).toBeNull();
+    }
+  });
+
+  it("returns null on anything it cannot read rather than guessing", () => {
+    expect(parseDurationMinutes("a little while")).toBeNull();
+    expect(parseDurationMinutes("")).toBeNull();
+    expect(parseDurationMinutes(undefined)).toBeNull();
   });
 });

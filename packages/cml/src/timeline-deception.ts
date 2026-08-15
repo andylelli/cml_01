@@ -201,3 +201,119 @@ export const checkCaseTimelineDeception = (cmlCase: any): TimelineDeceptionViola
     culpritAlibiWindows: culpritWindows,
   });
 };
+
+// ── X38/X39 — the case's own clock, checked BEFORE any prose is written ───────
+
+/**
+ * A duration in minutes, which is not a clock reading and must not be parsed as one.
+ *
+ * "fourteen minutes" is an OFFSET; "a quarter past seven" is a POSITION. The defect this exists to
+ * catch is those two being asserted about each other without agreeing, so conflating the parsers
+ * would hide exactly what it is looking for.
+ */
+const DURATION_WORDS: Record<string, number> = {
+  one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10,
+  eleven: 11, twelve: 12, thirteen: 13, fourteen: 14, fifteen: 15, sixteen: 16, seventeen: 17,
+  eighteen: 18, nineteen: 19, twenty: 20, thirty: 30, forty: 40, fifty: 50, sixty: 60,
+};
+
+export const parseDurationMinutes = (raw: unknown): number | null => {
+  const text = String(raw ?? "").toLowerCase().trim();
+  if (!text) return null;
+  if (/\b(?:past|to|o'?clock)\b/.test(text)) return null; // a position, not an offset
+  const digits = text.match(/\b(\d{1,3})\s*[-\s]?\s*minutes?\b/);
+  if (digits) return Number(digits[1]);
+  const compound = text.match(/\b(twenty|thirty|forty|fifty)[-\s]([a-z]+)[-\s]+minutes?\b/);
+  if (compound && DURATION_WORDS[compound[1]!] !== undefined && DURATION_WORDS[compound[2]!] !== undefined) {
+    return DURATION_WORDS[compound[1]!]! + DURATION_WORDS[compound[2]!]!;
+  }
+  const words = text.match(/\b([a-z]+)[-\s]+minutes?\b/);
+  if (words && DURATION_WORDS[words[1]!] !== undefined) return DURATION_WORDS[words[1]!]!;
+  return null;
+};
+
+export interface CaseTimeCoherenceViolation {
+  code: "locked_time_arithmetic" | "time_spines_disagree";
+  message: string;
+}
+
+/**
+ * X38/X39 (REVIEW_09 §3) — does the case agree with ITSELF about time?
+ *
+ * FOUND BY A COLD READ, 2026-08-15, whose first and largest complaint was *"the timing math does not
+ * work"*. It was right, and the defect was authored three agents before the prose:
+ *
+ *   Agent 3b's device, as LOCKED FACTS   displayed 7:15 · chime 7:05 · delay "fourteen minutes"
+ *   Agent 3's hidden_model.mechanism     apparent 8:15 · actual 8:45
+ *
+ * 7:15 − 7:05 is TEN. And the mechanism's two anchors appeared in the finished manuscript zero times,
+ * because locked facts are injected verbatim and the prose kept time by those instead. So the case
+ * carried two temporal spines, the reader met the one that contradicts itself, and every geometry
+ * check was reasoning about the one that never reached the page.
+ *
+ * **Agent 9 cannot repair either of these.** Locked facts are contractual — rewriting a chapter to
+ * reconcile them would put the prose at odds with the registry. The repair belongs to the CASE, which
+ * is why this runs before the prose exists rather than after it ships.
+ *
+ * Both checks are narrow, and stay silent on anything they cannot read unambiguously:
+ *   • `locked_time_arithmetic` — exactly two clock-valued facts and exactly one duration. Three times
+ *     or two durations have no single pairing, and a duration may legitimately be about neither.
+ *   • `time_spines_disagree` — both mechanism anchors parse, the device declares two clock values, and
+ *     NEITHER anchor is among them. One shared value is a case telling one story about time.
+ */
+export const checkCaseTimeCoherence = (args: {
+  lockedFacts?: ReadonlyArray<{ id?: string; value?: string }>;
+  apparentTime?: unknown;
+  actualTime?: unknown;
+}): CaseTimeCoherenceViolation[] => {
+  const violations: CaseTimeCoherenceViolation[] = [];
+  const facts = (args.lockedFacts ?? []).filter((f) => String(f?.value ?? "").trim().length > 0);
+
+  const clocks: Array<{ id: string; raw: string; minutes: number }> = [];
+  const durations: Array<{ id: string; raw: string; minutes: number }> = [];
+  for (const fact of facts) {
+    const raw = String(fact.value).trim();
+    const id = String(fact.id ?? "").trim() || "(unnamed)";
+    const asDuration = parseDurationMinutes(raw);
+    if (asDuration !== null) {
+      durations.push({ id, raw, minutes: asDuration });
+      continue;
+    }
+    const asClock = parseClockTime(raw);
+    if (asClock !== null) clocks.push({ id, raw, minutes: asClock });
+  }
+
+  if (clocks.length === 2 && durations.length === 1) {
+    const gap = Math.abs(clocks[0]!.minutes - clocks[1]!.minutes);
+    const declared = durations[0]!;
+    if (gap !== declared.minutes) {
+      violations.push({
+        code: "locked_time_arithmetic",
+        message:
+          `The device's own numbers disagree: ${clocks[0]!.id} "${clocks[0]!.raw}" and ${clocks[1]!.id} ` +
+          `"${clocks[1]!.raw}" are ${gap} minutes apart, while ${declared.id} declares ` +
+          `"${declared.raw}" (${declared.minutes}). Locked facts are injected into the prose verbatim, ` +
+          `so a reader will meet both numbers and neither explains the other. Repair the CASE.`,
+      });
+    }
+  }
+
+  const apparent = parseClockTime(args.apparentTime as string | undefined);
+  const actual = parseClockTime(args.actualTime as string | undefined);
+  if (apparent !== null && actual !== null && clocks.length >= 2) {
+    const anchors = new Set([apparent, actual]);
+    const shared = clocks.some((c) => anchors.has(c.minutes));
+    if (!shared) {
+      violations.push({
+        code: "time_spines_disagree",
+        message:
+          `The case keeps time twice and the two do not meet: the mechanism's anchors are ` +
+          `"${String(args.apparentTime)}" and "${String(args.actualTime)}", while the device locks ` +
+          `${clocks.map((c) => `${c.id} "${c.raw}"`).join(" and ")}. The locked values are what the ` +
+          `prose prints, so the anchors every temporal check is built on will not appear on the page.`,
+      });
+    }
+  }
+
+  return violations;
+};

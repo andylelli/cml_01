@@ -21,6 +21,8 @@ import { resolveWorkerRuntimePaths } from "./runtime-paths.js";
 import type { AzureOpenAIClient } from "@cml/llm-client";
 // Final-story rubric scoring (aligning-the-scoring-system.md): LLM critic + deterministic cap engine.
 import { scoreStory, createLLMRubricJudge } from "@cml/rubric-score";
+// X37 — a refused judge is a measurement that did not happen, and must say so (REVIEW_09 §4).
+import { isContentFilterRefusal } from "@cml/llm-client";
 // Agent 5 redesign shadow (10_agent_5 §9.1): the authoritative clue-spec derived from the CML.
 import { deriveClueSpec } from "@cml/clue-spec";
 import type { CaseData } from "@cml/cml";
@@ -708,7 +710,37 @@ async function runRubricScoring(args: {
       );
     }
   } catch (e) {
-    args.warnings.push(`Rubric scoring skipped: ${describeError(e)}`);
+    /**
+     * X37 (REVIEW_09 §4) — A REFUSED SCORER MUST BE LOUD, AND MUST LEAVE A MARK ON THE REPORT.
+     *
+     * On the 08-15 run Azure's content filter refused the RubricScorer prompt — the judge would not
+     * read the manuscript the pipeline had just written — and the whole of that fact was one line
+     * reading `Rubric scoring skipped: {\` with the raw error blob truncated after two characters.
+     * No `rubric_score` diagnostic was emitted at all, so the report carried nothing where the score
+     * belongs, and "the judge refused this story" looked exactly like "scoring was switched off".
+     *
+     * That is the A_70/A_71 rule this project keeps re-learning: a number that is never written is
+     * indistinguishable from a check that never ran. So the class is named, the consequence is
+     * stated, and the diagnostic is emitted anyway — carrying `not_measured` instead of a score.
+     */
+    const refused = isContentFilterRefusal(e);
+    args.warnings.push(
+      refused
+        ? `Final-story rubric NOT MEASURED — Azure's content filter refused the judge's prompt, which ` +
+            `carries the manuscript this run just wrote. There is no internal score for this story, so ` +
+            `no internal-to-external comparison can be made from it. (A_71 content-filter class; the ` +
+            `run is otherwise unaffected.)`
+        : `Final-story rubric NOT MEASURED — the judge failed: ${describeError(e)}`,
+    );
+    try {
+      args.aggregator?.upsertDiagnostic("rubric_score", "scoring", "Final-Story Rubric", "rubric_score", {
+        not_measured: true,
+        reason: refused ? "content_filter_refusal" : "judge_error",
+        detail: describeError(e).slice(0, 300),
+      });
+    } catch {
+      // Telemetry must never turn a missing score into a failed run.
+    }
   }
 }
 

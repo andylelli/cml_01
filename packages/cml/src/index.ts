@@ -29,8 +29,15 @@ export {
   checkTimelineDeception,
   parseClockTime,
   parseTimeWindow,
+  // X38/X39 (REVIEW_09 §3) — the case checked against ITSELF, before prose exists.
+  checkCaseTimeCoherence,
+  parseDurationMinutes,
 } from "./timeline-deception.js";
-export type { TimelineDeceptionInput, TimelineDeceptionViolation } from "./timeline-deception.js";
+export type {
+  TimelineDeceptionInput,
+  TimelineDeceptionViolation,
+  CaseTimeCoherenceViolation,
+} from "./timeline-deception.js";
 export { validateArtifact, validateArtifacts, getArtifactTypes };
 export {
   GROUNDING_STOP_WORDS,

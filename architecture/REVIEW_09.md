@@ -106,11 +106,11 @@ would fail a contradictory case in seconds, before Agent 9 writes a word against
 
 | # | Item | Note |
 |---|---|---|
-| **X38/X39 → pre-prose** | Move the two case-clock checks ahead of Agent 9 | Built and shadow-reporting. A case that contradicts itself should never reach prose (§3) |
-| **X40** | The scaffold detector returns clean on the pipeline narrating itself | *"The detective's understanding updated:"*, *"The revised meaning of the clues was clear:"*, lower-cased *"Dr mallory finch"* — all quoted by a reader, all `[]` from `detectScaffoldNotProse` |
-| **X36** | The aftermath pass runs on the channel §36 measured as 0-of-3 | **One line.** It takes the unpinned `geometryRegen`; only the reveal pass pins its own. It failed live on 08-15 for exactly that reason |
-| **X41** | The reveal repair satisfies the obligation without earning it | *"Hugo confesses, but the final proof is too abrupt"*. The evidence chain belongs in X35's instruction, before the admission |
-| **X37** | A content-filter refusal took the rubric SCORE and degraded silently | X33 fixed the site that aborted; this one leaves a run with no internal number and nothing says so loudly |
+| ~~X38/X39 → pre-prose~~ | ✅ **DONE (§8)** — `checkCaseTimeCoherence`, called at Agent 3b (the device's arithmetic) and Agent 7.5 (the two spines) | Both before Agent 9. The acceptance-side checks stay: they are the symptom, these are the cause |
+| ~~X40~~ | ✅ **DONE (§8)** — four signatures, pinned both ways | *"The detective's understanding updated:"*, *"The revised meaning of the clues was clear:"*, lower-cased *"Dr mallory finch"* — all quoted by a reader, all `[]` from `detectScaffoldNotProse` |
+| ~~X36~~ | ✅ **DONE (§8)** — `revealRegen` → `rewriteChannelRegen`, shared by both rewrite passes | **One line.** It takes the unpinned `geometryRegen`; only the reveal pass pins its own. It failed live on 08-15 for exactly that reason |
+| ~~X41~~ | ✅ **DONE (§8)** — the case goes to the culprit before the admission | *"Hugo confesses, but the final proof is too abrupt"*. The evidence chain belongs in X35's instruction, before the admission |
+| ~~X37~~ | ✅ **DONE (§8)** — names the class, and emits `not_measured` where the score belongs | X33 fixed the site that aborted; this one leaves a run with no internal number and nothing says so loudly |
 | **X30** | Dialogue tics: measured honestly now, still not gated | The instrument is fixed; the signal still does not separate two stories a reader scored the same |
 | X32 | The third clearance writer, bounded by act rather than chapter role | From closing X29; unmeasured |
 | X22 | ⛔ decided: stop widening the aftermath regex | Unchanged |
@@ -168,7 +168,7 @@ aftermath family (X22, decided); and any single read, of any story, at any score
 ## 6. The order
 
 ```
-FREE — the case, and the instruments
+FREE — the case, and the instruments        ✅ ALL FIVE DONE 2026-08-15 (§8)
  1  X38/X39 → pre-prose      fail a self-contradicting case before Agent 9 writes against it
  2  X36                      one line: the aftermath pass needs the channel N7 pins
  3  X40                      teach the scaffold detector the pipeline's own narration
@@ -187,7 +187,7 @@ DECISIONS
 12  Move 4 a frontier model for generation, if the flat six survive M6
 ```
 
-**Steps 1–5 are free and small.** Steps 6–8 are three runs, ~£4.50. R6 is the only large number, and it
+**Steps 1–5 were free and small, and are done (§8).** Steps 6–8 are three runs, ~£4.50. R6 is the only large number, and it
 is the one that decides whether any of this reached 90 or merely looks like it did.
 
 ---
@@ -201,3 +201,57 @@ five different stories cannot tell us which**.
 
 Everything in §1's table is the best available estimate. It is not a measurement, and it will not be
 one until R6.
+
+---
+
+## 8. The free block, as built (2026-08-15)
+
+All five shipped the same evening REVIEW_09 was written. Each is small; together they close the gap
+between "the pipeline detected it" and "the pipeline could have known before it spent the money".
+
+**1. X38/X39 → pre-prose.** `checkCaseTimeCoherence` in `@cml/cml`, beside the timeline-deception
+invariant that already owns case-level temporal logic and the one clock parser. Two call sites, both
+before Agent 9:
+
+- **Agent 3b**, immediately after the locked-fact registry is built — the device's own arithmetic, at
+  the £0.03 end of the pipeline. Two clock-valued facts and one duration: the duration must equal the
+  gap. The 08-15 device said fourteen about ten.
+- **Agent 7.5**, the first stage that can see BOTH spines — the mechanism's anchors against the
+  device's locked values. If they share nothing, the case keeps time twice, and the manuscript will
+  print the device's pair while every geometry check reasons about the other.
+
+The acceptance-side checks stay where they are. They are the symptom; these are the cause, and the
+symptom is still worth reporting because a case can be coherent and the prose still wander.
+
+`parseDurationMinutes` is deliberately its own parser: *"fourteen minutes"* is an offset,
+*"a quarter past seven"* is a position, and the defect is those two asserted about each other. Both
+checks stay silent on anything they cannot read unambiguously — three times, two durations, an
+unparseable anchor.
+
+**2. X36 — one line, and the rename says why.** `revealRegen` is now `rewriteChannelRegen`, used by the
+reveal repair AND the aftermath pass. The aftermath pass had been taking the unpinned `geometryRegen`,
+so with `AGENT9_REGEN_EDIT_LIST` off it ran whole-chapter — [§36](REVIEW_05.md)'s 0-of-3 arm — and on
+08-15 it fired live for the first time and lost twice with exactly that signature. Both rewrite passes,
+one channel.
+
+**3. X40 — the pipeline narrating itself.** Four signatures added to the scaffold seed list, from the
+three lines the cold read quoted and the detector called clean. The colon in *"The detective's
+understanding updated:"* is load-bearing and required — it is the shape of a field label, and it keeps
+*"her understanding of him changed"* out. Pinned by tests on both sides: the quoted lines fire, and
+four ordinary sentences about understanding, clues and herrings stay clean.
+
+**4. X41 — earn the reveal.** X35's instruction now asks for the case to be put to the culprit before
+the admission — physical evidence that only fits them, then opportunity, then motive — because the
+gate can only ask whether a chapter discloses, never whether the disclosure was built. The 08-15 read
+made the point precisely: *"Hugo confesses, but the final proof is too abrupt."*
+
+**5. X37 — a refused judge leaves a mark.** The rubric scorer's failure path pushed
+`Rubric scoring skipped: {\` — a truncated error blob — and emitted **no diagnostic at all**, so the
+report carried nothing where the score belongs and "the judge refused this story" looked exactly like
+"scoring was switched off". It now names the class, states the consequence (no internal score, so no
+internal-to-external comparison from that run), and emits the diagnostic anyway carrying
+`not_measured` and a reason. A number that is never written is indistinguishable from a check that
+never ran, and that rule now applies to the judge itself.
+
+**Gates:** `npm test` green, geometry backtest PASS with the separation unchanged (the 68 keeps its
+four unique codes; the 80's `time_anchors_absent` is the true finding from §4, not new noise).

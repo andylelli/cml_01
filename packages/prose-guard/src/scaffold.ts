@@ -54,6 +54,27 @@ const SEED_SIGNATURES: Array<{ rule: string; re: RegExp }> = [
   // detective self-clearance report frame (A_57 D4; mirrors detectReportStyleClearance)
   { rule: "D4:as_for_myself", re: /\bas for (?:myself|my own)\b\s*[—,-]/i },
   { rule: "D4:which_proves_not_responsible", re: /\bwhich proves [^.!?]{0,40}\b(?:could not|cannot) have been (?:responsible|the killer)\b/i },
+  /**
+   * X40 — THE PIPELINE NARRATING ITS OWN ANALYSIS, which is what this detector is FOR and could not see.
+   *
+   * Quoted by the 08-15 cold read under *"Generated/report language is still visible"*, alongside a
+   * dialogue mark of 6/10 — the lowest in five reads. All three are in the shipped manuscript, and
+   * `detectScaffoldNotProse` returned `[]` on every one of them:
+   *
+   *     "The detective's understanding updated: the contradiction was not merely technical…"   ×2
+   *     "The revised meaning of the clues was clear: the time discrepancy…"
+   *     "The red herring was seeded…"
+   *
+   * These are not injector templates, which is why the seed list missed them — no injector writes
+   * them. They are the MODEL adopting the vocabulary of the machinery around it: state updates,
+   * revised meanings, seeded herrings. A novelist writes what a character notices; this writes what
+   * a data structure did. The colon is load-bearing in the first two — it is the shape of a field
+   * label — so it is required rather than optional, keeping "her understanding of him changed" out.
+   */
+  { rule: "X40:understanding_updated", re: /\b(?:the\s+)?(?:detective|investigator)(?:'s|s')\s+understanding\s+(?:updated|was updated)\b/i },
+  { rule: "X40:revised_meaning", re: /\bthe revised meaning of the (?:clue|clues|evidence)\b[^.!?]{0,40}\bwas clear\b/i },
+  { rule: "X40:herring_seeded", re: /\bthe red herring (?:was|had been) (?:seeded|planted|placed)\b/i },
+  { rule: "X40:state_label", re: /\b(?:the\s+)?(?:detective|investigator)(?:'s|s')\s+(?:understanding|state|model|belief)\s*:/i },
 ];
 
 // Item 15 (S0) — the post-confession "validation-note" family: the summing-up chapter narrates its own

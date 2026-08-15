@@ -6524,13 +6524,13 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
         const geometryBible = { ...worldState, beatSheet: [] } as any;
         const geometryRegen = makeRegenFn({ client, model: regenDeployment, runId: ctx.runId, projectId: ctx.projectId });
         /**
-         * N7 — the reveal repair pins the EDIT-LIST channel rather than reading
+         * N7/X36 — the REWRITE passes pin the EDIT-LIST channel rather than reading
          * `AGENT9_REGEN_EDIT_LIST`, for two reasons that pull the same way: an edit list is the only
          * channel on which untouched paragraphs cannot drift (§36 measured 0/3 → 2/3 on the aftermath
          * pass), and it is the channel a rewrite wants — it can only replace paragraphs that already
          * exist, which is precisely this repair and precisely NOT the additive ones above.
          */
-        const revealRegen = makeRegenFn({
+        const rewriteChannelRegen = makeRegenFn({
           client,
           model: regenDeployment,
           runId: ctx.runId,
@@ -6596,7 +6596,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
               chapter: (prose.chapters ?? [])[index],
               defects: modifyDefects,
               bible: geometryBible,
-              regen: revealRegen,
+              regen: rewriteChannelRegen,
               presenceValidatorFor,
               noRegressionValidator: noRegressionValidatorFor(index),
               // X35 — the method the case actually specifies, so the reveal cannot invent one; and the
@@ -6643,7 +6643,12 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
                 methodTerms: geometry.methodSignature?.keyTerms ?? [],
                 revealChapter,
                 bible: geometryBible,
-                regen: geometryRegen,
+                // X36 — the SAME pinned channel the reveal repair uses. This pass took the unpinned
+                // `geometryRegen`, so it ran whole-chapter whenever AGENT9_REGEN_EDIT_LIST was off —
+                // the arm §36 measured at 0-of-3, every failure reading `regen introduced`. It then
+                // fired live for the first time on 08-15 and lost twice, with exactly that signature,
+                // on a chapter the cold read named unprompted. Both rewrite passes, one channel.
+                regen: rewriteChannelRegen,
                 onUnresolved: (_d: any, reason: string) =>
                   ctx.warnings.push(`[Agent 9] aftermath-repeat regen UNRESOLVED in ch${aftermath.chapter}: ${reason}.`),
               });
