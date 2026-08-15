@@ -155,38 +155,52 @@ score carries ±3, so 90 must be demonstrated with **repeats**, not one read.
 
 ## 5. The order
 
-> **The free block is closed — see §7.** Opened 2026-08-07, closed 2026-08-14 when X29's *second*
-> writer (the deterministic injector floor) was bounded. Nothing free blocks the next run any more, so
-> the order below starts at the money.
+> **The free block closed on 08-14 and the N7 run re-opened it the same night.** The paid item ran, and
+> what it found was three free defects standing between the pipeline and the thing the money bought
+> (§8, §9). So the order starts at the free work again — and this time the free work is what makes the
+> £1.22 already spent worth anything.
 
 ```
-CLOSED — the free block (§7)
- ✅ X29   missing_clearance vs aftermath_repeat over one chapter   BOTH writers bounded by the reveal
- ◑ X30   the malformed voice-tic lines — the dialogue ceiling      MEASURED (probe), deliberately not gated
- ⛔ X22   widen the aftermath detector, or accept the limit        DECIDED: stop — ⛔ on the tracker
+FREE — and X34 blocks the paid ladder
+ 1  X34   teach the disclosure check to see a CONFESSION         ← unblocks N7, which is already paid for,
+          (name in the attribution, guilt in the quoted "I did it")  and is also M5's lever on the reveal
+ 2  X30b  the tics probe reads only DOUBLE-quoted dialogue —     ← its zeros are "not measured"; the
+          every manuscript in the corpus mixes ' and "              voice-contract lead rests on two of them
+ 3  X35   put the case's death method in the reveal-repair prompt  ← rides with X34, same pass, same file
 
-NEXT — paid, cheapest decisive first
- 1  N7    the reveal repair on a channel that may modify        ~£1.5   ← BUILT + REHEARSED ($0.004, §8);
-                                                                          only the confirming run is left
- 2  M6    the rubric in Agent 9's prompt                        ~£1.5   ← the cheapest probe at the craft ceiling
- 3  N8    phase-2 contract                                      ~£1.5
- 4  CS1   clue-spec                                             ~£1.5
- 5  R6    baseline --repeats 3                                  £12-24  ← the 90 measurement
+PAID — cheapest decisive first
+ 4  N7    the confirming re-run, now with a gate that can accept the repair   ~£1.5
+          └ ride-along: AGENT9_REGEN_AFTERMATH_REPEAT=true — the 08-14 reader named
+            ch9 repeating ch8 in her own words, and the pass that targets it has never fired live
+ 5  M6    the rubric in Agent 9's prompt                        ~£1.5   ← the cheapest probe at the craft ceiling
+ 6  N8    phase-2 contract                                      ~£1.5   ← now has its FIRST CONFIRMED misbinding
+ 7  CS1   clue-spec                                             ~£1.5
+ 8  R6    baseline --repeats 3                                  £12-24  ← the 90 measurement
 
-FREE, AND NOT BLOCKING — do them alongside, not before
+CLOSED THIS WEEK
+ ✅ X29   both clearance writers bounded by the reveal (§7)
+ ✅ X33   a content-filter refusal no longer aborts a paid run (§8) — it earned this back within the hour
+ ◑ X30   measured, not gated — and now known to be under-measuring (X30b)
+ ⛔ X22   decided: stop widening
+
+FREE, AND NOT BLOCKING — alongside, not before
  -  X32   the third clearance writer, bounded by the act and not by chapter role (§7)
- -  X31   the `npm test` flake — two clean runs since; keep counting rather than explaining
+ -  X31   the `npm test` flake — four clean runs since; keep counting rather than explaining
 
 DECISIONS
- 6  M5    retire the injectors — prose complaint #2, evidence in hand
- 7  D1    promote the scheduler (pacing)
- 8  Move 4  a frontier model for generation, if the craft ceiling holds after M6
+ 9  M5    retire the injectors — and the 08-14 read is the strongest evidence yet: the ending a reader
+          called "complete and satisfying" is carried by the injected template sentence
+10  D1    promote the scheduler (pacing)
+11  Move 4  a frontier model for generation, if the craft ceiling holds after M6
 ```
 
-**Everything free is now done, measured or decided. Steps 1–4 are four runs, ~£6**, and R6 is the only
-large number — it is what turns "we think it is 90" into "it is 90, with an error bar". The substance
-of the order has not moved since 08-07: **N7 first**, because a collapsed ending cost the 76 run about
-ten points on its own and nothing else on the board is worth as much.
+**Steps 1–3 are free and small. Steps 4–7 are four runs, ~£6**, and R6 is the only large number — it is
+what turns "we think it is 90" into "it is 90, with an error bar".
+
+**What the 08-14 run changed about this order.** Not the ranking — N7 is still worth most, because the
+ending is still where a story loses ten points at once. What changed is *why it is blocked*: on 08-07
+the repair could not modify a paragraph, and now it can, and the gate cannot recognise what it writes.
+The cheapest step on the board is no longer a run at all.
 
 ---
 
