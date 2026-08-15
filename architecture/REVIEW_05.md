@@ -2914,3 +2914,52 @@ the gate cannot recognise a confession.
 (this premise family keeps producing stabbings), and the run continued with the read recorded as NOT
 MEASURED. Without the fix committed an hour earlier, this run would have died in the same place as the
 one before it, and none of the above would be known.
+
+### 38.7 N7 RUN 2 — the repair landed, in one call
+
+**2026-08-15, `mystery-1786821276166`, $0.99.** `AGENT9_REGEN_REVEAL_MODIFY=true`, acceptance in `apply`,
+with X34 shipped so the gate can read a confession and X35 so the repair knows the method.
+
+```
+[Agent 9 geometry:apply] 13 checks, 4 violation(s), 2 repaired
+[Agent 9] N7 reveal-repair rewrote ch8 to satisfy [geometry_reveal_culprit_not_named]
+          (modify channel, edit-list).
+```
+
+**Zero UNRESOLVED. One regen call, one edit, accepted** — against four attempts and two failures on
+08-14. What it wrote, and what shipped in the manuscript:
+
+> *"Hugo Vane's face was ashen, his hands trembling at his sides. \"It was me,\" he confessed, voice
+> barely above a whisper. \"I stabbed Eleanor Voss with the decorative letter opener. I tampered with
+> the clock to hide the true time…\""*
+
+Every clause of the two fixes is visible in that paragraph. **X34**: the culprit is named, the admission
+follows it, the attribution is his — so the check can read it. **X35**: the weapon is the case's own
+`death_method`, not an invented one, which is the defect attempt 2 shipped on 08-14. The placement is
+not luck: X35's instruction asked for the name before the admission because that is the shape X34
+accepts — the class-#5 rule, the writer and the gate agreeing on scope, and the reason this took one
+call instead of four.
+
+`reveal_culprit_not_named` and `reveal_method_absent` are both absent from the release-gate warnings
+this run; on 08-14 both were on it. **N7 is done.** The remaining four violations are other obligations:
+`clincher_absent_at_payoff@8`, `aftermath_repeat@9`, `clearance_over_budget@8/@9`.
+
+**And the ride-along failed for a reason already in this document.** `AGENT9_REGEN_AFTERMATH_REPEAT=true`
+fired for the first time live and lost:
+
+```
+aftermath-repeat regen UNRESOLVED in ch9: regen introduced: aftermath_repeat:p4.   ×2
+```
+
+*"regen introduced"* is the exact signature [§36](#36-the-edit-list-channel-is-what-makes-the-aftermath-pass-work--and-it-just-unblocked-n7)
+measured with the edit-list flag OFF — 0 of 3 repaired, every failure that shape, because a
+whole-chapter reply re-emits paragraphs it was not asked to touch and trips the detector elsewhere. The
+pass took `geometryRegen`, which reads the global flag, and only the reveal pass pins its own channel.
+**X36: give the aftermath pass the same pin N7 has.** One line, already justified by §36's measurement,
+and until it lands the aftermath flag is being probed on the arm §36 showed does not work.
+
+**One more content-filter refusal, and it took the score.** Three refusals this run:
+`Agent9-Regen-culprit_unlinked ×2` and **`RubricScorer ×1`** — so the manuscript shipped with no internal
+rubric number at all, and there is no internal→external comparison to make from this run. X33 fixed the
+call site that aborted; this is the same class at a third site, degrading quietly rather than loudly.
+Recorded as **X37**.
