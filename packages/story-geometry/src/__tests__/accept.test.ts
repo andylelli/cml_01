@@ -26,6 +26,12 @@ const parseClockTime = (raw?: string): number | null => {
   if (!text) return null;
   const digital = text.match(/\b(\d{1,2}):(\d{2})\b/);
   if (digital) return (Number(digital[1]) % 12) * 60 + Number(digital[2]);
+  // "five MINUTES past seven" — the shape Agent 3b's locked facts actually use, and the shape whose
+  // absence from this stand-in made an X38 fixture look like a code failure (2026-08-15).
+  const minutesPast = text.match(/\b(?:a\s+)?(quarter|half|ten|five|twenty)\s+minutes?\s+past\s+(\w+)\b/);
+  if (minutesPast && WORD_MINUTES[minutesPast[1]!] !== undefined && WORD_HOURS[minutesPast[2]!] !== undefined) {
+    return (WORD_HOURS[minutesPast[2]!]! % 12) * 60 + WORD_MINUTES[minutesPast[1]!]!;
+  }
   const past = text.match(/\b(?:a\s+)?(quarter|half|ten|five|twenty)\s+past\s+(\w+)\b/);
   if (past && WORD_MINUTES[past[1]!] !== undefined && WORD_HOURS[past[2]!] !== undefined) {
     return (WORD_HOURS[past[2]!]! % 12) * 60 + WORD_MINUTES[past[1]!]!;
@@ -859,5 +865,67 @@ describe("disclosure — a confession, and whose it is (X34)", () => {
     });
     const report = checkManuscriptGeometry(noCulprit, revealChapter(['"I did it," he said.']), { parseClockTime });
     expect(report.manuscriptDisclosure).toBeNull();
+  });
+});
+
+/**
+ * X38/X39 — the case's own clock, checked against itself and against the page (REVIEW_05 §38.8).
+ *
+ * Both fixtures are the 08-15 run's real values. The reader led with this defect and called it "the
+ * main score cap"; the pipeline had no check that could see it, because `unaccounted_time` asks the
+ * opposite question — it wants times on the page that the case does not account for, and here every
+ * time on the page was accounted for by a locked fact that contradicted the case's own anchors.
+ */
+describe("time model — the case's own clock (X38, X39)", () => {
+  const timeGeometry = (over: Record<string, unknown>) => ({
+    ...geometry,
+    timeModel: { trueTime: null, apparentTime: null, directionViolations: [], accountedTimes: [], ...over },
+  });
+  const codes = (g: any, cs: GeometryChapter[]) =>
+    checkManuscriptGeometry(g as any, cs, { parseClockTime }).violations.map((v) => v.code);
+
+  it("X38 — flags a device whose declared offset is not the gap between its own two clock values", () => {
+    const g = timeGeometry({
+      trueTime: "a quarter to nine",
+      apparentTime: "a quarter past eight",
+      // The 08-15 device, verbatim: 7:15 − 7:05 is ten minutes, and it declared fourteen.
+      accountedTimes: ["fourteen minutes", "a quarter past seven", "five minutes past seven"],
+    });
+    expect(codes(g, cleanManuscript())).toContain("locked_time_arithmetic");
+  });
+
+  it("X38 — stays silent when the arithmetic agrees", () => {
+    const g = timeGeometry({
+      trueTime: "a quarter to nine",
+      apparentTime: "a quarter past eight",
+      accountedTimes: ["ten minutes", "a quarter past seven", "five minutes past seven"],
+    });
+    expect(codes(g, cleanManuscript())).not.toContain("locked_time_arithmetic");
+  });
+
+  it("X38 — does not run on shapes it cannot read unambiguously (one clock, or two durations)", () => {
+    const oneClock = timeGeometry({ accountedTimes: ["fourteen minutes", "a quarter past seven"] });
+    expect(codes(oneClock, cleanManuscript())).not.toContain("locked_time_arithmetic");
+    const twoDurations = timeGeometry({
+      accountedTimes: ["fourteen minutes", "two minutes", "a quarter past seven", "five minutes past seven"],
+    });
+    // Two durations means no single pairing to check — a duration may be about neither anchor.
+    expect(codes(twoDurations, cleanManuscript())).not.toContain("locked_time_arithmetic");
+  });
+
+  it("X39 — flags a manuscript that states NEITHER anchor", () => {
+    const g = timeGeometry({ trueTime: "10:15", apparentTime: "8:50" });
+    const elsewhere = [chapter(["The clock in the hall said a quarter past seven, and nobody argued with it."])];
+    expect(codes(g, elsewhere)).toContain("time_anchors_absent");
+  });
+
+  it("X39 — one anchor on the page is enough; the true time is often implied by the reveal", () => {
+    const g = timeGeometry({ trueTime: "10:15", apparentTime: "8:50" });
+    const oneAnchor = [chapter(["The mantel clock had stopped at 8:50, which is what he wanted them to believe."])];
+    expect(codes(g, oneAnchor)).not.toContain("time_anchors_absent");
+  });
+
+  it("X39 — says nothing when there is no anchor to look for", () => {
+    expect(codes(timeGeometry({}), cleanManuscript())).not.toContain("time_anchors_absent");
   });
 });

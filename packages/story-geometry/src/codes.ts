@@ -19,6 +19,8 @@
 export const GEOMETRY_VIOLATION_CODES = [
   "contract_chapter_missing",
   "time_model_unparseable",
+  "locked_time_arithmetic",
+  "time_anchors_absent",
   "unaccounted_time",
   "method_signature_absent",
   "clincher_absent_at_payoff",
@@ -43,6 +45,10 @@ export const GEOMETRY_CODES_WITHOUT_PROSE_REPAIR: Readonly<Record<string, string
     "the outline is short of the chapter the contract binds — an Agent 7 defect; no prose change can add a chapter",
   time_model_unparseable:
     "the case's own times do not parse — an Agent 3 defect; repairing the prose would hide it",
+  locked_time_arithmetic:
+    "X38 — the device's two clock values and its declared offset disagree (7:15 minus 7:05 is ten, and it said fourteen). A CASE defect authored before any prose exists, and locked facts ship verbatim, so no chapter rewrite can reconcile them without contradicting the registry",
+  time_anchors_absent:
+    "X39 — the manuscript states neither temporal anchor, so it is keeping time by some other clock (usually a locked fact the device authored). Rewriting a chapter to insert the anchors would paper over a case that carries two temporal spines; the repair is to the CASE",
   unaccounted_time:
     "the manuscript states a clock time nothing in the case accounts for. Repairable in principle, but the right repair is usually to the CASE (a locked fact is missing) and not to the chapter",
   false_solution_absent:

@@ -9,8 +9,8 @@
  * Everything here is offline and free: it reads `documentation/prompts/actual/` and `stories/`.
  */
 
-import { readFileSync, readdirSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { basename, dirname, join } from "node:path";
 
 /** Pull the JSON payload out of a `## Response Body` record. */
 export const responseJson = (path) => {
@@ -86,12 +86,32 @@ export const shippedOutline = (runDir, manuscript) => {
  * Accepts a directory (finds the single `.md`) or a path to the file itself, because the calibration
  * manifest names files and the backtest names directories.
  */
+/**
+ * Where a corpus story lives NOW — `stories/<name>` or `stories/_archive/<name>`.
+ *
+ * FOUND 2026-08-15, the hard way. Four of the six corpus manuscripts were tidied into
+ * `stories/_archive/` between one probe run and the next, and every offline instrument that names a
+ * story by path went with them: `probe:geometry-backtest` — the regression gate a detector change is
+ * supposed to clear before it ships — reported *"Could not evaluate: one or both cases failed to
+ * load"*, and `probe:dialogue-tics` would have dropped four of its six rows to "(not on disk)".
+ *
+ * Neither is a wrong answer, but "the gate could not run" and "the gate passed" must never look alike
+ * from a scroll of output, and a corpus reader that breaks when the owner tidies a folder is a gate
+ * with a housekeeping dependency. Resolution is by NAME, in both places, everywhere.
+ */
+export const resolveStoryPath = (storyPathOrDir) => {
+  if (existsSync(storyPathOrDir)) return storyPathOrDir;
+  const name = basename(storyPathOrDir);
+  const archived = join(dirname(storyPathOrDir), "_archive", name);
+  return existsSync(archived) ? archived : storyPathOrDir;
+};
+
 export const readManuscript = (storyPathOrDir) => {
-  let file = storyPathOrDir;
-  if (!storyPathOrDir.endsWith(".md")) {
-    const found = readdirSync(storyPathOrDir).find((f) => f.endsWith(".md"));
+  let file = resolveStoryPath(storyPathOrDir);
+  if (!file.endsWith(".md")) {
+    const found = readdirSync(file).find((f) => f.endsWith(".md"));
     if (!found) return { chapters: [], title: null, file: null };
-    file = join(storyPathOrDir, found);
+    file = join(file, found);
   }
   const text = readFileSync(file, "utf8");
   const title = text.match(/^#\s+(.+)$/m)?.[1]?.trim() ?? null;

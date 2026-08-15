@@ -293,6 +293,36 @@ export const detectAftermathRepeatParagraphs = (
   return offending;
 };
 
+/**
+ * X38 — a DURATION in minutes, not a clock reading. Deliberately separate from `parseClockTime`:
+ * "fourteen minutes" is an offset and "a quarter past seven" is a position, and the whole defect this
+ * catches is the two being asserted about each other without agreeing.
+ *
+ * Word forms up to sixty plus digits, because that is what devices write. Anything else returns null
+ * and the check simply does not run — a parser that guesses would manufacture the false positives
+ * X21/X27 were built to remove.
+ */
+const DURATION_WORDS: Readonly<Record<string, number>> = {
+  one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10,
+  eleven: 11, twelve: 12, thirteen: 13, fourteen: 14, fifteen: 15, sixteen: 16, seventeen: 17,
+  eighteen: 18, nineteen: 19, twenty: 20, thirty: 30, forty: 40, fifty: 50, sixty: 60,
+};
+
+export const parseDurationMinutes = (raw: string): number | null => {
+  const text = String(raw ?? "").toLowerCase().trim();
+  if (!text) return null;
+  if (/\b(?:past|to|o'?clock)\b/.test(text)) return null; // a clock reading, not a duration
+  const digits = text.match(/\b(\d{1,3})\s*(?:-|\s)?\s*minutes?\b/);
+  if (digits) return Number(digits[1]);
+  const words = text.match(/\b([a-z]+)(?:-|\s)+minutes?\b/);
+  if (words && DURATION_WORDS[words[1]!] !== undefined) return DURATION_WORDS[words[1]!]!;
+  const compound = text.match(/\b(twenty|thirty|forty|fifty)[-\s]([a-z]+)(?:-|\s)+minutes?\b/);
+  if (compound && DURATION_WORDS[compound[1]!] !== undefined && DURATION_WORDS[compound[2]!] !== undefined) {
+    return DURATION_WORDS[compound[1]!]! + DURATION_WORDS[compound[2]!]!;
+  }
+  return null;
+};
+
 const sentencesOf = (text: string): string[] =>
   text.split(/(?<=[.!?])\s+/).map((s) => s.trim()).filter(Boolean);
 
@@ -560,6 +590,103 @@ export const checkManuscriptGeometry = (
           extraTimes.push({ chapter: chapterNumber, phrase, minutes });
         }
       });
+      /**
+       * X38 — THE DEVICE'S OWN ARITHMETIC, which nothing has ever checked.
+       *
+       * The 08-15 case declared three locked facts: `murder_time_displayed` "a quarter past seven",
+       * `chime_recorded_time` "five minutes past seven", `pendulum_delay_duration` "fourteen minutes".
+       * 7:15 − 7:05 is **ten**. The device contradicted itself before a word of prose existed, the
+       * locked-fact layer then injected all three verbatim — that is its job — and the contradiction
+       * shipped. The cold read led with it: *"the story cannot say 7:05 vs 7:15 and call it a
+       * fourteen-minute lag"*, and scored the clue logic 6/10 for it.
+       *
+       * NARROW ON PURPOSE: exactly two clock-valued locked facts and exactly one duration. A case may
+       * legitimately declare a duration that is about neither anchor (how long a chime lasts, how long
+       * a walk takes), and with three times or two durations there is no single pairing to check. The
+       * shape this fires on is the shape that broke: two clocks, one offset, and the offset is wrong.
+       *
+       * Reported here rather than gated pre-prose because that is this project's order — measure, then
+       * promote. Its natural home once the signal holds is the locked-fact registry, where it would
+       * fire before the prose it invalidates is paid for.
+       */
+      {
+        const rawFacts = (geometry.timeModel.accountedTimes ?? []).map((v) => String(v ?? "").trim()).filter(Boolean);
+        const clockValues: Array<{ raw: string; minutes: number }> = [];
+        const durations: Array<{ raw: string; minutes: number }> = [];
+        for (const raw of rawFacts) {
+          const asDuration = parseDurationMinutes(raw);
+          if (asDuration !== null) {
+            durations.push({ raw, minutes: asDuration });
+            continue;
+          }
+          const asClock = options.parseClockTime(needle(raw));
+          if (asClock !== null) clockValues.push({ raw, minutes: asClock });
+        }
+        if (clockValues.length === 2 && durations.length === 1) {
+          const gap = Math.abs(clockValues[0]!.minutes - clockValues[1]!.minutes);
+          const declared = durations[0]!.minutes;
+          const agrees = gap === declared;
+          record({ field: "time_model", code: "locked_time_arithmetic", chapter: null, verdict: agrees ? "met" : "unmet" }, {
+            scope: "manuscript",
+            message:
+              `The case's own locked facts do not add up: "${clockValues[0]!.raw}" and "${clockValues[1]!.raw}" ` +
+              `are ${gap} minutes apart, and "${durations[0]!.raw}" declares ${declared}. Locked facts are ` +
+              `injected into the prose verbatim, so this contradiction ships as written and a reader meets ` +
+              `two clock readings that refuse to explain the offset between them. The repair is to the CASE.`,
+          });
+        }
+      }
+
+      /**
+       * X39 — AND THE ANCHORS THEMSELVES HAVE TO REACH THE PAGE.
+       *
+       * FOUND ON THE 08-15 RUN, by a cold read that could not have known the cause. The reader's
+       * first complaint was that the clock arithmetic contradicted itself — 7:05 against 7:15, called
+       * a fourteen-minute lag — and called it "the main score cap". The manuscript's times were
+       * `murder_time_displayed` and `chime_recorded_time`, both LOCKED FACTS, injected verbatim. The
+       * case's own anchors were "a quarter past eight" and "a quarter to nine", and they appear in the
+       * manuscript **zero times, in any form**.
+       *
+       * So the case carried two temporal spines, the prose rendered the one geometry does not track,
+       * and every time check that run was reasoning about clock readings that are not in the story.
+       * `unaccounted_time` was correctly silent — the page's times ARE accounted for, by those locked
+       * facts. Nothing asked the other question.
+       *
+       * A time model whose anchors never appear is not evidence about the manuscript. This is the
+       * A_70/A_71 shape one more time: a measurement of something that is not there.
+       *
+       * BOTH must be missing before this fires. One anchor absent is ordinary — the true time is often
+       * implied by the reveal rather than stated as a clock reading. Neither present means the
+       * manuscript is telling a different story about time than the case is.
+       */
+      {
+        const anchors: Array<{ label: string; raw: string }> = [];
+        if (geometry.timeModel.apparentTime) anchors.push({ label: "apparent", raw: geometry.timeModel.apparentTime });
+        if (geometry.timeModel.trueTime) anchors.push({ label: "true", raw: geometry.timeModel.trueTime });
+        if (anchors.length > 0) {
+          const page = chapters.map((c) => needle(textOf(c))).join(" ");
+          const pageMinutes = new Set<number>();
+          for (const match of page.matchAll(TIME_MENTION)) {
+            const minutes = options.parseClockTime(match[0]);
+            if (minutes !== null) pageMinutes.add(minutes);
+          }
+          const missing = anchors.filter((a) => {
+            const minutes = options.parseClockTime(needle(a.raw));
+            // An anchor that does not parse is time_model_unparseable's business, not this check's.
+            return minutes !== null && !pageMinutes.has(minutes);
+          });
+          const anchorsOnPage = missing.length < anchors.filter((a) => options.parseClockTime(needle(a.raw)) !== null).length;
+          record({ field: "time_model", code: "time_anchors_absent", chapter: null, verdict: anchorsOnPage ? "met" : "unmet" }, {
+            scope: "manuscript",
+            message:
+              `NEITHER temporal anchor appears in the manuscript — the case declares ` +
+              `${anchors.map((a) => `${a.label} "${a.raw}"`).join(" and ")}, and the page states neither. ` +
+              `The story is keeping time by some other clock (usually a locked fact the device authored), ` +
+              `so every check built on these two anchors is measuring times that are not in the book.`,
+          });
+        }
+      }
+
       const satisfied = extraTimes.length === 0;
       record({ field: "time_model", code: "unaccounted_time", chapter: null, verdict: satisfied ? "met" : "unmet" }, {
         scope: "manuscript",

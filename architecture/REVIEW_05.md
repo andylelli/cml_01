@@ -111,12 +111,13 @@ Everything outstanding, in one place. `☐` not started · `◑` partial · `✅
 | X33 | **An Azure content-filter refusal on the blind-reader prompt ABORTED a paid run** — the prompt carries the case's death method, a stabbing earned `violence/medium`, and the throw propagated out of Agent 6 at the fair-play stage, before Agent 9 and before anything the run was bought to measure. A_71's "never-abort gate held" was true of Agent 9 and false here. Now: refusal ⇒ the blind read is NOT MEASURED (skipped, not passed), run continues | free | ✅ | [§38.5](#385-x33--a-refused-prompt-killed-a-paid-run-at-agent-6) |
 | X34 | **A first-person confession cannot satisfy the disclosure check** — `disclosingSentence` needs the culprit's name and a guilt marker in ONE sentence, and a confession puts the name in the attribution and the guilt in the quoted "I did it". Measured twice on the N7 run against two independently generated reveals. The false-negative mirror of X27/X28, and it is what blocks N7 from landing | free | ☐ | [§38.6](#386-the-n7-run--the-pass-fired-the-model-wrote-the-reveal-and-the-detector-refused-it) |
 | X35 | **The reveal repair never tells the model the death method, and it invented one** — attempt 2 confessed to strangling in a stabbing case. `CASE.death_method` is not in the regen Bible slice and not in the violation message. Caught only because the disclosure check rejected the edit for an unrelated reason | free | ☐ | [§38.6](#386-the-n7-run--the-pass-fired-the-model-wrote-the-reveal-and-the-detector-refused-it) |
-| X38 | **The device's own clock arithmetic is never checked** — `murder_time_displayed` 7:15 minus `chime_recorded_time` 7:05 is 10 minutes, and `pendulum_delay_duration` declares **fourteen**. Locked facts are injected verbatim, so the contradiction ships and the cold read called it *"the main score cap"*. Checkable at Agent 3b time with the `parseClockTime` that already exists | free | ☐ | [§38.8](#388-the-cold-read-of-the-n7-run--78100-and-its-top-complaint-was-authored-by-agent-3b) |
-| X39 | **The case carries two temporal spines and geometry binds the one that never reaches the page** — mechanism anchors 8:15/8:45 (0 occurrences in the manuscript) vs the device's 7:15/7:05 (10 and 15 occurrences). Every time check on the 08-15 run reasoned about clock readings not in the story | free | ☐ | [§38.8](#388-the-cold-read-of-the-n7-run--78100-and-its-top-complaint-was-authored-by-agent-3b) |
+| X38 | ~~The device's own clock arithmetic is never checked~~ — **BUILT**: `locked_time_arithmetic`, narrow (two clock facts, one duration), fires on the 08-15 case at 10-against-14 — `murder_time_displayed` 7:15 minus `chime_recorded_time` 7:05 is 10 minutes, and `pendulum_delay_duration` declares **fourteen**. Locked facts are injected verbatim, so the contradiction ships and the cold read called it *"the main score cap"*. Checkable at Agent 3b time with the `parseClockTime` that already exists | free | ✅ | [§38.9](#389-x38-and-x39-built--and-the-corpus-had-moved-out-from-under-the-gate) |
+| X39 | ~~The case carries two temporal spines~~ — **BUILT**: `time_anchors_absent` fires when the manuscript states NEITHER anchor. **And the 80-scoring story does it too** (anchors 8:00/8:30, page says only "a quarter past nine"), so the deception fails to reach the page on 2 of 3 manuscripts checked — mechanism anchors 8:15/8:45 (0 occurrences in the manuscript) vs the device's 7:15/7:05 (10 and 15 occurrences). Every time check on the 08-15 run reasoned about clock readings not in the story | free | ☐ | [§38.8](#388-the-cold-read-of-the-n7-run--78100-and-its-top-complaint-was-authored-by-agent-3b) |
 | X40 | **Three generated artifacts the scaffold detector returns clean on** — *"The detective's understanding updated:"*, *"The revised meaning of the clues was clear:"* (the pipeline narrating its own analysis) and a lower-cased *"Dr mallory finch"*. Quoted by the reader; dialogue 6/10, the lowest yet | free | ☐ | [§38.8](#388-the-cold-read-of-the-n7-run--78100-and-its-top-complaint-was-authored-by-agent-3b) |
 | X41 | The reveal repair satisfies the obligation without earning it — *"Hugo confesses, but the final proof is too abrupt"*. The check asks whether the chapter discloses, never whether the disclosure is built; X35's instruction is where the evidence chain goes | free | ☐ | [§38.8](#388-the-cold-read-of-the-n7-run--78100-and-its-top-complaint-was-authored-by-agent-3b) |
 | X36 | **The aftermath pass runs on the channel §36 measured as 0-of-3** — it takes `geometryRegen`, which reads the global `AGENT9_REGEN_EDIT_LIST`; only the reveal pass pins its own. Fired live 08-15 and lost twice with `regen introduced`, the exact signature. One line, and the 08-15 reader named the defect it failed to fix | free | ☐ | [§38.7](#387-n7-run-2--the-repair-landed-in-one-call) |
 | X37 | A third content-filter site, and it took the SCORE — `RubricScorer` was refused on the 08-15 run, so the story shipped with no internal rubric number and no internal-to-external comparison. X33 fixed the site that aborted; this one degrades quietly | free | ☐ | [§38.7](#387-n7-run-2--the-repair-landed-in-one-call) |
+| X42 | **The geometry backtest failed OPEN when the corpus moved** — four manuscripts were tidied into `stories/_archive/` and the gate reported *"could not evaluate"*, one line away from looking like a pass, with 4 of `probe:dialogue-tics`'s 6 rows silently "(not on disk)". Stories now resolve by NAME across both folders in the shared reader | free | ✅ | [§38.9](#389-x38-and-x39-built--and-the-corpus-had-moved-out-from-under-the-gate) |
 | M5 | Delete the deterministic injectors — **first external evidence**: the reader struck out the injected sentence by name; the arm that injected nothing scored higher on ending and prose | free | ◑ | [§32.2](#322-the-reader-objects-to-the-injected-sentence-by-name) |
 | X8 | **Read on N6's control arm:** 21 calls `gpt-4.1-mini`, 25 `gpt-4.1`, 5 `claude-sonnet-5`, **zero `gpt-4o-mini`**. X7 confirmed in production; X6's floor fired (2 herrings sanitised) | free | ✅ | [§31.2](#312-what-the-pair-settles) |
 | **D. Paid probes, in dependency order** ||||
@@ -3030,3 +3031,54 @@ mark yet, on the run whose reveal we just fixed.
 repeats the suspect clearances. Chapter 10 gives aftermath but also repeats."* That is `aftermath_repeat@9`
 and `clearance_over_budget@9`, both flagged, and the pass that would have fixed them is the one that
 failed on the unpinned channel — **X36 now has external corroboration as well as a known cause.**
+
+### 38.9 X38 and X39, built — and the corpus had moved out from under the gate
+
+**2026-08-15, free.** Two checks at the acceptance boundary, where the one clock parser is injected.
+
+**X38 — `locked_time_arithmetic`.** Exactly two clock-valued locked facts and exactly one declared
+duration: the duration must equal the gap. On the 08-15 device it is 10 against a declared 14. Narrow
+on purpose — three times or two durations have no single pairing to check, and a case may legitimately
+declare a duration about neither anchor. `parseDurationMinutes` is deliberately a separate parser from
+`parseClockTime`: *"fourteen minutes"* is an offset and *"a quarter past seven"* is a position, and the
+whole defect is those two being asserted about each other without agreeing.
+
+**X39 — `time_anchors_absent`.** Fires only when the manuscript states NEITHER anchor. One missing is
+ordinary (the true time is often implied by the reveal); neither means the book is keeping time by some
+other clock, and every check built on the time model is measuring times that are not in it.
+
+Both fire on the 08-15 run they were built from. And then the backtest said something I did not expect:
+
+```
+unique to the 80: time_anchors_absent, method_signature_absent
+```
+
+**The 80-scoring story does it too.** Its anchors are `8:00` and `8:30`; the manuscript states neither,
+in any form — the only clock reading in the whole book is *"a quarter past nine"*. So the two-time
+deception the entire time model is built around **failed to reach the page in the best story in the
+corpus**, and nothing has ever said so. The 68-scoring story does not trip it, so the check
+discriminates rather than firing on everything, which is the §10 criterion these detectors are held to.
+
+That reframes the family. `unaccounted_time` asks whether the page contains a time the case cannot
+explain. Nobody had asked the mirror question — whether the case's own deception reaches the page at
+all — and on two of the three manuscripts I can check, it does not.
+
+#### The gate could not run, and it looked like a pass
+
+Running the backtest for X38/X39 returned:
+
+```
+ERROR: missing C:\CML\stories\story_20260802-1810
+Could not evaluate: one or both cases failed to load.
+```
+
+Four of the six corpus manuscripts had been tidied into `stories/_archive/` between one probe run and
+the next (both directories stamped 20:42 tonight). Every offline instrument that names a story by PATH
+went with them: the geometry backtest — **the regression gate a detector change is supposed to clear
+before it ships** — and four of `probe:dialogue-tics`'s six rows.
+
+Nothing was lost and nothing was wrong; the answer was simply unavailable. But *"could not evaluate"*
+and *"passed"* are two lines of output in the same scroll, and a gate with a housekeeping dependency
+fails open. `resolveStoryPath` now resolves a story by NAME across `stories/` and `stories/_archive/`,
+in the one reader both probes share — the §10 rule 2 shape again: fix it in the body everyone imports,
+not at the call site that noticed.

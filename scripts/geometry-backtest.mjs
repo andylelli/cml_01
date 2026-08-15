@@ -29,7 +29,7 @@ import { join } from "node:path";
 import { deriveStoryGeometry, checkManuscriptGeometry } from "../packages/story-geometry/dist/index.js";
 import { checkCaseTimelineDeception, parseClockTime } from "../packages/prompts-llm/dist/timeline-deception.js";
 import { INJECTED_SENTENCE_PATTERNS } from "../packages/prompts-llm/dist/agent9-prose/injection-templates.js";
-import { lastResponseFor, lockedFactsFrom, readManuscript, shippedOutline } from "./corpus-artifacts.mjs";
+import { resolveStoryPath, lastResponseFor, lockedFactsFrom, readManuscript, shippedOutline } from "./corpus-artifacts.mjs";
 
 const ROOT = process.env.CML_WORKSPACE_ROOT || process.cwd();
 const PROMPTS = join(ROOT, "documentation", "prompts", "actual");
@@ -59,7 +59,10 @@ const results = [];
 
 for (const testCase of CASES) {
   const runDir = join(PROMPTS, testCase.run);
-  const storyDir = join(STORIES, testCase.story);
+  // Resolved by NAME, not by path: the corpus lives in `stories/` or `stories/_archive/` depending on
+  // when it was last tidied, and a gate that cannot find its corpus reports "could not evaluate" in a
+  // scroll of output that otherwise looks like a pass (2026-08-15).
+  const storyDir = resolveStoryPath(join(STORIES, testCase.story));
   if (!existsSync(runDir) || !existsSync(storyDir)) {
     results.push({ ...testCase, error: `missing ${!existsSync(runDir) ? runDir : storyDir}` });
     continue;
