@@ -111,6 +111,12 @@ Everything outstanding, in one place. `☐` not started · `◑` partial · `✅
 | X33 | **An Azure content-filter refusal on the blind-reader prompt ABORTED a paid run** — the prompt carries the case's death method, a stabbing earned `violence/medium`, and the throw propagated out of Agent 6 at the fair-play stage, before Agent 9 and before anything the run was bought to measure. A_71's "never-abort gate held" was true of Agent 9 and false here. Now: refusal ⇒ the blind read is NOT MEASURED (skipped, not passed), run continues | free | ✅ | [§38.5](#385-x33--a-refused-prompt-killed-a-paid-run-at-agent-6) |
 | X34 | **A first-person confession cannot satisfy the disclosure check** — `disclosingSentence` needs the culprit's name and a guilt marker in ONE sentence, and a confession puts the name in the attribution and the guilt in the quoted "I did it". Measured twice on the N7 run against two independently generated reveals. The false-negative mirror of X27/X28, and it is what blocks N7 from landing | free | ☐ | [§38.6](#386-the-n7-run--the-pass-fired-the-model-wrote-the-reveal-and-the-detector-refused-it) |
 | X35 | **The reveal repair never tells the model the death method, and it invented one** — attempt 2 confessed to strangling in a stabbing case. `CASE.death_method` is not in the regen Bible slice and not in the violation message. Caught only because the disclosure check rejected the edit for an unrelated reason | free | ☐ | [§38.6](#386-the-n7-run--the-pass-fired-the-model-wrote-the-reveal-and-the-detector-refused-it) |
+| X38 | **The device's own clock arithmetic is never checked** — `murder_time_displayed` 7:15 minus `chime_recorded_time` 7:05 is 10 minutes, and `pendulum_delay_duration` declares **fourteen**. Locked facts are injected verbatim, so the contradiction ships and the cold read called it *"the main score cap"*. Checkable at Agent 3b time with the `parseClockTime` that already exists | free | ☐ | [§38.8](#388-the-cold-read-of-the-n7-run--78100-and-its-top-complaint-was-authored-by-agent-3b) |
+| X39 | **The case carries two temporal spines and geometry binds the one that never reaches the page** — mechanism anchors 8:15/8:45 (0 occurrences in the manuscript) vs the device's 7:15/7:05 (10 and 15 occurrences). Every time check on the 08-15 run reasoned about clock readings not in the story | free | ☐ | [§38.8](#388-the-cold-read-of-the-n7-run--78100-and-its-top-complaint-was-authored-by-agent-3b) |
+| X40 | **Three generated artifacts the scaffold detector returns clean on** — *"The detective's understanding updated:"*, *"The revised meaning of the clues was clear:"* (the pipeline narrating its own analysis) and a lower-cased *"Dr mallory finch"*. Quoted by the reader; dialogue 6/10, the lowest yet | free | ☐ | [§38.8](#388-the-cold-read-of-the-n7-run--78100-and-its-top-complaint-was-authored-by-agent-3b) |
+| X41 | The reveal repair satisfies the obligation without earning it — *"Hugo confesses, but the final proof is too abrupt"*. The check asks whether the chapter discloses, never whether the disclosure is built; X35's instruction is where the evidence chain goes | free | ☐ | [§38.8](#388-the-cold-read-of-the-n7-run--78100-and-its-top-complaint-was-authored-by-agent-3b) |
+| X36 | **The aftermath pass runs on the channel §36 measured as 0-of-3** — it takes `geometryRegen`, which reads the global `AGENT9_REGEN_EDIT_LIST`; only the reveal pass pins its own. Fired live 08-15 and lost twice with `regen introduced`, the exact signature. One line, and the 08-15 reader named the defect it failed to fix | free | ☐ | [§38.7](#387-n7-run-2--the-repair-landed-in-one-call) |
+| X37 | A third content-filter site, and it took the SCORE — `RubricScorer` was refused on the 08-15 run, so the story shipped with no internal rubric number and no internal-to-external comparison. X33 fixed the site that aborted; this one degrades quietly | free | ☐ | [§38.7](#387-n7-run-2--the-repair-landed-in-one-call) |
 | M5 | Delete the deterministic injectors — **first external evidence**: the reader struck out the injected sentence by name; the arm that injected nothing scored higher on ending and prose | free | ◑ | [§32.2](#322-the-reader-objects-to-the-injected-sentence-by-name) |
 | X8 | **Read on N6's control arm:** 21 calls `gpt-4.1-mini`, 25 `gpt-4.1`, 5 `claude-sonnet-5`, **zero `gpt-4o-mini`**. X7 confirmed in production; X6's floor fired (2 herrings sanitised) | free | ✅ | [§31.2](#312-what-the-pair-settles) |
 | **D. Paid probes, in dependency order** ||||
@@ -2963,3 +2969,64 @@ and until it lands the aftermath flag is being probed on the arm §36 showed doe
 rubric number at all, and there is no internal→external comparison to make from this run. X33 fixed the
 call site that aborted; this is the same class at a third site, degrading quietly rather than loudly.
 Recorded as **X37**.
+
+### 38.8 The cold read of the N7 run — 78/100, and its top complaint was authored by Agent 3b
+
+**The reveal N7 repaired is on the page and reads as the reveal.** *"Hugo confesses"*, ending 7/10, and
+the reader's complaint is that the confession *"comes too quickly"* — the evidence chain should be
+recited before the admission, not after. That is a refinement of a repair that now works, not a failure
+of it: the check asks whether the chapter discloses, and cannot ask whether the disclosure is earned.
+X35's instruction is the place to fix it (**X41**), and the reviewer helpfully wrote the five beats they
+wanted in order.
+
+**But the score cap is somewhere else entirely**, and this is the finding of the run.
+
+> *"The timing math does not work… ship's bell 7:05, grandfather clock 7:15, difference 14 minutes…
+> 7:15 is later than 7:05, so the clock is ahead by 10 minutes, not behind by 14. This is the main
+> score cap."*
+
+The reader is right, and the defect is older and larger than the prose. **The case carries two
+temporal spines that disagree, and the manuscript renders the one geometry does not measure:**
+
+```
+Agent 3b's device, as LOCKED FACTS      murder_time_displayed  = "a quarter past seven"   (7:15)
+  → injected verbatim, so this is        chime_recorded_time    = "five minutes past seven" (7:05)
+    what reaches the page                pendulum_delay_duration= "fourteen minutes"        (14 ≠ 10)
+
+Agent 3's hidden_model.mechanism        apparent_time_of_death = "a quarter past eight"    (8:15)
+  → what geometry's timeModel binds      actual_time_of_death   = "a quarter to nine"       (8:45)
+```
+
+**Neither anchor appears in the manuscript — zero occurrences, in any form**, while the device's times
+appear 10 and 15 times. So geometry reported `times=a quarter past eight/a quarter to nine` and every
+time-related check this run made was reasoning about clock readings that are not in the story. That is
+also why `unaccounted_time` was silent (correctly: the page's times ARE accounted for — by the locked
+facts) — the check that would have caught it is the one nobody wrote.
+
+Two free detectors, both deterministic, both before a penny of prose:
+
+- **X38 — the locked-fact clock arithmetic.** When a device declares two clock values and an offset
+  between them, the offset must equal the difference. Here 7:15 − 7:05 = 10 and the device says 14.
+  Checkable at Agent 3b time with `parseClockTime`, which already exists.
+- **X39 — the two spines must be one.** The mechanism's anchors and the device's locked times are the
+  same two moments or the case contradicts itself; and whatever geometry binds as its time model must
+  actually reach the page. A `timeModel` built on values the manuscript never states is the A_70/A_71
+  shape again: a measurement of something that is not there.
+
+**X40 — three generated artifacts the linter cannot see.** The reviewer quoted them; all three are in
+the manuscript, and `detectScaffoldNotProse` returns clean on every one:
+
+```
+"The detective's understanding updated: …"        ×2   → []
+"The revised meaning of the clues was clear: …"        → []
+"Dr mallory finch permitted herself …"           ×2   → []   (and the name is lower-cased)
+```
+
+The first two are the pipeline narrating its own analysis, which is exactly what the scaffold detector
+exists to catch, in vocabulary it does not carry. Prose 7/10, dialogue **6/10** — the lowest dialogue
+mark yet, on the run whose reveal we just fixed.
+
+**And chapters 9–10 repeat, again.** *"Chapter 8 already gives the final trap and confession. Chapter 9
+repeats the suspect clearances. Chapter 10 gives aftermath but also repeats."* That is `aftermath_repeat@9`
+and `clearance_over_budget@9`, both flagged, and the pass that would have fixed them is the one that
+failed on the unpinned channel — **X36 now has external corroboration as well as a known cause.**
