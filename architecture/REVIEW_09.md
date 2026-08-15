@@ -255,3 +255,106 @@ never ran, and that rule now applies to the judge itself.
 
 **Gates:** `npm test` green, geometry backtest PASS with the separation unchanged (the 68 keeps its
 four unique codes; the 80's `time_anchors_absent` is the true finding from §4, not new noise).
+
+---
+
+## 9. The review of §8, and it found five defects — three of them in §8
+
+**2026-08-15, immediately after the free block shipped.** An adversarial pass over everything REVIEW_08
+and REVIEW_09 built. The headline is uncomfortable and worth stating first: **three of the five defects
+were introduced the same evening, and two of them are the same shape as failures already recorded in
+this document.**
+
+### 9.1 A second parser, already diverged — and it would have manufactured violations
+
+X38 shipped `parseDurationMinutes` twice: once in `@cml/cml` (the pre-prose check) and once inside
+`story-geometry/accept.ts` (the ship-time mirror). They did not agree:
+
+```
+"fourteen minutes"      geometry 14   cml 14     agree
+"twenty-five minutes"   geometry  5   cml 25     DIVERGE
+"forty-five minutes"    geometry  5   cml 45     DIVERGE
+```
+
+The local copy tested its single-word pattern before its compound one, so it read only the last word.
+A device declaring a genuine 25-minute offset would have been reported **incoherent** — a fabricated
+violation, in a check written to catch fabricated arithmetic, in the class X27 calls the worst outcome
+available.
+
+`story-geometry` has zero runtime dependencies by design and injects its clock parser for exactly this
+reason; the duration parser now follows the same rule. The package holds neither, and
+`locked_time_arithmetic` simply does not run at acceptance when no parser is supplied — a check that
+cannot read must decline rather than guess. Every caller (the worker's four call sites, the backtest,
+the rescorer, the rehearsal probe) now injects the canonical one.
+
+**This is the defect this codebase has paid for more often than any other** — X3's four flag parsers,
+N5's three JSON extractors, §10 rule 2's "fix it in the body everyone imports". It took four hours to
+reappear after being cited in the commit message that introduced it.
+
+### 9.2 X33 stopped two functions short of its own class
+
+The content-filter guard was added to the blind reader's PRIMARY read. `blindReaderSimulation` has four
+call sites. Two more — the remediation loop's re-read and the deterministic-rescue re-check — were left
+bare, and they are the ones that run **after the gate has already failed**, on the same prompt carrying
+the same refusable case. A premise Azure refuses once it refuses every time, so the abort X33 was
+written to prevent would simply have happened one branch later.
+
+Both are guarded now, each in the shape its scope allows: the loop stops with the verdict it has; the
+rescue leaves the previous verdict standing and says the re-check did not happen. Same lesson as X28,
+where an idiom fix stopped one function short of the sibling comparison.
+
+### 9.3 X39 contradicted its own documentation
+
+The rule reads *"BOTH must be missing before this fires. One anchor absent is ordinary."* The code
+compared the missing count against the parseable count, so a case with ONE parseable anchor that was
+absent fired the violation — the precise case the rule exists to permit. Now it requires two parseable
+anchors, because with fewer there is no two-time deception to look for.
+
+### 9.4 X34 failed open where it should fail closed
+
+`confessionDisclosure` located each sentence with `indexOf` to test whether the culprit was named before
+the admission. On `-1` it **skipped the ordering test** and then sliced the attribution window from a
+negative index, which in JavaScript counts from the end of the string. Unreachable in practice for a
+trimmed split — and the wrong direction for a guard whose entire job is refusing to certify a reveal
+that did not happen. It now declines.
+
+### 9.5 X42 stopped one function short, twice
+
+The corpus resolver fixed `readManuscript` and the backtest. It did not fix `probe:dialogue-tics`, which
+does its own `existsSync` — so after the archiving it printed **"(not on disk)" for five of its six
+rows** and one lonely number, with no error and no non-zero exit. And `resolveStoryPath` handled only
+`stories/<story>`, not `stories/<story>/<file>.md`, so `probe:reveal-repair`'s default target was
+unreachable too.
+
+A measurement that quietly drops to n=1 is worse than one that fails. Both are fixed, all six rows are
+back, and the file-path form is verified against an archived story.
+
+### 9.6 And the tests had a defect of their own
+
+The geometry stand-in parser omitted `"two"`, so the fixture written to prove X38 *declines* on two
+durations instead proved it *fires* — the stand-in dropped one duration on the floor. A stand-in must
+never be weaker than the parser it stands in for, or the test measures the stand-in.
+
+### 9.7 What held up
+
+- **X40's precision, measured across the whole corpus**: 3 hits on the one manuscript whose reader
+  complained of *"generated/report language"*, and **0 on the other six**. That is the §10 criterion —
+  a detector that also fires on the stories readers liked is noise.
+- **X38/X39 still fire on the 08-15 case** after the parser change, and the backtest separation is
+  unchanged (the 68 keeps its four unique codes).
+- **X34's ordering guard**, probed with a duplicated-sentence paragraph designed to confuse `indexOf`:
+  still refuses.
+- **REVIEW_09 §1's table**, re-checked against the archived cold reads rather than memory: the 76
+  column matches the file exactly.
+
+### 9.8 Weaknesses left standing, deliberately
+
+- **The X38 RULE is still expressed twice** — pre-prose in `@cml/cml`, ship-time in `accept.ts`. The
+  parser is now single, which was the demonstrated risk; the rule is six lines and the two ask about
+  different moments (cause vs symptom). Worth deleting the acceptance copy once the pre-prose one has
+  run clean on four runs, and worth remembering that the parser divergence proves the risk is real.
+- **The reveal-repair instruction is now four clauses long** (rewrite permission, method, placement,
+  build-up). Instruction dilution is real and only a run can measure it. If the next reveal repair
+  regresses, this is the first suspect.
+- **X30's probe still does not separate two 84s** (0.8 vs 6.0 per 100 lines, same reader mark). Fixed
+  instrument, unchanged verdict: it measures, it does not gate.

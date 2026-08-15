@@ -293,36 +293,6 @@ export const detectAftermathRepeatParagraphs = (
   return offending;
 };
 
-/**
- * X38 — a DURATION in minutes, not a clock reading. Deliberately separate from `parseClockTime`:
- * "fourteen minutes" is an offset and "a quarter past seven" is a position, and the whole defect this
- * catches is the two being asserted about each other without agreeing.
- *
- * Word forms up to sixty plus digits, because that is what devices write. Anything else returns null
- * and the check simply does not run — a parser that guesses would manufacture the false positives
- * X21/X27 were built to remove.
- */
-const DURATION_WORDS: Readonly<Record<string, number>> = {
-  one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10,
-  eleven: 11, twelve: 12, thirteen: 13, fourteen: 14, fifteen: 15, sixteen: 16, seventeen: 17,
-  eighteen: 18, nineteen: 19, twenty: 20, thirty: 30, forty: 40, fifty: 50, sixty: 60,
-};
-
-export const parseDurationMinutes = (raw: string): number | null => {
-  const text = String(raw ?? "").toLowerCase().trim();
-  if (!text) return null;
-  if (/\b(?:past|to|o'?clock)\b/.test(text)) return null; // a clock reading, not a duration
-  const digits = text.match(/\b(\d{1,3})\s*(?:-|\s)?\s*minutes?\b/);
-  if (digits) return Number(digits[1]);
-  const words = text.match(/\b([a-z]+)(?:-|\s)+minutes?\b/);
-  if (words && DURATION_WORDS[words[1]!] !== undefined) return DURATION_WORDS[words[1]!]!;
-  const compound = text.match(/\b(twenty|thirty|forty|fifty)[-\s]([a-z]+)(?:-|\s)+minutes?\b/);
-  if (compound && DURATION_WORDS[compound[1]!] !== undefined && DURATION_WORDS[compound[2]!] !== undefined) {
-    return DURATION_WORDS[compound[1]!]! + DURATION_WORDS[compound[2]!]!;
-  }
-  return null;
-};
-
 const sentencesOf = (text: string): string[] =>
   text.split(/(?<=[.!?])\s+/).map((s) => s.trim()).filter(Boolean);
 
@@ -421,9 +391,16 @@ const confessionDisclosure = (paragraph: string, culpritRe: RegExp | null): stri
 
   for (const sentence of sentencesOf(paragraph)) {
     const at = paragraph.indexOf(sentence);
-    // The culprit must be named BEFORE the admission — the clause that refuses the false-confession
-    // trope, where another character admits it and the culprit is merely named afterwards.
-    if (at >= 0 && at < namedAt) continue;
+    /**
+     * The culprit must be named BEFORE the admission — the clause that refuses the false-confession
+     * trope, where another character admits it and the culprit is merely named afterwards.
+     *
+     * `at < 0` cannot happen for a trimmed split of this paragraph, and it fails CLOSED anyway:
+     * the first draft skipped the ordering test when the offset was unresolvable (fail-open) and
+     * then sliced from a negative index, which in JS counts from the END of the string. A guard
+     * that cannot locate its own evidence must decline, not guess.
+     */
+    if (at < 0 || at < namedAt) continue;
     const admission = FIRST_PERSON_ADMISSION.exec(sentence);
     if (!admission) continue;
     // An attribution naming someone else is someone else's confession.
@@ -610,11 +587,15 @@ export const checkManuscriptGeometry = (
        * fire before the prose it invalidates is paid for.
        */
       {
-        const rawFacts = (geometry.timeModel.accountedTimes ?? []).map((v) => String(v ?? "").trim()).filter(Boolean);
+        // No injected duration parser ⇒ this check does not run. It never guesses: the pre-prose
+        // `checkCaseTimeCoherence` is the authoritative one, and a second parser is what it must not be.
+        const rawFacts = options.parseDurationMinutes
+          ? (geometry.timeModel.accountedTimes ?? []).map((v) => String(v ?? "").trim()).filter(Boolean)
+          : [];
         const clockValues: Array<{ raw: string; minutes: number }> = [];
         const durations: Array<{ raw: string; minutes: number }> = [];
         for (const raw of rawFacts) {
-          const asDuration = parseDurationMinutes(raw);
+          const asDuration = options.parseDurationMinutes?.(raw) ?? null;
           if (asDuration !== null) {
             durations.push({ raw, minutes: asDuration });
             continue;
@@ -670,13 +651,20 @@ export const checkManuscriptGeometry = (
             const minutes = options.parseClockTime(match[0]);
             if (minutes !== null) pageMinutes.add(minutes);
           }
-          const missing = anchors.filter((a) => {
-            const minutes = options.parseClockTime(needle(a.raw));
-            // An anchor that does not parse is time_model_unparseable's business, not this check's.
-            return minutes !== null && !pageMinutes.has(minutes);
-          });
-          const anchorsOnPage = missing.length < anchors.filter((a) => options.parseClockTime(needle(a.raw)) !== null).length;
-          record({ field: "time_model", code: "time_anchors_absent", chapter: null, verdict: anchorsOnPage ? "met" : "unmet" }, {
+          // An anchor that does not parse is `time_model_unparseable`'s business, not this check's.
+          const parseable = anchors.filter((a) => options.parseClockTime(needle(a.raw)) !== null);
+          const missing = parseable.filter((a) => !pageMinutes.has(options.parseClockTime(needle(a.raw))!));
+          /**
+           * BOTH, and the code has to say so as plainly as the comment does.
+           *
+           * FOUND BY REVIEW, hours after X39 shipped: the first version compared `missing.length` to
+           * the parseable count, so a case with ONE parseable anchor that was absent fired the
+           * violation — the exact "one anchor absent is ordinary" case the rule exists to permit, and
+           * a contradiction between this check's documentation and its behaviour. With fewer than two
+           * parseable anchors there is no two-time deception to look for.
+           */
+          const bothMissing = parseable.length >= 2 && missing.length === parseable.length;
+          record({ field: "time_model", code: "time_anchors_absent", chapter: null, verdict: bothMissing ? "unmet" : "met" }, {
             scope: "manuscript",
             message:
               `NEITHER temporal anchor appears in the manuscript — the case declares ` +

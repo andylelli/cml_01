@@ -31,7 +31,7 @@ import { checkManuscriptGeometry, deriveStoryGeometry } from "../packages/story-
 import { runRevealRepairRegenPass } from "../packages/prompts-llm/dist/agent9-prose/regen-integration.js";
 import { makeRegenFn } from "../packages/prompts-llm/dist/agent9-prose/regen-llm.js";
 import { INJECTED_SENTENCE_PATTERNS } from "../packages/prompts-llm/dist/agent9-prose/injection-templates.js";
-import { checkCaseTimelineDeception, parseClockTime } from "../packages/prompts-llm/dist/timeline-deception.js";
+import { checkCaseTimelineDeception, parseClockTime, parseDurationMinutes } from "../packages/prompts-llm/dist/timeline-deception.js";
 import { lastResponseFor, lockedFactsFrom, readManuscript, shippedOutline } from "./corpus-artifacts.mjs";
 import { buildClient } from "../apps/worker/dist/jobs/cli-runtime.js";
 
@@ -75,7 +75,7 @@ const chapters = manuscript.chapters.map((c) => ({
 }));
 // The same two options the run path passes — `parseClockTime` is required, and the injector
 // templates are what stop a pipeline-written sentence certifying itself as a disclosure (X27).
-const acceptanceOptions = { parseClockTime, injectionTemplates: INJECTED_SENTENCE_PATTERNS };
+const acceptanceOptions = { parseClockTime, parseDurationMinutes, injectionTemplates: INJECTED_SENTENCE_PATTERNS };
 const check = (cs) => checkManuscriptGeometry(geometry, cs, acceptanceOptions);
 
 const REVEAL_CODES = new Set(["reveal_culprit_not_named", "reveal_method_absent", "reveal_motive_absent"]);

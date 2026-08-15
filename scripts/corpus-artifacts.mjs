@@ -102,8 +102,20 @@ export const shippedOutline = (runDir, manuscript) => {
 export const resolveStoryPath = (storyPathOrDir) => {
   if (existsSync(storyPathOrDir)) return storyPathOrDir;
   const name = basename(storyPathOrDir);
-  const archived = join(dirname(storyPathOrDir), "_archive", name);
-  return existsSync(archived) ? archived : storyPathOrDir;
+  const parent = dirname(storyPathOrDir);
+  // `stories/<story>` → `stories/_archive/<story>`
+  const asDir = join(parent, "_archive", name);
+  if (existsSync(asDir)) return asDir;
+  /**
+   * `stories/<story>/<file>.md` → `stories/_archive/<story>/<file>.md`.
+   *
+   * The first version of this resolver handled only the directory shape, so a caller naming the FILE
+   * (the calibration manifest, `probe:reveal-repair`'s default target) looked for `_archive` INSIDE
+   * the story folder and found nothing. Same "stopped one function short" shape as X28 and X33 — and
+   * found the same way, by running the thing rather than trusting it.
+   */
+  const asFile = join(dirname(parent), "_archive", basename(parent), name);
+  return existsSync(asFile) ? asFile : storyPathOrDir;
 };
 
 export const readManuscript = (storyPathOrDir) => {

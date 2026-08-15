@@ -881,8 +881,35 @@ describe("time model — the case's own clock (X38, X39)", () => {
     ...geometry,
     timeModel: { trueTime: null, apparentTime: null, directionViolations: [], accountedTimes: [], ...over },
   });
+  /**
+   * The duration parser is INJECTED, like the clock parser. accept.ts had grown its own copy and the
+   * two had already diverged ("twenty-five minutes" → 5 locally, 25 canonically), so the package now
+   * holds neither. This stand-in matches `@cml/cml`'s behaviour on the shapes these fixtures use.
+   */
+  /**
+   * A stand-in must not be WEAKER than the parser it stands in for, or the test measures the
+   * stand-in. The first version omitted "two", so a fixture written to prove the check declines on
+   * two durations instead proved it fires — the stand-in dropped one of them on the floor.
+   */
+  const DURATION_WORDS: Record<string, number> = {
+    one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10,
+    eleven: 11, twelve: 12, thirteen: 13, fourteen: 14, fifteen: 15, sixteen: 16, seventeen: 17,
+    eighteen: 18, nineteen: 19, twenty: 20, thirty: 30, forty: 40, fifty: 50, sixty: 60,
+  };
+  const parseDurationMinutes = (raw: string): number | null => {
+    const text = String(raw ?? "").toLowerCase().trim();
+    if (/\b(?:past|to|o'?clock)\b/.test(text)) return null; // a position, not an offset
+    const digits = text.match(/\b(\d{1,3})\s*[-\s]?\s*minutes?\b/);
+    if (digits) return Number(digits[1]);
+    const compound = text.match(/\b(twenty|thirty|forty|fifty)[-\s]([a-z]+)[-\s]+minutes?\b/);
+    if (compound && DURATION_WORDS[compound[1]!] !== undefined && DURATION_WORDS[compound[2]!] !== undefined) {
+      return DURATION_WORDS[compound[1]!]! + DURATION_WORDS[compound[2]!]!;
+    }
+    const single = text.match(/\b([a-z]+)[-\s]+minutes?\b/);
+    return single && DURATION_WORDS[single[1]!] !== undefined ? DURATION_WORDS[single[1]!]! : null;
+  };
   const codes = (g: any, cs: GeometryChapter[]) =>
-    checkManuscriptGeometry(g as any, cs, { parseClockTime }).violations.map((v) => v.code);
+    checkManuscriptGeometry(g as any, cs, { parseClockTime, parseDurationMinutes }).violations.map((v) => v.code);
 
   it("X38 — flags a device whose declared offset is not the gap between its own two clock values", () => {
     const g = timeGeometry({
@@ -925,6 +952,22 @@ describe("time model — the case's own clock (X38, X39)", () => {
     expect(codes(g, oneAnchor)).not.toContain("time_anchors_absent");
   });
 
+
+  it("X38 — does not run at all when no duration parser is injected (it never guesses)", () => {
+    const g = timeGeometry({
+      accountedTimes: ["fourteen minutes", "a quarter past seven", "five minutes past seven"],
+    });
+    const withoutParser = checkManuscriptGeometry(g as any, cleanManuscript(), { parseClockTime })
+      .violations.map((v) => v.code);
+    expect(withoutParser).not.toContain("locked_time_arithmetic");
+  });
+
+  it("X39 — needs TWO parseable anchors before it will fire, as its rule says", () => {
+    // One parseable anchor that is absent is NOT the two-time defect; the first version fired here.
+    const g = timeGeometry({ apparentTime: "8:50", trueTime: "shortly after the storm" });
+    const elsewhere = [chapter(["The clock in the hall said a quarter past seven, and nobody argued."])];
+    expect(codes(g, elsewhere)).not.toContain("time_anchors_absent");
+  });
   it("X39 — says nothing when there is no anchor to look for", () => {
     expect(codes(timeGeometry({}), cleanManuscript())).not.toContain("time_anchors_absent");
   });

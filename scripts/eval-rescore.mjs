@@ -28,10 +28,10 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { deriveStoryGeometry, checkManuscriptGeometry } from "../packages/story-geometry/dist/index.js";
-import { checkCaseTimelineDeception, parseClockTime } from "../packages/prompts-llm/dist/timeline-deception.js";
+import { checkCaseTimelineDeception, parseClockTime, parseDurationMinutes } from "../packages/prompts-llm/dist/timeline-deception.js";
 import { INJECTED_SENTENCE_PATTERNS } from "../packages/prompts-llm/dist/agent9-prose/injection-templates.js";
 import { createLLMRubricJudge, scoreStory } from "../packages/rubric-score/dist/index.js";
-import { lastResponseFor, lockedFactsFrom, readManuscript, shippedOutline } from "./corpus-artifacts.mjs";
+import { lastResponseFor, lockedFactsFrom, readManuscript, shippedOutline, resolveStoryPath } from "./corpus-artifacts.mjs";
 
 const ROOT = process.env.CML_WORKSPACE_ROOT || process.cwd();
 const MANIFEST = join(ROOT, "eval", "results", "external-read", "manifest.json");
@@ -60,6 +60,7 @@ const entries = Object.entries(manifest).map(([key, value]) => ({ key, ...value 
 /** The geometry-derived, story-level verdict for one pair, or a stated reason there is none. */
 function verdictFor(entry) {
   const storyAbs = join(ROOT, entry.storyPath);
+  storyAbs = resolveStoryPath(storyAbs);
   if (!existsSync(storyAbs)) return { reason: "manuscript not on disk" };
 
   /**
@@ -104,6 +105,7 @@ function verdictFor(entry) {
   });
   const acceptance = checkManuscriptGeometry(geometry, manuscript.chapters, {
     parseClockTime,
+    parseDurationMinutes,
     injectionTemplates: INJECTED_SENTENCE_PATTERNS,
   });
 

@@ -27,7 +27,7 @@ import { existsSync } from "node:fs";
 import { join } from "node:path";
 
 import { deriveStoryGeometry, checkManuscriptGeometry } from "../packages/story-geometry/dist/index.js";
-import { checkCaseTimelineDeception, parseClockTime } from "../packages/prompts-llm/dist/timeline-deception.js";
+import { checkCaseTimelineDeception, parseClockTime, parseDurationMinutes } from "../packages/prompts-llm/dist/timeline-deception.js";
 import { INJECTED_SENTENCE_PATTERNS } from "../packages/prompts-llm/dist/agent9-prose/injection-templates.js";
 import { resolveStoryPath, lastResponseFor, lockedFactsFrom, readManuscript, shippedOutline } from "./corpus-artifacts.mjs";
 
@@ -112,6 +112,7 @@ for (const testCase of CASES) {
   // verdict this review exists to have introduced. Imported from the injectors, never re-typed.
   const acceptance = checkManuscriptGeometry(geometry, manuscript.chapters, {
     parseClockTime,
+    parseDurationMinutes,
     injectionTemplates: INJECTED_SENTENCE_PATTERNS,
   });
 

@@ -75,6 +75,9 @@ import {
   runAftermathRepeatRegenPass,
   runRevealRepairRegenPass,
   parseClockTime,
+  // X38 — ONE duration parser, injected. story-geometry deliberately holds no copy (its local one
+  // had already diverged on "twenty-five minutes").
+  parseDurationMinutes,
   // REVIEW_05 §10.1 — the pipeline's own sentences, and the patterns that recognise them.
   buildCulpritEvidenceSentence,
   buildSuspectClearanceSentence,
@@ -6460,6 +6463,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       const runAcceptance = () =>
         checkManuscriptGeometry(geometry, (prose.chapters ?? []) as any[], {
           parseClockTime,
+          parseDurationMinutes,
           injectionTemplates: INJECTED_SENTENCE_PATTERNS,
         });
 
@@ -6479,6 +6483,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
           probe[chapterIndex] = candidate;
           const probed = checkManuscriptGeometry(geometry, probe as any[], {
             parseClockTime,
+            parseDurationMinutes,
             injectionTemplates: INJECTED_SENTENCE_PATTERNS,
           });
           const still = probed.violations.some((v) => v.code === code && v.chapter === chapterNumber);
@@ -6501,6 +6506,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
           const baseline = new Set(
             checkManuscriptGeometry(geometry, (prose.chapters ?? []) as any[], {
               parseClockTime,
+              parseDurationMinutes,
               injectionTemplates: INJECTED_SENTENCE_PATTERNS,
             }).violations.map(key),
           );
@@ -6509,6 +6515,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
             probe[chapterIndex] = candidate;
             const introduced = checkManuscriptGeometry(geometry, probe as any[], {
               parseClockTime,
+              parseDurationMinutes,
               injectionTemplates: INJECTED_SENTENCE_PATTERNS,
             })
               .violations.map(key)

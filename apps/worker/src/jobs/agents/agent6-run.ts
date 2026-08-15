@@ -1895,13 +1895,35 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
         hasCriticalFairPlayFailure = hasCriticalFairPlayViolations(fairPlayAudit, criticalFairPlayRules);
         await recordFairPlayScore();
 
-        latestBlind = await blindReaderSimulation(
-          ctx.client,
-          ctx.clues as any,
-          falseAssumptionStatement,
-          castNamesForBlind,
-          { runId: ctx.runId, projectId: ctx.projectId || "" }
-        );
+        /**
+         * X33, COMPLETED — this fix stopped two functions short of its own class.
+         *
+         * The primary read above was guarded when a content-filter refusal killed a paid run at this
+         * stage. These remediation re-reads are the same call with the same prompt carrying the same
+         * case, and they were left bare: a premise Azure refuses once it refuses every time, so the
+         * refusal that the primary read now survives would abort the run here instead — on the very
+         * path taken when the gate has already failed. Same shape as X28, where an idiom fix stopped
+         * one function short of the sibling comparison.
+         *
+         * A refused re-read means the cycle cannot be measured, so the loop stops with what it has
+         * rather than throwing away the run.
+         */
+        try {
+          latestBlind = await blindReaderSimulation(
+            ctx.client,
+            ctx.clues as any,
+            falseAssumptionStatement,
+            castNamesForBlind,
+            { runId: ctx.runId, projectId: ctx.projectId || "" }
+          );
+        } catch (err) {
+          if (!isContentFilterRefusal(err)) throw err;
+          ctx.warnings.push(
+            `[Agent 6] blind-reader remediation cycle ${cycle} NOT MEASURED — Azure refused the prompt ` +
+              `(content filter). The loop stops here with the previous verdict; the run continues.`,
+          );
+          break;
+        }
         ctx.agentCosts["agent6_blind_reader"] =
           latestBlind.cost; // A_53 P3: cumulative byAgent total — overwrite, not +=
         ctx.agentDurations["agent6_blind_reader"] =
@@ -1929,17 +1951,41 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
 
         applyAgent5ContractsToRegeneratedClues(ctx, "blind-reader deterministic rescue");
 
-        latestBlind = await blindReaderSimulation(
-          ctx.client,
-          ctx.clues as any,
-          falseAssumptionStatement,
-          castNamesForBlind,
-          { runId: ctx.runId, projectId: ctx.projectId || "" }
-        );
-        ctx.agentCosts["agent6_blind_reader"] =
-          latestBlind.cost; // A_53 P3: cumulative byAgent total — overwrite, not +=
-        ctx.agentDurations["agent6_blind_reader"] =
-          (ctx.agentDurations["agent6_blind_reader"] || 0) + latestBlind.durationMs;
+        /**
+         * X33, COMPLETED (2 of 2) — the deterministic-rescue re-check, which is NOT in the loop.
+         *
+         * The primary read above was guarded when a content-filter refusal killed a paid run at this
+         * stage. These remediation re-reads are the same call with the same prompt carrying the same
+         * case, and they were left bare: a premise Azure refuses once it refuses every time, so the
+         * refusal that the primary read now survives would abort the run here instead — on the very
+         * path taken when the gate has already failed. Same shape as X28, where an idiom fix stopped
+         * one function short of the sibling comparison.
+         *
+         * There is no cycle to break out of here: a refusal means the re-check did not happen and
+         * the PREVIOUS verdict stands. The lines below recompute from `latestBlind`, which still holds
+         * it — an unmeasured re-check must never read as a passing one.
+         */
+        try {
+          latestBlind = await blindReaderSimulation(
+            ctx.client,
+            ctx.clues as any,
+            falseAssumptionStatement,
+            castNamesForBlind,
+            { runId: ctx.runId, projectId: ctx.projectId || "" }
+          );
+          // Inside the try on purpose: a refused call has no cost and no duration to record, and
+          // re-adding the previous read's numbers would inflate both.
+          ctx.agentCosts["agent6_blind_reader"] =
+            latestBlind.cost; // A_53 P3: cumulative byAgent total — overwrite, not +=
+          ctx.agentDurations["agent6_blind_reader"] =
+            (ctx.agentDurations["agent6_blind_reader"] || 0) + latestBlind.durationMs;
+        } catch (err) {
+          if (!isContentFilterRefusal(err)) throw err;
+          ctx.warnings.push(
+            `[Agent 6] blind-reader rescue re-check NOT MEASURED — Azure refused the prompt (content ` +
+              `filter). The verdict from before the rescue stands, unchanged; the run continues.`,
+          );
+        }
 
         const latestGotItRight =
           latestBlind.suspectedCulprit.toLowerCase().includes(actualCulpritName.toLowerCase()) ||

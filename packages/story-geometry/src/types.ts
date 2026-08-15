@@ -375,4 +375,18 @@ export interface GeometryAcceptanceOptions {
    * here would drift from it silently — the failure mode this package exists to stop.
    */
   parseClockTime: (raw?: string) => number | null;
+  /**
+   * X38 — the DURATION parser, injected for the same reason and with the same rule: this package
+   * holds no copy of it.
+   *
+   * FOUND BY REVIEW, hours after X38 shipped. accept.ts had grown its own `parseDurationMinutes`
+   * beside `@cml/cml`'s, and the two had already diverged: on "twenty-five minutes" the local copy
+   * read only the last word and returned 5, so a device declaring a genuine 25-minute offset would
+   * have been reported INCOHERENT. A second body of a parser is the defect this codebase has paid
+   * for more often than any other (X3's four flag parsers, N5's three JSON extractors).
+   *
+   * Optional, unlike `parseClockTime`: omit it and `locked_time_arithmetic` simply does not run at
+   * acceptance. The authoritative check is `checkCaseTimeCoherence`, which runs BEFORE prose exists.
+   */
+  parseDurationMinutes?: (raw: string) => number | null;
 }

@@ -27,7 +27,7 @@
 import { readdirSync, existsSync } from "node:fs";
 import { join } from "node:path";
 
-import { readManuscript } from "./corpus-artifacts.mjs";
+import { readManuscript, resolveStoryPath } from "./corpus-artifacts.mjs";
 
 const ROOT = process.env.CML_WORKSPACE_ROOT || process.cwd();
 const VERBOSE = process.argv.includes("--verbose");
@@ -191,7 +191,9 @@ const KNOWN = [
 console.log(`\n${"═".repeat(78)}\nX30 — DIALOGUE TICS (REVIEW_08 §2: dialogue has never scored above 7)\n${"═".repeat(78)}\n`);
 console.log(`  story                 lines   exact   near   malformed   per-100-lines   external`);
 for (const [label, rel] of KNOWN) {
-  const abs = join(ROOT, rel);
+  // Resolved by NAME across stories/ and stories/_archive/ — a corpus row that silently reads
+  // "(not on disk)" is a measurement quietly dropping to n-1 (X42).
+  const abs = resolveStoryPath(join(ROOT, rel));
   if (!existsSync(abs)) { console.log(`  ${label}  (not on disk)`); continue; }
   const { total, exact, near, malformed } = findDialogueTics(readManuscript(abs).chapters);
   const rate = total ? ((exact.length + near.length + malformed.length) / total) * 100 : 0;
