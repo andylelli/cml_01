@@ -3,6 +3,10 @@
 **Written:** 2026-08-07 · **Type:** a gap analysis against a raised bar, plus the open-issue board.
 Supersedes [REVIEW_07](REVIEW_07.md)'s ordering; [REVIEW_05](REVIEW_05.md) remains the deep record.
 
+> **SUPERSEDED ON ORDERING by [REVIEW_09](REVIEW_09.md) (2026-08-15).** §1's thesis holds and is
+> better evidenced at five reads than three, but the ordering below predates N7 landing, the two
+> cold reads, and the five blind instruments the week uncovered. §7–§9 remain the record of that work.
+
 **The target moved from 80 to 90.** 80 has been hit — twice, externally, on the same premise (84 and
 86). This document is about what 90 costs, and the honest answer is that it is a different kind of
 work from the last two weeks'.
