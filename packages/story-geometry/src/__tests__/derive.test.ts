@@ -64,6 +64,30 @@ describe("deriveStoryGeometry", () => {
     expect(geometry.clincher?.uniqueToCulprit).toBe("Hugo Hale");
   });
 
+  /**
+   * X44 (REVIEW_10 §5) — the obligation the 08-06 reader asked for and the contract never carried.
+   * An obligation the model is GIVEN must be one the acceptance test can SCORE, so the two gate on
+   * the same condition: both anchors, or neither.
+   */
+  it("X44 — the reveal contract owes both times, stated together", () => {
+    const reveal = geometry.chapterContract.find((c) => c.role === "reveal")!;
+    const owed = reveal.mustContain.join(" ");
+    expect(owed).toMatch(/both times stated together/);
+    expect(owed).toContain("8:50");
+    expect(owed).toContain("10:15");
+  });
+
+  it("X44 — omits the obligation when the case declares only one anchor", () => {
+    const oneAnchor = {
+      CASE: { ...CML.CASE, hidden_model: { mechanism: { actual_time_of_death: "10:15" } } },
+    };
+    const g = deriveStoryGeometry({ cml: oneAnchor, clues: CLUES, narrative: GOLDEN_AGE_10 });
+    const reveal = g.chapterContract.find((c) => c.role === "reveal")!;
+    expect(reveal.mustContain.join(" ")).not.toMatch(/both times stated together/);
+    // The obligations that do not depend on the clock are untouched.
+    expect(reveal.mustContain.join(" ")).toMatch(/named outright/);
+  });
+
   it("plants the clincher by chapter 3 and pays it off in the reveal", () => {
     expect(geometry.clincher?.plantByChapter).toBe(3);
     expect(geometry.clincher?.payoffChapter).toBe(9); // final_trap, not the last chapter

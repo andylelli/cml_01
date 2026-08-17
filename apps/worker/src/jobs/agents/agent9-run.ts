@@ -3487,6 +3487,11 @@ export const GEOMETRY_DEFECT_KIND_BY_CODE: Readonly<Record<string, GeometryRepai
   reveal_culprit_not_named: "missing_resolution",
   reveal_method_absent: "missing_resolution",
   reveal_motive_absent: "missing_resolution",
+  // X44 — the reveal states one of the case's two times, or neither. Same family as the three above:
+  // a disclosure obligation the bound chapter did not deliver, and the resolution pass is the one that
+  // rewrites a reveal into completeness. Distinct from `time_anchors_absent`, which is excused from
+  // prose repair because ITS repair is to the case; this one is on the page and fixable there.
+  reveal_times_not_stated: "missing_resolution",
 };
 
 // ============================================================================

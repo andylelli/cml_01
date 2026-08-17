@@ -502,6 +502,30 @@ export const checkManuscriptGeometry = (
   };
 
   /**
+   * Which of the case's two temporal anchors a span of text actually states.
+   *
+   * ONE BODY, TWO QUESTIONS. X39 asks it of the whole manuscript ("is the story keeping time by some
+   * other clock?"); X44 asks it of the reveal chapter ("does the disclosure put the two times side by
+   * side?"). Those are different findings with different repairs, and the §9.1 lesson is that the way
+   * to have two questions without two answers is one function, not two copies of six lines.
+   *
+   * Compares PARSED MINUTES, never strings: "a quarter past eight" and "8:15" are the same anchor, and
+   * the case writes one form while the prose writes the other about as often as not.
+   */
+  const anchorsStatedIn = (text: string): { parseable: number; stated: number } => {
+    const anchors = [geometry.timeModel.apparentTime, geometry.timeModel.trueTime]
+      .map((raw) => (raw ? options.parseClockTime(needle(raw)) : null))
+      .filter((m): m is number => m !== null);
+    if (anchors.length === 0) return { parseable: 0, stated: 0 };
+    const minutes = new Set<number>();
+    for (const match of needle(text).matchAll(TIME_MENTION)) {
+      const parsed = options.parseClockTime(match[0]);
+      if (parsed !== null) minutes.add(parsed);
+    }
+    return { parseable: anchors.length, stated: anchors.filter((m) => minutes.has(m)).length };
+  };
+
+  /**
    * A chapter the contract binds but the manuscript does not have.
    *
    * This must NOT read as "the obligation was not delivered": an absent chapter yields empty text,
@@ -645,15 +669,8 @@ export const checkManuscriptGeometry = (
         if (geometry.timeModel.apparentTime) anchors.push({ label: "apparent", raw: geometry.timeModel.apparentTime });
         if (geometry.timeModel.trueTime) anchors.push({ label: "true", raw: geometry.timeModel.trueTime });
         if (anchors.length > 0) {
-          const page = chapters.map((c) => needle(textOf(c))).join(" ");
-          const pageMinutes = new Set<number>();
-          for (const match of page.matchAll(TIME_MENTION)) {
-            const minutes = options.parseClockTime(match[0]);
-            if (minutes !== null) pageMinutes.add(minutes);
-          }
           // An anchor that does not parse is `time_model_unparseable`'s business, not this check's.
-          const parseable = anchors.filter((a) => options.parseClockTime(needle(a.raw)) !== null);
-          const missing = parseable.filter((a) => !pageMinutes.has(options.parseClockTime(needle(a.raw))!));
+          const page = anchorsStatedIn(chapters.map((c) => textOf(c)).join(" "));
           /**
            * BOTH, and the code has to say so as plainly as the comment does.
            *
@@ -663,7 +680,7 @@ export const checkManuscriptGeometry = (
            * a contradiction between this check's documentation and its behaviour. With fewer than two
            * parseable anchors there is no two-time deception to look for.
            */
-          const bothMissing = parseable.length >= 2 && missing.length === parseable.length;
+          const bothMissing = page.parseable >= 2 && page.stated === 0;
           record({ field: "time_model", code: "time_anchors_absent", chapter: null, verdict: bothMissing ? "unmet" : "met" }, {
             scope: "manuscript",
             message:
@@ -790,6 +807,55 @@ export const checkManuscriptGeometry = (
         scope: "chapter",
         message: `Chapter ${contract.chapter} does not state why the culprit did it.`,
       });
+
+      /**
+       * X44 — THE TWO TIMES, SIDE BY SIDE, IN THE CHAPTER THAT OWES THE ANSWER.
+       *
+       * This is the 08-06 cold read's second named gap, and the only one of its two that was never
+       * built. That run scored 86 and hit best-ever in all ten categories; its reader asked for one
+       * thing beyond tightening chapter 10:
+       *
+       *   "the true murder window could be stated in one crisp line: 'The clock showed 10:45, but the
+       *    true time was 10:55.'"
+       *
+       * The reveal contract required the culprit named, the method, the motive and the decisive trace,
+       * and said NOTHING about the clock — so a manuscript could satisfy every disclosure obligation
+       * while leaving the reader to do the subtraction. In a story whose whole deception is temporal,
+       * that is the one arithmetic the disclosure exists to perform.
+       *
+       * WHY THIS IS THE REVEAL'S JOB AND NOT THE PAGE'S. X39 already asks whether the anchors reach the
+       * manuscript at all, and answers a CASE question — its repair is to the case, which is why it is
+       * excused from prose repair. This asks whether the chapter that discloses puts them together, and
+       * that is a prose defect with an obvious prose repair.
+       *
+       * DELIBERATELY GATED ON X39. If neither anchor appears anywhere in the book, the case is keeping
+       * time by another clock and X39 owns the finding; firing here as well would report one defect
+       * twice and aim a chapter rewrite at a chapter that cannot be rewritten into coherence. So this
+       * fires only when the manuscript DOES state its times and the reveal is where they failed to meet.
+       *
+       * BOTH must parse, for X39's reason: with fewer than two anchors there is no two-time deception,
+       * and "state both" is not an obligation a one-anchor case can owe.
+       */
+      {
+        const inReveal = anchorsStatedIn(text);
+        if (inReveal.parseable >= 2) {
+          const onThePage = anchorsStatedIn(chapters.map((c) => textOf(c)).join(" "));
+          const x39Owns = onThePage.stated === 0;
+          const bothStated = inReveal.stated >= 2;
+          record(
+            { field: "chapter_contract", code: "reveal_times_not_stated", chapter: contract.chapter, verdict: bothStated || x39Owns ? "met" : "unmet" },
+            {
+              scope: "chapter",
+              message:
+                `Chapter ${contract.chapter} is the reveal and states ${inReveal.stated} of the case's two times ` +
+                `(apparent "${geometry.timeModel.apparentTime}", true "${geometry.timeModel.trueTime}"). The ` +
+                `disclosure of a temporal deception owes the reader both hours in the same passage, related to ` +
+                `each other — the time the staged evidence showed, and the time the death actually happened. ` +
+                `Without them the reader is left to do the subtraction the chapter exists to perform.`,
+            },
+          );
+        }
+      }
     }
 
     if (contract.role === "aftermath") {

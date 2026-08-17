@@ -176,8 +176,45 @@ export const buildCharacterContractsBlock = (
     if (signatureTic) {
       lines.push(`SIGNATURE TIC (use sparingly — this is ${char.name}'s alone, never in anyone else's mouth; at most once in this chapter and only where the scene naturally invites it; prefer a varied paraphrase over the verbatim phrase; most chapters should omit it entirely): "${signatureTic}"`);
     }
+    /**
+     * X43 (REVIEW_10 §4) — THE FRAGMENTS WERE BEING COPIED, NOT MATCHED, AND THE GUARD BESIDE THEM
+     * ALREADY EXISTED.
+     *
+     * These lines are Agent 6.5's `characterVoiceSketches[].fragments`. They were handed over under
+     * "match this register and rhythm" and nothing else — the ONE voice input in this whole prompt with
+     * no anti-verbatim guard. Two lines above, `signatureTic` carries one (A_61 RC5.3, earned by an
+     * eight-of-ten-chapters over-repetition) and it works: one occurrence in an entire manuscript. The
+     * atmosphere field one block away carries one too ("do NOT reproduce this phrase verbatim in
+     * prose; translate into scene-specific, character-observed sensory language").
+     *
+     * MEASURED over the four runs holding both a character bundle and a cold read — longest verbatim
+     * ≥5-word span of each fragment, searched against the shipped manuscript:
+     *
+     *   external 86 · dialogue 7 ·  6/18 leaked (33%)
+     *   external 84 · dialogue 7 ·  5/18 (28%)
+     *   external 78 · dialogue 6 ·  7/18 (39%)
+     *   external 76 · dialogue 6 ·  9/18 (50%)
+     *
+     * It tracks the reader's mark with no overlap between the 7s and the 6s — the separation X30
+     * provably could not make (REVIEW_09 §9.8). Dialogue has never once scored above 7 in five reads,
+     * and "generated catchphrases" is the only complaint that appears in all five.
+     *
+     * BOTH reader complaints have this one source. Verbatim reuse is the obvious half; the other is
+     * the model REMIXING a fragment into something that is not English — the 78 turned "One must mind
+     * the details, lest chaos reign" into *"Every detail demands attention or shadows gather reign"*,
+     * which is the *"malformed/generated"* line the same reader quoted.
+     *
+     * So: same guard, same shape, on the field beside the one that already had it. The fragments are
+     * evidence about how this person sounds; they are not lines to spend.
+     *
+     * `probe:voice-fragment-leak` is the instrument that says whether this worked.
+     */
     if (char.voiceFragments.length > 0) {
-      lines.push('Sample voice fragments (match this register and rhythm):');
+      lines.push(
+        `Sample voice fragments — a REGISTER SAMPLE, showing how ${char.name} sounds. They are not lines to use: ` +
+        `do NOT reproduce any phrase from them verbatim or near-verbatim, here or in any other chapter, and do not ` +
+        `remix their wording. Write new sentences that sound like the same person speaking:`,
+      );
       for (const frag of char.voiceFragments.slice(0, 2)) {
         lines.push(`  [${frag.register}] "${frag.text}"`);
       }

@@ -3,6 +3,11 @@
 **Written:** 2026-08-15 · **Type:** what is left on the path to 90, from five external reads.
 Supersedes [REVIEW_08](REVIEW_08.md)'s ordering. [REVIEW_05](REVIEW_05.md) remains the deep record.
 
+> **Superseded 2026-08-17 by [REVIEW_10](REVIEW_10.md)**, which reorders the board by agent and corrects
+> §1's arithmetic: the 86 run hit best-ever in **all ten** categories at once, so "hold the four at 9 and
+> move dialogue and prose one mark each" describes a manuscript better than any read has produced. §1's
+> table and §8/§9's build record stand as written.
+
 REVIEW_08 argued that the structural work had topped out and the six capped categories were craft. Two
 more cold reads and a day of building say something more specific, and more useful:
 

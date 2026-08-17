@@ -486,7 +486,10 @@ Written after this map (2026-08-01) and, where they conflict with it, **newer**:
 | [REVIEW_02](REVIEW_02.md) | Audit of that build **against the wire** — found R3/R4 non-functional, R8 unmeasurable |
 | [REVIEW_03](REVIEW_03.md) | Position statement after two live runs. **§0m is the freshest state of the system** |
 | [REVIEW_04](REVIEW_04.md) | The geometry work, and the four defects it uncovered |
-| [REVIEW_05](REVIEW_05.md) | **Start here for the current state.** The probe passed and the run underneath it did not — five issues, fixes argued from several angles |
+| [REVIEW_05](REVIEW_05.md) | The deep record and the progress tracker — every item, with its § |
+| [REVIEW_06](REVIEW_06.md) · [REVIEW_07](REVIEW_07.md) · [REVIEW_08](REVIEW_08.md) | Successive orderings of the board on the path from 80 to 90 |
+| [REVIEW_09](REVIEW_09.md) | The machinery is finished; the instruments and the case are not. Five reads, and the free block as built |
+| [REVIEW_10](REVIEW_10.md) | **Start here for the current state.** The live board, one row per agent — and the 86 run that already hit best-ever in all ten categories |
 | [THINK_01](THINK_01.md) | Why 80 is a ceiling: two failure regimes, and a judge that ranks at 42.9% |
 | [STORY-GEOMETRY](STORY-GEOMETRY.md) | The concept — narratology behind it, and what it would constrain |
 | [GEOMETRY-AGENT-DESIGN](GEOMETRY-AGENT-DESIGN.md) | Agent 7.5: boundaries, Agent-9 interface, build sequence. **Built 2026-08-03** — phases 1–3 landed flag-gated; §10 carries the status table |

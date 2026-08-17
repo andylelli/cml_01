@@ -28,6 +28,7 @@ export const GEOMETRY_VIOLATION_CODES = [
   "reveal_culprit_not_named",
   "reveal_method_absent",
   "reveal_motive_absent",
+  "reveal_times_not_stated",
   "aftermath_repeat",
   "false_solution_absent",
   "clearance_over_budget",

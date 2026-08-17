@@ -52,6 +52,60 @@ describe("buildCharacterContractsBlock — signature tic wording (item 14)", () 
 });
 
 // ───────────────────────────────────────────────────────────────────────────
+// X43 (architecture/REVIEW_10.md §4) — the voice fragments were being COPIED,
+// not matched, and the guard they needed was already two lines above them.
+//
+// Measured over the four runs with both a character bundle and a cold read:
+// 28–50% of fragments came back as verbatim ≥5-word spans, and the rate tracks
+// the reader's dialogue mark with no overlap between the 7s and the 6s.
+// ───────────────────────────────────────────────────────────────────────────
+describe("buildCharacterContractsBlock — voice fragments are a sample, not a script (X43)", () => {
+  const bundle = {
+    characters: [
+      {
+        name: "Ivor Hale",
+        speechMannerisms: "Clipped naval cadence.",
+        signatureTic: "Mark the tide.",
+        voiceFragments: [
+          { register: "comfortable", text: "Well, that's the way the biscuit crumbles, isn't it?" },
+          { register: "guarded", text: "I can't rightly say where I was at every moment." },
+        ],
+        humourLevel: 0,
+        humourStyle: "none",
+        forbiddenCliché: "shipshape and Bristol fashion",
+        permittedBehavioursByAct: {},
+      },
+    ],
+  } as any;
+
+  it("forbids verbatim reuse, across chapters, and forbids remixing the wording", () => {
+    const block = buildCharacterContractsBlock(bundle, undefined, 2);
+    expect(block).toMatch(/REGISTER SAMPLE/);
+    expect(block).toMatch(/do NOT reproduce any phrase from them verbatim or near-verbatim/i);
+    // Per-chapter guards compound into cross-chapter repetition — the item-14 lesson, applied here.
+    expect(block).toMatch(/here or in any other chapter/i);
+    // The other half of the defect: "Every detail demands attention or shadows gather reign".
+    expect(block).toMatch(/do not\s+remix their wording/i);
+    // The instruction that caused it is gone.
+    expect(block).not.toMatch(/match this register and rhythm/i);
+  });
+
+  it("still shows the fragments — they are evidence about the voice, and removing them is not the fix", () => {
+    const block = buildCharacterContractsBlock(bundle, undefined, 2);
+    expect(block).toContain("[comfortable]");
+    expect(block).toContain("biscuit crumbles");
+    expect(block).toContain("[guarded]");
+  });
+
+  it("back-compat: no fragments ⇒ no sample block at all, and the tic guard is untouched", () => {
+    const none = { characters: [{ ...bundle.characters[0], voiceFragments: [] }] } as any;
+    const block = buildCharacterContractsBlock(none, undefined, 2);
+    expect(block).not.toMatch(/REGISTER SAMPLE/);
+    expect(block).toContain("SIGNATURE TIC");
+  });
+});
+
+// ───────────────────────────────────────────────────────────────────────────
 // Item 15 — the worker time-injector echo + arc-summary fillers join the
 // tiered banned-phrase policy (hard = retry/enforce; soft = rewrite).
 // ───────────────────────────────────────────────────────────────────────────

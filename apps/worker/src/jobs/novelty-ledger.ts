@@ -177,10 +177,65 @@ export const priorRunAvoidancePatterns = (records: PriorRunRecord[]): string[] =
     ].filter(Boolean),
   );
 
+const MAX_AVOIDANCE_PATTERNS = 20;
+const MAX_DIVERGE_FROM = 12;
+
+/**
+ * X45 (architecture/REVIEW_10.md §5) — the cap was cutting from the wrong end, and it cut the seeds
+ * out entirely.
+ *
+ * MEASURED against the shipped ledger (80 records, `data/novelty-ledger.json`):
+ *
+ *   window of 20 runs  →  100 avoidance patterns emitted  →  slice(0, 20) kept 20
+ *   the MOST RECENT run was not represented at all
+ *   0 of the seed-derived patterns survived
+ *
+ * Two defects, one line. `recent` runs oldest→newest and `priorRunAvoidancePatterns` emits up to five
+ * strings per run, so twenty runs produce a hundred strings and the cap keeps the first twenty — the
+ * FOUR OLDEST runs in the window. The three most recent runs, which is what "diverge from recent runs"
+ * means and the only reason this module exists, were cut every time. The header comment ("prior-run
+ * patterns are placed FIRST (most actionable)") describes the intent exactly; the code inverted it,
+ * because "first in the array" and "most recent" are opposite ends of a chronological list.
+ *
+ * And because a hundred prior patterns front-load the merge, the seed-derived constraints — the
+ * ORIGINAL novelty signal, and the only one present on a first run — were displaced to a man. This
+ * module is documented as folding recency in ALONGSIDE the seeds; it was replacing them.
+ *
+ * The fix is the two rules the cap needs and did not have. Recency wins among priors: newest first,
+ * and a run's own patterns stay adjacent so the model reads one prior case rather than a shuffled
+ * heap of fields. And the seed corpus gets a reserved floor, because a lever that silently removes
+ * the signal it was meant to supplement is not a lever, it is a swap.
+ */
+const RESERVED_FOR_SEEDS = 6;
+
+/**
+ * Take from `first` up to its budget, then fill the remainder from `second`, then let `first` use any
+ * room `second` did not need. De-duped throughout, order preserved.
+ *
+ * The last clause is what makes the reservation a FLOOR rather than a quota: on a run where the seed
+ * corpus yields two patterns, the priors get eighteen rather than fourteen and four slots of prompt
+ * are not spent on nothing.
+ */
+const mergeWithReserve = (first: string[], second: string[], cap: number, reserve: number): string[] => {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  const push = (values: string[], limit: number) => {
+    for (const value of values) {
+      if (out.length >= limit) return;
+      if (!value || seen.has(value)) continue;
+      seen.add(value);
+      out.push(value);
+    }
+  };
+  push(first, Math.max(0, cap - reserve));
+  push(second, cap);
+  push(first, cap);
+  return out;
+};
+
 /**
  * Fold the most recent `windowN` shipped runs into the existing (seed-derived) constraints so Agent 3
- * is told to diverge from recent runs as well as the static seeds. Prior-run patterns are placed FIRST
- * (most actionable) and the merged list is de-duped and capped.
+ * is told to diverge from recent runs as well as the static seeds.
  */
 export const mergePriorRunsIntoConstraints = (
   constraints: NoveltyConstraints,
@@ -189,12 +244,19 @@ export const mergePriorRunsIntoConstraints = (
 ): NoveltyConstraints => {
   const recent = records.slice(-windowN);
   if (recent.length === 0) return constraints;
-  const priorPatterns = priorRunAvoidancePatterns(recent);
-  const priorTitles = recent.map((r) => r.title).filter(Boolean);
+  // NEWEST FIRST. `records` is append-ordered, so the tail is the most recent run and it must be the
+  // head of the avoidance list — it is the case the next one is likeliest to repeat.
+  const newestFirst = [...recent].reverse();
+  const priorPatterns = priorRunAvoidancePatterns(newestFirst);
+  const priorTitles = newestFirst.map((r) => r.title).filter(Boolean);
   return {
     ...constraints,
-    // prior-run patterns first, then the seed-derived ones; de-duped, capped to keep the prompt lean
-    avoidancePatterns: Array.from(new Set([...priorPatterns, ...constraints.avoidancePatterns])).slice(0, 20),
-    divergeFrom: Array.from(new Set([...priorTitles, ...constraints.divergeFrom])).slice(0, 12),
+    avoidancePatterns: mergeWithReserve(
+      priorPatterns,
+      constraints.avoidancePatterns,
+      MAX_AVOIDANCE_PATTERNS,
+      RESERVED_FOR_SEEDS,
+    ),
+    divergeFrom: mergeWithReserve(priorTitles, constraints.divergeFrom, MAX_DIVERGE_FROM, RESERVED_FOR_SEEDS / 2),
   };
 };

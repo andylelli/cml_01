@@ -972,3 +972,96 @@ describe("time model — the case's own clock (X38, X39)", () => {
     expect(codes(timeGeometry({}), cleanManuscript())).not.toContain("time_anchors_absent");
   });
 });
+
+/**
+ * X44 — the 08-06 read's second named gap (REVIEW_10 §5).
+ *
+ * That run scored 86 and hit best-ever in all ten categories. Its reader asked for one thing beyond
+ * tightening chapter 10: *"the true murder window could be stated in one crisp line: 'The clock showed
+ * 10:45, but the true time was 10:55.'"* The reveal contract required the culprit, the method, the
+ * motive and the trace — and nothing about the clock, in a story whose entire deception is a clock.
+ */
+describe("checkManuscriptGeometry — X44, the two times in the chapter that owes the answer", () => {
+  const codes = (cs: GeometryChapter[]) =>
+    checkManuscriptGeometry(geometry, cs, { parseClockTime }).violations.map((v) => v.code);
+
+  it("stays silent on the control — its reveal states both times", () => {
+    // "…at 10:15, not at 8:50." — apparent and true, related to each other, in the bound chapter.
+    expect(codes(cleanManuscript())).not.toContain("reveal_times_not_stated");
+  });
+
+  it("flags a reveal that names the culprit, the method and the motive but only ONE of the two times", () => {
+    const chapters = cleanManuscript();
+    chapters[8] = chapter([
+      "Hugo Hale had strangled him, and the ligature told them how.",
+      "The torn fabric matched the tear at his cuff exactly.",
+      "He had done it because exposure would have ruined him, and not at 8:50 as the mantel clock claimed.",
+    ]);
+    const found = codes(chapters);
+    // Every OTHER reveal obligation is met — this is the one the contract never asked for.
+    expect(found).not.toContain("reveal_culprit_not_named");
+    expect(found).not.toContain("reveal_method_absent");
+    expect(found).not.toContain("reveal_motive_absent");
+    expect(found).toContain("reveal_times_not_stated");
+  });
+
+  it("flags a reveal that states NEITHER time, while the rest of the book states both", () => {
+    const chapters = cleanManuscript();
+    // The true time moves out of the reveal and into the aftermath, where it settles nothing.
+    chapters[8] = chapter([
+      "Hugo Hale had strangled him, and the ligature told them how.",
+      "The torn fabric matched the tear at his cuff exactly.",
+      "He had done it because exposure would have ruined him.",
+    ]);
+    chapters[9] = chapter(["Long afterwards she thought about 10:15, and about the rain."]);
+    expect(codes(chapters)).toContain("reveal_times_not_stated");
+  });
+
+  it("the anchor is matched by VALUE, not by spelling — 'a quarter to nine' satisfies '8:45'", () => {
+    const g = {
+      ...geometry,
+      timeModel: { ...geometry.timeModel, trueTime: "8:45", apparentTime: "8:50" },
+    };
+    const chapters = cleanManuscript();
+    chapters[8] = chapter([
+      "Hugo Hale had strangled him, and the ligature told them how.",
+      "The torn fabric matched the tear at his cuff exactly.",
+      "He had done it because exposure would have ruined him — at a quarter to nine, not at 8:50.",
+    ]);
+    const found = checkManuscriptGeometry(g as any, chapters, { parseClockTime }).violations.map((v) => v.code);
+    expect(found).not.toContain("reveal_times_not_stated");
+  });
+
+  /**
+   * THE GATE ON X39, and the reason it is here. If neither anchor reaches the page at all, the case is
+   * keeping time by another clock and that is X39's finding, whose repair is to the CASE. Firing here
+   * as well would report one defect twice and aim a chapter rewrite at a chapter that cannot be
+   * rewritten into coherence.
+   */
+  it("declines when X39 owns the finding — neither anchor anywhere in the manuscript", () => {
+    const chapters = cleanManuscript().map(() => chapter(["Nobody looked at a clock all evening."]));
+    chapters[8] = chapter([
+      "Hugo Hale had strangled him, and the ligature told them how.",
+      "The torn fabric matched the tear at his cuff exactly.",
+      "He had done it because exposure would have ruined him.",
+    ]);
+    const found = codes(chapters);
+    expect(found).toContain("time_anchors_absent");
+    expect(found).not.toContain("reveal_times_not_stated");
+  });
+
+  it("needs TWO parseable anchors, for X39's reason — a one-anchor case owes no 'state both'", () => {
+    const g = {
+      ...geometry,
+      timeModel: { ...geometry.timeModel, trueTime: "shortly after the storm", apparentTime: "8:50" },
+    };
+    const chapters = cleanManuscript();
+    chapters[8] = chapter([
+      "Hugo Hale had strangled him, and the ligature told them how.",
+      "The torn fabric matched the tear at his cuff exactly.",
+      "He had done it because exposure would have ruined him.",
+    ]);
+    const found = checkManuscriptGeometry(g as any, chapters, { parseClockTime }).violations.map((v) => v.code);
+    expect(found).not.toContain("reveal_times_not_stated");
+  });
+});

@@ -46,6 +46,7 @@
     "probe:validators": "node scripts/validator-corpus-check.mjs",
     "probe:geometry-backtest": "node scripts/geometry-backtest.mjs",
     "probe:dialogue-tics": "node scripts/probe-dialogue-tics.mjs",
+    "probe:voice-fragment-leak": "node scripts/probe-voice-fragment-leak.mjs",
     "probe:reveal-repair": "node --use-system-ca scripts/probe-reveal-repair.mjs"
   },
   "devDependencies": {

@@ -323,6 +323,7 @@ const deriveChapterContracts = (
   falseSolution: FalseSolutionGeometry,
   clincher: Clincher | null,
   methodSignature: MethodSignature | null,
+  timeModel: TimeModel,
 ): ChapterContract[] => {
   /**
    * One contract per chapter, resolved by PRECEDENCE rather than by call order.
@@ -394,6 +395,22 @@ const deriveChapterContracts = (
       "how the murder was physically done",
       "why they did it",
       ...(clincher ? [`the decisive trace produced as proof: ${summariseTrace(clincher.trace)}`] : []),
+      /**
+       * X44 — the 08-06 read's second named gap. That run hit best-ever in all ten categories and
+       * still asked for this: *"the true murder window could be stated in one crisp line: 'The clock
+       * showed 10:45, but the true time was 10:55.'"* Four obligations above and not one of them is
+       * about the clock, in a story whose entire deception is a clock.
+       *
+       * Both anchors or neither. A one-anchor case has no two-time deception to disclose, and the
+       * acceptance check declines on the same condition — an obligation the model is given must be one
+       * the test can score.
+       */
+      ...(timeModel.apparentTime && timeModel.trueTime
+        ? [
+            `both times stated together and related to each other: ${timeModel.apparentTime} — what the staged ` +
+              `evidence appeared to show — against ${timeModel.trueTime}, when the death actually happened`,
+          ]
+        : []),
     ],
     ["any question left standing about who did it", "a deferral of the answer to a later scene"],
   );
@@ -459,6 +476,7 @@ export const deriveStoryGeometry = (input: GeometryDeriveInput): StoryGeometry =
     falseSolution,
     clincher,
     methodSignature,
+    timeModel,
   );
 
   const geometry: StoryGeometry = {
