@@ -80,7 +80,7 @@ Ordered by the pipeline, not by priority. "Owns" is the rubric categories that a
 | **6.5 — World Builder** | **dialogue** | **this review's headline.** Authors the 18 voice fragments Agent 9 is told to match — 28–50% came back verbatim (§4) | ~~X43~~ ✅ **DONE (§9.1)** — guarded, with `probe:voice-fragment-leak` as the instrument. **Needs a paid run to know if it worked** |
 | **7 — Narrative Outline** | plot, pacing | 6→9 and 7→8. The ch9/ch10 repeat is an outline shape: a reveal at ch8 of 10 leaves two chapters nothing to do | **D1** (promote the scheduler) · **N8** (phase-2 contract, confirmed misbinding) |
 | **7.5 — Geometry** | plot, ending | contract compiler. X23 binds every post-reveal chapter; X38/X39 second call site | ~~X44~~ ✅ **DONE (§9.2)** — 3 of 7 manuscripts fire, all three reader-confirmed; backtest separation improved. **X46** open (§9.4) |
-| **9 — Prose** | prose, ending, dialogue | repair ladder complete (N7). X36/X40/X41 shipped 08-15 | **M6** — the prompt still does not carry the rubric it is judged by. **M5** — the injector decision |
+| **9 — Prose** | prose, ending, dialogue | repair ladder complete (N7). X36/X40/X41 shipped 08-15 | ~~M6~~ **PROBED 2026-08-17 (§10)** — and the probe found **X47**: the budget drops `character_contracts` from ch6, `world_document` from ch3 and `judged_on` itself from ch8. **X47 first**, then re-read M6. **M5** — the injector decision |
 | **rubric-score** | the measurement | X37 emits `not_measured` on refusal. M1c: one score is ±3 | **R6** — and §1 says it is necessary but not sufficient |
 
 **Health, after the §9 free block:** `npm test` green across all 16 packages, 0 failures · geometry
@@ -292,10 +292,17 @@ FREE — all three are new to this review, all three are measured   ✅ ALL THRE
  3  X45   the avoidance feed keeps its NEWEST runs, and the seeds   Agent 8      ← rescoped on measurement (§5)
 
 PAID — cheapest decisive first
- 4  M6    the rubric in Agent 9's prompt              ~£1.5   the probe aimed at the flat six
- 5  N8    phase-2 geometry contract                   ~£1.5   confirmed misbinding, ch8 vs ch10
+ 4  M6    the rubric in Agent 9's prompt              ~£1.5   RUN 2026-08-17 (§10) — block reached ch1-7,
+                                                             budget-dropped ch8-10; external read outstanding
+ 5  N8    phase-2 geometry contract                   ~£1.5   misbinding confirmed a SECOND time (§10.4):
+                                                             contract ch8, disclosure ch4 — now the top paid item
  6  CS1   promote @cml/clue-spec                      ~£1.5
  7  R6    eval:baseline --repeats 3                   £12-24  the internal measurement — see §1's caveat
+
+FREE, AND IT OUTRANKS ALL OF THE ABOVE
+ 0  X47   the prompt budget deletes atmosphere, character and dialogue context from the
+           back half of every book (§10.1/§10.2). Free to find, not free to fix. It is a
+           prerequisite for reading M6, X43, and any Move 4 argument about the flat six
 
 DECISIONS (yours)
  8  M5    retire the deterministic injectors — X34 removed the reason to keep them
@@ -316,6 +323,9 @@ honest about what it can and cannot settle.
   mark does not move. n=4 is a lead. The instrument is free, so the first paid run after the guard
   settles it either way — and if the rate drops to zero and dialogue stays at 7, the ceiling reading in
   REVIEW_09 §1 is right after all and Move 4 becomes the honest next step.
+  **ANSWERED 2026-08-17 (§10.3): the rate did not drop — 33%, identical to the 86, with the guard in the
+  prompt of every chapter that leaked.** The clause fired, at n=1. What it does *not* license is the
+  Move 4 conclusion in the same bullet, because §10.2 found an untested upstream cause.
 - **§1's thesis is wrong if** a category exceeds its best-ever mark before the 86 shape is reproduced.
   That would mean the ceiling was never a ceiling and the flat six were waiting on something upstream.
 - **X45 cannot be falsified on the canary at all**, and that is the point of §5.1. The brief pins the
@@ -433,3 +443,136 @@ cause and an unmeasured cure. X45 is a repaired lever with no way to observe it.
 **§1's claim is unchanged and untested:** the shortest route to 90 is the 86 run again, plus the two
 things its reader named. One of those two is now built (X44). The other — the ch9/ch10 repeat — has
 been built since 08-15 and **still has not met a live run.**
+
+**Superseded the same evening by §10.** The run happened. `aftermath_repeat` fired live on ch9 and
+cleared; X43's cure did not work; and the reason the flat six are flat may be X47 rather than any
+ceiling. §10 is the current state of everything above.
+
+---
+
+## 10. M6's probe ran — and the prompt it measured is not the prompt the back half of the book gets
+
+**Run `mystery-1786999938275`** · 2026-08-17 20:52–21:10 · 10 chapters, 11,174 words, 73 LLM calls,
+~655k prompt tokens · `AGENT9_RUBRIC_IN_PROMPT=1` · [`stories/story_20260817-2209`](../stories/story_20260817-2209).
+Same canary brief as the 86, so the premise is held.
+
+**The lever landed, and was verified in the prompt rather than in the code.** `judged_on` is present in
+the live `Agent9-ProseGenerator-Ch1` system message at 2,076 chars — **519 tokens**, against the ~520
+the build estimated. The dist was rebuilt before the process started, the flag is absent from
+`.env.local` so dotenv's `override: true` could not clobber it, and the flag is read at call time. The
+three failure modes this codebase has already paid for were excluded before the money was spent.
+
+**And then it was dropped from chapters 8, 9 and 10.**
+
+### 10.1 The budget squeeze — what Agent 9 actually holds, chapter by chapter
+
+Every prose prompt ends with a `PROMPT BUDGET SUMMARY` line, and it has been emitting this all along:
+
+| ch | fixed (base+dev+user) | available for blocks | shipped | newly dropped |
+|---:|---:|---:|---:|---|
+| 1 | 8,472 | 15,528 | 14,520 | none |
+| 2 | 10,157 | 13,843 | 12,900 | humour_guide, location_profiles |
+| 3 | 11,902 | 12,098 | 9,139 | texture_pool, continuity_context, **world_document** |
+| 4 | 13,709 | 10,291 | 9,398 | — |
+| 5 | 15,102 | 8,898 | 8,736 | **character_personality** |
+| 6 | 17,736 | 6,264 | 5,863 | **character_contracts**, physical_plausibility, era_authenticity, temporal_context |
+| 7 | 17,647 | 6,353 | 5,827 | — |
+| 8 | 21,415 | **2,585** | 5,499 | **craft_guide**, **judged_on** |
+| 9 | 21,809 | **2,191** | 5,737 | — |
+| 10 | 23,622 | **378** | 4,723 | — |
+
+`fixed` is `baseSystem + developer + user`, and the **user message grows monotonically** — 4,752 tokens
+at ch1, 20,116 at ch10 — because it carries the continuity tail and the accumulating chapter record.
+The ceiling is 24,000. So the room left for every context block the pipeline builds falls from 15,528
+tokens to **378**, and the drop loop takes optional, then medium, then high until it fits.
+
+**On chapters 8, 9 and 10 it never fits.** Those rows ship 5,499 / 5,737 / 4,723 tokens of context into
+a space of 2,585 / 2,191 / 378 — everything droppable is already gone and the critical blocks stay. The
+squeeze therefore does not even buy the budget it exists to enforce. It only decides *which* blocks the
+model loses, in an order that strips craft first.
+
+### 10.2 X47 — a better explanation of the flat six than "the ceiling is real"
+
+Line the drops up against REVIEW_09 §1's six categories that have never moved:
+
+| flat category | its input block | last chapter that has it |
+|---|---|---|
+| atmosphere | `location_profiles`, `texture_pool`, `world_document` | **ch2** |
+| character clarity | `character_personality` | **ch4** |
+| dialogue | `character_contracts` — voice fragments, signature tic, **and X43's new guard** | **ch5** |
+| prose, pacing, hook | `craft_guide` | **ch7** |
+
+**Agent 2c's sensory atoms reach two chapters of a ten-chapter book. Agent 6.5's voice contracts reach
+five.** Every reader complaint this project has logged about thin atmosphere, interchangeable speakers
+and a sagging back half was made about chapters written with those blocks deleted — and no report has
+ever said so, because the drop is recorded in one line inside the prompt and nowhere else.
+
+That is **X47**. It is free to find and not free to fix: raising the ceiling raises cost on every call,
+and re-prioritising blocks is a behaviour change on every run. It gets its own increment and its own
+before/after, and it belongs **before** any further prompt-content work aimed at the flat six —
+including Move 4. Buying a frontier model to write chapters 6–10 without character contracts would
+answer a question nobody asked.
+
+### 10.3 X43's guard did not lower the leak — its own falsification condition, met
+
+`probe:voice-fragment-leak` on the fresh pair: **6 of 18 fragments came back as ≥5-word verbatim spans —
+33%, the same rate as the 86**, with the guard shipped and in the prompt.
+
+```
+Captain Ivor Hale  "that's beside the point"        Captain Ivor Hale  "I was on patrol as usual"
+Captain Ivor Hale  "I have nothing to hide"         Beatrice Quill     "well isn't that just delightful"
+Sylvia Trent       "isn't that just typical, the…"  Hugo Vane          "one mustn't jump to conclusions"
+```
+
+**All six land in chapters 1–5. Chapters 6–10 leak nothing** — and they are exactly the chapters where
+`character_contracts` was dropped, so the fragments were never shown there at all. The guard text was
+verified present in the leaking chapters' prompts, in the model's own view of them, so this is not a
+wiring miss: the instruction was read and the copying happened anyway. Hugo Vane also returns
+*Eleanor's* fragment as a remix — the cross-character reuse the guard names explicitly.
+
+§8 said *"X43 is wrong if the leak rate does not drop when the guard lands"*. It did not drop. n=1, and
+the honest reading is that **a prohibition does not stop copying while the sample sits underneath it** —
+which points at withholding or paraphrasing the fragments, not at a firmer sentence.
+
+### 10.4 What the run retires from §6 — three of four, none of them comfortably
+
+- **X38 fires on a fresh device.** `clock_face_time_at_murder` "a quarter to three" and
+  `hotel_bell_chime_time` "twenty minutes past two" are 25 minutes apart while `pendulum_reversal_duration`
+  declares twenty. Reported at Agent 3b, again at Agent 7.5, and again at Agent 9 with **NO REPAIR
+  PATH** — a CASE defect authored before any prose exists, and locked facts ship verbatim. It capped
+  the internal clues mark at 6.
+- **`aftermath_repeat` fired live and repaired.** One pass, `Agent9-Regen-Ch9-aftermath_repeat`, and the
+  code is absent from the final `geometry:apply` (15 checks, 3 violations, 1 repaired). The 86's first
+  named gap has now cleared once on a live run — with the caveat in the next bullet.
+- **N8's misbinding, confirmed a second time and worse.** *"the contract bound chapter 8 but the
+  manuscript discloses in chapter 4. Every reveal check read the wrong chapter."* `reveal_culprit_not_named`
+  then went UNRESOLVED (regen score 400 → 400) because the repair was aimed at ch8, which does not
+  disclose. Every reveal and aftermath verdict on this run — including the one above — was computed
+  against the wrong chapter. **N8 is now the highest-value paid item on the board.**
+- **X41 is not settled.** The reveal repair ran and failed on binding, so the question it asks — whether
+  a disclosure is *earned* — was never reached.
+
+### 10.5 The internal number, reported as the Goodhart check it is
+
+**70/100** (raw 71; `clues ≤ 6` capped by X38's contradiction). Categories: premise 7, hook 7, plot 6,
+character clarity 8, dialogue 7, atmosphere **9**, clues 7→6, pacing **5**, ending 7, prose 8.
+
+Per FLAG-AUDIT's own probe definition this **is not the result** and cannot be one: M1c puts a single
+rubric score at ±3, and a judge reading a prompt-shaped standard is the exact Goodhart risk M6's block
+was written in the writer's vocabulary to avoid. Two things in it are worth recording anyway, as
+questions for the external read rather than answers — atmosphere came back **9**, a mark no external
+read has given in five; and pacing came back **5**, for *"repeated revisiting of the same contradictions
+and alibis across multiple chapters"*, which is a complaint about the half of the book written without
+continuity, world or character context.
+
+### 10.6 What M6 can and cannot claim
+
+**It cannot claim a result yet.** The external cold read is the measurement and it has not been taken.
+When it is taken, it will be a read of a book whose **first seven chapters** carried the rubric block
+and whose last three did not — so a null result on hook or atmosphere is now ambiguous in a way it was
+not meant to be, and §8's falsification (*"if those two stay at 8, Move 4 becomes the honest next
+step"*) **cannot be triggered by this run**. X47 has to be fixed before M6's probe means what it was
+built to mean.
+
+**What the £1.50 bought** is a measured reason the six are flat, rather than an argued one — a better
+purchase than the probe it was bought for.

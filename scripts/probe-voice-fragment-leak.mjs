@@ -123,13 +123,33 @@ const KNOWN = [
   ["76  silent_deception ", 6, "1786106661131", "stories/story_20260807-1412"],
 ];
 
+/**
+ * `--run <runId> --story <path>` measures ONE fresh pair instead of the corpus.
+ *
+ * A new run has no external read yet, so it cannot join `KNOWN` — but its leak rate is readable the
+ * moment it ships, and that is the number X43's guard is judged on. Without this the probe could only
+ * ever report the baseline it was written from, which is the shape of instrument that measures the
+ * past and calls it a result.
+ */
+const argOf = (name) => {
+  const i = process.argv.indexOf(`--${name}`);
+  return i >= 0 ? process.argv[i + 1] : null;
+};
+const adhocRun = argOf("run");
+const adhocStory = argOf("story");
+
+const ROWS =
+  adhocRun && adhocStory
+    ? [[`--  ${adhocRun.slice(-6)}      `, null, adhocRun, adhocStory]]
+    : KNOWN;
+
 console.log(
   `\n${"═".repeat(78)}\nX43 — VOICE FRAGMENT LEAK (REVIEW_10 §4: dialogue has never scored above 7)\n${"═".repeat(78)}\n`,
 );
 console.log(`  story                 external   dialogue   fragments   leaked   rate`);
 
 let evaluated = 0;
-for (const [label, dialogueMark, runId, storyDir] of KNOWN) {
+for (const [label, dialogueMark, runId, storyDir] of ROWS) {
   const bundle = join(ROOT, "apps/worker/logs", `character-bundle-mystery-${runId}.json`);
   const story = resolveStoryPath(join(ROOT, storyDir));
   // X42's rule: a row that silently reads "(not on disk)" is a measurement dropping to n-1, and it
@@ -146,7 +166,8 @@ for (const [label, dialogueMark, runId, storyDir] of KNOWN) {
   evaluated += 1;
   const rate = total ? (leaks.length / total) * 100 : 0;
   console.log(
-    `  ${label}  ${label.slice(0, 2).padStart(8)}   ${String(dialogueMark).padStart(8)}   ` +
+    `  ${label}  ${(dialogueMark === null ? "unread" : label.slice(0, 2)).padStart(8)}   ` +
+      `${String(dialogueMark ?? "-").padStart(8)}   ` +
       `${String(total).padStart(9)}   ${String(leaks.length).padStart(6)}   ${rate.toFixed(0).padStart(3)}%`,
   );
   if (VERBOSE) {
@@ -157,7 +178,8 @@ for (const [label, dialogueMark, runId, storyDir] of KNOWN) {
 }
 
 console.log(
-  `\n  ${evaluated} of ${KNOWN.length} rows evaluated.` +
-    `\n  Baseline before X43's guard: 33% / 28% / 39% / 50%, in the order above.` +
-    `\n  Run with --verbose to see the leaked spans.\n`,
+  `\n  ${evaluated} of ${ROWS.length} rows evaluated.` +
+    `\n  Baseline before X43's guard: 33% / 28% / 39% / 50% (dialogue 7, 7, 6, 6).` +
+    `\n  Run with --verbose to see the leaked spans, or` +
+    `\n  --run <runId> --story <path> to read a single fresh run.\n`,
 );
