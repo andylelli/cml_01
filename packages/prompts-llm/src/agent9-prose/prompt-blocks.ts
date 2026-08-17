@@ -91,6 +91,12 @@ export interface PromptSectionInputs {
   discriminatingTestBlock: string;
   humourGuideBlock: string;
   craftGuideBlock: string;
+  /**
+   * M6 — the ten categories the finished story is scored on, in the writer's vocabulary
+   * (architecture/REVIEW_10.md §2). Optional and empty unless `AGENT9_RUBRIC_IN_PROMPT` is set, so
+   * with the flag off the prompt is byte-identical to what it has always emitted.
+   */
+  judgedOnBlock?: string;
   sceneGroundingChecklist: string;
   provisionalScoringFeedbackBlock: string;
   worldDocumentBlock: string;
@@ -659,4 +665,83 @@ export const buildFairPlayContractBlock = (caseData: CaseData): string => {
   }
 
   return lines.join('\n');
+};
+
+/**
+ * M6 — WHAT THE FINISHED STORY IS JUDGED ON (architecture/REVIEW_10.md §2, §10).
+ *
+ * Agent 9 has never been told the rubric it is scored against. Every other block in its prompt
+ * describes the CASE — the clues, the contract, the times, the voices. None describes the STANDARD.
+ *
+ * WHY THIS IS THE PROBE AT THE CEILING. REVIEW_09 §1 split the ten categories in two: four that swing
+ * three and four marks with the machinery (premise, plot, clues, ending) and six that have never moved
+ * at all — opening hook and atmosphere sit at exactly 8 in five external reads out of five, with ZERO
+ * variance, and dialogue has never once exceeded 7. No detector reaches those six. They are prompt and
+ * model work, and this is the cheaper of the two.
+ *
+ * THREE RULES, EACH GUARDING A FAILURE THIS CODEBASE HAS ALREADY PAID FOR.
+ *
+ * 1. THE WRITER'S VOCABULARY, NOT THE JUDGE'S. This is deliberately NOT `buildRubricSystemPrompt()`
+ *    pasted across. That text is written for a critic — "start EACH category at 5/10", the `flags`
+ *    list, the citation protocol — and handing it to the author would make the internal score measure
+ *    the prompt's own echo: the story written in the grader's words, then graded by them. The external
+ *    read is the only honest measurement of M6 either way, and keeping the two vocabularies apart is
+ *    what stops an internal gain from being pure Goodhart. Pinned by test against the judge's prompt.
+ *
+ * 2. NO FLAG LIST. Naming `mechanismIncoherent` or `revealUsesUnplantedEvidence` teaches a model to
+ *    avoid the DETECTOR, not the defect. Every one of those conditions is already constrained by a
+ *    block that states it positively — geometry, fair play, physical plausibility.
+ *
+ * 3. NO EXAMPLE SENTENCES. `story-geometry/prompt.ts`'s rule, and it applies with more force here:
+ *    *"the block states obligations in the vocabulary of the finished text, and stops"*. The moment
+ *    this supplies prose it becomes the injector layer under a new name, and X40 exists precisely
+ *    because pipeline text reaches the page. The craft and humour guides beside it carry the examples;
+ *    this one carries the standard.
+ *
+ * WEIGHTED TOWARD THE SIX THAT DO NOT MOVE. All ten are named — a story is judged on all ten, and a
+ * partial list reads as a licence on the rest — but the four the machinery already drives get one
+ * clause each and the six get the detail. That is where the marks are.
+ *
+ * THE HONEST LIMIT, stated here because the run will not state it: on hook and atmosphere the readers
+ * are already complimentary AT 8 (*"strong setup"*, *"cold cliffside hotel, fog, ship's bell — all
+ * work"*), and no read has ever described what a 9 would contain. This block cannot target what no
+ * reader has named. If those two stay at 8 after M6, that is REVIEW_10 §8's falsification arriving,
+ * and Move 4 — a frontier generation model — becomes the honest next step rather than a speculative
+ * one.
+ *
+ * Empty string when disabled, so `buildPromptContextBlocks` filters it out and the prompt is
+ * byte-identical to what it has always emitted.
+ */
+export const buildJudgedOnBlock = (enabled: boolean): string => {
+  if (!enabled) return '';
+  return [
+    '\n\nHOW THIS STORY WILL BE JUDGED:',
+    '',
+    'A reader scores the finished book out of 10 in each of ten areas. Marks are earned by what is ' +
+      'visible on the page, never by intent: a promising premise does not carry a confusing draft, and ' +
+      'a category is never credited for something the text merely implies.',
+    '',
+    'The six that decide whether a sound mystery reads as a good BOOK:',
+    '- OPENING HOOK: the first chapter puts a concrete physical situation in front of the reader and ' +
+      'makes the second chapter necessary. Not a promise of interest later — a reason to keep reading now.',
+    '- ATMOSPHERE: place, weather, hour and social temperature are felt through what characters notice ' +
+      'while doing something else. Mood carried by a few recurring physical anchors, not by adjectives.',
+    '- CHARACTER CLARITY: each person is instantly distinguishable and stays themselves. Clarity is the ' +
+      'floor, not the target — a reader who can only say the roles were stable has given you eight out ' +
+      'of ten. Wanting a particular suspect to be innocent is what earns nine.',
+    '- DIALOGUE: every speaker sounds like a different person, and speech does work beyond conveying ' +
+      'facts — evasion, pressure, affection, self-protection. Nobody says aloud what they would not ' +
+      'naturally say, and no character reuses a formulation they have used before.',
+    '- PACING: each chapter changes what the reader understands. Nothing is restated once it has landed, ' +
+      'and no late chapter re-argues a case the reader has already been given.',
+    '- PROSE: it reads as fiction throughout. Nothing on the page sounds like a summary, a report, a ' +
+      'checklist, or a note about the story rather than the story itself.',
+    '',
+    'And the four the structure already carries — premise, plot structure, clues and evidence logic, and ' +
+      'the ending — are judged on whether the idea is distinctive, the shape holds, every deduction rests ' +
+      'on something the reader was shown first, and the close answers the question completely.',
+    '',
+    'Write to be READ, not to be checked. Satisfying the obligations elsewhere in this prompt is the ' +
+      'minimum; these ten are the whole of what a reader will say about the result.',
+  ].join('\n');
 };

@@ -41,6 +41,10 @@ const allSections = () =>
     discriminatingTestBlock: "DISCRIMINATING",
     humourGuideBlock: "HUMOUR",
     craftGuideBlock: "CRAFT",
+    // M6 — run-stable, so it belongs in the cacheable prefix (RUN_FROZEN below). Supplied here so
+    // the prefix-grouping property is pinned for it too; without a value the block is filtered out
+    // and the R8 guarantee would go untested for the newest run block.
+    judgedOnBlock: "JUDGED",
     sceneGroundingChecklist: "GROUNDING",
     provisionalScoringFeedbackBlock: "FEEDBACK",
     worldDocumentBlock: "WORLD",
@@ -71,6 +75,7 @@ const RUN_FROZEN = [
   "locked_facts",
   "humour_guide",
   "craft_guide",
+  "judged_on",
 ];
 
 describe("AGENT9_PROMPT_PREFIX_ORDER flag", () => {

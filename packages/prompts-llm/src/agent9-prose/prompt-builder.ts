@@ -80,6 +80,7 @@ import { buildDiscriminatingTestChecklist } from "./discriminating.js";
 import { sanitizeScenesCharacters } from "./sanitization.js";
 import type { CastDesign } from "../agent2-cast.js";
 import type { PromptBlockPriority, PromptContextBlock, PromptSectionInputs } from "./prompt-blocks.js";
+import { buildJudgedOnBlock } from "./prompt-blocks.js";
 import type {
   ProseChapter,
   ChapterSummary,
@@ -1216,6 +1217,16 @@ const isPromptPrefixOrderEnabled = (env: NodeJS.ProcessEnv = process.env): boole
   env.AGENT9_PROMPT_PREFIX_ORDER === 'true' || env.AGENT9_PROMPT_PREFIX_ORDER === '1';
 
 /**
+ * M6 — is Agent 9 told the rubric it is judged by? (architecture/REVIEW_10.md §2)
+ *
+ * Runtime getter, never a module const (`module-const-flags-frozen-before-dotenv`). Default OFF, so
+ * with the flag unset the prompt is byte-identical to what it has always emitted — the block is an
+ * empty string and `buildPromptContextBlocks` filters it out.
+ */
+const isRubricInPromptEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(env.AGENT9_RUBRIC_IN_PROMPT ?? '');
+
+/**
  * Phase 2 of the geometry build sequence: let the contract bind the prose prompt.
  *
  * Runtime getter, never a module const (`module-const-flags-frozen-before-dotenv`). Default OFF —
@@ -1265,6 +1276,14 @@ export const buildPromptContextBlocks = (sections: PromptSectionInputs): PromptC
     { key: 'geometry_chapter', content: sections.geometryChapterBlock ?? '', priority: 'critical', stability: 'chapter' },
     { key: 'humour_guide', content: sections.humourGuideBlock, priority: 'optional', stability: 'run' },
     { key: 'craft_guide', content: sections.craftGuideBlock, priority: 'high', stability: 'run' }, // Fix D2: craft guide promoted from optional
+    /**
+     * M6 — run-stable, so it lands in the cached prefix and is paid for once (the 08-02 run served
+     * 139,392 cached prompt tokens). `high` rather than `critical`, and placed after the craft guide
+     * on purpose: it states the STANDARD, and a dropped standard degrades craft, while a dropped
+     * `critical` block breaks coherence. It must be droppable under budget pressure before
+     * `locked_facts` or `geometry_time` ever are.
+     */
+    { key: 'judged_on', content: sections.judgedOnBlock ?? '', priority: 'high', stability: 'run' },
     { key: 'scene_grounding', content: sections.sceneGroundingChecklist, priority: 'critical', stability: 'chapter' },
     { key: 'provisional_scoring_feedback', content: sections.provisionalScoringFeedbackBlock, priority: 'critical', stability: 'attempt' },
     { key: 'pronoun_accuracy', content: sections.pronounAccuracyBlock, priority: 'critical', stability: 'pinned_last' }, // recency fix: moved from position 0 to last
@@ -1294,6 +1313,7 @@ export const buildPromptContextBlocks = (sections: PromptSectionInputs): PromptC
 
 /** Exported for tests: the classification is the claim R8 rests on, so it has to be assertable. */
 export const __isPromptPrefixOrderEnabled = isPromptPrefixOrderEnabled;
+export const __isRubricInPromptEnabled = isRubricInPromptEnabled;
 
 export const estimateTokenCount = (value: string): number => {
   if (!value) return 0;
@@ -1813,6 +1833,8 @@ ${victimIdentityRule}`;
       '9. MAKE THE REVEAL HURT: The best reveals do not just surprise; they wound. The reveal should recontextualize earlier tenderness, expose a betrayal, or force the detective to confront something personal. If the reveal only satisfies logic, it feels clinical. If it rearranges relationships, it feels human.';
   }
 
+  const judgedOnBlock = buildJudgedOnBlock(isRubricInPromptEnabled());
+
   const qualityGuardrails = Array.isArray(inputs.qualityGuardrails) ? inputs.qualityGuardrails : [];
   const rolloutFlagsRaw = (getGenerationParams().agent9_prose as any)?.rollout_flags;
   const rolloutFlags = {
@@ -2088,6 +2110,7 @@ ${victimIdentityRule}`;
     discriminatingTestBlock,
     humourGuideBlock,
     craftGuideBlock,
+    judgedOnBlock,
     sceneGroundingChecklist,
     provisionalScoringFeedbackBlock,
     worldDocumentBlock,
