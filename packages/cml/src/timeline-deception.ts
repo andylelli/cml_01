@@ -46,6 +46,42 @@ const MINUTE_WORDS: Record<string, number> = {
 };
 
 /**
+ * Spelled numbers, shared by the POSITION parser below and the OFFSET parser further down.
+ *
+ * The two parsers stay separate on purpose (an offset is not a position, and conflating them would
+ * hide exactly the defect X38 exists to catch) — but they have no reason to disagree about what the
+ * word "fourteen" means, and keeping two lists is how one of them came to be missing it.
+ */
+const SPELLED_NUMBERS: Record<string, number> = {
+  one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10,
+  eleven: 11, twelve: 12, thirteen: 13, fourteen: 14, fifteen: 15, sixteen: 16, seventeen: 17,
+  eighteen: 18, nineteen: 19, twenty: 20, thirty: 30, forty: 40, fifty: 50, sixty: 60,
+};
+
+/**
+ * A minute COUNT, for the "N minutes past/to HOUR" shapes: "fourteen", "twenty-three", "23".
+ *
+ * FOUND BY PROBE, 2026-08-19 (REVIEW_13 §7). `MINUTE_WORDS` above is a closed list of six values, so
+ * `parseClockTime("fourteen minutes past four")` returned null — and that string is the 08-19 case's
+ * OWN `actual_time_of_death`. The offset parser could already read "fourteen minutes"; only the
+ * position parser could not, so every temporal check downstream was blind to the true time of death
+ * while reading the false one perfectly.
+ */
+const parseMinuteCount = (raw: string): number | null => {
+  const text = raw.trim();
+  const digits = text.match(/^(\d{1,2})$/);
+  if (digits) return Number(digits[1]);
+  const compound = text.match(/^(twenty|thirty|forty|fifty)[-\s]([a-z]+)$/);
+  if (compound) {
+    const tens = SPELLED_NUMBERS[compound[1]!];
+    const units = SPELLED_NUMBERS[compound[2]!];
+    return tens !== undefined && units !== undefined && units < 10 ? tens + units : null;
+  }
+  const word = SPELLED_NUMBERS[text];
+  return word === undefined ? null : word;
+};
+
+/**
  * Parse a clock time to minutes-since-midnight on a 12-hour dial (0..719), or null.
  * Deliberately dial-relative: prose says "a quarter past ten" without am/pm, and a mystery's events
  * sit inside one evening — comparing on the dial avoids inventing a meridiem the text never states.
@@ -60,6 +96,31 @@ export const parseClockTime = (raw?: string): number | null => {
     const m = Number(digital[2]);
     if (m > 59) return null;
     return h * 60 + m;
+  }
+
+  // "fourteen minutes past four", "twenty-three minutes to nine", "23 minutes past four" — ANY minute
+  // count, not just the six the two branches below happen to name.
+  //
+  // The literal word "minutes" is required, and that is the whole guard against ordinary prose: a
+  // bare number word is why the bare-hour branch further down carries a guard of its own, but
+  // nothing says "fourteen minutes past four" except a clock.
+  //
+  // RUNS FIRST, ahead of the six-value branches, because `\b` matches after a hyphen and so
+  // "forty-five minutes past one" used to match their "five minutes past one" and return 1:05.
+  // The same hyphen is why this branch opens with a lookbehind rather than `\b`: without it,
+  // "sixty-one minutes past four" reads its tail as "one" and answers 4:01 for a minute that does
+  // not exist. Both were found by running the parser over the corpus, not by reading it.
+  const counted = text.match(
+    /(?<![-\w])((?:twenty|thirty|forty|fifty)[-\s](?:one|two|three|four|five|six|seven|eight|nine)|twenty|thirty|forty|fifty|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|one|two|three|four|five|six|seven|eight|nine|\d{1,2})\s+minutes?\s+(past|to)\s+(twelve|one|two|three|four|five|six|seven|eight|nine|ten|eleven)\b/,
+  );
+  if (counted) {
+    const mins = parseMinuteCount(counted[1]!);
+    const hour = WORD_NUMBERS[counted[3]!];
+    if (mins !== null && mins < 60 && hour !== undefined) {
+      return counted[2] === "past"
+        ? (hour % 12) * 60 + mins
+        : (((hour % 12) * 60 - mins) + 720) % 720;
+    }
   }
 
   // "a quarter past ten", "ten minutes past nine", "half past eight"
@@ -82,6 +143,28 @@ export const parseClockTime = (raw?: string): number | null => {
     const hour = WORD_NUMBERS[to[2]];
     if (mins === undefined || hour === undefined) return null;
     return (((hour % 12) * 60 - mins) + 720) % 720;
+  }
+
+  // "seven twenty", "eight oh five", "seven twenty-five" — the spoken HOUR-MINUTES form, which has
+  // no "past" or "to" to key on.
+  //
+  // FOUND BY A PAID RUN, 2026-08-19 (mystery-1787167692140). X61 taught this parser to read
+  // "fourteen minutes past four" and the very next case wrote its `actual_time_of_death` as
+  // "seven twenty" instead — unreadable again, so X38 stayed silent on a device 25 minutes apart
+  // that declares twenty. Fourth consecutive run with wrong device arithmetic, third distinct
+  // surface form the parser could not read. A silent temporal gate still means UNPARSEABLE more
+  // often than it means clean.
+  //
+  // Accepted ONLY when the whole segment is the time. Two bare number words are ordinary prose
+  // ("one two men"), and this runs against free text as well as structured fields — the same reason
+  // the bare-hour branch below carries a guard. Anchoring to the whole string is that guard.
+  const hourMinutes = text.match(
+    /^(twelve|one|two|three|four|five|six|seven|eight|nine|ten|eleven)\s+(?:oh\s+)?([a-z]+(?:[-\s][a-z]+)?|\d{1,2})$/,
+  );
+  if (hourMinutes) {
+    const hour = WORD_NUMBERS[hourMinutes[1]!];
+    const mins = parseMinuteCount(hourMinutes[2]!);
+    if (hour !== undefined && mins !== null && mins < 60) return (hour % 12) * 60 + mins;
   }
 
   // Bare hour words. This branch needs a GUARD: number words are ordinary prose, and matching them
@@ -211,11 +294,7 @@ export const checkCaseTimelineDeception = (cmlCase: any): TimelineDeceptionViola
  * catch is those two being asserted about each other without agreeing, so conflating the parsers
  * would hide exactly what it is looking for.
  */
-const DURATION_WORDS: Record<string, number> = {
-  one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10,
-  eleven: 11, twelve: 12, thirteen: 13, fourteen: 14, fifteen: 15, sixteen: 16, seventeen: 17,
-  eighteen: 18, nineteen: 19, twenty: 20, thirty: 30, forty: 40, fifty: 50, sixty: 60,
-};
+const DURATION_WORDS: Record<string, number> = SPELLED_NUMBERS;
 
 export const parseDurationMinutes = (raw: unknown): number | null => {
   const text = String(raw ?? "").toLowerCase().trim();
@@ -283,6 +362,9 @@ export const checkCaseTimeCoherence = (args: {
     if (asClock !== null) clocks.push({ id, raw, minutes: asClock });
   }
 
+  const apparent = parseClockTime(args.apparentTime as string | undefined);
+  const actual = parseClockTime(args.actualTime as string | undefined);
+
   if (clocks.length === 2 && durations.length === 1) {
     const gap = Math.abs(clocks[0]!.minutes - clocks[1]!.minutes);
     const declared = durations[0]!;
@@ -298,8 +380,39 @@ export const checkCaseTimeCoherence = (args: {
     }
   }
 
-  const apparent = parseClockTime(args.apparentTime as string | undefined);
-  const actual = parseClockTime(args.actualTime as string | undefined);
+  // X61 — THE SECOND CLOCK IS IN THE MECHANISM, NOT THE REGISTRY (found 2026-08-19, REVIEW_13 §7).
+  //
+  // The branch above needs two clock-valued LOCKED facts. The 08-19 case locked exactly one —
+  // `false_display_time` "a quarter to three" — alongside `disengagement_duration` "forty-five
+  // minutes", and left the other anchor in hidden_model.mechanism as `actual_time_of_death`
+  // "fourteen minutes past four". So the shape gate declined in silence and the device shipped
+  // EIGHTY-NINE minutes apart while declaring forty-five, on the third consecutive run to carry the
+  // same defect. The manuscript then invented a third time of its own ("eight fifty-six"), because
+  // the true one was never locked and so never reached the page.
+  //
+  // This is not a guess at a pairing, which is what the branch above refuses to do when it sees three
+  // clocks. The mechanism NAMES the two times the device relates — apparent and actual are the
+  // displacement, definitionally — so it is the pairing, read from the only place the case states it.
+  //
+  // Strictly a fallback: when the branch above could read the shape, it has already spoken, and a
+  // case must not be reported twice for one defect.
+  const primaryCouldRead = clocks.length === 2 && durations.length === 1;
+  if (!primaryCouldRead && durations.length === 1 && apparent !== null && actual !== null) {
+    const gap = Math.abs(apparent - actual);
+    const declared = durations[0]!;
+    if (gap !== declared.minutes) {
+      violations.push({
+        code: "locked_time_arithmetic",
+        message:
+          `The device's own numbers disagree: the mechanism's anchors "${String(args.apparentTime)}" ` +
+          `and "${String(args.actualTime)}" are ${gap} minutes apart, while ${declared.id} declares ` +
+          `"${declared.raw}" (${declared.minutes}). The registry locks only one of the two clocks, so ` +
+          `the prose prints that one and the duration, and a reader can do the subtraction the case ` +
+          `never did. Repair the CASE.`,
+      });
+    }
+  }
+
   if (apparent !== null && actual !== null && clocks.length >= 2) {
     const anchors = new Set([apparent, actual]);
     const shared = clocks.some((c) => anchors.has(c.minutes));

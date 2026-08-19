@@ -25,7 +25,7 @@ import { adaptNarrativeForScoring, type ClueRef } from "../scoring-adapters/inde
 // Agent 7 redesign shadow (outstanding-redesign-item §7 step 1 / 13_agent_7_narrative_outliner §7.1):
 // build the deterministic Beat Scheduler grid ALONGSIDE the LLM outline and log the comparison.
 // Acts on nothing; default-off flag → zero behaviour change. Gathers the divergence data §7.1 wants.
-import { deathMethodSignatureTerms } from "@cml/story-geometry";
+import { deathMethodSignatureTerms, nameMatcher } from "@cml/story-geometry";
 import {
   buildSceneGrid,
   collectObligations,
@@ -167,6 +167,114 @@ export function applyPlantBeforeReveal(ctx: OrchestratorContext, narrative: Narr
   }
 }
 
+/**
+ * X52 (REVIEW_11 §8.2) — THE DECISIVE TRACE IS PLANTED ONLY IF SOMEONE LABELLED IT `essential`.
+ *
+ * `applyPlantBeforeReveal` above filters on `criticality === "essential"`. On run
+ * `mystery-1786999938275` the clue that clinches the case —
+ *
+ *   clue_late_optional_slot_1 [late/optional] → "A torn piece of Hugo Vane's cuff was found caught
+ *   on the edge of the private study door frame."
+ *
+ * — is labelled **optional**, so it was never planted, reached the prose prompt for the first time in
+ * chapter 8, and Agent 9 dramatized it there as the torn navy wool that breaks Hugo. The cold reader
+ * named it third: *"The torn navy wool is useful and concrete, but it appears for the first time in
+ * the reveal. Plant it earlier — Eleanor notices a snag on Hugo's cuff in Chapter 4 or 5."*
+ *
+ * A clue that puts the culprit physically at the scene IS decisive evidence, whatever its criticality
+ * label says. `clincher_not_planted` could not see the gap either: it checks the CONTRACT's trace
+ * (here the escapement scoring, correctly planted in chapter 1), not the one the manuscript uses.
+ *
+ * WHY THIS IS NOT JUST A WIDER FILTER ON THE PASS ABOVE. That pass sorts its candidate scenes toward
+ * the EARLIEST/emptiest, which for a culprit-implicating clue means the body-discovery chapter — and
+ * `ensureDiscoverySceneMethodTellPresent` refuses culprit-implicating clues there for exactly the
+ * right reason: it would hand the reader the answer in chapter 1. So this plants the LATEST scene
+ * that is still ≥2 before the reveal and past the opening, which is the window the reader asked for.
+ */
+export function applyDecisiveTracePlant(ctx: OrchestratorContext, narrative: NarrativeOutline): void {
+  if (!isPlantBeforeRevealEnabled()) return;
+  try {
+    const clues = (ctx.clues?.clues ?? []) as any[];
+    if (clues.length === 0) return;
+
+    const caseData = (ctx.cml as any)?.CASE ?? ctx.cml;
+    const rawCulprits: unknown[] = Array.isArray(caseData?.culpability?.culprits)
+      ? caseData.culpability.culprits
+      : [];
+    const culprits: string[] = rawCulprits.map((n) => String(n ?? "").trim()).filter(Boolean);
+    if (culprits.length === 0) return;
+    /**
+     * `nameMatcher`, not `includes()` — found on review 2026-08-18.
+     *
+     * The first version lower-cased the full name and the surname and asked `text.includes(term)`.
+     * No word boundary and no common-word guard, so on the 08-17 case (culprit **Vane**) the sentence
+     * *"The weathervane above the stable creaked all night"* read as a culprit-implicating trace and
+     * was planted as decisive evidence. `exhaled` would do the same for a culprit named Hale.
+     *
+     * `@cml/story-geometry`'s `nameMatcher` is the repo's answer to exactly this (A_61 RC4.4): word
+     * boundaries, a length floor, and a `COMMON_WORD_SURNAMES` skip so a surname that is also an
+     * ordinary word never matches on its own. This module already imports from that package.
+     */
+    const culpritMatchers = culprits
+      .map((n) => nameMatcher(n, { includeFirstName: true }))
+      .filter((re): re is RegExp => re !== null);
+    if (culpritMatchers.length === 0) return;
+    const namesCulprit = (text: string): boolean => culpritMatchers.some((re) => re.test(text));
+
+    /** A physical clue that places the CULPRIT at the scene — the thing a reveal produces as proof. */
+    const isDecisiveTrace = (c: any): boolean => {
+      const blob = `${c?.description ?? ""} ${c?.pointsTo ?? ""} ${Array.isArray(c?.keyTerms) ? c.keyTerms.join(" ") : ""}`;
+      if (!namesCulprit(blob)) return false;
+      // Physical, not testimonial: a witness saying "I saw Hugo" is not a trace that can be planted
+      // incidentally, and dramatizing it early would be an accusation rather than an unremarked object.
+      const category = String(c?.category ?? "").toLowerCase();
+      if (category && category !== "physical") return false;
+      return true;
+    };
+
+    const sceneRefs = flattenNarrativeScenes(narrative);
+    if (sceneRefs.length < 4) return;
+
+    const firstRevealIdx = new Map<string, number>();
+    sceneRefs.forEach((r, i) => {
+      const revealed = Array.isArray((r.scene as any)?.cluesRevealed) ? (r.scene as any).cluesRevealed : [];
+      for (const id of revealed.map(String)) if (!firstRevealIdx.has(id)) firstRevealIdx.set(id, i);
+    });
+
+    const alreadyPlanted = new Set<string>(
+      sceneRefs.flatMap((r) => (Array.isArray((r.scene as any)?.cluesPlanted) ? (r.scene as any).cluesPlanted.map(String) : [])),
+    );
+
+    const stamped: string[] = [];
+    for (const clue of clues) {
+      const id = String(clue?.id ?? "").trim();
+      if (!id || alreadyPlanted.has(id) || !isDecisiveTrace(clue)) continue;
+      const revealIdx = firstRevealIdx.get(id);
+      if (revealIdx === undefined) continue;
+      // Never in the opening (scene index 0/1): a culprit-implicating object there is the answer, not
+      // a plant. Never later than 2 scenes before the reveal: closer and it is not a plant either.
+      const latest = revealIdx - 2;
+      if (latest < 2) continue;
+      const target = sceneRefs[latest].scene as any;
+      if (!Array.isArray(target.cluesPlanted)) target.cluesPlanted = [];
+      if (target.cluesPlanted.includes(id)) continue;
+      target.cluesPlanted.push(id);
+      alreadyPlanted.add(id);
+      stamped.push(`${id}→scene ${latest + 1} (reveal ${revealIdx + 1})`);
+    }
+
+    if (stamped.length > 0) {
+      ctx.warnings.push(
+        `[X52 decisive-trace plant] ${stamped.length} culprit-implicating physical clue(s) reached the reveal unplanted ` +
+          `(criticality is not what makes a trace decisive); planted: ${stamped.join("; ")}.`,
+      );
+      console.info(`[X52 decisive-trace plant] ${stamped.join("; ")}`);
+    }
+  } catch (e) {
+    console.warn(`[X52 decisive-trace plant] skipped: ${(e as Error).message}`);
+  }
+}
+
 export function ensureDiscoverySceneMethodTellPresent(ctx: OrchestratorContext, narrative: NarrativeOutline): void {
   if (!isDiscoveryTellEnabled()) return;
   try {
@@ -196,10 +304,31 @@ export function ensureDiscoverySceneMethodTellPresent(ctx: OrchestratorContext, 
 
     const sceneRefs = flattenNarrativeScenes(narrative);
     if (sceneRefs.length === 0) return;
-    // Locate the body-discovery scene robustly: the "crime" beat, else Act1 Scene1, else the first scene.
+    /**
+     * X48 (REVIEW_11 §5) — THE BODY-DISCOVERY SCENE IS SCENE 1, NOT THE `crime` BEAT.
+     *
+     * This preferred the `"crime"` beat, and `GOLDEN_AGE_BEATS` is
+     * `["gathering", "crime", ...]` — so on every 10-chapter run the tell was stamped into
+     * **chapter 2** while the body is discovered in **chapter 1**. The prose contract is not
+     * ambiguous about which chapter that is: `obligation-block.ts` hardcodes `chapterNumber === 1`
+     * for both "BODY DISCOVERY ORDER (MANDATORY — Chapter 1 only)" and "WEAPON PLANTED AT DISCOVERY
+     * (Chapter 1 only)". Those two must name the same scene or the instruction has no referent.
+     *
+     * MEASURED on run `mystery-1786999938275`: `clue_early_physical_wound` ("struck with a heavy
+     * bronze statuette") appeared in the live prose prompt for ch2–ch10 and **0 times in ch1** —
+     * absent only from the chapter this function's own warning says it was added to. Chapter 1 was
+     * therefore told "if an object at the scene is the murder weapon, its physical condition must be
+     * OBSERVED here" with no object supplied, and Agent 9 obeyed with an invented one: "a heavy brass
+     * candlestick". The manuscript shipped with two weapons and the cold reader led its problem list
+     * with it (*"Pick one"*).
+     *
+     * Not a budget drop — ch1 shipped 14,520 tokens of context into 15,528 available and dropped
+     * nothing. The `crime` beat is kept as a fallback for outlines that carry one without a
+     * resolvable first scene.
+     */
     const discoveryRef =
-      sceneRefs.find((r) => String((r.scene as any)?.beat ?? "").toLowerCase() === "crime") ??
       sceneRefs.find((r) => r.act === 1 && r.actSceneNumber === 1) ??
+      sceneRefs.find((r) => String((r.scene as any)?.beat ?? "").toLowerCase() === "crime") ??
       sceneRefs[0];
     const discoveryScene = discoveryRef.scene as any;
     if (!Array.isArray(discoveryScene.cluesRevealed)) discoveryScene.cluesRevealed = [];
@@ -210,7 +339,10 @@ export function ensureDiscoverySceneMethodTellPresent(ctx: OrchestratorContext, 
     discoveryScene.cluesRevealed.push(chosen); // additive — never replaces/reorders
     ctx.warnings.push(
       `[Agent 7 discovery-tell] body-discovery scene referenced no cause-of-death tell; ` +
-        `added tell clue "${chosen}" (${String(deathMethod ?? "manner of death")}) to the discovery scene.`,
+        `added tell clue "${chosen}" (${String(deathMethod ?? "manner of death")}) to the discovery scene ` +
+        // X48: name the scene. The old message said "the discovery scene" and was true of a scene two
+        // chapters away from the one the prose contract addresses, so no report could show the mismatch.
+        `(act ${discoveryRef.act}, scene ${discoveryRef.actSceneNumber}, beat "${String(discoveryScene?.beat ?? "?")}").`,
     );
   } catch (e) {
     console.warn(`[Agent 7 discovery-tell] skipped: ${(e as Error).message}`);
@@ -529,8 +661,46 @@ export function computeDeterministicGapFillCap(totalScenes: number): number {
 
 const OUTLINE_TEST_TERMS_RE = /\b(test|experiment|re-?enact|reenact|trap|demonstrat|verif|proof|examin|timing\s+test|constraint\s+proof)\b/i;
 const OUTLINE_EXCLUSION_TERMS_RE = /\b(excluded?|eliminat|ruled\s+out|could\s*not\s+have|cannot\s+be\s+the\s+culprit|only\s+one\s+person\s+could|impossible\s+for|proves?\s+innocent)\b/i;
-const OUTLINE_EVIDENCE_TERMS_RE = /\b(because|therefore|proof|evidence|measured|timed|observed|alibi|timeline|constraint|clue)\b/i;
-const OUTLINE_ELIMINATION_TERMS_RE = /\b(cleared|ruled\s+out|eliminat|not\s+the\s+(culprit|killer|murderer)|innocent|alibi\s+holds|alibi\s+confirmed|could\s*not\s+have|excluded?)\b/i;
+/**
+ * X62 — A TRAILING `\b` NEUTERS A STEM, AND BOTH OF THESE LISTS SHIPPED WITH ONE.
+ *
+ * `\b(...|eliminat|...)\b` cannot match "eliminate", "eliminating" or "eliminated": after `eliminat`
+ * comes a word character, so the closing boundary fails. The term matched only the bare string
+ * "eliminat", which no outline has ever written. `\balibi\b` missed "alibis" the same way, and
+ * `\bclue\b` missed "clues".
+ *
+ * MEASURED over the 32 archived Agent 7 outlines: the closure FLOOR below fired on **17 of 32** with
+ * the old lists and **8 of 32** with these. Nine outlines were told they had no suspect-closure
+ * coverage while their own scenes said "Clearing the Others" and "verifying their alibis" — and that
+ * false alarm is not free. It drives an outline retry, a repair guardrail, and a deterministic patch
+ * that APPENDS clearance language to an Act 3 scene, so a wordlist that could not read the outline was
+ * manufacturing the very duplicate clearances three external reads complained about.
+ *
+ * Inflections only. No new vocabulary: every term here is one the old list already intended.
+ */
+const OUTLINE_EVIDENCE_TERMS_RE = /\b(because|therefore|proofs?|evidence|measured|timed|observed|alibis?|timelines?|constraints?|clues?)\b/i;
+const OUTLINE_ELIMINATION_TERMS_RE = /\b(clear(?:ed|s|ing)|clear\s+(?:the\s+)?(?:innocent\s+)?suspects?|rul(?:ed|es|ing)\s+out|eliminat\w*|exclud\w*|innocent|not\s+the\s+(?:culprit|killer|murderer)|alibis?\s+(?:hold|holds|confirmed|verified)|could\s*not\s+have)\b/i;
+
+/** The scene fields both closure checks read. One helper so the floor and the ceiling cannot drift. */
+const sceneClosureText = (scene: any): string =>
+  [scene?.title ?? "", scene?.purpose ?? "", scene?.summary ?? "", scene?.dramaticElements?.revelation ?? ""].join(" ");
+
+/**
+ * X32 — how many scenes carry a suspect-clearance JOB, counted one scene at a time.
+ *
+ * Check 2 below is a floor with no ceiling: it joins every scene into a single string and asks whether
+ * the language appears anywhere, so three clearance scenes satisfy it exactly as one does. The defect
+ * named in three external reads is the opposite shape — a cleared suspect cleared again, after the
+ * question is settled — and nothing in the pipeline could see it.
+ */
+export const countSuspectClosureScenes = (narrative: any): string[] =>
+  ((narrative?.acts ?? []) as any[])
+    .flatMap((act: any) => (Array.isArray(act?.scenes) ? act.scenes : []))
+    .filter((scene: any) => {
+      const text = sceneClosureText(scene);
+      return OUTLINE_ELIMINATION_TERMS_RE.test(text) && OUTLINE_EVIDENCE_TERMS_RE.test(text);
+    })
+    .map((scene: any) => String(scene?.title ?? `scene ${scene?.sceneNumber ?? "?"}`));
 
 // ============================================================================
 // Scene helper functions (agent-7 only)
@@ -1162,9 +1332,7 @@ function evaluateOutlineCoverage(narrative: NarrativeOutline, cml: CaseData): Ou
     .filter((name: string) => name.length > 0 && !culprits.includes(name));
 
   if (suspects.length > 0) {
-    const allSceneText = allScenes
-      .map((s) => [s.title, s.purpose, s.summary, s.dramaticElements?.revelation].join(" "))
-      .join(" ");
+    const allSceneText = allScenes.map(sceneClosureText).join(" ");
     const hasAnyClosure =
       OUTLINE_ELIMINATION_TERMS_RE.test(allSceneText) && OUTLINE_EVIDENCE_TERMS_RE.test(allSceneText);
     if (!hasAnyClosure) {
@@ -1172,6 +1340,31 @@ function evaluateOutlineCoverage(narrative: NarrativeOutline, cml: CaseData): Ou
         type: "missing_suspect_closure_scene",
         message:
           "Outline has no scene with suspect elimination/closure language (cleared, ruled out, alibi confirmed, etc.)",
+      });
+    }
+
+    // --- Check 3: suspect closure CEILING (X32) ---
+    //
+    // Check 2 can only ever complain about too FEW clearances. The 08-19 outline allocated the job to
+    // two scenes ("Clearing the Others" in Act 2 and "Clearances and Culprit Revealed" in Act 3) and
+    // the manuscript duly resolved the suspects, resolved them again during the discriminating test,
+    // and resolved them a third time after the confession. Check 2 was satisfied throughout, so
+    // `AGENT9_FOLD_SUSPECT_CLEARANCES` — which lives inside the repair guardrail Check 2 triggers —
+    // was never reachable on the run whose defect it was built to fix.
+    //
+    // GATED on that same flag, because ANY issue here drives an outline retry (see the call site) and
+    // 11 of the 32 archived outlines allocate more than one. Flag off: default behaviour is unchanged
+    // and the count is reported as a warning only. Flag on: the ceiling drives the fold guardrail, at
+    // the trigger where folding is the actual repair.
+    const foldSuspectClearances =
+      process.env.AGENT9_FOLD_SUSPECT_CLEARANCES === "true" || process.env.AGENT9_FOLD_SUSPECT_CLEARANCES === "1";
+    const closureScenes = countSuspectClosureScenes(narrative);
+    if (foldSuspectClearances && closureScenes.length > 1) {
+      issues.push({
+        type: "duplicate_suspect_closure_scenes",
+        message:
+          `Outline gives a suspect-clearance job to ${closureScenes.length} scenes (${closureScenes.join("; ")}). ` +
+          `A cleared suspect stays cleared, so every pass after the first repeats a resolved beat.`,
       });
     }
   }
@@ -1818,6 +2011,18 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
   );
 
   // ── Pre-prose outline quality gate ────────────────────────────────────────
+  // X32 diagnosis, ALWAYS ON and never an issue by itself: the count is what the board could not see.
+  // REVIEW_13 §8.2 had to read the manuscript to learn that the clearances were written three times,
+  // because nothing in the pipeline reported how many scenes were given the job. This costs nothing
+  // and changes no behaviour — whether the count becomes a repair is `AGENT9_FOLD_SUSPECT_CLEARANCES`.
+  const closureSceneTitles = countSuspectClosureScenes(narrative);
+  if (closureSceneTitles.length > 1) {
+    ctx.warnings.push(
+      `[X32] Outline gives a suspect-clearance job to ${closureSceneTitles.length} scenes: ` +
+      `${closureSceneTitles.join("; ")}. Every pass after the first repeats a resolved beat.`,
+    );
+  }
+
   const outlineCoverageIssues = evaluateOutlineCoverage(narrative, ctx.cml!);
   if (outlineCoverageIssues.length > 0) {
     if (!contractRecoveryEnabled) {
@@ -2420,4 +2625,7 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
   // A_64 §3.3 C1 (flag-gated, default OFF): plant essential clues ≥2 scenes before their reveal.
   // Runs LAST so it sees the final clue placement (incl. the discovery-tell addition above).
   applyPlantBeforeReveal(ctx, narrative);
+  // X52 (REVIEW_11 §8.2): and the decisive culprit-implicating trace, which `essential` did not cover.
+  // After the pass above so it sees what that one already planted and never double-stamps.
+  applyDecisiveTracePlant(ctx, narrative);
 }

@@ -138,7 +138,7 @@ export type ProseScoringSnapshot = {
 };
 
 export type OutlineCoverageIssue = {
-  type: "missing_discriminating_test_scene" | "missing_suspect_closure_scene";
+  type: "missing_discriminating_test_scene" | "missing_suspect_closure_scene" | "duplicate_suspect_closure_scenes";
   message: string;
 };
 
@@ -345,18 +345,26 @@ export const buildOutlineRepairGuardrails = (
     );
   }
 
+  const culpritsList: string[] = cmlCase.culpability?.culprits ?? [];
+  const culpritClause = culpritsList.length > 0 ? " (" + culpritsList.join(", ") + ")" : "";
+
+  // The FLOOR: the outline has no closure language at all, so ask for some.
   if (issues.some((i) => i.type === "missing_suspect_closure_scene")) {
-    const culpritsList: string[] = cmlCase.culpability?.culprits ?? [];
-    const culpritClause = culpritsList.length > 0 ? " (" + culpritsList.join(", ") + ")" : "";
-    // A_67 FIX-1(c): fold closure into the reveal/discriminating-test scene rather than allocating a
-    // scene whose sole purpose is clearing suspects (the duplicate "clearance chapter"). Default-off
-    // (probe before default-on); when off, the historical dedicated-scene guardrail is kept.
-    const foldSuspectClearances =
-      process.env.AGENT9_FOLD_SUSPECT_CLEARANCES === "true" || process.env.AGENT9_FOLD_SUSPECT_CLEARANCES === "1";
     guardrails.push(
-      foldSuspectClearances
-        ? "In Act III, rule out each non-culprit suspect with explicit elimination language (cleared, ruled out, alibi confirmed) and evidence references, folded INTO the discriminating-test / reveal scene as the detective works through the evidence — do NOT allocate a separate scene whose sole purpose is clearing suspects. The culprit" + culpritClause + " must be identified with a complete evidence chain."
-        : "In Act III, include at least one scene where the detective explains why each non-culprit suspect is cleared with explicit elimination language (cleared, ruled out, alibi confirmed) and evidence references. The culprit" + culpritClause + " must be identified with a complete evidence chain.",
+      "In Act III, include at least one scene where the detective explains why each non-culprit suspect is cleared with explicit elimination language (cleared, ruled out, alibi confirmed) and evidence references. The culprit" + culpritClause + " must be identified with a complete evidence chain.",
+    );
+  }
+
+  // The CEILING (X32): the outline has closure language in MORE THAN ONE scene, so ask for it folded.
+  //
+  // A_67 FIX-1(c) wrote this instruction and hung it off the floor — the branch that fires when there
+  // is no closure anywhere. Folding cannot repair an absence, and the trigger is unreachable whenever
+  // the defect is present: an outline that repeats clearances satisfies the floor by definition.
+  // Measured on the 08-19 run, whose manuscript clears its three suspects in chapters 6, 9 and 10:
+  // the floor was silent, so this text was never emitted. It now hangs off the count.
+  if (issues.some((i) => i.type === "duplicate_suspect_closure_scenes")) {
+    guardrails.push(
+      "In Act III, rule out each non-culprit suspect with explicit elimination language (cleared, ruled out, alibi confirmed) and evidence references, folded INTO the discriminating-test / reveal scene as the detective works through the evidence — do NOT allocate a separate scene whose sole purpose is clearing suspects, and do not restate a clearance in a later scene once it has been made. The culprit" + culpritClause + " must be identified with a complete evidence chain.",
     );
   }
 

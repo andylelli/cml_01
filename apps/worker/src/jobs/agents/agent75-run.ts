@@ -260,7 +260,12 @@ export async function runAgent75(ctx: OrchestratorContext): Promise<void> {
       apparentTime: geometry.timeModel.apparentTime,
       actualTime: geometry.timeModel.trueTime,
     })) {
-      ctx.warnings.push(`[X39] Agent 7.5 case-time incoherence (${violation.code}): ${violation.message}`);
+      // Label by the CODE, not by the stage: this call site now returns both of them. X61 gave
+      // `locked_time_arithmetic` a second path — the mechanism's anchors, when the registry locks only
+      // one clock — and that path can only fire HERE, because Agent 3b has no mechanism yet. Reporting
+      // it as [X39] would file the device's own arithmetic under the two-spines defect.
+      const tag = violation.code === "time_spines_disagree" ? "X39" : "X38";
+      ctx.warnings.push(`[${tag}] Agent 7.5 case-time incoherence (${violation.code}): ${violation.message}`);
     }
 
     ctx.storyGeometry = geometry;

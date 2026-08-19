@@ -489,7 +489,12 @@ Written after this map (2026-08-01) and, where they conflict with it, **newer**:
 | [REVIEW_05](REVIEW_05.md) | The deep record and the progress tracker — every item, with its § |
 | [REVIEW_06](REVIEW_06.md) · [REVIEW_07](REVIEW_07.md) · [REVIEW_08](REVIEW_08.md) | Successive orderings of the board on the path from 80 to 90 |
 | [REVIEW_09](REVIEW_09.md) | The machinery is finished; the instruments and the case are not. Five reads, and the free block as built |
-| [REVIEW_10](REVIEW_10.md) | **Start here for the current state.** The live board, one row per agent — and the 86 run that already hit best-ever in all ten categories |
+| [REVIEW_10](REVIEW_10.md) | The live board, one row per agent — and the 86 run that already hit best-ever in all ten categories |
+| [REVIEW_11](REVIEW_11.md) | The M6 probe's cold read: 86 again from a different shape, dialogue's first 8 in 33 reads, and five reader complaints traced to the log |
+| [REVIEW_12](REVIEW_12.md) | Why there are so many retries: 0.50 per chapter and 37% of all prose prompt volume. The largest measured cause is one word — the case's own "broken spring fragment" read as the season — plus a chapter whose outline instructs what its validator forbids |
+| [REVIEW_13](REVIEW_13.md) | The open board and the arithmetic of the target: best-ever in all ten categories sums to 84 and projects to 87, so 90 needs two to three marks no read has ever given. §8 adds the deterministic read of the 08-19 manuscript |
+| [REVIEW_14](REVIEW_14.md) |  The path to 90 after auditing the instruments rather than the prose: five defects in one day, none of them the model. The prose prompt is 48.4% reference and 12.6% craft — and craft is dropped first — while the categories stuck at 8 are the craft ones |
+| [REVIEW_15](REVIEW_15.md) | **Start here for the current state.** The 08-19 read came back at 81, and four of its six complaints had already been detected, named and reported by the pipeline before it shipped. Geometry violations are warning-only by construction: mojibake stops a run, "the reveal never names the culprit" does not |
 | [THINK_01](THINK_01.md) | Why 80 is a ceiling: two failure regimes, and a judge that ranks at 42.9% |
 | [STORY-GEOMETRY](STORY-GEOMETRY.md) | The concept — narratology behind it, and what it would constrain |
 | [GEOMETRY-AGENT-DESIGN](GEOMETRY-AGENT-DESIGN.md) | Agent 7.5: boundaries, Agent-9 interface, build sequence. **Built 2026-08-03** — phases 1–3 landed flag-gated; §10 carries the status table |

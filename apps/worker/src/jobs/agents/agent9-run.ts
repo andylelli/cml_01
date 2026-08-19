@@ -95,7 +95,7 @@ import {
   checkManuscriptGeometry,
   GEOMETRY_CODES_WITHOUT_PROSE_REPAIR,
 } from "@cml/story-geometry";
-import { validateArtifact, validateCml, isVictimArchetype } from "@cml/cml";
+import { validateArtifact, validateCml, isVictimArchetype, isDetectiveArchetype, roleTextsOf } from "@cml/cml";
 // Agent 9 redesign Phase A (§4.2 / §9.7): the validation-gated-mutation law — a deterministic prose
 // pass may not ship a mutation it didn't re-validate. Default-off flag; legacy path byte-identical.
 import { mutateThenValidate, noMetadataDumpValidator } from "@cml/prose-guard";
@@ -1139,10 +1139,24 @@ function classifyFactValue(canonical: string): FactValueType {
 // period-idiomatic phrasings, selected deterministically from the VALUE (reproducible runs), none
 // matching TEMPLATE_LEAKAGE / DEBUG_NOTE_PATTERNS / the scaffold family — pinned by a test that
 // asserts non-membership, so any future detector re-listing is a conscious decision, not a trap.
-const pickVariant = (variants: Array<(d: string, v: string) => string>, seed: string) => {
+const pickVariant = (
+  variants: Array<(d: string, v: string) => string>,
+  seed: string,
+  occurrence = 0,
+) => {
   let h = 0;
   for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0;
-  return variants[h % variants.length];
+  // The VALUE picks the starting variant (so two runs of the same story read the same, and two
+  // different facts start in different places). The OCCURRENCE walks forward from there, which is
+  // what makes the second injection of one fact provably different from the first rather than
+  // 50/50 — with MAX_INJECTIONS_PER_FACT at 2 and two variants, a hash alone was a coin flip.
+  return variants[(h + occurrence) % variants.length];
+};
+
+/** The seed carries the occurrence ordinal; anything unparseable means "the first one". */
+const occurrenceOf = (seed?: string): number => {
+  const n = Number.parseInt(String(seed ?? ""), 10);
+  return Number.isFinite(n) && n > 0 ? n : 0;
 };
 
 const TIME_VARIANTS: Array<(d: string, v: string) => string> = [
@@ -1154,17 +1168,77 @@ const DURATION_VARIANTS: Array<(d: string, v: string) => string> = [
   (_d, v) => `It had taken ${v} in all.`,
   (_d, v) => `${v.charAt(0).toUpperCase() + v.slice(1)} had passed before it was done.`,
 ];
+/**
+ * X65 — a locked fact's `description` is a SCHEMA LABEL, not a noun phrase.
+ *
+ * The 08-19 registry described its wire as "Length of the thin control wire from rooftop terrace to
+ * clock mechanism", and the variant below used that string as a sentence SUBJECT, so the manuscript
+ * shipped — twice, verbatim —
+ *
+ *   "Length of the thin control wire from Rooftop Terrace to clock mechanism came to twenty-five feet."
+ *
+ * which is a database row wearing a full stop. The non-membership test never caught it because its
+ * fixtures were tidier than production: it passes "the corridor" and "the drop", which already ARE
+ * noun phrases. Strip the measurement head ("Length of", "Distance from") and the trailing
+ * prepositional tail, and what remains is the thing itself: "The thin control wire".
+ */
+const MEASURE_NOUN = "length|width|height|depth|distance|span|drop|weight|mass";
+
+const measurementSubject = (description: string): string => {
+  // Drop the trailing rationale a description often carries ("…, crucial for sound travel timing").
+  let text = String(description ?? "").trim().split(",")[0]!.trim();
+  if (!text) return "It";
+
+  const m = text.match(new RegExp(`^(?:the\\s+)?(?:total\\s+)?(${MEASURE_NOUN})\\s+(of|from|between)\\s+(.+)$`, "i"));
+  if (m) {
+    const noun = m[1]!.toLowerCase();
+    // "Length OF the thin control wire from X to Y" — the subject is the THING being measured.
+    if (m[2]!.toLowerCase() === "of") {
+      const thing = m[3]!.split(/\s+(?:from|between|to|across|along|down|up)\s+/i)[0]!.trim();
+      if (thing) return article(thing);
+    }
+    // "Distance FROM the lobby clock TO the dining hall" — the subject is the DISTANCE, not the
+    // clock. Naming the endpoint made the 08-19-2047 run ship "The lobby grandfather clock came to
+    // forty feet.", which is grammatical and false: a clock is not forty feet long. Keeping the
+    // measurement noun alone is short, true, and cannot inherit the label's syntax.
+    return article(noun);
+  }
+  return article(text);
+};
+
+/** Give a noun phrase an article unless it already has one, and capitalise it. */
+function article(text: string): string {
+  let t = text.trim();
+  if (!t) return "It";
+  if (!/^(?:the|a|an|his|her|its|their)\b/i.test(t)) t = `the ${t}`;
+  return t.charAt(0).toUpperCase() + t.slice(1);
+}
+
 const LENGTH_VARIANTS: Array<(d: string, v: string) => string> = [
-  (d, v) => `${d.charAt(0).toUpperCase() + d.slice(1)} came to ${v}.`,
+  (d, v) => `${measurementSubject(d)} came to ${v}.`,
   (_d, v) => `Measured out, it ran to ${v}.`,
 ];
 
 // Exported for the arms-race regression test (injector output × the real detectors).
-export const INJECTION_TEMPLATES: Record<FactValueType, (desc: string, val: string) => string> = {
-  time:             (d, v) => pickVariant(TIME_VARIANTS, v)(d, v),
-  duration_minutes: (d, v) => pickVariant(DURATION_VARIANTS, v)(d, v),
-  weight:           (d, v)  => `${d.charAt(0).toUpperCase() + d.slice(1)} weighed ${v}.`,
-  length:           (d, v)  => pickVariant(LENGTH_VARIANTS, v)(d, v),
+/**
+ * X64 — THE ROTATION COULD NOT ROTATE, so A_62's "no FIXED string" fix changed nothing observable.
+ *
+ * `pickVariant` is seeded on the VALUE. A locked fact's value is invariant across the whole
+ * manuscript by definition — that is what makes it a locked fact — so every appearance of one fact
+ * selected the same variant, and MAX_INJECTIONS_PER_FACT = 2 then delivered exactly two VERBATIM
+ * duplicates. Measured on story_20260819-0147: "It had taken forty-five minutes in all." ×2 and the
+ * wire sentence ×2, which is the whole of the injector's contribution to that manuscript.
+ *
+ * The regression test asserted that different VALUES pick different variants — true, and irrelevant,
+ * because one manuscript has one value per fact. `seed` mixes in the occurrence site (the chapter),
+ * which is the axis that actually varies within a run. Omitted, behaviour is unchanged and
+ * deterministic, so the existing reproducibility contract still holds.
+ */
+export const INJECTION_TEMPLATES: Record<FactValueType, (desc: string, val: string, seed?: string) => string> = {
+  time:             (d, v, s) => pickVariant(TIME_VARIANTS, v, occurrenceOf(s))(d, v),
+  duration_minutes: (d, v, s) => pickVariant(DURATION_VARIANTS, v, occurrenceOf(s))(d, v),
+  weight:           (d, v)  => `${measurementSubject(d)} weighed ${v}.`,
+  length:           (d, v, s) => pickVariant(LENGTH_VARIANTS, v, occurrenceOf(s))(d, v),
   // F3: disabled — produces court-document prose ("The relevant value was established: X").
   // Generic numeric facts should surface via the obligation block, not post-hoc injection.
   generic:          (_d, _v) => ``,
@@ -1253,10 +1327,10 @@ const enforceCmlCulpritRoleIntegrity = (
   );
   const detectiveSet = new Set<string>(
     castEntries
-      .filter((entry) => {
-        const role = roleTextForIntegrity(entry);
-        return role.includes("detective") || role.includes("investigator") || role.includes("inspector");
-      })
+      // X50 (REVIEW_11 §7): `roleTextForIntegrity` coalesces to ONE field and this matched by bare
+      // substring, so "the detective's landlady" counted as the detective. Test every role field, with
+      // the head-noun predicate that `isVictimArchetype` beside it already uses.
+      .filter((entry) => roleTextsOf(entry).some(isDetectiveArchetype))
       .map((entry) => normalizeNameLower(entry?.name)),
   );
 
@@ -1935,10 +2009,21 @@ export const enforceLockedFactValuePresence = (prose: any, lockedFacts: any[]): 
   for (const fact of lockedFacts) {
     const canonical = typeof fact?.value === "string" ? fact.value.trim() : "";
     if (!canonical || !isAtomicLockedFactValue(canonical)) continue;
-    const rendered = INJECTION_TEMPLATES[classifyFactValue(canonical)](String(fact?.description ?? ""), canonical).trim();
-    if (!rendered) continue;
-    const escaped = rendered.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const existing = (fullTextForSeed.match(new RegExp(escaped, "gi")) ?? []).length;
+    // X64: the sentence now varies by chapter, so the idempotency seed must count EVERY variant this
+    // fact can produce. Counting only one of them would let a re-run re-inject past the cap.
+    const factType = classifyFactValue(canonical);
+    const factDesc = String(fact?.description ?? "");
+    const variants = new Set(
+      Array.from({ length: MAX_INJECTIONS_PER_FACT }, (_v, i) =>
+        INJECTION_TEMPLATES[factType](factDesc, canonical, String(i)).trim(),
+      ),
+    );
+    let existing = 0;
+    for (const variant of variants) {
+      if (!variant) continue;
+      const escaped = variant.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      existing += (fullTextForSeed.match(new RegExp(escaped, "gi")) ?? []).length;
+    }
     if (existing > 0) globalInjectionCount.set(canonical.toLowerCase(), existing);
   }
 
@@ -1995,7 +2080,7 @@ export const enforceLockedFactValuePresence = (prose: any, lockedFacts: any[]): 
       const globalCount = globalInjectionCount.get(canonical.toLowerCase()) ?? 0;
       if (globalCount >= MAX_INJECTIONS_PER_FACT) continue;
       const valueType = classifyFactValue(canonical);
-      const sentence = INJECTION_TEMPLATES[valueType](description, canonical);
+      const sentence = INJECTION_TEMPLATES[valueType](description, canonical, String(globalCount));
       // F2/F3: skip injection when the template returns an empty string (disabled templates).
       if (sentence.trim().length === 0) continue;
       updatedParagraphs[bestIdx] = `${sentence} ${updatedParagraphs[bestIdx].trim()}`;
@@ -2182,23 +2267,35 @@ export const computeEliminationSuspects = (cml: any, castDesign?: any): string[]
   );
   const detectiveSet = new Set<string>(
     rawCast
-      // A_67 review bug: the preferred source (castDesign.characters, Agent-2) stores the archetype in
-      // camelCase `roleArchetype`, so a bare snake_case `role_archetype` read silently excluded NO
-      // detective on the normal path — the injector/regen then "cleared" the sleuth as a suspect. Read
-      // both spellings (+ role), matching every sibling cast read in this file (e.g. lines 1444/1452).
-      .filter((c: any) => String(c?.role_archetype ?? c?.roleArchetype ?? c?.role ?? '').toLowerCase().includes('detective'))
+      /**
+       * A_67 review bug: the preferred source (castDesign.characters, Agent-2) stores the archetype in
+       * camelCase `roleArchetype`, so a bare snake_case `role_archetype` read silently excluded NO
+       * detective on the normal path — the injector/regen then "cleared" the sleuth as a suspect.
+       *
+       * X50 (REVIEW_11 §7) — THE SAME BUG, ONE LAYER DOWN, AND THE A_67 FIX DID NOT REACH IT.
+       * That fix cured the KEY and the VALUE broke it again. Agent 2's own prompt mandates, three
+       * times, `roleArchetype MUST be "Amateur Sleuth / Civilian Investigator"` — no `detective`
+       * substring — and `??` stops at the first NON-NULLISH value, so `c.role` (the
+       * `detective|victim|suspect` enum, the one field that answers the question) was never read.
+       * MEASURED on run `mystery-1786999938275`: `regen-suspect-elimination UNRESOLVED Eleanor Voss`,
+       * the investigator, two repair calls spent clearing the sleuth.
+       *
+       * `roleTextsOf` tests EVERY role field rather than coalescing to one, and
+       * `isDetectiveArchetype` carries all three vocabularies this pipeline emits (detective / sleuth
+       * / investigator) with `isVictimArchetype`'s head-noun discipline.
+       */
+      .filter((c: any) => roleTextsOf(c).some(isDetectiveArchetype))
       .map((c: any) => String(c.name ?? '').trim()),
   );
   // A_68 probe (SUSPECT_ELIM run 1715): the VICTIM was never excluded here — only culprit + detective
   // were — so the elimination injector shipped "Ellsworth was thoroughly cleared by the evidence; the
   // alibi confirmed they could not have committed the crime" for Lady Beatrice ELLSWORTH, the murder
   // victim. You do not clear the victim of being the murderer. Exclude victims the same way the cast-
-  // integrity pass does (isVictimArchetype over role_archetype ?? roleArchetype ?? role, + culpability.victim).
+  // integrity pass does. X50: over ALL role fields, not the first non-nullish one.
   const victimSet = new Set<string>();
   for (const c of rawCast) {
-    const role = String(c?.role_archetype ?? c?.roleArchetype ?? c?.role ?? '');
     const name = String(c?.name ?? '').trim();
-    if (name && isVictimArchetype(role)) victimSet.add(name);
+    if (name && roleTextsOf(c).some(isVictimArchetype)) victimSet.add(name);
   }
   const culpabilityVictim = String(cml?.CASE?.culpability?.victim ?? '').trim();
   if (culpabilityVictim) victimSet.add(culpabilityVictim);
@@ -3874,9 +3971,11 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
 
     const dt = caseBlock.discriminating_test ?? {};
     const castList: any[] = Array.isArray(caseBlock.cast) ? caseBlock.cast : [];
+    // X50 (REVIEW_11 §7): this chain never reached `roleArchetype` at all, so on a castDesign-shaped
+    // entry both the detective and the victim exclusions were no-ops. Test every role field.
     const isSuspectRole = (c: any): boolean => {
-      const role = String(c?.role_archetype ?? c?.role ?? "").toLowerCase();
-      return !role.includes("detective") && !isVictimArchetype(role);
+      const roles = roleTextsOf(c);
+      return !roles.some(isDetectiveArchetype) && !roles.some(isVictimArchetype);
     };
     const suspectNames = castList.filter(isSuspectRole).map((c: any) => String(c?.name ?? "")).filter(Boolean);
     const culpritSet = new Set(worldStateCulprits.map((n) => String(n).trim().toLowerCase()));
@@ -6861,9 +6960,10 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   // so it adds no cost unless enabled; warning-only and never throws.
   if (isProseBlindReaderEnabled()) {
     const blindSuspects = (Array.isArray(castDesign.characters) ? castDesign.characters : [])
+      // X50 (REVIEW_11 §7): never reached `role_archetype`; same family as computeEliminationSuspects.
       .filter((c: any) => {
-        const role = String(c?.role ?? c?.roleArchetype ?? "").toLowerCase();
-        return !role.includes("detective") && !isVictimArchetype(role);
+        const roles = roleTextsOf(c);
+        return !roles.some(isDetectiveArchetype) && !roles.some(isVictimArchetype);
       })
       .map((c: any) => String(c?.name ?? "").trim())
       .filter(Boolean);
