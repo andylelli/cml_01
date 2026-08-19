@@ -156,9 +156,42 @@ export const nameMatcher = (name: string, options?: { includeFirstName?: boolean
  *
  * Deliberately `was responsible` and not bare `responsible`: a character can be responsible for the
  * arrangements, the household, or the noise.
+ *
+ * ── X49 (REVIEW_11 §6) — IT HAD NO VERB FOR A BLOW, AND `FIRST_PERSON_ADMISSION` DID ──
+ *
+ * MEASURED on run `mystery-1786999938275`: **0 of chapter 8's 112 sentences matched this marker at
+ * all** — in the reveal chapter an external reader scored 9/10 and called *"on-page, physical, and
+ * emotionally satisfying"*. `reveal_culprit_not_named` fired, two regen calls went UNRESOLVED
+ * (400 → 400), and the story shipped with a release-gate warning contradicting its own best chapter.
+ *
+ * The case's death method was *"struck with a heavy bronze statuette"* and the chapter's disclosure
+ * sentence is *"Dr. Finch was struck down with a heavy bronze statuette"*. The list below carried
+ * stabbing, shooting, strangling, poisoning, bludgeoning and smothering — every method except the
+ * commonest one in the genre. And `FIRST_PERSON_ADMISSION`, forty lines down, ALREADY had
+ * `struck (him|her|them) down` and `drowned`: the same act recognised in first person and invisible
+ * in third. That is REVIEW_05 §6's defect-5 family — a fix applied to one side of a comparison.
+ *
+ * The header above says do not widen without checking the `met_by_injection` ordering still holds.
+ * It does: none of these appear in an injector template, so a match can only be `met`, never a
+ * machine sentence certified as a disclosure.
+ *
+ * CHOSEN ON EVIDENCE, not on vocabulary. Every candidate was run over all 187 corpus manuscripts,
+ * sentence-scoped, counting only sentences the OLD marker did not already match:
+ *
+ *   struck…down          2 hits — BOTH genuine disclosures, 0 false positives
+ *   fatal/killing blow  12 hits — all method statements or restatements
+ *   dealt/struck blow    1 hit  — genuine
+ *   drowned him/her/them 9 hits — all genuine
+ *   held him/her under   7 hits — all genuine
+ *   beat…to death / clubbed / battered him|her|them — 0 hits (completeness, costs nothing)
+ *
+ * Bare `drowned` was REJECTED on that evidence: it takes 40+ sentences of *"drowned out by the
+ * storm"* / *"drowned beneath the patter of drizzle"*, which is X27's "shot a glance" defect exactly.
+ * Only the agentive forms are here. Likewise `battered` is bounded to a person — this corpus is full
+ * of *"the battered logbook"*.
  */
 const GUILT_MARKER =
-  /\b(?:killed|murdered|strangled|poisoned|stabbed|shot|bludgeoned|smothered|is\s+(?:the|our|your)\s+(?:murderer|killer|culprit)|was\s+(?:the|our)\s+(?:murderer|killer|culprit)|committed\s+the\s+murder|confess(?:ed|es|ion)|guilty|guilt|arrested?|took\s+the\s+life|(?:was|is|were|had\s+been|held)\s+responsible|to\s+blame|(?:had\s+)?tampered\s+with|admitted\s+(?:it|everything|the\s+truth)|had\s+done\s+it|did\s+it)\b/i;
+  /\b(?:killed|murdered|strangled|poisoned|stabbed|shot|bludgeoned|smothered|struck\s+(?:\w+\s+){0,2}down|(?:fatal|killing|deadly|mortal)\s+blow|(?:struck|dealt|delivered)\s+the\s+(?:\w+\s+)?blow|beat\s+(?:\w+\s+){0,2}to\s+death|clubbed|battered\s+(?:him|her|them)|drowned\s+(?:him|her|them)|held\s+(?:him|her|them)\s+under|is\s+(?:the|our|your)\s+(?:murderer|killer|culprit)|was\s+(?:the|our)\s+(?:murderer|killer|culprit)|committed\s+the\s+murder|confess(?:ed|es|ion)|guilty|guilt|arrested?|took\s+the\s+life|(?:was|is|were|had\s+been|held)\s+responsible|to\s+blame|(?:had\s+)?tampered\s+with|admitted\s+(?:it|everything|the\s+truth)|had\s+done\s+it|did\s+it)\b/i;
 
 /**
  * X27 — the guilt verbs that are also ordinary English.
@@ -180,8 +213,42 @@ const GUILT_MARKER =
  * "contains an idiom → not a disclosure" lets one glance mask a real accusation in the same sentence.
  * Removing the idiomatic spans first and testing what remains cannot mask anything.
  */
+/**
+ * X49b (REVIEW_11 §6) — X27 RECURRED, IN THE RELATIVE-CLAUSE ORDER, AND IT IS WHY THE LOCATOR SAID
+ * "CHAPTER 4".
+ *
+ * The stripper below was written for `shot a glance` — VERB then NOUN. English also writes the
+ * glance first and the verb in a relative clause, and on run `mystery-1786999938275` chapter 4 the
+ * ONLY sentence pairing the culprit with a guilt marker was:
+ *
+ *   "Eleanor caught the quick glance Beatrice shot toward Hugo Vane, a silent question…"
+ *
+ * `shot` survived the strip, so the advisory reveal-locator reported that the manuscript "discloses
+ * in chapter 4" — a claim REVIEW_10 §10.4 then escalated N8 on. Chapter 4 is an interrogation scene
+ * and discloses nothing; the cold reader put the reveal in chapter 8, where the contract bound it.
+ *
+ * MEASURED over all 187 corpus manuscripts: 6 sentences match the inverted order and **all six are
+ * this idiom** ("caught the glance X shot at Y") — no real disclosure is lost. `shot through with`
+ * is here for the same reason, found in the same sweep.
+ *
+ * ── X59, THE THIRD WORD ORDER (found on the 08-19 run) ──
+ *
+ * English also writes this DITRANSITIVELY — verb, recipient, then the noun:
+ *
+ *   "She shot Hugo Vane a look that was more tired than accusatory"   (ch2 of story_20260819-0147)
+ *
+ * Neither X27's `shot a glance` nor X49b's `glance … shot` reaches it, and it is the most dangerous
+ * form of the three, because the recipient is a NAME — so the sentence pairs the culprit with a guilt
+ * verb, which is exactly the conjunction `disclosingSentence` is looking for. On that run it made
+ * `findManuscriptDisclosure` report the whole book as disclosing at **chapter 2**, in a manuscript
+ * whose reveal is chapter 10.
+ *
+ * MEASURED: 25 sentences across 171 manuscripts match the ditransitive form, **all 25 are the idiom**,
+ * and none was covered by an existing branch. A real shooting has no article-plus-look-noun after the
+ * recipient ("he shot the man" does not match; "he shot the man a look" does).
+ */
 const GUILT_IDIOM =
-  /\b(?:shot\s+(?:a|an|the)?\s*(?:pointed|quick|sharp|sidelong|warning|dark|nervous)?\s*(?:glance|look|glare|smile|grin)|shot\s+back|shot\s+to\s+h(?:is|er)\s+feet|shot\s+up|killed\s+the\s+(?:engine|lights|conversation|time)|stabbed\s+at|a\s+stab\s+of|arrested\s+h(?:is|er)\s+attention)\b/gi;
+  /\b(?:shot\s+(?:a|an|the)?\s*(?:pointed|quick|sharp|sidelong|warning|dark|nervous)?\s*(?:glance|look|glare|smile|grin)|shot\s+(?:\w+\s+){1,3}(?:a|an|the)\s+(?:\w+\s+){0,2}(?:glance|look|glare|smile|grin)|(?:glance|look|glare|smile|grin)s?\s+(?:\w+\s+){0,2}shot|shot\s+through\s+with|shot\s+back|shot\s+to\s+h(?:is|er)\s+feet|shot\s+up|killed\s+the\s+(?:engine|lights|conversation|time)|stabbed\s+at|a\s+stab\s+of|arrested\s+h(?:is|er)\s+attention)\b/gi;
 
 /** The sentence with its idiomatic guilt-words removed, so what remains is what the verb means. */
 const withoutGuiltIdioms = (sentence: string): string => sentence.replace(GUILT_IDIOM, " ");
@@ -366,9 +433,39 @@ const FIRST_PERSON_ADMISSION =
  * The name an admission is explicitly attributed to, if the attribution names anyone.
  *
  * Read in a window AFTER the admission, which is where English puts it: `"I killed her," said Beatrice`.
+ *
+ * ── BOTH ORDERS, and the second one was missing (found on review 2026-08-18) ──
+ *
+ * The first version matched VERB-then-NAME only — `said Beatrice Quill` — and English writes the
+ * speech tag the other way round at least as often: `Beatrice Quill said`. The consequence was a
+ * FALSE CERTIFICATION, the exact class REVIEW_05 §10.1 exists to prevent. Measured:
+ *
+ *   "Hugo Hale stiffened by the window. \"I killed her,\" said Beatrice Quill."   → unmet  ✅
+ *   "Hugo Hale stiffened by the window. \"I killed her,\" Beatrice Quill said."   → MET    ❌
+ *
+ * Same paragraph, same confession by the same wrong person, opposite verdicts — and only the first
+ * shape had a test. So a second character's confession certified the culprit's reveal, `noResolution`
+ * went to the judge as false, and nothing downstream could correct it.
+ *
+ * ONE REGEX WITH TWO ALTERNATIVES, not two regexes, because the answer must be the attribution
+ * NEAREST the admission — the speaker — and leftmost-match gives that for free. A second `exec` pass
+ * would have to compare offsets by hand, which is the kind of bookkeeping this file gets wrong.
+ *
+ * The name is in group 1 or group 2 depending on which alternative won; `attributedName` reads both.
+ * `[A-Z][a-z]+` needs two characters, so the bare "I" that opens every admission cannot match.
  */
-const ADMISSION_ATTRIBUTION =
-  /\b(?:said|replied|answered|whispered|murmured|admitted|confessed|breathed|snapped|told|cried)\s+(?:(?:Dr|Mr|Mrs|Ms|Miss|Captain|Col|Colonel|Major|Sir|Lady|Lord|Inspector|Prof|Professor|Reverend|Rev)\.?\s+)*([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/;
+const ATTRIBUTION_VERB =
+  "(?:said|replied|answered|whispered|murmured|admitted|confessed|breathed|snapped|told|cried)";
+const ATTRIBUTION_TITLE =
+  "(?:(?:Dr|Mr|Mrs|Ms|Miss|Captain|Col|Colonel|Major|Sir|Lady|Lord|Inspector|Prof|Professor|Reverend|Rev)\\.?\\s+)*";
+const ATTRIBUTION_NAME = "([A-Z][a-z]+(?:\\s+[A-Z][a-z]+)?)";
+const ADMISSION_ATTRIBUTION = new RegExp(
+  `\\b${ATTRIBUTION_VERB}\\s+${ATTRIBUTION_TITLE}${ATTRIBUTION_NAME}` +
+    `|\\b${ATTRIBUTION_TITLE}${ATTRIBUTION_NAME}\\s+${ATTRIBUTION_VERB}\\b`,
+);
+
+/** The captured name from either alternative of `ADMISSION_ATTRIBUTION`. */
+const attributedName = (match: RegExpExecArray): string | null => match[1] ?? match[2] ?? null;
 
 /**
  * NO QUOTE-SPAN EXTRACTION, and that is a correction rather than a shortcut.
@@ -406,7 +503,8 @@ const confessionDisclosure = (paragraph: string, culpritRe: RegExp | null): stri
     // An attribution naming someone else is someone else's confession.
     const after = paragraph.slice(at + (admission.index ?? 0), at + (admission.index ?? 0) + 160);
     const attributed = ADMISSION_ATTRIBUTION.exec(after);
-    if (attributed && !culpritRe.test(attributed[1])) continue;
+    const speaker = attributed ? attributedName(attributed) : null;
+    if (speaker && !culpritRe.test(speaker)) continue;
     return sentence;
   }
   return null;

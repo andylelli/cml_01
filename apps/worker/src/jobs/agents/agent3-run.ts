@@ -8,11 +8,12 @@
 
 import { generateCML, auditNovelty, findUnplantedDiscriminatingClues } from "@cml/prompts-llm";
 import { createSkeletonExtractor, judgeNovelty, loadReferenceCorpus } from "@cml/novelty";
-import { parseClockTime, validateCml } from "@cml/cml";
+import { parseClockTime, validateCml, buildCaseScopedLockedFacts } from "@cml/cml";
 import type { PhaseScore, TestResult } from "@cml/story-validation";
 import { scoreRealCml, getGenerationParams } from "@cml/story-validation";
 import { type OrchestratorContext, preAgent9ContractRecoveryEnabled, preAgent9LlmRetriesEnabled, applyHonestScorer } from "./shared.js";
 import { effectiveNoveltyThreshold, resolveNoveltyMode } from "../novelty-ledger.js";
+import { writeLockedFactsArtifact } from "./agent3b-run.js";
 
 function buildEvidenceFallback(step: any, stepIndex: number): string {
   const observation = String(step?.observation ?? "").trim();
@@ -255,6 +256,40 @@ export async function runAgent3(ctx: OrchestratorContext): Promise<void> {
       // Phase 0 graceful-degrade (AGENT4_GRACEFUL_DEGRADE): revision ran out of budget but returned
       // a best-so-far CML. Carry the unresolved warnings and PROCEED rather than killing the run.
       const unresolved = cmlResult.unresolvedLogicWarnings ?? cmlResult.validation.errors;
+
+      /**
+       * TWO GATES DISAGREED ABOUT THE SAME VIOLATION, AND THE RUN PAID THE DIFFERENCE.
+       *
+       * MEASURED on run `mystery-1787089592928` (2026-08-18). Agent 4 ran out of revision budget on
+       * `apparent_not_covered`, logged "proceeding with 1 unresolved validation warning", and the run
+       * continued through Agents 5, 6, 6.5, 7 and 7.5 — all paid. Agent 9's preflight then re-ran the
+       * SAME `validateCml` and threw: "Agent 9 aborted before prose generation: CML schema validation
+       * failed: CASE.hidden_model.mechanism (apparent_not_covered)". 12.8 minutes and ~17 LLM calls
+       * after the defect was known and consciously waived, for no manuscript.
+       *
+       * The graceful-degrade path cannot deliver a story when the unresolved warning is one of these:
+       * they are computed purely from `hidden_model.mechanism` plus the culprit's `alibi_window`, and
+       * NOTHING between here and Agent 9 writes either. `agent3-cml.ts`'s normalization only fills
+       * defaults. So the late abort is deterministic, not bad luck.
+       *
+       * Fail at the cheap end — the same principle as X38 ("the case checked before prose"). This
+       * changes no run that would otherwise have shipped: every run it stops was already going to die,
+       * five agents later. Scoped deliberately to the timeline-deception codes rather than to
+       * "validation invalid", because the general case cannot be proven unrepairable from here.
+       */
+      const UNREPAIRABLE_DEGRADE_CODES = ["apparent_not_covered", "actual_covered", "times_identical"];
+      const fatal = unresolved.filter((e) =>
+        UNREPAIRABLE_DEGRADE_CODES.some((code) => String(e).includes(code)),
+      );
+      if (fatal.length > 0) {
+        fatal.forEach((e) => ctx.errors.push(`Agent 3: unrepairable CML defect — ${e}`));
+        throw new Error(
+          `CML generation failed validation: ${fatal.length} unrepairable defect(s) that Agent 9's ` +
+            `preflight will reject and no downstream pass can fix — aborting here rather than after ` +
+            `five more paid agents. First: ${String(fatal[0]).slice(0, 200)}`,
+        );
+      }
+
       ctx.warnings.push(
         `Agent 4: CML degraded — proceeding with ${unresolved.length} unresolved validation warning(s) (ran out of revision budget).`,
         ...unresolved.slice(0, 10).map((e) => `Agent 4 unresolved: ${e}`),
@@ -661,4 +696,47 @@ export async function runAgent3(ctx: OrchestratorContext): Promise<void> {
       );
     }
   } catch { /* best-effort observability */ }
+
+  extendLockedFactRegistryWithCaseFacts(ctx);
+}
+
+/**
+ * X51 (REVIEW_11 §8.1) — the registry is device-scoped, and the device is a clock.
+ *
+ * `agent3b-run.ts` fills `ctx.lockedFactRegistry` from `hardLogicDevices.devices[0].lockedFacts`
+ * alone, and Agent 3b runs BEFORE Agent 3 — so at the moment the registry is built, `CASE` does not
+ * exist yet and no case fact can be in it. On a timing case that means every locked fact is a clock
+ * time, and the two facts the cold reader of run `mystery-1786999938275` marked down were pinned
+ * nowhere: the murder weapon (ch1 "brass candlestick" vs ch2+ "bronze statuette") and each suspect's
+ * alibi location (Hale gave four different places across five statements).
+ *
+ * Here, and not in Agent 3b, because here is the first point where `CASE.death_method` and the cast's
+ * `alibi_window` fields exist. At the END of `runAgent3` on purpose: the novelty-retry path can
+ * REPLACE `ctx.cml` (see the `ctx.cml = cmlResult.cml` at the retry site), so anything earlier could
+ * pin facts from a case that was then discarded.
+ *
+ * Additive only. Device facts keep their identity and their order, so `checkCaseTimeCoherence`
+ * (X38) sees exactly what it saw before — and `buildCaseScopedLockedFacts` refuses any value that
+ * parses as a clock time or a duration, which is what keeps that true.
+ */
+export function extendLockedFactRegistryWithCaseFacts(ctx: OrchestratorContext): void {
+  if (!ctx.inputs.enableLockedFactRegistry) return;
+  try {
+    const caseData = ((ctx.cml as any)?.CASE ?? ctx.cml) as unknown;
+    if (!caseData) return;
+    const existing = ctx.lockedFactRegistry ?? [];
+    const takenIds = new Set(existing.map((f) => f.id));
+    const added = buildCaseScopedLockedFacts(caseData).filter((f) => !takenIds.has(f.id));
+    if (added.length === 0) return;
+    ctx.lockedFactRegistry = [...existing, ...added];
+    // Re-emit the artifact: Agent 3b wrote it before these facts existed (see writeLockedFactsArtifact).
+    writeLockedFactsArtifact(ctx);
+    ctx.warnings.push(
+      `[X51] locked fact registry extended with ${added.length} case fact(s) beyond the device: ` +
+        added.map((f) => `${f.id}="${f.value}"`).join(", "),
+    );
+  } catch (err) {
+    // Never fail a run over an additive consistency aid.
+    ctx.warnings.push(`[X51] case-scoped locked facts skipped: ${String(err)}`);
+  }
 }

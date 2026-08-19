@@ -3,6 +3,8 @@
 **Written:** 2026-08-17 · **Type:** the per-agent state of the pipeline and what each owes on the path to 90.
 Supersedes [REVIEW_09](REVIEW_09.md)'s ordering. [REVIEW_05](REVIEW_05.md) remains the deep record.
 
+> **SUPERSEDED 2026-08-18 by [REVIEW_11](REVIEW_11.md)**, which reads §10's probe run externally (86/100, dialogue 8) and corrects two findings here: **§8's ceiling bullet is triggered** — dialogue exceeded its best-ever mark — and **§10.4's N8 escalation is withdrawn**, because the cold read puts the reveal in chapter 8 where the contract bound it. §10.2's X47 stays real and is demoted from the top of the board.
+
 REVIEW_09 split the problem in two — a **reliability** half (four categories that swing three and four
 marks) and a **ceiling** half (six that have never moved) — and said no detector reaches the ceiling.
 Three days of measurement say that framing is right about the halves and wrong about the arithmetic:

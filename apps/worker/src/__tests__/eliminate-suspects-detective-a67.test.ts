@@ -56,6 +56,87 @@ describe("computeEliminationSuspects — detective exclusion across cast shapes 
   });
 });
 
+/**
+ * X50 (REVIEW_11 §7) — THE A_67 FIX CURED THE KEY AND THE VALUE BROKE IT AGAIN.
+ *
+ * The A_67 tests above all use `roleArchetype: "detective"`. That is not what Agent 2 emits. Its own
+ * prompt mandates, three times, `roleArchetype MUST be "Amateur Sleuth / Civilian Investigator"` —
+ * which has no `detective` substring — and `??` stops at the first NON-NULLISH value, so `c.role`
+ * (the `detective|victim|suspect` enum, the one field that answers the question) was never reached.
+ *
+ * MEASURED on run `mystery-1786999938275`: `regen-suspect-elimination UNRESOLVED Eleanor Voss` — the
+ * investigator in the elimination-suspect set, two repair calls spent clearing the sleuth.
+ */
+describe("computeEliminationSuspects — the archetype label Agent 2 actually emits (X50)", () => {
+  const realShapeCml = {
+    CASE: {
+      culpability: { culprits: ["Hugo Vane"], victim: "Dr. Mallory Finch" },
+      cast: [
+        { name: "Eleanor Voss", role_archetype: "Detective" },
+        { name: "Dr. Mallory Finch", role_archetype: "Victim" },
+        { name: "Captain Ivor Hale", role_archetype: "suspect" },
+        { name: "Hugo Vane", role_archetype: "suspect" },
+      ],
+    },
+  };
+
+  it("excludes the sleuth when the archetype is Agent 2's mandated label and the enum says detective", () => {
+    const castDesign = {
+      characters: [
+        // The exact shape Agent 2 is instructed to produce. Pre-X50 this name survived into the set.
+        { name: "Eleanor Voss", roleArchetype: "Amateur Sleuth / Civilian Investigator", role: "detective" },
+        { name: "Dr. Mallory Finch", roleArchetype: "victim", role: "victim" },
+        { name: "Captain Ivor Hale", roleArchetype: "Retired Sea Captain", role: "suspect" },
+        { name: "Hugo Vane", roleArchetype: "Hotel Owner", role: "suspect" },
+      ],
+    };
+    const suspects = computeEliminationSuspects(realShapeCml, castDesign);
+    expect(suspects).not.toContain("Eleanor Voss");        // the detective — WRONGLY retained pre-X50
+    expect(suspects).not.toContain("Dr. Mallory Finch");   // the victim
+    expect(suspects).not.toContain("Hugo Vane");           // the culprit
+    expect(suspects).toEqual(["Captain Ivor Hale"]);
+  });
+
+  it("excludes the sleuth on the archetype label ALONE, with no role enum present", () => {
+    const castDesign = {
+      characters: [
+        { name: "Eleanor Voss", roleArchetype: "Amateur Sleuth / Civilian Investigator" },
+        { name: "Captain Ivor Hale", roleArchetype: "Retired Sea Captain" },
+      ],
+    };
+    const suspects = computeEliminationSuspects(realShapeCml, castDesign);
+    expect(suspects).toEqual(["Captain Ivor Hale"]);
+  });
+
+  it("does NOT exclude a character merely related to the detective (head-noun discipline)", () => {
+    const castDesign = {
+      characters: [
+        { name: "Eleanor Voss", roleArchetype: "Amateur Sleuth / Civilian Investigator", role: "detective" },
+        { name: "Mrs Pell", roleArchetype: "Landlady of the detective", role: "suspect" },
+        { name: "Captain Ivor Hale", roleArchetype: "Retired Sea Captain", role: "suspect" },
+      ],
+    };
+    const suspects = computeEliminationSuspects(realShapeCml, castDesign);
+    expect(suspects).toContain("Mrs Pell");
+    expect(suspects).not.toContain("Eleanor Voss");
+  });
+
+  it("enforceSuspectEliminationPresence writes no clearance for the sleuth under the real label", () => {
+    const castDesign = {
+      characters: [
+        { name: "Eleanor Voss", roleArchetype: "Amateur Sleuth / Civilian Investigator", role: "detective" },
+        { name: "Captain Ivor Hale", roleArchetype: "Retired Sea Captain", role: "suspect" },
+      ],
+    };
+    const prose = {
+      chapters: [{ paragraphs: ["Eleanor Voss knelt by the clock while Captain Ivor Hale watched from the door."] }],
+    };
+    const out = enforceSuspectEliminationPresence(prose, realShapeCml, castDesign);
+    const text = out.chapters.map((c: any) => (c.paragraphs as string[]).join(" ")).join(" ");
+    expect(text).not.toMatch(/Voss was thoroughly cleared by the evidence/i);
+  });
+});
+
 // A_68 probe (SUSPECT_ELIM run 1715): the VICTIM was never excluded, so the injector shipped
 // "Ellsworth was thoroughly cleared by the evidence; the alibi confirmed they could not have committed
 // the crime" for Lady Beatrice Ellsworth — the murder victim. A latent bug (only fires when the injector

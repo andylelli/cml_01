@@ -69,6 +69,31 @@ const wordifyLockedFactValue = (value: string): string => {
   return out;
 };
 
+
+/**
+ * Write `locked-facts-{runId}.json`.
+ *
+ * EXPORTED, and called twice per run — found on review 2026-08-18. The registry is BUILT here from the
+ * device, but X51 appends the case's own facts (the weapon, each suspect's alibi location) at the end
+ * of `runAgent3`, which happens later. With a single write at build time the artifact showed only the
+ * device's clock times, so an audit of a future run would read this file and conclude the weapon and
+ * alibi pins never landed. This project diagnoses runs from artifacts; an artifact that is a snapshot
+ * of an intermediate state is worse than none.
+ */
+export function writeLockedFactsArtifact(ctx: OrchestratorContext): void {
+  try {
+    const logsDir = join(ctx.workerAppRoot, "logs");
+    if (!existsSync(logsDir)) mkdirSync(logsDir, { recursive: true });
+    writeFileSync(
+      join(logsDir, `locked-facts-${ctx.runId}.json`),
+      JSON.stringify({ runId: ctx.runId, registry: ctx.lockedFactRegistry ?? [] }, null, 2),
+      "utf8",
+    );
+  } catch (err) {
+    ctx.warnings.push(`Pillar 1: failed to write locked-facts file: ${String(err)}`);
+  }
+}
+
 export async function runAgent3b(ctx: OrchestratorContext): Promise<void> {
   ctx.reportProgress("hard_logic_devices", "Generating novel hard-logic device concepts...", 28);
 
@@ -331,18 +356,8 @@ export async function runAgent3b(ctx: OrchestratorContext): Promise<void> {
         };
       });
 
-    // Emit to apps/worker/logs/locked-facts-{runId}.json for observability
-    try {
-      const logsDir = join(ctx.workerAppRoot, "logs");
-      if (!existsSync(logsDir)) mkdirSync(logsDir, { recursive: true });
-      writeFileSync(
-        join(logsDir, `locked-facts-${ctx.runId}.json`),
-        JSON.stringify({ runId: ctx.runId, registry: ctx.lockedFactRegistry }, null, 2),
-        "utf8",
-      );
-    } catch (err) {
-      ctx.warnings.push(`Pillar 1: failed to write locked-facts file: ${String(err)}`);
-    }
+    // Emit to apps/worker/logs/locked-facts-{runId}.json for observability.
+    writeLockedFactsArtifact(ctx);
 
     ctx.warnings.push(
       `Pillar 1: locked fact registry built with ${ctx.lockedFactRegistry.length} fact(s): ` +

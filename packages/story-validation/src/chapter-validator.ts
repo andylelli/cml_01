@@ -7,7 +7,7 @@
 import type { CMLData, Story, ValidationError } from './types.js';
 import { isVictimArchetype } from '@cml/cml';
 import { findUnknownTitledNameMentions } from './name-sanitizer.js';
-import { analyzeTemporalConsistency, extractCaseMechanismTerms } from './temporal-consistency.js';
+import { analyzeTemporalConsistency, extractCaseMechanismTerms, caseNamesMechanicalSpring } from './temporal-consistency.js';
 import { detectControlPlaneLeakage, detectVerbatimFieldEcho } from './control-plane-leakage.js';
 
 export interface ChapterValidationIssue {
@@ -451,14 +451,35 @@ export class ChapterValidator {
     // RC2.3: exclude the case's own declared mechanism "spring" collocations by construction, so a novel
     // time-tampering device (sundial/gnomon/orrery) never false-fires as a seasonal contradiction.
     const mechanismTerms = extractCaseMechanismTerms(cmlCase);
-    const analysis = analyzeTemporalConsistency(text, chapter.temporalMonth, mechanismTerms);
+    // REVIEW_12 §3.1: when the CASE's own evidence names a spring, the manuscript's springs are that
+    // object unless they carry an unambiguous seasonal marker. 8 of 11 retries on run 1787090659145.
+    const analysis = analyzeTemporalConsistency(
+      text,
+      chapter.temporalMonth,
+      mechanismTerms,
+      caseNamesMechanicalSpring(cmlCase),
+    );
 
     if (analysis.conflictingSeasons.length > 0) {
       const monthAnchor = analysis.mentionedMonths[0] ?? chapter.temporalMonth ?? 'timeline month';
+      /**
+       * REVIEW_12 §3.2 — NAME THE TRIGGER, not just the rule.
+       *
+       * "Align season wording with month references" is unactionable when the offending token is the
+       * case's own murder device, and the model has no way to find it: it re-ran the same chapter and
+       * failed identically, twice, on four chapters of one run. Quoting the words turns a full
+       * regeneration into a one-line edit.
+       */
+      const triggers = analysis.conflictingSeasons
+        .map((season) => {
+          const quote = analysis.seasonTriggers[season];
+          return quote ? `${season}: "…${quote}…"` : season;
+        })
+        .join(' | ');
       issues.push({
         severity: 'major',
-        message: `Chapter ${chapter.chapterNumber} has month/season contradiction (${monthAnchor} vs ${analysis.conflictingSeasons.join(', ')})`,
-        suggestion: `Align season wording with month references (${analysis.mentionedMonths.join(', ') || chapter.temporalMonth || 'timeline month'}) to maintain temporal consistency`
+        message: `Chapter ${chapter.chapterNumber} has month/season contradiction (${monthAnchor} vs ${analysis.conflictingSeasons.join(', ')}) — triggered by ${triggers}`,
+        suggestion: `Change the season word(s) quoted above, or drop them. The month is ${analysis.mentionedMonths.join(', ') || chapter.temporalMonth || 'the timeline month'}. If the word names a physical object (a clock's spring, a summer house), rename it so it cannot read as a season.`
       });
     }
 

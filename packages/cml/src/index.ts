@@ -20,7 +20,10 @@ import {
 
 export const packageName = "@cml/cml";
 export { validateCml };
-export { isVictimArchetype } from "./roles.js";
+export { isVictimArchetype, isDetectiveArchetype, roleTextsOf } from "./roles.js";
+// X51 (REVIEW_11 §8.1) — case-scoped locked facts: the weapon and each suspect's alibi location.
+export { buildCaseScopedLockedFacts, extractWeaponFromDeathMethod, extractAlibiLocation } from "./case-locked-facts.js";
+export type { CaseScopedLockedFact } from "./case-locked-facts.js";
 // A_71 — the directional invariant for false-time concealments. Lives here (not in prompts-llm) so
 // `validateCml` can enforce it: a case whose staged time incriminates its own culprit is a case-logic
 // defect, and the cheapest place to catch it is the £0.03 end of the pipeline.

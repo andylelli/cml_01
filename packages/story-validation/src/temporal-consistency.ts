@@ -184,16 +184,96 @@ const MONTH_PATTERNS: Array<{ month: string; pattern: RegExp }> = [
   })),
 ];
 
+/**
+ * REVIEW_12 §3.1 — DOES THE CASE ITSELF NAME A SPRING AS A PHYSICAL OBJECT?
+ *
+ * MEASURED on run `mystery-1787090659145`: **8 of that run's 11 retry calls** were
+ * `month/season contradiction (september vs spring)` on chapters 2, 3, 4 and 8, twice each. Agent 2d's
+ * temporal data was CORRECT (`month: September`, `season: fall`). The contradiction was between the
+ * case's own physical evidence —
+ *
+ *   CASE.constraint_space.physical.traces: "Broken spring fragment found near rooftop pulley"
+ *
+ * — and a season word list. Every occurrence of "spring" in the shipped manuscript is that object.
+ *
+ * `buildSpringMechanicalRe` already exists for this and could not reach it: it is built from mechanism
+ * NOUNS (`main`, `coil`, `clock`…) and winding ACTIONS (`wound`, `coiled`…), so it strips "mainspring"
+ * and "clock spring" but not "broken spring fragment", not "a loose wire and a broken spring", and not
+ * the bare "the spring" that English uses once a thing has been introduced. Its own comment calls the
+ * previous round of that list "the A_60 whack-a-mole", and lengthening it again would be the same move.
+ *
+ * The document-level fact is free and was going unused: when the case's own evidence names a spring,
+ * the manuscript's springs are that object unless they carry an unambiguous SEASONAL marker. This
+ * inverts the default for exactly the cases where the collision happens, and for no others.
+ */
+export function caseNamesMechanicalSpring(cmlCase: any): boolean {
+  const cs = cmlCase?.constraint_space ?? {};
+  const dt = cmlCase?.discriminating_test ?? {};
+  const mech = cmlCase?.hidden_model?.mechanism ?? {};
+  const sources: unknown[] = [
+    ...(Array.isArray(cs.physical?.traces) ? cs.physical.traces : []),
+    ...(Array.isArray(cs.access?.objects) ? cs.access.objects : []),
+    dt.design, dt.method, dt.test_description, dt.pass_condition, dt.expected_result,
+    mech.description,
+    ...(Array.isArray(mech.delivery_path) ? mech.delivery_path.map((s: any) => s?.step) : []),
+    cmlCase?.death_method,
+  ];
+  return sources.some((s) => typeof s === 'string' && /\bsprings?\b/i.test(s));
+}
+
+/**
+ * "spring" in the SEASONAL sense, requiring a marker that a clock part cannot carry.
+ *
+ * Used only when `caseNamesMechanicalSpring` is true. `springtime` and `vernal` are unambiguous on
+ * their own and stay; everything else needs a seasonal collocation.
+ *
+ * CHOSEN ON CORPUS EVIDENCE, not vocabulary: swept over 171 manuscripts and 487 sentences containing
+ * "spring". This matches 365 of them and every sampled match is the season. Of the 122 left, 72 are
+ * plainly the device ("the state of the spring", "a stiff spring", "broken spring fragment").
+ *
+ * THE TRADE, stated plainly. The residue also holds genuine seasonal uses ("spring coat", "spring
+ * decorations"), so on a case that names a mechanical spring this can mask a real season error. That
+ * requires the model to write spring-seasonal prose in a non-spring month — which the corpus does not
+ * show happening, because the seasonal uses all come from stories actually set in spring, where there
+ * is no conflict to mask. Against that: 8 unrepairable retries per affected run, every run.
+ */
+const SPRING_SEASONAL_COLLOCATION_NOUNS =
+  'air|morning|afternoon|evening|day|days|night|nights|rain|rains|shower|showers|sun|sunshine|sunlight|' +
+  'light|breeze|wind|winds|thaw|bloom|blooms|blossom|blossoms|green|grass|flower|flowers|weather|chill|' +
+  'cold|frost|equinox|term|season|month|months|week|weeks|fog|mist|haze|drizzle|garden|gardens|dawn|dusk|' +
+  'twilight|sky|storm|storms|tide|tides|planting|warmth|damp|coat|clouds|decorations|renewal';
+
+const SPRING_SEASONAL_ONLY_RE = new RegExp(
+  [
+    String.raw`\b(?:springtime|vernal)\b`,
+    String.raw`\b(?:early|late|mid|last|next|this|that|following|previous|one)\s+spring\b`,
+    String.raw`\bspring(?:'s)?\s+(?:${SPRING_SEASONAL_COLLOCATION_NOUNS})\b`,
+    String.raw`\b(?:chill|air|scent|smell|light|warmth|promise|edge|hint|first|onset|arrival|start|end|beginning|coming|midst)\s+of\s+spring\b`,
+    String.raw`\bin\s+(?:the\s+)?spring\b`,
+    String.raw`\bspring\s+(?:had|has|have|was|were|is|came|comes|arrived|arrives|turned|would|will)\b`,
+    String.raw`\b(?:since|until|till|before|after|by|through|throughout|during)\s+(?:last\s+|next\s+|the\s+)?spring\b`,
+  ].join('|'),
+  'i',
+);
+
 export interface TemporalConsistencyAnalysis {
   mentionedMonths: string[];
   expectedSeasons: CanonicalSeason[];
   conflictingSeasons: CanonicalSeason[];
+  /**
+   * REVIEW_12 §3.2 — the exact text that produced each conflicting season, so the failure message can
+   * name its trigger. "align season wording" is unactionable when the offending token is the case's
+   * own murder device.
+   */
+  seasonTriggers: Partial<Record<CanonicalSeason, string>>;
 }
 
 export function analyzeTemporalConsistency(
   text: string,
   temporalMonth?: string,
-  mechanismTerms?: readonly string[]
+  mechanismTerms?: readonly string[],
+  /** True when the CASE names a spring as a physical object — see `caseNamesMechanicalSpring`. */
+  caseNamesSpring = false,
 ): TemporalConsistencyAnalysis {
   const lowered = (text || '').toLowerCase();
   const monthMentions = new Set<string>();
@@ -224,6 +304,7 @@ export function analyzeTemporalConsistency(
       mentionedMonths: [],
       expectedSeasons: [],
       conflictingSeasons: [],
+      seasonTriggers: {},
     };
   }
 
@@ -236,10 +317,22 @@ export function analyzeTemporalConsistency(
     : SPRING_MECHANICAL_RE;
   const seasonalText = lowered.replace(springRe, ' ');
   const conflicting = new Set<CanonicalSeason>();
+  const seasonTriggers: Partial<Record<CanonicalSeason, string>> = {};
   for (const { season, pattern } of SEASON_PATTERNS) {
+    // REVIEW_12 §3.1: when the CASE names a spring as a physical object, the bare word is that object.
+    // Only an unambiguous seasonal marker counts, which is what `SPRING_SEASONAL_ONLY_RE` requires.
+    const effective =
+      season === 'spring' && caseNamesSpring ? SPRING_SEASONAL_ONLY_RE : pattern;
     const target = season === 'spring' ? seasonalText : lowered;
-    if (pattern.test(target) && !expectedSeasonsSet.has(season)) {
+    const match = effective.exec(target);
+    // `pattern` may be a /g/ regex in some season entries; reset so a later call is not skipped.
+    effective.lastIndex = 0;
+    if (match && !expectedSeasonsSet.has(season)) {
       conflicting.add(season);
+      // REVIEW_12 §3.2 — carry the offending words out, with a little context, so the caller can
+      // name the trigger instead of restating the rule.
+      const at = match.index ?? 0;
+      seasonTriggers[season] = target.slice(Math.max(0, at - 40), at + match[0].length + 40).trim();
     }
   }
 
@@ -247,6 +340,7 @@ export function analyzeTemporalConsistency(
     mentionedMonths,
     expectedSeasons,
     conflictingSeasons: Array.from(conflicting),
+    seasonTriggers,
   };
 }
 

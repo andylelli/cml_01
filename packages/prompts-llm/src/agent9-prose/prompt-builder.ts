@@ -1311,9 +1311,62 @@ export const buildPromptContextBlocks = (sections: PromptSectionInputs): PromptC
   return emitted.map((section) => ({ key: section.key, content: section.content, priority: section.priority }));
 };
 
+/**
+ * X47 (REVIEW_11 §9) — does the budget squeeze stop when it cannot work, and does it spare craft?
+ *
+ * Read at CALL time, never frozen into a module const: this codebase has paid for that trap twice
+ * (see the flags-freeze-before-dotenv note on `isPlantBeforeRevealEnabled`). Default OFF, for the
+ * reason `buildPromptContextBlocks` gives about its own flag — changing which block is dropped under
+ * budget pressure is a behaviour change on every run, and it owes a before/after.
+ */
+const isPromptBudgetCraftFloorEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(env.AGENT9_PROMPT_BUDGET_CRAFT_FLOOR ?? '');
+
+/**
+ * The context blocks that feed the six rubric categories which have never moved.
+ *
+ * REVIEW_10 §10.2 lined the budget's drops up against REVIEW_09 §1's flat six and they are the same
+ * list: atmosphere is fed by `location_profiles` / `texture_pool` / `world_document`, character
+ * clarity by `character_personality`, dialogue by `character_contracts` (voice fragments, signature
+ * tic, and X43's guard), and prose / pacing / hook by `craft_guide`. `judged_on` is here because it
+ * states the standard those categories are marked against (M6).
+ *
+ * Being on this list does not make a block undroppable. It makes it the LAST of its priority class to
+ * go, instead of the first by accident of array position.
+ */
+const CRAFT_INPUT_BLOCKS = new Set([
+  'world_document',
+  'texture_pool',
+  'location_profiles',
+  'character_personality',
+  'character_contracts',
+  'craft_guide',
+  'judged_on',
+]);
+
+/**
+ * Drop candidates within one priority class, craft inputs last.
+ *
+ * A stable partition, not a comparator sort — the non-craft blocks keep their existing relative order
+ * and so do the craft ones, so with the flag off (or with no craft blocks present) this returns the
+ * array unchanged and the victim is exactly who it was before.
+ */
+const orderDropCandidates = (
+  candidates: PromptContextBlock[],
+  craftFloorOn: boolean,
+): PromptContextBlock[] =>
+  craftFloorOn
+    ? [
+        ...candidates.filter((block) => !CRAFT_INPUT_BLOCKS.has(block.key)),
+        ...candidates.filter((block) => CRAFT_INPUT_BLOCKS.has(block.key)),
+      ]
+    : candidates;
+
 /** Exported for tests: the classification is the claim R8 rests on, so it has to be assertable. */
 export const __isPromptPrefixOrderEnabled = isPromptPrefixOrderEnabled;
 export const __isRubricInPromptEnabled = isRubricInPromptEnabled;
+export const __isPromptBudgetCraftFloorEnabled = isPromptBudgetCraftFloorEnabled;
+export const __CRAFT_INPUT_BLOCKS = CRAFT_INPUT_BLOCKS;
 
 export const estimateTokenCount = (value: string): number => {
   if (!value) return 0;
@@ -1373,13 +1426,72 @@ export const applyPromptBudgeting = (
   let blockTokens = computeBlockTokens();
   const droppedBlocks: string[] = [];
 
-  // Deterministic drop order: optional -> medium -> high (critical never dropped).
+  /**
+   * X47 (REVIEW_11 §9, REVIEW_10 §10.1/§10.2) — THE SQUEEZE DELETES CRAFT AND BUYS NOTHING.
+   *
+   * MEASURED on run `mystery-1786999938275`, from this function's own summary line:
+   *
+   *   ch   fixed    available   shipped   newly dropped
+   *    3  11,902      12,098     9,139    texture_pool, continuity_context, world_document
+   *    5  15,102       8,898     8,736    character_personality
+   *    6  17,736       6,264     5,863    character_contracts, physical_plausibility, ...
+   *    8  21,415       2,585     5,499    craft_guide, judged_on
+   *   10  23,622         378     4,723    -
+   *
+   * Two separate defects live in those rows.
+   *
+   * FUTILITY. Chapters 8-10 ship 5,499 / 5,737 / 4,723 tokens of context into 2,585 / 2,191 / 378.
+   * Everything droppable is already gone and the critical blocks alone still blow the ceiling — so
+   * the loop dropped `craft_guide` and `judged_on` and did not reach the budget anyway. It cannot:
+   * no drop sequence can, once the critical floor exceeds what is available. All those drops bought
+   * was the deletion of the standard the chapter is written to.
+   *
+   * WHICH VICTIM. Within a priority class the loop takes blocks in ARRAY ORDER, and array order puts
+   * the flat six's own inputs first — `world_document` and `texture_pool` (atmosphere),
+   * `character_personality` (character clarity), `character_contracts` (dialogue, including X43's
+   * guard), `craft_guide` (prose/pacing/hook). Agent 2c's sensory atoms reached two chapters of ten;
+   * Agent 6.5's voice contracts reached five. Every reader complaint this project has logged about
+   * thin atmosphere, interchangeable speakers and a sagging back half was made about chapters written
+   * with those blocks deleted.
+   *
+   * BEHIND A FLAG, and the reason is written twelve lines above this one: `buildPromptContextBlocks`
+   * notes that changing which `medium` block dies first "is a real behaviour change under budget
+   * pressure, and it is the strongest single reason this sits behind a flag rather than shipping as a
+   * free optimisation." This changes exactly that, so it takes exactly that treatment and owes the
+   * same before/after. The DIAGNOSIS is unconditional — see the summary line below, which now reports
+   * `available` and `futile` on every call whether the flag is on or not.
+   */
+  const craftFloorOn = isPromptBudgetCraftFloorEnabled();
+  const criticalTokens = workingBlocks
+    .filter((block) => block.priority === "critical")
+    .reduce((sum, block) => sum + estimateTokenCount(block.content), 0);
+  // No drop sequence can succeed once the undroppable floor alone exceeds the room available.
+  const futile = criticalTokens > availableForBlocks;
+
+  /**
+   * FOUND ON REVIEW 2026-08-18 — the first version of the futility branch skipped the drop loop
+   * ENTIRELY, and that made the problem worse. On the ch8 shape it shipped 5,500 context tokens where
+   * the old code shipped 4,000: the chapters furthest over the ceiling grew, and `humour_guide` and
+   * `physical_plausibility` were retained too, which is not what X47 is for. "Stop deleting craft for
+   * nothing" is not "stop deleting anything".
+   *
+   * So futility suppresses the drop TARGET, not the drop. When no sequence can reach the budget, the
+   * loop still sheds every non-craft droppable block — the cost saving is real whether or not the
+   * ceiling is reachable — and stops before the craft inputs rather than at an arbitrary token count.
+   */
   const dropOrder: PromptBlockPriority[] = ["optional", "medium", "high"];
   for (const priority of dropOrder) {
-    if (blockTokens <= availableForBlocks) break;
-    const candidates = workingBlocks.filter((block) => block.priority === priority);
+    // When the squeeze is futile there is no target to reach, so the loop runs to the craft floor
+    // instead of to `availableForBlocks`.
+    if (!futile && blockTokens <= availableForBlocks) break;
+    const candidates = orderDropCandidates(
+      workingBlocks.filter((block) => block.priority === priority),
+      craftFloorOn,
+    );
     for (const block of candidates) {
-      if (blockTokens <= availableForBlocks) break;
+      if (!futile && blockTokens <= availableForBlocks) break;
+      // The craft floor is what futility protects. Without the flag, behaviour is unchanged.
+      if (craftFloorOn && futile && CRAFT_INPUT_BLOCKS.has(block.key)) continue;
       droppedBlocks.push(block.key);
       blockTokens -= estimateTokenCount(block.content);
       workingBlocks = workingBlocks.filter((entry) => entry.key !== block.key);
@@ -1389,7 +1501,7 @@ export const applyPromptBudgeting = (
   const composedSystem =
     baseSystem +
     workingBlocks.map((block) => block.content).join('') +
-    `\n\nPROMPT BUDGET SUMMARY: budget=${budgetTokens} tokens; fixed=${fixedTokens}; context=${blockTokens}; dropped=[${droppedBlocks.join(', ') || 'none'}]; truncated=[${truncatedBlocks.join(', ') || 'none'}]` +
+    `\n\nPROMPT BUDGET SUMMARY: budget=${budgetTokens} tokens; fixed=${fixedTokens}; available=${availableForBlocks}; context=${blockTokens}; critical=${criticalTokens}; futile=${futile}; craftFloor=${craftFloorOn}; dropped=[${droppedBlocks.join(', ') || 'none'}]; truncated=[${truncatedBlocks.join(', ') || 'none'}]` +
     `\n\n${developer}`;
 
   return { composedSystem, droppedBlocks, truncatedBlocks };

@@ -1043,7 +1043,64 @@ export const resolveDiscriminatingTestValidityState = (
  * Exported so the orchestrator (agent9-run.ts) can use the same definition
  * and the two files cannot silently drift — fixes issue #3.2.
  */
-export const RESOLUTION_RE = /\b(confess(?:ed|es)?|arrest(?:ed)?|taken\s+into\s+custody|I\s+(?:did|killed)|guilty|you\s+committed|you\s+killed|the\s+murderer\s+is|it\s+was\s+you|unmask(?:ed)?|expos(?:ed|es)|named\s+as|revealed\s+as|proved?\s+guilty|brought\s+to\s+justice|caught\s+red-handed|surrendered|condemned|the\s+killer\s+(?:was|proved?|is))\b/i;
+/**
+ * REVIEW_12 §3.2 — RESOLUTION LANGUAGE, NARROWED ON CORPUS EVIDENCE.
+ *
+ * The previous version matched bare `expos(ed|es)`, `guilty`, `surrendered`, `unmask(ed)` and
+ * `condemned`. MEASURED on run `mystery-1787090659145`: chapter 1 was rejected TWICE for
+ *
+ *   "The mechanism inside the clock, partially EXPOSED where the panel hung ajar…"
+ *
+ * with the message "chapter must not contain confession/arrest/solution language" — in a chapter that
+ * contained no confession, no arrest and no solution. Across 171 corpus manuscripts bare `exposed`
+ * occurs 322 times and the sampled uses are clock workings, exposed mechanisms and "the fragile order
+ * … was exposed"; `surrendered` is mostly "dusk surrendered to the chill" and "surrendered the
+ * letter"; `guilty` is mostly "a guilty hand". The resolution senses are the minority.
+ *
+ * Each alternative below now requires the construction that carries the resolution MEANING — a person
+ * or a verdict, not a thing left uncovered. Verified against 9 positive controls (confessed, under
+ * arrest, found guilty, "you killed her", "the murderer is", "exposed him as the killer", "surrendered
+ * herself", "revealed as the culprit", "a full confession") and 9 measured false positives, all of
+ * which now decline.
+ *
+ * NET EFFECT ON THE OTHER CONSUMER, checked before shipping: this regex is also the POSITIVE test for
+ * the reveal chapter (line ~1343), where narrowing could have caused a false negative. Over the last
+ * two chapters of all 171 manuscripts it now matches **169 where the old one matched 165** — adding
+ * `confession` (the noun), which `confess(?:ed|es)?` never covered. Stricter where it should be,
+ * broader where it counts.
+ */
+export const RESOLUTION_RE = new RegExp(
+  [
+    // Confession — but not the Golden-Age discourse marker: "Though I confess, I've seen clocks…"
+    String.raw`\bconfess(?:ed|es|ion)\b`,
+    String.raw`\bI\s+confess\s+(?:to|that\s+I)\b`,
+    String.raw`\barrest(?:ed)?\b`,
+    String.raw`\btaken\s+into\s+custody\b`,
+    String.raw`\bI\s+(?:did|killed)\b`,
+    // Guilt as a verdict, never as an adjective on a look, a hand or a conscience.
+    String.raw`\b(?:found|proved?|declared|pronounced)\s+guilty\b`,
+    String.raw`\b(?:is|was|are|were|am)\s+guilty\b`,
+    String.raw`\bguilty\s+(?:of|party|man|woman|person|one)\b`,
+    String.raw`\bthe\s+guilty\b`,
+    String.raw`\byou\s+committed\b`,
+    String.raw`\byou\s+killed\b`,
+    String.raw`\bthe\s+murderer\s+is\b`,
+    String.raw`\bit\s+was\s+you\b`,
+    String.raw`\bunmask(?:ed)?\s+(?:as|the|him|her|them)\b`,
+    String.raw`\bthe\s+\w+\s+unmasked\b`,
+    // Exposure OF a person or of the truth — never a physical thing left uncovered.
+    String.raw`\bexpos(?:ed|es)\s+(?:him|her|them|you|the\s+(?:culprit|killer|murderer|truth|lie|deception|fraud|forgery))\b`,
+    String.raw`\bexposed\s+as\s+(?:the|a)\b`,
+    String.raw`\bnamed\s+as\b`,
+    String.raw`\brevealed\s+as\s+(?:the|a)\b`,
+    String.raw`\bbrought\s+to\s+justice\b`,
+    String.raw`\bcaught\s+red-handed\b`,
+    String.raw`\bsurrendered\s+(?:himself|herself|themselves|to\s+(?:the\s+)?(?:police|constable|authorities|law))\b`,
+    String.raw`\bcondemned\s+(?:him|her|them|you)\b`,
+    String.raw`\bthe\s+killer\s+(?:was|proved?|is)\b`,
+  ].join('|'),
+  'i',
+);
 
 /**
  * Shared resolution backstop sentence used by both the batch retry loop (agent9-prose.ts)
@@ -1227,9 +1284,28 @@ export const validateChapterPreCommitObligations = (
             `Stage-mode outcome failed (discovery_opening): victim must be named explicitly as "${stageContractCheck.victimName}" in Chapter 1.`
           );
         }
-        if (RESOLUTION_RE.test(chapterText)) {
+        /**
+         * REVIEW_12 §3.2 — NAME THE TRIGGER.
+         *
+         * MEASURED on run `mystery-1787090659145`: chapter 1 was rejected twice by this line, with a
+         * message that names a category and not a word. The offending text was
+         * *"The mechanism inside the clock, partially exposed where the panel hung ajar"* — one token
+         * out of nineteen, in a chapter with no confession, no arrest and no solution. The model was
+         * told which rule it broke and given no way to find what broke it, so it regenerated the whole
+         * chapter twice. Quoting the match turns that into a one-word edit.
+         */
+        const resolutionHit = RESOLUTION_RE.exec(chapterText);
+        if (resolutionHit) {
+          const at = resolutionHit.index ?? 0;
+          const context = chapterText
+            .slice(Math.max(0, at - 60), at + resolutionHit[0].length + 60)
+            .replace(/\s+/g, " ")
+            .trim();
           uniqueHardFailures.push(
-            "Stage-mode outcome failed (discovery_opening): chapter must not contain confession/arrest/solution language."
+            `Stage-mode outcome failed (discovery_opening): chapter must not contain confession/arrest/solution ` +
+              `language. Triggered by "${resolutionHit[0]}" in: "…${context}…". Chapter 1 discovers the body; ` +
+              `reword just that phrase — if it describes a physical thing rather than a person being found out, ` +
+              `choose a word that cannot read as an accusation.`
           );
         }
         if (Array.isArray(stageContractCheck.suspectNames) && stageContractCheck.suspectNames.length > 0) {
@@ -1303,9 +1379,33 @@ export const validateChapterPreCommitObligations = (
         break;
       }
       case "aftermath_consequence": {
-        if (/\b(new clue|new evidence|for the first time|newly discovered)\b/i.test(chapterText)) {
+        /**
+         * REVIEW_12 §3.3 — `for the first time` REMOVED, on corpus evidence.
+         *
+         * This list was four literal phrases under a message that makes a structural claim. Measured
+         * over the last two chapters of all 171 corpus manuscripts:
+         *
+         *   new clue          0 occurrences
+         *   newly discovered  0 occurrences
+         *   new evidence      2 occurrences — both genuinely presenting evidence
+         *   for the first time  **47 occurrences, and not one is about evidence**
+         *
+         * Every sampled use of the fourth is the register this validator DEMANDS — "her posture
+         * relaxing for the first time all evening", "for the first time in days, her eyes met his",
+         * "the mask of authority slipped for the first time". Consequence and retrospect is exactly
+         * what an aftermath chapter owes, and the phrase English uses to write it was being rejected
+         * as decisive new evidence. The other three are near-zero volume and semantically on target,
+         * so they stay.
+         */
+        const aftermathEvidencePhrase =
+          /\b(new clue|new evidence|newly discovered)\b/i.exec(chapterText);
+        if (aftermathEvidencePhrase) {
+          // REVIEW_12 §3.2 — name the trigger. The old message restated the rule, so a model that
+          // believed it had written consequence had nothing to change and returned the same chapter.
           uniqueHardFailures.push(
-            "Stage-mode outcome failed (aftermath_consequence): aftermath chapter must focus on consequence, not introduce decisive new mystery evidence."
+            `Stage-mode outcome failed (aftermath_consequence): aftermath chapter must focus on consequence, ` +
+              `not introduce decisive new mystery evidence. Triggered by the phrase "${aftermathEvidencePhrase[0]}" — ` +
+              `remove or reword that phrase, and refer to evidence already shown rather than presenting it afresh.`
           );
         }
         // A_71 — enforce the prohibitions the AFTERMATH CONTRACT already states.
