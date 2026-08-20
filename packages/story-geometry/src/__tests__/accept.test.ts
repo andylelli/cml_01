@@ -876,6 +876,51 @@ describe("disclosure — a confession, and whose it is (X34)", () => {
  * opposite question — it wants times on the page that the case does not account for, and here every
  * time on the page was accounted for by a locked fact that contradicted the case's own anchors.
  */
+/**
+ * X46 — the firing condition and the message disagreed, and the message was the honest one.
+ *
+ * `time_model_unparseable` says "neither temporal anchor parses", but it gated on `allowed.size === 0`
+ * and `allowed` also holds every clock-valued LOCKED FACT. So a case with two unreadable anchors and
+ * one readable device value said nothing — and then scanned the manuscript against a set that did not
+ * contain the story's own spine, which would report the case's own hours as unaccounted.
+ *
+ * Backtested over the 15 archived runs carrying an anchor pair: after X67's widening, 15 of 15 parse
+ * both anchors (12 before), so this condition fires on NONE of them. The change is a correctness fix
+ * with no measured incidence, which is the right time to make it.
+ */
+describe("time model — the anchors are the spine, not the locked facts (X46)", () => {
+  const tm = (over: Record<string, unknown>) => ({
+    ...geometry,
+    timeModel: { trueTime: null, apparentTime: null, directionViolations: [], accountedTimes: [], ...over },
+  });
+  const chapters = [{ chapterNumber: 1, paragraphs: ["The clock in the hall said half past ten."] }];
+  const run = (g: any) => checkManuscriptGeometry(g, chapters as any, { parseClockTime });
+  const codes = (g: any) => run(g).violations.map((v: any) => v.code);
+
+  it("fires when NEITHER anchor parses, even though a locked fact does", () => {
+    const out = codes(tm({ trueTime: "shortly after the storm", apparentTime: "when the bell rang", accountedTimes: ["9:10"] }));
+    expect(out).toContain("time_model_unparseable");
+  });
+
+  it("...and does NOT scan for extra times in that state — the spine is missing", () => {
+    const out = codes(tm({ trueTime: "shortly after the storm", apparentTime: "when the bell rang", accountedTimes: ["9:10"] }));
+    expect(out).not.toContain("unaccounted_time");
+  });
+
+  it("stays silent when even one anchor parses", () => {
+    const out = codes(tm({ trueTime: "8:45", apparentTime: "when the bell rang", accountedTimes: [] }));
+    expect(out).not.toContain("time_model_unparseable");
+  });
+
+  it("names both anchors in the message, so the reader can see what could not be read", () => {
+    const g = tm({ trueTime: "shortly after the storm", apparentTime: "when the bell rang", accountedTimes: ["9:10"] });
+    const v = run(g).violations.find((x: any) => x.code === "time_model_unparseable");
+    expect(v!.message).toMatch(/shortly after the storm/);
+    expect(v!.message).toMatch(/when the bell rang/);
+    expect(v!.message).toMatch(/locked-fact value/);
+  });
+});
+
 describe("time model — the case's own clock (X38, X39)", () => {
   const timeGeometry = (over: Record<string, unknown>) => ({
     ...geometry,

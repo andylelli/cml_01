@@ -656,10 +656,26 @@ export const checkManuscriptGeometry = (
      * timer setting, the chime, the departure — are all accounted for, and flagging one of those was
      * geometry calling a manuscript incoherent for a time the case itself declared.
      */
-    const allowed = new Set<number>();
+    // X46 — THE MESSAGE AND THE CONDITION DISAGREED, and the message was the honest one.
+    //
+    // This used to gate on `allowed.size === 0` while saying "neither temporal anchor parses". Those
+    // are different questions, because `allowed` also holds every clock-valued LOCKED FACT: a case
+    // whose two anchors are both unreadable but whose device declares one parseable clock produced a
+    // non-empty `allowed`, said nothing, and then scanned the manuscript against a set that did not
+    // contain the story's own spine. Found while building X44 (REVIEW_10 §9), on the 86-scoring run,
+    // whose anchors were "nine ten" and "nine twenty" — both null then, both parseable since X67.
+    //
+    // The anchors are now tracked separately, because they are what exclusivity MEANS. Without them
+    // the scan is measuring the page against the device alone, and would report the case's own true
+    // and apparent times as unaccounted — accusing the manuscript of the hours the case declared.
+    const anchorMinutes: number[] = [];
+    for (const raw of [geometry.timeModel.trueTime, geometry.timeModel.apparentTime]) {
+      const parsed = options.parseClockTime(raw ? needle(raw) : undefined);
+      if (parsed !== null) anchorMinutes.push(parsed);
+    }
+
+    const allowed = new Set<number>(anchorMinutes);
     for (const raw of [
-      geometry.timeModel.trueTime,
-      geometry.timeModel.apparentTime,
       ...(geometry.timeModel.accountedTimes ?? []),
     ]) {
       // FOLD THE ANCHOR TOO. The first version of this fix folded only the haystack, which made the
@@ -670,12 +686,18 @@ export const checkManuscriptGeometry = (
       const parsed = options.parseClockTime(raw ? needle(raw) : undefined);
       if (parsed !== null) allowed.add(parsed);
     }
-    if (allowed.size === 0) {
+    if (anchorMinutes.length === 0) {
+      const lockedParsed = allowed.size;
       record({ field: "time_model", code: "time_model_unparseable", chapter: null, verdict: "unmet" }, {
         scope: "manuscript",
         message:
-          "Neither temporal anchor parses as a clock time, so exclusivity cannot be checked against the page. " +
-          "The manuscript may contain any number of times and nothing would notice.",
+          `Neither temporal anchor parses as a clock time (apparent: ${JSON.stringify(geometry.timeModel.apparentTime ?? null)}, ` +
+          `true: ${JSON.stringify(geometry.timeModel.trueTime ?? null)})` +
+          (lockedParsed > 0
+            ? `, though ${lockedParsed} locked-fact value(s) do — which is why this used to stay silent here. `
+            : ". ") +
+          "Exclusivity cannot be checked against the page: the manuscript may contain any number of times " +
+          "and nothing would notice. Repair the CASE, or teach the parser this shape.",
       });
     } else {
       chapters.forEach((chapter, index) => {

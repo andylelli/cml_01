@@ -99,7 +99,7 @@ Everything outstanding, in one place. `☐` not started · `◑` partial · `✅
 | X21 | **A third of the 2-sentence clearance budget was "cleared her throat".** Idioms excluded; dramatised clearances added | free | ✅ | [§33.2](#332-x21--a-third-of-the-clearance-budget-was-people-clearing-their-throats) |
 | X22 | The detector still misses a restatement carried by a pronoun and an evidence list — §8's fourth bullet, recorded not chased. **DECIDED 2026-08-07: stop widening**, four same-family defects in one day | — | ⛔ | [§33.4](#334-x22--the-residual-and-it-is-not-a-regex-away) · [REVIEW_08 §7](REVIEW_08.md) |
 | X23 | ~~The aftermath contract binds one chapter~~ — **fixed**: every chapter after the reveal is now bound. The control's ch10 was outside the contract entirely; it now reports the exact three paragraphs the reader named | free | ✅ | [§34](#34-x23--the-aftermath-was-one-chapter-and-the-story-had-two) |
-| X24 | **N4's reveal-binding note is a false positive** — it fired on two runs whose binding was correct. It compares a beat label to a TITLE; `manuscriptDisclosure` now gives it something to be measured against | free | ☐ | [§34.1](#341-the-reveal-binding-is-correct--n4s-note-is-the-false-positive) |
+| X24 | **N4's reveal-binding note is a false positive** — it fired on two runs whose binding was correct. It compares a beat label to a TITLE; `manuscriptDisclosure` now gives it something to be measured against **MEASURED 2026-08-20, and the premise is INVERTED.** Across the 7 archived reports carrying `reveal_binding`: the note fired **3** times — 2 TRUE positives and 1 false. But the binding was actually wrong (`refuted`) on **6 of 7 runs**, and on **3 of those the note never fired at all**. It is not a warning that cries wolf; **it is a warning that sleeps through most of them**. On `mystery-1787167692140` the contract bound ch8 while the manuscript discloses in ch10 — ch8 is titled *"The Final Trap: The Clock Test"*, ch10 *"Confronting the Culprit"*, and no sentence in ch8 pairs the culprit with a guilt marker — and the note was silent, so `reveal_culprit_not_named@8` was a statement about a chapter that never owed a reveal. **CAVEAT: verdicts are as recorded AT RUN TIME**, and the disclosure detector has changed since (X34, X59); the two most recent runs postdate X34. What this closes is the false-positive framing. What it opens is [N8](#) — REVIEW_11 §6.1 withdrew that escalation on the belief that the binding was sound; on this evidence it is sound once in seven | free | ☑ measured | [§34.1](#341-the-reveal-binding-is-correct--n4s-note-is-the-false-positive) |
 | X25 | **The run path repaired only the FIRST aftermath violation** (`.find`) — correct until X23 bound every chapter after the reveal. Now a loop. Found by fixing X23, not by a run | free | ✅ | [§35.3](#353-x25-found-by-fixing-x23-rather-than-by-a-run) |
 | X26 | **The aftermath pass does not work without `AGENT9_REGEN_EDIT_LIST`** — 0 of 3 repaired with the flag off (whole-chapter rewrites drift and trip the detector elsewhere), 2 of 3 with it on, at a quarter of the cost | free to find | ✅ | [§36](#36-the-edit-list-channel-is-what-makes-the-aftermath-pass-work--and-it-just-unblocked-n7) |
 | X27 | **"He shot a pointed glance at Captain Ivor Hale" certified a disclosure** in a story that never discloses — so `noResolution` went to the judge as false and the ending cap never fired. Idioms are now STRIPPED, not rejected (X21's lesson). **Externally corroborated**: the cold read says *"the story skips the actual culprit reveal"*, ending 5/10 | free | ✅ | [§37](#37-the-first-apply-mode-run-and-what-an-external-reader-confirmed) |
@@ -122,7 +122,7 @@ Everything outstanding, in one place. `☐` not started · `◑` partial · `✅
 | **X44** | ~~The reveal never states the two times side by side~~ — **BUILT 2026-08-17**: `reveal_times_not_stated`, bound to the reveal chapter, gated on X39 so a case defect is not reported twice. **3 of 7 corpus manuscripts fire, and all three readers asked for it in their own words** (*"State true time vs false clock time clearly"*, *"State the solution timeline in one clean paragraph"*, *"could be stated in one crisp line"*); silent on the 80 and the 76. **FIRST LIVE OUTING 2026-08-17: correctly DECLINED** — ch8 states both anchors (×4 and ×5) in one sentence, and the reader's time complaint moved one level deeper, to X38's arithmetic. The 86's second named gap is closed on the page | free | ✅ | [REVIEW_10 §5](REVIEW_10.md) · [REVIEW_11 §4](REVIEW_11.md) |
 | **X45** | ~~The prior-run avoidance feed cut from the wrong end~~ — **BUILT 2026-08-17**: `mergePriorRunsIntoConstraints` took `slice(-20)` (oldest→newest), emitted 5 patterns per run, then `slice(0, 20)` — keeping the **four oldest** runs and dropping the most recent entirely, plus **all** seed-derived patterns. Newest-first with a reserved seed floor. Note: unmeasurable on the canary, whose brief pins the axis and device family | free | ✅ | [REVIEW_10 §5](REVIEW_10.md) |
 | **X47** | **The prompt budget deletes the flat six's own inputs from the back half of every book** — `fixed` (base+developer+user) climbs 8,472 → 23,622 tokens against a 24,000 ceiling as the user message accumulates chapters, so room for context blocks falls to **378 tokens by ch10**. Dropped: `world_document`/`texture_pool` from ch3, `character_personality` from ch5, **`character_contracts` from ch6** (voice fragments, signature tic and X43's guard), `craft_guide` and `judged_on` from ch8. Chapters 8–10 blow the ceiling *anyway* (5,499 shipped into 2,585), so the squeeze buys no budget — it only chooses which blocks are lost, craft first. Found by M6's probe; invisible in every report because the drop is recorded only inside the prompt **BUILT 2026-08-18, flag-gated `AGENT9_PROMPT_BUDGET_CRAFT_FLOOR` (default OFF).** Two defects: (1) FUTILITY - ch8-10 ship more context than is available even after dropping everything droppable, so no drop sequence can reach the budget and the loop deleted `craft_guide`/`judged_on` for nothing; with the flag on, a squeeze that cannot succeed does not run. (2) VICTIM - within a priority class the loop takes ARRAY ORDER, which puts the flat six's own inputs first; a stable partition now sends the 7 craft inputs last in their class (a preference, not immunity). Default OFF for the reason the same file already gives about its sibling flag. **The DIAGNOSIS is unconditional**: the budget summary now reports `available`, `critical`, `futile` and `craftFloor` on every call, so the next run answers the before/after for free. 9 tests. DEMOTED by REVIEW_11 §9: it explains at most 1 of the reader's 6 complaints - the other 5 happen in chapters the budget never touched | free | :ballot_box_with_check: flag OFF | [REVIEW_10 §10.1](REVIEW_10.md) · [§10.2](REVIEW_10.md) |
-| **X46** | **`time_model_unparseable` does not fire when the anchors are unreadable but a locked fact parses** — its message says *"neither temporal anchor parses"*, but the condition is `allowed.size === 0` and `allowed` includes the locked facts. On the 86-scoring run both anchors are `"nine ten"` / `"nine twenty"`, both parse to `null`, and **nothing said so** — so X44 declines on the very run whose reader motivated it. Found while building X44; not built, because changing an existing code's firing condition needs its own backtest reading | free | ☐ | [REVIEW_10 §9](REVIEW_10.md) |
+| **X46** | **`time_model_unparseable` does not fire when the anchors are unreadable but a locked fact parses** — its message says *"neither temporal anchor parses"*, but the condition is `allowed.size === 0` and `allowed` includes the locked facts. On the 86-scoring run both anchors are `"nine ten"` / `"nine twenty"`, both parse to `null`, and **nothing said so** — so X44 declines on the very run whose reader motivated it. Found while building X44; not built, because changing an existing code's firing condition needs its own backtest reading **FIXED 2026-08-20.** The anchors are now tracked separately from `allowed`: `time_model_unparseable` fires when NEITHER anchor parses (its message always said so), names both unreadable values, and says how many locked facts did parse. The extra-time scan is skipped in that state — scanning the page against a set that lacks the story's own spine reports the case's declared hours as unaccounted. **BACKTESTED over the 15 archived runs carrying an anchor pair: fires on NONE of them**, because X67's widening took anchor coverage from 12/15 to **15/15**. A correctness fix with zero measured incidence, which is the right moment to make one. 4 tests | free | ✅ | [REVIEW_10 §9](REVIEW_10.md) |
 | **X48** | **The discovery-tell clue reaches every chapter but the one it was stamped into** — Agent 7 logs *"added tell clue `clue_early_physical_wound` (struck with a heavy bronze statuette) to the discovery scene"*, and the clue appears in the live prose prompt for ch2–ch10 and **0 times in ch1**. Ch1 still carries the instruction *"…scene is the murder weapon, its physical condition must be OBSERVED here without being named as the weapon"*, so Agent 9 described an object it was never given and invented *"a heavy brass candlestick"*. From ch2 the continuity tail carries BOTH props (`statuette ×3` / `candlestick ×2`). NOT X47 — ch1 dropped nothing (14,520 into 15,528). External reader's problem #1: *"Pick one"* **BUILT 2026-08-18** — cause CORRECTED on build: not a prompt-assembly gap but the beat list. The injector preferred the scene whose beat is `"crime"`, and `GOLDEN_AGE_BEATS` is `["gathering", "crime", ...]`, so it stamped **chapter 2** while `obligation-block.ts` hardcodes the body-discovery and weapon obligations to `chapterNumber === 1`. Scene 1 now preferred, `crime` beat the fallback, and the warning names the act/scene/beat it wrote to. 9 tests | free | :white_check_mark: | [REVIEW_11 §5](REVIEW_11.md) |
 | **X49** | **`GUILT_MARKER` has no blunt-force verb, and the 9/10 reveal scored `unmet`** — `reveal_culprit_not_named` fired on ch8, went UNRESOLVED over two regen calls (400→400) and shipped as a release-gate warning, on the chapter the reader called *"on-page, physical, and emotionally satisfying"*. Measured: **0 of ch8's 112 sentences contain any GUILT_MARKER term.** The case's method is *"struck with a heavy bronze statuette"* and the marker listed `killed\|murdered\|strangled\|poisoned\|stabbed\|shot\|bludgeoned\|smothered` — while `FIRST_PERSON_ADMISSION` forty lines away DOES include `struck (him\|her\|them) down`. **BUILT 2026-08-18**: blunt force / drowning / beating added, chosen by sweeping all 187 corpus manuscripts (`struck…down` = 2 hits, both genuine disclosures, 0 false positives; bare `drowned` REJECTED at 40+ *"drowned out by the storm"*; `battered` bounded to a person because this corpus is full of *"the battered logbook"*). **The same sweep found the ch4 locator false positive**: `GUILT_IDIOM` stripped `shot a glance` (verb→noun) but not the relative-clause order, and ch4's only culprit+guilt sentence was *"the quick glance Beatrice **shot** toward Hugo Vane"* — 6 corpus sentences match that order and all 6 are the idiom, which gives REVIEW_11 §6.1's withdrawal of N8 a mechanism. Backtest PASS, separation unchanged. **Does NOT flip ch8 to `met`, measured**: adjacency was built and REJECTED (it fires on the 68's ch9 clearance register, and buys 0 hits on ch8 anyway), and the elided confession too (*"I—"* = 56 corpus sentences, mostly innocent characters faltering). Ch8's disclosure is genuinely implicit — no sentence in it attributes the act. 11 tests | free | ✅ | [REVIEW_11 §6](REVIEW_11.md) · [§12.2](REVIEW_11.md) |
 | **X50** | **The `??` chain reads the archetype label, never the role enum, so the DETECTIVE enters the suspect set** — `computeEliminationSuspects` filtered detectives via `String(c?.role_archetype ?? c?.roleArchetype ?? c?.role ?? '').toLowerCase().includes('detective')`. A_67 fixed the KEY (both spellings); the VALUE was the problem — Agent 2's prompt mandates `roleArchetype MUST be "Amateur Sleuth / Civilian Investigator"`, which has no `detective` substring, and `??` stops at the first non-nullish value so `c.role` (the `detective\|victim\|suspect` enum, the one field that answers the question) was never reached. Fires on every run with a castDesign; on 08-17 it cost `regen-suspect-elimination UNRESOLVED Eleanor Voss` and two repair calls spent clearing the sleuth. The victim filter beside it survived only by accident (Agent 2 is told to set `roleArchetype "victim"`). **BUILT 2026-08-18**: `isDetectiveArchetype` + `roleTextsOf` in `@cml/cml`'s `roles.ts`, with `isVictimArchetype`'s head-noun discipline so *"the detective's landlady"* is not a detective; `roleTextsOf` tests EVERY role field rather than coalescing to one. Swept across all 4 sites in `agent9-run.ts` — 2 of the other 3 never read `roleArchetype`/`role_archetype` at all and worked only by luck. 14 tests | free | ✅ | [REVIEW_11 §7](REVIEW_11.md) · [§12.3](REVIEW_11.md) |
@@ -152,7 +152,7 @@ Everything outstanding, in one place. `☐` not started · `◑` partial · `✅
 | N6 | **Pair run 2026-08-06/07, ~£3.** Lever fired (verified in the artifact). Budgets honoured (+8% vs −33%) — but the reveal misbinding survives BOTH arms, which was the argument for promoting it | ~£3 | ✅ | [§31](#31-n6--the-pair-ran-and-the-scheduler-does-not-fix-what-it-was-promoted-to-fix) |
 | D2 | **DECISION:** after N6, are geometry phases 2–4 still worth their cost? N6's input is in §31.4 — the scheduler works mechanically but does not deliver the structural claim it was promoted on, so N8 is the only untried mechanism aimed at the misbinding | free | 👤 | [§31.4](#314-d1--what-this-gives-the-decision) |
 | N7 | The reveal repair on a channel that MAY MODIFY — **BUILT, REHEARSED, AND RUN.** Rehearsal cleared both reveal violations for $0.0038. The live run ($1.22) fired the pass on the right channel and the model wrote two proper confessions — and the acceptance test refused both, because it cannot see a first-person confession (**X34**). Flag back OFF: it buys nothing until the gate can read its output **2026-08-20: both blockers are now CLOSED** — X34 (the detector could not read a confession) and X35 (the repair invented a method) are built and verified. What remains is a re-run to confirm the repair lands; nothing is known to block it | ~£1.5 → **$1.23 spent** | ◑ | [§38](#38-n7--the-reveal-repair-needed-a-channel-that-may-modify-and-it-repairs-for-tuppence) · [§38.6](#386-the-n7-run--the-pass-fired-the-model-wrote-the-reveal-and-the-detector-refused-it) |
-| N8 | Phase-2 geometry contract probe (`AGENT9_GEOMETRY_CONTRACT`) — **REVIEW_10 §10.4's escalation to "highest-value paid item" is WITHDRAWN 2026-08-18.** It rested on *"the contract bound chapter 8 but the manuscript discloses in chapter 4"*; the cold read puts the reveal in chapter 8 (*"Hugo is confronted in Chapter 8… and he confesses"*, ending 9/10), so the binding was RIGHT and the advisory locator misfired — the same vocabulary gap as X49. Still worth running on its own merits, at its old priority | ~£3 | ☐ | [§10.7](#107-the-paid-items--what-ready-means) · [REVIEW_11 §6.1](REVIEW_11.md) |
+| N8 | Phase-2 geometry contract probe (`AGENT9_GEOMETRY_CONTRACT`) — **REVIEW_10 §10.4's escalation to "highest-value paid item" is WITHDRAWN 2026-08-18.** It rested on *"the contract bound chapter 8 but the manuscript discloses in chapter 4"*; the cold read puts the reveal in chapter 8 (*"Hugo is confronted in Chapter 8… and he confesses"*, ending 9/10), so the binding was RIGHT and the advisory locator misfired — the same vocabulary gap as X49. Still worth running on its own merits, at its old priority **2026-08-20 — the withdrawal rested on a belief that is now measured false.** REVIEW_11 §6.1 withdrew this because the binding looked sound. Across the 7 archived reports the reveal contract is bound to a chapter that does not disclose on **6 of 7 runs** ([§12.11](#1211-x24--x46--x67--the-free-block-and-the-number-it-turned-up)), and N4's note caught only 2 of the 6. Every reveal check on the other six read a chapter that owed nothing. Not re-escalated here — that is a judgement for the next board — but the ground it was withdrawn on is gone | ~£3 | ☐ | [§10.7](#107-the-paid-items--what-ready-means) · [REVIEW_11 §6.1](REVIEW_11.md) |
 | R6 | `eval:baseline` — ~~after M1~~ → **the judge is now CALIBRATED**, so the original hold is gone. Held on cost: M1c means it needs `--repeats 3`, tripling it to £12–24 | £12–24 | ☐ | [§32.1](#321-the-judge-is-calibrated) · [§30.2](#302-the-rule-this-forces) |
 | M6 | Give Agent 9 the real rubric — **BUILT + PROBED 2026-08-17.** `AGENT9_RUBRIC_IN_PROMPT`, 519 tokens, verified in the live `Agent9-ProseGenerator-Ch1` prompt (not merely in the code). **The run then exposed X47**: the budget dropped `judged_on` from chapters 8–10, so the probe covers ch1–7 only and its external read cannot trigger REVIEW_10 §8's falsification. Internal 70/100 is the Goodhart check, not the result | ~£1.5 → **spent** | ◑ | [REVIEW_10 §10](REVIEW_10.md) |
 | **E. Ride-alongs — need runs, not runs of their own. Attach to N6.** ||||
@@ -840,6 +840,84 @@ an exit condition it can meet.
 | **CS1** | Promote `@cml/clue-spec` out of shadow | REVIEW_04 §11 paired it with `beat-scheduler` in Phase 0. N6 promotes the scheduler alone — deliberately, since two levers in one probe cost attribution. CS1 is the second probe, not a rider on the first |
 | **CS2** | Add a clincher slot type to `clue-spec` | §5's `closure.notes` fires on every run measured: the clincher rests on a clue the set marks `optional`, so no stage but geometry is obliged to place it. The note makes it visible; the slot type would make it false by construction |
 | **ENV** | Delete the duplicated `.env` copies of `AZURE_OPENAI_ENDPOINT` and `AZURE_OPENAI_DEPLOYMENT_NAME` | `flags:check` has reported them for three sessions. Two sources for one key is how the `gpt-4o-mini` shadowing survived for months |
+
+### 12.11 X24 / X46 / X67 — the free block, and the number it turned up
+
+Three free items closed together, because the second one's backtest produced the third one's evidence.
+
+#### X46 — the condition and the message disagreed
+
+`time_model_unparseable` says *"neither temporal anchor parses"* and gated on `allowed.size === 0`.
+`allowed` also holds every clock-valued LOCKED FACT, so a case with two unreadable anchors and one
+readable device value said nothing — and then scanned the manuscript against a set that did not
+contain the story's own spine, which reports the case's declared hours as unaccounted.
+
+Anchors are now tracked separately. The check fires on the anchors, names both unreadable values, and
+the extra-time scan is skipped when the spine is missing.
+
+#### X67's widening, forced by X46's backtest
+
+The row required a backtest before changing a firing condition. Extracting the anchor pair from all
+archived runs found three the parser still could not read, and none of them were exotic:
+
+```
+"seven twenty in the evening"   a trailing daypart
+"six fifteen in the evening"    "
+"two forty PM"                  a trailing meridiem
+"two o’clock"                   a CURLY apostrophe — accept.ts folds its own input for exactly this
+```
+
+All three are now read: the daypart is an optional suffix on the HOUR-MINUTES branch, and the curly
+apostrophe is folded at the parser's door so no caller has to remember. One trap on the way, and it
+was the same trap as the two before it: a space-joined minute token swallowed the daypart
+(`"forty pm"`), the overall match SUCCEEDED with an unparseable minute, and nothing backtracked. The
+minute token is hyphen-joined only now.
+
+**Anchor coverage across the corpus: 12 of 15 → 15 of 15.**
+
+#### The number that fell out
+
+With every archived anchor readable, X38 can be run over the corpus for the first time:
+
+```
+cases with locked facts AND a readable anchor pair   14
+device arithmetic that does not work                  7        ← 50%
+```
+
+REVIEW_14 §12.3 called this *"four consecutive runs"*. It is **half of everything ever generated**.
+X38-at-source was already the best-evidenced paid item on the board; it is now the best-evidenced by
+a factor.
+
+#### X24 — the premise was backwards
+
+The row read: *"N4's reveal-binding note is a false positive — it fired on two runs whose binding was
+correct."* Measured across the 7 archived reports that carry `reveal_binding`:
+
+| | n |
+|---|---:|
+| note fired | 3 |
+| ...of which the binding was genuinely wrong (true positive) | 2 |
+| ...of which the binding was fine (false positive) | 1 |
+| **binding actually wrong across all 7 runs** | **6** |
+| **...where the note stayed silent** | **3** |
+
+**It is not a warning that cries wolf. It is a warning that sleeps through most of them.** The binding
+is correct on **one run in seven**.
+
+The clearest case is the most recent. On `mystery-1787167692140` the contract bound chapter 8; the
+manuscript discloses in chapter 10. Chapter 8 is titled *"The Final Trap: The Clock Test"* and no
+sentence in it pairs the culprit with a guilt marker; chapter 10 is *"Confronting the Culprit"*. The
+note did not fire, so `reveal_culprit_not_named@8` — which the release gate then reported — was a
+statement about a chapter that never owed a reveal.
+
+**Caveat, and it matters:** these verdicts are as recorded AT RUN TIME, and the disclosure detector
+has changed since (X34's confession rule, X59's third `shot` word order). Only the two most recent
+runs postdate X34. The direction is not in doubt; the exact count is soft.
+
+**What this closes and what it opens.** It closes the false-positive framing — X24 as written is
+wrong. It opens [N8](#), whose escalation [REVIEW_11 §6.1](REVIEW_11.md) withdrew on the belief that
+the binding was sound. On this evidence it is sound once in seven, and every reveal check on the
+other six read a chapter that owed nothing.
 
 ### 12.6 What is deliberately not on the tracker
 

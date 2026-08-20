@@ -87,7 +87,10 @@ const parseMinuteCount = (raw: string): number | null => {
  * sit inside one evening — comparing on the dial avoids inventing a meridiem the text never states.
  */
 export const parseClockTime = (raw?: string): number | null => {
-  const text = String(raw ?? "").toLowerCase().trim();
+  // The curly apostrophe is not a different time. `accept.ts` folds its own input for exactly this
+  // reason — "two o’clock" returned null while the folded prose parsed cleanly, and the manuscript
+  // was accused of inventing the very hour the case declared. Folding here means no caller has to.
+  const text = String(raw ?? "").toLowerCase().replace(/[‘’ʼ]/g, "'").trim();
   if (!text) return null;
 
   const digital = text.match(/\b(\d{1,2}):(\d{2})\b/);
@@ -155,11 +158,13 @@ export const parseClockTime = (raw?: string): number | null => {
   // surface form the parser could not read. A silent temporal gate still means UNPARSEABLE more
   // often than it means clean.
   //
-  // Accepted ONLY when the whole segment is the time. Two bare number words are ordinary prose
+  // A trailing daypart is allowed ("seven twenty in the evening", "two forty pm") because the corpus
+  // writes anchors that way and the first version rejected them — measured over 15 archived runs.
+  // Otherwise accepted ONLY when the whole segment is the time. Two bare number words are ordinary prose
   // ("one two men"), and this runs against free text as well as structured fields — the same reason
   // the bare-hour branch below carries a guard. Anchoring to the whole string is that guard.
   const hourMinutes = text.match(
-    /^(twelve|one|two|three|four|five|six|seven|eight|nine|ten|eleven)\s+(?:oh\s+)?([a-z]+(?:[-\s][a-z]+)?|\d{1,2})$/,
+    /^(twelve|one|two|three|four|five|six|seven|eight|nine|ten|eleven)\s+(?:oh\s+)?([a-z]+(?:-[a-z]+)?|\d{1,2})(?:\s+(?:a\.?m\.?|p\.?m\.?|in the (?:morning|afternoon|evening)|at night))?$/,
   );
   if (hourMinutes) {
     const hour = WORD_NUMBERS[hourMinutes[1]!];

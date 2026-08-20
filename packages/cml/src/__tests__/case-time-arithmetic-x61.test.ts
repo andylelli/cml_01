@@ -183,3 +183,38 @@ describe("parseClockTime — the spoken HOUR-MINUTES form (X67)", () => {
     expect(out[0]!.message).toMatch(/25 minutes apart/);
   });
 });
+
+/**
+ * X46's backtest widened the parser again — measured over the 15 archived runs that carry an anchor
+ * pair. Three runs had an anchor the parser could not read, and all three were shapes the corpus
+ * actually writes rather than exotica: a trailing daypart, and a curly apostrophe.
+ *
+ * After: 15 of 15 runs parse BOTH anchors, up from 12. That is what made the corpus-wide X38
+ * measurement possible — 7 of 14 checkable cases have device arithmetic that does not work.
+ */
+describe("parseClockTime — the shapes the corpus actually writes (X46 backtest)", () => {
+  it("accepts a trailing daypart", () => {
+    expect(parseClockTime("seven twenty in the evening")).toBe(7 * 60 + 20);
+    expect(parseClockTime("six fifteen in the evening")).toBe(6 * 60 + 15);
+    expect(parseClockTime("two forty PM")).toBe(2 * 60 + 40);
+    expect(parseClockTime("two forty pm")).toBe(2 * 60 + 40);
+  });
+
+  it("folds the curly apostrophe at the door, so no caller has to", () => {
+    expect(parseClockTime("two o’clock")).toBe(2 * 60);
+    expect(parseClockTime("two o'clock")).toBe(2 * 60);
+  });
+
+  it("the minute token is hyphen-joined only — a space-joined one swallowed the daypart", () => {
+    // "forty pm" matched as a two-word minute, the overall match SUCCEEDED with an unparseable
+    // minute, and nothing backtracked. Same failure mode as the first counted-branch attempt.
+    expect(parseClockTime("two forty pm")).toBe(2 * 60 + 40);
+    expect(parseClockTime("seven twenty-five")).toBe(7 * 60 + 25);
+  });
+
+  it("still refuses prose", () => {
+    expect(parseClockTime("one two men waited")).toBeNull();
+    expect(parseClockTime("he counted seven twenty-pound weights")).toBeNull();
+    expect(parseClockTime("nine o clock")).toBeNull();
+  });
+});
