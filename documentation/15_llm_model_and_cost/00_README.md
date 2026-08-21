@@ -6,6 +6,28 @@
 
 **Method note, load-bearing:** every claim is marked **MEASURED** (I ran the check and the command is quoted), **INFERRED** (follows from code reading or vendor docs, not observed on a run), or **UNVERIFIED** (a number I could not check from inside this repo). The single most consequential number in §4 — what a run actually costs today — is one the pipeline's own telemetry reports **~6× too low**, so the marking is the point.
 
+
+> ## STATUS, 2026-08-21 — read before using any number below
+>
+> This document is kept because its *reasoning* stands and its §5.1 measurement has since been
+> independently confirmed. Three of its numbers have moved. It is no longer the entry point for this
+> folder — see **[01_llm_cost_and_performance_levers.md](01_llm_cost_and_performance_levers.md)**,
+> which covers the levers that are NOT a provider swap.
+>
+> | § | claim | status |
+> |---|---|---|
+> | §4.2 | *"the cost tracker under-reports by ~6x"* | **FIXED.** A_71 added the missing `gpt-4.1` branch in `00a890a5` (2026-07-31, the day this was written). Runs from 2026-08-02 carry real per-agent attribution. |
+> | §4.2 | *"take a full run as ~$4 typical, ~$7 on a heavy-retry run"* | **SUPERSEDED.** Measured over 12 August full runs from `logs/llm.jsonl`, priced per call at its own model rate: **mean $1.44, range $1.12-$1.92.** The July runs sampled here ran 118-204 calls; August runs run 43-73. |
+> | §5.1 | *"prompt caching will not rescue this as-is"* | **CONFIRMED, and now actionable.** A fresh measurement on `mystery-1787167692140` finds a 5% cross-chapter shared prefix (this document measured 7.6%) against a **29% ceiling** if the prompt is repartitioned stable-first. That restructure is Lever A in 01. |
+>
+> **The finding here that has not been used, and should be:** §5.1 also measured **80.2% shared
+> prefix between retry attempts of the same chapter**. Caching therefore recovers most of a retry's
+> cost, which couples Levers A and B in 01 more tightly than either states alone.
+>
+> Everything in §1-§3 and §6-§9 — the three-products distinction, the `temperature` and `jsonMode`
+> blockers, the thinking surcharge, the per-chapter vs whole-story trade — is unchanged and still
+> current against vendor docs as of 2026-08-21.
+
 ---
 
 ## 1. "The actual Claude agent" is three different products

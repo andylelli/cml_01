@@ -36,12 +36,47 @@ const CONJUGATED_VERB_RE = /\b(is|are|was|were|has|have|had|set|ran|stood|made|g
 export const isFullSentenceBleed = (entry: string): boolean =>
   CONJUGATED_VERB_RE.test(entry) && String(entry ?? "").trim().split(/\s+/).length > 4;
 
-const DEFAULT_SENSORY_FALLBACKS: Record<"sights" | "sounds" | "smells" | "tactile", string[]> = {
-  sights: ["dim gaslight pooling on polished wood", "narrow shadows along the corridor"] ,
-  sounds: ["muffled footsteps in the passage", "the faint tick of a mantel clock"],
-  smells: ["coal smoke and furniture polish", "damp wool and old paper"],
-  tactile: ["cold brass on the banister", "draft-cool air near the doorway"],
+/**
+ * Era- and setting-neutral sensory fallbacks, derived from the location itself.
+ *
+ * FOUND BY REVIEW, 2026-08-20. The pool these replace was a fixed list of Victorian English interior
+ * details — "dim gaslight pooling on polished wood", "the faint tick of a mantel clock", "coal smoke
+ * and furniture polish", "cold brass on the banister" — and the first TWO fallbacks for every field
+ * came from it, so the generic per-location builder below was only ever reached from the third.
+ *
+ * That is a fix for one story's setting sitting on the path of a generator whose era, location and
+ * institution are all parameters. On the canary's own 1950s configuration, gaslight and coal smoke
+ * are anachronisms; on a liner, a theatre or anywhere outside a British house, a mantel clock and a
+ * banister are furniture the story does not have. These reach Agent 9 as location profiles and are
+ * written into prose — into ATMOSPHERE, one of the three categories that has never moved.
+ *
+ * MEASURED: 0 of 22 archived location_profiles contain any of the eight phrases, so the model has
+ * always supplied its own and this never fired. Latent, not live — and removed rather than kept,
+ * because a fallback that is wrong for most settings is worse than one that is merely plain.
+ *
+ * Every replacement names the location and nothing else, so it is true of any room in any era.
+ */
+const SENSORY_FALLBACK_VARIANTS: Record<"sights" | "sounds" | "smells" | "tactile", ReadonlyArray<(place: string) => string>> = {
+  sights: [(p) => `shadowed corners in ${p}`, (p) => `uneven light across ${p}`],
+  sounds: [(p) => `subdued noise carrying through ${p}`, (p) => `a faint sound somewhere beyond ${p}`],
+  smells: [(p) => `stale air lingering in ${p}`, (p) => `a dry trace of dust in ${p}`],
+  tactile: [(p) => `cold surfaces at ${p}`, (p) => `a draught moving through ${p}`],
 };
+
+/**
+ * The invariant half of each fallback, for the distinctness gate to ignore.
+ *
+ * Derived from the templates rather than restated, so the two can never drift — the defect this
+ * codebase has paid for more than any other. Each variant now NAMES the location, so two sparse
+ * rooms no longer receive identical text at all; excluding the shared stem keeps the gate honest
+ * about what it is not counting.
+ */
+const SENSORY_FALLBACK_ATOMS: string[] = ([
+  ...SENSORY_FALLBACK_VARIANTS.sights,
+  ...SENSORY_FALLBACK_VARIANTS.sounds,
+  ...SENSORY_FALLBACK_VARIANTS.smells,
+  ...SENSORY_FALLBACK_VARIANTS.tactile,
+] as ReadonlyArray<(place: string) => string>).map((make) => make("").replace(/s+/g, " ").trim());
 
 const normalizeSensoryPhrase = (value: unknown): string => {
   if (typeof value !== "string") return "";
@@ -78,14 +113,17 @@ const enforceLocationSensoryFallbacks = (locationProfiles: any, warnings: string
   for (const location of keyLocations) {
     if (!location || typeof location !== "object") continue;
     const locationName = String((location as any).name ?? (location as any).id ?? "the room");
+    // Same normalisation buildLocationFallback uses, so both paths name the place identically.
+    const lowerLocationName = locationName.trim().toLowerCase() || "the room";
     const sensoryDetails = ((location as any).sensoryDetails ??= {});
 
     for (const field of ["sights", "sounds", "smells", "tactile"] as const) {
       const existing = Array.isArray(sensoryDetails[field]) ? sensoryDetails[field] : [];
       const normalized = Array.from(new Set(existing.map(normalizeSensoryPhrase).filter(Boolean)));
       while (normalized.length < 2) {
-        const fallbackPool = DEFAULT_SENSORY_FALLBACKS[field];
-        const fallback = fallbackPool[normalized.length] ?? buildLocationFallback(locationName, field);
+        const variants = SENSORY_FALLBACK_VARIANTS[field];
+        const variant = variants[normalized.length];
+        const fallback = variant ? variant(lowerLocationName) : buildLocationFallback(locationName, field);
         normalized.push(fallback);
         fallbackInsertions += 1;
       }
@@ -250,7 +288,7 @@ export async function runAgent2c(ctx: OrchestratorContext): Promise<void> {
   if (sceneGateMode !== "off" && ctx.locationProfiles) {
     // Exclude the deterministic fallback atoms from the distinctness comparison — they are injected
     // identically into every sparse room, so counting them would make distinct rooms collide.
-    const distinctnessOpts = { ignoreAtoms: Object.values(DEFAULT_SENSORY_FALLBACKS).flat() };
+    const distinctnessOpts = { ignoreAtoms: SENSORY_FALLBACK_ATOMS };
     // NOTE: the outline (and thus the actual murder room) is not known at 2c time, and CASE.meta
     // .setting.location is the broad setting, not a room — so we do NOT pass it as a crime-scene
     // hint (it would mismatch every room and force needless retries). The gate only verifies that a

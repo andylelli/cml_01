@@ -43,10 +43,10 @@
 # - projectId: string (optional)
 
 theme: "Golden Age country-house murder driven by a mechanical clock-tampering method. Enforce strict fair-play: reveal all mechanism-critical clues to reader by mid-story, place the discriminating test no later than early Act III, include at least 3 explicit evidence clues tied to final deduction, and ensure every red herring is inference-isolated from the true solution chain."
-eraPreference: "1930s"
+eraPreference: "1950s"
 locationPreset: CountryHouse
-tone: "Classic"
-primaryAxis: temporal
+tone: "Dark"
+primaryAxis: spatial
 # A_52 role model: 1 detective + 1 victim + (n-2) suspects; n=5 is the lean fair-play
 # minimum (3 suspects = culprit + 2 red herrings).
 castSize: 5
@@ -58,7 +58,7 @@ castNames:
   - "Sylvia Trent"
 #  - "Hugo Vane"
 #  - "Agnes Pike"
-detectiveType: amateur
+detectiveType: police
 targetLength: short
 narrativeStyle: classic
 skipNoveltyCheck: false

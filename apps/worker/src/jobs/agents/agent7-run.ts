@@ -659,8 +659,8 @@ export function computeDeterministicGapFillCap(totalScenes: number): number {
 // Outline quality-gate regex constants
 // ============================================================================
 
-const OUTLINE_TEST_TERMS_RE = /\b(test|experiment|re-?enact|reenact|trap|demonstrat|verif|proof|examin|timing\s+test|constraint\s+proof)\b/i;
-const OUTLINE_EXCLUSION_TERMS_RE = /\b(excluded?|eliminat|ruled\s+out|could\s*not\s+have|cannot\s+be\s+the\s+culprit|only\s+one\s+person\s+could|impossible\s+for|proves?\s+innocent)\b/i;
+const OUTLINE_TEST_TERMS_RE = /\b(tests?|experiments?|re-?enact|reenact|traps?|demonstrat\w*|verif\w*|proofs?|examin\w*|timing\s+test|constraint\s+proof)\b/i;
+const OUTLINE_EXCLUSION_TERMS_RE = /\b(exclud\w*|exclusions?|eliminat\w*|ruled\s+out|could\s*not\s+have|cannot\s+be\s+the\s+culprit|only\s+one\s+person\s+could|impossible\s+for|proves?\s+innocent)\b/i;
 /**
  * X62 — A TRAILING `\b` NEUTERS A STEM, AND BOTH OF THESE LISTS SHIPPED WITH ONE.
  *

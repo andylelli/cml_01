@@ -106,6 +106,7 @@ import {
   findDiscriminatingContradictionPair,
   isAtomicLockedFactValue,
 } from "../shared/locked-fact-atoms.js";
+import { classifyDeathMethod, type DeathMethodKind } from "../shared/death-method-patterns.js";
 
 export const REVEAL_GROUNDWORK_BANNED_TERMS = [
   'culprit',
@@ -453,17 +454,21 @@ export const resolveVictimName = (cast: CastDesign): string => {
 // deterministically (no new LLM-schema field needed): an explicit CASE.death_method wins, else we
 // read meta.crime_class.subtype/category and normalise to a canonical injury phrase whose tokens are
 // robust substrings (so a "stab wound" target matches prose saying "stabbed"/"stabbing").
-const DEATH_METHOD_CANON: Array<[RegExp, string]> = [
-  [/stab|knif|blade/i, "stab wound"],
-  [/shoot|shot|gun|firearm|pistol|revolver/i, "gunshot wound"],
-  [/strangl|garrot|throttl/i, "strangulation"],
-  [/poison|arsenic|cyanide|toxin/i, "poisoning"],
-  [/bludgeon|blunt[- ]?force|cudgel|struck/i, "blunt-force blow"],
-  [/drown/i, "drowning"],
-  [/smother|suffocat|asphyxiat/i, "suffocation"],
-  [/electrocut/i, "electrocution"],
-  [/burn|arson/i, "burns"],
-];
+// ONE vocabulary, in shared/death-method-patterns.ts. This file used to keep its own copy and the
+// two had drifted (see that module). Only the WORDING is local, because the two consumers want
+// different registers.
+const DEATH_METHOD_WOUND: Record<DeathMethodKind, string> = {
+  stabbing: "stab wound",
+  gunshot: "gunshot wound",
+  strangulation: "strangulation",
+  poisoning: "poisoning",
+  blunt_force: "blunt-force blow",
+  drowning: "drowning",
+  fall: "a fall",
+  suffocation: "suffocation",
+  electrocution: "electrocution",
+  burning: "burns",
+};
 
 /**
  * Resolves the victim's manner of death as a short phrase with robust tokens, or '' if unknowable.
@@ -476,10 +481,8 @@ export const resolveDeathMethod = (cml: any): string => {
   const subtype = typeof c?.meta?.crime_class?.subtype === "string" ? c.meta.crime_class.subtype : "";
   const category = typeof c?.meta?.crime_class?.category === "string" ? c.meta.crime_class.category : "";
   const haystack = `${subtype} ${category}`;
-  for (const [re, canon] of DEATH_METHOD_CANON) {
-    if (re.test(haystack)) return canon;
-  }
-  return "";
+  const kind = classifyDeathMethod(haystack);
+  return kind ? DEATH_METHOD_WOUND[kind] : "";
 };
 
 const normalizePromptValue = (value: unknown): string =>

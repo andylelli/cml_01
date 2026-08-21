@@ -685,7 +685,8 @@ const runPipeline = async (
       eraPreference: specPayload?.decade as string,
       locationPreset: specPayload?.locationPreset as string,
       tone,
-      primaryAxis: specPayload?.primaryAxis as "temporal" | "spatial" | "social" | "psychological" | "mechanical",
+      // One vocabulary. An unrecognised value now throws at init rather than becoming "temporal".
+      primaryAxis: specPayload?.primaryAxis as MysteryGenerationInputs["primaryAxis"],
       castSize: specPayload?.castSize as number,
       castNames: Array.isArray(specPayload?.castNames) ? (specPayload?.castNames as string[]) : undefined,
       detectiveType: (specPayload?.detectiveType as 'police' | 'private' | 'amateur') || 'police',

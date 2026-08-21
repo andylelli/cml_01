@@ -795,7 +795,8 @@ async function buildBaseContext({ client, runId, projectId, canaryInputs = {} })
   if (!theme) {
     throw new Error("Canary execution requires a non-empty theme. Set it in scripts/canary-core-inputs.yaml.");
   }
-  const primaryAxis = normalizePrimaryAxis(undefined);
+  // Explicit, not defaulted: this harness fixes the axis so its runs stay comparable.
+  const primaryAxis = normalizePrimaryAxis("temporal");
   const initialHardLogicDirectives = deriveHardLogicDirectives(theme, primaryAxis, undefined);
   const noveltyConstraints = buildNoveltyConstraints(seedEntries);
 

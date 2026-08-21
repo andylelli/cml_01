@@ -7,7 +7,7 @@ import type { AzureOpenAIClient, LLMLogger, Message } from "@cml/llm-client";
 import { getGenerationParams } from "@cml/story-validation";
 import { parse as parseYAML } from "yaml";
 import { resolveDesignModel } from "./utils/model-tiers.js";
-import { validateCml, isVictimArchetype } from "@cml/cml";
+import { validateCml, isVictimArchetype, parseClockTime, parseDurationMinutes } from "@cml/cml";
 import { reviseCml } from "./agent4-revision.js";
 import { patchCmlNode, makeLlmPatchProposer } from "./agent4-patch.js";
 import { jsonrepair } from "jsonrepair";
@@ -36,28 +36,33 @@ import {
   formatPatternsForPrompt,
 } from "./utils/seed-loader.js";
 import { join } from "path";
+import { classifyDeathMethod, type DeathMethodKind } from "./shared/death-method-patterns.js";
 
 // L1 (ANALYSIS_48 T1.1): map a crime classification to a physical manner of death, used as the
 // fallback when the model didn't author CASE.death_method. Mirrors DEATH_METHOD_CANON in
 // agent9-prose/prompt-builder and DEATH_METHOD_TOKENS in rubric-score/facts (kept local to avoid a
 // cross-package coupling from Agent 3 into the prose layer; the three are unified in ANALYSIS_48 T3).
-const DEATH_METHOD_FROM_CRIME_CLASS: Array<[RegExp, string]> = [
-  [/stab|knif|blade|dagger/i, "stabbing"],
-  [/shoot|shot|gun|firearm|pistol|revolver/i, "gunshot"],
-  [/strangl|garrot|throttl/i, "strangulation"],
-  [/poison|arsenic|cyanide|toxin/i, "poisoning"],
-  [/bludgeon|blunt|cudgel|struck|\bblow\b/i, "a blunt-force blow"],
-  [/drown/i, "drowning"],
-  [/smother|suffocat|asphyxiat/i, "suffocation"],
-  [/electrocut/i, "electrocution"],
-  [/burn|arson/i, "burning"],
-];
+// ONE vocabulary, in shared/death-method-patterns.ts. This file used to keep its own copy and the
+// two had drifted (see that module). Only the WORDING is local, because the two consumers want
+// different registers.
+const DEATH_METHOD_WORDING: Record<DeathMethodKind, string> = {
+  stabbing: "stabbing",
+  gunshot: "gunshot",
+  strangulation: "strangulation",
+  poisoning: "poisoning",
+  blunt_force: "a blunt-force blow",
+  drowning: "drowning",
+  fall: "a fall",
+  suffocation: "suffocation",
+  electrocution: "electrocution",
+  burning: "burning",
+};
 
 /** Returns a physical manner-of-death phrase from the crime subtype/category, or "" if none matches. */
 export const deriveDeathMethodFromCrimeClass = (subtype: string, category: string): string => {
   const haystack = `${subtype} ${category}`;
-  for (const [re, method] of DEATH_METHOD_FROM_CRIME_CLASS) if (re.test(haystack)) return method;
-  return "";
+  const kind = classifyDeathMethod(haystack);
+  return kind ? DEATH_METHOD_WORDING[kind] : "";
 };
 
 // A_53 P10 (seed-loader-recompute-per-generate-call): memoize the seed library load+extract+format
@@ -79,6 +84,79 @@ const seedPatternsTextCache = new Map<string, string>();
  */
 export const isDeviceTimeBindingEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
   /^(1|true|yes|on)$/i.test(String(env.AGENT3_DEVICE_TIME_BINDING ?? ""));
+
+/**
+ * X38-AT-SOURCE, the half that Agent 3b cannot reach.
+ *
+ * MEASURED 2026-08-20 (`scripts/probe-device-arithmetic.mjs`): of the ten archived devices the X38
+ * check can read, ten have arithmetic that does not close. Six of them lock two clock values and are
+ * repaired deterministically at Agent 3b, where the duration is still soft. **The other four lock
+ * only ONE clock** — the second anchor lives in `hidden_model.mechanism`, which does not exist yet
+ * when the registry is built. Those four cannot be repaired; they can only be prevented, here, by
+ * the agent that authors the anchors.
+ *
+ * The existing binding rules say the true time must be "consistent with the same device timeline".
+ * That is a sentiment, not a constraint, and the corpus shows what a model does with it: on
+ * `mystery-1787167692140` the anchors came out twenty-five minutes apart under a duration declaring
+ * twenty. This states the arithmetic as a number the model can check itself against.
+ *
+ * Deliberately NOT a computed answer. The block gives the relation and the fixed point and leaves
+ * the DIRECTION — whether the true death precedes the displayed time or follows it — to the agent
+ * that knows the device's story, which is the division of labour the section's own note argues for.
+ * Naming a single admissible time would author the mechanism from here, badly.
+ *
+ * Self-gating like everything else in this section: no clock, no duration, or an unreadable one, and
+ * the returned string is empty and the prompt is byte-identical.
+ */
+export const buildDeviceArithmeticRule = (
+  lockedFacts: ReadonlyArray<{ id?: string; value?: string }>,
+): string => {
+  const clocks: Array<{ id: string; raw: string; minutes: number }> = [];
+  const durations: Array<{ id: string; raw: string; minutes: number }> = [];
+  for (const fact of lockedFacts) {
+    const raw = String(fact?.value ?? "").trim();
+    if (!raw) continue;
+    const id = String(fact?.id ?? "").trim() || "(unnamed)";
+    const asDuration = parseDurationMinutes(raw);
+    if (asDuration !== null) { durations.push({ id, raw, minutes: asDuration }); continue; }
+    const asClock = parseClockTime(raw);
+    if (asClock !== null) clocks.push({ id, raw, minutes: asClock });
+  }
+
+  // One duration, or the pairing is a guess — the same refusal the detector makes.
+  if (durations.length !== 1) return "";
+  const declared = durations[0]!;
+
+  if (clocks.length === 1) {
+    const anchor = clocks[0]!;
+    return `
+- ARITHMETIC, and it is not negotiable: \`${anchor.id}\` locks "${anchor.raw}" and \`${declared.id}\`
+  locks "${declared.raw}". Between them those two settle the whole device, so
+  \`apparent_time_of_death\` and \`actual_time_of_death\` must be EXACTLY "${declared.raw}" apart, and
+  one of the two must BE "${anchor.raw}". Which of the two the locked value is, and whether the real
+  death falls before or after it, is yours to decide — the mechanism decides it. Any other pair
+  contradicts the case before a word of prose is written, and a reader can do this subtraction.`;
+  }
+
+  if (clocks.length === 2) {
+    const [a, b] = clocks as [typeof clocks[0], typeof clocks[0]];
+    // `reconcileDeviceArithmetic` has normally already closed this shape at Agent 3b. It can decline
+    // — a zero-minute gap, or a gap it cannot spell — and then the run carries an [X38] warning. Do
+    // not tell the model the duration IS the interval when the case says otherwise: a prompt that
+    // asserts a falsehood about its own inputs is worse than one that says less.
+    const closes = Math.abs(a.minutes - b.minutes) === declared.minutes;
+    const interval = closes
+      ? ` — and \`${declared.id}\` "${declared.raw}" is the interval between them`
+      : "";
+    return `
+- ARITHMETIC, and it is not negotiable: the device already locks both clock values — \`${a.id}\`
+  "${a.raw}" and \`${b.id}\` "${b.raw}"${interval}. \`apparent_time_of_death\` and
+  \`actual_time_of_death\` must BE those two values. Do not introduce a third time: the locked pair is
+  printed into the prose verbatim, so a third one is a contradiction the reader meets on the page.`;
+  }
+
+  return "";
+};
 
 export function buildCMLPrompt(inputs: CMLPromptInputs, examplesDir?: string): PromptMessages {
   // Load seed patterns if examples directory provided
@@ -204,7 +282,7 @@ Binding rules — these values are settled and the case must be built around the
 - Every alibi window in \`cast[].alibi_window\` must sit on that same clock. Do not invent a second
   evening.
 - Write the times in the same form the locked facts use (word-form if they are word-form): the prose
-  reproduces them exactly, and two spellings of one hour read to a reader as two different times.`
+  reproduces them exactly, and two spellings of one hour read to a reader as two different times.${buildDeviceArithmeticRule(lockedFacts)}`
       : "";
 
   const backgroundGroundingSection = `

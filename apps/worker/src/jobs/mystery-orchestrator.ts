@@ -72,6 +72,7 @@ import {
   describeError,
   applyAbortedRunMetadata,
   normalizePrimaryAxis,
+  type PrimaryAxisInput,
   deriveHardLogicDirectives,
   buildNoveltyConstraints,
   captureNarrativeSceneCountSnapshot,
@@ -186,7 +187,8 @@ export interface MysteryGenerationInputs {
   eraPreference?: string;
   locationPreset?: string;
   tone?: string;
-  primaryAxis?: "temporal" | "spatial" | "social" | "psychological" | "mechanical";
+  /** One of the five canonical axes; retired spellings are accepted. See CML_PRIMARY_AXES. */
+  primaryAxis?: PrimaryAxisInput;
 
   /** suspects + witnesses; detective is always +1 */
   castSize?: number;
@@ -1024,12 +1026,18 @@ export async function generateMystery(
     };
 
     const locationSpec = resolveLocationPreset(inputs.locationPreset);
+    // Normalise BEFORE deriving. These two ran the other way round, so the family seeding read the
+    // caller's raw spelling against a switch written in the canonical vocabulary — a second reason
+    // (on top of the silent coercion) that three of the five axes contributed no mechanism families.
+    // An unknown axis now throws HERE, at init, before any paid call.
+    const primaryAxis = normalizePrimaryAxis(inputs.primaryAxis, (message) => {
+      warnings.push(`[axis] ${message}`);
+    });
     const initialHardLogicDirectives = deriveHardLogicDirectives(
       inputs.theme,
-      inputs.primaryAxis,
+      primaryAxis,
       inputs.locationPreset
     );
-    const primaryAxis = normalizePrimaryAxis(inputs.primaryAxis);
     const seedEntries = loadSeedCMLFilesCached(EXAMPLES_ROOT);
     let noveltyConstraints = buildNoveltyConstraints(
       seedEntries as Array<{ filename: string; cml: CaseData }>

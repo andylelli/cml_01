@@ -2,7 +2,7 @@
 
 **Written:** 2026-08-04 · **Type:** an assessment with proposed fixes, following [REVIEW_04](REVIEW_04.md). It exists because the `AGENT3_DEVICE_TIME_BINDING` probe returned a clean PASS on a run whose finished manuscript never names its murderer in a sentence a human wrote.
 
-**Companion documents:** [REVIEW_04](REVIEW_04.md) is the state of the geometry work · [THINK_01](THINK_01.md) is the diagnosis this all descends from · [GEOMETRY-AGENT-DESIGN](GEOMETRY-AGENT-DESIGN.md) §10 is the build record.
+**Companion documents:** [PLAN-TO-90](PLAN-TO-90.md) is the current plan and supersedes REVIEW_13/14/15’s orderings · [REVIEW_04](REVIEW_04.md) is the state of the geometry work · [THINK_01](THINK_01.md) is the diagnosis this all descends from · [GEOMETRY-AGENT-DESIGN](GEOMETRY-AGENT-DESIGN.md) §10 is the build record.
 
 **§10 is the geometry fix plan. §11 assesses the whole outstanding backlog from REVIEW_01/03 and THINK_01 against it and merges both into one order — including three items recommended AGAINST.**
 
@@ -111,7 +111,8 @@ Everything outstanding, in one place. `☐` not started · `◑` partial · `✅
 | X33 | **An Azure content-filter refusal on the blind-reader prompt ABORTED a paid run** — the prompt carries the case's death method, a stabbing earned `violence/medium`, and the throw propagated out of Agent 6 at the fair-play stage, before Agent 9 and before anything the run was bought to measure. A_71's "never-abort gate held" was true of Agent 9 and false here. Now: refusal ⇒ the blind read is NOT MEASURED (skipped, not passed), run continues | free | ✅ | [§38.5](#385-x33--a-refused-prompt-killed-a-paid-run-at-agent-6) |
 | X34 | **A first-person confession cannot satisfy the disclosure check** — `disclosingSentence` needs the culprit's name and a guilt marker in ONE sentence, and a confession puts the name in the attribution and the guilt in the quoted "I did it". Measured twice on the N7 run against two independently generated reveals. The false-negative mirror of X27/X28, and it is what blocks N7 from landing **BUILT — verified against the shipped detector 2026-08-20.** `confessionDisclosure` in `accept.ts`: the culprit named in the paragraph, a QUOTED first-person admission AFTER that name, and if the quote carries an attribution it names the CULPRIT. Run against the two real N7 paragraphs, both now `met` at ch10; the two false-certification traps (another character confessing first, and an attributed third-party confession) both correctly `unmet`. Paragraph-scoped on purpose and NOT a reversal of X27/X28 — those made a CONJUNCTION sentence-scoped; a quoted admission is self-contained evidence, and the paragraph is the unit that says whose. Pinned in `accept.test.ts` (the N7 paragraphs verbatim) and `guilt-marker-x49.test.ts` (both attribution word orders) | free | ✅ | [§38.6](#386-the-n7-run--the-pass-fired-the-model-wrote-the-reveal-and-the-detector-refused-it) |
 | X35 | **The reveal repair never tells the model the death method, and it invented one** — attempt 2 confessed to strangling in a stabbing case. `CASE.death_method` is not in the regen Bible slice and not in the violation message. Caught only because the disclosure check rejected the edit for an unrelated reason **BUILT AND WIRED — verified 2026-08-20.** `deathMethod` is threaded from `agent9-run.ts` (`CASE.death_method`) into the reveal-repair request and CONSUMED, not merely accepted: *"THE MURDER WAS COMMITTED BY: {method}. That is the story's own fact — state it, and never substitute another method."* The same instruction also asks for the disclosure SHAPE X34 can read (culprit named in full before the admission), so the writer and the gate agree on scope — an instruction that produces prose its own detector cannot read is the defect this pass exists because of | free | ✅ | [§38.6](#386-the-n7-run--the-pass-fired-the-model-wrote-the-reveal-and-the-detector-refused-it) |
-| X38 | ~~The device's own clock arithmetic is never checked~~ — **BUILT**: `locked_time_arithmetic`, narrow (two clock facts, one duration), fires on the 08-15 case at 10-against-14 — `murder_time_displayed` 7:15 minus `chime_recorded_time` 7:05 is 10 minutes, and `pendulum_delay_duration` declares **fourteen**. Locked facts are injected verbatim, so the contradiction ships and the cold read called it *"the main score cap"*. Checkable at Agent 3b time with the `parseClockTime` that already exists **EXTERNALLY CONFIRMED 2026-08-18**: fired pre-prose on the 08-17 device (2:45 / 2:20 / "twenty minutes"), and the cold reader independently reproduced the arithmetic — *"The clock appears 25 minutes ahead, not simply 'backward for twenty minutes'"* — costing clues 9→8 externally and capping them at 6 internally. No repair path by design, so the fix is at Agent 3b's authoring, now the top paid item | free | ✅ | [§38.9](#389-x38-and-x39-built--and-the-corpus-had-moved-out-from-under-the-gate) · [REVIEW_11 §3](REVIEW_11.md) |
+| X38 | ~~The device's own clock arithmetic is never checked~~ — **BUILT**: `locked_time_arithmetic`, narrow (two clock facts, one duration), fires on the 08-15 case at 10-against-14 — `murder_time_displayed` 7:15 minus `chime_recorded_time` 7:05 is 10 minutes, and `pendulum_delay_duration` declares **fourteen**. Locked facts are injected verbatim, so the contradiction ships and the cold read called it *"the main score cap"*. Checkable at Agent 3b time with the `parseClockTime` that already exists **EXTERNALLY CONFIRMED 2026-08-18**: fired pre-prose on the 08-17 device (2:45 / 2:20 / "twenty minutes"), and the cold reader independently reproduced the arithmetic — *"The clock appears 25 minutes ahead, not simply 'backward for twenty minutes'"* — costing clues 9→8 externally and capping them at 6 internally. No repair path by design, so the fix is at Agent 3b's authoring, now the top paid item **→ the authoring fix is BUILT, see [X38-at-source](#) below** | free | ✅ | [§38.9](#389-x38-and-x39-built--and-the-corpus-had-moved-out-from-under-the-gate) · [REVIEW_11 §3](REVIEW_11.md) |
+| **X38-at-source** | **The device satisfies its own arithmetic before the values freeze — and the rate was never 50%.** §12.11 defined *checkable* as "locked facts AND a readable anchor pair"; X38 cannot run on an anchor pair, it needs exactly one duration, so cases the gate is silent on were scored on the pass side — and the 14 does not reproduce (11 archived cases carry both). Re-derived against the shapes the check can actually read: **10 of 10 archived devices fail — 100%** — and they cluster: **six of the ten are wrong by exactly five minutes**, four of them the identical *twenty-five apart, declares twenty*. **BUILT 2026-08-20.** (1) Agent 3b is now told, unflagged, that locked facts must agree with each other, and to declare with `derivedFrom` which value is a CONSEQUENCE of which others. (2) `reconcileDeviceArithmetic` repairs **only a declared consequence** and never a primary value. **The first build was overfitted and is withdrawn**: it rewrote whichever fact parsed as a duration, which is right for all 24 archived devices — all 24 clock-family — and BACKWARDS for a poison, tide or fuse, where the interval is a physical constant and the times must move instead. It would have corrupted the mechanism of any such story. The rule now recorded: **a detector may guess, a repairer may not** — the shape heuristic still WARNS on all ten, but nothing writes without a licence from the case. Cost of that honesty: the "6 of 10 closed" figure is withdrawn; the replay rewrites 0, and asserts instead that **0 of 20 archived registries are mutated without a declaration**. (2) `buildDeviceArithmeticRule` states the interval and the fixed point as NUMBERS in the Agent 3 prompt for the four cases that lock only one clock — deliberately not naming a single admissible time, since direction belongs to the agent that knows the device. **Half (2) is worth nothing today**: it lives inside `AGENT3_DEVICE_TIME_BINDING`, default OFF and marked PROBE, so four failures stand until that flag is run. The paid item did not vanish — it became one run, one flag, one stated prediction. Underneath: `parseDurationMinutes` read *"eighty-nine minutes"* as **nine** (X61's hyphen defect, in the parser beside the one X61 fixed); corrected by completing the tens list, NOT by the clock parser's lookbehind, which backtesting showed refuses nine real prose sentences. Backtest 3,401/3,410 unchanged, 9 changed, all corrections. Probe: `scripts/probe-device-arithmetic.mjs [--repair]`. 21 tests | free (build) · ~£1.5 (verify) | ◑ | [§12.12](#1212-x38-at-source--the-device-satisfies-its-own-arithmetic-and-the-rate-was-not-half) |
 | X39 | ~~The case carries two temporal spines~~ — **BUILT**: `time_anchors_absent` fires when the manuscript states NEITHER anchor. **And the 80-scoring story does it too** (anchors 8:00/8:30, page says only "a quarter past nine"), so the deception fails to reach the page on 2 of 3 manuscripts checked — mechanism anchors 8:15/8:45 (0 occurrences in the manuscript) vs the device's 7:15/7:05 (10 and 15 occurrences). Every time check on the 08-15 run reasoned about clock readings not in the story | free | ✅ | [§38.8](#388-the-cold-read-of-the-n7-run--78100-and-its-top-complaint-was-authored-by-agent-3b) |
 | X40 | **Three generated artifacts the scaffold detector returns clean on** — *"The detective's understanding updated:"*, *"The revised meaning of the clues was clear:"* (the pipeline narrating its own analysis) and a lower-cased *"Dr mallory finch"*. Quoted by the reader; dialogue 6/10, the lowest yet | free | ✅ | [§38.8](#388-the-cold-read-of-the-n7-run--78100-and-its-top-complaint-was-authored-by-agent-3b) |
 | X41 | The reveal repair satisfies the obligation without earning it — *"Hugo confesses, but the final proof is too abrupt"*. The check asks whether the chapter discloses, never whether the disclosure is built; X35's instruction is where the evidence chain goes | free | ✅ | [§38.8](#388-the-cold-read-of-the-n7-run--78100-and-its-top-complaint-was-authored-by-agent-3b) |
@@ -143,6 +144,18 @@ Everything outstanding, in one place. `☐` not started · `◑` partial · `✅
 | **X65** | **A locked fact's `description` is a schema label, and the injector used it as a sentence SUBJECT** — the `length` and `weight` variants emitted `${description} came to ${value}.`, so the 08-19 manuscript shipped, twice: *"Length of the thin control wire from Rooftop Terrace to clock mechanism came to twenty-five feet."* — a database row wearing a full stop, and the single worst sentence in the book. **The non-membership test could not catch it because its fixtures were tidier than production**: it passes *"the corridor"* and *"the drop"*, which are already noun phrases. **FIXED 2026-08-19**: `measurementSubject` strips the measurement head and the prepositional tail, recovering *"The thin control wire"*. Chapter 7 proves the model needs none of this — unaided it wrote *"twenty-five feet, she recalled, exactly as measured earlier"* | free | :white_check_mark: | [REVIEW_14 §10.2](REVIEW_14.md) |
 | **X66** | **A fact restated across chapters in a form nothing can compare** — two instances in `story_20260819-0147`, both in the volatile four, both invisible to every check that exists. **(a) THE CENTRAL CLUE CONTRADICTS ITSELF.** Ch1: *"each timepiece displayed a time that matched the clock's face, as if in some silent conspiracy to uphold the illusion"*. Ch3: *"none displayed the same time as the grandfather clock"* — and builds the investigation on it. The mystery's hinge, stated both ways two chapters apart. The X38/X39/X44 family cannot see it: **neither sentence contains a parseable clock value**, so there is nothing for a time parser to compare. The claim is about a RELATIONSHIP (match / does not match), and nothing tracks the polarity of a relationship across chapters. **(b) ONE LOCKED SCALAR, THREE DIMENSIONS.** `wire_length` = *"twenty-five feet"*, whose registry description is *"Length of the thin control wire from rooftop terrace to clock mechanism"*. The prose spends it three ways: the wire's length (ch1, ch4), a horizontal distance across the lobby (ch3, *"the Rooftop Terrace door some twenty-five feet away"*), and a vertical height (ch9, *"the Rooftop Terrace, twenty-five feet above"*). The locked-fact consistency gate is value-agnostic — it pins the STRING and is satisfied by all three — but **the registry already knows the dimension**, because the description names it. **NOT BUILT, and deliberately so:** [REVIEW_14 §7](REVIEW_14.md) lists more detectors on plot and clues as NOT the path, since §2.1 is a reliability problem. This row exists so the defect has an owner and a measurement, not so a detector gets written next. (b) is the cheaper half and the better-posed one: it is a dimension check against a description this project already parses for [X65](#) | free to detect | ☐ | [§12.10](#1210-x66--two-facts-restated-across-chapters-and-nothing-that-can-compare-them) · [REVIEW_14 §9.2, §9.5](REVIEW_14.md) |
 | **X68** | **The release gate cannot stop a run on a STORY defect** — it keeps two arrays, and its own comment states the contract: `releaseGateReasons` warns and ships, `hardStopReasons` throws. Sixteen conditions warn; **seven can stop a run, and four of those are textual hygiene** (mojibake, illegal characters, placeholder tokens, duplicate chapter headings). `geometryReleaseWarnings` is pushed into `releaseGateReasons` at `agent9-run.ts:7200` and appears nowhere in `hardStopReasons` — **not by a recorded policy decision, by construction**. **Mojibake stops a run; *"chapter 8 is the reveal, and no paragraph names the culprit"* does not.** On `mystery-1787167692140` five of six geometry violations shipped unrepaired, and **four of the cold reader's six complaints were already on the run's own console** — `clincher_not_planted` even naming the fabric scrap the reader asked to move. **NOT BUILT, and this is a DECISION not a detector.** Blocking today converts ships into aborts: the repair passes already fail on exactly these codes (400→400, 375→375), so **the prerequisite is a repair that works, not a stricter gate on a broken one**. Cheap test first ([REVIEW_15 §8](REVIEW_15.md)): replay the geometry checks over the archived manuscripts and ask whether the 86-scoring runs would have shipped | free to decide | ☐ 👤 | [REVIEW_15 §3](REVIEW_15.md) |
+| **X70** | **Three of the five story axes silently became `temporal`, and the corpus is the proof** — two incompatible vocabularies ran at once: the CML layer named `temporal/spatial/identity/behavioral/authority`, the orchestrator and API named `temporal/spatial/social/psychological/mechanical`. Only two members were common, and `normalizePrimaryAxis` ended in `default: return "temporal"`, so `identity`, `behavioral` and `authority` — three of the five values `canary-core-inputs.yaml` documents — were coerced with **no warning of any kind**. `deriveHardLogicDirectives` then switched on the OTHER vocabulary, so those three also seeded **zero mechanism families**, and the yaml documented an auto-mapping that exists nowhere in `canary-core.mjs`. **MEASURED: 23 of 23 archived cases are `false_assumption.type: temporal` and 24 of 24 devices are clock-family. Four of five advertised axes have never been generated once** — never validated, never scored, never read — while 5 of the 15 geometry codes are temporal-only, so a third of geometry would go silent on an axis no run has produced. **FIXED 2026-08-20**: one `CML_PRIMARY_AXES` union, `normalizePrimaryAxis` THROWS on an unrecognised value (at init, before any paid call), an absent axis defaults through a reported callback so the run log records that nobody chose, and `deriveHardLogicDirectives` takes the canonical axis with a case for every member. `mechanical` is REJECTED rather than mapped: it became `identity`, so a caller asking for a device plot was handed impersonation and twins. 13 tests | free | :white_check_mark: | [§12.13](#1213-x70--three-of-five-axes-were-the-same-axis) |
+| **X71** | **A coherent device near midnight fires a false `locked_time_arithmetic`** — every site computing the gap between two clock values used a plain `Math.abs`, and `parseClockTime` is dial-relative (0..719) by design. So an ordinary late-night device — stopped at *"ten minutes to twelve"*, chime at *"ten minutes past twelve"*, twenty minutes apart — was measured the LONG way round and reported as **700 minutes apart**, firing X38 on a case that is perfectly sound. Every archived run is a 7-to-9pm evening crime, so the corpus has never crossed the boundary and nothing caught it; the first midnight story would carry a false violation into its release gate on every run. **FIXED 2026-08-20**: one `dialGapMinutes` in `timeline-deception.ts`, routed through all four call sites and INJECTED into `story-geometry` the way `parseClockTime` and `parseDurationMinutes` already are — that package deliberately holds no copy of shared arithmetic. 6 tests. Same sampling blindness as X38-at-source: the corpus can evidence a defect, never the shape of one | free | :white_check_mark: | [§12.13](#1213-x70--three-of-five-axes-were-the-same-axis) |
+| **X72** | **The headline graded every run an A, because the book is one fourteenth of its own report card** — `overall_score` is the unweighted mean of fourteen phases, thirteen of which score upstream artifacts (does the cast array exist, are there five locations) that sit at or near 100 by construction. **MEASURED over all 15 archived reports carrying a prose phase: every one reports grade A, in a band of 93.4–97.4, while the prose phase underneath ranges 60 to 100.** Four were graded A with the prose phase at 60/D. `run_0a61b082` scored **95.64/A** on a manuscript in which neither *"killed"* nor *"murdered"* occurs at all. Internally the run that read **86** externally scores 96.71 and the run that read **81** scores 97.29 — in that order, so the number cannot rank two books. NOT a mislabelled pass: `phase_thresholds_met` records the failure honestly and `passed` has meant SHIPPED since A_65b Ph1.3. It is the SCORE that oversells. **FIXED 2026-08-20** by capping the headline at the deliverable phase — the pattern already in that function, which caps at 59 for aborted and 74 for failed. `run_0a61b082` now reads 60/D. The per-phase mean stays readable as pipeline health; a snapshot written before Agent 9 has no prose phase and is not capped, so A_71 partials are untouched. 7 tests | free | :white_check_mark: | [§12.13](#1213-x70--three-of-five-axes-were-the-same-axis) |
+| **X73** | **`aftermath_consequence` is 21 of 54 chapter retries and appears in ALL NINE runs that retried anything** — the dominant retry cause by a factor of 2.5, and still live on the newest run. It is a contract clash whose halves never met: Agent 9 derives a chapter's stage mode FROM the outline, so Agent 7 authors scene purposes without ever seeing the contract they will be judged against, and Act III was presented to it as a flat MENU (Revelation, Confrontation, Explanation, Justice, Denouement). It duly wrote final scenes doing all five at once — `run_0a61b082`, verbatim: *"Clear all suspects with alibis; confront Harold Simmons with evidence; reveal motive and method; emotional and social aftermath"* — which the validator rejects as a clearance roll-call and a re-staged reveal. Three attempts burned; the violation shipped anyway. **22 of 22 archived outlines put clearance and/or reveal work in the final scene**, so this is structural. **PROMPT HALF FIXED 2026-08-20**: Act III now states the five beats as a SEQUENCE — clearance belongs before the reveal, scenes after it carry consequence only, and the exact anti-pattern purpose is named so a model that believes it complied has something to change. Free, unflagged, prevention. 8 tests. **The validator half is deliberately NOT built**: any outline issue drives an outline retry (X32's reason for flag-gating), so a check here trades chapter retries for outline retries — a good trade, probably, but one a run must confirm. Same family as pacing 8→9 and REVIEW_15's *"the ending order is wrong"* | free (prompt) · a run (to confirm) | ◑ | [§12.13](#1213-x70--three-of-five-axes-were-the-same-axis) |
+| **X74** | **The X62 stem defect was live in four more places, two of them the regexes immediately above X62's own comment** — X62 (08-19) recorded that a trailing `` neuters a truncated stem and repaired two outline wordlists. Nobody swept for the pattern. Still broken: `agent7-run.ts:662` `OUTLINE_TEST_TERMS_RE` (`demonstrat`, `verif`, `examin`), `agent7-run.ts:663` `OUTLINE_EXCLUSION_TERMS_RE` (`eliminat`), `agent5-run.ts:222` cleared-language (`eliminat`), `clue-validation.ts:1276` `clearingMarker` (`exonerat`). **MEASURED over the 284 archived outline scenes: the discriminating-test gate matched 68 and was blind to 34 more — 12% of every scene ever authored** — while the exclusion gate went 2 → 9. **FIXED 2026-08-20** with X62's own `stemw*` convention; `exclusion` listed explicitly because *exclude → exclusion* drops the d and the stem cannot reach the noun. Backtest: **0 scenes stop matching**, so the change is a strict widening. 10 tests, one per stem, so the next truncation fails here rather than in a manuscript | free | :white_check_mark: | [§12.14](#1214-x74x78--the-agent-by-agent-review) |
+| **X75** | **Agent 5's fair-play time check kept a private third clock parser, and it was 58% blind** — `findLockedFactClueTimeConflicts` compares a locked fact's time against the time a mapped clue states, then declines in silence on anything it cannot read (`if (!parsedFact) continue;`). Its private `parseWordFormTime` **had no "to" branch at all**, anchored `^quarter past` so a leading article broke it, and received none of `parseClockTime`'s widenings (X61 minute counts, X67 hour-minutes / dayparts / meridiem / curly apostrophe). **MEASURED: of the 36 archived locked facts that ARE clock times it read 15 and silently skipped 21 — 58% — including all 13 "a quarter to X", the corpus's most common form.** The check declined on more cases than it examined. **FIXED 2026-08-20**: deleted, routed to the one parser, with a one-line `statesExplicitMeridiem` predicate kept local because "does this text state a meridiem" is a different question from "what time is this". 15 tests | free | :white_check_mark: | [§12.14](#1214-x74x78--the-agent-by-agent-review) |
+| **X76** | **The pipeline instructed the model to write a time its own parser could not read** — `agent3b-hard-logic-devices.ts` lists *"twenty past midnight"* among its CORRECT examples of a locked time value, and `parseClockTime` returned **null** for it, along with `midnight`, `noon`, `half past midnight` and `ten minutes to midnight`. Every temporal gate downstream reads through that function, so a case using the form the prompt recommends was invisible to all of them — and the corpus contains a manuscript whose central clue is *"the watch stopped at twenty past midnight"*. **FIXED 2026-08-20** by adding the two words to the one hour vocabulary and to all five inline alternations. Backtested over 1,232 corpus strings: **no prior reading can change** (the vocabulary added previously matched nothing), and the manuscript scan gains exactly **one** distinct clock value across the shipped corpus — the midnight story that needed it. 6 tests | free | :white_check_mark: | [§12.14](#1214-x74x78--the-agent-by-agent-review) |
+| **X77** | **A fix for one story was rewriting every outline's times** — `normalizeOutlineTemporalAnchors` replaced any occurrence of "quarter past three" / "three fifteen" / "3:15" in scene titles, purposes, summaries, `timeOfDay`, clue and red-herring descriptions with a "canonical anchor", plus four literal patches for one manuscript's scaffold prose (*"clock tower at quarter past three"*, *"in the formal gardens during the murder"*). The anchor was **the FIRST locked fact matching a clock-ish regex, whatever that fact MEANT**, and on 2 of 16 archived registries more than one matches. Reproduced on a real device (chime 7:05 listed before displayed-time 7:15): *"The tower clock showed three-fifteen when the body was found."* → *"...showed five minutes past seven in the evening when the body was found."* — the CHIME time silently presented as the discovery time, in the outline every chapter is written from. **MEASURED: 0 of 22 archived outlines contain any of those forms** (1 of 333 artifacts), so it never once fired usefully; it could only corrupt. **REMOVED 2026-08-20**, with no replacement — keeping the case's times consistent is the locked-fact registry's job and that machinery now exists end to end. It had no test coverage of any kind | free | :white_check_mark: | [§12.14](#1214-x74x78--the-agent-by-agent-review) |
+| **X78** | **Two latent genericity gaps: a parameter the pipeline asks for and cannot protect, and Victorian furniture in every under-specified room** — (a) `agent2-cast.ts` prints *"gender (male|female|non-binary)"* into its schema block, and three pronoun detectors in `agent9-run.ts` filter the cast with `/^(male|female)$/i`, so a non-binary character is dropped from attribution-flip, impossible-self-reference and he/she monotonicity checks **without a word**. Excluding them is the safe half of the choice (singular *they* is ambiguous with the plural, and a binary comparison would manufacture false positives); doing it silently is not. **Now warned** — `warnOnUncheckedPronounGenders` names the character and says their pronouns are UNVERIFIED. A real they/them detector is a decision, not a patch. (b) `agent2c-run.ts` filled sparse locations from a fixed pool of Victorian English interiors — *dim gaslight*, *the faint tick of a mantel clock*, *coal smoke and furniture polish*, *cold brass on the banister* — and the first TWO fallbacks for every field came from it, so the generic per-location builder beneath was only ever reached from the third. On the canary's own 1950s config those are anachronisms; on a liner or a theatre they are furniture the story does not have. They reach Agent 9 as location profiles and are written into ATMOSPHERE, one of the three categories that has never moved. **REPLACED** with era- and setting-neutral variants that name the location and nothing else; the distinctness gate's ignore-list is now DERIVED from the templates rather than restated. **MEASURED: 0 of 154 archived characters and 0 of 22 archived location profiles** — both latent, neither live | free | :white_check_mark: | [§12.14](#1214-x74x78--the-agent-by-agent-review) |
+| **X79** | **The release gate's flagship hard stop read a shorter list than the validator** — the mojibake vocabulary existed twice: 18 members in `chapter-validator.ts` (raises a validation issue) and **10 in `agent9/prose-text.ts`, which is the copy `proseContainsMojibake` reads and therefore the copy that HARD-STOPS a run**. Mojibake is one of only seven conditions that can abort a run — [X68](#) names it as the archetype of *"broken-looking text stops a run while a story defect does not"* — and it was blind to nine sequences the validator flags: every double-encoded quote, em-dash, en-dash and ellipsis form, plus the bare non-breaking-space artifacts. They had drifted in BOTH directions: each copy encoded the mojibake for a curly opening double quote differently, so one was hunting bytes that do not occur. **FIXED 2026-08-20**: one exported `MOJIBAKE_PATTERN`, resolved as a UNION because neither list was a superset. 7 tests, including an identity check that fails if `prose-text.ts` ever grows its own literal again. **MEASURED: both patterns flag the same 2 of 191 archived manuscripts** — latent, never shipped a defect | free | :white_check_mark: | [§12.15](#1215-x79x81--the-second-pass-packages-and-the-prose-interior) |
+| **X80** | **A third of every retry failure was unroutable, and told the model nothing** — `detectRetryIssueFamilies` routes a chapter failure to a family, and the family drives the retry MODE and the guidance the model receives. Run over the **real** failure messages in the archived run logs rather than invented ones: **17 of 54 (31%) matched no family at all.** A zero-family failure does not abort — it falls through to `surgical_patch`, whose rationale reads *"single-family fix can preserve stable draft sections"*, a label that is false when none was found, and the guidance is built per family. On `run_0a61b082` chapter 8 burned three attempts, two on an unrouted control-plane-leakage failure, and the same leakage recurred on the third. All nine distinct unrouted shapes had one cause — a vocabulary written against older message wordings — and the largest, five of the seventeen, is **a single hyphen**: the regex says `discriminating test`, the validator emits `discriminating-test`. **FIXED 2026-08-20** from the validators' own message templates (code constants, not story content). **AFTER: 54 of 54 route**, and the widening does not push work into the expensive branch — 43 stay single-family, 10 reach two, 1 reaches the three that trigger `targeted_rebuild`. 10 tests | free | :white_check_mark: | [§12.15](#1215-x79x81--the-second-pass-packages-and-the-prose-interior) |
+| **X81** | **Two more shared vocabularies with two bodies, and one arbitrary list documented rather than widened** — (a) the death-method patterns lived in `agent3-cml.ts` and `agent9-prose/prompt-builder.ts` and had drifted: the prompt-builder copy is missing `dagger`, bare `blunt` and `blow`, so a case whose manner of death was a dagger or *a blow to the head* classified in one and not the other. Latent — all 13 archived cases carry an explicit `CASE.death_method`, which `resolveDeathMethod` returns before consulting the patterns — but it is the **seventh** instance of one-vocabulary-two-copies in this review, so it is fixed STRUCTURALLY: `shared/death-method-patterns.ts` owns the patterns, each call site keeps only its own wording (a manner of death vs a wound to describe are different registers, and collapsing them would be the next defect). (b) `continuity-tail.ts` strips five named atmosphere phrases from the tail fed forward between chapters. It fires often — **316 occurrences across 110 of 191 manuscripts** — but ranking every candidate by corpus frequency puts it at five of the top ten and lets the other five through, **including the joint-most-frequent (`cold air`, 122, tied with `coal smoke`)**; it is also setting-specific (salt air, sea fog, coal smoke) in a generator whose setting is a parameter. **NOT widened** — a list cannot be completed and the right rule is repetition, which needs no vocabulary. Documented in place with the measurement, because it had no comment at all. Notable because `atmosphere` is one of the three categories that has never moved, and this is one of the very few mechanisms that touches it | free | ◑ (b) owner's call | [§12.15](#1215-x79x81--the-second-pass-packages-and-the-prose-interior) |
 | **X69** | **The motive has no concrete noun, and nothing asks for one** — the 08-19 cold read: *"The reveal says Finch would expose 'what he'd been hiding', but the secret needs a concrete noun"*, and it lists what would do (theft from emergency funds, falsified security reports, black-market ration coupons, forged maintenance invoices). `reveal_motive_absent` exists and checks that a motive is STATED; **nothing checks that it is specific**, so *"what he'd been hiding"* satisfies every gate in the pipeline. This is the reader's third named fix, and one of the three they price at **87–89** together. It is a CASE-authoring defect in the same family as X38-at-source — the repair belongs to Agent 3, not to a chapter rewrite. **NOT BUILT.** A specificity check is cheap to state and easy to get wrong (a concrete noun is not a regex), so the first move is to require it where the motive is AUTHORED rather than to detect it after | free to design | ☐ | [REVIEW_15 §6](REVIEW_15.md) |
 | **X67** | **The same trap, one surface form along — and a paid run was the only thing that could find it** — X61 taught `parseClockTime` to read *"fourteen minutes past four"*. Run `mystery-1787167692140` (2026-08-19) then wrote its `actual_time_of_death` as **"seven twenty"** — the spoken HOUR-MINUTES form, with no *past* or *to* to key on — and the parser returned `null` again. **So X38 stayed silent on a device 25 minutes apart declaring twenty: the fourth consecutive run with wrong device arithmetic, and the third distinct surface form this parser could not read** (08-15 10-vs-14, 08-17 25-vs-20, 08-19a 89-vs-45, 08-19b 25-vs-20). **FIXED 2026-08-19**: an HOUR-MINUTES branch accepted ONLY as the whole segment, because two bare number words are ordinary prose and this parser also runs against free text. Verified against the real case: X38 now fires with *"25 minutes apart … declares twenty minutes"*. 5 tests. **The durable lesson is not the branch** — it is that a silent temporal gate still means UNPARSEABLE more often than it means clean, and that no amount of reading found this; the run did | free | :white_check_mark: | [REVIEW_14 §12](REVIEW_14.md) |
 | **X64/X65 — CORRECTION** | **Both fixes were wrong on first attempt, and the run proved it** — (1) the substitution meant to pass the occurrence ordinal to the injector **was applied without an assertion and silently no-opped**, so every injection still asked for occurrence 0 and `mystery-1787167692140` shipped *"It had taken twenty minutes in all."* **twice** — the identical defect X64 exists to fix. (2) `measurementSubject` turned *"Distance FROM the lobby clock TO the dining hall"* into *"The lobby grandfather clock"*, so the run shipped *"The lobby grandfather clock came to forty feet."* — no longer a schema label, and now **grammatical and false**. **BOTH FIXED 2026-08-19** with the real descriptions pinned in tests: a distance is now measured by its endpoints rather than named after one of them (*"The distance came to forty feet."*), and the seed reaches the call site. Recorded because it is this tracker's own pattern — [§12.x fix-regresses-its-own-defect](#) — committed by the fix for that pattern | free | :white_check_mark: | [REVIEW_14 §12](REVIEW_14.md) |
@@ -888,6 +901,18 @@ REVIEW_14 §12.3 called this *"four consecutive runs"*. It is **half of everythi
 X38-at-source was already the best-evidenced paid item on the board; it is now the best-evidenced by
 a factor.
 
+> ⚠️ **CORRECTED 2026-08-20 — the denominator was wrong, and the real rate is 100%. See
+> [§12.12](#1212-x38-at-source--the-device-satisfies-its-own-arithmetic-and-the-rate-was-not-half).**
+> The sweep above counted a case as *checkable* whenever the mechanism's two anchors parsed. X38
+> cannot run on an anchor pair alone: it needs a duration, and exactly one — so a case with two
+> readable anchors and no duration fact is one the gate is **silent** on, and every such case was
+> scored on the pass side. That is the mistake [REVIEW_14 §12](REVIEW_14.md) names in the sentence
+> this paragraph was written from: *"a silent temporal gate still means UNPARSEABLE more often than it
+> means clean"*. Counted against the cases the check can actually read, it is **10 of 10**. The 14
+> does not reproduce either (11 archived cases carry a registry and a readable pair) — the sweep was
+> run once in a scratchpad and discarded, so nothing could be inspected. It is now
+> `npm run probe:device-arithmetic`.
+
 #### X24 — the premise was backwards
 
 The row read: *"N4's reveal-binding note is a false positive — it fired on two runs whose binding was
@@ -1151,6 +1176,429 @@ the honest answer today is that only a reader catches it.
 of defect a reader DOES report — an error, not a flatness ([REVIEW_14 §3](REVIEW_14.md)) — so if the
 next cold read names it, (a) moves from "expensive and unowned" to "the reader's own complaint", which
 is the bar §2.2 uses for buildable work.
+
+### 12.12 X38-at-source — the device satisfies its own arithmetic, and the rate was not half
+
+**Built 2026-08-20.** §12.11 closed with X38-at-source as *"the clear top item"* and priced it as
+paid. The build half was free, and doing it first turned up a bigger correction than the build.
+
+#### The rate is 100%, and the 50% was a counting error of a named kind
+
+§12.11 defined *checkable* as **"cases with locked facts AND a readable anchor pair"** and got 7 of 14.
+That is the wrong gate. **X38 cannot run on an anchor pair.** It needs a duration, and exactly one —
+three clock values or two durations have no single pairing, and the check declines in silence by
+design. A case with two readable anchors and no duration fact is one the gate has *no opinion about*,
+and every such case was scored on the pass side of that ratio.
+
+That is the mistake [REVIEW_14 §12](REVIEW_14.md) names, in a sentence this repo committed two commits
+earlier (`7bc48ab4`): *"a silent temporal gate still means UNPARSEABLE more often than it means
+clean"*. **The lesson was already written down when the number that ignores it was published.**
+Knowing the rule is not the same as applying it to your own denominator, which is the argument for
+the probe below existing as a file rather than as a session.
+
+**The 14 also does not reproduce.** Re-running the sweep finds **11** archived cases with a registry
+and a readable anchor pair, not 14, and the three extra are not on disk under any name this repo
+keeps — which is the second half of the problem: the sweep was run once in a session scratchpad and
+discarded, so neither its denominator nor its error could be inspected. It is now
+`scripts/probe-device-arithmetic.mjs`.
+
+Re-derived against the shapes `checkCaseTimeCoherence` can actually read:
+
+```
+archived registries                                   20
+  the check CANNOT read (no opinion, NOT a pass)      10
+  the check CAN read                                  10
+    two locked clocks + one duration  (registry)       6/6  fail
+    one duration + both anchors       (mechanism)      4/4  fail
+
+DEVICE ARITHMETIC THAT DOES NOT WORK                  10/10   ← 100%
+```
+
+**Every device this project has ever generated that can be checked is wrong.** Not half, and not four
+consecutive runs. And the failures are not scattered — they cluster hard:
+
+| signature | n |
+|---|---:|
+| the two clocks are **twenty-five minutes apart** | 5 of 10 |
+| ...under a duration declaring **twenty** | 4 of 10 |
+| **wrong by exactly five minutes**, in either direction | 6 of 10 |
+| wrong by ten | 2 of 10 |
+| wrong by four, and by forty-four | 1 each |
+
+**Six of the ten are out by exactly five minutes.** The model is not slipping at random; it is being
+asked for three interdependent numbers, and it reaches for a round duration (*twenty*, *forty*,
+*eighty*) while writing clock values that a quarter-hour idiom pushes five minutes further apart than
+that — *"a quarter to nine"* against *"twenty minutes past eight"*, declared as twenty. It gets the
+relation wrong the same way, in the same direction, most of the time.
+
+`npm run probe:device-arithmetic` prints the table above; `--repair` replays the fix over the same
+cases using the REAL pass out of `apps/worker/dist`, not a copy of its rule — a probe that
+reimplements what it measures can only confirm itself.
+
+#### A detector may guess. A repairer may not.
+
+**The first build of this fix was overfitted to the corpus, and the owner caught it.**
+
+`reconcileDeviceArithmetic` originally rewrote whichever locked fact parsed as a duration, reasoning
+that an interval is the derived quantity: the two clock values are what the prose prints and what the
+alibi windows are built on, so the interval is the one the case can absorb. That reasoning is sound
+for every device in the archive — **and the archive is 24 of 24 clock-family devices** (pendulum,
+bell, sundial, hourglass, escapement). Not one poison-timing, tide, optics, acoustic or ledger device,
+though Agent 3b's own prompt lists all of them.
+
+For those families it is **backwards**. How long a poison takes to act, a tide's period, how long a
+fuse burns — these are physical constants. When the numbers disagree there, the TIMES are wrong and
+the interval must not move. The original pass would have silently overwritten the mechanism's own
+constant and shipped a story whose poison acts in the wrong time. **The corpus could not have shown
+that, because it contains no such device** — which is the argument, in one example, for why a corpus
+may evidence that a defect exists but must never supply a repair's assumptions.
+
+So the author declares the dependency and the repair acts only on the declaration. A new optional
+`derivedFrom` on a locked fact names the facts it is a consequence of; absent, the value is PRIMARY
+and untouchable. Agent 3b is told the distinction in the mechanism's own terms — *if a clock is
+tampered with for a stretch, the stretch follows from the two times; if the interval is fixed by
+physics, the times follow from it* — and told that omitting the field is always safe.
+
+The general rule this encodes, and the one to apply next time:
+
+> **A DETECTOR MAY GUESS. A REPAIRER MAY NOT.**
+> A warning that is wrong costs a minute of reading. A rewritten locked fact is printed into the book
+> verbatim and is unrecoverable. So `checkCaseTimeCoherence` KEEPS its shape heuristic and keeps
+> warning on all ten — no detection coverage is lost — while nothing writes without a licence from
+> the case itself.
+
+**What that costs, stated plainly: the "6 of 10 closed" result is withdrawn.** `derivedFrom` post-dates
+every archived run, so the replay now rewrites **zero** devices, and that is the correct outcome
+rather than a null one. What the replay still proves is the half that matters for safety: over all 20
+archived registries, **0 are mutated without a declaration** — `--repair` asserts it byte-for-byte.
+
+Agent 3b is also now told, unconditionally and free of any flag, that locked facts must agree with
+each other — an interval between two stated times, a distance implied by a speed and a duration, a
+total implied by its parts. That is prevention rather than repair, it costs nothing, and it is the
+part that should have been written first.
+
+**The other four lock only ONE clock** — the second anchor is `hidden_model.mechanism`, authored after
+the registry has frozen. Those cannot be repaired, only prevented, so the fix is a constraint in the
+Agent 3 prompt: `buildDeviceArithmeticRule` states the interval and the fixed point as numbers
+(*"must be EXACTLY 'twenty minutes' apart, and one of the two must BE 'quarter to eight'"*) where the
+existing binding rules said only that the true time should be *"consistent with the same device
+timeline"* — a sentiment the corpus shows a model cannot act on. **It deliberately does not name a
+single admissible time**: which anchor is the displayed one and which the real one is the device's own
+question, and answering it from the prompt would author the mechanism badly. Direction stays with the
+agent that knows the story, which is the division of labour that section's own note argues for.
+
+**Be clear about what that half is worth today: nothing.** It sits inside `AGENT3_DEVICE_TIME_BINDING`,
+which is default OFF and marked PROBE in [FLAG-AUDIT](FLAG-AUDIT.md). Until that flag is turned on and
+probed, the prompt is byte-identical and four of the ten failures stand. **The paid item did not go
+away — it got smaller and better specified:** it is now one run with one flag on, against a stated
+prediction (X38 silent at Agent 7.5), rather than an open-ended "make the device coherent".
+
+#### A defect found underneath it, and it is the X61 family again
+
+`parseDurationMinutes` read **`"eighty-nine minutes"` as NINE** and `"seventy-five minutes"` as FIVE.
+The tens list stopped at *fifty*, so anything above it fell through to the bare-word branch, where
+a `\b` word boundary matches after a hyphen and the compound's TAIL stood in for the whole number.
+(That is the third document in this repo to lose the escape to a shell heredoc — lines 139 and 993
+both read *"`` matches after a hyphen"* for the same reason, and mean the same thing.) This is the same
+defect X61 fixed in `parseClockTime` (*"forty-five minutes past one"* read as 1:05) — the parser
+beside it was never checked. `"eighty minutes"` is in the archived corpus and returned null, which is
+why `mystery-1786106661131` was reported as unreadable rather than as the failure it is.
+
+A wrong number is worse than silence here: X38 compares this value against a measured gap, so a
+tail-read makes coherent cases look broken and broken ones look coherent by the wrong amount.
+
+**Fixed by completing the tens list, and NOT by the lookbehind the clock parser uses.** Backtested
+over 3,410 corpus strings, that lookbehind refused **nine real manuscript sentences** in which an
+em-dash had been flattened to a hyphen — *"a faint chime sounded-five minutes before the hour"* —
+where the number it rejects is a genuine duration. The two parsers differ on purpose: `parseClockTime`
+is run against free prose by `accept.ts` and must be strict about what it volunteers; this one is only
+ever pointed at a locked-fact value. Final backtest: **3,401 of 3,410 unchanged, 9 changed, all of
+them corrections or newly-read values, zero regressions.**
+
+#### And one this build authored, caught before it shipped
+
+`rewriteDurationMinutes` carries a round-trip assertion — re-parse the rewritten value, and refuse it
+unless it reads back as the number asked for. That assertion was written *because* of X64/X65, and it
+was **not enough**. The rewriter kept its own copy of the tens list, ending at *fifty*, while the
+parser's reached *ninety*. So `"eighty-nine minutes"` missed the compound branch in the rewriter,
+fell through to the bare-word branch, and came back as:
+
+```
+rewriteDurationMinutes("eighty-nine minutes", 25)  ->  "eighty-twenty-five minutes"
+```
+
+Which parses back to twenty-five, passes the assertion clean, and would have been printed into a
+manuscript verbatim as a locked fact. **A round-trip cannot catch a drift, because the garbage reads
+correctly.** Only one list can, so the tens are now a single `DURATION_TENS` constant that both the
+parser and the rewriter build their regex from, with a test that walks every tens word. Recorded
+because the failure mode is this document's own: the fix for a duplicated-vocabulary defect was
+written with a duplicated vocabulary, five minutes after its own comment warned against exactly that.
+
+#### What this does and does not settle
+
+It does not claim a better book, and after the correction above it does not claim a repaired corpus
+either. It claims three things. The rate is **100%, not 50%**, and the probe that says so is a file
+rather than a session. Agent 3b is now asked, on every run and behind no flag, for values that agree
+with each other and for a declaration of which value follows from which — prevention, where before
+there was only a warning nobody could act on. And the repair path is now sound rather than lucky: it
+cannot corrupt a mechanism constant, on any story type, including the ones the archive has never
+produced.
+
+**What it costs is that nothing is verifiable offline any more.** Whether the authoring prompt lands,
+whether `derivedFrom` is populated and populated correctly, and whether X38 goes quiet — all of it
+needs a run. That was the honest position before this session started; the difference is that the run
+now has a stated prediction to falsify (`[X38]` absent at Agent 3b and Agent 7.5, `derivedFrom` present
+on the primary device) rather than an open-ended hope.
+
+### 12.13 X70 — three of five axes were the same axis
+
+**Found by a full-code review, 2026-08-20, asked for on three criteria: bugs, genericity across any
+combination of story parameters, and whether the pipeline can support 90+ every run.** Four defects
+came out of it. Three are fixed; the fourth is half fixed and says why.
+
+#### X70 — the genericity failure, and it explains the corpus
+
+The generator advertises five story axes. It has produced one.
+
+```
+what canary-core-inputs.yaml documents  ->  what the pipeline actually used
+  temporal                             ->  temporal
+  spatial                              ->  spatial
+  identity                             ->  temporal    <<< SILENTLY CHANGED
+  behavioral                           ->  temporal    <<< SILENTLY CHANGED
+  authority                            ->  temporal    <<< SILENTLY CHANGED
+```
+
+Two vocabularies ran at once — the CML layer's five, and the orchestrator's
+`social | psychological | mechanical` — with only `temporal` and `spatial` in common and
+`default: return "temporal"` at the end of the normaliser. The coercion was silent, and
+`deriveHardLogicDirectives` switched on the *other* list, so the three coerced values also seeded
+**zero mechanism families**. `canary-core-inputs.yaml` documented an auto-mapping that appears
+nowhere in `canary-core.mjs`.
+
+**MEASURED: 23 of 23 archived cases are `false_assumption.type: temporal`; 24 of 24 devices are
+clock-family.** Four of the five advertised axes have never been generated once — so they have never
+been validated, scored or read — and **5 of the 15 geometry codes are temporal-only**, meaning a
+third of geometry would fall silent on an axis this project has never observed.
+
+This is the root of the monoculture that produced the [§12.12](#) overfit. A repair was tuned to
+"the corpus", and the corpus was one axis wearing five names.
+
+**FIXED.** One `CML_PRIMARY_AXES` union; the normaliser THROWS on anything unrecognised, at init,
+before a paid call; an absent axis defaults through a reported callback so the run log records that
+nobody chose; `deriveHardLogicDirectives` takes the canonical axis and has a case for every member.
+`mechanical` is rejected rather than mapped — it became `identity`, handing a caller who asked for a
+device plot a story about impersonation and twins.
+
+```
+documented value  ->  resolved axis   | mechanism families seeded
+  temporal        ->  temporal        | schedule contradiction, timing window trap
+  spatial         ->  spatial         | access path illusion, geometry-based movement
+  identity        ->  identity        | role substitution proof, witness misidentification constraint
+  behavioral      ->  behavioral      | cognitive bias exploitation, memory anchoring misdirection
+  authority       ->  authority       | authority-channel manipulation, status-based witness distortion
+```
+
+**What this unblocks, and it is the point:** "generic across any combination of story parameters" was
+not a property this codebase had, and could not be tested for. Five runs, one per axis, are now
+meaningful — and four of them will be the first of their kind.
+
+#### X71 — a coherent midnight device fires a false violation
+
+Every gap between two clock values used a plain `Math.abs`, against a parser that is dial-relative
+(0..719) by design. A device stopped at *"ten minutes to twelve"* with a chime at *"ten minutes past
+twelve"* — twenty minutes — was measured the long way round and reported as **700 minutes apart**.
+X38 fired on a sound case.
+
+Every archived run is a 7-to-9pm evening crime, so the corpus never crossed the boundary. The first
+midnight story would have carried a false `locked_time_arithmetic` into its release gate on every
+run. Fixed with one `dialGapMinutes`, injected into `story-geometry` the way the two parsers already
+are, because that package holds no copy of shared arithmetic.
+
+**The pattern is worth more than the fix:** this is the second defect in two days that the corpus
+could not have shown, because the corpus varies in fewer dimensions than the generator claims to.
+
+#### X72 — the headline could not rank two books
+
+Every one of the 15 archived reports carrying a prose phase reports grade **A**, in a band of
+93.4–97.4, while the prose phase underneath ranges 60 to 100. Four were graded A with the prose phase
+at 60/D. The arithmetic is the cause: `overall_score` is the unweighted mean of fourteen phases, and
+thirteen of them score upstream artifacts that sit at 100 by construction.
+
+`run_0a61b082` — a manuscript in which neither *"killed"* nor *"murdered"* occurs at all, whose
+reveal-repair had failed on its own console — scored **95.64 / A / passed**. Internally the run that
+read **86** externally scores 96.71 and the run that read **81** scores 97.29, in that order.
+
+This is not a mislabelled pass. `phase_thresholds_met` records the failure honestly and `passed` has
+meant SHIPPED since A_65b Ph1.3. It is the SCORE that oversells, and it is now capped at the
+deliverable phase — the pattern that function already used for aborted (59) and failed (74) runs.
+
+#### X73 — the retry loop's dominant cause is a contract clash
+
+`aftermath_consequence` is **21 of 54 failed chapter attempts and appears in all nine runs** that
+retried anything — 2.5× the next cause, and still live on the newest run. `season` (8) was one run
+and X55 already closed it.
+
+Agent 9 derives a chapter's stage mode FROM the outline, so Agent 7 writes scene purposes without
+seeing the contract they will be judged against, and Act III reached it as a flat menu. It wrote a
+final scene doing all five beats at once; the validator rejects three of them; three attempts burned
+and the violation shipped. **22 of 22 archived outlines put clearance and/or reveal work in the final
+scene.**
+
+The prompt half is fixed — Act III is now stated as a sequence, with the anti-pattern purpose named
+so a model that believes it complied has something to change. **The validator half is deliberately
+not built**: any outline issue drives an outline retry, which is why X32 flag-gated the same family.
+Trading three chapter regenerations for one outline call is probably a good trade; it is not a
+measured one.
+
+#### What the review did not cover
+
+The API, the web app, `device-library`, `period-kb` and the eval harness. 104k lines of source; this
+was the generation path.
+
+### 12.14 X74–X78 — the agent-by-agent review
+
+**Owner instruction, 2026-08-20:** *"methodically go through all the agent code for all agents and
+ensure the code is bug free and working generically to ensure stories of all types will reach 90."*
+
+**Surface: 54,443 lines** — 22,109 in `apps/worker/src/jobs/agents`, 13,860 in the `prompts-llm`
+agent builders, 18,474 in `agent9-prose`. Reviewed by sweeping for the defect CLASSES this codebase
+has already paid for, then reading what the sweeps flagged. Five defects found, all fixed.
+
+#### The classes swept, and what each returned
+
+| sweep | result |
+|---|---|
+| mechanism/theme words inside regexes or conditionals | **X77** — a whole subsystem keyed to one story's clock |
+| switch defaults returning a semantic value | clean (one exhaustive union with every member enumerated) |
+| private copies of time / duration / number parsing | **X75, X76** — a third clock parser, 58% blind |
+| truncated stems before a word boundary (X62's pattern) | **X74** — four more sites, two beside X62's own comment |
+| era / unit / currency assumptions in logic | **X78(b)** — Victorian interiors as universal fallbacks |
+| gender and pronoun assumptions | **X78(a)** — a parameter the pipeline asks for and cannot check |
+| hardcoded cast sizes, roles, chapter counts | clean — era, location, cast size and roles are all parameterised |
+| division by a length without a guard | clean — all eight sites guarded |
+
+#### The finding underneath the findings
+
+Three of the five are the same defect this project keeps re-buying: **a second body of a shared
+vocabulary.** X75 is the third clock parser. X74 is the stem defect X62 named and then left in the two
+regexes directly above its own explanatory comment. X76 is a prompt and a parser disagreeing about
+what a valid time looks like.
+
+The other two, X77 and X78, are the same as [§12.12](#)'s overfit: **a fix for the story on the desk,
+left on the path of a generator whose parameters change every run.** X77 is the clearest — a
+"canonical anchor" mechanism that has never once fired usefully in 22 outlines, and whose only
+possible effect is to rewrite a real time to an arbitrarily-chosen locked fact.
+
+Two of the five (X78) are LATENT: 0 of 154 archived characters are non-binary, 0 of 22 archived
+location profiles hit the sensory fallback. They are recorded as latent, not sold as live. They matter
+because both are reachable the moment a run varies a parameter the pipeline itself offers — which is
+the whole point of [X70](#).
+
+#### What this review did NOT cover
+
+The API server, the web app, `device-library`, `period-kb`, the eval harness, and the interiors of
+`agent9-prose/generate.ts` (4,614 lines) beyond the sweeps. The sweeps ran over every file listed
+above; the READING was concentrated where they flagged.
+
+#### On "90 every run"
+
+Nothing here raises the score. Four of the five defects were making instruments blind — a gate that
+skips 58% of its inputs, a discriminating-test check blind to 12% of scenes — so the honest claim is
+that **the instruments now see more of what they were built to see**, and that two classes of
+story the generator advertises (non-temporal axes, non-Victorian settings) lost a reason to fail
+that had nothing to do with the writing.
+
+### 12.15 X79–X81 — the second pass: packages, and the prose interior
+
+Continuation of [§12.14](#1214-x74x78--the-agent-by-agent-review), across the surface that section
+listed as not covered. **~30,400 lines**: `story-validation` (16,883), `story-geometry` (2,545),
+`cml` (2,102), `llm-client` (2,433), `period-kb` (1,025), `clue-spec`, `style-contract`,
+`device-library`, `apps/api` (2,793), `apps/web` (1,491) — plus the `agent9-prose` interiors and two
+agent files the first pass's enumeration had missed (`agent9/prose-text.ts`, `agent9/flags.ts`).
+
+#### The sweep that found most of it
+
+A new one, and it earned its place: **collect every regex with three or more alternation members,
+group them by signature, and report any that appear in more than one file — then diff the copies.**
+
+That single sweep returned X79 directly, and its method found X81(a). Combined with §12.14's X75, the
+tally for one defect class in one review is **seven**: X61, X67, X74, X75, X76, X79, X81(a). It has
+cost this project more than any other single thing, and until now nothing looked for it mechanically.
+
+#### X79 — the hard stop was the weaker copy
+
+The mojibake list existed twice, and the SHORTER one is the one that can abort a run. Nine sequences
+the validator flags could not stop a release: every double-encoded quote, em-dash, en-dash and
+ellipsis form, plus the bare non-breaking-space artifacts. They had also drifted in the other
+direction — each copy spelled the curly-open-double-quote mojibake differently, so one was hunting
+bytes that do not occur.
+
+Fixed as a union, with an identity test that fails if the second body ever grows back.
+
+#### X80 — the measurement that only real data could give
+
+`detectRetryIssueFamilies` was tested, in the sense that it had tests. What it had never been run
+against is **the failure messages the pipeline actually emits**, which sit in the archived run logs:
+
+```
+real retry failure messages in the archive : 54
+routed to at least one family              : 37
+UNROUTED                                   : 17   ← 31%
+```
+
+An unrouted failure still retries — it falls through to `surgical_patch` — but the rationale it
+records is *"single-family fix"* when no family was found, and the guidance handed to the model is
+built per family. So a third of retries asked the model to fix something without saying what.
+
+All nine distinct unrouted shapes had one cause, and the largest is a hyphen:
+
+```
+the routing regex says   discriminating test
+the validator emits      discriminating-test
+```
+
+After: **54 of 54**, with 43 still on the cheap draft-preserving path.
+
+This is the same lesson as [§12.12](#)'s probe: a check that has never been run against production
+strings is a hypothesis. §6 of this document said that about detectors and prose in 2026-08-04; it
+applies equally to code that reads other code's messages.
+
+#### X81 — and one thing deliberately not fixed
+
+(a) is the seventh two-body vocabulary, fixed structurally rather than by aligning two lists a
+seventh time.
+
+(b) is different and worth the distinction. `continuity-tail.ts` strips five named atmosphere phrases
+from the summary passed between chapters. It is not a bug — it works as written, and it fires on 110
+of 191 manuscripts. It is *arbitrary*: five of the ten most-repeated atmosphere phrases in the corpus,
+letting the joint-most-frequent one through, in a vocabulary tied to seaside and industrial settings.
+
+**Widening it was refused.** A list of banned phrases cannot be completed, and every extra entry moves
+the arbitrary line without removing it; the right rule is repetition — *has this phrase already gone
+forward?* — which needs no vocabulary and works in any setting. That is a design change with a real
+false-positive surface, so it is recorded as a decision with the measurement attached rather than
+made here. The file previously carried no comment at all.
+
+#### What came back clean
+
+Worth stating, because a sweep that only reports hits is not a measurement:
+
+- **`period-kb`** — decade resolution has known anchors, a mid-decade fallback for any other decade,
+  and returns `undefined` rather than defaulting. Its own comment says *"rather than the old silent
+  default-to-1930s"*: someone had already fixed the [X70](#) class here.
+- **Division by a length** — all sites across every package are guarded.
+- **Silent semantic defaults** — one `default:` on a closed union with every member enumerated.
+- **`apps/api`, `apps/web`, `llm-client`, `clue-spec`, `style-contract`, `device-library`** — no hits
+  on any class.
+- **Death-method stems** — no trailing `\b` anywhere, so the X74 defect is absent from them.
+
+#### Still not read
+
+`agent9-prose/generate.ts` beyond its routing and retry logic, `regen-integration.ts`,
+`deterministic-repair.ts` and `lint.ts` beyond the sweeps; the `story-validation` scorers beyond the
+division and default classes. The sweeps ran over every file; the READING remains concentrated where
+they flagged.
 
 ## 13. M1 — what the judge diagnosis actually found
 

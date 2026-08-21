@@ -494,16 +494,16 @@ const detectRetryIssueFamilies = (errors: string[]): string[] => {
   const families = new Set<string>();
   for (const error of errors) {
     const lowered = error.toLowerCase();
-    if (/clue evidence|clue obligation|clue visibility|missing required clue|discriminating test/.test(lowered)) {
+    if (/clue evidence|clue obligation|clue visibility|missing required clue|discriminating[\s-]test|copied verbatim/.test(lowered)) {
       families.add("clue");
     }
     if (/stage-mode outcome|final reveal completeness|fair-play|no withholding|spoiler/.test(lowered)) {
       families.add("stage");
     }
-    if (/setting drift|scene location coverage missing|location anchor|setting fidelity|location coverage/.test(lowered)) {
+    if (/setting drift|scene (?:location|cast) coverage missing|location anchor|setting fidelity|location coverage/.test(lowered)) {
       families.add("setting");
     }
-    if (/template linter|opening-style entropy|paragraph fingerprint|n-gram overlap|metadata leakage|meta-language|repeated content opener|template leakage/.test(lowered)) {
+    if (/template linter|opening-style entropy|paragraph fingerprint|n-gram overlap|metadata leakage|meta-language|repeated content opener|template leakage|control-plane leakage/.test(lowered)) {
       families.add("template");
     }
     if (/word count|hard floor|preferred target|minimum words|underflow/.test(lowered)) {
@@ -512,7 +512,7 @@ const detectRetryIssueFamilies = (errors: string[]): string[] => {
     if (/weak sensory grounding|weak atmosphere\/time grounding/.test(lowered)) {
       families.add("grounding");
     }
-    if (/pronoun|entity fidelity|illegal_named_walk_on|detective_name_inconsistency|timeline|continuity|victim alive|identity/.test(lowered)) {
+    if (/pronoun|entity fidelity|illegal_named_walk_on|detective_name_inconsistency|timeline|continuity|victim alive|identity|season contradiction|month\/season/.test(lowered)) {
       families.add("continuity");
     }
     if (/boundary integrity|unbalanced quotation|malformed apostrophe|chapter\.paragraphs|structure|format|incomplete sentence/.test(lowered)) {

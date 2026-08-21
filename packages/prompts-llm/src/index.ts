@@ -316,6 +316,7 @@ export {
   // X38/X39 (REVIEW_09 §3) — the case checked against ITSELF, before any prose exists.
   checkCaseTimeCoherence,
   parseDurationMinutes,
+  dialGapMinutes,
 } from "./timeline-deception.js";
 export type {
   TimelineDeceptionInput,

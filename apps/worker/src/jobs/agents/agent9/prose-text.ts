@@ -11,6 +11,10 @@
  * so every existing import path (and every test) keeps working unchanged.
  */
 
+// ONE mojibake vocabulary — this file used to keep a second, shorter copy, and it is the one the
+// release-gate HARD STOP reads. See MOJIBAKE_PATTERN for what the divergence cost.
+import { MOJIBAKE_PATTERN } from "@cml/story-validation";
+
 // ============================================================================
 // Prose text sanitization helpers
 // ============================================================================
@@ -48,7 +52,7 @@ export const illegalControlCharPattern = /[\u0000-\u0008\u000B\u000C\u000E-\u001
 // Used as a hard-stop check after the chapter is written to disk — if any of these
 // multibyte mojibake fragments appear, the repair table failed and the prose must be rejected.
 export const persistentMojibakePattern =
-  /(?:Ã¢â‚¬â„¢|Ã¢â‚¬Ëœ|Ã¢â‚¬Å"|â€™|â€˜|â€œ|â€\x9d|â€"|â€¦|\uFFFD)/; // eslint-disable-line no-control-regex
+  MOJIBAKE_PATTERN; // eslint-disable-line no-control-regex
 
 export const normalizeWrappedParagraphText = (text: string) => {
   const blocks = text

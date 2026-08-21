@@ -78,6 +78,7 @@ import {
   // X38 — ONE duration parser, injected. story-geometry deliberately holds no copy (its local one
   // had already diverged on "twenty-five minutes").
   parseDurationMinutes,
+  dialGapMinutes,
   // REVIEW_05 §10.1 — the pipeline's own sentences, and the patterns that recognise them.
   buildCulpritEvidenceSentence,
   buildSuspectClearanceSentence,
@@ -3595,6 +3596,44 @@ export const GEOMETRY_DEFECT_KIND_BY_CODE: Readonly<Record<string, GeometryRepai
 // runAgent9
 // ============================================================================
 
+/**
+ * PRONOUN COVERAGE — say so when a character sits outside what the checks can read.
+ *
+ * FOUND BY REVIEW, 2026-08-20. Agent 2 is explicitly invited to produce `non-binary` characters:
+ * `agent2-cast.ts` prints "gender (male|female|non-binary)" in the schema block and the type allows
+ * it. Three pronoun detectors in this file — attribution flips, impossible self-references, and the
+ * he/she monotonicity comparison — filter the cast with `/^(male|female)$/i`, so such a character is
+ * dropped from every one of them WITHOUT A WORD.
+ *
+ * That exclusion is the safe half of a choice: including them in a binary he/she comparison would
+ * manufacture false positives, and singular "they" is genuinely ambiguous with the plural, so a
+ * detector for it is not a small change. What is NOT defensible is doing it silently. This project
+ * has spent several work items on pronoun drift because a reader named it; a character the machinery
+ * cannot check should be visible in the run log rather than discovered in a manuscript.
+ *
+ * MEASURED: 0 of 154 archived characters carry a value outside male/female, so this is latent, not a
+ * live defect. It fires the first time the model accepts the invitation.
+ */
+const PRONOUN_CHECKED_GENDERS = /^(male|female)$/i;
+
+export const warnOnUncheckedPronounGenders = (
+  castCharacters: ReadonlyArray<{ name?: unknown; gender?: unknown }>,
+  warn: (message: string) => void,
+): void => {
+  const unchecked = (castCharacters ?? [])
+    .filter((c) => {
+      const g = String(c?.gender ?? "").trim();
+      return g.length > 0 && !PRONOUN_CHECKED_GENDERS.test(g);
+    })
+    .map((c) => `${String(c?.name ?? "(unnamed)")} (${String(c?.gender)})`);
+  if (unchecked.length === 0) return;
+  warn(
+    `[pronoun-coverage] ${unchecked.length} character(s) have a gender the pronoun checks do not ` +
+      `read, so attribution flips, impossible self-references and the he/she monotonicity comparison ` +
+      `all skip them: ${unchecked.join(", ")}. Their pronouns are UNVERIFIED in this manuscript.`,
+  );
+};
+
 export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   const {
     client,
@@ -3621,6 +3660,12 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   const cml = ctx.cml;
   const cast = ctx.cast;
   const castDesign = (cast as any).cast;
+
+  // Say so if any character sits outside what the pronoun checks can read (see the helper above).
+  warnOnUncheckedPronounGenders(
+    (Array.isArray(castDesign?.characters) ? castDesign.characters : []) as Array<{ name?: unknown; gender?: unknown }>,
+    (message) => ctx.warnings.push(message),
+  );
   if (!castDesign || !Array.isArray(castDesign.characters)) {
     throw new Error("Agent 9 precondition failed: cast.cast.characters is missing or malformed.");
   }
@@ -6568,6 +6613,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
         checkManuscriptGeometry(geometry, (prose.chapters ?? []) as any[], {
           parseClockTime,
           parseDurationMinutes,
+          dialGapMinutes,
           injectionTemplates: INJECTED_SENTENCE_PATTERNS,
         });
 
@@ -6588,6 +6634,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
           const probed = checkManuscriptGeometry(geometry, probe as any[], {
             parseClockTime,
             parseDurationMinutes,
+            dialGapMinutes,
             injectionTemplates: INJECTED_SENTENCE_PATTERNS,
           });
           const still = probed.violations.some((v) => v.code === code && v.chapter === chapterNumber);
@@ -6611,6 +6658,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
             checkManuscriptGeometry(geometry, (prose.chapters ?? []) as any[], {
               parseClockTime,
               parseDurationMinutes,
+              dialGapMinutes,
               injectionTemplates: INJECTED_SENTENCE_PATTERNS,
             }).violations.map(key),
           );
@@ -6620,6 +6668,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
             const introduced = checkManuscriptGeometry(geometry, probe as any[], {
               parseClockTime,
               parseDurationMinutes,
+              dialGapMinutes,
               injectionTemplates: INJECTED_SENTENCE_PATTERNS,
             })
               .violations.map(key)

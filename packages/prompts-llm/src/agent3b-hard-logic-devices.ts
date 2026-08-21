@@ -290,6 +290,16 @@ const normalizeDevice = (value: unknown, index: number): HardLogicDeviceIdea => 
           value: asString(f?.value, ''),
           description: asString(f?.description, ''),
           ...(Array.isArray(f?.appearsInChapters) ? { appearsInChapters: (f.appearsInChapters as any[]).map(String) } : {}),
+          // X38-at-source — the device says which of its values is a CONSEQUENCE of which others.
+          //
+          // Optional, and absent means "primary": a mechanism's fixed constant (how long a poison
+          // takes to act, a tide interval, a fuse) declares nothing and is therefore never rewritten.
+          // Nothing in the pipeline may repair a locked fact it was not told is derived — the value is
+          // printed into the prose verbatim, so a wrong guess is unrecoverable. Detection may guess;
+          // repair may not.
+          ...(Array.isArray(f?.derivedFrom)
+            ? { derivedFrom: (f.derivedFrom as any[]).map(String).map((s) => s.trim()).filter(Boolean) }
+            : {}),
         })).filter((f: { value: string }) => f.value.length > 0)
       : undefined,
   };
@@ -371,8 +381,11 @@ Output JSON only, with this exact structure:
       "moralAmbiguity": string,
       "lockedFacts": [
         { "id": "<short_snake_case_id>", "value": "<the locked value, in word form — see NOTES below>", "description": "<the exact physical fact this pins down for THIS device>" },
-        { "id": "<another_fact_id>", "value": "<word-form value>", "description": "<what it pins down>" }
+        { "id": "<another_fact_id>", "value": "<word-form value>", "description": "<what it pins down>", "derivedFrom": ["<id>", "<id>"] }
       ]
+      // "derivedFrom" is OPTIONAL and goes only on a value that FOLLOWS ARITHMETICALLY from exactly two
+      // others — see the CRITICAL note on consequences below. Omit it everywhere else; a value with no
+      // derivedFrom is treated as fixed by the mechanism and is never adjusted for you.
       // lockedFacts MUST be specific to the device you invented above — do NOT copy the placeholder ids/values.
       // For SECONDARY devices (and whenever no LOCKED THEME is specified above), invent each fresh from a
       // DIFFERENT mechanism family for variety — a stopped/rewound clock is ONE family among many (poison
@@ -450,6 +463,8 @@ Requirements:
   CRITICAL — TIME FORMAT: Any clock time in lockedFacts MUST be written in old-style English word form. Examples: "ten minutes past eleven", "a quarter to three", "twenty past midnight", "half past nine at night". NEVER use digit-and-colon notation, AM/PM notation, or twenty-four-hour notation.
   CRITICAL — WORD FORM FOR ALL VALUES: Every numeric value in lockedFacts must be spelled out in words. Write out every quantity in full words, never in figure-based shorthand. Digits in locked fact values break the repair system.
    CRITICAL — IMPERIAL UNITS: All measurements must use the imperial system standard for ${inputs.decade} stories. Distances in feet/yards/miles, weights in ounces/pounds/stones, temperatures in degrees Fahrenheit, volumes in pints/gallons. NEVER use metric units (metres, centimetres, kilograms, litres, Celsius/Centigrade).
+  CRITICAL — THE VALUES MUST AGREE WITH EACH OTHER: locked facts are printed into the prose verbatim, so a reader meets all of them and can do the arithmetic between them. Whenever one locked value is determined by two others — an interval between two stated times, a distance implied by a speed and a duration, a total implied by its parts — WORK IT OUT AND CHECK IT before you return. Do not state a relation your own numbers contradict. A device whose own numbers disagree is not a hard-logic device, and it is the single most common defect found in this pipeline's output.
+  CRITICAL — SAY WHICH VALUE IS THE CONSEQUENCE: when a locked fact IS determined by two others, add 'derivedFrom' to it listing exactly those two ids. Add it ONLY to the value that follows from the others, and only when it genuinely does. Which value that is depends on your mechanism, and only you know: if a clock is tampered with for a stretch, the STRETCH follows from the two times it separates, so the interval carries 'derivedFrom'. But if the interval is fixed by physics or nature — how long a poison takes to act, a tide's period, how long a fuse burns, how long a body takes to cool — then that interval is PRIMARY and the times follow from it, so leave the interval alone and put 'derivedFrom' on the time that follows. If nothing is determined by anything else, omit the field entirely. Omitting it is always safe; a wrong 'derivedFrom' is not.
 
 Return JSON only.`;
 

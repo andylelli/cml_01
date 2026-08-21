@@ -38,6 +38,13 @@ export interface TimelineDeceptionViolation {
 const WORD_NUMBERS: Record<string, number> = {
   twelve: 12, one: 1, two: 2, three: 3, four: 4, five: 5, six: 6,
   seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11,
+  // FOUND BY REVIEW, 2026-08-20. The Agent 3b prompt lists "twenty past midnight" among its
+  // CORRECT examples of a locked time value, and this parser returned null for it — so the
+  // pipeline was instructing the model to write a form every temporal gate downstream is blind to.
+  // Same for "noon", "half past midnight" and "ten minutes to midnight". On a 12-hour dial both
+  // words sit at twelve, which is the position this parser measures; the meridiem they imply is
+  // exactly what dial-relative comparison deliberately does not model.
+  midnight: 12, noon: 12,
 };
 
 const MINUTE_WORDS: Record<string, number> = {
@@ -56,6 +63,10 @@ const SPELLED_NUMBERS: Record<string, number> = {
   one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10,
   eleven: 11, twelve: 12, thirteen: 13, fourteen: 14, fifteen: 15, sixteen: 16, seventeen: 17,
   eighteen: 18, nineteen: 19, twenty: 20, thirty: 30, forty: 40, fifty: 50, sixty: 60,
+  // A duration is not bounded by a dial. "eighty minutes" is in the archived corpus and returned
+  // null; the POSITION parser is unaffected, because its own branch lists its minute words inline
+  // and bounds them at `mins < 60`.
+  seventy: 70, eighty: 80, ninety: 90,
 };
 
 /**
@@ -114,7 +125,7 @@ export const parseClockTime = (raw?: string): number | null => {
   // "sixty-one minutes past four" reads its tail as "one" and answers 4:01 for a minute that does
   // not exist. Both were found by running the parser over the corpus, not by reading it.
   const counted = text.match(
-    /(?<![-\w])((?:twenty|thirty|forty|fifty)[-\s](?:one|two|three|four|five|six|seven|eight|nine)|twenty|thirty|forty|fifty|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|one|two|three|four|five|six|seven|eight|nine|\d{1,2})\s+minutes?\s+(past|to)\s+(twelve|one|two|three|four|five|six|seven|eight|nine|ten|eleven)\b/,
+    /(?<![-\w])((?:twenty|thirty|forty|fifty)[-\s](?:one|two|three|four|five|six|seven|eight|nine)|twenty|thirty|forty|fifty|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|one|two|three|four|five|six|seven|eight|nine|\d{1,2})\s+minutes?\s+(past|to)\s+(twelve|midnight|noon|one|two|three|four|five|six|seven|eight|nine|ten|eleven)\b/,
   );
   if (counted) {
     const mins = parseMinuteCount(counted[1]!);
@@ -128,7 +139,7 @@ export const parseClockTime = (raw?: string): number | null => {
 
   // "a quarter past ten", "ten minutes past nine", "half past eight"
   const past = text.match(
-    /\b(?:a\s+)?(quarter|half|ten minutes|five minutes|twenty minutes|twenty-five minutes|ten|five|twenty|twenty-five)\s+past\s+(twelve|one|two|three|four|five|six|seven|eight|nine|ten|eleven)\b/,
+    /\b(?:a\s+)?(quarter|half|ten minutes|five minutes|twenty minutes|twenty-five minutes|ten|five|twenty|twenty-five)\s+past\s+(twelve|midnight|noon|one|two|three|four|five|six|seven|eight|nine|ten|eleven)\b/,
   );
   if (past) {
     const mins = MINUTE_WORDS[past[1]];
@@ -139,7 +150,7 @@ export const parseClockTime = (raw?: string): number | null => {
 
   // "a quarter to ten", "ten minutes to nine"
   const to = text.match(
-    /\b(?:a\s+)?(quarter|half|ten minutes|five minutes|twenty minutes|twenty-five minutes|ten|five|twenty|twenty-five)\s+to\s+(twelve|one|two|three|four|five|six|seven|eight|nine|ten|eleven)\b/,
+    /\b(?:a\s+)?(quarter|half|ten minutes|five minutes|twenty minutes|twenty-five minutes|ten|five|twenty|twenty-five)\s+to\s+(twelve|midnight|noon|one|two|three|four|five|six|seven|eight|nine|ten|eleven)\b/,
   );
   if (to) {
     const mins = MINUTE_WORDS[to[1]];
@@ -164,7 +175,7 @@ export const parseClockTime = (raw?: string): number | null => {
   // ("one two men"), and this runs against free text as well as structured fields — the same reason
   // the bare-hour branch below carries a guard. Anchoring to the whole string is that guard.
   const hourMinutes = text.match(
-    /^(twelve|one|two|three|four|five|six|seven|eight|nine|ten|eleven)\s+(?:oh\s+)?([a-z]+(?:-[a-z]+)?|\d{1,2})(?:\s+(?:a\.?m\.?|p\.?m\.?|in the (?:morning|afternoon|evening)|at night))?$/,
+    /^(twelve|midnight|noon|one|two|three|four|five|six|seven|eight|nine|ten|eleven)\s+(?:oh\s+)?([a-z]+(?:-[a-z]+)?|\d{1,2})(?:\s+(?:a\.?m\.?|p\.?m\.?|in the (?:morning|afternoon|evening)|at night))?$/,
   );
   if (hourMinutes) {
     const hour = WORD_NUMBERS[hourMinutes[1]!];
@@ -182,7 +193,7 @@ export const parseClockTime = (raw?: string): number | null => {
   //   • it carries an explicit marker ("nine o'clock", "nine pm"), OR
   //   • a time preposition introduces it ("at nine", "until nine"), OR
   //   • the whole segment IS the hour ("nine") — the shape a split window yields ("nine to ten").
-  const HOURS = "twelve|one|two|three|four|five|six|seven|eight|nine|ten|eleven";
+  const HOURS = "twelve|midnight|noon|one|two|three|four|five|six|seven|eight|nine|ten|eleven";
   const bare = text.match(
     new RegExp(`\\b(?:(at|by|around|about|near|until|till|from|before|after|since)\\s+)?(${HOURS})\\b\\s*(o'?clock|a\\.?m\\.?|p\\.?m\\.?)?`),
   );
@@ -301,19 +312,139 @@ export const checkCaseTimelineDeception = (cmlCase: any): TimelineDeceptionViola
  */
 const DURATION_WORDS: Record<string, number> = SPELLED_NUMBERS;
 
+/**
+ * The tens words a duration compound can open with, as ONE source for the parser and the rewriter.
+ *
+ * Not a style preference. Written twice, they drifted immediately: the rewriter kept a list ending at
+ * *fifty* while the parser's reached *ninety*, so "eighty-nine minutes" missed the compound branch,
+ * fell to the bare-word branch, and was rewritten to **"eighty-twenty-five minutes"** — a string that
+ * parses back to twenty-five, passes the round-trip assertion, and would be printed into the prose
+ * verbatim. The assertion cannot catch this class, because the garbage reads correctly. Only one list
+ * can.
+ */
+const DURATION_TENS = "twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety";
+const durationCompoundRe = (): RegExp => new RegExp(`\\b(${DURATION_TENS})[-\\s]([a-z]+)[-\\s]+minutes?\\b`);
+
 export const parseDurationMinutes = (raw: unknown): number | null => {
   const text = String(raw ?? "").toLowerCase().trim();
   if (!text) return null;
   if (/\b(?:past|to|o'?clock)\b/.test(text)) return null; // a position, not an offset
   const digits = text.match(/\b(\d{1,3})\s*[-\s]?\s*minutes?\b/);
   if (digits) return Number(digits[1]);
-  const compound = text.match(/\b(twenty|thirty|forty|fifty)[-\s]([a-z]+)[-\s]+minutes?\b/);
+  const compound = text.match(durationCompoundRe());
   if (compound && DURATION_WORDS[compound[1]!] !== undefined && DURATION_WORDS[compound[2]!] !== undefined) {
-    return DURATION_WORDS[compound[1]!]! + DURATION_WORDS[compound[2]!]!;
+    // The units word must BE a unit. Without this, "twenty-twenty minutes" reads as forty — the
+    // same slack `parseMinuteCount` already refuses with the identical guard.
+    const units = DURATION_WORDS[compound[2]!]!;
+    if (units < 10) return DURATION_WORDS[compound[1]!]! + units;
   }
+  // `\b` matches after a hyphen, so this branch used to read a compound's TAIL as the whole number:
+  // "eighty-nine minutes" returned NINE and "seventy-five minutes" returned FIVE, because the tens
+  // list above stopped at fifty and left them to fall through here. A wrong number is worse than
+  // none, since X38 compares this value against a measured gap — the tail-read made coherent cases
+  // look broken and broken ones look coherent by the wrong amount.
+  //
+  // Fixed by completing the tens list, NOT by the lookbehind the clock parser uses. Backtested over
+  // the corpus, that lookbehind refused nine real manuscript sentences in which an em-dash had been
+  // flattened to a hyphen — "a faint chime sounded-five minutes before the hour" — where the number
+  // it rejects is a genuine duration. The two parsers differ here on purpose: `parseClockTime` is
+  // run against free prose by `accept.ts` and must be strict about what it volunteers; this one is
+  // only ever pointed at a locked-fact value, and refusing a legible duration costs more than it saves.
   const words = text.match(/\b([a-z]+)[-\s]+minutes?\b/);
   if (words && DURATION_WORDS[words[1]!] !== undefined) return DURATION_WORDS[words[1]!]!;
   return null;
+};
+
+/**
+ * A minute count as an era word-form numeral: 25 → "twenty-five", 40 → "forty", 14 → "fourteen".
+ *
+ * Locked-fact values are printed into the prose VERBATIM, and this project's era rule forbids digits
+ * there (`wordifyLockedFactValue`, agent3b-run.ts). A repair that wrote "25 minutes" would satisfy the
+ * arithmetic and break the register, which is the trade this function exists to refuse.
+ */
+export const spellMinuteCount = (n: number): string | null => {
+  const ones = [
+    "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven",
+    "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen",
+  ];
+  const tens = ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"];
+  if (!Number.isInteger(n) || n < 1 || n > 99) return null;
+  if (n < 20) return ones[n]!;
+  const t = Math.floor(n / 10);
+  const o = n % 10;
+  return o === 0 ? tens[t]! : `${tens[t]}-${ones[o]}`;
+};
+
+/**
+ * X38-AT-SOURCE — restate a duration at a new number, keeping every other word.
+ *
+ * The counterpart to `parseDurationMinutes`, and deliberately its neighbour: it recognises the SAME
+ * three shapes in the SAME order, so the token it rewrites is by construction the token the parser
+ * read. Two functions that disagree about which number a duration states would produce a value that
+ * still fails the check it was repaired to pass — and this file's own history (X61, X67) is a list of
+ * defects that entered exactly that way, through a second reader of the same vocabulary.
+ *
+ * Surrounding wording is preserved, because a locked fact is a sentence fragment the prose prints:
+ * "a pause of forty minutes" becomes "a pause of twenty-five minutes", not "twenty-five minutes".
+ *
+ * Returns `null` — never a guess — when the parser cannot read the input, when the target is outside
+ * 1–99, or when the rewritten string does not parse back to the requested number. That last check is
+ * the X64/X65 lesson: a substitution applied without an assertion silently no-opped for a whole run.
+ *
+ * The round-trip is necessary and NOT sufficient, which is why the tens list is shared rather than
+ * copied. With two lists, "eighty-nine minutes" rewrote to "eighty-twenty-five minutes" — which
+ * parses back to twenty-five and passes the assertion clean. See `DURATION_TENS`.
+ */
+export const rewriteDurationMinutes = (raw: unknown, minutes: number): string | null => {
+  const src = String(raw ?? "").trim();
+  if (!src) return null;
+  if (parseDurationMinutes(src) === null) return null; // only ever rewrite what the parser could read
+  const word = spellMinuteCount(minutes);
+  if (word === null) return null;
+
+  const text = src.toLowerCase();
+  const splice = (start: number, end: number): string => src.slice(0, start) + word + src.slice(end);
+
+  // Same three shapes, same order, and the same tens list as parseDurationMinutes.
+  const digits = /\b(\d{1,3})\s*[-\s]?\s*minutes?\b/.exec(text);
+  const compound = durationCompoundRe().exec(text);
+  const words = /\b([a-z]+)[-\s]+minutes?\b/.exec(text);
+
+  let out: string | null = null;
+  if (digits) {
+    const start = digits.index + digits[0]!.indexOf(digits[1]!);
+    out = splice(start, start + digits[1]!.length);
+  } else if (compound) {
+    const start = compound.index;
+    const tail = compound[0]!.lastIndexOf(compound[2]!) + compound[2]!.length;
+    out = splice(start, start + tail);
+  } else if (words) {
+    const start = words.index + words[0]!.indexOf(words[1]!);
+    out = splice(start, start + words[1]!.length);
+  }
+
+  if (out === null) return null;
+  return parseDurationMinutes(out) === minutes ? out : null;
+};
+
+/**
+ * The interval between two positions on a 12-hour dial.
+ *
+ * `parseClockTime` is dial-relative (0..719) by design — prose says "a quarter past ten" without a
+ * meridiem — so a plain subtraction measures the LONG way round whenever a pair straddles twelve.
+ *
+ * FOUND BY REVIEW, 2026-08-20. An ordinary late-night device — clock stopped at *"ten minutes to
+ * twelve"*, chime at *"ten minutes past twelve"*, twenty minutes apart — was reported by X38 as
+ * **700 minutes apart**, a false positive on a case that is perfectly coherent. Every archived run
+ * is a 7-to-9pm evening crime, so the corpus has never crossed the boundary and nothing caught it;
+ * it would fire on the first midnight story this generator is asked for.
+ *
+ * The short arc is the right reading: a mechanism interval is minutes, not eleven hours, and
+ * `parseDurationMinutes` cannot express anything above ninety-nine in any case.
+ */
+export const dialGapMinutes = (a: number, b: number): number => {
+  const raw = Math.abs(a - b) % 720;
+  return Math.min(raw, 720 - raw);
 };
 
 export interface CaseTimeCoherenceViolation {
@@ -371,7 +502,7 @@ export const checkCaseTimeCoherence = (args: {
   const actual = parseClockTime(args.actualTime as string | undefined);
 
   if (clocks.length === 2 && durations.length === 1) {
-    const gap = Math.abs(clocks[0]!.minutes - clocks[1]!.minutes);
+    const gap = dialGapMinutes(clocks[0]!.minutes, clocks[1]!.minutes);
     const declared = durations[0]!;
     if (gap !== declared.minutes) {
       violations.push({
@@ -403,7 +534,7 @@ export const checkCaseTimeCoherence = (args: {
   // case must not be reported twice for one defect.
   const primaryCouldRead = clocks.length === 2 && durations.length === 1;
   if (!primaryCouldRead && durations.length === 1 && apparent !== null && actual !== null) {
-    const gap = Math.abs(apparent - actual);
+    const gap = dialGapMinutes(apparent, actual);
     const declared = durations[0]!;
     if (gap !== declared.minutes) {
       violations.push({

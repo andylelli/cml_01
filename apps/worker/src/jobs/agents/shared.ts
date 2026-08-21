@@ -55,6 +55,19 @@ export type LockedFact = {
   id: string;
   value: string;
   description: string;
+  /**
+   * X38-at-source — the ids of the locked facts this value is a CONSEQUENCE of, as declared by the
+   * device that authored it. Optional, and absent means PRIMARY.
+   *
+   * The distinction is the whole point. Three related numbers can disagree in three ways, and which
+   * one is wrong is a property of the mechanism, not of the numbers: a clock-delay device's interval
+   * is derived from the two times it separates, while a poison's onset, a tide's period or a fuse's
+   * burn are physical constants and the times must be chosen to fit THEM. Only the author knows
+   * which, so only the author declares it — and nothing in the pipeline rewrites a locked fact that
+   * has not been declared derived. Locked facts reach the page verbatim, so a repair that guesses
+   * wrong is unrecoverable. Detection may guess; repair may not.
+   */
+  derivedFrom?: string[];
 };
 
 export type LockedFactRegistry = LockedFact[];
@@ -86,7 +99,53 @@ export type CharacterBundle = {
   characters: CharacterBundleEntry[];
 };
 
-export type CmlPrimaryAxis = "temporal" | "spatial" | "identity" | "behavioral" | "authority";
+/**
+ * The five story axes, and the ONE vocabulary for them.
+ *
+ * THE DEFECT THIS REPLACES (found by review, 2026-08-20). Two incompatible vocabularies were in use
+ * at once: the CML layer named these five, while `MysteryGenerationInputs` and the API named
+ * `social | psychological | mechanical`. Only `temporal` and `spatial` were common to both, and
+ * `normalizePrimaryAxis` ended in `default: return "temporal"` — so three of the five values the
+ * canary's own input file documents were **silently coerced to temporal**:
+ *
+ *     identity -> temporal      behavioral -> temporal      authority -> temporal
+ *
+ * The coercion was invisible: no warning, no error, and a `deriveHardLogicDirectives` switch that
+ * matched none of them and therefore seeded ZERO mechanism families. `canary-core-inputs.yaml` even
+ * documented an auto-mapping that does not exist anywhere in `canary-core.mjs`.
+ *
+ * MEASURED CONSEQUENCE: **23 of 23 archived cases are `false_assumption.type: temporal`** and 24 of
+ * 24 devices are clock-family. Four of the five axes this generator advertises have never been
+ * produced once — never validated, never scored, never read — and 5 of the 15 geometry codes are
+ * temporal-only, so a third of geometry would go silent on an axis nobody has ever run.
+ *
+ * A generator whose parameters change every run cannot have a parameter that silently means one
+ * thing. So: one union, and `normalizePrimaryAxis` THROWS on anything it does not recognise.
+ */
+export const CML_PRIMARY_AXES = ["temporal", "spatial", "identity", "behavioral", "authority"] as const;
+
+export type CmlPrimaryAxis = (typeof CML_PRIMARY_AXES)[number];
+
+/**
+ * Input spellings retired in favour of the canonical five, still accepted so existing configs and
+ * saved specs keep working.
+ *
+ * `mechanical` is deliberately NOT here. It used to map to `identity`, which is wrong in a way that
+ * changes the book: a mechanical mystery turns on a device, and the identity axis is impersonation,
+ * twins and swaps. A caller asking for a mechanism was handed an identity-swap plot. There is no
+ * correct target for it in the canonical five, so it now throws and says so rather than guessing —
+ * a mechanism story is expressed as a `temporal` or `spatial` axis with a mechanism family.
+ */
+const LEGACY_AXIS_ALIASES: Readonly<Record<string, CmlPrimaryAxis>> = {
+  social: "authority",
+  psychological: "behavioral",
+};
+
+/** What a caller may pass: the canonical five, or a retired spelling. */
+export type PrimaryAxisInput = CmlPrimaryAxis | keyof typeof LEGACY_AXIS_ALIASES;
+
+/** The axis used when a caller specifies none. Explicit, so it is never mistaken for a coercion. */
+export const DEFAULT_PRIMARY_AXIS: CmlPrimaryAxis = "temporal";
 
 export type HardLogicDirectives = {
   mechanismFamilies: string[];
@@ -744,27 +803,60 @@ export async function executeAgentWithRetry<T>(
 // Init-time utilities — called by generateMystery before ctx construction
 // ============================================================================
 
+/**
+ * Resolve a caller's axis to the canonical vocabulary, or THROW.
+ *
+ * Throwing is the point. The previous body ended in `default: return "temporal"`, which turned every
+ * typo, every retired spelling and three of the five documented values into a temporal mystery with
+ * no signal of any kind — see `CML_PRIMARY_AXES` for the measured consequence. A silent coercion on
+ * the one input that decides what KIND of mystery this is cannot be distinguished, downstream or in
+ * an archive, from a caller who asked for temporal.
+ *
+ * The three outcomes are now distinct and all of them are legible:
+ *   • a recognised axis (canonical or retired spelling) → the canonical value
+ *   • no axis at all                                    → `DEFAULT_PRIMARY_AXIS`, reported via
+ *     `onDefault` so the run log records that nobody chose
+ *   • anything else                                     → an error naming what was passed and what
+ *     is accepted, at init, before a penny of generation is spent
+ */
 export const normalizePrimaryAxis = (
-  axis: MysteryGenerationInputs["primaryAxis"] | undefined,
+  axis: string | undefined | null,
+  onDefault?: (message: string) => void,
 ): CmlPrimaryAxis => {
-  switch (axis) {
-    case "temporal":
-    case "spatial":
-      return axis;
-    case "social":
-      return "authority";
-    case "psychological":
-      return "behavioral";
-    case "mechanical":
-      return "identity";
-    default:
-      return "temporal";
+  if (axis === undefined || axis === null || String(axis).trim() === "") {
+    onDefault?.(
+      `primaryAxis not specified; defaulting to "${DEFAULT_PRIMARY_AXIS}". ` +
+        `The five axes are ${CML_PRIMARY_AXES.join(", ")} — set one explicitly to vary the mystery's kind.`,
+    );
+    return DEFAULT_PRIMARY_AXIS;
   }
+
+  const raw = String(axis).trim().toLowerCase();
+  if ((CML_PRIMARY_AXES as readonly string[]).includes(raw)) return raw as CmlPrimaryAxis;
+
+  const alias = LEGACY_AXIS_ALIASES[raw];
+  if (alias) return alias;
+
+  throw new Error(
+    `Unknown primaryAxis "${axis}". Accepted: ${CML_PRIMARY_AXES.join(", ")}` +
+      ` (retired spellings still accepted: ${Object.keys(LEGACY_AXIS_ALIASES).join(", ")}).` +
+      ` "mechanical" was removed because it mapped to "identity", which is a different kind of` +
+      ` mystery — express a mechanism story as temporal or spatial with a mechanism family.`,
+  );
 };
 
+/**
+ * Seed mechanism families from the axis and the theme.
+ *
+ * The axis parameter is the CANONICAL one (post-`normalizePrimaryAxis`), which it was not before.
+ * The switch below listed `social | psychological | mechanical` while every caller that had already
+ * normalised passed `identity | behavioral | authority` — so three of the five axes fell through
+ * `default: break` and seeded **no families at all**, on top of being coerced to temporal. Both
+ * halves of that are now impossible: the type is the canonical union, and every member has a case.
+ */
 export const deriveHardLogicDirectives = (
   theme: string | undefined,
-  primaryAxis: MysteryGenerationInputs["primaryAxis"] | undefined,
+  primaryAxis: CmlPrimaryAxis | undefined,
   locationPreset: string | undefined,
 ): HardLogicDirectives => {
   const text = `${theme ?? ""} ${locationPreset ?? ""}`.toLowerCase();
@@ -783,19 +875,22 @@ export const deriveHardLogicDirectives = (
       addFamily("access path illusion");
       addFamily("geometry-based movement");
       break;
-    case "social":
+    case "authority":
       addFamily("authority-channel manipulation");
       addFamily("status-based witness distortion");
       break;
-    case "psychological":
+    case "behavioral":
       addFamily("cognitive bias exploitation");
       addFamily("memory anchoring misdirection");
       break;
-    case "mechanical":
-      addFamily("mechanical sequence trigger");
-      addFamily("acoustic or pressure misread");
+    case "identity":
+      // Identity is impersonation, substitution and mistaken role — NOT the mechanical families that
+      // the retired `mechanical` alias used to land here. Those were the wrong seeds for this axis
+      // and are why an identity story would have been written as a device story.
+      addFamily("role substitution proof");
+      addFamily("witness misidentification constraint");
       break;
-    default:
+    case undefined:
       break;
   }
 

@@ -68,7 +68,8 @@ async function main() {
   const seedEntries = await loadSeedCMLFiles(examplesRoot);
 
   const theme = process.env.DEFAULT_MYSTERY_THEME ?? "A classic country-house murder with tangled inheritance motives";
-  const primaryAxis = normalizePrimaryAxis(undefined);
+  // Explicit, not defaulted: this harness fixes the axis so its runs stay comparable.
+  const primaryAxis = normalizePrimaryAxis("temporal");
   const hardLogicDirectives = deriveHardLogicDirectives(theme, primaryAxis, undefined);
   const noveltyConstraints = buildNoveltyConstraints(seedEntries);
 

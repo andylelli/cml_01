@@ -40,103 +40,31 @@ import type { ClueDistributionResult } from "./agent5-clues.js";
 import type { PromptComponents } from "./types.js";
 import { getSceneTarget, STORY_LENGTH_TARGETS, getStoryLengthTarget } from "@cml/story-validation";
 
-const DEFAULT_TEMPORAL_ANCHOR = "quarter past three";
-
-const TEMPORAL_VARIANT_PATTERNS: RegExp[] = [
-  /\bquarter\s+past\s+three\b/gi,
-  /\bthree\s+fifteen\b/gi,
-  /\bthree-fifteen\b/gi,
-  /\b3\s*[:.]\s*15\b/gi,
-  /\b15\s+minutes\s+past\s+three\b/gi,
-];
-
-const HARD_BANNED_SCAFFOLD_REPLACERS: Array<{ pattern: RegExp; replacement: (anchor: string) => string }> = [
-  {
-    pattern: /\bclock\s+tower\s+at\s+quarter\s+past\s+three\b/gi,
-    replacement: (anchor) => `tower clock reading ${anchor}`,
-  },
-  {
-    pattern: /\bnear\s+the\s+clock\s+tower\s+at\s+quarter\s+past\b[^,.;]*/gi,
-    replacement: (anchor) => `near the tower clock at ${anchor}`,
-  },
-  {
-    pattern: /\bshowed\s+quarter\s+past\s+three\s+when\s+the\s+body\b/gi,
-    replacement: (anchor) => `showed ${anchor} when the body`,
-  },
-  {
-    pattern: /\bin\s+the\s+formal\s+gardens\s+during\s+the\s+murder\b/gi,
-    replacement: () => "in the formal gardens around the time of death",
-  },
-];
-
-const inferCanonicalTemporalAnchor = (
-  lockedFacts: Array<{ id: string; value: string; description: string }> | undefined,
-): string => {
-  const candidate = (lockedFacts ?? [])
-    .map((fact) => String(fact?.value ?? "").trim())
-    .find((value) =>
-      /\b(quarter\s+past\s+three|three\s+fifteen|three-fifteen|3\s*[:.]\s*15|minutes?\s+past|minutes?\s+to|half\s+past|o['\u2019]clock)\b/i.test(value),
-    );
-  return candidate && candidate.length > 0 ? candidate : DEFAULT_TEMPORAL_ANCHOR;
-};
-
-const normalizeTemporalAnchorText = (value: unknown, canonicalAnchor: string): string => {
-  let text = String(value ?? "");
-  if (!text) return text;
-
-  for (const pattern of TEMPORAL_VARIANT_PATTERNS) {
-    text = text.replace(pattern, canonicalAnchor);
-  }
-
-  for (const { pattern, replacement } of HARD_BANNED_SCAFFOLD_REPLACERS) {
-    text = text.replace(pattern, replacement(canonicalAnchor));
-  }
-
-  return text.replace(/\s{2,}/g, " ").trim();
-};
-
-const normalizeOutlineTemporalAnchors = (
-  outlineData: Omit<NarrativeOutline, "cost" | "durationMs">,
-  lockedFacts: Array<{ id: string; value: string; description: string }> | undefined,
-): Omit<NarrativeOutline, "cost" | "durationMs"> => {
-  const canonicalAnchor = inferCanonicalTemporalAnchor(lockedFacts);
-
-  const normalizedActs = (outlineData.acts ?? []).map((act: any) => ({
-    ...act,
-    scenes: (act?.scenes ?? []).map((scene: any) => {
-      const dramaticElements = scene?.dramaticElements && typeof scene.dramaticElements === "object"
-        ? Object.fromEntries(
-            Object.entries(scene.dramaticElements).map(([key, value]) => {
-              if (Array.isArray(value)) {
-                return [key, value.map((entry) => normalizeTemporalAnchorText(entry, canonicalAnchor))];
-              }
-              if (typeof value === "string") {
-                return [key, normalizeTemporalAnchorText(value, canonicalAnchor)];
-              }
-              return [key, value];
-            }),
-          )
-        : scene?.dramaticElements;
-
-      return {
-        ...scene,
-        title: normalizeTemporalAnchorText(scene?.title, canonicalAnchor),
-        purpose: normalizeTemporalAnchorText(scene?.purpose, canonicalAnchor),
-        summary: normalizeTemporalAnchorText(scene?.summary, canonicalAnchor),
-        setting: {
-          ...(scene?.setting ?? {}),
-          timeOfDay: normalizeTemporalAnchorText(scene?.setting?.timeOfDay, canonicalAnchor),
-        },
-        dramaticElements,
-      };
-    }),
-  }));
-
-  return {
-    ...outlineData,
-    acts: normalizedActs,
-  };
-};
+/**
+ * REMOVED 2026-08-20 — `normalizeOutlineTemporalAnchors` and its helpers.
+ *
+ * It rewrote outline text so that any occurrence of "quarter past three", "three fifteen",
+ * "three-fifteen", "3:15" or "15 minutes past three" became a "canonical anchor", plus four literal
+ * patches for one story's scaffold prose ("clock tower at quarter past three", "in the formal
+ * gardens during the murder"). A fix for one manuscript, living on the outline path of a generator
+ * whose parameters change every run.
+ *
+ * MEASURED before removal: **0 of 22 archived outlines contain any of those forms**, and 1 of 333
+ * archived artifacts. It has never once fired usefully. What it could do is corrupt: the "canonical
+ * anchor" was the FIRST locked fact matching a clock-ish regex — whatever that fact MEANT — and on
+ * 2 of 16 archived registries more than one fact matches, so the pick is arbitrary. Reproduced on a
+ * real archived device (chime 7:05 listed before displayed-time 7:15):
+ *
+ *     "The tower clock showed three-fifteen when the body was found."
+ *  -> "The tower clock showed five minutes past seven in the evening when the body was found."
+ *
+ * — the CHIME time silently presented as the discovery time, in the outline every chapter is
+ * written from. It had no test coverage of any kind.
+ *
+ * Nothing replaces it. Keeping the case's times consistent is the locked-fact registry's job, and
+ * that machinery now exists end to end: X51 pins the case facts, X38/X39 check the case against
+ * itself before prose, and the injector prints the locked values verbatim.
+ */
 
 // ============================================================================
 // Types
@@ -372,19 +300,17 @@ function buildDeveloperContext(
   const midClues = clues.clues.filter((c) => c.placement === "mid");
   const lateClues = clues.clues.filter((c) => c.placement === "late");
 
-  const canonicalAnchor = inferCanonicalTemporalAnchor(lockedFacts);
-
   const clueList = (clueSet: typeof clues.clues, label: string) => {
     if (clueSet.length === 0) return `### ${label}\nNone`;
     return `### ${label}\n${clueSet
-      .map((c) => `- [${c.id}] ${c.category}: ${normalizeTemporalAnchorText(c.description, canonicalAnchor)}`)
+      .map((c) => `- [${c.id}] ${c.category}: ${c.description}`)
       .join("\n")}`;
   };
 
   // Red herrings
   const redHerringList = clues.redHerrings.length
     ? clues.redHerrings
-      .map((rh) => `- [${rh.id}] ${normalizeTemporalAnchorText(rh.description, canonicalAnchor)}`)
+      .map((rh) => `- [${rh.id}] ${rh.description}`)
       .join("\n")
     : "None";
 
@@ -768,6 +694,28 @@ ${detectiveEntryRule}
 - **Justice**: Resolution of crime and consequences
 - **Denouement**: Loose ends tied, reflection, restoration
 
+**These five are a SEQUENCE, not a menu — and the order is enforced downstream.**
+
+Exactly ONE scene names the culprit. Call it the reveal. Everything before it may build toward it;
+everything after it is AFTERMATH, and an aftermath scene has a different job from the reveal:
+
+- **Clearing the innocent belongs BEFORE the reveal, not after it.** Once the culprit is named, the
+  others are cleared by that fact alone. A scene that walks back through each suspect's alibi after
+  the answer is known tells the reader something they already worked out, and it is the single most
+  common structural complaint this pipeline receives.
+- **A scene after the reveal must NOT re-confront the culprit, re-stage the accusation, re-quote the
+  confession, or re-run the evidence chain.** Refer to those as settled. Show what they COST —
+  consequence, reaction, changed relationships, the restored or unrestored order.
+- **A scene after the reveal must NOT introduce decisive new evidence.** If a piece of evidence is
+  needed to prove the case, it belongs at or before the reveal.
+
+So do not write a final scene whose purpose is "clear the suspects and confront the culprit". That
+purpose describes two scenes, and the second of them has already happened. Write the clearance into
+Act II or into the run-up, put the confrontation in the reveal scene, and give the closing scene
+consequence to carry.
+
+If Act III is a single scene, that scene IS the reveal and none of the above restricts it.
+
 ## Scene Requirements
 
 Each scene must include:
@@ -982,8 +930,6 @@ export async function formatNarrative(
       }
     }
   }
-
-  outlineData = normalizeOutlineTemporalAnchors(outlineData, inputs.lockedFacts);
 
   // Validate required fields
   if (!outlineData.acts || !Array.isArray(outlineData.acts) || outlineData.acts.length === 0) {

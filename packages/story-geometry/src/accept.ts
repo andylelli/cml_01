@@ -748,7 +748,10 @@ export const checkManuscriptGeometry = (
           if (asClock !== null) clockValues.push({ raw, minutes: asClock });
         }
         if (clockValues.length === 2 && durations.length === 1) {
-          const gap = Math.abs(clockValues[0]!.minutes - clockValues[1]!.minutes);
+          const gap = (options.dialGapMinutes ?? ((x: number, y: number) => Math.abs(x - y)))(
+            clockValues[0]!.minutes,
+            clockValues[1]!.minutes,
+          );
           const declared = durations[0]!.minutes;
           const agrees = gap === declared;
           record({ field: "time_model", code: "locked_time_arithmetic", chapter: null, verdict: agrees ? "met" : "unmet" }, {

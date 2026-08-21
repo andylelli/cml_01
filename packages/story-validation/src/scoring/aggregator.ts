@@ -20,6 +20,15 @@ export interface GenerationMetadata {
 }
 
 /**
+ * The phase that scores the thing the pipeline exists to produce.
+ *
+ * Named once, because the headline cap below is meaningless if this drifts from the agent key the
+ * orchestrator actually registers — a rename would silently restore the overselling it prevents.
+ * The wiring test in `__tests__/aggregator-deliverable-cap.test.ts` pins the two together.
+ */
+const DELIVERABLE_PHASE_AGENT = 'agent9_prose';
+
+/**
  * Aggregates phase scores into a complete generation report
  * Calculates overall scores, pass/fail status, and summary statistics
  */
@@ -295,12 +304,45 @@ export class ScoreAggregator {
           ? 'Phase thresholds met; no release-gate evidence recorded (ship status unconfirmed)'
           : undefined;
 
-    const adjustedOverallScore =
+    /**
+     * The headline cannot claim more than the DELIVERABLE earned.
+     *
+     * `overall_score` is the unweighted mean of every phase, and thirteen of the fourteen phases
+     * score upstream artifacts — does the cast array exist, are there five locations — which sit at
+     * or near 100 by construction. The manuscript is one fourteenth of its own report card, so a
+     * prose phase of 60 moves the headline by under three points.
+     *
+     * MEASURED over the 15 archived reports carrying a prose phase (2026-08-20): every one of them
+     * reports grade **A**, in a band of 93.4 to 97.4, while the prose phase underneath ranges 60 to
+     * 100. Four runs were graded A with the prose phase at 60/D. `run_0a61b082` scored 95.64/A on a
+     * manuscript that names no culprit — the string "killed" and the string "murdered" do not occur
+     * in it — and whose reveal-repair had failed on the run's own console.
+     *
+     * That is not a mislabelled pass: `phase_thresholds_met` records the failure honestly and
+     * `passed` has meant SHIPPED since A_65b Ph1.3. It is the SCORE that is wrong, because a number
+     * dominated by whether an array exists cannot discriminate between books — internally the run
+     * that read 86 externally scores 96.71 and the run that read 81 scores 97.29, in that order.
+     *
+     * Capping rather than reweighting, for two reasons. The pattern is already this function's
+     * (aborted caps at 59, failed at 74), and the mean still has a real use — it is a PIPELINE
+     * HEALTH signal and stays readable as one in `phases`. What changes is only that the headline
+     * stops overselling: it is now the lower of the pipeline mean and the manuscript's own mark.
+     *
+     * Self-gating. A snapshot written before Agent 9 has no prose phase and is not capped, so this
+     * cannot retroactively re-grade the in_progress partials A_71 exists to label.
+     */
+    const deliverablePhase = this.phases.find((p) => p.agent === DELIVERABLE_PHASE_AGENT);
+    const deliverableScore =
+      typeof deliverablePhase?.score?.total === 'number' ? deliverablePhase.score.total : null;
+
+    const outcomeCappedScore =
       runOutcome === 'aborted'
         ? Math.min(overallScore, 59)
         : runOutcome === 'failed'
           ? Math.min(overallScore, 74)
           : overallScore;
+    const adjustedOverallScore =
+      deliverableScore === null ? outcomeCappedScore : Math.min(outcomeCappedScore, deliverableScore);
     const adjustedOverallGrade = calculateGrade(adjustedOverallScore);
 
     const releaseGateSummary =

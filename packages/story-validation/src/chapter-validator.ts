@@ -10,6 +10,27 @@ import { findUnknownTitledNameMentions } from './name-sanitizer.js';
 import { analyzeTemporalConsistency, extractCaseMechanismTerms, caseNamesMechanicalSpring } from './temporal-consistency.js';
 import { detectControlPlaneLeakage, detectVerbatimFieldEcho } from './control-plane-leakage.js';
 
+/**
+ * The ONE mojibake vocabulary. Exported, because two copies of it had already drifted.
+ *
+ * FOUND BY REVIEW, 2026-08-20. This list lived here with 18 members and again in
+ * `apps/worker/src/jobs/agents/agent9/prose-text.ts` with 10 — and the WORKER copy is the one that
+ * feeds `hardStopReasons`. Mojibake is one of only SEVEN release-gate hard stops, so the gate that
+ * can abort a run over broken text was blind to nine sequences this validator flags: the
+ * double-encoded em-dash, en-dash, ellipsis and closing quote, and the bare non-breaking-space
+ * artifacts.
+ *
+ * They had drifted in the OTHER direction too — each copy encoded the mojibake for a curly opening
+ * double quote slightly differently, so one of the two was simply wrong about the bytes it hunted.
+ * That is the signature of a vocabulary maintained twice.
+ *
+ * MEASURED over 191 archived manuscripts: both patterns flag the same 2, so the divergence is
+ * latent. Resolved as a UNION rather than by picking a winner: both lists name the same class of
+ * artifact and neither was a superset of the other.
+ */
+export const MOJIBAKE_PATTERN = /(?:Ã¢â‚¬â„¢|Ã¢â‚¬Ëœ|Ã¢â‚¬Å“|Ã¢â‚¬\x9d|Ã¢â‚¬"|Ã¢â‚¬â€|Ã¢â‚¬â€œ|Ã¢â‚¬Â¦|Ã‚|Ë†Â§|â€™|â€˜|â€œ|â€\x9d|â€"|â€¦|Â|\uFFFD|Ã¢â‚¬Å")/;
+
+
 export interface ChapterValidationIssue {
   severity: 'critical' | 'major' | 'moderate';
   message: string;
@@ -423,7 +444,7 @@ export class ChapterValidator {
   private checkEncodingIntegrity(chapter: ChapterContent): ChapterValidationIssue[] {
     const issues: ChapterValidationIssue[] = [];
     const text = chapter.paragraphs.join('\n');
-    const mojibakePattern = /(?:Ã¢â‚¬â„¢|Ã¢â‚¬Ëœ|Ã¢â‚¬Å“|Ã¢â‚¬\x9d|Ã¢â‚¬"|Ã¢â‚¬â€|Ã¢â‚¬â€œ|Ã¢â‚¬Â¦|Ã‚|Ë†Â§|â€™|â€˜|â€œ|â€\x9d|â€"|â€¦|Â|\uFFFD)/;
+    const mojibakePattern = MOJIBAKE_PATTERN;
     const illegalControlPattern = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/;
 
     if (mojibakePattern.test(text)) {

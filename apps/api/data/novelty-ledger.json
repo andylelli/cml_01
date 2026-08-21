@@ -78,6 +78,19 @@
       "discrimMethod": "constraint_proof",
       "discrimDesign": "By comparing the exact stopped time on Lady Beatrice’s watch with the sundial shadow position and measuring the copper plate contraction from ambient temperature, the test proves the victim’s death occurred earlier than the sundial’s indicated time, invalidating Charles Pembroke’s alibi which depends on the false later timeline.",
       "premise": "On a cool autumn morning at the isolated Ellsworth Manor in Yorkshire, Lady Beatrice Ellsworth was found dead, struck by the manor's heavy copper sundial gnomon. Initial witness testimonies and the sundial's shadow suggested she was alive well into the late morning. Inspector Harold Wren's meticulous investigation reveals that thermal contraction of the sundial's copper plate shifted the shadow, misleading everyone about the time of death. This false timeline concealed the murderer’s exact opportunity. Through careful analysis of environmental clues and witness statements, Inspector Wren unravels the true sequence of events, exposing Charles Pembroke, the estate manager, who exploited the manor’s physical and social constraints to commit murder."
+    },
+    {
+      "id": "run_0a61b082-2df3-48d4-bac9-999ab4214e24",
+      "title": "The Fete's Frozen Hour",
+      "era": "1950s",
+      "location": "Little Middleton",
+      "crimeSubtype": "strangulation at village fete",
+      "deathMethod": "strangled",
+      "axis": "temporal",
+      "falseAssumption": "The victim was alive until at least six fifteen in the evening, as confirmed by the sundial’s shadow position and multiple witness sightings during the fete.",
+      "discrimMethod": "constraint_proof",
+      "discrimDesign": "A controlled demonstration comparing frozen sundial shadow positions before and after frost formation, combined with a timeline reenactment using village thermometer readings and verified witness logs, proving the time of death must be after six forty. This test directly invalidates suspect alibis relying on the frozen sundial time, uniquely exposing Harold Simmons’ unaccounted time gap.",
+      "premise": "During the village fete in Little Middleton, the respected village council chairman Reginald Hargrave is found strangled beside the sundial near the village green. The apparent time of death, indicated by the sundial's shadow, seems to place the murder at early evening during the fete's peak. However, the sundial's shadow was frozen by a thin layer of frost that formed after sunset, misleading witnesses about the true time. Eleanor Hargrave, the victim's sister and village schoolteacher, investigates the temporal illusion, uncovering a layered deception exploiting natural phenomena and village gossip. The true timeline reveals the murderer acted under cover of dense fog and social distractions, with a motive rooted in land disputes and Cold War era anxieties."
     }
   ]
 }

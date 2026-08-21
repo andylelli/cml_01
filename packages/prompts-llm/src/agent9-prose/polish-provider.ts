@@ -4,7 +4,7 @@
  * Routes ONLY the post-pass polish stage to Anthropic (Claude Sonnet 5 by default), leaving every
  * other Agent 9 stage on the existing Azure deployment.
  *
- * WHY ONLY THIS STAGE (documentation/15_claude_migration §6):
+ * WHY ONLY THIS STAGE (documentation/15_llm_model_and_cost §6):
  * `polishPassingChapter` fires at exactly one place — generate.ts, under `chapterErrors.length === 0`
  * — i.e. only once a chapter has already cleared every hard gate. It is therefore a pure quality lift
  * on known-good material: it can never be asked to *fix* a failing chapter, and its output is

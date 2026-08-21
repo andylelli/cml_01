@@ -9,6 +9,8 @@
 import { extractClues } from "@cml/prompts-llm";
 import type { ClueDistributionResult } from "@cml/prompts-llm";
 import type { CaseData } from "@cml/cml";
+// ONE clock parser. This file used to keep a private third copy; see parseFactClockMinutes.
+import { parseClockTime } from "@cml/cml";
 import type { PhaseScore } from "@cml/story-validation";
 import {
   type OrchestratorContext,
@@ -217,7 +219,7 @@ const nameAppearsInText = (name: string, text: string): boolean => {
 };
 
 const isEliminationLike = (text: string): boolean =>
-  /\b(ruled\s+out|eliminat|cleared|innocent|not\s+the\s+(?:culprit|killer|murderer)|excluded?)\b/i.test(text);
+  /\b(ruled\s+out|eliminat\w*|cleared|innocent|not\s+the\s+(?:culprit|killer|murderer)|exclud\w*)\b/i.test(text);
 
 const isAlibiLike = (text: string): boolean =>
   /\b(alibi|elsewhere|seen\s+in\s+a\s+different\s+location|could\s+not\s+have|was\s+with|timestamp|confirmed\s+by|corroborat|witness(?:es)?\s+confirm|documented\s+at)\b/i.test(text);
@@ -1916,59 +1918,33 @@ const WORD_TO_NUM: Record<string, number> = {
   forty: 40, fifty: 50, sixty: 60,
 };
 
-const parseWordFormTime = (value: string): { hour: number; minute: number; explicitMeridiem: boolean } | null => {
-  const lower = value.toLowerCase().trim();
-  const ampm = lower.match(/\b(am|pm|a\.m\.|p\.m\.)\b/i);
-  const explicitMeridiem = Boolean(ampm);
+/**
+ * ONE clock parser, injected from `@cml/cml` — this file no longer keeps its own.
+ *
+ * FOUND BY REVIEW, 2026-08-20. `parseWordFormTime` was a private third body of a parser that
+ * `@cml/cml` already owns, and it had drifted badly: **it has no "to" branch at all**, and its
+ * "quarter past" pattern is anchored with `^`, so a leading article breaks it. None of the widenings
+ * that parser has received — X61's any-minute-count, X67's hour-minutes, daypart and meridiem forms,
+ * the curly-apostrophe fold — ever reached this copy.
+ *
+ * MEASURED over the archived registries: of the 36 locked facts that ARE clock times, this function
+ * read 15 and **silently skipped 21 — 58%**, including every "a quarter to X" (13 of them, the most
+ * common time form in the corpus) and every "a quarter past X" carrying an article.
+ *
+ * The check below is a real fair-play gate — a clue whose stated time contradicts a locked fact is a
+ * defect a reader WILL catch — and `if (!parsedFact) continue;` meant it declined in silence on more
+ * cases than it examined.
+ */
+const parseFactClockMinutes = (value: string): number | null => parseClockTime(value);
 
-  const toHour = (word: string) => WORD_TO_NUM[word];
-
-  const oclock = lower.match(/^(\w+)\s+o[\u2019']clock$/);
-  if (oclock) {
-    const h = toHour(oclock[1]);
-    if (h != null) return { hour: h, minute: 0, explicitMeridiem };
-  }
-  const halfPast = lower.match(/^half\s+past\s+(\w+)$/);
-  if (halfPast) {
-    const h = toHour(halfPast[1]);
-    if (h != null) return { hour: h, minute: 30, explicitMeridiem };
-  }
-  const quarterPast = lower.match(/^quarter\s+past\s+(\w+)$/);
-  if (quarterPast) {
-    const h = toHour(quarterPast[1]);
-    if (h != null) return { hour: h, minute: 15, explicitMeridiem };
-  }
-  const minutesPast = lower.match(/^([\w-]+)\s+(?:minutes?\s+)?past\s+(\w+)$/);
-  if (minutesPast) {
-    const m = WORD_TO_NUM[minutesPast[1]];
-    const h = toHour(minutesPast[2]);
-    if (m != null && h != null) return { hour: h, minute: m, explicitMeridiem };
-  }
-
-  return null;
-};
-
-const extractDigitFormHour = (text: string): { hour: number; minute: number; explicitMeridiem: boolean } | null => {
-  const lower = text.toLowerCase();
-  const hhmm = lower.match(/\b(\d{1,2}):(\d{2})\s*(am|pm|a\.m\.|p\.m\.)\b/i);
-  if (hhmm) {
-    let h = parseInt(hhmm[1], 10);
-    const m = parseInt(hhmm[2], 10);
-    const meridiem = hhmm[3].toLowerCase();
-    if (meridiem.includes("p") && h < 12) h += 12;
-    if (meridiem.includes("a") && h === 12) h = 0;
-    return { hour: h, minute: m, explicitMeridiem: true };
-  }
-  const hOnly = lower.match(/\b(\d{1,2})\s*(am|pm|a\.m\.|p\.m\.)\b/i);
-  if (hOnly) {
-    let h = parseInt(hOnly[1], 10);
-    const meridiem = hOnly[2].toLowerCase();
-    if (meridiem.includes("p") && h < 12) h += 12;
-    if (meridiem.includes("a") && h === 12) h = 0;
-    return { hour: h, minute: 0, explicitMeridiem: true };
-  }
-  return null;
-};
+/**
+ * Does this text STATE a meridiem, as opposed to what time it means?
+ *
+ * A separate question from parsing, and the only reason the old copies returned a struct at all. It
+ * stays local because it is one predicate over free text, not a second reader of the time vocabulary.
+ */
+const statesExplicitMeridiem = (text: string): boolean =>
+  /(am|pm|a.m.|p.m.)/i.test(String(text));
 
 const findLockedFactClueTimeConflicts = (
   cml: CaseData,
@@ -1996,10 +1972,9 @@ const findLockedFactClueTimeConflicts = (
     const factValue = String(fact?.value ?? "").trim();
     if (!factValue) continue;
 
-    const parsedWord = parseWordFormTime(factValue);
-    const parsedDigit = extractDigitFormHour(factValue);
-    const parsedFact = parsedWord ?? parsedDigit;
-    if (!parsedFact) continue;
+    const factMinutes = parseFactClockMinutes(factValue);
+    if (factMinutes === null) continue;
+    const factStatesMeridiem = statesExplicitMeridiem(factValue);
 
     const mappedClueIds = mapping
       .map((m: any) => String(m?.clue_id ?? ""))
@@ -2011,22 +1986,21 @@ const findLockedFactClueTimeConflicts = (
       const clueText = `${String(clue.description ?? "")} ${String((clue as any).pointsTo ?? "")}`;
       if (!nameAppearsInText(factDesc, clueText) && !nameAppearsInText(factValue, clueText)) continue;
 
-      const parsedClue = extractDigitFormHour(clueText) ?? parseWordFormTime(clueText);
-      if (!parsedClue) continue;
+      const clueMinutes = parseFactClockMinutes(clueText);
+      if (clueMinutes === null) continue;
+      const clueStatesMeridiem = statesExplicitMeridiem(clueText);
 
       // AM/PM ambiguity guard: do not silently infer when only one side is explicit.
-      if (parsedFact.explicitMeridiem !== parsedClue.explicitMeridiem) {
+      if (factStatesMeridiem !== clueStatesMeridiem) {
         violations.push(
           `CML time ambiguity: locked fact "${factId || factDesc}" value "${factValue}" and clue "${clueId}" include mismatched AM/PM specificity. Make both explicit (or both implicit) before prose generation.`
         );
         continue;
       }
 
-      const factMinutes = parsedFact.hour * 60 + parsedFact.minute;
-      const clueMinutes = parsedClue.hour * 60 + parsedClue.minute;
       if (factMinutes !== clueMinutes) {
         violations.push(
-          `CML time contradiction: locked fact "${factId || factDesc}" canonical "${factValue}" conflicts with clue "${clueId}" time expression (parsed ${parsedClue.hour}:${String(parsedClue.minute).padStart(2, "0")}).`
+          `CML time contradiction: locked fact "${factId || factDesc}" canonical "${factValue}" conflicts with clue "${clueId}" time expression (parsed ${Math.floor(clueMinutes / 60)}:${String(clueMinutes % 60).padStart(2, "0")} on the dial).`
         );
       }
     }

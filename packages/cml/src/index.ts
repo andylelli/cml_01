@@ -35,6 +35,10 @@ export {
   // X38/X39 (REVIEW_09 §3) — the case checked against ITSELF, before prose exists.
   checkCaseTimeCoherence,
   parseDurationMinutes,
+  // X38-at-source — the repair side of the same vocabulary (agent3b-run.ts).
+  rewriteDurationMinutes,
+  spellMinuteCount,
+  dialGapMinutes,
 } from "./timeline-deception.js";
 export type {
   TimelineDeceptionInput,

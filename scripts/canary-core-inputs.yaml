@@ -26,8 +26,15 @@
 #   (free-form string also accepted)
 # - primaryAxis: one of:
 #     temporal | spatial | identity | behavioral | authority
-#   (identity/behavioral/authority are auto-mapped by canary-core to
-#    social/psychological/mechanical for orchestrator compatibility)
+#   These are THE names, end to end — nothing maps them anywhere.
+#   The note that used to sit here claimed canary-core auto-mapped them to
+#   social/psychological/mechanical. It never did: canary-core.mjs contains no
+#   reference to primaryAxis at all, and the orchestrator silently coerced the
+#   three it did not recognise to "temporal" — which is why 23 of 23 archived
+#   cases are temporal. Both halves fixed 2026-08-20; an unknown axis now throws.
+#   Retired spellings still accepted: social -> authority, psychological -> behavioral.
+#   "mechanical" is REJECTED: it used to become "identity", a different kind of
+#   mystery. Express a mechanism story as temporal or spatial with a mechanism family.
 # - castSize: number
 # - castNames: string[]
 # - detectiveType: one of:
@@ -43,7 +50,7 @@
 # - projectId: string (optional)
 
 theme: "Golden Age country-house murder driven by a mechanical clock-tampering method. Enforce strict fair-play: reveal all mechanism-critical clues to reader by mid-story, place the discriminating test no later than early Act III, include at least 3 explicit evidence clues tied to final deduction, and ensure every red herring is inference-isolated from the true solution chain."
-eraPreference: "1940s"
+eraPreference: "1950s"
 locationPreset: SeasideHotel
 tone: "Classic"
 primaryAxis: temporal

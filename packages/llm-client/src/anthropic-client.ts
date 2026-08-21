@@ -1,7 +1,7 @@
 /**
  * Anthropic (Claude) client — a `chat()`-compatible sibling of AzureOpenAIClient.
  *
- * WHY THIS EXISTS (documentation/15_claude_migration §6):
+ * WHY THIS EXISTS (documentation/15_llm_model_and_cost §6):
  * Agent 9's post-pass polish is a line-edit on a chapter that has ALREADY passed every hard gate.
  * It is a small fraction of total output tokens, so routing only that stage to a frontier model buys
  * sentence-craft at a fraction of the bill — measured: ~$0.25–0.85 per run on top of a ~$4 run.

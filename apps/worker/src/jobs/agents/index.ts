@@ -9,6 +9,7 @@ export type {
   OrchestratorContext,
   DifficultyMode,
   CmlPrimaryAxis,
+  PrimaryAxisInput,
   HardLogicDirectives,
   ClueGuardrailIssue,
   InferenceCoverageResult,
@@ -32,6 +33,8 @@ export {
   appendRetryFeedbackOptional,
   executeAgentWithRetry,
   normalizePrimaryAxis,
+  CML_PRIMARY_AXES,
+  DEFAULT_PRIMARY_AXIS,
   deriveHardLogicDirectives,
   buildNoveltyConstraints,
 } from "./shared.js";

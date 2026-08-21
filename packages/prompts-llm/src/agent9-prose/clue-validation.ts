@@ -1273,7 +1273,7 @@ export const validateChapterPreCommitObligations = (
     const pressureMarker = /\b(fear|afraid|anxious|motive|secret|lied|lying|deception|hesitat|defensiv|loyalty|shame|regret|tension|suspicion)\b/i;
     const contradictionMarker = /\b(contradiction|inconsisten|uncertain|doubt|questioned|alibi|reconsider|discrepancy|mismatch)\b/i;
     const reinterpretMarker = /\b(previously|at first|seemed|now|actually|reinterpret|recontext|different meaning|reassess|reframed)\b/i;
-    const clearingMarker = /\b(cleared|ruled out|eliminated|innocent|exonerat|alibi (?:holds|corroborated|confirmed))\b/i;
+    const clearingMarker = /\b(clear(?:ed|s|ing)|ruled out|eliminat\w*|innocent|exonerat\w*|alibi (?:holds|corroborated|confirmed))\b/i;
     const motiveMarker = /\b(motive|fear|resentment|jealous|debt|inheritance|shame|protect)\b/i;
     const opportunityMarker = /\b(opportunity|access|alibi|time window|whereabouts|means)\b/i;
 

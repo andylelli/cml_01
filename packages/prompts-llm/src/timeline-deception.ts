@@ -18,6 +18,7 @@ export {
   parseTimeWindow,
   checkCaseTimeCoherence,
   parseDurationMinutes,
+  dialGapMinutes,
   type TimelineDeceptionInput,
   type TimelineDeceptionViolation,
   type CaseTimeCoherenceViolation,

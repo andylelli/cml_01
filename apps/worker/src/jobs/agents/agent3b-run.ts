@@ -24,7 +24,14 @@ import {
   scoreDeviceThemeMatch,
 } from "@cml/prompts-llm";
 // X38 — the case checked against itself, at the £0.03 end of the pipeline (REVIEW_09 §3).
-import { validateArtifact, checkCaseTimeCoherence } from "@cml/cml";
+import {
+  validateArtifact,
+  checkCaseTimeCoherence,
+  parseClockTime,
+  parseDurationMinutes,
+  rewriteDurationMinutes,
+  dialGapMinutes,
+} from "@cml/cml";
 import { HardLogicScorer, scoreRealHardLogic } from "@cml/story-validation";
 import { adaptHardLogicForScoring } from "../scoring-adapters/index.js";
 import {
@@ -69,6 +76,137 @@ const wordifyLockedFactValue = (value: string): string => {
   return out;
 };
 
+
+/**
+ * X38-AT-SOURCE — make the device satisfy its own arithmetic before the values freeze.
+ *
+ * MEASURED 2026-08-20 over the 20 archived locked-fact registries
+ * (`scripts/probe-device-arithmetic.mjs`). Of the ten devices either branch of
+ * `checkCaseTimeCoherence` can read, **ten have arithmetic that does not close** — not the half
+ * REVIEW_05 §12.11 reported, which counted cases the gate cannot read as cases it passed. And they
+ * cluster: **six of the ten are wrong by exactly five minutes**, four of those the identical shape —
+ * two clock values twenty-five minutes apart under a duration declaring twenty. The model is not
+ * making scattered slips. It reaches for a round duration while writing clock values that a
+ * quarter-hour idiom pushes five minutes further apart than that, and it does so most of the time.
+ *
+ * So X38 is promoted from a warning to a repair, HERE, because Agent 3b is the last moment the values
+ * are still soft — locked facts are contractual and injected into the prose verbatim, so past this
+ * point the only available repair is a chapter that contradicts the registry, which is why X38 was
+ * built as a detector with no repair path. Agent 3 has not authored `hidden_model.mechanism` yet
+ * either, and that prose restates the interval ("delaying the shadow by about twenty minutes"), so a
+ * repair applied one agent later would fix the fact and leave the description stating the old number
+ * — a fix that authors the defect it removes, this tracker's own recurring pattern.
+ *
+ * **IT REPAIRS ONLY WHAT THE DEVICE DECLARED DERIVED, and this is the whole design.**
+ *
+ * The first draft of this pass rewrote the DURATION on the reasoning that it is the derived quantity —
+ * the two clock values are what the prose prints and what the alibi windows are built on, so the
+ * interval is the one the case can absorb. That is true of every device in the archive, and the
+ * archive is **24 of 24 clock-family devices** (pendulum, bell, sundial, hourglass, escapement). It is
+ * FALSE for families this pipeline actively asks for: a poison's onset, a tide's period, a fuse's
+ * burn are physical constants, and when the numbers disagree it is the TIMES that must move, not the
+ * interval. Rewriting the interval there would silently corrupt the mechanism and produce a story
+ * whose poison acts in the wrong time. The corpus could not have shown that, because it contains no
+ * such device — which is exactly why a corpus must not be the source of a repair's assumptions.
+ *
+ * So the author declares it. `derivedFrom` names the facts a value is a consequence of; absent, the
+ * value is PRIMARY and untouchable. The rule this encodes is general:
+ *
+ *      A DETECTOR MAY GUESS. A REPAIRER MAY NOT.
+ *
+ * A warning that is wrong costs a minute of reading. A rewritten locked fact is printed into the book
+ * verbatim and is unrecoverable. So `checkCaseTimeCoherence` keeps its shape heuristic and keeps
+ * WARNING on every incoherent device — no coverage is lost — while nothing WRITES without a licence
+ * from the case itself.
+ *
+ * Verified, not assumed. The declared relation is recomputed, the rewritten value re-parsed by the
+ * function that produced it, and the whole registry re-checked by the DETECTOR; if any step fails the
+ * old value goes back and the run keeps the warning it always had. That assertion is the X64/X65
+ * lesson — a substitution applied without one silently no-opped for an entire run.
+ */
+export function reconcileDeviceArithmetic(ctx: OrchestratorContext): void {
+  const registry = ctx.lockedFactRegistry;
+  if (!registry || registry.length === 0) return;
+
+  // The ONLY entry point: a fact the device declared to be a consequence of exactly two others.
+  // No declaration, no rewrite — a primary value is untouchable no matter how the numbers look.
+  const byId = new Map(registry.map((f, index) => [String(f.id ?? "").trim(), { fact: f, index }]));
+  const candidates = registry
+    .map((fact, index) => ({ fact, index }))
+    .filter(({ fact }) => Array.isArray(fact.derivedFrom) && fact.derivedFrom.length === 2);
+  if (candidates.length === 0) return;
+
+  for (const { fact, index } of candidates) {
+    const id = String(fact.id ?? "").trim() || "(unnamed)";
+    const raw = String(fact.value ?? "").trim();
+    const sources = (fact.derivedFrom ?? []).map((s) => byId.get(s.trim()));
+
+    // A declaration naming facts that do not exist is a defect in the declaration, not a licence.
+    if (sources.some((s) => s === undefined)) {
+      ctx.warnings.push(
+        `[X38] ${id} declares derivedFrom [${(fact.derivedFrom ?? []).join(", ")}], and at least one of ` +
+          `those ids is not in the registry. Not repaired — an unresolvable declaration is not a licence.`,
+      );
+      continue;
+    }
+
+    // This pass knows ONE relation: an interval between two clock positions. A declared dependency
+    // between other quantities (a distance from a speed and a time, a total from its parts) is
+    // recorded by the case and simply not actionable here — which is a silence, not a pass.
+    const a = parseClockTime(String(sources[0]!.fact.value ?? ""));
+    const b = parseClockTime(String(sources[1]!.fact.value ?? ""));
+    const current = parseDurationMinutes(raw);
+    if (a === null || b === null || current === null) continue;
+
+    const gap = dialGapMinutes(a, b);
+    if (gap === current) continue; // the declared relation already holds
+
+    // Two sources at the same clock value make a zero-length interval, which is not a mechanism.
+    if (gap === 0) {
+      ctx.warnings.push(
+        `[X38] device arithmetic NOT repaired: ${sources[0]!.fact.id} and ${sources[1]!.fact.id} lock ` +
+          `the same time, so ${id} has no interval to state. Left for the case to answer.`,
+      );
+      continue;
+    }
+
+    const declared = { index, id, raw, minutes: current };
+    const clockIds = [sources[0]!.fact.id, sources[1]!.fact.id];
+
+  // Also the guard against a dial wrap. `parseClockTime` is dial-relative (0..719) on purpose, so a
+  // pair straddling midnight — 11:50 and 00:10 — reads as 700 minutes apart rather than twenty. The
+  // detector has always computed it that way; the repair must not turn that into a locked fact
+  // declaring "seven hundred minutes". `rewriteDurationMinutes` refuses anything it cannot spell as a
+  // minute count under a hundred, so the case keeps its warning and a person reads it.
+    const repaired = rewriteDurationMinutes(declared.raw, gap);
+    if (repaired === null) {
+      ctx.warnings.push(
+        `[X38] device arithmetic NOT repaired: ${declared.id} "${declared.raw}" could not be restated at ` +
+          `${gap} minutes without guessing at its wording. The incoherence stands, and is reported below.`,
+      );
+      continue;
+    }
+
+    const before = declared.raw;
+    registry[declared.index] = { ...registry[declared.index]!, value: repaired };
+
+    // The assertion. If the rewrite did not do what it claimed, put it back.
+    if (parseDurationMinutes(repaired) !== gap) {
+      registry[declared.index] = { ...registry[declared.index]!, value: before };
+      ctx.warnings.push(
+        `[X38] device arithmetic repair REVERTED: restating ${declared.id} as "${repaired}" does not ` +
+          `read back as ${gap} minutes. This is a defect in the repair, not in the case.`,
+      );
+      continue;
+    }
+
+    ctx.warnings.push(
+      `[X38] device arithmetic repaired at source: ${declared.id} declares itself derived from ` +
+        `${clockIds.join(" and ")}, which are ${gap} minutes apart, so "${before}" (${declared.minutes}) ` +
+        `is restated as "${repaired}". Only the declared-derived value changed; its sources are untouched.`,
+    );
+  }
+}
 
 /**
  * Write `locked-facts-{runId}.json`.
@@ -337,7 +475,7 @@ export async function runAgent3b(ctx: OrchestratorContext): Promise<void> {
   // ── Pillar 1 (Unit 1.1 + 1.2): Build LockedFactRegistry from primary device ──
   if (ctx.inputs.enableLockedFactRegistry) {
     const primaryDevice = ctx.hardLogicDevices!.devices[0];
-    const rawFacts: Array<{ id?: unknown; value?: unknown; description?: unknown }> =
+    const rawFacts: Array<{ id?: unknown; value?: unknown; description?: unknown; derivedFrom?: unknown }> =
       Array.isArray(primaryDevice?.lockedFacts) ? primaryDevice.lockedFacts : [];
 
     ctx.lockedFactRegistry = rawFacts
@@ -353,8 +491,16 @@ export async function runAgent3b(ctx: OrchestratorContext): Promise<void> {
           id,
           value,
           description: typeof f.description === "string" ? (f.description as string).trim() : "",
+          // Carried through verbatim: it is the ONLY licence any later pass has to rewrite this value.
+          ...(Array.isArray(f.derivedFrom)
+            ? { derivedFrom: (f.derivedFrom as unknown[]).map((x) => String(x).trim()).filter(Boolean) }
+            : {}),
         };
       });
+
+    // X38-at-source: reconcile before the artifact is written, so locked-facts-{runId}.json records
+    // the values the run actually used rather than the ones it was about to repair.
+    reconcileDeviceArithmetic(ctx);
 
     // Emit to apps/worker/logs/locked-facts-{runId}.json for observability.
     writeLockedFactsArtifact(ctx);

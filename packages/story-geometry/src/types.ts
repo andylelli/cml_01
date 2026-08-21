@@ -389,4 +389,19 @@ export interface GeometryAcceptanceOptions {
    * acceptance. The authoritative check is `checkCaseTimeCoherence`, which runs BEFORE prose exists.
    */
   parseDurationMinutes?: (raw: string) => number | null;
+  /**
+   * The interval between two positions on a 12-hour dial, injected for the third time for the third
+   * time's reason: this package holds no copy of shared arithmetic.
+   *
+   * FOUND BY REVIEW, 2026-08-20. Every site computing this gap used a plain `Math.abs`, which
+   * measures the LONG way round whenever a pair straddles twelve. An ordinary late-night device —
+   * stopped at "ten minutes to twelve", chime at "ten minutes past twelve", twenty minutes apart —
+   * was reported as **700 minutes apart**, firing `locked_time_arithmetic` on a coherent case. Every
+   * archived run is a 7-to-9pm evening crime, so the corpus never crossed the boundary; the first
+   * midnight story would have carried a false violation into its release gate.
+   *
+   * Optional, and omitting it keeps the previous (wrong near midnight) behaviour rather than growing
+   * a local copy that can drift.
+   */
+  dialGapMinutes?: (a: number, b: number) => number;
 }
