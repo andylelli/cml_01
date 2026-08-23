@@ -38,6 +38,31 @@ export { RUBRIC_SCHEMA } from "./schema.js";
 export { scoreStory } from "./score.js";
 export type { JudgeRequest, JudgeResult, RubricJudge, ScoreStoryInput, ScoreStoryResult } from "./score.js";
 export { createLLMRubricJudge, parseJudgeResult } from "./llm-judge.js";
+
+/**
+ * The PAIRWISE judge (PLAN-TO-90 §7.2 M1.2) — an ORDINAL instrument, added because the cardinal one
+ * was falsified at n=8 on two models. Ranking two manuscripts is a different and much easier question
+ * than marking one, and it is the question "did that change help?" actually needs.
+ */
+export {
+  buildPairwiseSystemPrompt,
+  buildPairwiseUserMessage,
+  createLLMPairwiseJudge,
+  parsePairwiseVerdict,
+  foldOrientations,
+  summarisePairs,
+} from "./pairwise-judge.js";
+export type {
+  Side,
+  PairwiseSubject,
+  PairwiseRequest,
+  PairwiseVerdict,
+  PairwiseJudge,
+  PairwiseJudgeOptions,
+  PairOutcome,
+  PairJudgement,
+  PairwiseCalibrationSummary,
+} from "./pairwise-judge.js";
 export type { ChatFn, ChatArgs, ChatMessage, LLMJudgeOptions } from "./llm-judge.js";
 
 // K2 §1/§2 — deterministic structural verifiers + citation verification.

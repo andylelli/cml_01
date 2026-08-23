@@ -144,7 +144,12 @@ function parseFlagCitations(raw: unknown): FlagCitation[] | undefined {
  * strings full of prose, and `lastIndexOf("}")` would happily span two concatenated objects. String
  * literals and their escapes are tracked so a brace inside a reason cannot close the scan.
  */
-function stripFences(s: string): string {
+/**
+ * Exported so the PAIRWISE judge shares this body rather than growing a second one. Seven two-body
+ * vocabularies were found in one review on 2026-08-20; a JSON extractor is exactly the kind of helper
+ * that gets re-typed rather than imported.
+ */
+export function stripFences(s: string): string {
   const fenced = /```(?:json)?\s*([\s\S]*?)```/.exec(s);
   const body = (fenced ? fenced[1]! : s).trim();
   // NB: no `startsWith("{") && endsWith("}")` shortcut. Two concatenated objects satisfy it and

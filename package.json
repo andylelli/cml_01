@@ -18,6 +18,7 @@
     "test:eval-calibrate": "node --test scripts/__tests__/eval-calibrate.test.mjs",
     "test:external-read-ledger": "node --test scripts/__tests__/external-read-ledger.test.mjs",
     "ledger:external-read": "node scripts/external-read-ledger.mjs",
+    "judge:pairwise": "node scripts/judge-pairwise.mjs",
     "exp:regen-clue": "node scripts/exp-regen-clue-ab.mjs",
     "exp:regen-clue:analyze": "node scripts/exp-regen-clue-analyze.mjs",
     "flags:check": "node scripts/flag-register-check.mjs",

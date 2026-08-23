@@ -5,7 +5,7 @@ Descends from [REVIEW_13](REVIEW_13.md) §1 (the arithmetic), [REVIEW_14](REVIEW
 [REVIEW_15](REVIEW_15.md) §6 (the two most recent orderings), and from the twelve-row code review in
 [REVIEW_05](REVIEW_05.md) §12.13–§12.15. [REVIEW_05](REVIEW_05.md) remains the tracker.
 
-**§7 (2026-08-23) is the live order and supersedes §5.** It adds the £1/run constraint, the
+**§8 (2026-08-23) is the live order; §7 is the plan it executes, and both supersede §5.** It adds the £1/run constraint, the
 measured cost of a run, and the one instrument question that has never been asked — ordinal rather
 than cardinal judging.
 
@@ -869,3 +869,113 @@ P3    M6 re-read, craft ratio, 10 unread contracts    ~GBP 1.5 + free
 Under £10 of compute, one reader now and one per milestone. **What it does not promise is 90 every
 run:** the measured arithmetic still projects best-ever-everywhere to 87.5, and nothing above changes
 that projection — it changes whether the project can *tell* when it has moved.
+
+---
+
+## 8. The free half, built 2026-08-23 — and what the data changed
+
+§7 asked for four free things before any paid run. All four are built, and one of them changed the
+target.
+
+### 8.1 The ledger — M1.1, and it was thirty-five, not eleven
+
+`npm run ledger:external-read`. §7.2 costed the calibration set at **11 manuscripts**. On disk, beside
+the manuscripts, were **35 external reads — 34 with a full ten-category table.** Ten human marks per
+story, in plain text, machine-readable nowhere.
+
+Re-derived at n=34 rather than n=8 by hand:
+
+| | the boards said | the data says |
+|---|---:|---:|
+| best-ever in each category, summed | 84 | **85** |
+| headline-minus-sum offset | +2..+7, mean 3.5 | **0..+8, mean 3.9** |
+| best-ever-everywhere projects to | 87.5 | **88.9** |
+
+### 8.2 The finding that reorders Phase 3
+
+**Five of the ten categories have never been given a 9, in 34 reads.**
+
+| never 9 | mean, best 8 | to 9 | the reader's own words |
+|---|---:|---:|---|
+| prose | 7.0 | 2.0 | *"a few generated phrases remain"* |
+| dialogue | 7.1 | 1.9 | *"some catchphrases are still awkward"* |
+| character_clarity | 7.9 | 1.1 | *"roles are stable"* — a floor property, not a character one |
+| pacing | 7.9 | 1.1 | *"Chapter 9 repeats clearances after they are already resolved"* |
+| opening_hook | 8.0 | 1.0 | *"Body, clock, weapon, logbook — strong hook"* |
+
+The other five have reached 9: premise ×6, atmosphere ×2, ending ×2, plot ×1, clues ×1.
+
+**This kills the "stack the existing bests" plan arithmetically.** 85 + 3.9 = 88.9. Reaching 90 requires
+at least one of those five to break a record no manuscript has ever set — so the work has to be aimed
+at that list and nowhere else. §7.5's *"premise is the frozen one"* was reading the INTERNAL rubric
+(7 in all twelve runs); the external reader gives premise 7–9 and has awarded it 9 six times. **The two
+instruments disagree about which category is stuck, which is one more reading of §2.**
+
+### 8.3 The two levers built against that list
+
+Both aim at categories from the table above. Both are free, deterministic, and flag-gated.
+
+**[X93](REVIEW_05.md#1220-x93--the-fold-that-was-built-as-a-retry-and-the-ledger-that-made-it-worth-building-now) — pacing.**
+The one category of the five with a named, repairable defect, in four of the top eight reads. X32 built
+the detection and wired it to an outline ISSUE, which drives an outline RETRY — and 11 of 32 archived
+outlines allocate the clearance job more than once, so the flag asked a third of all runs to re-roll
+their outline to fix a defect a re-roll may reproduce. **That is the whole reason
+`AGENT9_FOLD_SUSPECT_CLEARANCES` has been off since 2026-07-24.** It now folds instead: the scene that
+OWNS the clearance job is marked, every other chapter is told not to re-argue it, no retry and no LLM
+call. *Falsification: if the suppressed chapter comes back thin rather than repurposed, the outline
+half was the one needed.*
+
+**[X94](REVIEW_05.md#1221-x94--every-book-this-project-has-written-opens-the-same-way-and-it-is-one-line-of-arithmetic) — opening hook.**
+`const styleIdx = (chapterNumber - 1) % OPENING_STYLE_ROTATION.length`. Chapter 1 takes index 0 on
+every run of every case, forever, and chapter 1 is the only chapter `opening_hook` reads. Measured
+across the 35 manuscripts: `pressed` 26%, `chill` 26%, `stepped` 23%, `gloved` 23% of first sentences.
+The rotation prevents repetition WITHIN a book and the entropy linter confirms it; nothing checks
+across books, and nothing could, because each run is scored alone. Now offset once per story by a hash
+of the case title — deterministic, so a replay reproduces its openings.
+
+**Recorded and NOT built:** the same prompt line mandates a closed list of 18 sensory and 34 atmosphere
+words, identical on every chapter of every run and validator-enforced — which is why `chill`/`damp`/
+`faint` win a quarter of all first sentences, and probably why `atmosphere`'s notes are as
+interchangeable as the hook's. **That list has four bodies and drives retries**, so the durable change
+(a rotating subset in the prompt against the full list in the validator) is its own increment.
+
+### 8.4 The ordinal judge — M1.2, built, not yet run
+
+`packages/rubric-score/src/pairwise-judge.ts`, 19 tests. `npm run judge:pairwise -- --dry` costs nothing.
+
+0b.0 falsified the model route for CARDINAL judging on two models. Nothing had tried the ordinal
+question. The harness is built around the two ways it could flatter itself:
+
+- **Every pair is judged BOTH ways round.** A judge that prefers whichever manuscript is labelled A is
+  right on half the pairs; a one-orientation harness reports that as 50% and calls it noise. A pair
+  counts only when both orientations name the same book, and the flip rate is reported separately.
+- **Pairs are bucketed by how far apart the humans put them, and agreement is reported per bucket.** A
+  judge that only gets the 18-mark gaps right is useless for A/B work. Sampling is deterministic, and
+  within a bucket the HARDEST pairs are drawn first.
+
+**Cost, corrected:** §7.2's *"~£2 for all 55 pairs"* was costed against 11 manuscripts. 35 make 447
+pairs at a 5-mark gap — 894 calls, ~$12. The default samples 40 pairs across the three buckets: **80
+calls, $1.05 (~£0.83)**, inside the £1 budget.
+
+Gate unchanged: ≥80% agreement on pairs the humans separated by ≥5 marks, with `n` printed beside it.
+
+### 8.5 The order now
+
+```
+DONE   M1.1  ledger repaired + 34 reads parsed             free
+DONE   X93   clearance fold, deterministic                 free   <- pacing
+DONE   X94   per-story opening rotation                    free   <- opening_hook
+DONE   M1.2  pairwise judge + calibration harness          free to build
+DONE   M2.1  one cost number (scripts/run-cost-audit.mjs)  free
+---- paid from here ------------------------------------------------
+ next  M1.2  run the calibration                           ~£0.83
+ next  M1.3  read ONE axis manuscript                      a reader
+       P1    X38-at-source + X73 + the two new flags on    ~£1 (one run)
+       2.1   geometry replay over the archive              free + a decision
+       X95   the closed sensory vocabulary, one list       free build
+```
+
+**Three flags now wait on one run:** `AGENT9_FOLD_SUSPECT_CLEARANCES`,
+`AGENT9_OPENING_STYLE_PER_STORY`, `AGENT3_DEVICE_TIME_BINDING`. They touch three different categories
+and none of them costs anything extra to carry, so they should ride the same £1 run — with the ordinal
+judge, freshly calibrated, as the thing that reads the result.
