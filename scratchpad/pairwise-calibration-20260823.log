@@ -1,0 +1,71 @@
+
+==============================================================================
+M1.2 — CAN AN ORDINAL JUDGE REPRODUCE THE READER'S ORDERING?
+==============================================================================
+
+  judge          gpt-4.1-mini
+  manuscripts    35 externally read, marks 48-86
+  pairs          447 at gap >= 5; judging 40
+                   close (5-9)   14 of 150
+                   mid (10-14)   13 of 107
+                   wide (15+)    13 of 190
+  calls          80 (every pair judged BOTH ways round)
+  est. cost      $1.05 (~£0.83)
+
+  [  1/40]  ok   gap  5  2026-08-02-1810-clockwork-deceit (80) vs s0-1-poison (75)
+  [  2/40] MISS  gap 10  2026-08-02-1810-clockwork-deceit (80) vs read-20260622-2214 (70)
+  [  3/40]  ok   gap 15  2026-08-02-1936-clocks-deception (68) vs read-20260613-2133 (53)
+      ! read-20260724-1347 vs 2026-08-06-2255-weighted-pendulum: Azure chat completion failed: HTTP 400 at https://openai-ds1sweden.openai.azure.com/openai/deployments/gpt-4.1-mini/chat/completions?api-version=2024-12-01-preview — {"error":{"message":"The response was filtered due to the prompt triggering Azure OpenAI's content management policy. Please modify your prompt and retry. To learn more about our content filtering policies please read our documentation: https://go.microsoft.com/fwlink/?linkid=2198766","type":null,"param":"prompt","code":"content_filter","status":400,"innererror":{"code":"ResponsibleAIPolicyViolation","content_filter_result":{"hate":{"filtered":false,"severity":"safe"},"jailbreak":{"detected":false,"filtered":false},"self_harm":{"filtered":false,"severity":"safe"},"sexual":{"filtered":false,"severity":"safe"},"violence":{"filtered":true,"severity":"medium"}}}}}
+  [  4/40] FLIP  gap  5  2026-08-06-2255-weighted-pendulum (86) vs read-20260724-1347 (81)
+  [  5/40] MISS  gap 10  2026-08-02-1810-clockwork-deceit (80) vs read-20260629-2127 (70)
+  [  6/40]  ok   gap 15  2026-08-02-1936-clocks-deception (68) vs read-20260616-1845 (53)
+  [  7/40] FLIP  gap  5  2026-08-06-2255-weighted-pendulum (86) vs read-20260724-1747 (81)
+  [  8/40] FLIP  gap 10  2026-08-06-2230-pendulum-secret-chime (84) vs read-20260630-1304 (74)
+  [  9/40]  ok   gap 15  2026-08-06-2230-pendulum-secret-chime (84) vs read-20260611-1714 (69)
+  [ 10/40] FLIP  gap  5  2026-08-06-2255-weighted-pendulum (86) vs read-20260819-2047 (81)
+  [ 11/40]  ok   gap 10  2026-08-06-2255-weighted-pendulum (86) vs read-20260723-2051 (76)
+  [ 12/40]  ok   gap 15  2026-08-06-2230-pendulum-secret-chime (84) vs s0-2-tide (69)
+  [ 13/40] FLIP  gap  5  probe-1-clockwork-deception (78) vs s0-3-acoustic (73)
+  [ 14/40]  ok   gap 10  2026-08-06-2255-weighted-pendulum (86) vs read-20260807-1412 (76)
+  [ 15/40] FLIP  gap 15  2026-08-06-2255-weighted-pendulum (86) vs read-20260622-2122 (71)
+  [ 16/40] MISS  gap  5  read-20260522-2206 (61) vs read-20260625-2151 (56)
+  [ 17/40]  ok   gap 10  2026-08-06-2255-weighted-pendulum (86) vs s0-4-identity (76)
+  [ 18/40]  ok   gap 15  2026-08-06-2255-weighted-pendulum (86) vs read-20260627-2238 (71)
+  [ 19/40]  ok   gap  5  read-20260528-1952 (72) vs read-20260529-2124 (67)
+  [ 20/40] FLIP  gap 10  probe-1-clockwork-deception (78) vs 2026-08-02-1936-clocks-deception (68)
+  [ 21/40] MISS  gap 15  read-20260529-2124 (67) vs read-20260618-0424 (52)
+  [ 22/40]  ok   gap  5  read-20260611-1714 (69) vs read-20260520-1846 (64)
+  [ 23/40]  ok   gap 10  read-20260622-2122 (71) vs read-20260522-2206 (61)
+  [ 24/40] FLIP  gap 15  read-20260622-2122 (71) vs read-20260625-2151 (56)
+  [ 25/40] MISS  gap  5  read-20260613-2133 (53) vs read-20260520-2339 (48)
+  [ 26/40]  ok   gap 10  read-20260622-2214 (70) vs read-20260520-2018 (60)
+  [ 27/40] MISS  gap 15  read-20260627-2238 (71) vs read-20260625-2151 (56)
+  [ 28/40] FLIP  gap  5  read-20260616-1845 (53) vs read-20260520-2339 (48)
+  [ 29/40]  ok   gap 10  read-20260627-2238 (71) vs read-20260522-2206 (61)
+  [ 30/40]  ok   gap 15  read-20260723-2051 (76) vs read-20260522-2206 (61)
+  [ 31/40]  ok   gap  5  read-20260630-1304 (74) vs read-20260611-1714 (69)
+  [ 32/40]  ok   gap 10  read-20260629-2127 (70) vs read-20260520-2018 (60)
+  [ 33/40]  ok   gap 15  read-20260807-1412 (76) vs read-20260522-2206 (61)
+  [ 34/40]  ok   gap  5  read-20260630-1304 (74) vs s0-2-tide (69)
+  [ 35/40]  ok   gap 10  read-20260630-1304 (74) vs read-20260520-1846 (64)
+  [ 36/40]  ok   gap 15  read-20260814-2033 (84) vs read-20260611-1714 (69)
+  [ 37/40]  ok   gap  5  read-20260723-1620 (80) vs s0-1-poison (75)
+  [ 38/40] FLIP  gap 10  read-20260723-1620 (80) vs read-20260622-2214 (70)
+  [ 39/40]  ok   gap 15  read-20260814-2033 (84) vs s0-2-tide (69)
+  [ 40/40] MISS  gap  5  read-20260723-2051 (76) vs read-20260622-2122 (71)
+
+==============================================================================
+  bucket           pairs   consistent   agreement (of the consistent ones)
+  close (5-9)         14          64%         67%  (6/9)
+  mid (10-14)         13          77%         80%  (8/10)
+  wide (15+)          13          85%         82%  (9/11)
+  OVERALL             40          75%         77%  (23/30)
+==============================================================================
+
+  VERDICT: FAILS the M1.3 gate (77% < 80%, n=30).
+  Ordinal judging does not reproduce the reader either — see PLAN-TO-90 §7.2's second branch.
+
+  10 of 40 pairs FLIPPED when the labels were swapped — that is position bias, not disagreement about the books.
+
+  spend: {"totalCost":0,"byModel":{},"byAgent":{},"cachedPromptTokens":0,"promptTokensTotal":0,"cacheHitRate":null,"cacheTelemetryCoverage":0,"costIsUpperBound":false}
+

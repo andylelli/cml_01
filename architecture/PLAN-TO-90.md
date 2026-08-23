@@ -1000,3 +1000,74 @@ never reached 9:
 None costs anything extra to carry, so they should ride the same £1 run — with the ordinal judge,
 freshly calibrated, as the thing that reads the result. **Each is separately attributable**, which is
 why they are four flags and not one.
+
+---
+
+## 9. RESULT — M1.2, the ordinal judge · 2026-08-23 · ~£0.85
+
+**The gate is not met, and the interesting number is not the headline one.**
+
+`node scripts/judge-pairwise.mjs --pairs 40` — 40 pairs drawn round-robin from the three gap buckets,
+hardest-first within each, every pair judged both ways round on `gpt-4.1-mini`. 80 calls.
+
+| bucket | pairs | consistent | agreement | 95% CI | vs a coin flip |
+|---|---:|---:|---:|---|---|
+| close (5–9 marks) | 14 | 69% | **67%** (6/9) | 35–88% | **p = 0.25 — not distinguishable** |
+| mid (10–14) | 13 | 77% | 80% (8/10) | 49–94% | p = 0.055 |
+| wide (15+) | 13 | 85% | 82% (9/11) | 52–95% | p = 0.033 |
+| **overall** | **40** | **77%** | **77%** (23/30) | 59–88% | p = 0.003 |
+
+*(Consistency corrected for one failed call — see §9.3. The script printed 75% and 64% by counting the
+failure against the denominator.)*
+
+### 9.1 What it means, stated as carefully as the numbers allow
+
+**The method change is a real improvement and it is still not a gauge.**
+
+- **Better than cardinal, decisively.** 0b.0's cardinal judge separated the 86 from the 81 by **+1.1
+  against a spread of 7** — no signal whatever, on either model. Ordinal judging reproduces the human
+  ordering on 23 of 30 rankable pairs, which is p = 0.003 against chance. **Asking a different question
+  of the same model turned an instrument with no signal into one with a measurable resolution.**
+- **And its resolution is not fine enough.** Agreement rises monotonically with the size of the human
+  gap — 67% → 80% → 82%. That is the signature of an instrument reading near its limit: it sees large
+  differences and cannot see small ones. **On the close pairs — the only bucket that resembles an A/B
+  between two versions of this pipeline — 6 of 9 is not distinguishable from a coin toss (p = 0.25).**
+
+So the honest statement is a resolution estimate rather than a pass/fail: **the ordinal judge resolves
+differences of roughly ten marks and above, and cannot resolve five.** A lever worth one or two marks
+remains unmeasurable, which is what every lever on this board is worth.
+
+**§7.2's second branch is therefore the live one: one reader per milestone, never per change.** Note
+what is NOT concluded — this does not say the pipeline cannot be measured, it says two methods on one
+model family cannot measure it. What has actually been eliminated is *cheap* measurement.
+
+### 9.2 What would settle it, and what it would cost
+
+At n=9 the close bucket's CI runs 35–88%; it is compatible with a useful instrument and with a useless
+one. Distinguishing 67% from 50% at p < 0.05 needs roughly **60–80 close pairs**, which is
+`--pairs 200 --min-gap 5` at about **£4**, or a targeted close-bucket run at about £2.
+
+**That is worth doing only if the answer changes a decision.** It does not: even at a true 67%, an
+instrument that is wrong on a third of close comparisons cannot arbitrate a one-mark lever. The
+cheap-instrument route is closed on the evidence already in hand, and £4 buys a more precise
+description of a closed door.
+
+### 9.3 Two defects the run found in its own harness
+
+Both were found by running it, which is the only place either could have been found.
+
+**A failed call was being reported as position bias.** One pair tripped Azure's content filter
+(`violence: medium, filtered: true`) and `foldOrientations` folded the missing orientation in as
+`inconsistent`, printing FLIP. **The harness built to stop "no data" becoming a finding was doing
+exactly that.** Failures are now their own bucket, excluded from the consistency denominator.
+
+Worth separating from the fix: **a pairwise prompt carries TWO murder mysteries, so it doubles the
+violent content per call.** Cardinal judging never reached that filter because it only ever showed one
+book. That is an operating cost of the ordinal method, not a fluke — 1 in 80 calls here.
+
+**The Azure client ignored an injected cost tracker.** `AnthropicClient` has honoured
+`config.costTracker` since it was written — the Agent 9 polish provider depends on it — and
+`AzureOpenAIClient` silently dropped it, because the field was absent from its config type. So this run
+reported `totalCost: 0`, and so did **0b.0's spend line**, which was never real. One capability, two
+clients, one wired: [X84](REVIEW_05.md)'s shape exactly. Fixed; nothing in the pipeline passes a tracker
+to that client, so no run behaviour changes.
