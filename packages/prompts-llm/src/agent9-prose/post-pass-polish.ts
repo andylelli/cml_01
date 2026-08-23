@@ -470,6 +470,67 @@ export const hasRepetitionRewriteRegression = (args: {
   return false;
 };
 
+/**
+ * The same decision, but it SAYS WHY — returns the failing check, or null to accept.
+ *
+ * WHY THIS EXISTS. `hasRepetitionRewriteRegression` returns a bare boolean and its only caller does
+ * `continue; // roll back this chapter`, pushing no warning and recording nothing. Measured over the
+ * whole of `logs/llm.jsonl`, the full-story polish has made **2 LLM calls in its entire history**
+ * (Ch4 and Ch10, 2026-07-25), both returned substantial content, and **both were rolled back** —
+ * `editedChapters: []` on every treatment arm in `results/ab-agent9_fullstory_polish`, including one
+ * with 15 recurring phrases to work on.
+ *
+ * A lever rejected 100% of the time looked exactly like a lever with nothing to do. That is the
+ * `unmeasured is not zero` shape this codebase keeps re-learning (X37, A_70/A_71, 0a.3): a number that
+ * is never written cannot be acted on. PLAN-TO-90 0b.1 proposes spending ~£0.40 a run on this pass;
+ * without a reason string that spend measures the guard and reports it as the model.
+ *
+ * Deliberately a SIBLING, not a replacement: the boolean is exported and used elsewhere, and changing
+ * its return type to make one caller louder is how a shared predicate acquires two meanings.
+ */
+export const repetitionRewriteRegressionReason = (args: {
+  original: ProseChapter;
+  rewritten: ProseChapter;
+  lockedValues: ReadonlyArray<string>;
+  castNames: ReadonlyArray<string>;
+  clueTerms?: ReadonlyArray<string>;
+}): string | null => {
+  const originalText = chapterFullText(args.original);
+  const rewrittenText = chapterFullText(args.rewritten);
+  const originalLower = originalText.toLowerCase();
+  const rewrittenLower = rewrittenText.toLowerCase();
+
+  const originalWords = countWords(originalText);
+  const rewrittenWords = countWords(rewrittenText);
+  if (originalWords >= 80 && rewrittenWords < Math.floor(originalWords * 0.88)) {
+    return `length ${rewrittenWords}/${originalWords} words (floor ${Math.floor(originalWords * 0.88)})`;
+  }
+  for (const raw of args.lockedValues) {
+    const value = String(raw ?? "").trim().toLowerCase();
+    if (!value) continue;
+    if (originalLower.includes(value) && !rewrittenLower.includes(value)) return `dropped locked value "${raw}"`;
+  }
+  for (const raw of args.castNames) {
+    const name = String(raw ?? "").trim().toLowerCase();
+    if (!name) continue;
+    if (originalLower.includes(name) && !rewrittenLower.includes(name)) return `dropped cast name "${raw}"`;
+  }
+  for (const raw of args.clueTerms ?? []) {
+    const term = String(raw ?? "").trim().toLowerCase();
+    if (term.length < 4) continue;
+    if (originalLower.includes(term) && !rewrittenLower.includes(term)) return `dropped clue term "${raw}"`;
+  }
+  const afterCounts = new Map<string, number>();
+  for (const tok of digitTokens(rewrittenText)) afterCounts.set(tok, (afterCounts.get(tok) ?? 0) + 1);
+  const beforeCounts = new Map<string, number>();
+  for (const tok of digitTokens(originalText)) beforeCounts.set(tok, (beforeCounts.get(tok) ?? 0) + 1);
+  for (const [token, n] of beforeCounts) {
+    const got = afterCounts.get(token) ?? 0;
+    if (got < n) return `dropped number/time token "${token}" (${got}/${n})`;
+  }
+  return null;
+};
+
 export const buildFullStoryRepetitionPolishPrompt = (args: {
   chapter: ProseChapter;
   repeatedPhrases: ReadonlyArray<string>;
@@ -508,12 +569,27 @@ export const buildFullStoryRepetitionPolishPrompt = (args: {
 export interface FullStoryRepetitionPolishResult {
   chapters: ProseChapter[];
   editedChapters: number[];
+  /** Chapters the pass actually sent to the LLM. Empty ⇒ targeting selected nothing. */
+  attemptedChapters?: number[];
+  /** `chapter N: <failing check>` for each candidate the guard rolled back. */
+  rejections?: string[];
 }
 
 export const runFullStoryRepetitionPolish = async (args: {
   chapters: ProseChapter[];
   client: AzureOpenAIClient;
   model?: string;
+  /**
+   * Alternate provider for this stage, exactly as `polishPassingChapter` takes it.
+   *
+   * This pass had NO provider seam at all: it used the run's Azure client unconditionally, while its
+   * sibling one function above routed through `resolvePolishProvider()`. So `AGENT9_POLISH_PROVIDER=
+   * anthropic` and `AGENT9_POLISH_ANTHROPIC_MODEL` — both set and documented — silently did nothing
+   * here, and PLAN-TO-90 0b.1 ("enable full-story polish on Opus 5") was not executable as written.
+   * One capability, two call sites, one of them wired: the recurring defect shape in this repo.
+   */
+  polishClient?: ChatCapableClient;
+  polishModel?: string;
   runId?: string;
   projectId?: string;
   lockedValues: ReadonlyArray<string>;
@@ -552,6 +628,8 @@ export const runFullStoryRepetitionPolish = async (args: {
   if (targetIdx.size === 0) return { chapters, editedChapters: [] };
 
   const editedChapters: number[] = [];
+  const attemptedChapters: number[] = [];
+  const rejections: string[] = [];
   for (const i of Array.from(targetIdx).sort((a, b) => a - b)) {
     const original = chapters[i];
     if (!Array.isArray(original?.paragraphs) || original.paragraphs.length === 0) continue;
@@ -565,7 +643,8 @@ export const runFullStoryRepetitionPolish = async (args: {
 
     let candidate: ProseChapter | undefined;
     try {
-      const response = await args.client.chat({
+      const stageClient: ChatCapableClient = args.polishClient ?? args.client;
+      const response = await stageClient.chat({
         messages: [
           { role: "system", content: "Vary repetitive phrasing across a story without changing any story fact, name, number, or logic." },
           {
@@ -579,7 +658,9 @@ export const runFullStoryRepetitionPolish = async (args: {
           },
         ],
         // A_69 Increment 2 — polish-stage tier (AGENT9_MODEL_POLISH); unset falls back to args.model.
-        model: resolveStageModel("polish", args.model),
+        // An explicit provider model bypasses the Azure stage tier — `resolveStageModel` returns a
+        // DEPLOYMENT name, which is meaningless to a non-Azure provider.
+        model: args.polishClient ? args.polishModel : resolveStageModel("polish", args.model),
         temperature: 0.3,
         maxTokens: 5000,
         jsonMode: true,
@@ -590,24 +671,32 @@ export const runFullStoryRepetitionPolish = async (args: {
           retryAttempt: 1,
         },
       });
+      attemptedChapters.push(i + 1);
       candidate = parseProseResponse(response.content).chapters?.[0];
-    } catch {
+    } catch (e) {
+      attemptedChapters.push(i + 1);
+      rejections.push(`chapter ${i + 1}: call or parse failed — ${(e as Error)?.message ?? String(e)}`);
       candidate = undefined;
     }
-    if (!candidate || !Array.isArray(candidate.paragraphs) || candidate.paragraphs.length === 0) continue;
-    if (
-      hasRepetitionRewriteRegression({
-        original,
-        rewritten: candidate,
-        lockedValues: args.lockedValues,
-        castNames: args.castNames,
-      })
-    ) {
-      continue; // roll back this chapter to its committed text
+    if (!candidate || !Array.isArray(candidate.paragraphs) || candidate.paragraphs.length === 0) {
+      rejections.push(`chapter ${i + 1}: response carried no usable chapter`);
+      continue;
+    }
+    const reason = repetitionRewriteRegressionReason({
+      original,
+      rewritten: candidate,
+      lockedValues: args.lockedValues,
+      castNames: args.castNames,
+    });
+    if (reason) {
+      // Roll back to the committed text — but SAY SO. Silence here is what made a pass that is
+      // rejected 2 times out of 2 indistinguishable from a pass with nothing to do.
+      rejections.push(`chapter ${i + 1}: ${reason}`);
+      continue;
     }
     chapters[i] = { ...original, ...candidate, title: original.title ?? candidate.title };
     editedChapters.push(i + 1);
   }
 
-  return { chapters, editedChapters };
+  return { chapters, editedChapters, attemptedChapters, rejections };
 };

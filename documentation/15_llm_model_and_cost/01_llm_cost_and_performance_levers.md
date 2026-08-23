@@ -144,9 +144,33 @@ across a 10-chapter book.
 
 ## 3. The levers, ranked by measured saving
 
-### Lever A — Repartition the prompt so the stable half is actually a prefix · free · ~12%
+### Lever A — Repartition the prompt so the stable half is a prefix · **ALREADY BUILT** · ~12%
 
-**The single highest-value engineering change in this document, and it is provider-neutral.**
+> **CORRECTION, 2026-08-21.** This section first called the repartition "~a day of engineering". It
+> is not. **`AGENT9_PROMPT_PREFIX_ORDER` already exists** in `prompt-builder.ts:1220` — it sorts the
+> prompt blocks by a declared stability class (`run` → `chapter` → `attempt`, with one `pinned_last`
+> block whose position was a measured craft fix and is deliberately not moved for caching). It is
+> default OFF and marked DEFER in [FLAG-AUDIT](../../architecture/FLAG-AUDIT.md).
+>
+> **It is DEFER'd because its probe was unmeasurable, and that has a cause:** the flag's stated probe
+> is *"cached prompt tokens rising from chapter 2 onward"*, and cached tokens are only readable on the
+> HTTP transport. `LLM_HTTP_TRANSPORT` is commented out in `.env.local`, so **93% of calls report no
+> cache telemetry at all** (110 of 1,503 records carry the field).
+>
+> **Lever A is therefore two flag flips, not an engineering project** — and one gates the other.
+
+**And caching is already happening, which nobody has measured.** Of the 110 calls that DO carry
+telemetry (runs `mystery-1785689662702` and `-1785694688534`), Azure automatic prompt caching reports:
+
+```
+whole run                      30-31% of input served from cache
+Agent 9, first attempt          6-12%   <- the cross-chapter case, consistent with the 5% prefix
+Agent 9, RETRY of same chapter  88-97%  <- the retry case
+```
+
+That is the 80.2% retry-prefix figure from [00_README §5.1](00_README.md), confirmed with real cache
+hits rather than a string comparison. **It also means the regeneration cost in §3 Lever B is
+overstated** — a retry re-sends a prompt that is already ~90% cached.
 
 The system message is 60K characters, 43% of it identical across chapters, 9% of it a usable prefix.
 The work is to split it into two regions and never interleave them:
@@ -240,6 +264,23 @@ Agents 1–8 return JSON and the client sets `responseFormat: json_object`. Cons
 (`output_config.format` with a schema, or `strict: true` on tools) eliminates malformed-JSON retries
 entirely rather than catching them. Small, but a malformed reply costs a full re-send.
 
+### Lever I — The cost tracker prices cached tokens at full rate · free · corrects every figure here
+
+`cost-tracker.ts` has **no cached-token handling of any kind** — it multiplies total prompt tokens by
+the full input rate. On the two runs with telemetry, 30-31% of input was served from cache.
+
+**So every cost figure in this folder, including all of mine, is an upper bound.** This is the third
+defect of the same shape in that one file: the ~6× `gpt-4.1` miss ([00_README §4.2](00_README.md)),
+the dead `gpt-4.1-mini` branch before it, and now cached tokens. A number that does not say what it
+measures has cost this project more than any single fix has saved.
+
+**Recommended fix, stated without inventing a rate:** record `cachedPromptTokens` on the cost entry
+and report it beside the total, so the overstatement is visible and quantifiable. Do NOT hard-code an
+Azure cached-input discount from memory — confirm the rate against an invoice first, since this file
+has now been wrong about rates twice.
+
+**Do this before the test run**, or the run's cost cannot be compared with any earlier one.
+
 ### Lever G — Batch API · **does not fit, stated so it is not re-proposed**
 
 50% off is the largest single discount available and it is unusable here. Chapters are generated
@@ -286,9 +327,29 @@ money — together they **pay for the judge upgrade**, which is the one model ch
 [PLAN-TO-90](../../architecture/PLAN-TO-90.md) says everything else is blocked on. The budget question
 and the quality question have the same answer.
 
-If the provider does change afterwards, the same repartitioning is what keeps it affordable — with
+~~If the provider does change afterwards, the same repartitioning is what keeps it affordable — with
 caching in place, Sonnet 5 at standard pricing lands near today's cost; without it, the same swap is
-substantially more.
+substantially more.~~
+
+**CORRECTED 2026-08-21 — repartitioning does not keep a swap affordable, and cannot.** A stable prefix
+is a property of the PROMPT, not of the model, so the discount lands on every candidate in the same
+proportion and the *relative* premium barely moves. Re-priced at the measured 4.3:1 ratio, with the
+baseline cached on the same terms as the alternatives (`cost-model-swap.mjs` was pricing the gpt-4.1
+baseline uncached against cached alternatives, reporting it as *"-12% vs now"* — cheaper than itself):
+
+| Agent 9 on… | uncached | cached at the 29% ceiling |
+|---|---:|---:|
+| Haiku 4.5 | −44% | −43% |
+| Sonnet 5 *(intro, ends 08-31)* | +12% | +14% |
+| Sonnet 5 *(standard)* | **+68%** | **+70%** |
+| Opus 5 | +180% | +184% |
+
+Caching moves the standard-pricing swap from +68% to **+70%** — marginally *worse*, since removing
+input shifts the weight onto output, where every Claude option carries the larger premium. What the
+repartition is genuinely worth is an absolute saving of about **9% of the run** (Agent 9 $1.02 →
+$0.90). That still pays for the judge upgrade at ~£0.09, which is the claim above this one and stands.
+
+    node scripts/cost-model-swap.mjs --ratio 4.3 --cache-hit 0.29
 
 ---
 

@@ -144,7 +144,7 @@ Everything outstanding, in one place. `☐` not started · `◑` partial · `✅
 | **X65** | **A locked fact's `description` is a schema label, and the injector used it as a sentence SUBJECT** — the `length` and `weight` variants emitted `${description} came to ${value}.`, so the 08-19 manuscript shipped, twice: *"Length of the thin control wire from Rooftop Terrace to clock mechanism came to twenty-five feet."* — a database row wearing a full stop, and the single worst sentence in the book. **The non-membership test could not catch it because its fixtures were tidier than production**: it passes *"the corridor"* and *"the drop"*, which are already noun phrases. **FIXED 2026-08-19**: `measurementSubject` strips the measurement head and the prepositional tail, recovering *"The thin control wire"*. Chapter 7 proves the model needs none of this — unaided it wrote *"twenty-five feet, she recalled, exactly as measured earlier"* | free | :white_check_mark: | [REVIEW_14 §10.2](REVIEW_14.md) |
 | **X66** | **A fact restated across chapters in a form nothing can compare** — two instances in `story_20260819-0147`, both in the volatile four, both invisible to every check that exists. **(a) THE CENTRAL CLUE CONTRADICTS ITSELF.** Ch1: *"each timepiece displayed a time that matched the clock's face, as if in some silent conspiracy to uphold the illusion"*. Ch3: *"none displayed the same time as the grandfather clock"* — and builds the investigation on it. The mystery's hinge, stated both ways two chapters apart. The X38/X39/X44 family cannot see it: **neither sentence contains a parseable clock value**, so there is nothing for a time parser to compare. The claim is about a RELATIONSHIP (match / does not match), and nothing tracks the polarity of a relationship across chapters. **(b) ONE LOCKED SCALAR, THREE DIMENSIONS.** `wire_length` = *"twenty-five feet"*, whose registry description is *"Length of the thin control wire from rooftop terrace to clock mechanism"*. The prose spends it three ways: the wire's length (ch1, ch4), a horizontal distance across the lobby (ch3, *"the Rooftop Terrace door some twenty-five feet away"*), and a vertical height (ch9, *"the Rooftop Terrace, twenty-five feet above"*). The locked-fact consistency gate is value-agnostic — it pins the STRING and is satisfied by all three — but **the registry already knows the dimension**, because the description names it. **NOT BUILT, and deliberately so:** [REVIEW_14 §7](REVIEW_14.md) lists more detectors on plot and clues as NOT the path, since §2.1 is a reliability problem. This row exists so the defect has an owner and a measurement, not so a detector gets written next. (b) is the cheaper half and the better-posed one: it is a dimension check against a description this project already parses for [X65](#) | free to detect | ☐ | [§12.10](#1210-x66--two-facts-restated-across-chapters-and-nothing-that-can-compare-them) · [REVIEW_14 §9.2, §9.5](REVIEW_14.md) |
 | **X68** | **The release gate cannot stop a run on a STORY defect** — it keeps two arrays, and its own comment states the contract: `releaseGateReasons` warns and ships, `hardStopReasons` throws. Sixteen conditions warn; **seven can stop a run, and four of those are textual hygiene** (mojibake, illegal characters, placeholder tokens, duplicate chapter headings). `geometryReleaseWarnings` is pushed into `releaseGateReasons` at `agent9-run.ts:7200` and appears nowhere in `hardStopReasons` — **not by a recorded policy decision, by construction**. **Mojibake stops a run; *"chapter 8 is the reveal, and no paragraph names the culprit"* does not.** On `mystery-1787167692140` five of six geometry violations shipped unrepaired, and **four of the cold reader's six complaints were already on the run's own console** — `clincher_not_planted` even naming the fabric scrap the reader asked to move. **NOT BUILT, and this is a DECISION not a detector.** Blocking today converts ships into aborts: the repair passes already fail on exactly these codes (400→400, 375→375), so **the prerequisite is a repair that works, not a stricter gate on a broken one**. Cheap test first ([REVIEW_15 §8](REVIEW_15.md)): replay the geometry checks over the archived manuscripts and ask whether the 86-scoring runs would have shipped | free to decide | ☐ 👤 | [REVIEW_15 §3](REVIEW_15.md) |
-| **X70** | **Three of the five story axes silently became `temporal`, and the corpus is the proof** — two incompatible vocabularies ran at once: the CML layer named `temporal/spatial/identity/behavioral/authority`, the orchestrator and API named `temporal/spatial/social/psychological/mechanical`. Only two members were common, and `normalizePrimaryAxis` ended in `default: return "temporal"`, so `identity`, `behavioral` and `authority` — three of the five values `canary-core-inputs.yaml` documents — were coerced with **no warning of any kind**. `deriveHardLogicDirectives` then switched on the OTHER vocabulary, so those three also seeded **zero mechanism families**, and the yaml documented an auto-mapping that exists nowhere in `canary-core.mjs`. **MEASURED: 23 of 23 archived cases are `false_assumption.type: temporal` and 24 of 24 devices are clock-family. Four of five advertised axes have never been generated once** — never validated, never scored, never read — while 5 of the 15 geometry codes are temporal-only, so a third of geometry would go silent on an axis no run has produced. **FIXED 2026-08-20**: one `CML_PRIMARY_AXES` union, `normalizePrimaryAxis` THROWS on an unrecognised value (at init, before any paid call), an absent axis defaults through a reported callback so the run log records that nobody chose, and `deriveHardLogicDirectives` takes the canonical axis with a case for every member. `mechanical` is REJECTED rather than mapped: it became `identity`, so a caller asking for a device plot was handed impersonation and twins. 13 tests | free | :white_check_mark: | [§12.13](#1213-x70--three-of-five-axes-were-the-same-axis) |
+| **X70** | **Three of the five story axes silently became `temporal`, and the corpus is the proof** — two incompatible vocabularies ran at once: the CML layer named `temporal/spatial/identity/behavioral/authority`, the orchestrator and API named `temporal/spatial/social/psychological/mechanical`. Only two members were common, and `normalizePrimaryAxis` ended in `default: return "temporal"`, so `identity`, `behavioral` and `authority` — three of the five values `canary-core-inputs.yaml` documents — were coerced with **no warning of any kind**. `deriveHardLogicDirectives` then switched on the OTHER vocabulary, so those three also seeded **zero mechanism families**, and the yaml documented an auto-mapping that exists nowhere in `canary-core.mjs`. **MEASURED: 23 of 23 archived cases are `false_assumption.type: temporal` and 24 of 24 devices are clock-family. Four of five advertised axes have never been generated once** — never validated, never scored, never read — while 5 of the 15 geometry codes are temporal-only, so a third of geometry would go silent on an axis no run has produced. **FIXED 2026-08-20**: one `CML_PRIMARY_AXES` union, `normalizePrimaryAxis` THROWS on an unrecognised value (at init, before any paid call), an absent axis defaults through a reported callback so the run log records that nobody chose, and `deriveHardLogicDirectives` takes the canonical axis with a case for every member. `mechanical` is REJECTED rather than mapped: it became `identity`, so a caller asking for a device plot was handed impersonation and twins. 13 tests | free | :white_check_mark: | [§12.13](#1213-x70--three-of-five-axes-were-the-same-axis) · **INCOMPLETE — see [X88](#) : the coercion had a second, upstream half in `canary-input-overrides.mjs` that this fix did not touch, so `identity` kept being coerced (to `authority`) and `authority` became fatal.** |
 | **X71** | **A coherent device near midnight fires a false `locked_time_arithmetic`** — every site computing the gap between two clock values used a plain `Math.abs`, and `parseClockTime` is dial-relative (0..719) by design. So an ordinary late-night device — stopped at *"ten minutes to twelve"*, chime at *"ten minutes past twelve"*, twenty minutes apart — was measured the LONG way round and reported as **700 minutes apart**, firing X38 on a case that is perfectly sound. Every archived run is a 7-to-9pm evening crime, so the corpus has never crossed the boundary and nothing caught it; the first midnight story would carry a false violation into its release gate on every run. **FIXED 2026-08-20**: one `dialGapMinutes` in `timeline-deception.ts`, routed through all four call sites and INJECTED into `story-geometry` the way `parseClockTime` and `parseDurationMinutes` already are — that package deliberately holds no copy of shared arithmetic. 6 tests. Same sampling blindness as X38-at-source: the corpus can evidence a defect, never the shape of one | free | :white_check_mark: | [§12.13](#1213-x70--three-of-five-axes-were-the-same-axis) |
 | **X72** | **The headline graded every run an A, because the book is one fourteenth of its own report card** — `overall_score` is the unweighted mean of fourteen phases, thirteen of which score upstream artifacts (does the cast array exist, are there five locations) that sit at or near 100 by construction. **MEASURED over all 15 archived reports carrying a prose phase: every one reports grade A, in a band of 93.4–97.4, while the prose phase underneath ranges 60 to 100.** Four were graded A with the prose phase at 60/D. `run_0a61b082` scored **95.64/A** on a manuscript in which neither *"killed"* nor *"murdered"* occurs at all. Internally the run that read **86** externally scores 96.71 and the run that read **81** scores 97.29 — in that order, so the number cannot rank two books. NOT a mislabelled pass: `phase_thresholds_met` records the failure honestly and `passed` has meant SHIPPED since A_65b Ph1.3. It is the SCORE that oversells. **FIXED 2026-08-20** by capping the headline at the deliverable phase — the pattern already in that function, which caps at 59 for aborted and 74 for failed. `run_0a61b082` now reads 60/D. The per-phase mean stays readable as pipeline health; a snapshot written before Agent 9 has no prose phase and is not capped, so A_71 partials are untouched. 7 tests | free | :white_check_mark: | [§12.13](#1213-x70--three-of-five-axes-were-the-same-axis) |
 | **X73** | **`aftermath_consequence` is 21 of 54 chapter retries and appears in ALL NINE runs that retried anything** — the dominant retry cause by a factor of 2.5, and still live on the newest run. It is a contract clash whose halves never met: Agent 9 derives a chapter's stage mode FROM the outline, so Agent 7 authors scene purposes without ever seeing the contract they will be judged against, and Act III was presented to it as a flat MENU (Revelation, Confrontation, Explanation, Justice, Denouement). It duly wrote final scenes doing all five at once — `run_0a61b082`, verbatim: *"Clear all suspects with alibis; confront Harold Simmons with evidence; reveal motive and method; emotional and social aftermath"* — which the validator rejects as a clearance roll-call and a re-staged reveal. Three attempts burned; the violation shipped anyway. **22 of 22 archived outlines put clearance and/or reveal work in the final scene**, so this is structural. **PROMPT HALF FIXED 2026-08-20**: Act III now states the five beats as a SEQUENCE — clearance belongs before the reveal, scenes after it carry consequence only, and the exact anti-pattern purpose is named so a model that believes it complied has something to change. Free, unflagged, prevention. 8 tests. **The validator half is deliberately NOT built**: any outline issue drives an outline retry (X32's reason for flag-gating), so a check here trades chapter retries for outline retries — a good trade, probably, but one a run must confirm. Same family as pacing 8→9 and REVIEW_15's *"the ending order is wrong"* | free (prompt) · a run (to confirm) | ◑ | [§12.13](#1213-x70--three-of-five-axes-were-the-same-axis) |
@@ -156,7 +156,18 @@ Everything outstanding, in one place. `☐` not started · `◑` partial · `✅
 | **X79** | **The release gate's flagship hard stop read a shorter list than the validator** — the mojibake vocabulary existed twice: 18 members in `chapter-validator.ts` (raises a validation issue) and **10 in `agent9/prose-text.ts`, which is the copy `proseContainsMojibake` reads and therefore the copy that HARD-STOPS a run**. Mojibake is one of only seven conditions that can abort a run — [X68](#) names it as the archetype of *"broken-looking text stops a run while a story defect does not"* — and it was blind to nine sequences the validator flags: every double-encoded quote, em-dash, en-dash and ellipsis form, plus the bare non-breaking-space artifacts. They had drifted in BOTH directions: each copy encoded the mojibake for a curly opening double quote differently, so one was hunting bytes that do not occur. **FIXED 2026-08-20**: one exported `MOJIBAKE_PATTERN`, resolved as a UNION because neither list was a superset. 7 tests, including an identity check that fails if `prose-text.ts` ever grows its own literal again. **MEASURED: both patterns flag the same 2 of 191 archived manuscripts** — latent, never shipped a defect | free | :white_check_mark: | [§12.15](#1215-x79x81--the-second-pass-packages-and-the-prose-interior) |
 | **X80** | **A third of every retry failure was unroutable, and told the model nothing** — `detectRetryIssueFamilies` routes a chapter failure to a family, and the family drives the retry MODE and the guidance the model receives. Run over the **real** failure messages in the archived run logs rather than invented ones: **17 of 54 (31%) matched no family at all.** A zero-family failure does not abort — it falls through to `surgical_patch`, whose rationale reads *"single-family fix can preserve stable draft sections"*, a label that is false when none was found, and the guidance is built per family. On `run_0a61b082` chapter 8 burned three attempts, two on an unrouted control-plane-leakage failure, and the same leakage recurred on the third. All nine distinct unrouted shapes had one cause — a vocabulary written against older message wordings — and the largest, five of the seventeen, is **a single hyphen**: the regex says `discriminating test`, the validator emits `discriminating-test`. **FIXED 2026-08-20** from the validators' own message templates (code constants, not story content). **AFTER: 54 of 54 route**, and the widening does not push work into the expensive branch — 43 stay single-family, 10 reach two, 1 reaches the three that trigger `targeted_rebuild`. 10 tests | free | :white_check_mark: | [§12.15](#1215-x79x81--the-second-pass-packages-and-the-prose-interior) |
 | **X81** | **Two more shared vocabularies with two bodies, and one arbitrary list documented rather than widened** — (a) the death-method patterns lived in `agent3-cml.ts` and `agent9-prose/prompt-builder.ts` and had drifted: the prompt-builder copy is missing `dagger`, bare `blunt` and `blow`, so a case whose manner of death was a dagger or *a blow to the head* classified in one and not the other. Latent — all 13 archived cases carry an explicit `CASE.death_method`, which `resolveDeathMethod` returns before consulting the patterns — but it is the **seventh** instance of one-vocabulary-two-copies in this review, so it is fixed STRUCTURALLY: `shared/death-method-patterns.ts` owns the patterns, each call site keeps only its own wording (a manner of death vs a wound to describe are different registers, and collapsing them would be the next defect). (b) `continuity-tail.ts` strips five named atmosphere phrases from the tail fed forward between chapters. It fires often — **316 occurrences across 110 of 191 manuscripts** — but ranking every candidate by corpus frequency puts it at five of the top ten and lets the other five through, **including the joint-most-frequent (`cold air`, 122, tied with `coal smoke`)**; it is also setting-specific (salt air, sea fog, coal smoke) in a generator whose setting is a parameter. **NOT widened** — a list cannot be completed and the right rule is repetition, which needs no vocabulary. Documented in place with the measurement, because it had no comment at all. Notable because `atmosphere` is one of the three categories that has never moved, and this is one of the very few mechanisms that touches it | free | ◑ (b) owner's call | [§12.15](#1215-x79x81--the-second-pass-packages-and-the-prose-interior) |
-| **X69** | **The motive has no concrete noun, and nothing asks for one** — the 08-19 cold read: *"The reveal says Finch would expose 'what he'd been hiding', but the secret needs a concrete noun"*, and it lists what would do (theft from emergency funds, falsified security reports, black-market ration coupons, forged maintenance invoices). `reveal_motive_absent` exists and checks that a motive is STATED; **nothing checks that it is specific**, so *"what he'd been hiding"* satisfies every gate in the pipeline. This is the reader's third named fix, and one of the three they price at **87–89** together. It is a CASE-authoring defect in the same family as X38-at-source — the repair belongs to Agent 3, not to a chapter rewrite. **NOT BUILT.** A specificity check is cheap to state and easy to get wrong (a concrete noun is not a regex), so the first move is to require it where the motive is AUTHORED rather than to detect it after | free to design | ☐ | [REVIEW_15 §6](REVIEW_15.md) |
+| **X82** | **The judge could not be pointed at a non-Azure model, at either call site — so 0b.0 was unrunnable before it was un-answerable.** `RUBRIC_JUDGE_MODEL` is resolved and handed to the run's `AzureOpenAIClient` (`mystery-orchestrator.ts:697`, `eval-rescore.mjs:178`), so `claude-opus-5` would have been sent to Azure as a *deployment name*. `createLLMRubricJudge` wraps **any** chat function — the package was provider-agnostic all along and only the two callers were not, exactly the seam `polish-provider.ts` already provides for polish. Built as `scripts/judge-ab.mjs` (provider chosen from the model id, the same discrimination `cost-tracker.ts` makes) rather than by widening the orchestrator, because the experiment must not mutate `eval/results/external-read/manifest.json`, which feeds `eval:calibrate` | free | :white_check_mark: | [PLAN-TO-90 §4a](PLAN-TO-90.md#4a-results--the-paid-runs-of-2026-08-21) |
+| **X83** | **`eval-rescore.mjs` could not execute at all.** `const storyAbs = join(...)` on line 62, reassigned by `storyAbs = resolveStoryPath(storyAbs)` on line 63 — `Assignment to constant variable` in strict mode, thrown on the **first** entry of `verdictFor`. The one script in the repo whose purpose is re-scoring an archived manuscript, and the script whose own header calls `--dry` *"the check that should precede every paid re-score"*. Nothing had run it since the `resolveStoryPath` call was added | free | :white_check_mark: | — |
+| **X84** | **The full-story polish had no provider seam, so `AGENT9_POLISH_PROVIDER=anthropic` silently did nothing to it.** `runFullStoryRepetitionPolish` took `client: AzureOpenAIClient` and used it unconditionally, while `polishPassingChapter` — one function above in the same file — has taken `polishClient`/`polishModel` since the flag was introduced. Both env vars are set in `.env.local` and documented; only one of the two passes ever read them. **This is what made PLAN-TO-90 0b.1 (*"enable full-story polish on Opus 5"*) not merely unmeasured but inexpressible.** Eighth instance of one-capability-two-call-sites-one-wired in this review | free | :white_check_mark: | [PLAN-TO-90 §4a](PLAN-TO-90.md#4a-results--the-paid-runs-of-2026-08-21) |
+| **X85** | **A lever rejected 100% of the time wrote the same telemetry as a lever with nothing to do — for a month.** The full-story polish guard did `continue; // roll back this chapter to its committed text`, pushing no warning and recording nothing but `editedChapters`. MEASURED: **2 LLM calls in the whole of `logs/llm.jsonl`** (Ch4, Ch10, 2026-07-25, gpt-4.1), both returning usable prose (2,506 and 1,632 completion tokens), **both rolled back**; `editedChapters: []` on all four treatment arms in `results/ab-agent9_fullstory_polish`, one with 15 recurring phrases available. So the pass has never changed a word of shipped output, and no artifact said so. `repetitionRewriteRegressionReason` now names the failing check (length / locked value / cast name / clue term / number token) and the result carries `attemptedChapters` — which separates *"targeting chose nobody"* from *"the guard refused everything"*, the two completely different faults this silence merged. The boolean predicate is deliberately kept unchanged: it is exported and used elsewhere, and widening a shared predicate's return type is how one predicate acquires two meanings. Same family as X37, A_70/A_71 and 0a.3 — **unmeasured is not zero** | free | :white_check_mark: | [§12.17](#1217-x84x85--the-polish-that-never-polished) |
+| **X86** | **One Agent 5 gate aborted the run where every neighbour repairs first — and it was firing on cases that were already correct.** `findLockedFactClueTimeConflicts` threw immediately, while `checkCastNamePathConsistency`, `checkEraTimeStyleInClues` and `findCulpritDiscriminatingGaps` each repair, re-check, then throw. **THE DIAGNOSIS IN THIS ROW WAS HALF WRONG.** It was recorded as a genuine transposition needing a policy decision about which side is canonical. Testing the repairer exposed the larger defect: the reachability test used `nameAppearsInText` for the fact's VALUE as well as its description — a predicate written for CAST NAMES, which falls back to the final token so *"… Vane"* matches *"Mary Vane"*. Applied to a value, `"a quarter past seven"` and `"a quarter to seven"` both reduce to **`"seven"`**, so each locked fact matched the OTHER fact's clue, the gate compared 435 against 405, and reported a contradiction **in a consistent case**. The 2026-08-21 run died of this, not of a transposition — and it fires whenever two locked times share a final word, which for clock values (`seven`, `o'clock`, `night`, `morning`) is the ordinary case. TWO fixes: `valueAppearsInText` requires the whole ordered phrase (a value has no distinctive surname and every token of it is generic), and `repairLockedFactClueTimeTranspositions` handles the real transposition on one provable condition — the clue literally carries **another locked fact's canonical value** where this one belongs, which against a registry that is canonical by construction is a transposition rather than a new assertion. Anything else still aborts: *a detector may guess, a repairer may not.* 7 tests | free | :white_check_mark: | — |
+| **X87** | **The judge's JSON parser cannot survive a model that says anything after the object.** `stripFences` returns the whole string when no fence is present, so `{...}` followed by a sentence throws `Unexpected non-whitespace character after JSON`. Cost one paid Opus call in the 0b.0 n=8 run (~£0.18) and would silently shrink any n. `AnthropicClient` already exports `extractJsonPayload` for exactly this; the rubric package, being provider-agnostic, does not use it. **FIXED after the experiment.** `stripFences` now scans for the first BALANCED object rather than returning the whole string, tracking string literals and escapes so a brace inside a `reason` cannot close the scan early — `lastIndexOf("}")` would have spanned two concatenated objects. A truncated object still throws: inventing a closing brace would turn a cut-off response into a confident wrong score, and X37 already settled that a failed scorer must stay loud. 10 tests. Note the fast-path shortcut `startsWith("{") && endsWith("}")` was written first and removed — its own test caught that two concatenated objects satisfy it | free | :white_check_mark: | — |
+| **X88** | **X70 fixed the downstream half of the axis coercion and left the upstream half, so the coercion survived its own fix and merely changed destination.** `scripts/canary-loop/canary-input-overrides.mjs` carried a REVERSE alias map — `{ identity: "social", behavioral: "psychological", authority: "mechanical" }` — rewriting the canonical five INTO the retired spellings on the way in, on every canary run. `canary-core-inputs.yaml` asserts in its own comments that this mapping does not exist (*"canary-core.mjs contains no reference to primaryAxis at all"*); that is true of **that file** and false of the pipeline — the map lived one file over, in the loader canary-core calls. MEASURED end to end 2026-08-21: `identity` → `social` → **`authority`** (a different kind of mystery, silently), `authority` → `mechanical` → **THROWS** (X70 made it fatal, so the run dies), `behavioral` → `psychological` → `behavioral` (correct only by coincidence). **Of the three axes X70 was supposed to unlock, exactly one worked** — and a live 0.2 run requesting `identity` produced an authority case with nothing recording the substitution. **This is also the true cause of 23-of-23-temporal:** before X70 the downstream `default: return "temporal"` swallowed all three spellings this map produced. A test at either end alone passes — the loader round-trips its own vocabulary and the normaliser is correct for every input it is given — so the 9 new tests span BOTH hops. Map deleted; the axis passes through untouched and `normalizePrimaryAxis` is the single owner | free | :white_check_mark: | [§12.18](#1218-x88-the-coercion-that-survived-its-own-fix) |
+| **X89** | **Three of six `CANARY_THEME` entries carried retired axis spellings, and X70 turned one of them into a run-killer.** `theme-library.mjs` — whose comment claims *"primaryAxis values are the canonical set"* — emitted `mechanical` for `acoustic` (**now throws**: `CANARY_THEME=acoustic` kills the run at init), `social` for `identity` (so the entry named *identity*, premise *"a masquerade of double identity"*, produced an **authority** mystery), and `psychological` for `poison`. Its own test asserted membership of `["temporal","spatial","social","psychological","mechanical"]` — the RETIRED set — so it passed while the library emitted a fatal value. Reassigned from each premise: `acoustic` → `temporal` (a recording fabricating an alibi for the true moment of death), `identity` → `identity`, `poison` → `behavioral` (spelling only). Latent rather than live — the override fires only when `CANARY_THEME` is set — but it is the same one-vocabulary-two-places shape, in a third place | free | :white_check_mark: | — |
+| **X90** | **The axis chose the mystery; the LOCATION overruled it.** `deriveHardLogicDirectives` seeds two mechanism families from the primary axis, then lets keyword rules append more — and those rules matched `theme + locationPreset` merged into one string with no knowledge of the axis. `/train|rail|liner|ship|seaside|hotel/` matches **`SeasideHotel` twice over**, and `SeasideHotel` is the DEFAULT location in `canary-core-inputs.yaml`, so **every archived run was handed the temporal family `timetable dependency` whatever axis it asked for**. MEASURED on the first authority case ever generated: locked facts came out `high_tide_time`, `murder_claimed_time`, `promenade_length`, `wet_sand_mark_length` — a tide-and-clock mechanism wearing an authority label. **This is the second half of the temporal monoculture:** [X88](#) collapsed the axis LABEL, this collapsed the MECHANISM, and fixing X88 alone would have produced four more non-temporal labels over four more temporal mechanisms while the 0.2 sweep reported five successes. THE RULE: **a theme is intent, a location is scenery** — a caller who writes a theme about a liner may have every family it implies; a caller who merely sets the story in a seaside hotel gets the setting, not a different mystery. Families are indexed to their owning axis and a keyword family belonging to a DIFFERENT axis is refused when only the location introduced it; the MODE (`transit or seaside topology`) still applies, and axis-neutral families (sealed-space, document-chain, dose-timing) are never touched. Refusals are returned on `refusedFamilies`, not dropped — the X85 lesson. 35 tests over all 25 axis×location combinations | free | :white_check_mark: | — |
+| **X91** | **The 13 curated Golden Age exemplars have never reached a prompt — not once, on any run, for any axis.** `seed-loader.ts` read the axis as `cml.CASE.meta.primaryAxis`, a field **no seed file and no generated CML has ever carried**. All 13 extracted as `axis: "unknown"`; `selectRelevantPatterns` filters on an exact axis match and therefore returned **zero for all five axes**; `formatPatternsForPrompt` emitted *"No seed patterns available for this axis."* every time. The Moonstone, Styles and the Yellow Room have been on disk, read, parsed and discarded on every run this project has done. **A THIRD SPELLING of one vocabulary** — the data uses `false_assumption.type`, agents 5–8 fall back to `meta.primary_axis` (snake_case), and this used `meta.primaryAxis` (camelCase), which matches nothing: the ninth instance of one-vocabulary-two-places, and the same shape as X70/X88 — a reader looking in a field the writers do not populate. Fixed to read in the order agents 5–8 already use. MEASURED after: temporal 2, spatial 2, identity 3 exemplars now reach the prompt. **The gap that remains is CONTENT, not code:** the corpus contains no `behavioral` and no `authority` case, so those two axes still generate with no worked exemplar — asserted in a test so the gap is dated rather than rediscovered on a paid run | free | :white_check_mark: | — |
+| **X92** | **The axis was passed to Agent 3 as a bare word.** `- Primary Axis: authority` and nothing else — no statement of what an authority-axis mystery IS. A model handed an unexplained parameter falls back on what it knows, and what it knows about Golden Age mysteries is clocks; the first authority case produced a tide timetable and a staged time of death. Compounding [X90](#) (a temporal mechanism family injected by the location) and [X91](#) (no exemplars reaching the prompt), the axis had **three** separate ways to fail to steer the case and no way to succeed. Added a one-line definition per axis — WHEN / WHERE / WHO / HOW SOMEONE WOULD ACT / WHO MAY BE BELIEVED — plus an explicit *"the axis IS the mystery, not a label on it: if the case would still work with the axis changed, it is not built on this axis"*. Deliberately about the SHAPE of the deception only: no era, setting, mechanism or cast appears in any gloss, and a test asserts that, because an axis definition that assumes a hotel or a decade is a themed hint rather than a definition. Matters most for `behavioral` and `authority`, which under X91 have no exemplar at all — for those two the gloss is the only thing distinguishing them. 12 tests | free | :white_check_mark: | — |
+| **X69** | **The motive has no concrete noun, and nothing asks for one** — the 08-19 cold read: *"The reveal says Finch would expose 'what he'd been hiding', but the secret needs a concrete noun"*, and it lists what would do (theft from emergency funds, falsified security reports, black-market ration coupons, forged maintenance invoices). `reveal_motive_absent` exists and checks that a motive is STATED; **nothing checks that it is specific**, so *"what he'd been hiding"* satisfies every gate in the pipeline. This is the reader's third named fix, and one of the three they price at **87–89** together. It is a CASE-authoring defect in the same family as X38-at-source — the repair belongs to Agent 3, not to a chapter rewrite. **BUILT 2026-08-20 — and the diagnosis in this row was wrong.** A specificity check is cheap to state and easy to get wrong (a concrete noun is not a regex), so the first move is to require it where the motive is AUTHORED rather than to detect it after. **THE ROW'S PREMISE WAS WRONG.** A MOTIVE SPECIFICITY rule ALREADY existed in `agent2-cast.ts`, with a passing example naming a forged codicil — it was being ignored, and structurally could not be obeyed: it was scoped *"(culprit only)"* while the same prompt tells Agent 2 **"the culprit is chosen later; do NOT mark anyone culprit"**. The rule was addressed to an agent forbidden from identifying its subject — the same shape as X70, X73 and X80. **FIXED by rescoping** to every name in `possibleCulprits`, which Agent 2 must supply at least three of, plus binding `privateSecret` to be the named thing the motive refers to. MEASURED over 18 archived culprits: *"Blackmail threat from victim"* ← *"Financial troubles unknown to others"*; *"Jealousy and silencing a potential expose"* ← *"Expert in mechanical devices and horology"* — twice the secret is a SKILL, twice it has no relation to the motive beside it. **NO DETECTOR SHIPPED, deliberately:** a heuristic was built and measured, flagged 6 of 18, and its misses included every example above. This row's own warning held — a concrete noun is not a regex. 7 tests | free | :white_check_mark: | [REVIEW_15 §6](REVIEW_15.md) |
 | **X67** | **The same trap, one surface form along — and a paid run was the only thing that could find it** — X61 taught `parseClockTime` to read *"fourteen minutes past four"*. Run `mystery-1787167692140` (2026-08-19) then wrote its `actual_time_of_death` as **"seven twenty"** — the spoken HOUR-MINUTES form, with no *past* or *to* to key on — and the parser returned `null` again. **So X38 stayed silent on a device 25 minutes apart declaring twenty: the fourth consecutive run with wrong device arithmetic, and the third distinct surface form this parser could not read** (08-15 10-vs-14, 08-17 25-vs-20, 08-19a 89-vs-45, 08-19b 25-vs-20). **FIXED 2026-08-19**: an HOUR-MINUTES branch accepted ONLY as the whole segment, because two bare number words are ordinary prose and this parser also runs against free text. Verified against the real case: X38 now fires with *"25 minutes apart … declares twenty minutes"*. 5 tests. **The durable lesson is not the branch** — it is that a silent temporal gate still means UNPARSEABLE more often than it means clean, and that no amount of reading found this; the run did | free | :white_check_mark: | [REVIEW_14 §12](REVIEW_14.md) |
 | **X64/X65 — CORRECTION** | **Both fixes were wrong on first attempt, and the run proved it** — (1) the substitution meant to pass the occurrence ordinal to the injector **was applied without an assertion and silently no-opped**, so every injection still asked for occurrence 0 and `mystery-1787167692140` shipped *"It had taken twenty minutes in all."* **twice** — the identical defect X64 exists to fix. (2) `measurementSubject` turned *"Distance FROM the lobby clock TO the dining hall"* into *"The lobby grandfather clock"*, so the run shipped *"The lobby grandfather clock came to forty feet."* — no longer a schema label, and now **grammatical and false**. **BOTH FIXED 2026-08-19** with the real descriptions pinned in tests: a distance is now measured by its endpoints rather than named after one of them (*"The distance came to forty feet."*), and the seed reaches the call site. Recorded because it is this tracker's own pattern — [§12.x fix-regresses-its-own-defect](#) — committed by the fix for that pattern | free | :white_check_mark: | [REVIEW_14 §12](REVIEW_14.md) |
 | M5 | Delete the deterministic injectors — **first external evidence**: the reader struck out the injected sentence by name; the arm that injected nothing scored higher on ending and prose | free | ◑ | [§32.2](#322-the-reader-objects-to-the-injected-sentence-by-name) |
@@ -1599,6 +1610,227 @@ Worth stating, because a sweep that only reports hits is not a measurement:
 `deterministic-repair.ts` and `lint.ts` beyond the sweeps; the `story-validation` scorers beyond the
 division and default classes. The sweeps ran over every file; the READING remains concentrated where
 they flagged.
+
+### 12.16 X69 — a rule addressed to a subject that did not exist yet
+
+The 08-19 cold read asked for a concrete noun: *"the reveal says Finch would expose 'what he'd been
+hiding', but the secret needs a concrete noun."* This tracker recorded the cause as **"nothing checks
+that it is specific"** and proposed adding that check where the motive is authored.
+
+**The premise was wrong. The check was already there.**
+
+`agent2-cast.ts` has carried a MOTIVE SPECIFICITY block for as long as the file has existed, with three
+numbered requirements and a passing example naming a forged codicil. It was being ignored, and there is
+a structural reason why it could not be obeyed:
+
+| line | text |
+|---|---|
+| 335 | `MOTIVE SPECIFICITY (culprit only): The culprit's motiveSeed MUST answer all three...` |
+| 451 | `The culprit is chosen later from the suspects; do NOT mark anyone 'culprit'.` |
+
+The rule was scoped to a character the same prompt forbids the agent from identifying. There was
+nobody Agent 2 could apply it to. Every motive in the corpus was authored *outside* the rule's stated
+scope and so complied with it vacuously.
+
+This is the fourth instance this session of one shape — **X70** (a rule keyed to axis names the caller
+does not emit), **X73** (a contract the outline author cannot see), **X80** (a router keyed to strings
+nothing produces), and now X69. None of the four is a missing check. Each is a rule whose subject does
+not exist at the moment the rule is given. A sweep for *absent* validation finds none of them; they are
+only visible by reading the rule and its addressee together.
+
+#### What the corpus actually shows
+
+18 distinct archived culprits, each `motive_seed` beside its own `private_secret`:
+
+| motiveSeed | privateSecret |
+|---|---|
+| Blackmail threat from victim | Financial troubles unknown to others |
+| Silence Dr. Finch to hide dealings | Experimented with hotel clocks as a hobby |
+| Jealousy and silencing a potential expose | Expert in mechanical devices and horology |
+| Prevent Dr. Finch's disclosure of damaging secret | Financial troubles threaten hotel future |
+
+Twice the "secret" is a **skill**, not a secret. Twice it has no relation to the motive sitting beside
+it. The two fields are authored independently and are never required to refer to the same thing — so
+even a specific motive can be paired with a secret that does not answer it.
+
+#### The fix, and the thing that deliberately did not ship
+
+Rescoped to **every name in `crimeDynamics.possibleCulprits`** — a list Agent 2 knows, must supply at
+least three of, and can act on. The prompt now says out loud *"You do not know which of them becomes
+the culprit"*, adds `MUST NAME THE THING` with the corpus's own strings as FAILS examples, and binds
+`privateSecret` to *be* the named thing the motive refers to. No era, setting or mechanism appears in
+the rule body; the FAILS examples are archived values and the PASSES examples name generic instruments
+(a codicil, a ledger).
+
+**No detector ships.** One was built and measured against those 18: it flagged 6, and its misses
+included every example in the table above — `"Silence Dr. Finch to hide dealings"` reads as specific
+to a regex because it contains a proper noun. Widening the wordlist is the X62/X74 trap. This row's own
+warning — *a concrete noun is not a regex* — held, and the check belongs to a reader or a judge.
+
+7 tests in `motive-specificity-x69.test.ts`, including one that fails if the rule body ever names a
+story parameter.
+
+### 12.17 X84/X85 — the polish that never polished
+
+PLAN-TO-90 0b.1 reads: *"Enable full-story polish on Opus 5, one run, read it — ~+£0.40."* Three
+separate things had to be true for that sentence to be executable, and none of them were.
+
+#### It could not be pointed at Opus
+
+`runFullStoryRepetitionPolish` takes `client: AzureOpenAIClient` and calls `args.client.chat` with
+`resolveStageModel("polish", args.model)` — an **Azure deployment name**. One function above it in the
+same file, `polishPassingChapter` takes `polishClient`/`polishModel` and the caller resolves them
+through `resolvePolishProvider()`. Two polish passes, one provider seam.
+
+`AGENT9_POLISH_PROVIDER=anthropic` has been set in `.env.local` for weeks. It works — the per-chapter
+pass demonstrably runs on Claude. It simply never reached this function.
+
+#### It has never changed a word
+
+| evidence | finding |
+|---|---|
+| `logs/llm.jsonl`, all time | **2 calls total** — `Agent9-FullStoryRepetitionPolish-Ch4` and `-Ch10`, both 2026-07-25, both `gpt-4.1`, both `success: true`, 2,506 and 1,632 completion tokens |
+| `results/ab-agent9_fullstory_polish`, 4 treatment arms | `editedChapters: []` on **every one**, with `recurringPhraseCount` of 5, 7 and 15 |
+| the 2026-08-21 run, flag on | **zero** `FullStoryRepetitionPolish` calls |
+
+So on the one occasion it made calls, the model returned substantial prose twice and **the guard rolled
+back both**. On every other occasion targeting selected nothing and no call was made.
+
+#### And nothing on disk could tell those two apart
+
+```ts
+if (hasRepetitionRewriteRegression({ ... })) {
+  continue; // roll back this chapter to its committed text
+}
+```
+
+No warning, no counter, no reason — the only field written was `editedChapters`, which is empty in both
+cases. *"The guard refuses everything"* and *"targeting found nothing to do"* are completely different
+faults with completely different fixes, and they produced byte-identical telemetry.
+
+This is the family the review keeps re-opening: **X37** (a refused scorer that looked like scoring
+switched off), **A_70/A_71** (a capability whose read path did not exist on the path that mattered),
+**0a.3** (cached tokens counted as zero rather than unmeasured). *Unmeasured is not zero.* The
+practical cost here was specific: 0b.1 proposed ~£0.40 a run against this pass, and spent against a
+silent guard it would have measured the guard and reported the result as a fact about the model.
+
+#### Fixed
+
+`repetitionRewriteRegressionReason` returns the failing check — `length 31/144 words (floor 126)`,
+`dropped locked value "a quarter past seven"`, `dropped number/time token "7:15" (0/1)` — or `null` to
+accept, and the result carries `attemptedChapters` beside `editedChapters`. The boolean predicate is
+untouched: it is exported and used elsewhere, and widening a shared predicate's return type is how one
+predicate quietly acquires two meanings. 10 tests, including five that assert the two functions never
+disagree — if they did, the pass would either roll back silently again or keep a regression it should
+have refused.
+
+**What is still not known** is why those two 2026-07-25 candidates were rejected. The payloads are gone
+and the reason was never recorded, which is the whole point of the row. The next run with the flag on
+will say.
+
+### 12.18 X88 — the coercion that survived its own fix
+
+[X70](#1213-x70--three-of-five-axes-were-the-same-axis) found that `normalizePrimaryAxis` ended in
+`default: return "temporal"`, silently collapsing `identity`, `behavioral` and `authority`. It replaced
+the default with a throw and declared the axes reachable. **They were not.** The first paid run of
+PLAN-TO-90 0.2, requesting `identity`, produced an `authority` case.
+
+#### The other half
+
+```js
+// scripts/canary-loop/canary-input-overrides.mjs
+const PRIMARY_AXIS_ALIAS_MAP = { identity: "social", behavioral: "psychological", authority: "mechanical" };
+sanitized.primaryAxis = PRIMARY_AXIS_ALIAS_MAP[axis] || axis;
+```
+
+A **reverse** alias map, translating the canonical five into the retired spellings on the way IN —
+running on every canary run, because `canary-core.mjs` calls this loader.
+
+`canary-core-inputs.yaml` documents, at length, that this does not happen:
+
+> *"The note that used to sit here claimed canary-core auto-mapped them to social/psychological/
+> mechanical. **It never did**: canary-core.mjs contains no reference to primaryAxis at all"*
+
+That sentence is true of `canary-core.mjs` and false of the pipeline. The claim was verified against
+one file and the map was in the next one along.
+
+#### Measured end to end, 2026-08-21
+
+| the yaml says | the loader emitted | the agent received | |
+|---|---|---|---|
+| `temporal` | `temporal` | `temporal` | ✓ |
+| `spatial` | `spatial` | `spatial` | ✓ |
+| `identity` | `social` | **`authority`** | a different kind of mystery, silently |
+| `behavioral` | `psychological` | `behavioral` | correct **only by coincidence** |
+| `authority` | `mechanical` | **THROWS** | X70 made it fatal — the run dies at init |
+
+**One of the three axes X70 was supposed to unlock actually worked.** And the corpus finally explains
+itself: before X70 the downstream `default: return "temporal"` swallowed every spelling this map
+produced, which is why **23 of 23 archived cases are temporal** — not the default alone, but the map
+feeding it. Removing the default without removing the map moved the destination and kept the coercion.
+
+#### Why nothing caught it
+
+Each end is correct in isolation. The loader round-trips its own vocabulary; the normaliser returns the
+right answer for every input it is handed, including `social` and `psychological`. A unit test on either
+side passes. **Only the composition is wrong**, and nothing tested the composition — so the 9 new tests
+in `primary-axis-passthrough.test.mjs` span both hops and assert the property the corpus violated for 23
+runs: *five axes in, five distinct axes out.*
+
+Worse, an existing test **asserted the defect**: `canary-input-overrides.test.mjs` fed `behavioral` and
+asserted the loader returned `psychological`. The re-spelling was pinned in place as intended behaviour.
+
+#### The rule
+
+The axis vocabulary has exactly one owner — `normalizePrimaryAxis`, which accepts the canonical five and
+the retired spellings. Anything that rewrites the vocabulary before the owner sees it is the
+one-vocabulary-in-two-places defect, and this is the **ninth** instance in this review. The loader now
+lower-cases and trims, and nothing else: an unknown axis reaches the owner and throws with the five
+names, rather than being quietly rewritten into something that parses.
+
+### 12.19 X90/X91/X92 — the axis had three ways to fail and none to succeed
+
+X88 fixed the axis *label*. The first paid run on the fixed pipeline then produced a case labelled
+`authority` whose locked facts were `high_tide_time`, `murder_claimed_time`, `promenade_length` and
+`wet_sand_mark_length` — a tide-and-clock mechanism wearing an authority label. Chasing that produced
+three separate defects, none of which is the label, and all of which pull the same way.
+
+| # | what it did | measured |
+|---|---|---|
+| **X90** | the LOCATION injected a temporal mechanism family | `SeasideHotel` matched `/…seaside\|hotel/` twice over and added `timetable dependency` to **every** axis. `SeasideHotel` is the DEFAULT location. |
+| **X91** | the seed exemplars never reached the prompt | axis read from `meta.primaryAxis`, which nothing writes → all 13 seeds `unknown` → **0 patterns for all five axes**, every run ever |
+| **X92** | the prompt named the axis without defining it | `- Primary Axis: authority`, and nothing else in the prompt says what that means |
+
+Read together: Agent 3 was told the word "authority", shown no authority exemplar (because no exemplar
+of any kind reached it), and handed a mechanism family list containing `timetable dependency`. **The
+only concrete steer it received pointed at a clock.** A model asked for an unfamiliar thing, given no
+example of it and one example of something else, produces the something else — and then the corpus is
+read back as evidence that the generator "prefers" temporal stories.
+
+#### The rule each one broke
+
+- **X90 — a theme is intent, a location is scenery.** A caller who writes a theme about a liner is
+  asking for a transit mystery and may have every family it implies. A caller who merely sets the story
+  in a seaside hotel gets the setting, not a different mystery. Keyword families are now indexed to
+  their owning axis; one belonging to a different axis is refused when only the location introduced it.
+  The MODE still applies — the hotel is still a hotel — and axis-neutral families (sealed-space,
+  document-chain, dose-timing) are untouched. Refusals are returned on `refusedFamilies`, because a
+  silently discarded input is the X85 defect.
+- **X91 — one vocabulary, one owner.** `false_assumption.type` is where the axis lives. `meta.primary_axis`
+  is the snake_case fallback agents 5–8 read. `meta.primaryAxis` was a third spelling that matched
+  nothing. Ninth instance in this review.
+- **X92 — a parameter the model cannot interpret is not a parameter.** Five one-line definitions, about
+  the shape of the deception and nothing else: no era, setting, mechanism or cast appears in any of
+  them, and a test enforces that. An axis definition that assumes a hotel would be a themed hint.
+
+#### What is still open, and it is content
+
+The seed corpus holds temporal ×2, spatial ×2 and identity ×3, and **no `behavioral` or `authority`
+case at all**. Those two axes now generate with a definition and correct mechanism families but no
+worked exemplar. That is a writing task, not an engineering one — and the alternative (loosening
+`selectRelevantPatterns` to return near-matches) would hand an authority run an identity exemplar,
+which is the X70 `mechanical → identity` mistake in a new place. It is asserted in a test so the gap
+stays dated instead of being rediscovered on a paid run.
 
 ## 13. M1 — what the judge diagnosis actually found
 

@@ -59,7 +59,9 @@ const entries = Object.entries(manifest).map(([key, value]) => ({ key, ...value 
 
 /** The geometry-derived, story-level verdict for one pair, or a stated reason there is none. */
 function verdictFor(entry) {
-  const storyAbs = join(ROOT, entry.storyPath);
+  // `let`, not `const` — resolveStoryPath REASSIGNS this. As a const it threw
+  // "Assignment to constant variable" on the first entry, so this script could not run at all.
+  let storyAbs = join(ROOT, entry.storyPath);
   storyAbs = resolveStoryPath(storyAbs);
   if (!existsSync(storyAbs)) return { reason: "manuscript not on disk" };
 

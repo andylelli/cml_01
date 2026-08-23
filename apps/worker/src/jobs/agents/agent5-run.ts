@@ -218,6 +218,30 @@ const nameAppearsInText = (name: string, text: string): boolean => {
   return surnameToken.length >= 3 && haystack.includes(` ${surnameToken} `);
 };
 
+/**
+ * Does this text contain the value as a WHOLE ORDERED PHRASE? No last-token fallback.
+ *
+ * `nameAppearsInText` exists for CAST NAMES and falls back to the final token so that "… Vane"
+ * matches "Mary Vane". Applied to a locked-fact VALUE that fallback is catastrophic:
+ *
+ *     "a quarter past seven"  -> last token "seven"
+ *     "a quarter to seven"    -> last token "seven"
+ *
+ * so each fact matched the OTHER fact's clue, the gate compared 435 against 405, and reported a
+ * contradiction in a case that was perfectly consistent. MEASURED: this killed a live run on
+ * 2026-08-21 (PLAN-TO-90 0b.1, first attempt) at Agent 5, before a word of prose — and it fires for
+ * any case whose locked times share a final word, which for clock values ("seven", "o'clock",
+ * "night", "morning") is the common case rather than the exotic one.
+ *
+ * A value is not a name: it has no distinctive surname, and every token of it is generic. The only
+ * safe test is the whole phrase.
+ */
+const valueAppearsInText = (value: string, text: string): boolean => {
+  const valueTokens = normalizeTokens(value).filter((token) => token.length > 0);
+  if (valueTokens.length === 0) return false;
+  return ` ${normalizeTokens(text).join(" ")} `.includes(` ${valueTokens.join(" ")} `);
+};
+
 const isEliminationLike = (text: string): boolean =>
   /\b(ruled\s+out|eliminat\w*|cleared|innocent|not\s+the\s+(?:culprit|killer|murderer)|exclud\w*)\b/i.test(text);
 
@@ -1946,7 +1970,111 @@ const parseFactClockMinutes = (value: string): number | null => parseClockTime(v
 const statesExplicitMeridiem = (text: string): boolean =>
   /(am|pm|a.m.|p.m.)/i.test(String(text));
 
-const findLockedFactClueTimeConflicts = (
+/**
+ * Repair a locked-fact/clue time TRANSPOSITION — the two canonical values swapped — and nothing else.
+ *
+ * WHY THIS EXISTS (X86). `findLockedFactClueTimeConflicts` threw and killed the run, alone among its
+ * neighbours in `runClueGuardrails`: `checkCastNamePathConsistency` gets `repairCastNamePathConsistency`,
+ * `checkEraTimeStyleInClues` gets `sanitizeEraTimeStyleInClues`, and `findCulpritDiscriminatingGaps`
+ * gets `synthesizeMissingCulpritDiscriminatingClues`. Each repairs, re-checks, and only then throws.
+ * This one did not, and it cost a live run on 2026-08-21: the registry held
+ * `clock_displayed_time="a quarter past seven"` and `chime_time="a quarter to seven"` while the clues
+ * put the face at 6:45 and the chimes at 7:15 — the two values **transposed**. The parsers were
+ * correct; the gate was right that the case contradicted itself; the run died anyway.
+ *
+ * WHAT IT WILL AND WILL NOT DO, and the line is deliberate. *A detector may guess; a repairer may not.*
+ * So this repairs on ONE provable condition: the clue text literally contains **another locked fact's
+ * canonical value**, where this fact's value belongs. The locked-fact registry is canonical by
+ * construction — Pillar 1 exists so these values cannot drift — so a clue carrying a different
+ * REGISTRY value in this slot is definitionally a transposition, not a new fact the story is asserting.
+ * Rewriting it to canonical is what the registry is for, and is the same move
+ * `repairCastNamePathConsistency` already makes against a wrong cast name.
+ *
+ * Everything else still throws. A clue whose time merely disagrees — a value the registry has never
+ * heard of — is not a transposition, and guessing which side is right there would be exactly the
+ * over-reach this comment refuses. Matching on the literal string rather than on parsed minutes is the
+ * same restraint: an equivalent time phrased differently is not demonstrably the other fact's value.
+ */
+export const repairLockedFactClueTimeTranspositions = (
+  cml: CaseData,
+  clues: ClueDistributionResult,
+  lockedFactsOverride?: any[],
+): string[] => {
+  const caseBlock = (cml as any)?.CASE ?? cml;
+  const mapping = Array.isArray(caseBlock?.prose_requirements?.clue_to_scene_mapping)
+    ? caseBlock.prose_requirements.clue_to_scene_mapping
+    : [];
+  const lockedFacts = Array.isArray(lockedFactsOverride)
+    ? lockedFactsOverride
+    : Array.isArray(caseBlock?.locked_facts)
+      ? caseBlock.locked_facts
+      : [];
+  if (!Array.isArray(lockedFacts) || lockedFacts.length === 0) return [];
+
+  /** Every OTHER registry value that parses as a clock time — the only strings we may substitute away. */
+  const timeFacts = lockedFacts
+    .map((f: any) => ({ id: String(f?.id ?? ""), value: String(f?.value ?? "").trim() }))
+    .filter((f) => f.value.length > 0 && parseFactClockMinutes(f.value) !== null);
+  if (timeFacts.length < 2) return [];
+
+  const clueById = new Map(clues.clues.map((c) => [String(c.id), c]));
+  const mappedClueIds: string[] = mapping
+    .map((m: any) => String(m?.clue_id ?? ""))
+    .filter((id: string) => id.length > 0);
+  const repairs: string[] = [];
+
+  for (const fact of lockedFacts) {
+    const factId = String(fact?.id ?? "");
+    const factDesc = String(fact?.description ?? "");
+    const factValue = String(fact?.value ?? "").trim();
+    if (!factValue) continue;
+    const factMinutes = parseFactClockMinutes(factValue);
+    if (factMinutes === null) continue;
+
+    for (const clueId of mappedClueIds) {
+      const clue = clueById.get(clueId);
+      if (!clue) continue;
+      const description = String((clue as any).description ?? "");
+      const pointsTo = String((clue as any).pointsTo ?? "");
+      const clueText = `${description} ${pointsTo}`;
+      // Same reachability test the detector uses — repair exactly the pairs it would have flagged.
+      if (!nameAppearsInText(factDesc, clueText) && !valueAppearsInText(factValue, clueText)) continue;
+
+      const clueMinutes = parseFactClockMinutes(clueText);
+      if (clueMinutes === null || clueMinutes === factMinutes) continue;
+      // Meridiem mismatches are a DIFFERENT violation with a different remedy; leave them to the gate.
+      if (statesExplicitMeridiem(factValue) !== statesExplicitMeridiem(clueText)) continue;
+
+      // The provable case: the clue literally carries another registry value here.
+      const other = timeFacts.find(
+        (t) => t.value !== factValue && parseFactClockMinutes(t.value) === clueMinutes && clueText.includes(t.value),
+      );
+      if (!other) continue;
+
+      if (description.includes(other.value)) {
+        (clue as any).description = description.split(other.value).join(factValue);
+      }
+      if (pointsTo.includes(other.value)) {
+        (clue as any).pointsTo = pointsTo.split(other.value).join(factValue);
+      }
+      repairs.push(
+        `${clueId}: carried "${other.value}" (the canonical value of locked fact "${other.id}") where ` +
+          `locked fact "${factId || factDesc}" requires "${factValue}" — transposition rewritten to canonical`,
+      );
+    }
+  }
+
+  return repairs;
+};
+
+/**
+ * Exported with its repairer so the X86 contract can be pinned as a PAIR.
+ *
+ * `enforceAgent5DeterministicContracts` runs a dozen gates before this one, so a test driving the
+ * whole chain would need a fully-valid case and would fail in `checkSourcePathValidity` long before
+ * reaching the behaviour under test — testing everything except the thing that changed.
+ */
+export const findLockedFactClueTimeConflicts = (
   cml: CaseData,
   clues: ClueDistributionResult,
   lockedFactsOverride?: any[],
@@ -1984,7 +2112,7 @@ const findLockedFactClueTimeConflicts = (
       const clue = clueById.get(clueId);
       if (!clue) continue;
       const clueText = `${String(clue.description ?? "")} ${String((clue as any).pointsTo ?? "")}`;
-      if (!nameAppearsInText(factDesc, clueText) && !nameAppearsInText(factValue, clueText)) continue;
+      if (!nameAppearsInText(factDesc, clueText) && !valueAppearsInText(factValue, clueText)) continue;
 
       const clueMinutes = parseFactClockMinutes(clueText);
       if (clueMinutes === null) continue;
@@ -3034,7 +3162,14 @@ export function enforceAgent5DeterministicContracts(
     throw new Error(`Agent 5 era time-style gate failed with ${eraTimeStyleIssues.length} digit-based time issue(s).`);
   }
 
-  const timeConflicts = findLockedFactClueTimeConflicts(cml, clues, options?.hardLogicLockedFacts);
+  // X86 — repair, re-check, THEN throw, exactly as every neighbouring gate in this function does.
+  // Only a provable transposition against the canonical registry is repaired; anything else still aborts.
+  let timeConflicts = findLockedFactClueTimeConflicts(cml, clues, options?.hardLogicLockedFacts);
+  if (timeConflicts.length > 0) {
+    const timeRepairs = repairLockedFactClueTimeTranspositions(cml, clues, options?.hardLogicLockedFacts);
+    timeRepairs.forEach((repair) => warnings.push(`Agent 5 locked-fact time transposition repair: ${repair}`));
+    timeConflicts = findLockedFactClueTimeConflicts(cml, clues, options?.hardLogicLockedFacts);
+  }
   if (timeConflicts.length > 0) {
     throw new Error(`Agent 5 CML-clue consistency gate failed (${timeConflicts.length} time conflict(s)).`);
   }
@@ -4000,7 +4135,16 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
         Array.isArray(d?.lockedFacts) ? d.lockedFacts : [],
       )
     : undefined;
-  const timeConflicts = findLockedFactClueTimeConflicts(ctx.cml!, clues, hardLogicLockedFacts);
+  // X86 — same repair-then-recheck as the guardrail site above. A run died here on 2026-08-21 for a
+  // pair of transposed registry values, while three sibling gates in the same file repair first.
+  let timeConflicts = findLockedFactClueTimeConflicts(ctx.cml!, clues, hardLogicLockedFacts);
+  if (timeConflicts.length > 0) {
+    const timeRepairs = repairLockedFactClueTimeTranspositions(ctx.cml!, clues, hardLogicLockedFacts);
+    timeRepairs.forEach((repair) =>
+      ctx.warnings.push(`Agent 5 locked-fact time transposition repair: ${repair}`),
+    );
+    timeConflicts = findLockedFactClueTimeConflicts(ctx.cml!, clues, hardLogicLockedFacts);
+  }
   if (timeConflicts.length > 0) {
     timeConflicts.forEach((msg) => ctx.errors.push(`Agent 5 CML-clue consistency failure: ${msg}`));
     failAgent5(

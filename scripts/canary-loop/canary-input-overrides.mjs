@@ -29,11 +29,35 @@ const ALLOWED_INPUT_KEYS = new Set([
   "enableOutlineCompleteness",
 ]);
 
-const PRIMARY_AXIS_ALIAS_MAP = {
-  identity: "social",
-  behavioral: "psychological",
-  authority: "mechanical",
-};
+/**
+ * REMOVED 2026-08-21 — this was the other half of X70, and the half that did the damage.
+ *
+ *     identity -> "social"   behavioral -> "psychological"   authority -> "mechanical"
+ *
+ * It translated the canonical five INTO the retired spellings on the way IN. `canary-core-inputs.yaml`
+ * states in its own comments that this auto-mapping does not exist — *"canary-core.mjs contains no
+ * reference to primaryAxis at all"* — which is true of that file and false of the pipeline: the map
+ * lived here, one file over, and canary-core calls this loader on every run.
+ *
+ * WHAT IT DID, measured end to end on 2026-08-21:
+ *
+ *   yaml says     loader emitted    the agent received
+ *   identity   -> social         -> authority   <- a different kind of mystery, silently
+ *   authority  -> mechanical     -> THROWS      <- X70 made "mechanical" fatal, so the run dies
+ *   behavioral -> psychological  -> behavioral  <- round-trips only by luck
+ *
+ * So of the three axes X70 was supposed to make reachable, exactly ONE worked. A live run requesting
+ * `identity` produced an `authority` case and nothing anywhere said so.
+ *
+ * AND IT EXPLAINS THE CORPUS. Before X70 `normalizePrimaryAxis` ended in `default: return "temporal"`,
+ * so all three spellings this map produced collapsed to temporal — the real reason **23 of 23 archived
+ * cases are temporal**. X70 fixed the downstream default and left the upstream translation, so the
+ * coercion survived its own fix and merely changed destination.
+ *
+ * The axis vocabulary has exactly one owner: `normalizePrimaryAxis`, which accepts the canonical five
+ * AND the retired spellings. A second table that rewrites the vocabulary before the owner sees it is
+ * the one-vocabulary-two-places defect this review has now found nine times.
+ */
 
 export function parseBooleanLike(value, fallback = false) {
   if (value === undefined || value === null || value === "") {
@@ -83,8 +107,10 @@ function sanitizeCanaryInputs(raw) {
   const sanitized = { ...staged };
 
   if (typeof sanitized.primaryAxis === "string") {
-    const axis = sanitized.primaryAxis.trim().toLowerCase();
-    sanitized.primaryAxis = PRIMARY_AXIS_ALIAS_MAP[axis] || axis;
+    // Normalise whitespace and case only. NEVER re-spell: an unknown axis must reach
+    // `normalizePrimaryAxis`, which throws and names the five, rather than being quietly
+    // rewritten here into something that happens to parse.
+    sanitized.primaryAxis = sanitized.primaryAxis.trim().toLowerCase();
   }
 
   if (sanitized.castSize !== undefined) {

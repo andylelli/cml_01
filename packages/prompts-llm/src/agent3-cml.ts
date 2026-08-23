@@ -72,6 +72,37 @@ export const deriveDeathMethodFromCrimeClass = (subtype: string, category: strin
 const seedPatternsTextCache = new Map<string, string>();
 
 /**
+ * What each axis MEANS, in one line, for the agent that has to build a case on it.
+ *
+ * The prompt used to pass the axis as a bare word — `Primary Axis: authority` — and nothing else.
+ * A model handed an unexplained parameter falls back on what it knows, and what it knows about
+ * Golden Age mysteries is clocks: the first `authority` case this project produced came out with a
+ * tide timetable and a staged time of death.
+ *
+ * It matters most where the seed library cannot help. `selectRelevantPatterns` supplies worked
+ * exemplars per axis, but the corpus holds temporal ×2, spatial ×2 and identity ×3 and **no
+ * `behavioral` or `authority` case at all** — so for two of the five axes the gloss below is the
+ * only thing distinguishing them. (That gap is content, not code: the fix is a seed case for each,
+ * not a wider regex.)
+ *
+ * Deliberately about the SHAPE of the deception and nothing else — no era, setting, mechanism or
+ * cast. A generator whose parameters change every run cannot have an axis definition that assumes
+ * a hotel, a decade or a murder weapon.
+ */
+const PRIMARY_AXIS_MEANING: Readonly<Record<string, string>> = {
+  temporal:
+    "the reader misjudges WHEN. The deception concerns the order or hour of events — a time that appears fixed and is not.",
+  spatial:
+    "the reader misjudges WHERE. The deception concerns position, distance, sightline or route — a place someone could or could not have been.",
+  identity:
+    "the reader misjudges WHO. The deception concerns impersonation, substitution or mistaken role — a person taken for another.",
+  behavioral:
+    "the reader misjudges HOW SOMEONE WOULD ACT. The deception exploits an assumption about habit, character or reaction — what a person of this sort would surely never do.",
+  authority:
+    "the reader misjudges WHO MAY BE BELIEVED. The deception rides on standing — a statement, record or instruction accepted because of who issued it rather than because it was checked.",
+};
+
+/**
  * Build the complete prompt for CML generation
  */
 /**
@@ -644,8 +675,11 @@ ${inputs.castGenders && Object.keys(inputs.castGenders).length > 0 ? `- Gender p
 ${inputs.culpritExclusionNames && inputs.culpritExclusionNames.length > 0 ? `- FORBIDDEN culprits (these names MUST NOT be in culpability.culprits[]): ${inputs.culpritExclusionNames.join(', ')} — they are victim or detective roles.` : ''}
 
 **Mystery Logic**:
-- Primary Axis: ${inputs.primaryAxis}
+- Primary Axis: ${inputs.primaryAxis} — ${PRIMARY_AXIS_MEANING[String(inputs.primaryAxis)] ?? "the reader misjudges something the case treats as settled."}
 - False Assumption Type: Must be ${inputs.primaryAxis} (matching axis)
+- THE AXIS IS THE MYSTERY, not a label on it. The false assumption, the mechanism and the
+  discriminating test must all turn on the axis above. If the case would still work with the axis
+  changed to something else, it is not built on this axis and must be rebuilt.
 - Complexity Level: ${inputs.complexityLevel}
 - Mechanism Families: ${inputs.mechanismFamilies.join(", ")}
 - Hard-Logic Focus Tags: ${hardLogicModes.length > 0 ? hardLogicModes.join(", ") : "standard varied mix"}

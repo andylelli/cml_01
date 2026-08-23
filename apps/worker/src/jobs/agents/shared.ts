@@ -152,6 +152,14 @@ export type HardLogicDirectives = {
   complexityLevel: "simple" | "moderate" | "complex";
   hardLogicModes: string[];
   difficultyMode: DifficultyMode;
+  /**
+   * Families a keyword rule matched but the axis guard refused, as `name (owner axis, why)`.
+   *
+   * Surfaced rather than dropped on purpose. A silently discarded input is how the full-story
+   * polish spent a month looking dormant (X85) — and refusing a family the caller can see in their
+   * own location preset is exactly the kind of decision that must leave a mark on the run.
+   */
+  refusedFamilies: string[];
 };
 
 export type ClueGuardrailIssue = {
@@ -380,6 +388,9 @@ export const mergeHardLogicDirectives = (
     hardLogicModes: Array.from(hardLogicModes),
     complexityLevel: base.complexityLevel,
     difficultyMode: base.difficultyMode,
+    // Carried forward, not recomputed: this merger folds in Agent 3b's device hints and derives
+    // nothing from keywords, so it has no refusal of its own to add.
+    refusedFamilies: base.refusedFamilies,
   };
 };
 
@@ -854,16 +865,81 @@ export const normalizePrimaryAxis = (
  * `default: break` and seeded **no families at all**, on top of being coerced to temporal. Both
  * halves of that are now impossible: the type is the canonical union, and every member has a case.
  */
+/**
+ * Which axis each mechanism family BELONGS to — the switch below is the definition, this is its index.
+ *
+ * WHY THIS EXISTS. `deriveHardLogicDirectives` seeds two families from the axis and then lets keyword
+ * rules append more. Those rules matched against `theme + locationPreset` merged into one string and
+ * had no idea what axis they were adding to, so:
+ *
+ *     primaryAxis: authority, locationPreset: SeasideHotel
+ *       -> [authority-channel manipulation, status-based witness distortion, TIMETABLE DEPENDENCY]
+ *
+ * `/train|rail|liner|ship|seaside|hotel/` matches `SeasideHotel` twice over, so every seaside run was
+ * handed a temporal mechanism family whatever axis it asked for — and `SeasideHotel` is the DEFAULT
+ * location in `canary-core-inputs.yaml`. MEASURED on the first authority case ever generated: its
+ * locked facts came out `high_tide_time`, `murder_claimed_time`, `promenade_length`,
+ * `wet_sand_mark_length` — a tide-and-clock mechanism wearing an authority label.
+ *
+ * That is the second half of the temporal monoculture. [X88] forced the axis LABEL to collapse; this
+ * forced the MECHANISM. Fixing X88 alone would have produced four more non-temporal labels over four
+ * more temporal mechanisms, and the sweep would have reported five successes.
+ *
+ * THE RULE, and the distinction it turns on: **a theme is intent, a location is scenery.** If the
+ * caller writes a theme about a liner they are asking for a transit mystery and any family it implies
+ * is theirs to have. If they merely set the story in a seaside hotel, that must colour the setting
+ * without redirecting the mystery onto an axis they did not choose. So a family listed here is
+ * refused when the LOCATION alone introduced it and it belongs to a different axis; families absent
+ * from this table (sealed-space, document-chain, dose-timing, acoustic mislocalization, …) are
+ * axis-neutral and always allowed.
+ */
+const FAMILY_AXIS: Readonly<Record<string, CmlPrimaryAxis>> = {
+  "schedule contradiction": "temporal",
+  "timing window trap": "temporal",
+  "timetable dependency": "temporal",
+  "access path illusion": "spatial",
+  "geometry-based movement": "spatial",
+  "role substitution proof": "identity",
+  "witness misidentification constraint": "identity",
+  "cognitive bias exploitation": "behavioral",
+  "memory anchoring misdirection": "behavioral",
+  "authority-channel manipulation": "authority",
+  "status-based witness distortion": "authority",
+};
+
 export const deriveHardLogicDirectives = (
   theme: string | undefined,
   primaryAxis: CmlPrimaryAxis | undefined,
   locationPreset: string | undefined,
 ): HardLogicDirectives => {
-  const text = `${theme ?? ""} ${locationPreset ?? ""}`.toLowerCase();
+  // `text` stays the merged string every keyword rule below already matches on — behaviour unchanged.
+  // `themeText` is the half that carries INTENT, and is what decides whether a matched family is
+  // allowed to introduce a different axis. See FAMILY_AXIS above.
+  const themeText = `${theme ?? ""}`.toLowerCase();
+  const text = `${themeText} ${locationPreset ?? ""}`.toLowerCase();
   const familySet = new Set<string>();
   const modeSet = new Set<string>();
+  /** Families the location introduced that belong to another axis — reported, never silently dropped. */
+  const refusedFamilies: string[] = [];
 
+  /**
+   * `addFamily` is used by the axis switch AND by the keyword rules. Only the keyword rules can be
+   * wrong here, and only when the LOCATION matched: the axis switch is the definition of what the
+   * axis wants, and a theme match is the caller asking for it explicitly.
+   */
   const addFamily = (value: string) => familySet.add(value);
+  /**
+   * A family added because a keyword matched. `viaTheme` says whether the CALLER asked for it (the
+   * regex hit the theme) or whether only the location did.
+   */
+  const addKeywordFamily = (value: string, viaTheme: boolean) => {
+    const owner = FAMILY_AXIS[value];
+    if (primaryAxis && owner && owner !== primaryAxis && !viaTheme) {
+      refusedFamilies.push(`${value} (${owner} family, introduced by location not theme)`);
+      return;
+    }
+    familySet.add(value);
+  };
   const addMode = (value: string) => modeSet.add(value);
 
   switch (primaryAxis) {
@@ -894,34 +970,32 @@ export const deriveHardLogicDirectives = (
       break;
   }
 
-  if (/(locked[-\s]?room|impossible crime)/.test(text)) {
-    addMode("locked-room");
-    addFamily("sealed-space constraint proof");
-  }
-  if (/train|rail|liner|ship|seaside|hotel/.test(text)) {
-    addMode("transit or seaside topology");
-    addFamily("timetable dependency");
-  }
-  if (/inheritance|will|estate/.test(text)) {
-    addMode("inheritance pressure logic");
-    addFamily("document-chain contradiction");
-  }
-  if (/(math|mathematics|geometry|probability|pure mathematics)/.test(text)) {
-    addMode("mathematical principle");
-    addFamily("probability misdirection");
-    addFamily("geometric visibility constraint");
-  }
-  if (/(botanical|medical|toxin|toxicology|botany)/.test(text)) {
-    addMode("botanical or medical mechanism");
-    addFamily("dose-timing asymmetry");
-  }
-  if (/acoustic|sound|echo/.test(text)) {
-    addMode("acoustics");
-    addFamily("acoustic mislocalization");
-  }
-  if (/(multi-layer|double-bluff|double bluff|nested)/.test(text)) {
-    addMode("multi-layer deception");
-    addFamily("stacked false assumptions");
+  /**
+   * Keyword rules, each with its pattern NAMED so the rule can answer a second question: did this
+   * match the THEME, or only the location? `addKeywordFamily` needs that to tell a caller asking for
+   * a transit mystery from a caller who merely set one in a seaside hotel.
+   */
+  const RULES: ReadonlyArray<{ re: RegExp; mode: string; families: string[] }> = [
+    { re: /(locked[-\s]?room|impossible crime)/, mode: "locked-room", families: ["sealed-space constraint proof"] },
+    { re: /train|rail|liner|ship|seaside|hotel/, mode: "transit or seaside topology", families: ["timetable dependency"] },
+    { re: /inheritance|will|estate/, mode: "inheritance pressure logic", families: ["document-chain contradiction"] },
+    {
+      re: /(math|mathematics|geometry|probability|pure mathematics)/,
+      mode: "mathematical principle",
+      families: ["probability misdirection", "geometric visibility constraint"],
+    },
+    { re: /(botanical|medical|toxin|toxicology|botany)/, mode: "botanical or medical mechanism", families: ["dose-timing asymmetry"] },
+    { re: /acoustic|sound|echo/, mode: "acoustics", families: ["acoustic mislocalization"] },
+    { re: /(multi-layer|double-bluff|double bluff|nested)/, mode: "multi-layer deception", families: ["stacked false assumptions"] },
+  ];
+
+  for (const rule of RULES) {
+    if (!rule.re.test(text)) continue;
+    // The MODE always applies: it describes the SETTING, which the location legitimately determines.
+    // Only the FAMILY — what kind of deduction the mystery turns on — is axis-guarded.
+    addMode(rule.mode);
+    const viaTheme = rule.re.test(themeText);
+    for (const family of rule.families) addKeywordFamily(family, viaTheme);
   }
 
   let difficultyMode: DifficultyMode = "standard";
@@ -944,10 +1018,13 @@ export const deriveHardLogicDirectives = (
   }
 
   return {
+    // Insertion order, and the axis switch runs first — so the axis's own families always lead and
+    // the slice can only ever truncate keyword extras.
     mechanismFamilies: Array.from(familySet).slice(0, 6),
     complexityLevel,
     hardLogicModes: Array.from(modeSet).slice(0, 6),
     difficultyMode,
+    refusedFamilies,
   };
 };
 

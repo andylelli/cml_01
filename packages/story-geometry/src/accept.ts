@@ -971,10 +971,11 @@ export const checkManuscriptGeometry = (
               scope: "chapter",
               message:
                 `Chapter ${contract.chapter} is the reveal and states ${inReveal.stated} of the case's two times ` +
-                `(apparent "${geometry.timeModel.apparentTime}", true "${geometry.timeModel.trueTime}"). The ` +
-                `disclosure of a temporal deception owes the reader both hours in the same passage, related to ` +
-                `each other — the time the staged evidence showed, and the time the death actually happened. ` +
-                `Without them the reader is left to do the subtraction the chapter exists to perform.`,
+                `(apparent "${geometry.timeModel.apparentTime}", true "${geometry.timeModel.trueTime}"). This ` +
+                `case stages one hour and hides another, so its disclosure owes the reader both in the ` +
+                `same passage, related to each other — the time the staged evidence showed, and the time ` +
+                `the death actually happened. Without them the reader is left to do the subtraction the ` +
+                `chapter exists to perform.`,
             },
           );
         }

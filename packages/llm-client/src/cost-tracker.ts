@@ -49,6 +49,33 @@ export class CostTracker {
   private costByModel = new Map<string, number>();
   private costByAgent = new Map<string, number>();
 
+  /**
+   * PHASE 0a.3 — cached prompt tokens, recorded but NOT re-priced.
+   *
+   * `calculateCost` multiplies every prompt token by the full input rate. Azure serves a share of
+   * them from its automatic prompt cache at a reduced rate, so the figure above is an UPPER BOUND.
+   *
+   * MEASURED 2026-08-21 over the only two runs that carry the telemetry (`mystery-1785689662702`,
+   * `-1785694688534`): **30–31% of all prompt tokens were cache-served.** Per stage the split is
+   * sharper still — 6–12% on a chapter's first attempt, and **88–97% on a retry of the same chapter**,
+   * which means regeneration is markedly cheaper than its raw token count implies.
+   *
+   * WHY THIS RECORDS RATHER THAN DISCOUNTS. Applying a discount needs Azure's cached-input rate, and
+   * this file has now been wrong about rates twice — the `gpt-4.1` branch that fell through to
+   * GPT-3.5 fallback rates and under-reported by ~6× (documentation/15_llm_model_and_cost/00_README.md
+   * §4.2), and the `gpt-4.1-mini` branch before it. A third guessed number is not an improvement on a
+   * missing one. Recording the volume makes the overstatement VISIBLE and quantifiable; whoever
+   * confirms the rate against an invoice can then apply it in one place.
+   *
+   * Telemetry caveat, and it is the reason 0a.1 exists: `cachedPromptTokens` is only populated on the
+   * HTTP transport (`LLM_HTTP_TRANSPORT`). On the SDK path it is absent, and an absent value is
+   * recorded as unknown rather than as zero — a silent zero would make an unmeasured run look like a
+   * run with no cache hits, which is the exact failure shape this project keeps paying for.
+   */
+  private cachedPromptTokens = 0;
+  private promptTokensWithCacheTelemetry = 0;
+  private promptTokensTotal = 0;
+
   constructor(private config: CostConfig = defaultCostConfig) {}
 
   calculateCost(model: string, usage: TokenUsage): number {
@@ -111,6 +138,13 @@ export class CostTracker {
 
     this.totalCost += cost;
 
+    // 0a.3 — volume only. An absent cachedPromptTokens means UNMEASURED, never zero.
+    this.promptTokensTotal += usage.promptTokens;
+    if (usage.cachedPromptTokens !== undefined) {
+      this.promptTokensWithCacheTelemetry += usage.promptTokens;
+      this.cachedPromptTokens += usage.cachedPromptTokens;
+    }
+
     // Track by model
     const modelCost = this.costByModel.get(model) || 0;
     this.costByModel.set(model, modelCost + cost);
@@ -140,17 +174,41 @@ export class CostTracker {
     this.totalCost = 0;
     this.costByModel.clear();
     this.costByAgent.clear();
+    this.cachedPromptTokens = 0;
+    this.promptTokensWithCacheTelemetry = 0;
+    this.promptTokensTotal = 0;
   }
 
   getSummary(): {
     totalCost: number;
     byModel: Record<string, number>;
     byAgent: Record<string, number>;
+    /**
+     * 0a.3 — what the cost above does NOT account for.
+     *
+     * `costIsUpperBound` is true whenever any cache hit was observed: those tokens were billed at the
+     * full input rate here and served at a reduced one in reality. `cacheTelemetryCoverage` says how
+     * much of the run could be observed at all — on the SDK transport it is 0, and a 0 there means
+     * "unmeasured", not "no cache".
+     */
+    cachedPromptTokens: number;
+    promptTokensTotal: number;
+    cacheHitRate: number | null;
+    cacheTelemetryCoverage: number;
+    costIsUpperBound: boolean;
   } {
+    const covered = this.promptTokensWithCacheTelemetry;
     return {
       totalCost: this.totalCost,
       byModel: Object.fromEntries(this.costByModel),
       byAgent: Object.fromEntries(this.costByAgent),
+      cachedPromptTokens: this.cachedPromptTokens,
+      promptTokensTotal: this.promptTokensTotal,
+      // null, not 0, when nothing was observable — the distinction 0a.1 exists to preserve.
+      cacheHitRate: covered > 0 ? this.cachedPromptTokens / covered : null,
+      cacheTelemetryCoverage:
+        this.promptTokensTotal > 0 ? covered / this.promptTokensTotal : 0,
+      costIsUpperBound: this.cachedPromptTokens > 0,
     };
   }
 }

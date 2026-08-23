@@ -4321,6 +4321,16 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
    * for every chapter in the run. At batch size 1 that block is re-sent ten times. Batching two
    * chapters per call halves the number of times it is sent.
    *
+   * DO NOT READ "two thirds" AS A CACHING ESTIMATE — it is a CONTENT claim, and caching is a PREFIX
+   * match. Measured on mystery-1787167692140: the longest common prefix across the twelve chapter
+   * prompts is 5% of a mean prompt, not two thirds, because chapter-specific content is interleaved
+   * into the 60K-character system message rather than appended after it. The order-independent
+   * ceiling — what AGENT9_PROMPT_PREFIX_ORDER exists to unlock — is 29%. Azure telemetry on the two
+   * runs that carry it confirms the shape: 6-12% cached on a first attempt, 88-97% on a retry.
+   * See documentation/15_llm_model_and_cost/01_llm_cost_and_performance_levers.md.
+   *
+   * The 11.7:1 ratio is also stale: the two most recent runs measure 4.3:1 and 6.5:1.
+   *
    * WHY IT IS NOT SIMPLY DEFAULTED UP. Two real constraints:
    *   1. `maxTokens` bounds the reply. At ~1,913 tokens per chapter, 2 fits inside the 4,000 default
    *      and 3 does not — a larger batch needs maxTokens raised or it truncates mid-chapter.

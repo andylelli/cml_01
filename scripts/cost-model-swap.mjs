@@ -14,8 +14,13 @@
  * out of the recorded spend at the rates the cost tracker itself uses (packages/llm-client/
  * cost-tracker.ts: gpt-4.1 = $2.00/$8.00 per MTok, and costs are stored in GBP at 0.79). The prompt/
  * completion RATIO is the measured one from mystery-1785521869768: 22,292 prompt tokens to produce
- * 1,913 completion tokens per chapter — 11.7:1. That ratio is the whole story of this workload's
- * economics: it is overwhelmingly an INPUT-priced job, so output rates barely move the total.
+ * 1,913 completion tokens per chapter — 11.7:1.
+ *
+ * ⚠️ THAT RATIO IS STALE. Measured on the two most recent runs from logs/llm.jsonl the ratio is
+ * 4.3:1 and 6.5:1, not 11.7:1 — output rates matter more than this script's figures imply, which
+ * NARROWS the gap between models rather than widening it. Prefer `probe-run-token-economics.mjs`,
+ * which reads per-call ground truth instead of deriving volume from a total. This script is kept for
+ * the model-rate comparison; treat its absolute $/run as indicative.
  */
 
 const args = process.argv.slice(2);
@@ -32,8 +37,15 @@ const MEAN_TOTAL_GBP = 1.0219;
 const GBP_PER_USD = 0.79;
 /** The cost tracker's own gpt-4.1 rates, $/MTok. */
 const GPT41 = { in: 2.0, out: 8.0 };
-/** MEASURED per-chapter prompt:completion ratio (mystery-1785521869768). */
-const PROMPT_TO_COMPLETION = 22292 / 1913;
+/**
+ * MEASURED per-chapter prompt:completion ratio (mystery-1785521869768) — 11.7:1.
+ *
+ * OVERRIDE IT. `--ratio 4.3` is the whole-run figure from the most recent archived run
+ * (mystery-1787167692140: 465,750 in / 107,494 out), read per-call by probe-run-token-economics.mjs.
+ * The direction matters: a LOWER ratio means output weighs more, and every Claude option here has a
+ * higher output premium than gpt-4.1 — so the stale 11.7:1 makes the swap look CHEAPER than it is.
+ */
+const PROMPT_TO_COMPLETION = argOf("--ratio", 22292 / 1913);
 
 /** Published rates, $/MTok. Anthropic first-party; see the claude-api skill's model table. */
 const MODELS = [
@@ -76,7 +88,20 @@ if (cacheHitShare > 0) {
 }
 console.log("");
 
-const base = GPT41.in * promptMTok + GPT41.out * completionMTok;
+/**
+ * The baseline must be priced on the SAME input volume as every row it is compared against.
+ *
+ * FIXED 2026-08-21. This used `promptMTok` (uncached) while every alternative used `effectiveInput`
+ * (cached), so passing --cache-hit made the gpt-4.1 row report **-12% vs now** — cheaper than itself —
+ * and flattered every Claude row by the same 12%. PLAN-TO-90 quoted those figures to argue that
+ * caching pays for a frontier swap.
+ *
+ * It cannot. A stable prefix is a property of the PROMPT, not of the model: every row gets the same
+ * proportional discount, so caching moves the absolute bill down and leaves the relative premium
+ * essentially untouched. If anything it makes a swap look WORSE, because removing input shifts the
+ * weight onto output, where every Claude option carries a larger premium than it does on input.
+ */
+const base = GPT41.in * effectiveInput + GPT41.out * completionMTok;
 const pad = (s, n) => String(s).padEnd(n);
 const rpad = (s, n) => String(s).padStart(n);
 console.log(pad("model", 22) + rpad("in $/M", 8) + rpad("out $/M", 9) + rpad("$/run", 9) + rpad("vs now", 9) + "  note");
@@ -91,6 +116,10 @@ for (const [name, inRate, outRate, note] of MODELS) {
 console.log("");
 console.log("Agent 9 only. Upstream agents (~22% of the bill) are unchanged by a prose-model swap.");
 if (cacheHitShare > 0) {
+  console.log("Baseline and alternatives are BOTH priced cached — caching is a property of the prompt,");
+  console.log("not the model, so it lowers the bill without changing the premium. It cannot fund a swap.");
+}
+if (cacheHitShare > 0) {
   console.log("NOTE: the cache multipliers are ANTHROPIC's (reads ~0.1x, writes ~1.25x at 5-min TTL),");
   console.log("so the Claude rows are priced correctly and the gpt-4.1 row is INDICATIVE only — Azure");
   console.log("OpenAI prices cached input on its own terms. Do not quote the gpt-4.1 cached figure.");
@@ -100,8 +129,13 @@ if (cacheHitShare > 0) {
 //
 // The model-tiering module argues this directly: the polish passes emit a small fraction of total
 // generation output, so routing ONLY them to a stronger model "buys frontier sentence-craft at a
-// fraction of the bill". MEASURED: that pass has never run — fullStoryPolishEnabled is false on all
-// 15 archived reports, and zero chapters have ever been edited by it.
+// fraction of the bill".
+//
+// CORRECTED 2026-08-21: an earlier version of this comment said the polish pass had never run. That
+// was read off `fullStoryPolishEnabled: false` and is wrong. The per-chapter high-leakage polish IS
+// running, on claude-sonnet-5, on 4-7 chapters per run — visible as Agent9-PostPassPolish-ChN in
+// logs/llm.jsonl. Only the FULL-STORY polish is disabled. The figures below therefore price an
+// EXTENSION of a pass that already exists, not a new one.
 const POLISH_CHAPTERS = 3;          // line-edits on the weakest chapters, not the whole book
 const POLISH_IN_PER_CH = 25_000;    // the chapter plus its editing brief
 const POLISH_OUT_PER_CH = 2_000;

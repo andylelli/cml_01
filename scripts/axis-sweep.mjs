@@ -1,0 +1,217 @@
+#!/usr/bin/env node
+/**
+ * PLAN-TO-90 **0.2** — one run per axis, five runs.
+ *
+ * WHY IT MATTERS. Until [X70](../architecture/REVIEW_05.md) landed on 2026-08-20, three of the five
+ * primary axes were unreachable: the orchestrator silently coerced every axis it did not recognise to
+ * `temporal`, which is why **23 of 23 archived cases are temporal**. `identity`, `behavioral` and
+ * `authority` have never produced a story. Four of these five runs will be the first of their kind,
+ * and five of the fifteen geometry acceptance codes are temporal-only — so this is also the only way
+ * to learn what a third of geometry does when it has nothing to read.
+ *
+ * ── THE THEME IS NEUTRALISED, AND THAT IS THE WHOLE DESIGN ───────────────────────────────────────
+ *
+ * `canary-core-inputs.yaml` hardcodes *"driven by a mechanical clock-tampering method"*. Running five
+ * axes against that theme would measure nothing: a clock-tampering brief forces a temporal story
+ * whatever the axis field says, so all five runs would come back temporal and the sweep would report
+ * five successes while testing one axis. The prompt would be doing the coercion X70 removed from the
+ * code.
+ *
+ * So the theme here keeps every fair-play constraint and drops the mechanism family. `primaryAxis` is
+ * then the ONLY variable across the five runs — same cast, era, location, tone, length, batch size.
+ * That is both correct experimental design and the generic-generator rule this project runs on: the
+ * axis must carry the story, not a themed brief written around it.
+ *
+ * ── COST, STATED PLAINLY ─────────────────────────────────────────────────────────────────────────
+ *
+ * PLAN-TO-90 costs 0.2 at *"~£2 total at Agent 3 depth"*. **There is no Agent-3-depth mode.**
+ * `generateMystery` takes no stop-after parameter and neither does `canary-core.mjs`; the only depth
+ * control in the repo is `canary-agent-loop`'s `--startFromAgent`, which re-runs ONE agent against
+ * hydrated prior artifacts and cannot produce a new story. Phase 0's own exit condition asks for
+ * *"five manuscripts across five axes"*, which a partial run cannot satisfy either. So these are full
+ * runs at roughly £1 each — about **£5**, not £2.
+ *
+ * Runs are sequential and each prints its status as it lands, so the sweep can be stopped after any
+ * run without wasting the rest. `--dry` writes the five configs and spends nothing.
+ *
+ *   node scripts/axis-sweep.mjs --dry
+ *   node scripts/axis-sweep.mjs
+ *   node scripts/axis-sweep.mjs --axis identity
+ *   node scripts/axis-sweep.mjs --stop-on-fail
+ */
+
+import { spawn } from "node:child_process";
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+
+const ROOT = process.env.CML_WORKSPACE_ROOT || process.cwd();
+const BASE_YAML = join(ROOT, "scripts", "canary-core-inputs.yaml");
+const OUT_DIR = join(ROOT, "scratchpad", "axis-sweep");
+const PROMPTS = join(ROOT, "documentation", "prompts", "actual");
+
+const DRY = process.argv.includes("--dry");
+const STOP_ON_FAIL = process.argv.includes("--stop-on-fail");
+const flagValue = (name, dflt) => {
+  const i = process.argv.indexOf(name);
+  return i >= 0 && process.argv[i + 1] && !process.argv[i + 1].startsWith("--") ? process.argv[i + 1] : dflt;
+};
+
+/** THE names, end to end — nothing maps them anywhere (see the yaml's own note). */
+const AXES = ["temporal", "spatial", "identity", "behavioral", "authority"];
+
+/**
+ * Every fair-play constraint from the original brief; no mechanism family, no era, no location —
+ * those are separate input fields and stay fixed across the sweep.
+ */
+const NEUTRAL_THEME =
+  "Golden Age murder within a closed circle of suspects. Enforce strict fair-play: reveal all " +
+  "mechanism-critical clues to the reader by mid-story, place the discriminating test no later than " +
+  "early Act III, include at least 3 explicit evidence clues tied to the final deduction, and ensure " +
+  "every red herring is inference-isolated from the true solution chain.";
+
+const only = flagValue("--axis", null);
+const axes = only ? AXES.filter((a) => a === only) : AXES;
+if (axes.length === 0) {
+  console.error(`\n  --axis ${only} is not one of: ${AXES.join(", ")}\n`);
+  process.exit(1);
+}
+
+if (!existsSync(OUT_DIR)) mkdirSync(OUT_DIR, { recursive: true });
+const base = readFileSync(BASE_YAML, "utf8");
+
+/** Rewrite the two lines that differ. Everything else in the file is carried through verbatim. */
+function configFor(axis) {
+  let text = base;
+  // `theme:` is a single quoted line in the base file.
+  text = text.replace(/^theme:\s*".*"$/m, `theme: ${JSON.stringify(NEUTRAL_THEME)}`);
+  if (!/^theme:/m.test(text)) throw new Error("theme line not found in the base yaml");
+  text = text.replace(/^primaryAxis:\s*\w+$/m, `primaryAxis: ${axis}`);
+  if (!new RegExp(`^primaryAxis: ${axis}$`, "m").test(text)) throw new Error("primaryAxis line not rewritten");
+  const header =
+    `# GENERATED by scripts/axis-sweep.mjs — PLAN-TO-90 0.2\n` +
+    `# primaryAxis is the ONLY field that differs across the five sweep configs.\n` +
+    `# The theme is deliberately mechanism-neutral; see the script header for why.\n`;
+  const path = join(OUT_DIR, `inputs.${axis}.yaml`);
+  writeFileSync(path, header + text, "utf8");
+  return path;
+}
+
+/**
+ * What axis did the CASE actually come out as? Read from Agent 3's own response, not from the input.
+ *
+ * THE POINT OF THE WHOLE SWEEP, and it was unobservable until now. The 2026-08-21 run asked for
+ * `identity` and Agent 3 received `authority` (X88) — and nothing in this script's output said so.
+ * Only a hand-grep of logs/llm.jsonl caught it. A sweep that cannot report which axis it actually
+ * generated reports five successes whatever happens, which is the failure X70 already made once.
+ */
+const producedAxis = () => {
+  try {
+    // No regex: escape sequences in this file have been silently eaten twice already, and a matcher
+    // that quietly matches nothing is exactly the class of defect this function exists to detect.
+    const dirs = readdirSync(PROMPTS)
+      .filter((d) => d.startsWith('run_'))
+      .sort()
+      .reverse();
+    for (const dir of dirs) {
+      const files = readdirSync(join(PROMPTS, dir)).filter((n) => n.includes('Agent3-CMLGenerator_response'));
+      if (files.length === 0) continue;
+      const text = readFileSync(join(PROMPTS, dir, files[files.length - 1]), 'utf8');
+      const at = text.indexOf('false_assumption');
+      if (at < 0) return null;
+      // The nearest "type": "..." after the false_assumption key.
+      const window = text.slice(at, at + 600);
+      const key = window.indexOf('"type"');
+      if (key < 0) return null;
+      const open = window.indexOf('"', window.indexOf(':', key) + 1);
+      const close = window.indexOf('"', open + 1);
+      return open > 0 && close > open ? window.slice(open + 1, close) : null;
+    }
+  } catch {
+    /* reported as null; never abort a completed run over telemetry */
+  }
+  return null;
+};
+
+const runOne = (axis, yamlPath) =>
+  new Promise((resolve) => {
+    const started = Date.now();
+    const child = spawn(process.execPath, ["--use-system-ca", join(ROOT, "scripts", "canary-core.mjs")], {
+      cwd: ROOT,
+      env: { ...process.env, CANARY_CORE_INPUTS_YAML: yamlPath },
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+
+    const found = { runId: null, status: null, warnings: 0, clueStatus: null, story: null, inputs: null, projectId: null };
+    let tail = "";
+    const scan = (buf) => {
+      const s = buf.toString();
+      tail = (tail + s).slice(-4000);
+      for (const line of s.split(/\r?\n/)) {
+        if (line.startsWith("RUN_ID ")) found.runId = line.slice(7).trim();
+        else if (line.startsWith("CANARY_STATUS ")) found.status = line.slice(14).trim();
+        else if (line.startsWith("WARNINGS_COUNT ")) found.warnings = Number(line.slice(15).trim());
+        else if (line.startsWith("CANARY_CLUE_STATUS ")) found.clueStatus = line.slice(19).trim();
+        else if (line.startsWith("CANARY_INPUTS ")) found.inputs = line.slice(14).trim();
+        else if (line.startsWith("CANARY_PROJECT_ID ")) found.projectId = line.slice(18).trim();
+        else if (/^PROGRESS /.test(line)) process.stdout.write(`      ${line}\n`);
+        else if (/saved|story_\d{8}-\d{4}/i.test(line)) {
+          const m = line.match(/story_\d{8}-\d{4}[^\s"']*/);
+          if (m) found.story = m[0];
+        }
+      }
+    };
+    child.stdout.on("data", scan);
+    child.stderr.on("data", scan);
+    child.on("close", (code) => {
+      resolve({ axis, code, minutes: (Date.now() - started) / 60000, ...found, tail, produced: producedAxis() });
+    });
+  });
+
+// ── go ───────────────────────────────────────────────────────────────────────
+
+console.log(`\n${"═".repeat(78)}\n0.2 — ONE RUN PER AXIS\n${"═".repeat(78)}\n`);
+console.log(`  axes    : ${axes.join(", ")}`);
+console.log(`  theme   : mechanism-neutral (identical for all five)`);
+console.log(`  varying : primaryAxis only`);
+console.log(`  cost    : full runs, ~£1 each — see the header on why "Agent 3 depth" does not exist\n`);
+
+const configs = axes.map((axis) => ({ axis, yaml: configFor(axis) }));
+for (const c of configs) console.log(`  wrote ${c.yaml}`);
+
+if (DRY) {
+  console.log(`\n  --dry: configs written, nothing spent.\n`);
+  process.exit(0);
+}
+
+const results = [];
+for (const c of configs) {
+  console.log(`\n${"─".repeat(78)}\n  ${c.axis}\n${"─".repeat(78)}`);
+  const r = await runOne(c.axis, c.yaml);
+  results.push(r);
+  const ok = r.code === 0 && r.status && r.status !== "failed";
+  console.log(
+    `\n  ${c.axis.padEnd(11)} ${ok ? "OK " : "FAIL"}  status ${String(r.status)}  ` +
+      `clues ${String(r.clueStatus)}  warnings ${r.warnings}  ${r.minutes.toFixed(1)} min  ${r.runId ?? ""}`,
+  );
+  if (!ok) {
+    // A failed axis is the FINDING, not an error to swallow — three of these have never run.
+    console.log(`\n  last output from the failing run:\n${r.tail.split(/\r?\n/).slice(-15).map((l) => "    " + l).join("\n")}\n`);
+    if (STOP_ON_FAIL) {
+      console.log(`  --stop-on-fail: halting after ${c.axis}. Remaining axes not run, nothing further spent.\n`);
+      break;
+    }
+  }
+}
+
+console.log(`\n${"═".repeat(78)}\n  SUMMARY\n${"═".repeat(78)}\n`);
+console.log(`  requested    produced     status      clues   warns   minutes   runId`);
+for (const r of results) {
+  console.log(
+    `  ${r.axis.padEnd(12)} ${String(r.produced ?? "-").padEnd(12)} ${String(r.status ?? "-").padEnd(11)} ${String(r.clueStatus ?? "-").padEnd(7)} ` +
+      `${String(r.warnings).padEnd(7)} ${r.minutes.toFixed(1).padStart(7)}   ${r.runId ?? "-"}`,
+  );
+}
+const failed = results.filter((r) => !(r.code === 0 && r.status && r.status !== "failed"));
+console.log(`\n  ${results.length - failed.length}/${results.length} axes produced a story.`);
+if (failed.length) console.log(`  failed: ${failed.map((r) => r.axis).join(", ")}`);
+console.log("");

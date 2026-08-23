@@ -26,7 +26,29 @@ export function loadSeedCMLFiles(examplesDir: string): any[] {
 
 export function extractStructuralPatterns(cmlFiles: any[]): SeedPattern[] {
   return cmlFiles.map(({ filename, cml }) => {
-    const axis = cml?.CASE?.meta?.primaryAxis || "unknown";
+    /**
+     * The axis lives on `false_assumption.type`. It has never lived on `meta.primaryAxis`.
+     *
+     * This read `cml?.CASE?.meta?.primaryAxis`, a field NO seed file and no generated CML has ever
+     * carried, so every one of the 13 curated exemplars extracted as `axis: "unknown"`.
+     * `selectRelevantPatterns` then filtered for an exact axis match and returned **zero patterns for
+     * all five axes**, so `formatPatternsForPrompt` emitted "No seed patterns available for this
+     * axis." on every run this project has ever done. The entire seed library — the Moonstone, Styles,
+     * the Yellow Room — has never reached a prompt.
+     *
+     * It matters most for exactly the axes that need it: the corpus holds identity ×3 and spatial ×2,
+     * and an `identity` run was getting none of them while being handed the bare word "identity".
+     *
+     * A THIRD SPELLING of one vocabulary — `false_assumption.type` is what the data uses,
+     * `meta.primary_axis` is the snake_case fallback agents 5–8 read, and `meta.primaryAxis` is this
+     * camelCase one that matches nothing. Read in the same order agents 5–8 already do, so the seed
+     * loader and the downstream agents agree on where the axis lives.
+     */
+    const axis =
+      cml?.CASE?.false_assumption?.type ||
+      cml?.CASE?.meta?.primary_axis ||
+      cml?.CASE?.meta?.primaryAxis ||
+      "unknown";
     
     return {
       id: filename.replace(/\.(yaml|yml)$/, ""),

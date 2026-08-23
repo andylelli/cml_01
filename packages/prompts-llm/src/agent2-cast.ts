@@ -332,12 +332,35 @@ Micro-exemplars (patterns to follow, not content to copy):
 - Weak coupling to avoid:
   motiveSeed: "seems suspicious" + alibiWindow: "around evening" + accessPlausibility: "possible"
 
-MOTIVE SPECIFICITY (culprit only): The culprit's motiveSeed MUST answer all three:
-  1. What the culprit gains from the victim's death (inheritance, silence, freedom, position, etc.)
-  2. What the victim knew or was about to do that made them a direct threat
-  3. Why killing was preferred over any non-lethal alternative (bribery, flight, legal action)
-A motiveSeed of "the estate was at stake" fails — it answers (1) only.
-A passing motiveSeed: "Stands to inherit the estate once the victim's new will is destroyed; victim had discovered the forged codicil and threatened to expose it to the family solicitor that morning."
+MOTIVE SPECIFICITY — applies to EVERY name you put in crimeDynamics.possibleCulprits.
+
+You do not know which of them becomes the culprit; that is chosen later. So the standard below is
+not for one character, it is for all of your candidates. A candidate whose motive is a category
+rather than an act cannot carry a reveal if they are chosen.
+
+Each candidate's motiveSeed MUST answer all three:
+  1. What the character gains from the victim's death (inheritance, silence, freedom, position...)
+  2. What the victim knew, or was about to do, that made them a direct threat
+  3. Why killing was preferred over a non-lethal alternative (bribery, flight, legal action)
+
+And (2) MUST NAME THE THING. "A secret", "damaging information", "his dealings", "what he'd been
+hiding", "financial troubles" — these are categories, not secrets. A reader cannot be satisfied by a
+noun they never learn. Name the specific act, document, sum, or object:
+
+  FAILS   "Prevent Dr. Finch's disclosure of a damaging secret"
+  FAILS   "Blackmail threat from victim"
+  FAILS   "Silence him to hide his dealings"
+  PASSES  "Stands to inherit the estate once the victim's new will is destroyed; the victim had
+           discovered the forged codicil and threatened to take it to the family solicitor that
+           morning."
+  PASSES  "The victim had traced the missing ration coupons to his office ledger and was writing to
+           the Board on Monday."
+
+The same rule binds privateSecret: it must BE the named thing, not a description of having one, and
+it must be the same thing the motiveSeed refers to. "Financial troubles unknown to others" is a
+category. "Expert in horology" is a skill, not a secret. If the motive says the victim would expose
+something, privateSecret is what that something IS.
+
 - Good red herring:
   A character with public conflict and staged incriminating behavior, but with a later-verifiable contradiction that removes them as culprit.
 - Detective rule example:

@@ -12,6 +12,8 @@ const FAIR_PLAY_CLAUSE =
 // Each premise's lead sentence is crafted so Agent 3b's mechanism-family extractor locks the PRIMARY
 // device to the intended family (see MECHANISM_FAMILY_KEYWORDS in
 // packages/prompts-llm/src/agent3b-hard-logic-devices.ts). primaryAxis values are the canonical set
+// — temporal | spatial | identity | behavioral | authority. They were NOT, until 2026-08-21: three
+// entries carried retired spellings, one of which ("mechanical") is now fatal.
 // accepted by the orchestrator: temporal | spatial | social | psychological | mechanical.
 export const CANARY_THEME_LIBRARY = {
   clock: {
@@ -20,7 +22,9 @@ export const CANARY_THEME_LIBRARY = {
       "Golden Age murder driven by a mechanical clock-tampering method, where a rewound timepiece staged the apparent time of death.",
   },
   poison: {
-    primaryAxis: "psychological",
+    // Retired spelling of `behavioral`. Canonical now — the aliases still resolve, but a
+    // config carrying the old vocabulary is how the reverse-alias map survived unnoticed.
+    primaryAxis: "behavioral",
     premise:
       "Golden Age murder driven by a delayed-action poison method, where the toxicology and dosage timing conceal when the fatal dose was actually administered.",
   },
@@ -30,7 +34,11 @@ export const CANARY_THEME_LIBRARY = {
       "Golden Age murder driven by a tidal-drowning method, where the flood-tide timetable and shifting sea level fix — and falsify — the window in which the victim could have drowned.",
   },
   acoustic: {
-    primaryAxis: "mechanical",
+    // WAS "mechanical", which X70 made a THROW — `CANARY_THEME=acoustic` would have killed the
+    // run outright. There is no canonical `mechanical`: a mechanism story is expressed as temporal
+    // or spatial plus a mechanism family. This premise turns on when the death actually occurred
+    // (a recording fabricates an alibi for the true moment), so the axis is temporal.
+    primaryAxis: "temporal",
     premise:
       "Golden Age murder driven by an acoustic method, where a gramophone recording played into a soundproofed room fabricates an alibi for the true moment of death.",
   },
@@ -40,7 +48,9 @@ export const CANARY_THEME_LIBRARY = {
       "Golden Age murder driven by an optical method, where a mirror-and-lens reflection falsified a witness's sightline across the room.",
   },
   identity: {
-    primaryAxis: "social",
+    // WAS "social", which resolves to `authority` — so the entry named `identity`, whose premise is
+    // literally a masquerade of double identity, produced an authority mystery.
+    primaryAxis: "identity",
     premise:
       "Golden Age murder driven by an impersonation method, where a masquerade of double identity — a disguise exploited to seem to be in two places — breaks the assumed alibi.",
   },

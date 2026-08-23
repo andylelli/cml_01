@@ -37,7 +37,11 @@ test("loadCanaryInputOverrides uses canary-core-inputs as baseline", async () =>
     const result = await loadCanaryInputOverrides({ workspaceRoot, quickRun: false });
     assert.equal(result.inputs.theme, "Baseline Theme");
     assert.equal(result.inputs.targetLength, "short");
-    assert.equal(result.inputs.primaryAxis, "psychological");
+    // The fixture asks for `behavioral` and this asserted `psychological` — i.e. it asserted that the
+    // loader RE-SPELLS the axis, locking in the reverse alias map removed 2026-08-21. That map sent
+    // `identity` to the agents as `authority` and made `authority` throw. The axis a run asks for is
+    // the axis it gets; see primary-axis-passthrough.test.mjs.
+    assert.equal(result.inputs.primaryAxis, "behavioral");
     assert.equal(result.inputs.castSize, 4);
     assert.equal(result.sources.quickRunEnabled, false);
   } finally {

@@ -108,6 +108,32 @@ sit unread. Every claim in §4 below is a hypothesis until a reader marks a page
 
 Four phases. Phase 0 is the precondition for the other three being anything but guesswork.
 
+### Phase 0a — Free work that must happen BEFORE any paid run · £0
+
+Found 2026-08-21 while auditing what was free. Every item is a flag or a comment, and two of them
+unblock the highest-value lever in
+[15_llm_model_and_cost](../documentation/15_llm_model_and_cost/01_llm_cost_and_performance_levers.md).
+
+| # | action | why it must be first |
+|---|---|---|
+| 0a.1 | **`LLM_HTTP_TRANSPORT=true`** — currently commented out in `.env.local` | Cached prompt tokens are readable only on the HTTP transport. **110 of 1,503 logged calls carry the field; 93% of the pipeline is blind to its own cache behaviour.** No caching claim can be verified without this, and it changes no prompt. |
+| 0a.2 | **`AGENT9_PROMPT_PREFIX_ORDER=true`** — built, default OFF, marked DEFER | This IS the prompt repartition. Its stated probe is *"cached prompt tokens rising from chapter 2"*, which 0a.1 makes observable for the first time. It was not deferred because it is hard; it was deferred because it could not be measured. |
+| 0a.3 | **Teach the cost tracker about cached tokens** | It prices cached input at the full rate. On the two runs with telemetry, 30–31% of input was cache-served, so **every cost figure in this repo is an upper bound** — including the ones in this plan. Third defect of this shape in that one file. |
+| 0a.4 | **Correct the "two thirds" comment** in `agent9-run.ts` *(done)* | It is a CONTENT claim being read as a CACHING estimate. The real cross-chapter prefix is 5%. It misled this analysis once already. |
+
+**Measured, and it reframes Lever B:** Azure telemetry shows **6–12% cache hits on a first attempt and
+88–97% on a retry of the same chapter**. Retries are far cheaper than their raw token count suggests,
+so the regeneration saving is smaller than stated — and caching is worth *more* on a bad run than a
+good one, which is the opposite of the usual shape.
+
+**The pattern, again.** 0a.1 and 0a.2 are a chain: a built lever sat deferred for want of a
+measurement, and the measurement sat off for want of a flag. Neither was hard; neither was connected
+to the other by anyone. That is the same shape as X70 (three axes coerced in silence) and X79 (the
+hard stop reading the shorter list) — **the defect is rarely the code, it is that two true things were
+never put beside each other.**
+
+**Exit condition:** one run with cache telemetry on every call, and a cost figure that means what it says.
+
 ### Phase 0 — Make the gauge work · free + ~£2 · **do this first**
 
 Nothing below Phase 0 is verifiable without it.
@@ -158,33 +184,69 @@ The finding that matters is the **shape** of the workload:
 ```
 mean run                 GBP 1.02   (USD 1.29)
 mean Agent 9 (prose)     GBP 0.80   (USD 1.02)  — 78% of the bill
-implied Agent 9 volume   ~378,000 input / ~32,000 output
-prompt : completion      11.7 : 1   ← an INPUT-priced job
+implied Agent 9 volume   ~263,000 input / ~61,000 output   (at the measured ratio)
+prompt : completion      4.3 : 1    ← MEASURED per-call, whole run: 465,750 in / 107,494 out
 ```
 
-Because it is input-priced, **output rates barely move the total** — which is why the naive
-assumption that frontier models are unaffordable here is wrong:
+~~Because it is input-priced, **output rates barely move the total**~~ — **that was computed at
+11.7:1, a stale per-chapter figure from `mystery-1785521869768`.** Read per-call from the most recent
+run, the whole-run ratio is **4.3:1**, so output rates matter roughly three times more than this
+section assumed, and every Claude option carries a bigger premium on output than on input. The
+corrected table, with the baseline priced on the same cached terms as the alternatives
+(`cost-model-swap.mjs` was pricing gpt-4.1 uncached against cached rivals and reporting it as
+*"-12% vs now"* — cheaper than itself):
 
-| model | $/run, Agent 9 | vs now | with prompt caching | vs now |
+| model | $/run, Agent 9 | vs now | cached at the 29% ceiling | vs now |
 |---|---:|---:|---:|---:|
-| gpt-4.1 *(current)* | $1.02 | — | — | — |
-| Haiku 4.5 | $0.54 | −47% | $0.34 | −66% |
-| **Sonnet 5** *(intro, to 2026-08-31)* | **$1.08** | **+6%** | $0.69 | −32% |
-| Sonnet 5 *(standard, from 09-01)* | $1.62 | +60% | **$1.03** | **+2%** |
-| Sonnet 4.6 | $1.62 | +60% | $1.03 | +2% |
-| Opus 5 | $2.70 | +166% | $1.72 | +70% |
-| Fable 5 | $5.40 | +432% | $3.44 | +239% |
+| gpt-4.1 *(current)* | $1.02 | — | $0.90 | — |
+| Haiku 4.5 | $0.57 | −44% | $0.51 | −43% |
+| **Sonnet 5** *(intro, to 2026-08-31)* | **$1.14** | **+12%** | $1.02 | +14% |
+| Sonnet 5 *(standard, from 09-01)* | $1.71 | **+68%** | $1.53 | **+70%** |
+| Sonnet 4.6 | $1.71 | +68% | $1.53 | +70% |
+| Opus 5 | $2.84 | +180% | $2.54 | +184% |
+| Fable 5 | $5.69 | +460% | $5.09 | +468% |
+
+**Read the last two columns together: caching moves every premium the WRONG way.** It is a discount on
+the prompt, which every model shares, so it lowers the absolute bill (~9% of a run) and leaves the
+relative premium alone — and slightly worsens it, because removing input shifts weight onto output.
+Re-derive with `node scripts/cost-model-swap.mjs --ratio 4.3 --cache-hit 0.29`.
 
 Two conclusions, and the second is the important one:
 
-1. **Sonnet 5 at intro pricing costs +6% per run.** Its input rate is identical to gpt-4.1's; on an
-   11.7:1 workload the output premium is nearly invisible. **That pricing ends 2026-08-31 — ten days
-   from this document.**
-2. **Prompt caching pays for the upgrade.** The orchestrator already records that roughly two thirds
-   of each chapter prompt is identical across chapters (bible, cast, era rules, physics, craft guides,
-   schema). Cached, **Sonnet 5 at standard pricing costs what gpt-4.1 costs today.** The cache
-   multipliers used are Anthropic's (reads ~0.1×, writes ~1.25× at 5-minute TTL), so the Claude rows
-   are priced correctly; the gpt-4.1 cached figure is indicative only and should not be quoted.
+1. ~~**Sonnet 5 at intro pricing costs +6% per run.**~~ **+12% on Agent 9** — the +6% was computed at
+   an 11.7:1 prompt:completion ratio, and the measured whole-run ratio is **4.3:1**
+   (`mystery-1787167692140`, 465,750 in / 107,494 out, read per-call). A lower ratio weighs OUTPUT
+   more heavily, and every Claude option carries a bigger premium on output than on input, so the
+   stale ratio made every swap look cheaper than it is. **That pricing ends 2026-08-31.**
+2. ~~**Prompt caching pays for the upgrade.**~~ **IT DOES NOT, and the arithmetic that said so was
+   wrong twice over.**
+
+   *First*, the premise: "roughly two thirds of each chapter prompt is identical across chapters" is
+   the `agent9-run.ts` comment that 0a.4 corrected — a CONTENT claim being read as a caching estimate.
+   The measured cross-chapter shared prefix is **5%**, against a **29% ceiling** if the prompt is
+   repartitioned stable-first (~8,455 tokens per chapter call).
+
+   *Second*, the comparison: `cost-model-swap.mjs` priced the gpt-4.1 baseline **uncached** while
+   pricing every alternative **cached**, so it reported gpt-4.1 as *"-12% vs now"* — cheaper than
+   itself — and flattered every Claude row by the same 12%. Fixed 2026-08-21.
+
+   **A stable prefix is a property of the prompt, not of the model.** Every row gets the same
+   proportional discount, so caching cannot change a relative premium. Priced correctly, at the full
+   29% ceiling:
+
+   | Agent 9 on… | uncached | cached at the 29% ceiling |
+   |---|---:|---:|
+   | gpt-4.1 *(today)* | — | — |
+   | Haiku 4.5 | −44% | −43% |
+   | Sonnet 5 *(intro, ends 08-31)* | +12% | +14% |
+   | Sonnet 5 *(standard)* | **+68%** | **+70%** |
+   | Opus 5 | +180% | +184% |
+
+   Caching moves the standard-pricing swap from +68% to **+70%** — marginally *worse*, because
+   removing input shifts the weight onto output where the premium is larger. What caching is actually
+   worth is an absolute saving: Agent 9 $1.02 → $0.90, about **9% off the run**. Real, and worth
+   having; not a funding source. The cache multipliers are Anthropic's (reads ~0.1×, writes ~1.25× at
+   5-minute TTL), so the Claude rows are right and the gpt-4.1 cached figure is indicative only.
 
 #### The cheapest experiment, and it needs no code
 
@@ -242,7 +304,7 @@ Age mystery prose. The judge experiment is cheap enough (~£0.09) that it should
 |---|---|---|
 | 0b.0 | **Put the rubric judge on Opus 5**, then re-score the archived 86 and 81. If it separates them, Phase 0 is solved. | ~£0.09/run |
 | 0b.1 | **Enable full-story polish on Opus 5**, one run, read it. | ~+£0.40 |
-| 0b.2 | **Implement prompt caching on the chapter prefix.** Free to build; cuts the bill ~40% *and* is the precondition that makes any frontier model affordable. | free |
+| 0b.2 | **Repartition the chapter prompt stable-first** (`AGENT9_PROMPT_PREFIX_ORDER`, already built — see 0a.2). Free. ~~cuts the bill ~40% and makes any frontier model affordable~~ — **corrected:** worth **~9% off the run** (5% shared prefix today against a 29% ceiling), and it does **not** make a swap affordable, because caching discounts every model equally. Take it for the money, not as a precondition. | free |
 | 0b.3 | Only then decide about generation. If 0b.1 moves the flat three, the model matters and 0b.2 has already paid for the swap. If it does not, that is real evidence toward the ceiling being elsewhere. | — |
 
 **Falsification:** 0b is wrong if polish on a frontier model moves none of the flat three AND M6 also
@@ -262,7 +324,7 @@ board detectors genuinely serve. Most of the machinery now exists; what it lacks
 | 1.1 | **X38-at-source, the flag half.** `buildDeviceArithmeticRule` is written and inert behind `AGENT3_DEVICE_TIME_BINDING` (default OFF). Four of the ten broken archived devices are only reachable this way. | one run, one flag | Prediction to falsify: `[X38]` absent at Agent 3b **and** Agent 7.5. |
 | 1.2 | **Confirm X73.** The Act III contract is prevention, unflagged, and unmeasured. | rides along | Prediction: `aftermath_consequence` retries drop from ~2.3/run toward 0. It is 21 of 54 archived chapter retries and appears in **all nine** runs that retried anything. |
 | 1.3 | **`derivedFrom` uptake.** X38's repair now acts only on a declared dependency, and no archived device declares one. | rides along | If Agent 3b does not populate it, the repair stays correctly inert and the prompt needs work — not the repair. |
-| 1.4 | **X69 — the motive's concrete noun.** The reader's third named fix, still unbuilt. | free to design | Belongs at Agent 3's authoring, like X38-at-source. |
+| 1.4 | **X69 — the motive's concrete noun.** ~~The reader's third named fix, still unbuilt.~~ | **DONE 08-21** | The diagnosis was wrong: the check already existed, scoped `(culprit only)` in a prompt that forbids Agent 2 from naming a culprit. Rescoped to `possibleCulprits`; `privateSecret` now bound to the same named thing. Fourth instance of *rule-without-a-subject* (X70/X73/X80). No detector — a heuristic flagged 6 of 18 and missed every worst case. [REVIEW_05 §12.16](REVIEW_05.md#1216-x69--a-rule-addressed-to-a-subject-that-did-not-exist-yet) |
 
 **Exit condition:** two consecutive runs with zero geometry violations in the volatile four.
 
@@ -303,30 +365,311 @@ What exists:
 
 ---
 
+## 4a. RESULTS — the paid runs of 2026-08-21
+
+Phases 0b.0, 0.3 and 0b.1 executed. **Both headline hypotheses were falsified, and the plan's own
+premise (§2) came out stronger rather than fixed.** Spend: ~£4.9.
+
+### 0b.0 — the judge upgrade does NOT solve Phase 0
+
+`scripts/judge-ab.mjs` (new), 8 repeats per story per judge on the two manuscripts §2 argues from —
+`story_20260817-2209` (external **86**) and `story_20260819-2047` (external **81**).
+
+| judge | 86 → mean | spread | 81 → mean | spread | gap | verdict |
+|---|---:|---:|---:|---:|---:|---|
+| `gpt-4.1-mini` *(current)* | 70.4 | 7 | 69.3 | 5 | **+1.1** | does not separate |
+| `claude-opus-5` | 52.3 | 8 | **54.6** | 6 | **−2.3** | does not separate, **and ranks the 81 higher** |
+
+Opus fails in the same direction the shadow rubric did, with a **wider** spread than the model it was
+supposed to replace. *"Opus 5 on the judge costs about nine pence a run"* was true and irrelevant: the
+cheapness was never the obstacle. **§2 stands, and no instrument tested can resolve five marks.**
+
+Two things had to be built before this could run at all, both recorded in [REVIEW_05](REVIEW_05.md):
+`eval-rescore.mjs` threw `Assignment to constant variable` on its first entry and could not execute;
+and the judge is constructed from the run's **Azure** client at both call sites, so `RUBRIC_JUDGE_MODEL`
+could only ever name an Azure deployment — `createLLMRubricJudge` wraps any chat function, so the
+package was always provider-agnostic and only the callers were not.
+
+### 0.3 — the error bar, answered as a byproduct, and it is worse than recorded
+
+M1c's **±3 with a spread of 6** was measured on one story at low n. At n=8 the spread is **7 on
+`gpt-4.1-mini` and 8 on `claude-opus-5`** — wider than the 5-mark external gap the rubric is being
+asked to resolve. **A single rubric score cannot rank two books, on any model tested.**
+
+> **METHOD NOTE, and it cost a wrong answer before it was caught.** At n=3 the current judge looked
+> like it separated them cleanly: 73.0 vs 69.3, gap **+3.7** against a spread of 3 — "SEPARATES". At
+> n=8 the same judge on the same two files gave +1.1 against a spread of 7. **The n=3 result was
+> noise.** Every A/B delta in every board on this project is a single scoring; against a ±7 instrument,
+> a lever moving fewer than ~7 marks has not been measured at all.
+
+### 0b.1 — frontier polish did not move craft, and the pass it was aimed at was inert
+
+**As written, 0b.1 was not executable.** `runFullStoryRepetitionPolish` took the run's Azure client and
+never called `resolvePolishProvider()` — the seam its sibling `polishPassingChapter` has had all along
+— so `AGENT9_POLISH_PROVIDER=anthropic` and `AGENT9_POLISH_ANTHROPIC_MODEL` silently did nothing there.
+One capability, two call sites, one of them wired: the recurring shape in this codebase.
+
+**And the pass is inert.** Measured over the whole of `logs/llm.jsonl`, the full-story polish has made
+**two LLM calls in its entire history** (Ch4 and Ch10, 2026-07-25), both returned usable prose, and
+**both were rolled back by its own regression guard**. Every treatment arm in
+`results/ab-agent9_fullstory_polish` shows `editedChapters: []`, one of them with 15 recurring phrases
+available to work on. The guard did `continue; // roll back` and recorded nothing, so *"rejected every
+time"* and *"had nothing to do"* wrote byte-identical telemetry. Both fixed: a provider seam, and a
+reason string naming the failing check.
+
+**What did run, and what it showed.** Per-chapter polish executed on **`claude-opus-5`** across 6
+chapters (~13K output tokens of frontier line-editing) — the archive runs this on `claude-sonnet-5`.
+Result, against the 11 previous scored runs:
+
+| | premise | opening | plot | character | dialogue | atmosphere | clues | pacing | ending | prose | final |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| historical range (n=11) | 7–7 | 6–7 | 6–8 | 7–8 | 6–7 | 8–9 | 6–8 | 5–8 | 5–8 | 7–8 | 68–76 |
+| **Opus-polished run** | 7 | 7 | 6 | 7 | **6** | **8** | 8 | 5 | 7 | **7** | **68** |
+
+Every craft category landed at **the bottom of its historical range**. `dialogue` 6, `prose` 7,
+`atmosphere` 8 — no movement, on n=1 against a ±7 instrument, so this is not evidence *against* the
+model hypothesis either. It is simply not evidence *for* it, which is what 0b.1 was run to find.
+
+> **§3's "three stuck categories sit at 8 in every read" is factually wrong.** Across 12 scored runs
+> nothing sits at 8 in every read: `atmosphere` is 8–9, `prose` 7–8, `clues` 6–8. The genuinely frozen
+> category is **`premise`, which is 7 in all twelve** — and it is 7, not 8. A lever aimed at "the flat
+> three at 8" was aimed at a set that does not exist.
+
+### 0.2 — the first run found the axis was still broken
+
+Requested `identity`. **Agent 3 received `authority`**, and nothing in any artifact said so. Cause is
+[X88](REVIEW_05.md#1218-x88-the-coercion-that-survived-its-own-fix): a *reverse* alias map in
+`canary-input-overrides.mjs` rewrote the canonical five into the retired spellings on the way in, so
+[X70](REVIEW_05.md)'s fix removed the downstream default and left the upstream translation intact.
+
+| the yaml says | the loader emitted | the agent received | |
+|---|---|---|---|
+| `identity` | `social` | **`authority`** | a different kind of mystery, silently |
+| `behavioral` | `psychological` | `behavioral` | correct only by coincidence |
+| `authority` | `mechanical` | **THROWS** | X70 made it fatal — the run dies at init |
+
+**One of the three axes X70 was supposed to unlock actually worked**, and §3's *"[X70] made `identity`,
+`behavioral` and `authority` reachable for the first time"* was wrong when written. It also settles
+where 23-of-23-temporal came from: before X70 the downstream default swallowed every spelling this map
+produced.
+
+Fixed, with 9 tests spanning **both** hops — each end was correct in isolation, which is why nothing
+caught it, and an existing test actively asserted the re-spelling. A third instance was found in
+`theme-library.mjs` ([X89](REVIEW_05.md)), where `CANARY_THEME=acoustic` emitted the now-fatal
+`mechanical` and the entry named `identity` emitted `social`.
+
+#### What the run itself showed — the first non-temporal case in the project's history
+
+It shipped. `story_20260821-2120/the_authority_s_shadow_on_the_promenade.md`, 10 chapters, 22.6 min,
+**£1.03**, `false_assumption.type: authority`, release gate `warning` (0 hard stops), rubric **68**.
+Against 23 archived temporal cases scoring 68–76, an authority case lands **inside the same band**. On
+n=1 against a ±7 rubric that is not a quality claim — but "a non-temporal axis runs end to end and
+ships" is now established rather than assumed.
+
+**The geometry question got a different answer than the one §0.2 predicted.** The plan expected to learn
+*"what a third of geometry does when it has nothing to read"*. It had plenty to read: Agent 3 populated
+`trueTime: "8:45"` / `apparentTime: "8:30"` on an authority case, so the temporal contract engaged
+normally and `reveal_times_not_stated` fired on ch8 with the message *"the disclosure of a **temporal
+deception** owes the reader both hours"*.
+
+Measured, and worth separating from the above: **`packages/story-geometry` contains no reference to
+`primaryAxis` or `axis` anywhere.** All 15 codes apply identically to all five axes, keyed on what the
+case contains rather than what kind of case it is. Here that was harmless-to-useful, because the case
+genuinely had a claimed-vs-actual time (`high_tide_time`, `murder_claimed_time`). It is not established
+that it is harmless for an axis whose case populates no temporal fields — no such case exists yet.
+
+**The sharper question this raises, unanswered on n=1:** the locked facts of this "authority" case are
+`high_tide_time`, `murder_claimed_time`, `promenade_length`, `wet_sand_mark_length` — a tide-and-distance
+mechanism with a two-time deception at its core. Setting `primaryAxis: authority` changed the label and
+the title; whether it changed the *kind* of mystery underneath is exactly what four more runs would
+show, and what a single run cannot.
+
+**Consequence for this phase:** the ~£1 bought a defect AND a first — X88, and the first non-temporal manuscript this project has produced. The manuscript it
+produced is an **authority** story — genuinely one of the never-run axes, so it is not wasted, but it is
+not the `identity` run that was asked for. All five axes now verify end to end; a clean sweep would
+cost ~£5 and is unstarted.
+
+### 0.2 — COMPLETE. Five axes, five manuscripts, 2026-08-22
+
+Re-run in full after [X88/X90/X91/X92](REVIEW_05.md#1219-x90x91x92--the-axis-had-three-ways-to-fail-and-none-to-succeed).
+All five arms are from the same build; the 08-21 authority run is **excluded** — it predates the fixes,
+and comparing four fresh arms against a stale fifth is the error class this phase kept finding.
+
+| requested | produced | rubric | shipped | cost | minutes |
+|---|---|---:|---|---:|---:|
+| temporal | **temporal** | 68 | yes | £0.76 | 17.8 |
+| spatial | **spatial** | 71 | yes | £0.80 | 18.4 |
+| identity | **identity** | 68 | yes | £1.97 | 22.2 |
+| behavioral | **behavioral** | 69 | yes | £1.71 | 15.2 |
+| authority | **authority** | 68 | yes | £0.92 | 16.0 |
+
+**5/5 requested = produced. 5/5 shipped.** Total £6.18. Phase 0's exit condition — *"five manuscripts
+across five axes"* — is met for the first time.
+
+#### The axis now decides the mystery, not the label
+
+The test that matters is not the `type` field, which X88 could have satisfied on its own. It is whether
+the reader's error differs:
+
+| axis | the false assumption the case builds |
+|---|---|
+| temporal | "the victim's death time corresponds exactly to when the poison was delivered and opened" |
+| spatial | "the locked staff-only stairwell door was inaccessible without a key, and the shadows on the landing prove no one passed after dusk" |
+| identity | "Captain Ivor Hale's presence in the laundry basement at the time of the murder is confirmed by trolley sightings and staff testimony" |
+| behavioral | "Hugo Vane's gruff and straightforward nature means he would never engage in deceptive tampering or complex premeditation" |
+| authority | "the hotel's official delivery logs and staff testimonies are accurate and authoritative" |
+
+Five different reader errors — WHEN, WHERE, WHO, HOW SOMEONE WOULD ACT, WHO MAY BE BELIEVED — each
+matching its [X92](REVIEW_05.md) gloss. Against 23 archived cases that were all temporal, and against
+the 08-21 authority run whose locked facts were `high_tide_time` and `murder_claimed_time`, this is the
+first evidence that the axis parameter does what it claims.
+
+Both fixes verified in the shipped prompts: every run carried its axis definition, and
+`timetable dependency` appears in the mechanism families of the **temporal** run only.
+
+#### What the mechanisms show, stated carefully
+
+Three of five still rest on a time or tide value, and that is **not** the X90 defect returning. The
+setting is a seaside hotel for all five, and a tide is a real feature of one; what changed is that the
+tide is now the mechanism *underneath* an authority deception rather than the deception itself. The
+reader's error is the axis; the physics is the setting. That is correct Golden Age construction.
+
+One piece of residual drift, benign today and recorded before it is not: Agent 3b returns the MODE
+string `transit or seaside topology` inside `mechanismFamilyHints`, and `mergeHardLogicDirectives` adds
+hints without the axis guard that `deriveHardLogicDirectives` now applies. A mode is not a family. It
+introduces no foreign axis today because mode strings are not in `FAMILY_AXIS` — but it is a guard at
+one call site and none at the next, which is this repo's most-repeated shape.
+
+#### Geometry off-axis — the question §0.2 posed, answered
+
+The prediction was that the 5 temporal-only codes would have *"nothing to read"*. They had plenty:
+
+| axis | codes raised |
+|---|---|
+| temporal | time_anchors_absent, unaccounted_time, reveal_culprit_not_named, clearance_over_budget |
+| spatial | time_anchors_absent, unaccounted_time, clearance_over_budget |
+| identity | unaccounted_time, clincher_not_planted, reveal_culprit_not_named, reveal_times_not_stated, clearance_over_budget |
+| behavioral | reveal_culprit_not_named, aftermath_repeat, clearance_over_budget |
+| authority | unaccounted_time, clincher_absent_at_payoff, clearance_over_budget |
+
+Every case carries clock values whatever its axis, so the temporal codes stay live — `unaccounted_time`
+on four of five. Geometry gating on **what the case contains** rather than on its label is therefore the
+right design and needs no axis awareness, which settles that question.
+
+**The finding geometry did surface is axis-independent: `clearance_over_budget` fires on 5 of 5.** A
+violation that every run raises regardless of axis is not telling us about the story; it is telling us
+the budget is set wrong. That is [2.3](#) on the board, and it now has five runs of evidence.
+
+#### And the rubric still cannot rank them
+
+68, 71, 68, 69, 68 — a spread of 3 across five structurally different books, against a measured error
+bar of ±7. Exactly what [0.4](#) predicted. The sweep can tell you the five axes WORK; it cannot tell
+you which produced the better mystery, and no internal number will until the scoring METHOD changes.
+
+### The axis parameter — what was actually wrong, and what is left
+
+The stated target is a generator that produces a mystery on **any** of the five axes as a parameter
+choice. After 0.2's single run, four defects stood between the pipeline and that. Three are fixed.
+
+| | defect | status |
+|---|---|---|
+| [X88](REVIEW_05.md#1218-x88-the-coercion-that-survived-its-own-fix) | a reverse alias map collapsed the axis LABEL — `identity` → `authority`, `authority` → throw | fixed, 9 tests |
+| [X90](REVIEW_05.md) | the LOCATION injected a temporal mechanism family into every axis; `SeasideHotel` is the default | fixed, 35 tests |
+| [X91](REVIEW_05.md) | the 13 seed exemplars reached **no** prompt, on any run, for any axis | fixed, temporal 2 / spatial 2 / identity 3 now reach it |
+| [X92](REVIEW_05.md) | the axis was passed to Agent 3 as a bare word with no definition | fixed, 12 tests |
+| — | **no `behavioral` or `authority` seed case exists** | **open — content, not code** |
+
+Read together, the three new ones explain the corpus better than X88 alone did: Agent 3 was told the
+word "authority", shown no exemplar of it (because no exemplar of anything reached it), and handed a
+mechanism family list containing `timetable dependency`. **The only concrete steer it received pointed
+at a clock.** 23-of-23-temporal is what that produces.
+
+**The one open item is a writing task.** `selectRelevantPatterns` matches the axis exactly, so a
+`behavioral` or `authority` run gets a definition and correct families but no worked case to pattern
+against. Loosening the match would hand an authority run an identity exemplar — the X70
+`mechanical → identity` mistake in a new place.
+
+Audited, all 13 seeds, now that the axis is actually read:
+
+| axis | seeds |
+|---|---|
+| identity | Moonstone, The Second Key, Sign of the Four, Valley of Fear (4) |
+| temporal | A Study in Scarlet, Mysterious Affair at Styles (2) |
+| spatial | The Leavenworth Case, Mystery of the Yellow Room (2) |
+| behavioral | **none** |
+| authority | **none** |
+| unusable | The Big Bow Mystery (`timing_error / witness_suggestion` — a compound, matches nothing) plus 4 with no `false_assumption.type` at all: The Clue of the Twisted Candle, The Leak, The Secret Adversary, Trent's Last Case |
+
+So **5 of 13 contribute to no axis**, and no retired spelling is hiding a behavioral or authority case
+— checked, not assumed. Both gaps are editorial calls about real published novels, which is why
+neither is fixed here: assigning an axis to Trent's Last Case, or inventing two exemplars to fill the
+empty rows, would put fabricated patterns into a corpus whose whole value is that its 13 entries are
+real books. Two seed CMLs and five `type` fields, decided by someone who has read them.
+
+**What this changes about 0.2.** The four remaining runs are now worth doing and were not before: run
+against the pipeline as it stood this morning they would have measured X90 and X91 rather than the
+axis, and reported five successes. That is the same trap X70 fell into once already.
+
+### The two decisions this phase was blocked on — taken 2026-08-22
+
+**0.4 — what the headline IS.** *Decision: the internal number is a HEALTH signal. External reads are
+the only quality measure.* Forced rather than chosen: 0b.0 measured the rubric's error bar at **±7–8 at
+n=8**, against a 5-mark external gap, on both models tested. A number that cannot rank two books cannot
+be a quality headline, and promoting the shadow rubric would have promoted an instrument whose noise
+exceeds the difference it is being asked to resolve. Nothing here needs new code — it needs the project
+to stop quoting the internal number as if it graded the book. **Consequence: every "did that change
+help?" question routes through a paying reader until a different scoring METHOD exists.** Note "method",
+not "model": 0b.0 falsified the model route specifically.
+
+**0b.3 — the generation model.** *Decision: not yet, and the question is not close.* 0b.1 pulled the
+craft lever exactly once, at n=1, through the ±7 instrument above — and the one thing it did establish
+is that the pass 0b.1 was aimed at had never changed a word of output ([X84](REVIEW_05.md)/[X85](REVIEW_05.md)).
+Declaring a capability ceiling on that evidence would repeat §3's own warning about *"diagnosing a writer
+who has been handed 12.6% of the brief and never once line-edited"*. The cost work is also settled
+against it: caching cannot fund a swap (it discounts every model equally), so Sonnet 5 at standard
+pricing is **+68% uncached and +70% cached**. Revisit when there is an instrument that can tell whether
+the swap helped — which is 0.4's problem, not this one's.
+
+### What this does to the plan
+
+- **0b.3 (decide about generation) can now be asked**, and the honest answer is *not yet*: the craft
+  lever has been pulled once, at n=1, through an instrument that cannot resolve the difference.
+- **0.4 (decide what the headline is) is now forced.** The internal number is a health signal. With a
+  ±7 rubric and no separating judge, external reads remain the only quality measure.
+- **The cheap-instrument route is closed.** Phase 0's exit condition cannot be met by upgrading a
+  model; it needs either a different scoring method or a paying reader.
+
 ## 5. The order, and what it costs
 
 ```
- 0.1   read story_20260819-2302                        a reader        <- start here
- 0b.2  prompt caching on the chapter prefix            free            <- and this, in parallel
- 0b.0  rubric judge -> Opus 5, re-score the 86 and 81  ~GBP 0.09  <- highest leverage
- 0.3   rubric error bar, n=3 cases (on the NEW judge)  ~GBP 0.10
- 0.4   decide what the headline is                     free
- 0b.1  full-story polish ON, frontier model, one run   ~GBP 0.40
- 0.2   five runs, one per axis                         ~GBP 2
+ 0a.1  LLM_HTTP_TRANSPORT=true                         free       <- start here
+ 0a.2  AGENT9_PROMPT_PREFIX_ORDER=true (already built) free
+ 0a.3  cost tracker: account for cached tokens         free
+ 0.1   read story_20260819-2302                        a reader
+ 0b.2  chapter prompt stable-first (~9%, not 40%)      free            <- and this, in parallel
+ 0b.0  rubric judge -> Opus 5                          DONE 08-21  FALSIFIED: does not separate
+ 0.3   rubric error bar                                DONE 08-21  +/-7, not +/-3
+ 0.4   decide what the headline is                     DECIDED 08-22  health signal only
+ 0b.1  frontier polish, one run                        DONE 08-21  no craft movement (n=1)
+ 0.2   one run per axis                                DONE 08-22  5/5, requested==produced
  ---- gauge exists, and the craft lever has been pulled once ---------
  1.1   X38-at-source flag half, + 1.2/1.3 ride along   ~GBP 1.5
  2.1   the gate-authority decision                     free + a replay
  2.3   fold-clearances flag                            ~GBP 1.5
  ---- reliability half settled or falsified -------------------------
  3.x   M6 re-read, craft ratio, contract audit         ~GBP 1.5 + free
- 0b.3  decide about the generation model               a decision
- 1.4   X69 motive noun                                 free to design
+ 0b.3  decide about the generation model               DECIDED 08-22  not yet
+ 1.4   X69 motive noun                                 DONE 08-21
 ```
 
-**0b.2 is free and comes first for a reason that is not the score:** the pipeline is an 11.7:1
-input-priced workload, so prompt caching cuts the bill by roughly 40% *and* is the thing that makes
-every frontier option affordable. Cached, Sonnet 5 at standard pricing costs what gpt-4.1 costs
-today. Uncached, the same swap is +60%. It is the highest-leverage free item on this plan.
+**0b.2 is free, and it is worth ~9% of the run — not 40%, and not a precondition for anything.**
+The workload is 4.3:1, not 11.7:1; the cross-chapter shared prefix is 5% against a 29% ceiling, not
+two thirds; and a stable prefix is a property of the PROMPT, not the model, so caching discounts every
+candidate equally and leaves the premium where it was. Sonnet 5 at standard pricing is **+68% uncached
+and +70% cached** — caching makes the swap marginally worse, because removing input shifts the weight
+onto output where the premium is larger. See section 3 for the corrected table. Take 0b.2 because it
+is free money, and decide the model on 0b.1s evidence rather than on an affordability argument that
+does not hold.
 
 **One dated item:** Sonnet 5 intro pricing (+6% per run uncached) ends **2026-08-31**. That is not a
 reason to rush a decision — it is a reason to have run 0b.1 before deciding, which costs ~GBP 0.40.

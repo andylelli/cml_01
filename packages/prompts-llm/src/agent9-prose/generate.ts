@@ -4464,12 +4464,25 @@ export async function generateProse(
   // A_69 §8 — which chapters this pass actually rewrote. Previously discarded, which made the lever
   // unmeasurable: the A_69 smoke probe had to reconstruct it from logs/llm.jsonl by hand.
   let fullStoryPolishEditedChapters: number[] = [];
+  // What the pass ATTEMPTED and why anything was rolled back. Without these two, "rejected every
+  // time" and "had nothing to do" write byte-identical telemetry — see the block below.
+  let fullStoryPolishAttemptedChapters: number[] = [];
+  let fullStoryPolishRejections: string[] = [];
   if (fullStoryPolishEnabled && recurringPhrases.length > 0) {
     try {
+      // Same alternate-provider seam the per-chapter polish uses. Without it this pass ran on the
+      // run's Azure client no matter what AGENT9_POLISH_PROVIDER said.
+      const fullStoryProvider = resolvePolishProvider({
+        logger: typeof (client as any)?.getLogger === "function" ? (client as any).getLogger() : undefined,
+        costTracker:
+          typeof (client as any)?.getCostTracker === "function" ? (client as any).getCostTracker() : undefined,
+      });
       const fullStory = await runFullStoryRepetitionPolish({
         chapters,
         client,
         model: inputs.model,
+        polishClient: fullStoryProvider?.client,
+        polishModel: fullStoryProvider?.model,
         runId: inputs.runId,
         projectId: inputs.projectId,
         lockedValues: (inputs.lockedFacts ?? []).map((f) => f.value),
@@ -4480,8 +4493,20 @@ export async function generateProse(
         chapters.splice(0, chapters.length, ...fullStory.chapters);
         fullStoryPolishEditedChapters = fullStory.editedChapters;
       }
-    } catch {
-      // Best-effort cross-chapter polish; keep the committed chapters if it fails.
+      /**
+       * Say what the pass DID, not just what it kept.
+       *
+       * Measured before this line existed: 2 LLM calls in the whole of logs/llm.jsonl, both rolled
+       * back, `editedChapters: []` on every archived treatment arm. "Rejected every time" and "had
+       * nothing to do" produced byte-identical evidence, so the lever could not be diagnosed without
+       * re-running it by hand. These warnings are the difference between a measurable lever and an
+       * inert one.
+       */
+      fullStoryPolishAttemptedChapters = fullStory.attemptedChapters ?? [];
+      fullStoryPolishRejections = fullStory.rejections ?? [];
+    } catch (e) {
+      // Best-effort cross-chapter polish; keep the committed chapters if it fails — but never silently.
+      fullStoryPolishRejections = [`pass threw: ${(e as Error)?.message ?? String(e)}`];
     }
   }
 
@@ -4535,6 +4560,17 @@ export async function generateProse(
     // A_69 §8 — cross-chapter polish outcome (empty when the lever is off or nothing was rewritten).
     fullStoryPolishEnabled,
     fullStoryPolishEditedChapters,
+    /**
+     * A_69 §8 recorded only what the pass KEPT, which is why the lever read as dormant for a month.
+     *
+     * Measured across the whole of `logs/llm.jsonl`: the full-story polish has made **2 calls ever**
+     * (Ch4 + Ch10, 2026-07-25, gpt-4.1), both returned usable prose, and **both were rolled back** —
+     * every treatment arm in `results/ab-agent9_fullstory_polish` shows `editedChapters: []`, one of
+     * them with 15 recurring phrases available to work on. `attempted` distinguishes "targeting chose
+     * nobody" from "the guard refused everything"; `rejections` names the failing check.
+     */
+    fullStoryPolishAttemptedChapters,
+    fullStoryPolishRejections,
     rolloutFlags: {
       phraseFamilyDetectionEnabled: rolloutFlags.phrase_family_detection_enabled,
       uncappedRepairTargetsEnabled: rolloutFlags.uncapped_repair_targets_enabled,

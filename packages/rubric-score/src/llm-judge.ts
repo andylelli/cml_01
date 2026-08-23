@@ -128,9 +128,56 @@ function parseFlagCitations(raw: unknown): FlagCitation[] | undefined {
   return out.length ? out : undefined;
 }
 
+/**
+ * Pull the JSON object out of a judge response, tolerating anything a model puts around it.
+ *
+ * WAS: return the fenced group, else the WHOLE string. A model that emits a bare object followed by a
+ * sentence of commentary therefore fed `{...} Here is my assessment.` straight to `JSON.parse`, which
+ * throws `Unexpected non-whitespace character after JSON at position N`.
+ *
+ * MEASURED: that cost a paid `claude-opus-5` call (~£0.18) during the 0b.0 n=8 experiment and silently
+ * shrank that story's sample from 8 to 7. The failure is not provider-specific — nothing stops any
+ * model appending a line — and `AnthropicClient` already exports `extractJsonPayload` for exactly this,
+ * which this package cannot reach without becoming provider-aware.
+ *
+ * Scanning for a BALANCED object rather than to the last brace matters: judge output embeds `reason`
+ * strings full of prose, and `lastIndexOf("}")` would happily span two concatenated objects. String
+ * literals and their escapes are tracked so a brace inside a reason cannot close the scan.
+ */
 function stripFences(s: string): string {
-  const m = /```(?:json)?\s*([\s\S]*?)```/.exec(s);
-  return (m ? m[1] : s).trim();
+  const fenced = /```(?:json)?\s*([\s\S]*?)```/.exec(s);
+  const body = (fenced ? fenced[1]! : s).trim();
+  // NB: no `startsWith("{") && endsWith("}")` shortcut. Two concatenated objects satisfy it and
+  // would be returned whole; the scan below already returns the entire object in the plain case.
+  const start = body.indexOf("{");
+  if (start < 0) return body;
+
+  let depth = 0;
+  let inString = false;
+  let escaped = false;
+  for (let i = start; i < body.length; i += 1) {
+    const ch = body[i]!;
+    if (escaped) {
+      escaped = false;
+      continue;
+    }
+    if (ch === "\\") {
+      escaped = true;
+      continue;
+    }
+    if (ch === '"') {
+      inString = !inString;
+      continue;
+    }
+    if (inString) continue;
+    if (ch === "{") depth += 1;
+    else if (ch === "}") {
+      depth -= 1;
+      if (depth === 0) return body.slice(start, i + 1);
+    }
+  }
+  // Unbalanced — hand back what we have and let JSON.parse report it. Never invent a closing brace.
+  return body.slice(start);
 }
 
 function asStringArray(v: unknown): string[] {

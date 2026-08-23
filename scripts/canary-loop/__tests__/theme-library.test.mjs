@@ -19,7 +19,8 @@ test("unknown selector returns null (no override)", () => {
 test("a known key selects its premise + canonical axis", () => {
   const poison = selectCanaryTheme("poison");
   assert.equal(poison.key, "poison");
-  assert.equal(poison.primaryAxis, "psychological");
+  // Canonical spelling; `psychological` was the retired one. See theme-library.mjs.
+  assert.equal(poison.primaryAxis, "behavioral");
   assert.match(poison.theme, /poison/i);
   // The fair-play scaffold is always appended so the generated mystery stays well-formed.
   assert.match(poison.theme, /strict fair-play/i);
@@ -46,7 +47,9 @@ test("every library entry maps its mechanism keyword into the theme text", () =>
     assert.ok(sel, `selectCanaryTheme(${key}) should resolve`);
     assert.match(sel.theme, expectedKeyword[key], `${key} theme must carry its mechanism keyword`);
     assert.ok(
-      ["temporal", "spatial", "social", "psychological", "mechanical"].includes(sel.primaryAxis),
+      // The canonical five. This list previously held the RETIRED spellings, so it would have
+      // passed while the library emitted "mechanical" — a value that now throws at run start.
+      ["temporal", "spatial", "identity", "behavioral", "authority"].includes(sel.primaryAxis),
       `${key} axis must be canonical`,
     );
   }

@@ -22,6 +22,8 @@
  */
 
 import { describe, expect, it } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 
 import { MOJIBAKE_PATTERN } from '../chapter-validator.js';
 
@@ -83,13 +85,48 @@ describe('it does not flag clean prose', () => {
   });
 });
 
-describe('there is only one list', () => {
-  it('the worker HARD-STOP pattern IS this pattern, not a copy of it', async () => {
-    // If prose-text.ts ever grows its own literal again, this identity check fails. That file is
-    // what `proseContainsMojibake` reads, and `proseContainsMojibake` is what aborts the run.
-    const { persistentMojibakePattern } = await import(
-      '../../../../apps/worker/src/jobs/agents/agent9/prose-text.js'
-    );
-    expect(persistentMojibakePattern.source).toBe(MOJIBAKE_PATTERN.source);
+describe('there is only one DETECTION list', () => {
+  /**
+   * Read the worker file as TEXT rather than importing it.
+   *
+   * The first version of this test did `await import('.../prose-text.js')` to compare regex sources.
+   * It passed alone and TIMED OUT in the full suite: that import pulls the worker's whole module
+   * graph — `agent9-run.ts` alone is 7,500 lines — to compare one string. A structural invariant
+   * should not need a runtime, and a test that only fails under load is worse than no test.
+   *
+   * SCOPE, and the second version of this test got it wrong. `prose-text.ts` legitimately contains a
+   * mojibake REPAIR TABLE — sequence → correct character — because repairing mojibake is that file's
+   * job. Asserting "no mojibake bytes anywhere in the file" flagged the repair table and failed. The
+   * invariant that matters is narrower: **the DETECTION pattern must not be a second literal.**
+   *
+   * OPEN QUESTION, deliberately not asserted here: the repair table is a THIRD list of the same
+   * vocabulary, and nothing checks that everything it repairs is also something the detector would
+   * catch if the repair failed. That is the same drift shape as X79 itself. It needs a careful
+   * measurement (the sequences carry mixed \x and \u escaping and are easy to mis-decode) rather than
+   * a guess, so it is recorded rather than claimed.
+   */
+  const proseText = readFileSync(
+    join(__dirname, '../../../../apps/worker/src/jobs/agents/agent9/prose-text.ts'),
+    'utf8',
+  );
+
+  /** The statement that defines what can hard-stop a run. */
+  const detectionAssignment = proseText
+    .split('\n')
+    .findIndex((line) => line.includes('persistentMojibakePattern') && line.includes('='));
+
+  it('the worker imports the vocabulary rather than declaring one', () => {
+    expect(proseText).toContain('MOJIBAKE_PATTERN');
+    expect(proseText).toContain('from "@cml/story-validation"');
+    expect(detectionAssignment).toBeGreaterThan(-1);
+  });
+
+  it('the detection pattern is the shared constant, not a literal', () => {
+    // Look at the assignment and the line after it — the value may wrap.
+    const lines = proseText.split('\n');
+    const stmt = [lines[detectionAssignment], lines[detectionAssignment + 1] ?? ''].join(' ');
+    expect(stmt, 'persistentMojibakePattern must be assigned MOJIBAKE_PATTERN').toContain('MOJIBAKE_PATTERN');
+    // A `(?:` in that statement means someone has written a second character class here again.
+    expect(stmt.includes('(?:'), 'prose-text.ts has grown its own detection literal again').toBe(false);
   });
 });
