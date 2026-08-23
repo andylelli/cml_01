@@ -933,11 +933,22 @@ The rotation prevents repetition WITHIN a book and the entropy linter confirms i
 across books, and nothing could, because each run is scored alone. Now offset once per story by a hash
 of the case title — deterministic, so a replay reproduces its openings.
 
-**Recorded and NOT built:** the same prompt line mandates a closed list of 18 sensory and 34 atmosphere
-words, identical on every chapter of every run and validator-enforced — which is why `chill`/`damp`/
-`faint` win a quarter of all first sentences, and probably why `atmosphere`'s notes are as
-interchangeable as the hook's. **That list has four bodies and drives retries**, so the durable change
-(a rotating subset in the prompt against the full list in the validator) is its own increment.
+**[X95](REVIEW_05.md#1222-x95--one-grounding-vocabulary-and-the-closed-list-that-shapes-every-opening) —
+atmosphere and prose.** The other half of the same defect, and it turned out to be the two-body problem
+for the eighth time: the sensory and atmosphere wordlists that gate every chapter opening lived in
+**six** places and had drifted in both directions. They now render from one module. The closed list is
+itself the defect — the same 18 sensory and 39 atmosphere words, identically, on every chapter of every
+run, validator-enforced, which is why `chill` opens 26% of the archived manuscripts and `damp` 23%. The
+prompt now leads with a rotating subset per chapter per story while the validator keeps accepting the
+whole list, so **it cannot add a retry class**.
+
+> **And the direction of that fix was the hard part.** The first version added the divergent word
+> (`weather`) to the validator, reasoning that a gate accepting more can never cause a new retry. The
+> suite disagreed, and the failing test was right: `chapter-validator.test.ts` grounds its NEGATIVE
+> fixture on *"No one commented on the room or the weather"*, using the abstract noun to show what does
+> not count as atmosphere. The gate was correct and the prompt was wrong. **Closing a two-body
+> divergence still means deciding which body was right** — the union instinct was right for X79's
+> mojibake list and wrong here.
 
 ### 8.4 The ordinal judge — M1.2, built, not yet run
 
@@ -966,6 +977,7 @@ DONE   M1.1  ledger repaired + 34 reads parsed             free
 DONE   X93   clearance fold, deterministic                 free   <- pacing
 DONE   X94   per-story opening rotation                    free   <- opening_hook
 DONE   M1.2  pairwise judge + calibration harness          free to build
+DONE   X95   one grounding vocabulary + rotating palette   free   <- atmosphere, prose
 DONE   M2.1  one cost number (scripts/run-cost-audit.mjs)  free
 ---- paid from here ------------------------------------------------
  next  M1.2  run the calibration                           ~£0.83
@@ -975,7 +987,16 @@ DONE   M2.1  one cost number (scripts/run-cost-audit.mjs)  free
        X95   the closed sensory vocabulary, one list       free build
 ```
 
-**Three flags now wait on one run:** `AGENT9_FOLD_SUSPECT_CLEARANCES`,
-`AGENT9_OPENING_STYLE_PER_STORY`, `AGENT3_DEVICE_TIME_BINDING`. They touch three different categories
-and none of them costs anything extra to carry, so they should ride the same £1 run — with the ordinal
-judge, freshly calibrated, as the thing that reads the result.
+**Four flags now wait on one run**, and between them they touch four of the five categories that have
+never reached 9:
+
+| flag | category | what a failure would look like |
+|---|---|---|
+| `AGENT9_FOLD_SUSPECT_CLEARANCES` | pacing | the suppressed chapter comes back thin rather than repurposed |
+| `AGENT9_OPENING_STYLE_PER_STORY` | opening_hook | a new opening-grounding or sensory retry class appears |
+| `AGENT9_SENSORY_PALETTE_ROTATION` | atmosphere, prose | `sensory_grounding` retries rise (it should be impossible) |
+| `AGENT3_DEVICE_TIME_BINDING` | clues | `[X38]` still present at Agent 3b and Agent 7.5 |
+
+None costs anything extra to carry, so they should ride the same £1 run — with the ordinal judge,
+freshly calibrated, as the thing that reads the result. **Each is separately attributable**, which is
+why they are four flags and not one.
