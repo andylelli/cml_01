@@ -47,6 +47,34 @@ The bottom five are the subject of this document. The top five are, on the best 
 
 ---
 
+### 1.2 And a FLOOR of 90 is a harder number than that — the offset must be planned at its minimum
+
+**MEASURED.** The offset is not a constant to be added; it is a spread, and a *floor* claim has to survive its bad end. Across the ten reads scoring 80+:
+
+```
+offsets on reads >= 80 :  2  2  2  2  2  3  4  5  6  7      mean 3.5, MIN 2
+```
+
+**Five of the ten came in at +2**, including this week's 81. So the number a floor plan must clear is:
+
+| target | at the MEAN offset (+3.5) | at the FLOOR offset (+2) |
+|---|---:|---:|
+| headline 90 | category sum **86.5** | category sum **88** |
+
+And a category sum of 88 has exactly one shape:
+
+```
+  6 nines + 4 eights = 86
+  7 nines + 3 eights = 87
+  8 nines + 2 eights = 88   <- this one
+```
+
+> **A floor of 90 means eight categories at 9 and two at 8, on every run.**
+
+Five categories have ever produced a 9 at all. **So a 90 floor requires at least three categories that have never scored a 9 to score one reliably** — and it requires the five that can to stop being intermittent. The best manuscript in the corpus sums 83; best-ever-everywhere sums 85.
+
+This is the single most important line in the document, and §10 is built on it: **the target is not "four marks better than our best". It is a different distribution of marks entirely, and it cannot be reached by removing defects from a book that is already correct.**
+
 ## 2. The finding: what the reader is actually rewarding
 
 **MEASURED.** Taking every category note in the ledger and splitting the vocabulary by the mark attached to it (14 marks of 9+, 117 marks of 8):
@@ -83,12 +111,14 @@ Read the actual sentences and the split is unmistakable.
 
 ### 2.1 The existence proof: `premise` has an engine, and it has 7 of the 14 nines
 
-`premise` is the only category with a dedicated novelty apparatus:
+`premise` is the only category with a dedicated novelty apparatus, and **it is narrower than it looks**:
 
-- **Agent 3b** (`agent3b-hard-logic-devices.ts`) — *"generates novel, contradiction-driven mechanism concepts before CML generation… so the final CML is grounded in explicitly generated novel devices"*, with an explicit `noveltyConstraints` input.
-- **Agent 8** (`agent8-novelty.ts`) + `@cml/novelty` — a corpus store, a skeleton extractor and a comparator that audits the finished case against everything previously generated.
+- **Agent 3b** (`agent3b-hard-logic-devices.ts`) — *"generates novel, contradiction-driven mechanism concepts before CML generation… so the final CML is grounded in explicitly generated novel devices"*. **MEASURED:** it returns *"exactly 5 devices"* per run under an explicit `noveltyConstraints: { divergeFrom, areas, avoidancePatterns }`, and a plausibility judge picks one. **Five divergent candidates, one call, then a commitment.**
+- **Agent 8** (`agent8-novelty.ts`) + `@cml/novelty` — the audit half. **It cannot fire.** `.env.local` sets `NOVELTY_SIMILARITY_THRESHOLD=1.0`, so a case must be 100% similar to a seed to fail, with `NOVELTY_HARD_FAIL=false` and `NOVELTY_SKELETON_JUDGE=shadow` besides. The package's own header says it is *"pure, no LLM, NOT wired into the pipeline"*.
 
-**That is a whole subsystem whose only job is "do not produce the same mystery twice."** Its category, and only its category, routinely earns 9s — and the reader's language for those 9s is exactly the language the subsystem optimises for: *distinctive*, *memorable*, *one of the best mechanisms so far*.
+**So the engine that earns those 9s is the GENERATIVE half alone**, and the corpus-audit half has never contributed one. That is a better finding than the tidier version: the thing that works is *divergent generation under an explicit instruction to differ*, which is one extra design-tier call — not a subsystem. **It is cheap to transplant.**
+
+Its category, and only its category, routinely earns 9s — and the reader's language for those 9s is exactly the language that generation optimises for: *distinctive*, *memorable*, *one of the best mechanisms so far*.
 
 `atmosphere`'s three 9s are the same effect at one remove: all three praise **fit between setting and mechanism** — which is a property the device engine confers, not one the atmosphere prompt asks for.
 
@@ -237,7 +267,7 @@ Two cost-meter defects were fixed today and both had been reporting confidently 
 
 | # | item | why it is here |
 |---|---|---|
-| 1.1 | **A distinctiveness engine for the OPENING.** `premise` has Agent 3b + Agent 8 and holds 7 of 14 nines. The opening has a six-entry style rotation and a mandated prop checklist, and 17 identical reader notes. | §2, §4 (X94 proves the *shape* of sentence one is not it) |
+| 1.1 | **A distinctiveness engine for the OPENING.** `premise` has Agent 3b's five-candidate divergent generation and holds 7 of 14 nines. The opening has a six-entry style rotation and a mandated prop checklist, and 17 identical reader notes. | §2, §4 (X94 proves the *shape* of sentence one is not it) |
 | 1.2 | **A distinctiveness engine for PEOPLE.** Every character mechanism in the repo is an error suppressor; the ladder stops at *"stable"*. | §3 |
 | 1.3 | **Cost the locked-fact contract.** It buys fair play and pays in `prose` and `dialogue` — 15 identical phrases inside 89 dialogue spans. Nobody has measured the trade or looked for a cheaper form of it. | §5.1 |
 
@@ -271,10 +301,146 @@ Two cost-meter defects were fixed today and both had been reporting confidently 
 
 **90 once** needs a manuscript at best-ever in every category *plus* an offset at the top of its observed range — 85 + 8 rather than 85 + 3.9. No manuscript has done the first half.
 
-**90 every run** needs the floor there. The measured floor across 35 reads is 48; across the eight most recent, 68.
+**90 every run** needs the floor there, and [§1.2](#12-and-a-floor-of-90-is-a-harder-number-than-that--the-offset-must-be-planned-at-its-minimum) prices that precisely: planned at the offset a floor must survive (+2, which five of the ten reads at 80+ returned), a headline of 90 needs a **category sum of 88 — eight 9s and two 8s, every run.** Five categories have ever produced a 9 at all. The measured floor across 35 reads is 48; across the eight most recent, 68.
 
 Today's work moved four mechanisms from *believed* to *measured*, closed a second instrument route, and turned 350 human marks from prose into data. **It did not move the score, and §4 is candid that two of the four flags moved nothing measurable.** What it produced instead is the first evidence-backed statement of what the remaining distance is made of:
 
 > The pipeline is very good at being correct and has one engine for being distinctive. The reader pays 9s for distinctiveness. Four of the five capped categories have no such engine, and building one is not a detector, a wordlist, a flag or a model swap.
 
-That is a harder problem than any on the previous boards, and it is the first one that, if solved, has the arithmetic to reach 90.
+That is a harder problem than any on the previous boards, and it is the first one that, if solved, has the arithmetic to reach 90. **[§10](#10-the-plan--how-to-reach-a-floor-of-90) is the plan against it.**
+
+---
+
+## 10. The plan — how to reach a FLOOR of 90
+
+§9 states the position honestly and stops. This section is the answer to it: every item in §8, sequenced, with what each is worth, what it costs, and what would prove it wrong.
+
+### 10.0 What the plan has to produce, and why that decomposes into four different problems
+
+From [§1.2](#12-and-a-floor-of-90-is-a-harder-number-than-that--the-offset-must-be-planned-at-its-minimum): a floor of 90 means **eight categories at 9 and two at 8, on every run**. Set that against where each category actually is, on the best eight manuscripts:
+
+| | categories | today | needed | the medicine |
+|---|---|---|---|---|
+| **A** | opening hook, character clarity, + one more | 8, never a 9 | **9** | a distinctiveness engine — §10.1 |
+| **B** | premise, plot, clues, ending, atmosphere | 9 sometimes | **9 every run** | reliability — §10.2 |
+| **C** | dialogue, prose | 7.1 and 6.9 | **8 every run** | the locked-fact tax — §10.3 |
+
+Three different problems. **They do not share a medicine, and the project's habit has been to apply C's medicine — remove a defect — to all three.** A cannot be reached by removing defects, because there is no defect: the reader's note is a compliment. C cannot be reached by adding an engine, because the defects are real and named.
+
+**And the fourth problem is that none of this is measurable one run at a time** (§10.4). A floor is a claim about the worst of N, and this project has never read more than one manuscript from a given build.
+
+### 10.1 Workstream A — the distinctiveness engine, generalised from the one that works
+
+**The shape to copy, MEASURED in §2.1:** Agent 3b makes **one** design-tier call, returns **exactly five** candidate devices under an explicit `noveltyConstraints: { divergeFrom, areas, avoidancePatterns }`, a plausibility judge picks one, and the winner is committed as a constraint every downstream agent must honour. The corpus-audit half never fires. So the working ingredient is:
+
+> **generate five divergent candidates in one call, against an explicit list of what to differ from, then commit the winner as a downstream contract.**
+
+That is one call, roughly $0.01–0.02 at design tier, against a £1.10 run. It is cheap enough to run three times.
+
+**A1 — the `divergeFrom` corpus. Free, and it is the precondition.** Agent 3b's `divergeFrom` is populated from seeds. For openings and people there is no corpus at all — **and there could not have been before this week**, because nothing enumerated previous manuscripts. `scripts/external-read-ledger.mjs` now walks 36 of them. A1 is a small extractor that emits, from the archive:
+
+- the **opening situation** of every previous manuscript (who is present, what is discovered, in what posture) — not the sentence, the situation;
+- the **cast signature** of every previous manuscript (roles, the distinguishing trait attached to each name).
+
+Deterministic, no LLM, runs over files already on disk. **Nothing in Workstream A can work without it, and it is an afternoon.**
+
+**A2 — opening ideation.** A new design-tier step between Agent 1 and Agent 2: five candidate opening *situations*, `divergeFrom` = the last N openings from A1, judged, and the winner committed into the chapter-1 prose contract.
+
+**It must commit a SITUATION, not a sentence shape.** [X94](../../../architecture/REVIEW_05.md) is the evidence: rotating the opening *style* per story produced the first non-`character-action` opening in the project's history and the hook mark did not move (§4). The reader's seventeen identical notes are about *what is in the scene* — body, clock, weapon, prop, prop — not about how sentence one is built. A2 changes what is in the scene.
+
+**A3 — character signature.** A per-suspect ideation step feeding the character bible Agent 9 already consumes: for each suspect, one **contradiction** (what they do that their role would not predict), one **physical tell**, one **private want** unrelated to the murder — `divergeFrom` = previous casts from A1.
+
+§3 is the argument for it: every existing character mechanism is an error suppressor, the ladder tops out at *"roles are stable"*, and **no note in 35 reads calls a character interesting.** A3 is the first mechanism whose output is a person rather than the absence of a mistake. It reuses the Agent 2b voice-capsule path rather than adding an agent.
+
+**A4 — the third 9, chosen by evidence rather than now.** A and B and C together give six 9s and four 8s: sum 86, headline ~88 at floor offset. The eighth 9 has to come from `pacing`, `dialogue` or `prose`, and **the honest position is that we do not yet know which responds** — so this item is deliberately not specified. `pacing` is the front-runner: it sits 1.1 from 9, its only named defect is now repaired ([X93](../../../architecture/REVIEW_05.md), §4), and its remaining 8s read *"the investigation narrows logically"* — competence language, which is what A treats. Decide after A2/A3 report.
+
+**Cost:** two extra design-tier calls per run (~$0.03), plus A1 free. **Falsification:** A2 and A3 ship, and `opening_hook` and `character_clarity` stay at 8 with *"body, prop, prop — strong setup"* and *"roles are stable"*. If that happens, §2's thesis is wrong, and the item Tier 4 currently forecloses — the generation model — reopens with real evidence behind it for the first time.
+
+### 10.2 Workstream B — make the five that can reach 9 reach it every time
+
+This is the half the project is already good at, and it is where a *floor* actually lives: `plot`, `clues` and `ending` have each hit 9 exactly once, and `ending` has also scored 2. **Variance, not ceiling.**
+
+| item | from §8 | note |
+|---|---|---|
+| **B1 — the gate-authority decision** | Tier 3 | Free, and its prerequisite is a **replay of geometry over the archive** — would the 86-scoring runs have shipped under a blocking gate? Decide from that, not from principle. The repairs must work before the gate is allowed to stop anything. |
+| **B2 — `clearance_over_budget` fires on 5 of 5 axes** | Tier 3 | A violation every run raises is a budget set wrong. Free, and it is noise suppression: while it fires on everything it tells us nothing about any run. |
+| **B3 — the ten unread prompt contracts** | Tier 3 | Free. Reading one found X63; ten remain. This is the cheapest source of B-class defects on the board. |
+| **B4 — the two missing seed cases** (`behavioral`, `authority`) | Tier 3 | Editorial, not code. Five of thirteen seeds contribute to no axis, so two of the five axes reach Agent 3 with a definition and no worked exemplar. |
+
+**None of these is new.** They are listed because a floor plan that only builds engines will produce a book that is occasionally brilliant and occasionally 78.
+
+### 10.3 Workstream C — the locked-fact tax, paid down
+
+§5 is the finding: one contract produces both the `prose` complaint and the `dialogue` complaint. C1–C3 are the free, deterministic fixes; **C4 is the one that matters and nobody has attempted it.**
+
+| item | from §8 | what it removes |
+|---|---|---|
+| **C1 — strip leading articles from locked values** | 2.1 | *"a ten minutes past eleven"* ×10. The registry holds `"a quarter past eleven"` beside `"ten minutes past eleven"`; under a verbatim contract the model regularises them. Normalise at registration, so the article lives in the sentence and not in the value. |
+| **C2 — keep the locked-fact DESCRIPTION out of the writer's prompt** | 2.2 | *"certified wave crest hour atop the murder day as per innkeeper's tide charts"*. The writer needs the value and a neutral label; the description is internal metadata and it reaches the page paraphrased. **This is *"generated validation language"* at its source** — the complaint attached to `prose` in read after read. |
+| **C3 — dedupe repeated SENTENCES** | 2.3 | Five sentences repeat verbatim in the read manuscript. The fingerprint linter dedupes paragraphs; nothing dedupes below that. |
+| **C4 — cost the verbatim contract itself** | 1.3 | **15 of 89 dialogue spans contain the same seven words.** The contract exists so the mystery stays solvable; the price is that every character speaks the critical value identically, and the reader has called that *"catchphrase-heavy"* in read after read. |
+
+**C4's design, stated so it can be argued with.** The contract is currently *"reproduce these exact words, every time"*. The fair-play requirement is weaker than that: the reader must be able to hold one canonical value. So — **a canonical form plus registered short forms**: the full value must appear verbatim at least once in each chapter that turns on it, and subsequent references in the same chapter may use a registered alias (`the tide time`, `eleven-ten`) drawn from a list generated with the fact and validated against it. **Fair play is preserved because the canonical form is still present and still checkable; the fifteen identical lines become one canonical statement and fourteen natural ones.**
+
+This is the only item on the board that demonstrably lifts two capped categories at once, and it is the reason §8 put it in Tier 1 rather than with its cheap siblings.
+
+### 10.4 Workstream D — measure a floor, which nobody has ever done here
+
+**A floor is a claim about the worst of N. Every quality claim this project has made is n=1.**
+
+**D1 — the cohort.** Five runs from one build, same inputs, all five read. That is the smallest thing that can support "the floor is X". At £1.10 a run that is **£5.50 plus five reads**, and it is the only honest way to say the word *floor*.
+
+**D2 — matched pairs for every lever decision.** Two manuscripts from identical inputs differing in one lever, both read. §6.2 measured the external reader at **±1** — nine of ten categories identical across two reads of near-identical text — which makes a matched pair the only configuration this project owns that can resolve a five-mark difference. `story_20260822-1028` already exists as the control for `story_20260823-1715` and is unread; reading it is the cheapest evidence available today.
+
+**D3 — the ordinal judge, demoted to what it can do.** It resolves ~10 marks, not 5 (§6.1). That makes it useless as an A/B arbiter and genuinely useful as a **regression alarm**: a change that makes a book 10+ marks worse will be caught for pennies before a reader is spent. Run it as a gate on the cohort, never as evidence for a lever.
+
+**D4 — stop reporting the internal number as quality.** Both runs in §4 graded B/100/pass_rate 100 with `retry_stats` all zero, and one of them is an 81. That is settled policy already; D4 is only the reminder that the plan above must not be steered by it.
+
+### 10.5 Workstream E — hold £1 while doing all of the above
+
+Workstream A adds ~$0.03; the cohort in D1 multiplies whatever a run costs by five. Both make the tail matter more.
+
+**E1 — the per-run cost governor** (§8 Tier 3, PLAN-TO-90 M2.2). Free. Repeat calls are 17% of the bill and the whole of the variance between a £0.91 run and a £1.23 one. Prose retries past attempt N take the scoped repair path instead of a full regeneration.
+
+**E2 — one cost number.** `report.total_cost` disagrees with the call log by up to +47% and mis-ranks its own runs; `scripts/run-cost-audit.mjs` is now authoritative. Make the report read from the same source or delete the field.
+
+### 10.6 Sequence, and what each step costs
+
+```
+NOW, free, in this order — nothing downstream works without A1
+  A1   opening + cast-signature corpus from the 36 archived manuscripts     free
+  C1   strip leading articles from locked-fact values                       free
+  C2   keep locked-fact descriptions out of the writer's prompt             free
+  C3   sentence-level dedupe                                                free
+  E1   per-run cost governor                                               free
+  E2   one cost number                                                     free
+  B3   read the ten unexamined prompt contracts                            free
+  B1   geometry replay over the archive, then the gate decision            free
+  B2   re-set the clearance budget                                         free
+---- the free half is exhausted here; everything below needs money or a reader ----
+  D2   READ story_20260822-1028, the existing matched control              a reader
+  C4   canonical form + registered aliases for locked facts                free build, ~£1 to verify
+  A2   opening ideation, five candidates, committed as a situation         free build, ~£1 to verify
+  A3   character signature per suspect                                     free build, ~£1 to verify
+  B4   two seed cases                                                      editorial
+---- only now is a floor claim meaningful ----
+  D1   five-run cohort from one build, all five read                       ~£5.50 + 5 reads
+  A4   choose the eighth 9 from what D1 shows responded                    a decision
+```
+
+**Free work: nine items.** Paid work before the cohort: about **£3 and one read**. The cohort itself is the expensive part, and it is the only part that can produce the word *floor*.
+
+### 10.7 What would falsify this plan
+
+Stated now, so it cannot be rationalised later:
+
+1. **A2 and A3 land and the marks do not move** — `opening_hook` still 8 with a props inventory, `character_clarity` still 8 with *"roles are stable"*. Then §2's thesis is wrong: distinctiveness is not what the reader is paying for, or this model cannot produce it on instruction. **That is the evidence that reopens the generation-model question**, which Tier 4 currently closes for want of exactly this.
+2. **C4 ships and `dialogue` does not reach 8** on the best books. Then the catchphrase complaint is not the locked-fact contract, and §5.1's inference is wrong.
+3. **The D1 cohort comes back with a spread wider than 6 marks.** Then run-to-run variance dominates every lever on this board, and the work is reliability-only until it does not.
+4. **B1's replay shows the 86-scoring runs would NOT have shipped under a blocking gate.** Then geometry cannot be given authority at any point in this plan, and §8 Tier 3's first item is closed rather than pending.
+
+### 10.8 What this plan does not promise
+
+It does not promise 90. The arithmetic in §1.2 is unforgiving: **eight 9s and two 8s on every run**, against a corpus whose best single manuscript sums 83 and whose best-ever composite sums 85. Workstream A is the only item on this board with the *shape* to add a 9 where there has never been one, and it is unproven — one measured precedent (`premise`), transplanted twice, on the argument in §2.
+
+What it does promise is that **every remaining item is either free, falsifiable, or both**, that the free half can be finished before any further money is spent, and that for the first time the plan is aimed at what the reader is measured to reward rather than at what the pipeline finds easy to detect.
