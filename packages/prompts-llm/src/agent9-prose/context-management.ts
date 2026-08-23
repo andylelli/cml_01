@@ -247,6 +247,55 @@ export const OPENING_STYLE_ROTATION: Array<{ style: string; directive: string }>
 ];
 
 /**
+ * Which opening style chapter N gets — and, with a seed, WHICH STORY'S rotation it belongs to.
+ *
+ * ── THE DEFECT THIS EXISTS TO FIX (measured 2026-08-23) ──────────────────────────────────────────
+ *
+ * The index was `(chapterNumber - 1) % LEN`. Correct within a book — no two adjacent chapters share
+ * a style, which is what the entropy linter checks — and **constant across books at chapter 1**, which
+ * nothing checks, because every run is scored on its own. Chapter 1 has therefore opened in
+ * `character-action` on every manuscript this project has ever produced.
+ *
+ * Chapter 1 is the only chapter the `opening_hook` category reads. Measured over the 35 archived
+ * manuscripts that carry an external read (`npm run ledger:external-read`):
+ *
+ *     opening_hook:  8 maximum, in 34 reads. NEVER 9. Mean 8.0 across the best eight.
+ *
+ *     first sentences:   "Eleanor Voss pressed her gloved hand against the smooth brass handle…"
+ *                        "Eleanor Voss pressed her gloved palm to the cold brass handle…"
+ *                        "Eleanor Voss stepped briskly across the terrazzo tiles…"
+ *                        "Inspector Evelyn Harcourt stepped across the threshold…"
+ *
+ *     word frequency in sentence one:  pressed 26%, chill 26%, stepped 23%, gloved 23%, damp 23%
+ *
+ * The readers' notes for the category are an inventory of props — *"Body, clock contradiction, weapon,
+ * logbook, foggy hotel — strong hook"* — and a mark of 8, every time. That is the signature of a hook
+ * that works and is unremarkable, and the cause is one line of arithmetic rather than the model.
+ *
+ * ── WHY A SEED AND NOT RANDOMNESS ────────────────────────────────────────────────────────────────
+ *
+ * Runs in this project are replayed, A/B'd and rescored; a random offset would make two runs of the
+ * same case incomparable and this repo has already lost a paid experiment to non-reproducibility. The
+ * offset is an FNV-1a hash of a per-story string (the case title), so it is stable for a story and
+ * different between stories. No seed ⇒ offset 0 ⇒ byte-identical to the old behaviour.
+ */
+export function openingStyleIndexFor(chapterNumber: number, rotationSeed?: string): number {
+  const len = OPENING_STYLE_ROTATION.length;
+  let offset = 0;
+  if (rotationSeed && rotationSeed.trim().length > 0) {
+    // FNV-1a, 32-bit. Chosen for being short, dependency-free and deterministic across platforms.
+    let h = 0x811c9dc5;
+    for (let i = 0; i < rotationSeed.length; i += 1) {
+      h ^= rotationSeed.charCodeAt(i);
+      h = Math.imul(h, 0x01000193) >>> 0;
+    }
+    offset = h % len;
+  }
+  // `chapterNumber` is 1-based and may exceed len; the modulo keeps the cycle intact either way.
+  return (((chapterNumber - 1 + offset) % len) + len) % len;
+}
+
+/**
  * Build an explicit chapter-by-chapter scene grounding checklist using
  * outline scene settings and location profile names.
  *
@@ -258,6 +307,11 @@ export function buildSceneGroundingChecklist(
   scenes: unknown[],
   locationProfiles: any,
   chapterStart: number,
+  /**
+   * Per-STORY offset for the opening-style rotation. Omitted ⇒ offset 0 ⇒ the pre-2026-08-23
+   * behaviour, in which chapter 1 of every book opened in the same style. See `openingStyleIndexFor`.
+   */
+  rotationSeed?: string,
 ): string {
   if (!Array.isArray(scenes) || scenes.length === 0) return '';
 
@@ -298,8 +352,9 @@ export function buildSceneGroundingChecklist(
       : (locationNames.size > 0 ? Array.from(locationNames)[0] : 'the canonical primary location');
 
     // 2b — Deterministic opening style assignment (cycle index based on absolute chapter number
-    // so assignments are stable across multi-batch generation)
-    const styleIdx = (chapterNumber - 1) % OPENING_STYLE_ROTATION.length;
+    // so assignments are stable across multi-batch generation), offset once per STORY — see
+    // `openingStyleIndexFor`.
+    const styleIdx = openingStyleIndexFor(chapterNumber, rotationSeed);
     const { directive: openingStyleDirective } = OPENING_STYLE_ROTATION[styleIdx];
 
     checklistLines.push(

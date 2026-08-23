@@ -4160,3 +4160,79 @@ it something to do. The Act III contract ([X73](#)) is what should fill it. **If
 returns padded rather than repurposed, this fix is wrong and the outline half is the one that was
 needed.** That is what the paid run is for, and it is now one flag rather than one flag plus a third of
 all outlines re-rolled.
+
+### 12.21 X94 — every book this project has written opens the same way, and it is one line of arithmetic
+
+`opening_hook` is one of the five categories that has never been given a 9 (§12.20). Unlike the other
+four it has no reader complaint at all — the notes are positive and interchangeable:
+
+> *"Body, clock contradiction, weapon, logbook, foggy hotel — strong hook."*
+> *"Body beneath frozen clock, dust, wire, candlestick/letter opener — strong hook."*
+> *"Body, letter opener, clock, scratch on pendulum arm, wrong chime — strong setup."*
+
+[REVIEW_14 §2.3](REVIEW_14.md) predicted exactly this class — *"a defect that produces FLATNESS gets a
+positive sentence and an 8"* — and predicted no detector could reach it. It was right about the
+detector and wrong about the cause being out of reach. **The cause is readable in the source.**
+
+#### The measurement
+
+First sentences of the 35 archived manuscripts that carry an external read:
+
+```
+"Eleanor Voss pressed her gloved hand against the smooth brass handle, the cold metal biting…"
+"Eleanor Voss pressed her gloved palm to the cold brass handle and eased open the door…"
+"Eleanor Voss stepped briskly across the terrazzo tiles of the Seaside Hotel lobby…"
+"Inspector Evelyn Harcourt stepped across the threshold of the main hall of the manor…"
+
+word frequency, sentence one, n=35:   pressed 26%   chill 26%   stepped 23%   gloved 23%   damp 23%
+```
+
+#### The cause
+
+```ts
+const styleIdx = (chapterNumber - 1) % OPENING_STYLE_ROTATION.length;
+```
+
+`OPENING_STYLE_ROTATION[0]` is `character-action`: *"Start the VERY FIRST SENTENCE with a named
+character performing a physical action."* Chapter 1 is index 0 on **every run, of every case, forever.**
+
+The rotation was built to stop opening-style repetition *within* a book, and it does — the entropy
+linter checks precisely that and passes. Nothing checks across books, and nothing could: each run is
+scored alone. **The instrument was measuring the wrong axis of the same property**, which is the shape
+[§12.18](#1218-x88-the-coercion-that-survived-its-own-fix) and
+[§12.19](#1219-x90x91x92--the-axis-had-three-ways-to-fail-and-none-to-succeed) both have — each end
+correct in isolation.
+
+#### The fix, and what it deliberately does not do
+
+`openingStyleIndexFor(chapterNumber, rotationSeed)` offsets the cycle once per STORY by an FNV-1a hash
+of the case title. Within a book the rotation is untouched — every style still appears once per cycle,
+no two adjacent chapters share one, the entropy linter sees exactly what it saw before. Across books,
+chapter 1 lands 5/8/5/8/1/8 over the 35 archived titles instead of 35/35 on one style.
+
+**Deterministic, not random.** A random offset would make two runs of the same case incomparable, and
+this project has already lost a paid experiment to non-reproducibility
+([probe validity](PLAN-TO-90.md)). A seeded hash replays exactly.
+
+Flag-gated `AGENT9_OPENING_STYLE_PER_STORY`, default OFF, because it changes the prose of every run.
+No seed ⇒ offset 0 ⇒ byte-identical to today.
+
+#### What was found and NOT fixed here, because it is a bigger increment
+
+The same prompt line mandates the sensory and atmosphere vocabulary:
+
+> *"include 2+ sensory words — choose from smell/scent/odor/fragrance/sound/echo/silence/whisper/
+> creak/cold/warm/damp/rough/smooth/glow/shadow/flicker/dim"*
+
+**This is a closed list of 18 words, presented identically on every chapter of every run, and it is
+validator-enforced** — so the model picks from it and converges on the same handful (`chill` 26%,
+`damp` 23%, `faint` 23%). It is the second half of why the openings read alike, and it very likely
+reaches `atmosphere` too, whose reader notes are as interchangeable as the hook's (*"Foggy seaside
+hotel, fog, bell tower, blackout curtains"*).
+
+It is not fixed here for a reason worth stating: **the list has four bodies** —
+`context-management.ts:307`, `generate.ts:1361`, `generate.ts:1851`, `obligation-block.ts:411` — and it
+drives retries. The durable change is to show a rotating SUBSET in the prompt while the validator keeps
+accepting the full list, and that is one list, four call sites, and a retry surface. It is the same
+two-body-vocabulary disease as [X61/X67/X74/X75/X79](#), and it deserves its own increment rather than
+a rider on this one. **Recorded, measured, and open.**

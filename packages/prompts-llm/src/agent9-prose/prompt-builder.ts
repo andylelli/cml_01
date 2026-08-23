@@ -1974,7 +1974,25 @@ ${victimIdentityRule}`;
 
   // Build prose requirements block for this chapter batch
   const proseRequirementsBlock = buildProseRequirements(inputs.caseData, scenes, allOutlineScenes);
-  const sceneGroundingChecklist = buildSceneGroundingChecklist(scenes, inputs.locationProfiles, chapterStart);
+  /**
+   * The opening-style rotation is offset once per STORY (X94). Chapter 1 previously took index 0 on
+   * every book ever generated, and chapter 1 is the only chapter `opening_hook` reads — a category
+   * that has never been given a 9 in 34 external reads.
+   *
+   * Flag-gated because it changes the prose of every run: `AGENT9_OPENING_STYLE_PER_STORY`, read at
+   * call time rather than at module load (the dotenv-freeze trap). Seed is the case title — stable for
+   * a story, different between stories, so a replay of the same case reproduces its openings exactly.
+   */
+  const perStoryOpeningStyle = /^(1|true|yes|on)$/i.test(process.env.AGENT9_OPENING_STYLE_PER_STORY ?? '');
+  const openingRotationSeed = perStoryOpeningStyle
+    ? String((inputs.caseData as any)?.CASE?.meta?.title ?? (inputs.caseData as any)?.meta?.title ?? '').trim() || undefined
+    : undefined;
+  const sceneGroundingChecklist = buildSceneGroundingChecklist(
+    scenes,
+    inputs.locationProfiles,
+    chapterStart,
+    openingRotationSeed,
+  );
 
   const worldDocumentBlock = buildWorldBriefBlock(
     inputs.worldDocument,
