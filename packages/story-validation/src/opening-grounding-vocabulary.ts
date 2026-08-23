@@ -112,8 +112,15 @@ export function formatGroundingMarkers(markers: readonly string[], separator = "
  * never `Math.random`, because runs in this project are replayed and A/B'd and a random palette makes
  * two runs of one case incomparable.
  *
- * The stride is coprime-ish to the list length by construction (`2 * offset + 1` is odd), so a story's
- * successive chapters walk the list rather than re-drawing the same neighbourhood.
+ * The stride must be COPRIME to the list length, and "make it odd" is not enough — that was the first
+ * version and it shipped short palettes. `n = 18` with a stride of 3, 9 or 15 walks only `18 / gcd`
+ * distinct indices, so the loop exhausts after 6 and returns 6 words where 8 were asked for.
+ *
+ * FOUND BY READING THE SHIPPED PROMPT of the first run that carried this (2026-08-23,
+ * `run_20260823-1558`): the checklist offered *"choose from shadow/rough/cold/silence/fragrance/smell"*
+ * — six, not eight. Harmless in itself, and it is exactly the class of defect this project keeps
+ * finding: a function that quietly returns less than it was asked for, with a test that happened to
+ * pick a seed where it did not. The stride is now advanced until `gcd(stride, n) === 1`.
  */
 export function groundingPaletteFor(
   chapterNumber: number,
@@ -129,7 +136,10 @@ export function groundingPaletteFor(
     h = Math.imul(h, 0x01000193) >>> 0;
   }
   const offset = h % n;
-  const stride = 2 * (h % Math.max(1, Math.floor(n / 2))) + 1;
+  const gcd = (a: number, b: number): number => (b === 0 ? a : gcd(b, a % b));
+  let stride = (h % Math.max(1, n - 1)) + 1;
+  // Walk up to a stride coprime with n, so the cycle visits every index before repeating one.
+  for (let guard = 0; gcd(stride, n) !== 1 && guard < n; guard += 1) stride = (stride % n) + 1;
   const start = (offset + chapterNumber * take) % n;
   const out: string[] = [];
   const seen = new Set<number>();

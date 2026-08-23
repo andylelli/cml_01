@@ -104,6 +104,22 @@ describe('the rotating palette', () => {
     expect(new Set(p).size).toBe(12);
   });
 
+  it('returns the requested size for EVERY seed and chapter, on both lists', () => {
+    /**
+     * The first version strode by an odd number, which is not the same as coprime: n=18 with a stride
+     * of 3, 9 or 15 visits only 6 distinct indices. The very first run that shipped this offered the
+     * model "choose from shadow/rough/cold/silence/fragrance/smell" — six words where eight were
+     * asked for. The original test used one seed on the 39-item list and never saw it.
+     */
+    const seeds = ['The Rising Tide at Cliffhaven', 'The Tidal Trap', 'Echoes of Deceit', 'A', 'Bee', 'Masquerade of Authority'];
+    for (const seed of seeds) {
+      for (let ch = 1; ch <= 10; ch += 1) {
+        expect(groundingPaletteFor(ch, seed, OPENING_SENSORY_MARKERS, 8), `${seed} ch${ch} sensory`).toHaveLength(8);
+        expect(groundingPaletteFor(ch, seed, OPENING_ATMOSPHERE_MARKERS, 12), `${seed} ch${ch} atmosphere`).toHaveLength(12);
+      }
+    }
+  });
+
   it('gives different chapters different palettes', () => {
     const a = groundingPaletteFor(1, 'The Tidal Trap', OPENING_SENSORY_MARKERS, 8).join(',');
     const b = groundingPaletteFor(2, 'The Tidal Trap', OPENING_SENSORY_MARKERS, 8).join(',');

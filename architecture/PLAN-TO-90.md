@@ -1071,3 +1071,113 @@ book. That is an operating cost of the ordinal method, not a fluke — 1 in 80 c
 reported `totalCost: 0`, and so did **0b.0's spend line**, which was never real. One capability, two
 clients, one wired: [X84](REVIEW_05.md)'s shape exactly. Fixed; nothing in the pipeline passes a tracker
 to that client, so no run behaviour changes.
+
+---
+
+## 10. RESULT — the four-flag run · 2026-08-23 · £1.10
+
+`CANARY_CORE_INPUTS_YAML=scratchpad/axis-sweep/inputs.temporal.yaml` — the **same inputs as the 08-22
+temporal sweep arm**, so the four flags are the only variable. Control:
+`story_20260822-1028/the_tidal_hour_at_seabreeze_hotel.md`, run `mystery-1787389850329`, £0.99.
+
+`mystery-1787500681233` → `story_20260823-1715/the_rising_tide_at_cliffhaven.md`. Shipped, release gate
+`warning`, clue status `pass`, 10 chapters, 12,185 words, 22 min, **£1.10** (`node
+scripts/run-cost-audit.mjs --run mystery-1787500681233`).
+
+**All four predictions confirmed, no falsification fired, and the run found a defect in one of the
+fixes.**
+
+### 10.1 X94 — the first non-`character-action` opening this project has produced
+
+| | chapter 1's first sentence |
+|---|---|
+| control | *"Eleanor Voss pressed her gloved palm against the cool brass handle and entered the Seabreeze Hotel lounge…"* |
+| four-flag | ***"Is that—?"** The question faltered in the cold haze as Eleanor Voss stepped onto the rough shingle…* |
+
+The shipped prompt carries it: `Chapter 1: OPENING STYLE (HARD): Start the VERY FIRST SENTENCE with
+spoken dialogue`. Against 35 archived manuscripts that all opened on a named character performing a
+physical action, this is the first one that does not.
+
+### 10.2 X93 — the fold fired harder than expected, and the thin-chapter falsification did NOT
+
+```
+[X32] Outline gives a suspect-clearance job to 4 scenes: Conflicting Timings;
+      The Weapon and Wounds; Discrepancies and Doubts; Clearing the Innocents.
+[X32] Suspect-clearance fold: 4 scenes carry the clearance job; kept in scene 8 (act 3),
+      suppressed in 3.
+```
+
+**Four scenes, not two.** The archived estimate was "11 of 32 outlines allocate more than one"; this
+one allocated four. Verified chapter by chapter in the shipped prose prompts:
+
+| chapter | block |
+|---|---|
+| 2, 3, 6 | `SUSPECT CLEARANCE (already settled)` |
+| 8 | `SUSPECT CLEARANCE (settle it here, once)` |
+| 1, 4, 5, 7, 9, 10 | none — no clearance job, so no block |
+
+**The falsification was that a suppressed chapter comes back thin.** It did not:
+
+```
+control    ch9 "Clearing the Innocents"   779 words   <- shortest chapter, the defect the readers named
+four-flag  ch2  983 · ch3 1104 · ch6 1393              <- the three suppressed chapters
+four-flag  ch8 "Clearing the Innocents"  1138 words   <- the keeper
+```
+
+The shortest chapter in the new book is 983 words against the control's 779, and the clearance chapter
+gained 359. On n=1 that is not proof the pacing complaint is gone — only a reader settles that — but
+the specific way this fix could have failed did not happen.
+
+### 10.3 X95 — safe, as predicted, and the run caught it being slightly wrong
+
+Zero `sensory_grounding` or `atmosphere_grounding` retries; **13 repeat calls against the control's
+15**, and no new retry class. The prediction was that this *cannot* add one — the validator still
+accepts the full list — and nothing contradicted it.
+
+The palettes are visibly rotating in the shipped prompt:
+
+```
+ch1 sensory  shadow/rough/cold/silence/fragrance/smell
+ch2 sensory  echo/odor/dim/glow/damp/creak
+ch1 atmos    haze/evening/midnight/grey/damp/mist/midday/cloudy/chill/fog/season/sunlight
+```
+
+**Six words, where eight were asked for.** `groundingPaletteFor` strode by an odd number, which is not
+the same as coprime: with `n = 18` a stride of 3, 9 or 15 visits only `18 / gcd` distinct indices, so
+the walk exhausted at six. Harmless — six words is ample and nothing failed — but a function silently
+returning less than it was asked for is the class of defect this project keeps paying for, and the
+original test used one seed on the 39-item list and never saw it. Fixed (stride advanced to
+coprimality) with a test across six seeds × ten chapters × both lists.
+
+**It was found by reading the prompt the run actually shipped.** Not by a test, not by the score.
+
+### 10.4 X38-at-source — and `derivedFrom`, which Phase 1 listed as an open question
+
+```
+[X38] device arithmetic repaired at source: time_delay_interval declares itself derived from
+      high_tide_time and weapon_release_time, which are 5 minutes apart …
+```
+
+Exactly **one** `[X38]` in the whole run — the at-source repair — and none at Agent 3b or Agent 7.5
+downstream. That is [1.1](#)'s prediction met.
+
+It also answers [1.3](#) in the same line. *"X38's repair now acts only on a declared dependency, and no
+archived device declares one — if Agent 3b does not populate it, the repair stays correctly inert and
+the prompt needs work."* **Agent 3b populated it.** The device declared its own derivation, for the
+first time in the project's history, and the repair acted on it.
+
+### 10.5 What this run does NOT tell us
+
+The internal report grades both runs **B, 100, pass_rate 100, retry_stats all zero** — indistinguishable,
+which is [0.4](#)'s decision arriving on schedule rather than a surprise. And [§9](#9-result--m12-the-ordinal-judge--2026-08-23--085)
+has just established that the ordinal judge resolves ten marks and not five, so it cannot arbitrate
+this either.
+
+**Four mechanisms are confirmed to work. Whether the book is better is unmeasured, and on this
+project's own evidence only a reader can measure it.** That is the whole of §7.2's second branch, and
+it is now the binding constraint on everything that follows.
+
+> **The cheapest next action remains one external read** — and it is now worth more than it was
+> yesterday, because there is a matched control (`story_20260822-1028`, same inputs, flags off) to read
+> it against. Two reads of a matched pair is the only instrument this project has that can resolve
+> five marks.
