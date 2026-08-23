@@ -1525,6 +1525,32 @@ describe("Agent 9 prompt hardening fixes", () => {
     expect(prompt.developer).not.toContain("MECHANISM REVEAL GATE");
   });
 
+  /**
+   * X32 — the suspect-clearance fold. `pacing` has never been given a 9 in 34 external reads, and four
+   * of the top eight name the same defect: the clearances are re-argued after they are settled. Agent 7
+   * marks the owning scene; these three tests are the mark arriving at the writer.
+   */
+  it("tells the owning chapter to settle the clearances once", () => {
+    const owner = { ...baseScene, suspectClearanceAllowed: true };
+    const prompt = buildProsePrompt(baseInputs, [owner], 1, []);
+    expect(prompt.developer).toContain("SUSPECT CLEARANCE (settle it here, once)");
+    expect(prompt.developer).not.toContain("SUSPECT CLEARANCE (already settled)");
+  });
+
+  it("forbids RE-ARGUING, not referring, in a suppressed chapter", () => {
+    const suppressed = { ...baseScene, suspectClearanceAllowed: false };
+    const prompt = buildProsePrompt(baseInputs, [suppressed], 1, []);
+    expect(prompt.developer).toContain("SUSPECT CLEARANCE (already settled)");
+    expect(prompt.developer).toContain("re-argue");
+    // A reveal that cannot mention its own cast is a worse book: the reference stays permitted.
+    expect(prompt.developer).toContain("with the others accounted for");
+  });
+
+  it("emits nothing when no scene carries the flag — one clearance scene, or the flag off", () => {
+    const prompt = buildProsePrompt(baseInputs, [baseScene], 1, []);
+    expect(prompt.developer).not.toContain("SUSPECT CLEARANCE");
+  });
+
   it("injects full prior chapter text as Story To Date context", () => {
     const priorChapters = [
       {

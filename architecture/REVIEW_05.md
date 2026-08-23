@@ -107,7 +107,7 @@ Everything outstanding, in one place. `☐` not started · `◑` partial · `✅
 | X29 | **`missing_clearance` and `aftermath_repeat` fought over the same chapter** — one dramatizes a suspect clearance, the other forbids one; ch9 of the 08-07 run lost 2 of 8 paragraphs. **Both** writers that target "the last chapter naming the suspect" are now bounded by the reveal chapter: the regen pass and the deterministic injector floor | free | ✅ | [REVIEW_08 §7](REVIEW_08.md) |
 | X30 | **Dialogue tics have no detector** — dialogue has never scored above 7 externally, and all three readers name recycled content-free lines. Measured (`probe:dialogue-tics`), NOT gated: n=5 does not separate 84 from 86 | free | ◑ | [REVIEW_08 §7](REVIEW_08.md) |
 | X31 | **`npm test` has flaked twice** — `Worker exited unexpectedly`, a different workspace each time, passing on re-run. A moving failure reads as a runner problem, but it is the guard everything rests on | free to watch | ☐ | [REVIEW_08 §7](REVIEW_08.md) |
-| **X32** | **The clearance FLOOR has no ceiling, so the outline may allocate the job as often as it likes** — ~~a third writer of clearance prose is unbounded by chapter ROLE; not measured on a run~~ **MEASURED 2026-08-19 and found one layer up.** `evaluateOutlineCoverage` Check 2 joins every scene into ONE string and asks whether elimination language appears anywhere, so three clearance scenes satisfy it exactly as one does. On the 08-19 outline Agent 7 allocated the job to **two** scenes unprompted (*"Clearing the Others"* Act 2, *"Clearances and Culprit Revealed"* Act 3) and the manuscript cleared its suspects in **chapters 6, 9 and 10** — ch10 re-clearing all three by name 2,300 words after the confession, reusing ch6's own joke. **BUILT 2026-08-19**: `countSuspectClosureScenes` counts the job PER SCENE (as Check 1 always did), reported as an always-on `[X32]` warning; the `duplicate_suspect_closure_scenes` issue and its fold guardrail are gated on `AGENT9_FOLD_SUSPECT_CLEARANCES`, because any issue drives an outline retry and 11 of 32 archived outlines exceed one. 9 tests | free | :white_check_mark: | [§12.8](#128-x32--x62--the-clearance-floor-with-no-ceiling-and-the-wordlists-that-could-not-read-the-outline) · [REVIEW_13 §8.2](REVIEW_13.md) |
+| **X32** | **[REPAIR HALF BUILT 2026-08-23 — X93, §12.20: the fold is deterministic and the retry is gone.]** **The clearance FLOOR has no ceiling, so the outline may allocate the job as often as it likes** — ~~a third writer of clearance prose is unbounded by chapter ROLE; not measured on a run~~ **MEASURED 2026-08-19 and found one layer up.** `evaluateOutlineCoverage` Check 2 joins every scene into ONE string and asks whether elimination language appears anywhere, so three clearance scenes satisfy it exactly as one does. On the 08-19 outline Agent 7 allocated the job to **two** scenes unprompted (*"Clearing the Others"* Act 2, *"Clearances and Culprit Revealed"* Act 3) and the manuscript cleared its suspects in **chapters 6, 9 and 10** — ch10 re-clearing all three by name 2,300 words after the confession, reusing ch6's own joke. **BUILT 2026-08-19**: `countSuspectClosureScenes` counts the job PER SCENE (as Check 1 always did), reported as an always-on `[X32]` warning; the `duplicate_suspect_closure_scenes` issue and its fold guardrail are gated on `AGENT9_FOLD_SUSPECT_CLEARANCES`, because any issue drives an outline retry and 11 of 32 archived outlines exceed one. 9 tests | free | :white_check_mark: | [§12.8](#128-x32--x62--the-clearance-floor-with-no-ceiling-and-the-wordlists-that-could-not-read-the-outline) · [REVIEW_13 §8.2](REVIEW_13.md) |
 | X33 | **An Azure content-filter refusal on the blind-reader prompt ABORTED a paid run** — the prompt carries the case's death method, a stabbing earned `violence/medium`, and the throw propagated out of Agent 6 at the fair-play stage, before Agent 9 and before anything the run was bought to measure. A_71's "never-abort gate held" was true of Agent 9 and false here. Now: refusal ⇒ the blind read is NOT MEASURED (skipped, not passed), run continues | free | ✅ | [§38.5](#385-x33--a-refused-prompt-killed-a-paid-run-at-agent-6) |
 | X34 | **A first-person confession cannot satisfy the disclosure check** — `disclosingSentence` needs the culprit's name and a guilt marker in ONE sentence, and a confession puts the name in the attribution and the guilt in the quoted "I did it". Measured twice on the N7 run against two independently generated reveals. The false-negative mirror of X27/X28, and it is what blocks N7 from landing **BUILT — verified against the shipped detector 2026-08-20.** `confessionDisclosure` in `accept.ts`: the culprit named in the paragraph, a QUOTED first-person admission AFTER that name, and if the quote carries an attribution it names the CULPRIT. Run against the two real N7 paragraphs, both now `met` at ch10; the two false-certification traps (another character confessing first, and an attributed third-party confession) both correctly `unmet`. Paragraph-scoped on purpose and NOT a reversal of X27/X28 — those made a CONJUNCTION sentence-scoped; a quoted admission is self-contained evidence, and the paragraph is the unit that says whose. Pinned in `accept.test.ts` (the N7 paragraphs verbatim) and `guilt-marker-x49.test.ts` (both attribution word orders) | free | ✅ | [§38.6](#386-the-n7-run--the-pass-fired-the-model-wrote-the-reveal-and-the-detector-refused-it) |
 | X35 | **The reveal repair never tells the model the death method, and it invented one** — attempt 2 confessed to strangling in a stabbing case. `CASE.death_method` is not in the regen Bible slice and not in the violation message. Caught only because the disclosure check rejected the edit for an unrelated reason **BUILT AND WIRED — verified 2026-08-20.** `deathMethod` is threaded from `agent9-run.ts` (`CASE.death_method`) into the reveal-repair request and CONSUMED, not merely accepted: *"THE MURDER WAS COMMITTED BY: {method}. That is the story's own fact — state it, and never substitute another method."* The same instruction also asks for the disclosure SHAPE X34 can read (culprit named in full before the admission), so the writer and the gate agree on scope — an instruction that produces prose its own detector cannot read is the defect this pass exists because of | free | ✅ | [§38.6](#386-the-n7-run--the-pass-fired-the-model-wrote-the-reveal-and-the-detector-refused-it) |
@@ -4082,3 +4082,81 @@ and *"passed"* are two lines of output in the same scroll, and a gate with a hou
 fails open. `resolveStoryPath` now resolves a story by NAME across `stories/` and `stories/_archive/`,
 in the one reader both probes share — the §10 rule 2 shape again: fix it in the body everyone imports,
 not at the call site that noticed.
+
+### 12.20 X93 — the fold that was built as a retry, and the ledger that made it worth building now
+
+Two things landed on 2026-08-23 and only make sense together: a measurement, and the repair it justifies.
+
+#### The measurement — 34 external reads, not 8
+
+`eval/results/external-read/manifest.json` held **9 rows, 5 of them pointing at manuscripts that had
+moved** into `stories/_archive`, no per-category marks on any row, and neither of the two reads
+[PLAN-TO-90 §2](PLAN-TO-90.md) argues from. What was actually on disk, beside the manuscripts, was
+**35 external reads — 34 of them carrying a full ten-category table in plain text.** Ten human marks
+per story, recorded nowhere a program could read, while the arithmetic they support was carried by
+hand across four review documents.
+
+`scripts/external-read-ledger.mjs` parses them. Re-derived at n=34:
+
+| | the boards say | the data says |
+|---|---:|---:|
+| best-ever in each category, summed | 84 | **85** |
+| headline-minus-sum offset | +2..+7, mean 3.5 (n=8) | **0..+8, mean 3.9 (n=34)** |
+| best-ever-everywhere projects to | 87.5 | **88.9** |
+
+And the finding that reorders Phase 3 — **five of the ten categories have never been given a 9 by any
+reader, in 34 reads**:
+
+| never 9 | mean, top 8 | distance to 9 |
+|---|---:|---:|
+| prose | 7.0 | 2.0 |
+| dialogue | 7.1 | 1.9 |
+| character_clarity | 7.9 | 1.1 |
+| pacing | 7.9 | 1.1 |
+| opening_hook | 8.0 | 1.0 |
+
+*"Three flat categories at 8"* was the right instinct with the wrong set — [§4a](PLAN-TO-90.md) had
+already caught that much. This says which five, how far each sits from a 9, and therefore that **90 is
+not reachable by stacking existing bests**: 85 + 3.9 = 88.9, so at least one of those five has to break
+a record no manuscript has ever set.
+
+#### The repair — pacing is the only one of the five with a named defect
+
+Four of the top eight name the same thing, in the reader's own words:
+
+> *"Good final trap; Chapter 9 repeats clearances after they are already resolved."*
+> *"Builds well; Chapter 10 still repeats some of Chapter 9."*
+> *"Good build; Chapters 9–10 repeat the reveal/clearances."*
+
+[X32](#128-x32--x62--the-clearance-floor-with-no-ceiling-and-the-wordlists-that-could-not-read-the-outline)
+built the detection on 2026-08-19 and wired it to raise `duplicate_suspect_closure_scenes`. **That put
+the repair on the outline-RETRY path, and that is the entire reason `AGENT9_FOLD_SUSPECT_CLEARANCES`
+has been off since 2026-07-24**: 11 of 32 archived outlines allocate the job more than once, so the
+flag asked a third of all runs to re-roll their outline — at a fresh Agent 7 call each — to fix a
+defect a re-roll is not even reliably going to avoid reproducing.
+
+**The flag is named *fold*. A_67 FIX-1 Change C designed it as a fold. It now folds.**
+
+- `packages/story-validation/src/suspect-clearance-gate.ts` — pure. `chooseClearanceKeeper` picks the
+  LAST closure scene at or before the reveal; `stampSuspectClearanceGate` marks that scene
+  `suspectClearanceAllowed: true` and every duplicate `false`, leaving non-closure scenes **unset** so
+  the prompt block self-gates exactly as the mechanism-reveal gate does.
+- `applySuspectClearanceGate` (agent7-run) locates the reveal by beat, then by act-3-scene-2, then not
+  at all — `-1` means "keep the last", the same fold intent without pretending to know.
+- The prose prompt gains one block. The suppress wording forbids **re-arguing**, not referring: a
+  reveal that cannot mention its own cast is a worse book, and what the reader objected to was the
+  re-argument.
+- `duplicate_suspect_closure_scenes` is gone from the issue union and from
+  `buildOutlineRepairGuardrails`. A guardrail that can never be triggered is the shape §6 keeps
+  finding; it is deleted rather than left to look live.
+
+Inert unless the outline allocates the job more than once, and unset entirely with the flag off — so a
+default run is byte-identical. 21 tests across the three layers.
+
+**The falsification, and it is a real risk rather than a formality.** [REVIEW_15](REVIEW_15.md) measured
+ch10's 1,031 words as having *"no job but the third clearance pass"*. Suppress that job and the chapter
+may come back **thin** — the word-count contract will floor its length, which is not the same as giving
+it something to do. The Act III contract ([X73](#)) is what should fill it. **If the suppressed chapter
+returns padded rather than repurposed, this fix is wrong and the outline half is the one that was
+needed.** That is what the paid run is for, and it is now one flag rather than one flag plus a third of
+all outlines re-rolled.

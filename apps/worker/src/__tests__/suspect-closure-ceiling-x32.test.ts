@@ -92,11 +92,17 @@ describe("buildOutlineRepairGuardrails — folding answers the ceiling, not the 
     expect(g).not.toMatch(/do NOT allocate a separate scene/i);
   });
 
-  it("the CEILING asks for folding, and names the culprit", () => {
-    const g = buildOutlineRepairGuardrails(issue("duplicate_suspect_closure_scenes"), CML).join(" ");
-    expect(g).toMatch(/do NOT allocate a separate scene/i);
-    expect(g).toMatch(/do not restate a clearance in a later scene/i);
-    expect(g).toMatch(/Hugo Vane/);
+  /**
+   * 2026-08-23: the CEILING no longer produces a guardrail at all, and that is the fix rather than a
+   * regression. Its instruction only ever reached the model inside an outline RETRY, and the retry
+   * cost — 11 of 32 archived outlines allocate the job more than once — is precisely what kept
+   * `AGENT9_FOLD_SUSPECT_CLEARANCES` switched off. The fold is now deterministic
+   * (`stampSuspectClearanceGate` + the prose block), so this asserts the absence.
+   */
+  it("the CEILING no longer routes through an outline retry", () => {
+    process.env.AGENT9_FOLD_SUSPECT_CLEARANCES = "true";
+    const g = buildOutlineRepairGuardrails(issue("missing_discriminating_test_scene"), CML).join(" ");
+    expect(g).not.toMatch(/do NOT allocate a separate scene/i);
   });
 
   it("the fold text is no longer reachable from the floor, which is how it stayed unreachable", () => {

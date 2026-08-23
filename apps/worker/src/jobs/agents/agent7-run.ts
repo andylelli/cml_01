@@ -11,7 +11,7 @@ import { formatNarrative, GOLDEN_AGE_BEATS, isAgent7StructuredOutputEnabled } fr
 import type { NarrativeOutline, ClueDistributionResult, WorldDocumentResult } from "@cml/prompts-llm";
 import { validateArtifact } from "@cml/cml";
 import type { CaseData } from "@cml/cml";
-import { NarrativeScorer, getSceneTarget, getChapterTargetTolerance, getGenerationParams, getStoryLengthTarget, distributeChapterWordBudget, applyGridClueJobs, scoreRealNarrative, resolveDiscriminatingSceneIndex, stampMechanismRevealGate } from "@cml/story-validation";
+import { NarrativeScorer, getSceneTarget, getChapterTargetTolerance, getGenerationParams, getStoryLengthTarget, distributeChapterWordBudget, applyGridClueJobs, scoreRealNarrative, resolveDiscriminatingSceneIndex, stampMechanismRevealGate, stampSuspectClearanceGate } from "@cml/story-validation";
 import {
   type OrchestratorContext,
   type OutlineCoverageIssue,
@@ -569,6 +569,53 @@ function applyMechanismRevealGate(ctx: OrchestratorContext, narrative: Narrative
     }
   } catch (e) {
     console.warn(`[Agent 7 mechanism gate] skipped: ${(e as Error).message}`);
+  }
+}
+
+/**
+ * X32's repair half — fold the duplicate suspect clearances into the one scene that owns them.
+ *
+ * Gated on `AGENT9_FOLD_SUSPECT_CLEARANCES` (default OFF), read at call time rather than at module
+ * load: a module-level const freezes before dotenv and makes the lever unsettable from `.env.local`,
+ * which this repo has now shipped twice.
+ *
+ * Inert unless the outline gives the job to more than one scene, so an outline with a single
+ * clearance scene produces byte-identical prompts with the flag on or off.
+ */
+export function applySuspectClearanceGate(ctx: OrchestratorContext, narrative: NarrativeOutline): void {
+  const enabled =
+    process.env.AGENT9_FOLD_SUSPECT_CLEARANCES === "true" || process.env.AGENT9_FOLD_SUSPECT_CLEARANCES === "1";
+  if (!enabled) return;
+  try {
+    const sceneRefs = flattenNarrativeScenes(narrative);
+    if (sceneRefs.length === 0) return;
+
+    const closureIndices: number[] = [];
+    sceneRefs.forEach((ref, i) => {
+      const text = sceneClosureText(ref.scene);
+      if (OUTLINE_ELIMINATION_TERMS_RE.test(text) && OUTLINE_EVIDENCE_TERMS_RE.test(text)) closureIndices.push(i);
+    });
+
+    // The reveal, by the outline's own beat first and its act/scene shape second. Both can be absent —
+    // `chooseClearanceKeeper` treats -1 as "keep the last", which is the same fold intent without
+    // pretending to know where the reveal is.
+    let revealIndex = sceneRefs.findIndex((ref) => String((ref.scene as any)?.beat ?? "").trim() === "revelation");
+    if (revealIndex < 0) revealIndex = sceneRefs.findIndex((ref) => ref.act === 3 && ref.actSceneNumber === 2);
+
+    const result = stampSuspectClearanceGate(
+      sceneRefs.map((r) => r.scene as any),
+      { closureIndices, revealIndex },
+    );
+    if (result.suppressed > 0) {
+      const keeper = sceneRefs[result.keeperIndex];
+      ctx.warnings.push(
+        `[X32] Suspect-clearance fold: ${closureIndices.length} scenes carry the clearance job; ` +
+          `kept in scene ${keeper?.sceneNumber ?? "?"} (act ${keeper?.act ?? "?"}), suppressed in ${result.suppressed}.`,
+      );
+    }
+  } catch (e) {
+    // Best-effort, exactly like the mechanism gate: a stamping failure must never cost an outline.
+    ctx.warnings.push(`[X32] Suspect-clearance fold skipped: ${(e as Error).message}`);
   }
 }
 
@@ -1356,17 +1403,16 @@ function evaluateOutlineCoverage(narrative: NarrativeOutline, cml: CaseData): Ou
     // 11 of the 32 archived outlines allocate more than one. Flag off: default behaviour is unchanged
     // and the count is reported as a warning only. Flag on: the ceiling drives the fold guardrail, at
     // the trigger where folding is the actual repair.
-    const foldSuspectClearances =
-      process.env.AGENT9_FOLD_SUSPECT_CLEARANCES === "true" || process.env.AGENT9_FOLD_SUSPECT_CLEARANCES === "1";
-    const closureScenes = countSuspectClosureScenes(narrative);
-    if (foldSuspectClearances && closureScenes.length > 1) {
-      issues.push({
-        type: "duplicate_suspect_closure_scenes",
-        message:
-          `Outline gives a suspect-clearance job to ${closureScenes.length} scenes (${closureScenes.join("; ")}). ` +
-          `A cleared suspect stays cleared, so every pass after the first repeats a resolved beat.`,
-      });
-    }
+    // 2026-08-23 — THE ISSUE IS GONE; THE REPAIR IS A STAMP. See `applySuspectClearanceGate` below.
+    //
+    // Raising an issue here put the repair on the outline-RETRY path, and that is the whole reason the
+    // flag stayed off: 11 of 32 archived outlines allocate the job more than once, so turning it on
+    // re-rolled a third of all outlines at a fresh Agent 7 call each — to fix a defect a re-roll is
+    // not even reliably going to avoid reproducing. The flag is named *fold*, and A_67 FIX-1 Change C
+    // designed it as a fold, so it now folds: a deterministic per-scene gate, no retry, no LLM call.
+    //
+    // The count stays visible as the always-on `[X32]` warning at the call site, which is what it was
+    // built to be.
   }
 
   return issues;
@@ -2616,6 +2662,11 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
   // A_52 item 4 (default on): stamp the mechanism-reveal gate so the prose withholds the HOW until the
   // discriminating test — independent of scheduler authority, which kept it dark on normal runs.
   applyMechanismRevealGate(ctx, narrative);
+
+  // X32 (default off, AGENT9_FOLD_SUSPECT_CLEARANCES): fold duplicate suspect clearances into the one
+  // scene that owns them. Stamped here, beside the other per-scene gate, so both reach Agent 9 by the
+  // same route — and after the final beat coercion above, since the keeper is chosen by beat.
+  applySuspectClearanceGate(ctx, narrative);
 
   // A_55 #5 (default on): guarantee the discriminating-test scene references ≥1 of its evidence clues
   // (additive only) so the Agent-9 G4 detector's "no DT evidence clue scheduled in the outline" gap

@@ -205,7 +205,7 @@ export type ProseScoringSnapshot = {
 };
 
 export type OutlineCoverageIssue = {
-  type: "missing_discriminating_test_scene" | "missing_suspect_closure_scene" | "duplicate_suspect_closure_scenes";
+  type: "missing_discriminating_test_scene" | "missing_suspect_closure_scene";
   message: string;
 };
 
@@ -425,18 +425,16 @@ export const buildOutlineRepairGuardrails = (
     );
   }
 
-  // The CEILING (X32): the outline has closure language in MORE THAN ONE scene, so ask for it folded.
+  // THE CEILING (X32) USED TO ADD A FOLD INSTRUCTION HERE. It does not any more, and the reason is
+  // worth keeping: this text only ever reached the model as part of an outline RETRY, and putting the
+  // repair on the retry path is what kept `AGENT9_FOLD_SUSPECT_CLEARANCES` switched off — 11 of 32
+  // archived outlines allocate the clearance job more than once, so the flag re-rolled a third of all
+  // outlines at a fresh Agent 7 call each, to fix a defect a re-roll may simply reproduce.
   //
-  // A_67 FIX-1(c) wrote this instruction and hung it off the floor — the branch that fires when there
-  // is no closure anywhere. Folding cannot repair an absence, and the trigger is unreachable whenever
-  // the defect is present: an outline that repeats clearances satisfies the floor by definition.
-  // Measured on the 08-19 run, whose manuscript clears its three suspects in chapters 6, 9 and 10:
-  // the floor was silent, so this text was never emitted. It now hangs off the count.
-  if (issues.some((i) => i.type === "duplicate_suspect_closure_scenes")) {
-    guardrails.push(
-      "In Act III, rule out each non-culprit suspect with explicit elimination language (cleared, ruled out, alibi confirmed) and evidence references, folded INTO the discriminating-test / reveal scene as the detective works through the evidence — do NOT allocate a separate scene whose sole purpose is clearing suspects, and do not restate a clearance in a later scene once it has been made. The culprit" + culpritClause + " must be identified with a complete evidence chain.",
-    );
-  }
+  // The fold is now deterministic: `applySuspectClearanceGate` marks the scene that OWNS the job and
+  // the prose prompt tells every other chapter not to re-argue it. No retry, no LLM call, and the
+  // instruction lands on the writer rather than on the outliner. See
+  // `packages/story-validation/src/suspect-clearance-gate.ts`.
 
   return guardrails;
 };

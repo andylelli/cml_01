@@ -2104,6 +2104,35 @@ ${victimIdentityRule}`;
         `\n\nMECHANISM REVEAL GATE (withhold): The discriminating test has NOT happened yet. Show observable clues, contradictions, and suspicions, but do NOT yet explain HOW the concealment mechanism actually works, and do not state outright that it was deliberately rigged — keep the method an open question. Reserve the full explanation for the discriminating-test chapter.`;
     }
   }
+  /**
+   * X32 — the suspect-clearance fold, honoured here the same way the mechanism gate above is.
+   *
+   * `pacing` has never been given a 9 in 34 external reads, and on the best eight manuscripts four of
+   * them name one defect: *"Chapter 9 repeats clearances after they are already resolved"*,
+   * *"Chapter 10 still repeats some of Chapter 9"*. Agent 7 now marks WHICH scene owns the clearance
+   * job when more than one carries it (`AGENT9_FOLD_SUSPECT_CLEARANCES`); this block is what makes the
+   * mark reach the writer.
+   *
+   * Self-gating on the per-scene flag, so a chapter whose scenes carry no mark — every chapter of every
+   * run with a single clearance scene, and every run with the flag off — gets no block at all.
+   *
+   * The suppress wording deliberately PERMITS a backward reference. "Never mention the other suspects"
+   * would produce a reveal that forgets its own cast; what the reader objected to is the re-ARGUING,
+   * so that is what is forbidden.
+   */
+  {
+    const clearanceFlags = (scenes as any[]).map((s) => s?.suspectClearanceAllowed);
+    const ownsClearance = clearanceFlags.some((f) => f === true);
+    const suppressed = clearanceFlags.some((f) => f === false);
+    if (ownsClearance) {
+      developerWithContracts +=
+        `\n\nSUSPECT CLEARANCE (settle it here, once): This chapter is where the innocent suspects are cleared. Do the whole job here — name who is ruled out and the evidence that rules them out — because no later chapter may re-argue it.`;
+    } else if (suppressed) {
+      developerWithContracts +=
+        `\n\nSUSPECT CLEARANCE (already settled): The innocent suspects have already been cleared in another chapter, and a cleared suspect stays cleared. Do NOT re-argue any alibi, re-list who is ruled out, or walk the reader back through the eliminations. You may refer to them as settled in a clause ("with the others accounted for") and then move on — this chapter's work is elsewhere.`;
+    }
+  }
+
   const scenesWithAdjustedEstimates = sanitizeScenesCharacters(
     (scenes as any[]).map((scene) => ({
       ...scene,

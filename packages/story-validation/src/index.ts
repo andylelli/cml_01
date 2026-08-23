@@ -28,6 +28,7 @@ export * from './story-length-targets.js';
 // Agent 7 scheduler job authority — grid-derived once-each clue jobs (T1.2 / P1.3)
 export * from './scene-job-authority.js';
 export * from './mechanism-reveal-gate.js';
+export * from './suspect-clearance-gate.js';
 
 // Scoring system
 export * from './scoring/index.js';
