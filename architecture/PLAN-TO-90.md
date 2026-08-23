@@ -1181,3 +1181,129 @@ it is now the binding constraint on everything that follows.
 > yesterday, because there is a matched control (`story_20260822-1028`, same inputs, flags off) to read
 > it against. Two reads of a matched pair is the only instrument this project has that can resolve
 > five marks.
+
+---
+
+## 11. THE READ — four flags, externally scored · 81/100 · 2026-08-23
+
+`story_20260823-1715/the_rising_tide_at_cliffhaven.md`, cold read. **81/100**, category sum 79, offset
+**+2** — the lowest offset in the series, so the reader was slightly *less* generous than usual relative
+to the categories. Joint-4th of the 35 reads on file.
+
+| | premise | hook | plot | char | dial | atmos | clues | pace | end | prose |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| **this read** | **9** | 8 | 8 | 8 | 7 | **9** | 8 | 8 | 8 | **6** |
+| best ever (n=35) | 9 | 8 | 9 | 8 | 8 | 9 | 9 | 8 | 9 | 8 |
+| top-8 mean | 8.8 | 8.0 | 8.0 | 8.0 | 7.1 | 8.4 | 8.0 | 7.9 | 8.1 | 6.9 |
+
+### 11.1 What the four flags did, one at a time
+
+**X93 (pacing) — the defect is gone; the mark is not.** Every previous read of a top manuscript said
+some version of *"Chapters 9–10 repeat the reveal/clearances"* — four of the top eight. This one says:
+
+> *"Good build and a real test chapter; **Chapter 10 mostly works as aftermath**."*
+
+**That complaint has not been absent from a read before.** The mark stayed at 8, and the fastest-fixes
+list still contains *"Keep Chapter 10 as aftermath-only"* — but as a note about the first line being
+report-like, not about the chapter re-proving the case. **The fold did what it was built to do, and
+pacing did not move.** Which means pacing at 8 was never held down by that complaint alone.
+
+**X94 (opening hook) — landed, and moved nothing.** Chapter 1 opened on dialogue for the first time in
+the project's history. The mark is 8, and the reader's note is the same inventory of props as always:
+*"Body at tide line, harbormaster time, pipe, blood, scrape marks — very good."* On n=1 against a reader
+whose own reproducibility we measured at ±1 (§11.3), **this is evidence against the ch1 opening style
+being the lever for `opening_hook`.** The hook is not held down by how the first sentence is shaped.
+
+**X95 (atmosphere, prose) — atmosphere took a 9; prose took a 6, for reasons the palette cannot touch.**
+`atmosphere` 9 is only the **third in 35 reads**, and the note is unusually specific: *"Cliffhaven,
+shingle, tide, mist, seaweed, hotel lounge — excellent setting-mechanism fit."* Not attributable to the
+palette on n=1 — a tide mechanism in a seaside setting is a genuinely good match — but it is the
+category the palette aimed at, and it hit its ceiling.
+
+`prose` at **6** is the drag on the whole score, and the reader named the cause precisely. See §11.2.
+
+**X38-at-source (clues) — 8, with the timing complaint intact.** *"Stronger than previous tide drafts,
+though the exact timing needs one cleaner sentence."* The device arithmetic is now repaired where it is
+authored, and the reader still wants the true/false pair stated in one line — which is
+`reveal_times_not_stated`, a geometry code that already exists.
+
+### 11.2 The prose mark, and the two defects behind it
+
+Both trace to **one block in the prose prompt**, and both are deterministic.
+
+**A — a locked-fact value carrying an indefinite article.** The registry holds:
+
+```
+high_tide_time        "ten minutes past eleven"
+weapon_release_time   "a quarter past eleven"      <- the article is INSIDE the value
+```
+
+Both are handed to the writer under a HARD verbatim contract — *"reproduce those exact words"*. The two
+are not parallel, so the model regularises them, and the book contains **"a ten minutes past eleven"
+about ten times**, including the line the reader quoted:
+
+> *"By then it was a ten minutes past eleven. It had taken fifteen minutes in all. By then it was a ten
+> minutes past eleven."*
+
+That sentence also appears **twice**, as do four others: the paragraph-fingerprint linter dedupes
+paragraphs, not sentences.
+
+**B — the locked-fact DESCRIPTION reaching the page.** The prompt renders each fact as
+`description: "value"`:
+
+```
+- The official high tide time on the murder day as per hotel tide charts: "ten minutes past eleven"
+```
+
+The description is internal metadata. It surfaced in the prose, paraphrased under anti-repetition
+pressure into something worse than itself:
+
+> *"The **certified wave crest hour** atop the murder day **as per innkeeper's tide charts** was clear."*
+
+`as per … tide charts` and `the murder day` are lifted from the description; `official high tide time`
+became `certified wave crest hour` and `hotel` became `innkeeper's` because the writer is under
+instruction not to repeat a phrase. **This is the mechanism behind *"generated validation language"* —
+the complaint attached to `prose` in read after read.** It is not a vocabulary problem and no wordlist
+reaches it.
+
+**The reader's own forecast:** *"With the timing phrased cleanly and the generated lines removed, this
+could reach 86–89/100."* Both defects are detectable in code.
+
+### 11.3 A byproduct: the external reader's own error bar, measured for the first time
+
+The read that arrived before this one was of a different book — `the_pendulum_s_secret_chime`, the
+2026-08-06 wire-hinge draft. That turned out to be worth having, because
+`story_20260807-1112/PROVENANCE.txt` records it as a deliberate single-variable experiment: the 84-scoring
+manuscript with **two paragraphs of chapter 10 rewritten** by the aftermath-repeat regen pass, created
+specifically so *"a second cold read isolates that one complaint completely"*. It had never been read.
+
+| | 08-06 source | 08-07, two paragraphs repaired |
+|---|---:|---:|
+| headline | 84 | **85** |
+| prose | 7 | **8** |
+| **pacing** | **8** | **8** |
+| the other eight categories | — | **identical** |
+
+**Nine of ten categories identical across two reads.** Two things follow:
+
+1. **The external reader is stable to about ±1** — against the LLM judge's measured spread of 7–8
+   ([§9](#9-result--m12-the-ordinal-judge--2026-08-23--085)). This is the first direct measurement of
+   the only instrument this project trusts, and it justifies the trust.
+2. **A two-paragraph repair did not move pacing**, and the reader restated the same complaint:
+   *"Chapter 10 then repeats the clearances and re-demonstrates the mechanism."* The defect was
+   structural, not two bad paragraphs — **which is precisely the argument X93's fold makes over
+   paragraph-level repair**, arriving independently and before the fold was read.
+
+### 11.4 Where this leaves 90
+
+```
+this read            81   (sum 79, offset +2)
+prose at its ceiling +2   -> 83     the two defects in §11.2 are worth about this
+best-ever-everywhere 85   + offset 3.9 = 88.9
+```
+
+Nothing here changes §8.2's arithmetic: **five categories have never reached 9**, and this read added a
+35th confirmation for four of them. What it changes is the ORDER — `prose` is now the largest single gap
+on the best manuscripts (top-8 mean 6.9 against a ceiling of 8), it is the category this read scored
+worst, and for the first time its cause is named down to two specific mechanisms rather than described
+as *"generated phrases remain"*.

@@ -238,6 +238,38 @@
     "externalOffset": 7
   },
   {
+    "bundleId": "read-20260823-1715",
+    "storyPath": "stories/story_20260823-1715/the_rising_tide_at_cliffhaven.md",
+    "readPath": "stories/story_20260823-1715/chatgpt-text.txt",
+    "externalFinal": 81,
+    "externalCategories": {
+      "premise": 9,
+      "opening_hook": 8,
+      "plot_structure": 8,
+      "character_clarity": 8,
+      "dialogue": 7,
+      "atmosphere": 9,
+      "clues": 8,
+      "pacing": 8,
+      "ending": 8,
+      "prose": 6
+    },
+    "externalNotes": {
+      "premise": "Tide releasing a weighted pipe as a false time marker is strong and distinctive.",
+      "opening_hook": "Body at tide line, harbormaster time, pipe, blood, scrape marks — very good.",
+      "plot_structure": "Discovery → tide contradiction → suspect pressure → physical test → Hale reveal works well.",
+      "character_clarity": "Roles are stable; Eleanor, Finch, Hale, Beatrice, Sylvia, and Hugo are clear.",
+      "dialogue": "Mostly functional with some good character tension, though a few voices still rely on familiar catchphrases.",
+      "atmosphere": "Cliffhaven, shingle, tide, mist, seaweed, hotel lounge — excellent setting-mechanism fit.",
+      "clues": "Stronger than previous tide drafts, though the exact timing needs one cleaner sentence.",
+      "pacing": "Good build and a real test chapter; Chapter 10 mostly works as aftermath.",
+      "ending": "Hale confesses clearly and the pipe/tide test supports the accusation.",
+      "prose": "Atmospheric, but still has generated glitches and repeated time phrases."
+    },
+    "externalCategorySum": 79,
+    "externalOffset": 2
+  },
+  {
     "bundleId": "read-20260723-1620",
     "storyPath": "stories/_archive/story_20260723-1620/the_masquerade_of_authority.md",
     "readPath": "stories/_archive/story_20260723-1620/chatgpt-review.txt",

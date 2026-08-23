@@ -152,8 +152,19 @@ function findReads() {
       const dir = join(root, name);
       if (name === "_archive" || !statSync(dir).isDirectory()) continue;
       const files = readdirSync(dir);
-      // `chatgpt-txt` (no extension) is a real filename in the archive — match on the stem.
-      const read = files.find((f) => /^chatgpt[-_.]?(review)?(\.txt|-txt)?$/i.test(f));
+      /**
+       * Any file whose name starts with `chatgpt` is a read.
+       *
+       * The first version enumerated the suffixes it had seen — `chatgpt.txt`, `chatgpt-review.txt`,
+       * `chatgpt-txt`. On 2026-08-23 a read arrived as **`chatgpt-text.txt`** and the scanner did not
+       * see it: no error, no warning, the folder simply looked like a manuscript with no read. That is
+       * the silent skip this file's header forbids, reintroduced by the pattern that was supposed to
+       * prevent it — a closed list of spellings, which is the defect X95 spent a whole increment on.
+       *
+       * The prefix is the rule. Anything else in a story folder that starts with `chatgpt` is a read,
+       * and if it turns out not to be, the parser reports it rather than dropping it.
+       */
+      const read = files.find((f) => /^chatgpt/i.test(f));
       const story = files.find((f) => f.endsWith(".md"));
       if (!read || !story) continue;
       out.push({
