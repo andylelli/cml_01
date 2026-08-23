@@ -5,6 +5,10 @@ Descends from [REVIEW_13](REVIEW_13.md) §1 (the arithmetic), [REVIEW_14](REVIEW
 [REVIEW_15](REVIEW_15.md) §6 (the two most recent orderings), and from the twelve-row code review in
 [REVIEW_05](REVIEW_05.md) §12.13–§12.15. [REVIEW_05](REVIEW_05.md) remains the tracker.
 
+**§7 (2026-08-23) is the live order and supersedes §5.** It adds the £1/run constraint, the
+measured cost of a run, and the one instrument question that has never been asked — ordinal rather
+than cardinal judging.
+
 **This document exists because the previous three orderings were all drawn through instruments that
 have since been measured, and found blind.** Nine of the twelve defects fixed on 2026-08-20 were
 gates skipping their own inputs. Any plan written before that was reasoning about a pipeline whose
@@ -722,3 +726,146 @@ review earned.
 **What this document does not claim:** that 90 is reachable with the current generation model; that
 any Phase 0 item raises a score; or that the twelve fixes of 2026-08-20 will show up in a read. It
 claims one thing — **that until Phase 0 exists, no one here can tell whether anything is working.**
+
+---
+
+## 7. The plan from here — written 2026-08-23, against a £1/run budget
+
+§§4a and 5 close every Phase 0 item and leave the project with a working pipeline, a genuine new
+capability (five axes), and **no gauge**. This section is the route out, and it carries a second
+constraint the earlier sections did not: **each run must come in at £1.**
+
+### 7.1 What a run actually costs — measured from `logs/llm.jsonl`, not from a report
+
+Five sweep runs of 2026-08-22, every `chat_response` record priced at Azure list with cached input at
+half rate. Reproduce with **`node scripts/run-cost-audit.mjs`**:
+
+| axis | first-pass | repeat calls | total | vs `report.total_cost` |
+|---|---:|---:|---:|---|
+| temporal | $1.04 | $0.22 | $1.26 (**£0.99**) | 0.7636 |
+| spatial | $1.32 | $0.17 | $1.49 (**£1.18**) | 0.8030 |
+| identity | $1.14 | $0.42 | $1.56 (**£1.23**) | 1.9741 |
+| behavioral | $1.03 | $0.12 | $1.16 (**£0.91**) | 1.7101 |
+| authority | $1.07 | $0.23 | $1.31 (**£1.03**) | 0.9248 |
+| **mean** | **$1.12** | **$0.23** | **$1.36 (£1.07)** | — |
+
+**The budget is already met on average and missed on the tail.** Mean £1.07, range £0.91–£1.23. That
+is the same shape as the score itself: the mean is fine, the *floor* is the problem.
+
+**And the number this document has been quoting is not that number.** §4a's table (£0.76 … £1.97) came
+from `report.total_cost`, which disagrees with the call log by up to **+47%**, is unlabelled as to
+currency, and **ranks the runs wrongly** — it calls `behavioral` the second most expensive run when it
+is the cheapest one measured. Third disagreeing cost source in this repo.
+
+Where the money goes, mean per run:
+
+```
+Agent 9 prose, first pass    $0.84   62%   10 chapters x ~30K in / 4.5K out
+per-chapter polish           $0.25   18%   claude-sonnet-5, 4-8 chapters
+scoped regen                 $0.11    8%
+everything else (25 agents)  $0.16   12%
+--------------------------------------------
+repeat calls, of the above   $0.23   17%   zero-repeat floor: £0.89/run
+```
+
+**The thing that blows the budget is the thing that lowers the score.** Repeat calls are £0.18/run on
+a good run and £0.33 on a bad one — and they are retries, which is Phase 1's subject. **Phase 1 pays
+twice**, and that reorders it above everything except the gauge.
+
+### 7.2 Move 1 — the gauge, and it is a METHOD change this time · ~£2
+
+0.4 was decided honestly and its consequence is unaffordable: every "did that change help?" through a
+paying reader means roughly one decision per day.
+
+**What has been tried, on both models, is CARDINAL scoring — put an absolute mark on one manuscript.**
+That is the hardest question anyone can ask a judge, and it failed exactly that way: spread 7–8 against
+a 5-mark difference.
+
+**What has never been tried is ORDINAL. `packages/rubric-score` contains no pairwise anything.** The
+question the project actually needs answered is not *"what is this book worth"* but *"is this one
+better than that one"* — and forced choice between two texts is a far easier task than absolute
+calibration, with no scale to drift on.
+
+The calibration set already exists and nobody has assembled it:
+
+| source | manuscripts | external marks |
+|---|---:|---|
+| `eval/results/external-read/manifest.json` | 9 | 68, 69, 73, 75, 76, 78, 80, 84, 86 |
+| unregistered, on disk with the raw read beside them | 2 | `story_20260817-2209` **86**, `story_20260819-2047` **81** |
+
+Eleven human-marked manuscripts, all present on disk, spanning 68–86 → **55 human-ordered pairs**,
+including the 86-vs-81 pair that both cardinal judges got wrong.
+
+| # | action | cost |
+|---|---|---|
+| M1.1 | Repair the ledger: register the 08-17 and 08-19 reads, repoint the 5 `storyPath`s that moved into `stories/_archive`. It is the project's only ground truth and it is 5/9 broken. | free |
+| M1.2 | Build the pairwise judge — two manuscripts, forced choice, brief reason. Every pair **both ways round** (position bias is the known failure mode), n=3. | ~£2 for all 55 pairs on `gpt-4.1-mini` |
+| M1.3 | **Gate:** ≥80% agreement with the human ordering on pairs ≥5 marks apart, and no worse than chance on ties. | free, a decision |
+
+**If it passes**, the project has an iteration gauge for the first time and every later phase becomes
+measurable without a reader. **If it fails**, cheap instruments are dead on both methods and the plan
+becomes "one reader per milestone, never per change" — which is a real answer too, and changes how the
+remaining money is spent. Either way this is the last cheap question left, and it costs £2.
+
+### 7.3 Move 2 — hold £1 by capping the tail, not by shrinking the mean · free
+
+| # | action | worth |
+|---|---|---|
+| M2.1 | **One cost number.** Make `report.total_cost` the sum of the call log, in a named currency, or delete it. Budgeting against a figure that mis-ranks its own runs is how §4a got two runs backwards. | free |
+| M2.2 | **A per-run governor.** The run knows its own spend; make prose retries past attempt N take the scoped repair path instead of a full regeneration. Caps the tail at source. | free, ~£0.15 on a bad run |
+| M2.3 | **Phase 1, for the money as well as the marks** — see 7.4. Repeat calls are 17% of the bill. | ~£0.18/run |
+| M2.4 | **Take the prefix-order saving.** 0a.2/0b.2 are enabled; the sweep measures 18–36% cached against a 29% ceiling. | ~9% |
+| M2.5 | **Do NOT cut the polish pass** at £0.20/run, despite 0b.1. It is the only craft lever that exists and 0b.1 measured it once, at n=1, through a broken gauge. It should be the **first A/B the pairwise judge runs** — polish on/off, six pairs. | — |
+
+Target: **£1.00/run, £1.15 hard ceiling.** On today's numbers that is M2.2 plus one retry class.
+
+### 7.4 Move 3 — spend the quality budget in evidence order
+
+1. **Phase 1, reliability** (~£1.5, pays twice). X38-at-source behind `AGENT3_DEVICE_TIME_BINDING`;
+   confirm X73's Act III contract (21 of 54 archived chapter retries, present in all nine runs that
+   retried anything); `derivedFrom` uptake. All three ride one run.
+2. **Phase 2, the two decisions** (free + ~£1.5). 2.1 first as a **free replay** of geometry over the
+   archived manuscripts — would the 86-scoring runs have shipped under a blocking gate? The repairs
+   must work before the gate is allowed to stop anything. Then 2.3,
+   `AGENT9_FOLD_SUSPECT_CLEARANCES`: pacing's only named defect across three reads, now reachable.
+3. **Phase 3, craft.** M6 re-read (X47 settled, so it is readable for the first time); the craft
+   ratio; the **ten prompt contracts nobody has ever read** — free, and reading one of them found X63.
+4. **The content gap.** Two seed cases, `behavioral` and `authority`, plus five missing
+   `false_assumption.type` fields. Editorial, not code, and the last thing between the axis parameter
+   and a genuinely general generator.
+
+### 7.5 The target the arithmetic actually points at, and it is not prose
+
+§4a's correction deserves to be the headline it buried: **`premise` is 7 in all twelve scored runs.**
+It is the only genuinely frozen category, and unlike hook/atmosphere it has a clear upstream owner —
+the premise is Agent 3's case design, not Agent 9's sentences.
+
+**And the axis work just changed what Agent 3 can build.** Five reader-error shapes instead of one;
+seed exemplars reaching a prompt for the first time in the project's history (X91). Whether that moves
+`premise` off 7 is **unread** — five manuscripts sit on disk and no human has looked at any of them.
+
+> **The cheapest remaining action on the board is to read one of the five axis manuscripts.** It costs
+> a reader, it tests the one frozen category against the one lever that has just changed underneath
+> it, and it adds a twelfth entry to the calibration set in 7.2.
+
+### 7.6 The order
+
+```
+M1.1  repair the external-read ledger                 free
+M1.3  read ONE axis manuscript (premise test)         a reader     <- start here, both of these
+M1.2  pairwise judge + 55-pair calibration            ~GBP 2
+M2.1  one cost number, named currency                 free
+M2.2  per-run cost governor                           free
+---- a gauge that ranks, and a bill that is legible ---------------
+P1    X38-at-source + X73 confirm + derivedFrom       ~GBP 1.5 (one run, at GBP 1)
+2.1   geometry replay over the archive, then decide   free
+2.3   fold-clearances flag                            ~GBP 1.5
+---- reliability settled; retries and money fall together ---------
+P3    M6 re-read, craft ratio, 10 unread contracts    ~GBP 1.5 + free
+      polish on/off, judged pairwise                  ~GBP 2
+      two seed cases (behavioral, authority)          editorial
+```
+
+Under £10 of compute, one reader now and one per milestone. **What it does not promise is 90 every
+run:** the measured arithmetic still projects best-ever-everywhere to 87.5, and nothing above changes
+that projection — it changes whether the project can *tell* when it has moved.
