@@ -1983,15 +1983,28 @@ ${victimIdentityRule}`;
    * call time rather than at module load (the dotenv-freeze trap). Seed is the case title — stable for
    * a story, different between stories, so a replay of the same case reproduces its openings exactly.
    */
+  /** One per-story seed, shared by both rotation levers — the case title. */
+  const caseTitleSeed = String(
+    (inputs.caseData as any)?.CASE?.meta?.title ?? (inputs.caseData as any)?.meta?.title ?? '',
+  ).trim() || undefined;
   const perStoryOpeningStyle = /^(1|true|yes|on)$/i.test(process.env.AGENT9_OPENING_STYLE_PER_STORY ?? '');
-  const openingRotationSeed = perStoryOpeningStyle
-    ? String((inputs.caseData as any)?.CASE?.meta?.title ?? (inputs.caseData as any)?.meta?.title ?? '').trim() || undefined
-    : undefined;
+  const openingRotationSeed = perStoryOpeningStyle ? caseTitleSeed : undefined;
+  /**
+   * X95 — the grounding vocabulary is a CLOSED list of 18 sensory and 39 atmosphere words, shown
+   * identically on every chapter of every run and enforced by the validator, which is why `chill`
+   * opens 26% of the archived manuscripts and `damp` 23%. On, the prompt leads with a rotating subset
+   * per chapter and per story; the validator still accepts the whole list, so nothing can newly fail.
+   *
+   * Its own flag, not a rider on the opening-style one: two levers aimed at the same symptom need to
+   * be attributable separately or a failed probe says nothing about either.
+   */
+  const paletteRotation = /^(1|true|yes|on)$/i.test(process.env.AGENT9_SENSORY_PALETTE_ROTATION ?? '');
   const sceneGroundingChecklist = buildSceneGroundingChecklist(
     scenes,
     inputs.locationProfiles,
     chapterStart,
     openingRotationSeed,
+    paletteRotation ? caseTitleSeed : undefined,
   );
 
   const worldDocumentBlock = buildWorldBriefBlock(

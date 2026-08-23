@@ -9,7 +9,14 @@ import {
   ARC_POS_TO_SCENE_TYPE,
   HIGH_TENSION_POSITIONS,
 } from "../constants/arc-position.js";
-import { getGenerationParams } from "@cml/story-validation";
+import {
+  getGenerationParams,
+  // X95 — one opening-grounding vocabulary, rendered here rather than re-typed.
+  OPENING_SENSORY_MARKERS,
+  OPENING_ATMOSPHERE_MARKERS,
+  formatGroundingMarkers,
+  groundingPaletteFor,
+} from "@cml/story-validation";
 import type { NarrativeState } from "../types/narrative-state.js";
 import type {
   ProseChapter,
@@ -312,6 +319,12 @@ export function buildSceneGroundingChecklist(
    * behaviour, in which chapter 1 of every book opened in the same style. See `openingStyleIndexFor`.
    */
   rotationSeed?: string,
+  /**
+   * Per-STORY seed for the grounding-vocabulary palette (X95). Omitted ⇒ the full validated lists are
+   * shown, exactly as they always have been. Separate from `rotationSeed` because they are separate
+   * levers with separate probes, even when both are seeded from the same case title.
+   */
+  paletteSeed?: string,
 ): string {
   if (!Array.isArray(scenes) || scenes.length === 0) return '';
 
@@ -343,6 +356,23 @@ export function buildSceneGroundingChecklist(
         `Every time you mention a named location, copy its capitalisation from the list above.`
       : '';
 
+  /**
+   * X95 — what vocabulary this chapter is SHOWN.
+   *
+   * With no palette seed the full validated lists are rendered, which is what every run has done to
+   * date. With one, the prompt leads with a rotating subset per chapter and per story: the validator
+   * still accepts every word on the full list, so nothing can newly fail — a subset of an accepted
+   * list is still accepted — but two stories stop being told to reach for the same five words.
+   *
+   * MEASURED over the 35 archived manuscripts with an external read: `chill` opens 26% of them,
+   * `damp` 23%, `faint` 23%. `atmosphere` and `opening_hook` are two of the five categories no reader
+   * has ever given a 9, and the reader's notes on both are interchangeable between manuscripts.
+   */
+  const sensoryChoices = (chapterNumber: number): readonly string[] =>
+    paletteSeed ? groundingPaletteFor(chapterNumber, paletteSeed, OPENING_SENSORY_MARKERS, 8) : OPENING_SENSORY_MARKERS;
+  const atmosphereChoices = (chapterNumber: number): readonly string[] =>
+    paletteSeed ? groundingPaletteFor(chapterNumber, paletteSeed, OPENING_ATMOSPHERE_MARKERS, 12) : OPENING_ATMOSPHERE_MARKERS;
+
   const checklistLines: string[] = [];
   scenes.forEach((scene: any, idx) => {
     const chapterNumber = chapterStart + idx;
@@ -359,7 +389,7 @@ export function buildSceneGroundingChecklist(
 
     checklistLines.push(
       `- Chapter ${chapterNumber}: ${openingStyleDirective} ` +
-      `Anchor opening in "${locationHint}". The opening style above governs only your FIRST SENTENCE; the grounding below may land anywhere in the first 2 paragraphs (it need not be sentence one, and never conflicts with the chosen opening style). HARD REQUIREMENT for the first 2 paragraphs: (a) include 2+ sensory words — choose from smell/scent/odor/fragrance/sound/echo/silence/whisper/creak/cold/warm/damp/rough/smooth/glow/shadow/flicker/dim — and (b) include 1+ atmosphere/time word — choose from rain/wind/fog/storm/mist/thunder/evening/morning/night/dawn/dusk/lighting/weather/season/afternoon/midday/noon/midnight/twilight/sunrise/sunset/daylight/sunlight/overcast/cloudy/bright/dark/grey/pale/chill/crisp/drizzle/haze/lamplight/firelight. These are validated requirements, not style suggestions; missing them triggers a retry.`
+      `Anchor opening in "${locationHint}". The opening style above governs only your FIRST SENTENCE; the grounding below may land anywhere in the first 2 paragraphs (it need not be sentence one, and never conflicts with the chosen opening style). HARD REQUIREMENT for the first 2 paragraphs: (a) include 2+ sensory words — choose from ${formatGroundingMarkers(sensoryChoices(chapterNumber), '/')} — and (b) include 1+ atmosphere/time word — choose from ${formatGroundingMarkers(atmosphereChoices(chapterNumber), '/')}. These are validated requirements, not style suggestions; missing them triggers a retry.`
     );
   });
 

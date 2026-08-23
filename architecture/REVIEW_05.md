@@ -4236,3 +4236,61 @@ drives retries. The durable change is to show a rotating SUBSET in the prompt wh
 accepting the full list, and that is one list, four call sites, and a retry surface. It is the same
 two-body-vocabulary disease as [X61/X67/X74/X75/X79](#), and it deserves its own increment rather than
 a rider on this one. **Recorded, measured, and open.**
+
+### 12.22 X95 — one grounding vocabulary, and the closed list that shapes every opening
+
+[§12.21](#1221-x94--every-book-this-project-has-written-opens-the-same-way-and-it-is-one-line-of-arithmetic)
+found half of why every manuscript opens alike. This is the other half, and it is the two-body problem
+for the eighth time.
+
+#### Six copies of one list
+
+The sensory and atmosphere wordlists that gate every chapter opening lived in six places: the validator
+that enforces them (`chapter-validator.ts`), the scene-grounding checklist (`context-management.ts`),
+three repair/feedback blocks (`generate.ts`), and the obligation block (`obligation-block.ts`). They had
+drifted in both directions — two `generate.ts` copies show a SHORTER atmosphere list than the validator
+counts, and the checklist offered a word the validator rejects.
+
+They now render from `packages/story-validation/src/opening-grounding-vocabulary.ts`. The sensory list
+is grouped by sense (four of the copies rendered it that way, one flat), and the flat list is **derived
+from the groups**, so the two renderings cannot separate again.
+
+#### The divergence, and why the direction was the hard part
+
+`context-management.ts` offered the model `weather` and `lighting`. `lighting` is harmless — `light`
+matches it by substring. `weather` was not: a chapter grounded on the word the prompt suggested failed
+the gate that suggested it.
+
+**The first fix added `weather` to the validator**, on the reasoning that a gate accepting MORE can
+never cause a retry that did not already happen. The full suite disagreed — and the test that failed
+was the right one:
+
+> `chapter-validator.test.ts` grounds its negative fixture on *"No one commented on the room or the
+> weather while the silence stretched."* The abstract noun is there deliberately, to show what does
+> NOT count as atmosphere.
+
+Naming the weather is not weather. The gate was correct; the PROMPT was wrong; the word came out of the
+prompt. **Closing a two-body divergence still requires deciding which body was right**, and the cheap
+instinct — take the union, nothing can break — would have quietly loosened a gate. That instinct has
+been right before (X79's mojibake list WAS a union) and it was wrong here.
+
+Substring matching is preserved exactly and now stated in the source: `sound` matches "sounds", `light`
+matches "lighting" and "lamplight", `warm` matches "warmth". A `\b…\b` tightening would add retries to
+every chapter of every run.
+
+#### The palette — why a closed list is itself the defect
+
+Measured over the 35 archived manuscripts with an external read: `chill` opens **26%** of them, `damp`
+23%, `faint` 23%. The same 18 sensory and 39 atmosphere words are presented, identically, on every
+chapter of every run, and enforced — so the model converges on the same handful. `opening_hook` and
+`atmosphere` are two of the five categories no reader has ever given a 9, and their notes are
+interchangeable between manuscripts.
+
+`groundingPaletteFor` leads the prompt with a rotating 8-of-18 and 12-of-39 subset, per chapter and per
+story, seeded by the case title (deterministic, for the same replay reason as X94). **It cannot add a
+retry class**: the validator still accepts the full list, and a subset of an accepted list is still
+accepted.
+
+Flag-gated `AGENT9_SENSORY_PALETTE_ROTATION`, default OFF, and deliberately NOT a rider on
+`AGENT9_OPENING_STYLE_PER_STORY` — two levers aimed at one symptom must be attributable separately or a
+failed probe says nothing about either. **The unification half is unconditional and needs no flag.**

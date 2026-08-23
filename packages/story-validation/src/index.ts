@@ -29,6 +29,7 @@ export * from './story-length-targets.js';
 export * from './scene-job-authority.js';
 export * from './mechanism-reveal-gate.js';
 export * from './suspect-clearance-gate.js';
+export * from './opening-grounding-vocabulary.js';
 
 // Scoring system
 export * from './scoring/index.js';

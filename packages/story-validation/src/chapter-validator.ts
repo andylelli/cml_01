@@ -5,6 +5,7 @@
  */
 
 import type { CMLData, Story, ValidationError } from './types.js';
+import { OPENING_SENSORY_MARKERS, OPENING_ATMOSPHERE_MARKERS, countGroundingMarkers } from './opening-grounding-vocabulary.js';
 import { isVictimArchetype } from '@cml/cml';
 import { findUnknownTitledNameMentions } from './name-sanitizer.js';
 import { analyzeTemporalConsistency, extractCaseMechanismTerms, caseNamesMechanicalSpring } from './temporal-consistency.js';
@@ -382,21 +383,10 @@ export class ChapterValidator {
     ];
 
     const hasOpeningLocationAnchor = strictOpeningAnchors.some((term) => openingBlockText.includes(term));
-    const sensoryMarkers = [
-      'smell', 'scent', 'odor', 'fragrance',
-      'sound', 'echo', 'silence', 'whisper', 'creak',
-      'cold', 'warm', 'damp', 'rough', 'smooth',
-      'glow', 'shadow', 'flicker', 'dim',
-    ].filter((term) => openingBlockText.includes(term)).length;
-    const atmosphereMarkers = [
-      'rain', 'wind', 'fog', 'storm', 'mist', 'thunder',
-      'evening', 'morning', 'night', 'dawn', 'dusk', 'season',
-      'afternoon', 'midday', 'noon', 'midnight', 'twilight',
-      'sunrise', 'sunset', 'daylight', 'sunlight', 'overcast',
-      'cloudy', 'bright', 'grey', 'gray', 'dark', 'light',
-      'pale', 'cold', 'warm', 'chill', 'crisp', 'damp',
-      'drizzle', 'haze', 'lamplight', 'firelight',
-    ].filter((term) => openingBlockText.includes(term)).length;
+    // X95: ONE vocabulary, shared with every prompt that quotes it. See opening-grounding-vocabulary.ts
+    // for why the substring match is preserved exactly.
+    const sensoryMarkers = countGroundingMarkers(openingBlockText, OPENING_SENSORY_MARKERS);
+    const atmosphereMarkers = countGroundingMarkers(openingBlockText, OPENING_ATMOSPHERE_MARKERS);
 
     const chapterWideHasLocationAnchor = expectedAnchors.some((term) => fullText.includes(term));
 

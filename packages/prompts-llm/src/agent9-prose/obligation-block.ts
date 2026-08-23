@@ -5,7 +5,9 @@
  */
 import { isVictimArchetype } from "@cml/cml";
 import { deriveClueObservable, deathMethodTellHints, type ClueDistributionResult, type Clue } from "../agent5-clues.js";
-import { getGenerationParams } from "@cml/story-validation";
+import {
+  OPENING_ATMOSPHERE_MARKERS,
+  formatGroundingMarkers, getGenerationParams } from "@cml/story-validation";
 import {
   ARC_POS_TO_SCENE_TYPE,
   HIGH_TENSION_POSITIONS,
@@ -408,7 +410,7 @@ export function buildChapterObligationBlock(
     }
     lines.push(`  - Opening: Begin with a character action, spoken line, or clock/time marker — never a location name or location-description phrase.`);
     lines.push(`  - Scene is set in: ${locationAnchor || 'the canonical scene location'} — reference it naturally within the paragraph, never as your opening phrase.`);
-    lines.push(`  - Opening atmosphere (MANDATORY — validator enforced): the first paragraph MUST contain at least one of: rain / wind / fog / storm / mist / thunder / evening / morning / night / dawn / dusk / season / afternoon / midday / noon / midnight / twilight / sunrise / sunset / daylight / sunlight / overcast / cloudy / bright / dark / grey / pale / cold / warm / chill / crisp / damp / drizzle / haze / lamplight / firelight. A chapter that omits all of these from its opening paragraph will be rejected.`);
+    lines.push(`  - Opening atmosphere (MANDATORY — validator enforced): the first paragraph MUST contain at least one of: ${formatGroundingMarkers(OPENING_ATMOSPHERE_MARKERS)}. A chapter that omits all of these from its opening paragraph will be rejected.`);
     // OPENER DIVERSITY: Validator-enforced constraint preventing protagonist-name dominance
     // across paragraph openers. Fires for all chapters since the protagonist's name is the
     // most common repeated-opener trigger across runs.

@@ -11,6 +11,13 @@ import type { CaseData } from "@cml/cml";
 import {
   ChapterValidator,
   CharacterConsistencyValidator,
+  // X95 — the opening-grounding vocabulary has ONE body; every prompt that quotes it renders from here.
+  OPENING_SENSORY_GROUPS,
+  OPENING_SENSORY_MARKERS,
+  OPENING_ATMOSPHERE_MARKERS,
+  SENSORY_SOUND_AND_TACTILE,
+  SENSORY_VISUAL_AND_SMELL,
+  formatGroundingMarkers,
   getGenerationParams,
   getPronounPolicySettings,
   getStoryLengthTarget,
@@ -1347,10 +1354,7 @@ export const buildEnhancedRetryFeedback = (
         directives.push(
           `REPAIR [sensory_grounding — attempt ${attemptNum}]: The opening block (first 2 paragraphs) has only ${foundCount} sensory marker(s). Need at least 2.\n` +
           `  In paragraph 1 or 2, add ${needed} more word(s) from the EXACT list the validator counts:\n` +
-          `  • Smell/scent: smell, scent, odor, fragrance\n` +
-          `  • Sound: sound, echo, silence, whisper, creak\n` +
-          `  • Tactile: cold, warm, damp, rough, smooth\n` +
-          `  • Visual/light: glow, shadow, flicker, dim\n` +
+          OPENING_SENSORY_GROUPS.map((g) => `  • ${g.label}: ${g.terms.join(", ")}\n`).join("") +
           `  Use these words naturally in a sentence — e.g. "The cold of the hallway pressed against her cheeks" or "A creak from the floorboards above broke the silence."\n` +
           `  Do NOT use synonyms like 'chill' or 'murmur' — they are not counted.`
         );
@@ -1358,7 +1362,7 @@ export const buildEnhancedRetryFeedback = (
         directives.push(
           `REPAIR [sensory_grounding — attempt ${attemptNum} — EXPLICIT INSERTION REQUIRED]: Opening still has only ${foundCount} sensory marker(s) after ${attemptNum - 1} attempt(s).\n` +
           `  REWRITE paragraph 1 to include at least two of these exact words:\n` +
-          `    smell / scent / odor / fragrance / sound / echo / silence / whisper / creak / cold / warm / damp / rough / smooth / glow / shadow / flicker / dim\n` +
+          `    ${formatGroundingMarkers(OPENING_SENSORY_MARKERS)}\n` +
           `  Example opening: "The cold air of the drawing room carried the faint scent of cigarette ash, and the shadow of the curtain flickered in the draught from the hall."\n` +
           `  These words must appear in paragraph 1 or paragraph 2 — not later in the chapter.`
         );
@@ -1366,7 +1370,7 @@ export const buildEnhancedRetryFeedback = (
         directives.push(
           `REPAIR [sensory_grounding — attempt ${attemptNum} — FINAL: REWRITE OPENING PARAGRAPH]: Sensory grounding has failed every prior attempt.\n` +
           `  Replace paragraph 1 entirely with the following structure:\n` +
-          `  "[Named location]. [One sentence with a sound or tactile word from: cold/warm/damp/rough/smooth/sound/echo/silence/whisper/creak]. [One sentence with a visual or smell word from: glow/shadow/flicker/dim/smell/scent/odor/fragrance]."\n` +
+          `  "[Named location]. [One sentence with a sound or tactile word from: ${formatGroundingMarkers(SENSORY_SOUND_AND_TACTILE, "/")}]. [One sentence with a visual or smell word from: ${formatGroundingMarkers(SENSORY_VISUAL_AND_SMELL, "/")}]."\n` +
           `  Example: "The library was cold, the faint scent of old paper hanging in the dim afternoon light."\n` +
           `  Two sensory words from the approved list must appear in the first two paragraphs. Do not use synonyms.`
         );
@@ -1393,7 +1397,7 @@ export const buildEnhancedRetryFeedback = (
         directives.push(
           `REPAIR [atmosphere_grounding — attempt ${attemptNum} — FINAL: INSERT TIME/WEATHER WORD]: Opening still missing atmosphere/time marker.\n` +
           `  Rewrite paragraph 1 to begin with a time or weather anchor. Choose exactly one from:\n` +
-          `    rain / wind / fog / storm / mist / thunder / evening / morning / night / dawn / dusk / afternoon / midday / noon / midnight / twilight / sunrise / sunset / daylight / sunlight / overcast / cloudy / bright / grey / gray / dark / light\n` +
+          `    ${formatGroundingMarkers(OPENING_ATMOSPHERE_MARKERS)}\n` +
           `  Example paragraph 1: "Morning arrived grey and overcast, the fog pressing close against the windows of the manor." \n` +
           `  The chosen word must appear in the first two paragraphs. Do not use any synonym not on this list.`
         );
@@ -1848,12 +1852,12 @@ export const buildEnhancedRetryFeedback = (
     // LLM writes a fresh opening unaware that the sensory check still applies.
     feedback += `CRITICAL — SENSORY GROUNDING GATE (checked by automated validator on this attempt):\n`;
     feedback += `  The chapter opening (first 2 paragraphs) MUST contain at least 2 words from this EXACT list — synonyms are NOT counted:\n`;
-    feedback += `  smell / scent / odor / fragrance / sound / echo / silence / whisper / creak / cold / warm / damp / rough / smooth / glow / shadow / flicker / dim\n`;
+    feedback += `  ${formatGroundingMarkers(OPENING_SENSORY_MARKERS)}\n`;
     feedback += `  Example: "The cold of the hallway pressed against her cheeks. A whisper of candlelight flickered across the clock face."\n`;
     feedback += `  Two sensory words from the list above must appear within the first two paragraphs. Do NOT use synonyms (e.g. 'chill', 'murmur') — they are not counted.\n`;
     feedback += `CRITICAL — ATMOSPHERE/TIME GROUNDING GATE (checked by automated validator on this attempt):\n`;
     feedback += `  The chapter opening (first 2 paragraphs) MUST also contain at least 1 word from this EXACT list:\n`;
-    feedback += `  rain / wind / fog / storm / mist / thunder / evening / morning / night / dawn / dusk / afternoon / midday / noon / midnight / twilight / sunrise / sunset / daylight / sunlight / overcast / cloudy / bright / grey / gray / dark / light / season\n`;
+    feedback += `  ${formatGroundingMarkers(OPENING_ATMOSPHERE_MARKERS)}\n`;
     feedback += `  Example: "Morning light filtered through the fog-draped windows." or "The night air carried the scent of damp earth."\n`;
     feedback += `  One word from this list must appear in paragraph 1 or paragraph 2. Synonyms (e.g. 'dusk-like', 'nighttime') are NOT counted.\n`;
     feedback += `Submit the full chapter JSON — do not return partial content or indicate you are continuing.\n`;
