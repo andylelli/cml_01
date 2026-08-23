@@ -13,7 +13,7 @@ import type { PhaseScore, TestResult } from "@cml/story-validation";
 import { scoreRealCml, getGenerationParams } from "@cml/story-validation";
 import { type OrchestratorContext, preAgent9ContractRecoveryEnabled, preAgent9LlmRetriesEnabled, applyHonestScorer } from "./shared.js";
 import { effectiveNoveltyThreshold, resolveNoveltyMode } from "../novelty-ledger.js";
-import { writeLockedFactsArtifact } from "./agent3b-run.js";
+import { writeLockedFactsArtifact, stripLeadingArticleFromLockedValue } from "./agent3b-run.js";
 
 function buildEvidenceFallback(step: any, stepIndex: number): string {
   const observation = String(step?.observation ?? "").trim();
@@ -726,7 +726,23 @@ export function extendLockedFactRegistryWithCaseFacts(ctx: OrchestratorContext):
     if (!caseData) return;
     const existing = ctx.lockedFactRegistry ?? [];
     const takenIds = new Set(existing.map((f) => f.id));
-    const added = buildCaseScopedLockedFacts(caseData).filter((f) => !takenIds.has(f.id));
+    /**
+     * A_72 C1, SECOND CALL SITE — and it was missed on the first pass.
+     *
+     * `stripLeadingArticleFromLockedValue` was applied where Agent 3b BUILDS the registry, and this is
+     * the other place facts enter it. The 2026-08-23 20:38 run proved the gap on its own artifact:
+     * the device times came out parallel and article-free (`quarter to eleven`, `ten minutes past
+     * eleven`) while the case facts appended here kept theirs — `"a decorative brass statue"`,
+     * `"the kitchen"`, `"the lounge"`, `"the dining room"`.
+     *
+     * Harmless on that run, because those four are mutually parallel and the prose read correctly. It
+     * is fixed anyway, because the defect C1 exists to prevent is precisely a value with an article
+     * sitting beside one without: **one capability, two call sites, one wired** — the shape this repo
+     * keeps paying for, committed here by the change that was documenting it.
+     */
+    const added = buildCaseScopedLockedFacts(caseData)
+      .filter((f) => !takenIds.has(f.id))
+      .map((f) => ({ ...f, value: stripLeadingArticleFromLockedValue(f.value) }));
     if (added.length === 0) return;
     ctx.lockedFactRegistry = [...existing, ...added];
     // Re-emit the artifact: Agent 3b wrote it before these facts existed (see writeLockedFactsArtifact).

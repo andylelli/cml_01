@@ -660,3 +660,126 @@ the source rather than from the hypothesis.
 
 The hit rate on blocks anyone has opened and read line by line is now **2 for 2** — X63 in
 `character_contracts`, and this. That is a small sample and a cheap one: every reading is free.
+
+---
+
+## 13. RESULT — the A_72 run · 2026-08-23 20:38 · £1.24
+
+`mystery-1787512796202` → `story_20260823-2038/the_hourglass_deception_at_cliffside_bluffs.md`. Same
+inputs yaml as the 81-scoring run, so the only deliberate variables are C1/C2/C3 and A2a. Shipped,
+gate `warning`, clue status `pass`, 111 warnings.
+
+**Two of the four worked, one is inert, and one is unmeasurable from this run.**
+
+| | prediction | result |
+|---|---|---|
+| C1 | the malformed article disappears | **CONFIRMED** |
+| C2 | the description stops reaching the page | **CONFIRMED** |
+| C3 | the echo is counted | **CONFIRMED** (gate off by design, so the book still ships repeats) |
+| A2a | chapter 1 stops using the house-style words | **FALSIFIED** |
+
+### 13.1 C1 — confirmed, and the run found the half I had missed
+
+The registry came out parallel:
+
+```
+last_seen_alive_time         "ten minutes past eleven"
+suspect_claimed_start_time   "quarter to eleven"        <- was "a quarter to eleven"
+```
+
+The prose then writes *"a quarter to eleven"* **19 times, correctly**, because the article now lives in
+the sentence where it belongs. No `"a ten minutes past eleven"`, no doubled articles anywhere in the
+book. **The defect the external reader quoted back is gone at its source.**
+
+**And the artifact exposed a second call site I had missed.** Four facts still carried theirs:
+
+```
+murder_weapon                 "a decorative brass statue"
+alibi_location_beatrice_quill "the kitchen"
+alibi_location_sylvia_trent   "the lounge"
+alibi_location_hugo_vane      "the dining room"
+```
+
+Those enter through `extendLockedFactRegistryWithCaseFacts` ([X51](../../../architecture/REVIEW_05.md))
+in `agent3-run.ts`, appended *after* Agent 3b builds the registry — a path C1 did not touch. Harmless on
+this run, because the four are mutually parallel and the prose read correctly. Fixed anyway, because a
+value with an article beside one without is the entire defect. **One capability, two call sites, one
+wired — the shape this document spends §5 and §11 describing, committed by the change that documented
+it.** Found by reading the run's own artifact, not by the suite.
+
+### 13.2 C2 — confirmed
+
+The registry's descriptions on this run are as prose-shaped as ever — *"The calibrated time it takes for
+the hourglass sand to run completely from top to bottom"* — and **none of it reached the page.** No
+`as per`, no `official … time`, no invented synonym for a measurement. The 81-scoring run's
+*"certified wave crest hour atop the murder day as per innkeeper's tide charts"* has no counterpart
+here.
+
+### 13.3 C3 — the counter works, and it is counting the right thing
+
+Eight always-on warnings across the run, 15 echoes in total. The gate is off by design, so the book
+ships with them — 6 repeated sentences, against the previous run's 7. What they are is the point:
+
+```
+x2  "well isn't that just the way it goes"
+x2  "we do so love our little rituals"
+x2  "she said, her tone brittle with forced cheer"
+```
+
+**Catchphrases, verbatim, in dialogue.** That is the reader's standing complaint about `dialogue` —
+*"repeated catchphrases feel artificial"* — now visible in telemetry on the run that produced it,
+rather than inferred from a cold read weeks later. Intra-chapter detections were 0, consistent with the
+book's repeats all being cross-chapter.
+
+### 13.4 A2a — falsified, and cleanly
+
+The block reached the prompt in full:
+
+> *"Across 184 previously generated openings, these words recur at the share shown: faint (72%),
+> against (66%), pressed (63%), across (56%), hush …"*
+
+Twelve words were asked for. Chapter 1 used **five of them** — `faint`, `against`, `pressed`,
+`sprawled`, `windows`.
+
+| run | avoid-words used in the opening paragraph |
+|---|---|
+| control (no flags, 08-22) | **9 of 12** |
+| four-flag (08-23 17:15, read 81) | **5 of 12** |
+| this run, WITH the freshness block | **5 of 12** |
+
+**The block changed nothing.** The improvement from 9 to 5 had already happened on the previous run,
+without it — which attributes that drop to X95's palette rotation, not to A2a.
+
+**It is inert rather than harmful**, and that half of the prediction held: no `sensory_grounding`, no
+`atmosphere_grounding` and no `opening_style_entropy` retry appeared. The two subtractions did their
+job; the instruction simply did not land.
+
+**What it tells us about §10.1.** A2a was explicitly the cheap half of A2 — the `divergeFrom` list
+without the ideation call. **The cheap half does not work on its own.** Naming what to avoid does not
+produce something better to write; the engine that earns 9s generates five candidates *and chooses
+between them*, and this run is evidence that the choosing is not the optional part. A2b is now the only
+live form of A2.
+
+### 13.5 Cost, and a comparison this run cannot support
+
+£1.24 against the previous run's £1.10, with repeat calls 13 → 20. **This is not attributable to the
+flags**, and the reason is worth stating: Agent 3b generates a new device every run, so the previous
+run got a tide mechanism and this one an hourglass. Same inputs yaml, different case, different
+difficulty. The extra retries are `missing_clue` (18), `scaffold_not_prose` (8) and `missing_resolution`
+(6) — clue and resolution families, none of them touched by anything built today.
+
+Two runs on two different cases cannot separate a lever from case difficulty. That is the same
+constraint §10.4 states for quality, arriving on the cost side: **a floor claim needs a cohort, not a
+pair.**
+
+### 13.6 Where this leaves the board
+
+- **C1 and C2 are done and confirmed on the page.** They were the reader's named `prose` defects, and
+  the reader's forecast for removing them was 86–89 against an actual 81. That forecast is now testable
+  by one read.
+- **C3's counter is live**, and it has turned the `dialogue` complaint into a per-run number for the
+  first time. Promoting it to a gate remains a separate decision with a measured cost.
+- **A2a is falsified; A2b is the live form.** The distinctiveness engine needs its generate-and-choose
+  half, which is what §2.1 measured in the first place.
+- **What is unmeasured is still the whole question.** This book has not been read. There is now a
+  matched control at 81 from the same inputs, one lever-set apart.

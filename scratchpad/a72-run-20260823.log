@@ -1,0 +1,402 @@
+[dotenv@17.2.4] injecting env (3) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+[dotenv@17.2.4] injecting env (64) from .env.local -- tip: ✅ audit secrets and track compliance: https://dotenvx.com/ops
+CANARY_INPUTS_FILE C:/CML/scratchpad/axis-sweep/inputs.temporal.yaml
+CANARY_INPUTS {"theme":"Golden Age murder within a closed circle of suspects. Enforce strict fair-play: reveal all mechanism-critical clues to the reader by mid-story, place the discriminating test no later than early Act III, include at least 3 explicit evidence clues tied to the final deduction, and ensure every red herring is inference-isolated from the true solution chain.","eraPreference":"1950s","locationPreset":"SeasideHotel","tone":"Classic","primaryAxis":"temporal","castSize":6,"castNames":["Eleanor Voss","Dr. Mallory Finch","Captain Ivor Hale","Beatrice Quill","Sylvia Trent","Hugo Vane"],"castGenders":{"Eleanor Voss":"female","Dr. Mallory Finch":"female","Captain Ivor Hale":"male","Beatrice Quill":"female","Sylvia Trent":"female","Hugo Vane":"male"},"detectiveType":"amateur","targetLength":"short","narrativeStyle":"dark","skipNoveltyCheck":false,"similarityThreshold":0.9,"proseBatchSize":1,"enableLockedFactRegistry":true,"enableLockedFactGate":true,"enableCharacterBundle":true,"enableBindingGates":true,"enableSurgicalFingerprintRetry":true,"enableOutlineCompleteness":true}
+CANARY_PROJECT_ID canary_1787512796199
+PROGRESS setting - Refining era and setting...
+2026-08-23T19:19:56.519Z [INFO    ] Agent1-SettingRefiner | chat_request
+2026-08-23T19:20:03.493Z [INFO    ] Agent1-SettingRefiner | chat_response
+2026-08-23T19:20:03.536Z [INFO    ] Agent1-SettingRefiner | refine_setting
+PROGRESS setting - Era and setting refined
+PROGRESS cast - Designing cast and motives...
+2026-08-23T19:20:04.901Z [INFO    ] Agent2-CastDesigner | chat_request
+2026-08-23T19:20:27.472Z [INFO    ] Agent2-CastDesigner | chat_response
+[Agent 2] normalised accessPlausibility "N/A - victim" → "possible"
+PROGRESS cast - Cast designed (6 characters)
+PROGRESS background-context - Generating background context...
+2026-08-23T19:20:30.458Z [INFO    ] Agent2e-BackgroundContext | chat_request
+2026-08-23T19:20:32.891Z [INFO    ] Agent2e-BackgroundContext | chat_response
+[Agent 2e (Background Context)] Validation passed on attempt 1/2
+PROGRESS background-context - Background context generated
+PROGRESS hard_logic_devices - Generating novel hard-logic device concepts...
+2026-08-23T19:20:34.862Z [INFO    ] Agent3b-HardLogicDeviceGenerator | chat_request
+2026-08-23T19:20:47.908Z [INFO    ] Agent3b-HardLogicDeviceGenerator | chat_response
+2026-08-23T19:20:47.938Z [INFO    ] Agent3b-HardLogicDeviceGenerator | generate_hard_logic_devices
+[Agent 3b (Hard Logic Devices)] Validation passed on attempt 1/3 (with 1 warnings)
+[Agent 3b] Hard logic devices validation warnings:
+- devices[0].lockedFacts[3].derivedFrom is not defined in schema (unexpected field)
+2026-08-23T19:20:48.076Z [INFO    ] Agent3b-PlausibilityJudge | chat_request
+2026-08-23T19:20:50.695Z [INFO    ] Agent3b-PlausibilityJudge | chat_response
+PROGRESS hard_logic_devices - Generated 5 novel hard-logic devices
+PROGRESS cml - Generating mystery structure (CML) grounded in novel devices...
+2026-08-23T19:20:54.925Z [INFO    ] Agent3-CMLGenerator | chat_request
+2026-08-23T19:21:30.863Z [INFO    ] Agent3-CMLGenerator | chat_response
+2026-08-23T19:21:31.071Z [WARN    ] Agent3-CMLGenerator | generate_cml | ERROR: Validation errors: CASE.hidden_model.mechanism (actual_covered): The real time of death falls INSIDE a span the culprit can account for, so they could not have committed the murder at all. The actual time must fall in a gap the culprit cannot account for.
+2026-08-23T19:21:31.142Z [INFO    ] Agent3-CMLGenerator | chat_request
+2026-08-23T19:22:08.722Z [INFO    ] Agent3-CMLGenerator | chat_response
+2026-08-23T19:22:09.690Z [WARN    ] Agent3-CMLGenerator | generate_cml | ERROR: Validation errors: CASE.hidden_model.mechanism (actual_covered): The real time of death falls INSIDE a span the culprit can account for, so they could not have committed the murder at all. The actual time must fall in a gap the culprit cannot account for.
+2026-08-23T19:22:09.928Z [INFO    ] Agent3-CMLGenerator | chat_request
+2026-08-23T19:22:44.496Z [INFO    ] Agent3-CMLGenerator | chat_response
+Failed to write actual response record: Error: UNKNOWN: unknown error, open 'C:\CML\documentation\prompts\actual\README.md'
+    at writeFileSync (node:fs:2414:20)
+    at LLMLogger.writeActualRootReadme (file:///C:/CML/packages/llm-client/dist/logger.js:453:9)
+    at LLMLogger.writeActualResponseRecord (file:///C:/CML/packages/llm-client/dist/logger.js:281:18)
+    at LLMLogger.logResponse (file:///C:/CML/packages/llm-client/dist/logger.js:127:14)
+    at AzureOpenAIClient.chatOnce (file:///C:/CML/packages/llm-client/dist/client.js:285:35)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async withRetry (file:///C:/CML/packages/llm-client/dist/retry.js:59:20)
+    at async CircuitBreaker.execute (file:///C:/CML/packages/llm-client/dist/retry.js:102:28)
+    at async AzureOpenAIClient.chatWithRetry (file:///C:/CML/packages/llm-client/dist/client.js:349:16)
+    at async generateCML (file:///C:/CML/packages/prompts-llm/dist/agent3-cml.js:1261:30) {
+  errno: -4094,
+  code: 'UNKNOWN',
+  syscall: 'open',
+  path: 'C:\\CML\\documentation\\prompts\\actual\\README.md'
+}
+2026-08-23T19:22:44.536Z [INFO    ] Agent3-CMLGenerator | generate_cml
+PROGRESS cml - Mystery structure generated and validated
+Failed to write actual request record: Error: UNKNOWN: unknown error, open 'C:\CML\documentation\prompts\actual\README.md'
+    at writeFileSync (node:fs:2414:20)
+    at LLMLogger.writeActualRootReadme (file:///C:/CML/packages/llm-client/dist/logger.js:453:9)
+    at LLMLogger.writeActualRequestRecord (file:///C:/CML/packages/llm-client/dist/logger.js:219:18)
+    at LLMLogger.logFullPrompt (file:///C:/CML/packages/llm-client/dist/logger.js:72:14)
+    at AzureOpenAIClient.chatOnce (file:///C:/CML/packages/llm-client/dist/client.js:184:27)
+    at async withRetry (file:///C:/CML/packages/llm-client/dist/retry.js:59:20) {
+  errno: -4094,
+  code: 'UNKNOWN',
+  syscall: 'open',
+  path: 'C:\\CML\\documentation\\prompts\\actual\\README.md'
+}
+2026-08-23T19:22:47.085Z [INFO    ] NoveltySkeletonJudge | chat_request
+2026-08-23T19:22:48.258Z [INFO    ] NoveltySkeletonJudge | chat_response
+[novelty] duplicate fingerprint across corpora: "it_was_all_staged" (cliche) ≡ "trents_last_case" (seed); keeping the more-specific corpus.
+[novelty] duplicate fingerprint across corpora: "seance_fakery" (cliche) ≡ "the_hound_of_the_baskervilles" (seed); keeping the more-specific corpus.
+[novelty] duplicate fingerprint across corpora: "spare_key_relock" (cliche) ≡ "the_second_key" (seed); keeping the more-specific corpus.
+[Novelty skeleton-judge SHADOW] variation — nearest seed:the_big_bow_mystery (shares mechanism 'locked_room_timing' + inference shape 'reframe_access_at_discovery'); skeleton={"id":"mystery-1787512796202","axis":"temporal","mechanism_family":"locked_room_timing","false_assumption_pattern":"timer_started_after_act","discriminating_test_shape":"physical_trace","inference_shape":"reframe_access_at_discovery"}; Keep what is distinctive, but drop the locked_room_timing mechanism; reshape the deduction away from 'reframe_access_at_discovery'.
+PROGRESS novelty - Checking novelty vs seed patterns...
+2026-08-23T19:22:48.429Z [INFO    ] Agent8-NoveltyAuditor | chat_request
+2026-08-23T19:22:58.627Z [INFO    ] Agent8-NoveltyAuditor | chat_response
+2026-08-23T19:22:58.717Z [INFO    ] Agent8-NoveltyAuditor | novelty_math
+PROGRESS novelty_math - Novelty math: weights plot 0.30, character 0.25, setting 0.15, solution 0.25, structural 0.05 | threshold 0.90 | most similar The Big Bow Mystery (0.37)
+PROGRESS novelty - Novelty check: pass
+PROGRESS clues - Extracting and organizing clues...
+PROGRESS clues - Agent 5: normalized non-canonical discriminating_test.evidence_clues entries; using canonical clue IDs for deterministic traceability.
+2026-08-23T19:23:01.538Z [INFO    ] Agent5-ClueExtraction | extract_clues
+2026-08-23T19:23:01.564Z [INFO    ] Agent5-ClueExtraction | chat_request
+2026-08-23T19:23:01.632Z [INFO    ] Agent5-ClueExtraction | chat_request
+2026-08-23T19:23:25.585Z [INFO    ] Agent5-ClueExtraction | chat_response
+2026-08-23T19:23:25.660Z [INFO    ] Agent5-ClueExtraction | chat_response
+2026-08-23T19:23:25.760Z [INFO    ] Agent5-ClueExtraction | extract_clues
+PROGRESS clues - 20 clues distributed
+PROGRESS clues - Agent 5: deterministically seeded discriminating_test.evidence_clues from canonical clue IDs (clue_12, clue_8, clue_3).
+[Agent 5 clue-spec shadow] deriveClueSpec: 19 required slots + 2 red-herring slots; 20 shipped clues, 20/20 (100%) map to a derived slot.
+PROGRESS fairplay - Auditing fair play compliance...
+2026-08-23T19:23:27.565Z [INFO    ] Agent6-FairPlayAuditor | chat_request
+2026-08-23T19:23:34.928Z [INFO    ] Agent6-FairPlayAuditor | chat_response
+PROGRESS fairplay - Fair play audit: pass
+PROGRESS fairplay - Running blind reader simulation...
+2026-08-23T19:23:35.008Z [INFO    ] Agent6-BlindReader | chat_request
+2026-08-23T19:23:38.800Z [ERROR   ] Agent6-BlindReader | chat_error | ERROR: Azure chat completion failed: HTTP 400 at https://openai-ds1sweden.openai.azure.com/openai/deployments/gpt-4.1-mini/chat/completions?api-version=2024-12-01-preview — {"error":{"message":"The response was filtered due to the prompt triggering Azure OpenAI's content management policy. Please modify your prompt and retry. To learn more about our content filtering policies please read our documentation: https://go.microsoft.com/fwlink/?linkid=2198766","type":null,"param":"prompt","code":"content_filter","status":400,"innererror":{"code":"ResponsibleAIPolicyViolation","content_filter_result":{"hate":{"filtered":false,"severity":"safe"},"jailbreak":{"detected":false,"filtered":false},"self_harm":{"filtered":false,"severity":"safe"},"sexual":{"filtered":false,"severity":"safe"},"violence":{"filtered":true,"severity":"medium"}}}}}
+PROGRESS profiles - Generating character profiles...
+2026-08-23T19:23:40.653Z [INFO    ] Agent2b-CharacterProfiles | chat_request
+2026-08-23T19:24:15.897Z [INFO    ] Agent2b-CharacterProfiles | chat_response
+[Agent 2b (Character Profiles)] Validation passed on attempt 1/3
+PROGRESS profiles - Character profiles generated (6)
+PROGRESS location-profiles - Generating location profiles...
+2026-08-23T19:24:15.964Z [INFO    ] Agent2c-LocationProfiles | chat_request
+2026-08-23T19:24:52.332Z [INFO    ] Agent2c-LocationProfiles | chat_response
+[Agent 2c (Location Profiles)] Validation passed on attempt 1/3
+PROGRESS location-profiles - Location profiles generated (4 locations)
+PROGRESS temporal-context - Generating temporal context...
+2026-08-23T19:24:52.462Z [INFO    ] Agent2d-TemporalContext | chat_request
+2026-08-23T19:25:09.394Z [INFO    ] Agent2d-TemporalContext | chat_response
+[Agent 2d (Temporal Context)] Validation passed on attempt 1/2
+PROGRESS temporal-context - Temporal context generated (July 1955)
+PROGRESS world-builder - Generating World Document...
+PROGRESS world-builder - world-builder: Building world document...
+2026-08-23T19:25:13.838Z [INFO    ] Agent65-WorldBuilder | chat_request
+2026-08-23T19:25:42.309Z [INFO    ] Agent65-WorldBuilder | chat_response
+PROGRESS world-builder - world-builder: World document complete
+PROGRESS world-builder - World Document complete
+PROGRESS narrative - Preflight: resolving Azure endpoint host (openai-ds1sweden.openai.azure.com)
+PROGRESS narrative - Formatting narrative structure...
+2026-08-23T19:25:45.150Z [INFO    ] Agent7-NarrativeFormatter | chat_request
+2026-08-23T19:26:13.864Z [INFO    ] Agent7-NarrativeFormatter | chat_response
+PROGRESS narrative - 9 scenes structured (~10,000 words target)
+[Agent 7 scheduler shadow] grid @9 (3/4/2) from 36 obligations: complete=true ordered=true coverage=89% (ratioOk=true) | live outline scenes=9 | AGENT7_SCHEDULER_AUTHORITATIVE=off
+[Agent 7 mechanism gate] full mechanism withheld in 7 pre-test scene(s); reveal allowed from scene #8 (the discriminating test).
+[Agent 7 plant-before-reveal] clue_3→scene 1 (reveal 3); clue_4→scene 1 (reveal 3); clue_15→scene 2 (reveal 4); clue_5→scene 2 (reveal 4); clue_6→scene 1 (reveal 4); clue_core_elimination_chain→scene 2 (reveal 4); clue_16→scene 3 (reveal 5); clue_17→scene 3 (reveal 5); clue_18→scene 3 (reveal 5); clue_7→scene 4 (reveal 6); clue_8→scene 4 (reveal 6); clue_9→scene 4 (reveal 6); clue_12→scene 5 (reveal 7); clue_culprit_direct_captain_ivor_hale→scene 5 (reveal 7); clue_14→scene 5 (reveal 7)
+PROGRESS narrative - Compiling story geometry...
+[Agent 7.5 geometry:shadow] chapters=9 times=quarter to eleven/ten minutes past eleven clincher=clue_11@3→8 method=struck with a decorative brass statue@1 contracts=1:opening,6:false_solution,8:reveal,9:aftermath closed=true
+PROGRESS prose - Preflight: resolving Azure endpoint host (openai-ds1sweden.openai.azure.com)
+[Agent 9] Deterministic pronoun repair is DISABLED (generation-params.yaml: agent9_prose.validation.pronoun_policy=off).
+PROGRESS prose - Generating prose chapter by chapter with per-chapter validation...
+[Agent 9] Prose generation start: preferCompletionOnFailure=true (false ⇒ retry-exhaustion hard-aborts the run).
+PROGRESS prose - Generating chapter 1/9...
+2026-08-23T19:26:18.592Z [INFO    ] Agent9-ProseGenerator-Ch1 | chat_request
+2026-08-23T19:26:43.510Z [INFO    ] Agent9-ProseGenerator-Ch1 | chat_response
+PROGRESS prose - Chapter 1/9 complete · chapter: 97/100 · cumulative: 97/100
+PROGRESS prose - ✅ Chapter 1/9 validated
+PROGRESS prose - Generating chapter 2/9...
+2026-08-23T19:26:46.028Z [INFO    ] Agent9-ProseGenerator-Ch2 | chat_request
+2026-08-23T19:27:20.812Z [INFO    ] Agent9-ProseGenerator-Ch2 | chat_response
+PROGRESS prose - Chapter 2/9 complete · chapter: 96/100 · cumulative: 99/100
+PROGRESS prose - ✅ Chapter 2/9 validated
+PROGRESS prose - Generating chapter 3/9...
+2026-08-23T19:27:22.470Z [INFO    ] Agent9-ProseGenerator-Ch3 | chat_request
+2026-08-23T19:27:40.596Z [INFO    ] Agent9-ProseGenerator-Ch3 | chat_response
+[Agent 9][A_72 C3] cross-chapter sentence echo: 4 sentence(s) repeat a chapter seen earlier — e.g. "isn t that just delightful she said her tone brittle with forced cheer"
+PROGRESS prose - Chapter 3/9 complete · chapter: 99/100 · cumulative: 99/100
+PROGRESS prose - ✅ Chapter 3/9 validated
+PROGRESS prose - Generating chapter 4/9...
+2026-08-23T19:27:42.284Z [INFO    ] Agent9-ProseGenerator-Ch4 | chat_request
+2026-08-23T19:28:09.725Z [INFO    ] Agent9-ProseGenerator-Ch4 | chat_response
+2026-08-23T19:28:09.829Z [INFO    ] Agent9-Regen-Ch4-missing_clue | chat_request
+2026-08-23T19:28:16.027Z [INFO    ] Agent9-Regen-Ch4-missing_clue | chat_response
+2026-08-23T19:28:16.114Z [INFO    ] Agent9-Regen-Ch4-missing_clue | chat_request
+2026-08-23T19:28:22.983Z [INFO    ] Agent9-Regen-Ch4-missing_clue | chat_response
+[Agent 9] regen-clue UNRESOLVED ch4 clue_5: regen did not improve the targeted property (score 200, was 200; still failing: missing_clue:clue_5) (deterministic floor will apply)
+[Agent 9] Post-pass polish routed to Anthropic model `claude-sonnet-5` (passing chapters only).
+2026-08-23T19:28:23.167Z [INFO    ] Agent9-PostPassPolish-Ch4 | chat_request
+2026-08-23T19:28:53.273Z [INFO    ] Agent9-PostPassPolish-Ch4 | chat_response
+[Agent 9][A_72 C3] cross-chapter sentence echo: 1 sentence(s) repeat a chapter seen earlier — e.g. "finch was always precise about her timings"
+PROGRESS prose - Chapter 4/9 complete · chapter: 97/100 · cumulative: 60/100
+PROGRESS prose - ✅ Chapter 4/9 validated
+PROGRESS prose - Generating chapter 5/9...
+2026-08-23T19:28:55.417Z [INFO    ] Agent9-ProseGenerator-Ch5 | chat_request
+2026-08-23T19:29:16.825Z [INFO    ] Agent9-ProseGenerator-Ch5 | chat_response
+2026-08-23T19:29:16.959Z [INFO    ] Agent9-PostPassPolish-Ch5 | chat_request
+2026-08-23T19:29:46.564Z [INFO    ] Agent9-PostPassPolish-Ch5 | chat_response
+[Agent 9] DIAGNOSTICS ch5 attempt 1/3:
+  raw response chars: 9565
+  extracted chapter word counts: [1385] (total: 1385)
+  appears truncated: false
+  raw tail (last 300 chars):  air",
+    "discriminating_test_present": "no",
+    "required_clues_present": "clue_16: paragraph 2-3; clue_17: paragraph 5-6; clue_18: paragraph 8",
+    "early_observation_present": "Staff logbook with Beatrice Quill's signature: paragraph 2",
+    "early_inference_present": "yes: paragraph 3"
+  }
+}
+[Agent 9] Batch ch5 validation failed (attempt 1/3):
+  - Boundary integrity failure in chapter 5: unbalanced quotation marks. Repair punctuation boundaries before commit (balanced quotes, valid contractions/possessives only).
+PROGRESS prose - ❌ Chapter 5 validation failed (attempt 1/3): 1 issue(s)
+2026-08-23T19:29:46.713Z [INFO    ] Agent9-ProseGenerator-Ch5 | chat_request
+2026-08-23T19:29:54.742Z [INFO    ] Agent9-ProseGenerator-Ch5 | chat_response
+PROGRESS prose - Chapter 5/9 complete · chapter: 94/100 · cumulative: 60/100
+PROGRESS prose - ⚠ Chapter 5 required retry — 1 issue: Boundary integrity failure in chapter 5: unbalanced quotation marks. Repair punctuation boundaries before commit (balanced quotes, valid contractions/possessives only).
+[Agent 9] Batch ch5 validated successfully on attempt 2
+PROGRESS prose - ✅ Chapter 5 validated (retry succeeded)
+PROGRESS prose - Generating chapter 6/9...
+2026-08-23T19:29:56.265Z [INFO    ] Agent9-ProseGenerator-Ch6 | chat_request
+2026-08-23T19:30:24.793Z [INFO    ] Agent9-ProseGenerator-Ch6 | chat_response
+2026-08-23T19:30:24.861Z [INFO    ] Agent9-Regen-Ch6-missing_clue | chat_request
+2026-08-23T19:30:45.212Z [INFO    ] Agent9-Regen-Ch6-missing_clue | chat_response
+2026-08-23T19:30:45.282Z [INFO    ] Agent9-Regen-Ch6-missing_clue | chat_request
+2026-08-23T19:31:05.182Z [INFO    ] Agent9-Regen-Ch6-missing_clue | chat_response
+[Agent 9] regen-clue UNRESOLVED ch6 clue_14: regen introduced: modified_or_dropped_original_paragraph:1 (deterministic floor will apply)
+[Agent 9][A_72 C3] cross-chapter sentence echo: 3 sentence(s) repeat a chapter seen earlier — e.g. "sylvia trent s voice cool and precise cut through the tension"
+[Agent 9] DIAGNOSTICS ch6 attempt 1/3:
+  raw response chars: 14315
+  extracted chapter word counts: [1162] (total: 1162)
+  appears truncated: false
+  raw tail (last 300 chars): mitted",
+    "discriminating_test_present": "no",
+    "required_clues_present": "clue_7: paragraph 6; clue_8: paragraph 7; clue_9: paragraph 6",
+    "early_observation_present": "Eleanor observes the hourglass and suspects' faces: paragraph 1",
+    "early_inference_present": "yes: paragraph 2"
+  }
+}
+[Agent 9] Batch ch6 validation failed (attempt 1/3):
+  - Stage-mode outcome failed (suspect_pressure): no full culprit resolution is allowed in suspect-pressure mode.
+PROGRESS prose - ❌ Chapter 6 validation failed (attempt 1/3): 1 issue(s)
+2026-08-23T19:31:05.260Z [INFO    ] Agent9-ProseGenerator-Ch6 | chat_request
+2026-08-23T19:31:13.783Z [INFO    ] Agent9-ProseGenerator-Ch6 | chat_response
+[Agent 9][A_72 C3] cross-chapter sentence echo: 1 sentence(s) repeat a chapter seen earlier — e.g. "sylvia trent s voice cool and precise cut through the tension"
+[Agent 9] DIAGNOSTICS ch6 attempt 2/3:
+  raw response chars: 7998
+  extracted chapter word counts: [1121] (total: 1121)
+  appears truncated: false
+  raw tail (last 300 chars): mitted",
+    "discriminating_test_present": "no",
+    "required_clues_present": "clue_7: paragraph 6; clue_8: paragraph 7; clue_9: paragraph 6",
+    "early_observation_present": "Eleanor observes the hourglass and suspects' faces: paragraph 1",
+    "early_inference_present": "yes: paragraph 2"
+  }
+}
+[Agent 9] Batch ch6 validation failed (attempt 2/3):
+  - Stage-mode outcome failed (suspect_pressure): no full culprit resolution is allowed in suspect-pressure mode.
+PROGRESS prose - ❌ Chapter 6 validation failed (attempt 2/3): 1 issue(s)
+2026-08-23T19:31:13.930Z [INFO    ] Agent9-ProseGenerator-Ch6 | chat_request
+2026-08-23T19:31:41.944Z [INFO    ] Agent9-ProseGenerator-Ch6 | chat_response
+2026-08-23T19:31:42.016Z [INFO    ] Agent9-Regen-Ch6-missing_clue | chat_request
+2026-08-23T19:31:59.993Z [INFO    ] Agent9-Regen-Ch6-missing_clue | chat_response
+2026-08-23T19:32:00.061Z [INFO    ] Agent9-Regen-Ch6-missing_clue | chat_request
+2026-08-23T19:32:17.682Z [INFO    ] Agent9-Regen-Ch6-missing_clue | chat_response
+[Agent 9] regen-clue UNRESOLVED ch6 clue_14: regen introduced: modified_or_dropped_original_paragraph:1 (deterministic floor will apply)
+2026-08-23T19:32:17.833Z [INFO    ] Agent9-PostPassPolish-Ch6 | chat_request
+2026-08-23T19:32:44.821Z [INFO    ] Agent9-PostPassPolish-Ch6 | chat_response
+[Agent 9][A_72 C3] cross-chapter sentence echo: 2 sentence(s) repeat a chapter seen earlier — e.g. "eleanor voss pressed on to the next concrete detail"
+PROGRESS prose - Chapter 6/9 complete · chapter: 97/100 · cumulative: 60/100
+PROGRESS prose - ⚠ Chapter 6 required retry — 1 issue: Stage-mode outcome failed (suspect_pressure): no full culprit resolution is allowed in suspect-pressure mode.
+[Agent 9] Batch ch6 validated successfully on attempt 3
+PROGRESS prose - ✅ Chapter 6 validated (retry succeeded)
+PROGRESS prose - Generating chapter 7/9...
+2026-08-23T19:32:47.417Z [INFO    ] Agent9-ProseGenerator-Ch7 | chat_request
+2026-08-23T19:33:02.328Z [INFO    ] Agent9-ProseGenerator-Ch7 | chat_response
+2026-08-23T19:33:02.431Z [INFO    ] Agent9-Regen-Ch7-missing_clue | chat_request
+2026-08-23T19:33:17.872Z [INFO    ] Agent9-Regen-Ch7-missing_clue | chat_response
+2026-08-23T19:33:18.058Z [INFO    ] Agent9-Regen-Ch7-missing_clue | chat_request
+2026-08-23T19:33:33.464Z [INFO    ] Agent9-Regen-Ch7-missing_clue | chat_response
+[Agent 9] regen-clue UNRESOLVED ch7 clue_14: regen did not improve the targeted property (score 200, was 200; still failing: missing_clue:clue_14) (deterministic floor will apply)
+2026-08-23T19:33:33.753Z [INFO    ] Agent9-PostPassPolish-Ch7 | chat_request
+2026-08-23T19:33:56.204Z [INFO    ] Agent9-PostPassPolish-Ch7 | chat_response
+[Agent 9][A_72 C3] cross-chapter sentence echo: 4 sentence(s) repeat a chapter seen earlier — e.g. "eleanor voss pressed on to the next concrete detail"
+PROGRESS prose - Chapter 7/9 complete · chapter: 94/100 · cumulative: 60/100
+PROGRESS prose - ✅ Chapter 7/9 validated
+PROGRESS prose - Generating chapter 8/9...
+2026-08-23T19:34:04.558Z [INFO    ] Agent9-ProseGenerator-Ch8 | chat_request
+2026-08-23T19:34:33.230Z [INFO    ] Agent9-ProseGenerator-Ch8 | chat_response
+[Agent 9] DIAGNOSTICS ch8 attempt 1/3:
+  raw response chars: 11885
+  extracted chapter word counts: [1245] (total: 1245)
+  appears truncated: false
+  raw tail (last 300 chars):  "required_clues_present": "clue_12: chapter 8 paragraph 5-7; clue_8: chapter 8 paragraph 8; clue_3: chapter 8 paragraph 9",
+    "early_observation_present": "hourglass sand demonstration: chapter 8 paragraph 4",
+    "early_inference_present": "yes: paragraph immediately following observation"
+  }
+}
+[Agent 9] Batch ch8 validation failed (attempt 1/3):
+  - Chapter 8: Chapter 8 may be missing the discriminating test scene (Include a scene that tests: A controlled demonstration comparing the hourglass sand level at known start times versus Captain Ha...)
+PROGRESS prose - ❌ Chapter 8 validation failed (attempt 1/3): 1 issue(s)
+2026-08-23T19:34:34.090Z [INFO    ] Agent9-ProseGenerator-Ch8 | chat_request
+2026-08-23T19:34:45.103Z [INFO    ] Agent9-ProseGenerator-Ch8 | chat_response
+2026-08-23T19:34:45.356Z [INFO    ] Agent9-PostPassPolish-Ch8 | chat_request
+2026-08-23T19:35:09.588Z [INFO    ] Agent9-PostPassPolish-Ch8 | chat_response
+[Agent 9] DT-scene ch8: test re-applies already-planted evidence (clue_12) rather than producing fresh evidence — acceptable fair play.
+PROGRESS prose - Chapter 8/9 complete · chapter: 98/100 · cumulative: 60/100
+PROGRESS prose - ⚠ Chapter 8 required retry — 1 issue: Chapter 8: Chapter 8 may be missing the discriminating test scene (Include a scene that tests: A controlled demonstration comparing the hourglass sand level at known start times versus Captain Ha...)
+[Agent 9] Batch ch8 validated successfully on attempt 2
+PROGRESS prose - ✅ Chapter 8 validated (retry succeeded)
+PROGRESS prose - Generating chapter 9/9...
+2026-08-23T19:35:12.390Z [INFO    ] Agent9-ProseGenerator-Ch9 | chat_request
+2026-08-23T19:35:39.002Z [INFO    ] Agent9-ProseGenerator-Ch9 | chat_response
+[Agent 9][A_72 C3] cross-chapter sentence echo: 1 sentence(s) repeat a chapter seen earlier — e.g. "well isn t that just the way it goes"
+[Agent 9] DIAGNOSTICS ch9 attempt 1/3:
+  raw response chars: 11419
+  extracted chapter word counts: [1003] (total: 1003)
+  appears truncated: false
+  raw tail (last 300 chars): graph 2; clue_17: paragraph 3; clue_18: paragraph 4",
+    "early_observation_present": "Staff logs and witness statements clearing suspects: paragraph 2 (Beatrice), paragraph 3 (Sylvia), paragraph 4 (Hugo)",
+    "early_inference_present": "yes: paragraph immediately following each observation"
+  }
+}
+[Agent 9] Batch ch9 validation failed (attempt 1/3):
+  - Chapter 9: Chapter 9 may be missing the discriminating test scene (Include a scene that tests: A controlled demonstration comparing the hourglass sand level at known start times versus Captain Ha...)
+  - Resolution chapter must close with an in-scene moment (dialogue, action, or sensation), not a summary verdict sentence. Rewrite the final paragraph to end inside the scene.
+PROGRESS prose - ❌ Chapter 9 validation failed (attempt 1/3): 2 issue(s)
+2026-08-23T19:35:39.636Z [INFO    ] Agent9-ProseGenerator-Ch9 | chat_request
+2026-08-23T19:35:50.794Z [INFO    ] Agent9-ProseGenerator-Ch9 | chat_response
+[Agent 9][A_72 C3] cross-chapter sentence echo: 1 sentence(s) repeat a chapter seen earlier — e.g. "well isn t that just the way it goes"
+[Agent 9] DIAGNOSTICS ch9 attempt 2/3:
+  raw response chars: 9047
+  extracted chapter word counts: [1284] (total: 1284)
+  appears truncated: false
+  raw tail (last 300 chars): graph 2; clue_17: paragraph 3; clue_18: paragraph 4",
+    "early_observation_present": "Staff logs and witness statements clearing suspects: paragraph 2 (Beatrice), paragraph 3 (Sylvia), paragraph 4 (Hugo)",
+    "early_inference_present": "yes: paragraph immediately following each observation"
+  }
+}
+[Agent 9] Batch ch9 validation failed (attempt 2/3):
+  - Stage-mode outcome failed (aftermath_consequence): The chapter recites per-suspect clearances again (a clearance roll-call). The reveal already happened on-page in an earlier chapter; this chapter must show consequence and retrospect only.
+PROGRESS prose - ❌ Chapter 9 validation failed (attempt 2/3): 1 issue(s)
+2026-08-23T19:35:51.095Z [INFO    ] Agent9-ProseGenerator-Ch9 | chat_request
+2026-08-23T19:36:17.131Z [INFO    ] Agent9-ProseGenerator-Ch9 | chat_response
+PROGRESS prose - Chapter 9/9 complete · chapter: 92/100 · cumulative: 60/100
+PROGRESS prose - ⚠ Chapter 9 required retry — 1 issue: Stage-mode outcome failed (aftermath_consequence): The chapter recites per-suspect clearances again (a clearance roll-call). The reveal already happened on-page in an earlier chapter; this chapter must show consequence and retrospect only.
+[Agent 9] Batch ch9 validated successfully on attempt 3
+PROGRESS prose - ✅ Chapter 9 validated (retry succeeded)
+2026-08-23T19:36:24.616Z [INFO    ] Agent9-AtmosphereRepair-Ch1 | chat_request
+2026-08-23T19:36:24.776Z [ERROR   ] Agent9-AtmosphereRepair-Ch1 | chat_error | ERROR: Azure chat completion failed: HTTP 429 at https://openai-ds1sweden.openai.azure.com/openai/deployments/gpt-4.1/chat/completions?api-version=2024-12-01-preview — {
+  "error": {
+    "message": "Your requests to gpt-4.1 for gpt-4.1 in swedencentral have exceeded rate limit.",
+    "type": "too_many_requests",
+    "param": null,
+    "code": "rate_limit_exceeded"
+  }
+}
+2026-08-23T19:36:26.439Z [INFO    ] Agent9-AtmosphereRepair-Ch1 | chat_request
+2026-08-23T19:36:28.738Z [INFO    ] Agent9-AtmosphereRepair-Ch1 | chat_response
+2026-08-23T19:36:28.958Z [INFO    ] Agent9-AtmosphereRepair-Ch2 | chat_request
+2026-08-23T19:36:30.115Z [INFO    ] Agent9-AtmosphereRepair-Ch2 | chat_response
+2026-08-23T19:36:30.466Z [INFO    ] Agent9-AtmosphereRepair-Ch3 | chat_request
+2026-08-23T19:36:31.445Z [INFO    ] Agent9-AtmosphereRepair-Ch3 | chat_response
+2026-08-23T19:36:31.844Z [INFO    ] Agent9-AtmosphereRepair-Ch4 | chat_request
+2026-08-23T19:36:33.543Z [INFO    ] Agent9-AtmosphereRepair-Ch4 | chat_response
+2026-08-23T19:36:33.788Z [INFO    ] Agent9-AtmosphereRepair-Ch6 | chat_request
+2026-08-23T19:36:35.028Z [INFO    ] Agent9-AtmosphereRepair-Ch6 | chat_response
+2026-08-23T19:36:35.310Z [INFO    ] Agent9-AtmosphereRepair-Ch7 | chat_request
+2026-08-23T19:36:37.103Z [INFO    ] Agent9-AtmosphereRepair-Ch7 | chat_response
+[Agent 9] applyLifecycleContinuityGuard: rewrote 1 ambiguous death attribution sentence(s) for active non-victim continuity.
+2026-08-23T19:36:37.616Z [INFO    ] Agent9-Regen-Ch8-scaffold_not_prose | chat_request
+2026-08-23T19:36:48.547Z [INFO    ] Agent9-Regen-Ch8-scaffold_not_prose | chat_response
+2026-08-23T19:36:49.168Z [INFO    ] Agent9-Regen-Ch8-scaffold_not_prose | chat_request
+2026-08-23T19:36:58.776Z [INFO    ] Agent9-Regen-Ch8-scaffold_not_prose | chat_response
+2026-08-23T19:36:59.536Z [INFO    ] Agent9-Regen-Ch8-scaffold_not_prose | chat_request
+2026-08-23T19:37:09.645Z [INFO    ] Agent9-Regen-Ch8-scaffold_not_prose | chat_response
+2026-08-23T19:37:09.824Z [INFO    ] Agent9-Regen-Ch8-scaffold_not_prose | chat_request
+2026-08-23T19:37:19.623Z [INFO    ] Agent9-Regen-Ch8-scaffold_not_prose | chat_response
+2026-08-23T19:37:26.715Z [ERROR   ] Agent9-ProseGenerator | batch_validation | ERROR: Prose generation: 4/9 batch(es) required retry due to validation issues
+2026-08-23T19:37:26.717Z [ERROR   ] Agent9-ProseGenerator | chapter_validation_failure | ERROR: Chapters 6 failed validation
+2026-08-23T19:37:26.718Z [ERROR   ] Agent9-ProseGenerator | chapter_validation_failure | ERROR: Chapters 6 failed validation
+2026-08-23T19:37:26.719Z [ERROR   ] Agent9-ProseGenerator | chapter_validation_failure | ERROR: Chapters 8 failed validation
+2026-08-23T19:37:26.719Z [ERROR   ] Agent9-ProseGenerator | chapter_validation_failure | ERROR: Chapters 9 failed validation
+2026-08-23T19:37:26.720Z [ERROR   ] Agent9-ProseGenerator | chapter_validation_failure | ERROR: Chapters 9 failed validation
+PROGRESS prose - Prose generated (9 chapters)
+PROGRESS validation - Starting full-story validation gate...
+[Agent 9] enforceLockedFactValuePresence: injected canonical locked-fact value mention(s): 1.
+2026-08-23T19:37:26.889Z [INFO    ] Agent9-Regen-Ch9-culprit_unlinked | chat_request
+2026-08-23T19:37:37.379Z [INFO    ] Agent9-Regen-Ch9-culprit_unlinked | chat_response
+2026-08-23T19:37:37.545Z [INFO    ] Agent9-Regen-Ch9-culprit_unlinked | chat_request
+2026-08-23T19:37:48.639Z [INFO    ] Agent9-Regen-Ch9-culprit_unlinked | chat_response
+[Agent 9] enforceCulpritEvidencePresence: injected sentence for "Captain Ivor Hale".
+[Agent 9] applyVictimReappearanceRescue: repaired 1 death-attribution sentence(s) for non-victim characters flagged by validation.
+PROGRESS validation - Full-story validation needs review (1 major issues)
+PROGRESS validation - Applied auto-fixes for encoding issues
+2026-08-23T19:37:49.594Z [INFO    ] Agent9-Regen-Ch8-culprit_unlinked | chat_request
+2026-08-23T19:37:58.894Z [ERROR   ] Agent9-Regen-Ch8-culprit_unlinked | chat_error | ERROR: Azure chat completion failed: HTTP 400 at https://openai-ds1sweden.openai.azure.com/openai/deployments/gpt-4.1-mini/chat/completions?api-version=2024-12-01-preview — {"error":{"message":"The response was filtered due to the prompt triggering Azure OpenAI's content management policy. Please modify your prompt and retry. To learn more about our content filtering policies please read our documentation: https://go.microsoft.com/fwlink/?linkid=2198766","type":null,"param":"prompt","code":"content_filter","status":400,"innererror":{"code":"ResponsibleAIPolicyViolation","content_filter_result":{"hate":{"filtered":false,"severity":"safe"},"jailbreak":{"detected":false,"filtered":false},"self_harm":{"filtered":false,"severity":"safe"},"sexual":{"filtered":false,"severity":"safe"},"violence":{"filtered":true,"severity":"medium"}}}}}
+2026-08-23T19:37:58.956Z [INFO    ] Agent9-Regen-Ch8-culprit_unlinked | chat_request
+2026-08-23T19:38:08.168Z [ERROR   ] Agent9-Regen-Ch8-culprit_unlinked | chat_error | ERROR: Azure chat completion failed: HTTP 400 at https://openai-ds1sweden.openai.azure.com/openai/deployments/gpt-4.1-mini/chat/completions?api-version=2024-12-01-preview — {"error":{"message":"The response was filtered due to the prompt triggering Azure OpenAI's content management policy. Please modify your prompt and retry. To learn more about our content filtering policies please read our documentation: https://go.microsoft.com/fwlink/?linkid=2198766","type":null,"param":"prompt","code":"content_filter","status":400,"innererror":{"code":"ResponsibleAIPolicyViolation","content_filter_result":{"hate":{"filtered":false,"severity":"safe"},"jailbreak":{"detected":false,"filtered":false},"self_harm":{"filtered":false,"severity":"safe"},"sexual":{"filtered":false,"severity":"safe"},"violence":{"filtered":true,"severity":"medium"}}}}}
+2026-08-23T19:38:08.555Z [INFO    ] Agent9-Regen-Ch8-missing_resolution | chat_request
+2026-08-23T19:38:10.537Z [INFO    ] Agent9-Regen-Ch8-missing_resolution | chat_response
+2026-08-23T19:38:11.157Z [INFO    ] Agent9-Regen-Ch8-missing_resolution | chat_request
+2026-08-23T19:38:13.257Z [INFO    ] Agent9-Regen-Ch8-missing_resolution | chat_response
+2026-08-23T19:38:13.711Z [INFO    ] Agent9-Regen-Ch8-missing_resolution | chat_request
+2026-08-23T19:38:15.885Z [INFO    ] Agent9-Regen-Ch8-missing_resolution | chat_response
+2026-08-23T19:38:16.403Z [INFO    ] Agent9-Regen-Ch9-aftermath_repeat | chat_request
+2026-08-23T19:38:18.863Z [INFO    ] Agent9-Regen-Ch9-aftermath_repeat | chat_response
+[Agent 9 geometry:apply] 14 checks, 4 violation(s), 2 repaired: locked_time_arithmetic, clincher_absent_at_payoff, reveal_culprit_not_named, clearance_over_budget
+PROGRESS validation - Release gate warnings: geometry locked_time_arithmetic; geometry clincher_absent_at_payoff (ch8); geometry reveal_culprit_not_named (ch8); geometry clearance_over_budget (ch8); scene-grounding coverage below target (6/9 chapters grounded)
+2026-08-23T19:38:25.979Z [INFO    ] Agent9-FullStoryDiagnostic | chat_request
+2026-08-23T19:38:33.232Z [INFO    ] Agent9-FullStoryDiagnostic | chat_response
+2026-08-23T19:38:35.367Z [INFO    ] RubricScorer | chat_request
+2026-08-23T19:38:42.405Z [INFO    ] RubricScorer | chat_response
+[Rubric] 65/100 (Promising but rough); raw 67; caps: report-style clearance (verdict, not dramatized deduction) → prose ≤ 6; report-style clearance in the reveal → ending ≤ 7; central clue stated as two flat values, not one contradiction → clues ≤ 6
+PROGRESS complete - Mystery generation complete!
+CANARY_STATUS warning
+RUN_ID mystery-1787512796202
+CANARY_CLUE_COUNT 20
+CANARY_RED_HERRING_COUNT 2
+CANARY_CLUE_STATUS pass
+CANARY_CLUE_AUDIT {"missingDiscriminatingEvidenceIds":[],"weakEliminationSuspects":[],"invalidSourcePaths":[]}
+WARNINGS_COUNT 111
+WARNINGS ["[REVIEW_02] LLM_HTTP_TRANSPORT=true — chat calls bypass the @azure/openai SDK (direct POST). Schema-capable and reports cached prompt tokens; treat A/B comparisons against SDK-transport runs as cross-transport.","Scoring system enabled - tracking quality metrics and retries","Cross-run novelty: diverging from 20 recent run(s)","Agent 3b schema warning: devices[0].lockedFacts[3].derivedFrom is not defined in schema (unexpected field)","[agent3b-plausibility][shadow] gate=shadow score=90 ran=true","[A_72 C1] stripped leading article from locked fact suspect_claimed_start_time: \"a quarter to eleven\" → \"quarter to eleven\"","Pillar 1: locked fact registry built with 4 fact(s): hourglass_flow_duration=\"twenty minutes\", sand_level_observed=\"half full\", last_seen_alive_time=\"ten minutes past eleven\", suspect_claimed_start_time=\"quarter to eleven\"","[X38] Pillar 1 case-time incoherence (locked_time_arithmetic): The device's own numbers disagree: last_seen_alive_time \"ten minutes past eleven\" and suspect_claimed_start_time \"quarter to eleven\" are 25 minutes apart, while hourglass_flow_duration declares \"twenty minutes\" (20). Locked facts are injected into the prose verbatim, so a reader will meet both numbers and neither explains the other. Repair the CASE.","[Novelty skeleton-judge SHADOW] variation vs the_big_bow_mystery: Keep what is distinctive, but drop the locked_room_timing mechanism; reshape the deduction away from 'reframe_access_at_discovery'.","[X51] locked fact registry extended with 4 case fact(s) beyond the device: murder_weapon=\"a decorative brass statue\", alibi_location_beatrice_quill=\"the kitchen\", alibi_location_sylvia_trent=\"the lounge\", alibi_location_hugo_vane=\"the dining room\"","Agent 5: deterministic remediation mode active (LLM retry loops disabled by default)","Agent 5: pre-guardrail source-path repair: clue_11: CASE.death_method -> CASE.inference_path.steps[0].observation [fallback]","Inference coverage: [warning] 2 red herring(s) may accidentally support the true solution (rh_1, rh_2)","Agent 5: 2 red herring(s) overlap true-solution signals; regenerating for separation","  - Overlapping red herring id(s): rh_1, rh_2","    • rh_1 -> inference steps 1, 2, 3, 4 via words: hourglass, flipped, level, eleven, actual, timing","    • rh_2 -> inference steps 1, 2, 3, 4 via words: hourglass, level, eleven, timing, physical","Agent 5: Temporal lexical collision detected: 5 shared token(s) between false-assumption and correction lexicons.","  - forbidden red-herring terms: hourglass, eleven, hales, alibi, visible","  - preferred false-assumption-only terms: timer, started, quarter, supporting, captain, publicly, claimed, beginning, period, lobby, considered, reliable","Agent 5 red-herring deterministic sanitizer: rh_1: sanitized overlap terms in description/misdirection","Agent 5 red-herring deterministic sanitizer: rh_2: sanitized overlap terms in description/misdirection","Clue-spec (shadow): 19 required slots; 100% of shipped clues map to one.","[Agent 6] blind reader NOT MEASURED — Azure refused the prompt (content filter; the case's death method is in it). The gate is SKIPPED, not passed, and its remediation loop does not run. Counted in the run's content-filter telemetry (A_71).","Pillar 2: character bundle assembled with 6 character(s): Eleanor Voss, Dr. Mallory Finch, Captain Ivor Hale, Beatrice Quill, Sylvia Trent, Hugo Vane","Outline schema warning: acts[0].scenes[0].pivotElement is not defined in schema (unexpected field)","Outline schema warning: acts[0].scenes[0].factEstablished is not defined in schema (unexpected field)","Outline schema warning: acts[0].scenes[0].permittedBehavioursByAct is not defined in schema (unexpected field)","Outline schema warning: acts[0].scenes[0].redHerringPlacement is not defined in schema (unexpected field)","Outline schema warning: acts[0].scenes[1].pivotElement is not defined in schema (unexpected field)","Outline schema warning: acts[0].scenes[1].factEstablished is not defined in schema (unexpected field)","Outline schema warning: acts[0].scenes[1].permittedBehavioursByAct is not defined in schema (unexpected field)","Outline schema warning: acts[0].scenes[1].redHerringPlacement is not defined in schema (unexpected field)","Outline schema warning: acts[0].scenes[2].pivotElement is not defined in schema (unexpected field)","Outline schema warning: acts[0].scenes[2].factEstablished is not defined in schema (unexpected field)","Outline schema warning: acts[0].scenes[2].permittedBehavioursByAct is not defined in schema (unexpected field)","Outline schema warning: acts[0].scenes[2].redHerringPlacement is not defined in schema (unexpected field)","Outline schema warning: acts[1].scenes[0].pivotElement is not defined in schema (unexpected field)","Outline schema warning: acts[1].scenes[0].factEstablished is not defined in schema (unexpected field)","Outline schema warning: acts[1].scenes[0].permittedBehavioursByAct is not defined in schema (unexpected field)","Outline schema warning: acts[1].scenes[0].redHerringPlacement is not defined in schema (unexpected field)","Outline schema warning: acts[1].scenes[1].pivotElement is not defined in schema (unexpected field)","Outline schema warning: acts[1].scenes[1].factEstablished is not defined in schema (unexpected field)","Outline schema warning: acts[1].scenes[1].permittedBehavioursByAct is not defined in schema (unexpected field)","Outline schema warning: acts[1].scenes[1].redHerringPlacement is not defined in schema (unexpected field)","Outline schema warning: acts[1].scenes[2].pivotElement is not defined in schema (unexpected field)","Outline schema warning: acts[1].scenes[2].factEstablished is not defined in schema (unexpected field)","Outline schema warning: acts[1].scenes[2].permittedBehavioursByAct is not defined in schema (unexpected field)","Outline schema warning: acts[1].scenes[2].redHerringPlacement is not defined in schema (unexpected field)","Outline schema warning: acts[1].scenes[3].pivotElement is not defined in schema (unexpected field)","Outline schema warning: acts[1].scenes[3].factEstablished is not defined in schema (unexpected field)","Outline schema warning: acts[1].scenes[3].permittedBehavioursByAct is not defined in schema (unexpected field)","Outline schema warning: acts[1].scenes[3].redHerringPlacement is not defined in schema (unexpected field)","Outline schema warning: acts[2].scenes[0].pivotElement is not defined in schema (unexpected field)","Outline schema warning: acts[2].scenes[0].factEstablished is not defined in schema (unexpected field)","Outline schema warning: acts[2].scenes[0].permittedBehavioursByAct is not defined in schema (unexpected field)","Outline schema warning: acts[2].scenes[1].pivotElement is not defined in schema (unexpected field)","Outline schema warning: acts[2].scenes[1].factEstablished is not defined in schema (unexpected field)","Outline schema warning: acts[2].scenes[1].permittedBehavioursByAct is not defined in schema (unexpected field)","[X32] Outline gives a suspect-clearance job to 2 scenes: Alibis Under Scrutiny; Clearing the Innocent and Confirming the Alibi. Every pass after the first repeats a resolved beat.","World-First enrichment applied: emotionalRegister, humourGuidance, eraTextureNote, locationRegisterNote, dominantCharacterNote set on all 9 scenes.","Outline completeness gate passed: all 9 scenes have concrete pivotElement, factEstablished, and redHerringPlacement contracts.","Clue-coverage gate: deterministically force-assigned 6 unanchored clue ID(s) to scenes: clue_5, clue_6, clue_9, clue_mechanism_visibility_core, clue_core_elimination_chain, clue_late_optional_slot_1.","[R4] agent7 coercion telemetry: structured_output=false firings=0 beats_coerced=0 beats_dropped=0 fields_hoisted=0","[Agent 7 scheduler shadow] grid @9 (3/4/2) from 36 obligations: complete=true ordered=true coverage=89% (ratioOk=true) | live outline scenes=9 | AGENT7_SCHEDULER_AUTHORITATIVE=off","[X32] Suspect-clearance fold: 2 scenes carry the clearance job; kept in scene 9 (act 3), suppressed in 1.","[Agent 7 DT-evidence] discriminating-test scene referenced none of its evidence clues; added re-surfaced evidence clue \"clue_12\" to the test scene.","[Agent 7 discovery-tell] body-discovery scene referenced no cause-of-death tell; added tell clue \"clue_11\" (struck with a decorative brass statue) to the discovery scene (act 1, scene 1, beat \"gathering\").","[Agent 7 plant-before-reveal] stamped 15 plant(s): clue_3→scene 1 (reveal 3); clue_4→scene 1 (reveal 3); clue_15→scene 2 (reveal 4); clue_5→scene 2 (reveal 4); clue_6→scene 1 (reveal 4); clue_core_elimination_chain→scene 2 (reveal 4); clue_16→scene 3 (reveal 5); clue_17→scene 3 (reveal 5); clue_18→scene 3 (reveal 5); clue_7→scene 4 (reveal 6); clue_8→scene 4 (reveal 6); clue_9→scene 4 (reveal 6); clue_12→scene 5 (reveal 7); clue_culprit_direct_captain_ivor_hale→scene 5 (reveal 7); clue_14→scene 5 (reveal 7) (A_64 C1).","[X38] Agent 7.5 case-time incoherence (locked_time_arithmetic): The device's own numbers disagree: last_seen_alive_time \"ten minutes past eleven\" and suspect_claimed_start_time \"quarter to eleven\" are 25 minutes apart, while hourglass_flow_duration declares \"twenty minutes\" (20). Locked facts are injected into the prose verbatim, so a reader will meet both numbers and neither explains the other. Repair the CASE.","[StoryContract] victim.name=\"\" roleConfirmedFrom=\"fallback_unknown\" lockedFacts=4 macroArcScenes=9","[Agent 9] regen-scaffold UNRESOLVED ch8 scaffold_ch8_p6: regen did not improve the targeted property (score 200, was 200; still failing: report_style_clearance) (cap may still apply).","[Agent 9] regen-scaffold dramatized [scaffold_ch8_p11, scaffold_ch8_p12] in ch8.","Prose Generation: scored 60/100 (D) below threshold; skipping full-phase retry and continuing with targeted validation/repair guardrails","Prose generation: 4/9 batch(es) required retry due to validation issues","  - Chapters 6 (attempt 1): Stage-mode outcome failed (suspect_pressure): no full culprit resolution is allowed in suspect-pressure mode.","  - Chapters 6 (attempt 2): Stage-mode outcome failed (suspect_pressure): no full culprit resolution is allowed in suspect-pressure mode.","  - Chapters 8 (attempt 1): Chapter 8: Chapter 8 may be missing the discriminating test scene (Include a scene that tests: A controlled demonstration comparing the hourglass sand level at known start times versus Captain Ha...)","  - Chapters 9 (attempt 1): Chapter 9: Chapter 9 may be missing the discriminating test scene (Include a scene that tests: A controlled demonstration comparing the hourglass sand level at known start times versus Captain Ha...)","  - Chapters 9 (attempt 2): Stage-mode outcome failed (aftermath_consequence): The chapter recites per-suspect clearances again (a clearance roll-call). The reveal already happened on-page in an earlier chapter; this chapter must show consequence and retrospect only.","[Agent 9] regen-culprit-evidence UNRESOLVED Captain Ivor Hale: regen introduced: modified_or_dropped_original_paragraph:1 (injector floor applies).","[X4] injector-vs-lint: enforceCulpritEvidencePresence injected a sentence into chapter 9 for \"Captain Ivor Hale\" that violates verdict_closer.was_responsible — a rule the model is held to. The injection STANDS (ADR-0003); this is a record, not a refusal. Rule: Resolution chapter must close with an in-scene moment (dialogue, action, or sensation), not a summary verdict sentence. Rewrite the final paragraph to end inside the scene.","[X4] injector-vs-lint: enforceCulpritEvidencePresence injected a sentence into chapter 9 for \"Captain Ivor Hale\" that violates verdict_closer.beyond — a rule the model is held to. The injection STANDS (ADR-0003); this is a record, not a refusal. Rule: Resolution chapter must close with an in-scene moment (dialogue, action, or sensation), not a summary verdict sentence. Rewrite the final paragraph to end inside the scene.","[Agent 9] scaffold SHIP-CHECK floored [B5:beyond_reasonable_doubt] in ch9 — template re-introduced after the regen pass (A_64 F2; suspect the injector ordering).","[Agent 9] SHIP-CHECK: dual-value flat pair present at cap scope — the clues≤6 cap WILL apply (honest).","[Agent 9] SHIP-CHECK: derived-contradiction ASSEMBLED pre-reveal in ch3 (the F3 class): \"The contradiction was plain: the timer’s “half full” state at ten minutes past eleven could not be reconciled with his c…\"","Validation deterministic rescue applied for locked-fact/pronoun/lifecycle consistency before release gate.","Victim continuity rescue applied for 1 lifecycle issue(s); deterministic repairs: 1.","Pronoun integrity gate: 9 pronoun issue(s) remain after deterministic rescue.","[G6] Read-back comprehension gate: all 4 checks passed.","Story validation: needs_review - 1 major issues","[Agent 9] geometry regen UNRESOLVED in ch8: regen threw: Azure chat completion failed: HTTP 400 at https://openai-ds1sweden.openai.azure.com/openai/deployments/gpt-4.1-mini/chat/completions?api-version=2024-12-01-preview — {\"error\":{\"message\":\"The response was filtered due to the prompt triggering Azure OpenAI's content management policy. Please modify your prompt and retry. To learn more about our content filtering policies please read our documentation: https://go.microsoft.com/fwlink/?linkid=2198766\",\"type\":null,\"param\":\"prompt\",\"code\":\"content_filter\",\"status\":400,\"innererror\":{\"code\":\"ResponsibleAIPolicyViolation\",\"content_filter_result\":{\"hate\":{\"filtered\":false,\"severity\":\"safe\"},\"jailbreak\":{\"detected\":false,\"filtered\":false},\"self_harm\":{\"filtered\":false,\"severity\":\"safe\"},\"sexual\":{\"filtered\":false,\"severity\":\"safe\"},\"violence\":{\"filtered\":true,\"severity\":\"medium\"}}}}}.","[Agent 9] geometry reveal-repair UNRESOLVED in ch8: regen did not improve the targeted property (score 500, was 500; still failing: geometry:reveal_culprit_not_named).","[Agent 9] N7 reveal-repair rewrote ch8 to satisfy [geometry_reveal_culprit_not_named] (modify channel, edit-list).","[Agent 9] geometry locked_time_arithmetic: The case's own locked facts do not add up: \"ten minutes past eleven\" and \"quarter to eleven\" are 25 minutes apart, and \"twenty minutes\" declares 20. Locked facts are injected into the prose verbatim, so this contradiction ships as written and a reader meets two clock readings that refuse to explain the offset between them. The repair is to the CASE. — NO REPAIR PATH: X38 — the device's two clock values and its declared offset disagree (7:15 minus 7:05 is ten, and it said fourteen). A CASE defect authored before any prose exists, and locked facts ship verbatim, so no chapter rewrite can reconcile them without contradicting the registry.","[Agent 9] geometry clincher_absent_at_payoff (ch8): Chapter 8 produces no decisive physical trace tying the culprit to the act. The contract names one: At the body discovery scene, the victim has a severe head wound with blood and bruising consistent with being struck by a decorative brass statue.. It exists in the clue set and must be on the page here as proof.","[Agent 9] geometry reveal_culprit_not_named (ch8): Chapter 8 is the reveal, and no paragraph names Captain Ivor Hale as the person who did it. The chapter owes the reader disclosure, not a further deferral.","[Agent 9] geometry clearance_over_budget (ch8): Chapter 8 spends 4 sentences clearing suspects against a budget of 2. Elimination belongs in scene, or in one sentence — never as a register. First: \"You are ruled out.\" / \"'Each of you is cleared by direct evidence and corroboration.\" / \"\"She threatened to expose a scandal that would have destroyed an innoc\" — NO REPAIR PATH: too MANY clearances — a negative constraint, and the only negative pass that exists (aftermath_repeat) removes repetition rather than trimming a register.","NSD advisory: 1 clue(s) visible in prose but absent from NSD outline plan: clue_late_optional_slot_1 — see clue_visibility_extracted_ids in diagnostics.","UTF-8/multibyte check: PASSED (valid Unicode preserved)","Release gate warning: geometry locked_time_arithmetic","Release gate warning: geometry clincher_absent_at_payoff (ch8)","Release gate warning: geometry reveal_culprit_not_named (ch8)","Release gate warning: geometry clearance_over_budget (ch8)","Release gate warning: scene-grounding coverage below target (6/9 chapters grounded)","[Agent 9] full-story diagnostic: 1 of 7 finding(s) failed to anchor and were discarded.","[X4] agent9 injector-vs-lint telemetry: injections=1 violations=2 enforceCulpritEvidencePresence:verdict_closer.was_responsible=1 enforceCulpritEvidencePresence:verdict_closer.beyond=1","Final-story rubric (shadow): 65/100 — Promising but rough","Final-story rubric: noResolution supplied deterministically by geometry = false (judge's own view: agreed).","Content filter: 3 Azure refusal(s) — Agent9-Regen-culprit_unlinked ×2, Agent6-BlindReader ×1. The pipeline generated content its own next call refused; affected regens fell back to the deterministic backstop.","Scoring: 13/14 phases passed, avg score 60.0/100 (D)"]
+CANARY_INTEGRITY_METRICS {"season_lock_replacements_total":0,"season_lock_protected_collisions_blocked":0,"mechanical_term_collision_count":0,"boundary_integrity_failures_count":1,"semantic_rewrite_diff_blocks_count":0,"entity_pronoun_drift_count":9,"culprit_gate_alias_matches_count":0,"culprit_gate_false_positive_count":0}
+CANARY_MECHANICAL_TERM_COLLISION_COUNT 0
+CANARY_BOUNDARY_INTEGRITY_FAILURES_COUNT 1
+CANARY_ENTITY_PRONOUN_DRIFT_COUNT 9
+CANARY_CULPRIT_GATE_ALIAS_MATCHES_COUNT 0
+CANARY_CULPRIT_GATE_FALSE_POSITIVE_COUNT 0
+CANARY_INTEGRITY_ASSERTIONS {"status":"pass"}
+STORY_SAVED C:\CML\stories\story_20260823-2038\the_hourglass_deception_at_cliffside_bluffs.md
+CANARY_RELEASE_GATE warning

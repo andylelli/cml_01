@@ -67,3 +67,29 @@ describe("stripping the leading article", () => {
     expect(/^(a|an|the)\s/i.test(b)).toBe(false);
   });
 });
+
+/**
+ * The SECOND call site, found by the run rather than by the test suite.
+ *
+ * C1 was applied where Agent 3b builds the registry. `extendLockedFactRegistryWithCaseFacts` (X51)
+ * appends the weapon and the alibi locations LATER, from `agent3-run.ts`, and that path kept its
+ * articles: the 20:38 run shipped `"a decorative brass statue"`, `"the kitchen"`, `"the lounge"`,
+ * `"the dining room"` beside device times that were correctly bare.
+ *
+ * One capability, two call sites, one wired — the shape this repo keeps paying for, committed by the
+ * very change that was documenting it.
+ */
+describe('the case-scoped facts appended after Agent 3b', () => {
+  it('are normalised by the same helper', () => {
+    // The four values the 20:38 run actually registered.
+    expect(strip('a decorative brass statue')).toBe('decorative brass statue');
+    expect(strip('the kitchen')).toBe('kitchen');
+    expect(strip('the lounge')).toBe('lounge');
+    expect(strip('the dining room')).toBe('dining room');
+  });
+
+  it('leaves them parallel with the device facts, which is the point', () => {
+    const values = ['ten minutes past eleven', 'quarter to eleven', 'a decorative brass statue', 'the kitchen'].map(strip);
+    for (const v of values) expect(/^(a|an|the)\s/i.test(v), v).toBe(false);
+  });
+});
