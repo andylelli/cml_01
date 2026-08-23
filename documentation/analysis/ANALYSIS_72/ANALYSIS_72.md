@@ -587,3 +587,76 @@ number), `B1` (the geometry replay) and `B3` (reading the ten prompt contracts) 
 **C4 is the one that matters most of those**, because §5.1 measured it as the only mechanism that
 suppresses two capped categories at once — and it is also the one that touches the fair-play contract,
 so it should not ride into a run assembled at the end of a long session.
+
+---
+
+## 12. B3, begun — the first-appearance contract asks for a FUNCTION, and gets one
+
+[REVIEW_14 §5](../../../architecture/REVIEW_14.md) listed ten prompt blocks that have never appeared in
+any review, 32.6% of the prompt by name. One of them — `locked_facts` — is now audited exhaustively
+(§11.1–11.3 above are all its territory). This is the second, and it was chosen because it is the
+largest of the remaining nine at **5.5% of the prompt** and because it is the only block in the
+pipeline whose job is to introduce a person.
+
+`buildFirstAppearanceContractsBlock` requires five things of every character's first beat:
+
+```
+1. Public identity (who they are in this household/social world)
+2. Connection to the victim
+3. Why they matter to the investigation now
+4. Surface behaviour plus one subtle suspicious/emotional tell
+5. The investigator's immediate read of that behaviour (provisional, not a verdict)
+```
+
+**Every one of the five is the character's function in the MYSTERY.** Identity, relation to the victim,
+investigative relevance, a suspicion cue, and the detective's reading of the cue. Nothing asks what
+this person wants, fears, or would be doing if nobody had been murdered. The per-character data the
+block then supplies is the same shape throughout — `role`, `public_persona`, `access_plausibility`,
+`alibi_window`, `opportunity_channels`, `behavioral_tells`, `stakes`, `motive_seed`. Case-function
+fields, all of them.
+
+And the prompt's own worked example is the tell:
+
+> **Good pattern:** *"Captain Hale, the household steward and the victim's trusted adviser, stood
+> nearest the body. His posture was disciplined, but his hand tightened around his watch chain."*
+
+Role, relation, suspicion cue. **That is a specimen of exactly the register the reader marks 8** — it
+is competent, legible, and there is nothing in it a reader would carry to the next book.
+
+### 12.1 What this corrects in §3
+
+§3 said *"every mechanism aimed at `character_clarity` is an error suppressor"* and listed the pronoun
+repairs, the identity matcher, the lifecycle validators. **That was incomplete, and the omission
+matters.** This block is not a suppressor — it is a SPECIFIER, the one place the pipeline says what a
+character introduction must contain. It gets what it asks for.
+
+So `character_clarity` topping out at *"roles are stable"* is not the model failing to do more. **The
+contract asks for roles to be legible and asks for nothing else, and the prose complies.** The ceiling
+is written down.
+
+### 12.2 What it means for A3
+
+A3 was specified in §10.1 as a new per-suspect ideation step. §11.4 already narrowed it — the cast is
+pinned by the harness, so it must diverge on signatures rather than names. This narrows it again, and
+cheaply: **the place to put a signature is a sixth requirement in a contract that already exists, runs
+on every chapter, and is already marked `priority: critical`.** Something on the order of:
+
+> *6. One thing about this person that the investigation does not explain — a want, a habit, or a
+> contradiction that would still be true if there had been no murder.*
+
+That is not a new agent. Whether it needs a generated per-character signature to draw on, or whether
+the instruction alone is enough, is exactly the sort of thing one run can answer — and it should be
+asked separately from the opening work now in flight, because a run carrying both cannot attribute
+either.
+
+**Not built.** Recorded, with the block named and the line quoted, so the next increment starts from
+the source rather than from the hypothesis.
+
+### 12.3 The eight blocks still unread
+
+`narrative_state` (5.2%) · `fair_play_contract` (5.2%) · `pronoun_accuracy` (4.9%) ·
+`scene_grounding` (2.6%) · `clue_descriptions` (2.2%) · `provisional_scoring_feedback` (1.8%) ·
+`character_consistency` (1.4%) · `character_pressure_contract` (1.4%)
+
+The hit rate on blocks anyone has opened and read line by line is now **2 for 2** — X63 in
+`character_contracts`, and this. That is a small sample and a cheap one: every reading is free.
