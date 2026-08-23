@@ -138,6 +138,20 @@ export class AzureOpenAIClient {
     requestsPerMinute?: number;
     tokensPerMinute?: number;
     logger?: LLMLogger;
+    /**
+     * Inject a shared cost tracker.
+     *
+     * `AnthropicClient` has accepted one since it was written, and the Agent 9 polish provider depends
+     * on that to fold Anthropic spend into the run's ledger. This client silently ignored it: the field
+     * was not on the config type, so a caller that passed one got no error and no data, and read zeros
+     * back from its own instance. **One capability, two clients, one wired** — the recurring shape
+     * (X84 was the same defect in the polish pass).
+     *
+     * MEASURED: `judge-pairwise.mjs` and `judge-ab.mjs` both construct a tracker, pass it here, and
+     * report `totalCost: 0` at the end of a paid experiment. Omitted ⇒ a private tracker, reachable
+     * via `getCostTracker()`, exactly as before.
+     */
+    costTracker?: CostTracker;
   }) {
     this.endpoint = config.endpoint;
     this.apiKey = config.apiKey;
@@ -163,7 +177,7 @@ export class AzureOpenAIClient {
       tokensPerMinute: config.tokensPerMinute,
     });
 
-    this.costTracker = new CostTracker();
+    this.costTracker = config.costTracker || new CostTracker();
     this.contentFilterTracker = new ContentFilterTracker();
 
     this.logger = config.logger || new LLMLogger();
