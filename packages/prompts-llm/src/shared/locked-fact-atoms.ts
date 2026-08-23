@@ -133,3 +133,54 @@ export const findDiscriminatingContradictionPair = (
   const [a, b] = candidates[0];
   return { values: [a.value, b.value], descriptions: [a.description, b.description] };
 };
+
+/**
+ * A_72 C2 — what the WRITER is told a locked fact is called.
+ *
+ * ── THE DEFECT, QUOTED FROM THE PAGE ─────────────────────────────────────────────────────────────
+ *
+ * Every locked fact carries an authored `description` — internal metadata, written for the pipeline:
+ *
+ *     "The official high tide time on the murder day as per hotel tide charts"
+ *
+ * Three prompt sites rendered that straight to Agent 9 as `description: "value"`. It is prose, so the
+ * writer treated it as prose, and — under the simultaneous instruction never to repeat a phrase — it
+ * came back paraphrased and worse than itself in the shipped 2026-08-23 manuscript:
+ *
+ *     "The CERTIFIED WAVE CREST HOUR atop the murder day AS PER INNKEEPER'S TIDE CHARTS was clear."
+ *
+ * `as per … tide charts` and `the murder day` are lifted from the description; *official high tide
+ * time* became *certified wave crest hour* because repeating it was forbidden. **That is the mechanism
+ * behind "generated validation language"** — the complaint attached to `prose` in read after read, and
+ * the reason that manuscript scored `prose` 6/10 (A_72 §5).
+ *
+ * ── THE FIX: A LABEL IS NOT A SENTENCE ───────────────────────────────────────────────────────────
+ *
+ * The writer needs to know which fact is which. It does not need the pipeline's sentence about it. The
+ * `id` is already exactly that — a short, neutral name — so `high_tide_time` becomes **"high tide
+ * time"**. There is nothing there to paraphrase into purple, because it is not written in a voice.
+ *
+ * The description is NOT deleted from the registry, the artifact, or any validator: it stays wherever
+ * humans and gates read it. This is only about what crosses into the writer's prompt.
+ *
+ * Falls back to the description when a fact has no usable id — truncated to its first few words, so a
+ * malformed fact degrades to something short rather than reintroducing the paragraph.
+ */
+export const lockedFactLabel = (fact: { id?: unknown; description?: unknown }): string => {
+  const id = String(fact?.id ?? "").trim();
+  if (id.length > 0) {
+    const humanised = id
+      .replace(/[_\-.]+/g, " ")
+      // camelCase / PascalCase ids read as words too: `highTideTime` -> `high Tide Time`.
+      .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+      .replace(/\s+/g, " ")
+      .trim()
+      .toLowerCase();
+    if (humanised.length >= 2) return humanised;
+  }
+  // No usable id. Keep the first few words of the description rather than the whole sentence: short
+  // enough not to read as prose, long enough to identify the fact.
+  const words = String(fact?.description ?? "").trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return "locked value";
+  return words.slice(0, 5).join(" ").replace(/[.,;:]$/, "");
+};

@@ -99,13 +99,17 @@ import type {
 // removes one back-edge. Re-exported here so every existing importer is unaffected.
 export {
   isAtomicLockedFactValue,
+  lockedFactLabel,
   findDiscriminatingContradictionPair,
   type DiscriminatingContradictionPair,
 } from "../shared/locked-fact-atoms.js";
 import {
   findDiscriminatingContradictionPair,
   isAtomicLockedFactValue,
+  lockedFactLabel,
 } from "../shared/locked-fact-atoms.js";
+import { buildOpeningFreshnessBlock } from "./opening-freshness.js";
+import { OPENING_SENSORY_MARKERS, OPENING_ATMOSPHERE_MARKERS } from "@cml/story-validation";
 import { classifyDeathMethod, type DeathMethodKind } from "../shared/death-method-patterns.js";
 
 export const REVEAL_GROUNDWORK_BANNED_TERMS = [
@@ -1071,7 +1075,8 @@ export function buildNSDBlock(
 
   if (state.lockedFacts.length > 0) {
     lines.push('\nLOCKED FACTS — use verbatim whenever this evidence is described:');
-    state.lockedFacts.forEach(f => lines.push(`  • ${f.description}: "${f.value}"`, ));
+    // A_72 C2: a neutral LABEL, never the authored description — see `lockedFactLabel`.
+    state.lockedFacts.forEach(f => lines.push(`  • ${lockedFactLabel(f)}: "${f.value}"`, ));
   }
 
   if (Object.keys(state.characterPronouns).length > 0) {
@@ -1828,7 +1833,8 @@ ${victimIdentityRule}`;
     const descriptiveFacts = inputs.lockedFacts.filter(f => !isAtomicLockedFactValue(String(f.value ?? '')));
     const factLines = atomicFacts
       .map(f => {
-        let line = `  - ${f.description}: "${f.value}"`;
+        // A_72 C2: the label the writer sees is derived from the fact id, not its description.
+        let line = `  - ${lockedFactLabel(f)}: "${f.value}"`;
         if (isWordFormTimeValue(f.value)) {
           const forbidden = getForbiddenTimeForms(f.value);
           if (forbidden.length > 0) {
@@ -1842,7 +1848,7 @@ ${victimIdentityRule}`;
       ? `\n\nNON-NEGOTIABLE CHAPTER OBLIGATIONS — LOCKED EVIDENCE VALUES (VERBATIM REQUIRED):\nThe following measured values (times, amounts, measurements) are absolute ground truth. Every time this chapter describes, mentions, or alludes to one — no matter how briefly — it MUST use the exact phrase shown below, character for character. NO paraphrase, approximation, rounding, or synonym is permitted.\n\nFAILURE EXAMPLE: if the locked value is "at thirteen minutes to midnight" and you write "just before midnight" or "around midnight" — that is a HARD FAIL. You must write "at thirteen minutes to midnight". Equally, if the locked value is written in words, such as "ten minutes past eleven", and you convert it to figure-based clock notation — that is also a HARD FAIL. Words stay as words; figure forms are forbidden for word-phrased facts.\n\nCRITICAL — WORD-PHRASED VALUES: If the canonical value is written out in words (e.g. a time like "ten minutes past eleven", or an amount like "forty minutes"), reproduce those exact words. DO NOT convert to figure-based time notation, twenty-four-hour format, or any other numeric shorthand. Correct: "ten minutes past eleven". WRONG: figure-based clock notation or numeric shorthand.\n\nLocked values:\n${factLines}\n\nIf a value has no relevance to this chapter, omit it. But the moment you reference the underlying evidence, only the exact phrase above is acceptable.`
       : '';
     const descriptiveBlock = descriptiveFacts.length > 0
-      ? `\n\nEVIDENCE TO CONVEY IN YOUR OWN WORDS (NOT verbatim): weave each of these descriptive facts into the chapter as a COMPLETE, GRAMMATICAL observation by a character — surface the MEANING, never copy the phrasing word-for-word, and NEVER splice two evidence phrases together with an apostrophe or run two clauses together without a sentence break. If a fact has no relevance to this chapter, omit it.\n${descriptiveFacts.map(f => `  - ${f.description}: ${f.value}`).join('\n')}`
+      ? `\n\nEVIDENCE TO CONVEY IN YOUR OWN WORDS (NOT verbatim): weave each of these descriptive facts into the chapter as a COMPLETE, GRAMMATICAL observation by a character — surface the MEANING, never copy the phrasing word-for-word, and NEVER splice two evidence phrases together with an apostrophe or run two clauses together without a sentence break. If a fact has no relevance to this chapter, omit it.\n${descriptiveFacts.map(f => `  - ${lockedFactLabel(f)}: ${f.value}`).join('\n')}`
       : '';
     // A_57 D2 — the "single canonical contradiction" contract. When two locked values are the staged/true
     // pair of the discriminating clue, a chapter that states BOTH as flat parallel truths reads as a clue
@@ -2007,6 +2013,8 @@ ${victimIdentityRule}`;
     paletteRotation ? caseTitleSeed : undefined,
   );
 
+
+
   const worldDocumentBlock = buildWorldBriefBlock(
     inputs.worldDocument,
     chapterStart - 1,
@@ -2162,6 +2170,35 @@ ${victimIdentityRule}`;
       developerWithContracts +=
         `\n\nSUSPECT CLEARANCE (already settled): The innocent suspects have already been cleared in another chapter, and a cleared suspect stays cleared. Do NOT re-argue any alibi, re-list who is ruled out, or walk the reader back through the eliminations. You may refer to them as settled in a clause ("with the others accounted for") and then move on — this chapter's work is elsewhere.`;
     }
+  }
+
+  /**
+   * A_72 A2a — the opening-freshness block, chapter 1 only.
+   *
+   * `opening_hook` has never scored 9 in 35 external reads and all seventeen of its 8s are an
+   * inventory of props. Chapter 1 is the only chapter that category reads. Flag-gated because it
+   * changes the prose of every run: `AGENT9_OPENING_FRESHNESS`, read at call time.
+   *
+   * The two subtractions are not optional — see `opening-freshness.ts`. Without them this block would
+   * ask the writer to avoid words a VALIDATOR requires, and the retry-driving instruction would win.
+   */
+  let openingFreshnessBlock = '';
+  if (chapterStart === 1 && /^(1|true|yes|on)$/i.test(process.env.AGENT9_OPENING_FRESHNESS ?? '')) {
+    const locationNames = [
+      (inputs.locationProfiles as any)?.primary?.name,
+      ...(((inputs.locationProfiles as any)?.keyLocations ?? []) as any[]).map((l) => l?.name),
+      ...(scenes as any[]).map((s) => s?.setting?.location ?? s?.location),
+    ].filter(Boolean).map(String);
+    openingFreshnessBlock = buildOpeningFreshnessBlock({
+      requiredGroundingWords: [...OPENING_SENSORY_MARKERS, ...OPENING_ATMOSPHERE_MARKERS],
+      storyOwnWords: [
+        ...locationNames,
+        String((inputs.caseData as any)?.CASE?.meta?.title ?? ''),
+        String((inputs.caseData as any)?.CASE?.death_method ?? ''),
+        String((inputs.caseData as any)?.CASE?.hidden_model?.mechanism ?? ''),
+      ],
+    });
+    if (openingFreshnessBlock) developerWithContracts += openingFreshnessBlock;
   }
 
   const scenesWithAdjustedEstimates = sanitizeScenesCharacters(

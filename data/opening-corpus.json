@@ -1,0 +1,391 @@
+{
+  "generatedFrom": "184 archived manuscripts",
+  "excludedAsProperNouns": [
+    "ahead",
+    "ashcombe",
+    "beatrice",
+    "blackwood",
+    "brighton",
+    "brighton's",
+    "captain",
+    "channel",
+    "deco",
+    "devonshire",
+    "eleanor",
+    "eleanor's",
+    "england",
+    "finch",
+    "finch's",
+    "harcourt",
+    "harold",
+    "hugo",
+    "hugo's",
+    "inspector",
+    "lady",
+    "library",
+    "mallory",
+    "manor",
+    "middleton",
+    "pembroke",
+    "quill",
+    "seabreeze",
+    "sylvia",
+    "sylvia's",
+    "there",
+    "trent",
+    "vane",
+    "vane's",
+    "voss",
+    "voss's"
+  ],
+  "overusedShareThreshold": 0.3333333333333333,
+  "overusedOpeningWords": [
+    "scent",
+    "faint",
+    "against",
+    "morning",
+    "pressed",
+    "damp",
+    "across",
+    "hush",
+    "hotel",
+    "room",
+    "sprawled",
+    "pale",
+    "chill",
+    "hand",
+    "distant",
+    "windows",
+    "heavy",
+    "broken",
+    "light",
+    "cold",
+    "rain",
+    "gloved",
+    "brass",
+    "stepped",
+    "tang",
+    "thick",
+    "clock",
+    "silence",
+    "polished",
+    "beneath",
+    "floor"
+  ],
+  "recentOpenings": [
+    "Eleanor Voss stepped onto the terrace of the seaside hotel, her shoes clicking against the damp flagstones as a chill wind tugged at the hem of her floral dress.",
+    "Hugo Vane stepped briskly into the lobby of the seaside hotel, his shoes making a muted echo on the marble floor.",
+    "The sharp scent of sea salt mingled with the faint odor of polish as Eleanor Voss pressed open the heavy door to the Grand Lobby.",
+    "The sharp echo of Eleanor Voss's heels on the black-and-white marble floor cut through the hush that had settled over the lobby of the seaside hotel.",
+    "Eleanor Voss pressed her gloved hand to the brass handle and pushed open The Lounge door, the faint scent of damp wool and yesterday's rain lingering in the air.",
+    "Eleanor Voss pressed open the heavy glass door to the hotel lounge, and the faint scent of damp wood mingled with the salt tang of the sea creeping through a half-open window.",
+    "Dr.",
+    "Eleanor Voss pressed her gloved hand against the rough oak banister as she entered the grand hall near the clock room, the chill of early spring fog creeping through the high windows and settling into the seams of her wool suit.",
+    "Eleanor Voss pressed her gloved palm to the cold brass handle and eased open the door to the Grandfather clock room, Seaside Hotel Grandview.",
+    "Eleanor Voss stepped briskly across the terrazzo tiles of the Seaside Hotel lobby, the chill of the evening pressing in with every gust that rattled the rain-streaked glass doors behind her.",
+    "Eleanor Voss pressed her gloved palm to the cold brass handle and eased open the door to the Grandfather clock room, Seaside Hotel Grandview.",
+    "Eleanor Voss pressed her gloved palm to the frosted glass door, the cold biting through wool as she entered the main hall of the Art Deco Seaside Hotel."
+  ],
+  "counts": [
+    {
+      "word": "scent",
+      "books": 139,
+      "share": 0.7554347826086957
+    },
+    {
+      "word": "faint",
+      "books": 132,
+      "share": 0.717391304347826
+    },
+    {
+      "word": "against",
+      "books": 122,
+      "share": 0.6630434782608695
+    },
+    {
+      "word": "morning",
+      "books": 118,
+      "share": 0.6413043478260869
+    },
+    {
+      "word": "pressed",
+      "books": 115,
+      "share": 0.625
+    },
+    {
+      "word": "damp",
+      "books": 111,
+      "share": 0.6032608695652174
+    },
+    {
+      "word": "across",
+      "books": 104,
+      "share": 0.5652173913043478
+    },
+    {
+      "word": "hush",
+      "books": 103,
+      "share": 0.5597826086956522
+    },
+    {
+      "word": "hotel",
+      "books": 101,
+      "share": 0.5489130434782609
+    },
+    {
+      "word": "room",
+      "books": 100,
+      "share": 0.5434782608695652
+    },
+    {
+      "word": "sprawled",
+      "books": 100,
+      "share": 0.5434782608695652
+    },
+    {
+      "word": "pale",
+      "books": 94,
+      "share": 0.5108695652173914
+    },
+    {
+      "word": "chill",
+      "books": 93,
+      "share": 0.5054347826086957
+    },
+    {
+      "word": "hand",
+      "books": 85,
+      "share": 0.46195652173913043
+    },
+    {
+      "word": "distant",
+      "books": 84,
+      "share": 0.45652173913043476
+    },
+    {
+      "word": "windows",
+      "books": 84,
+      "share": 0.45652173913043476
+    },
+    {
+      "word": "heavy",
+      "books": 82,
+      "share": 0.44565217391304346
+    },
+    {
+      "word": "broken",
+      "books": 81,
+      "share": 0.44021739130434784
+    },
+    {
+      "word": "light",
+      "books": 77,
+      "share": 0.41847826086956524
+    },
+    {
+      "word": "cold",
+      "books": 75,
+      "share": 0.4076086956521739
+    },
+    {
+      "word": "rain",
+      "books": 75,
+      "share": 0.4076086956521739
+    },
+    {
+      "word": "gloved",
+      "books": 72,
+      "share": 0.391304347826087
+    },
+    {
+      "word": "brass",
+      "books": 70,
+      "share": 0.3804347826086957
+    },
+    {
+      "word": "stepped",
+      "books": 67,
+      "share": 0.3641304347826087
+    },
+    {
+      "word": "tang",
+      "books": 67,
+      "share": 0.3641304347826087
+    },
+    {
+      "word": "thick",
+      "books": 67,
+      "share": 0.3641304347826087
+    },
+    {
+      "word": "clock",
+      "books": 66,
+      "share": 0.358695652173913
+    },
+    {
+      "word": "silence",
+      "books": 64,
+      "share": 0.34782608695652173
+    },
+    {
+      "word": "polished",
+      "books": 63,
+      "share": 0.3423913043478261
+    },
+    {
+      "word": "beneath",
+      "books": 62,
+      "share": 0.33695652173913043
+    },
+    {
+      "word": "floor",
+      "books": 62,
+      "share": 0.33695652173913043
+    },
+    {
+      "word": "glass",
+      "books": 61,
+      "share": 0.33152173913043476
+    },
+    {
+      "word": "body",
+      "books": 60,
+      "share": 0.32608695652173914
+    },
+    {
+      "word": "casting",
+      "books": 53,
+      "share": 0.28804347826086957
+    },
+    {
+      "word": "gaze",
+      "books": 52,
+      "share": 0.2826086956521739
+    },
+    {
+      "word": "seaside",
+      "books": 52,
+      "share": 0.2826086956521739
+    },
+    {
+      "word": "shadows",
+      "books": 52,
+      "share": 0.2826086956521739
+    },
+    {
+      "word": "door",
+      "books": 50,
+      "share": 0.2717391304347826
+    },
+    {
+      "word": "salt",
+      "books": 49,
+      "share": 0.266304347826087
+    },
+    {
+      "word": "seemed",
+      "books": 48,
+      "share": 0.2608695652173913
+    },
+    {
+      "word": "wool",
+      "books": 48,
+      "share": 0.2608695652173913
+    },
+    {
+      "word": "unnatural",
+      "books": 47,
+      "share": 0.2554347826086957
+    },
+    {
+      "word": "echo",
+      "books": 46,
+      "share": 0.25
+    },
+    {
+      "word": "lingering",
+      "books": 46,
+      "share": 0.25
+    },
+    {
+      "word": "still",
+      "books": 46,
+      "share": 0.25
+    },
+    {
+      "word": "beside",
+      "books": 44,
+      "share": 0.2391304347826087
+    },
+    {
+      "word": "handle",
+      "books": 44,
+      "share": 0.2391304347826087
+    },
+    {
+      "word": "near",
+      "books": 44,
+      "share": 0.2391304347826087
+    },
+    {
+      "word": "past",
+      "books": 44,
+      "share": 0.2391304347826087
+    },
+    {
+      "word": "breath",
+      "books": 43,
+      "share": 0.23369565217391305
+    },
+    {
+      "word": "inside",
+      "books": 43,
+      "share": 0.23369565217391305
+    },
+    {
+      "word": "filtered",
+      "books": 42,
+      "share": 0.22826086956521738
+    },
+    {
+      "word": "grey",
+      "books": 42,
+      "share": 0.22826086956521738
+    },
+    {
+      "word": "lobby",
+      "books": 42,
+      "share": 0.22826086956521738
+    },
+    {
+      "word": "shoes",
+      "books": 42,
+      "share": 0.22826086956521738
+    },
+    {
+      "word": "glow",
+      "books": 41,
+      "share": 0.22282608695652173
+    },
+    {
+      "word": "mingled",
+      "books": 41,
+      "share": 0.22282608695652173
+    },
+    {
+      "word": "motionless",
+      "books": 41,
+      "share": 0.22282608695652173
+    },
+    {
+      "word": "overcast",
+      "books": 41,
+      "share": 0.22282608695652173
+    },
+    {
+      "word": "tall",
+      "books": 41,
+      "share": 0.22282608695652173
+    }
+  ]
+}

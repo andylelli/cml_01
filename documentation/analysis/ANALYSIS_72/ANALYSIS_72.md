@@ -444,3 +444,146 @@ Stated now, so it cannot be rationalised later:
 It does not promise 90. The arithmetic in §1.2 is unforgiving: **eight 9s and two 8s on every run**, against a corpus whose best single manuscript sums 83 and whose best-ever composite sums 85. Workstream A is the only item on this board with the *shape* to add a 9 where there has never been one, and it is unproven — one measured precedent (`premise`), transplanted twice, on the argument in §2.
 
 What it does promise is that **every remaining item is either free, falsifiable, or both**, that the free half can be finished before any further money is spent, and that for the first time the plan is aimed at what the reader is measured to reward rather than at what the pipeline finds easy to detect.
+
+---
+
+## 11. BUILD RECORD — the free half, 2026-08-23
+
+Built in §10.6's order, immediately after §10 was written. Everything here is flag-gated or
+deterministic; full suite green (17 packages), `npm run flags:check` clean.
+
+| § | item | status |
+|---|---|---|
+| C1 | strip leading articles from locked-fact values | **BUILT** |
+| C2 | keep locked-fact descriptions out of the writer's prompt | **BUILT** |
+| C3 | sentence-level dedupe, both scopes | **BUILT** |
+| A1 | the `divergeFrom` corpus | **BUILT** |
+| A2a | the corpus-driven opening directive | **BUILT** — half of A2; see §11.5 |
+| B2 | re-set the clearance budget | **INVESTIGATED — premise falsified, no change** |
+| A2b, A3, C4, E1, E2, B1, B3 | — | **not built** |
+
+### 11.1 C1 — the article was inside the value
+
+`stripLeadingArticleFromLockedValue`, applied in the same registration seam as the existing
+`wordifyLockedFactValue`, because the registry is where a value is made canonical and every consumer —
+prompt, validator, artifact — reads the same string. Deliberately narrow: one leading `a`/`an`/`the` or
+nothing, never reaching inside the phrase, never emptying a fact. 8 tests, most of them about what it
+must NOT do.
+
+### 11.2 C2 — a label is not a sentence
+
+`lockedFactLabel` derives a short neutral name from the fact's `id` (`high_tide_time` → *"high tide
+time"*), used at all **three** prompt sites. The description is untouched in the registry, the artifact
+and every validator; this is only about what crosses into the writer's prompt. 6 tests.
+
+The third site is the interesting one: it hands descriptions to the writer under an explicit
+instruction to *"surface the MEANING, never copy the phrasing word-for-word"*. That is the pressure
+that produced *"certified wave crest hour atop the murder day as per innkeeper's tide charts"* — the
+prompt asked for a paraphrase of internal metadata, and got one.
+
+### 11.3 C3 — and the comment beside it was false
+
+Two defects, both measured over 198 archived manuscripts:
+
+- **The threshold was too high.** `SENTENCE_DEDUP_MIN_CHARS` was 45; the sentence the reader quoted
+  back normalises to **40**, so it was never checked. Lowered to 30, which raises corpus-wide
+  intra-chapter detections from 76 to 111 — **0.56 per book** — and every one of the 35 it adds is a
+  genuine repeat.
+- **The comment claimed `paragraph_fingerprint` covered cross-chapter repeats. It does not** — that
+  check matches whole PARAGRAPHS, so one sentence recurring in two chapters inside different paragraphs
+  was covered by nothing. Three of the 08-23 manuscript's five repeats are exactly that.
+
+**Cross-chapter echo is counted always and raised only behind `AGENT9_CROSS_CHAPTER_ECHO`, and the
+measurement is the reason.** Cross-chapter repeats run a **median of 6 per book** against
+intra-chapter's 0.56, and every lint issue becomes a `batchError` that drives a retry — so raising them
+unconditionally would put a retry on nearly every chapter of every run. That is the cost that kept
+`AGENT9_FOLD_SUSPECT_CLEARANCES` switched off for a month, and it is not worth paying twice.
+
+What the always-on count reveals is worth having on its own. Sampled from the corpus, cross-chapter
+repeats are catchphrases and verbatim alibi recitals:
+
+> *"that's the only certainty we have"* · *"one mustn't jump to conclusions"* ·
+> *"ambition is not a crime, Miss Voss"* · *"I was in the smoking room from eight fifty to nine thirty"*
+
+That is, word for word, the reader's standing complaint about `dialogue` — a category that has reached
+8 exactly **once** in 35 reads. **It is the first instrument pointed at why.**
+
+### 11.4 A1 — the corpus, and what it says about the cast
+
+`scripts/build-opening-corpus.mjs` → `data/opening-corpus.json` plus a generated TypeScript constant
+(the prompt imports the constant; a package resolving a JSON path from inside `dist` is a recurring bug
+here). Deterministic, no LLM, 184 manuscripts.
+
+Share of archived openings containing the word, proper nouns excluded:
+
+```
+scent 76% · faint 72% · against 66% · morning 64% · pressed 63% · damp 60%
+hush 56% · sprawled 54% · pale 51% · chill 51% · gloved 39% · brass 38%
+```
+
+**Proper nouns are excluded because the first run of the extractor put `eleanor` (76%) and `voss` (71%)
+at the top**, and an avoid-list containing the detective's name is an instruction not to name the
+detective. Detected structurally — a token predominantly capitalised across the corpus — so no name
+list can go stale.
+
+> **AND IT CORRECTS §10.1's A3.** The same seven characters appear in **64–77% of all 198
+> manuscripts** — Eleanor Voss and Beatrice Quill in 154 books each. That is **not** a generator
+> defect: `scripts/canary-core-inputs.yaml` pins `castNames`, deliberately, to keep the gender lock and
+> the pronoun regression tests reproducible. A "diverge from previous casts" engine would be arguing
+> with the harness. **A3 must therefore diverge on SIGNATURES, not on names** — attaching a
+> contradiction, a tell and a private want to whatever cast it is handed. It also means the reader has
+> met these six people 154 times, which is worth holding beside `character_clarity`'s ceiling.
+
+### 11.5 A2a — half of A2, and the half that costs nothing
+
+`buildOpeningFreshnessBlock`, chapter 1 only, behind `AGENT9_OPENING_FRESHNESS`. It cites the measured
+share and asks for a detail only this case could produce, explicitly forbidding the synonym reach —
+because a rarer word for the same image is the same image, and reaching for one is precisely how X95's
+closed vocabulary produced *"certified wave crest hour"*.
+
+**Two subtractions make it safe, and both are tested:**
+
+1. **Words the grounding validator REQUIRES are never asked to be avoided.** Nine of the 31 overused
+   words — `scent`, `damp`, `chill`, `cold`, `rain`, `silence`, `morning`, `pale`, `light` — are members
+   of X95's `OPENING_SENSORY_MARKERS`/`OPENING_ATMOSPHERE_MARKERS`, which a retry-driving gate requires
+   in the first two paragraphs. Asking for both would put two instructions in one prompt in direct
+   contradiction, and the retry-driving one would win.
+2. **The story's own furniture is not a cliché.** `hotel`, `room`, `clock`, `windows`, `floor` are
+   frequent because the runs share a setting and a device. Words appearing in this run's location, title
+   or mechanism are subtracted at prompt-build time.
+
+What survives is the house **voice** rather than the house furniture — `faint`, `pressed`, `sprawled`,
+`hush`, `gloved`, `tang`, `polished` — which is the layer the reader is describing when 17 notes read
+alike.
+
+**A2b — the five-candidate ideation call — is NOT built.** It is a new agent with a new failure surface
+and deserves its own increment. This half is the `divergeFrom` ingredient applied at the point of
+writing, for no extra call; it is not a substitute and does not claim to be.
+
+### 11.6 B2 — investigated, and the premise was wrong
+
+§8 Tier 3 said *"`clearance_over_budget` fires on 5 of 5 axes — a violation every run raises is a budget
+set wrong."* **Measured before changing it, across the 14 externally-read manuscripts:**
+
+```
+chapters over a budget of 2 :  14% of all 139 chapters      median chapter: 0 clearance sentences
+the 86-scoring manuscript   :  0 of 10 chapters over        (max 2 — it satisfies the budget exactly)
+the other 86                :  2 of 10 chapters over        (max 4)
+```
+
+The check fires on **14% of chapters**, not on everything; *"5 of 5 axes"* was a run-level reading of a
+chapter-level rule that trips once or twice per book by design. And the best manuscript in the corpus
+is the one that satisfies it outright, which is weak evidence the budget points the right way.
+
+**No change made.** The finding is that §8's item rested on an aggregation artefact rather than a
+mis-set threshold — and a budget loosened on that reasoning would have removed a working check.
+
+### 11.7 What is NOT built, and why it is not a rounding error
+
+`A2b` (the ideation call), `A3` (character signatures — and §11.4 changed its design), `C4` (canonical
+form plus registered aliases for locked facts), `E1` (the per-run cost governor), `E2` (one cost
+number), `B1` (the geometry replay) and `B3` (reading the ten prompt contracts) are all still open.
+
+**C4 is the one that matters most of those**, because §5.1 measured it as the only mechanism that
+suppresses two capped categories at once — and it is also the one that touches the fair-play contract,
+so it should not ride into a run assembled at the end of a long session.

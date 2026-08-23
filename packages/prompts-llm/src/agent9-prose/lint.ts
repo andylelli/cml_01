@@ -137,6 +137,11 @@ export const lintBatchProse = (
      *  not scaffold "template bleed". Without this, a chapter that opens 3+ paragraphs with the same
      *  cast name false-fails (the dominant failure mode on small-cast runs). */
     castNames?: string[];
+    /**
+     * A_72 C3: also raise an issue when a sentence repeats ACROSS chapters. Default OFF, and the
+     * measurement is why — see `CROSS_CHAPTER_ECHO_MIN_CHARS`.
+     */
+    crossChapterEcho?: boolean;
   },
 ): ProseLinterIssue[] => {
   const issues: ProseLinterIssue[] = [];
@@ -314,10 +319,23 @@ export const lintBatchProse = (
     }
   }
 
-  // Intra-chapter sentence dedup: catches sentence-level repetition within a single chapter
-  // that falls below the paragraph_fingerprint_min_chars threshold (short ~60–80 char sentences).
-  // Each chapter gets its own Set — cross-chapter repeats are covered by paragraph_fingerprint.
-  const SENTENCE_DEDUP_MIN_CHARS = 45;
+  /**
+   * A_72 C3 — intra-chapter sentence dedup, and the comment that used to sit here was WRONG.
+   *
+   * It said *"cross-chapter repeats are covered by paragraph_fingerprint"*. They are not:
+   * `paragraph_fingerprint` matches whole PARAGRAPHS above its own min-chars, so one sentence
+   * repeated across two chapters inside different paragraphs is covered by nothing at all. That is
+   * three of the five verbatim repeats in the 2026-08-23 manuscript, whose external read scored
+   * `prose` 6/10 and named repetition as the cause (A_72 §5).
+   *
+   * THE THRESHOLD WAS ALSO TOO HIGH. It was 45 normalised characters. The sentence the reader quoted
+   * back — *"By then it was a ten minutes past eleven."* — normalises to **40**, so it was never
+   * checked. MEASURED over 198 archived manuscripts, dropping the threshold to 30 raises intra-chapter
+   * detections from 76 to 111 across the whole corpus (**0.56 per book**), and every one of the 35 it
+   * adds is a genuine repeat: *"a physical check followed the talk"*, *"service resumed forty past
+   * ten"*, *"it became a narrower corridor"*.
+   */
+  const SENTENCE_DEDUP_MIN_CHARS = 30;
   sentenceLoop: for (const chapter of batchChapters) {
     const chapterSentences = new Set<string>();
     for (const paragraph of chapter.paragraphs ?? []) {
@@ -337,6 +355,66 @@ export const lintBatchProse = (
       }
     }
   }
+
+  /**
+   * A_72 C3 — the same sentence in TWO chapters. Warning-priced, and the measurement is the reason.
+   *
+   * MEASURED over 198 archived manuscripts at a 30-character floor: intra-chapter repeats run 0.56 per
+   * book, but cross-chapter repeats run a **median of 6 per book** (max 35). Every lint issue becomes a
+   * `batchError` and drives a retry, so raising these unconditionally would put a retry on essentially
+   * every chapter of every run — the exact cost that kept `AGENT9_FOLD_SUSPECT_CLEARANCES` switched off
+   * for a month.
+   *
+   * So it is counted always and raised only when the caller opts in. What it counts is worth having on
+   * its own: sampling the corpus, these are catchphrases and verbatim alibi recitals —
+   *
+   *     "that's the only certainty we have"        "one mustn't jump to conclusions"
+   *     "we must look beyond the obvious"          "ambition is not a crime, Miss Voss"
+   *     "I was in the smoking room from eight fifty to nine thirty"
+   *
+   * — which is, in the reader's words across read after read, *"repeated catchphrases feel
+   * artificial"*. `dialogue` has reached 8 exactly once in 35 external reads (A_72 §1.1). This is the
+   * first instrument pointed at why.
+   */
+  const CROSS_CHAPTER_ECHO_MIN_CHARS = 30;
+  {
+    const seenBefore = new Map<string, number>();
+    priorChapters.forEach((chapter, idx) => {
+      for (const paragraph of chapter.paragraphs ?? []) {
+        for (const sentence of paragraph.split(/(?<=[.!?…])\s+/)) {
+          const norm = normalizeParagraphForFingerprint(sentence);
+          if (norm.length >= CROSS_CHAPTER_ECHO_MIN_CHARS && !seenBefore.has(norm)) seenBefore.set(norm, idx + 1);
+        }
+      }
+    });
+    const echoes: string[] = [];
+    for (const chapter of batchChapters) {
+      for (const paragraph of chapter.paragraphs ?? []) {
+        for (const sentence of paragraph.split(/(?<=[.!?…])\s+/)) {
+          const norm = normalizeParagraphForFingerprint(sentence);
+          if (norm.length < CROSS_CHAPTER_ECHO_MIN_CHARS) continue;
+          if (seenBefore.has(norm) && !echoes.includes(norm)) echoes.push(norm);
+        }
+      }
+    }
+    if (echoes.length > 0) {
+      // Always visible, even when it is not allowed to fail the batch.
+      console.warn(
+        `[Agent 9][A_72 C3] cross-chapter sentence echo: ${echoes.length} sentence(s) repeat a chapter seen earlier` +
+          ` — e.g. "${echoes[0]!.slice(0, 80)}"`,
+      );
+      if (options?.crossChapterEcho) {
+        issues.push({
+          type: "cross_chapter_sentence_echo",
+          message:
+            `Template linter: ${echoes.length} sentence(s) in this chapter already appear verbatim in an earlier chapter. ` +
+            `Rewrite them — a line a character has already said reads as a catchphrase. First: "${echoes[0]!.slice(0, 80)}"`,
+          matchingPriorParagraph: echoes[0],
+        });
+      }
+    }
+  }
+
 
   // N-gram overlap check: catches near-duplicate prose that evades exact fingerprinting
   // (e.g. when the LLM swaps a few words but keeps the same sentence structure).

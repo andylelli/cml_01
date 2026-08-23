@@ -295,7 +295,7 @@ export interface ProseLinterStats {
 }
 
 export interface ProseLinterIssue {
-  type: "opening_style_entropy" | "paragraph_fingerprint" | "intra_chapter_sentence_duplicate" | "ngram_overlap" | "banned_phrase" | "suspect_clearance_missing" | "template_bleed" | "debug_note_bleed" | "control_plane_leakage" | "archetype_violation" | "victim_alibi_error" | "boundary_integrity" | "sentence_fragment_truncation";
+  type: "opening_style_entropy" | "paragraph_fingerprint" | "intra_chapter_sentence_duplicate" | "cross_chapter_sentence_echo" | "ngram_overlap" | "banned_phrase" | "suspect_clearance_missing" | "template_bleed" | "debug_note_bleed" | "control_plane_leakage" | "archetype_violation" | "victim_alibi_error" | "boundary_integrity" | "sentence_fragment_truncation";
   message: string;
   /** Pillar 6 (Unit 6.1): The normalized prior paragraph text that triggered a
    *  paragraph_fingerprint match.  Populated when a fingerprint dupe fires so that

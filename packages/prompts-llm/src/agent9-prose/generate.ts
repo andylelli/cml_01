@@ -3307,6 +3307,9 @@ export async function generateProse(
         const linterOptions: NonNullable<Parameters<typeof lintBatchProse>[3]> = isLateChapter
           ? { ...(inputs.templateLinterProfile ?? {}), skipNgramCheck: true }
           : { ...(inputs.templateLinterProfile ?? {}) };
+        // A_72 C3: cross-chapter sentence echo. Default OFF — it runs at a median of 6 per book and
+        // every lint issue drives a retry; the count is logged either way. Env read at call time.
+        linterOptions.crossChapterEcho = /^(1|true|yes|on)$/i.test(process.env.AGENT9_CROSS_CHAPTER_ECHO ?? '');
         if (batchMatchingClearances.length > 0) {
           linterOptions.matchingClearances = batchMatchingClearances;
         }

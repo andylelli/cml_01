@@ -76,6 +76,50 @@ const wordifyLockedFactValue = (value: string): string => {
   return out;
 };
 
+/**
+ * A_72 C1 — the article belongs to the SENTENCE, never to the locked value.
+ *
+ * ── WHAT THIS COST, MEASURED ─────────────────────────────────────────────────────────────────────
+ *
+ * The 2026-08-23 run registered two locked times side by side:
+ *
+ *     high_tide_time        "ten minutes past eleven"
+ *     weapon_release_time   "a quarter past eleven"     <- the article is INSIDE the value
+ *
+ * Both reach Agent 9 under a HARD verbatim contract — *"reproduce those exact words"*. They are not
+ * parallel, so the model regularises them, and the shipped manuscript says **"a ten minutes past
+ * eleven" about ten times**, including the line the external reader quoted back:
+ *
+ *     "By then it was a ten minutes past eleven. It had taken fifteen minutes in all.
+ *      By then it was a ten minutes past eleven."
+ *
+ * That read scored `prose` **6/10** — the lowest of its ten categories and the drag on the whole book
+ * (A_72 §5). The reader's own forecast for fixing this class was **86-89** against an actual 81.
+ *
+ * ── WHY AT REGISTRATION, AND ONLY HERE ───────────────────────────────────────────────────────────
+ *
+ * `wordifyLockedFactValue` above already establishes the principle: the registry is where a value is
+ * made canonical, because every downstream consumer — the prose contract, the validator's substring
+ * match, the artifact on disk — reads the same string. Stripping the article in a prompt would leave
+ * the validator hunting for a form nobody was told to write.
+ *
+ * ── DELIBERATELY NARROW ──────────────────────────────────────────────────────────────────────────
+ *
+ * Only a leading `a` / `an` / `the`, and only when what follows still carries the value. A locked fact
+ * whose whole value is an article is left alone rather than emptied, and nothing inside the phrase is
+ * touched: "half past ten" keeps its shape, "the ledger for the second week" loses only its first word.
+ * Grammar is not corrected and words are not reordered — this removes one leading token or does
+ * nothing, so it cannot invent a value the device never declared.
+ */
+const LEADING_ARTICLE_RE = /^(?:a|an|the)\s+(?=\S)/i;
+
+export const stripLeadingArticleFromLockedValue = (value: string): string => {
+  const trimmed = value.trim();
+  const stripped = trimmed.replace(LEADING_ARTICLE_RE, "");
+  // Never empty a fact, and never return something so short it stops being a usable anchor.
+  return stripped.trim().length >= 2 ? stripped.trim() : trimmed;
+};
+
 
 /**
  * X38-AT-SOURCE — make the device satisfy its own arithmetic before the values freeze.
@@ -483,9 +527,15 @@ export async function runAgent3b(ctx: OrchestratorContext): Promise<void> {
       .map((f) => {
         const id = (f.id as string).trim();
         const original = (f.value as string).trim();
-        const value = wordifyLockedFactValue(original);
-        if (value !== original) {
-          ctx.warnings.push(`Pillar 1: repaired digit-form locked fact ${id} "${original}" → "${value}" (era word-form)`);
+        const wordified = wordifyLockedFactValue(original);
+        if (wordified !== original) {
+          ctx.warnings.push(`Pillar 1: repaired digit-form locked fact ${id} "${original}" → "${wordified}" (era word-form)`);
+        }
+        // A_72 C1: the article belongs to the sentence, not the value. See the helper's header for
+        // what "a quarter past eleven" beside "ten minutes past eleven" did to the 08-23 manuscript.
+        const value = stripLeadingArticleFromLockedValue(wordified);
+        if (value !== wordified) {
+          ctx.warnings.push(`[A_72 C1] stripped leading article from locked fact ${id}: "${wordified}" → "${value}"`);
         }
         return {
           id,
