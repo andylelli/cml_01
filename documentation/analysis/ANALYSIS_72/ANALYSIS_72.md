@@ -783,3 +783,122 @@ pair.**
   half, which is what §2.1 measured in the first place.
 - **What is unmeasured is still the whole question.** This book has not been read. There is now a
   matched control at 81 from the same inputs, one lever-set apart.
+
+---
+
+## 14. THE READ — 85/100, and `prose` moved
+
+`story_20260823-2038`, cold read. **85/100** — joint-third of the 36 reads on file, behind two 86s.
+And the reader's closing line: *"With the timing sequence corrected and the generated artifacts
+removed, this could reach 90/100."*
+
+| category | 1715 (81) | 2038 (85) | |
+|---|---:|---:|---|
+| premise | 9 | 9 | |
+| opening_hook | 8 | 8 | |
+| plot structure | 8 | 8 | |
+| character clarity | 8 | 8 | |
+| dialogue | 7 | 7 | |
+| atmosphere | 9 | 8 | **−1** |
+| mystery clues | 8 | **9** | **+1** |
+| pacing | 8 | 8 | |
+| ending | 8 | 8 | |
+| **prose** | **6** | **7** | **+1** |
+| **category sum** | **79** | **80** | **+1** |
+| **headline** | **81** | **85** | **+4** |
+| offset | +2 | +5 | |
+
+### 14.1 Read the sum, not the headline
+
+**The headline moved +4 and the category sum moved +1.** Three of those four marks are offset — the
+reader's holistic bump, which §1.2 measured at 0..+8 and which nothing in this pipeline controls. A
+plan that banked the +4 would be banking noise.
+
+What is real is the **+1 on `prose`, and it is the category C1 and C2 were aimed at.** The 81-scoring
+read named two mechanisms; both were fixed at source; the mark moved. On n=1 against a reader measured
+at ±1 (§6.2) that is exactly one unit of evidence — not proof, but the prediction was made in advance
+and it came true in the right category.
+
+`clues` 8 → **9** is a new 9, and it belongs to Agent 3b rather than to anything built today: the
+reader's reason is *"the sand-level contradiction is strong and easy to follow"*, and the hourglass is
+a device the novelty generator produced. **That is §2.1's engine earning another 9, in the second
+category it feeds.** `atmosphere` 9 → 8 is the same coin: a cliffside hotel read less well than a tidal
+one. Both are case variance, and both argue that the engine — not the prompt layer — is what moves
+these categories.
+
+**Every one of the five never-9 categories is unchanged**: hook 8, character 8, dialogue 7, pacing 8,
+prose 7. A2a's falsification (§13.4) now holds at the mark as well as in the text.
+
+### 14.2 The reader's prose complaint is a template injector, and it is new
+
+`prose` is 7 rather than 8, and the reader is specific about why:
+
+> *"Some prompt artifacts remain. These lines should be removed:*
+> *'Victim last seen alive minutes past.' · 'Captain ivor hale uniquely means skill.' ·*
+> *'That left Captain Ivor Hale as the only person whose story still needed the discredited theory to
+> be true.' · 'Captain Ivor Hale was responsible; the evidence allowed no other reading.'*
+> ***Those lines are the main reason the polish score stays below 8.***"
+
+Traced to `buildDeterministicClueParagraphs` in `deterministic-repair.ts` — the **missing-clue repair**.
+It writes:
+
+```
+${lead} The record now held: ${clueList}.
+Those details shifted the reasoning. Weighed against the rest, ${description} bent the trail toward ${pointsTo}.
+```
+
+`description` and `pointsTo` are **de-spoiled key-term lists**, not noun phrases, so the page gets:
+
+```
+"…the following hard fact the file currently held: Victim last seen alive minutes past."
+"…bent the trail toward Temporal conflict hale alibi."
+"…bent the trail toward Elimination suspects based means skill."
+```
+
+Eight such sentences in the shipped book. **This is X65's shape exactly** — a schema field wearing a
+full stop — in a second injector, which is also A_71 §3's finding about the clearance prose repeating
+itself in a new place.
+
+**And it is NEW to this run.** The class appears zero times in the 81-scoring manuscript and zero times
+in the 08-22 control. The difference is the retry profile: this run took **18 `missing_clue` retries**
+against the previous run's handful, so the deterministic patch fired where it previously had not.
+
+Two things follow, and they are worth separating:
+
+1. **`prose` rose to 7 even while a new artifact family appeared.** C1 and C2 removed enough to gain a
+   mark against a headwind — which strengthens their result rather than weakening it.
+2. **The same retry class is the cost driver and the prose defect.** §13.5 attributed the £1.24 to
+   `missing_clue` retries and declined to blame the flags. That was right, and it was half the story:
+   those retries do not merely cost money, they *inject the prose the reader marks down*.
+
+### 14.3 What this makes the next move
+
+The reader's list for reaching 90 is five items, and they are not equally hard:
+
+| their fix | what it is here |
+|---|---|
+| remove the prompt-artifact lines | **the injector above** — the largest named prose defect on the board |
+| cut the repeated proof in ch8 | the aftermath/repeat family; X93's territory, still 8 |
+| correct the hourglass arithmetic | a `false_time` coherence check the geometry layer could hold |
+| state one timeline plainly | `reveal_times_not_stated`, a geometry code that already exists |
+| give the scandal one concrete detail | **X69's motive-noun rule**, which shipped 08-21 and evidently did not bind here |
+
+Three of the five already have machinery. **The injector has none, and is now the single most
+frequently named prose defect across two consecutive reads.**
+
+Its fix is not deletion: the patch exists because a clue is missing and a gate needs it present.
+A_71 §3 settled the shape of this argument once already — **the injector is a floor, and the repair
+belongs upstream of it**, at whatever is producing 18 missing-clue retries in a single run.
+
+### 14.4 The arithmetic, honestly
+
+```
+category sum        80    (needed for a 90 FLOOR at the floor offset: 88)
+this read's offset  +5    (a floor plan must survive +2)
+at +2 this book     82
+```
+
+**85 is the best result this project has produced in three months and it is not close to a floor of
+90.** Eight of ten categories would have to reach 9; two did. The five that have never reached 9 are
+still at 8, 8, 7, 8, 7 — unmoved by everything built today, which is what §10.0 predicted would happen
+until the distinctiveness engine exists in its generate-and-choose form.

@@ -71,6 +71,38 @@
     "externalOffset": 4
   },
   {
+    "bundleId": "read-20260823-2038",
+    "storyPath": "stories/story_20260823-2038/the_hourglass_deception_at_cliffside_bluffs.md",
+    "readPath": "stories/story_20260823-2038/chatgpt-review.txt",
+    "externalFinal": 85,
+    "externalCategories": {
+      "premise": 9,
+      "opening_hook": 8,
+      "plot_structure": 8,
+      "character_clarity": 8,
+      "dialogue": 7,
+      "atmosphere": 8,
+      "clues": 9,
+      "pacing": 8,
+      "ending": 8,
+      "prose": 7
+    },
+    "externalNotes": {
+      "premise": "The hourglass is simple, visual, and fair-play.",
+      "opening_hook": "Body, brass gull, half-full hourglass, foggy hotel — strong setup.",
+      "plot_structure": "Discovery → contradiction → alibis → hourglass test → Hale confession works.",
+      "character_clarity": "Roles are stable; Hale’s guilt is clear.",
+      "dialogue": "Some good dry exchanges, though generated catchphrases remain.",
+      "atmosphere": "Cliffside Bluffs, fog, lobby, lounge, ritual timer — effective.",
+      "clues": "The sand-level contradiction is strong and easy to follow.",
+      "pacing": "Builds well; final proof repeats slightly.",
+      "ending": "Complete confession and aftermath, though Chapter 8 gets over-explanatory.",
+      "prose": "Cleaner than many, but several prompt-artifact lines remain."
+    },
+    "externalCategorySum": 80,
+    "externalOffset": 5
+  },
+  {
     "bundleId": "2026-08-06-2230-pendulum-secret-chime",
     "storyPath": "stories/_archive/story_20260806-2230/the_pendulum_s_secret_chime.md",
     "runFolder": "run_20260806-2112_mystery",
