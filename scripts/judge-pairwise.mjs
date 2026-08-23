@@ -240,7 +240,8 @@ for (const [i, p] of selected.entries()) {
   perBucket.get(p.bucket).push(folded);
 
   const human = p.a.mark > p.b.mark ? p.a.id : p.b.id;
-  const mark = folded.inconsistent ? "FLIP" : folded.consistentPick === human ? " ok " : "MISS";
+  // FAIL is not FLIP: a call that never returned says nothing about the judge (PairJudgement.failed).
+  const mark = folded.failed ? "FAIL" : folded.inconsistent ? "FLIP" : folded.consistentPick === human ? " ok " : "MISS";
   console.log(
     `  [${String(i + 1).padStart(3)}/${selected.length}] ${mark}  gap ${String(p.gap).padStart(2)}  ` +
       `${p.a.id} (${p.a.mark}) vs ${p.b.id} (${p.b.mark})`,
@@ -253,14 +254,14 @@ const overall = summarisePairs(judgements, externalMarks, MIN_GAP);
 const pct = (v) => (v == null ? "  n/a" : `${(v * 100).toFixed(0)}%`);
 
 console.log(`\n${"=".repeat(78)}`);
-console.log(`  bucket           pairs   consistent   agreement (of the consistent ones)`);
+console.log(`  bucket           pairs   consistent   agreement (of the consistent ones)   failed`);
 for (const name of bucketNames) {
   const list = perBucket.get(name) ?? [];
   if (list.length === 0) continue;
   const s = summarisePairs(list, externalMarks, MIN_GAP);
   console.log(
     `  ${name.padEnd(16)} ${String(list.length).padStart(5)}   ${pct(s.consistencyRate).padStart(10)}   ` +
-      `${pct(s.agreement).padStart(9)}  (${s.correct}/${s.scored})`,
+      `${pct(s.agreement).padStart(9)}  (${s.correct}/${s.scored})` + `${String(s.failed).padStart(9)}`,
   );
 }
 console.log(`  ${"OVERALL".padEnd(16)} ${String(judgements.length).padStart(5)}   ${pct(overall.consistencyRate).padStart(10)}   ` +
@@ -286,6 +287,13 @@ if (overall.inconsistent > 0) {
   console.log(
     `  ${overall.inconsistent} of ${judgements.length} pairs FLIPPED when the labels were swapped — that is` +
       ` position bias, not disagreement about the books.\n`,
+  );
+}
+if (overall.failed > 0) {
+  console.log(
+    `  ${overall.failed} pair(s) FAILED to return a verdict and are excluded from every rate above. A pairwise` +
+      ` prompt carries TWO murder mysteries, so it doubles the violent content per call and can trip a` +
+      ` content filter that cardinal judging never reached.\n`,
   );
 }
 console.log(`  spend: ${JSON.stringify(costTracker.getSummary?.() ?? {})}\n`);

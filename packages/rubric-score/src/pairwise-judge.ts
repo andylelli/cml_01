@@ -223,10 +223,24 @@ export interface PairOutcome {
 export interface PairJudgement {
   first: string;
   second: string;
-  /** The id both orientations agreed on, or undefined when they disagreed. */
+  /** The id both orientations agreed on, or undefined when they disagreed or a call failed. */
   consistentPick?: string;
-  /** True when the two orientations named different manuscripts. */
+  /** True when this pair produced no usable verdict — whether it flipped or a call failed. */
   inconsistent: boolean;
+  /**
+   * True when an orientation never returned — an API error, a content filter, a malformed verdict.
+   *
+   * FOUND IN THE FIRST REAL RUN, 2026-08-23. A pair whose call failed was folded in as `inconsistent`
+   * and printed as `FLIP`, so an Azure content-filter rejection was being reported as POSITION BIAS.
+   * That is this harness doing the exact thing it was built to prevent: turning "no data" into a
+   * finding about the judge. Failures are now their own bucket and are excluded from the consistency
+   * denominator, because a call that did not happen says nothing about whether the judge is consistent.
+   *
+   * (The filter rejection is worth its own note: a pairwise prompt carries TWO murder mysteries, so it
+   * doubles the violent content per call. `violence: medium, filtered: true` on one of the first 40
+   * pairs. Cardinal judging never hit this because it only ever showed one book.)
+   */
+  failed: boolean;
 }
 
 /**
@@ -238,7 +252,8 @@ export interface PairJudgement {
 export function foldOrientations(outcome: PairOutcome): PairJudgement {
   const { pickedWhenFirstIsA, pickedWhenFirstIsB } = outcome;
   if (!pickedWhenFirstIsA || !pickedWhenFirstIsB) {
-    return { first: outcome.first, second: outcome.second, inconsistent: true };
+    // No data, NOT a disagreement. See `PairJudgement.failed`.
+    return { first: outcome.first, second: outcome.second, inconsistent: true, failed: true };
   }
   const agreed = pickedWhenFirstIsA === pickedWhenFirstIsB;
   return {
@@ -246,6 +261,7 @@ export function foldOrientations(outcome: PairOutcome): PairJudgement {
     second: outcome.second,
     consistentPick: agreed ? pickedWhenFirstIsA : undefined,
     inconsistent: !agreed,
+    failed: false,
   };
 }
 
@@ -257,8 +273,10 @@ export function foldOrientations(outcome: PairOutcome): PairJudgement {
 export interface PairwiseCalibrationSummary {
   /** Pairs where both orientations agreed. */
   consistent: number;
-  /** Pairs where the judge preferred a position rather than a book. */
+  /** Pairs where the judge preferred a position rather than a book. Failures are NOT counted here. */
   inconsistent: number;
+  /** Pairs where a call never returned (API error, content filter, unparseable verdict). */
+  failed: number;
   /** Of the consistent pairs, how many matched the human ordering. */
   correct: number;
   /** Consistent pairs that had a human ordering to match at all. */
@@ -282,10 +300,15 @@ export function summarisePairs(
 ): PairwiseCalibrationSummary {
   let consistent = 0;
   let inconsistent = 0;
+  let failed = 0;
   let correct = 0;
   let scored = 0;
 
   for (const j of judgements) {
+    if (j.failed) {
+      failed += 1;
+      continue;
+    }
     if (j.inconsistent || !j.consistentPick) {
       inconsistent += 1;
       continue;
@@ -299,10 +322,13 @@ export function summarisePairs(
     if (humanPick === j.consistentPick) correct += 1;
   }
 
+  // Failures are excluded from the denominator: a call that did not happen is not evidence that the
+  // judge preferred a position.
   const total = consistent + inconsistent;
   return {
     consistent,
     inconsistent,
+    failed,
     correct,
     scored,
     agreement: scored > 0 ? correct / scored : null,

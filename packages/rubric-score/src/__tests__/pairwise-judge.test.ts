@@ -113,8 +113,17 @@ describe("folding the two orientations", () => {
     expect(f.inconsistent).toBe(true);
   });
 
-  it("treats a missing orientation as inconsistent, not as a half-verdict", () => {
-    expect(foldOrientations({ first: "x", second: "y", pickedWhenFirstIsA: "x" }).inconsistent).toBe(true);
+  it("treats a missing orientation as FAILED, not as a flip", () => {
+    // Found in the first real run: an Azure content-filter rejection was being printed as position
+    // bias. That is the harness turning "no data" into a finding about the judge.
+    const f = foldOrientations({ first: "x", second: "y", pickedWhenFirstIsA: "x" });
+    expect(f.inconsistent).toBe(true);
+    expect(f.failed).toBe(true);
+  });
+
+  it("marks a genuine flip as NOT failed", () => {
+    const f = foldOrientations({ first: "x", second: "y", pickedWhenFirstIsA: "x", pickedWhenFirstIsB: "y" });
+    expect(f.failed).toBe(false);
   });
 });
 
@@ -124,9 +133,9 @@ describe("summarising a calibration run", () => {
   it("scores only pairs the humans actually separated", () => {
     const s = summarisePairs(
       [
-        { first: "high", second: "low", consistentPick: "high", inconsistent: false }, // gap 18, correct
-        { first: "high", second: "close", consistentPick: "close", inconsistent: false }, // gap 6, wrong
-        { first: "mid", second: "close", consistentPick: "close", inconsistent: false }, // gap 1, excluded
+        { first: "high", second: "low", consistentPick: "high", inconsistent: false, failed: false }, // gap 18, correct
+        { first: "high", second: "close", consistentPick: "close", inconsistent: false, failed: false }, // gap 6, wrong
+        { first: "mid", second: "close", consistentPick: "close", inconsistent: false, failed: false }, // gap 1, excluded
       ],
       marks,
     );
@@ -139,9 +148,9 @@ describe("summarising a calibration run", () => {
   it("reports consistency SEPARATELY from agreement", () => {
     const s = summarisePairs(
       [
-        { first: "high", second: "low", consistentPick: "high", inconsistent: false },
-        { first: "mid", second: "low", inconsistent: true },
-        { first: "high", second: "mid", inconsistent: true },
+        { first: "high", second: "low", consistentPick: "high", inconsistent: false, failed: false },
+        { first: "mid", second: "low", inconsistent: true, failed: false },
+        { first: "high", second: "mid", inconsistent: true, failed: false },
       ],
       marks,
     );
@@ -153,19 +162,33 @@ describe("summarising a calibration run", () => {
   it("returns null rather than 0 when nothing was scorable", () => {
     // 0% and "no data" are different findings, and this project has already shipped telemetry that
     // could not tell them apart (X85).
-    const s = summarisePairs([{ first: "mid", second: "close", consistentPick: "mid", inconsistent: false }], marks);
+    const s = summarisePairs([{ first: "mid", second: "close", consistentPick: "mid", inconsistent: false, failed: false }], marks);
     expect(s.scored).toBe(0);
     expect(s.agreement).toBeNull();
   });
 
   it("ignores a pair whose manuscripts have no human mark", () => {
-    const s = summarisePairs([{ first: "high", second: "unread", consistentPick: "high", inconsistent: false }], marks);
+    const s = summarisePairs([{ first: "high", second: "unread", consistentPick: "high", inconsistent: false, failed: false }], marks);
     expect(s.scored).toBe(0);
     expect(s.consistent).toBe(1);
   });
 
+  it("keeps FAILED pairs out of every rate — no data is not a finding", () => {
+    const s = summarisePairs(
+      [
+        { first: "high", second: "low", consistentPick: "high", inconsistent: false, failed: false },
+        { first: "high", second: "mid", inconsistent: true, failed: true },
+      ],
+      marks,
+    );
+    expect(s.failed).toBe(1);
+    expect(s.inconsistent).toBe(0);
+    // One consistent pair out of one that actually returned — not 50%.
+    expect(s.consistencyRate).toBe(1);
+  });
+
   it("honours a custom minimum gap", () => {
-    const s = summarisePairs([{ first: "high", second: "close", consistentPick: "high", inconsistent: false }], marks, 10);
+    const s = summarisePairs([{ first: "high", second: "close", consistentPick: "high", inconsistent: false, failed: false }], marks, 10);
     expect(s.scored).toBe(0); // gap 6 < 10
   });
 });
