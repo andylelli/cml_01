@@ -1,6 +1,8 @@
 import { randomUUID } from "crypto";
 import fs from "fs/promises";
 import path from "path";
+import { existsSync } from "fs";
+import { fileURLToPath } from "url";
 import pg from "pg";
 
 export type Project = {
@@ -64,9 +66,64 @@ type FileState = {
   logs: ActivityLog[];
 };
 
+/**
+ * A_73 §12.1, SECOND INSTANCE — AND THIS ONE IS THE PRIMARY DATABASE.
+ *
+ * WAS: `path.resolve(process.cwd(), "data", "store.json")`. The store's location therefore depended
+ * entirely on which directory the API was launched from:
+ *
+ *   cwd = apps/api      -> apps/api/data/store.json    (where the real 831KB store lives)
+ *   cwd = repo root     -> repo/data/store.json        (does not exist)
+ *   cwd = anywhere else -> <there>/data/store.json     (does not exist)
+ *
+ * And a missing file is not an error here — the repository creates an empty one. So starting the API
+ * from the wrong directory silently serves a BRAND NEW EMPTY DATABASE: every project, run and
+ * artifact apparently gone, with a 200 response and no warning. FOUND EMPIRICALLY, 2026-08-25: the
+ * API was started from the workspace root during a wiring check and `/api/projects` returned `[]`
+ * against a store holding two.
+ *
+ * This is the same defect the novelty ledger had (`novelty-ledger.ts`), in the app's main
+ * persistence layer, and it is the reason `apps/api/data/` is where the data ended up in the first
+ * place — it records which directory somebody happened to launch from.
+ *
+ * NOW: anchored to the workspace root. Legacy cwd-dependent locations are still READ (first existing
+ * wins) so an existing store is never abandoned in favour of a new empty one, and the resolution is
+ * announced once at startup so "which database am I looking at" is answerable from the log.
+ */
+const workspaceRootMarkers = ["package-lock.json", "tsconfig.base.json"] as const;
+
+const resolveWorkspaceRoot = (): string => {
+  const explicit = process.env.CML_WORKSPACE_ROOT?.trim();
+  if (explicit) return path.resolve(explicit);
+  // Walk up from THIS MODULE, never from cwd — cwd is the thing that was wrong.
+  let dir = path.dirname(fileURLToPath(import.meta.url));
+  for (let i = 0; i < 8; i += 1) {
+    if (workspaceRootMarkers.every((m) => existsSync(path.join(dir, m)))) return dir;
+    const parent = path.dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
+  }
+  return process.cwd();
+};
+
+const resolveStorePath = (): string => {
+  const root = resolveWorkspaceRoot();
+  const canonical = path.join(root, "apps", "api", "data", "store.json");
+  if (existsSync(canonical)) return canonical;
+  const legacy = [
+    path.join(root, "data", "store.json"),
+    path.resolve(process.cwd(), "data", "store.json"),
+  ].find((p) => existsSync(p));
+  if (legacy) {
+    console.warn(`[db] using store at legacy location ${legacy}; canonical is ${canonical}`);
+    return legacy;
+  }
+  return canonical;
+};
+
 const createMemoryRepository = async (filePath?: string): Promise<ProjectRepository> => {
-  const defaultPath = path.resolve(process.cwd(), "data", "store.json");
-  const storePath = filePath ?? process.env.CML_JSON_DB_PATH ?? defaultPath;
+  const storePath = filePath ?? process.env.CML_JSON_DB_PATH ?? resolveStorePath();
+  console.log(`[db] store: ${storePath}${existsSync(storePath) ? "" : " (new — will be created empty)"}`);
   const storeDir = path.dirname(storePath);
   const storeFileName = path.basename(storePath);
   let savePromise: Promise<void> | null = null;
