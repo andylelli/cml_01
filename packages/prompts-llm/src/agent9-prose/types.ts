@@ -198,6 +198,8 @@ export interface ProseGenerationResult {
     hash: string;
     section_sizes: Record<string, number>;
   }>;
+  /** A_73 — per-run tally of whether each repair pass changed the text. See repair-efficacy.ts. */
+  repairEfficacy?: import("./repair-efficacy.js").RepairEfficacyReport;
   validationDetails?: {
     totalBatches: number;
     batchesWithRetries: number;

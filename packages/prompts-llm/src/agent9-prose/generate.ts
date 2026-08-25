@@ -128,6 +128,7 @@ import {
 } from "./repair.js";
 import { polishPassingChapter, runFullStoryRepetitionPolish, shouldPolishChapter } from "./post-pass-polish.js";
 import { resolvePolishProvider, resetPolishProviderCache } from "./polish-provider.js";
+import { recordRepairOutcome, recordRepairByDiff, resetRepairEfficacy, logRepairEfficacy, getRepairEfficacy } from "./repair-efficacy.js";
 import {
   applyDeterministicClearancePatch,
   buildCompletionFallbackChapter,
@@ -2061,6 +2062,8 @@ export async function generateProse(
    * that has never executed in 15 archived reports while PLAN-TO-90 records the key as configured.
    */
   resetPolishProviderCache();
+  // A_73 — per-run repair tally; see repair-efficacy.ts on why rework is ~30% of a run.
+  resetRepairEfficacy();
   const configuredMaxAttempts = getGenerationParams().agent9_prose.generation.default_max_attempts;
   const resolvedMaxAttempts = maxAttempts ?? configuredMaxAttempts;
   const enableSurgicalFingerprintRetry = inputs.enableSurgicalFingerprintRetry !== false;
@@ -3279,6 +3282,23 @@ export async function generateProse(
                   return { chapter: polishedCandidate, hardErrors: polishedErrors };
                 },
               });
+              /**
+               * A_73 — did this repair buy anything?
+               *
+               * Post-pass polish is unconditional per chapter (`AGENT9_POLISH_HIGH_LEAKAGE_CHAPTERS`
+               * is default-ON, which lifts it off the `attempt === 1` guard) and ran 7 times across
+               * 10 chapters on the step-2 run, at $0.54 of a £1.51 bill. It already reports its own
+               * outcome — this records it so the run can answer what share of a 30%-of-spend stage
+               * changed the text at all.
+               */
+              if (!polished.applied) {
+                recordRepairOutcome("post_pass_polish", "no_change", "not_attempted");
+              } else if (polished.keptPolishedVersion) {
+                recordRepairByDiff("post_pass_polish", chapter, polished.chapter);
+              } else {
+                recordRepairOutcome("post_pass_polish", "rolled_back", polished.rollbackReason ?? "unknown");
+              }
+
               if (polished.keptPolishedVersion) {
                 chapter = polished.chapter;
                 proseBatch.chapters[i] = chapter;
@@ -4476,6 +4496,14 @@ export async function generateProse(
         inputs.projectId,
       );
       if (repairedChapters.length === chapters.length) {
+        /**
+         * A_73 — atmosphere repair reports no outcome of its own, so it is measured by diff, per
+         * chapter. It fired 6 times on the 08-23 run. Whether any of those changed a word is
+         * exactly the question this instrumentation exists to answer.
+         */
+        for (let ci = 0; ci < chapters.length; ci += 1) {
+          recordRepairByDiff("atmosphere_repair", chapters[ci], repairedChapters[ci]);
+        }
         chapters.splice(0, chapters.length, ...repairedChapters);
       }
     } catch {
@@ -4666,6 +4694,9 @@ export async function generateProse(
     batchCommitRecords: batchCommitRecords.length > 0 ? batchCommitRecords : undefined,
   } : undefined;
 
+  // A_73 — one line saying how much of the run's ~30% rework spend changed the text.
+  logRepairEfficacy();
+
   return {
     status: "draft",
     tone: inputs.narrativeStyle,
@@ -4676,5 +4707,6 @@ export async function generateProse(
     durationMs,
     prompt_fingerprints: promptFingerprints.length > 0 ? promptFingerprints : undefined,
     validationDetails,
+    repairEfficacy: getRepairEfficacy(),
   };
 }

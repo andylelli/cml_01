@@ -64,6 +64,38 @@
     "externalOffset": 5
   },
   {
+    "bundleId": "read-20260825-2102",
+    "storyPath": "stories/story_20260825-2102/the_thirty_minute_error_a_seaside_hotel_clockwor.md",
+    "readPath": "stories/story_20260825-2102/chatgpt-review.txt",
+    "externalFinal": 80,
+    "externalCategories": {
+      "premise": 8,
+      "opening_hook": 8,
+      "plot_structure": 8,
+      "character_clarity": 8,
+      "dialogue": 7,
+      "atmosphere": 8,
+      "clues": 6,
+      "pacing": 8,
+      "ending": 8,
+      "prose": 7
+    },
+    "externalNotes": {
+      "premise": "Reception clock manipulation is clear and readable.",
+      "opening_hook": "Body, clock, storm, bloodied object — effective setup.",
+      "plot_structure": "Discovery → contradictory clocks → Sylvia pressure → clearances → final trap works.",
+      "character_clarity": "Roles are stable; Finch’s they/them pronouns are consistent.",
+      "dialogue": "Eleanor and Sylvia work well; Beatrice’s wit is better than usual but still sometimes artificial.",
+      "atmosphere": "Seaview Hotel, fog, rain, brass, telegrams, lounge — good mood.",
+      "clues": "Good evidence chain, but the time discrepancy is mathematically wrong.",
+      "pacing": "Good forward movement and less repetition than the previous draft.",
+      "ending": "Sylvia confesses clearly, and the motive is strong.",
+      "prose": "Cleaner than several earlier drafts, but still has generated timing artifacts."
+    },
+    "externalCategorySum": 76,
+    "externalOffset": 4
+  },
+  {
     "bundleId": "2026-08-06-2255-weighted-pendulum",
     "storyPath": "stories/_archive/story_20260806-2255/the_weighted_pendulum_deception.md",
     "runFolder": "run_20260806-2134_mystery",
