@@ -30,6 +30,40 @@ export const caseOf = (cml: unknown): any => (cml as any)?.CASE ?? cml ?? {};
 const str = (v: unknown): string => String(v ?? "").trim();
 
 /**
+ * A_73 §3b — how many people this case actually has to exonerate.
+ *
+ * The clearance budget is a cap on how much of the endgame is spent clearing people, and it has to
+ * know how many people that is. Counts cast members who are neither the culprit nor the victim —
+ * i.e. exactly the set `suspect_clearance_missing` will demand a clearance for.
+ *
+ * Falls back to 0 when the cast is unreadable, so `Math.max(2, …)` restores the previous constant
+ * rather than silently widening the budget on malformed input.
+ */
+const countClearableSuspects = (caseData: any): number => {
+  const cast = Array.isArray(caseData?.cast) ? caseData.cast : [];
+  if (cast.length === 0) return 0;
+  const culprits = new Set(
+    (Array.isArray(caseData?.culpability?.culprits) ? caseData.culpability.culprits : [])
+      .map((c: unknown) => str(c).toLowerCase())
+      .filter(Boolean),
+  );
+  const victims = new Set(
+    cast
+      .filter((c: any) => /victim/i.test(str(c?.role)))
+      .map((c: any) => str(c?.name).toLowerCase()),
+  );
+  const victimField = str(caseData?.culpability?.victim).toLowerCase();
+  if (victimField) victims.add(victimField);
+  return cast.filter((c: any) => {
+    const name = str(c?.name).toLowerCase();
+    if (!name) return false;
+    if (culprits.has(name) || victims.has(name)) return false;
+    if (/investigator|detective/i.test(str(c?.role))) return false;
+    return true;
+  }).length;
+};
+
+/**
  * Read a cast member's role through BOTH spellings.
  *
  * `castDesign.characters` carries `roleArchetype`; `cml.CASE.cast` carries `role_archetype`. A bare
@@ -488,9 +522,30 @@ export const deriveStoryGeometry = (input: GeometryDeriveInput): StoryGeometry =
     methodSignature,
     chapterContract,
     falseSolution,
-    // Two sentences, in scene. "The clearances are logical but too mechanical" / "the Eleanor-alibi
-    // section is validation logic, not story" — the same complaint, both reads.
-    clearanceBudget: { maxSentences: 2, inScene: true },
+    /**
+     * Two sentences, in scene. "The clearances are logical but too mechanical" / "the Eleanor-alibi
+     * section is validation logic, not story" — the same complaint, both reads.
+     *
+     * A_73 §3b — THE BUDGET WAS A CONSTANT, AND IT MADE TWO GATES MUTUALLY UNSATISFIABLE.
+     *
+     * `maxSentences: 2` was fixed regardless of how many people the case has to exonerate. But
+     * `suspect_clearance_missing` (lint.ts, P2-H) REQUIRES a clearance for every suspect carrying a
+     * clearance obligation. So a case with three false suspects must produce three clearances to
+     * satisfy the linter and at most two to satisfy geometry. **Both cannot be met.**
+     *
+     * MEASURED on `story_20260825-1838`: three false suspects (Finch, Hale, Trent), three clearance
+     * sentences, `clearance_over_budget` fired on ch10 at exactly one over — the excess being exactly
+     * the number of suspects beyond the constant. The run log's own note said the quiet part:
+     * *"NO REPAIR PATH: too MANY clearances — a negative constraint, and the only negative pass that
+     * exists removes repetition rather than trimming a register."* There is no repair path because
+     * trimming would breach the other gate.
+     *
+     * The intent survives intact. The budget exists to stop the endgame becoming an exoneration
+     * REGISTER — the corpus case this comment cites is ch10 with **eleven** clearance sentences, and
+     * a floor-of-2/one-per-suspect budget still catches that easily. What it no longer does is
+     * penalise a case for having the cast it was given.
+     */
+    clearanceBudget: { maxSentences: Math.max(2, countClearableSuspects(caseData)), inScene: true },
     closure: { closed: false, unmet: [], waived: [], notes: [], revealBindingUncertain: false },
   };
 

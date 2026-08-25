@@ -130,14 +130,44 @@ if (result.warnings.length) {
 const diagnostics = Array.isArray(result.scoringReport?.diagnostics)
   ? result.scoringReport.diagnostics
   : [];
-const postGenerationDiagnostic = diagnostics.find((entry) =>
+/**
+ * A_73 §3a — TAKE THE FINAL SNAPSHOT, NOT THE FIRST ONE.
+ *
+ * `buildPostGenerationSummaryDetails` is called TWICE and stamps which it is:
+ * `metrics_snapshot: "initial" | "final"`. The initial call happens ~900 lines before
+ * `entityPronounDriftCount` is assigned, so it carries the declaration value. `.find()` returned
+ * that one.
+ *
+ * MEASURED on `story_20260825-1838`: this printed `CANARY_ENTITY_PRONOUN_DRIFT_COUNT 0` while the
+ * same run's warnings said *"Pronoun integrity gate: 15 pronoun issue(s) remain after deterministic
+ * rescue"* and the external reader found Dr. Mallory Finch — pinned FEMALE in the canary inputs —
+ * written as *"his expression composed"* in chapter 1. A metric reporting 0 on a defect a human
+ * spots in the first chapter is worse than no metric, and
+ * `reviews/findings-20260529-run-f30.md` predicted exactly this shape three months ago.
+ */
+const postGenerationDiagnostics = diagnostics.filter((entry) =>
   entry?.key === "agent9_prose_post_generation_summary"
   || entry?.diagnostic_type === "post_generation_summary"
 );
+const postGenerationDiagnostic =
+  postGenerationDiagnostics.find((e) => e?.details?.metrics_snapshot === "final")
+  ?? postGenerationDiagnostics[postGenerationDiagnostics.length - 1];
 const metricDetails = postGenerationDiagnostic?.details ?? {};
 const toNumber = (value, fallback = 0) => {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : fallback;
+};
+/**
+ * A_73 §3a — "not measured" must not print as "zero".
+ *
+ * `toNumber(undefined)` is 0, so a metric the producer never set was indistinguishable from a
+ * metric it measured as clean. That is the same failure one layer down from the snapshot bug above,
+ * and it is why the 0 survived review: nothing about it looked like an absence.
+ */
+const toMeasuredNumber = (value) => {
+  if (value === null || value === undefined) return null;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
 };
 const integrityMetrics = {
   season_lock_replacements_total: toNumber(metricDetails.season_lock_replacements_total),
@@ -145,7 +175,7 @@ const integrityMetrics = {
   mechanical_term_collision_count: toNumber(metricDetails.mechanical_term_collision_count),
   boundary_integrity_failures_count: toNumber(metricDetails.boundary_integrity_failures_count),
   semantic_rewrite_diff_blocks_count: toNumber(metricDetails.semantic_rewrite_diff_blocks_count),
-  entity_pronoun_drift_count: toNumber(metricDetails.entity_pronoun_drift_count),
+  entity_pronoun_drift_count: toMeasuredNumber(metricDetails.entity_pronoun_drift_count),
   culprit_gate_alias_matches_count: toNumber(metricDetails.culprit_gate_alias_matches_count),
   culprit_gate_false_positive_count: toNumber(metricDetails.culprit_gate_false_positive_count),
 };

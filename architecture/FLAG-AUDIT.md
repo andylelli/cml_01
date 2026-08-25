@@ -449,3 +449,26 @@ to one is visible, which is the property that was missing.
 Two of the eight are **default-ON and unset**, which is the class Addendum 1's correction was about:
 the run's actual behaviour is not reconstructable from `.env.local` alone. They stay unset — a
 default-on evidence surface is the right default — but they are now written down.
+
+---
+
+## Addendum — A_73 flags, registered 2026-08-25
+
+Five levers added by [ANALYSIS_73](../documentation/analysis/ANALYSIS_73/ANALYSIS_73.md) Parts II–V.
+`flag-register-check.mjs` flagged all five as read-by-code-but-undocumented, which is the check
+working; this is the entry it asked for. Every one is **default OFF** and every one has a named
+settling probe, because the lifecycle rule is that a flag with no exit condition is a permanent branch.
+
+| Flag | Owner | What it changes | Settling probe | If the probe never runs |
+|---|---|---|---|---|
+| `AGENT9_CLEARANCE_AT_END` | A_73 §34 | Appends clearance paragraphs near the chapter end instead of splicing all of them in at paragraph 2 | Step 2a run + one external read; **prose** should move off 6 | DELETE. The 08-25 reader quoted this injector's output as the single largest polish drag; if moving it changes nothing, position was not the problem and the flag is noise. |
+| `AGENT9_LOCKED_FACT_ALIASES` | A_73 §2 (C4) | Canonical locked-fact value stated verbatim once per chapter that turns on it; natural reference thereafter | Same run; **dialogue** should move off 7 | DELETE. The story validator never required per-mention repetition, so if relaxing the prompt does not move dialogue, §5.1's inference is wrong. |
+| `AGENT9_CONTINUITY_SPAN` | A_73 §30 | Chapter summaries sampled across the chapter, all three key events rendered instead of `keyEvents[0]` | Same run; **pacing/ending**, and the "proof repeated after the confession" complaint | PROMOTE ANYWAY or delete deliberately. Recording one sentence per chapter is defensible only if a read shows it costs nothing. |
+| `AGENT9_CRITICAL_BLOCK_CAPS` | A_73 §31 | Caps the 7 growing CRITICAL prompt blocks so the critical floor stops outgrowing the budget | Its OWN run — it changes which context survives under pressure, so it cannot be attributed alongside prose levers | Keep gated. X47's futility measurement stands either way; this is the mechanism fix and needs its own read. |
+| `AGENT9_OPENING_IDEATION` | A_73 Part V / A_72 §10.1 | A2b — five divergent candidate opening SITUATIONS in one design-tier call, winner committed as a chapter-1 contract | Requires `RECENT_OPENING_SITUATIONS` to be regenerated where the archive lives; then one run, reading **opening_hook** | This is A_72 §10.1's own falsification: if it ships and `opening_hook` stays at 8 with a props inventory, §2's distinctiveness thesis is wrong and the generation-model question reopens with evidence. |
+
+**One caution on the last row, from the 08-25 run.** Cross-run novelty ran for the first time that
+day (the A_73 §12.1 ledger fix) and the case it produced scored *lower* on `premise` — 8, down from
+9 — with the reader saying the mechanism was simpler than the pendulum and tide drafts. The ledger
+holds seven clock-family cases, so "diverge from these" moved it to another clock trick.
+**Divergence from a monoculture stays inside the monoculture**, and A2b inherits that risk directly.

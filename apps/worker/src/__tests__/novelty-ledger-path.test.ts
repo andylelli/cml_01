@@ -14,6 +14,8 @@
 import { describe, it, expect, afterEach } from "vitest";
 import path from "path";
 import { existsSync } from "fs";
+import { execFileSync } from "child_process";
+import { pathToFileURL } from "url";
 import {
   noveltyLedgerPath,
   legacyNoveltyLedgerPaths,
@@ -28,19 +30,41 @@ afterEach(() => {
 });
 
 describe("novelty ledger path resolution", () => {
-  it("does not depend on cwd", () => {
-    delete process.env.CML_NOVELTY_LEDGER_PATH;
-    const fromHere = noveltyLedgerPath();
-    const originalCwd = process.cwd();
-    try {
-      process.chdir(path.dirname(originalCwd));
-      expect(
-        noveltyLedgerPath(),
-        "the ledger path changed when cwd changed — this is exactly the A_73 §12.1 defect",
-      ).toBe(fromHere);
-    } finally {
-      process.chdir(originalCwd);
-    }
+  /**
+   * Resolve the path in a CHILD PROCESS whose cwd we control, rather than calling `process.chdir()`
+   * here.
+   *
+   * The first version of this test did chdir-and-restore in-process. It passed in isolation and
+   * under vitest's default worker-thread pool, and BROKE `runtime-paths.test.ts` the moment the
+   * suite ran single-threaded — because cwd is global to the process, and under a shared pool one
+   * test's chdir is every other test's environment. A test for "does not depend on cwd" that
+   * corrupts cwd for its neighbours is not a test worth having.
+   */
+  const distModule = path.join(resolveWorkspaceRoot(), "apps", "worker", "dist", "jobs", "novelty-ledger.js");
+
+  const resolveInChildProcess = (cwd: string): string => {
+    const href = pathToFileURL(distModule).href;
+    const script = `import(${JSON.stringify(href)}).then(m => process.stdout.write(m.noveltyLedgerPath()));`;
+    return execFileSync(process.execPath, ["--input-type=module", "-e", script], {
+      cwd,
+      encoding: "utf8",
+      env: { ...process.env, CML_NOVELTY_LEDGER_PATH: "" },
+    }).trim();
+  };
+
+  /**
+   * Runs against `dist`, deliberately — that is what production loads (`dev` is `node dist/index.js`,
+   * A_73 §19.1), and a child process cannot import the TypeScript source the way vitest can.
+   * Skipped rather than failed when dist is absent: a missing build is not evidence about cwd.
+   */
+  it.skipIf(!existsSync(distModule))("does not depend on cwd", () => {
+    const repoRoot = resolveWorkspaceRoot();
+    const fromRoot = resolveInChildProcess(repoRoot);
+    const fromElsewhere = resolveInChildProcess(path.dirname(repoRoot));
+    expect(
+      fromElsewhere,
+      "the ledger path changed when cwd changed — this is exactly the A_73 §12.1 defect",
+    ).toBe(fromRoot);
   });
 
   it("resolves inside the workspace root, not inside a package directory", () => {

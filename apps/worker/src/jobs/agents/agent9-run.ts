@@ -5237,7 +5237,9 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     prose.chapters.length,
   );
 
-  let entityPronounDriftCount = 0;
+  // A_73 §3a — null until validation computes it. Was 0, which the "initial" metrics snapshot then
+  // published as a measurement (see canary-core.mjs). An unmeasured metric must not look measured.
+  let entityPronounDriftCount: number | null = null;
   let culpritGateAliasMatchesCount = 0;
   let culpritGateFalsePositiveCount = 0;
 
