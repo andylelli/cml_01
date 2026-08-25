@@ -16,6 +16,7 @@ import {
   postChatCompletion,
   supportsJsonSchema,
 } from "./azure-http-transport.js";
+import { resolveAgentModel } from "./agent-model-router.js";
 
 // Retry salt (ANALYSIS_49 follow-up): escalate the sampling temperature on each *retry* so a call that
 // reproduces the same failing response gets pushed out of its sampling basin. Most valuable for the
@@ -249,7 +250,18 @@ export class AzureOpenAIClient {
   }
 
   private async chatOnce(options: ChatOptions): Promise<ChatResponse> {
-    const model = options.model || this.defaultModel;
+    /**
+     * A_73 — the one line where every agent's model is chosen.
+     *
+     * An explicit `options.model` always wins, so Agent 9's stage tiering (generate/regen/polish)
+     * is untouched. Everything else — Agents 1 through 8, 65, the rubric judge — passed no model at
+     * all and silently took the default deployment, which is why 28% of a run had no cost knob.
+     * `resolveAgentModel` keys off `logContext.agent`, the same label the cost audit attributes
+     * spend by, so routing and accounting cannot disagree about which stage a call belongs to.
+     *
+     * Unset env → `this.defaultModel`, byte-identical to previous behaviour.
+     */
+    const model = options.model || resolveAgentModel(options.logContext?.agent, this.defaultModel);
     const baseTemperature = options.temperature ?? 0.7;
     // Salt repeated retries by escalating temperature (logged value reflects the escalated temp).
     const temperature = escalateRetryTemperature(baseTemperature, options.logContext?.retryAttempt ?? 0);

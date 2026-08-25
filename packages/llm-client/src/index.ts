@@ -42,3 +42,5 @@ export type {
 } from "./types.js";
 
 export { LogLevel } from "./types.js";
+// A_73 — per-agent model routing (see agent-model-router.ts). Exported for the flag register and tests.
+export { resolveAgentModel, agentModelEnvVar } from "./agent-model-router.js";
