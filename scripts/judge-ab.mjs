@@ -85,20 +85,41 @@ for (const name of [".env.local", ".env"]) {
  * proximity. `run_20260819-2019_0a61b082` sits between them and contains neither title; the mapping
  * below was confirmed by grepping the device name through each candidate folder.
  */
-const SUBJECTS = [
-  {
-    label: "08-17",
-    external: 86,
-    story: "stories/story_20260817-2209/the_reversed_pendulum_at_seacliff_hotel.md",
-    runFolder: "run_20260817-2052_mystery",
-  },
-  {
-    label: "08-19",
-    external: 81,
-    story: "stories/story_20260819-2047/the_delayed_strike_at_cliffhaven_hotel.md",
-    runFolder: "run_20260819-1928_mystery",
-  },
+/**
+ * A_73 Part V — THE MARKS COME FROM THE LEDGER NOW, NOT FROM THIS FILE.
+ *
+ * `external: 86` and `external: 81` used to be written here, and `external-read-ledger.mjs`'s own
+ * header explains why: the manifest was *"missing the two reads the whole plan argues from …
+ * which is why judge-ab.mjs had to hard-code them as SUBJECTS."* That condition no longer holds —
+ * the ledger carries both rows, with their full ten-category tables.
+ *
+ * Leaving the numbers here made them a second body of a value the manifest owns: a re-read that
+ * revised a mark would update the ledger and this script would keep quoting the old one, silently,
+ * while claiming to compare against "the external mark".
+ *
+ * What stays local is the only thing the manifest does NOT know: the run-folder mapping, which the
+ * header above records was established by grepping the device name through each candidate folder
+ * rather than by timestamp proximity.
+ */
+const RUN_FOLDERS = [
+  { label: "08-17", bundleId: "read-20260817-2209", runFolder: "run_20260817-2052_mystery" },
+  { label: "08-19", bundleId: "read-20260819-2047", runFolder: "run_20260819-1928_mystery" },
 ];
+
+const LEDGER = JSON.parse(readFileSync(join(ROOT, "eval", "results", "external-read", "manifest.json"), "utf8"));
+
+const SUBJECTS = RUN_FOLDERS.map(({ label, bundleId, runFolder }) => {
+  const row = LEDGER.find((e) => e.bundleId === bundleId);
+  if (!row) {
+    throw new Error(
+      `judge-ab: no ledger row for ${bundleId}. The external marks are owned by ` +
+        `eval/results/external-read/manifest.json — run external-read-ledger.mjs --write, or fix the ` +
+        `bundleId above. They are deliberately not duplicated here (A_73 Part V).`,
+    );
+  }
+  if (row.externalFinal == null) throw new Error(`judge-ab: ledger row ${bundleId} has no externalFinal`);
+  return { label, external: row.externalFinal, story: row.storyPath, runFolder };
+});
 
 /** Same assembly as eval-rescore.mjs, so the numbers are comparable to the ledger's. */
 function assemble(subject) {

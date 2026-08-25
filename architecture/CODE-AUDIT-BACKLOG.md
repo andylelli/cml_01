@@ -45,6 +45,34 @@ ReDoS candidates, 0 TODOs in 308 files.
       `style-contract` (377). They typecheck and their tests pass; nobody has asked whether they do
       the right thing. `rubric-score` and `story-geometry` are the two that gate the pipeline.
 
+## 1b. Open from the 2026-08-25 scripts pass
+
+Two script defects were found and fixed that day (the ledger arithmetic computing from disk;
+`judge-ab.mjs` hard-coding marks the manifest now owns). This one was found, measured, and
+**deliberately not fixed** — changing it changes the meaning of a number the plan quotes, and it
+cannot be verified without `logs/llm.jsonl`.
+
+- [ ] **`run-cost-audit.mjs` understates rework, and the cost governor is worth more than its number
+      suggests.** `repeatCost`/`repeatCalls` group by `(runId, agent)` and charge everything *after
+      the first call of each label* to repeats. But every repair pass gets its OWN agent label, so
+      the first call of each is booked as fresh work. **MEASURED** on `scratchpad/a72-run-20260823.log`,
+      chapter 4 alone:
+
+      ```
+      Agent9-ProseGenerator-Ch4      2 calls   <- 1 genuine first pass
+      Agent9-Regen-Ch4-missing_clue  4 calls   <- all rework
+      Agent9-AtmosphereRepair-Ch4    2 calls   <- all rework
+      Agent9-PostPassPolish-Ch4      2 calls   <- all rework
+      ```
+
+      True rework is 9 of 10 calls; the metric counts 6. Across a run with 44 regen calls spread over
+      five `Agent9-Regen-*` families, the undercount is substantial — so PLAN-TO-90 §7's *"repeat
+      calls are 17% of the bill"* is a floor, not the figure, and **E1's value is understated by it**.
+
+      The decision, not just the fix: is "rework" every call under a repair label, or only retries of
+      the same label? Report both, and say which the £1 target is measured against. Needs
+      `logs/llm.jsonl`, so it belongs with §2.
+
 ## 2. Checks that need the run artifacts (the other laptop)
 
 `stories/` and `logs/` are gitignored, so these cannot be run from a fresh clone.
