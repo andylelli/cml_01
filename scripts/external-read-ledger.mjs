@@ -245,11 +245,36 @@ if (invokedDirectly) {
   }
   for (const o of orphans) console.log(`  ! ${o.bundleId}: in the manifest, no manuscript+read on disk (${o.storyPath})`);
 
+  /**
+   * A_73 Part V — THE ARITHMETIC MUST COME FROM THE LEDGER, NOT FROM WHAT IS ON DISK.
+   *
+   * `rows` holds only manuscripts whose read file is present locally. `stories/` is gitignored, so
+   * that set is a property of the machine, not of the corpus — and `--best`/`--gaps` were computing
+   * the project's central numbers from it.
+   *
+   * MEASURED 2026-08-25, on a fresh clone with one manuscript on disk: the script loaded the 37-row
+   * manifest, printed 36 orphan warnings, and then reported
+   *
+   *     best-ever-everywhere sums to 78 · offset mean 6.0 (n=1) · projects to 84.0
+   *
+   * against A_72 §1's measured 85 · 3.9 · 88.9 — the arithmetic the whole plan-to-90 rests on.
+   * Same command, different answer, and the arithmetic block reads exactly as authoritative either
+   * way because the warnings scroll past thirty lines above it.
+   *
+   * The data was never missing: an orphaned row still carries `externalFinal` and
+   * `externalCategories` in the manifest, which is the durable record and the thing that syncs.
+   * Disk presence decides whether a row can be REFRESHED from its read file — nothing more. Both
+   * analysis modes now run over the union, and both print their n and their provenance inline, so a
+   * thin corpus is visible in the same block as the number it produced.
+   */
+  const analysisRows = [...rows.map((r) => r.merged), ...orphans];
+  const provenance = `n=${analysisRows.length} (${rows.length} refreshed from disk, ${orphans.length} from the manifest only)`;
+
   if (BEST) {
-    console.log("\n  the arithmetic — best-ever mark in each category, and where it came from\n");
+    console.log(`\n  the arithmetic — best-ever mark in each category, and where it came from  [${provenance}]\n`);
     let sum = 0;
     for (const [k] of CATEGORY_HEADINGS) {
-      const scored = rows.filter((r) => r.merged.externalCategories?.[k] != null);
+      const scored = analysisRows.filter((r) => r.externalCategories?.[k] != null).map((merged) => ({ merged }));
       if (!scored.length) continue;
       const best = Math.max(...scored.map((r) => r.merged.externalCategories[k]));
       const who = scored.filter((r) => r.merged.externalCategories[k] === best).map((r) => r.merged.bundleId);
@@ -257,7 +282,7 @@ if (invokedDirectly) {
       sum += best;
       console.log(`    ${k.padEnd(18)} best ${best}  (worst ${worst}, n=${scored.length})  ${who.slice(0, 2).join(", ")}${who.length > 2 ? ` +${who.length - 2}` : ""}`);
     }
-    const offsets = rows.filter((r) => r.merged.externalOffset != null).map((r) => r.merged.externalOffset);
+    const offsets = analysisRows.filter((r) => r.externalOffset != null).map((r) => r.externalOffset);
     const meanOff = offsets.reduce((a, b) => a + b, 0) / Math.max(1, offsets.length);
     console.log(`\n    best-ever-everywhere sums to ${sum}`);
     console.log(`    headline-minus-sum offset: ${offsets.sort((a, b) => a - b).join(", ")}  (n=${offsets.length}, mean ${meanOff.toFixed(1)})`);
@@ -273,15 +298,16 @@ if (invokedDirectly) {
      * any reader** — and best-ever-everywhere still lands short of 90, so at least one of them has to
      * break its own record for the target to be arithmetically reachable at all.
      */
-    const scored = rows.filter((r) => r.merged.externalFinal != null && Object.keys(r.merged.externalCategories ?? {}).length === 10);
-    const top = [...scored].sort((a, b) => b.merged.externalFinal - a.merged.externalFinal).slice(0, 8);
+    // A_73 Part V — over the ledger, not over the disk. See the note above `analysisRows`.
+    const scored = analysisRows.filter((r) => r.externalFinal != null && Object.keys(r.externalCategories ?? {}).length === 10);
+    const top = [...scored].sort((a, b) => b.externalFinal - a.externalFinal).slice(0, 8);
     const mean = (xs) => xs.reduce((a, b) => a + b, 0) / xs.length;
 
-    console.log(`\n  the ceiling, per category — all ${scored.length} reads, and the best 8\n`);
+    console.log(`\n  the ceiling, per category — all ${scored.length} reads, and the best 8  [${provenance}]\n`);
     console.log("    category            all: mean  max  9s      top8: mean  min      verdict");
     for (const [k] of CATEGORY_HEADINGS) {
-      const all = scored.map((r) => r.merged.externalCategories[k]);
-      const t8 = top.map((r) => r.merged.externalCategories[k]);
+      const all = scored.map((r) => r.externalCategories[k]);
+      const t8 = top.map((r) => r.externalCategories[k]);
       const nines = all.filter((v) => v >= 9).length;
       const verdict = nines === 0 ? `NEVER 9 in ${all.length} reads` : `reached 9 ${nines}x`;
       console.log(
@@ -291,8 +317,8 @@ if (invokedDirectly) {
     }
     console.log("\n    the reader's own words, on the categories that have never reached 9:\n");
     for (const [k] of CATEGORY_HEADINGS) {
-      if (scored.some((r) => r.merged.externalCategories[k] >= 9)) continue;
-      const notes = top.map((r) => (r.merged.externalNotes ?? {})[k]).filter(Boolean).slice(0, 3);
+      if (scored.some((r) => r.externalCategories[k] >= 9)) continue;
+      const notes = top.map((r) => (r.externalNotes ?? {})[k]).filter(Boolean).slice(0, 3);
       console.log(`      ${k}`);
       for (const n of notes) console.log(`        · ${n.slice(0, 96)}`);
     }
