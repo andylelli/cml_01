@@ -129,6 +129,21 @@ for (const root of [join(ROOT, "stories"), join(ROOT, "stories", "_archive")]) {
     manuscripts.push({
       story: relative(ROOT, join(dir, md)).replace(/\\/g, "/"),
       firstSentence: firstSentence(para).slice(0, 240),
+      /**
+       * A_73 Part V / A_72 §10.1 — THE SITUATION, NOT THE SENTENCE.
+       *
+       * A_72 specified A1 as an extractor emitting *"the opening SITUATION of every previous
+       * manuscript (who is present, what is discovered, in what posture) — not the sentence, the
+       * situation"*, and called it the precondition without which nothing in Workstream A can work.
+       * What shipped was a word-frequency avoid-list plus twelve first sentences — vocabulary, which
+       * is precisely the register X94/X95/A2a were measured falsifying (A_73 §3).
+       *
+       * The whole opening PARAGRAPH is the situation, in the only form that survives without an LLM
+       * in this script: a model handed thirty real openings can see that they all begin with the
+       * detective arriving at a body, which is a thing no word list can express. Deterministic, free,
+       * and it is what `divergeFrom` needs in order to mean "differ from these SCENES".
+       */
+      openingParagraph: para.slice(0, 700),
       words: contentWords(para),
     });
   }
@@ -166,6 +181,12 @@ const corpus = {
   overusedOpeningWords: overused,
   /** A sample of real openings, so an ideation prompt can be shown the pattern rather than told it. */
   recentOpenings: manuscripts.slice(-12).map((m) => m.firstSentence),
+  /**
+   * A_73 Part V — the SITUATIONS. Full opening paragraphs, most recent last, for the ideation call
+   * to diverge from. Capped at 24: enough for the pattern to be unmistakable, small enough that the
+   * prompt stays affordable at design tier.
+   */
+  recentOpeningSituations: manuscripts.slice(-24).map((m) => m.openingParagraph),
   counts: ranked.slice(0, 60),
 };
 
@@ -214,6 +235,16 @@ const tsHeader = [
       .filter((e) => e.share >= OVERUSED_SHARE)
       .map((e) => ({ word: e.word, books: e.books, share: Number(e.share.toFixed(3)) })),
   )};`,
+  "",
+  "/**",
+  " * A_73 Part V — THE SITUATIONS, which is what A_72 §10.1 asked A1 for and did not get.",
+  " *",
+  " * Full opening paragraphs from the archive, oldest first. This is the `divergeFrom` corpus for the",
+  " * opening-ideation call: a model shown these can see that every book in this pipeline opens with the",
+  " * same SCENE — a named character arriving at a body in a room — which is a fact no word-frequency",
+  " * list can carry, and which is what the reader's seventeen identical `opening_hook` notes are about.",
+  " */",
+  `export const RECENT_OPENING_SITUATIONS: readonly string[] = ${JSON.stringify(corpus.recentOpeningSituations, null, 2)};`,
   "",
 ].join("\n");
 

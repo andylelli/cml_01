@@ -21,3 +21,15 @@ export const OVERUSED_OPENING_WORDS: readonly string[] = ["scent","faint","again
 /** The same list with its measured frequency, for telemetry and for review. */
 export const OVERUSED_OPENING_COUNTS: ReadonlyArray<{ word: string; books: number; share: number }> =
   [{"word":"scent","books":139,"share":0.755},{"word":"faint","books":132,"share":0.717},{"word":"against","books":122,"share":0.663},{"word":"morning","books":118,"share":0.641},{"word":"pressed","books":115,"share":0.625},{"word":"damp","books":111,"share":0.603},{"word":"across","books":104,"share":0.565},{"word":"hush","books":103,"share":0.56},{"word":"hotel","books":101,"share":0.549},{"word":"room","books":100,"share":0.543},{"word":"sprawled","books":100,"share":0.543},{"word":"pale","books":94,"share":0.511},{"word":"chill","books":93,"share":0.505},{"word":"hand","books":85,"share":0.462},{"word":"distant","books":84,"share":0.457},{"word":"windows","books":84,"share":0.457},{"word":"heavy","books":82,"share":0.446},{"word":"broken","books":81,"share":0.44},{"word":"light","books":77,"share":0.418},{"word":"cold","books":75,"share":0.408},{"word":"rain","books":75,"share":0.408},{"word":"gloved","books":72,"share":0.391},{"word":"brass","books":70,"share":0.38},{"word":"stepped","books":67,"share":0.364},{"word":"tang","books":67,"share":0.364},{"word":"thick","books":67,"share":0.364},{"word":"clock","books":66,"share":0.359},{"word":"silence","books":64,"share":0.348},{"word":"polished","books":63,"share":0.342},{"word":"beneath","books":62,"share":0.337},{"word":"floor","books":62,"share":0.337}];
+
+/**
+ * A_73 Part V — THE SITUATIONS. Populated by `node scripts/build-opening-corpus.mjs --write`, which
+ * must be run on a machine that HAS the archive: `stories/` is gitignored, so this constant cannot be
+ * generated from a fresh clone and ships empty until it is.
+ *
+ * Empty is not a silent default. `openingCorpusReady()` in agent9-prose/opening-ideation.ts refuses
+ * to run the ideation call against an empty corpus, because "diverge from nothing" is precisely the
+ * failure this engine exists to avoid — and a divergence instruction with no referent is how X94 and
+ * A2a came to move nothing at all.
+ */
+export const RECENT_OPENING_SITUATIONS: readonly string[] = [];
