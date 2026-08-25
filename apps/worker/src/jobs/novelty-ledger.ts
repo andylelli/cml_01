@@ -9,12 +9,23 @@
  *
  * Deliberately app-side and fs-backed (the `@cml/novelty` package stays pure). Reuses the SAME CML
  * fields `buildNoveltyConstraints` reads from seeds (`shared.ts`), so no fragile enum mapping is
- * needed — this is the zero-LLM divergence lever. Gated entirely behind `NOVELTY_CROSS_RUN`
- * (default off); when off, every function here is unreachable from the orchestrator.
+ * needed — this is the zero-LLM divergence lever.
+ *
+ * GATING — CORRECTED 2026-08-24 (A_73). This header said *"Gated entirely behind `NOVELTY_CROSS_RUN`
+ * (default off); when off, every function here is unreachable from the orchestrator."* **That is not
+ * what the code does.** `resolveCrossRunMode()` returns `"shadow"` when the variable is unset, and
+ * `isCrossRunNoveltyEnabled()` is `mode !== "off"` — so with no configuration at all this module is
+ * ENGAGED on every run, both reading the ledger and appending to it. Only an explicit
+ * `NOVELTY_CROSS_RUN=off` disables it.
+ *
+ * The correction matters because the ledger-path defect below (§12.1) was reasoned about twice on the
+ * assumption that none of this executed by default. It executes by default.
  */
 
 import { randomUUID } from "crypto";
 import fs from "fs/promises";
+import { existsSync } from "fs";
+import { fileURLToPath } from "url";
 import path from "path";
 
 /** A lightweight, shipped-run fingerprint — the avoidance-relevant fields of one CML. */
@@ -98,8 +109,77 @@ export const effectiveNoveltyThreshold = (
   mode: CrossRunMode = resolveCrossRunMode(),
 ): number => (mode === "on" ? Math.min(baseThreshold, CROSS_RUN_NOVELTY_THRESHOLD) : baseThreshold);
 
+/**
+ * A_73 §12.1 — THE LEDGER WAS RESOLVED AGAINST `process.cwd()`, AND NOTHING SAID WHERE THAT WAS.
+ *
+ * WAS: `path.resolve(process.cwd(), "data", "novelty-ledger.json")`. Both readers and the writer
+ * live in the worker, and `npm run -w @cml/worker dev` runs with cwd = `apps/worker` — a directory
+ * that has never contained a `data/` folder. The only populated ledger on disk sits under
+ * `apps/api/data/`, i.e. written by a process with a different cwd. `loadNoveltyLedger`'s
+ * `catch { return [] }` then turned "wrong directory" into "no prior runs", silently, and
+ * `priorRunAvoidancePatterns([])` returns nothing — so Agent 3's diverge-from-recent-runs input
+ * was empty while a ledger existed two directories away.
+ *
+ * That matters more than its size: A_72 §2.1 measured the novelty apparatus as the pipeline's only
+ * engine for the quality the external reader pays 9s for.
+ *
+ * NOW: anchored to the workspace root, never to cwd. Legacy cwd-dependent locations are still READ
+ * (first existing wins) and are written back to, so an existing ledger keeps accumulating instead of
+ * being silently abandoned in favour of a new empty one.
+ */
+const workspaceRootMarkers = ["package-lock.json", "tsconfig.base.json"] as const;
+
+export const resolveWorkspaceRoot = (): string => {
+  const explicit = process.env.CML_WORKSPACE_ROOT?.trim();
+  if (explicit) return path.resolve(explicit);
+
+  /**
+   * Walk up from THIS MODULE, not from cwd.
+   *
+   * The first version of this fix walked up from `process.cwd()`, which is better than resolving
+   * against it but still not cwd-independent: launched from a directory ABOVE the repo, the walk
+   * never passes through the root and lands back on cwd. `novelty-ledger-path.test.ts` caught that
+   * on its first run — the whole point of testing the default rather than an injected path.
+   *
+   * This file's location is fixed relative to the workspace root in both layouts that exist
+   * (`apps/worker/src/jobs/` under vitest, `apps/worker/dist/jobs/` when compiled), so walking up
+   * from here reaches the root from anywhere the process happens to be started.
+   */
+  let dir = path.dirname(fileURLToPath(import.meta.url));
+  for (let i = 0; i < 8; i += 1) {
+    if (workspaceRootMarkers.every((m) => existsSync(path.join(dir, m)))) return dir;
+    const parent = path.dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
+  }
+  return process.cwd();
+};
+
+/** The canonical location. One directory, independent of who launched the process. */
 export const noveltyLedgerPath = (): string =>
-  process.env.CML_NOVELTY_LEDGER_PATH ?? path.resolve(process.cwd(), "data", "novelty-ledger.json");
+  process.env.CML_NOVELTY_LEDGER_PATH?.trim() || path.join(resolveWorkspaceRoot(), "data", "novelty-ledger.json");
+
+/** Locations earlier cwd-dependent resolution could have written to. Read-compatible only. */
+export const legacyNoveltyLedgerPaths = (): string[] => {
+  const root = resolveWorkspaceRoot();
+  return [
+    path.join(root, "apps", "api", "data", "novelty-ledger.json"),
+    path.join(root, "apps", "worker", "data", "novelty-ledger.json"),
+    path.resolve(process.cwd(), "data", "novelty-ledger.json"),
+  ];
+};
+
+/**
+ * The file this process will actually use: canonical if present, else the first legacy file that
+ * exists, else canonical (which `appendNoveltyLedger` will create). Resolved identically by the
+ * reader and the writer so the two cannot end up on different files.
+ */
+export const activeNoveltyLedgerPath = (): string => {
+  const canonical = noveltyLedgerPath();
+  if (existsSync(canonical)) return canonical;
+  const legacy = legacyNoveltyLedgerPaths().find((p) => p !== canonical && existsSync(p));
+  return legacy ?? canonical;
+};
 
 const str = (v: unknown): string => (typeof v === "string" ? v.trim() : "");
 
@@ -139,8 +219,7 @@ export const extractPriorRunRecord = (cml: unknown, runId: string): PriorRunReco
   };
 };
 
-/** Load the ledger; tolerate a missing or corrupt file by returning an empty corpus. */
-export const loadNoveltyLedger = async (ledgerPath = noveltyLedgerPath()): Promise<PriorRunRecord[]> => {
+const readLedgerFile = async (ledgerPath: string): Promise<PriorRunRecord[]> => {
   try {
     const raw = await fs.readFile(ledgerPath, "utf-8");
     const parsed = JSON.parse(raw) as NoveltyLedgerFile;
@@ -150,10 +229,42 @@ export const loadNoveltyLedger = async (ledgerPath = noveltyLedgerPath()): Promi
   }
 };
 
+/**
+ * Load the ledger; tolerate a missing or corrupt file by returning an empty corpus.
+ *
+ * A_73 §12.1/§22.2 — AN EMPTY RESULT IS NOW NAMED. The silent `[]` is deliberate and tested
+ * (`novelty-ledger.test.ts` pins missing-file → `[]`), and that is fine; the defect was that
+ * "no ledger yet" and "reading the wrong directory" produced identical silence. Both now say
+ * which absolute path was consulted, so the next person diagnoses it from the run log rather than
+ * from a code read.
+ *
+ * An explicit `ledgerPath` argument keeps the exact previous semantics — no discovery, no warning —
+ * because that is the contract every existing caller and test relies on.
+ */
+export const loadNoveltyLedger = async (ledgerPath?: string): Promise<PriorRunRecord[]> => {
+  if (ledgerPath) return readLedgerFile(ledgerPath);
+
+  const resolved = activeNoveltyLedgerPath();
+  const records = await readLedgerFile(resolved);
+  if (records.length === 0) {
+    console.warn(
+      `[novelty-ledger] EMPTY corpus — read ${resolved} (exists=${existsSync(resolved)}). ` +
+        `Cross-run divergence will fall back to seeds alone. Set CML_NOVELTY_LEDGER_PATH to override.`,
+    );
+  } else if (resolved !== noveltyLedgerPath()) {
+    console.warn(
+      `[novelty-ledger] using LEGACY location ${resolved} (${records.length} record(s)). ` +
+        `Canonical is ${noveltyLedgerPath()}; move the file to migrate.`,
+    );
+  }
+  return records;
+};
+
 /** Append a shipped-run record, atomically (temp-write + rename), keeping the last MAX_LEDGER_ENTRIES. */
 export const appendNoveltyLedger = async (
   record: PriorRunRecord,
-  ledgerPath = noveltyLedgerPath(),
+  // A_73 §12.1: the SAME resolver the reader uses, so writer and reader cannot land on different files.
+  ledgerPath = activeNoveltyLedgerPath(),
 ): Promise<void> => {
   const dir = path.dirname(ledgerPath);
   await fs.mkdir(dir, { recursive: true });

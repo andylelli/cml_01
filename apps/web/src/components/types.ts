@@ -287,6 +287,7 @@ export interface GenerationReport {
   run_id: string;
   generated_at: string;
   total_duration_ms: number;
+  /** GBP — see A_73 §20.1. Rendered as `£` in ScoreCard.vue; it was `$` until 2026-08-24. */
   total_cost: number;
   overall_score: number;
   overall_grade: string;

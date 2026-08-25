@@ -165,11 +165,56 @@ export class AzureOpenAIClient {
       }
     );
 
-    this.defaultModel = config.defaultModel || process.env.AZURE_OPENAI_DEPLOYMENT_NAME!;
+    /**
+     * A_73 Part IV §4 — TWO POLICIES FOR ONE MISSING VARIABLE, AND THIS ONE WAS THE QUIET ONE.
+     *
+     * `canary-core.mjs` refuses to start when `AZURE_OPENAI_DEPLOYMENT_NAME` is unset, and says why:
+     * *"it is not defaulted, because a probe that silently measures the wrong model is worse than
+     * none"* (X14). This line asserted non-null on the same variable and carried `undefined` forward,
+     * so a run started by any other route failed later, at the API boundary, with a message about a
+     * bad request rather than about configuration — the exact "measured the wrong model, and nothing
+     * in the report said so" failure X14 exists to prevent.
+     *
+     * Now it fails at construction, in the same terms as the canary. Deliberately NOT silently
+     * defaulted to a model name: that is the thing X14 forbids.
+     */
+    const resolvedModel = config.defaultModel || process.env.AZURE_OPENAI_DEPLOYMENT_NAME;
+    if (!resolvedModel) {
+      throw new Error(
+        "AzureOpenAIClient: no model. Set AZURE_OPENAI_DEPLOYMENT_NAME in .env.local, or pass " +
+          "config.defaultModel. It is not defaulted on purpose — a run that cannot be attributed " +
+          "to a model is not cheaper than no run (X14 / canary-core.mjs).",
+      );
+    }
+    this.defaultModel = resolvedModel;
+
+    /**
+     * A_73 Part IV §3 — a malformed value used to DISABLE the breaker rather than fail.
+     *
+     * `parseInt("five")` is `NaN`, and every `failures >= NaN` comparison is false, so a typo in
+     * `.env.local` silently produced a circuit breaker that could never trip — and the run would
+     * hammer a failing endpoint instead of backing off. Silent, and in the direction that costs
+     * money. `Number.isFinite` + a positive check falls back to the documented default and says so,
+     * which is this repo's third recurrence of "a config number that was wrong in a stable
+     * direction" (see cost-tracker.ts: "wrong about rates twice").
+     */
+    const positiveIntEnv = (name: string, fallback: number): number => {
+      const raw = process.env[name];
+      if (raw === undefined || raw.trim() === "") return fallback;
+      const parsed = Number.parseInt(raw.trim(), 10);
+      if (!Number.isFinite(parsed) || parsed <= 0) {
+        console.warn(
+          `[llm-client] ${name}="${raw}" is not a positive integer — using the default ${fallback}. ` +
+            `An unparsed value here disables the circuit breaker silently.`,
+        );
+        return fallback;
+      }
+      return parsed;
+    };
 
     this.circuitBreaker = new CircuitBreaker(
-      parseInt(process.env.CIRCUIT_BREAKER_FAILURE_THRESHOLD || "5"),
-      parseInt(process.env.CIRCUIT_BREAKER_RESET_TIMEOUT_MS || "60000")
+      positiveIntEnv("CIRCUIT_BREAKER_FAILURE_THRESHOLD", 5),
+      positiveIntEnv("CIRCUIT_BREAKER_RESET_TIMEOUT_MS", 60000)
     );
 
     this.rateLimiter = new RateLimiter({

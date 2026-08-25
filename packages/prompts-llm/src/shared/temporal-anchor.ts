@@ -76,6 +76,17 @@ export const monthToSeason = (month: unknown): CanonicalSeason | undefined => {
  * Copied EXACTLY (verbatim) from agent2d-temporal-context.ts so the hashed date is identical.
  */
 export const simpleHash = (str: string): number => {
+  /**
+   * A_73 Part IV §2 — `str.length` on `undefined` throws a TypeError, and `agent2-cast.ts:167`
+   * calls this with a bare `runId` and no fallback. The parameter is typed `string`, but this
+   * codebase routes artifact data through `CaseData = any`, so an absent runId is reachable — and
+   * two of the three call sites evidently thought so, since both defend against it.
+   *
+   * Coercing is the right answer HERE rather than at each call site: hashing the literal
+   * `"undefined"` is stable, which is what every caller actually wants, and it removes a crash
+   * without changing the hash of any real input.
+   */
+  if (typeof str !== "string") str = String(str);
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
     const char = str.charCodeAt(i);
@@ -107,6 +118,27 @@ export const generateSpecificDate = (
   const decadeStart = parseInt(decade.replace(/s$/, ''), 10) || 1950;
 
   // Use hash to deterministically select year and month
+  /**
+   * A_73 Part IV §2 — THE FALLBACK IS PRESERVED; ITS SILENCE IS NOT.
+   *
+   * Three files hash a runId and all three answer a falsy one differently:
+   *
+   *   agent2-cast.ts:167       simpleHash(runId)                 → TypeError (simpleHash reads .length)
+   *   HERE                     simpleHash(runId || Math.random()) → NON-DETERMINISTIC
+   *   name-generator.ts:568    simpleHash(runId || 'default')     → stable fallback
+   *
+   * The value is NOT changed here, because the header above pins this function as byte-identical to
+   * `generateSpecificDate` in agent2d-temporal-context.ts and an equivalence claim is worth more
+   * than tidiness. What changes is that the non-deterministic path now announces itself: a replay
+   * that silently produces a different date is precisely the failure mode A_72 §10.4's matched-pair
+   * method cannot survive, and until now nothing in the artifact or the log would have said so.
+   */
+  if (!runId) {
+    console.warn(
+      "[temporal-anchor] generateSpecificDate called with no runId — falling back to Math.random(). " +
+        "This story's year/month are NOT reproducible, so it cannot serve as a matched-pair control.",
+    );
+  }
   const hash = simpleHash(runId || Math.random().toString());
   const yearOffset = hash % 10; // 0-9
   const monthIndex = (hash >> 4) % 12; // Use different bits for month

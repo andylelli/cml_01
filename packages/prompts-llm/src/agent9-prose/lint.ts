@@ -12,6 +12,7 @@ import {
 import { detectConfiguredBannedPhrases } from "./banned-phrases.js";
 import type { ProseChapter, ProseLinterIssue, MacroArcEntry, ProseGenerationInputs } from "./types.js";
 import { MONTH_TO_SEASON, normalizeMonthToken, type CanonicalSeason } from "../shared/temporal-anchor.js";
+import { CLEARANCE_TERMS_RE } from "../shared/clearance-vocabulary.js";
 export const normalizeParagraphForFingerprint = (paragraph: string): string =>
   paragraph
     .toLowerCase()
@@ -508,8 +509,9 @@ export const lintBatchProse = (
   // (from prose_requirements.suspect_clearance_scenes), verify the prose names the suspect
   // with elimination-adjacent vocabulary.  Failures are typed suspect_clearance_missing so
   // classifyFailure() maps them to clue_timing (rank 95) for highest-priority retry handling.
-  const CLEARANCE_TERMS =
-    /\b(cleared|ruled\s+out|eliminated|not\s+the\s+culprit|innocent|alibi\s+holds|alibi\s+confirmed|could\s+not\s+have)\b/i;
+  // A_73 §11.1 — single-sourced from shared/clearance-vocabulary.ts (this was a private copy, one
+  // of four byte-identical ones). Same matcher, one definition.
+  const CLEARANCE_TERMS = CLEARANCE_TERMS_RE;
   // P2-H evidence gate: mirrors SuspectClosureValidator's EVIDENCE_TERMS so a chapter that
   // passes P2-H always satisfies the release gate too.  Without this, a sentence like
   // "[Suspect] was cleared." (bare clearance, no evidence connector) passes P2-H but fails the validator.

@@ -21,6 +21,8 @@ export {
   applyDeterministicClearancePatch,
   // A_71 — the clearance-paste tally, so the AGENT9_REGEN_SUSPECT_ELIM probe has a read path.
   getDeterministicClearancePasteTelemetry,
+  getDeterministicCluePasteTelemetry,
+  resetDeterministicCluePasteTelemetry,
   resetDeterministicClearancePasteTelemetry,
   applyDeterministicCluePatch,
   applyDeterministicDiscriminatingTestPatch,

@@ -190,8 +190,15 @@ const runOutcomeClass = (report: GenerationReport) => {
         <div class="mt-1 text-sm font-semibold text-slate-800">{{ formatDuration(report.total_duration_ms) }}</div>
       </div>
       <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-        <div class="text-xs text-slate-500">Cost</div>
-        <div class="mt-1 text-sm font-semibold text-slate-800">${{ report.total_cost.toFixed(3) }}</div>
+        <div class="text-xs text-slate-500">Cost (GBP)</div>
+        <!--
+          A_73 §24 — this printed `$` on a number the tracker computes in POUNDS.
+          `CostTracker`'s rate table is USD list pricing pre-multiplied by 0.79 (cost-tracker.ts),
+          so every run's cost was displayed in the wrong currency and ~27% low, to three decimals
+          of false precision. The value was always right; only the symbol was wrong, and the unit
+          lives in a comment in another package — see A_73 §20.1.
+        -->
+        <div class="mt-1 text-sm font-semibold text-slate-800">£{{ report.total_cost.toFixed(3) }}</div>
       </div>
     </div>
 

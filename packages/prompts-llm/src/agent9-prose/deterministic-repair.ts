@@ -21,6 +21,7 @@ import type { StageModeKey } from "./clue-validation.js";
 // Reuse the SAME death-method resolver the reveal-completeness gate uses, so the deterministic
 // fallback reveal surfaces exactly the token the gate checks for (no abort on the fallback path).
 import { resolveDeathMethod } from "./prompt-builder.js";
+import { CLEARANCE_TERMS_RE } from "../shared/clearance-vocabulary.js";
 import type {
   ChapterRequirementLedgerEntry,
   ProseChapter,
@@ -63,7 +64,7 @@ export interface DeterministicRepairResult {
 }
 
 const RAW_CLUE_ID_RE = /\bclue_[a-z0-9_]+\b/i;
-const CLEARANCE_TERMS_RE = /\b(cleared|ruled\s+out|eliminated|not\s+the\s+culprit|innocent|alibi\s+holds|alibi\s+confirmed|could\s+not\s+have)\b/i;
+// A_73 §11.1 — single-sourced; see shared/clearance-vocabulary.ts
 const CLEARANCE_EVIDENCE_RE = /\b(evidence|because|therefore|which\s+proves|proof|alibi|timeline|constraint|observation)\b/i;
 
 const normalizeClueStatement = (value: string): string =>
@@ -367,6 +368,8 @@ export const applyDeterministicCluePatch = (
     paragraphs.splice(insertionIndex, 0, ...buildDeterministicClueParagraphs(lateMaterials, investigatorName, false));
   }
 
+  recordCluePaste(materials.map((entry) => entry.clueId));
+
   return {
     chapter: {
       ...chapter,
@@ -375,6 +378,24 @@ export const applyDeterministicCluePatch = (
     insertedClueIds: materials.map((entry) => entry.clueId),
     insertedEarlyClueIds: earlyMaterials.map((entry) => entry.clueId),
   };
+};
+
+/**
+ * A_73 §15.1 — recorded at the point text is actually inserted, not at a call site.
+ *
+ * Counting at one call site is the mistake A_71 §3 made with the clearance injector and had to
+ * correct: this function has two internal insertion paths (early and late) and three callers. The
+ * tally lives where the paragraphs are spliced, so no caller can be added that escapes it.
+ */
+const recordCluePaste = (clueIds: string[]): void => {
+  if (clueIds.length === 0) return;
+  cluePasteCount += clueIds.length;
+  for (const id of clueIds) if (!cluePasteClueIds.includes(id)) cluePasteClueIds.push(id);
+  console.warn(
+    `[Agent 9][A_73] deterministic CLUE paste: ${clueIds.length} clue(s) injected as template prose ` +
+      `(${clueIds.join(", ")}). Run total ${cluePasteCount}. This is the register external readers ` +
+      `quote back as "prompt artifacts" — the repair belongs upstream, at whatever exhausted the retries.`,
+  );
 };
 
 // A_68: capitalize the first letter of any word that STARTS lowercase, leaving already-cased words
@@ -572,6 +593,32 @@ const buildDeterministicClearanceParagraph = (
  */
 let clearancePasteCount = 0;
 let clearancePasteSuspects: string[] = [];
+
+/**
+ * A_73 §15.1 — THE CLUE INJECTOR HAD NO COUNTER, AND IT IS THE ONE THE READER COMPLAINS ABOUT.
+ *
+ * Eight deterministic writers can put text into committed prose. Exactly one of them was counted:
+ * `deterministic_clearance_paste_count`, added by A_71 §3 for the clearance injector. The CLUE
+ * injector — whose output the 2026-08-23 reader quoted back as *"the main reason the polish score
+ * stays below 8"* (*"Victim last seen alive minutes past."*, *"bent the trail toward Temporal
+ * conflict hale alibi."*) — emitted nothing. Its firing rate was recoverable only by grepping raw
+ * run logs for `deterministic floor will apply`, which is how A_73 measured it at all.
+ *
+ * A_71 built exactly this instrument for the other injector one document earlier. This is the same
+ * instrument, on the injector that needed it more.
+ */
+let cluePasteCount = 0;
+let cluePasteClueIds: string[] = [];
+
+export const getDeterministicCluePasteTelemetry = (): {
+  count: number;
+  clueIds: string[];
+} => ({ count: cluePasteCount, clueIds: [...cluePasteClueIds] });
+
+export const resetDeterministicCluePasteTelemetry = (): void => {
+  cluePasteCount = 0;
+  cluePasteClueIds = [];
+};
 
 export const getDeterministicClearancePasteTelemetry = (): {
   count: number;

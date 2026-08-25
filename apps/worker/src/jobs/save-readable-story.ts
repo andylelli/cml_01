@@ -14,17 +14,18 @@
 
 import path from "path";
 import { mkdir, writeFile } from "fs/promises";
+import { repairMojibake } from "@cml/cml";
 import { deriveStoryTitle } from "@cml/prompts-llm";
 
 // Mojibake (double-encoded UTF-8) + smart-punctuation → ASCII, matching the API's sanitizeProsePayload +
 // the previous inline story normalisation. Idempotent, so pre-sanitised prose is unaffected.
-const MOJIBAKE: Array<[RegExp, string]> = [
-  [/â€™/g, "'"], [/â€˜/g, "'"], [/â€œ|â€\x9d/g, '"'], [/â€"|â€”/g, "—"], [/â€“/g, "–"],
-  [/â€¦/g, "..."], [/Â/g, ""], [/�/g, ""],
-];
+// A_73 §11.2 — was a private 8-rule table that disagreed with the API's 9-rule one (no façade rule,
+// `â€¦` → "..." vs "…"), so the file on disk and the rendered page were different text. Both now use
+// the one vocabulary in @cml/cml, which also carries the DOUBLE-ENCODED rules that were detect-only
+// while the release gate hard-stopped on them. The ASCII fold below is unchanged and still runs
+// after it, so this file's final output is identical for every input the old table handled.
 const normText = (value: unknown): string => {
-  let s = String(value ?? "");
-  for (const [re, rep] of MOJIBAKE) s = s.replace(re, rep);
+  const s = repairMojibake(value);
   return s
     .replace(/[‘’]/g, "'")
     .replace(/[“”]/g, '"')

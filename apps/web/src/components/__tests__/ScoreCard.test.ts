@@ -148,9 +148,14 @@ describe("ScoreCard", () => {
     expect(wrapper.text()).toContain("3m");
   });
 
-  it("displays cost formatted to 3 decimal places", () => {
+  it("displays cost in GBP, formatted to 3 decimal places", () => {
+    // A_73 §24 — this asserted "$5.450". The value has always been POUNDS: CostTracker's rate table
+    // is USD list pricing pre-multiplied by 0.79 (cost-tracker.ts), so the `$` was wrong and the
+    // figure read ~27% low in the wrong currency. The test passed the whole time because it pinned
+    // the symbol the component printed rather than the unit the number carries.
     const wrapper = mount(ScoreCard, { props: { report: makeReport({ total_cost: 5.45 }) } });
-    expect(wrapper.text()).toContain("$5.450");
+    expect(wrapper.text()).toContain("£5.450");
+    expect(wrapper.text()).not.toContain("$5.450");
   });
 
   it("shows phases passed/failed count", () => {

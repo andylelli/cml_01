@@ -158,8 +158,15 @@ export interface GenerationReport {
   run_id: string;
   generated_at: string;
   total_duration_ms: number;
+  /**
+   * GBP. A_73 §20.1/§24 — this field was unitless for its whole life and was rendered with a `$`
+   * in the UI. `CostTracker`'s rate table is USD list pricing pre-multiplied by 0.79, so every
+   * number that reaches here is already pounds. `scripts/run-cost-audit.mjs` prints USD unless
+   * `--gbp` is passed, which is the other half of why the two meters disagree.
+   * Name the unit here, not in a comment in another package.
+   */
   total_cost: number;
-  
+
   // Aggregate scores
   overall_score: number;      // Average of all phase scores
   overall_grade: string;      // A, B, C, D, F

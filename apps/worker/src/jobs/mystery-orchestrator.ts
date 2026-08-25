@@ -98,6 +98,7 @@ import {
 } from "./novelty-ledger.js";
 import { writeCorpusSnapshot } from "./corpus-snapshot.js";
 import { assertFlagCapabilities } from "./flag-preflight.js";
+import { registerShutdownFlush, clearShutdownFlush } from "../process-guards.js";
 import {
   applyResumeBundle,
   buildResumeDiagnostic,
@@ -958,6 +959,17 @@ export async function generateMystery(
       /* best-effort */
     }
   };
+
+  /**
+   * A_73 Part IV §1 — hand the process guards this run's flush.
+   *
+   * `savePartialReport` is a closure over `scoreAggregator` and `reportRepository`, so there is no
+   * module-level "current run" a signal handler could reach. Registering it here (and clearing it in
+   * this function's `finally`) is the whole coupling: on an unhandled rejection, an uncaught
+   * exception, or a Ctrl-C, the guards call exactly the writer A_71 §1.1 made honest, instead of the
+   * process vanishing with the run's only record unwritten.
+   */
+  registerShutdownFlush(savePartialReport);
 
   /**
    * A_70 §4 — stamp terminal "this run never finished" markers onto the surviving partial snapshot.
@@ -1952,6 +1964,10 @@ export async function generateMystery(
       errors: [...errors],
     };
     throw failureError;
+  } finally {
+    // A_73 Part IV §1 — the run is over, one way or another. A stale flush would let a LATER crash
+    // rewrite a finished run's report with a snapshot of the run before it.
+    clearShutdownFlush();
   }
 }
 

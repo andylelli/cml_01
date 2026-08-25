@@ -159,7 +159,44 @@ export function buildContinuityContext(
     if (conflicting.length > 0) {
       context += `⚠ CONFLICT: other times appear (${conflicting.join(', ')}). Use ONLY: "${authoritative}". All others are errors.\n`;
     }
-    context += '✓ RULE: Every reference to the clock MUST use exactly this phrase. No variation permitted.\n';
+    /**
+     * A_73 §2 — C4, THE LOCKED-FACT TAX, IN ITS ACTIONABLE FORM.
+     *
+     * A_72 §5.1/§10.3 priced C4 as a fair-play renegotiation: a canonical form plus a registered
+     * alias list, validated. It is not. The STORY VALIDATOR already requires the canonical value
+     * only ONCE across the whole book —
+     *
+     *     prose-consistency-validator.ts:423
+     *     // Missing-value: flag ONCE if the canonical value never appears in any chapter that references it.
+     *
+     * with a test pinning exactly that (`locked-fact-once.test.ts`, "value required ONCE, not per
+     * incidental mention"). The only per-scene hard error is `locked_fact_contradicted`, which fires
+     * on a DIFFERENT value near the fact's keywords.
+     *
+     * So the thing that puts the same seven words into fifteen of a book's eighty-nine dialogue
+     * spans — the reader's standing "catchphrase-heavy" complaint, and `dialogue` reaching 8 exactly
+     * once in 35 reads — is this prompt line, not the gate. Relaxing it needs no validator change
+     * and no alias registry.
+     *
+     * FLAG-GATED, DEFAULT OFF, because it changes the prose of every run and the house rule is that
+     * behaviour levers are probed before promotion. Off, the text below is byte-identical to what
+     * shipped before.
+     *
+     * ONE CONSTRAINT ON THE RELAXED FORM: `detectConflictingValue` hard-fails on a different
+     * NUMERIC/TIME-shaped value near the keywords, so the permitted alternatives must be
+     * non-numeric ("the tide time", "the hour the tide turned"). "eleven-ten" is exactly the shape
+     * that check exists to catch. The wording below says so rather than trusting the model to infer it.
+     */
+    const lockedFactAliasesEnabled = /^(1|true|yes|on)$/i.test(process.env.AGENT9_LOCKED_FACT_ALIASES ?? '');
+    if (lockedFactAliasesEnabled) {
+      context += `✓ RULE: State this phrase EXACTLY — "${authoritative}" — at least once in every chapter that turns on this fact.\n`;
+      context += '  After that first exact statement, later references in the SAME chapter may use natural language\n';
+      context += '  ("the tide time", "the hour the tide turned", "that hour"). Do NOT invent a different clock value,\n';
+      context += '  and do NOT re-word it as another time (e.g. "eleven-ten") — a different time reads as a contradiction.\n';
+      context += '  Fair play is preserved by the exact statement; repeating it verbatim in every line is not required.\n';
+    } else {
+      context += '✓ RULE: Every reference to the clock MUST use exactly this phrase. No variation permitted.\n';
+    }
   }
 
   context += '═══════════════════════════════════════════════════════════\n';

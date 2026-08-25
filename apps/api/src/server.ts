@@ -4,7 +4,7 @@ import { promises as fs } from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { createRepository } from "./db.js";
-import { validateCml } from "@cml/cml";
+import { validateCml, MOJIBAKE_REPLACEMENTS } from "@cml/cml";
 import { AzureOpenAIClient } from "@cml/llm-client";
 import { deriveStoryTitle, generateCharacterProfiles } from "@cml/prompts-llm";
 import { FileReportRepository, type AggregateStats } from "@cml/story-validation";
@@ -428,17 +428,11 @@ const describeError = (error: unknown) => {
   }
 };
 
-const MOJIBAKE_REPLACEMENTS: Array<[RegExp, string]> = [
-  [/â€™/g, "'"],
-  [/â€˜/g, "'"],
-  [/â€œ|â€\x9d/g, '"'],
-  [/â€"|â€”/g, "—"],
-  [/â€“/g, "–"],
-  [/â€¦/g, "…"],
-  [/faˆ§ade/g, "façade"],
-  [/Â/g, ""],
-  [/\uFFFD/g, ""],
-];
+// A_73 §11.2 — MOJIBAKE_REPLACEMENTS now comes from @cml/cml, shared with the worker's
+// save-readable-story normaliser, which kept a different 8-rule table. The two disagreed on the
+// façade rule and on the ellipsis target, so the saved manuscript and this rendered one were not
+// the same text. The shared table also repairs the DOUBLE-ENCODED family that the release gate
+// hard-stops on and that neither table could previously remove (A_73 §15.2).
 
 const ILLEGAL_CONTROL_CHAR_PATTERN = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g;
 

@@ -1,6 +1,19 @@
 # Agent 9 flag audit — S1
 
-**Date:** 2026-08-01 · **Scope:** all 33 `AGENT9_*` environment flags referenced in source (tests excluded).
+**Date:** 2026-08-01 · **Scope:** all `AGENT9_*` environment flags referenced in source (tests excluded).
+
+> **Scope line corrected 2026-08-24 (A_73 §13.2).** This said "all 33". Source now carries **45**
+> distinct `AGENT9_*` flags across both read idioms (`process.env.X` and the injected `env.X`), and
+> the audit does in fact name every one of them — twelve arrived after 2026-08-01 and the count in
+> the header was never updated. The number is deliberately no longer written here: a count in a
+> heading is a third body that has to be kept in step with the code and the register, and
+> `npm run flags:check` already compares those two.
+>
+> **Open, and outside this document's scope:** 22 default-OFF flags across Agents 1, 2, 2b, 2c, 2e,
+> 3b, 4, 5, 6 and 7 have had no equivalent audit — including `AGENT6_BLIND_READER_BLOCKING`,
+> `AGENT7_MECHANISM_GATE`, `AGENT7_PLANT_BEFORE_REVEAL`, `AGENT7_SCHEDULER_AUTHORITATIVE`,
+> `AGENT5_STRICT_PROMPT_CONTRACTS` and `AGENT2_CONSTRAINED_CAST`. This audit's own method —
+> *unset is not the same as off* — has never been pointed at them.
 **Task:** [REVIEW_01.md §5.7 S1](REVIEW_01.md#57-simplification-tasks) — classify every flag as **promote**, **delete**, or **defer with a named blocker**.
 
 ---

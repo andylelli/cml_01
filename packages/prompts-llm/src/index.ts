@@ -181,6 +181,8 @@ export {
   // A_71 — clearance-paste tally, the AGENT9_REGEN_SUSPECT_ELIM probe's read path.
   getDeterministicClearancePasteTelemetry,
   resetDeterministicClearancePasteTelemetry,
+  getDeterministicCluePasteTelemetry,
+  resetDeterministicCluePasteTelemetry,
 } from "./agent9-prose.js";
 export type {
   ProseDefect,
@@ -290,6 +292,13 @@ export {
   CML_2_0_SCHEMA_SUMMARY,
   AXIS_TYPE_DESCRIPTIONS,
 } from "./shared/schemas.js";
+// A_73 §11.1 — the one prose-stage clearance vocabulary (was seven bodies across five packages).
+export {
+  CLEARANCE_TERMS_RE,
+  CLEARANCE_TERMS_WITH_KILLER_RE,
+  CLEARANCE_EVIDENCE_RE,
+  CLEARANCE_TERMS_WIDE_ONLY,
+} from "./shared/clearance-vocabulary.js";
 
 export {
   loadSeedCMLFiles,

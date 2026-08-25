@@ -32,6 +32,7 @@ import { finishRegenPass, regenPassDidNotRun } from "./regen-registry.js";
 // The aftermath-repeat detector, imported rather than reimplemented: the repair must be validated
 // against the SAME body the acceptance test uses, or it can pass its own check and fail the real one.
 import { detectAftermathRepeatParagraphs } from "@cml/story-geometry";
+import { CLEARANCE_TERMS_WITH_KILLER_RE as CLEARANCE_TERMS, CLEARANCE_EVIDENCE_RE as CLEARANCE_EVIDENCE } from "../shared/clearance-vocabulary.js";
 
 const pronounFor = (gender: string): string => (gender === "male" ? "he/him" : gender === "female" ? "she/her" : "they/them");
 
@@ -214,8 +215,7 @@ const clueEarlyPlacementValidator =
 
 const escapeRe = (s: string): string => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-const CLEARANCE_TERMS = /\b(cleared|ruled\s+out|eliminated|not\s+the\s+(?:culprit|killer)|innocent|alibi\s+(?:holds|confirmed)|could\s+not\s+have)\b/i;
-const CLEARANCE_EVIDENCE = /\b(evidence|because|therefore|proof|alibi|timeline|witness(?:es)?|saw|seen|account)\b/i;
+// A_73 §11.1 — single-sourced (this is the +killer variant); see shared/clearance-vocabulary.ts
 
 /** A co-located clearance check for one suspect: name + clearance term + evidence connector in one paragraph. */
 const clearancePresenceValidator =
@@ -245,6 +245,33 @@ const preserveOriginalParagraphsValidator =
   (c: ProseChapter): ValidatorResult => {
     const present = new Set((c.paragraphs ?? []).map(normPara));
     const dropped = originalParagraphs.map(normPara).filter((p) => p.length > 0 && !present.has(p));
+    if (dropped.length > 0) {
+      /**
+       * A_73 §4.2/§4.3 — NAME WHAT THIS GUARD THREW AWAY.
+       *
+       * The 2026-08-23 run spent 18 `missing_clue` regen calls, and the log showed them failing in
+       * TWO different ways that nothing distinguished:
+       *
+       *   ch4 clue_5  ×2  "did not improve the targeted property (score 200, was 200)"
+       *   ch6 clue_14 ×4  "regen introduced: modified_or_dropped_original_paragraph:1"
+       *
+       * The second is not a clue failure at all — the regen was rejected by THIS guard, which is
+       * exact set-membership over whitespace-normalised paragraphs, so changing one word in any
+       * pre-existing paragraph rolls back the whole candidate INCLUDING a clue insertion that
+       * worked. Four paid calls on ch6 died here rather than to the thing they were sent to fix,
+       * and then the deterministic injector pasted the template prose the reader complains about.
+       *
+       * The guard is NOT loosened — it exists for the `repair.ts:153` lesson (a whole-chapter regen
+       * that re-genders a character or alters a locked-fact value in untouched text). What changes
+       * is that the rejected paragraph is now visible, so the next person can answer the question
+       * this pass could not: is the guard protecting the book, or discarding good repairs?
+       */
+      console.warn(
+        `[Agent 9][A_73] regen REJECTED by paragraph-preservation guard: ${dropped.length} original ` +
+          `paragraph(s) modified or dropped. First: "${dropped[0]!.slice(0, 120)}…" — the candidate is ` +
+          `discarded whole, including any obligation it satisfied.`,
+      );
+    }
     return {
       ok: dropped.length === 0,
       score: dropped.length === 0 ? 100 : 0,

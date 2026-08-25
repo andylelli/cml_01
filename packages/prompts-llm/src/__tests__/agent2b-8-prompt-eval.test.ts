@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { buildCMLPrompt } from "../agent3-cml.js";
 import { buildHardLogicDevicePrompt } from "../agent3b-hard-logic-devices.js";
 import { buildRevisionPrompt } from "../agent4-revision.js";
@@ -220,8 +222,14 @@ describe("Prompt Eval Harness: Agent 2b-8 Concept Coverage", () => {
       "src/agent2e-background-context.ts",
     ];
 
+    // A_73 §22 — this read `C:/CML/packages/prompts-llm/${relativePath}`, an absolute path to one
+    // developer's checkout. On any machine whose clone lives elsewhere the test does not fail on the
+    // property it asserts, it fails with ENOENT — so it reported "broken prompts" on a working tree
+    // and reported nothing at all about the prompts. Resolved from this file's own location instead,
+    // which is correct on every machine and needs no configuration.
+    const packageRoot = fileURLToPath(new URL("../..", import.meta.url));
     for (const relativePath of files) {
-      const fullPath = `C:/CML/packages/prompts-llm/${relativePath}`;
+      const fullPath = join(packageRoot, relativePath);
       const text = readFileSync(fullPath, "utf8");
       expect(text).toMatch(/Quality bar|Quality Bar/i);
       expect(text).toMatch(/Micro-exemplar|Micro-exemplars/i);

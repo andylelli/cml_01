@@ -106,3 +106,6 @@ export type CaseData = any;
 
 // Alias for validateCml function (used by agents)
 export { validateCml as validateCaseData };
+
+// A_73 §11.2 — the ONE mojibake repair vocabulary, paired with story-validation's MOJIBAKE_PATTERN.
+export { MOJIBAKE_REPLACEMENTS, repairMojibake } from "./mojibake.js";

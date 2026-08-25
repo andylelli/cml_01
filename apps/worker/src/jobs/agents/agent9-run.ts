@@ -68,6 +68,7 @@ import {
   runFullStoryDiagnostic,
   applyFullStoryDiagnosticFindings,
   getDeterministicClearancePasteTelemetry,
+  getDeterministicCluePasteTelemetry,
   resetDeterministicClearancePasteTelemetry,
   resolveStageModel,
   // Agent 7.5 geometry (architecture/GEOMETRY-AGENT-DESIGN.md §8.5/§8.6) — the negative-obligation
@@ -89,6 +90,8 @@ import {
   type NarrativeState,
   type BatchCommitRecord,
   type ReleaseGateAudit,
+  // A_73 §11.1 — the one prose-stage clearance vocabulary.
+  CLEARANCE_TERMS_RE,
 } from "@cml/prompts-llm";
 import { noScaffoldValidator, detectTemplateLeakage, detectScaffoldNotProse, detectDerivedContradictionLeak, detectEvidentiaryRegister } from "@cml/prose-guard";
 import {
@@ -100,7 +103,7 @@ import { validateArtifact, validateCml, isVictimArchetype, isDetectiveArchetype,
 // Agent 9 redesign Phase A (§4.2 / §9.7): the validation-gated-mutation law — a deterministic prose
 // pass may not ship a mutation it didn't re-validate. Default-off flag; legacy path byte-identical.
 import { mutateThenValidate, noMetadataDumpValidator } from "@cml/prose-guard";
-import { ProseScorer, StoryValidationPipeline, CharacterConsistencyValidator, repairChapterPronouns, repairPronouns, normalizeTitles, buildLocationRegistry, normalizeLocationNames, getGenerationParams, getPronounPolicySettings, validateCharacterLifecycle, CONFESSION_RE as LIFECYCLE_CONFESSION_RE, RECOLLECTION_FRAME_RE as LIFECYCLE_RECOLLECTION_RE, detectMissingCaseTransitionBridge, BRIDGE_TERMS, validateDialogueIdiolect, anonymiseNamedWalkOns, buildAllowedNameParts, computeArrestPivotIndex, ROLE_ALIAS_TERMS, detectAttributionFlips, detectImpossibleSelfReferences } from "@cml/story-validation";
+import { ProseScorer, StoryValidationPipeline, CharacterConsistencyValidator, repairChapterPronouns, repairPronouns, normalizeTitles, buildLocationRegistry, normalizeLocationNames, getGenerationParams, getPronounPolicySettings, validateCharacterLifecycle, DEATH_RE as LIFECYCLE_DEATH_RE, CONFESSION_RE as LIFECYCLE_CONFESSION_RE, RECOLLECTION_FRAME_RE as LIFECYCLE_RECOLLECTION_RE, detectMissingCaseTransitionBridge, BRIDGE_TERMS, validateDialogueIdiolect, anonymiseNamedWalkOns, buildAllowedNameParts, computeArrestPivotIndex, ROLE_ALIAS_TERMS, detectAttributionFlips, detectImpossibleSelfReferences } from "@cml/story-validation";
 import type { PhaseScore, CastEntry } from "@cml/story-validation";
 import {
   adaptProseForScoring,
@@ -1258,7 +1261,11 @@ const splitLifecycleSentences = (text: string): string[] =>
     ?.map((sentence) => sentence.trim())
     .filter(Boolean) ?? [];
 
-const LIFECYCLE_DEATH_RE = /\b(?:dead|body|corpse|deceased|lifeless|murdered|killed|slain)\b/i;
+// A_73 §11.3 — this was a verbatim second copy of `DEATH_RE` from @cml/story-validation. Two bodies
+// of the heuristic that has already caused a run-killing abort (ABORT CLASS #6: a cast name plus a
+// death word in one sentence marked the DETECTIVE deceased in ch3). Identical today, which is the
+// only reason it was latent rather than live. Now imported and aliased at the top of this file,
+// exactly as CONFESSION_RE and RECOLLECTION_FRAME_RE already were.
 const LIFECYCLE_ACTIVE_RE = /\b(?:said|asked|replied|answered|entered|stood|walked|looked|nodded|spoke|turned|moved|sat|rose|gestured|examined|handed|pointed|confessed|admitted)\b/i;
 const LIFECYCLE_TITLE_PREFIX_RE = /^(?:Dr|Miss|Mrs|Mr|Captain|Col|Colonel|Major|Sir|Lady|Lord|Prof|Professor|Reverend|Rev|Inspector|Detective|Sergeant)\.?\s+/i;
 
@@ -2329,7 +2336,8 @@ export const enforceSuspectEliminationPresence = (
     return prose;
   }
 
-  const ELIMINATION_TERMS = /\b(cleared|ruled\s+out|eliminated|not\s+the\s+culprit|innocent|alibi\s+holds|alibi\s+confirmed|could\s+not\s+have)\b/i;
+  // A_73 §11.1 — was the seventh copy of this regex. Single-sourced from @cml/prompts-llm; same matcher.
+  const ELIMINATION_TERMS = CLEARANCE_TERMS_RE;
   const EVIDENCE_TERMS = /\b(evidence|because|therefore|which\s+proves|proof|alibi|timeline|constraint|observation)\b/i;
 
   return injectSentenceIfAbsent(
@@ -5269,6 +5277,8 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       const integrityTelemetry = (prose.validationDetails as any)?.integrityTelemetry;
       const phraseRolloutFlags = phraseTelemetry?.rolloutFlags ?? {};
       const clearancePasteTelemetry = getDeterministicClearancePasteTelemetry();
+      // A_73 §15.1 — the clue injector now reports like the clearance one.
+      const cluePasteTelemetry = getDeterministicCluePasteTelemetry();
       return {
         template_linter_checks_run: linter?.checksRun ?? 0,
         template_linter_failed_checks: linter?.failedChecks ?? 0,
@@ -5296,6 +5306,8 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
         // in deterministic-repair.ts, across three call sites. This counts what actually shipped.
         deterministic_clearance_paste_count: clearancePasteTelemetry.count,
         deterministic_clearance_paste_suspects: clearancePasteTelemetry.suspects,
+        deterministic_clue_paste_count: cluePasteTelemetry.count,
+        deterministic_clue_paste_clue_ids: cluePasteTelemetry.clueIds,
         culprit_gate_alias_matches_count: culpritGateAliasMatchesCount,
         culprit_gate_false_positive_count: culpritGateFalsePositiveCount,
         phrase_telemetry_recurring_phrase_count: phraseTelemetry?.recurringPhraseCount ?? 0,

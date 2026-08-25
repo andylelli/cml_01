@@ -36,8 +36,12 @@ describe('an injected cost tracker', () => {
   });
 
   it('falls back to a private tracker when none is passed — the pre-existing behaviour', () => {
-    const a = new AzureOpenAIClient({ apiKey: 'k', endpoint: 'https://example.invalid' });
-    const b = new AzureOpenAIClient({ apiKey: 'k', endpoint: 'https://example.invalid' });
+    // A_73 Part IV §4 — `defaultModel` is now required at construction. These two clients exist only
+    // to compare cost trackers, so the model is irrelevant to what is asserted; it is supplied
+    // because the constructor no longer accepts "no model, decide later". Both production factories
+    // (cli-runtime.buildClient, jobs/index) already resolved it explicitly via requireAzureDeployment().
+    const a = new AzureOpenAIClient({ apiKey: 'k', endpoint: 'https://example.invalid', defaultModel: 'gpt-4.1-mini' });
+    const b = new AzureOpenAIClient({ apiKey: 'k', endpoint: 'https://example.invalid', defaultModel: 'gpt-4.1-mini' });
     expect(a.getCostTracker()).toBeDefined();
     expect(a.getCostTracker()).not.toBe(b.getCostTracker());
   });
@@ -46,7 +50,9 @@ describe('an injected cost tracker', () => {
     // A run uses an Azure client for prose and an Anthropic client for polish. Before this, only half
     // the bill could land in one place.
     const shared = new CostTracker();
-    const azure = new AzureOpenAIClient({ apiKey: 'k', endpoint: 'https://example.invalid', costTracker: shared });
+    // defaultModel supplied for the same reason as above (A_73 Part IV §4) — the Anthropic client
+    // beside it already required one, which is itself the inconsistency that fix closed.
+    const azure = new AzureOpenAIClient({ apiKey: 'k', endpoint: 'https://example.invalid', defaultModel: 'gpt-4.1-mini', costTracker: shared });
     const anthropic = new AnthropicClient({ apiKey: 'k', defaultModel: 'claude-sonnet-5', costTracker: shared });
     expect(azure.getCostTracker()).toBe(anthropic.getCostTracker());
   });

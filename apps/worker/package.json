@@ -20,6 +20,10 @@
     "./jobs/save-readable-story.js": {
       "types": "./dist/jobs/save-readable-story.d.ts",
       "default": "./dist/jobs/save-readable-story.js"
+    },
+    "./process-guards.js": {
+      "types": "./dist/process-guards.d.ts",
+      "default": "./dist/process-guards.js"
     }
   },
   "scripts": {
