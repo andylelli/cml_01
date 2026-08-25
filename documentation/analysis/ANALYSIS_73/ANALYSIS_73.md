@@ -747,3 +747,131 @@ Everything in Parts I–IV that was fixed, with what was deliberately not.
 **Verification.** `build:all` clean across all 16 packages. Test suites: cml 107 · llm-client 108 · prompts-llm 1,177 (7 skipped, needs credentials) · story-validation 497 · worker 664 · api 27 · web 174 — **~2,754 passing**. Two failures remain, both pre-existing and environmental: `fixed-seed-benchmark.replay.test.ts` and `report-invariants.replay.test.ts` read `validation/quality-report-*.json` fixtures that are gitignored and absent on this machine. They failed identically before any of this work.
 
 **Not verified, and it cannot be here.** No pipeline run. This machine's `.env.local` is the example stub (placeholder key, no deployment name), and `canary-core.mjs` correctly refuses rather than measuring an unattributable model. The two new instruments — the clue-paste count and the paragraph-guard warning — report for the first time on the next real run, which is also the run that would split §4.2's 18 `missing_clue` retries into their two actual causes.
+
+---
+---
+
+# PART V — ten passes over Agent 9
+
+**Written:** 2026-08-25, at the owner's request: *"focus on agent9, do 10 passes of different parts of agent9 code"*. One pass per major part of the ~27,500 lines of Agent 9 across `packages/prompts-llm/src/agent9-prose/` (19,125) and the worker side (8,429).
+
+**Why this matters more than the earlier passes.** Parts II–IV looked for defect SHAPES across the whole tree. This one reads one subsystem for what it actually does — and two of the findings are mechanisms behind complaints the project has been chasing from the reader's end for months.
+
+| # | Part | Finding | Severity |
+|---|---|---|---|
+| 9 | `context-management.ts` | continuity records one sentence per chapter | **High** |
+| 2 | `prompt-builder.ts` | 8 of 13 critical blocks uncapped; the floor grows | **High** |
+| 3 | `regen-repair.ts` | a repair can be credited for fixing a different defect | Medium |
+| 4 | `clue-validation.ts` | effective match threshold is not 55%, and the comment says 60% | Medium |
+| 6 | `deterministic-repair.ts` | clearance injector pastes into the chapter's opening | Medium |
+| 1 | `generate.ts` | attempt thresholds are literals coupled to config by coincidence | Medium |
+| 8 | `polish-provider.ts` | the cache reset is never called, so its warning is once-per-process | Low |
+| 5 | `lint.ts` | `archetype_violation` is a dead union member | Low |
+| 7 | `obligation-block.ts` | clean | — |
+| 10 | `agent9-run.ts` | clean (REVIEW_15's hard-stop inventory still holds) | — |
+
+---
+
+## 30. The continuity summary reads three paragraphs and renders one sentence
+
+**MEASURED**, [`context-management.ts`](../../../packages/prompts-llm/src/agent9-prose/context-management.ts):
+
+```js
+line  57   chapter.paragraphs.slice(0, 3).forEach(para => { ...first sentence... })
+line  69   keyEvents: keyEvents.slice(0, 3)      // three collected
+line 131   context += `  Events: ${summary.keyEvents[0]}\n`;   // ONE rendered
+```
+
+A chapter is 15–25 paragraphs (~1,000 words). The record of *"what happened in chapter N"* that every later chapter reads is therefore **the first sentence of chapter N's first paragraph**. Everything the chapter actually does — the discovery, the confrontation, the reveal, all of which sit in the middle and at the end — never enters continuity at all. Three key events are collected and two are discarded at render time.
+
+**INFERRED, and it lines up with two long-standing complaints.** A mechanism that is supposed to tell a chapter what ground has already been covered, and which systematically samples the part of each chapter where nothing has happened yet, is a plausible cause of *"Chapter 9 repeats Chapter 8"* — named in four of the top eight reads — and of the `aftermath_consequence` retry family. It also undermines the May plan's Fix 3: the clock-anchor extraction at line 140 scans prior `keyEvents`, so a time established mid-chapter is invisible to it.
+
+The comment calls it *"a simple heuristic"*, and as a sampling strategy for a summary it is defensible. Rendering only `keyEvents[0]` after deliberately collecting three is not.
+
+## 31. Eight of thirteen critical prompt blocks are uncapped
+
+**MEASURED.** Of 29 declared context blocks, 13 carry a `perBlockTokenCap`. Cross-referencing against priority:
+
+```
+CRITICAL and capped      character_pressure_contract · fair_play_contract
+                         first_appearance_contracts · pronoun_accuracy
+CRITICAL and UNCAPPED    narrative_state · locked_facts · clue_descriptions
+                         provisional_scoring_feedback · scene_grounding
+                         character_consistency · discriminating_test
+                         geometry_chapter · geometry_time
+```
+
+Critical blocks are never dropped by the squeeze **and** never truncated. So the critical floor is unbounded by construction — and several of those blocks **grow with chapter number**: `narrative_state` accumulates chapter summaries and revealed clues, `locked_facts` grows as X51 extends the registry with case facts, `provisional_scoring_feedback` accumulates.
+
+**This is the mechanism under [X47](../../../architecture/REVIEW_05.md)'s measured futility.** Its own comment records the symptom exactly — *"no drop sequence can [reach the budget], once the critical floor exceeds what is available"* — and attributes it to the drop loop. The loop is not the cause. The floor is, and it rises monotonically with the chapter number, which is why chapters 8–10 shipped 5,499 / 5,737 / 4,723 tokens of context into 2,585 / 2,191 / 378 of headroom. X47's craft floor protects craft blocks from the loop; it does not stop the floor growing past the ceiling.
+
+## 32. A repair can be credited for fixing a different defect
+
+**MEASURED**, [`regen-repair.ts:174`](../../../packages/prompts-llm/src/agent9-prose/regen-repair.ts#L174) with [`regen-integration.ts:314`](../../../packages/prompts-llm/src/agent9-prose/regen-integration.ts#L314):
+
+```js
+// composed ONCE, over every defect in the chapter
+const validate = composeChapterValidator(
+  preserveOriginalParagraphsValidator(...),
+  ...args.defects.map((d) => args.presenceValidatorFor(d)),
+);
+// …then used to judge each defect's repair, one at a time
+for (const defect of ordered) { await regenThenValidate(current, …, validate, …) }
+```
+
+`composeChapterValidator` returns `score` as the **sum across all checks**, and `acceptanceReason` accepts when `after.score > before.score`. So a regen aimed at clue A which fails to insert A, but whose rewrite incidentally surfaces clue B's tokens, scores +100 and is accepted — marking A `applied` and keeping it out of `unresolved`, so it never reaches the deterministic floor.
+
+The commit-time obligation check still catches the genuinely-missing clue, so this does not ship a broken book. What it costs is a paid call spent on the wrong conclusion and a `repaired` list that is not true — the same class of instrument defect as A_71 §2, one layer down.
+
+## 33. The clue matcher's effective threshold is neither 55% nor 60%
+
+**MEASURED**, [`clue-validation.ts:832`](../../../packages/prompts-llm/src/agent9-prose/clue-validation.ts#L832). The comment says *"Threshold 0.6 for factual clues: 60% of semantic tokens must match"*; the constant on the next line is `0.55`. And `requiredMatches = Math.max(1, Math.ceil(tokens.length * threshold))` over tokens capped at 10 gives:
+
+```
+tokens      1     2     3     4     5     6     7     8     9    10
+required    1     2     2     3     3     4     4     5     5     6
+effective 100%  100%   67%   75%   60%   67%   57%   63%   56%   60%
+```
+
+Non-monotonic, and for a clue whose observable yields one or two long non-stopword tokens the requirement is **100%** — the prose must reproduce those exact words. A_73 §4.2 could not decide whether the `score 200, was 200` unresolvable regens were the model failing to plant a clue or the matcher failing to see it. This is a concrete mechanism for the second, and it is testable the moment the archive is available: take the clues that went unresolved and count their usable tokens.
+
+## 34. The clearance injector pastes into the chapter's opening
+
+**MEASURED**, [`deterministic-repair.ts:645`](../../../packages/prompts-llm/src/agent9-prose/deterministic-repair.ts#L645):
+
+```js
+const insertionIndex = Math.min(Math.max(1, paragraphs.length - 1), 2);   // always 1 or 2
+…
+paragraphs.splice(insertionIndex, 0, ...additions);   // ALL clearances, one contiguous block
+```
+
+Index 1 or 2 regardless of chapter length, with no comment justifying the `2`. The sibling clue injector appends near the end and carries an explicit note about why it must not land at the top (*"an index-0 template becomes the chapter OPENING, which the scaffold regen then dramatizes…"*).
+
+So the clearance prose two external reads named as the top polish drag is not merely template-shaped — it is inserted where it pre-empts the chapter's own scene, and when three suspects need clearing the reader gets three consecutive template paragraphs at paragraph two.
+
+## 35. Attempt thresholds are literals, coupled to a tunable config by coincidence
+
+**MEASURED.** `generate.ts` holds two attempt thresholds as constants:
+
+```js
+line  190   residualPronounAcceptanceAttempt: 3
+line 1904   const useTerminalRetryMode = attempt >= Math.max(3, maxAttempts - 1);
+```
+
+Agent 9's `default_max_attempts` is **3**, clamped to 1–8 by `generation-params.ts`. Both literals therefore mean "the final attempt" **only because the config currently equals 3**:
+
+- raise it to 6 and residual pronoun mismatches start being accepted at attempt 3 of 6 — the gate gives up with half the retry budget unspent;
+- lower it to 2 and `useTerminalRetryMode` becomes unreachable, because the loop never reaches 3.
+
+One concept — *how many attempts do we get* — with its budget in config and its give-up points as literals.
+
+## 36. Two small ones
+
+- **`resetPolishProviderCache` is exported and never called** ([`polish-provider.ts:71`](../../../packages/prompts-llm/src/agent9-prose/polish-provider.ts#L71)). So `missingKeyWarned` is once per **process**, not per run: in the long-lived API process only the first run ever logs *"AGENT9_POLISH_PROVIDER=anthropic but ANTHROPIC_API_KEY is unset — falls back to the default provider"*. Given full-story polish has never executed on any of 15 archived reports while PLAN-TO-90 §0b.1 asserts the key is configured, this is precisely the gap that lets that go unnoticed.
+- **`archetype_violation` is declared in `ProseLinterIssue["type"]` and raised nowhere.** A dead union member; the capability it names does not exist.
+
+## 37. What came back clean
+
+- **`lint.ts`** — the other 13 issue types all map to the declared union, and `macroArcPlan` is genuinely consumed (archetype comparison at 448, RESOLUTION check at 786). Not an inert option.
+- **`obligation-block.ts`** — bounded throughout; the continuity tail truncates at 220 characters with an ellipsis. Nothing to report.
+- **`agent9-run.ts`** — the hard-stop inventory still matches [REVIEW_15](../../../architecture/REVIEW_15.md): seven conditions, of which mojibake, illegal characters, duplicate headings and leakage are text hygiene, while fair-play audit failure, elimination coverage and clue visibility are substantive. Unchanged since it was documented, and re-confirmed here rather than assumed.

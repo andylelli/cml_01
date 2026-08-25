@@ -642,7 +642,29 @@ export const applyDeterministicClearancePatch = (
   const uniqueClearances = dedupeMatchingClearances(clearances);
   const paragraphs = [...chapter.paragraphs];
   const insertedSuspects: string[] = [];
-  const insertionIndex = Math.min(Math.max(1, paragraphs.length - 1), 2);
+  /**
+   * A_73 §34 — WHERE THE CLEARANCE PROSE LANDS.
+   *
+   * WAS: `Math.min(Math.max(1, paragraphs.length - 1), 2)` — index 1 or 2 regardless of chapter
+   * length, with no comment justifying the 2, and ALL clearances spliced in as one contiguous
+   * block. So when three suspects needed clearing the reader got three consecutive template
+   * paragraphs at paragraph two, ahead of the chapter's own scene.
+   *
+   * The sibling clue injector appends near the end and carries an explicit note about why it must
+   * not land at the top: *"an index-0 template becomes the chapter OPENING, which the scaffold regen
+   * then dramatizes as the investigator announcing the case to assembled listeners."* The same
+   * reasoning applies here and was never applied.
+   *
+   * This is the injector whose register two external reads named as the top prose-polish drag
+   * (A_71 §3). Position is not the whole of that complaint, but a conclusion-shaped paragraph
+   * pre-empting the scene it concludes is part of it.
+   *
+   * Flag-gated: it moves text in every chapter that clears a suspect. Off, the index is unchanged.
+   */
+  const foldToEnd = /^(1|true|yes|on)$/i.test(process.env.AGENT9_CLEARANCE_AT_END ?? '');
+  const insertionIndex = foldToEnd
+    ? Math.max(1, paragraphs.length - 1)
+    : Math.min(Math.max(1, paragraphs.length - 1), 2);
   const additions: string[] = [];
   for (const clearance of uniqueClearances) {
     if (chapterHasCoLocatedClearance(paragraphs, clearance.suspect_name)) continue;

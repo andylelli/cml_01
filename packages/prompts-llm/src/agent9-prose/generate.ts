@@ -127,7 +127,7 @@ import {
   runAtmosphereRepairIfNeeded,
 } from "./repair.js";
 import { polishPassingChapter, runFullStoryRepetitionPolish, shouldPolishChapter } from "./post-pass-polish.js";
-import { resolvePolishProvider } from "./polish-provider.js";
+import { resolvePolishProvider, resetPolishProviderCache } from "./polish-provider.js";
 import {
   applyDeterministicClearancePatch,
   buildCompletionFallbackChapter,
@@ -184,14 +184,25 @@ export interface ProvisionalChapterScore {
   directives: string[];
 }
 
-const CHAPTER_ACCEPTANCE_POLICY = {
-  // Accept residual pronoun mismatches once explicit retry guidance and deterministic
-  // repair have already been attempted repeatedly for the chapter.
-  residualPronounAcceptanceAttempt: 3,
-};
+/**
+ * A_73 §35 — GIVE-UP POINTS ARE DERIVED FROM THE BUDGET, NOT WRITTEN AS LITERALS BESIDE IT.
+ *
+ * This was `residualPronounAcceptanceAttempt: 3`, and it meant "the final attempt" only because
+ * `agent9_prose.generation.default_max_attempts` also happens to be 3. That value is configurable
+ * and `generation-params.ts` clamps it to 1..8, so the literal silently changed meaning with it:
+ *
+ *   maxAttempts = 6  ->  residual pronoun mismatches accepted from attempt 3 of 6, i.e. the gate
+ *                        gives up with HALF the retry budget still unspent
+ *   maxAttempts = 2  ->  never reached
+ *
+ * Pronoun drift is the defect A_72 §3 shows the whole `character_clarity` ladder is built on, so
+ * "when do we stop trying" is not a number to leave floating. It is now the FINAL attempt by
+ * construction, whatever the budget is — which is what 3-of-3 meant when it was written.
+ */
+const residualPronounAcceptanceAttempt = (maxAttempts: number): number => Math.max(1, maxAttempts);
 
-const shouldAcceptResidualPronounIssues = (attempt: number): boolean =>
-  attempt >= CHAPTER_ACCEPTANCE_POLICY.residualPronounAcceptanceAttempt;
+const shouldAcceptResidualPronounIssues = (attempt: number, maxAttempts: number): boolean =>
+  attempt >= residualPronounAcceptanceAttempt(maxAttempts);
 
 const shouldTreatBatchAsAttemptsExhausted = (
   attempt: number,
@@ -1901,7 +1912,11 @@ export function buildCanonicalRetryBrief(args: {
     maxAttempts,
     packet,
   });
-  const useTerminalRetryMode = attempt >= Math.max(3, maxAttempts - 1);
+  // A_73 §35 — was Math.max(3, maxAttempts - 1). The constant 3 dominated at the live budget of 3
+  // and made this unreachable at maxAttempts <= 2, so the escalation designed for the closing
+  // attempts disappeared entirely if anyone lowered the budget. Now: the last attempt, or the one
+  // before it when there is one — the intent, expressed against the budget rather than beside it.
+  const useTerminalRetryMode = attempt >= Math.max(1, maxAttempts - 1);
   const retryPhaseInfo = classifyRetryPhase(errors);
 
   let feedback: string;
@@ -2038,6 +2053,14 @@ export async function generateProse(
   inputs: ProseGenerationInputs,
   maxAttempts?: number
 ): Promise<ProseGenerationResult> {
+  /**
+   * A_73 §36 — the polish provider caches its resolution AND a one-shot "key is unset" warning in
+   * module state. `resetPolishProviderCache` existed for exactly this and was called NOWHERE, so in
+   * the long-lived API process only the first run of the process ever logged that polish had fallen
+   * back to the default provider. Every run after it fell back silently — on the one craft lever
+   * that has never executed in 15 archived reports while PLAN-TO-90 records the key as configured.
+   */
+  resetPolishProviderCache();
   const configuredMaxAttempts = getGenerationParams().agent9_prose.generation.default_max_attempts;
   const resolvedMaxAttempts = maxAttempts ?? configuredMaxAttempts;
   const enableSurgicalFingerprintRetry = inputs.enableSurgicalFingerprintRetry !== false;
@@ -3113,7 +3136,7 @@ export async function generateProse(
                   chapterErrors.push(...residualEntityIssues);
                 }
                 if (residualPronounIssues.length > 0) {
-                  if (shouldAcceptResidualPronounIssues(attempt)) {
+                  if (shouldAcceptResidualPronounIssues(attempt, maxBatchAttempts)) {
                     // After two LLM passes with explicit pronoun feedback and targeted repair,
                     // residual issues are in mixed-gender context sentences the repair cannot
                     // safely fix without risking false replacements. Accept at attempt 3+ to
@@ -3127,7 +3150,7 @@ export async function generateProse(
                   }
                 }
               } else {
-                if (shouldAcceptResidualPronounIssues(attempt)) {
+                if (shouldAcceptResidualPronounIssues(attempt, maxBatchAttempts)) {
                   // Targeted repair made 0 additional fixes after two passes. These issues
                   // survived all repair attempts and are unresolvable without risking false
                   // replacements in ambiguous-context sentences. Accept at attempt 3+.

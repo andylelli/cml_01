@@ -70,6 +70,7 @@ import {
   getDeterministicClearancePasteTelemetry,
   getDeterministicCluePasteTelemetry,
   resetDeterministicClearancePasteTelemetry,
+  resetDeterministicCluePasteTelemetry,
   resolveStageModel,
   // Agent 7.5 geometry (architecture/GEOMETRY-AGENT-DESIGN.md §8.5/§8.6) — the negative-obligation
   // repair pass, and the one clock-time parser the acceptance test must share.
@@ -3660,6 +3661,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   // replay harness that calls runAgent9 twice in one process cannot carry the first run's count
   // into the second and make a probe read as a change it never was.
   resetDeterministicClearancePasteTelemetry();
+  resetDeterministicCluePasteTelemetry();
 
   if (!ctx.cml || !ctx.cast || !ctx.characterProfiles || !ctx.locationProfiles || !ctx.temporalContext || !ctx.hardLogicDevices || !ctx.narrative || !ctx.clues || !ctx.coverageResult || !ctx.outlineCoverageIssues) {
     throw new Error("Agent 9 precondition failed: missing required upstream artifacts before prose generation.");

@@ -178,6 +178,12 @@ export async function runRegenRepair(
   regenerate: RegenFn,
   validate: ChapterValidator,
   options: RegenRepairOptions = {},
+  /**
+   * A_73 §32 — the per-defect validator, so acceptance can be judged on the property being
+   * repaired rather than on a sum across every defect in the chapter. Optional: callers that do
+   * not supply it keep the previous whole-composite behaviour exactly.
+   */
+  presenceValidatorFor?: (defect: ProseDefect) => ChapterValidator,
 ): Promise<RegenRepairResult> {
   const maxAttempts = Math.max(1, options.maxAttemptsPerDefect ?? 2);
   let current = chapter;
@@ -188,11 +194,41 @@ export async function runRegenRepair(
   const ordered = [...defects].sort((a, b) => (a.severity === b.severity ? 0 : a.severity === "hard" ? -1 : 1));
 
   for (const defect of ordered) {
+    /**
+     * A_73 §32 — JUDGE THE DEFECT THAT WAS REPAIRED, NOT THE SUM.
+     *
+     * `validate` is composed ONCE over every defect in the chapter, and `composeChapterValidator`
+     * returns `score` as the SUM across all checks. Repairs, however, happen one defect at a time.
+     * So a regen aimed at clue A which failed to insert A, but whose rewrite incidentally surfaced
+     * clue B's tokens, scored +100 and was accepted — marking A `applied`, keeping it out of
+     * `unresolved`, and therefore out of the deterministic floor that exists to catch it.
+     *
+     * The commit-time obligation check still caught the genuinely-missing clue, so this never
+     * shipped a broken book. It spent a paid call to reach the wrong conclusion and then reported a
+     * `repaired` list that was not true.
+     *
+     * The fix keeps BOTH conditions rather than swapping one for the other:
+     *   - the targeted defect's own validator must improve  (progress on the right thing)
+     *   - the composite must not regress                    (no collateral damage) — unchanged
+     * A defect with no presence validator of its own falls back to the composite, which is the
+     * previous behaviour.
+     */
+    const targeted = presenceValidatorFor?.(defect);
+    const scopedValidate: ChapterValidator = targeted
+      ? (chapter) => {
+          const whole = validate(chapter);
+          const own = targeted(chapter);
+          // `ok` and `violations` stay whole-chapter so collateral regressions still reject.
+          // `score` becomes the targeted property's, so "improved" can only mean THIS defect.
+          return { ok: whole.ok, score: own.score, violations: whole.violations };
+        }
+      : validate;
+
     const res = await regenThenValidate(
       current,
       (c) => buildRequest(c, defect),
       regenerate,
-      validate,
+      scopedValidate,
       maxAttempts,
     );
     current = res.chapter;

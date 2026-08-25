@@ -1327,6 +1327,12 @@ export const buildPromptContextBlocks = (sections: PromptSectionInputs): PromptC
  * reason `buildPromptContextBlocks` gives about its own flag — changing which block is dropped under
  * budget pressure is a behaviour change on every run, and it owes a before/after.
  */
+/**
+ * A_73 §31 — `AGENT9_CRITICAL_BLOCK_CAPS`, read at call time (the dotenv-freeze trap). Default OFF.
+ */
+const criticalBlockCapsEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(env.AGENT9_CRITICAL_BLOCK_CAPS ?? "");
+
 const isPromptBudgetCraftFloorEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
   /^(1|true|yes|on)$/i.test(env.AGENT9_PROMPT_BUDGET_CRAFT_FLOOR ?? '');
 
@@ -1413,6 +1419,41 @@ export const applyPromptBudgeting = (
     continuity_context: 500,    // chapter-summary + recurring-phrase list; compact by design
     humour_guide: 850,          // full humour guidelines page; 850 matches craft_guide budget
     craft_guide: 850,           // emotional-depth guidelines page; 850 tested empirically against full content
+
+    /**
+     * A_73 §31 — THE CRITICAL FLOOR WAS UNBOUNDED, AND THAT IS WHY THE SQUEEZE IS FUTILE.
+     *
+     * Critical blocks are never dropped by the loop below AND, until now, never truncated: 8 of the
+     * 13 criticals had no cap. Several of them GROW WITH CHAPTER NUMBER — `narrative_state`
+     * accumulates chapter summaries and revealed clues, `locked_facts` grows as X51 extends the
+     * registry with case facts, `provisional_scoring_feedback` accumulates across attempts. So the
+     * floor rises monotonically through a run until it exceeds the whole budget.
+     *
+     * X47 measured the symptom exactly — chapters 8-10 shipping 5,499 / 5,737 / 4,723 tokens of
+     * context into 2,585 / 2,191 / 378 of headroom, with the loop dropping `craft_guide` and
+     * `judged_on` and never reaching the budget anyway — and attributed it to the drop loop. The
+     * loop is not the cause. It cannot succeed against a floor that outgrows the ceiling, and X47's
+     * craft floor protects craft blocks FROM the loop without stopping the floor from growing.
+     *
+     * These caps are deliberately GENEROUS: each sits well above the block's typical size, so on a
+     * normal chapter nothing truncates and behaviour is unchanged. They bound the tail — the late
+     * chapters where accumulation, not content, is what fills the block.
+     *
+     * Flag-gated, because truncating a critical block is a real behaviour change under budget
+     * pressure and `buildPromptContextBlocks` already names that as the strongest reason to sit
+     * behind a flag rather than ship as a free optimisation.
+     */
+    ...(criticalBlockCapsEnabled()
+      ? {
+          narrative_state: 1600,              // grows with committed chapters
+          locked_facts: 1200,                 // grows with the registry (device + case facts)
+          clue_descriptions: 1200,            // grows with the clue set (~17 on a typical run)
+          provisional_scoring_feedback: 900,  // accumulates across attempts
+          scene_grounding: 900,
+          character_consistency: 900,
+          discriminating_test: 900,
+        }
+      : {}),
   };
 
   const truncatedBlocks: string[] = [];

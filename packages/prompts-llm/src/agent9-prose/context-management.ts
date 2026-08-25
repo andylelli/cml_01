@@ -23,6 +23,14 @@ import type {
   ChapterSummary,
   ProseGenerationInputs,
 } from "./types.js";
+/**
+ * A_73 §30 — `AGENT9_CONTINUITY_SPAN`, read at CALL time, not at module load (the dotenv-freeze
+ * trap this repo has paid for before). One reader for both halves of the change: what gets sampled
+ * from a chapter, and how much of it gets rendered. Default OFF.
+ */
+export const spanContinuitySummary = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(env.AGENT9_CONTINUITY_SPAN ?? '');
+
 export function extractChapterSummary(chapter: ProseChapter, chapterNumber: number, castNames: string[]): ChapterSummary {
   const text = chapter.paragraphs.join(' ');
   
@@ -52,9 +60,36 @@ export function extractChapterSummary(chapter: ProseChapter, chapterNumber: numb
     });
   });
   
-  // Extract first sentence of each paragraph as key events (simple heuristic)
+  /**
+   * A_73 §30 — WHAT A CHAPTER IS REMEMBERED BY.
+   *
+   * WAS: `chapter.paragraphs.slice(0, 3)` — the first sentence of each of the FIRST THREE
+   * paragraphs. A chapter is 15–25 paragraphs of ~1,000 words, so everything a chapter actually
+   * does — the discovery, the confrontation, the reveal, all of which sit in the middle and at the
+   * end — never entered continuity. The summary described the chapter's setup, not its content.
+   *
+   * That matters because this summary is the ONLY record later chapters get of what has already
+   * happened. A mechanism meant to stop a chapter re-treading old ground, which samples the part of
+   * each chapter where nothing has happened yet, is a plausible cause of *"Chapter 9 repeats
+   * Chapter 8"* — named in four of the top eight external reads — and of the `aftermath_consequence`
+   * retry family, 21 of 54 archived chapter retries. It also undermines the clock-anchor
+   * propagation below, which scans prior `keyEvents` for an established time phrase: a time
+   * established mid-chapter was invisible to it.
+   *
+   * NOW: sample ACROSS the chapter — beginning, middle, end — so the three recorded events span it.
+   * Flag-gated because it changes the continuity block on every chapter of every run, and the house
+   * rule is that behaviour levers are probed before promotion. Off, this is byte-identical to what
+   * shipped.
+   */
+  const spanSummary = spanContinuitySummary();
+  const paras = chapter.paragraphs ?? [];
+  const sampled = spanSummary && paras.length > 3
+    ? [paras[0]!, paras[Math.floor(paras.length / 2)]!, paras[paras.length - 1]!]
+    : paras.slice(0, 3);
+
+  // Extract first sentence of each sampled paragraph as key events (simple heuristic)
   const keyEvents: string[] = [];
-  chapter.paragraphs.slice(0, 3).forEach(para => {
+  sampled.forEach(para => {
     const firstSentence = para.match(/^[^.!?]+[.!?]/);
     if (firstSentence && firstSentence[0].length < 150) {
       keyEvents.push(firstSentence[0].trim());
@@ -128,7 +163,14 @@ export function buildContinuityContext(
     recentSummaries.forEach(summary => {
       context += `Chapter ${summary.chapterNumber}: ${summary.title}\n`;
       if (summary.keyEvents.length > 0) {
-        context += `  Events: ${summary.keyEvents[0]}\n`;
+        /**
+         * A_73 §30 — three events are collected and capped at three; this rendered `keyEvents[0]`
+         * and silently dropped the other two. Under the same flag the whole set is emitted, so a
+         * chapter is remembered by what it did rather than by how it opened. Off, one event, as
+         * before.
+         */
+        const events = spanContinuitySummary() ? summary.keyEvents : summary.keyEvents.slice(0, 1);
+        context += `  Events: ${events.join(' · ')}\n`;
       }
     });
     context += '\n';

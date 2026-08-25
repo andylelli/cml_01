@@ -829,7 +829,10 @@ export const chapterMentionsRequiredClue = (
   // token-level validation.  Accept rather than perpetually failing.
   if (tokens.length === 0) return descIsGenreLabel ? true : false;
   const matched = tokens.filter((t) => tokenMatchesText(t, lowered));
-  // Threshold 0.6 for factual clues: 60% of semantic tokens must match.
+  // A_73 §33 — the nominal threshold is 0.55, NOT the 0.6 this comment claimed for months. And the
+  // EFFECTIVE threshold is neither: requiredMatches rounds UP over a token list capped at 10, so it
+  // runs 100%, 100%, 67%, 75%, 60%, 67%, 57%, 63%, 56%, 60% for 1..10 tokens — non-monotonic, and a
+  // clue yielding one or two usable tokens must be reproduced VERBATIM to count as present.
   // Behavioural/emotional clues use synonym-rich vocabulary — relax to 0.35 so e.g.
   // "nervousness" is satisfied by "fidgeted", "uneasy", "agitated" (R35 abort root cause).
   const factualThreshold = 0.55;

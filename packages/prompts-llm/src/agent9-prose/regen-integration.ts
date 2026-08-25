@@ -322,6 +322,8 @@ export async function runInsertionRegenPass(args: {
     args.regen,
     validate,
     { maxAttemptsPerDefect: args.maxAttemptsPerDefect ?? 2, onUnresolved: args.onUnresolved },
+    // A_73 §32 — judge each repair on its own defect, not on the sum over all of them.
+    (d) => args.presenceValidatorFor(d),
   );
   return finishRegenPass(result.chapter, args.defects, result.unresolved);
 }
