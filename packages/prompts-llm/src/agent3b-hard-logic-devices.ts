@@ -383,9 +383,31 @@ Output JSON only, with this exact structure:
         { "id": "<short_snake_case_id>", "value": "<the locked value, in word form — see NOTES below>", "description": "<the exact physical fact this pins down for THIS device>" },
         { "id": "<another_fact_id>", "value": "<word-form value>", "description": "<what it pins down>", "derivedFrom": ["<id>", "<id>"] }
       ]
-      // "derivedFrom" is OPTIONAL and goes only on a value that FOLLOWS ARITHMETICALLY from exactly two
-      // others — see the CRITICAL note on consequences below. Omit it everywhere else; a value with no
-      // derivedFrom is treated as fixed by the mechanism and is never adjusted for you.
+      // "derivedFrom" is REQUIRED on any value that FOLLOWS ARITHMETICALLY from exactly two others,
+      // and forbidden everywhere else. This is not a formatting preference — it is the only signal
+      // that tells the pipeline which number is a CONSEQUENCE and may therefore be corrected, and
+      // which is a PRIMARY value fixed by the mechanism and must never be touched.
+      //
+      // CRITICAL — CONSEQUENCES. If your device states two clock times and the interval between
+      // them, the interval is a consequence: it follows from the two times and cannot disagree with
+      // them. Put derivedFrom on the interval, naming the two clock-fact ids:
+      //     { "id": "clock_shift_interval", "value": "thirty minutes",
+      //       "description": "how far the clock was moved",
+      //       "derivedFrom": ["reception_clock_time_seen", "kitchen_clock_time_punched"] }
+      // Then CHECK YOUR OWN ARITHMETIC before you answer: if the two times are twenty-five minutes
+      // apart, the interval is "twenty-five minutes". Locked facts are injected into the prose
+      // VERBATIM, so a reader meets both numbers in the same book — and a cold read has twice marked
+      // the clue logic down to 6/10 for exactly this contradiction (2026-08-15 and 2026-08-25).
+      //
+      //
+      // THE INTERVAL IS NOT ALWAYS THE CONSEQUENCE. In a clock-tampering device the interval follows
+      // from the two times, so the interval carries derivedFrom. In a device built on a PHYSICAL
+      // CONSTANT — a poison's onset, a tide's period, a fuse's burn — the duration is fixed by nature
+      // and the TIMES follow from it; there, derivedFrom goes on the derived clock value, not on the
+      // duration. Decide which of your numbers nature fixes and which your plot computes, and mark
+      // only the computed one. Marking the wrong one tells the pipeline it may rewrite a constant.
+      // Omit derivedFrom on any value fixed by the mechanism itself; a value with no derivedFrom is
+      // treated as primary and is never adjusted for you.
       // lockedFacts MUST be specific to the device you invented above — do NOT copy the placeholder ids/values.
       // For SECONDARY devices (and whenever no LOCKED THEME is specified above), invent each fresh from a
       // DIFFERENT mechanism family for variety — a stopped/rewound clock is ONE family among many (poison

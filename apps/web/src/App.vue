@@ -1728,6 +1728,20 @@ onMounted(async () => {
 onBeforeUnmount(() => {
   disconnectSse();
   window.removeEventListener("keydown", handleGlobalKeydown);
+  /**
+   * A_73 — both polling intervals were left running on unmount.
+   *
+   * `runEventsInterval` (3s) and `qualityPollInterval` (8s) were cleared only by their own start/stop
+   * helpers and by the `isRunning` watcher. Unmounting mid-run left both firing against a destroyed
+   * component. Single-root SPA, so today that is a page-close leak rather than a visible fault — but
+   * it multiplies the moment this app is routed or remounted, and a timer outliving its component is
+   * the shape behind the A_30 defect where a poll overwrote freshly-loaded state.
+   */
+  stopRunEventsPolling();
+  if (qualityPollInterval) {
+    clearInterval(qualityPollInterval);
+    qualityPollInterval = null;
+  }
 });
 </script>
 

@@ -875,3 +875,126 @@ One concept — *how many attempts do we get* — with its budget in config and 
 - **`lint.ts`** — the other 13 issue types all map to the declared union, and `macroArcPlan` is genuinely consumed (archetype comparison at 448, RESOLUTION check at 786). Not an inert option.
 - **`obligation-block.ts`** — bounded throughout; the continuity tail truncates at 220 characters with an ellipsis. Nothing to report.
 - **`agent9-run.ts`** — the hard-stop inventory still matches [REVIEW_15](../../../architecture/REVIEW_15.md): seven conditions, of which mojibake, illegal characters, duplicate headings and leakage are text hygiene, while fair-play audit failure, elimination coverage and clue visibility are substantive. Unchanged since it was documented, and re-confirmed here rather than assumed.
+
+---
+---
+
+# PART VI — the extended hunt, 2026-08-25 evening
+
+**Trigger:** owner — *"spend 3 hours checking for bugs. Don't stop."* Worked from confirmed symptoms
+backwards, which is the best available starting point: two external reads landed today, and both
+named defects whose causes were unknown.
+
+---
+
+## 38. The `clues` 8→6 defect, root-caused
+
+**MEASURED, and it is a two-body defect between a detector and its repair.**
+
+The 08-25 reader led with *"the time math does not work"* and marked `clues` **6/10**. The run log
+shows the pipeline detected it — twice:
+
+```
+[X38] Pillar 1 case-time incoherence (locked_time_arithmetic): reception_clock_time_seen
+      "ten minutes past eleven" and kitchen_clock_time_punched "quarter to eleven" are 25 minutes apart
+[X38] Agent 7.5 case-time incoherence (locked_time_arithmetic): …same…
+```
+
+…while the device declared a thirty-minute shift. Detected, warned, shipped.
+
+**Why it was not repaired.** The detector and the repair use DIFFERENT entry conditions for the same
+relation:
+
+| | Entry condition |
+|---|---|
+| `checkCaseTimeCoherence` (detector) | **infers** structurally — exactly two clock facts + one duration |
+| `reconcileDeviceArithmetic` (repair) | **demands** `derivedFrom`, which the prompt called *OPTIONAL* and the schema does not declare |
+
+So the repair can only act when the model volunteers a field nothing asks it for. Two runs, same day,
+same defect class:
+
+```
+82 run    model emitted derivedFrom  -> "[X38] device arithmetic repaired at source" -> clues 8
+step 2    model omitted it           -> detector fired twice, nothing repaired      -> clues 6
+```
+
+The 82 run's log even carries `Agent 3b schema warning: devices[0].lockedFacts[3].derivedFrom is not
+defined in schema (unexpected field)` — the field arrives as an *unexpected* one. Whether a provable
+arithmetic contradiction gets fixed depended on chance.
+
+[PLAN-TO-90 §1.3](../../../architecture/PLAN-TO-90.md) predicted exactly this — *"If Agent 3b does not
+populate it, the repair stays correctly inert and the prompt needs work — not the repair."*
+[A_72 §4](../ANALYSIS_72/ANALYSIS_72.md) recorded *"Agent 3b populated it"* as settled. That was n=1
+and is now falsified as a general claim.
+
+**Fixed at the prompt, which is where PLAN-TO-90 said the fix belonged.** `derivedFrom` is now
+REQUIRED on a value that follows arithmetically from two others, with a worked example and an
+instruction to check the arithmetic before answering. The prompt also pointed at *"the CRITICAL note
+on consequences below"* — **which did not exist**; that note is now written.
+
+## 39. And the fix I nearly shipped was one this repo had already made and reverted
+
+I drafted a second fix: let the repair use the detector's structural condition (two clocks + one
+duration) instead of requiring `derivedFrom`. It built, and it was wrong.
+
+`device-arithmetic-at-source.test.ts` opens with the rule it exists to hold:
+
+> **a detector may guess; a repairer may not.** The first draft of `reconcileDeviceArithmetic` rewrote
+> whichever locked fact parsed as a duration… That is true of all 24 archived devices — and all 24 are
+> clock-family. It is false for families this pipeline actively asks for: **a poison's onset, a tide's
+> period and a fuse's burn are physical constants, and there the TIMES must move instead.**
+
+My inference was that first draft, re-derived. On a poison or tide case it would have silently
+corrupted the mechanism. **Reverted.** The prompt fix now carries that caveat explicitly, telling the
+model to mark whichever number its plot computes rather than assuming the interval is always derived.
+
+Recorded because the near-miss is the finding: the test file was the only thing standing between a
+plausible repair and a regression this project had already paid for once.
+
+## 40. The pronoun model has two bodies, and one of them is live
+
+**MEASURED.** Three components, three different ideas of what a character's pronouns can be:
+
+| Component | Model |
+|---|---|
+| `character-validator.getPronounsForGender` | **three** — male / female / default → **they/them** |
+| `facts.normalizePronounGender` | **two** — `male`/`female`, else `null` → character DROPPED from the scan |
+| `detectAttributionFlips` | `BinaryGender`, regex `(he\|she)` only |
+
+So the pipeline hands a non-binary character they/them pronouns and then **cannot detect drift on
+them at all**: they are filtered out of `genderedCast`, and the two drift detectors match only `he`
+and `she`.
+
+**This is live.** The step-2 reader wrote *"Finch's they/them pronouns are consistent"* — while the
+canary inputs pin `"Dr. Mallory Finch":"female"`. The prose contradicted a pinned input and every
+pronoun detector in the pipeline was blind to it. It happened to read consistently; nothing was
+checking. A chapter mixing they/them and she/her for one character would be equally invisible.
+
+## 41. The web app leaked both polling intervals
+
+**MEASURED**, `apps/web/src/App.vue`. `onBeforeUnmount` cleared the SSE connection and a keydown
+listener, and neither `runEventsInterval` (3s) nor `qualityPollInterval` (8s). Both were cleared only
+by their own start/stop helpers and by the `isRunning` watcher, so unmounting mid-run left them firing
+against a destroyed component.
+
+Single-root SPA, so today it is a page-close leak rather than a visible fault — but a timer outliving
+its component is the shape behind the A_30 defect where a poll overwrote freshly-loaded state.
+**Fixed.**
+
+## 42. What came back clean
+
+- **`loadScoringReport`'s A_30 guards are intact** — three explicit checks plus a `catch` that
+  deliberately does NOT clear on failure. The defect that wrote `null` over a loaded report every
+  three seconds cannot recur through this path.
+- **Run-events polling has no leak on the failure path** — `startRunEventsPolling` sits on the success
+  branch only.
+- **Unguarded script writes: a false alarm.** Six scripts write without a `--write` guard;
+  inspected, they write derived siblings (`.aftermath-repaired.md`) or their own eval outputs. Not a
+  class worth re-checking.
+- **`derive-ledger-panels`** fatals on a missing reports dir and warns per unparsable report — it does
+  not silently compute over a thin corpus, which is the ledger defect of §Part III.
+- **`applyHardCaps`** takes the minimum cap correctly. One cosmetic flaw: `capsApplied` records every
+  reason, including caps that were superseded by a lower one, so the list overstates which caps bound.
+- **`pronounsUnstable`'s ≥2-events-across-≥2-chapters threshold is deliberate**, documented as
+  precision-first and low-recall, with the flag left UNSET below threshold so the judge still decides.
+  Not a bug — but it does mean the 08-25 reader's chapter-1 mis-gendering could never have tripped it.
