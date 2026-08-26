@@ -23,6 +23,7 @@
  */
 
 import { randomUUID } from "crypto";
+import { classifyMechanismFamily } from "./novelty-dispersion.js";
 import fs from "fs/promises";
 import { existsSync } from "fs";
 import { fileURLToPath } from "url";
@@ -41,6 +42,16 @@ export interface PriorRunRecord {
   discrimMethod: string;
   discrimDesign: string;
   premise: string;
+  /**
+   * A_74 §8 DE4 — the canonical mechanism family (@cml/novelty's 14-value vocabulary), classified
+   * from this run's own text at record time.
+   *
+   * Optional because every record written before 2026-08-26 lacks it; `familyOfRecord` classifies
+   * those on read, so the ledger does not need a migration and an old ledger keeps working. Stored
+   * rather than always-derived so that a later change to the classifier cannot silently rewrite
+   * history — the value a run SHIPPED with is the value that stays in the file.
+   */
+  mechanismFamily?: string;
 }
 
 interface NoveltyLedgerFile {
@@ -216,6 +227,20 @@ export const extractPriorRunRecord = (cml: unknown, runId: string): PriorRunReco
     discrimMethod: str(cmlCase?.discriminating_test?.method),
     discrimDesign: str(cmlCase?.discriminating_test?.design),
     premise: str(cmlCase?.surface_model?.narrative?.summary),
+    // A_74 §8 DE4. Every text field that could carry the mechanism is offered, because a device is
+    // described in a different field on different runs and a classifier reading only one of them
+    // inherits that lottery.
+    mechanismFamily: classifyMechanismFamily(
+      str(cmlCase?.crime_class?.subtype),
+      str(cmlCase?.death_method),
+      str(cmlCase?.discriminating_test?.method),
+      str(cmlCase?.discriminating_test?.design),
+      // The false assumption routinely NAMES the mechanism ("the garden gate was opened at noon"),
+      // so omitting it threw away one of the better signals. Found while pinning the seven-record
+      // fixture: record 4 classifies only because its premise says "thermal expansion delay".
+      str(cmlCase?.false_assumption?.statement),
+      str(cmlCase?.surface_model?.narrative?.summary),
+    ),
   };
 };
 
@@ -283,6 +308,10 @@ export const priorRunAvoidancePatterns = (records: PriorRunRecord[]): string[] =
       r.crimeSubtype ? `Prior run crime subtype: ${r.crimeSubtype}` : "",
       r.deathMethod ? `Prior run manner of death: ${r.deathMethod}` : "",
       r.axis ? `Prior run false-assumption axis: ${r.axis}` : "",
+      // A_74 §8 DE4 — the classified family, so the prompt sees the dimension that actually collapsed.
+      // Repeats de-dupe to a single line in `mergeWithReserve`, which is the intended behaviour: eight
+      // consecutive locked_room_timing runs should read as ONE emphatic constraint, not eight.
+      r.mechanismFamily && r.mechanismFamily !== "unclassified" ? `Prior run mechanism family: ${r.mechanismFamily}` : "",
       r.falseAssumption ? `Prior run false assumption: ${r.falseAssumption}` : "",
       r.discrimMethod ? `Prior run discriminating test: ${r.discrimMethod}` : "",
     ].filter(Boolean),

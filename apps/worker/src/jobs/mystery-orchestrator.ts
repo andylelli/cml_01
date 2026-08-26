@@ -95,7 +95,10 @@ import {
   appendNoveltyLedger,
   mergePriorRunsIntoConstraints,
   extractPriorRunRecord,
+  activeNoveltyLedgerPath,
 } from "./novelty-ledger.js";
+import { logLedgerDispersion } from "./novelty-dispersion.js";
+import { resolveSchedulerMode, scheduleCell, logScheduledCell } from "./cell-scheduler.js";
 import { writeCorpusSnapshot } from "./corpus-snapshot.js";
 import { assertFlagCapabilities } from "./flag-preflight.js";
 import { registerShutdownFlush, clearShutdownFlush } from "../process-guards.js";
@@ -1063,6 +1066,19 @@ export async function generateMystery(
         if (priorRuns.length > 0) {
           warnings.push(`Cross-run novelty: diverging from ${Math.min(priorRuns.length, 20)} recent run(s)`);
         }
+        // A_74 §8 DE2 — publish coverage at the START too, so a run that never reaches the end (the
+        // ones DE1 shows are missing from the corpus) still reports what the corpus looked like.
+        logLedgerDispersion(priorRuns);
+        /**
+         * A_74 §8 DE5 — what the cell scheduler WOULD choose, computed every run.
+         *
+         * In `shadow` this changes nothing and costs nothing; it exists so the scheduler's judgement
+         * can be inspected across ordinary runs before any paid run depends on it. The assignment
+         * itself is applied at the INPUT layer (scripts/schedule-run.mjs), not here — a scheduler that
+         * rewrites the theme mid-orchestrator would be invisible to the config that names the run.
+         */
+        const schedulerMode = resolveSchedulerMode();
+        if (schedulerMode !== "off") logScheduledCell(scheduleCell(priorRuns), schedulerMode);
       } catch (err) {
         warnings.push(`Cross-run novelty load skipped: ${describeError(err)}`);
       }
@@ -1712,11 +1728,48 @@ export async function generateMystery(
 
     // Cross-run novelty (ANALYSIS_49 T1.7): record this shipped run's fingerprint so future runs
     // diverge from it. Best-effort — never affects the run outcome.
-    if (isCrossRunNoveltyEnabled() && status !== "failure" && ctx.cml) {
+    /**
+     * A_74 §8 DE1 — THIS BLOCK HAD TWO SILENCES AND BOTH BIT.
+     *
+     * The ledger file's mtime was 2026-08-24 while two runs had shipped on 08-25, and nothing in
+     * either run's output said why. There were only two ways that could happen and neither announced
+     * itself: a `status === "failure"` run is skipped, and any write error was swallowed by an empty
+     * catch. Both are now logged.
+     *
+     * The skip is worth more than a log line, because it is SURVIVORSHIP BIAS in the corpus. A run
+     * that tripped a gate is exactly the run the next one should be diverging from; excluding it means
+     * "diverge from recent runs" silently means "diverge from recent CLEAN runs". The behaviour is
+     * kept — a failed run's CML may be half-built and recording it could poison the corpus — but it is
+     * no longer invisible, and the count it prints is what tells a reader the corpus is smaller than
+     * the number of runs they remember.
+     */
+    if (!isCrossRunNoveltyEnabled()) {
+      console.warn("[DE1 ledger] NOT recorded: cross-run novelty is off (NOVELTY_CROSS_RUN=off).");
+    } else if (!ctx.cml) {
+      console.warn("[DE1 ledger] NOT recorded: no CML on the context — the run did not reach Agent 3.");
+    } else if (status === "failure") {
+      console.warn(
+        `[DE1 ledger] NOT recorded: run status is "failure" (${errors.length} error(s)). ` +
+          "The corpus therefore holds only clean runs — a biased sample, and the next run will " +
+          "diverge from a history this one is missing from.",
+      );
+    } else {
       try {
-        await appendNoveltyLedger(extractPriorRunRecord(ctx.cml, runId));
-      } catch {
-        // best-effort persistence; ignore
+        const record = extractPriorRunRecord(ctx.cml, runId);
+        await appendNoveltyLedger(record);
+        const after = await loadNoveltyLedger();
+        console.warn(
+          `[DE1 ledger] recorded ${runId} -> ${activeNoveltyLedgerPath()} ` +
+            `(axis=${record.axis}, family=${record.mechanismFamily ?? "unclassified"}); ` +
+            `corpus is now ${after.length} run(s).`,
+        );
+        // A_74 §8 DE2 — publish coverage every run, with no threshold. See novelty-dispersion.ts.
+        logLedgerDispersion(after);
+      } catch (e) {
+        console.warn(
+          `[DE1 ledger] WRITE FAILED for ${runId} at ${activeNoveltyLedgerPath()}: ${(e as Error).message}. ` +
+            "The next run will diverge from a corpus this one is missing from.",
+        );
       }
     }
 

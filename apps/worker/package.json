@@ -44,7 +44,8 @@
     "@cml/rubric-score": "file:../../packages/rubric-score",
     "@cml/clue-spec": "file:../../packages/clue-spec",
     "@cml/story-geometry": "file:../../packages/story-geometry",
-    "@cml/novelty": "file:../../packages/novelty"
+    "@cml/novelty": "file:../../packages/novelty",
+    "@cml/device-library": "file:../../packages/device-library"
   },
   "devDependencies": {
     "vitest": "^2.1.5"

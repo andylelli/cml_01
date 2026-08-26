@@ -30,6 +30,16 @@ export interface HardLogicDeviceInputs {
     areas: string[];
     avoidancePatterns: string[];
   };
+  /**
+   * A_74 §8 DE8 — a pre-rendered block of retrieved device-library patterns, or undefined.
+   *
+   * PRE-RENDERED, not a typed pattern list, and that is deliberate. `@cml/device-library` owns the
+   * schema, the era-feasibility oracle and the usage-decayed novelty ranking; this package owns
+   * prompt text. Passing text keeps prompts-llm free of the dependency for exactly the reason
+   * `cml-core/device-binding.ts` documents for itself, and it keeps the retrieval decision — which
+   * patterns, in which order — auditable in ONE place instead of split across two.
+   */
+  deviceLibraryBlock?: string;
 }
 
 export interface HardLogicDeviceResult {
@@ -316,6 +326,11 @@ export function buildHardLogicDevicePrompt(inputs: HardLogicDeviceInputs, previo
   const difficultyMode = inputs.difficultyMode ?? "standard";
   const validationFeedback = buildValidationFeedback(previousErrors);
 
+  // A_74 §8 DE8 — the curated corpus, when the caller retrieved one. Empty string when not.
+  const deviceLibrarySection = inputs.deviceLibraryBlock ? `
+${inputs.deviceLibraryBlock}
+` : "";
+
   const noveltySection = inputs.noveltyConstraints
     ? `
 Novelty constraints:
@@ -361,7 +376,7 @@ Spec context:
 - Mechanism family hints: ${mechanismFamilies.join(", ") || "(none)"}
 - Hard-logic mode tags: ${hardLogicModes.join(", ") || "standard varied mix"}
 - Difficulty mode: ${difficultyMode}
-${noveltySection}${themeLockSection}
+${noveltySection}${themeLockSection}${deviceLibrarySection}
 Output JSON only, with this exact structure:
 
 {

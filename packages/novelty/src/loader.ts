@@ -99,8 +99,21 @@ const CORPUS_SPECIFICITY: Record<string, number> = { prior_run: 3, seed: 2, clic
  * across corpora by structural key (warn on collision) so the same idea isn't double-counted and the
  * corpus labelling is deterministic; on collision keep the more-specific corpus.
  */
-export function loadReferenceCorpus(): Fingerprint[] {
-  const all = [...loadSeedFingerprints(), ...loadClicheLedger()];
+export function loadReferenceCorpus(priorRuns: Fingerprint[] = []): Fingerprint[] {
+  /**
+   * A_74 §8 DE3 — PRIOR RUNS WERE NEVER PASSED IN, AND THE DESIGN ALWAYS EXPECTED THEM.
+   *
+   * `CORPUS_SPECIFICITY` above ranks `prior_run` ABOVE `seed` and `cliche`, and `Corpus` declares it
+   * as a member — but the only call site (`agent3-run.ts`) called this with no arguments, so the
+   * structural judge compared every candidate against a FIXED corpus of seeds and cliches and was
+   * never shown a single run this pipeline had produced. The organ that can measure structural
+   * repetition could not see the repetition; the organ that saw it (the cross-run ledger) could only
+   * emit free-text avoidance lines into a prompt.
+   *
+   * Prior runs are PASSED rather than loaded here on purpose: this package is pure and fs-light, and
+   * the ledger is app-side (see novelty-ledger.ts's header for why that split exists).
+   */
+  const all = [...priorRuns, ...loadSeedFingerprints(), ...loadClicheLedger()];
   const byKey = new Map<string, Fingerprint>();
   for (const fp of all) {
     const key = structuralKey(fp);

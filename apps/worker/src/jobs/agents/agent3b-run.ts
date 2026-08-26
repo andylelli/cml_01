@@ -11,6 +11,9 @@
  */
 
 import { writeFileSync, mkdirSync, existsSync } from "fs";
+// A_74 §8 DE8 — the curated device corpus, retrieved deterministically. See device-library-block.ts.
+import { buildDeviceLibraryBlock } from "../device-library-block.js";
+import { assignedFamilyFromTheme } from "../cell-scheduler.js";
 import { join } from "path";
 
 import {
@@ -296,6 +299,25 @@ export async function runAgent3b(ctx: OrchestratorContext): Promise<void> {
     ctx.initialHardLogicDirectives.mechanismFamilies,
   );
   (ctx as { lockedThemeFamilies?: string[] }).lockedThemeFamilies = lockedThemeFamilies;
+
+  /**
+   * A_74 §8 DE8 — retrieve ONCE, here, and pass the same block to all three generate calls below.
+   *
+   * All three (first pass, scoring-path retry, plausibility regen) must see identical raw material.
+   * A retry that silently retrieved a different corpus would make "the retry produced a better
+   * device" unattributable, which is the same class of defect as A_53 P11 directly above: one
+   * concept re-derived in three places with different inputs.
+   */
+  const scheduledFamily = assignedFamilyFromTheme(ctx.inputs.theme);
+  const deviceLibraryBlock = buildDeviceLibraryBlock({
+    decade: Number(String(setting.setting.era.decade).replace(/[^0-9]/g, "")) || 1930,
+    primaryAxis: ctx.primaryAxis,
+    noveltyFamily: scheduledFamily ?? undefined,
+    limit: 4,
+  });
+  if (scheduledFamily) {
+    console.warn(`[DE5/DE8] theme carries a scheduled mechanism assignment: ${scheduledFamily}`);
+  }
   // Whether a result's PRIMARY device (devices[0], the source of the locked-fact registry + CML) realizes
   // the canonical locked families. Re-derived locally against ONE family list rather than trusting the
   // generator's `matchedThemePrimary` (which was computed from a possibly-different family list). When the
@@ -324,6 +346,7 @@ export async function runAgent3b(ctx: OrchestratorContext): Promise<void> {
           hardLogicModes: ctx.initialHardLogicDirectives.hardLogicModes,
           difficultyMode: ctx.initialHardLogicDirectives.difficultyMode,
           noveltyConstraints: ctx.noveltyConstraints,
+          deviceLibraryBlock,
         });
         return { result: hlResult, cost: hlResult.cost };
       },
@@ -367,6 +390,7 @@ export async function runAgent3b(ctx: OrchestratorContext): Promise<void> {
       hardLogicModes: ctx.initialHardLogicDirectives.hardLogicModes,
       difficultyMode: ctx.initialHardLogicDirectives.difficultyMode,
       noveltyConstraints: ctx.noveltyConstraints,
+      deviceLibraryBlock,
     });
     ctx.agentCosts["agent3b_hard_logic_devices"] = ctx.hardLogicDevices.cost;
     ctx.agentDurations["agent3b_hard_logic_devices"] = Date.now() - hardLogicStart;
@@ -442,6 +466,7 @@ export async function runAgent3b(ctx: OrchestratorContext): Promise<void> {
           hardLogicModes: ctx.initialHardLogicDirectives.hardLogicModes,
           difficultyMode: ctx.initialHardLogicDirectives.difficultyMode,
           noveltyConstraints: ctx.noveltyConstraints,
+          deviceLibraryBlock,
         });
       } catch (err) {
         // A gate must never kill a run: a regeneration failure keeps the best-so-far.

@@ -472,3 +472,32 @@ day (the A_73 §12.1 ledger fix) and the case it produced scored *lower* on `pre
 9 — with the reader saying the mechanism was simpler than the pendulum and tide drafts. The ledger
 holds seven clock-family cases, so "diverge from these" moved it to another clock trick.
 **Divergence from a monoculture stays inside the monoculture**, and A2b inherits that risk directly.
+
+---
+
+## Addendum — A_74 §8 distinctiveness-engine flags, registered 2026-08-26
+
+Two levers added by [ANALYSIS_74 §8](../documentation/analysis/ANALYSIS_74/ANALYSIS_74.md).
+`flag-register-check.mjs` flagged both, which is the check working. Both are **default OFF** and both
+have a named settling probe.
+
+The context these two live in, because it is unusual: A_74 §8 found that the distinctiveness engine
+had **never been in a position to act**. `canary-core-inputs.yaml` pins `primaryAxis: temporal` and
+names *"clock-tampering"* in the theme; `MECHANISM_FAMILY_KEYWORDS.clock` matches it,
+`selectThemeCoherentPrimary` enforces it, and Agent 3b's prompt forbids swapping family "for novelty"
+by name — while `divergeFrom` is a prompt line arguing with a hard selector. Measured on the shipped
+ledger the day these flags landed: **`axis` H=0.00 (1 distinct of 6), `mechanismFamily` H=0.00
+(1 distinct of 14), `crimeSubtype` and `deathMethod` H=1.00 (7 distinct of 7, free text)**. So the
+probes below are not testing whether these levers *improve* a mark. They are testing whether the
+engine can move the pipeline out of one cell at all — a question no prior run could answer.
+
+| Flag | Owner | What it changes | Settling probe | If the probe never runs |
+|---|---|---|---|---|
+| `NOVELTY_CELL_SCHEDULER` | A_74 §8 DE5 | `off` \| `shadow` \| `on`. Computes the stalest feasible `(axis, mechanism_family, discriminating_test_shape)` cell from the cross-run ledger, requiring ≥2 coordinates to differ from the previous run, and emits it as a **positive assignment** rather than an avoidance line. `shadow` logs the choice and changes nothing. The assignment is applied at the INPUT layer by `scripts/schedule-run.mjs`, not inside the orchestrator. | **Rung 2 of A_74 §8.6's ablation ladder, and it needs NO external read**: run the generated config and check the log — did `primaryAxis` change, did Agent 3b emit a non-clock primary, did `[DE3 cell]` report depth 0? A failure here is visible without a reader. Rung 4 (does an unused cell read better?) is a separate, later question. | Keep gated, and record that the corpus stayed at H=0.00. The scheduler is the only mechanism in the repo that can raise axis dispersion; without it the ledger's "diverge from recent runs" continues to mean "pick a different noun in the same cell". |
+| `AGENT3B_DEVICE_LIBRARY` | A_74 §8 DE8 | Retrieves up to 4 era-feasible patterns from `@cml/device-library` (11 curated patterns, `usage_log`-decayed novelty ranking) and renders them into Agent 3b's prompt as **raw material to recombine**, explicitly not as a menu. Emits nothing — not a wrong block — when the assigned family has no library coverage. | Same run as DE5. Read Agent 3b's response: the primary device should be recombinant (principle of one pattern, trace-pattern of another), not a listed pattern with the nouns changed. | DELETE the wiring, keep the package. The library was built, schema-validated, golden-tested and then imported by no pipeline code for its whole life; leaving it unwired is the status quo ante and costs nothing. |
+
+**The failure mode to watch, stated in advance.** Handing a model eleven worked examples risks a NEW
+and smaller monoculture — the DE5 defect re-created one layer down. If DE9's read calls the scheduled
+case derivative, **`AGENT3B_DEVICE_LIBRARY` is the first suspect and must be ablated before
+`NOVELTY_CELL_SCHEDULER` is**, because the scheduler only chooses a cell whereas the library supplies
+the sentences.

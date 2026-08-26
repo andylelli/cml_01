@@ -12,7 +12,12 @@ import { parseClockTime, validateCml, buildCaseScopedLockedFacts } from "@cml/cm
 import type { PhaseScore, TestResult } from "@cml/story-validation";
 import { scoreRealCml, getGenerationParams } from "@cml/story-validation";
 import { type OrchestratorContext, preAgent9ContractRecoveryEnabled, preAgent9LlmRetriesEnabled, applyHonestScorer } from "./shared.js";
-import { effectiveNoveltyThreshold, resolveNoveltyMode } from "../novelty-ledger.js";
+import fs from "fs/promises";
+import path from "path";
+import { effectiveNoveltyThreshold, resolveNoveltyMode, loadNoveltyLedger } from "../novelty-ledger.js";
+// A_74 §8 DE3 — the bridge from the cross-run ledger into the structural judge's corpus.
+import { priorRunFingerprints, cellRepeatDepth } from "../prior-run-fingerprints.js";
+import { resolveWorkspaceRoot } from "../novelty-ledger.js";
 import { writeLockedFactsArtifact, stripLeadingArticleFromLockedValue } from "./agent3b-run.js";
 
 function buildEvidenceFallback(step: any, stepIndex: number): string {
@@ -452,8 +457,27 @@ export async function runAgent3(ctx: OrchestratorContext): Promise<void> {
         { model: process.env.NOVELTY_SKELETON_MODEL },
       );
       const skeleton = await extract(ctx.cml, ctx.runId);
-      const verdict = judgeNovelty(skeleton, loadReferenceCorpus());
+      // A_74 §8 DE3 — the judge finally sees this pipeline's own history, not just seeds + cliches.
+      const priorRecords = await loadNoveltyLedger();
+      const priors = priorRunFingerprints(priorRecords);
+      const verdict = judgeNovelty(skeleton, loadReferenceCorpus(priors));
+      const cell = cellRepeatDepth(priorRecords, skeleton.axis, skeleton.mechanism_family);
       ctx.agentDurations["agent8_skeleton_judge"] = Date.now() - sjStart;
+      /**
+       * A_74 §8 DE3 — REPEAT DEPTH, printed next to the verdict on purpose.
+       *
+       * `severity` scores a candidate that shares BOTH axis and mechanism_family with a prior run as
+       * `distinct` (sharesBelief false, trickShared 1 — it falls through both branches). So a run can
+       * be the ninth consecutive time-of-death trick and still be pronounced distinct. Printing the
+       * depth beside the verdict is what makes that visible; the threshold itself is left alone while
+       * the judge is in shadow.
+       */
+      console.warn(
+        `[DE3 cell] axis=${cell.axis} family=${cell.family} — this cell has been shipped ` +
+          `${cell.depth}/${cell.window} recent run(s)` +
+          (cell.sinceLastUse === null ? " (NEVER used before)" : `, last used ${cell.sinceLastUse} run(s) ago`) +
+          (cell.depth >= 3 ? " — REPEAT: the verdict below is not measuring this." : ""),
+      );
       console.info(
         `[Novelty skeleton-judge SHADOW] ${verdict.verdict} — ` +
           (verdict.nearest
@@ -461,6 +485,25 @@ export async function runAgent3(ctx: OrchestratorContext): Promise<void> {
             : "no corpus") +
           `; skeleton=${JSON.stringify(skeleton)}; ${verdict.divergence_directive}`,
       );
+      /**
+       * A_74 §8 DE3 / §8.1.5 — PERSIST IT. The judge has run in shadow by default for a long time,
+       * printing `skeleton={...}` to a console nobody kept and calling `upsertDiagnostic`, and the
+       * surviving run report contains no occurrence of `skeleton`, `false_assumption_pattern` or
+       * `inference_shape`. A shadow deployment that produces no retrievable dataset is paying for
+       * calls and buying nothing. This writes one small file per run, next to the other run artefacts.
+       */
+      try {
+        // Same anchoring as the ledger: walk from this module, never from cwd (A_73 §12.1).
+        const logsDir = path.join(resolveWorkspaceRoot(), "apps", "worker", "logs");
+        await fs.mkdir(logsDir, { recursive: true });
+        await fs.writeFile(
+          path.join(logsDir, `novelty-skeleton-${ctx.runId}.json`),
+          JSON.stringify({ runId: ctx.runId, recordedAt: new Date().toISOString(), skeleton, verdict, cell, priorCorpusSize: priors.length }, null, 2),
+          "utf-8",
+        );
+      } catch (e) {
+        console.warn(`[DE3] skeleton not persisted: ${(e as Error).message}`);
+      }
       ctx.scoreAggregator?.upsertDiagnostic(
         "novelty_skeleton_judge",
         "NoveltySkeletonJudge",
