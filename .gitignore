@@ -45,7 +45,6 @@ Thumbs.db
 # Runtime outputs
 validation/
 data/*.bak
-data/novelty-ledger.json
 data/novelty-ledger*.tmp
 # stories/ is TRACKED as of 2026-08-26 — see the note at the end of this file.
 scripts/.corpus-cache/
@@ -60,11 +59,25 @@ corpus/
 # pipeline; store.json is recreated empty when absent (apps/api/src/db.ts loadState
 # returns null on a missing file).
 data/store.json
-data/novelty-ledger.json
 apps/api/data/reports/
 documentation/prompts/actual/*/
 results/
 # stories/ is TRACKED as of 2026-08-26 — see the note at the end of this file.
+#
+# ── data/novelty-ledger.json is TRACKED as of 2026-08-26, and it is NOT like store.json ──
+# It was ignored here as "generated run artifact… reproducible by running the pipeline".
+# That rationale is false for this one file. It is not output, it is the CORPUS the cell
+# scheduler walks: `scheduleCell()` reads the shipped runs, picks the stalest unused
+# (axis, family, testShape), and requires two coordinates to differ from the previous run.
+# A machine with a short ledger silently re-picks a cell that has already been used, and
+# nothing in the run output says so — the exact failure HANDOVER.md §4b describes.
+#
+# It could not sync before: the code's CANONICAL path is data/novelty-ledger.json (see
+# `activeNoveltyLedgerPath`, which prefers it and treats apps/api/data/ as a legacy
+# fallback), and that canonical path was the ignored one. So the copy that was committed
+# was the copy the code never reads. Tracking the canonical is what makes it travel.
+#
+# It is small (~80KB, 99 records) and it is not regenerable — losing it loses the walk.
 logs/*.jsonl
 logs/*.json
 
