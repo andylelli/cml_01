@@ -15,7 +15,31 @@ export interface PostPassPolishResult {
   chapter: ProseChapter;
   applied: boolean;
   keptPolishedVersion: boolean;
-  rollbackReason?: "validation_regression" | "obligation_regression" | "quality_no_gain";
+  /**
+   * WHY the polished chapter was discarded.
+   *
+   * A_74 §5.2 read the run-2 tally — *"4 calls, 4 rolled back"*, every one reported
+   * `validation_regression` — and concluded *"the rollback reasons name VALIDATORS, not the model"*.
+   * They did not. **Five different paths emitted that one string**, and only the last is a validator:
+   *
+   *     finishReason "max_tokens"   the reply was TRUNCATED          -> a budget problem
+   *     finishReason "refusal"      the model DECLINED               -> the content-filter tax (§5.6)
+   *     parse threw                 unparseable reply                -> a transport/format problem
+   *     no usable candidate         empty or malformed chapter       -> ditto
+   *     hardErrors.length > 0       a validator rejected the prose   -> the only validator case
+   *
+   * So "fix what the validator reverts, or gate polish on a trigger" was a choice between two options
+   * offered by a number that cannot tell them apart — the X85 shape again, two causes writing
+   * byte-identical telemetry. Each path now names itself, so the NEXT run's tally answers it.
+   */
+  rollbackReason?:
+    | "truncated"
+    | "refused"
+    | "unparseable"
+    | "empty_candidate"
+    | "validation_regression"
+    | "obligation_regression"
+    | "quality_no_gain";
 }
 
 const OBLIGATION_TOKEN_STOPWORDS = new Set([
@@ -288,7 +312,9 @@ export const polishPassingChapter = async (args: {
       chapter: args.chapter,
       applied: true,
       keptPolishedVersion: false,
-      rollbackReason: "validation_regression",
+      // Distinct on purpose: one is a token budget, the other is the content filter. Both used to
+      // report themselves as a validator rejecting good prose.
+      rollbackReason: response.finishReason === "max_tokens" ? "truncated" : "refused",
     };
   }
 
@@ -297,11 +323,12 @@ export const polishPassingChapter = async (args: {
     const parsed = parseProseResponse(response.content);
     candidate = parsed.chapters?.[0];
   } catch {
+    // The reply did not parse. Nothing to do with the prose being worse.
     return {
       chapter: args.chapter,
       applied: true,
       keptPolishedVersion: false,
-      rollbackReason: "validation_regression",
+      rollbackReason: "unparseable",
     };
   }
 
@@ -310,7 +337,7 @@ export const polishPassingChapter = async (args: {
       chapter: args.chapter,
       applied: true,
       keptPolishedVersion: false,
-      rollbackReason: "validation_regression",
+      rollbackReason: "empty_candidate",
     };
   }
 

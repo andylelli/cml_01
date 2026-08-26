@@ -327,7 +327,7 @@ describe("polishPassingChapter provider routing", () => {
     });
 
     expect(result.keptPolishedVersion).toBe(false);
-    expect(result.rollbackReason).toBe("validation_regression");
+    expect(result.rollbackReason).toBe("truncated"); // A_74 §5.2: a token budget, not a validator
     expect(result.chapter).toEqual(chapter);
   });
 
@@ -346,7 +346,7 @@ describe("polishPassingChapter provider routing", () => {
     });
 
     expect(result.keptPolishedVersion).toBe(false);
-    expect(result.rollbackReason).toBe("validation_regression");
+    expect(result.rollbackReason).toBe("refused"); // A_74 §5.2: the content filter, not a validator
     expect(result.chapter).toEqual(chapter);
   });
 
