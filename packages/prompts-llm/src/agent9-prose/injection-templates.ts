@@ -103,6 +103,23 @@ export const INJECTED_SENTENCE_PATTERNS: ReadonlyArray<RegExp> = [
   /\bwas thoroughly cleared by the evidence;\s*the alibi confirmed they could not have committed the crime\b/i,
   // the A3 scaffold floor's replacement for the clearance phrasing
   /\bplaced\s+.{1,40}?\s+elsewhere\b/i,
+  /**
+   * buildDeterministicClueParagraphs (deterministic-repair.ts) — the MISSING-CLUE floor.
+   *
+   * MEASURED 2026-08-26: none of this injector's output matched anything in this list, so
+   * `isInjectedSentence` returned false for every sentence it has ever written. That is this file's
+   * property #2 violated for the LARGEST injector in the pipeline, and it has two consequences the
+   * header already predicts: geometry returns `met` where it should return `met_by_injection`, and
+   * the injector-retirement metric — "the distinction that gives that work an exit condition it can
+   * measure" — has been blind to the injector most worth retiring.
+   *
+   * Three external readers have quoted this output back as "generator residue"; it has been visible
+   * to humans and invisible to us. Registering it changes no prose — it changes what we can count.
+   */
+  /The record now held:/i,
+  /(?:laid the facts out plainly where the others could see them|pressed on to the next concrete detail)/i,
+  /(?:Those details|That detail) shifted the reasoning/i,
+  /Weighed against the rest,.*(?:bent the trail toward|left the standing account weaker)/i,
   // buildResolutionBackstopSentence — the confession backstop
   /"It was me\."\s*The words left\s+.{1,40}?\s+at last, barely above a whisper\./i,
   /"I confess\s*[—-]\s*I did it\."/i,
