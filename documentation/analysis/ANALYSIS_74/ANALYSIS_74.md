@@ -796,3 +796,134 @@ number to decide anything about an unfamiliar cell.
 - **9.5 is wrong if** run 2 — also outside the temporal cell, also without the clock apparatus —
   returns a normal `clues` mark. Then the thin net is not the cause and the elevator case was simply
   under-specified.
+
+---
+
+## 10. Run 2 — the walk keeps walking, and the polish pass bought nothing
+
+`The Canary's Slippers: A Seaside Hotel Identity Mystery`, `mystery-1787765404921`. Cell:
+**`identity × alibi_fabrication × physical_trace`**, scheduled by DE5 from the ledger after run 1.
+**£1.73, 58 calls, shadow rubric 83.** External read pending.
+
+`identity` had never produced a story in this project. [PLAN-TO-90 §0.2](../../../architecture/PLAN-TO-90.md)
+records that it was *unreachable* until [X70](../../../architecture/REVIEW_05.md) landed on 2026-08-20 —
+the orchestrator silently coerced every axis it did not recognise to `temporal`. Six days later a
+deterministic scheduler asked for it and got it.
+
+### 10.1 The monoculture is measurably breaking
+
+```
+                 before    run 1     run 2
+axis             H=0.00    H=0.21    H=0.38    1 -> 2 -> 3 distinct of 6
+mechanismFamily  H=0.00*   H=0.34    H=0.44    1 -> 3 -> 4 distinct of 14
+top family        100%      —         56%
+```
+
+\* the `0.00` is the figure the first-match-wins classifier produced; see the correction in §10.5.
+
+Two runs is not a trend. But the direction is the one DE5 was built to produce, the mechanism is
+deterministic rather than hoped-for, and the top family's share has fallen from **100% to 56%**.
+
+**A first, worth naming.** The structural judge's nearest neighbour was, for the first time, a *seed*
+rather than one of this pipeline's own runs:
+
+```
+[Novelty skeleton-judge SHADOW] distinct — nearest seed:a_study_in_scarlet
+  (shares axis 'identity' + discriminating-test shape 'physical_trace')
+```
+
+The case's closest structural relative is now canonical detective fiction instead of last week's
+output. That is exactly what DE3 was wired in to be able to say, and it could not have been said at
+all a day earlier.
+
+### 10.2 The Agent 6.5 fix worked
+
+One attempt, `appears truncated: false`, no retry. The run that died here yesterday burned three
+attempts and £0.58 producing nothing, because the truncation retry asked for more words (§9.6). This
+is the cheapest confirmed fix of the session.
+
+### 10.3 THE COST FINDING: four polish calls, four rollbacks, nothing kept
+
+```
+post_pass_polish   4 call(s) — changed 0, no-change 0, ROLLED BACK 4
+                              (validation_regression, obligation_regression)
+atmosphere_repair 10 call(s) — changed 9, no-change 1, rolled back 0
+```
+
+**Every single Opus-5 post-pass polish call on this run was discarded.** Agent9-PostPassPolish is
+18–24% of a run's spend; on this run it bought literally nothing, and the run still scored 83 on the
+shadow rubric without it.
+
+This is the `repair-efficacy` instrument doing precisely the job it was built for. Its header asked
+the question in advance — *"Nobody has ever measured what fraction of those calls CHANGED THE TEXT"* —
+and predicted the two failure modes. This run hit the second one at 100%:
+
+> *A pass that is mostly `rolled_back` is being reverted by a validator and needs the A_73 §32
+> treatment, not a bigger budget.*
+
+Run 1 was 4 changed / 2 rolled back, so this is not a constant. But across the two runs the polish
+pass is **4 changed, 6 rolled back** — a minority of its spend survives, and the rollback reasons name
+validators, not the model. Contrast `atmosphere_repair` at 9 changed of 10, which is what a working
+repair pass looks like.
+
+**This is now the strongest cost lever on the board**, and it needs no read to act on: either fix what
+the validator is reverting, or gate polish on a trigger instead of running it per chapter.
+
+### 10.4 The gate authority finding repeats, exactly
+
+`[X4] injector-vs-lint: enforceCulpritEvidencePresence injected a sentence into chapter 10` — **twice
+again**, in the same chapter, for the same reason, on a completely different case in a completely
+different cell.
+
+§9.4 established that the 08-26 reader quoted this injector's output verbatim and called it
+*"generated checklist leakage. It must be deleted."* Two runs, two cells, same injector, same chapter,
+same policy. It is systematic, and [B1](../../../architecture/PLAN-TO-90.md) is the lever.
+
+The geometry codes did improve — **3 this run** (`aftermath_repeat`, `reveal_culprit_not_named`,
+`unaccounted_time`) against roughly seven on run 1. `reveal_method_absent`, `method_signature_absent`
+and `clincher_absent_at_payoff` — the three that mapped to the 08-26 reader's biggest complaints — did
+not fire. Whether that means this manuscript is cleaner or the codes are quieter outside the temporal
+cell is exactly what the external read is for.
+
+### 10.5 Two corrections and one recurring tax
+
+**The `mechanismFamily H=0.00` figure in §8 was wrong**, and this is the second time it needs saying.
+It was an artifact of a first-match-wins classifier in which one incidental "clock" in a paragraph of
+premise prose outvoted the mechanism. The load-bearing evidence for the monoculture is `axis`, which
+the CML **declares** and nothing infers, plus the titles.
+
+**The two classifiers disagree about this run.** DE1 stored `staged_scene` from the keyword scorer;
+the LLM skeleton extractor said `impersonation`. For an identity/alibi case, `impersonation` is
+probably the better answer. A keyword classifier is a coverage instrument, not a ground truth, and
+neither of these should be quoted as if it were.
+
+**Content filter, three refusals in two runs.** Run 1: `Agent6-BlindReader ×1`. Run 2:
+`Agent9-ProseGenerator ×2`. The pipeline keeps generating content its own next call refuses, and the
+affected work falls back to a deterministic backstop. On run 1 that meant the fair-play blind-reader
+gate was **SKIPPED, not passed**. This is now a recurring tax with a measurable rate — roughly 1.5
+refusals per run — and it is not recorded anywhere as a known operating condition.
+
+### 10.6 Where the two runs leave DE9
+
+- **DE7 (does the engine act?): ANSWERED, YES.** Two cells, two axes, both never used before, both
+  realized by the model. No read required, exactly as §8.6's rung 2 predicted.
+- **DE9 (does an unused cell read better?): ONE READ IN, ONE PENDING.** Run 1 said `premise` 9 and
+  *"a nice break from clock-only mysteries"*, with the headline flat inside noise. Run 2 is unread.
+- **Two runs cannot settle DE9 and were never going to.** The honest ceiling on what these two buy is
+  a direction, not a measurement, and §8.6's ablation ladder said so before either of them ran.
+
+### 10.7 What the two runs actually cost, and what they bought
+
+```
+run 1   The Elevator Cage Enigma    £1.45   40 calls   shadow 84   external 79
+run 2   The Canary's Slippers       £1.73   58 calls   shadow 83   external pending
+lost    identity, first attempt     £0.58   19 calls   died at Agent 6.5 (now fixed)
+                                    -----
+                                    £3.76
+```
+
+Bought: the axis monoculture broken and measured, `premise` 9 with the reader naming the reason, the
+gate-authority finding confirmed twice, a 100%-rollback polish pass caught by an instrument built for
+it, a truncation bug that had been a coin flip on every run, and a classifier bug in this section's
+own machinery. **Only one of those needed a paid run at all** — which is §8.6's whole argument,
+restated by the evidence rather than in advance.
