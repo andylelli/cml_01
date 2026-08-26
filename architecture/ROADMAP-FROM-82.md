@@ -112,7 +112,11 @@ AGENT9_CONTINUITY_SPAN=true           # A_73 §30
 - [ ] **3c · The gate saw three of the reader's six problems and shipped anyway.** `clearance_over_budget`,
       `reveal_times_not_stated` (the reader's problem #3, *"the true murder time needs one crisp
       sentence"*), `method_signature_absent`. That is REVIEW_15's finding with a fourth data point.
-      Decide gate authority — [B1](PLAN-TO-90.md), open across five documents now.
+      Decide gate authority — [B1](PLAN-TO-90.md). **DECIDED 2026-08-26: NO — geometry stays a
+      warning channel.** A blocking gate would have aborted 6 of the 6 externally-read manuscripts,
+      including the 86, and 19 of 21 measured runs raise a finding; no geometry-clean run has ever
+      been read. Reasoning and the revisit condition: [A_74 §15](../documentation/analysis/ANALYSIS_74/ANALYSIS_74.md).
+      Re-measure any time with `node scripts/geometry-gate-replay.mjs`.
 - [ ] **3d · Motive planted too late** — reader problem #5. The torn note appears only in the
       aftermath. This is [X69](REVIEW_05.md), the motive's concrete noun, still unbuilt.
 - [ ] **3e · The weapon proves the method, not the culprit** — reader problem #6. No existing
@@ -176,7 +180,7 @@ NOW, free
   4a    regenerate the opening corpus (needs the archive)          free
 ---- the defect-removal ceiling is now known ----
   3b    clearance trim pass, or drop the violation                 free
-  3c    the gate-authority decision (B1)                    free + a replay
+  3c    the gate-authority decision (B1)                    DECIDED 2026-08-26 — NO (A_74 §15)
   4b    wire A2b                                     free build, ~£1.78 to verify
   4c    A3, both edit sites                           free build, ~£1.78 to verify
 ---- only now can a 9 appear where there has never been one ----

@@ -1028,3 +1028,84 @@ two marks below its own ceiling of 8 — the gap is not one template.
   competing with it.
 - **The injector drops from "largest prose defect" to "most-quoted symptom".** Still worth fixing —
   three readers should not have to name it — but not on the expectation that it moves `prose`.
+
+---
+
+## 15. B1 DECIDED — geometry does not get blocking authority
+
+Open across six documents. Decided 2026-08-26 on the replay PLAN-TO-90 §10.2 named as its
+prerequisite: *"would the 86-scoring runs have shipped under a blocking gate?"* Reproducible with
+`node scripts/geometry-gate-replay.mjs`, because the answer should change as the repair passes improve.
+
+### 15.1 The measurement
+
+```
+reports where geometry actually RAN : 21
+   raised at least one finding      : 19  (90%)
+   geometry-clean                   : 2
+
+mark  manuscript                          findings a blocking gate would have stopped on
+  86  The Reversed Pendulum at Seacliff   reveal_culprit_not_named
+  85  The Hourglass Deception             clearance_over_budget, clincher_absent_at_payoff, reveal_culprit_not_named
+  84  The Frozen Hour at Coastview        + reveal_method_absent, aftermath_repeat
+  84  The Pendulum's Secret               aftermath_repeat, clearance_over_budget, clincher_absent_at_payoff
+  81  The Delayed Strike at Cliffhaven    five findings
+  81  The Rising Tide at Cliffhaven       three findings
+```
+
+**A blocking gate would have aborted 6 of the 6 externally-read manuscripts, including the best this
+project has produced.** Ninety percent of all measured runs raise at least one finding. And the two
+geometry-clean runs have never been read, so **there is no evidence at all that passing geometry
+predicts a good book** — only that failing it does not predict a bad one.
+
+> **A gate that fires on 90% of runs is not a gate. It is an off switch with extra steps.**
+
+### 15.2 A finding I had to withdraw, and it matters more than the one I kept
+
+The first version of this analysis reported something much more interesting: that manuscripts raising
+geometry warnings scored HIGHER than clean ones (83.5 vs 74.5), which would have made the codes
+actively anti-correlated with quality.
+
+**It was an artefact.** Both "clean" runs in that comparison were from builds where geometry was not
+wired — the word does not appear anywhere in their reports. Their silence meant *unmeasured*, not
+*passing*. Counting a check that never ran as a check that passed is the same defect this project has
+now found in `loadNoveltyLedger` (`catch { return [] }` turning "wrong directory" into "no prior runs")
+and in X4's merged rollback reason. The replay script excludes unmeasured reports explicitly, and says
+so in its output, so the mistake cannot be repeated silently.
+
+### 15.3 The decision, and the reasoning
+
+**Geometry stays a warning channel. It does not gain the authority to stop a run.** Three reasons, in
+order of weight:
+
+1. **It would abort everything.** 6 of 6 read manuscripts, 19 of 21 measured runs. There is no
+   configuration of "block on the serious codes" that survives this, because the code on the 86 —
+   `reveal_culprit_not_named` — is one of the serious ones.
+2. **There is no evidence the clean state is the good state.** Zero read manuscripts have passed
+   geometry. The proposal assumes clean ⇒ better; nothing measured supports it.
+3. **It would make `prose` worse, mechanically.** `reveal_culprit_not_named` is precisely the code
+   `enforceCulpritEvidencePresence` exists to satisfy. More gate pressure means more injection, and
+   the injected sentence is the text three external readers have quoted back as *"generator residue"*
+   ([X4](../../../architecture/FLAG-AUDIT.md)). Escalating authority pushes directly on the category
+   the escalation is meant to protect.
+
+### 15.4 What replaces it
+
+Not "do nothing" — [A_74 §9.4](../ANALYSIS_74/ANALYSIS_74.md)'s five-of-seven mapping is real and the
+gate genuinely sees what the reader complains about. The answer is the one already taken for X4:
+**fix what the gate is complaining about at its source, rather than escalating the gate's authority
+over it.** X4 is the worked example — the floor now writes a sentence that satisfies its obligation
+AND obeys the rule, so there is nothing left to block on and nothing left to ship apologetically.
+
+The order that follows:
+
+| | |
+|---|---|
+| **Do** | make each floor's output compliant with the rules the model is held to, one at a time — X4 done, the clue-paragraph injector next |
+| **Do** | keep geometry findings driving REPAIR, and rank them by what readers actually complain about |
+| **Do not** | promote geometry to a hard stop, at any threshold, until a geometry-clean manuscript has been READ and scored well |
+| **Revisit when** | `geometry-gate-replay.mjs` shows the abort rate falling below ~20% AND at least one clean run has an external read |
+
+**The revisit condition is the point of shipping this as a script.** The decision is not "geometry is
+warning-only forever" — it is "geometry is warning-only while nine in ten runs would abort", and that
+number is now one command away.
