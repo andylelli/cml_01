@@ -147,9 +147,54 @@ Until it exists, every single-run result — including step 2's — is one sampl
 - [ ] **Turn on `AGENT9_PROMPT_PREFIX_ORDER`.** Chapter prompts currently cache at 0–13%; the run-frozen blocks sit scattered behind a chapter-varying block at position 2. Worth ~£0.09/run, and it is *measurable now* that the transport is on. Its one risk — which block gets dropped under budget pressure — is read from `dropped=[…]` in the same run.
 - [ ] **Read the repair-efficacy tally** off the next run. If polish comes back mostly `no_change`, `AGENT9_POLISH_HIGH_LEAKAGE_CHAPTERS` (default-ON, 7 calls, $0.54) is buying nothing.
 
-### 6.2 The cohort — the item everything else waits on
+### 6.2 The paired variance probe — two runs, and what they can and cannot settle
 
-- [ ] **D1: five runs from one build, all five read.** ~£7.50 + five reads. Produces the variance figure, the first honest floor, and the denominator every future lever comparison needs. **Nothing else on this board can be evaluated properly until it exists.**
+**Budget: two runs.** D1 as A_72 specified it — five runs, all read — is not affordable, so this is
+the honest reduction rather than a smaller version of the same claim.
+
+**What two runs CANNOT do, stated first so no later document quotes them as if they had.**
+
+- **No floor.** A floor is a claim about the worst of N. With N=2 the "worst" is simply the lower of
+  two samples and carries no information about the tail.
+- **No variance estimate, and no confidence interval.** Two points give one difference, not a spread.
+- **A SMALL gap proves little.** Two samples from a wide distribution can land close by luck. Only
+  the large-gap outcome is conclusive.
+
+**What they CAN do, and it is decision-relevant.** Two runs from an identical build give one
+pairwise gap, and that gap is a **lower bound** on run-to-run spread. That is exactly the quantity
+step 2 needed and did not have: a lever predicted to move a category by +1 cannot be read through a
+process whose own noise is larger.
+
+**The design.** Same build, same `canary-core-inputs.yaml`, both read cold. Agent 3b invents a fresh
+device each run even on identical inputs (A_72 §13.5 — the same yaml produced a tide mechanism and
+then an hourglass), so this measures the real end-to-end spread including case difficulty, which is
+the spread that matters.
+
+**The decision rule, written BEFORE the runs so it cannot be rationalised afterwards.** Let `gap` be
+the difference in category SUM between the two reads (sum, not headline — the headline carries the
+reader's offset, which this project does not control and which A_72 §1.2 measured at 0..+8):
+
+| gap | what it means | what the board does |
+|---|---|---|
+| **≥ 4** | noise exceeds every lever on the board | **single-run attribution is dead.** No lever ships on one read again; §6.3 and §6.4 are re-planned around paired designs, and the levers in §4 stay off until they can be tested properly |
+| **2–3** | noise is comparable to a strong lever | only levers predicted to move **≥ 3 marks** are worth a single-run test; the rest wait |
+| **≤ 1** | noise is smaller than a strong lever | single-run attribution is defensible; proceed down the lever queue in §6.3 — **but treat this as provisional**, per the small-gap caveat above |
+
+**Prerequisites, all free and all in §6.1** — do them first, so the pair measures the current best
+build rather than a stale one: C4 off, `AGENT9_PROMPT_PREFIX_ORDER` on.
+
+**What rides along for free on the same two runs.** These need no extra spend and answer four open
+questions:
+
+- **repair efficacy** — what share of a ~30%-of-spend stage changes the text at all
+- **cache rate with prefix order on** — against the measured 0–13% baseline
+- **X38 binding** — whether the device arithmetic is now repaired at source
+- **cost** — the first figures with caching visible on both runs
+
+**Why not spend the two runs on a lever instead.** Considered and rejected: a matched pair with a
+lever on and off measures that lever *through* unknown variance, which is precisely what made step 2
+uninterpretable. Bounding the noise first is what makes every later run readable. Two runs spent on
+the denominator are worth more than two spent on one more numerator.
 
 ### 6.3 Upstream correctness — better value than prose polish
 
@@ -183,4 +228,4 @@ What has changed is the quality of the evidence:
 
 **The realistic near-term target is a reliable 86–88**, which is the reader's own forecast for both recent manuscripts with their named fixes applied. That would be a real achievement against a corpus whose recent floor is 78 — and it is not 90.
 
-**Reaching 90 requires the distinctiveness engine to work**, and the single piece of evidence now available about divergence (§6.4) is a caution rather than an encouragement. The next honest step is not another prose lever. It is the cohort in §6.2, so that the next lever can be judged at all.
+**Reaching 90 requires the distinctiveness engine to work**, and the single piece of evidence now available about divergence (§6.4) is a caution rather than an encouragement. The next honest step is not another prose lever. It is the paired probe in §6.2 — two runs, one gap — so that the next lever has any chance of being judged at all. Note what that concedes: two runs cannot establish a floor, and §0's goal is stated as a floor.

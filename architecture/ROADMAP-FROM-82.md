@@ -181,7 +181,10 @@ NOW, free
   4c    A3, both edit sites                           free build, ~£1.78 to verify
 ---- only now can a 9 appear where there has never been one ----
   5c    cost governor                                              free
-  D1    five-run cohort, all read           ~£9 + 5 reads  <- the only way to say "floor"
+  D1*   PAIRED VARIANCE PROBE, 2 runs      ~£3 + 2 reads  <- budget-reduced; see A_74 §6.2.
+        Two runs BOUND the spread; they cannot measure a floor or a variance. Decision rule is
+        written in advance: sum-gap >=4 kills single-run attribution outright, 2-3 makes it
+        marginal, <=1 makes it provisionally defensible.
 ```
 
 ---
@@ -195,5 +198,7 @@ NOW, free
   A_72 §10.1's own falsification, and it reopens the generation-model question with real evidence.
 - **§4d is wrong if** the next divergent run produces a device the reader calls distinctive. One run
   is not a finding.
-- **The whole list is wrong about 90 if** the D1 cohort comes back with a spread wider than 6 marks.
-  Then run-to-run variance dominates every lever here and the work is reliability-only until it does not.
+- **The whole list is wrong about 90 if** the paired probe returns a sum-gap of 4 or more. Then
+  run-to-run variance dominates every lever here, single-run attribution is dead, and the work is
+  reliability-only until a design exists that can see past the noise. Note the asymmetry: a LARGE gap
+  settles this, a small one does not — two samples can agree by luck.
