@@ -927,3 +927,104 @@ gate-authority finding confirmed twice, a 100%-rollback polish pass caught by an
 it, a truncation bug that had been a coin flip on every run, and a classifier bug in this section's
 own machinery. **Only one of those needed a paid run at all** — which is §8.6's whole argument,
 restated by the evidence rather than in advance.
+
+---
+
+## 11. RUN 2 READ — DE9 answered, and it is not the answer the engine was built for
+
+`story_20260826-1753/the_canary_s_slippers…md`, the project's first `identity`-axis manuscript, cold
+read on 2026-08-26. **82/100.** §10.6 left DE9 as *"one read in, one pending"*; this is the other one.
+
+| | prem | hook | plot | char | dial | atmo | clue | pace | end | prose | sum | ext |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| identity — run 2 | **9** | 8 | 8 | 8 | 7 | 8 | 8 | 8 | 8 | **6** | 78 | **82** |
+
+The reader's own summary of the mechanism is the part worth keeping:
+
+> *"The right-foot / left-limp contradiction is the standout clue… it looks incriminating at first —
+> Hale's slippers match — but becomes exculpatory once Eleanor thinks about gait mechanics."*
+> *"Better than many of the clock variants because it is visual, fair, and character-specific."*
+
+Forecast with three fixes: **88–90**.
+
+### 11.1 DE9 — answered NO on the headline, YES on the category the engine actually feeds
+
+The six most recent reads, DE-scheduled cells marked:
+
+| story | cell | ext | premise | prose |
+|---|---|---:|---:|---:|
+| 08-23 2038 | temporal (unscheduled) | **85** | 9 | 7 |
+| 08-25 1838 | clock family (unscheduled) | 82 | 8 | 6 |
+| 08-25 2102 | clock family (unscheduled) | 80 | 8 | 7 |
+| 08-26 1708 | **spatial × locked_room_timing (DE)** | 79 | 9 | 6 |
+| 08-26 1753 | **identity × staged_scene (DE)** | 82 | 9 | 6 |
+
+**The two DE cells read 79 and 82, inside — not above — the 80–85 spread of the unscheduled runs.**
+The best of the six is still a temporal clock story. On n=2 that is not a claim that novel cells read
+worse; it is the absence of any measurable headline gain, which is what §8.6's ablation ladder said two
+runs could produce.
+
+**`premise` is the exception, and it is the one the engine was aimed at.** 9 on both DE runs, against 8
+on both unscheduled clock stories, with the reader volunteering a preference for the mechanism over the
+clock variants in both cases. That is [A_72 §2.1](../ANALYSIS_72/ANALYSIS_72.md)'s finding holding: the
+novelty apparatus buys `premise`, and `premise` is where this project's 9s come from.
+
+**So the honest DE9 verdict: the engine delivers the category it was designed to deliver and does not
+move the headline, because the headline is being held down somewhere else.** §10.5 and the handover's
+own next-steps list both arrived at that independently — *"more novelty is not the next thing to buy"*.
+
+### 11.2 The prose leakage, named for a third consecutive read — and a correction
+
+The reader quotes back, verbatim, as *"generator residue"*:
+
+> *"Eleanor Voss pressed on to the following solid point the file now held…"*
+> *"That observation tilted the logic stacked against the rest…"*
+> *"Hugo Vane was responsible; the evidence allowed no other reading."*
+
+Six such lines in this manuscript, carrying raw key-term lists where noun phrases belong:
+
+```
+"…the file now held: Right footed depth footprints match captain."
+"…bent the trail toward Figure impersonated captain hale wearing slippers."
+"…bent the trail toward Victim struck head brass candlestick."
+```
+
+That is `buildDeterministicClueParagraphs` — the same template
+[A_72 §14.2](../ANALYSIS_72/ANALYSIS_72.md#142-the-readers-prose-complaint-is-a-template-injector-and-it-is-new)
+traced, now named by three consecutive readers.
+
+**And counting it across the series corrects what A_72 claimed about it.**
+
+```
+story        injector lines   prose
+08-23 1715         0            6
+08-23 2038         4            7
+08-25 1838         0            6
+08-25 2102         0            7
+08-26 1708         2            6
+08-26 1753         6            6
+```
+
+**`prose` is 6 or 7 whether the injector fires or not.** Two manuscripts with zero of these lines still
+scored 6; the manuscript with four scored 7. A_72 §14.2 called it *"the largest named prose defect on
+the board"* and the count does not support that: it is the most VISIBLE artifact and the one a reader
+reaches for first, but it is not what pins the mark.
+
+What the six reads actually show is a **family** of leakage defects with a different member surfacing
+each run — the locked-fact article and the description paraphrase in one, this injector in another,
+*"prompt-artifact lines"* in a third. Remove one and the complaint changes; the mark has not.
+
+**Consequence for planning:** an increment aimed at this injector alone should be expected to change
+what the reader quotes and not the number. `prose` has never reached 9 in 41 reads and currently sits
+two marks below its own ceiling of 8 — the gap is not one template.
+
+### 11.3 What this changes
+
+- **DE9 is closed.** Unused cells buy `premise`, not the headline. Axis coverage is a coverage metric
+  and should stop being read as a quality proxy.
+- **§10.7's conclusion is reinforced from a second direction.** The engine works; the execution
+  machinery is what costs marks. The handover's next-steps list already ordered gate authority and the
+  polish pass above further distinctiveness work, and this read supports that ordering rather than
+  competing with it.
+- **The injector drops from "largest prose defect" to "most-quoted symptom".** Still worth fixing —
+  three readers should not have to name it — but not on the expectation that it moves `prose`.

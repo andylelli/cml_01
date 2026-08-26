@@ -1,0 +1,115 @@
+82/100. The core mechanism is still one of the stronger non-clock ideas: the false identity is exposed through footprint pressure and limp direction, not through a confession alone.
+
+The roles are clear:
+
+Investigator: Eleanor Voss
+Victim: Dr. Mallory Finch
+Culprit: Hugo Vane
+False-trail participant: Beatrice Quill
+False suspects: Captain Ivor Hale, Sylvia Trent
+Murder method: blow to the head with a brass candlestick
+Cover-up mechanism: Captain Hale’s slippers/coat are used to create misleading veranda footprints; Beatrice’s right-sided gait produces the false trail; Hugo uses master keys/service access to commit the murder
+Key clues: right-deep footprints, Hale’s left-leg limp, damp briny slippers, seaweed in service corridor, Beatrice’s right-sided gait, Beatrice’s alibi, Hugo’s master keys, Hugo’s unobserved office window
+Motive: Hugo wants to protect the Oceanview Hotel from Finch exposing debts, mismanagement, and scandal
+
+The opening still works well: Finch is dead on the veranda, the footprints match Hale’s slippers, but the pressure pattern is wrong for Hale because the prints are deeper on the right while Hale’s limp is on the left.
+
+Area	Mark	Notes
+Premise / concept	9/10	Strong identity-misdirection premise built on gait and footwear.
+Opening hook	8/10	Body, veranda, slippers, footprints, limp contradiction — effective.
+Plot structure	8/10	Good path from Hale suspicion to Beatrice impersonation to Hugo’s access.
+Character clarity	8/10	Roles are readable, though Beatrice’s culpability needs cleaner framing.
+Dialogue	7/10	Distinct enough, but some repeated catchphrases remain.
+Atmosphere / setting	8/10	Seaside hotel, veranda, brine, rain, service corridors all fit the mechanism.
+Mystery clues / evidence logic	8/10	The limp/footprint contradiction is good fair-play evidence.
+Pacing	8/10	Moves well, but Chapters 9–10 repeat the proof.
+Ending / reveal	8/10	Hugo confession is clear, but the proof sequence needs reordering.
+Prose / polish	6/10	Still heavily capped by validation/scaffold leakage.
+What works best
+
+The right-foot / left-limp contradiction is the standout clue.
+
+The story plants Hale’s left-leg injury clearly in Chapter 2, then contrasts it with the right-deep prints from the veranda. That is an elegant mystery clue because it looks incriminating at first — Hale’s slippers match — but becomes exculpatory once Eleanor thinks about gait mechanics.
+
+The Chapter 8 test is also strong. Hale walks in the slippers and leaves a deeper left print; Beatrice walks in them and leaves a deeper right print matching the original trail. That is visual, fair, and easy for the reader to understand.
+
+Main issue
+
+The draft still has the same weakness: Beatrice’s role is muddy.
+
+She says:
+
+“I did as I was told.”
+“I wore the coat, the slippers.”
+“But I could not have struck the blow.”
+
+That means she participated in the staged false trail. But the story treats her as simply cleared, almost like an innocent suspect.
+
+You need one clean explanation:
+
+Best version: Beatrice knowingly impersonated Hale to help Hugo create a harmless public deception, but did not know Hugo would use that staged appearance to cover a murder.
+
+That lets her be guilty of helping the cover-up/masquerade, but innocent of the killing.
+
+Remaining problems
+1. Hugo needs one harder physical link
+
+The evidence against Hugo is mostly:
+
+master keys
+staff access
+unobserved office window
+motive to protect the hotel
+seaweed in service corridor
+confession
+
+That works, but the proof would be stronger with a direct link to the candlestick or murder room:
+
+brass polish/blood trace on Hugo’s cuff
+candlestick groove wiped but retaining residue from Hugo’s glove
+master key with blood in a groove
+Finch’s torn note naming Hugo
+seaweed in Hugo’s office carpet
+
+Right now the strongest physical proof belongs to the impersonation, not the murder.
+
+2. The five-minute murder window is too tight
+
+The reveal says Hugo used the service corridor at 11:05, while Beatrice created the false veranda sighting at 11:10, and five minutes was enough to slip away, kill Finch, and return.
+
+That can work only if the layout is very compact. Add one clear geography line:
+
+“The manager’s office opened directly onto the service stair beside Room 212; from there, Hugo could reach the Canary’s Suite in less than a minute.”
+
+3. The reveal repeats after the confession
+
+Chapter 9 already proves the footprint trick, clears Hale, clears Beatrice of the killing, points to Hugo, and gets Hugo’s confession. Then it keeps going with more test language and repeated demonstration.
+
+Stop after Hugo confesses.
+
+4. Chapter 10 still contains validation leakage
+
+These lines need to go:
+
+“Eleanor Voss pressed on to the following solid point the file now held…”
+“That observation tilted the logic stacked against the rest…”
+“Hugo Vane was responsible; the evidence allowed no other reading.”
+
+They are not story prose; they are generator residue.
+
+There is also leakage earlier around the footprint clues and candlestick clues, which keeps the polish score low.
+
+Fastest fixes
+Define Beatrice as duped helper, cover-up accomplice, or knowingly false witness.
+Add one physical clue tying Hugo to the candlestick or Room 212.
+Add one sentence explaining the short route from Hugo’s office to the murder room.
+Cut the repeated test/proof after Hugo’s confession.
+Delete all “record now held / evidence allowed no other reading” leakage.
+Keep the footprint-gait test exactly as the centerpiece.
+Overall
+
+This is still a strong identity-misdirection draft. The footprint clue is better than many of the clock variants because it is visual, fair, and character-specific.
+
+As written: 82/100.
+
+With Beatrice’s role clarified, Hugo tied physically to the murder, and the validation leakage removed, this could reach 88–90/100.

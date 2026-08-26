@@ -886,6 +886,14 @@ The reader's list for reaching 90 is five items, and they are not equally hard:
 Three of the five already have machinery. **The injector has none, and is now the single most
 frequently named prose defect across two consecutive reads.**
 
+> **CORRECTED 2026-08-26 by [A_74 §11.2](../ANALYSIS_74/ANALYSIS_74.md).** This section calls the
+> injector *"the largest named prose defect on the board"*. Counting it across the six most recent
+> reads does not support that: `prose` scores 6 or 7 **whether the injector fires or not** — two
+> manuscripts with zero of these lines scored 6, and the one with four scored 7. It is the most
+> VISIBLE artifact and the one readers quote first, but it is not what pins the mark. The real shape
+> is a FAMILY of leakage defects with a different member surfacing each run. Fixing this one should be
+> expected to change what the reader quotes, not the number.
+
 Its fix is not deletion: the patch exists because a clue is missing and a gate needs it present.
 A_71 §3 settled the shape of this argument once already — **the injector is a floor, and the repair
 belongs upstream of it**, at whatever is producing 18 missing-clue retries in a single run.

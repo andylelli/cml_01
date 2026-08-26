@@ -27,7 +27,17 @@ most of what the reader complains about and ships anyway.**
 
 ---
 
-## 2. THE ONE THING TO DO FIRST
+## 2. THE ONE THING TO DO FIRST — DONE 2026-08-26
+
+> **CLOSED.** Run 2 was read: **82/100**, `premise` 9, `prose` 6. DE9 is answered in
+> [A_74 §11](documentation/analysis/ANALYSIS_74/ANALYSIS_74.md) — the unused cells buy `premise` (9 on
+> both DE runs vs 8 on both unscheduled clock stories) and do **not** move the headline (79 and 82,
+> inside the 80–85 spread of the unscheduled runs). The shadow rubric over-scored run 1 by 5; it was
+> not consulted first. Ledger updated, 41 rows.
+>
+> The section below is kept as written, for the record of what was asked.
+
+## 2. (as originally written) THE ONE THING TO DO FIRST
 
 **Cold-read `stories/story_20260826-1753/the_canary_s_slippers_a_seaside_hotel_identity_m.md`**, the
 same way every other read in the ledger was done, and save the review as

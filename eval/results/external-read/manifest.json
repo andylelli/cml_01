@@ -1,133 +1,5 @@
 [
   {
-    "bundleId": "read-20260814-2033",
-    "storyPath": "stories/story_20260814-2033/the_frozen_hour_at_coastview_hotel.md",
-    "readPath": "stories/story_20260814-2033/chatgpt-review.txt",
-    "externalFinal": 84,
-    "externalCategories": {
-      "premise": 8,
-      "opening_hook": 8,
-      "plot_structure": 8,
-      "character_clarity": 8,
-      "dialogue": 7,
-      "atmosphere": 8,
-      "clues": 8,
-      "pacing": 8,
-      "ending": 8,
-      "prose": 7
-    },
-    "externalNotes": {
-      "premise": "Stopped-clock false death time is classic and clear.",
-      "opening_hook": "Body, letter opener, frozen clock, wire fragment — strong setup.",
-      "plot_structure": "Discovery → clock contradiction → alibi gaps → Hugo tools → final test → confession works.",
-      "character_clarity": "Roles are stable; Hugo’s guilt is easy to follow.",
-      "dialogue": "Some good dry exchanges, but several generated catchphrases remain.",
-      "atmosphere": "Coastview Hotel, fog, blackout curtains, clocks, sea air — effective.",
-      "clues": "Good clue chain, especially the wire/file/letter-opener proof.",
-      "pacing": "Builds well; Chapters 9–10 still repeat some material.",
-      "ending": "Complete and satisfying, though a little over-explained.",
-      "prose": "Cleaner than the weakest drafts, but still has obvious artifacts."
-    },
-    "externalCategorySum": 78,
-    "externalOffset": 6
-  },
-  {
-    "bundleId": "read-20260825-1838",
-    "storyPath": "stories/story_20260825-1838/the_case_of_the_rewound_lobby_clock.md",
-    "readPath": "stories/story_20260825-1838/chatgpt-review.txt",
-    "externalFinal": 82,
-    "externalCategories": {
-      "premise": 8,
-      "opening_hook": 8,
-      "plot_structure": 8,
-      "character_clarity": 8,
-      "dialogue": 7,
-      "atmosphere": 8,
-      "clues": 8,
-      "pacing": 8,
-      "ending": 8,
-      "prose": 6
-    },
-    "externalNotes": {
-      "premise": "Rewound lobby clock is clear, classic, and easy to follow.",
-      "opening_hook": "Body, stopped clock, poker, hotel lobby, storm — strong tableau.",
-      "plot_structure": "Discovery → clock contradiction → false Finch accusation → Beatrice pressure → final test → confession works.",
-      "character_clarity": "Roles are stable, though Finch has a gender/pronoun wobble early.",
-      "dialogue": "Eleanor’s dry voice works; Beatrice’s theatricality is useful but sometimes template-like.",
-      "atmosphere": "Seacrest Hotel, storm, brass, marble, clocks, service corridor — good setting.",
-      "clues": "The clock/punch-card/radio/watch contradiction is fair and understandable.",
-      "pacing": "Good escalation; false accusation chapter is one of the better uses of misdirection.",
-      "ending": "Beatrice is exposed on-page and confesses, but proof is repeated after the confession.",
-      "prose": "Good passages, but Chapter 10 contains major validation leakage."
-    },
-    "externalCategorySum": 77,
-    "externalOffset": 5
-  },
-  {
-    "bundleId": "read-20260825-2102",
-    "storyPath": "stories/story_20260825-2102/the_thirty_minute_error_a_seaside_hotel_clockwor.md",
-    "readPath": "stories/story_20260825-2102/chatgpt-review.txt",
-    "externalFinal": 80,
-    "externalCategories": {
-      "premise": 8,
-      "opening_hook": 8,
-      "plot_structure": 8,
-      "character_clarity": 8,
-      "dialogue": 7,
-      "atmosphere": 8,
-      "clues": 6,
-      "pacing": 8,
-      "ending": 8,
-      "prose": 7
-    },
-    "externalNotes": {
-      "premise": "Reception clock manipulation is clear and readable.",
-      "opening_hook": "Body, clock, storm, bloodied object — effective setup.",
-      "plot_structure": "Discovery → contradictory clocks → Sylvia pressure → clearances → final trap works.",
-      "character_clarity": "Roles are stable; Finch’s they/them pronouns are consistent.",
-      "dialogue": "Eleanor and Sylvia work well; Beatrice’s wit is better than usual but still sometimes artificial.",
-      "atmosphere": "Seaview Hotel, fog, rain, brass, telegrams, lounge — good mood.",
-      "clues": "Good evidence chain, but the time discrepancy is mathematically wrong.",
-      "pacing": "Good forward movement and less repetition than the previous draft.",
-      "ending": "Sylvia confesses clearly, and the motive is strong.",
-      "prose": "Cleaner than several earlier drafts, but still has generated timing artifacts."
-    },
-    "externalCategorySum": 76,
-    "externalOffset": 4
-  },
-  {
-    "bundleId": "read-20260826-1708",
-    "storyPath": "stories/story_20260826-1708/the_elevator_cage_enigma.md",
-    "readPath": "stories/story_20260826-1708/chatgpt-review.txt",
-    "externalFinal": 79,
-    "externalCategories": {
-      "premise": 9,
-      "opening_hook": 8,
-      "plot_structure": 8,
-      "character_clarity": 8,
-      "dialogue": 7,
-      "atmosphere": 8,
-      "clues": 6,
-      "pacing": 8,
-      "ending": 7,
-      "prose": 6
-    },
-    "externalNotes": {
-      "premise": "Elevator indicator/bell deception is fresh and promising.",
-      "opening_hook": "Locked suite, dead Finch, unmoved elevator, heard bell — strong hook.",
-      "plot_structure": "Discovery → elevator contradiction → alibis → false Hugo suspicion → Sylvia evidence → final test works.",
-      "character_clarity": "Roles are mostly stable; Finch victim, Eleanor investigator, Sylvia culprit.",
-      "dialogue": "Character voices are decent, especially Beatrice/Sylvia, though some lines are familiar.",
-      "atmosphere": "Art Deco hotel, brass cage, fog, machine oil, locked suite — good mood.",
-      "clues": "Clues are good, but the actual elevator mechanism is not clear enough.",
-      "pacing": "Good development and suspect narrowing.",
-      "ending": "Sylvia confesses, but the mechanism proof is muddled and repeated.",
-      "prose": "Better prose in places, but final validation fragments drag it down."
-    },
-    "externalCategorySum": 75,
-    "externalOffset": 4
-  },
-  {
     "bundleId": "2026-08-06-2255-weighted-pendulum",
     "storyPath": "stories/_archive/story_20260806-2255/the_weighted_pendulum_deception.md",
     "runFolder": "run_20260806-2134_mystery",
@@ -268,6 +140,102 @@
     },
     "externalCategorySum": 79,
     "externalOffset": 5
+  },
+  {
+    "bundleId": "read-20260814-2033",
+    "storyPath": "stories/story_20260814-2033/the_frozen_hour_at_coastview_hotel.md",
+    "readPath": "stories/story_20260814-2033/chatgpt-review.txt",
+    "externalFinal": 84,
+    "externalCategories": {
+      "premise": 8,
+      "opening_hook": 8,
+      "plot_structure": 8,
+      "character_clarity": 8,
+      "dialogue": 7,
+      "atmosphere": 8,
+      "clues": 8,
+      "pacing": 8,
+      "ending": 8,
+      "prose": 7
+    },
+    "externalNotes": {
+      "premise": "Stopped-clock false death time is classic and clear.",
+      "opening_hook": "Body, letter opener, frozen clock, wire fragment — strong setup.",
+      "plot_structure": "Discovery → clock contradiction → alibi gaps → Hugo tools → final test → confession works.",
+      "character_clarity": "Roles are stable; Hugo’s guilt is easy to follow.",
+      "dialogue": "Some good dry exchanges, but several generated catchphrases remain.",
+      "atmosphere": "Coastview Hotel, fog, blackout curtains, clocks, sea air — effective.",
+      "clues": "Good clue chain, especially the wire/file/letter-opener proof.",
+      "pacing": "Builds well; Chapters 9–10 still repeat some material.",
+      "ending": "Complete and satisfying, though a little over-explained.",
+      "prose": "Cleaner than the weakest drafts, but still has obvious artifacts."
+    },
+    "externalCategorySum": 78,
+    "externalOffset": 6
+  },
+  {
+    "bundleId": "read-20260825-1838",
+    "storyPath": "stories/story_20260825-1838/the_case_of_the_rewound_lobby_clock.md",
+    "readPath": "stories/story_20260825-1838/chatgpt-review.txt",
+    "externalFinal": 82,
+    "externalCategories": {
+      "premise": 8,
+      "opening_hook": 8,
+      "plot_structure": 8,
+      "character_clarity": 8,
+      "dialogue": 7,
+      "atmosphere": 8,
+      "clues": 8,
+      "pacing": 8,
+      "ending": 8,
+      "prose": 6
+    },
+    "externalNotes": {
+      "premise": "Rewound lobby clock is clear, classic, and easy to follow.",
+      "opening_hook": "Body, stopped clock, poker, hotel lobby, storm — strong tableau.",
+      "plot_structure": "Discovery → clock contradiction → false Finch accusation → Beatrice pressure → final test → confession works.",
+      "character_clarity": "Roles are stable, though Finch has a gender/pronoun wobble early.",
+      "dialogue": "Eleanor’s dry voice works; Beatrice’s theatricality is useful but sometimes template-like.",
+      "atmosphere": "Seacrest Hotel, storm, brass, marble, clocks, service corridor — good setting.",
+      "clues": "The clock/punch-card/radio/watch contradiction is fair and understandable.",
+      "pacing": "Good escalation; false accusation chapter is one of the better uses of misdirection.",
+      "ending": "Beatrice is exposed on-page and confesses, but proof is repeated after the confession.",
+      "prose": "Good passages, but Chapter 10 contains major validation leakage."
+    },
+    "externalCategorySum": 77,
+    "externalOffset": 5
+  },
+  {
+    "bundleId": "read-20260826-1753",
+    "storyPath": "stories/story_20260826-1753/the_canary_s_slippers_a_seaside_hotel_identity_m.md",
+    "readPath": "stories/story_20260826-1753/chatgpt-review.txt",
+    "externalFinal": 82,
+    "externalCategories": {
+      "premise": 9,
+      "opening_hook": 8,
+      "plot_structure": 8,
+      "character_clarity": 8,
+      "dialogue": 7,
+      "atmosphere": 8,
+      "clues": 8,
+      "pacing": 8,
+      "ending": 8,
+      "prose": 6
+    },
+    "externalNotes": {
+      "premise": "Strong identity-misdirection premise built on gait and footwear.",
+      "opening_hook": "Body, veranda, slippers, footprints, limp contradiction — effective.",
+      "plot_structure": "Good path from Hale suspicion to Beatrice impersonation to Hugo’s access.",
+      "character_clarity": "Roles are readable, though Beatrice’s culpability needs cleaner framing.",
+      "dialogue": "Distinct enough, but some repeated catchphrases remain.",
+      "atmosphere": "Seaside hotel, veranda, brine, rain, service corridors all fit the mechanism.",
+      "clues": "The limp/footprint contradiction is good fair-play evidence.",
+      "pacing": "Moves well, but Chapters 9–10 repeat the proof.",
+      "ending": "Hugo confession is clear, but the proof sequence needs reordering.",
+      "prose": "Still heavily capped by validation/scaffold leakage."
+    },
+    "externalCategorySum": 78,
+    "externalOffset": 4
   },
   {
     "bundleId": "read-20260724-1347",
@@ -467,6 +435,70 @@
     },
     "externalCategorySum": 78,
     "externalOffset": 2
+  },
+  {
+    "bundleId": "read-20260825-2102",
+    "storyPath": "stories/story_20260825-2102/the_thirty_minute_error_a_seaside_hotel_clockwor.md",
+    "readPath": "stories/story_20260825-2102/chatgpt-review.txt",
+    "externalFinal": 80,
+    "externalCategories": {
+      "premise": 8,
+      "opening_hook": 8,
+      "plot_structure": 8,
+      "character_clarity": 8,
+      "dialogue": 7,
+      "atmosphere": 8,
+      "clues": 6,
+      "pacing": 8,
+      "ending": 8,
+      "prose": 7
+    },
+    "externalNotes": {
+      "premise": "Reception clock manipulation is clear and readable.",
+      "opening_hook": "Body, clock, storm, bloodied object — effective setup.",
+      "plot_structure": "Discovery → contradictory clocks → Sylvia pressure → clearances → final trap works.",
+      "character_clarity": "Roles are stable; Finch’s they/them pronouns are consistent.",
+      "dialogue": "Eleanor and Sylvia work well; Beatrice’s wit is better than usual but still sometimes artificial.",
+      "atmosphere": "Seaview Hotel, fog, rain, brass, telegrams, lounge — good mood.",
+      "clues": "Good evidence chain, but the time discrepancy is mathematically wrong.",
+      "pacing": "Good forward movement and less repetition than the previous draft.",
+      "ending": "Sylvia confesses clearly, and the motive is strong.",
+      "prose": "Cleaner than several earlier drafts, but still has generated timing artifacts."
+    },
+    "externalCategorySum": 76,
+    "externalOffset": 4
+  },
+  {
+    "bundleId": "read-20260826-1708",
+    "storyPath": "stories/story_20260826-1708/the_elevator_cage_enigma.md",
+    "readPath": "stories/story_20260826-1708/chatgpt-review.txt",
+    "externalFinal": 79,
+    "externalCategories": {
+      "premise": 9,
+      "opening_hook": 8,
+      "plot_structure": 8,
+      "character_clarity": 8,
+      "dialogue": 7,
+      "atmosphere": 8,
+      "clues": 6,
+      "pacing": 8,
+      "ending": 7,
+      "prose": 6
+    },
+    "externalNotes": {
+      "premise": "Elevator indicator/bell deception is fresh and promising.",
+      "opening_hook": "Locked suite, dead Finch, unmoved elevator, heard bell — strong hook.",
+      "plot_structure": "Discovery → elevator contradiction → alibis → false Hugo suspicion → Sylvia evidence → final test works.",
+      "character_clarity": "Roles are mostly stable; Finch victim, Eleanor investigator, Sylvia culprit.",
+      "dialogue": "Character voices are decent, especially Beatrice/Sylvia, though some lines are familiar.",
+      "atmosphere": "Art Deco hotel, brass cage, fog, machine oil, locked suite — good mood.",
+      "clues": "Clues are good, but the actual elevator mechanism is not clear enough.",
+      "pacing": "Good development and suspect narrowing.",
+      "ending": "Sylvia confesses, but the mechanism proof is muddled and repeated.",
+      "prose": "Better prose in places, but final validation fragments drag it down."
+    },
+    "externalCategorySum": 75,
+    "externalOffset": 4
   },
   {
     "bundleId": "probe-1-clockwork-deception",
