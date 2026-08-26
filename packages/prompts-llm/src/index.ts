@@ -338,6 +338,7 @@ export {
   INJECTED_SENTENCE_PATTERNS,
   isInjectedSentence,
   buildCulpritEvidenceSentence,
+  buildCulpritEvidenceSentenceInScene,
   buildSuspectClearanceSentence,
 } from "./agent9-prose/injection-templates.js";
 

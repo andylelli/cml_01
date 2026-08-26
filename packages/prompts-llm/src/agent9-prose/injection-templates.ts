@@ -37,6 +37,46 @@ export { buildResolutionBackstopSentence };
  */
 export const buildCulpritEvidenceSentence = (culprit: string): string =>
   `${culprit} was responsible, and the evidence placed the matter beyond all reasonable doubt.`;
+/**
+ * The SAME floor, written so it does not break the rule the model is failed for.
+ *
+ * ── THE DEFECT, MEASURED ─────────────────────────────────────────────────────────────────────────
+ *
+ * `buildCulpritEvidenceSentence` above is a summary verdict, and the resolution lint forbids exactly
+ * that: "Resolution chapter must close with an in-scene moment (dialogue, action, or sensation), not
+ * a summary verdict sentence." So every time the floor fires, the pipeline writes a sentence the model
+ * would be failed for, records the violation, and ships it because ADR-0003 says injections stand (X4).
+ *
+ * X4 built its counters to make that a number rather than an anecdote. Across the 18 archived runs
+ * carrying the telemetry: 5 injections, 10 violations — every injection breaks two rules,
+ * `verdict_closer.was_responsible` and `verdict_closer.beyond`. A 100% VIOLATION RATE. This is not a
+ * floor that occasionally trips a rule; as written it cannot produce a compliant sentence.
+ *
+ * External readers have quoted the result back three times, most recently as "Hugo Vane was
+ * responsible; the evidence allowed no other reading" — "not story prose; generator residue"
+ * (ANALYSIS_74 §9.4).
+ *
+ * ── WHY THIS IS NOT THE ADR-0003 ARGUMENT ────────────────────────────────────────────────────────
+ *
+ * REVIEW_05 §10.6 framed the choice as REFUSE the injection (which trades a bad sentence for a MISSING
+ * obligation, and ADR-0003 forbids that) versus LET IT STAND. There is a third option, and this
+ * codebase already took it once: `buildResolutionBackstopSentence` had the same conflict and A_57 D4
+ * resolved it by dramatizing the backstop — a confession beat ending on a sensation — so it satisfies
+ * its obligation AND closes in scene. Nothing is refused; the wording stops fighting a rule it never
+ * needed to fight.
+ *
+ * ── THE CONTRACT THIS MUST STILL MEET ────────────────────────────────────────────────────────────
+ *
+ * `culpritEvidenceLinkInText` requires all three, and the tests assert them against the REAL
+ * predicate rather than trusting the prose to look right: the culprit's NAME, a culprit term
+ * (culprit/killer/murderer/responsible/"did it"), and an evidence term (evidence/proof/alibi/
+ * timeline/...). "did it" and "proof" carry two of them; the name carries the third. It must also
+ * match NONE of RESOLUTION_VERDICT_CLOSER_RULES, which is exactly what the old form failed.
+ */
+export const buildCulpritEvidenceSentenceInScene = (culprit: string): string =>
+  `"You did it." The words settled and nobody took them back. ` +
+  `${culprit} said nothing, and the proof on the table said the rest.`;
+
 
 /** `enforceSuspectEliminationPresence` — the floor for "this suspect is never cleared in the prose". */
 export const buildSuspectClearanceSentence = (surname: string): string =>
@@ -55,6 +95,10 @@ export const INJECTED_SENTENCE_PATTERNS: ReadonlyArray<RegExp> = [
   /\bwas responsible,\s*and the evidence placed the matter beyond all reasonable doubt\b/i,
   // …and as the B5 scaffold floor rewrites it. THIS is the form that shipped on 08-04.
   /\bwas responsible;\s*the evidence allowed no other reading\b/i,
+  // buildCulpritEvidenceSentenceInScene — the COMPLIANT form. Registered here on purpose: this
+  // file's property #2 is that a floor which changes an injected sentence must contribute its new
+  // shape, or every checker that tells machine text from authored prose goes blind to it.
+  /"You did it\."\s*The words settled and nobody took them back\./i,
   // enforceSuspectEliminationPresence
   /\bwas thoroughly cleared by the evidence;\s*the alibi confirmed they could not have committed the crime\b/i,
   // the A3 scaffold floor's replacement for the clearance phrasing

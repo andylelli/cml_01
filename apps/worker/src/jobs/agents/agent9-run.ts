@@ -83,6 +83,7 @@ import {
   dialGapMinutes,
   // REVIEW_05 §10.1 — the pipeline's own sentences, and the patterns that recognise them.
   buildCulpritEvidenceSentence,
+  buildCulpritEvidenceSentenceInScene,
   buildSuspectClearanceSentence,
   INJECTED_SENTENCE_PATTERNS,
   // REVIEW_05 §10.6 (X4) — the rules that bind the model, applied to what the floors write.
@@ -2443,7 +2444,15 @@ export const enforceCulpritEvidencePresence = (prose: any, cml: any, onInject?: 
     (culprit, text) => culpritEvidenceLinkInText(culprit, text),
     // REVIEW_05 §10.1 — the sentence text lives in `injection-templates.ts` with the pattern that
     // recognises it (and the floor's rewrite of it). A local copy here would drift from the checker.
-    (culprit) => buildCulpritEvidenceSentence(culprit),
+    // A_74 §9.4 / X4 — the floor may write a COMPLIANT sentence instead of a summary verdict.
+    // Measured: every injection this floor has ever made breaks verdict_closer (5 injections, 10
+    // violations across 18 archived runs). The in-scene form satisfies culpritEvidenceLinkInText and
+    // trips no verdict-closer rule — neither refusing the injection nor letting it stand, which is
+    // the third option REVIEW_05 §10.6 did not consider. Env read at call time, not module load.
+    (culprit) =>
+      /^(1|true|yes|on)$/i.test(process.env.AGENT9_CULPRIT_INJECTION_IN_SCENE ?? "")
+        ? buildCulpritEvidenceSentenceInScene(culprit)
+        : buildCulpritEvidenceSentence(culprit),
     'enforceCulpritEvidencePresence',
     onInject,
   );
