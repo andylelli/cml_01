@@ -645,3 +645,154 @@ them the cheapest 9s on the board.
 - **The whole section is wrong about 90 if** DE9's unused-cell case scores the same as the clock
   cases. As §8.6 says, that is the most useful outcome on the table — not a failure, a redirection.
   Nothing here should be built in a way that makes that answer hard to hear.
+
+---
+
+## 9. The engine ran. Here is what it bought, and what it did not.
+
+**The 40th external read**, `read-20260826-1708`, `The Elevator Cage Enigma` — the first case this
+pipeline has ever produced outside the temporal/clock cell. Scheduled by DE5 as
+`spatial × locked_room_key × physical_trace`, generated with DE8's curated corpus on, £1.45, 40 calls,
+shadow rubric 84.
+
+**External: 79/100, category sum 75.**
+
+### 9.1 What the numbers actually say
+
+```
+bundle              ext  sum |  prem open plot char dial atmo clue paci endi pros
+read-20260817-2209   86   82  |    9    8    8    8    8    8    8    8    9    8   <- best ever
+read-20260823-2038   85   80  |    9    8    8    8    7    8    9    8    8    7
+read-20260825-1838   82   77  |    8    8    8    8    7    8    8    8    8    6
+read-20260825-2102   80   76  |    8    8    8    8    7    8    6    8    8    7
+read-20260826-1708   79   75  |    9    8    8    8    7    8    6    8    7    6   <- SCHEDULED
+```
+
+**Eight of ten categories are identical to the two runs before it.** One went up — `premise`, 8 → 9.
+One went down — `ending`, 8 → 7. The sum moved 76 → 75.
+
+That difference is **inside the noise**. §8.6's free measurement found same-build pairs less than an
+hour apart with sum-gaps of 4 and 10; a gap of 1 carries no information at all. Anyone reading "79 is
+lower than 82" as evidence that the scheduler hurt is reading a number smaller than this pipeline's
+own measurement error.
+
+### 9.2 The engine did the one thing it was built to do
+
+`premise` went to **9**, and the reader named the cause without being asked:
+
+> *"The setting and premise are fresh, though: the elevator indicator acting as a false witness is a
+> nice break from clock-only mysteries."*
+>
+> *"Premise / concept 9/10 — Elevator indicator/bell deception is fresh and promising."*
+
+That is DE5's falsification criterion passing on its first attempt. §8 predicted that a positive
+assignment into a never-visited cell would produce a case a reader calls fresh; a reader called it
+fresh, in those words, and contrasted it explicitly against the monoculture it came from.
+
+It is one read. It is not proof. But it is the first evidence in 40 reads that bears on the question
+at all, and it points the right way.
+
+### 9.3 And the headline did not move, because the loss was somewhere else entirely
+
+`clues` **6**, `prose` **6**, `ending` **7**. The reader's summary:
+
+> *"This is a good concept draft with a fresh mechanism, but it needs mechanical clarity."*
+>
+> *"With a clean elevator explanation, one weapon, and the Chapter 10 leakage removed, this could
+> reach **86–89/100**."*
+
+So the case was good and the **execution machinery failed it**. That is a different problem from the
+one §8 was written about, and it is worth separating cleanly, because the two have opposite
+implications for what to do next.
+
+### 9.4 THE FINDING: the gate saw five of the reader's seven problems and shipped
+
+This is not a detection failure. Every one of these is a warning the run printed, in its own log,
+before the manuscript was written to disk.
+
+| # | What the reader said | What the run had already warned |
+|---|---|---|
+| 1 | *"the elevator mechanism is not explained clearly enough… I still do not fully know what Sylvia physically did"* — the single biggest problem | `geometry reveal_method_absent (ch9): Chapter 9 does not state how the murder was physically done.` |
+| 2 | *"Weapon confusion: paperweight vs decanter… Use one weapon"* | `geometry method_signature_absent (ch1): Chapter 1 shows no physical sign of the manner of death ("struck with a heavy glass decanter")` |
+| 3 | *"The final test is not quite a test… does not clearly prove one theory over another"* | `geometry clincher_absent_at_payoff (ch9): Chapter 9 produces no decisive physical trace tying the culprit to the act. The contract names one… It exists in the clue set and must be on the page here as proof.` |
+| 4 | *"Chapter 9 repeats after the confession… that order weakens the reveal"* | `geometry reveal_culprit_not_named (ch9)` + `geometry aftermath_repeat (ch10): re-delivers what chapter 9 already disclosed` |
+| 5 | *"Chapter 10 still has validation leakage… That is generated checklist leakage. It must be deleted."* | `[X4] injector-vs-lint: enforceCulpritEvidencePresence injected a sentence into chapter 10 … that violates verdict_closer.was_responsible — a rule the model is held to. **The injection STANDS (ADR-0003)**` |
+
+Five for five, and the fifth is the sharpest thing found this session. The reader quoted the offending
+sentences verbatim:
+
+> *"Captain Ivor Hale had been elsewhere, and the evidence around Single shoeprint matching sylvia
+> trent shoes held…"*
+
+The pipeline **wrote that sentence on purpose**, recorded that it violated its own `verdict_closer`
+rule, and shipped it because an architecture decision says injections stand. **`prose` 6 is not a
+model failure. It is the direct, traceable output of a policy.** That is the cheapest 2 marks on the
+board and it costs a decision, not a build.
+
+This is [B1](../../../architecture/PLAN-TO-90.md), gate authority, now open across six documents with
+a fifth and sixth data point. A_74 §3c said the gate saw three of six. It now sees five of seven, and
+one of them it authored itself.
+
+### 9.5 The second finding: the repair machinery is tuned to the cell we just left
+
+`clues` **6** is the equal-lowest clue mark of the modern era, and the reason is structural rather
+than accidental.
+
+The reader's #1 complaint is that a *mechanism* is under-explained. For a clock case this pipeline has
+a dedicated apparatus for exactly that: `X38` / `locked_time_arithmetic` checks the device's own
+numbers against each other, `AGENT3_DEVICE_TIME_BINDING` binds the locked facts into the CML prompt,
+`reveal_times_not_stated` demands both times in the same passage. **Five of the fifteen geometry
+acceptance codes are temporal-only.** A spatial case walks into a thinner net.
+
+The evidence that this is real and not a story: `X38` fired *on this run anyway* — the case declared
+anchors thirty minutes apart against a `critical_interval_duration` of *"forty minutes"* — because the
+temporal machinery is the machinery that exists, and it went looking for its own kind of defect in a
+case that was not about time. Meanwhile *"what did Sylvia physically do to the elevator"* had no
+equivalent check, and that is the question the reader could not answer.
+
+So the honest statement of the trade this run measured:
+
+> **Moving to a fresh cell raised the concept mark and exposed how much of the quality apparatus is
+> cell-specific.** The engine did not make the pipeline worse. It made visible how narrow the
+> pipeline's competence had become while nobody could see the walls.
+
+### 9.6 Two more things the run surfaced
+
+**The blind-reader gate did not run.** `Agent6-BlindReader` was refused by Azure's content filter
+(violence: medium — the case's manner of death is in the prompt), so the gate was **SKIPPED, not
+passed**, and its remediation loop never executed. On a run whose largest failure was fair-play
+clarity, the fair-play reader was absent. Whether that caused the `clues` 6 cannot be established from
+one run, but it must not be recorded as a passing gate.
+
+**The internal rubric over-scored by 5.** Shadow rubric **84 — "Very strong"**; external **79**. The
+shadow judge saw no problem with a mechanism the reader called foggy. That is the internal rubric
+failing on exactly the axis it is least able to see, and it is a caution against using the shadow
+number to decide anything about an unfamiliar cell.
+
+### 9.7 What this changes
+
+- **DE5 and DE6 are supported.** Keep them. The assignment reached the model, the model realized it,
+  and the reader rewarded the result on the intended axis.
+- **DE8 is unresolved.** Run 1 had the curated corpus; run 2's cell has no library coverage and
+  correctly emitted no block. That is a free ablation, not a designed one, and it is worth exactly
+  what an accidental N=1 comparison is worth — but it is the only DE8 evidence there will be for now.
+- **The next lever is not another distinctiveness lever.** It is **gate authority**. Five detected
+  complaints shipped; one of them the pipeline injected itself, knowingly. Nothing in §8 is worth as
+  much as acting on that, and it needs no run to decide.
+- **§8.4 gets its first support.** The section argued that distinctiveness lives in the depth of the
+  inferential chain rather than the exoticism of the object. This read is that argument's evidence:
+  a genuinely novel object scored 9 on concept and 6 on clues, and the reader's fix list is entirely
+  about making the chain legible — *"pick one"*, *"use one weapon"*, *"make the test prove one
+  specific fact"*.
+
+### 9.8 What would falsify §9
+
+- **9.2 is wrong if** run 2, on a different unused cell, comes back with `premise` at 8 and no comment
+  about freshness. One read is one read, and the whole of §9.2 rests on a single category and a single
+  sentence of a single reader.
+- **9.4 is wrong if** removing the `enforceCulpritEvidencePresence` injection does not move `prose`.
+  The reader quoted the injected text, so this is about as close to a settled attribution as this
+  project has ever had — which is why it is worth stating as falsifiable rather than assuming it.
+- **9.5 is wrong if** run 2 — also outside the temporal cell, also without the clock apparatus —
+  returns a normal `clues` mark. Then the thin net is not the cause and the elevator case was simply
+  under-specified.

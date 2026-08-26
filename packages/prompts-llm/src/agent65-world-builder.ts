@@ -962,6 +962,33 @@ export async function generateWorldDocument(
   for (let attempt = 1; attempt <= 3; attempt++) {
     let attemptMessages = messages;
 
+    /**
+     * A_74 §9.6 — THE RETRY FOR "TOO LONG" ASKED FOR MORE WORDS, AND LOST A PAID RUN.
+     *
+     * The block below is a FIXED list appended on every retry whatever went wrong, and almost every
+     * line of it pushes output length UP: "MUST be at least N words", "A single dense paragraph is
+     * not enough — write multiple paragraphs", "at least 25 words". That is correct guidance when a
+     * field came back too SHORT, which is what it was written for. It is exactly backwards when the
+     * failure was that the response ran past its completion ceiling.
+     *
+     * Measured, on the 2026-08-26 identity run that died here. Three attempts, three truncations,
+     * and the responses got MONOTONICALLY LONGER each time:
+     *
+     *     attempt 1   28,012 bytes   truncated
+     *     attempt 2   28,379 bytes   truncated   <- after being told to write more
+     *     attempt 3   28,647 bytes   truncated   <- after being told to write more again
+     *
+     * The run then aborted, having spent £0.58 and produced no manuscript. The run before it, on the
+     * same day, truncated on attempt 1 too and happened to fit on attempt 2 — so this had been a coin
+     * flip on every run for some time, with nothing in the output saying so.
+     *
+     * Two fixes, both minimal. maxTokens rises to a ceiling the prompt's own stated minimums can fit
+     * inside. And a truncation retry now asks for those minimums to be MET rather than exceeded, and
+     * for everything ungated to be terse — while KEEPING the required-field checklist, because a
+     * truncated response is an incomplete one too.
+     */
+    const previousWasTruncation = Boolean(lastError && /truncat/i.test(lastError.message));
+
     if (attempt > 1 && lastError) {
       // On retry, append error context and mandatory reminders as a user message.
       // arcDescription minimum is ALWAYS included regardless of what caused the previous failure,
@@ -970,7 +997,20 @@ export async function generateWorldDocument(
         ...messages,
         {
           role: 'user' as const,
-          content:
+          content: previousWasTruncation
+            ? `The previous response was CUT OFF before it finished — it exceeded the response size limit.\n` +
+              `Return the SAME structure, complete this time, by writing LESS.\n\n` +
+              `- Every required field present, and valid JSON with a closing brace\n` +
+              `- characterPortraits and characterVoiceSketches: one entry per cast member, CASE.cast order exactly\n` +
+              `- humourPlacementMap: all 12 scene positions, each exactly once, each with a rationale\n` +
+              `- validationConfirmations all set to true\n` +
+              `- Fields with a stated word minimum must MEET it and then STOP. Do not exceed a minimum.\n` +
+              `  arcDescription: ${getArcDescParams().prompt} words is the target, not a floor to beat. ` +
+              `storyTheme: 25 words. revealImplications: ${REVEAL_IMPLICATIONS_GATE} words.\n` +
+              `- Every field WITHOUT a stated minimum must be as short as it can be while staying specific.\n` +
+              `  Cut adjectives and restatement, not content. Completeness beats richness here.\n` +
+              `- Return only the JSON object, no preamble`
+            :
             `The previous response failed validation with this error:\n${lastError.message}\n\n` +
             `Please correct the issues and return a valid JSON object. Mandatory checks:\n` +
             `- All required fields are present\n` +
@@ -994,7 +1034,17 @@ export async function generateWorldDocument(
     const response = await client.chat({
       messages: attemptMessages,
       temperature: 0.7,
-      maxTokens: 6000,
+      /**
+       * A_74 §9.6 — was 6000, and the prompt cannot fit inside it.
+       *
+       * This agent is asked for per-cast portraits and voice sketches, twelve humour-placement
+       * entries each with its own rationale, and three fields carrying explicit word minimums.
+       * Observed responses run to ~28KB and hit the ceiling on a majority of attempts; the guard
+       * then correctly refuses to jsonrepair a truncated payload, so the ceiling turns straight into
+       * a failed run. Raising it costs nothing on runs that do not need it — output is billed on
+       * tokens produced, not on the limit requested.
+       */
+      maxTokens: 12000,
       jsonMode: true,
       logContext: {
         runId: inputs.runId ?? '',
