@@ -91,6 +91,34 @@
       "discrimMethod": "constraint_proof",
       "discrimDesign": "A controlled demonstration comparing frozen sundial shadow positions before and after frost formation, combined with a timeline reenactment using village thermometer readings and verified witness logs, proving the time of death must be after six forty. This test directly invalidates suspect alibis relying on the frozen sundial time, uniquely exposing Harold Simmons’ unaccounted time gap.",
       "premise": "During the village fete in Little Middleton, the respected village council chairman Reginald Hargrave is found strangled beside the sundial near the village green. The apparent time of death, indicated by the sundial's shadow, seems to place the murder at early evening during the fete's peak. However, the sundial's shadow was frozen by a thin layer of frost that formed after sunset, misleading witnesses about the true time. Eleanor Hargrave, the victim's sister and village schoolteacher, investigates the temporal illusion, uncovering a layered deception exploiting natural phenomena and village gossip. The true timeline reveals the murderer acted under cover of dense fog and social distractions, with a motive rooted in land disputes and Cold War era anxieties."
+    },
+    {
+      "id": "mystery-1787763188761",
+      "title": "The Elevator Cage Enigma",
+      "era": "1950s",
+      "location": "Three-story Art Deco hotel above a rocky Atlantic shoreline",
+      "crimeSubtype": "locked-room elevator spatial constraint",
+      "deathMethod": "struck with a heavy glass decanter",
+      "axis": "spatial",
+      "falseAssumption": "No one could reach Dr. Finch’s suite during the critical forty minutes, because the elevator never left the ground floor.",
+      "discrimMethod": "trap",
+      "discrimDesign": "Compare the shoeprint found in the service corridor dust (accessible only immediately after nine o'clock) with the shoes of each suspect; only Sylvia Trent's shoes match the size and pattern, and only she had the opportunity to disturb the dust before her lobby alibi.",
+      "premise": "On a foggy spring night at Pendrift Head’s Art Deco hotel, Dr. Mallory Finch is found dead in her locked third-floor suite, a shattered decanter beside her. The only access—by caged elevator—seemed impossible, as it was observed at the ground floor through the critical forty-minute window. Suspicion falls on staff, guests, and rivals alike, until Eleanor Voss unravels a spatial misdirection: the elevator’s indicator and gate were manipulated, enabling the true killer to slip past unnoticed. Physical traces and constraint logic expose Sylvia Trent, the secretary desperate to hide her forgery, as the only one with means and motive to exploit the illusion.",
+      "mechanismFamily": "locked_room_timing"
+    },
+    {
+      "id": "mystery-1787765404921",
+      "title": "The Canary's Slippers: A Seaside Hotel Identity Mystery",
+      "era": "1950s",
+      "location": "Oceanview Hotel",
+      "crimeSubtype": "identity-substitution alibi/fabrication",
+      "deathMethod": "struck on the head with a brass candlestick",
+      "axis": "identity",
+      "falseAssumption": "Captain Ivor Hale could not have committed the murder because he was seen by several witnesses on the ocean-facing veranda at ten minutes past eleven.",
+      "discrimMethod": "trap",
+      "discrimDesign": "A controlled walk is staged on the wet sand with both Captain Hale and Beatrice Quill, each wearing Hale’s slippers. The depth and pattern of Quill’s right-footed limp match exactly the suspicious footprints from the night of the murder, while Hale’s do not. Seaweed is again transferred by Quill into the service corridor, recreating the earlier physical trace. This proves Quill impersonated Hale and that only Hugo Vane could have orchestrated the timing and access.",
+      "premise": "On a stormy night at the Oceanview Hotel in Sidmouth, Dr. Mallory Finch is found dead in his suite, his skull crushed by a heavy brass candlestick. Multiple guests and staff swear that the prime suspect, Captain Ivor Hale, could not have committed the crime, as he was seen on the ocean-facing veranda at the supposed time of death. Yet Eleanor Voss, observing a trail of physical clues, begins to suspect that someone exploited the hotel’s strict routines and the confusion of identity to create a nearly perfect alibi. The solution hinges on a subtle substitution: a staff member impersonated the suspect by donning his distinctive slippers and overcoat, leaving misleading traces in the freshly-wet sand outside the veranda. Only by piecing together the contradictory evidence of footprints, damp slippers, and staff access can the detective expose the real murderer and the trick that shielded him.",
+      "mechanismFamily": "staged_scene"
     }
   ]
 }
