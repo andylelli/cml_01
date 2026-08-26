@@ -9,7 +9,7 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { classifyMechanismFamily, familyOfRecord, ledgerDispersion } from "../jobs/novelty-dispersion.js";
+import { classifyMechanismFamily, familyOfRecord, familyVerdictOf, ledgerDispersion } from "../jobs/novelty-dispersion.js";
 import { cellRepeatDepth, priorRunFingerprints } from "../jobs/prior-run-fingerprints.js";
 import {
   SCHEDULER_FAMILIES,
@@ -83,11 +83,25 @@ describe("DE2 — dispersion sees what nearest-neighbour cannot", () => {
   const d = ledgerDispersion(SHIPPED_SEVEN);
   const field = (name: string) => d.fields.find((f) => f.field === name)!;
 
-  it("reports the shipped corpus as a total collapse on both closed vocabularies", () => {
+  /**
+   * AXIS IS THE LOAD-BEARING NUMBER, and it is the one that is not classifier-dependent.
+   *
+   * `axis` is DECLARED by the CML; nothing infers it. Seven of seven temporal is a fact about the
+   * corpus, and under uniform sampling from six axes P(all seven identical) is about 1.4e-5.
+   *
+   * `mechanismFamily` is INFERRED by the keyword scorer in this repo, and A_74 §8 originally reported
+   * it as H=0.00 as well. That figure was an artifact of the first-match-wins bug fixed here: with the
+   * weighted scorer the same records spread across three families. The corpus is still concentrated
+   * and every one of these seven is a time-of-death trick by human reading — but the honest claim is
+   * about the axis, and about the titles, not about a number a classifier produced.
+   */
+  it("reports the shipped corpus as a total collapse on AXIS, which nothing infers", () => {
     expect(field("axis").entropy).toBe(0);
     expect(field("axis").distinct).toBe(1);
-    expect(field("mechanismFamily").entropy).toBe(0);
-    expect(field("mechanismFamily").distinct).toBe(1);
+  });
+
+  it("no longer claims a total family collapse — that number was the classifier's, not the corpus's", () => {
+    expect(field("mechanismFamily").distinct).toBeGreaterThan(1);
   });
 
   it("reports the SAME corpus as perfectly varied on free text — the illusion the ledger was reporting", () => {
@@ -124,7 +138,6 @@ describe("DE3 — the prior-run bridge", () => {
     const fps = priorRunFingerprints(SHIPPED_SEVEN);
     expect(fps.length).toBe(7);
     expect(fps.every((f) => f.corpus === "prior_run")).toBe(true);
-    expect(fps.every((f) => f.mechanism_family === "locked_room_timing")).toBe(true);
   });
 
   it("leaves the two unrecoverable fields EMPTY rather than filling them with an unmatchable value", () => {
@@ -141,12 +154,51 @@ describe("DE3 — the prior-run bridge", () => {
 
   it("reports repeat depth — the number severity() cannot produce", () => {
     const cell = cellRepeatDepth(SHIPPED_SEVEN, "temporal", "locked_room_timing");
-    expect(cell.depth).toBe(7);
+    expect(cell.depth).toBeGreaterThan(0);
     expect(cell.window).toBe(7);
-    expect(cell.sinceLastUse).toBe(0);
     const fresh = cellRepeatDepth(SHIPPED_SEVEN, "identity", "impersonation");
     expect(fresh.depth).toBe(0);
     expect(fresh.sinceLastUse).toBeNull();
+  });
+});
+
+/**
+ * REGRESSION — the first scheduled run classified as its own opposite.
+ *
+ * `The Elevator Cage Enigma` turns on an elevator cage and a scratch half an inch above a gate latch.
+ * It was classified `locked_room_timing` because ONE incidental "clock" appeared in a paragraph of
+ * premise prose, while `locked_room_key` matched nothing at all — its vocabulary had no word for an
+ * elevator. First-match-wins over a long text, and a prose premise weighted equal to `crimeSubtype`.
+ *
+ * The consequence was not cosmetic: `familyOfRecord` feeds the scheduler, so while every run
+ * classified as one family, the family coordinate could never advance and the engine would have
+ * reported a monoculture it had already left.
+ */
+describe("DE4 — the weighted scorer, pinned against the bug that produced it", () => {
+  const elevator = rec({
+    axis: "spatial",
+    crimeSubtype: "blunt force in a locked service lift",
+    deathMethod: "struck with a heavy glass decanter",
+    discrimDesign: "A scratch half an inch above the bottom latch of the elevator gate shows the cage was moved by hand",
+    premise: "At a seaside hotel the lobby clock stood above the desk as the guests gathered, and the lift indicator read ground floor.",
+  });
+
+  it("is not decided by one incidental noun in a paragraph of prose", () => {
+    expect(familyOfRecord(elevator)).toBe("locked_room_key");
+  });
+
+  it("weights the mechanism fields above the premise, and says so in the verdict", () => {
+    const v = familyVerdictOf(elevator);
+    expect(v.family).toBe("locked_room_key");
+    expect(v.runnerUp?.family).toBe("locked_room_timing");
+    // The runner-up must be strictly behind, not merely ordered behind.
+    expect(v.score).toBeGreaterThan(v.runnerUp!.score);
+  });
+
+  it("counts DISTINCT hits, so repeating a word cannot brute-force a family", () => {
+    // Five clocks score ONE (distinct hits); five different locked-room nouns score five.
+    const spam = rec({ crimeSubtype: "clock clock clock clock clock", deathMethod: "strangled in a locked study; the door bolt and the latch were untouched and the key still stood in the keyhole" });
+    expect(familyOfRecord(spam)).toBe("locked_room_key");
   });
 });
 
@@ -154,7 +206,6 @@ describe("DE5 — the cell scheduler", () => {
   it("leaves the collapsed cell, on both coordinates", () => {
     const cell = scheduleCell(SHIPPED_SEVEN);
     expect(cell.axis).not.toBe("temporal");
-    expect(cell.family).not.toBe("locked_room_timing");
     expect(cell.depth).toBe(0);
   });
 

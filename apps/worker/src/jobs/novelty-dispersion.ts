@@ -65,7 +65,7 @@ export type LedgerFamily = MechanismFamily | "unclassified";
  */
 const FAMILY_RULES: ReadonlyArray<{ family: MechanismFamily; re: RegExp }> = [
   { family: "locked_room_timing", re: /\b(clock|chime|pendulum|timepiece|horolog|sundial|gnomon|hourglass|bell tower|tide|tidal|sluice|thermal|heat expansion|fuse|candle|burn(ed|t) down)\b/i },
-  { family: "locked_room_key", re: /\b(locked (room|door|study)|bolt|latch|key|sealed (room|study)|string and pulley|pulley)\b/i },
+  { family: "locked_room_key", re: /\b(locked (room|door|study|suite|cabin)|bolt|latch|key|keyhole|sealed (room|study)|string and pulley|pulley|hinge|elevator|lift cage|cage|dumbwaiter|concealed passage|back[- ]stair|sightline|access route)\b/i },
   { family: "poison_delayed", re: /\b(delayed (dose|onset|poison)|slow[- ]acting|aconite|digitalis|onset|incubat)\b/i },
   { family: "poison_substitution", re: /\b(poison|toxin|venom|arsenic|cyanide|strychnine|dosage|toxicolog)\b/i },
   { family: "recorded_presence", re: /\b(gramophone|phonograph|recording|recorded|wireless|loudspeaker|acoustic|echo chamber|soundproof)\b/i },
@@ -87,18 +87,97 @@ const FAMILY_RULES: ReadonlyArray<{ family: MechanismFamily; re: RegExp }> = [
  * discriminating test, the premise. A device is described in different fields on different runs and a
  * classifier that reads only one of them inherits that lottery.
  */
-export const classifyMechanismFamily = (...texts: Array<string | undefined>): LedgerFamily => {
-  const hay = texts.filter(Boolean).join(" | ");
-  if (!hay.trim()) return "unclassified";
-  for (const rule of FAMILY_RULES) if (rule.re.test(hay)) return rule.family;
-  return "unclassified";
+/**
+ * One weighted piece of evidence about what a case is really about.
+ *
+ * WEIGHTS EXIST BECAUSE FIRST-MATCH-WINS FAILED IN PRODUCTION, on the very first scheduled run.
+ * `The Elevator Cage Enigma` — a spatial access case whose mechanism is an elevator cage and a
+ * scratch half an inch above a gate latch — was classified `locked_room_timing`, and the entire
+ * reason was ONE incidental occurrence of the word "clock" in a paragraph of premise prose. The
+ * mechanism-bearing fields contained no timing vocabulary at all, and `locked_room_key` matched
+ * nothing, because its vocabulary had no word for an elevator.
+ *
+ * Two defects in one line. The rules were ordered "most specific family first", but rule 1 has by
+ * far the BROADEST keyword list, so it got first refusal on every text. And a long prose `premise`
+ * counted exactly as much as `crimeSubtype`, so incidental scenery outvoted the mechanism.
+ *
+ * The fix is to score every family across every field and take the best total, with mechanism-bearing
+ * fields weighted above narrative prose. A single stray noun can no longer decide a family.
+ *
+ * This matters beyond tidiness: `familyOfRecord` feeds the DE5 scheduler. While every run classified
+ * as `locked_room_timing`, the family coordinate could never advance, and the engine would have
+ * reported a monoculture it had already left.
+ */
+export interface FamilyEvidence {
+  text?: string;
+  /** 1.0 for fields that NAME the mechanism; lower for prose, where scenery lives. */
+  weight?: number;
+}
+
+export interface FamilyVerdict {
+  family: LedgerFamily;
+  score: number;
+  /** Next-best family and score, so a close call is visible rather than silently decided. */
+  runnerUp: { family: LedgerFamily; score: number } | null;
+}
+
+/** Distinct keyword hits, so "clock ... clock ... clock" counts once and cannot brute-force a family. */
+const distinctHits = (re: RegExp, text: string): number => {
+  const all = text.match(new RegExp(re.source, "gi"));
+  return all ? new Set(all.map((m) => m.toLowerCase())).size : 0;
 };
+
+export const classifyMechanismFamilyFrom = (fields: FamilyEvidence[]): FamilyVerdict => {
+  const present = fields.filter((f) => (f.text ?? "").trim().length > 0);
+  if (present.length === 0) return { family: "unclassified", score: 0, runnerUp: null };
+
+  const scores: Array<{ family: LedgerFamily; score: number }> = FAMILY_RULES.map((rule, i) => {
+    let score = 0;
+    for (const f of present) score += (f.weight ?? 1) * distinctHits(rule.re, f.text as string);
+    // Declaration order breaks exact ties, deterministically, by an amount too small to affect anything else.
+    return { family: rule.family as LedgerFamily, score: score > 0 ? score - i * 1e-6 : 0 };
+  }).sort((a, b) => b.score - a.score);
+
+  if (scores[0].score <= 0) return { family: "unclassified", score: 0, runnerUp: null };
+  return {
+    family: scores[0].family,
+    score: scores[0].score,
+    runnerUp: scores[1] && scores[1].score > 0 ? { family: scores[1].family, score: scores[1].score } : null,
+  };
+};
+
+/**
+ * Convenience form. Arguments are weighted by POSITION — mechanism-bearing fields first, narrative
+ * prose last. `familyEvidenceOf` states the record's order explicitly rather than relying on this.
+ */
+export const classifyMechanismFamily = (...texts: Array<string | undefined>): LedgerFamily =>
+  classifyMechanismFamilyFrom(texts.map((text, i) => ({ text, weight: i < 4 ? 1 : 0.25 }))).family;
+
+/**
+ * The weighted evidence a ledger record offers about its own mechanism.
+ *
+ * `premise` is a paragraph of narrative prose and is weighted at a quarter: it is where a lobby
+ * clock, a candle on a table or a tide outside the window gets mentioned without being the mechanism.
+ * The four mechanism-bearing fields carry full weight. `falseAssumption` sits between them — it
+ * usually names the trick, but it is a whole sentence and can carry scenery too.
+ */
+export const familyEvidenceOf = (r: PriorRunRecord): FamilyEvidence[] => [
+  { text: r.crimeSubtype, weight: 1 },
+  { text: r.deathMethod, weight: 1 },
+  { text: r.discrimMethod, weight: 1 },
+  { text: r.discrimDesign, weight: 1 },
+  { text: r.falseAssumption, weight: 0.6 },
+  { text: r.premise, weight: 0.25 },
+];
 
 /** Classify a ledger record from whichever of its fields carry mechanism text. */
 export const familyOfRecord = (r: PriorRunRecord): LedgerFamily =>
   r.mechanismFamily && r.mechanismFamily !== "unclassified"
     ? (r.mechanismFamily as LedgerFamily)
-    : classifyMechanismFamily(r.crimeSubtype, r.deathMethod, r.discrimMethod, r.discrimDesign, r.falseAssumption, r.premise);
+    : classifyMechanismFamilyFrom(familyEvidenceOf(r)).family;
+
+/** The full verdict, for the log line — a close call should be visible, not silently decided. */
+export const familyVerdictOf = (r: PriorRunRecord): FamilyVerdict => classifyMechanismFamilyFrom(familyEvidenceOf(r));
 
 // ── DE2: dispersion ──────────────────────────────────────────────────────────────────────────────
 
