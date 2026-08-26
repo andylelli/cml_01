@@ -104,6 +104,44 @@ Verify with `node scripts/flag-register-check.mjs` — it should say *clean*.
 
 ---
 
+## 4b. What does NOT travel with the pull
+
+Four things live outside git. Three are fine; one would have quietly broken the engine and is now
+fixed, but it is worth knowing why.
+
+| what | where | matters? |
+|---|---|---|
+| `.env.local` | gitignored | **Yes** — redo §4 above. |
+| `apps/api/data/novelty-ledger.json` | tracked, but was left dirty all session | **This was the real gap. Now committed.** See below. |
+| `documentation/prompts/actual/<run>/` | gitignored (A_71) | No. Per-run prompt/response archives; reproducible. |
+| `apps/worker/logs/novelty-skeleton-*.json` | gitignored (`logs/`) | No, but worth knowing: DE3 persists one skeleton per run so the shadow judge finally leaves a dataset, and those files stay on the machine that made them. If that history ever needs analysing across machines, the path has to move out of `logs/`. |
+
+**Why the ledger mattered.** It is not a log — it is the corpus `scheduleCell()` walks. The scheduler
+reads the shipped runs, picks the stalest unused `(axis, family, testShape)`, and requires at least two
+coordinates to differ from the previous run. Pulling a **7**-record ledger would have made it re-pick
+`spatial × locked_room_key` — the cell run 1 already used — and the walk would have silently restarted
+rather than continued. Nothing in the output would have said so.
+
+It is committed now at **9 records**. Confirm after pulling:
+
+```bash
+node scripts/distinctiveness-report.mjs
+```
+
+Section 1 should print `axis 0.38, 3 distinct of 6` and a top family share of 56%. If it says `0.21` or
+`0.00`, the ledger did not arrive and the scheduler will repeat a cell.
+
+**One caution on `apps/api/data/store.json`.** It is tracked, ~900KB, and both laptops write to it on every
+run. If it ever conflicts on a pull, do not try to merge it — take either side, or delete it and let
+`apps/api/src/db.ts` recreate it. It is a runtime artifact, not source.
+
+**Two files are deliberately left untracked**: `dev-shell.ps1` and `start-dev.bat`. They point at a
+portable Node and Git under `../.tools/`, which is machine setup rather than project source, and on a
+laptop without that layout they throw rather than degrade. Commit them yourself if the other machine
+has the same `.tools` arrangement.
+
+---
+
 ## 5. The findings, in order of what they are worth
 
 ### 5.1 The gate sees the problems and ships anyway — this is the biggest lever
