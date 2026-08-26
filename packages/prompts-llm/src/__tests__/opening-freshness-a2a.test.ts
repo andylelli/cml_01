@@ -13,7 +13,7 @@ import { describe, expect, it } from 'vitest';
 import { OPENING_SENSORY_MARKERS, OPENING_ATMOSPHERE_MARKERS } from '@cml/story-validation';
 
 import { buildOpeningFreshnessBlock, overusedOpeningWordsFor } from '../agent9-prose/opening-freshness.js';
-import { OVERUSED_OPENING_WORDS } from '../constants/opening-corpus.js';
+import { OVERUSED_OPENING_WORDS, OPENING_CORPUS_MANUSCRIPTS } from '../constants/opening-corpus.js';
 
 const base = { requiredGroundingWords: [] as string[], storyOwnWords: [] as string[] };
 
@@ -68,7 +68,10 @@ describe('the block itself', () => {
 
   it('cites the measurement rather than asserting a preference', () => {
     expect(block).toMatch(/measured, not stylistic preference/);
-    expect(block).toMatch(/184 previously generated openings/);
+    // Asserted against the CONSTANT, never a hard-coded count: the corpus grows every time
+    // `build-opening-corpus.mjs` is re-run on a machine that has the archive, and a literal here
+    // turns that routine regeneration into a test failure (it did, at 184 -> 189).
+    expect(block).toContain(`${OPENING_CORPUS_MANUSCRIPTS} previously generated openings`);
     expect(block).toMatch(/faint \(\d+%\)/);
   });
 

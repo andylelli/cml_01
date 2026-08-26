@@ -261,6 +261,17 @@ tracked; everything else stays ignored.
 `OPENING_CORPUS_MANUSCRIPTS` — is on your other laptop, and the external-read ledger still reports
 *"in the manifest, no manuscript on disk"* for about 35 rows because of it.
 
+> **RESOLVED 2026-08-26 on the other laptop, and WITHOUT publishing anything.** `RECENT_OPENING_SITUATIONS`
+> is emitted by `build-opening-corpus.mjs` into `packages/prompts-llm/src/constants/opening-corpus.ts`
+> — a **generated source file that is already tracked**. Running the builder on the machine that has
+> the archive populates the constant, the constant travels in git, and `openingCorpusReady()` flips
+> `false → true`. **4a is unblocked; the 13MB of manuscripts did not need to be committed at all.**
+> Corpus is now 189 manuscripts. The advice below still works, but it is no longer necessary for 4a —
+> and it is the option that publishes 184 manuscripts to a public repo permanently.
+>
+> Audited before deciding: the archive is 184 `.md`, 31 reviews, 5 `rubric-report.json`; no credential
+> shapes, no keys, no email addresses. The 1,457 hits for "secret" are the murder mysteries.
+
 **So there is a bonus available on that laptop**, and it unblocks a roadmap item:
 
 ```bash

@@ -1,8 +1,9 @@
 {
-  "generatedFrom": "184 archived manuscripts",
+  "generatedFrom": "189 archived manuscripts",
   "excludedAsProperNouns": [
     "ahead",
     "ashcombe",
+    "atlantic",
     "beatrice",
     "blackwood",
     "brighton",
@@ -16,11 +17,13 @@
     "england",
     "finch",
     "finch's",
+    "hale",
     "harcourt",
     "harold",
     "hugo",
     "hugo's",
     "inspector",
+    "ivor",
     "lady",
     "library",
     "mallory",
@@ -46,11 +49,11 @@
     "morning",
     "pressed",
     "damp",
-    "across",
-    "hush",
     "hotel",
-    "room",
+    "hush",
+    "across",
     "sprawled",
+    "room",
     "pale",
     "chill",
     "hand",
@@ -59,18 +62,19 @@
     "heavy",
     "broken",
     "light",
-    "cold",
     "rain",
+    "cold",
     "gloved",
     "brass",
-    "stepped",
     "tang",
+    "stepped",
     "thick",
     "clock",
     "silence",
-    "polished",
     "beneath",
-    "floor"
+    "polished",
+    "floor",
+    "glass"
   ],
   "recentOpenings": [
     "Eleanor Voss stepped onto the terrace of the seaside hotel, her shoes clicking against the damp flagstones as a chill wind tugged at the hem of her floral dress.",
@@ -86,306 +90,332 @@
     "Eleanor Voss pressed her gloved palm to the cold brass handle and eased open the door to the Grandfather clock room, Seaside Hotel Grandview.",
     "Eleanor Voss pressed her gloved palm to the frosted glass door, the cold biting through wool as she entered the main hall of the Art Deco Seaside Hotel."
   ],
+  "recentOpeningSituations": [
+    "Rain drummed a steady rhythm against the glass doors of the lobby of the Seaside Hotel, the sound muffled by thick velvet curtains and the anxious murmur of guests pressed close in the dim, wintry evening. Eleanor Voss moved with purpose through the crowd, her shoes squeaking faintly on the polished tiles, the chill of the damp air clinging to her woolen coat. The sharp scent of wet wool and cigarette smoke mingled in the air, but all such details fell away as Eleanor's gaze landed upon the motionless form sprawled near the reception desk: Dr. Mallory Finch, her face pale and still, a single strand of hair fallen across her brow. The overhead chandelier cast a cold, uneven glow, illuminating",
+    "Hugo Vane pressed through the damp fog that clung to the beach behind the Seashell Hotel, his shoes sinking into cold sand as the wind teased at the lapels of his wool coat. The morning light was pale and uncertain, filtered through a veil of mist that blurred the horizon. Salt hung in the air, mingling with the faint scent of wet seaweed and the echo of distant waves breaking against the rocks. Ahead, a cluster of figures stood motionless, their silhouettes stark against the wintry gloom. At their feet lay Sylvia Trent, face down in the sand, her dark hair tangled with strands of kelp. The scene was eerily silent, save for the low murmur of the tide and the occasional creak from the hotel's",
+    "Hugo Vane stepped into the seaside hotel ballroom, the soles of his shoes catching a faint echo on the polished parquet as a damp, autumnal chill clung to the air. The lingering scent of last night's rain mingled with the sharper tang of spilled wine, and a pale, grey morning light filtered through the tall windows, casting long, uncertain shadows across the room. At the far end, beneath the ornate clock set high above the mantel, Eleanor Voss lay sprawled on the floor, her evening gown fanned around her like a wilted bloom. The silence was so complete that the faint tick of the clock, now stilled, seemed to reverberate in Hugo's chest. She moved closer, heart thudding with a mixture of disb",
+    "Eleanor Voss pressed her gloved hand to her brow, squinting into the pale, mist-veiled morning. The tang of salt and the distant, rhythmic hush of waves filled the air as she picked her way across the damp sand near The Tides Hotel. A cold wind teased the hem of her skirt and sent shivers up her spine, but it was not the chill of autumn that made her hesitate. There, sprawled at the water's edge, was the unmistakable form of Dr. Mallory Finch, her dark hair tangled with seaweed, her evening dress sodden and clinging to her lifeless frame. The body had washed up in the grey dawn, a stark intrusion upon the otherwise elegant order of the post-war seaside retreat. A cluster of guests and staff ",
+    "Eleanor Voss pressed her gloved palm to the ballroom's lacquered doors, the faint scent of candle wax and the salt of last night's rain lingering in the air. The morning light, filtered through tall arched windows, cast a pale glow across the marble floor, illuminating the aftermath of festivity-a scattering of confetti, a feathered mask abandoned near the dais. Silence reigned, broken only by the distant echo of a radio drifting from the Main Lobby. It was this hush, so at odds with the usual bustle of the Grand Seaside Hotel, that made the sight before her all the more jarring: Sylvia Trent lay sprawled on the ballroom floor, her sequined gown catching the weak winter sunlight, motionless ",
+    "Hugo Vane pressed his palm to the damp brass handle of the guest room door, the chill of the morning seeping through his glove. The corridor behind him was silent except for the muted patter of rain against the windowpanes, a faint echo of last night's storm lingering in the air. The faded floral carpet muffled his steps as he pushed open the door to the suite at the heart of the seaside hotel, the scent of salt and old wood curling up from the floorboards. Sunlight, filtered through a bank of grey clouds, fell in a pale stripe across the room, illuminating the figure sprawled on the patterned rug: Eleanor Voss, her body unnaturally still, her hand curled around a silver pocket watch. The hu",
+    "Hugo Vane strode into the seaside hotel lobby, his shoes clicking sharply on the polished marble, the echo swallowed by the heavy hush that had settled over the room. The air was thick with the scent of damp wool and the faint tang of salt, carried in from the Channel by a persistent wintry wind that rattled the windowpanes. Grey morning light filtered through rain-dappled glass, casting pallid shadows across velvet chairs and the huddled figures of guests. At the threshold of the adjacent lounge, Eleanor Voss lay motionless, her evening gown askew and her mask-once a symbol of last night's masquerade-now torn at the left eye, the jagged edge exposing her pale cheek beneath. The sight stille",
+    "Inspector Evelyn Harcourt stepped across the threshold of the main hall of the manor, her boots echoing on the glossy oak boards as a chill draft curled around her ankles. The air was thick with the scent of burning wood and beeswax polish, but beneath it lingered something metallic and unmistakable. Outside, a pale winter morning pressed against the leaded windows, the light thin and uncertain, as if reluctant to enter. She paused, surveying the room: the velvet curtains drawn half-shut, the fire in the marble hearth burning low, and the assembled household frozen in uneasy silence. At the center of the hall, Lady Beatrice Marwood lay sprawled at the foot of the great grandfather clock, her",
+    "Inspector Gerald Havers pressed his gloved hand against the cold iron rail as he ascended the narrow spiral of the Bell Tower, Langley Manor's ancient stone spine rising into the pale spring morning. The air was thick with a chill mist that had crept in from the woodlands overnight, lending a faint dampness to the rough-hewn steps beneath his feet. Above, the muted clang of a bell echoed once-distant, as if memory itself were reluctant to disturb the hush. The scent of old brass and dust mingled with the sharper tang of cold stone, and Havers's breath clouded faintly as he reached the final landing. The chamber at the summit was dim, lit only by the grey daylight filtering through narrow lan",
+    "Inspector Harold Wren stepped onto the gravel path as a chill mist curled low over the clipped box hedges, muffling the distant clang of a gardener's spade and the subdued voices that hovered on the edge of silence. The morning air was thick with damp, the scent of cold stone and bruised herbs rising around the Walled Garden Sundial. The hush was broken only by the faint crunch of his shoes and the soft click of the gate closing behind him. At the centre of the garden, Lady Beatrice Ellsworth lay sprawled in her summer frock, one gloved hand splayed against the dew-dark earth, her body unnaturally still beneath the sun-blistered bronze face at the garden's heart.",
+    "Eleanor Voss stepped briskly through the revolving glass doors, the damp chill of the Brighton morning clinging to her wool coat. The lobby of the opulent, sunlit hotel perched above the dunes greeted her with a hush broken only by the distant echo of rain against the tall windows and the faint tick of a clock. Light from the overcast sky filtered through etched glass, casting pale patterns across the polished marble floor. She paused, her gloved hand tightening around the handle of her valise, as the scent of sea salt and old wood drifted in the air-a familiar comfort, now soured by something unspoken. It was not the silence that unsettled her, but the tableau at the heart of the lobby: Hug",
+    "Helen's gloved hand pressed against the cold brass handle as she entered the Study room, Winthrope Manor Estate. Rain whispered against the leaded glass panes, the faintest chill curling beneath the door and stirring the scent of old leather and extinguished fire. In the centre of the room, Lady Beatrice Winthrope lay sprawled beside the desk, her head turned at an unnatural angle, dark hair matted with fresh blood. The heavy antique paperweight-its base smeared red-rested inches from her outstretched fingers, as if dropped in haste or horror. Helen paused, the gravity of the scene settling on her shoulders with the same weight as the winter air. A hush clung to the room, broken only by the ",
+    "Eleanor Voss stepped onto the terrace of the seaside hotel, her shoes clicking against the damp flagstones as a chill wind tugged at the hem of her floral dress. The briny scent of the Channel mingled with the faint, smoky tang of extinguished candles from last night's gathering, and the overcast morning pressed down with a heaviness that felt almost physical. She paused, her gaze drawn across the scattered deck chairs and the metal railing slick with moisture, to the figure sprawled near the edge-a sight so out of place it shattered the fragile hush of dawn. Dr. Mallory Finch lay motionless, her dark hair splayed against the pale stone, one hand curled as if to grasp the air. The stillness ",
+    "Hugo Vane stepped briskly into the lobby of the seaside hotel, his shoes making a muted echo on the marble floor. The morning was grey, rain streaking the tall windows and casting a pall over the faded grandeur of the room. The air carried the scent of damp wool and old tobacco, mingling with the faint aroma of freshly brewed tea that wafted from somewhere deeper in the hotel. He paused, eyes drawn to the scene before him: Sylvia Trent lay sprawled on the rug near the hearth, her elegant tea-length dress rumpled, pearl necklace askew. The hush in the lobby was punctuated only by the steady patter of rain and the distant tick of a clock. For a moment, Hugo Vane felt the weight of the season-m",
+    "The sharp scent of sea salt mingled with the faint odor of polish as Eleanor Voss pressed open the heavy door to the Grand Lobby. Morning light filtered through tall windows, casting pale reflections across the marble floor and catching on the gilded edges of the reception desk. A chill lingered in the air, persistent even within the opulent walls of the gleaming marble-and-glass coastal retreat, as if the autumn wind had slipped in through some unseen crack. The silence was broken only by the distant, unmistakable sound of a clock chiming nine times-a hollow resonance that seemed to echo far longer than it should. Eleanor's shoes tapped softly on the marble as she crossed the threshold into",
+    "The sharp echo of Eleanor Voss's heels on the black-and-white marble floor cut through the hush that had settled over the lobby of the seaside hotel. Rain battered the tall bay windows, tracing uncertain lines down the glass, and a faint scent of damp wool and salt lingered in the air. The overhead lights cast a pale glow, throwing long shadows across the faded carpet, and the only sound beyond the storm was the low, anxious murmur of guests gathered in uneasy clusters. Eleanor's gaze fell at once on the figure sprawled near the foot of the grand staircase-Beatrice Quill, her tea-length dress crumpled, hair fanned across the threadbare rug, one gloved hand curled as if still holding onto som",
+    "Eleanor Voss pressed her gloved hand to the brass handle and pushed open The Lounge door, the faint scent of damp wool and yesterday's rain lingering in the air. The morning light was dull, filtered through rain-speckled windows, and the hush inside was broken only by the muted clink of a cup being set down somewhere out of sight. The fire in the grate had been reduced to a sullen glow, barely warming the chill that had settled overnight. She paused, heart stuttering, as her gaze fell upon the figure sprawled unnaturally on the carpet: Dr. Mallory Finch, her head turned at an angle that brooked no hope. The hush deepened, as if the room itself recoiled from the sight. Dr. Mallory Finch's tai",
+    "Eleanor Voss pressed open the heavy glass door to the hotel lounge, and the faint scent of damp wood mingled with the salt tang of the sea creeping through a half-open window. Rain tapped a restless rhythm against the panes, and the grey morning light struggled to reach the corners of the room. Her shoes scuffed against the polished floor as she stepped inside, her gaze drawn at once to a stillness at the far end of the lounge that did not belong there. Sprawled beside the low settee lay Sylvia Trent, her tea-length floral dress rumpled, one gloved hand curled awkwardly near her throat. The hush was so complete that the tick of the lounge clock seemed to carry across the whole room, each sec",
+    "Dr. Mallory Finch stepped from the shadowed threshold into the Coastal Hotel lobby, her shoes clicking softly against the cold terrazzo as the rain's steady whisper pressed against the fogged windows. The air was thick with the scent of polished oak and the faint tang of fresh rain, a chill lingering despite the hour. Eleanor Voss lay sprawled at the base of the grandfather clock, her tailored suit dress stained with a dark bloom that spread across the pale wool. The silence in the room was not the hush of reverence, but the stifled breath of shock-every eye drawn to the unnatural stillness of Eleanor's body, her hand splayed as if reaching for something just beyond the brass pendulum's arc.",
+    "Eleanor Voss pressed her gloved hand against the rough oak banister as she entered the grand hall near the clock room, the chill of early spring fog creeping through the high windows and settling into the seams of her wool suit. The air was heavy with the scent of damp stone and a faint echo of tobacco, snuffed out too abruptly to have faded naturally. Light struggled through the blackout curtains, casting a dim, uncertain glow across the parquet floor. She paused, her gaze drawn to the body of Dr. Mallory Finch lying just beneath the imposing brass pendulum of the hotel's grand clock, a dark stain spreading beneath her starched shirtfront. Eleanor found herself standing in the hush that fol",
+    "Eleanor Voss pressed her gloved palm to the cold brass handle and eased open the door to the Grandfather clock room, Seaside Hotel Grandview. The air inside was thick with the scent of wax polish and the faint tang of salt, as if the winter sea had crept in with the fog that still clung to the lobby windows. Pale daylight filtered through frosted glass, casting long shadows across the terrazzo floor. At the base of the towering clock, Dr. Mallory Finch lay crumpled in a posture that denied sleep-her head turned at an unnatural angle, her tailored navy coat rumpled and one shoe missing. The silence was broken only by the distant toll of a ship's bell, muffled by the midmorning mist. It was a ",
+    "Eleanor Voss stepped briskly across the terrazzo tiles of the Seaside Hotel lobby, the chill of the evening pressing in with every gust that rattled the rain-streaked glass doors behind her. The air was thick with the scent of damp wool and wax polish, mingling with the faint tang of the sea that crept in through the revolving door each time it turned. A steady tapping of rain on the windows underscored the hush that had settled over the room, broken only by the persistent ticking of the grandfather clock in the corner-a sound usually comforting, now oddly insistent. At the centre of the lobby, beneath the muted glow of brass wall lamps, Dr. Mallory Finch lay sprawled on the patterned rug, h",
+    "Eleanor Voss pressed her gloved palm to the cold brass handle and eased open the door to the Grandfather clock room, Seaside Hotel Grandview. The air inside was thick with the scent of wax polish and the faint tang of salt, as if the winter sea had crept in with the fog that still clung to the lobby windows. Pale daylight filtered through frosted glass, casting long shadows across the terrazzo floor. At the base of the towering clock, Dr. Mallory Finch lay crumpled in a posture that denied sleep-her head turned at an unnatural angle, her tailored navy coat rumpled and one shoe missing. The silence was broken only by the distant toll of a ship's bell, muffled by the midmorning mist. It was a ",
+    "Eleanor Voss pressed her gloved palm to the frosted glass door, the cold biting through wool as she entered the main hall of the Art Deco Seaside Hotel. The morning fog still clung to the windows, muting the pale daylight and lending a hush to the vast space. The scent of wax polish and stale pipe tobacco lingered beneath the sharper tang of sea air that slipped in each time the door opened. A battery-powered radio, its sound barely a whisper, crackled out a snippet of Bing Crosby before someone silenced it. In the center of the hall, beneath the dim glow of blackout-shaded lamps, Dr. Mallory Finch lay sprawled at the foot of the great grandfather clock, her body rigid and her head turned at"
+  ],
   "counts": [
     {
       "word": "scent",
-      "books": 139,
-      "share": 0.7554347826086957
+      "books": 143,
+      "share": 0.7566137566137566
     },
     {
       "word": "faint",
-      "books": 132,
-      "share": 0.717391304347826
+      "books": 136,
+      "share": 0.7195767195767195
     },
     {
       "word": "against",
-      "books": 122,
-      "share": 0.6630434782608695
+      "books": 125,
+      "share": 0.6613756613756614
     },
     {
       "word": "morning",
-      "books": 118,
-      "share": 0.6413043478260869
+      "books": 120,
+      "share": 0.6349206349206349
     },
     {
       "word": "pressed",
-      "books": 115,
-      "share": 0.625
+      "books": 120,
+      "share": 0.6349206349206349
     },
     {
       "word": "damp",
-      "books": 111,
-      "share": 0.6032608695652174
-    },
-    {
-      "word": "across",
-      "books": 104,
-      "share": 0.5652173913043478
-    },
-    {
-      "word": "hush",
-      "books": 103,
-      "share": 0.5597826086956522
+      "books": 113,
+      "share": 0.5978835978835979
     },
     {
       "word": "hotel",
-      "books": 101,
-      "share": 0.5489130434782609
+      "books": 106,
+      "share": 0.5608465608465608
     },
     {
-      "word": "room",
-      "books": 100,
-      "share": 0.5434782608695652
+      "word": "hush",
+      "books": 106,
+      "share": 0.5608465608465608
+    },
+    {
+      "word": "across",
+      "books": 105,
+      "share": 0.5555555555555556
     },
     {
       "word": "sprawled",
-      "books": 100,
-      "share": 0.5434782608695652
+      "books": 105,
+      "share": 0.5555555555555556
+    },
+    {
+      "word": "room",
+      "books": 101,
+      "share": 0.5343915343915344
     },
     {
       "word": "pale",
-      "books": 94,
-      "share": 0.5108695652173914
+      "books": 95,
+      "share": 0.5026455026455027
     },
     {
       "word": "chill",
-      "books": 93,
-      "share": 0.5054347826086957
+      "books": 94,
+      "share": 0.4973544973544973
     },
     {
       "word": "hand",
-      "books": 85,
-      "share": 0.46195652173913043
+      "books": 88,
+      "share": 0.4656084656084656
     },
     {
       "word": "distant",
-      "books": 84,
-      "share": 0.45652173913043476
+      "books": 86,
+      "share": 0.455026455026455
     },
     {
       "word": "windows",
-      "books": 84,
-      "share": 0.45652173913043476
+      "books": 86,
+      "share": 0.455026455026455
     },
     {
       "word": "heavy",
-      "books": 82,
-      "share": 0.44565217391304346
+      "books": 83,
+      "share": 0.43915343915343913
     },
     {
       "word": "broken",
       "books": 81,
-      "share": 0.44021739130434784
+      "share": 0.42857142857142855
     },
     {
       "word": "light",
-      "books": 77,
-      "share": 0.41847826086956524
-    },
-    {
-      "word": "cold",
-      "books": 75,
-      "share": 0.4076086956521739
+      "books": 79,
+      "share": 0.41798941798941797
     },
     {
       "word": "rain",
-      "books": 75,
-      "share": 0.4076086956521739
+      "books": 77,
+      "share": 0.4074074074074074
+    },
+    {
+      "word": "cold",
+      "books": 76,
+      "share": 0.4021164021164021
     },
     {
       "word": "gloved",
-      "books": 72,
-      "share": 0.391304347826087
+      "books": 76,
+      "share": 0.4021164021164021
     },
     {
       "word": "brass",
-      "books": 70,
-      "share": 0.3804347826086957
-    },
-    {
-      "word": "stepped",
-      "books": 67,
-      "share": 0.3641304347826087
+      "books": 74,
+      "share": 0.3915343915343915
     },
     {
       "word": "tang",
-      "books": 67,
-      "share": 0.3641304347826087
+      "books": 71,
+      "share": 0.37566137566137564
+    },
+    {
+      "word": "stepped",
+      "books": 70,
+      "share": 0.37037037037037035
     },
     {
       "word": "thick",
-      "books": 67,
-      "share": 0.3641304347826087
+      "books": 70,
+      "share": 0.37037037037037035
     },
     {
       "word": "clock",
-      "books": 66,
-      "share": 0.358695652173913
+      "books": 68,
+      "share": 0.35978835978835977
     },
     {
       "word": "silence",
-      "books": 64,
-      "share": 0.34782608695652173
-    },
-    {
-      "word": "polished",
-      "books": 63,
-      "share": 0.3423913043478261
+      "books": 67,
+      "share": 0.3544973544973545
     },
     {
       "word": "beneath",
-      "books": 62,
-      "share": 0.33695652173913043
+      "books": 65,
+      "share": 0.3439153439153439
+    },
+    {
+      "word": "polished",
+      "books": 65,
+      "share": 0.3439153439153439
     },
     {
       "word": "floor",
-      "books": 62,
-      "share": 0.33695652173913043
+      "books": 64,
+      "share": 0.3386243386243386
     },
     {
       "word": "glass",
-      "books": 61,
-      "share": 0.33152173913043476
+      "books": 64,
+      "share": 0.3386243386243386
     },
     {
       "word": "body",
-      "books": 60,
-      "share": 0.32608695652173914
+      "books": 61,
+      "share": 0.32275132275132273
     },
     {
       "word": "casting",
+      "books": 55,
+      "share": 0.291005291005291
+    },
+    {
+      "word": "shadows",
       "books": 53,
-      "share": 0.28804347826086957
+      "share": 0.2804232804232804
     },
     {
       "word": "gaze",
       "books": 52,
-      "share": 0.2826086956521739
+      "share": 0.2751322751322751
     },
     {
       "word": "seaside",
       "books": 52,
-      "share": 0.2826086956521739
-    },
-    {
-      "word": "shadows",
-      "books": 52,
-      "share": 0.2826086956521739
+      "share": 0.2751322751322751
     },
     {
       "word": "door",
-      "books": 50,
-      "share": 0.2717391304347826
-    },
-    {
-      "word": "salt",
-      "books": 49,
-      "share": 0.266304347826087
-    },
-    {
-      "word": "seemed",
-      "books": 48,
-      "share": 0.2608695652173913
-    },
-    {
-      "word": "wool",
-      "books": 48,
-      "share": 0.2608695652173913
+      "books": 51,
+      "share": 0.2698412698412698
     },
     {
       "word": "unnatural",
-      "books": 47,
-      "share": 0.2554347826086957
+      "books": 51,
+      "share": 0.2698412698412698
+    },
+    {
+      "word": "salt",
+      "books": 50,
+      "share": 0.26455026455026454
     },
     {
       "word": "echo",
-      "books": 46,
-      "share": 0.25
+      "books": 49,
+      "share": 0.25925925925925924
+    },
+    {
+      "word": "seemed",
+      "books": 49,
+      "share": 0.25925925925925924
+    },
+    {
+      "word": "wool",
+      "books": 49,
+      "share": 0.25925925925925924
     },
     {
       "word": "lingering",
-      "books": 46,
-      "share": 0.25
+      "books": 47,
+      "share": 0.24867724867724866
     },
     {
       "word": "still",
+      "books": 47,
+      "share": 0.24867724867724866
+    },
+    {
+      "word": "lobby",
       "books": 46,
-      "share": 0.25
+      "share": 0.24338624338624337
+    },
+    {
+      "word": "inside",
+      "books": 45,
+      "share": 0.23809523809523808
+    },
+    {
+      "word": "past",
+      "books": 45,
+      "share": 0.23809523809523808
     },
     {
       "word": "beside",
       "books": 44,
-      "share": 0.2391304347826087
+      "share": 0.2328042328042328
     },
     {
       "word": "handle",
       "books": 44,
-      "share": 0.2391304347826087
+      "share": 0.2328042328042328
     },
     {
       "word": "near",
       "books": 44,
-      "share": 0.2391304347826087
-    },
-    {
-      "word": "past",
-      "books": 44,
-      "share": 0.2391304347826087
+      "share": 0.2328042328042328
     },
     {
       "word": "breath",
       "books": 43,
-      "share": 0.23369565217391305
+      "share": 0.2275132275132275
     },
     {
-      "word": "inside",
+      "word": "glow",
       "books": 43,
-      "share": 0.23369565217391305
+      "share": 0.2275132275132275
+    },
+    {
+      "word": "grey",
+      "books": 43,
+      "share": 0.2275132275132275
+    },
+    {
+      "word": "shoes",
+      "books": 43,
+      "share": 0.2275132275132275
     },
     {
       "word": "filtered",
       "books": 42,
-      "share": 0.22826086956521738
+      "share": 0.2222222222222222
     },
     {
-      "word": "grey",
+      "word": "tall",
       "books": 42,
-      "share": 0.22826086956521738
-    },
-    {
-      "word": "lobby",
-      "books": 42,
-      "share": 0.22826086956521738
-    },
-    {
-      "word": "shoes",
-      "books": 42,
-      "share": 0.22826086956521738
-    },
-    {
-      "word": "glow",
-      "books": 41,
-      "share": 0.22282608695652173
+      "share": 0.2222222222222222
     },
     {
       "word": "mingled",
       "books": 41,
-      "share": 0.22282608695652173
+      "share": 0.21693121693121692
     },
     {
       "word": "motionless",
       "books": 41,
-      "share": 0.22282608695652173
+      "share": 0.21693121693121692
     },
     {
-      "word": "overcast",
+      "word": "open",
       "books": 41,
-      "share": 0.22282608695652173
-    },
-    {
-      "word": "tall",
-      "books": 41,
-      "share": 0.22282608695652173
+      "share": 0.21693121693121692
     }
   ]
 }
