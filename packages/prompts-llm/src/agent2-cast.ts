@@ -45,8 +45,22 @@ export interface CharacterProfile {
   accessPlausibility: "impossible" | "unlikely" | "possible" | "easy";
   stakes: string;
   characterArcPotential: string;
-  // Schema allows male, female, and non-binary values.
-  gender?: 'male' | 'female' | 'non-binary';
+  // Schema allows male and female values (A_73 §40).
+  /**
+   * A_73 §40 — BINARY BY DESIGN, and the whole pipeline now agrees.
+   *
+   * These are Golden Age detective novels set 1930s-1950s, written to that genre's conventions.
+   * The cast presents as the fiction of that period does.
+   *
+   * It also closes a real defect. `getPronounsForGender` mapped anything non-binary to they/them,
+   * while `normalizePronounGender` dropped such a character from the scan and `detectAttributionFlips`
+   * matches only /(he|she)/ — so a non-binary character was handed pronouns nothing could then check.
+   * MEASURED on story_20260825-2102: the reader saw consistent they/them for Dr. Mallory Finch while
+   * the canary inputs pinned Finch FEMALE. The prose contradicted a pinned input and every pronoun
+   * detector was blind to it. Two genders everywhere makes the binary detectors correct rather than
+   * partial.
+   */
+  gender?: 'male' | 'female';
   // A_52 role model: the fair-play cast has exactly one detective and one victim (both
   // first-class, fixed roles) and n-2 suspects. The culprit is a hidden attribute of ONE
   // suspect (assigned downstream by Agent 3), NOT a role here. Optional so legacy/LLM output
@@ -297,7 +311,7 @@ Character schema (all fields required):
 - motiveSeed, motiveStrength (weak|moderate|strong|compelling)
 - alibiWindow, accessPlausibility (impossible|unlikely|possible|easy)
 - stakes, characterArcPotential
-- gender (male|female|non-binary)
+- gender (male|female) — these are 1930s-1950s Golden Age novels; the cast presents as that period's fiction does
 
 Relationship schema:
 - pairs[] with character1, character2, relationship, tension (none|low|moderate|high), sharedHistory
@@ -482,7 +496,7 @@ ROLE MODEL: tag every character with a single \`role\` — exactly ONE "detectiv
 8. Avoid stereotypes and clichés
 9. Ensure each character has both public facade and private secrets
 10. Resolve any potential stereotypes; output stereotypeCheck as []
-11. Declare \`gender\` for each character: "male", "female", or "non-binary" — no other values are permitted (required — never omit). Where a GENDER ASSIGNMENT above locks a character's gender, that value is non-negotiable and overrides this choice.
+11. Declare \`gender\` for each character: "male" or "female" — no other values are permitted (required — never omit). These are 1930s-1950s Golden Age detective novels; the cast presents as that period’s fiction does. Where a GENDER ASSIGNMENT above locks a character's gender, that value is non-negotiable and overrides this choice.
 12. Archetype diversity requirement: provide at least ${minUniqueArchetypes} distinct roleArchetype values across the cast of ${count}
 13. Do not repeat the same roleArchetype across multiple non-detective suspects unless absolutely unavoidable
 14. VICTIM (first-class role): exactly ONE character has role "victim". Give them roleArchetype "victim", a full publicPersona and privateSecret so their death carries weight, and name them in crimeDynamics.victimCandidates. The victim is DEAD from the murder onward — they appear only via discovery, recollection, or evidence, never as an active living character. The victim MUST NOT appear in crimeDynamics.possibleCulprits and MUST NOT be the detective.
@@ -642,14 +656,19 @@ export async function designCast(
       // rather than consuming a retry on a cosmetic mismatch.
       const VALID_ACCESS = new Set(["impossible", "unlikely", "possible", "easy"]);
       const VALID_MOTIVE = new Set(["weak", "moderate", "strong", "compelling"]);
-      const VALID_GENDER = new Set(["male", "female", "non-binary"]);
-      const normalizeGender = (value: unknown): "male" | "female" | "non-binary" | undefined => {
+      const VALID_GENDER = new Set(["male", "female"]);
+      /**
+       * A_73 §40 — binary, matching both the period these novels are set in and the detectors that
+       * check them. A value outside the set normalises to `undefined` rather than to a third gender:
+       * the caller then fills it from the gender-lock map or flags it, and a character never reaches
+       * prose carrying pronouns that no validator in the pipeline can check.
+       */
+      const normalizeGender = (value: unknown): "male" | "female" | undefined => {
         const raw = String(value ?? "").trim().toLowerCase();
         if (!raw) return undefined;
-        if (VALID_GENDER.has(raw)) return raw as "male" | "female" | "non-binary";
+        if (VALID_GENDER.has(raw)) return raw as "male" | "female";
         if (/^m(ale)?$|^man$|^boy$/.test(raw)) return "male";
         if (/^f(emale)?$|^woman$|^girl$/.test(raw)) return "female";
-        if (/non[-\s]?binary|\benby\b|^nb$/.test(raw)) return "non-binary";
         return undefined;
       };
       const normalizeRelationshipTension = (value: unknown): "none" | "low" | "moderate" | "high" => {

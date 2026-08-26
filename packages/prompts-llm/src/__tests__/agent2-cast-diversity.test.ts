@@ -24,7 +24,9 @@ const makeCharacter = (name: string, roleArchetype: string) => ({
   accessPlausibility: "possible" as const,
   stakes: "reputation",
   characterArcPotential: "faces the truth",
-  gender: "non-binary" as const,
+  // A_73 §40 — the cast is binary by design (1930s-1950s Golden Age). This fixture is about role
+  // and trait DIVERSITY, which is unaffected by the gender value; "female" keeps it type-valid.
+  gender: "female" as const,
 });
 
 const makeLowDiversityPayload = () => ({

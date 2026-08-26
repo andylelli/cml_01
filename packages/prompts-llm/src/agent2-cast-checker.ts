@@ -22,7 +22,8 @@ import type { CastDesign, CharacterProfile } from "./agent2-cast.js";
 const MOTIVE_STRENGTHS = new Set(["weak", "moderate", "strong", "compelling"]);
 const ACCESS_PLAUSIBILITIES = new Set(["impossible", "unlikely", "possible", "easy"]);
 const TENSIONS = new Set(["none", "low", "moderate", "high"]);
-const GENDERS = new Set(["male", "female", "non-binary"]);
+// A_73 §40 — binary, matching agent2-cast, the drift detectors and the period the novels are set in.
+const GENDERS = new Set(["male", "female"]);
 
 /** Archetypes that are *supposed* to be unique/fixed and so are exempt from the duplicate penalty. */
 const PROTECTED_ARCHETYPE = /(detective|investigator|inspector|sleuth|victim)/;
@@ -176,7 +177,7 @@ export function checkCast(cast: CastDesign, opts: CastCheckOptions = {}): CastCh
         severity: "error",
         character: name,
         message: `${name} has no legal gender (got ${JSON.stringify(char?.gender)}).`,
-        feedback: `Assign ${name} a gender of "male", "female", or "non-binary".`,
+        feedback: `Assign ${name} a gender of "male" or "female".`,
       });
     }
 

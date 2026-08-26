@@ -419,16 +419,28 @@ export async function reviseCml(
       return match ?? fallback;
     };
 
-    const normalizeGenderEnum = (value: unknown): "male" | "female" | "non-binary" => {
+    /**
+     * A_73 §40 — WAS: anything unrecognised fell through to `return "non-binary"`.
+     *
+     * That made a garbled or missing gender silently produce a character the pronoun pipeline cannot
+     * check at all: `normalizePronounGender` drops non-binary from the drift scan and
+     * `detectAttributionFlips` matches only /(he|she)/. A parse failure became an invisible character.
+     *
+     * The cast is binary by design — 1930s-1950s Golden Age novels, presented as that period's
+     * fiction presents. An unrecognised value is a DATA DEFECT, so it is warned about rather than
+     * absorbed, and resolves to a gender the validators can actually check.
+     */
+    const normalizeGenderEnum = (value: unknown): "male" | "female" => {
       const normalized = typeof value === "string" ? value.trim().toLowerCase() : "";
-      if (normalized === "male" || normalized === "m") return "male";
-      if (normalized === "female" || normalized === "f") return "female";
-      if (normalized === "non-binary" || normalized === "nonbinary" || normalized === "nb" || normalized === "enby") {
-        return "non-binary";
-      }
-      return "non-binary";
+      if (normalized === "male" || normalized === "m" || normalized === "man" || normalized === "boy") return "male";
+      if (normalized === "female" || normalized === "f" || normalized === "woman" || normalized === "girl") return "female";
+      console.warn(
+        `[agent4-revision][A_73] gender ${JSON.stringify(value)} is neither male nor female — ` +
+          `resolving to "female" so the character stays visible to the pronoun detectors. ` +
+          `The upstream cast artifact is wrong; fix it there.`,
+      );
+      return "female";
     };
-
     const cml = ensureObject(raw);
     cml.CML_VERSION = 2.0;
 

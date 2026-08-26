@@ -93,7 +93,19 @@ export function initNarrativeState(
     const g = gender?.toLowerCase();
     if (g === 'male') characterPronouns[name] = 'he/him/his';
     else if (g === 'female') characterPronouns[name] = 'she/her/her';
-    else if (g === 'non-binary') characterPronouns[name] = 'they/them/their';
+    /**
+     * A_73 §40 — the they/them branch is REMOVED, and this was the site that mattered.
+     *
+     * `characterPronouns` is what the prose prompt instructs Agent 9 with, so this line is how a
+     * character came to be written as they/them — while `normalizePronounGender` dropped that
+     * character from the drift scan and `detectAttributionFlips` matches only /(he|she)/. It handed
+     * out the one pronoun set no validator in the pipeline can check.
+     *
+     * types.ts already stated the rule this file did not follow: "CML stories are set in the
+     * 1930s-1950s Golden Age of detective fiction. Gender identity was binary in this era —
+     * 'non-binary' is not a valid gender value." One rule, two bodies; this was the body that
+     * disagreed, and it was the one wired to the prompt.
+     */
     // else: unknown — omit from pronoun instructions so prose can use natural gender
   }
   return {

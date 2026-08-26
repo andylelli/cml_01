@@ -231,6 +231,18 @@ export class CharacterConsistencyValidator implements Validator {
     return 'unknown';
   }
 
+  /**
+   * A_73 §40 — the third body of the pronoun model, now aligned with the other two.
+   *
+   * The `default` arm returned they/them for any gender that was not male or female. Meanwhile
+   * `normalizePronounGender` dropped such a character from the drift scan and `detectAttributionFlips`
+   * matches only /(he|she)/ — so this arm handed out pronouns that nothing downstream could check.
+   *
+   * The cast is binary by design (agent2-cast.ts): these are 1930s-1950s Golden Age novels and the
+   * cast presents as that period's fiction does. An absent or unrecognised gender is therefore a DATA
+   * DEFECT, not a third case, and it is surfaced rather than papered over with a pronoun set no
+   * validator understands.
+   */
   private getPronounsForGender(gender: string): { subject: string; object: string; possessive: string } {
     switch (gender) {
       case 'male':
@@ -238,7 +250,13 @@ export class CharacterConsistencyValidator implements Validator {
       case 'female':
         return { subject: 'she', object: 'her', possessive: 'her' };
       default:
-        return { subject: 'they', object: 'them', possessive: 'their' };
+        console.warn(
+          `[character-validator][A_73] character gender "${gender}" is neither male nor female — ` +
+            `falling back to female pronouns for the check. The cast is binary by design; an ` +
+            `unrecognised gender means the cast artifact is wrong, and the drift detectors cannot ` +
+            `see a character this check cannot name.`,
+        );
+        return { subject: 'she', object: 'her', possessive: 'her' };
     }
   }
 

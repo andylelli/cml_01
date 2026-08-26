@@ -597,7 +597,17 @@ describe("Agent 4: CML Revision Agent", () => {
       expect(revised.CASE.meta.crime_class.category).toBe("murder");
       expect(revised.CASE.false_assumption.type).toBe("temporal");
       expect(revised.CASE.cast[0].role).toBe("suspect");
-      expect(revised.CASE.cast[0].gender).toBe("non-binary");
+      // A_73 §40 — an unrecognised gender used to clamp TO "non-binary", which made a garbage value
+
+      // ("robot") produce a character the pronoun detectors cannot see: normalizePronounGender drops
+
+      // non-binary from the drift scan and detectAttributionFlips matches only /(he|she)/. The cast is
+
+      // binary by design (1930s-1950s Golden Age), so a parse failure now resolves to a gender the
+
+      // validators can check, and warns that the upstream artifact is wrong.
+
+      expect(revised.CASE.cast[0].gender).toBe("female");
       expect(revised.CASE.culpability.culprit_count).toBe(1);
     });
 
