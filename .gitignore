@@ -47,7 +47,7 @@ validation/
 data/*.bak
 data/novelty-ledger.json
 data/novelty-ledger*.tmp
-stories/
+# stories/ is TRACKED as of 2026-08-26 — see the note at the end of this file.
 scripts/.corpus-cache/
 # A_67 FIX-3 per-run corpus snapshots (CORPUS_SNAPSHOT_DIR) — accumulated telemetry, not source
 corpus/
@@ -64,6 +64,27 @@ data/novelty-ledger.json
 apps/api/data/reports/
 documentation/prompts/actual/*/
 results/
-stories/
+# stories/ is TRACKED as of 2026-08-26 — see the note at the end of this file.
 logs/*.jsonl
 logs/*.json
+
+
+# ── stories/ is tracked, deliberately and narrowly (2026-08-26) ──────────────────────────
+# The A_71 rule above untracked run artifacts because the branch diff hit 1,236,261 lines
+# across 2,483 files. Manuscripts were NOT the cause of that: they are ~60KB of markdown
+# each, and the whole of stories/ on this machine is 356KB across 9 files. The bulk was
+# documentation/prompts/actual/*/, results/, logs/ and data/store.json, all of which stay
+# ignored.
+#
+# Tracking manuscripts buys three things that were previously impossible from a fresh clone:
+#   1. The two-laptop workflow can carry the work, not just the code.
+#   2. build-opening-corpus.mjs can run anywhere. RECENT_OPENING_SITUATIONS ships EMPTY
+#      today for exactly this reason, and openingCorpusReady() refuses to run A2b without
+#      it — so ROADMAP-FROM-82 item 4a is blocked on a gitignore line, not on any code.
+#   3. The external-read ledger stops reporting "in the manifest, no manuscript on disk"
+#      for every row, which is most of what --best and --gaps currently print.
+#
+# NOTE: this repo is PUBLIC. Manuscripts and their chatgpt-review.txt files are visible to
+# anyone. Nothing here contains credentials or personal data, but it is generated fiction
+# and the reviews are cold reads of it — published, and cached by third parties even if
+# later removed. If that is not wanted, make the repo private BEFORE the next push.

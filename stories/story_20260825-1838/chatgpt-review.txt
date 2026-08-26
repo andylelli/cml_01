@@ -1,0 +1,136 @@
+This is pretty strong structurally, but it is below the best weighted-pendulum and tide-pipe drafts because the mechanism is simpler and the final chapter has severe validation/template leakage. The good news: the story now has a full culprit reveal, a clear false suspect, and a readable clock contradiction.
+
+The roles are clear:
+
+Investigator: Eleanor Voss
+Victim: Hugo Vane
+Culprit: Beatrice Quill
+False suspects: Dr. Mallory Finch, Captain Ivor Hale, Sylvia Trent
+Murder method: struck with a heavy brass fire poker
+Cover-up mechanism: Beatrice sets the lobby clock back by 30 minutes, making alibis based on the lobby clock wrong
+Key clues: stopped lobby clock at 11:45, kitchen punch-card at midnight, BBC radio pips, Captain Hale’s watch, scratch on clock glass, oil near winding keyhole, winding key left out, Beatrice alone at reception desk, staff schedule
+Motive: Hugo threatened to ruin Beatrice, the staff, and the hotel
+
+I’d score it around 82/100. The opening is effective: Hugo’s body is found beneath the lobby clock, the clock is frozen at quarter to twelve, and the bloodied fire poker is planted immediately as the likely weapon.
+
+Area	Mark	Notes
+Premise / concept	8/10	Rewound lobby clock is clear, classic, and easy to follow.
+Opening hook	8/10	Body, stopped clock, poker, hotel lobby, storm — strong tableau.
+Plot structure	8/10	Discovery → clock contradiction → false Finch accusation → Beatrice pressure → final test → confession works.
+Character clarity	8/10	Roles are stable, though Finch has a gender/pronoun wobble early.
+Dialogue	7/10	Eleanor’s dry voice works; Beatrice’s theatricality is useful but sometimes template-like.
+Atmosphere / setting	8/10	Seacrest Hotel, storm, brass, marble, clocks, service corridor — good setting.
+Mystery clues / evidence logic	8/10	The clock/punch-card/radio/watch contradiction is fair and understandable.
+Pacing	8/10	Good escalation; false accusation chapter is one of the better uses of misdirection.
+Ending / reveal	8/10	Beatrice is exposed on-page and confesses, but proof is repeated after the confession.
+Prose / polish	6/10	Good passages, but Chapter 10 contains major validation leakage.
+What works
+
+The clock contradiction is simple and readable:
+
+lobby clock: 11:45
+punch-card: midnight
+kitchen clock: midnight
+BBC radio: midnight
+Captain Hale’s watch: 12:15 / aligned with the kitchen time later
+conclusion: the lobby clock is 30 minutes behind
+
+That is clean fair-play evidence. Chapter 8 lays the proof out particularly well by comparing the punch-card, kitchen wall clock, and Hale’s watch against the lobby clock.
+
+The false solution also works better than in many earlier drafts. Eleanor accuses Dr. Finch based on the apparent window between Hale seeing Hugo alive and the clock’s stopped time, but she herself senses the case is too neat because it ignores the scratch, oil, key, and clock discrepancy. That is a good detective beat: the wrong solution fails because it depends on the false clock.
+
+The final culprit chain is coherent:
+
+Beatrice was alone at the desk.
+Beatrice had the clock key.
+The key was left out when it should have been secured.
+The clock glass was scratched.
+Oil was found near the winding keyhole.
+The lobby clock was thirty minutes slow.
+Beatrice had opportunity to kill Hugo and set the clock back.
+Beatrice confesses that Hugo threatened her and the hotel.
+
+Main problems
+1. Chapter 10 has major validation leakage
+
+This is the biggest polish problem:
+
+“Whatever else stayed uncertain, the evidence around Lobby clock reads quarter twelve kitchen and Staff schedule shows beatrice quill alone placed Dr. Mallory Finch well away from it…”
+
+That is not fiction. It is clearly a generated evidence-summary fragment. It happens again for Hale and Sylvia. This alone knocks prose/polish down hard.
+
+Cut those lines entirely. Chapter 10 should be aftermath only.
+
+2. The final reveal repeats itself after Beatrice confesses
+
+Chapter 9 exposes Beatrice, she confesses, and then Eleanor again points to the scratch/oil/key evidence. The repeated explanation after the confession makes the reveal feel slightly circular.
+
+Better structure:
+
+Test proves lobby clock is thirty minutes slow.
+Eleanor accuses Beatrice.
+Beatrice denies it briefly.
+Eleanor gives scratch/oil/key/access/fire poker chain.
+Beatrice confesses.
+Stop proving. Move to aftermath.
+
+3. The true murder time needs one crisp sentence
+
+The draft strongly implies:
+
+false lobby-clock time: 11:45
+true time: 12:15 or around midnight/after midnight
+clock set back: 30 minutes
+
+But the exact true death time is not stated as cleanly as it should be.
+
+Add:
+
+“The clock showed quarter to twelve, but the true time was quarter past twelve. Beatrice set the lobby clock back by half an hour after striking Hugo, so every alibi tied to the lobby clock pointed to the wrong window.”
+
+That would make the ending sharper.
+
+4. Dr. Mallory Finch has a gender/pronoun issue
+
+Chapter 1 uses “Dr. Mallory Finch stepped forward, his expression composed,” and continues with “he.” That is not inherently impossible, but in most of these drafts Mallory Finch has been female. Here the role is stable enough, but it may be unintended carryover/pronoun drift.
+
+Decide whether Finch is male or female in this version and lock all pronouns accordingly.
+
+5. Beatrice’s motive is emotionally useful but underplanted
+
+Her confession says Hugo threatened to ruin her, the staff, and the hotel. That works, but it appears quite late. Earlier chapters should plant one concrete piece:
+
+Hugo had letters about Beatrice.
+Hugo had records proving staff irregularities.
+Hugo threatened to expose forged accounts.
+Beatrice was seen arguing with him near the desk.
+A torn scrap of Hugo’s notes mentions Beatrice before Chapter 10.
+
+The torn note appears only in the aftermath, which is too late to function as fair-play motive evidence.
+
+6. The murder weapon proof could be harder
+
+The fire poker is planted well, with a dark stain and blond hair. But the final reveal should explicitly connect it to Beatrice:
+
+Beatrice’s blond hair is on the poker.
+Her fingerprints or glove fibers are on the handle.
+The poker normally belongs behind the desk/fireplace area where she was stationed.
+The wound matches the poker’s brass tip.
+
+Right now the poker proves the method more than the culprit.
+
+Fastest fixes
+Delete the validation-leakage paragraph in Chapter 10.
+Make Chapter 10 pure aftermath: reactions, consequences, hotel order broken.
+State the true/false time relationship in one line: 11:45 false, 12:15 true, 30 minutes rewound.
+Put the scratch/oil/key/access proof before Beatrice’s confession, not after.
+Plant Hugo’s threat to Beatrice earlier.
+Tie the fire poker physically to Beatrice, not just to the murder.
+Lock Dr. Finch’s gender/pronouns.
+Overall
+
+This is a solid completed mystery with a fair clock clue and a satisfying false-solution structure. It is not as inventive as the weighted pendulum or tide-release mechanisms, but it is clearer than several more complicated clock drafts.
+
+As written: 82/100.
+
+With Chapter 10 cleaned, the murder time stated sharply, and Beatrice’s motive/poker link planted earlier, this could reach 87–89/100.
