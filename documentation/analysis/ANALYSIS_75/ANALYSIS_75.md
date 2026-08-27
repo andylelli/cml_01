@@ -224,27 +224,66 @@ the only one whose delivery is independently measurable.
 validation leakage"* and no template probe can find it, because the offending text matches no template
 we wrote. It is a *register* — abstract subject, stative verb, no concrete noun, summarising cadence.
 
-**MEASURED — a feature score separates them with no model and no template list.** Four features:
-abstract subject (`the record/that detail/the truth …`), stative verb with no concrete noun, absence of
-any concrete noun, absence of any sensory word. Scored over six known machine sentences and 400
-sentences from the 86-scoring manuscript:
+Four features, all properties of a sentence's GRAMMAR rather than its wording, so a new phrasing scores
+the same as an old one: abstract subject (*the record / that detail / the truth …*), stative verb with
+nothing concrete to predicate of, no concrete noun, no sensory word.
+
+> **BUILT 2026-08-27, and the build falsified half of what this section originally proposed.**
+> The paragraph that stood here quoted *"6/6 machine sentences at threshold 3, 4/6 at threshold 4,
+> 0.5% false-positive"* from an ad-hoc probe, and proposed a flag-gated regeneration trigger at
+> threshold 4. **The trigger does not ship.** The numbers below replace it; the original text is
+> preserved in git.
+
+**MEASURED, and the experiment was rebuilt before it was trusted.** The first probe measured recall
+over six known machine sentences, five of which are verbatim *injector output* — strings we wrote,
+already matched exactly by `INJECTED_SENTENCE_PATTERNS`. Scoring a grammatical instrument against a set
+the registry already covers measures nothing; it produced "4/6" on one feature definition and "1/6" on
+another, and neither number meant anything.
+
+The experiment that answers the question is discriminative: if the reader is responding to a register,
+then across the 40 manuscripts a human has read and marked, the rate must fall as the mark rises. That
+can fail, which is what makes it worth running. `node scripts/register-score-probe.mjs`:
 
 ```
-threshold 3 :  catches 6/6 machine,  flags 17.0% of prose-8 prose   <- telemetry only
-threshold 4 :  catches 4/6 machine,  flags  0.5% of prose-8 prose   <- usable as a signal
-prose-8 sentences: mean score 1.01
+prose  books  sentences   rate@3    rate@4
+    4      8       2458    15.9%     1.10%
+    5     10       5048    15.6%     1.45%
+    6     11       6372    13.6%     1.27%
+    7      9       4825    12.7%     1.41%
+    8      2       1013    10.0%     1.09%
+
+per-book Spearman vs the human mark, n=40, |rho| > 0.314 to signify:
+   threshold 3 : rho = -0.421   SIGNAL
+   threshold 4 : rho = +0.207   NOT SIGNIFICANT, and the wrong sign
 ```
 
-**And it catches the case string-matching missed** — *"The truth was out, but innocence, once lost,
-would not return."* scores 5 without appearing in any registry.
+**Threshold 3 is the first prose instrument this project owns that tracks the human mark.** Monotone
+from 15.9% at prose 4 to 10.0% at prose 8, clearing the 5% critical value. It ships as an always-on
+count reported as a rate, never a gate — [B1](../ANALYSIS_74/ANALYSIS_74.md) was decided three days
+ago on the evidence that a check firing on one sentence in seven of a GOOD book is an off switch with
+extra steps.
 
-Shipped as: an always-on **count** at threshold 3 (telemetry, per chapter), and a flag-gated
-**regeneration trigger** at threshold 4. Deliberately not a hard gate — [B1](../ANALYSIS_74/ANALYSIS_74.md)
-was decided three days ago on the evidence that gates which fire on most runs become off switches, and
-17% of a good book's sentences crossing threshold 3 is exactly that shape.
+**Threshold 4 was measured and rejected as a lever**, and the reason is worth keeping. Its rate is flat
+across the whole quality range and its correlation points the wrong way. Reading what it flags in the
+two prose-8 books explains why:
 
-Honest limit: **4/6 recall at the usable threshold.** This is a signal, not a solution, and it should be
-reported as a rate rather than a verdict.
+> *"The evidence, on the surface, was impeccable."* · *"The implication was clear, but the accusation
+> hung unspoken."*
+
+Those are good sentences. A high per-sentence score means ABSTRACT, and abstraction at the right moment
+is craft; what the mark responds to is the **rate** of it, not any instance. A trigger built on the
+score would have rewritten prose the reader liked.
+
+Three tokenizer defects were found by *running* the probe rather than by reading the code, and each one
+inflated the rate: a leading-clause strip that ate the main clause of the one sentence the module exists
+for; unstripped dialogue (these manuscripts open with `"` and close with `'`, defeating paired-delimiter
+stripping); and an abbreviation lookbehind that omitted the period it sits behind, so *"…was laid bare:
+Dr."* scored as a whole sentence in a prose-8 book.
+
+**Honest limit:** this measures a rate, and a rate is a health signal, not a defect list. It cannot say
+which sentence to fix. `scripts/register-score-probe.mjs` is the standing check that it still tracks
+the mark at all.
+
 
 ### 6.3 P3 — one standard for every sentence, whoever wrote it (closes 2.2, and the class)
 
@@ -322,3 +361,63 @@ NOW, free
   complete one.
 - **None of this touches `dialogue`**, which sits at 7 with its own catchphrase problem, or the four
   other categories that have never reached 9. This board is one category deep by design.
+
+---
+
+## 7. BUILD RECORD — 2026-08-27
+
+Everything free in §6 is built, tested and committed. Two things changed shape when they met a
+measurement, and both are recorded here rather than quietly edited into the sections above.
+
+| item | state | flag | evidence |
+|---|---|---|---|
+| **P1 VoiceSpec** | **BUILT** — generate → judge → commit, `VOICE_CORPUS`, conformance metric, prompt block, worker wiring, 39 tests | `AGENT9_VOICE_SPEC` (OFF) | needs one run + two reads |
+| **P2 register score** | **BUILT, telemetry only** | none — always on | rho = −0.421 over 40 read books |
+| **P2 trigger at 4** | **NOT BUILT — falsified** | — | rho = +0.207, flat, wrong sign |
+| **P3.1 builder rule** | **BUILT** — registry + export sweep, 22 tests | none — always on | a violating floor now fails the suite |
+| **P3.2 list grammar** | **BUILT** | `AGENT9_CLUE_LIST_GRAMMAR` (OFF) | tested both sides of the flag |
+| **6.5 voice guard** | **BUILT**, wired into `--gaps` | none | 12.6% over the last 15 books |
+| **P4 verification debt** | **not run** — costs ~£1 and a reader | — | five flags now await one run |
+
+### 7.1 What the measurements changed
+
+**P2's trigger died on its own probe.** §6.2 proposed telemetry at 3 and a regeneration trigger at 4,
+on figures from an ad-hoc probe. Rebuilt as a discriminative test against 40 human-marked manuscripts,
+threshold 3 holds (rho = −0.421) and threshold 4 does not (rho = +0.207, wrong sign). Shipping the
+trigger would have meant rewriting sentences a reader liked. §6.2 now carries the real numbers.
+
+**The voice guard found something on its first run.** Over all 188 manuscripts the between/within ratio
+is 27.1%; over the last 15 it is 12.6%. Both are correct and they measure different things — the
+all-time figure spans a year of our own prompt changes, so what it detects is **our edits drifting the
+voice over months**, not any book choosing one. A guard defaulting to the all-time window would have
+reported DISTINCT and been useless. This is §3's finding sharpened: the variation the corpus does have
+was put there by us, over time, not by any story.
+
+**The corpus quantifies §3 exactly.** 20 books spanning 13.6 to 17.2 words per sentence — a full spread
+of 3.6 against a within-book standard deviation of ~7.8. The entire between-book variation of
+everything this pipeline has produced is under half the variation inside any single one of those books.
+
+### 7.2 Two defects caught by running the code, not by reading it
+
+Consistent with [the standing lesson](../../../MEMORY.md) that a fix which regresses its own defect is
+caught by execution and never by reading:
+
+1. **The voice block was placed to be dropped FIRST while its comment claimed it went last.** The
+   budget loop walks drop candidates from the front. Moved after `craft_guide`/`judged_on` and now
+   asserted against the real `applyPromptBudgeting`.
+2. **A literal NUL reached `machine-register.ts`** through a sentinel substitution — the same
+   invisible-character class that already cost this repo one silently-dead regex. The sentinel is gone
+   (negative lookbehind, no placeholder) and a test asserts on the module's source bytes.
+
+### 7.3 What is now waiting on one run
+
+Five flags are built and unrun: `AGENT9_VOICE_SPEC`, `AGENT9_CLUE_LIST_GRAMMAR`,
+`AGENT9_CULPRIT_INJECTION_IN_SCENE`, `AGENT9_OPENING_FRESHNESS`, `AGENT9_CROSS_CHAPTER_ECHO`. §6.4's
+order still holds and now matters more: each has a distinct deterministic signature in the artifacts, so
+one run reads all five — but only if the next read is interpretable, which means clearing the debt
+before adding to it.
+
+The P1 falsification is unchanged and is the reason to run at all: **conformance ≥ 0.8 with `prose`
+still at 6–7 across two cold reads kills the hypothesis**, and [A_72](../ANALYSIS_72/ANALYSIS_72.md)'s
+Tier 4 reopens with evidence instead of assumption.
+
