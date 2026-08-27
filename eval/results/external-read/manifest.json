@@ -366,6 +366,38 @@
     "externalOffset": 2
   },
   {
+    "bundleId": "read-20260827-2019",
+    "storyPath": "stories/story_20260827-2019/resumed_resume_1787857532491.md",
+    "readPath": "stories/story_20260827-2019/chatgpt-review.txt",
+    "externalFinal": 81,
+    "externalCategories": {
+      "premise": 8,
+      "opening_hook": 8,
+      "plot_structure": 8,
+      "character_clarity": 8,
+      "dialogue": 7,
+      "atmosphere": 8,
+      "clues": 7,
+      "pacing": 8,
+      "ending": 7,
+      "prose": 7
+    },
+    "externalNotes": {
+      "premise": "Hourglass as false witness is strong and distinctive.",
+      "opening_hook": "Body, bloodied statue, half-full hourglass, foggy hotel — good setup.",
+      "plot_structure": "Cleaner than the previous draft; the test now has a clearer result.",
+      "character_clarity": "Roles are stable and readable.",
+      "dialogue": "Eleanor/Hugo/Beatrice have usable voices; some phrasing remains artificial.",
+      "atmosphere": "Fog, wax polish, hotel ritual, lobby geometry — good mood.",
+      "clues": "Better math, but the murder-time implication is still incomplete.",
+      "pacing": "Good movement from contradiction to test to aftermath.",
+      "ending": "Hale confession works, but proof order is partly muddled.",
+      "prose": "Cleaner than many drafts, but still has leakage and repeated proof."
+    },
+    "externalCategorySum": 76,
+    "externalOffset": 5
+  },
+  {
     "bundleId": "read-20260723-1620",
     "storyPath": "stories/_archive/story_20260723-1620/the_masquerade_of_authority.md",
     "readPath": "stories/_archive/story_20260723-1620/chatgpt-review.txt",
@@ -571,6 +603,38 @@
     },
     "externalCategorySum": 72,
     "externalOffset": 6
+  },
+  {
+    "bundleId": "read-20260827-2005",
+    "storyPath": "stories/story_20260827-2005/resumed_resume_1787856628157.md",
+    "readPath": "stories/story_20260827-2005/chatgpt-review.txt",
+    "externalFinal": 77,
+    "externalCategories": {
+      "premise": 8,
+      "opening_hook": 8,
+      "plot_structure": 7,
+      "character_clarity": 8,
+      "dialogue": 7,
+      "atmosphere": 8,
+      "clues": 5,
+      "pacing": 8,
+      "ending": 6,
+      "prose": 7
+    },
+    "externalNotes": {
+      "premise": "Hourglass as false witness is fresh and visually strong.",
+      "opening_hook": "Body, brass statue, half-full hourglass, foggy hotel — good tableau.",
+      "plot_structure": "Investigation narrows well, but reveal logic is shaky.",
+      "character_clarity": "Roles are stable and easy to follow.",
+      "dialogue": "Eleanor/Hugo/Sylvia have usable voices.",
+      "atmosphere": "Cliffside hotel, fog, jazz, ritual, polished lobby — strong mood.",
+      "clues": "Main hourglass timing does not currently prove what the story says it proves.",
+      "pacing": "Moves cleanly from clue to test to confession.",
+      "ending": "Hale confesses, but the physical proof is logically confused.",
+      "prose": "Less leakage than some drafts, but still has obvious generated fragments."
+    },
+    "externalCategorySum": 72,
+    "externalOffset": 5
   },
   {
     "bundleId": "s0-4-identity",

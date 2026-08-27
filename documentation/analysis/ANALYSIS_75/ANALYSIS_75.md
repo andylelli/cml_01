@@ -572,3 +572,109 @@ lever that reached the prose and did not help.
 
 Internal rubric, health signal only (the rubric cannot rank two books): arm A 65, arm B 68.
 
+---
+
+## 10. BOTH ARMS WERE READ — and the read says something other than what it appears to
+
+The owner commissioned cold reads on both arms despite §9.3's recommendation. That was the right call:
+the pair produced findings the deterministic report could not, and one of them corrects §8.
+
+```
+                    arm A   arm B          arm A = VoiceSpec OFF, arm B = ON
+  HEADLINE            77      81
+  category sum        72      76     offset +5 on both
+  premise              8       8
+  opening_hook         8       8
+  plot_structure       7       8
+  character_clarity    8       8
+  dialogue             7       7
+  atmosphere           8       8
+  clues                5       7   <- +2
+  pacing               8       8
+  ending               6       7   <- +1
+  prose                7       7   <- UNMOVED, the category under test
+```
+
+### 10.1 The four marks are in categories the flag cannot touch
+
+`clues`, `ending` and `plot_structure` account for the entire delta. **The VoiceSpec block contains
+nothing but style instructions** — a target sentence length, a syntactic habit, a diction, a narration
+distance, a signature move. It cannot make an hourglass calculation more explicit, and the reader
+attributes the improvement precisely there: *"the draft now says the hourglass was actually turned at
+10:50, not 10:45."* That is generation variance on identical upstream.
+
+**`prose` is 7 in BOTH.** The category the lever exists for did not move — exactly as the conformance
+metric predicted at 0.18, before either read was commissioned.
+
+### 10.2 THE METHODOLOGICAL PROBLEM: the second read was not blind
+
+The arm-B review opens *"This is a definite improvement over the previous hourglass draft"* and refers
+back four separate times — *"the draft now says…"*, *"the previous version"*, *"than before"*. **The
+reader had arm A in context when marking arm B.**
+
+A matched pair read non-blind is compromised for exactly the comparison it exists to support: an
+anchored reader who has been shown two drafts of one book will look for improvement and grade the
+second against the first. So the 4-mark delta cannot be attributed cleanly to variance OR to the flag.
+
+This is a procedural fix, not a design one, and it is the single most important thing to get right
+before the next pair: **the two arms must go to independent contexts, unlabelled and in random order.**
+A_74 §6.1's matched-pair prescription assumed blindness and never said so.
+
+### 10.3 What the pair DOES establish about noise
+
+Even discounted for anchoring, the run is informative. Two manuscripts from **identical persisted
+upstream** — same case, cast, clues, outline, geometry contract — differ by 2 marks in `clues` and 1
+in `ending`, on a difference the flag cannot have caused. Generation variance alone moves the logic
+categories by that much.
+
+Consequence for every A/B this project runs: **a matched pair removes CASE variance, not GENERATION
+variance.** n=1 pair, so this is one observation of the noise floor rather than a distribution — but it
+is the first direct measurement, and it sits on top of A_74 §6.1's finding that no judge model resolves
+under ~7 marks.
+
+### 10.4 A CORRECTION: §8.4 said arm A carried zero injected sentences. It does not.
+
+I reported that from `isInjectedSentence`, which returned 0. The reader quotes machine text from arm A
+anyway. Checked against the manuscripts:
+
+| line the reader quoted | in A | in B | detector |
+|---|:--:|:--:|---|
+| *"It had taken twenty minutes in all."* | yes | yes | **BLIND** |
+| *"Dr finch was glimpsed shivering outside ten minutes past eleven."* | yes | — | **BLIND** |
+| *"Body discovery scene victim severe head"* | yes | yes | **BLIND** |
+| *"The record now held: …"* | — | yes | detected |
+
+**Three of four are invisible to the registry** — property #2 of `injection-templates.ts` violated for
+two more families, on top of the clue-injector family found on 2026-08-26. Trusting the detector over
+the manuscript is how §8.4 came to be written wrong.
+
+Their sources, and the third is not what P3.2 assumed:
+
+1. *"It had taken twenty minutes in all."* — `enforceLockedFactValuePresence`. The run log says so
+   outright: *"injected canonical locked-fact value mention(s): 1"*. An injector, unregistered.
+2. *"Dr finch was glimpsed shivering outside…"* — the locked-fact word-form repair, unregistered, and
+   carrying a mangled name (`Dr finch`, lowercase) into dialogue.
+3. *"Body discovery scene victim severe head"* — **NOT an injector.** In context:
+   *"a folded paper marked with the time ten minutes past eleven and the phrase 'Body discovery scene
+   victim severe head.'"* The MODEL wrote that. It was handed a de-spoiled key-term bag in the
+   `clue_descriptions` prompt block and faithfully rendered it as text written on a prop.
+
+**Point 3 undercuts P3.2's scope.** §6.3 argued that a token bag is grammatical in a list and nowhere
+else, and fixed the INJECTOR's rendering. The same bags go into the PROMPT, and the model quotes them.
+The reader names it directly: *"The worst leakage is in Chapter 3, where internal evidence labels
+appear directly in the prose."* Fixing the injector's grammar while feeding the model the same bags
+treats one of two mouths.
+
+### 10.5 Where the marks actually are
+
+Both reviews spend most of their length on one thing, and it is not prose: **the hourglass timing does
+not prove what the story says it proves.** Both give a forecast conditional on fixing it — A says
+84–87, B says 87–89, against a best-ever of 86.
+
+That is the largest identified gain on the board, and it belongs to `clues`/`ending`, not to `prose`.
+It is a temporal-mechanism arithmetic defect of the family X38 and A_68's `mechanismIncoherent` were
+built for, and neither fired here.
+
+`prose` at 7 with the note *"still has obvious generated fragments"* is the same rung §1 describes. The
+ladder has not moved, and §10.4 explains why: the fragments the reader trips over are ones no detector
+we own can see.
