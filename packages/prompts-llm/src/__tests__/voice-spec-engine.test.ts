@@ -23,6 +23,14 @@ import {
   VOICE_SPEC_CANDIDATES,
 } from '../agent9-prose/voice-spec-engine.js';
 import { VOICE_CORPUS } from '../constants/voice-corpus.js';
+// Statically imported, NOT lazily inside a test body. The dynamic form compiled the 2,500-line
+// prompt-builder on first call and took ~3.7s in isolation, which timed out under full-suite load —
+// a flake introduced by the test, not by the code it covers.
+import {
+  applyPromptBudgeting,
+  __CRAFT_INPUT_BLOCKS,
+  __DROP_LAST_BLOCKS,
+} from '../agent9-prose/prompt-builder.js';
 import { validateVoiceSpec } from '@cml/prose-guard';
 import type { VoiceSpec } from '@cml/prose-guard';
 
@@ -213,13 +221,11 @@ describe('the voice block is the LAST droppable block, whatever the array order 
   };
 
   it('is declared drop-last, and is a craft input as well', async () => {
-    const { __CRAFT_INPUT_BLOCKS, __DROP_LAST_BLOCKS } = await import('../agent9-prose/prompt-builder.js');
     expect(__DROP_LAST_BLOCKS.has('voice_spec')).toBe(true);
     expect(__CRAFT_INPUT_BLOCKS.has('voice_spec')).toBe(true);
   });
 
   it('survives when voice_spec is passed FIRST — the order the live run actually produced', async () => {
-    const { applyPromptBudgeting } = await import('../agent9-prose/prompt-builder.js');
     await withCraftFloor(() => {
       // voice_spec ahead of everything, exactly as the stability reorder placed it on the real run.
       const { droppedBlocks } = applyPromptBudgeting(
@@ -236,7 +242,6 @@ describe('the voice block is the LAST droppable block, whatever the array order 
   });
 
   it('survives with the craft floor OFF too — ordering is unconditional', async () => {
-    const { applyPromptBudgeting } = await import('../agent9-prose/prompt-builder.js');
     const prev = process.env.AGENT9_PROMPT_BUDGET_CRAFT_FLOOR;
     delete process.env.AGENT9_PROMPT_BUDGET_CRAFT_FLOOR;
     try {
@@ -252,7 +257,6 @@ describe('the voice block is the LAST droppable block, whatever the array order 
   });
 
   it('still goes when nothing else is left — protection is an ORDER, not immunity', async () => {
-    const { applyPromptBudgeting } = await import('../agent9-prose/prompt-builder.js');
     await withCraftFloor(() => {
       const { droppedBlocks } = applyPromptBudgeting(
         'f'.repeat(500 * 4), '', '',

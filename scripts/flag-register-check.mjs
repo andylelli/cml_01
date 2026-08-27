@@ -211,6 +211,79 @@ const collectRegisterFlags = () => {
   return set;
 };
 
+/**
+ * A FOURTH QUESTION, added 2026-08-27: is the file that reads the flag REACHABLE?
+ *
+ * ── WHY THE OTHER THREE WERE NOT ENOUGH ──────────────────────────────────────────────────────────
+ *
+ * `AGENT9_OPENING_IDEATION` was documented in FLAG-AUDIT.md with a full probe plan, was READ by
+ * `openingIdeationEnabled()` in `agent9-prose/opening-ideation.ts`, and this checker reported CLEAN —
+ * while the entire module was imported by ZERO non-test files. A whole feature aimed at
+ * `opening_hook`, a category that has never scored 9 in 43 external reads, existed and could not run.
+ *
+ * "Read somewhere" and "reachable from the pipeline" are different properties, and only the second
+ * one means the flag does anything. A checker that conflates them will keep reporting clean over dead
+ * levers, which is the most expensive kind of false negative this project has: it makes an untried
+ * idea look like a tried one.
+ *
+ * The test is deliberately crude — is this module imported by any other non-test source file — because
+ * a precise call-graph would need a type-aware pass and the crude version already caught the case that
+ * motivated it. It can miss a module that is imported but whose reader is never called; it cannot
+ * produce a false alarm, since an unimported module genuinely cannot run.
+ */
+const SEP = String.fromCharCode(92);
+const collectUnreachableFlagReaders = (codeMap) => {
+  // Paths are normalised to forward slashes ONCE, up front. The first version tested Windows
+  // backslash paths with forward-slash patterns and reported fifteen live modules as unreachable --
+  // a checker whose own false positives exceed its true ones is worse than no checker.
+  const norm = (f) => f.split(SEP).join('/');
+  const sources = [];
+  for (const rootDir of SOURCE_ROOTS) {
+    const abs = join(ROOT, rootDir);
+    if (!existsSync(abs) || !statSync(abs).isDirectory()) continue;
+    for (const file of walk(abs)) sources.push(file);
+  }
+  const nonTest = sources.filter((f) => {
+    const n = norm(f);
+    return !n.includes('/__tests__/') && !n.includes('.test.');
+  });
+  const textOf = new Map(nonTest.map((f) => [norm(f), readFileSync(f, 'utf8')]));
+
+  // Plain substring search on the compiled specifier. Building a regex here needs escaped escapes,
+  // and this repo has lost time repeatedly to a backslash that did not survive a round trip.
+  const importedByOthers = (file) => {
+    const n = norm(file);
+    const base = n.substring(n.lastIndexOf('/') + 1).replace(/[.][cm]?[jt]s$/, '');
+    const needle = base + '.js';
+    for (const [other, text] of textOf) {
+      if (other === n) continue;
+      if (text.includes(needle)) return true;
+    }
+    return false;
+  };
+
+  // Entry points run without being imported: CLI mains, the API server, agent stage files.
+  // Tested on the BASENAME, not the path -- the first version matched /agent\d/ against the whole
+  // path, so every file under `agent9-prose/` counted as an entry point and the one genuinely dead
+  // module in the repo was waved through by the check written to find it.
+  const isEntryPoint = (n) => {
+    const base = n.substring(n.lastIndexOf('/') + 1);
+    if (n.includes('/scripts/')) return true;
+    if (base === 'server.ts' || base.startsWith('index.')) return true;
+    if (base.includes('-run.') || base.includes('orchestrator')) return true;
+    return /^agent\d/.test(base);
+  };
+
+  const out = [];
+  for (const [flag, files] of codeMap) {
+    const readers = [...files].map((rel) => norm(join(ROOT, rel))).filter((f) => textOf.has(f));
+    if (readers.length === 0) continue;
+    const anyReachable = readers.some((f) => isEntryPoint(f) || importedByOthers(f));
+    if (!anyReachable) out.push([flag, readers.map((f) => f.slice(norm(ROOT).length + 1))]);
+  }
+  return out;
+};
+
 const code = collectCodeFlags();
 const { set: config, shadowed } = collectConfigFlags();
 const register = collectRegisterFlags();
@@ -235,6 +308,18 @@ if (JSON_OUT) {
   );
 } else {
   console.log(`[flags] code reads ${codeNames.size} · config sets ${config.size} (.env + .env.local) · register documents ${register.size}`);
+
+  const unreachable = collectUnreachableFlagReaders(code);
+  if (unreachable.length) {
+    console.log(`
+[flags] READ BY AN UNREACHABLE MODULE — ${unreachable.length} (documented, "read", and inert):`);
+    for (const [flag, files] of unreachable) {
+      console.log(`   ${flag}`);
+      for (const f of files) console.log(`      reader: ${f}  (imported by no non-test file)`);
+    }
+    console.log(`   Wire the module in, or delete it and its register row. A dead lever documented as`);
+    console.log(`   live makes an untried idea look tried.`);
+  }
 
   if (configuredButUnread.length) {
     console.log(`\n[flags] SET IN CONFIG, READ BY NO CODE — ${configuredButUnread.length}:`);

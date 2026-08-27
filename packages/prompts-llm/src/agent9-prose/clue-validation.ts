@@ -553,8 +553,43 @@ export const composeKeyTermPhrase = (value: string, max = 6): string =>
  * any spec/reasoning leakage (the de-spoiling is preserved — same tokens, different join). Returns ''
  * when no usable terms remain.
  */
+/**
+ * Restore the capitalisation each token carried in the SOURCE string.
+ *
+ * ── THE DEFECT, READER-VISIBLE ───────────────────────────────────────────────────────────────────
+ *
+ * `tokenizeForClueObligation` lowercases unconditionally, and it must: the clue-PRESENCE check uses
+ * the same tokenizer, so matching has to be case-insensitive. `composeProseTermPhrase` then re-cased
+ * only the FIRST character, so every proper name inside a key-term bag shipped mangled:
+ *
+ *     "Captain ivor hale uniquely means skill"
+ *     (story_20260823-2038, story_20260826-1753, story_20260827-2005)
+ *
+ * Two routes to a reader, and the second is worse:
+ *
+ *   1. The injector pastes it directly. An external reader quoted this family back as *"internal
+ *      evidence labels appear directly in the prose"* (A_75 §10.4).
+ *   2. The same text is fed forward in the STORY TO DATE block, so the MODEL is shown
+ *      `Captain ivor hale` as this book's prose and imitates the styling in sentences it writes
+ *      itself — which is where *"Dr finch was glimpsed shivering outside ten minutes past eleven"*
+ *      came from. The model wrote that sentence, in our casing.
+ *
+ * No cast list is needed. The original value already carries the right casing, so this reads it back
+ * off the source rather than introducing a second source of truth about who the characters are.
+ */
+const restoreSourceCasing = (phrase: string, source: string): string => {
+  const casing = new Map<string, string>();
+  for (const word of String(source ?? "").match(/[A-Za-z][A-Za-z'-]*/g) ?? []) {
+    const key = word.toLowerCase();
+    // First occurrence wins, and only capitalised forms are worth restoring.
+    if (!casing.has(key) && word[0] === word[0].toUpperCase()) casing.set(key, word);
+  }
+  return phrase.replace(/[A-Za-z][A-Za-z'-]*/g, (w) => casing.get(w.toLowerCase()) ?? w);
+};
+
 export const composeProseTermPhrase = (value: string, max = 6): string => {
-  const phrase = Array.from(new Set(tokenizeForClueObligation(String(value ?? "")))).slice(0, max).join(" ");
+  const source = String(value ?? "");
+  const phrase = Array.from(new Set(tokenizeForClueObligation(source))).slice(0, max).join(" ");
   if (!phrase) return phrase;
   // Space-joining de-spoiled tokens can re-form a control-plane/reasoning phrase the comma form broke
   // ("direct evidence links", "mechanism access point", a leading "Eliminates"). Neutralize those
@@ -566,7 +601,10 @@ export const composeProseTermPhrase = (value: string, max = 6): string => {
     .replace(/\bcompeting (?:suspect )?timelines\b/gi, "the rival timelines")
     .replace(/\bnarrowing the solution\b/gi, "the solution narrowed")
     .replace(/^(eliminates|excludes)\b/i, (m) => (m.toLowerCase() === "excludes" ? "rules out" : "clears"));
-  return neutralized.charAt(0).toUpperCase() + neutralized.slice(1);
+  // Names restored LAST, so the neutralisation rewrites above (case-insensitive, emitting lowercase)
+  // cannot undo it, and so the sentence-case below never lowercases a restored capital.
+  const cased = restoreSourceCasing(neutralized, source);
+  return cased.charAt(0).toUpperCase() + cased.slice(1);
 };
 
 /**

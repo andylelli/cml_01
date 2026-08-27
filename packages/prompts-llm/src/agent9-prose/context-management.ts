@@ -4,6 +4,7 @@
  * opening-style rotation, and scene-grounding checklist generation.
  */
 import type { ClueDistributionResult } from "../agent5-clues.js";
+import { isInjectedSentence } from "./injection-templates.js";
 import {
   ARC_POSITION_REGISTER,
   ARC_POS_TO_SCENE_TYPE,
@@ -246,8 +247,56 @@ export function buildContinuityContext(
   return context;
 }
 
+/**
+ * A_75 review — keep the pipeline's OWN sentences out of the model's exemplar of this book.
+ *
+ * ── THE MECHANISM, MEASURED ──────────────────────────────────────────────────────────────────────
+ *
+ * Every later chapter is shown the FULL text of every prior chapter under `STORY TO DATE`. That text
+ * includes whatever the deterministic floors injected. On the arm-A run of 2026-08-27 the chapter-9
+ * prompt carried, as this book's prose:
+ *
+ *     "Eleanor Voss pressed on to the next concrete detail. The record now held:
+ *      Captain ivor hale uniquely means skill."
+ *
+ * The block says *DO NOT COPY VERBATIM*, and the model obeyed that — it copied no sentence. It copied
+ * the REGISTER and the CASING instead, and wrote *"Dr finch was glimpsed shivering outside ten
+ * minutes past eleven"* in its own voice.
+ *
+ * **This is a compounding contamination.** One injected paragraph in chapter 3 is shown to chapters
+ * 4–10 as an example of how this book is written. It is the most plausible mechanism yet identified
+ * for A_75 §2.1's finding — that the leakage a reader marks is a REGISTER no template detector can
+ * see, because the model wrote it, in our voice, having been shown our voice.
+ *
+ * Stripping these lines changes nothing about the manuscript: the injections still ship and the
+ * obligations they satisfy are still satisfied. It changes only what the model is shown as a model.
+ *
+ * Flag-gated `AGENT9_RECAP_STRIP_INJECTED` (default OFF), read at CALL time. Bounded by design: it can
+ * only ever REMOVE lines `isInjectedSentence` already recognises, so its blast radius is exactly the
+ * registry's coverage — and where the registry is blind (A_75 §10.4 found three blind families) it
+ * simply does less, never something different.
+ */
+export const isRecapStripInjectedEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(env.AGENT9_RECAP_STRIP_INJECTED ?? '');
+
+/**
+ * Drop injected sentences from one recap paragraph.
+ *
+ * A paragraph is emptied only when EVERY sentence in it is recognised; a paragraph that is mostly
+ * authored prose keeps its authored half. That asymmetry is deliberate — the cost of keeping one
+ * machine sentence is style contamination, and the cost of dropping one authored sentence is a
+ * continuity error, which is the more expensive of the two.
+ */
+export const stripInjectedFromRecap = (paragraph: string): string => {
+  const sentences = String(paragraph ?? '').split(/(?<=[.!?])\s+/).filter((x) => x.trim().length > 0);
+  if (sentences.length === 0) return '';
+  const kept = sentences.filter((x) => !isInjectedSentence(x));
+  return kept.length === 0 ? '' : kept.join(' ').trim();
+};
+
 export function buildStoryToDateBlock(priorChapters: ProseChapter[], currentChapterStart: number): string {
   const normalize = (value: unknown): string => String(value ?? '').replace(/\r\n/g, '\n').trim();
+  const stripInjected = isRecapStripInjectedEnabled();
   const lines: string[] = [];
   lines.push('\n\nSTORY TO DATE (REFERENCE ONLY — DO NOT COPY VERBATIM):');
 
@@ -270,9 +319,11 @@ export function buildStoryToDateBlock(priorChapters: ProseChapter[], currentChap
     const chapterNumber = idx + 1;
     const chapter = priorChapters[idx];
     const title = normalize(chapter?.title || `Chapter ${chapterNumber}`);
-    const paragraphs = Array.isArray(chapter?.paragraphs)
-      ? chapter.paragraphs.map((p) => normalize(p)).filter(Boolean)
-      : [];
+    const paragraphs = (Array.isArray(chapter?.paragraphs)
+      ? chapter.paragraphs.map((p) => normalize(p))
+      : [])
+      .map((p) => (stripInjected ? stripInjectedFromRecap(p) : p))
+      .filter(Boolean);
     lines.push(`\n--- BEGIN PRIOR CHAPTER ${chapterNumber} ---`);
     lines.push(`Title: ${title}`);
     if (paragraphs.length > 0) {
