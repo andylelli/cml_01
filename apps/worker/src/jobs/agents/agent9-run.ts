@@ -7770,6 +7770,49 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   // emitted even at zero: a zero that is never written cannot be told apart from a check that
   // never ran (REVIEW_05 §10.6).
   emitAgent9InjectorLintTelemetry(ctx);
+
+  /**
+   * ── PASS 1 FINDING: the published report described text that no longer existed ────────────────
+   *
+   * `validationReport` was last refreshed at the release gate. AFTER that point two LLM-driven paths
+   * still rewrite chapters — the NSD anchor repair (two rounds of planted sentences, each followed by
+   * a full hygiene chain) and `applyFullStoryDiagnosticFindings` — and neither re-validated. So
+   * `ctx.validationReport`, which is the record of what shipped and what the run is judged on, could
+   * describe a manuscript that was subsequently edited twice.
+   *
+   * That is `agent9-postprocess-after-validation` in its most consequential form: not a detector
+   * going stale, but the RECORD going stale. A defect introduced by a late pass — a pronoun flip from
+   * the anonymiser, a locked-fact value rewritten, an early reveal planted — had nothing left to
+   * catch it, and the report would still read clean.
+   *
+   * The fix is deliberately NOT to re-run the gate. The gate has already decided and acting on a
+   * different answer here would make the decision non-deterministic. Instead: re-validate, publish the
+   * FRESH report so the record matches the manuscript, and WARN when the two disagree — which turns a
+   * silent late regression into a named one. Deterministic, no LLM call, no cost.
+   */
+  try {
+    const gateSummary = validationReport?.summary ?? {};
+    const finalReport = await validateCurrentProse(prose);
+    const finalSummary = finalReport?.summary ?? {};
+    const changed = Object.keys({ ...gateSummary, ...finalSummary })
+      .filter((k) => JSON.stringify((gateSummary as any)[k]) !== JSON.stringify((finalSummary as any)[k]));
+    if (changed.length > 0) {
+      ctx.warnings.push(
+        `[Agent 9] POST-GATE REWRITE CHANGED VALIDATION: ${changed
+          .map((k) => `${k} ${JSON.stringify((gateSummary as any)[k])} -> ${JSON.stringify((finalSummary as any)[k])}`)
+          .join("; ")} — a pass after the release gate edited the prose. The gate's decision stands ` +
+        `(it is not re-run here); the REPORT now describes the shipped manuscript.`,
+      );
+    }
+    validationReport = finalReport;
+  } catch (err) {
+    // A failure here must not lose the run: keep the gate-time report and say the record is stale.
+    ctx.warnings.push(
+      `[Agent 9] final re-validation failed (${err instanceof Error ? err.message : String(err)}) — ` +
+      `the published report is the GATE-TIME one and may predate late rewrites.`,
+    );
+  }
+
   ctx.prose = prose;
   ctx.validationReport = validationReport;
 }

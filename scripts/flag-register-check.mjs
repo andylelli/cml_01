@@ -197,7 +197,8 @@ const collectConfigFlags = () => {
   }
 
   const set = new Set([...effective.keys()].filter(isFlag));
-  return { set, shadowed };
+  // `effective` is returned too so the register-state check can compare VALUES, not just presence.
+  return { set, shadowed, effective };
 };
 
 /** Flags the REGISTER documents — any FLAG-AUDIT mention inside a table row or backticks. */
@@ -232,6 +233,10 @@ const collectRegisterFlags = () => {
  * produce a false alarm, since an unimported module genuinely cannot run.
  */
 const SEP = String.fromCharCode(92);
+const SPLIT_LINE = new RegExp(String.fromCharCode(13) + '?' + String.fromCharCode(10));
+// No backslash escapes in this pattern on purpose: every previous attempt lost them in
+// transit and the regex silently matched nothing. Explicit space class instead of a shorthand.
+const ROW_RE = new RegExp('^[|][ ]*`([A-Z0-9_]+)`[ ]*[|]([^|]*)[|]');
 const collectUnreachableFlagReaders = (codeMap) => {
   // Paths are normalised to forward slashes ONCE, up front. The first version tested Windows
   // backslash paths with forward-slash patterns and reported fifteen live modules as unreachable --
@@ -284,8 +289,33 @@ const collectUnreachableFlagReaders = (codeMap) => {
   return out;
 };
 
+/**
+ * A FIFTH QUESTION: does the register's STATE column match the live config?
+ *
+ * The register's second column is headed `State`, not "code default" -- it is a claim about what the
+ * flag IS right now. On 2026-08-27 twelve rows said `unset -> off` for flags that `.env.local`
+ * actually sets ON, including `AGENT9_GEOMETRY_ACCEPTANCE`, documented as `shadow` and running in
+ * `apply`.
+ *
+ * That is not cosmetic. This register is the document a probe is designed against: you read it to
+ * decide which lever to move and what the baseline is. Twelve wrong rows means a baseline nobody can
+ * trust, and this project has already burned runs on baselines that were not what they looked like.
+ *
+ * Reported, never fatal -- a stale doc must not block a build. The point is that it stops being
+ * invisible.
+ */
+const collectRegisterStates = () => {
+  const states = new Map();
+  if (!existsSync(REGISTER)) return states;
+  for (const line of readFileSync(REGISTER, 'utf8').split(SPLIT_LINE)) {
+    const m = ROW_RE.exec(line);
+    if (m) states.set(m[1], m[2].trim().split('`').join(''));
+  }
+  return states;
+};
+
 const code = collectCodeFlags();
-const { set: config, shadowed } = collectConfigFlags();
+const { set: config, shadowed, effective: configValues } = collectConfigFlags();
 const register = collectRegisterFlags();
 
 const codeNames = new Set(code.keys());
@@ -308,6 +338,24 @@ if (JSON_OUT) {
   );
 } else {
   console.log(`[flags] code reads ${codeNames.size} · config sets ${config.size} (.env + .env.local) · register documents ${register.size}`);
+
+  {
+    const states = collectRegisterStates();
+    const drift = [];
+    for (const [flag, claimed] of states) {
+      const live = configValues.get(flag);
+      if (/^unset/i.test(claimed) && live !== undefined) drift.push([flag, claimed, live]);
+    }
+    if (drift.length) {
+      console.log(`
+[flags] REGISTER SAYS UNSET, CONFIG SETS IT — ${drift.length}:`);
+      for (const [flag, claimed, live] of drift) {
+        console.log(`   ${flag.padEnd(42)} register: ${claimed.padEnd(22)} live: ${live}`);
+      }
+      console.log(`   The register is what a probe's baseline is designed against. Update the State`);
+      console.log(`   column, or unset the flag — a wrong baseline is how a run gets spent measuring nothing.`);
+    }
+  }
 
   const unreachable = collectUnreachableFlagReaders(code);
   if (unreachable.length) {
