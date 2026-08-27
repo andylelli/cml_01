@@ -1,0 +1,151 @@
+This version has some of the best clue ideas so far, but it has one major story-breaking problem:
+
+Felix Vautier is the victim in Chapter 1, but he is alive and questioned from Chapter 2 onward.
+
+That continuity error pulls the score down heavily, even though the soot/wax/thermometer mechanism is interesting.
+
+I’d mark this around 53/100.
+
+Area	Mark	Notes
+Premise / concept	8/10	Soot line, wax seals, thermometer, fire timing, and clock rewinding are strong mystery mechanics.
+Opening hook	6/10	Good atmosphere and a named victim, but the clue is over-explained too early.
+Plot structure	5/10	The intended structure is clear, but Felix being both victim and culprit breaks it.
+Character clarity	2/10	Biggest issue: Felix is dead in Chapter 1, then alive as suspect/culprit later.
+Dialogue	5/10	Some good dry exchanges, but also stiff and report-like.
+Atmosphere / setting	6/10	Holloway Manor, autumn drizzle, beeswax, soot, and firelight work well.
+Mystery clues	7/10	The clue chain is strong, but the continuity issue damages the logic.
+Pacing	5/10	It moves forward, but some chapters are short or leak planning notes.
+Ending / reveal	4/10	Felix confesses clearly, but he was already the dead victim.
+Prose / polish	4/10	Pronoun errors, prompt leakage, repeated exposition, and malformed phrases remain.
+Biggest issue
+
+Chapter 1 says:
+
+“The body lay slumped in an armchair… the victim unmistakably Felix Vautier…”
+
+But Chapter 2 says:
+
+“Felix Vautier stood near the doorway…”
+
+Then the ending reveals Felix as the culprit.
+
+That cannot work unless Chapter 1’s body is someone else. The fastest fix is simple:
+
+Victim: Lord Holloway / another named estate owner
+Culprit: Felix Vautier, estate steward
+Investigator: Ellen Lacy
+False suspects: Phyllis Lisle, Ronald Somerville, Juliette Drury
+
+Then replace “Felix Vautier” as the corpse in Chapter 1 with the actual victim’s name.
+
+What is working well
+
+The mechanical mystery idea is strong:
+
+soot line inside clock glass → fire burned later than claimed → wax seals cooled unevenly → clock was opened and rewound → thermometer confirms later heat → Felix’s ledger motive → cyanide confession.
+
+That is a much more interesting clue chain than simple “the clock was wound back.” The soot and wax clues feel physical and fair-play.
+
+Chapter-by-chapter issues
+Chapter 1
+Strong atmosphere.
+Victim is named, which is good.
+But the victim is Felix, who later appears alive.
+The clue is over-explained too early: “The culprit wound back…” style logic appears before investigation develops.
+Character introductions are decent: Phyllis, Ronald, and Juliette get role + tension.
+“Victim’s study” should be replaced with the victim’s actual name or “the study.”
+Chapter 2
+Felix appears alive, creating the major contradiction.
+The soot clue is repeated heavily from Chapter 1.
+Ronald is referred to with “she/her” despite being male-coded.
+Phyllis and Juliette have better character pressure here.
+The thermometer clue is useful.
+Chapter 3
+
+This chapter has major prompt/validation leakage:
+
+“The chapter moves forward through detailed insight instead than recap.”
+“Required evidence was kept explicit in scene action…”
+
+Good clue: wax seals partially melted and cooled unevenly.
+Too short and too report-like.
+“The elapsed time was confirmed as forty minutes” still sounds like a note.
+Chapter 4
+Thermometer + witnesses is a strong chapter idea.
+The witness evidence helps corroborate the soot clue.
+Pronouns slip again: Phyllis becomes “his,” Ronald becomes “her.”
+It repeats the soot/clock explanation too much.
+The chapter successfully shifts suspicion toward Felix, but this only works if Felix is not the victim.
+Chapter 5
+Strong suspect-pressure chapter.
+Felix’s ledger, financial irregularities, and partial confession work well.
+Pronoun errors are frequent: Ellen becomes “he/his,” Felix becomes “she/her.”
+This is one of the better chapters dramatically.
+Again, it only works if Felix is alive and not the corpse.
+Chapter 6
+Good chapter function: clears Phyllis, Ronald, and Juliette.
+Some clearances are too report-like.
+“The time was recorded as ten minutes past eleven” appears again as note-like exposition.
+It narrows the field effectively.
+The emotional reactions after clearing are a nice touch.
+Chapter 7
+This chapter is mostly filler.
+
+It has more prompt leakage:
+
+“The chapter moves forward through vivid detail instead than recap.”
+
+It raises a useful doubt — mechanical fault vs tampering — but does not develop it enough.
+It is too short compared with the surrounding chapters.
+Chapter 8
+Good purpose: preparing the test.
+But it mostly recaps existing clues instead of setting up a dramatic test.
+
+More prompt leakage appears:
+
+“Evidence handling remained explicit and on-page…”
+
+The test needs a clearer hypothesis:
+
+If Felix rewound the clock after poisoning, the wax, soot, and thermometer should align with a later fire.
+
+Pronoun slips continue.
+Chapter 9
+This should be the discriminating test chapter, but it does not actually perform the test.
+
+It contains more validation leakage:
+
+“Required evidence was kept explicit in scene action…”
+
+It is too short and feels incomplete.
+It mentions “clock face showing quarter past six,” which conflicts with the recurring “ten minutes past eleven.”
+Chapter 10
+The confession is clearer than in many earlier drafts.
+Felix admits to both clock tampering and cyanide poisoning, which is good.
+But the reveal fails because Felix was the Chapter 1 victim.
+The clearance section is too report-like.
+Pronouns break again: officers escort “her” away when Felix is male-coded.
+Best fixes
+Make someone else the victim.
+Felix should be the living steward/culprit, not the corpse.
+
+Remove all prompt/validation leakage.
+Delete lines like:
+
+“The chapter moves forward…”
+“Required evidence was kept explicit…”
+“Evidence handling remained…”
+
+Fix pronouns.
+Ellen = she/her. Felix = he/him. Ronald = he/him. Phyllis = she/her. Juliette = she/her.
+
+Make the Discriminating Test actually happen.
+Chapter 9 should physically demonstrate the timing:
+
+recreate fire → observe soot line → warm clock area → examine wax cooling → show that the clock must have been opened after poisoning.
+
+Keep the time consistent.
+The story uses ten minutes past eleven, quarter past six, and forty minutes, but the relationship between them is muddy. Lock one clean timeline.
+Overall
+
+This has a stronger mystery mechanism than many earlier drafts, but the Felix contradiction is severe. Once fixed, this could jump from about 53/100 to the low 70s because the soot/wax/thermometer idea is genuinely good.

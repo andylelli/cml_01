@@ -1,0 +1,33 @@
+NOT A FRESH RUN. This is story_20260806-2230 with two aftermath paragraphs repaired.
+
+WHAT IT IS
+  Source        stories/story_20260806-2230/the_pendulum_s_secret_chime.md
+  Change        chapter 10, paragraphs 1 and 8, rewritten by the aftermath-repeat regen pass
+  Everything    else is byte-identical. 12,584 -> 12,554 words. 10 chapters, unchanged.
+  Produced by   scripts/repair-aftermath-offline.mjs, offline, with AGENT9_REGEN_EDIT_LIST=true
+  Cost          $0.0041
+
+WHY IT EXISTS
+  The source manuscript has an external cold read of 84/100 whose stated biggest structural
+  weakness is: "Chapter 9 repeats the clearances. Chapter 10 repeats the mechanism and
+  clearances again."
+
+  A fresh pipeline run cannot test whether fixing that helps, because it produces a different
+  story. This changes ONLY the flagged paragraphs of the book that was already scored, so a
+  second cold read isolates that one complaint completely.
+
+READING IT
+  Read it cold, as a whole story, and score it the same way. Do not diff it against the
+  original first — the point is what a reader experiences, not what changed.
+
+TWO CAVEATS FOR THE RESULT
+  1. One of three flagged paragraphs (ch10 p10) was NOT repaired. The model could not clear it
+     in two attempts.
+  2. The detector does not see everything the reader saw — a restatement carried by a pronoun
+     and an evidence list is still invisible to it (REVIEW_05 X22).
+
+  So a modest movement is the honest expectation. A FLAT RESULT IS ALSO INFORMATIVE: it would
+  say the endgame-repetition complaint is worth less than its prominence suggests, which is
+  worth knowing before more money goes toward it.
+
+  Full record: architecture/REVIEW_05.md §36.

@@ -1,0 +1,72 @@
+{
+  "runId": "replay-1782168027256",
+  "projectId": "proj_8e6d7185-cf4a-4741-ae73-8e6e987fe3cc",
+  "source": "agent9-replay",
+  "generatedAt": "2026-06-22T22:44:00.608Z",
+  "storyTitle": "Generated in scene batches. 1 batch(es) required retry for validation.",
+  "proseChars": 37617,
+  "chapters": 10,
+  "final": 65,
+  "band": "Promising but rough",
+  "raw_total": 69,
+  "caps_applied": [
+    "prompt / template / validation-text leakage → prose ≤ 4",
+    "significant prompt / template / validation-text leakage → overall ≤ 65",
+    "weak murder method (concealment explained, death not) → ending ≤ 6",
+    "weak murder method (concealment explained, death not) → overall ≤ 75"
+  ],
+  "categories": [
+    {
+      "category": "premise",
+      "mark": 7,
+      "reason": "The premise of a manor murder involving a manipulated clock and a window left open to create a false timeline is intriguing and fits well within Golden Age mystery traditions. It is clear and original enough to sustain interest."
+    },
+    {
+      "category": "opening_hook",
+      "mark": 6,
+      "reason": "The opening sets a tense atmosphere and introduces the victim and key clues (open window, stopped clock) effectively. However, the prose is somewhat dense and descriptive, which slightly delays engagement with the core mystery."
+    },
+    {
+      "category": "plot_structure",
+      "mark": 7,
+      "reason": "The plot unfolds logically through investigation, alibi testing, and a final controlled experiment revealing the culprit. The timeline is coherent and clues build progressively. Some chapters repeat similar atmospheric descriptions, which slightly weakens pacing."
+    },
+    {
+      "category": "character_clarity",
+      "mark": 7,
+      "reason": "Characters are distinct and stable: Pembroke as the steady investigator, Lady Eleanor as the anxious culprit, and others with clear roles and alibis. Pronouns are stable and identities consistent throughout."
+    },
+    {
+      "category": "dialogue",
+      "mark": 6,
+      "reason": "Dialogue is functional and conveys necessary information, but often feels formal and expository rather than natural or revealing character depth. Some exchanges are repetitive or overly polite, reducing dramatic tension."
+    },
+    {
+      "category": "atmosphere",
+      "mark": 8,
+      "reason": "The story consistently evokes a moody, claustrophobic manor setting with detailed sensory descriptions (weather, scents, sounds). This enhances the Golden Age feel and supports the mystery tone well."
+    },
+    {
+      "category": "clues",
+      "mark": 8,
+      "reason": "Clues are carefully planted and revisited: the open window, stopped clock, gear wear, weather vane records, alibis, and ledger. The controlled test is a strong fair-play device that confirms the culprit without introducing new evidence at reveal."
+    },
+    {
+      "category": "pacing",
+      "mark": 6,
+      "reason": "The pacing is generally steady but occasionally bogs down in repeated atmospheric descriptions and restatements of evidence. The final trap chapter is well-paced and climactic, but earlier chapters could be tightened."
+    },
+    {
+      "category": "ending",
+      "mark": 6,
+      "reason": "The ending provides a satisfying reveal with a confession, clear resolution of suspects, and moral complexity. The inspector’s reasoning is transparent and the culprit’s motive is plausible and consistent with earlier clues.",
+      "capped": true
+    },
+    {
+      "category": "prose",
+      "mark": 4,
+      "reason": "The prose is descriptive and atmospheric but sometimes overly repetitive and formal. Some sentences are long and complex, which can impede readability. The style fits the period but could be more concise and varied.",
+      "capped": true
+    }
+  ]
+}

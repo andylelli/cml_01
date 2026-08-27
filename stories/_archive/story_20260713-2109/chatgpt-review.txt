@@ -1,0 +1,159 @@
+This is a decent tide-based mystery, but it is weaker than the masquerade and gramophone drafts because the timing logic is muddled and the tide clue does not fully work as clean evidence.
+
+The roles are stable:
+
+Investigator: Eleanor Voss
+Victim: Dr. Mallory Finch
+Culprit: Captain Ivor Hale
+False suspect: Beatrice Quill
+Other suspects: Hugo Vane, Sylvia Trent
+Murder method: drowning
+Cover-up mechanism: false sighting / distorted timeline around tide and stopped watch
+Core clue: tide schedule marked high tide — 11:20, plus Dr. Finch’s stopped watch
+Motive: Hale’s jealousy, reputation, and fear that Finch would ruin him
+
+I’d score it around 69/100.
+
+Area	Mark	Notes
+Premise / concept	7/10	Tide schedule as “nature’s clock” is a good mystery idea.
+Opening hook	5/10	The opening starts with reveal-like exposition before the actual body discovery.
+Plot structure	7/10	Body → tide clue → interviews → false Beatrice theory → financial motive → final trap works.
+Character clarity	7/10	Roles are mostly stable, with fewer catastrophic role problems.
+Dialogue	6/10	Character voices are distinct, but repeated catchphrases feel artificial.
+Atmosphere / setting	8/10	Seaside hotel, storm, tide, shore, lobby, rain, gulls — strong atmosphere.
+Mystery clues / evidence logic	5/10	The tide/watch logic is inconsistent and sometimes backwards.
+Pacing	7/10	Good movement, though Chapter 1 and Chapter 9 both contain reveal-like repetition.
+Ending / reveal	7/10	Hale confesses and motive is clear, but the proof chain is not fully convincing.
+Prose / polish	5/10	Some nice prose, but still has prompt-leakage and malformed lines.
+What works
+
+The setting fits the clue. A seaside hotel mystery using the tide as a timing device is a strong concept. The tide schedule, the body washed ashore, the storm, the shore path, and the hotel clocks all belong to the same world.
+
+The false-suspect turn with Beatrice also works reasonably well. She is nervous, emotionally involved, and appears to be the last person to see Finch alive. Eleanor starts to suspect her, then realizes the case is built on fear and circumstance rather than proof.
+
+The final culprit choice also makes sense. Hale has the strongest pressure: he gives suspiciously precise testimony, reacts badly to the stopped watch, and later the financial/reputation motive connects him to Finch.
+
+Biggest problem
+
+The central tide logic is confused.
+
+The story repeatedly says:
+
+high tide: 11:20
+watch stopped: 11:20
+Dr. Finch last seen: 10:45 or just before 11:00
+Hale claims he saw Finch near high tide
+Hale killed her before high tide
+the watch stopped before the tide peaked
+
+But if the watch stopped at 11:20 and the tide peaked at 11:20, those two facts agree. The draft sometimes treats that as a contradiction when it is not.
+
+This line is especially confusing:
+
+“This watch stopped at twenty minutes past eleven. That, too, is before the tide’s peak.”
+
+But earlier the tide peak is also twenty minutes past eleven. So it cannot be “before” the tide’s peak.
+
+Cleaner version of the mystery logic
+
+Use this:
+
+High tide: 11:20 p.m.
+True death time: around 11:00 p.m.
+False evidence: watch stopped at 11:20 p.m.
+Hale’s lie: he claims he saw Finch alive near high tide.
+Truth: Finch was already dead before high tide.
+How exposed: the body’s position, tide line, wet clothing, and watch corrosion prove she entered the water before the tide peaked, not at 11:20.
+
+Or:
+
+High tide: 11:20 p.m.
+Watch stopped: 11:05 p.m.
+Hale claims she was alive at 11:20 p.m.
+Contradiction: the watch and tide marks show she was already in the water before Hale’s claimed sighting.
+
+Pick one. Right now the story tries to use the tide as hard evidence, but the times do not consistently support the deduction.
+
+Main issues
+1. Chapter 1 starts in the wrong place
+
+The opening begins with Eleanor already addressing assembled guests and presenting evidence:
+
+tide schedule
+stopped watch
+last seen alive
+contradiction
+
+Then the chapter restarts with her entering the lobby and discovering the body.
+
+That feels like a duplicated/generated opening. Start with the body discovery instead.
+
+Better opening order:
+
+Eleanor enters lobby.
+Beatrice says Finch is on the beach.
+They find the body.
+Eleanor discovers the tide schedule.
+She notices the watch.
+End Chapter 1 on the timing contradiction.
+
+2. The victim’s cause of death needs clearer physical proof
+
+If Finch drowned, the story should give specific evidence:
+
+seawater in lungs
+sand under nails
+bruising from being held under
+tide mark on coat
+watch stopped from water exposure
+body position inconsistent with accidental washing ashore
+
+Right now the reveal says Hale drowned her, but the earlier body scene does not strongly establish drowning versus being killed elsewhere and dumped.
+
+3. Hale’s false sighting needs sharper purpose
+
+Hale claims he saw Finch alive near high tide. The story should make clear why that helps him.
+
+For example:
+
+Hale needed people to believe Finch walked out alone at 11:20, after he had returned to the balcony and could be seen by others.
+
+Or:
+
+Hale’s invented sighting shifted death later, into a window where the sea could be blamed.
+
+Without that, the lie feels suspicious but not strategically necessary.
+
+4. Prompt leakage remains
+
+These lines should be removed:
+
+“the trail bending toward the question…”
+“The hour stood at twenty minutes past eleven.”
+“The texture of the night changes there.”
+
+They sound like reasoning/checklist residue rather than prose.
+
+5. Chapter 9 has unnecessary repetition after the confession
+
+The reveal works, then the text repeats the importance of the last sighting:
+
+“We must not forget…”
+“That detail matters.”
+“Everything that follows…”
+
+That feels like a validation note. Cut it and let the confession stand.
+
+Fastest fixes
+Rewrite Chapter 1 so it starts with the body, not the evidence presentation.
+Standardize the timeline: one high tide time, one watch time, one true death time.
+Make the tide clue physically prove when Finch entered the water.
+Explain why Hale’s false sighting protects him.
+Remove prompt-leakage lines.
+Make Chapter 10 aftermath only, not another reveal.
+Add clearer drowning evidence in the body scene.
+Overall
+
+This has a good seaside premise and a workable culprit/motive, but the fair-play clue logic is not clean enough yet.
+
+As written: 69/100.

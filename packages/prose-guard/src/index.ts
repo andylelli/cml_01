@@ -76,3 +76,24 @@ export {
 } from "./machine-register.js";
 export type { RegisterScore, RegisterFeatures } from "./machine-register.js";
 export type { DiscriminatingPair } from "./dual-value.js";
+// A_75 §6.1 (P1) — the per-story voice spec and its deterministic conformance metric. Here rather
+// than in @cml/prompts-llm because the worker measures conformance and the prompt builder writes the
+// block, and a type those two hand-mirror is the second-body trap this repo keeps paying for.
+export {
+  validateVoiceSpec,
+  voiceConformance,
+  bookVoiceConformance,
+  measureVoice,
+  VOICE_MEAN_MIN,
+  VOICE_MEAN_MAX,
+  VOICE_MEAN_MIN_GAP,
+  VOICE_CONFORMANCE_DELIVERED,
+} from "./voice-spec.js";
+export type {
+  VoiceSpec,
+  VoiceSpecSummary,
+  VoiceSpecValidation,
+  VoiceConformance,
+  VoiceDiction,
+  VoiceDistance,
+} from "./voice-spec.js";

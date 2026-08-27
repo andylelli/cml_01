@@ -1,0 +1,160 @@
+This is a strong concept shift: moving from manor-clock mystery to seaside hotel + tide + clock + semaphore + elevator gives the story a fresher identity. The mystery mechanics are more original than the manor drafts, but this version is rougher in prose and consistency.
+
+I’d mark it around 67/100. It has a better premise than some of the 70-ish manor drafts, but weaker polish and more generated-note phrasing.
+
+Area	Mark	Notes
+Premise / concept	8/10	Tide marks contradicting a stopped clock is excellent. Semaphore and elevator clues add originality.
+Opening hook	7/10	Body by terrace steps, tide marks, and stopped clock create a strong seaside-mystery image.
+Plot structure	7/10	Discovery → tide contradiction → clock key → lamp signal → elevator route → alibi clearing → Eastwood reveal. Good arc.
+Character clarity	5/10	Roles are understandable, but pronouns and names slip often.
+Dialogue	5/10	Some good period tone, but many lines are cut off or over-formal.
+Atmosphere / setting	8/10	Cornwall, sea mist, cliffs, salt spray, post-war unease: very strong.
+Mystery clues	7/10	Tide, clock, key scratches, semaphore, lamp smudge, elevator logs, fingerprints: strong but maybe too many.
+Pacing	6/10	Moves well, but some sections feel over-explained and repetitive.
+Ending / reveal	6/10	Eastwood is exposed and confesses, but motive and murder method need clearer detail.
+Prose / polish	4/10	Frequent broken phrases, pronoun slips, and note-like exposition lower the score.
+What is working
+
+The tide clue is excellent. It feels more natural and memorable than some of the clock-only versions:
+
+tide mark does not match stopped clock → clock time is false → death occurred earlier → alibis must be rechecked.
+
+That gives the story a distinctive seaside identity.
+
+The chain against Eastwood is also fairly strong:
+
+clock key scratches → no authorized winding → tide contradicts clock → semaphore flash was deliberate → elevator allowed silent movement → fingerprints on clock key → footage shows Eastwood silencing victim → reenactment exposes him.
+
+That is a complete detective structure.
+
+Main problems
+1. Too many mechanisms
+
+The story has:
+
+tide marks
+stopped clock
+scratched winding key
+semaphore lamp
+rooftop signal
+elevator delayed-release mechanism
+grease smudge
+security footage
+fingerprints
+
+That is exciting, but it risks feeling overloaded. The tide + clock + semaphore are enough. The elevator can stay, but it should be simpler.
+
+2. The victim is still unnamed
+
+The story keeps saying “the victim.” Give the victim a name early.
+
+For example:
+
+Sir Malcolm Verity lay at the foot of the terrace steps, his coat dark with seawater.
+
+This would make the case feel less abstract.
+
+3. The murder method is unclear
+
+How did Eastwood actually kill the victim? The story says footage shows him “silencing the victim,” but that is vague.
+
+Add one clear line:
+
+Eastwood struck him during the argument and pushed him down the terrace steps.
+
+or:
+
+Eastwood smothered him in the restricted wing, then moved the body to the terrace.
+
+Without that, Eastwood confesses to manipulation more than murder.
+
+4. Some clue math is messy
+
+You mention:
+
+“wound back by forty minutes”
+“nearly three-quarters of an hour”
+“two-thirds of an hour minutes”
+“four decades of minutes minutes”
+
+Keep one clean phrase:
+
+The clock had been set back forty minutes.
+
+Use it everywhere.
+
+5. Pronoun errors are still bad
+
+Examples: Linda, Sharon, Elisabeth, and Eastwood sometimes get wrong pronouns. Parkins is also sometimes referred to as “she.” These errors pull the score down heavily.
+
+6. Ending is too report-like
+
+The final confrontation works structurally, but lines like:
+
+“Sharon Sheldon’s alibi was confirmed because…”
+
+sound like generated scoring notes. Make it dialogue or narration:
+
+“Sharon was in the dining hall,” Parkins said. “Three guests and two waiters saw her there throughout supper.”
+
+Best current cast setup
+
+Keep this:
+
+Detective: Henry Parkins
+Victim: Sir Malcolm Verity / named hotel guest
+Culprit: Robert Eastwood
+False suspects: Linda Gamble, Sharon Sheldon, Elisabeth Padgett
+Key clue: tide mark contradicts the stopped clock
+Secondary clue: rooftop semaphore flash links Eastwood’s military knowledge to the coordinated deception.
+
+Chapter/section notes
+Discovery on the Terrace
+
+Strong opening. The tide mark and stopped clock conflict is the best part. But it explains too much too early: “the murderer wound back…” should be discovered later.
+
+Contradicting the Clock
+
+Good use of tidal charts. Sharon and Elisabeth add useful tension. Some dialogue cuts off mid-sentence, which hurts polish.
+
+Tampering in the Clock Room
+
+The scratched key and ledger are good concrete evidence. But “after committing the killer” is a major broken phrase.
+
+Rooftop Lamp Flash Report
+
+The lamp signal is a nice genre clue. It adds wartime/post-war flavour. Keep it.
+
+Decoding the Signal
+
+Good clue development. Semaphore keys + lamp smudge make the flash feel intentional. Eastwood’s evasiveness works.
+
+Elevator Secrets
+
+The elevator route is clever but maybe one mechanism too many. If kept, simplify it to: Eastwood used the delayed elevator to pass the victim’s floor unseen.
+
+Alibi Conflicts and Eliminations
+
+Useful structurally, but too report-like. Turn alibi confirmations into sharper dialogue.
+
+Linking Eastwood to the Evidence
+
+This is strong: fingerprints on the winding key and security footage are decisive. But security footage may feel too modern unless the period supports it. If this is post-war 1940s/50s, use a hotel porter witness or surveillance mirror/log instead.
+
+The Discriminating Test
+
+Good idea: reenact tide, clock, and lamp. This is the story’s strongest set-piece. Make it the big reveal scene.
+
+Clearing the Innocent and Culprit Confrontation
+
+Good closure, but too much repeated alibi clearing. Shorten it and focus on Eastwood’s motive and confession.
+
+Fastest fixes to reach 75+
+Name the victim.
+Fix pronouns.
+Keep the time shift exactly forty minutes everywhere.
+Explain how Eastwood killed the victim.
+Reduce the clue set slightly: tide + clock + semaphore should be central.
+Replace “security footage” if the era is post-war but before common CCTV.
+
+This has a very strong mystery identity. With cleaner prose and a clearer murder method, it could become one of your best versions.

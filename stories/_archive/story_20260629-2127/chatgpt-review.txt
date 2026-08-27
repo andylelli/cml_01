@@ -1,0 +1,151 @@
+This is a stronger structural draft, but it has a serious clue-logic problem.
+
+The good news: the core roles are stable.
+
+Investigator: Arthur Langley
+Victim: Edith Marwood
+Culprit: Edward Marwood
+False suspects: Beatrice Hargrave, Charles Whitmore, Daphne Sinclair
+Murder method: stabbing with a dagger
+Cover-up mechanism: staged watch/sundial shadow timeline
+Motive: Edith discovered Edward’s financial fraud / ledger falsification
+
+I’d mark it around 70/100.
+
+Area	Mark	Notes
+Premise / concept	8/10	Sundial shadow plus stopped watch is a fresher mechanism than another hotel clock.
+Opening hook	7/10	Strong body discovery, named victim, named investigator, and immediate physical contradiction.
+Plot structure	8/10	Discovery → testimonies → ledger clue → Edward pressure → access logs → experiment → reveal is a good mystery shape.
+Character clarity	6/10	Roles are clear, but pronoun errors remain: Daphne, Arthur, Edward, and others slip between he/she.
+Dialogue	6/10	Some decent dry Arthur lines, but several exchanges still sound functional.
+Atmosphere / setting	8/10	Marwood Manor, winter garden, sundial, frost, rain, library, ledgers — good setting/mystery match.
+Mystery clues / evidence logic	5/10	The clue idea is good, but the time logic contradicts itself repeatedly.
+Pacing	7/10	Mostly purposeful. The case narrows steadily toward Edward.
+Ending / reveal	7/10	Culprit, motive, method, staging, and consequence are all present.
+Prose / polish	4/10	Prompt leakage, malformed weather/log phrases, and pronoun slips hurt it.
+What works
+
+The setting-mechanism match is the best thing here. A sundial clue belongs naturally in a manor garden, and the stopped watch gives the clue a physical object to anchor around. That is more distinctive than another “clock was tampered with” version.
+
+The plot shape is also strong. The story moves through:
+
+body and sundial clue
+conflicting household timeline
+ledger inconsistencies
+Edward’s financial motive
+access logs
+sundial experiment
+clearances
+Edward’s confession
+
+That is a proper mystery progression.
+
+The ending is more complete than many earlier ones. Edward confesses to stabbing Edith, staging the watch beneath the sundial, instructing the staff to repeat a false timeline, and acting because Edith discovered his financial fraud. That gives method, motive, opportunity, cover-up, and consequence.
+
+Biggest problem
+
+The sundial time logic is confused.
+
+The story gives multiple incompatible times:
+
+watch shows 4:20
+sundial shadow suggests 3:30
+actual murder time was 4:20
+servants claim Edith was alive near sunset
+Edward staged the watch to show 3:30
+Chapter 1 also says the watch shows 4:20, then later says the shadow/watch indicate 3:30
+
+That makes the central clue hard to trust.
+
+For this story to work, the time system must be brutally simple.
+
+Use one clean version:
+
+True murder time: 4:20 p.m.
+Staged time: 3:30 p.m.
+How staged: Edward set Edith’s stopped watch to 3:30 and placed it under the sundial so the shadow would appear to confirm that false time.
+Why it matters: 3:30 gives Edward an alibi or shifts suspicion to the household staff.
+What exposes it: the shadow length and angle at discovery could not have occurred at 3:30 under that day’s light/weather records; the real shadow geometry points to 4:20.
+
+Or reverse it, but do not use both.
+
+Main issues
+1. The opening contradicts itself
+
+Chapter 1 first says:
+
+“The hour stood at twenty minutes past four in the afternoon.”
+
+Then later:
+
+“The time indicated by the sundial’s shadow on the watch face… was unmistakable: half past three in the afternoon.”
+
+Both cannot be the first clear clue unless the distinction is explicitly explained.
+
+Better:
+
+“The stopped watch read half past three, but the shadow crossing it could only have fallen that way at twenty minutes past four.”
+
+That gives a clean contradiction.
+
+2. The weather/log phrases are broken
+
+Several lines look like generated evidence fragments that were pasted into prose:
+
+“The estate’s barometer needle settling on drizzle'the groundskeeper's entry noting silhouettes…”
+“the rainfall tally noted by the manor groundskeeper'Eliza's entry…”
+“drizzle noted in the manor's official diary'security's entry…”
+
+These are severe polish problems. They should become normal prose:
+
+“The groundskeeper’s weather log recorded clear light at 4:20, with shadows sharply visible across the west lawn.”
+
+3. The discriminating test is still semi-abstract
+
+The sundial experiment is a good idea, but it needs to be physically clearer.
+
+Make Arthur do this:
+
+place identical watch on the plinth
+mark the shadow at 3:30
+wait or calculate the 4:20 angle
+compare it with a photograph/sketch/groundkeeper note from the discovery
+show the household that only the 4:20 angle matches the mark on Edith’s watch
+
+Right now the test says the evidence proves itself, but the geometry remains vague.
+
+4. The clearances are too report-like
+
+Chapter 9 and 10 still use lines like:
+
+“Charles Whitmore was cleared because…”
+“Beatrice Hargrave is cleared because…”
+“As for myself—Arthur…”
+
+This sounds like validation output. Arthur does not need to clear himself unless he was genuinely suspected.
+
+Rewrite as deduction:
+
+“Beatrice had been in the kitchen between half past three and the supper bell; three servants had seen her there. Charles was away at the council meeting. Daphne never left the east wing. The logs did not scatter suspicion — they concentrated it.”
+
+5. Pronouns still slip
+
+Daphne is described with masculine pronouns in places, and Arthur/Edward pronouns also drift. This is less destructive than role collapse, but still lowers polish.
+
+Fastest fixes
+Fix the time logic into one clean contradiction.
+Rewrite Chapter 1’s clue sentence so the watch and shadow do not contradict accidentally.
+Convert broken weather/log fragments into clean evidence.
+Make the sundial experiment more physical and visual.
+Remove report-style clearances.
+Fix pronouns throughout.
+Explain exactly how the false 3:30 time protected Edward.
+Overall
+
+This has one of the best premises so far because the sundial mechanism feels fresh and tied to the setting.
+
+But the central clue currently contradicts itself, which is a major issue for a fair-play mystery.
+
+As written: 70/100.
+
+With the time logic fixed and the experiment clarified, this could reach 78–82/100.

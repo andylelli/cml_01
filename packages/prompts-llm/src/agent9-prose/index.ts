@@ -50,3 +50,19 @@ export * from "./regen-integration.js";
 export * from "./regen-registry.js";
 export * from "./model-tiering.js";
 export * from "./generate.js";
+
+// A_75 §6.1 (P1) — the voice-spec engine: generate candidates under a measured `divergeFrom`, judge,
+// commit as a prompt block every chapter carries. The mechanism A_72 §2.1 measured behind `premise`,
+// aimed at the sentence.
+export {
+  generateVoiceSpec,
+  buildVoiceSpecPrompt,
+  buildVoiceSpecJudgePrompt,
+  buildVoiceSpecBlock,
+  buildDivergenceBlock,
+  parseVoiceSpecCandidate,
+  summariseVoiceSpec,
+  isVoiceSpecEnabled,
+  VOICE_SPEC_CANDIDATES,
+} from "./voice-spec-engine.js";
+export type { VoiceSpecContext, VoiceSpecResult } from "./voice-spec-engine.js";

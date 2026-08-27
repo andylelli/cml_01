@@ -1,0 +1,158 @@
+This is stronger than the tide draft and close to the gramophone draft, but it still has some timeline/method confusion and repeated ending material.
+
+The roles are stable:
+
+Investigator: Eleanor Voss
+Victim: Sylvia Trent
+Culprit: Hugo Vane
+False suspects: Dr. Mallory Finch, Beatrice Quill, Captain Ivor Hale
+Murder method: slow-acting botanical poison
+Cover-up mechanism: misleading assumptions about when Sylvia drank / when symptoms began
+Key clue: greenish-brown herbal residue in Sylvia’s glass and Hugo’s hidden library glass
+Motive: envy, rivalry, and fear of what Sylvia was about to publish
+
+I’d score it around 75/100.
+
+Area	Mark	Notes
+Premise / concept	8/10	Slow poison tied to dinner timing is a solid classic-mystery setup.
+Opening hook	6/10	The body/glass image is good, but Chapter 1 starts with reveal-like exposition before the discovery.
+Plot structure	8/10	Discovery → conflicting timing → residue clue → false Mallory theory → Hugo/library glass → final reveal works.
+Character clarity	7/10	Roles are mostly stable. Hugo as culprit is clear; suspects stay alive and distinct.
+Dialogue	6/10	Functional, sometimes stylish, but repeated catchphrases feel artificial.
+Atmosphere / setting	7/10	Foggy seaside hotel, dining room, kitchen, lounge, library all work well.
+Mystery clues / evidence logic	7/10	Better than the tide draft, but the “two hours after ingestion” / “triggered by second course” logic needs cleanup.
+Pacing	8/10	Good investigative progression with a proper false solution.
+Ending / reveal	8/10	Culprit, method, motive, opportunity, and evidence are all stated clearly.
+Prose / polish	5/10	Still has prompt-like phrasing, pronoun slips, and duplicated Chapter 9/10 reveal beats.
+What works
+
+The poison method is much more usable than the tide mechanism. The core chain is clear:
+
+Sylvia seems well during dinner.
+Symptoms appear later.
+The poison was not immediate.
+The tincture in Mallory’s kitchen is harmless, so Mallory is a false suspect.
+A matching residue appears in Sylvia’s glass and Hugo’s hidden library glass.
+Hugo had access before dinner.
+Hugo’s account of the timing is the one that does not fit.
+Hugo confesses.
+
+That is a real fair-play structure.
+
+The false solution against Mallory also works. She is a doctor, has tinctures, behaves evasively, and seems medically capable. Then the harmless tincture and patient log undermine that suspicion. That is a good misdirection.
+
+Hugo as culprit is also stronger than Hale in the tide draft because his motive is personal and literary: envy, rivalry, being outshone, and fear of Sylvia’s planned publication. That fits the cast.
+
+Biggest problem
+
+The poison timing needs one clean rule.
+
+The story says:
+
+the poison becomes lethal exactly two hours after ingestion
+Sylvia consumed the food that triggered the poison at 8:20
+symptoms began after the second course
+the fatal dose was delivered before dinner
+
+These ideas are close, but they blur together.
+
+Pick one clean mechanism:
+
+The poison was swallowed before dinner.
+It was slow-acting and caused symptoms roughly two hours later.
+The second course did not “trigger” it; it merely coincided with the onset.
+
+Or:
+
+The poison was harmless alone but reacted with an ingredient in the second course.
+Hugo dosed her drink earlier, knowing the dish would activate it.
+The time of symptoms proves the dose came before dinner.
+
+Either can work, but not both loosely at once.
+
+Main issues
+1. Chapter 1 starts with the reveal
+
+The opening begins with Eleanor already saying:
+
+“What we know is this. The poison acted slowly…”
+
+That belongs in Chapter 9, not Chapter 1. Then the chapter restarts with Eleanor entering the lobby and finding Sylvia.
+
+Cut the first paragraph and begin with:
+
+“A cool brass handle met Eleanor’s glove…”
+
+That makes the discovery unfold naturally.
+
+2. The glass movement needs clearer handling
+
+The residue appears in several places:
+
+Sylvia’s broken glass near the body
+a glass in the kitchen
+a glass in the library
+a sideboard glass
+
+This is potentially good, but it needs a clean evidence chain.
+
+Suggested version:
+
+Sylvia’s glass is found broken near the body.
+The staff accidentally move some dinner glasses to the kitchen.
+Eleanor later finds Hugo’s own glass hidden in the library with the same residue.
+That proves he handled the same substance.
+
+Right now the glass trail risks feeling repetitive.
+
+3. Chapter 9 and Chapter 10 repeat the same reveal
+
+Chapter 9 already reveals Hugo as the poisoner. Chapter 10 repeats the logic:
+
+Mallory cleared
+Beatrice cleared
+Hale cleared
+Hugo’s glass/residue/timeline exposes him
+Hugo confesses
+
+Chapter 10 should become aftermath only.
+
+4. Clearances are still report-like
+
+The final chapter uses:
+
+“therefore, Dr. Mallory Finch is ruled out”
+“therefore, Beatrice Quill is cleared”
+“therefore, Captain Ivor Hale is innocent”
+
+That is clear, but not very literary. Rewrite as deduction:
+
+Mallory’s tincture was harmless, and the patient log placed her elsewhere. Beatrice had been seen in the corridor after the glass was already prepared. Hale was out before dinner. Only Hugo had been close enough, early enough, and vain enough to make the timing lie.
+
+5. Prompt leakage remains lighter but still present
+
+There are lines like:
+
+“The hour stood at twenty minutes past eight.”
+“The investigation had entered a new phase…”
+“The timeline of events was finally coming into focus…”
+
+These are not catastrophic, but they feel generated. The worst leakage from earlier drafts is mostly gone, which is good.
+
+6. Pronoun drift still appears
+
+There are still spots where Eleanor is referred to with “he/his,” and some suspect pronouns wobble. Less severe than earlier, but it keeps the prose from feeling fully polished.
+
+Fastest fixes
+Delete the reveal-like opening paragraph of Chapter 1.
+Decide whether the poison is simply slow-acting or activated by the second course.
+Clean the glass trail into one clear sequence.
+Make Chapter 10 aftermath only.
+Replace formal clearances with dramatic deduction.
+Fix pronouns throughout.
+Plant Hugo’s jealousy/publication motive a little earlier.
+Overall
+
+This is a good draft. The delayed poison idea is understandable, the false suspect works, and Hugo’s motive fits the story world.
+
+As written: 75/100.

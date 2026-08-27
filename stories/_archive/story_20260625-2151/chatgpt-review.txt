@@ -1,0 +1,122 @@
+I’ll judge this against the same rubric: role stability, clue logic, chapter balance, reveal quality, and prose leakage. I can already see one major issue: Eleanor appears to be both dead victim and later speaking/acting.
+
+Thought for 13s
+
+This is a step forward in reveal clarity, because the ending finally gives Captain Hale a direct murder method: he stabbed Eleanor with a hidden blade, then tampered with the clock. That is much better than the earlier “I manipulated the clock” endings.
+
+But the draft has one huge continuity problem:
+
+Eleanor Voss is dead in Chapter 1, but she keeps appearing alive and speaking in later chapters.
+
+That caps the score hard. I’d mark this around 56/100.
+
+Area	Mark	Notes
+Premise / concept	7/10	Hotel clock, gala, social scandal, and false time of death are all usable.
+Opening hook	5/10	Strong image of body under clock/staircase, but Eleanor seems to enter and see her own corpse.
+Plot structure	5/10	There is a mystery path toward Hale, but the victim-alive contradiction damages the whole plot.
+Character clarity	2/10	Eleanor is both dead victim and later active speaker/witness. Pronouns also slip.
+Dialogue	6/10	Some decent interrogation lines and dry Beatrice remarks.
+Atmosphere / setting	7/10	Seaside hotel, salt air, gala, radio, rain, and lobby clock all work well.
+Mystery clues / evidence logic	6/10	Fingerprints, grease, misaligned clock, false time, and final mechanism are decent, but not cleanly planted.
+Pacing	6/10	The story moves forward, but some chapters repeat suspicion and clock handling.
+Ending / reveal	6/10	Murder method is finally clear, but the reveal is weakened by Eleanor still being present.
+Prose / polish	5/10	Better atmosphere, but still has prompt leakage, broken lines, and pronoun errors.
+What improved
+
+The final confession is much better than many earlier ones. Hale says:
+
+“I killed her. I did it with the blade I kept from the field.”
+
+That directly connects him to the murder, not just the clock tampering. This is exactly the kind of reveal improvement we wanted.
+
+The test scene is also better. Beatrice opens the clock, releases the catch, shows the minute hand springing forward, and proves the displayed time was false. That is a real discriminating test rather than just a speech.
+
+Beatrice is also clearer as the investigator. She takes charge, questions witnesses, follows the clock evidence, and pushes through the false solution.
+
+Biggest problem
+
+Chapter 1 says Eleanor is dead:
+
+Eleanor Voss lies at the foot of the staircase.
+
+But later Eleanor speaks, gives statements, reacts emotionally, and is present during the final trap. The ending even has Beatrice catching Eleanor’s gaze after Hale is led away.
+
+That breaks the story unless those scenes are explicitly flashbacks. The text sometimes says “In a remembered moment,” but it is not controlled enough. It reads as if Eleanor is simply alive after death.
+
+Best fix
+
+Do one of these:
+
+Option A — Eleanor is the victim
+
+Then remove living Eleanor from Chapters 2–10.
+
+Replace her later role with another character, for example:
+
+Victim: Eleanor Voss
+Investigator: Beatrice Quill
+Culprit: Captain Ivor Hale
+False suspect: Dr. Mallory Finch
+Witness / secret-holder: Lydia Voss, Eleanor’s sister
+Other suspect: hotel manager or receptionist
+
+Option B — Eleanor is alive
+
+Then make someone else the victim.
+
+For example:
+
+Victim: Vivian Ashcroft, gala organiser
+Investigator: Beatrice Quill
+Culprit: Captain Ivor Hale
+Witness: Eleanor Voss
+False suspect: Dr. Mallory Finch
+
+This may be easier because the later chapters already use Eleanor as a witness/secret-holder.
+
+Other issues
+1. Chapter 1 is confusing
+
+It starts with Eleanor entering, then seeing what appears to be her own dead body:
+
+“Eleanor Voss's gloved hand…”
+then
+“lay a woman's body-her own reflection…”
+then
+“Eleanor Voss… now lay…”
+
+That is the core confusion. The opening should not use the victim’s viewpoint if she is already dead.
+
+Better:
+
+Beatrice Quill entered the lobby and saw Eleanor Voss lying at the foot of the staircase.
+
+2. The false solution works, but the wrong people are present
+
+Dr. Finch as the false suspect is good. Her solitary library alibi, argument over accounts, and nervousness give her plausible suspicion. But Eleanor’s living presence keeps undermining that structure.
+
+3. Prompt leakage still appears
+
+This is bad:
+
+“Beatrice Quill surfaced the next hard detail…”
+“captain, ivor, hale, seen, acting, nervously…”
+“The chapter treated those facts as observable evidence…”
+
+That is validation/planning language leaking into prose. It hurts polish and immersion.
+
+4. Chapter 9 and Chapter 10 may still overlap
+
+Chapter 9 already exposes Hale and has him taken into custody. Then Chapter 10 begins another revelation. That is likely repetitive unless Chapter 10 is purely aftermath.
+
+5. Pronouns still slip
+
+There are several moments where “he/him” or “she/her” are attached to the wrong person. This is less severe than the dead-victim issue, but still damages readability.
+
+Overall
+
+This draft has better mystery machinery and a better final confession, but the Eleanor contradiction is too big.
+
+Without that problem, this could be around 72–75/100.
+
+As written, because the victim appears alive repeatedly, I’d keep it around 56/100.

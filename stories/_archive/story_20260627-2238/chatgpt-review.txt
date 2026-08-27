@@ -1,0 +1,132 @@
+This is better than the unclear-victim version, because the victim is finally named clearly:
+
+Victim: Hugo Vane
+Investigator: Eleanor Voss
+Culprit: Dr. Mallory Finch
+False suspects: Captain Ivor Hale, Beatrice Quill, Sylvia Trent
+Murder method: strangulation
+Cover-up mechanism: grand clock tampered with using winding key
+Key contradiction: Hugo’s pocket watch says 11:10, grand clock says 10:45.
+
+I’d mark this around 71/100.
+
+Area	Mark	Notes
+Premise / concept	7/10	Two conflicting timepieces is a good core mystery device.
+Opening hook	7/10	Stronger: Hugo Vane is named immediately, and the body/clock contradiction appears early.
+Plot structure	7/10	Discovery → alibis → clock key → suspect pressure → test → reveal → aftermath works.
+Character clarity	6/10	Roles are mostly clear, but pronoun drift is still a major issue.
+Dialogue	6/10	Functional, sometimes atmospheric, but often report-like.
+Atmosphere / setting	7/10	Seaside hotel, rain, radio, rationing, polished brass all support the mood.
+Mystery clues / evidence logic	7/10	Pocket watch vs grand clock, scratches, winding key, Finch’s proximity, and strangulation create a fair chain.
+Pacing	7/10	Better: only 9 chapters, with a clearer aftermath.
+Ending / reveal	7/10	Finch confesses to killing Hugo and tampering with the clock. The method is clear.
+Prose / polish	6/10	More readable, but still has prompt leakage, odd location phrases, and pronoun mistakes.
+What improved
+
+The victim problem is fixed. Hugo Vane is named in Chapter 1 and stays dead. Eleanor is now clearly the investigator, not the corpse. That alone makes the draft much more workable.
+
+The central clue is also stronger than the previous version because it uses two time sources:
+
+Hugo’s pocket watch: ten minutes past eleven
+grand clock: quarter to eleven
+
+That creates a clean contradiction.
+
+The reveal also has the right major ingredients:
+
+Finch tampered with the clock.
+Finch had access to the winding key.
+Finch feared exposure because of Hugo’s painting.
+Hugo was strangled.
+Finch confesses.
+
+That is a complete mystery solution.
+
+Biggest problems
+1. Pronouns are still badly unstable
+
+This is the largest remaining problem. Dr. Mallory Finch is introduced with he/his, then later becomes she/her in places. Captain Hale is also sometimes described with feminine pronouns.
+
+Examples:
+
+“Dr. Mallory Finch stood nearest the body, his posture…”
+later, “Dr. Mallory Finch's composure faltered. She adjusted her cufflinks…”
+
+This hurts character clarity. It does not destroy the story like the earlier dead-victim issue, but it stops the score going higher.
+
+2. Chapter 3 introduces an 8:45 commotion that confuses the timeline
+
+The story already has a strong time contradiction:
+
+pocket watch 11:10
+grand clock 10:45
+
+Then Chapter 3 adds:
+
+witnesses heard a commotion around 8:45
+
+That muddies the case. If 8:45 matters, it needs a clear function. Otherwise, remove it.
+
+Cleaner version:
+
+Witnesses heard a commotion shortly after 11:00, but the grand clock said 10:45.
+
+Keep the time puzzle simple.
+
+3. The discriminating test is not strong enough
+
+Chapter 7 is called “The Final Test,” but the test mostly consists of Eleanor confronting Finch with the key, clock, and proximity. It does not physically demonstrate enough.
+
+A stronger test would be:
+
+Eleanor inserts the winding key.
+She shows the grand clock can be set backward without stopping the chime.
+She compares the scratch pattern made by the key to the existing scratch.
+She proves the clock was changed from 11:10 to 10:45 after Hugo died.
+
+Right now it is more of an accusation than a true test.
+
+4. Prompt leakage remains
+
+This line is still bad:
+
+“Eleanor Voss pressed on to the next concrete detail: Clock winding fireplace. That detail shifted the reasoning.”
+
+That must be removed. It is internal reasoning/proof text, not story prose.
+
+There are also repeated generated-style lines like:
+
+“the emotional cost of the crime…”
+“the uneasy truce between…”
+“the pursuit of answers continued…”
+
+These are not as bad as raw leakage, but they feel formulaic.
+
+5. The final clearance section is too report-like
+
+Chapter 9 clears everyone again, including Eleanor herself:
+
+“I was cleared because my movements…”
+
+This feels like validation output, not fiction. The investigator does not usually need to formally clear herself unless the story made her a real suspect.
+
+Better:
+
+Eleanor let the others’ relief settle. Hale had been seen too often to be guilty; Beatrice had never left the kitchen; Sylvia’s library witnesses held. The case no longer needed their fear.
+
+Same information, but prose-like.
+
+Fastest fixes
+Lock pronouns for every character.
+Remove or clarify the 8:45 commotion.
+Make the final test physically demonstrate the clock manipulation.
+Delete all prompt leakage.
+Rewrite Chapter 9 as emotional aftermath, not clearance report.
+Explain exactly why changing the grand clock to 10:45 protected Finch or implicated others.
+Overall
+
+This is a solid improvement over the previous draft. It fixes the victim-name issue and has a complete culprit/method/mechanism chain.
+
+As written: 71/100.
+
+With pronouns fixed, the 8:45 confusion removed, and a stronger physical clock test, this could reach 77–80/100.

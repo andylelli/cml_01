@@ -1,0 +1,136 @@
+This version is better than the last Seabreeze/Seaview hotel drafts, especially on structure and character pressure. It now has a mostly clear spine:
+
+Investigator: Eleanor Voss
+Victim: Ashcroft, hotel owner
+Culprit: Beatrice Quill
+False suspects: Dr. Mallory Finch and Captain Hale
+Core mechanism: main mechanical clock wound back forty minutes, contradicted by the tidal water clock
+Supporting clues: torn shift schedule, service elevator footprints, clock access, Beatrice’s motive
+
+I’d mark it around 69/100. It is close to the low 70s, but still held back by early over-explanation, awkward prose, and a slightly incomplete murder method.
+
+Area	Mark	Notes
+Premise / concept	8/10	Tidal water clock vs mechanical clock is a strong, distinctive mystery device.
+Opening hook	6/10	Atmosphere is strong, but the body is introduced too late after lots of clock explanation.
+Plot structure	7/10	The case moves clearly toward Beatrice through schedule, elevator, access, and motive.
+Character clarity	6/10	Much better: Ashcroft is victim, Eleanor investigates, Beatrice is culprit. Some naming/prose issues remain.
+Dialogue	5/10	Functional, but many lines are cut off or unfinished.
+Atmosphere / setting	7/10	Coastal hotel, fog, tide, clocks, coal smoke, Atlantic waves all work well.
+Mystery clues	7/10	Good chain: tidal clock, torn schedule, elevator footprints, clock mechanism, Beatrice’s access.
+Pacing	6/10	It advances well, but repeats the clock/schedule logic too often.
+Ending / reveal	6/10	Beatrice confesses, but the exact killing action is still vague.
+Prose / polish	5/10	Better than many earlier drafts, but still has encoding issues, “the doctor Finch,” “the captain Hale,” and unfinished sentences.
+What improved
+
+The character pressure is stronger. Beatrice now has an actual emotional/moral conflict: Ashcroft promised her a future, threatened her, and planned hotel expansion that would damage the coastal ecosystem. That gives her more than a generic “secret” motive.
+
+The clue chain also makes more sense:
+
+tidal clock shows the main clock is false → schedule is altered → service elevator footprints contradict Beatrice’s shift claim → Beatrice had clock access → Beatrice had motive → Beatrice confesses.
+
+That is a working mystery progression.
+
+Biggest remaining issues
+1. Chapter 1 still explains too much too early
+
+This line gives away the mechanism too directly:
+
+“The culprit wound back the main mechanical clock by forty minutes…”
+
+That should not appear in Chapter 1. Chapter 1 should only show the contradiction:
+
+The main clock showed 9:15.
+The tidal clock indicated 9:30.
+Eleanor realised one of them was lying.
+
+Save “wound back forty minutes” for the later test or reveal.
+
+2. The victim is named, but awkwardly
+
+The story says:
+
+“The body was that of a gentleman Ashcroft…”
+
+That should be cleaner:
+
+“The body was Ashcroft, the hotel’s owner…”
+
+Even better:
+
+“Julian Ashcroft, the hotel’s owner, lay at the foot of the grand staircase…”
+
+A full name would make him feel more like a person and less like a function.
+
+3. The body appears too late
+
+Chapter 1 spends several paragraphs on clocks before showing Ashcroft’s body. For mystery impact, the order should be:
+
+hotel atmosphere → body → investigator reaction → suspects → first clock contradiction
+
+Right now it is:
+
+hotel atmosphere → clock → tidal clock → explanation of tampering → suspects → body
+
+That makes the opening feel more like clue analysis than discovery.
+
+4. The murder method is still not clear enough
+
+Beatrice says:
+
+“I confronted him in Guest Room 207… When he refused, I acted in desperation.”
+
+That explains motive and concealment, but not the death itself. Did she strike him, poison him, push him, suffocate him?
+
+Add one clear line:
+
+“I struck him with the brass doorstop when he turned away. I never meant the blow to kill him.”
+
+or:
+
+“I pushed him during the struggle, and he hit his head against the bedframe.”
+
+Without that, she confesses to the situation and cover-up more than the actual murder.
+
+5. The setting/character percentages are closer, but still not perfect
+
+This draft is roughly:
+
+Setting: 20%
+Character pressure: 30–35%
+Mystery/clue movement: 45–50%
+
+Target for this kind of story should be closer to:
+
+Setting: 10–15%
+Character pressure: 35–40%
+Mystery/clue movement: 45–50%
+
+So the clue movement is about right. The main adjustment is still:
+
+reduce repeated atmosphere by 5–10%, and give that space to character pressure or sharper clue action.
+
+6. The final clearance section is too report-like
+
+The ending has lines like:
+
+“the doctor Finch was cleared because…”
+“the captain Hale was cleared because…”
+“As for myself, Eleanor Voss was present…”
+
+That reads like validation output rather than fiction. It should be dramatized:
+
+“Dr. Finch never left the guest corridor,” Eleanor said. “Three guests saw her there, and the corridor log agrees.”
+Finch closed her eyes in relief.
+
+Same information, more story-like.
+
+Best fix list
+Move the full clock-tampering explanation out of Chapter 1.
+Give Ashcroft a full name and introduce the body earlier.
+State exactly how Beatrice killed him.
+Reduce repeated fog/coal/salt atmosphere in later chapters.
+Rewrite the final clearance as dramatic dialogue, not report language.
+Fix cut-off sentences and encoding issues like â€™.
+Overall
+
+This is a solid improvement. The hotel/tidal-clock setup is one of your better concepts, and this draft finally has a coherent culprit path. With a cleaner Chapter 1 and a clearer murder method, I’d expect it to rise from about 69/100 to 74–76/100.
