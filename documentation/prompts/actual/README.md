@@ -4,10 +4,15 @@ Generated from real run-time LLM request/response logs.
 
 ## Runs
 
-- [run_20260825-1819_mystery](./run_20260825-1819_mystery/INDEX.md)
-- [run_20260825-2018_mystery](./run_20260825-2018_mystery/INDEX.md)
-- [run_20260825-2035_mystery](./run_20260825-2035_mystery/INDEX.md)
-- [run_20260825-2045_mystery](./run_20260825-2045_mystery/INDEX.md)
-- [run_20260826-1653_mystery](./run_20260826-1653_mystery/INDEX.md)
-- [run_20260826-1715_mystery](./run_20260826-1715_mystery/INDEX.md)
-- [run_20260826-1730_mystery](./run_20260826-1730_mystery/INDEX.md)
+- [run_20260821-1850_mystery](./run_20260821-1850_mystery/INDEX.md)
+- [run_20260821-1856_mystery](./run_20260821-1856_mystery/INDEX.md)
+- [run_20260821-1958_mystery](./run_20260821-1958_mystery/INDEX.md)
+- [run_20260822-0910_mystery](./run_20260822-0910_mystery/INDEX.md)
+- [run_20260822-0928_mystery](./run_20260822-0928_mystery/INDEX.md)
+- [run_20260822-0947_mystery](./run_20260822-0947_mystery/INDEX.md)
+- [run_20260822-1009_mystery](./run_20260822-1009_mystery/INDEX.md)
+- [run_20260822-1024_mystery](./run_20260822-1024_mystery/INDEX.md)
+- [run_20260823-1558_mystery](./run_20260823-1558_mystery/INDEX.md)
+- [run_20260823-1919_mystery](./run_20260823-1919_mystery/INDEX.md)
+- [run_20260827-1850_resume](./run_20260827-1850_resume/INDEX.md)
+- [run_20260827-1905_resume](./run_20260827-1905_resume/INDEX.md)

@@ -421,3 +421,70 @@ The P1 falsification is unchanged and is the reason to run at all: **conformance
 still at 6–7 across two cold reads kills the hypothesis**, and [A_72](../ANALYSIS_72/ANALYSIS_72.md)'s
 Tier 4 reopens with evidence instead of assumption.
 
+---
+
+## 8. THE MATCHED PAIR — 2026-08-27
+
+The first paired experiment this project has been able to run. Getting to it required two fixes that
+had nothing to do with prose, and it produced a result before the second arm even finished.
+
+### 8.1 The discipline was not executable, and nobody had noticed
+
+[A_74 §6.1](../ANALYSIS_74/ANALYSIS_74.md) concluded that no judge model resolves a gap under ~7 marks
+here, so the only instrument that resolves a single mark is a human reading two books that differ in
+exactly one thing. **That recommendation stood for days and could not be carried out.** Two fresh runs
+give two different books, and `resume-run` refuses outright when every stage has an artifact — which a
+completed run always does.
+
+Worse, underneath it: `runAgent9` hard-required `coverageResult` and `outlineCoverageIssues`, which are
+UNPERSISTED side effects of stages a resume skips. So **every Agent-9 resume ever attempted died before
+its first LLM call** — the exact scenario `resume-run.ts` says it exists for (*"a run that dies at Agent
+9 has already produced thirteen stages of artifacts and spent ~£1.40 of its ~£1.50"*). Found by running
+it, not by reading it.
+
+Both fixed. `RESUME_REDO=prose` re-runs one stage against byte-identical persisted upstream; the two
+derived signals now degrade and report UNEVALUATED rather than block, and their report fields go NULL
+rather than `false` — a check that did not run must not be reportable as a check that passed.
+
+### 8.2 A change made minutes before the run is why arm B has a spec at all
+
+The divergence block stated the forbidden means and not the OPEN bands. A model asked to avoid twenty
+numbers between 13.6 and 17.2 returns 13–17 anyway, because that is where its register sits — every
+candidate rejected, no spec committed, and **arm B silently becomes a copy of arm A**, which is the
+worst possible outcome for a paired experiment: two identical books read as evidence that the lever
+does nothing.
+
+The block now names what is available — `9.0 to 11.6` and `19.2 to 22.0` — and the result was
+immediate. All three candidates landed inside those bands and all three passed validation:
+
+| | mean | diction | distance | signature move |
+|---|---:|---|---|---|
+| 0 | 10.5±4.5 | clipped-reportorial | cool-observer | abrupt scene breaks, like camera cuts |
+| 1 | 20.0±6.5 | latinate-formal | close-third-interior | extended metaphors across paragraphs |
+| 2 | 19.5±5.5 | mixed-period | wry-companion | direct address to the reader |
+
+**This is the first time this pipeline has been asked to choose how a book sounds.** Whether it helps
+is a separate question and only a reader answers it.
+
+### 8.3 Arm A reproduced §3's uniformity, live
+
+```
+arm A mean sentence length : 15.69 words   (sd 7.54, 577 sentences)
+the corpus                 : 20 books, 13.6-17.2, mean 15.61
+```
+
+**Dead centre.** Given no instruction about voice, the pipeline returned the corpus mean to within
+0.08 words. §3 was measured over finished manuscripts; this is the same finding produced on demand.
+
+Its machine-register rate is 10.6% — at the level of the two books a reader gave `prose` 8, which is
+worth noting and not over-reading: the rate tracks the mark across 40 books (rho = −0.421), but on any
+single book it is a health signal, not a score.
+
+### 8.4 What arm A did NOT settle
+
+**Zero injected sentences of any kind** — neither the old non-compliant forms nor the new ones. Neither
+the culprit floor nor the clue injector fired, so `AGENT9_CULPRIT_INJECTION_IN_SCENE` and
+`AGENT9_CLUE_LIST_GRAMMAR` had nothing to do and remain unverified in production. Their debt is NOT
+cleared by this run, and saying otherwise would be exactly the "silence recorded as a pass" defect this
+document has now catalogued three times.
+
