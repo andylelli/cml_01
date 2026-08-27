@@ -350,3 +350,18 @@ export {
   findModelBoundRuleViolations,
 } from "./agent9-prose/lint.js";
 export type { ModelBoundSentenceRule } from "./agent9-prose/lint.js";
+
+// A_75 §6.1 (P1) — the voice-spec engine. Exported at top level so the worker can commit a voice
+// once per story before chapter 1.
+export {
+  generateVoiceSpec,
+  buildVoiceSpecPrompt,
+  buildVoiceSpecJudgePrompt,
+  buildVoiceSpecBlock,
+  buildDivergenceBlock,
+  parseVoiceSpecCandidate,
+  summariseVoiceSpec,
+  isVoiceSpecEnabled,
+  VOICE_SPEC_CANDIDATES,
+} from "./agent9-prose/voice-spec-engine.js";
+export type { VoiceSpecContext, VoiceSpecResult } from "./agent9-prose/voice-spec-engine.js";

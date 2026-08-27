@@ -255,7 +255,7 @@ export async function generateVoiceSpec(
       ? parsed.candidates
       : Array.isArray(parsed) ? parsed : [parsed];
 
-    const candidates = rawList
+    const candidates: VoiceSpecResult["candidates"] = rawList
       .map(parseVoiceSpecCandidate)
       .filter((s): s is VoiceSpec => s !== null)
       .map((spec) => ({ spec, rejected: validateVoiceSpec(spec, recent).problems }));

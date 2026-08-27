@@ -97,6 +97,11 @@ export interface PromptSectionInputs {
    * with the flag off the prompt is byte-identical to what it has always emitted.
    */
   judgedOnBlock?: string;
+  /**
+   * A_75 §6.1 (P1) — this book's committed voice. Run-stable, so it lands in the cached prefix and is
+   * paid for once. Empty unless `AGENT9_VOICE_SPEC` is set.
+   */
+  voiceSpecBlock?: string;
   sceneGroundingChecklist: string;
   provisionalScoringFeedbackBlock: string;
   worldDocumentBlock: string;

@@ -101,6 +101,12 @@ export interface ProseGenerationInputs {
   /** Live narrative state threaded through prose batches — prevents style/fact repetition. */
   narrativeState?: NarrativeState;
   writingGuides?: { humour?: string; craft?: string };
+  /**
+   * A_75 §6.1 (P1) — the voice this book committed to before chapter 1, chosen by the generate →
+   * judge → commit engine and honoured by every chapter. Absent unless `AGENT9_VOICE_SPEC` is on, so
+   * the prompt is byte-identical to today with the flag off.
+   */
+  voiceSpec?: import("@cml/prose-guard").VoiceSpec | null;
   runId?: string;
   projectId?: string;
   /** Optional anti-template linter profile; repair mode relaxes early-chapter entropy checks. */

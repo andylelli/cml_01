@@ -20,6 +20,8 @@ import {
   buildAssetLibrary,
   checkNSDParity,
   generateProse,
+  generateVoiceSpec,
+  isVoiceSpecEnabled,
   blindReadProse,
   isProseBlindReaderEnabled,
   initNarrativeState,
@@ -95,7 +97,7 @@ import {
   // A_73 §11.1 — the one prose-stage clearance vocabulary.
   CLEARANCE_TERMS_RE,
 } from "@cml/prompts-llm";
-import { noScaffoldValidator, detectTemplateLeakage, detectScaffoldNotProse, detectDerivedContradictionLeak, detectEvidentiaryRegister, machineRegisterRate, REGISTER_TELEMETRY_THRESHOLD } from "@cml/prose-guard";
+import { noScaffoldValidator, detectTemplateLeakage, detectScaffoldNotProse, detectDerivedContradictionLeak, detectEvidentiaryRegister, machineRegisterRate, REGISTER_TELEMETRY_THRESHOLD, bookVoiceConformance, VOICE_CONFORMANCE_DELIVERED } from "@cml/prose-guard";
 import {
   chapterIndexFor,
   checkManuscriptGeometry,
@@ -4531,11 +4533,56 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     }
   }
 
+  /**
+   * ── A_75 §6.1 (P1) — COMMIT THE VOICE, ONCE, BEFORE CHAPTER ONE ────────────────────────────────
+   *
+   * The mechanism A_72 §2.1 measured behind `premise`, the only category that is routinely praised:
+   * generate candidates under an explicit `divergeFrom`, judge, commit as a constraint every
+   * downstream step honours. Here it commits how the book SOUNDS.
+   *
+   * ONCE per story, not per chapter — a per-chapter decision would give each chapter its own voice,
+   * which is A_75 §3's uniformity problem with extra steps. Two design-tier calls (generate + judge),
+   * and the judge is skipped when only one candidate survives validation.
+   *
+   * It CANNOT stop a run. Any failure leaves `voiceSpec` null and the prompt is byte-identical to
+   * today — the same reasoning B1 applied to geometry: a craft lever that can abort is an off switch.
+   */
+  let committedVoiceSpec: import("@cml/prose-guard").VoiceSpec | null = null;
+  if (isVoiceSpecEnabled()) {
+    const voiceResult = await generateVoiceSpec(client, {
+      runId: ctx.runId,
+      projectId: ctx.projectId,
+      title: (cml as any)?.CASE?.title ?? (narrative as any)?.title,
+      settingSummary: (cml as any)?.CASE?.setting?.location ?? undefined,
+      era: (cml as any)?.CASE?.setting?.era ?? undefined,
+    });
+    committedVoiceSpec = voiceResult.spec;
+    if (typeof prose?.cost === "number" && voiceResult.cost > 0) prose.cost += voiceResult.cost;
+    if (voiceResult.spec) {
+      const s = voiceResult.spec;
+      ctx.warnings.push(
+        `[Agent 9] VOICE SPEC committed: ${s.sentenceLength.mean.toFixed(1)}±${s.sentenceLength.sd.toFixed(1)} words, ` +
+        `${s.diction}, ${s.narrationDistance} — habit "${s.syntacticHabit.slice(0, 70)}", ` +
+        `signature "${s.signatureMove.slice(0, 70)}" (£${voiceResult.cost.toFixed(3)}, ${voiceResult.candidates.length} candidates).`,
+      );
+      // The REJECTED candidates are the evidence that the divergence gate is doing work rather than
+      // waving everything through — a run where nothing is ever rejected has a gate that never fires.
+      for (const c of voiceResult.candidates.filter((x) => x.rejected.length > 0)) {
+        ctx.warnings.push(`[Agent 9] voice candidate rejected (${c.spec.sentenceLength.mean.toFixed(1)} words): ${c.rejected.join("; ")}`);
+      }
+    } else {
+      ctx.warnings.push(
+        `[Agent 9] VOICE SPEC not committed: ${voiceResult.error ?? "no candidate"} — chapters are written without a voice block (prompt unchanged).`,
+      );
+    }
+  }
+
   try {
     prose = await generateProse(client, {
     caseData: cml,
     outline: narrative,
     cast: castDesign,
+    voiceSpec: committedVoiceSpec,
     ...proseModelOverride,
     detectiveType: inputs.detectiveType,
     worldDocument: ctx.worldDocument,
@@ -5568,6 +5615,10 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       caseData: cml,
       outline: narrative,
       cast: castDesign,
+      // The SAME committed spec — a schema-repair retry that re-decided the voice would produce a
+      // book written half in one voice and half in another, and the conformance number would then be
+      // measuring the retry rather than the lever.
+      voiceSpec: committedVoiceSpec,
       ...proseModelOverride,
       detectiveType: inputs.detectiveType,
       worldDocument: ctx.worldDocument,
@@ -6034,6 +6085,35 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       // per-sentence score at threshold 4 was measured and REJECTED as a lever (rho = +0.207, wrong
       // sign) — see machine-register.ts. Nothing acts on this number; it is a health signal, and the
       // run-to-run series is what makes it worth carrying.
+      /**
+       * A_75 §6.1 (P1) — DID THE BOOK KEEP ITS VOICE?
+       *
+       * The one prose number in this pipeline that points UPWARD rather than counting defects, and
+       * the only reason P1 is worth running rather than arguing about: it separates "the spec never
+       * reached the prose" from "the spec reached the prose and did not help", which are different
+       * outcomes with different next moves.
+       *
+       * §6.1's falsification, stated before the build and repeated here where it will be read:
+       * **conformance >= 0.8 with `prose` still at 6-7 across two external cold reads kills the
+       * hypothesis**, and A_72's Tier 4 (the generation model) reopens with evidence.
+       *
+       * Chapters delivered is reported beside the mean on purpose — five chapters at 1.0 and five at
+       * 0.2 average the same as ten at 0.6, and those are different failures.
+       */
+      if (committedVoiceSpec) {
+        const conf = bookVoiceConformance(chapterTextsA65, committedVoiceSpec);
+        const worst = conf.chapters
+          .map((c, i) => ({ ch: i + 1, ...c }))
+          .filter((c) => c.sentences > 0)
+          .sort((a, b) => a.score - b.score)[0];
+        ctx.warnings.push(
+          `[Agent 9] VOICE CONFORMANCE ${conf.mean.toFixed(2)} ` +
+          `(target ${committedVoiceSpec.sentenceLength.mean.toFixed(1)}±${committedVoiceSpec.sentenceLength.sd.toFixed(1)} words; ` +
+          `${conf.chaptersDelivered}/${conf.chapters.filter((c) => c.sentences > 0).length} chapters at >=${VOICE_CONFORMANCE_DELIVERED})` +
+          `${worst ? `, worst ch${worst.ch} at ${worst.score.toFixed(2)} (${worst.observedMean.toFixed(1)} words, drift ${worst.drift > 0 ? "+" : ""}${worst.drift.toFixed(1)})` : ""}` +
+          ` — A_75 P1. >=${VOICE_CONFORMANCE_DELIVERED} means the spec REACHED the prose; whether it helped is the reader's call.`,
+        );
+      }
       {
         const whole = machineRegisterRate(chapterTextsA65.join(" "), REGISTER_TELEMETRY_THRESHOLD);
         const perChapter = chapterTextsA65

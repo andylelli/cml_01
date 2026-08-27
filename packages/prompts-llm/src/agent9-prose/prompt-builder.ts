@@ -59,6 +59,7 @@ import {
 } from "./phrase-analysis.js";
 import type { BeatFingerprint } from "./phrase-analysis.js";
 import { buildChapterObligationBlock } from "./obligation-block.js";
+import { buildVoiceSpecBlock } from "./voice-spec-engine.js";
 import {
   buildPronounAccuracyBlock,
   buildCharacterContractsBlock,
@@ -1292,6 +1293,20 @@ export const buildPromptContextBlocks = (sections: PromptSectionInputs): PromptC
      * `locked_facts` or `geometry_time` ever are.
      */
     { key: 'judged_on', content: sections.judgedOnBlock ?? '', priority: 'high', stability: 'run' },
+    /**
+     * A_75 §6.1 (P1) — this book's committed voice. Run-stable so it lands in the cached prefix and
+     * is paid for once; `high` so it sits with the other craft blocks and can never displace
+     * `locked_facts` or `geometry_time`.
+     *
+     * Placed AFTER `craft_guide` and `judged_on` deliberately, and the direction matters: the drop
+     * loop walks candidates in ARRAY ORDER and drops from the FRONT, so later in this array means
+     * dropped LATER. X47 measured `craft_guide` and `judged_on` dying on chapters 8-10 of a
+     * ten-chapter book. A voice held for seven chapters and abandoned for three is not a voice a
+     * reader notices — dropping this block costs the whole lever rather than degrading it — so of the
+     * craft blocks it goes last. (The first version of this line sat BEFORE `craft_guide` with a
+     * comment claiming it went last. Reading the loop is what caught it.)
+     */
+    { key: 'voice_spec', content: sections.voiceSpecBlock ?? '', priority: 'high', stability: 'run' },
     { key: 'scene_grounding', content: sections.sceneGroundingChecklist, priority: 'critical', stability: 'chapter' },
     { key: 'provisional_scoring_feedback', content: sections.provisionalScoringFeedbackBlock, priority: 'critical', stability: 'attempt' },
     { key: 'pronoun_accuracy', content: sections.pronounAccuracyBlock, priority: 'critical', stability: 'pinned_last' }, // recency fix: moved from position 0 to last
@@ -1356,6 +1371,11 @@ const CRAFT_INPUT_BLOCKS = new Set([
   'character_contracts',
   'craft_guide',
   'judged_on',
+  // A_75 §6.1 (P1). This is a craft input by the same argument as `craft_guide` — it feeds prose,
+  // pacing and hook — and it has the sharper claim: a voice held for seven chapters and dropped for
+  // three is not a voice the reader notices, so dropping it costs the entire lever rather than
+  // degrading it.
+  'voice_spec',
 ]);
 
 /**
@@ -1419,6 +1439,7 @@ export const applyPromptBudgeting = (
     continuity_context: 500,    // chapter-summary + recurring-phrase list; compact by design
     humour_guide: 850,          // full humour guidelines page; 850 matches craft_guide budget
     craft_guide: 850,           // emotional-depth guidelines page; 850 tested empirically against full content
+    voice_spec: 260,            // A_75 P1 — eight short lines by construction; 260 leaves margin for a long signature move
 
     /**
      * A_73 §31 — THE CRITICAL FLOOR WAS UNBOUNDED, AND THAT IS WHY THE SQUEEZE IS FUTILE.
@@ -1996,6 +2017,10 @@ ${victimIdentityRule}`;
   }
 
   const judgedOnBlock = buildJudgedOnBlock(isRubricInPromptEnabled());
+  // A_75 §6.1 (P1). The spec is COMMITTED upstream (agent9-run, once per story) and merely rendered
+  // here — deciding a voice inside the per-chapter prompt builder would give each chapter its own,
+  // which is the uniformity problem with extra steps.
+  const voiceSpecBlock = buildVoiceSpecBlock(inputs.voiceSpec ?? null);
 
   const qualityGuardrails = Array.isArray(inputs.qualityGuardrails) ? inputs.qualityGuardrails : [];
   const rolloutFlagsRaw = (getGenerationParams().agent9_prose as any)?.rollout_flags;
@@ -2364,6 +2389,7 @@ ${victimIdentityRule}`;
     humourGuideBlock,
     craftGuideBlock,
     judgedOnBlock,
+    voiceSpecBlock,
     sceneGroundingChecklist,
     provisionalScoringFeedbackBlock,
     worldDocumentBlock,
