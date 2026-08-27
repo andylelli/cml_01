@@ -1010,9 +1010,9 @@
       "crimeSubtype": "stabbed with a hotel letter opener",
       "deathMethod": "stabbed with a hotel letter opener",
       "axis": "temporal",
-      "falseAssumption": "The murder occurred exactly at the time the grand clock displayed \u2014 a quarter to three.",
+      "falseAssumption": "The murder occurred exactly at the time the grand clock displayed — a quarter to three.",
       "discrimMethod": "constraint_proof",
-      "discrimDesign": "A controlled re-enactment compares the clock\u2019s displayed time against the kitchen timer\u2019s stopped position, the pendulum scuff marks, and guest testimonies about clock chimes to prove the pendulum was stopped for forty minutes. This establishes the actual time of death as two o\u2019clock, exposing the false alibi timeline. The test also confirms only Captain Ivor Hale had access and mechanical knowledge to effect the clock tampering within the critical period.",
+      "discrimDesign": "A controlled re-enactment compares the clock’s displayed time against the kitchen timer’s stopped position, the pendulum scuff marks, and guest testimonies about clock chimes to prove the pendulum was stopped for forty minutes. This establishes the actual time of death as two o’clock, exposing the false alibi timeline. The test also confirms only Captain Ivor Hale had access and mechanical knowledge to effect the clock tampering within the critical period.",
       "premise": "At a cliffside seaside hotel in post-war Cornwall, the respected Dr. Mallory Finch is brutally stabbed. The grand hotel clock shows the murder time as a quarter to three, consistent with guest testimonies. However, the detective Eleanor Voss uncovers that the clock's pendulum was silently paused for forty minutes, creating a false timeline. Through careful examination of the clock's mechanism, guest alibis, and the hotel's kitchen timer, Eleanor reveals a cunning temporal deception that hides the true time of death and exposes the culprit."
     },
     {
@@ -1038,8 +1038,8 @@
       "axis": "temporal",
       "falseAssumption": "The grandfather clock displayed the correct time during the murder evening.",
       "discrimMethod": "constraint_proof",
-      "discrimDesign": "Comparing the grandfather clock face time with independent ship\u2019s bell chimes and measuring the pendulum bob size in front of all suspects exposes the deliberate tampering. The test confirms the fourteen-minute lag and shows only Hugo Vane had the access and opportunity to perform the adjustment, disproving Captain Hale\u2019s alibi and proving Vane\u2019s guilt.",
-      "premise": "At the coastal Cliffside Hotel in post-war Cornwall, the elegant Eleanor Voss is found stabbed in her suite. Initial evidence and witness accounts point to Captain Ivor Hale as the prime suspect, supported by an apparently airtight timeline verified by the hotel\u2019s grandfather clock. However, Dr. Mallory Finch uncovers a subtle tampering of the clock\u2019s pendulum length, which has shifted the official time by fourteen minutes, creating a false alibi for the real murderer. Through careful investigation of the clock\u2019s mechanics and contradictory witness statements, Finch reveals the true culprit to be Hugo Vane, the hotel manager, who manipulated the time to cover his tracks."
+      "discrimDesign": "Comparing the grandfather clock face time with independent ship’s bell chimes and measuring the pendulum bob size in front of all suspects exposes the deliberate tampering. The test confirms the fourteen-minute lag and shows only Hugo Vane had the access and opportunity to perform the adjustment, disproving Captain Hale’s alibi and proving Vane’s guilt.",
+      "premise": "At the coastal Cliffside Hotel in post-war Cornwall, the elegant Eleanor Voss is found stabbed in her suite. Initial evidence and witness accounts point to Captain Ivor Hale as the prime suspect, supported by an apparently airtight timeline verified by the hotel’s grandfather clock. However, Dr. Mallory Finch uncovers a subtle tampering of the clock’s pendulum length, which has shifted the official time by fourteen minutes, creating a false alibi for the real murderer. Through careful investigation of the clock’s mechanics and contradictory witness statements, Finch reveals the true culprit to be Hugo Vane, the hotel manager, who manipulated the time to cover his tracks."
     },
     {
       "id": "mystery-1786999938275",
@@ -1049,10 +1049,10 @@
       "crimeSubtype": "mechanical clock tampering concealment",
       "deathMethod": "struck with a heavy bronze statuette",
       "axis": "temporal",
-      "falseAssumption": "The hotel\u2019s grandfather clock shows the correct time, so the murder must have occurred at quarter to three.",
+      "falseAssumption": "The hotel’s grandfather clock shows the correct time, so the murder must have occurred at quarter to three.",
       "discrimMethod": "trap",
-      "discrimDesign": "A controlled test comparing the hotel\u2019s grandfather clock hands movement with the bell tower chime timing is conducted, demonstrating the escapement\u2019s reversed rotation and confirming the clock\u2019s displayed time is artificially delayed by twenty minutes, disproving all alibis based on the false timeline except Hugo Vane\u2019s truncated window.",
-      "premise": "At the Seacliff Hotel, Dr. Mallory Finch is found dead, struck by a bronze statuette in the lounge shortly after the hotel\u2019s grand clock showed quarter to three. While eyewitnesses rely on the clock\u2019s time, a complex tampering of the clock\u2019s escapement created a false timeline. Eleanor Voss, the detective guest, unravels conflicting testimonies and mechanical evidence to expose the true hour of death and the murderer among the guests."
+      "discrimDesign": "A controlled test comparing the hotel’s grandfather clock hands movement with the bell tower chime timing is conducted, demonstrating the escapement’s reversed rotation and confirming the clock’s displayed time is artificially delayed by twenty minutes, disproving all alibis based on the false timeline except Hugo Vane’s truncated window.",
+      "premise": "At the Seacliff Hotel, Dr. Mallory Finch is found dead, struck by a bronze statuette in the lounge shortly after the hotel’s grand clock showed quarter to three. While eyewitnesses rely on the clock’s time, a complex tampering of the clock’s escapement created a false timeline. Eleanor Voss, the detective guest, unravels conflicting testimonies and mechanical evidence to expose the true hour of death and the murderer among the guests."
     },
     {
       "id": "mystery-1787090659145",
@@ -1088,10 +1088,10 @@
       "crimeSubtype": "authority-based timed access concealment",
       "deathMethod": "strangled",
       "axis": "authority",
-      "falseAssumption": "Captain Ivor Hale\u2019s authoritative position guarantees the accuracy of staff reports about promenade access and timings.",
+      "falseAssumption": "Captain Ivor Hale’s authoritative position guarantees the accuracy of staff reports about promenade access and timings.",
       "discrimMethod": "constraint_proof",
-      "discrimDesign": "A controlled comparison of tide charts, staff shift logs, and Captain Hale\u2019s access permissions demonstrates that the promenade was impassable at the claimed murder time, invalidating Hale\u2019s alibi and proving his manipulation of staff authority to fabricate a false timeline.",
-      "premise": "At the Brightshore Seaside Hotel during a foggy autumn evening, Dr. Mallory Finch is found strangled on the seaside promenade. A false authority claim about promenade access times and staff testimony distortions create a misleading timeline. Detective Eleanor Voss uncovers that Captain Ivor Hale manipulated authority channels and staff to fabricate an alibi, exploiting tide timings that physically barred access at the claimed time of murder. By cross-referencing hotel schedules, tide charts, and staff statements, the true timeline emerges revealing Hale\u2019s guilt."
+      "discrimDesign": "A controlled comparison of tide charts, staff shift logs, and Captain Hale’s access permissions demonstrates that the promenade was impassable at the claimed murder time, invalidating Hale’s alibi and proving his manipulation of staff authority to fabricate a false timeline.",
+      "premise": "At the Brightshore Seaside Hotel during a foggy autumn evening, Dr. Mallory Finch is found strangled on the seaside promenade. A false authority claim about promenade access times and staff testimony distortions create a misleading timeline. Detective Eleanor Voss uncovers that Captain Ivor Hale manipulated authority channels and staff to fabricate an alibi, exploiting tide timings that physically barred access at the claimed time of murder. By cross-referencing hotel schedules, tide charts, and staff statements, the true timeline emerges revealing Hale’s guilt."
     },
     {
       "id": "mystery-1787389850329",
@@ -1101,10 +1101,10 @@
       "crimeSubtype": "coastal temporal concealment murder",
       "deathMethod": "stabbed with a dining knife",
       "axis": "temporal",
-      "falseAssumption": "The hotel hallway clock correctly indicated the time of the murder at just before midnight, supporting the victim\u2019s last known movements.",
+      "falseAssumption": "The hotel hallway clock correctly indicated the time of the murder at just before midnight, supporting the victim’s last known movements.",
       "discrimMethod": "trap",
-      "discrimDesign": "A controlled comparison of the hotel hallway clock\u2019s time against an independent watch and the tide chart reveals the fifteen-minute advancement, exposing the falsified timeline and invalidating Captain Ivor Hale\u2019s alibi.",
-      "premise": "At the coastal Seabreeze Hotel in Cannes, amidst cool fog and wartime anxieties, Dr. Mallory Finch is found stabbed. Witnesses claim she was last seen escaping via the balcony shortly before midnight. However, a tidal delay makes that impossible, challenging the assumed timeline. Eleanor Voss investigates to unravel the temporal deception that hides the real murderer among the hotel\u2019s guests and staff."
+      "discrimDesign": "A controlled comparison of the hotel hallway clock’s time against an independent watch and the tide chart reveals the fifteen-minute advancement, exposing the falsified timeline and invalidating Captain Ivor Hale’s alibi.",
+      "premise": "At the coastal Seabreeze Hotel in Cannes, amidst cool fog and wartime anxieties, Dr. Mallory Finch is found stabbed. Witnesses claim she was last seen escaping via the balcony shortly before midnight. However, a tidal delay makes that impossible, challenging the assumed timeline. Eleanor Voss investigates to unravel the temporal deception that hides the real murderer among the hotel’s guests and staff."
     },
     {
       "id": "mystery-1787390919001",
@@ -1116,8 +1116,8 @@
       "axis": "spatial",
       "falseAssumption": "The locked staff-only stairwell door was inaccessible without a key, and the shadows on the landing prove no one passed after dusk.",
       "discrimMethod": "constraint_proof",
-      "discrimDesign": "Recreate the stairwell shadow patterns using the original street lamp and window angles while manipulating the brass lamp position to demonstrate the secret latch unlocking. Verify smudged fingerprint matching Captain Ivor Hale\u2019s glove and show that no other suspect had access or knowledge to perform this manipulation during the murder window.",
-      "premise": "At the Seabreeze Hotel, Dr. Mallory Finch is found stabbed beyond a locked staff-only stairwell door, seemingly inaccessible without a key. Shadows cast by the hotel\u2019s angled Art Deco windows suggest no one could have passed the landing after dusk. Yet, Eleanor Voss unravels a deception involving optical illusions and shadow angles that reveal a secret mechanism unlocking the door. Among six suspects, Captain Ivor Hale emerges as the culprit, exploiting this spatial illusion to conceal his murderous access."
+      "discrimDesign": "Recreate the stairwell shadow patterns using the original street lamp and window angles while manipulating the brass lamp position to demonstrate the secret latch unlocking. Verify smudged fingerprint matching Captain Ivor Hale’s glove and show that no other suspect had access or knowledge to perform this manipulation during the murder window.",
+      "premise": "At the Seabreeze Hotel, Dr. Mallory Finch is found stabbed beyond a locked staff-only stairwell door, seemingly inaccessible without a key. Shadows cast by the hotel’s angled Art Deco windows suggest no one could have passed the landing after dusk. Yet, Eleanor Voss unravels a deception involving optical illusions and shadow angles that reveal a secret mechanism unlocking the door. Among six suspects, Captain Ivor Hale emerges as the culprit, exploiting this spatial illusion to conceal his murderous access."
     },
     {
       "id": "mystery-1787393353426",
@@ -1129,8 +1129,8 @@
       "axis": "behavioral",
       "falseAssumption": "Beatrice Quill would not risk breaking rules or challenging authority, and her nervous demeanor means she would keep to her office during the critical timeframe.",
       "discrimMethod": "trap",
-      "discrimDesign": "A controlled comparison of the lobby clock time and the stopped wristwatch time is staged before all suspects, demonstrating that the lobby clock was deliberately set twenty minutes slow. The test reveals that Beatrice\u2019s alibi depends entirely on the false clock time, while others\u2019 alibis are supported by independent time sources.",
-      "premise": "At the Seaview Hotel on a foggy early spring evening, Dr. Mallory Finch is murdered. The large lobby clock is believed to mark the time of death as half past eight, anchoring all witness recollections. The guests and staff recall their movements based on this time, building a seemingly airtight alibi web. However, Eleanor Voss suspects that the victim\u2019s final moments and the timeline are obscured by behavioral assumptions about the suspects, especially Beatrice Quill, the secretary who is thought to be nervous and unlikely to challenge authority. The real time of death is cleverly disguised by a tampered clock and manipulated memories."
+      "discrimDesign": "A controlled comparison of the lobby clock time and the stopped wristwatch time is staged before all suspects, demonstrating that the lobby clock was deliberately set twenty minutes slow. The test reveals that Beatrice’s alibi depends entirely on the false clock time, while others’ alibis are supported by independent time sources.",
+      "premise": "At the Seaview Hotel on a foggy early spring evening, Dr. Mallory Finch is murdered. The large lobby clock is believed to mark the time of death as half past eight, anchoring all witness recollections. The guests and staff recall their movements based on this time, building a seemingly airtight alibi web. However, Eleanor Voss suspects that the victim’s final moments and the timeline are obscured by behavioral assumptions about the suspects, especially Beatrice Quill, the secretary who is thought to be nervous and unlikely to challenge authority. The real time of death is cleverly disguised by a tampered clock and manipulated memories."
     },
     {
       "id": "mystery-1787394263267",
@@ -1143,7 +1143,7 @@
       "falseAssumption": "The hotel's official clock and delivery logs are accurate and can be trusted as objective measures of time and staff movements.",
       "discrimMethod": "constraint_proof",
       "discrimDesign": "Demonstrate that the hotel's official delivery logs, the tide chart annotated in the manager's office, and physical inspection of the hotel clock collectively prove the timeline in official records is impossible, revealing Beatrice Quill's forgery and placing her at the scene during the actual murder time.",
-      "premise": "At the mid-century modern Seabreeze Hotel on England's Sussex coast, Dr. Mallory Finch is murdered, stabbing suspicion into a closed circle of guests and staff. The apparent timeline, corroborated by authoritative hotel logs and statements, points away from Beatrice Quill, the manager's assistant. However, the truth hides in a manipulation of authority\u2014the forged trust in official logs and testimonies by status that obscures the real movements during the critical hours. Detective Eleanor Voss untangles the web of social hierarchy and physical constraints to reveal the fatal deception."
+      "premise": "At the mid-century modern Seabreeze Hotel on England's Sussex coast, Dr. Mallory Finch is murdered, stabbing suspicion into a closed circle of guests and staff. The apparent timeline, corroborated by authoritative hotel logs and statements, points away from Beatrice Quill, the manager's assistant. However, the truth hides in a manipulation of authority—the forged trust in official logs and testimonies by status that obscures the real movements during the critical hours. Detective Eleanor Voss untangles the web of social hierarchy and physical constraints to reveal the fatal deception."
     },
     {
       "id": "mystery-1787500681233",
@@ -1153,9 +1153,9 @@
       "crimeSubtype": "timing window trap with physical delay",
       "deathMethod": "struck with a weighted metal pipe",
       "axis": "temporal",
-      "falseAssumption": "The murder weapon\u2019s appearance on the shore at a quarter past eleven means the murder happened at or after that time.",
+      "falseAssumption": "The murder weapon’s appearance on the shore at a quarter past eleven means the murder happened at or after that time.",
       "discrimMethod": "trap",
-      "discrimDesign": "A controlled reenactment is conducted where the weighted metal pipe is placed underwater by the underwater rock ledge at low tide. Observers record the timing of the pipe\u2019s release as the tide rises, confirming the five-minute delay between high tide and pipe release. This verifies the mechanism of temporal delay, disproving the alibi based on the weapon\u2019s appearance time and confirming the actual murder time occurred earlier.",
+      "discrimDesign": "A controlled reenactment is conducted where the weighted metal pipe is placed underwater by the underwater rock ledge at low tide. Observers record the timing of the pipe’s release as the tide rises, confirming the five-minute delay between high tide and pipe release. This verifies the mechanism of temporal delay, disproving the alibi based on the weapon’s appearance time and confirming the actual murder time occurred earlier.",
       "premise": "At the upscale Cliffhaven Hotel on the rocky English coast, Dr. Mallory Finch is found fatally struck with a weighted metal pipe near the private beach. The tide charts posted in the hotel lobby indicate high tide at ten minutes past eleven, coinciding with the weapon's drift ashore. Eyewitnesses and staff schedules suggest the murder occurred around this high tide time, matching Captain Ivor Hale's alibi window in the billiard room. However, a hidden underwater rock ledge delayed the weighted pipe's drift, causing a five-minute lapse between high tide and the weapon's release. This temporal delay creates a false timeline that conceals the true time of death, which occurred earlier, invalidating Captain Hale's alibi. Eleanor Voss uncovers this deception through careful analysis of tide marks, witness schedules, and physical traces, culminating in a decisive test exposing the culprit."
     },
     {
@@ -1166,10 +1166,10 @@
       "crimeSubtype": "temporal alibi falsification murder",
       "deathMethod": "struck with a decorative brass statue",
       "axis": "temporal",
-      "falseAssumption": "The hourglass timer was started at quarter to eleven, after the murder, supporting Captain Hale\u2019s alibi.",
+      "falseAssumption": "The hourglass timer was started at quarter to eleven, after the murder, supporting Captain Hale’s alibi.",
       "discrimMethod": "constraint_proof",
-      "discrimDesign": "A controlled demonstration comparing the hourglass sand level at known start times versus Captain Hale\u2019s claimed flipping time demonstrates the physical impossibility of his timeline, exposing his deception.",
-      "premise": "At the coastal Cliffside Bluffs Seaside Hotel, Dr. Mallory Finch is found murdered by a blow from a heavy brass statue. The key to unraveling the mystery lies in exposure of a falsified timeline surrounding an ancient hourglass visible in the hotel lobby. Captain Ivor Hale\u2019s carefully constructed alibi depends on the claim that he flipped the hourglass after the murder, proving his innocence. However, visible contradictions in the hourglass sand level and witness accounts expose the true timing of events, revealing a cunning temporal alibi deception that points directly to Hale as the murderer."
+      "discrimDesign": "A controlled demonstration comparing the hourglass sand level at known start times versus Captain Hale’s claimed flipping time demonstrates the physical impossibility of his timeline, exposing his deception.",
+      "premise": "At the coastal Cliffside Bluffs Seaside Hotel, Dr. Mallory Finch is found murdered by a blow from a heavy brass statue. The key to unraveling the mystery lies in exposure of a falsified timeline surrounding an ancient hourglass visible in the hotel lobby. Captain Ivor Hale’s carefully constructed alibi depends on the claim that he flipped the hourglass after the murder, proving his innocence. However, visible contradictions in the hourglass sand level and witness accounts expose the true timing of events, revealing a cunning temporal alibi deception that points directly to Hale as the murderer."
     },
     {
       "id": "run_09168377-8a7c-483c-b498-af9745492070",
@@ -1181,21 +1181,21 @@
       "axis": "temporal",
       "falseAssumption": "The victim was murdered shortly before sunset as all household servants consistently testified.",
       "discrimMethod": "trap",
-      "discrimDesign": "A controlled sundial shadow experiment is conducted by placing an identical watch face at the sundial under the same sunlight conditions at various times, demonstrating the precise shadow length and direction that contradicts servant testimonies and Edward\u2019s claimed alibi, thereby proving the murder\u2019s true timing and implicating Edward Marwood.",
+      "discrimDesign": "A controlled sundial shadow experiment is conducted by placing an identical watch face at the sundial under the same sunlight conditions at various times, demonstrating the precise shadow length and direction that contradicts servant testimonies and Edward’s claimed alibi, thereby proving the murder’s true timing and implicating Edward Marwood.",
       "premise": "In the isolated Marwood Manor during a drizzly early autumn afternoon, Edith Marwood is found stabbed in her private sitting room. The household staff and family provide conflicting timelines. The sundial in the garden and the stopped watch on Edith reveal a contradiction in the reported time of death. Arthur Langley investigates, unravelling a scheme that manipulated the timing of events and exploited social trust to conceal the real murderer within the family."
     },
     {
       "id": "run_efedba16-9baf-44a2-9d3a-254029d53cd9",
-      "title": "The Sundial\u2019s Silent Verdict",
+      "title": "The Sundial’s Silent Verdict",
       "era": "1930s",
       "location": "Harcourt Manor Estate",
       "crimeSubtype": "poisoning with delayed effect",
       "deathMethod": "poisoned with aconite concealed in ice cubes",
       "axis": "temporal",
-      "falseAssumption": "Lord Charles Harcourt died exactly at solar noon, as indicated by the sundial\u2019s shadow.",
+      "falseAssumption": "Lord Charles Harcourt died exactly at solar noon, as indicated by the sundial’s shadow.",
       "discrimMethod": "constraint_proof",
-      "discrimDesign": "A controlled demonstration measures the sundial\u2019s shadow delay under similar temperature conditions, confirming the approximately ten-minute lag caused by thermal expansion of the brass gnomon. This proves the victim\u2019s actual time of death predates servant alibis and ledger entries, invalidating their timelines and exposing the forged evidence. Additionally, re-examination of hollow ice cubes confirms the delayed-release poison mechanism unique to the culprit\u2019s access and knowledge.",
-      "premise": "On a foggy autumn day at Harcourt Manor, Lord Charles Harcourt is found dead, apparently poisoned. Everyone believes he died at solar noon, as indicated by the sundial. However, Evelyn Harcourt discovers the sundial\u2019s shadow was delayed due to thermal expansion of the brass gnomon, meaning he died earlier. A forged ledger and servants\u2019 contradictory testimonies about footsteps and timing further complicate the timeline. Evelyn must unravel the temporal illusion, exposing the true time of death and revealing James Harcourt as the killer who exploited this false assumption to stage his alibi."
+      "discrimDesign": "A controlled demonstration measures the sundial’s shadow delay under similar temperature conditions, confirming the approximately ten-minute lag caused by thermal expansion of the brass gnomon. This proves the victim’s actual time of death predates servant alibis and ledger entries, invalidating their timelines and exposing the forged evidence. Additionally, re-examination of hollow ice cubes confirms the delayed-release poison mechanism unique to the culprit’s access and knowledge.",
+      "premise": "On a foggy autumn day at Harcourt Manor, Lord Charles Harcourt is found dead, apparently poisoned. Everyone believes he died at solar noon, as indicated by the sundial. However, Evelyn Harcourt discovers the sundial’s shadow was delayed due to thermal expansion of the brass gnomon, meaning he died earlier. A forged ledger and servants’ contradictory testimonies about footsteps and timing further complicate the timeline. Evelyn must unravel the temporal illusion, exposing the true time of death and revealing James Harcourt as the killer who exploited this false assumption to stage his alibi."
     },
     {
       "id": "run_33ecb4ad-7a23-477a-bb17-c808f54e79b2",
@@ -1207,7 +1207,7 @@
       "axis": "temporal",
       "falseAssumption": "The study door was unlocked and opened shortly after Lady Beatrice was last seen alive at early evening, so the murder must have occurred then.",
       "discrimMethod": "constraint_proof",
-      "discrimDesign": "Recreate the thermal conditions of the study\u2019s hearth fire with an identical brass bolt latch and mantel thermometer to demonstrate the precise forty-minute delay in bolt retraction, invalidating witness claims of the door opening at early evening and confirming the murder occurred later.",
+      "discrimDesign": "Recreate the thermal conditions of the study’s hearth fire with an identical brass bolt latch and mantel thermometer to demonstrate the precise forty-minute delay in bolt retraction, invalidating witness claims of the door opening at early evening and confirming the murder occurred later.",
       "premise": "On a damp autumn evening at Ellsworth Manor, Lady Beatrice Ellsworth is found strangled in her locked study. Witnesses insist the study door was unlocked soon after her last sighting, and an early timeline places the murder at early evening. However, thermal evidence of the brass bolt latch reveals a delayed unlocking mechanism, contradicting all witness claims and forcing a re-examination of the murder timeline. Inspector Edmund Hargrave unravels a complex temporal deception involving estate routines, social expectations, and physical laws to reveal the true culprit."
     },
     {
@@ -1220,8 +1220,8 @@
       "axis": "temporal",
       "falseAssumption": "The garden gate was opened at noon as all household members and guests saw Lady Beatrice entering the grounds then.",
       "discrimMethod": "constraint_proof",
-      "discrimDesign": "Demonstrate by controlled temperature simulation and gate latch observation that the garden gate\u2019s bolt cannot be released before 1:45 pm, contradicting witness statements. Then cross-reference servants\u2019 timeline inconsistencies and James Porter\u2019s exclusive latch knowledge to prove only he could have exploited this delay to commit the murder.",
-      "premise": "At Wentworth Manor, Lady Beatrice Wentworth is found dead, struck by a heavy brass garden gate bolt. Witnesses unanimously claim to have seen her enter the garden grounds at noon, but physical evidence and mechanical timing contradict this. Inspector Evelyn Harcourt uncovers a deception embedded in the thermal expansion delay of the garden gate\u2019s brass latch, exposing a false timeline created by manipulated memories and overlooked physical laws. Through careful reconstruction and social scrutiny, the truth emerges: the butler, James Porter, exploited the garden gate\u2019s delayed bolt release to commit murder, hiding the true time of death and misdirecting suspicion."
+      "discrimDesign": "Demonstrate by controlled temperature simulation and gate latch observation that the garden gate’s bolt cannot be released before 1:45 pm, contradicting witness statements. Then cross-reference servants’ timeline inconsistencies and James Porter’s exclusive latch knowledge to prove only he could have exploited this delay to commit the murder.",
+      "premise": "At Wentworth Manor, Lady Beatrice Wentworth is found dead, struck by a heavy brass garden gate bolt. Witnesses unanimously claim to have seen her enter the garden grounds at noon, but physical evidence and mechanical timing contradict this. Inspector Evelyn Harcourt uncovers a deception embedded in the thermal expansion delay of the garden gate’s brass latch, exposing a false timeline created by manipulated memories and overlooked physical laws. Through careful reconstruction and social scrutiny, the truth emerges: the butler, James Porter, exploited the garden gate’s delayed bolt release to commit murder, hiding the true time of death and misdirecting suspicion."
     },
     {
       "id": "run_6dc1ee3a-ae3c-453e-9644-090754bf4ca3",
@@ -1231,23 +1231,23 @@
       "crimeSubtype": "delayed acoustic timeline murder",
       "deathMethod": "struck with a heavy brass choir bell clapper",
       "axis": "temporal",
-      "falseAssumption": "The manor\u2019s choir bell chimed immediately upon being struck, so the time it was heard corresponds exactly to the time of the bell strike and thus the murder.",
+      "falseAssumption": "The manor’s choir bell chimed immediately upon being struck, so the time it was heard corresponds exactly to the time of the bell strike and thus the murder.",
       "discrimMethod": "constraint_proof",
-      "discrimDesign": "A controlled ringing of the choir bell is staged in the presence of witnesses, with prior measurement of the echo chamber\u2019s acoustic delay and observation of the muffling pad\u2019s effect. The test proves the bell\u2019s strike time does not match the sound heard by listeners, exposing the false auditory timeline and implicating only someone with access to the bell tower during the critical window.",
+      "discrimDesign": "A controlled ringing of the choir bell is staged in the presence of witnesses, with prior measurement of the echo chamber’s acoustic delay and observation of the muffling pad’s effect. The test proves the bell’s strike time does not match the sound heard by listeners, exposing the false auditory timeline and implicating only someone with access to the bell tower during the critical window.",
       "premise": "On a foggy autumn evening in 1930s Yorkshire, Lady Beatrice Langley is found dead in her chambers. Witnesses swear the manor's choir bell rang the hour after her death, suggesting a timeline that contradicts physical evidence. Inspector Gerald Havers must unravel the truth behind the acoustic deception and social tensions to reveal the murderer among family and staff."
     },
     {
       "id": "run_477bb27a-9d95-4577-96b8-9f1ce53e9e89",
-      "title": "The Sundial\u2019s Frozen Shadow",
+      "title": "The Sundial’s Frozen Shadow",
       "era": "1930s",
       "location": "English countryside",
       "crimeSubtype": "struck with heavy copper sundial gnomon",
       "deathMethod": "struck with heavy copper sundial gnomon",
       "axis": "temporal",
-      "falseAssumption": "The victim was alive until at least twenty past ten, as indicated by the sundial\u2019s shadow position and multiple witness sightings in the garden.",
+      "falseAssumption": "The victim was alive until at least twenty past ten, as indicated by the sundial’s shadow position and multiple witness sightings in the garden.",
       "discrimMethod": "constraint_proof",
-      "discrimDesign": "By comparing the exact stopped time on Lady Beatrice\u2019s watch with the sundial shadow position and measuring the copper plate contraction from ambient temperature, the test proves the victim\u2019s death occurred earlier than the sundial\u2019s indicated time, invalidating Charles Pembroke\u2019s alibi which depends on the false later timeline.",
-      "premise": "On a cool autumn morning at the isolated Ellsworth Manor in Yorkshire, Lady Beatrice Ellsworth was found dead, struck by the manor's heavy copper sundial gnomon. Initial witness testimonies and the sundial's shadow suggested she was alive well into the late morning. Inspector Harold Wren's meticulous investigation reveals that thermal contraction of the sundial's copper plate shifted the shadow, misleading everyone about the time of death. This false timeline concealed the murderer\u2019s exact opportunity. Through careful analysis of environmental clues and witness statements, Inspector Wren unravels the true sequence of events, exposing Charles Pembroke, the estate manager, who exploited the manor\u2019s physical and social constraints to commit murder."
+      "discrimDesign": "By comparing the exact stopped time on Lady Beatrice’s watch with the sundial shadow position and measuring the copper plate contraction from ambient temperature, the test proves the victim’s death occurred earlier than the sundial’s indicated time, invalidating Charles Pembroke’s alibi which depends on the false later timeline.",
+      "premise": "On a cool autumn morning at the isolated Ellsworth Manor in Yorkshire, Lady Beatrice Ellsworth was found dead, struck by the manor's heavy copper sundial gnomon. Initial witness testimonies and the sundial's shadow suggested she was alive well into the late morning. Inspector Harold Wren's meticulous investigation reveals that thermal contraction of the sundial's copper plate shifted the shadow, misleading everyone about the time of death. This false timeline concealed the murderer’s exact opportunity. Through careful analysis of environmental clues and witness statements, Inspector Wren unravels the true sequence of events, exposing Charles Pembroke, the estate manager, who exploited the manor’s physical and social constraints to commit murder."
     },
     {
       "id": "run_0a61b082-2df3-48d4-bac9-999ab4214e24",
@@ -1257,9 +1257,9 @@
       "crimeSubtype": "strangulation at village fete",
       "deathMethod": "strangled",
       "axis": "temporal",
-      "falseAssumption": "The victim was alive until at least six fifteen in the evening, as confirmed by the sundial\u2019s shadow position and multiple witness sightings during the fete.",
+      "falseAssumption": "The victim was alive until at least six fifteen in the evening, as confirmed by the sundial’s shadow position and multiple witness sightings during the fete.",
       "discrimMethod": "constraint_proof",
-      "discrimDesign": "A controlled demonstration comparing frozen sundial shadow positions before and after frost formation, combined with a timeline reenactment using village thermometer readings and verified witness logs, proving the time of death must be after six forty. This test directly invalidates suspect alibis relying on the frozen sundial time, uniquely exposing Harold Simmons\u2019 unaccounted time gap.",
+      "discrimDesign": "A controlled demonstration comparing frozen sundial shadow positions before and after frost formation, combined with a timeline reenactment using village thermometer readings and verified witness logs, proving the time of death must be after six forty. This test directly invalidates suspect alibis relying on the frozen sundial time, uniquely exposing Harold Simmons’ unaccounted time gap.",
       "premise": "During the village fete in Little Middleton, the respected village council chairman Reginald Hargrave is found strangled beside the sundial near the village green. The apparent time of death, indicated by the sundial's shadow, seems to place the murder at early evening during the fete's peak. However, the sundial's shadow was frozen by a thin layer of frost that formed after sunset, misleading witnesses about the true time. Eleanor Hargrave, the victim's sister and village schoolteacher, investigates the temporal illusion, uncovering a layered deception exploiting natural phenomena and village gossip. The true timeline reveals the murderer acted under cover of dense fog and social distractions, with a motive rooted in land disputes and Cold War era anxieties."
     },
     {
@@ -1270,10 +1270,10 @@
       "crimeSubtype": "locked-room elevator spatial constraint",
       "deathMethod": "struck with a heavy glass decanter",
       "axis": "spatial",
-      "falseAssumption": "No one could reach Dr. Finch\u2019s suite during the critical forty minutes, because the elevator never left the ground floor.",
+      "falseAssumption": "No one could reach Dr. Finch’s suite during the critical forty minutes, because the elevator never left the ground floor.",
       "discrimMethod": "trap",
       "discrimDesign": "Compare the shoeprint found in the service corridor dust (accessible only immediately after nine o'clock) with the shoes of each suspect; only Sylvia Trent's shoes match the size and pattern, and only she had the opportunity to disturb the dust before her lobby alibi.",
-      "premise": "On a foggy spring night at Pendrift Head\u2019s Art Deco hotel, Dr. Mallory Finch is found dead in her locked third-floor suite, a shattered decanter beside her. The only access\u2014by caged elevator\u2014seemed impossible, as it was observed at the ground floor through the critical forty-minute window. Suspicion falls on staff, guests, and rivals alike, until Eleanor Voss unravels a spatial misdirection: the elevator\u2019s indicator and gate were manipulated, enabling the true killer to slip past unnoticed. Physical traces and constraint logic expose Sylvia Trent, the secretary desperate to hide her forgery, as the only one with means and motive to exploit the illusion.",
+      "premise": "On a foggy spring night at Pendrift Head’s Art Deco hotel, Dr. Mallory Finch is found dead in her locked third-floor suite, a shattered decanter beside her. The only access—by caged elevator—seemed impossible, as it was observed at the ground floor through the critical forty-minute window. Suspicion falls on staff, guests, and rivals alike, until Eleanor Voss unravels a spatial misdirection: the elevator’s indicator and gate were manipulated, enabling the true killer to slip past unnoticed. Physical traces and constraint logic expose Sylvia Trent, the secretary desperate to hide her forgery, as the only one with means and motive to exploit the illusion.",
       "mechanismFamily": "locked_room_timing"
     },
     {
@@ -1286,9 +1286,37 @@
       "axis": "identity",
       "falseAssumption": "Captain Ivor Hale could not have committed the murder because he was seen by several witnesses on the ocean-facing veranda at ten minutes past eleven.",
       "discrimMethod": "trap",
-      "discrimDesign": "A controlled walk is staged on the wet sand with both Captain Hale and Beatrice Quill, each wearing Hale\u2019s slippers. The depth and pattern of Quill\u2019s right-footed limp match exactly the suspicious footprints from the night of the murder, while Hale\u2019s do not. Seaweed is again transferred by Quill into the service corridor, recreating the earlier physical trace. This proves Quill impersonated Hale and that only Hugo Vane could have orchestrated the timing and access.",
-      "premise": "On a stormy night at the Oceanview Hotel in Sidmouth, Dr. Mallory Finch is found dead in his suite, his skull crushed by a heavy brass candlestick. Multiple guests and staff swear that the prime suspect, Captain Ivor Hale, could not have committed the crime, as he was seen on the ocean-facing veranda at the supposed time of death. Yet Eleanor Voss, observing a trail of physical clues, begins to suspect that someone exploited the hotel\u2019s strict routines and the confusion of identity to create a nearly perfect alibi. The solution hinges on a subtle substitution: a staff member impersonated the suspect by donning his distinctive slippers and overcoat, leaving misleading traces in the freshly-wet sand outside the veranda. Only by piecing together the contradictory evidence of footprints, damp slippers, and staff access can the detective expose the real murderer and the trick that shielded him.",
+      "discrimDesign": "A controlled walk is staged on the wet sand with both Captain Hale and Beatrice Quill, each wearing Hale’s slippers. The depth and pattern of Quill’s right-footed limp match exactly the suspicious footprints from the night of the murder, while Hale’s do not. Seaweed is again transferred by Quill into the service corridor, recreating the earlier physical trace. This proves Quill impersonated Hale and that only Hugo Vane could have orchestrated the timing and access.",
+      "premise": "On a stormy night at the Oceanview Hotel in Sidmouth, Dr. Mallory Finch is found dead in his suite, his skull crushed by a heavy brass candlestick. Multiple guests and staff swear that the prime suspect, Captain Ivor Hale, could not have committed the crime, as he was seen on the ocean-facing veranda at the supposed time of death. Yet Eleanor Voss, observing a trail of physical clues, begins to suspect that someone exploited the hotel’s strict routines and the confusion of identity to create a nearly perfect alibi. The solution hinges on a subtle substitution: a staff member impersonated the suspect by donning his distinctive slippers and overcoat, leaving misleading traces in the freshly-wet sand outside the veranda. Only by piecing together the contradictory evidence of footprints, damp slippers, and staff access can the detective expose the real murderer and the trick that shielded him.",
       "mechanismFamily": "staged_scene"
+    },
+    {
+      "id": "resume-1787856628157",
+      "title": "The Hourglass Deception at Cliffside Bluffs",
+      "era": "1950s",
+      "location": "Cliffside Bluffs",
+      "crimeSubtype": "temporal alibi falsification murder",
+      "deathMethod": "struck with a decorative brass statue",
+      "axis": "temporal",
+      "falseAssumption": "The hourglass timer was started at quarter to eleven, after the murder, supporting Captain Hale’s alibi.",
+      "discrimMethod": "constraint_proof",
+      "discrimDesign": "A controlled demonstration comparing the hourglass sand level at known start times versus Captain Hale’s claimed flipping time demonstrates the physical impossibility of his timeline, exposing his deception.",
+      "premise": "At the coastal Cliffside Bluffs Seaside Hotel, Dr. Mallory Finch is found murdered by a blow from a heavy brass statue. The key to unraveling the mystery lies in exposure of a falsified timeline surrounding an ancient hourglass visible in the hotel lobby. Captain Ivor Hale’s carefully constructed alibi depends on the claim that he flipped the hourglass after the murder, proving his innocence. However, visible contradictions in the hourglass sand level and witness accounts expose the true timing of events, revealing a cunning temporal alibi deception that points directly to Hale as the murderer.",
+      "mechanismFamily": "locked_room_timing"
+    },
+    {
+      "id": "resume-1787857532491",
+      "title": "The Hourglass Deception at Cliffside Bluffs",
+      "era": "1950s",
+      "location": "Cliffside Bluffs",
+      "crimeSubtype": "temporal alibi falsification murder",
+      "deathMethod": "struck with a decorative brass statue",
+      "axis": "temporal",
+      "falseAssumption": "The hourglass timer was started at quarter to eleven, after the murder, supporting Captain Hale’s alibi.",
+      "discrimMethod": "constraint_proof",
+      "discrimDesign": "A controlled demonstration comparing the hourglass sand level at known start times versus Captain Hale’s claimed flipping time demonstrates the physical impossibility of his timeline, exposing his deception.",
+      "premise": "At the coastal Cliffside Bluffs Seaside Hotel, Dr. Mallory Finch is found murdered by a blow from a heavy brass statue. The key to unraveling the mystery lies in exposure of a falsified timeline surrounding an ancient hourglass visible in the hotel lobby. Captain Ivor Hale’s carefully constructed alibi depends on the claim that he flipped the hourglass after the murder, proving his innocence. However, visible contradictions in the hourglass sand level and witness accounts expose the true timing of events, revealing a cunning temporal alibi deception that points directly to Hale as the murderer.",
+      "mechanismFamily": "locked_room_timing"
     }
   ]
 }
