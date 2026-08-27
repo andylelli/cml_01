@@ -1473,8 +1473,14 @@ export const applyPromptBudgeting = (
     texture_pool: 600,          // rotating atmosphere atoms; 600 fits ~8-10 atoms at ~60 tokens each
     temporal_context: 850,      // season + era + weather + cultural notes; 850 fits a full temporal profile
     continuity_context: 500,    // chapter-summary + recurring-phrase list; compact by design
-    humour_guide: 850,          // full humour guidelines page; 850 matches craft_guide budget
-    craft_guide: 850,           // emotional-depth guidelines page; 850 tested empirically against full content
+    // A_75 review — raised when the authored guides were finally wired in (they had been loaded and
+    // discarded). Hardcoded principles + the file: humour 785 + 1,730, craft 622 + 866, measured at
+    // chars/4. Capped just above so nothing is cut mid-sentence; a guide truncated mid-clause is a
+    // worse instruction than no guide. These two are now the largest droppable blocks in the prompt,
+    // which is intended — they are also the first to go under pressure, so the cost is paid on the
+    // early chapters that have room and refunded on the late ones that do not.
+    humour_guide: 2600,
+    craft_guide: 1550,
     voice_spec: 260,            // A_75 P1 — eight short lines by construction; 260 leaves margin for a long signature move
 
     /**
@@ -2057,6 +2063,44 @@ ${victimIdentityRule}`;
   // here — deciding a voice inside the per-chapter prompt builder would give each chapter its own,
   // which is the uniformity problem with extra steps.
   const voiceSpecBlock = buildVoiceSpecBlock(inputs.voiceSpec ?? null);
+
+  /**
+   * A_75 review — the authored guides were loaded and DISCARDED.
+   *
+   * `inputs.writingGuides.craft` and `.humour` were used only as BOOLEANS: their presence gated the
+   * hardcoded blocks above, and their content never reached the model. Verified against a shipped
+   * prompt — not one line of `notes/WHAT_MAKES_A_GOOD_WHODUNNIT.md` appeared in it, while the
+   * hardcoded markers did. Both files are read from disk on every run, threaded through
+   * `loadWritingGuides` and `ProseGenerationInputs`, and thrown away. Anyone editing them to tune
+   * prose would have seen no effect and no error, which is worse than not having the files at all.
+   *
+   * The hardcoded blocks STAY: they are the distilled, imperative form and they are what the model
+   * has actually been written against. The files are appended after them as the authored source.
+   *
+   * COST, MEASURED (chars/4): craft 622 hardcoded + 866 file; humour 785 + 1,730. About +2,600 tokens
+   * per chapter prompt. The per-block caps below are raised to match, because the alternative is
+   * `truncateToTokenBudget` cutting each guide off mid-sentence — a guide that stops mid-clause is a
+   * worse instruction than no guide. See the caps for what this does to the 24k ceiling.
+   */
+  const appendGuideSource = (block: string, label: string, file: string | undefined): string => {
+    const body = String(file ?? '').trim();
+    if (!block || !body) return block;
+    return `${block}
+
+${label}
+
+${body}`;
+  };
+  humourGuideBlock = appendGuideSource(
+    humourGuideBlock,
+    'THE FULL GUIDE THESE PRINCIPLES COME FROM (reference — the numbered rules above take precedence):',
+    inputs.writingGuides?.humour,
+  );
+  craftGuideBlock = appendGuideSource(
+    craftGuideBlock,
+    'THE FULL GUIDE THESE PRINCIPLES COME FROM (reference — the numbered rules above take precedence):',
+    inputs.writingGuides?.craft,
+  );
 
   const qualityGuardrails = Array.isArray(inputs.qualityGuardrails) ? inputs.qualityGuardrails : [];
   const rolloutFlagsRaw = (getGenerationParams().agent9_prose as any)?.rollout_flags;
