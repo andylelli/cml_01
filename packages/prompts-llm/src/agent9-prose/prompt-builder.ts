@@ -1379,28 +1379,64 @@ const CRAFT_INPUT_BLOCKS = new Set([
 ]);
 
 /**
- * Drop candidates within one priority class, craft inputs last.
+ * Blocks that go LAST, after every other droppable block in their class, whatever the array says.
  *
- * A stable partition, not a comparator sort — the non-craft blocks keep their existing relative order
- * and so do the craft ones, so with the flag off (or with no craft blocks present) this returns the
- * array unchanged and the victim is exactly who it was before.
+ * ── WHY POSITION IS NOT ENOUGH, MEASURED ON A LIVE RUN ───────────────────────────────────────────
+ *
+ * `voice_spec` was placed after `craft_guide` in the ordered array with a comment claiming it would
+ * therefore die last of the craft blocks. On the A_75 P1v arm-B run it was dropped from chapter 6
+ * onward — BEFORE `world_document`, which sits far earlier in that array:
+ *
+ *   dropped=[humour_guide, continuity_context, location_profiles, texture_pool, physical_plausibility,
+ *            era_authenticity, temporal_context, craft_guide, voice_spec, world_document]
+ *
+ * `AGENT9_PROMPT_PREFIX_ORDER` reorders blocks by STABILITY before this runs, so run-stable blocks
+ * precede chapter-stable ones and array position does not survive to the drop loop. The unit test
+ * that "proved" the ordering passed because it called `applyPromptBudgeting` with a hand-built array
+ * rather than through the real path — the probe-validity trap in miniature.
+ *
+ * ── WHY THIS BLOCK IN PARTICULAR ─────────────────────────────────────────────────────────────────
+ *
+ * `craft_guide` degrades gracefully: general advice absent from three chapters costs three chapters of
+ * polish. A VOICE does not. Its entire value is that the book keeps ONE, and a book written in a
+ * committed voice for five chapters and the house voice for four has no voice at all — it has a seam.
+ * It also costs 260 tokens, so it is never the reason a prompt overflows: on the run above, dropping
+ * `world_document` alone left 2,637 tokens of headroom, which means dropping `voice_spec` bought
+ * nothing and cost the whole lever.
+ */
+const DROP_LAST_BLOCKS = new Set(['voice_spec']);
+
+/**
+ * Drop candidates within one priority class: craft inputs last, and `DROP_LAST_BLOCKS` after those.
+ *
+ * A stable partition, not a comparator sort — blocks keep their relative order inside each group, so
+ * with the flag off and no drop-last block present this returns the array unchanged and the victim is
+ * exactly who it was before.
  */
 const orderDropCandidates = (
   candidates: PromptContextBlock[],
   craftFloorOn: boolean,
-): PromptContextBlock[] =>
-  craftFloorOn
+): PromptContextBlock[] => {
+  const last = candidates.filter((block) => DROP_LAST_BLOCKS.has(block.key));
+  const rest = candidates.filter((block) => !DROP_LAST_BLOCKS.has(block.key));
+  const ordered = craftFloorOn
     ? [
-        ...candidates.filter((block) => !CRAFT_INPUT_BLOCKS.has(block.key)),
-        ...candidates.filter((block) => CRAFT_INPUT_BLOCKS.has(block.key)),
+        ...rest.filter((block) => !CRAFT_INPUT_BLOCKS.has(block.key)),
+        ...rest.filter((block) => CRAFT_INPUT_BLOCKS.has(block.key)),
       ]
-    : candidates;
+    : rest;
+  // Unconditional: a block declared drop-last goes last whether or not the craft floor is on. The
+  // craft floor decides WHICH craft blocks are protected; this decides ORDER, and ordering a
+  // 260-token lever behind everything droppable costs nothing when the flag is off (it is absent).
+  return [...ordered, ...last];
+};
 
 /** Exported for tests: the classification is the claim R8 rests on, so it has to be assertable. */
 export const __isPromptPrefixOrderEnabled = isPromptPrefixOrderEnabled;
 export const __isRubricInPromptEnabled = isRubricInPromptEnabled;
 export const __isPromptBudgetCraftFloorEnabled = isPromptBudgetCraftFloorEnabled;
 export const __CRAFT_INPUT_BLOCKS = CRAFT_INPUT_BLOCKS;
+export const __DROP_LAST_BLOCKS = DROP_LAST_BLOCKS;
 
 export const estimateTokenCount = (value: string): number => {
   if (!value) return 0;

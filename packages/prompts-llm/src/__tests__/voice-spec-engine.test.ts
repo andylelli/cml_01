@@ -187,37 +187,80 @@ describe('summariseVoiceSpec feeds the next story', () => {
   });
 });
 
-describe('the voice block survives budget pressure as long as any craft block does', () => {
+describe('the voice block is the LAST droppable block, whatever the array order says', () => {
   /**
-   * The claim in prompt-builder.ts is that of the craft blocks this one is dropped LAST, and the
-   * first version of that line put it FIRST while the comment claimed otherwise — the drop loop walks
-   * candidates from the front, so earlier in the array means dropped EARLIER. Asserted here against
-   * the real budgeting function rather than restated in a comment.
+   * THE DEFECT THIS REPLACES, measured on the live arm-B run rather than argued: `voice_spec` was
+   * placed after `craft_guide` in the ordered array with a comment claiming it would die last. It was
+   * dropped from chapter 6 onward, BEFORE `world_document`, which sits far earlier in that array —
+   * because `AGENT9_PROMPT_PREFIX_ORDER` reorders by STABILITY before the drop loop runs, so array
+   * position never reaches it.
+   *
+   * The previous version of this test passed anyway, because it fed `applyPromptBudgeting` a
+   * hand-built array in the order it wanted. A test that constructs the input it hopes for proves
+   * nothing about the pipeline. These pass the blocks in the ADVERSE order instead.
    */
-  it('is classified as a craft input, so it goes after the non-craft blocks', async () => {
-    const { __CRAFT_INPUT_BLOCKS } = await import('../agent9-prose/prompt-builder.js');
-    expect(__CRAFT_INPUT_BLOCKS.has('voice_spec')).toBe(true);
-  });
+  const blk = (key: string, tokens: number) => ({ key, priority: 'high' as const, content: 'x'.repeat(tokens * 4) });
 
-  it('is dropped only after craft_guide and judged_on have gone', async () => {
-    const { applyPromptBudgeting } = await import('../agent9-prose/prompt-builder.js');
+  const withCraftFloor = async <T>(fn: () => Promise<T> | T): Promise<T> => {
     const prev = process.env.AGENT9_PROMPT_BUDGET_CRAFT_FLOOR;
     process.env.AGENT9_PROMPT_BUDGET_CRAFT_FLOOR = 'true';
     try {
-      const blk = (key: string, tokens: number) => ({ key, priority: 'high' as const, content: 'x'.repeat(tokens * 4) });
-      // Budget forces two of the three craft blocks out; voice_spec must be the survivor.
-      const { droppedBlocks } = applyPromptBudgeting(
-        'f'.repeat(100 * 4), '', '',
-        [blk('craft_guide', 300), blk('judged_on', 300), blk('voice_spec', 100)],
-        320,
-      );
-      expect(droppedBlocks).toContain('craft_guide');
-      expect(droppedBlocks).toContain('judged_on');
-      expect(droppedBlocks).not.toContain('voice_spec');
+      return await fn();
     } finally {
       if (prev === undefined) delete process.env.AGENT9_PROMPT_BUDGET_CRAFT_FLOOR;
       else process.env.AGENT9_PROMPT_BUDGET_CRAFT_FLOOR = prev;
     }
+  };
+
+  it('is declared drop-last, and is a craft input as well', async () => {
+    const { __CRAFT_INPUT_BLOCKS, __DROP_LAST_BLOCKS } = await import('../agent9-prose/prompt-builder.js');
+    expect(__DROP_LAST_BLOCKS.has('voice_spec')).toBe(true);
+    expect(__CRAFT_INPUT_BLOCKS.has('voice_spec')).toBe(true);
+  });
+
+  it('survives when voice_spec is passed FIRST — the order the live run actually produced', async () => {
+    const { applyPromptBudgeting } = await import('../agent9-prose/prompt-builder.js');
+    await withCraftFloor(() => {
+      // voice_spec ahead of everything, exactly as the stability reorder placed it on the real run.
+      const { droppedBlocks } = applyPromptBudgeting(
+        'f'.repeat(100 * 4), '', '',
+        [blk('voice_spec', 65), blk('world_document', 300), blk('craft_guide', 300)],
+        // Tight enough that BOTH of the others must go — otherwise one drop suffices and the test
+        // never reaches the question it is asking.
+        300,
+      );
+      expect(droppedBlocks).toContain('craft_guide');
+      expect(droppedBlocks).toContain('world_document');
+      expect(droppedBlocks).not.toContain('voice_spec');
+    });
+  });
+
+  it('survives with the craft floor OFF too — ordering is unconditional', async () => {
+    const { applyPromptBudgeting } = await import('../agent9-prose/prompt-builder.js');
+    const prev = process.env.AGENT9_PROMPT_BUDGET_CRAFT_FLOOR;
+    delete process.env.AGENT9_PROMPT_BUDGET_CRAFT_FLOOR;
+    try {
+      const { droppedBlocks } = applyPromptBudgeting(
+        'f'.repeat(100 * 4), '', '',
+        [blk('voice_spec', 65), blk('humour_guide', 400)],
+        480,
+      );
+      expect(droppedBlocks).toEqual(['humour_guide']);
+    } finally {
+      if (prev !== undefined) process.env.AGENT9_PROMPT_BUDGET_CRAFT_FLOOR = prev;
+    }
+  });
+
+  it('still goes when nothing else is left — protection is an ORDER, not immunity', async () => {
+    const { applyPromptBudgeting } = await import('../agent9-prose/prompt-builder.js');
+    await withCraftFloor(() => {
+      const { droppedBlocks } = applyPromptBudgeting(
+        'f'.repeat(500 * 4), '', '',
+        [blk('voice_spec', 65)],
+        510,
+      );
+      expect(droppedBlocks).toEqual(['voice_spec']);
+    });
   });
 });
 
