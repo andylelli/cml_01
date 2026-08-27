@@ -488,3 +488,87 @@ the culprit floor nor the clue injector fired, so `AGENT9_CULPRIT_INJECTION_IN_S
 cleared by this run, and saying otherwise would be exactly the "silence recorded as a pass" defect this
 document has now catalogued three times.
 
+---
+
+## 9. THE PAIR'S VERDICT — P1 FAILS AT DELIVERY, AND THAT IS THE USEFUL ANSWER
+
+**MEASURED**, `node scripts/matched-pair-report.mjs`. Both arms resumed from `canary_1787512796199`
+with byte-identical upstream; one flag apart. 28.7 minutes, ~£1.4.
+
+```
+                              arm A     arm B     delta
+  mean sentence length        15.69     15.01     -0.68     <- the lever's delivery
+  within-book sd               7.54      7.81     +0.27
+  register rate @3 (%)        10.55      9.20     -1.36
+  conformance to B's spec      0.31      0.18     -0.12     target 19.5±5.5
+```
+
+**Arm B was told to write at 19.5 words per sentence and wrote at 15.01 — SHORTER than the arm given
+no instruction at all.** Conformance 0.18 against a delivery threshold of 0.80. The two arms separate
+by 0.68 words, below the 1.02-word between-book sd of §3: **the pair reproduced the uniformity rather
+than breaking it.**
+
+### 9.1 The budget drop is NOT the explanation, and the per-chapter split proves it
+
+The voice block was dropped from ch6 onward (§8, now fixed). If that were the cause, chapters 1–5
+would sit near the target. They do not:
+
+```
+            ch1   ch2   ch3   ch4   ch5  |  ch6   ch7   ch8   ch9
+  arm A    17.2  16.0  17.1  15.2  18.2  | 16.2  13.6  14.8  15.1      no spec, ever
+  arm B    16.8  15.8  16.4  13.7  16.0  | 13.4  15.6  15.2  13.9      spec present ch1-5 only
+                 ^ block PRESENT, target 19.5      ^ block dropped
+```
+
+**Arm B's chapters that CARRIED the instruction average 15.7. Arm A's equivalent chapters, with no
+instruction, average 16.7.** The block's presence moved sentence length not at all — if anything
+slightly the wrong way. Both books drift down toward ~15 as they go.
+
+### 9.2 What DID land, and it changes the diagnosis
+
+The committed spec asked for three things beyond the number. Narration only, dialogue stripped:
+
+| spec field | asked for | arm A | arm B |
+|---|---|---:|---:|
+| `syntacticHabit` | balanced clauses linked by **semicolons** | 5 | **13** |
+| `signatureMove` | playful **direct address** to the reader | 9 | **1** |
+| `sentenceLength` | mean **19.5** words | 15.69 | 15.01 |
+
+**A concrete textual operation was followed — semicolons more than doubled.** An abstract numeric
+target was ignored. A high-level "signature move" went BACKWARDS.
+
+Small n (two books, single-digit raw counts), so the semicolon result is suggestive, not established.
+But the direction is consistent and the mechanism it implies is specific.
+
+### 9.3 The conclusion, and it is not "voice specs do not work"
+
+§6.1 stated the falsification as *conformance ≥ 0.8 with `prose` still at 6–7 across two reads*. **We
+never reached 0.8, so the hypothesis about VOICE is untested.** What IS established is narrower, and
+more immediately useful:
+
+> **A prompt block naming a target mean sentence length does not change sentence length.**
+> The model follows instructions that name an OPERATION it can perform on a clause. It does not
+> follow instructions that name a STATISTIC of the finished text.
+
+Three consequences:
+
+1. **`voiceConformance` measures the one property the model will not move.** Built on the mean, it is
+   a delivery metric for an undeliverable field. It stays — a metric that reports failure honestly is
+   working — but it cannot be the gate for whether P1 is worth continuing.
+2. **The spec's fields are not equal and should not be weighted equally.** `syntacticHabit` earns its
+   place; `sentenceLength` is the wrong instrument for a prompt; `signatureMove` as written is too
+   abstract to execute and went the wrong way.
+3. **No reader should be spent on this pair.** The books differ by 0.68 words and 8 semicolons. Asking
+   a human to resolve that would burn the only instrument that resolves a single mark
+   ([A_74 §6.1](../ANALYSIS_74/ANALYSIS_74.md)) on a contrast that is not there.
+
+### 9.4 What this cost, and why the order was right
+
+~£1.4 and 29 minutes, and it returned a decisive negative WITHOUT a reader. That is precisely what
+§6.1 claimed for P1 — *"the only item on this board whose delivery is independently measurable"* — and
+the claim held, just not in the direction hoped for. Had the deterministic metric not existed, this
+pair would have gone to two readers, come back "no difference", and been indistinguishable from a
+lever that reached the prose and did not help.
+
+Internal rubric, health signal only (the rubric cannot rank two books): arm A 65, arm B 68.
+
