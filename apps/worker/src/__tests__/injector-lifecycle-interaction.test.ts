@@ -125,3 +125,71 @@ describe("injector output × lifecycle validator — abort class #6", () => {
     }
   });
 });
+
+describe("abort class #6 under the LIST-GRAMMAR flag (A_75 P3.2)", () => {
+  /**
+   * `AGENT9_CLUE_LIST_GRAMMAR` changes the sentence shape this builder emits. The invariant above is
+   * enforced by SHAPE — the name-bearing lead and the term-bearing sentences are structurally
+   * separate — so a rendering change is exactly the edit that can reopen the run-killer. The flag is
+   * read at CALL time, so the REAL validator can be run against the ON path here rather than only
+   * against the default the suite happens to inherit.
+   */
+  const withListGrammar = <T>(fn: () => T): T => {
+    const prev = process.env.AGENT9_CLUE_LIST_GRAMMAR;
+    process.env.AGENT9_CLUE_LIST_GRAMMAR = "true";
+    try {
+      return fn();
+    } finally {
+      if (prev === undefined) delete process.env.AGENT9_CLUE_LIST_GRAMMAR;
+      else process.env.AGENT9_CLUE_LIST_GRAMMAR = prev;
+    }
+  };
+
+  it("the flag reaches this builder at all (a frozen flag would make the test below vacuous)", () => {
+    const off = buildDeterministicClueParagraphs(
+      [{ description: "Puncture wound victim body", pointsTo: "the angle of the mirror", isMissing: true, requiresEarlyPlacement: false } as any],
+      INVESTIGATOR,
+      false,
+    );
+    const on = withListGrammar(() => buildDeterministicClueParagraphs(
+      [{ description: "Puncture wound victim body", pointsTo: "the angle of the mirror", isMissing: true, requiresEarlyPlacement: false } as any],
+      INVESTIGATOR,
+      false,
+    ));
+    expect(on.join(" ")).not.toEqual(off.join(" "));
+  });
+
+  it("the REAL lifecycle validator still clears the investigator with the flag ON", () => {
+    withListGrammar(() => {
+      const paragraphs = buildDeterministicClueParagraphs(
+        [
+          { description: "Puncture wound victim body", pointsTo: "Temporal conflict hale alibi", isMissing: true, requiresEarlyPlacement: false } as any,
+          { description: "corpse discovered near the tide-line", isMissing: true, requiresEarlyPlacement: true } as any,
+        ],
+        INVESTIGATOR,
+        false,
+      );
+      const errors = validateCharacterLifecycle(storyWith(["The lobby had emptied.", ...paragraphs]) as any, cml);
+      expect(criticalsFor("Eleanor", errors)).toEqual([]);
+    });
+  });
+
+  it("and no sentence pairs the investigator's name with a death word", () => {
+    const DEATH_RE = /(?:dead|body|corpse|deceased|lifeless|murdered|killed|slain)/i;
+    withListGrammar(() => {
+      const paragraphs = buildDeterministicClueParagraphs(
+        [
+          { description: "victim body slain near the boathouse", isMissing: true, requiresEarlyPlacement: false } as any,
+          { description: "bloodstained lifeless corpse markers", pointsTo: "deceased found at the jetty", isMissing: true, requiresEarlyPlacement: false } as any,
+        ],
+        INVESTIGATOR,
+        false,
+      );
+      for (const para of paragraphs) {
+        for (const sentence of para.split(/(?<=[.!?])\s+/)) {
+          expect((/Eleanor|Voss/i.test(sentence)) && DEATH_RE.test(sentence)).toBe(false);
+        }
+      }
+    });
+  });
+});

@@ -18,6 +18,8 @@
     "test:eval-calibrate": "node --test scripts/__tests__/eval-calibrate.test.mjs",
     "test:external-read-ledger": "node --test scripts/__tests__/external-read-ledger.test.mjs",
     "ledger:external-read": "node scripts/external-read-ledger.mjs",
+    "guard:voice-uniformity": "node scripts/voice-uniformity-guard.mjs",
+    "probe:register-score": "node scripts/register-score-probe.mjs",
     "judge:pairwise": "node scripts/judge-pairwise.mjs",
     "exp:regen-clue": "node scripts/exp-regen-clue-ab.mjs",
     "exp:regen-clue:analyze": "node scripts/exp-regen-clue-analyze.mjs",

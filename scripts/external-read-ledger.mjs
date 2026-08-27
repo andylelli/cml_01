@@ -40,6 +40,11 @@
  *   node scripts/external-read-ledger.mjs --check    # CI: non-zero if a read is dead or unparsed
  *   node scripts/external-read-ledger.mjs --best     # the best-ever-in-each-category arithmetic
  *   node scripts/external-read-ledger.mjs --gaps     # which categories have never reached 9, and why
+ *
+ * `--gaps` also runs the A_75 §6.5 voice-uniformity guard. The two belong together: `--gaps` names the
+ * five categories that have never reached 9, and the guard reports the ONE measured property that
+ * explains why `prose` is among them — every recent book drawn from one distribution of sentences. The
+ * gap list without that number reads as five separate mysteries.
  */
 
 import { existsSync, readFileSync, readdirSync, writeFileSync, statSync } from "node:fs";
@@ -323,6 +328,23 @@ if (invokedDirectly) {
       for (const n of notes) console.log(`        · ${n.slice(0, 96)}`);
     }
     console.log("");
+  }
+
+  if (GAPS) {
+    // A_75 §6.5, property C — the measurement that found the ceiling runs where the ceiling is read.
+    // Spawned rather than imported so a failure in the guard cannot take the ledger down with it.
+    try {
+      const { spawnSync } = await import("node:child_process");
+      const guard = join(ROOT, "scripts", "voice-uniformity-guard.mjs");
+      if (existsSync(guard)) {
+        const res = spawnSync(process.execPath, [guard], { encoding: "utf8" });
+        if (res.stdout) console.log(res.stdout.replace(/^/gm, "  "));
+      }
+    } catch (err) {
+      console.log(`
+  (voice-uniformity guard did not run: ${err instanceof Error ? err.message : String(err)})
+`);
+    }
   }
 
   if (WRITE) {

@@ -95,7 +95,7 @@ import {
   // A_73 §11.1 — the one prose-stage clearance vocabulary.
   CLEARANCE_TERMS_RE,
 } from "@cml/prompts-llm";
-import { noScaffoldValidator, detectTemplateLeakage, detectScaffoldNotProse, detectDerivedContradictionLeak, detectEvidentiaryRegister } from "@cml/prose-guard";
+import { noScaffoldValidator, detectTemplateLeakage, detectScaffoldNotProse, detectDerivedContradictionLeak, detectEvidentiaryRegister, machineRegisterRate, REGISTER_TELEMETRY_THRESHOLD } from "@cml/prose-guard";
 import {
   chapterIndexFor,
   checkManuscriptGeometry,
@@ -6023,6 +6023,32 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       const registerTotal = chapterTextsA65.reduce((n, t) => n + detectEvidentiaryRegister(t).length, 0);
       if (registerTotal > 0) {
         ctx.warnings.push(`[Agent 9] SHIP-CHECK: evidentiary-register narration ×${registerTotal} (measure — the withheld-inference contract should push this down).`);
+      }
+      // A_75 §6.2 (P2) — the same family measured by GRAMMAR rather than by the frozen phrase list
+      // above, which by its own law can only ever see phrasings we wrote. ALWAYS ON, never a gate:
+      // rho = -0.421 against the human `prose` mark over 40 read manuscripts (n=40, |rho|>0.314 to
+      // signify), falling monotonically 15.9% at prose 4 to 10.0% at prose 8. That makes it the first
+      // prose signal in this pipeline that points at the mark rather than at a defect count.
+      //
+      // Reported as a RATE and as a per-chapter WORST, because the correlation is with the rate. The
+      // per-sentence score at threshold 4 was measured and REJECTED as a lever (rho = +0.207, wrong
+      // sign) — see machine-register.ts. Nothing acts on this number; it is a health signal, and the
+      // run-to-run series is what makes it worth carrying.
+      {
+        const whole = machineRegisterRate(chapterTextsA65.join(" "), REGISTER_TELEMETRY_THRESHOLD);
+        const perChapter = chapterTextsA65
+          .map((t, i) => ({ ch: i + 1, ...machineRegisterRate(t, REGISTER_TELEMETRY_THRESHOLD) }))
+          .filter((r) => r.sentences >= 20)
+          .sort((a, b) => b.rate - a.rate);
+        const worst = perChapter[0];
+        if (whole.sentences > 0) {
+          ctx.warnings.push(
+            `[Agent 9] SHIP-CHECK: machine-register rate ${(100 * whole.rate).toFixed(1)}% ` +
+            `(${whole.hits}/${whole.sentences} narration sentences at score>=${REGISTER_TELEMETRY_THRESHOLD})` +
+            `${worst ? `, worst ch${worst.ch} at ${(100 * worst.rate).toFixed(1)}%` : ""} ` +
+            `— MEASURE only. Read: prose 8 books sit near 10%, prose 4 near 16%.`,
+          );
+        }
       }
     }
   }

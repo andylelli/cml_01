@@ -22,6 +22,10 @@ import type { StageModeKey } from "./clue-validation.js";
 // fallback reveal surfaces exactly the token the gate checks for (no abort on the fallback path).
 import { resolveDeathMethod } from "./prompt-builder.js";
 import { CLEARANCE_TERMS_RE } from "../shared/clearance-vocabulary.js";
+import {
+  buildClueObservationParagraph,
+  buildClueInferenceParagraph,
+} from "./injection-templates.js";
 import type {
   ChapterRequirementLedgerEntry,
   ProseChapter,
@@ -284,6 +288,24 @@ const dedupeByDescriptionSimilarity = (
 
 // Exported for the abort-class-#6 interaction test (worker): the REAL lifecycle validator runs over
 // this builder's output to pin the no-cast-name-in-a-key-term-sentence invariant.
+/**
+ * The missing-clue floor. Exported for the abort-class-#6 interaction test (worker): the REAL
+ * lifecycle validator runs over this builder's output to pin the no-cast-name-in-a-key-term-sentence
+ * invariant.
+ *
+ * THE SENTENCES THEMSELVES LIVE IN `injection-templates.ts` (A_75 P3.1), beside the patterns that
+ * must recognise them. They shipped from here for the life of the project, which is why
+ * `isInjectedSentence` returned false for every sentence this injector ever wrote — the builder was
+ * in one module and its registry in another, the second-body trap that file's header warns about.
+ *
+ * ABORT CLASS #6 (M1v7 run 1, mystery-1784244374547) is enforced by that builder and must stay
+ * enforced: NO sentence may contain BOTH a cast name and the clue key-terms. The old shape shipped
+ * "Eleanor voss continued … toward the next concrete detail: Puncture wound victim body." as ONE
+ * sentence; the character-lifecycle validator's death heuristic (any cast name + a DEATH_RE word in a
+ * sentence) marked the DETECTIVE deceased in ch3, every later action became a `victim_reappears_alive`
+ * CRITICAL, the release gate failed, and the run died. The injector fabricated evidence and a sibling
+ * validator believed it.
+ */
 export const buildDeterministicClueParagraphs = (
   materials: RequiredClueMaterialization[],
   investigatorName: string,
@@ -291,35 +313,13 @@ export const buildDeterministicClueParagraphs = (
 ): string[] => {
   if (materials.length === 0) return [];
   const clueList = materials.map((entry) => entry.description).filter(Boolean).join("; ");
-  // A_50 Fix #1: drop the content-free meta-narration ("treated those facts as observable evidence…")
-  // and the flagged scaffold leads; operands are de-spoiled key terms rendered as a readable clause.
-  //
-  // ABORT CLASS #6 (M1v7 run 1, mystery-1784244374547): NO sentence below may contain BOTH a cast
-  // name and the clue key-terms. The old shape — `${lead}: ${clueList}.` — shipped
-  // "Eleanor voss continued … toward the next concrete detail: Puncture wound victim body." as ONE
-  // sentence; the character-lifecycle validator's death heuristic (any cast name + DEATH_RE word in
-  // a sentence) then marked the DETECTIVE deceased in ch3, and her every later action became a
-  // `victim_reappears_alive` CRITICAL → release gate failed → run aborted. The injector fabricated
-  // evidence and a sibling validator believed it (A_61 RC-1 escalated from rubric cap to
-  // run-killer). Key-term operands may legitimately contain words like "victim"/"body"/"wound", so
-  // the name-bearing lead and the term-bearing sentences are now STRUCTURALLY separate sentences
-  // with neutral subjects on the term side. The interaction is pinned by a worker test that runs
-  // the REAL lifecycle validator over this builder's output.
-  const lead = isEarly
-    ? `${investigatorName} laid the facts out plainly where the others could see them.`
-    : `${investigatorName} pressed on to the next concrete detail.`;
-  const observationParagraph = `${lead} The record now held: ${clueList}.`;
-  // R-A (M0): operands are key-term lists (≤6 tokens each), composed into a sentence — never a pasted
-  // spec sentence, so no 12-word verbatim run can survive.
-  const inferenceSentences = materials.map((entry) => {
-    if (entry.pointsTo) {
-      return `Weighed against the rest, ${entry.description} bent the trail toward ${entry.pointsTo}.`;
-    }
-    return `Weighed against the rest, ${entry.description} left the standing account weaker.`;
-  });
-  const inferenceParagraph =
-    `${materials.length > 1 ? "Those details" : "That detail"} shifted the reasoning. ${inferenceSentences.join(" ")}`;
-  return [observationParagraph, inferenceParagraph];
+  return [
+    buildClueObservationParagraph(investigatorName, clueList, isEarly),
+    buildClueInferenceParagraph(materials.map((entry) => ({
+      description: entry.description,
+      pointsTo: entry.pointsTo || undefined,
+    }))),
+  ];
 };
 
 export const applyDeterministicCluePatch = (

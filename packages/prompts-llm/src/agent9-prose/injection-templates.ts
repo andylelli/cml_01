@@ -78,6 +78,86 @@ export const buildCulpritEvidenceSentenceInScene = (culprit: string): string =>
   `${culprit} said nothing, and the proof on the table said the rest.`;
 
 
+/**
+ * ── A_75 §6.3 (P3.2) — THE CLUE-PARAGRAPH BUILDERS, MOVED HERE ───────────────────────────────────
+ *
+ * These two sentences shipped from `deterministic-repair.ts` for the whole life of the project, which
+ * is this file's property #1 violated for the LARGEST injector in the pipeline: the builder lived in
+ * one module and the registry that exists to recognise its output lived in another. That is the same
+ * second-body trap the header warns about, and it is exactly why `isInjectedSentence` returned false
+ * for every sentence this injector has ever written (fixed 2026-08-26). The builder now lives beside
+ * the patterns that must match it.
+ *
+ * ── THE DEFECT THE LIST GRAMMAR FIXES ────────────────────────────────────────────────────────────
+ *
+ * `description` and `pointsTo` are TOKEN BAGS. `composeProseTermPhrase` reduces a clue to de-spoiled
+ * key terms — "Temporal conflict hale alibi", "Victim last seen alive minutes past" — deliberately,
+ * so no 12-word span of the spec can survive into the prose. The old inference sentence then used a
+ * token bag as a SUBJECT and as a VERB COMPLEMENT:
+ *
+ *     "Weighed against the rest, Victim last seen alive minutes past bent the trail toward
+ *      Temporal conflict hale alibi."
+ *
+ * That is not a wording problem to be reworded. **A token bag is grammatical in a list and nowhere
+ * else**, so no phrasing that puts one in subject position can be made to read. The fix is to render
+ * the operands where their grammar works: after a colon, as a list.
+ *
+ * Flag-gated `AGENT9_CLUE_LIST_GRAMMAR` (default OFF), read at CALL time — a module-const flag freezes
+ * before dotenv and this repo has paid for that twice.
+ */
+export const isClueListGrammarEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  env.AGENT9_CLUE_LIST_GRAMMAR === "true" || env.AGENT9_CLUE_LIST_GRAMMAR === "1";
+
+/**
+ * The observation half. The lead carries the investigator's NAME and the terms sit in a SEPARATE
+ * sentence — never merged. That separation is load-bearing and predates this move: abort class #6
+ * (run `mystery-1784244374547`) shipped a lead and a key-term list as ONE sentence, the character
+ * lifecycle validator's death heuristic saw a cast name beside the word "body", marked the DETECTIVE
+ * deceased in ch3, and the release gate killed the run. A worker test runs the real validator over
+ * this output.
+ */
+export const buildClueObservationParagraph = (
+  investigatorName: string,
+  clueList: string,
+  isEarly: boolean,
+): string => {
+  const lead = isEarly
+    ? `${investigatorName} laid the facts out plainly where the others could see them.`
+    : `${investigatorName} pressed on to the next concrete detail.`;
+  return `${lead} The record now held: ${clueList}.`;
+};
+
+/** One inference sentence per clue. `description` and `pointsTo` are key-term bags, never sentences. */
+export interface ClueInferenceOperands {
+  description: string;
+  pointsTo?: string;
+}
+
+/**
+ * The inference half. Two renderings, and the flag chooses:
+ *
+ *   OFF (today's shipped text)  "Weighed against the rest, <bag> bent the trail toward <bag>."
+ *   ON  (the list grammar)      "Weighed against the rest, one detail told against the account: <bag>.
+ *                                What it pointed to: <bag>."
+ *
+ * Both keep the operands out of any sentence carrying a cast name, so abort class #6 stays closed.
+ */
+export const buildClueInferenceSentence = (entry: ClueInferenceOperands): string => {
+  if (isClueListGrammarEnabled()) {
+    return entry.pointsTo
+      ? `Weighed against the rest, one detail told against the account: ${entry.description}. `
+        + `What it pointed to: ${entry.pointsTo}.`
+      : `Weighed against the rest, one detail told against the account: ${entry.description}.`;
+  }
+  return entry.pointsTo
+    ? `Weighed against the rest, ${entry.description} bent the trail toward ${entry.pointsTo}.`
+    : `Weighed against the rest, ${entry.description} left the standing account weaker.`;
+};
+
+export const buildClueInferenceParagraph = (entries: ReadonlyArray<ClueInferenceOperands>): string =>
+  `${entries.length > 1 ? "Those details" : "That detail"} shifted the reasoning. `
+  + entries.map(buildClueInferenceSentence).join(" ");
+
 /** `enforceSuspectEliminationPresence` — the floor for "this suspect is never cleared in the prose". */
 export const buildSuspectClearanceSentence = (surname: string): string =>
   `${surname} was thoroughly cleared by the evidence; the alibi confirmed they could not have committed the crime.`;
@@ -120,6 +200,12 @@ export const INJECTED_SENTENCE_PATTERNS: ReadonlyArray<RegExp> = [
   /(?:laid the facts out plainly where the others could see them|pressed on to the next concrete detail)/i,
   /(?:Those details|That detail) shifted the reasoning/i,
   /Weighed against the rest,.*(?:bent the trail toward|left the standing account weaker)/i,
+  // …and the LIST-GRAMMAR rendering of the same floor (AGENT9_CLUE_LIST_GRAMMAR). Registered in the
+  // same commit that introduced it: property #2 of this file is that a floor which changes its
+  // sentence must contribute the new shape, and the alternative is a flag that silently blinds every
+  // checker the moment it is switched on.
+  /Weighed against the rest, one detail told against the account:/i,
+  /What it pointed to:/i,
   // buildResolutionBackstopSentence — the confession backstop
   /"It was me\."\s*The words left\s+.{1,40}?\s+at last, barely above a whisper\./i,
   /"I confess\s*[—-]\s*I did it\."/i,
@@ -128,3 +214,82 @@ export const INJECTED_SENTENCE_PATTERNS: ReadonlyArray<RegExp> = [
 /** Does this sentence match something the pipeline wrote for itself? */
 export const isInjectedSentence = (sentence: string): boolean =>
   INJECTED_SENTENCE_PATTERNS.some((re) => re.test(sentence));
+
+/**
+ * ── A_75 §6.3 (P3.1) — EVERY BUILDER, DECLARED ───────────────────────────────────────────────────
+ *
+ * THE RULE THIS ENFORCES, and it is the whole point of the item:
+ *
+ *   > Text the pipeline writes for itself is held to the same standard as text the model writes.
+ *
+ * Until now that standard existed in one direction only. `RESOLUTION_VERDICT_CLOSER_RULES` failed the
+ * MODEL for writing a summary verdict, and `enforceCulpritEvidencePresence` wrote one on every firing
+ * — 5 injections, 10 violations, a 100% violation rate across the archived runs — and shipped it,
+ * because ADR-0003 says injections stand. Three external readers quoted the result back as generator
+ * residue.
+ *
+ * X4 fixed that ONE sentence. This makes the CLASS unrepresentable: the accompanying test walks this
+ * registry, requires every `live` builder's specimen to break no model-bound rule AND to be matched by
+ * `isInjectedSentence`, and requires every exported `build…` function in this module to appear here.
+ * A new floor cannot be added in a violating form, or added without registering its shape, without
+ * failing the suite. That is a rule rather than a repair — property A of §6.0.
+ *
+ * `superseded` marks a builder kept only so its defect stays pinned by a test. It is exempt from the
+ * rule check and MUST NOT be called by an injector.
+ */
+export type InjectionBuilderStatus = "live" | "superseded";
+
+export interface InjectionBuilderSpec {
+  /** The exported function name, so the export sweep can match on it exactly. */
+  id: string;
+  status: InjectionBuilderStatus;
+  /** Why it is superseded, and by what. Required for `superseded`, so the exemption is never silent. */
+  supersededBy?: string;
+  /** A specimen built with representative operands — the real builder, never a re-typed string. */
+  specimen: () => string;
+}
+
+const SPECIMEN_CULPRIT = "Hugo Vane";
+const SPECIMEN_SURNAME = "Marchbank";
+const SPECIMEN_INVESTIGATOR = "Eleanor Voss";
+/** Key-term bags of the shape `composeProseTermPhrase` actually emits — not tidy noun phrases. */
+const SPECIMEN_CLUE = { description: "Victim last seen alive minutes past", pointsTo: "Temporal conflict hale alibi" };
+
+export const INJECTION_BUILDERS: ReadonlyArray<InjectionBuilderSpec> = [
+  {
+    id: "buildCulpritEvidenceSentence",
+    status: "superseded",
+    supersededBy: "buildCulpritEvidenceSentenceInScene",
+    specimen: () => buildCulpritEvidenceSentence(SPECIMEN_CULPRIT),
+  },
+  {
+    id: "buildCulpritEvidenceSentenceInScene",
+    status: "live",
+    specimen: () => buildCulpritEvidenceSentenceInScene(SPECIMEN_CULPRIT),
+  },
+  {
+    id: "buildSuspectClearanceSentence",
+    status: "live",
+    specimen: () => buildSuspectClearanceSentence(SPECIMEN_SURNAME),
+  },
+  {
+    id: "buildResolutionBackstopSentence",
+    status: "live",
+    specimen: () => buildResolutionBackstopSentence(SPECIMEN_SURNAME),
+  },
+  {
+    id: "buildClueObservationParagraph",
+    status: "live",
+    specimen: () => buildClueObservationParagraph(SPECIMEN_INVESTIGATOR, SPECIMEN_CLUE.description, false),
+  },
+  {
+    id: "buildClueInferenceParagraph",
+    status: "live",
+    specimen: () => buildClueInferenceParagraph([SPECIMEN_CLUE]),
+  },
+  {
+    id: "buildClueInferenceSentence",
+    status: "live",
+    specimen: () => buildClueInferenceSentence(SPECIMEN_CLUE),
+  },
+];

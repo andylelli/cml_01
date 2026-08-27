@@ -63,4 +63,16 @@ export type { ScaffoldHit } from "./scaffold.js";
 export { detectDualValueNoContrast, detectDerivedContradictionLeak } from "./dual-value.js";
 export { detectEvidentiaryRegister } from "./register.js";
 export type { RegisterHit } from "./register.js";
+// A_75 §6.2 (P2) — the same family of defect, measured by GRAMMAR rather than by a phrase list.
+// `register.ts` above is a frozen family of five phrasings and cannot see a sentence we did not
+// write; this scores the register itself, which is what the external reader is actually responding
+// to. The two coexist on purpose: the frozen list is exact, the score generalises.
+export {
+  scoreSentenceRegister,
+  scoreMachineRegister,
+  machineRegisterRate,
+  REGISTER_TELEMETRY_THRESHOLD,
+  REGISTER_SIGNAL_THRESHOLD,
+} from "./machine-register.js";
+export type { RegisterScore, RegisterFeatures } from "./machine-register.js";
 export type { DiscriminatingPair } from "./dual-value.js";
