@@ -12,6 +12,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   generateVoiceSpec,
+  divergenceSet,
   buildDivergenceBlock,
   buildVoiceSpecPrompt,
   buildVoiceSpecJudgePrompt,
@@ -22,6 +23,7 @@ import {
   VOICE_SPEC_CANDIDATES,
 } from '../agent9-prose/voice-spec-engine.js';
 import { VOICE_CORPUS } from '../constants/voice-corpus.js';
+import { validateVoiceSpec } from '@cml/prose-guard';
 import type { VoiceSpec } from '@cml/prose-guard';
 
 const SPEC: VoiceSpec = {
@@ -348,5 +350,51 @@ describe('THE OPERATIONAL RISK: the corpus can close the door', () => {
     expect(res.error).toMatch(/rejected/);
     // The reason names the book it collided with, so a run log says WHY the lever produced nothing.
     expect(res.candidates[0].rejected.join(' ')).toMatch(/story_/);
+  });
+});
+
+describe("the open bands, not just the forbidden means", () => {
+  /**
+   * Stating what is forbidden is not stating what is available, and the difference is expensive: a
+   * model asked to avoid twenty numbers between 13.6 and 17.2 most often returns 13-17 anyway,
+   * because that is where its natural register sits. Every candidate is then rejected, no spec is
+   * committed, and an arm of a PAID matched pair silently becomes a copy of the other arm — two
+   * identical books read as evidence that the lever does nothing.
+   */
+  const block = buildDivergenceBlock();
+
+  it("names the intervals a candidate may actually land in", () => {
+    expect(block).toContain("THAT LEAVES EXACTLY THESE BANDS OPEN");
+    expect(block).toMatch(/9\.0 to 11\.[0-9] words per sentence/);
+    expect(block).toMatch(/19\.[0-9] to 22\.0 words per sentence/);
+  });
+
+  it("the stated bands agree with what the validator accepts — a prompt and a gate that disagree is the bug this file already had once", () => {
+    const bands = [...block.matchAll(/([0-9.]+) to ([0-9.]+) words per sentence/g)]
+      .map((m) => [Number(m[1]), Number(m[2])] as const);
+    expect(bands.length).toBeGreaterThan(0);
+    const spec = (mean: number) => ({
+      sentenceLength: { mean, sd: 6 },
+      syntacticHabit: 'h',
+      diction: 'plain-anglo' as const,
+      narrationDistance: 'cool-observer' as const,
+      signatureMove: 's',
+      avoid: [],
+    });
+    for (const [lo, hi] of bands) {
+      // Just inside each edge must be accepted; the midpoint of the forbidden gap must not.
+      expect(validateVoiceSpec(spec(lo + 0.1), divergenceSet()).ok).toBe(true);
+      expect(validateVoiceSpec(spec(hi - 0.1), divergenceSet()).ok).toBe(true);
+    }
+    expect(validateVoiceSpec(spec(15.5), divergenceSet()).ok).toBe(false);
+  });
+
+  it("says so plainly if the corpus ever fills the range, instead of asking for the impossible", async () => {
+    // The band-exhaustion failure mode: loud, not silent.
+    const crowded = Array.from({ length: 14 }, (_, i) => ({
+      story: `s${i}`, mean: 9 + i, diction: 'plain-anglo' as const,
+      narrationDistance: 'cool-observer' as const, signatureMove: '',
+    }));
+    expect(buildDivergenceBlock(crowded)).toContain("NO BAND IS OPEN");
   });
 });

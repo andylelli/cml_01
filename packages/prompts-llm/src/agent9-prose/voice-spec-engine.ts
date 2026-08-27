@@ -123,6 +123,30 @@ export const buildDivergenceBlock = (recent: ReadonlyArray<VoiceSpecSummary> = [
   const occupied = all.map((m) => m.toFixed(1)).join(", ");
   const moves = recent.map((r) => `  - ${r.story}: ${r.signatureMove}`).filter(Boolean);
 
+  /**
+   * The OPEN bands, computed from the same set the validator rejects against.
+   *
+   * Stating what is forbidden is not the same as stating what is available, and the difference is
+   * expensive here: a model asked to avoid twenty numbers between 13.6 and 17.2 will most often
+   * return 13-17 anyway, because that is where its natural register sits. Every candidate is then
+   * rejected, no spec is committed, and an arm of a paid matched pair silently becomes a copy of the
+   * other arm — the worst outcome for a paired experiment, since two identical books read as evidence
+   * that the lever does nothing.
+   *
+   * So the instruction names the intervals it may actually land in.
+   */
+  const forbidden = all
+    .map((m) => [m - VOICE_MEAN_MIN_GAP, m + VOICE_MEAN_MIN_GAP] as const)
+    .sort((a, b) => a[0] - b[0]);
+  const open: Array<[number, number]> = [];
+  let cursor = VOICE_MEAN_MIN;
+  for (const [lo, hi] of forbidden) {
+    if (lo > cursor) open.push([cursor, Math.min(lo, VOICE_MEAN_MAX)]);
+    cursor = Math.max(cursor, hi);
+  }
+  if (cursor < VOICE_MEAN_MAX) open.push([cursor, VOICE_MEAN_MAX]);
+  const usable = open.filter(([lo, hi]) => hi - lo >= 0.5 && lo < VOICE_MEAN_MAX);
+
   return [
     "DIVERGE FROM THE CORPUS.",
     "",
@@ -138,6 +162,18 @@ export const buildDivergenceBlock = (recent: ReadonlyArray<VoiceSpecSummary> = [
     `Your mean MUST be at least ${VOICE_MEAN_MIN_GAP.toFixed(1)} words away from every number above,`,
     `and inside [${VOICE_MEAN_MIN}, ${VOICE_MEAN_MAX}]. A candidate that does not clear that gap is`,
     "rejected before it is read.",
+    "",
+    usable.length > 0
+      ? `THAT LEAVES EXACTLY THESE BANDS OPEN. Every candidate's mean must fall inside one of them:`
+      : `NO BAND IS OPEN — the corpus has filled the writable range. Report this rather than guessing.`,
+    ...usable.map(([lo, hi]) => `  ${lo.toFixed(1)} to ${hi.toFixed(1)} words per sentence`),
+    ...(usable.length > 0
+      ? [
+        "",
+        "These are the only means that will be accepted. A voice near the corpus average is not a",
+        "voice — it is the twenty-first draft of the same book.",
+      ]
+      : []),
     ...(moves.length ? ["", "Signature moves already used — pick a different one:", ...moves] : []),
   ].join("\n");
 };
