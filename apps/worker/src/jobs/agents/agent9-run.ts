@@ -4548,6 +4548,14 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
    * today — the same reasoning B1 applied to geometry: a craft lever that can abort is an off switch.
    */
   let committedVoiceSpec: import("@cml/prose-guard").VoiceSpec | null = null;
+  /**
+   * Held and added AFTER `generateProse` returns. The first version of this added it to `prose.cost`
+   * here — and `prose` is not assigned until twenty lines below, so `typeof prose?.cost === "number"`
+   * was false on every run and the spend vanished. That is the report-underreporting class this
+   * project has already measured in both directions; the point of a flag-gated lever is knowing what
+   * it costs, and a lever whose cost never reaches the total cannot be priced.
+   */
+  let voiceSpecCost = 0;
   if (isVoiceSpecEnabled()) {
     const voiceResult = await generateVoiceSpec(client, {
       runId: ctx.runId,
@@ -4557,7 +4565,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       era: (cml as any)?.CASE?.setting?.era ?? undefined,
     });
     committedVoiceSpec = voiceResult.spec;
-    if (typeof prose?.cost === "number" && voiceResult.cost > 0) prose.cost += voiceResult.cost;
+    voiceSpecCost = voiceResult.cost;
     if (voiceResult.spec) {
       const s = voiceResult.spec;
       ctx.warnings.push(
@@ -4926,6 +4934,13 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     });
   } catch (checkpointError) {
     ctx.warnings.push(`Agent 9 checkpoint finalization failed: ${String(checkpointError)}`);
+  }
+
+  // A_75 P1 — fold the voice-spec spend into the run total now that `prose` exists. See the note at
+  // the generation site: adding it before this point silently dropped it.
+  if (voiceSpecCost > 0 && typeof prose?.cost === "number") {
+    prose.cost += voiceSpecCost;
+    ctx.warnings.push(`[Agent 9] voice-spec spend £${voiceSpecCost.toFixed(3)} folded into the run total.`);
   }
 
   // #2.1: Shared post-processing chain — extracted from 4 inline call sites.

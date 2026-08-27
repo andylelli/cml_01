@@ -11,6 +11,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  generateVoiceSpec,
   buildDivergenceBlock,
   buildVoiceSpecPrompt,
   buildVoiceSpecJudgePrompt,
@@ -215,5 +216,137 @@ describe('the voice block survives budget pressure as long as any craft block do
       if (prev === undefined) delete process.env.AGENT9_PROMPT_BUDGET_CRAFT_FLOOR;
       else process.env.AGENT9_PROMPT_BUDGET_CRAFT_FLOOR = prev;
     }
+  });
+});
+
+describe('generateVoiceSpec — the async path, which no test had ever executed', () => {
+  /**
+   * The engine is flag-gated and unrun. A lever whose code path has never been exercised is how a
+   * paid probe comes back measuring nothing, so the whole path runs here against a fake client:
+   * parse, validate, judge, fall back, and fail safely.
+   */
+  const makeClient = (replies: string[], onCall?: (agent: string) => void) => {
+    let i = 0;
+    return {
+      chat: async (req: any) => {
+        onCall?.(req?.logContext?.agent ?? '');
+        const content = replies[Math.min(i, replies.length - 1)];
+        i += 1;
+        if (content === '__throw__') throw new Error('content filter');
+        return { content };
+      },
+      getCostTracker: () => ({ getSummary: () => ({ byAgent: {} }) }),
+    } as any;
+  };
+
+  const candidate = (mean: number, sd = 6) => ({
+    sentenceLength: { mean, sd },
+    syntacticHabit: 'clauses stacked with and, then',
+    diction: 'plain-anglo',
+    narrationDistance: 'cool-observer',
+    signatureMove: 'rooms are introduced by what is missing from them',
+    avoid: [],
+  });
+
+  it("commits the judge's winner", async () => {
+    const agents: string[] = [];
+    // 19 is deliberately in this list and deliberately NOT selectable: the corpus tops out at 17.2,
+    // so 19 is 1.8 words away and the gate rejects it. The usable pair is 11 and 21, and the judge's
+    // index counts over the SURVIVORS.
+    const client = makeClient(
+      [
+        JSON.stringify({ candidates: [candidate(11), candidate(19), candidate(21)] }),
+        JSON.stringify({ winner: 1, score: 82, why: 'most distinctive and still writable' }),
+      ],
+      (a) => agents.push(a),
+    );
+    const res = await generateVoiceSpec(client, {}, []);
+    expect(res.ran).toBe(true);
+    expect(res.spec?.sentenceLength.mean).toBe(21);
+    expect(agents).toEqual(['Agent9-VoiceSpec', 'Agent9-VoiceSpecJudge']);
+    expect(res.candidates.find((c) => c.spec.sentenceLength.mean === 21)?.note).toContain('judge winner');
+    expect(res.candidates.find((c) => c.spec.sentenceLength.mean === 19)?.rejected.join(' ')).toMatch(/words from/);
+  });
+
+  it('REJECTS candidates that sit on the corpus, and says which — the gate must be visible', async () => {
+    // 15.6 is the corpus mean; a run where nothing is ever rejected has a gate that never fires.
+    const client = makeClient([JSON.stringify({ candidates: [candidate(15.6), candidate(11)] }),
+      JSON.stringify({ winner: 0 })]);
+    const res = await generateVoiceSpec(client, {}, []);
+    expect(res.spec?.sentenceLength.mean).toBe(11);
+    const rejected = res.candidates.filter((c) => c.rejected.length > 0);
+    expect(rejected.length).toBeGreaterThan(0);
+    expect(rejected[0].rejected.join(' ')).toMatch(/only .* words from/);
+  });
+
+  it('skips the judge when only one candidate survives — no ranking of one', async () => {
+    const agents: string[] = [];
+    const client = makeClient([JSON.stringify({ candidates: [candidate(15.6), candidate(11)] })], (a) => agents.push(a));
+    // Both corpus-adjacent except 11.
+    const res = await generateVoiceSpec(client, {}, []);
+    expect(res.ran).toBe(true);
+    expect(agents).toEqual(['Agent9-VoiceSpec']);
+    expect(res.candidates.find((c) => c.rejected.length === 0)?.note).toContain('no judge call');
+  });
+
+  it('falls back to the first survivor when the judge returns an out-of-range index', async () => {
+    const client = makeClient([
+      JSON.stringify({ candidates: [candidate(11), candidate(19)] }),
+      JSON.stringify({ winner: 7 }),
+    ]);
+    const res = await generateVoiceSpec(client, {}, []);
+    expect(res.spec?.sentenceLength.mean).toBe(11);
+  });
+
+  it('CANNOT stop a run — a thrown call returns a null spec, not an exception', async () => {
+    // The B1 reasoning applied to a craft lever: any failure leaves the prompt byte-identical.
+    const res = await generateVoiceSpec(makeClient(['__throw__']), {}, []);
+    expect(res.ran).toBe(false);
+    expect(res.spec).toBeNull();
+    expect(res.error).toContain('content filter');
+  });
+
+  it('survives unparseable output and reports WHY, rather than a silent null', async () => {
+    const res = await generateVoiceSpec(makeClient(['I think the voice should be lyrical.']), {}, []);
+    expect(res.spec).toBeNull();
+    expect(res.error).toBeTruthy();
+  });
+
+  it('reports every candidate rejected, with the reason, when none survives', async () => {
+    const res = await generateVoiceSpec(makeClient([JSON.stringify({ candidates: [candidate(15.6), candidate(15.4)] })]), {}, []);
+    expect(res.spec).toBeNull();
+    expect(res.candidates).toHaveLength(2);
+    expect(res.error).toMatch(/rejected/);
+  });
+
+  it('accepts a bare array and a single bare object — models return both', async () => {
+    const asArray = await generateVoiceSpec(makeClient([JSON.stringify([candidate(11), candidate(20)]), JSON.stringify({ winner: 0 })]), {}, []);
+    expect(asArray.spec?.sentenceLength.mean).toBe(11);
+    const asObject = await generateVoiceSpec(makeClient([JSON.stringify(candidate(20))]), {}, []);
+    expect(asObject.spec?.sentenceLength.mean).toBe(20);
+  });
+});
+
+describe('THE OPERATIONAL RISK: the corpus can close the door', () => {
+  /**
+   * The gate rejects anything within 2.0 words of the 20 corpus means, which run 13.6 to 17.2. The
+   * writable space is therefore [9, 11.6] and [19.2, 22] and nothing between — narrow by design, and
+   * it NARROWS FURTHER as new books land in those bands. If it ever closes, every candidate is
+   * rejected, the spec is null, and the lever silently stops existing while the flag reads ON.
+   *
+   * That failure is loud rather than silent — the worker logs each rejection with its reason — but
+   * it is worth a test that states the shape, because the fix is to widen VOICE_MEAN_MIN/MAX or
+   * shrink the corpus window, not to loosen the gap.
+   */
+  it('the corpus leaves exactly two usable bands, and the engine reports it when both are missed', async () => {
+    const client = {
+      chat: async () => ({ content: JSON.stringify({ candidates: [{ sentenceLength: { mean: 15.0, sd: 6 }, syntacticHabit: 'h', signatureMove: 's' }] }) }),
+      getCostTracker: () => ({ getSummary: () => ({ byAgent: {} }) }),
+    } as any;
+    const res = await generateVoiceSpec(client, {}, []);
+    expect(res.spec).toBeNull();
+    expect(res.error).toMatch(/rejected/);
+    // The reason names the book it collided with, so a run log says WHY the lever produced nothing.
+    expect(res.candidates[0].rejected.join(' ')).toMatch(/story_/);
   });
 });

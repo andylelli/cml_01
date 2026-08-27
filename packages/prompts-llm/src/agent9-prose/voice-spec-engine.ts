@@ -23,6 +23,19 @@
  * a WITHIN-book standard deviation of about 7.8. The entire between-book variation of everything this
  * pipeline has ever produced is under half of the variation inside any single one of those books.
  *
+ * ── THE TWO USABLE BANDS, AND THE DOOR THEY CAN CLOSE ────────────────────────────────────────────
+ *
+ * The gate rejects any mean within 2.0 words of the corpus, and the corpus runs 13.6 to 17.2. So the
+ * writable space is **[9, 11.6] and [19.2, 22], with nothing between** — a clipped voice or a periodic
+ * one, both legitimate Golden Age registers, and no third option. That narrowness is the point: it is
+ * what stops the generator returning the corpus mean in confident prose.
+ *
+ * It also narrows as new books land in those bands. If it ever closes, every candidate is rejected,
+ * the spec is null, and the lever stops existing while the flag still reads ON. The failure is LOUD —
+ * the worker logs each rejection with the book it collided with — and the fix is to widen
+ * `VOICE_MEAN_MIN`/`VOICE_MEAN_MAX` or shrink the corpus window, never to loosen the gap, which is
+ * the only thing making the divergence real.
+ *
  * ── WHAT THIS DOES NOT CLAIM ─────────────────────────────────────────────────────────────────────
  *
  * A spec is not good prose, and conformance to it is not quality. §6.1 states the falsification before
@@ -67,6 +80,37 @@ export interface VoiceSpecResult {
 /** How many candidates to generate. Three is the smallest number a judge can rank meaningfully. */
 export const VOICE_SPEC_CANDIDATES = 3;
 
+// ── the divergence set ───────────────────────────────────────────────────────
+
+/**
+ * The books a candidate must sound unlike: the MEASURED corpus plus any specs committed since it was
+ * generated.
+ *
+ * ── WHY THIS FUNCTION EXISTS ─────────────────────────────────────────────────────────────────────
+ *
+ * The first version of this engine cited `VOICE_CORPUS` in the PROMPT and validated only against the
+ * `recent` argument — which the worker passes empty. So the instruction named twenty occupied bands
+ * and the gate enforced none of them: a model that ignored the instruction and returned the corpus
+ * mean would have been COMMITTED, conformance would have read 1.0, and the paid probe would have
+ * measured a book that sounds exactly like the last twenty while reporting perfect delivery.
+ *
+ * Caught by the first test that actually executed the async path. One set, derived once, used by both
+ * the prompt and the validator — a prompt and a gate that disagree is the same second-body trap this
+ * codebase pays for in every other form.
+ */
+export const divergenceSet = (
+  recent: ReadonlyArray<VoiceSpecSummary> = [],
+): VoiceSpecSummary[] => [
+  ...VOICE_CORPUS.map((c) => ({
+    story: c.story,
+    mean: c.mean,
+    diction: "mixed-period" as const,
+    narrationDistance: "cool-observer" as const,
+    signatureMove: "",
+  })),
+  ...recent,
+];
+
 // ── the divergence instruction ───────────────────────────────────────────────
 
 /**
@@ -74,9 +118,8 @@ export const VOICE_SPEC_CANDIDATES = 3;
  * a generator told "13.6, 14.3, 14.4 … 17.2 are taken, land outside them by at least 2.0" cannot.
  */
 export const buildDivergenceBlock = (recent: ReadonlyArray<VoiceSpecSummary> = []): string => {
-  const corpusMeans = VOICE_CORPUS.map((c) => c.mean);
-  const recentMeans = recent.map((r) => r.mean);
-  const all = [...corpusMeans, ...recentMeans].sort((a, b) => a - b);
+  // The SAME set the validator rejects against — see `divergenceSet`.
+  const all = divergenceSet(recent).map((r) => r.mean).sort((a, b) => a - b);
   const occupied = all.map((m) => m.toFixed(1)).join(", ");
   const moves = recent.map((r) => `  - ${r.story}: ${r.signatureMove}`).filter(Boolean);
 
@@ -238,6 +281,9 @@ export async function generateVoiceSpec(
 
   const empty: VoiceSpecResult = { ran: false, spec: null, candidates: [], cost: 0, durationMs: 0 };
 
+  // Derived ONCE and used for both the instruction and the gate, so the two cannot disagree.
+  const against = divergenceSet(recent);
+
   try {
     const { system, user } = buildVoiceSpecPrompt(ctx, recent);
     const response = await client.chat({
@@ -258,7 +304,7 @@ export async function generateVoiceSpec(
     const candidates: VoiceSpecResult["candidates"] = rawList
       .map(parseVoiceSpecCandidate)
       .filter((s): s is VoiceSpec => s !== null)
-      .map((spec) => ({ spec, rejected: validateVoiceSpec(spec, recent).problems }));
+      .map((spec) => ({ spec, rejected: validateVoiceSpec(spec, against).problems }));
 
     const usable = candidates.filter((c) => c.rejected.length === 0);
     if (usable.length === 0) {
