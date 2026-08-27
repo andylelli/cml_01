@@ -29,6 +29,8 @@ import {
   writeRunFingerprint,
   type ResumeBundle,
 } from "../jobs/resume-hydration.js";
+import { fileURLToPath } from "node:url";
+import * as fsMod from "node:fs";
 import { latestArtifact, loadArtifactStore, loadProjectSpec } from "../jobs/artifact-store.js";
 import type { OrchestratorContext } from "../jobs/agents/shared.js";
 
@@ -404,5 +406,54 @@ describe("RESUME_REDO — the matched-pair affordance (A_75 P1v)", () => {
     const partial = complete.filter((r) => r.artifact_type !== "world_document");
     const { missing } = loadResumeBundle(partial, "pair", "prose");
     expect(missing).toEqual(["world_document", "prose"]);
+  });
+});
+
+describe("Agent 9's precondition must be satisfiable by a resume", () => {
+  /**
+   * THE BUG THIS PINS, found by running the matched pair rather than by reading the code.
+   *
+   * `resume-run.ts` exists, in its own words, because "a run that dies at Agent 9 has already
+   * produced thirteen stages of artifacts and spent ~PS1.40 of its ~PS1.50". A resume restores a
+   * contiguous PREFIX and skips the stages whose artifacts are present -- so Agent 5/6/7 never
+   * execute and their UNPERSISTED side effects (`coverageResult`, `outlineCoverageIssues`) are never
+   * produced. Agent 9's precondition required them, so it threw before its first LLM call.
+   *
+   * Every Agent-9 resume this feature was built for was structurally dead, and nothing said so.
+   *
+   * THE RULE: a stage may HARD-REQUIRE only what a resume can restore -- a ctx field backed by a
+   * persisted artifact. A derived signal may be required to be REPORTED, never to be PRESENT.
+   */
+  const preconditionFields = (): string[] => {
+    const { readFileSync: readSource } = fsMod;
+    const src = readSource(
+      fileURLToPath(new URL("../jobs/agents/agent9-run.ts", import.meta.url)),
+      "utf8",
+    );
+    const start = src.indexOf("if (!ctx.cml");
+    expect(start, "could not locate Agent 9's precondition -- update this test deliberately")
+      .toBeGreaterThan(-1);
+    const clause = src.slice(start, src.indexOf(") {", start));
+    return [...clause.matchAll(/!ctx[.](\w+)/g)].map((m) => m[1]);
+  };
+
+  it("finds the precondition (a test that matched nothing would pass silently)", () => {
+    expect(preconditionFields().length).toBeGreaterThanOrEqual(8);
+  });
+
+  it("every hard requirement is backed by a persisted artifact", () => {
+    const restorable = new Set<string>(Object.values(RESUME_FIELD_BY_ARTIFACT));
+    const unrestorable = preconditionFields().filter((f) => !restorable.has(f));
+    expect(
+      unrestorable,
+      "these are required but cannot be restored by a resume, so every Agent-9 resume dies before "
+      + "its first LLM call. Derived signals must degrade and REPORT, never block.",
+    ).toEqual([]);
+  });
+
+  it("and the two derived signals are still declared unpersisted, which is why they may not block", () => {
+    const declared = Object.values(STAGE_SECONDARY_OUTPUTS).flat();
+    expect(declared).toContain("coverageResult");
+    expect(declared).toContain("outlineCoverageIssues");
   });
 });

@@ -3674,8 +3674,49 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   resetDeterministicClearancePasteTelemetry();
   resetDeterministicCluePasteTelemetry();
 
-  if (!ctx.cml || !ctx.cast || !ctx.characterProfiles || !ctx.locationProfiles || !ctx.temporalContext || !ctx.hardLogicDevices || !ctx.narrative || !ctx.clues || !ctx.coverageResult || !ctx.outlineCoverageIssues) {
+  /**
+   * ── THE PRECONDITION, AND WHAT IT IS ALLOWED TO REQUIRE ──────────────────────────────────────────
+   *
+   * These nine are GENERATION INPUTS: without any one of them there is no chapter to write.
+   *
+   * `coverageResult` and `outlineCoverageIssues` used to be in this list and are NOT generation
+   * inputs — they are DERIVED SIGNALS produced as unpersisted side effects of Agent 5/6/7 (see
+   * `STAGE_SECONDARY_OUTPUTS` in resume-hydration.ts, which already names them as exactly that). They
+   * feed warnings, repair guardrails and report fields. Prose can be written without them.
+   *
+   * REQUIRING THEM MADE THE RESUME PATH IMPOSSIBLE. `resume-run.ts` exists, in its own words, because
+   * "a run that dies at Agent 9 has already produced thirteen stages of artifacts and spent ~£1.40 of
+   * its ~£1.50". But a resume restores a contiguous PREFIX and skips the stages whose artifacts are
+   * present — so Agent 5/6/7 never execute, their unpersisted side effects are never produced, and
+   * Agent 9 threw before its first LLM call. **Every Agent-9 resume this feature was built for was
+   * structurally dead**, and it surfaced here because A_75 P1v needs exactly that path for a matched
+   * pair. Found by running it, not by reading it.
+   */
+  if (!ctx.cml || !ctx.cast || !ctx.characterProfiles || !ctx.locationProfiles || !ctx.temporalContext || !ctx.hardLogicDevices || !ctx.narrative || !ctx.clues) {
     throw new Error("Agent 9 precondition failed: missing required upstream artifacts before prose generation.");
+  }
+
+  /**
+   * The degraded reading, and it must never be mistaken for a clean one.
+   *
+   * `resume-hydration.ts` states the rule this obeys: *"a gate that cannot evaluate must say so — it
+   * must never pass by default."* An absent `coverageResult` defaulted to `hasCriticalGaps: false`
+   * would report a clean coverage check that never ran, which is the `loadNoveltyLedger` /
+   * geometry-replay defect this project has now found three times: silence recorded as a pass.
+   *
+   * So absence is carried EXPLICITLY — `evaluated: false` — the run warns, and the report field goes
+   * NULL rather than `false`.
+   */
+  const coverageEvaluated = Boolean(ctx.coverageResult);
+  const outlineCoverageEvaluated = Array.isArray(ctx.outlineCoverageIssues);
+  if (!coverageEvaluated || !outlineCoverageEvaluated) {
+    ctx.warnings.push(
+      `[Agent 9] COVERAGE SIGNALS NOT EVALUATED this run (${[
+        !coverageEvaluated ? "coverageResult" : null,
+        !outlineCoverageEvaluated ? "outlineCoverageIssues" : null,
+      ].filter(Boolean).join(", ")}) — the producing stage was skipped, typically a resume. ` +
+      `Prose generation proceeds; every check these feed reports UNEVALUATED, not clean.`,
+    );
   }
 
   const cml = ctx.cml;
@@ -3697,8 +3738,8 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   const hardLogicDevices = ctx.hardLogicDevices;
   const narrative = ctx.narrative;
   const clues = ctx.clues;
-  const coverageResult = ctx.coverageResult;
-  const outlineCoverageIssues = ctx.outlineCoverageIssues;
+  const coverageResult = ctx.coverageResult ?? ({ hasCriticalGaps: false, issues: [] } as any);
+  const outlineCoverageIssues = ctx.outlineCoverageIssues ?? [];
   const fairPlayAudit = ctx.fairPlayAudit;
   const settingRefinement = ctx.setting?.setting;
   const backgroundContext = ctx.backgroundContext;
@@ -5468,8 +5509,10 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
         errors: failure.errors,
       })),
     batch_commit_records: (prose.validationDetails as any)?.batchCommitRecords ?? [],
-    outline_coverage_issue_count: outlineCoverageIssues.length,
-    critical_clue_coverage_gap: coverageResult.hasCriticalGaps,
+    // NULL, not false, when the producing stage was skipped — a check that did not run must not be
+    // reportable as a check that passed.
+    outline_coverage_issue_count: outlineCoverageEvaluated ? outlineCoverageIssues.length : null,
+    critical_clue_coverage_gap: coverageEvaluated ? coverageResult.hasCriticalGaps : null,
     nsd_transfer_steps: ctx.nsdTransferTrace.length,
     nsd_transfer_trace: ctx.nsdTransferTrace,
     underflow_hard_floor_misses: (prose.validationDetails as any)?.underflow?.hardFloorMisses ?? 0,
