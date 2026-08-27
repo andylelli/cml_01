@@ -288,14 +288,52 @@ export interface ResumeLoad {
  * exists and re-run the rest. The caller decides whether what came back is enough to be worth
  * resuming; `missing` is reported so that decision is made on evidence rather than on a truthy check.
  */
-export function loadResumeBundle(store: StoreArtifact[], projectId: string): ResumeLoad {
+/**
+ * A_75 P1v — DELIBERATELY discard an artifact that DID survive, and everything downstream of it.
+ *
+ * ── WHY THIS EXISTS ──────────────────────────────────────────────────────────────────────────────
+ *
+ * A_74 §6.1 measured that no judge model resolves a gap under ~7 marks on this project, and concluded
+ * that the only instrument that resolves a single mark is a HUMAN reading a MATCHED PAIR — two books
+ * differing in exactly one thing. Every lever since has been written with that discipline in mind.
+ *
+ * **And the discipline was not executable.** A matched pair needs the same case, cast, clues, outline
+ * and geometry, with only the prose regenerated under a different flag. Two fresh runs give two
+ * different books; `resume-run` refuses outright when every stage has an artifact, which a completed
+ * run always does. So the recommended experiment could not actually be run, and the recommendation
+ * had been standing for days.
+ *
+ * This is the missing half: name a stage, and it plus everything after it is dropped from the restored
+ * bundle. Upstream is byte-identical because it is the SAME PERSISTED ARTIFACT, not a re-derivation.
+ *
+ * Cascading is not a convenience — it is the correctness property. Re-running Agent 9 while keeping a
+ * `prose` artifact would restore the old chapters over the new ones; keeping `story_geometry` while
+ * re-running `outline` would judge new chapters against a contract derived from a different outline.
+ * A stage's downstream artifacts are only valid for the stage that produced them.
+ */
+export function dropFromArtifact(
+  from: ResumeArtifactName,
+): { drop: Set<ResumeArtifactName>; order: ResumeArtifactName[] } {
+  const index = RESUME_ARTIFACT_NAMES.indexOf(from);
+  const order = [...RESUME_ARTIFACT_NAMES];
+  if (index < 0) return { drop: new Set(), order };
+  return { drop: new Set(order.slice(index)), order };
+}
+
+export function loadResumeBundle(
+  store: StoreArtifact[],
+  projectId: string,
+  /** Discard this artifact and everything downstream of it, even though it survived. See above. */
+  redoFrom?: ResumeArtifactName | null,
+): ResumeLoad {
   const bundle: ResumeBundle = {};
   const found: ResumeArtifactName[] = [];
   const missing: ResumeArtifactName[] = [];
+  const { drop } = redoFrom ? dropFromArtifact(redoFrom) : { drop: new Set<ResumeArtifactName>() };
 
   for (const name of RESUME_ARTIFACT_NAMES) {
     const payload = latestArtifact(store, projectId, name);
-    if (payload === undefined || payload === null) {
+    if (payload === undefined || payload === null || drop.has(name)) {
       missing.push(name);
       continue;
     }

@@ -17,6 +17,7 @@ import {
   buildResumeDiagnostic,
   checkBuildFingerprint,
   computeBuildFingerprint,
+  dropFromArtifact,
   isStageSatisfied,
   loadResumeBundle,
   missingSecondaryOutputs,
@@ -343,3 +344,65 @@ describe("buildResumeDiagnostic", () => {
 function r_(root: string): string {
   return join(root, "apps", "worker", "dist");
 }
+
+describe("RESUME_REDO — the matched-pair affordance (A_75 P1v)", () => {
+  /**
+   * A_74 §6.1 measured that no judge model resolves a gap under ~7 marks here, so the only instrument
+   * that resolves a single mark is a human reading two books differing in exactly ONE thing. That
+   * recommendation stood for days and was not executable: two fresh runs give two different books, and
+   * `resume-run` refuses outright when every stage has an artifact — which a completed run always has.
+   */
+  const complete = RESUME_ARTIFACT_NAMES.map((name) => ({
+    project_id: "pair",
+    artifact_type: name,
+    payload: { stage: name },
+  }));
+
+  it("without a redo, a completed run has nothing missing — the state that blocked the experiment", () => {
+    const { found, missing } = loadResumeBundle(complete, "pair");
+    expect(missing).toEqual([]);
+    expect(found).toEqual(RESUME_ARTIFACT_NAMES);
+  });
+
+  it("redoing 'prose' keeps every upstream stage and drops only prose", () => {
+    const { bundle, found, missing } = loadResumeBundle(complete, "pair", "prose");
+    expect(missing).toEqual(["prose"]);
+    // The property the pair rests on: upstream is the SAME PERSISTED PAYLOAD, not a re-derivation.
+    expect(found).toEqual(RESUME_ARTIFACT_NAMES.filter((n) => n !== "prose"));
+    expect(bundle.cml).toEqual({ stage: "cml" });
+    expect(bundle.story_geometry).toEqual({ stage: "story_geometry" });
+    expect(bundle.prose).toBeUndefined();
+  });
+
+  it("CASCADES downstream, which is a correctness property and not a convenience", () => {
+    // Keeping story_geometry while re-running the outline would judge new chapters against a contract
+    // derived from a DIFFERENT outline. A stage's downstream artifacts are only valid for the stage
+    // that produced them.
+    const { found, missing } = loadResumeBundle(complete, "pair", "outline");
+    expect(missing).toEqual(["outline", "story_geometry", "prose"]);
+    expect(found).not.toContain("story_geometry");
+    expect(found).toContain("world_document");
+  });
+
+  it("redoing the first stage drops everything — equivalent to a fresh run, and allowed", () => {
+    const { found, missing } = loadResumeBundle(complete, "pair", RESUME_ARTIFACT_NAMES[0]);
+    expect(found).toEqual([]);
+    expect(missing).toEqual(RESUME_ARTIFACT_NAMES);
+  });
+
+  it("an unknown stage name drops NOTHING rather than silently dropping everything", () => {
+    // The dangerous failure for a paired experiment is a typo that resumes normally and produces a
+    // second copy of the first arm — two identical books read as evidence the lever does nothing.
+    // The CLI refuses on an unknown name; this pins that the library cannot quietly over-drop either.
+    const { drop } = dropFromArtifact("not_a_stage" as never);
+    expect(drop.size).toBe(0);
+    const { missing } = loadResumeBundle(complete, "pair", "not_a_stage" as never);
+    expect(missing).toEqual([]);
+  });
+
+  it("still reports a genuinely missing stage alongside a redone one", () => {
+    const partial = complete.filter((r) => r.artifact_type !== "world_document");
+    const { missing } = loadResumeBundle(partial, "pair", "prose");
+    expect(missing).toEqual(["world_document", "prose"]);
+  });
+});

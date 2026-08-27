@@ -16,7 +16,18 @@
  * Env:
  *   RESUME_DRY=1              load + report what would be skipped, then exit before any LLM call
  *   RESUME_IGNORE_BUILD=1     proceed despite a build-fingerprint mismatch (records why in warnings)
+ *   RESUME_REDO=<artifact>    DELIBERATELY re-run a stage that DID survive, plus everything after it
  *   CML_WORKSPACE_ROOT        override workspace root (default: process.cwd())
+ *
+ * A_75 P1v — `RESUME_REDO` is what makes a MATCHED PAIR executable. A_74 §6.1 measured that no judge
+ * model resolves a gap under ~7 marks here, so the only instrument that resolves a single mark is a
+ * human reading two books that differ in exactly one thing. Two fresh runs give two different books;
+ * this re-runs ONE stage against byte-identical persisted upstream:
+ *
+ *   RESUME_REDO=prose AGENT9_VOICE_SPEC=false node ... resume-run.js <projectId> <runId>   # arm A
+ *   RESUME_REDO=prose AGENT9_VOICE_SPEC=true  node ... resume-run.js <projectId> <runId>   # arm B
+ *
+ * Same case, same cast, same clues, same outline, same geometry contract — one flag apart.
  */
 
 import { join } from "node:path";
@@ -27,8 +38,10 @@ import { buildClient, loadEnvFiles } from "./cli-runtime.js";
 import {
   checkBuildFingerprint,
   computeBuildFingerprint,
+  dropFromArtifact,
   loadResumeBundle,
   readRunFingerprint,
+  RESUME_ARTIFACT_NAMES,
   RESUME_FIELD_BY_ARTIFACT,
   type ResumeArtifactName,
 } from "./resume-hydration.js";
@@ -61,7 +74,31 @@ async function main(): Promise<void> {
 
   // ── what survived ──────────────────────────────────────────────────────────
   const store = loadArtifactStore(workspaceRoot);
-  const { bundle, found, missing } = loadResumeBundle(store, projectId);
+
+  // A_75 P1v — the matched-pair affordance. Validated against the real artifact list rather than
+  // trusted: a typo'd stage name would otherwise resume normally and silently produce a second copy
+  // of the first arm, which is the worst possible outcome for a paired experiment (two identical
+  // books read as evidence that the lever does nothing).
+  const redoRaw = (process.env.RESUME_REDO || "").trim();
+  const redoFrom = redoRaw ? (redoRaw as ResumeArtifactName) : null;
+  if (redoFrom && !RESUME_ARTIFACT_NAMES.includes(redoFrom)) {
+    console.error(
+      `[resume-run] REFUSING: RESUME_REDO='${redoRaw}' is not a stage.
+` +
+        `             Valid: ${RESUME_ARTIFACT_NAMES.join(", ")}`,
+    );
+    process.exit(4);
+    return;
+  }
+
+  const { bundle, found, missing } = loadResumeBundle(store, projectId, redoFrom);
+  if (redoFrom) {
+    const { drop } = dropFromArtifact(redoFrom);
+    console.log(
+      `[resume-run] REDO       : discarding '${redoFrom}' and ${drop.size - 1} downstream stage(s) ` +
+        `that DID survive — [${[...drop].join(", ")}]`,
+    );
+  }
 
   console.log(`[resume-run] restored   : ${found.join(", ") || "(nothing)"}`);
   console.log(`[resume-run] will re-run: ${missing.join(", ") || "(nothing — run already complete)"}`);
@@ -75,7 +112,12 @@ async function main(): Promise<void> {
     return;
   }
   if (missing.length === 0) {
-    console.error(`[resume-run] REFUSING: every stage already has an artifact. Nothing to resume.`);
+    console.error(
+      `[resume-run] REFUSING: every stage already has an artifact. Nothing to resume.
+` +
+        `             To re-run a completed stage deliberately (a matched pair), set ` +
+        `RESUME_REDO=<stage>, e.g. RESUME_REDO=prose.`,
+    );
     process.exit(2);
     return;
   }
