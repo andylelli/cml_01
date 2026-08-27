@@ -153,3 +153,172 @@ Ordered by what the evidence supports, not by ease.
 **And the real work is 1.2**, because it is the only item with the shape to produce a 9: give each story a voice the way [A_74 §8](../ANALYSIS_74/ANALYSIS_74.md)'s engine gives each story a mechanism. The precedent is exact — `premise` earns 9s because one agent generates five candidates and commits the most distinctive; nothing equivalent exists for how a book sounds. **A per-story prose register, chosen and committed like a device, is the only proposal on this board that could make a 9 possible.**
 
 **Honest caveat.** That is a hypothesis with one supporting precedent, not a measurement. §3 establishes the uniformity and that no texture statistic tracks the mark; it does NOT establish that varying texture would raise it. The cheapest test is not a build — it is to take the 86-scoring manuscript, have a strong model rewrite three chapters with an explicit voice, and get one cold read of the result. If a deliberate register does not move `prose`, then this category is a generation-model ceiling and A_72's Tier 4 reopens with its first real evidence.
+
+---
+
+## 6. How this gets resolved for good
+
+§5 says what I would do. This says how each item is closed so it does not come back, which is a
+different and harder standard. Five of the seven things ever shipped for this category were detectors,
+and prose climbed 4 → 6 on the back of them and stopped. Another detector would be a sixth.
+
+### 6.0 What "for good" has to mean here
+
+Three properties, and an item is not closed until it has all three.
+
+| | property | why this category needs it |
+|---|---|---|
+| **A** | **A rule, not a repair.** The fix must make the defect CLASS unrepresentable, not remove today's instance. | §2.1: we keep enumerating our own templates. X61/X67/X74/X75/X79/X95 were all "align two lists"; the durable one was "have one list". |
+| **B** | **An instrument that points upward.** Every prose signal we own is a defect counter, so the category has no gradient above zero defects. | §1: 38/40 notes are absence. §3: nothing else varies. |
+| **C** | **A standing guard.** The measurement that revealed the problem must run on every build, or it silently returns. | §3's uniformity took 41 reads to notice. Nobody would notice it coming back. |
+
+### 6.1 P1 — a per-story VOICE SPEC, committed like a device (closes 1.1, 1.2 and 1.3 together)
+
+**The mechanism, copied from the one that works.** [A_72 §2.1](../ANALYSIS_72/ANALYSIS_72.md) measured
+why `premise` earns 9s: Agent 3b generates five candidates under an explicit `divergeFrom`, a judge
+picks one, and the winner is committed as a constraint every downstream agent honours. One design-tier
+call. `premise` holds 7 of the 14 nines ever awarded; nothing else has an engine and nothing else is
+routinely praised.
+
+**A `VoiceSpec` is that, for how a book sounds.** Generated once per story, before chapter 1:
+
+```ts
+interface VoiceSpec {
+  sentenceLength: { mean: number; sd: number };   // e.g. 11±5 (clipped) or 19±9 (periodic)
+  syntacticHabit: string;   // "fragments at moments of shock" | "long periodic sentences that
+                            //  withhold the verb" | "parataxis — clauses stacked with and/then"
+  diction: "plain-anglo" | "latinate-formal" | "mixed-period";
+  narrationDistance: "close-third-interior" | "cool-observer" | "reportorial";
+  signatureMove: string;    // one recurring device: "the detective notices what is ABSENT"
+  avoid: string[];          // this story's own banned tics
+}
+```
+
+`divergeFrom` is the specs of the last N stories — a corpus we can build today, because §3 already
+characterises all 15 recent books numerically.
+
+**Why this closes 1.3, which is the part that matters.** *"Write better prose"* is uncheckable. **A
+`VoiceSpec` is checkable arithmetic.** A chapter written to `11±5` and a chapter written to `19±9` are
+distinguishable by a script with no model in the loop:
+
+```
+conformance = |observed mean − spec.mean| / spec.sd        (per chapter, deterministic)
+```
+
+That is **property B** — the first prose instrument this project would own that points upward. It does
+not measure whether the prose is *good*; it measures whether the book has a voice and keeps it, which
+is a necessary condition for a reader to notice one.
+
+**It also closes 1.2 by construction:** if each story draws a different spec and conformance is
+measured, between-book variation stops being 10% of within-book by definition rather than by hope.
+
+**Falsification, stated before building.** If conformance is measured at ≥80% and `prose` does not move
+off 6–7 across two reads, the hypothesis is dead: the register is not what the reader is responding to,
+and [A_72's Tier 4](../ANALYSIS_72/ANALYSIS_72.md) — the generation model — reopens with its first real
+evidence. **This is the only item on the board that can produce that evidence cleanly**, because it is
+the only one whose delivery is independently measurable.
+
+### 6.2 P2 — score the REGISTER, stop enumerating templates (closes 2.1)
+
+§2.1 is the finding that kills the current approach: `20260825-1838` scored `prose` 6 for *"major
+validation leakage"* and no template probe can find it, because the offending text matches no template
+we wrote. It is a *register* — abstract subject, stative verb, no concrete noun, summarising cadence.
+
+**MEASURED — a feature score separates them with no model and no template list.** Four features:
+abstract subject (`the record/that detail/the truth …`), stative verb with no concrete noun, absence of
+any concrete noun, absence of any sensory word. Scored over six known machine sentences and 400
+sentences from the 86-scoring manuscript:
+
+```
+threshold 3 :  catches 6/6 machine,  flags 17.0% of prose-8 prose   <- telemetry only
+threshold 4 :  catches 4/6 machine,  flags  0.5% of prose-8 prose   <- usable as a signal
+prose-8 sentences: mean score 1.01
+```
+
+**And it catches the case string-matching missed** — *"The truth was out, but innocence, once lost,
+would not return."* scores 5 without appearing in any registry.
+
+Shipped as: an always-on **count** at threshold 3 (telemetry, per chapter), and a flag-gated
+**regeneration trigger** at threshold 4. Deliberately not a hard gate — [B1](../ANALYSIS_74/ANALYSIS_74.md)
+was decided three days ago on the evidence that gates which fire on most runs become off switches, and
+17% of a good book's sentences crossing threshold 3 is exactly that shape.
+
+Honest limit: **4/6 recall at the usable threshold.** This is a signal, not a solution, and it should be
+reported as a rate rather than a verdict.
+
+### 6.3 P3 — one standard for every sentence, whoever wrote it (closes 2.2, and the class)
+
+The rule, and it is the **property A** item on this board:
+
+> **Text the pipeline writes for itself is held to the same standard as text the model writes.**
+> A floor that cannot produce compliant text does not get to ship non-compliant text — it escalates.
+
+Today the opposite is written down: ADR-0003 says injections stand, and X4's own comment records the
+pipeline logging its violation and shipping anyway. That is why three consecutive readers have quoted
+our own sentences back at us.
+
+Three enforcement points, in order of cost:
+
+1. **Every builder in `injection-templates.ts` must pass the rules the model is held to.** Already true
+   for `buildResolutionBackstopSentence` (A_57 D4) and now `buildCulpritEvidenceSentenceInScene` (X4).
+   A test asserting it for **all** builders makes the class unrepresentable — a new floor cannot be
+   added in a violating form without failing the suite.
+2. **Operands must be placed where their grammar works.** 2.2's defect is not wording: `description`
+   and `pointsTo` are *token bags*, and *"bent the trail toward Temporal conflict hale alibi"* is
+   ungrammatical by construction. A token bag is grammatical in a list and nowhere else, so the builder
+   renders lists — never a subject, never a verb complement.
+3. **Escalate instead of injecting badly.** When a floor cannot satisfy its obligation compliantly, it
+   raises a regeneration request rather than pasting. That is the one place ADR-0003 genuinely needs
+   revisiting, and P3(1) and P3(2) between them should make it rare enough to afford.
+
+### 6.4 P4 — clear the verification debt before adding to it
+
+Four things are built, flag-gated and unrun: `AGENT9_CULPRIT_INJECTION_IN_SCENE`,
+`AGENT9_OPENING_FRESHNESS`, `AGENT9_CROSS_CHAPTER_ECHO`, plus C1/C2 fixed at source and never confirmed
+by a read. **One run with the first on and one cold read settles all of them**, because each has a
+distinct deterministic signature in the artifacts. Doing this before P1/P2 means the next prose read is
+interpretable; doing it after means it is not.
+
+### 6.5 The standing guards — property C
+
+None of the above is closed until the measurement that found it runs unattended.
+
+| guard | what it stops recurring | where |
+|---|---|---|
+| **voice-uniformity check** | §3 returning silently: assert between-book sd of mean sentence length is a meaningful fraction of within-book sd, over the last N manuscripts | a script, run with the ledger |
+| **all-builders-compliant test** | a new floor shipping in a rule-violating form | unit test over `injection-templates.ts` |
+| **no-control-character test** | the invisible-backspace class that already cost one silent no-op today | already shipped |
+| **register-score telemetry** | leakage drifting into a form no template knows | per-run counter |
+| **`--gaps` in the read ledger** | the ladder-top illusion: it prints which categories have never reached 9 | already shipped |
+
+### 6.6 Order, cost, and what each buys
+
+```
+NOW, free
+  P3(1)  test: every injection builder passes the model-bound rules        free
+  P3(2)  clue-injector operands rendered as lists, never as subjects       free, flag-gated
+  P2     register score — telemetry at 3, trigger at 4                     free, flag-gated
+  6.5    voice-uniformity guard + wire it to the ledger run                free
+---- verification debt, before anything new is trusted ----
+  P4     one run with the built flags on, one cold read                    ~£1 + a reader
+---- the only item that can produce a 9 ----
+  P1     VoiceSpec: generate → judge → commit, + conformance metric        free build, ~£1 to run
+  P1v    two reads on matched runs, spec on vs off                         2 readers
+---- and if P1 fails its falsification ----
+  A_72 Tier 4 reopens with evidence rather than assumption
+```
+
+**Total before the decisive read: about £2 and two reads.** Everything else is free.
+
+### 6.7 What this does not fix, stated plainly
+
+- **It does not promise a 9.** P1 is a hypothesis with one precedent (`premise`). §3 establishes that
+  the voice is uniform and that no texture statistic tracks the mark; it does **not** establish that
+  varying the voice would raise it. The falsification in 6.1 is what makes it worth running anyway.
+- **It cannot be measured by any instrument we own.** The ordinal judge resolves ~10 marks
+  ([A_74 §6.1](../ANALYSIS_74/ANALYSIS_74.md)); prose moves in ones. **Every P1 verdict routes through a
+  paying reader**, and the matched-pair discipline is the only configuration that resolves a single mark.
+- **P2 has 4/6 recall.** It will miss leakage. It is a better instrument than a template list, not a
+  complete one.
+- **None of this touches `dialogue`**, which sits at 7 with its own catchphrase problem, or the four
+  other categories that have never reached 9. This board is one category deep by design.
