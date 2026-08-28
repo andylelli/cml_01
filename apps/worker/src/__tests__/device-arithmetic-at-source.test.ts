@@ -248,3 +248,77 @@ describe("reconcileDeviceArithmetic — refuses everything it was not licensed t
     expect(warningsOf(ctx)).toEqual([]);
   });
 });
+
+describe("the repair reaches the DEVICE, not only the registry", () => {
+  /**
+   * MEASURED on run `canary_1787953182108`, external read 85/100 and the reader's number-one issue.
+   * This pass restated `signal_window_duration` from "thirty-five minutes" to "fifty minutes", the CML
+   * carried the corrected value -- and the MANUSCRIPT said "thirty-five minutes" EIGHT times and
+   * "fifty minutes" not once.
+   *
+   * One value, two bodies: the pass mutated ctx.lockedFactRegistry while the device it was read from
+   * still held the old string, and BOTH go downstream. The writer reads the device.
+   *
+   *   reader: "But 10:40 to 11:30 is 50 minutes, not 35... the arithmetic needs correcting"
+   *           "with the tide arithmetic fixed ... this could reach 90-92/100"
+   */
+  const registry = (): LockedFact[] => ([
+    { id: "lantern_last_visible_time", value: "twenty minutes to eleven at night", description: "d" },
+    { id: "high_tide_time", value: "half past eleven at night", description: "d" },
+    {
+      id: "signal_window_duration",
+      value: "thirty-five minutes",
+      description: "d",
+      derivedFrom: ["lantern_last_visible_time", "high_tide_time"],
+    },
+  ] as unknown as LockedFact[]);
+
+  const ctxWithDevice = (facts: LockedFact[], deviceFacts: any[]) =>
+    ({
+      lockedFactRegistry: facts,
+      warnings: [] as string[],
+      hardLogicDevices: { devices: [{ title: "Lantern", lockedFacts: deviceFacts }] },
+    }) as unknown as OrchestratorContext;
+
+  it("writes the corrected value back to the device's own lockedFacts", () => {
+    const deviceFacts = [
+      { id: "high_tide_time", value: "half past eleven at night" },
+      { id: "signal_window_duration", value: "thirty-five minutes" },
+    ];
+    const ctx = ctxWithDevice(registry(), deviceFacts);
+    reconcileDeviceArithmetic(ctx);
+
+    // The registry was already repaired before this change; the DEVICE is what was being missed.
+    expect(registryOf(ctx).find((f) => f.id === "signal_window_duration")?.value).toBe("fifty minutes");
+    expect(deviceFacts[1].value).toBe("fifty minutes");
+    // Untouched sources stay untouched, in the device as in the registry.
+    expect(deviceFacts[0].value).toBe("half past eleven at night");
+  });
+
+  it("says how many device facts it reached, and says so loudly when it reached none", () => {
+    // A silent zero here is the whole defect: the run reported a repair while the page kept the old
+    // number eight times.
+    const ctx = ctxWithDevice(registry(), [{ id: "signal_window_duration", value: "some other wording" }]);
+    reconcileDeviceArithmetic(ctx);
+    const said = warningsOf(ctx).join(" ");
+    expect(said).toContain("Written back to 0 device fact(s)");
+    expect(said).toContain("the prose will use it");
+  });
+
+  it("touches only the fact it rewrote, matched by id", () => {
+    const deviceFacts = [
+      { id: "signal_window_duration", value: "thirty-five minutes" },
+      { id: "unrelated_duration", value: "thirty-five minutes" },
+    ];
+    reconcileDeviceArithmetic(ctxWithDevice(registry(), deviceFacts));
+    expect(deviceFacts[0].value).toBe("fifty minutes");
+    // Same string, different fact — a blind search-and-replace would have corrupted this.
+    expect(deviceFacts[1].value).toBe("thirty-five minutes");
+  });
+
+  it("does not crash when the run carries no device artifact", () => {
+    const ctx = ({ lockedFactRegistry: registry(), warnings: [] as string[] }) as unknown as OrchestratorContext;
+    expect(() => reconcileDeviceArithmetic(ctx)).not.toThrow();
+    expect(registryOf(ctx).find((f) => f.id === "signal_window_duration")?.value).toBe("fifty minutes");
+  });
+});

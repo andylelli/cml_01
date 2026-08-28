@@ -247,10 +247,44 @@ export function reconcileDeviceArithmetic(ctx: OrchestratorContext): void {
       continue;
     }
 
+    /**
+     * ── WRITE THE REPAIR BACK TO THE DEVICE, OR IT NEVER REACHES THE PAGE ────────────────────────
+     *
+     * MEASURED on run `canary_1787953182108` (external read 85/100, the reader's number-one issue):
+     * this repair restated `signal_window_duration` from "thirty-five minutes" to "fifty minutes",
+     * the CML carried the corrected value — and the MANUSCRIPT said "thirty-five minutes" EIGHT
+     * times and "fifty minutes" not once.
+     *
+     * The cause is one value with two bodies. This function mutated `ctx.lockedFactRegistry`; the
+     * device it was read from still held the old string at
+     * `hardLogicDevices.devices[0].lockedFacts[2].value`, and BOTH are handed downstream. The writer
+     * reads the device.
+     *
+     * The reader's verdict on the result: *"But 10:40 to 11:30 is 50 minutes, not 35... Right now the
+     * mechanism works, but the arithmetic needs correcting."* — and *"with the tide arithmetic fixed
+     * ... this could reach 90–92/100."* A repair that does not reach the page is not a repair.
+     *
+     * Scoped exactly: only the ONE fact this pass just rewrote, matched by id, and only when the
+     * device still holds the superseded value. Nothing else in the device is touched.
+     */
+    const devices = ctx.hardLogicDevices?.devices ?? [];
+    let wroteBack = 0;
+    for (const device of devices) {
+      const facts: any[] = Array.isArray((device as any)?.lockedFacts) ? (device as any).lockedFacts : [];
+      for (const fact of facts) {
+        if (String(fact?.id ?? "").trim() !== declared.id) continue;
+        if (String(fact?.value ?? "").trim() !== before) continue;
+        fact.value = repaired;
+        wroteBack += 1;
+      }
+    }
+
     ctx.warnings.push(
       `[X38] device arithmetic repaired at source: ${declared.id} declares itself derived from ` +
         `${clockIds.join(" and ")}, which are ${gap} minutes apart, so "${before}" (${declared.minutes}) ` +
-        `is restated as "${repaired}". Only the declared-derived value changed; its sources are untouched.`,
+        `is restated as "${repaired}". Only the declared-derived value changed; its sources are untouched. ` +
+        `Written back to ${wroteBack} device fact(s)` +
+        `${wroteBack === 0 ? " — NONE, so the device still carries the old value and the prose will use it" : ""}.`,
     );
   }
 }

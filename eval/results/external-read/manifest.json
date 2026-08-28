@@ -103,6 +103,38 @@
     "externalOffset": 5
   },
   {
+    "bundleId": "read-20260828-2301",
+    "storyPath": "stories/story_20260828-2301/the_lantern_s_false_hour_a_seaside_hotel_mystery.md",
+    "readPath": "stories/story_20260828-2301/chatgpt-review.txt",
+    "externalFinal": 85,
+    "externalCategories": {
+      "premise": 9,
+      "opening_hook": 8,
+      "plot_structure": 8,
+      "character_clarity": 8,
+      "dialogue": 7,
+      "atmosphere": 9,
+      "clues": 8,
+      "pacing": 8,
+      "ending": 8,
+      "prose": 7
+    },
+    "externalNotes": {
+      "premise": "Lantern visibility plus tide height is a strong fair-play mechanism.",
+      "opening_hook": "Body, stiletto wound, tide tables, lantern, dock prints — strong setup.",
+      "plot_structure": "Discovery → dock prints → lantern/tide contradiction → alibi clearing → Hale proof → confession works.",
+      "character_clarity": "Roles are stable and the suspect field is easy to follow.",
+      "dialogue": "Eleanor/Hale/Beatrice/Hugo have usable voices; some lines still feel generated.",
+      "atmosphere": "Fog, dock, winter tide, lantern, hotel foyer — excellent setting-mechanism fit.",
+      "clues": "Strong physical proof, though the tide timing needs one cleaner line.",
+      "pacing": "Good escalation; Chapters 8–10 repeat parts of the reveal.",
+      "ending": "Hale confesses clearly; physical links are strong.",
+      "prose": "Atmospheric, but capped by leakage and malformed lines."
+    },
+    "externalCategorySum": 80,
+    "externalOffset": 5
+  },
+  {
     "bundleId": "2026-08-06-2230-pendulum-secret-chime",
     "storyPath": "stories/_archive/story_20260806-2230/the_pendulum_s_secret_chime.md",
     "runFolder": "run_20260806-2112_mystery",
