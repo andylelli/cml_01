@@ -66,3 +66,15 @@ export {
   VOICE_SPEC_CANDIDATES,
 } from "./voice-spec-engine.js";
 export type { VoiceSpecContext, VoiceSpecResult } from "./voice-spec-engine.js";
+
+// A_75 §12 — the clearance REGISTER trim. `clearance_over_budget` is the most frequent geometry code
+// in the archive (74% of runs) and story-geometry's own codes.ts records that no repair pass exists
+// for it. This is that pass, and it can only ever remove a clearance whose suspect was already
+// cleared in an earlier chapter — so coverage is preserved by construction.
+export {
+  trimRedundantClearances,
+  isClearanceSentenceMirror,
+  CLEARANCE_MARKER_MIRROR,
+  CLEARANCE_IDIOM_MIRROR,
+} from "./clearance-trim.js";
+export type { ClearanceTrimResult } from "./clearance-trim.js";

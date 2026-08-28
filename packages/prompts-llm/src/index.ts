@@ -365,3 +365,10 @@ export {
   VOICE_SPEC_CANDIDATES,
 } from "./agent9-prose/voice-spec-engine.js";
 export type { VoiceSpecContext, VoiceSpecResult } from "./agent9-prose/voice-spec-engine.js";
+
+// A_75 §12 — the clearance-register trim. Top-level so the worker can run it before the geometry gate.
+export {
+  trimRedundantClearances,
+  isClearanceSentenceMirror,
+} from "./agent9-prose/clearance-trim.js";
+export type { ClearanceTrimResult } from "./agent9-prose/clearance-trim.js";

@@ -148,3 +148,9 @@ export const voiceEnforceMode = (): "off" | "shadow" | "enforce" => {
   const m = String(process.env.AGENT9_VOICE_ENFORCE ?? "off").trim().toLowerCase();
   return m === "enforce" ? "enforce" : m === "shadow" || m === "1" || m === "true" || m === "on" ? "shadow" : "off";
 };
+
+/**
+ * A_75 §12 — trim a clearance REGISTER back to the geometry budget. Read at call time.
+ * `clearance_over_budget` is the most frequent geometry code (74% of archived runs) and had no repair.
+ */
+export const isClearanceTrimEnabled = () => parseBooleanEnv(process.env.AGENT9_CLEARANCE_TRIM, false);

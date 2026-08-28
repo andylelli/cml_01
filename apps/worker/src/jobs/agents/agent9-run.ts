@@ -22,6 +22,7 @@ import {
   generateProse,
   generateVoiceSpec,
   isVoiceSpecEnabled,
+  trimRedundantClearances,
   blindReadProse,
   isProseBlindReaderEnabled,
   initNarrativeState,
@@ -183,6 +184,7 @@ import {
   isBibleGatesBlockingEnabled,
   isScaffoldRegenEnabled,
   isTemplateLeakageRegenEnabled,
+  isClearanceTrimEnabled,
   isDualValueRegenEnabled,
   isPronounRegenEnabled,
   isResolutionRegenEnabled,
@@ -6819,6 +6821,44 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     const geometryCostBefore = client.getCostTracker().getTotalCost();
     try {
       const geometry = ctx.storyGeometry;
+
+      /**
+       * ── A_75 §12: TRIM THE CLEARANCE REGISTER BEFORE THE GATE COUNTS IT ─────────────────────────
+       *
+       * `clearance_over_budget` is the MOST FREQUENT geometry code in the archive — 17 of 23 runs
+       * (74%), ahead of `reveal_culprit_not_named` (61%) and `unaccounted_time` (57%) — and
+       * `story-geometry/src/codes.ts` records that it has no repair: *"the only negative pass that
+       * exists (aftermath_repeat) removes repetition rather than trimming a register"*.
+       *
+       * Both external readers of the 2026-08-27 matched pair complained about it unprompted, and both
+       * tied it to the ENDING: *"it slows the ending"*, *"still unnecessary after Chapter 8"*.
+       * `AGENT9_FOLD_SUSPECT_CLEARANCES` is already ON and is only a prompt steer — the model
+       * re-argues anyway, and until now nothing downstream trimmed it.
+       *
+       * Runs BEFORE acceptance so the gate counts the trimmed text: a repair the gate cannot see is
+       * a repair nobody can verify. Deletion is safe here by construction — see `trimRedundantClearances`,
+       * which will only remove a clearance whose suspect was already cleared in an EARLIER chapter, so
+       * a `suspect_closure_missing` run-killer cannot be introduced by it.
+       */
+      if (isClearanceTrimEnabled()) {
+        const budget = Number((geometry as any)?.clearanceBudget?.maxSentences);
+        if (Number.isFinite(budget) && budget >= 0) {
+          const trim = trimRedundantClearances(
+            prose.chapters as any,
+            (castDesign?.characters ?? []).map((c: any) => String(c?.name ?? "")).filter(Boolean),
+            budget,
+          );
+          if (trim.removed.length > 0) {
+            prose.chapters = trim.chapters as any;
+            prose = applyStandardPostProcessingChain(prose);
+            for (const line of trim.removed) ctx.warnings.push(`[Agent 9] ${line}`);
+            ctx.warnings.push(
+              `[Agent 9] clearance register trimmed: ${trim.removed.length} redundant clearance sentence(s) ` +
+              `removed against a budget of ${budget}. Every suspect's FIRST clearance was preserved.`,
+            );
+          }
+        }
+      }
       const runAcceptance = () =>
         checkManuscriptGeometry(geometry, (prose.chapters ?? []) as any[], {
           parseClockTime,
