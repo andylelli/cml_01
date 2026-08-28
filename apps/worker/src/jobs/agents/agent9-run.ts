@@ -6130,9 +6130,20 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
         }
       }
       const registerTotal = chapterTextsA65.reduce((n, t) => n + detectEvidentiaryRegister(t).length, 0);
-      if (registerTotal > 0) {
-        ctx.warnings.push(`[Agent 9] SHIP-CHECK: evidentiary-register narration ×${registerTotal} (measure — the withheld-inference contract should push this down).`);
-      }
+      /**
+       * PASS 10 — emitted EVEN AT ZERO, and it was not before.
+       *
+       * This is labelled a MEASURE, and A_65's stated purpose for it is to track whether the
+       * withheld-inference contract pushes the count down. Reporting only when the count is non-zero
+       * makes the one outcome the measure exists to detect — reaching zero — indistinguishable from
+       * the check not running at all. That is the exact rule X4 states 1,600 lines below in this same
+       * file: *"emitted even at zero: a zero that is never written cannot be told apart from a check
+       * that never ran"*. The rule was written down and then not applied here.
+       */
+      ctx.warnings.push(
+        `[Agent 9] SHIP-CHECK: evidentiary-register narration ×${registerTotal} `
+        + `(measure — the withheld-inference contract should push this down; ×0 means CLEAN, not unrun).`,
+      );
       // A_75 §6.2 (P2) — the same family measured by GRAMMAR rather than by the frozen phrase list
       // above, which by its own law can only ever see phrasings we wrote. ALWAYS ON, never a gate:
       // rho = -0.421 against the human `prose` mark over 40 read manuscripts (n=40, |rho|>0.314 to

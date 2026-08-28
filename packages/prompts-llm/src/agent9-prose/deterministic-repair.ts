@@ -313,13 +313,16 @@ export const buildDeterministicClueParagraphs = (
 ): string[] => {
   if (materials.length === 0) return [];
   const clueList = materials.map((entry) => entry.description).filter(Boolean).join("; ");
+  // `.filter(Boolean)` because the builders now return "" rather than a malformed sentence when they
+  // have nothing to render (PASS 8). Splicing an empty string into `chapter.paragraphs` would put a
+  // blank paragraph in the manuscript, which is the failure this guard exists to avoid.
   return [
     buildClueObservationParagraph(investigatorName, clueList, isEarly),
     buildClueInferenceParagraph(materials.map((entry) => ({
       description: entry.description,
       pointsTo: entry.pointsTo || undefined,
     }))),
-  ];
+  ].filter((p) => p.trim().length > 0);
 };
 
 export const applyDeterministicCluePatch = (

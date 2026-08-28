@@ -193,7 +193,51 @@ export async function runRegenRepair(
   // Hard defects first — they gate the ship decision; soft defects are quality nudges.
   const ordered = [...defects].sort((a, b) => (a.severity === b.severity ? 0 : a.severity === "hard" ? -1 : 1));
 
+  /**
+   * ── PASS 12: STOP PAYING FOR A LOOP THAT IS NOT CONVERGING ───────────────────────────────────────
+   *
+   * The only bound here was `maxAttemptsPerDefect` (2). The DEFECT COUNT is unbounded — it is however
+   * many obligations the chapter failed — so total calls are 2 x defects with no ceiling anywhere.
+   *
+   * MEASURED on the arm-A run of 2026-08-27, from the LLM log: regen was the single largest consumer
+   * of the run, 33 calls and 40% of wall-clock, MORE than chapter generation itself. And it was not
+   * spread — ch3 took 20 of the 33 (six missing_clue x 2, three clue_too_late x 2, one scaffold x 2)
+   * and EVERY ONE FAILED. The deterministic floor then fired and pasted the key-term bags anyway; the
+   * external reader's note on that manuscript was "the worst leakage is in Chapter 3".
+   *
+   * So those twelve calls bought nothing. They could not: the defects share a chapter and a cause, and
+   * a rewrite that cannot surface clue 1 will not surface clue 5 either.
+   *
+   * The stop is on CONSECUTIVE FAILURES OF ONE KIND, not on a raw call count. A chapter with many
+   * defects that are actually being fixed is money well spent and is not interrupted; a chapter whose
+   * first `k` repairs of a kind all failed has demonstrated the pass cannot do it. Remaining defects
+   * are passed to `unresolved` UNTOUCHED, which is exactly where a failed repair would have put them —
+   * so the deterministic floor still sees them and no obligation is silently dropped.
+   *
+   * Flag-gated `AGENT9_REGEN_CONVERGENCE_STOP` (default OFF), read at call time. Off, the loop is
+   * byte-identical to today.
+   */
+  const convergenceStopEnabled = /^(1|true|yes|on)$/i.test(process.env.AGENT9_REGEN_CONVERGENCE_STOP ?? "");
+  const CONSECUTIVE_FAILURE_LIMIT = Math.max(
+    2,
+    Number(process.env.AGENT9_REGEN_CONVERGENCE_LIMIT) || 3,
+  );
+  const consecutiveFailuresByKind = new Map<string, number>();
+  let abandonedForNonConvergence = 0;
+
   for (const defect of ordered) {
+    if (convergenceStopEnabled
+      && (consecutiveFailuresByKind.get(defect.kind) ?? 0) >= CONSECUTIVE_FAILURE_LIMIT) {
+      // Untouched into `unresolved` — the deterministic floor's input is unchanged.
+      unresolved.push(defect);
+      abandonedForNonConvergence += 1;
+      options.onUnresolved?.(
+        defect,
+        `regen abandoned: ${CONSECUTIVE_FAILURE_LIMIT} consecutive ${defect.kind} repairs failed in this chapter, `
+        + `so this one was not attempted (saved ${maxAttempts} call(s)). The floor still covers it.`,
+      );
+      continue;
+    }
     /**
      * A_73 §32 — JUDGE THE DEFECT THAT WAS REPAIRED, NOT THE SUM.
      *
@@ -239,11 +283,27 @@ export async function runRegenRepair(
       attempts: res.attempts,
       reason: res.reason,
     });
+    // Track convergence per KIND: a run of failures on one defect kind in one chapter is evidence the
+    // pass cannot do it here. A success resets the counter, so a chapter that is being repaired keeps
+    // its full budget.
+    if (res.applied) consecutiveFailuresByKind.set(defect.kind, 0);
+    else consecutiveFailuresByKind.set(defect.kind, (consecutiveFailuresByKind.get(defect.kind) ?? 0) + 1);
+
     if (!res.applied) {
       unresolved.push(defect);
       options.onUnresolved?.(defect, res.reason ?? "unresolved");
     }
   }
 
+  if (abandonedForNonConvergence > 0) {
+    // Reported, never silent. A saving nobody can see is indistinguishable from a pass that quietly
+    // stopped trying — the whole point is that the number is legible next to the retry telemetry.
+    options.onUnresolved?.(
+      ordered[ordered.length - 1],
+      `regen convergence stop: ${abandonedForNonConvergence} defect(s) not attempted after `
+      + `${CONSECUTIVE_FAILURE_LIMIT} consecutive failures of their kind — saved about `
+      + `${abandonedForNonConvergence * maxAttempts} LLM call(s).`,
+    );
+  }
   return { chapter: current, outcomes, unresolved };
 }

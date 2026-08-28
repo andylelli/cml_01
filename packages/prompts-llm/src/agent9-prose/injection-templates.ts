@@ -121,6 +121,12 @@ export const buildClueObservationParagraph = (
   clueList: string,
   isEarly: boolean,
 ): string => {
+  // PASS 8: with an empty name or empty list this used to emit
+  // `" pressed on to the next concrete detail. The record now held: ."` — a leading space, a
+  // subjectless sentence and an empty list, pasted straight into the manuscript. A builder with
+  // nothing to say must say NOTHING; the guard lives here rather than only in the caller, because
+  // this is exported and every other caller would have to remember it.
+  if (!String(investigatorName ?? "").trim() || !String(clueList ?? "").trim()) return "";
   const lead = isEarly
     ? `${investigatorName} laid the facts out plainly where the others could see them.`
     : `${investigatorName} pressed on to the next concrete detail.`;
@@ -154,9 +160,14 @@ export const buildClueInferenceSentence = (entry: ClueInferenceOperands): string
     : `Weighed against the rest, ${entry.description} left the standing account weaker.`;
 };
 
-export const buildClueInferenceParagraph = (entries: ReadonlyArray<ClueInferenceOperands>): string =>
-  `${entries.length > 1 ? "Those details" : "That detail"} shifted the reasoning. `
-  + entries.map(buildClueInferenceSentence).join(" ");
+export const buildClueInferenceParagraph = (entries: ReadonlyArray<ClueInferenceOperands>): string => {
+  // PASS 8: an empty list produced `"That detail shifted the reasoning. "` — a machine sentence
+  // announcing a detail that is not there, with a trailing space. Same rule as above.
+  const usable = (entries ?? []).filter((e) => String(e?.description ?? "").trim().length > 0);
+  if (usable.length === 0) return "";
+  return `${usable.length > 1 ? "Those details" : "That detail"} shifted the reasoning. `
+    + usable.map(buildClueInferenceSentence).join(" ");
+};
 
 /** `enforceSuspectEliminationPresence` — the floor for "this suspect is never cleared in the prose". */
 export const buildSuspectClearanceSentence = (surname: string): string =>

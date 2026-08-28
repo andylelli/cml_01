@@ -192,6 +192,17 @@ const stripLeadingClause = (sentence: string): string => {
 
 export const scoreSentenceRegister = (sentence: string): RegisterScore => {
   const raw = String(sentence ?? "").trim();
+  // PASS 8: an EMPTY string scored 2 of 4, because two of the four features fire on ABSENCE — no
+  // concrete noun and no sensory word are both trivially true of no text at all. Nothing reaches this
+  // path today (`splitSentences` drops anything under five words), but the function is exported and
+  // the probe calls it directly on fixtures. "No sentence" is not "machine register"; it is no data.
+  if (!raw) {
+    return {
+      sentence: "",
+      score: 0,
+      features: { abstractSubject: false, stativeVerb: false, noConcreteNoun: false, noSensoryWord: false },
+    };
+  }
   const body = stripLeadingClause(raw);
   const concrete = CONCRETE_RE.test(raw);
   const features: RegisterFeatures = {
