@@ -543,46 +543,58 @@ export async function runAgent3b(ctx: OrchestratorContext): Promise<void> {
 
   // ── Pillar 1 (Unit 1.1 + 1.2): Build LockedFactRegistry from primary device ──
   if (ctx.inputs.enableLockedFactRegistry) {
-    const primaryDevice = ctx.hardLogicDevices!.devices[0];
-    const rawFacts: Array<{ id?: unknown; value?: unknown; description?: unknown; derivedFrom?: unknown }> =
-      Array.isArray(primaryDevice?.lockedFacts) ? primaryDevice.lockedFacts : [];
+    /**
+     * Extracted so the arithmetic-regeneration path below can REBUILD the registry from a fresh
+     * device. Byte-identical work to what ran inline before; the only change is that it can now be
+     * called twice.
+     */
+    const buildRegistryFromPrimaryDevice = (): void => {
+      const primaryDevice = ctx.hardLogicDevices!.devices[0];
+      const rawFacts: Array<{ id?: unknown; value?: unknown; description?: unknown; derivedFrom?: unknown }> =
+        Array.isArray(primaryDevice?.lockedFacts) ? primaryDevice.lockedFacts : [];
 
-    ctx.lockedFactRegistry = rawFacts
-      .filter((f) => typeof f.id === "string" && typeof f.value === "string" && (f.value as string).trim().length > 0)
-      .map((f) => {
-        const id = (f.id as string).trim();
-        const original = (f.value as string).trim();
-        const wordified = wordifyLockedFactValue(original);
-        if (wordified !== original) {
-          ctx.warnings.push(`Pillar 1: repaired digit-form locked fact ${id} "${original}" → "${wordified}" (era word-form)`);
-        }
-        // A_72 C1: the article belongs to the sentence, not the value. See the helper's header for
-        // what "a quarter past eleven" beside "ten minutes past eleven" did to the 08-23 manuscript.
-        const value = stripLeadingArticleFromLockedValue(wordified);
-        if (value !== wordified) {
-          ctx.warnings.push(`[A_72 C1] stripped leading article from locked fact ${id}: "${wordified}" → "${value}"`);
-        }
-        return {
-          id,
-          value,
-          description: typeof f.description === "string" ? (f.description as string).trim() : "",
-          // Carried through verbatim: it is the ONLY licence any later pass has to rewrite this value.
-          ...(Array.isArray(f.derivedFrom)
-            ? { derivedFrom: (f.derivedFrom as unknown[]).map((x) => String(x).trim()).filter(Boolean) }
-            : {}),
-        };
-      });
+      ctx.lockedFactRegistry = rawFacts
+        .filter((f) => typeof f.id === "string" && typeof f.value === "string" && (f.value as string).trim().length > 0)
+        .map((f) => {
+          const id = (f.id as string).trim();
+          const original = (f.value as string).trim();
+          const wordified = wordifyLockedFactValue(original);
+          if (wordified !== original) {
+            ctx.warnings.push(`Pillar 1: repaired digit-form locked fact ${id} "${original}" → "${wordified}" (era word-form)`);
+          }
+          // A_72 C1: the article belongs to the sentence, not the value. See the helper's header for
+          // what "a quarter past eleven" beside "ten minutes past eleven" did to the 08-23 manuscript.
+          const value = stripLeadingArticleFromLockedValue(wordified);
+          if (value !== wordified) {
+            ctx.warnings.push(`[A_72 C1] stripped leading article from locked fact ${id}: "${wordified}" → "${value}"`);
+          }
+          return {
+            id,
+            value,
+            description: typeof f.description === "string" ? (f.description as string).trim() : "",
+            // Carried through verbatim: it is the ONLY licence any later pass has to rewrite this value.
+            ...(Array.isArray(f.derivedFrom)
+              ? { derivedFrom: (f.derivedFrom as unknown[]).map((x) => String(x).trim()).filter(Boolean) }
+              : {}),
+          };
+        });
 
-    // X38-at-source: reconcile before the artifact is written, so locked-facts-{runId}.json records
-    // the values the run actually used rather than the ones it was about to repair.
-    reconcileDeviceArithmetic(ctx);
+      // X38-at-source: reconcile before the artifact is written, so locked-facts-{runId}.json records
+      // the values the run actually used rather than the ones it was about to repair.
+      reconcileDeviceArithmetic(ctx);
+    };
+
+    buildRegistryFromPrimaryDevice();
 
     // Emit to apps/worker/logs/locked-facts-{runId}.json for observability.
     writeLockedFactsArtifact(ctx);
 
+    // The assignment now happens inside `buildRegistryFromPrimaryDevice`, so TypeScript no longer
+    // narrows it here. Read once into a local rather than asserting non-null at each use.
+    const builtRegistry = ctx.lockedFactRegistry ?? [];
     ctx.warnings.push(
-      `Pillar 1: locked fact registry built with ${ctx.lockedFactRegistry.length} fact(s): ` +
-        ctx.lockedFactRegistry.map((f) => `${f.id}="${f.value}"`).join(", "),
+      `Pillar 1: locked fact registry built with ${builtRegistry.length} fact(s): ` +
+        builtRegistry.map((f) => `${f.id}="${f.value}"`).join(", "),
     );
 
     /**
@@ -597,8 +609,95 @@ export async function runAgent3b(ctx: OrchestratorContext): Promise<void> {
      * and a chapter rewritten to reconcile the numbers would contradict the registry. This is the
      * moment the case is still cheap to fix — before an outline, before £1 of prose written against it.
      */
-    for (const violation of checkCaseTimeCoherence({ lockedFacts: ctx.lockedFactRegistry })) {
+    let arithmeticViolations = checkCaseTimeCoherence({ lockedFacts: ctx.lockedFactRegistry });
+    for (const violation of arithmeticViolations) {
       ctx.warnings.push(`[X38] Pillar 1 case-time incoherence (${violation.code}): ${violation.message}`);
+    }
+
+    /**
+     * ── A_75 §11: THE WARNING NOW DOES SOMETHING ─────────────────────────────────────────────────
+     *
+     * The comment above argues that this is the only moment the case can be fixed — "Agent 9 cannot
+     * repair it: a locked fact is contractual" — and until now the code answered by pushing a warning
+     * and continuing.
+     *
+     * MEASURED over the 29 stored device artifacts: **10 (34%) ship with arithmetic that does not
+     * work.** `reconcileDeviceArithmetic` above repairs only a fact that DECLARES `derivedFrom` with
+     * two sources — correctly conservative, it will not guess which of three numbers is wrong — and
+     * **6 of the 10 carry no such declaration**, so the repair cannot reach them.
+     *
+     * What happens to those six is documented end to end for `canary_1787512796199`: X38 warned here,
+     * geometry raised `locked_time_arithmetic` again at Agent 9 (where it can only warn), the book
+     * shipped, and BOTH external readers spent essentially their whole review on the hourglass
+     * numbers. `clues` scored 5 and 7 — the category with the most recoverable headroom in the ledger.
+     *
+     * So: regenerate the DEVICE, which is the thing that is wrong, at the design-tier price
+     * (~$0.01–0.02) rather than paying £1 of prose to render numbers that cannot work. Bounded to one
+     * attempt, and the regenerated device is accepted ONLY if the arithmetic actually clears — a
+     * regeneration that fails leaves the original in place, so this can never make a case worse or
+     * abort a run.
+     *
+     * Flag-gated `AGENT3B_ARITHMETIC_REGEN`, default OFF, read at call time.
+     */
+    const arithmeticRegenEnabled = /^(1|true|yes|on)$/i.test(process.env.AGENT3B_ARITHMETIC_REGEN ?? "");
+    if (arithmeticRegenEnabled && arithmeticViolations.length > 0) {
+      const beforeDevices = ctx.hardLogicDevices;
+      const beforeRegistry = ctx.lockedFactRegistry;
+      const feedback =
+        `The device's own numbers must agree. ${arithmeticViolations.map((v) => v.message).join(" ")} `
+        + `Regenerate the device so its locked facts are arithmetically consistent: if two clock times and `
+        + `a duration are locked, the duration MUST equal the interval between the two times. State the `
+        + `derived value's \`derivedFrom\` as the ids of the two facts it is computed from.`;
+      const genLabel = "Agent3b-HardLogicDeviceGenerator";
+      const costBefore = ctx.client.getCostTracker().getSummary().byAgent[genLabel] || 0;
+      try {
+        const regenerated = await generateHardLogicDevices(ctx.client, {
+          runId: ctx.runId,
+          projectId: ctx.projectId || "",
+          decade: setting.setting.era.decade,
+          location: setting.setting.location.description,
+          institution: setting.setting.location.type,
+          tone: appendRetryFeedback(ctx.inputs.tone || ctx.inputs.narrativeStyle || "Golden Age Mystery", feedback),
+          theme: appendRetryFeedback(ctx.inputs.theme || "", feedback),
+          primaryAxis: ctx.primaryAxis,
+          mechanismFamilies: ctx.initialHardLogicDirectives.mechanismFamilies,
+          hardLogicModes: ctx.initialHardLogicDirectives.hardLogicModes,
+          difficultyMode: ctx.initialHardLogicDirectives.difficultyMode,
+          noveltyConstraints: ctx.noveltyConstraints,
+          deviceLibraryBlock,
+        });
+        const regenValid = validateArtifact("hard_logic_devices", regenerated);
+        if (!regenValid.valid || !regenerated?.devices?.length) {
+          ctx.warnings.push(`[X38-regen] regenerated device failed schema validation; keeping the original.`);
+        } else {
+          // Rebuild the registry from the NEW device and re-run the same check. Accept only on a clear.
+          ctx.hardLogicDevices = regenerated;
+          buildRegistryFromPrimaryDevice();
+          const after = checkCaseTimeCoherence({ lockedFacts: ctx.lockedFactRegistry });
+          if (after.length === 0) {
+            writeLockedFactsArtifact(ctx);
+            arithmeticViolations = [];
+            ctx.warnings.push(
+              `[X38-regen] device regenerated and its arithmetic now agrees — repaired at the design tier, `
+              + `before an outline and before any prose was written against it.`,
+            );
+          } else {
+            // Never trade a known-bad device for an unknown-bad one.
+            ctx.hardLogicDevices = beforeDevices;
+            ctx.lockedFactRegistry = beforeRegistry;
+            ctx.warnings.push(
+              `[X38-regen] regenerated device still disagrees (${after.map((v) => v.code).join(", ")}); `
+              + `reverted to the original. The case ships with the incoherence NAMED, as before.`,
+            );
+          }
+        }
+      } catch (err) {
+        ctx.warnings.push(`[X38-regen] regeneration error: ${(err as Error).message}; keeping the original.`);
+      } finally {
+        const costAfter = ctx.client.getCostTracker().getSummary().byAgent[genLabel] || 0;
+        const spent = Math.max(0, costAfter - costBefore);
+        if (spent > 0) ctx.warnings.push(`[X38-regen] spent £${spent.toFixed(4)} at the design tier.`);
+      }
     }
   }
 
