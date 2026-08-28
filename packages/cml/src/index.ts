@@ -30,6 +30,7 @@ export type { CaseScopedLockedFact } from "./case-locked-facts.js";
 export {
   checkCaseTimelineDeception,
   checkTimelineDeception,
+  describeTimelineArithmeticCoverage,
   parseClockTime,
   parseTimeWindow,
   // X38/X39 (REVIEW_09 §3) — the case checked against ITSELF, before prose exists.

@@ -281,6 +281,76 @@ export const checkTimelineDeception = (input: TimelineDeceptionInput): TimelineD
  * carry `role_archetype` from CML but `roleArchetype` from Agent 2's design object, and a bare
  * snake_case read silently matches nobody.
  */
+/**
+ * ── DID THE ARITHMETIC CHECK ACTUALLY RUN? ───────────────────────────────────────────────────────
+ *
+ * `checkDeviceArithmetic` needs a SHAPE: two clock-valued locked facts and one duration-valued one
+ * (or, via X61, the mechanism's apparent/actual pair plus a locked duration). When the shape is
+ * absent it returns nothing — and nothing is indistinguishable from "the numbers agree".
+ *
+ * MEASURED 2026-08-27 over the 28 stored cases (`node scripts/mechanism-arithmetic-probe.mjs`):
+ * 5 caught, and at least 6 MORE demonstrably broken and shipped, e.g. apparent 8:30 vs actual 9:00 —
+ * 30 minutes apart — against a device declaring 20. On `canary_1787512796199` the mechanism named
+ * both clocks (10:45 / 11:10, a 25-minute gap) while the hourglass is a twenty-minute device; the
+ * check saw no locked duration, declined silently, and geometry caught the same defect at Agent 9
+ * where it can only warn. BOTH external readers of that manuscript spent their entire review on it,
+ * and `clues` scored 5 and 7 — the category with the most recoverable headroom in the ledger.
+ *
+ * WHY THIS REPORTS RATHER THAN GUESSES. The obvious fix — scrape the duration out of the mechanism
+ * text — was built and measured, and it does not work: that case's text contains "takes twenty
+ * minutes" (the device period) AND "about ten minutes" (elapsed time), and nothing distinguishes them
+ * without inventing a pairing. The existing check is right to demand a DECLARED value. So this does
+ * not weaken it; it makes the decline VISIBLE, so an unverifiable device is a known unknown instead
+ * of a silent pass.
+ *
+ * Deliberately NOT a violation: it returns a separate type, so it cannot reach `validateCml`'s error
+ * list and cannot abort a run. Over the stored cases the unreadable shape is the majority, and B1's
+ * rule is that a check firing on most runs is an off switch with extra steps.
+ */
+export interface TimelineArithmeticCoverage {
+  /** True when the case fakes a time at all — both mechanism anchors parse. */
+  fakesATime: boolean;
+  /** True when the shape was complete enough for the arithmetic to be checked. */
+  verified: boolean;
+  /** What was missing, in the words an operator needs to fix it. */
+  reason?: string;
+}
+
+export const describeTimelineArithmeticCoverage = (cmlCase: any): TimelineArithmeticCoverage => {
+  const mechanism = cmlCase?.hidden_model?.mechanism ?? {};
+  const apparent = parseClockTime(mechanism?.apparent_time_of_death ?? mechanism?.apparentTime);
+  const actual = parseClockTime(mechanism?.actual_time_of_death ?? mechanism?.actualTime);
+  if (apparent === null || actual === null) {
+    return { fakesATime: false, verified: false };
+  }
+
+  const facts: any[] = Array.isArray(cmlCase?.locked_facts)
+    ? cmlCase.locked_facts
+    : Array.isArray(cmlCase?.lockedFacts) ? cmlCase.lockedFacts : [];
+  let clocks = 0;
+  let durations = 0;
+  for (const f of facts) {
+    const raw = String(f?.value ?? "").trim();
+    if (!raw) continue;
+    if (parseDurationMinutes(raw) !== null) durations += 1;
+    else if (parseClockTime(raw) !== null) clocks += 1;
+  }
+
+  if (durations === 1 && (clocks === 2 || (apparent !== null && actual !== null))) {
+    return { fakesATime: true, verified: true };
+  }
+  return {
+    fakesATime: true,
+    verified: false,
+    reason:
+      `the device's period is not a locked fact (${durations} duration-valued locked fact(s), ${clocks} clock-valued). `
+      + `apparent "${String(mechanism?.apparent_time_of_death ?? "")}" and actual `
+      + `"${String(mechanism?.actual_time_of_death ?? "")}" are ${dialGapMinutes(apparent, actual)} minutes apart, `
+      + `and NOTHING CHECKED that against the device's declared duration. Lock the period as a duration-valued `
+      + `fact and the existing arithmetic check covers this case.`,
+  };
+};
+
 export const checkCaseTimelineDeception = (cmlCase: any): TimelineDeceptionViolation[] => {
   const mechanism = cmlCase?.hidden_model?.mechanism ?? {};
   const culprits: string[] = (cmlCase?.culpability?.culprits ?? [])

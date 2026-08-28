@@ -678,3 +678,105 @@ built for, and neither fired here.
 `prose` at 7 with the note *"still has obvious generated fragments"* is the same rung §1 describes. The
 ladder has not moved, and §10.4 explains why: the fragments the reader trips over are ones no detector
 we own can see.
+
+---
+
+## 11. WHAT THE CODE IS DOING THAT KEEPS US OFF 90
+
+**Trigger:** owner's question — *"review the code to check for areas that are causing us not to hit 90."*
+Answered from the 42-read ledger downward, not from intuition.
+
+### 11.1 The arithmetic says recovery is not enough
+
+```
+category             median(last 14)  best-ever  HEADROOM
+premise                     8.0          9        +1.0
+opening_hook                8.0          8         0
+plot_structure              8.0          9        +1.0
+character_clarity           8.0          8         0
+dialogue                    7.0          8        +1.0
+atmosphere                  8.0          9        +1.0
+clues                       7.5          9        +1.5   <- largest
+pacing                      8.0          8         0
+ending                      8.0          9        +1.0
+prose                       7.0          8        +1.0
+                                    best-ever sum  85
+             median recent sum 76 · top-5 offsets [3,4,5,5,6]
+```
+
+Returning **every** category to its own demonstrated best gives sum 83.5–85 and, at the observed
+top-five offset, roughly **88**. So recovery alone does not reach 90: it needs recovery *plus* about
+two marks nobody has ever been given.
+
+**Three categories have ZERO headroom** — `opening_hook`, `character_clarity`, `pacing` have never
+once exceeded 8 in 42 reads. They are not underperforming their ceiling; they have no ceiling above 8
+yet. Two of the three have no mechanism at all: `agent2-run`, `agent2b-run`, `agent2c-run` and
+`agent7-run` contain **zero** references to the prior-run corpus, against 7 in `agent3-run` and 3 in
+`agent3b-run`. The distinctiveness machinery exists at case level and nowhere downstream.
+
+*(Correcting §4's framing: `atmosphere` HAS reached 9, three times, most recently 2026-08-23 — with no
+engine. So an engine is not strictly necessary for a 9; it correlates with how OFTEN one is given
+— `premise` holds 10 of them.)*
+
+### 11.2 THE FINDING: the largest gap is detected twice and acted on neither time
+
+`clues` has the most recoverable headroom (+1.5) and its dominant failure is **false-time device
+arithmetic that does not work**. On the 2026-08-27 matched pair, both external readers spent
+essentially their whole review on it:
+
+> *"if a 20-minute hourglass was flipped at 10:45, then by 11:05 it should be empty"*
+> *"either the actual turn time should be 11:00, or the observed time should be 11:00, not 11:10"*
+
+`clues` scored **5** and **7**. And the pipeline knew:
+
+```
+arm A release gate: geometry locked_time_arithmetic; clincher_absent_at_payoff (ch8); ...
+arm B release gate: geometry locked_time_arithmetic; clincher_absent_at_payoff (ch8); ...
+```
+
+**It fires TWICE, at both ends of the pipeline, and neither firing does anything:**
+
+| where | what | what it does |
+|---|---|---|
+| **Agent 3b** | `checkCaseTimeCoherence` (X38) | `ctx.warnings.push(...)` — **warn only** |
+| **Agent 9** | geometry `locked_time_arithmetic` | warning channel — B1, warn only |
+
+X38's own comment states the case for acting, and then the code does not:
+
+> *"Here rather than at acceptance because **Agent 9 cannot repair it**: a locked fact is contractual,
+> and a chapter rewritten to reconcile the numbers would contradict the registry. This is the moment
+> the case is still cheap to fix — before an outline, before £1 of prose written against it."*
+
+**And Agent 3b already has the repair machinery.** It runs a bounded regenerate-with-feedback loop for
+the plausibility judge (`agent3b-run.ts` ~454–480), generating fresh device candidates against
+feedback. The detector is built, the regeneration path is built, and nothing connects them — the same
+shape as A_62 RC-2.1, where the leakage lever "was already built and simply never plugged in".
+
+### 11.3 What I measured, and one claim I had to withdraw
+
+`node scripts/mechanism-arithmetic-probe.mjs` over the 28 stored cases: 5 already caught by
+`checkCaseTimelineDeception`, and **6 more demonstrably broken** — e.g. apparent 8:30 vs actual 9:00,
+30 minutes apart, against a device declaring 20.
+
+**Withdrawn:** I first reported "0 of 23 false-time cases ever had their arithmetic verified". That is
+not supportable — **all 28 stored CML artifacts have an EMPTY `locked_facts` list**, because X51
+appends them at the END of `runAgent3`, after the artifact is persisted. The snapshot cannot say what
+the live run saw, and reading it as though it could is the same unmeasured-as-clean error this document
+has already caught twice.
+
+Also measured and rejected: scraping the duration out of the mechanism text. That case's text contains
+*"takes twenty minutes"* (the device period) **and** *"about ten minutes"* (elapsed time), and nothing
+distinguishes them without inventing a pairing. The existing check is right to demand a DECLARED
+value. `describeTimelineArithmeticCoverage` now reports when the shape is unreadable, so an
+unverifiable device is a known unknown rather than a silent pass — deliberately NOT a validation error,
+since the unreadable shape is the majority and B1's rule applies.
+
+### 11.4 The order this implies
+
+1. **Route X38 into Agent 3b's existing regeneration loop.** Highest value, cheapest point, machinery
+   already present. Firing rate must be measured first — B1's rule — and a device that regenerates is
+   a design-tier call at the £0.03 end, not £1 of prose.
+2. **Cap clue concentration per chapter.** Already computed (`concentrationRatio` in the Agent 7
+   scorer) and never enforced; §10's ch3 storm is the cost.
+3. Only then the never-9 three, which need capability that does not exist rather than recovery.
+
