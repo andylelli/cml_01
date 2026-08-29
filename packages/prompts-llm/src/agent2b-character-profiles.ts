@@ -85,7 +85,8 @@ const pickProfileSource = (character: Record<string, unknown> | undefined): Reco
   return slim;
 };
 
-const buildProfilesPrompt = (inputs: CharacterProfilesInputs, previousErrors?: string[]) => {
+/** Exported so both sides of `AGENT2B_OBSERVABLE_DETAIL` can be asserted against the REAL prompt. */
+export const buildProfilesPrompt = (inputs: CharacterProfilesInputs, previousErrors?: string[]) => {
   const cmlCase = (inputs.caseData as any)?.CASE ?? {};
   const meta = cmlCase.meta ?? {};
   const title = meta.title ?? "Untitled Mystery";
@@ -110,6 +111,60 @@ const buildProfilesPrompt = (inputs: CharacterProfilesInputs, previousErrors?: s
   });
   const validationFeedback = buildValidationFeedback(namedErrors.length > 0 ? namedErrors : undefined);
 
+  /**
+   * ── A_75 §12.4 — WRITE WHAT CAN BE SEEN ──────────────────────────────────────────────────────────
+   *
+   * MEASURED across 27 stored runs: `character_profiles` is the most ABSTRACT artifact this pipeline
+   * produces — a 28.9% machine-register rate against 4.5% for `location_profiles`, 6.4x the most
+   * concrete, and above the manuscripts themselves (~12%). By field:
+   *
+   *     personalStakeInCase 42.9% · publicPersona 32.3% · motiveSeed 31.5% · stakes 25.8%
+   *     privateSecret 24.7% · speechMannerisms 23.1% · internalConflict 22.6% · summary 7.8%
+   *
+   * `summary` sits at 7.8% because the schema tells it what to be ("1-2 sentence overview"). The rest
+   * are given `"..."` or an abstract example, and the prompt's OWN EXAMPLES taught the register:
+   * `internalConflict` was illustrated as "guilt, conflicted loyalty, fear of what the truth means" —
+   * three propositions, nothing a writer can put on a page.
+   *
+   * This artifact feeds `character_clarity` and `dialogue`, TWO OF THE THREE CATEGORIES THAT HAVE
+   * NEVER EXCEEDED 8 in 44 external reads. The correlation is not significant at n=14 (rho -0.407 and
+   * -0.218, critical 0.544), so this is a hypothesis and is flagged as one — but it is the largest
+   * effect in that table, both rows point the right way, and the artifact is a consistent extreme
+   * outlier.
+   *
+   * ── AXIS-NEUTRAL BY CONSTRUCTION ─────────────────────────────────────────────────────────────────
+   *
+   * Every example below is a habit, an object or a thing said. None assumes a clock, a locked room, a
+   * mistaken identity, a chain of command or a behavioural tell, so this reads identically on all five
+   * `false_assumption` axes. An example built from a timing case would quietly bias four of them.
+   *
+   * ── WHAT IT DELIBERATELY EXEMPTS ─────────────────────────────────────────────────────────────────
+   *
+   * `alibiWindow` scores 30.6% and is NOT included: it is a record of where someone was between two
+   * times, and a record should stay a record. Rewriting it as sensory prose would corrupt the field
+   * the fair-play machinery reads. Same for `accessPlausibility` and every enum.
+   *
+   * Flag-gated `AGENT2B_OBSERVABLE_DETAIL` (default OFF), read at call time. Off, the prompt is
+   * byte-identical to today. Its test costs no external read: re-run Agent 2b and measure the rate.
+   */
+  const observableEnabled = /^(1|true|yes|on)$/i.test(process.env.AGENT2B_OBSERVABLE_DETAIL ?? "");
+  const observableBlock = observableEnabled
+    ? `OBSERVABLE, NOT ABSTRACT (applies to publicPersona, privateSecret, motiveSeed, stakes, internalConflict, personalStakeInCase):
+- Write what a reader could SEE, HEAR or HANDLE in a scene: a habit, an object, something said or pointedly not said.
+- A proposition ABOUT a character is not usable by the writer. A thing the character DOES is.
+    abstract   -> "Her career would be destroyed if the inquiry reopened."
+    observable -> "She keeps the inquiry file in her own desk and reads it twice a day."
+    abstract   -> "He is torn between loyalty and duty."
+    observable -> "He answers for his superior in company, and writes to the board alone at night."
+    abstract   -> "She resents being overlooked."
+    observable -> "She corrects the spelling of her name on every list she is handed."
+- Each of those six fields must name at least one concrete noun — a thing with edges.
+- This does NOT apply to alibiWindow, accessPlausibility, or any enum field. Those are records, and a
+  record stays a record: state them plainly and do not dramatise them.
+
+`
+    : "";
+
   const developer = `# Character Profiles Output Schema\nReturn JSON with this structure:\n\n{\n  "status": "draft",\n  "tone": "${tone}",\n  "targetWordCount": ${targetWordCount},\n  "profiles": [\n    {\n      "name": "Name",\n      "summary": "1-2 sentence overview",\n      "publicPersona": "...",\n      "privateSecret": "...",\n      "motiveSeed": "...",\n      "motiveStrength": "weak|moderate|strong|compelling",\n      "alibiWindow": "...",\n      "accessPlausibility": "...",\n      "stakes": "...",
       "humourStyle": "understatement|dry_wit|polite_savagery|self_deprecating|observational|deadpan|sardonic|blunt|none",
       "humourLevel": 0.0,
@@ -127,7 +182,7 @@ CRITICAL FIELD REQUIREMENTS:
 - humourLevel MUST be a number from 0.0 to 1.0 (NOT a string)
 - All enum fields must match the exact allowed values - do not use descriptions or other text${validationFeedback}
 
-CHARACTER HUMOUR REQUIREMENTS:
+${observableBlock}CHARACTER HUMOUR REQUIREMENTS:
 - Each character MUST have a humourStyle (one of: understatement, dry_wit, polite_savagery, self_deprecating, observational, deadpan, sardonic, blunt, none).
 - Each character MUST have a humourLevel (0.0 to 1.0):
   0.0 = entirely humourless (e.g. grieving widow, stern authority)
