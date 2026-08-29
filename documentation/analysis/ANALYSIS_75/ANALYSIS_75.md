@@ -780,3 +780,92 @@ since the unreadable shape is the majority and B1's rule applies.
    scorer) and never enforced; §10's ch3 storm is the cost.
 3. Only then the never-9 three, which need capability that does not exist rather than recovery.
 
+---
+
+## 12. UPSTREAM SWEEP — could earlier agents change to raise `prose`?
+
+**Trigger:** owner's question. Answered by measuring what earlier agents hand the writer, against the
+44-read ledger. Two probes were built for it: `scripts/upstream-echo-probe.mjs` and
+`scripts/upstream-register-vs-mark.mjs`.
+
+### 12.1 The writer does NOT copy what it is given — the obvious theory is dead
+
+Shared runs of five consecutive content words between each artifact and the finished manuscript
+(`canary_1787953182108`, external 85/100):
+
+```
+setting 0.0% · cast 0.0% · character_profiles 0.5% · location_profiles 0.1% · temporal 0.0%
+hard_logic_devices 0.0% · cml 2.2% · clues 1.7% · world_document 0.9% · outline 1.3%
+```
+
+Nothing above 2.2%, and most of what does echo is locked-fact text the prose is REQUIRED to repeat
+verbatim. The highest-echo field is `world_document.characterVoiceSketches[].fragments[].text` (11
+runs) — and checked against the manuscript, **zero of eight voice fragments appear in full.** What
+the writer does with them is adapt: *"determined to read between the shadows"* in narration and
+*"One must always read between the shadows"* in dialogue, from one fragment. That is the mechanism
+working, not leaking.
+
+**So the prose defect is not inherited text.** A whole direction closes here.
+
+### 12.2 The writer writes BETTER than its inputs
+
+Machine-register rate (the one prose instrument that tracks the human mark, rho = −0.421) run over
+the ARTIFACTS rather than the manuscript, averaged across 27–29 stored runs:
+
+```
+character_profiles  28.9%   (n=27)   <- consistently the most abstract, 6.4x the lowest
+cast                19.3%   (n=28)
+outline             15.9%   (n=27)
+world_document      14.9%   (n=27)
+clues               12.5%   (n=28)
+cml                  9.0%   (n=29)
+location_profiles    4.5%   (n=27)   <- the most concrete
+                     ----
+manuscripts         ~12%            (prose-8 books ~10%, prose-4 ~16%)
+```
+
+The writer is handed text at 9–29% and produces prose at ~12%. **It is improving on its inputs, not
+being dragged down by them.** That is the second theory dead: "the upstream register infects the
+prose" does not survive its own measurement.
+
+### 12.3 The correlation test, which is NULL
+
+Does the abstraction of an artifact predict the mark of the category it feeds? Fourteen runs whose
+artifacts join to an external read (critical |rho| = 0.544):
+
+```
+location_profiles  -> atmosphere          +0.279   not significant
+character_profiles -> character_clarity   -0.407   not significant  <- largest, right direction
+character_profiles -> dialogue            -0.218   not significant
+clues              -> clues               -0.086   flat
+outline            -> pacing              +0.363   wrong direction
+outline            -> plot_structure      +0.336   wrong direction
+```
+
+**Nothing clears significance.** This is the fourth score hypothesis tested today and the fourth to
+come back null or wrong-signed — after the clearance trim, the X38 arithmetic class, and the
+name-hygiene class. The pattern is now worth stating on its own: *deterministic defect counts and
+upstream text properties do not predict this reader's marks.* The only validated instrument remains a
+RATE, measured on the finished prose.
+
+### 12.4 What survives: one outlier, offered as a hypothesis not a finding
+
+`character_profiles` is a **consistent extreme outlier** — 28.9% mean over 27 runs, 6.4× the most
+concrete artifact — and it feeds `character_clarity` and `dialogue`, **two of the three categories
+that have never exceeded 8 in 44 reads**. Its two correlation rows are the largest in the table and
+both point the right way, without clearing significance at n=14.
+
+The content is abstract by construction. A profile says *"Finch's death would force the accident
+inquiry open, destroying her career and forcing her dismissal"* — a proposition, with nothing a writer
+can put on the page. The same fact rendered as observable behaviour — *"she checks the inquiry docket
+twice a day and lies about why"* — is the same information as something to dramatise.
+
+**The change is a prompt, not machinery**: ask Agent 2b for behaviour and objects rather than
+summary. It is cheap, it is testable with the existing register probe BEFORE any read is spent
+(re-run 2b, measure the rate, look for a drop from ~29%), and its falsification is that the rate
+drops and the marks do not move.
+
+**What this section does NOT claim:** that it will raise `prose`. §12.3 is null, and three of today's
+four score hypotheses died on contact with the ledger. It is the best-supported upstream candidate
+that exists, which is a much weaker statement than a prediction.
+
