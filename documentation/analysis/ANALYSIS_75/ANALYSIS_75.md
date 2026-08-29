@@ -1013,3 +1013,72 @@ retry gets burned for nothing.
 **Note what this is not.** The correlation is 0.121 — real, highly significant at n=1,831, and small.
 It says length and abstraction travel together; it does not prove cutting length raises the mark.
 
+---
+
+## 14. THE FEATURE SWEEP — one axis, five defects on it
+
+Owner's request: keep checking until five significant defects are found. This section is the sweep
+that settled which properties matter, and the five that survived it.
+
+### 14.1 Abstraction is the ONLY independent axis
+
+Sixteen cheap text statistics against the **human marks** — ground truth, not a proxy — over all 44
+read manuscripts (`node scripts/prose-feature-sweep.mjs`, |rho| > 0.299 to signify):
+
+```
+  feature                 vs prose   vs headline
+  register rate @3         -0.471      -0.638     SIGNIFICANT
+  questions /1k            -0.312      -0.244     SIGNIFICANT
+  adverbs -ly /1k          -0.284      -0.329
+  mean para words          +0.261      +0.359
+  was|were /1k             -0.182      -0.288
+  dialogue share %         +0.078      +0.115     no signal
+  mean sentence len        -0.054      -0.055     no signal
+  sensory verbs /1k        -0.039      -0.092     no signal
+  paras per chapter        -0.008      +0.059     no signal
+```
+
+Two of these looked like new levers. **Both dissolved under a partial correlation controlling for the
+register rate**:
+
+```
+  questions vs prose, controlling for register  : -0.263   (crit 0.302)  explained
+  para length vs prose, controlling for register: +0.171   (crit 0.302)  explained
+```
+
+**So there is one axis, and it is abstraction.** Dialogue share, sentence length and sensory-verb
+density — three things a craft intuition would reach for first — have no relationship to the mark at
+all. That closes a great many doors cheaply, and it is why the five defects below are all the same
+defect seen from different places.
+
+**And the instrument is stronger than we thought.** The register rate predicts the HEADLINE at
+**−0.638**, better than it predicts `prose` itself. It is the single best predictor of overall book
+quality this project owns — and it is currently telemetry that nothing acts on.
+
+### 14.2 The five
+
+| # | defect | evidence | state |
+|---|---|---|---|
+| 1 | **The X38 repair never reached the page.** The registry was corrected to "fifty minutes"; the device kept "thirty-five" and the writer read the device. Manuscript said the wrong number 8 times. | Causal chain on the 85-scoring book, verified against the artifact; the reader's #1 issue, with `clues` marked down for exactly it | **FIXED**, unconditional |
+| 2 | **The finale has no concrete deliverable.** A chapter with no clue obligation is 6.2 points more abstract than one with any. | Welch **t = 4.47**, n=248 | fix behind `AGENT9_AFTERMATH_GROUNDING` |
+| 3 | **A length ratchet with no pawl.** `wordScore` is 35% of the provisional score, one-way, and its directive rolls forward four chapters. Longer chapters are more abstract everywhere. | rho **0.121**, n=1,831; survives excluding finales (0.115) and mid-book only (0.095) | fix behind `AGENT9_LENGTH_COUNTERPRESSURE` |
+| 4 | **Our own injections mark the worst chapters — and the damage is not the injected sentence.** Chapters carrying one sit 2.49 points higher; **removing the injected sentences leaves 1.58 points**, so the surrounding prose is what differs. | Welch **t = 4.59** raw, **t = 2.80** after the control, n=1,713 vs 118 | `AGENT9_RECAP_STRIP_INJECTED` built, unrun |
+| 5 | **The best instrument this project owns is not a lever.** The register rate predicts the headline at −0.638 and drives nothing: it is emitted as a warning and no pass acts on it. | n=44 reads | not built |
+
+**On #4, the honest limit:** this cannot separate *"injection causes abstraction"* from *"a chapter
+already writing abstractly is the one that fails its obligations and gets injected"*. The ch3 storm
+(§10) supports the second reading — 18 failed regens, then the floor pasted. Either way the injector
+fires on the worst-written chapters in the book, which is precisely where its output is least
+affordable.
+
+### 14.3 What the five have in common
+
+They are not five defects. They are one: **the pipeline pushes prose toward abstraction and has no
+counter-force.** It gives the finale words to fill and nothing to fill them with (2), rewards length
+in only one direction (3), pastes machine text into the chapters least able to absorb it (4), lets a
+correct number die between two artifacts (1), and measures the whole problem accurately while acting
+on none of it (5).
+
+That is a more useful account than a defect list, because it predicts where to look next rather than
+only what to fix now.
+
