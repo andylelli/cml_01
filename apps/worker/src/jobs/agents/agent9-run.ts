@@ -20,6 +20,7 @@ import {
   buildAssetLibrary,
   checkNSDParity,
   generateProse,
+  repairNameHygieneInChapters,
   generateVoiceSpec,
   isVoiceSpecEnabled,
   trimRedundantClearances,
@@ -4992,6 +4993,31 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   // retriedProse as the input without reassigning the outer prose variable prematurely.
   const applyStandardPostProcessingChain = (input: any): any => {
     let result = applyDeterministicProsePostProcessing(sanitizeProseResult(input), locationProfiles, castDesign.characters, pronounRepairEnabled);
+    /**
+     * Two malformed-prose classes the external reader of `story_20260828-2301` listed for removal,
+     * in a book that scored 85/100 with `prose` capped at 7 for "leakage and malformed lines":
+     *
+     *     "I just hoped to avoid dismissal dr finch... she hadn t earned the right"
+     *
+     * MEASURED over 196 manuscripts: a cast name lower-cased after a title in 22 books (11%), a
+     * contraction missing its apostrophe in 4 (2%). Replayed against that shipped manuscript, this
+     * repairs exactly the lines the reader quoted — two "dr finch" and one "hadn t".
+     *
+     * Unconditional, because both are unambiguous typographical repairs rather than a style choice,
+     * and the name half is CAST-SCOPED so it cannot corrupt ordinary prose: of the 49 corpus hits, 16
+     * are words like "the Captain was late", and those are left exactly as written.
+     */
+    {
+      const names = (castDesign?.characters ?? []).map((c: any) => String(c?.name ?? "")).filter(Boolean);
+      const hygiene = repairNameHygieneInChapters(result?.chapters ?? [], names);
+      if (hygiene.repairs.length > 0) {
+        result = { ...result, chapters: hygiene.chapters };
+        ctx.warnings.push(
+          `[Agent 9] name/contraction hygiene: ${hygiene.repairs.length} repair(s) — ${hygiene.repairs.slice(0, 4).join("; ")}`
+          + `${hygiene.repairs.length > 4 ? ` (+${hygiene.repairs.length - 4} more)` : ""}`,
+        );
+      }
+    }
     result = repairWordFormLockedFacts(result, annotatedLockedFacts);
     result = applyLifecycleContinuityGuard(result, castDesign.characters as CastEntry[], cml).prose;
     result = normalizeLocationNames(result, buildLocationRegistry({ locationProfiles } as any));

@@ -78,3 +78,8 @@ export {
   CLEARANCE_IDIOM_MIRROR,
 } from "./clearance-trim.js";
 export type { ClearanceTrimResult } from "./clearance-trim.js";
+
+// Malformed-prose repairs the external reader of story_20260828-2301 named directly: a cast name in
+// lower case after a title ("dr finch") and a contraction missing its apostrophe ("hadn t").
+export { repairNameHygiene, repairNameHygieneInChapters } from "./name-hygiene.js";
+export type { NameHygieneResult } from "./name-hygiene.js";

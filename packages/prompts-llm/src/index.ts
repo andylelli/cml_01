@@ -372,3 +372,6 @@ export {
   isClearanceSentenceMirror,
 } from "./agent9-prose/clearance-trim.js";
 export type { ClearanceTrimResult } from "./agent9-prose/clearance-trim.js";
+
+export { repairNameHygiene, repairNameHygieneInChapters } from "./agent9-prose/name-hygiene.js";
+export type { NameHygieneResult } from "./agent9-prose/name-hygiene.js";
