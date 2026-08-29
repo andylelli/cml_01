@@ -119,6 +119,26 @@ const record = (env, what, off, on, marker) => {
   record("AGENT9_VOICE_SPEC", "the committed voice spec reaches the writer", off, on, "words per sentence");
 }
 
+// ── 5. AGENT2B_OBSERVABLE_DETAIL — upstream, but rehearsable: the prompt builder is exported ─────
+{
+  // The stored artifact wraps the design: `{ cast: { characters }, attempt, latencyMs, cost }`.
+  // Reading `.characters` off the envelope throws — the same shape trap as the camelCase/snake_case
+  // one this repo has paid for before.
+  const castArtifact = store.latestArtifact(rows, projectId, "cast");
+  const cast = castArtifact?.cast?.characters ? castArtifact.cast : castArtifact;
+  if (cast?.characters) {
+    const profiles = await import(need("packages/prompts-llm/dist/agent2b-character-profiles.js"));
+    const { off, on } = withFlag("AGENT2B_OBSERVABLE_DETAIL", () => {
+      const p = profiles.buildProfilesPrompt({ caseData: cse, cast, tone: "wry", targetWordCount: 40000 });
+      // The builder returns { system, developer, user, messages }. Concatenating only system+user
+      // missed the block entirely and reported the flag SILENT — read EVERY field, or the probe
+      // decides the verdict by which key it happened to name.
+      return typeof p === "string" ? p : ["system", "developer", "user"].map((k) => p?.[k] ?? "").join("");
+    });
+    record("AGENT2B_OBSERVABLE_DETAIL", "asks Agent 2b for behaviour, not summary", off, on, null);
+  }
+}
+
 console.log(`\n  FLAG REHEARSAL — project ${projectId} · no network, no cost\n`);
 console.log(`    ${"flag".padEnd(32)} ${"verdict".padEnd(10)} ${"delta".padStart(7)}   what it adds`);
 console.log(`    ${"-".repeat(98)}`);
