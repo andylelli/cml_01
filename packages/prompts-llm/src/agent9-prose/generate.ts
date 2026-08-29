@@ -580,6 +580,13 @@ const detectRetryIssueFamilies = (errors: string[]): string[] => {
   return Array.from(families);
 };
 
+/**
+ * A_75 §16. Read at CALL time, never frozen into a module const — the trap this repo has paid for
+ * twice, most recently on a lever that was unsettable from `.env.local`.
+ */
+export const isFinalAttemptKeepsDraftEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(env.AGENT9_FINAL_ATTEMPT_KEEPS_DRAFT ?? "");
+
 export function chooseRetryPromptStrategy(
   errors: string[],
   attempt: number,
@@ -590,11 +597,58 @@ export function chooseRetryPromptStrategy(
   const familyCount = issueFamilies.length;
   const rationale: string[] = [];
 
-  if (attempt >= maxAttempts || packet?.deterministicMitigation?.type === "split_chapter" || packet?.deterministicMitigation?.type === "structural_pivot") {
+  const hardMitigation = packet?.deterministicMitigation?.type === "split_chapter"
+    || packet?.deterministicMitigation?.type === "structural_pivot";
+
+  if (attempt >= maxAttempts || hardMitigation) {
     rationale.push("final-attempt or hard mitigation triggered");
+
+    /**
+     * A_75 §16 — THE FINAL ATTEMPT IS THE ONE THAT SHIPS, AND IT WRITES BLIND.
+     *
+     * `includePriorDraft: false` here was unconditional, so on the last attempt the model never sees
+     * the prose it wrote: it regenerates from the constraint list alone. Prose generated from a list
+     * of constraints reads like a list of constraints, which is exactly the grammatical shape the
+     * register score counts as abstract (propositional subject, stative verb).
+     *
+     * MEASURED, over 323 chapters across 33 runs whose per-chapter attempt counts are recoverable
+     * from the prompt log:
+     *
+     *   attempts vs register rate   rho = 0.183   (crit 0.109)   SIGNIFICANT
+     *     1 attempt  10.35%     2 attempts  11.10%     3 attempts  13.74%     4+  12.46%
+     *   back half, position-controlled: retried chapters +2.43 points, Welch t = 2.97
+     *   front half: +0.70 points, t = 1.36 — nothing
+     *
+     * The dose-response peaks at 3 attempts, which is where this branch fires.
+     *
+     * THE NARROW CLAIM. Discarding the draft is RIGHT when the wording is the problem — a template
+     * failure anchors the model to the phrasing that failed, which is why `targeted_rebuild` below
+     * also drops it. It is wrong when the failure had nothing to do with the prose. The Ch10 that
+     * provoked this took six attempts on `fair_play`/`stage_mode_outcome` plus three missing suspect
+     * clearances: not one of those is a complaint about a sentence, and every sentence was thrown
+     * away anyway.
+     *
+     * So: keep the draft on a final attempt UNLESS the wording itself is implicated. A hard
+     * mitigation still discards — a chapter being split or pivoted is not the chapter that was
+     * written.
+     *
+     * Flag-gated `AGENT9_FINAL_ATTEMPT_KEEPS_DRAFT` (default OFF), read at call time.
+     *
+     * WHAT WOULD FALSIFY IT: chapters reaching the final attempt do not get less abstract with the
+     * flag on, or they start failing validation MORE because the draft anchors the model to its own
+     * mistake. The second is the real risk and it is why this ships off.
+     */
+    const wordingIsTheProblem = issueFamilies.includes("template") || issueFamilies.includes("structure");
+    const keepDraft = isFinalAttemptKeepsDraftEnabled()
+      && !hardMitigation
+      && !wordingIsTheProblem;
+    if (keepDraft) {
+      rationale.push("prose was not the failure — revising the draft rather than writing blind from constraints");
+    }
+
     return {
       mode: "full_rebuild",
-      includePriorDraft: false,
+      includePriorDraft: keepDraft,
       issueFamilies,
       rationale,
     };
