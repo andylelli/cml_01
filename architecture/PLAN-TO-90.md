@@ -1307,3 +1307,86 @@ Nothing here changes §8.2's arithmetic: **five categories have never reached 9*
 on the best manuscripts (top-8 mean 6.9 against a ceiling of 8), it is the category this read scored
 worst, and for the first time its cause is named down to two specific mechanisms rather than described
 as *"generated phrases remain"*.
+
+---
+
+## 12. WHERE THE BOARD STANDS · 2026-08-29
+
+Six days of work (A_75) sat outside this board. This section folds it in. The headline: **the best run
+yet scored 85**, the ledger reached 44 reads, and `prose` — which §11.4 named as the largest single
+gap — now has an *instrument* and *five named defects* rather than a description.
+
+### 12.1 The arithmetic, refreshed at n=43
+
+```
+category            mean   max   top-8   gap to 9
+  premise            8.1    9     9.0       0
+  atmosphere         7.6    9     8.5       0
+  opening_hook       7.3    8     8.0       1   <- never 9
+  plot_structure     7.3    9     8.1       0
+  pacing             7.2    8     8.0       1   <- never 9
+  clues              6.9    9     8.3       0
+  ending             6.8    9     8.3       0
+  character_clarity  6.6    8     8.0       1   <- never 9
+  dialogue           6.4    8     7.1       1   <- never 9
+  prose              5.8    8     7.3       1   <- never 9, LOWEST mean AND lowest top-8
+
+offset (headline - sum): 0..8, mean 4.0      best-ever-everywhere: 85 + 4.0 = 89.0
+```
+
+**Best-ever-everywhere still lands at 89.0.** §8.2's finding survives another nine reads: 90 needs a
+mark no manuscript has ever earned. And `prose` is the weakest category on both measures — lowest mean
+(5.8) *and* lowest top-8 (7.3). §11.4 ordered it first; that ordering holds.
+
+### 12.2 What A_75 added: an instrument, then one axis
+
+The machine-register **rate** is now measured against all 44 reads:
+
+```
+rate @3 vs prose  -0.471        rate @3 vs HEADLINE  -0.638        (crit 0.299)
+```
+
+It predicts the *headline* better than it predicts `prose`. **It is the strongest predictor of book
+quality this project owns.**
+
+A 16-statistic sweep then asked whether anything else predicts the mark. Two rivals appeared and both
+**dissolved** under a partial correlation controlling for register — questions/1k (−0.312 → −0.263)
+and mean paragraph words (+0.261 → +0.171), against a 0.302 threshold. Dialogue share, sentence length
+and sensory-verb density showed **no relationship at all**.
+
+So there is one axis and it is abstraction. That is worth more than the defect list below, because it
+says what *not* to build: the three levers a craft intuition reaches for first are all dead ends.
+
+### 12.3 Five defects, ranked by evidence — not by size
+
+| # | defect | evidence | state |
+|---|---|---|---|
+| 1 | X38 repair never reached the page — registry corrected, device kept the stale value, the writer reads the device | causal, verified on the artifact, the reader's #1 issue on the 85 | **FIXED**, unconditional, shipped |
+| 2 | The finale has no concrete deliverable | Welch t=4.47, n=248 (position-controlled t=1.73) | `AGENT9_AFTERMATH_GROUNDING` |
+| 3 | Length ratchet with no pawl — `wordScore` is 35% of the score, one-way, rolls forward 4 chapters | rho 0.121, n=1,831, survives all controls | `AGENT9_LENGTH_COUNTERPRESSURE` |
+| 4 | Our injections land on the worst chapters — strip the pasted sentences and 1.58 of the 2.49 points remain | t 4.59 raw → 2.80 controlled | `AGENT9_RECAP_STRIP_INJECTED` |
+| 5 | The best instrument owned is not a lever | n=44 | not built |
+
+They are one defect: **the pipeline pushes prose toward abstraction and has no counter-force.**
+
+### 12.4 The debt this board is carrying
+
+**Ten flags are built, tested, registered and have never executed:**
+
+```
+AGENT9_AFTERMATH_GROUNDING     AGENT9_LENGTH_COUNTERPRESSURE   AGENT9_RECAP_STRIP_INJECTED
+AGENT9_VOICE_SPEC              AGENT9_CLUE_LIST_GRAMMAR        AGENT9_REGEN_CONVERGENCE_STOP
+AGENT9_CROSS_CHAPTER_ECHO      AGENT9_CLEARANCE_TRIM           AGENT3B_ARITHMETIC_REGEN
+AGENT2B_OBSERVABLE_DETAIL
+```
+
+§6 of REVIEW_05 is the rule that applies: *a detector that has never been run against real prose is a
+hypothesis*. Ten of them are hypotheses.
+
+**The cheapest honest next step** is one matched pair (~£2) with the three abstraction flags on
+(2, 3, 4 above), read on the register rate rather than on a judge — because [[the rubric cannot rank
+two books]] and the register can. That measures the axis directly, on the instrument that predicts the
+headline at −0.638, without buying another unrankable score.
+
+**What it cannot do** is prove a mark moved. Nothing short of an external read does that, and a single
+read carries ±3 marks of noise (§30).
