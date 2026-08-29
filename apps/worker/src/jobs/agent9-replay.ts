@@ -28,6 +28,11 @@
  *   node --use-system-ca apps/worker/dist/jobs/agent9-replay.js <projectId> [label]
  * Env:
  *   REPLAY_DRY=1                  load artifacts + build context + validate, but DO NOT call the LLM
+ *   REPLAY_CAPTURE_PROMPTS=<file> run Agent 9's real prompt assembly against a recording stub —
+ *                                 no network, no cost — and write every prompt to <file>. This is
+ *                                 the free flag rehearsal: capture with the flags off, again with
+ *                                 them on, and diff. REPLAY_DRY stops too early to answer that.
+ *   REPLAY_CAPTURE_CAP=N          stop after N captured prompts (default 14)
  *   REPLAY_PROSE_BATCH=N          chapters per LLM call (default 10, mirroring the batched runs)
  *   REPLAY_SCORE_CHECKPOINT=path  skip generation; recover prose from an agent9 checkpoint and score it
  *   CML_WORKSPACE_ROOT            override workspace root (default: process.cwd())
@@ -340,7 +345,56 @@ async function main(): Promise<void> {
     resumeAgent9FromCheckpoint: false,
   };
 
-  const client = buildClient(workspaceRoot);
+  // A_75 §15 — PROMPT CAPTURE, the free rehearsal.
+  //
+  // REPLAY_DRY exits before `runAgent9` and so never builds a prompt. That is the wrong stopping
+  // point for the one question a flag rehearsal has to answer: does the flag's text actually REACH
+  // the writer? This project has twice shipped a lever that was silently unsettable, and grepping
+  // the module proves nothing (the A_66 vandal had three bodies across two packages).
+  //
+  // With REPLAY_CAPTURE_PROMPTS=<file> the client is replaced by a recorder that returns canned
+  // prose and never opens a socket. Agent 9 runs its real prompt-assembly path for £0, every prompt
+  // is written to the file, and a second run with the flags flipped can be diffed against it.
+  const capturePath = (process.env.REPLAY_CAPTURE_PROMPTS || "").trim();
+  const captured: Array<{ n: number; system: string; user: string }> = [];
+  const captureCap = Number(process.env.REPLAY_CAPTURE_CAP || 14);
+
+  // WRAP, do not replace. Agent 9 uses far more of the client than `chat()` — `getCostTracker()`
+  // alone is called at eight sites — so a bare stub throws before the first prompt is ever built,
+  // which reads as "the flag is silent" when in fact nothing ran. A Proxy keeps every real method
+  // and intercepts only the network call.
+  const realClient = buildClient(workspaceRoot);
+  const client = capturePath
+    ? (new Proxy(realClient as any, {
+        get: (target, prop, receiver) => {
+          if (prop !== "chat") return Reflect.get(target, prop, receiver);
+          return async (options: any) => {
+            const msg = (role: string) =>
+              (options?.messages ?? [])
+                .filter((m: any) => m?.role === role)
+                .map((m: any) => String(m?.content ?? ""))
+                .join(String.fromCharCode(10));
+            captured.push({ n: captured.length + 1, system: msg("system"), user: msg("user") });
+            if (captured.length >= captureCap) {
+              writeFileSync(capturePath, JSON.stringify(captured, null, 2), "utf8");
+              throw new Error(`[capture] reached REPLAY_CAPTURE_CAP=${captureCap} — prompts written to ${capturePath}`);
+            }
+            // Canned prose. It will not satisfy the validators, and that is fine: the retries it
+            // provokes are themselves prompts worth capturing, and the cap stops the loop.
+            return {
+              content:
+                "The rain had stopped. Miss Ash set the lamp on the sill and counted the keys again, one by one, until the last would not turn.",
+              usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 },
+              model: "capture-stub",
+              finishReason: "stop",
+              latencyMs: 0,
+            };
+          };
+        },
+      }) as AzureOpenAIClient)
+    : realClient;
+
+  if (capturePath) console.log(`[replay-agent9] mode      : CAPTURE (no network, cap ${captureCap}) -> ${capturePath}`);
   const runLogger = new RunLogger(join(workerAppRoot, "logs"), runId, projectId);
 
   // ── reconstruct a minimal OrchestratorContext ──────────────────────────────
@@ -423,7 +477,17 @@ async function main(): Promise<void> {
   console.log("[replay-agent9] running Agent 9 prose generation ...");
   try {
     await runAgent9(ctx);
+    if (capturePath) {
+      writeFileSync(capturePath, JSON.stringify(captured, null, 2), "utf8");
+      console.log(`[replay-agent9] captured ${captured.length} prompt(s) -> ${capturePath}`);
+      return;
+    }
   } catch (e) {
+    if (capturePath) {
+      writeFileSync(capturePath, JSON.stringify(captured, null, 2), "utf8");
+      console.log(`[replay-agent9] captured ${captured.length} prompt(s) -> ${capturePath}`);
+      return;
+    }
     runLogger.logComplete("failed", Date.now() - startMs, ctx.warnings, ctx.errors);
     throw e;
   }
