@@ -905,6 +905,41 @@ export function buildChapterObligationBlock(
     // that as retrospect. Naming the loophole up front is cheaper than rejecting it three times.
     lines.push(`  ⛔ DO NOT QUOTE THE CONFESSION. Referring to it is required; reproducing its words is forbidden. Write "the confession he had signed", never a quoted line of it. A recollection frame ("the words still echoing", "his confession lingered") does NOT make a quotation retrospective — it is the reveal delivered a second time, and it will be rejected.`);
     lines.push(`  ⛔ DO NOT RESTATE the motive, the method, or how the concealment worked. The reader already has them. Referring to "what he had done" is enough.`);
+
+    /**
+     * ── A_75 §13 — THE FINAL CHAPTER IS THE MOST ABSTRACT PART OF EVERY BOOK ─────────────────────
+     *
+     * MEASURED over 132 ten-chapter manuscripts, machine-register rate per chapter (the one prose
+     * instrument that tracks the human mark, rho = -0.421):
+     *
+     *     ch1 11.3%  ch2 14.7%  ch3 15.8%  ch4 13.0%  ch5 14.9%
+     *     ch6 16.6%  ch7 14.8%  ch8 14.0%  ch9 14.8%  ch10 17.0%
+     *
+     * It is not a gradient — the middle is noise and the two ENDPOINTS are the signal. Chapter 1 is
+     * markedly the most concrete thing in the book; **chapter 10 is the most abstract, above the
+     * ~16% that marks a prose-4 manuscript.** And ch10 is the chapter readers keep naming:
+     * *"Chapter 10 contains major validation leakage"*, *"Chapter 9 and Chapter 10 overlap"*,
+     * *"the final test repeats after the confession"*.
+     *
+     * THE CAUSE IS THIS CONTRACT. Read the four requirements above: refer, reference, tie off, show
+     * the consequences of the truth. Every verb is a REPORTING verb, and the three prohibitions each
+     * remove a dramatisable action. Nothing in it asks for a single thing a reader could see, hear or
+     * touch — while chapter 1 carries a mandated grounding checklist and comes in 5.7 points lower.
+     *
+     * The prohibitions are RIGHT and stay: each was written against a measured evasion, including
+     * A_71's recollection-frame loophole the model used three attempts running. What was missing is a
+     * positive requirement to put the consequence in the room, which is what the chapter is FOR.
+     *
+     * AXIS-NEUTRAL: a consequence is physical whichever way the crime was concealed. Nothing here
+     * mentions a clock, a room, an identity, a rank or a behavioural tell, so it reads the same on all
+     * five `false_assumption` axes.
+     *
+     * Flag-gated `AGENT9_AFTERMATH_GROUNDING` (default OFF), read at call time.
+     */
+    if (/^(1|true|yes|on)$/i.test(process.env.AGENT9_AFTERMATH_GROUNDING ?? "")) {
+      lines.push(`  5. PUT THE CONSEQUENCE IN THE ROOM: requirements 3 and 4 must be carried by something the reader can SEE, HEAR or TOUCH — a task someone resumes or abandons, an object moved, kept or thrown away, a room that has changed use, a habit broken. Name at least TWO physical things in this chapter that were not in the reveal chapter.`);
+      lines.push(`  6. NO SUMMARISING CLOSE: do not end on a sentence whose subject is an abstraction — "the truth", "the case", "justice", "the matter". End inside the scene, on a person doing something.`);
+    }
   } else if (currentArcPosition === 'resolution') {
     const culpritNames: string = ((cmlCase?.culpability?.culprits ?? []) as string[]).filter((n) => typeof n === 'string' && n).join(', ');
     const murderMethod: string = cmlCase?.hidden_model?.mechanism?.description ?? 'the crime method';

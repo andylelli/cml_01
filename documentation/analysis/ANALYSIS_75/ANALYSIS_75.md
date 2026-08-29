@@ -869,3 +869,63 @@ drops and the marks do not move.
 four score hypotheses died on contact with the ledger. It is the best-supported upstream candidate
 that exists, which is a much weaker statement than a prediction.
 
+---
+
+## 13. THE FINAL CHAPTER IS THE MOST ABSTRACT PART OF EVERY BOOK
+
+**MEASURED** over 132 ten-chapter manuscripts — machine-register rate per chapter, the one prose
+instrument that tracks the human mark (rho = −0.421 over 40 read books):
+
+```
+  ch1 11.3%   ch2 14.7%   ch3 15.8%   ch4 13.0%   ch5 14.9%
+  ch6 16.6%   ch7 14.8%   ch8 14.0%   ch9 14.8%   ch10 17.0%
+```
+
+**It is not a gradient.** Across 189 books the first third averages 13.95% and the last third 14.38%
+— a 0.43-point difference, and the last third is worse in exactly 95 of 189 books, a coin flip. The
+middle is noise. **The ENDPOINTS are the signal**: chapter 1 is markedly the most concrete thing in
+the book, and chapter 10 is the most abstract, above the ~16% that characterises a prose-4 manuscript.
+
+That matters because ch10 is the chapter readers keep naming, unprompted, across separate reads:
+
+> *"Chapter 10 contains major validation leakage"* · *"Chapter 9 and Chapter 10 overlap"*
+> *"the final test repeats after the confession"* · *"Chapter 9 repeats clearances… it slows the ending"*
+
+### 13.1 The cause is the contract, not the model
+
+The aftermath contract's four requirements read: **refer** in retrospect, **reference** the outcome,
+**tie off** remaining questions, **show** the consequences of the truth. Every verb is a REPORTING
+verb. Its three prohibitions each remove a dramatisable action — no re-staging, no quoted confession,
+no restated motive or method.
+
+Nothing in it asks for a single thing a reader could see, hear or touch. Chapter 1 carries a mandated
+grounding checklist and comes in **5.7 points lower**.
+
+So the pipeline instructs its final chapter into the machine register, and then a detector flags the
+result and a reader marks it. This is the same shape as §12.4's finding about `character_profiles`:
+the prompt's own wording teaches the register it is later penalised for.
+
+### 13.2 The fix keeps every prohibition
+
+Two requirements added behind `AGENT9_AFTERMATH_GROUNDING`: carry the consequence on something
+perceivable, naming at least two physical things absent from the reveal chapter; and do not close on
+a sentence whose subject is an abstraction — *"the truth"*, *"the case"*, *"justice"* — which is
+precisely the register-4 sentence shape.
+
+**The prohibitions are untouched, and a test asserts they are untouched.** Each was written against a
+measured evasion, including the recollection-frame loophole the model used three attempts running
+(A_71). A register gain bought by re-opening the reveal would be no gain at all.
+
+**Axis-neutral**, and tested as such: a consequence is physical whichever way the crime was concealed,
+so the block names no clock, tide, locked room, disguise or rank.
+
+### 13.3 What this is worth, stated conservatively
+
+The delivery half needs **no external read**: run once, compare ch10's rate against the 17.0%
+baseline. That is the discipline the last four null results earned — four consecutive score
+hypotheses died on the ledger, and the cheap half of this one can be settled before a reader is spent.
+
+The hypothesis is that the final chapter's abstraction is part of what caps `prose` at 7–8 and
+`pacing` at 8. **It has not been shown.** What HAS been shown is that ch10 is reliably the most
+abstract chapter in the book, that the contract explains why, and that the fix costs one flag.
+
