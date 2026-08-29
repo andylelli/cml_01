@@ -929,3 +929,45 @@ The hypothesis is that the final chapter's abstraction is part of what caps `pro
 `pacing` at 8. **It has not been shown.** What HAS been shown is that ch10 is reliably the most
 abstract chapter in the book, that the contract explains why, and that the fix costs one flag.
 
+### 13.4 WHY it is abstract: the chapter has nothing to deliver
+
+§13 found the finale is the most abstract chapter and blamed the contract's reporting verbs. A second
+measurement finds the mechanism underneath, and it is simpler.
+
+**MEASURED** over 248 chapters from 25 books whose outline scenes join to their manuscript
+(`node scripts/obligation-load-vs-register.mjs`) — register rate against the number of clues the
+outline gives that chapter:
+
+```
+  clues in chapter    n     mean register
+      0              20        17.2%      <- nothing to deliver
+      1              41        10.8%
+      2              64        10.8%
+      3              75        10.6%
+      4              29        12.4%
+      5+             19        11.1%
+```
+
+**A chapter with no clue obligation is 6.2 points more abstract than one with any** — 17.21% against
+10.99%, Welch **t = 4.47**, the first significant result in this document's score work. More
+obligations do not make prose worse; **having none does.** The rank correlation is flat (rho = −0.067)
+precisely because the effect is a step at zero, not a slope.
+
+**And the confound, stated plainly.** Eighteen of the twenty zero-obligation chapters are in the final
+fifth of their book, so "has no clue job" and "is the finale" travel together and this data cannot
+separate them. Controlling for position:
+
+```
+  late chapters WITH a clue job : 14.41%   n=30   sd 7.3
+  late chapters with NO clue job: 17.74%   n=18   sd 5.9
+  difference                    : +3.33 points, Welch t = 1.73  NOT SIGNIFICANT
+```
+
+Right direction, underpowered. So the honest claim is the weaker one: **a chapter with nothing
+concrete to deliver writes abstractly, and almost every such chapter is the finale.**
+
+Either way it points the §13 fix at the right target and supplies its mechanism. The aftermath
+contract's reporting verbs are not the disease — they are what a chapter writes when it has been given
+nothing to put on the page. *"Name at least TWO physical things absent from the reveal chapter"* is a
+deliverable, which is the thing the 228 well-behaved chapters all have and this one does not.
+
