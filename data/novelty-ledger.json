@@ -1317,6 +1317,20 @@
       "discrimDesign": "A controlled demonstration comparing the hourglass sand level at known start times versus Captain Hale’s claimed flipping time demonstrates the physical impossibility of his timeline, exposing his deception.",
       "premise": "At the coastal Cliffside Bluffs Seaside Hotel, Dr. Mallory Finch is found murdered by a blow from a heavy brass statue. The key to unraveling the mystery lies in exposure of a falsified timeline surrounding an ancient hourglass visible in the hotel lobby. Captain Ivor Hale’s carefully constructed alibi depends on the claim that he flipped the hourglass after the murder, proving his innocence. However, visible contradictions in the hourglass sand level and witness accounts expose the true timing of events, revealing a cunning temporal alibi deception that points directly to Hale as the murderer.",
       "mechanismFamily": "locked_room_timing"
+    },
+    {
+      "id": "mystery-1787953182109",
+      "title": "The Lantern’s False Hour: A Seaside Hotel Mystery",
+      "era": "1950s",
+      "location": "Rockhaven Seaside Hotel",
+      "crimeSubtype": "temporal alibi falsification murder",
+      "deathMethod": "stabbed with a stiletto dagger",
+      "axis": "temporal",
+      "falseAssumption": "The lantern signal from the private dock was sent late at night, shortly before half past eleven, establishing Captain Hale’s alibi and the murder time.",
+      "discrimMethod": "constraint_proof",
+      "discrimDesign": "Recreate the lantern signal timing outdoors at the dock during the rising tide with tide tables and lantern visibility observed from the cliffs, demonstrating the physical impossibility of the lantern being visible at the claimed late time, thereby invalidating Captain Hale’s alibi based on the lantern signal.",
+      "premise": "At the isolated Rockhaven Seaside Hotel on the Cornish coast, Dr. Mallory Finch is found stabbed shortly after a late-night lantern signal from the private dock. The signal's timing appears to confirm Captain Ivor Hale's alibi, but detective Eleanor Voss uncovers a temporal deception based on the tide's effect on the lantern's visibility. The real murder occurred earlier than assumed, implicating Hale who used the tidal timing to mask his crime.",
+      "mechanismFamily": "locked_room_timing"
     }
   ]
 }

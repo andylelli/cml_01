@@ -1,0 +1,162 @@
+This is a definite improvement over the previous hourglass draft, mainly because the timing is closer to being mathematically explicit. The draft now says the hourglass was actually turned at 10:50, not 10:45, and the ten-minute test shows why it was half full at 11:10. That is much clearer.
+
+But it still has one major issue: the hourglass contradiction proves Hale lied about the ritual time, but it still does not fully prove when the murder happened or why the lie creates Hale’s alibi. The deduction is better, but the murder timeline needs one final tightening.
+
+The roles are clear:
+
+Investigator: Eleanor Voss
+Victim: Dr. Mallory Finch
+Culprit: Captain Ivor Hale
+False suspects: Beatrice Quill, Sylvia Trent, Hugo Vane
+Murder method: blow to the head with a decorative brass gull statue
+Cover-up mechanism: Hale lies about when he turned the twenty-minute hourglass, using the half-full sand to distort the sequence of events
+Key clues: half-full hourglass at 11:10, claimed turn at 10:45, actual turn at 10:50, twenty-minute calibration, brass statue, Hale’s sole control over the ritual, confirmed alibis for the others
+Motive: Hale killed to protect an innocent staff member / conceal irregularities Finch threatened to expose
+
+I’d score it around 81/100. The opening is strong and more precise than before: Finch is dead in the lobby, the brass gull statue is clearly the weapon, the wall clock reads 10 minutes past eleven, and the hourglass is exactly half full.
+
+Area	Mark	Notes
+Premise / concept	8/10	Hourglass as false witness is strong and distinctive.
+Opening hook	8/10	Body, bloodied statue, half-full hourglass, foggy hotel — good setup.
+Plot structure	8/10	Cleaner than the previous draft; the test now has a clearer result.
+Character clarity	8/10	Roles are stable and readable.
+Dialogue	7/10	Eleanor/Hugo/Beatrice have usable voices; some phrasing remains artificial.
+Atmosphere / setting	8/10	Fog, wax polish, hotel ritual, lobby geometry — good mood.
+Mystery clues / evidence logic	7/10	Better math, but the murder-time implication is still incomplete.
+Pacing	8/10	Good movement from contradiction to test to aftermath.
+Ending / reveal	7/10	Hale confession works, but proof order is partly muddled.
+Prose / polish	7/10	Cleaner than many drafts, but still has leakage and repeated proof.
+What works
+
+The hourglass clue is now much easier to follow:
+
+The hourglass takes 20 minutes to empty.
+At 11:10, it is half full.
+Therefore it was turned around 11:00 if exactly half full, or around 10:50 if the story means half the upper bulb had already drained.
+Hale claims he turned it at 10:45.
+That claim is false.
+
+The draft’s final test improves on the previous version by explicitly giving a corrected timing: the hourglass must have been turned at 10:50, not 10:45.
+
+The brass statue murder method is also clean. The wound, blood, hair, and statue are all aligned early, so the reader is not juggling multiple weapons.
+
+The false suspects are handled cleanly. Beatrice is in the kitchen, Sylvia is in the lounge, and Hugo is on the telephone/dining room, leaving Hale as the only person whose account depends on the hourglass lie.
+
+Biggest remaining problem
+
+The hourglass math still needs one exact sentence.
+
+The draft says:
+
+At 11:10, the hourglass was half full.
+A twenty-minute hourglass at the ten-minute mark is half full.
+Therefore it was turned at 10:50.
+
+That only works if “half full” means half the sand remained in the upper bulb after ten minutes of flow.
+
+But in Chapter 1, the upper bulb is “clearly half full” at 11:10. If the hourglass was freshly turned, that implies it was turned at 11:00, not 10:50. The draft’s wording creates a small but important ambiguity:
+
+Upper bulb half full usually means ten minutes have elapsed.
+Ten minutes past 10:50 is 11:00, not 11:10.
+
+So either the actual turn time should be 11:00, or the observed time should be 11:00, not 11:10.
+
+Best clean version:
+
+Claimed turn: 10:45.
+Observed state at 11:10: upper bulb half full.
+Twenty-minute glass, half full = ten minutes elapsed.
+Therefore actual turn: 11:00.
+Hale lied by fifteen minutes.
+
+Or:
+
+Claimed turn: 10:45.
+Observed state at 11:00: upper bulb half full.
+Twenty-minute glass, half full = ten minutes elapsed.
+Therefore actual turn: 10:50.
+Hale lied by five minutes.
+
+The first version is stronger because a 15-minute lie matters more.
+
+Main issues
+1. The murder window is still not sharp enough
+
+The draft says Finch was alive at 11:10, but also that Hale used the hourglass deception to cover the murder. If Finch was alive at 11:10 and the body is found at 11:10 or almost immediately after, the killing window collapses.
+
+You need a clean sequence:
+
+10:45 — Hale claims he turned the hourglass.
+10:50 — Finch is last seen alive.
+11:00 — Hale kills Finch and turns/resets the hourglass.
+11:10 — body is discovered; hourglass is half full.
+False story: the hourglass had been running since 10:45.
+Truth: it had only been running since 11:00.
+
+This makes the hourglass actually hide the murder.
+
+2. Hale’s confession still phrases the trick weakly
+
+He confesses that he “staged the hourglass,” but he should explicitly admit the lie:
+
+“I said I turned it at a quarter to eleven. I did not. I turned it after the blow, at eleven, hoping the half-fallen sand would make everyone accept my earlier routine.”
+
+That is the missing confession sentence.
+
+3. The test is repeated after the reveal
+
+Chapter 8 already has the demonstration and confession. Then the draft continues with more hourglass comparison language and “Run again in front of them all…” That feels like scaffold leakage and repetition.
+
+Cut everything after Hale’s confession except a brief emotional close.
+
+4. Chapter 9 repeats the clearances
+
+Chapter 9 is mostly aftermath, but it again explains Beatrice, Sylvia, and Hugo’s alibis. It is clearer than the earlier version, but still unnecessary after Chapter 8.
+
+Make Chapter 9 emotional fallout only:
+
+Beatrice realizes Hale killed to protect her.
+Sylvia’s social composure cracks.
+Hugo writes nothing for once.
+Eleanor leaves the hourglass unturned.
+
+5. Generated leakage remains
+
+These lines still hurt:
+
+“The record now held: Witness testimony victim last sighting timing; Body discovery scene victim severe head.”
+“It had taken twenty minutes in all.”
+“I spun the vintage clock hand…” / “I twisted the brass key…” instead of consistently turning the hourglass.
+
+The worst leakage is in Chapter 3, where internal evidence labels appear directly in the prose.
+
+6. Object wording is inconsistent
+
+The draft calls the hourglass action:
+
+spun the battered stopwatch
+spun the vintage clock hand
+twisted the brass key
+turned the hourglass
+
+Use only:
+
+turned the hourglass
+
+Anything else confuses the mechanism.
+
+Fastest fixes
+Decide: actual turn is 11:00, not 10:50, if the observation is half full at 11:10.
+Set Finch’s last alive time earlier, ideally 10:50, not 11:10.
+Add one exact timeline paragraph in the reveal.
+Rewrite Hale’s confession so he admits he lied about the turn time.
+Cut the duplicated demonstration after the confession.
+Make Chapter 9 aftermath only.
+Delete internal evidence labels and inconsistent object phrases.
+Overall
+
+This is noticeably better than the previous hourglass version and the object clue is promising. It has a clean weapon, a clear culprit, and a memorable central prop. But because the entire solution depends on time math, the exact timestamps must be airtight.
+
+As written: 81/100.
+
+With the hourglass timing fixed to claimed 10:45 / actual 11:00 / body found 11:10, this could reach 87–89/100.
