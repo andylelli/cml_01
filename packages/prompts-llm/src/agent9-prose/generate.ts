@@ -278,6 +278,45 @@ export const buildProvisionalChapterScore = (
     }
   }
 
+  /**
+   * ── A_75 §13.5 — THE LENGTH INCENTIVE IS ONE-WAY, AND LENGTH IS ABSTRACTION ─────────────────────
+   *
+   * MEASURED over 1,831 chapters, register rate against chapter length relative to its own book's
+   * median (`node scripts/obligation-load-vs-register.mjs` measures the sibling effect):
+   *
+   *     <0.8x median 13.0% · 0.8-0.95x 13.4% · 0.95-1.05x 14.0% · 1.05-1.2x 15.0% · >1.2x 16.0%
+   *
+   * Monotone, and rho = 0.121 against a 0.046 critical value. It SURVIVES the obvious confound: 0.115
+   * with every final chapter removed, 0.095 on mid-book chapters only. **Longer chapters are more
+   * abstract everywhere in the book**, and 16.0% is the level that characterises a prose-4 manuscript.
+   *
+   * Nothing pushed back. `wordScore` above is 35% of the provisional score — the largest single weight,
+   * above clues at 25% — and it is `min(100, count/preferred)`: being short is penalised, being long is
+   * FREE. There is no chapter-level overshoot check anywhere (`maxWords` is story-level only). And the
+   * directive it emits rolls forward: `rollingProvisionalFeedback` keeps the last four entries and
+   * feeds them into subsequent chapters, so ONE short chapter tells the next four to write denser.
+   *
+   * That is a ratchet with no pawl. This adds the missing counter-pressure as a DIRECTIVE rather than
+   * by re-weighting the score, because penalising length numerically risks pushing chapters under the
+   * hard floor and buying retries — the expensive failure this project already measured at 40% of run
+   * time. A directive costs nothing and is dropped if the chapter is fine.
+   *
+   * Axis-neutral: it names no clock, room, identity or rank, and padding reads the same on every axis.
+   *
+   * Flag-gated `AGENT9_LENGTH_COUNTERPRESSURE` (default OFF), read at call time.
+   */
+  const overshootRatio = preferredWords > 0 ? wordCount / preferredWords : 0;
+  if (
+    /^(1|true|yes|on)$/i.test(process.env.AGENT9_LENGTH_COUNTERPRESSURE ?? '')
+    && overshootRatio >= 1.25
+  ) {
+    deficits.push(`chapter runs ${Math.round(overshootRatio * 100)}% of preferred length (${wordCount}/${preferredWords})`);
+    directives.push(
+      'This chapter ran well past its target length. Length past the target is not rewarded, and measured across 1,831 chapters the longest ones are the most abstract. '
+      + 'Cut summary and restatement, not scene: remove sentences whose subject is an idea rather than a person or a thing, and keep what a reader could see or hear.',
+    );
+  }
+
   if (paragraphScore < 95) {
     deficits.push(`paragraph structure too thin (${paragraphCount} paragraphs)`);
     directives.push('Use at least 4-5 substantial paragraphs with varied rhythm and one strong scene transition.');

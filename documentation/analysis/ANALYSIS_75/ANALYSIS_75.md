@@ -971,3 +971,45 @@ contract's reporting verbs are not the disease — they are what a chapter write
 nothing to put on the page. *"Name at least TWO physical things absent from the reveal chapter"* is a
 deliverable, which is the thing the 228 well-behaved chapters all have and this one does not.
 
+### 13.5 The length incentive is one-way, and length is abstraction
+
+**MEASURED** over 1,831 chapters — register rate against chapter length relative to its own book's
+median:
+
+```
+  <0.8x median  13.0%    0.8-0.95x  13.4%    0.95-1.05x  14.0%
+  1.05-1.2x     15.0%    >1.2x      16.0%
+```
+
+Monotone, **rho = 0.121** against a 0.046 critical value. And it survives the obvious confound —
+§13.4 showed finales are both abstract and often long, so the effect could be theirs. It is not:
+
+```
+  all chapters                     rho = 0.121
+  every final chapter removed      rho = 0.115
+  mid-book chapters only           rho = 0.095
+```
+
+**Longer chapters are more abstract everywhere in the book**, and 16.0% is the level that
+characterises a prose-4 manuscript.
+
+**Nothing pushed the other way.** `wordScore` is **35% of the provisional chapter score** — the
+largest single weight, above `clues` at 25% — and it is `min(100, count / preferred)`. Being short is
+penalised; being long is free. There is no chapter-level overshoot check anywhere (`maxWords` is
+story-level only). And the directive it emits when a chapter is short —
+
+> *"Increase chapter density with concrete investigation action and sensory-grounded beats"*
+
+— **rolls forward**: `rollingProvisionalFeedback` keeps the last four entries and feeds them into
+subsequent chapters. One short chapter tells the next four to write denser. That is a ratchet with no
+pawl, and the direction it ratchets in is the one the register score punishes.
+
+The counter-pressure ships as a DIRECTIVE, not a re-weighting: penalising length numerically would
+push chapters toward the hard floor and buy retries, which A_75 §10 measured at 40% of run time. A
+directive costs nothing and disappears when the chapter is fine. It is tested never to fire on a short
+chapter, so "expand" and "cut" can never be issued together — an unsatisfiable instruction is how a
+retry gets burned for nothing.
+
+**Note what this is not.** The correlation is 0.121 — real, highly significant at n=1,831, and small.
+It says length and abstraction travel together; it does not prove cutting length raises the mark.
+
