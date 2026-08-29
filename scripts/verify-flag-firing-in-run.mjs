@@ -86,8 +86,19 @@ for (const c of CHECKS) {
 }
 
 // The voice spec is worth reading, not just counting: the whole point is that it DIVERGES.
-const specLine = promptText.match(/(\d+(?:\.\d+)?) words per sentence/);
-if (specLine) console.log(`\n  committed voice: ${specLine[1]} words per sentence (corpus mean is 15.6; the gate demands >= 2.0 away)`);
+//
+// Read it ONLY from a ProseGenerator prompt. The voice-spec GENERATION prompt also contains
+// "N words per sentence" — twice, as the open BANDS ("9.0 to 11.6", "19.2 to 22.0") — so a match
+// across the whole log returns a band edge and reports a spec that was never committed. That is
+// how this first reported 11.6 for a book whose committed spec was 22.
+const proseOnly = prompts.filter((p) => String(p.agent ?? "").includes("ProseGenerator"))
+  .map((p) => JSON.stringify(p)).join("\n");
+const specLine = proseOnly.match(/(\d+(?:\.\d+)?) words per sentence/);
+if (specLine) {
+  console.log(`\n  committed voice: ${specLine[1]} words per sentence (corpus mean is 15.6; the gate demands >= 2.0 away)`);
+  console.log(`  measure what the book DELIVERED against it — a spec that reaches the prompt and is`);
+  console.log(`  ignored is a fired flag and a dead lever, and only the delivered number tells them apart.`);
+}
 
 console.log(`
   A "not hit" on a conditional flag means the run never entered its state. That is not a failure,
