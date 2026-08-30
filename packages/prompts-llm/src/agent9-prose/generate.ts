@@ -1378,8 +1378,34 @@ export const buildEnhancedRetryFeedback = (
       } else {
         // Final attempt: full rebuild mandate with explicit word target.
         const wordTarget = targetWords ?? 'the minimum';
+        /**
+         * A_76 \u2014 DO NOT CONTRADICT THE RETRY CONTRACT.
+         *
+         * This branch said "REBUILD from scratch. Do not patch the prior draft." unconditionally.
+         * With `AGENT9_FINAL_ATTEMPT_KEEPS_DRAFT` on, `chooseRetryPromptStrategy` puts "Use the
+         * existing draft as reference" in the SAME prompt \u2014 two instructions in direct conflict, and
+         * the flag's whole purpose silently negated on any chapter that also failed word count.
+         *
+         * Not observed in the 08-29 run (0 prompts carried the rebuild text), so this is a latent
+         * contradiction rather than a live one \u2014 but it would have negated the lever precisely on the
+         * chapters that retry hardest, which are the ones the lever exists for.
+         *
+         * It is also the right instruction on its own merits: a word-count failure means the chapter
+         * needs MORE, not DIFFERENT. The wording was never what failed, which is exactly the
+         * principle the flag encodes.
+         */
+        const keepDraft = isFinalAttemptKeepsDraftEnabled();
         directives.push(
-          `REPAIR [word_count \u2014 attempt ${attemptNum} \u2014 FINAL: REBUILD TO ${wordTarget} WORDS]: Word count has failed every prior attempt.\n` +
+          keepDraft
+            ? `REPAIR [word_count \u2014 attempt ${attemptNum} \u2014 FINAL: EXPAND TO ${wordTarget} WORDS]: Word count has failed every prior attempt.\n`
+              + `  KEEP the paragraphs that already work and ADD to them. The chapter is too SHORT, not wrong.\n`
+              + `  Target: ${wordTarget} words minimum. Ensure the chapter covers ALL of:\n`
+              + `  (1) Scene opening with named location + atmosphere (1\u20132 paragraphs)\n`
+              + `  (2) At least two character interactions (dialogue or action)\n`
+              + `  (3) All required evidence observations\n`
+              + `  (4) At least one explicit inference paragraph where a character reasons about the evidence\n`
+              + `  Do not submit until the chapter is at least ${wordTarget} words.`
+            : `REPAIR [word_count \u2014 attempt ${attemptNum} \u2014 FINAL: REBUILD TO ${wordTarget} WORDS]: Word count has failed every prior attempt.\n` +
           `  REBUILD from scratch. Do not patch the prior draft.\n` +
           `  Write the chapter in full. Target: ${wordTarget} words minimum. Cover ALL of:\n` +
           `  (1) Scene opening with named location + atmosphere (1\u20132 paragraphs)\n` +

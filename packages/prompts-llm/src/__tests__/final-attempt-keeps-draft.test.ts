@@ -17,6 +17,7 @@ import { describe, expect, it } from 'vitest';
 import {
   chooseRetryPromptStrategy,
   isFinalAttemptKeepsDraftEnabled,
+  buildEnhancedRetryFeedback,
 } from '../agent9-prose/generate.js';
 
 const CLUE_FAILURE = [
@@ -118,6 +119,38 @@ describe('the strategy is the only authority on attaching the draft', () => {
     withFlag(undefined, () => {
       const s = chooseRetryPromptStrategy(CLUE_FAILURE, 3, 3);
       expect(s.includePriorDraft).toBe(false);
+    });
+  });
+});
+
+/**
+ * A_76 — the word-count repair must not contradict the retry contract.
+ *
+ * The final-attempt word-count branch said "REBUILD from scratch. Do not patch the prior draft."
+ * unconditionally. With the flag on, `chooseRetryPromptStrategy` puts "Use the existing draft as
+ * reference" in the SAME prompt. Two instructions in direct conflict would silently negate the lever
+ * on exactly the chapters that retry hardest.
+ */
+describe('the word-count repair respects the same decision', () => {
+  const CASE_DATA = { CASE: { meta: { title: 'x' } } } as never;
+  // Must match the real trigger: `/word count below (hard floor|preferred target|minimum)/i`
+  // WITH a `(current/target)` pair, or the word-count branch is never entered and the test asserts
+  // against generic feedback. A hand-written approximation passes nothing.
+  const shortErrors = ['Chapter 7 word count below hard floor (620/1200).'];
+
+  it('says REBUILD with the flag off — unchanged behaviour', () => {
+    withFlag(undefined, () => {
+      const fb = buildEnhancedRetryFeedback(shortErrors, CASE_DATA, '7', 3, 3, { targetWords: 1200 } as never);
+      expect(fb).toMatch(/REBUILD from scratch/);
+      expect(fb).not.toMatch(/KEEP the paragraphs that already work/);
+    });
+  });
+
+  it('says EXPAND with the flag on, and never both', () => {
+    withFlag('true', () => {
+      const fb = buildEnhancedRetryFeedback(shortErrors, CASE_DATA, '7', 3, 3, { targetWords: 1200 } as never);
+      expect(fb).toMatch(/KEEP the paragraphs that already work/);
+      expect(fb).not.toMatch(/REBUILD from scratch/);
     });
   });
 });
