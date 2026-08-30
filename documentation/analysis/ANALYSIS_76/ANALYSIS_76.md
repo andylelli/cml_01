@@ -78,11 +78,36 @@ So: what separates the four atmosphere-9 books from the thirteen that scored ≤
   sensory verbs /1k      10.42           10.90         -0.48
 ```
 
+> ### ⚠ CORRECTED 2026-08-29, LATER THE SAME DAY — read this before the table above
+>
+> **The −6.70 is inflated, and finding 1 below does not survive.** Seven of the thirteen books in the
+> `atmosphere ≤7` group are TRUNCATED (under 8,000 words — mean 8,592 against the atmosphere-9 group's
+> 12,942). Truncated books score badly on everything, so they manufacture a register gap that is really
+> a length gap.
+>
+> Excluding them the group difference does survive — **−5.10 points, Welch t = −3.77** — but at n=4
+> versus n=6. And the test that matters more, a rank correlation across every read:
+>
+> ```
+> register rate vs atmosphere :  0.006   (all 43)      -0.004  (36 non-truncated)   NOT SIGNIFICANT
+> register rate vs headline   : -0.593                 -0.697                       SIGNIFICANT
+> register rate vs prose      : -0.417                 -0.444                       SIGNIFICANT
+> ```
+>
+> **Register does not predict atmosphere.** It predicts the headline and `prose`, and removing the
+> truncated books makes BOTH of those stronger — so the instrument itself is sound and was never a
+> truncation artifact. But the mechanism claimed in finding 1 is not established.
+>
+> **What survives of FIX 1:** the *arithmetic* case only. `atmosphere` reaches 9 in 9% of books and
+> `prose` never has in 43 reads, so a marginal mark is likelier there. What does NOT survive is the
+> claim that the abstraction work will deliver it. Retarget if you like the odds; do not expect the
+> register lever to be what moves it.
+
 **Two findings, and the second is the more useful.**
 
-1. Atmosphere runs on the SAME axis as prose — abstraction, −6.70 points. That is not a disappointment: it
-   means the abstraction work already planned pays off in a category that *can* return a 9, which prose
-   cannot.
+1. ~~Atmosphere runs on the SAME axis as prose — abstraction, −6.70 points.~~ **WITHDRAWN — see the
+   correction above.** The gap is half truncation artifact, and the correlation across all reads is
+   0.006.
 2. **Sensory-word density does not distinguish them at all** (10.42 vs 10.90). This is the fix any craft
    intuition reaches for first — *"add more smells and textures"* — and it is **falsified**. Do not build it.
    The colour-word gap is real but n=4 and is offered as a hypothesis, not a finding.
@@ -389,4 +414,54 @@ anything, because §9.1 establishes it could not have detected the expected effe
 
 **Two of the six free items changed the plan rather than supporting it.** That is the argument for
 doing free work first.
+
+---
+
+## 10. THE TRUNCATION CONFOUND — solved in the pipeline, still live in the analysis
+
+**MEASURED 2026-08-29.** Eight of the 43 read manuscripts are under 8,000 words (3k, 5k, 7k, 8k, 6k,
+2k, 7k, 6k). They score catastrophically and uniformly badly:
+
+```
+                 truncated  normal   diff          headline  59.4 vs 76.4   = -17.1
+  character_clarity   4.4     7.1    -2.7
+  ending              4.8     7.3    -2.5
+  prose               4.1     6.1    -2.0
+  pacing              5.5     7.5    -2.0
+  atmosphere          6.0     7.9    -1.9
+  ...every category down, none by less than 0.8
+```
+
+**The pipeline problem is FIXED and was fixed a while ago:**
+
+```
+books under 8k words, by month (all 197 stored manuscripts)
+  202605   9/19   47%
+  202606  11/42   26%
+  202607   0/105   0%
+  202608   0/31    0%
+```
+
+**The ANALYSIS problem is not.** Those eight books sit in every correlation this project computes
+against the ledger, and because they are short AND bad they manufacture a relationship between the
+mark and anything that tracks length. Two claims made today were affected:
+
+| claim | with truncated books | without | verdict |
+|---|---|---|---|
+| pacing improves with book length | rho **+0.487** | rho **+0.085** | **artifact — withdrawn** |
+| atmosphere runs on the abstraction axis | −6.70 points | −5.10 (n=4 v 6), rank rho **0.006** | **weakened to arithmetic-only, §2** |
+| register predicts the headline | −0.593 | **−0.697** | **survives, and strengthens** |
+| register predicts prose | −0.417 | **−0.444** | **survives, and strengthens** |
+
+**The rule this establishes:** every correlation against the external-read ledger must be recomputed
+with `words >= 8000`, or it is measuring May and June's failed runs. The register instrument is
+vindicated by that test rather than damaged by it — which is exactly why the test was worth running on
+the project's own favourite finding first.
+
+### 10.1 What this does NOT mean
+
+It does not mean "write longer books". Among the 35 non-truncated manuscripts, length predicts pacing
+at 0.085 — nothing. The truncated books are failed runs, not deliberate short ones, and A_75 §13.5
+found longer *chapters* are MORE abstract. Length is a symptom of failure at the low end and not a
+lever anywhere.
 
