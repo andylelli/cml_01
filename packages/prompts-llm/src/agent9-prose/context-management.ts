@@ -354,7 +354,8 @@ export const OPENING_STYLE_ROTATION: Array<{ style: string; directive: string }>
   {
     style: 'character-action',
     directive:
-      'OPENING STYLE (HARD): Start the VERY FIRST SENTENCE with a named character performing a physical action or motion — e.g. "[Name] crossed the threshold…" / "[Name] set down the glass…" / "[Name] rose from the chair…".',
+      'OPENING STYLE (HARD): Start the VERY FIRST SENTENCE with a named character performing a physical action or motion — e.g. "[Name] crossed the threshold…" / "[Name] set down the glass…" / "[Name] rose from the chair…". '
+      + 'The character must NOT be the viewpoint character. If no other character is present in the opening moment, begin with the OBJECT they are handling rather than with a person.',
   },
   {
     style: 'dialogue-open',
