@@ -673,3 +673,63 @@ is harmful. It should not stay ON unexamined.
 
 **The two items I would have built first this morning are the two struck through.** That is the
 argument for testing a hypothesis before building on it, and it cost nothing to find out.
+
+---
+
+## 13. THE ROOT CAUSE WAS NOT FOUND — three hypotheses, three nulls
+
+**Owner's question:** *"Did you find the root cause and come up with a 100% solution?"* No, and this
+section says so plainly rather than dressing up a mitigation as a cure.
+
+### 13.1 Every structural explanation tested, and none survived
+
+```
+hypothesis                                        result                       verdict
+the finale has no material and pads with suspects  0.18 sentences, t = 0.18     DEAD
+a dedicated clearing chapter causes the overlap   -5.04 sentences, t = -2.79    INVERTED (it HELPS)
+the outline title promises a reveal it must not    0.67 sentences, t = 0.77     NOT SIGNIFICANT
+```
+
+n=27 books joined to their outlines for all three.
+
+**The third one matters most, because §11 was built on it.** The whole beat-vocabulary plan assumed
+the outline/contract contradiction produced the roll-call. Books whose final outline title promises a
+reveal carry 3.00 clearance sentences; books whose title does not carry 2.33. That difference is
+noise. **Removing the contradiction is unlikely to remove the defect.**
+
+### 13.2 What the pattern actually looks like
+
+- Present in **9 of the last 10 books**, including the 85-scoring one.
+- Correlates with **no structural feature tested** — not clue load, not chapter shape, not beat, not
+  title.
+- The complained-about book had 5 clearance sentences against a median of 2–3.
+
+A defect that is everywhere and correlates with nothing structural is usually not a defect in the
+structure. **The most likely explanation left is that this is the genre default:** a Golden Age
+finale, written by a model that has read thousands of them, ends by settling what happened to
+everyone. It is doing what the form does. Our outline did not cause it and our contract did not cause
+it.
+
+**If that is right, the implications are specific:**
+
+- No upstream change removes it. §11 phases 1–3 remain worth doing for their own sake — a duplicate
+  beat and a missing `aftermath` are real defects — but they should not be sold as this fix.
+- The only lever is **explicit suppression**, which is what the §11.2 prohibitions are, and their
+  effectiveness is untested.
+- The reader complains when it crosses a threshold, not when it is present. One read mentioned it;
+  the 85 did not, and had it.
+
+### 13.3 What is actually in hand
+
+| | |
+|---|---|
+| root cause | **not identified** — three candidates eliminated |
+| solution | **not 100%** — a prompt prohibition, compliance unverified |
+| detector | works, baselined, and would catch a relapse |
+| eliminated | three structural theories, one of which was the obvious fix and would have made it worse |
+
+**The honest position:** three wrong answers have been removed at zero cost, one mitigation is in
+place and unverified, and the most probable remaining explanation cannot be fixed structurally at
+all. The next useful step is not another theory — it is one run, read through the detector, to find
+out whether suppression works. If it does, the problem is managed rather than solved, and that is the
+truthful description of it.
