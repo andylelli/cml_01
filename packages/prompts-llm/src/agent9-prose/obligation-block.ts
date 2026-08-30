@@ -905,6 +905,47 @@ export function buildChapterObligationBlock(
     // that as retrospect. Naming the loophole up front is cheaper than rejecting it three times.
     lines.push(`  ⛔ DO NOT QUOTE THE CONFESSION. Referring to it is required; reproducing its words is forbidden. Write "the confession he had signed", never a quoted line of it. A recollection frame ("the words still echoing", "his confession lingered") does NOT make a quotation retrospective — it is the reveal delivered a second time, and it will be rejected.`);
     lines.push(`  ⛔ DO NOT RESTATE the motive, the method, or how the concealment worked. The reader already has them. Referring to "what he had done" is enough.`);
+    /**
+     * A_76 — THE READER'S COMPLAINT, THIRD TIME OF ASKING.
+     *
+     * External read of `story_20260830-1850`: *"Chapter 10 does not reveal the culprit. It re-clears
+     * Beatrice, Sylvia, and Hugo almost line by line."* The same objection was made on two earlier
+     * manuscripts. The clearance TRIM cannot reach it — that deletes redundant clearance SENTENCES,
+     * and this book contains none: the repetition is a STRUCTURE, the same three suspects staged in
+     * the same order doing parallel business in both chapters.
+     *
+     *   ch9   Beatrice + notebook · Sylvia + doorway · Hugo + drinks cabinet
+     *   ch10  Beatrice + notebook · Sylvia + doorway · Hugo + window
+     *
+     * The contract already forbade re-staging the reveal, quoting the confession and restating the
+     * method — but nothing forbade re-clearing the innocent, and requirement 4 ("consequences on the
+     * surviving characters") actively INVITES a suspect-by-suspect tour. So the generator obeyed
+     * "clear the innocent" twice, exactly as the reader described.
+     *
+     * Stated as a prohibition on a countable thing, which is the lever class that works on this model
+     * (A_75: operations are obeyed, statistics are not). Requirement 4 is narrowed in the same breath
+     * so the two do not contradict each other — that contradiction is its own defect, met twice today.
+     */
+    lines.push(`  ⛔ DO NOT RE-CLEAR THE INNOCENT. The innocent were cleared in an earlier chapter and the reader has not forgotten. This chapter may NOT contain: a paragraph devoted to each suspect in turn, any restatement of where a suspect was or who confirms it, any alibi or corroboration, or any sentence of the form "you could not have done it" / "your account holds" / "the evidence clears you". If a cleared suspect appears, they appear as a PERSON WITH A LIFE RESUMING — not as a case still being argued.`);
+    lines.push(`  ⛔ NO ROLL-CALL. Requirement 4 is satisfied by ONE consequence shown concretely, not by a tour of the cast. Do not give the surviving characters a paragraph each in the order they were suspected.`);
+    /**
+     * A_76 — THE OUTLINE AND THIS CONTRACT WERE GIVING OPPOSITE ORDERS.
+     *
+     * `story_20260830-1850` outline: ch8 `final_trap` "The Final Trap" (where the confession actually
+     * lands), ch9 `final_trap` "Clearing the Innocent" — a DUPLICATE beat — and ch10 `revelation`
+     * "The Culprit Revealed". No outline this project has produced has ever carried an `aftermath`
+     * beat; every one ends on `revelation`.
+     *
+     * So chapter 10 arrived carrying a scene titled "The Culprit Revealed" AND this contract saying
+     * the culprit was already exposed and must not be re-revealed. Told to reveal and not to reveal,
+     * the model did the one thing neither instruction forbade: it re-cleared the innocent. The
+     * reader's note — *"the title of Chapter 10 is now misleading"* — is the surface of that.
+     *
+     * The real repair belongs in Agent 7 (assign `aftermath` when the reveal is earlier), which is a
+     * separate change with its own risk. This closes the contradiction where it is cheapest and
+     * safest: telling the writer which of the two conflicting instructions wins.
+     */
+    lines.push(`  ⛔ THE SCENE TITLE FOR THIS CHAPTER IS SUPERSEDED. If the outline calls this chapter a revelation, a reveal, an unmasking or a naming, IGNORE THAT — the reveal has already happened and this contract governs. Do not write toward the title. Write the aftermath.`);
 
     /**
      * ── A_75 §13 — THE FINAL CHAPTER IS THE MOST ABSTRACT PART OF EVERY BOOK ─────────────────────
