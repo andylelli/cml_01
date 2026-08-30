@@ -6867,8 +6867,17 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
        * a `suspect_closure_missing` run-killer cannot be introduced by it.
        */
       if (isClearanceTrimEnabled()) {
-        const budget = Number((geometry as any)?.clearanceBudget?.maxSentences);
-        if (Number.isFinite(budget) && budget >= 0) {
+        // A_76 free-item: the budget was a PRECONDITION, and it is absent on 10 of 33 stored runs —
+        // so on ~30% of books the trim silently did nothing even with the flag on. That is the
+        // no-op failure mode this repo keeps paying for.
+        //
+        // Since the regate (A_76 §5) the budget no longer sets a volume threshold — the allowance for
+        // provably-redundant restatements is zero — so its only remaining job was to say "geometry
+        // computed something". The trim is already gated by `isClearanceTrimEnabled()`, which is the
+        // real switch, so an absent budget now defaults to 0 rather than skipping the pass.
+        const declaredBudget = Number((geometry as any)?.clearanceBudget?.maxSentences);
+        const budget = Number.isFinite(declaredBudget) && declaredBudget >= 0 ? declaredBudget : 0;
+        {
           const trim = trimRedundantClearances(
             prose.chapters as any,
             // SUSPECTS ONLY. A_76 §5: passing the whole cast made the trim attribute clearances to
