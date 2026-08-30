@@ -207,6 +207,24 @@ export const INJECTED_SENTENCE_PATTERNS: ReadonlyArray<RegExp> = [
    * Three external readers have quoted this output back as "generator residue"; it has been visible
    * to humans and invisible to us. Registering it changes no prose — it changes what we can count.
    */
+  /**
+   * A_76 — THE TWO BIGGEST LIVE INJECTIONS WERE NOT REGISTERED HERE.
+   *
+   * `deterministic-repair.ts` (the discriminating-test floor, lines ~444–447) emits both of these,
+   * and a corpus sweep of the 31 August manuscripts found them in **39% and 35% of books** — by far
+   * the most frequent machine text currently shipping. Neither matched `isInjectedSentence`.
+   *
+   * That is exactly the failure this file's own property #2 warns about: *"a floor which changes an
+   * injected sentence must contribute its new shape, or every checker that tells machine text from
+   * authored prose goes blind to it."* The floor was changed and its new shapes never arrived, so
+   * `AGENT9_RECAP_STRIP_INJECTED` could not strip them from the recap (leaving the model to imitate
+   * its own machine register forward), the geometry acceptance pass could not count them, and every
+   * measurement of "how much injected text is in this book" undercounted.
+   *
+   * Both branches of each ternary are registered, not just the one that happened to be sampled.
+   */
+  /\bRun again in front of them all, the test came out the same way\b/i,
+  /\bas the only person whose story still needed the discredited theory to be true\b/i,
   /The record now held:/i,
   /(?:laid the facts out plainly where the others could see them|pressed on to the next concrete detail)/i,
   /(?:Those details|That detail) shifted the reasoning/i,
