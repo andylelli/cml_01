@@ -581,3 +581,95 @@ contradiction, most likely requirement 4 or the reveal chapter's own gravity.
 **Everything before the run is free.** That matters more than usual here: three of today's fixes
 turned out to be no-ops, and the only reason we know is that they were driven at their own gates for
 nothing before any money was spent.
+
+---
+
+## 12. THE CH9/10 PLAN, REVISED — two of my own hypotheses died first
+
+**Trigger:** owner — *"think harder about how we can fix it properly. Think of everything inside and
+outside the box."* Good instruction: §11 was written from one theory and I had not tested it against
+the alternatives. Two of them are now dead, and one of the dead ones was the obvious fix.
+
+### 12.1 What I tested, and what died
+
+**HYPOTHESIS A — the finale is asked for words it has no material for, so it pads with the only
+thing available: the suspects.** It fit §13.4 (chapters with no clue obligation are 6.2 points more
+abstract) and it felt right.
+
+**FALSIFIED.** Over 27 books joined to their outlines:
+
+```
+final chapter with ZERO clues to reveal (n=15): 2.93 clearance sentences
+final chapter WITH clues                (n=12): 2.75
+difference 0.18, Welch t = 0.18 — nothing
+```
+
+And the reason it is wrong is visible in the same data. Final chapters are targeted at **2,247 words
+and deliver 1,022** — under half. **The model is not padding to fill a space; it under-writes and
+stops.** Any fix premised on "it has too much room" is aimed at a thing that is not happening.
+
+**HYPOTHESIS B — a dedicated "Clearing the Innocent" chapter before the finale is the problem, so
+fold the clearances into the reveal.** This is the obvious structural fix and it is what
+`AGENT9_FOLD_SUSPECT_CLEARANCES` (currently ON) exists to do.
+
+**FALSIFIED, AND INVERTED:**
+
+```
+penultimate chapter IS a clearing chapter (n=24): 2.29 clearance sentences in the FINALE
+penultimate chapter is NOT                (n= 3): 7.33
+difference -5.04, Welch t = -2.79   SIGNIFICANT
+```
+
+**A dedicated clearing chapter HELPS.** When ch9 clears properly, ch10 does it three times less.
+Remove it and the finale inherits the whole job. The obvious fix makes the defect worse, and a flag
+we currently have ON is steering toward the worse arm. (n=3 on the good side is thin, and the
+direction is what matters.)
+
+### 12.2 What that leaves
+
+The roll-call is **not** caused by an empty finale, and **not** caused by having a clearing chapter.
+Two candidates remain, and they are not exclusive:
+
+1. **The contradiction** — the outline titles ch10 a revelation while the contract forbids
+   re-revealing (§11.1). Untested, cheap to remove.
+2. **Nothing rewrites what survives.** Every repair this project owns either DELETES (the clearance
+   trim, which cannot touch sentences that carry other content) or REGENERATES (the retry loop,
+   which costs +2.43 register points). Neither can take a sentence that half-works and fix it.
+
+### 12.3 The change that follows — a polish pass scoped to the finale
+
+`polishPassingChapter` (post-pass-polish.ts) is a validator-gated LLM line-edit with rollback that
+runs on chapters which have ALREADY PASSED. It is the only mechanism in the pipeline that can
+**rewrite** rather than delete or regenerate, and it does not enter the retry loop — so it carries
+none of the abstraction cost that made a lint gate unusable here.
+
+- **Change:** run it on the final chapter with one instruction — remove clearance, alibi and
+  corroboration language, keeping everything else. Rollback on any validator regression, as today.
+- **Why this and not the trim:** the offending sentences are not redundant clearances that can be
+  deleted. *"Vane, your suite log and the staff statement from the girl who brought your tea confirm
+  your isolation"* carries staging and character. It needs rewriting, which is exactly what deletion
+  cannot do and what this pass is for.
+- **Cost:** one extra LLM call per run (~£0.02), only on the final chapter.
+- **Falsifier:** the polish rewrites the sentences and the reader still sees a roll-call — which
+  would mean the repetition is structural (who appears, in what order) rather than lexical, and only
+  the beat work in §11 can reach it.
+
+### 12.4 Re-score the fold flag
+
+`AGENT9_FOLD_SUSPECT_CLEARANCES` is ON and its premise is contradicted by §12.1. **Caveat, stated
+because it matters:** the measurement is about the OUTLINE's penultimate chapter, while the flag
+steers Agent 9's PROSE. They are not the same lever, so this is a reason to re-score it, not proof it
+is harmful. It should not stay ON unexamined.
+
+### 12.5 Revised order
+
+| # | change | cost | evidence |
+|---|---|---|---|
+| 1 | polish pass on the final chapter (§12.3) | ~£0.02/run | targets the exact sentences the reader quoted |
+| 2 | `aftermath` beat + no duplicate beats (§11.3–11.5) | £0 | removes a real contradiction; effect untested |
+| 3 | re-score `FOLD_SUSPECT_CLEARANCES` | £0 | its premise is contradicted |
+| ~~4~~ | ~~fold clearances into the reveal~~ | — | **DO NOT — inverted, t = −2.79** |
+| ~~5~~ | ~~cut the finale word target~~ | — | **DO NOT — finales already under-write by half** |
+
+**The two items I would have built first this morning are the two struck through.** That is the
+argument for testing a hypothesis before building on it, and it cost nothing to find out.
