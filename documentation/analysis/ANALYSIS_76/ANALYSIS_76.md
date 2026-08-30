@@ -321,3 +321,72 @@ owner's reading time in FIX 2b — and it is the only item that can convert a pr
 **The honest summary:** we have one validated instrument, one axis, one falsified lever class, five
 self-inflicted mechanisms of which one is now fixed, and no affordable way to read a result. Fix the reading
 problem first. Everything else in this document is a hypothesis until then.
+
+---
+
+## 9. PRE-REGISTRATION for the two paid runs · written 2026-08-29 BEFORE spending
+
+Written before the money is spent, so the conclusion cannot be fitted to the result.
+
+### 9.1 The noise floor, measured — and it changes the design
+
+**MEASURED** on the existing 08-27 matched pair (`story_20260827-2005` vs `-2019`), which shares
+byte-identical upstream and differs only in the prose stage:
+
+```
+per-chapter paired differences:  -9.94  -6.35  +5.69  +10.11  +3.06  -0.19  -6.90  +6.42  -8.04
+paired mean difference : -0.68 points
+sd of differences      :  7.35     n=9
+minimum detectable effect at 80% power: 6.86 points
+```
+
+**A ten-chapter matched pair can only resolve a ~7-point register change.** The abstraction flags are
+worth 1–2. Chapter-to-chapter model variance swamps them: chapter 4 swung 2.86 → 12.96 with no flag
+touching it.
+
+**So the register proxy CANNOT adjudicate this pair, and FIX 2a as originally written is wrong.**
+Pairing removes between-book variance but not the model's own chapter-to-chapter variance, which is
+the larger term. This is exactly the kind of claim §0 warned would otherwise be made on a proxy.
+
+### 9.2 What the two runs are therefore FOR
+
+Not a measurement. **A forced-choice read** (FIX 2b) — the instrument A_76 already argued was the only
+one that attributes a change to a reader rather than a proxy.
+
+- **Design:** one project, `canary_1787994697592`, prose regenerated twice from byte-identical
+  upstream. Arm A = today's flags. Arm B = arm A + `AGENT9_FINAL_ATTEMPT_KEEPS_DRAFT`,
+  `AGENT9_CLEARANCE_TRIM`, `AGENT9_RECAP_STRIP_INJECTED`.
+- **Cost:** ~£1 per arm.
+- **Primary instrument:** the owner reads both endings and answers ONE question —
+  *"which of these two endings repeats itself more?"* — without being told which arm is which.
+- **Secondary, descriptive only:** the per-chapter register table. **It is not a test.** Any delta
+  below 6.86 points is reported as UNMEASURED.
+
+### 9.3 What each outcome will mean — decided now
+
+| forced-choice result | conclusion | next |
+|---|---|---|
+| B's ending reads less repetitive | the deterministic trim + draft retention do something a reader notices | keep both on; spend the next pair on the concrete-operations lever (§4) |
+| no perceptible difference | the fixes are real but sub-threshold for a reader | stop spending on ending repetition; it is solved enough |
+| B reads WORSE | most likely `FINAL_ATTEMPT_KEEPS_DRAFT` anchoring the model to its own failed draft — the falsifier named in A_75 §16 | revert that flag, re-pair with only the trim |
+
+**Committed in advance:** a null on the register table will NOT be reported as evidence for or against
+anything, because §9.1 establishes it could not have detected the expected effect.
+
+### 9.4 Free work completed before spending
+
+1. **Pair mechanism dry-verified** — `agent9-replay` reaches prose generation with the arm-B flags set,
+   against a recording stub, £0.
+2. **`AGENT9_FINAL_ATTEMPT_KEEPS_DRAFT` rehearsed — AND IT WAS A NO-OP.** The batch path attached the
+   prior draft only when `attempt < maxBatchAttempts`, which is false on exactly the attempt the flag
+   targets. The boolean flipped and nothing reached the model. **Both arms would have been identical
+   and the £2 would have bought a guaranteed null.** Fixed: the strategy is now the only authority.
+3. **Pre-registration** — this section.
+4. **Noise floor** — §9.1, and it redirected the entire design.
+5. **Clearance trim regated** — and caught deleting the DETECTIVE's narrative lines; now suspects-only.
+6. **Paired reader built** — `scripts/read-matched-pair.mjs`, which reports its own minimum detectable
+   effect so a null cannot be misread as an absence.
+
+**Two of the six free items changed the plan rather than supporting it.** That is the argument for
+doing free work first.
+

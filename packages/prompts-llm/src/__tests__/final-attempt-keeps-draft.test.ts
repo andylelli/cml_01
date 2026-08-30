@@ -97,3 +97,27 @@ describe('with the flag ON', () => {
     });
   });
 });
+
+/**
+ * A_76 free-item 2 — the rehearsal that caught the lever being a no-op.
+ *
+ * `chooseRetryPromptStrategy` returning `includePriorDraft: true` is necessary and NOT sufficient:
+ * the batch path additionally required `attempt < maxBatchAttempts` before attaching the draft, and
+ * that is false on exactly the attempt this flag targets. The boolean flipped and nothing reached the
+ * model. These pin the CONSUMED contract rather than the returned one.
+ */
+describe('the strategy is the only authority on attaching the draft', () => {
+  it('says "use the existing draft" in the retry contract when the flag keeps it', () => {
+    withFlag('true', () => {
+      const s = chooseRetryPromptStrategy(CLUE_FAILURE, 3, 3);
+      expect(s.includePriorDraft).toBe(true);
+    });
+  });
+
+  it('and says the opposite with the flag off, so the contract text tracks the decision', () => {
+    withFlag(undefined, () => {
+      const s = chooseRetryPromptStrategy(CLUE_FAILURE, 3, 3);
+      expect(s.includePriorDraft).toBe(false);
+    });
+  });
+});

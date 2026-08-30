@@ -2619,7 +2619,19 @@ export async function generateProse(
             redesignEnabled,
             enhancedFeedbackOptions,
           });
-          if (lastBatchRawResponse && attempt < maxBatchAttempts && canonicalRetry.strategy.includePriorDraft) {
+          // A_76 free-item 2 — THE STRATEGY IS THE ONLY AUTHORITY ON WHETHER THE DRAFT IS ATTACHED.
+          //
+          // This read `attempt < maxBatchAttempts && strategy.includePriorDraft`. Those two were
+          // mutually exclusive the moment `AGENT9_FINAL_ATTEMPT_KEEPS_DRAFT` existed: the flag sets
+          // `includePriorDraft: true` precisely ON the final attempt, and this guard then refused to
+          // attach the draft BECAUSE it was the final attempt. The lever was a no-op, and would have
+          // been "tested" by a £2 matched pair that could only ever have returned null.
+          //
+          // The attempt-count check was a duplicate of a decision `chooseRetryPromptStrategy` already
+          // makes — it returns `includePriorDraft: false` on a final attempt unless the flag is on and
+          // the wording was not the failure. With the flag OFF this line is byte-identical to before:
+          // final attempts still get no draft, non-final surgical patches still do.
+          if (lastBatchRawResponse && canonicalRetry.strategy.includePriorDraft) {
             prompt.messages.push({ role: "assistant" as const, content: lastBatchRawResponse });
           }
           prompt.messages.push({ role: "user" as const, content: canonicalRetry.feedback });
