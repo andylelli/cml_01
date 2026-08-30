@@ -946,6 +946,18 @@ export function buildChapterObligationBlock(
      * safest: telling the writer which of the two conflicting instructions wins.
      */
     lines.push(`  ⛔ THE SCENE TITLE FOR THIS CHAPTER IS SUPERSEDED. If the outline calls this chapter a revelation, a reveal, an unmasking or a naming, IGNORE THAT — the reveal has already happened and this contract governs. Do not write toward the title. Write the aftermath.`);
+    /**
+     * A_76 — AND THE TITLE YOU RETURN IS WHAT THE READER SEES.
+     *
+     * The model AUTHORS the `title` field; `saveReadableStory` prints it verbatim as the chapter
+     * heading. So telling the writer to ignore a reveal-promising outline title fixes the prose and
+     * leaves "## Chapter 10: The Culprit Revealed" on the page — which is the half of the complaint
+     * the reader actually led with: *"the title of Chapter 10 is now misleading"*.
+     *
+     * Naming the banned words rather than asking for "an appropriate title": this model complies with
+     * countable instructions and negotiates away vague ones.
+     */
+    lines.push(`  ⛔ THE TITLE YOU RETURN MUST NOT PROMISE A REVEAL. The reader sees it as the chapter heading. Do not return a title containing "reveal", "revealed", "revelation", "unmasked", "the culprit", "the killer", "exposed", "solution" or "accused". Title it for what the chapter actually contains — the aftermath, what it cost, what is left.`);
 
     /**
      * ── A_75 §13 — THE FINAL CHAPTER IS THE MOST ABSTRACT PART OF EVERY BOOK ─────────────────────

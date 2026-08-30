@@ -59,6 +59,16 @@ describe('the aftermath contract forbids the roll-call', () => {
     expect(block).toMatch(/Do not write toward the title/);
   });
 
+  it('governs the TITLE the model returns, which is what the reader sees as the heading', () => {
+    // The model authors `title`; saveReadableStory prints it verbatim. Instructing the writer to
+    // ignore a reveal-promising outline title fixes the prose and still leaves
+    // "## Chapter 10: The Culprit Revealed" on the page — the half the reader led with.
+    expect(block).toMatch(/THE TITLE YOU RETURN MUST NOT PROMISE A REVEAL/);
+    for (const banned of ['reveal', 'revelation', 'the culprit', 'exposed']) {
+      expect(block).toContain(banned);
+    }
+  });
+
   it('still requires the consequence — the prohibitions must not empty the chapter', () => {
     expect(block).toMatch(/CONSEQUENCE/);
     expect(block).toMatch(/REMAINING QUESTIONS/);
