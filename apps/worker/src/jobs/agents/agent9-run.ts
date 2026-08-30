@@ -6871,7 +6871,20 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
         if (Number.isFinite(budget) && budget >= 0) {
           const trim = trimRedundantClearances(
             prose.chapters as any,
-            (castDesign?.characters ?? []).map((c: any) => String(c?.name ?? "")).filter(Boolean),
+            // SUSPECTS ONLY. A_76 §5: passing the whole cast made the trim attribute clearances to
+            // the DETECTIVE and delete narrative sentences about her — "Eleanor let the silence
+            // linger, the air thick with the knowledge that order ha..." is not a clearance, it just
+            // names her near clearance language. Two of four removals across the corpus were this.
+            // The victim is excluded for the reason obligation-block.ts already gives: a dead
+            // character cannot meaningfully appear in an "alibi confirmed" paragraph.
+            // Reads role via `roleTextsOf`, which covers the camelCase/snake_case trap (X50).
+            (castDesign?.characters ?? [])
+              .filter((c: any) => {
+                const roles = roleTextsOf(c);
+                return !roles.some(isVictimArchetype) && !roles.some(isDetectiveArchetype);
+              })
+              .map((c: any) => String(c?.name ?? ""))
+              .filter(Boolean),
             budget,
           );
           if (trim.removed.length > 0) {

@@ -92,10 +92,23 @@ describe('and it does trim a genuine register', () => {
     expect(last).toContain('The room settled.');
   });
 
-  it('trims only down to the budget, not to zero — a callback is allowed', () => {
+  it('trims every REDUNDANT restatement, and the budget no longer sets a volume threshold', () => {
+    // BEHAVIOUR CHANGED, A_76 §5 (FIX 4b). This used to assert "three clearances in ch3, budget 2 ->
+    // exactly one removed": the budget was a cap on TOTAL clearance volume. But the reader's
+    // objection is redundancy, not volume — the chapter that provoked the change carried 4 clearance
+    // sentences against a budget of 5 and shipped untouched while re-clearing two suspects.
+    //
+    // Measured across 22 stored runs, a per-chapter allowance of even 1 tolerated almost every
+    // redundancy (it removed FEWER sentences than the volume gate it replaced), because provable
+    // redundancies are rare — a couple across the whole corpus. So the allowance is zero.
+    //
+    // Coverage is still safe by construction, which the assertions below pin: Hugo's only clearance
+    // survives regardless of budget.
     const r = trimRedundantClearances(book, CAST, 2);
-    // Three clearances in ch3, budget 2 -> exactly one removed.
-    expect(r.removed).toHaveLength(1);
+    expect(r.removed).toHaveLength(2);
+    const last = r.chapters[2].paragraphs.join(' ');
+    expect(last).toContain('Hugo Vane was innocent.');
+    expect(last).toContain('The room settled.');
   });
 
   it('reports every removal — a silent deletion is worse than the register', () => {

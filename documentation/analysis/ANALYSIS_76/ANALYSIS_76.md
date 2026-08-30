@@ -233,9 +233,22 @@ and chapter 10 re-clears two of them.
 The reader's complaint is not volume, it is redundancy: *"still unnecessary after Chapter 8."*
 
 ```
-today, gated on volume     : 2 sentences removed across 27 books
-gated on redundancy instead : 9 sentences — and ALL NINE are in the last two chapters
+today, gated on volume      : 2 sentences removed across 22 books
+gated on redundancy instead : 2 sentences — both in the final chapter, both correct
 ```
+
+**CORRECTED 2026-08-29 (same day).** This section first claimed **9** sentences. That figure was
+measured before the role filter and counted the DETECTIVE as a cleared suspect: it would have deleted
+narrative lines such as *"Eleanor let the silence linger, the air thick with the knowledge that order
+had..."*, which is not a clearance at all — it merely names her near clearance language. Two of the
+four removals in the first corrected measurement were this. With victim and detective excluded (via
+`roleTextsOf`, covering the X50 camelCase trap) the true figure is **2**, and both are genuine
+re-clearances of Beatrice Quill in chapter 10.
+
+**So the honest size of this fix is small.** It removes the right sentences instead of the wrong ones,
+and it no longer risks deleting detective prose — but it does not on its own repair the ending. Three
+of the four repetitive sentences in that chapter name nobody (*"You're cleared, Captain."*, *"Cleared
+by the timeline..."*) and can never be PROVEN redundant, so a deletion-based fix cannot reach them.
 
 - **Build:** apply the budget to the REDUNDANT clearances rather than to all clearances. The safety argument
   is unchanged and already in the docstring: a suspect's FIRST clearance is never removable, so **coverage

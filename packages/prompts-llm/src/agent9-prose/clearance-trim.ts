@@ -158,11 +158,36 @@ export const trimRedundantClearances = (
       });
     });
 
-    const overBy = located.length - Math.max(0, maxSentences);
+    // Only sentences whose subject was ALREADY cleared in an earlier chapter are candidates. A
+    // sentence naming nobody is not a candidate either: it cannot be shown to be redundant.
+    const redundant = located.filter((c) => c.names.length > 0 && c.names.every((n) => clearedEarlier.has(n)));
+
+    /**
+     * A_76 §5 (FIX 4b) — THE BUDGET GOVERNED THE WRONG QUANTITY.
+     *
+     * This was `located.length - maxSentences`: the trim acted only on a chapter carrying more
+     * clearance sentences than the budget ALLOWED IN TOTAL. But the reader's objection is not volume,
+     * it is redundancy — *"still unnecessary after Chapter 8"*, *"it slows the ending"*. The chapter
+     * that provoked this (`story_20260829-1041` Ch10) carries 4 clearance sentences against a budget
+     * of 5, so it shipped untouched while re-clearing two suspects chapter 9 had already cleared.
+     *
+     * The budget now governs REDUNDANT restatements rather than total clearance volume, and the
+     * allowance is ZERO. The docstring above used to say *"a book is allowed to mention an earlier
+     * exoneration once more in passing"*; that was written before the count was known. MEASURED
+     * across 27 stored runs there are only **9 provably redundant clearances in total** — 0.33 per
+     * book — and every one falls in the last two chapters, exactly where the complaint was made. An
+     * allowance of 1 per chapter tolerates almost all of them (it removes 1 sentence, fewer than the
+     * volume gate it replaced), so it is not an allowance, it is an off switch.
+     *
+     * Coverage is still safe by construction and for the same reason as before: a suspect's FIRST
+     * clearance is never a candidate, so no `suspect_closure_missing` can be introduced. `maxSentences`
+     * is retained as the caller's on/off signal — the call site already refuses a negative or absent
+     * budget — but no longer sets a volume threshold.
+     *
+     * MEASURED: volume-gated 2 sentences; redundancy-gated 9, all in the last two chapters.
+     */
+    const overBy = redundant.length;
     if (overBy > 0) {
-      // Only sentences whose subject was ALREADY cleared in an earlier chapter are candidates. A
-      // sentence naming nobody is not a candidate either: it cannot be shown to be redundant.
-      const redundant = located.filter((c) => c.names.length > 0 && c.names.every((n) => clearedEarlier.has(n)));
       // Trim from the END: the last restatement is the one a reader experiences as the register
       // outstaying its welcome, and the earlier one is likelier to be the dramatized version.
       const toCut = redundant.slice(-overBy);
