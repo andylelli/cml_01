@@ -2055,7 +2055,26 @@ ${victimIdentityRule}`;
       '6. RAISE MORAL COMPLEXITY: The most soulful mysteries make readers uncomfortable. What if the victim was not entirely good? What if the killer had a reason that almost makes sense? If the reader finishes thinking "I do not know how I feel about that," you have succeeded.\n\n' +
       '7. SENSORY ATMOSPHERE AS SOUL: Use recurring sensory anchors (the smell of lilies from the funeral, rain tapping like nervous fingers) to build mood. Atmosphere is not decoration; it is the story breathing.\n\n' +
       '8. LET SOMEONE BREAK: At least once, someone should crack: cry unexpectedly, laugh hysterically, confess something unrelated, admit they are tired. Emotion destabilizes the procedural rhythm and makes the story human.\n\n' +
-      '9. MAKE THE REVEAL HURT: The best reveals do not just surprise; they wound. The reveal should recontextualize earlier tenderness, expose a betrayal, or force the detective to confront something personal. If the reveal only satisfies logic, it feels clinical. If it rearranges relationships, it feels human.';
+      '9. MAKE THE REVEAL HURT: The best reveals do not just surprise; they wound. The reveal should recontextualize earlier tenderness, expose a betrayal, or force the detective to confront something personal. If the reveal only satisfies logic, it feels clinical. If it rearranges relationships, it feels human.\n' +
+      /**
+       * A_76 §4 — THE ONE OPERATIONAL FORM OF THE ABSTRACTION AXIS.
+       *
+       * The register rate is the only validated predictor of the mark (headline −0.697 over the 36
+       * non-truncated reads). It cannot be prompted as a STATISTIC: `AGENT9_VOICE_SPEC` asked for
+       * 22.0 words per sentence and the book delivered 15.86, with 0 of 10 chapters meeting the bar.
+       * This model complies with OPERATIONS and ignores targets.
+       *
+       * So this asks for a countable thing. MEASURED across the last 8 manuscripts, the construction
+       * below accounts for 0.24–1.98 register points per book (mean ~0.86), and it is SELF-TARGETING:
+       * the best book ever produced (8.30%) carries 0.24 points of it, the worst recent one (11.05%)
+       * carries 1.45. It bites hardest where it is needed most.
+       *
+       * PROMPT-ONLY, DELIBERATELY. No linter, no gate. A_75 §16 measured that every lint issue drives
+       * a retry and retried chapters run +2.43 register points more abstract — so enforcing an
+       * abstraction rule through the retry loop would cost more abstraction than the rule removes.
+       * The instruction is free; a gate is not.
+       */
+      '10. NO ABSTRACT NOUN AS THE SUBJECT OF A LINKING VERB: Sentences of the form "The evidence was mounting", "The contradiction was immediate", "The tension was palpable", "The silence was heavy" state a conclusion the reader cannot see. Rewrite every one so the SUBJECT is a person or a physical object and the VERB is something that happens — not "The evidence was damning" but "The abrasion marks ran against the winding direction". This is the most common abstraction this pipeline produces and the one item in this list that is mechanically checkable, so leave none behind.';
   }
 
   const judgedOnBlock = buildJudgedOnBlock(isRubricInPromptEnabled());
