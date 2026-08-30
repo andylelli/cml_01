@@ -465,3 +465,119 @@ at 0.085 — nothing. The truncated books are failed runs, not deliberate short 
 found longer *chapters* are MORE abstract. Length is a symptom of failure at the low end and not a
 lever anywhere.
 
+
+---
+
+## 11. PLAN — fully resolving the chapter 9/10 defect
+
+**Trigger:** owner, after the third external read making the same complaint —
+*"Chapter 10 does not reveal the culprit. It re-clears Beatrice, Sylvia, and Hugo almost line by
+line."*
+
+### 11.1 The chain, end to end
+
+**MEASURED.** Six links, and only the last two have been touched:
+
+```
+1. GOLDEN_AGE_BEATS has no `aftermath`         beat-scheduler/src/schedule.ts:25
+     gathering, crime, first_enquiries, motives, alibis,
+     false_solution, secrets, pattern, final_trap, revelation
+   Ten beats, ten chapters, and the last is ALWAYS `revelation`.
+   There is no vocabulary in which a chapter can BE an aftermath.
+
+2. The scheduler is SHADOW-ONLY — it computes a clean positional grid and logs it;
+   the LLM's beats are what ship. `AGENT7_SCHEDULER_AUTHORITATIVE` is default OFF.
+
+3. So Agent 7 assigns beats freely, and duplicates them: 43% of outlines end on two
+   consecutive identical beats. story_20260830-1850 had ch8 AND ch9 both `final_trap`.
+
+4. The reveal actually lands earlier than the outline says — the confession was ch8.
+
+5. Agent 9's aftermath contract fires on ch10 and forbids re-revealing, while the
+   outline hands the same chapter a scene titled "The Culprit Revealed".
+   Told to reveal and not to reveal, the model does the one thing neither forbade.
+
+6. The title the model returns is printed verbatim as the chapter heading.
+```
+
+**Links 5 and 6 are patched (§11.2). Links 1–4 are untouched, and they regenerate the
+contradiction on every run.**
+
+### 11.2 Phase 0 — DONE, and it is mitigation not repair
+
+Agent 9 prompt prohibitions: no re-clearing (banned sentence shapes named), no roll-call
+(requirement 4 narrowed so it stops inviting the tour), scene title superseded, and a ban on
+reveal-promising titles in the returned `title` field. Plus `scripts/check-ending-repetition.mjs`,
+a detector — never a gate, because a lint issue drives a retry and retried chapters run +2.43
+register points more abstract.
+
+**What Phase 0 cannot do:** it instructs the writer to resolve a contradiction we are still
+creating. Compliance is likely, not guaranteed, and nothing upstream changed.
+
+### 11.3 Phase 1 — give the vocabulary an aftermath beat · FREE
+
+- **Change:** add `aftermath` to `GOLDEN_AGE_BEATS`. Eleven beats do not fit ten chapters
+  positionally, so `pattern` is dropped — **it is already the beat the LLM skips**
+  (story_20260830-1850 used every other beat and no `pattern`), which makes it the cheapest
+  casualty and is evidence rather than preference.
+- **Also:** `beat: N === 10 ? GOLDEN_AGE_BEATS[i] : undefined` means **any book that is not exactly
+  ten chapters gets NO beats at all.** Fix in the same change or defer explicitly.
+- **Risk:** the beat enum is validated downstream; a new value must reach every coercion map or
+  Agent 7 retries burn on it — the A_67 beat-enum lesson, *coerce before validating, or one bad
+  field costs the whole call.*
+- **Verify:** free. Re-run the scheduler over stored cases; confirm ch10 draws `aftermath` and no
+  consecutive duplicates appear.
+
+### 11.4 Phase 2 — stop the duplicate beat · FREE
+
+- **Change:** reject consecutive identical beats in Agent 7's COERCION step, mapping the second to
+  the next unused beat rather than failing the outline. 43% of books need this.
+- **Why coercion, not validation:** a validation failure costs an Agent 7 retry; a coercion costs
+  nothing.
+- **Verify:** free, over the 28 stored outlines.
+
+### 11.5 Phase 3 — derive the contract from the beat · FREE
+
+- **Change:** the aftermath contract requires `currentStageMode === 'aftermath_consequence'`, a
+  value computed elsewhere. Once a chapter's beat IS `aftermath`, derive the stage mode from it so
+  the two cannot disagree.
+- **Then:** the outline stops promising a reveal in the chapter the contract governs, and §11.2's
+  "the title is superseded" line becomes redundant rather than load-bearing. **Leave it in** — a
+  redundant guard costs nothing and this defect has recurred three times.
+
+### 11.6 Phase 4 — the honest verification
+
+The detector's baseline is already recorded, and it is uncomfortable:
+
+```
+last 10 books    suspects cleared in BOTH final chapters : 9 of 10 have 3+
+                 reveal-promising final title            : 8 of 10
+                 clearance sentences in the final chapter:
+                     0  1  2  2  2  3  3  3  3  5
+```
+
+**The 85-scoring book is in that list**, with the same ch9 "Clearing the Innocent" / ch10 "The
+Culprit Revealed" pairing. So this is not a defect that separates a bad book from a good one — it is
+near-universal, and the complained-about book simply had MORE of it (5 against a median of 2–3).
+
+**Success criterion, fixed in advance:** the final chapter carries **zero** clearance sentences and a
+title matching none of the banned words, on two consecutive runs. Not "fewer" — the point of a
+structural fix is that the state becomes unreachable rather than rarer.
+
+**What would falsify the plan:** the beat changes land, the contract fires from the beat, and the
+model still walks the suspects — which would mean the roll-call comes from something other than the
+contradiction, most likely requirement 4 or the reveal chapter's own gravity.
+
+### 11.7 Order and cost
+
+| phase | what | cost |
+|---|---|---|
+| 0 | Agent 9 prohibitions + detector | done, £0 |
+| 1 | `aftermath` in the beat vocabulary | £0 to build and verify |
+| 2 | no consecutive duplicate beats | £0 |
+| 3 | derive stage mode from the beat | £0 |
+| 4 | one run, read the detector | ~£1 |
+
+**Everything before the run is free.** That matters more than usual here: three of today's fixes
+turned out to be no-ops, and the only reason we know is that they were driven at their own gates for
+nothing before any money was spent.
