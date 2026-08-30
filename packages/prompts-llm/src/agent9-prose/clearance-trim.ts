@@ -55,15 +55,70 @@ export const isClearanceSentenceMirror = (sentence: string): boolean =>
 const splitSentences = (paragraph: string): string[] =>
   String(paragraph ?? "").split(/(?<=[.!?])\s+/).filter((s) => s.trim().length > 0);
 
-/** Which cast members a sentence names. Surname or full name, whichever the prose used. */
+/**
+ * Honorifics are not names. "Dr. Mallory Finch" splits to ["Dr.", "Mallory", "Finch"], and treating
+ * "Dr." as the given name would make every doctor in the cast share one.
+ */
+const TITLES = new Set([
+  "dr", "mr", "mrs", "ms", "miss", "sir", "lady", "lord", "madam", "madame",
+  "captain", "capt", "colonel", "col", "major", "general", "admiral", "commander",
+  "professor", "prof", "inspector", "detective", "sergeant", "constable", "superintendent",
+  "reverend", "rev", "father", "sister", "brother", "aunt", "uncle", "the",
+]);
+
+const bareTokens = (full: string): string[] =>
+  String(full ?? "")
+    .split(/\s+/)
+    .map((t) => t.replace(/[^\p{L}\p{N}'-]/gu, ""))
+    .filter((t) => t && !TITLES.has(t.toLowerCase()));
+
+/** Whole-word containment. "Hale" must not match "exhaled", nor "Vane" match "vanished". */
+const mentions = (lower: string, token: string): boolean => {
+  if (token.length < 4) return false;
+  return new RegExp(`\\b${token.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i").test(lower);
+};
+
+/**
+ * Which cast members a sentence names — full name, surname, OR given name.
+ *
+ * GIVEN NAMES WERE MISSING, and that is why the trim never fired. Golden Age prose names women by
+ * their given name almost exclusively. Measured on `story_20260829-1041`, whose ending clears three
+ * suspects in chapter 9 and re-clears two of them in chapter 10:
+ *
+ *   "Captain Hale, Beatrice, Sylvia — you are all cleared."   detected: Hale only
+ *   "the moment Beatrice had been cleared"                    detected: NOBODY
+ *
+ * With most clearances invisible, no chapter ever exceeded the budget of 5, so
+ * `trimRedundantClearances` removed nothing on a book carrying exactly the defect it exists to
+ * remove — a silent no-op, which is the failure mode this repo has paid for repeatedly.
+ *
+ * A given name counts only when it is UNIQUE across the cast: two Sylvias make "Sylvia" ambiguous,
+ * and clearing the wrong suspect's record is worse than missing one. Matching is whole-word, which
+ * also closes a latent bug in the surname path — `includes("hale")` was true of "exhaled".
+ */
 const namesIn = (sentence: string, castNames: ReadonlyArray<string>): string[] => {
   const lower = sentence.toLowerCase();
+
+  const givenCounts = new Map<string, number>();
+  for (const full of castNames) {
+    const given = bareTokens(String(full ?? ""))[0];
+    if (given) givenCounts.set(given.toLowerCase(), (givenCounts.get(given.toLowerCase()) ?? 0) + 1);
+  }
+
   const hit: string[] = [];
   for (const full of castNames) {
     const name = String(full ?? "").trim();
     if (!name) continue;
-    const surname = name.split(/\s+/).pop() ?? name;
-    if (lower.includes(name.toLowerCase()) || (surname.length >= 4 && lower.includes(surname.toLowerCase()))) {
+    const tokens = bareTokens(name);
+    const surname = tokens[tokens.length - 1] ?? "";
+    const given = tokens[0] ?? "";
+    const givenIsUnique = given && (givenCounts.get(given.toLowerCase()) ?? 0) === 1;
+
+    if (
+      lower.includes(name.toLowerCase())
+      || mentions(lower, surname)
+      || (givenIsUnique && mentions(lower, given))
+    ) {
       hit.push(name);
     }
   }
