@@ -4,6 +4,7 @@
  * injected into every prose prompt.
  */
 import { isVictimArchetype } from "@cml/cml";
+import { resolveClearanceOwnership, isClearanceOwnershipEnabled } from "./clearance-ownership.js";
 import { deriveClueObservable, deathMethodTellHints, type ClueDistributionResult, type Clue } from "../agent5-clues.js";
 import {
   OPENING_ATMOSPHERE_MARKERS,
@@ -330,6 +331,41 @@ export function buildChapterObligationBlock(
             ? clearanceScenes.filter((entry: any) => Number(entry?.act_number) === sceneAct)
             : [];
         })();
+
+    /**
+     * A_76 §14 — ONE OWNER PER CLEARANCE, AND NEVER THE FINALE.
+     *
+     * Everything above resolves independently for every chapter, so the last chapters all claim the
+     * same act-3 roster. MEASURED across 557 prose prompts: 172 carry the MANDATORY clearance demand,
+     * at ch8 (37), ch9 (74) and ch10 (61) and nowhere else — and on the complained-about run the
+     * byte-identical suspect list went to all three. We ordered the roll-call three times and the
+     * lint gate regenerated any chapter that omitted it, which is why three rounds of prohibition
+     * text could not win.
+     *
+     * The exclusivity above was meant to prevent this and cannot, because its exact-match branch is
+     * dead: the CML numbers scenes against a nominal ~6-scene story and the outline numbers them
+     * globally, so only 1 of 116 refs across 29 books ever matches. See `clearance-ownership.ts` for
+     * the reconciliation.
+     *
+     * Applied as a FILTER on top of the existing resolution rather than a replacement: with the flag
+     * off the block is byte-identical, and with it on a chapter can only keep the suspects it owns.
+     *
+     * Flag-gated `AGENT9_CLEARANCE_OWNERSHIP`, read at call time.
+     */
+    let ownedClearances = matchingClearances;
+    if (isClearanceOwnershipEnabled() && Array.isArray(allOutlineScenes) && allOutlineScenes.length > 0) {
+      const clearanceOwnership = resolveClearanceOwnership({
+        clearanceScenes,
+        allOutlineScenes: allOutlineScenes as any[],
+        excludeSuspects: [..._victimNamesForClearance],
+      });
+      const owned = new Set(
+        (clearanceOwnership.suspectsByScene.get(Number(scene?.sceneNumber)) ?? [])
+          .map((n) => String(n).trim().toLowerCase()),
+      );
+      ownedClearances = matchingClearances.filter((entry: any) =>
+        owned.has(String(entry?.suspect_name ?? entry?.suspect ?? "").trim().toLowerCase()));
+    }
     // ITEM 11 (#3): keyword fallback only when no exact DT match exists anywhere (see
     // dtHasExactMatch above) — the DT contract is exclusive to the exact-matched chapter.
     const isDiscriminatingTestChapter = dtHasExactMatch
@@ -638,9 +674,9 @@ export function buildChapterObligationBlock(
       lines.push(`  - SUSPECT-PRESSURE MODE: do NOT resolve the case in this chapter. No confession, arrest, final accusation, definitive culprit declaration, or case-closed language. End with unresolved pressure: a contradiction, narrowed suspicion, motive pressure, or a new question.`);
     }
 
-    if (matchingClearances.length > 0) {
+    if (ownedClearances.length > 0) {
       lines.push(`  - ⚠ SUSPECT CLEARANCE REQUIRED (MANDATORY): each suspect below must be ruled out on-page — dramatised in the scene's action and dialogue, not recited as a verdict:`);
-      for (const clearance of matchingClearances) {
+      for (const clearance of ownedClearances) {
         const realClueIds = Array.isArray(clearance.supporting_clues)
           ? (clearance.supporting_clues as string[]).filter((id: string) => id && !id.match(/^clue_id_\d+$/))
           : [];

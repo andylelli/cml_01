@@ -4,6 +4,7 @@
  * and shared chapter repair context derivation.
  */
 import { isVictimArchetype } from "@cml/cml";
+import { resolveClearanceOwnership, isClearanceOwnershipEnabled } from "./clearance-ownership.js";
 import type { CaseData } from "@cml/cml";
 import { deriveClueObservable } from "../agent5-clues.js";
 import type { ClueDistributionResult } from "../agent5-clues.js";
@@ -884,7 +885,7 @@ export const resolveBatchMatchingClearances = (args: {
       )
     : [];
 
-  const chapterMatchingClearances = batchScenes.map((scene: any, sceneIdx: number) => {
+  let chapterMatchingClearances = batchScenes.map((scene: any, sceneIdx: number) => {
     let sceneClearances = allClearanceScenes.filter((entry) =>
       sceneMatchesCmlSceneRef(
         scene,
@@ -914,6 +915,40 @@ export const resolveBatchMatchingClearances = (args: {
         allClearanceScenes.filter((entry) => batchActNumbers.has(Number((entry as any).act_number))),
       );
     }
+  }
+
+  /**
+   * A_76 §14 — THE GATE MUST AGREE WITH THE PROMPT.
+   *
+   * This resolver arms the per-chapter lint check (`lint.ts` → `suspect_clearance_missing`), which
+   * REGENERATES a chapter that omits the roll-call. `obligation-block.ts` now restricts the prompt
+   * demand to the one owning chapter; if this side stayed unfiltered the finale would be regenerated
+   * for omitting a roll-call its prompt no longer asks for — strictly worse than the defect.
+   *
+   * Note the fallback above: when no scene matches by keyword it grants the whole act roster to the
+   * LAST scene in the act, which is the finale. That is why ch10 armed in 28 of 28 books.
+   *
+   * Same flag as the prompt side, and the same resolver, so the two cannot disagree.
+   */
+  if (isClearanceOwnershipEnabled() && Array.isArray(scenes) && scenes.length > 0) {
+    const ownership = resolveClearanceOwnership({
+      clearanceScenes: allClearanceScenes as any[],
+      allOutlineScenes: scenes as any[],
+      excludeSuspects: [...victimNames, ...culpritNames],
+    });
+    const ownedBy = (sceneNumber: number): Set<string> =>
+      new Set((ownership.suspectsByScene.get(Number(sceneNumber)) ?? []).map((n) => String(n).trim().toLowerCase()));
+    const nameOf = (entry: any): string =>
+      String(entry?.suspect_name ?? entry?.suspect ?? "").trim().toLowerCase();
+
+    chapterMatchingClearances = chapterMatchingClearances.map((list, sceneIdx) => {
+      const owned = ownedBy(Number((batchScenes as any[])[sceneIdx]?.sceneNumber));
+      return list.filter((entry: any) => owned.has(nameOf(entry)));
+    });
+    const ownedAcrossBatch = new Set(
+      (batchScenes as any[]).flatMap((scene: any) => [...ownedBy(Number(scene?.sceneNumber))]),
+    );
+    batchMatchingClearances = batchMatchingClearances.filter((entry: any) => ownedAcrossBatch.has(nameOf(entry)));
   }
 
   return {
