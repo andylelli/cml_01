@@ -231,6 +231,53 @@ const withinAnyWindow = (minute: number, windows: ReadonlyArray<[number, number]
   );
 
 /**
+ * A_76 §16 — SAY THE NUMBERS.
+ *
+ * These messages diagnosed precisely and reported vaguely: *"the real time of death falls INSIDE a
+ * span the culprit can account for"*, without naming the time, the span, or where the gaps are. The
+ * check had all three and threw them away.
+ *
+ * A run on 2026-08-31 died on exactly that. Attempt 1 failed `apparent_not_covered`; the model moved
+ * the staged time into the alibi window and thereby pushed the REAL time inside one too, producing
+ * `actual_covered`; three further attempts oscillated without ever being told where the gaps were,
+ * and the last one broke `delivery_path` while guessing. Five paid attempts to satisfy an arithmetic
+ * constraint whose numbers we already knew.
+ *
+ * `formatDial` and `describeGaps` exist so the message can hand the model the answer instead of the
+ * complaint.
+ */
+const formatDial = (minute: number): string => {
+  const m = ((minute % 720) + 720) % 720;
+  const hour = Math.floor(m / 60) === 0 ? 12 : Math.floor(m / 60);
+  return `${hour}:${String(m % 60).padStart(2, "0")}`;
+};
+
+const describeWindows = (windows: ReadonlyArray<[number, number]>): string =>
+  windows.map(([s, e]) => `${formatDial(s)}–${formatDial(e)}`).join(", ");
+
+/** The spans on a 12-hour dial that NO window covers — where the real time of death may sit. */
+const describeGaps = (windows: ReadonlyArray<[number, number]>): string => {
+  const covered = new Array(720).fill(false);
+  for (const [start, end] of windows) {
+    for (let i = 0; i < 720; i += 1) {
+      const inside = start <= end ? i >= start && i <= end : i >= start || i <= end;
+      if (inside) covered[i] = true;
+    }
+  }
+  const gaps: string[] = [];
+  let openedAt: number | null = null;
+  for (let i = 0; i < 720; i += 1) {
+    if (!covered[i] && openedAt === null) openedAt = i;
+    if ((covered[i] || i === 719) && openedAt !== null) {
+      const end = covered[i] ? i - 1 : i;
+      if (end - openedAt >= 4) gaps.push(`${formatDial(openedAt)}–${formatDial(end)}`);
+      openedAt = null;
+    }
+  }
+  return gaps.length > 0 ? gaps.join(", ") : "(none — the alibi windows cover the whole dial)";
+};
+
+/**
  * Check the directional invariant. Returns [] when it holds, or when there is not enough parseable
  * information to judge — this never manufactures a failure from missing data.
  */
@@ -259,7 +306,11 @@ export const checkTimelineDeception = (input: TimelineDeceptionInput): TimelineD
     violations.push({
       code: "apparent_not_covered",
       message:
-        "The staged time of death falls OUTSIDE every span the culprit can account for, so the deception incriminates them instead of protecting them. The apparent time must land inside the culprit's alibi window — that is the whole point of faking it.",
+        `The staged time of death (${formatDial(apparent)}) falls OUTSIDE every span the culprit can account for `
+        + `(${describeWindows(windows)}), so the deception incriminates them instead of protecting them. `
+        + `Move the APPARENT time to somewhere inside ${describeWindows(windows)} — that is the whole point of faking it. `
+        + `Leave the real time of death where it is: it must stay in a gap the culprit cannot account for `
+        + `(${describeGaps(windows)}).`,
     });
   }
 
@@ -267,7 +318,10 @@ export const checkTimelineDeception = (input: TimelineDeceptionInput): TimelineD
     violations.push({
       code: "actual_covered",
       message:
-        "The real time of death falls INSIDE a span the culprit can account for, so they could not have committed the murder at all. The actual time must fall in a gap the culprit cannot account for.",
+        `The real time of death (${formatDial(actual)}) falls INSIDE a span the culprit can account for `
+        + `(${describeWindows(windows)}), so they could not have committed the murder at all. `
+        + `Move the ACTUAL time into one of these gaps: ${describeGaps(windows)}. `
+        + `Leave the staged time where it is: it must stay inside ${describeWindows(windows)}.`,
     });
   }
 
