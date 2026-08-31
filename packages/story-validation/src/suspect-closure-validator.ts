@@ -5,6 +5,7 @@
  */
 
 import type { Validator, Story, CMLData, ValidationResult, ValidationError } from './types.js';
+import { roleTextsOf, isVictimArchetype, isDetectiveArchetype } from '@cml/cml';
 import type { AzureOpenAIClient, LogContext } from '@cml/llm-client';
 import { semanticValidateSuspectElimination, semanticValidateCulpritEvidence } from './semantic-validator.js';
 
@@ -100,10 +101,41 @@ export class SuspectClosureValidator implements Validator {
     // Detectives are never treated as suspects requiring elimination evidence.
     const detectiveSet = new Set(
       (cml.CASE.cast as any[])
-        .filter((c) => typeof c.role_archetype === 'string' && c.role_archetype.toLowerCase().includes('detective'))
+        .filter((c) => roleTextsOf(c).some(isDetectiveArchetype))
         .map((c) => normalizeName(c.name))
     );
-    const suspectNames = castNames.filter((name) => !culpritSet.has(name) && !detectiveSet.has(name));
+    /**
+     * A_76 — WE WERE HARD-STOPPING RUNS FOR FAILING TO CLEAR THE MURDER VICTIM.
+     *
+     * `suspectNames` excluded culprits and detectives and NOT victims, so a dead character was
+     * required to have an on-page elimination with supporting evidence. When that (inevitably)
+     * failed, `suspect_closure_missing` reached the Agent 9 release gate and threw. It is 2 of 2
+     * corpus-wide validation failures: canary_1785694688532 (Sylvia Trent) and canary_1787090659142
+     * (Eleanor Voss), both `role_archetype: victim`.
+     *
+     * There was no repair path either: the deterministic floor `enforceSuspectEliminationPresence`
+     * derives its list from `computeEliminationSuspects`, which HAS excluded victims since A_68 — so
+     * the injector could never satisfy the validator that was killing the run. A split brain between
+     * two lists that were meant to agree.
+     *
+     * Unconditional, not flag-gated: this can only ever REMOVE a demand, so it cannot introduce a
+     * failure. Clearing fewer people is never what makes a mystery invalid.
+     *
+     * The role reads also go through `roleTextsOf` / the archetype predicates rather than a bare
+     * `role_archetype` substring test, which misses the `roleArchetype` and bare-`role` spellings
+     * (X50).
+     */
+    const victimSet = new Set(
+      (cml.CASE.cast as any[])
+        .filter((c) => roleTextsOf(c).some(isVictimArchetype))
+        .map((c) => normalizeName(c.name)),
+    );
+    const declaredVictim = normalizeName(String((cml.CASE as any)?.culpability?.victim ?? ''));
+    if (declaredVictim) victimSet.add(declaredVictim);
+
+    const suspectNames = castNames.filter(
+      (name) => !culpritSet.has(name) && !detectiveSet.has(name) && !victimSet.has(name),
+    );
 
     // Validate suspect eliminations
     for (const suspect of suspectNames) {

@@ -47,9 +47,30 @@ const countClearableSuspects = (caseData: any): number => {
       .map((c: unknown) => str(c).toLowerCase())
       .filter(Boolean),
   );
+  /**
+   * A_76 — THIS READ A FIELD THAT IS ALWAYS UNDEFINED.
+   *
+   * Both filters below tested `c?.role`. `cml.CASE.cast` carries `role_archetype`, and MEASURED on
+   * the stored cases every member has `role_archetype` set and `role` undefined — so neither the
+   * victim filter nor the detective filter ever matched anybody, and the clearable count was inflated
+   * by two (the victim and the detective) on every book. That widened the endgame clearance budget
+   * past the point where it could bind.
+   *
+   * `roleOf` is declared a few lines BELOW and reads all three spellings. Referencing it here is safe
+   * because `countClearableSuspects` is only ever called at run time, long after module init — but it
+   * is exactly the camelCase/snake_case trap (X50) that produced three separate bugs in the
+   * 2026-07-24 agents review, and it produced a fourth here.
+   *
+   * Flag-gated `STORY_GEOMETRY_ROLE_FIELD_FIX` because it TIGHTENS a gate: a correct count lowers the
+   * clearance budget (5 -> 3 on a six-hander), so `clearance_over_budget` starts binding where it
+   * previously could not. With the flag off the arithmetic is byte-identical to today.
+   */
+  const useRoleOf = /^(1|true|yes|on)$/i.test(process.env.STORY_GEOMETRY_ROLE_FIELD_FIX ?? "");
+  const roleText = (c: any): string => (useRoleOf ? roleOf(c) : str(c?.role));
+
   const victims = new Set(
     cast
-      .filter((c: any) => /victim/i.test(str(c?.role)))
+      .filter((c: any) => /victim/i.test(roleText(c)))
       .map((c: any) => str(c?.name).toLowerCase()),
   );
   const victimField = str(caseData?.culpability?.victim).toLowerCase();
@@ -58,7 +79,7 @@ const countClearableSuspects = (caseData: any): number => {
     const name = str(c?.name).toLowerCase();
     if (!name) return false;
     if (culprits.has(name) || victims.has(name)) return false;
-    if (/investigator|detective/i.test(str(c?.role))) return false;
+    if (/investigator|detective|sleuth/i.test(roleText(c))) return false;
     return true;
   }).length;
 };
