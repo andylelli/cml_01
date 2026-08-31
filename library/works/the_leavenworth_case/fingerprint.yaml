@@ -1,0 +1,12 @@
+- id: the_leavenworth_case
+  corpus: seed
+  axis: identity
+  mechanism_family: staged_scene
+  false_assumption_pattern: circumstantial_evidence_points_to_guilt
+  discriminating_test_shape: behavioral_tell
+  inference_shape: eliminate_suspects_by_evidence
+  premise: >-
+    Mr. Leavenworth is found murdered in his locked library. Suspicion falls on his nieces,
+    especially Eleanore, due to circumstantial evidence and secretive behavior. A secret marriage
+    and mysterious dis
+  source: library/works/the_leavenworth_case/case.cml2.yaml

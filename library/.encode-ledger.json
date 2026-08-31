@@ -1,0 +1,149 @@
+{
+ "totalGbp": 2.1093747182,
+ "runs": [
+  {
+   "slug": "the_big_bow_mystery",
+   "costGbp": 0.0076,
+   "valid": false,
+   "spans": "aborted"
+  },
+  {
+   "slug": "the_sign_of_the_four",
+   "costGbp": 0.0362,
+   "valid": false,
+   "spans": "0/20"
+  },
+  {
+   "slug": "a_study_in_scarlet",
+   "costGbp": 0.0356,
+   "valid": false,
+   "spans": "0/20"
+  },
+  {
+   "slug": "the_big_bow_mystery",
+   "costGbp": 0.0378,
+   "valid": false,
+   "spans": "0/20"
+  },
+  {
+   "slug": "the_valley_of_fear",
+   "costGbp": 0.0439,
+   "valid": false,
+   "spans": "0/20"
+  },
+  {
+   "slug": "the_sign_of_the_four",
+   "costGbp": 0.0418,
+   "valid": false,
+   "spans": "3/20"
+  },
+  {
+   "slug": "the_sign_of_the_four",
+   "costGbp": 0.0427,
+   "valid": true,
+   "spans": "17/20"
+  },
+  {
+   "slug": "the_sign_of_the_four",
+   "costGbp": 0.0352,
+   "valid": true,
+   "spans": "10/12"
+  },
+  {
+   "slug": "a_study_in_scarlet",
+   "costGbp": 0.0352,
+   "valid": true,
+   "spans": "19/20"
+  },
+  {
+   "slug": "the_big_bow_mystery",
+   "costGbp": 0.0456,
+   "valid": true,
+   "spans": "9/20"
+  },
+  {
+   "slug": "the_valley_of_fear",
+   "costGbp": 0.0498,
+   "valid": false,
+   "spans": "16/20"
+  },
+  {
+   "slug": "the_hound_of_the_baskervilles",
+   "costGbp": 0.0535,
+   "valid": false,
+   "spans": "11/20"
+  },
+  {
+   "slug": "the_mystery_of_the_yellow_room",
+   "costGbp": 0.0792,
+   "valid": false,
+   "spans": "12/20"
+  },
+  {
+   "slug": "the_leavenworth_case",
+   "costGbp": 0.1067,
+   "valid": false,
+   "spans": "3/20"
+  },
+  {
+   "slug": "the_valley_of_fear",
+   "costGbp": 0.0493,
+   "valid": false,
+   "spans": "8/20"
+  },
+  {
+   "slug": "the_hound_of_the_baskervilles",
+   "costGbp": 0.0528,
+   "valid": true,
+   "spans": "3/20"
+  },
+  {
+   "slug": "the_mystery_of_the_yellow_room",
+   "costGbp": 0.1515,
+   "valid": true,
+   "spans": "10/20"
+  },
+  {
+   "slug": "the_leavenworth_case",
+   "costGbp": 0.2341,
+   "valid": false,
+   "spans": "8/19"
+  },
+  {
+   "slug": "the_leavenworth_case",
+   "costGbp": 0.2321,
+   "valid": false,
+   "spans": "13/19"
+  },
+  {
+   "slug": "the_leavenworth_case",
+   "costGbp": 0.2327,
+   "valid": false,
+   "spans": "9/19"
+  },
+  {
+   "slug": "the_big_bow_mystery",
+   "costGbp": 0.0746,
+   "valid": true,
+   "spans": "15/20"
+  },
+  {
+   "slug": "the_hound_of_the_baskervilles",
+   "costGbp": 0.0846,
+   "valid": true,
+   "spans": "7/20"
+  },
+  {
+   "slug": "the_mystery_of_the_yellow_room",
+   "costGbp": 0.1151,
+   "valid": false,
+   "spans": "10/20"
+  },
+  {
+   "slug": "the_leavenworth_case",
+   "costGbp": 0.2316,
+   "valid": false,
+   "spans": "14/20"
+  }
+ ]
+}

@@ -1,0 +1,144 @@
+# Abstract structural fingerprints of the seed library (examples/*_cml2.yaml). Derived artifact —
+# regenerated when the seeds change (§5). These are STRUCTURE, not surface: two cases sharing zero
+# names can still be the same mystery, and that is what these fields capture. Hand-authored for this
+# first increment; the §9.1-spike-2 LLM extractor is the gated next phase.
+
+- id: the_moonstone
+  corpus: seed
+  axis: epistemic
+  mechanism_family: unconscious_act
+  false_assumption_pattern: "the_actor_acted_knowingly"
+  discriminating_test_shape: reconstruction
+  inference_shape: "reconstruct_altered_mental_state"
+  premise: "A jewel vanishes; the taker took it without knowing, under opium."
+  source: "examples/the_moonstone_cml2.yaml"
+
+- id: the_mysterious_affair_at_styles
+  corpus: seed
+  axis: temporal
+  mechanism_family: poison_delayed
+  false_assumption_pattern: "time_of_symptom=time_of_act"
+  discriminating_test_shape: chemical_timing
+  inference_shape: "decouple_act_from_symptom"
+  premise: "Strychnine kills hours after it is given, breaking the obvious alibi window."
+  source: "examples/the_mysterious_affair_at_styles_cml2.yaml"
+
+- id: the_big_bow_mystery
+  corpus: seed
+  axis: spatial
+  mechanism_family: locked_room_timing
+  false_assumption_pattern: "the_body_died_before_the_room_opened"
+  discriminating_test_shape: timetable_contradiction
+  inference_shape: "reframe_access_at_discovery"
+  premise: "The man who breaks into the locked room is the one who kills, in the act of 'discovery'."
+  source: "examples/the_big_bow_mystery_cml2.yaml"
+
+- id: trents_last_case
+  corpus: seed
+  axis: epistemic
+  mechanism_family: staged_scene
+  false_assumption_pattern: "the_obvious_reconstruction_is_correct"
+  discriminating_test_shape: reconstruction
+  inference_shape: "overturn_obvious_reconstruction"
+  premise: "The detective's confident solution is itself wrong; the scene was arranged to read that way."
+  source: "examples/trents_last_case_cml2.yaml"
+
+- id: a_study_in_scarlet
+  corpus: seed
+  axis: identity
+  mechanism_family: poison_substitution
+  false_assumption_pattern: "no_motive_visible"
+  discriminating_test_shape: physical_trace
+  inference_shape: "expose_hidden_revenge_motive"
+  premise: "A revenge killing by a choice of two pills, its motive buried in an old wrong."
+  source: "examples/a_study_in_scarlet_cml2.yaml"
+
+- id: the_sign_of_the_four
+  corpus: seed
+  axis: spatial
+  mechanism_family: hidden_accomplice
+  false_assumption_pattern: "locked_room=>no_entry"
+  discriminating_test_shape: physical_trace
+  inference_shape: "reframe_access_via_overlooked_agent"
+  premise: "A sealed room entered by a small accomplice through an overlooked aperture."
+  source: "examples/the_sign_of_the_four_cml2.yaml"
+
+- id: the_hound_of_the_baskervilles
+  corpus: seed
+  axis: epistemic
+  mechanism_family: disguised_natural_agent
+  false_assumption_pattern: "supernatural_cause"
+  discriminating_test_shape: physical_trace
+  inference_shape: "debunk_supernatural"
+  premise: "A 'spectral' hound is a real dog painted with phosphorus."
+  source: "examples/the_hound_of_the_baskervilles_cml2.zip"
+
+- id: the_valley_of_fear
+  corpus: seed
+  axis: identity
+  mechanism_family: substituted_body
+  false_assumption_pattern: "the_dead_is_who_they_appear"
+  discriminating_test_shape: identity_disambiguation
+  inference_shape: "expose_false_identity_of_corpse"
+  premise: "The disfigured body is not the master of the house but his would-be killer."
+  source: "examples/the_valley_of_fear_cml2.yaml"
+
+- id: the_mystery_of_the_yellow_room
+  corpus: seed
+  axis: spatial
+  mechanism_family: locked_room_timing
+  false_assumption_pattern: "attack_occurred_when_cry_was_heard"
+  discriminating_test_shape: timetable_contradiction
+  inference_shape: "decouple_attack_from_discovery"
+  premise: "The victim was wounded earlier and collapsed later, faking an impossible sealed-room attack."
+  source: "examples/the_mystery_of_the_yellow_room_cml2.yaml"
+
+- id: the_leavenworth_case
+  corpus: seed
+  axis: authority
+  mechanism_family: secret_will_inheritance
+  false_assumption_pattern: "the_named_heir_is_the_only_interested_party"
+  discriminating_test_shape: reconstruction
+  inference_shape: "expose_hidden_inheritance_motive"
+  premise: "A patriarch shot over a contested will and a concealed marriage."
+  source: "examples/the_leavenworth_case_cml2.yaml"
+
+- id: the_secret_adversary
+  corpus: seed
+  axis: identity
+  mechanism_family: impersonation
+  false_assumption_pattern: "the_villain_is_an_outsider"
+  discriminating_test_shape: identity_disambiguation
+  inference_shape: "unmask_insider_mastermind"
+  premise: "The mastermind 'Mr Brown' is hiding in plain sight among the trusted circle."
+  source: "examples/the_secret_adversary_cml2.yaml"
+
+- id: the_clue_of_the_twisted_candle
+  corpus: seed
+  axis: temporal
+  mechanism_family: recorded_presence
+  false_assumption_pattern: "a_heard_voice_proves_presence"
+  discriminating_test_shape: timetable_contradiction
+  inference_shape: "decouple_voice_from_presence"
+  premise: "A locked-room death with the victim seemingly alive, faked by a recording."
+  source: "examples/the_clue_of_the_twisted_candle_cml2.yaml"
+
+- id: the_second_key
+  corpus: seed
+  axis: spatial
+  mechanism_family: locked_room_key
+  false_assumption_pattern: "locked_room=>no_entry"
+  discriminating_test_shape: physical_trace
+  inference_shape: "reframe_access_via_duplicate_key"
+  premise: "A sealed room opened and re-locked with an unsuspected second key."
+  source: "examples/the_second_key_cml2.yaml"
+
+- id: the_leak
+  corpus: seed
+  axis: identity
+  mechanism_family: information_leak
+  false_assumption_pattern: "the_obvious_suspect_had_the_access"
+  discriminating_test_shape: behavioral_tell
+  inference_shape: "trace_information_to_unsuspected_conduit"
+  premise: "A confidential leak traced past the obvious suspect to an overlooked conduit."
+  source: "examples/the_leak_cml2.yaml"

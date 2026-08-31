@@ -1,0 +1,583 @@
+{
+ "decade": "1880s",
+ "realism_constraints": [
+  "No forensic science beyond basic ballistics and handwriting analysis",
+  "No modern communication; telegrams and letters are primary",
+  "Limited police procedural methods; reliance on witness testimony and detective intuition"
+ ],
+ "location": "New York City and R——, a nearby small town",
+ "institution": "Police Department led by Detective Mr. Gryce",
+ "crime_category": "murder",
+ "crime_subtype": "secret marriage and inheritance motive",
+ "cast": [
+  {
+   "name": "Everett Raymond",
+   "age_range": "30-40",
+   "role_archetype": "young lawyer and narrator",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "junior partner in law firm",
+   "private_secret": "investigating the case",
+   "motive_seed": "professional duty",
+   "motive_strength": "moderate",
+   "alibi_window": "present throughout investigation",
+   "access_plausibility": "high",
+   "stakes": "justice and truth",
+   "moral_complexity": "low",
+   "relationships": [
+    "Mr. Gryce",
+    "Mary Leavenworth",
+    "Eleanore Leavenworth"
+   ],
+   "opportunity_channels": [
+    "law firm",
+    "family connections"
+   ],
+   "behavioral_tells": [
+    "persistent curiosity",
+    "emotional involvement"
+   ],
+   "evidence_sensitivity": [
+    "letters",
+    "testimonies"
+   ]
+  },
+  {
+   "name": "Mr. Gryce",
+   "age_range": "50-60",
+   "role_archetype": "experienced detective",
+   "role": "detective",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "police detective",
+   "private_secret": "leading investigation",
+   "motive_seed": "professional pride",
+   "motive_strength": "strong",
+   "alibi_window": "present throughout investigation",
+   "access_plausibility": "high",
+   "stakes": "solving the case",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Everett Raymond",
+    "Mr. Harwell",
+    "Mary Leavenworth",
+    "Eleanore Leavenworth"
+   ],
+   "opportunity_channels": [
+    "police authority"
+   ],
+   "behavioral_tells": [
+    "observant",
+    "methodical"
+   ],
+   "evidence_sensitivity": [
+    "letters",
+    "physical evidence"
+   ]
+  },
+  {
+   "name": "Mr. Leavenworth",
+   "age_range": "60-70",
+   "role_archetype": "wealthy retired merchant, victim",
+   "role": "victim",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "wealthy uncle",
+   "private_secret": "family disputes",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "dead at time of murder",
+   "access_plausibility": "n/a",
+   "stakes": "life",
+   "moral_complexity": "n/a",
+   "relationships": [
+    "Mary Leavenworth",
+    "Eleanore Leavenworth",
+    "Mr. Harwell"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Mr. Harwell",
+   "age_range": "30-40",
+   "role_archetype": "private secretary, conflicted",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "loyal secretary",
+   "private_secret": "murderer of Mr. Leavenworth",
+   "motive_seed": "love for Eleanore, jealousy",
+   "motive_strength": "strong",
+   "alibi_window": "present in house at time of murder",
+   "access_plausibility": "high",
+   "stakes": "love and freedom",
+   "moral_complexity": "high",
+   "relationships": [
+    "Eleanore Leavenworth",
+    "Mr. Leavenworth"
+   ],
+   "opportunity_channels": [
+    "household access",
+    "secret knowledge"
+   ],
+   "behavioral_tells": [
+    "nervousness",
+    "evasiveness"
+   ],
+   "evidence_sensitivity": [
+    "confession letter",
+    "poison evidence"
+   ]
+  },
+  {
+   "name": "Mary Leavenworth",
+   "age_range": "20-30",
+   "role_archetype": "heiress, conflicted",
+   "role": "suspect",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "eligible",
+   "public_persona": "young heiress",
+   "private_secret": "secret marriage to Henry Clavering",
+   "motive_seed": "inheritance",
+   "motive_strength": "moderate",
+   "alibi_window": "present in house",
+   "access_plausibility": "high",
+   "stakes": "inheritance and reputation",
+   "moral_complexity": "high",
+   "relationships": [
+    "Eleanore Leavenworth",
+    "Henry Clavering"
+   ],
+   "opportunity_channels": [
+    "household access"
+   ],
+   "behavioral_tells": [
+    "anxiety",
+    "evasiveness"
+   ],
+   "evidence_sensitivity": [
+    "letters",
+    "secret marriage certificate"
+   ]
+  },
+  {
+   "name": "Eleanore Leavenworth",
+   "age_range": "20-30",
+   "role_archetype": "secretive niece, protective",
+   "role": "suspect",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "eligible",
+   "public_persona": "reserved niece",
+   "private_secret": "secret marriage of Mary",
+   "motive_seed": "protect Mary",
+   "motive_strength": "strong",
+   "alibi_window": "present in house",
+   "access_plausibility": "high",
+   "stakes": "family honor",
+   "moral_complexity": "high",
+   "relationships": [
+    "Mary Leavenworth",
+    "Mr. Leavenworth",
+    "Mr. Harwell"
+   ],
+   "opportunity_channels": [
+    "household access"
+   ],
+   "behavioral_tells": [
+    "evasiveness",
+    "emotional restraint"
+   ],
+   "evidence_sensitivity": [
+    "key",
+    "handkerchief"
+   ]
+  },
+  {
+   "name": "Henry Ritchie Clavering",
+   "age_range": "40-50",
+   "role_archetype": "English gentleman, secret husband",
+   "role": "suspect",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "eligible",
+   "public_persona": "English gentleman, visitor",
+   "private_secret": "secret marriage to Mary Leavenworth",
+   "motive_seed": "love and social obstacles",
+   "motive_strength": "moderate",
+   "alibi_window": "present in house at time of murder",
+   "access_plausibility": "high",
+   "stakes": "marriage and reputation",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Mary Leavenworth",
+    "Mr. Leavenworth"
+   ],
+   "opportunity_channels": [
+    "household access",
+    "secret visits"
+   ],
+   "behavioral_tells": [
+    "evasiveness",
+    "social distance"
+   ],
+   "evidence_sensitivity": [
+    "letters",
+    "secret marriage certificate"
+   ]
+  },
+  {
+   "name": "Mrs. Amy Belden",
+   "age_range": "50-60",
+   "role_archetype": "widow, caretaker of Hannah",
+   "role": "witness",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "respectable widow",
+   "private_secret": "harbored Hannah",
+   "motive_seed": "charity",
+   "motive_strength": "none",
+   "alibi_window": "present in R——",
+   "access_plausibility": "high",
+   "stakes": "reputation",
+   "moral_complexity": "low",
+   "relationships": [
+    "Hannah Chester",
+    "Mary Leavenworth"
+   ],
+   "opportunity_channels": [
+    "household access"
+   ],
+   "behavioral_tells": [
+    "nervousness"
+   ],
+   "evidence_sensitivity": [
+    "letters",
+    "papers"
+   ]
+  },
+  {
+   "name": "Hannah Chester",
+   "age_range": "20-30",
+   "role_archetype": "servant girl, witness",
+   "role": "witness",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "servant girl",
+   "private_secret": "knew murder details",
+   "motive_seed": "fear",
+   "motive_strength": "none",
+   "alibi_window": "secreted in Mrs. Belden’s house",
+   "access_plausibility": "high",
+   "stakes": "life",
+   "moral_complexity": "low",
+   "relationships": [
+    "Mary Leavenworth",
+    "Mrs. Amy Belden"
+   ],
+   "opportunity_channels": [
+    "household access"
+   ],
+   "behavioral_tells": [
+    "reticence"
+   ],
+   "evidence_sensitivity": [
+    "confession letter"
+   ]
+  },
+  {
+   "name": "Thomas Dougherty",
+   "age_range": "50-60",
+   "role_archetype": "butler, loyal servant",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "butler",
+   "private_secret": "knows household routines",
+   "motive_seed": "loyalty",
+   "motive_strength": "none",
+   "alibi_window": "present in house",
+   "access_plausibility": "high",
+   "stakes": "reputation",
+   "moral_complexity": "low",
+   "relationships": [
+    "Mary Leavenworth",
+    "Eleanore Leavenworth"
+   ],
+   "opportunity_channels": [
+    "household access"
+   ],
+   "behavioral_tells": [
+    "steadfastness"
+   ],
+   "evidence_sensitivity": []
+  }
+ ],
+ "culprits": [
+  "Mr. Harwell"
+ ],
+ "surface_summary": "Mr. Leavenworth is found murdered in his locked library. Suspicion falls on his nieces, especially Eleanore, due to circumstantial evidence including a key and a handkerchief. The secret marriage of Mary Leavenworth to Henry Clavering complicates the inheritance and motives. The missing servant Hannah disappears, then is found dead, deepening the mystery.",
+ "accepted_facts": [
+  "Mr. Leavenworth was murdered by a pistol shot in his locked library",
+  "Eleanore Leavenworth possessed the key to the library door",
+  "Mary Leavenworth was secretly married to Henry Clavering",
+  "Hannah Chester disappeared from the household and was later found dead"
+ ],
+ "inferred_conclusions": [
+  "Eleanore Leavenworth is the murderer due to possession of key and handkerchief",
+  "Mary Leavenworth had motive and opportunity to commit the murder",
+  "Henry Clavering is innocent and uninvolved in the crime"
+ ],
+ "mechanism_description": "Mr. Harwell, motivated by love for Eleanore and jealousy, murdered Mr. Leavenworth by shooting him with his own pistol. He forged a letter purporting to be a confession to implicate Henry Clavering and manipulated Hannah Chester to conceal the truth. To silence Hannah, he poisoned her, causing her death. The forged letter and other planted evidence misled the investigation until the physical and documentary evidence revealed Harwell's guilt.",
+ "delivery_path": [
+  "Harwell enters Mr. Leavenworth’s library and shoots him with his pistol",
+  "Harwell cleans the pistol barrel but neglects the cylinder, leaving evidence",
+  "Harwell plants the handkerchief and key to implicate Eleanore",
+  "Harwell writes a forged confession letter blaming Henry Clavering",
+  "Harwell sends the forged confession and poison to Hannah Chester",
+  "Hannah takes the poison and dies, silencing her testimony",
+  "Harwell maintains innocence until finally confronted with the evidence"
+ ],
+ "outcome_result": "Physical and documentary evidence, including the forged letter and access records, establish Harwell's guilt and clear Eleanore and Mary Leavenworth of suspicion.",
+ "false_assumption": {
+  "statement": "Eleanore Leavenworth is the murderer because she possessed the key and handkerchief.",
+  "type": "behavioral",
+  "why_it_seems_reasonable": "Eleanore’s evasive behavior and possession of incriminating items suggest guilt. The circumstantial evidence aligns with her presence at the crime scene.",
+  "what_it_hides": "It hides the fact that Harwell planted the evidence and manipulated circumstances to frame Eleanore."
+ },
+ "false_solution": {
+  "accused_suspect": "Eleanore Leavenworth",
+  "supporting_points": [
+   "Possession of the library key",
+   "Handkerchief stained with pistol grease found at the scene",
+   "Evasive and contradictory testimony at the inquest",
+   "Attempt to destroy incriminating letter"
+  ],
+  "the_one_flaw": "The evidence was planted by the real murderer, Harwell, and Eleanore was shielding Mary.",
+  "refuted_in_chapter": 38
+ },
+ "red_herrings": [
+  {
+   "id": "mary_leavenworth_inheritance_motive",
+   "description": "Mary Leavenworth’s inheritance and secret marriage to Henry Clavering suggest a strong motive for murder.",
+   "points_at_suspect": "Mary Leavenworth",
+   "innocent_explanation": "Mary was unaware of the murder and was not involved; her secret marriage complicated family dynamics but did not motivate the crime.",
+   "resolved_in_chapter": 38
+  },
+  {
+   "id": "henry_clavering_suspicious_presence",
+   "description": "Henry Clavering’s secret visits and letter to Mr. Leavenworth raise suspicion about his involvement.",
+   "points_at_suspect": "Henry Ritchie Clavering",
+   "innocent_explanation": "Clavering was secretly married to Mary and had no motive to kill Mr. Leavenworth; he was falsely implicated by forged letters.",
+   "resolved_in_chapter": 38
+  }
+ ],
+ "closed_circle": {
+  "suspects": [
+   "Eleanore Leavenworth",
+   "Mary Leavenworth",
+   "Henry Ritchie Clavering",
+   "Mr. Harwell"
+  ],
+  "rationale": "All had access to the house and potential motives; investigation focused on these household members due to locked-room conditions and family dynamics."
+ },
+ "constraint_space": {
+  "time_anchors": [
+   "night of the murder",
+   "morning discovery",
+   "inquest day",
+   "funeral day"
+  ],
+  "time_windows": [
+   "evening of murder to morning discovery",
+   "inquest proceedings",
+   "days following murder"
+  ],
+  "access_actors": [
+   "household members",
+   "servants",
+   "detectives"
+  ],
+  "access_objects": [
+   "library door",
+   "library key",
+   "pistol",
+   "letters"
+  ],
+  "trust_channels": [
+   "letters",
+   "confessions",
+   "servant testimony"
+  ],
+  "authority_sources": [
+   "coroner",
+   "detective Gryce",
+   "law enforcement"
+  ]
+ },
+ "inference_path": [
+  {
+   "observation": "Handkerchief stained with pistol grease found at murder scene. The detective arranged for the handkerchief to be examined in a controlled environment to observe the physical traces.",
+   "correction": "Handkerchief belonged to Eleanore but was planted",
+   "effect": "Suspicion wrongly focused on Eleanore",
+   "required_evidence": [
+    "Testimony of cook about handkerchief washing and timing",
+    "Location of handkerchief found in library"
+   ]
+  },
+  {
+   "observation": "Library door key found in Eleanore’s possession",
+   "correction": "Key was concealed and disposed by Eleanore under pressure",
+   "effect": "Eleanore appears guilty of tampering with evidence",
+   "required_evidence": [
+    "Witness testimony of Mr. Fobbs about key disposal",
+    "Discovery of broken key handle matching Eleanore’s key"
+   ]
+  },
+  {
+   "observation": "Hannah Chester disappeared and was later found dead. The detective arranged for access records and timeline facts to be compared in a controlled environment.",
+   "correction": "Hannah was poisoned by Harwell to silence her",
+   "effect": "Loss of key witness delayed case resolution",
+   "required_evidence": [
+    "Poison found on paper in Hannah’s room",
+    "Confession letter blaming Henry Clavering, written in coarse, awkward characters and on trimmed commercial note paper, physically recovered among Hannah's effects and documented by the coroner as evidence"
+   ]
+  },
+  {
+   "observation": "Forged confession letter blaming Henry Clavering found. The detective arranged for handwriting analysis in a controlled environment.",
+   "correction": "Letter was fabricated by Harwell to mislead investigation",
+   "effect": "Henry Clavering falsely suspected",
+   "required_evidence": [
+    "Paper analysis showing letter was forged",
+    "Handwriting comparison with known letters"
+   ]
+  },
+  {
+   "observation": "Secret marriage of Mary Leavenworth to Henry Clavering",
+   "correction": "Marriage was hidden but legal, complicating motives",
+   "effect": "Inheritance motive clarified but Mary not guilty",
+   "required_evidence": [
+    "Testimony of Timothy Cook about marriage ceremony",
+    "Marriage certificate and letters in Mrs. Belden’s possession"
+   ]
+  },
+  {
+   "observation": "Harwell’s dream and behavior suspicious. The detective arranged for Harwell's timeline and access to be compared with physical evidence in a controlled environment.",
+   "correction": "Dream foreshadowed his guilt; behavior inconsistent with innocence",
+   "effect": "Harwell identified as murderer",
+   "required_evidence": [
+    "Physical evidence matching Harwell's access to the library and pistol",
+    "Witness testimony about Harwell’s presence and actions"
+   ]
+  },
+  {
+   "observation": "Mary Leavenworth’s behavior and motives. The detective arranged for Mary's access and opportunity to be compared with the physical evidence in a controlled environment.",
+   "correction": "Mary was motivated by inheritance but not murderer",
+   "effect": "Mary cleared of suspicion",
+   "required_evidence": [
+    "Eleanore’s protective testimony",
+    "Physical evidence eliminating Mary as the source of the forged letter"
+   ]
+  }
+ ],
+ "discriminating_test": {
+  "method": "trap",
+  "design": "Detective Gryce arranged a controlled environment by gathering all suspects and witnesses in the library. In this environment, the detective presented the forged letter, access records, and timeline contradictions. The test compared each suspect's opportunity and access to the physical evidence, including the forged letter and pistol, eliminating those whose access or timeline did not match. The detective observed which suspect's access and opportunity could not be eliminated by the evidence.",
+  "knowledge_revealed": "The test establishes Harwell's guilt by matching his access and opportunity to the physical evidence (forged letter, pistol, timeline), and eliminates Eleanore and Mary Leavenworth by showing their access and opportunity do not fit the established facts.",
+  "pass_condition": "The test is passed if only one suspect's access, opportunity, and physical evidence (forged letter, pistol, timeline) remain consistent with the established facts, with no contradictions in the documentary or physical record."
+ },
+ "fair_play_explanation": "The reader is given all necessary clues including the forged confession letter, the secret marriage, the key and handkerchief evidence, and the testimony of servants. The detective’s reasoning and the physical and documentary evidence are foreshadowed by the behavior and statements of characters. The false solution is presented and refuted, allowing the attentive reader to solve the case.",
+ "anchors": [
+  {
+   "claim": "Mr. Leavenworth is dead, shot through the head",
+   "anchor": "shot through the head by some unknown person"
+  },
+  {
+   "claim": "The library door was locked on the inside",
+   "anchor": "Found locked on the inside"
+  },
+  {
+   "claim": "The bullet was fired from a rifled pistol",
+   "anchor": "small, and from a rifled barrel"
+  },
+  {
+   "claim": "The pistol was found cleaned but recently fired",
+   "anchor": "cleaned the barrel, but forgot the cylinder"
+  },
+  {
+   "claim": "Eleanore Leavenworth possessed the library key",
+   "anchor": "the key to the library door is missing"
+  },
+  {
+   "claim": "A handkerchief stained with pistol grease was found",
+   "anchor": "handkerchief found this morning in that room"
+  },
+  {
+   "claim": "Mary Leavenworth is the heiress in the will",
+   "anchor": "he made no secret of his intentions to any one"
+  },
+  {
+   "claim": "Mary Leavenworth wrote a letter to Mr. Clavering",
+   "anchor": "a letter came from him to my address"
+  },
+  {
+   "claim": "Hannah Chester disappeared from the house",
+   "anchor": "she was here last night, and she isn’t here this morning"
+  },
+  {
+   "claim": "Hannah Chester was found dead in Mrs. Belden’s house",
+   "anchor": "lying upon the pillow a cold, calm face"
+  },
+  {
+   "claim": "A forged confession letter was found",
+   "anchor": "a forged confession falsely criminating Henry Clavering"
+  },
+  {
+   "claim": "Mr. Harwell confessed to the murder",
+   "anchor": "I am the murderer of Mr. Leavenworth"
+  },
+  {
+   "claim": "Mary Leavenworth and Henry Clavering were secretly married",
+   "anchor": "married at a parsonage, some twenty miles from the watering-place"
+  },
+  {
+   "claim": "Mr. Harwell cleaned the pistol but forgot the cylinder",
+   "anchor": "cleaned the barrel, but forgot the cartridge-chamber"
+  },
+  {
+   "claim": "The confession letter was printed, not handwritten",
+   "anchor": "words used therein were printed in coarse, awkward characters"
+  },
+  {
+   "claim": "The confession letter was written on trimmed paper",
+   "anchor": "sheet of commercial note of the ordinary quality"
+  },
+  {
+   "claim": "Mary Leavenworth’s diary reveals family tensions",
+   "anchor": "Mary has consented to dismiss Mr. Clavering"
+  },
+  {
+   "claim": "Mr. Gryce’s final report accuses Mary Leavenworth",
+   "anchor": "Mary Leavenworth is the assassin of her uncle"
+  },
+  {
+   "claim": "Mr. Harwell’s confession clears Mary and Eleanore",
+   "anchor": "I am the murderer of Mr. Leavenworth"
+  },
+  {
+   "claim": "Eleanore Leavenworth is innocent and reconciled with Mary",
+   "anchor": "Eleanore had fallen at her cousin’s feet"
+  }
+ ]
+}

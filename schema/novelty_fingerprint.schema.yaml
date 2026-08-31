@@ -47,6 +47,19 @@ properties:
       - information_leak
       - recorded_presence
       - secret_will_inheritance
+      # A_77 §16.5 / §16.9 — added 2026-08-31. The 14 above could not express two of the strongest
+      # cases in the library, and forcing them produced a MEASURABLE defect: *A Jury of Her Peers*
+      # filed as `hidden_accomplice` made its nearest novelty neighbour `butler_did_it`, a cliche it
+      # resembles in nothing. A family is a retrieval key, so a wrong one is a wrong retrieval.
+      #
+      # role_invisibility: the culprit is not disguised as a PERSON but occupies a ROLE whose
+      #   occupant is not perceived as a person at all — the postman nobody sees.
+      #   (Chesterton, *The Invisible Man*.)
+      # investigative_blind_spot: the concealment is not an act by the culprit. It is performed by
+      #   the investigation's own framing of what counts as evidence.
+      #   (Glaspell, *A Jury of Her Peers* — there is no accomplice and no trick.)
+      - role_invisibility
+      - investigative_blind_spot
   # The reader's load-bearing wrong belief (a short canonical phrase, e.g. "locked_room=>suicide").
   false_assumption_pattern:
     type: string
@@ -71,3 +84,14 @@ properties:
   # Provenance.
   source:
     type: string
+  # A_79 A2 — whether this row was DERIVED from a validator-clean case or is a legacy hand-authored
+  # entry retained until its work is re-encoded. A_77 §4.3 measured 11 of 14 legacy rows disagreeing
+  # with their own sources, so a ledger that cannot say which of its rows are trustworthy is a
+  # ledger that gets trusted uniformly and wrongly.
+  provenance:
+    # A_79 A2. Three states, because "we looked and it failed" and "we never looked" are different
+    # claims: `derived` passed the anchor-evidence gate, `derived_unverified` was re-encoded but has
+    # no evidence on disk to check it against, `legacy_hand_authored` was never re-encoded OR was
+    # re-encoded and demoted by the gate.
+    type: string
+    enum: [derived, derived_unverified, legacy_hand_authored]

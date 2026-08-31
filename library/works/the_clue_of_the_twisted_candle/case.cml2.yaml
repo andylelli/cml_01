@@ -1,0 +1,349 @@
+CML_VERSION: 2.0
+CASE:
+  meta:
+    title: "The Clue of the Twisted Candle"
+    author: "Edgar Wallace"
+    license: "Public domain (first published 1918; author died 1932). Project Gutenberg ebook 2688."
+    era:
+      decade: "1910s"
+      realism_constraints:
+        - "No forensic time-of-death precision; the hour of death is inferred from a telephone call"
+        - "A private telephone line can be run from a house to Scotland Yard on request"
+        - "Rooms are heated by open coal fires hot enough to soften wax in minutes"
+        - "Identification of an infrequently-seen public figure rests on beard, spectacles and manner"
+    setting:
+      location: "A guarded bedroom in Cadogan Square, London, in February"
+      institution: "Scotland Yard's Special Service Department, investigating a sealed-room killing"
+    crime_class:
+      category: murder
+      subtype: "stabbing in a self-sealing room, with a delayed-action alibi built from two candles"
+  cast:
+    - name: "Remington Kara"
+      age_range: "30s"
+      role_archetype: "Greek millionaire and political schemer"
+      relationships:
+        - "Former suitor of Grace Lexman"
+        - "Creditor and false friend of John Lexman"
+      public_persona: "A handsome, wealthy leader of Greek society in London, generous and much-invited"
+      private_secret: "He framed John Lexman for murder, imprisoned and tortured both Lexmans in Albania, and holds Lady Bartholomew's snuff-box to compel influence"
+      motive_seed: "None — he is the victim"
+      motive_strength: "none"
+      alibi_window: "Alone in his sealed bedroom from the moment his visitor left"
+      access_plausibility: "His own room, which only he could open from inside"
+      opportunity_channels:
+        - "The bedroom with its steel latch"
+      behavioral_tells:
+        - "Keeps his room stiflingly hot in the coldest weather"
+        - "Drops a steel latch nightly and admits nobody until morning"
+        - "Cannot bear the sight of candles"
+      stakes: "His life, and a throne in Albania he is bribing his way toward"
+      evidence_sensitivity:
+        - "His decoded private diaries"
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: "He is a murderer many times over and the investigation that follows his death exonerates the man who killed him."
+    - name: "John Lexman"
+      age_range: "30s"
+      role_archetype: "novelist of mystery plots, wrongly convicted"
+      relationships:
+        - "Husband of Grace Lexman"
+        - "Old friend of T. X. Meredith"
+        - "Debtor of Kara"
+      public_persona: "A maker of cunning plots, lately returned to London to surrender himself to the authorities"
+      private_secret: "He returned disguised as the explorer George Gathercole, who had died in Milan, in order to kill Kara"
+      motive_seed: "Kara framed him for murder, jailed him, tortured him, and told him his wife was dead"
+      motive_strength: "strong"
+      alibi_window: "Sitting in Superintendent Mansus's office at Scotland Yard when the telephone alarm rang"
+      access_plausibility: "Total — he was admitted to the room as Kara's expected agent"
+      opportunity_channels:
+        - "An appointment Kara himself had solicited"
+        - "A false wooden forearm concealing his own"
+      behavioral_tells:
+        - "Speaks of Kara with a hatred he cannot disguise"
+        - "Chose to surrender himself on the very night of the killing"
+      stakes: "Vengeance, and freedom afterwards"
+      evidence_sensitivity:
+        - "The two candle stubs"
+        - "Which arm the real Gathercole had lost"
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: "Every official in the room, having read Kara's diaries, agrees not to charge him."
+    - name: "T. X. Meredith"
+      age_range: "30s"
+      role_archetype: "Assistant Commissioner of Police"
+      relationships:
+        - "Friend of John Lexman and trustee of his estate"
+      public_persona: "A flippant, boyish Commissioner with an irregular method and a private book of scandals"
+      private_secret: "He suppresses the bloodstained scissors he finds, to shield a woman he believes innocent"
+      motive_seed: "None"
+      motive_strength: "none"
+      alibi_window: "At Scotland Yard with the Chief Commissioner and Lexman when the alarm rang"
+      access_plausibility: "Entered the room only after it was cut open"
+      opportunity_channels: []
+      behavioral_tells:
+        - "Reconstructs the room three times with a stop watch before saying anything"
+      stakes: "Whether he will charge his closest friend"
+      evidence_sensitivity:
+        - "The bent candle on the carpet"
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: "He solves it completely and then helps the Chief Commissioner phrase the solution as a theory rather than a confession."
+    - name: "Fisher"
+      age_range: "30s"
+      role_archetype: "Kara's valet, an ex-convict"
+      relationships:
+        - "Employed by Kara; was at Dartmoor with Lexman"
+      public_persona: "An urbane and attentive manservant, alone in the hall all evening"
+      private_secret: "He was a fellow-convict of Lexman's and is searching Kara's desk for his own ends"
+      motive_seed: "Kara had drawn six thousand pounds in cash the day before"
+      motive_strength: "moderate"
+      alibi_window: "In the kitchen with the cook from the visitor's departure until the police rang"
+      access_plausibility: "Free run of the house, and the only person in it"
+      opportunity_channels:
+        - "The stairs and the corridor outside the sealed room"
+      behavioral_tells:
+        - "Bolts from the house, hatless, the moment he reads a card left for him in the hall"
+      stakes: "His liberty — he is a licence-holder who must not be questioned"
+      evidence_sensitivity:
+        - "The card naming his Dartmoor number"
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: "His flight is the strongest evidence against him and has nothing to do with the murder."
+    - name: "Belinda Mary Bartholomew"
+      age_range: "19"
+      role_archetype: "Minister's daughter working under a false name as Kara's secretary"
+      relationships:
+        - "Daughter of Sir William Bartholomew, Minister of Justice"
+      public_persona: "Miss Holland, an efficient and self-possessed typist"
+      private_secret: "She took the post to recover her mother's snuff-box, and has been hiding Grace Lexman since"
+      motive_seed: "Kara held her mother's property and had imprisoned her in his cellar"
+      motive_strength: "moderate"
+      alibi_window: "Locked in the wine cellar, then gone from the house before the killing"
+      access_plausibility: "Had a key to Kara's safe and the run of the house"
+      opportunity_channels:
+        - "The cellar trapdoor and the area steps"
+      behavioral_tells:
+        - "Vanishes from the house on the afternoon of the murder and will not give her address"
+      stakes: "Her mother's reputation, and the woman she is nursing"
+      evidence_sensitivity:
+        - "Her monogrammed handkerchief wrapped round bloodied scissors"
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: female
+      role: suspect
+      moral_complexity: "The bloodied weapon found in the cellar is genuinely hers, and she genuinely used it — on a dog."
+    - name: "George Gathercole"
+      age_range: "50s"
+      role_archetype: "one-armed explorer, Kara's agent in Patagonia"
+      relationships:
+        - "Corresponded with Kara for three years; never met him"
+      public_persona: "A famously eccentric traveller whom nobody at his club can reliably describe"
+      private_secret: "He died of fever in Milan in January and was nursed at the end by John Lexman"
+      motive_seed: "None"
+      motive_strength: "none"
+      alibi_window: "Dead in Italy before the murder"
+      access_plausibility: "None — but his name and manner grant total access"
+      opportunity_channels: []
+      behavioral_tells:
+        - "Would let no one see him eat or uncovered, being sensitive about his lost arm"
+      stakes: "None; his identity is the instrument"
+      evidence_sensitivity:
+        - "Which of his arms was missing"
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: bystander
+      moral_complexity: "His one vanity — hiding his lost arm — is what makes the impersonation possible and what finally breaks it."
+  culpability:
+    culprit_count: 1
+    culprits:
+      - "John Lexman"
+  surface_model:
+    narrative:
+      summary: >
+        Remington Kara is found stabbed in a bedroom whose steel latch is dropped on the inside, with
+        no other way in or out. His private line to Scotland Yard rang at twenty-five past ten, fixing
+        the hour of death at a moment when the only man with a motive was sitting in the very office
+        that received the call.
+    accepted_facts:
+      - "The steel latch was heard to fall at about ten o'clock, after the visitor had left and while the valet watched him go"
+      - "The latch cannot be raised from outside; the window was fastened and wired to an alarm"
+      - "The private telephone to Scotland Yard rang at 10.25 and the doctor put the death at that hour"
+      - "The valet was in the kitchen with the cook throughout, and then fled the house"
+    inferred_conclusions:
+      - "Kara dropped the latch himself and was therefore alive after his visitor left"
+      - "Kara seized the telephone as he was attacked, so he died at 10.25"
+      - "Nobody could have been in the room at that hour, so the killer is unfindable"
+  hidden_model:
+    mechanism:
+      description: >
+        The killer stabbed Kara, then propped the steel latch open on a small wax candle and rigged the
+        telephone receiver to be knocked off by two heavy books balanced on a paper-knife over a second
+        candle; the deliberately stoked fire softened both candles after he had gone, so the room
+        sealed itself and raised its own alarm while he sat establishing an alibi at Scotland Yard.
+      delivery_path:
+        - step: "Lexman nurses the real George Gathercole through his last illness in Milan and takes his letters, learning that Kara has never seen his agent"
+        - step: "He announces Gathercole's arrival by publishing an article on Patagonia over Gathercole's card, and calls at the house once in daylight to test the disguise"
+        - step: "He returns at ten at night, throws an envelope naming the valet's convict number onto the hall table to drive him out of the house, and is shown up"
+        - step: "He stabs Kara before he can reach the telephone"
+        - step: "He props the raised steel latch on a small Christmas-tree candle so the heat of the huge fire will let it fall after he has gone"
+        - step: "He lays a paper-knife across a cigarette box with one end under the telephone receiver and the other on a second cut candle, and weights that end with two heavy books"
+        - step: "He talks loudly to the empty room so the valet hears a living Kara, leaves, changes out of the disguise, and reports to Scotland Yard, where the second candle bends and rings the alarm in his hearing"
+    outcome:
+      result: "A sealed room, a time of death that clears the only suspect, and a killer sitting with the police when the alarm sounds"
+  false_assumption:
+    statement: "A room that seals itself from the inside was sealed by the man inside it."
+    type: temporal
+    why_it_seems_reasonable: >
+      The latch can only be dropped from within, the valet heard it fall after the visitor had passed
+      him on the stairs, and twenty-five minutes later the man's own private telephone called for help.
+      Every fact is honestly reported and each one places Kara alive after the only caller had gone.
+    what_it_hides: >
+      Both events were set running before the killer left and completed themselves in his absence. Wax
+      softened by a deliberately stoked fire is a clock, and a clock that runs down after you have gone
+      turns the hour of the alarm into evidence of where you were not.
+  false_solution:
+    accused_suspect: "Fisher, the valet"
+    supporting_points:
+      - "He was the only other person in the house at the hour of death"
+      - "He alone had free access to the corridor outside the sealed room"
+      - "He ran from the house hatless and coatless while the police were upstairs and could not be found"
+      - "He was a convict living under a false name in a household where six thousand pounds in cash had just been drawn"
+    the_one_flaw: >
+      He was in the kitchen in the cook's sight from the moment the visitor left until the police rang
+      the bell — and no person in the house, himself included, could have raised the fallen latch.
+    refuted_in_chapter: 5
+  red_herrings:
+    - id: "rh_bloodied_scissors"
+      description: "A pair of long-bladed scissors, blades dappled with blood, the handle wound in a monogrammed handkerchief, found in the locked cellar"
+      points_at_suspect: "Belinda Mary Bartholomew"
+      innocent_explanation: "She used them on the great chained dog Kara kept to terrify his prisoner, and the animal is found dead behind a screen in the lower cellar."
+      resolved_in_chapter: 15
+    - id: "rh_political_feud"
+      description: "The two candles read as the signature of an Albanian blood feud, a form of torture Kara was known to dread"
+      points_at_suspect: "Kara's Albanian enemies"
+      innocent_explanation: "The candles are not a signature but a mechanism; their shape is the accident of wax bending under heat, and the killer chose them because Kara's own hatred of candles guaranteed they would be read as a message."
+      resolved_in_chapter: 22
+  closed_circle:
+    suspects:
+      - "John Lexman"
+      - "Fisher"
+      - "Belinda Mary Bartholomew"
+    rationale: "One entrance, a latch that only opens from inside, a barred and alarmed window, and a house containing only the valet and the cook"
+  constraint_space:
+    time:
+      anchors:
+        - "The visitor is shown up to the room at about ten o'clock"
+        - "The steel latch is heard to fall a few minutes later, while the visitor is on the stairs"
+        - "The private telephone rings at Scotland Yard at 10.25"
+      windows:
+        - "The interval between the visitor entering the room and the latch falling"
+        - "The twenty-five minutes between the latch falling and the telephone alarm"
+    access:
+      actors:
+        - "The visitor announced as George Gathercole"
+        - "Fisher, in the hall and kitchen"
+        - "Mrs. Beale, the cook"
+      objects:
+        - "The steel latch, which can only be raised by its knob from inside"
+        - "The huge fire, which made the room stifling"
+        - "The telephone, the ivory paper-knife, the silver cigarette box and two heavy books"
+        - "Two candles — one small and twisted, one stouter and cut to fit"
+    social:
+      trust_channels:
+        - "A valet's account of what he heard from the foot of the stairs"
+      authority_sources:
+        - "A doctor's estimate of the hour of death, taken from the time of the telephone call"
+  inference_path:
+    steps:
+      - observation: "A small Christmas-tree candle lies bent and twisted in the middle of the carpet, and a stouter cut candle lies under the bed."
+        correction: "Candles do not bend by themselves; these have been softened by heat while under load."
+        effect: "Two objects in the room were carrying weight until the fire deformed them."
+        required_evidence:
+          - "The bent and twisted little candle found in the middle of the carpet"
+          - "The second, stouter candle found lying underneath the bed"
+        reader_observable: true
+      - observation: "The fire in the grate was built so large that the room was stifling on a bleak February night."
+        correction: "Kara kept his rooms hot as a habit, so an unusually large fire attracts no suspicion and is nonetheless the fastest clock in the house."
+        effect: "The room was prepared to soften wax on a schedule."
+        required_evidence:
+          - "The statement that a big fire was burning in the grate, so big that the room was stifling"
+          - "Kara's known habit of keeping the temperature of the room unpleasantly close despite the cold"
+        reader_observable: true
+      - observation: "The telephone is overturned with the receiver on the floor, and beside it lie an ivory paper-knife and two heavy books."
+        correction: "A man snatching at a telephone does not leave a paper-knife and two books arranged beside it; that is a balance, not a struggle."
+        effect: "The call to Scotland Yard was made by a falling weight, not by a dying man."
+        required_evidence:
+          - "The overturned telephone with the receiver on the floor and two books and a long ivory paper-knife beside it"
+          - "The bell that rang at Scotland Yard at 10.25 with no voice on the line"
+        reader_observable: true
+      - observation: "The steel latch can only be raised by its knob from inside the room, and it was heard to fall while the visitor was still on the stairs."
+        correction: "It can also be held up on something that will later give way, and the sound of it falling proves only that the prop failed."
+        effect: "The room sealed itself after the killer had left it."
+        required_evidence:
+          - "The clang of the steel latch heard from the stairs while the visitor was leaving"
+          - "The demonstration that once dropped the latch cannot be raised except by its own knob"
+        reader_observable: true
+      - observation: "The caller was announced as George Gathercole, an explorer with one artificial arm whom Kara had never met."
+        correction: "A man Kara has never seen is a name rather than a face, and a wooden gauntlet is easier to counterfeit than a countenance."
+        effect: "Anyone who knew Gathercole's habits could be admitted to that room."
+        required_evidence:
+          - "The valet's account of striking his knuckles against a wooden forearm beneath the visitor's sleeve"
+          - "The report that George Gathercole was listed among the passengers lost with the City of the Argentine"
+        reader_observable: true
+      - observation: "The visitor's artificial arm was the left one."
+        correction: "The real George Gathercole had lost his right arm."
+        effect: "The man admitted to Kara's room was an impostor, and the only impostor with a motive is John Lexman."
+        required_evidence:
+          - "The valet's observation that the visitor's left hand was gloved and thrust into his overcoat pocket"
+          - "T. X. Meredith's statement that the real Gathercole had lost his right arm"
+        reader_observable: true
+  discriminating_test:
+    method: reenactment
+    design: >
+      Rebuild the room as it stood: the same stifling fire, the same steel latch raised and propped on
+      a small candle, the same paper-knife balanced across the cigarette box with two heavy books on
+      the candle end and the far end under the telephone receiver. Time both with a stop watch. Then
+      set the visitor's described arm against the real Gathercole's: the caller wore a wooden forearm
+      on the left, and the explorer he claimed to be had lost the right.
+    knowledge_revealed: >
+      The latch and the telephone are both delayed-action devices that complete themselves after the
+      room is empty, so the hour of the alarm is no evidence of the hour of death; and the man admitted
+      to the room counterfeited the wrong arm.
+    pass_condition: >
+      A candle of that size under that latch, in a room at that temperature, bends and drops the latch
+      within minutes of the door closing, and the weighted paper-knife lifts the receiver a quarter of
+      an hour later — while the record of Gathercole's own writings shows the missing arm was the right.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >
+      Both candles, the paper-knife, the cigarette box, the two heavy books, the overturned telephone
+      and the stifling fire are all laid before the reader in the search of the room. The valet's
+      knuckles strike the wooden forearm in the reader's hearing, and Kara's own hatred of candles is
+      explained long before it is used. The reader needs no special knowledge — only to notice that wax
+      near a large fire is a timer, and to ask which arm the real explorer had lost.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 6
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 2
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

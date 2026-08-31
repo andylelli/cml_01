@@ -1,0 +1,409 @@
+{
+ "decade": "1890s",
+ "realism_constraints": [
+  "No advanced forensic technology such as DNA or modern fingerprinting was available",
+  "Communication and travel were limited to trains, horse-drawn carriages, and telegraphs",
+  "Locking mechanisms were mechanical and could be physically tampered with but no electronic locks existed"
+ ],
+ "location": "11 Glover Street, Bow, London",
+ "institution": "Scotland Yard Detective Department",
+ "crime_category": "murder",
+ "crime_subtype": "locked room throat-cutting",
+ "cast": [
+  {
+   "name": "Arthur Constant",
+   "age_range": "30-40",
+   "role_archetype": "idealistic philanthropist",
+   "role": "victim",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "noble young man devoted to social causes",
+   "private_secret": "suffered toothache and was involved with Jessie Dymond",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "N/A",
+   "access_plausibility": "N/A",
+   "stakes": "high, as a beloved social figure",
+   "moral_complexity": "low",
+   "relationships": [
+    "Tom Mortlake (friend and labor leader)",
+    "Jessie Dymond (associate of social work)",
+    "Lucy Brent (fiancée)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Tom Mortlake",
+   "age_range": "30-40",
+   "role_archetype": "labor leader, accused",
+   "role": "suspect",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "eligible",
+   "public_persona": "popular labor leader and orator",
+   "private_secret": "engaged to Jessie Dymond who disappeared",
+   "motive_seed": "jealousy and rivalry with Constant",
+   "motive_strength": "moderate",
+   "alibi_window": "5:25 a.m. to 7:15 a.m. at Euston Station",
+   "access_plausibility": "low due to alibi and locked room",
+   "stakes": "high, including reputation and life",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Arthur Constant (friend and rival)",
+    "Jessie Dymond (fiancée)"
+   ],
+   "opportunity_channels": [
+    "latch-key access to street door"
+   ],
+   "behavioral_tells": [
+    "denounced Constant",
+    "emotional at trial and unveiling"
+   ],
+   "evidence_sensitivity": [
+    "presence at Euston Station",
+    "letter from Jessie Dymond"
+   ]
+  },
+  {
+   "name": "George Grodman",
+   "age_range": "60-70",
+   "role_archetype": "retired detective, mastermind",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "respected retired detective",
+   "private_secret": "murdered Arthur Constant to test perfect crime theory",
+   "motive_seed": "scientific curiosity and jealousy",
+   "motive_strength": "strong",
+   "alibi_window": "present at discovery but committed murder just before",
+   "access_plausibility": "high, as neighbor and first responder",
+   "stakes": "personal intellectual pride and legacy",
+   "moral_complexity": "high",
+   "relationships": [
+    "Arthur Constant (friend)",
+    "Denzil Cantercot (associate)"
+   ],
+   "opportunity_channels": [
+    "access through door after drugging victim",
+    "knowledge of lock mechanisms"
+   ],
+   "behavioral_tells": [
+    "calm demeanor",
+    "scientific explanations",
+    "letter to press"
+   ],
+   "evidence_sensitivity": [
+    "sulfonal phial",
+    "broken bolt staple",
+    "key found in sofa"
+   ]
+  },
+  {
+   "name": "Denzil Cantercot",
+   "age_range": "30-40",
+   "role_archetype": "poet, witness",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "struggling poet and literary man",
+   "private_secret": "in debt and involved with Grodman and Wimp",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "with wife during murder",
+   "access_plausibility": "low",
+   "stakes": "low",
+   "moral_complexity": "low",
+   "relationships": [
+    "George Grodman (employer and acquaintance)",
+    "Peter Crowl (friend)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "nervousness",
+    "literary ambitions"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Mrs. Drabdump",
+   "age_range": "50-60",
+   "role_archetype": "landlady, witness",
+   "role": "witness",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "hard-working widow and landlady",
+   "private_secret": "none",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "present at house during murder",
+   "access_plausibility": "high",
+   "stakes": "low",
+   "moral_complexity": "low",
+   "relationships": [
+    "Arthur Constant (lodger)",
+    "Tom Mortlake (lodger)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "alarm and hysteria"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Edward Wimp",
+   "age_range": "30-40",
+   "role_archetype": "Scotland Yard detective",
+   "role": "suspect",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "ambitious detective",
+   "private_secret": "jealous of Grodman and eager for credit",
+   "motive_seed": "professional ambition",
+   "motive_strength": "weak",
+   "alibi_window": "N/A",
+   "access_plausibility": "N/A",
+   "stakes": "career reputation",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "George Grodman (rival)",
+    "Denzil Cantercot (informant)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "overconfidence",
+    "blunders"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Peter Crowl",
+   "age_range": "40-50",
+   "role_archetype": "cobbler, friend",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "plain man and skeptic",
+   "private_secret": "none",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "N/A",
+   "access_plausibility": "N/A",
+   "stakes": "low",
+   "moral_complexity": "low",
+   "relationships": [
+    "Denzil Cantercot (lodger)",
+    "Tom Mortlake (friend)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": []
+  }
+ ],
+ "culprits": [
+  "George Grodman"
+ ],
+ "surface_summary": "Arthur Constant is found dead in a locked and bolted room with his throat cut, with no apparent way for the murderer to enter or exit. Tom Mortlake, a labor leader and friend, is arrested based on circumstantial evidence and jealousy motives. The case appears impossible, with no weapon found and no clear suspect able to commit the crime.",
+ "accepted_facts": [
+  "Arthur Constant was found dead with a deep cut across his throat in a locked and bolted room",
+  "No weapon was found in the room or on the victim",
+  "Tom Mortlake was arrested and tried for the murder based on circumstantial evidence",
+  "The door was forcibly broken open by George Grodman who discovered the body"
+ ],
+ "inferred_conclusions": [
+  "The victim committed suicide despite medical evidence to the contrary",
+  "The murderer entered and exited the locked room by climbing through a window or chimney",
+  "Tom Mortlake was guilty of the murder motivated by jealousy and revenge"
+ ],
+ "mechanism_description": "George Grodman, the retired detective, drugged Arthur Constant with sulfonal to induce deep sleep. Then, while Constant was asleep, Grodman entered the locked room, cut his throat swiftly and silently, and staged the scene to appear as a locked-room mystery. He pocketed the weapon and manipulated the lock by removing the bolt staple so the door could be forced open, creating the illusion it was locked and bolted from inside.",
+ "delivery_path": [
+  "Grodman gave Arthur Constant a sleeping draught (sulfonal) to ensure deep sleep",
+  "Constant locked and bolted his bedroom door as instructed",
+  "Grodman waited for Mrs. Drabdump to knock and call him",
+  "Grodman broke open the door and found Constant asleep",
+  "He swiftly cut Constant's throat, causing instantaneous death",
+  "Grodman pocketed the razor and covered the face with a handkerchief",
+  "He manipulated the bolt staple to make the door appear locked and bolted from inside"
+ ],
+ "outcome_result": "Tom Mortlake is reprieved after Grodman's confession reveals the true murderer and the crime's mechanism.",
+ "false_assumption": {
+  "statement": "The victim's death was either suicide or murder by someone who entered and exited the locked room.",
+  "type": "spatial",
+  "why_it_seems_reasonable": "The room was found locked and bolted from inside with no apparent access, so the only options seemed to be suicide or a miraculous entry and exit by a murderer. The absence of a weapon and signs of struggle supported this belief.",
+  "what_it_hides": "It hides the fact that the murder was committed inside the room at the moment the door was broken down, with the victim still alive and then killed instantly, and that the lock was tampered with to create the illusion of an impossible crime."
+ },
+ "false_solution": {
+  "accused_suspect": "Tom Mortlake",
+  "supporting_points": [
+   "Jealousy motive due to rivalry with Arthur Constant",
+   "Suspicious movements and failure to attend a meeting",
+   "Possession of a key to the victim's room",
+   "Denunciations of Constant shortly before death"
+  ],
+  "the_one_flaw": "The alibi placing Mortlake at Euston Station at the time of the murder and the impossibility of entering and exiting the locked room undetected",
+  "refuted_in_chapter": 12
+ },
+ "red_herrings": [
+  {
+   "id": "monkey_chimney_entry",
+   "description": "Theory that a monkey climbed down the chimney and committed the murder",
+   "points_at_suspect": "an unknown animal or intruder",
+   "innocent_explanation": "The chimney was too narrow and no soot or blood traces were found to support this",
+   "resolved_in_chapter": 4
+  },
+  {
+   "id": "magnet_lock_manipulation",
+   "description": "Theory that powerful magnets were used to lock and bolt the door from outside",
+   "points_at_suspect": "an unknown external manipulator",
+   "innocent_explanation": "Physically impossible to operate the lock with magnets as the mechanism could not be turned remotely",
+   "resolved_in_chapter": 4
+  }
+ ],
+ "closed_circle": {
+  "suspects": [
+   "Tom Mortlake",
+   "George Grodman",
+   "Mrs. Drabdump",
+   "Denzil Cantercot",
+   "Edward Wimp",
+   "Peter Crowl"
+  ],
+  "rationale": "The suspects are limited to the occupants and immediate associates of 11 Glover Street, with no evidence of external access or involvement."
+ },
+ "constraint_space": {
+  "time_anchors": [
+   "Half-past six a.m. on December 4th",
+   "Mrs. Drabdump's attempts to wake Constant at quarter to seven",
+   "Grodman breaking open the door shortly after",
+   "Mortlake's presence at Euston Station at 5:25 a.m.",
+   "Mortlake's departure on the 7:15 a.m. train"
+  ],
+  "time_windows": [
+   "Time of death estimated between 6:00 and 8:00 a.m.",
+   "Mrs. Drabdump overslept until half-past six",
+   "Murder occurred shortly after Mrs. Drabdump's knocking"
+  ],
+  "access_actors": [
+   "George Grodman",
+   "Mrs. Drabdump",
+   "Tom Mortlake (latch-key access to street door)"
+  ],
+  "access_objects": [
+   "Locked and bolted bedroom door",
+   "Street door with latch-key lock",
+   "Windows bolted and chimney too narrow"
+  ],
+  "trust_channels": [
+   "Mrs. Drabdump's testimony",
+   "Grodman's observations",
+   "Medical evidence from Dr. Robinson",
+   "Witness statements at inquest and trial"
+  ],
+  "authority_sources": [
+   "Coroner's inquest",
+   "Scotland Yard Detective Department",
+   "Trial court and judge's summing up"
+  ]
+ },
+ "inference_path": [
+  {
+   "observation": "The door was locked and bolted from inside when Grodman broke it open",
+   "correction": "The bolt staple was torn off beforehand, allowing the door to be forced open while appearing bolted",
+   "effect": "The locked room was not impregnable; the murderer could have manipulated the lock",
+   "required_evidence": [
+    "Testimony of Inspector Howlett and Sergeant Runnymede about lock condition",
+    "Grodman's explanation of the bolt staple being torn off"
+   ]
+  },
+  {
+   "observation": "No weapon was found in the room or on the victim",
+   "correction": "The murderer pocketed the razor after killing Constant",
+   "effect": "Absence of weapon does not imply suicide or supernatural cause",
+   "required_evidence": [
+    "Grodman's confession about pocketing the razor",
+    "Search records showing no weapon found"
+   ]
+  },
+  {
+   "observation": "Death was recent and instantaneous",
+   "correction": "Murder was committed at the moment Grodman broke the door open",
+   "effect": "Victim was alive when door was forced and killed immediately thereafter",
+   "required_evidence": [
+    "Medical testimony of Dr. Robinson on time of death",
+    "Grodman's confession describing the timing"
+   ]
+  },
+  {
+   "observation": "Mrs. Drabdump could not wake Constant despite repeated knocking",
+   "correction": "Constant was drugged with sulfonal to induce deep sleep",
+   "effect": "Victim was incapacitated and unaware of attempts to wake him",
+   "required_evidence": [
+    "Grodman's testimony about administering sulfonal",
+    "Mrs. Drabdump's account of knocking and failing to wake Constant"
+   ]
+  },
+  {
+   "observation": "Tom Mortlake was arrested based on jealousy and suspicious behavior",
+   "correction": "Mortlake had a valid alibi and no physical evidence linked him to the murder",
+   "effect": "Suspicion on Mortlake was misplaced and circumstantial",
+   "required_evidence": [
+    "Testimony of cabman 2,138 about Mortlake's presence at Euston",
+    "Witnesses confirming Mortlake's departure on 7:15 train"
+   ]
+  },
+  {
+   "observation": "Jessie Dymond disappeared before the murder",
+   "correction": "Jessie was found alive and her letter explained her departure",
+   "effect": "No evidence of her involvement or death; undermines prosecution's motive theory",
+   "required_evidence": [
+    "Letter from Jessie Dymond to Mortlake",
+    "Cablegram from Melbourne police about Jessie's arrival"
+   ]
+  },
+  {
+   "observation": "The victim's room was sealed with no apparent access",
+   "correction": "The murderer exploited the timing of the door breaking and lock manipulation",
+   "effect": "The locked room mystery is a constructed illusion",
+   "required_evidence": [
+    "Grodman's detailed confession",
+    "Physical evidence of lock and bolt condition"
+   ]
+  }
+ ],
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "Reenact the sequence of events on the morning of the murder, including the administration of sulfonal, the locking and bolting of the door, the knocking by Mrs. Drabdump, and the breaking open of the door by Grodman. Observe the state of the lock and bolt, and the timing of the victim's death relative to the door being forced.",
+  "knowledge_revealed": "This reenactment reveals that the victim was alive and drugged when the door was broken open, that the bolt staple could be removed to allow forced entry while appearing locked, and that the murder was committed at that moment, not earlier or by another means.",
+  "pass_condition": "The reenactment must demonstrate that the door can be forced open with the bolt staple removed, that the victim can be drugged to deep sleep, and that the murder can be committed inside the locked room without external entry or exit."
+ },
+ "fair_play_explanation": "The reader is given all the physical evidence, witness statements, and detailed descriptions of the locked room and its condition. The key to the solution lies in understanding the manipulation of the lock and the timing of the murder, which are hinted at through Grodman's observations and the inconsistencies in the lock's condition. The presence of sulfonal and the possibility of instantaneous murder at the moment of door breaking are also disclosed, allowing attentive readers to deduce the true mechanism.",
+ "anchors": [
+  "lying on his back, with his throat cut",
+  "door was locked and bolted",
+  "key was in the lock",
+  "the staple of the bolt was torn off",
+  "sulfonal in a phial",
+  "Mrs. Drabdump was unable to rouse him",
+  "Grodman applied his shoulder to the door",
+  "death was instantaneous",
+  "no instrument lying about the room",
+  "Tom Mortlake was arrested",
+  "Jessie Dymond disappeared",
+  "letter from Jessie Dymond",
+  "cabman who drove him to Euston",
+  "Grodman reveals his confession",
+  "the bolt was old, and the woodwork crumbling",
+  "the door flew back with a crash",
+  "the body was still warm when he found it",
+  "the wound was made from right to left",
+  "the door had evidently been locked and bolted from within",
+  "Mrs. Drabdump had attempted to wake the deceased"
+ ]
+}

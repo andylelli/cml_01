@@ -1,0 +1,501 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The Leavenworth Case
+    author: Anna Katharine Green
+    license: Public domain (first published 1878; author died 1935). Project Gutenberg ebook 4047.
+    era:
+      decade: 1880s
+      realism_constraints:
+        - No modern forensic DNA or fingerprint analysis available
+        - Communication by telegraph and letters only, no telephones or electronic surveillance
+        - >-
+          Limited police procedural methods, heavy reliance on witness testimony and circumstantial
+          evidence
+    setting:
+      location: New York City, including R—— and F—— (nearby towns)
+      institution: Police under Detective Mr. Gryce and the Coroner's Inquest
+    crime_class:
+      category: murder
+      subtype: secret marriage and inheritance motive
+  cast:
+    - name: Everett Raymond
+      age_range: 30-40
+      role_archetype: young lawyer and narrator
+      relationships: []
+      public_persona: junior partner in law firm
+      private_secret: investigating complex family murder
+      motive_seed: justice and truth
+      motive_strength: strong
+      alibi_window: throughout
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: high
+      evidence_sensitivity: []
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: moderate
+    - name: Mr. Gryce
+      age_range: 50-60
+      role_archetype: experienced detective
+      relationships: []
+      public_persona: city detective
+      private_secret: deeply involved in case
+      motive_seed: professional duty
+      motive_strength: strong
+      alibi_window: throughout
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: high
+      evidence_sensitivity: []
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: moderate
+    - name: Mr. Leavenworth
+      age_range: 60-70
+      role_archetype: wealthy retired merchant, murder victim
+      relationships:
+        - Mary Leavenworth
+        - Eleanore Leavenworth
+        - Henry Ritchie Clavering
+      public_persona: wealthy uncle and benefactor
+      private_secret: secretly opposed niece's marriage
+      motive_seed: family inheritance
+      motive_strength: none
+      alibi_window: n/a
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: high
+      evidence_sensitivity: []
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: none
+    - name: Eleanore Leavenworth
+      age_range: 20-30
+      role_archetype: proud, reserved niece, secret wife, suspect
+      relationships:
+        - Mary Leavenworth
+        - Mr. Leavenworth
+        - Henry Ritchie Clavering
+        - James Trueman Harwell
+      public_persona: heiress and niece
+      private_secret: secretly married, protecting real culprit
+      motive_seed: love and family loyalty
+      motive_strength: strong
+      alibi_window: evening of murder
+      access_plausibility: high
+      opportunity_channels:
+        - access to uncle's rooms
+        - presence in house
+      behavioral_tells:
+        - equivocation
+        - refusal to explain key possession
+      stakes: very high
+      evidence_sensitivity:
+        - handkerchief with pistol grease
+        - key to library door
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: female
+      role: suspect
+      moral_complexity: high
+    - name: Mary Leavenworth
+      age_range: 20-30
+      role_archetype: beautiful heiress, secret wife, culprit
+      relationships:
+        - Eleanore Leavenworth
+        - Mr. Leavenworth
+        - Henry Ritchie Clavering
+      public_persona: heiress and niece
+      private_secret: secretly married, murderer
+      motive_seed: inheritance and love
+      motive_strength: strong
+      alibi_window: evening of murder
+      access_plausibility: high
+      opportunity_channels:
+        - access to uncle's rooms
+        - presence in house
+      behavioral_tells:
+        - secretive
+        - attempted destruction of letter
+      stakes: very high
+      evidence_sensitivity:
+        - letter from Clavering
+        - burned paper fragments
+        - key to library door
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: female
+      role: culprit
+      moral_complexity: high
+    - name: Henry Ritchie Clavering
+      age_range: 40-50
+      role_archetype: English gentleman, secret husband
+      relationships:
+        - Mary Leavenworth
+        - Eleanore Leavenworth
+      public_persona: English gentleman, visitor
+      private_secret: secretly married to Mary Leavenworth
+      motive_seed: love and social position
+      motive_strength: moderate
+      alibi_window: evening of murder
+      access_plausibility: high
+      opportunity_channels:
+        - presence in house
+        - secret visits
+      behavioral_tells:
+        - avoids social calls
+        - changes lodgings
+      stakes: high
+      evidence_sensitivity:
+        - letter to Mr. Leavenworth
+        - presence at house night of murder
+      culprit_eligibility: eligible
+      culpability: unknown
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: James Trueman Harwell
+      age_range: 30-40
+      role_archetype: private secretary, conflicted man
+      relationships:
+        - Eleanore Leavenworth
+        - Mr. Leavenworth
+      public_persona: secretary and amanuensis
+      private_secret: murderer of Mr. Leavenworth
+      motive_seed: love for Eleanore, jealousy
+      motive_strength: strong
+      alibi_window: evening of murder
+      access_plausibility: high
+      opportunity_channels:
+        - access to rooms
+        - presence in house
+      behavioral_tells:
+        - emotional outbursts
+        - secretive behavior
+      stakes: high
+      evidence_sensitivity:
+        - confession letter
+        - presence at murder scene
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Mrs. Amy Belden
+      age_range: 50-60
+      role_archetype: widow, charitable woman, keeper of secret
+      relationships:
+        - Hannah Chester
+        - Mary Leavenworth
+      public_persona: respectable widow
+      private_secret: harbored Hannah Chester
+      motive_seed: charity and loyalty
+      motive_strength: moderate
+      alibi_window: night of murder and after
+      access_plausibility: high
+      opportunity_channels:
+        - house in R——
+      behavioral_tells:
+        - protective
+        - secretive
+      stakes: moderate
+      evidence_sensitivity:
+        - letter from Mary
+        - papers hidden in barn
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: moderate
+    - name: Hannah Chester
+      age_range: 20-25
+      role_archetype: servant girl, key witness
+      relationships:
+        - Mary Leavenworth
+        - Mrs. Amy Belden
+      public_persona: servant girl
+      private_secret: knew truth of murder
+      motive_seed: fear and loyalty
+      motive_strength: moderate
+      alibi_window: night of murder
+      access_plausibility: high
+      opportunity_channels:
+        - house in R——
+      behavioral_tells:
+        - secretive
+        - melancholy
+      stakes: high
+      evidence_sensitivity:
+        - dying confession
+        - letter with poison
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: moderate
+    - name: Thomas Dougherty
+      age_range: 50-60
+      role_archetype: butler, loyal servant
+      relationships:
+        - Mr. Leavenworth
+        - Mary and Eleanore Leavenworth
+      public_persona: butler
+      private_secret: observant of household
+      motive_seed: duty
+      motive_strength: none
+      alibi_window: night of murder
+      access_plausibility: high
+      opportunity_channels:
+        - house access
+      behavioral_tells:
+        - steadfast
+        - observant
+      stakes: moderate
+      evidence_sensitivity: []
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+  culpability:
+    culprit_count: 2
+    culprits:
+      - Mary Leavenworth
+      - James Trueman Harwell
+  surface_model:
+    narrative:
+      summary: >-
+        Mr. Leavenworth is found murdered in his locked library. Suspicion falls on his nieces,
+        especially Eleanore, due to circumstantial evidence and secretive behavior. A secret
+        marriage and mysterious disappearance of a servant complicate the case.
+    accepted_facts:
+      - Mr. Leavenworth was murdered by a pistol shot in his locked library
+      - Eleanore Leavenworth possessed the key to the library door
+      - Mary Leavenworth was secretly married to Henry Ritchie Clavering
+      - Hannah Chester disappeared and was later found dead under suspicious circumstances
+    inferred_conclusions:
+      - Eleanore Leavenworth was the murderer due to possession of the key and suspicious behavior
+      - The murder was motivated solely by family inheritance disputes
+      - Hannah Chester was an accomplice in the murder
+  hidden_model:
+    mechanism:
+      description: >-
+        James Trueman Harwell, driven by love and jealousy, murdered Mr. Leavenworth using his own
+        pistol. He forged a confession to implicate Mary Leavenworth and sent poison to Hannah
+        Chester to silence her. Mary, secretly married to Henry Clavering, concealed her marriage
+        and was initially suspected due to circumstantial evidence.
+      delivery_path:
+        - step: Harwell obtains pistol from Mr. Leavenworth’s room
+        - step: Harwell shoots Mr. Leavenworth at the library table
+        - step: Harwell cleans the pistol barrel but forgets the cylinder
+        - step: Harwell plants incriminating evidence to implicate Eleanore and Mary
+        - step: Harwell sends forged confession and poison to Hannah Chester
+        - step: Hannah Chester dies from poison, leaving a forged confession
+        - step: Harwell maintains innocence while suspicion falls on Mary and Eleanore
+    outcome:
+      result: >-
+        James Trueman Harwell is identified as the murderer through physical evidence and document
+        analysis, exonerating Eleanore and revealing Mary’s innocence.
+  false_assumption:
+    statement: Eleanore Leavenworth was the murderer because she possessed the key and behaved suspiciously.
+    type: identity
+    why_it_seems_reasonable: >-
+      Eleanore was found with the key to the locked library door and equivocated during questioning,
+      which are strong circumstantial indicators of guilt. The presence of her handkerchief stained
+      with pistol grease at the crime scene further supports suspicion.
+    what_it_hides: >-
+      The true culprit was James Trueman Harwell, who planted evidence to implicate Eleanore and
+      Mary while committing the murder himself.
+  false_solution:
+    accused_suspect: Eleanore Leavenworth
+    supporting_points:
+      - Possession of the library key
+      - Equivocation and refusal to explain certain actions
+      - Handkerchief stained with pistol grease found at the scene
+      - Attempted destruction of incriminating letter
+    the_one_flaw: >-
+      Lack of direct evidence and the presence of a forged confession and poison implicating another
+      party
+    refuted_in_chapter: 38
+  red_herrings:
+    - id: secret_marriage
+      description: >-
+        The secret marriage of Mary Leavenworth to Henry Ritchie Clavering misleads suspicion
+        towards Mary as the murderer.
+      points_at_suspect: Mary Leavenworth
+      innocent_explanation: Mary’s marriage was secret due to family opposition, but she was not involved in the murder.
+      resolved_in_chapter: 37
+    - id: missing_servant_hannah
+      description: >-
+        The disappearance and later death of Hannah Chester creates suspicion of her involvement or
+        knowledge of the crime.
+      points_at_suspect: Hannah Chester
+      innocent_explanation: >-
+        Hannah was a witness who was silenced by the real murderer through poison and a forged
+        confession.
+      resolved_in_chapter: 38
+  closed_circle:
+    suspects:
+      - Eleanore Leavenworth
+      - Mary Leavenworth
+      - James Trueman Harwell
+      - Henry Ritchie Clavering
+    rationale: >-
+      All suspects had access to the house, motive related to inheritance and secret relationships,
+      and were closely connected to the victim.
+  constraint_space:
+    time:
+      anchors:
+        - night of the murder
+        - morning discovery
+        - inquest day
+        - funeral day
+      windows:
+        - evening of murder
+        - early morning discovery
+        - days following murder
+    access:
+      actors:
+        - household members
+        - servants
+        - secretary
+        - detectives
+      objects:
+        - library door key
+        - pistol
+        - letters
+        - papers
+    social:
+      trust_channels:
+        - family relations
+        - servants' testimony
+        - detective informants
+      authority_sources:
+        - coroner
+        - police detective Mr. Gryce
+        - lawyer Everett Raymond
+  inference_path:
+    steps:
+      - observation: >-
+          Mr. Leavenworth was found murdered in locked library with no sign of forced entry.
+          Detective Gryce arranged for the scene to be secured and observed by police.
+        correction: Murderer was inside the house and locked the door on exit
+        effect: Suspects limited to household members and close associates
+        required_evidence:
+          - Testimony of Thomas Dougherty about locked doors and windows
+          - Coroner’s report on locked door and absence of forced entry
+        reader_observable: true
+      - observation: >-
+          Eleanore Leavenworth possessed the key to the library door and refused to explain. The
+          detective arranged for the key to be examined and its discovery was observed by multiple
+          parties.
+        correction: Key was hidden and later found in her possession, but she denied taking it
+        effect: Suspicion falls on Eleanore for possible involvement
+        required_evidence:
+          - Discovery of broken-handled key in Eleanore’s possession
+          - Testimony of Mr. Fobbs about Eleanore’s behavior with the key
+        reader_observable: true
+      - observation: >-
+          Mary Leavenworth was secretly married to Henry Ritchie Clavering. Detective Gryce arranged
+          for access records at the hotel to be examined.
+        correction: Marriage was secret due to family opposition and social prejudice
+        effect: Mary’s motive for murder is linked to inheritance and secret marriage
+        required_evidence:
+          - Visitor book of Hotel Union at R—— showing presence of Mary and Clavering
+          - Testimony of Timothy Cook about secret marriage at F——
+        reader_observable: true
+      - observation: >-
+          Hannah Chester disappeared and was later found dead under suspicious circumstances. The
+          detective arranged for the room to be searched and observed the discovery of physical
+          evidence.
+        correction: Hannah was silenced by poison and left a forged letter implicating Mary
+        effect: Hannah’s death removes key witness and misleads investigation
+        required_evidence:
+          - Printed letter (the forged document) found in Hannah’s bed
+          - Poison detected on paper found in Hannah’s room
+        reader_observable: true
+      - observation: >-
+          James Trueman Harwell accused Henry Clavering of murder in a fit of madness. The detective
+          arranged for Harwell's statements and timeline to be compared with physical evidence.
+        correction: Harwell was the actual murderer acting out of love and jealousy
+        effect: Real culprit revealed through document analysis and timeline contradiction
+        required_evidence:
+          - Physical evidence placing Harwell at the scene during the time of the murder
+          - Timeline contradiction between Harwell's account and access records
+        reader_observable: true
+      - observation: >-
+          Forged letter and poison sent to Hannah Chester. The detective arranged for the document
+          to be analyzed and the room to be observed for physical traces.
+        correction: Harwell forged the letter to mislead and poisoned Hannah to silence her
+        effect: Investigation focuses on Harwell as true murderer
+        required_evidence:
+          - >-
+            Analysis of the forged letter showing it was printed, not handwritten, and matching
+            paper to Harwell's possession
+          - >-
+            Testimony of Mrs. Amy Belden about Hannah’s letters and the delivery of the poisoned
+            paper
+        reader_observable: true
+      - observation: >-
+          Mary Leavenworth’s behavior is secretive and suspicious. The detective arranged for her
+          correspondence and diary to be examined in a secluded setting.
+        correction: Mary was protecting her secret marriage and unaware of Harwell’s crime
+        effect: Mary is exonerated and the true murderer is Harwell
+        required_evidence:
+          - Diary entries of Eleanore Leavenworth
+          - Letters and papers found in Mrs. Belden’s possession
+        reader_observable: true
+  discriminating_test:
+    method: trap
+    design: >-
+      Detective Gryce arranges a meeting of key suspects and witnesses in a secluded room. The
+      detective compares the timeline of each suspect's access to the library and the physical
+      evidence (the forged letter and poison paper) in the presence of all parties. Contradictions
+      between the suspects' stated whereabouts and the access records, as well as the unique paper
+      and print of the forged letter, are used to eliminate all but one possible perpetrator. The
+      detective observes and documents the process, ensuring all facts are verified by those
+      present.
+    knowledge_revealed: >-
+      The unique paper and print of the forged letter, combined with access records and timeline
+      contradictions, eliminate all suspects except Harwell. The physical evidence and documented
+      arrangements in the secluded room demonstrate Harwell's exclusive opportunity and means.
+    pass_condition: >-
+      The test is passed if the physical evidence (forged letter, poison paper) and access records,
+      when compared in the detective's arranged and observed setting, can only be reconciled by
+      Harwell's guilt, with no reliance on testimony or behavior.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given all necessary clues including the secret marriage, the forged letter, the
+      presence of the key, the disappearance and death of Hannah, and the suspicious behavior of
+      suspects. The detective’s reasoning and the physical evidence such as the letter fragments and
+      the key are all presented before the solution. The reader could solve the case by connecting
+      the secret marriage, the motive of inheritance, and the forged letter to identify the real
+      murderer.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

@@ -1,0 +1,105 @@
+CML_VERSION: 2.0
+CASE:
+  meta:
+    title: "A Study in Scarlet"
+    author: "Arthur Conan Doyle"
+    license: "public_domain"
+    era:
+      decade: "1880s"
+      realism_constraints:
+        - "Limited forensic methods; heavy reliance on observation and inference"
+        - "Slow long-distance communication"
+        - "Identity verification relies on records and testimony"
+    setting:
+      location: "London and associated locales"
+      institution: "Metropolitan policing / private inquiry"
+    crime_class:
+      category: murder
+      subtype: "long-horizon revenge"
+
+  surface_model:
+    narrative:
+      summary: "A man is found murdered with puzzling traces; investigators search for a local motive and immediate personal disputes."
+    accepted_facts:
+      - "No clear robbery motive in the immediate scene"
+      - "Victim’s current circle offers no obvious recent trigger"
+      - "Investigators focus on local suspects and recent conflicts"
+    inferred_conclusions:
+      - "The motive must be local and recent"
+      - "If no one nearby has motive, the crime is anomalous or random"
+
+  hidden_model:
+    mechanism:
+      description: "The murder is driven by long-delayed personal revenge tied to events far outside the victim’s current context; the motive is temporally distant."
+      delivery_path:
+        - step: "Culprit identifies victim via past identity connection"
+        - step: "Culprit engineers proximity/opportunity in the present"
+        - step: "Culprit executes murder with staging elements that misdirect toward local interpretations"
+    outcome:
+      result: "Investigators waste effort on local motive sets while the true causal story lies in the victim’s earlier life."
+
+  false_assumption:
+    statement: "A murder’s motive must be discoverable in the victim’s immediate recent life and local relationships."
+    type: temporal
+    why_it_seems_reasonable: "Most crimes arise from current conflicts; police procedure prioritizes recent associates."
+    what_it_hides: "A motive can be latent for years and activated when identity is rediscovered."
+
+  constraint_space:
+    time:
+      anchors:
+        - "Last known ordinary day for victim"
+        - "Discovery of body"
+      windows:
+        - "Short window of opportunity for the act"
+        - "Long historical window for motive formation"
+      contradictions:
+        - "No recent local conflict explains the risk and specificity of the act"
+
+    access:
+      actors:
+        - "Those who can identify the victim beyond current social circle"
+        - "Those with mobility to reach the scene without being part of local network"
+      objects:
+        - "Letters/records/names that connect past-to-present identity"
+      permissions:
+        - "An outsider can act if they have a private identification channel"
+
+    physical:
+      laws:
+        - "Scene traces can point to presence/opportunity but not motive horizon"
+      traces:
+        - "Clues suggest purposeful targeting rather than random violence"
+
+    social:
+      trust_channels:
+        - "Police bias toward recent associates"
+      authority_sources:
+        - "Local witness testimony about the victim’s present life"
+
+  inference_path:
+    steps:
+      - observation: "Local motive search yields thin or contradictory explanations."
+        correction: "Treat lack of local motive as data, not failure."
+        effect: "Investigation expands beyond immediate circle."
+      - observation: "The crime shows specificity (target selection) without local trigger."
+        correction: "Separate 'opportunity in the present' from 'cause in the past.'"
+        effect: "Temporal horizon expands for motive formation."
+      - observation: "Identity-link clues exist (names/records/recognition pathways)."
+        correction: "Model how a past connection could identify the victim now."
+        effect: "A distant revenge actor becomes plausible."
+      - observation: "A single historical narrative explains the selection and risk."
+        correction: "Prefer the explanation that accounts for targeting with minimal new assumptions."
+        effect: "Correct motive class established; culprit search becomes constrained."
+
+  discriminating_test:
+    method: constraint_proof
+    design: "Demonstrate that any purely local-motive model fails to explain target selection, while a past-identity link uniquely explains the crime’s specificity."
+    knowledge_revealed: "Culprit possesses knowledge only obtainable from the victim’s prior life."
+    pass_condition: "Only one suspect class has access to the past-identity channel."
+
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: "The reader can solve by noticing the mismatch between specificity and lack of local motive, then expanding the motive horizon; the key is the temporal correction."

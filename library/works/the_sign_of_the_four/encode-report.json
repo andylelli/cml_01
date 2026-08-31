@@ -1,0 +1,87 @@
+{
+ "slug": "the_sign_of_the_four",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "The victim is Bartholomew Sholto",
+   "anchor": "By the table, in a wooden arm-chair, the master of the house was seated",
+   "span": "By the table, in a wooden arm-chair, the master of the house was seated all in a heap, with his head sunk upon his left shoulder, and that ghastly, inscrutable smile upon his face.",
+   "ok": true
+  },
+  {
+   "claim": "Cause of death is a poisoned thorn",
+   "anchor": "There is something devilish in this, Watson",
+   "span": "There is something devilish in this, Watson,\" said he, more moved than I had ever before seen him.",
+   "ok": true
+  },
+  {
+   "claim": "The culprits are Jonathan Small and Tonga",
+   "anchor": "His name, I have every reason to believe, is Jonathan Small",
+   "span": "His name, I have every reason to believe, is Jonathan Small.",
+   "ok": true
+  },
+  {
+   "claim": "The mechanism involves secret roof access",
+   "anchor": "This, then, is the way by which Number One entered",
+   "span": "This, then, is the way by which Number One entered.",
+   "ok": true
+  },
+  {
+   "claim": "False assumption that entry was through locked door or window",
+   "anchor": "The door has not been opened since last night",
+   "span": "The door has not been opened since last night.",
+   "ok": true
+  },
+  {
+   "claim": "Red herring: Thaddeus Sholto's nervous behavior",
+   "anchor": "Thaddeus Sholto came running out, with his hands thrown forward and terror in his eyes",
+   "span": "At that moment the door of the house burst open, and Thaddeus Sholto came running out, with his hands thrown forward and terror in his eyes.",
+   "ok": true
+  },
+  {
+   "claim": "Red herring: suspicion of Lal Rao the butler",
+   "anchor": "so Jones actually has the undivided honour of having caught one fish in his great haul",
+   "span": "By the way, à propos of this Norwood business, you see that they had, as I surmised, a confederate in the house, who could be none other than Lal Rao, the butler: so Jones actually has the undivided honour of having caught one fish in his great haul.",
+   "ok": true
+  },
+  {
+   "claim": "Discriminating test: creosote footprints and rope",
+   "anchor": "I wish you particularly to notice these footmarks",
+   "span": "I wish you particularly to notice these footmarks,\" he said.",
+   "ok": true
+  },
+  {
+   "claim": "Use of Toby the dog to track scent",
+   "anchor": "‘Here you are, doggy! Good old Toby! Smell it, Toby, smell it!’",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Launch Aurora used for escape",
+   "anchor": "There was a launch of that description",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Capture after chase on Thames",
+   "anchor": "At the sound of his strident, angry cries there was movement in the huddled bundle",
+   "span": "At the sound of his strident, angry cries there was movement in the huddled bundle upon the deck.",
+   "ok": true
+  },
+  {
+   "claim": "Treasure chest found empty",
+   "anchor": "We both stood gazing in astonishment. The box was empty!",
+   "span": "We both stood gazing in astonishment. The box was empty! No wonder that it was heavy.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.0352254601,
+ "models": {
+  "map": "gpt-4o-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-08-31"
+}

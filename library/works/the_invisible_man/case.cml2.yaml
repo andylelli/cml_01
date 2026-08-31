@@ -1,0 +1,339 @@
+CML_VERSION: 2.0
+CASE:
+  meta:
+    title: "The Invisible Man"
+    author: "G. K. Chesterton"
+    license: "Public domain (first published 1911; author died 1936). Project Gutenberg ebook 204."
+    era:
+      decade: "1910s"
+      realism_constraints:
+        - "No forensic science beyond visible physical traces; identification rests on witness testimony"
+        - "Letters delivered by hand and by post; no telephone in the shop or the flats"
+        - "Uniformed service roles — commissionaire, constable, porter, postman — are a routine part of the street"
+    setting:
+      location: "Camden Town and a steep crescent of flats in north London, in falling snow"
+      institution: "Himylaya Mansions, a block of service flats with a single guarded entrance"
+    crime_class:
+      category: murder
+      subtype: "stabbing concealed by the killer's occupational invisibility"
+  cast:
+    - name: "Isidore Smythe"
+      age_range: "30s"
+      role_archetype: "self-made inventor and millionaire"
+      relationships:
+        - "Rival suitor to James Welkin for Laura Hope"
+        - "Recent acquaintance of John Turnbull Angus"
+      public_persona: "A dapper, dwarfish showman who has made a fortune from clockwork domestic servants"
+      private_secret: "He has been receiving threatening letters for a fortnight and cannot discover who delivers them"
+      motive_seed: "None — he is the victim"
+      motive_strength: "none"
+      alibi_window: "Alone in his top-floor flat between Angus leaving and the discovery of the blood"
+      access_plausibility: "Owner of the flat; present throughout"
+      opportunity_channels:
+        - "His own flat"
+      behavioral_tells:
+        - "Jingles money in his pockets; makes toys out of cigars and banana skins"
+      stakes: "His life, and his claim on Laura Hope"
+      evidence_sensitivity:
+        - "The threatening notes he keeps"
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: "He advertises servants who cannot see or speak, and is killed by a servant of the state nobody sees or speaks to."
+    - name: "James Welkin"
+      age_range: "30s"
+      role_archetype: "rejected suitor working a uniformed round"
+      relationships:
+        - "Rival suitor to Isidore Smythe"
+        - "Known to Laura Hope from the Red Fish inn at Ludbury"
+      public_persona: "A tall, fair, silent man with a severe squint who went away to seek his fortune and was never heard from"
+      private_secret: "He has taken a postman's round, which lets him deliver his rival's letters and his own threats unremarked"
+      motive_seed: "Laura Hope refused him and he blames Smythe for winning her"
+      motive_strength: "strong"
+      alibi_window: "None claimed; he was on his round and therefore, in every witness's account, nowhere"
+      access_plausibility: "Total — a postman may enter any building at any hour and be recorded by nobody"
+      opportunity_channels:
+        - "The uniformed postal round"
+        - "The postbag, large enough to carry a small body"
+      behavioral_tells:
+        - "An appalling squint"
+        - "Takes long solitary walks"
+      stakes: "Preventing the marriage he was refused"
+      evidence_sensitivity:
+        - "The stamp paper gummed to the shop window"
+        - "The light brown sack"
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: "He is invisible to everyone long before he uses it; the story's sympathy for him is the reason Father Brown walks him home rather than arresting him."
+    - name: "Laura Hope"
+      age_range: "20s"
+      role_archetype: "confectioner's shop assistant"
+      relationships:
+        - "Courted by John Turnbull Angus"
+        - "Formerly courted by both Smythe and Welkin at Ludbury"
+      public_persona: "A dark, elegant, alert young woman running the tea room at the back of the shop"
+      private_secret: "She believes she is going mad, because she hears Welkin's voice in an empty street"
+      motive_seed: "Wishes both former suitors gone from her life"
+      motive_strength: "weak"
+      alibi_window: "In the shop with Angus when the stamp paper appeared on the window"
+      access_plausibility: "Never at Himylaya Mansions"
+      opportunity_channels: []
+      behavioral_tells:
+        - "Reports hearing a laugh and a voice when standing alone"
+      stakes: "Her sanity, and her engagement"
+      evidence_sensitivity:
+        - "The two letters from Smythe"
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: suspect
+      moral_complexity: "She refused two men for their ugliness and invented a principle to spare their feelings; the lie is what sent them both away."
+    - name: "John Turnbull Angus"
+      age_range: "24"
+      role_archetype: "disinherited illustrator"
+      relationships:
+        - "Suitor to Laura Hope"
+        - "Friend of Flambeau"
+      public_persona: "A tall, burly, red-haired young man selling black-and-white sketches to publishers"
+      private_secret: "He was disinherited by his admiral uncle for a lecture against Socialism"
+      motive_seed: "Smythe is a rival for Laura Hope"
+      motive_strength: "moderate"
+      alibi_window: "Walking to and from Flambeau's rooms at Lucknow Mansions while Smythe was killed"
+      access_plausibility: "Was inside the flat earlier the same evening"
+      opportunity_channels:
+        - "Prior access to Smythe's flat"
+      behavioral_tells:
+        - "Sets four watchers on the entrance rather than staying himself"
+      stakes: "Laura Hope's safety and his own engagement"
+      evidence_sensitivity:
+        - "The threatening note in red ink"
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: "He seals the building with four honest men and it is his own thoroughness that proves the killer walked through them."
+    - name: "The commissionaire"
+      age_range: "40s"
+      role_archetype: "uniformed doorman of Himylaya Mansions"
+      relationships:
+        - "Employed at the entrance Smythe used"
+      public_persona: "A gold-laced giant who challenges every man entering the flats"
+      private_secret: "He does not count uniformed service callers as men entering at all"
+      motive_seed: "None known"
+      motive_strength: "none"
+      alibi_window: "Standing astride the porch for the whole interval"
+      access_plausibility: "Controls the only entrance; there is no back door"
+      opportunity_channels:
+        - "The front hall"
+      behavioral_tells:
+        - "Swears with beaming authority that nobody has passed"
+      stakes: "His professional reputation for vigilance"
+      evidence_sensitivity:
+        - "The grey footprints between his own legs"
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: "He is not lying and not careless; he answers the question he was asked, which is the whole mechanism of the crime."
+    - name: "Father Brown"
+      age_range: "40s"
+      role_archetype: "Roman Catholic priest and amateur detective"
+      relationships:
+        - "Friend of Flambeau"
+      public_persona: "A small, dusty-looking priest who looks particularly out of place"
+      private_secret: "He listens to how people use words rather than to what they claim"
+      motive_seed: "None"
+      motive_strength: "none"
+      alibi_window: "In Flambeau's rooms, then in the street with Angus and Flambeau"
+      access_plausibility: "Never entered the flat"
+      opportunity_channels: []
+      behavioral_tells:
+        - "Asks about the weather at the moment it becomes evidence"
+      stakes: "The murderer's soul rather than his conviction"
+      evidence_sensitivity:
+        - "The moment the snow began to fall"
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: "He solves the case and then declines to hand the man over, walking the snow-covered hills with him instead."
+  culpability:
+    culprit_count: 1
+    culprits:
+      - "James Welkin"
+  surface_model:
+    narrative:
+      summary: >
+        Isidore Smythe, threatened by an unseen enemy, is left alone in a top-floor flat whose single
+        entrance is watched by four men. Within the hour there is blood on his hall floor, his body is
+        found stabbed in the canal below, and every watcher swears that nobody entered or left.
+    accepted_facts:
+      - "Four independent observers watched the only entrance for the whole interval"
+      - "There is no back door to Himylaya Mansions"
+      - "All four swear no man went in or out"
+      - "Smythe was alive when Angus left and dead within the hour"
+    inferred_conclusions:
+      - "No human being can have entered the building"
+      - "The killer is therefore invisible, supernatural, or already inside"
+      - "Laura Hope, who hears a voice in an empty street, may be deluded"
+  hidden_model:
+    mechanism:
+      description: >
+        The killer walked in through the guarded entrance wearing a postman's uniform, stabbed Smythe,
+        put the body in his postbag and carried it out past the same watchers, who did not count a
+        postman as a man entering.
+      delivery_path:
+        - step: "Welkin takes a postal round covering the crescent, which also lets him deliver Smythe's letters to Laura Hope"
+        - step: "He gums a threatening strip of stamp paper to the shop window in daylight without being noticed"
+        - step: "He enters Himylaya Mansions in uniform past commissionaire, porter, constable and chestnut seller"
+        - step: "He stabs Smythe in the hall and puts the body in the postbag"
+        - step: "He walks out past the same four men and drops the body in the canal below the crescent"
+    outcome:
+      result: "A stabbing inside a sealed building that four honest witnesses can truthfully swear nobody entered"
+  false_assumption:
+    statement: "A man whom nobody notices is a man who was not there."
+    type: behavioral
+    why_it_seems_reasonable: >
+      Four independent, honest, professionally vigilant men watched one entrance and all four report
+      that nobody came. Their testimony is not in conflict and none of them has a motive to lie.
+    what_it_hides: >
+      People answer what a question means rather than what it says. Asked whether anybody came, a
+      witness does not count the postman, the porter or the milkman, because those are functions
+      rather than persons — so a man in the right uniform is unobserved while being looked at.
+  false_solution:
+    accused_suspect: "No living person"
+    supporting_points:
+      - "The entrance was watched continuously by four men and there is no back door"
+      - "All four watchers swear independently that no man went in or out"
+      - "There is blood on the hall floor but no body anywhere in the flat"
+    the_one_flaw: >
+      Grey footprints run through the snow into the entrance, between the legs of the commissionaire
+      who swears nobody entered — so somebody crossed a threshold no living person is supposed to have
+      crossed.
+    refuted_in_chapter: 6
+  red_herrings:
+    - id: "rh_clockwork_servants"
+      description: "The rows of headless clockwork servants standing over the blood stain, one with its arm raised"
+      points_at_suspect: "Isidore Smythe"
+      innocent_explanation: "The machines run on grooves in the floor and are moved by a button in the wall; one was standing over the blood because Smythe summoned a drink from it moments before he was killed."
+      resolved_in_chapter: 8
+    - id: "rh_angus_rivalry"
+      description: "Angus is a rival suitor who had access to the flat that evening and left just before the killing"
+      points_at_suspect: "John Turnbull Angus"
+      innocent_explanation: "Angus was at Lucknow Mansions with Flambeau and Father Brown for the whole interval, and it was he who set the four watchers on the entrance in the first place."
+      resolved_in_chapter: 7
+  closed_circle:
+    suspects:
+      - "James Welkin"
+      - "John Turnbull Angus"
+      - "Laura Hope"
+      - "The commissionaire"
+    rationale: "One guarded entrance, no back door, and fresh snow that records every crossing of the threshold"
+  constraint_space:
+    time:
+      anchors:
+        - "Snow begins to fall while Angus is at Flambeau's rooms"
+        - "Angus leaves Smythe alive and returns within the hour to find blood"
+      windows:
+        - "The interval between Angus leaving the flat and the three men returning"
+    access:
+      actors:
+        - "Commissionaire at the porch"
+        - "Porter with a pail six steps down"
+        - "Constable opposite the entrance"
+        - "Chestnut seller at the corner"
+      objects:
+        - "The single front entrance; there is no back door"
+        - "The postbag"
+        - "The canal below the crescent"
+    social:
+      trust_channels:
+        - "The sworn word of uniformed men on duty"
+      authority_sources:
+        - "A commissionaire's professional claim to challenge every man entering"
+  inference_path:
+    steps:
+      - observation: "Laura Hope heard Welkin's voice in an empty street at the exact moment each letter from Smythe reached her."
+        correction: "A letter does not arrive unaccompanied; somebody carried it and stood near enough to speak."
+        effect: "A person was present at both moments who was not counted as present."
+        required_evidence:
+          - "Laura Hope's account of hearing a laugh while standing alone outside the shop at the corner"
+          - "The two letters from Isidore Smythe that arrived at those moments"
+        reader_observable: true
+      - observation: "A strip of stamp paper was gummed along the outside of the shop window while Angus and Laura Hope sat inside."
+        correction: "Gumming a yard and a half of stamp paper to a lit shop window takes minutes in full view of the street."
+        effect: "The enemy can work unhurried in public without any passer-by registering him."
+        required_evidence:
+          - "The strip of stamp paper reading 'If you marry Smythe, he will die' found on the shop window"
+          - "Angus's statement that no paper was on the window fifteen minutes earlier"
+        reader_observable: true
+      - observation: "Grey footprints run through the snow into the entrance, between the legs of the commissionaire who swears nobody entered."
+        correction: "The footprints and the testimony are both true, so the witness's word 'nobody' is narrower than it sounds."
+        effect: "Somebody crossed the threshold in a capacity the watchers do not classify as a visitor."
+        required_evidence:
+          - "The stringy pattern of grey footprints stamped on the white snow at the porch"
+          - "The commissionaire's sworn statement that nobody has been to ask since Angus left"
+        reader_observable: true
+      - observation: "There is blood on the hall floor of the flat but no body anywhere in it."
+        correction: "The body left the building, so whoever removed it carried it out through the watched entrance."
+        effect: "The killer had a container large enough for a small man and unremarkable enough to carry out."
+        required_evidence:
+          - "The pool of blood where the note in red ink had lain"
+          - "Flambeau's five-minute search of every corner and cupboard finding no corpse"
+        reader_observable: true
+      - observation: "Smythe's body is recovered from the canal below the crescent with a stab wound over the heart, not drowned."
+        correction: "He was killed upstairs and carried down, so the carrier passed the four watchers going out as well as coming in."
+        effect: "The same unnoticed capacity accounts for both crossings."
+        required_evidence:
+          - "The constable's report of the body found in the canal down below"
+          - "The constable's statement that he was not drowned but died of a great stab over the heart"
+        reader_observable: true
+      - observation: "Welkin, who took long solitary walks and vanished to seek his fortune, has a postman's round covering the crescent."
+        correction: "A postman in uniform enters any building unchallenged and carries a bag large enough for a small corpse."
+        effect: "The invisible man is a postman, and the sack that carried the body is a light brown postbag."
+        required_evidence:
+          - "Laura Hope's account that Welkin went for great walks by himself and left to seek his fortune"
+          - "The light brown sack sought with the body in the canal"
+          - "The postman walking the crescent under the trees"
+        reader_observable: true
+  discriminating_test:
+    method: constraint_proof
+    design: >
+      Father Brown asks the constable whether a light brown sack was found with the body in the canal.
+      A postbag is the only container that both carried the corpse past the watchers and belongs to a
+      man they would not count; any other coloured sack leaves the crossing unexplained. He then stops
+      the postman walking the crescent and turns him to face the three witnesses.
+    knowledge_revealed: >
+      The light brown sack ties the body in the canal to a postman's round, and the man stopped under
+      the trees turns with the squint Laura Hope described, identifying Welkin.
+    pass_condition: >
+      A light brown postbag is recovered with the body, and the postman on that round has the squint
+      recorded in Laura Hope's account of Welkin.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >
+      Every fact needed is on the page before the answer: the letters that arrived while Laura Hope
+      stood alone, the stamp paper gummed up in public, the footprints in the snow, the blood without a
+      body, and the postman who walks past the characters twice before he is stopped. The reader needs
+      no special knowledge, only to notice that a witness saying 'nobody' means 'nobody of the sort you
+      mean'.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: early_act3
+      must_reference_inference_step: true

@@ -1,0 +1,12 @@
+- id: the_fenchurch_street_mystery
+  corpus: seed
+  axis: identity
+  mechanism_family: impersonation
+  false_assumption_pattern: the_dead_is_who_they_appear
+  discriminating_test_shape: timetable_contradiction
+  inference_shape: reconstruct_true_identity
+  premise: >-
+    William Kershaw disappears after an assignation at Fenchurch Street with a returning millionaire
+    he claims to be blackmailing. A body is later found in a disused barge, identified by his wife
+    from a r
+  source: library/works/the_fenchurch_street_mystery/case.cml2.yaml

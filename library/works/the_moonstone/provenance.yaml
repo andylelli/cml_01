@@ -1,0 +1,29 @@
+# Provenance + clearance. Scaffolded by the A_77 Phase-2 close-out, 2026-08-31.
+# STATUS: awaiting re-encode. `case.legacy.yaml` is the pre-existing encoding, retained for
+# comparison only — it does NOT pass validateCml and, for some works, contains material plot
+# errors (A_77 §3.2). `case.cml2.yaml` appears only once a verified re-encode exists.
+
+slug: the_moonstone
+title: "The Moonstone"
+author: "Wilkie Collins"
+author_death_year: 1889
+first_publication_year: 1868
+
+source:
+  host: "Project Gutenberg"
+  ebook_id: 155
+  url: "https://www.gutenberg.org/ebooks/155"
+
+clearance:
+  # DERIVED by the A_77 §10.2 rule, never hand-written.
+  # uk green iff 1889 + 70 < 2026   -> 1959
+  # us green iff 1868 + 95 < 2026   -> 1963
+  uk: green
+  us: green
+  verdict: green
+  calculated_on: 2026-08-31
+
+status:
+  case_cml2: pending_reencode
+  fingerprint: legacy_hand_authored
+  device_pattern: pending

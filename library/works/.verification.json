@@ -1,0 +1,23 @@
+{
+ "generated_by": "scripts/corpus-sync-fingerprints.mjs",
+ "rule": "anchor coverage >= 60% and at least one solution-bearing claim verified",
+ "states": {
+  "derived": "evidence on disk, and it passes",
+  "derived_unverified": "no anchor evidence on disk — kept, but not vouched for",
+  "failed": "evidence on disk says the encode is unsound — consumers must skip this work"
+ },
+ "works": {
+  "a_jury_of_her_peers": "derived_unverified",
+  "a_study_in_scarlet": "derived",
+  "the_big_bow_mystery": "derived",
+  "the_case_of_oscar_brodski": "derived_unverified",
+  "the_clue_of_the_twisted_candle": "derived_unverified",
+  "the_fenchurch_street_mystery": "derived_unverified",
+  "the_invisible_man": "derived_unverified",
+  "the_sign_of_the_four": "derived",
+  "the_valley_of_fear": "derived",
+  "the_hound_of_the_baskervilles": "failed",
+  "the_leavenworth_case": "failed",
+  "the_mystery_of_the_yellow_room": "failed"
+ }
+}

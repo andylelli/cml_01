@@ -1,0 +1,105 @@
+CML_VERSION: 2.0
+CASE:
+  meta:
+    title: "The Sign of the Four"
+    author: "Arthur Conan Doyle"
+    license: "public_domain"
+    era:
+      decade: "1890s"
+      realism_constraints:
+        - "Limited communications and surveillance"
+        - "Physical pursuit and logistics matter"
+        - "Forensics are rudimentary"
+    setting:
+      location: "London waterways / urban networks"
+      institution: "Private inquiry intersecting policing"
+    crime_class:
+      category: murder
+      subtype: "controller-behind-actor"
+
+  surface_model:
+    narrative:
+      summary: "A murder and treasure pursuit unfold with loud, visible actors; investigators focus on the most conspicuous perpetrator."
+    accepted_facts:
+      - "A visible actor commits overt actions"
+      - "Events seem chaotic and improvisational"
+    inferred_conclusions:
+      - "The loudest/most visible actor is the principal culprit"
+      - "Control and planning are proportional to visibility"
+
+  hidden_model:
+    mechanism:
+      description: "A concealed controller orchestrates events while a visible agent absorbs attention; agency and control are separated."
+      delivery_path:
+        - step: "Controller recruits or leverages a visible actor"
+        - step: "Controller plans logistics and objectives (treasure, elimination, escape)"
+        - step: "Visible actor executes noisy steps, attracting pursuit"
+        - step: "Controller remains obscured, benefiting regardless of surface outcomes"
+    outcome:
+      result: "Investigation misdirected toward the visible actor; true driver remains hidden until benefit/control is analyzed."
+
+  false_assumption:
+    statement: "Visibility implies agency: the person seen acting is the person controlling the crime."
+    type: identity
+    why_it_seems_reasonable: "Humans attribute causality to salient observed actors."
+    what_it_hides: "An unseen coordinator can direct outcomes while remaining physically absent."
+
+  constraint_space:
+    time:
+      anchors:
+        - "Initial murder/discovery"
+        - "Subsequent movements in pursuit"
+      windows:
+        - "Intervals where planning must have occurred offstage"
+      contradictions:
+        - "Apparent improvisation still shows logistics consistency (implying planning)"
+
+    access:
+      actors:
+        - "Visible actor(s) in the chase"
+        - "Possible unseen stakeholder(s) with incentive to remain hidden"
+      objects:
+        - "Treasure/valuables"
+        - "Transport routes (river/streets)"
+      permissions:
+        - "Controllers can act via intermediaries and correspondence"
+
+    physical:
+      laws:
+        - "Complex logistics typically require planning"
+      traces:
+        - "Repeated pattern of movement/targeting suggests coordination"
+
+    social:
+      trust_channels:
+        - "Police focus on the readily apprehensible suspect"
+      authority_sources:
+        - "Eyewitness salience ('we saw him do it')"
+
+  inference_path:
+    steps:
+      - observation: "The visible actor draws attention but behaves as if pursuing a larger plan."
+        correction: "Separate execution from orchestration."
+        effect: "A controller hypothesis becomes necessary."
+      - observation: "Outcomes benefit a party not maximally exposed by the chase."
+        correction: "Track benefit consistency, not scene dominance."
+        effect: "Hidden stakeholder set is identified."
+      - observation: "Logistics imply foreknowledge and coordination."
+        correction: "Infer planning nodes that must exist offstage."
+        effect: "Controller’s access paths narrow."
+      - observation: "A single hidden party benefits across branches of outcomes."
+        correction: "Use benefit invariance to identify principal culprit."
+        effect: "Controller isolated even if visible actor is captured."
+
+  discriminating_test:
+    method: trap
+    design: "Introduce a controlled change to the treasure/logistics information and observe who reacts appropriately despite not being in the visible actor loop."
+    knowledge_revealed: "Only the controller possesses or seeks updated strategic information."
+    pass_condition: "One suspect displays privileged coordination behavior (contact attempts, rerouting, retrieval)."
+
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: "The reader can solve by noticing planning-consistent logistics and benefit patterns that exceed the visible actor’s interests; the key is rejecting visibility-as-agency."

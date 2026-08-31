@@ -1,0 +1,12 @@
+- id: the_mystery_of_the_yellow_room
+  corpus: seed
+  axis: spatial
+  mechanism_family: locked_room_timing
+  false_assumption_pattern: locked_room_means_no_entry
+  discriminating_test_shape: behavioral_tell
+  inference_shape: reconstruct_true_escape_route
+  premise: >-
+    Mademoiselle Stangerson was attacked in a locked and bolted room, with no apparent way for the
+    assailant to escape. The footprints, bloodstains, and physical evidence suggested a mysterious
+    disappeara
+  source: library/works/the_mystery_of_the_yellow_room/case.cml2.yaml

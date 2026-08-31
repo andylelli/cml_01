@@ -1,0 +1,12 @@
+- id: the_case_of_oscar_brodski
+  corpus: seed
+  axis: spatial
+  mechanism_family: staged_scene
+  false_assumption_pattern: the_body_died_where_it_was_found
+  discriminating_test_shape: timetable_contradiction
+  inference_shape: reconstruct_true_crime_scene
+  premise: >-
+    A goods train rounds a curve to find a man lying face down with his neck across the rail, and
+    takes his head off before it can stop. The dead man is a diamond merchant; his watch, pin and
+    twelve pound
+  source: library/works/the_case_of_oscar_brodski/case.cml2.yaml

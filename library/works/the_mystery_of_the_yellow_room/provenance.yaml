@@ -1,0 +1,29 @@
+# Provenance + clearance. Scaffolded by the A_77 Phase-2 close-out, 2026-08-31.
+# STATUS: awaiting re-encode. `case.legacy.yaml` is the pre-existing encoding, retained for
+# comparison only — it does NOT pass validateCml and, for some works, contains material plot
+# errors (A_77 §3.2). `case.cml2.yaml` appears only once a verified re-encode exists.
+
+slug: the_mystery_of_the_yellow_room
+title: "The Mystery of the Yellow Room"
+author: "Gaston Leroux"
+author_death_year: 1927
+first_publication_year: 1907
+
+source:
+  host: "Project Gutenberg"
+  ebook_id: 1685
+  url: "https://www.gutenberg.org/ebooks/1685"
+
+clearance:
+  # DERIVED by the A_77 §10.2 rule, never hand-written.
+  # uk green iff 1927 + 70 < 2026   -> 1997
+  # us green iff 1907 + 95 < 2026   -> 2002
+  uk: green
+  us: green
+  verdict: green
+  calculated_on: 2026-08-31
+
+status:
+  case_cml2: pending_reencode
+  fingerprint: legacy_hand_authored
+  device_pattern: pending

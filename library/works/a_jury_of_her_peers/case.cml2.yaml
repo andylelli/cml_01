@@ -1,0 +1,340 @@
+CML_VERSION: 2.0
+CASE:
+  meta:
+    title: "A Jury of Her Peers"
+    author: "Susan Glaspell"
+    license: "Public domain (first published 1917; author died 1948). Project Gutenberg ebook 20872, pp. 256-283."
+    era:
+      decade: "1910s"
+      realism_constraints:
+        - "No forensic science; a county attorney and a sheriff investigate by looking and asking"
+        - "Isolated farms on branch roads; a telephone is a thing a neighbour has to be talked into sharing"
+        - "A married woman's world is her kitchen, and the law does not regard it as a place where evidence lives"
+    setting:
+      location: "The Wright farmhouse, down in a hollow off a branch road in Dickson County, on a cold March morning"
+      institution: "A county murder investigation conducted by the sheriff and the county attorney"
+    crime_class:
+      category: murder
+      subtype: "strangling with a rope, its motive hidden in the domestic detail the investigators dismiss"
+  cast:
+    - name: "John Wright"
+      age_range: "50s"
+      role_archetype: "hard, silent farmer"
+      relationships:
+        - "Husband of Minnie Foster Wright"
+        - "Neighbour of the Hales"
+      public_persona: "A good man who did not drink, kept his word and paid his debts"
+      private_secret: "He wrung the neck of his wife's canary, the one thing in the house that sang"
+      motive_seed: "None — he is the victim"
+      motive_strength: "none"
+      alibi_window: "Asleep in his own bed when he was killed"
+      access_plausibility: "In his own house"
+      opportunity_channels:
+        - "The upstairs bedroom"
+      behavioral_tells:
+        - "Asked only for peace and quiet; talked to nobody"
+      stakes: "His life"
+      evidence_sensitivity:
+        - "The broken bird-cage door"
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: "He committed no crime the law recognises, and killed the only living thing that made his wife's silence bearable."
+    - name: "Minnie Foster Wright"
+      age_range: "40s"
+      role_archetype: "farmer's wife, formerly a singer in the choir"
+      relationships:
+        - "Wife of John Wright"
+        - "Girlhood acquaintance of Martha Hale"
+      public_persona: "A quiet woman nobody visits, held in town on suspicion of her husband's murder"
+      private_secret: "Her husband strangled her canary, and she strangled him the same way while he slept"
+      motive_seed: "Twenty years of enforced silence ending in the killing of her bird"
+      motive_strength: "strong"
+      alibi_window: "In the bed beside him; she says she was on the inside and slept sound"
+      access_plausibility: "Total — she was in the bed with him and the rope was their own"
+      opportunity_channels:
+        - "The bedroom, at night, with the household's own rope"
+      behavioral_tells:
+        - "Sat rocking and pleating her apron while telling a neighbour her husband was dead"
+        - "Left every piece of housework half done"
+        - "Asked the sheriff's wife to bring her an apron and her little shawl"
+      stakes: "Her life, and whether anyone will ever understand why"
+      evidence_sensitivity:
+        - "The dead canary wrapped in silk in a pretty box"
+        - "The erratic quilt block"
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: female
+      role: culprit
+      moral_complexity: "She is guilty of the killing, and the story's whole force is that the crime committed against her over twenty years has no name and no court."
+    - name: "Martha Hale"
+      age_range: "40s"
+      role_archetype: "neighbouring farm wife"
+      relationships:
+        - "Wife of Lewis Hale"
+        - "Knew Minnie Foster before her marriage"
+      public_persona: "A big, capable farm woman brought along to fetch clothes for the accused"
+      private_secret: "She reproaches herself for never once crossing the threshold in twenty years"
+      motive_seed: "None against the victim"
+      motive_strength: "none"
+      alibi_window: "At home in her own kitchen mixing bread"
+      access_plausibility: "Had not been in the house for more than a year"
+      opportunity_channels: []
+      behavioral_tells:
+        - "Pulls out and re-sews the erratic stitches before the men can see them"
+        - "Rearranges the pans the county attorney kicked aside"
+      stakes: "Whether she will hand over the one thing that would convict a woman she failed"
+      evidence_sensitivity:
+        - "Work begun and not finished"
+        - "The dead bird"
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: detective
+      moral_complexity: "She finds the motive the law cannot and then hides it, judging the case herself because no court will weigh what she has weighed."
+    - name: "Mrs. Peters"
+      age_range: "30s"
+      role_archetype: "the sheriff's wife"
+      relationships:
+        - "Wife of Sheriff Peters"
+        - "Custodian of the accused woman"
+      public_persona: "A small, thin, timid woman who does not seem like a sheriff's wife"
+      private_secret: "A boy once killed her kitten in front of her, and she would have hurt him if she had not been held back"
+      motive_seed: "None against the victim"
+      motive_strength: "none"
+      alibi_window: "At home; she had never met Minnie Wright before the arrest"
+      access_plausibility: "None"
+      opportunity_channels: []
+      behavioral_tells:
+        - "Says the law is the law, then cannot bring herself to touch the bird"
+      stakes: "Her marriage to the law against what she has just understood"
+      evidence_sensitivity:
+        - "The wrung neck of the canary"
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: suspect
+      moral_complexity: "She is the law's own representative in that kitchen and she chooses, silently, not to be."
+    - name: "George Henderson"
+      age_range: "30s"
+      role_archetype: "county attorney"
+      relationships:
+        - "Prosecuting the case against Minnie Wright"
+      public_persona: "A young politician conducting a murder investigation with gallantry and a note-book"
+      private_secret: "He needs a motive and stands twice in the room that holds it"
+      motive_seed: "None against the victim"
+      motive_strength: "none"
+      alibi_window: "Returning from Omaha at the time of the killing"
+      access_plausibility: "None before the discovery"
+      opportunity_channels: []
+      behavioral_tells:
+        - "Laughs at the insignificance of kitchen things"
+        - "Searches upstairs and in the barn, never the kitchen"
+      stakes: "A conviction he will not get"
+      evidence_sensitivity:
+        - "Anything he classifies as evidence, which excludes the entire kitchen"
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: "He is competent, courteous and thorough, and he loses the case in the first five minutes by deciding where evidence is allowed to be."
+    - name: "Lewis Hale"
+      age_range: "40s"
+      role_archetype: "neighbouring farmer, first at the scene"
+      relationships:
+        - "Husband of Martha Hale"
+        - "Called at the house to ask about a telephone"
+      public_persona: "The neighbour who found Mrs. Wright rocking and was told her husband was dead"
+      private_secret: "He tells the story badly and says more than he needs to"
+      motive_seed: "None"
+      motive_strength: "none"
+      alibi_window: "On the road to town with a load of potatoes"
+      access_plausibility: "Arrived the morning after the killing"
+      opportunity_channels: []
+      behavioral_tells:
+        - "Jokes that women would not know a clue if they came upon it"
+      stakes: "Being believed"
+      evidence_sensitivity:
+        - "Mrs. Wright's manner in the rocker"
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: "His joke about what women would notice is spoken directly over the evidence, and it is the reason nobody looks for it."
+  culpability:
+    culprit_count: 1
+    culprits:
+      - "Minnie Foster Wright"
+  surface_model:
+    narrative:
+      summary: >
+        John Wright is found strangled with a rope in his own bed, his wife rocking downstairs saying
+        she slept sound and knew nothing. The sheriff and county attorney search the bedroom and the
+        barn for a motive, dismiss the kitchen as holding nothing but kitchen things, and leave two
+        neighbour women alone in it.
+    accepted_facts:
+      - "John Wright was strangled with a rope while asleep beside his wife"
+      - "There is no sign of anyone having come in from outside, and the rope was their own"
+      - "Mrs. Wright says she was on the inside of the bed and slept sound"
+      - "The case is clear except for the reason for doing it"
+    inferred_conclusions:
+      - "A motive must be found in the places a county attorney searches — the bedroom, the barn, the windows"
+      - "The kitchen contains nothing of significance"
+      - "Without something to show anger or sudden feeling, a jury will not convict a woman"
+  hidden_model:
+    mechanism:
+      description: >
+        John Wright wrung the neck of his wife's canary, and she killed him in his sleep by the neck
+        with a rope; the motive is recorded only in the domestic objects the investigators classify as
+        trifles, and is found by the two women left alone among them.
+      delivery_path:
+        - step: "John Wright breaks open the bird-cage door and wrings the canary's neck"
+        - step: "Minnie Wright wraps the dead bird in silk and puts it in the pretty box she has kept since girlhood"
+        - step: "Her housework stops mid-task and her sewing goes to pieces on the block she is holding"
+        - step: "That night she slips the household's own rope round her husband's neck while he sleeps"
+        - step: "The investigators search where they expect evidence and leave the kitchen to the women"
+    outcome:
+      result: "A killing whose method is obvious, whose motive is present in the room, and which the investigation cannot prove because it has ruled the room out"
+  false_assumption:
+    statement: "Evidence will be found where men of standing expect to look for it."
+    type: behavioral
+    why_it_seems_reasonable: >
+      The sheriff and the county attorney are competent, methodical and not lazy; they search the
+      bedroom, the barn and the windows, which is where a strangling and an intruder would leave
+      traces, and the kitchen holds nothing but cooking implements and half-finished chores.
+    what_it_hides: >
+      A motive built over twenty years leaves its record in exactly the objects a professional
+      classifies as trifles — a broken cage hinge, a bag of sugar half emptied, a row of even stitches
+      going suddenly wild — so the search that is thorough about crime is blind about cause.
+  false_solution:
+    accused_suspect: "An intruder from outside the house"
+    supporting_points:
+      - "A woman is said to have slept beside a man being strangled and not woken"
+      - "Nobody can produce a reason why she would kill a husband she was not known to quarrel with"
+      - "The county attorney states there is no definite thing, nothing to show anger or sudden feeling"
+    the_one_flaw: >
+      There is no sign at all of anyone having come in from the outside, and the rope used was the
+      household's own — so the killing was done by someone already inside a house with two people in it.
+    refuted_in_chapter: 4
+  red_herrings:
+    - id: "rh_slept_sound"
+      description: "Mrs. Wright's claim that she was on the inside of the bed and slept sound while her husband was strangled"
+      points_at_suspect: "An intruder from outside the house"
+      innocent_explanation: "It is not an alibi but a refusal to answer; she volunteers nothing, and the men mistake blankness for stupidity rather than for the composure of someone who has already decided what she will say."
+      resolved_in_chapter: 5
+    - id: "rh_preserves"
+      description: "Mrs. Wright's request from jail about her jars of fruit, treated as proof of a mind that cannot grasp its situation"
+      points_at_suspect: "Minnie Foster Wright"
+      innocent_explanation: "It is the same half-finished housework running through everything else in the kitchen, and it is a clue to her state of mind on the night rather than evidence of derangement after it."
+      resolved_in_chapter: 6
+  closed_circle:
+    suspects:
+      - "Minnie Foster Wright"
+      - "Lewis Hale"
+      - "George Henderson"
+    rationale: "An isolated farmhouse in a hollow off a branch road, no sign of entry from outside, and the killer used the household's own rope"
+  constraint_space:
+    time:
+      anchors:
+        - "John Wright killed in the night while asleep"
+        - "Lewis Hale finds Mrs. Wright rocking in the kitchen past eight the next morning"
+      windows:
+        - "The night, with two people in the bed and nobody else in the house"
+    access:
+      actors:
+        - "Minnie Foster Wright, in the bed beside him"
+        - "No one from outside; no sign of entry"
+      objects:
+        - "The household's own rope"
+        - "The bird-cage with one hinge pulled apart"
+        - "The pretty box in the sewing basket"
+    social:
+      trust_channels:
+        - "The county attorney's designation of what counts as evidence"
+      authority_sources:
+        - "A sheriff and a county attorney deciding that the kitchen holds nothing"
+  inference_path:
+    steps:
+      - observation: "Every piece of work in the kitchen is stopped half-finished — bread unmixed, flour half sifted, a bag of sugar half emptied, a dish-towel wiped clean on one half only."
+        correction: "A woman who hates to see things half done did not simply neglect the work; something interrupted her and she never came back to it."
+        effect: "The night of the killing has a before and an after recorded in the kitchen."
+        required_evidence:
+          - "The bucket of sugar with the cover off and a paper bag half full beside it"
+          - "The dish-towel on the kitchen table wiped clean on one half and messy on the other"
+        reader_observable: true
+      - observation: "The quilt blocks are sewn fine and even except one, where the stitching goes wild."
+        correction: "The hands that sewed the even blocks are the same hands; only the mind behind them changed."
+        effect: "The interruption was not an errand but something that destroyed her composure."
+        required_evidence:
+          - "The quilt block whose sewing is unlike all the rest of the sewing"
+          - "Mrs. Peters' remark that all the rest of them have been so nice and even"
+        reader_observable: true
+      - observation: "There is a bird-cage in the cupboard with one hinge of its door pulled apart, and no bird."
+        correction: "A cage is not damaged that way by a cat or by the bird; somebody was rough with it."
+        effect: "A person in the house destroyed the cage deliberately."
+        required_evidence:
+          - "The bird-cage with one hinge of the door pulled apart"
+          - "Mrs. Peters' statement that Mrs. Wright had no cat and was afraid of them"
+        reader_observable: true
+      - observation: "In a pretty box in the sewing basket, wrapped in a piece of silk, is the canary with its neck wrung and turned to the other side."
+        correction: "The bird was not lost or sold; it was killed by hand and then kept to be buried."
+        effect: "The one thing in that house that sang was destroyed by somebody who lived in it."
+        required_evidence:
+          - "The dead canary wrapped in a piece of silk inside the pretty box"
+          - "Martha Hale's account that Minnie Foster used to sing in the choir before her marriage"
+        reader_observable: true
+      - observation: "The bird was killed by the neck, and John Wright was killed by a rope round the neck while he slept."
+        correction: "The manner of the second killing repeats the manner of the first."
+        effect: "The killing of the bird is the motive, and the method names the person who was answering it."
+        required_evidence:
+          - "Hale's account that Mrs. Wright said her husband died of a rope round his neck"
+          - "Mrs. Peters' statement that somebody wrung the canary's neck"
+        reader_observable: true
+      - observation: "The rope was the household's own and there is no sign at all of anyone having come in from outside."
+        correction: "The circle is the two people who were in the bed, and one of them is dead."
+        effect: "Minnie Wright killed her husband, for a reason that exists only in a room the investigation has excluded."
+        required_evidence:
+          - "The county attorney's statement that there is no sign of anyone having come in from the outside"
+          - "The county attorney's statement that the rope was their own"
+        reader_observable: true
+  discriminating_test:
+    method: constraint_proof
+    design: >
+      Set the manner of the bird's death beside the manner of the man's. The canary's neck was wrung
+      and the bird-cage door was pulled apart by hand; John Wright was killed by a rope round the neck
+      while he slept, in a house nobody entered, with the household's own rope. Only one person was
+      inside that house, and only one motive in it accounts for a killing done that particular way.
+    knowledge_revealed: >
+      The dead canary in the box supplies the motive the county attorney says the case lacks, and the
+      repetition of the neck as the method ties that motive to the killing rather than merely to the
+      household.
+    pass_condition: >
+      The bird is found with its neck wrung, the cage door is found broken apart, and the rope round
+      John Wright's neck is the household's own — three physical facts in one house that no explanation
+      from outside can hold together.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >
+      Every object the solution rests on is shown to the reader in the order the two women find it: the
+      half-done work, the wild stitching, the broken cage hinge, the box, the bird. The men state the
+      two facts that seal the circle — no sign of entry from outside, and the rope was their own — in
+      the reader's hearing. Nothing is withheld and no special knowledge is needed; the reader has only
+      to take the kitchen seriously at the moment the investigators decline to.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

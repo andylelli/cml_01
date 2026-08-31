@@ -1,0 +1,345 @@
+CML_VERSION: 2.0
+CASE:
+  meta:
+    title: "The Fenchurch Street Mystery"
+    author: "Baroness Orczy"
+    license: "Public domain (first published 1908; author died 1947). Project Gutenberg ebook 10556, chapters I-III."
+    era:
+      decade: "1900s"
+      realism_constraints:
+        - "A body eleven days in a barge is decomposed past all recognition; identification rests on rings, pins and a wife's word"
+        - "No fingerprinting or photography of the accused; handwriting comparison is the available forensic test"
+        - "A dense London fog can account for two and a half hours of a stranger's movements"
+    setting:
+      location: "Fenchurch Street railway station, a disused barge in the East End, and a London police court"
+      institution: "A magistrate's court hearing the case against a Siberian millionaire"
+    crime_class:
+      category: murder
+      subtype: "throat-cutting followed by theft of the victim's identity and prosecution in the victim's name"
+  cast:
+    - name: "Francis Smethurst"
+      age_range: "50s"
+      role_archetype: "Siberian fur millionaire returning after thirty years abroad"
+      relationships:
+        - "Sailed from Vladivostok on a Russian friend's yacht, the Tsarskoe Selo"
+        - "Believed by Kershaw to have been his old friend Barker"
+      public_persona: "A wealthy stranger landing at Tilbury after thirty years, met by nobody who knows his face"
+      private_secret: "He is dead in a barge within hours of landing, and the man tried for his murder is wearing his name"
+      motive_seed: "None — he is the victim"
+      motive_strength: "none"
+      alibi_window: "Landed 10 December and was never seen alive again by anyone who knew him"
+      access_plausibility: "Present at the assignation he was invited to"
+      opportunity_channels:
+        - "The first-class waiting-room at Fenchurch Street"
+      behavioral_tells:
+        - "Wore a heavy Astrakhan fur coat and cap, described in advance in a letter"
+      stakes: "His life, his fortune and his name"
+      evidence_sensitivity:
+        - "The silver ring and tie pin taken from the body"
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: "Nobody in England had seen his face for thirty years, and that is the whole of what made him killable."
+    - name: "William Kershaw"
+      age_range: "50s"
+      role_archetype: "shabby blackmailer and former medical student"
+      relationships:
+        - "Husband of Mrs. Kershaw"
+        - "Debtor and friend of Karl Muller"
+      public_persona: "A ruined idler who told his wife and his German creditor that a fortune was coming"
+      private_secret: "He wrote both letters himself, killed Smethurst, shaved to his eyebrows and stood in the dock as the millionaire"
+      motive_seed: "A fortune he cannot extort but can inherit by becoming the man who owns it"
+      motive_strength: "strong"
+      alibi_window: "Seen alive at the Torriani Hotel on 16 December, six days after the supposed murder"
+      access_plausibility: "Total — he set the assignation himself and chose the hour, the place and the identifying coat"
+      opportunity_channels:
+        - "The assignation he arranged at Fenchurch Street in a dense fog"
+        - "The dark alley steps down to the moored barge"
+      behavioral_tells:
+        - "A face with no eyebrows and no eyelashes at all"
+        - "Talkative to waiters about a fortune about to arrive"
+        - "Twice left an object behind in a restaurant that identified him by name"
+      stakes: "A hanging if the substitution is seen, a fortune if it is not"
+      evidence_sensitivity:
+        - "Any specimen of William Kershaw's handwriting"
+        - "Any account of where Smethurst spent 16 December"
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: "He is a blackmailer who kills for money, and the case against him collapses because he understood the machinery of proof better than the men operating it."
+    - name: "Mrs. Kershaw"
+      age_range: "40s"
+      role_archetype: "the missing man's wife"
+      relationships:
+        - "Wife of William Kershaw"
+        - "Brought to Scotland Yard by Karl Muller"
+      public_persona: "A poorly dressed woman in heavy crape who gave information of her husband's disappearance"
+      private_secret: "She identifies a decomposed stranger as her husband and will not look at the man in the dock"
+      motive_seed: "None"
+      motive_strength: "none"
+      alibi_window: "At home; she reported the disappearance on 12 December"
+      access_plausibility: "None"
+      opportunity_channels: []
+      behavioral_tells:
+        - "Turns her head resolutely towards the magistrate and away from the prisoner"
+      stakes: "Justice for a husband who is standing ten feet away"
+      evidence_sensitivity:
+        - "A specimen of her husband's handwriting, which nobody asks her for"
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: "Her grief is real and it is aimed at the wrong man, in the same room as the right one."
+    - name: "Karl Muller"
+      age_range: "40s"
+      role_archetype: "German creditor and corroborating witness"
+      relationships:
+        - "Creditor and friend of William Kershaw"
+      public_persona: "A fat, oily, pompous witness gripping the two incriminating letters he identified"
+      private_secret: "The letters he treats as his passport to importance were written by the man he is helping to acquit"
+      motive_seed: "Ten pounds owed him, and the notoriety of being a witness"
+      motive_strength: "weak"
+      alibi_window: "Called on Kershaw at three in the afternoon of 10 December"
+      access_plausibility: "Knew the plan in advance and lent the two pounds that funded it"
+      opportunity_channels:
+        - "Advance knowledge of the assignation"
+      behavioral_tells:
+        - "Brimful of answers nobody asks him for"
+      stakes: "His debt and his moment of importance"
+      evidence_sensitivity:
+        - "The two letters, and the pocket-book he identifies later"
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: "He is the only person who could have exposed the scheme and he spends the trial confirming it."
+    - name: "Sir Arthur Inglewood"
+      age_range: "50s"
+      role_archetype: "fashionable defence counsel"
+      relationships:
+        - "Counsel for the man in the dock"
+      public_persona: "The most fashionable man in the law, lolling and drawling, asking the prosecution no questions at all"
+      private_secret: "He produces a hotel landlord whose existence only his own client could have told him about"
+      motive_seed: "None"
+      motive_strength: "none"
+      alibi_window: "In court"
+      access_plausibility: "None to the crime; total to his client's instructions"
+      opportunity_channels: []
+      behavioral_tells:
+        - "Declines to cross-examine, then produces witnesses the police never found"
+      stakes: "An acquittal he obtains"
+      evidence_sensitivity:
+        - "How he came on the track of the Torriani Hotel"
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: "He does his job perfectly and in doing it becomes the instrument by which a murderer proves himself dead."
+    - name: "The man in the corner"
+      age_range: "unspecified"
+      role_archetype: "anonymous armchair analyst"
+      relationships:
+        - "Addresses his reasoning to the journalist Polly Burton in a teashop"
+      public_persona: "A pale, thin, timid man who ties knots in a piece of string and never leaves the table"
+      private_secret: "His sympathies go to the criminal clever enough to lead the police by the nose"
+      motive_seed: "None"
+      motive_strength: "none"
+      alibi_window: "Never present at any scene; he attended one day in court as a spectator"
+      access_plausibility: "None whatever — he works entirely from newspapers and testimony"
+      opportunity_channels: []
+      behavioral_tells:
+        - "Reasons only from what was never asked rather than from what was answered"
+      stakes: "Nothing; he takes no action and reports the solution to no one but a journalist"
+      evidence_sensitivity:
+        - "The four questions the court did not put"
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: "He solves it and does nothing, which is the point: a solution nobody acts on leaves the murderer a millionaire."
+  culpability:
+    culprit_count: 1
+    culprits:
+      - "William Kershaw"
+  surface_model:
+    narrative:
+      summary: >
+        William Kershaw disappears after an assignation at Fenchurch Street with a returning millionaire
+        he claims to be blackmailing. A body is later found in a disused barge, identified by his wife
+        from a ring and a tie pin, and the millionaire Francis Smethurst is tried for his murder — then
+        acquitted when two witnesses prove Kershaw was alive six days after the killing.
+    accepted_facts:
+      - "Two letters signed Francis Smethurst arranged the meeting and described the fur coat he would wear"
+      - "A shabby man met a man in a fur coat in the waiting-room at 6.15 and they walked off together"
+      - "The man in the fur coat returned to his cab at a quarter before nine"
+      - "A body identified as Kershaw's was found in a barge; the accused's handwriting does not match the letters"
+      - "William Kershaw was seen alive at the Torriani Hotel on 16 December, six days after the supposed murder"
+    inferred_conclusions:
+      - "The dead man is William Kershaw"
+      - "The man in the dock is Francis Smethurst"
+      - "Since Kershaw was alive on the 16th, no murder was committed at all"
+  hidden_model:
+    mechanism:
+      description: >
+        Kershaw wrote both letters himself to summon a man no one in England had seen for thirty years,
+        cut his throat by the barge steps, took his name and his fortune, shaved off his beard and
+        eyebrows to make a face nobody could match to a memory, and stood trial as his own victim.
+      delivery_path:
+        - step: "Kershaw learns the date Smethurst will land and writes both letters over Smethurst's name, telling his wife and Muller they came from the millionaire"
+        - step: "The letter names the Astrakhan fur coat, so Kershaw can identify a stranger he has never seen"
+        - step: "He meets him at 6.15 in the fog, walks him to the deserted alley steps and kills him by the moored barge"
+        - step: "He takes the fur coat and the luggage tickets and returns to the waiting cab at a quarter before nine as Smethurst"
+        - step: "He shaves to the eyebrows, then twice visits the Torriani Hotel in his own old disguise as Kershaw, leaving an umbrella and then a pocket-book so the visits are remembered and dated"
+        - step: "At trial his own counsel produces those witnesses, and the proof that Kershaw lived on the 16th acquits the man who killed Smethurst on the 10th"
+    outcome:
+      result: "The murderer is publicly acquitted of his own crime, inherits his victim's fortune, and the victim is buried under the murderer's name"
+  false_assumption:
+    statement: "The dead man is the one the mourners identify, and the living man is the one he was accused of meeting."
+    type: identity
+    why_it_seems_reasonable: >
+      A widow identified the ring and the tie pin, the letters made an appointment between two named
+      men, and one of those men then walked into a hotel in London where the staff knew him by name and
+      could date the visit. Every piece of the identification is corroborated by someone with no reason
+      to lie.
+    what_it_hides: >
+      Only one of the two men had a face anybody in England could recognise, and it was not the
+      millionaire. Once the corpse is unrecognisable, proving that Kershaw was alive on the 16th proves
+      nothing about who died on the 10th — it merely establishes which name the survivor is using.
+  false_solution:
+    accused_suspect: "Francis Smethurst"
+    supporting_points:
+      - "Two letters over Smethurst's name arranged the meeting and described the coat he would wear"
+      - "Witnesses saw the shabby man approach the man in the fur coat and leave with him"
+      - "Two and a half hours of that evening are unaccounted for before the fur coat returned to the cab"
+      - "Smethurst had an obvious motive to be rid of a blackmailer who could hang him for an old murder"
+    the_one_flaw: >
+      The accused's handwriting does not match the letters that arranged the meeting — so the
+      assignation was set by somebody else, and the only other person it could serve was Kershaw.
+    refuted_in_chapter: 2
+  red_herrings:
+    - id: "rh_barker_murder"
+      description: "Kershaw's claim that Smethurst was once called Barker and committed a murder thirty years ago"
+      points_at_suspect: "Francis Smethurst"
+      innocent_explanation: "Kershaw's uncorroborated story, told to a creditor he needed two pounds from; it supplies the blackmail motive the prosecution needs and was never proved by anything at all."
+      resolved_in_chapter: 3
+    - id: "rh_lost_two_hours"
+      description: "The two and a half hours the man in the fur coat could not account for between the waiting-room and his cab"
+      points_at_suspect: "Francis Smethurst"
+      innocent_explanation: "Explained in court by a dense fog and a beggar's tale — an explanation which is true of the man who gave it and false of the man he was pretending to be, and which nobody could test either way."
+      resolved_in_chapter: 3
+  closed_circle:
+    suspects:
+      - "William Kershaw"
+      - "Francis Smethurst"
+      - "Karl Muller"
+    rationale: "Only three people knew the date, the hour and the identifying fur coat, and one of the three is the body"
+  constraint_space:
+    time:
+      anchors:
+        - "The 5.5 from Tilbury reaches Fenchurch Street at six o'clock on 10 December, an hour late"
+        - "The shabby man approaches the fur coat in the waiting-room at 6.15"
+        - "The fur coat returns to the waiting cab at a quarter before nine"
+        - "A man calling himself Kershaw visits the Torriani Hotel on 16 December"
+      windows:
+        - "The two and a half hours of fog between 6.15 and 8.45 on 10 December"
+    access:
+      actors:
+        - "William Kershaw, who set the appointment"
+        - "Francis Smethurst, who was invited to it"
+        - "Karl Muller, who was told the plan in advance"
+      objects:
+        - "The heavy Astrakhan fur coat and cap named in the letter"
+        - "The disused barge moored at the foot of dark alley steps"
+        - "The umbrella and then the pocket-book left at the Torriani Hotel"
+    social:
+      trust_channels:
+        - "A widow's identification of a ring and a tie pin"
+        - "A hotel landlord's recollection of a talkative customer"
+      authority_sources:
+        - "A police force that decided at the outset which of the two men was dead"
+  inference_path:
+    steps:
+      - observation: "Kershaw knew the date Smethurst would land, and two letters over Smethurst's name arranged the meeting."
+        correction: "The accused proved the letters are not in his handwriting, and nobody ever proved they were not in Kershaw's."
+        effect: "The assignation was arranged by Kershaw, not by the man he went to meet."
+        required_evidence:
+          - "The two letters signed Francis Smethurst, produced in court by Karl Muller"
+          - "The specimens of the accused's handwriting written in court, which do not match the letters"
+        reader_observable: true
+      - observation: "The letter told Kershaw to recognise the millionaire by a heavy Astrakhan fur coat and cap."
+        correction: "A man does not need to describe his own coat to somebody who knows his face; the description exists so a stranger can pick him out."
+        effect: "Neither man could recognise the other, and the one who chose the identifying garment controlled the meeting."
+        required_evidence:
+          - "The letter's instruction that he will be recognised by a heavy Astrakhan fur coat"
+          - "The porter's description of a passenger visible only as an enormous black fur coat and a travelling cap of fur"
+        reader_observable: true
+      - observation: "The body in the barge was decomposed past all recognition and identified only by a silver ring and a tie pin."
+        correction: "Objects identify a possession, not a person; the ring proves whose jewellery it was, not whose body wore it."
+        effect: "The identification of the dead man rests on nothing that could distinguish the two men."
+        required_evidence:
+          - "The lightermen's discovery of a body decomposed past all recognition in a disused barge"
+          - "Mrs. Kershaw's identification of a silver ring and a tie pin as her husband's"
+        reader_observable: true
+      - observation: "William Kershaw called at the Torriani Hotel on 16 December, chatted to the waiter and left a pocket-book full of letters addressed to him."
+        correction: "A man who twice leaves a named object behind in the same restaurant is not absent-minded; he is building a record."
+        effect: "The proof that Kershaw lived past the 10th was manufactured by Kershaw for use at a trial."
+        required_evidence:
+          - "The umbrella left at the Torriani Hotel on 10 December and reclaimed on the 16th"
+          - "The pocket-book containing letters and bills addressed to William Kershaw, found under the coffee-room table"
+        reader_observable: true
+      - observation: "Sir Arthur Inglewood produced the Torriani landlord, though the police had kept the case dark and published no appeal for information."
+        correction: "The defence could only learn of those two visits from the man who made them."
+        effect: "The prisoner in the dock is the man who called himself Kershaw at that hotel."
+        required_evidence:
+          - "The statement that the police kept the affair dark until the arrest at the Hotel Cecil"
+          - "Sir Arthur Inglewood's production of the landlord and waiter as defence witnesses"
+        reader_observable: true
+      - observation: "The prisoner's face has no eyebrows and no eyelashes at all, and his hair is cropped almost as if shaved."
+        correction: "Shaving to the eyebrows removes precisely the features by which a wife across a courtroom recognises a husband."
+        effect: "The man acquitted as Smethurst is Kershaw, and the body in the barge is Smethurst."
+        required_evidence:
+          - "The photograph showing the total absence of eyebrows and the funny foreign cut of the hair"
+          - "Mrs. Kershaw turning her head resolutely away from the prisoner throughout the hearing"
+        reader_observable: true
+  discriminating_test:
+    method: constraint_proof
+    design: >
+      Ask the two questions the court never put. First, where was Francis Smethurst on 16 December,
+      the afternoon William Kershaw was proving himself alive at the Torriani Hotel? Second, how did
+      the defence learn of those two visits, when the police had published no appeal and the landlord
+      had no reason to come forward? Neither question can be answered while the two men are separate
+      people; both answer themselves the moment they are one.
+    knowledge_revealed: >
+      The alibi and the accused occupy the same afternoon, and the defence's knowledge of the hotel can
+      only have come from the customer himself — so the prisoner produced his own proof of his own
+      death, and the body in the barge is Smethurst.
+    pass_condition: >
+      No account exists of Smethurst's whereabouts on 16 December, and no route exists by which Sir
+      Arthur Inglewood could reach the Torriani landlord except through his own client.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >
+      Both letters, the fur-coat instruction, the unrecognisable body, the ring and tie pin, the
+      umbrella, the pocket-book, the mismatched handwriting and the shaved eyebrows are all placed
+      before the reader in the account of the hearing, before any solution is offered. Nothing arrives
+      late and nothing requires special knowledge; the reader has only to notice that every question
+      the court asked concerned the man in the dock and none concerned the man in the barge.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 6
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 2
+    discriminating_test_requirements:
+      timing: early_act3
+      must_reference_inference_step: true

@@ -1,0 +1,48 @@
+pattern_id: the_valley_of_fear
+title: The Borrowed Corpse
+family: identity
+axes:
+  - spatial
+principle: >-
+  The bloodstain was deliberately made by a suspect to mislead investigators. The murderer never
+  escaped through the window but was killed inside.
+principleType: cognitive_bias
+surface_illusion_template: >-
+  The murderer was an outsider who hid in the house before killing the victim.; The bloodstain on
+  the window sill was made by the murderer escaping through the window.; Mrs. the victim and a
+  suspect a suspect conspired to conceal their guilt.
+underlying_reality_template: >-
+  The man found dead was not a witness the victim but the assassin, Ted Baldwin, dressed in the
+  victim clothes to fake the victim death. The real the victim was hidden in a secret room within
+  the manor. a suspect and Mrs. the victim conspired to protect the victim and staged the scene to
+  mislead the police. The murderer was killed in a struggle with the victim, and the body was
+  disposed of to fake the victim death.
+feasibility:
+  eras:
+    - 1850
+    - 1860
+    - 1870
+    - 1880
+    - 1890
+    - 1900
+    - 1910
+    - 1920
+    - 1930
+    - 1940
+    - 1950
+  requires:
+    - physical_disguise
+    - secret_room_or_space
+    - blood_simulation
+  forbids:
+    - cctv
+    - automated_fingerprint_search
+clue_archetypes:
+  - slippers_found_under_hall
+  - blood_mark_on_window
+  - barker_was_suspected_of
+  - recovered_bundle_weighted_with
+  - missing_dumb_bell_reported
+  - the_bundle_was_placed
+sources:
+  - Arthur Conan Doyle, The Valley of Fear — library/works/the_valley_of_fear/case.cml2.yaml

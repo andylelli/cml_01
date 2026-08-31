@@ -84,6 +84,28 @@ export const isDetectiveArchetype = (roleText: unknown): boolean => {
     // mandated archetype says "Amateur Sleuth / Civilian Investigator", and Agent 7's cast list says
     // "Detective". `inspector` is carried because the culprit-role-integrity filter it replaces at
     // agent9-run.ts already matched it.
+    /**
+     * ATTRIBUTIVE USE IS NOT A ROLE (A_79 §7.2, found 2026-08-31 encoding *The Clue of the Twisted
+     * Candle*). The rule above deliberately matches the role noun ANYWHERE in the head, so that
+     * "Private detective hired by the family" is caught. That same looseness reads "detective
+     * novelist" as a detective, and `validateCml` then rejects the case because its culprit is
+     * "the detective" — John Lexman WRITES detective stories; T. X. Meredith is the detective.
+     * Golden Age fiction is thick with detective novelists, detective-story readers and ex-inspectors
+     * turned author, and any of them who turns out to be the culprit fails the gate.
+     *
+     * A role noun immediately followed by one of these is modifying it, not naming a person. The list
+     * is deliberately short and closed over NON-ROLE nouns, so "detective sergeant", "detective
+     * inspector" and "detective constable" — who genuinely are detectives — still match.
+     */
+    const ATTRIBUTIVE_FOLLOWERS =
+      /\b(?:detectives?|sleuths?|investigators?|inspectors?)[- ](?:novelist|novelists|novel|novels|writer|writers|author|authors|story|stories|fiction|magazine|magazines|work|works|club|society|game|games|puzzle|puzzles|reader|readers|enthusiast|enthusiasts)\b/;
+    if (ATTRIBUTIVE_FOLLOWERS.test(head)) {
+      // Strip the attributive phrase and re-test: "retired inspector and detective novelist" is
+      // still a detective by virtue of "inspector".
+      const stripped = head.replace(ATTRIBUTIVE_FOLLOWERS, " ");
+      return /\b(?:detectives?|sleuths?|investigators?|inspectors?)\b/.test(stripped);
+    }
+
     return /\b(?:detectives?|sleuths?|investigators?|inspectors?)\b/.test(head);
   });
 };

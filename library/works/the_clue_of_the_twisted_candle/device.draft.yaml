@@ -1,0 +1,50 @@
+pattern_id: the_clue_of_the_twisted_candle
+title: The Melting Candle
+family: timing
+axes:
+  - temporal
+principle: >-
+  Both events were set running before the killer left and completed themselves in his absence. Wax
+  softened by a deliberately stoked fire is a clock, and a clock that runs down after you have gone
+  turns the hour of the alarm into evidence of where you were not.
+principleType: physical_law
+surface_illusion_template: >-
+  the victim dropped the latch himself and was therefore alive after his visitor left; the victim
+  seized the telephone as he was attacked, so he died at 10.25; Nobody could have been in the room
+  at that hour, so the killer is unfindable
+underlying_reality_template: >-
+  The killer stabbed the victim, then propped the steel latch open on a small wax candle and rigged
+  the telephone receiver to be knocked off by two heavy books balanced on a paper-knife over a
+  second candle; the deliberately stoked fire softened both candles after he had gone, so the room
+  sealed itself and raised its own alarm while he sat establishing an alibi at Scotland Yard.
+feasibility:
+  eras:
+    - 1850
+    - 1860
+    - 1870
+    - 1880
+    - 1890
+    - 1900
+    - 1910
+    - 1920
+    - 1930
+    - 1940
+    - 1950
+  requires:
+    - mechanical_latch
+    - period_candle
+    - predictable_heat_source
+  forbids:
+    - cctv
+    - electronic_timekeeping
+clue_archetypes:
+  - the_bent_and_twisted
+  - the_second_stouter_candle
+  - the_statement_that_a
+  - kara_s_known_habit
+  - the_overturned_telephone_with
+  - the_bell_that_rang
+sources:
+  - >-
+    Edgar Wallace, The Clue of the Twisted Candle —
+    library/works/the_clue_of_the_twisted_candle/case.cml2.yaml

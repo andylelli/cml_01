@@ -98,7 +98,7 @@ import {
   activeNoveltyLedgerPath,
 } from "./novelty-ledger.js";
 import { logLedgerDispersion } from "./novelty-dispersion.js";
-import { resolveSchedulerMode, scheduleCell, logScheduledCell } from "./cell-scheduler.js";
+import { resolveSchedulerMode, scheduleCell, logScheduledCell, loadCorpusCells } from "./cell-scheduler.js";
 import { writeCorpusSnapshot } from "./corpus-snapshot.js";
 import { assertFlagCapabilities } from "./flag-preflight.js";
 import { registerShutdownFlush, clearShutdownFlush } from "../process-guards.js";
@@ -1054,8 +1054,11 @@ export async function generateMystery(
       inputs.locationPreset
     );
     const seedEntries = loadSeedCMLFilesCached(EXAMPLES_ROOT);
+    // A_79 B — the axis is passed so same-axis seeds lead the diverge-from list. Downstream the merge
+    // reserves only three seed slots; which three had been fixed by alphabetical order.
     let noveltyConstraints = buildNoveltyConstraints(
-      seedEntries as Array<{ filename: string; cml: CaseData }>
+      seedEntries as Array<{ filename: string; cml: CaseData }>,
+      primaryAxis
     );
     // Cross-run novelty (ANALYSIS_49 T1.7, opt-in via NOVELTY_CROSS_RUN): fold the most recent shipped
     // runs into the avoidance constraints so Agent 3 diverges from recent runs, not just static seeds.
@@ -1078,7 +1081,12 @@ export async function generateMystery(
          * rewrites the theme mid-orchestrator would be invisible to the config that names the run.
          */
         const schedulerMode = resolveSchedulerMode();
-        if (schedulerMode !== "off") logScheduledCell(scheduleCell(priorRuns), schedulerMode);
+        // A_79 C — the corpus is passed so an "unoccupied" cell can distinguish "we have not been
+        // there" from "nobody has". `loadCorpusCells` returns [] unless NOVELTY_CELL_SCHEDULER_CORPUS
+        // is on, and an empty corpus leaves the chosen cell unchanged.
+        if (schedulerMode !== "off") {
+          logScheduledCell(scheduleCell(priorRuns, 20, loadCorpusCells()), schedulerMode);
+        }
       } catch (err) {
         warnings.push(`Cross-run novelty load skipped: ${describeError(err)}`);
       }

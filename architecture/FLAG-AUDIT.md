@@ -514,3 +514,28 @@ and smaller monoculture — the DE5 defect re-created one layer down. If DE9's r
 case derivative, **`AGENT3B_DEVICE_LIBRARY` is the first suspect and must be ablated before
 `NOVELTY_CELL_SCHEDULER` is**, because the scheduler only chooses a cell whereas the library supplies
 the sentences.
+
+---
+
+## Addendum — A_79 corpus-integration flags, registered 2026-08-31
+
+Three flags wire the re-encoded public-domain corpus (`library/works/`, 12 works) into the generator.
+All three are **default OFF**, all three read env at call time through a predicate function (ADR-0004),
+and each one changes what a PAID prompt is built from — which is why none of them defaults on.
+
+They are listed in dependency order: A1 supplies raw material to the idea engine, B supplies worked
+exemplars to the CML author, C changes which cell the run is aimed at.
+
+| Flag | Source | What it does | Settling probe | If the probe never runs |
+| --- | --- | --- | --- | --- |
+| `DEVICE_LIBRARY_INCLUDE_CORPUS` | A_79 §3 A1 | Loads `library/works/*/device.draft.yaml` alongside the eleven curated patterns in `@cml/device-library`. MEASURED: 11 patterns → 23; retrieval for a 1931 story goes spatial 5→10, behavioral 4→8, identity 1→3. Corpus entries that fail the schema are **skipped with a warning** rather than thrown, unlike the curated eleven — the curated set is hand-maintained so a break there is a mistake, the corpus set is machine-generated and growing so one bad entry must not take a run down. Companion `DEVICE_LIBRARY_CORPUS_DIR` overrides the directory (tests only). | Run Agent 3b with the flag on and read the response against the `AGENT3B_DEVICE_LIBRARY` criterion already recorded above: is the primary device recombinant, or is it a corpus pattern with the nouns changed? The pre-registered failure mode for the curated eleven — a new, smaller monoculture — applies here with **twice the patterns and real novels behind them**, so it is more likely, not less. | Leave OFF. The curated eleven are the status quo and cost nothing. A corpus that supplies prohibitions (A_78) is not improved by supplying unread material. |
+| `SEED_CORPUS_FROM_LIBRARY` | A_79 §3 B | Makes `loadSeedCMLFiles` read `library/works/<slug>/case.cml2.yaml` in addition to `examples/`, corpus first so a verified re-encode outranks the legacy file of the same work. Also repairs three reads in the same block that could never return a value (`mechanism.type`, `constraint_space.constraints`, `inference_path.length`) — so the exemplar block stops emitting "0 constraints / 0 steps" for every book the project has ever held. Character names are replaced by their own roles before rendering. Companion `SEED_CORPUS_LIBRARY_DIR` overrides the directory (tests only). | Diff one Agent 3 prompt with the flag off and on, then read the produced CML: does it reuse a corpus mechanism, setting or phrase? The block says "STRUCTURES, not material" but that instruction has never been tested against worked examples this concrete. | Leave OFF, but **apply the three dead-read fixes anyway** — they are correctness repairs to the existing `examples/` path and are not gated by this flag. |
+| `NOVELTY_CELL_SCHEDULER_CORPUS` | A_79 §4 C | Gives `scheduleCell` a corpus argument, so an "unoccupied" cell can distinguish *we have not been there* from *nobody has*. Reads the derived fingerprint ledger through `@cml/novelty` — no second copy of the corpus. MEASURED on the 102-run ledger: of 70 cells, 5 are occupied by both, **5 by canon only**, 12 by us only, 48 by neither; the corpus-blind pick that day was `behavioral × alibi_fabrication`, drawn from the 48. With the flag on the pick becomes `behavioral × impersonation`, evidenced by *The Invisible Man*. Canon-occupancy breaks ties **below** depth, never above it — 44 of those 102 runs sit in `temporal × locked_room_timing` alone, and avoiding our own repetition stays the first duty. | Subordinate to `NOVELTY_CELL_SCHEDULER`, which is itself still `shadow`. **A_79 §10: do not promote either past `shadow` until the scheduler's own negative control has been run.** With an empty corpus the chosen cell is provably unchanged, so shadow logging costs nothing and answers "does corpus evidence move the pick, and toward what?" before a paid run depends on it. | Leave OFF. The scheduler is corpus-blind today and the cost of that is one line in a shadow log, not a bad book. |
+
+**One thing this addendum does not claim.** The 12 works are not equally trustworthy. The evidence gate
+in `scripts/corpus-sync-fingerprints.mjs` promotes only **2** of them to `derived`; 5 are
+`derived_unverified` (re-encoded, but their anchor evidence was never persisted) and 5 were **demoted**
+because their own `encode-report.json` says most of their anchors are not in the source text. A1 and B
+read `library/works/` directly and therefore do **not** yet apply that gate — so turning either on
+today feeds the generator material that includes the Big Bow Mystery encode, which invents its own
+solution. That is a known, recorded limitation and the reason both stay off.

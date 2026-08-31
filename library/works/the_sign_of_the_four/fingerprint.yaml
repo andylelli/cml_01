@@ -1,0 +1,12 @@
+- id: the_sign_of_the_four
+  corpus: seed
+  axis: spatial
+  mechanism_family: locked_room_key
+  false_assumption_pattern: locked_room_means_no_entry
+  discriminating_test_shape: timetable_contradiction
+  inference_shape: reveal_hidden_access_route
+  premise: >-
+    Bartholomew Sholto is found dead in a locked room with no apparent means of entry or exit for
+    the murderer. A valuable treasure has been stolen, and suspicion falls on his brother Thaddeus
+    and househo
+  source: library/works/the_sign_of_the_four/case.cml2.yaml

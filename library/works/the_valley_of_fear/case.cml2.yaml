@@ -1,0 +1,386 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The Valley of Fear
+    author: Arthur Conan Doyle
+    license: Public domain (first published 1915; author died 1930). Project Gutenberg ebook 3289.
+    era:
+      decade: 1880s
+      realism_constraints:
+        - No modern forensic technology such as DNA or fingerprint databases
+        - Communication limited to telegraph, letters, and face-to-face interactions
+        - Transportation primarily by train, horse-drawn vehicles, and early bicycles
+    setting:
+      location: Birlstone Manor House, Sussex, England; Vermissa Valley, United States
+      institution: Scotland Yard and local Sussex Constabulary; The Eminent Order of Freemen (Scowrers)
+    crime_class:
+      category: murder
+      subtype: false identity and staged death
+  cast:
+    - name: Sherlock Holmes
+      age_range: 40-50
+      role_archetype: brilliant logical thinker
+      relationships: []
+      public_persona: celebrated consulting detective
+      private_secret: master of deduction and disguise
+      motive_seed: solve the case
+      motive_strength: strong
+      alibi_window: entire investigation period
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: high
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: low
+    - name: Dr. John Watson
+      age_range: 40-50
+      role_archetype: loyal companion and chronicler
+      relationships:
+        - Sherlock Holmes
+      public_persona: retired army doctor
+      private_secret: Holmes's close friend and assistant
+      motive_seed: assist Holmes
+      motive_strength: strong
+      alibi_window: entire investigation period
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: moderate
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+    - name: John Douglas (Birdy Edwards)
+      age_range: 50-55
+      role_archetype: victim with secret past
+      relationships:
+        - Ivy Douglas
+        - Cecil Barker
+      public_persona: rich country gentleman
+      private_secret: Pinkerton detective undercover as Douglas
+      motive_seed: escape from criminal gang
+      motive_strength: strong
+      alibi_window: concealed in Manor House
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: very high
+      evidence_sensitivity: []
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: high
+    - name: Ivy Douglas
+      age_range: 30-35
+      role_archetype: devoted wife with secret knowledge
+      relationships:
+        - John Douglas (Birdy Edwards)
+        - Cecil Barker
+      public_persona: beautiful, composed wife
+      private_secret: aware of husband's true identity and conspiracy
+      motive_seed: protect husband and conceal truth
+      motive_strength: moderate
+      alibi_window: present at Manor House
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells:
+        - composed demeanor despite tragedy
+        - secretive behavior
+      stakes: high
+      evidence_sensitivity: []
+      culprit_eligibility: eligible
+      culpability: unknown
+      gender: female
+      role: suspect
+      moral_complexity: high
+    - name: Cecil Barker
+      age_range: 40-45
+      role_archetype: friend with ambiguous loyalty
+      relationships:
+        - John Douglas (Birdy Edwards)
+        - Ivy Douglas
+      public_persona: wealthy bachelor and friend of Douglas
+      private_secret: involved in conspiracy to protect Douglas
+      motive_seed: protect friend and conceal truth
+      motive_strength: moderate
+      alibi_window: present at Manor House
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells:
+        - bloodstained slippers
+        - false blood mark on window
+      stakes: high
+      evidence_sensitivity: []
+      culprit_eligibility: eligible
+      culpability: unknown
+      gender: male
+      role: suspect
+      moral_complexity: high
+    - name: Jack McMurdo
+      age_range: 30-35
+      role_archetype: criminal insider turned informant
+      relationships:
+        - Mike Scanlan
+        - Boss McGinty
+        - Ted Baldwin
+      public_persona: member of the Scowrers
+      private_secret: Pinkerton agent Birdy Edwards in disguise
+      motive_seed: infiltrate and dismantle criminal gang
+      motive_strength: strong
+      alibi_window: present during lodge meetings
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells:
+        - branded forearm
+        - leadership in lodge
+      stakes: very high
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: high
+    - name: Boss McGinty
+      age_range: 50-60
+      role_archetype: criminal mastermind
+      relationships:
+        - Ted Baldwin
+        - Jack McMurdo
+        - Ted Baldwin
+      public_persona: powerful local boss and politician
+      private_secret: leader of the Scowrers and orchestrator of crimes
+      motive_seed: maintain control and eliminate threats
+      motive_strength: strong
+      alibi_window: present at lodge meetings
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells:
+        - violent temper
+        - criminal leadership
+      stakes: very high
+      evidence_sensitivity: []
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+  culpability:
+    culprit_count: 1
+    culprits:
+      - Boss McGinty
+  surface_model:
+    narrative:
+      summary: >-
+        John Douglas is found murdered in his locked manor house with evidence suggesting an outside
+        intruder escaped through the window. A mysterious bicycle and blood marks point to a
+        fugitive, while suspicion falls on Douglas's wife and friend. The case appears to be a
+        straightforward murder by an unknown assailant.
+    accepted_facts:
+      - John Douglas was found dead with a sawed-off shotgun blast to the head.
+      - The drawbridge was raised at night, making escape difficult.
+      - A bloodstain on the window sill and a bicycle nearby suggest an outside escape.
+      - Douglas's wedding ring was missing but other rings remained on his finger.
+    inferred_conclusions:
+      - The murderer was an outsider who hid in the house before killing Douglas.
+      - The bloodstain on the window sill was made by the murderer escaping through the window.
+      - Mrs. Douglas and Cecil Barker conspired to conceal their guilt.
+  hidden_model:
+    mechanism:
+      description: >-
+        The man found dead was not John Douglas but the assassin, Ted Baldwin, dressed in Douglas's
+        clothes to fake Douglas's death. The real Douglas was hidden in a secret room within the
+        manor. Barker and Mrs. Douglas conspired to protect Douglas and staged the scene to mislead
+        the police. The murderer was killed in a struggle with Douglas, and the body was disposed of
+        to fake Douglas's death.
+      delivery_path:
+        - step: Ted Baldwin enters the manor and hides in the study behind the curtain.
+        - step: John Douglas returns and confronts Baldwin, leading to a struggle.
+        - step: Baldwin is killed by Douglas using a hammer and the shotgun.
+        - step: Douglas and Barker dress Baldwin in Douglas's clothes and place him in the study.
+        - step: They place the card and fake blood marks to suggest an escape through the window.
+        - step: Douglas hides in a secret room within the manor to avoid detection.
+        - step: >-
+            Holmes discovers the missing dumb-bell weighted bundle in the moat, revealing the
+            deception.
+    outcome:
+      result: >-
+        The real John Douglas is alive and the murder victim was the assassin; the criminal
+        conspiracy is exposed and the case is solved.
+  false_assumption:
+    statement: The bloodstain on the window sill was made by the murderer escaping through the window.
+    type: spatial
+    why_it_seems_reasonable: >-
+      The open window and bloodstain suggest a quick escape route. The raised drawbridge and lack of
+      other exits make the window the only plausible exit.
+    what_it_hides: >-
+      The bloodstain was deliberately made by Barker to mislead investigators. The murderer never
+      escaped through the window but was killed inside.
+  false_solution:
+    accused_suspect: Ivy Douglas
+    supporting_points:
+      - She was present at the manor during the murder.
+      - She displayed unusual composure and secrecy.
+      - The missing wedding ring suggested a personal motive.
+      - Her relationship with Barker was suspicious.
+    the_one_flaw: She lacked opportunity and motive to commit murder and was protecting her husband.
+    refuted_in_chapter: 6
+  red_herrings:
+    - id: the_bicycle
+      description: A bicycle found near the manor suggested the murderer fled on it.
+      points_at_suspect: An unknown outsider arriving by bicycle
+      innocent_explanation: The murderer left the bicycle deliberately to mislead the investigation.
+      resolved_in_chapter: 6
+    - id: blood_mark_on_window
+      description: A bloodstain on the window sill implied the murderer escaped through the window.
+      points_at_suspect: An intruder escaping the locked manor
+      innocent_explanation: The blood mark was made by Barker to fake the escape route.
+      resolved_in_chapter: 6
+  closed_circle:
+    suspects:
+      - Ivy Douglas
+      - Cecil Barker
+      - Ames
+      - Mrs. Allen
+      - Sergeant Wilson
+    rationale: >-
+      The manor was isolated with the drawbridge raised, no other entry or exit was possible, and
+      all household members were accounted for.
+  constraint_space:
+    time:
+      anchors:
+        - Between 4:30 pm and 6:00 pm when the drawbridge was lowered and raised
+        - Quarter to eleven pm when the gunshot was likely fired
+        - Eleven forty-five pm when the alarm was raised
+      windows:
+        - Murder occurred between 10:45 pm and 11:00 pm
+        - Servants were in their rooms after 10:30 pm
+    access:
+      actors:
+        - John Douglas
+        - Cecil Barker
+        - Ivy Douglas
+        - Servants
+      objects:
+        - Drawbridge
+        - Window
+        - Moat
+        - Secret room in manor
+    social:
+      trust_channels:
+        - Conspiracy between Barker and Ivy Douglas
+        - Loyalty within the Scowrers lodge
+      authority_sources:
+        - Scotland Yard
+        - Sussex Constabulary
+        - Eminent Order of Freemen leadership
+  inference_path:
+    steps:
+      - observation: Bloodstain on window sill matches Barker's bloodstained slippers
+        correction: Bloodstain was placed deliberately by Barker
+        effect: Discredits escape through window theory
+        required_evidence:
+          - Slippers found under hall chair stained with blood
+          - Blood mark on window sill matching slipper sole
+          - Barker was suspected of staging the blood mark, making him a suspect
+        reader_observable: true
+      - observation: Missing dumb-bell from the study
+        correction: Dumb-bell used as weight to sink bundle in moat
+        effect: Suggests something was hidden in the moat
+        required_evidence:
+          - Recovered bundle weighted with dumb-bell from moat
+          - Missing dumb-bell reported by Ames
+          - The bundle was placed by an agent acting on behalf of Douglas
+        reader_observable: true
+      - observation: Suit of clothes found in bundle in moat
+        correction: Clothes belonged to the dead man found, not Douglas
+        effect: Victim was not John Douglas but the assassin
+        required_evidence:
+          - Tailor's label 'Neal, Outfitter, Vermissa, U.S.A.' on coat
+          - Clothing matching description of assassin's outfit
+          - The assassin was a Pinkerton target, and Douglas was a Pinkerton agent
+        reader_observable: true
+      - observation: Douglas's body not found, only the dead man in clothes
+        correction: Douglas was hidden in secret room in manor
+        effect: Douglas is alive and in hiding
+        required_evidence:
+          - Secret hiding place in manor house known to Ames
+          - Douglas's reappearance at the end
+          - Douglas's infiltration of the manor was confirmed by Holmes
+        reader_observable: true
+      - observation: Mrs. Douglas and Barker's suspicious behavior
+        correction: They conspired to protect Douglas and stage the scene
+        effect: They are accomplices, not murderers
+        required_evidence:
+          - Their coordinated stories and actions
+          - Holmes's deduction of their conspiracy
+          - Mrs. Douglas was invited to participate in the concealment
+        reader_observable: true
+      - observation: Assassin's weapon was a sawed-off American shotgun
+        correction: Assassin was American and came prepared for murder
+        effect: Links crime to American criminal elements
+        required_evidence:
+          - Shotgun barrel marked 'PEN' for Pennsylvania Small Arms Company
+          - Description of assassin's clothing and weapon
+          - The assassin was suspected to be part of the Scowrers
+        reader_observable: true
+      - observation: Cipher message warning Holmes of danger to Douglas
+        correction: Message was from informant Birdy Edwards (Douglas's real identity)
+        effect: Douglas was under threat from criminal gang
+        required_evidence:
+          - Cipher decoded referencing Douglas and Birlstone
+          - Letter from Porlock warning Holmes
+          - The message revealed the infiltration of the lodge and confirmed the threat
+        reader_observable: true
+      - observation: Birdy Edwards was a Pinkerton agent who infiltrated the Scowrers
+        correction: Birdy Edwards's infiltration was confirmed by the lodge's own suspecting members
+        effect: Birdy Edwards's true identity was revealed
+        required_evidence:
+          - Birdy Edwards was invited to a secluded room by McMurdo
+          - McMurdo suspected Birdy Edwards was a Pinkerton agent
+          - The lodge confirmed Birdy Edwards's infiltration
+        reader_observable: true
+  discriminating_test:
+    method: trap
+    design: >-
+      McMurdo invites the suspected Pinkerton agent to a secluded room under the pretense of sharing
+      lodge secrets. The room is prepared with trusted lodge members hidden nearby. When the agent
+      arrives and is distracted by fake documents, McMurdo seizes him and signals the others to
+      enter and arrest him.
+    knowledge_revealed: >-
+      This test reveals the true identity of the agent as Birdy Edwards and confirms his
+      infiltration of the lodge.
+    pass_condition: >-
+      The agent is caught inside the room with no means of escape and is disarmed by the lodge
+      members.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given all necessary clues including the bloodstained slippers, the missing
+      dumb-bell, the suspicious behavior of Barker and Mrs. Douglas, and the cipher message. The
+      deception of the staged death and secret hiding place is hinted through inconsistencies in the
+      timeline and physical evidence. Careful attention to these details allows the reader to deduce
+      the true sequence of events.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

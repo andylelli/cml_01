@@ -1,0 +1,47 @@
+pattern_id: the_leavenworth_case
+title: The Planted Clue
+family: spatial_routing
+axes:
+  - identity
+principle: >-
+  The true culprit was the culprit, who planted evidence to implicate a suspect and the culprit
+  while committing the murder himself.
+principleType: cognitive_bias
+surface_illusion_template: >-
+  a suspect the victim was the murderer due to possession of the key and suspicious behavior; The
+  murder was motivated solely by family inheritance disputes; a witness a witness was an accomplice
+  in the murder
+underlying_reality_template: >-
+  the culprit, driven by love and jealousy, murdered Mr. the victim using his own pistol. He forged
+  a confession to implicate the culprit the victim and sent poison to a witness a witness to silence
+  her. the culprit, secretly married to a suspect a suspect, concealed her marriage and was
+  initially suspected due to circumstantial evidence.
+feasibility:
+  eras:
+    - 1850
+    - 1860
+    - 1870
+    - 1880
+    - 1890
+    - 1900
+    - 1910
+    - 1920
+    - 1930
+    - 1940
+    - 1950
+  requires:
+    - forgery_skill
+    - access_to_scene
+    - period_paper
+  forbids:
+    - cctv
+    - forensic_document_dating
+clue_archetypes:
+  - testimony_of_thomas_dougherty
+  - coroner_s_report_on
+  - discovery_of_broken_handled
+  - testimony_of_mr_fobbs
+  - visitor_book_of_hotel
+  - testimony_of_timothy_cook
+sources:
+  - Anna Katharine Green, The Leavenworth Case — library/works/the_leavenworth_case/case.cml2.yaml

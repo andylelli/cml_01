@@ -1,0 +1,12 @@
+- id: a_jury_of_her_peers
+  corpus: seed
+  axis: behavioral
+  mechanism_family: staged_scene
+  false_assumption_pattern: evidence_is_only_in_obvious_places
+  discriminating_test_shape: timetable_contradiction
+  inference_shape: reinterpret_overlooked_details
+  premise: >-
+    John Wright is found strangled with a rope in his own bed, his wife rocking downstairs saying
+    she slept sound and knew nothing. The sheriff and county attorney search the bedroom and the
+    barn for a mo
+  source: library/works/a_jury_of_her_peers/case.cml2.yaml

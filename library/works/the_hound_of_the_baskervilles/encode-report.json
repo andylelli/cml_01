@@ -1,0 +1,135 @@
+{
+ "slug": "the_hound_of_the_baskervilles",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "",
+   "anchor": "footprints of a gigantic hound",
+   "span": "Holmes, they were the footprints of a gigantic hound!",
+   "ok": true
+  },
+  {
+   "claim": "",
+   "anchor": "letter was composed by an educated man",
+   "span": "We may take it, therefore, that the letter was composed by an educated man who wished to pose as an uneducated one, and his effort to conceal his own writing suggests that that writing might be known, or come to be known, by you.",
+   "ok": true
+  },
+  {
+   "claim": "",
+   "anchor": "Stapleton is really his wife",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "",
+   "anchor": "Barrymore was holding a candle to the window",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "",
+   "anchor": "escaped convict Selden",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "",
+   "anchor": "figure of a man upon the tor",
+   "span": "There, outlined as black as an ebony statue on that shining background, I saw the figure of a man upon the tor.",
+   "ok": true
+  },
+  {
+   "claim": "",
+   "anchor": "phosphorus, a cunning preparation of it",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "",
+   "anchor": "the huge black creature, but not such a hound",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "",
+   "anchor": "Sir Henry lay insensible where he had fallen",
+   "span": "Sir Henry lay insensible where he had fallen.",
+   "ok": true
+  },
+  {
+   "claim": "",
+   "anchor": "the body of Selden, the criminal",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "",
+   "anchor": "the locked door of the bedroom",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "",
+   "anchor": "Mrs. Stapleton sank upon the floor",
+   "span": "In a minute we had torn off the gag, unswathed the bonds, and Mrs. Stapleton sank upon the floor in front of us.",
+   "ok": true
+  },
+  {
+   "claim": "",
+   "anchor": "the path zigzagged from tuft to tuft",
+   "span": "From the end of it a small wand planted here and there showed where the path zigzagged from tuft to tuft of rushes among those green-scummed pits and foul quagmires which barred the way to the stranger.",
+   "ok": true
+  },
+  {
+   "claim": "",
+   "anchor": "the old black boot in the air",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "",
+   "anchor": "the letter was composed by an educated man",
+   "span": "We may take it, therefore, that the letter was composed by an educated man who wished to pose as an uneducated one, and his effort to conceal his own writing suggests that that writing might be known, or come to be known, by you.",
+   "ok": true
+  },
+  {
+   "claim": "",
+   "anchor": "the clipped words upon the letter",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "",
+   "anchor": "the postscript at the end of the letter",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "",
+   "anchor": "the photograph of the couple taken in York",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "",
+   "anchor": "the hound was laid on from some article",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "",
+   "anchor": "the hound is dead",
+   "span": "",
+   "ok": false
+  }
+ ],
+ "costGbp": 0.0845801018,
+ "models": {
+  "map": "gpt-4o-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-08-31"
+}

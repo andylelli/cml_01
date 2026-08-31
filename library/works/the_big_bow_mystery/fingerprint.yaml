@@ -1,0 +1,12 @@
+- id: the_big_bow_mystery
+  corpus: seed
+  axis: spatial
+  mechanism_family: locked_room_timing
+  false_assumption_pattern: the_body_died_before_the_room_opened
+  discriminating_test_shape: reconstruction
+  inference_shape: reconstruct_true_time_of_death
+  premise: >-
+    Arthur Constant is found dead in a locked and bolted room with his throat cut, with no apparent
+    way for the murderer to enter or exit. Tom Mortlake, a labor leader and friend, is arrested
+    based on cir
+  source: library/works/the_big_bow_mystery/case.cml2.yaml

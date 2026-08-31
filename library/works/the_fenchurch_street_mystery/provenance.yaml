@@ -1,0 +1,54 @@
+# Provenance + clearance + verification record. Written by the ANALYSIS_77 §16.9 run, 2026-08-31.
+
+slug: the_fenchurch_street_mystery
+title: "The Fenchurch Street Mystery"
+author: "Baroness Orczy"
+author_death_year: 1947
+first_publication_year: 1908
+container: "The Old Man in the Corner (1908), chapters I-III"
+
+source:
+  host: "Project Gutenberg"
+  ebook_id: 10556
+  url: "https://www.gutenberg.org/ebooks/10556"
+  retrieved: 2026-08-31
+  extract_chars: 37479
+  extract_words: 6526
+
+clearance:
+  # DERIVED by the §10.2 rule, never hand-written.
+  # uk green iff author_death_year + 70 < 2026 -> 1947 + 70 = 2017
+  # us green iff first_publication_year + 95 < 2026 -> 1908 + 95 = 2003
+  uk: green
+  us: green
+  verdict: green
+  calculated_on: 2026-08-31
+
+verification:
+  method: "literal substring match against the source text captured to disk by the browser tool, independently of the encoder (§10.4)"
+  run_on: 2026-08-31
+  spans_checked: 20
+  spans_passed: 20
+  negative_control:
+    span: "Inspector Lestrade"
+    expected: fail
+    result: fail
+    note: "A detective from another author's canon, checked against a source that cannot contain them."
+
+gate:
+  validate_cml: "attempt 1: PASS"
+  novelty:
+    verdict: distinct
+    nearest: "the_valley_of_fear (seed) — shares axis + mechanism + test shape, but neither the false-assumption pattern nor the inference shape"
+
+open_issues:
+  - id: mechanism_family_vocabulary
+    severity: finding
+    detail: >
+      `substituted_body` fits cleanly — the one of the three new works where the existing enum is
+      adequate. Worth recording as the control for the other two.
+  - id: axis_is_arguable
+    severity: note
+    detail: >
+      Encoded `identity` without hesitation. The case also indicts the court, but the deception
+      itself is worked by identity substitution, so `authority` would be the weaker read.

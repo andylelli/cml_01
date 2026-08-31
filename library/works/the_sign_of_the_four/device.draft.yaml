@@ -1,0 +1,45 @@
+pattern_id: the_sign_of_the_four
+title: The Secret Trap-Door
+family: spatial_routing
+axes:
+  - spatial
+principle: >-
+  It hides the existence of a secret trap-door in the roof that provided access, and the involvement
+  of an accomplice who climbed down a rope.
+principleType: physical_law
+surface_illusion_template: >-
+  a suspect a suspect murdered his brother to claim the treasure; The murder was committed through
+  the locked door or window; The wooden-legged man acted alone in the crime
+underlying_reality_template: >-
+  The murderer entered the victim's room by climbing up the roof and descending through a secret
+  trap-door. The accomplice the culprit, a small Andaman Islander, climbed down a rope lowered by
+  the culprit and used poisoned darts to kill the victim. They then lowered the treasure chest
+  through the trap-door and escaped the same way.
+feasibility:
+  eras:
+    - 1850
+    - 1860
+    - 1870
+    - 1880
+    - 1890
+    - 1900
+    - 1910
+    - 1920
+    - 1930
+    - 1940
+    - 1950
+  requires:
+    - hidden_entry_point
+    - rope_and_harness
+    - small_accomplice
+  forbids:
+    - cctv
+clue_archetypes:
+  - inspection_of_the_locked
+  - witness_statement_from_housekeeper
+  - footprint_impressions_in_creosote
+  - description_of_tonga_s
+  - physical_examination_of_the
+  - toxicological_analysis_of_poison
+sources:
+  - Arthur Conan Doyle, The Sign of the Four — library/works/the_sign_of_the_four/case.cml2.yaml

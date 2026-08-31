@@ -1,0 +1,12 @@
+- id: a_study_in_scarlet
+  corpus: seed
+  axis: behavioral
+  mechanism_family: poison_substitution
+  false_assumption_pattern: the_victim_chose_freely_between_identical_options
+  discriminating_test_shape: reconstruction
+  inference_shape: test_alternate_pills_for_poison
+  premise: >-
+    A wealthy American named Enoch J. Drebber is found dead in an empty London house with no visible
+    wounds but surrounded by blood. The police are baffled by the mysterious circumstances,
+    including a cry
+  source: library/works/a_study_in_scarlet/case.cml2.yaml

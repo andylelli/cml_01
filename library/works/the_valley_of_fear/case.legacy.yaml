@@ -1,0 +1,104 @@
+CML_VERSION: 2.0
+CASE:
+  meta:
+    title: "The Valley of Fear"
+    author: "Arthur Conan Doyle"
+    license: "public_domain"
+    era:
+      decade: "1910s"
+      realism_constraints:
+        - "Identification relies on witnesses and physical traits, not DNA"
+        - "Record systems exist but are imperfect"
+    setting:
+      location: "Country house / transatlantic echoes"
+      institution: "Private estate and associated adversarial groups"
+    crime_class:
+      category: murder
+      subtype: "identity substitution / faked death"
+
+  surface_model:
+    narrative:
+      summary: "A man is found murdered in his home; the body is assumed to be the householder, and the case proceeds on that certainty."
+    accepted_facts:
+      - "A body is discovered in the victim’s home"
+      - "Circumstances suggest targeted killing"
+      - "Identity is accepted based on context and quick recognition"
+    inferred_conclusions:
+      - "The victim is definitively dead"
+      - "The victim’s agency ends at the time of discovery"
+
+  hidden_model:
+    mechanism:
+      description: "The intended target fakes death using identity substitution so that a different body is misidentified; the 'dead' party continues to act."
+      delivery_path:
+        - step: "Substitution candidate is positioned"
+        - step: "Misidentification is encouraged by context and haste"
+        - step: "Target escapes under cover of assumed death"
+    outcome:
+      result: "Investigators chase motives and killers under a false identity premise; the true target remains active."
+
+  false_assumption:
+    statement: "The identity of a discovered corpse is equivalent to the identity of the person believed to live there."
+    type: identity
+    why_it_seems_reasonable: "Context, clothing, and expectation drive recognition; formal identification is limited."
+    what_it_hides: "Identity can be staged; a corpse can be a substitute."
+
+  constraint_space:
+    time:
+      anchors:
+        - "Last confirmed living sighting of the target"
+        - "Discovery of the body"
+      windows:
+        - "Substitution setup window prior to discovery"
+      contradictions:
+        - "Subsequent events imply agency inconsistent with the target’s supposed death"
+
+    access:
+      actors:
+        - "Target with knowledge of threats"
+        - "Any party able to introduce a substitute"
+      objects:
+        - "Clothing, documents, identifying personal items"
+      permissions:
+        - "Household context can bias identification without rigorous checks"
+
+    physical:
+      laws:
+        - "Misidentification is plausible without modern biometrics"
+      traces:
+        - "Inconsistencies in bodily features, possessions, or timelines"
+
+    social:
+      trust_channels:
+        - "Authority declaration of identity"
+        - "Witness recognition under expectation"
+      authority_sources:
+        - "Police conclusion presented as certainty"
+
+  inference_path:
+    steps:
+      - observation: "Identity certainty rests on contextual recognition rather than strict proof."
+        correction: "Treat identity as a hypothesis requiring constraints."
+        effect: "Substitution becomes admissible."
+      - observation: "Some facts are inconsistent with the target being dead (actions/communications/strategic effects)."
+        correction: "Use post-event agency signals to test the death premise."
+        effect: "Corpse identity is destabilized."
+      - observation: "A feasible substitution pathway exists within the setup window."
+        correction: "Model means to stage identity (body, clothing, documents)."
+        effect: "Faked death mechanism explains contradictions."
+      - observation: "Only one scenario satisfies both the body evidence and continued-agency evidence."
+        correction: "Adopt the model that minimizes contradictions."
+        effect: "Faked death confirmed; case reorients to living agent."
+
+  discriminating_test:
+    method: constraint_proof
+    design: "Present a structured identity audit: features, possessions, timing, and post-event agency signals; show that the official ID cannot satisfy the combined constraints."
+    knowledge_revealed: "Only insiders know the substitution preparation details."
+    pass_condition: "Official identity claim fails; substitution scenario is the only feasible model."
+
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: "The reader can solve by noticing that identity is assumed rather than proven and by tracking continued-agency contradictions that force a substitution hypothesis."

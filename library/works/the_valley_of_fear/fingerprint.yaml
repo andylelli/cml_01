@@ -1,0 +1,12 @@
+- id: the_valley_of_fear
+  corpus: seed
+  axis: spatial
+  mechanism_family: substituted_body
+  false_assumption_pattern: the_dead_is_who_they_appear
+  discriminating_test_shape: behavioral_tell
+  inference_shape: reveal_body_identity_switch
+  premise: >-
+    John Douglas is found murdered in his locked manor house with evidence suggesting an outside
+    intruder escaped through the window. A mysterious bicycle and blood marks point to a fugitive,
+    while suspic
+  source: library/works/the_valley_of_fear/case.cml2.yaml

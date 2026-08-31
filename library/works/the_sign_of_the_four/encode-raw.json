@@ -1,0 +1,443 @@
+{
+ "decade": "1880s",
+ "realism_constraints": [
+  "No modern forensic DNA analysis or electronic surveillance",
+  "Limited police procedural methods relying on observation and deduction",
+  "Travel and communication constrained to horse-drawn vehicles, telegrams, and boats"
+ ],
+ "location": "London and environs, including Upper Norwood and the Thames river",
+ "institution": "Scotland Yard and unofficial consulting detective Sherlock Holmes",
+ "crime_category": "murder",
+ "crime_subtype": "poisoned dart murder with secret access",
+ "cast": [
+  {
+   "name": "Sherlock Holmes",
+   "age_range": "30-40",
+   "role_archetype": "brilliant consulting detective",
+   "role": "detective",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "unofficial consulting detective",
+   "private_secret": "uses cocaine for mental stimulation",
+   "motive_seed": "intellectual challenge",
+   "motive_strength": "none",
+   "alibi_window": "always present",
+   "access_plausibility": "n/a",
+   "stakes": "solve the case",
+   "moral_complexity": "low",
+   "relationships": [
+    "Dr. John Watson",
+    "Miss Mary Morstan"
+   ],
+   "opportunity_channels": [
+    "observation",
+    "deduction",
+    "scientific analysis"
+   ],
+   "behavioral_tells": [
+    "habitual cocaine use",
+    "analytical demeanor"
+   ],
+   "evidence_sensitivity": [
+    "footprints",
+    "poisoned thorn",
+    "rope",
+    "handkerchief soaked in creosote"
+   ]
+  },
+  {
+   "name": "Dr. John Watson",
+   "age_range": "30-40",
+   "role_archetype": "loyal friend and chronicler",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "army surgeon and Holmes's companion",
+   "private_secret": "n/a",
+   "motive_seed": "friendship and duty",
+   "motive_strength": "none",
+   "alibi_window": "always present",
+   "access_plausibility": "n/a",
+   "stakes": "assist Holmes and protect Miss Morstan",
+   "moral_complexity": "low",
+   "relationships": [
+    "Sherlock Holmes",
+    "Miss Mary Morstan"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Miss Mary Morstan",
+   "age_range": "25-30",
+   "role_archetype": "client and heiress",
+   "role": "victim",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "governess and client",
+   "private_secret": "receives mysterious pearls annually",
+   "motive_seed": "inheritance and justice for her father",
+   "motive_strength": "none",
+   "alibi_window": "n/a",
+   "access_plausibility": "n/a",
+   "stakes": "recover treasure and justice",
+   "moral_complexity": "low",
+   "relationships": [
+    "Dr. John Watson",
+    "Sherlock Holmes"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "inward agitation when discussing case"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Thaddeus Sholto",
+   "age_range": "30-40",
+   "role_archetype": "nervous trustee and suspect",
+   "role": "suspect",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "eligible",
+   "public_persona": "trustee of the treasure",
+   "private_secret": "disagrees with brother over treasure",
+   "motive_seed": "inheritance and family dispute",
+   "motive_strength": "moderate",
+   "alibi_window": "present with brother until death",
+   "access_plausibility": "high",
+   "stakes": "share of treasure and reputation",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Bartholomew Sholto",
+    "Miss Mary Morstan"
+   ],
+   "opportunity_channels": [
+    "access to house and treasure"
+   ],
+   "behavioral_tells": [
+    "nervousness",
+    "hypochondria"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Bartholomew Sholto",
+   "age_range": "30-40",
+   "role_archetype": "victim trustee",
+   "role": "victim",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "trustee and chemist",
+   "private_secret": "possessed the treasure",
+   "motive_seed": "inheritance",
+   "motive_strength": "none",
+   "alibi_window": "locked in room until death",
+   "access_plausibility": "locked room",
+   "stakes": "life and treasure",
+   "moral_complexity": "low",
+   "relationships": [
+    "Thaddeus Sholto"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Jonathan Small",
+   "age_range": "50-60",
+   "role_archetype": "convict and culprit",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "ex-convict",
+   "private_secret": "seeks revenge and treasure",
+   "motive_seed": "reclaim treasure and vengeance",
+   "motive_strength": "strong",
+   "alibi_window": "unknown",
+   "access_plausibility": "high via accomplice",
+   "stakes": "treasure and freedom",
+   "moral_complexity": "high",
+   "relationships": [
+    "Tonga"
+   ],
+   "opportunity_channels": [
+    "secret access via roof and accomplice"
+   ],
+   "behavioral_tells": [
+    "stoic",
+    "defiant"
+   ],
+   "evidence_sensitivity": [
+    "poisoned thorn",
+    "footprints",
+    "rope"
+   ]
+  },
+  {
+   "name": "Tonga",
+   "age_range": "adult",
+   "role_archetype": "savage accomplice",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "Andaman Islander and boatman",
+   "private_secret": "committed murder with poisoned darts",
+   "motive_seed": "loyalty to Small and survival",
+   "motive_strength": "moderate",
+   "alibi_window": "unknown",
+   "access_plausibility": "high via climbing and stealth",
+   "stakes": "freedom and treasure",
+   "moral_complexity": "high",
+   "relationships": [
+    "Jonathan Small"
+   ],
+   "opportunity_channels": [
+    "climbing roof",
+    "poisoned darts"
+   ],
+   "behavioral_tells": [
+    "fierce",
+    "animalistic"
+   ],
+   "evidence_sensitivity": [
+    "poisoned darts",
+    "footprints"
+   ]
+  }
+ ],
+ "culprits": [
+  "Jonathan Small",
+  "Tonga"
+ ],
+ "surface_summary": "Bartholomew Sholto is found dead in a locked room with no apparent means of entry or exit for the murderer. A valuable treasure has been stolen, and suspicion falls on his brother Thaddeus and household staff. The presence of a wooden-legged man and mysterious small footprints complicate the case.",
+ "accepted_facts": [
+  "Bartholomew Sholto was found dead with a poisoned thorn in his scalp",
+  "The door and window of the room were locked from the inside",
+  "A secret trap-door in the roof allowed access to the room",
+  "A valuable treasure was stolen from the house"
+ ],
+ "inferred_conclusions": [
+  "Thaddeus Sholto murdered his brother to claim the treasure",
+  "The murder was committed through the locked door or window",
+  "The wooden-legged man acted alone in the crime"
+ ],
+ "mechanism_description": "The murderer entered the victim's room by climbing up the roof and descending through a secret trap-door. The accomplice Tonga, a small Andaman Islander, climbed down a rope lowered by Jonathan Small and used poisoned darts to kill Bartholomew. They then lowered the treasure chest through the trap-door and escaped the same way.",
+ "delivery_path": [
+  "Jonathan Small and Tonga approach the house at night",
+  "Jonathan climbs to the roof and lowers a rope",
+  "Tonga climbs down the rope into the victim's room",
+  "Tonga uses a poisoned dart to kill Bartholomew Sholto",
+  "They lower the treasure chest through the trap-door",
+  "Tonga climbs back up the rope and the trap-door is secured",
+  "Jonathan and Tonga escape unseen"
+ ],
+ "outcome_result": "Jonathan Small and Tonga are captured after a chase on the Thames, and the treasure is recovered but found to be missing its contents.",
+ "false_assumption": {
+  "statement": "The murderer must have entered through the locked door or window.",
+  "type": "spatial",
+  "why_it_seems_reasonable": "The door and window were locked from the inside, so it is logical to assume the killer used one of these points. No other entry points were initially visible.",
+  "what_it_hides": "It hides the existence of a secret trap-door in the roof that provided access, and the involvement of an accomplice who climbed down a rope."
+ },
+ "false_solution": {
+  "accused_suspect": "Thaddeus Sholto",
+  "supporting_points": [
+   "He was the last person seen with Bartholomew",
+   "He had a motive related to the treasure",
+   "He was found in a disturbed state near the crime scene",
+   "He had access to the house and the victim"
+  ],
+  "the_one_flaw": "He was locked out of the victim's room at the time of death and had an alibi",
+  "refuted_in_chapter": 6
+ },
+ "red_herrings": [
+  {
+   "id": "thaddeus_sholto_nervous_behavior",
+   "description": "Thaddeus Sholto's nervousness and quarrel with his brother suggest guilt.",
+   "points_at_suspect": "Thaddeus Sholto",
+   "innocent_explanation": "He was anxious about the treasure and family disputes but was not the murderer.",
+   "resolved_in_chapter": 6
+  },
+  {
+   "id": "lal_rao_butler_suspicion",
+   "description": "The butler Lal Rao is suspected of complicity due to his presence and character.",
+   "points_at_suspect": "Lal Rao",
+   "innocent_explanation": "He was merely a loyal servant and had no involvement in the murder or theft.",
+   "resolved_in_chapter": 12
+  }
+ ],
+ "closed_circle": {
+  "suspects": [
+   "Thaddeus Sholto",
+   "Mrs. Bernstone",
+   "Lal Rao",
+   "McMurdo",
+   "Jonathan Small",
+   "Tonga"
+  ],
+  "rationale": "All suspects had access to the house, but only Jonathan Small and Tonga had the means and motive to commit the murder and theft, while others were cleared by alibis or lack of evidence."
+ },
+ "constraint_space": {
+  "time_anchors": [
+   "Bartholomew locked himself in at 10 PM",
+   "Thaddeus left the room after 10 PM",
+   "Murder discovered nearly 11 PM",
+   "Launch Aurora left at about 3 AM"
+  ],
+  "time_windows": [
+   "Murder occurred between 10 PM and discovery",
+   "Escape by launch shortly after murder"
+  ],
+  "access_actors": [
+   "Jonathan Small",
+   "Tonga",
+   "Thaddeus Sholto",
+   "House staff"
+  ],
+  "access_objects": [
+   "Secret trap-door in roof",
+   "Rope lowered from roof",
+   "Locked door and window",
+   "Launch Aurora"
+  ],
+  "trust_channels": [
+   "Communication between Jonathan Small and Tonga",
+   "Trust between Thaddeus and Bartholomew",
+   "Information from Mrs. Bernstone"
+  ],
+  "authority_sources": [
+   "Scotland Yard",
+   "Sherlock Holmes's deductions",
+   "Athelney Jones's police authority"
+  ]
+ },
+ "inference_path": [
+  {
+   "observation": "The door and window of the victim's room were locked from the inside",
+   "correction": "There is a secret trap-door in the roof providing access",
+   "effect": "The murderer did not enter through conventional means",
+   "required_evidence": [
+    "Inspection of the locked room and trap-door by Holmes",
+    "Witness statement from housekeeper Mrs. Bernstone about locked door"
+   ]
+  },
+  {
+   "observation": "Footprints of a wooden stump and small naked feet found in the room",
+   "correction": "Two perpetrators: one with a wooden leg and a small accomplice",
+   "effect": "Identifies two distinct criminals with different physical characteristics",
+   "required_evidence": [
+    "Footprint impressions in creosote and dust",
+    "Description of Tonga's small stature and wooden leg of Jonathan Small"
+   ]
+  },
+  {
+   "observation": "Poisoned thorn found in victim's scalp",
+   "correction": "Murder was committed using a poisoned dart from a blow-pipe",
+   "effect": "Cause of death is poisoning, not blunt force trauma",
+   "required_evidence": [
+    "Physical examination of the thorn",
+    "Toxicological analysis of poison"
+   ]
+  },
+  {
+   "observation": "Rope found in the victim's room leading to the roof",
+   "correction": "Murderer climbed down the rope from the roof",
+   "effect": "Confirms secret access route and method of entry/exit",
+   "required_evidence": [
+    "Rope found near trap-door",
+    "Holmes's demonstration of climbing method"
+   ]
+  },
+  {
+   "observation": "Toby the dog tracked scent from creosote on the rope",
+   "correction": "The accomplice dipped foot in creosote to climb down",
+   "effect": "Identifies the accomplice's route and presence",
+   "required_evidence": [
+    "Toby's tracking of creosote scent",
+    "Creosote stains on rope and footprints"
+   ]
+  },
+  {
+   "observation": "Launch Aurora was missing and later found at Jacobson's Yard",
+   "correction": "Launch was used for escape and hidden at a boatyard",
+   "effect": "Escape route and method identified",
+   "required_evidence": [
+    "Witness statement from Mrs. Smith about launch departure",
+    "Holmes's inquiry at Jacobson's Yard"
+   ]
+  },
+  {
+   "observation": "Jonathan Small and Tonga captured after chase on Thames",
+   "correction": "They are the culprits responsible for murder and theft",
+   "effect": "Case solved with arrest of guilty parties",
+   "required_evidence": [
+    "Eyewitness accounts of chase and capture",
+    "Physical evidence linking them to crime scene"
+   ]
+  }
+ ],
+ "discriminating_test": {
+  "method": "constraint_proof",
+  "design": "Holmes uses the presence of creosote on the rope and footprints to prove the accomplice climbed down from the roof, which is inaccessible by other means. He also uses Toby the dog to track the scent trail leading to the escape launch, confirming the route and method of escape.",
+  "knowledge_revealed": "This test reveals the secret access route via the roof trap-door and the involvement of two criminals with distinct physical traits. It disproves entry through locked doors or windows.",
+  "pass_condition": "Finding creosote footprints and rope marks consistent with climbing and tracking the scent trail to the launch confirms the mechanism of the crime."
+ },
+ "fair_play_explanation": "The reader is given all necessary clues including the locked room, the secret trap-door, the footprints of a wooden leg and small feet, the poisoned thorn, and the rope. Holmes's reasoning is based on observable physical evidence and logical deduction. The presence of the creosote and the dog's tracking provide concrete leads that the reader could follow. The false assumptions and red herrings are clearly presented and can be questioned by attentive readers.",
+ "anchors": [
+  {
+   "claim": "The victim is Bartholomew Sholto",
+   "anchor": "By the table, in a wooden arm-chair, the master of the house was seated"
+  },
+  {
+   "claim": "Cause of death is a poisoned thorn",
+   "anchor": "There is something devilish in this, Watson"
+  },
+  {
+   "claim": "The culprits are Jonathan Small and Tonga",
+   "anchor": "His name, I have every reason to believe, is Jonathan Small"
+  },
+  {
+   "claim": "The mechanism involves secret roof access",
+   "anchor": "This, then, is the way by which Number One entered"
+  },
+  {
+   "claim": "False assumption that entry was through locked door or window",
+   "anchor": "The door has not been opened since last night"
+  },
+  {
+   "claim": "Red herring: Thaddeus Sholto's nervous behavior",
+   "anchor": "Thaddeus Sholto came running out, with his hands thrown forward and terror in his eyes"
+  },
+  {
+   "claim": "Red herring: suspicion of Lal Rao the butler",
+   "anchor": "so Jones actually has the undivided honour of having caught one fish in his great haul"
+  },
+  {
+   "claim": "Discriminating test: creosote footprints and rope",
+   "anchor": "I wish you particularly to notice these footmarks"
+  },
+  {
+   "claim": "Use of Toby the dog to track scent",
+   "anchor": "‘Here you are, doggy! Good old Toby! Smell it, Toby, smell it!’"
+  },
+  {
+   "claim": "Launch Aurora used for escape",
+   "anchor": "There was a launch of that description"
+  },
+  {
+   "claim": "Capture after chase on Thames",
+   "anchor": "At the sound of his strident, angry cries there was movement in the huddled bundle"
+  },
+  {
+   "claim": "Treasure chest found empty",
+   "anchor": "We both stood gazing in astonishment. The box was empty!"
+  }
+ ]
+}

@@ -1,0 +1,350 @@
+CML_VERSION: 2.0
+CASE:
+  meta:
+    title: "The Case of Oscar Brodski"
+    author: "R. Austin Freeman"
+    license: "Public domain (first published 1912 in The Singing Bone; author died 1943). Project Gutenberg ebook 59478."
+    era:
+      decade: "1900s"
+      realism_constraints:
+        - "Medico-legal science exists but is not routinely available to county police; a divisional surgeon, not a laboratory"
+        - "A portable microscope, reagents and a spirit lamp are the whole of the forensic apparatus, carried by hand"
+        - "Goods trains run to timetable past unfenced waste land; a body on the line reads as accident or suicide"
+        - "Diamonds are carried on the person to Amsterdam by merchants travelling alone on the boat train"
+    setting:
+      location: "An isolated cottage on an unmade road three hundred yards from a railway curve, near Badsham Junction"
+      institution: "A county police inquiry into a death on the railway line"
+    crime_class:
+      category: murder
+      subtype: "killing indoors, then staged on a railway line as an accident by decapitation"
+  cast:
+    - name: "Oscar Brodski"
+      age_range: "50s"
+      role_archetype: "diamond merchant of Hatton Garden"
+      relationships:
+        - "Old friend and fellow townsman of Mr. Boscovitch, whom he was to meet at the junction"
+        - "A stranger to the man whose gate he stopped at"
+      public_persona: "A shabby, near-sighted, deliberate man travelling to Amsterdam to supervise the cutting of rough stones"
+      private_secret: "He is carrying a paper packet of diamonds worth several thousand pounds in his clothing"
+      motive_seed: "None — he is the victim"
+      motive_strength: "none"
+      alibi_window: "Lost on foot in the dark between Catley and the junction, in no one's company but his killer's"
+      access_plausibility: "Invited into the cottage by its owner while waiting for the 7.58"
+      opportunity_channels:
+        - "The sitting-room of a stranger's cottage"
+      behavioral_tells:
+        - "Breaks off mid-sentence rather than say where he is going or why"
+        - "Rolls his own cigarettes from fine-cut Latakia in Zig-Zag papers"
+        - "Writes his name in his hat"
+      stakes: "His life and the packet of stones"
+      evidence_sensitivity:
+        - "The name written in the lining of his grey felt hat"
+        - "His spectacles, tobacco pouch, cigarette book and wooden vestas"
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: "His caution about his cargo is exactly what makes him accept shelter from a stranger rather than wait visibly at a station."
+    - name: "Silas Hickler"
+      age_range: "40s"
+      role_archetype: "burglar and irregular diamond dealer"
+      relationships:
+        - "Employer of a high-church housekeeper who believes him entirely amiable"
+        - "Recognised Brodski on sight; was not recognised in return"
+      public_persona: "A cheerful, round-faced man of modest middle-class prosperity who grows fuchsias and invests in weekly property"
+      private_secret: "He earns his income by burglary, works always alone, and has killed twice before by accident"
+      motive_seed: "A packet of stones worth a lifetime's competency, in the pocket of a near-sighted stranger alone in his house"
+      motive_strength: "strong"
+      alibi_window: "Travelling on the same 7.58 boat train as his victim was to have caught, in full view of the platform"
+      access_plausibility: "Total — he invited the victim in, and the killing happened in his own sitting-room"
+      behavioral_tells:
+        - "Stands on the platform among the passengers, very pale, staring into the darkness and asking no questions"
+        - "Edges close to overhear what the doctor says about the body"
+      stakes: "A competency for life, or the gallows"
+      evidence_sensitivity:
+        - "The string box on his mantelpiece"
+        - "His own rubbish-heap and grate"
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: "He regards crimes against the person as sheer insanity and spends the whole first half of the story trying to leave the room rather than do it."
+    - name: "Dr. John Thorndyke"
+      age_range: "40s"
+      role_archetype: "medico-legal scientist"
+      relationships:
+        - "Colleague and teacher of Christopher Jervis"
+        - "Asked by Boscovitch to watch the case as a favour"
+      public_persona: "A tall, imposing man travelling to an inquest with a small green case on the hat-rack"
+      private_secret: "None; his method is the story's subject"
+      motive_seed: "None"
+      motive_strength: "none"
+      alibi_window: "In a smoking compartment with Jervis when the death occurred"
+      access_plausibility: "Arrived at the junction after the body"
+      opportunity_channels: []
+      behavioral_tells:
+        - "Examines a dead man's boot soles and tobacco pouch while the inspector searches his pockets"
+      stakes: "A report promised to a friend of the deceased"
+      evidence_sensitivity:
+        - "Every fragment of glass on the ballast"
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: "He treats no fact as off the track, and the inspector's contempt for that habit is the story's running argument."
+    - name: "The police inspector"
+      age_range: "40s"
+      role_archetype: "county police officer"
+      relationships:
+        - "Working with the station-master at the junction"
+      public_persona: "An old hand who came principally to search the body and who laughs at a microscope on a railway embankment"
+      private_secret: "He is the one who kicks the murder weapon out of the nettles, entirely by accident"
+      motive_seed: "None"
+      motive_strength: "none"
+      alibi_window: "Summoned by telegram after the body was brought in"
+      access_plausibility: "Arrived after the fact"
+      opportunity_channels: []
+      behavioral_tells:
+        - "Takes the twelve pounds in the purse as proof that robbery was not the motive"
+      stakes: "His professional judgement, publicly overturned"
+      evidence_sensitivity:
+        - "The presence or absence of valuables on the body"
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: "Every one of his objections is reasonable, and each one is the reason a real case of this kind would close as suicide."
+    - name: "Mr. Boscovitch"
+      age_range: "40s"
+      role_archetype: "diamond broker, the victim's fellow townsman"
+      relationships:
+        - "Was to have met Brodski at the junction and travelled on to Amsterdam with him"
+      public_persona: "A brisk, excitable little man who identifies the umbrella before he can bear to look at the body"
+      private_secret: "None"
+      motive_seed: "None"
+      motive_strength: "none"
+      alibi_window: "In the railway carriage with Thorndyke and Jervis"
+      access_plausibility: "None"
+      opportunity_channels: []
+      behavioral_tells:
+        - "Asks the doctor to watch the case, just to be sure it was really an accident"
+      stakes: "Whether his friend's death is investigated at all"
+      evidence_sensitivity:
+        - "The umbrella he recognises on the platform"
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: "His squeamishness at the lamp-room door is what commissions the only investigation the case ever gets."
+    - name: "Hickler's housekeeper"
+      age_range: "60s"
+      role_archetype: "resident housekeeper"
+      relationships:
+        - "Employed by Silas Hickler"
+      public_persona: "A worthy, high-church woman who hears her master carolling light-heartedly about the house"
+      private_secret: "She has no idea what he is, and confirms his trade and his destination to the police without meaning to"
+      motive_seed: "None"
+      motive_strength: "none"
+      alibi_window: "Over at Welham for the week's shopping until eleven o'clock"
+      access_plausibility: "Holds a duplicate key to the cottage"
+      opportunity_channels:
+        - "The cottage, on her return"
+      behavioral_tells:
+        - "Demands to know who the men in her master's sitting-room are, then answers all their questions"
+      stakes: "Her position"
+      evidence_sensitivity:
+        - "The state of the grate, which she would ordinarily have cleaned out"
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: "Her absence for one evening's shopping is the whole of the opportunity, and she supplies the last identification herself."
+  culpability:
+    culprit_count: 1
+    culprits:
+      - "Silas Hickler"
+  surface_model:
+    narrative:
+      summary: >
+        A goods train rounds a curve to find a man lying face down with his neck across the rail, and
+        takes his head off before it can stop. The dead man is a diamond merchant; his watch, pin and
+        twelve pounds are still on him, there is no crossing, road or path anywhere near, and the
+        police read the position of the body as deliberate suicide.
+    accepted_facts:
+      - "The body lay face down with the neck over the near rail, as if laid out on purpose"
+      - "There is no level crossing, no road and no path at that point on the line"
+      - "A gold watch, a diamond scarf-pin and twelve pounds in gold were still in the dead man's pockets"
+      - "The deceased was near-sighted and his broken spectacles lay beside the head"
+    inferred_conclusions:
+      - "A man who was not robbed was not killed for gain"
+      - "A near-sighted man may have strayed onto the line, or laid himself across it on purpose"
+      - "The death occurred where the body was found"
+  hidden_model:
+    mechanism:
+      description: >
+        Hickler invited Brodski into his cottage to wait for the train, struck him with an iron bar,
+        suffocated him with the tablecloth when the blow failed, took the packet of stones, carried the
+        body three hundred yards across waste land and laid it face down with the neck over the rail so
+        that the goods train would convert a murder into an accident.
+      delivery_path:
+        - step: "Hickler recognises Brodski at his gate as a diamond merchant carrying stones, and invites him in to wait for the same train"
+        - step: "He gives him whisky in a star-pattern tumbler and oatmeal biscuits, and watches him from the kitchen doorway"
+        - step: "He strikes at his head with a foot of wrought-iron bar; the blow glances and makes only a scalp wound"
+        - step: "In the struggle the tumbler and the victim's spectacles are trodden underfoot; he forces him back onto the table and crams the tablecloth into his mouth until he suffocates"
+        - step: "He cleans the blood from the cloth and carpet, sweeps up the broken glass, keeps back the spectacles and a few glass fragments, and ties the bag and umbrella with twine from his string box"
+        - step: "He carries the body over the fence to the curve, lays it neck-down across the rail, throws down the bag, umbrella and spectacles and sprinkles the glass fragments around them"
+        - step: "Returning, he finds the victim's named hat still on a chair, and burns it in the sitting-room grate before catching the same train"
+    outcome:
+      result: "A murder that reads to the police as suicide, with the killer aboard the boat train and the stones in his boot"
+  false_assumption:
+    statement: "A body found lying across a railway line died on that railway line."
+    type: spatial
+    why_it_seems_reasonable: >
+      The engine driver saw the man lying face down with his neck over the near rail in the full glare
+      of the headlights, and the injuries are exactly those a train inflicts. There is no crossing, no
+      road and no path by which anyone could have arrived accidentally, so the position looks chosen,
+      and nothing was taken from the pockets.
+    what_it_hides: >
+      Everything the body carries records a different place. A decapitated head does not bleed, so a
+      scalp wound that bled in two directions was made while the man was alive, first upright and then
+      lying on his back — neither of which is how he was found. His boot soles carry no gravel or earth
+      from the rough land he is supposed to have crossed, but do carry carpet fibres, tobacco ash and
+      biscuit crumbs.
+  false_solution:
+    accused_suspect: "The deceased himself, by suicide"
+    supporting_points:
+      - "The body was laid neatly face down with the neck over the rail, as if placed on purpose"
+      - "There is no crossing, road or path by which he could have arrived there accidentally"
+      - "His watch, scarf-pin and twelve pounds in gold were untouched, so he was not robbed"
+      - "He was near-sighted, and his broken spectacles lay beside his head"
+    the_one_flaw: >
+      The scalp wound above the left temple had bled, in two streams at right angles — down the face
+      and then to the back of the head — and a decapitated head does not bleed, so the wound was made
+      while he lived, in two positions neither of which matches how he was found.
+    refuted_in_chapter: 7
+  red_herrings:
+    - id: "rh_valuables_untouched"
+      description: "A gold watch, a diamond scarf-pin and twelve pounds in gold still in the dead man's pockets"
+      points_at_suspect: "The deceased himself, by suicide"
+      innocent_explanation: "The killer was a diamond specialist who avoided plate and gold entirely; he took only the packet of stones, which nobody could prove the victim had been carrying."
+      resolved_in_chapter: 8
+    - id: "rh_broken_spectacles"
+      description: "The dead man's shattered spectacles lying beside his head with the glass scattered over the ballast, suggesting a near-sighted man who strayed onto the line"
+      points_at_suspect: "The deceased himself, by accident"
+      innocent_explanation: "They were trodden on indoors during the struggle and carried out with the body; the killer scattered the fragments deliberately, and it is that very scattering that gives him away, because a lens broken by falling makes a few large pieces and a lens crushed under a wheel makes powder."
+      resolved_in_chapter: 8
+  closed_circle:
+    suspects:
+      - "Silas Hickler"
+      - "Oscar Brodski"
+      - "Hickler's housekeeper"
+    rationale: "Only one house stands within half a mile of the curve, and the traces on the body come from a carpeted room in it"
+  constraint_space:
+    time:
+      anchors:
+        - "The killing ends at one minute to seven by the sitting-room clock"
+        - "The goods train passes the curve at twenty minutes past seven"
+        - "The 7.58 boat train, which both men intended to catch"
+      windows:
+        - "The hour between Brodski entering the cottage and the goods train reaching the curve"
+        - "The housekeeper's absence at Welham until eleven o'clock"
+    access:
+      actors:
+        - "Silas Hickler, alone in the house"
+        - "Hickler's housekeeper, away for the evening"
+      objects:
+        - "A foot of three-quarter inch wrought-iron bar left by the greenhouse workmen"
+        - "The tablecloth, the star-pattern tumbler and the carpet"
+        - "The string box on the mantelpiece"
+        - "The sitting-room grate and the rubbish-heap"
+    social:
+      trust_channels:
+        - "A stranger's offer of shelter to a man who has lost his way in the dark"
+      authority_sources:
+        - "The engine driver's report of the body's position, relayed as the official account"
+  inference_path:
+    steps:
+      - observation: "The scalp wound above the left temple had bled, in two streams running at right angles — one down the face to the collar, one from the wound to the back of the head."
+        correction: "A decapitated head does not bleed, and blood obeys gravity, so the wound was made while the man lived, first while he was upright and then while he lay on his back."
+        effect: "The injury that killed the case open was inflicted before the train, in positions that do not match how the body was found."
+        required_evidence:
+          - "The glancing scalp-wound above the left temple, with blood firmly clotted and partially dried"
+          - "The engine driver's report that the man was lying face downwards with his neck over the near rail"
+        reader_observable: true
+      - observation: "The face was the face of a suffocated man, with a swollen tongue and deep tooth indentations inside the upper lip."
+        correction: "Those are the marks of heavy pressure held over the mouth, not of a wheel."
+        effect: "The man was struck, struggled, and was then borne down and suffocated."
+        required_evidence:
+          - "The distinctly swollen tongue and the deep indentations made by the teeth inside the upper lip"
+          - "The slight wounds inside the lip caused by heavy pressure on the mouth"
+        reader_observable: true
+      - observation: "A tuft of textile wedged between the upper incisors was of three fibres differently dyed — crimson wool, blue cotton and yellow jute."
+        correction: "Jute in the mixture points to a curtain, rug or table-cover rather than to clothing."
+        effect: "The thing pressed over his mouth was furniture, and furniture means a habitation."
+        required_evidence:
+          - "The tuft of parti-coloured fabric taken with forceps from between two of the upper front teeth"
+          - "Thorndyke's microscope reading of crimson wool, blue cotton and yellow jute fibres in it"
+        reader_observable: true
+      - observation: "The soles of the boots carried no sand, gravel or earth at all, but did carry fine tobacco ash, a trodden cigarette mark, biscuit crumbs and coloured carpet fibres on a projecting brad."
+        correction: "A man who had crossed rough gravelly land on foot would have that land on his boots, as the inspector's own boots demonstrate."
+        effect: "He was killed in a carpeted room and carried to the line."
+        required_evidence:
+          - "The dead man's boot soles, examined under a lens and free of sand, gravel or earth"
+          - "The inspector's boot-soles covered with adherent gravel and marked with chalk from the same ground"
+        reader_observable: true
+      - observation: "The spectacle lenses, rebuilt from every fragment picked off the sleeper and ballast, leave a surplus of small pieces over."
+        correction: "The surplus is not optical glass but soft, moulded, curved glass carrying the etched points of eight-rayed stars."
+        effect: "A star-pattern drinking glass was broken in the same place as the spectacles, so both were trodden on indoors and carried out together."
+        required_evidence:
+          - "The reconstructed spectacle lenses built up on two visiting-cards, complete but for one or two gaps"
+          - "The surplus fragments of soft moulded glass bearing the etched points of eight-rayed stars"
+        reader_observable: true
+      - observation: "The only house within half a mile yields, in its nettle bed, its flower-bed, its rubbish-heap and its grate, an iron bar carrying the same three fibres, a half-smoked Zig-Zag cigarette of fine-cut Latakia, a round wooden vesta, the broken star-pattern tumbler and cinders of shellac and undyed rabbit fur."
+        correction: "Each of these matches an article that came off the dead man or a gap in the reconstructed evidence, and the twine by the line matches the string box on that mantelpiece."
+        effect: "The house is Silas Hickler's, and Hickler killed Brodski."
+        required_evidence:
+          - "The half-smoked Zig-Zag cigarette of fine-cut Latakia found in the flower-bed by the door"
+          - "The round wooden vesta found on the road, matching the vestas in the dead man's silver match-box"
+          - "The short end of white twine with a green strand picked up beside the line, matching the string box on the mantelpiece"
+        reader_observable: true
+  discriminating_test:
+    method: constraint_proof
+    design: >
+      Rebuild the dead man's spectacle lenses from every fragment gathered at the line, then search the
+      rubbish-heap of the one house within half a mile for the pieces that are missing. A splinter
+      picked out of that heap is laid into a gap in a rebuilt lens and pushed home; if it seats edge to
+      edge with the surrounding fragments, the glass broken in that garden and the glass scattered on
+      the ballast are one lens, and the two places are one crime.
+    knowledge_revealed: >
+      A fragment of Oscar Brodski's spectacle lens is in Silas Hickler's rubbish-heap, which no
+      explanation involving a man who walked to the railway alone can account for; the same heap holds
+      the star-pattern tumbler whose surplus fragments were lying beside the body.
+    pass_condition: >
+      The splinter from the rubbish-heap completes the gap in the reconstructed lens exactly, and the
+      broken star-pattern tumbler is found in the same heap.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >
+      This is an inverted case, so fair play is absolute in an unusual way: the first half shows the
+      reader the murder itself — the bar, the tumbler, the trodden spectacles, the tablecloth, the
+      twine, the burnt hat — and the second half shows every one of those objects being recovered from
+      the other end. Nothing is withheld and nothing arrives late. The reader is not asked who did it
+      but whether the traces a killer leaves behind are enough, and can check each inference against a
+      scene already witnessed.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 6
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 2
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

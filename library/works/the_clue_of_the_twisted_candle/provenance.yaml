@@ -1,0 +1,99 @@
+# Provenance + clearance + verification record. A_77 Phase-2 re-encode, 2026-08-31.
+# This is the FIRST of the nine legacy novels to be re-encoded from its own text.
+
+slug: the_clue_of_the_twisted_candle
+title: "The Clue of the Twisted Candle"
+author: "Edgar Wallace"
+author_death_year: 1932
+first_publication_year: 1918
+
+source:
+  host: "Project Gutenberg"
+  ebook_id: 2688
+  url: "https://www.gutenberg.org/ebooks/2688"
+  retrieved: 2026-08-31
+  extract_chars: 318254
+  extract_words: 57838
+
+clearance:
+  # DERIVED by the A_77 §10.2 rule, never hand-written.
+  # uk green iff 1932 + 70 < 2026 -> 2002
+  # us green iff 1918 + 95 < 2026 -> 2013
+  uk: green
+  us: green
+  verdict: green
+  calculated_on: 2026-08-31
+
+verification:
+  method: "literal substring match against the browser-captured source on disk (A_77 §10.4)"
+  run_on: 2026-08-31
+  spans_checked: 22
+  spans_passed: 22
+  negative_controls:
+    - span: "Ralph Hewitt"
+      expected: fail
+      result: fail
+      note: >
+        The character name invented by the LEGACY encoding of this very book (A_77 §3.2). It appears
+        nowhere in Wallace. This is the first time the control has been run against the book whose
+        own record carried the fabrication, rather than against an unrelated text.
+    - span: "gramophone"
+      expected: fail
+      result: fail
+      note: >
+        THE MORE IMPORTANT RESULT. See `corrections` below.
+
+gate:
+  validate_cml: "attempt 1: FAIL (1 error) -> attempt 2: PASS"
+  first_attempt_error: >
+    `culpability.culprits names "John Lexman", who is the detective`. A FALSE POSITIVE:
+    `isDetectiveArchetype` (packages/cml/src/roles.ts:47) splits the archetype on [,;/] and matches
+    the role noun anywhere in the head, so the archetype "detective novelist, wrongly convicted"
+    read as the detective. Lexman writes detective stories; T. X. Meredith is the detective, and
+    carries `role: detective` correctly. Resolved by wording the archetype accurately
+    ("novelist of mystery plots"), but the substring collision is a real defect in a gate that
+    blocks paid runs.
+  novelty:
+    verdict: distinct
+    nearest: "rehearsed_alibi (cliche) — shares mechanism 'alibi_fabrication' only"
+
+corrections:
+  - target: "ANALYSIS_77 §3.2, and the legacy seed-fingerprints.yaml entry"
+    was: >
+      A_77 §3.2 listed this book among the four with materially wrong encodings, and said the LEGACY
+      FINGERPRINT was closer to the novel than the CML file — quoting its premise, "A locked-room
+      death with the victim seemingly alive, faked by a recording", as correct.
+    now: >
+      THE FINGERPRINT IS ALSO WRONG. There is no recording in this novel. The negative control
+      "gramophone" does not appear anywhere in its 57,838 words. The mechanism is TWO CANDLES: a small
+      one propping the steel latch open until the room's deliberately stoked fire softens it and the
+      room seals itself behind the departed killer; a second, cut to fit, under one end of an ivory
+      paper-knife weighted with two heavy books, which tips the telephone receiver off its rest
+      twenty-five minutes later and rings Kara's private line to Scotland Yard — while the killer is
+      sitting in that very office. `mechanism_family` is `alibi_fabrication`, not `recorded_presence`.
+    consequence: >
+      Both halves of this book's record were wrong, not one. It also voids the flagship example in
+      ANALYSIS_78 §6: the device pattern `recorded_presence`, whose stated source is
+      "Sayers/Christie-era gramophone tricks", was said to be re-describing a case we already own.
+      We do not own a gramophone case. The §6 argument still stands on its other three pairs
+      (delayed_poison / Styles, substituted_identity / Valley of Fear, trusted_authority_lie /
+      Big Bow + Yellow Room), but its sharpest instance was itself built on the bad fingerprint.
+    lesson: >
+      A_77 §3.2 judged the encodings LITERARY — from knowledge of the texts, explicitly not MEASURED.
+      Reading the book settled it and reversed the verdict. The evidence standard held: the label was
+      honest about what it was, and the measurement overturned it.
+
+open_issues:
+  - id: detective_archetype_substring
+    severity: defect
+    detail: >
+      `isDetectiveArchetype` matches "detective" anywhere in a comma-separated head. Any cast member
+      described as a detective novelist, a detective's landlady's nephew, a detective-story reader, or
+      an ex-detective is classified as THE detective, and `validateCml` then rejects the case if that
+      person is the culprit. Golden Age fiction is full of such characters. Worth a targeted fix.
+  - id: axis_is_arguable
+    severity: note
+    detail: >
+      Encoded `temporal`: both candle devices exist to decouple the hour of the alarm from the hour of
+      death. `spatial` (the sealed room) and `identity` (the Gathercole impersonation) are both
+      genuinely present, but each serves the alibi rather than being the deception itself.

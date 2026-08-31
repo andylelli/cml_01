@@ -1,0 +1,135 @@
+{
+ "slug": "a_study_in_scarlet",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Victim found in an empty house",
+   "anchor": "discovered the body of a gentleman",
+   "span": "He found the door open, and in the front room, which is bare of furniture, discovered the body of a gentleman, well dressed, and having cards in his pocket bearing the name of 'Enoch J.",
+   "ok": true
+  },
+  {
+   "claim": "Cause of death was poison",
+   "anchor": "I detected a slightly sour smell",
+   "span": "Having sniffed the dead man's lips I detected a slightly sour smell, and I came to the conclusion that he had had poison forced upon him.",
+   "ok": true
+  },
+  {
+   "claim": "Jefferson Hope is the murderer",
+   "anchor": "let me introduce you to Mr. Jefferson Hope",
+   "span": "let me introduce you to Mr. Jefferson Hope, the murderer of Enoch Drebber and of Joseph Stangerson.",
+   "ok": true
+  },
+  {
+   "claim": "Murder method involved poisoned pills",
+   "anchor": "One half we return into the box for future purposes",
+   "span": "One half we return into the box for future purposes.",
+   "ok": true
+  },
+  {
+   "claim": "False clue was the word 'RACHE'",
+   "anchor": "‘Rache,’ is the German for ‘revenge’",
+   "span": "'Rache,' is the German for 'revenge'; so don't lose your time looking for Miss Rachel.",
+   "ok": true
+  },
+  {
+   "claim": "Red herring: Arthur Charpentier suspect",
+   "anchor": "I have made the whole thing as clear as day",
+   "span": "I have made the whole thing as clear as day.",
+   "ok": true
+  },
+  {
+   "claim": "Discriminating test with dog and pills",
+   "anchor": "I will now cut one of these pills in two",
+   "span": "I will now cut one of these pills in two,\" said Holmes, and drawing his penknife he suited the action to the word.",
+   "ok": true
+  },
+  {
+   "claim": "Jefferson Hope's motive was revenge for Lucy Ferrier",
+   "anchor": "She was forced into marrying that same Drebber",
+   "span": "She was forced into marrying that same Drebber, and broke her heart over it.",
+   "ok": true
+  },
+  {
+   "claim": "Blood on floor was murderer's",
+   "anchor": "the blood which covered the floor had burst from the murderer’s nose",
+   "span": "I had already come to the conclusion, since there were no signs of a struggle, that the blood which covered the floor had burst from the murderer's nose in his excitement.",
+   "ok": true
+  },
+  {
+   "claim": "Two men present at crime scene",
+   "anchor": "the track of the two men who had first passed through the garden",
+   "span": "I saw the heavy footmarks of the constables, but I saw also the track of the two men who had first passed through the garden.",
+   "ok": true
+  },
+  {
+   "claim": "Victim's agitation indicates forced poisoning",
+   "anchor": "the agitated expression upon his face assured me",
+   "span": "There was no wound upon the dead man's person, but the agitated expression upon his face assured me that he had foreseen his fate before it came upon him.",
+   "ok": true
+  },
+  {
+   "claim": "Jefferson Hope disguised as cab driver",
+   "anchor": "I applied at a cabowner’s office, and soon got employment",
+   "span": "Driving and riding are as natural to me as walking, so I applied at a cabowner's office, and soon got employment.",
+   "ok": true
+  },
+  {
+   "claim": "Victim's wedding ring was taken by murderer",
+   "anchor": "I took the marriage ring from her dead finger",
+   "span": "I took the marriage ring from her dead finger, and I vowed that his dying eyes should rest upon that very ring, and that his last thoughts should be of the crime for which he was punished.",
+   "ok": true
+  },
+  {
+   "claim": "Stangerson murdered similarly",
+   "anchor": "I took advantage of some ladders which were lying in the lane",
+   "span": "I soon found out which was the window of his bedroom, and early next morning I took advantage of some ladders which were lying in the lane behind the hotel, and so made my way into his room in the grey of the dawn.",
+   "ok": true
+  },
+  {
+   "claim": "Holmes' reasoning based on footprints and blood",
+   "anchor": "I saw the heavy footmarks of the constables",
+   "span": "I saw the heavy footmarks of the constables, but I saw also the track of the two men who had first passed through the garden.",
+   "ok": true
+  },
+  {
+   "claim": "False assumption about political motive",
+   "anchor": "This was overlooked because it was in the darkest corner of the room",
+   "span": "This was overlooked because it was in the darkest corner of the room, and no one thought of looking there.",
+   "ok": true
+  },
+  {
+   "claim": "Red herring: blood-written message",
+   "anchor": "This was overlooked because it was in the darkest corner of the room",
+   "span": "This was overlooked because it was in the darkest corner of the room, and no one thought of looking there.",
+   "ok": true
+  },
+  {
+   "claim": "Holmes' deduction of murderer's height",
+   "anchor": "the writing was just over six feet from the ground",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Holmes' deduction of cigar ash type",
+   "anchor": "I have written a monograph upon the subject",
+   "span": "I have made a special study of cigar ashes-in fact, I have written a monograph upon the subject.",
+   "ok": true
+  },
+  {
+   "claim": "Jefferson Hope's death from aneurism",
+   "anchor": "On the very night after his capture the aneurism burst",
+   "span": "On the very night after his capture the aneurism burst, and he was found in the morning stretched upon the floor of the cell, with a placid smile upon his face, as though he had been able in his dying moments to look back upon a useful life, and on work well done.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.035229224450000006,
+ "models": {
+  "map": "gpt-4o-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-08-31"
+}

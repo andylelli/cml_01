@@ -56,15 +56,25 @@ const FAMILY_MAP: Record<string, LibFamily | null> = {
   locked_room_key: "spatial_routing",
   impersonation: "identity",
   substituted_body: "identity",
-  alibi_fabrication: "authority",
   secret_will_inheritance: "authority",
   information_leak: "authority",
-  // No library coverage. Named explicitly so the gap is a decision, not an oversight.
-  poison_substitution: null,
-  staged_scene: null,
-  hidden_accomplice: null,
-  disguised_natural_agent: null,
-  unconscious_act: null,
+  /**
+   * A_79 §7.1 — the five nulls resolved, 2026-08-31.
+   *
+   * They were null because the DEVICE schema was read as offering four families. It offers five:
+   * `behavioral` is in the enum and simply had no hand-authored pattern using it. With the corpus
+   * installed it does, so these map to the family they always belonged to rather than staying
+   * suppressed. `alibi_fabrication` moves from `authority` to `timing`, which is what a fabricated
+   * alibi actually manipulates — the misfiling dated from when `timing` had only clock patterns.
+   */
+  alibi_fabrication: "timing",
+  poison_substitution: "timing",
+  staged_scene: "spatial_routing",
+  hidden_accomplice: "behavioral",
+  disguised_natural_agent: "behavioral",
+  unconscious_act: "behavioral",
+  role_invisibility: "behavioral",
+  investigative_blind_spot: "behavioral",
 };
 
 export const deviceLibraryEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>

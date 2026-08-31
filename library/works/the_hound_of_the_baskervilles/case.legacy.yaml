@@ -1,0 +1,168 @@
+schema_version: "2.0"
+
+case_metadata:
+  title: "The Hound of the Baskervilles"
+  author: "Arthur Conan Doyle"
+  publication_year: 1902
+  source_license: "Public Domain (1902 publication)"
+  source_url: "Unknown"
+  genre: "Detective novel / Gothic mystery"
+
+crime:
+  type: "Murder by engineered 'supernatural' attack; attempted murder"
+  primary_victim: "Sir Charles Baskerville"
+  secondary_victims: []
+  stakes: "Prevent the death of the last Baskerville heir and expose a murderer exploiting a family legend"
+
+setting:
+  country: "United Kingdom"
+  primary_location: "Devonshire (Dartmoor)"
+  timeframe: "Late 19th / early 20th century (contemporary to publication)"
+  key_locations:
+    - "Baskerville Hall"
+    - "Grimpen Mire"
+    - "Moor paths near the yew alley"
+    - "The stone huts on the moor"
+    - "Merripit House (Stapleton residence)"
+    - "Coomb Tracey village"
+
+detective:
+  name: "Sherlock Holmes"
+  partner: "Dr. John H. Watson"
+  professional_status: "Consulting detective"
+  affiliation: "Baker Street (private practice)"
+
+suspects:
+  - name: "Jack Stapleton"
+    role: "Naturalist neighbor"
+    motive: "Inheritance claim to Baskerville estate"
+    alibi: "Frequently on the moor; accounts rely on his sister’s support"
+  - name: "Beryl Stapleton"
+    role: "Presented as Stapleton’s sister (actually his wife)"
+    motive: "Coerced participation; self-preservation"
+    alibi: "Often with Stapleton; provides statements that are later shown manipulated"
+  - name: "Barrymore"
+    role: "Baskerville Hall butler"
+    motive: "Suspected secret assistance to an escaped convict (family tie)"
+    alibi: "At the Hall; suspicious behavior with signaling"
+  - name: "Selden"
+    role: "Escaped convict"
+    motive: "Survival and escape"
+    alibi: "On the moor; later killed as collateral"
+  - name: "Laura Lyons"
+    role: "Local woman in distress"
+    motive: "Romantic/financial entanglement; potential leverage by Stapleton"
+    alibi: "Correspondence links her to victim’s last night"
+
+culprit:
+  name: "Jack Stapleton"
+  revealed_identity: "A Baskerville relative (the heir line), posing under an alias"
+  motive: "To eliminate Sir Henry Baskerville and inherit Baskerville fortune"
+  method: "Used a large hound coated with luminous paint/phosphorus to simulate a demonic beast; lured victims onto the moor at night"
+  opportunity: "Local knowledge of moor, control of the hound, and ability to manipulate witnesses and alibis"
+
+crime_mechanics:
+  method_description: "Stapleton exploited the Baskerville legend by training a large hound and applying a luminous substance to make it appear supernatural. Sir Charles died of fright/heart failure after a staged pursuit; later, Stapleton attempted to kill Sir Henry by unleashing the hound on the moor."
+  weapon_or_means: "Trained hound; luminous paint/phosphorus; environmental hazards (moor/mire)"
+  body_disposal: "None; deaths occur in the open"
+  staging_elements:
+    - "Myth of the 'hound' reinforced via local fear"
+    - "Lures (anonymous warnings; arranged meetings) to control victim movement"
+    - "False family relationship (wife presented as sister) to stabilize alibis and social access"
+
+clues:
+  - id: "C1"
+    description: "Footprints at Sir Charles’s death site: human prints plus an unusually large dog’s prints."
+    location: "Yew alley near Baskerville Hall"
+    significance: "Points to a real animal used, not purely supernatural cause."
+  - id: "C2"
+    description: "Anonymous warning note to Sir Henry about danger on the moor."
+    location: "Delivered in London"
+    significance: "Suggests someone nearby is monitoring and trying to influence Sir Henry’s movements."
+  - id: "C3"
+    description: "Missing boot in London, then retrieval of an old boot rather than the new one."
+    location: "London hotel"
+    significance: "Implies a dog is being given a scent; thief needs the correct scent article."
+  - id: "C4"
+    description: "Stapleton’s suspicious intensity about the legend and attempts to isolate Sir Henry."
+    location: "Moor conversations and social visits"
+    significance: "Behavior consistent with a planner steering the victim into danger."
+  - id: "C5"
+    description: "Signals from Baskerville Hall and connection to escaped convict (Selden)."
+    location: "Moor hillside near the Hall"
+    significance: "Explains red-herring secrecy; not the primary murder plot."
+  - id: "C6"
+    description: "Beryl Stapleton’s warning to Sir Henry and evidence she is not Stapleton’s sister."
+    location: "Merripit House / Watson’s observations"
+    significance: "Reveals deception central to Stapleton’s control and alibi structure."
+  - id: "C7"
+    description: "Hound discovered and later seen with luminous coating when unleashed."
+    location: "Stapleton’s lair on the moor; final chase"
+    significance: "Physical proof of the 'supernatural' staging method."
+
+false_assumption:
+  description: "A supernatural family curse (a demonic hound) is responsible for Sir Charles’s death and threatens Sir Henry."
+  correction: "A human murderer (Stapleton) engineered the appearance of the supernatural using a real hound treated with luminous substance."
+  effect_on_case: "Shifts the investigation from folklore explanations to identifying who can stage and benefit from the legend."
+
+discriminating_test:
+  description: "Holmes orchestrates a nighttime bait scenario: Sir Henry walks across the moor under controlled surveillance; the hound is unleashed and is shot, revealing it as a real animal with artificial luminous coating."
+  timing: "Final act (moor confrontation)"
+  result: "Method exposed; Stapleton identified as mastermind and flees into Grimpen Mire."
+
+constraints:
+  time_constraints:
+    - "Attacks must occur at night to maximize fear and conceal luminous effect."
+    - "Sir Henry’s movements constrained by social engagements and the moor route."
+  access_constraints:
+    - "Culprit needs access to scent articles (boots/clothing) and proximity to Baskerville Hall."
+    - "Control of a trained hound requires a private holding place near the moor."
+  physical_constraints:
+    - "Grimpen Mire creates limited safe paths; local knowledge needed."
+    - "Luminous coating is visible in darkness and requires darkness to be convincing."
+    - "Dog tracks and physical presence must align with scene evidence."
+
+inference_path:
+  - step: 1
+    observation: "Dog footprints appear near Sir Charles’s body alongside human prints."
+    correction: "A real dog was present; supernatural explanation unnecessary."
+    effect: "Seek human handler with motive."
+  - step: 2
+    observation: "A boot is stolen, and the thief prefers an old boot over the new one."
+    correction: "Old boot carries stronger scent; theft is for tracking by an animal."
+    effect: "Supports hypothesis of a trained dog used as weapon."
+  - step: 3
+    observation: "Stapleton promotes the legend and pushes Sir Henry onto the moor."
+    correction: "Behavior resembles grooming the victim for a staged scare/attack."
+    effect: "Stapleton rises to primary suspect."
+  - step: 4
+    observation: "Secret signals from the Hall trace to Barrymore helping Selden."
+    correction: "This secrecy is a separate matter and not the killer’s core plot."
+    effect: "Red herring cleared; focus returns to Stapleton."
+  - step: 5
+    observation: "Beryl Stapleton warns Sir Henry; evidence shows she is not Stapleton’s sister."
+    correction: "Stapleton’s household identity is fraudulent, enabling manipulation and alibi control."
+    effect: "Establishes deliberate deception consistent with major crime planning."
+  - step: 6
+    observation: "Holmes confirms a hidden lair and presence of a large hound; luminous substance prepared."
+    correction: "Legend is being manufactured with physical means."
+    effect: "Plan bait-and-catch to reveal method."
+  - step: 7
+    observation: "Bait operation draws the hound; it is shot and shown to be coated to glow."
+    correction: "Supernatural theory fully disproved; Stapleton’s method is proven."
+    effect: "Case resolved; culprit exposed and driven to fatal flight into the mire."
+
+fair_play:
+  clue_visibility: "Major clues (dog tracks, boot theft logic, Stapleton’s conduct, identity deception, and final hound reveal) are presented before the climax."
+  special_knowledge_required: false
+  justification: "The reader can infer a real dog is involved and that the legend is being exploited; the final test confirms the staged method."
+
+quality_controls:
+  inference_steps_target: 7
+  discriminating_test_present: true
+  constraint_types_present:
+    - "time"
+    - "access"
+    - "physical"
+  red_herrings_present: true
+  schema_completeness: "All required sections populated."

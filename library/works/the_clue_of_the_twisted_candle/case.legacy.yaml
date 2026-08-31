@@ -1,0 +1,130 @@
+schema_version: "2.0"
+
+case_metadata:
+  title: "The Clue of the Twisted Candle"
+  author: "Edgar Wallace"
+  publication_year: 1918
+  source_license: "Public Domain (1918 publication)"
+  source_url: "Unknown"
+  genre: "Country House Murder Mystery"
+
+crime:
+  type: "Murder"
+  primary_victim: "John Lexman"
+  secondary_victims: []
+  stakes: "Exposure of concealed criminal identity and protection of inheritance interests"
+
+setting:
+  country: "United Kingdom"
+  primary_location: "Rural country house"
+  timeframe: "Early 20th century (circa 1910s)"
+  key_locations:
+    - "Lexman’s study"
+    - "Country estate grounds"
+    - "London investigative offices"
+
+detective:
+  name: "Superintendent Meredith"
+  partner: "Unknown"
+  professional_status: "Police detective"
+  affiliation: "Scotland Yard"
+
+suspects:
+  - name: "Ralph Hewitt"
+    role: "Estate associate"
+    motive: "Inheritance and concealed criminal past"
+    alibi: "Present on estate; movements partially unverified"
+  - name: "Various estate residents"
+    role: "Household members"
+    motive: "Financial and personal grievances"
+    alibi: "Within house at time of death"
+
+culprit:
+  name: "Ralph Hewitt"
+  revealed_identity: "Former convict with hidden past"
+  motive: "To prevent exposure of identity and secure inheritance"
+  method: "Strangulation staged as mysterious death; manipulation of candle clue"
+  opportunity: "Access to victim in isolated study during evening"
+
+crime_mechanics:
+  method_description: "John Lexman was found dead in his study under suspicious circumstances. A twisted candle near the scene provided a critical physical clue pointing to staged conditions and deliberate timing."
+  weapon_or_means: "Manual strangulation"
+  body_disposal: "None; body left in study"
+  staging_elements: "Twisted candle positioned to mislead about timing and circumstances of death"
+
+clues:
+  - id: "C1"
+    description: "Unnaturally twisted candle found near body."
+    location: "Study desk"
+    significance: "Indicates manipulation rather than accident."
+  - id: "C2"
+    description: "Victim researching criminal records prior to death."
+    location: "Study papers"
+    significance: "Suggests imminent exposure of culprit’s past."
+  - id: "C3"
+    description: "Hewitt’s evasive behavior regarding prior identity."
+    location: "Interviews"
+    significance: "Implies concealed background."
+  - id: "C4"
+    description: "Timing inconsistencies in household accounts."
+    location: "Witness testimonies"
+    significance: "Narrows opportunity window."
+
+false_assumption:
+  description: "Death was accidental or caused by unknown external intruder."
+  correction: "Scene was staged; killer was insider with motive to conceal identity."
+  effect_on_case: "Focus shifts from outsider theory to estate resident."
+
+discriminating_test:
+  description: "Demonstration that twisted candle could only have been altered after extinguishing, proving staging."
+  timing: "Late investigation reconstruction."
+  result: "Establishes deliberate manipulation and insider access."
+
+constraints:
+  time_constraints:
+    - "Evening gathering limits window of opportunity."
+  access_constraints:
+    - "Only household members had access to study at relevant time."
+  physical_constraints:
+    - "Candle condition inconsistent with natural burn pattern."
+
+inference_path:
+  - step: 1
+    observation: "Victim found dead in locked study."
+    correction: "No forced entry; likely insider."
+    effect: "Restricts suspect pool."
+  - step: 2
+    observation: "Twisted candle unusual."
+    correction: "Manipulated post-burn."
+    effect: "Indicates staging."
+  - step: 3
+    observation: "Victim researching criminal pasts."
+    correction: "Murder prevents disclosure."
+    effect: "Motive tied to exposure."
+  - step: 4
+    observation: "Hewitt evasive about identity."
+    correction: "Possible match to researched record."
+    effect: "Strengthens suspicion."
+  - step: 5
+    observation: "Alibi gaps in timeline."
+    correction: "Opportunity confirmed."
+    effect: "Places Hewitt at scene."
+  - step: 6
+    observation: "Physical reconstruction of candle."
+    correction: "Only deliberate twisting explains form."
+    effect: "Conclusive proof of staged murder by insider."
+
+fair_play:
+  clue_visibility: "Candle, papers, and testimonies presented during investigation."
+  special_knowledge_required: false
+  justification: "All material clues disclosed before final explanation."
+
+quality_controls:
+  inference_steps_target: 6
+  discriminating_test_present: true
+  constraint_types_present:
+    - "time"
+    - "access"
+    - "physical"
+  red_herrings_present: true
+  schema_completeness: "All required sections populated."

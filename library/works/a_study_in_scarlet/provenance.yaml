@@ -1,0 +1,29 @@
+# Provenance + clearance. Scaffolded by the A_77 Phase-2 close-out, 2026-08-31.
+# STATUS: awaiting re-encode. `case.legacy.yaml` is the pre-existing encoding, retained for
+# comparison only — it does NOT pass validateCml and, for some works, contains material plot
+# errors (A_77 §3.2). `case.cml2.yaml` appears only once a verified re-encode exists.
+
+slug: a_study_in_scarlet
+title: "A Study in Scarlet"
+author: "Arthur Conan Doyle"
+author_death_year: 1930
+first_publication_year: 1887
+
+source:
+  host: "Project Gutenberg"
+  ebook_id: 244
+  url: "https://www.gutenberg.org/ebooks/244"
+
+clearance:
+  # DERIVED by the A_77 §10.2 rule, never hand-written.
+  # uk green iff 1930 + 70 < 2026   -> 2000
+  # us green iff 1887 + 95 < 2026   -> 1982
+  uk: green
+  us: green
+  verdict: green
+  calculated_on: 2026-08-31
+
+status:
+  case_cml2: pending_reencode
+  fingerprint: legacy_hand_authored
+  device_pattern: pending

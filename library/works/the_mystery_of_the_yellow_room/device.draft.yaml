@@ -1,0 +1,49 @@
+pattern_id: the_mystery_of_the_yellow_room
+title: The Climbing Escape
+family: timing
+axes:
+  - spatial
+principle: >-
+  The murderer escaped by climbing the wall outside using a prepared spike and ladder, not through
+  any secret passage inside the room.
+principleType: physical_law
+surface_illusion_template: >-
+  The murderer escaped through a secret passage or trapdoor; a suspect a suspect was guilty based on
+  footprint and alibi evidence; The concierges were accomplices in the crime
+underlying_reality_template: >-
+  Frédéric the culprit, disguised as the criminal the culprit, entered the pavilion before the
+  attack and hid under the bed. He committed the assault on the victim, who defended herself with a
+  revolver, wounding him. the culprit escaped by climbing the wall using a prepared spike and ladder
+  fixed to the terrace cornice, then entered the château through a window. He manipulated evidence
+  to frame a suspect a suspect and concealed his identity through disguise and cunning.
+feasibility:
+  eras:
+    - 1850
+    - 1860
+    - 1870
+    - 1880
+    - 1890
+    - 1900
+    - 1910
+    - 1920
+    - 1930
+    - 1940
+    - 1950
+  requires:
+    - prepared_climbing_apparatus
+    - window_access
+    - building_exterior
+  forbids:
+    - cctv
+    - electronic_timekeeping
+clue_archetypes:
+  - testimony_of_monsieur_stangerson
+  - physical_examination_of_door
+  - pattern_of_footprints_matching
+  - handkerchief_found_in_the
+  - observation_of_larsan_s
+  - discovery_of_eye_glasses
+sources:
+  - >-
+    Gaston Leroux, The Mystery of the Yellow Room —
+    library/works/the_mystery_of_the_yellow_room/case.cml2.yaml

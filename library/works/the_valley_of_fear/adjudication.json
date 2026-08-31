@@ -1,0 +1,19 @@
+{
+ "false_assumption": {
+  "statement": "The bloodstain on the window sill was made by the murderer escaping through the window.",
+  "type": "spatial",
+  "why_it_seems_reasonable": "The open window and bloodstain suggest a quick escape route. The raised drawbridge and lack of other exits make the window the only plausible exit.",
+  "what_it_hides": "The bloodstain was deliberately made by Barker to mislead investigators. The murderer never escaped through the window but was killed inside."
+ },
+ "mechanism_description": "The man found dead was not John Douglas but the assassin, Ted Baldwin, dressed in Douglas's clothes to fake Douglas's death. The real Douglas was hidden in a secret room within the manor. Barker and Mrs. Douglas conspired to protect Douglas and staged the scene to mislead the police. The murderer was killed in a struggle with Douglas, and the body was disposed of to fake Douglas's death.",
+ "discriminating_test": {
+  "method": "physical evidence recovery",
+  "design": "Holmes orders the moat to be dragged and discovers a dumb-bell weighted bundle containing a suit of clothes. Examination of the clothes and their fit to the dead man, not Douglas, reveals the switch.",
+  "knowledge_revealed": "This test reveals that the dead man is not Douglas, but the assassin, and that Douglas is alive and in hiding.",
+  "pass_condition": "The suit of clothes found in the moat fits the dead man, not Douglas, proving the body is not Douglas."
+ },
+ "changed": [
+  "discriminating_test"
+ ],
+ "confidence": "high"
+}

@@ -1,0 +1,45 @@
+pattern_id: a_study_in_scarlet
+title: The Dual Pills
+family: timing
+axes:
+  - behavioral
+principle: >-
+  It was a deliberate red herring written by the murderer to mislead investigators away from the
+  true personal revenge motive.
+principleType: physical_law
+surface_illusion_template: >-
+  The blood-written word 'RACHE' indicated a German political motive; the victim was an accomplice
+  in the victim murder; The murders were random acts of violence by political refugees
+underlying_reality_template: >-
+  the culprit, seeking revenge for the forced marriage and death of a bystander a bystander,
+  administered poisoned pills to the victim and the victim. Each victim was given a choice between a
+  deadly pill and a harmless one, ensuring the murderer could claim justice rather than cold-blooded
+  murder. The blood on the floor was from the murderer himself, who had a nosebleed during the
+  struggle.
+feasibility:
+  eras:
+    - 1850
+    - 1860
+    - 1870
+    - 1880
+    - 1890
+    - 1900
+    - 1910
+    - 1920
+    - 1930
+    - 1940
+    - 1950
+  requires:
+    - period_poison
+    - identical_containers
+  forbids:
+    - modern_toxicology_screen
+clue_archetypes:
+  - chemical_test_for_blood
+  - examination_of_victim_s
+  - analysis_of_handwriting_and
+  - contextual_knowledge_of_victim
+  - footprint_measurements_in_clay
+  - witness_statements_about_victim
+sources:
+  - Arthur Conan Doyle, A Study in Scarlet — library/works/a_study_in_scarlet/case.cml2.yaml

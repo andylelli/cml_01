@@ -136,6 +136,8 @@ export interface CMLGenerationResult {
 
 export interface SeedPattern {
   id: string;
+  /** Display title where the case has one; falls back to the id. */
+  title: string;
   axis: string;
   structure: {
     mechanismType: string;
@@ -143,5 +145,20 @@ export interface SeedPattern {
     constraintSpaceSize: number;
     inferencePathSteps: number;
     discriminatingTestMethod: string;
+  };
+  /**
+   * A_79 B — the fields that make an exemplar an exemplar.
+   *
+   * The five `structure` fields above are counts and one-word labels; three of them were also
+   * unreadable (A_78 §3). None of them can teach a generator what a mystery IS. These four carry the
+   * worked content: the wrong belief, how the trick actually operated, the shape of the deduction and
+   * how the truth was forced.
+   */
+  content: {
+    premise: string;
+    falseAssumptionStatement: string;
+    mechanismDescription: string;
+    inferenceSketch: string;
+    discriminatingTestDesign: string;
   };
 }

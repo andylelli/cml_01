@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "The victim's death was either suicide or murder by someone who entered and exited the locked room.",
+  "type": "spatial",
+  "why_it_seems_reasonable": "The room was found locked and bolted from inside with no apparent access, so the only options seemed to be suicide or a miraculous entry and exit by a murderer. The absence of a weapon and signs of struggle supported this belief.",
+  "what_it_hides": "It hides the fact that the murder was committed inside the room at the moment the door was broken down, with the victim still alive and then killed instantly, and that the lock was tampered with to create the illusion of an impossible crime."
+ },
+ "mechanism_description": "George Grodman, the retired detective, drugged Arthur Constant with sulfonal to induce deep sleep. Then, while Constant was asleep, Grodman entered the locked room, cut his throat swiftly and silently, and staged the scene to appear as a locked-room mystery. He pocketed the weapon and manipulated the lock by removing the bolt staple so the door could be forced open, creating the illusion it was locked and bolted from inside.",
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "Reenact the sequence of events on the morning of the murder, including the administration of sulfonal, the locking and bolting of the door, the knocking by Mrs. Drabdump, and the breaking open of the door by Grodman. Observe the state of the lock and bolt, and the timing of the victim's death relative to the door being forced.",
+  "knowledge_revealed": "This reenactment reveals that the victim was alive and drugged when the door was broken open, that the bolt staple could be removed to allow forced entry while appearing locked, and that the murder was committed at that moment, not earlier or by another means.",
+  "pass_condition": "The reenactment must demonstrate that the door can be forced open with the bolt staple removed, that the victim can be drugged to deep sleep, and that the murder can be committed inside the locked room without external entry or exit."
+ },
+ "changed": [],
+ "confidence": "high"
+}

@@ -1,0 +1,73 @@
+# Provenance + clearance + verification record. Written by the ANALYSIS_77 §16.10 run, 2026-08-31.
+
+slug: the_case_of_oscar_brodski
+title: "The Case of Oscar Brodski"
+author: "R. Austin Freeman"
+author_death_year: 1943
+first_publication_year: 1912
+container: "The Singing Bone (1912), story 1 of 5 — PG title 'The adventures of Dr. Thorndyke'"
+
+source:
+  host: "Project Gutenberg"
+  ebook_id: 59478
+  url: "https://www.gutenberg.org/ebooks/59478"
+  retrieved: 2026-08-31
+  extract_chars: 95203
+  extract_words: 16690
+  extract_note: >
+    Extracted from the container's rendered text between the headings 'THE CASE OF OSCAR BRODSKI'
+    and 'A CASE OF PREMEDITATION', captured to disk by the browser tool independently of the encoder.
+
+clearance:
+  # DERIVED by the §10.2 rule, never hand-written.
+  # uk green iff author_death_year + 70 < 2026 -> 1943 + 70 = 2013
+  # us green iff first_publication_year + 95 < 2026 -> 1912 + 95 = 2007
+  uk: green
+  us: green
+  verdict: green
+  calculated_on: 2026-08-31
+
+form: inverted
+form_note: >
+  The story that invented the inverted detective story. Part I ('The Mechanism of Crime') shows the
+  murder in full; Part II ('The Mechanism of Detection') shows Thorndyke recovering it from traces.
+  The library previously held no inverted case at all.
+
+verification:
+  method: "literal substring match against the browser-captured source on disk (§10.4)"
+  run_on: 2026-08-31
+  spans_checked: 30
+  spans_passed: 30
+  spans_corrected_on_first_pass: 1
+  correction_note: >
+    One span failed on the first pass and was a genuine encoder error, not a source problem: the
+    encoding quoted "it consisted of several different fibres" where the text reads "Under the
+    microscope I found it to consist of several different fibres". Corrected and re-verified.
+  negative_control:
+    span: "Sherlock Holmes"
+    expected: fail
+    result: fail
+    note: >
+      The obvious wrong attribution for a 1912 English scientific-detective story, checked against a
+      source that cannot contain it.
+
+gate:
+  validate_cml: "attempt 1: PASS"
+  novelty:
+    verdict: distinct
+    nearest: "the_second_key (seed) — shares axis 'spatial' + test shape 'physical_trace' only"
+
+open_issues:
+  - id: mechanism_family_vocabulary
+    severity: resolved_for_this_work
+    detail: >
+      `staged_scene` fits cleanly and needed no forcing. With the_fenchurch_street_mystery
+      (`substituted_body`) that makes 2 of the 4 works acquired in these runs expressible by the
+      existing 14-value enum, against 2 that were not (the_invisible_man, a_jury_of_her_peers).
+  - id: axis_is_arguable
+    severity: note
+    detail: >
+      Encoded `spatial`: the whole solution is the relocation of the scene of death from the railway
+      to a carpeted room three hundred yards away, and every clue chain (boot soles, fibres, glass)
+      serves that relocation. A `temporal` reading exists — the blood-direction argument is about the
+      ORDER of wound and decapitation — but the temporal reasoning is the instrument, not the deception.

@@ -1,0 +1,24 @@
+{
+ "false_assumption": {
+  "statement": "The murderer must have entered through the locked door or window.",
+  "type": "spatial",
+  "why_it_seems_reasonable": "The door and window were locked from the inside, so it is logical to assume the killer used one of these points. No other entry points were initially visible.",
+  "what_it_hides": "It hides the existence of a secret trap-door in the roof that provided access, and the involvement of an accomplice who climbed down a rope."
+ },
+ "mechanism_description": "The murderer entered the victim's room by climbing up the roof and descending through a secret trap-door. The accomplice Tonga, a small Andaman Islander, climbed down a rope lowered by Jonathan Small and used poisoned darts to kill Bartholomew. They then lowered the treasure chest through the trap-door and escaped the same way.",
+ "discriminating_test": {
+  "method": "constraint_proof",
+  "design": "Holmes uses the presence of creosote on the rope and footprints to prove the accomplice climbed down from the roof, which is inaccessible by other means. He also uses Toby the dog to track the scent trail leading to the escape launch, confirming the route and method of escape.",
+  "knowledge_revealed": "This test reveals the secret access route via the roof trap-door and the involvement of two criminals with distinct physical traits. It disproves entry through locked doors or windows.",
+  "pass_condition": "Finding creosote footprints and rope marks consistent with climbing and tracking the scent trail to the launch confirms the mechanism of the crime."
+ },
+ "changed": [
+  "cast_roles"
+ ],
+ "victim_correction": {
+  "should_be": "Bartholomew Sholto",
+  "currently": "Miss Mary Morstan",
+  "why": "Bartholomew Sholto is the actual murder victim; Mary Morstan is not killed or attacked."
+ },
+ "confidence": "high"
+}

@@ -1,0 +1,541 @@
+{
+ "decade": "1880s",
+ "realism_constraints": [
+  "No forensic DNA or modern forensic science available",
+  "Communication limited to telegrams, letters, and in-person messages",
+  "Transportation by horse-drawn carriage, trains, and walking; no automobiles"
+ ],
+ "location": "Devonshire moor, England",
+ "institution": "Sherlock Holmes (private detective), assisted by Dr. Watson; local police represented by Inspector Lestrade",
+ "crime_category": "murder",
+ "crime_subtype": "murder by induced fright using a trained hound",
+ "cast": [
+  {
+   "name": "Sherlock Holmes",
+   "age_range": "40s",
+   "role_archetype": "brilliant consulting detective",
+   "role": "detective",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "famous detective in London",
+   "private_secret": "secretly investigated the case on the moor",
+   "motive_seed": "justice and intellectual challenge",
+   "motive_strength": "strong",
+   "alibi_window": "always present in London except secret visits to moor",
+   "access_plausibility": "high",
+   "stakes": "solve complex murder and protect Sir Henry",
+   "moral_complexity": "low",
+   "relationships": [
+    "Dr. Watson (friend and assistant)",
+    "Sir Henry Baskerville (client)"
+   ],
+   "opportunity_channels": [
+    "investigation",
+    "disguise",
+    "secret travel"
+   ],
+   "behavioral_tells": [
+    "rarely reveals full plans",
+    "calculating",
+    "patient"
+   ],
+   "evidence_sensitivity": [
+    "reports from Dr. Watson",
+    "physical evidence from moor"
+   ]
+  },
+  {
+   "name": "Dr. John Watson",
+   "age_range": "30s-40s",
+   "role_archetype": "loyal assistant and chronicler",
+   "role": "detective",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "army doctor and Holmes's companion",
+   "private_secret": "investigated on the moor under Holmes's direction",
+   "motive_seed": "loyalty to Holmes and Sir Henry",
+   "motive_strength": "strong",
+   "alibi_window": "present with Sir Henry except secret investigations",
+   "access_plausibility": "high",
+   "stakes": "protect Sir Henry and solve case",
+   "moral_complexity": "low",
+   "relationships": [
+    "Sherlock Holmes (friend and partner)",
+    "Sir Henry Baskerville (client)"
+   ],
+   "opportunity_channels": [
+    "investigation",
+    "surveillance"
+   ],
+   "behavioral_tells": [
+    "honest",
+    "methodical"
+   ],
+   "evidence_sensitivity": [
+    "letters to Holmes",
+    "observations on moor"
+   ]
+  },
+  {
+   "name": "Sir Henry Baskerville",
+   "age_range": "30s",
+   "role_archetype": "heir and victim",
+   "role": "victim",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "heir to Baskerville estate",
+   "private_secret": "none",
+   "motive_seed": "inheritance and family legacy",
+   "motive_strength": "none",
+   "alibi_window": "present at Baskerville Hall and moor",
+   "access_plausibility": "high",
+   "stakes": "life and estate",
+   "moral_complexity": "low",
+   "relationships": [
+    "Dr. Mortimer (friend and medical attendant)",
+    "Dr. Watson (companion)",
+    "Beryl Stapleton (love interest)"
+   ],
+   "opportunity_channels": [
+    "walking on moor"
+   ],
+   "behavioral_tells": [
+    "brave but sometimes impulsive"
+   ],
+   "evidence_sensitivity": [
+    "footprints",
+    "clothing"
+   ]
+  },
+  {
+   "name": "Jack Stapleton (Vandeleur)",
+   "age_range": "30s-40s",
+   "role_archetype": "villainous naturalist and impostor",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "naturalist and neighbor",
+   "private_secret": "true heir to Baskerville estate, married to Beryl under false identity",
+   "motive_seed": "inherit Baskerville estate by eliminating heirs",
+   "motive_strength": "strong",
+   "alibi_window": "present at Merripit House and moor",
+   "access_plausibility": "high",
+   "stakes": "inheritance and wealth",
+   "moral_complexity": "high",
+   "relationships": [
+    "Beryl Stapleton (wife posing as sister)",
+    "Sir Henry Baskerville (target)",
+    "Mrs. Laura Lyons (accomplice)"
+   ],
+   "opportunity_channels": [
+    "moors",
+    "hotel in London",
+    "Merripit House"
+   ],
+   "behavioral_tells": [
+    "calm, calculating, controlling"
+   ],
+   "evidence_sensitivity": [
+    "portrait",
+    "letters",
+    "footprints",
+    "hound"
+   ]
+  },
+  {
+   "name": "Beryl Stapleton (Mrs. Stapleton)",
+   "age_range": "20s-30s",
+   "role_archetype": "beautiful captive wife",
+   "role": "witness",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "sister of Stapleton",
+   "private_secret": "actually wife of Stapleton, abused and captive",
+   "motive_seed": "fear and desire for freedom",
+   "motive_strength": "moderate",
+   "alibi_window": "mostly at Merripit House",
+   "access_plausibility": "high",
+   "stakes": "freedom and safety",
+   "moral_complexity": "high",
+   "relationships": [
+    "Jack Stapleton (husband)",
+    "Sir Henry Baskerville (love interest)"
+   ],
+   "opportunity_channels": [
+    "Merripit House"
+   ],
+   "behavioral_tells": [
+    "fearful, secretive, conflicted"
+   ],
+   "evidence_sensitivity": [
+    "whip marks",
+    "testimony"
+   ]
+  },
+  {
+   "name": "Dr. James Mortimer",
+   "age_range": "30s-40s",
+   "role_archetype": "country doctor and friend",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "local medical practitioner",
+   "private_secret": "concerned for Sir Henry's safety",
+   "motive_seed": "friendship and duty",
+   "motive_strength": "strong",
+   "alibi_window": "mostly at Grimpen and Baskerville Hall",
+   "access_plausibility": "high",
+   "stakes": "friend's life",
+   "moral_complexity": "low",
+   "relationships": [
+    "Sir Charles Baskerville (deceased friend)",
+    "Sir Henry Baskerville (friend)",
+    "Sherlock Holmes (consulted detective)"
+   ],
+   "opportunity_channels": [
+    "local knowledge"
+   ],
+   "behavioral_tells": [
+    "absent-minded",
+    "concerned"
+   ],
+   "evidence_sensitivity": [
+    "medical reports",
+    "footprints"
+   ]
+  },
+  {
+   "name": "Barrymore",
+   "age_range": "40s-50s",
+   "role_archetype": "butler with secret",
+   "role": "suspect",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "butler at Baskerville Hall",
+   "private_secret": "secretly aiding escaped convict brother",
+   "motive_seed": "family loyalty",
+   "motive_strength": "moderate",
+   "alibi_window": "present at Baskerville Hall",
+   "access_plausibility": "high",
+   "stakes": "family safety",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Mrs. Barrymore (wife)",
+    "Selden (brother)"
+   ],
+   "opportunity_channels": [
+    "Baskerville Hall"
+   ],
+   "behavioral_tells": [
+    "furtive",
+    "deaf"
+   ],
+   "evidence_sensitivity": [
+    "light signals",
+    "test telegram"
+   ]
+  },
+  {
+   "name": "Mrs. Barrymore",
+   "age_range": "40s-50s",
+   "role_archetype": "housekeeper with secret sorrow",
+   "role": "witness",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "housekeeper at Baskerville Hall",
+   "private_secret": "aiding escaped convict brother",
+   "motive_seed": "family loyalty and guilt",
+   "motive_strength": "moderate",
+   "alibi_window": "present at Baskerville Hall",
+   "access_plausibility": "high",
+   "stakes": "family safety",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Barrymore (husband)",
+    "Selden (brother)"
+   ],
+   "opportunity_channels": [
+    "Baskerville Hall"
+   ],
+   "behavioral_tells": [
+    "weeping",
+    "secretive"
+   ],
+   "evidence_sensitivity": [
+    "tear-stained face",
+    "light signals"
+   ]
+  },
+  {
+   "name": "Mrs. Laura Lyons",
+   "age_range": "20s-30s",
+   "role_archetype": "disgraced woman and pawn",
+   "role": "witness",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "typewriter business owner",
+   "private_secret": "had secret correspondence with Sir Charles",
+   "motive_seed": "need for support and escape from husband",
+   "motive_strength": "weak",
+   "alibi_window": "present in Coombe Tracey",
+   "access_plausibility": "medium",
+   "stakes": "reputation and livelihood",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Sir Charles Baskerville (benefactor)",
+    "Jack Stapleton (manipulator)"
+   ],
+   "opportunity_channels": [
+    "Coombe Tracey"
+   ],
+   "behavioral_tells": [
+    "defensive",
+    "reticent"
+   ],
+   "evidence_sensitivity": [
+    "letters",
+    "appointment note"
+   ]
+  },
+  {
+   "name": "Selden",
+   "age_range": "30s-40s",
+   "role_archetype": "escaped convict",
+   "role": "bystander",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "escaped prisoner",
+   "private_secret": "hiding on the moor",
+   "motive_seed": "survival",
+   "motive_strength": "strong",
+   "alibi_window": "on the moor",
+   "access_plausibility": "high",
+   "stakes": "freedom",
+   "moral_complexity": "low",
+   "relationships": [
+    "Barrymore (brother-in-law)",
+    "Mrs. Barrymore (sister)"
+   ],
+   "opportunity_channels": [
+    "moor hiding places"
+   ],
+   "behavioral_tells": [
+    "furtive",
+    "desperate"
+   ],
+   "evidence_sensitivity": [
+    "footprints",
+    "clothing"
+   ]
+  }
+ ],
+ "culprits": [
+  "Jack Stapleton (Vandeleur)"
+ ],
+ "surface_summary": "Sir Charles Baskerville dies mysteriously on the moor, apparently of fright caused by a supernatural hound. His heir, Sir Henry, receives threatening letters and is shadowed by unknown agents. Strange events and sightings of a spectral hound create a reign of terror.",
+ "accepted_facts": [
+  "Sir Charles died suddenly on the moor with no visible wounds",
+  "Footprints of a gigantic hound were found near Sir Charles's body",
+  "Sir Henry received a threatening letter warning him to stay away from the moor",
+  "A large black hound with glowing eyes was heard and seen on the moor"
+ ],
+ "inferred_conclusions": [
+  "The hound is a supernatural creature causing deaths",
+  "Barrymore and his wife are involved in the murders",
+  "The escaped convict Selden is the murderer"
+ ],
+ "mechanism_description": "Jack Stapleton, the true heir to the Baskerville estate, trained a large black hound and coated it with phosphorus to appear supernatural. He used the hound to frighten Sir Charles to death and later to attack Sir Henry. Stapleton manipulated others and used disguises to conceal his identity and motives.",
+ "delivery_path": [
+  "Stapleton acquires and trains a large black hound",
+  "He applies phosphorus to the hound to create a glowing, terrifying appearance",
+  "He lures Sir Charles to the moor where the hound frightens him to death",
+  "Stapleton sends threatening letters to Sir Henry to scare him",
+  "He attempts to kill Sir Henry using the hound on the moor",
+  "Stapleton uses disguises and deception to avoid suspicion",
+  "Holmes and Watson investigate, uncovering the plot and confronting Stapleton"
+ ],
+ "outcome_result": "Stapleton is exposed as the murderer and dies in the Grimpen Mire while fleeing, ending the Baskerville curse.",
+ "false_assumption": {
+  "statement": "The hound is a supernatural fiend causing the deaths.",
+  "type": "behavioral",
+  "why_it_seems_reasonable": "Multiple witnesses report a glowing, spectral hound and footprints of a gigantic dog near the victim. The legend of the Baskerville curse supports a supernatural explanation.",
+  "what_it_hides": "The hound is a real dog trained and artificially enhanced by Stapleton to frighten victims, masking a human murderer's actions."
+ },
+ "false_solution": {
+  "accused_suspect": "Barrymore",
+  "supporting_points": [
+   "Barrymore was seen acting furtively at night",
+   "He had a motive to scare the Baskervilles away to secure the estate",
+   "He was connected to the escaped convict Selden",
+   "He was the first to find Sir Charles's body"
+  ],
+  "the_one_flaw": "Barrymore was secretly aiding his convict brother and had no motive or means to commit murder",
+  "refuted_in_chapter": 9
+ },
+ "red_herrings": [
+  {
+   "id": "escaped_convict_suspect",
+   "description": "Selden, the escaped convict hiding on the moor, is suspected of murder.",
+   "points_at_suspect": "His presence on the moor and proximity to the crime scenes",
+   "innocent_explanation": "He was hiding and starving, not involved in the murders",
+   "resolved_in_chapter": 9
+  },
+  {
+   "id": "supernatural_hound",
+   "description": "The glowing hound is believed to be a supernatural creature.",
+   "points_at_suspect": "The terrifying appearance and mysterious footprints",
+   "innocent_explanation": "The hound was a real dog coated with phosphorus by Stapleton",
+   "resolved_in_chapter": 14
+  }
+ ],
+ "closed_circle": {
+  "suspects": [
+   "Jack Stapleton (Vandeleur)",
+   "Barrymore",
+   "Mrs. Barrymore",
+   "Mrs. Laura Lyons",
+   "Selden"
+  ],
+  "rationale": "All suspects are local residents or closely connected to Baskerville Hall and the moor, with no outsiders involved."
+ },
+ "constraint_space": {
+  "time_anchors": [
+   "night of Sir Charles's death",
+   "arrival of Sir Henry",
+   "evening of Sir Henry's attack"
+  ],
+  "time_windows": [
+   "nighttime hours when hound was active",
+   "daytime investigations"
+  ],
+  "access_actors": [
+   "Stapleton",
+   "Barrymore",
+   "Mrs. Barrymore",
+   "Selden",
+   "Sir Henry",
+   "Dr. Watson"
+  ],
+  "access_objects": [
+   "Baskerville Hall",
+   "moor paths",
+   "Merripit House",
+   "stone huts",
+   "Grimpen Mire"
+  ],
+  "trust_channels": [
+   "letters",
+   "telegram",
+   "personal testimony"
+  ],
+  "authority_sources": [
+   "Sherlock Holmes",
+   "Dr. Mortimer",
+   "Inspector Lestrade"
+  ]
+ },
+ "inference_path": [
+  {
+   "observation": "Footprints of a gigantic hound near Sir Charles's body",
+   "correction": "The hound was a real dog, not supernatural",
+   "effect": "Focus on physical evidence and animal training",
+   "required_evidence": [
+    "Dr. Mortimer's testimony about footprints",
+    "Phosphorus traces on the hound's body"
+   ]
+  },
+  {
+   "observation": "Threatening letter to Sir Henry made from newspaper cuttings",
+   "correction": "Letter was composed by an educated man trying to disguise handwriting",
+   "effect": "Narrow suspect to educated locals",
+   "required_evidence": [
+    "Analysis of letter's paper and ink",
+    "Holmes's deduction of Times newspaper source"
+   ]
+  },
+  {
+   "observation": "Stapleton's wife posing as sister",
+   "correction": "She is actually his wife, abused and captive",
+   "effect": "Stapleton's deception and control revealed",
+   "required_evidence": [
+    "Photograph of Mr. and Mrs. Vandeleur",
+    "Mrs. Stapleton's testimony"
+   ]
+  },
+  {
+   "observation": "Barrymore's furtive night movements and signals",
+   "correction": "He was aiding his escaped convict brother, not committing murder",
+   "effect": "Barrymore cleared as suspect",
+   "required_evidence": [
+    "Postmaster's testimony about telegram delivery",
+    "Mrs. Barrymore's confession"
+   ]
+  },
+  {
+   "observation": "Strange figure on the tor watching the moor",
+   "correction": "Stapleton was surveilling the area secretly",
+   "effect": "Stapleton identified as the hidden antagonist",
+   "required_evidence": [
+    "Watson's sighting of man on tor",
+    "Stapleton's known presence on moor"
+   ]
+  },
+  {
+   "observation": "Hound's glowing appearance and attacks",
+   "correction": "Hound was coated with phosphorus to appear supernatural",
+   "effect": "Reveals method of murder by induced fright",
+   "required_evidence": [
+    "Phosphorus traces on dead hound",
+    "Holmes's examination of hound's body"
+   ]
+  },
+  {
+   "observation": "Stapleton's disappearance after hound's death",
+   "correction": "He died in the Grimpen Mire while fleeing",
+   "effect": "Culprit's demise ends case",
+   "required_evidence": [
+    "Boot found in mire",
+    "Absence of Stapleton thereafter"
+   ]
+  }
+ ],
+ "discriminating_test": {
+  "method": "trap",
+  "design": "Holmes and Lestrade set an ambush near Merripit House with Sir Henry as bait, waiting for Stapleton to attempt to use the hound. They observe the movements and wait for Stapleton to reveal himself by releasing the hound or attempting to attack.",
+  "knowledge_revealed": "Stapleton's presence and use of the phosphorescent hound to attack Sir Henry is confirmed, exposing him as the murderer.",
+  "pass_condition": "Stapleton is observed releasing the hound or attempting to attack Sir Henry on the moor."
+ },
+ "fair_play_explanation": "The reader is provided with detailed descriptions of the footprints, the threatening letter made from newspaper cuttings, the suspicious behavior of Barrymore and his wife, the identity and background of Stapleton, and the glowing hound. Holmes's deductions about the letter's origin, the hound's phosphorescent coating, and Stapleton's true identity are all based on clues available to the reader. The false supernatural explanation and suspicion of Barrymore serve as plausible misdirections, but the evidence to solve the case is all presented fairly.",
+ "anchors": [
+  "footprints of a gigantic hound",
+  "letter was composed by an educated man",
+  "Stapleton is really his wife",
+  "Barrymore was holding a candle to the window",
+  "escaped convict Selden",
+  "figure of a man upon the tor",
+  "phosphorus, a cunning preparation of it",
+  "the huge black creature, but not such a hound",
+  "Sir Henry lay insensible where he had fallen",
+  "the body of Selden, the criminal",
+  "the locked door of the bedroom",
+  "Mrs. Stapleton sank upon the floor",
+  "the path zigzagged from tuft to tuft",
+  "the old black boot in the air",
+  "the letter was composed by an educated man",
+  "the clipped words upon the letter",
+  "the postscript at the end of the letter",
+  "the photograph of the couple taken in York",
+  "the hound was laid on from some article",
+  "the hound is dead"
+ ]
+}

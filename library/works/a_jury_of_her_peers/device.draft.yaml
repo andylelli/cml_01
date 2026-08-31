@@ -1,0 +1,46 @@
+pattern_id: a_jury_of_her_peers
+title: The Trifling Clues
+family: spatial_routing
+axes:
+  - behavioral
+principle: >-
+  A motive built over twenty years leaves its record in exactly the objects a professional
+  classifies as trifles — a broken cage hinge, a bag of sugar half emptied, a row of even stitches
+  going suddenly wild — so the search that is thorough about crime is blind about cause.
+principleType: cognitive_bias
+surface_illusion_template: >-
+  A motive must be found in the places a county attorney searches — the bedroom, the barn, the
+  windows; The kitchen contains nothing of significance; Without something to show anger or sudden
+  feeling, a jury will not convict a woman
+underlying_reality_template: >-
+  the victim wrung the neck of his wife's canary, and she killed him in his sleep by the neck with a
+  rope; the motive is recorded only in the domestic objects the investigators classify as trifles,
+  and is found by the two women left alone among them.
+feasibility:
+  eras:
+    - 1850
+    - 1860
+    - 1870
+    - 1880
+    - 1890
+    - 1900
+    - 1910
+    - 1920
+    - 1930
+    - 1940
+    - 1950
+  requires:
+    - domestic_detail
+    - gendered_expectation
+  forbids:
+    - cctv
+    - forensic_document_dating
+clue_archetypes:
+  - the_bucket_of_sugar
+  - the_dish_towel_on
+  - the_quilt_block_whose
+  - mrs_peters_remark_that
+  - the_bird_cage_with
+  - mrs_peters_statement_that
+sources:
+  - Susan Glaspell, A Jury of Her Peers — library/works/a_jury_of_her_peers/case.cml2.yaml

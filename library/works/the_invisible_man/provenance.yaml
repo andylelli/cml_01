@@ -1,0 +1,119 @@
+# Provenance + clearance + verification record for library/works/the_invisible_man.
+# Written by the ANALYSIS_77 §16 pilot run, 2026-08-31. The `verification` block is the
+# §10.4 output: every factual claim in case.cml2.yaml carries a span copied from the source,
+# and each span was checked with a literal substring match against the source text itself.
+
+slug: the_invisible_man
+title: "The Invisible Man"
+author: "G. K. Chesterton"
+author_death_year: 1936
+first_publication_year: 1911
+container: "The Innocence of Father Brown (1911), story 5 of 12"
+
+source:
+  host: "Project Gutenberg"
+  ebook_id: 204
+  url: "https://www.gutenberg.org/ebooks/204"
+  text_url: "https://www.gutenberg.org/cache/epub/204/pg204-images.html"
+  retrieved: 2026-08-31
+  container_chars: 459080
+  # Character offsets of this story inside the container's rendered text, so the extraction
+  # is reproducible rather than described.
+  extract_span: [157429, 193529]
+  extract_chars: 36100
+  extract_words: 6300
+
+clearance:
+  # DERIVED by the §10.2 rule, never hand-written.
+  # uk = green iff author_death_year + 70 < 2026  ->  1936 + 70 = 2006  ✓
+  # us = green iff first_publication_year + 95 < 2026  ->  1911 + 95 = 2006  ✓
+  uk: green
+  us: green
+  verdict: green
+  calculated_on: 2026-08-31
+
+verification:
+  method: "literal substring match against source text, whitespace-normalised (§10.4)"
+  run_on: 2026-08-31
+  spans_checked: 20
+  spans_passed: 20
+  negative_control:
+    span: "Ralph Hewitt"
+    expected: fail
+    result: fail
+    note: >
+      The fabricated name from the existing the_clue_of_the_twisted_candle encoding (§3.2), checked
+      against a source that cannot contain it. It fails, which is the whole point: an invented claim
+      cannot produce a passing span.
+  claims:
+    - claim: "victim is Isidore Smythe, body recovered from the canal"
+      span: "they’ve just found poor Mr. Smythe’s body in the canal down below"
+    - claim: "cause of death is a stab wound over the heart, not drowning"
+      span: "he wasn’t drowned either, for he died of a great stab over the heart"
+    - claim: "James Welkin is the squinting man"
+      span: "James Welkin (that was the squinting man’s name)"
+    - claim: "the culprit is the passing postman"
+      span: "put his hand on the shoulder of an ordinary passing postman who had bustled by them unnoticed"
+    - claim: "the squint identifies the postman as Welkin"
+      span: "all three men were fixed with an almost fiendish squint"
+    - claim: "the postbag is the means of body removal"
+      span: "even carry large bags where a small corpse can be stowed quite easily"
+    - claim: "false assumption: the witnesses' 'nobody' is narrower than it sounds"
+      span: "When those four quite honest men said that no man had gone into the Mansions, they did not really mean that no man had gone into them."
+    - claim: "governing principle of the deception"
+      span: "people never answer what you say? They answer what you mean"
+    - claim: "a man did enter and leave, unnoticed"
+      span: "A man did go into the house, and did come out of it, but they never noticed him."
+    - claim: "the killer is 'mentally invisible', not physically so"
+      span: "A mentally invisible man"
+    - claim: "clue: grey footprints in the snow at the guarded entrance"
+      span: "ran a stringy pattern of grey footprints stamped upon the white snow"
+    - claim: "clue: stamp paper gummed to the shop window in public"
+      span: "there was the vast lot of stamp paper on the window"
+    - claim: "clue: Welkin took long solitary walks"
+      span: "there was the fact that this Welkin went for long walks"
+    - claim: "clue: someone must have carried the letters to Laura Hope"
+      span: "barring carrier-pigeons, somebody must have brought her the letter"
+    - claim: "discriminating test: was a light brown sack found with the body"
+      span: "I wonder if they found a light brown sack"
+    - claim: "blood on the floor but no corpse in the flat"
+      span: "Isidore Smythe was not in the place, either dead or alive"
+    - claim: "the threat gummed to the shop window"
+      span: "If you marry Smythe, he will die"
+    - claim: "motive: Smythe and Welkin were rival suitors"
+      span: "when they both offered to marry me in the same week"
+    - claim: "constraint: the building has no back door"
+      span: "there was no back door"
+    - claim: "witness testimony that seals the apparent impossibility"
+      span: "I’ll swear there’s been nobody to ask since this gentleman went away"
+
+gate:
+  validate_cml:
+    attempt_1: "FAIL — 9 errors, all schema FIELD NAMES (delivery_path[].step, false_solution.supporting_points / the_one_flaw, red_herrings[].innocent_explanation)"
+    attempt_2: "PASS"
+    note: >
+      Every substantive check passed on attempt 1 — grounding of the discriminating test in
+      reader-visible evidence, non-empty culprits, culprit-is-not-the-detective, required_evidence
+      concreteness, no duplicate observations. Only the field NAMES were wrong, which is fixed by
+      putting schema/cml_2_0.schema.yaml in the encoder prompt.
+  novelty:
+    verdict: distinct
+    corpus_size: 19
+    nearest: "a_study_in_scarlet (seed) — shares discriminating-test shape 'physical_trace' only"
+
+open_issues:
+  - id: mechanism_family_vocabulary
+    severity: finding
+    detail: >
+      `mechanism_family` was forced to `impersonation`, and that is not what happens in this story.
+      Welkin impersonates nobody; he occupies a ROLE whose occupant is not perceived as a person.
+      The 14-value enum in schema/novelty_fingerprint.schema.yaml has no member for functional or
+      occupational invisibility — so the vocabulary cannot express the best behavioral case in the
+      genre. Proposed addition: `role_invisibility`.
+  - id: axis_is_arguable
+    severity: note
+    detail: >
+      Encoded `behavioral` (the deception exploits how a role is habitually perceived). There is a
+      defensible reading as `authority` — four uniformed witnesses believed because of their standing.
+      Recorded here rather than hidden, because §4.3's drift began as exactly this kind of unrecorded
+      judgement call.

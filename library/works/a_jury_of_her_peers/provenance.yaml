@@ -1,0 +1,59 @@
+# Provenance + clearance + verification record. Written by the ANALYSIS_77 §16.9 run, 2026-08-31.
+
+slug: a_jury_of_her_peers
+title: "A Jury of Her Peers"
+author: "Susan Glaspell"
+author_death_year: 1948
+first_publication_year: 1917
+container: "The Best Short Stories of 1917 (ed. Edward J. O'Brien), pp. 256-283"
+
+source:
+  host: "Project Gutenberg"
+  ebook_id: 20872
+  url: "https://www.gutenberg.org/ebooks/20872"
+  retrieved: 2026-08-31
+  extract_chars: 44357
+  extract_words: 8130
+
+clearance:
+  # DERIVED by the §10.2 rule, never hand-written.
+  # uk green iff author_death_year + 70 < 2026 -> 1948 + 70 = 2018
+  # us green iff first_publication_year + 95 < 2026 -> 1917 + 95 = 2012
+  uk: green
+  us: green
+  verdict: green
+  calculated_on: 2026-08-31
+
+verification:
+  method: "literal substring match against the live Project Gutenberg page (not a locally-written copy) (§10.4)"
+  run_on: 2026-08-31
+  spans_checked: 20
+  spans_passed: 20
+  negative_control:
+    span: "Sergeant Cuff"
+    expected: fail
+    result: fail
+    note: "A detective from another author's canon, checked against a source that cannot contain them."
+
+gate:
+  validate_cml: "attempt 1: PASS"
+  novelty:
+    verdict: distinct
+    nearest: "butler_did_it (cliche) — shares mechanism 'hidden_accomplice' + test shape 'behavioral_tell'"
+
+open_issues:
+  - id: mechanism_family_vocabulary
+    severity: finding
+    detail: >
+      `mechanism_family` was forced to `hidden_accomplice`, and the story has no accomplice and no
+      trick. Nothing is staged by the culprit at all: the concealment is performed first by the
+      investigators' own framing of what counts as evidence, and then, after the fact, by two
+      neighbour women. The enum has no member for a case whose concealment is not an act by the
+      culprit. The novelty judge's nearest neighbour is `butler_did_it`, which is the mis-tag showing
+      up as a measurement rather than as an opinion.
+  - id: axis_is_arguable
+    severity: note
+    detail: >
+      Encoded `behavioral` (an assumption about what a kind of person notices). A defensible
+      `authority` reading exists — the county attorney's standing is what makes his designation of the
+      kitchen as insignificant stick. Recorded rather than hidden.

@@ -1,0 +1,140 @@
+{
+ "slug": "the_leavenworth_case",
+ "valid": false,
+ "errors": [
+  "CASE.inference_path.steps[2].required_evidence[1] relies on detective-only behavioral shorthand (\"The confession letter found among Hannah's effects, as listed in Mrs. Belden's household inventory prior to the detective's arrival\") — replace it with a concrete pre-test observation, document, timeline fact, physical trace, or access record",
+  "CASE.inference_path.steps[5].required_evidence[0] relies on detective-only behavioral shorthand (\"The handkerchief and forged confession letter, with provenance established by prior testimony and physical location records before the meeting\") — replace it with a concrete pre-test observation, document, timeline fact, physical trace, or access record",
+  "CASE.discriminating_test.design relies on detective-only reaction/confession language (\"Detective Gryce arranges a meeting with all suspects and witnesses, presenting the handkerchief, the forged confession letter, and the police inventory of the pistol’s uncleansed cylinder. The test consists of confronting each party with these physical items and the timeline records, requiring each to account for their connection to the evidence and their whereabouts at the relevant times. The test is based solely on contradictions and physical evidence established prior to the meeting, not on reactions or confessions.\") — replace it with a concrete pre-test fact, contradiction, mechanism detail, or elimination the reader can verify without interpreting emotions",
+  "CASE.discriminating_test.pass_condition relies on detective-only reaction/confession language (\"The culprit is the only person whose access to the handkerchief, the forged confession letter, and the pistol’s uncleansed cylinder is established by timeline and physical evidence prior to the meeting, and whose statements about these items are contradicted by those records.\") — replace it with a concrete pre-test fact, contradiction, mechanism detail, or elimination the reader can verify without interpreting emotions"
+ ],
+ "spans": [
+  {
+   "claim": "Mr. Leavenworth is dead, shot through the head",
+   "anchor": "shot through the head by some unknown person",
+   "span": "Yes, murdered; shot through the head by some unknown person while sitting at his library table.",
+   "ok": true
+  },
+  {
+   "claim": "The library door was locked on the inside",
+   "anchor": "Found locked on the inside",
+   "span": "Found locked on the inside; may have come that way and may not; we don't pretend to say.",
+   "ok": true
+  },
+  {
+   "claim": "The bullet was fired from a rifled pistol",
+   "anchor": "small, and from a rifled barrel",
+   "span": "Also, that as the ball was small, and from a rifled barrel, and thus especially liable to deflections while passing through bones and integuments, it seemed to him evident that the victim had made no effort to raise or turn his head when advanced upon by his destroyer; the fearful conclusion being that the footstep was an accustomed one, and the presence of its possessor in the room either known or expected.",
+   "ok": true
+  },
+  {
+   "claim": "The pistol was found cleaned but recently fired",
+   "anchor": "cleaned the barrel, but forgot the cylinder",
+   "span": "The man who fired this, remembering the fact, cleaned the barrel, but forgot the cylinder.",
+   "ok": true
+  },
+  {
+   "claim": "Eleanore Leavenworth possessed the library key",
+   "anchor": "the key to the library door is missing",
+   "span": "Miss Leavenworth, the key to the library door is missing.",
+   "ok": true
+  },
+  {
+   "claim": "A handkerchief stained with pistol grease was found",
+   "anchor": "handkerchief found this morning in that room",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Mary Leavenworth is the heiress in the will",
+   "anchor": "he made no secret of his intentions to any one",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Mary Leavenworth wrote a letter to Mr. Clavering",
+   "anchor": "a letter came from him to my address",
+   "span": "I was consequently far from being surprised when, in a couple of weeks or so afterwards, a letter came from him to my address, which, owing to the careless omission of the private mark upon the envelope, I opened, and read enough to learn that, driven to desperation by the constant failures which he had experienced in all his endeavors to gain access to her in public or private, a failure which he was not backward in ascribing to her indisposition to see him, he had made up his mind to risk everything, even her displeasure; and, by making an appeal to her uncle, end the suspense under which he was laboring, definitely and at once.",
+   "ok": true
+  },
+  {
+   "claim": "Hannah Chester disappeared from the house",
+   "anchor": "she was here last night, and she isn’t here this morning",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Hannah Chester was found dead in Mrs. Belden’s house",
+   "anchor": "lying upon the pillow a cold, calm face",
+   "span": "Gryce, drawing them from my clasp, disclosed lying upon the pillow a cold, calm face looking so natural I involuntarily started.",
+   "ok": true
+  },
+  {
+   "claim": "A forged confession letter was found",
+   "anchor": "a forged confession falsely criminating Henry Clavering",
+   "span": "The powder was a deadly dose of poison and the packet was, as you know, a forged confession falsely criminating Henry Clavering.",
+   "ok": true
+  },
+  {
+   "claim": "Mr. Harwell confessed to the murder",
+   "anchor": "I am the murderer of Mr. Leavenworth",
+   "span": "I am the murderer of Mr. Leavenworth.",
+   "ok": true
+  },
+  {
+   "claim": "Mary Leavenworth and Henry Clavering were secretly married",
+   "anchor": "married at a parsonage, some twenty miles from the watering-place",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Mr. Harwell cleaned the pistol but forgot the cylinder",
+   "anchor": "cleaned the barrel, but forgot the cartridge-chamber",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The confession letter was printed, not handwritten",
+   "anchor": "words used therein were printed in coarse, awkward characters",
+   "span": "Well, sir, this girl left a confession behind her, throwing the onus of the whole crime on a certain party believed to be innocent; this confession was a forged one, known from three facts; first, that the paper upon which it was written was unobtainable by the girl in the place where she was; secondly, that the words used therein were printed in coarse, awkward characters, whereas Hannah, thanks to the teaching of the woman under whose care she has been since the murder, had learned to write very well; thirdly, that the story told in the confession does not agree with the one related by the girl herself.",
+   "ok": true
+  },
+  {
+   "claim": "The confession letter was written on trimmed paper",
+   "anchor": "sheet of commercial note of the ordinary quality",
+   "span": "That is, a sheet of commercial note of the ordinary quality.",
+   "ok": true
+  },
+  {
+   "claim": "Mary Leavenworth’s diary reveals family tensions",
+   "anchor": "Mary has consented to dismiss Mr. Clavering",
+   "span": "After a long struggle with Uncle's invincible will, Mary has consented to dismiss Mr. Clavering.",
+   "ok": true
+  },
+  {
+   "claim": "Mr. Gryce’s final report accuses Mary Leavenworth",
+   "anchor": "Mary Leavenworth is the assassin of her uncle",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Mr. Harwell’s confession clears Mary and Eleanore",
+   "anchor": "I am the murderer of Mr. Leavenworth",
+   "span": "I am the murderer of Mr. Leavenworth.",
+   "ok": true
+  },
+  {
+   "claim": "Eleanore Leavenworth is innocent and reconciled with Mary",
+   "anchor": "Eleanore had fallen at her cousin’s feet",
+   "span": "I did not need to glance their way to know that Eleanore had fallen at her cousin's feet, and that her cousin had affrightedly lifted her.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.231594504,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-08-31"
+}

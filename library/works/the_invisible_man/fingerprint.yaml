@@ -1,0 +1,12 @@
+- id: the_invisible_man
+  corpus: seed
+  axis: behavioral
+  mechanism_family: impersonation
+  false_assumption_pattern: a_uniformed_worker_is_not_a_stranger
+  discriminating_test_shape: timetable_contradiction
+  inference_shape: reinterpret_witness_testimony
+  premise: >-
+    Isidore Smythe, threatened by an unseen enemy, is left alone in a top-floor flat whose single
+    entrance is watched by four men. Within the hour there is blood on his hall floor, his body is
+    found stabb
+  source: library/works/the_invisible_man/case.cml2.yaml

@@ -1,0 +1,137 @@
+{
+ "slug": "the_mystery_of_the_yellow_room",
+ "valid": false,
+ "errors": [
+  "CASE.discriminating_test.design is not grounded in reader-visible inference evidence — add these mechanism/test terms to earlier observations or required_evidence: arrang, watch, apartment, trust"
+ ],
+ "spans": [
+  {
+   "claim": "Mademoiselle Stangerson was found lying on the floor in the midst of the greatest disorder",
+   "anchor": "Mademoiselle, in her night-dress, was lying on the floor in the midst",
+   "span": "Mademoiselle, in her night-dress, was lying on the floor in the midst of the greatest disorder.",
+   "ok": true
+  },
+  {
+   "claim": "The door was locked, fast locked, on the inside",
+   "anchor": "it was locked, fast locked, on the inside",
+   "span": "it was locked, fast locked, on the inside, by the care of Mademoiselle, as I have told you, with key and bolt.",
+   "ok": true
+  },
+  {
+   "claim": "The window of The Yellow Room looks out in such a way that the park wall prevented my at once reaching the window",
+   "anchor": "The window of The Yellow Room looks out in such a way",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The murderer was wounded in the hand by Mademoiselle Stangerson’s revolver",
+   "anchor": "the murderer was wounded in the hand by Mademoiselle Stangerson’s revolver",
+   "span": "the murderer was wounded in the hand by Mademoiselle Stangerson's revolver!",
+   "ok": true
+  },
+  {
+   "claim": "Frédéric Larsan’s cane was bought at Cassette, 6a, Opera",
+   "anchor": "Read the mark there, in tiny letters: Cassette, 6a, Opera",
+   "span": "Read the mark there, in tiny letters: Cassette, 6a, Opera.",
+   "ok": true
+  },
+  {
+   "claim": "The ladder stood resting against the stone brackets supporting the terrace",
+   "anchor": "there was a ladder stood resting against the stone brackets",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The murderer escaped by climbing the wall using a prepared spike and ladder",
+   "anchor": "this, Monsieur, is a spike which perfectly fits a hole",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The keeper was stabbed in the heart with a knife",
+   "anchor": "the man you believe to have been shot was killed by the stab of a knife",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Mademoiselle Stangerson poured a narcotic into her father’s glass",
+   "anchor": "I saw Mademoiselle Stangerson pour a narcotic into Monsieur Stangerson’s glass",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The murderer was seen running away and was shot at the corner of the right wing",
+   "anchor": "We distinctly saw the form of a man running away",
+   "span": "We distinctly saw the form of a man running away.",
+   "ok": true
+  },
+  {
+   "claim": "The murderer was Frédéric Larsan, alias Ballmeyer",
+   "anchor": "Frédéric Larsan is the murderer!",
+   "span": "Frédéric Larsan is the murderer!\" The court-room became immediately filled with loud and indignant protests.",
+   "ok": true
+  },
+  {
+   "claim": "The key with a brass head was stolen and used by the murderer",
+   "anchor": "a key with a brass head, and, associating one with the other, he tried the key",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The bullet in the ceiling was fired accidentally during a nightmare",
+   "anchor": "the bullet in the ceiling must have resulted from an accident",
+   "span": "I knew from the first that the bullet in the ceiling must have resulted from an accident.",
+   "ok": true
+  },
+  {
+   "claim": "The footprints of the murderer were faked to resemble Darzac’s and Daddy Jacques’s",
+   "anchor": "footprints of Monsieur Robert Darzac appear to be really the footprints of Mademoiselle Stangerson’s fiancé",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Mademoiselle Stangerson was married to Ballmeyer (Frédéric Larsan)",
+   "anchor": "Mademoiselle Stangerson had sworn never to leave me, and adheres firmly to her oath",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Rouletabille’s reasoning led to the identification of Larsan as the murderer",
+   "anchor": "my pure reason pointed to him; but I required tangible proof",
+   "span": "Yes, my pure reason pointed to him; but I required tangible proof so that my eyes could see him as my pure reason saw him.",
+   "ok": true
+  },
+  {
+   "claim": "The murderer escaped before the door was locked",
+   "anchor": "The murderer must have escaped before Mademoiselle Stangerson had gone into her chamber at midnight",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The murderer hid under the bed before the attack",
+   "anchor": "he entered by the door and hid himself under the bed",
+   "span": "For the problem is this: we know by what way the assassin gained admission,-he entered by the door and hid himself under the bed, awaiting Mademoiselle Stangerson.",
+   "ok": true
+  },
+  {
+   "claim": "The murderer climbed the wall and escaped via the terrace",
+   "anchor": "he climbed the wall, sprang onto the terrace",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The murderer was drugged to fake illness",
+   "anchor": "He was not drugged; but he did drug me",
+   "span": "He was not drugged; but he did drug me.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.11512354,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-08-31"
+}

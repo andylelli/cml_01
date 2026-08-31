@@ -1,0 +1,48 @@
+pattern_id: the_hound_of_the_baskervilles
+title: The Phosphor Hound
+family: behavioral
+axes:
+  - behavioral
+principle: >-
+  The hound is a real dog trained and artificially enhanced by the culprit to frighten victims,
+  masking a human murderer's actions.
+principleType: cognitive_bias
+surface_illusion_template: >-
+  The hound is a supernatural creature causing deaths; a suspect and his wife are involved in the
+  murders; The escaped convict a bystander is the murderer
+underlying_reality_template: >-
+  the culprit, the true heir to the the victim estate, trained a large black hound and coated it
+  with phosphorus to appear supernatural. He used the hound to frighten Sir Charles to death and
+  later to attack Sir the victim. the culprit manipulated others and used disguises to conceal his
+  identity and motives.
+feasibility:
+  eras:
+    - 1850
+    - 1860
+    - 1870
+    - 1880
+    - 1890
+    - 1900
+    - 1910
+    - 1920
+    - 1930
+    - 1940
+    - 1950
+  requires:
+    - large_dog
+    - phosphorescent_chemical
+    - local_legend
+  forbids:
+    - cctv
+    - modern_toxicology_screen
+clue_archetypes:
+  - dr_mortimer_s_testimony
+  - phosphorus_traces_on_the
+  - analysis_of_letter_s
+  - holmes_s_deduction_of
+  - photograph_of_mr_and
+  - mrs_stapleton_s_testimony
+sources:
+  - >-
+    Arthur Conan Doyle, The Hound of the Baskervilles —
+    library/works/the_hound_of_the_baskervilles/case.cml2.yaml

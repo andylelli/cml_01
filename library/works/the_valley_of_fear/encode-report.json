@@ -1,0 +1,142 @@
+{
+ "slug": "the_valley_of_fear",
+ "valid": false,
+ "errors": [
+  "CASE.cast[3].role must be one of detective, victim, culprit, suspect, witness, bystander",
+  "CASE.cast[4].role must be one of detective, victim, culprit, suspect, witness, bystander",
+  "CASE.discriminating_test.method must be one of reenactment, trap, constraint_proof, administrative_pressure",
+  "CASE.inference_path.steps[5].required_evidence[1] relies on detective-only behavioral shorthand (\"Confession and explanation by Douglas\") — replace it with a concrete pre-test observation, document, timeline fact, physical trace, or access record",
+  "CASE.discriminating_test.design is not grounded in reader-visible inference evidence — add these mechanism/test terms to earlier observations or required_evidence: investigator, carefully, examine, noting",
+  "CASE.discriminating_test.knowledge_revealed is not grounded in reader-visible inference evidence — add these mechanism/test terms to earlier observations or required_evidence: examination, reveal, investigator"
+ ],
+ "spans": [
+  {
+   "claim": "John Douglas was horribly murdered",
+   "anchor": "Mr. Douglas of Birlstone Manor House was horribly murdered last night",
+   "span": "that Mr. Douglas of Birlstone Manor House was horribly murdered last night!",
+   "ok": true
+  },
+  {
+   "claim": "Cause of death was shotgun blast to the head",
+   "anchor": "He had received the whole charge in the face, blowing his head almost to pieces",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The culprit is Boss McGinty",
+   "anchor": "Boss McGinty, looking out upon the scene of his operations",
+   "span": "But as the wise general chooses the moment of victory in which to redouble his efforts, so that his foes may have no time to steady themselves after disaster, so Boss McGinty, looking out upon the scene of his operations with his brooding and malicious eyes, had devised a new attack upon those who opposed him.",
+   "ok": true
+  },
+  {
+   "claim": "The murder mechanism involved faking Douglas's death",
+   "anchor": "We tied all his things into a bundle, and I weighted them with the only weight I could find",
+   "span": "We tied all his things into a bundle, and I weighted them with the only weight I could find and put them through the window.",
+   "ok": true
+  },
+  {
+   "claim": "False assumption about bloodstain on window",
+   "anchor": "He smiled in silence at his colleagues",
+   "span": "He smiled in silence at his colleagues.",
+   "ok": true
+  },
+  {
+   "claim": "Red herring: the bicycle left behind",
+   "anchor": "They found his bicycle. The fellow left his bicycle behind him",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Red herring: blood mark on window sill",
+   "anchor": "He held down the light, and the marks of muddy boots were very visible in the corner",
+   "span": "He held down the light, and the marks of muddy boots were very visible in the corner.",
+   "ok": true
+  },
+  {
+   "claim": "Discriminating test: trapping Birdy Edwards",
+   "anchor": "Three loud knocks had sounded at the door",
+   "span": "Three loud knocks had sounded at the door.",
+   "ok": true
+  },
+  {
+   "claim": "Birdy Edwards is the Pinkerton agent",
+   "anchor": "I am Birdy Edwards!",
+   "span": "I am Birdy Edwards!\" There were ten seconds after that brief speech during which the room might have been empty, so profound was the silence.",
+   "ok": true
+  },
+  {
+   "claim": "Mrs. Douglas and Barker conspired to protect Douglas",
+   "anchor": "They are both lying, and in a conspiracy",
+   "span": "They are both lying, and in a conspiracy.",
+   "ok": true
+  },
+  {
+   "claim": "Cipher message warns Holmes of danger",
+   "anchor": "There is danger—may—come—very soon—one",
+   "span": "'There is danger-may-come-very soon-one.",
+   "ok": true
+  },
+  {
+   "claim": "The missing dumb-bell was used as a weight",
+   "anchor": "This bundle, weighted with a dumb-bell",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The assassin was killed inside the manor",
+   "anchor": "I heard him cock it; but I had got hold of it before he could fire",
+   "span": "I heard him cock it; but I had got hold of it before he could fire.",
+   "ok": true
+  },
+  {
+   "claim": "The wedding ring was taken and replaced",
+   "anchor": "Then the murderer, or whoever it was, first took off this ring you call the nugget ring, then the wedding ring, and afterwards put the nugget ring back again",
+   "span": "Then the murderer, or whoever it was, first took off this ring you call the nugget ring, then the wedding ring, and afterwards put the nugget ring back again.",
+   "ok": true
+  },
+  {
+   "claim": "Holmes's warning about greater danger",
+   "anchor": "There is no safety for your husband in England",
+   "span": "There is no safety for your husband in England.",
+   "ok": true
+  },
+  {
+   "claim": "The Scowrers are a criminal society",
+   "anchor": "The Scowrers, are the Eminent Order of Freemen",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "McMurdo's initiation and branding",
+   "anchor": "There on the flesh of the forearm was a circle with a triangle within it",
+   "span": "There on the flesh of the forearm was a circle with a triangle within it, deep and red, as the branding iron had left it.",
+   "ok": true
+  },
+  {
+   "claim": "The lodge plans to kill Birdy Edwards",
+   "anchor": "There’s a Pinkerton detective, one Birdy Edwards, at work in the valley",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Birdy Edwards infiltrated the lodge",
+   "anchor": "I joined your infernal lodge, and I took my share in your councils",
+   "span": "So I joined your infernal lodge, and I took my share in your councils.",
+   "ok": true
+  },
+  {
+   "claim": "The trial and downfall of the Scowrers",
+   "anchor": "The trial of the Scowrers was held far from the place",
+   "span": "The trial of the Scowrers was held far from the place where their adherents might have terrified the guardians of the law.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.049315663100000004,
+ "models": {
+  "map": "gpt-4o-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-08-31"
+}

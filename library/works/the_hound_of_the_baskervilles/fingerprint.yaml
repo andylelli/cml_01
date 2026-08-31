@@ -1,0 +1,12 @@
+- id: the_hound_of_the_baskervilles
+  corpus: seed
+  axis: behavioral
+  mechanism_family: disguised_natural_agent
+  false_assumption_pattern: the_hound_is_a
+  discriminating_test_shape: behavioral_tell
+  inference_shape: debunk_supernatural
+  premise: >-
+    Sir Charles Baskerville dies mysteriously on the moor, apparently of fright caused by a
+    supernatural hound. His heir, Sir Henry, receives threatening letters and is shadowed by unknown
+    agents. Strange
+  source: library/works/the_hound_of_the_baskervilles/case.cml2.yaml

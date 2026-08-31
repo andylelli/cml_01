@@ -1,0 +1,490 @@
+{
+ "decade": "1890s",
+ "realism_constraints": [
+  "No advanced forensic technology beyond early ballistics and basic chemical analysis",
+  "No modern communication devices; telegraph and postal services are primary means",
+  "Physical evidence limited to footprints, bloodstains, and physical objects; no DNA or fingerprint analysis"
+ ],
+ "location": "Château du Glandier, near Epinay-sur-Orge, France",
+ "institution": "Judicial Court of Corbeil and the Sûreté (French police)",
+ "crime_category": "murder",
+ "crime_subtype": "locked-room attack with staged escape",
+ "cast": [
+  {
+   "name": "Joseph Rouletabille",
+   "age_range": "18-20",
+   "role_archetype": "young reporter and brilliant amateur detective",
+   "role": "detective",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "confident, clever reporter",
+   "private_secret": "keen logical mind and determination",
+   "motive_seed": "truth and justice",
+   "motive_strength": "strong",
+   "alibi_window": "present at château during crime investigation",
+   "access_plausibility": "high",
+   "stakes": "solving a complex mystery and saving an innocent man",
+   "moral_complexity": "low",
+   "relationships": [
+    "Monsieur Robert Darzac (friend)",
+    "Mademoiselle Stangerson (case subject)"
+   ],
+   "opportunity_channels": [
+    "access to château",
+    "investigative visits"
+   ],
+   "behavioral_tells": [
+    "persistent reasoning",
+    "observant"
+   ],
+   "evidence_sensitivity": [
+    "eye-glasses found in Larsan's room",
+    "footprint patterns",
+    "blood-stained hair"
+   ]
+  },
+  {
+   "name": "Monsieur Robert Darzac",
+   "age_range": "35-45",
+   "role_archetype": "fiancé and scientist",
+   "role": "suspect",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "eligible",
+   "public_persona": "respected professor and fiancé",
+   "private_secret": "knows murderer's identity but bound by secret",
+   "motive_seed": "love and protection of Mademoiselle Stangerson",
+   "motive_strength": "strong",
+   "alibi_window": "absent from château at times of attacks",
+   "access_plausibility": "high",
+   "stakes": "his freedom and reputation",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Mademoiselle Stangerson (fiancée)",
+    "Joseph Rouletabille (friend)"
+   ],
+   "opportunity_channels": [
+    "access to château",
+    "scientific work schedule"
+   ],
+   "behavioral_tells": [
+    "silence under pressure",
+    "emotional distress"
+   ],
+   "evidence_sensitivity": [
+    "footprint patterns",
+    "presence at post office",
+    "absence during attacks"
+   ]
+  },
+  {
+   "name": "Mademoiselle Mathilde Stangerson",
+   "age_range": "35-40",
+   "role_archetype": "victim and scientist",
+   "role": "victim",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "beautiful, reserved daughter of professor",
+   "private_secret": "past marriage to Ballmeyer (Frédéric Larsan)",
+   "motive_seed": "fear and protection",
+   "motive_strength": "none",
+   "alibi_window": "present in locked room during attack",
+   "access_plausibility": "high",
+   "stakes": "life and secret",
+   "moral_complexity": "high",
+   "relationships": [
+    "Monsieur Stangerson (father)",
+    "Monsieur Robert Darzac (fiancé)",
+    "Frédéric Larsan (secret husband)"
+   ],
+   "opportunity_channels": [
+    "locked room",
+    "secret communications"
+   ],
+   "behavioral_tells": [
+    "fearful",
+    "secretive"
+   ],
+   "evidence_sensitivity": [
+    "blood-stained hair",
+    "locked door and window",
+    "letters"
+   ]
+  },
+  {
+   "name": "Monsieur Stangerson",
+   "age_range": "60-70",
+   "role_archetype": "scientist and father",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "distressed father and scientist",
+   "private_secret": "deep sorrow and possible knowledge of secret",
+   "motive_seed": "protection of daughter and work",
+   "motive_strength": "moderate",
+   "alibi_window": "present in laboratory during attack",
+   "access_plausibility": "high",
+   "stakes": "family and scientific legacy",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Mademoiselle Stangerson (daughter)",
+    "Monsieur Robert Darzac (friend)"
+   ],
+   "opportunity_channels": [
+    "laboratory",
+    "château"
+   ],
+   "behavioral_tells": [
+    "despair",
+    "protectiveness"
+   ],
+   "evidence_sensitivity": [
+    "empty safe",
+    "locked doors"
+   ]
+  },
+  {
+   "name": "Frédéric Larsan (Ballmeyer)",
+   "age_range": "45-55",
+   "role_archetype": "famous detective and secret criminal",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "celebrated detective",
+   "private_secret": "master criminal Ballmeyer",
+   "motive_seed": "love, greed, and revenge",
+   "motive_strength": "strong",
+   "alibi_window": "present at château, faked drugging",
+   "access_plausibility": "high",
+   "stakes": "escape and concealment",
+   "moral_complexity": "high",
+   "relationships": [
+    "Mademoiselle Stangerson (secret wife)",
+    "Monsieur Robert Darzac (rival)"
+   ],
+   "opportunity_channels": [
+    "duplicate keys",
+    "secret passages",
+    "disguise"
+   ],
+   "behavioral_tells": [
+    "cunning",
+    "manipulative",
+    "feigned illness"
+   ],
+   "evidence_sensitivity": [
+    "eye-glasses",
+    "ladder and spike",
+    "blood-stained handkerchief",
+    "boots"
+   ]
+  },
+  {
+   "name": "Daddy Jacques (Jacques Louis Moustier)",
+   "age_range": "60-70",
+   "role_archetype": "loyal servant",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "faithful old servant",
+   "private_secret": "deeply loyal, possibly fearful",
+   "motive_seed": "loyalty",
+   "motive_strength": "none",
+   "alibi_window": "present in laboratory during attack",
+   "access_plausibility": "high",
+   "stakes": "servitude and trust",
+   "moral_complexity": "low",
+   "relationships": [
+    "Monsieur Stangerson (master)",
+    "Mademoiselle Stangerson (mistress)"
+   ],
+   "opportunity_channels": [
+    "pavilion",
+    "attic"
+   ],
+   "behavioral_tells": [
+    "emotional",
+    "truthful"
+   ],
+   "evidence_sensitivity": [
+    "boots",
+    "Basque cap"
+   ]
+  }
+ ],
+ "culprits": [
+  "Frédéric Larsan (Ballmeyer)"
+ ],
+ "surface_summary": "Mademoiselle Stangerson was attacked in a locked and bolted room, with no apparent way for the assailant to escape. The footprints, bloodstains, and physical evidence suggested a mysterious disappearance of the attacker. Suspicion fell on her fiancé, Robert Darzac, but the true culprit was the celebrated detective Frédéric Larsan, who was secretly the criminal Ballmeyer.",
+ "accepted_facts": [
+  "The Yellow Room was locked and bolted from the inside during the attack",
+  "Mademoiselle Stangerson was severely wounded but survived",
+  "Footprints and blood evidence were found inside and outside the pavilion",
+  "Robert Darzac was arrested and tried for the crime"
+ ],
+ "inferred_conclusions": [
+  "The murderer escaped through a secret passage or trapdoor",
+  "Robert Darzac was guilty based on footprint and alibi evidence",
+  "The concierges were accomplices in the crime"
+ ],
+ "mechanism_description": "Frédéric Larsan, disguised as the criminal Ballmeyer, entered the pavilion before the attack and hid under the bed. He committed the assault on Mademoiselle Stangerson, who defended herself with a revolver, wounding him. Larsan escaped by climbing the wall using a prepared spike and ladder fixed to the terrace cornice, then entered the château through a window. He manipulated evidence to frame Robert Darzac and concealed his identity through disguise and cunning.",
+ "delivery_path": [
+  "Larsan entered the pavilion by the vestibule window during the afternoon",
+  "He hid under the bed in The Yellow Room awaiting Mademoiselle Stangerson",
+  "He attacked her, was wounded by her revolver, and fled the room",
+  "He escaped by climbing the wall with a spike and ladder he had prepared",
+  "He re-entered the château through a window and acted as if drugged",
+  "He manipulated footprints, bloodstains, and planted evidence to frame Darzac",
+  "He fled the court after Rouletabille exposed him as the murderer"
+ ],
+ "outcome_result": "Frédéric Larsan (Ballmeyer) was revealed as the murderer, Robert Darzac was acquitted, and the mystery of the locked-room attack was solved.",
+ "false_assumption": {
+  "statement": "The murderer escaped through a secret passage or trapdoor in the locked room.",
+  "type": "spatial",
+  "why_it_seems_reasonable": "The room was locked and bolted from the inside, and no visible exit was found; footprints and blood evidence suggested an impossible escape. The examining magistrate and police believed a secret passage must exist.",
+  "what_it_hides": "The murderer escaped by climbing the wall outside using a prepared spike and ladder, not through any secret passage inside the room."
+ },
+ "false_solution": {
+  "accused_suspect": "Monsieur Robert Darzac",
+  "supporting_points": [
+   "Footprints matching Darzac’s boots found near the scene",
+   "His absence from the château during the attacks",
+   "Larsan’s theory and police suspicion",
+   "Lack of alibi and silence during interrogation"
+  ],
+  "the_one_flaw": "The footprints and evidence were manipulated by the real murderer to frame Darzac, who was innocent.",
+  "refuted_in_chapter": 27
+ },
+ "red_herrings": [
+  {
+   "id": "concierges_arrested",
+   "description": "The concierges were arrested as suspected accomplices due to suspicious behavior and presence near the pavilion at the time of the crime.",
+   "points_at_suspect": "Monsieur and Madame Bernier (concierges)",
+   "innocent_explanation": "They were poaching on the estate and had no involvement in the crime.",
+   "resolved_in_chapter": 23
+  },
+  {
+   "id": "green_man_keeper",
+   "description": "The Green Man, the forest-keeper, was suspected after his body was found stabbed near the château.",
+   "points_at_suspect": "The Green Man",
+   "innocent_explanation": "He was the victim of the murderer, killed during the escape attempt.",
+   "resolved_in_chapter": 24
+  }
+ ],
+ "closed_circle": {
+  "suspects": [
+   "Joseph Rouletabille",
+   "Monsieur Robert Darzac",
+   "Mademoiselle Mathilde Stangerson",
+   "Monsieur Stangerson",
+   "Frédéric Larsan (Ballmeyer)",
+   "Daddy Jacques (Jacques Louis Moustier)"
+  ],
+  "rationale": "All were present at the château during the crime and investigation, with no other persons having access; the mystery centered on these individuals."
+ },
+ "constraint_space": {
+  "time_anchors": [
+   "Between 5 and 6 pm on the day of the crime",
+   "Midnight when Mademoiselle Stangerson entered The Yellow Room",
+   "Night between 29th and 30th October for the inexplicable gallery incident",
+   "Trial date on 15th January"
+  ],
+  "time_windows": [
+   "Murderer entered during professor and daughter’s walk",
+   "Murderer attacked Mademoiselle before midnight",
+   "Murderer escaped before door was forced open"
+  ],
+  "access_actors": [
+   "Frédéric Larsan",
+   "Daddy Jacques",
+   "Monsieur Stangerson",
+   "Mademoiselle Stangerson",
+   "Monsieur Robert Darzac"
+  ],
+  "access_objects": [
+   "Vestibule window",
+   "Door of The Yellow Room",
+   "Ladder and spike on terrace",
+   "Keys with brass head",
+   "Revolver"
+  ],
+  "trust_channels": [
+   "Monsieur Stangerson’s trust in Daddy Jacques",
+   "Mademoiselle Stangerson’s secret to Robert Darzac",
+   "Rouletabille’s trust in Berniers after release"
+  ],
+  "authority_sources": [
+   "Examining magistrate Monsieur de Marquet",
+   "Chief of the Sûreté Monsieur Dax",
+   "Judge Monsieur de Rocouz"
+  ]
+ },
+ "inference_path": [
+  {
+   "observation": "The door of The Yellow Room was locked and bolted from inside after the attack. The arrangement of the locks and bolts was carefully watched by the investigators, who trusted the testimony of those present in the apartment.",
+   "correction": "The murderer was not inside the room when the door was locked.",
+   "effect": "The attacker must have left before the door was locked.",
+   "required_evidence": [
+    "Testimony of Monsieur Stangerson about door being locked",
+    "Physical examination of door and bolt"
+   ]
+  },
+  {
+   "observation": "Footprints of a man with large boots and a handkerchief were found inside and outside the pavilion. The arrangement of the footprints suggested someone tried to mislead the watch kept on the apartment.",
+   "correction": "The footprints were planted to mislead and frame Daddy Jacques or Darzac.",
+   "effect": "The real murderer disguised evidence to misdirect suspicion.",
+   "required_evidence": [
+    "Pattern of footprints matching Daddy Jacques’s boots",
+    "Handkerchief found in The Yellow Room"
+   ]
+  },
+  {
+   "observation": "Frédéric Larsan appeared drugged and inactive during the night of the attack. Rouletabille arranged for a watch to be kept on Larsan’s apartment, trusting his assistants to observe any suspicious activity.",
+   "correction": "He feigned being drugged to avoid suspicion and to carry out the attack.",
+   "effect": "Larsan had opportunity and means to commit the crime.",
+   "required_evidence": [
+    "Observation of Larsan’s behavior and cane",
+    "Discovery of eye-glasses in Larsan’s room"
+   ]
+  },
+  {
+   "observation": "Mademoiselle Stangerson was attacked twice and showed signs of struggle and wounds. The arrangement of her apartment and the trust she placed in Darzac complicated the investigation.",
+   "correction": "The first attack was real; the second was a nightmare causing accidental gunshot.",
+   "effect": "Some evidence of struggle was misinterpreted as continuous attack.",
+   "required_evidence": [
+    "Blood-stained hair found on overturned table",
+    "Bullet lodged in ceiling from accidental discharge"
+   ]
+  },
+  {
+   "observation": "Larsan escaped the locked room and the château without being caught. The arrangement of the ladder and spike outside the apartment was discovered by the watch set on the terrace.",
+   "correction": "He used a prepared spike and ladder to climb the wall and re-enter through a window.",
+   "effect": "The escape was physical and planned, not supernatural or via secret passage.",
+   "required_evidence": [
+    "Iron spike fitting hole in terrace cornice",
+    "Ladder found resting against terrace"
+   ]
+  },
+  {
+   "observation": "Robert Darzac was absent from the château during attacks and had suspicious footprints. The post office and apartment watch trusted by the investigators confirmed the arrangement of his movements.",
+   "correction": "An accomplice impersonated Darzac to mislead investigators.",
+   "effect": "Doubts about Darzac’s guilt arise; he was framed.",
+   "required_evidence": [
+    "Witness statement of railway employee seeing Darzac at station",
+    "Post office records of letter collection by lookalike",
+    "Trust in the apartment watch's testimony"
+   ]
+  },
+  {
+   "observation": "Mademoiselle Stangerson and Larsan had secret past and connection. The arrangement of her apartment and the trust between her and Darzac was crucial to understanding her silence.",
+   "correction": "She was married to Larsan (Ballmeyer) and kept this secret to protect Darzac.",
+   "effect": "Mademoiselle’s silence and actions were motivated by fear and love.",
+   "required_evidence": [
+    "Testimony of Darzac about Mademoiselle’s past",
+    "Rouletabille’s investigation in America about Ballmeyer"
+   ]
+  },
+  {
+   "observation": "The apartment was under constant watch, and the arrangement of trusted observers ensured that any attempt to enter or leave would be noticed.",
+   "correction": "The arrangement of the watch over the apartment was essential to catching the culprit.",
+   "effect": "The trust placed in the observers and the arrangement of the watch provided the necessary evidence.",
+   "required_evidence": [
+    "Testimony from the trusted watch about movements in and out of the apartment"
+   ]
+  }
+ ],
+ "discriminating_test": {
+  "method": "trap",
+  "design": "Rouletabille arranged a watch over Mademoiselle Stangerson’s apartment with trusted persons positioned at strategic points in the château galleries. A dark closet with a transparent panel allowed observation of the right gallery, while Rouletabille himself watched the off-turning gallery. A signal system was established to alert Rouletabille of any intruder’s approach. The plan was to let the murderer enter and reveal himself without being captured immediately, to observe his face and confirm identity.",
+  "knowledge_revealed": "The test revealed the murderer’s identity as Frédéric Larsan by observing his movements and behavior during the nocturnal intrusion.",
+  "pass_condition": "The murderer must enter the apartment and be observed by Rouletabille and his assistants without escaping detection or causing harm before his identity is confirmed."
+ },
+ "fair_play_explanation": "The reader is given detailed descriptions of the locked room, the layout of the château, the footprints, the bloodstains, and the behavior of all suspects. Rouletabille’s reasoning is presented step-by-step, allowing the reader to follow the logic. The false assumptions and red herrings are clearly described, and the clues such as the ladder, the spike, the eye-glasses, and the cane are all introduced before the solution. The reader could solve the mystery by careful attention to the timing of events, the physical evidence, and the contradictions in suspects’ alibis.",
+ "anchors": [
+  {
+   "claim": "Mademoiselle Stangerson was found lying on the floor in the midst of the greatest disorder",
+   "anchor": "Mademoiselle, in her night-dress, was lying on the floor in the midst"
+  },
+  {
+   "claim": "The door was locked, fast locked, on the inside",
+   "anchor": "it was locked, fast locked, on the inside"
+  },
+  {
+   "claim": "The window of The Yellow Room looks out in such a way that the park wall prevented my at once reaching the window",
+   "anchor": "The window of The Yellow Room looks out in such a way"
+  },
+  {
+   "claim": "The murderer was wounded in the hand by Mademoiselle Stangerson’s revolver",
+   "anchor": "the murderer was wounded in the hand by Mademoiselle Stangerson’s revolver"
+  },
+  {
+   "claim": "Frédéric Larsan’s cane was bought at Cassette, 6a, Opera",
+   "anchor": "Read the mark there, in tiny letters: Cassette, 6a, Opera"
+  },
+  {
+   "claim": "The ladder stood resting against the stone brackets supporting the terrace",
+   "anchor": "there was a ladder stood resting against the stone brackets"
+  },
+  {
+   "claim": "The murderer escaped by climbing the wall using a prepared spike and ladder",
+   "anchor": "this, Monsieur, is a spike which perfectly fits a hole"
+  },
+  {
+   "claim": "The keeper was stabbed in the heart with a knife",
+   "anchor": "the man you believe to have been shot was killed by the stab of a knife"
+  },
+  {
+   "claim": "Mademoiselle Stangerson poured a narcotic into her father’s glass",
+   "anchor": "I saw Mademoiselle Stangerson pour a narcotic into Monsieur Stangerson’s glass"
+  },
+  {
+   "claim": "The murderer was seen running away and was shot at the corner of the right wing",
+   "anchor": "We distinctly saw the form of a man running away"
+  },
+  {
+   "claim": "The murderer was Frédéric Larsan, alias Ballmeyer",
+   "anchor": "Frédéric Larsan is the murderer!"
+  },
+  {
+   "claim": "The key with a brass head was stolen and used by the murderer",
+   "anchor": "a key with a brass head, and, associating one with the other, he tried the key"
+  },
+  {
+   "claim": "The bullet in the ceiling was fired accidentally during a nightmare",
+   "anchor": "the bullet in the ceiling must have resulted from an accident"
+  },
+  {
+   "claim": "The footprints of the murderer were faked to resemble Darzac’s and Daddy Jacques’s",
+   "anchor": "footprints of Monsieur Robert Darzac appear to be really the footprints of Mademoiselle Stangerson’s fiancé"
+  },
+  {
+   "claim": "Mademoiselle Stangerson was married to Ballmeyer (Frédéric Larsan)",
+   "anchor": "Mademoiselle Stangerson had sworn never to leave me, and adheres firmly to her oath"
+  },
+  {
+   "claim": "Rouletabille’s reasoning led to the identification of Larsan as the murderer",
+   "anchor": "my pure reason pointed to him; but I required tangible proof"
+  },
+  {
+   "claim": "The murderer escaped before the door was locked",
+   "anchor": "The murderer must have escaped before Mademoiselle Stangerson had gone into her chamber at midnight"
+  },
+  {
+   "claim": "The murderer hid under the bed before the attack",
+   "anchor": "he entered by the door and hid himself under the bed"
+  },
+  {
+   "claim": "The murderer climbed the wall and escaped via the terrace",
+   "anchor": "he climbed the wall, sprang onto the terrace"
+  },
+  {
+   "claim": "The murderer was drugged to fake illness",
+   "anchor": "He was not drugged; but he did drug me"
+  }
+ ]
+}

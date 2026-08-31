@@ -47,6 +47,7 @@
 
 import type { PriorRunRecord } from "./novelty-ledger.js";
 import { familyOfRecord } from "./novelty-dispersion.js";
+import { loadSeedFingerprints } from "@cml/novelty";
 
 export const SCHEDULER_AXES = ["temporal", "spatial", "identity", "behavioral", "authority"] as const;
 export type SchedulerAxis = (typeof SCHEDULER_AXES)[number];
@@ -73,6 +74,10 @@ export const SCHEDULER_FAMILIES = [
   "information_leak",
   "recorded_presence",
   "secret_will_inheritance",
+  // A_79 §7.1 — both are now servable: the device library has behavioral patterns from the corpus,
+  // and neither fights a validator the way `substituted_body` and `unconscious_act` do.
+  "role_invisibility",
+  "investigative_blind_spot",
 ] as const;
 export type SchedulerFamily = (typeof SCHEDULER_FAMILIES)[number];
 
@@ -85,6 +90,63 @@ export const SCHEDULER_TEST_SHAPES = [
   "chemical_timing",
 ] as const;
 export type SchedulerTestShape = (typeof SCHEDULER_TEST_SHAPES)[number];
+
+/**
+ * A_79 C — WHAT AN EMPTY CELL ACTUALLY MEANS.
+ *
+ * Until now this module walked a space defined only by our own shipped runs, so "unoccupied" meant
+ * THIS PIPELINE HAS NOT BEEN THERE. It said nothing about whether the genre had. MEASURED against the
+ * 102-run ledger and the 12-work corpus on 2026-08-31:
+ *
+ *   grid                     70 cells (5 axes x 14 families)
+ *   occupied by both          5
+ *   occupied by canon only    5   <- proven to support a novel; we have never been
+ *   occupied by us only      12
+ *   occupied by neither      48
+ *
+ * The scheduler's pick that day was behavioral x alibi_fabrication — drawn from the 48, a cell no
+ * canonical work occupies. That is not necessarily wrong, but it was not a choice: the module could
+ * not see the difference between a cell the genre has proven and a cell nobody has ever tried.
+ *
+ * A cell canon occupies carries evidence that a whole novel can stand on it. A cell in the 48 carries
+ * none, and some of them are empty because they do not work. So canon-occupancy breaks ties BELOW
+ * depth, never above it: avoiding our own repetition stays the first duty — 44 of those 102 runs sit
+ * in `temporal x locked_room_timing` alone.
+ */
+export interface CorpusCell {
+  axis: string;
+  family: string;
+  /** The work occupying it, for the log line — a claim about the corpus should name its evidence. */
+  work: string;
+}
+
+/**
+ * Corpus cells from the DERIVED fingerprint ledger.
+ *
+ * Read through `@cml/novelty` rather than by walking `library/works/` directly, for two reasons: the
+ * worker has no YAML dependency and should not acquire one for this, and A_79 A2 made that ledger a
+ * genuinely generated artifact (`scripts/corpus-sync-fingerprints.mjs`, with a `--check` mode). Going
+ * to the same source means there is no third copy of the corpus to drift — which is the failure A_77
+ * §4.3 measured at eleven disagreements in fourteen.
+ *
+ * Flag `NOVELTY_CELL_SCHEDULER_CORPUS`, **default off**. Off returns `[]`, and an empty corpus makes
+ * `scheduleCell` byte-identical to its previous behaviour.
+ */
+export const corpusSchedulingEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.NOVELTY_CELL_SCHEDULER_CORPUS ?? "").trim());
+
+export const loadCorpusCells = (): CorpusCell[] => {
+  if (!corpusSchedulingEnabled()) return [];
+  try {
+    return loadSeedFingerprints()
+      .filter((f) => f.axis && f.mechanism_family)
+      .map((f) => ({ axis: String(f.axis), family: String(f.mechanism_family), work: String(f.id) }));
+  } catch (err) {
+    // A corpus we cannot read is a corpus we schedule without. It must not take a paid run down.
+    console.warn(`[DE5 scheduler] corpus fingerprints unreadable, scheduling corpus-blind: ${String(err)}`);
+    return [];
+  }
+};
 
 export interface Cell {
   axis: SchedulerAxis;
@@ -99,6 +161,14 @@ export interface ScheduledCell extends Cell {
   depth: number;
   /** Coordinates that differ from the previous run. Length >= 2 by construction. */
   differsFromPrevious: string[];
+  /**
+   * Who has occupied this cell. `unknown` means the corpus was not consulted (flag off), and is
+   * deliberately NOT spelled `neither` — "nobody has been here" and "we did not look" are different
+   * claims, and collapsing them is how a blind scheduler reads as a confident one.
+   */
+  corpusOccupancy: "canon-and-us" | "canon-not-us" | "us-only" | "neither" | "unknown";
+  /** Canonical works occupying this cell, if any. */
+  corpusWorks: string[];
   /** Human-readable reason, for the run log. */
   reason: string;
 }
@@ -154,7 +224,11 @@ const byStalest = <T extends string>(m: Map<T, number | null>, order: readonly T
  * not alphabetical: the first scheduled run should be a plain one, not the strangest cell in the
  * space, because the first run is the one most likely to be diagnosing something else.
  */
-export const scheduleCell = (records: PriorRunRecord[], windowN = 20): ScheduledCell => {
+export const scheduleCell = (
+  records: PriorRunRecord[],
+  windowN = 20,
+  corpus: CorpusCell[] = [],
+): ScheduledCell => {
   const recent = records.slice(-windowN);
   const usedAxes = recent.map((r) => String(r.axis ?? ""));
   const usedFamilies = recent.map((r) => String(familyOfRecord(r)));
@@ -178,31 +252,68 @@ export const scheduleCell = (records: PriorRunRecord[], windowN = 20): Scheduled
   const depthOf = (axis: string, family: string) =>
     recent.filter((r) => String(r.axis ?? "") === axis && String(familyOfRecord(r)) === family).length;
 
-  let best: ScheduledCell | null = null;
+  // A_79 C — canonical occupancy, keyed the same way `depthOf` keys ours.
+  const canonWorks = new Map<string, string[]>();
+  for (const c of corpus) {
+    const key = `${c.axis}|${c.family}`;
+    canonWorks.set(key, [...(canonWorks.get(key) ?? []), c.work]);
+  }
+  const consulted = corpus.length > 0;
+  const worksAt = (axis: string, family: string) => canonWorks.get(`${axis}|${family}`) ?? [];
+
+  /**
+   * Candidates are now ENUMERATED and ranked rather than short-circuited at the first depth-0 hit,
+   * because the tie among depth-0 cells is exactly where corpus evidence belongs and the old loop
+   * resolved that tie by declaration order before anything could look at it.
+   *
+   * Ranking, in order: our own depth (repetition is still the first duty), then whether canon has
+   * proven the cell, then the existing stalest-first walk. With `corpus` empty the second key is
+   * constant for every candidate, so the ranking collapses to the nested walk the loop performed and
+   * the chosen cell is unchanged — which is what makes the flag-off path provably a no-op.
+   */
+  const shape = shapeOrder[0];
+  const candidates: ScheduledCell[] = [];
   for (const axis of axisOrder) {
     for (const family of familyOrder) {
       const differs: string[] = [];
       if (prevAxis === null || axis !== prevAxis) differs.push("axis");
       if (prevFamily === null || family !== prevFamily) differs.push("family");
       // The test shape always counts as differing when there is no previous run to compare against.
-      const shape = shapeOrder[0];
       if (prev === null) differs.push("testShape");
       if (prev !== null && differs.length < 2) continue;
       const depth = depthOf(axis, family);
-      const candidate: ScheduledCell = {
+      const works = worksAt(axis, family);
+      candidates.push({
         axis,
         family,
         testShape: shape,
         lastUse: { axis: axisLast.get(axis) ?? null, family: familyLast.get(family) ?? null, testShape: shapeLast.get(shape) ?? null },
         depth,
         differsFromPrevious: differs,
+        corpusOccupancy: !consulted
+          ? "unknown"
+          : works.length > 0
+            ? depth > 0
+              ? "canon-and-us"
+              : "canon-not-us"
+            : depth > 0
+              ? "us-only"
+              : "neither",
+        corpusWorks: works,
         reason: "",
-      };
-      if (best === null || depth < best.depth) best = candidate;
-      if (best.depth === 0) break;
+      });
     }
-    if (best !== null && best.depth === 0) break;
   }
+
+  const rankIn = <T extends string>(order: readonly T[], v: string) => order.indexOf(v as T);
+  candidates.sort(
+    (a, b) =>
+      a.depth - b.depth ||
+      Number(b.corpusWorks.length > 0) - Number(a.corpusWorks.length > 0) ||
+      rankIn(axisOrder, a.axis) - rankIn(axisOrder, b.axis) ||
+      rankIn(familyOrder, a.family) - rankIn(familyOrder, b.family),
+  );
+  let best: ScheduledCell | null = candidates[0] ?? null;
 
   // Unreachable with the vocabularies above (5 axes x 12 families = 60 cells, at most 20 in the
   // window), but a scheduler that can return undefined is a scheduler that will one day return
@@ -215,6 +326,8 @@ export const scheduleCell = (records: PriorRunRecord[], windowN = 20): Scheduled
       lastUse: { axis: null, family: null, testShape: null },
       depth: 0,
       differsFromPrevious: ["axis", "family"],
+      corpusOccupancy: "unknown",
+      corpusWorks: [],
       reason: "",
     };
   }
@@ -223,7 +336,12 @@ export const scheduleCell = (records: PriorRunRecord[], windowN = 20): Scheduled
   best.reason =
     `axis ${best.axis} (${describe(best.lastUse.axis)}), family ${best.family} (${describe(best.lastUse.family)}), ` +
     `test ${best.testShape}; differs from the previous run in [${best.differsFromPrevious.join(", ")}]; ` +
-    `this exact cell has been shipped ${best.depth} time(s) in the last ${recent.length} run(s)`;
+    `this exact cell has been shipped ${best.depth} time(s) in the last ${recent.length} run(s)` +
+    (best.corpusOccupancy === "unknown"
+      ? "; corpus not consulted"
+      : best.corpusWorks.length > 0
+        ? `; canon occupies it (${best.corpusWorks.join(", ")})`
+        : "; no canonical work occupies it");
   return best;
 };
 
@@ -268,5 +386,6 @@ export const assignedFamilyFromTheme = (theme: string | undefined): SchedulerFam
 export const logScheduledCell = (cell: ScheduledCell, mode: SchedulerMode): void => {
   console.warn(`[DE5 scheduler ${mode.toUpperCase()}] ${cell.axis} x ${cell.family} x ${cell.testShape}`);
   console.warn(`  · ${cell.reason}`);
+  console.warn(`  · corpus occupancy: ${cell.corpusOccupancy}`);
   if (mode === "shadow") console.warn("  · SHADOW: computed only. No input was changed by this.");
 };

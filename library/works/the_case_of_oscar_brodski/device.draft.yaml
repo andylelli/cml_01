@@ -1,0 +1,50 @@
+pattern_id: the_case_of_oscar_brodski
+title: The Moved Corpse
+family: spatial_routing
+axes:
+  - spatial
+principle: >-
+  Everything the body carries records a different place. A decapitated head does not bleed, so a
+  scalp wound that bled in two directions was made while the man was alive, first upright and then
+  lying on his back — neither of which is how he was found. His boot soles carry no gravel or earth
+  from the rough land he is supposed to have crossed, but do carry carpet fibres, tobacco ash and
+  biscuit crumbs.
+principleType: physical_law
+surface_illusion_template: >-
+  A man who was not robbed was not killed for gain; A near-sighted man may have strayed onto the
+  line, or laid himself across it on purpose; The death occurred where the body was found
+underlying_reality_template: >-
+  the culprit invited the victim into his cottage to wait for the train, struck him with an iron
+  bar, suffocated him with the tablecloth when the blow failed, took the packet of stones, carried
+  the body three hundred yards across waste land and laid it face down with the neck over the rail
+  so that the goods train would convert a murder into an accident.
+feasibility:
+  eras:
+    - 1850
+    - 1860
+    - 1870
+    - 1880
+    - 1890
+    - 1900
+    - 1910
+    - 1920
+    - 1930
+    - 1940
+    - 1950
+  requires:
+    - physical_strength
+    - broken_glass_matching
+    - scene_staging
+  forbids:
+    - cctv
+clue_archetypes:
+  - the_glancing_scalp_wound
+  - the_engine_driver_s
+  - the_distinctly_swollen_tongue
+  - the_slight_wounds_inside
+  - the_tuft_of_parti
+  - thorndyke_s_microscope_reading
+sources:
+  - >-
+    R. Austin Freeman, The Case of Oscar Brodski —
+    library/works/the_case_of_oscar_brodski/case.cml2.yaml

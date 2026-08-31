@@ -1,0 +1,135 @@
+{
+ "slug": "the_big_bow_mystery",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "",
+   "anchor": "lying on his back, with his throat cut",
+   "span": "Robinson, divisional surgeon, said: The deceased was lying on his back, with his throat cut.",
+   "ok": true
+  },
+  {
+   "claim": "",
+   "anchor": "door was locked and bolted",
+   "span": "It turned out as Wimp had suggested; so prepossessed were the witnesses with the conviction that the door was locked and bolted from the inside when it was burst open that they were a little hazy about the exact details.",
+   "ok": true
+  },
+  {
+   "claim": "",
+   "anchor": "key was in the lock",
+   "span": "The inspector and the sergeant testified that the key was in the lock when they saw it, though both the mortise and the bolt were broken.",
+   "ok": true
+  },
+  {
+   "claim": "",
+   "anchor": "the staple of the bolt was torn off",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "",
+   "anchor": "sulfonal in a phial",
+   "span": "I spoke to him in a fatherly way, and when I had tendered some vague advice about the girl, and made him promise to secure a night's rest (before he faced the arduous tram-men's meeting in the morning) by taking a sleeping-draught, I gave him some sulfonal in a phial.",
+   "ok": true
+  },
+  {
+   "claim": "",
+   "anchor": "Mrs. Drabdump was unable to rouse him",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "",
+   "anchor": "Grodman applied his shoulder to the door",
+   "span": "Without another word, Grodman applied his shoulder to the door, and made a violent muscular effort.",
+   "ok": true
+  },
+  {
+   "claim": "",
+   "anchor": "death was instantaneous",
+   "span": "Robinson believes that death was instantaneous.",
+   "ok": true
+  },
+  {
+   "claim": "",
+   "anchor": "no instrument lying about the room",
+   "span": "There was no instrument lying about the room.",
+   "ok": true
+  },
+  {
+   "claim": "",
+   "anchor": "Tom Mortlake was arrested",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "",
+   "anchor": "Jessie Dymond disappeared",
+   "span": "About a fortnight before the suicide, Jessie Dymond disappeared.",
+   "ok": true
+  },
+  {
+   "claim": "",
+   "anchor": "letter from Jessie Dymond",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "",
+   "anchor": "cabman who drove him to Euston",
+   "span": "The cabman who drove him to Euston had written indignantly to the papers to say that he had picked up his celebrated fare at Bow Railway Station at about half-past four a.",
+   "ok": true
+  },
+  {
+   "claim": "",
+   "anchor": "Grodman reveals his confession",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "",
+   "anchor": "the bolt was old, and the woodwork crumbling",
+   "span": "Not quite; the bolt was old, and the woodwork crumbling; the lock was new and shoddy.",
+   "ok": true
+  },
+  {
+   "claim": "",
+   "anchor": "the door flew back with a crash",
+   "span": "The door creaked, little by little it began to give, the woodwork enclosing the bolt of the lock splintered, the panels bent upward, the large upper bolt tore off its iron staple; the door flew back with a crash.",
+   "ok": true
+  },
+  {
+   "claim": "",
+   "anchor": "the body was still warm when he found it",
+   "span": "Grodman stated that the body was still warm when he found it.",
+   "ok": true
+  },
+  {
+   "claim": "",
+   "anchor": "the wound was made from right to left",
+   "span": "Now the wound was made from right to left, and terminated by a cut on the left thumb.",
+   "ok": true
+  },
+  {
+   "claim": "",
+   "anchor": "the door had evidently been locked and bolted from within",
+   "span": "Sergeant Runnymede drew my attention to the fact that the door had evidently been locked and bolted from within.",
+   "ok": true
+  },
+  {
+   "claim": "",
+   "anchor": "Mrs. Drabdump had attempted to wake the deceased",
+   "span": "Mrs. Drabdump had attempted to wake the deceased at a quarter to seven, which would put back the act to a little earlier.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.07460911680000001,
+ "models": {
+  "map": "gpt-4o-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-08-31"
+}

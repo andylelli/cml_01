@@ -1,0 +1,12 @@
+- id: the_clue_of_the_twisted_candle
+  corpus: seed
+  axis: temporal
+  mechanism_family: locked_room_timing
+  false_assumption_pattern: locked_room_means_no_entry
+  discriminating_test_shape: reconstruction
+  inference_shape: reconstruct_true_time_of_death
+  premise: >-
+    Remington Kara is found stabbed in a bedroom whose steel latch is dropped on the inside, with no
+    other way in or out. His private line to Scotland Yard rang at twenty-five past ten, fixing the
+    hour of
+  source: library/works/the_clue_of_the_twisted_candle/case.cml2.yaml

@@ -1,0 +1,48 @@
+pattern_id: the_fenchurch_street_mystery
+title: The Borrowed Identity
+family: identity
+axes:
+  - identity
+principle: >-
+  Only one of the two men had a face anybody in England could recognise, and it was not the
+  millionaire. Once the corpse is unrecognisable, proving that the culprit was alive on the 16th
+  proves nothing about who died on the 10th — it merely establishes which name the survivor is
+  using.
+principleType: cognitive_bias
+surface_illusion_template: >-
+  The dead man is the culprit; The man in the dock is the victim; Since the culprit was alive on the
+  16th, no murder was committed at all
+underlying_reality_template: >-
+  the culprit wrote both letters himself to summon a man no one in England had seen for thirty
+  years, cut his throat by the barge steps, took his name and his fortune, shaved off his beard and
+  eyebrows to make a face nobody could match to a memory, and stood trial as his own victim.
+feasibility:
+  eras:
+    - 1850
+    - 1860
+    - 1870
+    - 1880
+    - 1890
+    - 1900
+    - 1910
+    - 1920
+    - 1930
+    - 1940
+    - 1950
+  requires:
+    - physical_disguise
+    - social_deference
+  forbids:
+    - cctv
+    - voice_authentication
+clue_archetypes:
+  - the_two_letters_signed
+  - the_specimens_of_the
+  - the_letter_s_instruction
+  - the_porter_s_description
+  - the_lightermen_s_discovery
+  - mrs_kershaw_s_identification
+sources:
+  - >-
+    Baroness Orczy, The Fenchurch Street Mystery —
+    library/works/the_fenchurch_street_mystery/case.cml2.yaml

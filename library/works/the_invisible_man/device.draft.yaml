@@ -1,0 +1,45 @@
+pattern_id: the_invisible_man
+title: The Invisible Uniform
+family: identity
+axes:
+  - behavioral
+principle: >-
+  People answer what a question means rather than what it says. Asked whether anybody came, a
+  witness does not count the postman, the porter or the milkman, because those are functions rather
+  than persons — so a man in the right uniform is unobserved while being looked at.
+principleType: cognitive_bias
+surface_illusion_template: >-
+  No human being can have entered the building; The killer is therefore invisible, supernatural, or
+  already inside; a suspect a suspect, who hears a voice in an empty street, may be deluded
+underlying_reality_template: >-
+  The killer walked in through the guarded entrance wearing a postman's uniform, stabbed the victim,
+  put the body in his postbag and carried it out past the same watchers, who did not count a postman
+  as a man entering.
+feasibility:
+  eras:
+    - 1850
+    - 1860
+    - 1870
+    - 1880
+    - 1890
+    - 1900
+    - 1910
+    - 1920
+    - 1930
+    - 1940
+    - 1950
+  requires:
+    - physical_disguise
+    - social_deference
+  forbids:
+    - cctv
+    - voice_authentication
+clue_archetypes:
+  - laura_hope_s_account
+  - the_two_letters_from
+  - the_strip_of_stamp
+  - angus_s_statement_that
+  - the_stringy_pattern_of
+  - the_commissionaire_s_sworn
+sources:
+  - G. K. Chesterton, The Invisible Man — library/works/the_invisible_man/case.cml2.yaml
