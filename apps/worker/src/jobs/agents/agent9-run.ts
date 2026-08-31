@@ -6880,20 +6880,28 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
         {
           const trim = trimRedundantClearances(
             prose.chapters as any,
-            // SUSPECTS ONLY. A_76 §5: passing the whole cast made the trim attribute clearances to
-            // the DETECTIVE and delete narrative sentences about her — "Eleanor let the silence
-            // linger, the air thick with the knowledge that order ha..." is not a clearance, it just
-            // names her near clearance language. Two of four removals across the corpus were this.
-            // The victim is excluded for the reason obligation-block.ts already gives: a dead
-            // character cannot meaningfully appear in an "alibi confirmed" paragraph.
-            // Reads role via `roleTextsOf`, which covers the camelCase/snake_case trap (X50).
-            (castDesign?.characters ?? [])
-              .filter((c: any) => {
-                const roles = roleTextsOf(c);
-                return !roles.some(isVictimArchetype) && !roles.some(isDetectiveArchetype);
-              })
-              .map((c: any) => String(c?.name ?? ""))
-              .filter(Boolean),
+            /**
+             * SUSPECTS ONLY — and "suspect" is computed ONCE, here by reuse.
+             *
+             * A_76 §5 replaced "the whole cast" with a hand-rolled filter that dropped victims and
+             * detectives. The boundary audit found it dropped everyone EXCEPT the culprit: on 31/31
+             * stored books the murderer was still in the list, so a sentence naming them beside the
+             * word "cleared" was classified as a redundant clearance and deleted. It reaches a real
+             * manuscript — proj_035fdeda ch9 loses *"The test had succeeded: the mechanism revealed,
+             * the suspects cleared, Charles Fenwick exposed."*, stranding the contrast that follows —
+             * and the warning line emitted about it would have claimed the MURDERER was "already
+             * cleared earlier".
+             *
+             * Nothing shipped, because the flag defaults off. It was pre-registered ON for the next
+             * paid run, which would have been first exposure.
+             *
+             * The fix is not a fifth filter. `computeEliminationSuspects` already excludes culprits,
+             * detectives and victims and is the same list the deterministic floor and the regen pass
+             * use — so reusing it also removes a divergence rather than adding one. That divergence
+             * IS the defect family: the audit counted NINE components independently computing "who is
+             * a suspect", and every surviving finding was two of them disagreeing.
+             */
+            computeEliminationSuspects(cml, castDesign),
             budget,
           );
           if (trim.removed.length > 0) {
