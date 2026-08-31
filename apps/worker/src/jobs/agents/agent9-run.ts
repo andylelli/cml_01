@@ -99,7 +99,7 @@ import {
   // A_73 §11.1 — the one prose-stage clearance vocabulary.
   CLEARANCE_TERMS_RE,
 } from "@cml/prompts-llm";
-import { noScaffoldValidator, detectTemplateLeakage, detectScaffoldNotProse, detectDerivedContradictionLeak, detectEvidentiaryRegister, machineRegisterRate, REGISTER_TELEMETRY_THRESHOLD, bookVoiceConformance, VOICE_CONFORMANCE_DELIVERED } from "@cml/prose-guard";
+import { noScaffoldValidator, detectTemplateLeakage, detectCopiedProse, detectScaffoldNotProse, detectDerivedContradictionLeak, detectEvidentiaryRegister, machineRegisterRate, REGISTER_TELEMETRY_THRESHOLD, bookVoiceConformance, VOICE_CONFORMANCE_DELIVERED } from "@cml/prose-guard";
 import {
   chapterIndexFor,
   checkManuscriptGeometry,
@@ -7922,4 +7922,33 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
 
   ctx.prose = prose;
   ctx.validationReport = validationReport;
+
+  /**
+   * A_79 Phase D — THE ANTI-COPY GATE. Flag `PROSE_ANTI_COPY_GATE`, default OFF.
+   *
+   * Last thing in the function, and deliberately AFTER the final re-validation, because everything
+   * above it can still write prose. `applyStandardPostProcessingChain` runs deterministic injectors
+   * that edit the manuscript after the release gate has decided — the block directly above exists to
+   * report exactly that — so a check placed any earlier would be checking a draft that is not the one
+   * we ship.
+   *
+   * `ctx.prose` is assigned BEFORE the throw on purpose. A run that trips this has produced a
+   * manuscript somebody needs to read in order to find out how source prose reached a prompt;
+   * destroying the evidence to enforce the rule would be the worst of both.
+   *
+   * MEASURED: zero false positives over 204 archived manuscripts at n=10 (see
+   * `packages/prose-guard/src/anti-copy.ts` for the table). So if this fires, it is real.
+   */
+  const copied = (prose.chapters ?? []).flatMap((c: any, i: number) =>
+    detectCopiedProse((c?.paragraphs ?? []).join(" ")).map((h) => `ch${i + 1}: ${h}`),
+  );
+  if (copied.length > 0) {
+    const detail = copied.join(" | ");
+    ctx.warnings.push(`[Agent 9] ANTI-COPY GATE FAILED — ${detail}`);
+    throw new Error(
+      `[Agent 9] anti-copy gate: the manuscript reproduces verbatim runs from the source corpus. ` +
+      `${detail}. The manuscript is preserved for diagnosis. This is a hard fail: find how source ` +
+      `prose reached a prompt before re-running.`,
+    );
+  }
 }

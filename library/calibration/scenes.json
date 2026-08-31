@@ -1,0 +1,36 @@
+{
+ "generated_by": "scripts/calibration-measure.mjs",
+ "canon_works": 12,
+ "canon_words": 720329,
+ "our_manuscripts": 204,
+ "our_words": 2226216,
+ "note": "No verbatim sentence of any source novel appears in these files. Aggregates only.",
+ "canon": {
+  "inquest": 0.27,
+  "interview": 0.1,
+  "search_of_a_room": 0.01,
+  "timetable": 0.01,
+  "medical_evidence": 0.02,
+  "will_and_inheritance": 0.05,
+  "correspondence": 0.46,
+  "servants_hall": 0.41,
+  "drawing_room_gathering": 0.17,
+  "night_watch": 0.2,
+  "travel": 0.34,
+  "confession_or_reveal": 0.1
+ },
+ "ours": {
+  "inquest": 0.08,
+  "interview": 0.05,
+  "search_of_a_room": 0,
+  "timetable": 0.07,
+  "medical_evidence": 0.02,
+  "will_and_inheritance": 0.05,
+  "correspondence": 0.18,
+  "servants_hall": 0.21,
+  "drawing_room_gathering": 0.41,
+  "night_watch": 0.07,
+  "travel": 0.01,
+  "confession_or_reveal": 0.22
+ }
+}

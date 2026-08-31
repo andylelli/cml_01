@@ -1,0 +1,30 @@
+{
+ "generated_by": "scripts/calibration-measure.mjs",
+ "canon_works": 12,
+ "canon_words": 720329,
+ "our_manuscripts": 204,
+ "our_words": 2226216,
+ "note": "No verbatim sentence of any source novel appears in these files. Aggregates only.",
+ "canon": {
+  "works": 12,
+  "meanOpeningWords": 61.7,
+  "medianOpeningWords": 27,
+  "opensOnSpeechPct": 0,
+  "namesAPersonPct": 75,
+  "statesATimePct": 16.7,
+  "statesAPlacePct": 25,
+  "opensOnFirstPersonPct": 0,
+  "subordinateOpenerPct": 0
+ },
+ "ours": {
+  "works": 204,
+  "meanOpeningWords": 47.2,
+  "medianOpeningWords": 36,
+  "opensOnSpeechPct": 0,
+  "namesAPersonPct": 98.5,
+  "statesATimePct": 40.2,
+  "statesAPlacePct": 63.2,
+  "opensOnFirstPersonPct": 0,
+  "subordinateOpenerPct": 0
+ }
+}

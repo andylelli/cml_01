@@ -461,3 +461,139 @@ remains capacity-blocked.
 
 Spend for this pass: **£0.43 re-encoding, £0.20 repair, £0.04 classification** — £2.35 cumulative
 against the £5 ceiling.
+
+---
+
+## §12 Phase D — the anti-copy gate, built and baselined (2026-08-31)
+
+**Flag `PROSE_ANTI_COPY_GATE`, default OFF.** Hash-set lookup over normalised word n-grams; any
+verbatim run of ≥10 words shared with a source novel is a hard fail naming the work and the span.
+
+### 12.1 The corpus had to be made durable first
+
+The 719,552 words this gate checks against existed only in a session scratch directory. Both D and E
+depend on them, so they are now committed at `library/texts/` — 12 works, all cleared GREEN, ~1.4 MB
+in the pack. `the_invisible_man` has no cached text and is not covered; `a_jury_of_her_peers` is
+cached at 2,613 words against a true length nearer 8,000, so that one work is indexed from a fragment.
+Both gaps are stated rather than papered over: the gate is only as complete as what it has read.
+
+### 12.2 THE 6-GRAM §5 PROPOSED WOULD HAVE BEEN AN OFF SWITCH
+
+§5 above specifies "a **6-gram** index" and "any match is a hard fail". Measured over 204 archived
+manuscripts — every one a known negative, because no source prose has ever reached a prompt, so any
+hit is a false positive **by construction**:
+
+| n | indexed n-grams | manuscripts firing | total spans | longest false run |
+| --- | --- | --- | --- | --- |
+| **6** | 715,345 | **188 (92.2%)** | 967 | 8 words |
+| 7 | 717,419 | 59 (28.9%) | 86 | 8 words |
+| 8 | 718,071 | 6 (2.9%) | 7 | 8 words |
+| **10** | 718,542 | **0 (0.0%)** | 0 | — |
+| 12 | 718,733 | 0 (0.0%) | 0 | — |
+
+A 6-gram gate would have fired on 92.2% of our own books, as a hard fail. That is CLAUDE.md's B1
+exactly — *a check that fires on most runs is an off switch with extra steps* — and the false
+positives are ordinary dialogue ("i don't know what you mean"), which is the period-idiomatic
+collision §5 predicted and could not size without measuring. **`DEFAULT_N = 10`**: the smallest clean
+value, since smaller is more sensitive and larger trades detection for no measured benefit.
+
+The quiet at n=10 is selectivity, not blindness: a synthetic positive — 40 words lifted verbatim from
+*The Moonstone* — is caught at **every** n tested, and survives being re-cased and re-punctuated.
+
+### 12.3 Where it runs, and why there
+
+Last in `agent9-run.ts`, **after** the final re-validation. Everything above it can still write prose:
+`applyStandardPostProcessingChain` runs deterministic injectors that edit the manuscript after the
+release gate has decided, and the block immediately above exists to report exactly that. A check
+placed any earlier would be checking a draft that is not the one we ship.
+
+`ctx.prose` is assigned **before** the throw. A run that trips this has produced a manuscript somebody
+must read to find out how source prose reached a prompt; destroying the evidence to enforce the rule
+would be the worst of both. A missing or unreadable corpus yields an empty index and a warning, never
+a throw — an anti-copy gate that takes a paid run down because a text file is absent has converted a
+safety feature into an outage.
+
+---
+
+## §13 Phase E — the calibration corpus, measured (2026-08-31)
+
+Four deterministic measures over 720,329 canon words against 2,226,216 words of our own, written to
+`library/calibration/`. No LLM cost. Every measure reports **canon vs us**, because a number alone is
+not a target — the gap is the finding.
+
+### 13.1 CORRECTION to §6 — a canon-derived rate is still a rate
+
+§6 argues that a sentence-length target "drawn from *Father Brown* has a shape behind it;
+voice-spec's arbitrary 22.0 words/sentence did not, and was ignored in 10 chapters out of 10" — the
+implication being that a canon-derived rate would be obeyed where an invented one was not.
+
+**That is not what was measured.** A_75's matched pair asked for 19.5-word sentences and got 15.01 —
+*shorter* than the unguided arm — while the same prompt asking for semicolon-linked clauses moved
+semicolons from 5 to 13. CLAUDE.md states it outright: this model complies with OPERATIONS and
+ignores STATISTICS. Provenance does not change compliance. So the register measure separates
+**distributions (diagnosis only)** from **operations (the only part that can become an instruction)**.
+
+### 13.2 The register gap is not sentence length
+
+| | canon | ours | gap |
+| --- | --- | --- | --- |
+| mean sentence words | 16.09 | 14.89 | −1.20 |
+| median sentence words | 13.11 | 13.38 | +0.27 |
+| p90 sentence words | 31.02 | 25.63 | **−5.39** |
+| dialogue density % | 22.02 | 16.23 | −5.79 |
+| **paragraphs opening on speech %** | **59.7** | **11.5** | **−48.2** |
+| em-dashes per 1000 words | 6.52 | 1.11 | −5.41 (5.9×) |
+| semicolons per 1000 words | 4.82 | 1.46 | −3.36 (3.3×) |
+| sentences over 30 words % | 10.37 | 3.95 | −6.42 |
+
+**Mean and median sentence length are already at canon.** The thing VoiceSpec spent its life asking
+for was never the gap. The gap is in the **tail** (p90 31 vs 25.6, long sentences 10.4% vs 4.0%) and
+in three countable operations — and the largest single gap in the whole measurement is that the canon
+opens **60%** of its paragraphs on speech where we open **11.5%**. That is a countable thing done, it
+is 5× off, and it is the kind of instruction A_75 showed this model actually follows.
+
+### 13.3 Openings, scenes, lexicon
+
+**Openings** (what the first sentence *does*, never what it says): the canon names a person in 75% of
+its openings, we do in 98.5%; it states a place in 25%, we do in 63.2%; a time in 16.7% against our
+40.2%. **We front-load more orientation than the canon does, not less** — the opposite of the usual
+diagnosis, and worth knowing before anyone writes an opening instruction.
+
+**Scene inventory** (marker hits per 1000 words): the canon out-uses us on travel 0.34 vs **0.01**,
+correspondence 0.46 vs 0.18, inquest 0.27 vs 0.08, servants' hall 0.41 vs 0.21, night watch 0.20 vs
+0.07. We out-use it on drawing-room gatherings (0.41 vs 0.17) and confession/reveal (0.22 vs 0.10).
+Read plainly: our mysteries happen in one room and end in a confession; the canon's move about,
+correspond, and hold inquests.
+
+**Lexicon**, split in two because the raw ratio is dominated by function words:
+- *register words* — `shall` 25.9×, `whom` 20.5×, `which` 17.6×, `upon` 10.9×, `should` 7.6×. These
+  are evidence about clause construction, not vocabulary.
+- *anachronism candidates* — frequent in ours, **absent from 720,000 words of period prose**, our own
+  cast excluded: `lobby, timeline, logs, radio, tang, ledger, clocks, bravado, timing, flicked,
+  alibis, chime, seaside, muted, ticking, tick`. This is the list §6.3 wanted for `period-kb`'s
+  anachronism linter, and `radio`/`timeline`/`lobby` are exactly the tells it should catch.
+
+### 13.4 Three probe bugs, found before the numbers were persisted
+
+Each would have shipped a confident wrong number:
+
+- **The canon read as 1.02% dialogue.** The literal curly quotes in the matching regex were flattened
+  to straight quotes on the way to disk, and the Gutenberg texts contain **zero** straight double
+  quotes. The measure contradicted its own neighbour — 59.7% of paragraphs opening on speech — which
+  is what gave it away. A probe that disagrees with itself is a probe bug. True value: **22.02%**.
+- **The anachronism list was our own cast**: "beatrice, finch, eleanor's, mallory, ivor, voss" —
+  names absent from novels that do not contain them. Proper nouns are now excluded, which surfaced
+  the real hits underneath.
+- **The period lexicon was stopwords**: "which, there, will, upon, very". Function words are now
+  reported separately as register evidence.
+
+### 13.5 What is deliberately NOT done
+
+**The measures are artifacts, not wiring.** Nothing in `library/calibration/` reaches a prompt. Making
+them instructions is a further change that needs its own flags and its own probe, and §6 gates E on D
+— which ships default OFF. Feeding canon-derived targets into the generator while the anti-copy gate
+is disabled would invert the ordering §5 exists to enforce.
+
+No verbatim sentence of any source novel appears in any output; the openings measure reports what an
+opening does, never what it says. **Verified by Phase D itself**: the gate run over all four
+calibration files finds zero copied spans.

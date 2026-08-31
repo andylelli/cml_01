@@ -97,3 +97,17 @@ export type {
   VoiceDiction,
   VoiceDistance,
 } from "./voice-spec.js";
+
+// A_79 Phase D — the anti-copy gate (flag PROSE_ANTI_COPY_GATE, default OFF).
+export {
+  buildAntiCopyIndex,
+  findCopiedSpans,
+  loadAntiCopyIndex,
+  resetAntiCopyIndex,
+  detectCopiedProse,
+  noCopiedProseValidator,
+  antiCopyEnabled,
+  normaliseWords,
+  DEFAULT_N as ANTI_COPY_DEFAULT_N,
+} from "./anti-copy.js";
+export type { CopiedSpan, AntiCopyIndex } from "./anti-copy.js";

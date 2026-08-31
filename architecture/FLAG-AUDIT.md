@@ -539,3 +539,16 @@ because their own `encode-report.json` says most of their anchors are not in the
 read `library/works/` directly and therefore do **not** yet apply that gate — so turning either on
 today feeds the generator material that includes the Big Bow Mystery encode, which invents its own
 solution. That is a known, recorded limitation and the reason both stay off.
+
+---
+
+## Addendum — A_79 Phase D, the anti-copy gate, registered 2026-08-31
+
+| Flag | Source | What it does | Settling probe | If the probe never runs |
+| --- | --- | --- | --- | --- |
+| `PROSE_ANTI_COPY_GATE` | A_79 §5 / §12 | Hard-fails a run whose manuscript reproduces a verbatim run of ≥10 words from any source novel in `library/texts/` (719,552 words, 12 works). Hash-set lookup over normalised word n-grams — case, punctuation and quote style cannot evade it, and unlike an LLM verifier it cannot be talked into agreeing. Runs LAST in `agent9-run.ts`, after the final re-validation, because the post-processing chain writes prose after the release gate decides. `ctx.prose` is assigned before the throw so the manuscript survives for diagnosis. Companion `PROSE_ANTI_COPY_TEXTS_DIR` overrides the corpus directory (tests only). | **Already measured, which is unusual for a flag here.** `scripts/anticopy-baseline.mjs` ran it over 204 archived manuscripts — every one a known negative, because no source prose has ever reached a prompt — and found **0 false positives at n=10**, against **92.2% at the 6-gram A_79 §5 originally proposed**. A synthetic 40-word lift from *The Moonstone* is caught at every n. What remains unprobed is only its behaviour inside a live run: turn it on for one run and confirm it stays silent and costs nothing measurable. | Leave OFF and **do not start Phase E**. A_79 §6 gates the calibration corpus on this shipping, and that ordering is the entire point: the gate must exist before real period prose goes anywhere near a prompt, not alongside it. |
+
+**Why this one is not like the others in this register.** Every other flag here is an attempt to make
+the book better. This one makes a promise — that we do not ship someone else's sentences — and it is
+the only item in A_79 that is a guarantee rather than an improvement. It is default OFF by the
+project's convention, not because the measurement is in doubt.
