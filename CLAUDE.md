@@ -8,8 +8,8 @@ A multi-agent Golden Age mystery pipeline. Agent 1 setting → 2 cast → 2b pro
 
 ## Recording workflow findings — MANDATORY
 
-**When a multi-agent workflow completes, write its findings to `docs/workflow/` BEFORE acting on
-them.** One file per run, `WF-NNN-<short-name>.md`, plus a row in `docs/workflow/README.md`.
+**When a multi-agent workflow completes, write its findings to `documentation/workflow/` BEFORE acting on
+them.** One file per run, `WF-NNN-<short-name>.md`, plus a row in `documentation/workflow/README.md`.
 
 These runs cost ~1.4–1.6M subagent tokens each and their output is otherwise lost in a session
 transcript. A workflow whose findings are not written down has to be paid for twice.
@@ -24,7 +24,7 @@ Record all of:
 - what it could **NOT** determine
 - any expand/skip recommendation
 
-See `docs/workflow/README.md` for the standing rules those runs established.
+See `documentation/workflow/README.md` for the standing rules those runs established.
 
 ---
 
@@ -83,7 +83,8 @@ sub-threshold delta as an effect**. Book-level A/B on chapter-level effects need
 ## Repo conventions
 
 - `npm run build:all` before anything that reads `dist` — the worker consumes dist, not src.
-- Analyses live in `documentation/analysis/ANALYSIS_NN/`; boards in `architecture/`.
+- Analyses live in `documentation/analysis/ANALYSIS_NN/`; boards in `architecture/`;
+  workflow findings in `documentation/workflow/`.
 - Update the live board (`architecture/PLAN-TO-90.md`) in the same commit as the code it describes.
 - Never delete a tracked item — move it to recommended-against with the reason.
 - Commit messages carry the measurement, not just the change.
