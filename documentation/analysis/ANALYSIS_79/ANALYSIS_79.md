@@ -597,3 +597,79 @@ is disabled would invert the ordering §5 exists to enforce.
 No verbatim sentence of any source novel appears in any output; the openings measure reports what an
 opening does, never what it says. **Verified by Phase D itself**: the gate run over all four
 calibration files finds zero copied spans.
+
+---
+
+## §14 The first live run with the corpus on (2026-08-31)
+
+Run `mystery-1788202899854`, 24.1 min, **£0.98** (`run-cost-audit.mjs`; the report's `total_cost`
+under-reports). Flags: `DEVICE_LIBRARY_INCLUDE_CORPUS`, `SEED_CORPUS_FROM_LIBRARY`,
+`NOVELTY_CELL_SCHEDULER_CORPUS`, `PROSE_ANTI_COPY_GATE` all on;
+`NOVELTY_CELL_SCHEDULER` left at `shadow` per §10. Outcome `passed`, overall 88, release gate
+`warning` with 0 hard stops, shipped. Rubric 75/100 with two report-style-clearance caps.
+
+**This run measures wiring, not quality.** A single canary is confounded, no judge separates an 86
+from an 81, and any delta under ~7 marks here is unmeasured. What follows is only what the run can
+actually settle.
+
+### 14.1 Phase B — CONFIRMED live
+
+The worked-example block reached `Agent3-CMLGenerator` verbatim, carrying *The Clue of the Twisted
+Candle*: surface, the reader's wrong belief, what was actually happening, the inference chain, the
+discriminating test, and the closing "These are STRUCTURES, not material" line. **No character name
+appeared** — the role-aware de-specification held in a live prompt. Before this, that block printed
+`Mechanism type: unknown / 0 constraints / 0 steps` for every book the project has ever held.
+
+### 14.2 Phase D — the gate ran, saw the corpus, and stayed silent
+
+The index loaded 718,542 n-grams from 12 works inside the run (a non-empty index is the part worth
+checking: an empty one passes everything and looks identical from outside). Zero copied spans across
+the 10,393-word manuscript. First run in which corpus-derived material reached a prompt, and the
+output-side guarantee was in place for it, which is the ordering §5 exists to enforce.
+
+### 14.3 Phase A1 — LOADED 9 PATTERNS AND CHANGED NOT ONE BYTE OF ANY PROMPT
+
+The device-library block rendered, and it rendered **curated patterns only**. Not a coverage gap and
+not a wiring fault: `the_clue_of_the_twisted_candle` **was retrieved**, ranked sixth of seven, and
+the caller takes the top four.
+
+The cause is exact. `noveltyScore` is `1 / (1 + usage_log.length)` and **nothing has ever been used**,
+so all 20 patterns score exactly 1 and the `localeCompare` tiebreak became the entire ranking. The
+curated eleven are named `clock_rewind`, `concealed_passage`, `delayed_poison`, `forged_document_timeline`,
+`hearth_release`…; corpus patterns are named after their works, `a_jury_of_her_peers`,
+`the_big_bow_mystery`, `the_clue_of_the_twisted_candle`. Alphabetically the curated set wins every
+query, and the corpus sat at positions 5–9 of a cut of 4 — permanently.
+
+**This is the second instance of the same defect in one day.** §11.1 records `buildNoveltyConstraints`
+cutting its seed titles with an alphabetical `.slice(0, 8)`, which meant *Trent's Last Case* could
+never be named. Same shape, different module: **an arbitrary-but-CONSTANT tiebreak in front of a
+fixed-size cut is not a tiebreak, it is a silent allowlist.** Worth stating as a rule, because the
+first instance was found by reading and this one survived that reading.
+
+Fixed by interleaving the two sources after ranking, so a cut of four cannot exclude a whole source.
+Order within each source is unchanged and the result stays deterministic; with one source present
+there is nothing to interleave and the output is byte-identical, so the flag-off path is provably a
+no-op. MEASURED after the fix — corpus entries now enter the cut at 1950/temporal, 1950/spatial and
+1930/identity. Pinned by `packages/device-library/src/__tests__/corpus-interleave.test.ts`, including
+the premise itself (every pattern really is tied on novelty).
+
+**A1's original "11 → 23 patterns" measurement was true and meaningless.** It measured the loader.
+The prompt-level effect was zero, and only a paid run surfaced it — which is the CLAUDE.md rule about
+verifying a lever by its agent label in `llm-prompts-full.jsonl` earning its place again.
+
+### 14.4 Two things the run flagged that are not ours
+
+- **The run was excluded from the novelty ledger.** Its status came back "failure (2 errors)" while
+  the report says `passed`; both "errors" are CML integrity **warnings** (`severity: "warning"`)
+  about a locked fact disagreeing with an Agent-3 time anchor, recorded into an `errors` array. The
+  ledger then refuses the run, and its own log says why that matters: *"the corpus therefore holds
+  only clean runs — a biased sample, and the next run will diverge from a history this one is missing
+  from."*
+- **Agent 6's blind-reader gate was skipped, not passed** — Azure content-filtered the prompt because
+  the case's death method is in it. Pre-existing (A_71 telemetry), unrelated to the corpus.
+
+### 14.5 What still cannot be claimed
+
+Whether any of this makes a better book. A1 has now changed a prompt for the first time, so its
+settling probe has not yet been run against anything. The honest next step is a **matched pair**
+(`RESUME_REDO=prose` against byte-identical upstream), not another single canary.
