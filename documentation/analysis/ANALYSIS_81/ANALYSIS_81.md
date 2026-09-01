@@ -277,3 +277,82 @@ on the strength of their unit tests are dead levers** — which is the T1→T3 g
 That is the register working as intended. It is also the fourth time in this session that a lever
 looked wired and was not (A_79 §14 was the first three), and the rule from §7 held again: **verify by
 the agent label in the prompt log, never by the code.**
+
+---
+
+## §9 The external read of the bundle run — 79/100, and the categories moved exactly where the levers reached
+
+`story_20260901-2136`, external read: **79/100**. The three reads of this pipeline, side by side:
+
+| Category | 31 Aug | 1 Sep #1 | **1 Sep #2** | lever reached the prompt? |
+| --- | --- | --- | --- | --- |
+| Premise | 7 | 7 | **8** | yes — arithmetic contract |
+| Opening hook | 7 | 7 | **8** | — |
+| Plot structure | 7 | 6 | **8** | yes — clearance trim |
+| Character clarity | 7 | 5 | **8** | — |
+| Dialogue | 7 | 7 | 7 | **NO — page-shape dead** |
+| Atmosphere | 8 | 8 | 8 | — |
+| **Clues / evidence** | **4** | **4** | **6** | yes — arithmetic contract |
+| Pacing | 7 | 7 | **8** | yes — clearance trim |
+| **Ending / reveal** | **5** | **5** | **7** | yes — clearance trim, B5 |
+| Prose / polish | 6 | 6 | 6 | **NO — page-shape dead** |
+| Character life | 7 | 7 | 7 | **NO — relationship block dead** |
+| **Overall** | 74 | 70 | **79** | |
+
+### 9.1 The pattern is cleaner than the total
+
+**Every category served by a lever that reached the prompt moved up. Every category served by a dead
+lever stayed exactly flat.**
+
+- clues **4 → 6** and ending **5 → 7** were the two outliers this whole investigation was about, and
+  both moved for the first time across three reads.
+- dialogue 7, prose 6 and character life 7 are unchanged — and they are precisely the three
+  categories the page-shape operations and the relationship-history block were built to serve. §8.3
+  established that neither reached a prompt.
+
+That is as close to a natural experiment as this project has produced. It does not prove causation —
+n=1, a different case each time, ±3 marks per read (A_76) — but the *pattern* is a stronger signal
+than the total, and it is consistent in both directions at once.
+
+### 9.2 The remaining clue-logic complaint is an INJECTOR defect, and it is precisely located
+
+The reviewer's headline is that the chime time contradicts itself: *"Chapter 3 specifically says the
+clock gave 'three strikes at a ten minutes past nine', which destroys the five-minute contradiction."*
+
+The case is **correct** — §8.1 verified `clock_first_strike_time` 9:15, `guest_watch_stopped_time`
+9:10, delay five minutes, F15 silent. The defect is downstream. MEASURED in the manuscript:
+
+| | count |
+| --- | --- |
+| `quarter past nine` (the chime, correct) | 11 |
+| `ten minutes past nine` (the watch) | 26 |
+| **`strikes at a ten minutes past`** (the chime, WRONG value) | **5** |
+| **`a ten minutes past nine`** — ungrammatical | **13** |
+
+"a ten minutes past nine" is not English, and no model wrote it. It is a **template splice**: an
+injection template of the form *"It was a {value} by the mantel clock"* with `{value}` =
+"ten minutes past nine". Thirteen occurrences, five of them attached to the chime.
+
+So `enforceLockedFactValuePresence` is **value-correct and context-blind**: it injects a locked value
+into whatever paragraph it selects, with no model of which fact belongs to which event. The watch
+value lands in sentences about the clock strike, and the five-minute contradiction the whole mystery
+rests on is destroyed by the machinery meant to protect it.
+
+This is the same family as A_80 F14 — *mentioning an event is not the same as timing it* — on the
+injection side rather than the detection side. It is the next fix, it is free, and it is the last
+thing standing between clues 6 and clues 8.
+
+### 9.3 What else the reader named
+
+- **Chapter 10 still recaps evidence.** The clearance trim removed the clearance roll-call; the
+  evidence recap is a different beat and survives.
+- **Repeated location template**: "Rockshore Hotel in St Ives Bay" appears **9 times**.
+- **Relationship history still under-specific** — exactly as predicted, since the block never shipped.
+- The reviewer's projection with the time wording fixed and chapter 10 made pure aftermath: **86–88**.
+
+### 9.4 Status against the register
+
+Of the twelve levers now confirmed live, four moved a category. Two dead levers held three categories
+flat. The register's §1 claim — that T1 passing says nothing about T4 — is now demonstrated in both
+directions in a single run: the fixes that reached the prompt were worth 5 marks, and the two that did
+not were worth zero, despite passing every unit test.
