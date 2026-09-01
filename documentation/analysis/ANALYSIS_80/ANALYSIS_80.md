@@ -286,8 +286,8 @@ warning. That abort is driven by `detectLockedFactClueTimeMismatch`, and it pars
 patterns and no others (`agent9-run.ts:564,572`):
 
 ```js
-/(\d{1,2}):(\d{2})\s*(am|pm)/     // "10:30 pm"
-/(\d{1,2})\s*(am|pm)/            // "10 pm"
+/\b(\d{1,2}):(\d{2})\s*(am|pm)\b/     // "10:30 pm"
+/\b(\d{1,2})\s*(am|pm)\b/            // "10 pm"
 ```
 
 Both require **digits and a meridiem**. This case's times are `twenty-five minutes past ten` and
