@@ -26,7 +26,15 @@ export const CONTROL_PLANE_LEAKAGE_PATTERNS: LeakagePattern[] = [
     confidence: 'hard',
     severity: 'critical',
   },
-  { code: 'obligation_term', pattern: /\bobligation\b/i, confidence: 'contextual', severity: 'major' },
+  // A_80 F1 — narrowed 2026-08-31. The bare noun fired on 1 of 12 real Golden Age novels and on 9 of
+  // our own manuscripts; "under no obligation to answer" is ordinary period dialogue, not leakage.
+  // Same treatment `contract_term` already received below, applied to the rule that was missed.
+  {
+    code: 'obligation_term',
+    pattern: /\bobligation\s+(?:ref|id|block|list|slot|contract|text)\b|\b(?:chapter|scene|prose|clue|generation)\s+obligations?\b|\bobligations?\s+(?:are|is)\s+(?:unmet|satisfied|outstanding)\b/i,
+    confidence: 'contextual',
+    severity: 'major',
+  },
   // Scaffold "contract" only — qualified to the obligation/chapter/prose/request/scene/clue/story
   // contract terminology. The bare word /\bcontract\b/ false-fired on the ordinary English verb/noun
   // ("the walls seem to contract", "a marriage contract") — common in period prose.
@@ -36,7 +44,30 @@ export const CONTROL_PLANE_LEAKAGE_PATTERNS: LeakagePattern[] = [
     confidence: 'contextual',
     severity: 'major',
   },
-  { code: 'instruction_shape', pattern: /\b(?:must include|required to|ensure that)\b/i, confidence: 'contextual', severity: 'major' },
+  /**
+   * A_80 F1 — THIS RULE BROKE A BOOK. Narrowed 2026-08-31.
+   *
+   * It matched the bare phrase "required to", which is English, not prompt terminology. MEASURED over
+   * two populations that are clean by construction (`scripts/leakage-falsepositive.mjs`): it fired on
+   * **2 of 12 real Golden Age novels** — the worst false-positive rate of all 19 rules — and on 9 of
+   * our own 205 manuscripts.
+   *
+   * In run mystery-1788202899854 it flagged the one sentence in chapter 8 that stated the case's
+   * arithmetic correctly ("...as was REQUIRED TO set the hands from half past ten to twenty-five
+   * minutes past ten"), forced a regeneration, and the regenerated chapter shipped saying "from
+   * twenty-five minutes past ten to twenty-five minutes past ten". The external reader scored the
+   * clue logic 4/10 for exactly that.
+   *
+   * Leakage is prompt text addressed to a model — second person, imperative, naming an artefact the
+   * reader cannot see. That is what this now matches. "required to" is dropped outright: there is no
+   * form of it that indicates leakage and does not also occur in period prose.
+   */
+  {
+    code: 'instruction_shape',
+    pattern: /\byou must include\b|\bmust include (?:the following|at least|exactly|a minimum)\b|\bensure that (?:the|this|each|every) (?:chapter|scene|paragraph|response|output|passage|section)\b/i,
+    confidence: 'contextual',
+    severity: 'major',
+  },
   // Schema / outline-reasoning leakage: clue.description and points_to fields are
   // authored as analytical conclusions ("Eliminates X because… narrowing the
   // solution toward Y", "Direct evidence links… to the mechanism access point …

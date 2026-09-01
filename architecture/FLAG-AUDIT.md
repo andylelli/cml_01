@@ -552,3 +552,28 @@ solution. That is a known, recorded limitation and the reason both stay off.
 the book better. This one makes a promise — that we do not ship someone else's sentences — and it is
 the only item in A_79 that is a guarantee rather than an improvement. It is default OFF by the
 project's convention, not because the measurement is in doubt.
+
+---
+
+## Addendum — A_80 defect fixes, registered 2026-08-31
+
+Both flags exist because the change they gate makes a **previously silent path speak**. Neither is a
+quality lever; both are guards whose firing rate is unknown precisely because the thing they guard has
+never fired.
+
+| Flag | Source | What it does | Settling probe | If the probe never runs |
+| --- | --- | --- | --- | --- |
+| `AGENT9_RETRY_REGRESSION_GUARD` | A_80 F3 | Before accepting a regenerated chapter, diffs it against the FIRST attempt for canonical locked-fact values and stated clock times. On loss, restores the first attempt **including the lint hit that triggered the retry** — a chapter with an awkward phrase beats a chapter with broken arithmetic. Per-chapter, so a batch where one chapter regressed keeps the other rewrites. | Run with it on and read the log for `[A_80 F3] retry REGRESSED`. It fires only when a retry actually loses a fact, so on a clean run it is silent and costs one string comparison per retried chapter. The number to watch is how often it fires: frequent firing means the retry prompt is lossy in general, which is a bigger finding than this guard. | Leave OFF and accept that a lint-driven retry can silently delete a fact. That is what happened in `mystery-1788202899854`: the retry cleared the complaint and destroyed the arithmetic the mystery rested on, and the external reader scored the clue logic **4/10**. |
+| `AGENT9_CLUE_TIME_WORDFORM` | A_80 F12 | Lets the CML-integrity **hard abort** read word-form clue times ("half past ten"), which its fact side already parsed and its clue side did not. | **This is a hard abort that has never fired in 44 archived runs**, and clue descriptions are not persisted to disk, so its reach could NOT be measured from the archive — it has to be measured by running. Turn it on for a handful of runs and count aborts before considering it default. A gate that starts failing runs that used to ship is an outage, however correct it is. | Leave OFF and keep a gate that is structurally blind to the one time format `repairWordFormLockedFacts` deliberately produces. Its clean record is not evidence of clean output; it has never been given input it can read. |
+
+**What is NOT flagged, and why.** F1 (narrowing two leakage rules that fire on Conan Doyle), F2 (the
+confidence tier deciding whether a finding gates), F11 (a `severity: "warning"` payload no longer
+written to `errors`) and F13 (calling a check after the data it reads exists) are **corrections**, not
+levers. Each restores behaviour the surrounding code already documents as intended, and each is
+covered by a test. Gating a bug fix behind a flag leaves the bug on by default.
+
+**F9 was already built.** `AGENT9_REGEN_CONVERGENCE_STOP` (registered above) implements exactly the
+unresolved-regen budget A_80 §7 asked for, with per-kind tracking and a configurable limit. It is
+default OFF. The A_80 recommendation is therefore a **flag flip, not code** — and the first
+implementation attempt duplicated it unflagged and broke its own "flag OFF is byte-identical" test,
+which is how it was found.

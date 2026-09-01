@@ -4,6 +4,7 @@
  * retry feedback, victim-alive detection, and pronoun-error extraction.
  */
 import { isVictimArchetype } from "@cml/cml";
+import { detectRetryRegression, retryRegressionGuardEnabled, describeRetryLosses } from "@cml/prose-guard";
 import { createHash } from "node:crypto";
 import { jsonrepair } from "jsonrepair";
 import type { AzureOpenAIClient } from "@cml/llm-client";
@@ -2480,6 +2481,16 @@ export async function generateProse(
     // source of the `clue_id_*` / scene-objective leakage and the canned repeated beats.
     // "Best" = fewest hard validation errors; ties keep the earliest attempt.
     let bestAttemptChapters: ProseChapter[] | null = null;
+    /**
+     * A_80 F3 — the first attempt is kept so a retry can be checked for what it LOST.
+     *
+     * `bestAttemptChapters` ranks attempts by error severity, which is the right question for "did
+     * the retry fix the complaint" and says nothing about "did the retry drop a fact". In run
+     * mystery-1788202899854 chapter 8's first attempt stated the case's arithmetic correctly, a
+     * leakage rule matched the ordinary phrase "required to", and the regeneration shipped with the
+     * arithmetic destroyed. The retry cleared the complaint and lost the mystery.
+     */
+    let firstAttemptChapters: ProseChapter[] | null = null;
     let bestAttemptErrorCount = Number.POSITIVE_INFINITY;
     // A_55 #4: severity rank of the retained best attempt (structuralCount*1000 + totalCount). Lower is
     // better; a structurally-clean attempt always outranks one with a structural defect.
@@ -3733,6 +3744,48 @@ export async function generateProse(
         // fewest-errors one), so a cosmetic-heavy attempt never loses to one carrying a structural
         // defect. Ranks by (structuralCount, totalCount). Runs for every attempt (including 0-error
         // ones, though those commit directly below), so a good attempt-2 is never lost to a worse one.
+        if (firstAttemptChapters === null) {
+          firstAttemptChapters = proseBatch.chapters.map(cloneProseChapter);
+        }
+
+        /**
+         * A_80 F3 — A RETRY MAY NOT LOSE WHAT THE ORIGINAL HAD.
+         *
+         * Flag `AGENT9_RETRY_REGRESSION_GUARD`, default OFF. When a later attempt has dropped a
+         * canonical locked-fact value or a stated clock time that the FIRST attempt carried, the
+         * first attempt's chapter is restored — lint complaint and all. That trade is the point: a
+         * chapter with an awkward phrase beats a chapter with broken arithmetic, and the retry is
+         * optional where the facts are not.
+         *
+         * Deliberately per-chapter rather than per-batch: a batch of three chapters where one
+         * regressed should keep the two good rewrites.
+         */
+        if (
+          retryRegressionGuardEnabled() &&
+          attempt > 1 &&
+          firstAttemptChapters !== null &&
+          firstAttemptChapters.length === proseBatch.chapters.length
+        ) {
+          const lockedValues = (inputs.lockedFacts ?? []).map((f: any) => String(f?.value ?? "")).filter(Boolean);
+          for (let ci = 0; ci < proseBatch.chapters.length; ci++) {
+            const originalText = (firstAttemptChapters[ci]?.paragraphs ?? []).join("\n\n");
+            const candidateText = (proseBatch.chapters[ci]?.paragraphs ?? []).join("\n\n");
+            const losses = detectRetryRegression({
+              original: originalText,
+              candidate: candidateText,
+              lockedFactValues: lockedValues,
+            });
+            if (losses.length > 0) {
+              console.warn(
+                `[Agent 9][A_80 F3] retry REGRESSED ch${chapterStart + ci}: the regenerated chapter lost ` +
+                  `${describeRetryLosses(losses)} — restoring the first attempt, including whatever lint hit ` +
+                  `triggered the retry. A chapter with an awkward phrase beats a chapter with broken facts.`,
+              );
+              proseBatch.chapters[ci] = cloneProseChapter(firstAttemptChapters[ci]);
+            }
+          }
+        }
+
         const attemptSeverity = scoreBatchErrorSeverity(batchErrors);
         if (attemptSeverity.rank < bestAttemptSeverityRank) {
           bestAttemptSeverityRank = attemptSeverity.rank;

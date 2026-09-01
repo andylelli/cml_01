@@ -605,7 +605,47 @@ export const detectLockedFactClueTimeMismatch = (
     : extractDigitFormHour(factValue);
   if (factHour === null) return null;
 
-  const clueHour = extractDigitFormHour(clueText);
+  /**
+   * A_80 F12 — THE ONLY HARD ABORT COULD NOT READ THIS PIPELINE'S OWN TIME FORMAT.
+   *
+   * The FACT side above already parses word-form times ("half past ten"). This, the CLUE side, read
+   * `extractDigitFormHour` only — digits plus a meridiem, "8:30 pm". So a case whose clue text says
+   * "half past ten" produced `null` here and the comparison never happened.
+   *
+   * That asymmetry is not academic. `repairWordFormLockedFacts` (below) deliberately rewrites
+   * digit-form times INTO word-form and warns when the model resists — so the pipeline mandates the
+   * one vocabulary its only hard abort was blind to. In run mystery-1788202899854 the case carried
+   * "twenty-five minutes past ten" and "half past ten" five minutes apart, the manuscript collapsed
+   * them, and this gate said nothing. A gate's silence is only evidence of health once the gate has
+   * been shown able to speak.
+   *
+   * Flag `AGENT9_CLUE_TIME_WORDFORM`, **default OFF**, read at call time (ADR-0004). Off reproduces
+   * the previous behaviour exactly, because this is a HARD ABORT and it has never once fired in 44
+   * archived runs — turning it on could start failing runs that used to ship, and its true firing
+   * rate is unknown. Clue descriptions are not persisted to disk anywhere, so the reach could NOT be
+   * measured from the archive; it has to be measured by running with the flag on. Until then, the
+   * honest position is that this is a repair whose blast radius is unmeasured.
+   */
+  // Clue text is free prose, not a bare value, so the time has to be EXTRACTED before it is parsed —
+  // `parseWordFormTime` takes a value like "half past ten", not a sentence containing one. This is
+  // the same extract-then-parse walk `collectTemporalSignals` already performs below.
+  const extractClueWordForm = (): { hour: number; minute: number; raw: string } | null => {
+    for (const pattern of WORD_FORM_TIME_PATTERNS) {
+      for (const match of String(clueText).matchAll(pattern)) {
+        const raw = String(match[0] ?? "").trim();
+        if (!raw) continue;
+        const parsed = parseWordFormTime(raw);
+        if (parsed) return { hour: parsed.hour, minute: parsed.minute, raw };
+      }
+    }
+    return null;
+  };
+  const clueWordForm = /^(1|true|yes|on)$/i.test(String(process.env.AGENT9_CLUE_TIME_WORDFORM ?? "").trim())
+    ? extractClueWordForm()
+    : null;
+  const clueHour = clueWordForm
+    ? { hour: clueWordForm.hour, minute: clueWordForm.minute, explicitMeridiem: false, raw: clueWordForm.raw }
+    : extractDigitFormHour(clueText);
   if (clueHour === null) return null;
 
   // Word-form locked times ("ten minutes to nine") carry no meridiem, so an absolute-minutes diff
@@ -4240,7 +4280,27 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       `differs from ${sourceLabel} time anchor "${conflict.sourceTime}" [${conflict.violationType}] ` +
       `at ${conflict.sourcePath}. Prose will use the locked value; verify this is intended misdirection.`;
     ctx.warnings.push(message);
-    ctx.errors.push(
+    /**
+     * A_80 F11 — A WARNING MUST NOT BECOME A FAILURE BY BEING WRITTEN TO THE WRONG ARRAY.
+     *
+     * This block's own comment, four lines up, says these conflicts are "WARNINGS, not a hard abort".
+     * The structured payload says `severity: "warning"`. It was then pushed to `ctx.errors`, and
+     * `mystery-orchestrator.ts` derives `status = errors.length > 0 ? "failure" : …`.
+     *
+     * MEASURED on run mystery-1788202899854: two of these made the run "failure (2 errors)" while the
+     * run report said `run_outcome: "passed"` — two subsystems disagreeing about whether the same run
+     * succeeded. The DE1 novelty ledger then refused to record it, and its own log says what that
+     * costs: "the corpus therefore holds only clean runs — a biased sample, and the next run will
+     * diverge from a history this one is missing from." The ledger is what cross-run novelty diverges
+     * FROM, so excluding troubled runs means the pipeline never learns to diverge from its own worst
+     * output.
+     *
+     * The detail payload is still emitted — it goes to `warnings`, where its declared severity says
+     * it belongs. Nothing reads `[CML integrity details]` out of `errors` (checked), so this moves a
+     * diagnostic, not a contract. The genuine hard-abort case above still uses `ctx.errors`, because
+     * that one precedes a throw.
+     */
+    ctx.warnings.push(
       `[CML integrity details] ${JSON.stringify({
         severity: "warning",
         source_tag: conflict.sourceTag,

@@ -547,12 +547,38 @@ export class ChapterValidator {
     const issues: ChapterValidationIssue[] = [];
     const joined = chapter.paragraphs.join('\n\n');
 
-    const leakageFindings = detectControlPlaneLeakage(joined);
+    /**
+     * A_80 F2 — RESPECT THE CONFIDENCE TIER. It was being ignored here.
+     *
+     * `control-plane-leakage.ts` declares three tiers and documents what they mean. The `watch` tier
+     * says so in its own comment: "detected + available to telemetry, but NOT gating … per the
+     * log-first/promote-after discipline". This loop pushed every finding at its declared severity
+     * regardless of tier, and `generate.ts` promotes any critical/major issue to a hard error, which
+     * forces a chapter regeneration. So rules deliberately parked at `watch` were gating anyway —
+     * `dt_validation_proved_theory` and `dt_validation_behaved_tested` fire on 14.6% of our own
+     * manuscripts each (MEASURED, scripts/leakage-falsepositive.mjs).
+     *
+     * A regeneration is not free and not safe: it costs +2.43 register points on the retried chapter
+     * (CLAUDE.md), and in run mystery-1788202899854 one destroyed the arithmetic the mystery rested
+     * on. So the tier now decides:
+     *   hard        gate at the declared severity — these are unambiguous pipeline vocabulary
+     *   contextual  gate, because these are specific leaked phrasings, not ordinary words (after F1)
+     *   watch       report at `moderate` so it reaches telemetry and the log, and never forces a retry
+     */
+    const leakageFindings = detectControlPlaneLeakage(joined).filter((f) => f.confidence !== 'watch');
+    const watchOnly = detectControlPlaneLeakage(joined).filter((f) => f.confidence === 'watch');
     for (const finding of leakageFindings.slice(0, 4)) {
       issues.push({
         severity: finding.severity,
         message: `Chapter ${chapter.chapterNumber} contains control-plane leakage (${finding.code}): "${finding.excerpt}"`,
         suggestion: 'Remove prompt, validation, retry, or scaffold terminology from reader-facing prose'
+      });
+    }
+    for (const finding of watchOnly.slice(0, 2)) {
+      issues.push({
+        severity: 'moderate',
+        message: `Chapter ${chapter.chapterNumber} control-plane leakage WATCH (${finding.code}): "${finding.excerpt}"`,
+        suggestion: 'Telemetry only — this tier is log-first by design and does not force a regeneration'
       });
     }
 

@@ -111,3 +111,11 @@ export {
   DEFAULT_N as ANTI_COPY_DEFAULT_N,
 } from "./anti-copy.js";
 export type { CopiedSpan, AntiCopyIndex } from "./anti-copy.js";
+
+// A_80 F3 — the retry-regression guard (flag AGENT9_RETRY_REGRESSION_GUARD, default OFF).
+export {
+  detectRetryRegression,
+  retryRegressionGuardEnabled,
+  describeRetryLosses,
+} from "./retry-regression.js";
+export type { RetryLoss, RetryRegressionInput } from "./retry-regression.js";

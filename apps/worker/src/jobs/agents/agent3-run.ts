@@ -244,6 +244,10 @@ export async function runAgent3(ctx: OrchestratorContext): Promise<void> {
   ctx.agentCosts["agent3_cml"] = cmlResult.cost;
   ctx.agentDurations["agent3_cml"] = Date.now() - cmlStart;
 
+  // A_80 F13 — see the call added after `ctx.cml` is assigned. This site runs BEFORE the CML exists,
+  // so `checkLockedFactTimeAlignment` reads `undefined` and returns nothing. It is kept (harmless,
+  // and it will start reporting if a future refactor assigns ctx.cml earlier) but it is no longer the
+  // only call.
   for (const finding of checkLockedFactTimeAlignment(ctx)) {
     ctx.warnings.push(`Agent 3 time-model split: ${finding}.`);
   }
@@ -316,6 +320,26 @@ export async function runAgent3(ctx: OrchestratorContext): Promise<void> {
   }
 
   ctx.cml = cmlResult.cml as any;
+
+  /**
+   * A_80 F13 — THE ALIGNMENT CHECK NOW RUNS WHERE ITS DATA EXISTS.
+   *
+   * `checkLockedFactTimeAlignment` reads `ctx.cml?.CASE?.hidden_model?.mechanism` for
+   * `apparent_time_of_death` / `actual_time_of_death`. Its only call site was ~70 lines above the
+   * assignment on the previous line, so both fields were always `""` and the function always
+   * returned no findings — and its own comment read that silence as "the case does not model a
+   * false-time trick". A correct guard against manufacturing findings from missing input was
+   * silently converting a dead check into a clean bill of health.
+   *
+   * MEASURED: no assignment to `ctx.cml` exists anywhere before the original call site.
+   *
+   * Findings are pushed as WARNINGS, not errors. The check has never run, so its firing rate is
+   * unknown, and promoting an unfired check straight to blocking is how a repair becomes an outage.
+   * Measure the reach across a few runs first, then decide whether it should block (A_80 F13).
+   */
+  for (const finding of checkLockedFactTimeAlignment(ctx)) {
+    ctx.warnings.push(`[A_80 F13] locked-fact/CML time alignment: ${finding}`);
+  }
 
   // F1b: Victim/culprit collision check — retry once with explicit exclusions before failing.
   const initialCollisions = checkVictimCulpritCollision(ctx.cml);
