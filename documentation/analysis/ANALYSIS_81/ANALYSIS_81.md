@@ -356,3 +356,70 @@ Of the twelve levers now confirmed live, four moved a category. Two dead levers 
 flat. The register's §1 claim — that T1 passing says nothing about T4 — is now demonstrated in both
 directions in a single run: the fixes that reached the prompt were worth 5 marks, and the two that did
 not were worth zero, despite passing every unit test.
+
+---
+
+## §10 Why the timing issues survived everything — the repair was writing them
+
+The 79/100 read still marked clue logic **6/10**, for the chime time contradicting itself. §9.2
+located it in the manuscript. This is the mechanism, reproduced from correct input with the built
+function.
+
+### 10.1 The rule
+
+`repairWordFormLockedFacts` (`agent9-run.ts`) builds, for each locked time, a set of patterns matching
+*wrong ways of writing that time* and rewrites them to the canonical form. One of them:
+
+```js
+// Phase 3: "quarter past [hour]" / "half past [hour]" as wrong substitutions when canonical differs
+if (minute !== 15 && !/quarter\s+past/i.test(canonical)) {
+  repairs.push({ pattern: /\bquarter\s+past\s+<hour>\b/gi, canonical });
+}
+```
+
+Read on its own it is sound: if the case says 9:10 and the prose says "quarter past nine", the prose
+is wrong.
+
+### 10.2 Why it destroys a false-time mystery
+
+**It assumes a case locks one time per hour.** A false-time mystery necessarily locks two in the same
+hour, because the gap between them *is* the mechanism.
+
+Run `mystery-1788293825799` locked `clock_first_strike_time` "quarter past nine" (9:15) and
+`guest_watch_stopped_time` "ten minutes past nine" (9:10). The 9:10 fact therefore built
+`/quarter past nine/gi → "ten minutes past nine"` — and rewrote **the other locked fact** wherever it
+appeared:
+
+> "three strikes at a **quarter** past nine" → "three strikes at a **ten minutes** past nine"
+
+MEASURED in the shipped manuscript: `quarter past nine` 11, `ten minutes past nine` 26,
+**`strikes at a ten minutes past` 5**, and the ungrammatical `a ten minutes past nine` **13 times**.
+That stray article is the signature — no model writes "a ten minutes past nine"; it is what remains
+when "quarter" is swapped out of "a quarter past nine".
+
+### 10.3 What this explains
+
+Every layer upstream was correct. Agent 3 built a coherent case, A_80 F15 passed it silently, the
+Agent 3b contract held, and Agent 9 wrote the right times. **A deterministic repair then corrupted
+the prose thirteen times, after validation.**
+
+That is why the timing complaint survived three runs and every fix aimed at it: the fixes were all
+upstream of the thing doing the damage. It is the same shape as A_80 §19.1, where the floor that
+removes templates was writing one — **the machinery built to protect a property was the thing
+breaking it** — and the third instance this session of a post-validation pass silently editing
+shipped prose.
+
+### 10.4 The fix
+
+A repair may only correct a value **the case does not itself claim somewhere else**. The Phase 3
+substitution patterns are now skipped when the phrase they would rewrite is another locked fact's
+canonical value.
+
+Both directions are pinned by
+`apps/worker/src/__tests__/locked-fact-repair-collision-a81.test.ts`:
+
+- two locked times in the same hour → the chime survives, both values remain, order-independent;
+- one locked time → a genuine wrong substitution is **still repaired**, so the rule keeps its purpose.
+
+732 worker tests green. Free. Untested in a live run — this is a T1 fix by §1's ladder, and the T3
+check is a single grep of the next manuscript for `a ten minutes past` (expect 0).

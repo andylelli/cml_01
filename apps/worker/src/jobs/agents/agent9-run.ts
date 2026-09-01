@@ -1023,14 +1023,41 @@ export const repairWordFormLockedFacts = (prose: any, lockedFacts: any[]): any =
         const hyphenPattern = new RegExp(`\\b${escapedHour}-${escapedMin}\\b`, 'gi');
         repairs.push({ pattern: hyphenPattern, canonical, chaptersScope: scopeForTimeRepairs });
       }
-      // Phase 3: "quarter past [hour]" / "half past [hour]" as wrong substitutions when canonical differs
+      /**
+       * Phase 3: "quarter past [hour]" / "half past [hour]" as wrong substitutions when canonical
+       * differs — BUT NEVER WHEN THAT PHRASE IS ANOTHER LOCKED FACT (A_80/A_81, 2026-09-01).
+       *
+       * This rule assumed a case locks ONE time per hour. A false-time mystery necessarily locks TWO
+       * in the same hour — that gap IS the mechanism — and then the repair for one destroys the other.
+       *
+       * MEASURED on run mystery-1788293825799. The case was correct: `clock_first_strike_time`
+       * "quarter past nine" (9:15), `guest_watch_stopped_time` "ten minutes past nine" (9:10), five
+       * minutes apart, and the A_80 F15 coherence check passed silently. The 9:10 fact then built
+       * `/quarter past nine/gi -> "ten minutes past nine"` and rewrote the CHIME into the WATCH time
+       * across the manuscript: "three strikes at a quarter past nine" became "three strikes at a ten
+       * minutes past nine" — ungrammatical article and all — **thirteen times**. The external reader
+       * scored the clue logic 6/10 and wrote that the contradiction "destroys the fair-play logic".
+       *
+       * So the machinery that exists to protect locked facts was the thing corrupting them, after
+       * validation, from correct input. A repair may only correct a value the case does not itself
+       * claim somewhere else.
+       */
       if (hourWord) {
         const escapedHour = hourWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        if (minute !== 15 && !/quarter\s+past/i.test(canonical)) {
+        // Every OTHER locked fact's canonical value. A phrase that is one of these is not an error.
+        const otherLockedValues = lockedFacts
+          .map((f: any) => String(f?.value ?? '').trim().toLowerCase())
+          .filter((v: string) => v.length > 0 && v !== canonical.trim().toLowerCase());
+        const claimedElsewhere = (phrase: string): boolean =>
+          otherLockedValues.some((v) => v === phrase || v.includes(phrase) || phrase.includes(v));
+
+        const quarterPhrase = `quarter past ${hourWord}`.toLowerCase();
+        if (minute !== 15 && !/quarter\s+past/i.test(canonical) && !claimedElsewhere(quarterPhrase)) {
           const quarterPastPattern = new RegExp(`\\bquarter\\s+past\\s+${escapedHour}\\b`, 'gi');
           repairs.push({ pattern: quarterPastPattern, canonical, chaptersScope: scopeForTimeRepairs });
         }
-        if (minute !== 30 && !/half\s+past/i.test(canonical)) {
+        const halfPhrase = `half past ${hourWord}`.toLowerCase();
+        if (minute !== 30 && !/half\s+past/i.test(canonical) && !claimedElsewhere(halfPhrase)) {
           const halfPastPattern = new RegExp(`\\bhalf\\s+past\\s+${escapedHour}\\b`, 'gi');
           repairs.push({ pattern: halfPastPattern, canonical, chaptersScope: scopeForTimeRepairs });
         }
