@@ -601,3 +601,63 @@ thing being matched.
 The F5 and F6 baselines used the same sweep and were re-derived on the clean 194: 4:1 fires on 31.2%
 (was 31.0%), median dominance 2.30:1 (unchanged), 20:1 on 1.2% (was 1.1%), and F6 duplicates on 9.3%
 (was 8.8%). **No shipped threshold changes**; both scripts now filter to manuscripts.
+
+---
+
+## §16 The confirmation run — all five criteria passed (2026-09-01)
+
+Run `mystery-1788287075975`, **£1.01**, outcome `warning`, shipped, rubric 75/100. Criteria were fixed
+in writing before the run and are all deterministic — no judge, no external read.
+
+| # | Criterion | Result |
+| --- | --- | --- |
+| 1 | locked-time dominance < 12:1 | **PASS — 1.4:1** (15 / 11 / 8 across three clock times) against the failing run's **20:1** (40 vs 2) |
+| 2 | zero `instruction_shape` retries | **PASS — 0** |
+| 3 | F3 retry-regression guard | **FIRED TWICE, saved two chapters** |
+| 4 | F13 alignment findings | **FIRED — first finding in its existence** |
+| 5 | run recorded in the novelty ledger | **PASS — recorded**, where the previous run was excluded |
+
+### 16.1 F3 caught the exact defect this document was written about — twice, in one run
+
+```
+[A_80 F3] retry REGRESSED ch9:  the regenerated chapter lost locked_fact:"twenty-five minutes"
+                                — restoring the first attempt
+[A_80 F3] retry REGRESSED ch10: the regenerated chapter lost locked_fact:"ten minutes past eleven",
+                                clock_time:"ten minutes past eleven" — restoring the first attempt
+```
+
+Two chapters were about to ship having lost a locked fact to a regeneration. That is precisely what
+happened to chapter 8 of `mystery-1788202899854`, unnoticed, and it is what cost that book six marks.
+The guard has now been observed working on live output rather than on a fixture, and the mechanism is
+confirmed as recurrent rather than a one-off: it fired on 2 of 4 retried batches in a single run.
+
+**This also settles a question §2.4 could only assert.** The retry path really does lose facts, often,
+and nothing else was watching.
+
+### 16.2 F13's first finding
+
+> `[A_80 F13] locked-fact/CML time alignment: the case states actual_time_of_death "quarter to eleven",
+> and no locked fact corresponds to it — nothing binds the true time of death`
+
+A check that had returned nothing for its entire life, because it ran before `ctx.cml` was assigned,
+produced a real structural finding the first time it was given data: the case declares a true time of
+death that no locked fact binds, so the prose is under no contractual obligation to print it. That is
+the §6 family — a time the case knows and the manuscript need not.
+
+### 16.3 What did NOT happen, and is worth recording
+
+- **The F5 dominance ship-check stayed silent**, which is the correct outcome at 1.4:1 and the first
+  evidence that its 12:1 threshold does not fire on a healthy run.
+- **F14 emitted no soft notes.** The gate that aborted the previous attempt neither fired nor
+  mis-fired here.
+- **The anti-copy gate found 0 copied spans** across a 718,542-n-gram index.
+- **Retries fell from 5/10 batches to 4/10.** One run each side proves nothing about that number and
+  it is recorded as an observation, not an effect.
+
+### 16.4 What this run does NOT establish
+
+Whether the book is better. The rubric read 75 both times, and by A_76 no judge separates an 86 from
+an 81 — a rubric equal on two runs is not evidence of equality. What is established is narrower and
+was the whole point of choosing deterministic criteria: **the specific failure this document
+diagnosed did not recur, and the guard built for it fired on live output twice.** An external read
+would now be worth buying; before this run it would have been spent on an unknown.
