@@ -423,3 +423,68 @@ Both directions are pinned by
 
 732 worker tests green. Free. Untested in a live run — this is a T1 fix by §1's ladder, and the T3
 check is a single grep of the next manuscript for `a ten minutes past` (expect 0).
+
+---
+
+## §12 The verification run — the dead lever now fires (2026-09-01)
+
+Run `mystery-1788297847870`, **£0.91**, shipped, rubric 69. Two fixes under test: A_81 §10 (the
+locked-fact repair collision) and §11 (the block appended after an early return).
+
+| # | Check | Expected | Result |
+| --- | --- | --- | --- |
+| 1 | `a ten minutes past` in the manuscript | 0 (was 13) | **0** — but see 12.2 |
+| 2 | the chime keeps its own time | no wrong-value strikes | n/a this case |
+| 3 | `WHAT THESE PEOPLE ALREADY ARE` in the prompt log | > 0 (was 0 ever) | **26** |
+| 4 | both locked times survive, F15 silent | yes | **yes** |
+
+### 12.1 §11 is settled — the block reaches the prompt and carries real history
+
+`WHAT THESE PEOPLE ALREADY ARE TO EACH OTHER` appears **26 times** in this run's prompt log, against
+**zero across every run in the project's history**, and `sharedHistory` 68 times. What it delivered
+was genuine pairwise past, not a label:
+
+> *Captain Ivor Hale and Dr. Mallory Finch had a secret romantic affair, which Mallory threatened to
+> expose.*
+
+The lever is live. Whether a reader sees the difference is T4 and unanswered.
+
+### 12.2 §10 is NOT settled — the case did not exercise it
+
+The corruption signature is gone (`a ten minutes past` 0, was 13), but **this run's case had no
+"quarter past" phrase at all**: it locked 9:10, 9:45 and 9:45 with a thirty-five-minute shift. The
+Phase 3 collision needs a locked time at :15 or :30 alongside another in the same hour, and that did
+not arise.
+
+So check 1 passed vacuously. The fix is verified at T1 (five tests, both directions) and remains
+**unverified at T3**. It will be exercised the first time a case locks a quarter- or half-past time
+beside another in the same hour — which is common, but is not something this run can be credited with.
+
+Recording it as "passed" without this note would be the A_80 §17 error again: a criterion that cannot
+fail is not evidence.
+
+### 12.3 The arithmetic holds, and the contradiction IS stated
+
+`veranda_clock_time_seen` 9:10, `kitchen_clock_time_punched` 9:45, `clock_shift_interval` thirty-five
+minutes. 9:45 − 35 = 9:10. F15 silent. Both values appear (17 and 31), and **nine sentences carry
+both**, e.g.
+
+> *"If the kitchen clock reads forty-five minutes past nine, and the veranda clock ten minutes past
+> nine, then something has shifted."*
+
+The internal rubric nonetheless capped `clues ≤ 6` for *"central clue stated as two flat values, not
+one contradiction"*. On the evidence in the manuscript that cap looks wrong, and per A_76 the rubric
+is a health signal with 0.4 correlation that read 75 on both a 74 and a 70. **It is not a verdict and
+should not be chased.** Only a reader settles it.
+
+### 12.4 One defect found in the new block, and fixed
+
+The first delivery rendered:
+
+> `(Captain Ivor Hale and Dr. Mallory Finch had a secret romantic affair, which Mallory threatened to
+> expose., tension high)`
+
+`relationship` is a LABEL slot and Agent 2 fills it with a sentence, so the label restated the history
+it introduced and left a doubled full stop. The renderer now keeps the label only when it reads as one
+— short, and not a restatement — and falls back to the tension alone. Verified across all three
+shapes.

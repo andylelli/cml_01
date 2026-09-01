@@ -280,8 +280,30 @@ const buildRelationshipHistoryBlock = (castDesign: CastDesign, activeNames?: Set
       // Scope to the characters actually in these chapters, exactly as the personalities above are.
       .filter((p) => !activeNames?.size || activeNames.has(p.a) || activeNames.has(p.b));
     if (pairs.length === 0) return '';
+    /**
+     * A_81 §11.1 — `relationship` is a LABEL slot that Agent 2 often fills with a sentence.
+     *
+     * MEASURED in the first run that delivered this block: it rendered
+     * "(Captain Ivor Hale and Dr. Mallory Finch had a secret romantic affair, which Mallory
+     * threatened to expose., tension high)" — the label restating the history, with a doubled full
+     * stop. So the label is kept only when it reads as one: short, and not a restatement of the
+     * history it introduces.
+     */
+    const asLabel = (rel: string, history: string): string => {
+      const r = rel.replace(/\s+/g, ' ').trim().replace(/[.;]+$/, '');
+      if (!r || r.length > 40) return '';
+      const first = history.toLowerCase().slice(0, 40);
+      return first.includes(r.toLowerCase().slice(0, 20)) ? '' : r;
+    };
     const rows = pairs
-      .map((p) => `  ${p.a} & ${p.b}${p.relationship ? ` (${p.relationship}` : ''}${p.tension ? `, tension ${p.tension})` : p.relationship ? ')' : ''}: ${p.history}`)
+      .map((p) => {
+        const label = asLabel(p.relationship, p.history);
+        const bracket = label && p.tension ? ` (${label}, tension ${p.tension})`
+          : label ? ` (${label})`
+          : p.tension ? ` (tension ${p.tension})`
+          : '';
+        return `  ${p.a} & ${p.b}${bracket}: ${p.history}`;
+      })
       .join('\n');
     return (
       '\n\nWHAT THESE PEOPLE ALREADY ARE TO EACH OTHER:\n\n' +
