@@ -661,3 +661,84 @@ an 81 — a rubric equal on two runs is not evidence of equality. What is establ
 was the whole point of choosing deterministic criteria: **the specific failure this document
 diagnosed did not recur, and the guard built for it fired on live output twice.** An external read
 would now be worth buying; before this run it would have been spent on an unknown.
+
+---
+
+## §17 The external read on the confirmed run — 70/100, and I verified the wrong thing
+
+`story_20260901-1946`, external read: **70/100**, down from 74. Clue logic **still 4/10**. Ending
+**still 5/10**.
+
+Every deterministic criterion in §16 passed. The score did not move. Both statements are true and the
+gap between them is the finding.
+
+### 17.1 The criterion was insufficient, and in a way this document already named
+
+§16 criterion 1 was "locked-time dominance < 12:1". The run measured **1.4:1** — all three clock times
+present and used. That is a **presence** measure. The reviewer's complaint is about **consistency**:
+
+> "It says the clock was wound forward exactly 25 minutes, but then says Hale 'left at what the clock
+> said was eleven o'clock, but in truth, it was twenty-five minutes earlier.' If the clock said 11:00,
+> the true time was 10:35. But the pocket watch says 10:45, and the lobby clock says 11:10."
+
+**This is §3 again, and I wrote §3.** That section criticises `enforceLockedFactValuePresence` for
+checking that a value is *present* rather than *used where it matters* — and then F5 shipped a
+dominance ratio, and §16 accepted it as evidence the arithmetic was sound. A ratio cannot see whether
+three times reconcile. One document later, the same error, by the same author.
+
+### 17.2 The real defect is in the case, not the prose
+
+MEASURED against the run's own locked facts, with the declared 25-minute forward shift:
+
+| fact | false (clock) | true |
+| --- | --- | --- |
+| `lobby_clock_time_seen` | 11:10 | **10:45** — matches the stopped pocket watch ✓ |
+| `pocket_watch_time_found` | — | 10:45, the moment of death ✓ |
+| `suspect_departure_time_reported` | 11:00 | **10:35 — before the murder** ✗ |
+
+A witness who saw Hale leave "at eleven" by the tampered clock saw him leave at a true 10:35, ten
+minutes *before* the 10:45 killing. **The tampering exonerates him.** The mechanism is inverted, and it
+is inverted in the locked facts — before a word of prose exists. No prose-layer fix reaches it, which
+is why every prose-layer fix in this document worked exactly as specified and the mark did not move.
+
+The previous run's collapse (40:2) **masked** this: when both times print as one value there is no
+arithmetic to be wrong. Fixing the collapse exposed the incoherence underneath it.
+
+### 17.3 So F8 was the critical fix, and it is the one I deferred
+
+§15.5 records F8 — reconcile the device times and the CML anchors, and fail at the cheap end — as "not
+started", on the reasoning that turning a 4/0/10/4/0/0 signal into an abort was too risky without
+measurement. That reasoning still holds for the *abort*. It does not hold for the check.
+
+What this run demands is narrower than F8 as written and should be its own item:
+
+**F15 — case-level temporal coherence, at Agent 3, before any prose is bought.** Given a declared
+shift interval and a set of clock facts, assert that every false/true pair differs by exactly that
+interval, and that the resulting true times order correctly against the death. Pure arithmetic on
+four numbers, no LLM call, no judge. It would have caught this case in milliseconds, and it is the
+first check in this document that addresses the mark the reader actually withheld.
+
+### 17.4 The rest of the read, honestly
+
+- **F6 recurred.** "The clocks put it at eleven o'clock." appears twice adjacently. §15.2 declined to
+  implement F6 because the stated mechanism did not reproduce under direct test. The defect is real
+  and recurrent; my inability to reproduce it was a limit of the probe, not evidence of innocence.
+- **Scaffold leakage persists**, all four lines the reviewer quotes confirmed present: "Run again in
+  front of them all", "Victim's room and hotel lounge", "Hotel lobby and clock room", "the evidence
+  allowed no other reading". F1/F2 narrowed the *leakage rules*; they never claimed to remove leakage,
+  and the `report_style_clearance` regen was already UNRESOLVED (§7).
+- **New: a role swap.** Eleanor is the victim and Mallory the investigator, inverted from prior runs.
+  Character clarity fell 7 → 5 and plot structure 7 → 6, which accounts for most of the four-mark
+  drop. Whether this is a defect or a legitimate variation is unresolved; the reviewer flags it as
+  possibly accidental.
+
+### 17.5 What may NOT be concluded
+
+**That this is a regression.** A_76: a single external read carries ±3 marks and no judge separates
+an 86 from an 81. 74 → 70 is inside that band, and the two reads are of different cases. The honest
+statement is that the score is **unchanged within the resolution of the instrument**, and that the
+category the fixes targeted — clue logic — sat at 4/10 both times.
+
+**That the fixes failed.** They did what they were specified to do, and F3 fired twice on live output.
+What failed was my inference that a passing deterministic proxy meant the reader's complaint was
+addressed. The proxy was measuring a different property from the one being marked.
