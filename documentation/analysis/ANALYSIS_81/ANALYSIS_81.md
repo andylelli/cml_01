@@ -1,0 +1,189 @@
+# ANALYSIS_81 — the verification debt
+
+**What has been built and not proven, what the test for each one is, and what it costs.**
+
+Written 2026-09-01, after a session that shipped A_79 (corpus integration, five phases) and A_80
+(fifteen defect fixes). Companion to both. This document exists because those two produced a large
+amount of code and a small amount of evidence, and the gap between them is now the main risk on the
+project.
+
+---
+
+## §0 Why this document exists
+
+A_80 §17 records the failure this is written to prevent. Five deterministic criteria were fixed in
+advance, a paid run passed all five, and the external reader's complaint was unchanged — because the
+criteria measured a *presence* property while the reader was marking a *consistency* property. The
+work was verified against the wrong thing, confidently.
+
+So the question "is X tested?" is not answerable yes/no on this project. It needs a tier.
+
+---
+
+## §1 The four tiers of evidence
+
+Every claim in §3 is placed on this ladder. **The tiers do not substitute for each other**, and that
+is the single most expensive lesson of the last two days.
+
+| Tier | What it proves | Cost | How often it has misled us |
+| --- | --- | --- | --- |
+| **T1 unit** | the function does what its fixture says | £0 | often — a fixture pins a wording, not a property (A_80 §19.1) |
+| **T2 archive** | the behaviour replays correctly against real stored run data | £0 | less often, but the population can be wrong (A_80 §15.7: 11 analysis docs counted as manuscripts) |
+| **T3 live run** | the lever actually reaches a prompt and fires in a paid pipeline | **~£1.01** | this is where three "wired" flags were found to be no-ops (A_79 §14) |
+| **T4 external read** | a reader's named complaint is gone | ~£1.01 + a read | the only tier that has ever changed our mind about quality |
+
+**T1–T3 passing is not evidence of T4.** A_80 §16 passed all of T1–T3 and A_80 §17 is what T4 said.
+
+Two standing constraints on T4, from A_76: a single external read carries **±3 marks**, and no judge
+separates an 86 from an 81. So T4 evidence must be read as *named complaints eliminated*, never as a
+score delta.
+
+---
+
+## §2 Where the app actually is
+
+| | count |
+| --- | --- |
+| automated tests, seven packages | **2,891** passing |
+| flags read by code / registered | 126 / 129, `flags:check` clean |
+| corpus works, evidence-backed (`derived`) | **4** of 12 |
+| corpus works, `derived_unverified` | 5 |
+| corpus works demoted by the evidence gate | 3 |
+| external reads ever taken of the current pipeline | **2** (74, 70) |
+| spend to date this programme | £2.11 corpus encode + £3.23 runs = **£5.34** |
+
+The last row against the second-to-last is the shape of the problem: 2,891 automated tests and
+**two** reader opinions.
+
+---
+
+## §3 The register
+
+Every item built and not proven, with the test that would raise its tier and what that costs.
+
+### 3.1 Aimed at the categories currently scoring lowest
+
+These are the items that matter. Each targets a category the reader marked down, and **none has faced
+a pipeline**.
+
+| # | Item | Claim | Tier now | The test | Cost |
+| --- | --- | --- | --- | --- | --- |
+| 1 | **Agent 3b arithmetic contract** | every clock time is placed on the shift, and a corrected alibi cannot precede the death | T1 | run once; read the locked-fact registry and check every clock fact is shift-consistent; then confirm `[A_80 F15]` emitted no inversion warning | £1.01 |
+| 2 | **F15 coherence measure** | detects the incoherence that shipped on 09-01 | **T2** (fires on the archived registry) | same run: F15 must stay silent if item 1 worked, and fire if it did not — the two are each other's control | £0 with #1 |
+| 3 | **Relationship history block** | `sharedHistory` reaches Agent 9 and shows in the prose | T1 | grep the run's prompt log for `sharedHistory` (must be > 0 — it was **0** on 09-01); then ask the reader whether characters have a shared past | £0 with #1, then T4 |
+| 4 | **Page-shape operations** | five countable operations move the page toward canon | T1 | deterministic, and the strongest test on this list: run `calibration-measure.mjs` over the new manuscript and compare the five numbers to canon. Paragraphs opening on speech is the headline — **11.5% → target 59.7%** | £0 with #1 |
+| 5 | **B5 floor rewrite** | the de-templating floor no longer writes a template | T1 (+ real predicate) | grep the manuscript for "allowed no other reading" (must be 0) and for the in-scene form | £0 with #1 |
+
+### 3.2 Built, flag-gated OFF, never observed
+
+| # | Flag | Claim | Tier | The test | Cost |
+| --- | --- | --- | --- | --- | --- |
+| 6 | `AGENT9_CLEARANCE_TRIM` | repairs `clearance_over_budget` — "the most frequent geometry code (74% of archived runs) and had no repair" | T1 | enable; confirm the code stops appearing in release-gate warnings and that ch10 no longer re-clears suspects | £0 with #1 |
+| 7 | `AGENT9_GROUNDING_LEAD` | raises scene grounding, logged at **2/10 chapters** | T1 | enable; the grounding count in the release gate is the measure | £0 with #1 |
+| 8 | `AGENT9_CULPRIT_INJECTION_IN_SCENE` | the injector writes the compliant form directly, so the B5 floor never has to fire | T1 | enable; the B5 ship-check should stop firing at all | £0 with #1 |
+| 9 | `AGENT9_CLUE_TIME_WORDFORM` (F12) | unblinds the only hard abort | T1 (fixture) | **run with it ON and count aborts.** It has never fired in 44 runs and clue text is not persisted, so its reach is unmeasurable offline. High risk: it can fail a run | £1.01, and may lose the run |
+
+### 3.3 A_79 corpus work — partly proven
+
+| # | Item | Tier | Gap | Cost to close |
+| --- | --- | --- | --- | --- |
+| 10 | **A1** device patterns | **T3** — reached a prompt only after the interleave fix, never observed since | one run; confirm a corpus pattern is in the Agent 3b prompt | £0 with #1 |
+| 11 | **B** worked exemplars | **T3 confirmed** (A_80 §14.1) | the open question is whether it pulls the generator *toward* the exemplar — needs N≥4 pairs on/off | **~£4**, and cannot be settled at n=1 |
+| 12 | **C** cell scheduler | T3 shadow only | §10 forbids promoting past shadow until a negative control runs | £1.01 for the control |
+| 13 | **D** anti-copy gate | **T3 confirmed** — 718,542 n-grams, 0 spans, twice | none. This one is done | £0 |
+| 14 | **E** calibration corpus | T2 | it is a measurement, not a lever; item 4 is its first use | £0 with #1 |
+
+### 3.4 Corpus data quality
+
+| # | Item | State | Test | Cost |
+| --- | --- | --- | --- | --- |
+| 15 | 3 demoted works (Hound, Leavenworth, Yellow Room) | anchors below 60% | re-encode against the corrected prompt, then `corpus-verify.mjs` | **~£0.45** |
+| 16 | 5 `derived_unverified` works | no anchor evidence on disk | re-run VERIFY only — no re-encode needed if the source texts are cached (they are) | £0 |
+| 17 | `the_invisible_man` | no cached source text | re-fetch from PG 204, then verify | £0 |
+| 18 | *The Moonstone* | capacity-blocked at 259k tokens | unresolved; needs a chunking decision A_77 §10.8 argued against | — |
+
+### 3.5 Not built at all
+
+| # | Gap | Category it costs | Why not built |
+| --- | --- | --- | --- |
+| 19 | **Role stability** | character clarity **5** | never diagnosed. The Eleanor/Mallory swap is most of the 4-mark fall between the two reads |
+| 20 | **F7 reveal binding** | plot structure **6** | the detector's own two messages disagree about which chapter discloses (A_80 §5) |
+| 21 | **F8 derive CML anchors** | wasted Agent 9 spend | would turn a 4/0/10/4/0/0 signal into an abort; needs measurement first |
+| 22 | **F6 injector duplicates** | prose | mechanism could not be reproduced (A_80 §15.2); real at 9.3% of manuscripts |
+
+---
+
+## §4 The cheapest ordering
+
+**Items 1–8, 10 and 14 all test in ONE run.** They touch different stages and their evidence is read
+from different places in the same log. Bundling them costs £1.01 and closes ten open questions.
+
+The bundle:
+
+```
+AGENT9_CLEARANCE_TRIM=true
+AGENT9_GROUNDING_LEAD=true
+AGENT9_CULPRIT_INJECTION_IN_SCENE=true
+# plus what is already on
+```
+
+Leave `AGENT9_CLUE_TIME_WORDFORM` **off** — it can abort the run and would confound everything else.
+Test it alone afterwards.
+
+**Read the result in this order**, cheapest and most decisive first, all free:
+
+1. `calibration-measure.mjs` on the new manuscript — the five page-shape numbers against canon. This
+   is the only item on the whole register with a **quantitative target measured from real novels**.
+2. locked-fact registry: is every clock time shift-consistent, and did F15 stay silent?
+3. prompt log: does `sharedHistory` appear (it was 0), and is a corpus device pattern in Agent 3b?
+4. manuscript grep: "allowed no other reading" must be absent.
+5. release-gate warnings: has `clearance_over_budget` gone, and has grounding risen off 2/10?
+
+Only then buy the external read, and score it against the reviewer's **named complaints**, not the
+number.
+
+---
+
+## §5 What cannot be bought cheaply
+
+- **Whether any of it makes a better book.** Two reads exist, ±3 each, on different cases. A real
+  answer needs matched pairs at N≥4, which is ~£4 per arm and still cannot separate an 86 from an 81.
+- **Whether the corpus exemplars cause monoculture** (item 11). Same problem: n=1 says nothing, and
+  the frozen canary input already produces clock cases 44 times in 102.
+- **The rubric as an instrument.** A_76: 0.4 correlation with the external read, and it read 75 on
+  both a 74 and a 70. It is a health signal, not a score.
+
+---
+
+## §6 Standing costs, measured
+
+| | cost |
+| --- | --- |
+| one full canary run | **£1.01** (49 calls; £0.98 on the prior run) |
+| a run that aborts early | £0.03 |
+| re-encoding one corpus work | £0.14–0.23 |
+| corpus classification pass | £0.03 for all 12 |
+| every deterministic baseline and probe in this document | **£0** |
+
+The last line is the one to act on: of the 22 items above, **eleven can be advanced for nothing**, and
+ten of those ride along on a single £1.01 run.
+
+---
+
+## §7 Traps any future test must respect
+
+Established the hard way in the last two days; each cost real money or a wrong conclusion.
+
+1. **A proxy that pins a wording cannot tell a rewrite from a regression** (A_80 §19.1). Assert the
+   predicate, not the string.
+2. **A check that has never fired must prove it can fire** (A_80 §6.3). Two guards that would have
+   caught the headline defect were structurally dead and silent.
+3. **Baseline a gate before wiring it.** The proposed 6-gram anti-copy index fired on 92.2% of our own
+   manuscripts; the proposed 4:1 dominance threshold on 31%.
+4. **A negative result from a new probe is a claim about the probe.** The `retry_term` "20% critical"
+   finding was a contaminated population; the F15 rule's first version fired on 74%.
+5. **Verify a lever by its agent label in the prompt log, not by grepping the module.** A1 loaded 9
+   patterns and changed not one byte of any prompt.
+6. **The pipeline's own telemetry is ahead of its enforcement.** Six of the ten A_80 defects were
+   already in the run's warnings, and `hard_stop_count` was 0 on all three runs. Read the warnings
+   before building a detector — it may already exist, and three times this session it did.
