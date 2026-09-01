@@ -488,3 +488,89 @@ The first delivery rendered:
 it introduced and left a doubled full stop. The renderer now keeps the label only when it reads as one
 — short, and not a restatement — and falls back to the tension alone. Verified across all three
 shapes.
+
+---
+
+## §13 The external read — 82/100, and two of my own fixes are on the defect list
+
+`story_20260901-2241` read at **82/100**. Four reads of this pipeline now exist:
+
+| Category | 31 Aug | 1 Sep #1 | 1 Sep #2 | **1 Sep #3** |
+| --- | --- | --- | --- | --- |
+| Premise | 7 | 7 | 8 | 8 |
+| Opening hook | 7 | 7 | 8 | **7** ↓ |
+| Plot structure | 7 | 6 | 8 | 8 |
+| Character clarity | 7 | 5 | 8 | 8 |
+| Dialogue | 7 | 7 | 7 | 7 |
+| Atmosphere | 8 | 8 | 8 | 8 |
+| **Clues / evidence** | **4** | **4** | **6** | **7** ↑ |
+| Pacing | 7 | 7 | 8 | 8 |
+| Ending / reveal | 5 | 5 | 7 | 7 |
+| Prose / polish | 6 | 6 | 6 | 6 |
+| Character life | 7 | 7 | 7 | 7 |
+| **Overall** | 74 | 70 | 79 | **82** |
+
+**Clue logic has gone 4 → 4 → 6 → 7.** That is the category this whole investigation was about, and it
+is the only one that has moved twice.
+
+### 13.1 The relationship block fired and the mark did not move
+
+§12.1 confirmed the block reached 26 prompts carrying real pairwise history — *"Captain Ivor Hale and
+Dr. Mallory Finch had a secret romantic affair, which Mallory threatened to expose."*
+
+**MEASURED: the word "affair" appears ZERO times in the manuscript.** Character life stayed at 7/10 and
+the reviewer again asks for exactly this material.
+
+So the lever is live and unused. The instruction asks the model to let a shared history *show without
+being explained*, and nothing showed at all. That is a T4 negative for §11 despite a T3 pass, and it is
+the honest result: **delivering material to a prompt is not the same as the model using it.** The next
+version should ask for something countable — name a specific past event once per suspect — rather than
+for an effect.
+
+### 13.2 My B5 replacement is now on the reader's defect list
+
+A_80 §19.1 replaced the templated verdict with `buildCulpritEvidenceSentenceInScene`, verified against
+the internal predicate `culpritEvidenceLinkInText`. The reader's list of lines to delete:
+
+> *"You did it. The words settled and nobody took them back."* — "That line reverts back into reveal
+> mode and should be removed."
+
+**Compliant with the internal predicate is not the same as invisible to a reader.** The old form was
+quoted back four times; this one was quoted back on its first appearance. The injector is the problem,
+not its wording — which is what `AGENT9_CULPRIT_INJECTION_IN_SCENE` and the retirement work were
+always aiming at, and the right fix is for the model to name its culprit so no injection fires at all.
+
+### 13.3 A new timing defect, and it is a direction error
+
+> *"The veranda clock now runs fast — by exactly thirty-five minutes."*
+
+MEASURED: `runs fast` 1, `slow` **0**. The veranda clock shows 9:10 when the true time is 9:45, so it
+is thirty-five minutes **slow**. The case is coherent (§12.3) and the arithmetic is right; the prose
+names the direction backwards.
+
+This is a third distinct timing failure mode, after the collapse (A_80 §17) and the repair collision
+(§10): **the value is right and the relation is inverted.** F15 checks that the gap equals the declared
+interval; it does not check that the prose says which way. That is the next coherence rule and it is
+free.
+
+### 13.4 The location template is a standing defect across every run
+
+| run | phrase | occurrences |
+| --- | --- | --- |
+| 1946 | — | — |
+| 2136 | "Rockshore Hotel in St Ives Bay" | 4 |
+| 2241 | "The Seaside Veranda Hotel in Dunrath Bay" | 3, plus "Hotel Reception Area in Dunrath Bay" ×5 |
+
+The reviewer calls the repeated opening "especially damaging because it appears before the story has a
+chance to earn the reader's trust", and opening hook fell 8 → 7 on it. Prose has been **6/10 in all
+four reads** and this family is a large part of why.
+
+### 13.5 Where that leaves it
+
+The reviewer's projection with the fast/slow wording fixed, the confession tightened and the scaffold
+lines removed: **87–89**.
+
+Three of the four remaining named complaints are free and precisely located: the direction rule
+(§13.3), the location template (§13.4), and the post-confession repetition. The fourth — making the
+model *use* the relationship history (§13.1) — is a prompt-operation change of the kind A_75 showed
+this model does follow, when it is asked for something countable.
