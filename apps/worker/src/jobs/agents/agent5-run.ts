@@ -2093,6 +2093,8 @@ export const findLockedFactClueTimeConflicts = (
 
   const clueById = new Map(clues.clues.map((c) => [String(c.id), c]));
   const violations: string[] = [];
+  /** A_80 F14 — reported, never fatal. See the block below for why the distinction matters. */
+  const softViolations: string[] = [];
 
   for (const fact of lockedFacts) {
     const factId = String(fact?.id ?? "");
@@ -2116,6 +2118,46 @@ export const findLockedFactClueTimeConflicts = (
 
       const clueMinutes = parseFactClockMinutes(clueText);
       if (clueMinutes === null) continue;
+
+      /**
+       * A_80 F14 — MENTIONING AN EVENT IS NOT THE SAME AS TIMING IT.
+       *
+       * This gate aborted run mystery-1788285698781 (2026-09-01) on a locked fact
+       * `staff_shift_change_time = "half past ten"` versus a clue about the KITCHEN SERVICE BELL
+       * ringing at a quarter past ten. Those are two different events. The clue paired with the fact
+       * only because it mentioned the shift change in passing — "…Captain Hale was seen near the
+       * lobby during the staff shift change" — and the gate then read the clue's only time as if it
+       * were the fact's time.
+       *
+       * The case being destroyed was built on exactly that disagreement: its own discriminating test
+       * reads "comparing the lobby clock's displayed time with the independently timed kitchen
+       * service bell … the displayed time remains twenty minutes behind the bell's chime". **The gate
+       * aborted a clock-tampering mystery for containing a second, disagreeing timepiece**, which is
+       * the mechanism of the entire sub-genre.
+       *
+       * A clue that carries MORE THAN ONE time expression is describing a relationship between times,
+       * not restating one fact's value — which is what a discriminating test looks like. The
+       * confident case, and the only one worth aborting a paid run for, is a clue that states exactly
+       * one time and is unambiguously ABOUT this fact. Anything looser is reported and the run
+       * continues, because a false abort costs a whole run and a false warning costs a log line.
+       */
+      const timeExpressions = countClockTimeExpressions(clueText);
+      const factValueRestated = valueAppearsInText(factValue, clueText);
+      const attributionGap = timeAttributionGap(factDesc, clueText);
+      // Confident only when the clue restates this fact's value, or states a time right beside a
+      // mention of this fact's event. A clue carrying several times is describing a RELATIONSHIP
+      // between them — the shape of a discriminating test — and is never a restatement of one fact.
+      const confidentlyAboutThisFact =
+        factValueRestated || (timeExpressions === 1 && attributionGap <= MAX_ATTRIBUTION_GAP_WORDS);
+      if (!confidentlyAboutThisFact) {
+        softViolations.push(
+          `CML time NOTE (not a conflict): clue "${clueId}" states ${timeExpressions} time(s), the nearest ` +
+            `${attributionGap === Infinity ? "unrelated to" : `${attributionGap} words from`} any mention of ` +
+            `"${factDesc}", and does not restate its value "${factValue}". Reads as a clue that MENTIONS this ` +
+            `event rather than one that TIMES it, so it is not treated as a contradiction (A_80 F14).`,
+        );
+        continue;
+      }
       const clueStatesMeridiem = statesExplicitMeridiem(clueText);
 
       // AM/PM ambiguity guard: do not silently infer when only one side is explicit.
@@ -2134,7 +2176,74 @@ export const findLockedFactClueTimeConflicts = (
     }
   }
 
+  for (const note of softViolations) console.warn(`[Agent 5] ${note}`);
   return violations;
+};
+
+/**
+ * A_80 F14 — how many distinct clock times a text states.
+ *
+ * Deliberately a CLOSED vocabulary, for the reason A_80 §2 documents at length: an open `[a-z-]+`
+ * class matched "required to set" when this same shape was written for the retry guard, and an
+ * over-matching pattern inside a gate that ABORTS is the most expensive kind.
+ */
+/**
+ * A_80 F14 — the clock-time vocabulary, written as a LITERAL and shared by both helpers below.
+ *
+ * The first version assembled it with `new RegExp("(?:a\s+)?…")`. Inside a JS string literal `\s` is
+ * not an escape — it collapses to a bare `s` — and the template literal's `\b` became a backspace
+ * character. The gate matched nothing, which would have silently turned every conflict into a soft
+ * note: an abort that was disabled while still looking present. It was caught only because a probe
+ * disagreed with what the code was supposed to do. Both halves are CLOSED vocabularies for the reason
+ * A_80 §2 documents: an open `[a-z-]+` class matched "required to set" when this same shape was
+ * written for the retry guard.
+ */
+const CLOCK_TIME_LITERAL =
+  /\b(?:(?:a\s+)?(?:quarter|half|five|ten|fifteen|twenty|twenty-five|twenty-two|one|two|three|four|six|seven|eight|nine|eleven|twelve|forty|fifty|fifty-five)\s+(?:minutes?\s+)?(?:past|to)\s+(?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|midnight|noon)|(?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|midnight|noon)\s+o'clock|\d{1,2}(?::\d{2})?\s*(?:a\.m\.|p\.m\.|am|pm))\b/gi;
+const clockTimeSource = CLOCK_TIME_LITERAL.source;
+
+/**
+ * A_80 F14 — how far a stated time sits from a mention of the fact's own event.
+ *
+ * The distinction this exists to draw: "The staff shift change occurred at a quarter past ten" TIMES
+ * the fact, while "the kitchen bell rang at a quarter past ten … during the staff shift change"
+ * merely MENTIONS it. Measured on the aborting case and two hand-built genuine contradictions, the
+ * gap is 16 words for the mention and 3–4 for the real ones.
+ *
+ * THE THRESHOLD IS FIXTURE-BASED, NOT CORPUS-MEASURED, and that is a real limitation: clue text is
+ * not persisted anywhere, so the population needed to baseline it the way A_80 §15.1 baselined F5
+ * does not exist on disk. It is therefore set generously, and being wrong costs a WARNING rather
+ * than an abort — the safe direction for a gate with one demonstrated false positive and no
+ * demonstrated true positive.
+ */
+const MAX_ATTRIBUTION_GAP_WORDS = 8;
+
+const timeAttributionGap = (factDesc: string, clueText: string): number => {
+  const lower = String(clueText).toLowerCase();
+  const words = lower.split(/\s+/);
+  const descTokens = String(factDesc).toLowerCase().replace(/[^a-z0-9\s]+/g, " ").split(/\s+/).filter((w) => w.length > 2);
+  if (descTokens.length === 0) return Infinity;
+  const key = descTokens[descTokens.length - 1];
+
+  const timeIdx: number[] = [];
+  const re = new RegExp(clockTimeSource, "gi");
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(lower)) !== null) timeIdx.push(lower.slice(0, m.index).split(/\s+/).length - 1);
+
+  const mentionIdx: number[] = [];
+  words.forEach((w, i) => {
+    if (w.replace(/[^a-z0-9]/g, "") === key) mentionIdx.push(i);
+  });
+
+  let best = Infinity;
+  for (const a of timeIdx) for (const b of mentionIdx) best = Math.min(best, Math.abs(a - b));
+  return best;
+};
+
+const countClockTimeExpressions = (text: string): number => {
+  const re = new RegExp(clockTimeSource, "gi");
+  const seen = new Set((String(text).match(re) ?? []).map((m) => m.toLowerCase().replace(/\s+/g, " ").trim()));
+  return seen.size;
 };
 
 // ============================================================================
