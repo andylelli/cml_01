@@ -79,6 +79,26 @@ devices:
               type: array
               required: false
               items: string
+            # A_80 item 1 / X38. The ids of the locked facts this value is a CONSEQUENCE of.
+            # Absent means PRIMARY, and a primary value is never rewritten by the arithmetic
+            # reconciler however the numbers look — only the author knows which of three related
+            # numbers is the dependent one.
+            #
+            # It was already being emitted by the model and read by `reconcileDeviceArithmetic`, but
+            # was missing here, so every run logged "derivedFrom is not defined in schema
+            # (unexpected field)" and the contract was undocumented: nothing told the author the
+            # field existed, or when to use it.
+            #
+            # TWO RELATIONS ARE UNDERSTOOD:
+            #   an INTERVAL derived from two clock times      -> the interval is repaired to the gap
+            #   a CLOCK TIME derived from a clock time and an interval -> the time is repaired
+            # The second is the one that matters for a false-time mechanism: declare the TRUE time as
+            # derived from the FALSE time and the shift, and the case cannot state an incoherent pair.
+            # MEASURED: 66.7% of archived clock cases currently do (A_80 §18.2).
+            derivedFrom:
+              type: array
+              required: false
+              items: string
 cost:
   type: number
   required: true

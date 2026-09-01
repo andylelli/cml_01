@@ -345,7 +345,60 @@ export const buildCharacterPersonalityBlock = (
     const pronounTag2 = gender2 === 'female' ? ' (she/her — NEVER he/him)' : gender2 === 'male' ? ' (he/him — NEVER she/her)' : '';
     return name + pronounTag2 + ':\n  Public: ' + persona + '\n  Hidden: ' + secret + '\n  Stakes: ' + stakes + humourGuidance + voiceLine + motiveLine + conflictLine + physicalLine + longingLine + stakeLine;
   }).join('\n\n');
-  return '\n\nCHARACTER PERSONALITIES, VOICES & HUMOUR:\n\nEach character has a distinct personality, voice, humour style, and hidden depth. Use these to create authentic, differentiated characters whose wit (or lack thereof) reveals who they are:\n\n' + personalities + '\n\nWRITING GUIDANCE:\n1. Dialogue: Each character should sound different. Humour style shapes HOW they speak, humourLevel shapes HOW OFTEN.\n2. Internal thoughts: Reference their hidden secrets and stakes to add subtext.\n3. Body language: Show personality through gestures, posture, habits.\n4. Reactions: Characters react differently to same events based on personality.\n5. Speech patterns: Use speechMannerisms for verbal tics, rhythm, formality level.\n6. Personal stake: Characters with personalStakeInCase defined should reference it at least twice across the story through internal monologue, hesitation, or action — especially the detective.\n7. HUMOUR CONTRAST: Characters with high humourLevel (0.7+) should deliver wit frequently. Characters with low/zero should play it straight. The CONTRAST between witty and earnest characters creates the best comedy.\n8. HUMOUR AS CHARACTER: A character\'s humour style reveals their psychology - self_deprecating masks insecurity, polite_savagery masks aggression, deadpan masks emotion.\n9. NEVER force humour on a character with humourLevel 0 or style none.';
+  /**
+   * A_80 §18.4 — SHARED HISTORY WAS BEING GENERATED AND THROWN AWAY.
+   *
+   * `cast_design.schema.yaml` has required `relationships.pairs[]` with a required `sharedHistory`,
+   * and Agent 2 is instructed to fill it with concrete pairwise past ("Quincy and Brabazon served
+   * together in the navy — Brabazon knows Quincy's wartime secret"). MEASURED across the whole
+   * prompt log of run mystery-1788287075975: the string `sharedHistory` appears in **exactly one**
+   * prompt — Agent 2's own instruction to produce it — and in **no** downstream prompt. Agent 9 was
+   * being told "show how relationships changed" with no relationships supplied.
+   *
+   * Two independent external reads then asked for this in almost the same words. 2026-08-31: "we
+   * need more concrete relationship history — why did Beatrice trust Hale?". 2026-09-01: "it still
+   * needs more relationship history … Hale once protected Beatrice's career". Character life has sat
+   * at 7/10 across every read, with no detector and no repair pass, because the material it wants
+   * was computed and discarded rather than missing.
+   *
+   * This is the A_78 pattern — data that exists and reaches no prompt — and it is the cheapest
+   * untried lever on the board: no new model call, no new field, just carrying what is already paid
+   * for one stage further.
+   */
+  const relationshipBlock = (() => {
+    const rel = (castDesign as any)?.relationships;
+    // Both shapes: `{ pairs: [...] }`, and the bare array the model has been MEASURED to emit
+    // (agent2-cast.ts:84 documents that regression).
+    const rawPairs: any[] = Array.isArray(rel) ? rel : Array.isArray(rel?.pairs) ? rel.pairs : [];
+    const pairs = rawPairs
+      .map((p: any) => ({
+        a: String(p?.character1 ?? p?.a ?? '').trim(),
+        b: String(p?.character2 ?? p?.b ?? '').trim(),
+        relationship: String(p?.relationship ?? '').trim(),
+        tension: String(p?.tension ?? '').trim(),
+        history: String(p?.sharedHistory ?? '').trim(),
+      }))
+      .filter((p) => p.a && p.b && p.history)
+      // Scope to the characters actually in these chapters, exactly as the personalities above are.
+      .filter((p) => !activeNames?.size || activeNames.has(p.a) || activeNames.has(p.b));
+    if (pairs.length === 0) return '';
+    const rows = pairs
+      .map((p) => `  ${p.a} & ${p.b}${p.relationship ? ` (${p.relationship}` : ''}${p.tension ? `, tension ${p.tension})` : p.relationship ? ')' : ''}: ${p.history}`)
+      .join('\n');
+    return (
+      '\n\nWHAT THESE PEOPLE ALREADY ARE TO EACH OTHER:\n\n' +
+      'These are not backstory notes to summarise — they are the history the characters carry into ' +
+      'every scene, and they existed long before the crime.\n\n' +
+      rows +
+      '\n\nUSE THEM AS FOLLOWS. Twice or more across the story, let a shared history show WITHOUT ' +
+      'being explained: an old habit between two people, a subject one of them steps around, a ' +
+      'familiarity that needs no introduction. A reader should be able to tell that two characters ' +
+      'have a past from how they speak to each other, not from a sentence telling them so. Never ' +
+      'write the history out as exposition, and never have a character recite their own relationship.'
+    );
+  })();
+
+  return '\n\nCHARACTER PERSONALITIES, VOICES & HUMOUR:\n\nEach character has a distinct personality, voice, humour style, and hidden depth. Use these to create authentic, differentiated characters whose wit (or lack thereof) reveals who they are:\n\n' + personalities + relationshipBlock + '\n\nWRITING GUIDANCE:\n1. Dialogue: Each character should sound different. Humour style shapes HOW they speak, humourLevel shapes HOW OFTEN.\n2. Internal thoughts: Reference their hidden secrets and stakes to add subtext.\n3. Body language: Show personality through gestures, posture, habits.\n4. Reactions: Characters react differently to same events based on personality.\n5. Speech patterns: Use speechMannerisms for verbal tics, rhythm, formality level.\n6. Personal stake: Characters with personalStakeInCase defined should reference it at least twice across the story through internal monologue, hesitation, or action — especially the detective.\n7. HUMOUR CONTRAST: Characters with high humourLevel (0.7+) should deliver wit frequently. Characters with low/zero should play it straight. The CONTRAST between witty and earnest characters creates the best comedy.\n8. HUMOUR AS CHARACTER: A character\'s humour style reveals their psychology - self_deprecating masks insecurity, polite_savagery masks aggression, deadpan masks emotion.\n9. NEVER force humour on a character with humourLevel 0 or style none.';
 };
 
 /**

@@ -821,9 +821,23 @@ Per §18.1 this is where 90 has to come from. Four categories have sat at 7–8 
   *relationship history*. "Hale once protected Beatrice's career", "Hugo and Eleanor had argued about
   supplies". Not personality — shared past. Nothing in the pipeline models it.
 
-**Item 6, and the one most likely to produce a mark never yet given: a relationship-history obligation.**
-Both external reads independently asked for it in the same words, and it is absent by construction
-rather than by failure — the cast schema has roles and traits but no pairwise history.
+**Item 6, and the one most likely to produce a mark never yet given: relationship history.**
+
+CORRECTION, and it makes the item cheaper rather than harder. This section first claimed the cast
+schema "has roles and traits but no pairwise history". **It has both.**
+`cast_design.schema.yaml` defines a required `relationships.pairs[]` with a required `sharedHistory`,
+and Agent 2 is instructed to fill it with concrete pairwise past, with a worked example.
+
+MEASURED across the entire prompt log of run `mystery-1788287075975`: the string `sharedHistory`
+appears in **exactly one prompt** — Agent 2's own instruction to produce it — and in **no downstream
+prompt at all**. `publicPersona` and `privateSecret` likewise reach the prose prompt zero times. Agent
+9 was being told *"show how relationships changed between surviving characters"* with no relationships
+supplied.
+
+So the material both reviewers asked for is generated on every run, paid for, and discarded one stage
+later. That is the A_78 pattern exactly — data that exists and reaches no prompt — and it makes this
+the cheapest untried lever on the board: no new call, no new field, just carrying what is already
+bought one stage further. **Shipped** (§19).
 
 ### 18.5 Honest expectation
 

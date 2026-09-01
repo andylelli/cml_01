@@ -423,6 +423,37 @@ Output JSON only, with this exact structure:
       // only the computed one. Marking the wrong one tells the pipeline it may rewrite a constant.
       // Omit derivedFrom on any value fixed by the mechanism itself; a value with no derivedFrom is
       // treated as primary and is never adjusted for you.
+      //
+      // ── EVERY OTHER CLOCK TIME MUST BE PLACED ON THE SHIFT, OR OFF IT ─────────────────────────
+      //
+      // The rules above cover the two times and the interval between them. They do NOT cover the
+      // other clock times a case states — a departure, a witness sighting, a chime — and that is
+      // where this pipeline's mysteries actually break. MEASURED over 38 archived cases: the false
+      // and true times differ by something other than the declared shift in 6 of 9, and in 3 of 5 a
+      // corrected alibi lands BEFORE the death.
+      //
+      // For every clock time you lock, decide and state which it is:
+      //   READ FROM THE TAMPERED INSTRUMENT — it carries the shift. Its true value is the stated
+      //     value minus the shift (if the clock runs fast) or plus it (if slow).
+      //   READ FROM SOMETHING ELSE — a stopped watch, a punch card, a railway timetable. It carries
+      //     no shift and is the evidence that exposes the tampering.
+      // Say which in the fact's own description field, in those words. A time that is neither is a
+      // time the reader cannot place, and it will be reported against your case.
+      //
+      // ── THEN CHECK THE MECHANISM POINTS THE RIGHT WAY ────────────────────────────────────────
+      //
+      // A tampered clock must make the culprit look INNOCENT at the true moment of the crime. Take
+      // the time a witness reports for the culprit, correct it by the shift, and compare it to the
+      // true time of death:
+      //     corrected sighting AFTER the death  -> the culprit appears to have been elsewhere while
+      //                                            the victim was already dead. The trick works.
+      //     corrected sighting BEFORE the death -> the culprit was seen leaving before the killing,
+      //                                            so the tampering EXONERATES him. The trick is
+      //                                            backwards and the mystery has no solution.
+      // A 2026-09-01 case shipped with the second: clock 11:10, shift 25 minutes, watch stopped at
+      // 10:45, departure reported at 11:00 — corrected to 10:35, ten minutes before the death. The
+      // external reader marked the clue logic 4/10 and wrote that the story "has not decided what the
+      // culprit's false alibi is". Do this subtraction before you answer.
       // lockedFacts MUST be specific to the device you invented above — do NOT copy the placeholder ids/values.
       // For SECONDARY devices (and whenever no LOCKED THEME is specified above), invent each fresh from a
       // DIFFERENT mechanism family for variety — a stopped/rewound clock is ONE family among many (poison
