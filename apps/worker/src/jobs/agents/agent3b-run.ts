@@ -43,6 +43,7 @@ import {
   appendRetryFeedback,
   mergeHardLogicDirectives,
   applyHonestScorer,
+  type LockedFact,
 } from "./shared.js";
 
 // A_53 P6 (lockedfact-digit-form-not-repaired): convert digit/metric values in a locked-fact value to
@@ -171,6 +172,88 @@ export const stripLeadingArticleFromLockedValue = (value: string): string => {
  * old value goes back and the run keeps the warning it always had. That assertion is the X64/X65
  * lesson — a substitution applied without one silently no-opped for an entire run.
  */
+/**
+ * A_80 F15 — CASE-LEVEL TEMPORAL COHERENCE. A MEASURE. It does not gate and does not repair.
+ *
+ * X38 below reconciles ONE relation: an interval a device declared to be a consequence of two named
+ * times. It cannot see a case whose times simply do not add up, because nothing declared them
+ * related. That is the gap this reports.
+ *
+ * WHY IT EXISTS. Run mystery-1788287075975 locked `lobby_clock_time_seen` 11:10,
+ * `pocket_watch_time_found` 10:45 and `suspect_departure_time_reported` 11:00 against a 25-minute
+ * shift. The first pair is consistent (11:10 − 25 = 10:45). The third is not: corrected it lands at
+ * 10:35, ten minutes BEFORE the death — so the tampering EXONERATES the suspect instead of
+ * incriminating him. The external read marked the clue logic 4/10 and said the story "has not decided
+ * what Hale's false alibi is". The incoherence was in the locked facts, before a word of prose.
+ *
+ * MEASURED over the 38 archived `locked-facts-*.json` artifacts (`scripts/a80-baseline-f15b.mjs`),
+ * and the number is the finding rather than a tuning input:
+ *
+ *   false/true pair differs by something other than the declared shift   6 of 9  (66.7%)
+ *   corrected alibi falls before the death (mechanism inverted)          3 of 5  (60.0%)
+ *
+ * Those are not near-misses — they include a declared 10-minute shift across times 65 and 90 minutes
+ * apart, and a case whose "displayed" and "actual" times are the SAME value. **Two of every three
+ * clock cases this pipeline has produced do not close arithmetically**, and clock cases are 44 of the
+ * 102 shipped runs.
+ *
+ * SO IT DOES NOT GATE. A check that fires on two thirds of runs is an off switch with extra steps
+ * (CLAUDE.md B1), and blocking here would stop most clock mysteries rather than fix any. The finding
+ * this reports is that the repair belongs UPSTREAM: Agent 3b should DERIVE the true time from the
+ * false time and the shift, making incoherence impossible by construction, rather than have anything
+ * downstream detect it. Until that exists, this makes the defect visible in every run's warnings
+ * instead of only in an external reader's score.
+ */
+export function reportCaseTemporalCoherence(ctx: OrchestratorContext): void {
+  const registry = ctx.lockedFactRegistry ?? [];
+  if (registry.length < 2) return;
+
+  const label = (f: LockedFact) => `${f.id ?? ""} ${f.description ?? ""}`;
+  const clocks = registry
+    .map((f) => ({ fact: f, minutes: parseClockTime(String(f.value ?? "")) }))
+    .filter((c): c is { fact: LockedFact; minutes: number } => c.minutes !== null);
+  const shifts = registry
+    .map((f) => parseDurationMinutes(String(f.value ?? "")))
+    .filter((n): n is number => n !== null && n > 0 && n < 240);
+  if (clocks.length < 2 || shifts.length === 0) return;
+  const shiftSet = new Set(shifts);
+
+  const FALSE_RE = /false|displayed|shown|clock_time|lobby_clock|apparent|staged/i;
+  const TRUE_RE = /actual|real|true_time|time_of_death|died/i;
+  const DEATH_RE = /death|murder|killed|died|victim|body/i;
+  const ALIBI_RE = /departure|departed|alibi|left|seen|witness/i;
+
+  const falseT = clocks.find((c) => FALSE_RE.test(label(c.fact)));
+  const trueT = clocks.find((c) => TRUE_RE.test(label(c.fact)) && c.fact.id !== falseT?.fact.id);
+  if (falseT && trueT) {
+    const gap = dialGapMinutes(falseT.minutes, trueT.minutes);
+    if (!shiftSet.has(gap)) {
+      ctx.warnings.push(
+        `[A_80 F15] case arithmetic does not close: "${falseT.fact.id}"="${falseT.fact.value}" and ` +
+          `"${trueT.fact.id}"="${trueT.fact.value}" are ${gap} minutes apart, but the case declares a shift of ` +
+          `${[...shiftSet].join("/")} minute(s). The reader is asked to subtract a number the case does not state. ` +
+          `MEASURE only — 66.7% of archived clock cases fail this, so it reports rather than blocks.`,
+      );
+    }
+  }
+
+  const death = clocks.find((c) => DEATH_RE.test(label(c.fact)));
+  const alibi = clocks.find((c) => ALIBI_RE.test(label(c.fact)) && c.fact.id !== death?.fact.id);
+  if (death && alibi) {
+    for (const shift of shiftSet) {
+      if (alibi.minutes - shift < death.minutes) {
+        ctx.warnings.push(
+          `[A_80 F15] the mechanism may be INVERTED: "${alibi.fact.id}"="${alibi.fact.value}" corrected by the ` +
+            `${shift}-minute shift falls before "${death.fact.id}"="${death.fact.value}". A tampered clock that ` +
+            `places the suspect elsewhere BEFORE the death exonerates him rather than incriminating him — which ` +
+            `is the defect the 2026-09-01 external read scored 4/10 on clue logic. MEASURE only.`,
+        );
+        break;
+      }
+    }
+  }
+}
+
 export function reconcileDeviceArithmetic(ctx: OrchestratorContext): void {
   const registry = ctx.lockedFactRegistry;
   if (!registry || registry.length === 0) return;
@@ -619,6 +702,8 @@ export async function runAgent3b(ctx: OrchestratorContext): Promise<void> {
     };
 
     buildRegistryFromPrimaryDevice();
+
+    reportCaseTemporalCoherence(ctx);
 
     // Emit to apps/worker/logs/locked-facts-{runId}.json for observability.
     writeLockedFactsArtifact(ctx);

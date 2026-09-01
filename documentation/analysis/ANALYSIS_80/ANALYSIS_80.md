@@ -742,3 +742,97 @@ category the fixes targeted — clue logic — sat at 4/10 both times.
 **That the fixes failed.** They did what they were specified to do, and F3 fired twice on live output.
 What failed was my inference that a passing deterministic proxy meant the reader's complaint was
 addressed. The proxy was measuring a different property from the one being marked.
+
+---
+
+## §18 The plan to 90
+
+### 18.1 A correction to §1, and to my own reasoning
+
+§1 and the A_76 arithmetic were used in this session to argue a ceiling: best-ever in every category
+sums to ~84–85, five categories have never been given a 9, therefore 90 needs marks no judge has
+awarded. The owner's objection is correct and the framing was wrong.
+
+**"Never awarded" describes history, not capability.** This document spends §6 arguing that a gate
+which has never fired is not evidence of clean output — and then treated a category that has never
+scored 9 as evidence it cannot. Same error, one level up. A category sitting at 8 with no reader
+complaint is not proof of a ceiling; on the evidence here it more often means **nothing has ever been
+built that targets it**.
+
+What survives from the arithmetic is not a ceiling but a **targeting instruction**: the marks for 90
+cannot come from the categories already under repair. They have to come from the ones nothing has
+tried to move.
+
+### 18.2 The biggest lever found so far, and it is upstream of everything
+
+MEASURED over 38 archived locked-fact registries (`scripts/a80-baseline-f15b.mjs`):
+
+| relation | applies to | fails |
+| --- | --- | --- |
+| false/true pair differs by the declared shift | 9 cases | **6 (66.7%)** |
+| corrected alibi falls before the death (mechanism inverted) | 5 cases | **3 (60.0%)** |
+
+These are not near-misses. They include a declared **10-minute** shift across times **65 and 90
+minutes** apart, and one case whose "displayed" and "actual" times are the **same value**.
+
+**Two of every three clock cases this pipeline has produced do not close arithmetically, and clock
+cases are 44 of the 102 shipped runs.** Clue logic has scored 4/10 on both recent external reads. The
+two facts are almost certainly the same fact.
+
+This is upstream of every prose fix in this document. A_80 F1/F2/F3 all worked as specified and the
+mark did not move, because the arithmetic was already wrong when the prose was written.
+
+**The fix is derivation, not detection.** F15 (shipped here) reports the defect; it deliberately does
+not gate, because a check firing on two thirds of runs is an off switch. The repair is for Agent 3b to
+**derive** the true time from the false time and the shift, so the relation holds by construction and
+there is nothing left to detect. X38 already performs exactly this class of repair for a
+declared-derived interval; this extends the same idea to the pair the interval separates.
+
+### 18.3 The ladder, in order of measured evidence
+
+| # | Item | Targets | Evidence it will move the mark |
+| --- | --- | --- | --- |
+| 1 | **Derive true time from false time + shift** at Agent 3b | clue logic 4, ending 5 | 66.7% of clock cases fail today; both reads named this exact confusion |
+| 2 | **Enforce `clearance_over_budget`** | ending 5, pacing 7 | already FIRED on ch8 of the last run, advisory; the reviewer's complaint is the detector's own name |
+| 3 | **Fix the injector re-introduction** | prose 6 | SHIP-CHECK logged `B5 template re-introduced after the regen pass (suspect the injector)` — the regen cleaned it and a deterministic pass put it back |
+| 4 | **Role stability** | character clarity 5, plot 6 | the Eleanor/Mallory swap is the entire 4-mark fall between the two reads |
+| 5 | **Scene grounding** | atmosphere, hook | logged at **2/10 chapters grounded**; nothing currently repairs it |
+
+Items 2–5 need no new detector. **Every one of them already fires as a warning and is ignored** —
+`hard_stop_count` has been 0 on all three runs this session. That is the §12 finding restated as a
+work plan: the pipeline's diagnosis is ahead of its enforcement, and closing that gap is cheaper than
+building anything new.
+
+### 18.4 The categories nothing has ever targeted
+
+Per §18.1 this is where 90 has to come from. Four categories have sat at 7–8 across every read with
+**no reader complaint attached**, which means no detector fires on them and no repair pass exists:
+
+- **atmosphere 8** — the only category ever to reach 8 consistently. A_79 Phase E measured the canon
+  gap for the first time: paragraphs opening on speech **59.7% canon vs 11.5% ours**, em-dashes 5.9×,
+  semicolons 3.3×, long sentences 10.4% vs 4.0%. Those are countable operations this model follows
+  (A_75), and **nothing currently asks for any of them.** This is the clearest untried lever in the
+  repo.
+- **dialogue 7** — never measured against anything. The canon corpus can now supply a target.
+- **opening hook 7** — A_79 §13.3 measured that we front-load MORE orientation than the canon (names
+  a person 98.5% vs 75%, states a place 63.2% vs 25%). The correction is subtraction, and no pass
+  does it.
+- **character life 7** — the reviewer names exactly what is missing and it is the same note twice:
+  *relationship history*. "Hale once protected Beatrice's career", "Hugo and Eleanor had argued about
+  supplies". Not personality — shared past. Nothing in the pipeline models it.
+
+**Item 6, and the one most likely to produce a mark never yet given: a relationship-history obligation.**
+Both external reads independently asked for it in the same words, and it is absent by construction
+rather than by failure — the cast schema has roles and traits but no pairwise history.
+
+### 18.5 Honest expectation
+
+The reviewer's own estimate for items 1–2 alone is **82–85**. Items 3–5 address named complaints worth
+a further mark or two. Item 6 targets a category that has never moved, which is where the rest must
+come from.
+
+Whether that reaches 90 is not knowable from here, and this document should not pretend otherwise:
+a single external read carries ±3 marks and no judge separates an 86 from an 81 (A_76), so the target
+should be **named complaints eliminated**, not a number hit. What can be said is that every item above
+is either measured or named by a reader, and that item 6 is the first thing on this project's board in
+some time that is aimed at a category nothing has ever tried to move.
