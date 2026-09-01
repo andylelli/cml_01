@@ -279,6 +279,76 @@ the worst possible time to find out.
 
 ---
 
+### 6.1 The only hard abort cannot read the times this pipeline writes
+
+The CML-integrity block in `agent9-run.ts` has exactly **one** hard abort — everything else pushes a
+warning. That abort is driven by `detectLockedFactClueTimeMismatch`, and it parses times with two
+patterns and no others (`agent9-run.ts:564,572`):
+
+```js
+/(\d{1,2}):(\d{2})\s*(am|pm)/     // "10:30 pm"
+/(\d{1,2})\s*(am|pm)/            // "10 pm"
+```
+
+Both require **digits and a meridiem**. This case's times are `twenty-five minutes past ten` and
+`half past ten`. They cannot be parsed, so they cannot be compared, so the abort cannot fire.
+
+It is worse than an accident of formatting. `repairWordFormLockedFacts` (`agent9-run.ts:892`)
+deliberately converts digit-form times **into** word-form, and warns when the model resists —
+*"LLM may be persistently ignoring the locked-fact format constraint"*. It ran three times in this
+run. **The pipeline mandates the one time format its only hard abort is blind to.** MEASURED.
+
+This is the exact shape recorded on 2026-08-19: *a silent time gate may mean unparseable, not clean*.
+The gate's silence across archived runs is not evidence of clean output; it is evidence the gate has
+never been given input it can read.
+
+### 6.2 The alignment check runs before the data it checks exists
+
+`checkLockedFactTimeAlignment` (`agent3-run.ts:109`) reads
+
+```js
+const mechanism = ((ctx.cml as any)?.CASE ?? ctx.cml as any)?.hidden_model?.mechanism ?? {};
+const apparent = String(mechanism.apparent_time_of_death ?? "").trim();
+const actual   = String(mechanism.actual_time_of_death ?? "").trim();
+```
+
+It is **called at line 247**. `ctx.cml` is **first assigned at line 318**. MEASURED: there is no
+assignment to `ctx.cml` anywhere before the call site.
+
+So `apparent` and `actual` are always `""`, and the function returns without findings — and its own
+comment rationalises the silence:
+
+> *"An absent one means the case does not model a false-time trick, and reporting a split there would
+> manufacture a finding from missing input."*
+
+That reasoning is sound and is being applied to data that is missing for the wrong reason. The CML is
+not absent because the case has no false-time trick; it is absent because it has not been built yet.
+**A correct guard against manufacturing findings is silently converting a dead check into a clean bill
+of health.**
+
+### 6.3 What §6.1 and §6.2 mean together
+
+This run's central defect — two locked times collapsing into one — had **two** guards positioned to
+catch it. One could not parse the times. The other ran before the times existed. Neither reported
+anything, and both silences are indistinguishable from success in the run log.
+
+That is the strongest argument in this document for a rule the project already half-holds: **a check
+that has never fired must prove it can fire.** A known-positive fixture for every temporal gate costs
+nothing per run and would have surfaced both of these before a paid run did.
+
+**Fix F12:** route every temporal comparison through one parser that accepts the word-form times this
+pipeline actually produces (`parseClockTime` already does — the abort simply does not use it), and add
+a known-positive fixture asserting the abort fires on a word-form mismatch.
+
+**Fix F13:** move the `checkLockedFactTimeAlignment` call after `ctx.cml` is assigned, and give it a
+fixture proving it returns a finding on a mismatched case. Then measure its reach across archived runs
+before deciding whether it should warn or block — it has never run, so its firing rate is unknown.
+
+*(§6.1–§6.3 were surfaced by a multi-agent investigation that was stopped early on cost grounds; these
+two findings were recovered from its working files and re-verified by hand before being recorded here.)*
+
+---
+
 ## §7 Gates that logged a problem, failed to fix it, and shipped
 
 Four repair passes reported the *same score before and after* and gave up:
@@ -364,6 +434,8 @@ Ranked by marks-recoverable per unit of risk, not by how interesting they are.
 | **F1** | drop `required to`, narrow `must include`/`ensure that`/`obligation` | tiny | same 6 marks, at source | **high** — 16.7%-of-canon measurement is the regression test |
 | **F2** | `contextual` confidence annotates; only `explicit` gates | tiny | prevents the whole class | high |
 | **F5** | atomic-fact distinctness as a prompt OPERATION, baselined first | medium | the 40:2 collapse | medium — must be baselined before shipping |
+| **F12** | one time parser for every temporal gate + a known-positive fixture | small | unblinds the only hard abort | **high** — the gate is provably blind today |
+| **F13** | call the alignment check after `ctx.cml` exists; fixture it | tiny | resurrects a dead check | **high** — line 247 vs 318 |
 | **F8** | derive CML anchors from device facts; mismatch fails preflight | medium | wasted Agent 9 spend | medium |
 | **F11** | severity decides the array; status derives from severity | small | ledger bias | high |
 | **F7** | bind the reveal by disclosure content; one shared locator | medium | ch8 overstuffing | medium — §5 is INFERRED |
