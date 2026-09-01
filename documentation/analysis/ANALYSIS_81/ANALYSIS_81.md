@@ -187,3 +187,93 @@ Established the hard way in the last two days; each cost real money or a wrong c
 6. **The pipeline's own telemetry is ahead of its enforcement.** Six of the ten A_80 defects were
    already in the run's warnings, and `hard_stop_count` was 0 on all three runs. Read the warnings
    before building a detector — it may already exist, and three times this session it did.
+
+---
+
+## §8 The bundle run — three pass, two were dead levers (2026-09-01)
+
+Run `mystery-1788293825799`, **£1.09**, `warning`, shipped, rubric 71/100. Flags added:
+`AGENT9_CLEARANCE_TRIM`, `AGENT9_GROUNDING_LEAD`, `AGENT9_CULPRIT_INJECTION_IN_SCENE`.
+`AGENT9_CLUE_TIME_WORDFORM` deliberately left off.
+
+Read in the §4 order, cheapest and most decisive first.
+
+| # | Check | Result |
+| --- | --- | --- |
+| 1 | page-shape operations | **FAIL — dead lever** |
+| 2 | locked-fact arithmetic + F15 | **PASS** |
+| 3 | `sharedHistory` in the prompt | **FAIL — dead lever** |
+| 4 | B5 template line | **PASS** |
+| 5 | `clearance_over_budget`, scene grounding | **PASS** |
+
+### 8.1 Check 2 — the case arithmetic closes, for the first time
+
+```
+clock_first_strike_time    "quarter past nine"      9:15
+guest_watch_stopped_time   "ten minutes past nine"  9:10
+clock_strike_delay         "five minutes"
+```
+
+9:15 − 5 = 9:10. **The pair is consistent**, F15 emitted **zero** warnings, and there is no third
+unanchored time — which is precisely the defect that shipped on 09-01 and drew 4/10. The Agent 3b
+arithmetic contract is the only item on this register that was aimed at the lowest-scoring category
+and it did what it was built to do.
+
+Not yet a mark: the rubric still capped `clues ≤ 6` for *"central clue stated as two flat values, not
+one contradiction"*. The case is now coherent and the **prose states it flatly** — the next defect in
+the same chain, and a different one from the collapse.
+
+### 8.2 Checks 4 and 5 — the flags worked
+
+- `allowed no other reading`: **0**. `beyond all reasonable doubt`: **0**. The B5 ship-check did not
+  fire at all, so with `AGENT9_CULPRIT_INJECTION_IN_SCENE` on the injector never needed to write a
+  verdict sentence. The line four external reads have quoted back is gone.
+- `clearance_over_budget`: **0 occurrences**, against a firing on ch8 last run and "74% of archived
+  runs" historically. The trim fired and folded two clearance scenes into one.
+- `scene-grounding coverage below target`: **2 occurrences last run, 0 this run.**
+
+Three flags, three effects, all first observations. All three had been sitting default-OFF.
+
+### 8.3 Checks 1 and 3 — both new prompt blocks were dead levers
+
+**Neither reached a prompt. `PAGE SHAPE` and `WHAT THESE PEOPLE ALREADY ARE` each appear ZERO times
+in the entire prompt log** — not in this run, not in any run.
+
+Check 1's numbers, measured on the manuscript against the immediately previous one:
+
+| operation | canon | prev run | this run |
+| --- | --- | --- | --- |
+| paragraphs opening on speech % | 59.7 | 7.35 | 8.75 |
+| semicolons / 1000 | 4.82 | 3.04 | 2.32 |
+| em-dashes / 1000 | 6.52 | 0.11 | 0.09 |
+| sentences over 30 words % | 10.37 | 6.35 | 5.27 |
+
+Read alone, that is "the operations were ignored" — the VoiceSpec finding again. It is not. **The
+instructions were never delivered**, and reporting the first reading without the log check would have
+produced exactly the wrong conclusion: that this model ignores operations, when A_75 measured that it
+follows them.
+
+**Cause confirmed for check 3.** `buildCharacterPersonalityBlock` opens with
+`if (library && deployedAssets) { … }` — the scoped asset-pool variant — and returns before reaching
+the flat block my relationship section was appended to. In production the library is always present,
+so the block cannot render. `CHARACTER PERSONALITIES` is likewise absent from every prompt, which
+confirms the branch.
+
+**Cause NOT identified for check 1.** The append is straight-line in `buildProsePrompt`, is present
+in the compiled `dist`, and sits immediately after `appendGuideSource` — whose own output
+(`THE FULL GUIDE THESE PRINCIPLES COME FROM`) **does** reach the prompt, as does the block above it
+(`WHODUNNIT CRAFT GUIDELINES`). So the string is added to a variable whose earlier contents arrive
+and whose later contents do not. No per-block truncation exists in the budget assembler and the
+logger does not truncate (longest logged payload 173,625 chars). This is unresolved and is the first
+thing to chase.
+
+### 8.4 What this run bought
+
+The three flags are settled: they work, they are cheap, and they should stay on. The arithmetic
+contract is settled: the case closes. **And the two blocks that would have been reported as "shipped"
+on the strength of their unit tests are dead levers** — which is the T1→T3 gap in §1, caught for
+£1.09 rather than by an external reader.
+
+That is the register working as intended. It is also the fourth time in this session that a lever
+looked wired and was not (A_79 §14 was the first three), and the rule from §7 held again: **verify by
+the agent label in the prompt log, never by the code.**
