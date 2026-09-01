@@ -2121,6 +2121,46 @@ ${body}`;
     inputs.writingGuides?.craft,
   );
 
+  /**
+   * A_80 §18.4 — THE PAGE-SHAPE OPERATIONS, from the canon measurement.
+   *
+   * A_79 Phase E measured our 2.2M words against 720k words of real Golden Age prose. The finding
+   * that matters is that **mean and median sentence length are already at canon** (16.09 vs 14.89,
+   * 13.11 vs 13.38) — so the sentence-length target VoiceSpec spent its life asking for was aimed at
+   * a gap that does not exist, and was ignored in 10 chapters out of 10.
+   *
+   * The real differences are the tail and three countable operations:
+   *
+   *     paragraphs opening on speech    canon 59.7%   ours 11.5%    (5x)
+   *     em-dashes per 1000 words        canon 6.52    ours 1.11     (5.9x)
+   *     semicolons per 1000 words       canon 4.82    ours 1.46     (3.3x)
+   *     sentences over 30 words         canon 10.4%   ours 4.0%
+   *
+   * These are stated as COUNTS PER CHAPTER, not as rates or percentages, because A_75's matched pair
+   * settled that this model complies with operations and ignores statistics: asked for 19.5-word
+   * sentences it wrote 15.01 — shorter than the unguided arm — while the same prompt asking for
+   * semicolon-linked clauses moved semicolons from 5 to 13. Nothing in this pipeline has ever asked
+   * for any of these, which is why prose, dialogue and hook have never moved off 6–8.
+   *
+   * Deliberately a floor and not a quota: "at least" leaves the ceiling to the scene, and a chapter
+   * that wants none of them is not punished for it anywhere.
+   */
+  craftGuideBlock +=
+    '\n\nPAGE SHAPE — FIVE COUNTABLE THINGS, drawn from measuring 720,000 words of Golden Age novels' +
+    ' against our own:\n' +
+    '\n1. OPEN AT LEAST FOUR PARAGRAPHS IN THIS CHAPTER ON A LINE OF DIALOGUE — the quotation mark' +
+    ' first, before any attribution or staging. The canon opens three paragraphs in five this way; we' +
+    ' open one in nine. This is the single largest difference between our page and theirs.' +
+    '\n2. USE A SEMICOLON AT LEAST THREE TIMES to join two independent clauses that belong to one' +
+    ' thought. Not a list separator — a join.' +
+    '\n3. USE AN EM-DASH AT LEAST FOUR TIMES for an interruption, a self-correction, or a turn in a' +
+    ' speaker\'s thinking mid-sentence.' +
+    '\n4. LET AT LEAST TWO SENTENCES RUN PAST THIRTY WORDS. Not padding — one long sentence that' +
+    ' carries a whole observation, placed where the scene slows.' +
+    '\n5. KEEP AT LEAST FOUR SENTENCES UNDER EIGHT WORDS. The canon does both; the contrast between' +
+    ' the long and the short is the rhythm, and doing only one of them is what makes prose flat.' +
+    '\nDo not count these out in the text or mention them. They are things to do, not a form to fill.';
+
   const qualityGuardrails = Array.isArray(inputs.qualityGuardrails) ? inputs.qualityGuardrails : [];
   const rolloutFlagsRaw = (getGenerationParams().agent9_prose as any)?.rollout_flags;
   const rolloutFlags = {

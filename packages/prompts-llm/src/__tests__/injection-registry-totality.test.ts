@@ -32,8 +32,17 @@ import {
  * produces be recognised?" — and the name must be plausible, because the patterns bound how much text
  * may sit between the template's fixed words.
  */
-const materialise = (replacement: string): string =>
-  replacement.replace(/\$(\d)/g, "Captain Ivor Hale");
+/**
+ * A floor's replacement may be a template string OR a builder function (A_80 item 3: the B5 floor now
+ * calls `buildCulpritEvidenceSentenceInScene` rather than substituting a fixed phrase, because the
+ * fixed phrase it used to write was itself a registered piece of generator residue). Both shapes must
+ * be materialised into the sentence that would actually ship, or this test stops checking the floor
+ * whose output changed — which is the one worth checking.
+ */
+const materialise = (replacement: string | ((...args: string[]) => string)): string =>
+  typeof replacement === "function"
+    ? replacement("", "Captain Ivor Hale")
+    : replacement.replace(/\$(\d)/g, "Captain Ivor Hale");
 
 describe("X13 — every scaffold floor's output is in the injection registry", () => {
   it("has floors to check, so a vacuous pass is impossible", () => {

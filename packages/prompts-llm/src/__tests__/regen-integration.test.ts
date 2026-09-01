@@ -699,8 +699,17 @@ describe("runScaffoldRegenPass — RC1.2/RC1.3 endgame de-templating (P4)", () =
     expect(floored).toEqual(["B5:beyond_reasonable_doubt"]);
     const text = out.paragraphs.join(" ");
     expect(detectScaffoldNotProse(text)).toEqual([]);
-    expect(text).toContain("Captain Ivor Hale was responsible"); // attribution kept
-    expect(text).toMatch(/evidence/i); // the culprit-evidence gate (critical) must stay satisfied
+    // A_80 item 3 — the floor now rewrites into the COMPLIANT in-scene form rather than into
+    // "was responsible; the evidence allowed no other reading", which `injection-templates.ts`
+    // already registers as generator residue and which external readers have quoted back four
+    // times. The two properties this test exists to protect are unchanged and asserted directly:
+    expect(text).toContain("Captain Ivor Hale"); // attribution kept
+    // The culprit-evidence link, asserted as the PROPERTY rather than as the old sentence's wording.
+    // agent9-run.ts:2494 records that this in-scene form "satisfies culpritEvidenceLinkInText and
+    // trips no verdict-closer rule" — which is the whole reason it exists.
+    expect(text).toMatch(/proof|evidence/i);
+    expect(text).not.toMatch(/beyond all reasonable doubt/i);
+    expect(text).not.toMatch(/allowed no other reading/i);
   });
 
   it("FLOOR: is a no-op on clean prose and on non-floored families (A1 stays watched, not rewritten)", () => {

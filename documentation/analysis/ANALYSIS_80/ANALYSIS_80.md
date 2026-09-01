@@ -850,3 +850,89 @@ a single external read carries ±3 marks and no judge separates an 86 from an 81
 should be **named complaints eliminated**, not a number hit. What can be said is that every item above
 is either measured or named by a reader, and that item 6 is the first thing on this project's board in
 some time that is aimed at a category nothing has ever tried to move.
+
+---
+
+## §19 The free work, done (2026-09-01)
+
+No LLM spend. 2,891 tests green across seven packages; `flags:check` clean.
+
+| § | Item | Shipped |
+| --- | --- | --- |
+| 18.3 #1 | case arithmetic | Agent 3b contract now covers every clock time, not just the pair; `derivedFrom` documented in the device schema |
+| 18.3 #3 | the de-templating floor was writing a template | **fixed** — see 19.1 |
+| 18.4 #6 | relationship history | **wired** — it was generated every run and discarded |
+| 18.4 | page-shape operations | five countable operations from the canon measurement |
+| 18.3 #2, #5 | clearance trim, grounding lead | **already built, flag-gated OFF** — see 19.3 |
+
+### 19.1 The floor that removed templates was writing one
+
+The sharpest thing found in this pass. The B5 scaffold floor existed to de-template the
+culprit-evidence injection. Its replacement string was:
+
+```
+"was responsible; the evidence allowed no other reading"
+```
+
+`injection-templates.ts` already carried a **detector for that exact phrase** (line ~188), its header
+quotes a reader calling it *"not story prose; generator residue"*, and its X4 telemetry records a
+**100% violation rate** — *"as written it cannot produce a compliant sentence"*. External readers have
+now quoted the result back **four times**, most recently in the 2026-09-01 read, which lists
+"Captain Ivor Hale was responsible; the evidence allowed no other reading" among the lines that are
+"not natural fiction".
+
+So the de-templating floor was the thing writing the template, and the repo had documented every step
+of it. The compliant builder it should have been calling — `buildCulpritEvidenceSentenceInScene` —
+already existed in the same registry and was already marked as this injector's `supersededBy`.
+
+Fixed: the floor now captures the culprit's name and calls that builder, producing
+*"You did it." The words settled and nobody took them back. {culprit} said nothing, and the proof on
+the table said the rest.* Verified against the real predicate rather than a proxy —
+`culpritEvidenceLinkInText` returns **true** for the new form, so the critical culprit-evidence gate
+stays satisfied and the injector will not re-fire.
+
+**Two tests had to change, and how they changed is the point.** Both asserted `/responsible/i` and
+`/evidence/i` — string proxies for `CULPRIT_TERMS_RE` and `CULPRIT_EVIDENCE_RE`. The new form
+satisfies both predicates through different words, so the tests now assert the predicate itself. **A
+proxy that pins a wording cannot tell a rewrite from a regression**, which is the same mistake §17
+records me making with the dominance ratio.
+
+### 19.2 The page-shape operations
+
+A_79 Phase E measured our 2.2M words against 720k of canon and found **mean and median sentence
+length already at canon** — so VoiceSpec's sentence-length target was aimed at a gap that does not
+exist, which is why it was ignored in 10 chapters out of 10. The real differences are the tail and
+three countable operations:
+
+| | canon | ours |
+| --- | --- | --- |
+| paragraphs opening on speech | **59.7%** | **11.5%** |
+| em-dashes per 1000 words | 6.52 | 1.11 |
+| semicolons per 1000 words | 4.82 | 1.46 |
+| sentences over 30 words | 10.4% | 4.0% |
+
+Now stated in the craft block as five **counts per chapter** rather than rates, because A_75's matched
+pair settled that this model complies with operations and ignores statistics. Nothing in this pipeline
+had ever asked for any of them — which is the §18.1 targeting instruction applied: prose, dialogue and
+hook have never moved because nothing was aimed at them.
+
+### 19.3 Two items turned out to be flag flips, not code
+
+- `AGENT9_CLEARANCE_TRIM` (default OFF) is the repair for `clearance_over_budget`, whose own comment
+  reads: *"the most frequent geometry code (74% of archived runs) and had no repair."* It fired on
+  ch8 of the last run and the external reader's complaint is the detector's own name.
+- `AGENT9_GROUNDING_LEAD` (default OFF) sits on the scene-grounding path that logged **2/10 chapters
+  grounded**.
+
+Both were confirmed **not dead levers** — each has a live call site in `agent9-run.ts`. This is the
+F9 pattern for the third time this session: the capability exists, default OFF, and the
+recommendation is a flip rather than a build. What cannot be settled for free is what they do to a
+real manuscript.
+
+### 19.4 What is NOT verified
+
+None of this has faced a live pipeline. F15's inversion warning fired on an archived registry, the
+relationship block renders correctly across five input shapes, the B5 floor was verified against the
+real predicate, and the page-shape operations are only text in a prompt until a run reads them. The
+honest position after §17 is that **a passing local check is not evidence the reader's complaint is
+addressed** — that is exactly the error §17 records. These are ready to test, not proven.

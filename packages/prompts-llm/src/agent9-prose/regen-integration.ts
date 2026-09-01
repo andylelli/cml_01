@@ -6,6 +6,7 @@
  * orchestrator's remaining job is then just: detect defects → `runRegenRepair(..., makeRegenFn(...))`.
  */
 
+import { buildCulpritEvidenceSentenceInScene } from "./injection-templates.js";
 import {
   noScaffoldValidator,
   detectScaffoldNotProse,
@@ -526,7 +527,12 @@ const paragraphIndexOfFragment = (paragraphs: ReadonlyArray<string>, fragment: s
  * knows only the injector's phrasing matched nothing on the run that motivated REVIEW_05 §10.1. The
  * test asserts that correspondence so a third floor cannot be added without it.
  */
-export const SCAFFOLD_EXHAUSTION_FLOORS: ReadonlyArray<{ rule: string; re: RegExp; replacement: string }> = [
+export const SCAFFOLD_EXHAUSTION_FLOORS: ReadonlyArray<{
+  rule: string;
+  re: RegExp;
+  /** A `String.replace` replacement — a template string, or a function when the floor needs a builder. */
+  replacement: string | ((...args: string[]) => string);
+}> = [
   // A3 — "accounted for X's movements elsewhere" → "placed X elsewhere". Matches the template's own
   // possessive shape (deterministic-repair.ts clearance patch); paraphrases stay unresolved rather
   // than risk a botched capture.
@@ -544,8 +550,25 @@ export const SCAFFOLD_EXHAUSTION_FLOORS: ReadonlyArray<{ rule: string; re: RegEx
   // site is the ship-check in agent9-run, not the in-pass tail.
   {
     rule: "B5:beyond_reasonable_doubt",
-    re: /\bwas responsible, and the evidence placed the matter beyond all reasonable doubt\b/gi,
-    replacement: "was responsible; the evidence allowed no other reading",
+    /**
+     * A_80 item 3 — THIS FLOOR USED TO REPLACE ONE TEMPLATE WITH ANOTHER.
+     *
+     * Its replacement was the string "was responsible; the evidence allowed no other reading" — which
+     * `injection-templates.ts` already carries a detector for (line ~188), whose header quotes a
+     * reader calling it "not story prose; generator residue", and whose X4 telemetry records a **100%
+     * violation rate**: "as written it cannot produce a compliant sentence". External readers have now
+     * quoted the result back FOUR times, the latest being the 2026-09-01 read that listed
+     * "Captain Ivor Hale was responsible; the evidence allowed no other reading" among the lines that
+     * are "not natural fiction".
+     *
+     * So the de-templating floor was the thing writing the template. It now calls
+     * `buildCulpritEvidenceSentenceInScene`, the compliant builder that already existed in that same
+     * registry and was already marked as this injector's `supersededBy`. The culprit's name is
+     * captured from the sentence it is replacing, so the fact survives — this floor's contract is to
+     * be value- and evidence-preserving, and dramatising the accusation preserves both.
+     */
+    re: /\b([A-Z][\w'’.-]*(?:\s+[A-Z][\w'’.-]*)*)\s+was responsible, and the evidence placed the matter beyond all reasonable doubt\.?/g,
+    replacement: (_match: string, culprit: string) => buildCulpritEvidenceSentenceInScene(culprit.trim()),
   },
 ];
 
@@ -560,7 +583,12 @@ export function applyScaffoldExhaustionFloor(chapter: ProseChapter): { chapter: 
     for (const f of SCAFFOLD_EXHAUSTION_FLOORS) {
       if (f.re.test(out)) {
         f.re.lastIndex = 0; // reset the /g/ cursor between test and replace
-        out = out.replace(f.re, f.replacement);
+        // The union is narrowed here because `String.replace` has no overload accepting
+        // `string | fn` — the floor may supply either, and B5 supplies a builder.
+        out =
+          typeof f.replacement === "function"
+            ? out.replace(f.re, f.replacement as (...a: string[]) => string)
+            : out.replace(f.re, f.replacement);
         floored.add(f.rule);
       }
       f.re.lastIndex = 0;
