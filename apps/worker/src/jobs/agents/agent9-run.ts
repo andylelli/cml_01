@@ -6199,6 +6199,51 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
         `[Agent 9] SHIP-CHECK: dual-value flat pair present at cap scope — the clues≤6 cap WILL apply (honest).`,
       );
     }
+
+    /**
+     * A_80 F5 — ATOMIC-FACT DOMINANCE. A MEASURE, never a gate.
+     *
+     * Two locked times five minutes apart are the entire mystery in a clock case. Run
+     * mystery-1788202899854 stated one of them 40 times and the other twice, so the contradiction the
+     * book rests on was arithmetically absent — and `enforceLockedFactValuePresence` passed it,
+     * because that guard asks whether a value is PRESENT, not whether it is USED WHERE IT MATTERS.
+     *
+     * The threshold is measured, not chosen. A_80 §10 originally proposed ~4:1;
+     * `scripts/a80-baseline-f5-f6.mjs` over 205 archived manuscripts says 4:1 fires on **31%** of
+     * them, which is an off switch with extra steps (CLAUDE.md B1). The median natural dominance is
+     * 2.30:1 and only **20:1 is rare, at 1.1%** — and the failing run sat exactly there. 12:1 is used
+     * here as the reporting line: comfortably above the natural spread, below the observed failure.
+     *
+     * It WARNS rather than gating for two reasons: a legitimately lopsided case exists (one time
+     * stated once as misdirection is a real design), and the correct repair is upstream anyway — an
+     * instruction to state both readings in one passage, which is a countable operation this model
+     * follows, rather than a post-hoc rewrite of prose that is already written.
+     */
+    const atomicTimes = (annotatedLockedFacts ?? [])
+      .map((f: any) => String(f?.value ?? "").trim())
+      .filter((v: string) => v.length > 0 && parseWordFormTime(v) !== null);
+    if (atomicTimes.length >= 2) {
+      const shipped = (prose.chapters ?? [])
+        .flatMap((c: any) => (c?.paragraphs ?? []) as string[])
+        .join("\n")
+        .toLowerCase();
+      const counts = atomicTimes
+        .map((v: string) => ({ value: v, n: shipped.split(v.toLowerCase()).length - 1 }))
+        .sort((a, b) => b.n - a.n);
+      const [top, second] = counts;
+      if (top && second && second.n >= 0) {
+        const ratio = second.n === 0 ? Infinity : top.n / second.n;
+        if (ratio >= 12) {
+          ctx.warnings.push(
+            `[Agent 9] SHIP-CHECK A_80 F5: locked-time dominance ${top.n}:${second.n} ` +
+              `("${top.value}" vs "${second.value}") — the case declares these as distinct times, and the ` +
+              `manuscript states one of them ${second.n === 0 ? "not at all" : `${Math.round(ratio)}x less often`}. ` +
+              `A reader cannot perform the subtraction the mystery is built on. MEASURE only — baseline ` +
+              `over 205 manuscripts: 12:1 sits above the 2.30:1 median and below the 20:1 that shipped broken.`,
+          );
+        }
+      }
+    }
     // A_65 Phase 1 — two MEASURES (never gates, never regens):
     // (a) derived-contradiction leak: a PRE-reveal chapter assembling both canonical pair values
     //     into an explicit inference (the F3 chapter-one class); assembly AT/after the pivot is

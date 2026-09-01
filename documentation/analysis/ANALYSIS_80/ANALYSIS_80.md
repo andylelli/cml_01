@@ -481,3 +481,93 @@ That is the real finding of this document, and it is a control-plane problem rat
 problem: **the pipeline's diagnosis is better than its shipping decision.** Every one of those
 warnings was advisory. `hard_stop_count` was 0. A book whose central mechanism contradicts itself 40
 times to 2 is not a warning-grade outcome, and nothing in the release gate was empowered to say so.
+
+---
+
+## §15 Implementation record — and four places this document was wrong
+
+Implemented 2026-08-31, commit `8a1a18a7` onward. 2,880 tests green across seven packages;
+`flags:check` and `flags:runtime` clean.
+
+| Fix | Status | Note |
+| --- | --- | --- |
+| **F1** narrow the two ordinary-English rules | **DONE** | canon false positives 2/12 → **0/12**; all 19 rules now clean against real Golden Age prose, and all five known-positives still fire |
+| **F2** the confidence tier decides gating | **DONE** | `watch` findings now report at `moderate` and cannot force a regeneration |
+| **F3** a retry may not lose what the original had | **DONE**, flag `AGENT9_RETRY_REGRESSION_GUARD` | new `prose-guard/retry-regression.ts`; catches the real ch8 regression, 0 false positives on three legitimate rewrites |
+| **F5** atomic-fact dominance | **DONE as a MEASURE**, threshold corrected | see 15.1 |
+| **F6** do not inject a value already present | **NOT DONE** — mechanism unconfirmed | see 15.2 |
+| **F9** unresolved-regen budget | **ALREADY EXISTED** | see 15.3 |
+| **F10** a skipped gate is not a passed gate | **ALREADY CORRECT** | see 15.4 |
+| **F11** severity decides the array | **DONE** | warning payload no longer written to `ctx.errors` |
+| **F12** one time parser for the hard abort | **DONE**, flag `AGENT9_CLUE_TIME_WORDFORM` | with a known-positive fixture |
+| **F13** call the alignment check after its data exists | **DONE** | with a known-positive fixture |
+| **F7** bind the reveal by disclosure content | **not started** | §5 is INFERRED; wants its own measurement first |
+| **F8** derive CML anchors; mismatch fails preflight | **not started** | see 15.5 |
+
+### 15.1 F5's proposed threshold was wrong by an order of magnitude
+
+§3.2 suggested "a threshold near 4:1 is defensible". `scripts/a80-baseline-f5-f6.mjs`, over 205
+archived manuscripts:
+
+| dominance | manuscripts firing |
+| --- | --- |
+| ≥ 2:1 | 59.2% |
+| ≥ 3:1 | 43.7% |
+| **≥ 4:1** | **31.0%** |
+| ≥ 6:1 | 17.8% |
+| ≥ 10:1 | 11.5% |
+| **≥ 20:1** | **1.1%** |
+
+Median natural dominance is **2.30:1**. A 4:1 gate would have fired on nearly a third of everything
+we have shipped — an off switch with extra steps, proposed in the same document that names that
+failure mode twice. The failing run sat at exactly 20:1. Shipped at **12:1 as a ship-check MEASURE**,
+above the natural spread and below the observed failure, and as a warning rather than a gate because
+a deliberately lopsided case is a legitimate design and the real repair is an upstream instruction to
+state both readings in one passage.
+
+### 15.2 F6's mechanism was asserted and does not reproduce
+
+§4 stated that `enforceLockedFactValuePresence`'s cap "counts pre-existing matches and so appended a
+sentence identical to one already there". Driving the built function directly — chapter already
+containing the value, chapter lacking it, and the function run twice over the same prose, which is
+what the post-processing chain does — produced **no duplicate in any case**. There is a chapter-level
+presence check ahead of the injection that the §4 account did not reckon with.
+
+So the duplicates are real and measured (**8.8%** of 205 manuscripts, 31 occurrences, and every
+example is a clock-time sentence) but the **cause is not identified**. Implementing a fix against an
+unreproduced mechanism is the "plausible narrative over a correlation" failure this document's own
+verification standard exists to catch, so F6 is not implemented. Note also that the probe returning
+"no duplicate" is itself a claim about the probe — it does not establish the injector is innocent,
+only that the stated mechanism was not demonstrated.
+
+### 15.3 F9 was already built
+
+`AGENT9_REGEN_CONVERGENCE_STOP` (default OFF, per-kind failure tracking, configurable limit) already
+implements the unresolved-regen budget §7 asked for, with its own measurement attached: on the
+2026-08-27 arm-A run, regen was the largest single consumer at 33 calls and 40% of wall-clock, and
+chapter 3 took 20 of them with every one failing. The recommendation is therefore **a flag flip, not
+code**. This was found the hard way: the first attempt here added an unflagged duplicate that broke
+the existing feature's own "flag OFF is byte-identical" test.
+
+### 15.4 F10 was already correct
+
+The blind-reader skip pushes "The gate is SKIPPED, not passed", leaves `primaryBlindRead` undefined,
+and the entire pass/fail block is guarded on that value — so nothing downstream reads a skipped gate
+as a passed one. §7 overstated it. What remains true is narrower: the skip does not surface in
+`release_gate_outcome`, only in the warning list.
+
+### 15.5 Why F8 is not shipped
+
+F8 would make an unreconciled device/CML time mismatch a preflight failure. §6 measured that signal at
+**4, 0, 10, 4, 0, 0** across six runs — so a run carrying ten of them exists, and turning this into an
+abort would have failed it. Shipping a new abort on a signal whose distribution is that wide, without
+first measuring what fraction of those mismatches are genuine rather than intended misdirection, is
+the mistake F12 is deliberately flag-gated to avoid. The derive-anchors-from-device-facts half is
+sound and remains the right fix; it is a change to Agent 3's contract and wants its own increment.
+
+### 15.6 What ships ON and what ships OFF
+
+`F1`, `F2`, `F11`, `F13` and F5's measure are **on** — they are corrections restoring behaviour the
+surrounding code already documents as intended, and gating a bug fix behind a flag leaves the bug on
+by default. `F3` and `F12` are **off**: one changes which draft ships, the other can abort a run, and
+both need their firing rate observed before they decide anything.
