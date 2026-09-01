@@ -468,7 +468,19 @@ export const applyDeterministicDiscriminatingTestPatch = (
     return { chapter, inserted: false };
   }
   const paragraphs = [...chapter.paragraphs];
-  const insertionIndex = Math.max(1, paragraphs.length - 1);
+  // A_81 F18 - the scaffold must not land AFTER the confession. This patch inserts three paragraphs of
+  // composed proof at length-1; when the culprit has already admitted it earlier in the chapter, that
+  // puts a demonstration after the admission it was meant to force. Two consecutive external reads
+  // quoted "Run again in front of them all..." back and asked for the reveal to stop once the culprit
+  // breaks. Inserting before the first admission keeps every DT-validity marker the pre-commit gate
+  // needs - the paragraphs still ship, in the order the scene actually wants them.
+  const CONFESSION_RE =
+    /\b(?:confess(?:ed|es|ion|ions)?|admitted|admission|owned up|broke down)\b|\b(?:I|you) (?:killed|did it|murdered)\b/i;
+  const firstConfessionIndex = paragraphs.findIndex((paragraph) => CONFESSION_RE.test(String(paragraph ?? "")));
+  const insertionIndex =
+    firstConfessionIndex > 0
+      ? Math.max(1, Math.min(firstConfessionIndex, paragraphs.length - 1))
+      : Math.max(1, paragraphs.length - 1);
   paragraphs.splice(
     insertionIndex,
     0,

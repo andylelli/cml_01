@@ -574,3 +574,112 @@ Three of the four remaining named complaints are free and precisely located: the
 (§13.3), the location template (§13.4), and the post-confession repetition. The fourth — making the
 model *use* the relationship history (§13.1) — is a prompt-operation change of the kind A_75 showed
 this model does follow, when it is asked for something countable.
+
+---
+
+## §14 The three fixes behind the reviewer's 87–89 projection
+
+The fourth external read (§13) closed with a projection: with the fast/slow wording fixed, the
+confession tightened and the scaffold lines removed, **87–89**. All three were free and precisely
+located. All three are now built. Two of them turned out to be the same shape as most of this
+session's findings — **the pipeline already knew, and told the model too late or not at all.**
+
+### 14.1 F16 — the direction of a clock error
+
+`packages/prompts-llm/src/agent9-prose/prompt-builder.ts` — new exported `buildClockDirectionBlock`.
+
+MEASURED on run `mystery-1788297847870`: `runs fast` 1, `slow` 0, against a device reading of 9:10
+and a true time of 9:45. The clock was thirty-five minutes **slow** and the prose said fast.
+
+This is the **third distinct timing failure mode**, and the first of its kind:
+
+| | mode | what was wrong |
+| --- | --- | --- |
+| A_80 F12 | collapse | the value was lost |
+| A_81 §10 | repair collision | the value was overwritten by another locked value |
+| **A_81 F16** | **inversion** | **the value was right and the RELATION was backwards** |
+
+A_80 F15 checks that the gap between the two locked times equals the stated interval. It passed —
+correctly. Nothing anywhere checked which way round the prose says the clock runs, because until this
+read nobody had looked.
+
+The block derives the direction from the locked values themselves and states it as ground truth,
+naming the forbidden words explicitly. Two design points, both learned the hard way here:
+
+- **Classification is by LABEL, never by order.** `findDiscriminatingContradictionPair` returns its
+  pair in registry order and the A_58 comment directly above it is explicit that order does not say
+  which side is staged. F16 reuses the exact regexes A_80 F15 uses (`agent3b-run.ts:221-222`) so the
+  two components cannot disagree about which fact is the device.
+- **When it cannot classify, it names no direction at all** — it emits the order-neutral rule instead.
+  A block that guesses would invert the mechanism half the time, which is the defect it exists to fix.
+
+The load-bearing test is the **swap**: the same labels with the values exchanged must produce FAST.
+That is what separates a derivation from a hardcoded word, and no other assertion in the file would
+have caught a constant.
+
+One near-miss worth recording, because it is the fourth instance this session. The first version of
+the time-of-day tail-strip shipped as `…)\$/` — an escaped literal dollar, not an end-anchor. It
+would have matched nothing, the parser would have returned `undefined` for every real locked value,
+and the block would have degraded silently to the generic rule while every test still passed. Caught
+by reading the written file back, not by running it.
+
+### 14.2 F17 — the opening the pipeline only prohibits on retry
+
+`prompt-builder.ts:1788` already carried a lint-enforced CHAPTER OPENING rule. It prohibited the room
+*inventory* — "In the [room], the [room], and the [room]…". It did **not** prohibit the shape the
+pipeline actually ships:
+
+> "The Hotel Reception Area in Dunrath Bay held a tense weight to it" — ×5 in one book
+> "Rockshore Hotel in St Ives Bay" — ×4 in the previous one
+
+That shape *is* named in the codebase — at `generate.ts:1919`, as a `WRONG:` example inside **retry
+feedback**. The model is told the pattern is forbidden only after it has already written it, and only
+if the linter fires. On a first attempt that passes, it ships.
+
+F17 moves the prohibition upfront, with the measured counts, into the rule that already reaches every
+prose prompt. Prose has been **6/10 in all four external reads**; the opening hook fell 8 → 7 on this
+family in the fourth.
+
+### 14.3 F18 — proof after the confession
+
+`deterministic-repair.ts` — `applyDeterministicDiscriminatingTestPatch` spliced its three composed
+paragraphs at `paragraphs.length - 1`, unconditionally. When the culprit has already broken earlier in
+the chapter, that lands a demonstration *after* the admission it was meant to force.
+
+Two consecutive external reads quoted the same sentence back — *"Run again in front of them all, the
+test came out the same way twice…"* — and asked for the reveal to stop once the culprit breaks.
+
+The fix inserts before the first admission instead. **The paragraphs still ship**, so every
+DT-validity marker the pre-commit gate requires is still present; only the order changes. That
+matters: deleting the scaffold would have traded a pacing complaint for a hard gate failure, which is
+the trade A_80 F9 already made once and had to revert.
+
+### 14.4 Delivery check, with a negative control
+
+The standing lesson of this session is §8.3: a block can pass every unit test and reach zero prompts.
+Measured against the last run's `logs/llm-prompts-full.jsonl` (2,508 prompts):
+
+| block | prompts reached |
+| --- | --- |
+| `lockedFactsBlock` — the string F16 is concatenated onto | **658** |
+| `contradictionBlock` — F16's *exact* gating condition | **448** |
+| the CHAPTER OPENING line F17 extends | **658** |
+| `PAGE SHAPE` — the known-dead control | **0** |
+
+F16 is gated on the same `contradictionPair` as the 448-prompt block and appended to the same
+variable, so it lands wherever that lands. The control discriminates, which is what makes the other
+three rows evidence rather than assertion.
+
+### 14.5 What this does NOT settle
+
+- **T3/T4 unverified.** Three of the four reads' named complaints are addressed in code; whether the
+  model *obeys* F16 and F17 is a prompt-compliance question, and A_75 is explicit that this model
+  follows countable operations and ignores rates. F16 asks for a specific word and forbids four
+  others — countable. F17 forbids a specific opening shape — countable. That is the right form, but
+  form is not obedience.
+- **The fourth complaint is untouched.** §13.1 — making the model *use* the relationship history — is
+  still open. The block reaches 26 prompts and the word "affair" appears 0 times in the manuscript.
+  It is live and unused, and it asks for an effect rather than an operation.
+- **The reviewer's 87–89 is a projection, not a measurement.** A single read carries ±3 (A_76) and the
+  case differs every run. Four reads at 74 / 70 / 79 / 82 is a trend worth having; it is not a
+  controlled series.

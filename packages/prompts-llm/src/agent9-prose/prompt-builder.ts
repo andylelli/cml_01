@@ -1625,6 +1625,83 @@ export const applyPromptBudgeting = (
  * Keeps all structural data: names, types, purpose, sensoryDetails, atmosphere.
  */
 
+// A_81 F16 - the DIRECTION of a clock error. MEASURED on run mystery-1788297847870: the case was
+// arithmetically correct (the device read EARLIER than the true time, so it was thirty-five minutes
+// SLOW) and the prose wrote "the veranda clock now runs fast - by exactly thirty-five minutes".
+// "runs fast" 1, "slow" 0. The value was right and the RELATION was inverted. That is the third
+// distinct timing failure mode, after the collapse (A_80 F12) and the repair collision (A_81 S10),
+// and nothing anywhere checked which way the prose says the clock runs - F15 only checks the GAP.
+//
+// Classification is by LABEL, never by order: findDiscriminatingContradictionPair returns the pair
+// in registry order and the A_58 note above is explicit that order does not say which is staged.
+// The regexes are the ones A_80 F15 already uses (agent3b-run.ts:221-222) so the two agree.
+export const buildClockDirectionBlock = (atomicFacts: Array<{ id?: string; value?: unknown; description?: string }>): string => {
+const contradictionPair = findDiscriminatingContradictionPair(atomicFacts as any);
+const WORD_NUM_MAP: Record<string, number> = {
+  one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8,
+  nine: 9, ten: 10, eleven: 11, twelve: 12, thirteen: 13, fourteen: 14,
+  fifteen: 15, twenty: 20, 'twenty-five': 25, thirty: 30, 'thirty-five': 35,
+  forty: 40, 'forty-five': 45, fifty: 50, 'fifty-five': 55,
+};
+  if (!contradictionPair) return '';
+  const parseClockMinutes = (v: string): number | undefined => {
+    // Real locked values carry a time-of-day tail ('twenty minutes past four in the afternoon').
+    // An anchored match without this strip returns undefined and the block silently degrades to the
+    // generic rule - a no-op that would look like a working fix.
+    const lower = String(v ?? '').toLowerCase().trim()
+      .replace(/\s+(?:in the (?:morning|afternoon|evening)|at night|[ap]\.?m\.?)$/, '').trim();
+    const past = lower.match(/^([\w-]+)\s+(?:minutes?\s+)?past\s+([\w-]+)$/);
+    const to = lower.match(/^([\w-]+)\s+(?:minutes?\s+)?to\s+([\w-]+)$/);
+    const oc = lower.match(/^([\w-]+)\s+o[’']clock$/);
+    let h: number | undefined, m: number | undefined;
+    if (past) {
+      m = WORD_NUM_MAP[past[1]] ?? (past[1] === 'quarter' ? 15 : past[1] === 'half' ? 30 : undefined);
+      h = WORD_NUM_MAP[past[2]];
+    } else if (to) {
+      const rm = WORD_NUM_MAP[to[1]]; const rh = WORD_NUM_MAP[to[2]];
+      if (rm != null && rh != null) { h = rh === 1 ? 12 : rh - 1; m = 60 - rm; }
+    } else if (oc) { h = WORD_NUM_MAP[oc[1]]; m = 0; }
+    if (h == null || m == null) return undefined;
+    return (h % 12) * 60 + m;
+  };
+  const DEVICE_RE = /false|displayed|shown|clock_time|lobby_clock|apparent|staged/i;
+  const TRUTH_RE = /actual|real|true_time|time_of_death|died/i;
+  const labelOf = (f: any) => `${String(f?.id ?? '')} ${String(f?.description ?? '')}`;
+  const factFor = (value: string) =>
+    atomicFacts.find(f => String(f.value ?? '').toLowerCase().trim() === value.toLowerCase().trim());
+  const fA = factFor(contradictionPair.values[0]);
+  const fB = factFor(contradictionPair.values[1]);
+  const orderNeutralRule =
+    `\n\nDIRECTION OF A CLOCK ERROR - "fast" and "slow" are NOT interchangeable and this pipeline has been getting them backwards. A timepiece is SLOW (behind, losing, set back) when its reading is EARLIER than the true time. It is FAST (ahead, gaining, set forward) when its reading is LATER than the true time. Before you write "fast", "slow", "gaining", "losing", "ahead" or "behind" about any clock or watch, check the two locked values against each other and use the word the arithmetic gives you. If you are not certain which way it runs, state the two readings and the gap between them and do not name a direction at all.`;
+  if (!fA || !fB) return orderNeutralRule;
+  let device = DEVICE_RE.test(labelOf(fA)) ? fA : DEVICE_RE.test(labelOf(fB)) ? fB : undefined;
+  let truth = device === fA ? fB : device === fB ? fA : undefined;
+  if (!device) {
+    // No staged-side label: fall back to the true-side label and take the other as the device.
+    truth = TRUTH_RE.test(labelOf(fA)) ? fA : TRUTH_RE.test(labelOf(fB)) ? fB : undefined;
+    device = truth === fA ? fB : truth === fB ? fA : undefined;
+  }
+  if (!device || !truth || device === truth) return orderNeutralRule;
+  const dm = parseClockMinutes(String(device.value ?? ''));
+  const tm = parseClockMinutes(String(truth.value ?? ''));
+  if (dm == null || tm == null || dm === tm) return orderNeutralRule;
+  let diff = dm - tm;                      // device minus truth, on a 12-hour dial
+  if (diff > 360) diff -= 720;
+  if (diff < -360) diff += 720;
+  const slow = diff < 0;
+  const mins = Math.abs(diff);
+  const word = slow ? 'SLOW' : 'FAST';
+  const alt = slow ? 'behind, losing, set back' : 'ahead, gaining, set forward';
+  const forbidden = slow ? '"fast", "ahead", "gaining", "set forward"' : '"slow", "behind", "losing", "set back"';
+  return (
+    `\n\nDIRECTION OF THE CLOCK ERROR (derived from the locked values - this is ground truth):\n` +
+    `  The ${lockedFactLabel(device)} reads "${device.value}". The true time is "${truth.value}".\n` +
+    `  The reading is therefore ${word} by ${mins} minute${mins === 1 ? '' : 's'}.\n` +
+    `  When this chapter names the direction, it MUST say the timepiece is ${word.toLowerCase()} (or ${alt}).\n` +
+    `  The words ${forbidden} applied to this timepiece are a HARD FAIL: they invert the mechanism the whole solution rests on.`
+  );
+};
+
 export const buildProsePrompt = (
   inputs: ProseGenerationInputs,
   scenesOverride?: unknown[],
@@ -1785,7 +1862,7 @@ Rules:
 - DENOUEMENT REQUIREMENT: The final chapter of any act or the story must show concrete consequences, not just reflection. At minimum: state what happened to the culprit (arrest, flight, confession), show how relationships changed between surviving characters, and give the detective one moment of personal resolution (relief, regret, or changed understanding). Emotional aftermath is required.
 ${inputs.moralAmbiguityNote ? `- MORAL COMPLEXITY REQUIREMENT: The mechanism of this crime carries a moral gray area: "${inputs.moralAmbiguityNote}" — the culprit reveal and denouement MUST acknowledge this ambiguity. Do not let the ending feel clean or simple. Give the reader at least one moment of uncomfortable sympathy or moral doubt.` : '- MORAL COMPLEXITY: When writing the denouement, include at least one detail that complicates the moral verdict — a motive the reader can understand, a consequence that feels unjust, or a relationship that can never recover.'}
 ${inputs.mechanismEnvironmentException ? `- ${inputs.mechanismEnvironmentException}` : ''}
-- CHAPTER OPENING (every chapter, lint-enforced): never open on a tour or inventory of named rooms/places. The first sentence must land a character ACTION, a specific sensory detail, or a concrete in-scene moment — not "In the [room], the [room], and the [room]…". Locations enter through what a character does in them, one at a time.
+- CHAPTER OPENING (every chapter, lint-enforced): never open on a tour or inventory of named rooms/places. The first sentence must land a character ACTION, a specific sensory detail, or a concrete in-scene moment — not "In the [room], the [room], and the [room]…". Locations enter through what a character does in them, one at a time. Nor may the first sentence take the shape "The [Room] in [Place] held/carried/had a [abstract quality]": a room name, its location and a mood noun is the single most-repeated opening this pipeline produces (five chapters of one book opened "The Hotel Reception Area in Dunrath Bay held a tense weight to it", four of another on "Rockshore Hotel in St Ives Bay") and external readers name it every time. Do NOT begin a chapter with the word "The" followed by a room or venue name, and do NOT begin with "Entering".
 ${victimIdentityRule}`;
 
   // [PHASE 1] Rule 2 (per-character pronoun list + 'Never switch pronouns mid-story') removed from
@@ -1966,7 +2043,9 @@ ${victimIdentityRule}`;
     const contradictionBlock = contradictionPair
       ? `\n\n⚠ CENTRAL CONTRADICTION (the heart of the mystery): the two locked values "${contradictionPair.values[0]}" and "${contradictionPair.values[1]}" are NOT two separate facts — they are ONE contradiction (one is a staged appearance, the other the true state; the evidence determines which). If this chapter references both, you MUST present them AS A SINGLE CONTRAST joined by a contrast connective (but / yet / however / could only / whereas) — e.g. "the watch showed the one time, yet the evidence proved it could only have been the other" — making clear which reading is the appearance and which is the truth. NEVER state them as two flat, side-by-side truths — that makes the central clue read as if it contradicts itself.`
       : '';
-    lockedFactsBlock = verbatimBlock + descriptiveBlock + contradictionBlock;
+    const directionBlock = buildClockDirectionBlock(atomicFacts);
+
+    lockedFactsBlock = verbatimBlock + descriptiveBlock + contradictionBlock + directionBlock;
   }
 
   // Build NSD block (narrative state document) — style register and fact history
