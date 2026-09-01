@@ -251,6 +251,51 @@ export const buildCharacterContractsBlock = (
  * Pass `activeNames` (set of character names present in the current batch of
  * scenes) to restrict the output to only those characters and reduce token use.
  */
+/**
+ * A_80 §18.4 / A_81 §11 — the shared-history block, shared by BOTH character-block paths.
+ *
+ * It was first written inline at the TAIL of `buildCharacterPersonalityBlock`, and MEASURED across
+ * the whole prompt log of run mystery-1788293825799 it reached ZERO prompts. The cause is the
+ * `if (library && deployedAssets)` branch at the top of that function: in production the asset
+ * library is always present, so the function returns the scoped atom block and never reaches its
+ * own tail. `CHARACTER PERSONALITIES` is likewise absent from every prompt, which confirmed it.
+ *
+ * A block appended after an early return is not a block. It lives here now and is called from both
+ * paths — which is also the only arrangement that cannot drift.
+ */
+const buildRelationshipHistoryBlock = (castDesign: CastDesign, activeNames?: Set<string>): string => {
+    const rel = (castDesign as any)?.relationships;
+    // Both shapes: `{ pairs: [...] }`, and the bare array the model has been MEASURED to emit
+    // (agent2-cast.ts:84 documents that regression).
+    const rawPairs: any[] = Array.isArray(rel) ? rel : Array.isArray(rel?.pairs) ? rel.pairs : [];
+    const pairs = rawPairs
+      .map((p: any) => ({
+        a: String(p?.character1 ?? p?.a ?? '').trim(),
+        b: String(p?.character2 ?? p?.b ?? '').trim(),
+        relationship: String(p?.relationship ?? '').trim(),
+        tension: String(p?.tension ?? '').trim(),
+        history: String(p?.sharedHistory ?? '').trim(),
+      }))
+      .filter((p) => p.a && p.b && p.history)
+      // Scope to the characters actually in these chapters, exactly as the personalities above are.
+      .filter((p) => !activeNames?.size || activeNames.has(p.a) || activeNames.has(p.b));
+    if (pairs.length === 0) return '';
+    const rows = pairs
+      .map((p) => `  ${p.a} & ${p.b}${p.relationship ? ` (${p.relationship}` : ''}${p.tension ? `, tension ${p.tension})` : p.relationship ? ')' : ''}: ${p.history}`)
+      .join('\n');
+    return (
+      '\n\nWHAT THESE PEOPLE ALREADY ARE TO EACH OTHER:\n\n' +
+      'These are not backstory notes to summarise — they are the history the characters carry into ' +
+      'every scene, and they existed long before the crime.\n\n' +
+      rows +
+      '\n\nUSE THEM AS FOLLOWS. Twice or more across the story, let a shared history show WITHOUT ' +
+      'being explained: an old habit between two people, a subject one of them steps around, a ' +
+      'familiarity that needs no introduction. A reader should be able to tell that two characters ' +
+      'have a past from how they speak to each other, not from a sentence telling them so. Never ' +
+      'write the history out as exposition, and never have a character recite their own relationship.'
+    );
+};
+
 export const buildCharacterPersonalityBlock = (
   characterProfiles: any,
   castDesign: CastDesign,
@@ -293,7 +338,9 @@ export const buildCharacterPersonalityBlock = (
         }
       }
     }
-    return result;
+    // A_81 §11 — the asset path returns HERE. Appending the shared-history block only after this
+    // return is exactly how it reached zero prompts across an entire run.
+    return result + buildRelationshipHistoryBlock(castDesign, activeNames);
   }
 
   const HUMOUR_STYLE_DESCRIPTIONS: Record<string, string> = {
@@ -365,38 +412,7 @@ export const buildCharacterPersonalityBlock = (
    * untried lever on the board: no new model call, no new field, just carrying what is already paid
    * for one stage further.
    */
-  const relationshipBlock = (() => {
-    const rel = (castDesign as any)?.relationships;
-    // Both shapes: `{ pairs: [...] }`, and the bare array the model has been MEASURED to emit
-    // (agent2-cast.ts:84 documents that regression).
-    const rawPairs: any[] = Array.isArray(rel) ? rel : Array.isArray(rel?.pairs) ? rel.pairs : [];
-    const pairs = rawPairs
-      .map((p: any) => ({
-        a: String(p?.character1 ?? p?.a ?? '').trim(),
-        b: String(p?.character2 ?? p?.b ?? '').trim(),
-        relationship: String(p?.relationship ?? '').trim(),
-        tension: String(p?.tension ?? '').trim(),
-        history: String(p?.sharedHistory ?? '').trim(),
-      }))
-      .filter((p) => p.a && p.b && p.history)
-      // Scope to the characters actually in these chapters, exactly as the personalities above are.
-      .filter((p) => !activeNames?.size || activeNames.has(p.a) || activeNames.has(p.b));
-    if (pairs.length === 0) return '';
-    const rows = pairs
-      .map((p) => `  ${p.a} & ${p.b}${p.relationship ? ` (${p.relationship}` : ''}${p.tension ? `, tension ${p.tension})` : p.relationship ? ')' : ''}: ${p.history}`)
-      .join('\n');
-    return (
-      '\n\nWHAT THESE PEOPLE ALREADY ARE TO EACH OTHER:\n\n' +
-      'These are not backstory notes to summarise — they are the history the characters carry into ' +
-      'every scene, and they existed long before the crime.\n\n' +
-      rows +
-      '\n\nUSE THEM AS FOLLOWS. Twice or more across the story, let a shared history show WITHOUT ' +
-      'being explained: an old habit between two people, a subject one of them steps around, a ' +
-      'familiarity that needs no introduction. A reader should be able to tell that two characters ' +
-      'have a past from how they speak to each other, not from a sentence telling them so. Never ' +
-      'write the history out as exposition, and never have a character recite their own relationship.'
-    );
-  })();
+  const relationshipBlock = buildRelationshipHistoryBlock(castDesign, activeNames);
 
   return '\n\nCHARACTER PERSONALITIES, VOICES & HUMOUR:\n\nEach character has a distinct personality, voice, humour style, and hidden depth. Use these to create authentic, differentiated characters whose wit (or lack thereof) reveals who they are:\n\n' + personalities + relationshipBlock + '\n\nWRITING GUIDANCE:\n1. Dialogue: Each character should sound different. Humour style shapes HOW they speak, humourLevel shapes HOW OFTEN.\n2. Internal thoughts: Reference their hidden secrets and stakes to add subtext.\n3. Body language: Show personality through gestures, posture, habits.\n4. Reactions: Characters react differently to same events based on personality.\n5. Speech patterns: Use speechMannerisms for verbal tics, rhythm, formality level.\n6. Personal stake: Characters with personalStakeInCase defined should reference it at least twice across the story through internal monologue, hesitation, or action — especially the detective.\n7. HUMOUR CONTRAST: Characters with high humourLevel (0.7+) should deliver wit frequently. Characters with low/zero should play it straight. The CONTRAST between witty and earnest characters creates the best comedy.\n8. HUMOUR AS CHARACTER: A character\'s humour style reveals their psychology - self_deprecating masks insecurity, polite_savagery masks aggression, deadpan masks emotion.\n9. NEVER force humour on a character with humourLevel 0 or style none.';
 };
