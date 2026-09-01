@@ -20,12 +20,26 @@ import { join } from "node:path";
 
 const STORIES = "C:/CML/stories";
 
+/**
+ * A_80 §15.7 — the population is MANUSCRIPTS, not "every .md under stories/".
+ *
+ * The first version swept in debrief templates, STORY-ANALYSIS.md, review-analysis.md and
+ * score-improvement-plan.md — documents ABOUT the pipeline, which naturally contain the pipeline's
+ * own vocabulary. That is how `retry_term` appeared to fire at CRITICAL on 20% of "manuscripts".
+ */
+const NON_MANUSCRIPT = /(debrief|review|analysis|plan|template|readme|notes|finding|index|score|chatgpt)/i;
+const isManuscript = (p) => {
+  const posix = String(p).split("\\").join("/");
+  return /\/story_\d{8}-\d{4}\//.test(posix) && !NON_MANUSCRIPT.test(posix.split("/").pop() || "");
+};
+
+
 const files = [];
 const walk = (d) => {
   for (const e of readdirSync(d, { withFileTypes: true })) {
     const p = join(d, e.name);
     if (e.isDirectory()) walk(p);
-    else if (e.name.endsWith(".md") && statSync(p).size > 4000) files.push(p);
+    else if (e.name.endsWith(".md") && statSync(p).size > 4000 && isManuscript(p)) files.push(p);
   }
 };
 walk(STORIES);

@@ -19,6 +19,19 @@
 import fs from "node:fs";
 import path from "node:path";
 
+/**
+ * A_80 §15.7 — the population is MANUSCRIPTS, not "every .md under stories/".
+ *
+ * The first version swept in debrief templates, STORY-ANALYSIS.md, review-analysis.md and
+ * score-improvement-plan.md — documents ABOUT the pipeline, which naturally contain the pipeline's
+ * own vocabulary. That is how `retry_term` appeared to fire at CRITICAL on 20% of "manuscripts".
+ */
+const NON_MANUSCRIPT = /(debrief|review|analysis|plan|template|readme|notes|finding|index|score|chatgpt)/i;
+const isManuscript = (p) => {
+  const posix = String(p).split("\\").join("/");
+  return /\/story_\d{8}-\d{4}\//.test(posix) && !NON_MANUSCRIPT.test(posix.split("/").pop() || "");
+};
+
 const RULES = [];
 const src = fs.readFileSync("C:/CML/packages/story-validation/src/control-plane-leakage.ts", "utf8");
 // Pull { code: '...', pattern: /.../flags, confidence: '...', severity: '...' } tuples out of the source.
@@ -39,7 +52,7 @@ const collect = (dir, ext, min) => {
     for (const e of fs.readdirSync(d, { withFileTypes: true })) {
       const p = path.join(d, e.name);
       if (e.isDirectory()) walk(p);
-      else if (e.name.endsWith(ext) && fs.statSync(p).size > min) out.push(p);
+      else if (e.name.endsWith(ext) && fs.statSync(p).size > min && (ext !== ".md" || isManuscript(p))) out.push(p);
     }
   };
   walk(dir);

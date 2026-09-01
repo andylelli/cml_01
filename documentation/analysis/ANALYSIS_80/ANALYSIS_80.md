@@ -571,3 +571,33 @@ sound and remains the right fix; it is a change to Agent 3's contract and wants 
 surrounding code already documents as intended, and gating a bug fix behind a flag leaves the bug on
 by default. `F3` and `F12` are **off**: one changes which draft ships, the other can abort a run, and
 both need their firing rate observed before they decide anything.
+
+### 15.7 CORRECTION — the "our manuscripts" column was measured over the wrong population
+
+The §2.3 table has two columns. The **canon** column is sound: 12 real novels as `.txt`, and
+`instruction_shape` genuinely fired on 2 of them. That column carries the headline and is unchanged.
+
+The **our manuscripts** column was not. It scanned every `.md` over 4 KB under `stories/`, which swept
+in eleven documents *about* the pipeline — `debrief-template.md`, `STORY-ANALYSIS.md`,
+`review-analysis.md`, `score-improvement-plan.md` — and those naturally contain the pipeline's own
+vocabulary. It also scanned whole files rather than chapter prose, so it saw the header
+`saveReadableStory` writes: *"# Generated in scene batches. N batch(es) required retry for validation."*
+
+Corrected population, 194 manuscripts:
+
+| rule | reported in §2.3 | corrected |
+| --- | --- | --- |
+| `retry_term` | 41 / 205 (20.0%) | **31 / 194 (16.0%) — and 31 of 31 are the save-format header** |
+| `dt_validation_*` | 30 / 205 (14.6%) | 30 / 194 (15.5%) |
+| `reasoning_leak_access_point` | 10 / 205 (4.9%) | 8 / 194 (4.1%) |
+
+**The `retry_term` lead in §2.3 is CLOSED, and it was not a defect.** Of the 31 manuscripts where it
+fires, **31 fire only on the file header and 0 in body text** — which the chapter validator never sees,
+because it reads `chapter.paragraphs`. A critical rule was reported as firing on one manuscript in five
+when it fires on none. That was a defect in the probe, and it is the same failure this document spends
+§2 describing: a matcher run over a population it was not meant for, reported as a finding about the
+thing being matched.
+
+The F5 and F6 baselines used the same sweep and were re-derived on the clean 194: 4:1 fires on 31.2%
+(was 31.0%), median dominance 2.30:1 (unchanged), 20:1 on 1.2% (was 1.1%), and F6 duplicates on 9.3%
+(was 8.8%). **No shipped threshold changes**; both scripts now filter to manuscripts.
