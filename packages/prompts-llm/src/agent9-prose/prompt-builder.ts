@@ -1633,6 +1633,59 @@ export const applyPromptBudgeting = (
  * Keeps all structural data: names, types, purpose, sensoryDetails, atmosphere.
  */
 
+// A_82 §P-robust — hoisted to module level and exported so the prompt-time forbidden-forms list
+// (below, in the lockedFactsBlock construction) and the post-generation check
+// (checkForbiddenTimeFormsShipped, agent9-run.ts) read the SAME arithmetic. MEASURED on run
+// mystery-1788369981295: ch6 stated the pocket watch "stalled at the edge of half-past nine" (9:30)
+// against its locked "twenty-five minutes past nine" (9:25) — the forbidden-forms list already
+// generates "half past nine" as forbidden for a fact locked at :25 (m=25 != 30), but the prompt-only
+// instruction was the only thing enforcing it. No post-generation check existed to catch a miss.
+export const WORD_NUM_MAP: Record<string, number> = {
+  one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8,
+  nine: 9, ten: 10, eleven: 11, twelve: 12, thirteen: 13, fourteen: 14,
+  fifteen: 15, twenty: 20, 'twenty-five': 25, thirty: 30, 'thirty-five': 35,
+  forty: 40, 'forty-five': 45, fifty: 50, 'fifty-five': 55,
+};
+const NUM_WORD_MAP: Record<number, string> = Object.fromEntries(Object.entries(WORD_NUM_MAP).map(([k, v]) => [v, k]));
+
+export const isWordFormTimeValue = (v: string): boolean =>
+  /\b(past|to|o[’']clock|quarter|half)\b/i.test(v);
+
+export const getForbiddenTimeForms = (v: string): string[] => {
+  const lower = v.toLowerCase().trim();
+  const forbidden: string[] = [];
+  // Parse "X minutes past Y" or "X past Y"
+  const pastMatch = lower.match(/^([\w-]+)\s+(?:minutes?\s+)?past\s+([\w-]+)$/);
+  const toMatch = lower.match(/^([\w-]+)\s+(?:minutes?\s+)?to\s+([\w-]+)$/);
+  const oclockMatch = lower.match(/^([\w-]+)\s+o[’']clock$/);
+  let h: number | undefined, m: number | undefined;
+  if (pastMatch) {
+    m = WORD_NUM_MAP[pastMatch[1]] ?? (pastMatch[1] === 'quarter' ? 15 : pastMatch[1] === 'half' ? 30 : undefined);
+    h = WORD_NUM_MAP[pastMatch[2]];
+  } else if (toMatch) {
+    const rawM = WORD_NUM_MAP[toMatch[1]];
+    const rawH = WORD_NUM_MAP[toMatch[2]];
+    if (rawM != null && rawH != null) { h = rawH === 1 ? 12 : rawH - 1; m = 60 - rawM; }
+  } else if (oclockMatch) {
+    h = WORD_NUM_MAP[oclockMatch[1]]; m = 0;
+  }
+  if (h != null && m != null) {
+    const hWord = NUM_WORD_MAP[h] ?? String(h);
+    const mPad = String(m).padStart(2, '0');
+    forbidden.push(`${h}:${mPad}`, `${h}.${mPad}`); // digit forms
+    if (m > 0) {
+      const mWord = NUM_WORD_MAP[m];
+      if (mWord) {
+        forbidden.push(`${hWord} ${mWord}`, `${hWord}-${mWord}`); // plain word / hyphenated
+        forbidden.push(`${hWord} past ${mWord}`); // wrong order
+      }
+      if (m !== 15) forbidden.push(`quarter past ${hWord}`);
+      if (m !== 30) forbidden.push(`half past ${hWord}`);
+    }
+  }
+  return forbidden.filter(f => f.toLowerCase() !== lower);
+};
+
 // A_81 F16 - the DIRECTION of a clock error. MEASURED on run mystery-1788297847870: the case was
 // arithmetically correct (the device read EARLIER than the true time, so it was thirty-five minutes
 // SLOW) and the prose wrote "the veranda clock now runs fast - by exactly thirty-five minutes".
@@ -1968,50 +2021,13 @@ ${victimIdentityRule}`;
   // Build locked facts block — ground truth physical evidence values the prose must never contradict
   let lockedFactsBlock = '';
   if (inputs.lockedFacts && inputs.lockedFacts.length > 0) {
-    // Phase 3: detect word-form time values and generate forbidden alternative phrasings
-    const WORD_NUM_MAP: Record<string, number> = {
-      one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8,
-      nine: 9, ten: 10, eleven: 11, twelve: 12, thirteen: 13, fourteen: 14,
-      fifteen: 15, twenty: 20, 'twenty-five': 25, thirty: 30, 'thirty-five': 35,
-      forty: 40, 'forty-five': 45, fifty: 50, 'fifty-five': 55,
-    };
-    const NUM_WORD_MAP = Object.fromEntries(Object.entries(WORD_NUM_MAP).map(([k, v]) => [v, k]));
-    const isWordFormTimeValue = (v: string): boolean =>
-      /\b(past|to|o[\u2019']clock|quarter|half)\b/i.test(v);
-    const getForbiddenTimeForms = (v: string): string[] => {
-      const lower = v.toLowerCase().trim();
-      const forbidden: string[] = [];
-      // Parse "X minutes past Y" or "X past Y"
-      const pastMatch = lower.match(/^([\w-]+)\s+(?:minutes?\s+)?past\s+([\w-]+)$/);
-      const toMatch = lower.match(/^([\w-]+)\s+(?:minutes?\s+)?to\s+([\w-]+)$/);
-      const oclockMatch = lower.match(/^([\w-]+)\s+o[\u2019']clock$/);
-      let h: number | undefined, m: number | undefined;
-      if (pastMatch) {
-        m = WORD_NUM_MAP[pastMatch[1]] ?? (pastMatch[1] === 'quarter' ? 15 : pastMatch[1] === 'half' ? 30 : undefined);
-        h = WORD_NUM_MAP[pastMatch[2]];
-      } else if (toMatch) {
-        const rawM = WORD_NUM_MAP[toMatch[1]];
-        const rawH = WORD_NUM_MAP[toMatch[2]];
-        if (rawM != null && rawH != null) { h = rawH === 1 ? 12 : rawH - 1; m = 60 - rawM; }
-      } else if (oclockMatch) {
-        h = WORD_NUM_MAP[oclockMatch[1]]; m = 0;
-      }
-      if (h != null && m != null) {
-        const hWord = NUM_WORD_MAP[h] ?? String(h);
-        const mPad = String(m).padStart(2, '0');
-        forbidden.push(`${h}:${mPad}`, `${h}.${mPad}`); // digit forms
-        if (m > 0) {
-          const mWord = NUM_WORD_MAP[m];
-          if (mWord) {
-            forbidden.push(`${hWord} ${mWord}`, `${hWord}-${mWord}`); // plain word / hyphenated
-            forbidden.push(`${hWord} past ${mWord}`); // wrong order
-          }
-          if (m !== 15) forbidden.push(`quarter past ${hWord}`);
-          if (m !== 30) forbidden.push(`half past ${hWord}`);
-        }
-      }
-      return forbidden.filter(f => f.toLowerCase() !== lower);
-    };
+    // Phase 3: detect word-form time values and generate forbidden alternative phrasings.
+    // A_82 \u00a7P-robust: isWordFormTimeValue/getForbiddenTimeForms hoisted to module level (below,
+    // exported) and reused here \u2014 was a local duplicate of the same NUM_WORD_MAP/logic already
+    // hoisted for buildClockDirectionBlock (A_81 F16); two copies of the same forbidden-form
+    // arithmetic is exactly the divergence risk CLAUDE.md's evidence standard warns about, and it is
+    // now the one used by the ch6-half-past-nine post-generation check (checkForbiddenTimeFormsShipped)
+    // \u2014 same source, so the prompt's forbidden list and the post-ship check cannot disagree.
 
     // A_57 D1: an ATOMIC value (time / number / measurement) MUST be reproduced verbatim — fidelity is
     // the whole point of the clue. A DESCRIPTIVE value (a weather log, a document's contents) must NOT be

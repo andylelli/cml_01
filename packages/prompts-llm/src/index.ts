@@ -102,7 +102,7 @@ export type {
   PlausibilityJudgeResult,
   PlausibilityJudgeContext,
 } from "./agent3b-plausibility-judge.js";
-export { generateProse, resolveVictimName, buildCharacterPersonalityBlock, buildLocationProfilesBlock, buildTemporalContextBlock, selectSensoryVariant, compileSensoryAtoms, extractBeatFingerprints, buildMacroArcPlan, RESOLUTION_RE, buildResolutionBackstopSentence, blindReadProse, isProseBlindReaderEnabled, isAtomicLockedFactValue } from "./agent9-prose.js";
+export { generateProse, resolveVictimName, buildCharacterPersonalityBlock, buildLocationProfilesBlock, buildTemporalContextBlock, selectSensoryVariant, compileSensoryAtoms, extractBeatFingerprints, buildMacroArcPlan, RESOLUTION_RE, buildResolutionBackstopSentence, blindReadProse, isProseBlindReaderEnabled, isAtomicLockedFactValue, getForbiddenTimeForms, isWordFormTimeValue } from "./agent9-prose.js";
 export type { ProseBlindReadResult } from "./agent9-prose.js";
 export type { BeatFingerprint, MacroArcEntry } from "./agent9-prose.js";
 export { precompileStoryContract, resolveVictimContract } from "./story-contract.js";

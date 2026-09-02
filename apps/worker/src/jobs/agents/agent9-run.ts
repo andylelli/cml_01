@@ -36,6 +36,8 @@ import {
   RESOLUTION_RE,
   buildResolutionBackstopSentence,
   isAtomicLockedFactValue,
+  getForbiddenTimeForms,
+  isWordFormTimeValue,
   checkMechanismEnvironmentConsistency,
   buildStoryWorldState,
   runContradictionGate,
@@ -934,6 +936,51 @@ export const detectCrossArtifactTemporalConflicts = (args: {
  * in a single chapter — this indicates the LLM is persistently ignoring the
  * locked-fact format constraint and may need stronger attribution.
  */
+/**
+ * A_82 §P-robust — FORBIDDEN TIME FORM SHIP-CHECK, extracted as a pure function so it can be
+ * verified directly against the exact failure it exists for, rather than only through the full
+ * pipeline. See the call site (the SHIP-CHECK block, below `applyScaffoldExhaustionFloor`) for why
+ * this reports rather than gates, and why the cross-fact filter is load-bearing, not polish.
+ */
+// Caught by this function's own test before it shipped: the actual ch6 defect reads "half-past nine"
+// (hyphenated), but `getForbiddenTimeForms` only generates the space form "half past nine" — a plain
+// substring match would have missed the exact defect this check exists to catch. Normalizing hyphens
+// and dashes to spaces on BOTH sides makes the match indifferent to which the model chose; it does not
+// weaken the digit forms ("9:25" has no hyphen) or "twenty-five", since collapsing its hyphen to a
+// space still yields "twenty five" — an equally acceptable rendering of the same number, not a laxer
+// forbidden list.
+const normalizeTimePhrase = (s: string): string =>
+  s.toLowerCase().replace(/[-‐‑‒–—]/g, " ").replace(/\s+/g, " ").trim();
+
+export const checkForbiddenTimeFormsShipped = (
+  chapters: ReadonlyArray<{ paragraphs?: unknown }>,
+  lockedFacts: ReadonlyArray<{ value?: unknown; description?: unknown; id?: unknown }>,
+): string[] => {
+  const messages: string[] = [];
+  const otherCanonicalValues = new Set(
+    lockedFacts.map((f) => normalizeTimePhrase(String(f?.value ?? ""))).filter(Boolean),
+  );
+  for (const fact of lockedFacts) {
+    const canonical = String(fact?.value ?? "").trim();
+    if (!canonical || !isAtomicLockedFactValue(canonical) || !isWordFormTimeValue(canonical)) continue;
+    const forbidden = getForbiddenTimeForms(canonical).filter(
+      (f: string) => !otherCanonicalValues.has(normalizeTimePhrase(f)),
+    );
+    if (forbidden.length === 0) continue;
+    chapters.forEach((chapter, ci) => {
+      const chText = normalizeTimePhrase(((chapter?.paragraphs ?? []) as string[]).join(" "));
+      const hit = forbidden.find((f: string) => chText.includes(normalizeTimePhrase(f)));
+      if (hit) {
+        messages.push(
+          `[Agent 9] SHIP-CHECK forbidden time form: ch${ci + 1} states "${hit}" for a fact locked at ` +
+            `"${canonical}" (${fact?.description ?? fact?.id}). MEASURE only — see this comment for why.`,
+        );
+      }
+    });
+  }
+  return messages;
+};
+
 export const repairWordFormLockedFacts = (prose: any, lockedFacts: any[]): any => {
   if (!Array.isArray(lockedFacts) || lockedFacts.length === 0) return prose;
 
@@ -6246,6 +6293,41 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
           `[Agent 9] scaffold SHIP-CHECK residual [${residual.map((h) => h.rule).join(", ")}] in ch${ci + 1} — no floor covers this family; the prose≤4 cap WILL apply (honest).`,
         );
       }
+    }
+
+    /**
+     * A_82 §P-robust — FORBIDDEN TIME FORM SHIP-CHECK. A MEASURE, never a gate.
+     *
+     * THE DEFECT THIS EXISTS FOR. Run mystery-1788369981295 (external read 84/100) shipped chapter 6
+     * with "the battered pocket watch — its hands stalled at the edge of half-past nine" against a
+     * locked pocket_watch_time of "twenty-five minutes past nine". `getForbiddenTimeForms` already
+     * generates "half past nine" as a forbidden alternative for that value (m=25 != 30) — the PROMPT
+     * said not to write it. Nothing checked whether the shipped chapter obeyed. This is the same shape
+     * as every other prompt-only instruction this project has found dead or half-obeyed: a rule that
+     * only exists in the prompt has, by construction, never been checked against what shipped.
+     *
+     * SO IT DOES NOT GATE, on a single occurrence. One instance across one run is not a rate — B1
+     * ("a check that fires on most runs is an off switch with extra steps") cuts the other way just as
+     * hard: gating on an unbaselined single data point risks becoming a retry source for a defect that
+     * may already be rare. This reports it into the run's own warnings, exactly where F15/X38/F5 put
+     * their measurements, so the next several runs establish a real rate before anyone gates on it.
+     *
+     * Reuses the SAME `getForbiddenTimeForms`/`isWordFormTimeValue` the prompt itself calls (hoisted
+     * to module level in prompt-builder.ts for this purpose) — one source of the forbidden-form
+     * arithmetic, so the prompt's own list and this check cannot disagree.
+     *
+     * CROSS-FACT FALSE POSITIVE, caught before this shipped rather than after: a case that locks
+     * MORE THAN ONE clock reading in the same hour — mystery-1788369981295's own case does, three
+     * ways (9:10 false hour hand / 9:15 honest minute hand / 9:25 true pocket-watch time), and A_82
+     * §14.4 named it the most sophisticated mechanism this pipeline has shipped — makes each fact's
+     * forbidden list include the OTHER facts' legitimate canonical values ("quarter past nine" is
+     * forbidden FOR the pocket-watch fact, yet it is the correct, separately-locked minute-hand
+     * value). Checked directly before writing this: `getForbiddenTimeForms("twenty-five minutes
+     * past nine")` includes "quarter past nine". Filtering those out is not optional polish — an
+     * unfiltered version would warn on the exact case shape this project most wants to encourage.
+     */
+    for (const message of checkForbiddenTimeFormsShipped(prose.chapters, annotatedLockedFacts)) {
+      ctx.warnings.push(message);
     }
     // Dual-value at cap scope — warn-only (a contrast needs prose, not a deterministic splice): a
     // firing here perfectly predicts the dualValueNoContrast cap, since scoring runs the SAME
