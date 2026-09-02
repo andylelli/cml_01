@@ -339,3 +339,160 @@ Nothing in this system is broken in a way that explains the score. But **three p
 been delivered, one prompt tells the model to do the thing it forbids two paragraphs earlier, a third
 of the tested capability is switched off, and every book we have ever judged is the shortest of three
 built configurations.** Those are the levers we already own and have not pulled.
+
+---
+
+## §11 Coverage: do we have a solution — in theory — to every issue in the last 20 reviews?
+
+**Question asked (2026-09-02):** *"Do we in theory have a solution (whether it works or not) to all of
+these issues identified in the last 20 chatgpt-reviews?"*
+
+**Short answer: for 11 of the 12 recurring complaint families, yes — something is built. But "built"
+covers four states that behave completely differently, and only one of them is a solution.** Sorting
+the 12 families by that distinction is what this section does, and it changes the plan in §8.
+
+### 11.1 Method
+
+**MEASURED.** All 53 review files on disk were enumerated; the 20 most recent were taken (19 in
+`stories/`, plus `_archive/story_20260807-1412`). Complaint families were extracted from the reviews'
+own numbered issue lists and then counted by keyword across all 20.
+
+**Probe caveat, recorded because it changed the numbers.** My first patterns for the two largest
+families matched 20/20 — because words like "aftermath" and "clearances" appear in the *praise*
+sections too. Tightened to phrases that only occur in a complaint ("repeats after the confession",
+"still contains leakage"), both fall to 12/20. **The tightened numbers are used below.** The loose
+ones would have overstated the two families that most need honest measurement.
+
+### 11.2 The complaint census — 20 external reads, 2026-08-07 → 2026-09-01
+
+| # | Family | Reviews | Still present in the latest read (82/100)? |
+| --- | --- | ---: | --- |
+| 1 | timing / time-math | **14/20** | yes — direction inverted (A_81 F16) |
+| 2 | reveal repeats after the confession / ch9–10 duplication | **12/20** | yes |
+| 3 | scaffold lines / prompt leakage named as a fault | **12/20** | yes |
+| 4 | dialogue catchphrases | 9/20 | not named |
+| 5 | object / name / location inconsistency | 7/20 | not named |
+| 6 | "the final test is not quite a test" / over-explained | 6/20 | yes |
+| 7 | culprit link under-proved, plant it earlier | 5/20 | not named |
+| 8 | location template / report-like opening | 5/20 | yes |
+| 9 | mechanism not distinctive | 3/20 | not named |
+| 10 | motive thin / abstract / underplanted | 2/20 | yes |
+| 11 | pronoun / gender | 2/20 | no — closed (A_66) |
+| 12 | locked-room geography needs a sentence | 1/20 | no |
+
+### 11.3 The four states of "we have a solution"
+
+This is the load-bearing distinction. A lever can be:
+
+- **LIVE** — delivered to the model and acted on
+- **LIVE-IGNORED** — delivered and measurably not acted on
+- **IDLE** — built and tested, flag OFF, never runs
+- **DEAD** — built, cannot ever fire
+- **NONE** — nothing exists
+
+| # | Family | What we built | State |
+| --- | --- | --- | --- |
+| 1 | timing | A_80 F12 wordform collapse guard | **IDLE** — `AGENT9_CLUE_TIME_WORDFORM` unset |
+| | | A_81 §10 repair-collision fix | LIVE |
+| | | A_81 F16 direction rule | LIVE (unverified at T3) |
+| | | A_80 F15 gap check | LIVE but **measure-only, never gates** |
+| | | Agent 3b arithmetic contract | LIVE |
+| 2 | reveal repeats | `AGENT9_CLEARANCE_TRIM`, `AGENT9_FOLD_SUSPECT_CLEARANCES`, `AGENT9_REGEN_AFTERMATH_REPEAT` | **all three LIVE** |
+| | | A_81 F18 scaffold ordering | LIVE |
+| 3 | scaffold / leakage | control-plane-leakage rules, injection-template registry, A_80 F1/F2 | LIVE — and §6 shows **2 of 22** templates still fire |
+| 4 | dialogue catchphrases | character contracts (1,526 prompts) | LIVE |
+| | | VoiceSpec | **LIVE-IGNORED** (A_75: asked 22.0 w/s, got 15.86, 0/10 chapters) |
+| | | X43 voice-fragment guard | LIVE but **measured not to lower the rate** (33%) |
+| 5 | object / name consistency | locked facts (1,331), Setting Lock (658), name-hygiene | LIVE |
+| 6 | final test | deterministic DT patch, `AGENT6_DT_EVIDENCE_COMPLETENESS` | LIVE — **but the patch itself is what readers quote** |
+| 7 | culprit link | `AGENT7_PLANT_BEFORE_REVEAL` | LIVE |
+| | | `AGENT9_REVEAL_CITES_PLANTS` (A_67 FIX-3) | **IDLE** — flag unset |
+| 8 | location template | A_81 F17 prohibition | LIVE — **but contradicted in the same prompt (§3)** |
+| 9 | mechanism freshness | novelty audit | **effectively NONE** — A_77: the audit *cannot fail* (fail band renders "> 100%"), `NOVELTY_HARD_FAIL=false`, and A_78: the cell-scheduler has no corpus parameter |
+| 10 | motive | MOTIVE LOCK block | **DEAD — §11.4, found by this audit** |
+| | | relationship-history block | **LIVE-IGNORED** (26 prompts, "affair" ×0) |
+| 11 | pronoun / gender | A_66 pronoun war + sweep | LIVE — **closed**, 7/7 external "much improved" |
+| 12 | locked-room geography | — | **NONE** |
+
+### 11.4 A fifth dead lever, found while answering this question — MEASURED
+
+`MOTIVE LOCK` (`prompt-builder.ts:430`) reaches **0 of 2,508 prompts**. Its sibling text in the *same
+returned string* — `Setting Lock: Keep all scenes…` — reaches **658**. So the function runs; the block
+is empty every time.
+
+Root cause, and it is a repeat offender:
+
+```ts
+const motive = culpritChar?.motive_seed ?? '';     // reads a CML field name…
+```
+
+…off `castDesign.characters`, whose real keys are camelCase:
+
+```
+CastDesign character keys: name, ageRange, occupation, roleArchetype, role,
+publicPersona, privateSecret, motiveSeed, motiveStrength, ...
+```
+
+`motive_seed` is the field name on `CASE.cast.characters`. On a CastDesign it is `motiveSeed`. The
+lookup is always `undefined`, so the guard collapses the block to `''`.
+
+The data is not missing — it is present and good. For the last run: `Captain Ivor Hale`,
+`culpability: guilty`, `motive_seed: "Silence victim to protect secret Cold War past"`, and
+`CASE.culpability.culprits: ["Captain Ivor Hale"]`. **The culprit's motive has never once been stated
+to the prose model, and two reviews complain the motive is abstract or underplanted.**
+
+This is the exact trap recorded in memory as `cast-field-camelcase-vs-snakecase-trap` — found and fixed
+three times in the 2026-07-24 agents review, recurring here in a fourth site. **Fix: read
+`motiveSeed ?? motive_seed`, the same defensive chain X50 established for `roleArchetype`.**
+
+### 11.5 So: is there a theoretical solution to everything?
+
+**Eleven of twelve families have something built. One (locked-room geography, 1/20) has nothing, and it
+is the least-reported complaint in the set.** On paper that is near-total coverage. But sorting by
+state gives a very different picture:
+
+| State | Families |
+| --- | ---: |
+| genuinely LIVE and working | 4 (names/objects, pronouns, leakage-mostly, reveal-repeat machinery) |
+| LIVE but contradicted, ignored, or measured ineffective | 4 (location template, dialogue, motive-relationships, final test) |
+| best lever IDLE behind an OFF flag | 2 (timing's F12, culprit-link's FIX-3) |
+| DEAD — cannot fire | 1 (motive lock) |
+| effectively NONE | 1 (mechanism freshness — the audit cannot fail) |
+
+**The honest answer is: coverage is near-total in theory and materially incomplete in delivery.** We
+have not been failing to think of solutions. We have been failing to deliver the ones we built — which
+is the same conclusion §1–§4 reached from the other direction, now confirmed against the reader's own
+complaint list rather than against the code.
+
+### 11.6 The uncomfortable finding — two families where the theory is already exhausted
+
+Families 2 and 3 — reveal-repetition (12/20) and scaffold/leakage (12/20) — are the two most persistent
+complaints in the corpus, **and every lever built for them is already ON**:
+`AGENT9_CLEARANCE_TRIM`, `AGENT9_FOLD_SUSPECT_CLEARANCES`, `AGENT9_REGEN_AFTERMATH_REPEAT`,
+`AGENT9_CULPRIT_INJECTION_IN_SCENE`, the leakage rules, the injection registry, and A_81 F18.
+
+They are still in the most recent review.
+
+**INFERRED:** for these two, switching more flags on cannot help, because the complaint is *caused by
+the mechanism built to prevent it*. Every one of those levers is a deterministic writer or a
+regeneration trigger — the thing readers quote back is the repair, not the model's prose. §6 measures
+this precisely: the only two residue templates still firing are the DT scaffold's own sentences, and
+A_81 §13.2 records that my B5 replacement text went straight onto the reader's deletion list.
+
+The design answer for these two is not another injector but **fewer**: make the model satisfy the
+obligation in its own words (the A_75 operations lesson) and let the injector be a genuine last resort
+rather than the routine path. That is a larger change than anything in §8 and is not attempted here.
+
+### 11.7 What this adds to the plan
+
+Three additions to §8, all free, all now evidence-led rather than inferred:
+
+| # | Action | Evidence |
+| --- | --- | --- |
+| **P6** | Fix the MOTIVE LOCK field name (`motiveSeed ?? motive_seed`) | §11.4 — 0/2,508 prompts, control at 658, data present and good |
+| **P7** | Turn ON `AGENT9_CLUE_TIME_WORDFORM` for the next run | family 1 is 14/20, the largest in the corpus, and its flagship guard has never run |
+| **P8** | Turn ON `AGENT9_REVEAL_CITES_PLANTS` | family 7 is 5/20 and the citation lever has never run |
+
+P7 and P8 are the only two of the 30 idle flags this audit recommends enabling, because they are the
+only two that map directly onto a *counted* reader complaint. The remaining 28 stay off — §5's warning
+stands, and B1 applies.
