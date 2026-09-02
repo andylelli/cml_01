@@ -310,11 +310,18 @@ const buildRelationshipHistoryBlock = (castDesign: CastDesign, activeNames?: Set
       'These are not backstory notes to summarise — they are the history the characters carry into ' +
       'every scene, and they existed long before the crime.\n\n' +
       rows +
-      '\n\nUSE THEM AS FOLLOWS. Twice or more across the story, let a shared history show WITHOUT ' +
-      'being explained: an old habit between two people, a subject one of them steps around, a ' +
-      'familiarity that needs no introduction. A reader should be able to tell that two characters ' +
-      'have a past from how they speak to each other, not from a sentence telling them so. Never ' +
-      'write the history out as exposition, and never have a character recite their own relationship.'
+      // A_82 P3 — the previous instruction here asked for an EFFECT ("let a shared history show
+      // without being explained") and the block reached 26 prompts while the word "affair" reached
+      // the manuscript 0 times (A_81 §13.1). A_75: this model performs countable OPERATIONS and
+      // ignores effects. So the instruction is now an operation with a number in it.
+      '\n\nUSE THEM AS FOLLOWS — THIS IS AN OPERATION, NOT A MOOD. In THIS chapter, write ONE exchange ' +
+      'of at least four lines of dialogue between two people from the list above in which the history ' +
+      'named for them is the reason the exchange goes the way it does: one of them raises the subject ' +
+      'sideways, or refuses to, or answers a question that was not asked. The named history must be ' +
+      'identifiable from the exchange by a reader who has the list — a specific object, place, promise ' +
+      'or name from it appears in the dialogue — but the history itself is never stated in narration ' +
+      'and no character explains the relationship aloud. If neither person in a listed pair is in this ' +
+      'chapter, skip this operation; do not invent a pair.'
     );
 };
 

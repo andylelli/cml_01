@@ -597,7 +597,7 @@ export const detectLockedFactClueTimeMismatch = (
   factValue: string,
   clueText: string,
 ):
-  | { type: "ambiguity" | "mismatch"; rawClueTime: string; factMinutes: number; clueMinutes: number }
+  | { type: "ambiguity" | "mismatch"; rawClueTime: string; factMinutes: number; clueMinutes: number; source: "word_form" | "digit" }
   | null => {
   const factParsed = parseWordFormTime(factValue.trim());
   const factHour = factParsed
@@ -664,6 +664,11 @@ export const detectLockedFactClueTimeMismatch = (
     rawClueTime: clueHour.raw || extractFirstTimeString(clueText) || `${clueHour.hour}:${String(clueHour.minute).padStart(2, "0")}`,
     factMinutes: factHour.hour * 60 + factHour.minute,
     clueMinutes: clueHour.hour * 60 + clueHour.minute,
+    // A_82 P7' — which parser produced the clue time. A word-form-derived mismatch is routed to
+    // WARNINGS by the caller, never to the pre-prose abort: a T2 replay over 34 archived runs
+    // (probe-p7-replay.mjs) showed the flag would otherwise ABORT 10 of them at Agent 9, after the
+    // whole upstream spend — the X60 shape. Digit-form detections keep their existing abort semantics.
+    source: clueWordForm ? ("word_form" as const) : ("digit" as const),
   };
 };
 
@@ -3813,6 +3818,19 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   const fairPlayAudit = ctx.fairPlayAudit;
   const settingRefinement = ctx.setting?.setting;
   const backgroundContext = ctx.backgroundContext;
+  // A_82 P2 — `buildSettingRefinementBlock` reads `caseData.SETTING_REFINEMENT` and
+  // `buildBackgroundContextBlock` reads `caseData.BACKGROUND_CONTEXT`; a full-tree grep found the two
+  // readers and NO writer, and the real case object has exactly {CML_VERSION, CASE}. Both blocks hold
+  // budget priority (high / medium, 450 tokens) for text that was always ''. The material is right
+  // here, in the shape the builders expect (era.technology, location.physicalConstraints,
+  // backdropSummary…). Attach it on a SHALLOW COPY so the persisted CML artifact and validateCml never
+  // see the extra keys.
+  // Extras only — spread onto `cml` AT EACH CALL SITE so a later reassignment of `cml` cannot leave a
+  // stale copy behind (probe-validity note, CLAUDE.md: a mid-run object is not the run's object).
+  const proseCaseExtras = {
+    ...(settingRefinement ? { SETTING_REFINEMENT: settingRefinement } : {}),
+    ...(backgroundContext ? { BACKGROUND_CONTEXT: backgroundContext } : {}),
+  };
   const noveltyAudit = ctx.noveltyAudit;
   const bottomUpRedesignEnabled = parseBooleanEnv(process.env.AGENT9_REDESIGN_V1, true);
   const pronounRepairEnabled = getPronounPolicySettings().checkingEnabled;
@@ -4281,9 +4299,20 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
         };
         const mismatchMessage =
           `[CML integrity] Locked fact "${fact.description}" (canonical: "${factValue}") conflicts with clue "${clue.id}" time ("${mismatchTime.rawClueTime}") [${mismatchTime.type}]. Field paths: ${factPath} vs ${cluePath}.`;
-        cmlIntegrityViolations.push(mismatchMessage);
-        ctx.warnings.push(mismatchMessage);
-        ctx.errors.push(`[CML integrity details] ${JSON.stringify(details)}`);
+        // A_82 P7' — a word-form detection (AGENT9_CLUE_TIME_WORDFORM) WARNS only; it does not join
+        // cmlIntegrityViolations, which throws before prose generation. probe-p7-replay.mjs (T2 replay,
+        // 34 archived runs) showed enabling the flag under the prior all-abort semantics would newly
+        // abort 10 of them at Agent 9, after every upstream agent had already spent — the X60 shape
+        // ("degrade waives what preflight aborts", inverted: this preflight aborted what production
+        // let through). Digit-form detections are unchanged and still abort.
+        if (mismatchTime.source === "word_form") {
+          ctx.warnings.push(mismatchMessage);
+          ctx.errors.push(`[CML integrity details, non-blocking: word-form detection] ${JSON.stringify(details)}`);
+        } else {
+          cmlIntegrityViolations.push(mismatchMessage);
+          ctx.warnings.push(mismatchMessage);
+          ctx.errors.push(`[CML integrity details] ${JSON.stringify(details)}`);
+        }
       }
     }
   }
@@ -4718,7 +4747,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
 
   try {
     prose = await generateProse(client, {
-    caseData: cml,
+    caseData: { ...(cml as any), ...proseCaseExtras },   // A_82 P2
     outline: narrative,
     cast: castDesign,
     voiceSpec: committedVoiceSpec,
@@ -5785,7 +5814,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     ];
     const proseSchemaRetryStart = Date.now();
     const retriedProse = await generateProse(client, {
-      caseData: cml,
+      caseData: { ...(cml as any), ...proseCaseExtras },   // A_82 P2
       outline: narrative,
       cast: castDesign,
       // The SAME committed spec — a schema-repair retry that re-decided the voice would produce a
