@@ -136,7 +136,19 @@ export function instructionForDefect(defect: ProseDefect): string {
         `CONSEQUENCE and REACTION instead: what this has cost, what someone does or cannot do now, what is said or left ` +
         `unsaid between the people still here. Keep the paragraph roughly its present length — replace the restatement, ` +
         `do not delete it. Do not re-name the culprit as a discovery, do not restate the method, the motive or how the ` +
-        `concealment worked, and do not clear any suspect. Detail: ${defect.detail}`;
+        `concealment worked, and do not clear any suspect. ` +
+        // A_82 §14.3/S13.6, live measurement: this defect kind failed both regen attempts on the same
+        // paragraph — chapter 9's Beatrice asks the culprit "You did this for me, didn't you?" and the
+        // rewrite kept answering it with a restated justification ("I believed it was the only way to
+        // prevent ruin... I judged it necessary"), which is exactly the motive restatement the
+        // instruction above already forbids. A DIRECT QUESTION FROM ANOTHER CHARACTER pulls the model
+        // toward re-arguing the case even when told not to, so name that specific shape: if the
+        // flagged paragraph contains another character asking the culprit to confirm or explain WHY.
+        `If the flagged paragraph contains another character asking the culprit to confirm or explain ` +
+        `WHY, the culprit's answer must be an ACKNOWLEDGEMENT ONLY — a single word, a silence, a look, a ` +
+        `physical gesture — never a restated reason, a re-justification, or an "I did it because" ` +
+        `clause. The case for why was already made; this chapter is what it costs to have heard it. ` +
+        `Detail: ${defect.detail}`;
     case "dual_value_no_contrast":
       // A_62 RC-2.2 / A_57 D2 — the central clue stated as two flat side-by-side truths. The fix is
       // MORE binding, not less content: both canonical values must survive, joined as one observed

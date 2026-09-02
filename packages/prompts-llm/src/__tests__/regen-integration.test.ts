@@ -112,6 +112,20 @@ describe("instructionForDefect — maps kind to a concrete in-scene instruction"
     expect(normal).toMatch(/REPLACE each flagged sentence entirely/);
     expect(normal).not.toMatch(/assembled listeners/i);
   });
+  it("aftermath_repeat → a direct question gets acknowledgement only, not a re-justification (A_82 §14.3)", () => {
+    // MEASURED on run mystery-1788369981295: this defect kind failed both regen attempts on the same
+    // paragraph. Chapter 9 has Beatrice ask the culprit "You did this for me, didn't you?" and the
+    // rewrite kept answering it with a restated motive ("I believed it was the only way to prevent
+    // ruin... I judged it necessary") — exactly the restatement the instruction already forbade, pulled
+    // back in by the shape of a direct question. §13.6/§14.3 independently confirmed the same defect:
+    // this project's own aftermath_repeat regen scored 375→375, unchanged, and the external reviewer
+    // separately named chapter 9 as re-litigating Hugo's guilt.
+    const instr = instructionForDefect({ ...clueDefect, kind: "aftermath_repeat" });
+    expect(instr).toMatch(/do not restate.*the motive/i);
+    expect(instr).toMatch(/ACKNOWLEDGEMENT ONLY/);
+    expect(instr).toMatch(/asking the culprit to confirm or explain/i);
+    expect(instr).toMatch(/never a restated reason, a re-justification/i);
+  });
 });
 
 describe("buildRegenRequest — assembles a fully-constrained request from the Bible", () => {
