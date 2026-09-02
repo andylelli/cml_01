@@ -1787,6 +1787,30 @@ describe("Agent 9 prompt hardening fixes", () => {
     expect(content).not.toContain("MULTIPLE CLOCK READINGS ARE LOCKED");
   });
 
+  it("A_82 P2 — AGENT9_PROMPT_TOKEN_CEILING, read at call time, actually changes the effective budget", () => {
+    // End-to-end, through the real buildProsePrompt path, not just applyPromptBudgeting in isolation
+    // — confirms the env read reaches the number in the PROMPT BUDGET SUMMARY line the run's own logs
+    // are read from (S13.2's `dropped=[...]` evidence came from exactly this line).
+    const saved = process.env.AGENT9_PROMPT_TOKEN_CEILING;
+    try {
+      delete process.env.AGENT9_PROMPT_TOKEN_CEILING;
+      const defaultContent = buildProsePrompt(baseInputs, [baseScene], 1, []).messages[0].content as string;
+      expect(defaultContent).toMatch(/PROMPT BUDGET SUMMARY: budget=24000 tokens/);
+
+      process.env.AGENT9_PROMPT_TOKEN_CEILING = "40000";
+      const raisedContent = buildProsePrompt(baseInputs, [baseScene], 1, []).messages[0].content as string;
+      expect(raisedContent).toMatch(/PROMPT BUDGET SUMMARY: budget=40000 tokens/);
+
+      // Below the 8000 floor: falls back to the 24000 default rather than accepting a degenerate value.
+      process.env.AGENT9_PROMPT_TOKEN_CEILING = "500";
+      const tooLowContent = buildProsePrompt(baseInputs, [baseScene], 1, []).messages[0].content as string;
+      expect(tooLowContent).toMatch(/PROMPT BUDGET SUMMARY: budget=24000 tokens/);
+    } finally {
+      if (saved === undefined) delete process.env.AGENT9_PROMPT_TOKEN_CEILING;
+      else process.env.AGENT9_PROMPT_TOKEN_CEILING = saved;
+    }
+  });
+
   it("A_57 D3 — surfaces the mechanism-environment exception instruction when present", () => {
     const exception =
       "MECHANISM–ENVIRONMENT EXCEPTION (the central clue depends on it): render a brief clearing in the overcast.";
