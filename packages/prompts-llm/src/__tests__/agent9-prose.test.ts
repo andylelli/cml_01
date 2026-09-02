@@ -1751,6 +1751,42 @@ describe("Agent 9 prompt hardening fixes", () => {
     expect(content).not.toContain("CENTRAL CONTRADICTION");
   });
 
+  it("A_82 §14.4 — emits a multi-clock clarity note when 3+ time values are locked", () => {
+    // MEASURED on run mystery-1788369981295 (external read 84/100): a three-value clock mechanism
+    // (false hour hand / honest minute hand / true pocket-watch time) was internally coherent but the
+    // reviewer conflated two of the three readings because nothing told the model to label them.
+    const inputs = {
+      ...baseInputs,
+      lockedFacts: [
+        { id: "lf_hour_hand", description: "false hour-hand reading", value: "ten minutes past nine" },
+        { id: "lf_minute_hand", description: "honest minute-hand reading", value: "quarter past nine" },
+        { id: "lf_pocket_watch", description: "true pocket-watch time", value: "twenty-five minutes past nine" },
+      ],
+    };
+    const content = buildProsePrompt(inputs, [baseScene], 1, []).messages[0].content;
+    expect(content).toContain("MULTIPLE CLOCK READINGS ARE LOCKED");
+    expect(content).toContain("which clock, which hand, which watch, which device");
+  });
+
+  it("A_82 §14.4 — stays SILENT on baseInputs' ordinary one-clock case (no false positive)", () => {
+    // baseInputs locks exactly one word-form time value ("thirteen minutes to midnight") — the common
+    // shape. The note exists for 3+, not for the everyday case, so it must not fire here.
+    const content = buildProsePrompt(baseInputs, [baseScene], 1, []).messages[0].content;
+    expect(content).not.toContain("MULTIPLE CLOCK READINGS ARE LOCKED");
+  });
+
+  it("A_82 §14.4 — stays silent on the standard two-clock staged/true pair (contradictionBlock's own job)", () => {
+    const inputs = {
+      ...baseInputs,
+      lockedFacts: [
+        { id: "lf_staged", description: "time the servants claimed", value: "half past three in the afternoon" },
+        { id: "lf_true", description: "true time the shadow required", value: "twenty minutes past four in the afternoon" },
+      ],
+    };
+    const content = buildProsePrompt(inputs, [baseScene], 1, []).messages[0].content;
+    expect(content).not.toContain("MULTIPLE CLOCK READINGS ARE LOCKED");
+  });
+
   it("A_57 D3 — surfaces the mechanism-environment exception instruction when present", () => {
     const exception =
       "MECHANISM–ENVIRONMENT EXCEPTION (the central clue depends on it): render a brief clearing in the overcast.";
