@@ -496,3 +496,312 @@ Three additions to §8, all free, all now evidence-led rather than inferred:
 P7 and P8 are the only two of the 30 idle flags this audit recommends enabling, because they are the
 only two that map directly onto a *counted* reader complaint. The remaining 28 stay off — §5's warning
 stands, and B1 applies.
+
+---
+
+## §12 The twelve families, each reviewed against its solutions: evidence, score, improvement
+
+**Question asked (2026-09-02):** *"Review all 12 families against the solutions we have. See what the
+evidence is. Score them and propose improvements for all 12."* Owner instruction on the same day:
+**record first, change nothing yet.** Nothing in this section has been applied — every improvement is a
+proposal, and every score is a score of the *current* state.
+
+### 12.0 Method and rubric
+
+**Trend, MEASURED.** The 20 reviews were split into the first 16 (2026-08-07 → 2026-08-30) and the last
+4 (2026-08-31 → 2026-09-01, the four reads taken since the A_80/A_81 fixes started landing). A family
+that is fading should show it here before it shows in the total score.
+
+**Score /10 — four components, stated so they can be disagreed with:**
+
+| component | range | meaning |
+| --- | ---: | --- |
+| Coverage | 0–2 | is every observed sub-mode of the complaint addressed by something built? |
+| Delivery | 0–3 | 0 dead/none · 1 idle (flag OFF) · 2 live but ignored/contradicted/wrong layer · 3 live |
+| Efficacy | 0–4 | best evidence it *works*: 0 none or worsening · 1 T1 only · 2 T3 measured · 3 T4 fading · 4 T4 gone and cause fixed |
+| Trend | 0–1 | 1 if absent from all of the last 4 reads |
+
+The rubric deliberately makes *delivery* and *efficacy* worth more than *coverage*. §11 showed coverage
+is nearly total; it is the other two that have been missing.
+
+### 12.1 Family 1 — timing / time-math
+
+**Reviews:** 14/20. Trend **13/16 → 1/4** — the largest fade in the corpus.
+**Built:** Agent 3b arithmetic contract (live) · A_81 §10 repair-collision fix (live) · A_80 F13/F14
+(live) · A_80 F15 gap check (live, **measure-only**, baselined at 60–67% firing so it cannot gate — B1)
+· A_81 F16 direction rule (live, **unverified at T3**) · **A_80 F12 word-form collapse guard — IDLE,
+`AGENT9_CLUE_TIME_WORDFORM` unset.**
+**Evidence, MEASURED:** the fade is real and it coincides with the arithmetic contract, F13 (which had
+always read `undefined` before A_80) and the §10 fix landing. The one survivor in the last 4 is a *new
+mode* — direction inverted — and it is not new to the corpus: `story_20260815-2027` was told *"choose
+whether the clock is 14 minutes slow or 14 minutes fast."* F16 addresses a defect reported at least
+twice, seventeen days apart.
+**Score: 7/10** (Coverage 2 · Delivery 2 · Efficacy 3 · Trend 0). Delivery loses a point because the
+flagship guard for the most-reported sub-mode has never run.
+**Proposed improvements:**
+- **P7** enable `AGENT9_CLUE_TIME_WORDFORM` for the next run and verify by agent label.
+- Verify F16 at T3: the next case with a classifiable staged/true pair must show the derived direction
+  block in the log *and* the correct word in the manuscript. Both are countable.
+- Do **not** promote F15 to a gate. It fires on most cases at baseline; that is an off switch with
+  extra steps. Its content is now delivered as a prompt operation by F16, which is the right form.
+
+### 12.2 Family 2 — the reveal repeats after the confession / chapter 9–10 duplication
+
+**Reviews:** 12/20. Trend **9/16 → 3/4 — not fading.**
+**Built:** `AGENT9_CLEARANCE_TRIM` (ON) · `AGENT9_FOLD_SUSPECT_CLEARANCES` (ON) ·
+`AGENT9_REGEN_AFTERMATH_REPEAT` (ON) · `AGENT9_CULPRIT_INJECTION_IN_SCENE` (ON) · A_81 F18 (live).
+**Evidence, MEASURED by agent label in the log:** the machinery fires hard —
+`Agent9-Regen-Ch10-aftermath_repeat` **35**, `Ch9-aftermath_repeat` **30**, `Ch8-missing_resolution`
+**58**, `Ch8-missing_clearance` **18**, `Ch9-missing_resolution` 15. That is ~170 regeneration prompts
+aimed at the chapter-8-to-10 geometry. The complaint is in 3 of the last 4 reads.
+**Reading:** every lever is ON, every lever fires, and the family is the worst-trending in the set. The
+regen and injection traffic *is* the repetition — each regen re-asserts the obligation in fresh prose,
+each injector adds a sentence, and the reader quotes the result. This is §11.6's conclusion, now with
+the traffic counted.
+**Score: 5/10** (Coverage 2 · Delivery 3 · Efficacy 0 · Trend 0). Full marks for building and delivering;
+none for outcome.
+**Proposed improvements (design, not flags):**
+- **P11 — a deletion pass, not an injection pass.** If chapter 10 restates a clearance or a test result
+  already present in chapters 8–9, *remove* the restatement. A pass that can only delete cannot add
+  machine prose; it is the only post-validation mutation direction that is safe by construction.
+- **P12 — `AGENT9_REGEN_EDIT_LIST` is built and IDLE.** Regenerate with a bounded edit list rather than a
+  rewrite, so an `aftermath_repeat` regen cannot re-introduce the material it was called to remove.
+- Make the DT scaffold fire only when the chapter contains **no test at all**, not when its
+  *marker words* are missing — the marker check is what puts a second demonstration after a first.
+
+### 12.3 Family 3 — scaffold lines / prompt leakage named as a fault
+
+**Reviews:** 12/20. Trend 10/16 → 2/4.
+**Built:** control-plane-leakage rules (live; A_80 F1 narrowed `instruction_shape` after it fired on 2 of
+12 real Golden Age novels) · watch-tier reporting F2 (live) · injection-template registry (live) ·
+retry-regression guard F3 (live).
+**Evidence, MEASURED:** §6 — **2 of 22** residue templates fire in the shipped 82/100 book, both from
+the DT scaffold. The two families of leakage that dominated May–July reads are gone; what remains is one
+template family.
+**Score: 8/10** (Coverage 2 · Delivery 3 · Efficacy 3 · Trend 0).
+**Proposed improvements:**
+- **P4** rewrite the two surviving DT sentences as in-scene observation (position was fixed by F18;
+  wording was not).
+- Register both sentences at **watch** tier in the leakage lint so they can never ship silently again.
+  Watch, not gate: a gate would force a regen, and §12.2 shows what regens cost.
+
+### 12.4 Family 4 — dialogue catchphrases
+
+**Reviews:** 9/20. Trend 8/16 → 1/4.
+**Built:** character contracts with SIGNATURE TIC (live, **1,526 prompts**) · VoiceSpec
+(live-ignored, A_75) · X43 voice-fragment guard (live, **measured not to lower the rate** — 33% before
+and after) · page-shape operations (**dead**, A_81 §8.3).
+**Evidence, MEASURED in the 82/100 book:** 62 quoted four-grams recur across ≥2 chapters. The top
+non-locked-fact entries are *"isn't it just the way"* (**4 chapters**) and *"now isn't that a"* (3).
+The first of those appears in **25 prompts** — it is a tic **we supplied**. The instruction reads:
+*"use sparingly … at most once in this chapter … prefer a varied paraphrase … most chapters should omit
+it entirely."* That is a rate instruction wrapped around a verbatim phrase. A_75 predicts exactly this
+outcome: the model uses the concrete phrase and ignores the abstract restraint.
+**Reading:** the complaint is manufactured by our own lever, and the mitigation built into the lever is
+of the kind this model does not follow.
+**Score: 5/10** (Coverage 1 · Delivery 2 · Efficacy 2 · Trend 0).
+**Proposed improvements:**
+- **P10 — make the tic an operation.** Assign each character's tic to **one named chapter** and omit it
+  from every other chapter's prompt. A phrase the model is not given cannot be overused. Countable at
+  T3: each tic appears in ≤1 chapter.
+- Revive the page-shape block (the measured gap: paragraphs opening on speech **11.5% vs canon 59.7%**,
+  A_79 §13). Its cause of death is still unidentified (A_81 §8.3) — chase that first.
+
+### 12.5 Family 5 — object / name / location inconsistency
+
+**Reviews:** 7/20. Trend **4/16 → 0/4.**
+**Built:** locked facts (live, 1,331) · Setting Lock (live, 658) · X51 device-scoped locked-fact registry
+(fixed) · name-hygiene.
+**Evidence:** absent from all of the last 4 reads; the weapon-confusion and hotel-name complaints
+cluster in 25–28 August and stop.
+**Score: 9/10** (2 · 3 · 3 · 1). Held back from 10 only because four reads is a short window.
+**Proposed improvement:** none beyond monitoring. Do not add a lever here.
+
+### 12.6 Family 6 — "the final test is not quite a test" / over-explained
+
+**Reviews:** 6/20. Trend **5/16 → 0/4.**
+**Built:** deterministic DT patch (live) · `AGENT6_DT_EVIDENCE_COMPLETENESS` (ON).
+**Evidence:** the 82/100 read *praises* the final clock test in its plot-structure line. The family is
+gone — but the mechanism that closed it is the DT patch, whose sentences are the entire surviving
+content of family 3 and part of family 2.
+**Score: 8/10** (2 · 3 · 3 · 1 → 9, minus one for the dependency: this family is solved at the direct
+expense of two others).
+**Proposed improvement:** none for this family. P4 and P12 (above) reduce its cost to the others
+without reopening it — provided the DT markers stay present, which F18's test pins.
+
+### 12.7 Family 7 — culprit link under-proved, plant it earlier
+
+**Reviews:** 5/20. Trend **5/16 → 0/4.**
+**Built:** `AGENT7_PLANT_BEFORE_REVEAL` (ON) · X52 decisive-trace-is-essential fix ·
+`AGENT9_REVEAL_CITES_PLANTS` (A_67 FIX-3) — **IDLE, unset.**
+**Evidence:** absent from the last 4. The plant-before-reveal lever and the X52 fix landed in the
+window where the complaint stopped.
+**Score: 8/10** (2 · 2 · 3 · 1).
+**Proposed improvement:** **P8** enable `AGENT9_REVEAL_CITES_PLANTS` — the citation half of a fix whose
+planting half is already credited with the fade. Verify by label; it is a prompt operation
+(`obligation-block.ts:795`), so it will show in the log or it is not on.
+
+### 12.8 Family 8 — the location-template opening
+
+**Reviews:** 5/20. Trend **3/16 → 2/4 — worsening.**
+**Built:** CHAPTER OPENING rule + A_81 F17 (live, 658 prompts) · `AGENT9_OPENING_STYLE_PER_STORY` (ON) ·
+`AGENT9_OPENING_FRESHNESS` / X95 (ON) · template_bleed lint (live, retry-time).
+**Evidence, MEASURED — and this changes the diagnosis in §3.** Every opener in the 82/100 book:
+
+```
+ch1   Hotel Reception Area in Dunrath Bay held a tense weight to it; ringing rotary telephones,
+ch2   The rain had settled over The Seaside Veranda Hotel in Dunrath Bay; the sound of the wind
+ch3   Entering The Seaside Veranda Hotel in Dunrath Bay, the sound of the wind in the corridor
+ch4   The Seaside Veranda Hotel in Dunrath Bay received them with old timber and damp stone
+ch5   There was a hush in the Reception area and hotel bar as dusk crept up the glass doors
+ch6   The Seaside Veranda Hotel in Dunrath Bay held a tense weight to it; the sound of the wind
+ch7   The rain had settled over Hotel Reception Area in Dunrath Bay; ringing rotary telephones,
+ch8   In The Seaside Veranda Hotel in Dunrath Bay, the sound of the wind in the corridor and old
+ch9   In The Seaside Veranda Hotel in Dunrath Bay, the sound of the wind in the corridor and old
+ch10  The Seaside Veranda Hotel in Dunrath Bay held a tense weight to it; the sound of the wind
+```
+
+**Ten of ten** are location-templated. Chapters 8 and 9 open on the **identical sentence**. *"held a
+tense weight to it"* ×3, *"the sound of the wind in the corridor"* ×5. The reviewer counted five; the
+true figure is every chapter.
+
+Where the phrases come from, MEASURED:
+
+| phrase | in source files | in prompts |
+| --- | ---: | ---: |
+| "sound of the wind in the corridor" | **1 — `agent9-run.ts`** | 33 |
+| "held a tense weight" | 2 | 11 |
+| "ringing rotary telephones" | 0 | 26 |
+| "received them with old timber" | 0 | 11 |
+
+And the mechanism, at `agent9-run.ts:2855`: `AGENT9_GROUNDING_LEAD` is **ON**, and when a chapter fails
+the grounding scorer (`!hasAnchor || sensoryCount < 2 || !hasAtmosphere`) the run **prepends**
+`buildUniqueGroundingLead(index, anchorName)` to the model's paragraphs. The flag's own comment: *"set
+`AGENT9_GROUNDING_LEAD=0` to restore pure model openings."* The A_52 note beside it records that with the
+lead OFF only 2/9 chapters passed the scorer — so with it ON, the prepend fires on **most chapters**.
+(The `.env.local` comment "logged at 2/10 chapters last run" reads as if the lead fires rarely; the code
+comment says the opposite. INFERRED that the `.env.local` note is the stale one; the count of applied
+leads in the next run's output settles it.)
+
+**So the opening the reader sees is not the model's opening.** It is a deterministic sentence, built
+from a closed vocabulary, prepended **after validation** (memory: post-processing runs after
+validation), and named "Unique" while producing ch8 = ch9. This is the same shape as X94/X95 — the
+opening templated in code — recurring in a third place.
+
+The consequence for the fixes already made: **the CHAPTER OPENING rule, F17, X95 and the template_bleed
+lint all act on the model's paragraph — which this prepend demotes to paragraph two.** They are aimed
+at the wrong layer and cannot succeed while the prepend is on. §3's "the prompt contradicts itself" is
+real and still worth fixing, but it is the *second* cause; this is the first.
+
+**Score: 2/10** (Coverage 1 · Delivery 1 · Efficacy 0 · Trend 0). The lowest score of any family with a
+solution "built", because the live levers target a paragraph the reader never sees first.
+**Proposed improvements:**
+- **P9 — set `AGENT9_GROUNDING_LEAD=0`.** One env line, £0, reversible, and the flag's own comment
+  describes the effect. It is also a B1 case: a rescue that fires on most chapters is not a rescue.
+- **P1** replace the `Example structure` template (§3) — the second cause, so that "pure model openings"
+  are not templated by the prompt instead.
+- Then re-measure: openers templated ≤2/10 and zero identical first sentences. Both countable.
+
+### 12.9 Family 9 — mechanism not distinctive
+
+**Reviews:** 3/20. Trend 3/16 → 0/4.
+**Built:** Agent 8 novelty audit · `NOVELTY_HARD_FAIL` (false) · `NOVELTY_SKELETON_JUDGE` (shadow) ·
+cell-scheduler.
+**Evidence:** A_77 — the audit **cannot fail** (the fail band renders "> 100%"); A_78 — the idea engine
+draws 0.43% of its prompt from any real novel and the cell-scheduler has no corpus parameter. The 0/4
+is not efficacy: the last four reads praise the clock devices as "classic and clear" and do not ask for
+novelty. The family is quiet, not solved.
+**Score: 3/10** (Coverage 0 · Delivery 1 · Efficacy 1 · Trend 1).
+**Proposed improvements:** the A_77 §7–§14 plan, unchanged — fix the fail band so the audit *can*
+fail, baseline its firing rate before letting `NOVELTY_HARD_FAIL` gate anything (B1), give the
+cell-scheduler a corpus parameter. Largest deferred item in this document; not free (~£65, A_77 §12).
+
+### 12.10 Family 10 — motive thin / relationship history unused
+
+**Reviews:** 2/20 on the loose regex, but **4/4 in the last four** — and the last-four hits are the
+*relationship* complaint (3–4 mentions per review) rather than "motive" per se.
+**Built:** MOTIVE LOCK (**dead**, §11.4 — `motive_seed` read off a CastDesign whose key is
+`motiveSeed`; 0/2,508 prompts against a sibling at 658) · relationship-history block (**live-ignored**,
+26 prompts, "affair" 0× in the manuscript, A_81 §13.1).
+**Evidence:** worsening, and both levers are non-functional in different ways — one never delivered, one
+delivered and asking for an *effect* ("let it show without being explained").
+**Score: 3/10** (Coverage 2 · Delivery 1 · Efficacy 0 · Trend 0).
+**Proposed improvements:**
+- **P6** fix the MOTIVE LOCK field name: `motiveSeed ?? motive_seed`, the X50 defensive chain.
+- **P3** convert the relationship block to an operation: name the pair, name the history, require *one
+  exchange in this chapter in which the named history is present and unmentioned*. Countable at T3:
+  the named history's key noun appears ≥1 in the manuscript.
+
+### 12.11 Family 11 — pronoun / gender
+
+**Reviews:** 2/20. Trend 2/16 → 0/4.
+**Built:** A_66 pronoun war (closed 2026-07-23, external 7/7 "much improved") · pronoun sweep · pronoun
+coverage block.
+**Score: 10/10** (2 · 3 · 4 · 1). The only family with T4 evidence that the *cause* was fixed.
+**Proposed improvement:** none. Recorded as the template for what "solved" looks like: a fix, a run,
+and an external read that names the improvement.
+
+### 12.12 Family 12 — locked-room geography
+
+**Reviews:** 1/20 (`story_20260826-1708`: *"needs a diagram-level sentence"*). Trend: quiet.
+**Built:** nothing aimed at it — **but the material exists and is in a dead block.**
+`buildSettingRefinementBlock` (§2.1, 0 prompts, no writer for its key) renders exactly this: *"Location
+frame"*, *"physical constraints"*, *"access control"* from Agent 1's setting refinement.
+**Score: 1/10** (0 · 0 · 0 · 1).
+**Proposed improvement:** **P2** (attach `SETTING_REFINEMENT` to `caseData`) delivers the geography
+material for free. Add one reveal-chapter obligation — *"state in one sentence who could reach the room
+and by which door"* — which is countable and cheap.
+
+### 12.13 Summary
+
+| # | Family | n/20 | first 16 → last 4 | Score | Limiting factor |
+| --- | --- | ---: | :---: | ---: | --- |
+| 11 | pronoun / gender | 2 | 2 → 0 | **10** | — closed |
+| 5 | object / name consistency | 7 | 4 → 0 | **9** | — |
+| 3 | scaffold / leakage | 12 | 10 → 2 | **8** | one template family left |
+| 6 | final test | 6 | 5 → 0 | **8** | solved at families 2/3's expense |
+| 7 | culprit link | 5 | 5 → 0 | **8** | citation lever idle |
+| 1 | timing | 14 | 13 → 1 | **7** | flagship guard idle; F16 unverified |
+| 2 | reveal repeats | 12 | 9 → 3 | **5** | levers ARE the cause |
+| 4 | dialogue catchphrases | 9 | 8 → 1 | **5** | we supply the phrase, then ask for restraint |
+| 9 | mechanism freshness | 3 | 3 → 0 | **3** | audit cannot fail |
+| 10 | motive / relationships | 2 | 2 → **4** | **3** | one dead, one ignored |
+| 8 | location template | 5 | 3 → **2** | **2** | fixes aimed at the wrong layer |
+| 12 | geography | 1 | — | **1** | material exists, in a dead block |
+
+Mean **5.75/10**. Five families at 8+ are effectively closed on current evidence. Four families at ≤3
+share one property: **the thing standing between them and a solution is not a missing idea.** It is a
+field name (10), an env line (8), a fail band that renders >100% (9), and a key nobody attaches (12).
+
+### 12.14 The recurring shape, stated once
+
+Three of the twelve families — **2, 4 and 8** — are now measured to be *caused by the lever built to
+prevent them*: the regen/injection traffic writes the repetition; the SIGNATURE TIC instruction supplies
+the catchphrase; the grounding-lead prepend writes the templated opening. In each case the lever is ON,
+fires on most chapters, and the fix that was attempted (a restraint clause, a prohibition, a rule) was
+aimed at the model while the defect was being written by us.
+
+CLAUDE.md's B1 rule — *a check that fires on most runs is an off switch with extra steps* — was
+written about gates. It applies with equal force to rescues.
+
+### 12.15 The improvement list, consolidated — nothing applied
+
+| # | Action | Cost | Family | Evidence grade |
+| --- | --- | --- | --- | --- |
+| P9 | `AGENT9_GROUNDING_LEAD=0` | £0, 1 env line | 8 | MEASURED: source phrase → 10/10 openers |
+| P1 | replace the `Example structure` template | £0 | 8 | MEASURED: 658 prompts, same as the rule |
+| P6 | MOTIVE LOCK: `motiveSeed ?? motive_seed` | £0 | 10 | MEASURED: 0/2,508 vs sibling 658 |
+| P2 | attach `SETTING_REFINEMENT` + `BACKGROUND_CONTEXT` to `caseData` | £0 | 12, atmosphere | MEASURED: no writer exists |
+| P3 | relationship block → operation | £0 | 10 | MEASURED: 26 prompts, 0 uses |
+| P10 | SIGNATURE TIC → one named chapter per character | £0 | 4 | MEASURED: tic in 25 prompts, 4 chapters |
+| P7 | enable `AGENT9_CLUE_TIME_WORDFORM` | £0 | 1 | built for a counted complaint, never run |
+| P8 | enable `AGENT9_REVEAL_CITES_PLANTS` | £0 | 7 | built for a counted complaint, never run |
+| P4 | rewrite the two DT scaffold sentences | £0 | 3 | MEASURED: the only 2/22 firing |
+| P11 | deletion pass for ch9/10 restatement | small build | 2 | INFERRED from label traffic |
+| P12 | `AGENT9_REGEN_EDIT_LIST` — built, idle | £0 to enable | 2 | T1 only |
+| P5 | wire or delete `buildOpeningSituationBlock` | £0 | — | dead code |
+| P13 | novelty fail band + corpus parameter | ~£65 | 9 | A_77 plan |
+| — | one `medium` run, read against a pre-specified list | ~£2–3 | all | §8 |
+
+Ten of fourteen are free. The first six are each backed by a direct measurement of *why the current
+state fails*, which no earlier improvement list in this project could say of more than one or two items.
