@@ -926,3 +926,126 @@ drawing a conclusion either way.
 5. An external read of this manuscript, for the first genuine T4 evidence on P9's opener fix — the
    MEASURED T3 result (0/10 templated) is the strongest single result in this section and has not yet
    been read by anyone but this audit.
+
+---
+
+## §14 The external read of the fixed run — 84/100, the best yet, and two fixes get their first T4 confirmation
+
+`stories/story_20260902-1846/chatgpt-review.txt`, external read of `mystery-1788369981295` (the run
+covered in §13). **84/100.**
+
+| | 31 Aug | 1 Sep #1 | #2 | #3 | **#4 (this run)** |
+| --- | --- | --- | --- | --- | --- |
+| Overall | 74 | 70 | 79 | 82 | **84** |
+| Character life | 7 | 7 | 7 | 7 | **8** |
+| Clues / evidence | 4 | 4 | 6 | 7 | 8 |
+
+Best of five reads. Every claim below was checked against the manuscript or this run's own log before
+being written down here, per the evidence standard — three were not what they first looked like.
+
+### 14.1 P9 + P1 get their first T4 confirmation — the reviewer names no opener complaint at all
+
+§13's T3 result was 0 of 10 chapter openers templated, against 10/10 in the last external read. This
+review is the first chance an outside reader had to see it, and the location-template complaint —
+present in 5 of the last 20 reviews, including the immediately preceding one — **does not appear**.
+Pacing is scored 8/10 with *"the chapters have distinct jobs."* This is the first T4 evidence for
+either P9 or P1.
+
+### 14.2 P3 gets its first T4 confirmation — Character Life moves for the first time this project has recorded
+
+Character Life / Relationship Richness was flat at **7/10 in every prior read** (A_82 §12 table, four
+consecutive reads). This one scores it **8/10**, and the reviewer's own words describe exactly the
+mechanism P3 was built to produce — an unstated history shaping behaviour rather than exposition:
+
+> *"Sylvia has a private romantic scandal, which explains her evasiveness without making her the
+> killer... This is exactly the direction you wanted."*
+
+This is the first time in the project's recorded history that this category has moved.
+**MEASURED caveat:** the delivered relationship content this run (§13.1, 22 hits) was Dr. Finch /
+Captain Hale's forged-records history — the character praised here for evasiveness (Sylvia) is a
+*different* pair. The mechanism worked; which pair it landed on this run was not verified against which
+pair the reviewer is crediting. Real result, imprecise attribution — worth a check on the next read.
+
+### 14.3 The reviewer independently caught what this run's own telemetry had already flagged and failed to fix
+
+> *"Chapter 9 is almost too much... it effectively reopens the Hugo confession again... Since Chapter 8
+> already has Hugo confess, Chapter 9 should not restage his guilt."*
+
+§13.6 recorded, from this run's own warnings, that the `aftermath_repeat` regen on chapter 9 scored
+**375 before and 375 after** — unresolved, unchanged, and it was left inconclusive there pending a
+closer look at whether that pass reads `AGENT9_REGEN_EDIT_LIST` at all. This review is independent T4
+confirmation that the unresolved regen shipped its exact defect: chapter 9 (0 confession words in
+chapter 8's own close, 2 in chapter 9) restages the guilt chapter 8 already settled. §13.6's "next
+session" item is now load-bearing, not speculative.
+
+### 14.4 A real locked-fact fidelity miss, distinct from the case-incoherence defect already on record
+
+Checking the reviewer's "9:25 vs quarter past nine vs half-past nine" complaint against the actual
+locked-fact registry for this run:
+
+```
+clock_hour_hand_position   = "ten minutes past nine"      (9:10, the FALSE reading)
+clock_minute_hand_position = "quarter past nine"          (9:15, the honest minute hand)
+pocket_watch_time          = "twenty-five minutes past nine"  (9:25, the TRUE time)
+hour_hand_lag_interval     = "fifteen minutes"
+```
+
+9:10 to 9:25 is fifteen minutes — **this three-value mechanism is internally coherent**, and it is more
+sophisticated than any prior case this project has shipped (the reviewer's own praise: *"the minute
+hand is honest, the hour hand is delayed"*). `"quarter past nine"` appears 13 times and
+`"twenty-five minutes past nine"` 9 times — **both are the correct locked value for what they
+describe.** The digit form `"9:25"` the reviewer quotes does not appear anywhere (0 occurrences); that
+part of the complaint is the reviewer's own shorthand, not a manuscript defect.
+
+What IS a defect, verified: chapter 6 states —
+
+> *"the battered pocket watch—its hands stalled at the edge of half-past nine"*
+
+**Half past nine is 9:30. The pocket watch's locked value is twenty-five minutes past nine, 9:25.**
+One occurrence, one chapter, and it is a genuine non-canonical paraphrase of a word-form-locked fact —
+exactly the class of defect the `FORBIDDEN alternatives` block exists to catch, and it slipped past it
+once. Separately: nothing in the prose states plainly, in one place, which of the three clock values
+belongs to which hand — so a reader who is not tracking three simultaneous readings reasonably reads
+"quarter past nine" and "twenty-five minutes past nine" as competing claims about one clock rather
+than two different measurements. That is a clarity gap, not a data error, and it is NOT the same defect
+as the X38 case-incoherence this run's own log also flagged (`CASE.hidden_model.mechanism`'s anchors
+disagree with `hour_hand_lag_interval` at a layer upstream of the locked-fact registry, which was
+already correctly resolved by the time it reached prose — X38 fired on the CASE, not on what shipped).
+
+### 14.5 The "scaffold" lines are the model's own prose, not the injector — MEASURED, and worth keeping distinct
+
+The reviewer flags three lines as *"generated/scaffolded"*, all present verbatim:
+*"It had taken fifteen minutes in all."*, *"Fifteen minutes had passed before it was done."*,
+*"Not faith-proof."* But this run's own telemetry: `[X4] agent9 injector-vs-lint telemetry:
+injections=0 violations=0` — **the deterministic injector did not fire once this run.** These lines are
+the model restating the fifteen-minute interval in its own words, twice, in close proximity — organic
+repetition, not injected residue. Attributing it to "scaffolding" would point any fix at the wrong
+mechanism (the injector, which is clean) instead of the right one (a redundancy the model introduces
+unprompted when a numeric fact matters to the plot). Recorded as its own, distinct, unfixed item.
+
+### 14.6 A pronoun slip the run's own gate flagged and shipped anyway
+
+> *"'the blood spread wide beneath him'—Finch is female, so this should be 'her.'"*
+
+Confirmed verbatim in chapter 3. This run's own warnings: *"Pronoun integrity gate: 2 pronoun issue(s)
+remain after deterministic rescue."* The gate fired, named the problem, and did not block release — it
+is advisory, not in `hardStopReasons`. Family 11 (pronoun/gender) was scored 10/10 in A_82 §12 on the
+strength of A_66's closure (7/7 external "much improved"); this is the first recurrence on record since
+that close and does not on its own reopen the family, but the gate's own advisory-only status is now
+the identified reason a caught issue can still ship.
+
+### 14.7 One genuinely new, unaddressed item
+
+> *"'You did this for me, didn't you?'... That is a strong human idea, but it arrives too late... Plant
+> it earlier with one small moment."*
+
+This is a request for earlier **dramatic** planting of Hugo's protectiveness toward Beatrice —
+distinct from MOTIVE LOCK (P6, which keeps the *stated* motive consistent) and distinct from
+`AGENT7_PLANT_BEFORE_REVEAL` (which plants *clues*, not emotional beats). Nothing in this project's
+current lever set targets planting a relational motive beat ahead of the reveal. Not on the §12.15 list;
+worth adding to a future one.
+
+### 14.8 Reviewer's own projection
+
+*"With the time references locked, Hugo/Beatrice planted earlier, Chapter 9 trimmed, and the
+scaffold/pronoun issues removed, this could reach 89–91/100."*
