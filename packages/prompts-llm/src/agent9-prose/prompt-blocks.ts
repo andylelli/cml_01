@@ -159,6 +159,8 @@ export const buildCharacterContractsBlock = (
   activeNames?: Set<string>,
   actNumber?: number,
   identityMap?: Map<string, string>,
+  chapterNumber?: number,
+  totalChapters?: number,
 ): string => {
   if (!characterBundle || !Array.isArray(characterBundle.characters) || characterBundle.characters.length === 0) {
     return '';
@@ -183,9 +185,30 @@ export const buildCharacterContractsBlock = (
     // across chapters into verbatim over-repetition (tide run: 8/10 chapters). Phrase it as SPARING use
     // — ownership stays absolute, frequency does not. Back-compat: absent ⇒ the line is omitted and the
     // block is unchanged.
+    //
+    // A_82 §12.15 P10 — MEASURED (S12.4, external read 84/100): the "sparing" rate instruction did not
+    // hold. "isn't it just the way" reached 25 prompts and appeared in 4 chapters of one manuscript —
+    // this model follows countable OPERATIONS and ignores rate language (A_75). When `chapterNumber`
+    // and `totalChapters` are supplied, the tic is offered in ONE deterministically assigned chapter
+    // ONLY — omitted from every other chapter's prompt entirely, so a phrase the model is never given
+    // cannot be overused elsewhere. The assignment is `index-in-cast mod totalChapters`: stable across
+    // every regen/retry of the same run (no randomness, no dependency on run order), and spreads tics
+    // across the book rather than clustering them in chapter 1. Falls back to the old sparing-rate
+    // instruction when either argument is omitted, so every existing caller/test is unaffected.
     const signatureTic = String((char as any).signatureTic ?? '').trim();
     if (signatureTic) {
-      lines.push(`SIGNATURE TIC (use sparingly — this is ${char.name}'s alone, never in anyone else's mouth; at most once in this chapter and only where the scene naturally invites it; prefer a varied paraphrase over the verbatim phrase; most chapters should omit it entirely): "${signatureTic}"`);
+      const hasChapterAssignment = Number.isInteger(chapterNumber) && Number.isInteger(totalChapters) && (totalChapters as number) > 0;
+      if (hasChapterAssignment) {
+        const charIndex = characterBundle.characters.findIndex((c) => c.name === char.name);
+        const assignedChapter = (Math.max(0, charIndex) % (totalChapters as number)) + 1;
+        if (chapterNumber === assignedChapter) {
+          lines.push(`SIGNATURE TIC (this is ${char.name}'s alone, never in anyone else's mouth; THIS is the one chapter it may appear — use it once, naturally, only where the scene invites it): "${signatureTic}"`);
+        }
+        // Not this character's assigned chapter: the line is omitted entirely, not softened —
+        // a phrase absent from the prompt cannot be overused.
+      } else {
+        lines.push(`SIGNATURE TIC (use sparingly — this is ${char.name}'s alone, never in anyone else's mouth; at most once in this chapter and only where the scene naturally invites it; prefer a varied paraphrase over the verbatim phrase; most chapters should omit it entirely): "${signatureTic}"`);
+      }
     }
     /**
      * X43 (REVIEW_10 §4) — THE FRAGMENTS WERE BEING COPIED, NOT MATCHED, AND THE GUARD BESIDE THEM

@@ -52,6 +52,66 @@ describe("buildCharacterContractsBlock — signature tic wording (item 14)", () 
 });
 
 // ───────────────────────────────────────────────────────────────────────────
+// A_82 §12.15 P10 — MEASURED (external read 84/100): the sparing-RATE instruction did not hold.
+// "isn't it just the way" reached 25 prompts and 4 chapters of one manuscript. When a chapter
+// number and total chapter count are supplied, the tic is offered in exactly ONE deterministically
+// assigned chapter and omitted from every other — an operation, not a restraint (A_75).
+// ───────────────────────────────────────────────────────────────────────────
+describe("buildCharacterContractsBlock — signature tic restricted to one assigned chapter (A_82 P10)", () => {
+  const threeCharBundle = {
+    characters: [
+      { name: "Ivor Hale", signatureTic: "Mark the tide.", voiceFragments: [], humourLevel: 0, humourStyle: "none", forbiddenCliché: "x", permittedBehavioursByAct: {} },
+      { name: "Beatrice Quill", signatureTic: "Isn't it just the way.", voiceFragments: [], humourLevel: 0, humourStyle: "none", forbiddenCliché: "x", permittedBehavioursByAct: {} },
+      { name: "Hugo Vane", signatureTic: "One picks up an interest.", voiceFragments: [], humourLevel: 0, humourStyle: "none", forbiddenCliché: "x", permittedBehavioursByAct: {} },
+    ],
+  } as any;
+  const TOTAL_CHAPTERS = 10;
+  // index-in-cast mod totalChapters + 1: Hale (0) -> ch1, Quill (1) -> ch2, Vane (2) -> ch3.
+
+  it("offers the tic ONLY in the character's assigned chapter", () => {
+    const ch1 = buildCharacterContractsBlock(threeCharBundle, undefined, 2, undefined, 1, TOTAL_CHAPTERS);
+    expect(ch1).toContain("SIGNATURE TIC");
+    expect(ch1).toContain('"Mark the tide."'); // Hale's, assigned to ch1
+    expect(ch1).not.toContain("Isn't it just the way"); // Quill's, assigned to ch2 — absent, not softened
+    expect(ch1).not.toContain("One picks up an interest"); // Vane's, assigned to ch3
+  });
+
+  it("moves to a different character in a different chapter — every chapter offers at most the assigned character's tic", () => {
+    const ch2 = buildCharacterContractsBlock(threeCharBundle, undefined, 2, undefined, 2, TOTAL_CHAPTERS);
+    expect(ch2).toContain("Isn't it just the way");
+    expect(ch2).not.toContain("Mark the tide");
+    expect(ch2).not.toContain("One picks up an interest");
+  });
+
+  it("a chapter with no assigned character offers NO signature tic at all", () => {
+    // Only 3 characters across 10 chapters — chapters 4-10 have no character assigned to them.
+    const ch5 = buildCharacterContractsBlock(threeCharBundle, undefined, 2, undefined, 5, TOTAL_CHAPTERS);
+    expect(ch5).not.toContain("SIGNATURE TIC");
+  });
+
+  it("the assignment is STABLE across repeated calls — a retry/regen of the same chapter must not vary", () => {
+    const first = buildCharacterContractsBlock(threeCharBundle, undefined, 2, undefined, 2, TOTAL_CHAPTERS);
+    const second = buildCharacterContractsBlock(threeCharBundle, undefined, 2, undefined, 2, TOTAL_CHAPTERS);
+    expect(first).toBe(second);
+  });
+
+  it("drops the sparing-RATE language entirely once an assignment exists — this is an operation, not a restraint", () => {
+    const ch1 = buildCharacterContractsBlock(threeCharBundle, undefined, 2, undefined, 1, TOTAL_CHAPTERS);
+    expect(ch1).not.toMatch(/most chapters should omit it entirely/i);
+    expect(ch1).not.toMatch(/prefer a varied paraphrase over the verbatim phrase/i);
+    expect(ch1).toMatch(/the one chapter it may appear/i);
+  });
+
+  it("back-compat: omitting chapterNumber/totalChapters falls back to the old sparing-rate wording for every character", () => {
+    const noAssignment = buildCharacterContractsBlock(threeCharBundle, undefined, 2);
+    expect(noAssignment).toMatch(/most chapters should omit it entirely/i);
+    expect(noAssignment).toContain("Mark the tide");
+    expect(noAssignment).toContain("Isn't it just the way");
+    expect(noAssignment).toContain("One picks up an interest");
+  });
+});
+
+// ───────────────────────────────────────────────────────────────────────────
 // X43 (architecture/REVIEW_10.md §4) — the voice fragments were being COPIED,
 // not matched, and the guard they needed was already two lines above them.
 //

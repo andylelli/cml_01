@@ -1811,6 +1811,49 @@ describe("Agent 9 prompt hardening fixes", () => {
     }
   });
 
+  it("A_82 P10 — end-to-end: buildProsePrompt wires chapterStart and total chapter count through to the tic assignment", () => {
+    // Not just the isolated buildCharacterContractsBlock tests (already thorough) — confirms
+    // buildProsePrompt actually PASSES chapterStart and allOutlineScenes.length through, the exact
+    // wiring gap that made SETTING_REFINEMENT/BACKGROUND_CONTEXT (A_82 §2.1) and MOTIVE LOCK
+    // (§11.4) dead for real runs despite passing every unit test in isolation.
+    // Names must match baseScene.characters (["Clara Whitfield", "Edgar Vale"]) or
+    // buildCharacterContractsBlock's activeNames filter excludes them before the tic logic runs.
+    const twoCharBundle = {
+      runId: "run1",
+      characters: [
+        {
+          name: "Clara Whitfield", voiceFragments: [], humourStyle: "none", humourLevel: 0,
+          forbiddenCliché: "x", internalConflict: "x", speechMannerisms: "x",
+          signatureTic: "Mark my words.",
+          permittedBehavioursByAct: { act1: "x", act2: "x", act3: "x" },
+        },
+        {
+          name: "Edgar Vale", voiceFragments: [], humourStyle: "none", humourLevel: 0,
+          forbiddenCliché: "x", internalConflict: "x", speechMannerisms: "x",
+          signatureTic: "One picks up an interest.",
+          permittedBehavioursByAct: { act1: "x", act2: "x", act3: "x" },
+        },
+      ],
+    };
+    // baseInputs' own outline carries exactly 1 scene (totalChapters=1 would put every character in
+    // chapter 1, defeating the test) — override with 2 scenes so the assignment is meaningfully
+    // distinguishable, while still rendering THIS chapter from baseScene via scenesOverride.
+    const inputs = {
+      ...baseInputs,
+      characterBundle: twoCharBundle as any,
+      outline: { acts: [{ act_number: 3, scenes: [baseScene, { ...baseScene, sceneNumber: 2 }] }], totalScenes: 2 },
+    };
+    // Clara (index 0) -> ch1; Edgar (index 1) -> ch2. Proves chapterStart and the real outline
+    // length both reached the block builder rather than being silently dropped.
+    const ch1 = buildProsePrompt(inputs, [baseScene], 1, []).messages[0].content as string;
+    expect(ch1).toContain("Mark my words.");
+    expect(ch1).not.toContain("One picks up an interest.");
+
+    const ch2 = buildProsePrompt(inputs, [baseScene], 2, []).messages[0].content as string;
+    expect(ch2).toContain("One picks up an interest.");
+    expect(ch2).not.toContain("Mark my words.");
+  });
+
   it("A_57 D3 — surfaces the mechanism-environment exception instruction when present", () => {
     const exception =
       "MECHANISM–ENVIRONMENT EXCEPTION (the central clue depends on it): render a brief clearing in the overcast.";

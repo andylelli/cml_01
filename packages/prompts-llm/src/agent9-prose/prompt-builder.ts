@@ -1950,11 +1950,18 @@ ${victimIdentityRule}`;
   const dominantAct = sceneActNumbers.length > 0
     ? Math.round(sceneActNumbers.reduce((a, b) => a + b, 0) / sceneActNumbers.length)
     : 2;
+  // A_82 P10 — total chapter count for the signature-tic per-chapter assignment. `allOutlineScenes`
+  // is the FULL outline (not just this batch), so its length is the book's chapter count regardless
+  // of `proseBatchSize`. `chapterStart` is this call's first chapter; for a multi-chapter batch every
+  // chapter in it shares one assignment computation, which is the batch's existing granularity for
+  // every other per-chapter block here.
   const characterContractsBlock = buildCharacterContractsBlock(
     inputs.characterBundle,
     activeCharacterNames.size > 0 ? activeCharacterNames : undefined,
     dominantAct,
     identityMap,
+    chapterStart,
+    allOutlineScenes.length,
   );
 
   const physicalPlausibilityRules = `\nPHYSICAL PLAUSIBILITY REQUIREMENTS:\n\nAll physical evidence must obey real-world physics:\n\n1. VIABLE Evidence by Location:\n   Interior: fingerprints, torn fabric, overturned furniture, blood spatter, documents\n   Exterior (calm): secured items, structural damage, witness observations\n   Exterior (storm): NO trace evidence survives - use only structural damage or interior evidence\n\n2. IMPLAUSIBLE Evidence (DO NOT USE):\n   ❌ Footprints on wooden deck (treated wood doesn't retain prints)\n   ❌ Footprints in rain/storm (washed away immediately)\n   ❌ Metal embedded in hardwood (requires bullet velocity, not human force)\n   ❌ Light objects in storm (blown away)\n\n3. For struggle evidence use:\n   ✓ Overturned furniture, torn clothing, scattered items, defensive wounds\n   ❌ Objects embedded in hard surfaces, shattered steel/iron`;
