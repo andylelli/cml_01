@@ -805,3 +805,124 @@ written about gates. It applies with equal force to rescues.
 
 Ten of fourteen are free. The first six are each backed by a direct measurement of *why the current
 state fails*, which no earlier improvement list in this project could say of more than one or two items.
+
+---
+
+## §13 The first run against the six landed fixes — a `short` run, read against the pre-specified checklist
+
+**Run:** `mystery-1788369981295` (project `canary_1788369981294`), 2026-09-02, launched via
+`node scripts/canary-core.mjs` against the unmodified control config (`targetLength: short`, the same
+control every prior read used). Story saved to
+[`the_dialed_back_hour_hand_a_seaside_hotel_myster.md`](../../../stories/story_20260902-1846/the_dialed_back_hour_hand_a_seaside_hotel_myster.md),
+11,351 words, 10 chapters. Internal rubric (shadow, not comparable to an external read): 77/100.
+`CANARY_STATUS warning` — completed, did not abort.
+
+A medium-length (`targetLength: medium`) run was launched first and stopped by the owner after Agent 3
+(three retries on a temporal-arithmetic validation error, never reached Agent 9 or prose) with the
+instruction *"we aren't building medium length stories yet, just short."* The scratch config was
+deleted. This section covers the `short` run only.
+
+### 13.0 A scoping error in the first pass, corrected before reporting
+
+`logs/llm-prompts-full.jsonl` is **cumulative across every run this project has ever logged** — 2,595
+lines when this run finished, of which only 78 belong to it. The first pass at this checklist grepped
+the whole file and read P2's near-zero reach as consistent with the other five fixes' plausible
+delivery. Every marker below was **re-counted after filtering to `runId == "mystery-1788369981295"`**;
+the file predates recomputation-against-the-ledger the same way A_79/A_80's word-count correlations did
+(CLAUDE.md: *"a negative result from a probe you just wrote is a claim about the probe"*), and the fix
+was the same — scope before concluding.
+
+### 13.1 Scorecard against the pre-specified checklist
+
+| fix | measured this run (of 78 prompts) | verdict |
+| --- | --- | --- |
+| **P9 + P1** — opener template | **0 of 10 chapter openers templated** (was 10/10 in the last external read) | **fixed** |
+| **P6** — MOTIVE LOCK | 26 hits, real content: *"Eliminating Dr. Finch prevented the leak of sensitive Cold War intelligence she unwittingly held; murder was deemed necessary over exposure."* (was 0/2,508) | **fixed** |
+| **P3** — relationship block, effect→operation | 22 hits, real named history delivered (a forged-records confrontation between Dr. Finch and Captain Hale) | **delivered — see 13.3 for whether it was used** |
+| **P8** — reveal cites plants | 14 hits | **delivered** |
+| DT scaffold wording (not yet fixed — F4, still open) | 0 occurrences in the manuscript (was 1 in the last read, 2/22 residue templates historically) | **absent this run — see 13.4, likely didn't fire, not proof the wording is fixed** |
+| **F16** — clock direction | 0 hits (`CENTRAL CONTRADICTION` never reached a prompt either) | **correctly silent — see 13.5, not exercised** |
+| **P2** — SETTING_REFINEMENT / BACKGROUND_CONTEXT | setting 1/78, background **0/78** (siblings `LOCKED FACTS` 46/78, `CHAPTER OUTCOME CONTRACT` 26/78) | **partially fixed — see 13.2, root cause is a second, pre-existing defect** |
+| **P12** — `AGENT9_REGEN_EDIT_LIST` | ch9's `aftermath_repeat` regen ran, scored 375 before and after, stayed unresolved | **inconclusive — see 13.6** |
+| **F12/P7** — word-form mismatch → warning, not abort | 0 mismatches detected this run | **not exercised — the case had no matching clue/fact pair to flag** |
+
+Five of nine are confirmed working with real content. One (P2) is confirmed **half**-working with a
+newly measured cause. Three are inconclusive because this case did not present the condition they act
+on — a null result, not a negative one.
+
+### 13.2 P2's root cause, MEASURED — not a wiring bug, a second defect the wiring exposed
+
+The two blocks are no longer dead: `buildSettingRefinementBlock` and `buildBackgroundContextBlock` now
+compute real content from real artifacts (confirmed by reading the persisted `background_context`
+artifact for this run — `backdropSummary`, `era`, `setting` all populated, in exactly the shape the
+builder expects). But a live prompt's own budget line says why they rarely reach the model:
+
+```
+PROMPT BUDGET SUMMARY: budget=24000 tokens; ... craftFloor=true;
+dropped=[humour_guide, background_context, location_profiles];
+truncated=[temporal_context, craft_guide, first_appearance_contracts, location_profiles, pronoun_accuracy]
+```
+
+`background_context` (priority `medium`) and `setting_refinement` (priority `high`) are competing for a
+fixed 24,000-token ceiling against blocks at `critical` priority, and mostly lose. This is the same
+ceiling already on record — `prompt-ceiling-24k-vs-1m-context` — as self-imposed, against a 1M-token
+context window, with its stated rationale withdrawn by REVIEW_12. P2 repaired the dead-writer defect
+(§2.1's original finding, 0/2,508) and in doing so surfaced the pre-existing budget-starvation defect
+that had been invisible only because there was never any content to starve.
+
+**This is not a regression to fix by reverting P2.** The data is correct and flowing; raising the two
+blocks' priority, or lifting the ceiling per the withdrawn-rationale note, is the next increment — and
+it is now backed by a measured `dropped=[...]` line rather than an inference.
+
+### 13.3 P3 delivered; whether it was USED is unverified
+
+The relationship content reached the prompt with a real, specific history — a step up from A_81 §13.1's
+26-prompts-0-uses finding, which was for the old effect-worded instruction. This run's manuscript was
+not checked for whether the forged-records confrontation actually surfaces in a chapter 9 exchange
+between the two named characters; that check is a straightforward grep against the next read and is
+listed in §13.7 rather than asserted here.
+
+### 13.4 The DT scaffold's absence is a null result, not a confirmed fix
+
+Zero occurrences of the residue phrases in this manuscript. But `AGENT9_REGEN_AFTERMATH_REPEAT` fired
+(ch9, ch10) and the discriminating-test floor is conditional on `resolveDiscriminatingTestValidityState`
+finding the chapter invalid — this run's log does not show the DT patch's insertion function running at
+all. Absence of the residue phrase when the mechanism that produces it never fired is not evidence the
+wording (F4, still un-fixed per A_82 §12.15) would behave differently when it does.
+
+### 13.5 F16 was correctly silent — the case gave it nothing to classify
+
+No `CENTRAL CONTRADICTION` block reached any prompt this run, which is F16's own gating condition
+(A_82 §12.15 wired it onto the same `contradictionPair`). Cause, from the run's own warnings: X38
+flagged this case's device as internally incoherent — *"the mechanism's anchors 'ten minutes past nine'
+and 'a quarter past ten' are 65 minutes apart, while `hour_hand_lag_interval` declares 'fifteen
+minutes'"* — a **pre-existing CASE-generation defect** (Agent 3b/Agent 7.5), unrelated to any fix in
+this document. F16 correctly emitted nothing rather than guessing a direction for an incoherent pair,
+which is the behaviour its own test suite pins (`clock-direction-a81.test.ts`, "names NO direction when
+neither fact is classifiable"). It has still never been exercised end-to-end against a coherent case in
+a live run.
+
+### 13.6 P12 — inconclusive, and worth a closer look
+
+`[Agent 9] N7 reveal-repair rewrote ch8 to satisfy [geometry_reveal_culprit_not_named] (modify channel,
+edit-list)` — one pass explicitly used the edit-list channel and succeeded. But
+`[Agent 9] aftermath-repeat regen UNRESOLVED in ch9: regen did not improve the targeted property (score
+375, was 375; still failing: aftermath_repeat:p7)` names no channel and the score did not move at all,
+which reads as the regen attempt not touching the flagged paragraph rather than the edit-list mechanism
+failing. Whether the `aftermath_repeat` pass is wired to read `AGENT9_REGEN_EDIT_LIST` at all was not
+confirmed in this pass — a five-minute grep, not a re-run, and it belongs in the next session before
+drawing a conclusion either way.
+
+### 13.7 What the next read should check, in order
+
+1. Does chapter 9 (or wherever the relationship pair both appear) contain the named history element
+   from the MOTIVE LOCK / relationship block, unstated in narration (P3, §13.3)?
+2. Does raising `setting_refinement`/`background_context` priority, or lifting the 24k ceiling, change
+   their `dropped=[...]` status (P2, §13.2)?
+3. Does a case with a coherent staged/true clock pair reach `CENTRAL CONTRADICTION` and produce a
+   correct `DIRECTION OF THE CLOCK ERROR` block (F16, §13.5) — this run's case could not test it?
+4. Is `aftermath_repeat` reading `AGENT9_REGEN_EDIT_LIST`, and if not, is that the reason ch9 regens as
+   a whole-paragraph rewrite rather than a targeted edit (P12, §13.6)?
+5. An external read of this manuscript, for the first genuine T4 evidence on P9's opener fix — the
+   MEASURED T3 result (0/10 templated) is the strongest single result in this section and has not yet
+   been read by anyone but this audit.
