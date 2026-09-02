@@ -1063,14 +1063,59 @@ export const resolveClueObligationState = (
   };
 };
 
-const DISCRIMINATING_TEST_THEORY_RE = /\b(theory|hypothesis)\b/i;
+/**
+ * A_76 §17 — THE GATE DEMANDED A WORD THE MODEL NEVER WRITES, SO WE HAD TO PASTE ONE IN.
+ *
+ * The external reader of `story_20260830-1850` scored it 82 and marked `prose` 7/10:
+ * *"still has scaffold lines and repeated explanation"*. The two sentences our own detector flags in
+ * that book are the discriminating-test floor's:
+ *
+ *   "Run again in front of them all, the test came out the same way twice; its result ruled out one
+ *    theory and left the other standing."
+ *   "That left [culprit] as the only person whose story still needed the discredited theory to be true."
+ *
+ * MEASURED across the 33 August manuscripts: 43 such sentences in 19 books (58%).
+ *
+ * The floor exists because THIS regex fails. Strip our injected sentences from the 28 chapters that
+ * carry them and re-test: **27 of 28 fail** — and they fail on the THEORY marker, never on proof
+ * (`theory=false proof=true`). The model writes "explanation", "account", "version", "reading",
+ * "possibility"; it does not write "theory". We demanded a word it does not use, it failed, and the
+ * floor pasted machine text to supply it. The reader then read the machine text back to us.
+ *
+ * Rewording the floor is the wrong repair and has already been tried once: the previous template
+ * ("The result proved one theory and ruled out the other...") was flagged in every external review,
+ * which is why the current one exists — and it is flagged too. Text that is never emitted needs no
+ * rewording.
+ *
+ * WIDENED, and the widening is safe because of where the gate runs. MEASURED:
+ *   model prose satisfies the CURRENT gate  :  1 of 28 chapters   (4%)
+ *   model prose satisfies the WIDENED gate  : 17 of 28 chapters   (61%)
+ *
+ * A wider vocabulary would let 31% of ORDINARY chapters pass, against 5% today — but the check runs
+ * only inside `case "discriminating_test"`, on the single chapter whose stage mode IS the test, so it
+ * never sees an ordinary chapter and that cost is not paid. The conjunction with
+ * `DISCRIMINATING_TEST_PROOF_RE` still holds: a chapter needs a competing-reading word AND an
+ * observable-result word.
+ *
+ * Flag-gated `AGENT9_DT_THEORY_VOCABULARY` (default OFF), read at call time. Off, the regex is
+ * byte-identical to today.
+ */
+const DISCRIMINATING_TEST_THEORY_NARROW_RE = /\b(theory|hypothesis)\b/i;
+const DISCRIMINATING_TEST_THEORY_WIDE_RE =
+  /\b(theor(?:y|ies)|hypothes(?:is|es)|explanation|account|version|reading|possibilit(?:y|ies)|supposition|premise|assumption|scenario|alternative)\b/i;
+
+/** Read at CALL time, never a module const — that freezes before dotenv (ADR-0004). */
+export const isDtTheoryVocabularyWidened = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(env.AGENT9_DT_THEORY_VOCABULARY ?? "");
 const DISCRIMINATING_TEST_PROOF_RE = /\b(if\b.*\bthen|would indicate|would prove|result|observation|rules? out|proves?)\b/i;
 
 export const resolveDiscriminatingTestValidityState = (
   chapter: ProseChapter,
 ): DiscriminatingTestValidityState => {
   const chapterText = (chapter.paragraphs ?? []).join(" ");
-  const hasTheoryMarker = DISCRIMINATING_TEST_THEORY_RE.test(chapterText);
+  const hasTheoryMarker = (isDtTheoryVocabularyWidened()
+    ? DISCRIMINATING_TEST_THEORY_WIDE_RE
+    : DISCRIMINATING_TEST_THEORY_NARROW_RE).test(chapterText);
   const hasProofMarker = DISCRIMINATING_TEST_PROOF_RE.test(chapterText);
   return {
     hasTheoryMarker,

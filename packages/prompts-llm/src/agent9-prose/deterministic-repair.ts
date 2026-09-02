@@ -432,18 +432,26 @@ const buildDeterministicDiscriminatingTestParagraphs = (args: {
   // knowledge_revealed schema sentences (the Ch9 78-word verbatim leak). theoryA is the surface
   // assumption (reader-meaningful); everything else is composed prose, not transcribed schema.
   const theoryParagraph =
-    `${investigatorName} set out the two competing readings so everyone could weigh them side by side. Either ${theoryA}, or the physical evidence had been deliberately staged to suggest as much. Once the alternatives were stated plainly, vague suspicion gave way to what could actually be tested.`;
+    // DISCRIMINATING_TEST_THEORY_NARROW_RE matches the literal SINGULAR "theory" (`\btheory\b`) —
+    // "theories" is not a substring of "theory" and does not match. Verified directly against the
+    // real validator after the plural form silently produced hasTheoryMarker:false on this fixture.
+    `${investigatorName} set out one competing theory against the other, so everyone could weigh them side by side. Either ${theoryA}, or the physical evidence had been deliberately staged to suggest as much. Once the alternatives were stated plainly, vague suspicion gave way to what could actually be tested.`;
   const testParagraph =
     `${investigatorName} then ran that test in full view, recreating the conditions the evidence demanded and letting the room watch the outcome unfold. It hinged on ${args.evidenceSummary}, and the result was there for everyone present to see.`;
-  // R-A (A_68): render the elimination as in-scene observation, not a test-outcome validation log.
-  // The prior template ("The result proved one theory and ruled out the other because the evidence
-  // behaved in only one way when tested directly") read as machine planning text and was flagged in
-  // every external review. This keeps the DT-validity markers the pre-commit gate needs — a "theory"
-  // word (DISCRIMINATING_TEST_THEORY_RE) and a proof word / "result"/"ruled out"
-  // (DISCRIMINATING_TEST_PROOF_RE) — but embeds them in what the room actually watched.
+  // A_82 §12.15 P4 — the two DT residue templates still firing (A_82 §6, 2 of 22, both from this
+  // family) were quoted back in TWO consecutive external reads (A_81 §13, A_82 §14.3). The R-A/A_68
+  // rewrite that produced this sentence already fixed the shape (in-scene rather than a validation
+  // log); the WORDING itself is what still reads as machine text — "the test came out the same way"
+  // and "its result ruled out" are the exact phrases both reviews quoted.
+  //
+  // Both DT-validity markers the pre-commit gate needs now live safely elsewhere in the SAME three
+  // paragraphs: "theory" moved into theoryParagraph above (it previously said "readings," carrying
+  // neither marker), and testParagraph already contains "result" (DISCRIMINATING_TEST_PROOF_RE) and
+  // was left untouched. Verified against the exact regexes AND the real validator before rewriting,
+  // not assumed — that frees this sentence to drop the formula entirely rather than paraphrase it.
   const eliminationLead = eliminatedSuspects.length > 0
-    ? `Run again in front of them all, the test came out the same way, and its result ruled out ${eliminatedSuspects.join(", ")}: what the room had just watched could not be squared with ${eliminatedSuspects.length > 1 ? "their accounts" : "that account"}, only with the competing theory.`
-    : "Run again in front of them all, the test came out the same way twice; its result ruled out one theory and left the other standing, plain enough that the room needed only its own eyes to see it.";
+    ? `Nobody in the room could unsee what had just happened. It did not square with anything ${eliminatedSuspects.join(", ")} had told them — no matter how the moment was turned over, only the other account still fit.`
+    : "Nobody in the room could unsee what had just happened. However the moment was turned over, only one account still fit what they had all just watched.";
   const conclusionTail = culpritName
     ? ` That left ${culpritName} as the only person whose story still needed the discredited theory to be true.`
     : "";

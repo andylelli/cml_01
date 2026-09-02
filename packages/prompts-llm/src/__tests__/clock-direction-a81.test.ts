@@ -92,7 +92,11 @@ describe("F18 — the scaffold lands before the confession, not after it", () =>
     );
     expect(inserted).toBe(true);
     const confessionAt = out.paragraphs.findIndex((p) => /admitted/.test(p));
-    const scaffoldAt = out.paragraphs.findIndex((p) => /Run again in front of them all/.test(p));
+    // Structural anchor, not wording: `conclusionTail` names the culprit as "the only person whose
+    // story still needed the discredited theory to be true" regardless of how eliminationLead is
+    // phrased (A_82 P4 rewrote it) — the same lesson A_82's B5 test rewrite already applied, that a
+    // proxy pinning wording cannot tell a rewrite from a regression.
+    const scaffoldAt = out.paragraphs.findIndex((p) => /only person whose story still needed the discredited theory/.test(p));
     expect(scaffoldAt).toBeGreaterThan(-1);
     expect(scaffoldAt).toBeLessThan(confessionAt);
   });
@@ -115,5 +119,26 @@ describe("F18 — the scaffold lands before the confession, not after it", () =>
     const text = out.paragraphs.join(" ");
     expect(text).toMatch(/theory/i);
     expect(text).toMatch(/ruled out|result/i);
+  });
+
+  it("A_82 P4 — no longer emits the two phrases quoted back in two consecutive external reads", () => {
+    // A_81 §13 and A_82 §14.3 both quoted "Run again in front of them all, the test came out the
+    // same way" and "its result ruled out" as machine-sounding. §6 measured them as the only 2 of 22
+    // residue templates still firing in the shipped 84/100 book.
+    const single = applyDeterministicDiscriminatingTestPatch(
+      chapter as any, CASE_DATA, "Inspector Wren", "the stopped pendulum", "Beatrice Quill",
+    ).chapter.paragraphs.join(" ");
+    expect(single).not.toMatch(/Run again in front of them all/i);
+    expect(single).not.toMatch(/the test came out the same way/i);
+    expect(single).not.toMatch(/its result ruled out/i);
+
+    // Both branches of the ternary (with and without named eliminated suspects) — the old template
+    // had two forms and both were registered as residue.
+    const noEliminated = applyDeterministicDiscriminatingTestPatch(
+      chapter as any,
+      { CASE: { discriminating_test: {}, false_assumption: { statement: "the case looked closed" } } } as any,
+      "Inspector Wren", "the stopped pendulum", "Beatrice Quill",
+    ).chapter.paragraphs.join(" ");
+    expect(noEliminated).not.toMatch(/Run again in front of them all/i);
   });
 });
