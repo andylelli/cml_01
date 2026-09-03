@@ -981,6 +981,69 @@ export const checkForbiddenTimeFormsShipped = (
   return messages;
 };
 
+/**
+ * DIAGNOSIS-BATCH #6 — FINAL-CHAPTER VERDICT-ENDING SHIP-CHECK. A MEASURE, never a gate.
+ *
+ * THE DEFECT THIS EXISTS FOR. Two prompt instructions already forbid this exact ending:
+ * `obligation-block.ts`'s AFTERMATH REQUIRED clause says "Do NOT end on the arrest/confession line,
+ * and do NOT end on a verdict sentence," and its CLOSE IN-SCENE clause names the forbidden shapes
+ * explicitly: "the case was closed", "justice had been served", "X was responsible". MEASURED anyway,
+ * on story_20260903-0738 (external read 78/100): the final chapter's last paragraph reads `"You did
+ * it. " The words hung between them, final and irrevocable. Ivor Kestrel offered a slow nod` — the
+ * exact confession-confirmation shape the instruction forbids, and this text is NOT the known B5
+ * injector's hardcoded string (`buildCulpritEvidenceSentenceInScene`, checked directly — it does not
+ * match), so the model wrote this independently of that mechanism. Same shape this whole session has
+ * found repeatedly: a rule that lives only in the prompt has, by construction, never been checked
+ * against what shipped.
+ *
+ * MEASURED across the corpus on disk (214 final chapters, `stories/**\/*.md`) before wiring this in:
+ * 28 of 214 (13%) already carry one of these two shapes in their last paragraph. That is a real,
+ * substantial rate — B1 ("a check that fires on most runs is an off switch with extra steps") does
+ * not forbid gating outright here, but 13% is high enough that gating without first reading a run's
+ * worth of REAL firings would risk becoming a new retry source for a defect whose downstream cost
+ * (a weaker ending vs. a lost run) is not yet measured either way. Reports into `ctx.warnings`
+ * exactly where the sibling forbidden-time-form check above does, so several runs establish whether
+ * this MEASURE should ever become a gate.
+ *
+ * Scoped to the LAST PARAGRAPH of the LAST chapter only — both known instances (this one and the B5
+ * injector's own hardcoded text) land there, and scoping tightly avoids flagging a legitimate
+ * confession earlier in the SAME final chapter (the aftermath is allowed to reference that the
+ * confession happened; it must not re-stage it as the closing beat).
+ */
+export const detectFinalChapterVerdictEnding = (
+  chapters: ReadonlyArray<{ paragraphs?: unknown }>,
+): string[] => {
+  if (!Array.isArray(chapters) || chapters.length === 0) return [];
+  const finalChapter = chapters[chapters.length - 1] as { paragraphs?: unknown } | undefined;
+  const paragraphs = (Array.isArray(finalChapter?.paragraphs) ? finalChapter!.paragraphs : []) as string[];
+  const nonEmpty = paragraphs.map((p) => String(p ?? "").trim()).filter((p) => p.length > 0 && p !== "---");
+  if (nonEmpty.length === 0) return [];
+  const lastParagraph = nonEmpty[nonEmpty.length - 1];
+
+  // Quoted closing spaced before the mark ("You did it. ") is a recurring rendering convention across
+  // this corpus — checked directly against the actual manuscript text before shipping this pattern.
+  const CONFESSION_CONFIRMATION_RE = /"you did it\.?\s*"|"i did it\.?\s*"/i;
+  const VERDICT_SENTENCE_RE =
+    /\bthe case was closed\b|\bjustice (?:had been|was) served\b|\bwas (?:responsible|guilty) for (?:it|the murder|the crime)\b/i;
+
+  const messages: string[] = [];
+  if (CONFESSION_CONFIRMATION_RE.test(lastParagraph)) {
+    messages.push(
+      `[Agent 9] SHIP-CHECK final-chapter ending: the last paragraph of ch${chapters.length} contains a ` +
+        `direct confession-confirmation quote ("You did it" / "I did it") — the CLOSE IN-SCENE and ` +
+        `AFTERMATH REQUIRED obligations both forbid ending on this beat. MEASURE only — see this comment for why.`,
+    );
+  }
+  if (VERDICT_SENTENCE_RE.test(lastParagraph)) {
+    messages.push(
+      `[Agent 9] SHIP-CHECK final-chapter ending: the last paragraph of ch${chapters.length} contains a ` +
+        `narrator verdict sentence ("the case was closed" / "justice had been served" / "X was ` +
+        `responsible") — forbidden by the CLOSE IN-SCENE obligation. MEASURE only — see this comment for why.`,
+    );
+  }
+  return messages;
+};
+
 export const repairWordFormLockedFacts = (prose: any, lockedFacts: any[]): any => {
   if (!Array.isArray(lockedFacts) || lockedFacts.length === 0) return prose;
 
@@ -6327,6 +6390,11 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
      * unfiltered version would warn on the exact case shape this project most wants to encourage.
      */
     for (const message of checkForbiddenTimeFormsShipped(prose.chapters, annotatedLockedFacts)) {
+      ctx.warnings.push(message);
+    }
+    // DIAGNOSIS-BATCH #6 — see detectFinalChapterVerdictEnding's own docblock for why this reports
+    // rather than gates (MEASURED 13% base rate across the corpus on disk).
+    for (const message of detectFinalChapterVerdictEnding(prose.chapters)) {
       ctx.warnings.push(message);
     }
     // Dual-value at cap scope — warn-only (a contrast needs prose, not a deterministic splice): a
