@@ -603,3 +603,37 @@ Its own falsification note (A_72 §10.1, quoted in the row above) was written fo
 opener problem was still open. It is closed. If a future session wants to revisit opening variety as
 its own axis (distinct from the template defect this fixed), that is a fresh design question, not a
 resurrection of this file — treat this as retired, not paused.
+
+---
+
+## Addendum — `AGENT7_IDENTITY_RULE_COLLISION_GUARD`, registered 2026-09-03 (diagnosis-batch #5)
+
+Default OFF, warns regardless. Repairs `ctx.cml.CASE.prose_requirements.identity_rules` in
+`agent7-run.ts`'s `applyIdentityRuleCollisionRepair`, called at the top of `runAgent7` before any of
+the nine `formatNarrative` call sites read `ctx.cml!`.
+
+**What it does.** Agent 3 (CML generation) invents a pre-reveal alias for identity-axis cases
+(`identity_rules.before_reveal_reference`, e.g. "the stranger") independently of Agent 2b/Agent 65,
+which run LATER in this pipeline's actual execution order (confirmed against the runId-scoped prompt
+log for a real run, not the simplified doc order at the top of CLAUDE.md) and assign every character's
+real `occupation`. Nothing cross-checks the two. MEASURED on story_20260903-0738 (external read
+78/100): Agent 3 gave culprit Ivor Kestrel the alias "the stage manager"; Agent 2b separately gave the
+ACTUAL stage manager (Marguerite Yardley, a different, female character) that exact occupation. The
+manuscript ships "the stage manager" referring to two people, with pronouns that read correctly for
+neither reliably — and `prose-consistency-validator.ts`'s pronoun detectors are confirmed role-noun-
+blind (name-token index only), so this class of collision is invisible to every existing check.
+
+**Why default OFF despite the repair being safe by construction.** Dropping a colliding alias is
+always safe — Agent 7/9 fall back to the character's real name, which is the common case for every
+character not on the identity axis, and no fair-play obligation depends on which words name a suspect
+pre-reveal. The flag is off anyway because this is the FIRST time this collision class has ever been
+checked and its firing rate across the corpus is unknown (n=1 measured instance). Same discipline as
+`AGENT9_CLUE_TIME_WORDFORM` above: a repair that silently strips an intentional device on a false
+match would be a real loss, so the warning fires unconditionally and the repair waits for a real rate.
+
+**Settling probe.** Run a handful of identity-axis cases with the flag off and count
+`[Agent 7 identity-rule collision]` warnings in `ctx.warnings`. If the rate across those runs is low
+and every flagged instance is a genuine collision (not a false match on a coincidental short phrase),
+promote to default ON. **If the probe never runs:** the collision this flag exists to catch keeps
+shipping silently, exactly as it did before this session — a rare but confirmed-real defect with no
+mitigation, same posture as `AGENT9_CLUE_TIME_WORDFORM` before it was measured.
