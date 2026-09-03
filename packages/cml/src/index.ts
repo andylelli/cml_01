@@ -110,3 +110,23 @@ export { validateCml as validateCaseData };
 
 // A_73 §11.2 — the ONE mojibake repair vocabulary, paired with story-validation's MOJIBAKE_PATTERN.
 export { MOJIBAKE_REPLACEMENTS, repairMojibake } from "./mojibake.js";
+
+// Phase 0 (measurement only) — the temporal spine. Nothing in the pipeline reads this yet; see the
+// module header for why a second, stricter time reader exists beside `parseClockTime`.
+export {
+  MINUTES_PER_DAY,
+  buildTemporalSpine,
+  parseDurationValue,
+  parseTemporalValue,
+  renderClockWords,
+} from "./temporal-spine.js";
+export type {
+  ArithmeticShape,
+  Meridiem,
+  SpineDuration,
+  SpineFactInput,
+  SpineFinding,
+  SpineInstant,
+  TemporalReading,
+  TemporalSpine,
+} from "./temporal-spine.js";
