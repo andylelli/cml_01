@@ -377,6 +377,18 @@ function normaliseCastOutput(castRaw: Record<string, unknown>, warnings: string[
     }
 
     relationshipContainer.pairs = fallbackPairs;
+  } else if (castNames.length >= 2 && existingPairs.length > 0) {
+    // DIAGNOSIS-BATCH #3 — see topUpMissingRelationshipCoverage's own docblock (above
+    // enforceVictimRoleInvariant) for why this exists and what it measures against.
+    const { topUpPairs, missingNames } = topUpMissingRelationshipCoverage(castNames, existingPairs);
+    if (missingNames.length > 0) {
+      relationshipContainer.pairs = [...existingPairs, ...topUpPairs];
+      warnings.push(
+        `[Agent 2 relationship top-up] ${missingNames.length} character(s) had zero relationship ` +
+          `coverage (${missingNames.join(", ")}) — added fallback pairs; ${existingPairs.length} ` +
+          `existing pair(s) preserved unchanged (diagnosis-batch #3).`,
+      );
+    }
   }
 
   // --- K1: enforce the first-class victim invariant (deterministic, repair-not-abort) ---
@@ -424,6 +436,71 @@ function normaliseCastOutput(castRaw: Record<string, unknown>, warnings: string[
  * and (7) tags every character's `role` (detective | victim | suspect) so downstream consumers
  * and the lifecycle lock read a fixed role instead of inferring it. Repairs surface on `warnings`.
  *
+ * DIAGNOSIS-BATCH #3 — TOP UP ONLY THE CHARACTERS STILL MISSING RELATIONSHIP COVERAGE.
+ *
+ * MEASURED (external read 84/100): the relationship mechanism worked for ONE pair (Dr. Finch /
+ * Captain Hale — real, concrete, `sharedHistory` naming a specific event) while every OTHER
+ * character had zero coverage, and the reviewer asked "what did Montague do to Kestrel... why is
+ * Marguerite loyal... what does Ferdinand's patronage cost him" — precisely the characters this
+ * repair never reached. Root cause, in the caller: the full-replace ring-topology fallback only
+ * fires when NO valid pair exists at all. As soon as one valid pair exists, that branch is skipped
+ * entirely and every other character can ship with zero coverage — confirmed exactly the symptom.
+ *
+ * Pure: cast names and existing pairs in, a top-up pair list out. Preserves every existing pair
+ * (concrete, LLM-authored history is strictly better than the generic fallback sentence) and adds
+ * coverage ONLY for cast members who appear in zero pairs, using the same ring-topology shape the
+ * full-replace fallback uses, scoped to just the missing names so it never duplicates or crowds out
+ * a real relationship. Exported for unit testing.
+ */
+export interface RelationshipPairLike {
+  character1?: unknown;
+  character2?: unknown;
+  relationship?: unknown;
+  tension?: unknown;
+  sharedHistory?: unknown;
+}
+
+export const topUpMissingRelationshipCoverage = (
+  castNames: readonly string[],
+  existingPairs: readonly RelationshipPairLike[],
+): { topUpPairs: RelationshipPairLike[]; missingNames: string[] } => {
+  const castNameKeys = new Set(castNames.map((n) => n.toLowerCase()));
+  const namesInAnyPair = new Set<string>();
+  for (const pair of existingPairs) {
+    const c1 = String(pair.character1 ?? "").trim().toLowerCase();
+    const c2 = String(pair.character2 ?? "").trim().toLowerCase();
+    if (castNameKeys.has(c1)) namesInAnyPair.add(c1);
+    if (castNameKeys.has(c2)) namesInAnyPair.add(c2);
+  }
+  const missingNames = castNames.filter((name) => !namesInAnyPair.has(name.toLowerCase()));
+  if (missingNames.length === 0) return { topUpPairs: [], missingNames: [] };
+
+  const fallbackPair = (character1: string, character2: string): RelationshipPairLike => ({
+    character1,
+    character2,
+    relationship: "social acquaintance",
+    tension: "moderate",
+    sharedHistory: "They have ongoing social friction connected to the case environment.",
+  });
+
+  const topUpPairs: RelationshipPairLike[] = [];
+  // Ring the missing names among themselves so each gets >=1 edge without touching anyone already
+  // covered. A lone missing name (no ring possible) pairs with the first already-covered character
+  // instead, so it is never left with zero coverage either way.
+  if (missingNames.length >= 2) {
+    for (let i = 0; i < missingNames.length; i += 1) {
+      topUpPairs.push(fallbackPair(missingNames[i], missingNames[(i + 1) % missingNames.length]));
+    }
+  } else {
+    const anchor =
+      castNames.find((n) => n.toLowerCase() !== missingNames[0].toLowerCase() && namesInAnyPair.has(n.toLowerCase())) ??
+      castNames.find((n) => n.toLowerCase() !== missingNames[0].toLowerCase());
+    if (anchor) topUpPairs.push(fallbackPair(missingNames[0], anchor));
+  }
+  return { topUpPairs, missingNames };
+};
+
+/**
  * Exported for unit testing.
  */
 export function enforceVictimRoleInvariant(
