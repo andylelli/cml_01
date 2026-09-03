@@ -102,12 +102,14 @@ export {
   isAtomicLockedFactValue,
   lockedFactLabel,
   findDiscriminatingContradictionPair,
+  lockedFactDimension,
   type DiscriminatingContradictionPair,
 } from "../shared/locked-fact-atoms.js";
 import {
   findDiscriminatingContradictionPair,
   isAtomicLockedFactValue,
   lockedFactLabel,
+  lockedFactDimension,
 } from "../shared/locked-fact-atoms.js";
 import { buildOpeningFreshnessBlock } from "./opening-freshness.js";
 import { OPENING_SENSORY_MARKERS, OPENING_ATMOSPHERE_MARKERS } from "@cml/story-validation";
@@ -2056,19 +2058,41 @@ ${victimIdentityRule}`;
         return line;
       })
       .join('\n');
-    // A_82 §14.4 — THREE-OR-MORE-CLOCK CLARITY. MEASURED on run mystery-1788369981295 (external
-    // read 84/100): the case locked three time-of-day values in the same hour (a false hour-hand
-    // reading, an honest minute-hand reading, and the true pocket-watch time) — internally coherent,
-    // and the reviewer's own praise called it "more sophisticated than any prior draft". But nothing
-    // in the chapter ever stated in one place which physical reading each value belonged to, so a
-    // reader without the case file read two of the three as competing claims about ONE clock rather
-    // than three separate measurements. `contradictionBlock` below already resolves the staged/true
-    // PAIR; it says nothing about a third value with no contradiction partner. Added to THIS block
-    // (not a new one) so it shares the locked-facts budget slot rather than competing for its own —
-    // A_82 §13.2 found two blocks starved by the fixed 24k ceiling once they existed to be starved.
-    const wordFormTimeFacts = atomicFacts.filter(f => isWordFormTimeValue(String(f.value ?? '')));
-    const multiClockNote = wordFormTimeFacts.length >= 3
-      ? `\n\nMULTIPLE CLOCK READINGS ARE LOCKED IN THIS CASE (${wordFormTimeFacts.length} time values above). At least once, in whichever chapter first brings two or more of them together, state PLAINLY which physical reading each value is — which clock, which hand, which watch, which device — before or as you give the value. Do not let two locked times sit near each other in the prose with nothing to tell a reader which reading is which; that reads as one clock contradicting itself rather than as several honest, distinct measurements.`
+    // A_82 §14.4 — THREE-OR-MORE-SAME-DIMENSION CLARITY. MEASURED on run mystery-1788369981295
+    // (external read 84/100): the case locked three time-of-day values in the same hour (a false
+    // hour-hand reading, an honest minute-hand reading, and the true pocket-watch time) —
+    // internally coherent, and the reviewer's own praise called it "more sophisticated than any
+    // prior draft". But nothing in the chapter ever stated in one place which physical reading each
+    // value belonged to, so a reader without the case file read two of the three as competing
+    // claims about ONE clock rather than three separate measurements. `contradictionBlock` below
+    // already resolves the staged/true PAIR; it says nothing about a third value with no
+    // contradiction partner. Added to THIS block (not a new one) so it shares the locked-facts
+    // budget slot rather than competing for its own — A_82 §13.2 found two blocks starved by the
+    // fixed 24k ceiling once they existed to be starved.
+    //
+    // GENERALIZED from "3+ word-form TIME facts" to "3+ facts of ANY shared dimension" after the
+    // SAME confusion recurred on a non-clock case (story_20260903-0738, 78/100): a spotlight angle
+    // (45°), a painted-shadow angle (135°) and their stated difference (90°) — three locked DEGREE
+    // values, not time. `lockedFactDimension` (../shared/locked-fact-atoms.js) already classifies
+    // atomic values by dimension — time, or `unit:<degree|foot|...>` — parameter-generically; it
+    // was built for `findDiscriminatingContradictionPair`'s 2-value pairing and was sitting there
+    // unused for the 3+ case this whole time. Reused, not rebuilt.
+    const dimensionGroups = new Map<string, typeof atomicFacts>();
+    for (const f of atomicFacts) {
+      const dim = lockedFactDimension(String(f.value ?? ''));
+      if (!dim) continue;
+      const list = dimensionGroups.get(dim) ?? [];
+      list.push(f);
+      dimensionGroups.set(dim, list);
+    }
+    const multiValueDimension = [...dimensionGroups.entries()].find(([, facts]) => facts.length >= 3);
+    const dimensionNoun = (dim: string): string => (dim === 'time' ? 'time' : (dim.match(/^unit:(.+)$/)?.[1] ?? 'measurement'));
+    const multiClockNote = multiValueDimension
+      ? (() => {
+          const [dim, facts] = multiValueDimension;
+          const noun = dimensionNoun(dim);
+          return `\n\nMULTIPLE ${noun.toUpperCase()} VALUES ARE LOCKED IN THIS CASE (${facts.length} ${noun} measurements above). At least once, in whichever chapter first brings two or more of them together, state PLAINLY which specific reading, device, or position each value belongs to — before or as you give the value. Do not let two locked ${noun} values sit near each other in the prose with nothing to tell a reader which one is which; that reads as a single measurement contradicting itself rather than as several honest, distinct readings.`;
+        })()
       : '';
     const verbatimBlock = atomicFacts.length > 0
       ? `\n\nNON-NEGOTIABLE CHAPTER OBLIGATIONS — LOCKED EVIDENCE VALUES (VERBATIM REQUIRED):\nThe following measured values (times, amounts, measurements) are absolute ground truth. Every time this chapter describes, mentions, or alludes to one — no matter how briefly — it MUST use the exact phrase shown below, character for character. NO paraphrase, approximation, rounding, or synonym is permitted.\n\nFAILURE EXAMPLE: if the locked value is "at thirteen minutes to midnight" and you write "just before midnight" or "around midnight" — that is a HARD FAIL. You must write "at thirteen minutes to midnight". Equally, if the locked value is written in words, such as "ten minutes past eleven", and you convert it to figure-based clock notation — that is also a HARD FAIL. Words stay as words; figure forms are forbidden for word-phrased facts.\n\nCRITICAL — WORD-PHRASED VALUES: If the canonical value is written out in words (e.g. a time like "ten minutes past eleven", or an amount like "forty minutes"), reproduce those exact words. DO NOT convert to figure-based time notation, twenty-four-hour format, or any other numeric shorthand. Correct: "ten minutes past eleven". WRONG: figure-based clock notation or numeric shorthand.\n\nLocked values:\n${factLines}\n\nIf a value has no relevance to this chapter, omit it. But the moment you reference the underlying evidence, only the exact phrase above is acceptable.${multiClockNote}`

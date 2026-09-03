@@ -1751,7 +1751,7 @@ describe("Agent 9 prompt hardening fixes", () => {
     expect(content).not.toContain("CENTRAL CONTRADICTION");
   });
 
-  it("A_82 §14.4 — emits a multi-clock clarity note when 3+ time values are locked", () => {
+  it("A_82 §14.4 — emits a multi-value clarity note when 3+ time values are locked", () => {
     // MEASURED on run mystery-1788369981295 (external read 84/100): a three-value clock mechanism
     // (false hour hand / honest minute hand / true pocket-watch time) was internally coherent but the
     // reviewer conflated two of the three readings because nothing told the model to label them.
@@ -1764,15 +1764,36 @@ describe("Agent 9 prompt hardening fixes", () => {
       ],
     };
     const content = buildProsePrompt(inputs, [baseScene], 1, []).messages[0].content;
-    expect(content).toContain("MULTIPLE CLOCK READINGS ARE LOCKED");
-    expect(content).toContain("which clock, which hand, which watch, which device");
+    expect(content).toContain("MULTIPLE TIME VALUES ARE LOCKED");
+    expect(content).toContain("which specific reading, device, or position");
+  });
+
+  it("A_82 §14.4 GENERALIZED — the SAME note fires on 3+ locked DEGREE values, not just time", () => {
+    // MEASURED on story_20260903-0738 (external read 78/100), a THEATRE mystery with no clock
+    // mechanism at all: a spotlight angle (45°), a painted-shadow angle (135°) and their stated
+    // difference (90°) — three locked DEGREE values — produced the identical reader confusion
+    // ("the reader needs a clearer mental picture") as the clock case. The note is no longer
+    // clock-specific: it reuses `lockedFactDimension`'s parameter-generic classification (already
+    // built for `findDiscriminatingContradictionPair`'s 2-value pairing, unused for 3+ until now).
+    const inputs = {
+      ...baseInputs,
+      lockedFacts: [
+        { id: "lf_spotlight_angle", description: "the recorded spotlight angle", value: "forty-five degrees" },
+        { id: "lf_shadow_angle", description: "the painted shadow's angle", value: "one hundred and thirty-five degrees" },
+        { id: "lf_angle_difference", description: "the discrepancy between the two", value: "ninety degrees" },
+      ],
+    };
+    const content = buildProsePrompt(inputs, [baseScene], 1, []).messages[0].content;
+    expect(content).toContain("MULTIPLE DEGREE VALUES ARE LOCKED");
+    expect(content).not.toContain("MULTIPLE TIME VALUES");
+    expect(content).not.toMatch(/which clock, which hand, which watch/i); // the old clock-only wording is gone
   });
 
   it("A_82 §14.4 — stays SILENT on baseInputs' ordinary one-clock case (no false positive)", () => {
     // baseInputs locks exactly one word-form time value ("thirteen minutes to midnight") — the common
     // shape. The note exists for 3+, not for the everyday case, so it must not fire here.
     const content = buildProsePrompt(baseInputs, [baseScene], 1, []).messages[0].content;
-    expect(content).not.toContain("MULTIPLE CLOCK READINGS ARE LOCKED");
+    expect(content).not.toContain("MULTIPLE TIME VALUES ARE LOCKED");
   });
 
   it("A_82 §14.4 — stays silent on the standard two-clock staged/true pair (contradictionBlock's own job)", () => {
@@ -1784,7 +1805,34 @@ describe("Agent 9 prompt hardening fixes", () => {
       ],
     };
     const content = buildProsePrompt(inputs, [baseScene], 1, []).messages[0].content;
-    expect(content).not.toContain("MULTIPLE CLOCK READINGS ARE LOCKED");
+    expect(content).not.toContain("MULTIPLE TIME VALUES ARE LOCKED");
+  });
+
+  it("A_82 §14.4 — stays silent on a two-value degree case too (same dimension, only 2 values)", () => {
+    const inputs = {
+      ...baseInputs,
+      lockedFacts: [
+        { id: "lf_spotlight_angle", description: "the recorded spotlight angle", value: "forty-five degrees" },
+        { id: "lf_shadow_angle", description: "the painted shadow's angle", value: "one hundred and thirty-five degrees" },
+      ],
+    };
+    const content = buildProsePrompt(inputs, [baseScene], 1, []).messages[0].content;
+    expect(content).not.toContain("MULTIPLE DEGREE VALUES ARE LOCKED");
+  });
+
+  it("A_82 §14.4 — does NOT cross-contaminate dimensions: 2 time + 2 degree values, neither reaches 3", () => {
+    const inputs = {
+      ...baseInputs,
+      lockedFacts: [
+        { id: "lf_t1", description: "a", value: "ten minutes past nine" },
+        { id: "lf_t2", description: "b", value: "quarter past nine" },
+        { id: "lf_d1", description: "c", value: "forty-five degrees" },
+        { id: "lf_d2", description: "d", value: "one hundred and thirty-five degrees" },
+      ],
+    };
+    const content = buildProsePrompt(inputs, [baseScene], 1, []).messages[0].content;
+    expect(content).not.toContain("MULTIPLE TIME VALUES ARE LOCKED");
+    expect(content).not.toContain("MULTIPLE DEGREE VALUES ARE LOCKED");
   });
 
   it("A_82 P2 — AGENT9_PROMPT_TOKEN_CEILING, read at call time, actually changes the effective budget", () => {

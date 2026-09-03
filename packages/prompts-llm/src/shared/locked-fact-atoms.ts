@@ -84,7 +84,7 @@ export const isAtomicLockedFactValue = (raw: string): boolean => {
  * return null: two unrelated tallies ("three drops", "two letters") are NOT a comparable contradiction, so
  * they must never be paired. Parameter-generic — keys off the value's shape, never its content.
  */
-const lockedFactDimension = (raw: string): string | null => {
+export const lockedFactDimension = (raw: string): string | null => {
   const v = String(raw ?? "").trim().toLowerCase();
   if (!v) return null;
   if (CLOCK_TIME_RE.test(v)) return "time"; // a real clock time, not a bare to/half/quarter (A_58 review)
