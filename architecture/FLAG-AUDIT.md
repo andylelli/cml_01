@@ -637,3 +637,30 @@ and every flagged instance is a genuine collision (not a false match on a coinci
 promote to default ON. **If the probe never runs:** the collision this flag exists to catch keeps
 shipping silently, exactly as it did before this session — a rare but confirmed-real defect with no
 mitigation, same posture as `AGENT9_CLUE_TIME_WORDFORM` before it was measured.
+
+---
+
+## Addendum — `AGENT7_MOTIVE_PLANT_BEFORE_REVEAL`, registered 2026-09-03 (diagnosis-batch #2)
+
+Default OFF. Same shape as `AGENT7_PLANT_BEFORE_REVEAL` (already default-ON), given its own flag
+rather than folded into that one because this is a genuinely new obligation TYPE (motive-behavioral,
+not clue-evidential) and needs its own measurement window, not to inherit the settled clue lever's
+default.
+
+**What it does.** `applyMotivePlantBeforeReveal` (`agent7-run.ts`) stamps ONE outline scene, ≥2
+scenes before the latest essential-clue reveal, with `motiveBeatCulprit: <name>`.
+`obligation-block.ts`'s MOTIVE BEAT OBLIGATION reads that stamp and asks Agent 9 for one small,
+unflagged, guilt-withheld behavioral beat consistent with the culprit's motive — pointing back at
+MOTIVE LOCK (`prompt-builder.ts`, A_82 P6) for the motive's actual content rather than re-stating it,
+so there is one source of the motive text, not two that could disagree.
+
+**Why this exists.** MEASURED twice, on two different culprits: the 84/100 external read
+("'You did this for me, didn't you?'... a strong human idea, but it arrives too late... plant it
+earlier") and the 78/100 read ("Give Kestrel one stronger motive scene with Montague"). Two-for-two
+across unrelated cases makes this a recurring family, not a one-off ask.
+
+**Settling probe.** Run a handful of cases with the flag on and read the aftermath/reveal chapters
+against `motive is understood in HUMAN terms` (the existing AFTERMATH REGISTER contract this pass is
+meant to feed) — does the planted beat actually land as a legible callback at the reveal, or does the
+model bury it? **If the probe never runs:** the pipeline keeps stating motive only at the reveal, the
+exact "arrives too late" complaint both reads named, with no earlier behavioral evidence for it.

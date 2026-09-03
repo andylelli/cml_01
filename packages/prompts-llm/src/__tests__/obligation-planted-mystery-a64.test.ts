@@ -104,6 +104,33 @@ describe("A_64 C1 — PLANT OBLIGATIONS rendering", () => {
   });
 });
 
+describe("DIAGNOSIS-BATCH #2 — MOTIVE BEAT OBLIGATION rendering", () => {
+  it("renders a stamped motive beat as an incidental, unflagged, guilt-withheld obligation", () => {
+    const outline = makeOutline();
+    const withBeat = { ...outline[3], motiveBeatCulprit: "Edgar Vale" };
+    const block = buildBlockFor(withBeat, 4, { outline });
+    expect(block).toContain("MOTIVE BEAT OBLIGATION");
+    expect(block).toContain("Edgar Vale must do or say something small and visible");
+    expect(block).toMatch(/WITHOUT stating the motive, explaining it, or revealing guilt/);
+    // points back to MOTIVE LOCK rather than re-stating the motive text itself
+    expect(block).toContain("MOTIVE LOCK");
+  });
+
+  it("emits no motive-beat section when the scene carries no stamp", () => {
+    const outline = makeOutline();
+    const block = buildBlockFor(outline[3], 4, { outline });
+    expect(block).not.toContain("MOTIVE BEAT OBLIGATION");
+  });
+
+  it("coexists with a PLANT OBLIGATIONS block on the same chapter without interference", () => {
+    const outline = makeOutline();
+    const both = { ...outline[2], motiveBeatCulprit: "Edgar Vale" }; // outline[2] already has cluesPlanted
+    const block = buildBlockFor(both, 3, { outline });
+    expect(block).toContain("PLANT OBLIGATIONS");
+    expect(block).toContain("MOTIVE BEAT OBLIGATION");
+  });
+});
+
 describe("A_64 C2 — the earned reveal (walked deduction + demoted confession)", () => {
   it("the reveal chapter walks prior essential clues in reader order and demotes the confession", () => {
     const outline = makeOutline();

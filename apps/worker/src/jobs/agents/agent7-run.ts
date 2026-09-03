@@ -293,6 +293,91 @@ export function applyPlantBeforeReveal(ctx: OrchestratorContext, narrative: Narr
   }
 }
 
+/** DIAGNOSIS-BATCH #2 — runtime getter, never a module const (ADR-0004). Separate flag from
+ *  `AGENT7_PLANT_BEFORE_REVEAL`, which is already default-ON: this is a genuinely new obligation
+ *  type (motive, not clue evidence) and needs its own measurement window, not to inherit the clue
+ *  lever's already-settled default. Default OFF. */
+const isMotivePlantBeforeRevealEnabled = () =>
+  /^(1|true|yes|on)$/i.test(process.env.AGENT7_MOTIVE_PLANT_BEFORE_REVEAL ?? "");
+
+/**
+ * DIAGNOSIS-BATCH #2 — a MOTIVE-BEHAVIORAL beat planted before the reveal, on the SAME shape as
+ * `applyPlantBeforeReveal` above: additive, stamps the outline, never moves or removes anything the
+ * gates already check.
+ *
+ * MEASURED, twice: the 84/100 read asked for it once ("'You did this for me, didn't you?'... that is
+ * a strong human idea, but it arrives too late... plant it earlier with one small moment") and the
+ * 78/100 theatre read asked for it again on a different culprit ("Give Kestrel one stronger motive
+ * scene with Montague"). Two-for-two makes this a recurring family, not a one-off ask.
+ *
+ * WHY THIS IS applyPlantBeforeReveal's SHAPE, NOT A NEW MECHANISM. That function plants a CLUE (an
+ * object a character sees, unflagged) so its later reveal feels fair-play, not unearned.  This
+ * plants a BEHAVIOR (something the culprit does or says, unflagged) so their motive, spoken plainly
+ * only at the reveal, feels earned rather than asserted. Same "incidental appearance now, meaning
+ * later" logic; the payload is a beat, not a clue id.
+ *
+ * `motive_seed`/`motiveSeed` is NOT embedded in the stamp or read again here — MOTIVE LOCK
+ * (prompt-builder.ts, A_82 P6) already delivers the culprit's actual motive to every chapter's
+ * prompt that has a culprit at all, so re-quoting it here would risk the SAME divergence CLAUDE.md's
+ * evidence standard warns about (two components describing one motive, able to disagree). This pass
+ * only marks WHICH scene owes the beat and WHO it belongs to; Agent 9's obligation block
+ * (`obligation-block.ts`) derives the beat's content from the already-delivered motive at prompt
+ * time, from one source.
+ *
+ * The "reveal index" is approximated from the LATEST essential-clue reveal already computed above —
+ * not a separate lookup — since the last essential clue necessarily reveals at or immediately before
+ * the actual reveal scene, and inventing a second reveal-index computation risks the two disagreeing.
+ */
+export function applyMotivePlantBeforeReveal(ctx: OrchestratorContext, narrative: NarrativeOutline): void {
+  if (!isMotivePlantBeforeRevealEnabled()) return;
+  try {
+    const caseData = (ctx.cml as any)?.CASE ?? ctx.cml;
+    const rawCulprits: unknown[] = Array.isArray(caseData?.culpability?.culprits)
+      ? caseData.culpability.culprits
+      : [];
+    const culpritName = rawCulprits.map((n) => String(n ?? "").trim()).filter(Boolean)[0];
+    if (!culpritName) return; // no single named culprit — nothing to plant a motive beat FOR
+
+    const clues = (ctx.clues?.clues ?? []) as any[];
+    const essential = new Set(
+      clues.filter((c) => c?.criticality === "essential").map((c) => String(c?.id ?? "")).filter(Boolean),
+    );
+    if (essential.size === 0) return;
+    const sceneRefs = flattenNarrativeScenes(narrative);
+    if (sceneRefs.length < 3) return;
+
+    let latestEssentialRevealIdx = -1;
+    sceneRefs.forEach((r, i) => {
+      const revealed = Array.isArray((r.scene as any)?.cluesRevealed) ? (r.scene as any).cluesRevealed : [];
+      if (revealed.map(String).some((id: string) => essential.has(id))) {
+        latestEssentialRevealIdx = Math.max(latestEssentialRevealIdx, i);
+      }
+    });
+    if (latestEssentialRevealIdx < 2) return; // reveal too early for "plant it earlier" to apply
+
+    const poolIdxs = sceneRefs.map((_, i) => i).filter((i) => i <= latestEssentialRevealIdx - 2);
+    if (poolIdxs.length === 0) return;
+    poolIdxs.sort((i, j) => {
+      // Prefer a scene with fewer total obligations already stamped on it (clue plants AND any prior
+      // motive beat), so the load spreads rather than piling every plant onto scene 1.
+      const load = (i: number) => {
+        const s = sceneRefs[i].scene as any;
+        return (s.cluesPlanted?.length ?? 0) + (s.motiveBeatCulprit ? 1 : 0);
+      };
+      return load(i) - load(j) || i - j;
+    });
+    const target = sceneRefs[poolIdxs[0]].scene as any;
+    if (target.motiveBeatCulprit) return; // this exact scene already carries a motive beat
+    target.motiveBeatCulprit = culpritName;
+    ctx.warnings.push(
+      `[Agent 7 motive-plant-before-reveal] stamped a motive beat for ${culpritName} on scene ` +
+        `${poolIdxs[0] + 1} (reveal window ends scene ${latestEssentialRevealIdx + 1}) (diagnosis-batch #2).`,
+    );
+  } catch (e) {
+    console.warn(`[Agent 7 motive-plant-before-reveal] skipped: ${(e as Error).message}`);
+  }
+}
+
 /**
  * X52 (REVIEW_11 §8.2) — THE DECISIVE TRACE IS PLANTED ONLY IF SOMEONE LABELLED IT `essential`.
  *
@@ -2809,4 +2894,7 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
   // X52 (REVIEW_11 §8.2): and the decisive culprit-implicating trace, which `essential` did not cover.
   // After the pass above so it sees what that one already planted and never double-stamps.
   applyDecisiveTracePlant(ctx, narrative);
+  // DIAGNOSIS-BATCH #2 (flag-gated, default OFF): a motive-behavioral beat, same shape as the clue
+  // plant above. After both clue passes so its own load-balancing sees their scene placements too.
+  applyMotivePlantBeforeReveal(ctx, narrative);
 }

@@ -587,6 +587,23 @@ export function buildChapterObligationBlock(
       lines.push(`    Rules: set dressing only. NO character comments on its importance, NO narrator hint ("little did they know", "something about it seemed off" are FORBIDDEN), NO inference drawn. It simply exists in the scene, naturally. Its significance surfaces in a LATER chapter — planting it casually here is what makes that later reveal feel fair.`);
     }
 
+    // DIAGNOSIS-BATCH #2 — MOTIVE BEAT obligation: applyMotivePlantBeforeReveal (agent7-run.ts)
+    // stamped this scene to carry a motive-behavioral beat for the culprit, ≥2 scenes before the
+    // reveal. Same shape as the PLANT OBLIGATIONS block above (incidental, unflagged), applied to
+    // BEHAVIOR rather than a physical clue. MEASURED twice: the 84/100 read ("plant it earlier with
+    // one small moment") and the 78/100 read ("give Kestrel one stronger motive scene"), on two
+    // different culprits — the same ask both times.
+    //
+    // The actual motive is deliberately NOT re-stated here. MOTIVE LOCK (prompt-builder.ts) already
+    // delivers the culprit's real motive to every chapter's prompt that has a culprit at all; this
+    // block only marks that THIS chapter owes the behavioral beat, and points back at that single
+    // source rather than quoting the motive a second time — two components describing one motive
+    // would risk disagreeing (CLAUDE.md's evidence standard).
+    const motiveBeatCulprit = String((scene as any)?.motiveBeatCulprit ?? "").trim();
+    if (motiveBeatCulprit) {
+      lines.push(`  - MOTIVE BEAT OBLIGATION (incidental appearance): ${motiveBeatCulprit} must do or say something small and visible in this chapter that is consistent with the motive stated under MOTIVE LOCK above — a reaction, a refusal, a physical tell, an evasion — WITHOUT stating the motive, explaining it, or revealing guilt. The moment should read as ordinary in the scene; do not flag its importance. Its significance surfaces only at the reveal.`);
+    }
+
     // A_64 §3.3 C3 — timeline spine + the ONE-QUESTION rule for interrogation/alibi scenes.
     // "Drags during repetitive alibi discussions" (pacing, 90% deficit) + "timeline muddled by
     // conflicting accounts" (plot_structure, 96%): an interrogation scene that re-litigates the
