@@ -105,6 +105,7 @@ import { noScaffoldValidator, detectTemplateLeakage, detectCopiedProse, detectSc
 import {
   chapterIndexFor,
   checkManuscriptGeometry,
+  detectPrematureCulpritDisclosure,
   GEOMETRY_CODES_WITHOUT_PROSE_REPAIR,
 } from "@cml/story-geometry";
 import { validateArtifact, validateCml, isVictimArchetype, isDetectiveArchetype, roleTextsOf } from "@cml/cml";
@@ -6396,6 +6397,20 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     // rather than gates (MEASURED 13% base rate across the corpus on disk).
     for (const message of detectFinalChapterVerdictEnding(prose.chapters)) {
       ctx.warnings.push(message);
+    }
+    // DIAGNOSIS-BATCH #1 — see detectPrematureCulpritDisclosure's own docblock (@cml/story-geometry)
+    // for the full evidence trail: what this catches (explicit accusation/confession before the
+    // reveal chapter), what it does NOT catch (narrator-certainty prose with no accusation sentence
+    // — the actual shape of the one real measured instance this was built from), and why it stays a
+    // measure. Silent, correctly, on both real manuscripts it was verified against before shipping.
+    {
+      const geometryRevealChapter = ctx.storyGeometry?.chapterContract?.find((c) => c.role === "reveal")?.chapter;
+      const geometryCulprit = ctx.storyGeometry?.culprit ?? (Array.isArray((cml as any)?.CASE?.culpability?.culprits) ? (cml as any).CASE.culpability.culprits[0] : null);
+      if (geometryRevealChapter && geometryCulprit) {
+        for (const message of detectPrematureCulpritDisclosure(prose.chapters as any, geometryRevealChapter, geometryCulprit)) {
+          ctx.warnings.push(`[Agent 9] SHIP-CHECK premature disclosure: ${message}. MEASURE only (diagnosis-batch #1).`);
+        }
+      }
     }
     // Dual-value at cap scope — warn-only (a contrast needs prose, not a deterministic splice): a
     // firing here perfectly predicts the dualValueNoContrast cap, since scoring runs the SAME

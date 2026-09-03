@@ -51,13 +51,17 @@ export {
 
 export { checkGeometryClosure } from "./closure.js";
 export {
+  accusationConfirmedDisclosure,
   chapterIndexFor,
   chapterScopedViolations,
   checkManuscriptGeometry,
   detectAftermathRepeatParagraphs,
+  detectPrematureCulpritDisclosure,
+  disclosureMatcher,
   findManuscriptDisclosure,
   foldTypography,
   nameMatcher,
+  namesCulpritAsGuilty,
 } from "./accept.js";
 export { applyGeometryOutlineRepair, type GeometryRepairResult } from "./repair.js";
 export {

@@ -376,7 +376,10 @@ const sentencesOf = (text: string): string[] =>
  *
  * A conjunction is only evidence at the granularity a reader reads it.
  */
-const namesCulpritAsGuilty = (text: string, culpritRe: RegExp | null): boolean =>
+// DIAGNOSIS-BATCH #1 — exported for reuse: a premature-disclosure detector needs the exact same
+// "does this text name the culprit as guilty" test this file already uses for the aftermath
+// direction, so the two cannot disagree about what counts as a disclosure.
+export const namesCulpritAsGuilty = (text: string, culpritRe: RegExp | null): boolean =>
   disclosingSentence(text, culpritRe) !== null;
 
 /**
@@ -511,13 +514,137 @@ const confessionDisclosure = (paragraph: string, culpritRe: RegExp | null): stri
 };
 
 /**
+ * DIAGNOSIS-BATCH #1 — a SECOND-PERSON accusation, confirmed by the culprit's silent (non-denying)
+ * presence, rather than a first-person spoken admission. `confessionDisclosure` above is FIRST-PERSON
+ * only ("I did it," said X) — MEASURED directly against story_20260903-0738's actual shipped text
+ * before writing this: `"You did it. " The words hung between them, final and irrevocable. Ivor
+ * Kestrel offered a slow nod, his eyes steady but silent.` is a real, common Golden-Age confirmation
+ * shape (the detective accuses; the culprit's silence or nod IS the confirmation) that
+ * `confessionDisclosure` cannot see — its own ordering guard ("the culprit must be named BEFORE the
+ * admission") is inverted here: the accusation comes first, the culprit is named describing their
+ * REACTION to it.
+ *
+ * DELIBERATELY A NEW, SEPARATE FUNCTION, not a modification of `confessionDisclosure` or
+ * `FIRST_PERSON_ADMISSION` in place. Those carry an extensive, hard-won history of narrow escapes
+ * from the false-confession trope (X27, X49b, X59, each a real incident this file's own comments
+ * record) — widening them risks reopening one of those. This is net-new, used only by the caller
+ * that needs it (a premature-disclosure MEASURE, not the existing production disclosure checks),
+ * so it can be wrong without touching anything already shipping.
+ *
+ * DELIBERATELY LOOSER than `confessionDisclosure` in one way (the culprit's name may appear anywhere
+ * in the paragraph, not adjacent to the accusation — accepted because this is a warning-only MEASURE,
+ * never a gate) and DELIBERATELY GUARDED in another: `culpritRe` is built from the actual named
+ * culprit (`disclosureMatcher`), so an accusation of a DIFFERENT, innocent suspect — the false-
+ * solution beat's own genre convention — cannot match this at all; and an explicit denial anywhere in
+ * the same paragraph withholds the match, so a suspicion voiced and then refuted is not read as a
+ * confirmed disclosure.
+ */
+const SECOND_PERSON_ACCUSATION =
+  /\byou\s+(?:did\s+it|killed|murdered|are\s+the\s+(?:killer|murderer|culprit)|were\s+responsible)\b|\bit\s+was\s+you\b/i;
+// Deliberately NOT anchored to a contraction ("that's") — the FIRST version was and missed "that IS
+// not true", caught by this function's own test before shipping (the exact class of bug this file's
+// history keeps recording: a guard that only matches the phrasing the author happened to type).
+const ACCUSATION_DENIAL =
+  /\b(?:not\s+me\b|didn.?t\s+do\s+it|i\s+didn.?t|not\s+true|you.?re\s+wrong|i\s+deny|i\s+refuse)\b/i;
+
+/**
+ * A 5-sentence window (the accusation, plus TWO sentences either side) — MEASURED, not assumed, on
+ * the real text this was built from: `"You did it. " The words hung between them, final and
+ * irrevocable. Ivor Kestrel offered a slow nod...` puts the reaction naming the culprit TWO
+ * sentences after the accusation, with one neutral beat between. A radius-1 window (tried first)
+ * missed this exact instance.
+ *
+ * NO WINDOW SIZE MAKES THIS BOTH PRECISE AND COMPLETE, and that is recorded rather than hidden. A
+ * radius-1 window under-reaches (misses the real instance above); this radius-2 window over-reaches
+ * on the opposite failure mode, ALSO caught directly by this function's own test: "'You did it,' she
+ * said [to someone else]. Hugo Vane watched from the doorway, saying nothing." — accusing the wrong
+ * person, with the real culprit merely a bystander two sentences away, still matches. Chosen
+ * deliberately toward RECALL over precision because this is a warning-only MEASURE: a false positive
+ * costs one dismissible line in `ctx.warnings`; a false negative means the check never helps at all.
+ * A gate would need the opposite choice, which is one more reason this stays a measure.
+ */
+export const accusationConfirmedDisclosure = (paragraph: string, culpritRe: RegExp | null): string | null => {
+  if (!culpritRe) return null;
+  const sentences = sentencesOf(paragraph);
+  for (let i = 0; i < sentences.length; i += 1) {
+    if (!SECOND_PERSON_ACCUSATION.test(sentences[i])) continue;
+    const windowStart = Math.max(0, i - 2);
+    const windowEnd = Math.min(sentences.length, i + 3);
+    const window = sentences.slice(windowStart, windowEnd).join(" ");
+    if (!culpritRe.test(window)) continue;
+    if (ACCUSATION_DENIAL.test(window)) continue;
+    return sentences[i];
+  }
+  return null;
+};
+
+/**
+ * DIAGNOSIS-BATCH #1 — does a chapter BEFORE the assigned reveal chapter already deliver the
+ * culprit-naming disclosure that only the reveal chapter should own? A MEASURE, never a gate.
+ *
+ * MEASURED, story_20260903-0738 (external read 78/100): "Chapter 8 prepares the final test and
+ * already proves a lot: it sets the spotlight to 45 degrees, shows the beam cannot create the
+ * painted 135-degree shadow, connects the diagrams to Kestrel, and identifies his access and
+ * motive... Then Chapter 9 repeats much of the same test." This is the REVERSE direction of the
+ * already-shipped `detectAftermathRepeatParagraphs` (which checks chapters AFTER the reveal for
+ * restatement) — nothing in this codebase checked the direction an EARLIER chapter preempting a
+ * LATER one, confirmed by a dedicated research pass before writing this.
+ *
+ * WHY WARNING-ONLY, NOT A GATE, deliberately, on first principles rather than a measured base rate
+ * (there is exactly one confirmed instance so far — n=1 is not a rate). Both signals this reuses are
+ * narrow by design (`namesCulpritAsGuilty`'s existing, heavily-scarred history of false-confession-
+ * trope near-misses; `accusationConfirmedDisclosure`'s own looser paragraph-scoped name match) —
+ * gating on an unbaselined, narrow-by-construction signal is exactly the shape CLAUDE.md's evidence
+ * standard and this file's own X27/X49b/X59 history warn against. Reports into the SAME
+ * `geometry.closure.notes` channel `checkRevealBinding` already uses, at derive time is not
+ * possible (this needs finished prose, which does not exist yet when geometry first derives) — the
+ * caller supplies chapters post-generation instead.
+ *
+ * SCOPED, HONESTLY, to premature CULPRIT-NAMING specifically — the sharpest, most damaging single
+ * form of one chapter doing another's job. It does NOT attempt the more general "does this chapter's
+ * CONTENT duplicate that chapter's job" question for every possible job (the diagnosis this fix is
+ * built from tried three keyword-based signals — theory/proof markers, an outline-tuned test/trap
+ * regex, and the existing confession detector alone — against this exact case, and each one either
+ * missed the defect or produced unreliable results; this is the one signal that, tested directly,
+ * survived). A chapter that stages a demonstration WITHOUT naming the culprit as guilty is invisible
+ * to this check, same as it always was.
+ */
+export const detectPrematureCulpritDisclosure = (
+  chapters: ReadonlyArray<GeometryChapter>,
+  revealChapter: number,
+  culprit: string | null | undefined,
+): string[] => {
+  const culpritRe = disclosureMatcher(culprit);
+  if (!culpritRe || revealChapter <= 1) return [];
+  const findings: string[] = [];
+  for (let n = 1; n < revealChapter; n += 1) {
+    const idx = chapterIndexFor(chapters, n);
+    const chapter = idx >= 0 ? chapters[idx] : undefined;
+    if (!chapter) continue;
+    for (const paragraph of paragraphsOf(chapter)) {
+      const named = namesCulpritAsGuilty(paragraph, culpritRe) ? disclosingSentence(paragraph, culpritRe) : null;
+      const accused = named ? null : accusationConfirmedDisclosure(paragraph, culpritRe);
+      const sentence = named ?? accused;
+      if (sentence) {
+        findings.push(
+          `chapter ${n} already names ${culprit} as guilty — "${sentence.trim().slice(0, 140)}" — before the ` +
+            `chapter ${revealChapter} reveal this pipeline assigned the disclosure to`,
+        );
+        break; // one finding per chapter is enough
+      }
+    }
+  }
+  return findings;
+};
+
+/**
  * X18 — the matcher the DISCLOSURE question uses, which is not the one the other checks use.
  *
  * "Was the reader told who did it?" is satisfied by a familiar reference; "does this chapter name
  * this specific person?" is not. Built once per call site rather than threaded through, because the
  * distinction is the point and a shared matcher is what got this wrong.
  */
-const disclosureMatcher = (culprit: string | null | undefined): RegExp | null =>
+export const disclosureMatcher = (culprit: string | null | undefined): RegExp | null =>
   culprit ? nameMatcher(culprit, { includeFirstName: true }) : null;
 
 /**
