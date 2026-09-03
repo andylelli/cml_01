@@ -169,6 +169,20 @@ const params = {
   eraPreference: arg("era") ?? pick(["1920s", "1930s", "1930s", "1940s", "1950s"]),
   locationPreset: arg("location") ?? pick(["CountryHouse", "SeasideHotel", "Village", "Liner", "Theatre"]),
   tone: arg("tone") ?? pick(["Cozy", "Classic", "Classic", "Dark"]),
+  /**
+   * SHORT BY DEFAULT, and this is a correction rather than a preference.
+   *
+   * `canary-core-inputs.yaml` sets `targetLength: short`. A generated file REPLACES that file (it is
+   * passed as CANARY_CORE_INPUTS_YAML, not merged into it), so omitting the field silently fell
+   * through to the code default of "medium" — `prompt-builder.ts:1773`,
+   * `const { targetLength = "medium" } = inputs`. The first seeded run therefore produced a medium
+   * book while every prior book in the corpus is short, which would have confounded the one
+   * comparison the run existed to make.
+   *
+   * Every field the baseline pins must be pinned here too, or the generator quietly changes things
+   * nobody asked it to change. Override with `--length medium|long` when that is the point.
+   */
+  targetLength: arg("length") ?? "short",
   detectiveType: pick(["amateur", "amateur", "private", "police"]),
   narrativeStyle: pick(["classic", "classic", "atmospheric", "modern"]),
   castSize,
@@ -195,6 +209,7 @@ const yaml = [
   `eraPreference: ${JSON.stringify(params.eraPreference)}`,
   `locationPreset: ${params.locationPreset}`,
   `tone: ${JSON.stringify(params.tone)}`,
+  `targetLength: ${params.targetLength}`,
   `detectiveType: ${params.detectiveType}`,
   `narrativeStyle: ${params.narrativeStyle}`,
   `castSize: ${params.castSize}`,
@@ -213,6 +228,7 @@ writeFileSync(outPath, yaml, "utf8");
 console.log(`\nRUN_SEED=${seed}`);
 console.log(`\n  axis      ${params.primaryAxis}`);
 console.log(`  location  ${params.locationPreset} · ${params.eraPreference} · ${params.tone}`);
+console.log(`  length    ${params.targetLength}${params.targetLength === "short" ? " (default — matches every prior book)" : " (OVERRIDDEN)"}`);
 console.log(`  detective ${params.detectiveType} · ${params.narrativeStyle} · cast of ${castSize}`);
 console.log(`  cast      ${castNames.join(", ")}`);
 console.log(`\n  written   ${outPath.replace(ROOT, ".")}`);
