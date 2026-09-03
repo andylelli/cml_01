@@ -32,6 +32,7 @@ import {
   checkCaseTimeCoherence,
   checkDeclaredDerivations,
   summariseSpine,
+  type CaseTimeCoherenceViolation,
   parseClockTime,
   parseDurationMinutes,
   rewriteDurationMinutes,
@@ -254,6 +255,38 @@ export function reportCaseTemporalCoherence(ctx: OrchestratorContext): void {
       }
     }
   }
+}
+
+/**
+ * Runtime getter, never a module const (`module-const-flags-frozen-before-dotenv`, ADR-0004).
+ */
+export const isDeclaredDerivationsEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT3B_DECLARED_DERIVATIONS ?? ""));
+
+/**
+ * PHASE 1 — check what the device SAYS it derived, and report what the spine READ.
+ *
+ * EXTRACTED FROM `runAgent3b` SO IT CAN BE TESTED AT ALL. Inline, this block sat inside a large
+ * async orchestration function, so the only way to exercise it was a paid run — which is precisely
+ * the shape CLAUDE.md warns about: *"verify a lever by its agent label in the prompt log, not by
+ * grepping the module. Three flags were found to be no-ops on 2026-08-29 despite looking correctly
+ * wired."* A lever whose only test is £1 does not get tested.
+ *
+ * `checkCaseTimeCoherence` fires only on EXACTLY two clock facts and EXACTLY one duration. MEASURED
+ * on run mystery-1788457673117 (external read 76/100, whose reviewer's first complaint was the
+ * arithmetic): two clocks and TWO durations, so it never ran. Driving off DECLARATIONS instead of
+ * fact counts removes that heuristic — a case that declares `derivedFrom` has stated its own
+ * pairing — and reaches the `instant = instant ± duration` shape X38 cannot read.
+ *
+ * The telemetry line is emitted whenever the flag is on, INCLUDING when nothing is wrong: a run that
+ * reports what the spine read can be diagnosed later, which is the "clean" versus "never looked"
+ * distinction X38's silent `continue` erased.
+ */
+export function applyDeclaredDerivationCheck(ctx: OrchestratorContext): CaseTimeCoherenceViolation[] {
+  if (!isDeclaredDerivationsEnabled()) return [];
+  const registry = ctx.lockedFactRegistry ?? [];
+  ctx.warnings.push(`[X38-spine] ${summariseSpine(registry)}`);
+  return checkDeclaredDerivations(registry);
 }
 
 export function reconcileDeviceArithmetic(ctx: OrchestratorContext): void {
@@ -781,15 +814,8 @@ export async function runAgent3b(ctx: OrchestratorContext): Promise<void> {
      *
      * Flag-gated `AGENT3B_DECLARED_DERIVATIONS`, default OFF, read at CALL TIME (ADR-0004).
      */
-    const declaredDerivationsEnabled = /^(1|true|yes|on)$/i.test(process.env.AGENT3B_DECLARED_DERIVATIONS ?? "");
-    if (declaredDerivationsEnabled) {
-      // Telemetry first and unconditionally within the flag: a run that reports what the spine READ
-      // can be diagnosed even when it finds nothing, which is the difference between "clean" and
-      // "never looked" that X38's silent `continue` erased.
-      ctx.warnings.push(`[X38-spine] ${summariseSpine(ctx.lockedFactRegistry)}`);
-      const declared = checkDeclaredDerivations(ctx.lockedFactRegistry);
-      if (declared.length > 0) arithmeticViolations = [...arithmeticViolations, ...declared];
-    }
+    const declaredDerivationsEnabled = isDeclaredDerivationsEnabled();
+    arithmeticViolations = [...arithmeticViolations, ...applyDeclaredDerivationCheck(ctx)];
 
     for (const violation of arithmeticViolations) {
       ctx.warnings.push(`[X38] Pillar 1 case-time incoherence (${violation.code}): ${violation.message}`);

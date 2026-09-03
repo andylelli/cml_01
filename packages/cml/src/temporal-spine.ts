@@ -499,3 +499,159 @@ const meridiemVariants = (a: SpineInstant, b: SpineInstant): Array<[number, numb
   for (const x of optionsFor(a)) for (const y of optionsFor(b)) out.push([x, y]);
   return out;
 };
+
+// ─────────────────────────────────────────────────────────────────────────────
+// IDEA 1 — STRUCTURED AT BIRTH. The number is authoritative; the words are derived.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * A locked time as the case should DECLARE it, rather than as prose to be parsed back.
+ *
+ * The whole temporal stack today runs backwards: an LLM writes "a quarter to six on the evening
+ * prior" and five separate consumers try to recover numbers from it. Every defect measured on run
+ * mystery-1788457673117 is a failure of that recovery — a parser that drops the daypart, an
+ * atomicity test that refuses the qualifier, a reconciler that cannot read the direction, and a
+ * coherence check disabled by a fact count.
+ *
+ * Declared this way there is nothing to recover: `hour`/`minute`/`dayOffset` ARE the fact, and every
+ * string the pipeline shows anyone is rendered from them.
+ */
+export interface StructuredTime {
+  /** 0 = the murder day, -1 = the day before, +1 = after. */
+  dayOffset: number;
+  /** 0..23. Twenty-four hour, so a daypart is arithmetic rather than decoration. */
+  hour: number;
+  /** 0..59. */
+  minute: number;
+  /** Optional prose tail — "on the evening prior". Rendering only; never parsed for meaning. */
+  qualifier?: string;
+}
+
+/** Absolute minutes including the day offset, so arithmetic crosses midnight without special cases. */
+export const structuredAbsolute = (t: StructuredTime): number =>
+  t.dayOffset * MINUTES_PER_DAY + t.hour * 60 + t.minute;
+
+/** Is this a time at all? A structured value that is out of range is a case defect, not a rendering one. */
+export const isValidStructuredTime = (t: unknown): t is StructuredTime => {
+  const v = t as StructuredTime | null;
+  return (
+    !!v &&
+    Number.isInteger(v.hour) && v.hour >= 0 && v.hour <= 23 &&
+    Number.isInteger(v.minute) && v.minute >= 0 && v.minute <= 59 &&
+    Number.isInteger(v.dayOffset) && Math.abs(v.dayOffset) <= 7
+  );
+};
+
+/**
+ * THE one legal rendering of a structured time — the value the prose contract pins verbatim.
+ *
+ * The daypart is included whenever the case did not supply its own qualifier, because a bare
+ * 12-hour phrase is ambiguous and re-reading it loses twelve hours. Where the case DID supply a
+ * qualifier ("on the evening prior") that is used instead: it already fixes the half of the day, and
+ * two dayparts in one phrase reads like machine text.
+ */
+export const renderStructuredTime = (t: StructuredTime): string => {
+  const minutes = t.hour * 60 + t.minute;
+  const qualifier = String(t.qualifier ?? "").trim();
+  if (qualifier) return `${renderClockWords(minutes)} ${qualifier}`.replace(/\s+/g, " ").trim();
+  return renderClockWords(minutes, { daypart: true });
+};
+
+/**
+ * Every OTHER way to say the same clock reading — the forbidden-alternatives list.
+ *
+ * DERIVED FROM THE SAME NUMBERS AS THE VALUE, which is the point of the exercise. This morning's bug
+ * was exactly this pair drifting apart: `getForbiddenTimeForms` generated "quarter past nine" from a
+ * canonical string while another fact's locked value was "a quarter past nine", the cross-fact filter
+ * compared the two as STRINGS, the article defeated it, and the check spent 16 of its 18 warnings
+ * telling the case it contradicted itself. Two bodies computing one concept.
+ *
+ * Here the canonical rendering and the alternatives come out of one function over one number, so
+ * they cannot disagree, and collision between two facts is `structuredTimesCollide` — an integer
+ * comparison with no wording in it at all.
+ */
+export const alternativeRenderings = (t: StructuredTime): string[] => {
+  const { hour, minute } = t;
+  const h12 = hour % 12 === 0 ? 12 : hour % 12;
+  const forms = new Set<string>();
+
+  forms.add(`${h12}:${String(minute).padStart(2, "0")}`);
+  forms.add(`${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`);
+  forms.add(`${h12}.${String(minute).padStart(2, "0")}`);
+
+  const hourWord = (h: number) => HOUR_WORDS[((h % 12) + 12) % 12] ?? String(h % 12);
+  if (minute === 0) {
+    forms.add(`${hourWord(hour)} o'clock`);
+  } else {
+    // The spoken "hour minutes" form — "five forty-five".
+    const tens = Math.floor(minute / 10) * 10;
+    const units = minute % 10;
+    const spokenMinute =
+      minute < 10
+        ? `oh ${MINUTE_WORDS[minute]}`
+        : minute < 20 || units === 0
+          ? MINUTE_WORDS[minute]
+          : `${MINUTE_WORDS[tens]}-${MINUTE_WORDS[units]}`;
+    if (spokenMinute) forms.add(`${hourWord(hour)} ${spokenMinute}`);
+  }
+
+  // The past/to family, with and without the article, because both occur in real prose.
+  if (minute === 15) { forms.add(`quarter past ${hourWord(hour)}`); forms.add(`a quarter past ${hourWord(hour)}`); }
+  if (minute === 30) { forms.add(`half past ${hourWord(hour)}`); forms.add(`a half past ${hourWord(hour)}`); }
+  if (minute === 45) { forms.add(`quarter to ${hourWord(hour + 1)}`); forms.add(`a quarter to ${hourWord(hour + 1)}`); }
+  if (minute > 0 && minute < 30) forms.add(`${MINUTE_WORDS[minute]} minutes past ${hourWord(hour)}`);
+  if (minute > 30) forms.add(`${MINUTE_WORDS[60 - minute]} minutes to ${hourWord(hour + 1)}`);
+
+  /**
+   * Never forbid the value itself — and "itself" is article- and daypart-insensitive.
+   *
+   * The first version compared exact strings, so with a canonical of "a quarter past nine in the
+   * morning" it kept "quarter past nine" on the forbidden list: a phrase differing from the locked
+   * value by one article. That is the SAME article-sensitivity that produced this morning's 18
+   * warnings, reappearing inside the fix for it. Caught by the tests below, not by reading.
+   *
+   * An article or a daypart is not a different time and never misleads a reader. What the list is
+   * for is notation that reads as a different fact or as machine text — "9:15", "nine fifteen".
+   */
+  const key = (s: string) =>
+    s
+      .toLowerCase()
+      .replace(/^(?:a|an|the)\s+/, "")
+      .replace(/\s+(?:in the (?:morning|afternoon|evening|small hours)|at night)$/, "")
+      .replace(/\s+/g, " ")
+      .trim();
+  const canonicalKeys = new Set(
+    [
+      renderClockWords(hour * 60 + minute),
+      renderClockWords(hour * 60 + minute, { daypart: true }),
+      renderStructuredTime(t),
+    ].map(key),
+  );
+  return [...forms].filter((f) => f && !canonicalKeys.has(key(f)));
+};
+
+/**
+ * Do two locked facts pin the SAME instant? An integer comparison, deliberately.
+ *
+ * The cross-fact filter this replaces compared normalised strings and was defeated by a leading
+ * "a" — 16 false warnings on one run. Numbers do not have articles.
+ */
+export const structuredTimesCollide = (a: StructuredTime, b: StructuredTime): boolean =>
+  structuredAbsolute(a) === structuredAbsolute(b);
+
+/**
+ * Bridge: upgrade a prose value that has already been written into the structured form, so existing
+ * cases gain the guarantees without being re-authored. Returns null when the prose does not fix a
+ * half of the day — an honest refusal, since inventing a meridiem here would reintroduce exactly the
+ * silent 12-hour guess this module exists to remove.
+ */
+export const toStructuredTime = (raw?: string): StructuredTime | null => {
+  const reading = parseTemporalValue(raw);
+  if (!reading || reading.meridiem === "unknown") return null;
+  return {
+    dayOffset: reading.dayOffset,
+    hour: Math.floor(reading.minutes / 60),
+    minute: reading.minutes % 60,
+    ...(reading.qualifier ? { qualifier: reading.qualifier } : {}),
+  };
+};

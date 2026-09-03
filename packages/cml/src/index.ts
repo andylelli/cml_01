@@ -115,10 +115,16 @@ export { MOJIBAKE_REPLACEMENTS, repairMojibake } from "./mojibake.js";
 // module header for why a second, stricter time reader exists beside `parseClockTime`.
 export {
   MINUTES_PER_DAY,
+  alternativeRenderings,
   buildTemporalSpine,
+  isValidStructuredTime,
   parseDurationValue,
   parseTemporalValue,
   renderClockWords,
+  renderStructuredTime,
+  structuredAbsolute,
+  structuredTimesCollide,
+  toStructuredTime,
 } from "./temporal-spine.js";
 export type {
   ArithmeticShape,
@@ -128,6 +134,7 @@ export type {
   SpineFinding,
   SpineInstant,
   TemporalReading,
+  StructuredTime,
   TemporalSpine,
 } from "./temporal-spine.js";
 
