@@ -101,3 +101,4 @@ logs/*.json
 # anyone. Nothing here contains credentials or personal data, but it is generated fiction
 # and the reviews are cold reads of it — published, and cached by third parties even if
 # later removed. If that is not wanted, make the repo private BEFORE the next push..rehearsal/
+scripts/generated/
