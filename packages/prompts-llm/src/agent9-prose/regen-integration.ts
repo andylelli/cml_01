@@ -32,7 +32,7 @@ import { chapterFullyExplainsMechanism, mechanismExplanationParagraphIndex } fro
 import { finishRegenPass, regenPassDidNotRun } from "./regen-registry.js";
 // The aftermath-repeat detector, imported rather than reimplemented: the repair must be validated
 // against the SAME body the acceptance test uses, or it can pass its own check and fail the real one.
-import { detectAftermathRepeatParagraphs } from "@cml/story-geometry";
+import { detectAftermathRepeatParagraphs, explainAftermathRepeatParagraph } from "@cml/story-geometry";
 import { CLEARANCE_TERMS_WITH_KILLER_RE as CLEARANCE_TERMS, CLEARANCE_EVIDENCE_RE as CLEARANCE_EVIDENCE } from "../shared/clearance-vocabulary.js";
 
 const pronounFor = (gender: string): string => (gender === "male" ? "he/him" : gender === "female" ? "she/her" : "they/them");
@@ -1486,16 +1486,50 @@ export async function runAftermathRepeatRegenPass(args: {
     return regenPassDidNotRun(args.chapter);
   }
 
-  const defects: ProseDefect[] = flagged.map((index) => ({
-    chapter: args.chapterNumber,
-    paragraphIndex: index,
-    kind: "aftermath_repeat" as const,
-    detail:
+  /**
+   * NAME THE SENTENCES THE CHECK ACTUALLY READS.
+   *
+   * MEASURED on run mystery-1788369981295 (A_82 §13.6): this pass ran twice on ch9 p7 and scored
+   * **375 before and 375 after, both times**. Nothing was broken in the application path — the
+   * responses parsed, the edits spliced, the paragraph genuinely changed. The model rewrote the
+   * wrong half: it deleted the sentences a human would call "the restatement" and kept the two the
+   * detector keys on. Leave-one-out over the real paragraph isolates *"I did it to protect you,
+   * yes."* and *"Justice by deception."* — remove either and the flag clears.
+   *
+   * The cause was upstream of the model. This detail listed five POSSIBLE offences and the paragraph
+   * index, so the writer had to guess which words were radioactive; it guessed wrong twice at about
+   * a cent a guess. `detectAftermathRepeatParagraphs` returns `number[]` and discards the evidence
+   * at source, so `explainAftermathRepeatParagraph` (story-geometry, sharing the SAME predicate body
+   * — not a second implementation) recovers it.
+   *
+   * Fail-safe: an empty explanation falls back to the generic wording, so a paragraph the explainer
+   * cannot decompose is never described with an empty quote list.
+   */
+  const defects: ProseDefect[] = flagged.map((index) => {
+    const loadBearing = explainAftermathRepeatParagraph(String(paragraphs[index] ?? ""), {
+      culprit: args.culprit,
+      methodTerms: args.methodTerms,
+    });
+    const generic =
       `this paragraph re-delivers what chapter ${args.revealChapter} already disclosed (the culprit's guilt, the ` +
-      `method, the motive, the concealment, or a suspect's clearance)`,
-    obligationRef: `aftermath_repeat_ch${args.chapterNumber}_p${index}`,
-    severity: "hard" as const,
-  }));
+      `method, the motive, the concealment, or a suspect's clearance)`;
+    const cited = loadBearing
+      .slice(0, 3)
+      .map((s) => `"${s.replace(/\s+/g, " ").trim().slice(0, 160)}"`)
+      .join(" and ");
+    return {
+      chapter: args.chapterNumber,
+      paragraphIndex: index,
+      kind: "aftermath_repeat" as const,
+      detail: loadBearing.length
+        ? `${generic}. The check reads these exact sentences and no others: ${cited}. Replace THOSE — ` +
+          `rewriting the rest of the paragraph will not clear it. An acknowledgement that the truth ` +
+          `has landed is fine; re-stating what was done, why, or how it was hidden is not.`
+        : generic,
+      obligationRef: `aftermath_repeat_ch${args.chapterNumber}_p${index}`,
+      severity: "hard" as const,
+    };
+  });
 
   const text = chapterText(args.chapter);
   const requiredValues = lockedFactValues(args.bible)

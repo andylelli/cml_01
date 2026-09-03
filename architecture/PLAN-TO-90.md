@@ -1390,3 +1390,112 @@ headline at −0.638, without buying another unrankable score.
 
 **What it cannot do** is prove a mark moved. Nothing short of an external read does that, and a single
 read carries ±3 marks of noise (§30).
+
+---
+
+## 13. THE A_82 FOLLOW-UP BATCH · 2026-09-03 · £0
+
+Free work only. **Nothing here has been run**: every item is T1/T2 (unit tests and archive replay)
+under [A_81 §1](../documentation/analysis/ANALYSIS_81/ANALYSIS_81.md)'s tiers, and that document's
+load-bearing claim — that the tiers do not substitute for each other — applies to all of it.
+
+### 13.1 The batch started from a stale list, and that is the first finding
+
+A review of "what free work remains" produced eight items from A_82 §12.15 and §14. **Five were
+already built and committed** (`4197461d`..`c9075535`): P4, P5, P10, the P2 ceiling remainder
+(`AGENT9_PROMPT_TOKEN_CEILING=40000`) and the forbidden-time-form ship-check. §12.15's own header
+still reads *"nothing applied"*, which was true when written and false by the time it was read.
+
+**A board that records a plan and not its execution will buy the same work twice.** The rows below
+carry their commit, and §12.15's header is left as-is deliberately — it is accurate as of its date,
+and rewriting history to look tidier is how a ledger stops being trustworthy.
+
+### 13.2 A shipped fix that did not catch its own defect — MEASURED
+
+`4ba9acf6`'s forbidden-time-form ship-check was verified against the **real artifact** rather than
+its fixture. On the real inputs it emitted **18 warnings across 9 chapters and not one named
+"half past nine"** — the defect it was written for. Two bugs, which concealed each other exactly in
+the fixture and exactly not in production:
+
+| | bug | consequence |
+|---|---|---|
+| 1 | the cross-fact filter normalised hyphens but not the leading **article**, so the case's own locked `"a quarter past nine"` did not match the generated `"quarter past nine"` | the case contradicted itself — **16 of the 18 warnings** |
+| 2 | `.find()` returned the FIRST forbidden phrase present, and the false positive sorts before the real defect in the one chapter carrying both | the true defect was **masked in the only chapter that had it** |
+
+**The fixture is what let both through**: it hand-wrote the value as `"quarter past nine"`, dropping
+the article the real artifact has, so bug 1 could not fire and bug 2 never had two candidates to
+choose between. Fixed: article-insensitive comparison, `.filter()` not `.find()`, hits classified as
+`VALUE DIFFERS` vs `same value, different form` with the fidelity ones sorted first, and one line per
+chapter per phrase instead of one per contradicted fact. **The same real inputs now give 2 messages,
+led by ch8's "half past nine".** Fixtures re-derived from the artifact.
+
+*(It is chapter **8**, not the "ch6" carried by A_82 §14.4 and two files downstream of it. The
+reviewer's own text says Chapter 8. A documentation error that propagated, not a code defect.)*
+
+### 13.3 The pronoun slip had no repair channel at all — MEASURED
+
+A_82 §14.6: the gate reported *"2 pronoun issue(s) remain"* and the book shipped
+*"the blood spread wide beneath him"* for a female victim. **Making that gate a hard stop is the
+wrong repair** — §2.1 of this document is explicit that blocking on a defect whose repair does not
+work converts ships into aborts. The question is why nothing repaired it.
+
+Run against the real manuscript with the real cast (6/6 names matched, both known-positive controls
+firing), `detectAttributionFlips` and `detectImpossibleSelfReferences` **both return 0** on that
+chapter. They are the only producers for the A_66 P3 LLM regen channel, so there was nothing to
+repair with. Detector (a) needs a dialogue tag; detector (b) needs a reflexive or a possessive over
+the sentence subject's own body. "beneath him" is neither.
+
+`detectVictimBodyPronounMismatch` is detector (c), feeding the same channel behind
+`AGENT9_VICTIM_BODY_PRONOUN_GUARD`. **Baselined before wiring** (this file's own B1 rule, and the
+6-gram precedent): projectId-scoped over 34 archived runs carrying both a `cml` and a `prose`
+artifact, **1 fires, 1 event — the true positive, zero false positives.** An earlier revision fired
+on 2; the extra was *"He cleared his throat"*, a live male speaker, now suppressed. On 33 of 34 runs
+it does nothing at all.
+
+**Two probe bugs were caught in the process, both returning confident wrong answers rather than
+errors, both the same family — pairing a manuscript to the wrong artifact.** The second pushed a
+name-matched cast whose declared victim was "Sylvia Trent" and came within one step of being
+reported as a finding that the prose kills a character the case lists as a suspect. It does not:
+this run's own `cml` artifact declares Dr. Mallory Finch the victim. **Pair by projectId, never by
+name** — A_82 §13.0's scoping error in a second shape.
+
+### 13.4 Why 375 to 375, answered — and it was not the flag
+
+A_82 §13.6 left open whether the ch9 `aftermath_repeat` pass reads `AGENT9_REGEN_EDIT_LIST`. **It
+does not, and cannot**: the pass is handed `rewriteChannelRegen`, built with `editList: true`
+unconditionally since N7/X36. The flag is irrelevant to it, and the register row claiming otherwise
+is corrected.
+
+The real mechanism, measured from the run's own response log: **nothing was broken in the
+application path.** The responses parsed, the edits spliced, the paragraph changed between attempts.
+The model rewrote the wrong half — it deleted the sentences a human would call "the restatement" and
+kept the two the detector keys on. Leave-one-out isolates *"I did it to protect you, yes."* and
+*"Justice by deception."*; removing either clears the flag.
+
+The cause is upstream of the model: `detectAftermathRepeatParagraphs` returns `number[]`, discarding
+its own evidence, so the regen instruction named a paragraph INDEX and five possible offences and
+let the writer guess which words were radioactive. It guessed wrong twice, at about a cent a guess,
+on a byte-identical prompt both times. `explainAftermathRepeatParagraph` recovers the evidence by
+leave-one-out over the SAME predicate body (one implementation, called by both — the header on that
+function is explicit that a second body is the trap this file keeps paying for), and the instruction
+now quotes the sentences. Fail-safe: no explanation means the previous generic wording.
+
+**The general lesson, and it is bigger than this pass:** a defect the acceptance validator cannot
+see can never be repaired, only re-attempted for ever — and "rewrote it and it still fails" prints
+the same string as "never touched it". Detector (c) above is counted on BOTH sides for exactly this
+reason.
+
+### 13.5 What landed
+
+| item | state | evidence |
+|---|---|---|
+| `AGENT7_MOTIVE_PLANT_BEFORE_REVEAL` **ON** | the only lever built for A_82 §14.7, the one genuinely new reader ask | `motiveBeatCulprit` has two readers and no validator, lint or retry class — the same no-new-retry-surface test used for `AGENT9_REVEAL_CITES_PLANTS` |
+| `AGENT9_VICTIM_BODY_PRONOUN_GUARD` **ON** | detector (c) feeding the existing A_66 P3 repair channel | baselined 1/34, zero false positives; 13 tests |
+| forbidden-time-form check **repaired** | 18 warnings to 2, led by the real ch8 defect | verified against the real artifact; 9 tests, both bugs pinned |
+| `aftermath_repeat` instruction **cites its evidence** | unflagged, fail-safe, same precedent as `418af985` | reproduces the leave-one-out finding on the real paragraph; 6 tests |
+
+**What none of this is.** Not a score claim. Four of the five categories that have never reached a 9
+are untouched by it, §12.1's arithmetic is unchanged, and best-ever-everywhere still lands at 89.0.
+Three of the four rows are repairs to machinery that was already supposed to be working — which is
+§3's "instruments that were blind" category, not a quality improvement. The honest expectation is
+that a reader notices nothing, and the value is that the next run's telemetry means what it says.

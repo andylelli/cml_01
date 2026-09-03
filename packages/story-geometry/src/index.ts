@@ -57,6 +57,7 @@ export {
   checkManuscriptGeometry,
   detectAftermathRepeatParagraphs,
   detectPrematureCulpritDisclosure,
+  explainAftermathRepeatParagraph,
   disclosureMatcher,
   findManuscriptDisclosure,
   foldTypography,

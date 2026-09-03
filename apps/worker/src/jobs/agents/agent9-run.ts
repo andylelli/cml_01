@@ -112,7 +112,7 @@ import { validateArtifact, validateCml, isVictimArchetype, isDetectiveArchetype,
 // Agent 9 redesign Phase A (§4.2 / §9.7): the validation-gated-mutation law — a deterministic prose
 // pass may not ship a mutation it didn't re-validate. Default-off flag; legacy path byte-identical.
 import { mutateThenValidate, noMetadataDumpValidator } from "@cml/prose-guard";
-import { ProseScorer, StoryValidationPipeline, CharacterConsistencyValidator, repairChapterPronouns, repairPronouns, normalizeTitles, buildLocationRegistry, normalizeLocationNames, getGenerationParams, getPronounPolicySettings, validateCharacterLifecycle, DEATH_RE as LIFECYCLE_DEATH_RE, CONFESSION_RE as LIFECYCLE_CONFESSION_RE, RECOLLECTION_FRAME_RE as LIFECYCLE_RECOLLECTION_RE, detectMissingCaseTransitionBridge, BRIDGE_TERMS, validateDialogueIdiolect, anonymiseNamedWalkOns, buildAllowedNameParts, computeArrestPivotIndex, ROLE_ALIAS_TERMS, detectAttributionFlips, detectImpossibleSelfReferences } from "@cml/story-validation";
+import { ProseScorer, StoryValidationPipeline, CharacterConsistencyValidator, repairChapterPronouns, repairPronouns, normalizeTitles, buildLocationRegistry, normalizeLocationNames, getGenerationParams, getPronounPolicySettings, validateCharacterLifecycle, DEATH_RE as LIFECYCLE_DEATH_RE, CONFESSION_RE as LIFECYCLE_CONFESSION_RE, RECOLLECTION_FRAME_RE as LIFECYCLE_RECOLLECTION_RE, detectMissingCaseTransitionBridge, BRIDGE_TERMS, validateDialogueIdiolect, anonymiseNamedWalkOns, buildAllowedNameParts, computeArrestPivotIndex, ROLE_ALIAS_TERMS, detectAttributionFlips, detectImpossibleSelfReferences, detectVictimBodyPronounMismatch } from "@cml/story-validation";
 import type { PhaseScore, CastEntry } from "@cml/story-validation";
 import {
   adaptProseForScoring,
@@ -953,33 +953,83 @@ export const detectCrossArtifactTemporalConflicts = (args: {
 const normalizeTimePhrase = (s: string): string =>
   s.toLowerCase().replace(/[-‐‑‒–—]/g, " ").replace(/\s+/g, " ").trim();
 
+/**
+ * A locked-fact value and a forbidden phrase are the SAME time however each is written. Two things
+ * have to be neutralised before they can be compared, and the first one shipped broken:
+ *
+ *  1. THE LEADING ARTICLE. `normalizeTimePhrase` collapses hyphens but keeps "a", so the cross-fact
+ *     filter compared "quarter past nine" against the locked "a quarter past nine", found no match,
+ *     and left the case's OWN minute-hand value on the forbidden list. MEASURED on the run this
+ *     check was built for: 16 of its 18 warnings were the case contradicting itself, and the real
+ *     defect was never reported at all.
+ *  2. THE RENDERING. "seven twenty" and "twenty minutes past seven" are the same minute. That is a
+ *     style difference against the verbatim contract, not a factual contradiction, and mixing the
+ *     two into one message made 5 more of those 45 archived lines unreadable as evidence.
+ */
+const timePhraseKey = (s: string): string => normalizeTimePhrase(s).replace(/^(?:a|an|the)\s+/, "");
+
 export const checkForbiddenTimeFormsShipped = (
   chapters: ReadonlyArray<{ paragraphs?: unknown }>,
   lockedFacts: ReadonlyArray<{ value?: unknown; description?: unknown; id?: unknown }>,
 ): string[] => {
-  const messages: string[] = [];
+  /**
+   * One offending PHRASE in one chapter is one defect, however many facts it contradicts. Keyed by
+   * chapter + normalised phrase so "nine ten" and "nine-ten" collapse, and so the real ch8 defect
+   * reports once rather than once per clock fact. Inflated counts are what made the original
+   * unreadable as evidence — 18 lines for 1 defect and 2 false positives.
+   */
+  const found = new Map<string, { chapter: number; message: string; sameValue: boolean }>();
   const otherCanonicalValues = new Set(
-    lockedFacts.map((f) => normalizeTimePhrase(String(f?.value ?? ""))).filter(Boolean),
+    lockedFacts.map((f) => timePhraseKey(String(f?.value ?? ""))).filter(Boolean),
   );
   for (const fact of lockedFacts) {
     const canonical = String(fact?.value ?? "").trim();
     if (!canonical || !isAtomicLockedFactValue(canonical) || !isWordFormTimeValue(canonical)) continue;
     const forbidden = getForbiddenTimeForms(canonical).filter(
-      (f: string) => !otherCanonicalValues.has(normalizeTimePhrase(f)),
+      (f: string) => !otherCanonicalValues.has(timePhraseKey(f)),
     );
     if (forbidden.length === 0) continue;
+    const canonicalMinutes = parseClockTime(normalizeTimePhrase(canonical));
     chapters.forEach((chapter, ci) => {
       const chText = normalizeTimePhrase(((chapter?.paragraphs ?? []) as string[]).join(" "));
-      const hit = forbidden.find((f: string) => chText.includes(normalizeTimePhrase(f)));
-      if (hit) {
-        messages.push(
-          `[Agent 9] SHIP-CHECK forbidden time form: ch${ci + 1} states "${hit}" for a fact locked at ` +
-            `"${canonical}" (${fact?.description ?? fact?.id}). MEASURE only — see this comment for why.`,
-        );
+      /**
+       * `.filter`, not `.find`. MEASURED: on the run this was built for, chapter 8 contains BOTH the
+       * false positive above and the real "half past nine" defect, and `quarter past nine` sorts
+       * first in `forbidden` — so `.find` returned the false positive and masked the true one. The
+       * two bugs concealed each other exactly in the hand-written fixture and exactly not in
+       * production.
+       */
+      const hits = forbidden.filter((f: string) => chText.includes(normalizeTimePhrase(f)));
+      if (hits.length === 0) return;
+      // A phrase denoting a DIFFERENT minute is a fidelity defect; one denoting the same minute is a
+      // rendering difference. Report the fidelity ones first, and never silently drop the others.
+      const classified = hits.map((hit) => {
+        const hitMinutes = parseClockTime(normalizeTimePhrase(hit));
+        const sameValue =
+          canonicalMinutes !== null && hitMinutes !== null && canonicalMinutes === hitMinutes;
+        return { hit, sameValue };
+      });
+      classified.sort((a, b) => Number(a.sameValue) - Number(b.sameValue));
+      for (const { hit, sameValue } of classified) {
+        const key = `${ci}|${timePhraseKey(hit)}`;
+        const existing = found.get(key);
+        // A fidelity hit always beats a rendering hit for the same phrase; otherwise first wins.
+        if (existing && !(existing.sameValue && !sameValue)) continue;
+        found.set(key, {
+          chapter: ci + 1,
+          sameValue,
+          message:
+            `[Agent 9] SHIP-CHECK forbidden time form (${sameValue ? "same value, different form" : "VALUE DIFFERS"}): ` +
+            `ch${ci + 1} states "${hit}" for a fact locked at "${canonical}" ` +
+            `(${fact?.description ?? fact?.id}). MEASURE only — see this comment for why.`,
+        });
       }
     });
   }
-  return messages;
+  // Fidelity defects first, then by chapter, so the reader meets the real one at the top.
+  return [...found.values()]
+    .sort((a, b) => Number(a.sameValue) - Number(b.sameValue) || a.chapter - b.chapter)
+    .map((r) => r.message);
 };
 
 /**
@@ -3746,6 +3796,16 @@ const isAftermathRepeatRegenEnabled = (env: NodeJS.ProcessEnv = process.env): bo
   /^(1|true|yes|on)$/i.test(String(env.AGENT9_REGEN_AFTERMATH_REPEAT ?? ""));
 
 /**
+ * A_82 §14.6 — does the victim-body pronoun detector feed the A_66 P3 repair channel?
+ *
+ * Runtime getter, never a module const (`module-const-flags-frozen-before-dotenv`). Default OFF: it
+ * adds repair TARGETS, and a new target is a new regen call, which is a behaviour change on every
+ * run carrying the shape. With the flag off the events array is byte-identical to today's.
+ */
+const isVictimBodyPronounGuardEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT9_VICTIM_BODY_PRONOUN_GUARD ?? ""));
+
+/**
  * N7 (REVIEW_08 §3) — route the REVEAL family off the insertion-only channel and onto one that may
  * modify. Default OFF, runtime-read.
  *
@@ -6225,6 +6285,32 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     const hpCast = (castDesign.characters as any[])
       .filter((c) => typeof c?.gender === "string" && /^(male|female)$/i.test(c.gender))
       .map((c) => ({ name: String(c.name ?? "").trim(), gender: String(c.gender).toLowerCase() }));
+    /**
+     * A_82 §14.6 — the victim, for detector (c). Resolved through `roleTextsOf`/`isVictimArchetype`
+     * rather than a bare field read: `role_archetype` vs `roleArchetype` vs `role` is this repo's
+     * most-repeated trap (X50, `cast-field-camelcase-vs-snakecase-trap`), and a bare snake_case read
+     * silently returns undefined on a camelCase artifact — which would make the detector inert while
+     * the flag read ON, the exact failure mode A_82 §11.4 found on MOTIVE LOCK.
+     */
+    const victimForPronounGuard = isVictimBodyPronounGuardEnabled()
+      ? (() => {
+          const entry = ((cml as any)?.CASE?.cast ?? []).find((c: any) =>
+            roleTextsOf(c).some(isVictimArchetype),
+          );
+          const name = String(entry?.name ?? "").trim();
+          const gender = String(entry?.gender ?? "").toLowerCase();
+          if (!name || !/^(male|female)$/.test(gender)) {
+            if (entry) {
+              ctx.warnings.push(
+                `[Agent 9] victim-body pronoun guard inert: victim "${name || "?"}" has no binary gender.`,
+              );
+            }
+            return null;
+          }
+          return { name, gender };
+        })()
+      : null;
+
     if (hpCast.length > 0) {
       const costBeforePronoun = client.getCostTracker().getTotalCost();
       try {
@@ -6237,6 +6323,12 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
           const events = [
             ...detectAttributionFlips(chText, hpCast as any),
             ...detectImpossibleSelfReferences(chText, hpCast as any),
+            // A_82 §14.6 — detector (c). Additive by construction: with the flag off this spreads an
+            // empty array and the pass is byte-identical. Baselined before wiring at 1 of 34
+            // archived runs (2.9%) — the one true positive, zero false positives.
+            ...(victimForPronounGuard
+              ? detectVictimBodyPronounMismatch(chText, victimForPronounGuard, hpCast as any)
+              : []),
           ];
           if (events.length === 0) continue;
           const defects = events.slice(0, 4).map((e, k) => ({
@@ -6248,7 +6340,20 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
           }));
           const hpChapterValidator = (c: any) => {
             const t = ((c?.paragraphs ?? []) as string[]).join("\n\n");
-            const n = detectAttributionFlips(t, hpCast as any).length + detectImpossibleSelfReferences(t, hpCast as any).length;
+            /**
+             * Detector (c) is counted HERE as well as in `events` above, and it has to be. The
+             * acceptance test only keeps a candidate whose score strictly improves, so a defect the
+             * validator cannot see can never be repaired — the regen would rewrite the paragraph,
+             * score identically, and report UNRESOLVED for ever. That is not hypothetical: it is the
+             * measured signature of the ch9 `aftermath_repeat` pass on run mystery-1788369981295
+             * (375 before, 375 after, twice). One detector set, both sides.
+             */
+            const n =
+              detectAttributionFlips(t, hpCast as any).length +
+              detectImpossibleSelfReferences(t, hpCast as any).length +
+              (victimForPronounGuard
+                ? detectVictimBodyPronounMismatch(t, victimForPronounGuard, hpCast as any).length
+                : 0);
             return { ok: n === 0, score: 100 - n * 10, violations: n > 0 ? ["pronoun_high_precision_mismatch"] : [] };
           };
           const validate = composeChapterValidator(hpChapterValidator);

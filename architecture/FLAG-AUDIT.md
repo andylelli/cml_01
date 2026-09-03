@@ -642,7 +642,15 @@ mitigation, same posture as `AGENT9_CLUE_TIME_WORDFORM` before it was measured.
 
 ## Addendum — `AGENT7_MOTIVE_PLANT_BEFORE_REVEAL`, registered 2026-09-03 (diagnosis-batch #2)
 
-Default OFF. Same shape as `AGENT7_PLANT_BEFORE_REVEAL` (already default-ON), given its own flag
+**State: SET `true` in `.env.local` 2026-09-03. T3/T4 unverified.** Enabled on the same test A_82
+used to flip `AGENT9_REVEAL_CITES_PLANTS` (row above): MEASURED, `motiveBeatCulprit` has exactly two
+readers in the whole tree — the Agent 7 stamper (`agent7-run.ts:365-371`) and one Agent 9 prompt line
+(`obligation-block.ts:602-604`) — and **no validator, lint, gate or retry class reads it**, so it is
+a pure prompt operation that cannot add a retry surface. It is the ONLY lever built for A_82 §14.7,
+the single genuinely new ask in the 84/100 read. Nothing below is superseded: the settling probe is
+still owed, and until it runs this is delivery-unverified.
+
+Default OFF as built. Same shape as `AGENT7_PLANT_BEFORE_REVEAL` (already default-ON), given its own flag
 rather than folded into that one because this is a genuinely new obligation TYPE (motive-behavioral,
 not clue-evidential) and needs its own measurement window, not to inherit the settled clue lever's
 default.
@@ -664,3 +672,51 @@ against `motive is understood in HUMAN terms` (the existing AFTERMATH REGISTER c
 meant to feed) — does the planted beat actually land as a legible callback at the reveal, or does the
 model bury it? **If the probe never runs:** the pipeline keeps stating motive only at the reveal, the
 exact "arrives too late" complaint both reads named, with no earlier behavioral evidence for it.
+
+---
+
+## Addendum — `AGENT9_VICTIM_BODY_PRONOUN_GUARD`, registered 2026-09-03 (A_82 §14.6)
+
+**State: SET `true` in `.env.local` 2026-09-03. T3/T4 unverified.**
+
+**The defect.** The 84/100 read caught *"'the blood spread wide beneath him' — Finch is female, so
+this should be 'her'"* in chapter 3, and the run's own gate reported *"2 pronoun issue(s) remain
+after deterministic rescue"*. **It counted the defect and shipped it**, because it is advisory rather
+than a hard stop. Making it a hard stop is the WRONG repair — PLAN-TO-90 §2.1 is explicit that
+blocking on a defect whose repair does not work converts ships into aborts. The right repair is to
+give the defect a repair channel, which is what this does.
+
+**Why a new detector and not a widened one — MEASURED before anything was written.** Run against the
+real manuscript with the real cast (`probe-pronoun-channel.mjs`; cast matched 6/6 by name, both
+known-positive controls firing), `detectAttributionFlips` and `detectImpossibleSelfReferences` BOTH
+return **0** on the chapter that shipped the slip. Those two are the *only* producers for the A_66 P3
+LLM regen channel, so the defect had no repair path at all. Detector (a) needs a dialogue tag and
+there is none; detector (b) needs a reflexive or a possessive over the sentence subject's own body,
+and "beneath him" is neither.
+
+**What it does.** `detectVictimBodyPronounMismatch` (`prose-consistency-validator.ts`) adds repair
+TARGETS to the existing A_66 P3 channel. It writes no prose itself, adds no gate, and cannot abort:
+the deterministic pronoun fixer that A_66 proved corrupts prose is untouched and stays off under
+`pronoun_policy: verify`. Counted on BOTH sides — the `events` list and the acceptance validator —
+because a defect the acceptance test cannot see can never be repaired, only re-attempted for ever;
+that is the measured signature of the ch9 `aftermath_repeat` pass (375 → 375, twice).
+
+**Baseline before wiring** (CLAUDE.md's own rule, and B1): projectId-scoped over `data/store.json`,
+34 runs carrying both a `cml` and a `prose` artifact, all ≥8,000 words — **1 run fires, 1 event: the
+true positive, zero false positives.** An earlier revision fired on 2; the second was *"He cleared
+his throat, the sound loud in the hush"*, a live male speaker in a story with a female victim, now
+suppressed by a prior-subject guard. On 33 of 34 archived runs this flag does nothing at all.
+
+**Two probe bugs were caught while establishing that baseline**, both producing confident wrong
+answers rather than errors, both the same family — pairing a manuscript to the wrong artifact. The
+second pushed a name-matched cast whose declared victim was "Sylvia Trent" and very nearly became a
+reported finding that the prose kills a character the case lists as a suspect. It does not: this
+run's own `cml` artifact declares Dr. Mallory Finch the victim. **Pair by projectId, never by name.**
+
+**Settling probe.** One run on a case whose victim is gendered; confirm either no
+`regen-pronoun`/`victim_body_pronoun` activity (the 97% case) or a repaired mismatch with the
+high-precision count strictly falling. **If the probe never runs:** the flag is off in effect on
+almost every run anyway, and the cost of never settling it is bounded to that 1-in-34 shape — which
+is why it is enabled rather than deferred. **Falsification:** the repair fires and the regenerated
+sentence reads worse, or `regen-pronoun UNRESOLVED` appears without the count moving — the latter
+would mean the detector and the validator have drifted apart again.

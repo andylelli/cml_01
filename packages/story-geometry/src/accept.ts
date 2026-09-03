@@ -326,6 +326,37 @@ const TIME_MENTION = new RegExp(
  * ch9 *"repeats the clearances"* (naming + a clearance) and ch10 *"repeats the mechanism and
  * clearances"* (two restatements) — both still flag.
  */
+/**
+ * The offending predicate, extracted so the detector and the explainer below cannot drift apart.
+ * The header above is explicit that a second implementation of "is it still repeating?" is the
+ * two-bodies trap this codebase has paid for repeatedly — so there is exactly one body, and the
+ * explainer calls it rather than re-deriving it.
+ */
+const aftermathParagraphOffends = (
+  text: string,
+  culpritRe: RegExp | null,
+  methodTerms: ReadonlyArray<string>,
+): boolean => {
+  const namesCulpritAsDiscovery = namesCulpritAsGuilty(text, culpritRe);
+  const restatements = [
+    methodTerms.some((t) => text.toLowerCase().includes(t)),
+    CONCEALMENT_MARKER.test(text),
+    // SENTENCE-scoped and idiom-stripped, for the two reasons this file keeps re-learning.
+    // The header calls this "a motive-plus-guilt CLAUSE", but the test was paragraph-scoped, so a
+    // motive word in the first sentence and a guilt word in the ninth counted as one clause (X21's
+    // scope mismatch). And X27 stripped the "shot a glance" idiom in `disclosingSentence` and not
+    // here, which is §6 defect 5 exactly — a fix applied to one side of the same comparison.
+    sentencesOf(text).some((s) => MOTIVE_MARKER.test(s) && GUILT_MARKER.test(withoutGuiltIdioms(s))),
+    // SENTENCE-scoped, not paragraph-scoped. FOUND ON REVIEW 2026-08-07, hours after X21 shipped:
+    // `isClearanceSentence` is a conjunction (a clearance word AND not an idiom), so applying it to a
+    // whole paragraph lets ONE "cleared her throat" mask a genuine clearance elsewhere in the same
+    // paragraph. That is §6's scope-mismatch family — defects 1 and 3 — reintroduced by the fix for
+    // a different false positive. A conjunction is only evidence at the granularity it is evaluated.
+    sentencesOf(text).some(isClearanceSentence),
+  ].filter(Boolean).length;
+  return (namesCulpritAsDiscovery && restatements >= 1) || restatements >= 2;
+};
+
 export const detectAftermathRepeatParagraphs = (
   paragraphs: ReadonlyArray<string>,
   args: { culprit?: string | null; methodTerms?: ReadonlyArray<string> },
@@ -337,27 +368,55 @@ export const detectAftermathRepeatParagraphs = (
   const methodTerms = (args.methodTerms ?? []).map((t) => needle(t).toLowerCase()).filter(Boolean);
   const offending: number[] = [];
   paragraphs.forEach((paragraph, index) => {
-    const text = foldTypography(String(paragraph ?? ""));
-    const namesCulpritAsDiscovery = namesCulpritAsGuilty(text, culpritRe);
-    const restatements = [
-      methodTerms.some((t) => text.toLowerCase().includes(t)),
-      CONCEALMENT_MARKER.test(text),
-      // SENTENCE-scoped and idiom-stripped, for the two reasons this file keeps re-learning.
-      // The header calls this "a motive-plus-guilt CLAUSE", but the test was paragraph-scoped, so a
-      // motive word in the first sentence and a guilt word in the ninth counted as one clause (X21's
-      // scope mismatch). And X27 stripped the "shot a glance" idiom in `disclosingSentence` and not
-      // here, which is §6 defect 5 exactly — a fix applied to one side of the same comparison.
-      sentencesOf(text).some((s) => MOTIVE_MARKER.test(s) && GUILT_MARKER.test(withoutGuiltIdioms(s))),
-      // SENTENCE-scoped, not paragraph-scoped. FOUND ON REVIEW 2026-08-07, hours after X21 shipped:
-      // `isClearanceSentence` is a conjunction (a clearance word AND not an idiom), so applying it to a
-      // whole paragraph lets ONE "cleared her throat" mask a genuine clearance elsewhere in the same
-      // paragraph. That is §6's scope-mismatch family — defects 1 and 3 — reintroduced by the fix for
-      // a different false positive. A conjunction is only evidence at the granularity it is evaluated.
-      sentencesOf(text).some(isClearanceSentence),
-    ].filter(Boolean).length;
-    if ((namesCulpritAsDiscovery && restatements >= 1) || restatements >= 2) offending.push(index);
+    if (aftermathParagraphOffends(foldTypography(String(paragraph ?? "")), culpritRe, methodTerms)) {
+      offending.push(index);
+    }
   });
   return offending;
+};
+
+/**
+ * WHICH SENTENCES the detector is actually reading — the evidence `detectAftermathRepeatParagraphs`
+ * throws away by returning `number[]`.
+ *
+ * THE DEFECT THIS EXISTS FOR, measured on run mystery-1788369981295 (A_82 §13.6). Chapter 9's
+ * `aftermath_repeat` regen ran twice on paragraph 7 and scored **375 before and 375 after, both
+ * times**. The application path was fine — the responses parsed, the edits spliced, the paragraph
+ * genuinely changed. The model simply rewrote the wrong half: it deleted the sentences a human would
+ * call "the restatement" and kept the two the detector keys on. Leave-one-out over the real
+ * paragraph isolates exactly ONE load-bearing sentence — *"I did it to protect you, yes."* — which
+ * is both the first-person admission and a motive-plus-guilt clause in one.
+ *
+ * The cause is upstream of the model: `buildRegenRequest` hands it a paragraph INDEX and a generic
+ * detail listing five possible offences. It was never told which words were radioactive, so it
+ * guessed, twice, at ~$0.01 a guess. This returns the sentences whose removal clears the flag, so
+ * the instruction can name them.
+ *
+ * Leave-one-out rather than re-running the markers per sentence, deliberately: the predicate is a
+ * COUNT over four signals with a naming conjunction, so "which sentence matched a marker" and "which
+ * sentence is load-bearing" are different questions, and only the second one is actionable. A
+ * paragraph with two independent restatements correctly reports BOTH as load-bearing only if
+ * removing either one clears it; where it does not, the caller gets an empty list and should say so
+ * rather than name a sentence that would not have helped.
+ */
+export const explainAftermathRepeatParagraph = (
+  paragraph: string,
+  args: { culprit?: string | null; methodTerms?: ReadonlyArray<string> },
+): string[] => {
+  const culpritRe = disclosureMatcher(args.culprit);
+  const methodTerms = (args.methodTerms ?? []).map((t) => needle(t).toLowerCase()).filter(Boolean);
+  const text = foldTypography(String(paragraph ?? ""));
+  if (!aftermathParagraphOffends(text, culpritRe, methodTerms)) return [];
+
+  const sentences = sentencesOf(text);
+  if (sentences.length <= 1) return sentences;
+
+  const loadBearing: string[] = [];
+  for (let i = 0; i < sentences.length; i++) {
+    const without = sentences.filter((_, k) => k !== i).join(" ");
+    if (!aftermathParagraphOffends(without, culpritRe, methodTerms)) loadBearing.push(sentences[i]);
+  }
+  return loadBearing;
 };
 
 const sentencesOf = (text: string): string[] =>

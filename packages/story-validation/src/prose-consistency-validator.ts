@@ -88,7 +88,7 @@ export interface PronounDriftCastEntry {
 }
 
 export interface PronounDriftEvent {
-  kind: 'attribution_flip' | 'impossible_self_reference';
+  kind: 'attribution_flip' | 'impossible_self_reference' | 'victim_body_pronoun';
   /** Canonical full cast name of the drifted character. */
   characterName: string;
   /** Offending snippet (whitespace-collapsed, capped) for the report/rubric citation. */
@@ -319,6 +319,141 @@ export function detectImpossibleSelfReferences(text: string, cast: PronounDriftC
   return events;
 }
 
+// Body/wound vocabulary. The victim is the only person a wound, a bloodstain or a corpse-position
+// phrase can be ABOUT, which is what gives this detector its precision — it is not a general
+// pronoun check, it is a check on references to the one character who cannot act.
+const BODY_WOUND_NOUN =
+  /\b(?:body|corpse|remains|blood|bloodstain|bleeding|wound|wounds|puncture|gash|stab|stabbing|laceration|bruise|bruising|throat|skull)\b/i;
+
+// The two shapes a reference to a body takes in this prose: a position phrase ("beneath him") and a
+// possessive over a body noun ("his throat"). Both are object/possessive positions — a SUBJECT
+// pronoun ("he lay") is deliberately excluded, because a live character acting in the same scene is
+// the overwhelmingly more likely referent and that is where the false positives live.
+const BODY_POSITION_PRONOUN =
+  /\b(?:beneath|underneath|under|beside|over|across|behind|around|round|near|about|by|against)\s+(him|her)\b/gi;
+const BODY_POSSESSIVE_PRONOUN =
+  /\b(his|her)\s+(?:own\s+)?(?:body|corpse|remains|throat|chest|wound|wounds|blood|skull|head|face|hands?)\b/gi;
+
+/**
+ * Detector (c) — VICTIM-BODY PRONOUN MISMATCH.
+ *
+ * A_82 §14.6: the 84/100 read caught *"'the blood spread wide beneath him' — Finch is female, so this
+ * should be 'her'"* in chapter 3, and the run's own gate reported *"2 pronoun issue(s) remain after
+ * deterministic rescue"* — it counted the defect and shipped it.
+ *
+ * MEASURED, and this is why a third detector exists rather than a widened existing one: run against
+ * the real manuscript and the real cast (`probe-pronoun-channel.mjs`, cast matched 6/6 by name, both
+ * known-positive controls firing), `detectAttributionFlips` and `detectImpossibleSelfReferences`
+ * BOTH return 0 on that chapter. They are the ONLY producers for the A_66 P3 LLM regen channel
+ * (`agent9-run.ts`), so the slip had no repair path at all. Detector (a) needs a dialogue tag and
+ * there is none; detector (b) needs the wrong pronoun to be a reflexive or a possessive over the
+ * SUBJECT's own body, and "beneath him" is neither.
+ *
+ * PRECISION, and the scoping asymmetry is deliberate rather than convenient:
+ *  - the victim must be in scope EARLIER IN THE PARAGRAPH (in the real instance the name is two
+ *    sentences back — "Dr. Mallory Finch's body" — so a one-sentence window would miss it, and an
+ *    antecedent established earlier in a paragraph genuinely does persist across sentences);
+ *  - a competing cast name of the PRONOUN'S OWN gender suppresses the event, but only when it
+ *    appears BEFORE the pronoun, because an antecedent precedes its pronoun. In the real instance
+ *    Hugo Vane (male) appears in the same paragraph but only in LATER sentences, so he cannot be the
+ *    referent of an earlier "him". Suppressing on the whole paragraph would have hidden the very
+ *    defect this exists to catch; suppressing on the sentence alone would fire on ordinary prose
+ *    whose antecedent sits one sentence back.
+ *  - an unnamed role noun before the pronoun suppresses, reusing detector (b)'s own intervener list.
+ *
+ * Kept OUT of `detectPronounDriftEvents` on purpose: composing it there would add a third error
+ * stream to the validator, changing retry and gate counts on every run. It feeds the repair channel
+ * only, behind a flag, so with the flag off the pipeline is byte-identical.
+ */
+export function detectVictimBodyPronounMismatch(
+  text: string,
+  victim: PronounDriftCastEntry | null | undefined,
+  cast: PronounDriftCastEntry[],
+): PronounDriftEvent[] {
+  const events: PronounDriftEvent[] = [];
+  const victimGender = normalizeBinaryGender(victim?.gender);
+  const victimName = String(victim?.name ?? '').trim();
+  if (!victimGender || !victimName) return events;
+
+  const wrongPronouns = oppositePronouns(victimGender);
+  if (!wrongPronouns) return events;
+  const wrongGender: BinaryGender = victimGender === 'male' ? 'female' : 'male';
+
+  const tokenIndex = buildGenderedTokenIndex(cast);
+  // Victim name tokens, so "Finch" counts as the victim being in scope, not just the full name.
+  const victimTokens = victimName
+    .split(/\s+/)
+    .map((t) => t.replace(/\.$/, '').toLowerCase())
+    .filter((t) => t.length >= 3 && !DETECTOR_NAME_TITLES.has(t));
+  if (victimTokens.length === 0) return events;
+
+  for (const paragraph of text.split(/\n\s*\n/)) {
+    const narration = stripDialogueFromWindow(paragraph);
+
+    // Every position at which a wrong-gender cast name appears — a candidate competing antecedent.
+    const competingPositions: number[] = [];
+    for (const [token, info] of tokenIndex) {
+      if (info.gender !== wrongGender) continue;
+      if (victimTokens.includes(token)) continue; // the victim is not its own competitor
+      const pattern = new RegExp(`\\b${escapeRegex(token)}\\b`, 'gi');
+      let match: RegExpExecArray | null;
+      while ((match = pattern.exec(narration)) !== null) competingPositions.push(match.index);
+    }
+
+    // Every position at which the victim is named.
+    const victimPositions: number[] = [];
+    for (const token of victimTokens) {
+      const pattern = new RegExp(`\\b${escapeRegex(token)}\\b`, 'gi');
+      let match: RegExpExecArray | null;
+      while ((match = pattern.exec(narration)) !== null) victimPositions.push(match.index);
+    }
+    if (victimPositions.length === 0) continue; // victim never in scope in this paragraph
+
+    for (const pattern of [BODY_POSITION_PRONOUN, BODY_POSSESSIVE_PRONOUN]) {
+      pattern.lastIndex = 0;
+      let hit: RegExpExecArray | null;
+      while ((hit = pattern.exec(narration)) !== null) {
+        const pronoun = hit[1].toLowerCase();
+        if (pronoun !== wrongPronouns.object && pronoun !== wrongPronouns.possessive) continue;
+
+        // The sentence carrying the hit, for the body-noun requirement and the report snippet.
+        const sentenceStart = Math.max(
+          narration.lastIndexOf('. ', hit.index),
+          narration.lastIndexOf('! ', hit.index),
+          narration.lastIndexOf('? ', hit.index),
+        );
+        const from = sentenceStart === -1 ? 0 : sentenceStart + 2;
+        const endMatch = /[.!?]/.exec(narration.slice(hit.index));
+        const to = endMatch ? hit.index + endMatch.index + 1 : narration.length;
+        const sentence = narration.slice(from, to);
+
+        if (!BODY_WOUND_NOUN.test(sentence)) continue;              // not a body reference
+        if (!victimPositions.some((p) => p < hit!.index)) continue;  // victim not yet in scope
+        if (competingPositions.some((p) => p < hit!.index)) continue; // a wrong-gender referent precedes
+        if (UNNAMED_ROLE_INTERVENER.test(narration.slice(from, hit.index))) continue;
+
+        // BASELINE-DRIVEN GUARD. The first version fired on "He cleared his throat, the sound loud
+        // in the hush." — a live male character's own gesture in a story whose victim is female.
+        // "throat" is on the body list and no male was NAMED earlier in the paragraph, so every
+        // other guard passed. The tell is that the clause supplies its own referent: an unnamed
+        // SUBJECT pronoun of the same gender as the suspect possessive means the narration is
+        // internally consistent about someone who is not the victim. Measured: this removes the
+        // only false positive across 34 archived runs and leaves the true positive untouched (the
+        // real instance has no `he` anywhere before "beneath him" in its sentence).
+        const priorSubject = wrongGender === 'male' ? /\bhe\b/i : /\bshe\b/i;
+        if (priorSubject.test(narration.slice(from, hit.index))) continue;
+
+        events.push({
+          kind: 'victim_body_pronoun',
+          characterName: victimName,
+          sentence: sentence.replace(/\s+/g, ' ').trim().slice(0, 200),
+        });
+      }
+    }
+  }
+  return events;
+}
+
 /** Both high-precision detectors over one chapter's text. */
 export function detectPronounDriftEvents(text: string, cast: PronounDriftCastEntry[]): PronounDriftEvent[] {
   return [...detectAttributionFlips(text, cast), ...detectImpossibleSelfReferences(text, cast)];
@@ -518,9 +653,16 @@ export class ProseConsistencyValidator implements Validator {
         const pairKey = `${event.characterName}::${scene.number}`;
         if (flaggedPairs.has(pairKey)) continue;
         flaggedPairs.add(pairKey);
-        const detail = event.kind === 'attribution_flip'
-          ? 'a dialogue tag uses the opposite-gender pronoun for the nearest referent'
-          : 'an opposite-gender possessive/reflexive refers back to the sentence subject';
+        // Exhaustive by kind rather than a two-branch ternary: `victim_body_pronoun` is a third
+        // kind that does NOT reach here today (it is deliberately kept out of
+        // `detectPronounDriftEvents`), and a ternary would silently label it as detector (b)'s
+        // message if it ever were composed in. Naming all three costs nothing and cannot drift.
+        const DETAIL_BY_KIND: Record<PronounDriftEvent['kind'], string> = {
+          attribution_flip: 'a dialogue tag uses the opposite-gender pronoun for the nearest referent',
+          impossible_self_reference: 'an opposite-gender possessive/reflexive refers back to the sentence subject',
+          victim_body_pronoun: "an opposite-gender pronoun refers to the victim's body",
+        };
+        const detail = DETAIL_BY_KIND[event.kind];
         errors.push({
           type: 'pronoun_drift',
           message: `Pronoun drift for "${event.characterName}" in chapter ${scene.number}: ${detail} — "${event.sentence}".`,
