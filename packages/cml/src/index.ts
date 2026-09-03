@@ -130,3 +130,6 @@ export type {
   TemporalReading,
   TemporalSpine,
 } from "./temporal-spine.js";
+
+// Phase 1 — declaration-driven derivation checking, built on the spine. Flag-gated at the call site.
+export { checkDeclaredDerivations, summariseSpine } from "./declared-derivations.js";

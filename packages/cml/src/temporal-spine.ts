@@ -428,11 +428,23 @@ export const buildTemporalSpine = (facts: ReadonlyArray<SpineFactInput>): Tempor
       const declared = durationById.get(id)!.minutes;
       const outcomes = meridiemVariants(aInstant, bInstant).map(([x, y]) => Math.abs(x - y));
       const closes = outcomes.some((o) => o === declared);
-      const underspecified = aInstant.meridiem === "unknown" || bInstant.meridiem === "unknown";
       findings.push({
         id,
         shape: "duration_from_two_instants",
-        status: closes ? "closes" : underspecified ? "underspecified" : "fails",
+        // BINARY, and both halves were got wrong once before landing on this.
+        //
+        // v1 reported "underspecified" whenever a meridiem was unknown, even when NO reading closed —
+        // labelling a definite failure as a gap in the wording, and handing the regeneration weaker
+        // feedback than the case deserved. v2 over-corrected: it demanded that EVERY reading close,
+        // which for an instant the case states once is unsatisfiable by construction, and the archive
+        // firing rate went 31.8% -> 61.4% — straight into CLAUDE.md B1, a check that fires on most
+        // runs being an off switch with extra steps.
+        //
+        // The honest question is whether the case is coherent under ANY reading. If one is, the
+        // author meant that one; if none is, the arithmetic is wrong however the day is read. Daypart
+        // ambiguity is a real defect but a CLARITY one, reported as telemetry rather than as broken
+        // arithmetic.
+        status: closes ? "closes" : "fails",
         declared,
         computed: outcomes[0],
         detail: `declared ${declared}m; computed ${[...new Set(outcomes)].join(" or ")}m from ${srcA}/${srcB}`,
@@ -453,11 +465,12 @@ export const buildTemporalSpine = (facts: ReadonlyArray<SpineFactInput>): Tempor
         ? [declared.absolute, declared.absolute + 720]
         : [declared.absolute];
       const closes = candidates.some((c) => declaredOptions.some((d) => c === d));
-      const underspecified = declared.meridiem === "unknown" || baseInstant.meridiem === "unknown";
       findings.push({
         id,
         shape: "instant_from_instant_and_duration",
-        status: closes ? "closes" : underspecified ? "underspecified" : "fails",
+        // Same rule as the shape above, and for the same measured reason. Coherent under ANY reading
+        // is coherent; coherent under none is broken regardless of the daypart.
+        status: closes ? "closes" : "fails",
         declared: declared.absolute,
         computed: candidates[0],
         detail:

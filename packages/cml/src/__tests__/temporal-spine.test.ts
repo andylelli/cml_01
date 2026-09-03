@@ -128,7 +128,23 @@ describe("buildTemporalSpine — all the arithmetic shapes, not just one", () =>
     const finding = spine.findings.find((f) => f.id === "actual_call_sheet_creation")!;
     expect(finding).toBeDefined();
     expect(finding.shape).toBe("instant_from_instant_and_duration");
-    expect(finding.status).not.toBe("closes");
+    // FAILS, not merely "underspecified". 5:45pm on day −1 ± 115 minutes gives −260 or −490; the
+    // declared value is 200 or 920. NO reading closes, so the daypart ambiguity is not what stops a
+    // verdict — the arithmetic is wrong however the day is read. An earlier revision labelled this
+    // as an ambiguity and would have handed the regeneration weaker feedback than the case deserves.
+    expect(finding.status).toBe("fails");
+  });
+
+  it("a satisfiable-under-one-reading case COUNTS as closing — the B1 correction", () => {
+    // Demanding that EVERY meridiem reading close is unsatisfiable for an instant the case states
+    // once, and drove the archive firing rate from 31.8% to 61.4% — "a check that fires on most runs
+    // is an off switch with extra steps". Coherent under any reading is coherent.
+    const spine = buildTemporalSpine([
+      { id: "base", value: "nine o'clock" },
+      { id: "delay", value: "twenty minutes" },
+      { id: "later", value: "twenty minutes past nine", derivedFrom: ["base", "delay"] },
+    ]);
+    expect(spine.findings[0].status).toBe("closes");
   });
 
   it("separates instants from durations and ignores non-temporal facts", () => {

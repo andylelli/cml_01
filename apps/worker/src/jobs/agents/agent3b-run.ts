@@ -30,6 +30,8 @@ import {
 import {
   validateArtifact,
   checkCaseTimeCoherence,
+  checkDeclaredDerivations,
+  summariseSpine,
   parseClockTime,
   parseDurationMinutes,
   rewriteDurationMinutes,
@@ -286,7 +288,38 @@ export function reconcileDeviceArithmetic(ctx: OrchestratorContext): void {
     const a = parseClockTime(String(sources[0]!.fact.value ?? ""));
     const b = parseClockTime(String(sources[1]!.fact.value ?? ""));
     const current = parseDurationMinutes(raw);
-    if (a === null || b === null || current === null) continue;
+    if (a === null || b === null || current === null) {
+      /**
+       * THE SILENCE THAT LET A DEFECT SHIP. This was a bare `continue`.
+       *
+       * MEASURED on run mystery-1788457673117: `actual_call_sheet_creation` declared
+       * `derivedFrom: [call_sheet_date, call_sheet_creation_delay]` — the first time in this
+       * project's history a device declared its own dependency, which PLAN-TO-90 §10.4 recorded as a
+       * milestone — and this branch discarded it without a word, because the declaration is
+       * `instant = instant + duration` and this pass only knows `duration = |A − B|`. The reviewer
+       * then spent a paragraph on the arithmetic.
+       *
+       * The comment above is still right that a shape this pass cannot compute is "a silence, not a
+       * pass" — but a silence nobody can see is indistinguishable from a clean case. It now says so.
+       * Gated on the same flag as the spine check, so with the flag off this file behaves exactly as
+       * it always has.
+       */
+      if (/^(1|true|yes|on)$/i.test(process.env.AGENT3B_DECLARED_DERIVATIONS ?? "")) {
+        const unreadable = [
+          a === null ? `${sources[0]!.fact.id}="${sources[0]!.fact.value}"` : null,
+          b === null ? `${sources[1]!.fact.id}="${sources[1]!.fact.value}"` : null,
+          current === null ? `${id}="${raw}"` : null,
+        ].filter(Boolean);
+        ctx.warnings.push(
+          `[X38] declared derivation NOT EVALUATED: ${id} declares derivedFrom ` +
+            `[${(fact.derivedFrom ?? []).join(", ")}], but this pass reads only ` +
+            `"duration = |A − B|" and could not read ${unreadable.join(", ")} in that shape. ` +
+            `Reported rather than skipped — a silent skip is indistinguishable from a clean case, ` +
+            `and the spine check above evaluates the shapes this one cannot.`,
+        );
+      }
+      continue;
+    }
 
     const gap = dialGapMinutes(a, b);
     if (gap === current) continue; // the declared relation already holds
@@ -729,6 +762,35 @@ export async function runAgent3b(ctx: OrchestratorContext): Promise<void> {
      * moment the case is still cheap to fix — before an outline, before £1 of prose written against it.
      */
     let arithmeticViolations = checkCaseTimeCoherence({ lockedFacts: ctx.lockedFactRegistry });
+
+    /**
+     * ── PHASE 1: CHECK WHAT THE DEVICE SAYS IT DERIVED ───────────────────────────────────────────
+     *
+     * `checkCaseTimeCoherence` above fires only when the registry holds EXACTLY two clock facts and
+     * EXACTLY one duration. MEASURED on run mystery-1788457673117 (external read 76/100, whose
+     * reviewer's first complaint was the arithmetic): two clocks and TWO durations, so it never ran.
+     * That case was blind to four separate checks at once, and this is the fourth.
+     *
+     * Driving off DECLARATIONS instead of fact counts removes the heuristic entirely — a case that
+     * declares `derivedFrom` has already told us the pairing, and no extra duration can switch the
+     * check off. It also reaches the shape X38 cannot: `instant = instant ± duration`.
+     *
+     * Baselined before wiring (`scripts/temporal-spine-baseline.mjs`, 44 archived runs): 25 declare a
+     * derivation, and **11 of those 25 (44%) carry one that does not close** — so this is not a check
+     * that fires on everything (CLAUDE.md B1) nor one that fires on nothing.
+     *
+     * Flag-gated `AGENT3B_DECLARED_DERIVATIONS`, default OFF, read at CALL TIME (ADR-0004).
+     */
+    const declaredDerivationsEnabled = /^(1|true|yes|on)$/i.test(process.env.AGENT3B_DECLARED_DERIVATIONS ?? "");
+    if (declaredDerivationsEnabled) {
+      // Telemetry first and unconditionally within the flag: a run that reports what the spine READ
+      // can be diagnosed even when it finds nothing, which is the difference between "clean" and
+      // "never looked" that X38's silent `continue` erased.
+      ctx.warnings.push(`[X38-spine] ${summariseSpine(ctx.lockedFactRegistry)}`);
+      const declared = checkDeclaredDerivations(ctx.lockedFactRegistry);
+      if (declared.length > 0) arithmeticViolations = [...arithmeticViolations, ...declared];
+    }
+
     for (const violation of arithmeticViolations) {
       ctx.warnings.push(`[X38] Pillar 1 case-time incoherence (${violation.code}): ${violation.message}`);
     }
@@ -762,11 +824,28 @@ export async function runAgent3b(ctx: OrchestratorContext): Promise<void> {
     if (arithmeticRegenEnabled && arithmeticViolations.length > 0) {
       const beforeDevices = ctx.hardLogicDevices;
       const beforeRegistry = ctx.lockedFactRegistry;
+      /**
+       * The feedback describes BOTH arithmetic shapes, and asks for a daypart.
+       *
+       * It used to name only `duration = |A − B|`, which was true of the only violations that could
+       * reach it. The declared-derivations check now also raises `instant = instant ± duration`, so a
+       * regeneration told about one shape would be asked to fix a defect it had not been shown.
+       *
+       * The daypart clause is the other half of the 76/100 case: "twenty minutes past three" is
+       * 03:20 or 15:20, the case chose neither, and every temporal check downstream then picks one by
+       * accident. Asking for the daypart is a countable operation on the value itself — which is the
+       * kind of instruction this model actually complies with (CLAUDE.md: operations, not statistics).
+       */
       const feedback =
         `The device's own numbers must agree. ${arithmeticViolations.map((v) => v.message).join(" ")} `
-        + `Regenerate the device so its locked facts are arithmetically consistent: if two clock times and `
-        + `a duration are locked, the duration MUST equal the interval between the two times. State the `
-        + `derived value's \`derivedFrom\` as the ids of the two facts it is computed from.`;
+        + `Regenerate the device so its locked facts are arithmetically consistent, in BOTH directions: `
+        + `if two clock times and a duration are locked, the duration MUST equal the interval between `
+        + `the two times; and if a clock time is derived from another clock time plus a duration, it `
+        + `MUST equal that sum. State the derived value's \`derivedFrom\` as the ids of the two facts it `
+        + `is computed from. Every clock value MUST also name its half of the day ("a quarter to six in `
+        + `the evening", not "a quarter to six"), and if two values fall on different days say so on `
+        + `each ("on the evening prior", "on the murder day") — otherwise the interval between them is `
+        + `not determined and the reader is asked to do a sum that has more than one answer.`;
       const genLabel = "Agent3b-HardLogicDeviceGenerator";
       const costBefore = ctx.client.getCostTracker().getSummary().byAgent[genLabel] || 0;
       try {
@@ -789,10 +868,22 @@ export async function runAgent3b(ctx: OrchestratorContext): Promise<void> {
         if (!regenValid.valid || !regenerated?.devices?.length) {
           ctx.warnings.push(`[X38-regen] regenerated device failed schema validation; keeping the original.`);
         } else {
-          // Rebuild the registry from the NEW device and re-run the same check. Accept only on a clear.
+          /**
+           * Rebuild the registry from the NEW device and re-run the check. Accept only on a clear.
+           *
+           * THE ACCEPTANCE MUST RE-RUN THE SAME SET OF CHECKS THAT RAISED THE VIOLATIONS. It ran only
+           * `checkCaseTimeCoherence`, so once the declared-derivations check began contributing, a
+           * regeneration could be ACCEPTED while the very violation that triggered it still stood —
+           * the device replaced, the warning cleared, and the defect still in the case. That is the
+           * same shape as an acceptance validator that cannot see the defect it is repairing, which
+           * is what made the ch9 aftermath regen report 375 → 375 for ever.
+           */
           ctx.hardLogicDevices = regenerated;
           buildRegistryFromPrimaryDevice();
-          const after = checkCaseTimeCoherence({ lockedFacts: ctx.lockedFactRegistry });
+          const after = [
+            ...checkCaseTimeCoherence({ lockedFacts: ctx.lockedFactRegistry }),
+            ...(declaredDerivationsEnabled ? checkDeclaredDerivations(ctx.lockedFactRegistry) : []),
+          ];
           if (after.length === 0) {
             writeLockedFactsArtifact(ctx);
             arithmeticViolations = [];

@@ -720,3 +720,54 @@ almost every run anyway, and the cost of never settling it is bounded to that 1-
 is why it is enabled rather than deferred. **Falsification:** the repair fires and the regenerated
 sentence reads worse, or `regen-pronoun UNRESOLVED` appears without the count moving — the latter
 would mean the detector and the validator have drifted apart again.
+
+---
+
+## Addendum — `AGENT3B_DECLARED_DERIVATIONS`, registered 2026-09-03 (temporal spine, Phase 1)
+
+**State: SET `true` in `.env.local` 2026-09-03. T3/T4 unverified.**
+
+**Why it is safe to enable.** With `AGENT3B_ARITHMETIC_REGEN` unset (its default), the violations
+this raises reach only `ctx.warnings` — no LLM call, no artifact change, no output difference. It is
+a measure until that second flag is turned on, at which point it becomes the input to a design-tier
+repair costing ~$0.01–0.02.
+
+**The blindness it answers.** MEASURED on run mystery-1788457673117 (external read **76/100**, whose
+reviewer's first complaint was *"that arithmetic is wrong"*). Four checks were blind to the same
+three locked facts:
+
+1. `parseClockTime("a quarter to six on the evening prior")` returns **345** — 5:45 AM. It does not
+   fail; it silently discards 12 hours and a day.
+2. `isAtomicLockedFactValue` is **false** for that same string, so the ship-checks skip the fact.
+3. `reconcileDeviceArithmetic` knows only `duration = |A − B|`; the case declared
+   `instant = instant + duration` and hit `continue` **without a word**.
+4. `checkCaseTimeCoherence` fires only on **exactly two clock facts and exactly one duration**. This
+   case had two clocks and TWO durations, so it never ran at all.
+
+**What it does.** Drives off DECLARATIONS rather than fact counts — a case that declares `derivedFrom`
+has already stated its pairing, so no counting heuristic can switch the check off — and evaluates both
+arithmetic shapes through the temporal spine, which reads the day and daypart `parseClockTime` drops.
+It **diagnoses and does not rewrite**: `reconcileDeviceArithmetic`'s own reasoning is right that the
+pass must not guess which of three numbers is wrong, and in this case repairing the derived instant
+would have moved the call sheet's creation to the previous evening and destroyed the case, when the
+value actually wrong is the delay.
+
+**Baseline before wiring** (`scripts/temporal-spine-baseline.mjs`, 44 archived runs, paired by
+projectId): existing check fires on 12/44 (27.3%); this one on **14/44 (31.8%)**, of which **7 runs
+(15.9%) are ones where the old check was entirely silent**, at 1.1 violations per firing run. Clear of
+CLAUDE.md B1 in both directions — it fires on neither most runs nor none.
+
+**Three defects were found in this check's own development, each by running it:**
+- v1 labelled a definite failure as merely `underspecified` whenever a daypart was missing, handing
+  the regeneration weaker feedback than the case deserved.
+- v2 over-corrected by demanding that EVERY meridiem reading close, which is unsatisfiable for an
+  instant the case states once — the archive firing rate went 31.8% → **61.4%**, straight into B1.
+- The regen's acceptance re-ran only the OLD check, so a regeneration could be accepted while the
+  violation that triggered it still stood. Acceptance now re-runs the same set that raised it.
+
+**Settling probe.** One run with both this and `AGENT3B_ARITHMETIC_REGEN` on, on a case where it
+fires: confirm `[X38-regen]` reports a clear AND that the re-run declared-derivations check is empty,
+then read `clues`. **The delivery half needs no external read** — `[X38-spine]` telemetry reports what
+was read on every run, which is the distinction between "clean" and "never looked" that the silent
+`continue` erased. **If the probe never runs:** the warnings still make the defect visible in every
+run's telemetry instead of only in a reader's score, which is most of the value.

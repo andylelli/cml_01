@@ -572,7 +572,7 @@ export const dialGapMinutes = (a: number, b: number): number => {
 };
 
 export interface CaseTimeCoherenceViolation {
-  code: "locked_time_arithmetic" | "time_spines_disagree";
+  code: "locked_time_arithmetic" | "time_spines_disagree" | "declared_derivation_broken";
   message: string;
 }
 
