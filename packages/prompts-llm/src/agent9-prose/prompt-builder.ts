@@ -1499,9 +1499,29 @@ export const applyPromptBudgeting = (
     background_context: 450,   // short cast/motive synopsis — typically 300-400 tokens; 450 gives margin
     fair_play_contract: 1100,  // P2-19: raised from 700 to accommodate fairPlayGuardrails merged in (~4×~100 tokens)
     character_personality: 1400, // raised from 900: physicalMannerisms + privateLonging + motiveSeed add ~150 tokens per character
-    location_profiles: 1000,   // primary + keyLocations + sensory palette; 1000 fits 3-4 locations with sensory detail
+    /**
+     * RAISED 1000 -> 1300, 2026-09-04. MEASURED from the real run-5 location_profiles artifact:
+     * 1217 tokens, so 18% was cut on every prompt. Since `sensoryGuidance` now LEADS this block
+     * (29545d58) the part being cut is reference data - one dressing-room profile - rather than the
+     * SCENE OPENING RULE it used to eat, which is the trade that fix was for. 1300 delivers both.
+     */
+    location_profiles: 1300,
     texture_pool: 600,          // rotating atmosphere atoms; 600 fits ~8-10 atoms at ~60 tokens each
-    temporal_context: 850,      // season + era + weather + cultural notes; 850 fits a full temporal profile
+    /**
+     * RAISED 850 -> 1700, 2026-09-04. The old comment said "850 fits a full temporal profile". It
+     * does not: MEASURED by building the block from the real run-5 temporal_context artifact, it is
+     * **1620 tokens**, so 48% of it was cut on every one of 43 prose prompts.
+     *
+     * What was lost is the period texture, not boilerplate - social rituals, and an Atmospheric
+     * Details section ("the faint scent of rain-dampened cobblestones mixing with the aroma of
+     * freshly painted theatre marquees"). `atmosphere` is one of the exactly two categories standing
+     * between the best book we have ever produced and best-ever-everywhere.
+     *
+     * The first attempt to measure this used a synthetic temporalContext and reported 546t - it
+     * "fit", which was worthless, and is the same error as validating a check against a .md export
+     * instead of the artifact it reads. Build blocks from persisted artifacts or do not measure them.
+     */
+    temporal_context: 1700,
     continuity_context: 500,    // chapter-summary + recurring-phrase list; compact by design
     // A_75 review — raised when the authored guides were finally wired in (they had been loaded and
     // discarded). Hardcoded principles + the file: humour 785 + 1,730, craft 622 + 866, measured at
