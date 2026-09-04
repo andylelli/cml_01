@@ -1490,7 +1490,16 @@ export const applyPromptBudgeting = (
     // which is intended — they are also the first to go under pressure, so the cost is paid on the
     // early chapters that have room and refunded on the late ones that do not.
     humour_guide: 2600,
-    craft_guide: 1550,
+    /**
+     * RAISED 1550 -> 2000, 2026-09-04. MEASURED: the PAGE SHAPE block (~270 tokens) is appended to
+     * the END of craftGuideBlock, the whole block overran this cap, and the tail was cut - so the
+     * five countable operations reached **0 of 78 prose prompts** on run mystery-1788537332588 while
+     * the run own budget line read `dropped=[none]`. Truncated, not dropped, and invisible either way.
+     *
+     * The global budget was not the constraint: that same line reads budget=40000, available=30087,
+     * context=18168. A per-block cap was cutting content the run had 12k of headroom for.
+     */
+    craft_guide: 2000,
     voice_spec: 260,            // A_75 P1 — eight short lines by construction; 260 leaves margin for a long signature move
 
     /**
@@ -2292,8 +2301,21 @@ ${body}`;
    *
    * Deliberately a floor and not a quota: "at least" leaves the ceiling to the scene, and a chapter
    * that wants none of them is not punished for it anywhere.
+   *
+   * PREPENDED, NOT APPENDED, AND THAT IS THE WHOLE POINT. MEASURED on run mystery-1788537332588:
+   * appended to the end of this block, these five operations reached **0 of 78 prose prompts**,
+   * because `craft_guide` overran its 1550-token cap and the TAIL is what a truncation cuts. The
+   * run's own budget line said `dropped=[none]` — it was truncated, which reads as delivered.
+   *
+   * The consequence is measured in the books: across the last 8 manuscripts (80 chapters),
+   * "open at least four paragraphs on dialogue" was met in **0 of 80**, "use at least four em-dashes"
+   * in **0 of 80**, and paragraphs opening on speech sat at **9.0% against the canon's 59.7%** — the
+   * largest single difference between our page and theirs, asked for and never delivered.
+   *
+   * The cap is raised too, but order is the durable half: whatever else grows in this block later,
+   * the countable operations are no longer the first thing to fall off the end.
    */
-  craftGuideBlock +=
+  craftGuideBlock =
     '\n\nPAGE SHAPE — FIVE COUNTABLE THINGS, drawn from measuring 720,000 words of Golden Age novels' +
     ' against our own:\n' +
     '\n1. OPEN AT LEAST FOUR PARAGRAPHS IN THIS CHAPTER ON A LINE OF DIALOGUE — the quotation mark' +
@@ -2307,7 +2329,8 @@ ${body}`;
     ' carries a whole observation, placed where the scene slows.' +
     '\n5. KEEP AT LEAST FOUR SENTENCES UNDER EIGHT WORDS. The canon does both; the contrast between' +
     ' the long and the short is the rhythm, and doing only one of them is what makes prose flat.' +
-    '\nDo not count these out in the text or mention them. They are things to do, not a form to fill.';
+    '\nDo not count these out in the text or mention them. They are things to do, not a form to fill.' +
+    craftGuideBlock;
 
   const qualityGuardrails = Array.isArray(inputs.qualityGuardrails) ? inputs.qualityGuardrails : [];
   const rolloutFlagsRaw = (getGenerationParams().agent9_prose as any)?.rollout_flags;
