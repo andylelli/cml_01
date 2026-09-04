@@ -1479,6 +1479,15 @@ export async function runAftermathRepeatRegenPass(args: {
   regen: RegenFn;
   maxAttemptsPerDefect?: number;
   onUnresolved?: (defect: ProseDefect, reason: string) => void;
+  /**
+   * Every OTHER chapter's text. Supplied means a locked value that still appears somewhere else in
+   * the manuscript is not required to survive in THIS chapter. Omitted means the old chapter-scoped
+   * guard, byte for byte.
+   *
+   * See the `requiredValues` comment below: without this, 44% of the repairs this pass attempts are
+   * unsatisfiable by construction.
+   */
+  otherChaptersText?: string;
 }): Promise<InsertionRegenPassResult> {
   const paragraphs = args.chapter.paragraphs ?? [];
   const flagged = [...new Set(args.paragraphIndices)].filter((i) => i >= 0 && i < paragraphs.length);
@@ -1532,9 +1541,37 @@ export async function runAftermathRepeatRegenPass(args: {
   });
 
   const text = chapterText(args.chapter);
+  /**
+   * THE LOCKED-FACT GUARD IS SCOPED TO THE MANUSCRIPT, NOT TO THIS CHAPTER - and the chapter-scoped
+   * version made this pass impossible to satisfy on nearly half the chapters it ran on.
+   *
+   * The two validators composed below contradict each other whenever the repeated paragraph is the
+   * only place its locked value appears in this chapter. `noAftermathRepeatValidator` demands the
+   * restatement go; `preserveLockedFactsValidator` demands the value stay. The mechanism IS the
+   * value, so every candidate that fixes the defect trips the guard and the pass loses the same way
+   * on every attempt. That is the shape X29 in this file already names: two obligations that
+   * contradict each other on the same chapter is a contract defect, not a tuning problem.
+   *
+   * MEASURED by replaying the SHIPPED detector over the 30 archived books that have prose, locked
+   * facts and geometry (paired projectId to runId through llm.jsonl, never by name): 16 aftermath
+   * chapters carry `aftermath_repeat`, and 7 of those 16 - 44% - are deadlocked, a locked value
+   * living only inside a flagged paragraph. In 7 of 7 the value still appears ELSEWHERE in the
+   * manuscript, so the guard was protecting nothing in every single case. Run 22362 is one of them:
+   * it failed `dropped_locked_fact:five minutes` while "five minutes" sat in eleven paragraphs
+   * across eight other chapters, twice in the reveal itself.
+   *
+   * The contract locked facts actually carry is that the PROSE prints the case's canonical values,
+   * and `enforceLockedFactValuePresence` checks the manuscript for exactly that. Requiring the
+   * AFTERMATH chapter to go on restating the mechanism is the opposite of what aftermath owes.
+   *
+   * Conservative on purpose: a value that appears NOWHERE else is still required here, because
+   * dropping it would genuinely lose it from the book.
+   */
+  const elsewhere = args.otherChaptersText;
   const requiredValues = lockedFactValues(args.bible)
     .map((f) => f.value)
-    .filter((v) => v && text.includes(v));
+    .filter((v) => v && text.includes(v))
+    .filter((v) => !(elsewhere !== undefined && elsewhere.includes(v)));
   const originalWords = text.split(/\s+/).filter(Boolean).length;
 
   const noAftermathRepeatValidator = (c: ProseChapter): ValidatorResult => {

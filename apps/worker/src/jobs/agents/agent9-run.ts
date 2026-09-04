@@ -7613,6 +7613,28 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
                 // fired live for the first time on 08-15 and lost twice, with exactly that signature,
                 // on a chapter the cold read named unprompted. Both rewrite passes, one channel.
                 regen: rewriteChannelRegen,
+                /**
+                 * X-2026-09-04 — the locked-fact guard, scoped to the BOOK instead of the chapter.
+                 *
+                 * Run 22362 lost this repair twice with `dropped_locked_fact:five minutes`, on a
+                 * chapter whose ONLY "five minutes" was inside the very paragraph the repair had to
+                 * rewrite - while the book carried that value in eleven paragraphs across eight
+                 * other chapters. MEASURED over 30 archived books: 7 of the 16 aftermath chapters
+                 * flagged `aftermath_repeat` (44%) are deadlocked exactly this way, and in 7 of 7
+                 * the value survives elsewhere, so the guard protects nothing and only spends
+                 * attempts. Passing the rest of the manuscript lets the pass tell those apart from a
+                 * value that really would be lost. Env read at CALL time (ADR-0004); flag off leaves
+                 * this `undefined` and the old chapter-scoped guard exactly as it was.
+                 */
+                otherChaptersText: /^(1|true|yes|on)$/i.test(
+                  process.env.AGENT9_AFTERMATH_LOCKED_FACT_BOOK_SCOPE ?? '',
+                )
+                  ? ((prose.chapters ?? []) as any[])
+                      .filter((_c: any, k: number) => k !== index)
+                      .flatMap((c: any) => (c?.paragraphs ?? []) as string[])
+                      .map((x: unknown) => String(x ?? ''))
+                      .join('\n\n')
+                  : undefined,
                 onUnresolved: (_d: any, reason: string) =>
                   ctx.warnings.push(`[Agent 9] aftermath-repeat regen UNRESOLVED in ch${aftermath.chapter}: ${reason}.`),
               });
