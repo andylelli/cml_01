@@ -408,6 +408,50 @@ const recordCluePaste = (clueIds: string[]): void => {
 const titleCaseName = (value: string): string =>
   String(value ?? "").replace(/\b[a-z][A-Za-z']*/g, (word) => word.charAt(0).toUpperCase() + word.slice(1));
 
+/**
+ * A schema sentence spliced into the MIDDLE of a sentence has to read as a clause.
+ *
+ * `false_assumption.statement` is authored as a standalone sentence and interpolated after the word
+ * "Either", which produced, verbatim, in a shipped book:
+ *
+ *   "Either The director's shouted rehearsal start at twenty minutes past seven is universally
+ *    accepted as the exact time rehearsals began, ..."
+ *
+ * read-20260904-2035 listed that line among the "generator fingerprints, not fiction" it wanted cut,
+ * and `prose` scored 7. The template's own fallback ("the accepted explanation still held together")
+ * is lowercase, so a clause is exactly what it was written to take.
+ *
+ * MEASURED over all 50 stored `cml` artifacts: 50 of 50 statements begin with a capital, so this has
+ * misfired on EVERY case that ever took this path. First words seen: The x46, plus Sylvia, Captain,
+ * Beatrice, Witnesses.
+ *
+ * Which is why a blanket lowercase is wrong - three of those four are proper nouns. The decision is
+ * made from the CASE'S OWN CAST rather than from a guessed wordlist: a first word that names someone
+ * in this story, or is an honorific, keeps its capital ("Either Captain Hale's account ..." is
+ * correct); anything else is sentence-case and is lowered ("Witnesses" -> "witnesses").
+ *
+ * The `^[A-Z][a-z]+$` test is a second guard: it leaves acronyms (BBC) and internally-capitalised
+ * surnames (McField, DeVries) alone, since lowering their first letter would corrupt them.
+ */
+const CLAUSE_SAFE_HONORIFICS = new Set([
+  "dr", "miss", "mrs", "mr", "captain", "col", "colonel", "major", "sir", "lady", "lord",
+  "prof", "professor", "reverend", "rev", "inspector", "detective", "sergeant", "madame", "madam",
+]);
+
+const decapitaliseSentenceOpener = (statement: string, cmlCase: any): string => {
+  const first = statement.split(/\s+/)[0] ?? "";
+  if (!/^[A-Z][a-z]+$/.test(first)) return statement;
+  const bare = first.toLowerCase();
+  if (CLAUSE_SAFE_HONORIFICS.has(bare)) return statement;
+  const cast = Array.isArray(cmlCase?.cast) ? cmlCase.cast : [];
+  for (const member of cast) {
+    for (const word of String(member?.name ?? "").split(/\s+/)) {
+      if (word && word.toLowerCase().replace(/[^a-z']/g, "") === bare) return statement;
+    }
+  }
+  return first.charAt(0).toLowerCase() + statement.slice(1);
+};
+
 const buildDeterministicDiscriminatingTestParagraphs = (args: {
   caseData: CaseData;
   investigatorName: string;
@@ -423,8 +467,11 @@ const buildDeterministicDiscriminatingTestParagraphs = (args: {
         .map((entry: any) => typeof entry === "string" ? entry.trim() : String(entry?.name ?? "").trim())
         .filter(Boolean)
     : [];
-  const theoryA = normalizeClueStatement(
-    String(falseAssumption?.statement ?? "the accepted explanation still held together").trim(),
+  const theoryA = decapitaliseSentenceOpener(
+    normalizeClueStatement(
+      String(falseAssumption?.statement ?? "the accepted explanation still held together").trim(),
+    ),
+    cmlCase,
   );
   const culpritName = args.focusName?.trim();
 
