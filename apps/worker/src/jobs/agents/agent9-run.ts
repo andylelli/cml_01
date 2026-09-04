@@ -1071,21 +1071,41 @@ export const detectFinalChapterVerdictEnding = (
   if (nonEmpty.length === 0) return [];
   const lastParagraph = nonEmpty[nonEmpty.length - 1];
 
-  // Quoted closing spaced before the mark ("You did it. ") is a recurring rendering convention across
-  // this corpus — checked directly against the actual manuscript text before shipping this pattern.
+  /**
+   * TYPOGRAPHY IS FOLDED FIRST, and the version without this shipped blind.
+   *
+   * MEASURED on story_20260904-1711 (external read 83/100), whose final paragraph is
+   * `…waited for the curtain to fall. “You did it. ” The words settled and nobody took them back.
+   * Marguerite Gaunt said nothing…` — the exact shape this check exists for, and the reviewer's
+   * named reason the ending "feels like it has accidentally reverted to reveal mode". The detector
+   * returned [].
+   *
+   * The cause: `prose.chapters` holds CURLY quotes; the exported .md holds straight ones. The
+   * original pattern required `"`, and its docblock claimed it had been "checked directly against
+   * the actual manuscript text" — it had, but against the .md, not against the artifact the check
+   * actually reads. Validating the rendered form instead of the in-pipeline form is the same error
+   * that let the forbidden-time-form fixture certify its own bug.
+   *
+   * `accept.ts` has carried `foldTypography` for precisely this since a curly apostrophe made
+   * `parseClockTime("two o’clock")` return null and got a manuscript accused of inventing an hour
+   * the case had declared. Same trap, same fold.
+   */
+  const fold = (s: string): string =>
+    s.replace(/[“”„‟″‶]/g, '"').replace(/[‘’‚‛′‵]/g, "'");
   const CONFESSION_CONFIRMATION_RE = /"you did it\.?\s*"|"i did it\.?\s*"/i;
   const VERDICT_SENTENCE_RE =
     /\bthe case was closed\b|\bjustice (?:had been|was) served\b|\bwas (?:responsible|guilty) for (?:it|the murder|the crime)\b/i;
 
   const messages: string[] = [];
-  if (CONFESSION_CONFIRMATION_RE.test(lastParagraph)) {
+  const folded = fold(lastParagraph);
+  if (CONFESSION_CONFIRMATION_RE.test(folded)) {
     messages.push(
       `[Agent 9] SHIP-CHECK final-chapter ending: the last paragraph of ch${chapters.length} contains a ` +
         `direct confession-confirmation quote ("You did it" / "I did it") — the CLOSE IN-SCENE and ` +
         `AFTERMATH REQUIRED obligations both forbid ending on this beat. MEASURE only — see this comment for why.`,
     );
   }
-  if (VERDICT_SENTENCE_RE.test(lastParagraph)) {
+  if (VERDICT_SENTENCE_RE.test(folded)) {
     messages.push(
       `[Agent 9] SHIP-CHECK final-chapter ending: the last paragraph of ch${chapters.length} contains a ` +
         `narrator verdict sentence ("the case was closed" / "justice had been served" / "X was ` +

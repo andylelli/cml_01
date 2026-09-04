@@ -83,3 +83,48 @@ describe("detectFinalChapterVerdictEnding (diagnosis-batch #6)", () => {
     expect(detectFinalChapterVerdictEnding([{}])).toEqual([]);
   });
 });
+
+describe("curly quotes — the typography that made this check blind", () => {
+  /**
+   * MEASURED on story_20260904-1711 (external read 83/100). Its final paragraph is the exact shape
+   * this check exists for, and the reviewer named it as the reason the ending "feels like it has
+   * accidentally reverted to reveal mode". The check returned [].
+   *
+   * `prose.chapters` holds CURLY quotes; the exported .md holds straight ones. The original pattern
+   * required a straight quote, and its docblock claimed it had been checked against the real
+   * manuscript — it had, but against the .md rather than the artifact the check actually reads.
+   * Validating the rendered form instead of the in-pipeline form is the same error that let the
+   * forbidden-time-form fixture certify its own bug, and `accept.ts` has carried `foldTypography`
+   * for this since a curly apostrophe made parseClockTime return null on "two o’clock".
+   *
+   * THE FIXTURES BELOW USE CURLY QUOTES DELIBERATELY. Do not "normalise" them.
+   */
+  it("catches the real 83/100 ending, verbatim and curly", () => {
+    const chapters = [
+      { paragraphs: ["An ordinary chapter."] },
+      {
+        paragraphs: [
+          "Clarissa looked out across the rows, the flicker of lamplight catching her eyes, and waited " +
+            "for the curtain to fall. “You did it. ” The words settled and nobody took them back. " +
+            "Marguerite Gaunt said nothing, and the proof on the table said the rest.",
+        ],
+      },
+    ];
+    const messages = detectFinalChapterVerdictEnding(chapters);
+    expect(messages).toHaveLength(1);
+    expect(messages[0]).toContain("confession-confirmation");
+  });
+
+  it("still catches the straight-quote form — the fold must not trade one blindness for another", () => {
+    const chapters = [{ paragraphs: ["aftermath.", '"You did it. " Hugo Vane said nothing at all.'] }];
+    expect(detectFinalChapterVerdictEnding(chapters)).toHaveLength(1);
+  });
+
+  it("stays silent on a clean curly-quoted aftermath", () => {
+    const chapters = [
+      { paragraphs: ["An ordinary chapter."] },
+      { paragraphs: ["“It is done,” she said, and the stage, for a moment, belonged to no one."] },
+    ];
+    expect(detectFinalChapterVerdictEnding(chapters)).toEqual([]);
+  });
+});
