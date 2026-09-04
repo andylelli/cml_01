@@ -28,6 +28,12 @@ export interface TimelineDeceptionInput {
   actualTime?: string;
   /** The culprit's accountable span(s), e.g. "9:00 to 9:45 in the bar". */
   culpritAlibiWindows?: ReadonlyArray<string>;
+  /**
+   * Read the vocabulary alibi windows are actually written in. Set from the env flag at CALL time by
+   * `checkCaseTimelineDeception` (ADR-0004) — never captured in a module const, which freezes before
+   * dotenv and has already made three flags no-ops on this project.
+   */
+  wideWindowVocabulary?: boolean;
 }
 
 export interface TimelineDeceptionViolation {
@@ -174,8 +180,27 @@ export const parseClockTime = (raw?: string): number | null => {
   // Otherwise accepted ONLY when the whole segment is the time. Two bare number words are ordinary prose
   // ("one two men"), and this runs against free text as well as structured fields — the same reason
   // the bare-hour branch below carries a guard. Anchoring to the whole string is that guard.
+  //
+  // A LEADING TIME-PREPOSITION IS ALLOWED, and the anchor is why it has to be spelled out here.
+  //
+  // MEASURED 2026-09-04 against the SHIPPED parser: `parseClockTime("from six thirty")` returned
+  // 6:00. Anchored ^...$, this branch could not match preposition-led text at all, so execution fell
+  // through to the bare-hour branch below, which matched "from six" and DISCARDED "thirty". Eight of
+  // twenty spoken forms came back wrong that way - "at six thirty", "from seven fifteen",
+  // "by seven fifteen", "from seven twenty-five" - every one of them a WRONG NUMBER rather than a
+  // refusal, which is the worse failure: a silent gate can be found by asking why it never fires,
+  // but a confident wrong answer is handed to every temporal check as fact.
+  //
+  // Exposure on whole-value clock fields was measured at ZERO (21 preposition-led strings of 752 in
+  // the store, none mis-read), so this is not a fix for a defect that was biting. It is a
+  // PREREQUISITE: window halves are exactly where preposition-led forms live ("from seven fifteen to
+  // eight in the foyer"), so widening `parseTimeWindow` without this would have started manufacturing
+  // 7:00 where the case wrote 7:15.
+  //
+  // The ^...$ anchor - the guard against "one two men" - is untouched. "one of the guests" still
+  // fails, because "of" is not a minute and "the guests" is left over before the anchor.
   const hourMinutes = text.match(
-    /^(twelve|midnight|noon|one|two|three|four|five|six|seven|eight|nine|ten|eleven)\s+(?:oh\s+)?([a-z]+(?:-[a-z]+)?|\d{1,2})(?:\s+(?:a\.?m\.?|p\.?m\.?|in the (?:morning|afternoon|evening)|at night))?$/,
+    /^(?:(?:from|at|by|around|about|near|until|till|before|after|since|between)\s+)?(twelve|midnight|noon|one|two|three|four|five|six|seven|eight|nine|ten|eleven)\s+(?:oh\s+)?([a-z]+(?:-[a-z]+)?|\d{1,2})(?:\s+(?:a\.?m\.?|p\.?m\.?|in the (?:morning|afternoon|evening)|at night))?$/,
   );
   if (hourMinutes) {
     const hour = WORD_NUMBERS[hourMinutes[1]!];
@@ -206,8 +231,61 @@ export const parseClockTime = (raw?: string): number | null => {
   return null;
 };
 
+/**
+ * A trailing clause that says WHERE, not WHEN — "two to three IN THE LOUNGE".
+ *
+ * An `alibi_window` is one free-text field carrying both ("2:00 to 2:40 PM in the smoking room"),
+ * and the place is what makes the second half unreadable: `parseClockTime("three in the lounge")`
+ * refuses, correctly, because a bare hour needs to commit to being a time.
+ *
+ * This is deliberately NOT "try successively shorter prefixes until one parses". That would
+ * resurrect the documented false positive this file already carries a guard against: the right half
+ * of "one of the guests through two doors" would yield 2:00, the left "one of the guests" 1:00, and
+ * `parseTimeWindow` would fabricate the window [1:00, 2:00] out of a sentence containing no time.
+ * Only a clause opening with a known locative or activity preposition is removed, so "one OF the
+ * guests" is still refused — "of" is not in the list.
+ */
+const TRAILING_LOCATIVE =
+  /\s+(?:in|near|at|inside|outside|within|by|beside|on|supervising|attending|with|among|around)\s+.*$/;
+
+/** Read one half of a window, allowing the forms an alibi_window actually writes. */
+const readWindowHalf = (half: string): number | null => {
+  const direct = parseClockTime(half);
+  if (direct !== null) return direct;
+
+  const withoutPlace = half.replace(TRAILING_LOCATIVE, "").trim();
+  if (withoutPlace && withoutPlace !== half) {
+    const parsed = parseClockTime(withoutPlace);
+    if (parsed !== null) return parsed;
+  }
+
+  // "Between six and eight" — `between` is not in the bare-hour branch's preposition list and must
+  // NOT be added there: that branch runs against free prose, and "between one of them" would parse
+  // as 1:00. Rewriting to `from` confines the reading to a window half, where the other half has to
+  // parse as well before anything is believed.
+  const asFrom = (withoutPlace || half).replace(/\bbetween\b/, "from");
+  if (asFrom !== (withoutPlace || half)) {
+    const parsed = parseClockTime(asFrom);
+    if (parsed !== null) return parsed;
+  }
+  return null;
+};
+
+export interface ParseTimeWindowOptions {
+  /**
+   * Read the vocabulary alibi windows are actually written in: "and" as a separator, a trailing
+   * place clause, "between X and Y". OFF by default — see AGENT3_TIMELINE_WINDOW_VOCABULARY in
+   * architecture/FLAG-AUDIT.md — because it changes how often a GATE fires, not just what a parser
+   * returns.
+   */
+  wide?: boolean;
+}
+
 /** Extract a [start, end] dial span from free text like "9:00 to 9:45 in the bar". */
-export const parseTimeWindow = (raw?: string): [number, number] | null => {
+export const parseTimeWindow = (
+  raw?: string,
+  options: ParseTimeWindowOptions = {},
+): [number, number] | null => {
   const text = String(raw ?? "").toLowerCase();
   if (!text.trim()) return null;
 
@@ -215,10 +293,23 @@ export const parseTimeWindow = (raw?: string): [number, number] | null => {
   // quarter to nine" broke on both "until" and the "to" of "quarter to nine", yielding three
   // fragments and a silently wrong end time. Instead, try each separator position in turn and accept
   // the first split whose two halves BOTH parse as clock times.
-  const separator = /\s+(?:until|till|through|to|-|–|—)\s+/g;
+  //
+  // That both-halves rule is also the whole safety argument for `wide`. Adding "and" to the
+  // alternation looks reckless — "in his suite and lounge" is ordinary prose — but the split is only
+  // accepted when both sides read as clock times, and "lounge" does not.
+  //
+  // MEASURED against THIS implementation over the 235 distinct alibi_window strings in the `cml`
+  // artifacts: readability 64% -> 89%, ZERO windows changing value, ZERO regressions. (The figures
+  // in the first draft of this comment - 155 strings, 62% -> 92% - came from the candidate probe and
+  // a store walk that swept up case copies embedded in other artifact types. They were wrong on all
+  // three numbers, which is the reason a comment states what was measured and against what.)
+  const separator = options.wide
+    ? /\s+(?:until|till|through|to|and|-|–|—)\s+/g
+    : /\s+(?:until|till|through|to|-|–|—)\s+/g;
+  const readHalf = options.wide ? readWindowHalf : parseClockTime;
   for (let match = separator.exec(text); match !== null; match = separator.exec(text)) {
-    const start = parseClockTime(text.slice(0, match.index));
-    const end = parseClockTime(text.slice(match.index + match[0].length));
+    const start = readHalf(text.slice(0, match.index));
+    const end = readHalf(text.slice(match.index + match[0].length));
     if (start !== null && end !== null) return [start, end];
   }
   return null;
@@ -297,8 +388,11 @@ export const checkTimelineDeception = (input: TimelineDeceptionInput): TimelineD
     return violations;
   }
 
+  // Explicit arrow, NOT `.map(parseTimeWindow)`. `map` passes the array INDEX as the second
+  // argument, so the point-free form silently handed `0`, `1`, `2` to the options parameter the
+  // moment one existed. tsc caught it; at runtime it would have been invisible.
   const windows = (input.culpritAlibiWindows ?? [])
-    .map(parseTimeWindow)
+    .map((w) => parseTimeWindow(w, { wide: input.wideWindowVocabulary === true }))
     .filter((w): w is [number, number] => w !== null);
   if (windows.length === 0) return violations;
 
@@ -422,6 +516,10 @@ export const checkCaseTimelineDeception = (cmlCase: any): TimelineDeceptionViola
     apparentTime: mechanism.apparent_time_of_death,
     actualTime: mechanism.actual_time_of_death,
     culpritAlibiWindows: culpritWindows,
+    // Read at CALL time, not at module load.
+    wideWindowVocabulary: /^(1|true|yes|on)$/i.test(
+      String(process.env.AGENT3_TIMELINE_WINDOW_VOCABULARY ?? ""),
+    ),
   });
 };
 
