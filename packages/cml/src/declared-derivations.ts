@@ -89,26 +89,31 @@ export const checkDeclaredDerivations = (
       continue;
     }
 
-    violations.push({
-      code: "declared_derivation_broken",
-      message:
-        `"${finding.id}" declares a derivation this case cannot compute: ${finding.detail}. Either the ` +
-        `declaration names the wrong facts, or one of them is not a time or a duration. A declared ` +
-        `dependency that cannot be evaluated is worse than none, because every downstream check ` +
-        `treats it as satisfied.`,
-    });
-  }
-
-  // A time-shaped value the strict reader could not resolve is reported once, as a group: it is the
-  // input to every temporal check in the pipeline, so an unreadable one blinds all of them at once.
-  if (spine.unreadable.length > 0) {
-    violations.push({
-      code: "declared_derivation_broken",
-      message:
-        `${spine.unreadable.length} locked fact(s) look like times but cannot be read as one: ` +
-        `${spine.unreadable.join("; ")}. Every temporal check in the pipeline reads these values, so ` +
-        `an unreadable one is not a small problem — it silently exempts the case from all of them.`,
-    });
+    /**
+     * `unreadable` IS NOT A VIOLATION, and making it one was a measured regression risk.
+     *
+     * Classified across 46 archived devices before wiring the regen: 5 runs (10.9%) carry a REAL
+     * arithmetic failure, and 10 runs (21.7%) fire on `unreadable` ALONE. Those ten are not broken
+     * cases — they are derivations this check cannot compute because they were never arithmetic of
+     * the kind it knows:
+     *
+     *   shadow_light_angle_difference = "ninety degrees"  from two angles      (geometry, correct)
+     *   wet_sand_mark_length = "twenty-five feet"         from a length + time (physics, correct)
+     *   travel_time_between_rooms                          from a length + time (correct)
+     *   sound_delay_interval = "ten seconds"               (a precision this reader lacks)
+     *   murder_actual_time    from two instants            (a third shape, unsupported)
+     *
+     * Feeding those to `AGENT3B_ARITHMETIC_REGEN` would tell a CORRECT device it is broken and
+     * regenerate it, on twice as many runs as it would fix anything — a lever that makes cases worse
+     * more often than better. X38's own comment already had this right: a shape this pass cannot
+     * compute is "recorded by the case and simply not actionable here — which is a silence, not a
+     * pass." The silence was never the defect; the defect was that nobody could SEE the silence.
+     *
+     * So it stays out of the violation list and goes to telemetry instead, where `summariseSpine`
+     * reports every derivation's status on every run. Visible, and not actionable — which is exactly
+     * what it is.
+     */
+    continue;
   }
 
   return violations;

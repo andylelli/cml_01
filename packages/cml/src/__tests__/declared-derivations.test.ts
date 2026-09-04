@@ -83,14 +83,46 @@ describe("checkDeclaredDerivations", () => {
     expect(violations[0].message).toContain("later");
   });
 
-  it("reports a declaration naming a fact that is not a time, instead of skipping it", () => {
-    // X38 answered this with `continue`. A silent skip is indistinguishable from a clean case.
+  it("does NOT raise a violation for a derivation it simply cannot compute", () => {
+    /**
+     * MEASURED across 46 archived devices before the regen was allowed near this: 5 runs (10.9%)
+     * carry a real arithmetic failure, and 10 runs (21.7%) would have fired on `unreadable` ALONE.
+     * Those ten are correct cases — an angle difference from two angles, a distance from a length
+     * and a time, a seconds-precision interval, a time derived from two other times. Feeding them to
+     * AGENT3B_ARITHMETIC_REGEN would regenerate a CORRECT device on twice as many runs as it fixed
+     * anything.
+     *
+     * X38's own comment had this right all along: a shape the pass cannot compute is "a silence, not
+     * a pass". The defect was never the silence — it was that nobody could see it. It is telemetry
+     * now (`summariseSpine` reports every derivation's status), and not a violation.
+     */
     const violations = checkDeclaredDerivations([
       { id: "a", value: "nine o'clock in the evening" },
-      { id: "broken", value: "thirty-four inches", derivedFrom: ["a", "missing"] },
+      { id: "angle", value: "ninety degrees", derivedFrom: ["a", "missing"] },
     ]);
-    expect(violations.length).toBeGreaterThan(0);
-    expect(violations.some((v) => v.message.includes("cannot compute"))).toBe(true);
+    expect(violations).toEqual([]);
+  });
+
+  it("a real angle derivation — the measured false positive — is silent", () => {
+    // Verbatim from canary_1788416308849: 45° and 135° differ by 90°. Correct geometry, not a clock.
+    expect(
+      checkDeclaredDerivations([
+        { id: "spotlight_angle", value: "forty-five degrees" },
+        { id: "shadow_orientation", value: "one hundred and thirty-five degrees" },
+        { id: "shadow_light_angle_difference", value: "ninety degrees", derivedFrom: ["spotlight_angle", "shadow_orientation"] },
+      ]),
+    ).toEqual([]);
+  });
+
+  it("but the telemetry still SHOWS the uncomputable derivation", () => {
+    // Not actionable is not the same as invisible — that distinction is the whole point.
+    const summary = summariseSpine([
+      { id: "spotlight_angle", value: "forty-five degrees" },
+      { id: "shadow_orientation", value: "one hundred and thirty-five degrees" },
+      { id: "shadow_light_angle_difference", value: "ninety degrees", derivedFrom: ["spotlight_angle", "shadow_orientation"] },
+    ]);
+    expect(summary).toContain("shadow_light_angle_difference");
+    expect(summary).toContain("unreadable");
   });
 
   it("handles an empty or malformed registry without throwing", () => {
