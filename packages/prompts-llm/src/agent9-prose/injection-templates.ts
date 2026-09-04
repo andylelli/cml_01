@@ -229,6 +229,29 @@ export const INJECTED_SENTENCE_PATTERNS: ReadonlyArray<RegExp> = [
   /(?:laid the facts out plainly where the others could see them|pressed on to the next concrete detail)/i,
   /(?:Those details|That detail) shifted the reasoning/i,
   /Weighed against the rest,.*(?:bent the trail toward|left the standing account weaker)/i,
+  /**
+   * …and the shape the MODEL paraphrases that line into, which the registry could not see.
+   *
+   * MEASURED on story_20260903-2136 (external read 77/100, `prose` 5/10, the reviewer quoting these
+   * sentences as "generator-planning artifacts"): the code writes
+   * `"That detail shifted the reasoning. Weighed against the rest, <bag> bent the trail toward <bag>."`
+   * and the book contains
+   * `"That detail turned the logic stacked against the rest, <bag> bent the trail toward <bag>."`
+   * `isInjectedSentence` returned FALSE for every one of them.
+   *
+   * That is A_75 §2.1's mechanism rather than a template bug — the model was shown our voice in the
+   * recap and rewrote our sentence in it — but the consequence is a registry blind to text the
+   * pipeline is responsible for: `AGENT9_RECAP_STRIP_INJECTED` cannot remove what it cannot
+   * recognise, and the injector-retirement metrics undercount.
+   *
+   * The verb rotates (upended / turned / tilted / overturned), so it is matched as `\w+`, and the
+   * anchor is the phrase no author writes: "the logic stacked against the rest".
+   *
+   * BASELINED BEFORE ADDING, over all 32 archived manuscripts: 6 occurrences in 2 books, every one a
+   * token bag ("Brass candlestick wiped traces blood groove"), zero authored prose. This registry
+   * feeds a pass that DELETES text, so a loose pattern here costs real writing.
+   */
+  /\b(?:That detail|Those details)\s+\w+\s+the logic stacked against the rest\b/i,
   // …and the LIST-GRAMMAR rendering of the same floor (AGENT9_CLUE_LIST_GRAMMAR). Registered in the
   // same commit that introduced it: property #2 of this file is that a floor which changes its
   // sentence must contribute the new shape, and the alternative is a flag that silently blinds every
