@@ -75,6 +75,31 @@ export const CATEGORY_HEADINGS = [
 ];
 
 /**
+ * Categories a reader added LATER, captured but deliberately NOT folded into `externalCategorySum`.
+ *
+ * "Character Life / Relationship Richness" first appears in read-20260831-2025 and is in every read
+ * since - nine of them. Until 2026-09-04 this parser did not recognise the heading, pushed
+ * `unrecognised category heading` into `problems`, and DROPPED the mark. Nine human marks, on the
+ * project's only validated instrument, recorded nowhere.
+ *
+ * Kept out of the ten-category sum on purpose, and that split is the whole reason for a second list.
+ * `externalCategorySum` is compared across 55 reads spanning both eras; silently making it a sum of
+ * ELEVEN for the newest nine would make every cross-era comparison apples-to-oranges, and `--best`
+ * would add an eleventh best-ever to a projection whose offset term is still derived from
+ * ten-category reads. Worse, the sum is gated on `marks.length === 10`, so an eleventh entry in
+ * `externalCategories` would have made those nine rows lose their sum and offset ENTIRELY.
+ *
+ * MEASURED, and the reason the split is worth stating rather than just doing: mean(headline - sum10)
+ * is +4.15 over the 40 ten-category reads and +7.89 over the nine eleven-category ones. The headline
+ * did NOT follow the category marks down - `ext` held at 82-84 while `sum10` fell to 74-79 - so the
+ * "+3 offset" constant the path-to-90 arithmetic carries is stale for recent reads. Add the mark
+ * back and mean(headline - sum11) is +0.78.
+ */
+export const SUPPLEMENTARY_HEADINGS = [
+  ["character_life", /^character\s*life\b|^relationship\s*richness\b/i],
+];
+
+/**
  * Pull the headline and the ten category marks out of one review.
  *
  * Returns `{ final, categories, notes, problems }`. `problems` is never empty when something did not
@@ -83,6 +108,7 @@ export const CATEGORY_HEADINGS = [
 export function parseExternalRead(text) {
   const problems = [];
   const categories = {};
+  const supplementary = {};
   const notes = {};
 
   /**
@@ -132,6 +158,14 @@ export function parseExternalRead(text) {
     const heading = m[1].trim().replace(/^\d{1,2}[.)]\s*/, "");
     const hit = CATEGORY_HEADINGS.find(([, re]) => re.test(heading));
     if (!hit) {
+      const extra = SUPPLEMENTARY_HEADINGS.find(([, re]) => re.test(heading));
+      if (extra) {
+        if (supplementary[extra[0]] == null) {
+          supplementary[extra[0]] = Number(m[2]);
+          notes[extra[0]] = (m[3] ?? "").trim();
+        }
+        continue;
+      }
       problems.push(`unrecognised category heading: "${heading}"`);
       continue;
     }
@@ -145,7 +179,7 @@ export function parseExternalRead(text) {
   if (missing.length && missing.length < 10) problems.push(`missing categories: ${missing.join(", ")}`);
   else if (missing.length === 10) problems.push("no category table found");
 
-  return { final, finalDerived, categories, notes, problems };
+  return { final, finalDerived, categories, supplementary, notes, problems };
 }
 
 /** Every `<storyDir>` that holds both a manuscript and an external read. */
@@ -217,6 +251,11 @@ if (invokedDirectly) {
       ...(parsed.finalDerived ? { externalFinalDerived: true } : {}),
       externalCategories: Object.keys(parsed.categories).length ? parsed.categories : (existing?.externalCategories ?? {}),
       externalNotes: Object.keys(parsed.notes).length ? parsed.notes : (existing?.externalNotes ?? {}),
+      // Separate field on purpose - see SUPPLEMENTARY_HEADINGS. `externalCategories` must keep
+      // EXACTLY the ten that the `marks.length === 10` sum gate below counts.
+      externalSupplementary: Object.keys(parsed.supplementary ?? {}).length
+        ? parsed.supplementary
+        : (existing?.externalSupplementary ?? {}),
     };
     if (merged.internalFinal != null && merged.externalFinal != null) merged.gap = merged.internalFinal - merged.externalFinal;
     // The category sum and its offset — the arithmetic §1.1 carries by hand.

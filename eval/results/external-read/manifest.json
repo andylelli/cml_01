@@ -36,7 +36,8 @@
       "prose": "Cleaner than most previous drafts, though a few generated phrases remain."
     },
     "externalCategorySum": 83,
-    "externalOffset": 3
+    "externalOffset": 3,
+    "externalSupplementary": {}
   },
   {
     "bundleId": "read-20260817-2209",
@@ -68,7 +69,8 @@
       "prose": "Much cleaner than the weaker drafts, with fewer obvious artifacts."
     },
     "externalCategorySum": 82,
-    "externalOffset": 4
+    "externalOffset": 4,
+    "externalSupplementary": {}
   },
   {
     "bundleId": "read-20260823-2038",
@@ -100,7 +102,8 @@
       "prose": "Cleaner than many, but several prompt-artifact lines remain."
     },
     "externalCategorySum": 80,
-    "externalOffset": 5
+    "externalOffset": 5,
+    "externalSupplementary": {}
   },
   {
     "bundleId": "read-20260828-2301",
@@ -132,7 +135,8 @@
       "prose": "Atmospheric, but capped by leakage and malformed lines."
     },
     "externalCategorySum": 80,
-    "externalOffset": 5
+    "externalOffset": 5,
+    "externalSupplementary": {}
   },
   {
     "bundleId": "2026-08-06-2230-pendulum-secret-chime",
@@ -171,7 +175,8 @@
       "prose": "Mostly clean, but some generated validation language remains."
     },
     "externalCategorySum": 79,
-    "externalOffset": 5
+    "externalOffset": 5,
+    "externalSupplementary": {}
   },
   {
     "bundleId": "read-20260814-2033",
@@ -203,7 +208,113 @@
       "prose": "Cleaner than the weakest drafts, but still has obvious artifacts."
     },
     "externalCategorySum": 78,
+    "externalOffset": 6,
+    "externalSupplementary": {}
+  },
+  {
+    "bundleId": "read-20260829-1041",
+    "storyPath": "stories/story_20260829-1041/the_reception_clock_conspiracy.md",
+    "readPath": "stories/story_20260829-1041/chatgpt-review.txt",
+    "externalFinal": 84,
+    "externalCategories": {
+      "premise": 8,
+      "opening_hook": 8,
+      "plot_structure": 8,
+      "character_clarity": 8,
+      "dialogue": 7,
+      "atmosphere": 8,
+      "clues": 8,
+      "pacing": 8,
+      "ending": 8,
+      "prose": 7
+    },
+    "externalNotes": {
+      "premise": "A forced-back reception clock is classic but readable and fair.",
+      "opening_hook": "Body, puncture wound, letter opener, two clocks — strong setup.",
+      "plot_structure": "Discovery → clock contradiction → false suspect pressure → mechanical test → Hugo confession → aftermath works.",
+      "character_clarity": "Roles are stable and easy to follow.",
+      "dialogue": "Character voices are usable; some catchphrases repeat.",
+      "atmosphere": "Cliffhaven Hotel, reception/kitchen contrast, vernal fog, ticking clocks — solid mood.",
+      "clues": "Good mechanism and toolmark logic, though a few details need harder planting.",
+      "pacing": "Smooth escalation; Chapters 9–10 are a little repetitive but mostly aftermath.",
+      "ending": "Hugo is accused and confesses on-page; the method is clear.",
+      "prose": "Much cleaner than many drafts, but still has some generated leakage."
+    },
+    "externalSupplementary": {},
+    "externalCategorySum": 78,
     "externalOffset": 6
+  },
+  {
+    "bundleId": "read-20260902-1846",
+    "storyPath": "stories/story_20260902-1846/the_dialed_back_hour_hand_a_seaside_hotel_myster.md",
+    "readPath": "stories/story_20260902-1846/chatgpt-review.txt",
+    "externalFinal": 84,
+    "externalCategories": {
+      "premise": 9,
+      "opening_hook": 8,
+      "plot_structure": 8,
+      "character_clarity": 8,
+      "dialogue": 7,
+      "atmosphere": 8,
+      "clues": 8,
+      "pacing": 8,
+      "ending": 8,
+      "prose": 7
+    },
+    "externalNotes": {
+      "premise": "The hour-hand sabotage is clever and more distinctive than a simple reset.",
+      "opening_hook": "Body, knife, mismatched clock hands, pocket watch — strong mystery opening.",
+      "plot_structure": "Good arc: scene → mechanism → motives → logs → false solution → Hugo reveal → aftermath.",
+      "character_clarity": "Roles are clear, though Hugo’s motive needs earlier emotional planting.",
+      "dialogue": "Voices are distinct; Sylvia and Beatrice especially work.",
+      "atmosphere": "Fog, salt, polished wood, clock room, veranda/lobby atmosphere are effective.",
+      "clues": "Stronger than most drafts, though time wording still wobbles.",
+      "pacing": "Good movement; the chapters have distinct jobs.",
+      "ending": "Confession works, and the mechanism is fairly clear.",
+      "prose": "Better prose, but some scaffold lines remain.",
+      "character_life": "Noticeably improved; characters now have fears, loyalties, shame, and social texture."
+    },
+    "externalSupplementary": {
+      "character_life": 8
+    },
+    "externalCategorySum": 79,
+    "externalOffset": 5
+  },
+  {
+    "bundleId": "read-20260904-1711",
+    "storyPath": "stories/story_20260904-1711/the_silent_signal_in_the_starlight_theatre.md",
+    "readPath": "stories/story_20260904-1711/chatgpt-review.txt",
+    "externalFinal": 83,
+    "externalCategories": {
+      "premise": 8,
+      "opening_hook": 8,
+      "plot_structure": 8,
+      "character_clarity": 8,
+      "dialogue": 7,
+      "atmosphere": 8,
+      "clues": 7,
+      "pacing": 8,
+      "ending": 7,
+      "prose": 7
+    },
+    "externalNotes": {
+      "premise": "Forged record versus witnessed silent cue is a solid theatre-specific puzzle.",
+      "opening_hook": "Strong body discovery, paperweight, ledger contradiction, silent signal.",
+      "plot_structure": "Clear: discovery → ledger anomaly → motive → alibis → false pressure → secret lies → final proof → aftermath.",
+      "character_clarity": "Roles are stable and readable.",
+      "dialogue": "Clarissa, Marguerite, Beatrice, and Gerald have distinct enough voices.",
+      "atmosphere": "Strong rehearsal hall / theatre mood: boards, ropes, rain, footlights, ledger, backstage silence.",
+      "clues": "The logic is much clearer, though the silent-signal/vocal-cue distinction needs sharpening.",
+      "pacing": "Good chapter jobs; less wandering than some prior drafts.",
+      "ending": "Reveal is coherent, but the final line reopens it awkwardly.",
+      "prose": "Better than many drafts, though a few generated phrases remain.",
+      "character_life": "Solid institutional tension; still could use more private relationships."
+    },
+    "externalSupplementary": {
+      "character_life": 7
+    },
+    "externalCategorySum": 76,
+    "externalOffset": 7
   },
   {
     "bundleId": "read-20260825-1838",
@@ -235,7 +346,8 @@
       "prose": "Good passages, but Chapter 10 contains major validation leakage."
     },
     "externalCategorySum": 77,
-    "externalOffset": 5
+    "externalOffset": 5,
+    "externalSupplementary": {}
   },
   {
     "bundleId": "read-20260826-1753",
@@ -267,7 +379,113 @@
       "prose": "Still heavily capped by validation/scaffold leakage."
     },
     "externalCategorySum": 78,
-    "externalOffset": 4
+    "externalOffset": 4,
+    "externalSupplementary": {}
+  },
+  {
+    "bundleId": "read-20260830-1850",
+    "storyPath": "stories/story_20260830-1850/the_bluffside_reset_a_seaside_hotel_mystery.md",
+    "readPath": "stories/story_20260830-1850/chatgpt-review.txt",
+    "externalFinal": 82,
+    "externalCategories": {
+      "premise": 8,
+      "opening_hook": 8,
+      "plot_structure": 7,
+      "character_clarity": 8,
+      "dialogue": 7,
+      "atmosphere": 8,
+      "clues": 7,
+      "pacing": 7,
+      "ending": 6,
+      "prose": 7
+    },
+    "externalNotes": {
+      "premise": "Rewound mantel clock is clear, but less fresh than lantern/tide.",
+      "opening_hook": "Body, letter opener, clock/watch contradiction — strong start.",
+      "plot_structure": "Middle improves, but ending repeats itself.",
+      "character_clarity": "Roles are understandable.",
+      "dialogue": "Some nice lines, especially Beatrice and Hugo.",
+      "atmosphere": "Fog, brass, tobacco, hotel lounge all work well.",
+      "clues": "Mechanism works broadly, but the time math is still muddy.",
+      "pacing": "Stronger before the ending; Chapters 9–10 drag.",
+      "ending": "Hale confesses in Chapter 8, then Chapter 10 acts as if reveal is still pending.",
+      "prose": "Cleaner in places, but still has scaffold lines and repeated explanation."
+    },
+    "externalSupplementary": {},
+    "externalCategorySum": 73,
+    "externalOffset": 9
+  },
+  {
+    "bundleId": "read-20260901-2241",
+    "storyPath": "stories/story_20260901-2241/the_seaside_veranda_clock_shift.md",
+    "readPath": "stories/story_20260901-2241/chatgpt-review.txt",
+    "externalFinal": 82,
+    "externalCategories": {
+      "premise": 8,
+      "opening_hook": 7,
+      "plot_structure": 8,
+      "character_clarity": 8,
+      "dialogue": 7,
+      "atmosphere": 8,
+      "clues": 7,
+      "pacing": 8,
+      "ending": 7,
+      "prose": 6
+    },
+    "externalNotes": {
+      "premise": "A veranda clock shifted 35 minutes against multiple honest clocks is solid.",
+      "opening_hook": "Strong body/veranda/clocks setup, but opening has major repeated template text.",
+      "plot_structure": "Discovery → clocks contradict → alibis clear others → watch confirms true time → final clock test → Hale confession.",
+      "character_clarity": "Roles are stable and readable.",
+      "dialogue": "Beatrice, Sylvia, Hugo, and Hale have distinct enough voices.",
+      "atmosphere": "Sea fog, veranda, rain, reception, clocks, polished wood — strong setting identity.",
+      "clues": "Much improved, but final mechanism wording still contradicts itself.",
+      "pacing": "Good forward movement; chapters have clear jobs.",
+      "ending": "Confession is clear, but the proof is repeated after the confession.",
+      "prose": "Some good prose, but scaffold leakage remains obvious.",
+      "character_life": "Better human aftermath; still needs more relationship history."
+    },
+    "externalSupplementary": {
+      "character_life": 7
+    },
+    "externalCategorySum": 74,
+    "externalOffset": 8
+  },
+  {
+    "bundleId": "read-20260904-2035",
+    "storyPath": "stories/story_20260904-2035/the_director_s_false_cue_an_authority_s_deceptio.md",
+    "readPath": "stories/story_20260904-2035/chatgpt-review.txt",
+    "externalFinal": 82,
+    "externalCategories": {
+      "premise": 8,
+      "opening_hook": 8,
+      "plot_structure": 8,
+      "character_clarity": 8,
+      "dialogue": 7,
+      "atmosphere": 8,
+      "clues": 7,
+      "pacing": 8,
+      "ending": 6,
+      "prose": 7
+    },
+    "externalNotes": {
+      "premise": "Bell versus official cue is a good authority-based theatre mechanism.",
+      "opening_hook": "Strong body, bell echo, candlestick, log contradiction.",
+      "plot_structure": "Investigation arc is readable and builds well toward Desmond.",
+      "character_clarity": "Cleaner cast than some earlier theatre drafts.",
+      "dialogue": "Desmond, Iris, Harriet, and Rutherford have distinct enough voices.",
+      "atmosphere": "Damp brick, greasepaint, bells, rehearsal logs, blackout curtains — effective.",
+      "clues": "Mechanism mostly works, though the five-minute alibi logic needs one sharper sentence.",
+      "pacing": "Good forward motion until the repeat reveal.",
+      "ending": "Chapter 8 reveals, Chapter 9 reveals again, Chapter 10 ends with reveal residue.",
+      "prose": "Better prose overall, but still has generated/scaffold lines.",
+      "character_life": "One of the better versions for social pressure and aftermath."
+    },
+    "externalSupplementary": {
+      "character_life": 8
+    },
+    "externalCategorySum": 75,
+    "externalOffset": 7
   },
   {
     "bundleId": "read-20260724-1347",
@@ -299,7 +517,8 @@
       "prose": "Mostly solid, but still has generated-note phrasing and some repetition."
     },
     "externalCategorySum": 79,
-    "externalOffset": 2
+    "externalOffset": 2,
+    "externalSupplementary": {}
   },
   {
     "bundleId": "read-20260724-1747",
@@ -331,7 +550,8 @@
       "prose": "Mostly solid, but still has generated-note phrasing and some repetition."
     },
     "externalCategorySum": 79,
-    "externalOffset": 2
+    "externalOffset": 2,
+    "externalSupplementary": {}
   },
   {
     "bundleId": "read-20260819-2047",
@@ -363,7 +583,8 @@
       "prose": "Mostly readable, with some prompt-like artifacts."
     },
     "externalCategorySum": 74,
-    "externalOffset": 7
+    "externalOffset": 7,
+    "externalSupplementary": {}
   },
   {
     "bundleId": "read-20260823-1715",
@@ -395,7 +616,8 @@
       "prose": "Atmospheric, but still has generated glitches and repeated time phrases."
     },
     "externalCategorySum": 79,
-    "externalOffset": 2
+    "externalOffset": 2,
+    "externalSupplementary": {}
   },
   {
     "bundleId": "read-20260827-2019",
@@ -427,7 +649,8 @@
       "prose": "Cleaner than many drafts, but still has leakage and repeated proof."
     },
     "externalCategorySum": 76,
-    "externalOffset": 5
+    "externalOffset": 5,
+    "externalSupplementary": {}
   },
   {
     "bundleId": "read-20260723-1620",
@@ -459,7 +682,8 @@
       "prose": "Cleaner than many earlier drafts, but Chapter 10 still has validation-style phrasing."
     },
     "externalCategorySum": 78,
-    "externalOffset": 2
+    "externalOffset": 2,
+    "externalSupplementary": {}
   },
   {
     "bundleId": "2026-08-02-1810-clockwork-deceit",
@@ -498,7 +722,8 @@
       "prose": "Some strong prose, but still has generated validation phrasing and a few malformed lines."
     },
     "externalCategorySum": 78,
-    "externalOffset": 2
+    "externalOffset": 2,
+    "externalSupplementary": {}
   },
   {
     "bundleId": "read-20260825-2102",
@@ -530,7 +755,8 @@
       "prose": "Cleaner than several earlier drafts, but still has generated timing artifacts."
     },
     "externalCategorySum": 76,
-    "externalOffset": 4
+    "externalOffset": 4,
+    "externalSupplementary": {}
   },
   {
     "bundleId": "read-20260826-1708",
@@ -562,7 +788,44 @@
       "prose": "Better prose in places, but final validation fragments drag it down."
     },
     "externalCategorySum": 75,
-    "externalOffset": 4
+    "externalOffset": 4,
+    "externalSupplementary": {}
+  },
+  {
+    "bundleId": "read-20260901-2136",
+    "storyPath": "stories/story_20260901-2136/the_chime_of_deceit_a_seaside_hotel_mystery.md",
+    "readPath": "stories/story_20260901-2136/chatgpt-review.txt",
+    "externalFinal": 79,
+    "externalCategories": {
+      "premise": 8,
+      "opening_hook": 8,
+      "plot_structure": 8,
+      "character_clarity": 8,
+      "dialogue": 7,
+      "atmosphere": 8,
+      "clues": 6,
+      "pacing": 8,
+      "ending": 7,
+      "prose": 6
+    },
+    "externalNotes": {
+      "premise": "False chimes are stronger than another simple clock-hand reset.",
+      "opening_hook": "Body, stopped watch, wrong chimes, visible clock mechanism — good setup.",
+      "plot_structure": "Better arc: false accusation → Hugo’s skill emerges → final test → aftermath.",
+      "character_clarity": "Roles are much clearer than the prior role-swapped draft.",
+      "dialogue": "Beatrice/Hugo/Sylvia have distinct voices, though some catchphrases repeat.",
+      "atmosphere": "Rain, fog, walnut paneling, clock tower, autumn hotel — strong mood.",
+      "clues": "Good mechanism idea, but the chime/time wording contradicts itself.",
+      "pacing": "Moves well; Chapter 6 false accusation helps structure.",
+      "ending": "Hugo confession works, but Chapter 10 still re-explains too much.",
+      "prose": "Better prose in places, but still has template leakage.",
+      "character_life": "Improved: more personality, regret, ambition, pride, and fear."
+    },
+    "externalSupplementary": {
+      "character_life": 7
+    },
+    "externalCategorySum": 74,
+    "externalOffset": 5
   },
   {
     "bundleId": "probe-1-clockwork-deception",
@@ -602,7 +865,8 @@
       "prose": "Still damaged by pronoun drift and leftover validation-style phrasing."
     },
     "externalCategorySum": 74,
-    "externalOffset": 4
+    "externalOffset": 4,
+    "externalSupplementary": {}
   },
   {
     "bundleId": "read-20260815-2027",
@@ -634,7 +898,44 @@
       "prose": "Better scene texture, but still has validation/report artifacts."
     },
     "externalCategorySum": 72,
-    "externalOffset": 6
+    "externalOffset": 6,
+    "externalSupplementary": {}
+  },
+  {
+    "bundleId": "read-20260903-0738",
+    "storyPath": "stories/story_20260903-0738/the_spotlight_deception_at_the_grand_marquee.md",
+    "readPath": "stories/story_20260903-0738/chatgpt-review.txt",
+    "externalFinal": 78,
+    "externalCategories": {
+      "premise": 8,
+      "opening_hook": 8,
+      "plot_structure": 7,
+      "character_clarity": 7,
+      "dialogue": 7,
+      "atmosphere": 8,
+      "clues": 6,
+      "pacing": 7,
+      "ending": 6,
+      "prose": 6
+    },
+    "externalNotes": {
+      "premise": "Spotlight/shadow deception is fresh and theatrical.",
+      "opening_hook": "Body backstage, paperweight, applause fading, lighting log — good setup.",
+      "plot_structure": "The shape is clear, but Chapters 8–10 repeat and over-explain.",
+      "character_clarity": "Roles are mostly clear, though Marguerite is accidentally called “the stage manager” as if she were culprit.",
+      "dialogue": "Dorothy, Gwendolyn, Ferdinand, and Ivor have usable voices.",
+      "atmosphere": "Theatre, drizzle, backstage powder, tobacco, rig room, blackout curtains — strong mood.",
+      "clues": "Good clue idea, but the optical logic needs a clearer, more believable explanation.",
+      "pacing": "Good scene progression, but final third drags.",
+      "ending": "Kestrel reveal works, but the confession is thin and Chapter 10 reverts to proof recap.",
+      "prose": "Some vivid prose, but generated/scaffold lines remain.",
+      "character_life": "Better social world than many hotel drafts, but still needs deeper relationship history."
+    },
+    "externalSupplementary": {
+      "character_life": 7
+    },
+    "externalCategorySum": 70,
+    "externalOffset": 8
   },
   {
     "bundleId": "read-20260827-2005",
@@ -666,7 +967,44 @@
       "prose": "Less leakage than some drafts, but still has obvious generated fragments."
     },
     "externalCategorySum": 72,
-    "externalOffset": 5
+    "externalOffset": 5,
+    "externalSupplementary": {}
+  },
+  {
+    "bundleId": "read-20260903-2136",
+    "storyPath": "stories/story_20260903-2136/the_conductor_s_silent_baton_an_authority_s_dece.md",
+    "readPath": "stories/story_20260903-2136/chatgpt-review.txt",
+    "externalFinal": 77,
+    "externalCategories": {
+      "premise": 8,
+      "opening_hook": 7,
+      "plot_structure": 7,
+      "character_clarity": 5,
+      "dialogue": 7,
+      "atmosphere": 8,
+      "clues": 6,
+      "pacing": 7,
+      "ending": 6,
+      "prose": 5
+    },
+    "externalNotes": {
+      "premise": "A delayed cue via modified baton is fresh and stage-specific.",
+      "opening_hook": "Strong body and theatrical atmosphere, but scaffold leakage appears immediately.",
+      "plot_structure": "False suspicion of Lavinia works, but later chapters repeat and confuse roles.",
+      "character_clarity": "Big issue: Dr. Adela Quayle appears alive even though prior drafts used her as victim; here she is a false suspect/doctor.",
+      "dialogue": "Clarissa, Lavinia, Gerald, and Adela Jardine have distinct voices.",
+      "atmosphere": "Backstage, blackout curtains, drum stage, baton, ledger, rain, theatre authority — good world.",
+      "clues": "The ten-second idea is good, but the physics needs tightening.",
+      "pacing": "Moves well, though Chapter 10 is overloaded.",
+      "ending": "Gerald’s confession works, but the reveal is repeated afterward.",
+      "prose": "Too much generator leakage and some broken sentences.",
+      "character_life": "Better than many drafts; the authority/trust/company-survival theme gives the cast a social world."
+    },
+    "externalSupplementary": {
+      "character_life": 7
+    },
+    "externalCategorySum": 66,
+    "externalOffset": 11
   },
   {
     "bundleId": "s0-4-identity",
@@ -706,7 +1044,8 @@
       "prose": "More polished than many, but still has malformed lines and pronoun slips."
     },
     "externalCategorySum": 73,
-    "externalOffset": 3
+    "externalOffset": 3,
+    "externalSupplementary": {}
   },
   {
     "bundleId": "read-20260723-2051",
@@ -738,7 +1077,8 @@
       "prose": "Cleaner pronouns than several earlier drafts, but still has generated validation phrasing."
     },
     "externalCategorySum": 73,
-    "externalOffset": 3
+    "externalOffset": 3,
+    "externalSupplementary": {}
   },
   {
     "bundleId": "read-20260807-1412",
@@ -770,7 +1110,44 @@
       "prose": "Strong descriptive passages mixed with obvious generated glitches."
     },
     "externalCategorySum": 68,
-    "externalOffset": 8
+    "externalOffset": 8,
+    "externalSupplementary": {}
+  },
+  {
+    "bundleId": "read-20260903-1907",
+    "storyPath": "stories/story_20260903-1907/the_stage_manager_s_false_call.md",
+    "readPath": "stories/story_20260903-1907/chatgpt-review.txt",
+    "externalFinal": 76,
+    "externalCategories": {
+      "premise": 8,
+      "opening_hook": 7,
+      "plot_structure": 7,
+      "character_clarity": 6,
+      "dialogue": 7,
+      "atmosphere": 7,
+      "clues": 5,
+      "pacing": 7,
+      "ending": 5,
+      "prose": 6
+    },
+    "externalNotes": {
+      "premise": "Forged call sheet is a fresh clue object; good theatre-specific puzzle.",
+      "opening_hook": "Body, scarf, forged document clue work well, but names/roles crowd the opening.",
+      "plot_structure": "Investigation arc is readable, but Ch. 9 and Ch. 10 duplicate the reveal.",
+      "character_clarity": "Too many similar female names: Adela Quayle, Adela Jardine, Lavinia Gaunt, Harriet Whitlock.",
+      "dialogue": "Some decent theatre-world voices, especially Harriet and Gerald.",
+      "atmosphere": "Backstage powder, drizzle, ledgers, props room all fit, but repeated phrasing weakens it.",
+      "clues": "Forgery clues are strong; time/clock logic is muddy.",
+      "pacing": "Moves steadily, but repeats in final chapters.",
+      "ending": "Lavinia confession works, but Ch. 10 redoes the accusation almost word for word.",
+      "prose": "Some good passages, but scaffold/generator leakage remains.",
+      "character_life": "Better than pure puzzle, but relationships remain mostly stated rather than dramatized."
+    },
+    "externalSupplementary": {
+      "character_life": 6
+    },
+    "externalCategorySum": 65,
+    "externalOffset": 11
   },
   {
     "bundleId": "s0-1-poison",
@@ -810,7 +1187,8 @@
       "prose": "Still has prompt-like phrasing, pronoun slips, and duplicated Chapter 9/10 reveal beats."
     },
     "externalCategorySum": 70,
-    "externalOffset": 5
+    "externalOffset": 5,
+    "externalSupplementary": {}
   },
   {
     "bundleId": "read-20260630-1304",
@@ -842,7 +1220,44 @@
       "prose": "Prompt leakage and pronoun errors still hold it back."
     },
     "externalCategorySum": 71,
-    "externalOffset": 3
+    "externalOffset": 3,
+    "externalSupplementary": {}
+  },
+  {
+    "bundleId": "read-20260831-2025",
+    "storyPath": "stories/story_20260831-2025/the_backshifted_hour_a_seaside_hotel_mystery.md",
+    "readPath": "stories/story_20260831-2025/chatgpt-review.txt",
+    "externalFinal": 74,
+    "externalCategories": {
+      "premise": 7,
+      "opening_hook": 7,
+      "plot_structure": 7,
+      "character_clarity": 7,
+      "dialogue": 7,
+      "atmosphere": 8,
+      "clues": 4,
+      "pacing": 7,
+      "ending": 5,
+      "prose": 6
+    },
+    "externalNotes": {
+      "premise": "A five-minute clock backshift can work, but this version muddles it.",
+      "opening_hook": "Strong body tableau, but duplicate time lines weaken it.",
+      "plot_structure": "The overall arc is readable, but the final logic collapses.",
+      "character_clarity": "Roles are mostly clear, though Beatrice/Sylvia roles have shifted from prior drafts.",
+      "dialogue": "Sylvia and Beatrice have personality; some lines feel natural.",
+      "atmosphere": "Fog, clock, terrazzo, Art Deco hotel, sea air — still effective.",
+      "clues": "The central time contradiction repeatedly contradicts itself.",
+      "pacing": "Moves briskly, but Chapter 8 becomes overstuffed.",
+      "ending": "Hale is exposed, but the proof math is incoherent.",
+      "prose": "Some good prose, but scaffold/repetition remains.",
+      "character_life": "Better than before; Chapter 10 is much more human-focused."
+    },
+    "externalSupplementary": {
+      "character_life": 7
+    },
+    "externalCategorySum": 65,
+    "externalOffset": 9
   },
   {
     "bundleId": "s0-3-acoustic",
@@ -882,7 +1297,8 @@
       "prose": "Better atmosphere, but prompt leakage and pronoun slips remain."
     },
     "externalCategorySum": 68,
-    "externalOffset": 5
+    "externalOffset": 5,
+    "externalSupplementary": {}
   },
   {
     "bundleId": "read-20260528-1952",
@@ -914,7 +1330,8 @@
       "prose": "Still has generated phrasing, pronoun errors, and report-like exposition."
     },
     "externalCategorySum": 68,
-    "externalOffset": 4
+    "externalOffset": 4,
+    "externalSupplementary": {}
   },
   {
     "bundleId": "read-20260724-1841",
@@ -946,7 +1363,8 @@
       "prose": "Atmospheric, but still has repeated/generated phrasing and some contradictory times."
     },
     "externalCategorySum": 69,
-    "externalOffset": 3
+    "externalOffset": 3,
+    "externalSupplementary": {}
   },
   {
     "bundleId": "read-20260622-2122",
@@ -978,7 +1396,8 @@
       "prose": "Better than many earlier drafts, but repeated note-like lines and pronoun slips still hold it back."
     },
     "externalCategorySum": 67,
-    "externalOffset": 4
+    "externalOffset": 4,
+    "externalSupplementary": {}
   },
   {
     "bundleId": "read-20260627-2238",
@@ -1010,7 +1429,8 @@
       "prose": "More readable, but still has prompt leakage, odd location phrases, and pronoun mistakes."
     },
     "externalCategorySum": 67,
-    "externalOffset": 4
+    "externalOffset": 4,
+    "externalSupplementary": {}
   },
   {
     "bundleId": "read-20260622-2214",
@@ -1042,7 +1462,8 @@
       "prose": "Better readability, but note-like lines and pronoun errors remain."
     },
     "externalCategorySum": 65,
-    "externalOffset": 5
+    "externalOffset": 5,
+    "externalSupplementary": {}
   },
   {
     "bundleId": "read-20260629-2127",
@@ -1074,7 +1495,8 @@
       "prose": "Prompt leakage, malformed weather/log phrases, and pronoun slips hurt it."
     },
     "externalCategorySum": 66,
-    "externalOffset": 4
+    "externalOffset": 4,
+    "externalSupplementary": {}
   },
   {
     "bundleId": "read-20260611-1714",
@@ -1106,7 +1528,8 @@
       "prose": "Better than many earlier drafts, but still has encoding issues, “the doctor Finch,” “the captain Hale,” and unfinished sentences."
     },
     "externalCategorySum": 63,
-    "externalOffset": 6
+    "externalOffset": 6,
+    "externalSupplementary": {}
   },
   {
     "bundleId": "s0-2-tide",
@@ -1146,7 +1569,8 @@
       "prose": "Some nice prose, but still has prompt-leakage and malformed lines."
     },
     "externalCategorySum": 64,
-    "externalOffset": 5
+    "externalOffset": 5,
+    "externalSupplementary": {}
   },
   {
     "bundleId": "2026-08-02-1936-clocks-deception",
@@ -1185,7 +1609,8 @@
       "prose": "Better prose in places, but still has generated leakage and time glitches."
     },
     "externalCategorySum": 66,
-    "externalOffset": 2
+    "externalOffset": 2,
+    "externalSupplementary": {}
   },
   {
     "bundleId": "read-20260529-2124",
@@ -1217,7 +1642,8 @@
       "prose": "Frequent broken phrases, pronoun slips, and note-like exposition lower the score."
     },
     "externalCategorySum": 63,
-    "externalOffset": 4
+    "externalOffset": 4,
+    "externalSupplementary": {}
   },
   {
     "bundleId": "read-20260520-1846",
@@ -1249,7 +1675,8 @@
       "prose": "Pronoun slips, note-like lines, and awkward phrasing remain."
     },
     "externalCategorySum": 58,
-    "externalOffset": 6
+    "externalOffset": 6,
+    "externalSupplementary": {}
   },
   {
     "bundleId": "read-20260522-2206",
@@ -1281,7 +1708,8 @@
       "prose": "Pronoun slips, awkward phrases, and note-like lines remain."
     },
     "externalCategorySum": 54,
-    "externalOffset": 7
+    "externalOffset": 7,
+    "externalSupplementary": {}
   },
   {
     "bundleId": "read-20260520-2018",
@@ -1313,7 +1741,8 @@
       "prose": "Pronoun errors, awkward phrases, and note-like exposition still lower the score."
     },
     "externalCategorySum": 55,
-    "externalOffset": 5
+    "externalOffset": 5,
+    "externalSupplementary": {}
   },
   {
     "bundleId": "read-20260625-2151",
@@ -1345,7 +1774,8 @@
       "prose": "Better atmosphere, but still has prompt leakage, broken lines, and pronoun errors."
     },
     "externalCategorySum": 55,
-    "externalOffset": 1
+    "externalOffset": 1,
+    "externalSupplementary": {}
   },
   {
     "bundleId": "read-20260613-2133",
@@ -1377,7 +1807,8 @@
       "prose": "Pronoun errors, prompt leakage, repeated exposition, and malformed phrases remain."
     },
     "externalCategorySum": 52,
-    "externalOffset": 1
+    "externalOffset": 1,
+    "externalSupplementary": {}
   },
   {
     "bundleId": "read-20260616-1845",
@@ -1409,7 +1840,8 @@
       "prose": "Better in places, but still has generated-sounding lines and repeated/contradictory timing details."
     },
     "externalCategorySum": 53,
-    "externalOffset": 0
+    "externalOffset": 0,
+    "externalSupplementary": {}
   },
   {
     "bundleId": "read-20260618-0424",
@@ -1417,7 +1849,8 @@
     "readPath": "stories/_archive/story_20260618-0424/chatgpt-review.txt",
     "externalFinal": 52,
     "externalCategories": {},
-    "externalNotes": {}
+    "externalNotes": {},
+    "externalSupplementary": {}
   },
   {
     "bundleId": "read-20260520-2339",
@@ -1449,6 +1882,7 @@
       "prose": "Pronoun errors, note-like lines, and broken phrases remain."
     },
     "externalCategorySum": 45,
-    "externalOffset": 3
+    "externalOffset": 3,
+    "externalSupplementary": {}
   }
 ]
