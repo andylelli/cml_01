@@ -149,9 +149,30 @@ const castSize = Number(arg("cast") ?? pick([5, 6, 6, 6, 7]));
 const surnames = pickN(SURNAMES, castSize);
 const castNames = [];
 const castGenders = {};
+/**
+ * GIVEN NAMES MUST BE DISTINCT, and this was measured wrong twice before it was fixed.
+ *
+ * Surnames went through `pickN`, which draws without replacement; given names went through `pick`,
+ * which does not — so two characters could share a first name, and on seed 73501 two did:
+ * **"Dr. Adela Quayle" and "Adela Jardine"**. Both external reads of that seed named it. The 76/100
+ * review: *"Too many similar female names... That is a bad choice. Two Adelas in a short mystery is
+ * unnecessary friction. Rename one."* The 77/100 review scored `character_clarity` **5/10**, its
+ * lowest mark, on the resulting confusion.
+ *
+ * A first-name collision is not a style quibble in this genre: the prose refers to characters by
+ * given name in dialogue and by surname in narration, so two Adelas make every unattributed line
+ * ambiguous. Cheap to prevent, expensive to read around.
+ */
+const usedGiven = new Set();
+const pickDistinctGiven = (pool) => {
+  const free = pool.filter((n) => !usedGiven.has(n));
+  const chosen = pick(free.length > 0 ? free : pool);
+  usedGiven.add(chosen);
+  return chosen;
+};
 for (let i = 0; i < castSize; i += 1) {
   const female = rnd() < 0.5;
-  const given = pick(female ? FEMALE : MALE);
+  const given = pickDistinctGiven(female ? FEMALE : MALE);
   // The victim is a doctor often enough in this genre to be worth keeping; the title also exercises
   // the honorific-stripping paths that have broken twice.
   const title = i === 1 && rnd() < 0.5 ? "Dr. " : "";
