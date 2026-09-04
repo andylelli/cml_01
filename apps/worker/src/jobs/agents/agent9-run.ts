@@ -2479,6 +2479,15 @@ const injectSentenceIfAbsent = (
    * resolution BELONG at the end, and bounding them would move the reveal out of the reveal.
    */
   lastChapterAllowed?: number,
+  /**
+   * Put the sentence in the paragraph BEFORE the chapter's last one.
+   *
+   * Only the culprit-evidence floor passes it, and only behind a flag. The obligation is indifferent
+   * to placement - `hasContent` joins every paragraph of every chapter - so this changes nothing
+   * about whether the floor satisfies `culpritEvidenceLinkInText`. What it changes is whether the
+   * BOOK ENDS on the injected sentence, which is a different rule with a different owner.
+   */
+  avoidFinalParagraph?: boolean,
 ): any => {
   const chapters = (prose.chapters as any[]).slice();
   const ceiling =
@@ -2504,7 +2513,41 @@ const injectSentenceIfAbsent = (
     const ch = chapters[targetIdx];
     const paragraphs: string[] = Array.isArray(ch.paragraphs) ? [...(ch.paragraphs as string[])] : [];
     if (paragraphs.length === 0) continue;
-    const lastIdx = paragraphs.length - 1;
+    /**
+     * WHERE THE SENTENCE LANDS - and why the default is the last paragraph and yet that is the bug.
+     *
+     * MEASURED across the shipped corpus 2026-09-04: FIVE books end on
+     * `buildCulpritEvidenceSentenceInScene`'s text, and the two carrying an external read are the two
+     * most recent. Both reads name it unprompted. read-20260904-1711 (83, ending 7): "That belongs in
+     * Chapter 8, not Chapter 10 ... Delete the last two sentences." read-20260904-2035 (82, ending 6):
+     * "the final sentences ruin the aftermath ... This line should be deleted." `ending` is the ONLY
+     * category that moved between those two books.
+     *
+     * The injection itself is not the defect and must not be refused - ADR-0003 forbids trading a bad
+     * sentence for a missing obligation, and X4 telemetry confirms the in-scene form does its job
+     * (injections=1, violations=0 on run 22362, against a prior 100% violation rate). The defect is
+     * purely POSITIONAL: `detectFinalChapterVerdictEnding` is scoped to the last paragraph of the last
+     * chapter precisely because aftermath may REFERENCE the confession and must not RE-STAGE it as the
+     * closing beat. One paragraph earlier satisfies both rules at once.
+     *
+     * FALLBACK, stated rather than silent: with a single paragraph there is no earlier one to use. The
+     * obligation then wins - a satisfied contract in the wrong paragraph beats an unsatisfied one - and
+     * the run says so in its log rather than appearing to have moved the sentence.
+     */
+    let lastIdx = paragraphs.length - 1;
+    if (avoidFinalParagraph) {
+      const nonEmpty = paragraphs
+        .map((text, index) => ({ text: String(text ?? '').trim(), index }))
+        .filter((entry) => entry.text.length > 0 && entry.text !== '---');
+      if (nonEmpty.length >= 2) {
+        lastIdx = nonEmpty[nonEmpty.length - 2].index;
+      } else {
+        console.warn(
+          `[Agent 9] ${logTag}: avoidFinalParagraph requested but chapter ${targetIdx + 1} has ` +
+          `${nonEmpty.length} non-empty paragraph(s) — injecting into the last one; the obligation wins.`,
+        );
+      }
+    }
     const injectedSentence = buildSentence(target);
     paragraphs[lastIdx] = `${paragraphs[lastIdx].trim()} ${injectedSentence}`;
     chapters[targetIdx] = { ...ch, paragraphs };
@@ -2713,6 +2756,10 @@ export const enforceCulpritEvidencePresence = (prose: any, cml: any, onInject?: 
         : buildCulpritEvidenceSentence(culprit),
     'enforceCulpritEvidencePresence',
     onInject,
+    // No chapter ceiling: culprit evidence BELONGS in the final chapter. Only the PARAGRAPH moves.
+    undefined,
+    // Env read at call time, never a module const (ADR-0004).
+    /^(1|true|yes|on)$/i.test(process.env.AGENT9_INJECT_BEFORE_FINAL_PARAGRAPH ?? ''),
   );
 };
 
