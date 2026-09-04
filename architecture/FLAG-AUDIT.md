@@ -771,3 +771,43 @@ then read `clues`. **The delivery half needs no external read** — `[X38-spine]
 was read on every run, which is the distinction between "clean" and "never looked" that the silent
 `continue` erased. **If the probe never runs:** the warnings still make the defect visible in every
 run's telemetry instead of only in a reader's score, which is most of the value.
+
+---
+
+## Addendum — `AGENT9_PROMPT_CAPS_UNDER_PRESSURE_ONLY`, registered 2026-09-04
+
+**State: SET `true` in `.env.local` 2026-09-04. T3/T4 unverified.**
+
+**The defect.** Per-block token caps were applied **unconditionally, before any budget arithmetic**,
+so a block was cut whether or not the run had room. MEASURED on run `mystery-1788537332588`:
+
+```
+budget=40000; fixed=9913; available=30087; context=18168; dropped=[none];
+truncated=[setting_refinement, temporal_context, craft_guide, first_appearance_contracts,
+           character_personality, location_profiles, pronoun_accuracy]
+```
+
+**Seven blocks cut with twelve thousand tokens of headroom unused.**
+
+**What it cost, and it is not hypothetical.** The five countable PAGE SHAPE operations sit at the
+tail of `craft_guide`; the cap cut the tail; they reached **0 of 78 prose prompts**. Across the last
+8 manuscripts (80 chapters) *"open at least four paragraphs on dialogue"* was met **0 times**,
+*"use an em-dash at least four times"* **0 times**, and paragraphs opening on speech sat at **9.0%
+against the canon's 59.7%** — the largest measured difference between our page and real Golden Age
+prose, in the category (`dialogue`) that caps every one of our best books. `dialogue` has reached 8
+in **1 external read of 53**.
+
+**Why nobody saw it.** `truncatedBlocks` recorded only the key, so "trimmed by five tokens" and
+"lost its entire tail" printed identically — beside `dropped=[none]`, which reads as delivered.
+Truncation now reports its loss (`craft_guide(-500t)`), and that half is **unconditional**: it is
+observability, not behaviour, and it is what makes this class of defect visible at all.
+
+**What the flag does.** When the untruncated blocks already fit the budget, the caps do not fire.
+Under genuine pressure they behave exactly as before, so the failure they exist to prevent is
+untouched — asserted by a test that keeps a too-small budget truncating with the flag ON.
+
+**Settling probe.** One run: `truncated=[…]` should be empty or near-empty at a 40000 budget, and
+`OPEN AT LEAST FOUR PARAGRAPHS` should appear in every prose prompt (it appeared in 0 of 78). Then
+count paragraphs opening on speech in the manuscript — **that half needs no external read**, and the
+target is movement off 9.0% toward the canon's 59.7%. **If the probe never runs:** the operations
+stay undelivered and the five-category ceiling stays unexplained by anything we have tried.

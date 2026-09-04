@@ -1539,14 +1539,46 @@ export const applyPromptBudgeting = (
   };
 
   const truncatedBlocks: string[] = [];
-  let workingBlocks = blocks
-    .filter((block) => block.content.trim().length > 0)
-    .map((block) => {
+  const present = blocks.filter((block) => block.content.trim().length > 0);
+
+  /**
+   * A CAP IS A PRESSURE VALVE, NOT A PERMANENT CEILING.
+   *
+   * The per-block caps were applied unconditionally, before any budget arithmetic — so a block was
+   * cut whether or not the run had room for it. MEASURED on run mystery-1788537332588:
+   * `budget=40000; available=30087; context=18168` with SEVEN blocks truncated. Twelve thousand
+   * tokens of headroom, and content thrown away anyway.
+   *
+   * What that cost is not hypothetical: the five countable PAGE SHAPE operations sat at the tail of
+   * `craft_guide`, were cut by its cap, and reached **0 of 78 prose prompts** — while the budget line
+   * reported `dropped=[none]`. Across the following 80 chapters "open four paragraphs on dialogue"
+   * was met 0 times and paragraphs opening on speech sat at 9.0% against the canon's 59.7%.
+   *
+   * Flag-gated `AGENT9_PROMPT_CAPS_UNDER_PRESSURE_ONLY` (default OFF, read at call time): when the
+   * untruncated blocks already fit the budget, the caps do not fire at all. Under genuine pressure
+   * they behave exactly as before, so the failure mode they exist to prevent is untouched.
+   */
+  const capsUnderPressureOnly = /^(1|true|yes|on)$/i.test(
+    String(process.env.AGENT9_PROMPT_CAPS_UNDER_PRESSURE_ONLY ?? ""),
+  );
+  const untruncatedTotal = present.reduce((sum, block) => sum + estimateTokenCount(block.content), 0);
+  const fixedBeforeCaps =
+    estimateTokenCount(baseSystem) + estimateTokenCount(developer) + estimateTokenCount(user);
+  const everythingFits = fixedBeforeCaps + untruncatedTotal <= budgetTokens;
+  const skipCaps = capsUnderPressureOnly && everythingFits;
+
+  let workingBlocks = present.map((block) => {
       const maxTokens = perBlockTokenCap[block.key];
-      if (!maxTokens) return block;
+      if (!maxTokens || skipCaps) return block;
       const originalTokens = estimateTokenCount(block.content);
       if (originalTokens <= maxTokens) return block;
-      truncatedBlocks.push(block.key);
+      /**
+       * Report the LOSS, not just the fact. `truncatedBlocks.push(block.key)` made "trimmed by five
+       * tokens" and "lost its entire tail" print the same string, and a budget line reading
+       * `truncated=[craft_guide]` beside `dropped=[none]` reads as delivered. It was not: the tail
+       * of that block reached no prompt at all for at least eight books.
+       */
+      truncatedBlocks.push(`${block.key}(-${originalTokens - maxTokens}t)`);
       return {
         ...block,
         content: truncateToTokenBudget(block.content, maxTokens),
