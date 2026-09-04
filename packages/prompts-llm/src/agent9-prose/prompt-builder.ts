@@ -1472,7 +1472,27 @@ export const applyPromptBudgeting = (
   const availableForBlocks = Math.max(0, budgetTokens - fixedTokens);
 
   const perBlockTokenCap: Partial<Record<string, number>> = {
-    pronoun_accuracy: 700, // [PHASE 1] — raised from 400: 8 rules + table for ~12-char cast ≈ 560 tokens; 400 truncated rules 5-9
+    /**
+     * RAISED 700 -> 1100, 2026-09-04, and the previous raise did not go far enough.
+     *
+     * The 700 was set from an ESTIMATE — "8 rules + table for ~12-char cast = 560 tokens" — and the
+     * block is really **852 tokens for a 6-person cast**, measured by building it. So it was still
+     * truncated in 43 of 43 prose prompts, on a run that shipped 13 pronoun-drift issues.
+     *
+     * What the cut removed is not filler. It lands mid-rule-9, and the two rules lost are precisely
+     * the ones governing dialogue attribution:
+     *   9. the pronoun in a dialogue tag refers to the SPEAKER, not the last character named inside
+     *      the quoted speech (with WRONG/RIGHT examples);
+     *   10. in ALL dialogue attribution use the speaker's FULL NAME, not a pronoun.
+     * `detectAttributionFlips` is a whole detector built for exactly that defect. We were deleting
+     * the prevention and keeping the detector.
+     *
+     * MEASURED across cast sizes so the cap is set from the curve, not another estimate:
+     * 4 -> 844t, 6 -> 888t, 8 -> 931t, 10 -> 975t. 1100 clears the largest cast this pipeline builds
+     * with room to spare, and the block is ALL governance - there is no reference data in it to trade
+     * away, so ordering cannot help here the way it did for craft_guide and location_profiles.
+     */
+    pronoun_accuracy: 1100,
     first_appearance_contracts: 650, // First-appearance suspect intro obligations for newly introduced cast members
     character_pressure_contract: 520, // Post-Ch1 character-pressure obligations and pass/fail criteria
     setting_refinement: 700,   // ~4 paragraphs of era-level setting guidance; 700 prevents mid-paragraph cut
