@@ -37,7 +37,13 @@ export interface TimelineDeceptionInput {
 }
 
 export interface TimelineDeceptionViolation {
-  code: "apparent_not_covered" | "actual_covered" | "times_identical";
+  /**
+   * `culprit_alibi_unreadable` is different in kind from the other three: they are findings about
+   * the CASE, it is a finding about this CHECK - that it was handed a window it could not read and
+   * therefore did not run. Kept in the same union so it travels the same path, and filtered at the
+   * adapter so it cannot become a validation error until someone decides it should.
+   */
+  code: "apparent_not_covered" | "actual_covered" | "times_identical" | "culprit_alibi_unreadable";
   message: string;
 }
 
@@ -319,13 +325,32 @@ export const parseTimeWindow = (
   // in the first draft of this comment - 155 strings, 62% -> 92% - came from the candidate probe and
   // a store walk that swept up case copies embedded in other artifact types. They were wrong on all
   // three numbers, which is the reason a comment states what was measured and against what.)
+  /**
+   * PUNCTUATION IS NOT PART OF A TIME, and a dash is a separator only between DIGITS.
+   *
+   * FOUND 2026-09-05 on run 89022, whose culprit alibi read "twelve to three, at the village green".
+   * Splitting on " to " left "three, at the village green"; the place-clause strip removed
+   * " at the village green" and left "three," — with a trailing comma, which the bare-hour branch
+   * refuses. The window was unreadable, so `checkCaseTimelineDeception` returned NOTHING on a case
+   * whose staged time of death (3:20) sits OUTSIDE the culprit's own alibi (12:00–3:00). The fake
+   * incriminated him, and the gate built to catch exactly that was silent.
+   *
+   * The dash restriction is not fastidiousness. Adding `-` to the alternation generally corrupted
+   * ELEVEN existing windows, because it split the hyphen inside a minute word: "one forty-five to
+   * two fifty" became 1:40–1:55. Caught by measurement before it shipped. Flanked by digits it is
+   * unambiguous, and it recovers "07:15-08:00", which has no spaces at all.
+   *
+   * MEASURED over the 244 distinct alibi windows in the store: readability 88% -> 91%, ZERO value
+   * changes, ZERO regressions.
+   */
+  const text2 = options.wide ? text.replace(/[,;]/g, " ").replace(/\s+/g, " ").trim() : text;
   const separator = options.wide
-    ? /\s+(?:until|till|through|to|and|-|–|—)\s+/g
+    ? /\s+(?:until|till|through|to|and)\s+|(?<=\d)\s*[-–—]\s*(?=\d)/g
     : /\s+(?:until|till|through|to|-|–|—)\s+/g;
   const readHalf = options.wide ? readWindowHalf : parseClockTime;
-  for (let match = separator.exec(text); match !== null; match = separator.exec(text)) {
-    const start = readHalf(text.slice(0, match.index));
-    const end = readHalf(text.slice(match.index + match[0].length));
+  for (let match = separator.exec(text2); match !== null; match = separator.exec(text2)) {
+    const start = readHalf(text2.slice(0, match.index));
+    const end = readHalf(text2.slice(match.index + match[0].length));
     if (start !== null && end !== null) return [start, end];
   }
   return null;
@@ -407,10 +432,50 @@ export const checkTimelineDeception = (input: TimelineDeceptionInput): TimelineD
   // Explicit arrow, NOT `.map(parseTimeWindow)`. `map` passes the array INDEX as the second
   // argument, so the point-free form silently handed `0`, `1`, `2` to the options parameter the
   // moment one existed. tsc caught it; at runtime it would have been invisible.
-  const windows = (input.culpritAlibiWindows ?? [])
+  const rawWindows = (input.culpritAlibiWindows ?? []).filter((w) => String(w ?? "").trim().length > 0);
+  const windows = rawWindows
     .map((w) => parseTimeWindow(w, { wide: input.wideWindowVocabulary === true }))
     .filter((w): w is [number, number] => w !== null);
-  if (windows.length === 0) return violations;
+
+  /**
+   * ── UNREADABLE IS NOT CLEAN, AND THIS CHECK NEVER KNEW THE DIFFERENCE ──────────────────────────
+   *
+   * `windows.length === 0` used to mean "no windows, nothing to check" and returned silently. It has
+   * two causes and they are opposites: the culprit genuinely has no alibi window, or the culprit HAS
+   * one and this parser could not read it. The second is not an absence of evidence, it is a failure
+   * to look — and it is indistinguishable from a clean case in every artifact the pipeline keeps.
+   *
+   * MEASURED 2026-09-05 over the 52 stored cases: every culprit has an alibi window string, and in
+   * **6 of them (12%) none of those strings parses**, so this gate has been silent on one case in
+   * eight. Four of the six have both death times readable, meaning the check could have run and
+   * simply did not. Their four windows fail for FOUR DIFFERENT reasons:
+   *
+   *     "Before 9:15 in the dining room"                       one endpoint, not a range
+   *     "seven ten to seven thirty five in costume workshop"   unhyphenated "thirty five"
+   *     "07:15-08:00"                                          no whitespace around the dash
+   *     "twelve to three, at the village green"                a comma
+   *
+   * That is the argument for reporting rather than for another vocabulary patch: four unknown forms
+   * in fifty-two cases, and the next one is unknown too. What cannot be enumerated can still be
+   * NOTICED — this module always knows whether it was handed a non-empty string it failed to read.
+   *
+   * This is the same lesson X38 learned and this check did not: a silent temporal gate means
+   * UNPARSEABLE more often than it means clean.
+   */
+  if (windows.length === 0) {
+    if (rawWindows.length > 0) {
+      violations.push({
+        code: "culprit_alibi_unreadable",
+        message:
+          `The culprit's alibi window cannot be read as two clock times, so NOTHING has checked whether `
+          + `the staged time of death protects them: ${rawWindows.map((w) => JSON.stringify(String(w))).join(", ")}. `
+          + `State it as two clock times joined by "to" — "a quarter past two to three o'clock in the library" — `
+          + `keeping the place if you want it. This is not a complaint about the alibi; it is this check `
+          + `reporting that it could not run.`,
+      });
+    }
+    return violations;
+  }
 
   if (!withinAnyWindow(apparent, windows)) {
     violations.push({
@@ -528,7 +593,7 @@ export const checkCaseTimelineDeception = (cmlCase: any): TimelineDeceptionViola
     .map((member) => String(member?.alibi_window ?? member?.alibiWindow ?? "").trim())
     .filter(Boolean);
 
-  return checkTimelineDeception({
+  const found = checkTimelineDeception({
     apparentTime: mechanism.apparent_time_of_death,
     actualTime: mechanism.actual_time_of_death,
     culpritAlibiWindows: culpritWindows,
@@ -537,6 +602,17 @@ export const checkCaseTimelineDeception = (cmlCase: any): TimelineDeceptionViola
       String(process.env.AGENT3_TIMELINE_WINDOW_VOCABULARY ?? ""),
     ),
   });
+
+  /**
+   * `culprit_alibi_unreadable` is a report that this check could not RUN, not a defect in the case,
+   * so whether it becomes a validation error is a separate decision from whether it is detected.
+   * Detected always; raised only behind the flag. Callers wanting the telemetry read the violation
+   * list from `checkTimelineDeception` directly.
+   */
+  const reportUnreadable = /^(1|true|yes|on)$/i.test(
+    String(process.env.AGENT3_ALIBI_UNREADABLE_GATE ?? ""),
+  );
+  return reportUnreadable ? found : found.filter((v) => v.code !== "culprit_alibi_unreadable");
 };
 
 // ── X38/X39 — the case's own clock, checked BEFORE any prose is written ───────

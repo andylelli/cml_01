@@ -99,9 +99,30 @@ describe("checkTimelineDeception", () => {
     expect(checkTimelineDeception({})).toEqual([]);
     expect(checkTimelineDeception({ apparentTime: "9:10" })).toEqual([]);
     expect(checkTimelineDeception({ apparentTime: "9:10", actualTime: "10:15" })).toEqual([]);
-    expect(
-      checkTimelineDeception({ apparentTime: "9:10", actualTime: "10:15", culpritAlibiWindows: ["evening"] }),
-    ).toEqual([]);
+  });
+
+  it("says it could not READ a window, without inventing a defect in the case", () => {
+    /**
+     * CHANGED 2026-09-05, deliberately, and the original intent is kept rather than bent.
+     *
+     * This case used to assert `[]` for an unreadable window, which conflated two opposite things:
+     * "the times are fine" and "I could not check the times". Run 89022 shipped with its staged time
+     * of death OUTSIDE the culprit's own alibi — the exact defect `apparent_not_covered` exists for —
+     * and this check returned nothing, because a comma made the window unparseable. MEASURED: 6 of 52
+     * stored cases (12%) are unchecked that way.
+     *
+     * The test's real point stands and is asserted below: vague data must never produce a claim ABOUT
+     * THE CASE. `culprit_alibi_unreadable` is a claim about the CHECK.
+     */
+    const codes = checkTimelineDeception({
+      apparentTime: "9:10",
+      actualTime: "10:15",
+      culpritAlibiWindows: ["evening"],
+    }).map((v) => v.code);
+
+    expect(codes).toEqual(["culprit_alibi_unreadable"]);
+    expect(codes).not.toContain("apparent_not_covered");
+    expect(codes).not.toContain("actual_covered");
   });
 
   it("handles a window that wraps midnight", () => {
