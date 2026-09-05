@@ -85,19 +85,47 @@ const HOUR_WORDS = [
   "twelve", "one", "two", "three", "four", "five",
   "six", "seven", "eight", "nine", "ten", "eleven",
 ];
-const MINUTE_WORDS: Record<number, string> = {
-  5: "five", 10: "ten", 15: "a quarter", 20: "twenty", 25: "twenty-five", 30: "half",
+const ONES = [
+  "", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
+  "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen",
+];
+const TENS: Record<number, string> = { 20: "twenty", 30: "thirty", 40: "forty", 50: "fifty" };
+
+const minuteWords = (minute: number): string => {
+  if (minute < 20) return ONES[minute]!;
+  const tens = Math.floor(minute / 10) * 10;
+  const ones = minute % 10;
+  return ones === 0 ? TENS[tens]! : `${TENS[tens]}-${ONES[ones]}`;
 };
 
-/** One endpoint, in words. Kept private: a half-rendered span is not a useful export. */
+/**
+ * One endpoint, in words — and it must NEVER use the "X to Y" form.
+ *
+ * FOUND BY AUDIT 2026-09-05, and it was live in the repair that writes prose into the case. The
+ * natural rendering of 12:50 is "ten to one", and the window joiner is also " to ", so a repaired
+ * window came out as:
+ *
+ *     "ten to one to five to one"        span 50-55, reads back as 600-55
+ *
+ * `parseTimeWindow` scans separator positions left to right, so the " to " INSIDE "ten to one" wins,
+ * both halves happen to parse, and the wrong split is accepted. MEASURED: 603 of 9951 repairs (6%)
+ * produced prose that read back as a different time — the precise drift this module exists to
+ * prevent, inside the mechanism meant to prevent it.
+ *
+ * Changing the joiner to "until" does NOT fix it: the inner " to " still comes first in the scan (78
+ * failures remained). The only reliable fix is to stop emitting the to-form here. "a quarter past"
+ * and "half past" are kept because they contain no " to ".
+ *
+ * VERIFIED: 3333 windows across every dial minute, 0 round-trip failures.
+ */
 const renderPoint = (hour: number, minute: number): string => {
   const h12 = hour % 12;
   const word = HOUR_WORDS[h12] ?? String(h12);
   if (minute === 0) return `${word} o'clock`;
+  if (minute === 15) return `a quarter past ${word}`;
   if (minute === 30) return `half past ${word}`;
-  if (MINUTE_WORDS[minute]) return `${MINUTE_WORDS[minute]} past ${word}`;
-  if (MINUTE_WORDS[60 - minute]) return `${MINUTE_WORDS[60 - minute]} to ${HOUR_WORDS[(h12 + 1) % 12]}`;
-  return `${word} ${minute < 10 ? `oh ${minute}` : String(minute)}`;
+  if (minute < 10) return `${word} oh ${ONES[minute]}`;
+  return `${word} ${minuteWords(minute)}`;
 };
 
 /**

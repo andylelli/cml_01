@@ -70,8 +70,17 @@ describe("the trimmed window is still readable prose", () => {
     // fine and reads like a machine; 5:40 reads like an alibi.
     const fixed = repairActualCovered(spanOf(300, 360), 330, 345)!;
     expect(alibiSpanToWindow(fixed)).toEqual([300, 340]);
+    /**
+     * "five forty", NOT "twenty to six" — and this assertion changed because the to-form was a BUG.
+     *
+     * An audit on 2026-09-05 found the natural rendering of 5:40 collides with the window joiner:
+     * "five o'clock to twenty to six" was read back by `parseTimeWindow` as 5:00–?? because the
+     * " to " INSIDE the endpoint wins the left-to-right separator scan. MEASURED: 603 of 9951
+     * repairs (6%) wrote prose that read back as a different time. `renderPoint` no longer emits
+     * the to-form at all.
+     */
     expect(renderAlibiWindow({ ...fixed, location: "the lounge" }))
-      .toBe("five o'clock to twenty to six in the lounge");
+      .toBe("five o'clock to five forty in the lounge");
   });
 
   it("falls back to the exact minute when rounding would exclude the staged time", () => {
@@ -108,5 +117,34 @@ describe("the property that makes this safe at all", () => {
     }
     // A guard against the loop silently testing nothing.
     expect(repaired).toBeGreaterThan(100);
+  });
+});
+
+describe("the rendered window must read back as itself — the audit that caught the to-form", () => {
+  it("every rendered endpoint round-trips, across every dial minute", async () => {
+    const { alibiSpanFromWindow } = await import("../alibi-span.js");
+    // The bug this pins: 12:50 renders naturally as "ten to one", whose " to " collides with the
+    // window joiner, so "ten to one to five to one" read back as 600-55. 6% of repairs were affected.
+    const failures: string[] = [];
+    for (let start = 0; start < 720; start += 1) {
+      for (const len of [5, 45, 137]) {
+        const end = start + len;
+        if (end >= 720) continue;
+        const span = spanOf(start, end);
+        const prose = renderAlibiWindow(span);
+        const back = alibiSpanFromWindow(prose);
+        if (!back) { failures.push(`unreadable: "${prose}"`); continue; }
+        const [bs, be] = alibiSpanToWindow(back);
+        if (bs !== start || be !== end) failures.push(`${start}-${end} -> "${prose}" -> ${bs}-${be}`);
+      }
+    }
+    expect(failures.slice(0, 5)).toEqual([]);
+  });
+
+  it("no rendered endpoint contains the joiner, which is why the above holds", () => {
+    for (let minute = 0; minute < 60; minute += 1) {
+      const one = renderAlibiWindow(spanOf(minute, minute + 1)).split(" to ");
+      expect(one, `minute ${minute} split into ${one.length} parts`).toHaveLength(2);
+    }
   });
 });

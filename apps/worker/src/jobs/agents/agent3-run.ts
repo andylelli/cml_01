@@ -166,7 +166,8 @@ function applyCmlRepairAndRevalidate(
    * always satisfiable when apparent and actual differ — because then a defect the model cannot fix
    * stops costing the whole run.
    */
-  const spans = /^(1|true|yes|on)$/i.test(process.env.AGENT3_ALIBI_SPAN_FLOOR ?? "")
+  const spanFloorOn = /^(1|true|yes|on)$/i.test(process.env.AGENT3_ALIBI_SPAN_FLOOR ?? "");
+  const spans = spanFloorOn
     ? deriveAlibiSpans(cmlResult.cml as any)
     : { derived: 0, unreadable: [] as string[] };
   if (spans.derived > 0 || spans.unreadable.length > 0) {
@@ -177,7 +178,15 @@ function applyCmlRepairAndRevalidate(
           : "; every window read"),
     );
   }
-  if (spans.derived > 0) {
+  /**
+   * Gated on the FLAG, not on `spans.derived > 0`.
+   *
+   * FOUND BY AUDIT 2026-09-05. The first version ran the repair only when the floor had derived at
+   * least one span — so a case where the model AUTHORED its spans (nothing to derive) never got
+   * repaired, which is precisely the case T2 is building towards. `repairCulpritAlibiCoverage` is
+   * already a no-op without a valid span, so calling it under the flag is both safe and correct.
+   */
+  if (spanFloorOn) {
     const coverage = repairCulpritAlibiCoverage(cmlResult.cml as any);
     for (const r of coverage) {
       ctx.warnings.push(
