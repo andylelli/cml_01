@@ -107,7 +107,23 @@ export const parseClockTime = (raw?: string): number | null => {
   // The curly apostrophe is not a different time. `accept.ts` folds its own input for exactly this
   // reason — "two o’clock" returned null while the folded prose parsed cleanly, and the manuscript
   // was accused of inventing the very hour the case declared. Folding here means no caller has to.
-  const text = String(raw ?? "").toLowerCase().replace(/[‘’ʼ]/g, "'").trim();
+  const text = String(raw ?? "")
+    .toLowerCase()
+    .replace(/[‘’ʼ]/g, "'")
+    /**
+     * "midday" is "noon", and it was the only one of the pair this parser could read.
+     *
+     * `noon` sits in WORD_NUMBERS and in FIVE separate regex alternations below. Adding "midday"
+     * to each is five places to forget, so it is normalised once here instead and every branch
+     * gains it at the same moment.
+     *
+     * MEASURED: `parseClockTime("midday")` returned null while `parseClockTime("noon")` returned
+     * 12:00, and the temporal spine's own reader handled BOTH - which is how a "strict subset"
+     * ended up strictly better than the shared parser at one point. It also cost a real alibi
+     * window, "Between midday and one o'clock", which is in the store unreadable.
+     */
+    .replace(/\bmidday\b/g, "noon")
+    .trim();
   if (!text) return null;
 
   const digital = text.match(/\b(\d{1,2}):(\d{2})\b/);

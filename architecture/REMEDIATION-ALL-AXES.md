@@ -271,7 +271,7 @@ code change — a register pass. `FLAG-AUDIT` already does this for flags; nothi
 
 ## §5 — GROUP D: known-unverified
 
-### D1 — `parseTemporalValue` is a second parser, and it is blinder than the first
+### D1 — `parseTemporalValue` is a second parser, and it is blinder than the first — **DONE 2026-09-04 (`pending`)**
 
 **MEASURED 2026-09-04:** the temporal spine's parser returns null for `"seven fifteen"`,
 `"seven twenty"`, `"twenty past three"`, `"five forty-five"` — all of which `parseClockTime` reads
@@ -288,6 +288,38 @@ this repo has already been bitten by three times.
 **Verify:** deterministic — the differential over all 156 locked-fact values must show zero
 disagreement.
 **Cost:** free.
+
+**OUTCOME.** The "strict subset" argument in the docblock was sound in the abstract and wrong here:
+`parseTemporalValue` is only ever handed `fact.value`, a structured field, so the false positive the
+strictness guarded against cannot arrive. `readDialMinutes` now delegates to `parseClockTime`; the
+day/daypart/meridiem layer stays, since it has no counterpart there.
+
+Verified before changing anything: `parseClockTime` refuses all ten things the spine must refuse
+(durations, dimensions, prose) — 0 violations — so delegation could not make it credulous.
+
+**Two further defects fell out, neither of them the one this item was opened for:**
+
+1. `parseClockTime("midday")` was **null** while `"noon"` read 12:00 — the one point where the strict
+   subset was strictly *better*. Normalised once at the top of `parseClockTime` rather than added to
+   the word table and five regex alternations. It also recovered a real alibi window,
+   `"Between midday and one o'clock"` (wide readability 89% → 90%; narrow unchanged at 64%).
+
+2. **The parity test found a silent value corruption on its first run.** The spine tested whether a
+   phrase *contained* `midnight` and then discarded the dial reading:
+
+   | value | `parseClockTime` | spine (before) |
+   |---|---:|---:|
+   | `"ten minutes past midnight"` | 10 | **0** |
+   | `"a quarter to midnight"` | 705 | **0** |
+
+   Both are real locked-fact values. A quarter to midnight read as midnight exactly — a
+   fifteen-minute error in a number the arithmetic check then reasons from as fact. Fixed with the
+   direction included, because it inverts: *past* midnight is 00:10 and morning, *to* midnight is
+   23:45 and the night before; noon is the mirror of it.
+
+`temporal-spine-parser-parity.test.ts` now runs a differential over all **156** distinct locked-fact
+values on disk and asserts the two parsers never disagree — that guard is the actual deliverable, not
+the delegation.
 
 ### D2 — Durations asserted in prose are unchecked
 

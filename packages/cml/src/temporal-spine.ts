@@ -35,6 +35,8 @@
  * what hides it.
  */
 
+import { parseClockTime } from "./timeline-deception.js";
+
 /** Minutes in a day. Absolute times here are 0..1439, NOT the dial-relative 0..719 of parseClockTime. */
 export const MINUTES_PER_DAY = 1440;
 
@@ -157,15 +159,33 @@ export const parseTemporalValue = (raw?: string): TemporalReading | null => {
   const dial = readDialMinutes(clockPhrase);
   if (dial === null) return null;
 
-  // "midnight"/"noon" fix the meridiem themselves.
+  /**
+   * "midnight" and "noon" fix the half of the day — but they are an ANCHOR, not the whole reading.
+   *
+   * FOUND 2026-09-04 by the parser-parity test, on its first run, against real locked-fact values:
+   *
+   *     "ten minutes past midnight"   parseClockTime 10    this module 0
+   *     "a quarter to midnight"       parseClockTime 705   this module 0
+   *
+   * The old form tested whether the phrase CONTAINED "midnight" and then threw the dial reading away
+   * and returned 0. So a quarter to midnight read as midnight exactly — a silent fifteen-minute
+   * error in a value the arithmetic check then reasons from as fact. Both strings are in the store.
+   *
+   * The direction matters and is the whole reason this cannot be a single flag: "ten minutes PAST
+   * midnight" is 00:10 and belongs to the morning, while "a quarter TO midnight" is 23:45 and belongs
+   * to the night before. The same inversion applies to noon.
+   *
+   * The dial value is now always the parser's, and only the meridiem is set here.
+   */
+  const anchorsMidnight = /\bmidnight\b/.test(clockPhrase);
+  const anchorsNoon = /\bnoon\b|\bmidday\b/.test(clockPhrase);
+  if (anchorsMidnight || anchorsNoon) {
+    const countingDown = /\bto\s+(?:midnight|noon|midday)\b/.test(clockPhrase);
+    meridiem = anchorsMidnight ? (countingDown ? "pm" : "am") : countingDown ? "am" : "pm";
+  }
+
   let minutes = dial;
-  if (/\bmidnight\b/.test(clockPhrase)) {
-    minutes = 0;
-    meridiem = "am";
-  } else if (/\bnoon\b|\bmidday\b/.test(clockPhrase)) {
-    minutes = 12 * 60;
-    meridiem = "pm";
-  } else if (meridiem === "pm") {
+  if (meridiem === "pm") {
     minutes = (dial % 720) + 720;
   } else if (meridiem === "am") {
     minutes = dial % 720;
@@ -181,59 +201,34 @@ export const parseTemporalValue = (raw?: string): TemporalReading | null => {
 };
 
 /**
- * The bare 12-hour-dial reading of a clock phrase, 0..719. Intentionally a small, strict subset —
- * this module's job is to be certain, and `parseClockTime` remains the permissive reader for prose.
+ * The bare 12-hour-dial reading of a clock phrase, 0..719 — now a thin delegation, and the reason
+ * this stopped being its own parser is worth keeping.
+ *
+ * It used to be a hand-written "small, strict subset", justified on the grounds that this module's
+ * job is to be certain while `parseClockTime` stays the permissive reader for prose. That argument
+ * was sound in the abstract and wrong here, for two reasons found on 2026-09-04:
+ *
+ *   1. THE PERMISSIVENESS RISK DOES NOT APPLY AT THESE CALL SITES. `parseTemporalValue` is only ever
+ *      handed `fact.value` — a structured locked-fact field — never free prose. The false positive
+ *      the strictness was guarding against ("one of the guests" reading as 1:00) cannot arrive here.
+ *
+ *   2. THE SUBSET EXCLUDED FORMS THE PIPELINE ACTUALLY WRITES AS FACTS. MEASURED over the 156
+ *      distinct locked-fact values in `apps/worker/logs/locked-facts-*.json`: this reader returned
+ *      null for "twenty past ten" and "twenty past seven", both of which `parseClockTime` reads.
+ *      Small — 2 of 60 clock-valued facts — but a null here makes the arithmetic check SILENT, and a
+ *      silent temporal gate has already meant "unparseable" rather than "clean" once on this project.
+ *
+ * So the strictness bought nothing and cost visibility. One parser now answers "what time is this",
+ * and `temporal-spine-parser-parity.test.ts` asserts the two never disagree again — because two
+ * bodies computing the same thing is the trap this repo has already been bitten by three times.
+ *
+ * Everything ABOVE the clock reading stays here: day offsets, dayparts, meridiem and the
+ * render-from-number layer are this module's own and have no counterpart in `parseClockTime`.
+ *
+ * midnight and noon both read 0 on a twelve-hour dial, exactly as the hand-written version returned,
+ * and `parseTemporalValue` still promotes noon to 720 itself.
  */
-const readDialMinutes = (phrase: string): number | null => {
-  const digital = /\b(\d{1,2})[:.](\d{2})\b/.exec(phrase);
-  if (digital) {
-    const h = Number(digital[1]);
-    const m = Number(digital[2]);
-    if (m > 59 || h > 23) return null;
-    return (h % 12) * 60 + m;
-  }
-
-  if (/\bmidnight\b/.test(phrase)) return 0;
-  if (/\bnoon\b|\bmidday\b/.test(phrase)) return 0;
-
-  const numberWord =
-    "(?:twenty|thirty|forty|fifty)[-\\s](?:one|two|three|four|five|six|seven|eight|nine)" +
-    "|twenty-five|twenty|thirty|forty|fifty|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen" +
-    "|seventeen|eighteen|nineteen|one|two|three|four|five|six|seven|eight|nine|\\d{1,2}";
-  const hourWord = "twelve|midnight|noon|one|two|three|four|five|six|seven|eight|nine|ten|eleven";
-
-  const counted = new RegExp(
-    `(?<![-\\w])(${numberWord})\\s+minutes?\\s+(past|to)\\s+(${hourWord})\\b`,
-  ).exec(phrase);
-  if (counted) {
-    const mins = spelledNumber(counted[1]!);
-    const hour = WORD_HOURS[counted[3]!];
-    if (mins === null || mins > 59 || hour === undefined) return null;
-    return counted[2] === "past"
-      ? (hour % 12) * 60 + mins
-      : ((hour % 12) * 60 - mins + 720) % 720;
-  }
-
-  const fraction = new RegExp(
-    `\\b(?:a\\s+)?(quarter|half)\\s+(past|to)\\s+(${hourWord})\\b`,
-  ).exec(phrase);
-  if (fraction) {
-    const mins = fraction[1] === "quarter" ? 15 : 30;
-    const hour = WORD_HOURS[fraction[3]!];
-    if (hour === undefined) return null;
-    return fraction[2] === "past"
-      ? (hour % 12) * 60 + mins
-      : ((hour % 12) * 60 - mins + 720) % 720;
-  }
-
-  const oclock = new RegExp(`\\b(${hourWord})\\s+o'clock\\b`).exec(phrase);
-  if (oclock) {
-    const hour = WORD_HOURS[oclock[1]!];
-    return hour === undefined ? null : (hour % 12) * 60;
-  }
-
-  return null;
-};
+const readDialMinutes = (phrase: string): number | null => parseClockTime(phrase);
 
 const SPELLED: Record<string, number> = {
   zero: 0, one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9,
