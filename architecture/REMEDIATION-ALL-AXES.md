@@ -649,6 +649,50 @@ point-free `.map(parseTimeWindow)` passing the array index, and a store walk tha
 from other artifact types. **The measurements were worth more than the code.** Every item that
 survived contact with its own evidence was cheaper than the one it replaced.
 
+## §7a — VERIFICATION RUN 89022 (2026-09-05) — all seven predictions passed
+
+Seed 89022 · **identity** axis (the rarest, 7 of 107 shipped) · Village 1920s · cast of 6, initials
+C J G H K B all distinct · `canary_1788607565000` · **£1.14**, 63 calls, 12,975 words · release gate
+**warning** · internal rubric 64 (shadow — a health signal only).
+
+| # | prediction | result |
+|---|---|---|
+| 1 | Agent 7 produces a schema-valid outline | **PASS** — `structured_output=true`, zero `estimatedWordCount` errors |
+| 2 | `SHIP-CHECK final-chapter ending` absent, `[X4] injections` non-zero | **PASS** — 0 fired, injections=1 |
+| 3 | no `dropped_locked_fact` on the aftermath regen | **PASS** — 0 |
+| 4 | ch8–10 budget lines read `dropped=[none]` | **PASS** — ch10: `budget=56000 fixed=26706 available=29294 dropped=[none] truncated=[none]` |
+| 5 | no `"Either The"` in the manuscript | **PASS** — 0 |
+| 6 | `[X38-spine]` reports its findings | **PASS** — 3 instants, 0 durations, so the implied path correctly did NOT fire |
+| 7 | the widened window parser reads more | **PASS** — `apparent_not_covered`: staged 4:20 outside the culprit's 12:00–3:00 |
+
+**Every fix from 2026-09-04/05 is confirmed working in a live run.** The `AGENT7_STRUCTURED_OUTPUT`
+flip in particular closed the 11% abort class on its first outing, and it was the first `json_schema`
+call this pipeline has ever made — that transport path now has one production run behind it.
+
+### And the book is still weak, for reasons NONE of these fixes touch
+
+Internal rubric 64, capped twice: *"no confession / exposure / arrest / consequence → ending ≤ 5"* and
+*"central clue stated as two flat values, not one contradiction → clues ≤ 6"*. Four geometry warnings:
+`unaccounted_time`, `clincher_absent_at_payoff` (ch8), `reveal_culprit_not_named` (ch8),
+`reveal_times_not_stated` (ch8).
+
+**Three of those four are the gates §4's C2 register named as having NO OWNER**, and the fourth
+behaved exactly as it did on run 22362:
+
+```
+reveal-repair UNRESOLVED in ch8: regen did not improve the targeted property
+                                 (score 400, was 400; still failing: reveal_culprit_not_named)
+```
+
+Identical signature, two consecutive runs. N7 runs and loses the same way each time — so this is not
+variance, it is a repair that cannot reach its defect.
+
+**This is the register's prediction coming true on schedule.** A gate with no owner fires at the
+model's base rate forever, and the reveal not landing is now the single largest quality defect
+visible. Every remaining item on this board is downstream of it.
+
+---
+
 ## §8 — Standing rules this plan inherits
 
 - Every flag default OFF, registered in `FLAG-AUDIT.md`, env read at **call time** (ADR-0004).
