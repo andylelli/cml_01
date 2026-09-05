@@ -190,7 +190,7 @@ against the archive **before** wiring it, the way the 13% base rate was measured
 
 ## §3 — GROUP B: the axis gap
 
-### B1 — Non-temporal mechanisms have no coherence check at all *(reach: 52% of runs)*
+### B1 — Non-temporal mechanisms have no coherence check at all *(reach: 52% of runs)* — **B1.1 DONE; B1.2 RECOMMENDED-AGAINST 2026-09-04**
 
 This is §1 restated as work. A temporal case cannot ship with the culprit's alibi covering the real
 time of death without something firing. A **spatial** case can ship with the culprit in two places; an
@@ -212,6 +212,58 @@ case of it with a parser attached.
 
 **Evidence tier:** B1.1 is T2 (archive replay). B1.2 would be T1→T3.
 **Cost:** B1.1 free. B1.2 unknown until B1.1 reports — deliberately unscoped here.
+
+**B1.1 OUTCOME — the audit did what it was put first to do: it cancelled B1.2.**
+
+§1 MEASURED that half the structural codes need clock data and that 52% of shipped runs are not
+temporal, then INFERRED a coverage gap. The inference is substantially **REFUTED**.
+
+Over the 23 runs joinable to their CML artifact (ledger runId → projectId via `llm.jsonl`):
+
+| axis | cases | mechanism carries a readable clock pair | locks a clock fact |
+|---|---:|---:|---:|
+| temporal | 14 | 86% | 71% |
+| **authority** | 6 | **100%** | 67% |
+| spatial | 1 | 100% | 100% |
+| behavioral | 1 | 100% | 100% |
+| identity | 1 | 100% | 0% |
+
+That join reaches only 24 of 107 rows — the ledger predates both `llm.jsonl` and the current store —
+so it was widened using the ledger's own prose (`falseAssumption`, `discrimDesign`, `crimeSubtype`,
+`deathMethod`, `premise`) across **all 107**:
+
+| axis | cases | any explicit time signal |
+|---|---:|---:|
+| temporal | 51 | 98% |
+| identity | 7 | 71% |
+| authority | 19 | 68% |
+| spatial | 9 | 56% |
+| behavioral | 21 | 48% |
+| **ALL** | **107** | **78%** |
+
+**And 78% is a FLOOR.** The signals were deliberately conservative — an explicit clock, an explicit
+duration, or a named timing noun. Every case in the "no time signal" residue turns out to assert a
+temporal relation without a clock: *"the murderer was seen in the lobby **at the time of the
+murder**"* (spatial), *"Captain Hale was in his office **at the time of the murder**"* (authority),
+*"poisoned **at the time of the toast**"* (behavioral), *"the gramophone was played **at the time of
+the murder**"* (identity).
+
+**So a non-temporal AXIS ships a temporal MECHANISM.** The axis varies only how the illusion is
+produced — a clock, a mirror, a mask, a gramophone, a delayed poison — while the invariant underneath
+is the same one the temporal machinery already checks: *someone appeared to be somewhere, or someone,
+at a moment they were not.*
+
+**B1.2 is therefore RECOMMENDED-AGAINST, not deleted.** Its whole justification was the coverage
+argument in §1, and that argument does not survive the measurement. Building three axis-specific
+coherence checkers — or one generic one — would be paying for reach the temporal checks already have.
+
+**What the audit found INSTEAD, and it is not a verification defect:** the axis is largely nominal.
+Run 22362 is labelled `authority` and its false assumption is *"the director's shouted rehearsal
+start at twenty minutes past seven…"*. Six of six authority cases carry a readable clock pair. The
+mechanism family barely varies with the axis — which matches DE2 dispersion telemetry from run 22362
+(`mechanismFamily H=0.49, top "locked_room_timing" 60%`) and A_78's finding that the idea engine
+draws 0.43% of its prompt from any real novel. **That is a novelty problem and belongs to the corpus
+era, not to this defect backlog.** Recorded here so the observation is not lost with B1.2.
 
 ### B2 — Two axis enums disagree *(reach: novelty + scheduling)*
 
@@ -271,7 +323,7 @@ code change — a register pass. `FLAG-AUDIT` already does this for flags; nothi
 
 ## §5 — GROUP D: known-unverified
 
-### D1 — `parseTemporalValue` is a second parser, and it is blinder than the first — **DONE 2026-09-04 (`pending`)**
+### D1 — `parseTemporalValue` is a second parser, and it is blinder than the first — **DONE 2026-09-04 (`3f629f01`)**
 
 **MEASURED 2026-09-04:** the temporal spine's parser returns null for `"seven fifteen"`,
 `"seven twenty"`, `"twenty past three"`, `"five forty-five"` — all of which `parseClockTime` reads
@@ -370,14 +422,14 @@ needs no paid run.
 |---|---|---|---|---|
 | 1 | **A1** name collisions | all axes, 20% of books | MEASURED | no |
 | 2 | **D1** delete the second clock parser | temporal | MEASURED | no |
-| 3 | **B1.1** hand-audit non-temporal coherence | 52% of runs | — (this IS the measurement) | no |
+| 3 | ~~**B1.1** hand-audit non-temporal coherence~~ **DONE — refuted the gap, cancelled B1.2** | 52% of runs | MEASURED | no |
 | 4 | **A2** per-axis firing of the two temporal floor templates | all axes | MEASURED reach | no |
 | 5 | **B2** two axis enums | novelty | MEASURED | no |
 | 6 | **C2** advisory-gate register pass | all axes | — | no |
 | 7 | **D2** floor durations read the registry | temporal | MEASURED | no |
 | 8 | **C1** plausibility threshold from archive distribution | all axes | shadow telemetry first | then 1 |
 | 9 | **A3** reveal-work confinement | all axes | 5/5 reads | 1, after baselining |
-| 10 | **B1.2** generic invariant checker | 52% of runs | **conditional on B1.1** | TBD |
+| 10 | ~~**B1.2** generic invariant checker~~ **RECOMMENDED-AGAINST — B1.1 refuted its premise** | — | — | — |
 
 **Items 1–7 cost nothing but time.** Item 3 gates item 10 and may cancel it. No paid run is required
 before item 8.
