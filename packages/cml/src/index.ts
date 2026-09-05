@@ -140,3 +140,19 @@ export type {
 
 // Phase 1 — declaration-driven derivation checking, built on the spine. Flag-gated at the call site.
 export { checkDeclaredDerivations, summariseSpine } from "./declared-derivations.js";
+
+export {
+  alibiSpanDisagreesWithProse,
+  alibiSpanFromWindow,
+  alibiSpanToWindow,
+  extractSpanLocation,
+  isValidAlibiSpan,
+  renderAlibiWindow,
+  type AlibiSpan,
+} from "./alibi-span.js";
+
+export {
+  findDecorativeTimeFacts,
+  summariseDecorativeTimes,
+  type DecorativeTimeFact,
+} from "./decorative-times.js";

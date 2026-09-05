@@ -34,6 +34,11 @@ export interface TimelineDeceptionInput {
    * dotenv and has already made three flags no-ops on this project.
    */
   wideWindowVocabulary?: boolean;
+  /**
+   * Dial pairs taken from a structured `alibi_span`. When present these are used INSTEAD of parsing
+   * `culpritAlibiWindows`, so no vocabulary can make the check silent.
+   */
+  culpritAlibiSpans?: ReadonlyArray<[number, number]>;
 }
 
 export interface TimelineDeceptionViolation {
@@ -433,9 +438,14 @@ export const checkTimelineDeception = (input: TimelineDeceptionInput): TimelineD
   // argument, so the point-free form silently handed `0`, `1`, `2` to the options parameter the
   // moment one existed. tsc caught it; at runtime it would have been invisible.
   const rawWindows = (input.culpritAlibiWindows ?? []).filter((w) => String(w ?? "").trim().length > 0);
-  const windows = rawWindows
-    .map((w) => parseTimeWindow(w, { wide: input.wideWindowVocabulary === true }))
-    .filter((w): w is [number, number] => w !== null);
+  // A structured span wins outright. It is the case's own arithmetic rather than our reading of its
+  // prose, so where one exists the parser is not consulted and cannot be blamed.
+  const spans = (input.culpritAlibiSpans ?? []).filter((s) => Array.isArray(s) && s.length === 2);
+  const windows = spans.length > 0
+    ? spans.map((s) => [s[0]!, s[1]!] as [number, number])
+    : rawWindows
+        .map((w) => parseTimeWindow(w, { wide: input.wideWindowVocabulary === true }))
+        .filter((w): w is [number, number] => w !== null);
 
   /**
    * ── UNREADABLE IS NOT CLEAN, AND THIS CHECK NEVER KNEW THE DIFFERENCE ──────────────────────────
@@ -580,6 +590,38 @@ export const describeTimelineArithmeticCoverage = (cmlCase: any): TimelineArithm
   };
 };
 
+/**
+ * ── THE STRUCTURED ALIBI SPAN — arithmetic core ─────────────────────────────────────────────────
+ *
+ * Lives HERE, beside the only check that consumes it, rather than in `alibi-span.ts` with its
+ * rendering and migration helpers. The reason is a cycle: `alibi-span.ts` needs `parseTimeWindow` to
+ * migrate existing prose, so this module cannot import from it. Splitting the type and its two-line
+ * arithmetic out is the alternative to a second copy of `(hour % 12) * 60 + minute`, and a second
+ * copy of anything time-shaped is exactly how this project acquired two clock parsers that disagreed.
+ */
+export interface AlibiSpan {
+  startHour: number;
+  startMinute: number;
+  endHour: number;
+  endMinute: number;
+  location?: string;
+}
+
+const isSpanMinute = (n: unknown): boolean => Number.isInteger(n) && (n as number) >= 0 && (n as number) <= 59;
+const isSpanHour = (n: unknown): boolean => Number.isInteger(n) && (n as number) >= 0 && (n as number) <= 23;
+
+export const isValidAlibiSpan = (value: unknown): value is AlibiSpan => {
+  if (!value || typeof value !== "object") return false;
+  const s = value as Partial<AlibiSpan>;
+  return isSpanHour(s.startHour) && isSpanMinute(s.startMinute) && isSpanHour(s.endHour) && isSpanMinute(s.endMinute);
+};
+
+/** The span as the dial pair this module works in. No parsing, by construction. */
+export const alibiSpanToWindow = (span: AlibiSpan): [number, number] => [
+  (span.startHour % 12) * 60 + span.startMinute,
+  (span.endHour % 12) * 60 + span.endMinute,
+];
+
 export const checkCaseTimelineDeception = (cmlCase: any): TimelineDeceptionViolation[] => {
   const mechanism = cmlCase?.hidden_model?.mechanism ?? {};
   const culprits: string[] = (cmlCase?.culpability?.culprits ?? [])
@@ -588,8 +630,25 @@ export const checkCaseTimelineDeception = (cmlCase: any): TimelineDeceptionViola
   if (culprits.length === 0) return [];
 
   const cast: any[] = Array.isArray(cmlCase?.cast) ? cmlCase.cast : [];
-  const culpritWindows = cast
-    .filter((member) => culprits.includes(String(member?.name ?? "").trim()))
+  const culpritMembers = cast.filter((member) => culprits.includes(String(member?.name ?? "").trim()));
+
+  /**
+   * ── T2: A STRUCTURED SPAN IS PREFERRED OVER PARSING THE PROSE ─────────────────────────────────
+   *
+   * When the case carries `alibi_span`, the numbers come straight out of it and no vocabulary is
+   * involved — which is the whole point. MEASURED before this existed: 6 of 52 cases (12%) had a
+   * culprit whose window could not be read at all, so this check was silent on one case in eight,
+   * and the four failures had four different causes. A span cannot fail that way.
+   *
+   * The prose window stays as the fallback for every case authored before spans existed, and
+   * `alibiSpanDisagreesWithProse` (alibi-span.ts) is what stops the two drifting apart.
+   */
+  const culpritSpans = culpritMembers
+    .map((member) => member?.alibi_span ?? member?.alibiSpan)
+    .filter((span): span is AlibiSpan => isValidAlibiSpan(span))
+    .map(alibiSpanToWindow);
+
+  const culpritWindows = culpritMembers
     .map((member) => String(member?.alibi_window ?? member?.alibiWindow ?? "").trim())
     .filter(Boolean);
 
@@ -597,6 +656,7 @@ export const checkCaseTimelineDeception = (cmlCase: any): TimelineDeceptionViola
     apparentTime: mechanism.apparent_time_of_death,
     actualTime: mechanism.actual_time_of_death,
     culpritAlibiWindows: culpritWindows,
+    culpritAlibiSpans: culpritSpans,
     // Read at CALL time, not at module load.
     wideWindowVocabulary: /^(1|true|yes|on)$/i.test(
       String(process.env.AGENT3_TIMELINE_WINDOW_VOCABULARY ?? ""),

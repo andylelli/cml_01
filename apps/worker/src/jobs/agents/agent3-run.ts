@@ -8,7 +8,10 @@
 
 import { generateCML, auditNovelty, findUnplantedDiscriminatingClues } from "@cml/prompts-llm";
 import { createSkeletonExtractor, judgeNovelty, loadReferenceCorpus } from "@cml/novelty";
-import { parseClockTime, validateCml, buildCaseScopedLockedFacts } from "@cml/cml";
+import { parseClockTime, validateCml, buildCaseScopedLockedFacts,
+  alibiSpanFromWindow,
+  isValidAlibiSpan,
+} from "@cml/cml";
 import type { PhaseScore, TestResult } from "@cml/story-validation";
 import { scoreRealCml, getGenerationParams } from "@cml/story-validation";
 import { type OrchestratorContext, preAgent9ContractRecoveryEnabled, preAgent9LlmRetriesEnabled, applyHonestScorer } from "./shared.js";
@@ -51,6 +54,46 @@ function repairInferenceRequiredEvidence(cml: any): number {
   return repairedCount;
 }
 
+/**
+ * ── T2 FLOOR: DERIVE THE STRUCTURED ALIBI SPAN ONCE, HERE ────────────────────────────────────────
+ *
+ * `checkCaseTimelineDeception` prefers `cast[].alibi_span` over parsing `alibi_window`. That only
+ * helps cases which HAVE a span, and every case on disk was authored before spans existed.
+ *
+ * This is the migration, and its placement is the point: the parse happens exactly ONCE, at Agent 3,
+ * where a failure is cheap and — via `AGENT3_ALIBI_UNREADABLE_GATE` — visible. Everything downstream
+ * reads numbers. That is what "no parser needed for our own facts" actually requires; a structured
+ * field the model may or may not emit is not enough on its own.
+ *
+ * MEASURED before this existed: 6 of the 52 stored cases (12%) had a culprit whose window could not
+ * be read at all, so the deception check was silent on one case in eight, and the four failures had
+ * four different causes. Run 89022 scored 85/100 with its staged time of death OUTSIDE the culprit's
+ * own alibi and nothing said so.
+ *
+ * NEVER OVERWRITES a span the model authored — a derived value must not silently replace a declared
+ * one — and never invents a span from a window it cannot read. A window that stays unreadable is
+ * still unreadable, and still reported; this floor closes the gap for the 88% it CAN read, not the
+ * 12% it cannot.
+ */
+export function deriveAlibiSpans(cml: any): { derived: number; unreadable: string[] } {
+  const caseBlock = cml?.CASE ?? cml;
+  const cast = Array.isArray(caseBlock?.cast) ? caseBlock.cast : [];
+  let derived = 0;
+  const unreadable: string[] = [];
+
+  for (const member of cast) {
+    if (!member || typeof member !== "object") continue;
+    if (isValidAlibiSpan(member.alibi_span)) continue;          // declared wins over derived
+    const window = String(member.alibi_window ?? member.alibiWindow ?? "").trim();
+    if (!window) continue;
+    const span = alibiSpanFromWindow(window);
+    if (!span) { unreadable.push(`${String(member.name ?? "?")}: ${JSON.stringify(window)}`); continue; }
+    member.alibi_span = span;
+    derived += 1;
+  }
+  return { derived, unreadable };
+}
+
 function applyCmlRepairAndRevalidate(
   cmlResult: Awaited<ReturnType<typeof generateCML>>,
   ctx: OrchestratorContext,
@@ -61,6 +104,18 @@ function applyCmlRepairAndRevalidate(
   // depends on it), so the prior early return on validity caused silent fair-play data loss. Only the
   // re-validation outcome is gated.
   const wasValid = cmlResult.validation.valid;
+  // T2 — structure the alibi window before anything downstream reads it. Runs unconditionally and
+  // independently of the repair count below, because a case with no required_evidence defect still
+  // needs its spans.
+  const spans = deriveAlibiSpans(cmlResult.cml as any);
+  if (spans.derived > 0 || spans.unreadable.length > 0) {
+    ctx.warnings.push(
+      `[T2 alibi-span] derived ${spans.derived} structured span(s) from prose windows` +
+        (spans.unreadable.length
+          ? `; ${spans.unreadable.length} window(s) UNREADABLE and left without one: ${spans.unreadable.join(" | ")}`
+          : "; every window read"),
+    );
+  }
   const repairedCount = repairInferenceRequiredEvidence(cmlResult.cml as any);
   if (repairedCount === 0) {
     return cmlResult;

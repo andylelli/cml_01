@@ -37,6 +37,7 @@ import {
   parseDurationMinutes,
   rewriteDurationMinutes,
   dialGapMinutes,
+  summariseDecorativeTimes,
 } from "@cml/cml";
 import { HardLogicScorer, scoreRealHardLogic } from "@cml/story-validation";
 import { adaptHardLogicForScoring } from "../scoring-adapters/index.js";
@@ -286,6 +287,18 @@ export function applyDeclaredDerivationCheck(ctx: OrchestratorContext): CaseTime
   if (!isDeclaredDerivationsEnabled()) return [];
   const registry = ctx.lockedFactRegistry ?? [];
   ctx.warnings.push(`[X38-spine] ${summariseSpine(registry)}`);
+
+  /**
+   * T3 — the locked TIME facts the case's own reasoning never refers to.
+   *
+   * MEASURED over 37 cases: 55% of locked time facts prove nothing, across 78% of cases. Telemetry
+   * only, and B1 is why: at 78% a gate would be an off switch with extra steps. The number is the
+   * finding — half the times this pipeline forces into the prose are decoration by construction,
+   * because Agent 3b authors a device clock and Agent 3 authors an inference path and nothing
+   * requires the second to use the first.
+   */
+  const decorative = summariseDecorativeTimes(ctx.cml, registry);
+  if (decorative) ctx.warnings.push(decorative);
   return checkDeclaredDerivations(registry);
 }
 
