@@ -1861,6 +1861,60 @@ export function coerceNarrativeSceneBeats(narrative: unknown): { coerced: number
 }
 
 /**
+ * ── A MISSING `estimatedWordCount` MUST NOT COST A RUN ──────────────────────────────────────────
+ *
+ * FOUND BY AN ABORT, run 87779 (2026-09-05, seed 87779). The model omitted `estimatedWordCount` on
+ * every scene, twice in a row, and the outline failed schema validation with ten identical errors:
+ *
+ *     Outline schema failure: acts[0].scenes[0].estimatedWordCount is required   (x10)
+ *     Pipeline failure: Narrative outline artifact failed schema validation
+ *
+ * MEASURED: this had never happened before — zero occurrences across `logs/llm.jsonl` and the store —
+ * so it is a new compliance failure, not a regression. Contract recovery ran and could not supply the
+ * field either.
+ *
+ * Synthesised for the same reason `act.purpose` is synthesised in `runAgent7`, and under the doctrine
+ * `hoistMisplacedSceneFields` states above: never abort a run over a field the pipeline can work out
+ * for itself. This one is the easiest of all — it is an ESTIMATE, and `distributeChapterWordBudget`
+ * already computes exactly this number, position-weighted, and is what the scheduler uses downstream.
+ * Deriving it is not a guess; it is the value the rest of the pipeline would have used regardless.
+ *
+ * NEVER OVERWRITES a count the model did author, so this can only turn an abort into a run.
+ *
+ * Exported, like its two siblings, because a repair that needs a £1 run to test is a repair nobody
+ * tests — the same lesson the declared-derivation wiring taught on 2026-09-03.
+ */
+export function synthesiseMissingWordCounts(
+  narrative: unknown,
+  targetLength?: string,
+): { scenes: number; acts: number } {
+  const acts = Array.isArray((narrative as any)?.acts) ? (narrative as any).acts : [];
+  const allScenes = acts.flatMap((act: any) => (Array.isArray(act?.scenes) ? act.scenes : []));
+  if (allScenes.length === 0) return { scenes: 0, acts: 0 };
+
+  const budgets = distributeChapterWordBudget(allScenes.length, targetLength);
+  let scenes = 0;
+  allScenes.forEach((scene: any, index: number) => {
+    if (!scene || typeof scene !== "object") return;
+    if (Number.isFinite(scene.estimatedWordCount)) return;
+    scene.estimatedWordCount = budgets[index] ?? budgets[budgets.length - 1] ?? 1800;
+    scenes += 1;
+  });
+
+  let actsFixed = 0;
+  for (const act of acts) {
+    if (!act || typeof act !== "object" || Number.isFinite(act.estimatedWordCount)) continue;
+    const own = Array.isArray(act.scenes) ? act.scenes : [];
+    act.estimatedWordCount = own.reduce(
+      (sum: number, sc: any) => sum + (Number.isFinite(sc?.estimatedWordCount) ? sc.estimatedWordCount : 0),
+      0,
+    );
+    actsFixed += 1;
+  }
+  return { scenes, acts: actsFixed };
+}
+
+/**
  * Deterministically HOIST scene fields the model nested under `setting` up to the scene top-level, and
  * synthesise a missing `summary` from the model's own authored intent — in place.
  *
@@ -2071,6 +2125,19 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
         act.purpose = ACT_DEFAULT_PURPOSES[act.actNumber] ?? "Advance the story.";
         ctx.warnings.push(`act${act.actNumber}.purpose was missing — synthesised default.`);
       }
+    }
+  }
+
+  // ── Word-count synthesis (before schema validation) ─────────────────────────
+  // See synthesiseMissingWordCounts: omitting this field aborted run 87779 outright.
+  {
+    const wordCounts = synthesiseMissingWordCounts(narrative, ctx.inputs.targetLength);
+    if (wordCounts.scenes > 0 || wordCounts.acts > 0) {
+      ctx.warnings.push(
+        `Narrative word-count synthesis: the model omitted estimatedWordCount on ${wordCounts.scenes} scene(s) ` +
+          `and ${wordCounts.acts} act(s); derived from distributeChapterWordBudget before schema validation — ` +
+          `this exact omission aborted run 87779 outright.`,
+      );
     }
   }
 
