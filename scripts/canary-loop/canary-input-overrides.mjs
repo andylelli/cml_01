@@ -5,6 +5,7 @@ import { selectCanaryTheme } from "./theme-library.mjs";
 
 const ALLOWED_INPUT_KEYS = new Set([
   "theme",
+  "storyAngle",
   "eraPreference",
   "locationPreset",
   "tone",

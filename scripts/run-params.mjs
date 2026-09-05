@@ -28,6 +28,8 @@
  *   node scripts/run-params.mjs                 # new random seed, prints it
  *   node scripts/run-params.mjs --seed 8143     # reproduce that run's parameters EXACTLY
  *   node scripts/run-params.mjs --axis spatial  # pin one field, randomise the rest
+ *   node scripts/run-params.mjs --angle "a racing stable"   # pin the story angle (see STORY_ANGLES)
+ *   node scripts/run-params.mjs --no-angle      # no angle at all — the theme as it was before angles
  *
  * It writes `scripts/generated/run-params-<seed>.yaml` and prints the line to run. The seed is in the
  * filename, in a comment at the top of the file, and echoed as RUN_SEED= — three places, because the
@@ -48,6 +50,145 @@ const mulberry32 = (a) => () => {
   t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
   return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
 };
+
+/**
+ * STORY ANGLES — a jolt, not an axis.
+ *
+ * Every parameter above is STRUCTURAL: which axis, which concealment, which era, which room. None of
+ * them says what the story is ABOUT, so the plot agents fill that in from the same distribution every
+ * time and the corpus reads as one household with the furniture moved. An angle is a world — a
+ * racing stable, a by-election, a regimental reunion — that the setting, the cast's occupations and
+ * the motive are asked to draw on. It is explicitly NOT the mechanism: the sentence appended to the
+ * theme says so, and the axis concealment stays exactly as chosen.
+ *
+ * It is drawn LAST, after every existing pick, so every seed generated before this list existed
+ * still reproduces its original parameters field-for-field; the angle is a pure addition.
+ *
+ * WORDS THAT CANNOT APPEAR HERE. The theme is read by two keyword matchers before any model sees it:
+ * `extractThemeMechanismFamilies` (agent3b-hard-logic-devices.ts, MECHANISM_FAMILY_KEYWORDS) locks
+ * the primary device onto a family when its stem appears — "recording", "lens", "forged", "clock" —
+ * and `deriveHardLogicDirectives` (shared.ts) adds families on /train|rail|liner|ship|seaside|hotel/,
+ * /inheritance|will|estate/ and the like, by SUBSTRING, so "championship" is a ship and "training"
+ * is a train. `--self-test` parses both source files and checks every entry below against them,
+ * because a list this long cannot be proof-read for substrings by eye.
+ */
+const STORY_ANGLES = [
+  // sport
+  "a county cricket eleven and its ageing captain",
+  "the amateur boxing circuit and a promoter who owes money",
+  "a golf club committee at war over a new course",
+  "a tennis tournament week and the visiting players",
+  "a rowing regatta and the crew's coach",
+  "a fencing academy with a rivalry between its two masters",
+  "the hunt ball and the hunting set",
+  "a fishing competition on a private stretch of river",
+  "a mountaineering party returned home with one member fewer",
+  "a long-distance swimmer preparing for the Channel",
+  "a racing stable and its jockeys on the eve of a big meeting",
+  "a greyhound track and the men who own the dogs",
+  "a motor-racing team and its star driver",
+  "a record-attempt speed trial on the sands",
+  "a cycling club's annual road race",
+  "an ice-skating exhibition and its imported champion",
+  "a polo team of cavalry officers",
+  "a billiards professional touring the provinces",
+  "a chess congress and a disputed adjournment",
+  "a bridge tournament and the pairs it breaks up",
+  "a crossword setter with a devoted following",
+  "a dog show and the breed society behind it",
+  // army, navy, war
+  "a regimental reunion dinner",
+  "a retired general writing his memoirs",
+  "a demobilised battalion's officers settling old scores",
+  "a military academy in its passing-out week",
+  "a naval dockyard town and the wives left ashore",
+  "the shadow of an old court-martial",
+  "a war widow's disputed pension claim",
+  "a company of Territorials on summer camp",
+  "a bomb-disposal officer home on leave",
+  "a survivor of a torpedoed convoy",
+  // politics, public life
+  "a by-election in a marginal seat",
+  "a cabinet minister's country weekend",
+  "a town council fighting over a slum clearance",
+  "a trade-union strike ballot",
+  "a suffrage veteran's memorial committee",
+  "a diplomatic reception and a disputed treaty",
+  "a newspaper proprietor choosing which party to back",
+  "a political hostess and her salon",
+  "a magistrate's bench and a case it got wrong",
+  "a coroner's officer with ambitions",
+  // arts, stage, letters
+  "a landscape painter's final exhibition",
+  "a sculptor's studio and the commission that pays for it",
+  "a portrait painter and the sitter who refused to pay",
+  "a repertory theatre company on tour",
+  "a ballet corps rehearsing a new production",
+  "a string quartet and its second violin",
+  "a dance band playing a summer residency",
+  "a poets' circle and a contested literary prize",
+  "a publisher's list and the novelist who missed a deadline",
+  "an auction house and a painting of doubtful attribution",
+  "a society photographer's studio",
+  "a film unit on location in a small town",
+  "a wireless station and its announcers",
+  "a circus wintering in a market town",
+  "a music-hall bill and its top-of-the-bill comedian",
+  "a cathedral choir school",
+  "a village bell-ringers' society",
+  "a travelling puppet theatre",
+  // invention, science, discovery
+  "an inventor with a patent pending and a rival who knows it",
+  "an aircraft designer's prototype",
+  "a wireless-telegraphy pioneer",
+  "an industrial chemist's laboratory",
+  "an astronomer's private observatory",
+  "a surveyor mapping a disputed boundary",
+  "an archaeological dig and what it turned up",
+  "a plant collector back from the Himalayas",
+  "an ornithologist's bird sanctuary",
+  "a beekeeper's apiary",
+  "a lighthouse keeper's family",
+  "a canal lock-keeper's cottage",
+  "a meteorologist at a hilltop weather station",
+  // theft, crime, money
+  "a jewel theft that everyone assumed was solved",
+  "a cat burglar working the county houses",
+  "a bank robbery's missing share",
+  "a smuggling run on the coast",
+  "a stolen manuscript",
+  "a card-sharp on a country-house weekend",
+  "a confidence trickster's last mark",
+  "a pawnbroker's shop and its pledge book",
+  "a receiver of stolen goods",
+  "a stamp collection worth a fortune",
+  "a rare-book dealer",
+  "a private bank on the edge of collapse",
+  "an insurance assessor who asks too many questions",
+  // trade, industry, land
+  "a wine merchant's cellar",
+  "a tea-importing family",
+  "a coal-mine owner's household",
+  "a mill town and its mill-owner",
+  "a brewery dynasty",
+  "a market-garden co-operative",
+  "a department store's founding family",
+  "a sheep farm and a disputed right of way",
+  // places, institutions, curiosities
+  "a maze in a country garden",
+  "a topiary garden and its head gardener",
+  "a model village built by a recluse",
+  "a folly built by an eccentric",
+  "a girls' boarding school",
+  "a Cambridge college in May Week",
+  "a hospital's board of governors",
+  "a veterinary surgeon's round",
+  "a vicarage and a contested living",
+  "a spiritualist medium's séance",
+  "a flower show and its judging tent",
+  "a fashion house's spring collection",
+  "a cookery school",
+];
 
 const argv = process.argv.slice(2);
 const arg = (name) => {
@@ -77,6 +218,29 @@ if (argv.includes("--self-test")) {
   // MEASURED, not invented. The first version of this line carried a hand-written constant and the
   // self-test failed on its own first run — which is the check doing exactly its job, and the ninth
   // instance in three days of a probe asserting something its author had not verified.
+  /**
+   * STORY_ANGLES vs the theme keyword matchers. The stems and regexes are PARSED FROM THE SOURCE
+   * FILES at test time — a copied list here would be a second copy of the same entity set, which
+   * is the divergence shape WF-002 warned about, and it would drift the first time either file
+   * gained a stem.
+   */
+  const src = (p) => readFileSync(join(ROOT, p), "utf8");
+  const a3b = src("packages/prompts-llm/src/agent3b-hard-logic-devices.ts");
+  const kwBlock = a3b.slice(a3b.indexOf("const MECHANISM_FAMILY_KEYWORDS"), a3b.indexOf("const familiesIn"));
+  const stems = [...kwBlock.matchAll(/"([^"]+)"/g)].map((m) => m[1].toLowerCase());
+  const shared = src("apps/worker/src/jobs/agents/shared.ts");
+  const regexes = [...shared.matchAll(/\{\s*re: \/(.+?)\/,/g)].map((m) => new RegExp(m[1], "i"));
+  const collisions = [];
+  for (const angle of STORY_ANGLES) {
+    const low = angle.toLowerCase();
+    for (const stem of stems) if (low.includes(stem)) collisions.push(`"${angle}" contains 3b stem "${stem}"`);
+    for (const re of regexes) if (re.test(low)) collisions.push(`"${angle}" matches shared.ts ${re}`);
+  }
+  const angleCount = STORY_ANGLES.length;
+  const angleDistinct = new Set(STORY_ANGLES).size === angleCount;
+  console.log(`  story angles              : ${angleCount} entries, ${angleDistinct ? "all distinct" : "DUPLICATES"}`);
+  console.log(`  angles vs keyword matchers: ${collisions.length === 0 ? "PASS" : "FAIL"} (${stems.length} 3b stems, ${regexes.length} shared.ts rules)`);
+  for (const c of collisions) console.log(`      ${c}`);
   const vector = mulberry32(8143)();
   const EXPECTED = 0.13783118315041065;
   const pinned = Math.abs(vector - EXPECTED) < 1e-15;
@@ -246,6 +410,8 @@ for (let i = 0; i < castSize; i += 1) {
   castGenders[name] = female ? "female" : "male";
 }
 
+
+
 const params = {
   seed,
   theme: `Golden Age murder mystery built on ${pick(AXES[axis])}. Enforce strict fair-play: `
@@ -276,6 +442,24 @@ const params = {
   castGenders,
 };
 
+/**
+ * THE ANGLE IS THE LAST DRAW — and the first version of this got it wrong. It sat above the params
+ * literal, but the era, tone, location, detective and concealment picks happen INSIDE that literal,
+ * so the angle draw shifted all of them: the same seed gave "1950s / Cozy / amateur" without an
+ * angle and "1930s / Cozy / private" with one. MEASURED on seed 91375, caught by diffing
+ * `--no-angle` against the HEAD generator. Every existing seed reproduces only if nothing is
+ * drawn before the picks it already had, so this MUST stay after `params`.
+ *
+ * `--angle "<text>"` supplies one; `--no-angle` omits it entirely (the theme is then exactly
+ * what it was before angles existed).
+ */
+const storyAngle = argv.includes("--no-angle") ? null : (arg("angle") ?? pick(STORY_ANGLES));
+if (storyAngle) {
+  params.theme += ` Story angle: ${storyAngle}. This is background colour for the setting, the cast's `
+    + `occupations and the motive; it is NOT the murder mechanism and must not displace the concealment above.`;
+}
+params.storyAngle = storyAngle;
+
 const yaml = [
   `# GENERATED RUN PARAMETERS — seed ${seed}`,
   `#`,
@@ -291,6 +475,7 @@ const yaml = [
   ``,
   `seed: ${seed}`,
   `theme: ${JSON.stringify(params.theme)}`,
+  ...(storyAngle ? [`storyAngle: ${JSON.stringify(storyAngle)}`] : [`# storyAngle: (none — --no-angle)`]),
   `primaryAxis: ${params.primaryAxis}`,
   `eraPreference: ${JSON.stringify(params.eraPreference)}`,
   `locationPreset: ${params.locationPreset}`,
@@ -401,6 +586,7 @@ console.log(`  setting     ${params.locationPreset} · ${params.eraPreference} �
 console.log(`  narrative   ${params.detectiveType} detective · ${params.narrativeStyle} · length ${params.targetLength}` +
   `${params.targetLength === "short" ? " (default — matches every prior book)" : "  ** OVERRIDDEN **"}`);
 console.log(`  theme       ${wrapAt(params.theme, 62, "              ")}`);
+console.log(`  angle       ${storyAngle ?? "(none — --no-angle)"}`);
 
 console.log(`\n${heading("CAST")}`);
 // The initial is printed against each name because a collision is invisible in a comma-separated

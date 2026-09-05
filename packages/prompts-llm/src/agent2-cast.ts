@@ -30,6 +30,8 @@ export interface CastInputs {
   socialContext?: string; // Class structure, institution type
   detectiveType?: 'police' | 'private' | 'amateur'; // Archetype of the investigator character
   qualityGuardrails?: string[]; // Optional quality constraints (e.g., schema repair instructions)
+  /** A world the cast draws on ("a racing stable", "a by-election"). Occupations and stakes, not the method. */
+  storyAngle?: string;
 }
 
 export interface CharacterProfile {
@@ -482,6 +484,7 @@ ${namesSection}
 **Setting**: ${inputs.setting}
 **Crime Type**: ${inputs.crimeType}
 ${inputs.socialContext ? `**Social Context**: ${inputs.socialContext}` : ""}
+${inputs.storyAngle ? `**Story Angle**: ${inputs.storyAngle}. Give at least TWO characters an occupation, a history or a stake drawn from this world, so that it shapes who they are and what they want. It is background, not the murder method.` : ""}
 **Tone**: ${inputs.tone}
 
 Hard requirements:

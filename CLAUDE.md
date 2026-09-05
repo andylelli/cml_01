@@ -39,6 +39,8 @@ State, every time:
 - **seed**, and the exact command to reproduce it
 - **axis · era · location · tone · target length · detective type · narrative style · cast size**
 - **the cast**, by name — a name collision is invisible in a summary and has cost two reads
+- **the story angle** (`storyAngle` in the yaml) — it is drawn last so old seeds still reproduce, and it
+  reaches Agents 1, 2, 2e, 3b and 3; `--no-angle` is the pre-angle baseline
 - **any flag flipped since the previous run**, with what it is expected to change
 - **what the run is expected to SETTLE**, as a checkable prediction rather than a hope
 

@@ -789,6 +789,7 @@ export async function runAgent2(ctx: OrchestratorContext): Promise<void> {
           tone: appendRetryFeedback(ctx.inputs.tone || ctx.inputs.narrativeStyle || "Golden Age Mystery", retryFeedback),
           socialContext: setting.setting.era.socialNorms.join(", "),
           detectiveType: ctx.inputs.detectiveType,
+          storyAngle: ctx.inputs.storyAngle,
           runId: ctx.runId,
           projectId: ctx.projectId || "",
         });
@@ -839,6 +840,7 @@ export async function runAgent2(ctx: OrchestratorContext): Promise<void> {
       tone: ctx.inputs.tone || ctx.inputs.narrativeStyle || "Golden Age Mystery",
       socialContext: setting.setting.era.socialNorms.join(", "),
       detectiveType: ctx.inputs.detectiveType,
+      storyAngle: ctx.inputs.storyAngle,
       runId: ctx.runId,
       projectId: ctx.projectId || "",
     });
@@ -917,6 +919,7 @@ export async function runAgent2(ctx: OrchestratorContext): Promise<void> {
         tone: ctx.inputs.tone || ctx.inputs.narrativeStyle || "Golden Age Mystery",
         socialContext: setting.setting.era.socialNorms.join(", "),
         detectiveType: ctx.inputs.detectiveType,
+        storyAngle: ctx.inputs.storyAngle,
         qualityGuardrails: schemaRepairGuardrails,
         runId: ctx.runId,
         projectId: ctx.projectId || "",

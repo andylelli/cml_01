@@ -20,6 +20,8 @@ export interface SettingInputs {
   weather?: string; // "Stormy night", "Sunny afternoon", etc.
   socialStructure?: string; // "English aristocracy", "American upper class", etc.
   tone?: string; // "Dark and gritty", "Cozy golden age", etc.
+  /** A world the setting draws on ("a racing stable", "a by-election"). Colour, not the crime. */
+  storyAngle?: string;
 }
 
 export interface SettingRefinement {
@@ -199,7 +201,7 @@ Before finalizing, run a silent checklist:
 
 Input brief:
 - Era: ${inputs.decade}
-- Location: ${inputs.location}${inputs.institution ? `\n- Institution: ${inputs.institution}` : ''}${inputs.weather ? `\n- Weather: ${inputs.weather}` : ''}${inputs.socialStructure ? `\n- Social Structure: ${inputs.socialStructure}` : ''}${inputs.tone ? `\n- Tone: ${inputs.tone}` : ''}
+- Location: ${inputs.location}${inputs.institution ? `\n- Institution: ${inputs.institution}` : ''}${inputs.weather ? `\n- Weather: ${inputs.weather}` : ''}${inputs.socialStructure ? `\n- Social Structure: ${inputs.socialStructure}` : ''}${inputs.tone ? `\n- Tone: ${inputs.tone}` : ''}${inputs.storyAngle ? `\n- Story angle: ${inputs.storyAngle}. Let this world shape the place, its institution and the people who pass through it. It is background colour, not the crime.` : ''}
 
 Return one complete JSON object matching the schema.
 Do not include markdown or commentary.`;

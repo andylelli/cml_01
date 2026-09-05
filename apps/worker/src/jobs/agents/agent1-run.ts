@@ -32,6 +32,7 @@ export async function runAgent1(ctx: OrchestratorContext): Promise<void> {
           decade: ctx.inputs.eraPreference || "1930s",
           location: ctx.locationSpec.location,
           institution: ctx.locationSpec.institution,
+          storyAngle: ctx.inputs.storyAngle,
           tone: appendRetryFeedbackOptional(ctx.inputs.tone, retryFeedback),
           runId: ctx.runId,
           projectId: ctx.projectId || "",
@@ -66,6 +67,7 @@ export async function runAgent1(ctx: OrchestratorContext): Promise<void> {
       decade: ctx.inputs.eraPreference || "1930s",
       location: ctx.locationSpec.location,
       institution: ctx.locationSpec.institution,
+      storyAngle: ctx.inputs.storyAngle,
       tone: ctx.inputs.tone,
       runId: ctx.runId,
       projectId: ctx.projectId || "",
@@ -164,6 +166,7 @@ export async function runAgent1(ctx: OrchestratorContext): Promise<void> {
       decade: ctx.inputs.eraPreference || "1930s",
       location: ctx.locationSpec.location,
       institution: ctx.locationSpec.institution,
+      storyAngle: ctx.inputs.storyAngle,
       tone: ctx.inputs.tone,
     }, 2);
     ctx.agentCosts["agent1_setting"] = (ctx.agentCosts["agent1_setting"] || 0) + retriedSetting.cost;
