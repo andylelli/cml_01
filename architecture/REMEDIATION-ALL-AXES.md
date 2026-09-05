@@ -215,7 +215,7 @@ classify a real novel that IS epistemic — a loss for no gain. The three declar
 shared comment naming each other and this measurement; the defect was that the divergence had to be
 re-derived by hand.
 
-### A3 — Chapters 8/9/10 overlap *(reach: all axes)*
+### A3 — Chapters 8/9/10 overlap *(reach: all axes)* — **BASELINED 2026-09-04; new check RECOMMENDED-AGAINST**
 
 **Named in 5 of 5 reads** — the most repeated complaint in the set, and the `ending` category is the
 lowest-scoring of the ten (6, 5, 6, 7, 6).
@@ -242,6 +242,45 @@ chapter.
 **Falsifier:** B1. If a new check fires on most runs it is an off switch with extra steps; baseline it
 against the archive **before** wiring it, the way the 13% base rate was measured for
 `detectFinalChapterVerdictEnding`.
+
+**A3 OUTCOME — baselined first, as its own falsifier required, and the baseline cancelled the build.**
+
+**Its premise was wrong.** A3 claimed *"nothing detects a reveal that lands a chapter early;
+`detectPrematureCulpritDisclosure` catches an explicit accusation, not a chapter that quietly
+completes the proof."* Tested against the real book behind 0738's complaint, the shipped detector
+fires on **chapters 6 AND 7** of it, naming the culprit and quoting the sentence. It is already built,
+already wired, and already a measure.
+
+**BASELINE over the 33 books with prose + geometry + a culprit:**
+
+| check | fires on |
+|---|---:|
+| `detectPrematureCulpritDisclosure` (shipped) | **5 / 33 — 15%** |
+| the broader aftermath-predicate, pointed before the reveal (what A3 proposed) | **15 / 33 — 45%** |
+
+15% is a healthy measure rate — the same band `detectFinalChapterVerdictEnding` shipped at (13%). It
+did not fire on run 22362 at all, so that book was genuinely clean on this axis rather than the check
+being asleep.
+
+**45% is B1 and the new check is RECOMMENDED-AGAINST.** The idea was elegant — reuse
+`detectAftermathRepeatParagraphs` in the other direction, one predicate so the two can never disagree
+about what counts as reveal work. It does not survive its own baseline. That predicate assumes the
+reveal has already happened, so any restatement is redundant; *before* the reveal the same content is
+often the investigation doing its job, and firing on 45% of books would make it an off switch with
+extra steps.
+
+**What is actually missing is an OWNER, which is the C2 finding again.** A detector at 15% with
+nothing to repair the cause fires at the model's base rate forever. The likely owner is not Agent 9
+but **Agent 7**: if chapter 7 is doing chapter 8's job, the OUTLINE gave chapter 7 the wrong job. That
+is a scene-contract problem with a precedent already in the codebase — X32 folds a suspect-clearance
+job assigned to three scenes down to one, and run 22362 exercised it (*"[X32] Suspect-clearance fold:
+3 scenes carry the clearance job; kept in scene 9, suppressed in 2"*). The same fold for reveal work
+is the shape to build, and it is NOT scoped here.
+
+**Still open from A3, unmeasured:** suspect clearances appearing in chapter 10, named in three reads.
+`AGENT9_CLEARANCE_TRIM` fires and is confirmed working, but the release gate still raised
+`aftermath_repeat` on the same run, so trimming clearances is not the same operation as removing the
+repeat.
 
 ---
 
