@@ -104,10 +104,26 @@ function applyCmlRepairAndRevalidate(
   // depends on it), so the prior early return on validity caused silent fair-play data loss. Only the
   // re-validation outcome is gated.
   const wasValid = cmlResult.validation.valid;
-  // T2 — structure the alibi window before anything downstream reads it. Runs unconditionally and
-  // independently of the repair count below, because a case with no required_evidence defect still
-  // needs its spans.
-  const spans = deriveAlibiSpans(cmlResult.cml as any);
+  /**
+   * T2 — structure the alibi window before anything downstream reads it.
+   *
+   * FLAG-GATED, and it should have been from the start. Shipping this unflagged was a mistake: the
+   * span feeds `checkCaseTimelineDeception`, so deriving spans STRENGTHENS a gate, and a change that
+   * alters how often a gate fires is exactly what this project's flag discipline exists to control.
+   *
+   * MEASURED on run 25586: the floor derived 4 spans, the gate then saw `actual_covered` — the real
+   * time of death (5:45) inside the culprit's own alibi (5:00–6:00), a genuine defect — Agent 3 failed
+   * to fix it across all THREE attempts producing the identical case each time, and the run aborted
+   * having paid for four artifacts. The detection was right and the outcome was still a lost run.
+   *
+   * OFF restores the pre-2026-09-05 baseline exactly. ON is worth having again once `actual_covered`
+   * has a deterministic repair — trimming the culprit's window to exclude the real time of death is
+   * always satisfiable when apparent and actual differ — because then a defect the model cannot fix
+   * stops costing the whole run.
+   */
+  const spans = /^(1|true|yes|on)$/i.test(process.env.AGENT3_ALIBI_SPAN_FLOOR ?? "")
+    ? deriveAlibiSpans(cmlResult.cml as any)
+    : { derived: 0, unreadable: [] as string[] };
   if (spans.derived > 0 || spans.unreadable.length > 0) {
     ctx.warnings.push(
       `[T2 alibi-span] derived ${spans.derived} structured span(s) from prose windows` +
