@@ -693,6 +693,80 @@ visible. Every remaining item on this board is downstream of it.
 
 ---
 
+## §7b — THE TIME SUBSYSTEM: what the run-89022 deep-dive found, and what is left
+
+Two fixes shipped (`6853cfa2`). Three structural problems remain, and they are all the same problem.
+
+### The pattern, stated once
+
+**Every temporal defect this project has had is the same shape.** An LLM authors a time as PROSE; a
+parser reverse-engineers a NUMBER back out; the parser's vocabulary is a closed list; a form outside
+the list returns null; and null is indistinguishable from "the times agree."
+
+Found in the last two days alone: `"twenty past ten"` unreadable · trailing place clauses · a comma ·
+`"midday"` vs `"noon"` · `"a quarter to midnight"` read as midnight exactly · two parsers disagreeing ·
+`"07:15-08:00"` · `"seven thirty five"`.
+
+`temporal-spine.ts` already states the answer in its own docblock:
+
+> **compute time, do not validate it.** Today an LLM authors times as prose in three places and every
+> consumer reverse-engineers numbers back out. Here the number is authoritative and the words are
+> rendered from it.
+
+That machinery exists — `StructuredTime`, `renderStructuredTime`, `alternativeRenderings`,
+`toStructuredTime` — and is applied to **device facts only**. Everything below is the same idea
+applied to the two places it was not.
+
+### T2 — Structure the alibi window at birth *(the single worst offender)*
+
+`alibi_window` is one free-text field carrying **a time range AND a place**: `"2:00 to 2:40 PM in the
+smoking room"`, `"twelve to three, at the village green"`. Every one of the four blind shapes was this
+field. It is also the input to the only check that verifies the deception works at all.
+
+**Change:** Agent 2 emits `{ start: {hour, minute}, end: {hour, minute}, location }` and the prose is
+rendered from it, exactly as Idea 1 does for device facts. No parser, so no vocabulary, so no silence.
+`toStructuredTime` already exists to migrate the cases on disk.
+
+**Reach:** removes the parse step from 52 of 52 cases. **Falsifier:** if Agent 2 cannot reliably emit
+the structured shape, the renderer must fall back to the free-text field and the parser stays — in
+which case this is a prompt problem, not an architecture one, and should be abandoned rather than
+forced.
+
+### T3 — One time registry, not two
+
+**MEASURED on run 89022.** The case carried FIVE distinct clock values from TWO subsystems that never
+reconcile:
+
+| source | values |
+|---|---|
+| `hidden_model.mechanism` (Agent 3) | actual death 3:03 · apparent death 3:20 |
+| locked-fact registry (Agent 3b) | arrival 3:10 · bell 3:15 · departure 4:20 · interval 65 min |
+
+The registry's own arithmetic is **correct** (3:15 → 4:20 = 65 min, and the spine confirmed it). The
+mechanism's times are **not locked facts at all**, so the spine never sees them, and nothing checks
+that the death times relate to the device's clock. `[A_80 F13]` notices exactly this — *"no locked
+fact corresponds to it — nothing binds the true time of death to anything the prose is contractually
+required to print"* — and it fired on this run, as a warning, and shipped.
+
+**This is the reviewer's complaint, in the data.** *"There are too many time claims, and not all of
+them are necessary... The bell/sundial material makes the story feel more complicated without proving
+as much as the ring/watch/jacket clues."* Five clock values from two subsystems is what that looks
+like from the inside.
+
+**Change:** put `actual_time_of_death` and `apparent_time_of_death` into the locked-fact registry so
+one spine holds every time in the case and one checker verifies them together.
+**Cheap first step, and it needs no architecture:** COUNT the distinct clock values in a case and warn
+above a threshold. The reviewer's complaint is a count, and a count is free.
+
+### T4 — What is genuinely NOT fixable by parsing
+
+`"Before 9:15 in the dining room"` is not a range and never will be; `"all day, village green and his
+cottage"` is not a time. These are correctly unreadable. **They are exactly why T2 exists** — an
+alibi that cannot be expressed as two clock times is a case-authoring problem, and it should be
+refused at Agent 2 where it is cheap, not discovered at Agent 3 where it is not.
+
+---
+
 ## §8 — Standing rules this plan inherits
 
 - Every flag default OFF, registered in `FLAG-AUDIT.md`, env read at **call time** (ADR-0004).
