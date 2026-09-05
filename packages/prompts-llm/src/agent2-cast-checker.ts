@@ -251,6 +251,77 @@ export function checkCast(cast: CastDesign, opts: CastCheckOptions = {}): CastCh
     }
   }
 
+  /**
+   * ── GIVEN-NAME DISTINCTNESS ────────────────────────────────────────────────────────────────────
+   *
+   * `agent2-cast.ts:468` states this as a rule about the pipeline itself - MANDATORY, *"no two
+   * characters may share the same initial. This guarantees name uniqueness across stories."* Nothing
+   * has ever checked whether it held.
+   *
+   * MEASURED 2026-09-04 over the 50 shipped casts in the store, split by who chose the names:
+   *
+   *   named by the pipeline (n=42)   10% share a first-name INITIAL,  0% share a given NAME
+   *   supplied by a seeded run (n=8) 75% share an initial,           50% share a given name
+   *
+   * So the prompt rule WORKS where it is sent - zero duplicate given names in 42 casts. Every one of
+   * the four books that shipped two characters with the same first name came from the seeded
+   * generator, where the rule is deliberately omitted because cast names were supplied; that half is
+   * fixed at source in `scripts/run-params.mjs`. This check exists for the 10% residual on the path
+   * the generator cannot reach, and so that the rule stops being unverified.
+   *
+   * Two external reads named the consequence, and they are the two LOWEST `character_clarity` marks
+   * in the recent set: *"Too many similar female names ... Two Adelas in a short mystery is
+   * unnecessary friction"* (76/100) and *"Do not use Adela twice"* (77/100, character_clarity 5).
+   *
+   * Severities are chosen from those rates, not from how annoying the defect feels. A duplicate given
+   * name is an `error`: measured at 0% where the rule is sent, so flagging it can never become an off
+   * switch. A shared initial is a `warn` at 10% - real, but B1 says a check that fires often is an off
+   * switch with extra steps, and this one has no deterministic repair behind it.
+   *
+   * Axis-independent: it reads names only, and runs identically on every axis.
+   */
+  const HONORIFIC_RE =
+    /^(?:Dr|Miss|Mrs|Mr|Captain|Col|Colonel|Major|Sir|Lady|Lord|Prof|Professor|Reverend|Rev|Inspector|Detective|Sergeant)\.?\s+/i;
+  const givenNameOf = (value: unknown): string =>
+    String(value ?? "").trim().replace(HONORIFIC_RE, "").trim().split(/\s+/)[0] ?? "";
+
+  const seenGiven = new Map<string, string>();
+  const seenInitial = new Map<string, string>();
+  for (const char of characters) {
+    const name = String(char?.name ?? "").trim();
+    const given = givenNameOf(name);
+    if (!name || !given) continue;
+
+    const givenKey = given.toLowerCase();
+    const firstWithGiven = seenGiven.get(givenKey);
+    if (firstWithGiven) {
+      issues.push({
+        code: "duplicate_given_name",
+        severity: "error",
+        character: name,
+        message: `${name} shares the given name "${given}" with ${firstWithGiven}.`,
+        feedback: `Rename ${name}: its given name "${given}" duplicates ${firstWithGiven}'s. The prose refers to characters by given name in dialogue and by surname in narration, so two "${given}"s make every unattributed line ambiguous.`,
+      });
+    } else {
+      seenGiven.set(givenKey, name);
+    }
+
+    // Reported only when the given name itself is distinct, so one collision is not counted twice.
+    const initialKey = given.charAt(0).toUpperCase();
+    const firstWithInitial = seenInitial.get(initialKey);
+    if (!firstWithGiven && firstWithInitial) {
+      issues.push({
+        code: "shared_given_initial",
+        severity: "warn",
+        character: name,
+        message: `${name} shares the first-name initial "${initialKey}" with ${firstWithInitial}.`,
+        feedback: `Give ${name} a given name starting with a letter no other character uses (it shares "${initialKey}" with ${firstWithInitial}).`,
+      });
+    } else if (!firstWithInitial) {
+      seenInitial.set(initialKey, name);
+    }
+  }
+
   // Aggregate low-diversity signal (the scorer's ≥70%-unique expectation).
   if (archetypeKeys.length > 0 && archetypeUniqueRatio < minRatio) {
     issues.push({

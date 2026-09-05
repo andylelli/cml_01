@@ -163,11 +163,76 @@ const castGenders = {};
  * given name in dialogue and by surname in narration, so two Adelas make every unattributed line
  * ambiguous. Cheap to prevent, expensive to read around.
  */
+/**
+ * ── AND THE SAME DEFECT ONE LAYER OUT: DISTINCT NAMES, COLLIDING INITIALS ───────────────────────
+ *
+ * The fix above stopped two characters sharing a first NAME. It did not stop them sharing a first
+ * LETTER, because `usedGiven` tracks names and the two pools carry the SAME sixteen initials (A-P):
+ * "Adela" and "Ambrose" are different names that read as the same person in a scan.
+ *
+ * That matters more here than it would elsewhere, because the pipeline states it as a rule about
+ * itself. `agent2-cast.ts:468` calls it MANDATORY - *"no two characters may share the same initial.
+ * This guarantees name uniqueness across stories."* But look at the line above it:
+ *
+ *     const namingDirectives = !inputs.characterNames ? `...FIRST-NAME INITIALS (MANDATORY)...` : ``;
+ *
+ * When cast names are SUPPLIED - which is every seeded run - that whole block is omitted. The prompt
+ * correctly defers to the names it was given, so nothing downstream re-imposes the rule and whatever
+ * this script emits is final.
+ *
+ * MEASURED 2026-09-04, and the split is what makes this file the right place to fix it:
+ *
+ *   over 366 generated param files : 45% share a first-name initial, 8% share a given name
+ *   over 50 shipped casts, seeded  : 75% share an initial, 50% share a given name  (n=8)
+ *   over 50 shipped casts, pipeline: 10% share an initial,  0% share a given name  (n=42)
+ *
+ * The pipeline's own rule WORKS - zero duplicate given names in 42 casts it named itself. Every one
+ * of the four books that shipped two characters with the same first name came from this script.
+ *
+ * Always satisfiable: both pools hold 16 distinct initials and `castSize` is at most 7. The fallback
+ * chain is still written out and still widens rather than throwing, because a run that cannot be
+ * parameterised is worse than one with a name clash - but it announces itself instead of silently
+ * repeating the defect.
+ *
+ * Axis-independent by construction: names are drawn before the axis is used for anything, and this
+ * runs identically for temporal, spatial, identity, behavioural and authority cases.
+ */
 const usedGiven = new Set();
+const usedInitials = new Set();
 const pickDistinctGiven = (pool) => {
+  const initial = (n) => n.charAt(0).toUpperCase();
   const free = pool.filter((n) => !usedGiven.has(n));
-  const chosen = pick(free.length > 0 ? free : pool);
+  let chosen = null;
+  if (free.length > 0) {
+    /**
+     * REJECTION SAMPLING, and the reason is reproducibility rather than elegance.
+     *
+     * The obvious fix is to filter the pool down to names whose initial is also unused and pick from
+     * that. It works, and it changes the cast for EVERY seed - including the 55% that never had a
+     * collision - because a shorter array turns the same random value into a different index.
+     * MEASURED on seed 22362, whose cast was already collision-free (D, E, I, H, C): filtering
+     * rewrote three of its five names.
+     *
+     * Drawing from the SAME array and re-drawing on a clash consumes an extra rnd() only when there
+     * is a clash, so a seed that never collided replays byte-identically. The blast radius becomes
+     * exactly the seeds that were broken.
+     *
+     * Bounded, because an unbounded redraw on an exhausted pool would spin forever.
+     */
+    for (let attempt = 0; attempt < 24; attempt += 1) {
+      const candidate = pick(free);
+      if (!usedInitials.has(initial(candidate))) { chosen = candidate; break; }
+    }
+    if (chosen === null) {
+      chosen = pick(free);
+      console.warn(`  ! initial pool exhausted — "${chosen}" repeats the initial ${initial(chosen)}`);
+    }
+  } else {
+    chosen = pick(pool);
+    console.warn(`  ! name pool exhausted — "${chosen}" is a repeated given name`);
+  }
   usedGiven.add(chosen);
+  usedInitials.add(initial(chosen));
   return chosen;
 };
 for (let i = 0; i < castSize; i += 1) {
