@@ -34,7 +34,7 @@
  * whole point is that a run can be found again.
  */
 
-import { mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const ROOT = process.env.CML_WORKSPACE_ROOT || process.cwd();
@@ -331,17 +331,101 @@ const yaml = [
 const outDir = join(ROOT, "scripts", "generated");
 mkdirSync(outDir, { recursive: true });
 const outPath = join(outDir, `run-params-${seed}.yaml`);
-writeFileSync(outPath, yaml, "utf8");
+/**
+ * ── A PARAMS FILE IS THE PROVENANCE OF A RUN THAT HAPPENED ─────────────────────────────────────
+ *
+ * `--seed N` reads as "show me seed N", and it used to WRITE — so reproducing the parameters of a
+ * finished run silently rewrote its record. Demonstrated the hard way on 2026-09-05: the author
+ * documented this rule in CLAUDE.md and then overwrote run 87779's file within the hour, while that
+ * run was still in flight. A comment was not enough; this is the guard.
+ *
+ * Refuses rather than clobbers. `--force` is there for the one legitimate case — regenerating a file
+ * for a seed whose run never happened — and has to be typed on purpose.
+ */
+if (existsSync(outPath) && !argv.includes("--force")) {
+  const existing = readFileSync(outPath, "utf8");
+  const strip = (t) => t.replace(/^# Generated .*$/m, "");
+  if (strip(existing) === strip(yaml)) {
+    console.log(`
+  ${outPath.replace(ROOT, ".")} already exists and is IDENTICAL — not rewritten.`);
+  } else {
+    console.error(`
+  REFUSING TO OVERWRITE ${outPath.replace(ROOT, ".")}`);
+    console.error(`  It is the provenance record of a run that happened, and the parameters DIFFER`);
+    console.error(`  from what this version of the generator would produce. Copy it aside, or pass`);
+    console.error(`  --force if that run never ran.
+`);
+    process.exit(1);
+  }
+} else {
+  writeFileSync(outPath, yaml, "utf8");
+}
+
+/**
+ * ── PRINT EVERY PARAMETER, NOT A FLATTERING SUBSET ───────────────────────────────────────────────
+ *
+ * CLAUDE.md, "Reporting a run": a run's parameters are the only thing that makes it comparable to
+ * another run, so they are stated in full BEFORE it is launched.
+ *
+ * The old summary printed axis, setting, length, detective and cast, and omitted three things that
+ * matter more than any of them:
+ *
+ *   the THEME               the single biggest determinant of the story this run tells
+ *   the cast GENDERS        every pronoun in the book follows from them
+ *   the SUBSYSTEM SWITCHES  omitting these from the generated file once disabled SIX subsystems on
+ *                           every seeded run, X38 among them, and it took a 76/100 read complaining
+ *                           about arithmetic to notice
+ *
+ * A parameter that is not printed is a parameter nobody checks.
+ */
+const wrapAt = (text, width, indent) =>
+  String(text ?? "")
+    .split(" ")
+    .reduce((acc, word) => {
+      const last = acc[acc.length - 1];
+      if (last !== undefined && (last + " " + word).length <= width) acc[acc.length - 1] = last + " " + word;
+      else acc.push(word);
+      return acc;
+    }, [])
+    .map((line, i) => (i === 0 ? line : indent + line))
+    .join("\n");
+
+const heading = (label) => `  ${label} ${"-".repeat(Math.max(0, 72 - label.length))}`;
+const bare = (name) => name.replace(/^(?:Dr\.|Miss|Mrs\.|Mr\.|Captain|Colonel|Sir|Lady|Lord|Professor|Reverend)\s+/, "");
 
 console.log(`\nRUN_SEED=${seed}`);
-console.log(`\n  axis      ${params.primaryAxis}`);
-console.log(`  location  ${params.locationPreset} · ${params.eraPreference} · ${params.tone}`);
-console.log(`  length    ${params.targetLength}${params.targetLength === "short" ? " (default — matches every prior book)" : " (OVERRIDDEN)"}`);
-console.log(`  detective ${params.detectiveType} · ${params.narrativeStyle} · cast of ${castSize}`);
-console.log(`  cast      ${castNames.join(", ")}`);
+
+console.log(`\n${heading("STORY")}`);
+console.log(`  axis        ${params.primaryAxis}`);
+console.log(`  setting     ${params.locationPreset} · ${params.eraPreference} · ${params.tone}`);
+console.log(`  narrative   ${params.detectiveType} detective · ${params.narrativeStyle} · length ${params.targetLength}` +
+  `${params.targetLength === "short" ? " (default — matches every prior book)" : "  ** OVERRIDDEN **"}`);
+console.log(`  theme       ${wrapAt(params.theme, 62, "              ")}`);
+
+console.log(`\n${heading("CAST")}`);
+// The initial is printed against each name because a collision is invisible in a comma-separated
+// list, and two external reads were spent on one: "Two Adelas in a short mystery is unnecessary
+// friction" (76/100), and character_clarity 5/10 (77/100).
+for (const name of castNames) {
+  console.log(`  ${bare(name).charAt(0)}   ${name.padEnd(32)} ${castGenders[name]}`);
+}
+const shownInitials = castNames.map((n) => bare(n).charAt(0).toUpperCase());
+const shownGivens = castNames.map((n) => bare(n).split(/\s+/)[0]);
+const clash =
+  shownInitials.length !== new Set(shownInitials).size || shownGivens.length !== new Set(shownGivens).size;
+console.log(`      ${castSize} characters · initials ${shownInitials.join(" ")}` +
+  `${clash ? "   ** COLLISION — violates agent2-cast.ts:468 **" : "   (all distinct)"}`);
+
+console.log(`\n${heading("SUBSYSTEM SWITCHES")}`);
+for (const line of [
+  "enableLockedFactRegistry=true   enableLockedFactGate=true       enableBindingGates=true",
+  "enableCharacterBundle=true      enableOutlineCompleteness=true  enableSurgicalFingerprintRetry=true",
+  "proseBatchSize=1                similarityThreshold=0.9         skipNoveltyCheck=false",
+]) console.log(`  ${line}`);
+console.log(`  all nine present — omitting them switches six subsystems OFF, X38 included`);
+
 console.log(`\n  written   ${outPath.replace(ROOT, ".")}`);
 console.log(`\n  RUN IT:`);
 console.log(`    CANARY_CORE_INPUTS_YAML=scripts/generated/run-params-${seed}.yaml \\`);
 console.log(`      node --use-system-ca scripts/canary-core.mjs`);
-console.log(`\n  REPRODUCE THESE PARAMETERS:`);
-console.log(`    node scripts/run-params.mjs --seed ${seed}\n`);
+console.log(`\n  REPRODUCE:  node scripts/run-params.mjs --seed ${seed}\n`);
