@@ -603,28 +603,51 @@ five-minute audit before it earns a work item.
 
 ---
 
-## §7 — Ordering
+## §7 — Outcome: all ten closed, 2026-09-04
 
-Ordered by **evidence × reach ÷ cost**. Everything in the first block is deterministic to verify and
-needs no paid run.
+Ordered originally by **evidence × reach ÷ cost**. Every item is now resolved, and **six of the ten
+were closed by a measurement rather than by code.**
 
-| # | item | reach | evidence | run needed? |
-|---|---|---|---|---|
-| 1 | **A1** name collisions | all axes, 20% of books | MEASURED | no |
-| 2 | **D1** delete the second clock parser | temporal | MEASURED | no |
-| 3 | ~~**B1.1** hand-audit non-temporal coherence~~ **DONE — refuted the gap, cancelled B1.2** | 52% of runs | MEASURED | no |
-| 4 | **A2** per-axis firing of the two temporal floor templates | all axes | MEASURED reach | no |
-| 5 | **B2** two axis enums | novelty | MEASURED | no |
-| 6 | **C2** advisory-gate register pass | all axes | — | no |
-| 7 | **D2** floor durations read the registry | temporal | MEASURED | no |
-| 8 | **C1** plausibility threshold from archive distribution | all axes | shadow telemetry first | then 1 |
-| 9 | **A3** reveal-work confinement | all axes | 5/5 reads | 1, after baselining |
-| 10 | ~~**B1.2** generic invariant checker~~ **RECOMMENDED-AGAINST — B1.1 refuted its premise** | — | — | — |
+| # | item | outcome | commit |
+|---|---|---|---|
+| 1 | **A1** cast name collisions | **FIXED** — and the diagnosis was half wrong: the rule is not sent when names are supplied, so the defect was ours | `6fea6feb` |
+| 2 | **D1** the second clock parser | **FIXED** — and the parity test found a silent 15-minute error on its first run | `3f629f01` |
+| 3 | **B1.1** non-temporal coherence audit | **REFUTED the gap it was written to measure** | `3e7c5b6e` |
+| 4 | **A2** floor templates | **axis worry REFUTED**; rewrite recommended-against on the code's own docblock | `baeec2b9` |
+| 5 | **B2** axis enums | **three lists, not two; benign**, now cross-referenced | `baeec2b9` |
+| 6 | **C2** advisory-gate register | **WRITTEN** — two gates that fire have no repair pass at all | `030c9275` |
+| 7 | **D2** duration arithmetic | **FIXED** — five shipped devices state an interval their own clocks deny | `9cdfa26a` |
+| 8 | **C1** plausibility threshold | **ALREADY BUILT**; floor already well placed; blocked on sample size only | `0f08e0d9` |
+| 9 | **A3** reveal-work confinement | **premise wrong** — the detector exists at 15%; the proposed one would fire at 45% | `740cb2d0` |
+| 10 | **B1.2** generic invariant checker | **RECOMMENDED-AGAINST** — B1.1 refuted its premise | `3e7c5b6e` |
 
-**Items 1–7 cost nothing but time.** Item 3 gates item 10 and may cancel it. No paid run is required
-before item 8.
+### What the next run reports for free
 
----
+No flag needs flipping to learn any of this:
+
+- `[X38-spine]` gains the **implied-derivation** line — the rate that decides `AGENT3B_IMPLIED_DERIVATIONS`
+- one more **plausibility** score toward the ten that decide `AGENT3B_PLAUSIBILITY_JUDGE=enforce`
+- `SHIP-CHECK final-chapter ending` should be **absent**, while `[X4] injections` stays non-zero
+- no `dropped_locked_fact` on the aftermath regen
+- ch8–10 budget lines should read `dropped=[none]`
+- no `"Either The"` in the manuscript
+
+### What is left, and it is not on this board
+
+Every remaining item is an **owner** problem, which is the C2 finding restated:
+
+- `clincher_absent_at_payoff` and `reveal_times_not_stated` — gates with no repair pass
+- `detectPrematureCulpritDisclosure` at 15% — a measure with no repair pass. Likely owner is **Agent 7**, not Agent 9: if chapter 7 is doing chapter 8's job the OUTLINE assigned it, and X32's scene-job fold is the precedent
+- suspect clearances in chapter 10 — named in three reads, still unmeasured
+- **Character Life** — excluded here on purpose (§6): a craft ask with no deterministic check, belonging to `PLAN-TO-90`
+
+### The pattern worth keeping
+
+Four items were cancelled by their own baseline (B1.2, A2's rewrite, A3's new check, C1's build), and
+three probes were wrong before they were right — `spine.derivations` for `spine.findings`, a
+point-free `.map(parseTimeWindow)` passing the array index, and a store walk that swept up case copies
+from other artifact types. **The measurements were worth more than the code.** Every item that
+survived contact with its own evidence was cheaper than the one it replaced.
 
 ## §8 — Standing rules this plan inherits
 
