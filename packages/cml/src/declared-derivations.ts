@@ -61,8 +61,37 @@ export const checkDeclaredDerivations = (
   const spine = buildTemporalSpine(facts);
   const violations: CaseTimeCoherenceViolation[] = [];
 
+  /**
+   * An INFERRED derivation is reported by the spine unconditionally, but only becomes a VIOLATION
+   * behind this flag. Env read at CALL time (ADR-0004), never a module const.
+   *
+   * Visibility first, enforcement second. The `[X38-spine]` telemetry line gains the finding on the
+   * next run with nothing switched on, so the rate can be read from real runs before anything is
+   * allowed to fail a case on it — which is exactly the sequence that kept the `unreadable` misfire
+   * (21.7% of runs, all of them correct devices) out of the regen loop.
+   */
+  const impliedEnforced = /^(1|true|yes|on)$/i.test(
+    String(process.env.AGENT3B_IMPLIED_DERIVATIONS ?? ""),
+  );
+
   for (const finding of spine.findings) {
     if (finding.status === "closes") continue;
+    if (finding.shape === "duration_from_two_instants_implied") {
+      if (!impliedEnforced) continue;
+      if (finding.status === "fails") {
+        violations.push({
+          code: "declared_derivation_broken",
+          message:
+            `The case does not declare where "${finding.id}" comes from, but its registry holds ` +
+            `exactly two clock facts and this one duration, so there is only one interval it can ` +
+            `mean — and the arithmetic does not close: ${finding.detail}. A reader meets all three ` +
+            `values in the prose verbatim. Repair the CASE: change whichever single value is wrong, ` +
+            `and keep the other two. Declaring \`derivedFrom\` on this fact would also make the ` +
+            `relation explicit instead of inferred.`,
+        });
+      }
+      continue;
+    }
 
     if (finding.status === "fails") {
       violations.push({

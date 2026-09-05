@@ -1331,6 +1331,76 @@
       "discrimDesign": "Recreate the lantern signal timing outdoors at the dock during the rising tide with tide tables and lantern visibility observed from the cliffs, demonstrating the physical impossibility of the lantern being visible at the claimed late time, thereby invalidating Captain Hale’s alibi based on the lantern signal.",
       "premise": "At the isolated Rockhaven Seaside Hotel on the Cornish coast, Dr. Mallory Finch is found stabbed shortly after a late-night lantern signal from the private dock. The signal's timing appears to confirm Captain Ivor Hale's alibi, but detective Eleanor Voss uncovers a temporal deception based on the tide's effect on the lantern's visibility. The real murder occurred earlier than assumed, implicating Hale who used the tidal timing to mask his crime.",
       "mechanismFamily": "locked_room_timing"
+    },
+    {
+      "id": "mystery-1788416308850",
+      "title": "The Spotlight Deception at the Grand Marquee",
+      "era": "1940s",
+      "location": "Dense urban theatre district",
+      "crimeSubtype": "identity substitution via stage shadow illusion",
+      "deathMethod": "struck on the head with a heavy brass paperweight",
+      "axis": "identity",
+      "falseAssumption": "Witnesses saw two different men on stage simultaneously—one in costume and one in street clothes—establishing alibis that exclude the culprit from the murder scene.",
+      "discrimMethod": "trap",
+      "discrimDesign": "By recreating the spotlight setup and using the original painted shadow backdrop, the test demonstrates the impossible shadow orientation relative to the single spotlight, exposing the false second figure and implicating Ivor Kestrel, the only suspect with exclusive lighting rig access and knowledge.",
+      "premise": "During a tense evening rehearsal at the Grand Marquee Theatre, director Montague Fairweather is found dead, struck on the head with a heavy brass paperweight. Witnesses claim to have seen two men—one in costume, one in street clothes—on stage simultaneously, seemingly establishing alibis. However, detective Dorothy Gaunt uncovers a clever impersonation involving stage lighting and shadow play that concealed the culprit's identity.",
+      "mechanismFamily": "unclassified"
+    },
+    {
+      "id": "mystery-1788457673117",
+      "title": "The Stage Manager’s False Call",
+      "era": "1940s",
+      "location": "Urban theatre district",
+      "crimeSubtype": "authority-based alibi forgery murder",
+      "deathMethod": "strangled with a silk scarf",
+      "axis": "authority",
+      "falseAssumption": "The forged rehearsal call sheet, signed and sealed by Lavinia Gaunt, is authentic and establishes the victim’s whereabouts during the murder time.",
+      "discrimMethod": "constraint_proof",
+      "discrimDesign": "Compare the forged call sheet’s watermark and handwriting pressure characteristics against original theatre stationary, and demonstrate the clock’s pendulum length alteration invalidating the official murder time. Reconcile witness testimonies with the external pocket watch time to expose the falsification of alibi times dependent on the stage manager’s authority.",
+      "premise": "In the bustling theatre district of Covent Garden during a chilly autumn evening, Dr. Adela Quayle is found strangled in her dressing room. A forged rehearsal call sheet, bearing the stage manager Lavinia Gaunt’s signature and sealing, appears to establish an alibi that exonerates several suspects. The investigation revolves around authority and trust within the theatre’s rigid hierarchy, where a respected document is accepted without question. Clarissa Penhale, an amateur detective and critic, unravels the forgery and exposes how social trust in authority can mask a dark truth behind the curtains.",
+      "mechanismFamily": "locked_room_timing"
+    },
+    {
+      "id": "mystery-1788466492272",
+      "title": "The Conductor’s Silent Baton: An Authority’s Deception",
+      "era": "1940s",
+      "location": "Central Theatre District",
+      "crimeSubtype": "Authority-based physical timing alibi manipulation",
+      "deathMethod": "stabbed with a letter opener",
+      "axis": "authority",
+      "falseAssumption": "The conductor’s raised baton signals the exact time of the murder, a fact universally accepted due to his authority.",
+      "discrimMethod": "trap",
+      "discrimDesign": "A controlled acoustic test in the theatre recreates the conductor’s baton strike with and without the leather patch, measuring the precise delay of the drumbeat sound. Combined with witness statements on the baton raise timing, this proves the delay was deliberate and unique to Gerald Yardley’s baton. The test also compares the stopped watch time with the drumbeat reception, confirming the false timeline.",
+      "premise": "In a London West End theatre on a chilly autumn evening, the murder of revered actress Harriet Whitlock shocks the theatre district. The respected conductor Gerald Yardley’s authoritative timing cues are accepted by all, establishing a universal timeline that seemingly rules out his involvement. However, Clarissa Penhale, a sharp-witted critic and detective, uncovers that the conductor manipulated the timing of a drumbeat to create a false alibi, exploiting the staff’s unquestioned deference to his authority. This deception misled witnesses and investigators alike until subtle acoustic clues and social contradictions expose the truth.",
+      "mechanismFamily": "recorded_presence"
+    },
+    {
+      "id": "mystery-1788537332588",
+      "title": "The Silent Signal in the Starlight Theatre",
+      "era": "1940s",
+      "location": "Metropolitan Theatre District",
+      "crimeSubtype": "silent cue authority deception",
+      "deathMethod": "struck on the head with a heavy brass paperweight",
+      "axis": "authority",
+      "falseAssumption": "The prop master's silent hand signal at quarter past seven is universally accepted as the official cue to begin rehearsal and thus fixes the victim's last known alive time.",
+      "discrimMethod": "constraint_proof",
+      "discrimDesign": "A controlled comparison of the rehearsal logbook times, independent stopwatch records, and ledger ink properties conclusively demonstrates the ledger forgery and false acceptance of the prop master's silent cue. This exposes the timeline contradiction, proving Marguerite Gaunt's deception in forging the ledger and manipulating the authority bias to conceal the murder timing.",
+      "premise": "In the bustling theatre district of London's West End, during a cool autumn evening rehearsal, the veteran stage manager Harriet Whitlock is found murdered. The entire theatre staff is baffled, as the timeline of events hinges on an accepted authority's silent cue that allegedly marked the start of rehearsal. However, a subtle manipulation of authority and forged records misleads the investigation until Clarissa Penhale uncovers the truth through careful examination of signals, ledgers, and testimonies, ultimately exposing Marguerite Gaunt's desperate attempt to cover her forgery.",
+      "mechanismFamily": "unclassified"
+    },
+    {
+      "id": "mystery-1788549284814",
+      "title": "The Director's False Cue: An Authority's Deception",
+      "era": "1930s",
+      "location": "Urban theatre district",
+      "crimeSubtype": "authority-based alibi forgery murder",
+      "deathMethod": "struck on the head with a heavy ornate candlestick",
+      "axis": "authority",
+      "falseAssumption": "The director's shouted rehearsal start at twenty minutes past seven is universally accepted as the exact time rehearsals began, fixing the victim’s last known alive time.",
+      "discrimMethod": "trap",
+      "discrimDesign": "The erased rehearsal log markings and timing of the mechanical bell are used to stage a controlled timing demonstration with all suspects present. The discrepancy between the director’s official cue and the mechanical bell’s ring is shown, proving the forged timeline. The inability of Jardine’s alibi to cover the true murder time under this corrected timeline is demonstrated.",
+      "premise": "In a bustling 1940s London theatre district, the revered star Clarissa Gaunt is discovered dead backstage, struck with a heavy candlestick. The entire company accepts the director's public rehearsal start cue at twenty minutes past seven as the last time Clarissa was alive. However, the prompter had surreptitiously rung a mechanical bell five minutes earlier to signal the true start. This unnoticed authority manipulation creates a false timeline, allowing the killer to forge an alibi. Detective Dr. Edmund Rutherford uncovers this deception by scrutinizing social hierarchies and mechanical evidence, revealing how unquestioned authority and official records concealed the truth.",
+      "mechanismFamily": "alibi_fabrication"
     }
   ]
 }

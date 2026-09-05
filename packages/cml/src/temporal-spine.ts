@@ -344,7 +344,8 @@ export interface SpineDuration {
 export type ArithmeticShape =
   | "duration_from_two_instants"
   | "instant_from_instant_and_duration"
-  | "unsupported";
+  | "unsupported"
+  | "duration_from_two_instants_implied";
 
 export interface SpineFinding {
   id: string;
@@ -480,6 +481,57 @@ export const buildTemporalSpine = (facts: ReadonlyArray<SpineFactInput>): Tempor
       shape: "unsupported",
       status: "unreadable",
       detail: `derivedFrom [${srcA}, ${srcB}] does not resolve to a shape this spine can compute`,
+    });
+  }
+
+  /**
+   * ── THE DERIVATION NOBODY DECLARED, WHERE ONLY ONE IS POSSIBLE ─────────────────────────────────
+   *
+   * This pass is declaration-driven on purpose: with three clocks and two durations there is no way
+   * to know WHICH pair a duration derives from, and guessing produces a confident false violation on
+   * a correct device. That reasoning is sound and is not being reversed here.
+   *
+   * It does not apply when the registry holds EXACTLY two instants and EXACTLY one duration. Then
+   * there is only one pairing to test, so nothing is being guessed at.
+   *
+   * MEASURED 2026-09-04 over the 45 archived registries in `apps/worker/logs/locked-facts-*.json`:
+   * 27 carry the shape (>=2 instants, >=1 duration). Of those, 19 close, 1 fails, 1 is unreadable,
+   * and **6 are never evaluated at all because no `derivedFrom` was authored**. Five of those six are
+   * the unambiguous 2+1 case — and **all five would FAIL**:
+   *
+   *   gap 25m vs declared 35m   false_time_displayed / resumption_time
+   *   gap 10m vs declared 14m   murder_time_displayed / chime_recorded_time
+   *   gap 25m vs declared 20m   tampering_time / murder_time_displayed
+   *   gap 25m vs declared 20m   clock_face_time_at_murder / hotel_bell_chime_time
+   *   gap 25m vs declared 20m   murder_time_by_pocket_watch / clock_face_time_at_murder
+   *
+   * Five shipped cases whose device states an interval its own two clocks do not support, invisible
+   * for want of one authored field. The 76/100 read's FIRST complaint was that the arithmetic is
+   * wrong.
+   *
+   * Emitted as a finding ALWAYS, so `summariseSpine`'s `[X38-spine]` line shows it from the next run
+   * with no flag. Whether it becomes a VIOLATION is decided in `checkDeclaredDerivations`, behind
+   * `AGENT3B_IMPLIED_DERIVATIONS` — visibility first, enforcement second, which is the pattern that
+   * kept the `unreadable` misfire out of the regen loop.
+   *
+   * The shape is tagged distinctly so telemetry can always separate what the case declared from what
+   * this inferred.
+   */
+  if (findings.length === 0 && instants.length === 2 && durations.length === 1) {
+    const [a, b] = instants;
+    const declared = durations[0]!.minutes;
+    const outcomes = meridiemVariants(a!, b!).map(([x, y]) => Math.abs(x - y));
+    const closes = outcomes.some((o) => o === declared);
+    findings.push({
+      id: durations[0]!.id,
+      shape: "duration_from_two_instants_implied",
+      status: closes ? "closes" : "fails",
+      declared,
+      computed: outcomes[0],
+      detail:
+        `NOT DECLARED — inferred, because the registry holds exactly two clock facts and one ` +
+        `duration so only one pairing exists: declared ${declared}m; computed ` +
+        `${[...new Set(outcomes)].join(" or ")}m from ${a!.id}/${b!.id}`,
     });
   }
 

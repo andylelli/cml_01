@@ -1,0 +1,130 @@
+This is cleaner than the conductor/baton draft, but a little less inventive. It swaps the questionable “ten-second sound delay” mechanism for a more believable evidence puzzle: a forged ledger entry, a silent signal, a stopwatch, and an actual death time that exposes the false record.
+
+I’d score this around 83/100.
+
+The roles are:
+
+Investigator: Clarissa Penhale
+Victim: Harriet Whitlock
+Culprit: Marguerite Gaunt
+False suspects: Dr. Adela Quayle, Gerald Yardley, Beatrice Jardine
+Murder method: blow to the head with heavy brass paperweight
+Cover-up mechanism: Marguerite forges/adjusts the rehearsal ledger to make the rehearsal start appear to be 7:15, while the real vocal cue happened at 7:20 and Harriet died at 7:17
+Key clues: ledger page mismatch, smudged ink, rougher replacement page, Harriet’s signature, stagehand stopwatch at 7:20, doctor’s death estimate at 7:17, silent signal at 7:15, Marguerite’s exclusive ledger access
+Motive: Harriet planned to contest the land sale, threatening Marguerite’s family interests
+
+Area	Mark	Notes
+Premise / concept	8/10	Forged record versus witnessed silent cue is a solid theatre-specific puzzle.
+Opening hook	8/10	Strong body discovery, paperweight, ledger contradiction, silent signal.
+Plot structure	8/10	Clear: discovery → ledger anomaly → motive → alibis → false pressure → secret lies → final proof → aftermath.
+Character clarity	8/10	Roles are stable and readable.
+Dialogue	7/10	Clarissa, Marguerite, Beatrice, and Gerald have distinct enough voices.
+Atmosphere / setting	8/10	Strong rehearsal hall / theatre mood: boards, ropes, rain, footlights, ledger, backstage silence.
+Mystery clues / evidence logic	7/10	The logic is much clearer, though the silent-signal/vocal-cue distinction needs sharpening.
+Pacing	8/10	Good chapter jobs; less wandering than some prior drafts.
+Ending / reveal	7/10	Reveal is coherent, but the final line reopens it awkwardly.
+Prose / polish	7/10	Better than many drafts, though a few generated phrases remain.
+Character Life / Relationship Richness	7/10	Solid institutional tension; still could use more private relationships.
+What works
+
+The opening is good. It immediately gives us the body, the murder weapon, the ledger, the signature, the silent signal, the stopwatch, and the mismatch between official record and witness memory. That is efficient without feeling completely mechanical.
+
+The central contradiction is also much cleaner than the baton version:
+
+ledger says rehearsal started at 7:15
+witnesses say no vocal cue was called then
+silent hand signal happened instead
+stopwatch says the actual cue was 7:20
+doctor places death at 7:17
+
+That gives the mystery a readable hinge.
+
+The middle chapters do a better job narrowing the field. Dr. Quayle, Gerald, and Beatrice each get alibis that are specific enough, and the document analysis points toward Marguerite’s control over the ledger pages.
+
+The final test is also coherent: Clarissa places the stopwatch against the ledger, uses the doctor’s report, and links the forged ledger page to Marguerite’s access, handwriting, and motive.
+
+Character Life / Relationship Richness: 7/10
+
+This is decent. The theatre company feels like a small institution with hierarchy, resentment, and fear.
+
+Marguerite’s obsession with records and authority is effective. She is not just “the culprit”; she believes the ledger protects the theatre and her family. Her motive — Harriet contesting the land sale — gives her a concrete reason to risk everything.
+
+Beatrice is also better here. Her frustration with official authority — “Some people get to decide what counts as official. The rest of us just watch” — adds class/workplace texture.
+
+Gerald’s lie is human rather than villainous: he overstated certainty because he feared contradicting the official record and losing position. That helps the false-suspect layer feel more humane.
+
+What’s missing is still personal history. The story would be richer if we knew:
+
+What exactly was Harriet to Marguerite before the land-sale threat?
+Did Beatrice resent Marguerite before the murder?
+Why does Gerald fear loss of position so strongly?
+Did Clarissa know Harriet well enough to feel the death personally?
+
+Right now the social world is good, but still more institutional than intimate.
+
+Main issue: silent signal vs vocal cue needs absolute clarity
+
+The story depends on a distinction between:
+
+silent hand signal at 7:15
+actual vocal cue at 7:20
+death at 7:17
+ledger pretending 7:15 was the official start
+
+That can work, but it must be explained very plainly. The draft sometimes uses “cue,” “silent signal,” “vocal cue,” “official start,” and “rehearsal start” in ways that blur together.
+
+Use this clean version:
+
+At 7:15, the prop master raised a silent hand signal. It was not the official vocal cue and did not begin rehearsal.
+At 7:17, Harriet was killed.
+At 7:20, the actual vocal cue was called, as recorded by the stagehand’s stopwatch.
+Marguerite altered the ledger so the 7:15 silent signal appeared to be the official start. That false entry made Harriet seem alive and present before the murder window closed.
+
+That would make the puzzle much easier to follow.
+
+The final line hurts the ending
+
+Chapter 10 is mostly good aftermath. It shows Marguerite’s authority collapsing, the company’s trust bruised, and Clarissa reflecting on records, memory, and truth.
+
+But then it ends with:
+
+“You did it.”
+Marguerite Gaunt said nothing, and the proof on the table said the rest.
+
+That belongs in Chapter 8, not Chapter 10. It makes the final chapter feel like it has accidentally reverted to reveal mode.
+
+Delete the last two sentences. End instead with:
+
+The stage, for a moment, belonged to no one.
+
+Clarissa looked out across the empty rows, the lamplight catching in the dust, and waited for the curtain to fall.
+Small logic concern
+
+The murder time is 7:17, but Marguerite’s forged ledger makes the rehearsal start 7:15. The draft should explain why that helps her.
+
+Did it make everyone think Harriet was alive at 7:15? Did it make Marguerite appear occupied? Did it shift attention to the silent signal? The story implies this, but does not fully nail it.
+
+Add one sentence to the reveal:
+
+“The forged entry did not create an alibi by itself,” Clarissa said. “It made everyone argue about the wrong moment. While the company defended the silent signal at quarter past seven, the real question — who was alone with Harriet at seventeen past — disappeared beneath the authority of the book.”
+
+That’s the missing bridge.
+
+Scaffold/prose issues
+
+Much improved, but still remove:
+
+“The clocks put it at seventeen minutes past seven.”
+“It was a quarter past seven by the mantel clock.”
+“A micro-moment passed…”
+final “You did it.” line
+
+Those are generator fingerprints.
+
+Overall
+
+This is a solid upper-tier draft. It is less flashy than the hour-hand/wire mechanism, but cleaner and more believable than the baton-delay version.
+
+As written: 83/100.
+
+With the silent-signal/vocal-cue distinction clarified, the forged ledger’s purpose sharpened, and the final reveal-line removed from Chapter 10, this could reach 87–89/100.
