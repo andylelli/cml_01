@@ -49,6 +49,26 @@ import type { PriorRunRecord } from "./novelty-ledger.js";
 import { familyOfRecord } from "./novelty-dispersion.js";
 import { loadSeedFingerprints } from "@cml/novelty";
 
+/**
+ * ── THREE AXIS LISTS EXIST IN THIS REPO, AND THEY DO NOT AGREE ─────────────────────────────────
+ *
+ *   `CmlAxis`        packages/device-library/src/types.ts   5 — what a device can be GENERATED for
+ *   `Axis`           packages/novelty/src/types.ts          6 — adds `epistemic`, for CLASSIFYING
+ *   `SCHEDULER_AXES` apps/worker/src/jobs/cell-scheduler.ts 5 — what a cell may be SCHEDULED as
+ *
+ * MEASURED 2026-09-04 over the 107 shipped runs in `data/novelty-ledger.json`: axes ever shipped are
+ * temporal, behavioral, authority, spatial, identity. **`epistemic` count: 0.** Nothing can generate
+ * it — neither the device library nor the scheduler lists it — so it exists only as a label the
+ * novelty extractor may apply to a CORPUS work.
+ *
+ * Left divergent ON PURPOSE. WF-002 divergence triage: two components computing the same entity set
+ * will disagree, and that is harmful only where one copy is the sole input to a WRITE. Neither is:
+ * the scheduler is `shadow` and its own list excludes `epistemic` anyway, and the novelty audit does
+ * not hard-fail. Narrowing `Axis` to five would instead throw away the extractor's ability to
+ * classify a real novel that IS epistemic, which is a loss for no gain.
+ *
+ * This comment is the fix. The defect was that the divergence had to be re-derived by hand.
+ */
 export const SCHEDULER_AXES = ["temporal", "spatial", "identity", "behavioral", "authority"] as const;
 export type SchedulerAxis = (typeof SCHEDULER_AXES)[number];
 

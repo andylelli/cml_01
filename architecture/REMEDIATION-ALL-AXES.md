@@ -125,7 +125,7 @@ double-report.
 not *repaired*, because `checkCast` does not drive a retry. Promoting it is a separate decision with a
 B1 argument attached.
 
-### A2 — Five scaffold templates still ship, two of them widely *(reach: mostly temporal, see note)*
+### A2 — Five scaffold templates still ship, two of them widely *(reach: all axes)* — **AXIS WORRY REFUTED; rewrite RECOMMENDED-AGAINST**
 
 All five reads list "generator fingerprints". **MEASURED — which are ours:**
 
@@ -157,6 +157,63 @@ whichever survive.
 **Falsifier:** rewriting a floor sentence can break the validator that floor exists to satisfy.
 Every rewrite must be asserted against the **real predicate**, the way
 `buildCulpritEvidenceSentenceInScene` was.
+
+**A2 OUTCOME — the axis worry was the reason this item mattered, and it is refuted.**
+
+A2 predicted that if the two temporal templates fire on a spatial or identity case, "the floor is
+stating time on a case that has none". MEASURED over the 23 manuscripts joinable to a ledger row by
+the `Run ID:` line the manuscript itself carries:
+
+| axis | books | `The clocks put it at` | `…had passed before it was done` |
+|---|---:|---:|---:|
+| temporal | 12 | 6 | 4 |
+| authority | 6 | 3 | 3 |
+| identity | 2 | 2 | 1 |
+| spatial | 2 | 1 | 0 |
+| behavioral | 1 | 1 | 0 |
+
+They fire on every axis — **and every book that fires one also states a clock in its own prose. Zero
+exceptions.** Consistent with B1.1: the axis is nominal and the mechanisms are temporal regardless.
+So this is a wording question, not a correctness one.
+
+**The rewrite is RECOMMENDED-AGAINST, and the reason is in the code's own docblock.** These five
+strings are a deliberate ROTATION, introduced to end an arms race with the leakage detectors:
+*"The fix ends the arms race instead of joining it: no FIXED string ... none matching
+TEMPLATE_LEAKAGE / DEBUG_NOTE_PATTERNS / the scaffold family — pinned by a test that asserts
+non-membership."* A_47 had already renamed the template once to dodge that era's detectors.
+
+Reviewers have now named **all five** variants — the three TIME_VARIANTS and both DURATION_VARIANTS —
+across four different reads. Adding a sixth phrasing is exactly the move the docblock says was
+abandoned, and there is no reason to think a human reader would miss it either.
+
+**RECORDED INSTEAD, as a new sub-item worth more than the rewrite:** the distinctive string
+`"The clocks put it at"` appears in **17 of 34** shipped manuscripts. That string is unlikely to be
+natural prose, unlike its siblings (`"By then it was…"` is ordinary English, so the 91%
+at-least-one-variant figure over-counts and is NOT claimed). A floor whose caller comment says it
+"fires exactly when regen already failed" reaching half of all books means the floor is the primary
+path, not a fallback — reviewers are reading our fallback prose because it is usually the prose. The
+fix is upstream, at whatever makes the prose omit its locked facts, not in the wording.
+
+### B2 — Two axis enums disagree — **DONE 2026-09-04: three lists, benign, now cross-referenced**
+
+There are **three**, not two:
+
+| list | axes | has `epistemic` |
+|---|---:|---|
+| `CmlAxis` (device-library) | 5 | no |
+| `Axis` (novelty) | 6 | **yes** |
+| `SCHEDULER_AXES` (cell-scheduler) | 5 | no |
+
+MEASURED over 107 shipped runs: axes ever shipped are temporal, behavioral, authority, spatial,
+identity. **`epistemic` count: 0.** Nothing can generate it; it exists only as a label the novelty
+extractor may apply to a corpus work.
+
+**Left divergent deliberately.** WF-002 triage asks whether one copy is the sole input to a WRITE.
+Neither is: the scheduler is `shadow` and its own list excludes `epistemic` anyway, and the novelty
+audit does not hard-fail. Narrowing `Axis` to five would throw away the extractor's ability to
+classify a real novel that IS epistemic — a loss for no gain. The three declarations now carry a
+shared comment naming each other and this measurement; the defect was that the divergence had to be
+re-derived by hand.
 
 ### A3 — Chapters 8/9/10 overlap *(reach: all axes)*
 
