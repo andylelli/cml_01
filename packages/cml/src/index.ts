@@ -148,6 +148,7 @@ export {
   extractSpanLocation,
   isValidAlibiSpan,
   renderAlibiWindow,
+  repairActualCovered,
   type AlibiSpan,
 } from "./alibi-span.js";
 

@@ -133,3 +133,64 @@ export const alibiSpanDisagreesWithProse = (
   const same = fromSpan[0] % DIAL === prose[0] % DIAL && fromSpan[1] % DIAL === prose[1] % DIAL;
   return same ? null : { spanSays: fromSpan, proseSays: prose };
 };
+
+/**
+ * ── THE REPAIR FOR `actual_covered` ─────────────────────────────────────────────────────────────
+ *
+ * The defect: the culprit's alibi covers the REAL time of death, so they could not have done it. The
+ * concealment is incoherent and the case is unusable as written.
+ *
+ * Agent 3 cannot fix it. MEASURED twice — run 22362 and run 25586 — it produced the IDENTICAL broken
+ * case on all three attempts, with feedback naming the exact correction ("Move the ACTUAL time into
+ * one of these gaps"). Run 25586 then aborted, having paid for four artifacts. A defect the model
+ * demonstrably will not repair should not cost a whole run when the arithmetic is trivial.
+ *
+ * WHY IT CANNOT FAIL. The window must contain the STAGED time (that is what makes the deception
+ * protect the culprit) and exclude the REAL one. Given both inside a non-wrapping window and
+ * apparent != actual, trimming the window on the side away from `apparent` always leaves a window
+ * that contains apparent and excludes actual. VERIFIED against every stored case with this shape:
+ * 4 of 4 repair correctly. The three other covered cases are `apparent_not_covered` — a different
+ * defect this deliberately does not touch — and one wrapping window is skipped.
+ *
+ * THE BOUNDARY IS ROUNDED because the number becomes prose. Trimming 5:00–6:00 to 5:00–5:44 is
+ * arithmetically fine and reads like a machine; 5:00–5:30 reads like an alibi. The rounded edge is
+ * used only when it still contains the staged time, so correctness is never traded for phrasing.
+ *
+ * Returns null — never a guess — for every shape it does not own: a wrapping window, identical times,
+ * a staged time already outside, or a real time already outside.
+ */
+export const repairActualCovered = (
+  span: AlibiSpan,
+  apparentDial: number,
+  actualDial: number,
+): AlibiSpan | null => {
+  const [start, end] = toWindow(span);
+  if (start > end) return null;                                   // wrapping: not this repair's shape
+  const inside = (x: number) => x >= start && x <= end;
+  if (!inside(actualDial)) return null;                           // nothing to repair
+  if (!inside(apparentDial)) return null;                         // apparent_not_covered — different defect
+  if (apparentDial === actualDial) return null;                   // times_identical — different defect
+
+  let newStart = start;
+  let newEnd = end;
+  if (actualDial < apparentDial) {
+    const exact = actualDial + 1;
+    const rounded = Math.ceil(exact / 5) * 5;
+    newStart = rounded <= apparentDial ? rounded : exact;
+  } else {
+    const exact = actualDial - 1;
+    const rounded = Math.floor(exact / 5) * 5;
+    newEnd = rounded >= apparentDial ? rounded : exact;
+  }
+  if (newStart > newEnd) return null;
+  if (actualDial >= newStart && actualDial <= newEnd) return null; // belt and braces: never return a no-op
+  if (apparentDial < newStart || apparentDial > newEnd) return null;
+
+  return {
+    startHour: Math.floor(newStart / 60) % 12,
+    startMinute: newStart % 60,
+    endHour: Math.floor(newEnd / 60) % 12,
+    endMinute: newEnd % 60,
+    ...(span.location ? { location: span.location } : {}),
+  };
+};

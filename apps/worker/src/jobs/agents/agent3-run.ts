@@ -11,6 +11,8 @@ import { createSkeletonExtractor, judgeNovelty, loadReferenceCorpus } from "@cml
 import { parseClockTime, validateCml, buildCaseScopedLockedFacts,
   alibiSpanFromWindow,
   isValidAlibiSpan,
+  repairActualCovered,
+  renderAlibiWindow,
 } from "@cml/cml";
 import type { PhaseScore, TestResult } from "@cml/story-validation";
 import { scoreRealCml, getGenerationParams } from "@cml/story-validation";
@@ -75,6 +77,49 @@ function repairInferenceRequiredEvidence(cml: any): number {
  * still unreadable, and still reported; this floor closes the gap for the 88% it CAN read, not the
  * 12% it cannot.
  */
+/**
+ * ── REPAIR `actual_covered` RATHER THAN ABORT ON IT ─────────────────────────────────────────────
+ *
+ * The culprit's alibi covering the REAL time of death makes the concealment incoherent, and Agent 3
+ * will not fix it: MEASURED on runs 22362 and 25586 it returned the IDENTICAL broken case on all
+ * three attempts, with feedback naming the exact correction. 25586 then aborted having paid for four
+ * artifacts.
+ *
+ * The arithmetic is trivial and cannot fail — see `repairActualCovered`, verified 4 of 4 against every
+ * stored case with this shape. So the window is trimmed and the PROSE IS RE-RENDERED FROM THE TRIMMED
+ * NUMBER, which is the one thing that makes this safe: value and words come out of a single function,
+ * so the repair cannot leave the case saying 5:00–6:00 while the arithmetic believes 5:00–5:30. That
+ * drift is the defect this project has met three times in other clothes.
+ *
+ * Requires a span, so it rides with `AGENT3_ALIBI_SPAN_FLOOR`. Repairs the CULPRIT only: a witness
+ * whose alibi covers the real time of death is not a contradiction, it is a witness.
+ */
+export function repairCulpritAlibiCoverage(cml: any): Array<{ name: string; before: string; after: string }> {
+  const caseBlock = cml?.CASE ?? cml;
+  const mech = caseBlock?.hidden_model?.mechanism ?? {};
+  const apparent = parseClockTime(mech.apparent_time_of_death);
+  const actual = parseClockTime(mech.actual_time_of_death);
+  if (apparent === null || actual === null) return [];
+
+  const culprits: string[] = (caseBlock?.culpability?.culprits ?? []).map((n: unknown) => String(n ?? "").trim());
+  const repaired: Array<{ name: string; before: string; after: string }> = [];
+
+  for (const member of Array.isArray(caseBlock?.cast) ? caseBlock.cast : []) {
+    if (!member || typeof member !== "object") continue;
+    if (!culprits.includes(String(member.name ?? "").trim())) continue;
+    if (!isValidAlibiSpan(member.alibi_span)) continue;
+
+    const fixed = repairActualCovered(member.alibi_span, apparent, actual);
+    if (!fixed) continue;
+
+    const before = String(member.alibi_window ?? "");
+    member.alibi_span = fixed;
+    member.alibi_window = renderAlibiWindow(fixed);   // one function, so they cannot disagree
+    repaired.push({ name: String(member.name ?? "?"), before, after: member.alibi_window });
+  }
+  return repaired;
+}
+
 export function deriveAlibiSpans(cml: any): { derived: number; unreadable: string[] } {
   const caseBlock = cml?.CASE ?? cml;
   const cast = Array.isArray(caseBlock?.cast) ? caseBlock.cast : [];
@@ -131,6 +176,16 @@ function applyCmlRepairAndRevalidate(
           ? `; ${spans.unreadable.length} window(s) UNREADABLE and left without one: ${spans.unreadable.join(" | ")}`
           : "; every window read"),
     );
+  }
+  if (spans.derived > 0) {
+    const coverage = repairCulpritAlibiCoverage(cmlResult.cml as any);
+    for (const r of coverage) {
+      ctx.warnings.push(
+        `[T2 alibi-repair] ${r.name}'s alibi covered the REAL time of death, which Agent 3 does not fix ` +
+          `on retry (measured: identical case on all 3 attempts, twice). Trimmed deterministically and ` +
+          `the window re-rendered from the number: ${JSON.stringify(r.before)} -> ${JSON.stringify(r.after)}.`,
+      );
+    }
   }
   const repairedCount = repairInferenceRequiredEvidence(cmlResult.cml as any);
   if (repairedCount === 0) {
