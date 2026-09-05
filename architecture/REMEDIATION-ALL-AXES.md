@@ -71,7 +71,7 @@ the first work item.
 
 These need no judge and no external read. Each has a measured rate and a mechanical check.
 
-### A1 — Cast name collisions violate a MANDATORY prompt rule *(reach: all axes)*
+### A1 — Cast name collisions violate a MANDATORY prompt rule *(reach: all axes)* — **DONE 2026-09-04 (`6fea6feb`)**
 
 **MEASURED over 50 shipped casts:**
 - **20% (10/50)** ship two characters sharing a first-name initial
@@ -95,6 +95,35 @@ same argument that makes the X60 "fail at the cheap end" fix correct).
 **Falsifier:** if renaming produces a name that collides with a *location* or the victim's surname,
 the repair has moved the defect rather than fixed it. Assert against both sets.
 **Cost:** free to build; no run needed to verify.
+
+**OUTCOME — and the diagnosis in the plan was half wrong, which is why it was measured first.**
+
+The plan assumed Agent 2 was ignoring its own mandatory rule. It is not. `agent2-cast.ts` omits the
+rule entirely when cast names are SUPPLIED (`!inputs.characterNames`), which is every seeded run, so
+the seeded generator's output is final and unchecked. Split by who chose the names:
+
+| names chosen by | casts | share an initial | share a given name |
+|---|---:|---:|---:|
+| the pipeline | 42 | 10% | **0%** |
+| a seeded run | 8 | **75%** | **50%** |
+
+All four books that shipped two characters with the same first name came from
+`scripts/run-params.mjs`. `deriveNameInitials` was never at fault. `pickDistinctGiven` tracked used
+NAMES, and both name pools carry the same sixteen initials (A–P).
+
+Fixed in two places: the generator (rejection sampling, so a seed that never collided replays
+byte-identically — measured: of 200 seeds, 85 changed and **all 85 had a collision**, zero
+collateral), and `checkCast`, which gains `duplicate_given_name` / `shared_given_initial` for the 10%
+residual on the path the generator cannot reach. checkCast is consumed in SHADOW, so that half is
+visibility only and cannot regress a run.
+
+Known-positive: replayed over 54 shipped cast artifacts it reports 4 + 6, against an independent
+audit's 4 and 10 — the difference being exactly the casts that are both, which it does not
+double-report.
+
+**Still open from this item:** the pipeline path's 10% shared-initial residual is now *visible* but
+not *repaired*, because `checkCast` does not drive a retry. Promoting it is a separate decision with a
+B1 argument attached.
 
 ### A2 — Five scaffold templates still ship, two of them widely *(reach: mostly temporal, see note)*
 
