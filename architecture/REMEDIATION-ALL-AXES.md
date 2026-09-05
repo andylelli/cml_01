@@ -362,7 +362,7 @@ threshold from that, not from intuition.
 **Falsifier:** if regeneration at the threshold rarely clears, the judge is measuring taste rather
 than physics and the flag goes off.
 
-### C2 — Advisory gates generally
+### C2 — Advisory gates generally — **DONE 2026-09-04: the register below**
 
 Run 22362 shipped with: the pronoun gate flagging **13** issues, four geometry release-gate warnings,
 and `SHIP-CHECK final-chapter ending` firing. All advisory.
@@ -377,6 +377,47 @@ code change — a register pass. `FLAG-AUDIT` already does this for flags; nothi
 **Cost:** free.
 
 ---
+
+### C2 — THE ADVISORY-GATE REGISTER
+
+`FLAG-AUDIT.md` keeps flags honest. Nothing did this for gates. Every row below **fired on run 22362
+and the book shipped anyway** — that is not a complaint, it is the design (ADR-0003, and B1: a gate
+that drives retries costs +2.43 register points on the retried chapter). The question this register
+answers is narrower and is the one nobody could answer before: **does the cause have an owner?**
+
+| gate that fired | owner — the thing that repairs the cause | state |
+|---|---|---|
+| `geometry aftermath_repeat` (ch9) | `runAftermathRepeatRegenPass` | **owned, and was unsatisfiable until `45507add`** — 44% of the chapters it ran on |
+| `geometry reveal_culprit_not_named` (ch8) | `runRevealRepairRegenPass` (N7) | owned; **ran and lost** — *"score 400, was 400"* |
+| `geometry reveal_motive_absent` (ch8) | same pass, modify channel | owned; **succeeded** on this run |
+| `geometry clincher_absent_at_payoff` (ch8) | — | **NO OWNER. No repair pass exists.** |
+| `geometry reveal_times_not_stated` (ch8) | — | **NO OWNER.** Not in N7's targeted list |
+| scene-grounding coverage 3/10 | `AGENT9_GROUNDING_LEAD` | owner exists and is **deliberately OFF** (`=0`) — the prepend wrote 10/10 templated openers, ch8 = ch9 identical |
+| Pronoun integrity: 13 issues | deterministic rescue + `detectAttributionFlips` | **partially owned** — rescue ran, 13 survived |
+| SHIP-CHECK final-chapter ending | `AGENT9_INJECT_BEFORE_FINAL_PARAGRAPH` | **owned as of `9a531690`** — it had no owner this morning |
+| SHIP-CHECK dual-value flat pair (`clues≤6` cap) | `runDualValueContrastRegenPass` | owned |
+| SHIP-CHECK machine-register 10.1% | — | measure only, and **correctly so** — 10.1% is in the band where `prose` scores 8 |
+| `[X4]` injector-vs-lint 1/0 | n/a | telemetry; **passing** |
+| plausibility judge, score 90 | — | **NO OWNER — see C1**, and it is shadow by configuration |
+
+**THE FINDING: two gates that fired have no repair pass at all** — `clincher_absent_at_payoff` and
+`reveal_times_not_stated`. Both are chapter-8 reveal defects, and both were named by the reader:
+2035's `ending` 6 rests partly on the reveal not delivering. A gate with no owner cannot be satisfied
+by anything except the model happening to get it right, so it will fire at whatever base rate the
+model has, forever.
+
+**A third is owned but switched off on purpose** (scene grounding), and that decision is sound and
+recorded — the owner made the openers worse.
+
+**What this register is NOT.** It is not an argument for promoting any of these to blocking. B1 still
+applies and the retry cost is measured. It answers only the prior question: for each gate that fires,
+is there anything that could fix the cause? For two of twelve there is not, and that was invisible
+before this pass.
+
+**Next from this register, in order:** an owner for `reveal_times_not_stated` is the cheaper of the
+two — the case knows both times, so it is a prompt/injection problem rather than a judgement.
+`clincher_absent_at_payoff` needs the decisive trace to be on the page, which is X52 territory.
+Neither is scoped here.
 
 ## §5 — GROUP D: known-unverified
 
