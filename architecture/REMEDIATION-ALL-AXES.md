@@ -430,7 +430,7 @@ Verified before changing anything: `parseClockTime` refuses all ten things the s
 values on disk and asserts the two parsers never disagree — that guard is the actual deliverable, not
 the delegation.
 
-### D2 — Durations asserted in prose are unchecked
+### D2 — Durations asserted in prose are unchecked — **DONE 2026-09-04, and the premise was wrong**
 
 1907 caught real arithmetic the pipeline did not: *"3:20 to 5:45 is 2h25, not 1h55."* The
 declared-derivations check covers **locked facts** and fired correctly on run 22362, but free prose
@@ -440,6 +440,42 @@ verified against the case. Note the overlap with A2: those sentences come from t
 **Change:** when the floor states a duration, it must state the one the case declares. Not a new
 check — a builder that reads the registry instead of composing text.
 **Cost:** free.
+
+**OUTCOME.** The premise was wrong and the measurement found something better.
+
+D2 assumed the floor invents durations. It does not — `DURATION_VARIANTS` interpolates the locked
+fact's own value. The real question is whether the registry's own duration agrees with the registry's
+own clocks, which `buildTemporalSpine` already computes.
+
+MEASURED over the 45 archived registries: 27 carry the shape (≥2 instants, ≥1 duration).
+
+| | |
+|---|---:|
+| closes | 19 |
+| **never evaluated — no `derivedFrom` authored** | **6** |
+| fails | 1 |
+| unreadable | 1 |
+
+Five of those six are the unambiguous **exactly 2 instants + 1 duration** case, and **all five fail**:
+25 vs 35, 10 vs 14, and 25 vs 20 three times. Five shipped cases whose device states an interval its
+own two clocks do not support, invisible for want of one authored field.
+
+The declaration-driven design is **not** reversed — with three clocks there is genuinely no way to
+know which pair a duration means, and the one ambiguous registry of the six is correctly left alone.
+The inference is made only where a single pairing exists.
+
+**The finding is emitted unconditionally**, so `[X38-spine]` reports it from the next run with nothing
+switched on; `AGENT3B_IMPLIED_DERIVATIONS` gates only whether it becomes a violation. Replay proves
+zero regression — violations with the flag OFF are 1, exactly as before; ON, 6.
+
+**Deliberately left OFF for the next run.** A violation here feeds `AGENT3B_ARITHMETIC_REGEN`, which
+is ON, so a false positive regenerates a *correct* device — the precise misfire the `unreadable`
+classification was built to avoid (21.7% of runs, all correct). Five for five is strong, but it is
+archive evidence. Read the `[X38-spine]` line first.
+
+*(A probe error nearly buried this: the first pass read `spine.derivations`, which does not exist —
+the field is `spine.findings` — and reported "no derivation evaluated" for all 27. The contradiction
+with run 22362's own log line is what exposed it.)*
 
 ### D3 — Transcribed but not investigated
 
