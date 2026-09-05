@@ -340,27 +340,44 @@ checking rather than assuming.
 
 ## §4 — GROUP C: instruments that see the defect and ship anyway
 
-### C1 — The plausibility judge is `shadow` *(reach: all axes — arguably MORE important off-temporal)*
+### C1 — The plausibility judge is `shadow` *(reach: all axes — arguably MORE important off-temporal)* — **ALREADY BUILT; blocked on sample size, not on code**
 
-`AGENT3B_PLAUSIBILITY_JUDGE=shadow`. It scores and does not gate. Run 22362 scored 90; a prior run
-scored **40 and shipped**.
+**OUTCOME — and a correction to what this item said.**
 
-Read 2136's central mechanism was physically impossible — *"a leather patch would muffle the sound,
-but it would not literally delay sound by ten seconds"* — and that book scored `clues` 6. 0738's
-optical trick *"needs a clearer mental picture"*, `clues` 6.
+C1 proposed building a design-tier regeneration at a score threshold, and I described it in
+conversation as "a build, not a flag flip". **That was wrong. It is already built.**
+`agent3b-run.ts` carries a full `enforce` path: `plausibilityGatePass`, bounded retries
+(`AGENT3B_PLAUSIBILITY_MAX_RETRIES`), regeneration with `buildPlausibilityJudgeFeedback`, and — coded
+explicitly — *"a gate must never kill a run: a regeneration failure keeps the best-so-far."* Only
+`AGENT3B_PLAUSIBILITY_JUDGE=shadow` stops it.
 
-**This matters more off-temporal.** Clock arithmetic is checkable by the temporal machinery. A
-spatial or behavioural mechanism's plausibility has **no** deterministic check, so the judge is the
-only instrument that could catch it — and it is switched to advisory.
+**The floor is already well placed.** `AGENT3B_PLAUSIBILITY_FLOOR = 80`, and the scores retained on
+disk are:
 
-**Change:** at a score below a threshold, regenerate the device at the **design tier** (~$0.02)
-rather than blocking. This is the same shape as `AGENT3B_ARITHMETIC_REGEN`: bounded to one attempt,
-accepted only if it clears, reverts otherwise — so it can never abort a run.
-**Flag:** `AGENT3B_PLAUSIBILITY_REGEN`, default OFF, threshold configurable.
-**Verify:** shadow telemetry first — what is the score distribution across the archive? Pick the
-threshold from that, not from intuition.
-**Falsifier:** if regeneration at the threshold rarely clears, the judge is measuring taste rather
-than physics and the flag goes off.
+| run | score |
+|---|---:|
+| (archive) | 85 |
+| run 22362 | 90 |
+| (archive) | 40 |
+| (archive) | 30 |
+| (archive) | 20 |
+
+The natural gap is 40 → 85 and the floor sits inside it, so the threshold does not need choosing from
+intuition after all — the judge discriminates sharply, and **three books shipped with a mechanism it
+scored 20–40**. That is the 2136 complaint made numeric (*"sound does not travel ten seconds late"*).
+
+**Why it is still not flipped.** On this sample enforcement would fire on **3 of 5** — 60%, straight
+into B1, *a check that fires on most runs is an off switch with extra steps*. n=5 is far too small to
+act on, and the counter-argument is real: the retries are bounded, they revert, and they cannot abort
+a run, so the downside is bounded cost rather than a lost run.
+
+**The blocker is sample size, and it clears itself.** The shadow score is pushed to `ctx.warnings` and
+those persist to the store, so every future run adds a point at no cost. **Decision rule: once ten
+scores exist, flip if fewer than a third fall below 80.** Nothing to build; nothing to spend.
+
+**The floor is a module const, not an env value** (`export const AGENT3B_PLAUSIBILITY_FLOOR = 80`), so
+tuning it needs a code change. Fine while the value is right — recorded so the next person does not
+hunt for a flag that isn't there.
 
 ### C2 — Advisory gates generally — **DONE 2026-09-04: the register below**
 
