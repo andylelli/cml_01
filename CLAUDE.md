@@ -28,6 +28,32 @@ See `documentation/workflow/README.md` for the standing rules those runs establi
 
 ---
 
+## Reporting a run — MANDATORY
+
+**Before launching any paid run, state its full parameters in the reply.** Not a summary, not "a
+random run" — the seed and every field that shapes the story, plus the flags that differ from the
+last run and what the run is expected to settle.
+
+State, every time:
+
+- **seed**, and the exact command to reproduce it
+- **axis · era · location · tone · target length · detective type · narrative style · cast size**
+- **the cast**, by name — a name collision is invisible in a summary and has cost two reads
+- **any flag flipped since the previous run**, with what it is expected to change
+- **what the run is expected to SETTLE**, as a checkable prediction rather than a hope
+
+Why this is a rule and not a habit: a run costs ~£1.15 and roughly 40 minutes, and its parameters are
+the only thing that makes it comparable to any other. A run whose parameters were never written down
+cannot be paired, cannot be replayed, and cannot be argued from — it is £1.15 of anecdote. Seeded
+parameters live in `scripts/generated/run-params-<seed>.yaml`; **that file is the provenance record of
+a run that happened and must never be overwritten** (regenerating a seed rewrites it — copy it aside
+first, and see the sweep note in `run-params.mjs`).
+
+Afterwards, report the run id, project id, cost, release-gate verdict, and every prediction that was
+made — including the ones that failed.
+
+---
+
 ## Evidence standard
 
 Every claim in an analysis document is labelled **MEASURED**, **INFERRED** or **ASSUMED**.
