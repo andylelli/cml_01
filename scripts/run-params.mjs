@@ -28,6 +28,8 @@
  *   node scripts/run-params.mjs                 # new random seed, prints it
  *   node scripts/run-params.mjs --seed 8143     # reproduce that run's parameters EXACTLY
  *   node scripts/run-params.mjs --axis spatial  # pin one field, randomise the rest
+ *   node scripts/run-params.mjs --fresh-names 0 # replay a pre-2026-09-07 file exactly (A_84 #2:
+ *                                               # by default the last 3 runs' cast names are excluded)
  *   node scripts/run-params.mjs --angle "a racing stable"   # pin the story angle (see STORY_ANGLES)
  *   node scripts/run-params.mjs --no-angle      # no angle at all — the theme as it was before angles
  *
@@ -303,6 +305,115 @@ const FEMALE = ["Adela", "Beatrice", "Clarissa", "Dorothy", "Edith", "Frances", 
 const MALE = ["Ambrose", "Bertram", "Cecil", "Desmond", "Edmund", "Ferdinand", "Gerald", "Hector",
   "Ivor", "Julian", "Kenneth", "Leonard", "Montague", "Neville", "Oswald", "Percival"];
 
+/**
+ * ── A_84 #2: FRESH NAMES ACROSS RUNS — the reviewer reads consecutively ─────────────────────────
+ *
+ * The distinct-names fix above stopped collisions WITHIN a cast. It did nothing ACROSS casts, and the
+ * external reader reads the books in the order they ship:
+ *
+ *   read-20260903-1907 (76): "Two Adelas in a short mystery is unnecessary friction."
+ *   read-20260903-2136 (77): "Dr. Adela Quayle appears alive even though PRIOR DRAFTS used her as
+ *                             victim … Do not use Adela twice across these theatre drafts."
+ *
+ * MEASURED 2026-09-07 over the 29 post-X70 manuscripts: of 28 consecutive pairs, **24 share a full
+ * cast name**, 26 share a given name, 27 share a surname. With pools of 24/16/16 and six names a run,
+ * that is arithmetic, not bad luck.
+ *
+ * Two changes, and the order they apply in is the point:
+ *
+ *   1. EXCLUSION, by rejection. The last `--fresh-names N` runs' casts (default 3) are read from the
+ *      artifact store — the runs that HAPPENED, in array order, which is monotone in time (47/47
+ *      checked) — and a drawn name that repeats one is re-drawn. Rejection rather than filtering for
+ *      the reason the initials fix gives: a filtered pool changes the index every seed maps to, so
+ *      every cast would change; a re-draw consumes an extra `rnd()` only on a clash, so a seed that
+ *      never clashes replays byte-identically. `--fresh-names 0` disables it and reproduces any file
+ *      written before 2026-09-07 exactly (verified on seed 25586).
+ *   2. RESERVE pools, drawn only when the primary pool is exhausted by exclusions. Appending to the
+ *      primary arrays would change their length and therefore every seed's cast; a reserve that is
+ *      never touched until needed changes nothing for seeds that do not need it. The reserves also
+ *      carry the initials the primaries lack (Q–W), which the within-cast initial rule benefits from.
+ *
+ * What was excluded, and from which runs, is written into the yaml so the record of a run is
+ * complete: the same seed with a different store state is a different cast, and the file says why.
+ */
+const FEMALE_RESERVE = ["Rosalind", "Sybil", "Theodora", "Ursula", "Violet", "Winifred", "Agatha",
+  "Constance", "Eleanora", "Georgiana", "Henrietta", "Imogen", "Letitia", "Millicent", "Octavia", "Philippa"];
+const MALE_RESERVE = ["Quentin", "Rupert", "Sebastian", "Theodore", "Ulric", "Vincent", "Wilfred", "Alaric",
+  "Barnaby", "Clement", "Digby", "Everard", "Fitzroy", "Godfrey", "Humphrey", "Lionel"];
+const SURNAME_RESERVE = ["Abernathy", "Blackwood", "Coverdale", "Danvers", "Everleigh", "Faulkner", "Greaves",
+  "Hawtrey", "Innes", "Jessop", "Kirkby", "Loxley", "Mortlake", "Nettleship", "Ormesby", "Pargeter",
+  "Radcliffe", "Sallow", "Tremayne", "Upcott", "Vyner", "Wexford", "Yelverton", "Ashcombe"];
+
+const bareName = (name) => String(name ?? "").replace(/^(?:Dr\.|Miss|Mrs\.|Mr\.|Captain|Colonel|Sir|Lady|Lord|Professor|Reverend|Inspector)\s+/, "").trim();
+
+/** The last N runs' casts, from the artifact store. Empty sets when N is 0 or the store is absent. */
+const loadRecentCastNames = (runs) => {
+  const empty = { given: new Set(), surnames: new Set(), projects: [], runs };
+  if (!(runs > 0)) return empty;
+  const storePath = process.env.CML_JSON_DB_PATH || join(ROOT, "data", "store.json");
+  if (!existsSync(storePath)) {
+    console.warn(`  ! --fresh-names ${runs}: no artifact store at ${storePath.replace(ROOT, ".")} — nothing excluded`);
+    return empty;
+  }
+  let artifacts;
+  try {
+    artifacts = JSON.parse(readFileSync(storePath, "utf8")).artifacts ?? [];
+  } catch (err) {
+    console.warn(`  ! --fresh-names ${runs}: store unreadable (${String(err).slice(0, 80)}) — nothing excluded`);
+    return empty;
+  }
+  const seen = new Set();
+  const projects = [];
+  const given = new Set();
+  const surnames = new Set();
+  // Array order is insertion order and monotone in time; walk from the newest back.
+  for (let i = artifacts.length - 1; i >= 0 && projects.length < runs; i -= 1) {
+    const a = artifacts[i];
+    if (a?.type !== "cast" || !a.projectId || seen.has(a.projectId)) continue;
+    const list = a.payload?.cast?.characters ?? a.payload?.characters ?? [];
+    if (!Array.isArray(list) || list.length === 0) continue;
+    seen.add(a.projectId);
+    projects.push(a.projectId);
+    for (const c of list) {
+      const parts = bareName(c?.name).split(/\s+/).filter(Boolean);
+      if (parts.length === 0) continue;
+      given.add(parts[0]);
+      if (parts.length > 1) surnames.add(parts[parts.length - 1]);
+    }
+  }
+  return { given, surnames, projects, runs };
+};
+
+const freshNamesRuns = Math.max(0, Math.trunc(Number(arg("fresh-names") ?? 3)) || 0);
+const recentNames = loadRecentCastNames(freshNamesRuns);
+
+/**
+ * `pickN` with an avoid-set. Identical draw sequence to `pickN` until a drawn name is in the avoid
+ * set; that name is set aside (one `rnd()` consumed, as for any draw) and drawing continues. Only if
+ * the primary pool runs dry does the reserve come into play, and only if THAT runs dry is a set-aside
+ * name used — announced, never silent.
+ */
+const pickNAvoiding = (list, n, avoid, reserve) => {
+  const pool = [...list];
+  const out = [];
+  const setAside = [];
+  while (out.length < n && pool.length) {
+    const [candidate] = pool.splice(Math.floor(rnd() * pool.length), 1);
+    if (avoid.has(candidate)) setAside.push(candidate);
+    else out.push(candidate);
+  }
+  if (out.length < n) {
+    const res = [...reserve].filter((x) => !avoid.has(x) && !out.includes(x));
+    while (out.length < n && res.length) out.push(...res.splice(Math.floor(rnd() * res.length), 1));
+  }
+  while (out.length < n && setAside.length) {
+    const c = setAside.shift();
+    console.warn(`  ! surname pools exhausted — "${c}" repeats a name from the last ${freshNamesRuns} run(s)`);
+    out.push(c);
+  }
+  return out;
+};
+
 const axis = arg("axis") ?? pick(Object.keys(AXES));
 if (!AXES[axis]) {
   console.error(`\n  unknown axis "${axis}" — one of: ${Object.keys(AXES).join(", ")}\n`);
@@ -310,7 +421,7 @@ if (!AXES[axis]) {
 }
 
 const castSize = Number(arg("cast") ?? pick([5, 6, 6, 6, 7]));
-const surnames = pickN(SURNAMES, castSize);
+const surnames = pickNAvoiding(SURNAMES, castSize, recentNames.surnames, SURNAME_RESERVE);
 const castNames = [];
 const castGenders = {};
 /**
@@ -383,13 +494,24 @@ const pickDistinctGiven = (pool) => {
      *
      * Bounded, because an unbounded redraw on an exhausted pool would spin forever.
      */
+    // A_84 #2: the same re-draw also refuses a given name from the last `--fresh-names` runs. Same
+    // loop, same bound, one predicate — a seed whose draws clash with neither replays identically.
     for (let attempt = 0; attempt < 24; attempt += 1) {
       const candidate = pick(free);
-      if (!usedInitials.has(initial(candidate))) { chosen = candidate; break; }
+      if (!usedInitials.has(initial(candidate)) && !recentNames.given.has(candidate)) { chosen = candidate; break; }
     }
     if (chosen === null) {
-      chosen = pick(free);
-      console.warn(`  ! initial pool exhausted — "${chosen}" repeats the initial ${initial(chosen)}`);
+      // The primary pool could not supply a fresh name with a free initial. Try the reserve before
+      // accepting a repeat: it carries initials the primaries do not (Q-W), so it usually can.
+      const reserve = (pool === FEMALE ? FEMALE_RESERVE : MALE_RESERVE)
+        .filter((n) => !usedGiven.has(n) && !recentNames.given.has(n) && !usedInitials.has(initial(n)));
+      if (reserve.length > 0) {
+        chosen = pick(reserve);
+      } else {
+        chosen = pick(free);
+        console.warn(`  ! initial pool exhausted — "${chosen}" repeats the initial ${initial(chosen)}` +
+          `${recentNames.given.has(chosen) ? ` and a name from the last ${freshNamesRuns} run(s)` : ""}`);
+      }
     }
   } else {
     chosen = pick(pool);
@@ -488,6 +610,19 @@ const yaml = [
   ...castNames.map((n) => `  - ${JSON.stringify(n)}`),
   `castGenders:`,
   ...castNames.map((n) => `  ${JSON.stringify(n)}: ${castGenders[n]}`),
+  // A_84 #2 — what this cast was drawn AWAY from, so the record explains itself. Omitted entirely
+  // under --fresh-names 0, which is what reproduces a pre-2026-09-07 file byte for byte.
+  ...(freshNamesRuns > 0
+    ? [
+        `# Names excluded because the last ${freshNamesRuns} run(s) used them (A_84 #2). The same seed with a`,
+        `# different store state draws a different cast; this block is why.`,
+        `freshNames:`,
+        `  runsExcluded: ${freshNamesRuns}`,
+        `  fromProjects: ${JSON.stringify(recentNames.projects)}`,
+        `  excludedGiven: ${JSON.stringify([...recentNames.given].sort())}`,
+        `  excludedSurnames: ${JSON.stringify([...recentNames.surnames].sort())}`,
+      ]
+    : []),
   ``,
   `# ── SUBSYSTEM SWITCHES, copied verbatim from scripts/canary-core-inputs.yaml ────────────────────`,
   `#`,
@@ -601,6 +736,21 @@ const clash =
   shownInitials.length !== new Set(shownInitials).size || shownGivens.length !== new Set(shownGivens).size;
 console.log(`      ${castSize} characters · initials ${shownInitials.join(" ")}` +
   `${clash ? "   ** COLLISION — violates agent2-cast.ts:468 **" : "   (all distinct)"}`);
+// A_84 #2 — the reviewer reads consecutively, so a name repeated from the last run is a stated
+// parameter of this one. Printed so the collision the register warns about is visible before launch.
+{
+  const repeats = castNames.filter((n) => {
+    const parts = bareName(n).split(/\s+/);
+    return recentNames.given.has(parts[0]) || recentNames.surnames.has(parts[parts.length - 1]);
+  });
+  if (freshNamesRuns > 0) {
+    console.log(`      fresh names: ${recentNames.given.size} given / ${recentNames.surnames.size} surnames excluded ` +
+      `from the last ${recentNames.projects.length} run(s)` +
+      `${repeats.length ? `   ** ${repeats.length} still repeat: ${repeats.join(", ")} **` : "   (none repeat)"}`);
+  } else {
+    console.log(`      fresh names: OFF (--fresh-names 0) — cast may repeat recent runs`);
+  }
+}
 
 console.log(`\n${heading("SUBSYSTEM SWITCHES")}`);
 for (const line of [

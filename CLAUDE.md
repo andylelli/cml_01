@@ -38,7 +38,10 @@ State, every time:
 
 - **seed**, and the exact command to reproduce it
 - **axis · era · location · tone · target length · detective type · narrative style · cast size**
-- **the cast**, by name — a name collision is invisible in a summary and has cost two reads
+- **the cast**, by name — a name collision is invisible in a summary and has cost two reads; and
+  the **fresh-names exclusion** the generator prints (which recent runs' names were avoided) — the
+  reviewer reads consecutively, and 24 of 28 consecutive books shared a full cast name before
+  `--fresh-names` (A_84 #2, default 3; `--fresh-names 0` replays a pre-2026-09-07 file exactly)
 - **the story angle** (`storyAngle` in the yaml) — it is drawn last so old seeds still reproduce, and it
   reaches Agents 1, 2, 2e, 3b and 3; `--no-angle` is the pre-angle baseline
 - **any flag flipped since the previous run**, with what it is expected to change
