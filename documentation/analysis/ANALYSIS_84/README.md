@@ -169,11 +169,13 @@ surfaces.
 ## 4. What to change — ordered by mark ÷ risk, all inside Agent 9
 
 **F1 — Give the locked-fact injector the regen's scope.** One condition: `if (any chapter contains the
-value) continue`. MEASURED effect: **95 → 0** template sentences on the post-X70 corpus, no value lost
-(all 95 present elsewhere). This removes four of the six items on every reviewer's scaffold list. Flag
-it (`AGENT9_LOCKED_FACT_FLOOR_BOOK_SCOPE`), default ON after one read, because the measured downside is
+value) continue`. MEASURED effect: the 95 shipped post-X70 sentences were all of values present elsewhere;
+replaying the BUILT floor over the 39 stored artifacts gives **81 → 4** added sentences (the 4 are genuine
+floors, values absent from the whole book) with **0** locked values lost. Flag it
+(`AGENT9_LOCKED_FACT_FLOOR_BOOK_SCOPE`), default ON after one read, because the measured downside is
 nil. Risk: a value the case needs *in a specific chapter* is no longer forced there; the regen already
-behaves this way and the reviewer has never once complained a value was absent.
+behaves this way and the reviewer has never once complained a value was absent. **BUILT 2026-09-07**,
+flag-gated, on in `.env.local`; seven tests including the known-positive and a two-call idempotency check.
 
 **F2 — Run the ship-check last, and make it act.** Move `detectFinalChapterVerdictEnding` after the
 diagnostic (:8342). When it fires and the offending sentence matches an injector template, strip the

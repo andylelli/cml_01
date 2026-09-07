@@ -2259,8 +2259,46 @@ export const buildHighPrecisionPronounValidator =
     };
   };
 
-export const enforceLockedFactValuePresence = (prose: any, lockedFacts: any[]): any => {
+/**
+ * A_84 F1 — `AGENT9_LOCKED_FACT_FLOOR_BOOK_SCOPE`: judge presence at BOOK scope, as the regen does.
+ *
+ * THE DEFECT, MEASURED 2026-09-07 over the 29 post-X70 manuscripts: this floor shipped **95 template
+ * sentences, and 95 of 95 inject a value the book already states verbatim elsewhere.** Zero were
+ * genuinely absent. Those sentences — "It had taken … in all" (17 books), "… had passed before it was
+ * done" (16), "The clocks put it at …" (15), "by the mantel clock" (14) — are the lines the external
+ * reader lists under "generator fingerprints" in every one of the last ten reads, and `prose` has
+ * never scored above 7.
+ *
+ * WHY IT FIRES: a scope split. The LLM-first regen above it (Ledger Item 15, `runInsertionRegenPass`)
+ * asks `chapterTextsLf.some(t => t.includes(canonical))` — is the value anywhere in the BOOK — and
+ * stands down when it is. This floor asks the same question of each CHAPTER alone, so it fires ~3×
+ * per book on values the regen correctly judged present. WF-002's divergence triage names this the
+ * harmful shape: two components computing one predicate at different scopes, where one is the sole
+ * input to a WRITE.
+ *
+ * ON: a value present anywhere in the manuscript is never injected. The floor still fires for a value
+ * absent from the WHOLE book — that is the obligation it exists to guarantee, and the test pins it.
+ * OFF: behaviour is byte-identical to before. Env read at CALL time (ADR-0004); `options.bookScope`
+ * exists so tests exercise both paths without touching `process.env`.
+ *
+ * EFFECT, MEASURED BY REPLAYING THIS BUILT FUNCTION over the 39 stored prose artifacts joined to
+ * their device's locked facts (`scratchpad/probe-f1-replay.mjs`): OFF adds **81** template sentences,
+ * ON adds **4** — the four are values absent from the whole book, i.e. the floor doing its job — and
+ * **0** locked values present under OFF are absent under ON. The run-level probe is `[Agent 9]
+ * enforceLockedFactValuePresence: injected … N` dropping to near 0 on a run where
+ * `regen-locked-fact` still reports its own outcomes. FALSIFIER: an external read that says a locked value was MISSING —
+ * no reader has yet said so; every complaint has been that it was stated like a machine.
+ */
+export const isLockedFactFloorBookScopeEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT9_LOCKED_FACT_FLOOR_BOOK_SCOPE ?? "").trim());
+
+export const enforceLockedFactValuePresence = (
+  prose: any,
+  lockedFacts: any[],
+  options?: { bookScope?: boolean },
+): any => {
   if (!Array.isArray(lockedFacts) || lockedFacts.length === 0) return prose;
+  const bookScope = options?.bookScope ?? isLockedFactFloorBookScopeEnabled();
 
   let injectedCount = 0;
   // Global cap: each locked-fact value may be injected at most 2 times across the whole
@@ -2295,6 +2333,17 @@ export const enforceLockedFactValuePresence = (prose: any, lockedFacts: any[]): 
     if (existing > 0) globalInjectionCount.set(canonical.toLowerCase(), existing);
   }
 
+  // A_84 F1 — the BOOK-scope presence set. Built from the same joined text the idempotency seed
+  // above reads, so "present" means exactly what the regen means by it. Empty when the flag is off.
+  const presentInBook = new Set<string>();
+  if (bookScope) {
+    const bookLower = fullTextForSeed.toLowerCase();
+    for (const fact of lockedFacts) {
+      const canonical = typeof fact?.value === "string" ? fact.value.trim().toLowerCase() : "";
+      if (canonical && bookLower.includes(canonical)) presentInBook.add(canonical);
+    }
+  }
+
   const chapters = (prose.chapters as any[]).map((chapter: any, idx: number) => {
     const chapterNumber = idx + 1;
     const paragraphs = Array.isArray(chapter.paragraphs)
@@ -2323,6 +2372,11 @@ export const enforceLockedFactValuePresence = (prose: any, lockedFacts: any[]): 
       }
 
       if (chapterTextLower.includes(canonical.toLowerCase())) {
+        continue;
+      }
+      // A_84 F1 — on the page anywhere means on the page. See the docblock: 95 of 95 shipped
+      // injections were of values the book already had, and this is the line that stops them.
+      if (bookScope && presentInBook.has(canonical.toLowerCase())) {
         continue;
       }
 
