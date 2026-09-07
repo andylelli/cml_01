@@ -996,27 +996,26 @@ const SEASON_MONTH_CONTEXT_RE = /\b(january|february|march|april|may|june|july|a
 const MECHANICAL_CONTEXT_RE = /\b(clock|pendulum|escapement|gear|gears|watch|mechanism|mainspring|main\s+spring|coil|torsion|barrel|winding|wound|spring|springs|chime|ratchet|lever)\b/i;
 const SPRING_MECHANICAL_COLLOCATION_RE = /\b(main\s*spring|mainspring|suspension\s+spring|coil\s+spring|leaf\s+spring|clock\s+spring|watch\s+spring|spring\s+tension|spring\s+housing|spring\s+barrel|spring\s+mechanism|spring\s+steel|spring-loaded)\b/i;
 
+// This table MUST cover every token that temporal-consistency.ts SEASON_PATTERNS can detect as a
+// wrong-season match — otherwise enforceMonthSeasonLockOnChapter silently lets the word through and
+// the chapter validator flags it as a contradiction on every attempt.
+//
+// temporal-consistency.ts canonical sets:
+//   spring  -> spring | springtime | vernal
+//   summer  -> summer | summertime | midsummer | summery
+//   autumn  -> autumn | autumnal          (fall removed - too ambiguous as a verb)
+//   winter  -> winter | wintertime | wintry
+//
+// The invariant above used to be documented on `conflictingSeasonPatterns`, an exported REGEX
+// duplicate of this same data sitting immediately below it. Nothing ever read it (verified by
+// full-tree grep: one occurrence, its own definition), so the correctness rule was attached to the
+// copy that could not be wrong while the live table carried no note at all. Deleted 2026-09-07 and
+// the comment moved here, to the table `enforceMonthSeasonLockOnChapter` actually uses.
 const conflictingSeasonTerms: Record<CanonicalSeason, string[]> = {
   spring: ['summer', 'summertime', 'midsummer', 'summery', 'autumn', 'autumnal', 'winter', 'wintertime', 'wintry'],
   summer: ['spring', 'springtime', 'vernal', 'autumn', 'autumnal', 'winter', 'wintertime', 'wintry'],
   autumn: ['spring', 'springtime', 'vernal', 'summer', 'summertime', 'midsummer', 'summery', 'winter', 'wintertime', 'wintry'],
   winter: ['spring', 'springtime', 'vernal', 'summer', 'summertime', 'midsummer', 'summery', 'autumn', 'autumnal'],
-};
-
-// These patterns MUST cover every token that temporal-consistency.ts SEASON_PATTERNS can detect
-// as a wrong-season match — otherwise enforceMonthSeasonLockOnChapter silently lets the word
-// through and the chapter validator flags it as a contradiction on every attempt.
-//
-// temporal-consistency.ts canonical sets:
-//   spring  → spring | springtime | vernal
-//   summer  → summer | summertime | midsummer | summery
-//   autumn  → autumn | autumnal          (fall removed — too ambiguous as a verb)
-//   winter  → winter | wintertime | wintry
-export const conflictingSeasonPatterns: Record<CanonicalSeason, RegExp[]> = {
-  spring: [/\b(summer|summertime|midsummer|summery|autumn|autumnal|winter|wintertime|wintry)\b/gi],
-  summer: [/\b(spring|springtime|vernal|autumn|autumnal|winter|wintertime|wintry)\b/gi],
-  autumn: [/\b(spring|springtime|vernal|summer|summertime|midsummer|summery|winter|wintertime|wintry)\b/gi],
-  winter: [/\b(spring|springtime|vernal|summer|summertime|midsummer|summery|autumn|autumnal)\b/gi],
 };
 
 // Module-level: avoids recreating on every chapter processed by enforceMonthSeasonLockOnChapter.

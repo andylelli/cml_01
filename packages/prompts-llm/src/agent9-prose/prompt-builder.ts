@@ -1781,12 +1781,12 @@ export const getForbiddenTimeForms = (v: string): string[] => {
 // The regexes are the ones A_80 F15 already uses (agent3b-run.ts:221-222) so the two agree.
 export const buildClockDirectionBlock = (atomicFacts: Array<{ id?: string; value?: unknown; description?: string }>): string => {
 const contradictionPair = findDiscriminatingContradictionPair(atomicFacts as any);
-const WORD_NUM_MAP: Record<string, number> = {
-  one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8,
-  nine: 9, ten: 10, eleven: 11, twelve: 12, thirteen: 13, fourteen: 14,
-  fifteen: 15, twenty: 20, 'twenty-five': 25, thirty: 30, 'thirty-five': 35,
-  forty: 40, 'forty-five': 45, fifty: 50, 'fifty-five': 55,
-};
+  // Uses the MODULE-LEVEL `WORD_NUM_MAP` above. It carried a byte-identical private copy until
+  // 2026-09-07, which quietly broke the invariant its own hoist comment states — "so the prompt-time
+  // forbidden-forms list and the post-generation check read the SAME arithmetic". A third consumer
+  // in the same file kept its own copy, so extending the shared map (a new minute word, say) would
+  // have widened `getForbiddenTimeForms` and left this block parsing the old vocabulary. Identical
+  // content, so removing it changed no behaviour; the point is that it can no longer diverge.
   if (!contradictionPair) return '';
   const parseClockMinutes = (v: string): number | undefined => {
     // Real locked values carry a time-of-day tail ('twenty minutes past four in the afternoon').

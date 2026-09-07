@@ -157,14 +157,10 @@ import type {
   FallbackChapterTelemetry,
 } from "./types.js";
 
-export const chunkScenes = (scenes: unknown[], chunkSize: number) => {
-  const batches: unknown[][] = [];
-  for (let i = 0; i < scenes.length; i += chunkSize) {
-    batches.push(scenes.slice(i, i + chunkSize));
-  }
-  return batches;
-};
-
+// `chunkScenes` lived here until 2026-09-07 with zero references anywhere in the tree, tests
+// included. generateProse does the same slicing inline — `scenes.slice(batchStart, batchStart +
+// batchSize)` in the scene-batch loop — and has never called it. Removed rather than left standing
+// as a second, unused statement of the batching rule.
 
 export function extractAndStripUsedAssets(rawResponse: string): {
   prose: string;
