@@ -62,10 +62,23 @@ const FAMILY_MAP: Record<string, LibFamily | null> = {
    * A_79 §7.1 — the five nulls resolved, 2026-08-31.
    *
    * They were null because the DEVICE schema was read as offering four families. It offers five:
-   * `behavioral` is in the enum and simply had no hand-authored pattern using it. With the corpus
-   * installed it does, so these map to the family they always belonged to rather than staying
-   * suppressed. `alibi_fabrication` moves from `authority` to `timing`, which is what a fabricated
-   * alibi actually manipulates — the misfiling dated from when `timing` had only clock patterns.
+   * `behavioral` is in the enum, so these map to the family they always belonged to rather than
+   * staying suppressed. `alibi_fabrication` moves from `authority` to `timing`, which is what a
+   * fabricated alibi actually manipulates — the misfiling dated from when `timing` had only clock
+   * patterns.
+   *
+   * ── CORRECTION (A_83 §4.5, 2026-09-07): `behavioral` IS STILL EMPTY ─────────────────────────────
+   *
+   * This note originally said the corpus supplied `behavioral` patterns. It does not, and never did.
+   * MEASURED over all 20 patterns with `DEVICE_LIBRARY_INCLUDE_CORPUS=true` — the curated eleven plus
+   * the nine corpus works that pass the A_79 evidence gate — **`family: "behavioral"` count is zero**.
+   * Four corpus works are on the behavioral AXIS (`a_jury_of_her_peers`, `a_study_in_scarlet`,
+   * `the_invisible_man`, and `the_hound_of_the_baskervilles` which is gated out), but every one of
+   * them was filed under `spatial_routing`, `timing` or `identity`.
+   *
+   * Behaviour is unchanged either way: an unmapped family and a family with no patterns both emit no
+   * block, by different branches. So this is a wrong comment rather than a regression — but it
+   * recorded coverage that has never existed, which is how a coverage gap stops being looked at.
    */
   alibi_fabrication: "timing",
   poison_substitution: "timing",
