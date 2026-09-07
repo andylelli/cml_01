@@ -622,7 +622,21 @@ export const alibiSpanToWindow = (span: AlibiSpan): [number, number] => [
   (span.endHour % 12) * 60 + span.endMinute,
 ];
 
-export const checkCaseTimelineDeception = (cmlCase: any): TimelineDeceptionViolation[] => {
+export const checkCaseTimelineDeception = (input: any): TimelineDeceptionViolation[] => {
+  /**
+   * UNWRAP `{ CASE: ... }`, because this was the one case-level check in the package that did not.
+   *
+   * FOUND BY AUDIT 2026-09-05. Handed a whole CML artifact it read `cmlCase.cast` off the wrapper,
+   * found nothing, and returned SILENTLY — the same shape as every other defect this module spent
+   * the day removing. Both production callers happen to unwrap first (`validator.ts` via
+   * `(record)?.CASE ?? record`, `agent75-run.ts` via `caseOf`), so this was latent rather than live,
+   * and it is fixed as hardening rather than reported as a defect.
+   *
+   * Every sibling already does this — `validateCml`, `findDecorativeTimeFacts`, `deriveAlibiSpans`,
+   * and the three separate `caseOf` helpers. Being the one exception is the whole risk: an exported
+   * function whose contract differs from its neighbours' will eventually be called like them.
+   */
+  const cmlCase = input?.CASE ?? input;
   const mechanism = cmlCase?.hidden_model?.mechanism ?? {};
   const culprits: string[] = (cmlCase?.culpability?.culprits ?? [])
     .map((n: unknown) => String(n ?? "").trim())

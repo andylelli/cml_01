@@ -140,3 +140,31 @@ describe("run 89022, end to end — the case the gate was silent on", () => {
     expect(codes).toContain("apparent_not_covered");
   });
 });
+
+describe("checkCaseTimelineDeception unwraps a whole CML artifact", () => {
+  /**
+   * FOUND BY AUDIT 2026-09-05. Handed `{ CASE: ... }` this returned nothing — it read `.cast` off the
+   * wrapper. Both production callers unwrap first, so it was latent, but silence is the failure mode
+   * this module spent the day removing and it was the only case-level check here that did not unwrap.
+   */
+  const bare = {
+    cast: [{ name: "K", alibi_span: { startHour: 5, startMinute: 0, endHour: 6, endMinute: 0 } }],
+    culpability: { culprits: ["K"] },
+    hidden_model: {
+      mechanism: { apparent_time_of_death: "half past five", actual_time_of_death: "a quarter to six" },
+    },
+  };
+
+  it("gives the same answer wrapped or bare", () => {
+    const fromBare = checkCaseTimelineDeception(bare).map((v) => v.code);
+    const fromWrapped = checkCaseTimelineDeception({ CASE: bare }).map((v) => v.code);
+    expect(fromBare, "the bare case must fire, or this test proves nothing").toContain("actual_covered");
+    expect(fromWrapped).toEqual(fromBare);
+  });
+
+  it("still tolerates junk without throwing", () => {
+    for (const junk of [undefined, null, {}, { CASE: null }, { CASE: {} }, "a string", 42]) {
+      expect(() => checkCaseTimelineDeception(junk as never)).not.toThrow();
+    }
+  });
+});
