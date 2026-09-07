@@ -35,6 +35,73 @@ import type {
   MacroArcEntry,
   ProseGenerationInputs,
 } from "./types.js";
+/**
+ * A_84 follow-up #1 — `AGENT9_REVEAL_DECEPTION_PURPOSE`: the one plain sentence the reveal never states.
+ *
+ * Four of the last five external reads ask for the SAME missing sentence and write it themselves:
+ *
+ *   1711 (clues 7): "The forged entry did not create an alibi by itself. It made everyone argue about
+ *                    the wrong moment…" — "That's the missing bridge."
+ *   2035 (clues 7): "it still needs one very plain sentence telling the reader exactly how Desmond
+ *                    used it."
+ *   1907 (clues 5): "Decide exactly how the fast clock helps the forged call sheet … the reader cannot
+ *                    tell which version is intended."
+ *   1242 (clues 8): "the timing still wobbles"
+ *
+ * The reveal contract below demands the mechanism of death, the access, the motive and the exclusions.
+ * It never demands the PURPOSE — what the deception made everyone believe, and how that belief put the
+ * culprit beyond suspicion. Yet the case holds exactly that: `false_assumption.statement /
+ * what_it_hides / why_it_seems_reasonable`, the staged and true times in `hidden_model.mechanism`, and
+ * the culprit's own `alibi_window`. Checked 2026-09-07: `why_it_seems_reasonable` reaches no Agent 9
+ * prompt at all, and the staged/true pair reaches none as an obligation.
+ *
+ * This asks for a COUNTABLE thing — one sentence, both halves in it — which is what this model
+ * follows (A_75: operations, not statistics). The facts are given as key terms and locked values, never
+ * as a sentence to copy (A_67: illustrative prose in a prompt ships verbatim). Default OFF; env read at
+ * call time (ADR-0004).
+ */
+export const isRevealDeceptionPurposeEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT9_REVEAL_DECEPTION_PURPOSE ?? "").trim());
+
+const buildDeceptionPurposeLines = (cmlCase: any, culpritNames: string, culpritAlibiLock: Array<{ name: string; alibiWindow: string }>): string[] => {
+  const fa = cmlCase?.false_assumption ?? {};
+  const terms = (v: unknown): string => {
+    const s = typeof v === "string" ? v.trim() : "";
+    return s ? surfaceSpecKeyTerms(s) : "";
+  };
+  const belief = terms(fa.statement);
+  const hidden = terms(fa.what_it_hides);
+  const why = terms(fa.why_it_seems_reasonable);
+  const mech = cmlCase?.hidden_model?.mechanism ?? {};
+  const apparent = typeof mech.apparent_time_of_death === "string" ? mech.apparent_time_of_death.trim() : "";
+  const actual = typeof mech.actual_time_of_death === "string" ? mech.actual_time_of_death.trim() : "";
+  const window = culpritAlibiLock[0]?.alibiWindow ?? "";
+  const who = culpritNames || "the culprit";
+
+  const facts: string[] = [];
+  if (belief) facts.push(`the false belief — ${belief}`);
+  if (hidden) facts.push(`what it concealed — ${hidden}`);
+  if (why) facts.push(`why it was believed — ${why}`);
+
+  const lines: string[] = [];
+  lines.push(
+    `  - ⚠ THE DECEPTION'S PURPOSE, IN ONE SENTENCE: within the deduction the detective must say aloud, in a SINGLE ` +
+      `sentence, (a) what the deception made everyone believe and (b) exactly how that belief put "${who}" beyond ` +
+      `suspicion — the false belief and the true state named side by side in that one sentence. Do not split it across ` +
+      `two sentences and do not leave either half implied; a reader should be able to quote the line back as the reason ` +
+      `the trick worked.` +
+      (facts.length > 0 ? ` Build it from these facts in your own words, never copied: ${facts.join("; ")}.` : ""),
+  );
+  if (apparent && actual && window) {
+    lines.push(
+      `    The values that sentence must carry, verbatim: the staged reading "${apparent}", the true moment "${actual}", ` +
+        `and ${who}'s own account "${window}" — say which of the two times fell inside that account and which did not. ` +
+        `That gap is the whole of the protection, and the reader must be able to check it from the page.`,
+    );
+  }
+  return lines;
+};
+
 export function buildChapterObligationBlock(
   scenesForChapter: unknown[],
   chapterStart: number,
@@ -778,6 +845,10 @@ export function buildChapterObligationBlock(
       }
       // FIX-M2 + FIX-E1: Strengthen revelation completeness — require evidence chain and kill statement.
       lines.push(`  - ⚠ EVIDENCE CHAIN REQUIRED: before or during the confession the detective must summarise the evidence chain — stating at minimum: (a) the mechanism of death, (b) how the culprit accessed the victim, (c) the motive, and (d) why all other suspects are excluded.`);
+      // A_84 follow-up #1 — (e) the deception's PURPOSE, the sentence four of five readers asked for.
+      if (isRevealDeceptionPurposeEnabled()) {
+        lines.push(...buildDeceptionPurposeLines(cmlCase, culpritNames, culpritAlibiLock));
+      }
       lines.push(`  - ⚠ KILL STATEMENT REQUIRED: the culprit must use or strongly imply a specific act verb — "I killed", "I poisoned", "I struck", "I administered" — within 3 sentences of naming the victim. Passive constructions ("the death occurred", "she was found") are NOT sufficient. The culprit's agency must be explicit.`);
       lines.push(`  - ⚠ PRONOUN RESOLUTION: any pronoun in the confession that refers to a third party ("protect him", "because of her") must be resolved by naming the character in the same sentence.`);
       // A_58 #1: the reveal repeatedly failed "no resolution event" + "close in-scene". Make both explicit.
