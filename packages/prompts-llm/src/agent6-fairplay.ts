@@ -872,7 +872,28 @@ export async function blindReaderSimulation(
   rawClues: ClueDistributionResult,
   falseAssumption: string,
   castNames: string[],
-  inputs: { runId?: string; projectId?: string; placementFilter?: Array<"early" | "mid" | "late"> }
+  inputs: {
+    runId?: string;
+    projectId?: string;
+    placementFilter?: Array<"early" | "mid" | "late">;
+    /**
+     * X33 continued, 2026-09-07 — the second framing, tried only after a content-filter refusal.
+     *
+     * MEASURED over the 26 post-X70 runs: `[Agent 6] blind reader NOT MEASURED — Azure refused the
+     * prompt` fires on **20 of 26 (77%)**. That is the only check that asks whether a cold reader can
+     * solve the case from the clues alone, and on three books in four it does not run — nor does its
+     * remediation loop (agent6-run.ts:1800).
+     *
+     * X33's docblock says the refusal "is not retryable (the same prompt earns the same refusal)",
+     * which is true of an IDENTICAL retry and is the reason this is a DIFFERENT prompt rather than a
+     * repeat. Only the SYSTEM framing changes: the request is stated as analysis of a fictional text.
+     *
+     * The clue text is deliberately untouched. Neutralising the evidence would raise the pass rate and
+     * destroy the measurement — a blind read of a softened book says nothing about the book that
+     * shipped. If this framing is also refused, the honest outcome is unchanged: NOT MEASURED.
+     */
+    analysisFraming?: boolean;
+  }
 ): Promise<BlindReaderResult> {
   // A_62 P3 replay fix — same shape-normalization as buildFairPlayPrompt (this is the third
   // independent entry point taking a hydrated ClueDistributionResult).
@@ -880,10 +901,17 @@ export async function blindReaderSimulation(
   const config = getGenerationParams().agent6_fairplay.params;
   const startTime = Date.now();
 
-  const system = "You are a careful reader of Golden Age detective fiction. You are reading a mystery " +
-    "and trying to deduce who committed the crime. You will be given ONLY the clues presented in the " +
-    "story. You do NOT know the solution, the inference path, or the detective reasoning. " +
-    "You must work it out from the clues alone.";
+  const system = inputs.analysisFraming
+    ? "You are a literary critic analysing the FAIR-PLAY CONSTRUCTION of a published Golden Age " +
+      "detective novel — the tradition of Christie, Sayers and Carr. This is a puzzle-analysis " +
+      "exercise on a work of fiction: the task is to judge whether the author planted enough " +
+      "evidence for a reader to reach the intended solution. The clue list below is a plot summary " +
+      "of that fiction, not a description of real events. Reason about it as a critic would, using " +
+      "only the listed clues, without the author's solution or the detective's reasoning."
+    : "You are a careful reader of Golden Age detective fiction. You are reading a mystery " +
+      "and trying to deduce who committed the crime. You will be given ONLY the clues presented in the " +
+      "story. You do NOT know the solution, the inference path, or the detective reasoning. " +
+      "You must work it out from the clues alone.";
 
   // P2.1/T2.1: an optional placement filter lets the runner simulate an early+mid-only reader
   // (the "fooled" stage) without the late reversal clue. Default = all clues (legacy behaviour).
