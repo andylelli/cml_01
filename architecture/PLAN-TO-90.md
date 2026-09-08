@@ -1499,3 +1499,53 @@ are untouched by it, §12.1's arithmetic is unchanged, and best-ever-everywhere 
 Three of the four rows are repairs to machinery that was already supposed to be working — which is
 §3's "instruments that were blind" category, not a quality improvement. The honest expectation is
 that a reader notices nothing, and the value is that the next run's telemetry means what it says.
+
+---
+
+## 14. A_85 — THE SENTENCE THREE READERS DELETED · 2026-09-08 · £0
+
+The eleven September reviews were read against the code that produced them. Three categories sit a
+full point below the rest and have never reached a 9: `ending` 6.36, `prose` 6.36, `clues` 6.45
+(means, n=11). Each traced to a mechanism; one of them to a single sentence.
+
+### 14.1 The ending — MEASURED
+
+The reads of 2026-09-04 (83), 2026-09-04 (82) and 2026-09-05 (85) each quote the SAME closing sentence
+and ask for it to be deleted: *"Kenneth has already confessed. Delete that."* It is
+`buildCulpritEvidenceSentenceInScene`, the culprit-evidence floor's own text, and it is in the unread
+2026-09-07 book too. `ending` was the only category that moved between consecutive books.
+
+With the sentence stripped out, the REAL predicate (`culpritEvidenceLinkInText`, replayed from dist
+over all four manuscripts) is false for every chapter of every book, and the failing term is the
+culprit-term: **none of culprit / killer / murderer / responsible / "did it" appears anywhere in any of
+the four books.** They confess with "confessed", "killed", "I did", "it was I" — while the verdict-closer
+rules forbid the model the one word the list knows. The seven September books that escaped the floor
+did so on a single stray "did it". A predicate that passes on one stray word is a coin flip; a floor
+that fires on 4 of 4 is a template with extra steps (B1).
+
+A second defect rides on the same sentence: after injection a later pass curls the quotes and adds a
+space (`"You did it. ”` in `data/store.json`), and the registry pattern required `."`. So
+`isInjectedSentence` returned false on the floor's own text in 4 of 4 books — the scaffold regen, the
+clearance-trim scrub and the geometry acceptance were all blind to it.
+
+### 14.2 What landed
+
+| item | state | evidence |
+|---|---|---|
+| `AGENT9_CULPRIT_TERMS_WIDE` **ON** (`.env.local`, default OFF) | widens the culprit-term vocabulary to the words a confession is written in | replayed over the four books from dist: OFF fires 4/4, ON links each at its reveal chapter (7, 8, 8, 9) and stands down 4/4; a suspect named beside "because" still does not link; 10 tests |
+| registry pattern for the in-scene sentence | tolerates the curly quote and space the shipped form carries; `isInjectedSentence` folds typography | dist: `isInjectedSentence(shipped)` false → true, raw array likewise (the geometry consumer bypasses the function); 130 registry/predicate tests green |
+
+### 14.3 What was NOT touched, and why
+
+- **prose** — the quoted "generator lines" are the locked-fact floor's four templates (6–8 of 13
+  books). A_84 F1 fixed the scope split on 09-07 and the 09-07 book carries zero of the eight lines.
+  That is n=1; the next read settles it. Nothing to add.
+- **clues** — the 09-05 read's "timing wobbles" is a staged time outside the culprit's own alibi
+  window. The alibi-span work in `packages/cml` (uncommitted, other session) cites that exact run and
+  structures the window at birth. Not duplicated here.
+- **dialogue** — 7 in 11 of 11 reads with no quoted defect beyond "distinct enough". No detector will
+  move it; see the voice-fragment finding (X53).
+
+**Prediction for the next run:** `enforceCulpritEvidencePresence` injects 0 sentences where a
+confession is on the page, and the closing paragraph of chapter 10 carries no "You did it".
+**Falsifier:** a read that says the culprit was never tied to the evidence.

@@ -189,7 +189,15 @@ export const INJECTED_SENTENCE_PATTERNS: ReadonlyArray<RegExp> = [
   // buildCulpritEvidenceSentenceInScene — the COMPLIANT form. Registered here on purpose: this
   // file's property #2 is that a floor which changes an injected sentence must contribute its new
   // shape, or every checker that tells machine text from authored prose goes blind to it.
-  /"You did it\."\s*The words settled and nobody took them back\./i,
+  //
+  // MEASURED 2026-09-08: the pipeline artifact of story_20260905-1242 carries this sentence as
+  // `"You did it. ” The words settled…` — a space and a CURLY closing quote, put there by a pass that
+  // ran after the floor. The pattern as first written required `."` and returned false on what
+  // shipped, so every checker that consumes this registry — the scaffold regen, the clearance-trim
+  // scrub, the geometry acceptance — was blind to the floor's own text on 4 of 4 recent books. The
+  // quote and the whitespace are now tolerated HERE, in the pattern, because `checkManuscriptGeometry`
+  // tests the raw array against raw text and never goes through `isInjectedSentence`.
+  /["“]You did it\.\s*["”]\s*The words settled and nobody took them back\./i,
   // enforceSuspectEliminationPresence
   /\bwas thoroughly cleared by the evidence;\s*the alibi confirmed they could not have committed the crime\b/i,
   // the A3 scaffold floor's replacement for the clearance phrasing
@@ -264,8 +272,17 @@ export const INJECTED_SENTENCE_PATTERNS: ReadonlyArray<RegExp> = [
 ];
 
 /** Does this sentence match something the pipeline wrote for itself? */
-export const isInjectedSentence = (sentence: string): boolean =>
-  INJECTED_SENTENCE_PATTERNS.some((re) => re.test(sentence));
+export const isInjectedSentence = (sentence: string): boolean => {
+  // Fold typography before matching: curly quotes to straight, and no whitespace between a closing
+  // punctuation mark and its closing quote. Downstream passes curl and space the floors' output
+  // (see the "You did it" pattern above), and a recogniser that only knows the builder's raw form
+  // certifies its own fixture and nothing that ships.
+  const folded = String(sentence ?? "")
+    .replace(/[“”„‟″‶]/g, '"')
+    .replace(/[‘’‚‛′‵]/g, "'")
+    .replace(/([.!?…])\s+(["'])/g, "$1$2");
+  return INJECTED_SENTENCE_PATTERNS.some((re) => re.test(folded) || re.test(sentence));
+};
 
 /**
  * ── A_75 §6.3 (P3.1) — EVERY BUILDER, DECLARED ───────────────────────────────────────────────────

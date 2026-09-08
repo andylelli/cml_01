@@ -1224,6 +1224,32 @@ export async function runVoiceLeakageRegenPass(args: {
 }
 
 const CULPRIT_TERMS_RE = /\b(culprits?|killers?|murderers?|responsible|did\s+it)\b/i;
+/**
+ * A_85 — `AGENT9_CULPRIT_TERMS_WIDE`: the culprit-term vocabulary a CONFESSION is actually written in.
+ *
+ * THE DEFECT, MEASURED 2026-09-08 on the four most recent books (external reads 83, 82, 85, and the
+ * unread 09-07 book): with the injected sentence stripped out, `culpritEvidenceLinkInText` is FALSE
+ * for every chapter of every book, and the column that fails is this one — not one of the five words
+ * above appears ANYWHERE in any of the four manuscripts. The books confess with "confessed", "killed",
+ * "I did", "it was I": words this list does not know, while `RESOLUTION_VERDICT_CLOSER_RULES` forbids
+ * the model the one it does know ("X was responsible"). The seven September books that escaped the
+ * floor did so on a single stray "did it".
+ *
+ * So the floor fired on 4 of 4, and what it wrote — `buildCulpritEvidenceSentenceInScene` — is the
+ * sentence three consecutive external reads quoted and asked to have deleted ("Kenneth has already
+ * confessed. Delete that."). B1: a check that fires on most runs is an off switch with extra steps;
+ * this one was a template with extra steps.
+ *
+ * ON: the widened list links each of the four books at its reveal chapter (7, 8, 8, 9 — measured by
+ * replaying the built predicate over the manuscripts) and the floor stands down; the RC1.4 regen pass
+ * gates on the same predicate and stands down with it. A culprit merely NAMED as a suspect beside
+ * "because" still does not link — the test pins that. OFF: byte-identical. Env read at call time.
+ */
+const CULPRIT_TERMS_WIDE_RE =
+  /\b(culprits?|killers?|murderers?|responsible|did\s+it|confess(?:ed|es|ion|ing)?|killed|murdered|struck\s+(?:him|her|them)|I\s+did|it\s+was\s+I|guilty|admitted)\b/i;
+export const isCulpritTermsWideEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT9_CULPRIT_TERMS_WIDE ?? "").trim());
+const culpritTermsRe = (): RegExp => (isCulpritTermsWideEnabled() ? CULPRIT_TERMS_WIDE_RE : CULPRIT_TERMS_RE);
 const CULPRIT_EVIDENCE_RE = /\b(evidence|because|therefore|which\s+proves|proof|alibi|timeline|constraint|observation)\b/i;
 
 /**
@@ -1243,7 +1269,7 @@ export const culpritEvidenceLinkInText = (culprit: string, text: string): boolea
   const fullNameRe = new RegExp(`\\b${escapeRe(name)}\\b`, "i");
   const surnameRe = surname ? new RegExp(`\\b${escapeRe(surname)}\\b`) : null; // case-sensitive on purpose
   const named = fullNameRe.test(text) || (surnameRe !== null && surnameRe.test(text));
-  return named && CULPRIT_TERMS_RE.test(text) && CULPRIT_EVIDENCE_RE.test(text);
+  return named && culpritTermsRe().test(text) && CULPRIT_EVIDENCE_RE.test(text);
 };
 
 /** Culprit-evidence link present in a chapter: name + culprit-term + evidence-term co-located. */
