@@ -488,8 +488,33 @@ const disclosingSentence = (text: string, culpritRe: RegExp | null): string | nu
  * other. This is a different shape: a quoted admission is self-contained evidence that someone
  * confessed, and the paragraph is the unit that says who.
  */
+/**
+ * X27 continued — 2026-09-07: "I confess" is how English says "I admit".
+ *
+ * MEASURED on run `mystery-1788813939320` (seed 63935). `detectPrematureCulpritDisclosure` reported
+ * *"chapter 2 already names Percival Orme as guilty"*, seven chapters before the reveal, on this:
+ *
+ *   "Tranquility is a relative term, Mr. Orme. I saw no one enter and no one leave, though I confess
+ *    the rain interested me more than the corridor did."
+ *
+ * That is FRANCES ELLERY addressing Orme. Two matches compound: the culprit's surname supplies
+ * `namedAt` as a VOCATIVE, and the bare `\bI\s+confess\b` alternative below supplies the admission.
+ *
+ * WHICH PATH, and this took one wrong fix to establish. The obvious suspect is `GUILT_MARKER`'s
+ * `confess(?:ed|es|ion)`, and adding the aside to `GUILT_IDIOM` was tried first — it did not fix the
+ * reproduction, because the third-person path needs the NAME AND the guilt word in ONE SENTENCE and
+ * the offending sentence contains no name. It is `confessionDisclosure`, which finds the name
+ * anywhere in the PARAGRAPH and then any later sentence matching this regex. The idiom change was
+ * reverted; only this line needed to move.
+ *
+ * `I confess` now has to be terminal or name the crime — "I confess." / "I confess it," / "I confess
+ * to the murder" — which is how a confession is actually written. The aside forms ("I confess the
+ * rain…", "I confess that…", "I must confess…") no longer match, and nothing else is weakened: a
+ * confession that carries an act verb still matches through the `I killed|strangled|…` alternatives,
+ * which is asserted case by case in `guilt-idiom-confessional-aside.test.ts`.
+ */
 const FIRST_PERSON_ADMISSION =
-  /\bI\s+(?:killed|murdered|strangled|poisoned|stabbed|shot|bludgeoned|smothered|drowned|did\s+it|took\s+(?:his|her|their)\s+life|struck\s+(?:him|her|them)\s+down)\b|\bit\s+was\s+me\b|\bI\s+confess\b|\bI\s+(?:am|was)\s+(?:the\s+)?(?:guilty|the\s+(?:killer|murderer|culprit))\b/i;
+  /\bI\s+(?:killed|murdered|strangled|poisoned|stabbed|shot|bludgeoned|smothered|drowned|did\s+it|took\s+(?:his|her|their)\s+life|struck\s+(?:him|her|them)\s+down)\b|\bit\s+was\s+me\b|\bI\s+confess(?:\s+(?:it|everything|all))?\s*(?:[.,;!?"”]|$)|\bI\s+confess\s+to\s+(?:the\s+)?(?:murder|killing|crime|deed)\b|\bI\s+(?:am|was)\s+(?:the\s+)?(?:guilty|the\s+(?:killer|murderer|culprit))\b/i;
 
 /**
  * The name an admission is explicitly attributed to, if the attribution names anyone.

@@ -4951,7 +4951,26 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
 
   // [PHASE 6] Precompile StoryContract — resolves victim, sensory atoms, locked facts, arc plan
   const storyContract = precompileStoryContract({
-    castData: cml.CAST,
+    /**
+     * 2026-09-07 — `cml.CAST` DOES NOT EXIST, and had never resolved a victim.
+     *
+     * A CML artifact is `{ CML_VERSION, CASE }`; there is no top-level `CAST`. `resolveVictimContract`
+     * reads `castData.characters`, so it received `undefined`, fell through all three passes and
+     * returned `{ name: "", roleConfirmedFrom: "fallback_unknown" }`. MEASURED across every post-X70
+     * report: **52 of 52 records empty, 100%, always `fallback_unknown`** — the resolver has never
+     * once succeeded. Verified against this run's real artifacts by running the built function:
+     * `cml.CAST` -> "", `castDesign` -> "Marguerite Selwyn" via `cast.role=victim`.
+     *
+     * `castDesign` is `(cast as any).cast` (declared above), which is the `{ characters: [...] }`
+     * shape the resolver was written for and the same source every other victim-aware pass in this
+     * file uses. The `CASE.cast` fallback covers a hydrated replay where castDesign is absent.
+     *
+     * Honest scope: `storyContract.victim` currently has exactly ONE consumer — the warning line
+     * below that prints it. G6's four checks read `culpritNames`, the death method and the inference
+     * chain, none of which is affected. So this fixes a broken feed, and does not by itself change
+     * a single gate; it stops the field being a lie for whoever wires it next.
+     */
+    castData: castDesign ?? { characters: (cml as any)?.CASE?.cast ?? [] },
     cmlCase: (cml as any)?.CASE,
     lockedFacts: annotatedLockedFacts,
     macroArcPlan,

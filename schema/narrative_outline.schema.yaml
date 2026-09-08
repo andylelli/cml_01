@@ -18,6 +18,10 @@ acts:
       purpose:
         type: string
         required: true
+      pacingNotes:
+        type: string
+        required: false
+        description: "Act-level pacing guidance"
       scenes:
         type: array
         required: true
@@ -47,6 +51,11 @@ acts:
                 atmosphere:
                   type: string
                   required: true
+                microMomentBeats:
+                  type: array
+                  required: false
+                  items: string
+                  description: "Non-plot emotional pause beats for this setting"
             characters:
               type: array
               required: true
@@ -82,6 +91,14 @@ acts:
                   required: false
                   items: string
                   description: "Non-plot emotional pause beats (1-sentence each): grief, relief, memory, dread. Target: at least 1 per 5 scenes."
+                redHerringPlacement:
+                  type: object
+                  required: false
+                  description: "Red-herring placement recorded alongside the scene's dramatic elements"
+                resolution:
+                  type: string
+                  required: false
+                  description: "How the scene's dramatic tension resolves"
             summary:
               type: string
               required: true
@@ -89,6 +106,66 @@ acts:
             estimatedWordCount:
               type: number
               required: true
+            # ── Pillar 4 scene contracts + World-First enrichment, declared 2026-09-07 ───────────
+            # These are WRITTEN by the orchestrator, REQUIRED by the outline completeness gate ("all N
+            # scenes have concrete pivotElement, factEstablished and redHerringPlacement contracts"),
+            # and none of them was declared here. The artifact validator warns on every undeclared
+            # field, per scene, so a ten-scene outline emitted ~63 warnings a run for fields the
+            # pipeline itself demands. MEASURED over the 26 post-X70 runs: 1,640 of 5,458 run warnings
+            # (30%) were these, the four largest warning shapes in the corpus.
+            #
+            # EVERY TYPE HERE WAS READ OFF A REAL ARTIFACT, not inferred from the field name. The first
+            # version of this block guessed `permittedBehavioursByAct: object` and
+            # `redHerringPlacement: string` and turned 1,640 warnings into 14 ERRORS on replay
+            # (`must be object, got object`) — it is an array of {characterName, behaviour} and an
+            # object of {redHerringId, placementDetail}. Objects and arrays are declared WITHOUT
+            # `fields`/`items` on purpose: the validator only descends when those are present, so the
+            # shape stays free to evolve without re-creating the warning storm this block removes.
+            #
+            # `mechanismRevealAllowed` and `cluesPlanted` were invisible until the four above were
+            # silenced — they are the signal the noise was burying.
+            pivotElement:
+              type: string
+              required: false
+              description: "The single concrete thing this scene turns on (Pillar 4)"
+            factEstablished:
+              type: string
+              required: false
+              description: "The fact the reader may treat as settled after this scene (Pillar 4)"
+            permittedBehavioursByAct:
+              type: array
+              required: false
+              description: "Per-character behavioural steering; the only such steering that reaches Agent 9"
+            redHerringPlacement:
+              type: object
+              required: false
+              description: "Which red herring this scene plants or complicates (Pillar 4)"
+            mechanismRevealAllowed:
+              type: boolean
+              required: false
+              description: "Whether this scene may disclose the concealment mechanism"
+            cluesPlanted:
+              type: array
+              required: false
+              items: string
+              description: "Clue IDs planted (not yet revealed) in this scene"
+            suspectClearanceAllowed:
+              type: boolean
+              required: false
+              description: "Whether this scene may clear a suspect (X29 bounds clearances to the reveal chapter)"
+            motiveBeatCulprit:
+              type: string
+              required: false
+              description: "Culprit whose motive beat this scene plants (diagnosis-batch #2)"
+            # TYPE DELIBERATELY UNDECLARED. `mechanism_stage` is written with two different types
+            # across the stored artifacts — `null` in most, the number `4` in canary_1788607565000 —
+            # so pinning either one turns a warning into an error on the other half of the corpus
+            # (which is exactly what the first attempt did). `isType` accepts anything when `type` is
+            # omitted, so this silences the warning without asserting a shape the writers do not
+            # agree on. The disagreement itself is worth fixing at the writer, not here.
+            mechanism_stage:
+              required: false
+              description: "Staged mechanism disclosure state; null until a stage is assigned"
             # SWEEP B — Golden Age structural beat for the 10-chapter format (optional).
             beat:
               type: string
