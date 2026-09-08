@@ -53,12 +53,39 @@ export interface ChapterContent {
   temporalMonth?: string;
   /** Canonical season derived from temporal month. */
   temporalSeason?: 'spring' | 'summer' | 'autumn' | 'winter';
+  /**
+   * A_85 F1 — the text of every chapter COMMITTED before this one. Supplied, and with
+   * `AGENT9_DT_CHECK_BOOK_SCOPE` on, the discriminating-test check judges its obligation at BOOK
+   * scope: a test staged in chapter 8 is not demanded again in chapters 9 and 10. Omitted, the check
+   * is chapter-scoped, byte for byte as before.
+   */
+  priorChaptersText?: string;
 }
 
 /**
  * Validates a single chapter against CML requirements
  * Focuses on: clue visibility, character consistency, setting fidelity
  */
+/**
+ * A_85 F1 — `AGENT9_DT_CHECK_BOOK_SCOPE`.
+ *
+ * THE DEFECT, MEASURED 2026-09-08: `checkDiscriminatingTest` demands two key terms of the test in
+ * EVERY chapter from 85% onward — chapters 9 AND 10 of a ten-chapter book — regardless of whether
+ * chapter 8 already staged it. It fired on both chapters in every run that has a worker log
+ * (08-31, 09-01, 09-08). On run 24901 (external read 78/100) chapter 9's first draft was rejected
+ * for reciting a clearance roll-call; its second draft, with the roll-call removed, was rejected on
+ * THIS message — after the run's own DT-scene check had accepted the test in chapter 8. The two gates
+ * whipsaw the chapter, and the reviewer's pacing note was "Ch. 7–9 repeat the ledger proof". The
+ * repetition was mandated, not written. Replayed from dist: that second draft fails OFF, passes ON.
+ *
+ * It is the F1 shape from A_84 exactly: a chapter-scoped check for a book-scoped obligation, and the
+ * sole input to a retry (a WRITE). ON: when the committed chapters already contain the terms, the
+ * check stands down. A book whose test never appears anywhere still fails on its last chapters.
+ * OFF: byte-identical. Env read at call time (ADR-0004).
+ */
+export const isDiscriminatingTestBookScopeEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT9_DT_CHECK_BOOK_SCOPE ?? '').trim());
+
 export class ChapterValidator {
   /**
    * Validate a chapter during generation
@@ -238,7 +265,21 @@ export class ChapterValidator {
     // Require at least 2 of the 5 key terms to appear — any-1 threshold is too permissive
     // because common mystery vocabulary (clock, wound, suspect) appears in every chapter.
     // Guard: only require 2 if 2+ terms were extracted (avoids false positive on short design strings).
-    if (chapter.chapterNumber >= Math.ceil(totalChapters * 0.85) && foundTerms.length < Math.min(2, keyTerms.length)) {
+    const requiredTerms = Math.min(2, keyTerms.length);
+    if (
+      isDiscriminatingTestBookScopeEnabled() &&
+      typeof chapter.priorChaptersText === 'string' &&
+      chapter.priorChaptersText.trim().length > 0
+    ) {
+      const priorLower = chapter.priorChaptersText.toLowerCase();
+      const priorFound = keyTerms.filter((term) => priorLower.includes(term.toLowerCase()));
+      if (priorFound.length >= requiredTerms) {
+        // A_85 F1 — the test is already on the page in an earlier chapter. Demanding it again here
+        // is what forced chapters 9 and 10 to re-prove the case.
+        return issues;
+      }
+    }
+    if (chapter.chapterNumber >= Math.ceil(totalChapters * 0.85) && foundTerms.length < requiredTerms) {
       issues.push({
         severity: 'major',
         message: `Chapter ${chapter.chapterNumber} may be missing the discriminating test scene`,

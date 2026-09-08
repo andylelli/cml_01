@@ -838,6 +838,12 @@ export const dialGapMinutes = (a: number, b: number): number => {
 export interface CaseTimeCoherenceViolation {
   code: "locked_time_arithmetic" | "time_spines_disagree" | "declared_derivation_broken";
   message: string;
+  /**
+   * A_85 F4 — for `time_spines_disagree`, the ids of the device facts that form the SECOND time
+   * spine: its two clocks and the duration that is their gap. A consumer that wants one time on the
+   * page drops exactly these (Agent 7.5, `AGENT75_DROP_FOREIGN_CLOCK_FACTS`).
+   */
+  factIds?: string[];
 }
 
 /**
@@ -941,8 +947,13 @@ export const checkCaseTimeCoherence = (args: {
     const anchors = new Set([apparent, actual]);
     const shared = clocks.some((c) => anchors.has(c.minutes));
     if (!shared) {
+      const spineGap = dialGapMinutes(clocks[0]!.minutes, clocks[1]!.minutes);
       violations.push({
         code: "time_spines_disagree",
+        factIds: [
+          ...clocks.map((c) => c.id),
+          ...durations.filter((d) => d.minutes === spineGap).map((d) => d.id),
+        ],
         message:
           `The case keeps time twice and the two do not meet: the mechanism's anchors are ` +
           `"${String(args.apparentTime)}" and "${String(args.actualTime)}", while the device locks ` +

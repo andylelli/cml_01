@@ -187,6 +187,69 @@ const summarise = (geometry: StoryGeometry): string =>
  * mistake §7 forbids — so every failure path ends in a warning, `ctx.storyGeometry` left undefined,
  * and the pipeline continuing as it does today.
  */
+/**
+ * A_85 F4 — `AGENT75_DROP_FOREIGN_CLOCK_FACTS`: when the case keeps time twice, the device's clock
+ * facts are DROPPED rather than printed.
+ *
+ * MEASURED on run 24901 (authority axis, external read 78/100): Agent 3b authored "The Misaligned
+ * Tide Clock" on a ledger case, and X39 reported at THIS stage — before any prose was bought — that
+ * the device's clocks (quarter past four, five past four) share no anchor with the mechanism's (half
+ * past six, quarter past three). The run proceeded on a warning. The model never wrote the tide
+ * clock, so the locked-fact floor pasted all three tide values into chapters 4 and 5 as template
+ * sentences ("It had taken ten minutes in all", "The clocks put it at …"). The reviewer's two lowest
+ * marks were "two timing tricks compete" (clues 5/10) and those very sentences (prose 5/10). One
+ * root cause, two categories. A_83 named the mechanism: 3b authors a clock device whatever the axis,
+ * and no deterministic check compared an artifact to the case's own time — this one now does.
+ *
+ * ON: the facts X39 names — the two device clocks and the duration that is their gap — are removed
+ * from BOTH places Agent 9 reads: `ctx.lockedFactRegistry` and `hardLogicDevices.devices[*].lockedFacts`
+ * (the latter is what `proseLockedFacts` is built from; dropping from the registry alone would change
+ * nothing on the page). The device text stays; only the obligation to print its numbers goes, so the
+ * case's own anchors are the one time on the page. OFF: byte-identical. Env read at call time.
+ *
+ * KNOWN LIMIT: a resume that skips Agent 7.5 as "survived" restores the stored devices artifact and
+ * keeps the facts. The drop is logged so a run that carried them is distinguishable from one that did not.
+ */
+export const isDropForeignClockFactsEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT75_DROP_FOREIGN_CLOCK_FACTS ?? "").trim());
+
+export const dropForeignClockFacts = (
+  ctx: { lockedFactRegistry?: any[]; hardLogicDevices?: any; warnings: string[] },
+  violations: ReadonlyArray<{ code: string; factIds?: string[] }>,
+  env: NodeJS.ProcessEnv = process.env,
+): string[] => {
+  if (!isDropForeignClockFactsEnabled(env)) return [];
+  const ids = new Set(
+    violations
+      .filter((v) => v.code === "time_spines_disagree")
+      .flatMap((v) => v.factIds ?? [])
+      .map((id) => String(id).trim()),
+  );
+  ids.delete("");
+  if (ids.size === 0) return [];
+  const dropped = new Set<string>();
+  const keep = (fact: any): boolean => {
+    const id = String(fact?.id ?? "").trim();
+    if (ids.has(id)) {
+      dropped.add(id);
+      return false;
+    }
+    return true;
+  };
+  if (Array.isArray(ctx.lockedFactRegistry)) ctx.lockedFactRegistry = ctx.lockedFactRegistry.filter(keep);
+  for (const device of ((ctx.hardLogicDevices as any)?.devices ?? []) as any[]) {
+    if (Array.isArray(device?.lockedFacts)) device.lockedFacts = device.lockedFacts.filter(keep);
+  }
+  const unique = [...dropped];
+  if (unique.length > 0) {
+    ctx.warnings.push(
+      `[X39] Agent 7.5 dropped ${unique.length} foreign clock fact(s) so the prose keeps ONE time: ` +
+        `${unique.join(", ")}. The case's own anchors stay; the device's numbers were never the story's (A_85 F4).`,
+    );
+  }
+  return unique;
+};
+
 export async function runAgent75(ctx: OrchestratorContext): Promise<void> {
   const mode = resolveGeometryStageMode();
   if (mode === "off") return;
@@ -255,11 +318,12 @@ export async function runAgent75(ctx: OrchestratorContext): Promise<void> {
      * Reported here, before the outline is spent on: a case that keeps time twice is an upstream
      * defect, and the manuscript-side `time_anchors_absent` is its symptom rather than its cause.
      */
-    for (const violation of checkCaseTimeCoherence({
+    const caseTimeViolations = checkCaseTimeCoherence({
       lockedFacts: ctx.lockedFactRegistry ?? [],
       apparentTime: geometry.timeModel.apparentTime,
       actualTime: geometry.timeModel.trueTime,
-    })) {
+    });
+    for (const violation of caseTimeViolations) {
       // Label by the CODE, not by the stage: this call site now returns both of them. X61 gave
       // `locked_time_arithmetic` a second path — the mechanism's anchors, when the registry locks only
       // one clock — and that path can only fire HERE, because Agent 3b has no mechanism yet. Reporting
@@ -267,6 +331,8 @@ export async function runAgent75(ctx: OrchestratorContext): Promise<void> {
       const tag = violation.code === "time_spines_disagree" ? "X39" : "X38";
       ctx.warnings.push(`[${tag}] Agent 7.5 case-time incoherence (${violation.code}): ${violation.message}`);
     }
+    // A_85 F4 — a case that keeps time twice does not get to print the second time. See dropForeignClockFacts.
+    dropForeignClockFacts(ctx, caseTimeViolations);
 
     ctx.storyGeometry = geometry;
     ctx.agentCosts["agent75_geometry"] = cost;

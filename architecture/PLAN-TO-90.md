@@ -1549,3 +1549,27 @@ clearance-trim scrub and the geometry acceptance were all blind to it.
 **Prediction for the next run:** `enforceCulpritEvidencePresence` injects 0 sentences where a
 confession is on the page, and the closing paragraph of chapter 10 carries no "You did it".
 **Falsifier:** a read that says the culprit was never tied to the evidence.
+
+### 14.4 The 78 read, traced — and four fixes built · 2026-09-08
+
+Run 24901 (authority · seaside hotel · angle "an industrial chemist's laboratory") read 78/100. Its
+three lowest marks — clues 5, prose 5, ending 6 — were traced to mechanisms the run itself logged.
+
+| reviewer's words | what the run logged, BEFORE the reviewer | mechanism | fix |
+|---|---|---|---|
+| "two timing tricks compete" (clues 5) | X39 at Agent 7.5: *"The case keeps time twice and the two do not meet"* — device clocks 4:15/4:05 vs mechanism anchors 6:30/3:15 — plus four cross-artifact mismatch warnings saying "verify this is intended misdirection". Nothing verified. | 3b's off-axis tide clock (A_83); warn-only | **F4** `AGENT75_DROP_FOREIGN_CLOCK_FACTS` — X39 now names the facts; 7.5 drops them from the registry AND the devices artifact Agent 9 reads |
+| "It had taken ten minutes in all", "The clocks put it at …" (prose 5) | locked-fact floor injected the tide values in ch4/ch5 — the model never wrote the tide clock, so the values were absent from the whole book and F1's book-scope stood aside correctly | the same tide clock | F4 (no values, no injection) |
+| "Ch. 7–9 repeat the ledger proof" (pacing 7) | ch9 attempt 1 rejected for a clearance roll-call; attempt 2, roll-call removed, rejected: *"may be missing the discriminating test scene"* — after the run's own DT-scene check accepted the test in ch8; the message fires on ch9 AND ch10 in every logged run; replayed from dist, attempt 2 fails OFF and passes ON | `checkDiscriminatingTest` is chapter-scoped for a book-scoped obligation (the A_84 F1 shape) | **F1** `AGENT9_DT_CHECK_BOOK_SCOPE` — committed chapters passed in; stands down when the test is on the page |
+| "Chapter 10 recaps" (ending 6) | ch10 rejected on both completed attempts: *"stages a fresh accusation / fresh confession"* — then HTTP 429, and the exception path shipped the best REJECTED draft verbatim | gate works, fallback undoes it | **F2** `AGENT9_FALLBACK_STAGE_MODE_REGEN` — one targeted aftermath regen on the flagged paragraphs before a rejected aftermath draft ships |
+| "The cost of truth, he burden …", "Neville Ingram burden …" (prose 5) | atmosphere repair returned `original: "thought was never borne by one alone"` — the comma missing — and the A_71 tolerant matcher swallowed it, deleting "thought," | edit applied across a clause boundary, no re-validation | **F3** `AGENT9_PHRASE_EDIT_CLAUSE_GUARD` — a span with clause punctuation the original lacks is refused; both real edits refused (test) |
+
+Also settled by this read: the "You did it" closing sentence (§14.1) did not appear for the first time
+since 09-04 — the culprit floor injected 0. Verbatim overlap across ch7–10 is under 2% by 7-gram, so
+the repetition the reviewer names is semantic and mandated, not copied; no similarity detector can see it.
+
+**What is NOT fixed:** the model still cannot write an aftermath without re-staging (0/2 here, 0/22 in
+A_84) — F2 repairs the draft, it does not teach the model; and 3b still authors a clock device off-axis —
+F4 stops its numbers reaching the page, it does not stop the device. Both remain on the board.
+
+18 new tests; 86 green across the touched suites; both flag audits clean. F2 is verified by build only —
+its falsifier is the `[A_85 F2]` log line on the next fallback.

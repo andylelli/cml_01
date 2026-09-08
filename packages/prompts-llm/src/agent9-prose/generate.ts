@@ -76,6 +76,7 @@ import {
   RESOLUTION_RE,
   buildResolutionBackstopSentence,
   surfaceSpecKeyTerms,
+  detectRestagedRevealViolations,
 } from "./clue-validation.js";
 import {
   tokenizeWords,
@@ -141,7 +142,8 @@ import {
 // First-principles LLD §6.4 / P3.3 — scoped clue-regen (the A1 replacement), default-off behind
 // AGENT9_REGEN_CLUE. When enabled, runs BEFORE repairChapterDeterministically so a successful regen
 // makes the clue present and the deterministic A1 patch does not inject (A1 demoted to logged floor).
-import { runClueRegenPass } from "./regen-integration.js";
+import { runClueRegenPass, runAftermathRepeatRegenPass } from "./regen-integration.js";
+import { detectAftermathRepeatParagraphs } from "@cml/story-geometry";
 import { makeRegenFn } from "./regen-llm.js";
 import { buildStoryBible, resolveDiscriminatingTestChapter } from "../story-bible.js";
 import type { StoryBible } from "../story-bible.js";
@@ -2497,6 +2499,107 @@ export async function generateProse(
       paragraphs: Array.isArray(c.paragraphs) ? [...c.paragraphs] : [],
     });
 
+    /**
+     * A_85 F2 — `AGENT9_FALLBACK_STAGE_MODE_REGEN`: a fallback must not ship a draft the validator
+     * rejected for RE-STAGING THE REVEAL without one targeted repair.
+     *
+     * MEASURED on run 24901 (seed 24901, external read 78/100): chapter 10 was rejected on both completed
+     * attempts with "stages a fresh accusation" / "stages a fresh confession" — the exact defect the
+     * reviewer then named ("Chapter 10 recaps ... That proof belongs in Chapter 8"). Attempt three died
+     * on an HTTP 429 and the exception path shipped the best REJECTED draft verbatim. The gate worked;
+     * the fallback undid it. A_84 measured the same model failing this obligation 0 of 22 times.
+     *
+     * ON: when the best attempt is an aftermath chapter that re-stages the reveal, the paragraphs the
+     * validator's OWN detector flags (plus the geometry acceptance's aftermath-repeat detector) are
+     * handed to `runAftermathRepeatRegenPass` — the A_84 aftermath regen, on the regen deployment,
+     * which is a different rate-limit pool from the one that just failed. Nothing is refused: if the
+     * regen cannot repair, the draft ships as before and the run says so in its log.
+     * OFF: byte-identical. Env read at call time (ADR-0004).
+     */
+    const isFallbackStageModeRegenEnabled = (): boolean =>
+      /^(1|true|yes|on)$/i.test(String(process.env.AGENT9_FALLBACK_STAGE_MODE_REGEN ?? "").trim());
+    const repairRejectedFallbackDrafts = async (draftChapters: ProseChapter[]): Promise<void> => {
+      if (!isFallbackStageModeRegenEnabled()) return;
+      const culprit = String(((cmlCase as any)?.culpability?.culprits ?? [])[0] ?? "").trim() || null;
+      const methodTerms = String((cmlCase as any)?.death_method ?? "").toLowerCase().match(/[a-z]{5,}/g) ?? [];
+      for (let idx = 0; idx < draftChapters.length; idx += 1) {
+        const chapterNumber = chapterStart + idx;
+        const stageMode = resolveFallbackStageMode({
+          scene: batchScenes[idx],
+          chapterNumber,
+          sceneCount,
+          cmlCase,
+          allScenes: scenes,
+          dtSceneCheck,
+        });
+        if (stageMode !== "aftermath_consequence") continue;
+        const draft = draftChapters[idx];
+        const paragraphs: string[] = Array.isArray(draft?.paragraphs) ? draft.paragraphs : [];
+        if (detectRestagedRevealViolations(paragraphs.join("\n\n")).length === 0) continue;
+        const flaggedByValidator = paragraphs
+          .map((p, i) => (detectRestagedRevealViolations(String(p ?? "")).length > 0 ? i : -1))
+          .filter((i) => i >= 0);
+        const paragraphIndices = [
+          ...new Set([...flaggedByValidator, ...detectAftermathRepeatParagraphs(paragraphs, { culprit, methodTerms })]),
+        ];
+        if (paragraphIndices.length === 0) continue;
+        try {
+          if (!regenBible) {
+            regenBible = buildStoryBible({
+              lockedFacts: inputs.lockedFacts,
+              cast: cmlCase?.cast,
+              victim: resolveVictimName(inputs.cast) || undefined,
+              culprits: cmlCase?.culpability?.culprits,
+              macroArcPlan: inputs.macroArcPlan ?? inputs.storyContract?.macroArcPlan,
+              cmlCase,
+              characterBundle: inputs.characterBundle as any,
+              storyContract: inputs.storyContract as any,
+            });
+          }
+          // The aftermath refers back to the last committed chapter that itself delivers the confession.
+          let revealChapter = Math.max(1, chapterNumber - 1);
+          for (let i = chapters.length - 1; i >= 0; i -= 1) {
+            if (detectRestagedRevealViolations((chapters[i]?.paragraphs ?? []).join("\n\n")).length > 0) {
+              revealChapter = i + 1;
+              break;
+            }
+          }
+          const pass = await runAftermathRepeatRegenPass({
+            chapter: draft,
+            chapterNumber,
+            paragraphIndices,
+            culprit,
+            methodTerms,
+            revealChapter,
+            bible: regenBible,
+            regen: makeRegenFn({ client, model: inputs.model, runId: inputs.runId, projectId: inputs.projectId }),
+            otherChaptersText: chapters.map((c) => (c?.paragraphs ?? []).join(" ")).join(" "),
+            onUnresolved: (_d, reason) =>
+              console.warn(`[Agent 9][A_85 F2] fallback stage-mode regen UNRESOLVED ch${chapterNumber}: ${reason}`),
+          });
+          if (pass.ran && pass.repaired.length > 0) {
+            draftChapters[idx] = pass.chapter;
+            console.warn(
+              `[Agent 9][A_85 F2] fallback draft for ch${chapterNumber} re-staged the reveal in ` +
+                `${paragraphIndices.length} paragraph(s); aftermath regen repaired ${pass.repaired.length} — ` +
+                `the rejected draft did not ship as-is.`,
+            );
+          } else {
+            console.warn(
+              `[Agent 9][A_85 F2] fallback draft for ch${chapterNumber} re-staged the reveal in ` +
+                `${paragraphIndices.length} paragraph(s); regen ${pass.ran ? "could not repair it" : "did not run"} — ` +
+                `shipping the rejected draft (logged, not silent).`,
+            );
+          }
+        } catch (err) {
+          console.warn(
+            `[Agent 9][A_85 F2] fallback stage-mode regen failed ch${chapterNumber}: ` +
+              `${err instanceof Error ? err.message : String(err)} — shipping the rejected draft.`,
+          );
+        }
+      }
+    };
+
     const overallProgress = 91 + Math.floor((batchStart / sceneCount) * 3); // 91-94%
     const batchLabel = batchScenes.length > 1 ? `${chapterStart}-${chapterEnd}` : `${chapterStart}`;
     progressCallback('prose', `Generating chapter${batchScenes.length > 1 ? 's' : ''} ${batchLabel}/${sceneCount}...`, overallProgress);
@@ -2975,6 +3078,8 @@ export async function generateProse(
               totalChapters: sceneCount,
               temporalMonth: temporalSeasonLock?.month,
               temporalSeason: temporalSeasonLock?.season,
+              // A_85 F1 — committed chapters, so the discriminating-test check can see a test already staged.
+              priorChaptersText: chapters.map((c) => (c?.paragraphs ?? []).join(' ')).join(' '),
             }, inputs.caseData);
 
             contentValidation.issues
@@ -3953,6 +4058,7 @@ export async function generateProse(
                   },
                 ),
               );
+            if (usedBestAttempt) await repairRejectedFallbackDrafts(proseBatch.chapters); // A_85 F2
             const fallbackValidationErrors: string[] = [];
             proseBatch.chapters.forEach((fallbackChapter, idx) => {
               const fallbackChapterNumber = chapterStart + idx;
@@ -3970,6 +4076,8 @@ export async function generateProse(
                 totalChapters: sceneCount,
                 temporalMonth: temporalSeasonLock?.month,
                 temporalSeason: temporalSeasonLock?.season,
+                // A_85 F1 — committed chapters, so the discriminating-test check can see a test already staged.
+                priorChaptersText: chapters.map((c) => (c?.paragraphs ?? []).join(' ')).join(' '),
               }, inputs.caseData);
               fallbackContentValidation.issues
                 .filter((issue) => issue.severity === 'critical' || issue.severity === 'major')
@@ -4426,6 +4534,7 @@ export async function generateProse(
                   },
                 ),
               );
+            if (usedBestAttempt) await repairRejectedFallbackDrafts(fallbackChapters); // A_85 F2
             const fallbackValidationErrors: string[] = [];
             fallbackChapters.forEach((fallbackChapter, idx) => {
               const fallbackChapterNumber = chapterStart + idx;

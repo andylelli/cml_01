@@ -214,6 +214,35 @@ export const parsePhraseReplacementsResponse = (content: string): PhraseReplacem
 const PHRASE_CONNECTORS =
   "of|in|on|at|to|with|by|for|from|as|than|and|or|but|near|over|under|behind|beside|against|across|through|into|onto|upon|about|after|before|between|beyond|around|below|above|beneath|among|amid|past|toward|towards|within|without|outside|inside|opposite|alongside|watching|holding|carrying|facing|following|touching|showing|leaving|beside";
 
+/**
+ * A_85 F3 — `AGENT9_PHRASE_EDIT_CLAUSE_GUARD`: refuse an edit whose matched span contains clause
+ * punctuation the model's own `original` does not.
+ *
+ * MEASURED on run 24901 (external read 78/100, prose 5/10): the atmosphere repair returned
+ * `{original: "thought was never borne by one alone", replacement: "burden was never shouldered by a
+ * single soul"}` for the sentence "The cost of truth, he thought, was never borne by one alone." The
+ * A_71 punctuation-tolerant matcher below joins tokens with `[^A-Za-z0-9']+`, so the comma the model
+ * dropped was swallowed into the span, and the replacement deleted "thought," — the book shipped
+ * "The cost of truth, he burden was never shouldered by a single soul." Chapter 9 got the same edit
+ * ("Neville Ingram burden was always shouldered…"). The reviewer quoted both as broken template
+ * phrases. The prompt at the call site asks the model to keep the sentence grammatical; a rule that
+ * lives only in a prompt has, by construction, never been checked against what shipped.
+ *
+ * The comma the model omitted IS the clause boundary. ON: a span containing `, ; : — –` that the
+ * `original` lacks is refused and logged; both of run 24901's edits are refused (test). OFF:
+ * byte-identical. Env read at call time (ADR-0004).
+ */
+const CLAUSE_PUNCTUATION_RE = /[,;:\u2014\u2013]/;
+export const isPhraseEditClauseGuardEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT9_PHRASE_EDIT_CLAUSE_GUARD ?? "").trim());
+/** True when the edit would splice across a clause boundary the model's phrase does not include. */
+export const phraseEditCrossesClauseBoundary = (text: string, original: string): boolean => {
+  const pattern = phraseToTolerantRegex(original, "i");
+  if (pattern === null) return false;
+  const span = pattern.exec(String(text ?? ""));
+  return span !== null && CLAUSE_PUNCTUATION_RE.test(span[0]) && !CLAUSE_PUNCTUATION_RE.test(original);
+};
+
 const MALFORMED_SPLICE_PATTERNS: ReadonlyArray<RegExp> = [
   // Determiner (+ up to 2 ADJECTIVAL words) directly followed by a pronoun: "the slight her knuckles".
   // A determiner followed by another determiner is ungrammatical; a connector in between means the
@@ -281,6 +310,13 @@ export const applyPhraseSubstitutions = (
       // needle/haystack bug, live at this site until A_71.
       const pattern = phraseToTolerantRegex(original);
       if (pattern === null) continue;
+      if (isPhraseEditClauseGuardEnabled() && phraseEditCrossesClauseBoundary(result, original)) {
+        console.warn(
+          `[Agent 9] phrase edit refused (A_85 F3): the model's original "${original}" omits the clause ` +
+            `punctuation inside the span it matches — applying it would splice across a clause boundary.`,
+        );
+        continue;
+      }
       const candidate = result.replace(pattern, (match) => {
         // Preserve ALL-CAPS (e.g. chapter headings, emphasis typography)
         if (match === match.toUpperCase() && match !== match.toLowerCase()) {
