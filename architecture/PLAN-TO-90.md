@@ -1573,3 +1573,43 @@ F4 stops its numbers reaching the page, it does not stop the device. Both remain
 
 18 new tests; 86 green across the touched suites; both flag audits clean. F2 is verified by build only —
 its falsifier is the `[A_85 F2]` log line on the next fallback.
+
+### 14.5 Two more from the 78 read, and three things measured dead · 2026-09-09
+
+**F5 — `AGENT9_CLUE_PRESENCE_OBSERVABLE_POOL`.** Three of the seven "generator lines" the reviewer
+quoted were in chapter 1, from the deterministic clue floor. The chapter-1 clue regen HAD run (it fell
+off an earlier top-12 label list) and had written the observation correctly — "the entry's handwriting
+was oddly heavy, the pressure uneven compared to the lighter, more practiced strokes". The presence
+pool is the observable plus `pointsTo` ("pressure, discrepancy, suggests"): ten tokens, 55% required,
+five matched. The five missed — forged, discrepancy, suggests, normal, style — are the inference. A
+chapter-1 observation must not say "forged". So the correct prose was judged absent and the floor
+pasted the label: "Pressure discrepancy suggests entry forged genuine", the inference, in chapter 1,
+as machine text. ON: an early clue is present when its observation alone passes (union with the old
+pool, never stricter). Replayed from dist on the real regen output: OFF false, ON true. Corpus reach on
+the built predicate is small — 8 of 2,444 verdicts, 2 clues, 0 regressions — and is a LOWER bound,
+because the stored books are shipped books whose chapters already carry the pastes the old pool then
+matches on. (A token-pool-only estimate said 127; it ignored the semantic-family fallback. The built
+figure is the one recorded.)
+
+**F6 — `AGENT2_SHARED_HISTORY_EVENT`.** The reviewer's character note asked for exactly one thing —
+"Add one specific history". MEASURED: the relationship web reaches every prose prompt (16/16 chapter
+prompts carry the `sharedHistory` sentences verbatim), so the channel is live; over 705 stored pairs
+9% name an event and 21% are a standing attitude and nothing else. ON: Agent 2's relationship schema
+demands ONE specific past event per pair, with a FAILS/PASSES pair — an operation, not a rate. Prompt
+capture from dist: absent OFF, present ON. `sharedHistoryNamesEvent` is the detector, for telemetry.
+
+**Measured, not built:**
+
+- **3b's off-axis clock device cannot be re-ranked.** Over 50 stored cases, 17 of 17 non-temporal
+  cases have a clock-locking primary device, and 0 of 17 hold any device without clock facts among
+  their five. Every device 3b writes locks a clock. X39 fires on 5 of 15 non-temporal cases (F4's
+  reach); in the other 10 the CML adopted the device's clock — the story IS a clock story on a
+  non-temporal axis. That is A_83's residue and needs 3b's schema, not a filter.
+- **Locked-fact regen vs floor gate split** (the floor injected the tide facts with no regen label):
+  INFERRED as a target-selection difference; not measured, and F4 removes the case that showed it.
+- **Relationship reach is not the problem** — see F6.
+
+Predictions for the next run: `[A_73] deterministic CLUE paste` on chapter 1 = 0 where the observation
+is on the page; cast `sharedHistory` event rate above the 9% baseline (detector). Falsifiers: a read
+that says an early clue was never planted; a cast whose histories name events and a read that still
+calls them generic.

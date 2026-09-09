@@ -16,6 +16,36 @@ import { checkCast } from "./agent2-cast-checker.js";
 // Types
 // ============================================================================
 
+/**
+ * A_85 F6 — `AGENT2_SHARED_HISTORY_EVENT`: every relationship's `sharedHistory` must name ONE specific
+ * past event, not a standing attitude.
+ *
+ * MEASURED 2026-09-09 over the 60 stored cast artifacts (705 pairs): the histories reach every prose
+ * prompt (16 of 16 chapter prompts of run 24901 carry them verbatim), so the channel is live — and
+ * only 9% of them name a specific event ("once", "the night", "years ago", a year); 21% are a
+ * standing attitude and nothing else ("had tense exchanges over the hotel's reputation"). The 78/100
+ * read's character mark (7, the corpus median for eleven reads) asked for exactly one thing: "Add one
+ * specific history … Adela once saved Dorothy's career by correcting a lab error." That is a countable
+ * operation, the kind this model complies with (CLAUDE.md), not a rate. ON: the relationship schema
+ * demands it with a FAILS/PASSES pair. OFF: byte-identical. `sharedHistoryNamesEvent` is the
+ * matching detector, exported for telemetry and tests — it is not a gate (B1).
+ */
+export const isSharedHistoryEventEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT2_SHARED_HISTORY_EVENT ?? "").trim());
+
+/** Does a sharedHistory string name a specific past event (a time marker or an "once/when" frame)? */
+export const sharedHistoryNamesEvent = (text: string): boolean =>
+  /\b(once|when|the (?:night|day|summer|winter|spring|autumn|year|week|morning|evening)\b|years? ago|months? ago|last (?:year|summer|winter|spring|autumn|season)|in 19\d\d|after the|before the|during the)\b/i.test(
+    String(text ?? ""),
+  );
+
+export const SHARED_HISTORY_EVENT_RULE =
+  `- A_85 F6: every "sharedHistory" must name ONE specific past EVENT the two characters share — what ` +
+  `happened, where, and roughly when (a season, a year, "the night of …"). A standing attitude is not a ` +
+  `history. FAILS: "Katherine and Adela argued often about lab standards." PASSES: "Adela caught ` +
+  `Katherine mislabelling a solvent order in the spring of 1924 and never reported it — Katherine still ` +
+  `owes her for that." One event per pair, named characters, past tense.`;
+
 export interface CastInputs {
   runId: string;
   projectId: string;
@@ -321,7 +351,7 @@ Relationship schema:
   (e.g. "Quincy and Brabazon served together in the navy — Brabazon knows Quincy's wartime secret").
   Generic descriptors without names ("they have a complicated past", "long-standing rivalry") will fail
   the relationship density quality check. Every pair entry must be a named, specific factual connection.
-
+${isSharedHistoryEventEnabled() ? SHARED_HISTORY_EVENT_RULE + "\n" : ""}
 Diversity schema:
 - stereotypeCheck (must end as [])
 - recommendations

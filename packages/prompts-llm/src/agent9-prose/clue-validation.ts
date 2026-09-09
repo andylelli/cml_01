@@ -827,6 +827,50 @@ export const semanticAnchorFamiliesMatched = (
   return matchedFamilies;
 };
 
+/**
+ * A_85 F5 — `AGENT9_CLUE_PRESENCE_OBSERVABLE_POOL`: an early-placement clue is present in a chapter
+ * when its OBSERVATION is on the page. Its conclusion words are not required.
+ *
+ * THE DEFECT, MEASURED 2026-09-09 on run 24901 (external read 78/100, prose 5/10): the chapter-1 clue
+ * regen wrote "the entry's handwriting was oddly heavy, the pressure uneven compared to the lighter,
+ * more practiced strokes" — the observation, exactly as an early clue should be planted. The presence
+ * pool below is the observable PLUS `pointsTo` ("pressure, discrepancy, suggests"), ten tokens, and
+ * the chapter matched five of them: entry, handwriting, pressure, heavier, chemist. The five it missed —
+ * forged, discrepancy, suggests, normal, style — are the INFERENCE. A chapter-1 observation must not
+ * say "forged". So the regen's correct prose was judged absent, and the deterministic floor pasted the
+ * label into chapter 1: three of the seven "generator lines" the reviewer quoted.
+ *
+ * Reach, MEASURED with the BUILT predicate over the 40 stored books (2,444 early-clue×chapter verdicts):
+ * 8 verdicts flip absent→present and 2 early clues gain an earlier first-present chapter. That is a
+ * LOWER bound: the stored books are SHIPPED books, whose chapters already contain the floor's pasted
+ * labels, and the old pool matches on the paste itself. (A token-pool-only estimate that ignored the
+ * semantic-family fallback below said 127; the built figure is the one that counts.) The pre-paste
+ * draft is where the flip lands — run 24901's chapter-1 regen output is the one such draft on disk,
+ * and it flips (test, from the real sentences).
+ *
+ * THE RULE IS A UNION, never stricter: a chapter counts if the observable-only pool passes OR the old
+ * pool passes. On the same 2,444 verdicts: 0 flip present→absent. Both callers — the regen's presence validator and the floor's `isPresent` — go
+ * through these two functions, so they cannot disagree. OFF: byte-identical. Env read at call time.
+ */
+export const isCluePresenceObservablePoolEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT9_CLUE_PRESENCE_OBSERVABLE_POOL ?? "").trim());
+
+/** Early-placement clue whose OBSERVATION (observable-only pool, same threshold) is on the page. */
+export const earlyObservationOnPage = (
+  clue: { placement?: string | null; observable?: string | null } | undefined,
+  loweredText: string,
+  castNames?: string[],
+): boolean => {
+  if (!clue || clue.placement !== "early") return false;
+  const observable = String(clue.observable ?? "").trim();
+  if (!observable || isDeliveryMethodLabel(observable)) return false;
+  const raw = Array.from(new Set(tokenizeForClueObligation(observable))).slice(0, 10);
+  const tokens = castNames?.length ? filterNonCastProperNameTokens(raw, observable, castNames) : raw;
+  if (tokens.length === 0) return false;
+  const matched = tokens.filter((t) => tokenMatchesText(t, loweredText));
+  return matched.length >= Math.max(1, Math.ceil(tokens.length * 0.55));
+};
+
 export const chapterMentionsRequiredClue = (
   chapterText: string,
   clueId: string,
@@ -840,6 +884,8 @@ export const chapterMentionsRequiredClue = (
 
   const clue = (clueDistribution?.clues ?? []).find((entry) => String(entry?.id || "") === clueId);
   if (!clue) return false;
+  // A_85 F5 — the observation alone is enough for an early clue (union with the pool below).
+  if (isCluePresenceObservablePoolEnabled() && earlyObservationOnPage(clue, lowered, castNames)) return true;
 
   // P1.2: validate against the on-page OBSERVABLE (what Agent 9 is told to write), not the spec
   // sentence. deriveClueObservable falls back to description, so this is byte-identical until P1.2.
@@ -942,6 +988,8 @@ export const chapterClueAppearsEarly = (
 
   const clue = (clueDistribution?.clues ?? []).find((entry) => String(entry?.id || '') === clueId);
   if (!clue) return false;
+  // A_85 F5 — same union rule for the early-enough check, so isPresent and isEarlyEnough agree.
+  if (isCluePresenceObservablePoolEnabled() && earlyObservationOnPage(clue, earlyText, castNames)) return true;
 
   // P1.2: match the on-page OBSERVABLE (falls back to description ⇒ byte-identical until P1.2).
   const onPage = deriveClueObservable(clue);
