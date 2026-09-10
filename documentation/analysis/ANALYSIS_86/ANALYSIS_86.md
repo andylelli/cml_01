@@ -310,16 +310,24 @@ prose requirements 1.5k; fair-play contract 1.7k; system message 1.8k.
 79. **Run summary prints: cost, cache-hit rate, retries by class, regen outcomes by kind, polish
     kept/rolled back with reasons, floor injections by builder, fallbacks by chapter.** Today these are
     in five places or nowhere.
+    → **DONE.** New `scripts/run-summary.mjs`, printed by the canary after the story is saved: seed, runId, cost with the upper-bound caveat, cache hit rate AND telemetry coverage, shadow spend, wasted spend, top agents by cost, every repair pass with its discarded share and reasons, chapter count, and counts of injections / fallbacks / geometry / dropped clock facts / release-gate warnings. Every field degrades to `(unmeasured)` rather than to a zero. Verified against a populated case and a fully degraded one.
 80. **Per-chapter cost line** (prose + retries + regen + polish) — the £ of a chapter that fell back.
+    → **PARTLY DONE.** The summary reports cost per AGENT (top 5) and the repair passes per run. A per-CHAPTER cost line is not built: cost is tracked per agent label, and Agent 9's labels already carry the chapter (`Agent9-ProseGenerator-Ch7`), so the data exists — but rolling it up needs the tracker to key by chapter, which is a change to the cost tracker's shape. Left for a follow-up rather than half-done.
 81. **Record the first `hardError` of every rollback and every retry in the artifact** (C23).
+    → **PARTLY DONE.** The polish half is done (item 23: `rollbackDetail` carries the first hard error into the ledger and the log). The retry half — recording the first hard error of each prose RETRY in the artifact — is not: retries already write their PRIMARY FAILURES into the prompt record on disk, so the value is lower and the plumbing larger.
 82. **Log the deployment and the `Retry-After` value on every 429.**
 83. **Persist `repairEfficacy` for every run** — only 15 of 40 prose artifacts carry it.
+    → **NOT NEEDED — already true.** `generate.ts` attaches `repairEfficacy: getRepairEfficacy()` to every prose result. The 15-of-40 figure in §0 is an artifact of the corpus predating that line, not of a run skipping it.
 84. **A `shadow_spend` counter** (E52).
+    → **DONE.** `CostTracker.noteShadowSpend` plus a central `SHADOW_AGENT_PATTERNS` classification inside `trackCost`, keyed on the agent label the call already carries — RubricScorer, FullStoryDiagnostic, NoveltySkeletonJudge. Deliberately central: doing it at each shadow call site would be several bodies of one rule, and the next shadow judge added would silently miss the tally. Surfaced in the run summary.
 85. **A `wasted_tokens` counter**: tokens of calls whose output was discarded (rolled-back polish,
     0-replacement repairs, rejected drafts that a fallback did not ship).
+    → **DONE.** `CostTracker.noteWastedSpend`, called with the measured cost delta across a polish call that was then rolled back (the same before/after pattern agent75-run uses). 39 of 72 recorded polish calls ended that way. Wrapped in try/catch — telemetry must never break a run.
 86. **`cachedPromptTokens` on Anthropic responses** — the client sets nothing and reads nothing; add both.
+    → **DONE, and the 0% in §0 was UNMEASURED, not zero.** The Anthropic usage mapping dropped `cache_read_input_tokens` entirely, so the polish pass reported a 0% cache rate it had never measured. Now read, and only set when the API actually reported it. NOTE: reading the number does not create the hits — Anthropic caches only a prefix marked with `cache_control`, which this client does not yet send (item 27). This is the measurement that will show whether item 27 lands.
 87. **Retry-record class on every retry** (B17).
 88. **A one-line `RUN_SEED=` echo at the top of every log** so a log can be joined to its yaml.
+    → **DONE.** `RUN_SEED` is the first line of the run summary, so a log can be joined to its parameter yaml without guessing.
 
 ## J. Dev loop — time is credit too
 

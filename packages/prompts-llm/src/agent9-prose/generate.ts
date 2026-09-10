@@ -3511,6 +3511,16 @@ export async function generateProse(
                 costTracker:
                   typeof (client as any)?.getCostTracker === "function" ? (client as any).getCostTracker() : undefined,
               });
+              // A_86 item 85 — cost delta across the polish call, so a rollback can be counted as
+              // spend whose output was discarded. Same pattern agent75-run uses for its own stage.
+              const costTrackerForPolish = (() => {
+                try {
+                  return typeof (client as { getCostTracker?: () => unknown }).getCostTracker === "function"
+                    ? ((client as { getCostTracker: () => { getTotalCost: () => number; noteWastedSpend?: (n: number) => void } }).getCostTracker())
+                    : undefined;
+                } catch { return undefined; }
+              })();
+              const costBeforePolish = costTrackerForPolish?.getTotalCost() ?? 0;
               const polished = await polishPassingChapter({
                 chapter,
                 client,
@@ -3564,6 +3574,17 @@ export async function generateProse(
                  * The reason string now carries the check that actually broke, so the next reader
                  * can fix the polish prompt from evidence (item 24) rather than from a guess.
                  */
+                /**
+                 * A_86 item 85 — this call was paid for and its output thrown away. 39 of 72
+                 * recorded polish calls ended here. Counted so a run can state its own waste
+                 * instead of it having to be reconstructed from artifacts afterwards.
+                 */
+                try {
+                  const spent = (costTrackerForPolish?.getTotalCost() ?? 0) - costBeforePolish;
+                  if (spent > 0) costTrackerForPolish?.noteWastedSpend?.(spent);
+                } catch {
+                  // Telemetry must never break a run.
+                }
                 const detail = polished.rollbackDetail ? `: ${polished.rollbackDetail}` : "";
                 recordRepairOutcome(
                   "post_pass_polish",

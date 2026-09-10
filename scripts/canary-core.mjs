@@ -5,6 +5,7 @@ import { AzureOpenAIClient } from "@cml/llm-client";
 import { buildLlmLogger } from "../apps/worker/dist/jobs/cli-runtime.js";
 import { generateMystery } from "../apps/worker/dist/jobs/mystery-orchestrator.js";
 import { makeJsonArtifactPersister } from "../apps/worker/dist/jobs/json-artifact-store.js";
+import { printRunSummary } from "./run-summary.mjs";
 import { saveReadableStory } from "../apps/worker/dist/jobs/save-readable-story.js";
 import { loadCanaryInputOverrides } from "./canary-loop/canary-input-overrides.mjs";
 
@@ -128,6 +129,23 @@ const _auditHasFail =
   (_clueAudit.invalidSourcePaths ?? []).length > 0;
 console.log("CANARY_CLUE_STATUS", _auditHasFail ? "fail" : "pass");
 console.log("CANARY_CLUE_AUDIT", JSON.stringify(_clueAudit));
+/**
+ * A_86 items 79-88 — the run states its own cost, cache rate, repair outcomes and flags in one
+ * place. Printed AFTER the story is saved and wrapped, so a summary can never affect a manuscript.
+ */
+try {
+  printRunSummary({
+    seed: inputs.seed,
+    runId: result.metadata?.runId,
+    projectId,
+    costSummary: typeof client.getCostTracker === "function" ? client.getCostTracker().getSummary() : undefined,
+    prose: result.prose,
+    warnings: result.warnings ?? [],
+  });
+} catch (error) {
+  console.log("RUN_SUMMARY_FAILED", String(error?.message ?? error));
+}
+
 console.log("WARNINGS_COUNT", result.warnings.length);
 if (result.warnings.length) {
   // FULL array, one JSON line — the first-6 truncation silently discarded every Agent-9-era

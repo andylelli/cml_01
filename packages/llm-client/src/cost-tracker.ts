@@ -44,6 +44,20 @@ export const defaultCostConfig: CostConfig = {
   claudeHaikuCompletionCostPer1k: 0.00395,
 };
 
+/**
+ * A_86 item 84 — agents whose calls GATE NOTHING.
+ *
+ * Every one of these runs in shadow mode and none can fail a run: the rubric scorer is a health
+ * signal only (the rubric cannot rank two books, n=8), the full-story diagnostic reports, and the
+ * novelty skeleton judge has never gated. They were ~4% of the last run and nobody knew until it
+ * was counted by hand. Matched on the agent label the call already carries.
+ */
+const SHADOW_AGENT_PATTERNS: ReadonlyArray<RegExp> = [
+  /^RubricScorer/i,
+  /FullStoryDiagnostic/i,
+  /NoveltySkeletonJudge/i,
+];
+
 export class CostTracker {
   private totalCost = 0;
   private costByModel = new Map<string, number>();
@@ -73,6 +87,37 @@ export class CostTracker {
    * run with no cache hits, which is the exact failure shape this project keeps paying for.
    */
   private cachedPromptTokens = 0;
+  /**
+   * A_86 items 84-85 — two numbers a run could never answer about itself.
+   *
+   * `shadow` is spend on calls that GATE NOTHING: the rubric scorer, the full-story diagnostic and
+   * the novelty skeleton judge all run in shadow mode and none can fail a run. It was ~4% of the
+   * last run and nobody knew that until it was counted by hand.
+   *
+   * `wasted` is spend whose OUTPUT WAS DISCARDED: a rolled-back polish (54% of that pass), a repair
+   * that returned no replacements, a rejected draft the fallback did not ship. Both are recorded by
+   * the caller, because only the caller knows whether it kept what it bought.
+   */
+  private shadowCostUsd = 0;
+  private wastedCostUsd = 0;
+
+  /** A_86 item 84 — mark the most recent spend as gating nothing. */
+  noteShadowSpend(costUsd: number): void {
+    if (Number.isFinite(costUsd) && costUsd > 0) this.shadowCostUsd += costUsd;
+  }
+
+  /** A_86 item 85 — mark spend whose output was discarded. */
+  noteWastedSpend(costUsd: number): void {
+    if (Number.isFinite(costUsd) && costUsd > 0) this.wastedCostUsd += costUsd;
+  }
+
+  getShadowCost(): number {
+    return this.shadowCostUsd;
+  }
+
+  getWastedCost(): number {
+    return this.wastedCostUsd;
+  }
   private promptTokensWithCacheTelemetry = 0;
   private promptTokensTotal = 0;
 
@@ -153,6 +198,10 @@ export class CostTracker {
     if (agent) {
       const agentCost = this.costByAgent.get(agent) || 0;
       this.costByAgent.set(agent, agentCost + cost);
+      // A_86 item 84 — classify centrally, by the agent label the call already carries. Doing this
+      // at each shadow call site would be several bodies of one rule, and a new shadow judge would
+      // silently miss the tally. See SHADOW_AGENT_PATTERNS.
+      if (SHADOW_AGENT_PATTERNS.some((re) => re.test(agent))) this.shadowCostUsd += cost;
     }
 
     return cost;
@@ -175,6 +224,8 @@ export class CostTracker {
     this.costByModel.clear();
     this.costByAgent.clear();
     this.cachedPromptTokens = 0;
+    this.shadowCostUsd = 0;
+    this.wastedCostUsd = 0;
     this.promptTokensWithCacheTelemetry = 0;
     this.promptTokensTotal = 0;
   }
@@ -196,6 +247,10 @@ export class CostTracker {
     cacheHitRate: number | null;
     cacheTelemetryCoverage: number;
     costIsUpperBound: boolean;
+    /** A_86 item 84 — spend on calls that gate nothing (shadow judges, diagnostics). */
+    shadowCost: number;
+    /** A_86 item 85 — spend whose output was discarded (rolled-back polish, no-op repairs). */
+    wastedCost: number;
   } {
     const covered = this.promptTokensWithCacheTelemetry;
     return {
@@ -209,6 +264,8 @@ export class CostTracker {
       cacheTelemetryCoverage:
         this.promptTokensTotal > 0 ? covered / this.promptTokensTotal : 0,
       costIsUpperBound: this.cachedPromptTokens > 0,
+      shadowCost: this.shadowCostUsd,
+      wastedCost: this.wastedCostUsd,
     };
   }
 }

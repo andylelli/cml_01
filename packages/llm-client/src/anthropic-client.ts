@@ -186,10 +186,28 @@ export class AnthropicClient {
 
       const latencyMs = Date.now() - startTime;
 
+      /**
+       * A_86 item 86 — Anthropic reports cache hits in `cache_read_input_tokens`, and this mapping
+       * dropped the field, so the polish pass (26% of run spend) reported a 0% cache rate that was
+       * really UNMEASURED. Absent stays absent: `cachedPromptTokens` is only set when the API
+       * actually reported it, so a model that never caches can never look like one that does (the
+       * same A_70/A_71 rule the Azure side follows).
+       *
+       * NOTE: reading the number does not create the hits. Anthropic only caches a prefix that was
+       * explicitly marked with `cache_control`, which this client does not yet send — that is item
+       * 27, and this is the measurement that will show whether it landed.
+       */
+      const anthropicUsage = response.usage as
+        | { input_tokens?: number; output_tokens?: number; cache_read_input_tokens?: number }
+        | undefined;
+      const cacheRead = anthropicUsage?.cache_read_input_tokens;
       const usage = {
         promptTokens: response.usage?.input_tokens ?? 0,
         completionTokens: response.usage?.output_tokens ?? 0,
         totalTokens: (response.usage?.input_tokens ?? 0) + (response.usage?.output_tokens ?? 0),
+        ...(typeof cacheRead === "number" && Number.isFinite(cacheRead)
+          ? { cachedPromptTokens: cacheRead }
+          : {}),
       };
 
       const estimatedCost = this.costTracker.trackCost(model, usage, options.logContext?.agent);
