@@ -8,6 +8,40 @@ Evidence labels follow the CLAUDE.md standard: **MEASURED** (a number from this 
 or artifacts), **INFERRED** (follows from a measured fact and the code), **ASSUMED** (plausible, not
 yet measured — the item is to measure it).
 
+## STATUS — 2026-09-10
+
+Items carry an inline annotation (`→ **DONE** ...`) recording what was actually built, and where the
+item as written turned out to be wrong. **24 of 100 are resolved.** Commits: `f5d5012e` (group A),
+`e3fca2de` (23, 31, 69, 71, 77, 94), `cc5d7640` (89, 91, 93, 96-100).
+
+| outcome | items |
+|---|---|
+| built and tested | 1, 2, 3, 4, 5, 6, 9, 10, 23, 69, 71, 77, 89, 93, 94 |
+| built, partial | 31 (detail recorded; the threshold still needs a run), 91 (script yes, auto-hook deliberately not) |
+| recorded as a standing rule in CLAUDE.md | 96, 97, 98, 99, 100 |
+| WITHDRAWN — the item was wrong | 7 (`maxRetries: 0` is deliberate; both clients wrap chatOnce in withRetry) |
+| DEFERRED — could cause the harm it prevents | 8 (a per-deployment limiter doubles the request rate if the deployments share a quota; item 9 is the measurement that settles it) |
+| already done before this list | 18, 55 (A_85 F1/F6) |
+
+**Four items in this list were measurably wrong**, which is the reason each was checked before being
+built rather than after: item 1 (three of its four error codes were already present; the real gap was
+`connection_error` vs the SDK's `"Connection error."`), item 6 (re-deriving geometry on resume would
+be incorrect by design), item 7 (withdrawn), and item 69 (the orchestrator half was already fixed —
+the live defect was in the replay path). The A_86 numbers they were drawn from stand; the proposed
+fixes did not.
+
+**Verification for every commit above:** `build:all` exit 0; llm-client 139, worker 893, prompts-llm
+1490, api 10 tests pass; both flag audits clean. A bare `npx vitest run` from the root reports 28
+failing FILES — all in `apps/web`, `apps/api` and `scripts/**/*.mjs`, all pre-existing runner
+artifacts (the `.mjs` suites are `node --test` files, and the api suite needs the env its own
+workspace script sets). Confirmed against commit `47d346b6`, before any of this work.
+
+**The 76 remaining** are unstarted. The highest-value are 11 (regen before the 30k-token retry),
+12 (the victim-alive false positive, 3 of 12 retries — needs its measurement first), 24/25 (the polish
+prompt and paragraph-scoped rollback, now unblocked by item 23), 53 (3b clock facts at the schema)
+and 79-88 (the run summary).
+
+---
 ## 0. The map the list is drawn from — MEASURED
 
 `node scripts/run-cost-audit.mjs`, five runs to 2026-09-08, mean **£0.60/run**:
