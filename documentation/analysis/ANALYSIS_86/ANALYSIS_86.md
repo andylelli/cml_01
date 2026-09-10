@@ -11,16 +11,17 @@ yet measured — the item is to measure it).
 ## STATUS — 2026-09-10
 
 Items carry an inline annotation (`→ **DONE** ...`) recording what was built, and where the item as
-written turned out to be wrong. **49 of 100 resolved.**
+written turned out to be wrong. **51 of 100 resolved.**
 
 | outcome | items |
 |---|---|
-| built and verified | 1, 2, 3, 4, 5, 6, 9, 10, 12, 23, 34, 37, 46, 47, 48, 50, 52, 53, 63, 69, 71, 72, 77, 79, 83, 84, 85, 86, 88, 89, 93, 94, 96, 97, 98, 99, 100 |
+| built and verified | 1, 2, 3, 4, 5, 6, 9, 10, 12, 23, 25, 34, 37, 46, 47, 48, 50, 52, 53, 63, 69, 71, 72, 77, 79, 83, 84, 85, 86, 88, 89, 93, 94, 96, 97, 98, 99, 100 |
 | built, partial (rest stated inline) | 11, 31, 80, 81, 91 |
 | WITHDRAWN — the item was wrong, or would cause harm | 7, 51 |
 | DEFERRED — with the reason recorded at the call site | 8, 49, 76 |
 | already true before this list | 18, 55 |
-| NOT STARTED | 13, 14, 15, 16, 17, 19, 20, 21, 22, 24, 25, 26, 27, 28, 29, 30, 32, 33, 35, 36, 38, 39, 40, 41, 42, 43, 44, 45, 54, 56, 57, 58, 59, 60, 61, 62, 64, 65, 66, 67, 68, 70, 73, 74, 75, 78, 82, 87, 90, 92, 95 |
+| BLOCKED on a run (the record it needs now exists) | 24 |
+| NOT STARTED | 13, 14, 15, 16, 17, 19, 20, 21, 22, 26, 27, 28, 29, 30, 32, 33, 35, 36, 38, 39, 40, 41, 42, 43, 44, 45, 54, 56, 57, 58, 59, 60, 61, 62, 64, 65, 66, 67, 68, 70, 73, 74, 75, 78, 82, 87, 90, 92, 95 |
 
 **Commits:** `f5d5012e` group A · `e3fca2de` 23/31/69/71/77/94 · `cc5d7640` 89/91/93/96-100 ·
 `3d38f123` group I · `5cfc7db6` item 12 + group E · this commit 34/37/53/63/72/76.
@@ -173,9 +174,11 @@ prose requirements 1.5k; fair-play contract 1.7k; system message 1.8k.
 24. **Feed the polish prompt the exact checks it regresses on.** The prompt carries a LOCKED STORY
     CONTRACT and cast names; if the regressions are pronoun, victim-alive or gender agreement (the
     retry drivers), add those three rules verbatim. INFERRED from B12–B13; confirm with C23.
+    → **BLOCKED ON A RUN, by design.** Item 23 built the record this needs (the polish rollback now carries the check it broke into the ledger and the log). Feeding those specific rules into the polish prompt requires knowing WHICH they are, and the corpus predates the recording — so the next run's ledger is the input. Guessing the rules now is exactly what item 23 existed to stop.
 25. **Paragraph-scoped polish with paragraph-scoped rollback.** Today one regressing sentence discards
     the whole chapter's polish (~£0.064). Ask for an edit list per paragraph and roll back only the
     offending paragraph. MEASURED waste: ~£0.15–0.26 per run.
+    → **DONE — the largest single recovery in the list.** A regressing paragraph no longer discards a whole chapter's line-editing. Validation here is DETERMINISTIC and LOCAL (no LLM, no cost), so the polished chapter is re-tested with one changed paragraph reverted at a time, bounded at 12 attempts; the first candidate that passes is kept. What survives has passed exactly the SAME validator the whole-chapter version had to pass, so nothing the gate rejects can slip through — pinned by test. If no single revert clears the errors it rolls back whole, exactly as before: this can only recover a rollback, never cause one. MEASURED baseline: 39 of 72 recorded polish calls were rolled back whole, at ~£0.06 each, in a pass that is 26% of run spend. Two existing tests asserted the old whole-chapter verdict; in BOTH fixtures one paragraph carried the obligation, so they now assert the salvage and each gained a case pinning full rollback when no revert helps.
 26. **Skip polish on chapters the fallback produced** (rejected drafts): polish on a chapter that already
     failed validation regresses by construction. Check `fallbackTelemetry` before polishing.
 27. **Anthropic prompt caching on the polish system prompt** (`cache_control: ephemeral` on the stable

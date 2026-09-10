@@ -375,7 +375,10 @@ describe("polishPassingChapter provider routing", () => {
     expect(result.chapter.paragraphs[0]).toContain("rewound clock");
   });
 
-  it("still rolls back on a validator regression regardless of provider", async () => {
+  // A_86 item 25 — same shape as the agent9-prose case: one paragraph carries the obligation, so
+  // reverting it rescues the rest. The provider routing is what this file is about, and it is
+  // unchanged; only the whole-chapter-vs-paragraph verdict moved.
+  it("salvages rather than discarding, regardless of provider (A_86 item 25)", async () => {
     const polishClient = {
       chat: vi.fn().mockResolvedValue(okReply(["A rewrite that drops the decisive object.", "Second line."])),
     } as any;
@@ -390,6 +393,25 @@ describe("polishPassingChapter provider routing", () => {
         chapter: candidate,
         hardErrors: candidate.paragraphs.join(" ").includes("rewound clock") ? [] : ["missing clue"],
       }),
+    });
+
+    expect(result.keptPolishedVersion).toBe(true);
+    expect(result.chapter.paragraphs.join(" ")).toContain("rewound clock");
+  });
+
+  it("still rolls back WHOLE when no single revert clears the errors (A_86 item 25)", async () => {
+    const polishClient = {
+      chat: vi.fn().mockResolvedValue(okReply(["A rewrite that drops the decisive object.", "Second line."])),
+    } as any;
+
+    const result = await polishPassingChapter({
+      chapter,
+      client: { chat: vi.fn() } as any,
+      polishClient,
+      polishModel: "claude-sonnet-5",
+      repairContext,
+      // structural: no per-paragraph revert can satisfy it
+      validateCandidate: (candidate) => ({ chapter: candidate, hardErrors: ["structural failure"] }),
     });
 
     expect(result.keptPolishedVersion).toBe(false);

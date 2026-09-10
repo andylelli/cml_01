@@ -2566,7 +2566,10 @@ describe("Agent 9 prompt hardening fixes", () => {
 });
 
 describe("post-pass polish", () => {
-  it("rolls back the polished candidate when validation regresses", async () => {
+  // A_86 item 25 — the polish here drops "rewound clock" from paragraph 0 and improves paragraph 1.
+  // Reverting paragraph 0 restores the obligation, so the chapter passes the SAME validator and the
+  // improvement to paragraph 1 survives. Previously the whole chapter was discarded for it.
+  it("salvages the innocent paragraph instead of discarding the whole chapter (A_86 item 25)", async () => {
     const chapter = {
       title: "Chapter 8: The Trap",
       paragraphs: [
@@ -2634,9 +2637,15 @@ describe("post-pass polish", () => {
     // keep telling the model these are shapes to remove, not text to insert.
     expect(prompt).toContain("Do NOT copy any wording from these instructions");
     expect(prompt).toContain("Edgar Vale");
-    expect(result.keptPolishedVersion).toBe(false);
-    expect(result.rollbackReason).toBe("validation_regression");
-    expect(result.chapter).toEqual(chapter);
+    expect(result.keptPolishedVersion).toBe(true);
+    expect(result.salvagedParagraphIndex).toBe(0);
+    // the obligation the validator enforces is satisfied by the salvaged chapter
+    expect(result.chapter.paragraphs.join(" ")).toContain("rewound clock");
+    // and the polish of the OTHER paragraph is kept
+    expect(result.chapter.paragraphs[1]).toContain("decisive object was no longer named");
+    // paragraph 0 is the ORIGINAL (it carries the obligation); paragraph 1 is the POLISHED one.
+    expect(result.chapter.paragraphs[0]).toBe(chapter.paragraphs[0]);
+    expect(result.chapter.paragraphs[1]).not.toBe(chapter.paragraphs[1]);
   });
 
   it("rolls back polished output when obligation-bearing clues are removed", async () => {

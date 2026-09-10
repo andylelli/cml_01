@@ -3631,6 +3631,15 @@ export async function generateProse(
                 }
               }
 
+              // A_86 item 25 — say when a whole-chapter rollback was avoided, and at what cost.
+              if (polished.keptPolishedVersion && typeof polished.salvagedParagraphIndex === "number") {
+                console.warn(
+                  `[Agent 9][A_86 item 25] polish SALVAGED on ch${chapterNumber}: reverted paragraph ` +
+                    `${polished.salvagedParagraphIndex} and kept the rest, instead of discarding the whole ` +
+                    `chapter. Original regression: ${polished.rollbackDetail ?? "(unrecorded)"}`,
+                );
+                recordRepairOutcome("post_pass_polish", "changed", "salvaged_one_paragraph");
+              }
               if (polished.keptPolishedVersion) {
                 chapter = polished.chapter;
                 proseBatch.chapters[i] = chapter;

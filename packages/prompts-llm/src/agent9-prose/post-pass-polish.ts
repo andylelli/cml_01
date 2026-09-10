@@ -42,6 +42,11 @@ export interface PostPassPolishResult {
    * proposal to fix the polish prompt (item 24) was a guess. This carries it out.
    */
   rollbackDetail?: string;
+  /**
+   * A_86 item 25 — the paragraph that was reverted to rescue the rest of the polish. Present only
+   * when a whole-chapter rollback was avoided by reverting exactly one paragraph.
+   */
+  salvagedParagraphIndex?: number;
   rollbackReason?:
     | "truncated"
     | "refused"
@@ -256,6 +261,12 @@ export const buildPostPassPolishPrompt = (args: {
   return lines.join("\n");
 };
 
+/**
+ * A_86 item 25 — how many single-paragraph reverts to try before giving up and rolling back whole.
+ * Each is a deterministic local re-validation, so the bound is about pathological chapters, not cost.
+ */
+const MAX_SALVAGE_ATTEMPTS = 12;
+
 export const polishPassingChapter = async (args: {
   chapter: ProseChapter;
   client: AzureOpenAIClient;
@@ -353,6 +364,53 @@ export const polishPassingChapter = async (args: {
 
   const validated = await args.validateCandidate(candidate);
   if (validated.hardErrors.length > 0) {
+    /**
+     * ── A_86 item 25 — SALVAGE the paragraphs that are innocent ──────────────────────────────────
+     *
+     * MEASURED: 39 of 72 recorded polish calls were rolled back whole, and post-pass polish is 26%
+     * of run spend — so a single regressing sentence discarded a whole chapter's line-editing, at
+     * roughly £0.06 a time. The rewrite is per-paragraph; the verdict was per-chapter.
+     *
+     * WHY IT IS SAFE TO TRY: validation here is DETERMINISTIC and LOCAL — no LLM call, no cost. So
+     * the polished chapter can be re-tested with one changed paragraph reverted at a time until it
+     * passes, and the result is a chapter that satisfies exactly the same validator the whole-chapter
+     * version had to satisfy. Nothing is kept that the gate would have rejected.
+     *
+     * BOUNDED: at most `MAX_SALVAGE_ATTEMPTS` re-validations, and only paragraphs the polish actually
+     * changed are candidates. If no single revert clears the errors, the original chapter is returned
+     * exactly as before — this can only ever recover a rollback, never cause one.
+     */
+    const originalParagraphs = args.chapter.paragraphs ?? [];
+    const polishedParagraphs = candidate.paragraphs ?? [];
+    const changedIndexes =
+      originalParagraphs.length === polishedParagraphs.length
+        ? originalParagraphs
+            .map((paragraph, index) => (paragraph === polishedParagraphs[index] ? -1 : index))
+            .filter((index) => index >= 0)
+        : [];
+
+    if (changedIndexes.length > 1 && changedIndexes.length <= MAX_SALVAGE_ATTEMPTS) {
+      for (const index of changedIndexes) {
+        const salvaged = {
+          ...candidate,
+          paragraphs: polishedParagraphs.map((paragraph, i) =>
+            i === index ? originalParagraphs[i] : paragraph,
+          ),
+        };
+        // eslint-disable-next-line no-await-in-loop -- deterministic, local, and bounded above.
+        const revalidated = await args.validateCandidate(salvaged);
+        if (revalidated.hardErrors.length === 0) {
+          return {
+            chapter: revalidated.chapter ?? salvaged,
+            applied: true,
+            keptPolishedVersion: true,
+            salvagedParagraphIndex: index,
+            rollbackDetail: String(validated.hardErrors[0] ?? "").slice(0, 300),
+          };
+        }
+      }
+    }
+
     return {
       chapter: args.chapter,
       applied: true,
