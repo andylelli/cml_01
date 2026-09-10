@@ -59,6 +59,28 @@ made — including the ones that failed.
 
 ---
 
+## Spending a run, and spending a read — A_86 §K
+
+A run is ~£0.60 and ~40 minutes; an external read is the only instrument that has ever moved this
+project, and it carries ±3 marks. Both are scarcer than the work that precedes them.
+
+- **Prefer the matched pair to the fresh run.** `RESUME_REDO=prose` re-runs ONE stage against a
+  byte-identical persisted upstream (~£0.45). A fresh run settles nothing about a prose-side lever,
+  because everything upstream moved too.
+- **Never spend a read on a book with a fallback chapter.** A deterministic-fallback chapter is
+  machine-assembled scaffold; a read of it measures the fallback, not the pipeline. The run log says
+  `forced to deterministic fallback` / `forced to completion fallback`. Resume that chapter first.
+- **Bundle levers that touch different chapters** so one read scores several by category (the A_85
+  series touched ch1, ch8-10 and the timeline). One read, several answers.
+- **Choose the next seed by AXIS, not at random**, until every axis has three reads. Authority,
+  spatial and behavioural have 0-1 each; a mark on an unread axis is worth more than a fifth
+  temporal mark.
+- **When a read names no injector, the injector audit is over.** The last four reads listed only our
+  own template sentences (A_84, A_85). Until a read stops quoting them, a read is an injector audit
+  and should be scored as one — not as evidence about prose quality.
+
+---
+
 ## Evidence standard
 
 Every claim in an analysis document is labelled **MEASURED**, **INFERRED** or **ASSUMED**.

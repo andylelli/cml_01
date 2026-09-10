@@ -55,7 +55,11 @@
     "probe:voice-fragment-leak": "node scripts/probe-voice-fragment-leak.mjs",
     "probe:reveal-repair": "node --use-system-ca scripts/probe-reveal-repair.mjs",
     "probe:model-cost": "node scripts/cost-model-swap.mjs",
-    "probe:token-economics": "node scripts/probe-run-token-economics.mjs"
+    "probe:token-economics": "node scripts/probe-run-token-economics.mjs",
+    "build:changed": "node scripts/build-all.mjs --changed",
+    "verify:flags": "node scripts/flag-register-check.mjs && node scripts/module-const-flag-check.mjs",
+    "probe:clue-presence": "node scripts/probe-clue-presence-pool.mjs",
+    "probe:x39-reach": "node scripts/probe-x39-reach.mjs"
   },
   "devDependencies": {
     "typescript": "^5.5.4"

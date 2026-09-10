@@ -291,13 +291,16 @@ prose requirements 1.5k; fair-play contract 1.7k; system message 1.8k.
 
 89. **`npm run build:all` rebuilds 14 packages for a one-package change** (~4 min). Build the changed
     package and its dependents only (`tsc -b` with project references).
+    → **DONE.** `npm run build:changed` — `scripts/build-all.mjs --changed` skips packages whose dist is newer than their src and builds the first stale one plus everything after it. ORDER is already topological, so "everything after" IS the downstream set; deliberately blunt, because an over-build costs seconds and an under-build ships a stale dist to the worker. VERIFIED: all-fresh skips everything; touching `story-geometry` (mid-ORDER) builds 9 of 16 in 57s instead of ~4 min. The default and `pretest` are unchanged.
 90. **Vitest: 339 test files; run the touched package's suite by default**, the full suite in CI.
 91. **`flags:check` and `flags:runtime` as a pre-commit hook** — both are seconds and both have caught
     no-op levers.
+    → **PARTLY DONE — script yes, automatic hook deliberately not.** `npm run verify:flags` runs both audits in one command (seconds). An automatic pre-commit hook was NOT installed: it would slow every commit for the other session working on this branch, and a hook that blocks a commit is a bad surprise to install on someone else's behalf. Left as a one-command opt-in.
 92. **Prompt-capture harness as a CLI** (`REPLAY_CAPTURE_PROMPTS` exists): `npm run capture -- --agent
     Agent2` so a lever is verified by its prompt in one command, not a scratch script.
 93. **A `probe` directory with the replay probes from A_84/A_85** (culprit link, DT check, clue pool,
     X39 reach) checked in, so the next reader replays them instead of rewriting them.
+    → **DONE.** The two A_85 replay probes are checked in as `scripts/probe-clue-presence-pool.mjs` and `scripts/probe-x39-reach.mjs` with `npm run probe:clue-presence` / `probe:x39-reach`, joining the existing `probe:*` family. Both run green against the stored corpus, so the next reader replays them instead of rewriting them.
 94. **Delete the CRLF/LF mix** (`git warns on every commit`): one `.gitattributes` line.
     → **DONE.** `.gitattributes` added: `* text=auto eol=lf`, CRLF kept for `.bat`/`.cmd`/`.ps1`, binaries marked. Every `git add` in this repo printed a warning per file, which trains the reader to ignore git's output — the one place a real warning would show.
 
@@ -307,12 +310,16 @@ prose requirements 1.5k; fair-play contract 1.7k; system message 1.8k.
     summary the run prints, so the read is scored against it.
 96. **Read the matched pair, not the single run**: `RESUME_REDO=prose` costs the prose stage only
     (~£0.45) and settles a prose-side lever; a fresh run (£1.15) settles nothing about a prose lever.
+    → **DONE (CLAUDE.md).** Recorded as a standing rule: prefer `RESUME_REDO=prose` (~£0.45, one stage against a byte-identical upstream) to a fresh run for any prose-side lever.
 97. **Do not spend a read on a fallback book**: if any chapter fell back, resume that chapter (A5/A10)
     before sending the book out — a read of a rejected draft measures the fallback, not the pipeline.
+    → **DONE (CLAUDE.md).** Recorded: never spend a read on a book with a fallback chapter — it measures the fallback, not the pipeline — with the exact log strings to grep for.
 98. **One read per lever, not one lever per read**: bundle levers that touch different chapters (the
     A_85 series touches ch1, ch8–10 and the timeline) so one read can score each by category.
+    → **DONE (CLAUDE.md).** Recorded: bundle levers that touch different chapters so one read scores several by category.
 99. **Authority, spatial, behavioural have 0–1 external reads** — choose the next seeds by axis, not at
     random, until each axis has three; a mark on an unread axis is worth more than a fifth temporal mark.
+    → **DONE (CLAUDE.md).** Recorded: choose the next seed by axis until every axis has three reads; authority/spatial/behavioural have 0-1 each.
 100. **Stop when the reader's list is the injector list** — the last four reads' "generator lines" were
      all ours (A_84, A_85). When a read names no injector, that is the signal to spend on prose levers;
      until then every read is an injector audit and should be scored as one.
@@ -332,3 +339,4 @@ prose requirements 1.5k; fair-play contract 1.7k; system message 1.8k.
 
 Nothing above changes a model, a temperature, or a prompt operation the reader has scored well. The
 items that could — polish model (C28), temperature escalation (B21) — are listed as measurements only.
+    → **DONE (CLAUDE.md).** Recorded: while a read still quotes our own template sentences it is an injector audit and should be scored as one, not as evidence about prose.
