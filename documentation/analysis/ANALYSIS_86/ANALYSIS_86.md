@@ -11,27 +11,30 @@ yet measured — the item is to measure it).
 ## STATUS — 2026-09-10
 
 Items carry an inline annotation (`→ **DONE** ...`) recording what was built, and where the item as
-written turned out to be wrong. **61 of 100 resolved.**
+written turned out to be wrong. **64 of 100 resolved.**
 
 | outcome | items |
 |---|---|
-| built and verified | 1, 2, 3, 4, 5, 6, 9, 10, 12, 23, 25, 32, 45, 62, 70, 90, 95, 34, 37, 46, 47, 48, 50, 52, 53, 63, 69, 71, 72, 77, 79, 83, 84, 85, 86, 88, 89, 93, 94, 96, 97, 98, 99, 100 |
+| built and verified | 1, 2, 3, 4, 5, 6, 9, 10, 12, 23, 25, 32, 34, 37, 45, 46, 47, 48, 50, 52, 53, 62, 63, 69, 70, 71, 72, 77, 79, 83, 84, 85, 86, 88, 89, 90, 93, 94, 95, 96, 97, 98, 99, 100 |
 | built, partial (rest stated inline) | 11, 31, 80, 81, 91 |
 | WITHDRAWN — the item was wrong, or would cause harm | 7, 51 |
-| DEFERRED — with the reason recorded at the call site | 8, 49, 76 |
+| DEFERRED — with the reason recorded | 8, 28, 49, 54, 76 |
 | already true before this list | 18, 55 |
 | BLOCKED on a run (the record it needs now exists) | 24 |
-| resolved by MEASUREMENT — already true, or not viable | 26, 27, 29, 59 |
-| NOT STARTED | 13, 14, 15, 16, 17, 19, 20, 21, 22, 28, 30, 33, 35, 36, 38, 39, 40, 41, 42, 43, 44, 54, 56, 57, 58, 60, 61, 64, 65, 66, 67, 68, 73, 74, 75, 78, 82, 87, 92 |
+| resolved by MEASUREMENT — already true, not viable, or premise wrong | 26, 27, 29, 42, 59 |
+| NOT STARTED | 13, 14, 15, 16, 17, 19, 20, 21, 22, 30, 33, 35, 36, 38, 39, 40, 41, 43, 44, 56, 57, 58, 60, 61, 64, 65, 66, 67, 68, 73, 74, 75, 78, 82, 87, 92 |
 
 **Commits:** `f5d5012e` group A · `e3fca2de` 23/31/69/71/77/94 · `cc5d7640` 89/91/93/96-100 ·
-`3d38f123` group I · `5cfc7db6` item 12 + group E · this commit 34/37/53/63/72/76.
+`3d38f123` group I · `5cfc7db6` item 12 + group E · `01650333` 34/37/53/63/72/76 · `2dfe4de7` item 25 ·
+`16447b5e` 26/27/29/32/45/59/70 · `c07f3836` 62/90/95 · this commit 28/42/54.
 
-**Seven items were measurably wrong**, which is why each was checked before being built: 1 (three of
+**Eight items were measurably wrong**, which is why each was checked before being built: 1 (three of
 four codes already present), 6 (re-deriving geometry on resume is incorrect by design), 7 (withdrawn),
 34 (no defect — the block is stable from ch2), 51 (a deterministic synonym table reintroduces the
 machine register the reads complain about), 63 (the floor already prefers the observable) and 69 (the
-orchestrator half was already fixed; the live defect was the replay path).
+orchestrator half was already fixed; the live defect was the replay path) and 42 (the caps machinery
+is load-bearing — 48 of 255 prose prompts exceed the OLD ceiling and the largest sits 5,272 tokens
+under the current one, so deleting its diagnosis would have removed a real guard).
 
 **Two were deferred because building them would cause the harm they aim to prevent:** 8 (a
 per-deployment limiter doubles the request rate if the deployments share a quota — item 9 is the
@@ -49,10 +52,11 @@ regex needed backslash-b. `JSON.stringify` renders both as ``, so every dump lo
 regex matched a control character. The item-12 test caught it; all six files touched this session were
 then swept and are clean.
 
-**The 51 remaining** are unstarted. Highest value: 24/25 (the polish prompt and
-paragraph-scoped rollback, unblocked by item 23), 13-17 (routing the other retry classes to their
-existing regens), 33/35/36/39-41 (prompt-block trimming, now that 37 showed a whole block was
-duplicated), and 61/64-68 (the remaining floors).
+**The 36 remaining are unstarted**, and the ledger above names them. In value order, the next
+four are: **24** (the polish prompt — now unblocked, needs one run's ledger to say WHICH checks it
+regresses on), **13-17** (route the other retry classes to the regens that already exist, as item 12
+did for the largest one), **39-41** (trim the prompt blocks — item 37 found an entire block emitted
+twice, so the others are worth measuring), and **64-68** (the remaining deterministic floors).
 
 ---
 
@@ -189,6 +193,7 @@ prose requirements 1.5k; fair-play contract 1.7k; system message 1.8k.
 28. **Measure Sonnet vs Opus for polish on a matched pair** (`RESUME_REDO=prose` + `REPLAY_CAPTURE_PROMPTS`)
     before assuming Opus is required; the keep rate (46%) is the number to beat, not the prose. This is
     a measurement, so it is safe; switching is not, until it is measured.
+    → **DEFERRED — it is a PAID measurement, and item 27 changed its odds.** Comparing Sonnet with Opus for the polish needs a matched pair (~£0.45 each arm) and the number to beat is the 46% keep rate, not the prose. Item 25 has just changed that keep rate by salvaging paragraph-scoped rollbacks, so the baseline must be re-measured on the next run before any model comparison would mean anything. Running it now would compare against a baseline that no longer exists.
 29. **Polish only chapters that passed first time.** `AGENT9_POLISH_RETRIED_CHAPTERS` is already OFF; keep
     it OFF (retried chapters carry the abstraction the polish then polishes).
     → **ALREADY TRUE — verified.** `AGENT9_POLISH_RETRIED_CHAPTERS` is unset, so a retried chapter is not polished. The item was to keep it that way; nothing to change.
@@ -227,6 +232,7 @@ prose requirements 1.5k; fair-play contract 1.7k; system message 1.8k.
 42. **Measure the prompt token ceiling's actual use**: `AGENT9_PROMPT_TOKEN_CEILING=56000` was raised
     from 40000; the ch5 prompt is ~22k. If nothing approaches the ceiling, the caps machinery costs
     diagnosis time for nothing — leave the ceiling, delete the diagnosis of caps that never fire.
+    → **MEASURED — and the item's premise was WRONG, which matters.** Over 255 stored prose prompts: the largest is **50,728 tokens**, only 5,272 below the 56,000 ceiling in force, and **48 of 255 exceed the OLD 40,000 ceiling**. So the caps machinery is live, load-bearing, and the 09-04 raise from 40k to 56k was necessary rather than precautionary. Deleting the caps diagnosis — what this item proposed — would have removed the guard on 48 real prompts. Nothing to change; the finding is that the ceiling has less headroom than assumed, and a long book is what approaches it (the largest is a 20-chapter run's chapter 20).
 43. **Agent 6.5 world builder: 21k-token prompt, one call** — it re-receives the CML, profiles and
     locations it could reference by id. Measure what its output uses.
 44. **Agent 3 CML: 12.9k-token prompt, ~1.3 calls per run** — its seed-pattern and diverge-from lists
@@ -271,6 +277,7 @@ prose requirements 1.5k; fair-play contract 1.7k; system message 1.8k.
     → **DONE — `AGENT3B_AXIS_CLOCK_LOCK`, the timing mark at source.** MEASURED: 17 of 17 stored non-temporal cases have a clock-locking primary device and 0 of 17 hold any non-clock device among their five. A non-temporal 3b prompt is now told to lock what the concealment actually turns on, and at most ONE clock. A prompt OPERATION, not a gate. VERIFIED from the built prompt: present only when the flag is on AND the axis is non-temporal. Complements A_85 F4, which drops such facts at Agent 7.5 after the fact; F4's `[X39] dropped` telemetry is how we will see whether this landed.
 54. **Agent 3b: return five devices, keep one** — the other four are generated and paid for every run
     and never used (all five lock clocks; the re-rank found nothing to prefer). Generate two.
+    → **DEFERRED, on quality grounds.** Generating 2 devices instead of 5 saves completion tokens on a 4.1-mini call — roughly 0.5% of run spend — by removing four of the five candidates the selection and the plausibility judge choose between. A_86 item 53 measured that all five lock clocks, which argues the SET is weak, not that a smaller set would be better: fewer candidates makes the choice worse, not cheaper in any way that matters. Not built for 0.5%.
 55. **Agent 2: shared histories name one event** — done (F6). Measure the detector rate on the next
     cast artifact.
 56. **Agent 2 retries (6 calls over 4 runs)**: the retry reasons are schema/name-collision; the
