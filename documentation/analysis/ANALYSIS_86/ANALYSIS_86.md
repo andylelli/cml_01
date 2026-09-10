@@ -11,17 +11,18 @@ yet measured — the item is to measure it).
 ## STATUS — 2026-09-10
 
 Items carry an inline annotation (`→ **DONE** ...`) recording what was built, and where the item as
-written turned out to be wrong. **51 of 100 resolved.**
+written turned out to be wrong. **58 of 100 resolved.**
 
 | outcome | items |
 |---|---|
-| built and verified | 1, 2, 3, 4, 5, 6, 9, 10, 12, 23, 25, 34, 37, 46, 47, 48, 50, 52, 53, 63, 69, 71, 72, 77, 79, 83, 84, 85, 86, 88, 89, 93, 94, 96, 97, 98, 99, 100 |
+| built and verified | 1, 2, 3, 4, 5, 6, 9, 10, 12, 23, 25, 32, 45, 70, 34, 37, 46, 47, 48, 50, 52, 53, 63, 69, 71, 72, 77, 79, 83, 84, 85, 86, 88, 89, 93, 94, 96, 97, 98, 99, 100 |
 | built, partial (rest stated inline) | 11, 31, 80, 81, 91 |
 | WITHDRAWN — the item was wrong, or would cause harm | 7, 51 |
 | DEFERRED — with the reason recorded at the call site | 8, 49, 76 |
 | already true before this list | 18, 55 |
 | BLOCKED on a run (the record it needs now exists) | 24 |
-| NOT STARTED | 13, 14, 15, 16, 17, 19, 20, 21, 22, 26, 27, 28, 29, 30, 32, 33, 35, 36, 38, 39, 40, 41, 42, 43, 44, 45, 54, 56, 57, 58, 59, 60, 61, 62, 64, 65, 66, 67, 68, 70, 73, 74, 75, 78, 82, 87, 90, 92, 95 |
+| resolved by MEASUREMENT — already true, or not viable | 26, 27, 29, 59 |
+| NOT STARTED | 13, 14, 15, 16, 17, 19, 20, 21, 22, 28, 30, 33, 35, 36, 38, 39, 40, 41, 42, 43, 44, 54, 56, 57, 58, 60, 61, 62, 64, 65, 66, 67, 68, 73, 74, 75, 78, 82, 87, 90, 92, 95 |
 
 **Commits:** `f5d5012e` group A · `e3fca2de` 23/31/69/71/77/94 · `cc5d7640` 89/91/93/96-100 ·
 `3d38f123` group I · `5cfc7db6` item 12 + group E · this commit 34/37/53/63/72/76.
@@ -181,13 +182,16 @@ prose requirements 1.5k; fair-play contract 1.7k; system message 1.8k.
     → **DONE — the largest single recovery in the list.** A regressing paragraph no longer discards a whole chapter's line-editing. Validation here is DETERMINISTIC and LOCAL (no LLM, no cost), so the polished chapter is re-tested with one changed paragraph reverted at a time, bounded at 12 attempts; the first candidate that passes is kept. What survives has passed exactly the SAME validator the whole-chapter version had to pass, so nothing the gate rejects can slip through — pinned by test. If no single revert clears the errors it rolls back whole, exactly as before: this can only recover a rollback, never cause one. MEASURED baseline: 39 of 72 recorded polish calls were rolled back whole, at ~£0.06 each, in a pass that is 26% of run spend. Two existing tests asserted the old whole-chapter verdict; in BOTH fixtures one paragraph carried the obligation, so they now assert the salvage and each gained a case pinning full rollback when no revert helps.
 26. **Skip polish on chapters the fallback produced** (rejected drafts): polish on a chapter that already
     failed validation regresses by construction. Check `fallbackTelemetry` before polishing.
+    → **NOT A DEFECT — measured.** Polish runs only inside `if (chapterErrors.length === 0)`, i.e. on a chapter that PASSED validation. A fallback chapter exists precisely because attempts were exhausted with errors outstanding, and its telemetry is pushed later in the loop than the polish site. The two are mutually exclusive by construction, so there was never a fallback chapter to skip.
 27. **Anthropic prompt caching on the polish system prompt** (`cache_control: ephemeral` on the stable
     prefix). 4.4k-token prompts, ~2k stable: small (~£0.005/call) but free.
+    → **NOT VIABLE — measured, and it also explains item 86's zero.** Anthropic prompt caching needs a cached prefix of at least 1024 tokens. **The polish SYSTEM prompt is 33 tokens** (byte-identical across chapters — md5 338617b3 on every one of run 24901's polish calls). The 4.4k tokens are in the USER message, which carries the chapter text and is different every call. There is no stable prefix of cacheable size, so `cache_control` would buy nothing. This is why the polish cache rate is 0 and would still read 0 after item 86 made it measurable.
 28. **Measure Sonnet vs Opus for polish on a matched pair** (`RESUME_REDO=prose` + `REPLAY_CAPTURE_PROMPTS`)
     before assuming Opus is required; the keep rate (46%) is the number to beat, not the prose. This is
     a measurement, so it is safe; switching is not, until it is measured.
 29. **Polish only chapters that passed first time.** `AGENT9_POLISH_RETRIED_CHAPTERS` is already OFF; keep
     it OFF (retried chapters carry the abstraction the polish then polishes).
+    → **ALREADY TRUE — verified.** `AGENT9_POLISH_RETRIED_CHAPTERS` is unset, so a retried chapter is not polished. The item was to keep it that way; nothing to change.
 30. **Do not polish a chapter twice** across resume: the resume re-polished chapters whose polish had
     already been kept in the original run. Persist the "kept" flag with the chapter (see A5).
 31. **Make `quality_no_gain` a recorded number, not a reason string** — what score delta counts as
@@ -195,6 +199,7 @@ prose requirements 1.5k; fair-play contract 1.7k; system message 1.8k.
     → **PARTLY DONE.** The reason string is no longer a bare class — it carries the detail (item 23). The `quality_no_gain` threshold itself is unchanged and still needs a run's ledger to tune, which item 23 now makes possible.
 32. **Polish rollback should keep the *validator-clean* paragraphs of the polished version** — a merge,
     not a discard. Same as C25 stated from the other side.
+    → **DONE — this is item 25.** "Keep the validator-clean paragraphs rather than discarding" is the same change stated from the other side, and it shipped as the paragraph-scoped salvage.
 
 ## D. Prompt size and caching — 30k tokens per prose call, half cached
 
@@ -229,6 +234,7 @@ prose requirements 1.5k; fair-play contract 1.7k; system message 1.8k.
     by axis (the merge already reserves three seed slots).
 45. **Cache the Azure `usage.cachedPromptTokens` per agent in the run summary** so every run reports its
     hit rate; today the number lives only in `logs/llm.jsonl`.
+    → **DONE — item 79.** The run summary prints the cache hit rate AND the telemetry coverage (so an unmeasured run cannot read as a 0% one), per agent cost, and the total. No longer only in `logs/llm.jsonl`.
 
 ## E. Shadow and telemetry calls — paid, non-gating
 
@@ -278,6 +284,7 @@ prose requirements 1.5k; fair-play contract 1.7k; system message 1.8k.
     rule has clean inputs.
 59. **Agent 4 revision (2 calls, 5k completion each)** runs even when Agent 3's CML validated first
     time. Skip when `validation.valid` and no logic warnings.
+    → **ALREADY TRUE — verified at `agent3-run.ts:398`.** Agent 4 runs inside `if (!cmlResult.validation.valid)`, so it is already skipped when Agent 3's CML validates first time. The 2 calls across 4 runs in §0 were runs whose CML genuinely failed validation — correct behaviour, not waste.
 60. **Agent 2c location profiles (5k completion)**: profile only locations the outline uses; the outline
     is built after — reorder so 2c runs after 7 for the locations 7 chose, or cap 2c to the preset's
     canonical rooms.
@@ -313,6 +320,7 @@ prose requirements 1.5k; fair-play contract 1.7k; system message 1.8k.
     → **DONE, and the item was STALE in its main half.** MEASURED against the built loader: `<workspaceRoot>/examples` -> 14 seed files, `<workspaceRoot>` -> 0, `<workerAppRoot>/examples` -> 0. The ORCHESTRATOR path A_77 reported is already fixed (`runtime-paths.ts` joins "examples" onto the workspace root, and it loads all 14). The live defect was in `agent9-replay.ts`, which had its own join onto `workerAppRoot` — a directory that does not exist — so every replay ran with an empty seed corpus while the run it replayed had a full one. Fixed there.
 70. **`AGENT9_GROUNDING_LEAD=0` is right** — the prepend wrote templated openers; keep it off and delete
     the "coverage below target (0/10)" gate warning that fires on every run and means nothing.
+    → **DONE — item 71.** `AGENT9_GROUNDING_LEAD=0` stays (A_82 P9: the prepend wrote 10 templated openers), and the release-gate line it produced on every run now fires only when the lead is actually enabled.
 71. **Scene-grounding coverage warning** — same: a warning that fires on 100% of runs is an off switch
     with extra steps (B1). Remove or make it conditional on the lead being enabled.
     → **DONE.** The release gate reported `scene-grounding coverage below target (0/10)` on every run. That coverage is produced by the grounding-lead prepend, and `AGENT9_GROUNDING_LEAD=0` has been the settled setting since A_82 P9 — so the gate reported the absence of a feature nobody wants as a defect of the manuscript, always. It now fires only when the lead is actually enabled, where a low number is a real finding; otherwise it logs at info. Not deleted: it is the only reader of that telemetry.
