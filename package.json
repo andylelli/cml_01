@@ -62,7 +62,8 @@
     "probe:x39-reach": "node scripts/probe-x39-reach.mjs",
     "probe:victim-alive": "node scripts/probe-victim-alive-recall.mjs",
     "test:touched": "node scripts/test-touched.mjs",
-    "probe:temporal-spine": "node scripts/probe-temporal-spine-replay.mjs"
+    "probe:temporal-spine": "node scripts/probe-temporal-spine-replay.mjs",
+    "probe:weapon-confusion": "node scripts/probe-weapon-confusion.mjs"
   },
   "devDependencies": {
     "typescript": "^5.5.4"

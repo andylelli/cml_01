@@ -102,6 +102,68 @@ const buildDeceptionPurposeLines = (cmlCase: any, culpritNames: string, culpritA
   return lines;
 };
 
+/**
+ * A_86 items 1 & 5 — `AGENT9_AFTERMATH_POSITIVE_JOB`: tell the final chapter what it IS, not only
+ * what it must not be.
+ *
+ * THE EVIDENCE. "Chapter 10" is the single most repeated ask across twelve external reads (9 of the
+ * reviewers' own "with X, this could reach…" clauses name it). The contract below already carried
+ * four requirements and six prohibitions, and the model complied 0 times out of 22 in one audit and
+ * 0 of 2 on the last run. CLAUDE.md's settled finding explains why: **this model complies with
+ * OPERATIONS and ignores STATISTICS** — "show the emotional and social consequences" is not a
+ * countable thing to do, so it is not done.
+ *
+ * WHERE THE REPLACEMENT COMES FROM. Not invented: it is what the reviewers PRAISED in the chapters
+ * that worked, plus the structural move one of them prescribed outright —
+ *   "Dorothy remembers Adela's precision, Ferdinand admits everyone resented her, and the remaining
+ *    staff begin to imagine rebuilding routine"
+ *   "characters reflecting, not re-solving"
+ *   "'Captain Ivor Hale had signed the confession.' That line appears near the END of Chapter 10,
+ *    but it should be the STARTING CONDITION of the chapter."
+ *
+ * So the outcome opens the chapter as an accomplished fact, and the rest is four countable beats.
+ * The prohibitions are kept — they are what stops the re-staging — but they are no longer the whole
+ * instruction. OFF: byte-identical.
+ */
+export const isAftermathPositiveJobEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT9_AFTERMATH_POSITIVE_JOB ?? "").trim());
+
+/**
+ * A_86 item 5 — `AGENT9_CLEARING_HUMAN_BEAT`: the clearing chapter clears people, not alibis.
+ *
+ * THE EVIDENCE, from the read that scored highest (85/100): *"Chapter 9's clearances are acceptable
+ * because they give Gerald, Harriet, and Halloway emotional closure, not just legal clearance.
+ * Gerald apologizing to Harriet is a good human beat."* Two other reads asked for chapter 9 to be
+ * "trimmed", and what they were objecting to in every case was a per-suspect recitation of alibis.
+ *
+ * The difference between the version that scored and the versions that did not is not length — it is
+ * that each clearance carried a human beat. That is countable, so it is asked for as one.
+ */
+export const isClearingHumanBeatEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT9_CLEARING_HUMAN_BEAT ?? "").trim());
+
+/**
+ * A_86 item 2 — `AGENT9_ONE_WEAPON`: the story has exactly one murder weapon, and only it carries
+ * the marks of the killing.
+ *
+ * REVIEWER-NAMED, twice, as the book's headline issue:
+ *   "1. Murder weapon confusion — Chapter 1 says a heavy brass letter opener lies near the body.
+ *    Chapter 3 introduces a heavy brass candlestick with blood and hair… Use one weapon."
+ *   "1. Weapon confusion: paperweight vs decanter"
+ *   "With the time math fixed and the weapon cleaned up, this could reach 87-89/100."
+ *
+ * MEASURED over the 37 manuscripts on disk (`npm run probe:weapon-confusion`): 4 books put the
+ * killing evidence on two different objects — 11%, and two of the four were never flagged by anyone.
+ * The case declares exactly ONE `death_method`; nothing told the prose that the declaration was
+ * exclusive, so a second object got decorated with the same blood-and-residue vocabulary.
+ *
+ * A countable operation, not a prohibition: name the weapon, and say that no other object carries
+ * the marks. The mechanism's own parts are exempted explicitly — a clock's chime hammer and a
+ * tampering wire are not rival weapons, and the probe's first draft flagged both. OFF: byte-identical.
+ */
+export const isOneWeaponEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT9_ONE_WEAPON ?? "").trim());
+
 export function buildChapterObligationBlock(
   scenesForChapter: unknown[],
   chapterStart: number,
@@ -272,6 +334,26 @@ export function buildChapterObligationBlock(
       : 2;
 
   const lines: string[] = ['CHAPTER OBLIGATION CONTRACT (MUST SATISFY):'];
+
+  // A_86 item 2 — one weapon, and only it bears the marks. See isOneWeaponEnabled for the evidence.
+  if (isOneWeaponEnabled()) {
+    const declaredWeapon: string = (() => {
+      const explicit = typeof (cmlCase as any)?.death_method === 'string' ? (cmlCase as any).death_method.trim() : '';
+      if (explicit) return explicit;
+      const cc = (cmlCase as any)?.meta?.crime_class ?? {};
+      return (typeof cc.subtype === 'string' && cc.subtype.trim()) || (typeof cc.category === 'string' && cc.category.trim()) || '';
+    })();
+    if (declaredWeapon) {
+      lines.push(
+        `  - ⚠ ONE WEAPON (MANDATORY, whole-book): the victim was killed by — ${declaredWeapon}. That is the ` +
+          `ONLY object in this story that may carry blood, a dark smear, a residue, a stain, hair or a wound. ` +
+          `No second object is described as if it might have been the weapon, in this chapter or any other. ` +
+          `Parts of the concealment mechanism (a wire, a chime hammer, a catch, a pulley) are NOT weapons and ` +
+          `must never be given those marks. A reader who cannot say what killed the victim has been given two ` +
+          `weapons where the case declared one.`,
+      );
+    }
+  }
 
   // Era authenticity preamble — injected once per batch so the LLM never introduces
   // anachronistic terms regardless of how far the pronoun/clue blocks push the system
@@ -770,6 +852,19 @@ export function buildChapterObligationBlock(
         // across the scene rather than compressed into one report-register sentence.
         lines.push(`    • "${clearance.suspect_name}": somewhere in this chapter, name ${clearance.suspect_name} and show — through a witness's words, a physical record, or the detective's observation — the clearance method ("${clearance.clearance_method}") that rules them out, then let the conclusion that they could not have done it land naturally in the prose. Use ordinary clearing language ("cleared", "ruled out", "innocent", "alibi holds", "could not have") woven into the scene across as many sentences as it takes; do not compress it into one flat report line, and show how the alibi was confirmed rather than merely asserting it.${clueRef}`);
       }
+      if (isClearingHumanBeatEnabled() && ownedClearances.length > 0) {
+        // A_86 item 5 — the difference between the clearing chapter that scored 85 and the ones two
+        // reviewers asked to have "trimmed" was not length. It was that each clearance carried a
+        // human beat: *"Chapter 9's clearances are acceptable because they give Gerald, Harriet and
+        // Halloway emotional CLOSURE, not just legal clearance. Gerald apologizing to Harriet is a
+        // good human beat."* That is countable, so it is asked for as one.
+        lines.push(
+          `  - ✅ CLEAR THE PERSON, NOT THE ALIBI: each clearance above must also land ONE human beat ` +
+            `between two named characters — an apology, a resentment finally said aloud, a thanks, a ` +
+            `reconciliation, an admission of what they had assumed. A suspect who is exonerated and ` +
+            `unchanged has been processed, not cleared. Never the same beat twice in this chapter.`,
+        );
+      }
     }
     // FIX-C3: Alibi consistency lock — culprit's established alibi window must not be contradicted.
     if (culpritAlibiLock.length > 0) {
@@ -1022,6 +1117,30 @@ export function buildChapterObligationBlock(
     lines.push(`  2. OUTCOME REFERENCE: reference the already-delivered outcome (arrest, custody, or confession) as a settled fact — characters speak of it or its consequences are visible. Do NOT re-enact it.`);
     lines.push(`  3. REMAINING QUESTIONS: tie off the questions the reveal left open — what becomes of the household, the estate, and the surviving characters' obligations.`);
     lines.push(`  4. CONSEQUENCE: show the emotional and social consequences of the truth on the surviving characters.`);
+    if (isAftermathPositiveJobEnabled()) {
+      // A_86 item 1 — the same obligations restated as things to DO. See the enabler's docblock for
+      // where each line comes from: every one is a reviewer's own praise or prescription.
+      lines.push(``);
+      lines.push(`  ✅ WHAT THIS CHAPTER IS FOR — do all four, and nothing that re-argues the case:`);
+      lines.push(
+        `  A. OPEN ON THE SETTLED OUTCOME. The FIRST paragraph states the outcome as an accomplished ` +
+          `fact the reader already knows — "${culpritNames || 'the culprit'} had signed the confession", ` +
+          `"${culpritNames || 'the culprit'} was gone". It is the chapter's starting condition, not its destination.`,
+      );
+      lines.push(
+        `  B. TWO SURVIVORS, TWO CHANGES. Name TWO surviving characters and give each ONE concrete thing ` +
+          `that is now different: a duty taken up or set down, a room reopened or shut, a possession ` +
+          `handed on, a plan abandoned. Concrete and specific — not "felt changed".`,
+      );
+      lines.push(
+        `  C. ONE MEMORY OF THE VICTIM that is NOT evidence — a habit, a kindness, an irritation, ` +
+          `something they always said. It must not bear on how they died.`,
+      );
+      lines.push(
+        `  D. ONE PHYSICAL DETAIL of the place resuming ordinary use — a room being cleaned, a routine ` +
+          `restarting, an object put back where it belongs.`,
+      );
+    }
     lines.push(`  ⛔ DO NOT RE-STAGE THE REVEAL: no new accusation scene, no fresh confession, no re-run of the evidence chain, and no per-suspect clearance recitation — all of these already happened on-page in the reveal chapter, and repeating them will be rejected and regenerated.`);
     // A_71 — the specific evasion the model actually used, three attempts running: it wrapped the
     // whole reveal in a recollection frame ("the confession lingered in the air, the words still
