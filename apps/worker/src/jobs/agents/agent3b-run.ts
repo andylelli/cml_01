@@ -302,6 +302,58 @@ export function applyDeclaredDerivationCheck(ctx: OrchestratorContext): CaseTime
   return checkDeclaredDerivations(registry);
 }
 
+/**
+ * A_86 item 3 — `AGENT3B_IMPLIED_DERIVATION`: repair the interval a device did not bother to declare.
+ *
+ * THE GAP, MEASURED 2026-09-10 over the 50 stored cases. `reconcileDeviceArithmetic` may only touch a
+ * fact that declares `derivedFrom` with exactly two sources — "no declaration, no rewrite", which is
+ * the right default for a value that might be primary. But **only 31 of 180 locked facts (17%) carry
+ * a declaration**, and **9 of the 22 cases with a time violation (41%) declare nothing at all**, so
+ * the repair is powerless on them by design rather than by defect.
+ *
+ * The prompt already asks for the declaration at length — it is REQUIRED, with a worked example and
+ * a self-check — and is followed 17% of the time. More prose will not move that: CLAUDE.md's rule is
+ * that this model complies with operations and ignores exhortation. So infer the shape instead of
+ * asking again.
+ *
+ * WHEN AN INFERENCE IS SAFE, and it is a narrow window: a device holding EXACTLY two clock facts and
+ * EXACTLY one duration fact has only one arithmetic reading — the duration is the interval between
+ * the clocks. There is no second candidate to confuse it with. Two clocks and two durations is
+ * ambiguous and is left alone; so is any device with three clocks.
+ *
+ * MEASURED reach: 9 devices have that exact shape with no declaration, 8 of them disagree with their
+ * own clocks, and 7 of those compute to a plausible interval. The same guards as the declared path
+ * apply — zero-length refused, and `rewriteDurationMinutes` refuses anything it cannot spell under a
+ * hundred minutes, which is what keeps a midnight-straddling pair from being written back as "seven
+ * hundred minutes". OFF: byte-identical.
+ */
+export const isImpliedDerivationEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT3B_IMPLIED_DERIVATION ?? "").trim());
+
+/**
+ * The single unambiguous implied derivation in a device: exactly two clocks and exactly one duration.
+ * Returns the duration fact's id, or null when the shape is anything else.
+ *
+ * Exported for the test, which asserts the ambiguous shapes are refused rather than guessed at.
+ */
+export const impliedIntervalFactId = (
+  facts: ReadonlyArray<{ id?: unknown; value?: unknown; derivedFrom?: unknown }>,
+  parseClock: (v: string) => number | null,
+  parseDuration: (v: string) => number | null,
+): string | null => {
+  const clocks: string[] = [];
+  const durations: string[] = [];
+  for (const f of facts) {
+    const value = String(f?.value ?? "").trim();
+    const id = String(f?.id ?? "").trim();
+    if (!value || !id) continue;
+    if (parseDuration(value) !== null) { durations.push(id); continue; }
+    if (parseClock(value) !== null) clocks.push(id);
+  }
+  if (clocks.length !== 2 || durations.length !== 1) return null;
+  return durations[0]!;
+};
+
 export function reconcileDeviceArithmetic(ctx: OrchestratorContext): void {
   const registry = ctx.lockedFactRegistry;
   if (!registry || registry.length === 0) return;
@@ -309,6 +361,37 @@ export function reconcileDeviceArithmetic(ctx: OrchestratorContext): void {
   // The ONLY entry point: a fact the device declared to be a consequence of exactly two others.
   // No declaration, no rewrite — a primary value is untouchable no matter how the numbers look.
   const byId = new Map(registry.map((f, index) => [String(f.id ?? "").trim(), { fact: f, index }]));
+  /**
+   * A_86 item 3 — stamp the ONE unambiguous implied derivation, so the existing repair below sees it.
+   *
+   * Deliberately done by giving the fact a `derivedFrom` rather than by adding a second repair path:
+   * the rewrite, the plausibility refusal, the zero-length guard, the read-back assertion and the
+   * write-through to the device already exist and are correct. A second body of that logic is the
+   * trap this file's own history is full of.
+   */
+  if (isImpliedDerivationEnabled()) {
+    const impliedId = impliedIntervalFactId(registry, parseClockTime, parseDurationMinutes);
+    if (impliedId) {
+      const target = registry.find((f) => String(f.id ?? "").trim() === impliedId);
+      if (target && !(Array.isArray(target.derivedFrom) && target.derivedFrom.length === 2)) {
+        const clockIds = registry
+          .filter((f) => {
+            const v = String(f.value ?? "").trim();
+            return v && parseDurationMinutes(v) === null && parseClockTime(v) !== null;
+          })
+          .map((f) => String(f.id ?? "").trim());
+        if (clockIds.length === 2) {
+          (target as { derivedFrom?: unknown }).derivedFrom = clockIds;
+          ctx.warnings.push(
+            `[X38] implied derivation inferred (A_86 item 3): "${impliedId}" is the only duration in a ` +
+              `device holding exactly two clock facts (${clockIds.join(", ")}), so it is their interval. ` +
+              `The device did not declare it; the repair below now applies the same checks it would have.`,
+          );
+        }
+      }
+    }
+  }
+
   const candidates = registry
     .map((fact, index) => ({ fact, index }))
     .filter(({ fact }) => Array.isArray(fact.derivedFrom) && fact.derivedFrom.length === 2);
