@@ -59,6 +59,40 @@ made — including the ones that failed.
 
 ---
 
+## Long tasks — finish, or hand off cleanly
+
+A task with many items (a list, an audit, a migration) runs until **every** item is resolved.
+Resolved means built and verified, explicitly deferred with a reason, or withdrawn as wrong — never
+"started". Do not stop to report progress, and do not ask whether to continue. Commit per coherent
+group and keep going.
+
+The only legitimate early stops are: a destructive or outward-facing action needing approval, a
+genuine scope decision only the user can make, and the context budget.
+
+**Because the context budget is a real stop, make the work resumable from the FIRST item, not the
+last.** Every item carries its status inline in the task's own document, and a STATUS table names the
+commit for each. A fresh session must be able to read that table and continue without re-deriving
+anything.
+
+When context runs short, spend what is left on: committing what is green, updating the ledger, and
+one line naming the next item — never on a summary of what was already committed.
+
+**Still surface, in the final message:** anything deferred or withdrawn *because building it would
+have caused harm* (A_86 item 8 would have doubled the request rate against a shared quota), and any
+item whose premise turned out to be false. Those are findings, not progress.
+
+---
+
+## Context economy on long tasks
+
+- Read a file once. Patch with a script, not by re-reading.
+- `npm run build:changed` between items; `build:all` once per group.
+- Test the touched package between items; the full suite once per group.
+- Do not re-verify what a passing test already pins.
+- Prefer one measurement that settles an item to three that describe it.
+
+---
+
 ## Spending a run, and spending a read — A_86 §K
 
 A run is ~£0.60 and ~40 minutes; an external read is the only instrument that has ever moved this
