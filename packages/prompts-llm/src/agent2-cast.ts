@@ -203,12 +203,49 @@ const deriveNameInitials = (hash: number, count: number): string[] => {
 };
 
 // Generate specific variation directives from runId
+/**
+ * A_86 item 4 — `AGENT2_MOTIVE_KIND_ROTATION`: rotate what the culprit WANTS, not just how many
+ * suspects want something.
+ *
+ * MEASURED across the last ten books: every one of the NINE with a stated motive uses the same
+ * shape — *the victim threatened to expose something that would damage a reputation, an institution
+ * or an inheritance.* Not one is love, jealousy, fear of a person, revenge for an old wrong, or an
+ * accident escalating into a cover-up. The reviews name motive three times in their own uplift
+ * clauses ("a stronger early motive plant", "stronger Kestrel/Montague motive").
+ *
+ * The existing `motivePattern` rotates the DISTRIBUTION of motives across the cast — concentrated,
+ * spread, one overwhelming — and never the KIND. So ten books varied how many people had a reason
+ * and every one of them had the SAME reason.
+ *
+ * Seeded from the same runId hash as the other variation fields, so it rotates across the corpus and
+ * is reproducible within a run. OFF: byte-identical.
+ */
+export const isMotiveKindRotationEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT2_MOTIVE_KIND_ROTATION ?? "").trim());
+
+/**
+ * Kinds a Golden Age culprit can be driven by. The first is what the corpus already does — kept, so
+ * the rotation does not FORBID the shape that has scored 76-85, only stop it being the only one.
+ */
+export const CULPRIT_MOTIVE_KINDS: ReadonlyArray<string> = [
+  "EXPOSURE — the victim was about to reveal something that would end the culprit's standing, position or livelihood",
+  "INHERITANCE OR MONEY — the victim's death changes who owns or controls something specific, and the culprit needed that change",
+  "LOVE OR JEALOUSY — the culprit acted over a person, not a secret: a rivalry, a betrayal, an attachment they could not admit to",
+  "REVENGE FOR AN OLD WRONG — something the victim did years ago that was never answered for, and the culprit has waited",
+  "FEAR OF THE VICTIM — the victim held power over the culprit and used it; this is self-preservation, not ambition",
+  "PROTECTING SOMEONE ELSE — the culprit killed to shield a third party, and would rather be suspected than name them",
+  "AN ACCIDENT MADE CRIMINAL — the death was not planned; everything the detective unravels is the concealment, not the killing",
+  "CONVICTION — the culprit believed, and still believes, that the victim deserved it or that a greater harm was prevented",
+];
+
 const generateCastVariation = (runId: string, count: number): {
   relationshipStyle: number;
   motivePattern: number;
   dynamicType: number;
   namingPool: string;
   nameInitials: string[];
+  /** A_86 item 4 — which KIND of motive drives the culprit this run. */
+  motiveKind: string;
 } => {
   const hash = simpleHash(runId);
   const namingPools = [
@@ -236,6 +273,9 @@ const generateCastVariation = (runId: string, count: number): {
     dynamicType: ((uHash >>> 8) % 3) + 1,
     namingPool: namingPools[(uHash >>> 12) % namingPools.length],
     nameInitials: deriveNameInitials(uHash, count),
+    // A_86 item 4 — a different bit-slice from the same hash, so the motive KIND rotates
+    // independently of the naming pool while staying reproducible for a given runId.
+    motiveKind: CULPRIT_MOTIVE_KINDS[(uHash >>> 20) % CULPRIT_MOTIVE_KINDS.length]!,
   };
 };
 
@@ -505,7 +545,11 @@ DETECTIVE ENTRY MANDATE: ${detectiveEntryMandate}`;
 
 VARIATION DIRECTIVES FOR THIS CAST:
 ${namingDirectives}- Relationship Theme: Emphasize ${relationshipGuidance}
-- Motive Distribution: ${motiveGuidance}
+- Motive Distribution: ${motiveGuidance}${isMotiveKindRotationEnabled() ? `
+- CULPRIT MOTIVE KIND (this story): ${variation.motiveKind}.
+  The culprit's motiveSeed MUST be of that kind. Other suspects may want anything; the person who
+  actually did it wants THIS. Do not substitute a different kind because it feels more natural —
+  every book in this corpus so far has chosen exposure, and the reader reads them consecutively.` : ""}
 - Social Dynamic: Highlight ${dynamicGuidance}
 
 Use these directives to create a unique cast with strong internal logic.
