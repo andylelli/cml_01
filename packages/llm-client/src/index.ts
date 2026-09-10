@@ -7,7 +7,7 @@ export { AnthropicClient, DEFAULT_ANTHROPIC_MODEL, extractJsonPayload } from "./
 export { LLMLogger } from "./logger.js";
 export { CostTracker, defaultCostConfig } from "./cost-tracker.js";
 export { RateLimiter } from "./ratelimit.js";
-export { withRetry, CircuitBreaker, defaultRetryConfig, isRetryableError } from "./retry.js";
+export { withRetry, CircuitBreaker, defaultRetryConfig, isRetryableError, isRateLimitError, isTransportFailureMessage, readRetryAfterMs } from "./retry.js";
 export {
   ContentFilterTracker,
   isContentFilterRefusal,

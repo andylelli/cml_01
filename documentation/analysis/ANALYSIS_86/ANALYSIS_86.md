@@ -43,31 +43,41 @@ prose requirements 1.5k; fair-play contract 1.7k; system message 1.8k.
    `packages/llm-client/src/retry.ts`. MEASURED: "fetch failed" reached the chapter validator as a
    failure and burned a full 30k-token retry in 2 of 12 retries. Risk: none — a transport error is not
    a content error.
+    → **DONE, and the item was PARTLY WRONG.** `ECONNRESET`, `ETIMEDOUT`, `EAI_AGAIN` and `ENOTFOUND` were already in `retryableErrors`. Two real gaps were: `fetch failed` (absent), and `connection_error` with an UNDERSCORE, which can never match the SDK's actual `"Connection error."` — that is why the chapter-3 polish call of run 24901 was thrown as non-retryable. Added `fetch failed`, `connection error`, `socket hang up` in `packages/llm-client/src/retry.ts`; 6 tests, including one that pins that content failures are still NOT retryable.
 2. **Honour `Retry-After` on 429** in `azure-http-transport.ts` / `retry.ts`. MEASURED: four attempts in
    14 s lost chapter 10 of run 24901. Waiting is free; the fallback that replaced it shipped a rejected
    draft.
+    → **DONE.** `parseRetryAfterMs` in `azure-http-transport.ts` (delta-seconds and HTTP-date), carried on `AzureHttpError.retryAfterMs`, honoured by `getRetryDelayMs`. The accompanying test caught a defect in my own parser: `"-5"` fell through to `Date.parse` and clamped to 0, i.e. *retry immediately* — a sanity window (now-60s .. now+24h) now rejects it. 6 tests.
 3. **Raise `maxAttempts` for 429 only** (e.g. 8, cap 120 s). Same evidence. The cost of an extra minute
    is zero; the cost of the fallback was the ending mark.
+    → **DONE.** `rateLimitMaxAttempts: 8` and `rateLimitMaxDelayMs: 120000` on `defaultRetryConfig`, applied by `isRateLimitError` only. NOTE: the loop bound was `config.maxAttempts`, so raising only the inner check would have been a no-op — the loop now admits the largest budget any class can earn and the per-error check decides when to stop. A non-429 error still stops at 4 (test), and a legacy config without the new fields behaves exactly as before (test). 6 tests.
 4. **Never let a transport error consume a *validation* attempt.** In `generate.ts`, catch the client's
    transport error class and re-issue the identical request rather than entering the retry protocol
    (which rewrites the prompt and counts an attempt). INFERRED from #1.
+    → **DONE.** `TRANSPORT_REISSUE_BUDGET = 2` in `generate.ts`: a transport failure re-issues the identical request and does NOT consume a content attempt. The predicate is `isTransportFailureMessage`, exported from llm-client and built on the SAME `retryableErrors` list, deliberately — two lists answering "is this the network's fault" would be the WF-002 divergence shape, and this one feeds a WRITE. Bounded, so a genuinely dead endpoint still ends the run.
 5. **Persist regenerated stages on resume.** `resume-run.ts:195` says so itself: a second failure resumes
    from the same point. MEASURED: run 24901 paid twice for prose. Write the regenerated artifacts back
    under the resume's own id.
+    → **DONE, and the blocking premise was already false.** The old note said the API owns the store writer; `scripts/canary-core.mjs` had persisted artifacts from outside the API since REVIEW_03 item 7. So it was two writers, and the resume path was the one going without. New `apps/worker/src/jobs/json-artifact-store.ts` is that writer ONCE; `resume-run.ts` now passes it to `generateMystery`, and the canary's inline copy was deleted in favour of it — bodies go DOWN while the capability arrives. Safe for resume because `loadResumeBundle` reads through `latestArtifact`, so the regenerated copy is the one restored.
 6. **Resume skips Agent 7.5 as "survived"** — but 7.5 is deterministic and free; always re-run it so
    F4's drop and the closure diagnostic apply to the resumed prose. Cost: milliseconds.
+    → **DONE, but NARROWED — the item as written was wrong.** Re-running 7.5 wholesale on a resume would be incorrect: `resume-hydration.ts` explains that a contract must belong to the outline that produced it. What is safe is the part that is not a derivation: the A_85 F4 foreign-clock drop is a function of the locked facts and the restored geometry's own time model. It now runs on the restored path, closing F4's stated KNOWN LIMIT.
 7. **Polish pass: `maxRetries: 0` on the Anthropic client** (`anthropic-client.ts:104`). MEASURED: one
    `Connection error` on chapter 3 of run 24901 meant no polish for that chapter — the call's cost is
    the same whether it is retried once or skipped, and a skipped polish is a lost improvement. One retry.
+    → **WITHDRAWN — the item was wrong.** `maxRetries: 0` on the Anthropic SDK client is deliberate and correct: both clients wrap `chatOnce` in `withRetry`, so the SDK must not retry underneath us. The chapter-3 polish call was lost to the vocabulary gap in item 1, not to this setting. Fixed by item 1; nothing to change here.
 8. **Rate-limit the two deployments separately.** The 429 was on `gpt-4.1` while `gpt-4.1-mini` was
    idle; the regen deployment is a different pool (F2 relies on this). Make the limiter per-deployment
    so a prose 429 does not stall regen calls. INFERRED.
+    → **DEFERRED, deliberately — it could cause the harm it aims to prevent.** A per-deployment limiter only helps if the deployments hold SEPARATE Azure quotas. If they share one, splitting the limiter doubles the request rate and buys MORE 429s. Nothing in this repo records which it is, so building it now would be a guess against the "no negative consequences" test. Item 9 is the measurement that settles it.
 9. **Pre-flight the Azure quota** with one 1-token call at t=0 and print the remaining RPM/TPM headers,
    so a run that will hit 429 at chapter 10 says so before Agent 1 spends anything. ASSUMED (headers
    present on Azure responses) — measure.
+    → **DONE, and better than proposed.** No probe call: `readRateLimitSnapshot` reads `x-ratelimit-remaining-requests/-tokens` and the limit headers off responses the run ALREADY pays for, on both the success and 429 paths. Every field optional — a deployment that emits none yields `{}`, never a zero, so an absent header can never read as "quota exhausted". This is the record that unblocks item 8.
 10. **Checkpoint prose per chapter to disk during the run** (the checkpoint path exists:
     `agent9CheckpointPath`) and make the canary script pass it by default, so a Windows process abort
     (`0xC0000409`, cited in `run-resume.ts`) costs one chapter, not ten.
+    → **DONE.** The canary now passes `agent9CheckpointPath` and `resumeAgent9FromCheckpoint` by default (opt out with `CANARY_AGENT9_CHECKPOINT=0`). The capability already existed and no canary run had ever used it, which is why every Agent-9-stage loss cost the whole stage.
 
 ## B. Retry economics — a retry is a 30k-token prompt and +2.43 register points
 

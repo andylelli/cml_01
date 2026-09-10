@@ -131,6 +131,8 @@ export interface ParsedChatWireResponse {
   content: string;
   finishReason: string;
   usage: WireUsage;
+  /** A_86 item 9 — quota state on a SUCCESSFUL response; absent when the deployment emits no headers. */
+  rateLimit?: RateLimitSnapshot;
 }
 
 const num = (value: unknown): number => (typeof value === "number" && Number.isFinite(value) ? value : 0);
@@ -161,11 +163,83 @@ export const parseChatWireResponse = (raw: unknown): ParsedChatWireResponse => {
 };
 
 /** Raised for a non-2xx reply. The body text is preserved — see the note in `postChatCompletion`. */
+/**
+ * A_86 item 2 — `Retry-After`, in ms, from a 429 response. Both wire forms are accepted: a
+ * delta-seconds integer and an HTTP-date. Anything unparseable or negative yields null and the
+ * caller falls back to its own backoff — a malformed header must never stall a run.
+ */
+export const parseRetryAfterMs = (headerValue: string | null | undefined, now = Date.now()): number | null => {
+  const raw = String(headerValue ?? "").trim();
+  if (!raw) return null;
+  if (/^\d+$/.test(raw)) {
+    const seconds = Number(raw);
+    return Number.isFinite(seconds) && seconds >= 0 ? seconds * 1000 : null;
+  }
+  const at = Date.parse(raw);
+  if (!Number.isFinite(at)) return null;
+  // A sanity window, because `Date.parse` accepts far more than an HTTP-date: "-5" parses as a
+  // year and clamped to 0, i.e. "retry immediately", which is the opposite of what a Retry-After
+  // asks for. Anything outside "just now" to "24h from now" is treated as malformed. (Caught by
+  // the accompanying test, not by reading.)
+  const deltaMs = at - now;
+  if (deltaMs < -60_000 || deltaMs > 24 * 60 * 60 * 1000) return null;
+  return Math.max(0, deltaMs);
+};
+
+/**
+ * A_86 items 9 & 82 — the deployment's own quota state, read off the response headers.
+ *
+ * WHY IT IS TELEMETRY AND NOT YET A LEVER. A_86 item 8 proposed a per-deployment rate limiter, on
+ * the reasoning that a prose 429 should not stall regen calls. That is only safe if the deployments
+ * hold SEPARATE quotas — if they share one, splitting the limiter doubles the request rate and buys
+ * MORE 429s, which is the opposite of the intent. Nothing in this repo records which it is, so item
+ * 8 is deferred behind this measurement rather than guessed at. These headers answer it for free:
+ * they ride on responses the run already pays for.
+ *
+ * Azure emits `x-ratelimit-remaining-requests` / `-tokens` on success and, on a 429, `retry-after`.
+ * Every field is optional — a deployment that emits none yields an empty object, never a zero, so an
+ * absent header can never be read as "quota exhausted" (the A_70/A_71 rule).
+ */
+export interface RateLimitSnapshot {
+  remainingRequests?: number;
+  remainingTokens?: number;
+  limitRequests?: number;
+  limitTokens?: number;
+}
+
+const numericHeader = (headers: Headers | undefined, name: string): number | undefined => {
+  if (!headers || typeof headers.get !== "function") return undefined;
+  const raw = headers.get(name);
+  if (raw === null || raw === undefined || String(raw).trim() === "") return undefined;
+  const value = Number(String(raw).trim());
+  return Number.isFinite(value) ? value : undefined;
+};
+
+export const readRateLimitSnapshot = (headers: Headers | undefined): RateLimitSnapshot => {
+  const snapshot: RateLimitSnapshot = {};
+  const remainingRequests = numericHeader(headers, "x-ratelimit-remaining-requests");
+  const remainingTokens = numericHeader(headers, "x-ratelimit-remaining-tokens");
+  const limitRequests = numericHeader(headers, "x-ratelimit-limit-requests");
+  const limitTokens = numericHeader(headers, "x-ratelimit-limit-tokens");
+  if (remainingRequests !== undefined) snapshot.remainingRequests = remainingRequests;
+  if (remainingTokens !== undefined) snapshot.remainingTokens = remainingTokens;
+  if (limitRequests !== undefined) snapshot.limitRequests = limitRequests;
+  if (limitTokens !== undefined) snapshot.limitTokens = limitTokens;
+  return snapshot;
+};
+
 export class AzureHttpError extends Error {
+  /** A_86 item 2 — server-supplied wait, in ms, when the response carried `Retry-After`. */
+  readonly retryAfterMs?: number;
+  /** A_86 item 82 — the deployment's quota state at the moment it refused. */
+  readonly rateLimit?: RateLimitSnapshot;
+
   constructor(
     readonly status: number,
     readonly bodyText: string,
     url: string,
+    retryAfterMs?: number,
+    rateLimit?: RateLimitSnapshot,
   ) {
     // The RAW body is part of the message on purpose: ContentFilterTracker classifies refusals by
     // matching `ResponsibleAIPolicyViolation` / `content_filter ... prompt` against error text, and
@@ -173,6 +247,10 @@ export class AzureHttpError extends Error {
     // the key travels in a header, never the query string.
     super(`Azure chat completion failed: HTTP ${status} at ${url} — ${bodyText.slice(0, 2000)}`);
     this.name = "AzureHttpError";
+    if (typeof retryAfterMs === "number" && Number.isFinite(retryAfterMs) && retryAfterMs >= 0) {
+      this.retryAfterMs = retryAfterMs;
+    }
+    if (rateLimit && Object.keys(rateLimit).length > 0) this.rateLimit = rateLimit;
     // 429 and 5xx must stay retryable through `isRetryableError`, which substring-matches messages.
     (this as unknown as { code?: string }).code = status === 429 ? "429" : `HTTP_${status}`;
   }
@@ -201,8 +279,26 @@ export const postChatCompletion = async (args: {
 
   if (!response.ok) {
     const text = await response.text().catch(() => "");
-    throw new AzureHttpError(response.status, text, args.request.url);
+    // A_86 item 2 — carry the server's own wait through to withRetry.
+    const retryAfterMs =
+      parseRetryAfterMs(
+        typeof response.headers?.get === "function" ? response.headers.get("retry-after") : null,
+      ) ?? undefined;
+    const rateLimit = readRateLimitSnapshot(response.headers);
+    if (response.status === 429) {
+      // A_86 item 82 — say which deployment refused, what it still had, and how long it asked for.
+      // This is the record that decides whether item 8 (a per-deployment limiter) is safe to build.
+      console.warn(
+        `[llm-client][A_86 item 82] 429 from ${args.request.url.split("/deployments/")[1]?.split("/")[0] ?? "?"} — ` +
+          `retry-after ${retryAfterMs === undefined ? "(absent)" : `${Math.round(retryAfterMs / 1000)}s`}, ` +
+          `quota ${Object.keys(rateLimit).length === 0 ? "(no headers)" : JSON.stringify(rateLimit)}.`,
+      );
+    }
+    throw new AzureHttpError(response.status, text, args.request.url, retryAfterMs, rateLimit);
   }
 
-  return parseChatWireResponse(await response.json());
+  const parsed = parseChatWireResponse(await response.json());
+  // A_86 item 9 — carry the quota snapshot up with the response it rode in on.
+  const successRateLimit = readRateLimitSnapshot(response.headers);
+  return Object.keys(successRateLimit).length > 0 ? { ...parsed, rateLimit: successRateLimit } : parsed;
 };

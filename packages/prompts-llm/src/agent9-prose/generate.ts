@@ -8,6 +8,10 @@ import { detectRetryRegression, retryRegressionGuardEnabled, describeRetryLosses
 import { createHash } from "node:crypto";
 import { jsonrepair } from "jsonrepair";
 import type { AzureOpenAIClient } from "@cml/llm-client";
+import { isTransportFailureMessage } from "@cml/llm-client";
+
+/** A_86 item 4 — identical re-issues allowed per batch before a transport error counts as content. */
+const TRANSPORT_REISSUE_BUDGET = 2;
 import type { CaseData } from "@cml/cml";
 import {
   ChapterValidator,
@@ -2604,6 +2608,20 @@ export async function generateProse(
     const batchLabel = batchScenes.length > 1 ? `${chapterStart}-${chapterEnd}` : `${chapterStart}`;
     progressCallback('prose', `Generating chapter${batchScenes.length > 1 ? 's' : ''} ${batchLabel}/${sceneCount}...`, overallProgress);
 
+    /**
+     * A_86 item 4 — a transport failure is not a content failure.
+     *
+     * MEASURED across the last four runs: 2 of 12 prose retries were bought by `fetch failed`
+     * arriving here as if the model had written a bad chapter. The retry protocol then rewrote the
+     * prompt, escalated the temperature and spent another ~30k tokens — for a network hiccup.
+     *
+     * A_86 item 1 stops most of these inside `withRetry` (the vocabulary now covers the messages
+     * that actually arrive). This is the second half: if one still escapes the client's own budget,
+     * re-issue the SAME request instead of counting a content attempt. Bounded, because an endpoint
+     * that is genuinely down must still end the run rather than loop: `TRANSPORT_REISSUE_BUDGET`
+     * re-issues per batch, then it is treated as a content failure exactly as before.
+     */
+    let transportReissuesLeft = TRANSPORT_REISSUE_BUDGET;
     for (let attempt = 1; attempt <= maxBatchAttempts; attempt++) {
       try {
         if (redesignEnabled) {
@@ -4491,6 +4509,18 @@ export async function generateProse(
         break;
       } catch (error) {
         const errorMsg = error instanceof Error ? error.message : String(error);
+        // A_86 item 4 — re-issue rather than spend a content attempt. See the loop header.
+        if (transportReissuesLeft > 0 && isTransportFailureMessage(errorMsg)) {
+          transportReissuesLeft -= 1;
+          console.warn(
+            `[Agent 9][A_86 item 4] transport failure on ch${batchLabel} attempt ${attempt} ` +
+              `(${errorMsg.slice(0, 120)}) — re-issuing the same request; ${transportReissuesLeft} ` +
+              `re-issue(s) left. NOT counted as a content attempt.`,
+          );
+          attempt -= 1;
+          lastBatchRawResponse = null;
+          continue;
+        }
         lastBatchErrors = [errorMsg];
         noteBatchGateFailures(lastBatchErrors, batchGateFailureCounts);
         // Clear the raw response: it may contain malformed JSON (parse failure) or wrong chapter

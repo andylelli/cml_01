@@ -4,6 +4,7 @@ import { config } from "dotenv";
 import { AzureOpenAIClient } from "@cml/llm-client";
 import { buildLlmLogger } from "../apps/worker/dist/jobs/cli-runtime.js";
 import { generateMystery } from "../apps/worker/dist/jobs/mystery-orchestrator.js";
+import { makeJsonArtifactPersister } from "../apps/worker/dist/jobs/json-artifact-store.js";
 import { saveReadableStory } from "../apps/worker/dist/jobs/save-readable-story.js";
 import { loadCanaryInputOverrides } from "./canary-loop/canary-input-overrides.mjs";
 
@@ -76,28 +77,37 @@ console.log("CANARY_INPUTS", JSON.stringify(inputs));
  * Failures are swallowed: persistence must never be able to abort a run that is otherwise fine.
  */
 const projectId = inputs.projectId ?? `canary_${Date.now()}`;
-const persistArtifact = async (type, payload) => {
-  try {
-    const dbPath = process.env.CML_JSON_DB_PATH || path.join(root, "data", "store.json");
-    const store = existsSync(dbPath) ? JSON.parse(readFileSync(dbPath, "utf8")) : {};
-    store.artifacts = Array.isArray(store.artifacts) ? store.artifacts : [];
-    store.artifacts.push({
-      id: `${projectId}_${type}_${store.artifacts.length}`,
-      projectId,
-      type,
-      payload,
-      createdAt: new Date().toISOString(),
-    });
-    writeFileSync(dbPath, JSON.stringify(store, null, 2), "utf8");
-  } catch (error) {
-    console.log("CANARY_ARTIFACT_PERSIST_FAILED", type, String(error?.message ?? error));
-  }
-};
+/**
+ * A_86 item 5 — ONE json-store writer, shared with resume-run.ts. The inline copy that used to live
+ * here is gone: the resume path needed the same capability, and two bodies of one writer is exactly
+ * the trap that path's docblock warned about. Same shape, same never-fatal contract, same log line.
+ */
+const persistArtifact = makeJsonArtifactPersister({
+  workspaceRoot: root,
+  projectId,
+  onError: (type, message) => console.log("CANARY_ARTIFACT_PERSIST_FAILED", type, message),
+});
 
 console.log("CANARY_PROJECT_ID", projectId);
 const result = await generateMystery(
   client,
-  { ...inputs, projectId },
+  {
+    ...inputs,
+    projectId,
+    /**
+     * A_86 item 10 — Agent 9 checkpoints to disk per chapter, by default.
+     *
+     * The capability already existed and no canary run used it. MEASURED: every expensive loss this
+     * project has had was an Agent-9-stage loss (run 24901 among them), and the chapters already
+     * written are the most expensive thing in the run. Opt OUT with CANARY_AGENT9_CHECKPOINT=0.
+     */
+    ...(process.env.CANARY_AGENT9_CHECKPOINT === "0"
+      ? {}
+      : {
+          agent9CheckpointPath: path.join(root, "apps", "worker", "logs", `agent9-checkpoint-${projectId}.json`),
+          resumeAgent9FromCheckpoint: true,
+        }),
+  },
   (progress) => {
     console.log(`PROGRESS ${progress.stage} - ${progress.message}`);
   },

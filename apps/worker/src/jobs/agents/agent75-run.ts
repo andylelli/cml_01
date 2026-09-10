@@ -260,6 +260,26 @@ export async function runAgent75(ctx: OrchestratorContext): Promise<void> {
   // the prefix and force every later stage to re-run. The artifact restore is enough.
   if (ctx.storyGeometry) {
     ctx.warnings.push("[Agent 7.5] geometry restored from artifact — contract inherited, not re-derived.");
+    /**
+     * A_86 item 6 — the contract is inherited, but the FOREIGN-CLOCK DROP still applies.
+     *
+     * A_85 F4 shipped with a stated limit: "a resume that skips Agent 7.5 as 'survived' restores the
+     * stored devices artifact and keeps the facts". Re-deriving the whole contract here would be
+     * wrong — the cascade docblock in `resume-hydration.ts` explains why a contract must belong to
+     * the outline that produced it — but the drop is not a derivation. It is a function of the
+     * locked facts and the restored geometry's own time model, both already in hand, so applying it
+     * on the restored path is the same decision the original run made, not a new one.
+     */
+    const restoredTimeModel = (ctx.storyGeometry as { timeModel?: { apparentTime?: unknown; trueTime?: unknown } })
+      .timeModel ?? {};
+    dropForeignClockFacts(
+      ctx,
+      checkCaseTimeCoherence({
+        lockedFacts: ctx.lockedFactRegistry ?? [],
+        apparentTime: restoredTimeModel.apparentTime,
+        actualTime: restoredTimeModel.trueTime,
+      }),
+    );
     return;
   }
 

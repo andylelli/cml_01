@@ -34,6 +34,7 @@ import { join } from "node:path";
 
 import { generateMystery, type MysteryGenerationInputs } from "./mystery-orchestrator.js";
 import { loadArtifactStore, loadProjectSpec } from "./artifact-store.js";
+import { makeJsonArtifactPersister } from "./json-artifact-store.js";
 import { buildClient, loadEnvFiles } from "./cli-runtime.js";
 import {
   checkBuildFingerprint,
@@ -171,9 +172,34 @@ async function main(): Promise<void> {
   console.log(`[resume-run] runId      : ${runId}`);
   console.log(`[resume-run] resuming ...`);
 
-  const result = await generateMystery(client, inputs, (progress) => {
-    console.log(`[resume-run]   ${progress.percentage}% ${progress.message}`);
+  /**
+    * A_86 item 5 — persist what this run regenerates.
+    *
+    * The note that used to close this file said the API owns the store writer. That was true of the
+    * API and false of the pipeline: `scripts/canary-core.mjs` has written artifacts from outside the
+    * API since REVIEW_03 item 7. Both now share ONE writer (`json-artifact-store.ts`), so this path
+    * gains the capability while the number of writer bodies goes down.
+    *
+    * MEASURED: run 24901 died at Agent 3, was resumed, and the resume's own stages were unpersisted
+    * — £0.45 + £1.15 for one story, and a second failure would have restarted from the same point.
+    * `loadResumeBundle` reads through `latestArtifact`, so these newer copies are the ones a later
+    * resume restores.
+    */
+  const persistArtifact = makeJsonArtifactPersister({
+    workspaceRoot,
+    projectId,
+    onError: (type, message) =>
+      console.log(`[resume-run] artifact persist failed (${type}): ${message}`),
   });
+
+  const result = await generateMystery(
+    client,
+    inputs,
+    (progress) => {
+      console.log(`[resume-run]   ${progress.percentage}% ${progress.message}`);
+    },
+    persistArtifact,
+  );
 
   const storyDir = join(workspaceRoot, "stories", storyFolderName(new Date()));
   const { filePath } = saveReadableStory(result.prose, runId, storyDir, `Resumed ${runId}`);
@@ -181,20 +207,12 @@ async function main(): Promise<void> {
   console.log(`[resume-run] story      : ${filePath}`);
   console.log(`[resume-run] DONE in ${mins} min — skipped ${found.length} stage(s) that had survived.`);
 
-  // KNOWN LIMITATION, stated loudly rather than left for someone to discover mid-incident.
-  //
-  // `data/store.json` is written by the API's repository layer (apps/api/src/db.ts). This CLI runs
-  // outside the API process — that is the whole point, since the failures it recovers from kill the
-  // API too — and a second copy of the store writer here would be exactly the one-concept-several-
-  // bodies trap the rest of this work removed. So the stages this run just regenerated are NOT
-  // written back to the artifact store.
-  //
-  // Consequence: this run is not itself resumable. If it dies, the next resume restarts from the
-  // same point THIS one did, not from where it got to. The story on disk is unaffected.
+  // A_86 item 5 — this run IS now resumable: every stage it regenerated was persisted through the
+  // shared json-store writer as it completed. The historical limitation, and why it existed, is in
+  // the docblock of `json-artifact-store.ts`.
   console.log(
-    `[resume-run] NOTE       : regenerated stages were not written back to data/store.json ` +
-      `(the API owns that writer). A second failure would resume from the same point as this run, ` +
-      `not from where it reached.`,
+    `[resume-run] NOTE       : regenerated stages WERE written back to data/store.json under ` +
+      `projectId '${projectId}' (A_86 item 5). A second failure resumes from where this run reached.`,
   );
 }
 

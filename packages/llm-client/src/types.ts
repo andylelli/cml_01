@@ -136,6 +136,17 @@ export interface RetryConfig {
   maxDelayMs: number;
   backoffMultiplier: number;
   retryableErrors: string[];
+  /**
+   * A_86 item 3 — attempts allowed for a RATE-LIMIT error specifically. A 429 is the one retryable
+   * class where waiting is guaranteed to help, and the generic budget (4 attempts inside 14s) is
+   * what lost chapter 10 of run 24901 to a deterministic fallback. Absent ⇒ `maxAttempts`.
+   */
+  rateLimitMaxAttempts?: number;
+  /**
+   * A_86 item 2 — delay ceiling for a rate-limit error, which also bounds a server-supplied
+   * `Retry-After`. Absent ⇒ `maxDelayMs`.
+   */
+  rateLimitMaxDelayMs?: number;
 }
 
 export interface RateLimitConfig {
