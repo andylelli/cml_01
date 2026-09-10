@@ -697,8 +697,29 @@ async function runRubricScoring(args: {
   // diagnosis was built from.
   const disclosure = geometryAcceptance?.manuscript_disclosure;
   const noResolutionVerdict: boolean | null = disclosure?.verdict ? disclosure.verdict === "unmet" : null;
+  /**
+   * A_86 items 46-48 — this is a SHADOW call. It gates nothing, it is ~2% of run spend, and on run
+   * 24901 it failed with an Azure HTTP 400 (a content-filter refusal on the finished manuscript) and
+   * produced nothing at all — paid for, and wasted.
+   *
+   * Three things change here, none of which touch the manuscript:
+   *   • `off` already existed and is the right setting when credits are short (item 47) — the score
+   *     is a health signal only, since no judge separates an 86 from an 81 (n=8).
+   *   • `read-only` (item 48) runs it only for a run that will actually be read externally, which
+   *     is what the number is FOR. Set `RUBRIC_SCORING_MODE=read-only` and export
+   *     `CML_RUN_WILL_BE_READ=1` on the pre-registered runs.
+   *   • a refusal is now reported as a refusal (item 46) rather than swallowed into silence, so the
+   *     run summary's shadow-spend line can be read against something.
+   */
   const mode = (process.env.RUBRIC_SCORING_MODE ?? "shadow").toLowerCase();
   if (mode === "off") return;
+  if (mode === "read-only" && process.env.CML_RUN_WILL_BE_READ !== "1") {
+    console.info(
+      "[RubricScorer][A_86 item 48] skipped — RUBRIC_SCORING_MODE=read-only and this run is not " +
+        "marked for an external read (CML_RUN_WILL_BE_READ=1). The score gates nothing.",
+    );
+    return;
+  }
   try {
     const chapters = assembleChapters(args.prose);
     const proseText = chapters.join("\n\n");

@@ -452,6 +452,36 @@ export const scoreBatchErrorSeverity = (errors: string[]): { structural: number;
  * are ignored so legitimate backstory does not trip the resurrection gate.
  * Only used for chapters 2+ (caller must guard chapterNumber > 1).
  */
+/**
+ * A_86 item 12 — `AGENT9_VICTIM_RETROSPECT_EXEMPTION`: past-habitual characterisation of the victim
+ * is not a resurrection.
+ *
+ * MEASURED, from the retry records of the last four runs: VICTIM ALIVE was the single largest retry
+ * class (3 of 12), and two of the three sentences were ordinary past-tense characterisation of a
+ * dead person — "And yet, Marguerite Selwyn was nothing if not precise", "Adela Ashgrove insisted on
+ * cross-checking every delivery". A mystery cannot be written without saying what the victim was
+ * LIKE, so each of those bought a ~30k-token regeneration for correct prose.
+ *
+ * THE DISCRIMINATOR, and why it is this one: quoted speech attributed to the victim is a
+ * resurrection whatever else the sentence contains, and habitual description never carries it. So a
+ * sentence is exempt only when it has an explicit retrospect marker AND no quotation mark. Verified
+ * against all three real sentences: the quoted one still fires, both characterisations are exempt.
+ *
+ * OFF: byte-identical. Env read at call time (ADR-0004).
+ */
+const VICTIM_RETROSPECT_RE =
+  /\b(?:used to|always|never|would (?:have )?|had (?:been|always|never)|in life|by all accounts|everyone (?:said|agreed)|was known|had a habit|was nothing if not|insisted on|preferred|kept to)\b/i;
+const VICTIM_QUOTED_SPEECH_RE = /["“”]/;
+
+export const isVictimRetrospectExemptionEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT9_VICTIM_RETROSPECT_EXEMPTION ?? "").trim());
+
+/** True when the sentence describes the victim in habitual past and stages no on-page speech. */
+export const isVictimRetrospectSentence = (sentence: string): boolean => {
+  const text = String(sentence ?? "");
+  return VICTIM_RETROSPECT_RE.test(text) && !VICTIM_QUOTED_SPEECH_RE.test(text);
+};
+
 export const detectVictimAlive = (chapter: { paragraphs?: string[] }, victimName: string): string[] => {
   if (!victimName || !chapter?.paragraphs) return [];
   const escapedName = escapeRegExp(victimName.trim());
@@ -506,7 +536,9 @@ export const detectVictimAlive = (chapter: { paragraphs?: string[] }, victimName
           victimBodyActionPattern.test(sentence) ||
           victimActivePresencePattern.test(sentence)) &&
         !historicalOrReportedContext.test(sentence) &&
-        !deadBodyContext.test(sentence);
+        !deadBodyContext.test(sentence) &&
+        // A_86 item 12 — past-habitual characterisation of a dead person is not a resurrection.
+        !(isVictimRetrospectExemptionEnabled() && isVictimRetrospectSentence(sentence));
       if (hit) offendingSentences.push(sentence.trim());
     }
   }

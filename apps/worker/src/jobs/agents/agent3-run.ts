@@ -602,6 +602,15 @@ export async function runAgent3(ctx: OrchestratorContext): Promise<void> {
   // (off|shadow, default shadow). Fully guarded: any error is swallowed so it can't break a run, and it
   // shares the seed corpus with the LLM audit. Promote to gating only after the shadow telemetry shows it
   // tracks the LLM auditor (see the novelty-judge-needs-skeleton-extractor memory).
+  /**
+   * A_86 item 49 — shadow, and it has never gated a run.
+   *
+   * Left at `shadow` rather than flipped to `off`: unlike the rubric scorer this one is CHEAP and it
+   * is the only thing that would catch a structural clone, which the deterministic skeleton cannot
+   * (it reports "distinct" every time, because the corpus's belief/inference labels are hand
+   * authored). Turning it off to save ~0.3% would remove the only real novelty check. `=off` is
+   * available when credits are short, and its spend is now in the run summary's shadow line.
+   */
   const skeletonJudgeMode = (process.env.NOVELTY_SKELETON_JUDGE ?? "shadow").toLowerCase();
   if (skeletonJudgeMode !== "off" && noveltyMode !== "off") {
     try {

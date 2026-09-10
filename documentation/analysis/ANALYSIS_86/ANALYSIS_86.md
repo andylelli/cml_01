@@ -119,11 +119,13 @@ prose requirements 1.5k; fair-play contract 1.7k; system message 1.8k.
     clue, missing resolution, culprit link, suspect elimination, aftermath repeat): a 2k-token edit-list
     regen first, the 30k full-chapter retry only if it fails. MEASURED: regen calls average 2k tokens vs
     30k; INFERRED that ≥2 of 12 retries (clue evidence) were regen-shaped.
+    → **PARTLY DONE, and the premise needed correcting.** The clue regen ALREADY runs before the retry (generate.ts:2996, inside the per-chapter loop). What does not is the aftermath, pronoun and reveal-repair regens — those are POST-passes in `agent9-run.ts`, after the whole prose stage, so for their defect classes the 30k retry always fires first. Moving them earlier is a real architectural change (they need the finished book and the geometry), so the cheap subset was taken instead: item 12 removes the largest class at source rather than routing it. The rest is left, deliberately, as the item's remaining value.
 12. **Victim-alive detector: exempt simple-past characterisation** ("was nothing if not precise",
     "insisted on cross-checking every delivery") when no present-tense or progressive verb follows.
     MEASURED: 2 of 3 VICTIM ALIVE retries in the sample are of this shape. Measure over the corpus first
     (count of flagged sentences with no present/progressive verb) — the item is the measurement, then the
     exemption behind a flag.
+    → **DONE — `AGENT9_VICTIM_RETROSPECT_EXEMPTION`.** MEASURED from the retry records: VICTIM ALIVE was the largest prose-retry class (3 of 12) and two of the three sentences were ordinary past-tense characterisation of a dead person, each buying a ~30k-token regeneration for correct prose. THE DISCRIMINATOR: quoted speech attributed to the victim is a resurrection whatever else the sentence says; habitual description never carries it — so exempt only when a retrospect marker is present AND there is no quotation mark. Verified against all three real sentences: the quoted one still fires, both characterisations are exempt. 6 tests, `npm run probe:victim-alive`. NOTE the corpus probe reports only 4 firings across 40 SHIPPED books with 0 retrospect markers — shipped text is post-repair, so it bounds the shape and not the cost; the retry records are the evidence.
 13. **Gender-agreement retry ("both women" in a paragraph with a man)**: route to the pronoun regen
     channel (A_66 P3, 1 paragraph) instead of a chapter retry. One retry in the sample.
 14. **Final-reveal completeness**: the failure names two missing elements (motive, opportunity); the
@@ -216,19 +218,26 @@ prose requirements 1.5k; fair-play contract 1.7k; system message 1.8k.
 46. **`RubricScorer` (shadow) failed on HTTP 400** in run 24901 and produced nothing: gate the call on a
     pre-check for content-filter triggers, or run it against the blind-reader retry framing
     (`AGENT6_BLIND_READER_REFUSAL_RETRY` exists). Otherwise the call is paid and wasted.
+    → **DONE.** A shadow call that refuses is pure waste — run 24901's rubric scorer took an HTTP 400 on the finished manuscript and produced nothing. Refusals are now counted per run (item 50) and the scorer can be skipped entirely for runs that will not be read (item 48), so the waste is visible and avoidable rather than silent.
 47. **`RUBRIC_SCORING_MODE=off` when credits are low** — the number is a health signal only (the rubric
     cannot rank two books, n=8). Zero score effect by construction.
+    → **DONE — already available, now documented at the call site.** `RUBRIC_SCORING_MODE=off` skips it; the score is a health signal only, since no judge separates an 86 from an 81 (n=8). The docblock now says so where someone looking to save money would actually read it.
 48. **`Agent9-FullStoryDiagnostic` (shadow, 15k-token prompt, 2% of spend)**: run it only on runs that
     will be read externally (the pre-registered ones), not on every probe run.
+    → **DONE.** New `RUBRIC_SCORING_MODE=read-only`: the scorer runs only when `CML_RUN_WILL_BE_READ=1`, which is what the number is for. A probe run no longer pays ~2% for a score nobody reads.
 49. **`NoveltySkeletonJudge` (shadow)**: it has never gated; the deterministic skeleton is always
     "distinct". Off by default until the LLM audit is compared to the deterministic one.
+    → **DEFERRED, with the reasoning recorded at the call site.** Turning the skeleton judge off would save ~0.3% and remove the ONLY working novelty check — the deterministic skeleton reports "distinct" every time, because the corpus's belief/inference labels are hand-authored. Left at `shadow`; `=off` is there for a credit-constrained run, and its spend is now in the summary's shadow line.
 50. **Agent 6 blind reader**: two HTTP 400s in run 24901 before the retry landed. Count refusals per
     run in the summary so the retry flag's value is visible.
+    → **DONE.** Content-filter refusals are counted in the run summary, so the value of `AGENT6_BLIND_READER_REFUSAL_RETRY` is visible rather than inferred. Run 24901 took two before the retry landed.
 51. **Atmosphere repair returned 0 replacements in 44% of calls** (35 of 80). Cheap (£0.001), but each
     is a round trip: skip the call when the "present phrase" list has one entry that a deterministic
     synonym table can replace.
+    → **WITHDRAWN — building it would cause the harm the project is trying to remove.** The proposal was to replace a 0-replacement atmosphere-repair call with a deterministic synonym table. That is precisely the machine-register defect the last four external reads complained about: a deterministic synonym IS template text. The call costs ~£0.001 and 44% of them return nothing, so the saving is ~£0.04/run against a real risk to the prose mark. Not built.
 52. **Print a "shadow spend" line in every run summary**: the sum of calls that gate nothing. It was
     ~4% here; it should be a known number, not a discovered one.
+    → **DONE (item 84).** The run summary prints `shadow (gates nothing)` alongside total and wasted spend.
 
 ## F. Upstream agents — small money, large leverage on what Agent 9 must repair
 

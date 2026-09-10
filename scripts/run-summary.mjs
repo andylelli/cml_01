@@ -101,7 +101,10 @@ export const printRunSummary = ({ seed, runId, projectId, costSummary, prose, wa
     bucket("fallbacks", /fallback/i) +
     bucket("geometry", /geometry/i) +
     bucket("dropped clock facts", /dropped .* clock fact/i) +
-    bucket("release gate", /release gate/i);
+    bucket("release gate", /release gate/i) +
+    // A_86 item 50 — content-filter refusals per run, so the value of the blind-reader retry flag is
+    // visible rather than inferred. Run 24901 took two before the retry landed.
+    bucket("content refusals", /refus|content.filter|ResponsibleAIPolicy/i);
   if (any === 0) lines.push("    (none)");
   lines.push("───────────────────────────────────────────────");
   lines.push("");

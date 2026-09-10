@@ -59,7 +59,8 @@
     "build:changed": "node scripts/build-all.mjs --changed",
     "verify:flags": "node scripts/flag-register-check.mjs && node scripts/module-const-flag-check.mjs",
     "probe:clue-presence": "node scripts/probe-clue-presence-pool.mjs",
-    "probe:x39-reach": "node scripts/probe-x39-reach.mjs"
+    "probe:x39-reach": "node scripts/probe-x39-reach.mjs",
+    "probe:victim-alive": "node scripts/probe-victim-alive-recall.mjs"
   },
   "devDependencies": {
     "typescript": "^5.5.4"
