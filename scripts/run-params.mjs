@@ -384,7 +384,17 @@ const loadRecentCastNames = (runs) => {
   return { given, surnames, projects, runs };
 };
 
-const freshNamesRuns = Math.max(0, Math.trunc(Number(arg("fresh-names") ?? 3)) || 0);
+/**
+ * A_86 item 77 — default 5, raised from 3.
+ *
+ * MEASURED (A_84 #2): 24 of 28 consecutive books shared a full cast name before this existed. The
+ * reviewer reads books consecutively, so the window that matters is "how many books back does a
+ * reader remember a name", and three was chosen for no measured reason. Five costs nothing — the
+ * pools are 24 surnames and 32 given names, and the generator already warns and falls back if a
+ * pool is exhausted rather than failing. `--fresh-names 0` still replays a pre-2026-09-07 file
+ * byte-identically.
+ */
+const freshNamesRuns = Math.max(0, Math.trunc(Number(arg("fresh-names") ?? 5)) || 0);
 const recentNames = loadRecentCastNames(freshNamesRuns);
 
 /**

@@ -32,6 +32,16 @@ export interface PostPassPolishResult {
    * offered by a number that cannot tell them apart — the X85 shape again, two causes writing
    * byte-identical telemetry. Each path now names itself, so the NEXT run's tally answers it.
    */
+  /**
+   * A_86 item 23 — the FIRST validator error the polished candidate introduced.
+   *
+   * MEASURED over the 15 prose artifacts carrying `repairEfficacy`: post-pass polish is 26% of run
+   * spend and 39 of its 72 calls were rolled back — 54% of the most expensive repair in the pipeline
+   * discarded — and the ledger recorded only the word `validation_regression`. Which check the
+   * rewrite broke was computed, used for the decision, and then dropped on the floor, so every
+   * proposal to fix the polish prompt (item 24) was a guess. This carries it out.
+   */
+  rollbackDetail?: string;
   rollbackReason?:
     | "truncated"
     | "refused"
@@ -348,6 +358,8 @@ export const polishPassingChapter = async (args: {
       applied: true,
       keptPolishedVersion: false,
       rollbackReason: "validation_regression",
+      // A_86 item 23 — carry the reason out instead of discarding it.
+      rollbackDetail: String(validated.hardErrors[0] ?? "").slice(0, 300),
     };
   }
 

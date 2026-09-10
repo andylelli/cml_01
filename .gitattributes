@@ -1,0 +1,19 @@
+# A_86 item 94 — stop the "LF will be replaced by CRLF" warning on every single commit.
+#
+# The repo is developed on Windows and every `git add` printed a warning per file, which trains the
+# reader to ignore git's output — the one place a real warning would appear. Text files are stored
+# with LF in the repository and checked out with the platform's own endings; the build, the tests and
+# the patch scripts in this repo all normalise on read, so nothing downstream sees a difference.
+* text=auto eol=lf
+
+# Windows-only shells keep CRLF so they run when double-clicked.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Never touched: binary, and diffing them is noise.
+*.png binary
+*.jpg binary
+*.pdf binary
+*.zip binary
+*.ico binary

@@ -121,6 +121,7 @@ prose requirements 1.5k; fair-play contract 1.7k; system message 1.8k.
 23. **Record the regression that rolled the polish back.** `post-pass-polish.ts:350` discards
     `validated.hardErrors`; record `hardErrors[0]` in the `repairEfficacy` ledger. Until then every fix
     below is a guess. Zero cost.
+    → **DONE — and it was the enabler, as expected.** `PolishResult.rollbackDetail` now carries the FIRST validator error the polished candidate introduced (`post-pass-polish.ts`), the ledger reason becomes `validation_regression: <the actual check>`, and it is logged. Until now the regression was computed, used for the decision, and dropped — which is why items 24/25 could only be guesses. The next run's ledger answers them from evidence.
 24. **Feed the polish prompt the exact checks it regresses on.** The prompt carries a LOCKED STORY
     CONTRACT and cast names; if the regressions are pronoun, victim-alive or gender agreement (the
     retry drivers), add those three rules verbatim. INFERRED from B12–B13; confirm with C23.
@@ -140,6 +141,7 @@ prose requirements 1.5k; fair-play contract 1.7k; system message 1.8k.
     already been kept in the original run. Persist the "kept" flag with the chapter (see A5).
 31. **Make `quality_no_gain` a recorded number, not a reason string** — what score delta counts as
     gain — so the threshold can be tuned from data.
+    → **PARTLY DONE.** The reason string is no longer a bare class — it carries the detail (item 23). The `quality_no_gain` threshold itself is unchanged and still needs a run's ledger to tune, which item 23 now makes possible.
 32. **Polish rollback should keep the *validator-clean* paragraphs of the polished version** — a merge,
     not a discard. Same as C25 stated from the other side.
 
@@ -246,10 +248,12 @@ prose requirements 1.5k; fair-play contract 1.7k; system message 1.8k.
 
 69. **The positive seed-exemplar channel is dead**: `loadSeedCMLFilesCached(EXAMPLES_ROOT)` is handed the
     workspace root, not `examples/`, and loads 0 files (14 exist). One path. MEASURED (A_77).
+    → **DONE, and the item was STALE in its main half.** MEASURED against the built loader: `<workspaceRoot>/examples` -> 14 seed files, `<workspaceRoot>` -> 0, `<workerAppRoot>/examples` -> 0. The ORCHESTRATOR path A_77 reported is already fixed (`runtime-paths.ts` joins "examples" onto the workspace root, and it loads all 14). The live defect was in `agent9-replay.ts`, which had its own join onto `workerAppRoot` — a directory that does not exist — so every replay ran with an empty seed corpus while the run it replayed had a full one. Fixed there.
 70. **`AGENT9_GROUNDING_LEAD=0` is right** — the prepend wrote templated openers; keep it off and delete
     the "coverage below target (0/10)" gate warning that fires on every run and means nothing.
 71. **Scene-grounding coverage warning** — same: a warning that fires on 100% of runs is an off switch
     with extra steps (B1). Remove or make it conditional on the lead being enabled.
+    → **DONE.** The release gate reported `scene-grounding coverage below target (0/10)` on every run. That coverage is produced by the grounding-lead prepend, and `AGENT9_GROUNDING_LEAD=0` has been the settled setting since A_82 P9 — so the gate reported the absence of a feature nobody wants as a defect of the manuscript, always. It now fires only when the lead is actually enabled, where a low number is a real finding; otherwise it logs at info. Not deleted: it is the only reader of that telemetry.
 72. **The provenance yaml must never be regenerated** — the generator now refuses (e573f1db). Add the
     seed to the story folder's filename so a read can be joined to its parameters without the yaml.
 73. **Cast pronouns are a locked fact** — `pronoun_policy: verify` means the sweeps are dead; delete the
@@ -263,6 +267,7 @@ prose requirements 1.5k; fair-play contract 1.7k; system message 1.8k.
     builder and outline too; both invent scenes and neither knows the world the cast was built from.
 77. **Fresh-names exclusion is 3 runs; the reviewer reads consecutively** — raise to 5 (24 of 28
     consecutive books shared a full name before A_84 #2).
+    → **DONE.** `--fresh-names` default 3 -> 5. Three was chosen for no measured reason; the number that matters is how many books back a consecutive reader remembers a name, and 24 of 28 consecutive books shared a full cast name before the exclusion existed (A_84 #2). Pools are 24 surnames / 32 given names and the generator already warns and falls back rather than failing. `--fresh-names 0` still replays a pre-2026-09-07 file byte-identically; `--self-test` passes.
 78. **Retire `AGENT9_LOCKED_FACT_ALIASES` and other falsified flags** from `.env.local` into the
     audit's recommended-against section — each is a line the next reader must evaluate.
 
@@ -294,6 +299,7 @@ prose requirements 1.5k; fair-play contract 1.7k; system message 1.8k.
 93. **A `probe` directory with the replay probes from A_84/A_85** (culprit link, DT check, clue pool,
     X39 reach) checked in, so the next reader replays them instead of rewriting them.
 94. **Delete the CRLF/LF mix** (`git warns on every commit`): one `.gitattributes` line.
+    → **DONE.** `.gitattributes` added: `* text=auto eol=lf`, CRLF kept for `.bat`/`.cmd`/`.ps1`, binaries marked. Every `git add` in this repo printed a warning per file, which trains the reader to ignore git's output — the one place a real warning would show.
 
 ## K. Runs and reads — the expensive instrument
 

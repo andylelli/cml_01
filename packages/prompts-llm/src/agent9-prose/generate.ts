@@ -3557,7 +3557,25 @@ export async function generateProse(
               } else if (polished.keptPolishedVersion) {
                 recordRepairByDiff("post_pass_polish", chapter, polished.chapter);
               } else {
-                recordRepairOutcome("post_pass_polish", "rolled_back", polished.rollbackReason ?? "unknown");
+                /**
+                 * A_86 item 23 — record the DETAIL, not just the class.
+                 *
+                 * 54% of this pass is discarded and the ledger said only "validation_regression".
+                 * The reason string now carries the check that actually broke, so the next reader
+                 * can fix the polish prompt from evidence (item 24) rather than from a guess.
+                 */
+                const detail = polished.rollbackDetail ? `: ${polished.rollbackDetail}` : "";
+                recordRepairOutcome(
+                  "post_pass_polish",
+                  "rolled_back",
+                  `${polished.rollbackReason ?? "unknown"}${detail}`,
+                );
+                if (polished.rollbackDetail) {
+                  console.warn(
+                    `[Agent 9][A_86 item 23] polish rolled back on ch${chapterNumber} — ` +
+                      `${polished.rollbackReason}: ${polished.rollbackDetail}`,
+                  );
+                }
               }
 
               if (polished.keptPolishedVersion) {

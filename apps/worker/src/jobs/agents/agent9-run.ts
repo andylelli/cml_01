@@ -8189,9 +8189,27 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       `readability density threshold exceeded (dense chapters: ${readabilitySummary.denseChapterCount}, low-paragraph chapters: ${readabilitySummary.underParagraphCount}, overlong blocks: ${readabilitySummary.severeParagraphBlocks})`,
     );
   }
-  if (sceneGrounding.coverage < 0.9) {
+  /**
+   * A_86 item 71 — this fired on EVERY run, always as 0/10, and always meant nothing.
+   *
+   * The coverage it measures is produced by the grounding-lead prepend, and `AGENT9_GROUNDING_LEAD=0`
+   * has been the settled setting since A_82 P9 (the prepend wrote 10 identical templated openers;
+   * ch8 and ch9 came out byte-identical). With the lead off, coverage is 0 by construction — so the
+   * gate reported the absence of a feature nobody wants as a defect of the manuscript, on every run.
+   * B1: a check that fires on most runs is an off switch with extra steps.
+   *
+   * It is not deleted, because it is the only reader of that telemetry: it now fires only when the
+   * lead is actually ENABLED, where a low coverage is a real finding about the prose.
+   */
+  const groundingLeadEnabled = String(process.env.AGENT9_GROUNDING_LEAD ?? "").trim() !== "0";
+  if (groundingLeadEnabled && sceneGrounding.coverage < 0.9) {
     releaseGateReasons.push(
       `scene-grounding coverage below target (${sceneGrounding.grounded}/${sceneGrounding.total} chapters grounded)`,
+    );
+  } else if (!groundingLeadEnabled && sceneGrounding.coverage < 0.9) {
+    console.info(
+      `[Agent 9][A_86 item 71] scene-grounding coverage ${sceneGrounding.grounded}/${sceneGrounding.total} ` +
+        `— NOT a release-gate reason while AGENT9_GROUNDING_LEAD=0, which is what produces it.`,
     );
   }
   // NSD divergence: split into two distinct cases.

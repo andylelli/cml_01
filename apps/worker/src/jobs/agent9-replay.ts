@@ -424,7 +424,17 @@ async function main(): Promise<void> {
     noveltyConstraints: {},
     criticalFairPlayRules: new Set<string>(),
     maxCmlRevisionAttempts: 3,
-    examplesRoot: join(workerAppRoot, "examples"),
+    /**
+      * A_86 item 69 — MEASURED 2026-09-10 against the built loader:
+      *   <workspaceRoot>/examples      -> 14 seed files
+      *   <workerAppRoot>/examples      ->  0   (the directory does not exist)
+      * The orchestrator resolves this through `resolveWorkerRuntimePaths` and gets the 14; this path
+      * had its own join and got nothing, so a replay ran with an empty seed corpus while the run it
+      * was replaying had a full one. (A_77 reported the same shape on the ORCHESTRATOR path; that
+      * half is already fixed — `runtime-paths.ts` joins "examples" onto the workspace root — so the
+      * live defect was only ever here.)
+      */
+    examplesRoot: join(workspaceRoot, "examples"),
     workerAppRoot,
     workspaceRoot,
     seedEntries: [] as Array<{ filename: string; cml: any }>,
