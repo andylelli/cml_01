@@ -11,18 +11,18 @@ yet measured — the item is to measure it).
 ## STATUS — 2026-09-10
 
 Items carry an inline annotation (`→ **DONE** ...`) recording what was built, and where the item as
-written turned out to be wrong. **58 of 100 resolved.**
+written turned out to be wrong. **61 of 100 resolved.**
 
 | outcome | items |
 |---|---|
-| built and verified | 1, 2, 3, 4, 5, 6, 9, 10, 12, 23, 25, 32, 45, 70, 34, 37, 46, 47, 48, 50, 52, 53, 63, 69, 71, 72, 77, 79, 83, 84, 85, 86, 88, 89, 93, 94, 96, 97, 98, 99, 100 |
+| built and verified | 1, 2, 3, 4, 5, 6, 9, 10, 12, 23, 25, 32, 45, 62, 70, 90, 95, 34, 37, 46, 47, 48, 50, 52, 53, 63, 69, 71, 72, 77, 79, 83, 84, 85, 86, 88, 89, 93, 94, 96, 97, 98, 99, 100 |
 | built, partial (rest stated inline) | 11, 31, 80, 81, 91 |
 | WITHDRAWN — the item was wrong, or would cause harm | 7, 51 |
 | DEFERRED — with the reason recorded at the call site | 8, 49, 76 |
 | already true before this list | 18, 55 |
 | BLOCKED on a run (the record it needs now exists) | 24 |
 | resolved by MEASUREMENT — already true, or not viable | 26, 27, 29, 59 |
-| NOT STARTED | 13, 14, 15, 16, 17, 19, 20, 21, 22, 28, 30, 33, 35, 36, 38, 39, 40, 41, 42, 43, 44, 54, 56, 57, 58, 60, 61, 62, 64, 65, 66, 67, 68, 73, 74, 75, 78, 82, 87, 90, 92, 95 |
+| NOT STARTED | 13, 14, 15, 16, 17, 19, 20, 21, 22, 28, 30, 33, 35, 36, 38, 39, 40, 41, 42, 43, 44, 54, 56, 57, 58, 60, 61, 64, 65, 66, 67, 68, 73, 74, 75, 78, 82, 87, 92 |
 
 **Commits:** `f5d5012e` group A · `e3fca2de` 23/31/69/71/77/94 · `cc5d7640` 89/91/93/96-100 ·
 `3d38f123` group I · `5cfc7db6` item 12 + group E · this commit 34/37/53/63/72/76.
@@ -297,6 +297,7 @@ prose requirements 1.5k; fair-play contract 1.7k; system message 1.8k.
 62. **Every floor sentence is registered and recognised as shipped** — the "You did it" pattern was
     blind to its own curly quote (A_85). Add a test that runs every builder's specimen through the
     typography fold before matching. Zero cost.
+    → **DONE.** New `injection-registry-typography-a86.test.ts` pushes EVERY live builder's specimen through the transformations the pipeline actually applies — curly double quotes, curly apostrophes, a space before a closing quote, and the combination — and requires `isInjectedSentence` to still recognise it. A_85 fixed this for ONE pattern after the shipped `"You did it. ” The words settled…` went unrecognised in 4 of 4 books; this makes the class unrepresentable. 32 assertions, all green, and a companion case pinning that authored prose is still not mistaken for an injection under the same transforms.
 63. **Clue floor: use the observable, never the description**, when pasting — the paste "Pressure
     discrepancy suggests entry forged genuine" is the description label. F5 stops the paste in the
     measured case; this stops the *label* in the remaining ones.
@@ -373,6 +374,7 @@ prose requirements 1.5k; fair-play contract 1.7k; system message 1.8k.
     package and its dependents only (`tsc -b` with project references).
     → **DONE.** `npm run build:changed` — `scripts/build-all.mjs --changed` skips packages whose dist is newer than their src and builds the first stale one plus everything after it. ORDER is already topological, so "everything after" IS the downstream set; deliberately blunt, because an over-build costs seconds and an under-build ships a stale dist to the worker. VERIFIED: all-fresh skips everything; touching `story-geometry` (mid-ORDER) builds 9 of 16 in 57s instead of ~4 min. The default and `pretest` are unchanged.
 90. **Vitest: 339 test files; run the touched package's suite by default**, the full suite in CI.
+    → **DONE.** `npm run test:touched` maps changed files (staged, unstaged and untracked) to their workspaces and runs vitest on exactly those. Deliberately does NOT run dependents — `build:changed` covers that, and the full suite is what a commit is verified against — and it prints that caveat on every run so it cannot be mistaken for pre-commit verification. Verified: it correctly detected `apps/api` and `packages/prompts-llm` from the working tree.
 91. **`flags:check` and `flags:runtime` as a pre-commit hook** — both are seconds and both have caught
     no-op levers.
     → **PARTLY DONE — script yes, automatic hook deliberately not.** `npm run verify:flags` runs both audits in one command (seconds). An automatic pre-commit hook was NOT installed: it would slow every commit for the other session working on this branch, and a hook that blocks a commit is a bad surprise to install on someone else's behalf. Left as a one-command opt-in.
@@ -388,6 +390,7 @@ prose requirements 1.5k; fair-play contract 1.7k; system message 1.8k.
 
 95. **Pre-register every paid run** (already a CLAUDE.md rule) — and add the *falsifier* line to the
     summary the run prints, so the read is scored against it.
+    → **DONE.** The run summary prints a PRE-REGISTERED block from `CML_RUN_PREDICTION` and `CML_RUN_FALSIFIER`, so the prediction the run was launched to settle appears where its result does. When they are unset it says so, naming the variables — CLAUDE.md already requires the prediction to be written before launch; this stops it living only in a chat message.
 96. **Read the matched pair, not the single run**: `RESUME_REDO=prose` costs the prose stage only
     (~£0.45) and settles a prose-side lever; a fresh run (£1.15) settles nothing about a prose lever.
     → **DONE (CLAUDE.md).** Recorded as a standing rule: prefer `RESUME_REDO=prose` (~£0.45, one stage against a byte-identical upstream) to a fresh run for any prose-side lever.

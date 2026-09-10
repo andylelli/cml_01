@@ -106,6 +106,22 @@ export const printRunSummary = ({ seed, runId, projectId, costSummary, prose, wa
     // visible rather than inferred. Run 24901 took two before the retry landed.
     bucket("content refusals", /refus|content.filter|ResponsibleAIPolicy/i);
   if (any === 0) lines.push("    (none)");
+  /**
+   * A_86 item 95 — the run restates the prediction it was launched to settle, so the read that
+   * follows is scored against it rather than against a memory of it. CLAUDE.md already requires the
+   * prediction to be WRITTEN before launch; this puts it where the result appears.
+   */
+  const prediction = process.env.CML_RUN_PREDICTION;
+  const falsifier = process.env.CML_RUN_FALSIFIER;
+  if (prediction || falsifier) {
+    lines.push("");
+    lines.push("  PRE-REGISTERED");
+    if (prediction) lines.push(`    predicts     : ${prediction}`);
+    if (falsifier) lines.push(`    falsified by : ${falsifier}`);
+  } else {
+    lines.push("");
+    lines.push("  PRE-REGISTERED  (none — set CML_RUN_PREDICTION and CML_RUN_FALSIFIER before a paid run)");
+  }
   lines.push("───────────────────────────────────────────────");
   lines.push("");
   console.log(lines.join("\n"));
