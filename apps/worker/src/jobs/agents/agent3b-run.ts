@@ -303,7 +303,7 @@ export function applyDeclaredDerivationCheck(ctx: OrchestratorContext): CaseTime
 }
 
 /**
- * A_86 item 3 — `AGENT3B_IMPLIED_DERIVATION`: repair the interval a device did not bother to declare.
+ * A_86 item 3 — `AGENT3B_REPAIR_IMPLIED_INTERVAL`: repair the interval a device did not bother to declare.
  *
  * THE GAP, MEASURED 2026-09-10 over the 50 stored cases. `reconcileDeviceArithmetic` may only touch a
  * fact that declares `derivedFrom` with exactly two sources — "no declaration, no rewrite", which is
@@ -327,8 +327,8 @@ export function applyDeclaredDerivationCheck(ctx: OrchestratorContext): CaseTime
  * hundred minutes, which is what keeps a midnight-straddling pair from being written back as "seven
  * hundred minutes". OFF: byte-identical.
  */
-export const isImpliedDerivationEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
-  /^(1|true|yes|on)$/i.test(String(env.AGENT3B_IMPLIED_DERIVATION ?? "").trim());
+export const isRepairImpliedIntervalEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT3B_REPAIR_IMPLIED_INTERVAL ?? "").trim());
 
 /**
  * The single unambiguous implied derivation in a device: exactly two clocks and exactly one duration.
@@ -369,7 +369,7 @@ export function reconcileDeviceArithmetic(ctx: OrchestratorContext): void {
    * write-through to the device already exist and are correct. A second body of that logic is the
    * trap this file's own history is full of.
    */
-  if (isImpliedDerivationEnabled()) {
+  if (isRepairImpliedIntervalEnabled()) {
     const impliedId = impliedIntervalFactId(registry, parseClockTime, parseDurationMinutes);
     if (impliedId) {
       const target = registry.find((f) => String(f.id ?? "").trim() === impliedId);

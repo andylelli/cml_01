@@ -1,5 +1,5 @@
 /**
- * A_86 item 3 — `AGENT3B_IMPLIED_DERIVATION`.
+ * A_86 item 3 — `AGENT3B_REPAIR_IMPLIED_INTERVAL`.
  *
  * `reconcileDeviceArithmetic` may only repair a fact that DECLARES `derivedFrom`. MEASURED over the
  * 50 stored cases: only 31 of 180 locked facts (17%) declare one, and 9 of the 22 cases with a time
@@ -12,7 +12,7 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { impliedIntervalFactId, isImpliedDerivationEnabled } from "../jobs/agents/agent3b-run.js";
+import { impliedIntervalFactId, isRepairImpliedIntervalEnabled } from "../jobs/agents/agent3b-run.js";
 import { parseClockTime, parseDurationMinutes } from "@cml/cml";
 
 const find = (facts: Array<{ id: string; value: string; derivedFrom?: string[] }>) =>
@@ -73,8 +73,8 @@ describe("A_86 item 3 — the implied interval", () => {
   });
 
   it("the flag is default OFF and read at call time", () => {
-    expect(isImpliedDerivationEnabled({})).toBe(false);
-    expect(isImpliedDerivationEnabled({ AGENT3B_IMPLIED_DERIVATION: "true" })).toBe(true);
-    expect(isImpliedDerivationEnabled({ AGENT3B_IMPLIED_DERIVATION: "off" })).toBe(false);
+    expect(isRepairImpliedIntervalEnabled({})).toBe(false);
+    expect(isRepairImpliedIntervalEnabled({ AGENT3B_REPAIR_IMPLIED_INTERVAL: "true" })).toBe(true);
+    expect(isRepairImpliedIntervalEnabled({ AGENT3B_REPAIR_IMPLIED_INTERVAL: "off" })).toBe(false);
   });
 });
