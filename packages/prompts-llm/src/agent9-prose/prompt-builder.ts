@@ -2722,7 +2722,19 @@ ${body}`;
     ? `⛔ PRONOUN LOCK (verify every sentence before writing):\n${compactPronounLines.join('\n')}\n\n`
     : '';
 
-  const user = `Write the full prose following the outline scenes.\n\n${chapterObligationBlock}${chapterOutcomeBlock}${timelineStateBlock}${storyToDateBlock}${completenessContractBlock}\n\n${buildContextSummary(inputs.caseData, inputs.cast)}\n\n${compactPronounHeader}Outline scenes:\n${JSON.stringify(scenesForPrompt, null, 2)}`;
+  /**
+   * A_86 item 37 — the chapter-outcome contract is emitted ONCE, in the developer/system message.
+   *
+   * MEASURED on run 24901's chapter-5 request: `## CHAPTER OUTCOME CONTRACT (MANDATORY)` appeared
+   * TWICE, byte-identical — once via `developerWithContracts` (~line 2571) and again here. ~316
+   * tokens on every prose call, 10-21 calls a run. Worse than the tokens: the copy removed here sat
+   * in the USER message, the volatile half of the prompt, so it was paid at full rate while the
+   * system copy was served from cache.
+   *
+   * Removed from the user message rather than the system one on purpose: the system message is the
+   * cached prefix, and the model already receives the contract there in full.
+   */
+  const user = `Write the full prose following the outline scenes.\n\n${chapterObligationBlock}${timelineStateBlock}${storyToDateBlock}${completenessContractBlock}\n\n${buildContextSummary(inputs.caseData, inputs.cast)}\n\n${compactPronounHeader}Outline scenes:\n${JSON.stringify(scenesForPrompt, null, 2)}`;
 
   // ── Agent 7.5 geometry as prompt input (GEOMETRY-AGENT-DESIGN §8.2) ────────
   // A contract and a test, nothing between: these blocks state obligations in the vocabulary of the

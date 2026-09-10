@@ -10,38 +10,50 @@ yet measured — the item is to measure it).
 
 ## STATUS — 2026-09-10
 
-Items carry an inline annotation (`→ **DONE** ...`) recording what was actually built, and where the
-item as written turned out to be wrong. **24 of 100 are resolved.** Commits: `f5d5012e` (group A),
-`e3fca2de` (23, 31, 69, 71, 77, 94), `cc5d7640` (89, 91, 93, 96-100).
+Items carry an inline annotation (`→ **DONE** ...`) recording what was built, and where the item as
+written turned out to be wrong. **49 of 100 resolved.**
 
 | outcome | items |
 |---|---|
-| built and tested | 1, 2, 3, 4, 5, 6, 9, 10, 23, 69, 71, 77, 89, 93, 94 |
-| built, partial | 31 (detail recorded; the threshold still needs a run), 91 (script yes, auto-hook deliberately not) |
-| recorded as a standing rule in CLAUDE.md | 96, 97, 98, 99, 100 |
-| WITHDRAWN — the item was wrong | 7 (`maxRetries: 0` is deliberate; both clients wrap chatOnce in withRetry) |
-| DEFERRED — could cause the harm it prevents | 8 (a per-deployment limiter doubles the request rate if the deployments share a quota; item 9 is the measurement that settles it) |
-| already done before this list | 18, 55 (A_85 F1/F6) |
+| built and verified | 1, 2, 3, 4, 5, 6, 9, 10, 12, 23, 34, 37, 46, 47, 48, 50, 52, 53, 63, 69, 71, 72, 77, 79, 83, 84, 85, 86, 88, 89, 93, 94, 96, 97, 98, 99, 100 |
+| built, partial (rest stated inline) | 11, 31, 80, 81, 91 |
+| WITHDRAWN — the item was wrong, or would cause harm | 7, 51 |
+| DEFERRED — with the reason recorded at the call site | 8, 49, 76 |
+| already true before this list | 18, 55 |
+| NOT STARTED | 13, 14, 15, 16, 17, 19, 20, 21, 22, 24, 25, 26, 27, 28, 29, 30, 32, 33, 35, 36, 38, 39, 40, 41, 42, 43, 44, 45, 54, 56, 57, 58, 59, 60, 61, 62, 64, 65, 66, 67, 68, 70, 73, 74, 75, 78, 82, 87, 90, 92, 95 |
 
-**Four items in this list were measurably wrong**, which is the reason each was checked before being
-built rather than after: item 1 (three of its four error codes were already present; the real gap was
-`connection_error` vs the SDK's `"Connection error."`), item 6 (re-deriving geometry on resume would
-be incorrect by design), item 7 (withdrawn), and item 69 (the orchestrator half was already fixed —
-the live defect was in the replay path). The A_86 numbers they were drawn from stand; the proposed
-fixes did not.
+**Commits:** `f5d5012e` group A · `e3fca2de` 23/31/69/71/77/94 · `cc5d7640` 89/91/93/96-100 ·
+`3d38f123` group I · `5cfc7db6` item 12 + group E · this commit 34/37/53/63/72/76.
 
-**Verification for every commit above:** `build:all` exit 0; llm-client 139, worker 893, prompts-llm
-1490, api 10 tests pass; both flag audits clean. A bare `npx vitest run` from the root reports 28
-failing FILES — all in `apps/web`, `apps/api` and `scripts/**/*.mjs`, all pre-existing runner
-artifacts (the `.mjs` suites are `node --test` files, and the api suite needs the env its own
-workspace script sets). Confirmed against commit `47d346b6`, before any of this work.
+**Seven items were measurably wrong**, which is why each was checked before being built: 1 (three of
+four codes already present), 6 (re-deriving geometry on resume is incorrect by design), 7 (withdrawn),
+34 (no defect — the block is stable from ch2), 51 (a deterministic synonym table reintroduces the
+machine register the reads complain about), 63 (the floor already prefers the observable) and 69 (the
+orchestrator half was already fixed; the live defect was the replay path).
 
-**The 76 remaining** are unstarted. The highest-value are 11 (regen before the 30k-token retry),
-12 (the victim-alive false positive, 3 of 12 retries — needs its measurement first), 24/25 (the polish
-prompt and paragraph-scoped rollback, now unblocked by item 23), 53 (3b clock facts at the schema)
-and 79-88 (the run summary).
+**Two were deferred because building them would cause the harm they aim to prevent:** 8 (a
+per-deployment limiter doubles the request rate if the deployments share a quota — item 9 is the
+measurement that settles it) and 76 (handing a creative seed to a SYNTHESIS agent invites it to invent
+facts the case does not contain).
+
+**Verification, every commit:** `build:changed`/`build:all` exit 0; llm-client 139, prompts-llm 1496,
+worker+prompts 2250, api 10 tests pass; `verify:flags` clean. A bare `npx vitest run` from the root
+reports 28 failing FILES — all pre-existing runner artifacts in `apps/web`, `apps/api` and
+`scripts/**/*.mjs` (those are `node --test` suites; the api suite needs env its workspace script sets).
+Confirmed identical at `47d346b6`, before this work.
+
+**A defect this work introduced and caught:** an inline patch wrote a literal U+0008 BACKSPACE where a
+regex needed backslash-b. `JSON.stringify` renders both as ``, so every dump looked correct while the
+regex matched a control character. The item-12 test caught it; all six files touched this session were
+then swept and are clean.
+
+**The 51 remaining** are unstarted. Highest value: 24/25 (the polish prompt and
+paragraph-scoped rollback, unblocked by item 23), 13-17 (routing the other retry classes to their
+existing regens), 33/35/36/39-41 (prompt-block trimming, now that 37 showed a whole block was
+duplicated), and 61/64-68 (the remaining floors).
 
 ---
+
 ## 0. The map the list is drawn from — MEASURED
 
 `node scripts/run-cost-audit.mjs`, five runs to 2026-09-08, mean **£0.60/run**:
@@ -188,12 +200,14 @@ prose requirements 1.5k; fair-play contract 1.7k; system message 1.8k.
     chapters (the FROZEN FACT STATE was, from chapter 3) and promote them to 'run' tier. Free.
 34. **Chapters 1–2 break the cache** (FROZEN FACT STATE hashes differ for ch1, ch2, then stabilise).
     Find the two facts that change and emit them in a separate volatile block.
+    → **NOT A DEFECT — measured.** The FROZEN FACT STATE block is byte-identical from chapter 2 onward (ch2 vs ch3 differ by 0 lines; ch3 == ch5 == ch10). Only chapter 1 differs, and for a legitimate reason: it carries `No previous chapter text exists yet for this batch` plus the case overview. There are no `two facts that change` to extract. The §0 hash difference for ch2 came from my capture boundary, not the block.
 35. **Trim `PRIOR CHAPTER QUALITY OBSERVATIONS` (1.5k)** to the observations that changed since last
     chapter; the rest is already in the cached prefix. Measure delta.
 36. **The relationship block (2.3k) is run-stable** — verify it sits in the 'run' tier; if it is
     emitted per chapter after volatile content it is paid uncached ten times.
 37. **Deduplicate the two "CHAPTER OUTCOME CONTRACT (MANDATORY)" headings** (316 + 124 tokens) — one
     contract, stated once.
+    → **DONE — and it was worse than a duplicate heading.** `## CHAPTER OUTCOME CONTRACT (MANDATORY)` appeared TWICE, byte-identical, in run 24901's chapter-5 request: once in the system message via `developerWithContracts` and again in the user message. ~316 tokens on every prose call, 10-21 calls a run. The copy that mattered was the USER one — the volatile half of the prompt, paid at full rate, while the system copy was served from cache. Removed from the user message, kept in the cached prefix.
 38. **Drop the prompt-record overhead from the token count** the budget uses; the budget should count
     what is sent, and the record's own headers are not sent. Accuracy only.
 39. **Cap `FROZEN FACT STATE` descriptions at the fact, not the paragraph**: 7.2k tokens for ~7 facts
@@ -245,6 +259,7 @@ prose requirements 1.5k; fair-play contract 1.7k; system message 1.8k.
     17 stored non-temporal cases have a clock-locking primary device and 0 of 17 hold any non-clock
     device; X39 fires on 5 of 15 (F4's reach) and the other 10 adopted the device's clock. This is the
     root of the timing mark. It is a prompt-and-schema change verified by the artifact, not a run.
+    → **DONE — `AGENT3B_AXIS_CLOCK_LOCK`, the timing mark at source.** MEASURED: 17 of 17 stored non-temporal cases have a clock-locking primary device and 0 of 17 hold any non-clock device among their five. A non-temporal 3b prompt is now told to lock what the concealment actually turns on, and at most ONE clock. A prompt OPERATION, not a gate. VERIFIED from the built prompt: present only when the flag is on AND the axis is non-temporal. Complements A_85 F4, which drops such facts at Agent 7.5 after the fact; F4's `[X39] dropped` telemetry is how we will see whether this landed.
 54. **Agent 3b: return five devices, keep one** — the other four are generated and paid for every run
     and never used (all five lock clocks; the re-rank found nothing to prefer). Generate two.
 55. **Agent 2: shared histories name one event** — done (F6). Measure the detector rate on the next
@@ -275,6 +290,7 @@ prose requirements 1.5k; fair-play contract 1.7k; system message 1.8k.
 63. **Clue floor: use the observable, never the description**, when pasting — the paste "Pressure
     discrepancy suggests entry forged genuine" is the description label. F5 stops the paste in the
     measured case; this stops the *label* in the remaining ones.
+    → **ALREADY TRUE — measured.** `deterministic-repair.ts:140` already prefers the on-page observable and falls back to description. The chapter-1 paste that prompted this item (`Pressure discrepancy suggests entry forged genuine`) is composed KEY TERMS, not the raw description field, so the proposed change would not have altered it. A_85 F5 is what actually stops that paste.
 64. **Delete the floor sentence when a later LLM pass restates the same fact** (the A_84 F1 rule for
     the locked-fact floor, extended to the clue floor): a book-scoped presence check before shipping.
 65. **The atmosphere-repair clause guard** — done (F3). Extend the same guard to the scaffold regen's
@@ -299,6 +315,7 @@ prose requirements 1.5k; fair-play contract 1.7k; system message 1.8k.
     → **DONE.** The release gate reported `scene-grounding coverage below target (0/10)` on every run. That coverage is produced by the grounding-lead prepend, and `AGENT9_GROUNDING_LEAD=0` has been the settled setting since A_82 P9 — so the gate reported the absence of a feature nobody wants as a defect of the manuscript, always. It now fires only when the lead is actually enabled, where a low number is a real finding; otherwise it logs at info. Not deleted: it is the only reader of that telemetry.
 72. **The provenance yaml must never be regenerated** — the generator now refuses (e573f1db). Add the
     seed to the story folder's filename so a read can be joined to its parameters without the yaml.
+    → **DONE — as a sidecar, not a folder rename.** Each story folder now gets `run-params.json` beside the manuscript: seed, runId, projectId, axis, angle, length, era, location, cast. Deliberately NOT the folder name (other scripts parse it) and NOT the manuscript itself (a seed line in the .md would contaminate the one instrument this project has — an external read).
 73. **Cast pronouns are a locked fact** — `pronoun_policy: verify` means the sweeps are dead; delete the
     four dead sweeps (348 lines) so nobody re-enables them "to tidy" (they corrupt 213 of 387 chapters).
 74. **Novelty ledger: the diverge-from list omits runs that failed** — run 1 of seed 91375 never entered
@@ -308,6 +325,7 @@ prose requirements 1.5k; fair-play contract 1.7k; system message 1.8k.
     September reads were parsed by a probe in this session; make it the tool.
 76. **The story angle reaches Agents 1, 2, 2e, 3b, 3 — not 6.5 or 7.** Pass `storyAngle` to the world
     builder and outline too; both invent scenes and neither knows the world the cast was built from.
+    → **DEFERRED, on quality grounds.** Agents 6.5 and 7 SYNTHESISE from the artifacts they are given; the world document is described in its own prompt as the prose writer's entire creative context. Handing a fresh creative seed to a synthesis stage invites it to introduce angle material the case does not contain — new facts, which is the class the locked-fact registry and the fair-play gates exist to prevent. The angle already reaches these agents indirectly and correctly, through the setting, cast, background and CML it shaped upstream. Not built without evidence that it helps.
 77. **Fresh-names exclusion is 3 runs; the reviewer reads consecutively** — raise to 5 (24 of 28
     consecutive books shared a full name before A_84 #2).
     → **DONE.** `--fresh-names` default 3 -> 5. Three was chosen for no measured reason; the number that matters is how many books back a consecutive reader remembers a name, and 24 of 28 consecutive books shared a full cast name before the exclusion existed (A_84 #2). Pools are 24 surnames / 32 given names and the generator already warns and falls back rather than failing. `--fresh-names 0` still replays a pre-2026-09-07 file byte-identically; `--self-test` passes.

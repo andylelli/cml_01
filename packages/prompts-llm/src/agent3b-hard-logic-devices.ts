@@ -153,6 +153,27 @@ const sharesMethodStem = (a: string, b: string): boolean => {
  * theme-lock still engages — degrading gracefully WITHOUT firing on open themes (whose prose shares
  * no method noun with the hints) or on abstract axis labels (stop-worded above).
  */
+/**
+ * A_86 item 53 — `AGENT3B_AXIS_CLOCK_LOCK`: a non-temporal case should not lock clock facts.
+ *
+ * MEASURED over the 50 stored cases: 17 of 17 non-temporal cases have a clock-locking PRIMARY device,
+ * and 0 of 17 hold any device without clock facts among their five — Agent 3b writes a clock whatever
+ * the axis (A_83). Locked facts are printed into the prose verbatim, so those clocks reach the page
+ * whether or not the story needs them: on run 24901 (authority, read 78/100) the model never wrote
+ * the tide clock, the locked-fact floor pasted its three values in as template sentences, and the
+ * reviewer's two lowest marks were "two timing tricks compete" (clues 5) and those very sentences
+ * (prose 5).
+ *
+ * A_85 F4 drops such facts at Agent 7.5, AFTER the case is built — a containment. This is the same
+ * defect addressed at source, and the two are complementary: F4 still catches anything that gets
+ * through, and its telemetry says whether this instruction landed.
+ *
+ * A PROMPT OPERATION, not a gate: "lock what the concealment turns on, at most one clock" is a
+ * countable instruction, which is the kind this model complies with (CLAUDE.md). OFF: byte-identical.
+ */
+export const isAxisClockLockEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT3B_AXIS_CLOCK_LOCK ?? "").trim());
+
 export function extractThemeMechanismFamilies(theme?: string, mechanismFamilies?: string[]): string[] {
   const hints = (mechanismFamilies ?? []).join(" ");
   const keyworded = familiesIn(`${theme ?? ""} ${hints}`);
@@ -461,7 +482,15 @@ Output JSON only, with this exact structure:
       // traps); do not default to the clock. But when a LOCKED THEME is given, the PRIMARY device (devices[0])
       // MUST realize that theme's family — the variety rule never overrides the locked theme for the primary.
 
-NOTE — TIME VALUES IN lockedFacts: All clock times MUST be written in old-style English word form. 
+${isAxisClockLockEnabled() && inputs.primaryAxis !== "temporal" ? `NOTE — THIS IS A ${inputs.primaryAxis.toUpperCase()} CASE, NOT A TEMPORAL ONE (A_86 item 53):
+The concealment does NOT turn on when something happened. Do NOT lock a clock time as a locked fact
+unless the mechanism genuinely cannot be stated without it. Lock what the concealment actually turns
+on — a place, a record, an object, a person, an order of events. At most ONE clock time, and only if
+the device would be unintelligible without it.
+WHY: locked facts are printed into the prose VERBATIM. A clock the story never needed still gets
+written onto the page, and the reader meets two timelines that do not meet.
+
+` : ""}NOTE — TIME VALUES IN lockedFacts: All clock times MUST be written in old-style English word form. 
 CORRECT: "ten minutes past eleven", "a quarter to three", "twenty past midnight"
 WRONG: any digit-and-colon clock notation, AM/PM notation, or twenty-four-hour notation
 Never use digits, colons, AM/PM, or 24-hour notation for any time locked fact.

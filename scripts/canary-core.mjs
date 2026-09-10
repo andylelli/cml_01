@@ -283,6 +283,32 @@ try {
       fallbackTitle,
     });
     console.log("STORY_SAVED", saved.absPath);
+    /**
+     * A_86 item 72 — a sidecar, so a read can be joined to its parameters without the seed yaml.
+     *
+     * Deliberately NOT the folder name and NOT the manuscript: the folder name is parsed by other
+     * scripts, and the .md is the file a reviewer reads — a seed line in it would contaminate the
+     * one instrument this project has. A JSON sibling is invisible to the reader and unambiguous to
+     * a script.
+     */
+    try {
+      const sidecar = path.join(path.dirname(saved.absPath), "run-params.json");
+      writeFileSync(sidecar, JSON.stringify({
+        seed: inputs.seed ?? null,
+        runId: result.metadata.runId,
+        projectId,
+        primaryAxis: inputs.primaryAxis ?? null,
+        storyAngle: inputs.storyAngle ?? null,
+        targetLength: inputs.targetLength ?? null,
+        eraPreference: inputs.eraPreference ?? null,
+        locationPreset: inputs.locationPreset ?? null,
+        castNames: inputs.castNames ?? null,
+        generatedAt: new Date().toISOString(),
+      }, null, 2), "utf8");
+      console.log("STORY_PARAMS_SAVED", sidecar);
+    } catch (sidecarErr) {
+      console.log("STORY_PARAMS_SAVE_FAILED", String(sidecarErr?.message ?? sidecarErr));
+    }
   }
 } catch (storySaveErr) {
   console.error("STORY_SAVE_FAILED", String(storySaveErr));
