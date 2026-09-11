@@ -100,31 +100,169 @@ export const getPerActSceneNumber = (scene: any, allOutlineScenes?: any[]): numb
   return globalSceneNumber - allOutlineScenes.filter((s: any) => Number(s?.act) < sceneAct).length;
 };
 
+/**
+ * ── A_87: HOW a scene ref resolved, not merely whether ───────────────────────────────────────────
+ *
+ * `scene_number` IS A GLOBAL SCENE INDEX. That is what Agent 3 emits and what resolves; the schema
+ * and the prompt now say so (A_87 P2/P3). `act_number` is advisory context, and when the two
+ * disagree the number is the half to trust.
+ *
+ * WHY THIS TYPE EXISTS. A keyword match returned `true` in exactly the same way an exact coordinate
+ * match did, so a join that had NEVER resolved was indistinguishable from a working one — for 45
+ * runs. MEASURED by replaying this matcher over all 45 stored (cml, outline) pairs:
+ *
+ *   culprit_revelation_scene   resolves exactly    0/45   (0%)
+ *   discriminating_test_scene  resolves exactly    1/45   (2%)
+ *   suspect_clearance_scenes   resolves exactly    4/179  (2%)
+ *   clue_to_scene_mapping      resolves exactly  320/368  (87%)   <- the control
+ *
+ * The last row is what makes this a COORDINATE defect and not a matcher defect: the matcher works
+ * when it is given real coordinates. Consequence of the other rows: chapter-contract assignment ran
+ * on the `signal` fallback for the life of the project, and on 11 of 45 runs (24%) the reveal
+ * contract was emitted on NO chapter, because the discriminating-test keyword claimed the reveal
+ * scene first (`isRevealChapter = !isDiscriminatingTestChapter`).
+ *
+ * The rule this encodes, for the next cross-agent reference: report the PATH, never just the result.
+ */
+export type SceneRefPath = "exact" | "global-scene" | "signal" | "none";
+
+/**
+ * A_87 P2 — trust a resolving global scene number over a disagreeing act number.
+ *
+ * Agent 3 emits `act3/sc6` in 45 of 45 archived runs, because that pair is the worked example in its
+ * own prompt. Read as a GLOBAL index `scene_number` resolves 45/45; read as per-act, 0/45. The act
+ * half is simply wrong — global scene 6 lives in act 2 under the usual 3/4/3 shape — and the matcher
+ * required both halves to agree, so it rejected a coordinate whose useful half was correct.
+ *
+ * OFF: byte-identical to the historical matcher, asserted by test. Env read at CALL time (ADR-0004).
+ */
+export const isGlobalSceneRefEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT9_SCENE_REF_RESOLUTION ?? "").trim());
+
+/**
+ * Resolve a CML scene ref against one outline scene, returning HOW it matched.
+ *
+ * `exact`        the act agrees and the scene number matches (global or per-act)
+ * `global-scene` the act disagrees but the GLOBAL scene number matches — P2, flag-gated
+ * `signal`       neither; the caller's keyword pattern matched the scene's text
+ * `none`         no match
+ */
+export const resolveSceneRef = (
+  scene: any,
+  ref: any,
+  allOutlineScenes?: any[],
+  signalPattern?: RegExp,
+): SceneRefPath => {
+  if (!scene || !ref) return "none";
+  const sceneAct = Number(scene?.act);
+  const refAct = Number(ref?.act_number);
+  const actDisagrees = Number.isFinite(refAct) && Number.isFinite(sceneAct) && sceneAct !== refAct;
+
+  const refSceneNumber = Number(ref?.scene_number);
+  const globalSceneNumber = Number(scene?.sceneNumber);
+  const perActSceneNumber = getPerActSceneNumber(scene, allOutlineScenes);
+  const numberMatches =
+    Number.isFinite(refSceneNumber) &&
+    refSceneNumber > 0 &&
+    (refSceneNumber === globalSceneNumber || refSceneNumber === perActSceneNumber);
+
+  if (actDisagrees) {
+    // P2. Without the flag this is the historical early `return false`, before the number or the
+    // signal is ever consulted — which is precisely how a correct scene number was thrown away.
+    if (
+      isGlobalSceneRefEnabled() &&
+      Number.isFinite(refSceneNumber) &&
+      refSceneNumber > 0 &&
+      refSceneNumber === globalSceneNumber
+    ) {
+      return "global-scene";
+    }
+    return "none";
+  }
+
+  if (numberMatches) return "exact";
+  return signalPattern && signalPattern.test(normalizeSceneSignalText(scene)) ? "signal" : "none";
+};
+
+/** The historical boolean face of `resolveSceneRef`, kept for its 21 call sites. */
 export const sceneMatchesCmlSceneRef = (
   scene: any,
   ref: any,
   allOutlineScenes?: any[],
   signalPattern?: RegExp,
-): boolean => {
-  if (!scene || !ref) return false;
-  const sceneAct = Number(scene?.act);
-  const refAct = Number(ref?.act_number);
-  if (Number.isFinite(refAct) && Number.isFinite(sceneAct) && sceneAct !== refAct) return false;
+): boolean => resolveSceneRef(scene, ref, allOutlineScenes, signalPattern) !== "none";
 
-  const refSceneNumber = Number(ref?.scene_number);
-  const globalSceneNumber = Number(scene?.sceneNumber);
-  const perActSceneNumber = getPerActSceneNumber(scene, allOutlineScenes);
-  if (
-    Number.isFinite(refSceneNumber) &&
-    refSceneNumber > 0 &&
-    (refSceneNumber === globalSceneNumber || refSceneNumber === perActSceneNumber)
-  ) {
-    return true;
+/**
+ * A_87 P1 — audit every scene ref in a case against the outline that was actually produced.
+ *
+ * Telemetry, not a gate: B1 forbids gating something that fires on 98% of runs, and the honest first
+ * move is to make the rate visible. ONE summary line per run, because 30% of a run's warnings were
+ * already schema noise and this must not become more of it.
+ */
+export interface SceneRefAudit {
+  total: number;
+  exact: number;
+  globalScene: number;
+  unresolved: number;
+  /** `kind act/scene` for each ref that did not resolve by coordinate. */
+  unresolvedRefs: string[];
+}
+
+export const auditCmlSceneRefs = (cmlCase: any, allOutlineScenes: any[]): SceneRefAudit => {
+  const scenes = Array.isArray(allOutlineScenes) ? allOutlineScenes : [];
+  const audit: SceneRefAudit = { total: 0, exact: 0, globalScene: 0, unresolved: 0, unresolvedRefs: [] };
+  if (scenes.length === 0) return audit;
+  // The archive ships both the bare case and the `{CASE: …}` wrapper; a bare read silently
+  // audits zero refs and reports a clean join — the exact failure this audit exists to catch.
+  const pr = cmlCase?.prose_requirements ?? cmlCase?.CASE?.prose_requirements ?? {};
+  const refs: Array<{ kind: string; ref: any }> = [];
+  if (pr.culprit_revelation_scene) refs.push({ kind: "culprit_revelation_scene", ref: pr.culprit_revelation_scene });
+  if (pr.discriminating_test_scene) refs.push({ kind: "discriminating_test_scene", ref: pr.discriminating_test_scene });
+  for (const r of (Array.isArray(pr.suspect_clearance_scenes) ? pr.suspect_clearance_scenes : [])) {
+    refs.push({ kind: "suspect_clearance_scene", ref: r });
+  }
+  for (const r of (Array.isArray(pr.clue_to_scene_mapping) ? pr.clue_to_scene_mapping : [])) {
+    refs.push({ kind: "clue_to_scene_mapping", ref: r });
   }
 
-  return Boolean(signalPattern && signalPattern.test(normalizeSceneSignalText(scene)));
+  for (const { kind, ref } of refs) {
+    audit.total += 1;
+    // No signal pattern here on purpose: this audits the COORDINATE, which is the thing that rots.
+    const paths = scenes.map((s) => resolveSceneRef(s, ref, scenes));
+    if (paths.includes("exact")) audit.exact += 1;
+    else if (paths.includes("global-scene")) audit.globalScene += 1;
+    else {
+      audit.unresolved += 1;
+      if (audit.unresolvedRefs.length < 6) {
+        audit.unresolvedRefs.push(`${kind} act${ref?.act_number}/sc${ref?.scene_number}`);
+      }
+    }
+  }
+  return audit;
 };
 
+/** The one-line run summary. Empty string when every ref resolved by coordinate. */
+/**
+ * One compact line per run. The archive's typical run has SIX unresolved refs, four of them the
+ * identical `suspect_clearance_scene act3/sc5`, so the list is deduped with counts — an unreadable
+ * warning is a warning nobody reads (the WARNINGS-noise lesson, CLAUDE.md).
+ *
+ * Always returns a line, including when the join is clean: the defect this exists to catch was
+ * precisely that a broken join and a working one looked identical in every log.
+ */
+export const summariseSceneRefAudit = (audit: SceneRefAudit): string => {
+  if (audit.total === 0) return "no CML scene refs to resolve";
+  const tally = new Map<string, number>();
+  for (const r of audit.unresolvedRefs) tally.set(r, (tally.get(r) ?? 0) + 1);
+  const listed = [...tally.entries()]
+    .map(([r, n]) => (n > 1 ? `${r} x${n}` : r))
+    .join("; ");
+  const head =
+    `${audit.exact}/${audit.total} exact, ${audit.globalScene} global-scene, ` +
+    `${audit.unresolved} unresolved`;
+  if (audit.unresolved === 0 && audit.globalScene === 0) return `${head} — join clean`;
+  return `${head} -> keyword fallback (${listed})`;
+};
 export const resolveCmlSceneRefChapterNumber = (
   ref: any,
   allOutlineScenes: any[],

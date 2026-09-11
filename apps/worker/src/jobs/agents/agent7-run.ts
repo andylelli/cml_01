@@ -7,7 +7,7 @@
  * pacing. Writes ctx.narrative and ctx.outlineCoverageIssues.
  */
 
-import { formatNarrative, GOLDEN_AGE_BEATS, isAgent7StructuredOutputEnabled } from "@cml/prompts-llm";
+import { formatNarrative, GOLDEN_AGE_BEATS, isAgent7StructuredOutputEnabled, auditCmlSceneRefs, summariseSceneRefAudit } from "@cml/prompts-llm";
 import type { NarrativeOutline, ClueDistributionResult, WorldDocumentResult } from "@cml/prompts-llm";
 import { validateArtifact } from "@cml/cml";
 import type { CaseData } from "@cml/cml";
@@ -2978,4 +2978,28 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
   // DIAGNOSIS-BATCH #2 (flag-gated, default OFF): a motive-behavioral beat, same shape as the clue
   // plant above. After both clue passes so its own load-balancing sees their scene placements too.
   applyMotivePlantBeforeReveal(ctx, narrative);
+
+  /**
+   * A_87 P1 — referential integrity for the CML -> outline scene join, as TELEMETRY.
+   *
+   * Agent 3 emits act/scene coordinates into a namespace Agent 7 only creates afterwards. Replaying
+   * the shipped matcher over all 45 archived (cml, outline) pairs MEASURED that
+   * `culprit_revelation_scene` resolves exactly 0/45, `discriminating_test_scene` 1/45 and
+   * `suspect_clearance_scenes` 4/179 — so every chapter contract in Agent 9 has been assigned by a
+   * keyword fallback for the life of the project, and on 24% of runs the reveal contract lands on no
+   * chapter at all. None of that was visible because a keyword match returns exactly what an exact
+   * match returns: there was no record of WHICH PATH RESOLVED.
+   *
+   * This is deliberately NOT a gate. B1 forbids gating something that fires on 98% of runs, and
+   * aborting 24% of runs over a contract they have survived would be the wrong trade (A_87 §6,
+   * "Not recommended"). One line, unconditional, so the rate is on the record from now on.
+   */
+  try {
+    const auditScenes = ((narrative as any).acts ?? []).flatMap((a: any) => a?.scenes ?? []);
+    const refAudit = auditCmlSceneRefs(ctx.cml as any, auditScenes);
+    ctx.warnings.push(`[A_87 scene-ref join] ${summariseSceneRefAudit(refAudit)}`);
+  } catch (e) {
+    // Telemetry must never cost an outline — the same rule the stamping passes above follow.
+    ctx.warnings.push(`[A_87 scene-ref join] audit skipped: ${(e as Error).message}`);
+  }
 }

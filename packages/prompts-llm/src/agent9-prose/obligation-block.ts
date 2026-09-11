@@ -17,6 +17,8 @@ import {
   getRequiredClueIdsForScene,
   isBehaviouralClue,
   isDeliveryMethodLabel,
+  resolveSceneRef,
+  type SceneRefPath,
   sceneMatchesCmlSceneRef,
   surfaceSpecKeyTerms,
   tokenMatchesText,
@@ -62,6 +64,13 @@ import type {
  */
 export const isRevealDeceptionPurposeEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
   /^(1|true|yes|on)$/i.test(String(env.AGENT9_REVEAL_DECEPTION_PURPOSE ?? "").trim());
+
+/**
+ * A_87 P4 — let a `revelation` beat refuse a keyword-only discriminating-test claim. See the call
+ * site for the measurement (24% of archived runs lose the reveal contract to this).
+ */
+export const isSceneRefArbitrationEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT9_SCENE_REF_ARBITRATION ?? "").trim());
 
 const buildDeceptionPurposeLines = (cmlCase: any, culpritNames: string, culpritAlibiLock: Array<{ name: string; alibiWindow: string }>): string[] => {
   const fa = cmlCase?.false_assumption ?? {};
@@ -194,6 +203,8 @@ export function buildChapterObligationBlock(
   // (the Ch9/Ch10 duplicated-reveal defect). The keyword fallback applies only when no
   // exact match exists anywhere.
   const DT_SIGNAL_RE = /\b(discriminating|test|controlled comparison|trap|prove|disprove)/i;
+/** A_87 P4b — hoisted from the reveal classification so the arbitration can re-apply it. */
+const REVEAL_SIGNAL_RE = /\b(culprit|confront|confession|resolve|resolution|denouement|case\s+closed)/i;
   const dtResolutionScenes: any[] = Array.isArray(allOutlineScenes) && allOutlineScenes.length > 0
     ? allOutlineScenes
     : (Array.isArray(scenesForChapter) ? (scenesForChapter as any[]) : []);
@@ -517,9 +528,33 @@ export function buildChapterObligationBlock(
     }
     // ITEM 11 (#3): keyword fallback only when no exact DT match exists anywhere (see
     // dtHasExactMatch above) — the DT contract is exclusive to the exact-matched chapter.
-    const isDiscriminatingTestChapter = dtHasExactMatch
-      ? sceneMatchesCmlSceneRef(scene, dtScene, allOutlineScenes)
-      : sceneMatchesCmlSceneRef(scene, dtScene, allOutlineScenes, DT_SIGNAL_RE);
+    /**
+     * A_87 P4 — a KEYWORD-derived DT claim must not delete the reveal contract.
+     *
+     * `isRevealChapter` below is `!isDiscriminatingTestChapter && …`, so the two contracts are
+     * mutually exclusive by construction. That is right when the DT chapter is known by coordinate
+     * and dangerous when it is guessed from a word: `DT_SIGNAL_RE` contains `test|prove|
+     * discriminating`, and on run mystery-1789140940497 it matched 5 of 10 scenes INCLUDING BOTH
+     * `revelation` beats — scene 10, "Confronting Quentin Everleigh", matched on the word
+     * "discriminating". The reveal chapter was classified as the DT chapter and all five reveal
+     * obligations were emitted nowhere. MEASURED across the archive: this loses the reveal contract
+     * entirely on 11 of 45 runs (24%), and in 10 of those 11 a reveal scene existed.
+     *
+     * So when the DT claim came from the KEYWORD path and the scene's own beat says `revelation`,
+     * the beat wins. Narrow on purpose: an exact or global-scene DT match is never overridden, and a
+     * keyword DT claim on a non-revelation beat still stands.
+     *
+     * Largely belt-and-braces once P2 is on — a resolving DT ref makes `dtHasExactMatch` true and
+     * retires the keyword path — but it is the safety net for a ref that resolves to nothing at all.
+     */
+    const dtPath: SceneRefPath = dtHasExactMatch
+      ? resolveSceneRef(scene, dtScene, allOutlineScenes)
+      : resolveSceneRef(scene, dtScene, allOutlineScenes, DT_SIGNAL_RE);
+    const dtClaimIsKeywordOnly = dtPath === "signal";
+    const sceneBeatIsRevelation = String((scene as any)?.beat ?? "").toLowerCase() === "revelation";
+    const dtClaimYieldsToRevealBeat =
+      isSceneRefArbitrationEnabled() && dtClaimIsKeywordOnly && sceneBeatIsRevelation;
+    const isDiscriminatingTestChapter = dtPath !== "none" && !dtClaimYieldsToRevealBeat;
 
     // Post-reveal naming constraint — fires for chapters that come after the revelation
     // scene so the LLM doesn't replace the culprit's name with role aliases.
@@ -535,15 +570,36 @@ export function buildChapterObligationBlock(
     // Hoisted above the clue loop so reveal-class clue deferral (B2) can use it. Detects
     // the chapter that contains the culprit-revelation scene.
     const revelationScene = proseRequirements.culprit_revelation_scene ?? null;
-    const isRevealChapter =
-      !isDiscriminatingTestChapter &&
-      revelationScene != null &&
-      sceneMatchesCmlSceneRef(
-        scene,
-        revelationScene,
-        allOutlineScenes,
-        /\b(culprit|confront|confession|resolve|resolution|denouement|case\s+closed)/i,
+    /**
+     * A_87 P4b — a signal-only reveal claim must not land on TWO chapters.
+     *
+     * REVEAL_SIGNAL_RE matches on confront/resolve/culprit, and 19 of 45 archived outlines carry two
+     * `revelation` beats, so the keyword routinely claims both. MEASURED over the 45 archived
+     * (cml, outline) pairs with the real `buildChapterObligationBlock`: the reveal contract lands on
+     * exactly one chapter in 27, on none in 11, and on TWO in 7. Enabling the DT arbitration above
+     * alone moves that to 31 / 2 / 12 — it rescues nine lost contracts but converts five of them into
+     * duplicates, which is the ch8-repeats-ch9 complaint arriving from the other direction.
+     *
+     * So when the claim is keyword-derived and more than one scene answers it, the LAST such scene
+     * keeps it. MEASURED: the last `revelation`-beat scene IS the final scene of the book in 44 of 45
+     * outlines, so "last" is the reveal in practice, not merely a tie-break.
+     *
+     * An exact (or global-scene) coordinate match is never overridden — only the guess is arbitrated.
+     */
+    const revealPath: SceneRefPath = revelationScene
+      ? resolveSceneRef(scene, revelationScene, allOutlineScenes, REVEAL_SIGNAL_RE)
+      : "none";
+    let revealYieldsToLaterScene = false;
+    if (isSceneRefArbitrationEnabled() && revealPath === "signal" && Array.isArray(allOutlineScenes)) {
+      const claimants = (allOutlineScenes as any[]).filter(
+        (candidate) => resolveSceneRef(candidate, revelationScene, allOutlineScenes, REVEAL_SIGNAL_RE) !== "none",
       );
+      const last = claimants[claimants.length - 1];
+      revealYieldsToLaterScene =
+        claimants.length > 1 && Number(last?.sceneNumber) !== Number((scene as any)?.sceneNumber);
+    }
+    const isRevealChapter =
+      !isDiscriminatingTestChapter && revealPath !== "none" && !revealYieldsToLaterScene;
     // A pre-reveal chapter is any investigation chapter strictly before the
     // discriminating-test / revelation / aftermath chapters. Reveal-class clues (those
     // that name the culprit or explain the tamper mechanism) must NOT have their

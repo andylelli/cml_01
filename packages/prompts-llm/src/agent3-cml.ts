@@ -189,6 +189,33 @@ export const buildDeviceArithmeticRule = (
   return "";
 };
 
+/**
+ * A_87 P3 — the reveal coordinate in the skeleton below was copied verbatim by the model in
+ * 45 of 45 archived runs (`act_number: 3, scene_number: 6`, one distinct value across the whole
+ * archive). A_67's lesson: illustrative content in a prompt is reproduced, not adapted.
+ *
+ * The placeholder form cannot be pasted as a number, so it is FLAG-GATED: `scene_number` is
+ * `{ type: number, required: true }` in `schema/cml_2_0.schema.yaml:374`, and a model that copies
+ * `<...>` emits a string and fails validation into a repair retry. Default OFF keeps the skeleton
+ * byte-identical to every archived run.
+ *
+ * NOTE the limit of this fix: Agent 3 runs BEFORE Agent 7, so this coordinate is a forward
+ * reference into a scene namespace that does not exist yet. No prompt wording can make the model
+ * guess Agent 7's numbering. Removing the constant stops one wrong value being emitted 45/45; it
+ * does not make the reference resolve. That needs reconciliation after the outline exists.
+ */
+export const isSceneRefPlaceholderEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT3_SCENE_REF_PLACEHOLDER ?? "").trim());
+
+const revealSceneExampleLines = (env: NodeJS.ProcessEnv = process.env): string =>
+  isSceneRefPlaceholderEnabled(env)
+    ? [
+        "      # scene_number is the GLOBAL scene index across the whole outline, counting from 1.",
+        "      act_number: <the act containing the reveal>",
+        "      scene_number: <the GLOBAL scene index of the reveal>",
+      ].join("\n")
+    : ["      act_number: 3", "      scene_number: 6"].join("\n");
+
 export function buildCMLPrompt(inputs: CMLPromptInputs, examplesDir?: string): PromptMessages {
   // Load seed patterns if examples directory provided
   let seedPatternsText = "No seed patterns loaded (will generate from first principles).";
@@ -631,8 +658,7 @@ CASE:
         clearance_method: "Specific alibi or evidence that eliminates them"
         supporting_clues: ["clue_id_1", "clue_id_2"]
     culprit_revelation_scene:
-      act_number: 3
-      scene_number: 6
+${revealSceneExampleLines()}
       revelation_method: "Confrontation with evidence"
     identity_rules:
       - character_name: "(if identity axis)"
@@ -1294,16 +1320,33 @@ export async function generateCML(
 
     // Determine a sensible default scene for gap-filled clearances:
     // one scene before the culprit revelation scene (which is late Act 3).
-    const revealActNum: number =
-      typeof proseRequirements.culprit_revelation_scene === "object" &&
-      proseRequirements.culprit_revelation_scene !== null
-        ? (Number((proseRequirements.culprit_revelation_scene as any).act_number) || 3)
-        : 3;
-    const revealSceneNum: number =
-      typeof proseRequirements.culprit_revelation_scene === "object" &&
-      proseRequirements.culprit_revelation_scene !== null
-        ? (Number((proseRequirements.culprit_revelation_scene as any).scene_number) || 6)
-        : 6;
+    /**
+     * A_87 P3 — the `|| 3` / `|| 6` defaults were a SECOND BODY of the prompt's worked example.
+     *
+     * A ref the model omitted was silently invented as act 3 / scene 6 — the identical fiction the
+     * prompt supplied, so an absent ref and a copied one were indistinguishable downstream.
+     *
+     * The constants are KEPT: a gap-filled clearance still needs some coordinate, and there is no
+     * better one available here (Agent 7 has not run, so no real scene namespace exists yet). What
+     * changes is that their use is now AUDIBLE instead of silent — which is the whole defect.
+     *
+     * MEASURED: no archived run omits this field, so this branch is a no-op on all 45 — which is
+     * exactly why it could carry a wrong constant for the life of the project unnoticed.
+     */
+    const revealRefRaw = (typeof proseRequirements.culprit_revelation_scene === "object" &&
+      proseRequirements.culprit_revelation_scene !== null)
+      ? (proseRequirements.culprit_revelation_scene as any)
+      : null;
+    const revealActNum: number = Number(revealRefRaw?.act_number) || 3;
+    const revealSceneNum: number = Number(revealRefRaw?.scene_number) || 6;
+    if (!revealRefRaw) {
+      // eslint-disable-next-line no-console
+      console.warn(
+        "[A_87] culprit_revelation_scene absent from the case; clearance scenes fall back to " +
+          "act 3 / scene 6, which resolves against no outline. The clearance coordinates for this " +
+          "run are guesses.",
+      );
+    }
     const clearanceActNum = revealActNum;
     // A_67 FIX-1(c): fold gap-filled clearances INTO the reveal / discriminating-test scene (where the
     // reveal already eliminates non-culprits on-page) instead of stamping them all onto a dedicated

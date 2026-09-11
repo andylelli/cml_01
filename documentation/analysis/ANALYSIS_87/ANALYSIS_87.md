@@ -211,3 +211,103 @@ contract's absence has been survivable — those 11 runs shipped books, one of t
 - **Whether the DT contract is landing on the right chapter** when it fires. This analysis measured
   that it fires and that it steals the reveal; it did not check that the chapter it claims is the one
   the case intended.
+
+---
+
+## 8. BUILD LOG — what P1–P5 became when measured (2026-09-11)
+
+Everything below is MEASURED by running the **real** `buildChapterObligationBlock` over all 45
+archived (cml, outline) pairs, not by replaying a hand-written replica of its classification. That
+distinction cost two wrong numbers in this session and is the reason P5 exists.
+
+### STATUS
+
+| item | state | commit | what it actually does |
+|---|---|---|---|
+| P1 audit + telemetry | **BUILT, unconditional** | see below | `resolveSceneRef` returns the PATH (`exact` / `global-scene` / `signal` / `none`); `auditCmlSceneRefs` + one warning line per run at the Agent 7 boundary |
+| P2 global-scene reading | **BUILT, RECOMMENDED AGAINST** | see below | `AGENT9_SCENE_REF_RESOLUTION` — measured before switching on, and it is wrong (§8.1) |
+| P3 placeholder | **BUILT, flag-gated** | see below | `AGENT3_SCENE_REF_PLACEHOLDER`; code defaults kept but made audible (§8.2) |
+| P4 + P4b arbitration | **BUILT, flag-gated** | see below | `AGENT9_SCENE_REF_ARBITRATION`; reveal contract 28/45 → **43/45** correct, doubling → 0 |
+| P5 join test | **BUILT, green** | see below | `a87-scene-ref-join.test.ts`, 6 assertions over the frozen 45-pair fixture |
+| P6 register entry | **WRITTEN** | this file | §6 P6 stands, and §8.4 strengthens it |
+
+### 8.1 P2 IS REFUTED. The recommendation in §6 was wrong.
+
+§6 P2 argued: `scene_number` read as GLOBAL resolves 45/45 where the act check resolves 0/45, so the
+matcher should prefer the scene number. Built it, then measured where it lands **before** switching
+it on:
+
+| the scene P2 would hand the reveal contract to | count |
+|---|---|
+| beat `false_solution` | **43/45** |
+| beat `alibis` | 1/45 |
+| no beat | 1/45 |
+| in the FINAL act | **0/45** |
+| position in book | scene **6 of 10**, 41/45 |
+
+`scene_number: 6` was never a coordinate. It is the prompt's worked example, in range by luck.
+Reading it as global would put *name the culprit, walk the deduction, state the kill* on the mid-book
+chapter that airs the detective's **wrong** theory — worse than the keyword fallback it replaces.
+The flag stays OFF and is recommended-against in `FLAG-AUDIT.md`; the resolver it introduced is kept,
+because P1's audit and P4's arbitration are both built on it.
+
+**The lesson is §3's own, turned on this document:** a ref that "resolves" is not a ref that is
+right. 45/45 resolution was the same kind of reassuring number as a keyword fallback returning
+`true`.
+
+### 8.2 P3 landed narrower than §6 asked, on purpose
+
+§6 said to remove the `|| 3` / `|| 6` code defaults outright. They are **kept**, because a gap-filled
+clearance still needs some coordinate and at Agent 3 time no real scene namespace exists — Agent 7
+has not run. What changed is that their use is now audible instead of silent, which is the actual
+defect. And the prompt change is flag-gated rather than unconditional: `scene_number` is
+`{ type: number, required: true }`, so a model that copies `<the GLOBAL scene index…>` emits a string
+and buys a schema-repair retry. That is a run's worth of risk, not a free fix.
+
+### 8.3 The numbers in §2 and §3 were right; one intermediate number was not
+
+Ground truth re-verified for run `mystery-1789140940497`: of its **64** Agent-9 prose prompts, **0**
+carry `CULPRIT REVELATION REQUIRED` and **5** carry `DISCRIMINATING TEST`. The join test reproduces
+exactly that — with the flag off it gives that pair `revealCh=[]` and `dtCh=[8,9,10]`.
+
+Two intermediate figures produced during the build were wrong and were caught by the fixture rather
+than by reading:
+
+1. A first cut of the fixture **truncated `purpose` to 400 characters**. `normalizeSceneSignalText`
+   reads purpose + summary + title + dramaticElements, so the keyword fallback looked far narrower
+   than it is and the suite reported **1** broken run instead of **11**.
+2. The harness passed `allOutlineScenes` **one argument late**, landing it in `currentStageMode`.
+   Per-act numbering and the whole arbitration were silently disabled, and the arbitration measured
+   as *worse* (doubling 7 → 12) when it in fact drives doubling to **0**.
+
+Both failures have the same shape as the defect under investigation: a value that was quietly absent,
+with no error, producing a plausible number. The fixture now carries the full signal fields and
+asserts they are non-empty.
+
+### 8.4 This was found once before, and fixed for one consumer only
+
+`FLAG-AUDIT.md`'s `AGENT9_CLEARANCE_OWNERSHIP` row (A_76 §14, 2026-08-30) already records it:
+
+> *"only **1 of 116 clearance refs across 29 books ever matches** — the CML numbers scenes against a
+> nominal ~6-scene story (act 3 scene 5) while the outline numbers globally (act 3 scenes 8–10), so
+> the branch is dead code and everything falls through to keyword matching"*
+
+That is this defect, diagnosed correctly, twelve days earlier. `clearance-ownership.ts` was built to
+reconcile the two numberings **for suspect clearances**. Nobody asked whether the other three
+consumers of the same broken join — `culprit_revelation_scene`, `discriminating_test_scene`,
+`clue_to_scene_mapping` — had the same problem. They did; the reveal is the one that costs a book.
+
+**So P6 needs a second clause:** when a cross-agent reference is found to be broken, the finding is
+about the REFERENCE SYSTEM, not about the consumer that surfaced it. Fixing one consumer and leaving
+the join broken buries the evidence — the next occurrence looks new.
+
+### 8.5 Still open
+
+- **P7 (not built): reconcile after the outline exists.** The only sound fix. Agent 3 emits a forward
+  reference; Agent 7 is then handed it as prose (`agent7-narrative.ts:459` writes *"Must appear in:
+  Act 3, Scene 6"* into the outline prompt) and cannot satisfy it, because act 3 holds scenes 8–10.
+  Nothing rewrites the CML refs to the outline's real coordinates once they exist. Until that happens
+  P4's arbitration is a semantic resolver standing in for a coordinate one.
+- **2 of 45 runs still lose the reveal contract** with arbitration on. Not traced.
+- **Whether any of this raises the score is UNTESTED.** The ch8/ch9 repetition the reviewer named is
+  a plausible consequence of the missing contract and nothing more than that.

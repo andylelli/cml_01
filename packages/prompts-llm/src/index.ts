@@ -197,6 +197,19 @@ export type {
   FullStoryDiagnosticMode,
   FullStoryDiagnosticResult,
 } from "./agent9-prose.js";
+// A_87 P1/P2/P4 — the CML->outline scene-ref join. `auditCmlSceneRefs` is telemetry consumed by
+// the worker at the Agent 7 boundary; the rest are the resolver and its two flag getters.
+export {
+  auditCmlSceneRefs,
+  summariseSceneRefAudit,
+  resolveSceneRef,
+  sceneMatchesCmlSceneRef,
+  isGlobalSceneRefEnabled,
+} from "./agent9-prose/clue-validation.js";
+export type { SceneRefAudit, SceneRefPath } from "./agent9-prose/clue-validation.js";
+export { isSceneRefArbitrationEnabled } from "./agent9-prose/obligation-block.js";
+export { isSceneRefPlaceholderEnabled } from "./agent3-cml.js";
+
 export { generateWorldDocument } from "./agent65-world-builder.js";
 export type { WorldBuilderInputs } from "./agent65-world-builder.js";
 export type { WorldDocumentResult, WorldDocumentHistoricalMoment, WorldDocumentCharacterPortrait, WorldDocumentVoiceFragment, WorldDocumentCharacterVoiceSketch, WorldDocumentLocationRegister, WorldDocumentArcTurningPoint, WorldDocumentEmotionalArc, WorldDocumentHumourEntry, WorldDocumentBreakMoment, WorldDocumentValidationConfirmations } from "./types/world-document.js";
