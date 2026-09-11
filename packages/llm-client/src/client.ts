@@ -365,6 +365,9 @@ export class AzureOpenAIClient {
             return {
               content: response.choices[0]?.message?.content || "",
               finishReason: response.choices[0]?.finishReason || "stop",
+              // Same rule as the http transport: record whether the wire SAID so, rather than
+              // letting the `|| "stop"` default read as a real answer downstream.
+              finishReasonPresent: Boolean(response.choices[0]?.finishReason),
               usage: {
                 promptTokens: response.usage?.promptTokens || 0,
                 completionTokens: response.usage?.completionTokens || 0,
@@ -429,6 +432,19 @@ export class AzureOpenAIClient {
           promptTokens: usage.promptTokens,
           completionTokens: usage.completionTokens,
           totalTokens: usage.totalTokens,
+          /**
+           * FOUND 2026-09-11 — this was computed at the top of this function and thrown away here.
+           *
+           * Run `mystery-1789105355374` aborted on a truncated Agent 7 outline, and the diagnosis
+           * could not be made from the log: `finishReason` is known, is the field that decides
+           * whether a reply was cut short, and was the one thing not written down. Logging it costs
+           * a few bytes and is the difference between "malformed outline" and "truncated outline".
+           *
+           * `finishReasonPresent` distinguishes a real `stop` from a defaulted one — see
+           * `ParsedChatWireResponse.finishReasonPresent`.
+           */
+          finishReason,
+          ...(wire.finishReasonPresent === false ? { finishReasonPresent: false } : {}),
           // Only present on the http transport — see TokenUsage.cachedPromptTokens on why an absent
           // value must never be written as 0.
           ...(usage.cachedPromptTokens !== undefined ? { cachedPromptTokens: usage.cachedPromptTokens } : {}),

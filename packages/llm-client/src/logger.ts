@@ -193,6 +193,8 @@ export class LLMLogger {
       completionTokens: entry.completionTokens,
       totalTokens: entry.totalTokens,
       cachedPromptTokens: entry.cachedPromptTokens,
+      finishReason: entry.finishReason,
+      finishReasonPresent: entry.finishReasonPresent,
       estimatedCost: entry.estimatedCost,
       success: entry.success ?? true,
       errorCode: entry.errorCode,

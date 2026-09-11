@@ -145,6 +145,9 @@ describe("parseChatWireResponse", () => {
     expect(parsed).toEqual({
       content: "",
       finishReason: "stop",
+      // A junk body carried no finish_reason, so the "stop" above is this parser's default rather
+      // than the model's answer. Added 2026-09-11 — see `finishReasonPresent`'s own docblock.
+      finishReasonPresent: false,
       usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0, cachedPromptTokens: 0 },
     });
   });

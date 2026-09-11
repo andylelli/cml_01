@@ -116,6 +116,14 @@ export interface LLMLogEntry {
   totalTokens?: number;
   /** REVIEW_02 §2.2 — absent unless the direct-HTTP transport reported it. Absent is not zero. */
   cachedPromptTokens?: number;
+  /**
+   * Why the model stopped. Written for every chat_response as of 2026-09-11: run
+   * mystery-1789105355374 aborted on a truncated Agent 7 outline and the cause was undiagnosable
+   * from the log, because this was the one field computed and then discarded.
+   */
+  finishReason?: string;
+  /** False when the wire carried no finish_reason and it was defaulted. Absent means it was real. */
+  finishReasonPresent?: boolean;
   estimatedCost?: number;
 
   // Outcome

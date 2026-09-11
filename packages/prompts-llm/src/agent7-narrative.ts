@@ -902,6 +902,57 @@ export async function formatNarrative(
     );
   }
 
+  /**
+   * THE SAME GUARD, WITHOUT TRUSTING THE PROVIDER — 2026-09-11.
+   *
+   * The check above is right and did not fire on run `mystery-1789105355374`, which aborted with
+   * "Narrative outline artifact failed schema validation" — the precise misleading error its own
+   * comment was written to prevent.
+   *
+   * MEASURED on that run's two Agent 7 responses, read back out of `logs/llm.jsonl`:
+   *
+   *   attempt 1   26,650 chars   61 open braces / 57 close   ends mid-string: "atmosphe
+   *   attempt 2   21,400 chars   47 open braces / 43 close   ends mid-setting of scene 7
+   *
+   * Both are unambiguously cut off, and `finishReason` was not `"length"` for either. It could not
+   * be — the run used the HTTP transport, whose parser defaults an ABSENT `finish_reason` to
+   * `"stop"` (azure-http-transport.ts), so a missing reason is indistinguishable from a real one and
+   * this guard is disabled silently. `finishReasonPresent` now records that, and `finishReason` is
+   * now logged, so the next occurrence is diagnosable rather than deduced from brace counts.
+   *
+   * This second check needs none of that. Truncation is a property of the BYTES: a JSON document
+   * that does not parse and whose braces do not balance was cut off, whatever the provider said.
+   * It runs before `jsonrepair`, because repair is what converts a truncation into a plausible-
+   * looking object with absent fields — and that object is what reached the schema validator and
+   * produced the wrong diagnosis.
+   *
+   * Deliberately NARROW: it fires only when the text fails to parse AND has more opens than closes.
+   * A merely malformed reply (balanced but wrong) still falls through to repair, which is the path
+   * that legitimately rescues those.
+   */
+  const rawOutline = response.content ?? "";
+  const parsesCleanly = ((): boolean => {
+    try {
+      JSON.parse(rawOutline);
+      return true;
+    } catch {
+      return false;
+    }
+  })();
+  if (!parsesCleanly) {
+    const opens = (rawOutline.match(/{/g) ?? []).length;
+    const closes = (rawOutline.match(/}/g) ?? []).length;
+    if (opens > closes) {
+      throw new Error(
+        `Narrative outline response was truncated (structural: ${opens} open braces vs ${closes} closed, ` +
+        `${rawOutline.length} chars, completionTokens=${response.usage.completionTokens}, ` +
+        `finish_reason=${response.finishReason}). The reply was cut off mid-object; jsonrepair would ` +
+        `close it and leave required fields absent, which fails schema validation with a misleading ` +
+        `error. Increase maxTokens or reduce scene count.`
+      );
+    }
+  }
+
   const durationMs = Date.now() - startTime;
   const costTracker = client.getCostTracker();
   const cost = costTracker.getSummary().byAgent["Agent7-NarrativeFormatter"] || 0;

@@ -130,6 +130,24 @@ export interface WireUsage {
 export interface ParsedChatWireResponse {
   content: string;
   finishReason: string;
+  /**
+   * Whether the wire actually CARRIED a finish_reason, as opposed to this parser defaulting it.
+   *
+   * FOUND 2026-09-11 on run `mystery-1789105355374`. `finishReason` below defaults an absent value to
+   * `"stop"`, which is correct for keeping downstream branches unchanged and wrong for anything that
+   * needs to know the difference. Agent 7's truncation guard (`agent7-narrative.ts`, "jsonrepair can
+   * reconstruct truncated JSON but leaves required fields null/absent … aborting the pipeline with a
+   * misleading error") fires on `finishReason === "length"` — so a default of `"stop"` disables it
+   * silently, and the run aborts claiming a schema failure.
+   *
+   * MEASURED on that run: both Agent 7 responses were cut mid-string with four unclosed braces each
+   * (26,650 and 21,400 chars, 61/57 and 47/43 braces), and the guard did not fire.
+   *
+   * This is the same rule the `cachedPromptTokens` field in this file already states: an absent value
+   * must never be written as a present one. The default stays for compatibility; this flag carries
+   * the fact, so a caller can tell "the model stopped" from "nobody said why".
+   */
+  finishReasonPresent: boolean;
   usage: WireUsage;
   /** A_86 item 9 — quota state on a SUCCESSFUL response; absent when the deployment emits no headers. */
   rateLimit?: RateLimitSnapshot;
@@ -153,6 +171,7 @@ export const parseChatWireResponse = (raw: unknown): ParsedChatWireResponse => {
     content: typeof message.content === "string" ? message.content : "",
     // `stop` matches the SDK path's default, so downstream finish-reason branches are unchanged.
     finishReason: typeof choice.finish_reason === "string" && choice.finish_reason ? choice.finish_reason : "stop",
+    finishReasonPresent: typeof choice.finish_reason === "string" && choice.finish_reason.length > 0,
     usage: {
       promptTokens: num(usage.prompt_tokens),
       completionTokens: num(usage.completion_tokens),
