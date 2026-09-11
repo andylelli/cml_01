@@ -42,6 +42,29 @@ export const CLEARANCE_EVIDENCE_RE =
   /\b(evidence|because|therefore|proof|alibi|timeline|witness(?:es)?|saw|seen|account)\b/i;
 
 /**
+ * A_88 — the deterministic repair's OWN evidence vocabulary, which lived as a private copy in
+ * `deterministic-repair.ts` directly beneath a comment reading "single-sourced; see
+ * shared/clearance-vocabulary.ts". A_73 §11.1 single-sourced `CLEARANCE_TERMS_RE` and left this one
+ * behind, so the comment described a state that was never reached.
+ *
+ * It gates a WRITE: `chapterHasCoLocatedClearance` decides whether the repair INJECTS a clearance
+ * sentence, so where it fails and `CLEARANCE_EVIDENCE_RE` passes, machine text is pasted on top of a
+ * clearance the prose already contains. MEASURED over the 374 clearance-bearing paragraphs in the
+ * stored archive: this regex fails on **57 (15%)** that `CLEARANCE_EVIDENCE_RE` accepts, and there is
+ * **no paragraph anywhere** that it accepts and the shared one rejects — `which proves`, `constraint`
+ * and `observation` have never once been the deciding term.
+ *
+ * Kept byte-identical and named rather than merged, following this file's own rule: a widening is a
+ * behaviour change and gets a flag, not a quiet edit. The union below is that widening.
+ */
+export const CLEARANCE_EVIDENCE_INFERENCE_RE =
+  /\b(evidence|because|therefore|which\s+proves|proof|alibi|timeline|constraint|observation)\b/i;
+
+/** The union of both bodies — what the repair reads when `AGENT9_CLEARANCE_EVIDENCE_UNION` is on. */
+export const CLEARANCE_EVIDENCE_UNION_RE =
+  /\b(evidence|because|therefore|which\s+proves|proof|alibi|timeline|constraint|observation|witness(?:es)?|saw|seen|account)\b/i;
+
+/**
  * Phrases the WIDE validators accept and the narrow vocabulary does not.
  *
  * Not used for matching. Exported so the parity test can assert the gap is exactly this list — if a

@@ -22,7 +22,11 @@ import type { StageModeKey } from "./clue-validation.js";
 // Reuse the SAME death-method resolver the reveal-completeness gate uses, so the deterministic
 // fallback reveal surfaces exactly the token the gate checks for (no abort on the fallback path).
 import { resolveDeathMethod } from "./prompt-builder.js";
-import { CLEARANCE_TERMS_RE } from "../shared/clearance-vocabulary.js";
+import {
+  CLEARANCE_TERMS_RE,
+  CLEARANCE_EVIDENCE_INFERENCE_RE,
+  CLEARANCE_EVIDENCE_UNION_RE,
+} from "../shared/clearance-vocabulary.js";
 import {
   buildClueObservationParagraph,
   buildClueInferenceParagraph,
@@ -69,8 +73,16 @@ export interface DeterministicRepairResult {
 }
 
 const RAW_CLUE_ID_RE = /\bclue_[a-z0-9_]+\b/i;
-// A_73 §11.1 — single-sourced; see shared/clearance-vocabulary.ts
-const CLEARANCE_EVIDENCE_RE = /\b(evidence|because|therefore|which\s+proves|proof|alibi|timeline|constraint|observation)\b/i;
+/**
+ * A_88 — this WAS a private copy sitting under a comment claiming it was single-sourced. It is now
+ * genuinely single-sourced. Default behaviour is byte-identical; the flag selects the union with
+ * `CLEARANCE_EVIDENCE_RE`, which recognises 57 more of the archive's 374 clearance paragraphs (15%)
+ * and therefore injects a duplicate clearance into 57 fewer of them. Read at call time (ADR-0004).
+ */
+const clearanceEvidenceRe = (): RegExp =>
+  /^(1|true|yes|on)$/i.test(String(process.env.AGENT9_CLEARANCE_EVIDENCE_UNION ?? "").trim())
+    ? CLEARANCE_EVIDENCE_UNION_RE
+    : CLEARANCE_EVIDENCE_INFERENCE_RE;
 
 const normalizeClueStatement = (value: string): string =>
   value.trim().replace(/\s+/g, " ").replace(/[.?!]+$/g, "");
@@ -591,7 +603,7 @@ const chapterHasCoLocatedClearance = (paragraphs: string[], suspectName: string)
     (paragraph) =>
       (suspectPattern.test(paragraph) || surnamePattern.test(paragraph)) &&
       CLEARANCE_TERMS_RE.test(paragraph) &&
-      CLEARANCE_EVIDENCE_RE.test(paragraph),
+      clearanceEvidenceRe().test(paragraph),
   );
 };
 
