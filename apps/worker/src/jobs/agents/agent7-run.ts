@@ -2128,6 +2128,14 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
     }
   }
 
+  // ── Truncation, named on attempt one ───────────────────────────────────────
+  // MEASURED over 68 stored Agent 7 responses: 7 are truncated (10%), and 4 of the 5 earlier runs
+  // carrying one still shipped a book — the schema-repair retry below is what rescued them. So this
+  // REPORTS and does not abort; what was broken was that the eventual error blamed the schema.
+  if ((narrative as { truncationWarning?: string }).truncationWarning) {
+    ctx.warnings.push(`[Agent 7] ${(narrative as { truncationWarning?: string }).truncationWarning}`);
+  }
+
   // ── Word-count synthesis (before schema validation) ─────────────────────────
   // See synthesiseMissingWordCounts: omitting this field aborted run 87779 outright.
   {
@@ -2195,6 +2203,12 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
     // The retry is a fresh LLM generation and can re-emit out-of-enum beats, so it needs the
     // same deterministic coercion as the first attempt — otherwise a beat-only defect on the
     // retry still hard-aborts at the last gate before failure.
+    if ((retriedNarrative as { truncationWarning?: string }).truncationWarning) {
+      ctx.warnings.push(
+        `[Agent 7] RETRY ALSO TRUNCATED — ${(retriedNarrative as { truncationWarning?: string }).truncationWarning}`,
+      );
+    }
+
     const retryBeatCoercion = coerceNarrativeSceneBeats(retriedNarrative);
     recordAgent7Coercion(ctx, {
       beatsCoerced: retryBeatCoercion.coerced,

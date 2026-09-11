@@ -169,6 +169,12 @@ export interface NarrativeOutline {
   pacingNotes: string[];
   cost: number;
   durationMs: number;
+  /**
+   * Present only when the reply was structurally truncated — see the check in `formatNarrative`.
+   * Its PRESENCE is the signal; `agent7-run.ts` copies it into `ctx.warnings` so the run report
+   * names truncation as the cause instead of the schema failure it later produces.
+   */
+  truncationWarning?: string;
 }
 
 // ============================================================================
@@ -929,6 +935,23 @@ export async function formatNarrative(
    * Deliberately NARROW: it fires only when the text fails to parse AND has more opens than closes.
    * A merely malformed reply (balanced but wrong) still falls through to repair, which is the path
    * that legitimately rescues those.
+   *
+   * ── AND IT WARNS RATHER THAN THROWING, which the first version got wrong ────────────────────────
+   *
+   * The obvious move is to throw here, beside the finish_reason guard. MEASURED before shipping it,
+   * over all 68 stored Agent 7 responses: **7 are truncated (10%)**, and of the five earlier runs
+   * that carried one, **FOUR SHIPPED A MANUSCRIPT**. They recovered because `agent7-run.ts` retries
+   * on SCHEMA failure, and the retry is a fresh generation that usually completes. Throwing here
+   * returns before that retry, so it would have converted four good books into aborts.
+   *
+   * The finish_reason === "length" throw above is different and stays: only 1 of 68 responses hit
+   * the 16,000 cap, and that run shipped nothing. A reply that exhausted the ceiling will exhaust it
+   * again; one that stopped at 5,271-7,557 tokens (where the other six sit, against clean responses
+   * reaching 8,446) has room to succeed on a second attempt.
+   *
+   * So the defect was never that the pipeline could not recover — it was that the recovery was
+   * invisible and the eventual abort blamed the schema. This warning names the cause on attempt one;
+   * if the retry also truncates, the run still aborts, but the log now says why twice.
    */
   const rawOutline = response.content ?? "";
   const parsesCleanly = ((): boolean => {
@@ -939,17 +962,19 @@ export async function formatNarrative(
       return false;
     }
   })();
+  let truncationWarning: string | undefined;
   if (!parsesCleanly) {
     const opens = (rawOutline.match(/{/g) ?? []).length;
     const closes = (rawOutline.match(/}/g) ?? []).length;
     if (opens > closes) {
-      throw new Error(
-        `Narrative outline response was truncated (structural: ${opens} open braces vs ${closes} closed, ` +
+      truncationWarning =
+        `Narrative outline response was TRUNCATED (structural: ${opens} open braces vs ${closes} closed, ` +
         `${rawOutline.length} chars, completionTokens=${response.usage.completionTokens}, ` +
-        `finish_reason=${response.finishReason}). The reply was cut off mid-object; jsonrepair would ` +
-        `close it and leave required fields absent, which fails schema validation with a misleading ` +
-        `error. Increase maxTokens or reduce scene count.`
-      );
+        `finish_reason=${response.finishReason}). jsonrepair will close it and leave required fields ` +
+        `absent — if this run later reports "outline artifact failed schema validation", THIS is the ` +
+        `cause, not the schema. The schema-repair retry recovers this in 4 of 5 archived cases.`;
+      // eslint-disable-next-line no-console
+      console.warn(`[Agent 7] ${truncationWarning}`);
     }
   }
 
@@ -1040,5 +1065,8 @@ export async function formatNarrative(
     ...outlineData,
     cost,
     durationMs,
+    // Carried so agent7-run.ts can put it in ctx.warnings, which is what reaches the run report.
+    // Absent on a clean reply, so the field's presence IS the signal.
+    ...(truncationWarning ? { truncationWarning } : {}),
   };
 }
