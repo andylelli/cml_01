@@ -317,6 +317,42 @@
     "externalOffset": 5
   },
   {
+    "bundleId": "read-20260911-1701",
+    "storyPath": "stories/story_20260911-1701/the_painted_shadow_at_mistlecombe.md",
+    "readPath": "stories/story_20260911-1701/chatgpt-review.txt",
+    "externalFinal": 84,
+    "externalCategories": {
+      "premise": 9,
+      "opening_hook": 8,
+      "plot_structure": 8,
+      "character_clarity": 8,
+      "dialogue": 8,
+      "atmosphere": 8,
+      "clues": 7,
+      "pacing": 8,
+      "ending": 7,
+      "prose": 7
+    },
+    "externalNotes": {
+      "premise": "Painted-shadow illusion is strong, visual, and fair-play.",
+      "opening_hook": "Body, letter opener, lamp, painted silhouette, no footprints — good immediate puzzle.",
+      "plot_structure": "Clear progression from observation → witness doubt → false suspects → shadow test → aftermath.",
+      "character_clarity": "Roles are stable and readable.",
+      "dialogue": "Ivor and Montague especially have good dry voices.",
+      "atmosphere": "Village hall, poets’ circle, midsummer damp, lamp oil, radio music — strong mood.",
+      "clues": "Good core trick, but exact timing/location needs one sharper explanation.",
+      "pacing": "Mostly strong; Ch. 8 repeats itself after confession.",
+      "ending": "Reveal works, final chapter is much better than usual, but Ch. 8/9 overlap.",
+      "prose": "Good passages, but still has scaffold/template leakage.",
+      "character_life": "Poets’ circle, rivalry, shame, village reputation, grief, tea, memorial — nicely human."
+    },
+    "externalSupplementary": {
+      "character_life": 8
+    },
+    "externalCategorySum": 78,
+    "externalOffset": 6
+  },
+  {
     "bundleId": "read-20260904-1711",
     "storyPath": "stories/story_20260904-1711/the_silent_signal_in_the_starlight_theatre.md",
     "readPath": "stories/story_20260904-1711/chatgpt-review.txt",
@@ -972,6 +1008,42 @@
     },
     "externalCategorySum": 70,
     "externalOffset": 8
+  },
+  {
+    "bundleId": "read-20260908-1829",
+    "storyPath": "stories/story_20260908-1829/resumed_resume_1788887717941.md",
+    "readPath": "stories/story_20260908-1829/chatgpt-review.txt",
+    "externalFinal": 78,
+    "externalCategories": {
+      "premise": 7,
+      "opening_hook": 7,
+      "plot_structure": 7,
+      "character_clarity": 8,
+      "dialogue": 7,
+      "atmosphere": 8,
+      "clues": 5,
+      "pacing": 7,
+      "ending": 6,
+      "prose": 5
+    },
+    "externalNotes": {
+      "premise": "Ledger/chemical tampering is usable, but less vivid than the mirror/hatch or mistaken-identity concepts.",
+      "opening_hook": "Body, bloodied paperweight, ledger stain, locked office setup are solid.",
+      "plot_structure": "Clear accusation path, but the delivery/tide timing threads do not fully merge.",
+      "character_clarity": "Roles are stable and readable.",
+      "dialogue": "Lavinia’s authority voice works; Ferdinand has a few human lines.",
+      "atmosphere": "Coastal hotel, mist, tide, gulls, rain, ledger rooms — good mood.",
+      "clues": "Physical clues are good; timing logic is confused.",
+      "pacing": "Moves steadily, but Ch. 7–9 repeat the ledger proof.",
+      "ending": "Confession/solution is coherent enough, but proof is over-explained and Ch. 10 recaps.",
+      "prose": "Scaffold/generator leakage is heavy.",
+      "character_life": "Decent hotel hierarchy and staff pressure, but relationships need more specificity."
+    },
+    "externalSupplementary": {
+      "character_life": 7
+    },
+    "externalCategorySum": 67,
+    "externalOffset": 11
   },
   {
     "bundleId": "read-20260827-2005",

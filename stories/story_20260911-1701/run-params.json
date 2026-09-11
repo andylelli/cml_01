@@ -1,0 +1,19 @@
+{
+  "seed": null,
+  "runId": "mystery-1789140940497",
+  "projectId": "canary_1789140940496",
+  "primaryAxis": "spatial",
+  "storyAngle": "a poets' circle and a contested literary prize",
+  "targetLength": "short",
+  "eraPreference": "1940s",
+  "locationPreset": "Village",
+  "castNames": [
+    "Montague Penhale",
+    "Dr. Edith Ormesby",
+    "Hector Kirkby",
+    "Ivor Yelverton",
+    "Leonard Upcott",
+    "Quentin Everleigh"
+  ],
+  "generatedAt": "2026-09-11T16:01:00.914Z"
+}
