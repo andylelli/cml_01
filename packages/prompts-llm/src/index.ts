@@ -208,6 +208,13 @@ export {
 } from "./agent9-prose/clue-validation.js";
 export type { SceneRefAudit, SceneRefPath } from "./agent9-prose/clue-validation.js";
 export { isSceneRefArbitrationEnabled } from "./agent9-prose/obligation-block.js";
+export {
+  reconcileCmlSceneRefs,
+  isSceneRefReconcileEnabled,
+  selectRevealScene,
+  selectDiscriminatingTestScene,
+} from "./agent9-prose/scene-ref-reconcile.js";
+export type { SceneRefReconcileResult } from "./agent9-prose/scene-ref-reconcile.js";
 export { isSceneRefPlaceholderEnabled } from "./agent3-cml.js";
 
 export { generateWorldDocument } from "./agent65-world-builder.js";

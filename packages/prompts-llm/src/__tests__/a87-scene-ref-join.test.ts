@@ -126,7 +126,7 @@ describe("A_87 P5 — the CML→outline scene-ref join, against real archived pa
     expect(tally(false)).toEqual({ lost: 11, one: 28, doubled: 6 });
   });
 
-  it("THE FIX, AGENT9_SCENE_REF_ARBITRATION=1: 43 of 45, and never twice", () => {
-    expect(tally(true)).toEqual({ lost: 2, one: 43, doubled: 0 });
+  it("THE FIX, AGENT9_SCENE_REF_ARBITRATION=1: 45 of 45, exactly once each", () => {
+    expect(tally(true)).toEqual({ lost: 0, one: 45, doubled: 0 });
   });
 });

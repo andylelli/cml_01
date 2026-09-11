@@ -7,7 +7,7 @@
  * pacing. Writes ctx.narrative and ctx.outlineCoverageIssues.
  */
 
-import { formatNarrative, GOLDEN_AGE_BEATS, isAgent7StructuredOutputEnabled, auditCmlSceneRefs, summariseSceneRefAudit } from "@cml/prompts-llm";
+import { formatNarrative, GOLDEN_AGE_BEATS, isAgent7StructuredOutputEnabled, auditCmlSceneRefs, summariseSceneRefAudit, reconcileCmlSceneRefs, isSceneRefReconcileEnabled } from "@cml/prompts-llm";
 import type { NarrativeOutline, ClueDistributionResult, WorldDocumentResult } from "@cml/prompts-llm";
 import { validateArtifact } from "@cml/cml";
 import type { CaseData } from "@cml/cml";
@@ -2996,6 +2996,24 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
    */
   try {
     const auditScenes = ((narrative as any).acts ?? []).flatMap((a: any) => a?.scenes ?? []);
+
+    /**
+     * A_87 P7 (flag-gated, default OFF) — rewrite the CML scene refs to coordinates that exist,
+     * now that the outline is final. Agent 3 emitted them before this namespace was created, so
+     * `culprit_revelation_scene` resolves 0/45 across the archive. Narrow by design: clearances are
+     * left to `clearance-ownership.ts` (one writer per field, WF-002) and the clue mapping already
+     * resolves at 87%. Runs BEFORE the audit below so the line reports the reconciled state.
+     */
+    if (isSceneRefReconcileEnabled()) {
+      const rec = reconcileCmlSceneRefs(ctx.cml as any, auditScenes);
+      if (rec.rewritten.length > 0 || rec.unplaced.length > 0) {
+        ctx.warnings.push(
+          `[A_87 scene-ref reconcile] rewritten: ${rec.rewritten.join("; ") || "none"}` +
+            (rec.unplaced.length ? ` | could not place: ${rec.unplaced.join("; ")}` : ""),
+        );
+      }
+    }
+
     const refAudit = auditCmlSceneRefs(ctx.cml as any, auditScenes);
     ctx.warnings.push(`[A_87 scene-ref join] ${summariseSceneRefAudit(refAudit)}`);
   } catch (e) {

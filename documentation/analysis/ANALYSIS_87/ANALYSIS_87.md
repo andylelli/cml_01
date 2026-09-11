@@ -227,9 +227,10 @@ distinction cost two wrong numbers in this session and is the reason P5 exists.
 | P1 audit + telemetry | **BUILT, unconditional** | see below | `resolveSceneRef` returns the PATH (`exact` / `global-scene` / `signal` / `none`); `auditCmlSceneRefs` + one warning line per run at the Agent 7 boundary |
 | P2 global-scene reading | **BUILT, RECOMMENDED AGAINST** | see below | `AGENT9_SCENE_REF_RESOLUTION` — measured before switching on, and it is wrong (§8.1) |
 | P3 placeholder | **BUILT, flag-gated** | see below | `AGENT3_SCENE_REF_PLACEHOLDER`; code defaults kept but made audible (§8.2) |
-| P4 + P4b arbitration | **BUILT, flag-gated** | see below | `AGENT9_SCENE_REF_ARBITRATION`; reveal contract 28/45 → **43/45** correct, doubling → 0 |
+| P4 + P4b + P4c arbitration | **BUILT, flag-gated, ON** | `84e628f6`, `0a587005` | `AGENT9_SCENE_REF_ARBITRATION`; reveal contract 28/45 → **45/45** correct, doubling → 0 |
 | P5 join test | **BUILT, green** | see below | `a87-scene-ref-join.test.ts`, 6 assertions over the frozen 45-pair fixture |
 | P6 register entry | **WRITTEN** | this file | §6 P6 stands, and §8.4 strengthens it |
+| P7 reconciliation | **BUILT, flag-gated** | see §8.7 | `AGENT7_SCENE_REF_RECONCILE`; reveal refs resolve **0/45 → 45/45** |
 
 ### 8.1 P2 IS REFUTED. The recommendation in §6 was wrong.
 
@@ -311,3 +312,59 @@ the join broken buries the evidence — the next occurrence looks new.
 - **2 of 45 runs still lose the reveal contract** with arbitration on. Not traced.
 - **Whether any of this raises the score is UNTESTED.** The ch8/ch9 repetition the reviewer named is
   a plausible consequence of the missing contract and nothing more than that.
+
+### 8.6 A THIRD dead branch, and reconciliation does NOT fix it
+
+`isPostRevealChapter` (obligation-block) gates the post-reveal naming constraint — the rule that stops
+the prose swapping the culprit's name for a role alias once they have been named. MEASURED over the
+45 archived pairs: it is **false for every chapter of every run**. The constraint has never fired.
+
+The first guess was that the `act3/sc6` fiction caused it. It does not. The condition requires BOTH
+
+```ts
+Number(scene.sceneNumber) > Number(ref.scene_number)      // GLOBAL numbering
+&& perActSceneNum        > Number(ref.scene_number)       // PER-ACT numbering
+```
+
+against the **same** field. For any reveal in the final act the two cannot both hold: a global index
+of 8 or more is never exceeded by a per-act index of 1–3. So the branch is unsatisfiable before
+reconciliation *and after it* — and after reconciliation every one of the 45 reveals sits in the
+final act, which the test now asserts. The consumer mixes the two numbering systems inside one
+conjunction; correcting the coordinate cannot save it.
+
+Left unrepaired on purpose. Fixing it would newly activate a naming constraint that has never once
+run, on the chapters after the reveal, on every run — a behaviour change that needs a run of its own
+rather than a ride on this one. Pinned by `a87-scene-ref-reconcile.test.ts` so it cannot drift
+unnoticed.
+
+### 8.7 P7 — reconcile after the outline exists (built, flag-gated, held)
+
+`AGENT7_SCENE_REF_RECONCILE`. Once the outline is final, the reveal and discriminating-test refs are
+rewritten to real `(act, global scene)` coordinates. MEASURED over the 45 pairs: reveal refs resolve
+**0/45 before, 45/45 after**.
+
+It picks the scene by the same precedence the P4c arbitration uses — a resolved coordinate, else the
+last keyword claimant the DT does not hold, else the last `revelation`-beat scene the DT does not
+hold — and the test asserts the two agree on all 45 pairs, so the reconciler and the classifier
+cannot silently diverge (WF-002: harmful exactly where one copy is the sole input to a WRITE, and
+this one writes).
+
+Deliberately narrow: `suspect_clearance_scenes` is untouched because `clearance-ownership.ts` already
+owns that field, and `clue_to_scene_mapping` is untouched because it already resolves at 87%.
+
+**Held OFF** until the arbitration run lands. Two levers aimed at the same join, flipped together,
+would leave neither attributable.
+
+### 8.8 What still cannot be settled without a paid run
+
+Everything above is £0 — the 45 archived pairs and the real prompt builder answer every behavioural
+question offline. Three things they cannot answer:
+
+1. **Whether a correct reveal contract raises the mark.** The ch8/ch9 repetition the reviewer named
+   is a plausible consequence of the missing contract; plausible is all it is. Needs a run and an
+   external read (±3 marks).
+2. **Whether the arbitration survives contact with a live model.** The offline measurement proves the
+   obligation reaches the right chapter's PROMPT. Whether the model then writes a clean single reveal
+   is a different question.
+3. **Whether the P3 placeholder confuses Agent 3** into emitting a string or omitting the field. That
+   is a schema-repair retry, visible only in a run.

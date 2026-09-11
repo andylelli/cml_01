@@ -547,6 +547,21 @@ const REVEAL_SIGNAL_RE = /\b(culprit|confront|confession|resolve|resolution|deno
      * Largely belt-and-braces once P2 is on — a resolving DT ref makes `dtHasExactMatch` true and
      * retires the keyword path — but it is the safety net for a ref that resolves to nothing at all.
      */
+    /**
+     * Factored so the reveal arbitration below can ask the same question of OTHER scenes: "would the
+     * DT contract still hold this one?". Handing the reveal to a scene the DT keeps is how one of the
+     * two remaining losses happened (A_87 §8.5).
+     */
+    const dtClaimStandsFor = (candidate: any): boolean => {
+      if (!dtScene) return false;
+      const path: SceneRefPath = dtHasExactMatch
+        ? resolveSceneRef(candidate, dtScene, allOutlineScenes)
+        : resolveSceneRef(candidate, dtScene, allOutlineScenes, DT_SIGNAL_RE);
+      if (path === "none") return false;
+      const keywordOnly = path === "signal";
+      const beatIsRevelation = String(candidate?.beat ?? "").toLowerCase() === "revelation";
+      return !(isSceneRefArbitrationEnabled() && keywordOnly && beatIsRevelation);
+    };
     const dtPath: SceneRefPath = dtHasExactMatch
       ? resolveSceneRef(scene, dtScene, allOutlineScenes)
       : resolveSceneRef(scene, dtScene, allOutlineScenes, DT_SIGNAL_RE);
@@ -589,17 +604,47 @@ const REVEAL_SIGNAL_RE = /\b(culprit|confront|confession|resolve|resolution|deno
     const revealPath: SceneRefPath = revelationScene
       ? resolveSceneRef(scene, revelationScene, allOutlineScenes, REVEAL_SIGNAL_RE)
       : "none";
-    let revealYieldsToLaterScene = false;
-    if (isSceneRefArbitrationEnabled() && revealPath === "signal" && Array.isArray(allOutlineScenes)) {
-      const claimants = (allOutlineScenes as any[]).filter(
-        (candidate) => resolveSceneRef(candidate, revelationScene, allOutlineScenes, REVEAL_SIGNAL_RE) !== "none",
+    /**
+     * A_87 P4c — pick ONE winner explicitly, rather than only suppressing losers.
+     *
+     * Two failure modes remained after P4b, traced against the archive:
+     *   1. The last keyword claimant was itself still held by the DT contract, so suppressing the
+     *      earlier claimant left the reveal on nobody (787500681232: ch8 and ch9 both claim, ch9 is
+     *      "The Culprit Revealed" but its beat is `final_trap`, so the DT keeps it).
+     *   2. No scene matched REVEAL_SIGNAL_RE at all, because the outline never uses the words
+     *      culprit/confront/confession (787512796199: the reveal chapter is titled "Clearing the
+     *      Innocent and Confirming the ...").
+     *
+     * So: a resolved coordinate wins outright; failing that the LAST keyword claimant the DT does not
+     * hold; failing that the LAST `revelation`-beat scene the DT does not hold. MEASURED: the last
+     * `revelation`-beat scene is the final scene of the book in 44 of 45 archived outlines, so the
+     * beat is a real resolver here and not a tie-break of last resort.
+     */
+    let revealWinnerSceneNumber: number | null = null;
+    if (isSceneRefArbitrationEnabled() && revelationScene != null && Array.isArray(allOutlineScenes)) {
+      const scenes = allOutlineScenes as any[];
+      const pathOf = (candidate: any): SceneRefPath =>
+        resolveSceneRef(candidate, revelationScene, allOutlineScenes, REVEAL_SIGNAL_RE);
+      const byCoordinate = scenes.filter((c) => {
+        const pathForCandidate = pathOf(c);
+        return pathForCandidate === "exact" || pathForCandidate === "global-scene";
+      });
+      const freeKeywordClaimants = scenes.filter((c) => pathOf(c) === "signal" && !dtClaimStandsFor(c));
+      const freeRevelationBeats = scenes.filter(
+        (c) => String(c?.beat ?? "").toLowerCase() === "revelation" && !dtClaimStandsFor(c),
       );
-      const last = claimants[claimants.length - 1];
-      revealYieldsToLaterScene =
-        claimants.length > 1 && Number(last?.sceneNumber) !== Number((scene as any)?.sceneNumber);
+      const winner =
+        byCoordinate[byCoordinate.length - 1] ??
+        freeKeywordClaimants[freeKeywordClaimants.length - 1] ??
+        freeRevelationBeats[freeRevelationBeats.length - 1] ??
+        null;
+      revealWinnerSceneNumber = winner ? Number(winner.sceneNumber) : null;
     }
-    const isRevealChapter =
-      !isDiscriminatingTestChapter && revealPath !== "none" && !revealYieldsToLaterScene;
+    const isRevealChapter = isSceneRefArbitrationEnabled() && revelationScene != null
+      ? (!isDiscriminatingTestChapter &&
+         revealWinnerSceneNumber != null &&
+         revealWinnerSceneNumber === Number((scene as any)?.sceneNumber))
+      : (!isDiscriminatingTestChapter && revealPath !== "none");
     // A pre-reveal chapter is any investigation chapter strictly before the
     // discriminating-test / revelation / aftermath chapters. Reveal-class clues (those
     // that name the culprit or explain the tamper mechanism) must NOT have their
