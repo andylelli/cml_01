@@ -1967,8 +1967,32 @@ const parseFactClockMinutes = (value: string): number | null => parseClockTime(v
  * A separate question from parsing, and the only reason the old copies returned a struct at all. It
  * stays local because it is one predicate over free text, not a second reader of the time vocabulary.
  */
-const statesExplicitMeridiem = (text: string): boolean =>
-  /(am|pm|a.m.|p.m.)/i.test(String(text));
+/**
+ * A_88 — this predicate was `/<0x08>(am|pm|a.m.|p.m.)<0x08>/i`: two LITERAL BACKSPACE characters
+ * where `\b` word boundaries were meant. It therefore returned false for every input ever given to
+ * it, and both gates built on it have been dead for the life of the project:
+ *
+ *   - the AM/PM ambiguity violation ("mismatched AM/PM specificity") compares two always-false
+ *     values, so it can never fire. CONFIRMED: the string appears 0 times across every file in
+ *     `logs/`.
+ *   - the transposition repair's guard `if (statesExplicitMeridiem(a) !== statesExplicitMeridiem(b))
+ *     continue;` never skips, so the repair also runs on the meridiem mismatches it means to leave
+ *     to the gate.
+ *
+ * A literal control character is invisible in review, compiles without complaint, and leaves a regex
+ * that still "works" — it just never matches. `clearance-vocabulary-parity.test.ts` now asserts no
+ * regex carries one.
+ *
+ * FLAG-GATED rather than simply corrected: this switches a never-fired VIOLATION live, and a
+ * violation can block a run. MEASURED over the archive — 89 locked-fact values, of which **0** state
+ * an explicit meridiem, and 4 of 1,132 clue texts do — so the corrected gate would fire on a handful
+ * of pairs, not none and not many. Off is byte-identical to every run to date.
+ */
+const statesExplicitMeridiem = (text: string): boolean => {
+  const corrected = /^(1|true|yes|on)$/i.test(String(process.env.AGENT5_MERIDIEM_CHECK ?? "").trim());
+  if (!corrected) return false;   // the historical behaviour, stated plainly instead of by accident
+  return /\b(am|pm|a\.m\.|p\.m\.)\b/i.test(String(text));
+};
 
 /**
  * Repair a locked-fact/clue time TRANSPOSITION — the two canonical values swapped — and nothing else.

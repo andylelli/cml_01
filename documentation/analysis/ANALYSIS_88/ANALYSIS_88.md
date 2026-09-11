@@ -113,3 +113,46 @@ the archive; 5 paragraphs (0.15%, both inverted-quote books) gain a space.
 input, not the historical artifacts. Archived data has been through the broken code, so it encodes
 the bug's assumptions — and any downstream bug that depended on them is invisible until the day the
 upstream fix ships. A green result from a corpus the bug produced is not evidence.
+
+---
+
+## 8. A literal control character, three times over
+
+A mis-escaped word boundary leaves a **literal 0x08 backspace** in the regex. It compiles, it is
+invisible in review and in most diffs, and the pattern simply never matches. Swept across all 1,636
+source files:
+
+| site | consequence |
+|---|---|
+| `agent5-run.ts` `statesExplicitMeridiem` | **production.** `/<0x08>(am\|pm\|a.m.\|p.m.)<0x08>/i` returns false for every input, so the AM/PM ambiguity violation cannot fire — CONFIRMED, the string appears **0 times in every file in `logs/`** — and the transposition repair's meridiem guard never skips |
+| `injector-lifecycle-interaction.test.ts` | **a test that could not fail.** `expect(nameRe.test(s) && DEATH_RE.test(s)).toBe(false)` where both regexes were `/<0x08>…<0x08>/` — `false && false` is always `false`. Corrected; it passes for real now |
+| `case-time-arithmetic-x61.test.ts` | in a comment; harmless |
+
+Three remaining control characters (U+0001, U+0002 in `anti-copy.ts` and `agent5-run.ts`) are
+deliberate join delimiters — chosen because they cannot occur in prose — and were left alone.
+
+`clearance-vocabulary-parity.test.ts` now asserts that no regex in the shared clearance vocabulary
+carries a control character. The corrected meridiem predicate is behind `AGENT5_MERIDIEM_CHECK`,
+default OFF, because it switches a never-fired VIOLATION live and a violation can block a run.
+
+**The rule:** a regex that never matches is indistinguishable from a condition that never occurs. The
+only way to tell them apart is a known-positive — and this project has now been bitten by that
+distinction in `GROUP_A_OPENER_RE`, `AGENT9_DT_THEORY_VOCABULARY`, `statesExplicitMeridiem` and the
+CML scene-ref join.
+
+## 9. The clearance repair's private vocabulary
+
+`deterministic-repair.ts:72` read *"A_73 §11.1 — single-sourced; see shared/clearance-vocabulary.ts"*
+and line 73 defined its own `CLEARANCE_EVIDENCE_RE` with a different body. A_73 single-sourced
+`CLEARANCE_TERMS_RE` and left this one behind, so the comment described a state never reached and
+stopped anyone re-checking.
+
+It gates a WRITE — `chapterHasCoLocatedClearance` decides whether a clearance sentence is INJECTED.
+The private body carries `which proves` / `constraint` / `observation` and lacks `witness(es)` /
+`saw` / `seen` / `account`, which is the vocabulary clearance prose actually uses. MEASURED over the
+374 clearance-bearing paragraphs in the archive: **57 (15%)** are accepted by the shared regex and
+rejected by the repair's, and **zero** go the other way — the three inference words have never once
+been the deciding term. Those 57 get machine text pasted on top of a clearance they already had.
+
+Single-sourcing is unconditional and byte-identical; the union is behind
+`AGENT9_CLEARANCE_EVIDENCE_UNION`.

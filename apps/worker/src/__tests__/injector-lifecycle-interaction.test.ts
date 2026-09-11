@@ -175,7 +175,7 @@ describe("abort class #6 under the LIST-GRAMMAR flag (A_75 P3.2)", () => {
   });
 
   it("and no sentence pairs the investigator's name with a death word", () => {
-    const DEATH_RE = /(?:dead|body|corpse|deceased|lifeless|murdered|killed|slain)/i;
+    const DEATH_RE = /\b(?:dead|body|corpse|deceased|lifeless|murdered|killed|slain)\b/i;
     withListGrammar(() => {
       const paragraphs = buildDeterministicClueParagraphs(
         [
@@ -187,7 +187,7 @@ describe("abort class #6 under the LIST-GRAMMAR flag (A_75 P3.2)", () => {
       );
       for (const para of paragraphs) {
         for (const sentence of para.split(/(?<=[.!?])\s+/)) {
-          expect((/Eleanor|Voss/i.test(sentence)) && DEATH_RE.test(sentence)).toBe(false);
+          expect((/\bEleanor\b|\bVoss\b/i.test(sentence)) && DEATH_RE.test(sentence)).toBe(false);
         }
       }
     });

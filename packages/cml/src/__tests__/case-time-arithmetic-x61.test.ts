@@ -50,7 +50,7 @@ describe("parseClockTime — a minute count, not a closed list of six (X61)", ()
   });
 
   it("reads a hyphenated compound whole — the bug that shipped before this branch existed", () => {
-    // `` matches after a hyphen, so the six-value branch found "five minutes past one" inside
+    // `\b` matches after a hyphen, so the six-value branch found "five minutes past one" inside
     // "forty-five minutes past one" and answered 1:05. The corpus writes that exact string.
     expect(parseClockTime("forty-five minutes past one")).toBe(60 + 45);
     expect(parseClockTime("forty-five minutes past one")).not.toBe(60 + 5);
