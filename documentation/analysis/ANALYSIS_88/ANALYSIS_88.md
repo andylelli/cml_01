@@ -77,3 +77,39 @@ Three claims were measured, found false, and dropped — each would have read as
 - *"Call sites disagree on argument count for `buildChapterObligationBlock`."* Production passes all
   14 arguments in the declared order. The off-by-one was in a test harness written earlier the same
   day, not in the pipeline.
+
+---
+
+## 7. THE SECOND BUG, WHICH THE FIRST ONE WAS HOLDING SHUT
+
+Fixing §1 nearly shipped a worse defect. `splitParagraphForStructure` (`sanitization.ts`) chunks a
+paragraph with
+
+```ts
+/[^.!?]+[.!?]+(?:\s+|$)|[^.!?]+$/g
+```
+
+which requires whitespace or end-of-string **immediately** after the terminator. A paragraph that
+opens with dialogue has a closing quote there, so the alternative fails, the engine advances past the
+whole sentence, and nothing ever matches it. The sentence is **silently deleted**, leaving a dangling
+quote:
+
+```
+IN : “I expect your full cooperation.” Her words hung in the air. He said nothing.
+OUT: ” Her words hung in the air. He said nothing.
+```
+
+**Measured against the archive as stored: 0% loss.** Measured against the same paragraphs
+de-corrupted to the shape the model actually emits: **1,567 of the paragraphs it splits lose or alter
+text — 29,933 words.** The §1 defect had put a space in front of every closing quote, and that space
+satisfied `(?:\s+|$)`. One bug was holding the other one shut, and removing the first would have
+opened the second on the next run.
+
+The replacement ends in `\s*` rather than a required `(?:\s+|$)`, so the pattern always matches and
+the worst case is an inserted space rather than a deletion. After the fix: **0 words dropped** across
+the archive; 5 paragraphs (0.15%, both inverted-quote books) gain a space.
+
+**The rule:** when a defect is fixed, re-run the measurement that found it against the CORRECTED
+input, not the historical artifacts. Archived data has been through the broken code, so it encodes
+the bug's assumptions — and any downstream bug that depended on them is invisible until the day the
+upstream fix ships. A green result from a corpus the bug produced is not evidence.

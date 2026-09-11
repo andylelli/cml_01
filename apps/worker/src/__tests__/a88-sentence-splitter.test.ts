@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { splitLifecycleSentences } from "../jobs/agents/agent9-run.ts";
+import { splitLifecycleSentences } from "../jobs/agents/agent9-run.js";
 
 /**
  * A_88 — the lifecycle sentence splitter inserted a space before every closing quote.

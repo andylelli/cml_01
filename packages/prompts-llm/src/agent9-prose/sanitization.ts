@@ -159,7 +159,28 @@ export function splitParagraphForStructure(text: string): [string, string] | nul
   const normalized = String(text ?? '').replace(/\s+/g, ' ').trim();
   if (!normalized) return null;
 
-  const sentenceChunks = (normalized.match(/[^.!?]+[.!?]+(?:\s+|$)|[^.!?]+$/g) ?? [])
+  /**
+   * A_88 — the chunk pattern MUST consume a closing quote, or it DROPS the sentence.
+   *
+   * `[^.!?]+[.!?]+(?:\s+|$)` requires whitespace or end-of-string straight after the terminator. A
+   * paragraph opening with dialogue has a quote there instead, so the alternative fails, the engine
+   * advances past the sentence, and the first sentence is never matched at all — it is silently
+   * deleted, leaving a dangling `\u201d`.
+   *
+   * This was MASKED by the splitter defect fixed in the same commit: while every closing quote had a
+   * space in front of it, `(?:\s+|$)` matched that space and the round-trip was lossless. Measured
+   * against the archive as stored, this function loses text on 0% of paragraphs; measured against the
+   * same paragraphs de-corrupted to the shape the model actually emits, it loses or alters text on
+   * **47% of the paragraphs it splits — 29,933 words across the archive.** One bug was holding the
+   * other one shut.
+   *
+   * The trailing `\s*` (rather than a REQUIRED `(?:\s+|$)`) is what makes the failure mode safe: when
+   * a quote is followed straight by a letter — the two archived books whose quotes are inverted,
+   * `taut.\u201dIt is a sobering thought` — the required form matched nothing and dropped the sentence,
+   * while this one still matches and at worst inserts a space. A splitter should never be able to
+   * delete prose; spacing it oddly is a defect, losing it is a different order of defect.
+   */
+  const sentenceChunks = (normalized.match(/[^.!?]+[.!?]+["'\u2019\u201d\u00bb)\]]*\s*|[^.!?]+$/g) ?? [])
     .map((chunk) => chunk.trim())
     .filter(Boolean);
   if (sentenceChunks.length >= 2) {
