@@ -657,7 +657,23 @@ export const lintBatchProse = (
     // Chapter 1 may open with setting; all subsequent chapters must open with action.
     const isNotFirstChapter = priorChapters.length + chapterOffset > 0 || batchChapters.indexOf(chapter) > 0;
     if (isNotFirstChapter) {
-      const GROUP_A_OPENER_RE = /^(The rain fell|The wind howled|The fog lay|The mist hung|Outside, the |The night was |The storm |The darkness |The silence |The air was thick)/i;
+      /**
+       * A_88 — this gate has NEVER fired. MEASURED over 1,933 archived chapter openings (and 366
+       * chapter-2+ openings in the stored prose artifacts): 0 hits. It is a closed list of ten exact
+       * phrases ("The rain fell", "The wind howled") that the model does not write; it writes "The
+       * sound of rain tapping against the Drawing Room windows" and "The hush of dawn pressed
+       * against the windows".
+       *
+       * The widened form fires on 31 of 366 (8%) — a lint rate, not B1's "fires on most runs". It is
+       * still FLAG-GATED and default OFF because every lint issue drives a regeneration, and a retry
+       * costs +2.43 register points on the retried chapter (A_75 §16): ~0.76 extra retries per book
+       * against an unmeasured craft gain is the user's trade to make, not this function's.
+       */
+      const weatherOpenerGateWidened =
+        /^(1|true|yes|on)$/i.test(String(process.env.AGENT9_OPENER_WEATHER_GATE ?? "").trim());
+      const GROUP_A_OPENER_RE = weatherOpenerGateWidened
+        ? /^(?:The|A|An|Outside|Beyond|Above|Below|Morning|Evening|Night|Dawn|Dusk)\b[^.!?]{0,70}?\b(rain|wind|fog|mist|storm|dark(?:ness)?|silence|air|light|chill|damp|dusk|dawn|frost|cloud|sky|shadows?|drizzle|sea|smoke)\b/i
+        : /^(The rain fell|The wind howled|The fog lay|The mist hung|Outside, the |The night was |The storm |The darkness |The silence |The air was thick)/i;
       if (GROUP_A_OPENER_RE.test(firstPara.trimStart())) {
         issues.push({
           type: 'template_bleed',

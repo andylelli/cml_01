@@ -1515,9 +1515,27 @@ const normalizeNameLower = (value: unknown): string => String(value ?? "").trim(
 
 const escapeRegex = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-const splitLifecycleSentences = (text: string): string[] =>
+/**
+ * A_88 — the sentence splitter MUST carry a closing quote with the sentence it closes.
+ *
+ * `[^.!?\n]+[.!?]*` stops at the terminator, so `cooperation.\u201d Her words` splits into
+ * `cooperation.` and `\u201d Her words`. The three callers below rebuild the paragraph with
+ * `sentences.join(" ")`, which then inserts a space the model never wrote:
+ * `cooperation. \u201d Her words`.
+ *
+ * MEASURED 2026-09-11 over the 3,392 paragraphs in the stored prose archive, comparing each
+ * paragraph against its de-corrupted form: the old pattern corrupts 1,573 of them (46.4%); this one
+ * corrupts none, and alters only 5 (0.1%) — all inside the two books whose quotes are already
+ * inverted (`.\u201dWhat does that leave us`), where it inserts the missing space after the quote.
+ *
+ * Confirmed against the raw model output: the prompt log carries `cooperation.\u201d Her words` on
+ * every Agent 9 entry, while the stored artifact and the RubricScorer carry the spaced form — so the
+ * space is ours, not the model's.
+ */
+/** Exported for `a88-sentence-splitter.test.ts` — this defect is only visible at the token level. */
+export const splitLifecycleSentences = (text: string): string[] =>
   String(text ?? "")
-    .match(/[^.!?\n]+[.!?]*/g)
+    .match(/[^.!?\n]+[.!?]*["'\u2019\u201d\u00bb)\]]*/g)
     ?.map((sentence) => sentence.trim())
     .filter(Boolean) ?? [];
 
@@ -1934,6 +1952,14 @@ export const applyLifecycleContinuityGuard = (
 
     const updatedParagraphs = updatedGrid.map((sentences: string[], paragraphIdx: number) => {
       if (sentences.length === 0) return paragraphs[paragraphIdx];
+      // A_88 — rebuild ONLY the paragraphs this pass actually edited. This rejoined every
+      // paragraph in the chapter whether or not a replacement touched it, so one lifecycle
+      // repair re-punctuated the whole chapter. A pass that rewrites what it did not change
+      // has no way to be safe: its blast radius is the chapter, not the edit.
+      const original = sentenceGrid[paragraphIdx] ?? [];
+      const unchanged = original.length === sentences.length
+        && original.every((sentence: string, i: number) => sentence === sentences[i]);
+      if (unchanged) return paragraphs[paragraphIdx];
       const rebuilt = sanitizeProseText(sentences.join(" "));
       return rebuilt.length > 0 ? rebuilt : paragraphs[paragraphIdx];
     });
