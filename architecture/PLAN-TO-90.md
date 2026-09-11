@@ -1613,3 +1613,36 @@ Predictions for the next run: `[A_73] deterministic CLUE paste` on chapter 1 = 0
 is on the page; cast `sharedHistory` event rate above the 9% baseline (detector). Falsifiers: a read
 that says an early clue was never planted; a cast whose histories name events and a read that still
 calls them generic.
+
+
+## 15. A_87 — THE JOIN THAT NEVER RESOLVED · 2026-09-11 · £0
+
+The read of run 3252 (84/100, the first spatial book) complained that chapter 8 re-proves after the
+confession and chapter 9 repeats chapter 8. The cause was not prose. That run's **64 Agent-9 prompts
+carried zero `CULPRIT REVELATION REQUIRED`** — the reveal chapter was never told to name the culprit,
+walk the deduction or state the kill.
+
+Agent 3 names the reveal scene `act_number: 3 / scene_number: 6` in **45 of 45 archived runs**,
+because that pair is the worked example in its own prompt. It resolves **0/45**. Chapter contracts in
+Agent 9 have therefore been assigned by a keyword fallback for the life of the project.
+
+| lever | flag | measured, offline, over all 45 archived (cml, outline) pairs |
+|---|---|---|
+| reveal-contract arbitration | `AGENT9_SCENE_REF_ARBITRATION` **ON** | exactly one reveal chapter: **28/45 → 45/45**; two chapters: 6 → 0; none: 11 → 0 |
+| ref reconciliation | `AGENT7_SCENE_REF_RECONCILE` held | reveal refs resolve **0/45 → 45/45** |
+| prompt placeholder | `AGENT3_SCENE_REF_PLACEHOLDER` held | removes the one constant copied 45/45; OFF byte-identical |
+| global-scene reading | `AGENT9_SCENE_REF_RESOLUTION` | **RECOMMENDED AGAINST** — resolves 45/45 and lands on the `false_solution` beat in 43 of them |
+
+**Three dead branches, one cause.** The reveal contract (fixed), the suspect-clearance coordinates
+(fixed for clearances alone in A_76 §14, twelve days earlier, without anyone asking whether the other
+consumers shared the defect), and `isPostRevealChapter`, which is false for every chapter of all 45
+runs and which reconciliation does **not** fix — it compares a global index and a per-act index
+against the same field, so for a final-act reveal the conjunction is unsatisfiable. Left unrepaired:
+fixing it would newly activate a never-run naming constraint on every run.
+
+**What this does NOT claim.** No score effect. The ch8/ch9 repetition is a plausible consequence of
+the missing contract and nothing more. Everything above is a prompt-side measurement made offline
+against archived artifacts; whether it moves `ending` or `pacing` needs a run and an external read.
+
+Detail, including the two wrong intermediate numbers this work produced and how the fixture caught
+them, in `documentation/analysis/ANALYSIS_87/ANALYSIS_87.md` §8.
