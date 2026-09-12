@@ -586,11 +586,11 @@ harmless; the repetition that cost a mark was chapter 4's copied testimony, whic
 
 | item | status | commit |
 |---|---|---|
-| #1 reveal arithmetic | built, pinned on the run's device | @@COMMIT3@@ |
-| #3 ownership by the page (ledger + ask + validator + floor agree) | built, pinned on the run's chapter-3/4 shape | @@COMMIT3@@ |
-| #4 location label as prose | built, pinned on the run's label | @@COMMIT3@@ |
-| #5 rescue exact predicate | built, pinned on the run's two sentences | @@COMMIT3@@ |
-| #6 atmosphere pass skipped | built, ON for the matched pair | @@COMMIT3@@ |
+| #1 reveal arithmetic | built, pinned on the run's device | `2784c5f7` |
+| #3 ownership by the page (ledger + ask + validator + floor agree) | built, pinned on the run's chapter-3/4 shape | `2784c5f7` |
+| #4 location label as prose | built, pinned on the run's label | `2784c5f7` |
+| #5 rescue exact predicate | built, pinned on the run's two sentences | `2784c5f7` |
+| #6 atmosphere pass skipped | built, ON for the matched pair | `2784c5f7` |
 | #7 STORY TO DATE copying of profile lines | **recorded, not built** — needs its own matched pair | — |
 | Agent 7: one canonical location per scene | **recorded, not built** — upstream change | — |
 | device direction word vs arithmetic (§11.1) | **withdrawn** — the case was coherent; the prose blurred it (#1) | — |
