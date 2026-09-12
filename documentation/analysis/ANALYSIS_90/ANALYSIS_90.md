@@ -455,12 +455,12 @@ which is the same object at a cost of zero calls.
 
 | item | status | commit |
 |---|---|---|
-| Move 0 — bypass investigation | **withdrawn as wrong** (§10.1); pin built | @@COMMIT@@ |
-| Move 2 — alibi plan + render | built, measured, tested (`a90-alibi-plan.test.ts`, archive pin) | @@COMMIT@@ |
-| Move 3 — chronology solver + THE CLOCK + 3b anchor field | built, measured, tested (`a90-chronology.test.ts`, `a90-agent3-injection.test.ts`) | @@COMMIT@@ |
-| Move 1 — anchoring rule + telemetry (3, 5, 7) | built, measured | @@COMMIT@@ |
-| coherence errors in the loop | built, flag OFF, recommended-against until one run | @@COMMIT@@ |
-| §3 root cause (Agent 2 authors windows) | **corrected**: Agent 3 authors them, 97% rewrite | @@COMMIT@@ |
+| Move 0 — bypass investigation | **withdrawn as wrong** (§10.1); pin built | `fe4ba5de` |
+| Move 2 — alibi plan + render | built, measured, tested (`a90-alibi-plan.test.ts`, archive pin) | `fe4ba5de` |
+| Move 3 — chronology solver + THE CLOCK + 3b anchor field | built, measured, tested (`a90-chronology.test.ts`, `a90-agent3-injection.test.ts`) | `fe4ba5de` |
+| Move 1 — anchoring rule + telemetry (3, 5, 7) | built, measured | `fe4ba5de` |
+| coherence errors in the loop | built, flag OFF, recommended-against until one run | `fe4ba5de` |
+| §3 root cause (Agent 2 authors windows) | **corrected**: Agent 3 authors them, 97% rewrite | `fe4ba5de` |
 | flags flipped for the next run | `AGENT3_ALIBI_PLAN`, `AGENT3_CHRONOLOGY`, `AGENT3B_DURATION_ANCHORS` = true | `.env.local` (untracked) + FLAG-AUDIT |
 
 ### 10.6 What the next run settles
