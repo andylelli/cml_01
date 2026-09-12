@@ -7,6 +7,7 @@
  * pacing. Writes ctx.narrative and ctx.outlineCoverageIssues.
  */
 
+import { isChronologyEnabled as isA90ChronologyEnabled, deriveCaseChronology, findUnanchoredClockValues, summariseChronology } from "@cml/cml";
 import { formatNarrative, GOLDEN_AGE_BEATS, isAgent7StructuredOutputEnabled, auditCmlSceneRefs, summariseSceneRefAudit, reconcileCmlSceneRefs, isSceneRefReconcileEnabled, measureClueObligationLoad, summariseClueObligationLoad } from "@cml/prompts-llm";
 import type { NarrativeOutline, ClueDistributionResult, WorldDocumentResult } from "@cml/prompts-llm";
 import { validateArtifact } from "@cml/cml";
@@ -3032,6 +3033,12 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
      */
     const clueLoad = measureClueObligationLoad(ctx.cml as any, auditScenes);
     ctx.warnings.push(`[A_89 clue load] ${summariseClueObligationLoad(clueLoad)}`);
+    // A_90 Move 1 — does the outline introduce clock values the case never declared? Telemetry only.
+    if (isA90ChronologyEnabled()) {
+      const chrono = deriveCaseChronology(ctx.cml, (ctx.lockedFactRegistry ?? []) as any[]);
+      const anchoring = findUnanchoredClockValues(auditScenes, chrono, { skip: () => false });
+      ctx.warnings.push(`[A_90 chronology] outline: ${summariseChronology(chrono, anchoring)}`);
+    }
   } catch (e) {
     // Telemetry must never cost an outline — the same rule the stamping passes above follow.
     ctx.warnings.push(`[A_87 scene-ref join] audit skipped: ${(e as Error).message}`);

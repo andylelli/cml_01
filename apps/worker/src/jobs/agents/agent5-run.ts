@@ -6,6 +6,7 @@
  * writes ctx.clues / ctx.coverageResult / ctx.allCoverageIssues.
  */
 
+import { isChronologyEnabled as isA90ChronologyEnabled, deriveCaseChronology, findUnanchoredClockValues, summariseChronology } from "@cml/cml";
 import { extractClues } from "@cml/prompts-llm";
 import type { ClueDistributionResult } from "@cml/prompts-llm";
 import type { CaseData } from "@cml/cml";
@@ -4470,6 +4471,14 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
   }
 
   ctx.clues = clues;
+  // A_90 Move 1 — do the clues introduce clock values the case never declared? Telemetry only.
+  if (isA90ChronologyEnabled()) {
+    try {
+      const chrono = deriveCaseChronology(ctx.cml, (ctx.lockedFactRegistry ?? []) as any[]);
+      const anchoring = findUnanchoredClockValues(clues, chrono, { skip: () => false });
+      ctx.warnings.push(`[A_90 chronology] clues: ${summariseChronology(chrono, anchoring)}`);
+    } catch { /* telemetry never costs a run */ }
+  }
   ctx.coverageResult = finalCoverage.coverageResult;
   ctx.allCoverageIssues = finalCoverage.allCoverageIssues;
 

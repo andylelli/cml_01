@@ -165,3 +165,44 @@ export type { TemporalClosureVerdict } from "./temporal-closure.js";
 export { deriveCaseTimeline, summariseCaseTimeline, isCaseTimelineEnabled } from "./case-timeline.js";
 export type { CaseTimeline } from "./case-timeline.js";
 export type { TemporalClosureResult, StatedInterval } from "./temporal-closure.js";
+
+// A_90 Move 2 — the culprit's alibi is computed from the two death times; planned before Agent 3,
+// rendered after it only when the emitted window breaks an invariant.
+export {
+  dialWindowContains,
+  isAlibiPlanEnabled,
+  planAlibiBranches,
+  planCulpritAlibiSpan,
+  renderDialDigits,
+  renderPlannedCulpritAlibi,
+} from "./alibi-plan.js";
+export type { AlibiPlanBranch, PlannedAlibiChange } from "./alibi-plan.js";
+
+// A_90 Moves 1 and 3 — one chronology solved from the device; every clock value must resolve to it.
+export {
+  CLOCK_PHRASE_RE,
+  checkChronologyCoherence,
+  deriveCaseChronology,
+  extractClockValues,
+  findUnanchoredClockValues,
+  isChronologyEnabled,
+  isChronologyErrorsEnabled,
+  parseDurationAnchor,
+  renderCaseTimes,
+  renderChronologyBlock,
+  solveLockedChronology,
+  summariseChronology,
+} from "./chronology.js";
+export type {
+  CaseTimeRender,
+  ChronoEvent,
+  ChronoInterval,
+  Chronology,
+  ChronologyFactInput,
+  ChronologyFinding,
+  ClockAnchoring,
+  ClockValue,
+  DurationAnchor,
+  UnanchoredClockValue,
+  UnplacedDuration,
+} from "./chronology.js";

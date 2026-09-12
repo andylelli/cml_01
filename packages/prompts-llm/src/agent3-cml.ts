@@ -7,7 +7,12 @@ import type { AzureOpenAIClient, LLMLogger, Message } from "@cml/llm-client";
 import { getGenerationParams } from "@cml/story-validation";
 import { parse as parseYAML } from "yaml";
 import { resolveDesignModel } from "./utils/model-tiers.js";
-import { validateCml, isVictimArchetype, parseClockTime, parseDurationMinutes } from "@cml/cml";
+import {
+  validateCml, isVictimArchetype, parseClockTime, parseDurationMinutes,
+  checkChronologyCoherence, deriveCaseChronology, isAlibiPlanEnabled, isChronologyEnabled,
+  isChronologyErrorsEnabled, planAlibiBranches, renderChronologyBlock, solveLockedChronology,
+} from "@cml/cml";
+import type { ChronologyFactInput } from "@cml/cml";
 import { reviseCml } from "./agent4-revision.js";
 import { patchCmlNode, makeLlmPatchProposer } from "./agent4-patch.js";
 import { jsonrepair } from "jsonrepair";
@@ -190,6 +195,51 @@ export const buildDeviceArithmeticRule = (
 };
 
 /**
+ * A_90 Move 2 — THE CULPRIT'S ALIBI WINDOW, COMPUTED for each way the model may assign the locked
+ * clocks to apparent/actual. MEASURED (ANALYSIS_90 §9): 13 of 48 decidable archived cases break one
+ * of the two invariants the deception rests on, every one authored by this agent in the same call as
+ * the times. The model copies a value here instead of solving an inequality. The DIRECTION stays its
+ * decision, exactly as `buildDeviceArithmeticRule` leaves it. Flag-gated (`AGENT3_ALIBI_PLAN`) and
+ * self-gating on registry shape, so with nothing to plan the prompt is byte-identical.
+ */
+export const buildAlibiPlanRule = (
+  lockedFacts: ReadonlyArray<{ id?: string; value?: string }>,
+): string => {
+  if (!isAlibiPlanEnabled()) return "";
+  const branches = planAlibiBranches(lockedFacts);
+  if (branches.length === 0) return "";
+  const lines = branches.map(
+    (b) =>
+      `    • if \`apparent_time_of_death\` is "${b.apparentRaw}" (${b.apparentId}) and \`actual_time_of_death\` is ` +
+      `"${b.actualRaw}" (${b.actualId}): the culprit's \`alibi_window\` is "${b.window}" — append the place and change nothing else`,
+  );
+  return `
+- THE CULPRIT'S ALIBI IS ALREADY COMPUTED. It must contain the staged time and exclude the real one,
+  and that arithmetic is done below for every assignment you may choose. Use the line that matches:
+${lines.join("\n")}
+  Innocent suspects keep their own windows on the same clock: a suspect cleared by an alibi needs one
+  that contains the REAL time of death.`;
+};
+
+/**
+ * A_90 Moves 1 and 3 — the device's clock, solved from its anchored durations, printed as settled
+ * values; and the rule that every other clock value is declared before it is used. WHY HERE: on the
+ * 2026-09-12 book the device locked one clock and three durations, `buildDeviceArithmeticRule`
+ * (which needs exactly one duration) printed nothing, and this agent started the intermission at
+ * four o'clock when the music it ends with restarts at twenty past. Flag-gated (`AGENT3_CHRONOLOGY`);
+ * the solved block is self-gating on whether the registry gave it anything to solve.
+ */
+export const buildChronologyRule = (lockedFacts: ReadonlyArray<ChronologyFactInput>): string => {
+  if (!isChronologyEnabled()) return "";
+  const block = renderChronologyBlock(solveLockedChronology(lockedFacts));
+  return `${block}
+- EVERY OTHER CLOCK VALUE the case states — a dinner, a sighting, a bell, a shift change — is declared
+  FIRST in \`constraint_space.time.anchors\` as "<time> — <what happens then>", and then reused with that
+  exact spelling wherever it appears. A clock value found anywhere in the case that matches no anchor,
+  no alibi endpoint and neither death time is reported against the case as unanchored.`;
+};
+
+/**
  * A_87 P3 — the reveal coordinate in the skeleton below was copied verbatim by the model in
  * 45 of 45 archived runs (`act_number: 3, scene_number: 6`, one distinct value across the whole
  * archive). A_67's lesson: illustrative content in a prompt is reproduced, not adapted.
@@ -367,7 +417,7 @@ Binding rules — these values are settled and the case must be built around the
 - Every alibi window in \`cast[].alibi_window\` must sit on that same clock. Do not invent a second
   evening.
 - Write the times in the same form the locked facts use (word-form if they are word-form): the prose
-  reproduces them exactly, and two spellings of one hour read to a reader as two different times.${buildDeviceArithmeticRule(lockedFacts)}`
+  reproduces them exactly, and two spellings of one hour read to a reader as two different times.${buildDeviceArithmeticRule(lockedFacts)}${buildAlibiPlanRule(lockedFacts)}${buildChronologyRule(lockedFacts as ReadonlyArray<ChronologyFactInput>)}`
       : "";
 
   const backgroundGroundingSection = `
@@ -1602,7 +1652,30 @@ export async function generateCML(
       const normalized = normalizeCml(cml as Record<string, unknown>);
 
       // Validate against CML schema
-      const validation = validateCml(normalized);
+      let validation = validateCml(normalized);
+      /**
+       * A_90 — chronology coherence as a validation error, so a window whose length disagrees with
+       * its endpoints, or an anchor that contradicts the device's solved clock, reaches the retry and
+       * Agent 4's revision with the message that names the settled value. Flag-gated
+       * (`AGENT3_CHRONOLOGY_ERRORS`); OFF leaves `validation` untouched. MEASURED over 53 archived
+       * cases: 0 window mismatches — the check goes live exactly when the THE CLOCK operation is
+       * followed and windows start carrying lengths.
+       */
+      if (isChronologyErrorsEnabled()) {
+        const chronologyFacts = (Array.isArray((inputs as any).lockedFacts) ? (inputs as any).lockedFacts : []) as ReadonlyArray<ChronologyFactInput>;
+        const chronologyFindings = checkChronologyCoherence(
+          normalized,
+          deriveCaseChronology(normalized, chronologyFacts),
+          chronologyFacts,
+        );
+        if (chronologyFindings.length > 0) {
+          validation = {
+            ...validation,
+            valid: false,
+            errors: [...validation.errors, ...chronologyFindings.map((f) => `CASE.${f.path} (${f.code}): ${f.message}`)],
+          };
+        }
+      }
       lastValidation = validation;
 
       const latencyMs = Date.now() - startTime;

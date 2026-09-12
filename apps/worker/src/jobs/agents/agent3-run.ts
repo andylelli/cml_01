@@ -10,6 +10,10 @@ import { generateCML, auditNovelty, findUnplantedDiscriminatingClues } from "@cm
 import { createSkeletonExtractor, judgeNovelty, loadReferenceCorpus } from "@cml/novelty";
 import { checkTemporalClosure, isTemporalClosureCheckEnabled,
   deriveCaseTimeline, summariseCaseTimeline, isCaseTimelineEnabled } from "@cml/cml";
+import {
+  checkChronologyCoherence, deriveCaseChronology, findUnanchoredClockValues, isAlibiPlanEnabled,
+  isChronologyEnabled, renderCaseTimes, renderPlannedCulpritAlibi, summariseChronology,
+} from "@cml/cml";
 import { parseClockTime, validateCml, buildCaseScopedLockedFacts,
   alibiSpanFromWindow,
   isValidAlibiSpan,
@@ -168,6 +172,22 @@ function applyCmlRepairAndRevalidate(
    * always satisfiable when apparent and actual differ — because then a defect the model cannot fix
    * stops costing the whole run.
    */
+  /**
+   * A_90 Move 2 — runs BEFORE T2 so that, with both on, T2 finds nothing left to trim. Keeps every
+   * culprit window that already satisfies the two invariants; renders the rest from the numbers with
+   * the model's location kept. MEASURED over the archive with production flags: clears 15 of 15
+   * flagged cases and touches 0 of 38 clean ones. The former abort on these codes becomes a repair.
+   */
+  let renderedByA90 = 0;
+  if (isAlibiPlanEnabled()) {
+    for (const change of renderPlannedCulpritAlibi(cmlResult.cml as any)) {
+      renderedByA90 += 1;
+      ctx.warnings.push(
+        `[A_90 alibi-plan] ${change.name}'s alibi window (${change.reason}) rendered from the two death times, ` +
+          `location kept: ${JSON.stringify(change.before)} -> ${JSON.stringify(change.after)}.`,
+      );
+    }
+  }
   const spanFloorOn = /^(1|true|yes|on)$/i.test(process.env.AGENT3_ALIBI_SPAN_FLOOR ?? "");
   const spans = spanFloorOn
     ? deriveAlibiSpans(cmlResult.cml as any)
@@ -198,8 +218,33 @@ function applyCmlRepairAndRevalidate(
       );
     }
   }
+  /**
+   * A_90 Moves 1 and 3 — the chronology as the case states it, against the device's solved clock:
+   * the one spelling rewrite that cannot manufacture a contradiction, then telemetry. Findings are
+   * not errors here; `AGENT3_CHRONOLOGY_ERRORS` raises them inside generateCML's own loop instead,
+   * where they reach the retry and Agent 4 rather than an abort.
+   */
+  if (isChronologyEnabled()) {
+    try {
+      const caseBlock = (cmlResult.cml as any)?.CASE ?? cmlResult.cml;
+      const facts = (ctx.lockedFactRegistry ?? []) as any[];
+      const chrono = deriveCaseChronology(caseBlock, facts);
+      for (const change of renderCaseTimes(caseBlock, chrono)) {
+        renderedByA90 += 1;
+        ctx.warnings.push(
+          `[A_90 chronology] respelled ${change.path}: ${JSON.stringify(change.before)} -> ${JSON.stringify(change.after)} (${change.reason}).`,
+        );
+      }
+      const anchoring = findUnanchoredClockValues(caseBlock, chrono);
+      const findings = checkChronologyCoherence(caseBlock, chrono, facts);
+      ctx.warnings.push(`[A_90 chronology] ${phase}: ${summariseChronology(chrono, anchoring, findings)}`);
+    } catch (error) {
+      ctx.warnings.push(`[A_90 chronology] telemetry failed during ${phase}: ${(error as Error).message}`);
+    }
+  }
+
   const repairedCount = repairInferenceRequiredEvidence(cmlResult.cml as any);
-  if (repairedCount === 0) {
+  if (repairedCount === 0 && renderedByA90 === 0) {
     return cmlResult;
   }
 
@@ -209,10 +254,17 @@ function applyCmlRepairAndRevalidate(
     return cmlResult;
   }
 
-  ctx.warnings.push(
-    `Agent 3: Auto-repaired required_evidence for ${repairedCount} inference step(s) during ${phase}` +
-      (wasValid ? "." : " and recovered schema validity."),
-  );
+  if (repairedCount > 0) {
+    ctx.warnings.push(
+      `Agent 3: Auto-repaired required_evidence for ${repairedCount} inference step(s) during ${phase}` +
+        (wasValid ? "." : " and recovered schema validity."),
+    );
+  }
+  if (renderedByA90 > 0 && !wasValid) {
+    ctx.warnings.push(
+      `[A_90] ${renderedByA90} rendered value(s) recovered validity during ${phase} — the run continues where it used to abort.`,
+    );
+  }
   return {
     ...cmlResult,
     validation: repairedValidation,

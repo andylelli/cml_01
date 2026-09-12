@@ -68,6 +68,12 @@ export type LockedFact = {
    * wrong is unrecoverable. Detection may guess; repair may not.
    */
   derivedFrom?: string[];
+  /**
+   * A_90 — where a DURATION sits on the clock: the id of the clock fact (or another duration's
+   * computed `<id>_start` / `<id>_end`) it starts or ends at. Declared by the device under
+   * `AGENT3B_DURATION_ANCHORS`; absent means the duration is unplaced and the chronology reports it.
+   */
+  anchor?: { at: string; edge: "start" | "end" };
 };
 
 export type LockedFactRegistry = LockedFact[];

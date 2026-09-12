@@ -1672,3 +1672,45 @@ under ~7 marks.
 Fix plan ranked in `documentation/analysis/ANALYSIS_89/ANALYSIS_89.md` §7 — cheapest and
 reader-named first (casing restore; the 40-char cap), then contract exclusivity, then the temporal
 closure gate.
+
+## 17. A_90 — THE MATHS, FIXED WHERE IT IS AUTHORED · 2026-09-12 · £0
+
+Two reads of one case (79, then 82 on the prose-only matched pair) both marked `clues` down for
+arithmetic. A_90 asked why five months of temporal work had not moved it. MEASURED against all 53
+archived cases:
+
+| finding | number |
+|---|---|
+| the deception's own invariant (staged time inside the culprit's alibi, real time outside) fails | **13 of 48** decidable cases (27%) |
+| …every one detected by the production-flag validator | **15 of 15** (incl. 2 unreadable windows) |
+| …shipped with one since the 2026-09-05 flags | **0 of 4** — "detected and not enforced" was WRONG; every shipped violator predates the abort or the flags |
+| clock values that anchor to no event of the case | 19 of 760 (3%), in 6 of 53 cases |
+| the 82/100 case's device | 1 clock + 3 durations, none anchored → the arithmetic rule self-gated to nothing → "intermission starting at four o'clock", ending at twenty past, seven minutes long |
+| who authors the 448 alibi clock values | **Agent 3**, rewriting Agent 2's window in 311 of 321 (97%) — not Agent 2 as A_90 §3 said |
+
+Built, all flag-gated (`architecture/FLAG-AUDIT.md`), measured before wiring:
+
+- **Move 2 — `AGENT3_ALIBI_PLAN`.** The culprit's alibi window is COMPUTED from the two death times:
+  printed into the Agent 3 prompt per apparent/actual assignment, rendered after the call only when
+  the emitted one breaks an invariant or cannot be read (location kept). Clears 15/15 archived
+  violators, touches 0/38 clean cases, holds both invariants on 20,590/20,592 dial pairs. The abort
+  on a timeline code becomes a repair.
+- **Move 3 — `AGENT3_CHRONOLOGY` + `AGENT3B_DURATION_ANCHORS`.** The 3b prompt asks each non-derived
+  duration for `anchor: {at, edge}`; the solver turns clocks + anchored durations into events and
+  event-pair intervals and prints THE CLOCK into the Agent 3 prompt. On the 82/100 device it prints
+  the line the reader wrote by hand: silent intermission thirteen minutes past four to twenty minutes
+  past four (seven minutes).
+- **Move 1 — same flag.** Every other clock value is declared in `constraint_space.time.anchors`
+  first; `[A_90 chronology]` telemetry at Agents 3, 3b, 5 and 7 counts what leaks and where.
+- **Move 0 — the pin.** `a90-archive-timeline.test.ts`: all 15 archived violators detected with the
+  recorded codes, all 15 rendered clean.
+- **Held OFF:** `AGENT3_CHRONOLOGY_ERRORS` — coherence findings as validation errors inside
+  `generateCML`'s loop — until one run shows the rate (B1).
+
+**Not built, with the reason** (`ANALYSIS_90` §10.4): free-text rewriting of windows in a post-pass
+(it manufactures the contradiction it removes), anchoring as a gate (the reader's "4:20" WAS
+anchored — to the wrong event), and THE CLOCK in the Agent 7/9 prompts (measure the leakage first).
+
+**What the next run settles** (`ANALYSIS_90` §10.6, predictions written before the run): whether 3b
+supplies the anchor, whether THE CLOCK survives into the case, whether the culprit copies the printed
+window, and where clock values leak downstream.

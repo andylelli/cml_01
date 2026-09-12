@@ -1,0 +1,838 @@
+{
+  "generatedFrom": "data/store.json, 2026-09-12, flags AGENT3_TIMELINE_WINDOW_VOCABULARY + AGENT3_ALIBI_UNREADABLE_GATE on",
+  "violators": [
+    {
+      "projectId": "785694688532",
+      "date": "2026-08-02",
+      "codes": [
+        "apparent_not_covered",
+        "actual_covered"
+      ],
+      "CASE": {
+        "culpability": {
+          "culprits": [
+            "Hugo Vane"
+          ]
+        },
+        "cast": [
+          {
+            "name": "Eleanor Voss",
+            "alibi_window": "8:00 to 8:30 in the lounge"
+          },
+          {
+            "name": "Dr. Mallory Finch",
+            "alibi_window": "8:05 to 8:25 in the medical room"
+          },
+          {
+            "name": "Captain Ivor Hale",
+            "alibi_window": "8:15 to 8:45 in the bar"
+          },
+          {
+            "name": "Beatrice Quill",
+            "alibi_window": "8:00 to 8:30 in her room"
+          },
+          {
+            "name": "Sylvia Trent",
+            "alibi_window": "evening"
+          },
+          {
+            "name": "Hugo Vane",
+            "alibi_window": "8:10 to 8:30 in the study"
+          }
+        ],
+        "hidden_model": {
+          "mechanism": {
+            "apparent_time_of_death": "ten minutes to nine",
+            "actual_time_of_death": "quarter past eight"
+          }
+        }
+      }
+    },
+    {
+      "projectId": "785870981754",
+      "date": "2026-08-04",
+      "codes": [
+        "actual_covered"
+      ],
+      "CASE": {
+        "culpability": {
+          "culprits": [
+            "Captain Ivor Hale"
+          ]
+        },
+        "cast": [
+          {
+            "name": "Eleanor Voss",
+            "alibi_window": "two to three in the lounge"
+          },
+          {
+            "name": "Dr. Mallory Finch",
+            "alibi_window": "evening"
+          },
+          {
+            "name": "Captain Ivor Hale",
+            "alibi_window": "one forty-five to two fifty in the dining room"
+          },
+          {
+            "name": "Beatrice Quill",
+            "alibi_window": "two to three in the staff wing office"
+          },
+          {
+            "name": "Sylvia Trent",
+            "alibi_window": "two to two fifty in the kitchen"
+          },
+          {
+            "name": "Hugo Vane",
+            "alibi_window": "two to three in the lounge"
+          }
+        ],
+        "hidden_model": {
+          "mechanism": {
+            "apparent_time_of_death": "a quarter to three",
+            "actual_time_of_death": "two o’clock"
+          }
+        }
+      }
+    },
+    {
+      "projectId": "786999938273",
+      "date": "2026-08-17",
+      "codes": [
+        "actual_covered"
+      ],
+      "CASE": {
+        "culpability": {
+          "culprits": [
+            "Hugo Vane"
+          ]
+        },
+        "cast": [
+          {
+            "name": "Eleanor Voss",
+            "alibi_window": "2:30 to 3:30 PM in the hotel lounge"
+          },
+          {
+            "name": "Dr. Mallory Finch",
+            "alibi_window": "N/A"
+          },
+          {
+            "name": "Captain Ivor Hale",
+            "alibi_window": "2:00 to 2:40 PM in the smoking room"
+          },
+          {
+            "name": "Beatrice Quill",
+            "alibi_window": "2:15 to 3:00 PM at front desk"
+          },
+          {
+            "name": "Sylvia Trent",
+            "alibi_window": "2:45 to 3:15 PM in the garden lounge"
+          },
+          {
+            "name": "Hugo Vane",
+            "alibi_window": "2:20 to 2:50 PM in the private study"
+          }
+        ],
+        "hidden_model": {
+          "mechanism": {
+            "apparent_time_of_death": "quarter to three PM",
+            "actual_time_of_death": "two forty PM"
+          }
+        }
+      }
+    },
+    {
+      "projectId": "787089592926",
+      "date": "2026-08-18",
+      "codes": [
+        "apparent_not_covered"
+      ],
+      "CASE": {
+        "culpability": {
+          "culprits": [
+            "Hugo Vane"
+          ]
+        },
+        "cast": [
+          {
+            "name": "Eleanor Voss",
+            "alibi_window": "8:00 to 9:00 in the lounge"
+          },
+          {
+            "name": "Dr. Mallory Finch",
+            "alibi_window": "evening"
+          },
+          {
+            "name": "Captain Ivor Hale",
+            "alibi_window": "7:50 to 8:15 in the boathouse"
+          },
+          {
+            "name": "Beatrice Quill",
+            "alibi_window": "8:00 to 8:30 at reception desk"
+          },
+          {
+            "name": "Sylvia Trent",
+            "alibi_window": "8:05 to 8:35 cleaning east wing"
+          },
+          {
+            "name": "Hugo Vane",
+            "alibi_window": "7:45 to 8:20 in his suite and lounge"
+          }
+        ],
+        "hidden_model": {
+          "mechanism": {
+            "apparent_time_of_death": "quarter to nine",
+            "actual_time_of_death": "quarter past nine"
+          }
+        }
+      }
+    },
+    {
+      "projectId": "787090659142",
+      "date": "2026-08-19",
+      "codes": [
+        "apparent_not_covered"
+      ],
+      "CASE": {
+        "culpability": {
+          "culprits": [
+            "Hugo Vane"
+          ]
+        },
+        "cast": [
+          {
+            "name": "Dr. Mallory Finch",
+            "alibi_window": "8:30 to 9:15 in dining hall"
+          },
+          {
+            "name": "Eleanor Voss",
+            "alibi_window": "N/A (victim)"
+          },
+          {
+            "name": "Hugo Vane",
+            "alibi_window": "8:00 to 8:45 in rooftop terrace"
+          },
+          {
+            "name": "Beatrice Quill",
+            "alibi_window": "7:45 to 9:00 in staff basement"
+          },
+          {
+            "name": "Captain Ivor Hale",
+            "alibi_window": "8:15 to 8:50 in dining hall"
+          },
+          {
+            "name": "Sylvia Trent",
+            "alibi_window": "7:30 to 9:00 serving guests"
+          }
+        ],
+        "hidden_model": {
+          "mechanism": {
+            "apparent_time_of_death": "a quarter to three",
+            "actual_time_of_death": "fourteen minutes past four"
+          }
+        }
+      }
+    },
+    {
+      "projectId": "787167692138",
+      "date": "2026-08-19",
+      "codes": [
+        "apparent_not_covered"
+      ],
+      "CASE": {
+        "culpability": {
+          "culprits": [
+            "Captain Ivor Hale"
+          ]
+        },
+        "cast": [
+          {
+            "name": "Eleanor Voss",
+            "alibi_window": "7:30 to 8:30 in the dining hall and lobby"
+          },
+          {
+            "name": "Dr. Mallory Finch",
+            "alibi_window": "N/A (deceased)"
+          },
+          {
+            "name": "Captain Ivor Hale",
+            "alibi_window": "7:50 to 8:10 in the terrace lounge"
+          },
+          {
+            "name": "Beatrice Quill",
+            "alibi_window": "7:45 to 8:15 in the kitchen and service wing"
+          },
+          {
+            "name": "Sylvia Trent",
+            "alibi_window": "7:40 to 8:20 serving in dining hall"
+          },
+          {
+            "name": "Hugo Vane",
+            "alibi_window": "7:35 to 7:55 in his guest room"
+          }
+        ],
+        "hidden_model": {
+          "mechanism": {
+            "apparent_time_of_death": "quarter to eight",
+            "actual_time_of_death": "seven twenty"
+          }
+        }
+      }
+    },
+    {
+      "projectId": "787500681232",
+      "date": "2026-08-23",
+      "codes": [
+        "apparent_not_covered"
+      ],
+      "CASE": {
+        "culpability": {
+          "culprits": [
+            "Captain Ivor Hale"
+          ]
+        },
+        "cast": [
+          {
+            "name": "Eleanor Voss",
+            "alibi_window": "ten minutes past ten to quarter past eleven in the lounge"
+          },
+          {
+            "name": "Dr. Mallory Finch",
+            "alibi_window": "N/A"
+          },
+          {
+            "name": "Captain Ivor Hale",
+            "alibi_window": "ten past ten to eleven in the billiard room"
+          },
+          {
+            "name": "Beatrice Quill",
+            "alibi_window": "ten past ten to quarter past eleven in the staff office"
+          },
+          {
+            "name": "Sylvia Trent",
+            "alibi_window": "ten past ten to quarter past eleven in the veranda"
+          },
+          {
+            "name": "Hugo Vane",
+            "alibi_window": "ten past ten to eleven in the manager's office"
+          }
+        ],
+        "hidden_model": {
+          "mechanism": {
+            "apparent_time_of_death": "a quarter past eleven",
+            "actual_time_of_death": "ten minutes past eleven"
+          }
+        }
+      }
+    },
+    {
+      "projectId": "787512796199",
+      "date": "2026-08-23",
+      "codes": [
+        "actual_covered"
+      ],
+      "CASE": {
+        "culpability": {
+          "culprits": [
+            "Captain Ivor Hale"
+          ]
+        },
+        "cast": [
+          {
+            "name": "Eleanor Voss",
+            "alibi_window": "eleven o'clock to quarter past eleven in the lounge"
+          },
+          {
+            "name": "Dr. Mallory Finch",
+            "alibi_window": "N/A"
+          },
+          {
+            "name": "Captain Ivor Hale",
+            "alibi_window": "ten forty-five to eleven ten in the billiard room"
+          },
+          {
+            "name": "Beatrice Quill",
+            "alibi_window": "ten fifty to eleven fifteen in the kitchen"
+          },
+          {
+            "name": "Sylvia Trent",
+            "alibi_window": "ten forty-five to eleven in the lounge"
+          },
+          {
+            "name": "Hugo Vane",
+            "alibi_window": "ten forty to eleven in the dining room"
+          }
+        ],
+        "hidden_model": {
+          "mechanism": {
+            "apparent_time_of_death": "quarter to eleven",
+            "actual_time_of_death": "ten minutes past eleven"
+          }
+        }
+      }
+    },
+    {
+      "projectId": "787953182108",
+      "date": "2026-08-28",
+      "codes": [
+        "apparent_not_covered",
+        "actual_covered"
+      ],
+      "CASE": {
+        "culpability": {
+          "culprits": [
+            "Captain Ivor Hale"
+          ]
+        },
+        "cast": [
+          {
+            "name": "Eleanor Voss",
+            "alibi_window": "nine o'clock to half past ten in the lounge"
+          },
+          {
+            "name": "Dr. Mallory Finch",
+            "alibi_window": "evening"
+          },
+          {
+            "name": "Captain Ivor Hale",
+            "alibi_window": "half past ten to eleven at the private dock"
+          },
+          {
+            "name": "Beatrice Quill",
+            "alibi_window": "eight o'clock to half past nine in the dining room"
+          },
+          {
+            "name": "Sylvia Trent",
+            "alibi_window": "nine o'clock to eleven in the staff quarters"
+          },
+          {
+            "name": "Hugo Vane",
+            "alibi_window": "nine o'clock to ten in the hotel office"
+          }
+        ],
+        "hidden_model": {
+          "mechanism": {
+            "apparent_time_of_death": "half past eleven at night",
+            "actual_time_of_death": "twenty minutes to eleven at night"
+          }
+        }
+      }
+    },
+    {
+      "projectId": "788202899849",
+      "date": "2026-08-31",
+      "codes": [
+        "apparent_not_covered"
+      ],
+      "CASE": {
+        "culpability": {
+          "culprits": [
+            "Captain Ivor Hale"
+          ]
+        },
+        "cast": [
+          {
+            "name": "Eleanor Voss",
+            "alibi_window": "ten to ten thirty in the lounge"
+          },
+          {
+            "name": "Dr. Mallory Finch",
+            "alibi_window": "N/A"
+          },
+          {
+            "name": "Captain Ivor Hale",
+            "alibi_window": "nine fifty-five to ten fifteen in the smoking room"
+          },
+          {
+            "name": "Beatrice Quill",
+            "alibi_window": "ten to ten forty-five in the office"
+          },
+          {
+            "name": "Sylvia Trent",
+            "alibi_window": "half past ten to eleven in the lobby"
+          },
+          {
+            "name": "Hugo Vane",
+            "alibi_window": "nine forty-five to ten twenty in the dining room"
+          }
+        ],
+        "hidden_model": {
+          "mechanism": {
+            "apparent_time_of_death": "twenty-five minutes past ten",
+            "actual_time_of_death": "half past ten"
+          }
+        }
+      }
+    },
+    {
+      "projectId": "788293825797",
+      "date": "2026-09-01",
+      "codes": [
+        "actual_covered"
+      ],
+      "CASE": {
+        "culpability": {
+          "culprits": [
+            "Hugo Vane"
+          ]
+        },
+        "cast": [
+          {
+            "name": "Eleanor Voss",
+            "alibi_window": "eight o'clock to ten o'clock in the lobby"
+          },
+          {
+            "name": "Dr. Mallory Finch",
+            "alibi_window": "N/A - victim"
+          },
+          {
+            "name": "Captain Ivor Hale",
+            "alibi_window": "nine o'clock to quarter past nine in the bar"
+          },
+          {
+            "name": "Beatrice Quill",
+            "alibi_window": "eight forty-five to nine thirty-five at reception desk"
+          },
+          {
+            "name": "Sylvia Trent",
+            "alibi_window": "nine fifteen to ten in lounge"
+          },
+          {
+            "name": "Hugo Vane",
+            "alibi_window": "eight thirty to nine thirty in maintenance room"
+          }
+        ],
+        "hidden_model": {
+          "mechanism": {
+            "apparent_time_of_death": "quarter past nine",
+            "actual_time_of_death": "ten minutes past nine"
+          }
+        }
+      }
+    },
+    {
+      "projectId": "788297847867",
+      "date": "2026-09-01",
+      "codes": [
+        "culprit_alibi_unreadable"
+      ],
+      "CASE": {
+        "culpability": {
+          "culprits": [
+            "Captain Ivor Hale"
+          ]
+        },
+        "cast": [
+          {
+            "name": "Eleanor Voss",
+            "alibi_window": "9:00 to 10:00 on the veranda"
+          },
+          {
+            "name": "Dr. Mallory Finch",
+            "alibi_window": "N/A (victim)"
+          },
+          {
+            "name": "Captain Ivor Hale",
+            "alibi_window": "Before 9:15 in the dining room"
+          },
+          {
+            "name": "Beatrice Quill",
+            "alibi_window": "9:05 to 9:55 in the reception area"
+          },
+          {
+            "name": "Sylvia Trent",
+            "alibi_window": "9:10 to 9:50 in her room"
+          },
+          {
+            "name": "Hugo Vane",
+            "alibi_window": "9:00 to 9:40 in the bar"
+          }
+        ],
+        "hidden_model": {
+          "mechanism": {
+            "apparent_time_of_death": "ten minutes past nine",
+            "actual_time_of_death": "forty-five minutes past nine"
+          }
+        }
+      }
+    },
+    {
+      "projectId": "788502486046",
+      "date": "2026-09-04",
+      "codes": [
+        "apparent_not_covered",
+        "actual_covered"
+      ],
+      "CASE": {
+        "culpability": {
+          "culprits": [
+            "Gerald Yardley"
+          ]
+        },
+        "cast": [
+          {
+            "name": "Clarissa Penhale",
+            "alibi_window": "from six o'clock to eight o'clock in the lobby"
+          },
+          {
+            "name": "Lavinia Gaunt",
+            "alibi_window": "unknown"
+          },
+          {
+            "name": "Harriet Whitlock",
+            "alibi_window": "from seven o'clock to eight thirty in the dressing room"
+          },
+          {
+            "name": "Gerald Yardley",
+            "alibi_window": "from six thirty to eight in the control booth"
+          },
+          {
+            "name": "Adela Jardine",
+            "alibi_window": "from seven fifteen to eight in the theatre foyer"
+          },
+          {
+            "name": "Dr. Adela Quayle",
+            "alibi_window": "from seven to eight in theatre vicinity"
+          }
+        ],
+        "hidden_model": {
+          "mechanism": {
+            "apparent_time_of_death": "seven minutes past eight",
+            "actual_time_of_death": "thirty-seven minutes past seven"
+          }
+        }
+      }
+    },
+    {
+      "projectId": "788537332586",
+      "date": "2026-09-04",
+      "codes": [
+        "culprit_alibi_unreadable"
+      ],
+      "CASE": {
+        "culpability": {
+          "culprits": [
+            "Marguerite Gaunt"
+          ]
+        },
+        "cast": [
+          {
+            "name": "Clarissa Penhale",
+            "alibi_window": "seven o'clock to half past eight in the theatre office"
+          },
+          {
+            "name": "Harriet Whitlock",
+            "alibi_window": "N/A"
+          },
+          {
+            "name": "Dr. Adela Quayle",
+            "alibi_window": "seven fifteen to seven forty five in dressing rooms"
+          },
+          {
+            "name": "Marguerite Gaunt",
+            "alibi_window": "seven ten to seven thirty five in costume workshop"
+          },
+          {
+            "name": "Gerald Yardley",
+            "alibi_window": "seven to seven forty five near rehearsal hall"
+          },
+          {
+            "name": "Beatrice Jardine",
+            "alibi_window": "seven five to seven fifty in props storage"
+          }
+        ],
+        "hidden_model": {
+          "mechanism": {
+            "apparent_time_of_death": "quarter past seven",
+            "actual_time_of_death": "seventeen minutes past seven"
+          }
+        }
+      }
+    },
+    {
+      "projectId": "788607565000",
+      "date": "2026-09-05",
+      "codes": [
+        "apparent_not_covered"
+      ],
+      "CASE": {
+        "culpability": {
+          "culprits": [
+            "Kenneth Gaunt"
+          ]
+        },
+        "cast": [
+          {
+            "name": "Cecil Bellamy",
+            "alibi_window": "all day, village green and his cottage"
+          },
+          {
+            "name": "Dr. Julian Yardley",
+            "alibi_window": "N/A"
+          },
+          {
+            "name": "Gerald Underhill",
+            "alibi_window": "eleven to three, at the village hall"
+          },
+          {
+            "name": "Harriet Quayle",
+            "alibi_window": "twelve thirty to four, at sewing shop"
+          },
+          {
+            "name": "Kenneth Gaunt",
+            "alibi_window": "twelve to three, at the village green"
+          },
+          {
+            "name": "Bertram Halloway",
+            "alibi_window": "ten to four, at the farm"
+          }
+        ],
+        "hidden_model": {
+          "mechanism": {
+            "apparent_time_of_death": "twenty past three",
+            "actual_time_of_death": "three minutes past three"
+          }
+        }
+      }
+    }
+  ],
+  "ship": {
+    "projectId": "789156244431",
+    "lockedFacts": [
+      {
+        "id": "silent_intermission_duration",
+        "value": "seven minutes",
+        "description": "duration of the gramophone's silent pause during rehearsal music"
+      },
+      {
+        "id": "last_pose_hold",
+        "value": "three minutes",
+        "description": "time witnesses recall the last dance pose being held unusually long"
+      },
+      {
+        "id": "music_restart_time",
+        "value": "twenty minutes past four",
+        "description": "time the rehearsal music resumed after silent intermission, read from gramophone log"
+      },
+      {
+        "id": "murder_window_interval",
+        "value": "ten minutes",
+        "description": "maximum time window in which the murder could have been committed",
+        "derivedFrom": [
+          "silent_intermission_duration",
+          "last_pose_hold"
+        ]
+      }
+    ],
+    "CASE": {
+      "culpability": {
+        "culprits": [
+          "Gwendolyn Vance"
+        ]
+      },
+      "cast": [
+        {
+          "name": "Nora Gaunt",
+          "alibi_window": "3:55 to 4:10 in the rehearsal room",
+          "alibi_span": {
+            "startHour": 3,
+            "startMinute": 55,
+            "endHour": 4,
+            "endMinute": 10,
+            "location": "the rehearsal room"
+          }
+        },
+        {
+          "name": "Bertram Norbury",
+          "alibi_window": "N/A"
+        },
+        {
+          "name": "Harriet Kestrel",
+          "alibi_window": "3:55 to 4:10 in the rehearsal room",
+          "alibi_span": {
+            "startHour": 3,
+            "startMinute": 55,
+            "endHour": 4,
+            "endMinute": 10,
+            "location": "the rehearsal room"
+          }
+        },
+        {
+          "name": "Desmond Lachlan",
+          "alibi_window": "4:00 to 4:15 in the ship’s lounge",
+          "alibi_span": {
+            "startHour": 4,
+            "startMinute": 0,
+            "endHour": 4,
+            "endMinute": 15,
+            "location": "the ship’s lounge"
+          }
+        },
+        {
+          "name": "Julian Quayle",
+          "alibi_window": "3:50 to 4:20 on the bridge",
+          "alibi_span": {
+            "startHour": 3,
+            "startMinute": 50,
+            "endHour": 4,
+            "endMinute": 20,
+            "location": "the bridge"
+          }
+        },
+        {
+          "name": "Gwendolyn Vance",
+          "alibi_window": "3:55 to 4:10 in the rehearsal room",
+          "alibi_span": {
+            "startHour": 3,
+            "startMinute": 55,
+            "endHour": 4,
+            "endMinute": 10,
+            "location": "the rehearsal room"
+          }
+        }
+      ],
+      "hidden_model": {
+        "mechanism": {
+          "apparent_time_of_death": "four o'clock",
+          "actual_time_of_death": "a quarter past four",
+          "description": "Gwendolyn Vance exploited cognitive bias in memory anchoring by using a rehearsed choreographic cue combined with a deliberately staged gramophone silent intermission of exactly seven minutes. Witnesses anchored their memories on her last pose and the music, believing she was immobile in the rehearsal room during the murder. Meanwhile, Gwendolyn slipped to Bertram’s cabin during the silent pause, struck him with the heavy baton, and returned before the music restarted, using a concealed crew corridor to avoid detection. The gramophone’s winding mechanism was remotely triggered and manipulated to create a false timeline, tricking observers about the time of death and Gwendolyn's location."
+        }
+      },
+      "constraint_space": {
+        "time": {
+          "anchors": [
+            "Gramophone schedule showing rehearsal music with a silent intermission starting at four o'clock",
+            "Witnesses anchor Gwendolyn's location during the silent intermission",
+            "Victim's time of death determined from autopsy as quarter past four"
+          ],
+          "windows": [
+            "Murder window interval: ten minutes spanning the silent intermission",
+            "Alibi windows for suspects between 3:55 and 4:15"
+          ],
+          "contradictions": [
+            "Apparent time of death at four o'clock contradicts actual time of death at quarter past four",
+            "Witnesses believe Gwendolyn immobile during silent intermission but forensic timing shows otherwise"
+          ]
+        }
+      },
+      "inference_path": {
+        "steps": [
+          {
+            "observation": "The gramophone log on the rehearsal board shows music paused exactly at four o'clock for a silent seven-minute intermission."
+          },
+          {
+            "observation": "Witnesses describe Gwendolyn holding the last dance pose unusually long during the silent intermission, with her voice heard from the rehearsal room."
+          },
+          {
+            "observation": "Maintenance logs and a janitor’s report indicate a crew corridor door was temporarily unlocked and later found with a missing master key."
+          },
+          {
+            "observation": "Close inspection of the gramophone shows fresh winding marks and wear on the spring mechanism, inconsistent with normal playback."
+          },
+          {
+            "observation": "Forensic examination indicates the actual time of death as a quarter past four, outside the apparent time of death at four o'clock fixed by the gramophone’s silent pause."
+          }
+        ]
+      }
+    }
+  }
+}

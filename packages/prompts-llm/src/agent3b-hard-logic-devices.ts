@@ -174,6 +174,30 @@ const sharesMethodStem = (a: string, b: string): boolean => {
 export const isAxisClockLockEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
   /^(1|true|yes|on)$/i.test(String(env.AGENT3B_AXIS_CLOCK_LOCK ?? "").trim());
 
+/**
+ * A_90 — `AGENT3B_DURATION_ANCHORS`: every locked duration that is not derived names the clock fact
+ * it starts or ends at, so the chronology can be SOLVED before Agent 3 writes. Found on the
+ * 2026-09-12 book (82/100): one locked clock, three unanchored durations, and the reader wrote out
+ * the timeline the device should have carried. Runtime-read (ADR-0004); OFF is byte-identical.
+ */
+export const isDurationAnchorsEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT3B_DURATION_ANCHORS ?? "").trim());
+
+const DURATION_ANCHOR_LINES = `      //
+      // ── PLACE EVERY DURATION ON THE CLOCK (A_90) ──────────────────────────────────────────────
+      //
+      // A duration that is not derivedFrom two others MUST say where it sits:
+      //     "anchor": { "at": "<id of a clock fact>", "edge": "start" | "end" }
+      // "end" means the duration ENDS at that clock value; "start" means it BEGINS there. The
+      // pipeline then computes the other endpoint and prints it before the case is written, so an
+      // intermission that ends when the music restarts at twenty past four is known to begin at
+      // thirteen minutes past four — and no later agent can start it at four o'clock. An anchor may
+      // also name another duration's computed endpoint, "<duration id>_start" or "<duration id>_end".
+      // A duration with neither anchor nor derivedFrom sits nowhere on the clock and is reported
+      // against your device. MEASURED on the 2026-09-12 book: one locked clock, three unanchored
+      // durations, and the reader wrote out the timeline the device should have.
+`;
+
 export function extractThemeMechanismFamilies(theme?: string, mechanismFamilies?: string[]): string[] {
   const hints = (mechanismFamilies ?? []).join(" ");
   const keyworded = familiesIn(`${theme ?? ""} ${hints}`);
@@ -331,6 +355,9 @@ const normalizeDevice = (value: unknown, index: number): HardLogicDeviceIdea => 
           ...(Array.isArray(f?.derivedFrom)
             ? { derivedFrom: (f.derivedFrom as any[]).map(String).map((s) => s.trim()).filter(Boolean) }
             : {}),
+          // A_90 — a duration's anchor: which clock fact it starts or ends at. Carried verbatim; the
+          // chronology solver validates it (`parseDurationAnchor`), the mapper does not guess.
+          ...(f?.anchor && typeof f.anchor === "object" ? { anchor: f.anchor } : {}),
         })).filter((f: { value: string }) => f.value.length > 0)
       : undefined,
   };
@@ -444,7 +471,7 @@ Output JSON only, with this exact structure:
       // only the computed one. Marking the wrong one tells the pipeline it may rewrite a constant.
       // Omit derivedFrom on any value fixed by the mechanism itself; a value with no derivedFrom is
       // treated as primary and is never adjusted for you.
-      //
+${isDurationAnchorsEnabled() ? DURATION_ANCHOR_LINES : ""}      //
       // ── EVERY OTHER CLOCK TIME MUST BE PLACED ON THE SHIFT, OR OFF IT ─────────────────────────
       //
       // The rules above cover the two times and the interval between them. They do NOT cover the

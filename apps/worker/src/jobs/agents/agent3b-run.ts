@@ -10,6 +10,7 @@
  * to apps/worker/logs/.
  */
 
+import { isChronologyEnabled as isA90ChronologyEnabled, solveLockedChronology, summariseChronology } from "@cml/cml";
 import { writeFileSync, mkdirSync, existsSync } from "fs";
 // A_74 §8 DE8 — the curated device corpus, retrieved deterministically. See device-library-block.ts.
 import { buildDeviceLibraryBlock } from "../device-library-block.js";
@@ -829,7 +830,7 @@ export async function runAgent3b(ctx: OrchestratorContext): Promise<void> {
      */
     const buildRegistryFromPrimaryDevice = (): void => {
       const primaryDevice = ctx.hardLogicDevices!.devices[0];
-      const rawFacts: Array<{ id?: unknown; value?: unknown; description?: unknown; derivedFrom?: unknown }> =
+      const rawFacts: Array<{ id?: unknown; value?: unknown; description?: unknown; derivedFrom?: unknown; anchor?: unknown }> =
         Array.isArray(primaryDevice?.lockedFacts) ? primaryDevice.lockedFacts : [];
 
       ctx.lockedFactRegistry = rawFacts
@@ -855,6 +856,10 @@ export async function runAgent3b(ctx: OrchestratorContext): Promise<void> {
             ...(Array.isArray(f.derivedFrom)
               ? { derivedFrom: (f.derivedFrom as unknown[]).map((x) => String(x).trim()).filter(Boolean) }
               : {}),
+            // A_90 — the duration's anchor travels with the fact; `parseDurationAnchor` validates it.
+            ...(f.anchor && typeof f.anchor === "object"
+              ? { anchor: f.anchor as { at: string; edge: "start" | "end" } }
+              : {}),
           };
         });
 
@@ -864,6 +869,11 @@ export async function runAgent3b(ctx: OrchestratorContext): Promise<void> {
     };
 
     buildRegistryFromPrimaryDevice();
+
+    // A_90 — what the device's clock solves to, and which durations sit nowhere on it.
+    if (isA90ChronologyEnabled()) {
+      ctx.warnings.push(`[A_90 chronology] device: ${summariseChronology(solveLockedChronology(ctx.lockedFactRegistry ?? []))}`);
+    }
 
     reportCaseTemporalCoherence(ctx);
 
