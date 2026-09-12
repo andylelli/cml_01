@@ -171,12 +171,15 @@ export type { TemporalClosureResult, StatedInterval } from "./temporal-closure.j
 export {
   dialWindowContains,
   isAlibiPlanEnabled,
+  isDeceptionPairEnabled,
   planAlibiBranches,
   planCulpritAlibiSpan,
+  readLockedClocksAndDurations,
   renderDialDigits,
   renderPlannedCulpritAlibi,
+  selectDeceptionPair,
 } from "./alibi-plan.js";
-export type { AlibiPlanBranch, PlannedAlibiChange } from "./alibi-plan.js";
+export type { AlibiPlanBranch, DeceptionPair, LockedClock, LockedDuration, PlannedAlibiChange } from "./alibi-plan.js";
 
 // A_90 Moves 1 and 3 — one chronology solved from the device; every clock value must resolve to it.
 export {

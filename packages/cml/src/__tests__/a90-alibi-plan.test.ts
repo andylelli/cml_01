@@ -6,6 +6,7 @@ import {
   planCulpritAlibiSpan,
   renderDialDigits,
   renderPlannedCulpritAlibi,
+  selectDeceptionPair,
 } from "../alibi-plan.js";
 import { alibiSpanToWindow, checkCaseTimelineDeception, parseTimeWindow } from "../timeline-deception.js";
 
@@ -121,6 +122,51 @@ describe("planAlibiBranches — one computed window per assignment the model may
         { id: "murder_window_interval", value: "ten minutes" },
       ]),
     ).toEqual([]);
+  });
+
+  describe("run 81042's device — three locked clocks, one derived interval (AGENT3_DECEPTION_PAIR)", () => {
+    const device = [
+      { id: "clock_chime_actual_time", value: "twenty-five minutes past three" },
+      { id: "clock_chime_displayed_time", value: "a quarter to four" },
+      { id: "victim_watch_stopped_time", value: "ten minutes past three" },
+      { id: "clock_chime_advance_interval", value: "twenty minutes", derivedFrom: ["clock_chime_displayed_time", "clock_chime_actual_time"] },
+    ];
+    const withFlag = <T>(value: string | undefined, fn: () => T): T => {
+      const saved = process.env.AGENT3_DECEPTION_PAIR;
+      if (value === undefined) delete process.env.AGENT3_DECEPTION_PAIR;
+      else process.env.AGENT3_DECEPTION_PAIR = value;
+      try {
+        return fn();
+      } finally {
+        if (saved === undefined) delete process.env.AGENT3_DECEPTION_PAIR;
+        else process.env.AGENT3_DECEPTION_PAIR = saved;
+      }
+    };
+
+    it("the pair is the two clocks the interval declares itself derived from", () => {
+      const pair = selectDeceptionPair(device)!;
+      expect(pair).not.toBeNull();
+      expect(pair.clocks.map((c) => c.id).sort()).toEqual(["clock_chime_actual_time", "clock_chime_displayed_time"]);
+      expect(pair.interval.minutes).toBe(20);
+      expect(selectDeceptionPair(device.slice(0, 3))).toBeNull();
+    });
+
+    it("OFF: three clocks plan nothing — the shape that left run 81042 without a window", () => {
+      expect(withFlag(undefined, () => planAlibiBranches(device))).toEqual([]);
+    });
+
+    it("ON: two branches over the declared pair; the stopped watch is evidence, not a candidate", () => {
+      const branches = withFlag("true", () => planAlibiBranches(device));
+      expect(branches).toHaveLength(2);
+      expect(new Set(branches.map((b) => b.apparentId))).toEqual(new Set(["clock_chime_actual_time", "clock_chime_displayed_time"]));
+      for (const b of branches) {
+        const [start, end] = parseTimeWindow(b.window)!;
+        const apparent = parseTimeWindow(`${b.apparentRaw} to ${b.apparentRaw}`)![0];
+        const actual = parseTimeWindow(`${b.actualRaw} to ${b.actualRaw}`)![0];
+        expect(dialWindowContains(start, end, apparent)).toBe(true);
+        expect(dialWindowContains(start, end, actual)).toBe(false);
+      }
+    });
   });
 
   it("renders digits on the twelve-hour dial", () => {

@@ -11,6 +11,7 @@ import {
   validateCml, isVictimArchetype, parseClockTime, parseDurationMinutes,
   checkChronologyCoherence, deriveCaseChronology, isAlibiPlanEnabled, isChronologyEnabled,
   isChronologyErrorsEnabled, planAlibiBranches, renderChronologyBlock, solveLockedChronology,
+  isDeceptionPairEnabled, renderPlannedCulpritAlibi, selectDeceptionPair,
 } from "@cml/cml";
 import type { ChronologyFactInput } from "@cml/cml";
 import { reviseCml } from "./agent4-revision.js";
@@ -159,6 +160,22 @@ export const buildDeviceArithmeticRule = (
     if (asClock !== null) clocks.push({ id, raw, minutes: asClock });
   }
 
+  /**
+   * A_90, from run 81042: THREE locked clocks (the chime's actual strike, its displayed time, the
+   * victim's stopped watch) and one interval derived from two of them. This rule saw three clocks,
+   * declined, and the model — given no arithmetic — staged the death at the displayed time, failed
+   * `apparent_not_covered`, and on the retry moved the APPARENT time to four o'clock, off every
+   * locked value. The device had already named the pair in the interval's `derivedFrom`; under
+   * `AGENT3_DECEPTION_PAIR` that declaration selects the two clocks and the rule prints as for two.
+   */
+  if (isDeceptionPairEnabled() && clocks.length >= 3) {
+    const pair = selectDeceptionPair(lockedFacts as ReadonlyArray<{ id?: unknown; value?: unknown; derivedFrom?: unknown }>);
+    if (pair) {
+      clocks.splice(0, clocks.length, ...pair.clocks.map((c) => ({ id: c.id, raw: c.raw, minutes: c.dial })));
+      durations.splice(0, durations.length, pair.interval);
+    }
+  }
+
   // One duration, or the pairing is a guess — the same refusal the detector makes.
   if (durations.length !== 1) return "";
   const declared = durations[0]!;
@@ -237,6 +254,27 @@ export const buildChronologyRule = (lockedFacts: ReadonlyArray<ChronologyFactInp
   FIRST in \`constraint_space.time.anchors\` as "<time> — <what happens then>", and then reused with that
   exact spelling wherever it appears. A clock value found anywhere in the case that matches no anchor,
   no alibi endpoint and neither death time is reported against the case as unanchored.`;
+};
+
+/**
+ * A_90 — the in-loop repair, kept pure so it can be tested without an LLM: render the culprit's
+ * window from the two death times on a case that just failed validation, re-validate, and say what
+ * happened. Mutates `cml` in place, like every repair in this pipeline.
+ */
+export const applyAlibiPlanBeforeRetry = (
+  cml: unknown,
+  validate: (c: any) => { valid: boolean; errors: string[] },
+): { changes: ReturnType<typeof renderPlannedCulpritAlibi>; validation: { valid: boolean; errors: string[] }; note: string } => {
+  const changes = renderPlannedCulpritAlibi(cml);
+  if (changes.length === 0) {
+    return { changes, validation: validate(cml), note: "" };
+  }
+  const validation = validate(cml);
+  const note =
+    `[A_90 alibi-plan] before retry: ` +
+    changes.map((c) => `${c.name} (${c.reason}) ${JSON.stringify(c.before)} -> ${JSON.stringify(c.after)}`).join("; ") +
+    (validation.valid ? " -> valid, no retry spent" : ` -> still invalid (${validation.errors.length} error(s) remain for the retry)`);
+  return { changes, validation, note };
 };
 
 /**
@@ -1653,6 +1691,20 @@ export async function generateCML(
 
       // Validate against CML schema
       let validation = validateCml(normalized);
+      /**
+       * A_90, from run 81042 — REPAIR BEFORE RETRY. Attempt 1 staged the death at the locked displayed
+       * time with a culprit window that did not contain it; the retry, told to "move the apparent
+       * time", moved it off the locked value. The window was the thing to move, and that repair is
+       * arithmetic. Under `AGENT3_ALIBI_PLAN` the culprit's window is rendered here, on the attempt
+       * that failed, and if that alone makes the case valid there is no retry at all.
+       */
+      if (!validation.valid && isAlibiPlanEnabled()) {
+        const repaired = applyAlibiPlanBeforeRetry(normalized, validateCml);
+        if (repaired.changes.length > 0) {
+          normalizationNotes.push(repaired.note);
+          validation = repaired.validation;
+        }
+      }
       /**
        * A_90 — chronology coherence as a validation error, so a window whose length disagrees with
        * its endpoints, or an anchor that contradicts the device's solved clock, reaches the retry and

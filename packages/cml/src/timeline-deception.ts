@@ -493,9 +493,10 @@ export const checkTimelineDeception = (input: TimelineDeceptionInput): TimelineD
       message:
         `The staged time of death (${formatDial(apparent)}) falls OUTSIDE every span the culprit can account for `
         + `(${describeWindows(windows)}), so the deception incriminates them instead of protecting them. `
-        + `Move the APPARENT time to somewhere inside ${describeWindows(windows)} — that is the whole point of faking it. `
-        + `Leave the real time of death where it is: it must stay in a gap the culprit cannot account for `
-        + `(${describeGaps(windows)}).`,
+        + `Move the culprit's alibi window so it CONTAINS the staged time — a locked device value cannot move, `
+        + `and a window can. Only if the staged time is not a locked value may you instead move it inside `
+        + `${describeWindows(windows)}. Leave the real time of death where it is: it must stay in a gap the culprit `
+        + `cannot account for (${describeGaps(windows)}).`,
     });
   }
 

@@ -43,6 +43,80 @@ const mod = (n: number): number => ((n % DIAL) + DIAL) % DIAL;
 export const isAlibiPlanEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
   /^(1|true|yes|on)$/i.test(String(env.AGENT3_ALIBI_PLAN ?? ""));
 
+/**
+ * `AGENT3_DECEPTION_PAIR` — when the registry locks THREE or more clocks, which two are the
+ * deception's? FOUND BY RUN 81042: the device locked the chime's actual strike (3:25), its displayed
+ * time (3:45) and the victim's stopped watch (3:10), plus an interval derived from the first two.
+ * Both `buildDeviceArithmeticRule` (needs 1–2 clocks) and `planAlibiBranches` (needs exactly 2)
+ * self-gated to nothing, the model got no arithmetic and no computed window, staged 3:45 outside the
+ * culprit's 4:00–4:30, and on the retry obeyed the validator literally — it moved the APPARENT time
+ * to four o'clock, off every locked value — rather than moving the window. The device had already
+ * said which two clocks matter: the interval's `derivedFrom`. This reads that declaration; it does
+ * not guess. Runtime-read (ADR-0004); OFF leaves both rules byte-identical.
+ */
+export const isDeceptionPairEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT3_DECEPTION_PAIR ?? ""));
+
+export interface LockedClock {
+  id: string;
+  raw: string;
+  dial: number;
+}
+
+export interface LockedDuration {
+  id: string;
+  raw: string;
+  minutes: number;
+}
+
+export interface DeceptionPair {
+  clocks: [LockedClock, LockedClock];
+  /** The interval the device declares between them. */
+  interval: LockedDuration;
+}
+
+export const readLockedClocksAndDurations = (
+  lockedFacts: ReadonlyArray<{ id?: unknown; value?: unknown }>,
+): { clocks: LockedClock[]; durations: LockedDuration[] } => {
+  const clocks: LockedClock[] = [];
+  const durations: LockedDuration[] = [];
+  for (const fact of lockedFacts) {
+    const raw = String(fact?.value ?? "").trim();
+    if (!raw) continue;
+    const id = String(fact?.id ?? "").trim() || "(unnamed)";
+    const asDuration = parseDurationMinutes(raw);
+    if (asDuration !== null) {
+      durations.push({ id, raw, minutes: asDuration });
+      continue;
+    }
+    const asClock = parseClockTime(raw);
+    if (asClock !== null) clocks.push({ id, raw, dial: asClock });
+  }
+  return { clocks, durations };
+};
+
+/**
+ * The two clocks a locked duration declares itself derived from, when both are locked clocks. Null
+ * when the device declares no such pair — this never infers one from proximity or naming.
+ */
+export const selectDeceptionPair = (
+  lockedFacts: ReadonlyArray<{ id?: unknown; value?: unknown; derivedFrom?: unknown }>,
+): DeceptionPair | null => {
+  const { clocks, durations } = readLockedClocksAndDurations(lockedFacts);
+  for (const fact of lockedFacts) {
+    if (!Array.isArray(fact?.derivedFrom) || fact.derivedFrom.length !== 2) continue;
+    const id = String(fact?.id ?? "").trim();
+    const interval = durations.find((d) => d.id === id);
+    if (!interval) continue;
+    const [x, y] = (fact.derivedFrom as unknown[]).map((v) => String(v).trim());
+    const a = clocks.find((c) => c.id === x);
+    const b = clocks.find((c) => c.id === y);
+    if (!a || !b || a === b) continue;
+    return { clocks: [a, b], interval };
+  }
+  return null;
+};
+
 /** Inclusive containment on the 12-hour dial. A wrapping window [start > end] covers midnight/noon. */
 export const dialWindowContains = (start: number, end: number, x: number): boolean => {
   const s = mod(start);
@@ -137,21 +211,16 @@ export interface AlibiPlanBranch {
  * away. Any other registry shape returns no branches and the prompt is byte-identical.
  */
 export const planAlibiBranches = (
-  lockedFacts: ReadonlyArray<{ id?: unknown; value?: unknown }>,
+  lockedFacts: ReadonlyArray<{ id?: unknown; value?: unknown; derivedFrom?: unknown }>,
 ): AlibiPlanBranch[] => {
-  const clocks: Array<{ id: string; raw: string; dial: number }> = [];
-  const durations: Array<{ id: string; raw: string; minutes: number }> = [];
-  for (const fact of lockedFacts) {
-    const raw = String(fact?.value ?? "").trim();
-    if (!raw) continue;
-    const id = String(fact?.id ?? "").trim() || "(unnamed)";
-    const asDuration = parseDurationMinutes(raw);
-    if (asDuration !== null) {
-      durations.push({ id, raw, minutes: asDuration });
-      continue;
+  let { clocks, durations } = readLockedClocksAndDurations(lockedFacts);
+  // Three or more locked clocks: the device's own derivedFrom names the two that matter (run 81042).
+  if (isDeceptionPairEnabled() && clocks.length >= 3) {
+    const pair = selectDeceptionPair(lockedFacts);
+    if (pair) {
+      clocks = [...pair.clocks];
+      durations = [pair.interval];
     }
-    const asClock = parseClockTime(raw);
-    if (asClock !== null) clocks.push({ id, raw, dial: asClock });
   }
 
   const candidates: Array<{ apparent: typeof clocks[0]; actual: typeof clocks[0] }> = [];

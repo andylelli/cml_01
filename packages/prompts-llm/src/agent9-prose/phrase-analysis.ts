@@ -170,6 +170,65 @@ const containsMandatedRepetition = (gram: string, lockedValues: ReadonlyArray<st
   return false;
 };
 
+/**
+ * A_90, from run 81042 (read 87/100, the one time glitch): `AGENT9_PHRASE_LOCKED_BOUNDARY`.
+ *
+ * The seven-word window "s pocket watch stopped at ten minutes" was nominated as an overused phrase.
+ * It carries two words of the locked value "ten minutes past three" — below the three-word floor
+ * `containsMandatedRepetition` keeps so that innocent "ten minutes" prose is not exempted — because
+ * the WINDOW had cut the value in half. The atmosphere pass then paraphrased the fragment to "froze
+ * at three past midnight", the splice kept the stranded "past three", and the reader met "froze at
+ * three past midnight past three" in a story that "depends on precise time".
+ *
+ * The test is positional, not textual: where a locked value actually occurs in the chapter, every
+ * n-gram window that overlaps its token range is excluded — and a gram with ANY overlapping
+ * occurrence is excluded outright, because the substitution is applied to every occurrence. No
+ * word-count threshold, so "at ten" elsewhere stays eligible. Runtime-read (ADR-0004); OFF is
+ * byte-identical.
+ */
+export const isPhraseLockedBoundaryGuardEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT9_PHRASE_LOCKED_BOUNDARY ?? "").trim());
+
+/** Token ranges [start, end) at which any locked value occurs in `tokens`. */
+export const lockedValueTokenRanges = (
+  tokens: ReadonlyArray<string>,
+  lockedValues: ReadonlyArray<string>,
+): Array<[number, number]> => {
+  const ranges: Array<[number, number]> = [];
+  for (const value of lockedValues) {
+    const needle = tokenizeWords(String(value ?? ''));
+    if (needle.length === 0) continue;
+    for (let i = 0; i + needle.length <= tokens.length; i += 1) {
+      let match = true;
+      for (let j = 0; j < needle.length; j += 1) {
+        if (tokens[i + j] !== needle[j]) { match = false; break; }
+      }
+      if (match) ranges.push([i, i + needle.length]);
+    }
+  }
+  return ranges;
+};
+
+const windowOverlapsRange = (start: number, end: number, ranges: ReadonlyArray<[number, number]>): boolean =>
+  ranges.some(([s, e]) => start < e && s < end);
+
+/** Every n-gram that, at any of its occurrences in `tokens`, overlaps a locked value. */
+export const gramsOverlappingLockedValues = (
+  tokens: ReadonlyArray<string>,
+  ngramSize: number,
+  lockedValues: ReadonlyArray<string>,
+): Set<string> => {
+  const overlapping = new Set<string>();
+  const ranges = lockedValueTokenRanges(tokens, lockedValues);
+  if (ranges.length === 0) return overlapping;
+  for (let position = 0; position + ngramSize <= tokens.length; position += 1) {
+    if (windowOverlapsRange(position, position + ngramSize, ranges)) {
+      overlapping.add(tokens.slice(position, position + ngramSize).join(' '));
+    }
+  }
+  return overlapping;
+};
+
 export function detectRecurringPhrases(
   chapters: ProseChapter[],
   ngramSize = 7,
@@ -178,15 +237,19 @@ export function detectRecurringPhrases(
   lockedValues: ReadonlyArray<string> = [],
 ): string[] {
   const chapterHits = new Map<string, Set<number>>();
+  const boundaryGuard = isPhraseLockedBoundaryGuardEnabled();
 
   chapters.forEach((chapter, index) => {
     const tokens = tokenizeWords((chapter.paragraphs ?? []).join(' '));
     const grams = toNgrams(tokens, ngramSize);
+    const overlapping = boundaryGuard ? gramsOverlappingLockedValues(tokens, ngramSize, lockedValues) : new Set<string>();
     for (const gram of grams) {
       const parts = gram.split(' ');
       const contentWords = parts.filter((part) => part.length > 3 && !CLUE_TOKEN_STOPWORDS.has(part));
       if (contentWords.length < 3) continue;
       if (containsMandatedRepetition(gram, lockedValues)) continue;
+      // A_90 — the window overlaps a locked value where it actually occurs: not a repair target.
+      if (boundaryGuard && overlapping.has(gram)) continue;
       if (!chapterHits.has(gram)) {
         chapterHits.set(gram, new Set<number>());
       }

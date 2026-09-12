@@ -477,3 +477,84 @@ which is the same object at a cost of zero calls.
 5. **The reader.** A_89's matched pair scored `clues` 5/10 on the arithmetic. Prediction: no
    arithmetic complaint in the next read, or the complaint names a value the log shows as unanchored.
 
+---
+
+## 11. RUN 81042 — the first run with the levers on · 2026-09-12 · £1.29
+
+**Parameters.** Seed 81042 (`node scripts/run-params.mjs --seed 81042`), temporal · 1940s ·
+CountryHouse · Classic · short · police · atmospheric · cast 6 (Beatrice Whitlock, Frances Orme,
+Josephine Rutherford, Percival Thorne, Ottoline Dunmore, Ambrose Halloway); theme "a chiming clock
+whose strike was made to fall at the wrong hour"; angle "a canal lock-keeper's cottage"; fresh names
+18 given / 18 surnames excluded. Flags flipped since the matched pair: `AGENT3_ALIBI_PLAN`,
+`AGENT3_CHRONOLOGY`, `AGENT3B_DURATION_ANCHORS`. Temporal was chosen over spatial (0 reads)
+deliberately: the predictions need locked durations and clocks.
+
+**Outcome.** `mystery-1789232316546` / `canary_1789232316543`. Cost audit $1.64 list, **£1.29** true
+(summary's upper bound $1.495). Release gate **warning**: chapters 2 (`mechanism_explained_too_early`,
+regen unresolved) and 6 (`missing_clue`, regen hit HTTP 429) shipped with validation failures; **no
+deterministic-fallback chapter** (0), so the book is readable. 9,404 words. Three Azure content
+refusals (Agent 6 blind reader ×2, geometry regen ch8). DE3: cell temporal × locked_room_timing has
+shipped 5 of the last 20 — a REPEAT cell. Manuscript:
+`stories/story_20260912-1815/the_clock_s_false_hour_at_lockwood_estate.md`.
+
+**The device (3b):** `clock_chime_actual_time` 3:25 · `clock_chime_displayed_time` 3:45 ·
+`victim_watch_stopped_time` 3:10 · `clock_chime_advance_interval` twenty minutes, derivedFrom the
+first two (X38 repaired it at source from thirty-five). **Three clocks, no free duration.**
+
+### 11.1 The five predictions
+
+| # | prediction | verdict | evidence |
+|---|---|---|---|
+| 1 | 3b anchors ≥ 2 of 3 non-derived durations | **not determinable** | the device locked no free duration; `[A_90 chronology] device: events 3 (locked 3, solved 0, case 0); intervals 1` |
+| 2 | 0 `anchor_contradicts_solved_event`; apparent/actual on locked or solved events | **half FAILED** | 0 findings, but vacuously (nothing solved). Actual 3:10 = the locked watch; **apparent "four o'clock" matches no locked value.** X38 at Agent 7.5: "four o'clock and ten minutes past three are 50 minutes apart, while the interval declares twenty" |
+| 3 | 0 `[A_90 alibi-plan]` renders | **vacuous** | 0 renders — but the plan never printed. Both Agent 3 calls carried THE CLOCK and neither carried "ALREADY COMPUTED" or "must BE those two values" (prompt log): with three clocks both rules self-gate. Attempt 1 staged 3:45 (the locked displayed time) outside the culprit's 4:00–4:30 → `apparent_not_covered` → the retry did what the validator's message said, "move the APPARENT time", and moved it to four o'clock |
+| 4 | clues 0 unanchored, outline ≤ 2 | **held** | case 17/17, clues 12/12, outline 12/12 — the model declared five `time.anchors` and used them everywhere. **The Move 1 operation was followed on the first run** |
+| 5 | the read carries no arithmetic complaint | **held, with one glitch** | **87/100** — "one of the best clock drafts so far"; `clues` **8/10** (5 and 6 on the two previous reads of the ship case). No "the numbers do not line up" complaint. Two time notes remain, both traced: (a) "the chime was advanced by twenty minutes" reads backwards — the DEVICE's own description says "advanced ahead of real time" while its numbers put the chime twenty minutes behind the face (a direction word no check compares to the arithmetic; recorded, not built); (b) "froze at three past midnight past three" in ch9 — NOT the model: the repetition detector nominated the window "s pocket watch stopped at ten minutes", which cuts the locked "ten minutes past three" under the three-word floor, the atmosphere pass paraphrased it, and the splice stranded "past three". Fixed at both ends (§11.2) |
+
+A sixth line the run produced on its own: `coherence: window_duration_mismatch at
+constraint_space.time.windows[1]` — a **false positive**. The window "ten minutes past three to
+twenty-five minutes past three" was read as a twenty-five-minute length. `AGENT3_CHRONOLOGY_ERRORS`
+was OFF, so it cost nothing; on, it would have sent Agent 4 to repair a correct window. The B1 order
+— telemetry first, gate after — is what made this free.
+
+### 11.2 What the run taught, and what was built from it
+
+The failure is one shape: **a registry with three locked clocks.** The arithmetic rule declines it
+("one duration or the pairing is a guess" — but here the device DECLARED the pairing), the alibi plan
+declines it, the model authors the inequality unaided and gets it wrong, and the validator's retry
+message then names the wrong repair for a locked value. Four fixes, all pinned on the run's own device
+and attempt-1 case, and measured before wiring:
+
+| fix | flag | measured |
+|---|---|---|
+| `selectDeceptionPair` — the interval's `derivedFrom` names the deception's two clocks; both rules print as for two | `AGENT3_DECEPTION_PAIR` (new, ON) | OFF: both rules ""; ON: arithmetic rule binds 3:25/3:45 and excludes the watch; plan prints 2 branches |
+| repair before retry — `applyAlibiPlanBeforeRetry` inside `generateCML`, on the attempt that failed | `AGENT3_ALIBI_PLAN` | attempt-1 shape: window rendered around the locked 3:45, case valid, no retry; apparent unchanged |
+| the `apparent_not_covered` message says move the WINDOW; the staged time only if it is not locked | none (message text) | pinned; no test had asserted the old wording |
+| `statedLength` ignores a clock phrase's own "N minutes past" | none | the run's windows[1] now reads `statedMinutes: null`; "(seven minutes)" still reads 7 |
+| the atmosphere pass may not vary a time: nomination excludes any n-gram window overlapping a locked value's token range (positional, no word-count floor), and a substitution that changes the paragraph's clock values is refused | `AGENT9_PHRASE_LOCKED_BOUNDARY` (new, ON) | OFF reproduces the shipped line from the run's own paragraph and replacement; ON leaves the paragraph untouched and the fragment un-nominated; a benign repeat is still nominated and applied |
+
+### 11.3 STATUS (this section)
+
+| item | status | commit |
+|---|---|---|
+| run 81042 launched, shipped, logged | done — release gate warning, no fallback chapter, £1.29 | @@COMMIT2@@ |
+| predictions 1–4 scored | 1 not determinable · 2 half failed · 3 vacuous · 4 held | @@COMMIT2@@ |
+| prediction 5 | read: **87/100**, clues 8/10; the one time glitch traced to the atmosphere pass and fixed | @@COMMIT2@@ |
+| `AGENT3_DECEPTION_PAIR` + repair-before-retry + message + statedLength | built, tested, ON | @@COMMIT2@@ |
+| §10.6's predictions restated for the next run | see 11.4 | @@COMMIT2@@ |
+
+### 11.4 What the next run settles
+
+1. A device with a free duration (a poison onset, a pause): does 3b anchor it? Not controllable; read
+   `[A_90 chronology] device:` and score it when the shape appears.
+2. **Both death times on locked values** when the registry holds ≥ 3 clocks — the failure this run had.
+3. `[A_90 alibi-plan] before retry` count — the retry is now the fallback, not the repair. Prediction:
+   Agent 3 attempts ≤ 1 on timeline codes.
+4. Anchoring again (case/clues/outline): prediction 0 / 0 / ≤ 2, as before.
+5. The read of the next book. This one: 87 — a single read, a different case and axis from the 82,
+   and inside the rubric's noise for a *score* claim; the category the work targeted, `clues`, moved
+   5 → 6 → 8, and the reader's complaint changed from "the numbers do not line up" to one wording
+   and one stranded fragment. The remaining time note the run cannot fix deterministically is the
+   device's direction word ("advanced" for a chime that runs behind the face) — the next thing to
+   measure at 3b.
+

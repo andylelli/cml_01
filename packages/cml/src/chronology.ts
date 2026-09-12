@@ -287,7 +287,14 @@ export const extractClockValues = (text: string): ClockValue[] => {
 const windowHead = (entry: string): string =>
   entry.replace(/\([^)]*\)/g, " ").split(/\s[—–-]\s|:\s(?=[A-Za-z])/)[0] ?? entry;
 
-const DURATION_PHRASE_RE = /\b(?:\d{1,3}|[a-z]+(?:-[a-z]+)?(?:\s+and\s+a\s+half)?)\s*[-\s]?\s*minutes?\b|\b(?:an?|\d{1,2}|[a-z]+)\s+hours?(?:\s+and\s+(?:a\s+half|[a-z]+\s+minutes?))?\b/i;
+/**
+ * A length, not a clock: "seven minutes" yes, the "twenty-five minutes" of "twenty-five minutes past
+ * three" no. FOUND BY RUN 81042's telemetry — the first version read the case's own window
+ * "ten minutes past three to twenty-five minutes past three" as a 25-minute length and reported a
+ * mismatch that did not exist. `AGENT3_CHRONOLOGY_ERRORS` was OFF, so it cost nothing; had it been on
+ * it would have sent Agent 4 to repair a correct window. The negative lookahead is the fix.
+ */
+const DURATION_PHRASE_RE = /\b(?:\d{1,3}|[a-z]+(?:-[a-z]+)?(?:\s+and\s+a\s+half)?)\s*[-\s]?\s*minutes?\b(?!\s+(?:past|to|after|before|until|till)\b)|\b(?:an?|\d{1,2}|[a-z]+)\s+hours?(?:\s+and\s+(?:a\s+half|[a-z]+\s+minutes?))?\b(?!\s+(?:past|to|after|before|until|till)\b)/i;
 
 const statedLength = (entry: string): number | null => {
   const m = DURATION_PHRASE_RE.exec(entry);

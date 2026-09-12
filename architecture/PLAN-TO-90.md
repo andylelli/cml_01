@@ -1714,3 +1714,17 @@ anchored — to the wrong event), and THE CLOCK in the Agent 7/9 prompts (measur
 **What the next run settles** (`ANALYSIS_90` §10.6, predictions written before the run): whether 3b
 supplies the anchor, whether THE CLOCK survives into the case, whether the culprit copies the printed
 window, and where clock values leak downstream.
+
+**RESULT — run 81042 · 2026-09-12 · £1.29 · release gate warning, no fallback chapter, 9,404 words.**
+Predictions: 1 not determinable (the device locked no free duration), 2 half FAILED (apparent "four
+o'clock" on no locked value), 3 vacuous (the plan never printed — three locked clocks and both rules
+self-gate), 4 HELD (17/17, 12/12, 12/12 anchored — the Move 1 operation was followed first time),
+5 HELD — the read scored **87/100** with `clues` **8/10** (5 and 6 on the two previous reads) and no
+"numbers do not line up" complaint; one read, so no score claim. One false positive caught by
+telemetry with the gate OFF. The read's one time glitch ("froze at three past midnight past three")
+was the atmosphere pass paraphrasing a locked value that the n-gram window had cut in half — refused
+at nomination and at application under `AGENT9_PHRASE_LOCKED_BOUNDARY`. Built from it, pinned on
+the run's own device: `AGENT3_DECEPTION_PAIR` (the interval's `derivedFrom` names the deception's two
+clocks), repair-before-retry inside `generateCML`, a validator message that no longer says to move a
+locked value, and the `statedLength` lookahead. Detail: `ANALYSIS_90` §11.
+

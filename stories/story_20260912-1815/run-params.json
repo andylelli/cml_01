@@ -1,0 +1,19 @@
+{
+  "seed": null,
+  "runId": "mystery-1789232316546",
+  "projectId": "canary_1789232316543",
+  "primaryAxis": "temporal",
+  "storyAngle": "a canal lock-keeper's cottage",
+  "targetLength": "short",
+  "eraPreference": "1940s",
+  "locationPreset": "CountryHouse",
+  "castNames": [
+    "Beatrice Whitlock",
+    "Frances Orme",
+    "Josephine Rutherford",
+    "Percival Thorne",
+    "Ottoline Dunmore",
+    "Ambrose Halloway"
+  ],
+  "generatedAt": "2026-09-12T17:15:30.227Z"
+}

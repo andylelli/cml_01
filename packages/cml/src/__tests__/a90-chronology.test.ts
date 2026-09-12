@@ -165,6 +165,24 @@ describe("checkChronologyCoherence", () => {
     expect(hit!.message).toContain("thirteen minutes past four");
   });
 
+  it("run 81042: a clock phrase inside a window is not a stated length (the false positive the telemetry caught)", () => {
+    const cml = shipCase();
+    cml.constraint_space.time.windows = [
+      "four to four thirty — apparent time of death",
+      "ten minutes past three to twenty-five minutes past three — actual time of death window",
+    ];
+    const chrono = deriveCaseChronology(cml, shipFacts());
+    const window = chrono.intervals.find((i) => i.id === "window_1");
+    expect(window).toBeDefined();
+    expect(window!.minutes).toBe(15);
+    expect(window!.statedMinutes).toBeNull();
+    expect(checkChronologyCoherence(cml, chrono, shipFacts()).filter((f) => f.code === "window_duration_mismatch")).toEqual([]);
+    // …while a length in its own phrase is still read.
+    cml.constraint_space.time.windows.push("4:00 to 4:20 — the silent intermission (seven minutes)");
+    const again = deriveCaseChronology(cml, shipFacts());
+    expect(again.intervals.find((i) => i.id === "window_2")!.statedMinutes).toBe(7);
+  });
+
   it("nothing solved means nothing to contradict; an anchor that agrees is not a finding", () => {
     const cml = shipCase();
     expect(checkChronologyCoherence(cml, deriveCaseChronology(cml, shipFacts()), shipFacts())).toEqual([]);

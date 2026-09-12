@@ -5,6 +5,8 @@
  */
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import { getGenerationParams } from "@cml/story-validation";
+import { extractClockValues } from "@cml/cml";
+import { isPhraseLockedBoundaryGuardEnabled } from "./phrase-analysis.js";
 import { countWords, getRequiredClueIdsForScene, restoreProperNounCasing } from "./clue-validation.js";
 import {
   capitalizeWord,
@@ -267,6 +269,17 @@ export const substitutionIntroducesMalformedText = (before: string, candidate: s
   MALFORMED_SPLICE_PATTERNS.some((re) => re.test(candidate) && !re.test(before));
 
 /**
+ * A_90, from run 81042 — the floor under the nomination guard: whatever phrase was nominated, a
+ * substitution that changes the paragraph's clock values (their count or their minutes) is refused.
+ * The run's "stopped at ten minutes" -> "froze at three past midnight" turned 3:10 into 0:03 and
+ * left "past three" stranded; either half of that is enough to refuse it.
+ */
+export const substitutionChangesClockValues = (before: string, candidate: string): boolean => {
+  const dials = (text: string) => extractClockValues(text).map((v) => v.dial).sort((a, b) => a - b).join(",");
+  return dials(before) !== dials(candidate);
+};
+
+/**
  * A_71 — build a punctuation-TOLERANT matcher for a normalized phrase.
  *
  * `detectRecurringPhrases` emits NORMALIZED 7-grams (tokenizeWords: lowercased, punctuation
@@ -350,6 +363,13 @@ export const applyPhraseSubstitutions = (
       // Per-replacement rollback. A variety pass is a nice-to-have; shipping a broken sentence is
       // not. Dropping one substitution costs a repeated phrase, which is strictly the lesser defect.
       if (substitutionIntroducesMalformedText(result, candidate)) {
+        continue;
+      }
+      if (isPhraseLockedBoundaryGuardEnabled() && substitutionChangesClockValues(result, candidate)) {
+        console.warn(
+          `[Agent 9] phrase edit refused (A_90): replacing "${original}" with "${replacement}" would change a clock ` +
+            `value in the paragraph — a time is a locked quantity, not a phrase to vary.`,
+        );
         continue;
       }
       result = candidate;

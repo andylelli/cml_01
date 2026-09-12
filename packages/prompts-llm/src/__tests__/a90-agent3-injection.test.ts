@@ -2,7 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import { dialWindowContains, parseClockTime, parseTimeWindow } from "@cml/cml";
 
-import { buildAlibiPlanRule, buildChronologyRule } from "../agent3-cml.js";
+import { applyAlibiPlanBeforeRetry, buildAlibiPlanRule, buildChronologyRule, buildDeviceArithmeticRule } from "../agent3-cml.js";
+import { checkCaseTimelineDeception } from "@cml/cml";
 import { buildHardLogicDevicePrompt, isDurationAnchorsEnabled } from "../agent3b-hard-logic-devices.js";
 
 /**
@@ -120,5 +121,84 @@ describe("the 3b prompt asks for the anchor only under AGENT3B_DURATION_ANCHORS"
     expect(text).toContain("PLACE EVERY DURATION ON THE CLOCK");
     expect(text).toContain('"anchor": { "at": "<id of a clock fact>", "edge": "start" | "end" }');
     expect(text).toContain("thirteen minutes past four");
+  });
+});
+
+describe("run 81042 — three locked clocks and one derived interval (AGENT3_DECEPTION_PAIR)", () => {
+  const device = [
+    { id: "clock_chime_actual_time", value: "twenty-five minutes past three", description: "the true strike" },
+    { id: "clock_chime_displayed_time", value: "a quarter to four", description: "what the face showed" },
+    { id: "victim_watch_stopped_time", value: "ten minutes past three", description: "the watch" },
+    { id: "clock_chime_advance_interval", value: "twenty minutes", description: "the advance", derivedFrom: ["clock_chime_displayed_time", "clock_chime_actual_time"] },
+  ];
+
+  it("OFF: neither rule prints — the shape that left the run without arithmetic or a window", () => {
+    withEnv({ AGENT3_DECEPTION_PAIR: undefined, AGENT3_ALIBI_PLAN: "true" }, () => {
+      expect(buildDeviceArithmeticRule(device)).toBe("");
+      expect(buildAlibiPlanRule(device)).toBe("");
+    });
+  });
+
+  it("ON: the arithmetic rule binds the two declared clocks, and the alibi plan prints both branches", () => {
+    withEnv({ AGENT3_DECEPTION_PAIR: "true", AGENT3_ALIBI_PLAN: "true" }, () => {
+      const rule = buildDeviceArithmeticRule(device);
+      expect(rule).toContain("must BE those two values");
+      expect(rule).toContain("twenty-five minutes past three");
+      expect(rule).toContain("a quarter to four");
+      expect(rule).not.toContain("ten minutes past three");
+      const plan = buildAlibiPlanRule(device);
+      expect((plan.match(/• if `apparent_time_of_death` is/g) ?? []).length).toBe(2);
+    });
+  });
+});
+
+describe("run 81042 — repair before retry (applyAlibiPlanBeforeRetry)", () => {
+  const attemptOne = () => ({
+    CASE: {
+      culpability: { culprits: ["Ottoline Dunmore"] },
+      hidden_model: { mechanism: { apparent_time_of_death: "a quarter to four", actual_time_of_death: "ten minutes past three" } },
+      cast: [
+        { name: "Ottoline Dunmore", alibi_window: "4:00 to 4:30 at lock-keeper's cottage" },
+        { name: "Percival Thorne", alibi_window: "4:00 to 4:30 in the manor library" },
+      ],
+    },
+  });
+  const validate = (c: any) => {
+    const errors = checkCaseTimelineDeception(c).map((v) => `CASE.hidden_model.mechanism (${v.code}): ${v.message}`);
+    return { valid: errors.length === 0, errors };
+  };
+
+  it("renders the window around the LOCKED staged time and the case validates without a retry", () => {
+    withEnv({ AGENT3_TIMELINE_WINDOW_VOCABULARY: "true", AGENT3_ALIBI_UNREADABLE_GATE: "true" }, () => {
+      const cml = attemptOne();
+      expect(validate(cml).errors.join(" ")).toContain("apparent_not_covered");
+      const result = applyAlibiPlanBeforeRetry(cml, validate);
+      expect(result.changes).toHaveLength(1);
+      expect(result.changes[0]!.reason).toBe("apparent_not_covered");
+      expect(result.changes[0]!.after).toContain("lock-keeper's cottage");
+      expect(result.validation.valid).toBe(true);
+      expect(result.note).toContain("valid, no retry spent");
+      // the staged time stayed on the locked value — the thing the retry moved
+      expect(cml.CASE.hidden_model.mechanism.apparent_time_of_death).toBe("a quarter to four");
+      expect(cml.CASE.cast[1]!.alibi_window).toBe("4:00 to 4:30 in the manor library");
+    });
+  });
+
+  it("a coherent case is left alone and reports no note", () => {
+    withEnv({ AGENT3_TIMELINE_WINDOW_VOCABULARY: "true", AGENT3_ALIBI_UNREADABLE_GATE: "true" }, () => {
+      const cml = attemptOne();
+      cml.CASE.cast[0]!.alibi_window = "3:30 to 3:50 at lock-keeper's cottage";
+      const result = applyAlibiPlanBeforeRetry(cml, validate);
+      expect(result.changes).toEqual([]);
+      expect(result.note).toBe("");
+    });
+  });
+
+  it("the validator's own message no longer tells the model to move a locked staged time", () => {
+    withEnv({ AGENT3_TIMELINE_WINDOW_VOCABULARY: "true", AGENT3_ALIBI_UNREADABLE_GATE: "true" }, () => {
+      const message = validate(attemptOne()).errors.join(" ");
+      expect(message).toContain("Move the culprit's alibi window so it CONTAINS the staged time");
+      expect(message).not.toContain("Move the APPARENT time to somewhere inside");
+    });
   });
 });
