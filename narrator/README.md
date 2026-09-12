@@ -71,19 +71,27 @@ takes effect on the next request rather than needing a restart.
 | Audio assembly — concat, silence, MP3, M4B chapter markers | **Verified** with synthetic chunks |
 | Job runner — cache, resume, progress, cost accounting | **Verified** end-to-end offline (cache pre-seeded) |
 | UI — all three tabs | **Verified** in browser, no console errors |
-| **Every Azure call** | **UNVERIFIED — no key has ever been set** |
+| Azure voice list | **Verified live** — 785 voices in swedencentral, 21 en-GB |
+| Azure synthesis | **Verified live** — 4-voice audition, then a full chapter |
+| Multi-voice against live Azure | **Verified live** — 6 voices in one document, incl. HD + standard mixed |
+| Personal Voice (cloning) | **Partly verified** — control-plane reachable; creation untested |
 
-The unverified half is: voice cloning (`/api/voices/personal`), the prebuilt voice list,
-synthesis, and audition. The code is written and its error handling is specific, but none of it
-has spoken to Azure.
+### Measured against the live service
 
-Two things to expect on first contact with a real key:
+Key: the Speech-capable key already in the repo root `.env.local`, region **swedencentral**.
+That resource serves Speech as well as OpenAI — the `*.openai.azure.com` hostname does not mean
+Speech is unavailable.
 
-1. **Personal Voice is behind Microsoft limited access.** Your Speech resource must be approved
-   via the "Custom neural voice" intake form. Until then, cloning returns 403 — the app says so
-   plainly, and prebuilt voices work regardless.
-2. **Multiple `<voice>` elements in one request is the multi-voice mechanism.** It is standard
-   SSML and Azure documents it, but this app has not yet proved it against the live endpoint.
-   If it fails, untick "use a different voice for each character" and everything else still runs.
+- **DragonHD voices ARE available here**: `en-GB-Ada:DragonHDLatestNeural`,
+  `en-GB-Ollie:DragonHDLatestNeural`. They accepted `<prosody rate>` without error.
+- **One chapter**: 6,105 chars, 4 requests, **18 seconds wall-clock**, **6m 24s of audio**,
+  **$0.09 / £0.07**. Six voices in one SSML document, HD and standard neural mixed.
+- Extrapolated whole book: ~57k chars, ~£0.68, a few minutes.
 
-Cheapest way to settle both: render one chapter with `en-GB-RyanNeural`. About £0.07.
+### Still unproven
+
+**Creating a cloned voice.** `GET` on `/customvoice/personalvoices`, `/projects` and `/consents`
+all return **200**, so the control plane is reachable and limited access does not appear to be
+blocking reads. But creation needs a real consent recording and voice sample, which only you can
+supply — and Microsoft's gate can apply at creation rather than at read. Expect that to be the
+one step that may still fail.
