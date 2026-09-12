@@ -70,12 +70,16 @@ describe("A_87 P7 — reconciling the scene refs against the outline that exists
     expect(PAIRS.reduce((n, p) => n + postRevealChapters(p), 0)).toBe(0);
   });
 
-  it("AFTER: every reveal ref resolves by coordinate, on all 45", () => {
+  it("AFTER: every reveal ref that HAS a chapter resolves by coordinate (29 of 45)", () => {
+    // A_89 B3 changed what "has a chapter" means. In a Golden-Age arc the closing `revelation`
+    // chapter is aftermath and the culprit is named in `final_trap`, which already holds the DT
+    // contract — so 16 of 45 books have no SEPARATE reveal chapter and their ref is left untouched
+    // rather than pointed at the aftermath chapter. That is the fix, not a regression.
     const after = PAIRS.map(clone);
     for (const p of after) reconcileCmlSceneRefs({ prose_requirements: p.prose_requirements }, p.scenes);
     const resolves = after.filter((p) =>
       p.scenes.some((s: any) => resolveSceneRef(s, p.prose_requirements.culprit_revelation_scene, p.scenes) !== "none"));
-    expect(resolves.length).toBe(45);
+    expect(resolves.length).toBe(29);
   });
 
   /**
@@ -120,7 +124,10 @@ describe("A_87 P7 — reconciling the scene refs against the outline that exists
           );
           if (block.includes("CULPRIT REVELATION REQUIRED")) contracted.push(Number(scene.sceneNumber));
         });
-        expect(contracted).toEqual([Number(chosen?.sceneNumber)]);
+        // A_89 B3: both may legitimately decide there is NO separate reveal chapter. The point of
+        // this test is that they never disagree — not that they always find one.
+        if (chosen == null) expect(contracted).toEqual([]);
+        else expect(contracted).toEqual([Number(chosen.sceneNumber)]);
       }
     } finally {
       if (prior === undefined) delete process.env.AGENT9_SCENE_REF_ARBITRATION;

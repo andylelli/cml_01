@@ -8,6 +8,7 @@
 
 import { generateCML, auditNovelty, findUnplantedDiscriminatingClues } from "@cml/prompts-llm";
 import { createSkeletonExtractor, judgeNovelty, loadReferenceCorpus } from "@cml/novelty";
+import { checkTemporalClosure, isTemporalClosureCheckEnabled } from "@cml/cml";
 import { parseClockTime, validateCml, buildCaseScopedLockedFacts,
   alibiSpanFromWindow,
   isValidAlibiSpan,
@@ -909,6 +910,7 @@ export async function runAgent3(ctx: OrchestratorContext): Promise<void> {
   } catch { /* best-effort observability */ }
 
   extendLockedFactRegistryWithCaseFacts(ctx);
+  reportTemporalClosure(ctx);
 }
 
 /**
@@ -965,5 +967,33 @@ export function extendLockedFactRegistryWithCaseFacts(ctx: OrchestratorContext):
   } catch (err) {
     // Never fail a run over an additive consistency aid.
     ctx.warnings.push(`[X51] case-scoped locked facts skipped: ${String(err)}`);
+  }
+}
+
+/**
+ * A_89 A1 — TEMPORAL CLOSURE TELEMETRY, at the point the case and its locked facts are both final.
+ *
+ * The reader of run 88651 did this arithmetic by hand and marked `clues` 5/10 for it: the silence
+ * began at four o'clock and ran seven minutes, the murder window was ten minutes, and the death was
+ * placed at a quarter past four — after the interval it was supposed to hide inside. Nothing in the
+ * pipeline compares those numbers, because the temporal model is written by three agents that never
+ * compare notes and every existing time check is a STRING check.
+ *
+ * TELEMETRY, NOT A GATE, and deliberately conservative. A verdict is only returned where the case
+ * NAMES an opportunity window; guessing which stated duration is the window gave a 94% false-positive
+ * rate on the first design. MEASURED over the 58 archived cases: 49 are checkable, **3 prove a
+ * violation** (run 88651 among them, exactly as the reader described), and **46 are undecidable
+ * because the case names no window at all**. That 46 is the finding — there is no canonical field for
+ * the one arithmetic fact a fair-play mystery rests on, which is why it has never been validated.
+ */
+function reportTemporalClosure(ctx: OrchestratorContext): void {
+  if (!isTemporalClosureCheckEnabled()) return;
+  try {
+    const result = checkTemporalClosure(ctx.cml as any, (ctx.lockedFactRegistry ?? []) as any[]);
+    if (!result.checkable) return;
+    ctx.warnings.push(`[A_89 temporal closure] ${result.verdict}: ${result.summary}`);
+  } catch (err) {
+    // A measurement must never cost a run.
+    ctx.warnings.push(`[A_89 temporal closure] skipped: ${String(err)}`);
   }
 }

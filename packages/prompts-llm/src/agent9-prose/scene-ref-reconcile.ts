@@ -1,4 +1,4 @@
-import { resolveSceneRef, type SceneRefPath } from "./clue-validation.js";
+import { resolveSceneRef, isAftermathFinalScene, type SceneRefPath } from "./clue-validation.js";
 
 /**
  * A_87 P7 — RECONCILE THE CML SCENE REFS AGAINST THE OUTLINE THAT ACTUALLY EXISTS.
@@ -68,21 +68,36 @@ export const selectRevealScene = (cmlCase: any, scenes: any[]): any | null => {
   const dtHasExactMatch = Boolean(dtRef && scenes.some((s) => resolveSceneRef(s, dtRef, scenes) !== "none"));
   const pathOf = (c: any): SceneRefPath => resolveSceneRef(c, revealRef, scenes, REVEAL_SIGNAL_RE);
 
-  const byCoordinate = scenes.filter((c) => {
+  /**
+   * A_89 B3 — the aftermath chapter is never the reveal chapter, and this reconciler must reach the
+   * SAME answer as the obligation block's classifier or the two writers of one fact diverge (WF-002:
+   * harmful exactly where one copy feeds a WRITE, and this one writes). Both defer to
+   * `isAftermathFinalScene`, and `a87-scene-ref-reconcile.test.ts` asserts they agree on all 45 pairs.
+   */
+  const pool = scenes.filter((c) => !isAftermathFinalScene(c, scenes));
+  const aftermathExcluded = pool.length < scenes.length;
+
+  const byCoordinate = pool.filter((c) => {
     const path = pathOf(c);
     return path === "exact" || path === "global-scene";
   });
   if (byCoordinate.length > 0) return byCoordinate[byCoordinate.length - 1];
 
-  const freeKeyword = scenes.filter(
+  const freeKeyword = pool.filter(
     (c) => pathOf(c) === "signal" && !dtClaims(c, dtRef, scenes, dtHasExactMatch),
   );
   if (freeKeyword.length > 0) return freeKeyword[freeKeyword.length - 1];
 
-  const freeRevelationBeats = scenes.filter(
+  const freeRevelationBeats = pool.filter(
     (c) => beatOf(c) === "revelation" && !dtClaims(c, dtRef, scenes, dtHasExactMatch),
   );
-  return freeRevelationBeats[freeRevelationBeats.length - 1] ?? null;
+  if (freeRevelationBeats.length > 0) return freeRevelationBeats[freeRevelationBeats.length - 1];
+
+  // ITEM 11's premise: when the closing chapter is aftermath, the culprit was named in `final_trap`.
+  const trapBeats = aftermathExcluded
+    ? pool.filter((c) => beatOf(c) === "final_trap" && !dtClaims(c, dtRef, scenes, dtHasExactMatch))
+    : [];
+  return trapBeats[trapBeats.length - 1] ?? null;
 };
 
 /**

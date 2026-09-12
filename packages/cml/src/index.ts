@@ -157,3 +157,7 @@ export {
   summariseDecorativeTimes,
   type DecorativeTimeFact,
 } from "./decorative-times.js";
+
+// A_89 A1 — temporal closure: can the deception's interval contain the event it conceals?
+export { checkTemporalClosure, isTemporalClosureCheckEnabled } from "./temporal-closure.js";
+export type { TemporalClosureResult, StatedInterval } from "./temporal-closure.js";

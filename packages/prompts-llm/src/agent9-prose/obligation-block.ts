@@ -16,6 +16,7 @@ import {
 import {
   getRequiredClueIdsForScene,
   isBehaviouralClue,
+  isAftermathFinalScene,
   isDeliveryMethodLabel,
   resolveSceneRef,
   type SceneRefPath,
@@ -625,23 +626,57 @@ const REVEAL_SIGNAL_RE = /\b(culprit|confront|confession|resolve|resolution|deno
       const scenes = allOutlineScenes as any[];
       const pathOf = (candidate: any): SceneRefPath =>
         resolveSceneRef(candidate, revelationScene, allOutlineScenes, REVEAL_SIGNAL_RE);
-      const byCoordinate = scenes.filter((c) => {
+      /**
+       * A_89 B3 — the aftermath chapter can never be the reveal chapter.
+       *
+       * ITEM 11 already established this for the stage mode: when an earlier `final_trap` chapter
+       * names the culprit on-page, the closing `revelation` chapter is aftermath. The obligation
+       * block asked the question separately and answered it differently, so chapter 10 received the
+       * reveal contract AND the aftermath contract — "walk the full evidence chain" beside "do NOT
+       * end on the arrest/confession line". MEASURED: that collision is in 37 of the 39 runs where
+       * the reveal contract was assigned, and A_87's "last revelation beat wins" rule made it
+       * universal, because the last revelation beat is the final scene in 44 of 45 outlines.
+       *
+       * Both sides now defer to `isAftermathFinalScene`, so they cannot disagree.
+       */
+      const pool = scenes.filter((candidate) => !isAftermathFinalScene(candidate, scenes));
+      const aftermathExcluded = pool.length < scenes.length;
+      const byCoordinate = pool.filter((c) => {
         const pathForCandidate = pathOf(c);
         return pathForCandidate === "exact" || pathForCandidate === "global-scene";
       });
-      const freeKeywordClaimants = scenes.filter((c) => pathOf(c) === "signal" && !dtClaimStandsFor(c));
-      const freeRevelationBeats = scenes.filter(
+      const freeKeywordClaimants = pool.filter((c) => pathOf(c) === "signal" && !dtClaimStandsFor(c));
+      const freeRevelationBeats = pool.filter(
         (c) => String(c?.beat ?? "").toLowerCase() === "revelation" && !dtClaimStandsFor(c),
       );
+      /**
+       * When the aftermath chapter IS the only revelation beat, ITEM 11's own premise says where the
+       * reveal went: the culprit is named on-page in the `final_trap` chapter. So that chapter takes
+       * the contract. Without this the pool empties and the reveal lands nowhere — measured at 12/45
+       * assigned before this clause was added, against 45/45 with it.
+       */
+      const trapBeats = aftermathExcluded
+        ? pool.filter((c) => String(c?.beat ?? "").toLowerCase() === "final_trap" && !dtClaimStandsFor(c))
+        : [];
       const winner =
         byCoordinate[byCoordinate.length - 1] ??
         freeKeywordClaimants[freeKeywordClaimants.length - 1] ??
         freeRevelationBeats[freeRevelationBeats.length - 1] ??
+        trapBeats[trapBeats.length - 1] ??
         null;
       revealWinnerSceneNumber = winner ? Number(winner.sceneNumber) : null;
     }
+    /**
+     * A_89 B3 — and a belt-and-braces check on the chapter actually being built: a chapter whose
+     * STAGE MODE is `aftermath_consequence` never carries the reveal contract, whatever the winner
+     * selection above concluded. The two are computed from the same predicate now, so this should be
+     * unreachable; it is here because the collision it prevents cost three marks once already.
+     */
+    const stageModeIsAftermath =
+      String(currentStageMode ?? "").toLowerCase() === "aftermath_consequence";
     const isRevealChapter = isSceneRefArbitrationEnabled() && revelationScene != null
       ? (!isDiscriminatingTestChapter &&
+         !stageModeIsAftermath &&
          revealWinnerSceneNumber != null &&
          revealWinnerSceneNumber === Number((scene as any)?.sceneNumber))
       : (!isDiscriminatingTestChapter && revealPath !== "none");

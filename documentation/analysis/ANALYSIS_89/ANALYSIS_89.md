@@ -414,3 +414,66 @@ restatement check now scans the whole history rather than its first 40 character
 a blocked promotion, a humiliation — rather than a generic ambition, and the next read's
 `character life` note should stop asking for history. **Falsifier:** the model recites the
 relationship sentence verbatim as narration, which would make it an injector by another route.
+
+
+---
+
+## 10. BUILD LOG — B3 and A1 (2026-09-12)
+
+| item | state | flag | measured effect |
+|---|---|---|---|
+| **B3** one culprit-naming chapter, never the aftermath one | **BUILT** | inside `AGENT9_SCENE_REF_ARBITRATION` | reveal-on-aftermath **31/45 → 0**; exactly-one naming chapter **3/45 → 30/45** |
+| **A1** temporal closure telemetry | **BUILT** | `AGENT3_TEMPORAL_CLOSURE` (OFF) | decides 3 of 49 cases; **46 undecidable, which is the finding** |
+
+### B3 — the fix went inside the flag that caused it
+
+No new flag. A_87's arbitration created the universal collision, so the correction lives in the same
+lever and OFF stays byte-identical. Both sides of the question now defer to one exported predicate,
+`isAftermathFinalScene`, so the obligation block and the stage mode cannot disagree — and the
+reconciler (`scene-ref-reconcile.ts`, which WRITES coordinates) defers to it too.
+
+**The metric had to be corrected first.** Counting reveal contracts, B3 looked catastrophic: assignment
+fell from 45/45 to 12/45. But the DT contract's required beats already include *"(5) culprit named and
+case sealed"*, so in a Golden-Age arc the `final_trap` chapter IS the naming chapter and a missing
+*separate* reveal contract is correct, not lost. On the right metric — chapters carrying a culprit-
+NAMING mandate, either contract — the picture inverts:
+
+| | flag OFF | flag ON |
+|---|---|---|
+| exactly one naming chapter | **3/45** | **30/45** |
+| none | 0 | 0 |
+| more than one | 42 | 15 |
+| reveal on the aftermath chapter | **31/45** | **0** |
+
+**Residual, measured and not fixed here:** 15 of 45 still carry more than one naming mandate, because
+the DT contract's beat (5) duplicates a separate reveal chapter. That belongs to §7 item 5.
+
+Two A_87 tests failed on this change and both were right to: P5's assertion encoded the old behaviour,
+and P7's "the reconciler and the classifier agree" test caught them diverging the moment only one side
+was fixed — the WF-002 hazard it was written for, doing its job.
+
+### A1 — the first design was wrong and the measurement said so
+
+The first cut asserted that the apparent/actual GAP must fit inside the longest interval the case
+states. MEASURED: **46 of 49 cases (94%) "failed"** — a wrong invariant, not a broken corpus. A
+tampered clock's OFFSET and the DURATION of a pause are different quantities and nothing requires one
+to cover the other; run 88651 is simply the case where they coincide, because its mechanism is "move
+during the silence". Shipping that would have been a check that cries wolf on 94% of runs, which is
+B1's off-switch-with-extra-steps in its most expensive form.
+
+The corrected rule returns a verdict ONLY where the case NAMES an opportunity window:
+
+| over 58 archived cases | |
+|---|---|
+| checkable (both times parse) | 49 |
+| **proves a violation** | **3** — including run 88651, `murder_window_interval` = 10m against a 15m gap |
+| closes | 0 |
+| **not determinable** | **46 — the case names no opportunity window** |
+
+**The 46 is the deliverable.** There is no canonical field for the window in which the culprit could
+act, so the one arithmetic fact a fair-play mystery rests on has never been checkable. A1 makes that
+absence countable; A2 is what fixes it.
+
+The module reuses the project's `parseClockTime` and `parseDurationMinutes` rather than writing new
+ones — the first draft had two fresh parsers, which is precisely the fork A_73 §11.3 and A_88 both
+recorded.

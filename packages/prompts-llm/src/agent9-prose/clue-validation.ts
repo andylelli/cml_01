@@ -458,6 +458,32 @@ const isGoldenAgeAftermathFinalChapter = (
   return finalIsRevelationBySignal && earlierTrapBySignal;
 };
 
+/**
+ * A_89 B3 — the ONE question "is this chapter the aftermath?", asked in one place.
+ *
+ * ITEM 11 solved this for the STAGE MODE: in the Golden-Age arc the culprit is named on-page in the
+ * `final_trap` chapter, so the closing `revelation` chapter is aftermath, not a second reveal, and
+ * `isGoldenAgeAftermathFinalChapter` makes `resolveStageModeKey` return `aftermath_consequence`.
+ *
+ * The obligation block never learned it. `isRevealChapter` is an INDEPENDENT predicate, so the two
+ * resolvers answer the same question separately and disagree. MEASURED across every run in the
+ * prompt log: the reveal contract was assigned in 39 runs and shared a chapter with
+ * `AFTERMATH REQUIRED` in **37 of them (95%)**. A_87's arbitration then sent the reveal to the last
+ * revelation beat, which is the final scene in 44 of 45 outlines, making the collision universal —
+ * and the external reader of run 88651 wrote the symptom back to us: *"Chapter 10 still recaps too
+ * much evidence ... Chapter 10 should stay emotional."*
+ *
+ * Exported so the obligation block can defer to the same answer instead of computing its own.
+ */
+export const isAftermathFinalScene = (scene: any, allOutlineScenes: any[]): boolean => {
+  const scenes = Array.isArray(allOutlineScenes) ? allOutlineScenes : [];
+  if (scenes.length === 0 || !scene) return false;
+  const sceneNumber = Number((scene as any)?.sceneNumber);
+  const finalNumber = Number((scenes[scenes.length - 1] as any)?.sceneNumber);
+  if (!Number.isFinite(sceneNumber) || sceneNumber !== finalNumber) return false;
+  return isGoldenAgeAftermathFinalChapter(scenes.length, scenes.length, [scene], scenes);
+};
+
 export const resolveStageModeKey = (
   chapterStart: number,
   chapterEnd: number,

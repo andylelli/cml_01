@@ -126,7 +126,18 @@ describe("A_87 P5 — the CML→outline scene-ref join, against real archived pa
     expect(tally(false)).toEqual({ lost: 11, one: 28, doubled: 6 });
   });
 
-  it("THE FIX, AGENT9_SCENE_REF_ARBITRATION=1: 45 of 45, exactly once each", () => {
-    expect(tally(true)).toEqual({ lost: 0, one: 45, doubled: 0 });
+  it("THE FIX, AGENT9_SCENE_REF_ARBITRATION=1: never twice, and never on the aftermath chapter", () => {
+    /**
+     * A_89 B3 revised this. The arbitration first assigned the reveal contract on 45/45 — by sending
+     * it to the LAST revelation beat, which is the final scene in 44 of 45 outlines and therefore the
+     * AFTERMATH chapter. That is how run 88651 earned "Chapter 10 still recaps too much evidence".
+     *
+     * Now the aftermath chapter is excluded, so 16 books have no SEPARATE reveal chapter: in a
+     * Golden-Age arc the `final_trap` chapter names the culprit and already carries the DT contract,
+     * whose required beats include "(5) culprit named and case sealed". Counting culprit-NAMING
+     * mandates rather than reveal contracts, exactly-one rises from 3/45 to 30/45 — asserted in
+     * `a89-reveal-not-aftermath.test.ts`.
+     */
+    expect(tally(true)).toEqual({ lost: 16, one: 29, doubled: 0 });
   });
 });
