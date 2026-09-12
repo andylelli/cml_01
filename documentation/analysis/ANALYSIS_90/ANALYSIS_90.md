@@ -537,11 +537,11 @@ and attempt-1 case, and measured before wiring:
 
 | item | status | commit |
 |---|---|---|
-| run 81042 launched, shipped, logged | done — release gate warning, no fallback chapter, £1.29 | @@COMMIT2@@ |
-| predictions 1–4 scored | 1 not determinable · 2 half failed · 3 vacuous · 4 held | @@COMMIT2@@ |
-| prediction 5 | read: **87/100**, clues 8/10; the one time glitch traced to the atmosphere pass and fixed | @@COMMIT2@@ |
-| `AGENT3_DECEPTION_PAIR` + repair-before-retry + message + statedLength | built, tested, ON | @@COMMIT2@@ |
-| §10.6's predictions restated for the next run | see 11.4 | @@COMMIT2@@ |
+| run 81042 launched, shipped, logged | done — release gate warning, no fallback chapter, £1.29 | `42a1794e` |
+| predictions 1–4 scored | 1 not determinable · 2 half failed · 3 vacuous · 4 held | `42a1794e` |
+| prediction 5 | read: **87/100**, clues 8/10; the one time glitch traced to the atmosphere pass and fixed | `42a1794e` |
+| `AGENT3_DECEPTION_PAIR` + repair-before-retry + message + statedLength | built, tested, ON | `42a1794e` |
+| §10.6's predictions restated for the next run | see 11.4 | `42a1794e` |
 
 ### 11.4 What the next run settles
 
