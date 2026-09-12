@@ -661,3 +661,79 @@ span the pipeline already validates rather than adding a second place for the sa
 
 The recommended set for the next run is `AGENT9_SCENE_REF_ARBITRATION` (already on),
 `AGENT9_CLUE_OWNERSHIP` and `AGENT9_RELATIONSHIP_CONTENT`. `AGENT9_SCENE_REF_RESOLUTION` must stay off.
+
+
+---
+
+## 13. THE MATCHED PAIR — run 88651 prose re-run · 2026-09-12 · £1.29
+
+`RESUME_REDO=prose` against byte-identical upstream, with `AGENT9_SCENE_REF_ARBITRATION` +
+`AGENT9_CLUE_OWNERSHIP` + `AGENT9_RELATIONSHIP_CONTENT`. Resume id `resume-1789214912816`, project
+`canary_1789156244431`, 118.6 min, 0 fallback chapters, 5 deterministic clue pastes (same as the
+original). Book: `stories/story_20260912-1507/resumed_resume_1789214912816.md`.
+
+| metric | BEFORE (79/100) | AFTER | verdict |
+|---|---|---|---|
+| lowercased surnames (`Nora gaunt`) | 7 | **0** | **C1 confirmed** |
+| final-chapter evidence mentions | 10 in 669 words | **4 in 632** | **B3 confirmed** |
+| reveal contract chapters | ch10 (beside AFTERMATH) | **none — ch8's DT carries the naming** | **B3 confirmed** |
+| motive sentence in the prompt | 0 chapters | **7 chapters** | **D1 confirmed** |
+| clue-ownership callbacks | n/a | **1 chapter** | **B1 NOT TESTED** |
+| repeated 6-word spans per 10k | 118.8 | **124.2** | prediction failed — see below |
+| space before closing quote / dangling opens | 0 / 0 | 0 / 0 | A_88 holds |
+
+### Three levers confirmed, one untested, and the failed prediction is uninformative
+
+C1, B3 and D1 all did exactly what the archive said they would. The chapter-10 complaint the reader
+made — *"still recaps too much evidence … should stay emotional"* — is measurably addressed: evidence
+mentions in the final chapter fell from 10 to 4, and the chapter no longer carries
+`EVIDENCE CHAIN REQUIRED` at all.
+
+**B1 was not tested, and the repetition number therefore says nothing about it.** It fired on ONE
+chapter, because this book has exactly **one inherited clue-chapter pair**. Repetition rose from 118.8
+to 124.2 per 10k, which with B1 essentially inert is model variance on a re-run, not evidence against
+the lever. Reporting it as a B1 result would be wrong.
+
+### CORRECTION — §3's re-mandate figures were measured with the wrong instrument
+
+§3 reports a 41% median re-mandate rate over 47 runs and 47% for run 88651. Those came from a
+prompt-log regex matching `[clue_*]` identifiers. **This case's clue IDs are descriptive names**
+("Gramophone schedule on rehearsal board"), so that regex was counting a different id space, and the
+figures are not reliable.
+
+Re-measured ID-agnostically with `getRequiredClueIdsForScene` over the 45 archived outlines — the same
+function the obligation builder uses:
+
+| | |
+|---|---|
+| median re-mandate rate | **14%** (not 41%) |
+| books where B1 bites (>=5 inherited pairs) | **21 of 45 (47%)** |
+| books where B1 is inert (<=1 inherited pair) | **8 of 45 (18%)** |
+| worst book | 28 of 54 obligations re-mandated (52%) |
+
+**Run 88651 is in the inert 18%.** The matched pair landed on the one kind of book that cannot test
+the lever under test. That is a selection error, not a lever failure — and the lesson is that a
+matched pair must be chosen for the lever, not only for the read it can be compared against.
+
+### Two more predictions that failed
+
+**Cost.** Predicted ~£0.45 against £1.15 for a fresh run; actual **£1.29**, essentially the same as the
+original £1.27. A prose-only redo is not cheap because **prose IS the cost** — 73 calls, 33 repeats.
+`RESUME_REDO=prose` buys a byte-identical upstream, which is worth having, but the claim that it is a
+third of the price is false and should not be repeated.
+
+**C2's telemetry is invisible on a resume.** The new repetition SHIP-CHECK line is pushed to
+`ctx.warnings`, but `resume-run` does not dump the warnings blob the way `canary-core` does — no
+`WARNINGS`, no `CANARY_RELEASE_GATE`. The instrument works (it scored this book 124.2 when run
+directly); it simply cannot be read from a resume's output. Worth fixing before the next resume.
+
+### What this settles, and what it does not
+
+**Settled:** C1, B3 and D1 reach the prose and do what the archive predicted. No clue was lost, no
+chapter fell back, and the A_88 typography fixes held.
+
+**Not settled:** whether clue ownership reduces repetition. That needs a matched pair on a book from
+the 47% where B1 actually bites — the worst archived case re-mandates 28 of 54 obligations.
+
+**Not claimed:** any score effect. This book has not been read, and the rubric cannot resolve under
+~7 marks in any case.
