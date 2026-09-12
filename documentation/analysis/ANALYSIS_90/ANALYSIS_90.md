@@ -661,12 +661,12 @@ reveal-chapter obligation is aimed by a copied placeholder.
 
 | item | status | commit |
 |---|---|---|
-| `AGENT9_CLUE_OWNERSHIP_BY_PAGE` | **WITHDRAWN — measured harmful**; narrowed guard in code, flag OFF | @@COMMIT4@@ |
-| `AGENT9_VICTIM_RESCUE_EXACT_PREDICATE` | **confirmed on the page** — both frames gone | @@COMMIT4@@ |
-| `AGENT9_PHRASE_LOCKED_BOUNDARY` | **confirmed** — the time glitch gone | @@COMMIT4@@ |
-| `AGENT9_SKIP_ATMOSPHERE_REPAIR` | **confirmed** — skipped, density 675 → 612/10k | @@COMMIT4@@ |
-| `AGENT9_LOCATION_LABEL_PROSE` | fired, ineffective — 4 of 5 printers unfixed; ON | @@COMMIT4@@ |
-| `AGENT9_REVEAL_ARITHMETIC` | fired on chapter 9, not the confrontation; ON | @@COMMIT4@@ |
+| `AGENT9_CLUE_OWNERSHIP_BY_PAGE` | **WITHDRAWN — measured harmful**; narrowed guard in code, flag OFF | `56fced8e` |
+| `AGENT9_VICTIM_RESCUE_EXACT_PREDICATE` | **confirmed on the page** — both frames gone | `56fced8e` |
+| `AGENT9_PHRASE_LOCKED_BOUNDARY` | **confirmed** — the time glitch gone | `56fced8e` |
+| `AGENT9_SKIP_ATMOSPHERE_REPAIR` | **confirmed** — skipped, density 675 → 612/10k | `56fced8e` |
+| `AGENT9_LOCATION_LABEL_PROSE` | fired, ineffective — 4 of 5 printers unfixed; ON | `56fced8e` |
+| `AGENT9_REVEAL_ARITHMETIC` | fired on chapter 9, not the confrontation; ON | `56fced8e` |
 | Agent 7: a compound "X and Y" label must not enter the location registry | **recorded, not built** — upstream, 39% of scenes | — |
 | the reveal-chapter join (CML placeholder vs arbitration vs beat vs geometry) | **recorded, not built** — A_87 family, blocks every reveal obligation | — |
 | arm B as a read | **not recommended** — its reveal is capped by the withdrawn lever; read a book built without it | — |
