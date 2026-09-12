@@ -2530,6 +2530,7 @@ ${body}`;
     inputs.macroArcPlan,
     allOutlineScenes,
     activeStageMode,
+    priorChapters, // A_90 §12: ownership by the page
   );
   const timelineStateBlock = buildTimelineStateBlock(
     temporalLock,

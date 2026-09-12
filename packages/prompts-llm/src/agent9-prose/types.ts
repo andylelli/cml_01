@@ -331,6 +331,13 @@ export interface ChapterRequirementLedgerEntry {
   /** Per-clue prose context — used so validators and retry builders can emit prose-facing text
    *  instead of raw internal IDs when the clue is absent from clueDistribution. */
   clueObligationContext?: ClueObligationContext[];
+  /**
+   * A_90 §12 — clues the map assigned to this chapter that were ALREADY on an earlier chapter's page
+   * (by the validator's own presence test), with the chapter they were found in. Removed from
+   * `requiredClueIds` under `AGENT9_CLUE_OWNERSHIP_BY_PAGE`, so the ask, the validator, the regen and
+   * the deterministic floor all agree that the clue is not owed again.
+   */
+  inheritedFromPage?: Array<{ id: string; chapter: number }>;
 }
 
 export interface ChapterWordTargetResult {

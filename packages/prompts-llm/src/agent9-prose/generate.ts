@@ -2497,6 +2497,7 @@ export async function generateProse(
       inputs.targetLength ?? "medium",
       inputs.clueDistribution,
       scenes, // P1-1: all scenes for per-act scene number normalisation
+      chapters, // A_90 §12: the chapters written so far — a clue already on their pages is not required again
     );
     const maxBatchAttempts = Math.max(1, resolvedMaxAttempts);
     let lastBatchErrors: string[] = [];
@@ -4884,7 +4885,19 @@ export async function generateProse(
   const repairPhraseCandidates = rolloutFlags.uncapped_repair_targets_enabled
     ? repairPhraseCandidatesBase
     : repairPhraseCandidatesBase.slice(0, 8);
-  if (repairPhraseCandidates.length > 0) {
+  /**
+   * A_90 §12 — `AGENT9_SKIP_ATMOSPHERE_REPAIR`. MEASURED across the last three external reads: of the
+   * 20 lines readers called "generated", this pass wrote 5 (a quarter) — "let a flicker of amusement",
+   * "the hush rising across the atlantic", "questing for the secret", the "froze at three past midnight"
+   * time glitch among them — and the repetition it exists to reduce stood at 13.5× the corpus median
+   * on run 81042 AFTER it ran (mandated locked values and copied testimony, which it cannot touch).
+   * Measurable harm, unmeasured benefit: ON skips the pass; the matched pair measures the difference.
+   */
+  const skipAtmosphereRepair = /^(1|true|yes|on)$/i.test(String(process.env.AGENT9_SKIP_ATMOSPHERE_REPAIR ?? "").trim());
+  if (skipAtmosphereRepair && repairPhraseCandidates.length > 0) {
+    console.warn(`[Agent 9] AtmosphereRepair skipped (A_90 §12): ${repairPhraseCandidates.length} candidate phrase(s) left as written.`);
+  }
+  if (repairPhraseCandidates.length > 0 && !skipAtmosphereRepair) {
     try {
       const repairedChapters = await runAtmosphereRepairIfNeeded(
         client,

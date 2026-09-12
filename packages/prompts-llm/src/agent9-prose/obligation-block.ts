@@ -3,7 +3,7 @@
  * buildChapterObligationBlock â€” the combined clue-obligation / NSD context block
  * injected into every prose prompt.
  */
-import { isVictimArchetype } from "@cml/cml";
+import { isVictimArchetype, readLockedClocksAndDurations, selectDeceptionPair, parseClockTime } from "@cml/cml";
 import { resolveClearanceOwnership, isClearanceOwnershipEnabled } from "./clearance-ownership.js";
 import { deriveClueObservable, deathMethodTellHints, type ClueDistributionResult, type Clue } from "../agent5-clues.js";
 import {
@@ -17,6 +17,8 @@ import {
   getRequiredClueIdsForScene,
   resolveClueOwnership,
   isClueOwnershipEnabled,
+  isClueOwnershipByPageEnabled,
+  partitionCluesByPage,
   isBehaviouralClue,
   isAftermathFinalScene,
   isDeliveryMethodLabel,
@@ -176,6 +178,100 @@ export const isClearingHumanBeatEnabled = (env: NodeJS.ProcessEnv = process.env)
 export const isOneWeaponEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
   /^(1|true|yes|on)$/i.test(String(env.AGENT9_ONE_WEAPON ?? "").trim());
 
+/**
+ * A_90 §12 — `AGENT9_LOCATION_LABEL_PROSE`. The outline's scene location is a LABEL ("Drawing room
+ * and manor clock room"); printed raw into "Scene is set in: …", the model copied it into narration
+ * with its capital — the reader's first "generated artifact" on run 81042. MEASURED over 537
+ * archived outline scenes: 39% are compound "X and Y" labels and 57% are "Capital lowercase…"
+ * labels. ON: the label is rendered as a phrase a character would say — lowercase common-noun
+ * labels, an article, a compound split into its two places — and the line says not to copy it.
+ */
+export const isLocationLabelProseEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT9_LOCATION_LABEL_PROSE ?? "").trim());
+
+const isProperNounLabel = (label: string): boolean => {
+  const words = label.trim().split(/\s+/);
+  // "Lockwood Estate", "Manor House Library": two or more capitalised words in a row read as a name.
+  return words.length >= 2 && /^[A-Z]/.test(words[0]!) && /^[A-Z]/.test(words[1]!);
+};
+
+const asPlacePhrase = (label: string): string => {
+  const trimmed = label.trim().replace(/^[Tt]he\s+/, "");
+  if (!trimmed) return "";
+  const proper = isProperNounLabel(trimmed);
+  const body = proper ? trimmed : trimmed[0]!.toLowerCase() + trimmed.slice(1);
+  return proper ? body : `the ${body}`;
+};
+
+/** "Drawing room and manor clock room" -> "the drawing room and the manor clock room". */
+export const renderLocationForProse = (label: string): string => {
+  const parts = String(label ?? "").split(/\s+and\s+|\s*&\s*/).map(asPlacePhrase).filter(Boolean);
+  if (parts.length === 0) return "";
+  if (parts.length === 1) return parts[0]!;
+  return `${parts.slice(0, -1).join(", ")} and ${parts[parts.length - 1]}`;
+};
+
+/**
+ * A_90 §12 — `AGENT9_REVEAL_ARITHMETIC`. The reader of run 81042 (87/100) asked for the reveal to
+ * "state the mechanism in three steps" — the real time, the staged reading, and how the instrument
+ * was made to disagree — because the shipped line ("the manor clock struck at twenty-five minutes
+ * past three, but its face showed a quarter to four, then the chime was advanced by twenty minutes")
+ * "blurs whether the chime was early, late, advanced, or separated from the hands". The three steps
+ * are arithmetic on values the case already locks, so they are RENDERED here from the numbers and
+ * the model is asked to say them, in order, as three sentences. Self-gating: nothing prints without
+ * both death times; step 3 prints only when the device declares its deception pair (`derivedFrom`).
+ */
+export const isRevealArithmeticEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT9_REVEAL_ARITHMETIC ?? "").trim());
+
+const INDEPENDENT_TIMEPIECE_RE = /\b(?:independent|untampered|not tampered|stopped (?:pocket )?watch|wristwatch|pocket watch|external|not visible|separate)\b/i;
+
+export const buildDeceptionArithmeticLines = (
+  cmlCase: any,
+  lockedFacts: ReadonlyArray<{ id?: unknown; value?: unknown; description?: unknown; derivedFrom?: unknown }> | undefined,
+): string[] => {
+  const mech = cmlCase?.hidden_model?.mechanism ?? {};
+  const apparent = typeof mech.apparent_time_of_death === "string" ? mech.apparent_time_of_death.trim() : "";
+  const actual = typeof mech.actual_time_of_death === "string" ? mech.actual_time_of_death.trim() : "";
+  if (!apparent || !actual) return [];
+  const facts = Array.isArray(lockedFacts) ? lockedFacts : [];
+  const pair = selectDeceptionPair(facts);
+  const { clocks } = readLockedClocksAndDurations(facts);
+  const describe = (id: string): string => {
+    const fact = facts.find((f) => String(f?.id ?? "").trim() === id);
+    return String(fact?.description ?? "").trim();
+  };
+  const independent = clocks.find(
+    (c) => (!pair || (c.id !== pair.clocks[0].id && c.id !== pair.clocks[1].id)) && INDEPENDENT_TIMEPIECE_RE.test(describe(c.id)),
+  );
+  const actualDial = parseClockTime(actual);
+  const fixedBy = independent && actualDial !== null && independent.dial === actualDial ? ` — fixed by ${describe(independent.id)}` : "";
+
+  const steps: string[] = [];
+  steps.push(`1. the REAL time of death: "${actual}"${fixedBy};`);
+  steps.push(`2. the STAGED reading: "${apparent}" — the time the tampered instrument made everyone believe;`);
+  if (pair) {
+    const [a, b] = pair.clocks;
+    // Which of the pair is the reading people SAW, and which the true moment? The one that equals the
+    // staged time is the displayed value; the other is where the instrument really stood.
+    const apparentDial = parseClockTime(apparent);
+    const displayed = apparentDial !== null && b.dial === apparentDial ? b : a;
+    const real = displayed === a ? b : a;
+    const forward = ((displayed.dial - real.dial) % 720 + 720) % 720;
+    const ahead = forward <= 360;
+    const minutes = ahead ? forward : 720 - forward;
+    steps.push(
+      `3. the SHIFT: "${pair.interval.raw}" — ${describe(displayed.id) || displayed.id} ran ${minutes} minutes ${ahead ? "AHEAD of" : "BEHIND"} the true time: ` +
+        `when it showed "${displayed.raw}", the true time was "${real.raw}".`,
+    );
+  }
+  return [
+    `  - ⚠ THE ARITHMETIC OF THE DECEPTION, IN THREE SEPARATE SENTENCES, IN THIS ORDER (every value verbatim, in the detective's own voice, before the confession):`,
+    ...steps.map((line) => `      ${line}`),
+    `    Do not blend them into one clause, and never describe the shift with a bare "advanced", "delayed" or "altered" — say which reading was ahead of which, and by how much.`,
+  ];
+};
+
 export function buildChapterObligationBlock(
   scenesForChapter: unknown[],
   chapterStart: number,
@@ -191,6 +287,7 @@ export function buildChapterObligationBlock(
   macroArcPlan?: MacroArcEntry[],
   allOutlineScenes?: any[],
   currentStageMode?: string,
+  priorChapters?: ProseChapter[],
 ): string {
   if (!Array.isArray(scenesForChapter) || scenesForChapter.length === 0) {
     return '';
@@ -740,7 +837,11 @@ const REVEAL_SIGNAL_RE = /\b(culprit|confront|confession|resolve|resolution|deno
       lines.push(`  - ⛔ INFERENCE EMBARGO (pre-reveal): observations ACCUMULATE here; explicit deduction ("therefore", "which proved", "could only mean", if-A-and-B-then-C assembly of locked values) is RESERVED for the false-solution, discriminating-test, and reveal chapters. Characters may wonder, doubt, or fall silent over a detail — never explain it.`);
     }
     lines.push(`  - Opening: Begin with a character action, spoken line, or clock/time marker — never a location name or location-description phrase.`);
-    lines.push(`  - Scene is set in: ${locationAnchor || 'the canonical scene location'} — reference it naturally within the paragraph, never as your opening phrase.`);
+    if (isLocationLabelProseEnabled() && locationAnchor) {
+      lines.push(`  - Scene is set in ${renderLocationForProse(locationAnchor)} — name the place as a character would, within the paragraph, never as your opening phrase, and never as the label above.`);
+    } else {
+      lines.push(`  - Scene is set in: ${locationAnchor || 'the canonical scene location'} — reference it naturally within the paragraph, never as your opening phrase.`);
+    }
     lines.push(`  - Opening atmosphere (MANDATORY — validator enforced): the first paragraph MUST contain at least one of: ${formatGroundingMarkers(OPENING_ATMOSPHERE_MARKERS)}. A chapter that omits all of these from its opening paragraph will be rejected.`);
     // OPENER DIVERSITY: Validator-enforced constraint preventing protagonist-name dominance
     // across paragraph openers. Fires for all chapters since the protagonist's name is the
@@ -823,16 +924,31 @@ const REVEAL_SIGNAL_RE = /\b(culprit|confront|confession|resolve|resolution|deno
     const ownedClueIds = clueOwnership
       ? requiredClueIds.filter((id) => clueOwnership.get(id) === Number((scene as any)?.sceneNumber))
       : requiredClueIds;
-    const inheritedClueIds = clueOwnership
+    const inheritedByMap = clueOwnership
       ? requiredClueIds.filter((id) => clueOwnership.get(id) !== Number((scene as any)?.sceneNumber))
       : [];
+    // A_90 §12 — ownership by the PAGE: a clue the model already staged in an earlier chapter is
+    // inherited whatever the map says (run 81042: 11 of 14 obligations in chapters 3–6 re-mandated
+    // evidence already on earlier pages; chapter 4 re-staged chapter 3's testimony line for line).
+    const pageOwnership = isClueOwnershipByPageEnabled() && Array.isArray(priorChapters) && priorChapters.length > 0
+      ? partitionCluesByPage(
+          ownedClueIds,
+          priorChapters,
+          clueDistribution,
+          ((cmlCase?.cast ?? []) as any[]).map((c: any) => String(c?.name ?? '')).filter(Boolean),
+        )
+      : null;
+    const ownedAfterPage = pageOwnership ? pageOwnership.pending : ownedClueIds;
+    const inheritedClueIds = pageOwnership
+      ? [...inheritedByMap, ...ownedClueIds.filter((id) => pageOwnership.onPage.has(id))]
+      : inheritedByMap;
 
     if (inheritedClueIds.length > 0) {
       const named = inheritedClueIds
         .map((id) => {
           const clue = clueMap.get(id);
           const terms = clue ? surfaceSpecKeyTerms(String(clue.observable ?? clue.description ?? ''), 4) : '';
-          const owner = clueOwnership?.get(id);
+          const owner = pageOwnership?.onPage.get(id) ?? clueOwnership?.get(id);
           return terms ? `${terms}${owner ? ` (first shown in chapter ${owner})` : ''}` : '';
         })
         .filter(Boolean);
@@ -846,12 +962,12 @@ const REVEAL_SIGNAL_RE = /\b(culprit|confront|confession|resolve|resolution|deno
       }
     }
 
-    if (ownedClueIds.length > 0) {
+    if (ownedAfterPage.length > 0) {
       lines.push(`  - CLUE OBLIGATIONS — each clue below MUST be dramatized, but in YOUR OWN WORDS:`);
       lines.push(`    Render each as something a character SEES, DOES, or SAYS on the page. The bracketed text is a`);
       lines.push(`    DESCRIPTION of the evidence for you — do NOT transcribe it as narration. Copying a clue's`);
       lines.push(`    description sentence verbatim into the prose FAILS validation.`);
-      for (const clueId of ownedClueIds) {
+      for (const clueId of ownedAfterPage) {
         const clue = clueMap.get(clueId);
         if (clue) {
           const isDeferredReveal = isPreRevealChapter && isRevealClue(clue);
@@ -1127,6 +1243,10 @@ const REVEAL_SIGNAL_RE = /\b(culprit|confront|confession|resolve|resolution|deno
       // A_84 follow-up #1 — (e) the deception's PURPOSE, the sentence four of five readers asked for.
       if (isRevealDeceptionPurposeEnabled()) {
         lines.push(...buildDeceptionPurposeLines(cmlCase, culpritNames, culpritAlibiLock));
+      }
+      // A_90 §12 — the three steps the reader asked for, rendered from the locked numbers.
+      if (isRevealArithmeticEnabled()) {
+        lines.push(...buildDeceptionArithmeticLines(cmlCase, lockedFacts as any));
       }
       lines.push(`  - ⚠ KILL STATEMENT REQUIRED: the culprit must use or strongly imply a specific act verb — "I killed", "I poisoned", "I struck", "I administered" — within 3 sentences of naming the victim. Passive constructions ("the death occurred", "she was found") are NOT sufficient. The culprit's agency must be explicit.`);
       lines.push(`  - ⚠ PRONOUN RESOLUTION: any pronoun in the confession that refers to a third party ("protect him", "because of her") must be resolved by naming the character in the same sentence.`);

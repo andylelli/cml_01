@@ -1019,6 +1019,67 @@ export const summariseClueObligationLoad = (load: ClueObligationLoad): string =>
     `dramatize this many pieces of evidence will recite them instead.`;
 };
 
+/**
+ * A_90 §12 — `AGENT9_CLUE_OWNERSHIP_BY_PAGE`. A_89 B1 assigns each clue to the first scene the CML
+ * maps it to. The model does not read the map: it plants evidence where the story wants it, often
+ * chapters early. MEASURED on run 81042: 11 of 14 clue obligations in chapters 3–6 were for clues
+ * whose key terms were already ≥70% present on earlier pages, none marked inherited, and chapter 4
+ * re-staged chapter 3's testimony sentence for sentence (24 of 57 sentences copied) — the reader's
+ * "Chapter 4 repeats". Ownership by the PAGE: a clue the validator's own presence test finds in an
+ * earlier chapter is inherited, whatever the map says, and is not required of this chapter again.
+ * Runtime-read (ADR-0004); OFF is byte-identical.
+ */
+export const isClueOwnershipByPageEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT9_CLUE_OWNERSHIP_BY_PAGE ?? "").trim());
+
+/** The share of a clue's key terms that must already be on an earlier page before it counts as staged. */
+export const CLUE_ON_PAGE_TERM_FRACTION = 0.7;
+
+/**
+ * Is this clue already staged in `text`? DELIBERATELY STRICTER than `chapterMentionsRequiredClue`:
+ * the validator accepts a single token for a clue of four or fewer key terms, which is the right
+ * leniency for "did the chapter carry it" and the wrong one for "may we stop asking" — under it, one
+ * "clock" in chapter 1 would retire every clock clue in the book. Here at least 70% of the de-spoiled
+ * key terms (and at least three of them) must appear. Strict ⊂ lenient, so a clue this test retires
+ * is one the validator would also accept as present; a clue it keeps is still asked for and the
+ * lenient validator still accepts it.
+ */
+export const clueTermsOnPage = (text: string, clue: Clue | undefined): boolean => {
+  if (!clue) return false;
+  const source = String((clue as any).observable ?? clue.description ?? "");
+  const tokens = Array.from(new Set(tokenizeForClueObligation(source))).slice(0, 12);
+  if (tokens.length < 3) return false;
+  const lowered = String(text ?? "").toLowerCase();
+  const hits = tokens.filter((t) => tokenMatchesText(t, lowered)).length;
+  return hits / tokens.length >= CLUE_ON_PAGE_TERM_FRACTION;
+};
+
+/**
+ * Which of `clueIds` are already on the page in the chapters written so far, and in which chapter
+ * (1-based, by position) each was first found. `castNames` is accepted for parity with the
+ * validator's signature and reserved for the name-stripping the validator applies.
+ */
+export const partitionCluesByPage = (
+  clueIds: ReadonlyArray<string>,
+  priorChapters: ReadonlyArray<ProseChapter>,
+  clueDistribution?: ClueDistributionResult,
+  _castNames?: string[],
+): { pending: string[]; onPage: Map<string, number> } => {
+  const onPage = new Map<string, number>();
+  const texts = priorChapters.map((c) => (c?.paragraphs ?? []).join(" "));
+  const clueMap = new Map<string, Clue>((clueDistribution?.clues ?? []).map((c) => [c.id, c]));
+  for (const id of clueIds) {
+    const clue = clueMap.get(id);
+    for (let i = 0; i < texts.length; i += 1) {
+      if (clueTermsOnPage(texts[i]!, clue)) {
+        onPage.set(id, i + 1);
+        break;
+      }
+    }
+  }
+  return { pending: clueIds.filter((id) => !onPage.has(id)), onPage };
+};
+
 export const buildChapterRequirementLedger = (
   cmlCase: any,
   batchScenes: unknown[],
@@ -1026,7 +1087,10 @@ export const buildChapterRequirementLedger = (
   targetLength: "short" | "medium" | "long",
   clueDistribution?: ClueDistributionResult,
   allOutlineScenes?: any[],
+  priorChapters?: ProseChapter[],
 ): ChapterRequirementLedgerEntry[] => {
+  const byPage = isClueOwnershipByPageEnabled() && Array.isArray(priorChapters) && priorChapters.length > 0;
+  const castNamesForClues = ((cmlCase?.cast ?? []) as any[]).map((c) => String(c?.name ?? "")).filter(Boolean);
   const { hardFloorWords, preferredWords } = getChapterWordTargets(targetLength);
 
   // Build lookup maps once to avoid O(n²) .find() inside the per-scene .map().
@@ -1040,7 +1104,12 @@ export const buildChapterRequirementLedger = (
   }
 
   return (batchScenes as any[]).map((scene, idx) => {
-    const requiredClueIds = getRequiredClueIdsForScene(cmlCase, scene, allOutlineScenes);
+    const mappedClueIds = getRequiredClueIdsForScene(cmlCase, scene, allOutlineScenes);
+    const partition = byPage ? partitionCluesByPage(mappedClueIds, priorChapters!, clueDistribution, castNamesForClues) : null;
+    const requiredClueIds = partition ? partition.pending : mappedClueIds;
+    const inheritedFromPage = partition
+      ? mappedClueIds.filter((id) => partition.onPage.has(id)).map((id) => ({ id, chapter: partition.onPage.get(id)! }))
+      : [];
     const clueObligationContext: ClueObligationContext[] = requiredClueIds.map((id) => {
       const distClue = distClueMap.get(id);
       const mappingEntry = mappingEntryMap.get(id);
@@ -1060,6 +1129,7 @@ export const buildChapterRequirementLedger = (
       preferredWords,
       requiredClueIds,
       clueObligationContext,
+      ...(inheritedFromPage.length > 0 ? { inheritedFromPage } : {}),
     };
   });
 };

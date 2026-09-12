@@ -104,7 +104,15 @@ const isPossessiveObjectOnly = (sentence: string, name: string): boolean => {
   return possessiveOnly && !directName;
 };
 
-const hasActiveUse = (sentence: string, name: string): boolean => {
+/**
+ * Exported (A_90 §12) so the worker's canonical-victim rescue reframes EXACTLY the sentences this
+ * validator would flag — name followed by an active verb, or the victim as a dialogue speaker — and
+ * not every sentence that merely contains the name and an active verb somewhere. Run 81042's read
+ * found "In a remembered moment, He looked once more at Beatrice Whitlock's stopped watch" and
+ * "Before the death, "Miss Dunmore," Ambrose Halloway said, … "Beatrice Whitlock was struck": neither
+ * is a live appearance; both were framed by the rescue's looser predicate.
+ */
+export const hasActiveUse = (sentence: string, name: string): boolean => {
   if (!nameInSentence(sentence, name)) return false;
   if (isPossessiveObjectOnly(sentence, name)) return false;
   // A sentence explicitly framed as recollection/flashback is not a live appearance.

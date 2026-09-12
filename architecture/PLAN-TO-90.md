@@ -1728,3 +1728,14 @@ the run's own device: `AGENT3_DECEPTION_PAIR` (the interval's `derivedFrom` name
 clocks), repair-before-retry inside `generateCML`, a validator message that no longer says to move a
 locked value, and the `statedLength` lookahead. Detail: `ANALYSIS_90` §11.
 
+**THE 87 READ'S RECOMMENDATIONS, TRACED AND FIXED · 2026-09-12 · £0** (`ANALYSIS_90` §12). Seven
+items; five built, each pinned on the run's own material: the reveal's three-step arithmetic
+rendered from the numbers (`AGENT9_REVEAL_ARITHMETIC`); clue ownership by the PAGE, after 11 of 14
+obligations in chapters 3–6 re-mandated evidence already on earlier pages and chapter 4 copied 24 of
+its 57 sentences from chapters 2–3 (`AGENT9_CLUE_OWNERSHIP_BY_PAGE`); the outline label rendered as a
+place phrase (`AGENT9_LOCATION_LABEL_PROSE`); the victim rescue reframing only what the validator
+flags (`AGENT9_VICTIM_RESCUE_EXACT_PREDICATE`); and the atmosphere pass skipped, having authored 5
+of the last 20 reader-flagged lines (`AGENT9_SKIP_ATMOSPHERE_REPAIR`). Two recorded, not built:
+profile lines copied via STORY TO DATE, and one canonical location per scene at Agent 7. Next
+instrument: the matched pair on run 81042's upstream.
+

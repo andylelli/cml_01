@@ -112,7 +112,7 @@ import { validateArtifact, validateCml, isVictimArchetype, isDetectiveArchetype,
 // Agent 9 redesign Phase A (§4.2 / §9.7): the validation-gated-mutation law — a deterministic prose
 // pass may not ship a mutation it didn't re-validate. Default-off flag; legacy path byte-identical.
 import { mutateThenValidate, noMetadataDumpValidator } from "@cml/prose-guard";
-import { ProseScorer, StoryValidationPipeline, CharacterConsistencyValidator, repairChapterPronouns, repairPronouns, normalizeTitles, buildLocationRegistry, normalizeLocationNames, getGenerationParams, getPronounPolicySettings, validateCharacterLifecycle, DEATH_RE as LIFECYCLE_DEATH_RE, CONFESSION_RE as LIFECYCLE_CONFESSION_RE, RECOLLECTION_FRAME_RE as LIFECYCLE_RECOLLECTION_RE, detectMissingCaseTransitionBridge, BRIDGE_TERMS, validateDialogueIdiolect, anonymiseNamedWalkOns, buildAllowedNameParts, computeArrestPivotIndex, ROLE_ALIAS_TERMS, detectAttributionFlips, detectImpossibleSelfReferences, detectVictimBodyPronounMismatch } from "@cml/story-validation";
+import { ProseScorer, StoryValidationPipeline, CharacterConsistencyValidator, repairChapterPronouns, repairPronouns, normalizeTitles, buildLocationRegistry, normalizeLocationNames, getGenerationParams, getPronounPolicySettings, validateCharacterLifecycle, hasActiveUse as lifecycleHasActiveUse, DEATH_RE as LIFECYCLE_DEATH_RE, CONFESSION_RE as LIFECYCLE_CONFESSION_RE, RECOLLECTION_FRAME_RE as LIFECYCLE_RECOLLECTION_RE, detectMissingCaseTransitionBridge, BRIDGE_TERMS, validateDialogueIdiolect, anonymiseNamedWalkOns, buildAllowedNameParts, computeArrestPivotIndex, ROLE_ALIAS_TERMS, detectAttributionFlips, detectImpossibleSelfReferences, detectVictimBodyPronounMismatch } from "@cml/story-validation";
 import type { PhaseScore, CastEntry } from "@cml/story-validation";
 import {
   adaptProseForScoring,
@@ -2082,6 +2082,30 @@ const VICTIM_RECOLLECTION_FRAMES = [
   "In life, ",
   "Before the death, ",
 ] as const;
+
+/**
+ * A_90 §12 — `AGENT9_VICTIM_RESCUE_EXACT_PREDICATE`. Run 81042's read (87/100) listed two of this
+ * rescue's frames among its "generated artifacts": "In a remembered moment, He looked once more at
+ * Beatrice Whitlock's stopped watch" (a possessive object, the detective looking) and "Before the
+ * death, "Miss Dunmore," Ambrose Halloway said … "Beatrice Whitlock was struck …"" (a statement of
+ * her death). The rescue's predicate was "an active verb anywhere in a sentence that contains the
+ * name"; the validator's is "the name FOLLOWED by an active verb, or the name as the speaker". The
+ * validator never flagged either sentence — the rescue framed them on its own. ON: the rescue uses
+ * the validator's exported `hasActiveUse`, and a frame prepended to a sentence that opens with a
+ * pronoun or article lowercases that word ("In a remembered moment, he …"). Runtime-read; OFF is
+ * byte-identical.
+ */
+const isVictimRescueExactPredicateEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT9_VICTIM_RESCUE_EXACT_PREDICATE ?? "").trim());
+
+const FRAME_LOWERCASE_OPENERS = /^(?:He|She|They|It|The|A|An|His|Her|Their|There|Then|When|But|And|At|In|On|By|For|With|As|Now|Yet|So|If|While|After|Before|That|This|These|Those|One|Nobody|Someone|Everyone|Nothing|Once|Only|Still|Even)\b/;
+
+/** Prepend a recollection frame; lowercase a sentence-opening function word so the splice reads as one sentence. */
+export const applyRecollectionFrame = (frame: string, sentence: string, lowercaseOpener: boolean): string => {
+  const trimmed = sentence.replace(/^\s+/, "");
+  if (!lowercaseOpener || !FRAME_LOWERCASE_OPENERS.test(trimmed)) return frame + trimmed;
+  return frame + trimmed[0]!.toLowerCase() + trimmed.slice(1);
+};
 /** Retained as the canonical first frame; rotation starts here. */
 const VICTIM_RECOLLECTION_PREFIX = VICTIM_RECOLLECTION_FRAMES[0];
 const VICTIM_RECOLLECTION_FRAME_RE = /^\s*(?:in a remembered moment\b|in life\b|before the death\b|before (?:she|he|they) (?:died|was killed|was murdered)\b|the memory of\b)/i;
@@ -2146,12 +2170,14 @@ export const applyCanonicalVictimRescue = (
         if (VICTIM_RECOLLECTION_FRAME_RE.test(sentence)) continue; // already a recollection
         // A_50 §8 rank 3: mirror the detector's flag predicates EXACTLY so every flagged sentence is
         // reframed (not just active-verb ones): confession-by-noun/first-person AND active dialogue.
+        const exactPredicate = isVictimRescueExactPredicateEnabled();
         const confessHit = LIFECYCLE_CONFESSION_RE.test(sentence) && !LIFECYCLE_RECOLLECTION_RE.test(sentence);
-        const activeHit = LIFECYCLE_ACTIVE_RE.test(sentence);
+        // ON: the live-appearance test is decided per victim inside the loop with the validator's predicate.
+        const activeHit = exactPredicate ? false : LIFECYCLE_ACTIVE_RE.test(sentence);
         // Leave PURE death/discovery narration untouched — but a death word that co-occurs with a
         // confession/active use ("'I killed him,' the note in her hand read") MUST still reframe.
-        if (LIFECYCLE_DEATH_RE.test(sentence) && !confessHit && !activeHit) continue;
-        if (!confessHit && !activeHit) continue; // not a flagged sentence
+        if (!exactPredicate && LIFECYCLE_DEATH_RE.test(sentence) && !confessHit && !activeHit) continue;
+        if (!exactPredicate && !confessHit && !activeHit) continue; // not a flagged sentence
 
         for (const issue of issueByName.values()) {
           // validator flags confessions with chapter >= deadByChapter, so the death chapter itself is
@@ -2159,10 +2185,19 @@ export const applyCanonicalVictimRescue = (
           if (chapterNumber < issue.deadByChapter) continue;
           const namePattern = namePatterns.get(issue.characterName) ?? victimSentencePattern(issue.characterName);
           if (!namePattern.test(sentence)) continue;
+          if (exactPredicate) {
+            // The validator's predicate, verbatim: a live appearance is the name followed by an active
+            // verb or the name as a dialogue speaker; a possessive object or a death statement is not.
+            const live = lifecycleHasActiveUse(sentence, issue.characterName);
+            const confessAsSubject = confessHit && !LIFECYCLE_DEATH_RE.test(sentence);
+            if (!live && !confessAsSubject) continue;
+          }
           // A_70 §3: rotate the frame so N reframes in one story do not read as one stamped phrase.
-          sentence =
-            VICTIM_RECOLLECTION_FRAMES[repairCount % VICTIM_RECOLLECTION_FRAMES.length] +
-            sentence.replace(/^\s+/, "");
+          sentence = applyRecollectionFrame(
+            VICTIM_RECOLLECTION_FRAMES[repairCount % VICTIM_RECOLLECTION_FRAMES.length],
+            sentence,
+            exactPredicate,
+          );
           changed = true;
           repairCount += 1;
           reframed.add(issue.characterName);

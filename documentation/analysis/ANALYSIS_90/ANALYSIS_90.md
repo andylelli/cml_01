@@ -558,3 +558,47 @@ and attempt-1 case, and measured before wiring:
    device's direction word ("advanced" for a chime that runs behind the face) — the next thing to
    measure at 3b.
 
+---
+
+## 12. THE 87/100 READ'S RECOMMENDATIONS, BY CAUSE · 2026-09-12 · £0
+
+The reader named seven things. Every one is traced below to the artifact or the pass that produced
+it (`logs/llm.jsonl` holds every LLM response; the prompt log every prompt; the rest is
+deterministic code). Five are fixed in this commit, flag-gated and pinned on the run's own material;
+two are recorded with the reason they are not built here.
+
+| # | the reader said | cause, MEASURED | fix | flag |
+|---|---|---|---|---|
+| 1 | "the chime was advanced by twenty minutes" is confusing; state the mechanism in three steps | the CASE is coherent (chime and face both twenty minutes ahead of true time; the watch and the cottage clock honest); the prose compressed three locked values into one clause that reads as "chime behind face" | the reveal obligations render the three steps from the numbers, with the direction computed: "ran 20 minutes AHEAD of the true time: when it showed a quarter to four, the true time was twenty-five past three" | `AGENT9_REVEAL_ARITHMETIC` |
+| 2 | "three past midnight past three" | `AtmosphereRepair` paraphrased a locked value the n-gram window had cut in half | fixed in §11.2 | `AGENT9_PHRASE_LOCKED_BOUNDARY` |
+| 3 | Chapter 4 repeats chapters 2/3; cut it by 30% | **24 of chapter 4's 57 sentences are whole-sentence copies** from chapters 2–3 (16 from chapter 3). Instructed: **11 of 14 clue obligations in chapters 3–6** were for clues already ≥70% on earlier pages, **0 marked inherited** — B1's ownership follows the CML map, the model plants early. Chapter 4's prompt carried 50 of chapters 2–3's 108 sentences verbatim under STORY TO DATE, and the model copied the ones it was told to re-stage | ownership by the page: presence decided by the validator's own test over the chapters written so far; the requirement ledger drops those clues so the ask, the validator, the regen and the floor agree | `AGENT9_CLUE_OWNERSHIP_BY_PAGE` |
+| 4 | "Drawing room and manor clock room" (scaffold) | the outline's scene LABEL, printed raw into "Scene is set in:", copied with its capital; 39% of 537 archived scene labels are compound, 57% capital-lowercase | rendered as a place phrase — "the drawing room and the manor clock room" — with "never as the label" | `AGENT9_LOCATION_LABEL_PROSE` |
+| 5 | "In a remembered moment, He looked…" / "Before the death, "Miss Dunmore,"…" (scaffold) | the canonical-victim rescue framed a possessive object and a death statement: its predicate was an active verb anywhere in a sentence with the name; the validator's (name FOLLOWED by a verb) flagged neither | the rescue uses the validator's exported `hasActiveUse`; a frame lowercases a pronoun/article opener | `AGENT9_VICTIM_RESCUE_EXACT_PREDICATE` |
+| 6 | "questing for the secret" (scaffold) | `AtmosphereRepair-Ch5` replacement for "searching for the truth behind its". Across the last three reads the pass authored **5 of the 20** lines readers called generated; the repetition it targets was **13.5× the median after it ran** | the pass is skipped; the matched pair measures the difference | `AGENT9_SKIP_ATMOSPHERE_REPAIR` |
+| 7 | repeated character lines (Percival's order, Ottoline's cog, Josephine's "how the canal runs") | profile text: the signature tic is offered in ONE chapter (A_82 P10) yet appears 4×, and "smallest cog" 5× — copied from the prior chapters' full text under STORY TO DATE, the same channel as #3 | **not built.** Trimming older chapters from STORY TO DATE would not help (16 of 24 copies came from the immediately preceding chapter); dropping all prior text is a continuity risk that needs its own matched pair. Recorded as the next prose lever if #3's fix leaves copies behind | — |
+
+**What the read did not name and the log did:** the run's SHIP-CHECK said "226 repeated 6-word spans,
+13.5× the median, WORTH A LOOK BEFORE READING" before the reader opened it. The instrument was right
+about the book and the reader still gave 87 — repetition of the *locked values* is mandated and
+harmless; the repetition that cost a mark was chapter 4's copied testimony, which #3 addresses.
+
+### 12.1 STATUS
+
+| item | status | commit |
+|---|---|---|
+| #1 reveal arithmetic | built, pinned on the run's device | @@COMMIT3@@ |
+| #3 ownership by the page (ledger + ask + validator + floor agree) | built, pinned on the run's chapter-3/4 shape | @@COMMIT3@@ |
+| #4 location label as prose | built, pinned on the run's label | @@COMMIT3@@ |
+| #5 rescue exact predicate | built, pinned on the run's two sentences | @@COMMIT3@@ |
+| #6 atmosphere pass skipped | built, ON for the matched pair | @@COMMIT3@@ |
+| #7 STORY TO DATE copying of profile lines | **recorded, not built** — needs its own matched pair | — |
+| Agent 7: one canonical location per scene | **recorded, not built** — upstream change | — |
+| device direction word vs arithmetic (§11.1) | **withdrawn** — the case was coherent; the prose blurred it (#1) | — |
+
+### 12.2 How to measure them: the matched pair
+
+All five are prose-side. `RESUME_REDO=prose` against run 81042's byte-identical upstream (~£0.45)
+settles them without a new case: whole-sentence copies (29 → under 10), the reader's artifact list
+(the three deterministic ones cannot recur; the atmosphere pass is off), the reveal's three
+sentences on the page, and the C2 repetition density with the pass off.
+
