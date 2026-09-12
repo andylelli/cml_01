@@ -602,3 +602,78 @@ settles them without a new case: whole-sentence copies (29 → under 10), the re
 (the three deterministic ones cannot recur; the atmosphere pass is off), the reveal's three
 sentences on the page, and the C2 repetition density with the pass off.
 
+---
+
+## 13. THE MATCHED PAIR — one lever harmed the book, and it was the one the reader asked for · 2026-09-12 · £0.45
+
+`RESUME_REDO=prose` on run 81042's byte-identical upstream. Arm A = the shipped 87/100 book; arm B =
+the same case with §12's five prose flags on. Run `resume-1789236752745`, 13.7 min, 10,426 words,
+release gate **warning**, no fallback chapter.
+
+### 13.1 Scored
+
+| prediction | verdict | measured |
+|---|---|---|
+| copies 29 → under 10; chapter 4's 24 → under 5 | **PARTIAL** | total **29 → 17**; **chapter 4: 24 → 1**; but chapter 6 **0 → 8** — the copying MOVED |
+| ≥8 of 11 re-mandated clues marked inherited | **HELD** | `ALREADY ON THE PAGE` in the prompts of chapters 2–8 |
+| the reveal carries three sentences with "ahead" | **FAILED** | the block reached **chapter 9**, the confrontation is chapter 8; "advanced by twenty minutes" survives |
+| no frame on a possessive/death sentence; no label in narration | **HALF** | frames: **gone**. Label: **still there**, 3× |
+| atmosphere pass skipped, density falls | **HELD** | skipped, 15 candidates left as written; repeated-6-gram density **675 → 612 per 10k** |
+| gate no worse than warning, no fallback | **HELD** | warning, no fallback, readable |
+
+### 13.2 THE REGRESSION, and what it cost
+
+Arm B carried two rubric caps arm A did not: *reveal uses evidence not planted earlier → ending ≤ 5*
+and *mechanism explained too early → plot_structure ≤ 6, pacing ≤ 6*, plus a geometry warning that
+the reveal never named the culprit. (The internal rubric cannot RANK two books — A_74 §6.1 — but a
+CAP is a categorical flag, not a graded score, and these three are new.)
+
+Cause, measured against arm B's own artifacts: ownership-by-page retired **16 of 31** obligations,
+and chapter 8 — the reveal — lost **both** of its, including `clue_culprit_direct_ottoline_dunmore`.
+`missing_clue` regen log lines went **16 → 52** and scaffold regens **0 → 14**.
+
+**The premise was half right.** Re-staging a discovery is a recap, which is what the reader
+complained about; re-citing the evidence at the reveal is the genre's contract, and A_64 C2 already
+says so in this repo ("the deduction must be WALKED"). The rule could not tell the two apart.
+
+**And the obvious safety rail is inert.** "Never retire an `essential` clue" looks right until you
+count: **1,128 of the archive's 1,216 clues (93%) are `essential`**. That guard would switch the
+lever off while leaving the flag on — CLAUDE.md's B1 in reverse. The guard that shipped is narrow:
+nothing retires in the reveal or discriminating-test chapter, and nothing whose id names the culprit
+or the reveal. **The flag is OFF and recommended-against until a probe measures the narrowed rule.**
+
+### 13.3 The two that fired and did not work — both for the same reason
+
+**The location label is a sticky plaster.** The obligation line rendered correctly in all ten
+chapters and the label still reached the page. It appears **4 times in the chapter-3 prompt**, and
+one of the other three is the location registry's *"locations in your prose MUST use the EXACT
+capitalisation from the CML profiles"*, naming "Drawing room and manor clock room" as canonical. I
+fixed one of five printers. **The real fix is upstream**: a compound "X and Y" scene label is two
+places, not a location name, and 39% of 537 archived scene labels are compound.
+
+**The reveal arithmetic landed on chapter 9** because four components disagree about which chapter
+the reveal is: the CML says act 3 scene 6 — *a coordinate that does not exist in this outline*, and
+A_87 P3 measured `act 3 / scene 6` copied verbatim in **45 of 45** runs — the arbitration picks 9,
+the outline's `revelation` beat is 10, and geometry warns about 8. Until that join resolves, every
+reveal-chapter obligation is aimed by a copied placeholder.
+
+### 13.4 STATUS
+
+| item | status | commit |
+|---|---|---|
+| `AGENT9_CLUE_OWNERSHIP_BY_PAGE` | **WITHDRAWN — measured harmful**; narrowed guard in code, flag OFF | @@COMMIT4@@ |
+| `AGENT9_VICTIM_RESCUE_EXACT_PREDICATE` | **confirmed on the page** — both frames gone | @@COMMIT4@@ |
+| `AGENT9_PHRASE_LOCKED_BOUNDARY` | **confirmed** — the time glitch gone | @@COMMIT4@@ |
+| `AGENT9_SKIP_ATMOSPHERE_REPAIR` | **confirmed** — skipped, density 675 → 612/10k | @@COMMIT4@@ |
+| `AGENT9_LOCATION_LABEL_PROSE` | fired, ineffective — 4 of 5 printers unfixed; ON | @@COMMIT4@@ |
+| `AGENT9_REVEAL_ARITHMETIC` | fired on chapter 9, not the confrontation; ON | @@COMMIT4@@ |
+| Agent 7: a compound "X and Y" label must not enter the location registry | **recorded, not built** — upstream, 39% of scenes | — |
+| the reveal-chapter join (CML placeholder vs arbitration vs beat vs geometry) | **recorded, not built** — A_87 family, blocks every reveal obligation | — |
+| arm B as a read | **not recommended** — its reveal is capped by the withdrawn lever; read a book built without it | — |
+
+### 13.5 What this cost and what it bought
+
+£0.45. It bought the only thing a fresh run could not: proof that three of five fixes reach the page,
+and proof that the fourth **makes the book worse** — before it shipped in a £1.29 run and an external
+read. That is the matched pair working exactly as CLAUDE.md argues it should.
+

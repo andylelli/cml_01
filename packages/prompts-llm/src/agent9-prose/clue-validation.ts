@@ -1055,21 +1055,49 @@ export const clueTermsOnPage = (text: string, clue: Clue | undefined): boolean =
 };
 
 /**
+ * A clue that must be cited AGAIN however early it was planted.
+ *
+ * MEASURED BY THE MATCHED PAIR (A_90 §13, 2026-09-12): ownership by the page dropped 16 of 31
+ * obligations, and among them chapter 8's `clue_culprit_direct_ottoline_dunmore` and `clue_12` — the
+ * reveal's own evidence. The book came back with two rubric caps the other arm did not have
+ * ("reveal uses evidence not planted earlier", "mechanism explained too early") and a geometry
+ * warning that the reveal never named the culprit. The rule was right about repetition and wrong
+ * about WHICH repetition: re-staging a discovery is a recap, but re-citing the evidence at the
+ * reveal is the genre's contract (A_64 C2, "the deduction must be WALKED"). Nothing is ever retired
+ * from the reveal or the discriminating test, and no clue whose id names the culprit or the reveal is
+ * retired anywhere.
+ *
+ * A WIDER GUARD WAS TRIED AND REJECTED IN THE SAME HOUR: "never retire an `essential` clue" reads
+ * like the obvious safety rail, and **1,128 of the 1,216 clues in the archive (93%) are `essential`**,
+ * so it would make the whole lever inert — CLAUDE.md's B1 in reverse. A check that cannot fire is not
+ * a safe version of a lever; it is a deleted lever wearing a flag. The flag stays OFF until a probe
+ * measures this narrower rule.
+ */
+const isNeverRetiredClue = (id: string, _clue: Clue | undefined): boolean =>
+  /culprit|reveal|discriminating|decisive/i.test(id);
+
+/**
  * Which of `clueIds` are already on the page in the chapters written so far, and in which chapter
  * (1-based, by position) each was first found. `castNames` is accepted for parity with the
  * validator's signature and reserved for the name-stripping the validator applies.
+ *
+ * `protectedChapter` marks a chapter whose obligations are never retired (the reveal and the
+ * discriminating test): there the partition returns every id as pending.
  */
 export const partitionCluesByPage = (
   clueIds: ReadonlyArray<string>,
   priorChapters: ReadonlyArray<ProseChapter>,
   clueDistribution?: ClueDistributionResult,
   _castNames?: string[],
+  protectedChapter = false,
 ): { pending: string[]; onPage: Map<string, number> } => {
   const onPage = new Map<string, number>();
+  if (protectedChapter) return { pending: [...clueIds], onPage };
   const texts = priorChapters.map((c) => (c?.paragraphs ?? []).join(" "));
   const clueMap = new Map<string, Clue>((clueDistribution?.clues ?? []).map((c) => [c.id, c]));
   for (const id of clueIds) {
     const clue = clueMap.get(id);
+    if (isNeverRetiredClue(id, clue)) continue;
     for (let i = 0; i < texts.length; i += 1) {
       if (clueTermsOnPage(texts[i]!, clue)) {
         onPage.set(id, i + 1);
@@ -1105,7 +1133,17 @@ export const buildChapterRequirementLedger = (
 
   return (batchScenes as any[]).map((scene, idx) => {
     const mappedClueIds = getRequiredClueIdsForScene(cmlCase, scene, allOutlineScenes);
-    const partition = byPage ? partitionCluesByPage(mappedClueIds, priorChapters!, clueDistribution, castNamesForClues) : null;
+    // The reveal and the discriminating test never retire an obligation — see `isNeverRetiredClue`.
+    const isProtectedScene = ((): boolean => {
+      const pr = cmlCase?.prose_requirements ?? {};
+      const scenes = Array.isArray(allOutlineScenes) ? allOutlineScenes : [];
+      return [pr.culprit_revelation_scene, pr.discriminating_test_scene]
+        .filter(Boolean)
+        .some((ref: any) => sceneMatchesCmlSceneRef(scene, ref, scenes));
+    })();
+    const partition = byPage
+      ? partitionCluesByPage(mappedClueIds, priorChapters!, clueDistribution, castNamesForClues, isProtectedScene)
+      : null;
     const requiredClueIds = partition ? partition.pending : mappedClueIds;
     const inheritedFromPage = partition
       ? mappedClueIds.filter((id) => partition.onPage.has(id)).map((id) => ({ id, chapter: partition.onPage.get(id)! }))

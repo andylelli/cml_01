@@ -1739,3 +1739,15 @@ of the last 20 reader-flagged lines (`AGENT9_SKIP_ATMOSPHERE_REPAIR`). Two recor
 profile lines copied via STORY TO DATE, and one canonical location per scene at Agent 7. Next
 instrument: the matched pair on run 81042's upstream.
 
+**MATCHED PAIR ON THE §12 FIXES · 2026-09-12 · £0.45 · one lever WITHDRAWN** (`ANALYSIS_90` §13).
+Three of five confirmed on the page: the victim-rescue frames, the time glitch and the atmosphere
+pass's artifacts are all gone, and skipping that pass LOWERED repeated-span density (675 → 612 per
+10k), which refutes the argument it existed on. Chapter 4's copying fell 24 → 1. But
+`AGENT9_CLUE_OWNERSHIP_BY_PAGE` retired 16 of 31 obligations **including the reveal's own
+culprit-direct clue**, and arm B came back with two rubric caps arm A did not have plus a geometry
+warning that the reveal never named the culprit — **withdrawn, flag OFF**, with the finding that the
+obvious guard ("never retire an essential clue") would be inert because 93% of archived clues are
+essential. Two fixes fired without working, for the same reason in both cases: I changed one of
+several places the value is printed (the location label reaches the prompt 4 times; the reveal
+arithmetic is aimed by a CML coordinate that does not exist). Both upstream items recorded.
+

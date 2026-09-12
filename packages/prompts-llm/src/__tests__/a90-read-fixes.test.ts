@@ -92,6 +92,33 @@ describe("clue ownership by the page (AGENT9_CLUE_OWNERSHIP_BY_PAGE)", () => {
     expect(onPage.get("clue_6")).toBe(3);
   });
 
+  /**
+   * A_90 §13 — the guard the matched pair proved necessary. Arm B retired chapter 8's
+   * `clue_culprit_direct_ottoline_dunmore` and came back with "reveal uses evidence not planted
+   * earlier" and a geometry warning that the reveal never named the culprit.
+   */
+  it("never retires the reveal's own evidence, an essential clue, or anything in a protected chapter", () => {
+    const withCulprit = {
+      clues: [
+        ...clueDistribution.clues,
+        { id: "clue_culprit_direct_ottoline", description: "Ottoline Dunmore's own logbook entries and tools", observable: "Ottoline Dunmore's own logbook entries and tools", criticality: "supporting" },
+      ],
+    } as any;
+    const staged = [
+      ...priorChapters,
+      { chapterNumber: 4, paragraphs: ["Ottoline Dunmore's own logbook entries and tools lay open on the bench."] },
+    ];
+    // a culprit-direct id is never retired, however plainly it is on the page
+    expect(partitionCluesByPage(["clue_culprit_direct_ottoline"], staged, withCulprit, castNames).pending)
+      .toEqual(["clue_culprit_direct_ottoline"]);
+    // "never retire an essential clue" was REJECTED as a guard: 93% of the archive's clues are
+    // essential, so it would make the lever inert. An ordinary essential clue on the page is retired.
+    expect(partitionCluesByPage(["clue_5"], priorChapters, clueDistribution, castNames).pending).toEqual([]);
+    // a protected chapter (reveal / discriminating test) retires nothing
+    expect(partitionCluesByPage(["clue_5", "clue_6"], priorChapters, clueDistribution, castNames, true).pending)
+      .toEqual(["clue_5", "clue_6"]);
+  });
+
   it("the requirement ledger drops on-page clues only under the flag, and records where they were", () => {
     const cmlCase = {
       prose_requirements: {

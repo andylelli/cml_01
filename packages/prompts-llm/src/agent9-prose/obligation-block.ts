@@ -936,6 +936,8 @@ const REVEAL_SIGNAL_RE = /\b(culprit|confront|confession|resolve|resolution|deno
           priorChapters,
           clueDistribution,
           ((cmlCase?.cast ?? []) as any[]).map((c: any) => String(c?.name ?? '')).filter(Boolean),
+          // A_90 §13: the reveal and the discriminating test never retire an obligation.
+          isRevealChapter || isDiscriminatingTestChapter,
         )
       : null;
     const ownedAfterPage = pageOwnership ? pageOwnership.pending : ownedClueIds;
