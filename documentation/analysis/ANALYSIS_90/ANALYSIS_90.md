@@ -834,9 +834,9 @@ sentence rather than repair it.
 
 | item | status | commit |
 |---|---|---|
-| `REPORTED_OR_HISTORICAL_RE` in `hasActiveUse` — the divergence closed | built, pinned on the shipped line and 5 reported forms | @@COMMIT6@@ |
-| frame placement past a leading conjunction | built, pinned; the after-the-conjunction variant withdrawn as abort-risking | @@COMMIT6@@ |
-| run 94118 shipped after resume | `story_20260912-2103`, 9,196 words, gate warning, no fallback | @@COMMIT6@@ |
+| `REPORTED_OR_HISTORICAL_RE` in `hasActiveUse` — the divergence closed | built, pinned on the shipped line and 5 reported forms | `379911d6` |
+| frame placement past a leading conjunction | built, pinned; the after-the-conjunction variant withdrawn as abort-risking | `379911d6` |
+| run 94118 shipped after resume | `story_20260912-2103`, 9,196 words, gate warning, no fallback | `379911d6` |
 | the identity book as a READ | **ready** — identity's third read, which completes the board's target for that axis | — |
 | `AGENT3B_DURATION_ANCHORS` / `AGENT3_DECEPTION_PAIR` | untested after 4 runs; both need a device shape the generator has not produced | — |
 | Azure rate limiting killed a fresh run mid-prose | environmental; the resume path absorbed it for £0.45 | — |
