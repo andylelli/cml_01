@@ -42,21 +42,31 @@ by ear rather than by name.
 - **Front matter is skipped.** Generated books open with `*Run ID: … Generated …*`, which would
   otherwise be the first line of the audiobook.
 
-## The score gate
+## The score indicator
 
-Only books an external reader scored **80 or above** are narratable. The score is parsed from the
-`chatgpt-review.txt` beside the manuscript **using the pipeline's own parser**
-(`scripts/external-read-ledger.mjs`), not a second copy — that parser knows to take the stated
-mark rather than the read's forecast ("could reach 89–91/100"), and to ignore a chapter-by-chapter
-review's per-chapter `Mark: 6/10` rows. A re-implementation here would feed a write (which books
-get narrated), which is the divergence case WF-002 warns about.
+Every story is listed and any of them can be narrated. The external read score is shown, not
+enforced — the picker groups them so the standing is obvious at a glance:
 
-Enforced in `readStory()`, not just hidden in the picker — a direct API call naming a 79-scorer is
-refused. `MIN_STORY_SCORE` changes the bar. Uploaded and pasted text is not gated; it isn't a repo
-story and has no read to check.
+```
+★ Scored 80+        7
+Below 80            7
+No external read    5
+```
 
-As of now: **7 of 19 pass** (85, 84, 84, 83, 82, 82, 82). 7 score below the bar, 5 have no
-external read at all.
+Each option is prefixed with its mark, and a badge beside the dropdown reads
+`scored 85 · 80+` (green), `scored 79 · below 80` (red) or `no external read` (grey).
+
+The score is parsed from the `chatgpt-review.txt` beside the manuscript **using the pipeline's own
+parser** (`scripts/external-read-ledger.mjs`), not a second copy — that parser knows to take the
+stated mark rather than the read's forecast ("could reach 89–91/100"), and to ignore a
+chapter-by-chapter review's per-chapter `Mark: 6/10` rows. A naive `/100` match records the
+aspiration as the score.
+
+`MIN_STORY_SCORE` (default 80) moves the line the indicator draws. If the parser cannot be loaded,
+every story is still listed — unscored, with the reason shown. Uploaded and pasted text carries no
+score; it isn't a repo story and has no read to check.
+
+Current marks: 85, 84, 84, 83, 82, 82, 82 · 79, 79, 79, 78, 78, 77, 76 · 5 unread.
 
 ## How it survives a long render
 

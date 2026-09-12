@@ -136,9 +136,8 @@ $('createVoice').onclick = async () => {
 /* ------------------------------ stories ----------------------------- */
 
 async function loadStories() {
-  const showAll = $('optShowAll').checked;
   try {
-    const s = await api(`/api/stories${showAll ? '?all=true' : ''}`);
+    const s = await api('/api/stories');
     state.minScore = s.minScore;
 
     if (!s.available) {
@@ -146,38 +145,60 @@ async function loadStories() {
       $('sourceHint').textContent = 'No stories/ folder found — use upload or paste.';
       return;
     }
-    if (s.parserError) {
-      $('storyPick').innerHTML = '<option value="">Score gate unavailable</option>';
-      $('storyGate').innerHTML =
-        `<div class="note err">Cannot read scores, so no story is offered: ${escapeHtml(s.parserError)}</div>`;
+    if (!s.stories.length) {
+      $('storyPick').innerHTML = '<option value="">No stories found</option>';
       return;
     }
 
-    if (!s.stories.length) {
-      $('storyPick').innerHTML = `<option value="">Nothing scores ${s.minScore}+</option>`;
-    } else {
-      $('storyPick').innerHTML = s.stories
-        .map((x) => {
-          const mark = typeof x.score === 'number' ? `${x.score}` : 'unscored';
-          return `<option value="${escapeHtml(x.id)}">${mark} · ${escapeHtml(x.title)} — ${fmt(x.words)} words</option>`;
-        })
-        .join('');
-    }
+    // Every story is selectable. The grouping is the indicator.
+    const opt = (x) => {
+      const mark = typeof x.score === 'number' ? String(x.score).padStart(2, '0') : '––';
+      return `<option value="${escapeHtml(x.id)}" data-score="${x.score ?? ''}">` +
+        `${mark} · ${escapeHtml(x.title)} — ${fmt(x.words)} words</option>`;
+    };
+    const group = (label, items) =>
+      items.length ? `<optgroup label="${escapeHtml(label)}">${items.map(opt).join('')}</optgroup>` : '';
+
+    const byTier = (t) => s.stories.filter((x) => x.tier === t);
+    $('storyPick').innerHTML =
+      group(`★ Scored ${s.minScore}+`, byTier('passing')) +
+      group(`Below ${s.minScore}`, byTier('below')) +
+      group('No external read', byTier('unscored'));
 
     const c = s.counts || {};
-    $('sourceHint').textContent = `${s.stories.length} narratable`;
+    $('sourceHint').textContent = `${c.total} stories`;
     $('storyGate').innerHTML =
-      `<div class="note ${c.passing ? 'ok' : ''}">` +
-      `<strong>${c.passing} of ${c.total} stories score ${s.minScore}+.</strong> ` +
-      `Withheld: ${c.belowThreshold} below the bar, ${c.unscored} with no external read.` +
+      `<div class="note ok"><strong>${c.passing} of ${c.total} score ${s.minScore}+.</strong> ` +
+      `${c.belowThreshold} below, ${c.unscored} with no external read — all selectable.` +
+      (s.parserError ? ` <em>Scores unavailable: ${escapeHtml(s.parserError)}</em>` : '') +
       `</div>`;
+    updateScoreBadge();
   } catch (e) {
     $('storyPick').innerHTML = '<option value="">Error loading</option>';
     $('storyGate').innerHTML = `<div class="note err">${escapeHtml(e.message)}</div>`;
   }
 }
 
-$('optShowAll').onchange = loadStories;
+/** Make the chosen story's standing obvious without opening the dropdown. */
+function updateScoreBadge() {
+  const sel = $('storyPick');
+  const raw = sel.selectedOptions?.[0]?.dataset?.score;
+  const score = raw ? Number(raw) : null;
+  const min = state.minScore ?? 80;
+  const el = $('storyBadge');
+  if (!el) return;
+  if (score == null || Number.isNaN(score)) {
+    el.className = 'pill';
+    el.textContent = 'no external read';
+  } else if (score >= min) {
+    el.className = 'pill ok';
+    el.textContent = `scored ${score} · ${min}+`;
+  } else {
+    el.className = 'pill bad';
+    el.textContent = `scored ${score} · below ${min}`;
+  }
+}
+$('storyPick').onchange = updateScoreBadge;
 
 $('optFrontMatter').onchange = () => { if (state.plan) $('analyseBtn').click(); };
 

@@ -72,11 +72,12 @@ async function scoreFor(folderPath, parse) {
 }
 
 /**
- * List narratable stories.
- * `includeUnscored` deliberately requires an explicit opt-in, so the default
- * path can only ever offer books that cleared the bar.
+ * List every story, each carrying its external read score.
+ *
+ * Nothing is withheld - the score is an INDICATOR, not a gate. `minScore` is
+ * only the line the UI draws to mark which books cleared the bar.
  */
-export async function listStories({ limit = 60, includeUnscored = false } = {}) {
+export async function listStories({ limit = 200 } = {}) {
   const minScore = config().minStoryScore;
 
   let runs = [];
@@ -86,18 +87,14 @@ export async function listStories({ limit = 60, includeUnscored = false } = {}) 
     return { available: false, dir: STORIES_DIR, stories: [], minScore };
   }
 
-  let parse;
+  // If the parser is unavailable the stories are still listed - they just come
+  // through unscored, and the UI says so. Nothing is hidden either way.
+  let parse = null;
+  let parserError = null;
   try {
     parse = await loadParser();
   } catch (e) {
-    // Fail closed: no parser means no verified scores, so offer nothing.
-    return {
-      available: true,
-      dir: STORIES_DIR,
-      stories: [],
-      minScore,
-      parserError: e.message,
-    };
+    parserError = e.message;
   }
 
   const all = [];
@@ -114,7 +111,9 @@ export async function listStories({ limit = 60, includeUnscored = false } = {}) 
     const md = files.filter((f) => f.toLowerCase().endsWith('.md'));
     if (!md.length) continue;
 
-    const rated = await scoreFor(runDir, parse);
+    const rated = parse
+      ? await scoreFor(runDir, parse)
+      : { score: null, reviewFile: null, reason: 'score parser unavailable' };
 
     for (const f of md) {
       const full = path.join(runDir, f);
@@ -141,7 +140,11 @@ export async function listStories({ limit = 60, includeUnscored = false } = {}) 
   const belowThreshold = all.filter((s) => typeof s.score === 'number' && s.score < minScore);
   const unscored = all.filter((s) => typeof s.score !== 'number');
 
-  const shown = (includeUnscored ? all : passing).slice(0, limit);
+  const shown = all.slice(0, limit);
+  for (const s of shown) {
+    s.tier =
+      typeof s.score !== 'number' ? 'unscored' : s.score >= minScore ? 'passing' : 'below';
+  }
 
   // Word counts only for what is actually offered - reading every book is slow.
   for (const s of shown) {
@@ -160,6 +163,7 @@ export async function listStories({ limit = 60, includeUnscored = false } = {}) 
     available: true,
     dir: STORIES_DIR,
     minScore,
+    parserError,
     stories: shown,
     counts: {
       total: all.length,
@@ -167,20 +171,14 @@ export async function listStories({ limit = 60, includeUnscored = false } = {}) 
       belowThreshold: belowThreshold.length,
       unscored: unscored.length,
     },
-    // Named so the UI can say exactly what was withheld and why.
-    withheld: [
-      ...belowThreshold.map((s) => ({ id: s.id, score: s.score, reason: `scored ${s.score}` })),
-      ...unscored.map((s) => ({ id: s.id, score: null, reason: s.reason || 'no score' })),
-    ],
   };
 }
 
 /**
- * Read one story, refusing any id that escapes the stories directory AND any
- * story that has not cleared the score gate. The check is repeated here on
- * purpose: the picker is a convenience, this is the actual enforcement point.
+ * Read one story. Any story may be narrated - the score is shown, not enforced.
+ * The path check stays: an id must not escape the stories directory.
  */
-export async function readStory(id, { enforceScore = true } = {}) {
+export async function readStory(id) {
   const full = path.resolve(STORIES_DIR, id);
   const rel = path.relative(STORIES_DIR, full);
   if (rel.startsWith('..') || path.isAbsolute(rel)) {
@@ -189,27 +187,21 @@ export async function readStory(id, { enforceScore = true } = {}) {
     throw err;
   }
 
-  if (enforceScore) {
-    const minScore = config().minStoryScore;
-    const parse = await loadParser();
-    const rated = await scoreFor(path.dirname(full), parse);
-    if (typeof rated.score !== 'number') {
-      const err = new Error(
-        `"${path.basename(id)}" has no external read score (${rated.reason}). Only stories scoring ${minScore}+ can be narrated.`
-      );
-      err.status = 422;
-      throw err;
-    }
-    if (rated.score < minScore) {
-      const err = new Error(
-        `"${path.basename(id)}" scored ${rated.score}. Only stories scoring ${minScore}+ can be narrated.`
-      );
-      err.status = 422;
-      throw err;
-    }
-  }
-
   const text = await fs.readFile(full, 'utf8');
   const h1 = /^#\s+(.+)$/m.exec(text);
-  return { text, title: h1 ? h1[1].trim() : path.basename(full, '.md').replace(/_/g, ' ') };
+
+  // Carry the score through so a render can be labelled with what it scored.
+  let score = null;
+  try {
+    const parse = await loadParser();
+    score = (await scoreFor(path.dirname(full), parse)).score;
+  } catch {
+    /* score is a label here, not a gate - its absence must not block a read */
+  }
+
+  return {
+    text,
+    score,
+    title: h1 ? h1[1].trim() : path.basename(full, '.md').replace(/_/g, ' '),
+  };
 }

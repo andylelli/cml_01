@@ -177,9 +177,7 @@ app.delete('/api/voices/:id', wrap(async (req, res) => {
 
 /* ------------------------------ stories ------------------------------- */
 
-app.get('/api/stories', wrap(async (req, res) =>
-  res.json(await listStories({ includeUnscored: req.query.all === 'true' }))
-));
+app.get('/api/stories', wrap(async (req, res) => res.json(await listStories())));
 
 /* -------------------------------- plan -------------------------------- */
 
