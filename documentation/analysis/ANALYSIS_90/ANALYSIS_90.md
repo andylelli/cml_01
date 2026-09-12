@@ -771,3 +771,80 @@ anchored, and the geometry check independently found **three times in the manusc
 accounts for. Move 1's instrument stops one layer before the reader. That is the next thing to
 extend, and it is recorded rather than built because it needs a run to calibrate against.
 
+---
+
+## 15. RUN 94118 — the identity book, and the rescue's third surface · 2026-09-12 · £0.75 + £0.45
+
+**Parameters.** Seed 94118, identity · 1950s · Liner · Dark · short · amateur · classic · cast 6
+(Katherine Bellamy, Dr. Cecil Ashgrove, Lavinia Yardley, Ferdinand Carrick, Iris Selwyn, Neville
+Fairweather); theme "a person believed absent who was present under another name"; angle "a folly
+built by an eccentric". Chosen over a second spatial run because spatial already had an unread book
+and identity had 2 external reads against the board's target of 3.
+
+**Outcome.** The fresh run died at chapter 7 under **Azure rate limiting** — six 429s and the
+deployment's token quota at **−6,467 against a 50,000 limit** — not a pipeline fault and not a code
+defect. Thirteen upstream stages persisted; `resume-1789242865847` re-ran prose in 8.8 min and
+shipped 9,196 words, gate **warning**, no fallback chapter: `stories/story_20260912-2103/`.
+
+### 15.1 What it settled
+
+| | |
+|---|---|
+| an identity case still fakes a TIME | **yes** — apparent "twenty minutes past eight at night", actual "ten minutes past eight". **Four axes of four.** |
+| the device's duration | `time_difference_between_sighting_and_log` declares `derivedFrom` the two locked clocks — again the right declaration, again no free duration |
+| `AGENT3B_DURATION_ANCHORS` | **4 runs, still untested.** No device has yet locked a duration that is not derived from two clocks |
+| `AGENT3_DECEPTION_PAIR` | **4 runs, still unfired.** No device has locked three or more clocks |
+| the NSD-anchor floor (§14.1) | **not exercised** — no clue went unanchored |
+
+### 15.2 THE RESCUE'S THIRD SURFACE, and the divergence under all three
+
+The shipped book carries:
+
+> "In a remembered moment, **but she had been told all evening that** Neville Fairweather walked the
+> promenade deck at twenty minutes past eight…"
+
+Neville Fairweather is the victim. The sentence is somebody's REPORT of where he walked, and the
+frame made it ungrammatical as well as wrong. **That is the fourth consecutive read carrying a rescue
+frame on a sentence nobody needed rescued**, and the third distinct surface:
+
+| read | the sentence | why it was framed | fixed in |
+|---|---|---|---|
+| 79 / 82 | "He looked once more at Beatrice Whitlock's stopped watch" | a possessive object | §12 |
+| 87 | ""You killed Oswald Ingram," Gerald said quietly" | the object of a kill verb | §14 |
+| this run | "but she had been told… that Neville Fairweather walked the deck" | **reported speech** | §15 |
+
+**The cause under all three is one divergence (WF-002).** `detectVictimAlive` in
+`agent9-prose/generate.ts` has excluded reported and historical context since A_58 — "had been told",
+"reported", "testified", "said that", "used to". `hasActiveUse` in the lifecycle validator never did,
+and `hasActiveUse` is the predicate the rescue mirrors. Two copies of one judgement, disagreeing,
+with one of them driving a WRITE. The guard is now on both.
+
+### 15.3 A change withdrawn mid-build, by a test
+
+The first cut put the frame AFTER the leading conjunction — "but in a remembered moment, she had
+been told…" — which reads correctly and **would have risked aborting runs**:
+`RECOLLECTION_FRAME_RE` is anchored at the sentence start, so a frame that is not first is a frame
+the validator cannot see, and the false reappearance it was rescuing would have stood. The rescue's
+own comment says exactly this, and `a90-victim-rescue-exact.test.ts` caught it. The conjunction is
+dropped instead, so the frame stays at position zero. "Then" and "For" are deliberately excluded
+from the drop list: "Then" carries sequence and is an adverb, and dropping either would change the
+sentence rather than repair it.
+
+### 15.4 STATUS
+
+| item | status | commit |
+|---|---|---|
+| `REPORTED_OR_HISTORICAL_RE` in `hasActiveUse` — the divergence closed | built, pinned on the shipped line and 5 reported forms | @@COMMIT6@@ |
+| frame placement past a leading conjunction | built, pinned; the after-the-conjunction variant withdrawn as abort-risking | @@COMMIT6@@ |
+| run 94118 shipped after resume | `story_20260912-2103`, 9,196 words, gate warning, no fallback | @@COMMIT6@@ |
+| the identity book as a READ | **ready** — identity's third read, which completes the board's target for that axis | — |
+| `AGENT3B_DURATION_ANCHORS` / `AGENT3_DECEPTION_PAIR` | untested after 4 runs; both need a device shape the generator has not produced | — |
+| Azure rate limiting killed a fresh run mid-prose | environmental; the resume path absorbed it for £0.45 | — |
+
+### 15.5 The lesson worth keeping
+
+Three fixes to one injector in one day, each correct, each addressing a different surface, because
+the predicate underneath was a second copy of a judgement that already lived somewhere else. **When
+a repair fires on the wrong sentence twice, stop fixing the sentence and go find the other copy of
+the rule.**
+

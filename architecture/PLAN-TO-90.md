@@ -1764,3 +1764,15 @@ case-specific. One defect found in the shipped book and fixed: the victim named 
 kill verb was read as a live speaker by the validator's own predicate. **The first spatial read is
 ready.**
 
+**RUN 94118 — THE IDENTITY BOOK · 2026-09-12 · £0.75 + £0.45 resume** (`ANALYSIS_90` §15). The fresh
+run died at chapter 7 under Azure rate limiting (six 429s, token quota −6,467 of 50,000); the resume
+shipped 9,196 words, gate warning, no fallback. **An identity case still fakes a time** — four axes
+of four. Four runs in, `AGENT3B_DURATION_ANCHORS` and `AGENT3_DECEPTION_PAIR` remain untested,
+because no device has locked a free duration or a third clock. The book carries the FOURTH
+consecutive rescue-frame artifact, on its third distinct surface (reported speech), and the cause
+under all three is one divergence: `detectVictimAlive` has excluded reported context since A_58 and
+`hasActiveUse` — the predicate the rescue mirrors — never did. Closed on both. One change was
+withdrawn mid-build by its own test: moving the frame after a leading conjunction reads better and
+would have risked aborts, because `RECOLLECTION_FRAME_RE` is anchored at the sentence start.
+**Identity's third read is ready**, which completes the board's target for that axis.
+

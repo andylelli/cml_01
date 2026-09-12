@@ -119,6 +119,9 @@ export const hasActiveUse = (sentence: string, name: string): boolean => {
   if (RECOLLECTION_FRAME_RE.test(sentence)) return false;
   // A_90 §14: a name that follows a kill verb is that verb's victim, not the next verb's actor.
   if (isKillVerbObject(sentence, name)) return false;
+  // A_90 §15: a REPORT of what the victim did is not the victim doing it — the same exclusion
+  // `detectVictimAlive` has always applied, now applied by the predicate the rescue mirrors.
+  if (REPORTED_OR_HISTORICAL_RE.test(sentence)) return false;
   const escaped = escapeRegExp(name);
   const subjectPattern = new RegExp(`\\b${escaped}\\b[^.!?]{0,80}${ACTIVE_VERB_RE.source}`, 'i');
   const dialoguePattern = new RegExp(`[\\u201c"]?[^\\u201d"]{0,160}[\\u201d"]?\\s*,?\\s*\\b${escapeRegExp(name.split(/\s+/).slice(-1)[0])}\\b\\s+(?:said|asked|replied|answered|confessed|admitted)\\b`, 'i');
@@ -161,6 +164,27 @@ const isConfessionKillObject = (sentence: string, name: string): boolean => {
  * of this guard suppressed Gerald Jardine's own dialogue tag in the same sentence, caught by its
  * own test before it shipped.
  */
+/**
+ * A_90 §15 — THE SAME JUDGEMENT, IN TWO PLACES, DISAGREEING (WF-002).
+ *
+ * `detectVictimAlive` in `agent9-prose/generate.ts` has excluded reported and historical context
+ * since A_58: "had been told", "reported", "testified", "said that", "used to", "once". This
+ * predicate never did — and it is the one the canonical-victim rescue mirrors, so the rescue framed
+ * what the generator's own detector would have passed.
+ *
+ * FOUND IN RUN 94118's shipped book (identity, 2026-09-12): "In a remembered moment, but she had
+ * been told all evening that Neville Fairweather walked the promenade deck at twenty minutes past
+ * eight". Neville Fairweather is the victim; the sentence is somebody's REPORT of where he walked,
+ * and the frame made it ungrammatical as well as wrong.
+ *
+ * That is the FOURTH consecutive read carrying a rescue frame on a sentence nobody needed rescued,
+ * and the third distinct surface: a possessive object (§12), the object of a kill verb (§14), and
+ * now reported speech. Each earlier fix treated its own surface. This one removes the divergence:
+ * the two predicates now make the same judgement about the same sentence.
+ */
+const REPORTED_OR_HISTORICAL_RE =
+  /\b(?:before|prior to|earlier|once|formerly|in life|while alive|when alive|had\s+\w+|used to|remembered|recalled|reported|testified|wrote|letter|diary|journal|statement|told|says? that|said that|claimed that|according to)\b/i;
+
 const KILL_OBJECT_SUBJECT_RE = "i|you|he|she|they|we|someone|somebody|nobody|who|it";
 export const isKillVerbObject = (sentence: string, name: string): boolean => {
   const surname = name.split(/\s+/).slice(-1)[0] ?? name;

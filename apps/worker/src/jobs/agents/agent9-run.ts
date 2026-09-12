@@ -2101,8 +2101,32 @@ const isVictimRescueExactPredicateEnabled = (env: NodeJS.ProcessEnv = process.en
 const FRAME_LOWERCASE_OPENERS = /^(?:He|She|They|It|The|A|An|His|Her|Their|There|Then|When|But|And|At|In|On|By|For|With|As|Now|Yet|So|If|While|After|Before|That|This|These|Those|One|Nobody|Someone|Everyone|Nothing|Once|Only|Still|Even)\b/;
 
 /** Prepend a recollection frame; lowercase a sentence-opening function word so the splice reads as one sentence. */
+/**
+ * A_90 §15 — a sentence that OPENS on a coordinating conjunction cannot take a frame in front of
+ * it: run 94118 shipped "In a remembered moment, but she had been told...". The conjunction is
+ * dropped rather than the frame moved, because `RECOLLECTION_FRAME_RE` is anchored at the sentence
+ * start and a frame it cannot see leaves the false reappearance standing.
+ */
+// "Then" and "For" are left out deliberately: "Then" is an adverb carrying sequence, not a
+// conjunction, and dropping either changes the sentence's meaning rather than repairing it.
+const LEADING_CONJUNCTION_RE = /^(But|And|Or|Yet|So|Nor)\s+/i;
+
 export const applyRecollectionFrame = (frame: string, sentence: string, lowercaseOpener: boolean): string => {
   const trimmed = sentence.replace(/^\s+/, "");
+  if (lowercaseOpener) {
+    const conjunction = LEADING_CONJUNCTION_RE.exec(trimmed);
+    if (conjunction) {
+      // The frame MUST stay at position zero: `RECOLLECTION_FRAME_RE` is anchored, and a frame the
+      // validator cannot see leaves the false reappearance standing — the abort this rescue exists
+      // to prevent. So the conjunction goes, not the frame's place. Caught by
+      // `a90-victim-rescue-exact.test.ts` before it shipped: moving the frame after the conjunction
+      // produced "Then in a remembered moment, …", which the anchored regex does not match.
+      const rest = trimmed.slice(conjunction[0].length);
+      // Only a function word is lowercased; a name keeps its capital.
+      const cased = FRAME_LOWERCASE_OPENERS.test(rest) ? rest[0]!.toLowerCase() + rest.slice(1) : rest;
+      return frame + cased;
+    }
+  }
   if (!lowercaseOpener || !FRAME_LOWERCASE_OPENERS.test(trimmed)) return frame + trimmed;
   return frame + trimmed[0]!.toLowerCase() + trimmed.slice(1);
 };

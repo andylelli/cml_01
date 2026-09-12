@@ -55,3 +55,35 @@ describe("hasActiveUse — the rescue's predicate no longer sees a live victim",
     expect(hasActiveUse('"You killed Oswald Ingram," Gerald Jardine said quietly.', "Gerald Jardine")).toBe(true);
   });
 });
+
+/**
+ * A_90 §15 — run 94118's shipped book. The rescue framed a REPORT of what the victim did:
+ * "In a remembered moment, but she had been told all evening that Neville Fairweather walked the
+ * promenade deck at twenty minutes past eight". `detectVictimAlive` has excluded reported and
+ * historical context since A_58; `hasActiveUse` — the predicate the rescue mirrors — did not.
+ * Fourth consecutive read with a rescue frame on a sentence nobody needed rescued, third surface.
+ */
+describe("hasActiveUse — a report of what the victim did is not the victim doing it", () => {
+  const SHIPPED_REPORT =
+    "but she had been told all evening that Neville Fairweather walked the promenade deck at twenty minutes past eight, and she no longer believed a word of it";
+
+  it("the line that shipped is not a live appearance", () => {
+    expect(hasActiveUse(SHIPPED_REPORT, "Neville Fairweather")).toBe(false);
+  });
+
+  it("covers the reported and historical vocabulary its twin already excluded", () => {
+    for (const frame of [
+      "The steward reported that Neville Fairweather walked the deck.",
+      "Iris Selwyn testified that Neville Fairweather entered the lounge.",
+      "According to the log, Neville Fairweather stood by the rail.",
+      "Neville Fairweather used to walk the deck at that hour.",
+      "She remembered that Neville Fairweather said nothing at dinner.",
+    ]) {
+      expect(hasActiveUse(frame, "Neville Fairweather"), frame).toBe(false);
+    }
+  });
+
+  it("but an unreported live appearance is still caught", () => {
+    expect(hasActiveUse("Neville Fairweather walked the promenade deck and said nothing.", "Neville Fairweather")).toBe(true);
+  });
+});
