@@ -93,6 +93,22 @@ const collectIntervals = (cmlCase: any, lockedFacts: any[]): StatedInterval[] =>
   return out;
 };
 
+/**
+ * The culprit's window of opportunity, when the case says what it is.
+ *
+ * A_89 A2 added `constraint_space.time.opportunity_window` so Agent 3 can DECLARE it, because the
+ * archive shows it is otherwise absent in 46 of 49 cases. The declared field wins; a locked fact that
+ * names one is the fallback, and that is how the three archived cases that can be checked today say
+ * it.
+ */
+const findDeclaredWindow = (cmlCase: any): StatedInterval | null => {
+  const declared = (cmlCase as any)?.constraint_space?.time?.opportunity_window;
+  if (declared == null) return null;
+  const minutes = parseDurationMinutes(typeof declared === "object" ? (declared as any)?.value : declared);
+  if (minutes == null || minutes <= 0) return null;
+  return { source: "constraint_space.time.opportunity_window", minutes };
+};
+
 /** A locked fact that explicitly names the culprit's window of opportunity. */
 const findOpportunityWindow = (lockedFacts: any[]): StatedInterval | null => {
   for (const fact of Array.isArray(lockedFacts) ? lockedFacts : []) {
@@ -121,7 +137,7 @@ export const checkTemporalClosure = (cmlCase: any, lockedFacts: any[] = []): Tem
   const actualMinutes = parseClockTime(String(mechanism.actual_time_of_death ?? ""));
   const intervals = collectIntervals(block, lockedFacts);
   const longestMinutes = intervals.length ? Math.max(...intervals.map((i) => i.minutes)) : null;
-  const opportunityWindow = findOpportunityWindow(lockedFacts);
+  const opportunityWindow = findDeclaredWindow(block) ?? findOpportunityWindow(lockedFacts);
 
   if (apparentMinutes == null || actualMinutes == null) {
     return {

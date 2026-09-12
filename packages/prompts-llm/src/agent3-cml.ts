@@ -216,6 +216,33 @@ const revealSceneExampleLines = (env: NodeJS.ProcessEnv = process.env): string =
       ].join("\n")
     : ["      act_number: 3", "      scene_number: 6"].join("\n");
 
+/**
+ * A_89 A2 — ask the case how long the culprit actually had.
+ *
+ * MEASURED over the archive: of 49 cases that state both an apparent and an actual time of death,
+ * **46 name no window of opportunity anywhere**, so the arithmetic a fair-play reader performs
+ * cannot be checked by anything in the pipeline. Run 88651's reader performed it and marked `clues`
+ * 5/10: a seven-minute silence from four o'clock, a ten-minute murder window, and a death at a
+ * quarter past four — outside the interval it was supposed to hide inside.
+ *
+ * A missing number is fixed by asking the agent that owns it for the number. FLAG-GATED because it
+ * adds a required-shaped line to a prompt whose output is schema-validated, and a new field is a new
+ * way for a case to fail; the schema declares it OPTIONAL for the same reason.
+ */
+export const isOpportunityWindowRequestEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT3_OPPORTUNITY_WINDOW ?? "").trim());
+
+const opportunityWindowLines = (env: NodeJS.ProcessEnv = process.env): string =>
+  isOpportunityWindowRequestEnabled(env)
+    ? [
+        "",
+        "      # A_89 A2 - the arithmetic a fair-play reader will check.",
+        "      # How long the culprit had, as a duration. It MUST be at least the gap between",
+        "      # apparent_time_of_death and actual_time_of_death, or the deception cannot have happened.",
+        '      opportunity_window: "<duration, e.g. twenty minutes>"',
+      ].join("\n")
+    : "";
+
 export function buildCMLPrompt(inputs: CMLPromptInputs, examplesDir?: string): PromptMessages {
   // Load seed patterns if examples directory provided
   let seedPatternsText = "No seed patterns loaded (will generate from first principles).";
@@ -594,7 +621,7 @@ CASE:
     time:
       anchors: []
       windows: []
-      contradictions: []
+      contradictions: []${opportunityWindowLines()}
     access:
       actors: []
       objects: []

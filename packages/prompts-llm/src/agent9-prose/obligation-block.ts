@@ -15,6 +15,8 @@ import {
 } from "../constants/arc-position.js";
 import {
   getRequiredClueIdsForScene,
+  resolveClueOwnership,
+  isClueOwnershipEnabled,
   isBehaviouralClue,
   isAftermathFinalScene,
   isDeliveryMethodLabel,
@@ -421,6 +423,14 @@ const REVEAL_SIGNAL_RE = /\b(culprit|confront|confession|resolve|resolution|deno
     ? `${continuityTail.slice(0, 220).trimEnd()}...`
     : continuityTail;
 
+  /**
+   * A_89 B1 — which chapter OWNS each clue, so a later chapter refers to it instead of staging it
+   * again. Resolved once for the whole outline; see `resolveClueOwnership` for the measurement.
+   */
+  const clueOwnership = isClueOwnershipEnabled()
+    ? resolveClueOwnership(cmlCase, (allOutlineScenes ?? []) as any[])
+    : null;
+
   (scenesForChapter as any[]).forEach((scene, idx) => {
     const chapterNumber = chapterStart + idx;
     const requiredClueIds = getRequiredClueIdsForScene(cmlCase, scene, allOutlineScenes);
@@ -798,12 +808,50 @@ const REVEAL_SIGNAL_RE = /\b(culprit|confront|confession|resolve|resolution|deno
       );
     }
 
-    if (requiredClueIds.length > 0) {
+    /**
+     * A_89 B1 — a clue is DRAMATIZED in the chapter that owns it and REFERRED TO afterwards.
+     *
+     * Every scene listing a clue in `cluesRevealed` (or mapped to it) previously received the same
+     * "MUST be dramatized" instruction, so the model staged the same evidence repeatedly. MEASURED
+     * over 47 runs: a 41% median re-mandate rate. Applying ownership to the 45 archived outlines
+     * takes the mean from 30.5 obligations per book to 24.4, and the heaviest single chapter seen
+     * from 18 to 9 — which is the "proof becomes a speech" complaint at its source.
+     *
+     * The clue is NOT removed from the chapter: `getRequiredClueIdsForScene` still reports it, so
+     * validation still accepts it there. Only the ASK changes.
+     */
+    const ownedClueIds = clueOwnership
+      ? requiredClueIds.filter((id) => clueOwnership.get(id) === Number((scene as any)?.sceneNumber))
+      : requiredClueIds;
+    const inheritedClueIds = clueOwnership
+      ? requiredClueIds.filter((id) => clueOwnership.get(id) !== Number((scene as any)?.sceneNumber))
+      : [];
+
+    if (inheritedClueIds.length > 0) {
+      const named = inheritedClueIds
+        .map((id) => {
+          const clue = clueMap.get(id);
+          const terms = clue ? surfaceSpecKeyTerms(String(clue.observable ?? clue.description ?? ''), 4) : '';
+          const owner = clueOwnership?.get(id);
+          return terms ? `${terms}${owner ? ` (first shown in chapter ${owner})` : ''}` : '';
+        })
+        .filter(Boolean);
+      if (named.length > 0) {
+        lines.push(
+          `  - ALREADY ON THE PAGE — refer, do NOT re-stage: ${named.join('; ')}. ` +
+          `These were dramatized earlier. A character may MENTION one in passing, or reason from it, ` +
+          `but do not describe the discovery again, do not re-list the evidence, and do not restate ` +
+          `what it proves. Re-staging reads as a recap and an external reader has named it twice.`,
+        );
+      }
+    }
+
+    if (ownedClueIds.length > 0) {
       lines.push(`  - CLUE OBLIGATIONS — each clue below MUST be dramatized, but in YOUR OWN WORDS:`);
       lines.push(`    Render each as something a character SEES, DOES, or SAYS on the page. The bracketed text is a`);
       lines.push(`    DESCRIPTION of the evidence for you — do NOT transcribe it as narration. Copying a clue's`);
       lines.push(`    description sentence verbatim into the prose FAILS validation.`);
-      for (const clueId of requiredClueIds) {
+      for (const clueId of ownedClueIds) {
         const clue = clueMap.get(clueId);
         if (clue) {
           const isDeferredReveal = isPreRevealChapter && isRevealClue(clue);

@@ -208,6 +208,15 @@ export {
 } from "./agent9-prose/clue-validation.js";
 export type { SceneRefAudit, SceneRefPath } from "./agent9-prose/clue-validation.js";
 export { isSceneRefArbitrationEnabled } from "./agent9-prose/obligation-block.js";
+// A_89 B1/B2 — clue ownership and the per-chapter obligation load.
+export {
+  resolveClueOwnership,
+  isClueOwnershipEnabled,
+  measureClueObligationLoad,
+  summariseClueObligationLoad,
+  DEFAULT_CLUE_OBLIGATION_BUDGET,
+} from "./agent9-prose/clue-validation.js";
+export type { ClueObligationLoad } from "./agent9-prose/clue-validation.js";
 export {
   reconcileCmlSceneRefs,
   isSceneRefReconcileEnabled,

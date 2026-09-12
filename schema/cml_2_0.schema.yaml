@@ -249,6 +249,9 @@ CASE:
             anchors: { type: array, items: string }
             windows: { type: array, items: string }
             contradictions: { type: array, items: string }
+            # A_89 A2 - how long the culprit actually had, as a duration ("ten minutes").
+            # Optional so no archived case fails validation; see ANALYSIS_89 section 2.
+            opportunity_window: { type: string, required: false }
         access:
           type: object
           fields:

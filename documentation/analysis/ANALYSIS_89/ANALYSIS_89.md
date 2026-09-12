@@ -477,3 +477,74 @@ absence countable; A2 is what fixes it.
 The module reuses the project's `parseClockTime` and `parseDurationMinutes` rather than writing new
 ones — the first draft had two fresh parsers, which is precisely the fork A_73 §11.3 and A_88 both
 recorded.
+
+
+---
+
+## 11. BUILD LOG — B1/B2 and A2 (2026-09-12)
+
+| item | state | flag | measured effect |
+|---|---|---|---|
+| **B1** one owning chapter per clue | **BUILT** | `AGENT9_CLUE_OWNERSHIP` (OFF) | obligations per book **30.5 -> 24.4**; heaviest chapter **18 -> 9** |
+| **B2** obligation load counted | **BUILT** | none (rides the Agent 7 telemetry) | 7 of 45 books carry an over-budget chapter |
+| **A2** derived case timeline | **BUILT** | `AGENT3_CASE_TIMELINE` (OFF) | one object with provenance; names what is missing |
+| **A2** ask for the window | **BUILT** | `AGENT3_OPPORTUNITY_WINDOW` (OFF) | closes A1's loop: 88651 goes `not-determinable` -> `does-not-close` |
+
+### B1 — the clue is still accepted, only the ASK changes
+
+A clue is dramatized in the chapter that owns it — the first scene requiring it — and later chapters
+receive `ALREADY ON THE PAGE — refer, do NOT re-stage`, naming its key terms and the chapter it first
+appeared in. Across the 45 archived outlines that takes the mean from 30.5 obligations per book to
+24.4 and the heaviest single chapter from **18 to 9**, which is "the proof becomes a speech" at source.
+
+`getRequiredClueIdsForScene` is untouched, so **validation still accepts the clue in the later
+chapter**. Narrowing what we ASK for is a different thing from narrowing what we ACCEPT, and
+conflating the two is exactly how a formatting rule became a content filter in D1. A test pins it.
+
+### B2 — counted, not capped
+
+Dropping an obligation drops a clue, and fair play is the one thing the pipeline may not trade away.
+So B2 counts: total, distinct, re-mandate rate, heaviest chapter, and any chapter over a budget of 8,
+reported once per run beside the A_87 scene-ref line.
+
+**An honest discrepancy, stated rather than smoothed:** measured from the stored artifacts the median
+re-mandate rate is **14%**, against **41%** measured from the live prompt log. Both are real and they
+measure different stages — Agent 7's gap-fill and threshold-fill passes add obligations after the
+artifact is written. The heaviest-chapter figure is the half that transfers, and chapter 6 is the
+heaviest in book after book (13, 11, 15 in the first three archived outlines; 14 in run 88651).
+
+### A2 — the missing number, and why it is not invented
+
+A1 measured the blocker: **46 of 49 checkable cases name no opportunity window**, so the arithmetic
+cannot be validated. A2 does two things.
+
+`deriveCaseTimeline` exposes one object — gap, window, intervals, verdict — with **provenance on every
+number** (`stated` / `absent`) and a plain list of what is missing. It **does not infer a missing
+window from the gap**: that would make `gap <= window` tautologically true and convert a missing fact
+into a passing one, which is the opposite of what A1's 46 undecidable cases are for.
+
+`AGENT3_OPPORTUNITY_WINDOW` adds `constraint_space.time.opportunity_window` to Agent 3's skeleton,
+with the instruction that it must be at least the gap between the two times. The schema declares it
+**optional**, so no archived case fails validation and no run can abort on it, and OFF is
+byte-identical (74,404 bytes before and after; ON adds 311).
+
+**The loop closes.** With the window declared, run 88651's own case moves from `not-determinable` to
+`does-not-close` — gap 15 minutes against a 10-minute window, which is precisely what its reader
+worked out by hand and marked `clues` 5/10 for.
+
+### Section 7 status
+
+| # | fix | state |
+|---|---|---|
+| 1 | C1 casing restore | **done**, unconditional |
+| 2 | D1 relationship as content | **done**, `AGENT9_RELATIONSHIP_CONTENT` |
+| 3 | B3 contract exclusivity | **done**, inside `AGENT9_SCENE_REF_ARBITRATION` |
+| 4 | A1 temporal closure | **done**, `AGENT3_TEMPORAL_CLOSURE` |
+| 5 | B1/B2 ownership + budget | **done**, `AGENT9_CLUE_OWNERSHIP` |
+| 6 | A2 derived timeline | **done**, `AGENT3_CASE_TIMELINE` + `AGENT3_OPPORTUNITY_WINDOW` |
+| 7 | C2 register density in the run report | **not built** |
+
+Open, measured, and deliberately left: **15 of 45 books still carry two culprit-naming mandates**,
+because the DT contract's beat (5) duplicates a separate reveal chapter (section 10). And every flag
+above is OFF — the fixes exist but only `AGENT9_SCENE_REF_ARBITRATION` is live, so the next run
+measures one lever unless that is changed deliberately.

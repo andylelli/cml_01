@@ -7,7 +7,7 @@
  * pacing. Writes ctx.narrative and ctx.outlineCoverageIssues.
  */
 
-import { formatNarrative, GOLDEN_AGE_BEATS, isAgent7StructuredOutputEnabled, auditCmlSceneRefs, summariseSceneRefAudit, reconcileCmlSceneRefs, isSceneRefReconcileEnabled } from "@cml/prompts-llm";
+import { formatNarrative, GOLDEN_AGE_BEATS, isAgent7StructuredOutputEnabled, auditCmlSceneRefs, summariseSceneRefAudit, reconcileCmlSceneRefs, isSceneRefReconcileEnabled, measureClueObligationLoad, summariseClueObligationLoad } from "@cml/prompts-llm";
 import type { NarrativeOutline, ClueDistributionResult, WorldDocumentResult } from "@cml/prompts-llm";
 import { validateArtifact } from "@cml/cml";
 import type { CaseData } from "@cml/cml";
@@ -3016,6 +3016,22 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
 
     const refAudit = auditCmlSceneRefs(ctx.cml as any, auditScenes);
     ctx.warnings.push(`[A_87 scene-ref join] ${summariseSceneRefAudit(refAudit)}`);
+
+    /**
+     * A_89 B2 — the clue-obligation load, counted at the point the outline is final.
+     *
+     * Fourteen clue obligations in one chapter cannot be dramatized; they will be recited, and the
+     * reader of run 88651 named that three times over. This COUNTS rather than caps: dropping an
+     * obligation drops a clue, and fair play is the one thing the pipeline may not trade away. B1's
+     * ownership split reduces the ASK without losing anything; this makes a heavy schedule visible
+     * before a reader finds it.
+     *
+     * Counted from the stored mapping, so it UNDER-reports the live prompt: Agent 7's gap-fill and
+     * threshold-fill passes add obligations after this point (artifact-level median re-mandate 14%,
+     * prompt-level 41% over 47 logged runs). The heaviest-chapter figure is the actionable half.
+     */
+    const clueLoad = measureClueObligationLoad(ctx.cml as any, auditScenes);
+    ctx.warnings.push(`[A_89 clue load] ${summariseClueObligationLoad(clueLoad)}`);
   } catch (e) {
     // Telemetry must never cost an outline — the same rule the stamping passes above follow.
     ctx.warnings.push(`[A_87 scene-ref join] audit skipped: ${(e as Error).message}`);

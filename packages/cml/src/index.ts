@@ -160,4 +160,8 @@ export {
 
 // A_89 A1 — temporal closure: can the deception's interval contain the event it conceals?
 export { checkTemporalClosure, isTemporalClosureCheckEnabled } from "./temporal-closure.js";
+export type { TemporalClosureVerdict } from "./temporal-closure.js";
+// A_89 A2 — one derived timeline, so the case's numbers exist once.
+export { deriveCaseTimeline, summariseCaseTimeline, isCaseTimelineEnabled } from "./case-timeline.js";
+export type { CaseTimeline } from "./case-timeline.js";
 export type { TemporalClosureResult, StatedInterval } from "./temporal-closure.js";

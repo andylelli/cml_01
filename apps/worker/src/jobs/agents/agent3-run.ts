@@ -8,7 +8,8 @@
 
 import { generateCML, auditNovelty, findUnplantedDiscriminatingClues } from "@cml/prompts-llm";
 import { createSkeletonExtractor, judgeNovelty, loadReferenceCorpus } from "@cml/novelty";
-import { checkTemporalClosure, isTemporalClosureCheckEnabled } from "@cml/cml";
+import { checkTemporalClosure, isTemporalClosureCheckEnabled,
+  deriveCaseTimeline, summariseCaseTimeline, isCaseTimelineEnabled } from "@cml/cml";
 import { parseClockTime, validateCml, buildCaseScopedLockedFacts,
   alibiSpanFromWindow,
   isValidAlibiSpan,
@@ -989,7 +990,15 @@ export function extendLockedFactRegistryWithCaseFacts(ctx: OrchestratorContext):
 function reportTemporalClosure(ctx: OrchestratorContext): void {
   if (!isTemporalClosureCheckEnabled()) return;
   try {
-    const result = checkTemporalClosure(ctx.cml as any, (ctx.lockedFactRegistry ?? []) as any[]);
+    const facts = (ctx.lockedFactRegistry ?? []) as any[];
+    if (isCaseTimelineEnabled()) {
+      // A_89 A2 — the richer line: the gap, the window and its provenance, and what is MISSING.
+      const timeline = deriveCaseTimeline(ctx.cml as any, facts);
+      const line = summariseCaseTimeline(timeline);
+      if (line) ctx.warnings.push(`[A_89 case timeline] ${line}`);
+      return;
+    }
+    const result = checkTemporalClosure(ctx.cml as any, facts);
     if (!result.checkable) return;
     ctx.warnings.push(`[A_89 temporal closure] ${result.verdict}: ${result.summary}`);
   } catch (err) {

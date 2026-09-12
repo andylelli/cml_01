@@ -905,6 +905,120 @@ export const getRequiredClueIdsForScene = (
   return Array.from(new Set([...mapped, ...sceneClues]));
 };
 
+/**
+ * A_89 B1 — ONE OWNING CHAPTER PER CLUE.
+ *
+ * `getRequiredClueIdsForScene` answers "does this scene require this clue?", and a clue listed on
+ * several scenes' `cluesRevealed` (or mapped to several act/scene pairs) is required by every one of
+ * them. Each then receives the same CLUE OBLIGATION — "dramatize this, in your own words" — and the
+ * model complies by writing the same evidence again.
+ *
+ * MEASURED over 47 runs in the prompt log: the median book issues 34 clue-obligations across 20
+ * distinct clues, a **41% re-mandate rate**. Run 88651 issued 43 across 23 (47%), with 14 in chapter 6
+ * alone. Its reader wrote the consequence back to us three times — *"Chapters 3-6 circle the same
+ * evidence"*, *"the proof becomes a speech"*, *"Chapter 10 still recaps too much evidence"* — and the
+ * manuscript ranks 25th worst of 212 for repeated six-word spans, at 118.8 per 10k words against a
+ * corpus median of 17.3. The repeated spans ARE the evidence list.
+ *
+ * Ownership is the FIRST scene that requires the clue, in outline order. A later scene that requires
+ * the same clue is not wrong — the evidence genuinely recurs — but it should REFER to it, not stage it
+ * a second time. This function says who owns what; the obligation builder decides what to ask for.
+ *
+ * Deliberately not a filter on `getRequiredClueIdsForScene` itself: that function also drives
+ * VALIDATION, and a clue is legitimately present in a later chapter. Narrowing what we ASK for is a
+ * different thing from narrowing what we ACCEPT, and conflating them is how a formatting rule became
+ * a content filter in A_89 D1.
+ */
+export const resolveClueOwnership = (
+  cmlCase: any,
+  allOutlineScenes: any[],
+): Map<string, number> => {
+  const owner = new Map<string, number>();
+  const scenes = Array.isArray(allOutlineScenes) ? allOutlineScenes : [];
+  for (const scene of scenes) {
+    const sceneNumber = Number((scene as any)?.sceneNumber);
+    if (!Number.isFinite(sceneNumber)) continue;
+    for (const clueId of getRequiredClueIdsForScene(cmlCase, scene, scenes)) {
+      if (!owner.has(clueId)) owner.set(clueId, sceneNumber);
+    }
+  }
+  return owner;
+};
+
+/** Is clue ownership switched on? Env read at call time (ADR-0004). */
+export const isClueOwnershipEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT9_CLUE_OWNERSHIP ?? "").trim());
+
+/**
+ * A_89 B2 — THE CLUE-OBLIGATION LOAD, counted and reported.
+ *
+ * Fourteen clue obligations in one chapter cannot be dramatized; they will be recited. Run 88651 put
+ * 14 in chapter 6, 6 in chapter 8 and 8 in chapter 10 (corpus median heaviest chapter: 10, median
+ * final chapter: 2), and its reader wrote back *"Chapters 3-6 circle the same evidence"*, *"the proof
+ * becomes a speech"* and *"Chapter 10 still recaps too much evidence"*.
+ *
+ * This COUNTS rather than caps. Dropping an obligation would drop a clue from the book, and fair play
+ * is the one thing the pipeline may not trade away — B1's ownership split already reduces the ask
+ * without losing anything (mean 30.5 -> 24.4 per book, heaviest chapter 18 -> 9 across the archive).
+ * What remains is to make a heavy schedule visible before a reader finds it, which is the move A_87
+ * P1 made for the scene-ref join and A_89 A1 made for the temporal arithmetic.
+ */
+export interface ClueObligationLoad {
+  /** Total obligations issued across the book, counting re-mandates. */
+  total: number;
+  /** Distinct clues involved. */
+  distinct: number;
+  /** Share of obligations that repeat a clue already mandated elsewhere. */
+  reMandateRate: number;
+  /** The heaviest chapter, and how many it carries. */
+  heaviestChapter: number;
+  heaviestCount: number;
+  /** Chapters carrying more than `budget` obligations. */
+  overBudget: Array<{ chapter: number; count: number }>;
+}
+
+export const DEFAULT_CLUE_OBLIGATION_BUDGET = 8;
+
+export const measureClueObligationLoad = (
+  cmlCase: any,
+  allOutlineScenes: any[],
+  budget: number = DEFAULT_CLUE_OBLIGATION_BUDGET,
+): ClueObligationLoad => {
+  const scenes = Array.isArray(allOutlineScenes) ? allOutlineScenes : [];
+  const seen = new Set<string>();
+  const overBudget: Array<{ chapter: number; count: number }> = [];
+  let total = 0, heaviestChapter = 0, heaviestCount = 0;
+  scenes.forEach((scene, index) => {
+    const ids = getRequiredClueIdsForScene(cmlCase, scene, scenes);
+    const chapter = Number((scene as any)?.sceneNumber) || index + 1;
+    total += ids.length;
+    for (const id of ids) seen.add(id);
+    if (ids.length > heaviestCount) { heaviestCount = ids.length; heaviestChapter = chapter; }
+    if (ids.length > budget) overBudget.push({ chapter, count: ids.length });
+  });
+  const distinct = seen.size;
+  return {
+    total,
+    distinct,
+    reMandateRate: total > 0 ? (total - distinct) / total : 0,
+    heaviestChapter,
+    heaviestCount,
+    overBudget,
+  };
+};
+
+/** One line for the run report. Always returns something: a clean schedule is worth recording too. */
+export const summariseClueObligationLoad = (load: ClueObligationLoad): string => {
+  const pct = Math.round(100 * load.reMandateRate);
+  const head =
+    `${load.total} clue obligation(s) across ${load.distinct} distinct clue(s) — ${pct}% re-mandated; ` +
+    `heaviest chapter ${load.heaviestChapter} with ${load.heaviestCount}`;
+  if (load.overBudget.length === 0) return `${head}. Within budget.`;
+  const listed = load.overBudget.map((o) => `ch${o.chapter}=${o.count}`).join(", ");
+  return `${head}. OVER BUDGET (${DEFAULT_CLUE_OBLIGATION_BUDGET}): ${listed} — a chapter asked to ` +
+    `dramatize this many pieces of evidence will recite them instead.`;
+};
+
 export const buildChapterRequirementLedger = (
   cmlCase: any,
   batchScenes: unknown[],
