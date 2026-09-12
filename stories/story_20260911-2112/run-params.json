@@ -1,0 +1,19 @@
+{
+  "seed": null,
+  "runId": "mystery-1789156244434",
+  "projectId": "canary_1789156244431",
+  "primaryAxis": "behavioral",
+  "storyAngle": "a ballet corps rehearsing a new production",
+  "targetLength": "short",
+  "eraPreference": "1930s",
+  "locationPreset": "Liner",
+  "castNames": [
+    "Nora Gaunt",
+    "Bertram Norbury",
+    "Harriet Kestrel",
+    "Desmond Lachlan",
+    "Julian Quayle",
+    "Gwendolyn Vance"
+  ],
+  "generatedAt": "2026-09-11T20:12:56.497Z"
+}

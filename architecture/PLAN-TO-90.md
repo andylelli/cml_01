@@ -1646,3 +1646,29 @@ against archived artifacts; whether it moves `ending` or `pacing` needs a run an
 
 Detail, including the two wrong intermediate numbers this work produced and how the fixture caught
 them, in `documentation/analysis/ANALYSIS_87/ANALYSIS_87.md` §8.
+
+
+## 16. A_89 — THE READER'S 79/100, GROUPED BY CAUSE · 2026-09-12 · £0
+
+`read-20260911-2112`, the first behavioural book. Ten complaints reduce to FOUR causes, and three of
+them are one shape: **a value that exists, is correct, and is discarded or contradicted downstream by
+a rule nobody measured.**
+
+| group | reader's mark | measurement |
+|---|---|---|
+| A · the case's arithmetic does not close | `clues` **5/10** | **15 of 21 cases (71%)** place the death outside every window the case itself states |
+| B · the repetition is instructed | `plot`/`pacing`/`ending` 7 | **41%** median clue re-mandate rate over 47 runs; reveal + aftermath contracts collide in **37 of 39** runs |
+| C · machine register | `prose` **6/10** | this book is **25th worst of 212** for repeated 6-word spans (118.8 per 10k vs median 17.3). The 8 lines the reader quoted are the MODEL'S, not our injectors |
+| D · the motive never reaches the page | `character life` 7/10 | a 40-character label cap discards **747 of 752 (99%)** `relationship` strings before Agent 9 |
+
+**A_87 made B2 universal and that is on this work.** The reveal contract now lands on the last
+revelation beat, which is the final scene in 44 of 45 outlines — the aftermath chapter. The defect
+moved rather than closing: run 3252 lost the reveal contract and the reader said chapter 8 repeats;
+run 88651 put it on the aftermath chapter and the reader said chapter 10 recaps.
+
+**No score claim.** Different axis from the previous read, one book, and the rubric cannot resolve
+under ~7 marks.
+
+Fix plan ranked in `documentation/analysis/ANALYSIS_89/ANALYSIS_89.md` §7 — cheapest and
+reader-named first (casing restore; the 40-char cap), then contract exclusivity, then the temporal
+closure gate.
