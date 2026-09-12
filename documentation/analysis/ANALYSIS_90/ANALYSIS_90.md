@@ -758,8 +758,8 @@ private property.
 | item | status | commit |
 |---|---|---|
 | NSD-anchor floor plants what the matcher reads | built, pinned against the real matcher; **not yet exercised in production** | `bb4c0379` |
-| `isKillVerbObject` — any subject, clause-bounded | built, pinned on the shipped line | @@COMMIT5@@ |
-| run 10845 shipped after resume | `story_20260912-2016`, 11,701 words, gate warning, no fallback | @@COMMIT5@@ |
+| `isKillVerbObject` — any subject, clause-bounded | built, pinned on the shipped line | `6d0f2fbc` |
+| run 10845 shipped after resume | `story_20260912-2016`, 11,701 words, gate warning, no fallback | `6d0f2fbc` |
 | the spatial book as a READ | **ready** — the first spatial read the project has ever had | — |
 | Move 1's instrument stops before the prose | **recorded, not built** — the case/clues/outline anchor 9/9, 7/7, 6/6, and geometry still found 3 unaccounted times IN THE MANUSCRIPT | — |
 | a device with a FREE duration | still unseen after 3 runs; `AGENT3B_DURATION_ANCHORS` untested | — |
