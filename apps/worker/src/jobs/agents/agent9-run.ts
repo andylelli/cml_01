@@ -3914,26 +3914,60 @@ export const repairUnanchoredNsdCluesBeforeGate = async (args: {
     // detector-non-membership-tested phrasing; class-#6 rule — no cast name shares the term
     // sentence), accept iff THE GATE'S OWN matcher sees it. A flat sentence risks a rubric cap;
     // a cap beats an abort (repair-not-abort).
+    /**
+     * A_90 §14 — PLANT WHAT THE MATCHER READS.
+     *
+     * FOUND BY RUN 10845 (spatial, 2026-09-12), which wrote 13,205 words and then died at the
+     * release gate on one clue. The floor planted the clue's `observable`; the gate's matcher
+     * (`buildClueSignatures`) builds its required tokens from `description` and `pointsTo`. For
+     * `clue_core_contradiction_chain` those are different sentences —
+     *   observable:  "Distinct knocking echoes and structural differences are noted between the rooms."
+     *   description: "…the two rooms are separate; knocking tests confirm their physical separation…"
+     * — so the plant carried three of the tokens the gate wanted and the floor reported "NOT accepted
+     * by the gate matcher (hard-stop stands)". One clue, one whole run, £1.20 of artifacts discarded.
+     *
+     * WF-002 exactly: two components computing the same set, one feeding a WRITE (the floor) and one
+     * a GATE. The fix is not a wider matcher — it is to plant from the SAME fields the matcher reads,
+     * and to keep the floor's existing contract: accept only what the gate's own matcher then sees.
+     * Each candidate is strictly a superset test of today's, so the worst case is today's outcome.
+     */
     for (const clueId of [...stillUnresolved]) {
       const clue: any = clueById.get(clueId);
-      const observable = String(clue?.observable ?? clue?.description ?? "").trim().replace(/\.+$/, "");
-      if (!observable) continue;
-      const paragraph = `The record now held one further detail, set down without comment: ${observable}.`;
-      const current = chapters[idx];
-      const candidate = { ...current, paragraphs: [...(current?.paragraphs ?? []), paragraph] };
-      const ok = args
-        .collectEvidence([candidate], args.cmlCase, args.clues)
-        .visibleClueIds.includes(clueId);
-      if (ok) {
+      const field = (value: unknown): string => String(value ?? "").trim().replace(/\.+$/, "");
+      const observable = field(clue?.observable ?? clue?.description);
+      const description = field(clue?.description);
+      const pointsTo = field(clue?.pointsTo ?? clue?.points_to);
+      // Ordered cheapest-first: today's plant, then the matcher's own fields, then both together.
+      const bodies = [
+        observable,
+        description,
+        [observable, description].filter(Boolean).join("; "),
+        [observable, description, pointsTo].filter(Boolean).join("; "),
+      ].filter((body, i, all) => body && all.indexOf(body) === i);
+      if (bodies.length === 0) continue;
+      let planted = false;
+      for (const body of bodies) {
+        const paragraph = `The record now held one further detail, set down without comment: ${body}.`;
+        const current = chapters[idx];
+        const candidate = { ...current, paragraphs: [...(current?.paragraphs ?? []), paragraph] };
+        const ok = args
+          .collectEvidence([candidate], args.cmlCase, args.clues)
+          .visibleClueIds.includes(clueId);
+        if (!ok) continue;
         chapters[idx] = candidate;
         stillUnresolved = stillUnresolved.filter((id) => id !== clueId);
         repaired.push(clueId);
+        planted = true;
         args.onNote?.(
-          `[Agent 9] NSD-anchor DETERMINISTIC floor planted ${clueId} in ch${chapterNumber} (regen starved — class #13); gate matcher accepted.`,
+          `[Agent 9] NSD-anchor DETERMINISTIC floor planted ${clueId} in ch${chapterNumber} (regen starved — class #13); ` +
+            `gate matcher accepted candidate ${bodies.indexOf(body) + 1} of ${bodies.length}.`,
         );
-      } else {
+        break;
+      }
+      if (!planted) {
         args.onNote?.(
-          `[Agent 9] NSD-anchor deterministic floor for ${clueId} NOT accepted by the gate matcher (hard-stop stands).`,
+          `[Agent 9] NSD-anchor deterministic floor for ${clueId} NOT accepted by the gate matcher after ` +
+            `${bodies.length} candidate(s) (hard-stop stands).`,
         );
       }
     }
