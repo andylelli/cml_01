@@ -737,3 +737,96 @@ the 47% where B1 actually bites — the worst archived case re-mandates 28 of 54
 
 **Not claimed:** any score effect. This book has not been read, and the rubric cannot resolve under
 ~7 marks in any case.
+
+
+---
+
+## 14. THE READ — the other half of the matched pair · `read-20260912-1507` · **82/100**
+
+Ledger row 60. Same case, same cast, same clues, same outline, byte-identical upstream; only the
+prose stage differs.
+
+| category | before | after | |
+|---|---|---|---|
+| premise | 8 | 8 | |
+| opening hook | 7 | 7 | |
+| **plot structure** | 7 | **8** | *"final trap now has real action"* |
+| character clarity | 8 | 8 | |
+| dialogue | 7 | 7 | |
+| atmosphere | 8 | 8 | |
+| **clues / evidence logic** | 5 | **6** | *"improved mechanism, but timing still doesn't fully add up"* |
+| **pacing** | 7 | **8** | *"cleaner than the previous version, especially Ch. 8"* |
+| ending / reveal | 7 | 7 | *"Ch. 9/10 still recap too much"* |
+| **prose / polish** | 6 | **7** | *"fewer scaffold artifacts than before"* |
+| character life | 7 | 7 | *"Gwendolyn/Bertram history still needs more specificity"* |
+| **headline** | **79** | **82** | sum 70 → 74 |
+
+**Four categories up, none down.** The reader's own summary: *"a clear improvement over the previous
+silent-intermission draft."*
+
+### What the number is worth, stated honestly
+
+CLAUDE.md's rule is that any A/B delta under ~7 marks is unmeasured, and that rule was derived from
+SINGLE runs, where the case, cast and outline all differ. This is the instrument built precisely
+because of that — a matched pair against byte-identical upstream. So +3 here is not the same object as
++3 between two unrelated books.
+
+It is still **n=1 pair**, and the reader **saw both books and compared them explicitly**, so anchoring
+is a live risk in both directions. **The category movement and the reader's prose are the evidence;
+the +3 is consistent with them rather than independent of them.** No causal claim is made from the
+number alone.
+
+### What maps cleanly to a lever
+
+- **prose 6 → 7, "fewer scaffold artifacts than before"** ← C1. MEASURED: lowercased surnames 7 → 0.
+  The reader's new scaffold list contains *"Nora Gaunt claimed a fleeting instant"* — correctly
+  capitalised, where the previous list had *"Nora gaunt let a flicker of amusement"*. He is quoting
+  the same injector family with our fingerprint removed.
+- **plot 7 → 8 and pacing 7 → 8, both crediting Chapter 8** ← B3. Chapter 8 moved to stage mode
+  `final_reveal` and carries the naming mandate; chapter 10 lost `EVIDENCE CHAIN REQUIRED`. MEASURED:
+  final-chapter evidence mentions 10 → 4.
+- **ending 7 → 7, "Ch. 9/10 still recap too much"** ← partially addressed. Chapter 10 improved and the
+  reader says so; **chapter 9 is now the complaint**, and it carries `SUSPECT CLEARANCE` and nothing
+  else — no clue obligations, no contract. That is `AGENT9_CLEARANCE_OWNERSHIP` / `AGENT9_CLEARANCE_TRIM`
+  territory, both already registered, neither enabled here.
+
+### D1 REACHED THE PROMPT AND NOT THE PAGE — prediction 5 failed
+
+| | |
+|---|---|
+| chapter prompts carrying *"threatened to cut funding if unsuccessful"* | **11** |
+| times any form of it reached the prose | **0** |
+
+The reader: *"'He was destroying everything I cared for' is understandable, but generic. Give one
+concrete wound: he cut dancers' wages, cancelled her choreography, threatened to dissolve the
+company."* **The case says he threatened to cut the funding. We put that sentence in eleven prompts
+and the model generalised it away.**
+
+`character life` stayed at 7. D1 fixed the pipe — 747 of 752 relationship strings were being discarded
+and now reach Agent 9 — and that was necessary and is not sufficient. This is the `voice-spec-is-a-dead-lever`
+family: **reaches every prompt, ignored.** The next move for group D is an OPERATION, not context: the
+reveal chapter must be required to name the specific grievance on the page, the way the clue
+obligations require a clue to be dramatized. Context is not an instruction.
+
+### What the pair could not test, and why
+
+- **A1/A2 (the time math).** Agent 3 never re-ran, so the case was byte-identical and its temporal
+  contradiction was guaranteed to survive. The reader found it again, in the same words, and `clues`
+  moved 5 → 6 only because Chapter 8 got clearer. **This is the cleanest evidence in the pair that the
+  defect is in the CASE and not the prose** — the prose was rewritten entirely and the contradiction
+  did not move.
+- **B1 (clue ownership).** Fired on one chapter; this book has one inherited pair (§13).
+
+### Standing
+
+| lever | status after the pair |
+|---|---|
+| C1 casing | **confirmed on the page** — reader notes fewer artifacts |
+| B3 contract exclusivity | **confirmed on the page** — Ch.8 praised, Ch.10 lighter |
+| D1 relationship content | **pipe fixed, page unaffected** — needs an obligation, not context |
+| B1 clue ownership | untested — needs a book from the 47% where it bites |
+| A1/A2 temporal | untested — needs a full run, not a prose redo |
+| C2 repetition telemetry | works; invisible in resume output |
+
+Next, in order: make the grievance an OBLIGATION (D2); a full run with the Agent 3 temporal telemetry
+on, to see the case-level defect the pair could not touch; and a matched pair chosen for B1.
