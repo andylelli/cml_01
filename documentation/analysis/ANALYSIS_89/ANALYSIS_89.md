@@ -365,3 +365,52 @@ falsifier, per the repo's flag discipline.
   75 and 705 minutes against 10-minute windows — but individual rows may be mis-attributed.
 - **Why chapter 6 received 14 clue obligations** when the corpus median heaviest chapter is 10. The
   gap-fill and threshold-fill passes are the likely source; not traced.
+
+
+---
+
+## 9. BUILD LOG — C1 and D1 (2026-09-12)
+
+| item | state | flag | measured effect |
+|---|---|---|---|
+| **C1** casing restore in the phrase splice | **BUILT, unconditional** | none | 4/42 books stop lowercasing names; proof below |
+| **D1** relationship rendered as content | **BUILT, flag-gated** | `AGENT9_RELATIONSHIP_CONTENT` (OFF) | **532 of 577 pairs (92%)** now reach the prompt, for **+271 tokens** on a ~24k prompt |
+
+### C1 ships unconditional, and here is why that is safe
+
+`restoreProperNounCasing` is a new, stricter sibling of `restoreSourceCasing`: it records a capital
+only when the word appears capitalised **mid-sentence** in the source, so a sentence-initial "The"
+teaches it nothing. Replayed over all **3,459 archived paragraphs**, simulating the splice by
+lower-casing a span and restoring it against its own paragraph:
+
+- spans where casing was restored: **1,796**
+- letters raised to a capital: **3,247**
+- changes that were anything other than a letter raised to its own uppercase: **0**
+
+It cannot invent a capital and cannot alter a word that is absent from the source, so there is no
+behaviour to gate. Same standard as A_88's splitter fix.
+
+### The regression this nearly shipped
+
+The first cut passed the matched span **plus** the paragraph as the casing source. That moved the
+paragraph's sentence-initial capital into a mid-sentence position, so the helper learned "The" and
+capitalised every later "the" — *"Fresh rain rattled The casement"*. **Three existing tests failed
+and caught it.** The source is now the paragraph alone, which is sufficient because the matched span
+is already a substring of it. Pinned by a regression test named for the failure.
+
+This is the third time in three sessions that the fix's own first cut carried the defect it was
+fixing — A_88 put a literal backspace into two regexes while repairing literal backspaces, and A_87's
+harness disabled the arbitration it was measuring. **The pattern is that the fix is written in the
+same idiom as the bug.** The defence is not care; it is a known-positive and an existing suite.
+
+### D1 is flag-gated because it is a content change, not a repair
+
+It adds ~1,084 characters per book to every prose prompt, and 70% of the prose bill is the prompt.
+The A_81 defect the cap was built for — a label restating its own history — is still caught: the
+restatement check now scans the whole history rather than its first 40 characters, and suppresses
+**45 of 577** pairs. OFF is byte-identical.
+
+**Probe:** the reveal chapter should carry a specific grievance between culprit and victim — a threat,
+a blocked promotion, a humiliation — rather than a generic ambition, and the next read's
+`character life` note should stop asking for history. **Falsifier:** the model recites the
+relationship sentence verbatim as narration, which would make it an injector by another route.

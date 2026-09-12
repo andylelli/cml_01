@@ -715,6 +715,37 @@ export const composeKeyTermPhrase = (value: string, max = 6): string =>
  * No cast list is needed. The original value already carries the right casing, so this reads it back
  * off the source rather than introducing a second source of truth about who the characters are.
  */
+/**
+ * A_89 C1 — like `restoreSourceCasing`, but it only trusts capitals that are NOT sentence-initial.
+ *
+ * `restoreSourceCasing` records ANY capitalised word from the source, which is safe when the source
+ * is a short key-term string and dangerous when it is a paragraph: a paragraph containing a sentence
+ * that opens "The floor creaked" would teach it to capitalise every later "the". This variant skips
+ * an occurrence that sits at the start of the source or straight after `. ! ? ...`, so only words
+ * capitalised MID-SENTENCE — names, places, titles — are restored.
+ *
+ * Built for the phrase-variety splice in `repair.ts`, which puts a model-supplied lowercase phrase
+ * back into capitalised prose and produced `Nora gaunt let a flicker of amusement` (quoted by the
+ * external reader of run 88651, and present in 4 of 42 archived books).
+ */
+export const restoreProperNounCasing = (phrase: string, source: string): string => {
+  const casing = new Map<string, string>();
+  const text = String(source ?? "");
+  const WORD = /[A-Za-z][A-Za-z'-]*/g;
+  let m: RegExpExecArray | null;
+  while ((m = WORD.exec(text)) !== null) {
+    const word = m[0];
+    if (word[0] !== word[0].toUpperCase() || word[0] === word[0].toLowerCase()) continue;
+    // Sentence-initial capitals carry no information about the word itself.
+    const before = text.slice(0, m.index).replace(/["'‘’“”(\[\s]+$/, "");
+    if (before.length === 0 || /[.!?…]$/.test(before)) continue;
+    const key = word.toLowerCase();
+    if (!casing.has(key)) casing.set(key, word);
+  }
+  if (casing.size === 0) return phrase;
+  return String(phrase ?? "").replace(/[A-Za-z][A-Za-z'-]*/g, (w) => casing.get(w.toLowerCase()) ?? w);
+};
+
 const restoreSourceCasing = (phrase: string, source: string): string => {
   const casing = new Map<string, string>();
   for (const word of String(source ?? "").match(/[A-Za-z][A-Za-z'-]*/g) ?? []) {

@@ -5,7 +5,7 @@
  */
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import { getGenerationParams } from "@cml/story-validation";
-import { countWords, getRequiredClueIdsForScene } from "./clue-validation.js";
+import { countWords, getRequiredClueIdsForScene, restoreProperNounCasing } from "./clue-validation.js";
 import {
   capitalizeWord,
   getSeasonAllowList,
@@ -322,11 +322,30 @@ export const applyPhraseSubstitutions = (
         if (match === match.toUpperCase() && match !== match.toLowerCase()) {
           return replacement.toUpperCase();
         }
+        /**
+         * A_89 C1 — restore casing across the WHOLE replacement, not just its first character.
+         *
+         * `replacement` comes back from the model in the lowercase register of the normalised
+         * phrases it was shown, so splicing it into capitalised prose lowercased every proper noun
+         * but the first word: `Nora Gaunt let a flicker...` became `Nora gaunt let a flicker...`.
+         * The external reader of run 88651 quoted two such lines as generator scaffolding, and the
+         * defect is in 4 of the 42 archived books (15 occurrences).
+         *
+         * Conservative by construction: `restoreProperNounCasing` only ever raises a letter to the
+         * capitalised form that already appears MID-SENTENCE in the span being replaced or the
+         * paragraph around it. It cannot invent a capital, and it ignores sentence-initial capitals,
+         * so a paragraph opening "The floor creaked" does not teach it to capitalise every "the".
+         */
+        // Source is the paragraph ALONE. `match` is already a substring of it, and prepending it
+        // put the paragraph's sentence-initial capital into a mid-sentence position, which made
+        // the helper record "The" and capitalise every later "the" — caught by three existing
+        // tests before this shipped.
+        const cased = restoreProperNounCasing(replacement, result);
         // Preserve leading-capital (sentence-opening words)
         if (match[0] && match[0] !== match[0].toLowerCase()) {
-          return replacement[0].toUpperCase() + replacement.slice(1);
+          return cased[0].toUpperCase() + cased.slice(1);
         }
-        return replacement;
+        return cased;
       });
       // Per-replacement rollback. A variety pass is a nice-to-have; shipping a broken sentence is
       // not. Dropping one substitution costs a repeated phrase, which is strictly the lesser defect.

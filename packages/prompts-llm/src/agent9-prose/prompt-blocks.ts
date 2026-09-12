@@ -311,21 +311,56 @@ const buildRelationshipHistoryBlock = (castDesign: CastDesign, activeNames?: Set
      * threatened to expose., tension high)" — the label restating the history, with a doubled full
      * stop. So the label is kept only when it reads as one: short, and not a restatement of the
      * history it introduces.
+     *
+     * A_89 D1 — THAT CAP IS A CONTENT FILTER, NOT A FORMATTING RULE.
+     *
+     * Agent 2's own prompt asks for a sentence in this field, and the cap discards anything over 40
+     * characters. MEASURED across the archive: **747 of 752 `relationship` strings (99%) are thrown
+     * away**, median length 100 characters. What is discarded is the motive-bearing half of every
+     * relationship — for run 88651 the culprit/victim pair reads "Bertram Norbury pressured
+     * Gwendolyn Vance to secure profits from the ballet company and threatened to cut funding if
+     * unsuccessful", and it reached ZERO Agent 9 prompts while the neutral logistical
+     * `sharedHistory` reached 13. The reader of that book asked, in as many words, "did he threaten
+     * to dissolve the company?" — the case answered it and the prompt boundary deleted the answer.
+     *
+     * ON: the relationship is rendered as CONTENT, on its own clause, at any length. The A_81 defect
+     * it was capped for — a label restating its own history — is handled by the restatement check,
+     * which needs no length limit to work and now scans the WHOLE history rather than its first 40
+     * characters. OFF: byte-identical.
      */
+    const relationshipAsContent =
+      /^(1|true|yes|on)$/i.test(String(process.env.AGENT9_RELATIONSHIP_CONTENT ?? "").trim());
+    /** Does the relationship merely restate the history it introduces? */
+    const restatesHistory = (rel: string, history: string): boolean => {
+      const r = rel.toLowerCase().slice(0, 20);
+      if (!r) return true;
+      return history.toLowerCase().includes(r);
+    };
     const asLabel = (rel: string, history: string): string => {
       const r = rel.replace(/\s+/g, ' ').trim().replace(/[.;]+$/, '');
       if (!r || r.length > 40) return '';
       const first = history.toLowerCase().slice(0, 40);
       return first.includes(r.toLowerCase().slice(0, 20)) ? '' : r;
     };
+    const asSentence = (rel: string, history: string): string => {
+      const r = rel.replace(/\s+/g, ' ').trim().replace(/[.;]+$/, '');
+      if (!r || restatesHistory(r, history)) return '';
+      return r + '.';
+    };
     const rows = pairs
       .map((p) => {
+        if (relationshipAsContent) {
+          const sentence = asSentence(p.relationship, p.history);
+          const bracket = p.tension ? ' (tension ' + p.tension + ')' : '';
+          const body = sentence ? sentence + ' ' + p.history : p.history;
+          return '  ' + p.a + ' & ' + p.b + bracket + ': ' + body;
+        }
         const label = asLabel(p.relationship, p.history);
-        const bracket = label && p.tension ? ` (${label}, tension ${p.tension})`
-          : label ? ` (${label})`
-          : p.tension ? ` (tension ${p.tension})`
+        const bracket = label && p.tension ? ' (' + label + ', tension ' + p.tension + ')'
+          : label ? ' (' + label + ')'
+          : p.tension ? ' (tension ' + p.tension + ')'
           : '';
-        return `  ${p.a} & ${p.b}${bracket}: ${p.history}`;
+        return '  ' + p.a + ' & ' + p.b + bracket + ': ' + p.history;
       })
       .join('\n');
     return (
