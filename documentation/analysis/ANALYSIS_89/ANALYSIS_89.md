@@ -548,3 +548,116 @@ Open, measured, and deliberately left: **15 of 45 books still carry two culprit-
 because the DT contract's beat (5) duplicates a separate reveal chapter (section 10). And every flag
 above is OFF — the fixes exist but only `AGENT9_SCENE_REF_ARBITRATION` is live, so the next run
 measures one lever unless that is changed deliberately.
+
+
+---
+
+## 12. QUALITY AUDIT of items 1-6 (2026-09-12)
+
+Asked of the six builds: do they reach the running app, do they compose, do they pay, and can they
+regress anything. Five checks. **Two of the six have a real problem and it is stated first.**
+
+### 12.1 FINDING — A2's new field is redundant, and the premise behind it was wrong
+
+A1 concluded *"there is no canonical field for the window in which the culprit could act"*, and A2
+added one (`constraint_space.time.opportunity_window`) and asked Agent 3 to fill it. **That premise is
+false.**
+
+| | |
+|---|---|
+| archived cases carrying a culprit `alibi_window` | **58 of 58** |
+| already turned into a STRUCTURED SPAN at Agent 3 | `alibi-span.ts` (T2), `alibiSpanFromWindow` |
+| already VALIDATED against | `checkCaseTimelineDeception` — `apparent_not_covered`, `actual_covered`, `times_identical`, `culprit_alibi_unreadable` |
+| archived cases those rules REJECT today | **5 of 58** |
+
+The number exists, it is structured, and it is enforced. Asking Agent 3 for a second field would
+create precisely the second source of truth this repo has been bitten by three times — A_73 §11.3's
+`DEATH_RE`, A_88's forked clearance vocabulary, A_88's two sentence splitters — and it repeats **this
+document's own D1 lesson**, where the content was already written and the pipe threw it away.
+
+`AGENT3_OPPORTUNITY_WINDOW` is therefore **recommended-against** in the register, not merely off. The
+correct fix is to DERIVE the window from the culprit's existing span. The code stays (repo convention:
+never delete a tracked item) and the derivation is the follow-up.
+
+**A1 itself survives, with its overlap declared.** It asks a different question from the existing
+validator — *can the interval the MECHANISM relies on contain the death?* versus *does the culprit's
+ALIBI cover the apparent time and not the actual one?* Run 88651 passes the existing rules and still
+earned `clues` 5/10, which is why the distinct question is worth asking. But the two are adjacent
+enough to drift, so the same follow-up applies: derive from one structured span, not two.
+
+### 12.2 FINDING — one flag actively defeats another
+
+MEASURED over the 45 archived pairs, counting books carrying MORE THAN ONE culprit-naming mandate:
+
+| flag set | books with >1 naming mandate |
+|---|---|
+| all off (baseline) | 42 / 45 |
+| **recommended set** (`ARBITRATION` + `CLUE_OWNERSHIP` + `RELATIONSHIP_CONTENT`) | **15 / 45** |
+| recommended set **+ `AGENT9_SCENE_REF_RESOLUTION`** | **45 / 45 — worse than changing nothing** |
+
+A_87 §8.1 already recommended against that flag because it resolves the reveal ref onto the
+`false_solution` beat in 43 of 45 cases. The audit shows it is worse than inert: it lands the reveal
+contract mid-book so B3's arbitration never gets to choose. Upgraded in the register from
+*recommended against* to **must not enable**, and pinned by `a89-flag-interaction.test.ts` so the
+interaction is asserted rather than described.
+
+### 12.3 Reachability — every lever reaches the running app
+
+| lever | entry point | reachable |
+|---|---|---|
+| C1 casing | `applyPhraseSubstitutions`, unconditional | yes |
+| D1 relationship | `buildRelationshipHistoryBlock`, both character-block paths | yes |
+| B3 aftermath | `buildChapterObligationBlock` + `scene-ref-reconcile` | yes |
+| A1/A2 telemetry | `reportTemporalClosure`, last statement of `runAgent3` | yes |
+| B1 ownership | `buildChapterObligationBlock` | yes |
+| B2 load | `agent7-run`, beside the A_87 scene-ref line | yes |
+
+All six verified live in `dist` — which is what the worker runs — not merely in `src`.
+
+### 12.4 Fair play survives, and nothing throws
+
+The property that outranks every measurement here: **B1 changes what a chapter is ASKED to dramatize,
+so if any clue ends up dramatized in no chapter the book is unfair and the lever is wrong regardless
+of what it does to repetition.**
+
+| flag set | exceptions | empty blocks | **clues never dramatized** | books with no naming mandate |
+|---|---|---|---|---|
+| all off | 0 | 0 | **0** | 0 |
+| recommended set | 0 | 0 | **0** | 0 |
+| + recommended-against flag | 0 | 0 | **0** | 0 |
+
+Asserted permanently in `a89-flag-interaction.test.ts`.
+
+### 12.5 Regression surface, and what OFF actually means
+
+Everything except C1 sits behind a flag whose OFF branch is the original expression. The two
+unconditional changes were each proven before shipping:
+
+- **C1** — replayed over all 3,459 archived paragraphs: 1,796 spans restored, 3,247 letters raised,
+  and **zero** changes that were anything other than a letter raised to its own uppercase. It cannot
+  invent a capital. Its first cut DID regress (capitalising "the" mid-sentence) and three existing
+  tests caught it before it shipped.
+- **The schema** — `opportunity_window` is declared OPTIONAL. All 58 archived cases validate exactly
+  as before (the 5 failures are the pre-existing alibi rules, not this field), and a case that DOES
+  declare it validates too.
+
+2,760 tests pass with flags off, which is the OFF-identity evidence: the suites exercise the default
+branches.
+
+### 12.6 Cost
+
++1,084 characters of relationship content per book (~271 tokens on a ~24k prompt, 1.1%), against the
+obligation block shrinking ~2% from clue ownership. **The net prompt change is small and partly
+negative** — and 70% of the prose bill is the prompt, so that direction matters.
+
+### 12.7 Verdict
+
+Four of six are sound and ready to probe: **C1, D1, B3, B1/B2**. They reach the app, they compose,
+they lose nothing, and their benefit is measured on the archive rather than argued.
+
+**A1 ships as telemetry with its overlap declared. A2's new field should not be switched on** — the
+data it asks for already exists in structured form, and the honest next step is deriving from the
+span the pipeline already validates rather than adding a second place for the same fact to live.
+
+The recommended set for the next run is `AGENT9_SCENE_REF_ARBITRATION` (already on),
+`AGENT9_CLUE_OWNERSHIP` and `AGENT9_RELATIONSHIP_CONTENT`. `AGENT9_SCENE_REF_RESOLUTION` must stay off.
