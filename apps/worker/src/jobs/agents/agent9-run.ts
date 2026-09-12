@@ -101,7 +101,7 @@ import {
   // A_73 §11.1 — the one prose-stage clearance vocabulary.
   CLEARANCE_TERMS_RE,
 } from "@cml/prompts-llm";
-import { noScaffoldValidator, detectTemplateLeakage, detectCopiedProse, detectScaffoldNotProse, detectDerivedContradictionLeak, detectEvidentiaryRegister, machineRegisterRate, REGISTER_TELEMETRY_THRESHOLD, bookVoiceConformance, VOICE_CONFORMANCE_DELIVERED } from "@cml/prose-guard";
+import { noScaffoldValidator, detectTemplateLeakage, detectCopiedProse, detectScaffoldNotProse, detectDerivedContradictionLeak, detectEvidentiaryRegister, machineRegisterRate, REGISTER_TELEMETRY_THRESHOLD, bookVoiceConformance, VOICE_CONFORMANCE_DELIVERED, repetitionDensity, summariseRepetitionDensity } from "@cml/prose-guard";
 import {
   chapterIndexFor,
   checkManuscriptGeometry,
@@ -6807,6 +6807,25 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
           `${worst ? `, worst ch${worst.ch} at ${worst.score.toFixed(2)} (${worst.observedMean.toFixed(1)} words, drift ${worst.drift > 0 ? "+" : ""}${worst.drift.toFixed(1)})` : ""}` +
           ` — A_75 P1. >=${VOICE_CONFORMANCE_DELIVERED} means the spec REACHED the prose; whether it helped is the reader's call.`,
         );
+      }
+      {
+        /**
+         * A_89 C2 — repeated-span density, reported beside the register rate.
+         *
+         * `machineRegisterRate` measures the REGISTER of a sentence and is the only validated
+         * predictor this project has. It does not measure repetition, and repetition is what the
+         * reader of run 88651 was describing when he listed eight lines as "generator scaffolding" —
+         * none of which exists in our source. They are the model's own words, said again.
+         *
+         * MEASURED over 212 archived manuscripts: corpus median 17.3 six-word spans repeated 3+
+         * times per 10k words; run 88651 scored 118.8, ranking 25th worst, and was marked `prose`
+         * 6/10. Telemetry only — the point is that a book at seven times the median should be
+         * visible BEFORE a £1.27 run and a reader's afternoon are spent discovering it.
+         */
+        const density = repetitionDensity(chapterTextsA65.join(" "));
+        if (density.words > 0) {
+          ctx.warnings.push(`[Agent 9] SHIP-CHECK: repetition — ${summariseRepetitionDensity(density)}`);
+        }
       }
       {
         const whole = machineRegisterRate(chapterTextsA65.join(" "), REGISTER_TELEMETRY_THRESHOLD);

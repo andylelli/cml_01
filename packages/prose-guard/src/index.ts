@@ -119,3 +119,12 @@ export {
   describeRetryLosses,
 } from "./retry-regression.js";
 export type { RetryLoss, RetryRegressionInput } from "./retry-regression.js";
+
+// A_89 C2 — repeated-span density: how much of the book is the book saying again.
+export {
+  repetitionDensity,
+  summariseRepetitionDensity,
+  REPETITION_CORPUS_MEDIAN_PER_10K,
+  REPETITION_ATTENTION_MULTIPLE,
+} from "./repetition-density.js";
+export type { RepetitionDensity } from "./repetition-density.js";
