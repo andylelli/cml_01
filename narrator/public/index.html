@@ -112,6 +112,13 @@
 
     <div id="srcRepo">
       <select id="storyPick"><option>Loading…</option></select>
+      <div class="row" style="margin-top:8px">
+        <label class="row" style="gap:6px">
+          <input type="checkbox" id="optShowAll">
+          <span class="faint">include unscored and below-threshold stories</span>
+        </label>
+      </div>
+      <div id="storyGate" style="margin-top:8px"></div>
     </div>
     <div id="srcUpload" class="hidden">
       <input type="file" id="storyFile" accept=".md,.txt,text/plain,text/markdown">

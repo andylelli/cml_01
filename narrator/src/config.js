@@ -24,6 +24,8 @@ export function config() {
     personalVoiceBaseModel: process.env.AZURE_PERSONAL_VOICE_BASE_MODEL || 'DragonLatestNeural',
     companyName: process.env.VOICE_TALENT_COMPANY || 'Personal use',
     outputFormat: process.env.AZURE_OUTPUT_FORMAT || 'audio-24khz-160kbitrate-mono-mp3',
+    // Only books an external reader scored at or above this are narratable.
+    minStoryScore: Number(process.env.MIN_STORY_SCORE || 80),
     maxChunkChars: Number(process.env.MAX_CHUNK_CHARS || 2400),
     concurrency: Number(process.env.SYNTH_CONCURRENCY || 3),
     // USD per 1M characters, for the cost estimate shown before you press go.

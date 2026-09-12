@@ -136,21 +136,48 @@ $('createVoice').onclick = async () => {
 /* ------------------------------ stories ----------------------------- */
 
 async function loadStories() {
+  const showAll = $('optShowAll').checked;
   try {
-    const s = await api('/api/stories');
-    if (!s.available || !s.stories.length) {
-      $('storyPick').innerHTML = '<option value="">No stories found</option>';
+    const s = await api(`/api/stories${showAll ? '?all=true' : ''}`);
+    state.minScore = s.minScore;
+
+    if (!s.available) {
+      $('storyPick').innerHTML = '<option value="">No stories folder</option>';
       $('sourceHint').textContent = 'No stories/ folder found — use upload or paste.';
       return;
     }
-    $('storyPick').innerHTML = s.stories
-      .map((x) => `<option value="${escapeHtml(x.id)}">${escapeHtml(x.title)} — ${fmt(x.words)} words</option>`)
-      .join('');
-    $('sourceHint').textContent = `${s.total} found`;
+    if (s.parserError) {
+      $('storyPick').innerHTML = '<option value="">Score gate unavailable</option>';
+      $('storyGate').innerHTML =
+        `<div class="note err">Cannot read scores, so no story is offered: ${escapeHtml(s.parserError)}</div>`;
+      return;
+    }
+
+    if (!s.stories.length) {
+      $('storyPick').innerHTML = `<option value="">Nothing scores ${s.minScore}+</option>`;
+    } else {
+      $('storyPick').innerHTML = s.stories
+        .map((x) => {
+          const mark = typeof x.score === 'number' ? `${x.score}` : 'unscored';
+          return `<option value="${escapeHtml(x.id)}">${mark} · ${escapeHtml(x.title)} — ${fmt(x.words)} words</option>`;
+        })
+        .join('');
+    }
+
+    const c = s.counts || {};
+    $('sourceHint').textContent = `${s.stories.length} narratable`;
+    $('storyGate').innerHTML =
+      `<div class="note ${c.passing ? 'ok' : ''}">` +
+      `<strong>${c.passing} of ${c.total} stories score ${s.minScore}+.</strong> ` +
+      `Withheld: ${c.belowThreshold} below the bar, ${c.unscored} with no external read.` +
+      `</div>`;
   } catch (e) {
     $('storyPick').innerHTML = '<option value="">Error loading</option>';
+    $('storyGate').innerHTML = `<div class="note err">${escapeHtml(e.message)}</div>`;
   }
 }
+
+$('optShowAll').onchange = loadStories;
 
 $('optFrontMatter').onchange = () => { if (state.plan) $('analyseBtn').click(); };
 

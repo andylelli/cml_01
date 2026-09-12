@@ -20,7 +20,8 @@ the sample to learn from, and a separate recording of a consent sentence naming 
 UI shows the exact sentence, converts both files locally to the format Azure wants, and polls
 until the clone is ready. Every prebuilt neural voice in your region appears in the same picker.
 
-**2 · Narrate** — pick a book from `../stories`, upload, or paste. *Analyse* shows words,
+**2 · Narrate** — pick a book from `../stories` (**only those an external reader scored 80+**),
+upload, or paste. *Analyse* shows words,
 chapters, Azure request count, estimated runtime and estimated cost **before** any spend.
 *Audition* renders one short passage in the chosen voice for a few pence, so the voice is chosen
 by ear rather than by name.
@@ -40,6 +41,22 @@ by ear rather than by name.
   after a chapter title, a second of silence between chapters.
 - **Front matter is skipped.** Generated books open with `*Run ID: … Generated …*`, which would
   otherwise be the first line of the audiobook.
+
+## The score gate
+
+Only books an external reader scored **80 or above** are narratable. The score is parsed from the
+`chatgpt-review.txt` beside the manuscript **using the pipeline's own parser**
+(`scripts/external-read-ledger.mjs`), not a second copy — that parser knows to take the stated
+mark rather than the read's forecast ("could reach 89–91/100"), and to ignore a chapter-by-chapter
+review's per-chapter `Mark: 6/10` rows. A re-implementation here would feed a write (which books
+get narrated), which is the divergence case WF-002 warns about.
+
+Enforced in `readStory()`, not just hidden in the picker — a direct API call naming a 79-scorer is
+refused. `MIN_STORY_SCORE` changes the bar. Uploaded and pasted text is not gated; it isn't a repo
+story and has no read to check.
+
+As of now: **7 of 19 pass** (85, 84, 84, 83, 82, 82, 82). 7 score below the bar, 5 have no
+external read at all.
 
 ## How it survives a long render
 
