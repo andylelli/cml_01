@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Narrator</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header>
+  <div class="bar">
+    <div class="brand">Narrator <span>— story to audiobook</span></div>
+    <div class="spacer"></div>
+    <div id="statusPills" class="row"></div>
+  </div>
+  <nav>
+    <button data-tab="voice" class="active">1 · Voice</button>
+    <button data-tab="narrate">2 · Narrate</button>
+    <button data-tab="library">3 · Library</button>
+  </nav>
+</header>
+
+<main>
+
+<!-- ============================ VOICE ============================ -->
+<section class="tab active" id="tab-voice">
+
+  <div id="notConfigured" class="note hidden">
+    <strong>Azure key not set.</strong> Copy <span class="mono">.env.example</span> to
+    <span class="mono">.env</span> in the <span class="mono">narrator/</span> folder and paste the key
+    and region from your Azure Speech resource, then restart.
+  </div>
+
+  <div class="card">
+    <h2>Your voices</h2>
+    <p class="sub">Cloned voices live on your Azure resource. Prebuilt neural voices need no setup.</p>
+    <div id="voiceList" class="voice-list"><div class="muted">Loading…</div></div>
+    <div id="prebuiltNote"></div>
+  </div>
+
+  <div class="card">
+    <h2>Clone a voice from a sample</h2>
+    <p class="sub">
+      Azure Personal Voice needs two recordings: a sample to learn the voice from, and a separate
+      recording of a consent sentence. Both must be the same person — only clone your own voice, or
+      one you have written permission to use.
+    </p>
+
+    <div class="grid two">
+      <div>
+        <label class="field" for="pvName">Speaker's full name</label>
+        <input type="text" id="pvName" placeholder="Jane Smith" autocomplete="off">
+        <p class="faint">Must match the name spoken in the consent recording, word for word.</p>
+      </div>
+      <div>
+        <label class="field" for="pvLocale">Language</label>
+        <select id="pvLocale">
+          <option value="en-GB">English (United Kingdom)</option>
+          <option value="en-US">English (United States)</option>
+          <option value="en-AU">English (Australia)</option>
+          <option value="en-IE">English (Ireland)</option>
+          <option value="en-IN">English (India)</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="margin-top:16px">
+      <label class="field">Step 1 — record this sentence, exactly as written</label>
+      <div class="statement" id="consentText">…</div>
+      <div class="row" style="margin-top:8px">
+        <button class="btn ghost small" id="copyStatement">Copy sentence</button>
+        <span class="faint">Say it in one clean take, no background noise.</span>
+      </div>
+    </div>
+
+    <div class="grid two" style="margin-top:16px">
+      <div>
+        <label class="field" for="pvConsent">Step 2 — consent recording</label>
+        <input type="file" id="pvConsent" accept="audio/*,.wav,.mp3,.m4a,.ogg,.flac">
+        <p class="faint">Just the sentence above. Any format — it is converted locally.</p>
+      </div>
+      <div>
+        <label class="field" for="pvSample">Step 3 — voice sample</label>
+        <input type="file" id="pvSample" accept="audio/*,.wav,.mp3,.m4a,.ogg,.flac" multiple>
+        <p class="faint">30–60 seconds of natural speech. Reading a page of prose works well.</p>
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:16px">
+      <button class="btn" id="createVoice">Create cloned voice</button>
+      <span id="createVoiceStatus" class="muted"></span>
+    </div>
+    <div id="createVoiceError" class="note err hidden" style="margin-top:12px"></div>
+  </div>
+</section>
+
+<!-- =========================== NARRATE =========================== -->
+<section class="tab" id="tab-narrate">
+  <div class="card">
+    <h2>Story</h2>
+    <p class="sub">Pick a finished book from the repo, upload a file, or paste the text.</p>
+
+    <div class="row" style="margin-bottom:12px">
+      <select id="sourceMode" style="max-width:220px">
+        <option value="repo">From stories/ folder</option>
+        <option value="upload">Upload .md or .txt</option>
+        <option value="paste">Paste text</option>
+      </select>
+      <span id="sourceHint" class="faint"></span>
+    </div>
+
+    <div id="srcRepo">
+      <select id="storyPick"><option>Loading…</option></select>
+    </div>
+    <div id="srcUpload" class="hidden">
+      <input type="file" id="storyFile" accept=".md,.txt,text/plain,text/markdown">
+    </div>
+    <div id="srcPaste" class="hidden">
+      <textarea id="storyText" placeholder="Paste your story here. Markdown headings (## Chapter One) become audiobook chapters."></textarea>
+    </div>
+
+    <div class="row" style="margin-top:12px">
+      <label class="row" style="gap:6px"><input type="checkbox" id="optFrontMatter" checked> <span class="muted">Skip front matter before the first chapter</span></label>
+    </div>
+
+    <div class="row" style="margin-top:12px">
+      <button class="btn ghost" id="analyseBtn">Analyse</button>
+      <span id="analyseStatus" class="muted"></span>
+    </div>
+  </div>
+
+  <div class="card hidden" id="planCard">
+    <h2 id="planTitle">Plan</h2>
+    <div class="stats" id="planStats"></div>
+    <details>
+      <summary>Chapter breakdown</summary>
+      <div style="overflow-x:auto"><table class="ch" id="planTable"></table></div>
+    </details>
+  </div>
+
+  <div class="card hidden" id="castCard">
+    <h2>Cast</h2>
+    <p class="sub">
+      Characters found by reading dialogue attribution in the prose. Give each one its own voice
+      and an interrogation scene stops sounding like one person talking to themselves.
+    </p>
+
+    <label class="row" style="gap:6px;margin-bottom:14px">
+      <input type="checkbox" id="optMultiVoice">
+      <span class="muted">Use a different voice for each character</span>
+    </label>
+
+    <div id="castList" class="voice-list"></div>
+    <p class="faint" id="castNote" style="margin-top:10px"></p>
+  </div>
+
+  <div class="card">
+    <h2>Narration</h2>
+    <p class="sub">The narrator's voice, and how it reads.</p>
+
+    <div class="grid two">
+      <div>
+        <label class="field" for="voicePick">Narrator voice</label>
+        <select id="voicePick"><option>Loading…</option></select>
+      </div>
+      <div>
+        <label class="field" for="stylePick">Style <span class="faint">(prebuilt voices only)</span></label>
+        <select id="stylePick"><option value="">Default</option></select>
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:10px">
+      <button class="btn ghost small" id="auditionBtn">Audition this voice</button>
+      <span class="faint">Renders a short passage from the story — a few pence, so you choose by ear.</span>
+    </div>
+    <div id="auditionOut" style="margin-top:10px"></div>
+
+    <div class="grid two" style="margin-top:14px">
+      <div>
+        <label class="field" for="ratePick">Pace</label>
+        <select id="ratePick">
+          <option value="-10%">Slow — unhurried</option>
+          <option value="-5%" selected>Measured — audiobook default</option>
+          <option value="">Normal</option>
+          <option value="+10%">Brisk</option>
+        </select>
+      </div>
+      <div>
+        <label class="field" for="pitchPick">Pitch</label>
+        <select id="pitchPick">
+          <option value="-5%">Lower</option>
+          <option value="" selected>Natural</option>
+          <option value="+5%">Higher</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="grid two" style="margin-top:12px">
+      <div>
+        <label class="field" for="pausePick">Pause between paragraphs</label>
+        <select id="pausePick">
+          <option value="350">Short — 0.35s</option>
+          <option value="550" selected>Natural — 0.55s</option>
+          <option value="800">Long — 0.8s</option>
+        </select>
+      </div>
+      <div>
+        <label class="field" for="scenePick">Pause at a scene break</label>
+        <select id="scenePick">
+          <option value="900">0.9s</option>
+          <option value="1400" selected>1.4s</option>
+          <option value="2000">2.0s</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:14px">
+      <label class="row" style="gap:6px"><input type="checkbox" id="optTitles" checked> <span class="muted">Read chapter titles aloud</span></label>
+      <label class="row" style="gap:6px"><input type="checkbox" id="optEmphasis" checked> <span class="muted">Stress italicised words</span></label>
+      <label class="row" style="gap:6px"><input type="checkbox" id="optM4b" checked> <span class="muted">Also build .m4b with chapter markers</span></label>
+    </div>
+
+    <details style="margin-top:14px">
+      <summary>Pronunciation</summary>
+      <p class="faint" style="margin:8px 0">
+        One per line, <span class="mono">word = how to say it</span>. Use this for names the model
+        mangles — <span class="mono">Fairweather = Fair-wether</span>.
+      </p>
+      <textarea id="lexicon" style="min-height:90px" placeholder="Fairweather = Fair-wether&#10;Ashgrove = Ash-grove"></textarea>
+    </details>
+
+    <div id="costNote" class="note hidden" style="margin-top:14px"></div>
+
+    <div class="row" style="margin-top:16px">
+      <button class="btn" id="renderBtn" disabled>Render audiobook</button>
+      <span id="renderStatus" class="muted">Analyse a story first.</span>
+    </div>
+    <div id="renderError" class="note err hidden" style="margin-top:12px"></div>
+  </div>
+</section>
+
+<!-- =========================== LIBRARY =========================== -->
+<section class="tab" id="tab-library">
+  <div class="card">
+    <h2>Renders</h2>
+    <p class="sub">Everything stays in <span class="mono">narrator/data/output</span>.</p>
+    <div id="jobList"><div class="muted">Loading…</div></div>
+  </div>
+</section>
+
+</main>
+<script src="app.js"></script>
+</body>
+</html>
