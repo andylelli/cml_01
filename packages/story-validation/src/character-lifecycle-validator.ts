@@ -117,6 +117,8 @@ export const hasActiveUse = (sentence: string, name: string): boolean => {
   if (isPossessiveObjectOnly(sentence, name)) return false;
   // A sentence explicitly framed as recollection/flashback is not a live appearance.
   if (RECOLLECTION_FRAME_RE.test(sentence)) return false;
+  // A_90 §14: a name that follows a kill verb is that verb's victim, not the next verb's actor.
+  if (isKillVerbObject(sentence, name)) return false;
   const escaped = escapeRegExp(name);
   const subjectPattern = new RegExp(`\\b${escaped}\\b[^.!?]{0,80}${ACTIVE_VERB_RE.source}`, 'i');
   const dialoguePattern = new RegExp(`[\\u201c"]?[^\\u201d"]{0,160}[\\u201d"]?\\s*,?\\s*\\b${escapeRegExp(name.split(/\s+/).slice(-1)[0])}\\b\\s+(?:said|asked|replied|answered|confessed|admitted)\\b`, 'i');
@@ -135,6 +137,39 @@ const isConfessionKillObject = (sentence: string, name: string): boolean => {
   const alt = Array.from(new Set([name, surname].filter(Boolean))).map(escapeRegExp).join('|');
   if (!alt) return false;
   return new RegExp(`\\bi\\s+(?:${CONFESSION_KILL_VERB_RE})\\b[^.!?]{0,30}?\\b(?:${alt})\\b`, 'i').test(sentence);
+};
+
+/**
+ * A_90 §14 — THE SAME SHAPE, ANY SUBJECT.
+ *
+ * FOUND IN RUN 10845's shipped book (spatial, 2026-09-12). The accusation reads:
+ *
+ *     "You killed Oswald Ingram," Gerald said quietly, "by stabbing him with a corkscrew..."
+ *
+ * Oswald Ingram is the victim and the OBJECT of the killing; "said" belongs to Gerald. `hasActiveUse`
+ * looks for the name followed by an active verb within 80 characters, so a dialogue tag two words
+ * later made the corpse a live speaker, the canonical-victim rescue dutifully framed it, and the
+ * reader met "In a remembered moment, "You killed Oswald Ingram," Gerald said..." — the third time in
+ * three reads that a rescue frame landed on a sentence nobody needed rescued.
+ *
+ * `isConfessionKillObject` above already encodes this exact judgement and is scoped to "I killed
+ * <name>", because A_61 met it inside a confession. The subject was never the point: whoever says
+ * it, a name that FOLLOWS a kill verb is the victim of that verb, not the actor of the next one.
+ *
+ * The window stops at the clause: no comma, semicolon, colon or quote may sit between the verb and
+ * the name. Without that the 30 characters reached past the victim to the SPEAKER — the first cut
+ * of this guard suppressed Gerald Jardine's own dialogue tag in the same sentence, caught by its
+ * own test before it shipped.
+ */
+const KILL_OBJECT_SUBJECT_RE = "i|you|he|she|they|we|someone|somebody|nobody|who|it";
+export const isKillVerbObject = (sentence: string, name: string): boolean => {
+  const surname = name.split(/\s+/).slice(-1)[0] ?? name;
+  const alt = Array.from(new Set([name, surname].filter(Boolean))).map(escapeRegExp).join('|');
+  if (!alt) return false;
+  return new RegExp(
+    `\\b(?:${KILL_OBJECT_SUBJECT_RE})\\s+(?:${CONFESSION_KILL_VERB_RE})\\b[^.!?,;:"\\u201c\\u201d]{0,30}?\\b(?:${alt})\\b`,
+    'i',
+  ).test(sentence);
 };
 
 const addEvent = (

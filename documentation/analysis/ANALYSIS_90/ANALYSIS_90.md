@@ -677,3 +677,97 @@ reveal-chapter obligation is aimed by a copied placeholder.
 and proof that the fourth **makes the book worse** — before it shipped in a £1.29 run and an external
 read. That is the matched pair working exactly as CLAUDE.md argues it should.
 
+---
+
+## 14. RUN 10845 — the first spatial book · 2026-09-12 · £1.2 + £0.45
+
+**Parameters.** Seed 10845 (`node scripts/run-params.mjs --seed 10845`), spatial · 1930s · Village ·
+Dark · short · private detective · classic · cast 5 (Oswald Ingram, Dr. Gerald Jardine, Dorothy
+Underhill, Kenneth Merrow, Clarissa Ellery); theme "a concealment of WHERE the death happened — the
+body moved, the true scene disguised"; angle "a brewery dynasty". **The project's first spatial
+book**: the axis had 0 external reads against temporal's 9.
+
+**Outcome.** The fresh run wrote 13,205 words and then **hard-stopped at the release gate** on one
+clue; the prose never persisted. After the fix in §14.1 it was resumed (`resume-1789239262975`,
+22.6 min) and shipped 11,701 words, gate **warning**, no fallback chapter:
+`stories/story_20260912-2016/`.
+
+### 14.1 THE RUN-KILLER: the floor planted what the matcher does not read
+
+| | |
+|---|---|
+| the floor plants | the clue's `observable` |
+| the gate's matcher (`buildClueSignatures`) requires tokens from | the clue's `description` **and** `pointsTo` |
+
+On `clue_core_contradiction_chain` those are different sentences — *"Distinct knocking echoes and
+structural differences are noted between the rooms"* against *"…the two rooms are separate; knocking
+tests confirm their physical separation…"* — so the plant carried too few of the gate's tokens, the
+floor logged *"NOT accepted by the gate matcher (hard-stop stands)"*, and thirteen stages of paid
+artifacts were discarded over one clue.
+
+WF-002 exactly: two components computing the same set, one feeding a WRITE and one a GATE. The floor
+now plants from the SAME fields the matcher reads — observable, then description, then both, then all
+three — and keeps its contract: accept only what the gate's own matcher then sees. Pinned against the
+REAL `collectClueEvidenceFromProse` with this clue: the observable alone is not seen (the abort,
+reproduced), the description is.
+
+**Not confirmed in production.** The resumed prose carried the clue on its own, so the floor never
+fired. The fix is verified by test against the deciding component, and by nothing else yet.
+
+### 14.2 The predictions
+
+| # | prediction | verdict | measured |
+|---|---|---|---|
+| 1 | a spatial case still fakes a TIME | **HELD** | apparent "half past ten at night", actual "twenty minutes past ten at night" — A_83's finding reproduced on a new axis and a new book |
+| 2 | the deception pair fires | **NOT DETERMINABLE** (3rd run running) | the device locked 2 clocks, which the existing two-clock path already handles |
+| 3 | the prose fixes hold outside a resume | **HELD** | the fresh run skipped the atmosphere pass (2 candidates) and shipped **14.4 repeated 6-word spans per 10k against a corpus median of 17.3 — "Normal"**, the first time in this sequence |
+| 4 | anchoring holds on a second case | **HELD** | case **9/9**, clues **7/7**, outline **6/6** clock values resolve to a declared event |
+| 5 | copying returns with ownership-by-page OFF | **it did not** | **0 whole-sentence copies of 596 sentences.** Run 81042's 29 were case-specific, not systemic — which is further reason the withdrawn lever was not worth its harm |
+
+**`AGENT3B_DURATION_ANCHORS` was followed correctly, by not being used.** The device's one duration,
+`death_to_sighting_interval`, declares `derivedFrom: [time_of_death, time_of_sighting]` — the right
+declaration for an interval between two locked clocks — and correctly carries no `anchor`. Three runs
+in, no device has yet locked a FREE duration, so the field itself is still untested.
+
+### 14.3 A defect the shipped book still carries, and its fix
+
+The book contains *"In a remembered moment, "You killed Oswald Ingram," Gerald said quietly…"*. Oswald
+Ingram is the victim and the OBJECT of the killing; "said" belongs to Gerald. `hasActiveUse` looks for
+the name followed by an active verb within 80 characters, so a dialogue tag two words later made the
+corpse a live speaker and the canonical-victim rescue framed the line. **The third rescue frame in
+three reads to land on a sentence nobody needed rescued** — and this time §12's exact-predicate fix
+did not help, because the validator's own predicate was wrong.
+
+`isConfessionKillObject` already encodes the judgement and was scoped to "I killed <name>" because
+A_61 met it inside a confession. The subject was never the point. `isKillVerbObject` now covers any
+subject, with the window stopped at the clause — no comma, semicolon, colon or quote between the verb
+and the name. **The first cut used a bare 30-character window and suppressed the accusation's SPEAKER
+as well**, caught by its own test before it shipped.
+
+### 14.4 What the run says about the withdrawn lever, both ways
+
+The rubric capped this book with *"reveal uses evidence not planted earlier"* and geometry warned
+*"reveal_culprit_not_named (ch8)"* — the same two signals arm B produced in §13 — with
+`AGENT9_CLUE_OWNERSHIP_BY_PAGE` **OFF**. So those signals also arise for reasons of their own, and
+§13's attribution must be read as what it was: a matched pair on ONE case, where arm A lacked them and
+arm B had them. The withdrawal stands on that comparison; this run shows the cap is not the lever's
+private property.
+
+### 14.5 STATUS
+
+| item | status | commit |
+|---|---|---|
+| NSD-anchor floor plants what the matcher reads | built, pinned against the real matcher; **not yet exercised in production** | `bb4c0379` |
+| `isKillVerbObject` — any subject, clause-bounded | built, pinned on the shipped line | @@COMMIT5@@ |
+| run 10845 shipped after resume | `story_20260912-2016`, 11,701 words, gate warning, no fallback | @@COMMIT5@@ |
+| the spatial book as a READ | **ready** — the first spatial read the project has ever had | — |
+| Move 1's instrument stops before the prose | **recorded, not built** — the case/clues/outline anchor 9/9, 7/7, 6/6, and geometry still found 3 unaccounted times IN THE MANUSCRIPT | — |
+| a device with a FREE duration | still unseen after 3 runs; `AGENT3B_DURATION_ANCHORS` untested | — |
+
+### 14.6 The honest limit found here
+
+`findUnanchoredClockValues` reads the case, the clues and the outline. It reported every clock value
+anchored, and the geometry check independently found **three times in the manuscript** that nothing
+accounts for. Move 1's instrument stops one layer before the reader. That is the next thing to
+extend, and it is recorded rather than built because it needs a run to calibrate against.
+

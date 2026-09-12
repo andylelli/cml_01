@@ -1751,3 +1751,16 @@ essential. Two fixes fired without working, for the same reason in both cases: I
 several places the value is printed (the location label reaches the prompt 4 times; the reveal
 arithmetic is aimed by a CML coordinate that does not exist). Both upstream items recorded.
 
+**RUN 10845 — THE FIRST SPATIAL BOOK · 2026-09-12 · £1.2 + £0.45 resume** (`ANALYSIS_90` §14). The
+fresh run wrote 13,205 words and hard-stopped at the release gate over ONE clue: the deterministic
+floor plants a clue's `observable` while the gate's matcher requires tokens from `description` and
+`pointsTo`, and on this clue those are different sentences. Fixed at the floor (plant what the matcher
+reads, accept only what it then sees) and pinned against the real matcher; the resume shipped 11,701
+words, gate warning, no fallback chapter. **Predictions: a spatial case still fakes a time** (apparent
+half past ten, actual twenty past); **anchoring held** (case 9/9, clues 7/7, outline 6/6); **repetition
+was normal for the first time in this sequence** (14.4 per 10k against a median of 17.3); and **copying
+did not return with the withdrawn lever off** (0 copies of 596 sentences), so run 81042's 29 were
+case-specific. One defect found in the shipped book and fixed: the victim named as the object of a
+kill verb was read as a live speaker by the validator's own predicate. **The first spatial read is
+ready.**
+
