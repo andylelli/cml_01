@@ -52,14 +52,23 @@ describe("applyPromptBudgeting — priority decides what survives a squeeze", ()
 });
 
 /**
- * A_91 F1b — promoting out of `optional` was not enough. Within a priority class,
- * `orderDropCandidates` sheds non-craft blocks first, so at `high` the humour guide was still the
- * first of its tier to go, ahead of every protected craft input.
+ * A_91 F1b was BUILT AND REVERTED in the same hour, and the reason is worth keeping.
+ *
+ * Making `humour_guide` a protected craft input would have made it survive even a futile squeeze —
+ * and it broke `prompt-budget-craft-floor-x47.test.ts`, which encodes a deliberate 2026-08-18
+ * decision that this block is exactly what a futile squeeze SHOULD shed. Then the root cause turned
+ * up: the worker's own env parser did not strip inline comments, so
+ * `AGENT9_PROMPT_TOKEN_CEILING=56000  # …` reached the resume path as NaN and the ceiling fell back
+ * to 24,000. At the real 56,000 the fresh run dropped NOTHING. The guide was never being deleted for
+ * being non-craft; it was being deleted because the budget was less than half its intended size.
+ *
+ * So the classification stands as its author left it, and the promotion out of `optional` stays as
+ * insurance for a prompt that genuinely overruns.
  */
-describe("the humour guide is a craft input", () => {
-  it("is in the protected set, beside craft_guide and voice_spec", async () => {
+describe("the humour guide's classification is left as its author set it", () => {
+  it("is NOT a protected craft input — the X47 decision stands", async () => {
     const { __CRAFT_INPUT_BLOCKS } = await import("../agent9-prose/prompt-builder.js");
-    expect(__CRAFT_INPUT_BLOCKS.has("humour_guide")).toBe(true);
+    expect(__CRAFT_INPUT_BLOCKS.has("humour_guide")).toBe(false);
     expect(__CRAFT_INPUT_BLOCKS.has("craft_guide")).toBe(true);
   });
 });

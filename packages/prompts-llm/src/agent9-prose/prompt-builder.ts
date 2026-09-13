@@ -1399,23 +1399,6 @@ const CRAFT_INPUT_BLOCKS = new Set([
   // three is not a voice the reader notices, so dropping it costs the entire lever rather than
   // degrading it.
   'voice_spec',
-  /**
-   * A_91 F1b, 2026-09-13 — a craft input by the same argument as `craft_guide` and `voice_spec`:
-   * it feeds prose, dialogue and character, and it is the ONLY guide in the prompt whose subject is
-   * how a sentence lands rather than what a chapter must contain.
-   *
-   * Promoting it out of `optional` was not enough on its own. Within a priority class,
-   * `orderDropCandidates` sheds non-craft blocks FIRST, so at `high` it was still the first block in
-   * its tier to go, ahead of every protected craft input.
-   *
-   * A TENSION RECORDED RATHER THAN HIDDEN: the 2026-08-18 note on the futility branch above names
-   * `humour_guide` as something that should NOT have been retained. That note is about a bug in
-   * which the futile branch skipped the drop loop ENTIRELY and shed nothing — retaining humour was a
-   * symptom of shedding nothing, not a judgement that humour is not craft. The measurement that
-   * settles it either way is A_91 §9: the block reached 10 of 10 chapters on one run and 0 of 10 on
-   * each of the next two, so today it is not a lever that degrades, it is a lever that is absent.
-   */
-  'humour_guide',
 ]);
 
 /**

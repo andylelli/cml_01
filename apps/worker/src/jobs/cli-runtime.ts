@@ -33,8 +33,34 @@ export function loadEnvFiles(root: string): void {
       if (eq < 0) continue;
       const key = line.slice(0, eq).trim();
       let val = line.slice(eq + 1).trim();
-      if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+      const quoted = (val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"));
+      if (quoted) {
         val = val.slice(1, -1);
+      } else {
+        /**
+         * A_91 — STRIP THE INLINE COMMENT. This hand-rolled parser did not, while the canary path
+         * uses real `dotenv`, which does. So the same file gave two different values depending on
+         * which entry point read it:
+         *
+         *     AGENT9_PROMPT_TOKEN_CEILING=56000  # raised from 40000 2026-09-04
+         *
+         * reached `dotenv` as "56000" and reached THIS parser as "56000  # raised from 40000...",
+         * which `Number()` reads as NaN, so the prose prompt ceiling fell back to its 24,000 default
+         * on every resumed run. MEASURED in the prompts themselves: the fresh run 81042 logged
+         * `budget=56000 … dropped=[none]`, and the two resumes that followed logged `budget=24000 …
+         * dropped=[humour_guide, background_context, location_profiles]`. Both books now waiting to
+         * be read were written with less than half the intended prompt.
+         *
+         * BLAST RADIUS, measured over the 128 flags in `.env.local`: 38 carry an inline comment. The
+         * booleans survived by accident, because their readers test a leading `true|1|yes|on` and the
+         * comment sits after it; the two NUMERIC ones did not — this ceiling, and `AGENT9_GROUNDING_LEAD`,
+         * whose `0` became NaN and turned a deliberate OFF into a fallback ON.
+         *
+         * Only an UNQUOTED value is trimmed, and only at whitespace-then-#, so a `#` inside a value
+         * (a URL fragment, a password) is untouched unless it is preceded by a space.
+         */
+        const hash = val.search(/\s#/);
+        if (hash >= 0) val = val.slice(0, hash).trim();
       }
       if (key && process.env[key] === undefined) process.env[key] = val;
     }

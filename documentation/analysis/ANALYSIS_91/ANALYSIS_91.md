@@ -359,3 +359,64 @@ A negative result from a probe you just wrote is a claim about the probe.
 | F4 first-half cross-chapter repetition detector | **not built** — §6 | — |
 | F5 the clue-restaging distinction | **not built, deliberately last** — its predecessor made a book worse | — |
 
+---
+
+## 10. THE ROOT CAUSE WAS NOT THE PRIORITY — IT WAS A COMMENT · 2026-09-13
+
+§9 built F1 on the finding that the humour guide was dropped because it was the only `optional`
+block. That was true and it was not the cause. **The prompt says so itself**, in a summary line the
+budgeter writes into every prose prompt:
+
+| run | the prompt's own budget line |
+|---|---|
+| `mystery-1789232316546` (fresh) | `budget=56000 … futile=false … dropped=[none]` |
+| `resume-1789239262975` | `budget=24000 … dropped=[humour_guide, background_context]` |
+| `resume-1789242865847` | `budget=24000 … dropped=[humour_guide, background_context, location_profiles]` |
+
+**The fresh run drops nothing at all.** The resumes run on a 24,000 ceiling — the code's fallback
+default — while `.env.local` sets 56,000.
+
+### 10.1 Why the same file gave two different numbers
+
+Two parsers. The canary entry point uses real `dotenv`, which strips an inline comment. The worker's
+`loadEnvFiles` in `cli-runtime.ts`, which the resume path uses, did not. So
+
+```
+AGENT9_PROMPT_TOKEN_CEILING=56000  # raised from 40000 2026-09-04: run 22362 measured fixed=23633
+```
+
+reached `dotenv` as `"56000"` and reached the worker's parser as the whole string after the `=`,
+which `Number()` reads as **NaN**, so the ceiling fell back to 24,000.
+
+**Blast radius, measured over the 128 flags in `.env.local`: 38 carry an inline comment.** The
+booleans survived by accident — their readers test a leading `true|1|yes|on` and the comment sits
+after it. The two NUMERIC ones did not: this ceiling, and `AGENT9_GROUNDING_LEAD`, whose deliberate
+`0` became NaN and turned an OFF into the fallback ON.
+
+**Both books currently waiting to be read were written with less than half the intended prompt**, and
+with `humour_guide`, `background_context` and `location_profiles` missing from every chapter.
+
+### 10.2 A change built and reverted in the same hour
+
+F1b would have made `humour_guide` a protected craft input, so it survived even a futile squeeze. It
+broke `prompt-budget-craft-floor-x47.test.ts`, which encodes a deliberate 2026-08-18 decision that
+this block is exactly what a futile squeeze SHOULD shed — and my first instinct was that the test
+was now wrong. It was not. Once the ceiling is right, the fresh run drops **nothing**, so the guide
+was never being deleted for being non-craft; it was being deleted because the budget was less than
+half its intended size.
+
+**F1b is reverted and the classification stands as its author set it.** F1 stays, as insurance for a
+prompt that genuinely overruns. The lesson is the ordinary one and it nearly went the other way: a
+failing test that contradicts your change is evidence about the change until you have the root cause.
+
+### 10.3 STATUS
+
+| item | status | commit |
+|---|---|---|
+| `loadEnvFiles` strips inline comments | **built, 5 tests**, pinned on the real corrupted line | @@C10@@ |
+| the 24,000-vs-56,000 divergence | **root cause, MEASURED from the prompts' own budget lines** | @@C10@@ |
+| `AGENT9_GROUNDING_LEAD=0` silently ON on the resume path | **found, fixed by the same change**, never separately measured | @@C10@@ |
+| F1 `humour_guide` `optional` → `high` | kept, as insurance | `0c74f08e` |
+| F1b craft protection | **built and REVERTED** — the prior classification stands | @@C10@@ |
+| the two books awaiting a read | written at 24,000 with three blocks missing per chapter — **a read of either measures the broken budget, not the pipeline** | — |
+
