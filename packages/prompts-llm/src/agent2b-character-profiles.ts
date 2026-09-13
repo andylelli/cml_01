@@ -26,6 +26,13 @@ export interface CharacterProfileOutput {
   humourLevel?: number;
   speechMannerisms?: string;
   signatureTic?: string;
+  /**
+   * A_91 F2 — the life before the case: the TRAIT, its ORIGIN as a dated event, what it COST, the
+   * character's STANCE toward that cost, the CONSEQUENCE. Every other field on this type is
+   * case-facing, which is why 1 of 378 archived characters had all three of origin, incident and
+   * stance. Populated only under `AGENT2B_FORMATIVE_INCIDENT`.
+   */
+  formativeIncident?: string;
   internalConflict?: string;
   personalStakeInCase?: string;
   paragraphs: string[];
@@ -86,6 +93,48 @@ const pickProfileSource = (character: Record<string, unknown> | undefined): Reco
 };
 
 /** Exported so both sides of `AGENT2B_OBSERVABLE_DETAIL` can be asserted against the REAL prompt. */
+/**
+ * A_91 F2 — `AGENT2B_FORMATIVE_INCIDENT`. A trait is not depth; a trait with a history is.
+ *
+ *     not depth:  "Percival walked with a stoop."
+ *     depth:      "Percival had walked with a stoop ever since a carting accident at nine that
+ *                  almost cost him his life. He was bitter that the world of speed had been taken
+ *                  away from him so young. Office work was all he was good for thereafter."
+ *
+ * Five parts: the TRAIT, its ORIGIN as a dated event, what it COST, the character's STANCE toward
+ * that cost, and the CONSEQUENCE it set running.
+ *
+ * MEASURED over 378 archived characters: a past-time marker ("when he was", "ever since") appears in
+ * **3%**, a concrete incident in 15%, an emotional stance in 41% — and **all three together in 1 of
+ * 378 (0%)**. The schema is the reason: every field it asks for is CASE-facing (`motiveSeed` mentions
+ * the crime in 54%, `personalStakeInCase` in 54%), and there is no field anywhere for a life before
+ * the case. Characters therefore arrive with traits whose stated cause is a CATEGORY — "his years of
+ * service", "a lifelong military man" — never an event.
+ *
+ * Three consecutive external reads asked for exactly this, in nearly the same words: "add one scene
+ * or memory where Bertram actively crushes Gwendolyn's work"; "give one concrete wound"; "the
+ * relationships still need more lived specificity".
+ */
+export const isFormativeIncidentEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT2B_FORMATIVE_INCIDENT ?? "").trim());
+
+/**
+ * A_91 F3 — `AGENT2B_TIC_TEMPLATE_BAN`. The field that exists to individuate a voice is drawn from a
+ * tiny template space. MEASURED over the 377 signature tics in the archive:
+ *
+ *   "One must…" / "One mustn't…" / "One might…"   85  (23%)
+ *   "Let's not…" / "Let us…"                      42  (11%)
+ *   "Darling, …"                                  16  (4%)
+ *   distinct tics                                298 of 377 — 79 are literal duplicates ACROSS books
+ *
+ * A third of every cast's supposedly unique catchphrase comes from two constructions, which is why
+ * casts sound alike from book to book. A_67's lesson applies to the tic as much as to anything else:
+ * illustrative content in a prompt is reproduced, not adapted — so the fix names the exhausted forms
+ * and asks for grammar the corpus does not already hold.
+ */
+export const isTicTemplateBanEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT2B_TIC_TEMPLATE_BAN ?? "").trim());
+
 export const buildProfilesPrompt = (inputs: CharacterProfilesInputs, previousErrors?: string[]) => {
   const cmlCase = (inputs.caseData as any)?.CASE ?? {};
   const meta = cmlCase.meta ?? {};
@@ -168,7 +217,7 @@ export const buildProfilesPrompt = (inputs: CharacterProfilesInputs, previousErr
   const developer = `# Character Profiles Output Schema\nReturn JSON with this structure:\n\n{\n  "status": "draft",\n  "tone": "${tone}",\n  "targetWordCount": ${targetWordCount},\n  "profiles": [\n    {\n      "name": "Name",\n      "summary": "1-2 sentence overview",\n      "publicPersona": "...",\n      "privateSecret": "...",\n      "motiveSeed": "...",\n      "motiveStrength": "weak|moderate|strong|compelling",\n      "alibiWindow": "...",\n      "accessPlausibility": "...",\n      "stakes": "...",
       "humourStyle": "understatement|dry_wit|polite_savagery|self_deprecating|observational|deadpan|sardonic|blunt|none",
       "humourLevel": 0.0,
-      "speechMannerisms": "Brief description of speech patterns, verbal tics, and dialogue mannerisms",\n      "signatureTic": "ONE short quotable verbal tic unique to this character (a recurring phrase or habit Agent 9 can put in their mouth)",\n      "internalConflict": "Psychological tension or moral struggle (e.g. guilt, conflicted loyalty, fear of what the truth means)",\n      "personalStakeInCase": "Why this crime matters personally — REQUIRED for detective, recommended for others",\n      "paragraphs": ["Paragraph 1", "Paragraph 2", "Paragraph 3", "Paragraph 4"],\n      "order": 1\n    }\n  ],\n  "note": ""\n}\n\nRequirements:\n- One profile per cast member (${inputs.cast.characters.length}).\n- 4-6 paragraphs per profile (target ~${targetWordCount} words each).\n- Use tone: ${tone}.\n- Keep all facts consistent with the cast details and CML.
+      "speechMannerisms": "Brief description of speech patterns, verbal tics, and dialogue mannerisms",\n      ${isFormativeIncidentEnabled() ? '"formativeIncident": "A dated event before this case: the TRAIT it explains, its ORIGIN with an age or year, what it COST, the character STANCE toward that cost, and the CONSEQUENCE. Nothing to do with the murder.",\n      ' : ''}"signatureTic": "ONE short quotable verbal tic unique to this character (a recurring phrase or habit Agent 9 can put in their mouth)",\n      "internalConflict": "Psychological tension or moral struggle (e.g. guilt, conflicted loyalty, fear of what the truth means)",\n      "personalStakeInCase": "Why this crime matters personally — REQUIRED for detective, recommended for others",\n      "paragraphs": ["Paragraph 1", "Paragraph 2", "Paragraph 3", "Paragraph 4"],\n      "order": 1\n    }\n  ],\n  "note": ""\n}\n\nRequirements:\n- One profile per cast member (${inputs.cast.characters.length}).\n- 4-6 paragraphs per profile (target ~${targetWordCount} words each).\n- Use tone: ${tone}.\n- Keep all facts consistent with the cast details and CML.
 
 DETECTIVE PERSONAL STAKE (REQUIRED):
 - The detective character MUST have both 'internalConflict' and 'personalStakeInCase' filled.
@@ -196,7 +245,37 @@ ${observableBlock}CHARACTER HUMOUR REQUIREMENTS:
 - NOT every character should be funny. A mystery needs contrast: some characters are earnest, tense, or humourless. This makes the witty ones land harder.
 - The detective should typically have dry_wit or observational style at 0.4-0.6 (restrained, precise, never a comedian).
 
-VOICE DISTINCTNESS (critical — the dialogue must not all sound the same):
+${isFormativeIncidentEnabled() ? `
+FORMATIVE INCIDENT (REQUIRED — this is what makes a character a person rather than a role):
+- Every character gets a "formativeIncident": ONE dated thing that happened to them BEFORE this case
+  and has nothing to do with the murder. It must carry all five of these, in this order:
+    1. the TRAIT it explains — something visible on the page (a stoop, a flinch at raised voices, a
+       refusal to sit with their back to a door, hands that are never still);
+    2. its ORIGIN as a specific EVENT with an age or a year — not a category. "A carting accident at
+       nine", not "his years of service". A role is not an origin.
+    3. what it COST — the thing they can no longer have or do;
+    4. their STANCE toward that cost — bitterness, shame, pride, a grudge they have not put down;
+    5. the CONSEQUENCE it set running — the life they took up instead.
+  WORKED EXAMPLE (structure only — invent your own, do not reuse this one):
+    "Walked with a stoop ever since a carting accident at nine that almost killed him. It took speed
+     away from him at the age when speed was the only thing he was good at, and he has been bitter
+     about it since. Office work was all that was left, and he has done it for thirty years."
+- The TRAIT must be something Agent 9 can put on the page in one sentence of action or description.
+- Do NOT connect it to the murder, the victim, or the investigation. This is the life before the case.
+  A formative incident that turns out to be a motive is not a formative incident, it is a motive.
+` : ""}${isTicTemplateBanEnabled() ? `
+SIGNATURE TIC — THE EXHAUSTED FORMS (measured over 377 stored tics; do not use any of them):
+- Do NOT begin a tic with "One must", "One mustn't", "One might", "Let us", "Let's not", or "Darling".
+  Those five openings account for a THIRD of every tic this project has ever generated, which is why
+  its casts sound like each other from book to book.
+- Do NOT end a tic with "isn't it?", "wouldn't you say?", "don't you think?" or any other tag question.
+- A tic does not have to be a sentence. Stronger options, none of which the corpus holds:
+  a single repeated WORD used oddly; a profession's jargon applied to ordinary life; a habit of
+  answering a question with a number; a phrase in another language; a refusal ("I'd rather not say");
+  a mis-remembered proverb the character is sure of; naming people by their jobs rather than their names.
+- The tic must be something the character would say in an ordinary sentence about ordinary business,
+  not an aphorism about truth, discretion, appearances or human nature.
+` : ""}VOICE DISTINCTNESS (critical — the dialogue must not all sound the same):
 - Give each speaking character a DISTINCT speech register. Do NOT make everyone "measured / precise /
   formal / restrained" — that is the #1 dialogue failure. Deliberately spread them across contrasting
   registers, e.g. one terse and clipped, one florid and digressive, one warm and plain-spoken, one

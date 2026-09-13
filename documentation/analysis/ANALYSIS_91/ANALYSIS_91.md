@@ -254,3 +254,108 @@ untested. **This is the one to build last**, because its predecessor made a book
 **The next cheap thing** is F1, one word, verifiable without a paid run by rebuilding a prompt and
 counting whether the block survives. **The next expensive thing** is the read of either shipped book
 that is still waiting — the first spatial read the project has ever had, and identity's third.
+
+---
+
+## 9. HUMOUR AND DEPTH, MEASURED — AND THREE FIXES BUILT · 2026-09-13
+
+§0–§8 were written before this section and ranked five fixes. This section measures the two the
+work was actually about, and builds three. **Every number here is from the archive, not an estimate.**
+
+### 9.1 DEPTH: the definition, and what the pipeline does instead
+
+The definition this work was given, which is testable as it stands:
+
+> **not depth** — "Percival walked with a stoop."
+> **depth** — "Percival had walked with a stoop ever since a carting accident at nine that almost cost
+> him his life. He was very bitter about the world of speed being taken away from him at such a young
+> age. Office work was all he was good for thereafter."
+
+Five parts: the **TRAIT**, its **ORIGIN** as a dated event, what it **COST**, the character's
+**STANCE** toward that cost, the **CONSEQUENCE** it set running.
+
+MEASURED over **378 characters** in 62 archived profile artifacts:
+
+| | |
+|---|---|
+| carry a past-time marker ("when he was", "ever since", "as a child") | **11 (3%)** |
+| carry a concrete incident (accident, fire, injury, dismissal, a death) | 57 (15%) |
+| carry an emotional stance (bitter, ashamed, never forgave, a grudge) | 154 (41%) |
+| **carry all three — the definition above** | **1 of 378 (0%)** |
+
+**The cause is the schema, and it is visible in one line.** Every field Agent 2b is asked for points
+at the murder:
+
+| field | mentions the case, victim or crime |
+|---|---|
+| `motiveSeed` | **54%** |
+| `personalStakeInCase` | **54%** |
+| `privateSecret` | 18% |
+| `stakes` | 17% |
+| `publicPersona` | 3% |
+
+There is no field anywhere on the profile for a **life before the case**. So a trait arrives with a
+CATEGORY as its stated cause — *"his years of service"*, *"a lifelong military man"*, *"years of
+service have instilled in him a strict code"* — which is precisely the "not depth" half of the
+definition, dressed formally. The reads have been asking for the other half for three books running:
+*"add one scene or memory where Bertram actively crushes Gwendolyn's work"*; *"give one concrete
+wound"*; *"the relationships still need more lived specificity"*.
+
+### 9.2 WIT: the field that exists to individuate a voice is drawn from two constructions
+
+`signatureTic` is the most countable wit operation in the system: one short quotable line, per
+character, that Agent 9 can put in a mouth. MEASURED over the **377 tics** in the archive:
+
+| opening | count | share |
+|---|---|---|
+| "One must…" / "One mustn't…" / "One might…" | **85** | **23%** |
+| "Let us…" / "Let's not…" | 42 | 11% |
+| "Well, isn't…" | 16 | 4% |
+| "Darling, …" | 16 | 4% |
+| **distinct tics** | **298 of 377** | 79 are literal duplicates ACROSS books |
+
+**A third of every cast's supposedly unique catchphrase comes from two constructions.** That is why
+the casts sound like each other from book to book, and it is a better explanation of "the dialogue is
+flat" than any instruction about wit could be: the individuating field is not individuating.
+
+**A probe-validity correction, recorded because it nearly became a finding.** The first measurement
+of whether tics reach the page returned **0 of 17** and was WRONG — it built its needle from the
+first four words *longer than three characters*, which are not contiguous, so "That's how the canal
+runs, isn't it?" became "that's canal runs isn't" and matched nothing. Re-run against a known
+positive (that tic is on the page four times in run 81042), the real figure is **10 of 23 (43%)**.
+A negative result from a probe you just wrote is a claim about the probe.
+
+### 9.3 Built
+
+| fix | what it does | verified |
+|---|---|---|
+| **F1** `humour_guide` `optional` → `high` | the guide was the ONLY `optional` block and the drop order starts with `optional` — the whole first tier, not one candidate. Present 10/10 chapters on one run, **0/10 on each of the next two**, while `craft_guide` beside it survived because Fix D2 promoted it | `a91-humour-budget.test.ts` pins the MECHANISM: a block at `optional` drops where the same block at `high` stays |
+| **F2** `AGENT2B_FORMATIVE_INCIDENT` | asks every character for the five parts, forbids a role as an origin, and forbids tying it to the murder ("a formative incident that turns out to be a motive is not a formative incident, it is a motive"). Carried on the type, and rendered to Agent 9 as an OPERATION — show the trait in action, let the reason surface once, never summarise it all at once | 7 tests; OFF is byte-identical, including the schema key |
+| **F3** `AGENT2B_TIC_TEMPLATE_BAN` | names the five measured openings and the tag-question ending, and offers grammar the corpus does not hold: a repeated word used oddly, a profession's jargon in ordinary life, answering with a number, a refusal, a mis-remembered proverb, naming people by their jobs | same suite |
+
+3,387 tests pass. `flags:check` and `flags:runtime` clean.
+
+### 9.4 What the next run settles
+
+1. **Do the profiles carry all five parts?** Today 1 of 378. Countable from the artifact, no read needed.
+2. **Does a formative incident reach the page?** Grep the manuscript for the trait; the operation asks
+   for one sentence of it in action.
+3. **What share of tics open with a banned form?** Today 34%.
+4. **Does the humour guide survive the budget on a resume?** Today 0 of 10; the mechanism is pinned,
+   the live path is not.
+5. **The read.** Three consecutive reads asked for the concrete wound. This is the first build that
+   answers them.
+
+### 9.5 STATUS
+
+| item | status | commit |
+|---|---|---|
+| depth measured against the stated definition (1 of 378) | **MEASURED** | @@C@@ |
+| tic template space measured (23% + 11%, 79 duplicates) | **MEASURED** | @@C@@ |
+| tic page-reach corrected 0/17 → 10/23 | **probe-validity failure, recorded** | @@C@@ |
+| F1 humour guide promoted | built, mechanism pinned | @@C@@ |
+| F2 formative incident, end to end | built, ON, 7 tests | @@C@@ |
+| F3 tic template ban | built, ON | @@C@@ |
+| F4 first-half cross-chapter repetition detector | **not built** — §6 | — |
+| F5 the clue-restaging distinction | **not built, deliberately last** — its predecessor made a book worse | — |
+

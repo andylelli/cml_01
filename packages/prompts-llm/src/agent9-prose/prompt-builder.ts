@@ -1293,7 +1293,20 @@ export const buildPromptContextBlocks = (sections: PromptSectionInputs): PromptC
     { key: 'discriminating_test', content: sections.discriminatingTestBlock, priority: 'critical', stability: 'chapter' },
     // Chapter-stable: differs per chapter, and only the load-bearing chapters carry one at all.
     { key: 'geometry_chapter', content: sections.geometryChapterBlock ?? '', priority: 'critical', stability: 'chapter' },
-    { key: 'humour_guide', content: sections.humourGuideBlock, priority: 'optional', stability: 'run' },
+    /**
+     * A_91 F1 — PROMOTED 'optional' -> 'high', 2026-09-13.
+     *
+     * `humour_guide` was the ONLY block in this list carrying 'optional', and the budgeter's drop
+     * order is literally ["optional", "medium", "high"] — so it was not one candidate for deletion
+     * among several, it was the whole first tier. MEASURED: present in 10 of 10 chapters of
+     * `mystery-1789232316546` and 0 of 10 on each of the two resumes that followed, while
+     * `craft_guide` — loaded on the same line, by the same call — survived because Fix D2 had
+     * already promoted it for exactly this reason. X47 found the budget deleting the craft blocks;
+     * craft was rescued and the guide beside it was left behind.
+     *
+     * Run-stable, so it lands in the cached prompt prefix and is paid for once.
+     */
+    { key: 'humour_guide', content: sections.humourGuideBlock, priority: 'high', stability: 'run' },
     { key: 'craft_guide', content: sections.craftGuideBlock, priority: 'high', stability: 'run' }, // Fix D2: craft guide promoted from optional
     /**
      * M6 — run-stable, so it lands in the cached prefix and is paid for once (the 08-02 run served

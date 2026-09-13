@@ -462,6 +462,9 @@ export const buildCharacterPersonalityBlock = (
     } else {
       humourGuidance = '\n  Humour: None - this character plays it straight. Their seriousness provides contrast for wittier characters.';
     }
+    // A_91 F2 — the life before the case. Printed as an OPERATION, not as background: the reads that
+    // asked for this asked for a scene, not more biography ("give one concrete wound", three reads).
+    const formativeIncident = profile.formativeIncident || '';
     const physicalMannerisms = profile.physicalMannerisms || '';
     const privateLonging = profile.privateLonging || '';
     const motiveSeed = profile.motiveSeed || '';
@@ -471,13 +474,18 @@ export const buildCharacterPersonalityBlock = (
     const stakeLine = personalStake ? '\n  Personal Stake in Case: ' + personalStake : '';
     // physicalMannerisms - schema note: "deploy at most one per scene, not as a list"
     const physicalLine = physicalMannerisms ? '\n  Physical tells (deploy one per scene, not all at once): ' + physicalMannerisms : '';
+    const formativeLine = formativeIncident
+      ? '\n  Life before this case (ONE sentence of it belongs on the page — show the TRAIT in action, and let the '
+        + 'reason surface once in dialogue or thought; never summarise all of it at once, and never tie it to the murder): '
+        + formativeIncident
+      : '';
     // privateLonging - schema note: "let it leak into one or two moments"
     const longingLine = privateLonging ? '\n  Private longing (let surface in 1-2 moments, never central): ' + privateLonging : '';
     const motiveLine = motiveSeed ? '\n  Motive seed: ' + motiveSeed + (motiveStrength ? ' (' + motiveStrength + ')' : '') : '';
     const castChar2 = (castDesign?.characters ?? []).find((c: any) => c.name === name);
     const gender2 = (castChar2?.gender ?? '').toLowerCase();
     const pronounTag2 = gender2 === 'female' ? ' (she/her — NEVER he/him)' : gender2 === 'male' ? ' (he/him — NEVER she/her)' : '';
-    return name + pronounTag2 + ':\n  Public: ' + persona + '\n  Hidden: ' + secret + '\n  Stakes: ' + stakes + humourGuidance + voiceLine + motiveLine + conflictLine + physicalLine + longingLine + stakeLine;
+    return name + pronounTag2 + ':\n  Public: ' + persona + '\n  Hidden: ' + secret + '\n  Stakes: ' + stakes + humourGuidance + voiceLine + motiveLine + conflictLine + physicalLine + formativeLine + longingLine + stakeLine;
   }).join('\n\n');
   /**
    * A_80 §18.4 — SHARED HISTORY WAS BEING GENERATED AND THROWN AWAY.
