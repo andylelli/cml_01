@@ -260,6 +260,13 @@ FORMATIVE INCIDENT (REQUIRED — this is what makes a character a person rather 
     "Walked with a stoop ever since a carting accident at nine that almost killed him. It took speed
      away from him at the age when speed was the only thing he was good at, and he has been bitter
      about it since. Office work was all that was left, and he has done it for thirty years."
+- NO TWO OF THESE MAY SHARE AN OPENING FORMULA. Measured on the first cast that received this
+  instruction: all 7 began "Developed a", 4 of 7 "Developed a habit of", 5 of 7 "The cost was", and
+  3 of 7 "after a humiliating". The five parts are REQUIREMENTS, not a sentence pattern — put them in
+  whatever order the character's own life puts them, and start each one differently. Do not write
+  "Developed a…", "Developed a habit of…" or "The cost was…" at all.
+- Write it the way that character's neighbours would tell it, in plain words. Vary the length: one
+  can be two sentences, one can be four.
 - The TRAIT must be something Agent 9 can put on the page in one sentence of action or description.
 - Do NOT connect it to the murder, the victim, or the investigation. This is the life before the case.
   A formative incident that turns out to be a motive is not a formative incident, it is a motive.

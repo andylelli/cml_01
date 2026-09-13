@@ -59,6 +59,10 @@ describe("AGENT2B_FORMATIVE_INCIDENT — the life before the case", () => {
       expect(text, part).toContain(part);
     }
     expect(text).toContain("A role is not an origin");
+    // A_91 §12 — the first cast to receive this instruction filled one frame seven times.
+    expect(text).toContain("NO TWO OF THESE MAY SHARE AN OPENING FORMULA");
+    expect(text).toContain('Developed a habit of');
+    expect(text).toContain("The five parts are REQUIREMENTS, not a sentence pattern");
     expect(text).toContain("is not a formative incident, it is a motive");
   });
 });
