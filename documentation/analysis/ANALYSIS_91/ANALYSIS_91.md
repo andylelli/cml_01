@@ -413,10 +413,10 @@ failing test that contradicts your change is evidence about the change until you
 
 | item | status | commit |
 |---|---|---|
-| `loadEnvFiles` strips inline comments | **built, 5 tests**, pinned on the real corrupted line | @@C10@@ |
-| the 24,000-vs-56,000 divergence | **root cause, MEASURED from the prompts' own budget lines** | @@C10@@ |
-| `AGENT9_GROUNDING_LEAD=0` silently ON on the resume path | **found, fixed by the same change**, never separately measured | @@C10@@ |
+| `loadEnvFiles` strips inline comments | **built, 5 tests**, pinned on the real corrupted line | `1d6473f9` |
+| the 24,000-vs-56,000 divergence | **root cause, MEASURED from the prompts' own budget lines** | `1d6473f9` |
+| `AGENT9_GROUNDING_LEAD=0` silently ON on the resume path | **found, fixed by the same change**, never separately measured | `1d6473f9` |
 | F1 `humour_guide` `optional` → `high` | kept, as insurance | `0c74f08e` |
-| F1b craft protection | **built and REVERTED** — the prior classification stands | @@C10@@ |
+| F1b craft protection | **built and REVERTED** — the prior classification stands | `1d6473f9` |
 | the two books awaiting a read | written at 24,000 with three blocks missing per chapter — **a read of either measures the broken budget, not the pipeline** | — |
 
