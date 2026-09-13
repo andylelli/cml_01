@@ -569,11 +569,11 @@ than removes) remains the designed answer and is still not built.
 | formative incident generated, 7 of 7 | **CONFIRMED** | `835c19e1` |
 | tic template ban, 0 of 7 banned | **CONFIRMED** | `835c19e1` |
 | the new field filled one frame | **found and fixed the same hour** | `835c19e1` |
-| trait on the page, 4 of 7 | **CONFIRMED, partial** | @@C12@@ |
-| tic on the page, 4 of 7 vs 6 of 17 | **CONFIRMED, improved** | @@C12@@ |
-| repetition at 29.8× the median | **REGRESSION from A_90 §12; the skip is reversed** | @@C12@@ |
+| trait on the page, 4 of 7 | **CONFIRMED, partial** | `4d80dc21` |
+| tic on the page, 4 of 7 vs 6 of 17 | **CONFIRMED, improved** | `4d80dc21` |
+| repetition at 29.8× the median | **REGRESSION from A_90 §12; the skip is reversed** | `4d80dc21` |
 | understatement 0 | **the wit beat did not land as wit** — it produced no measurable understatement | — |
-| `AGENT9_POLISH_PROVIDER` | set back to `azure` after the credit stop | @@C12@@ |
+| `AGENT9_POLISH_PROVIDER` | set back to `azure` after the credit stop | `4d80dc21` |
 | the prompt budget line on a resume | **still unmeasured** — resume runs do not dump the WARNINGS blob | — |
 
 ### 12.5 What the next run settles
