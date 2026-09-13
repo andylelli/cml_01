@@ -67,6 +67,16 @@ profiles:
           can put in their mouth (the most load-bearing voice marker; A_57 D6). Requested by the Agent 2b
           prompt and consumed by the voice-capsule builder; declared here so it is not flagged as an
           unexpected field.
+      formativeIncident:
+        type: string
+        required: false
+        description: >
+          A_91 - the life before the case, and the only field on this schema that is not about the
+          murder. Five parts: the TRAIT it explains, its ORIGIN as a dated event (an age or a year,
+          never a role), what it COST, the character's STANCE toward that cost, and the CONSEQUENCE
+          it set running. MEASURED over 378 archived characters before this field existed: 1 carried
+          all three of a past-time marker, a concrete incident and an emotional stance. Populated
+          only under AGENT2B_FORMATIVE_INCIDENT; absent is valid.
       physicalMannerisms:
         type: string
         required: false
