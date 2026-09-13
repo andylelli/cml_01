@@ -350,12 +350,12 @@ A negative result from a probe you just wrote is a claim about the probe.
 
 | item | status | commit |
 |---|---|---|
-| depth measured against the stated definition (1 of 378) | **MEASURED** | @@C@@ |
-| tic template space measured (23% + 11%, 79 duplicates) | **MEASURED** | @@C@@ |
-| tic page-reach corrected 0/17 → 10/23 | **probe-validity failure, recorded** | @@C@@ |
-| F1 humour guide promoted | built, mechanism pinned | @@C@@ |
-| F2 formative incident, end to end | built, ON, 7 tests | @@C@@ |
-| F3 tic template ban | built, ON | @@C@@ |
+| depth measured against the stated definition (1 of 378) | **MEASURED** | `0c74f08e` |
+| tic template space measured (23% + 11%, 79 duplicates) | **MEASURED** | `0c74f08e` |
+| tic page-reach corrected 0/17 → 10/23 | **probe-validity failure, recorded** | `0c74f08e` |
+| F1 humour guide promoted | built, mechanism pinned | `0c74f08e` |
+| F2 formative incident, end to end | built, ON, 7 tests | `0c74f08e` |
+| F3 tic template ban | built, ON | `0c74f08e` |
 | F4 first-half cross-chapter repetition detector | **not built** — §6 | — |
 | F5 the clue-restaging distinction | **not built, deliberately last** — its predecessor made a book worse | — |
 
