@@ -2544,6 +2544,7 @@ ${body}`;
     allOutlineScenes,
     activeStageMode,
     priorChapters, // A_90 §12: ownership by the page
+    (inputs.characterProfiles as any)?.profiles ?? [], // A_91: the wit and depth beats
   );
   const timelineStateBlock = buildTimelineStateBlock(
     temporalLock,

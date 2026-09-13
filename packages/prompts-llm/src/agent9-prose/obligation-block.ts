@@ -31,6 +31,7 @@ import {
 } from "./clue-validation.js";
 import { sanitizeContinuityTailForPrompt } from "./continuity-tail.js";
 import { getSeasonAllowList, capitalizeWord } from "./lint.js";
+import { HUMOUR_STYLES } from "./prompt-blocks.js";
 import type { CanonicalSeason } from "./lint.js";
 import { sanitizeClueField, tagCharacter, buildIdentityMap } from "./phrase-analysis.js";
 import { getTieredBannedPhrasePolicy } from "./banned-phrases.js";
@@ -179,6 +180,93 @@ export const isOneWeaponEnabled = (env: NodeJS.ProcessEnv = process.env): boolea
   /^(1|true|yes|on)$/i.test(String(env.AGENT9_ONE_WEAPON ?? "").trim());
 
 /**
+ * A_91 — WIT AND DEPTH AS PER-CHAPTER OPERATIONS.
+ *
+ * Both already exist as DATA and as run-stable GUIDANCE, and neither reliably reaches the page:
+ * 16 of 17 characters across the last three books carry a humour style and a level above zero, the
+ * guide names five styles with worked examples — and a whole book contains 3 to 5 understatement
+ * markers, while 6 of 17 signature tics appear at all.
+ *
+ * The reason is the shape of the ask, not its absence. The guide asks for a RATE ("for every 3 pages
+ * of investigation, insert 1 understated observation"), and this model complies with countable
+ * OPERATIONS and ignores statistics — VoiceSpec asked for 22.0-word sentences and got 15.86 in 0 of
+ * 10 chapters. So the beats below name ONE character, in ONE chapter, and say what to do once.
+ *
+ * Assignment is deterministic — character index and chapter number — so a resumed or retried run
+ * reproduces itself exactly, and so no character carries two beats in the same chapter.
+ */
+export const isWitBeatEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT9_WIT_BEAT ?? "").trim());
+export const isDepthBeatEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT9_DEPTH_BEAT ?? "").trim());
+
+export interface BeatCandidate {
+  name: string;
+  humourStyle?: string;
+  humourLevel?: number;
+  formativeIncident?: string;
+}
+
+/** Stable, dependency-free rotation: the same chapter always draws the same character. */
+const rotate = <T>(pool: T[], chapterNumber: number): T | undefined =>
+  pool.length === 0 ? undefined : pool[(Math.max(1, chapterNumber) - 1) % pool.length];
+
+/**
+ * Who carries this chapter's wit beat. Only characters the profile actually made funny are eligible,
+ * and the detective is deliberately eligible — the guide's own rule is that the detective delivers
+ * one mild remark per major scene, not that they never speak.
+ */
+export const selectWitBeat = (
+  profiles: ReadonlyArray<BeatCandidate>,
+  chapterNumber: number,
+): BeatCandidate | undefined =>
+  rotate(
+    (profiles ?? []).filter(
+      (p) => p?.name && p.humourStyle && p.humourStyle !== "none" && Number(p.humourLevel ?? 0) > 0,
+    ),
+    chapterNumber,
+  );
+
+/** Who shows their formative trait in this chapter. Offset by one so it is rarely the wit-beat character. */
+export const selectDepthBeat = (
+  profiles: ReadonlyArray<BeatCandidate>,
+  chapterNumber: number,
+): BeatCandidate | undefined =>
+  rotate(
+    (profiles ?? []).filter((p) => p?.name && String(p.formativeIncident ?? "").trim().length > 12),
+    chapterNumber + 1,
+  );
+
+export const buildWitBeatLines = (beat: BeatCandidate | undefined, styles: Record<string, string>): string[] => {
+  if (!beat) return [];
+  const style = String(beat.humourStyle ?? "").trim();
+  const definition = styles[style] ?? "";
+  return [
+    `  - ⚠ ONE WIT BEAT, and it belongs to ${beat.name}: exactly one remark in this chapter, in their ` +
+      `register — ${style.replace(/_/g, " ")}${definition ? `, which is: ${definition}` : ""} It must ` +
+      `arise from what is in front of them — an object, a delay, another character's answer — never ` +
+      `from a reflection on truth, appearances or human nature. One remark, not a run of them, and no ` +
+      `other character is funny in this chapter.`,
+    `    If the scene is a discovery of a body, a moment of genuine grief, or the explanation of the ` +
+      `mechanism, SKIP the beat entirely rather than force it. A missing beat costs nothing; a joke in ` +
+      `those three places costs the chapter.`,
+  ];
+};
+
+export const buildDepthBeatLines = (beat: BeatCandidate | undefined): string[] => {
+  if (!beat) return [];
+  return [
+    `  - ⚠ ONE THING FROM ${beat.name.toUpperCase()}'S LIFE BEFORE THIS CASE, shown once and not explained: ` +
+      `${String(beat.formativeIncident ?? "").trim()}`,
+    `    Put the TRAIT on the page as an action or a physical detail in a sentence of ordinary business ` +
+      `— the way they stand, what they will not do, what their hands are doing. Do NOT narrate the ` +
+      `cause in the same paragraph. If the cause surfaces at all in this chapter it surfaces in ONE ` +
+      `line of their own dialogue, said briefly and not dwelt on, and never to explain their behaviour ` +
+      `in the case.`,
+  ];
+};
+
+/**
  * A_90 §12 — `AGENT9_LOCATION_LABEL_PROSE`. The outline's scene location is a LABEL ("Drawing room
  * and manor clock room"); printed raw into "Scene is set in: …", the model copied it into narration
  * with its capital — the reader's first "generated artifact" on run 81042. MEASURED over 537
@@ -288,6 +376,7 @@ export function buildChapterObligationBlock(
   allOutlineScenes?: any[],
   currentStageMode?: string,
   priorChapters?: ProseChapter[],
+  characterProfiles?: ReadonlyArray<BeatCandidate>,
 ): string {
   if (!Array.isArray(scenesForChapter) || scenesForChapter.length === 0) {
     return '';
@@ -835,6 +924,13 @@ const REVEAL_SIGNAL_RE = /\b(culprit|confront|confession|resolve|resolution|deno
       lines.push(`  - ⚖ REASONING LICENSED (the false solution): this chapter MAY and SHOULD reason visibly — honestly, to the WRONG conclusion the evidence permits. Cite real observations the reader has seen; let the error be a fair misreading of true clues, never stupidity. This is the story's first assembled theory.`);
     } else if (isPreRevealChapter) {
       lines.push(`  - ⛔ INFERENCE EMBARGO (pre-reveal): observations ACCUMULATE here; explicit deduction ("therefore", "which proved", "could only mean", if-A-and-B-then-C assembly of locked values) is RESERVED for the false-solution, discriminating-test, and reveal chapters. Characters may wonder, doubt, or fall silent over a detail — never explain it.`);
+    }
+    // A_91 — the two beats. Per chapter, one named character each, deterministic.
+    if (isWitBeatEnabled()) {
+      lines.push(...buildWitBeatLines(selectWitBeat(characterProfiles ?? [], chapterNumber), HUMOUR_STYLES));
+    }
+    if (isDepthBeatEnabled()) {
+      lines.push(...buildDepthBeatLines(selectDepthBeat(characterProfiles ?? [], chapterNumber)));
     }
     lines.push(`  - Opening: Begin with a character action, spoken line, or clock/time marker — never a location name or location-description phrase.`);
     if (isLocationLabelProseEnabled() && locationAnchor) {

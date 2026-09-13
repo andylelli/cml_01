@@ -6918,6 +6918,45 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
         const density = repetitionDensity(chapterTextsA65.join(" "));
         if (density.words > 0) {
           ctx.warnings.push(`[Agent 9] SHIP-CHECK: repetition — ${summariseRepetitionDensity(density)}`);
+          /**
+           * A_91 — DID THE BEATS LAND? Telemetry, never a gate (B1: a check that fires on most runs
+           * is an off switch with extra steps). Two countable things the next run can be scored on
+           * without an external read:
+           *   - the formative TRAIT: does any first-half chapter carry the distinctive words of it?
+           *   - the signature TIC: 6 of 17 reached the page across the last three books.
+           */
+          try {
+            const profilesForBeats: any[] = (ctx.characterProfiles as any)?.profiles ?? [];
+            const chaptersText = (prose.chapters ?? []).map((c: any) => String((c?.paragraphs ?? []).join(" ")).toLowerCase());
+            const firstHalf = chaptersText.slice(0, Math.ceil(chaptersText.length / 2)).join(" ");
+            const whole9 = chaptersText.join(" ");
+            const distinctive = (text: string): string[] =>
+              String(text ?? "").toLowerCase().replace(/[^a-z' ]+/g, " ").split(/\s+/)
+                .filter((w) => w.length >= 6).slice(0, 6);
+            let traits = 0, traitsPossible = 0, tics = 0, ticsPossible = 0;
+            for (const profile of profilesForBeats) {
+              const incident = String(profile?.formativeIncident ?? "").trim();
+              if (incident) {
+                traitsPossible += 1;
+                const words = distinctive(incident);
+                if (words.length >= 3 && words.filter((w) => firstHalf.includes(w)).length >= 3) traits += 1;
+              }
+              const tic = String(profile?.signatureTic ?? "").replace(/^["“]|["”]$/g, "").trim();
+              const ticWords = tic.toLowerCase().replace(/[‘’]/g, "'").replace(/[^a-z' ]+/g, " ").split(/\s+/).filter(Boolean);
+              if (ticWords.length >= 3) {
+                ticsPossible += 1;
+                const n = Math.min(4, ticWords.length);
+                for (let i = 0; i + n <= ticWords.length; i += 1) {
+                  if (whole9.includes(ticWords.slice(i, i + n).join(" "))) { tics += 1; break; }
+                }
+              }
+            }
+            ctx.warnings.push(
+              `[A_91 beats] formative trait on the page (first half): ${traits}/${traitsPossible}; ` +
+                `signature tic anywhere: ${tics}/${ticsPossible} — MEASURE only. ` +
+                `Baseline before A_91: traits 0/0 (the field did not exist), tics 6/17 over three books.`,
+            );
+          } catch { /* telemetry never costs a book */ }
         }
       }
       {

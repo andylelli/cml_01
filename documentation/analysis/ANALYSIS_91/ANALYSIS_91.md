@@ -420,3 +420,76 @@ failing test that contradicts your change is evidence about the change until you
 | F1b craft protection | **built and REVERTED** — the prior classification stands | `1d6473f9` |
 | the two books awaiting a read | written at 24,000 with three blocks missing per chapter — **a read of either measures the broken budget, not the pipeline** | — |
 
+---
+
+## 11. THE FULL BUILD — humour and depth, end to end · 2026-09-13
+
+§9 built the DATA (a formative incident, a tic that is not templated) and §10 fixed the DELIVERY (the
+prompt ceiling). Neither put anything on the page. This section closes that, and the reason it was
+needed is one measurement:
+
+| | across the last three books |
+|---|---|
+| characters with a humour style AND a level above zero | **16 of 17** |
+| understatement markers in a whole book | **3 to 5** |
+| signature tics that reach the page | **6 of 17** |
+| characters carrying a formative incident | 0 of 17 — the field is new |
+
+**The data was never the gap. The shape of the ask was.** The humour guide asks for a RATE — *"for
+every 3 pages of investigation, insert 1 understated observation"* — and this model complies with
+countable OPERATIONS and ignores statistics. VoiceSpec asked for 22.0-word sentences and got 15.86,
+in 0 of 10 chapters. A rate buried in a run-stable block is the weakest possible form of the ask.
+
+### 11.1 What was built
+
+| lever | the operation | flag |
+|---|---|---|
+| **the wit beat** | each chapter names ONE character and asks for **exactly one** remark in their own registered style, with that style's definition inline, arising from what is in front of them and never from a reflection on truth or human nature. No other character is funny in that chapter | `AGENT9_WIT_BEAT` |
+| **the depth beat** | each chapter names ONE character and asks for their TRAIT as an action or physical detail inside ordinary business, and FORBIDS narrating the cause in the same paragraph | `AGENT9_DEPTH_BEAT` |
+| **telemetry** | `[A_91 beats]` reports the trait's distinctive words in the FIRST HALF and the tic anywhere, against the recorded baseline | — |
+
+**Two refusals are load-bearing.**
+
+The wit beat says to SKIP itself at a body, at genuine grief, and during the mechanism. A missing
+beat costs nothing; a joke in those three places costs the chapter, and the guide's own FORBIDDEN
+list names exactly those three.
+
+The depth beat forbids the cause from explaining the character's behaviour in the case. The reads
+asked for a wound, and **a wound offered as an explanation of the plot is a motive** — which is the
+same line the Agent 2b instruction draws ("a formative incident that turns out to be a motive is not
+a formative incident, it is a motive"). Both ends of the pipeline now hold it.
+
+### 11.2 Why per-chapter and not in the guide
+
+The guide is `stability: 'run'` — one block, identical in every chapter, sitting in the cached
+prefix. That is right for principles and wrong for an operation, because an operation has to name
+somebody. The beats live in the chapter obligation block, which is rebuilt per chapter and carries
+the contracts the model demonstrably follows (clue obligations, the reveal contract, the word count).
+
+Assignment rotates on character index and chapter number, so it is deterministic: a retried batch or
+a resumed run draws the same character for the same chapter, and the depth beat is offset by one so
+the two rarely land on the same person.
+
+### 11.3 STATUS
+
+| item | status | commit |
+|---|---|---|
+| wit beat, per chapter, named, with the three refusals | built, ON, 8 tests | @@C11@@ |
+| depth beat, trait shown not explained | built, ON, same suite | @@C11@@ |
+| `HUMOUR_STYLES` exported — one definition serving both blocks | built (it was a local inside the per-character block) | @@C11@@ |
+| `[A_91 beats]` telemetry at Agent 9 | built — reports traits in the first half, tics anywhere | @@C11@@ |
+| **any of it on a page** | **NOT YET** — no run has used any A_91 lever | — |
+
+### 11.4 What one fresh run now settles, with no reader
+
+1. `[A_91 beats] formative trait on the page (first half): n/m` — today 0 of 0.
+2. `[A_91 beats] signature tic anywhere: n/m` — baseline **6 of 17** over three books.
+3. Tics opening with a banned form — baseline **34%** of the archive's 377.
+4. Characters carrying all five parts of a formative incident — baseline **1 of 378**.
+5. Understatement markers per book — baseline **3 to 5**.
+6. The prompt's own `PROMPT BUDGET SUMMARY` line: `budget=56000` on a resume, and `dropped=[none]`.
+
+None of these needs an external read. The read is for whether it is any GOOD, and it should be spent
+on a book built with all of it — not on either of the two now waiting, which were written on the
+halved prompt of §10.
+

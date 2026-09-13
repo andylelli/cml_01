@@ -154,6 +154,23 @@ export function stripLocationParagraphs(locationProfiles: any): any {
  * Includes voice fragments, humour contract, forbidden cliché, and per-act behaviour.
  */
 
+/**
+ * A_91 — ONE definition of what each humour style IS, used by the per-character block and by the
+ * per-chapter wit beat, so a character told to be `polite_savagery` in one place is told the same
+ * thing in the other. Previously this lived inside `buildCharacterPersonalityBlock` as a local.
+ */
+export const HUMOUR_STYLES: Record<string, string> = {
+  understatement: 'Increases seriousness by pretending not to. Deadpan delivery of extraordinary facts.',
+  dry_wit: 'Sharp observations about human behaviour. Concise, often one-liners.',
+  polite_savagery: 'Maintains perfect civility while delivering devastating verbal incisions.',
+  self_deprecating: 'Turns wit inward. Disarming, often hides intelligence or pain.',
+  observational: 'Notices absurdity in situations and people. Comments wryly on what others miss.',
+  deadpan: 'Delivers the remarkable as though it were mundane. Flat affect, maximum impact.',
+  sardonic: 'Darker edge. Mocking tone that reveals cynicism or world-weariness.',
+  blunt: 'Says what others are thinking. Lacks social filter. Comic through honesty.',
+  none: 'This character is not humorous. They are earnest, tense, or grief-stricken.',
+};
+
 export const buildCharacterContractsBlock = (
   characterBundle: ProseGenerationInputs['characterBundle'],
   activeNames?: Set<string>,
@@ -430,17 +447,7 @@ export const buildCharacterPersonalityBlock = (
     return result + buildRelationshipHistoryBlock(castDesign, activeNames);
   }
 
-  const HUMOUR_STYLE_DESCRIPTIONS: Record<string, string> = {
-    understatement: 'Increases seriousness by pretending not to. Deadpan delivery of extraordinary facts.',
-    dry_wit: 'Sharp observations about human behaviour. Concise, often one-liners.',
-    polite_savagery: 'Maintains perfect civility while delivering devastating verbal incisions.',
-    self_deprecating: 'Turns wit inward. Disarming, often hides intelligence or pain.',
-    observational: 'Notices absurdity in situations and people. Comments wryly on what others miss.',
-    deadpan: 'Delivers the remarkable as though it were mundane. Flat affect, maximum impact.',
-    sardonic: 'Darker edge. Mocking tone that reveals cynicism or world-weariness.',
-    blunt: 'Says what others are thinking. Lacks social filter. Comic through honesty.',
-    none: 'This character is not humorous. They are earnest, tense, or grief-stricken.',
-  };
+  const HUMOUR_STYLE_DESCRIPTIONS: Record<string, string> = HUMOUR_STYLES;
   const profilesToShow = activeNames?.size
     ? characterProfiles.profiles.filter((p: any) => activeNames.has(p.name))
     : characterProfiles.profiles;
