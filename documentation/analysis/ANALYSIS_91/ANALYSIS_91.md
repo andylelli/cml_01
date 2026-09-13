@@ -474,10 +474,10 @@ the two rarely land on the same person.
 
 | item | status | commit |
 |---|---|---|
-| wit beat, per chapter, named, with the three refusals | built, ON, 8 tests | @@C11@@ |
-| depth beat, trait shown not explained | built, ON, same suite | @@C11@@ |
-| `HUMOUR_STYLES` exported — one definition serving both blocks | built (it was a local inside the per-character block) | @@C11@@ |
-| `[A_91 beats]` telemetry at Agent 9 | built — reports traits in the first half, tics anywhere | @@C11@@ |
+| wit beat, per chapter, named, with the three refusals | built, ON, 8 tests | `d6d9c187` |
+| depth beat, trait shown not explained | built, ON, same suite | `d6d9c187` |
+| `HUMOUR_STYLES` exported — one definition serving both blocks | built (it was a local inside the per-character block) | `d6d9c187` |
+| `[A_91 beats]` telemetry at Agent 9 | built — reports traits in the first half, tics anywhere | `d6d9c187` |
 | **any of it on a page** | **NOT YET** — no run has used any A_91 lever | — |
 
 ### 11.4 What one fresh run now settles, with no reader
