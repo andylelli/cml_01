@@ -50,3 +50,16 @@ describe("applyPromptBudgeting — priority decides what survives a squeeze", ()
     expect(roomy.droppedBlocks).toEqual([]);
   });
 });
+
+/**
+ * A_91 F1b — promoting out of `optional` was not enough. Within a priority class,
+ * `orderDropCandidates` sheds non-craft blocks first, so at `high` the humour guide was still the
+ * first of its tier to go, ahead of every protected craft input.
+ */
+describe("the humour guide is a craft input", () => {
+  it("is in the protected set, beside craft_guide and voice_spec", async () => {
+    const { __CRAFT_INPUT_BLOCKS } = await import("../agent9-prose/prompt-builder.js");
+    expect(__CRAFT_INPUT_BLOCKS.has("humour_guide")).toBe(true);
+    expect(__CRAFT_INPUT_BLOCKS.has("craft_guide")).toBe(true);
+  });
+});
