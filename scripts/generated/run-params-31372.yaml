@@ -1,0 +1,68 @@
+# GENERATED RUN PARAMETERS — seed 31372
+#
+# Reproduce this exact parameter set:
+#     node scripts/run-params.mjs --seed 31372
+#
+# Run it:
+#     CANARY_CORE_INPUTS_YAML=scripts/generated/run-params-31372.yaml \
+#       node --use-system-ca scripts/canary-core.mjs
+#
+# The pinned baseline (scripts/canary-core-inputs.yaml) is untouched and still the default.
+# Generated 2026-09-13T16:22:36.330Z
+
+seed: 31372
+theme: "Golden Age murder mystery built on a route nobody believes exists, making an impossible presence look like an absence. Enforce strict fair-play: reveal all mechanism-critical clues to the reader by mid-story, and place the discriminating test before the reveal. Story angle: a mill town and its mill-owner. This is background colour for the setting, the cast's occupations and the motive; it is NOT the murder mechanism and must not displace the concealment above."
+storyAngle: "a mill town and its mill-owner"
+primaryAxis: spatial
+eraPreference: "1930s"
+locationPreset: Theatre
+tone: "Cozy"
+targetLength: short
+detectiveType: police
+narrativeStyle: classic
+castSize: 7
+castNames:
+  - "Edmund Jessop"
+  - "Prudence Danvers"
+  - "Barnaby Blackwood"
+  - "Adela Sallow"
+  - "Marguerite Greaves"
+  - "Henrietta Tremayne"
+  - "Rosalind Loxley"
+castGenders:
+  "Edmund Jessop": male
+  "Prudence Danvers": female
+  "Barnaby Blackwood": male
+  "Adela Sallow": female
+  "Marguerite Greaves": female
+  "Henrietta Tremayne": female
+  "Rosalind Loxley": female
+# Names excluded because the last 5 run(s) used them (A_84 #2). The same seed with a
+# different store state draws a different cast; this block is why.
+freshNames:
+  runsExcluded: 5
+  fromProjects: ["canary_1789241614485","canary_1789238068837","canary_1789232316543","canary_1789156244431","canary_1789140940496"]
+  excludedGiven: ["Ambrose","Beatrice","Bertram","Cecil","Clarissa","Desmond","Dorothy","Edith","Ferdinand","Frances","Gerald","Gwendolyn","Harriet","Hector","Iris","Ivor","Josephine","Julian","Katherine","Kenneth","Lavinia","Leonard","Montague","Neville","Nora","Oswald","Ottoline","Percival","Quentin"]
+  excludedSurnames: ["Ashgrove","Bellamy","Carrick","Dunmore","Ellery","Everleigh","Fairweather","Gaunt","Halloway","Ingram","Jardine","Kestrel","Kirkby","Lachlan","Merrow","Norbury","Orme","Ormesby","Penhale","Quayle","Rutherford","Selwyn","Thorne","Underhill","Upcott","Vance","Whitlock","Yardley","Yelverton"]
+
+# ── SUBSYSTEM SWITCHES, copied verbatim from scripts/canary-core-inputs.yaml ────────────────────
+#
+# MEASURED, and this is the second instance of the defect the targetLength comment above describes.
+# A generated file REPLACES the baseline rather than merging into it, and every one of these is read
+# as a bare truthiness check (`if (ctx.inputs.enableLockedFactRegistry)`) with no `?? true` default —
+# so omitting them SWITCHED SIX SUBSYSTEMS OFF on every seeded run.
+#
+# PROVEN for enableLockedFactRegistry: 42 `apps/worker/logs/locked-facts-*.json` files exist and the
+# newest is from 2026-09-02, none for any seeded run — and that block also contains X38, the
+# device-arithmetic reconciler and the case-time coherence check. The 76/100 read whose FIRST
+# complaint was "that arithmetic is wrong" was produced by a run with the entire arithmetic-checking
+# subsystem switched off. Not blind checks — absent ones.
+enableLockedFactRegistry: true
+enableLockedFactGate: true
+enableBindingGates: true
+enableCharacterBundle: true
+enableOutlineCompleteness: true
+enableSurgicalFingerprintRetry: true
+proseBatchSize: 1
+similarityThreshold: 0.9
+skipNoveltyCheck: false

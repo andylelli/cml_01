@@ -493,3 +493,93 @@ None of these needs an external read. The read is for whether it is any GOOD, an
 on a book built with all of it — not on either of the two now waiting, which were written on the
 halved prompt of §10.
 
+---
+
+## 12. RUN 31372 — the first book built with any of it · 2026-09-13 · £1.2 + £0.45
+
+**Parameters.** Seed 31372, fully random: spatial · 1930s · Theatre · Cozy · short · police · classic
+· **cast of 7** (Edmund Jessop, Prudence Danvers, Barnaby Blackwood, Adela Sallow, Marguerite
+Greaves, Henrietta Tremayne, Rosalind Loxley); theme "a route nobody believes exists"; angle "a mill
+town and its mill-owner".
+
+**Two failures before a book existed, neither ours.** The fresh run died at Agent 7: Azure's content
+filter truncated the outline twice (`finish_reason=content_filter`), on a case whose death method is
+"stabbed with a letter opener" — 12 filter events in the run, including the blind reader. The first
+resume died at chapter 4 with *"Your credit balance is too low to access the Anthropic API"*, because
+`AGENT9_POLISH_PROVIDER=anthropic` routed one pass away from Azure. With the provider set back, the
+second resume shipped 10,308 words in 10.5 min, gate **warning**, no fallback chapter:
+`stories/story_20260913-1806/`.
+
+### 12.1 The Agent 2b half: both levers worked
+
+| | result | baseline |
+|---|---|---|
+| characters with a formative incident | **7 of 7** | the field did not exist |
+| each with a dated origin and a concrete incident | 7 of 7 — ages 19, 21, 22, 24, 26, 40, 42 | 1 of 378 carried origin + incident + stance |
+| tics opening with a banned form | **0 of 7** | **34%** of the archive's 377 |
+
+The tics that came back are short and occupational — *"Business first."*, *"Numbers don't lie."*,
+*"The stage is never silent."* — where the archive's were *"One mustn't jump to conclusions"* and
+*"Let us not beat around the bush."*
+
+**But the new field filled ONE frame seven times**: all 7 opened "Developed a", 4 of 7 "Developed a
+habit of", 5 of 7 "The cost was". A_67's lesson inside the field built to answer it — the five parts
+were written as a numbered sequence "in this order", and a numbered sequence is a sentence pattern
+whether or not it is meant as one. Fixed in `835c19e1`, which names the measured formulas and forbids
+them. **The substance was right and the form was a template**, and that distinction is the finding.
+
+### 12.2 The Agent 9 half: both beats reached the page, partially
+
+| | result | baseline |
+|---|---|---|
+| formative TRAIT on the page in the first half | **4 of 7** | the field did not exist |
+| signature tic anywhere | **4 of 7 (57%)** | 6 of 17 (35%) over three books |
+
+The traits that landed are the concrete ones — a nervous tapping of fingers, a wary flinch at raised
+voices, an arched eyebrow. The three that did not are the abstract ones (a "rigid posture", "steadying
+her hands", "tapping her pen"), which is the expected shape: a trait is easier to put on a page the
+more specific it is.
+
+### 12.3 THE REGRESSION, and it is mine from this morning
+
+| | |
+|---|---|
+| repetition | **516 per 10k — 29.8× the corpus median of 17.3** |
+| the log | `AtmosphereRepair skipped (A_91 §12): 15 candidate phrase(s) left as written` |
+| the worst span | *"she tucked a stray lock of hair behind her ear"* — **×9** |
+| where | **exactly once in nine of ten chapters** |
+| understatement markers | **0** (baseline 3–5) |
+
+Once per chapter in nine chapters is not a within-chapter tic. It is the model reproducing a clause it
+meets in `STORY TO DATE`, which carries the full text of every prior chapter — and `AtmosphereRepair`
+is the only pass that catches that, and I turned it off this morning.
+
+**The trade has changed since the morning, and the reversal is on the evidence, not on taste.**
+A_90 §12 skipped the pass on two numbers: it authored 5 of the last 20 reader-flagged lines, and on
+one matched pair repetition FELL with it off (675 → 612 per 10k). This run measures the other side of
+the same lever at 29.8× the median. And its worst failure — paraphrasing a locked clock value into
+"three past midnight past three" — is now prevented by `AGENT9_PHRASE_LOCKED_BOUNDARY`, built after
+that decision. **`AGENT9_SKIP_ATMOSPHERE_REPAIR` is reversed.** F4 (a detector that replaces rather
+than removes) remains the designed answer and is still not built.
+
+### 12.4 STATUS
+
+| item | status | commit |
+|---|---|---|
+| formative incident generated, 7 of 7 | **CONFIRMED** | `835c19e1` |
+| tic template ban, 0 of 7 banned | **CONFIRMED** | `835c19e1` |
+| the new field filled one frame | **found and fixed the same hour** | `835c19e1` |
+| trait on the page, 4 of 7 | **CONFIRMED, partial** | @@C12@@ |
+| tic on the page, 4 of 7 vs 6 of 17 | **CONFIRMED, improved** | @@C12@@ |
+| repetition at 29.8× the median | **REGRESSION from A_90 §12; the skip is reversed** | @@C12@@ |
+| understatement 0 | **the wit beat did not land as wit** — it produced no measurable understatement | — |
+| `AGENT9_POLISH_PROVIDER` | set back to `azure` after the credit stop | @@C12@@ |
+| the prompt budget line on a resume | **still unmeasured** — resume runs do not dump the WARNINGS blob | — |
+
+### 12.5 What the next run settles
+
+1. Do the incidents still fill one frame, now the formulas are named? Today 7 of 7 did.
+2. Does repetition return to the median with the atmosphere pass back on? Today 29.8×.
+3. Does the wit beat produce anything countable? Understatement markers today **0**, against a
+   baseline of 3–5 — the one lever of the four with no evidence at all that it landed.
+
