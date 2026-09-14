@@ -85,6 +85,8 @@ export interface ProseGenerationInputs {
   characterBundle?: { runId: string; characters: Array<{ name: string; voiceFragments: Array<{ register: string; text: string }>; humourStyle: string; humourLevel: number; forbiddenCliché: string; internalConflict: string; speechMannerisms: string; signatureTic?: string; permittedBehavioursByAct: { act1: string; act2: string; act3: string }; }> };
   targetLength?: "short" | "medium" | "long";
   narrativeStyle?: "classic" | "modern" | "atmospheric";
+  /** A_92 — the story's humour band; absent resolves to `classic`. */
+  humourLevel?: string;
   detectiveType?: 'police' | 'private' | 'amateur'; // Affects phantom-name warnings
   qualityGuardrails?: string[];
   moralAmbiguityNote?: string;

@@ -101,3 +101,33 @@ describe("the report says where the book stands", () => {
     expect(d.per10k).toBe(0);
   });
 });
+
+/**
+ * A_92 — the band the run ASKED for, beside what arrived.
+ *
+ * Without this, a `dry` book and a flat `classic` book produce the same report line, and the one
+ * sentence the report exists to support — "is this book flat, or was it ordered flat?" — cannot be
+ * answered from it.
+ */
+describe('summariseWitDensity reports the target band', () => {
+  // Long enough to be measurable, and deliberately witless: every shape counts zero.
+  const text = 'x '.repeat(7000);
+
+  it('says nothing about a target when none was given — the line is unchanged', () => {
+    const d = witDensity(text);
+    expect(summariseWitDensity(d)).not.toContain('Asked for');
+  });
+
+  it('names the band and the shortfall when the book falls under it', () => {
+    const d = witDensity(text);
+    const line = summariseWitDensity(d, { level: 'sharp', per10k: 60 });
+    expect(line).toContain('Asked for sharp (target 60 per 10k)');
+    expect(line).toContain('short by');
+  });
+
+  it('MET is reachable, and a target of 0 counts as met rather than as absent', () => {
+    const d = witDensity(text);
+    expect(d.per10k).toBe(0);
+    expect(summariseWitDensity(d, { level: 'none', per10k: 0 })).toContain('Asked for none (target 0 per 10k) — MET');
+  });
+});

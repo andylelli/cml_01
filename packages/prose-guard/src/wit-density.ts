@@ -141,10 +141,23 @@ export const witDensity = (text: string): WitDensity => {
 };
 
 /**
+ * What the story ASKED FOR, when a humour band was set. Passed in rather than imported so that
+ * prose-guard stays free of any dependency on the prompt packages: the band lives in
+ * `@cml/prompts-llm/humour-level`, and the worker hands its two numbers across.
+ */
+export interface WitTarget {
+  level: string;
+  per10k: number;
+}
+
+/**
  * One line for the run report. Carries the canon median AND the canon floor, because "below every
  * real novel we hold" is a more useful sentence than a ratio.
+ *
+ * With a `target`, it also reports the band the run ASKED for beside what arrived — the only way to
+ * tell a book that is flat from a book that was ordered flat.
  */
-export const summariseWitDensity = (density: WitDensity): string => {
+export const summariseWitDensity = (density: WitDensity, target?: WitTarget): string => {
   if (!density.measurable) {
     return `${density.total} wit shape(s) over ${density.words} words — too short to measure (floor ${WIT_MIN_WORDS}).`;
   }
@@ -157,9 +170,14 @@ export const summariseWitDensity = (density: WitDensity): string => {
       : density.per10k >= WIT_CANON_FLOOR_PER_10K
         ? "within the canon range, below its median"
         : `BELOW the lowest-scoring real novel (${WIT_CANON_FLOOR_PER_10K})`;
+  // A band of 0 is a legitimate target (`none`), so test for presence, not truthiness.
+  const asked = target
+    ? ` Asked for ${target.level} (target ${target.per10k} per 10k) — ` +
+      `${density.per10k >= target.per10k ? "MET" : `short by ${+(target.per10k - density.per10k).toFixed(1)}`}.`
+    : "";
   return (
     `${density.total} wit shape(s) over ${density.words} words — ${density.per10k} per 10k ` +
     `against a canon median of ${WIT_CANON_MEDIAN_PER_10K} and our own median of ${WIT_OURS_MEDIAN_PER_10K}: ` +
-    `${standing}. [${shapes}] — MEASURE only.`
+    `${standing}.${asked} [${shapes}] — MEASURE only.`
   );
 };

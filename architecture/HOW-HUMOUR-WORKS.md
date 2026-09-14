@@ -1,7 +1,7 @@
 # HOW HUMOUR WORKS
 
 **Reference, not analysis.** What generates humour in this pipeline, where each piece lives, what it
-is measured to do, and what is not known. Current as of 2026-09-14.
+is measured to do, and what is not known. Current as of 2026-09-14 (layer 0 added the same day).
 
 Every number here is measured from `data/store.json`, `logs/llm-prompts-full.jsonl` or the shipped
 manuscripts. Where something is inferred or unknown it says so.
@@ -11,8 +11,9 @@ manuscripts. Where something is inferred or unknown it says so.
 ## 1. THE SHORT VERSION
 
 Humour is generated in **five layers**, three agents apart, and they were built at different times by
-different analyses. Nothing in the pipeline *checks* whether a book is funny, because no instrument
-for that exists here.
+different analyses. Since 2026-09-14 a **band** chosen at run time decides how much of it is asked
+for, and `wit-density.ts` measures how much arrived — the instrument this document's section 7 was
+written without.
 
 | # | layer | agent | what it produces | reaches the prompt |
 |---|---|---|---|---|
@@ -22,7 +23,55 @@ for that exists here.
 | 4 | the per-character block | 9 (per chapter) | "Humour: dry wit (level 0.5 — occasionally witty)" + the style's definition | 7–10 of 10 |
 | 5 | the wit beat | 9 (per chapter) | ONE named character, ONE remark, in their style | **10 of 10** |
 
-Layers 1–4 predate this month. Layer 5 is new (A_91) and has run once.
+Layers 1–4 predate this month. Layer 5 is new (A_91) and has run once. **Layer 0** — the band — sits
+above all of them and is newer still (A_92, below).
+
+---
+
+## 1b. LAYER 0 — THE BAND (a story parameter, A_92)
+
+Until 2026-09-14 humour was decided entirely *inside* the pipeline. No caller could ask for a dry book
+or a sharp one, and no number connected the wish to the result.
+
+`humourLevel` is now a story parameter in the same family as `tone` and `era`:
+`packages/prompts-llm/src/humour-level.ts`.
+
+| band | Agent 2b is told | chapters carrying a wit beat | target (wit-density per 10k) |
+|---|---|---|---|
+| `none` | every character takes style `none`, level 0.0 | none | 0 |
+| `dry` | at most TWO humorous characters, none above 0.3; mild styles only | every 3rd | 20 |
+| `classic` *(default)* | nothing — no style withheld | every chapter | 41 |
+| `sharp` | at least THREE humorous, one at 0.7+; sharp registers wanted; one character still `none` | every chapter | 60 |
+
+**`classic` is the default and reproduces today's behaviour exactly.** An absent or unrecognised value
+resolves to it, so nothing changes for a caller that does not ask — pinned by the first test in
+`a92-humour-level.test.ts`, which asserts the Agent 2b prompt is byte-identical with and without it.
+
+**Why bands and not a slider.** A slider is a RATE, and this model complies with countable operations
+and ignores rates (VoiceSpec asked for 22.0-word sentences and got 15.86, in 0 of 10 chapters). Each
+band resolves to two integers before it reaches a prompt: which styles may be assigned, and which
+chapters are asked for a beat.
+
+**Where the numbers come from.** `classic` targets 41 because that is the canon median measured over
+the 11 real Golden Age novels in `library/texts/` (section 7). Our own median is 11.4. The target is
+what the genre does, not what we currently do.
+
+**How to set it.**
+
+```bash
+node scripts/run-params.mjs --humour sharp
+```
+
+The random generator draws `classic, classic, dry, sharp` — half of all runs stay comparable with the
+corpus. `none` is not in the pool: a humourless mystery is a deliberate experiment, not a variation
+worth a random £1.15.
+
+**The path it travels**, each hop a place it could have been silently dropped:
+
+`run-params.mjs` → `run-params-<seed>.yaml` → `canary-input-overrides.mjs` (**an allow-list that
+filters unknown keys without warning**) → `MysteryGenerationInputs` → Agent 2b's cast directive and
+Agent 9's beat cadence → the SHIP-CHECK line, which now reports the band asked for beside the density
+measured.
 
 ---
 
@@ -250,15 +299,24 @@ question of whether the humour LANDS is still a person reading the book.**
 
 `humour_guide`'s priority (`high`, formerly `optional`) is code, not a flag.
 
+**`humourLevel` is not a flag either** — it is a story parameter, always read, defaulting to
+`classic`. It needs no flag because its default is the pre-existing behaviour. Note that the band's
+beat cadence only bites while `AGENT9_WIT_BEAT` is ON; with that flag off, a band still governs the
+cast at Agent 2b and still sets the ship-check target.
+
 ---
 
 ## 9. THE ONE-PARAGRAPH ANSWER
 
-A character is given a humour style, a level and a private catchphrase at Agent 2b. The world document
+The run chooses a humour band — `none`, `dry`, `classic` or `sharp` — and that band decides how many
+characters may be funny and how often a beat is asked for. Within it, a character is given a humour
+style, a level and a private catchphrase at Agent 2b. The world document
 then says, position by position through the story, who may be funny and where humour is forbidden. At
 prose time the model receives a guide explaining what Golden Age wit is and how it is shaped, a line
 per character restating that character's own style, the catchphrase in exactly one chapter of the
 book, and — for one named character per chapter — an instruction to make exactly one remark in their
 register, arising from something physically present, with permission to skip it entirely at a corpse,
-at grief, or during the explanation. Every one of those layers is measured to reach the page. Whether
-what arrives is actually funny is the one thing this pipeline cannot tell you.
+at grief, or during the explanation. Every one of those layers is measured to reach the page, and the
+finished book is measured against the band that was asked for. Whether what arrives is actually funny
+is still the one thing this pipeline cannot tell you — but whether it is SHAPED like wit, and whether
+there is as much of it as was ordered, are now both numbers.

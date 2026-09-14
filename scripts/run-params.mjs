@@ -32,6 +32,8 @@
  *                                               # by default the last 3 runs' cast names are excluded)
  *   node scripts/run-params.mjs --angle "a racing stable"   # pin the story angle (see STORY_ANGLES)
  *   node scripts/run-params.mjs --no-angle      # no angle at all — the theme as it was before angles
+ *   node scripts/run-params.mjs --humour sharp # pin the humour band: none | dry | classic | sharp
+ *                                               # (A_92; "classic" is what every prior book had)
  *
  * It writes `scripts/generated/run-params-<seed>.yaml` and prints the line to run. The seed is in the
  * filename, in a comment at the top of the file, and echoed as RUN_SEED= — three places, because the
@@ -592,6 +594,24 @@ if (storyAngle) {
 }
 params.storyAngle = storyAngle;
 
+/**
+ * HUMOUR IS DRAWN AFTER THE ANGLE, for the reason the block above gives: anything drawn before an
+ * existing pick shifts every seed that already exists. This is the newest draw, so it goes last.
+ *
+ * WHY "none" IS NOT IN THE POOL. A run costs ~GBP 1.15 and a humourless Golden Age mystery is a
+ * deliberate experiment, not a variation worth spending a random draw on. `--humour none` is there
+ * when that IS the point.
+ *
+ * WHY "classic" IS WEIGHTED 2 OF 4. It reproduces the behaviour every book before this parameter
+ * existed had: every chapter carries a wit beat and no humour style is withheld from the cast. Half
+ * the runs therefore stay comparable with the corpus, and the other half test the two new bands.
+ *
+ * The band resolves to countable things, not a rate — which styles Agent 2b may assign and which
+ * chapters Agent 9 asks a beat of. `packages/prose-guard/src/wit-density.ts` then measures what
+ * arrived, against a canon median of 41.4 per 10k.
+ */
+params.humourLevel = arg("humour") ?? pick(["classic", "classic", "dry", "sharp"]);
+
 const yaml = [
   `# GENERATED RUN PARAMETERS — seed ${seed}`,
   `#`,
@@ -615,6 +635,7 @@ const yaml = [
   `targetLength: ${params.targetLength}`,
   `detectiveType: ${params.detectiveType}`,
   `narrativeStyle: ${params.narrativeStyle}`,
+  `humourLevel: ${params.humourLevel}`,
   `castSize: ${params.castSize}`,
   `castNames:`,
   ...castNames.map((n) => `  - ${JSON.stringify(n)}`),
@@ -730,6 +751,7 @@ console.log(`  axis        ${params.primaryAxis}`);
 console.log(`  setting     ${params.locationPreset} · ${params.eraPreference} · ${params.tone}`);
 console.log(`  narrative   ${params.detectiveType} detective · ${params.narrativeStyle} · length ${params.targetLength}` +
   `${params.targetLength === "short" ? " (default — matches every prior book)" : "  ** OVERRIDDEN **"}`);
+console.log(`  humour      ${params.humourLevel}${params.humourLevel === "classic" ? " (as every prior book)" : "  ** NEW BAND **"}`);
 console.log(`  theme       ${wrapAt(params.theme, 62, "              ")}`);
 console.log(`  angle       ${storyAngle ?? "(none — --no-angle)"}`);
 

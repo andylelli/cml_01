@@ -53,6 +53,8 @@ export interface CharacterProfilesInputs {
   caseData: CaseData;
   cast: CastDesign;
   tone?: string;
+  /** A_92 — the story's humour band. Absent resolves to `classic`, which is today's behaviour. */
+  humourLevel?: string;
   targetWordCount?: number;
   runId?: string;
   projectId?: string;
@@ -134,6 +136,8 @@ export const isFormativeIncidentEnabled = (env: NodeJS.ProcessEnv = process.env)
  */
 export const isTicTemplateBanEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
   /^(1|true|yes|on)$/i.test(String(env.AGENT2B_TIC_TEMPLATE_BAN ?? "").trim());
+
+import { humourBand, resolveHumourLevel } from "./humour-level.js";
 
 export const buildProfilesPrompt = (inputs: CharacterProfilesInputs, previousErrors?: string[]) => {
   const cmlCase = (inputs.caseData as any)?.CASE ?? {};
@@ -282,6 +286,10 @@ SIGNATURE TIC — THE EXHAUSTED FORMS (measured over 377 stored tics; do not use
   a mis-remembered proverb the character is sure of; naming people by their jobs rather than their names.
 - The tic must be something the character would say in an ordinary sentence about ordinary business,
   not an aphorism about truth, discretion, appearances or human nature.
+` : ""}${humourBand(inputs.humourLevel).castDirective ? `
+HUMOUR LEVEL — ${resolveHumourLevel(inputs.humourLevel).toUpperCase()} (a parameter of this story, not a preference):
+- ${humourBand(inputs.humourLevel).castDirective}
+- The humourStyle rules above still apply; this narrows which of them this cast may use.
 ` : ""}VOICE DISTINCTNESS (critical — the dialogue must not all sound the same):
 - Give each speaking character a DISTINCT speech register. Do NOT make everyone "measured / precise /
   formal / restrained" — that is the #1 dialogue failure. Deliberately spread them across contrasting

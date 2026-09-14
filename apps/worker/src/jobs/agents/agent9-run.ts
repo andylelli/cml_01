@@ -100,6 +100,7 @@ import {
   type ReleaseGateAudit,
   // A_73 §11.1 — the one prose-stage clearance vocabulary.
   CLEARANCE_TERMS_RE,
+  humourBand,  // A_92 — the band the run asked for, for the ship-check
 } from "@cml/prompts-llm";
 import { noScaffoldValidator, detectTemplateLeakage, detectCopiedProse, detectScaffoldNotProse, detectDerivedContradictionLeak, detectEvidentiaryRegister, machineRegisterRate, REGISTER_TELEMETRY_THRESHOLD, bookVoiceConformance, VOICE_CONFORMANCE_DELIVERED, repetitionDensity, summariseRepetitionDensity } from "@cml/prose-guard";
 import {
@@ -5197,6 +5198,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     narrativeState,
     targetLength: inputs.targetLength,
     narrativeStyle: inputs.narrativeStyle,
+    humourLevel: inputs.humourLevel,  // A_92
     qualityGuardrails: [
       ...baselineProseGuardrails,
       ...upstreamGuardrails,
@@ -6267,6 +6269,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       narrativeState,
       targetLength: inputs.targetLength,
       narrativeStyle: inputs.narrativeStyle,
+      humourLevel: inputs.humourLevel,  // A_92
       qualityGuardrails: [...baselineProseGuardrails, ...upstreamGuardrails, ...schemaRepairGuardrails],
       writingGuides: loadWritingGuides(workspaceRoot),
       runId,
@@ -6926,7 +6929,11 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
            * which is B1 territory — but it is the first number a lever aimed at wit can move.
            */
           const wit = witDensity(chapterTextsA65.join(" "));
-          ctx.warnings.push(`[Agent 9] SHIP-CHECK: wit — ${summariseWitDensity(wit)}`);
+          // A_92 — read the measurement against the band the run asked for, not against the canon alone.
+          const witBand = humourBand(inputs.humourLevel);
+          ctx.warnings.push(
+            `[Agent 9] SHIP-CHECK: wit — ${summariseWitDensity(wit, { level: witBand.level, per10k: witBand.targetPer10k })}`,
+          );
           /**
            * A_91 — DID THE BEATS LAND? Telemetry, never a gate (B1: a check that fires on most runs
            * is an off switch with extra steps). Two countable things the next run can be scored on

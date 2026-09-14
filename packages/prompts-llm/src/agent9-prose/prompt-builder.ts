@@ -2545,6 +2545,7 @@ ${body}`;
     activeStageMode,
     priorChapters, // A_90 §12: ownership by the page
     (inputs.characterProfiles as any)?.profiles ?? [], // A_91: the wit and depth beats
+    (inputs as any).humourLevel, // A_92: the band's beat cadence
   );
   const timelineStateBlock = buildTimelineStateBlock(
     temporalLock,

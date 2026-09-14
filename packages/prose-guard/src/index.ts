@@ -138,5 +138,5 @@ export {
   WIT_OURS_MEDIAN_PER_10K,
   WIT_MIN_WORDS,
 } from "./wit-density.js";
-export type { WitDensity, WitShapeCounts } from "./wit-density.js";
+export type { WitDensity, WitShapeCounts, WitTarget } from "./wit-density.js";
 export type { RepetitionDensity } from "./repetition-density.js";

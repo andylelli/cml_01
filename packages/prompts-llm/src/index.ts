@@ -404,3 +404,14 @@ export type { ClearanceTrimResult } from "./agent9-prose/clearance-trim.js";
 
 export { repairNameHygiene, repairNameHygieneInChapters } from "./agent9-prose/name-hygiene.js";
 export type { NameHygieneResult } from "./agent9-prose/name-hygiene.js";
+
+// A_92 — humour as a story parameter, in the same family as tone and era.
+export {
+  HUMOUR_LEVELS,
+  HUMOUR_BANDS,
+  DEFAULT_HUMOUR_LEVEL,
+  resolveHumourLevel,
+  humourBand,
+  chapterCarriesWitBeat,
+} from "./humour-level.js";
+export type { HumourLevel, HumourBand } from "./humour-level.js";

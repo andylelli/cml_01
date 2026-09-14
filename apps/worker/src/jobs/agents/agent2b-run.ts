@@ -34,6 +34,7 @@ export async function runAgent2b(ctx: OrchestratorContext): Promise<void> {
           caseData: ctx.cml!,
           cast: ctx.cast!.cast,
           tone: appendRetryFeedback(ctx.inputs.narrativeStyle || "classic", retryFeedback),
+          humourLevel: ctx.inputs.humourLevel,  // A_92
           targetWordCount: 1000,
           runId: ctx.runId,
           projectId: ctx.projectId || "",
@@ -67,6 +68,7 @@ export async function runAgent2b(ctx: OrchestratorContext): Promise<void> {
       caseData: ctx.cml!,
       cast: ctx.cast!.cast,
       tone: ctx.inputs.narrativeStyle || "classic",
+      humourLevel: ctx.inputs.humourLevel,  // A_92
       targetWordCount: 1000,
       runId: ctx.runId,
       projectId: ctx.projectId || "",
@@ -110,6 +112,7 @@ export async function runAgent2b(ctx: OrchestratorContext): Promise<void> {
           caseData: ctx.cml!,
           cast: ctx.cast!.cast,
           tone: appendRetryFeedback(ctx.inputs.narrativeStyle || "classic", feedback),
+          humourLevel: ctx.inputs.humourLevel,  // A_92
           targetWordCount: 1000,
           runId: ctx.runId,
           projectId: ctx.projectId || "",

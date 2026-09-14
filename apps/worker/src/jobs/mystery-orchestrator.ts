@@ -214,6 +214,13 @@ export interface MysteryGenerationInputs {
   detectiveType?: "police" | "private" | "amateur";
   targetLength?: "short" | "medium" | "long";
   narrativeStyle?: "classic" | "modern" | "atmospheric";
+  /**
+   * A_92 — how much wit this book carries: "none" | "dry" | "classic" | "sharp".
+   * Free text like tone, and anything unrecognised resolves to "classic", which is the behaviour
+   * every run had before this existed. The band decides which humour styles Agent 2b may assign
+   * and in which chapters Agent 9 asks for a wit beat; `wit-density.ts` then measures what arrived.
+   */
+  humourLevel?: string;
 
   /** Skip Agent 8 novelty check if true */
   skipNoveltyCheck?: boolean;

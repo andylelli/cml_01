@@ -32,6 +32,7 @@ import {
 import { sanitizeContinuityTailForPrompt } from "./continuity-tail.js";
 import { getSeasonAllowList, capitalizeWord } from "./lint.js";
 import { HUMOUR_STYLES } from "./prompt-blocks.js";
+import { chapterCarriesWitBeat } from "../humour-level.js";
 import type { CanonicalSeason } from "./lint.js";
 import { sanitizeClueField, tagCharacter, buildIdentityMap } from "./phrase-analysis.js";
 import { getTieredBannedPhrasePolicy } from "./banned-phrases.js";
@@ -377,6 +378,7 @@ export function buildChapterObligationBlock(
   currentStageMode?: string,
   priorChapters?: ProseChapter[],
   characterProfiles?: ReadonlyArray<BeatCandidate>,
+  humourLevel?: string,
 ): string {
   if (!Array.isArray(scenesForChapter) || scenesForChapter.length === 0) {
     return '';
@@ -926,7 +928,9 @@ const REVEAL_SIGNAL_RE = /\b(culprit|confront|confession|resolve|resolution|deno
       lines.push(`  - ⛔ INFERENCE EMBARGO (pre-reveal): observations ACCUMULATE here; explicit deduction ("therefore", "which proved", "could only mean", if-A-and-B-then-C assembly of locked values) is RESERVED for the false-solution, discriminating-test, and reveal chapters. Characters may wonder, doubt, or fall silent over a detail — never explain it.`);
     }
     // A_91 — the two beats. Per chapter, one named character each, deterministic.
-    if (isWitBeatEnabled()) {
+    // A_92 — the band decides WHICH chapters carry a beat; "classic" (the default) is every chapter,
+    // "dry" every third, "none" not at all.
+    if (isWitBeatEnabled() && chapterCarriesWitBeat(humourLevel, chapterNumber)) {
       lines.push(...buildWitBeatLines(selectWitBeat(characterProfiles ?? [], chapterNumber), HUMOUR_STYLES));
     }
     if (isDepthBeatEnabled()) {

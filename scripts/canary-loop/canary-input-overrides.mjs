@@ -16,6 +16,10 @@ const ALLOWED_INPUT_KEYS = new Set([
   "detectiveType",
   "targetLength",
   "narrativeStyle",
+  // A_92 — the humour band. Absent resolves to "classic" downstream, which is the behaviour every
+  // book before this parameter existed had. This list is a SILENT filter: a key missing from it is
+  // dropped without a warning, so a generated parameter that is not here never reaches the run.
+  "humourLevel",
   "skipNoveltyCheck",
   "similarityThreshold",
   "proseBatchSize",

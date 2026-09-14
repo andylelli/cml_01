@@ -686,6 +686,9 @@ const runPipeline = async (
       detectiveType: (specPayload?.detectiveType as 'police' | 'private' | 'amateur') || 'police',
       targetLength: (specPayload?.targetLength as "short" | "medium" | "long") || "medium",
       narrativeStyle,
+      // A_92 — the humour band. Free text like tone; anything unrecognised resolves to "classic",
+      // which is the behaviour every run had before the parameter existed.
+      humourLevel: specPayload?.humourLevel as string | undefined,
       proseBatchSize: specPayload?.proseBatchSize as number | undefined,
       similarityThreshold,
       skipNoveltyCheck,
