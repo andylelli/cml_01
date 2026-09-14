@@ -501,6 +501,7 @@ Written after this map (2026-08-01) and, where they conflict with it, **newer**:
 | [STORY-GEOMETRY](STORY-GEOMETRY.md) | The concept — narratology behind it, and what it would constrain |
 | [GEOMETRY-AGENT-DESIGN](GEOMETRY-AGENT-DESIGN.md) | Agent 7.5: boundaries, Agent-9 interface, build sequence. **Built 2026-08-03** — phases 1–3 landed flag-gated; §10 carries the status table |
 | [FLAG-AUDIT](FLAG-AUDIT.md) | The flag register. `npm run flags:check` keeps it honest |
+| [HOW-HUMOUR-WORKS](HOW-HUMOUR-WORKS.md) | The five layers that generate humour, three agents apart, with what each is measured to do — and the one thing the pipeline cannot tell you about itself |
 | [decisions/](decisions/) | 12 ADRs + the ratification checklist |
 
 > ⚠️ **This map is dated 2026-08-01 and predates the transport rewrite, production resume, the eval and calibration harnesses, three live runs, and the Agent 7.5 / geometry work.** Where it and [REVIEW_05](REVIEW_05.md) disagree, REVIEW_05 is current; for the state of the R/S remediation specifically, REVIEW_03 §0m still holds. In particular: the base deployment described here is not what runs — `.env` shadows `.env.local`, so every non-prose agent executes on `gpt-4o-mini`.
