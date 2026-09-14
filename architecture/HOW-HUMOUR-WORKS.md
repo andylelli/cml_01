@@ -199,16 +199,36 @@ prohibition seeded them. Measured across five books, "appearances" is mid-range 
 
 ## 7. WHAT IS NOT KNOWN
 
-**There is no instrument for wit.** Repetition is measured (`repetition-density.ts`, corpus median
-17.3 spans per 10k). Machine register is measured and is the only validated predictor of the external
-score (−0.697). Humour is measured by nothing. The closest proxy tried — counting understatement
-markers like *somewhat*, *rather*, *hardly* — returned **0 to 5 per book** and is plainly too narrow
-to separate a witty book from a flat one.
+**There is now an instrument, built 2026-09-14: `packages/prose-guard/src/wit-density.ts`.** It does
+not detect whether a line is funny. It counts four SHAPES wit takes in this genre — the short retort,
+the flat answer, understatement by its mechanism, and polite savagery — each a structural fact about
+the text rather than a judgement about it.
 
-The consequence is concrete: **the only instrument that resolves whether the humour layers work is a
-person reading the book.** Iterating the prompts without one is guesswork, and three separate
-instances this month show why — each time a prompt instruction produced a shape its author did not
-intend.
+It earns the name because it SEPARATES. Measured over the 11 canon novels above a 6,000-word floor
+against 20 of our shipped manuscripts:
+
+| shape | canon median | ours median | ratio |
+|---|---|---|---|
+| short retort | 30.6 | 8.8 | 3.5× |
+| flat answer | 13.3 | 1.5 | **8.9×** |
+| understatement | 1.2 | 0.0 | — |
+| polite savagery | 0.2 | 0.0 | — |
+| **all four** | **41.4** | **11.4** | **3.6×** |
+
+Canon ranges 20.6 to 69.1 and ours 1.1 to 44.6, and **18 of our 20 books fall below the
+lowest-scoring real novel.** The two strongest discriminators are the two that cost nothing to write:
+a character answering briefly, and a character answering a question without expanding. **Our books
+explain; the canon lets people be short with each other.**
+
+It runs in the Agent 9 SHIP-CHECK beside repetition and machine register, as telemetry and never a
+gate — it would fire on 18 of 20, which is B1 territory. Re-run
+`node scripts/wit-calibration.mjs` after any change to the detectors; the vocabulary and the
+constants must move together.
+
+**What it still cannot tell you** is whether a book is funny. A book can score well and be flat. But
+a book cannot be funny in the Golden Age manner while scoring near zero, because these are the moves
+that manner is made of — so a low score is evidence and a high score is only permission. **The
+question of whether the humour LANDS is still a person reading the book.**
 
 **Also unknown:**
 
