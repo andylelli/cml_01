@@ -127,4 +127,16 @@ export {
   REPETITION_CORPUS_MEDIAN_PER_10K,
   REPETITION_ATTENTION_MULTIPLE,
 } from "./repetition-density.js";
+
+// A_92 — the first instrument for wit: four structural shapes, calibrated against 11 canon
+// novels. Telemetry only; it would fire on 18 of our 20 books, which is B1 territory.
+export {
+  witDensity,
+  summariseWitDensity,
+  WIT_CANON_MEDIAN_PER_10K,
+  WIT_CANON_FLOOR_PER_10K,
+  WIT_OURS_MEDIAN_PER_10K,
+  WIT_MIN_WORDS,
+} from "./wit-density.js";
+export type { WitDensity, WitShapeCounts } from "./wit-density.js";
 export type { RepetitionDensity } from "./repetition-density.js";

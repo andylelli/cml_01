@@ -112,6 +112,7 @@ import { validateArtifact, validateCml, isVictimArchetype, isDetectiveArchetype,
 // Agent 9 redesign Phase A (§4.2 / §9.7): the validation-gated-mutation law — a deterministic prose
 // pass may not ship a mutation it didn't re-validate. Default-off flag; legacy path byte-identical.
 import { mutateThenValidate, noMetadataDumpValidator } from "@cml/prose-guard";
+import { witDensity, summariseWitDensity } from "@cml/prose-guard";
 import { ProseScorer, StoryValidationPipeline, CharacterConsistencyValidator, repairChapterPronouns, repairPronouns, normalizeTitles, buildLocationRegistry, normalizeLocationNames, getGenerationParams, getPronounPolicySettings, validateCharacterLifecycle, hasActiveUse as lifecycleHasActiveUse, DEATH_RE as LIFECYCLE_DEATH_RE, CONFESSION_RE as LIFECYCLE_CONFESSION_RE, RECOLLECTION_FRAME_RE as LIFECYCLE_RECOLLECTION_RE, detectMissingCaseTransitionBridge, BRIDGE_TERMS, validateDialogueIdiolect, anonymiseNamedWalkOns, buildAllowedNameParts, computeArrestPivotIndex, ROLE_ALIAS_TERMS, detectAttributionFlips, detectImpossibleSelfReferences, detectVictimBodyPronounMismatch } from "@cml/story-validation";
 import type { PhaseScore, CastEntry } from "@cml/story-validation";
 import {
@@ -6918,6 +6919,14 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
         const density = repetitionDensity(chapterTextsA65.join(" "));
         if (density.words > 0) {
           ctx.warnings.push(`[Agent 9] SHIP-CHECK: repetition — ${summariseRepetitionDensity(density)}`);
+          /**
+           * A_92 — WIT DENSITY, beside repetition and machine register. Four structural shapes,
+           * calibrated against the 11 canon novels: median 41.4 per 10k, ours 11.4, and 18 of our 20
+           * books below the LOWEST-scoring real novel. Telemetry only — it would fire on 18 of 20,
+           * which is B1 territory — but it is the first number a lever aimed at wit can move.
+           */
+          const wit = witDensity(chapterTextsA65.join(" "));
+          ctx.warnings.push(`[Agent 9] SHIP-CHECK: wit — ${summariseWitDensity(wit)}`);
           /**
            * A_91 — DID THE BEATS LAND? Telemetry, never a gate (B1: a check that fires on most runs
            * is an off switch with extra steps). Two countable things the next run can be scored on
