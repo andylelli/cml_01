@@ -166,6 +166,48 @@ Then a fresh run at `--humour sharp` for R1, R4b, the formative-incident ban (A_
 
 ---
 
+## §8 THE FRESH RUN — seed 1358, `--humour sharp` · 2026-09-15 · £1.09
+
+authority · 1950s · CountryHouse · Cozy · short · private · atmospheric · cast 5 · angle "a cathedral
+choir school" · project `canary_1789497521861`, run `mystery-1789497521865`. Every block reached its
+chapters by label (shapes, additions, no-name: 1–10; ban 3–10; event 9; aftermath 10). 11,247 words,
+no fallback chapter. Release gate: warning (blind reader skipped by the content filter; a world-state
+line "the mechanism requires sunlight" against a misty setting; two red herrings that may support the
+true solution).
+
+| prediction | pass | measured | verdict |
+|---|---|---|---|
+| formative incidents share an opening stem | < 5/5 | **1/5** — "Refused to sit…", "Lost his father…", "After a humiliating…", "Sustained a minor stroke…", "Discovered her father's…", every one dated | **MET** — the ban works (A_93 D2 closed) |
+| Agent 2b under sharp | ≥3 humorous, one ≥0.7, one `none` | **4 / 0.75 / yes** — dry_wit 0.5, polite_savagery 0.7, understatement 0.2, sardonic 0.75, none | **MET** |
+| outline final scene clearances | none or stripped | none — R1 had nothing to strip; Ch.9 clears the suspects BEFORE the reveal, as the rule wants | **MET** (R1 still unexercised) |
+| final chapter alibi recap | 0 | **0** | **MET** |
+| repetition per 10k | < 50 | **22.9** (ship-check: 24.3, "Normal") | **MET** |
+| wit per 10k | ≥ 41.4 | **20.5** — retorts 17, flat answers 6; ship-check: *"Asked for sharp (target 60) — short by 39.4"* | **NOT MET** |
+| dialogue share | ≥ 15% | **26.1%** (arm B of the pair: 11.9%) | **MET** — R4b's wording held |
+| style-label leaks | ≤ 2 | 3 — "sardonic" ×3, "understatement" ×1, both ordinary adjectives; none of "polite savagery" / "flat as ever" | marginal |
+| register rate | ≤ 0.10 | **0.079** | **MET** |
+
+**The wit shortfall, MEASURED.** The flat answer was asked for in all ten chapters and delivered in
+five (ch2, 5, 6, 7, 8 — 7 by a loose count, 6 by the instrument). The operation is obeyed about half
+the time. And where it is obeyed, the model narrates the rule: *"'There are,' she replied. Four words,
+final."* — *"Millicent's reply was a whisper: 'Thank you.' She did not elaborate."* Third generation of
+the same leak (the pair had "her answer was flat"). **R4c** adds: the narrator may not remark that an
+answer was short, final or unelaborated.
+
+**Depth on the page.** `[A_91 beats]` reports 0/5 formative traits in the first half. Whole-book:
+Agatha's tremor ×8 and "right hand" ×11 — landed; Edith's "back to the door" — never. The incidents
+are now varied and dated; carrying them to the page is A_93's open problem, not this run's.
+
+**Not new, still there.** The device is a fifteen-minute clock shift on the *authority* axis — A_83's
+finding (non-temporal cases fake a time) holds.
+
+**What this settles.** A_92 item 12: the band reaches Agent 2b and the ship-check, and `sharp` moved
+wit from the 8.8 of the last fresh run to 20.5 — a real move that clears our own median twice over
+and still does not reach the canon floor. A_93 D2: closed, 7/7 → 1/5. R1: unexercised twice; it fires
+on 30% of outlines and needs the run that draws one.
+
+---
+
 ## §7 STATUS
 
 | # | item | state | commit |
@@ -179,4 +221,5 @@ Then a fresh run at `--humour sharp` for R1, R4b, the formative-incident ban (A_
 | R6 | the WORTH A LOOK reading rule | **BUILT** | same |
 | P1 | matched pair on 31372 | **RUN** — 4 of 6 predictions met, 1 partial, 1 failed for a measured reason (§6.1) | `resume-1789496384522` |
 | R4b | shapes as additions; no register named in narration | **BUILT, ON** (under `AGENT9_WIT_SHAPES`) | see git log |
-| P2 | fresh run, `--humour sharp` | **NOT RUN** | — |
+| P2 | fresh run, `--humour sharp` | **RUN** — 7 of 9 met, wit not met, leaks marginal (§8) | `mystery-1789497521865` |
+| R4c | the narrator may not remark on an answer's shortness | **BUILT, ON** (under `AGENT9_WIT_SHAPES`) | see git log |

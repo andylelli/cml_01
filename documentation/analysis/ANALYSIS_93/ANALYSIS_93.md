@@ -198,7 +198,7 @@ on, always, and measured.
 | 2 | audit the three sources in the store | **MEASURED** | this doc |
 | 3 | `sharedHistory` pre/post flag split | **MEASURED** | this doc |
 | D1 | place-history field on `KeyLocation` | **NOT BUILT** | — |
-| D2 | verify the formative-incident ban on the next run | **NOT RUN** | — |
+| D2 | verify the formative-incident ban on the next run | **RUN — CLOSED.** Seed 1358: 1 of 5 share an opening stem (was 7 of 7), all five dated. On the page: Agatha's tremor ×8, Edith's "back to the door" ×0 (A_94 §8) | `mystery-1789497521865` |
 | D3 | a depth instrument | **NOT BUILT** | — |
 | D4 | the 63% of `sharedHistory` that stays a state | **NOT INVESTIGATED** | — |
 | — | a `--depth` parameter | **RECOMMENDED AGAINST** (§5) | — |

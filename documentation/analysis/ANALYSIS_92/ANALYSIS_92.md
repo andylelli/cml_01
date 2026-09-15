@@ -135,7 +135,7 @@ is excluded: a humourless mystery is a deliberate experiment, not a variation wo
 | 9 | allow-list key, API + resume passthrough | **BUILT** | `c1f90598` |
 | 10 | SHIP-CHECK reports target beside measured | **BUILT** | `c1f90598` |
 | 11 | `HOW-HUMOUR-WORKS.md` layer 0 | **BUILT** | `c1f90598` |
-| 12 | first run on a non-default band | **NOT RUN** | — |
+| 12 | first run on a non-default band | **RUN** — seed 1358, `sharp`: Agent 2b assigned 4 humorous / max 0.75 / one `none`; wit 20.5 per 10k (last fresh run 8.8); ship-check reads "Asked for sharp (target 60) — short by 39.4". The band reaches every hop; the shapes are obeyed in 5 of 10 chapters (A_94 §8) | `mystery-1789497521865` |
 
 **NEXT ITEM: 12.** A matched pair is the wrong instrument here — the band changes Agent 2b, which is
 upstream of prose, so `RESUME_REDO=prose` cannot carry it. This needs a fresh run at `--humour sharp`,

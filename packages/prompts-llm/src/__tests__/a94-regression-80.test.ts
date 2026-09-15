@@ -125,6 +125,8 @@ describe("R4 — the wit beat asks for the two shapes the instrument counts", ()
     const lines = buildWitBeatLines(beat, HUMOUR_STYLES).join("\n");
     expect(lines).toContain("additions, not a diet");
     expect(lines).toContain("NEVER NAME A REGISTER OR A SHAPE IN NARRATION");
+    // seed 1358: "'There are,' she replied. Four words, final." — the rule itself narrated
+    expect(lines).toContain("never pointed at");
     // the wording that was read as a diet is gone
     expect(lines).not.toContain("Let people be short with each other");
   });

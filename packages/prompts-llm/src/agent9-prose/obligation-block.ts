@@ -266,7 +266,9 @@ export const buildWitShapeLines = (): string[] => [
     `both before you finish. Nobody explains what a short answer has already said.`,
   `  - NEVER NAME A REGISTER OR A SHAPE IN NARRATION. Do not write "deadpan", "dry wit", "polite ` +
     `savagery", "understatement", "sardonic", "flat", "her answer was flat" or "the retort landed" as ` +
-    `description. The register is in the words a character says; it is never labelled by the narrator.`,
+    `description. The register is in the words a character says; it is never labelled by the narrator. ` +
+    `Nor may the narrator remark that an answer was short, final, brief or unelaborated — no "Four words, ` +
+    `final.", no "She did not elaborate." The shortness is the line; it is never pointed at.`,
 ];
 
 /**
