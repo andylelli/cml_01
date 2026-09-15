@@ -248,6 +248,12 @@ prohibition seeded them. Measured across five books, "appearances" is mid-range 
 
 ## 7. WHAT IS NOT KNOWN
 
+**Since 2026-09-15 one thing IS known:** a reader, asked, found the humour in the first `sharp` book —
+6.5/10, "drawing-room acid, not comedy" — and named the funniest characters in the exact rank order
+Agent 2b had assigned them (A_94 §8.1). Of the five lines the reader quoted, `wit-density.ts` counts
+one; the instrument sees retorts and flat answers, not aphorisms.
+
+
 **There is now an instrument, built 2026-09-14: `packages/prose-guard/src/wit-density.ts`.** It does
 not detect whether a line is funny. It counts four SHAPES wit takes in this genre — the short retort,
 the flat answer, understatement by its mechanism, and polite savagery — each a structural fact about

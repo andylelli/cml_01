@@ -201,6 +201,35 @@ are now varied and dated; carrying them to the page is A_93's open problem, not 
 **Not new, still there.** The device is a fifteen-minute clock shift on the *authority* axis — A_83's
 finding (non-temporal cases fake a time) holds.
 
+### §8.1 The reader on the humour — the first external mark for it · 2026-09-15
+
+Asked "can you detect any humour in it?", the reader (`chatgpt-review-humour.txt` beside the book):
+**"Yes — definitely detectable humour, and it helps… about 6.5/10. Dry, restrained, character-based,
+not comic set pieces. Drawing-room acid, not comedy."** Five lines named; all five are in the text.
+
+**The profile layer reached the page, and the reader read it back unprompted.** Agent 2b under
+`sharp` gave Violet `sardonic 0.75`, Millicent `polite_savagery 0.7`, Edith `dry_wit 0.5`, Agatha
+`understatement 0.2`, Leonard `none`. The reader, knowing none of that: *"Violet is the strongest
+comic voice… defensive, stylish, faintly cruel. Edith should get the dry replies. Millicent works best
+with controlled, unexpectedly cutting lines. Agatha should not be funny often."* Four for four, in
+rank order. That is the cast directive doing what it says.
+
+**The instrument and the reader disagree about what humour IS — MEASURED.** Of the five lines the
+reader named, `wit-density.ts` counts **one** (*"Only if it's likely to confess"* — a retort). The
+other four are aphorisms — *"Order is a lovely thing, Lady Innes. It rarely survives inspection."* —
+the drawing-room sting the four shapes do not see. So the instrument under-counts what a reader
+values, while still having ranked this book correctly against the last fresh run (20.5 vs 8.8, and
+the reader's 6.5 against a book nobody called funny). One data point for A_92 §3's open question:
+wit 20.5 per 10k ↔ humour 6.5/10. Recorded, not extrapolated.
+
+**The reader's one improvement is the next lever, and it is already half-built.** *"Several
+characters speak in similar polished aphorisms — give each a different comic flavour."* The style
+definitions exist per character; the two shapes are asked of the chapter, not of a person. Assigning
+the flat answer to the `dry_wit` character and the retort to the `sardonic` one — shape by register —
+is the countable form of "differentiate". Not built; recorded as A_94 R7.
+
+The reader has added **Humour / Wit** as a standing category for every future read.
+
 **What this settles.** A_92 item 12: the band reaches Agent 2b and the ship-check, and `sharp` moved
 wit from the 8.8 of the last fresh run to 20.5 — a real move that clears our own median twice over
 and still does not reach the canon floor. A_93 D2: closed, 7/7 → 1/5. R1: unexercised twice; it fires
@@ -223,3 +252,4 @@ on 30% of outlines and needs the run that draws one.
 | R4b | shapes as additions; no register named in narration | **BUILT, ON** (under `AGENT9_WIT_SHAPES`) | see git log |
 | P2 | fresh run, `--humour sharp` | **RUN** — 7 of 9 met, wit not met, leaks marginal (§8) | `mystery-1789497521865` |
 | R4c | the narrator may not remark on an answer's shortness | **BUILT, ON** (under `AGENT9_WIT_SHAPES`) | see git log |
+| R7 | shape by register — the flat answer to `dry_wit`, the retort to `sardonic` (the reader's "differentiate") | **NOT BUILT** | — |

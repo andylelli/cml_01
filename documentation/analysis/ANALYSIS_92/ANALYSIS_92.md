@@ -115,6 +115,9 @@ is excluded: a humourless mystery is a deliberate experiment, not a variation wo
   median of 11.4 is a hypothesis, and the first run on it is the test.
 - **Whether wit density predicts the external score.** It separates canon from us, which is not the
   same claim. The correlation needs reads against books with known densities, `words >= 8000`.
+  **First data point (A_94 §8.1):** seed 1358 at 20.5 per 10k drew the first external humour mark,
+  **6.5/10** — and of the five lines the reader named, the instrument counts **one**. The four shapes
+  under-count aphoristic sting; they still ranked the book correctly against 8.8. One point, not a line.
 - **Whether the four shapes are the right four.** They were chosen because they are countable and they
   separate. A fifth may matter more.
 
