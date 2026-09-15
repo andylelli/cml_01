@@ -250,12 +250,23 @@ export const selectDepthBeat = (
 export const isWitShapesEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
   /^(1|true|yes|on)$/i.test(String(env.AGENT9_WIT_SHAPES ?? "").trim());
 
+/**
+ * MEASURED on the first matched pair (A_94 §6): the first wording — "let people be short with each
+ * other" — was read as a diet. Dialogue share fell 17.3% → 11.9%, speeches 165 → 113, and the book
+ * came in 17% shorter, which is what pushed the register RATE up with the same number of flagged
+ * sentences. And the prompt's own vocabulary was narrated back: "polite savagery" 0 → 5, "her answer
+ * was flat" 0 → 6. So: the shapes are two exchanges ADDED to a full chapter, and no register or shape
+ * may be named as description.
+ */
 export const buildWitShapeLines = (): string[] => [
-  `  - TWO SHAPES THIS CHAPTER MUST CONTAIN, whoever speaks them — count them before you finish: ` +
-    `(a) THE FLAT ANSWER — a question is answered in four words or fewer, and the answerer does not ` +
-    `go on to explain; (b) THE SHORT RETORT — a speech of fifteen words or more is answered in six ` +
-    `words or fewer. Let people be short with each other. Do not have a character explain what a ` +
-    `short answer has already said.`,
+  `  - TWO EXCHANGES TO ADD to this chapter's dialogue — additions, not a diet: the chapter keeps every ` +
+    `conversation it would otherwise have, at full length. (a) THE FLAT ANSWER — somewhere, a question ` +
+    `is answered in four words or fewer, and the answerer does not go on to explain; (b) THE SHORT ` +
+    `RETORT — somewhere, a speech of fifteen words or more is answered in six words or fewer. Count ` +
+    `both before you finish. Nobody explains what a short answer has already said.`,
+  `  - NEVER NAME A REGISTER OR A SHAPE IN NARRATION. Do not write "deadpan", "dry wit", "polite ` +
+    `savagery", "understatement", "sardonic", "flat", "her answer was flat" or "the retort landed" as ` +
+    `description. The register is in the words a character says; it is never labelled by the narrator.`,
 ];
 
 /**

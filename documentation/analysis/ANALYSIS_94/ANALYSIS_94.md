@@ -121,16 +121,48 @@ moves, and 8.8 against a floor of 20.6 is not a subtle gap.
 is the shipped 80. Arm B carries the atmosphere pass back on, R2, R3, R4, R5 (R1 is upstream and
 cannot be carried by a prose redo). Checkable before anyone reads it:
 
-| prediction | today | pass |
-|---|---|---|
-| repetition per 10k | 516 | **< 50** |
-| wit per 10k | 8.8 | **≥ 20.6** (the canon floor) |
-| "Relief flickered" / "stray lock of hair" | 8 / 9 | ≤ 2 each |
-| Ch.10 confirms alibis | yes | **no** — no "alibi" + suspect name in Ch.10 |
-| Ch.9 has a witness commit before the explanation | no | yes |
-| register rate | 0.090 | unchanged ± 0.02 (it must not rise) |
+| prediction | arm A | pass | **arm B (run `resume-1789496384522`, £0.81)** | verdict |
+|---|---|---|---|---|
+| repetition per 10k | 516 | < 50 | **49.0** | **MET** — just |
+| wit per 10k | 8.8 | ≥ 20.6 | **21.2** (flat answers 2 → 10; retorts 7 → 7) | **MET** — just |
+| "Relief flickered" / "stray lock" / "drew taut" | 8 / 9 / 6 | ≤ 2 | **0 / 0 / 0** | **MET** |
+| Ch.10 confirms alibis | yes | no | **no** — 0 "alibi", no "accounted for"; one forensic sentence as colour | **MET** |
+| Ch.9 witness commits before the explanation | no | yes | **partial** — the test IS performed (*"she stepped into the recess, disappearing from view as the mirror reflected the side street"*), but the explanation comes three sentences BEFORE it | **NOT MET** |
+| register rate | 0.090 | ± 0.02 | **0.134** | **FAILED** — see §6.1 |
 
-Then a fresh run at `--humour sharp` for R1, the formative-incident ban (A_93 D2) and A_92 item 12.
+Every lever reached its chapters by label in the prompt log: shapes 1–10, ban 3–10, event 9,
+aftermath 10. No fallback chapter. Two batches retried (Ch.4: a device description copied verbatim;
+Ch.8: repeated paragraph fingerprint). Three Ch.9 regen attempts were refused by Azure's content
+filter (HTTP 400 on gpt-4.1-mini) — the chapter kept its first draft.
+
+### §6.1 What the failed prediction means — MEASURED
+
+**The register rate rose because the book shrank, not because it got more mechanical.** Flagged
+sentences: **73 → 69.** Words: **10,198 → 8,475** (−17%). Same numerator, smaller denominator.
+
+Where the words went: **dialogue share 17.3% → 11.9%, speeches 165 → 113, speeches of ≥15 words
+34 → 17.** The R4 wording — *"let people be short with each other"* — was read as a diet on
+conversation, not as two exchanges to add. The prompt got exactly what it asked for, which is the
+compliance pattern working against the intent.
+
+**The prompt's own vocabulary was narrated back.** "polite savagery" 0 → 5, "her answer was flat /
+flat as ever" 0 → 6, "understatement" 1 → 4 — *"Adela's deadpan remark landed, flat as ever."* A_67's
+shape in a new place: the style names given to Agent 9 as instruction come out as description. Arm A
+already had "deadpan" ×3 and "dry wit" ×2 from the per-character block, so the channel predates R4;
+R4 widened it.
+
+**The clearances moved rather than vanished.** R1 is upstream and the pair could not carry it; with
+the scene purpose still saying "confirm alibis", B3 + R2 pushed the walk-through out of Ch.10 — into
+Ch.9 beside the reveal (Prudence, Barnaby, Henrietta each cleared in turn before the demonstration).
+Better than after the reveal; still the thing Agent 7's rule forbids. R1 is the fix and needs a fresh
+run.
+
+**R4b, built on this:** the shapes are "two exchanges to ADD — the chapter keeps every conversation
+it would otherwise have, at full length", and a second line bans naming any register or shape in
+narration. The Ch.9 ordering (explain-after) held in the prompt and was not obeyed; recorded, not
+rebuilt — one pair is one observation.
+
+Then a fresh run at `--humour sharp` for R1, R4b, the formative-incident ban (A_93 D2) and A_92 item 12.
 
 ---
 
@@ -145,5 +177,6 @@ Then a fresh run at `--humour sharp` for R1, the formative-incident ban (A_93 D2
 | R4 | wit shapes | **BUILT, ON** | same |
 | R5 | repeat ban list | **BUILT, ON** | same |
 | R6 | the WORTH A LOOK reading rule | **BUILT** | same |
-| P1 | matched pair on 31372 | **NOT RUN** | — |
+| P1 | matched pair on 31372 | **RUN** — 4 of 6 predictions met, 1 partial, 1 failed for a measured reason (§6.1) | `resume-1789496384522` |
+| R4b | shapes as additions; no register named in narration | **BUILT, ON** (under `AGENT9_WIT_SHAPES`) | see git log |
 | P2 | fresh run, `--humour sharp` | **NOT RUN** | — |

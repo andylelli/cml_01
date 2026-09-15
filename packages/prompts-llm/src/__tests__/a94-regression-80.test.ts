@@ -120,10 +120,19 @@ describe("R4 — the wit beat asks for the two shapes the instrument counts", ()
     expect(lines).not.toMatch(/per 10k|per cent|%/);
   });
 
+  it("R4b — MEASURED on the first pair: the shapes are additions, and no register is named in narration", () => {
+    process.env.AGENT9_WIT_SHAPES = "true";
+    const lines = buildWitBeatLines(beat, HUMOUR_STYLES).join("\n");
+    expect(lines).toContain("additions, not a diet");
+    expect(lines).toContain("NEVER NAME A REGISTER OR A SHAPE IN NARRATION");
+    // the wording that was read as a diet is gone
+    expect(lines).not.toContain("Let people be short with each other");
+  });
+
   it("no beat, no shapes — the band's 'none' still means none", () => {
     process.env.AGENT9_WIT_SHAPES = "true";
     expect(buildWitBeatLines(undefined, HUMOUR_STYLES)).toEqual([]);
-    expect(buildWitShapeLines()).toHaveLength(1);
+    expect(buildWitShapeLines()).toHaveLength(2);
   });
 });
 
