@@ -38,6 +38,9 @@ An external read is the only instrument that has ever moved this project, and ca
   (~£0.45). A fresh run settles nothing about a prose-side lever.
 - **Never read a book with a fallback chapter** — the log says `forced to deterministic fallback`.
   That measures the fallback, not the pipeline. Resume the chapter first.
+- **Never read a book whose SHIP-CHECK says WORTH A LOOK.** Run 31372 went to a reader at 29.8× the
+  repetition median with the instrument saying so; the read cost 7 marks and settled nothing. A
+  matched pair first (A_94).
 - **Bundle levers that touch different chapters** so one read scores several by category.
 - **Choose the next seed by AXIS** until every axis has three reads. Spatial and behavioural have 0–1.
 - **When a read names no injector, the injector audit is over.** Until then a read is an injector

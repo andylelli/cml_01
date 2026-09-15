@@ -83,6 +83,8 @@ export interface PromptSectionInputs {
   physicalPlausibilityRules: string;
   eraAuthenticityRules: string;
   locationProfilesContext: string;
+  /** A_94 — six-word runs already repeated across the prior chapters; empty when the flag is off. */
+  repeatBanBlock?: string;
   temporalContextBlock: string;
   lockedFactsBlock: string;
   clueDescriptionBlock: string;

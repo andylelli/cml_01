@@ -1931,6 +1931,51 @@ export function synthesiseMissingWordCounts(
  *
  * @returns count of fields hoisted or synthesised.
  */
+/**
+ * A_94 — `AGENT7_STRIP_CLEARANCES_FROM_REVEAL`. The outline's final scene may not order the alibi
+ * walk-back Agent 7's own prompt forbids.
+ *
+ * MEASURED over 50 stored outlines: 48 end on the reveal scene, and 15 of those give that scene a
+ * purpose like "Confirm alibis of all suspects except the culprit; confront X" — AFTER the
+ * discriminating test, in direct contradiction of the prompt's "clearing the innocent belongs BEFORE
+ * the reveal". A_89 B3 then makes that chapter aftermath, and the purpose rides into the aftermath
+ * prompt beside the AFTERMATH CONTRACT; the model obeys both. The 80/100 read of run 31372: "Chapter
+ * 10 starts well, then reverts to alibi/timeline recap" — the recap scene 7 had already done.
+ *
+ * A retry would cost a prompt for a clause. This removes the clause: the clearance sentence or
+ * `;`-clause is dropped from `purpose` and `summary`, and a leading "Clearances and" from the title.
+ * Nothing is dropped when nothing separable remains, so a scene that is ONLY clearances is left for
+ * the schema to judge. Loss-proof: the reveal half of the purpose is what survives.
+ */
+export const isStripClearancesEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT7_STRIP_CLEARANCES_FROM_REVEAL ?? "").trim());
+
+const CLEARANCE_RE = /\b(?:alibis?|clear(?:s|ed|ing|ances?)?|eliminat\w*)\b/i;
+
+export function stripClearancesFromFinalScene(narrative: unknown): { stripped: string[] } {
+  const acts = (narrative as any)?.acts;
+  if (!Array.isArray(acts)) return { stripped: [] };
+  const scenes = acts.flatMap((a: any) => (Array.isArray(a?.scenes) ? a.scenes : []));
+  const last = scenes[scenes.length - 1];
+  if (!last || typeof last !== "object") return { stripped: [] };
+  const stripped: string[] = [];
+  for (const field of ["purpose", "summary"] as const) {
+    const text = last[field];
+    if (typeof text !== "string" || !CLEARANCE_RE.test(text)) continue;
+    const parts = text.split(/(?<=[.!?])\s+|;\s*/).map((x: string) => x.trim()).filter(Boolean);
+    const kept = parts.filter((x: string) => !CLEARANCE_RE.test(x));
+    if (kept.length === 0 || kept.length === parts.length) continue;
+    stripped.push(...parts.filter((x: string) => CLEARANCE_RE.test(x)));
+    const joined = kept.join(" ").trim();
+    last[field] = joined.charAt(0).toUpperCase() + joined.slice(1);
+  }
+  if (typeof last.title === "string" && /^\s*clearances?\s+(?:and|&)\s+/i.test(last.title)) {
+    stripped.push(last.title);
+    last.title = last.title.replace(/^\s*clearances?\s+(?:and|&)\s+/i, "").trim();
+  }
+  return { stripped };
+}
+
 export function hoistMisplacedSceneFields(narrative: unknown): { hoisted: number } {
   let hoisted = 0;
   const acts = (narrative as any)?.acts;
@@ -2160,6 +2205,16 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
   }
   const fieldHoist = hoistMisplacedSceneFields(narrative);
   recordAgent7Coercion(ctx, { fieldsHoisted: fieldHoist.hoisted });
+  // A_94 — the final scene may not order the alibi walk-back the prompt forbids (15 of 50 outlines did).
+  if (isStripClearancesEnabled()) {
+    const clearanceStrip = stripClearancesFromFinalScene(narrative);
+    if (clearanceStrip.stripped.length > 0) {
+      ctx.warnings.push(
+        `[A_94] clearances stripped from the final (reveal) scene: ` +
+          clearanceStrip.stripped.map((x) => JSON.stringify(x)).join(" | "),
+      );
+    }
+  }
   if (fieldHoist.hoisted > 0) {
     ctx.warnings.push(
       `Narrative field hoist: recovered ${fieldHoist.hoisted} scene field(s) the model nested under 'setting' (purpose/summary/characters/…) before schema validation — prevents a spurious completeness abort.`,

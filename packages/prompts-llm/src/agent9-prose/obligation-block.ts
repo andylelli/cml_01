@@ -238,6 +238,69 @@ export const selectDepthBeat = (
     chapterNumber + 1,
   );
 
+/**
+ * A_94 — `AGENT9_WIT_SHAPES`. The wit beat asked for "one remark in their style" and produced ZERO
+ * measurable understatement on the first book that carried it (A_91 §12.5). `wit-density.ts` says
+ * where the canon's wit actually lives: the two cheapest shapes, the FLAT ANSWER (a question
+ * answered in <=4 words: canon 13.3 per 10k, ours 1.5) and the SHORT RETORT (<=6 words after >=15:
+ * canon 30.6, ours 8.8). Both are countable operations, which is what this model complies with.
+ * Prompting the shapes moves the instrument by construction; whether the result is FUNNY is still
+ * the reader's call — but these are the moves the genre's wit is made of, so it is the right form.
+ */
+export const isWitShapesEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT9_WIT_SHAPES ?? "").trim());
+
+export const buildWitShapeLines = (): string[] => [
+  `  - TWO SHAPES THIS CHAPTER MUST CONTAIN, whoever speaks them — count them before you finish: ` +
+    `(a) THE FLAT ANSWER — a question is answered in four words or fewer, and the answerer does not ` +
+    `go on to explain; (b) THE SHORT RETORT — a speech of fifteen words or more is answered in six ` +
+    `words or fewer. Let people be short with each other. Do not have a character explain what a ` +
+    `short answer has already said.`,
+];
+
+/**
+ * A_94 — `AGENT9_TEST_AS_EVENT`. The 80/100 read: "Chapter 9 becomes a list of evidence, then simply
+ * declares Adela the culprit." The CASE stated the mechanism exactly and the outline ordered a
+ * demonstration from the stage exit; the prose REPORTED it. Four operations, ordered so the mechanism
+ * cannot be explained before it is shown. No worked example — A_67: illustrative content is
+ * reproduced, not adapted.
+ */
+export const isTestAsEventEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT9_TEST_AS_EVENT ?? "").trim());
+
+export const buildTestAsEventLines = (): string[] => [
+  `  THE TEST IS AN EVENT, NOT AN EXPLANATION — four things, in this order:`,
+  `  1. BEFORE anything is explained, a named witness commits in dialogue to what they believe they saw or know.`,
+  `  2. The test is then PERFORMED on the page by named characters — someone stands where the witness stood, ` +
+    `someone does what the culprit did — and what it shows contradicts the witness's answer.`,
+  `  3. Only AFTER the demonstration does anyone say how it works, in one exchange of dialogue, not a paragraph of narration.`,
+  `  4. No sentence before step 2 may explain the mechanism. A list of the evidence is not a test; a reader who ` +
+    `is told the answer has not watched it happen.`,
+];
+
+/**
+ * A_94 — `AGENT9_AFTERMATH_SCENE_PURPOSE`. When A_89 B3 makes the final chapter aftermath, the
+ * outline scene's own purpose ("confirm alibis…; confront X…") still rides into the prompt beside the
+ * AFTERMATH CONTRACT — MEASURED on run 31372: 1 of 1 chapter-10 prompts carried both, and the model
+ * obeyed both. Two components computing "what this chapter is for" disagreed, and one fed a WRITE
+ * (WF-002). The aftermath framing replaces `purpose`, `summary` and `objective`; everything else on
+ * the scene — title, setting, characters, beats — is untouched.
+ */
+export const isAftermathScenePurposeEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT9_AFTERMATH_SCENE_PURPOSE ?? "").trim());
+
+export const AFTERMATH_SCENE_PURPOSE =
+  "AFTERMATH. The culprit was exposed in the previous chapter, and every other suspect is cleared by that " +
+  "fact alone. Show what the truth cost — reaction, consequence, changed relationships, the restored or " +
+  "unrestored order. Do not confirm alibis, re-stage the accusation, re-quote the confession or walk the " +
+  "evidence chain; refer to those as settled.";
+
+export const reframeSceneForAftermath = <T extends Record<string, unknown>>(scene: T): T => {
+  if (!scene || typeof scene !== "object") return scene;
+  const { summary: _summary, purpose: _purpose, objective: _objective, ...rest } = scene as any;
+  return { ...rest, purpose: AFTERMATH_SCENE_PURPOSE } as T;
+};
+
 export const buildWitBeatLines = (beat: BeatCandidate | undefined, styles: Record<string, string>): string[] => {
   if (!beat) return [];
   const style = String(beat.humourStyle ?? "").trim();
@@ -251,6 +314,7 @@ export const buildWitBeatLines = (beat: BeatCandidate | undefined, styles: Recor
     `    If the scene is a discovery of a body, a moment of genuine grief, or the explanation of the ` +
       `mechanism, SKIP the beat entirely rather than force it. A missing beat costs nothing; a joke in ` +
       `those three places costs the chapter.`,
+    ...(isWitShapesEnabled() ? buildWitShapeLines() : []),
   ];
 };
 
@@ -1505,6 +1569,7 @@ const REVEAL_SIGNAL_RE = /\b(culprit|confront|confession|resolve|resolution|deno
   if (dtScene && (currentArcPosition === 'pre_climax' || currentArcPosition === 'climax')) {
     const dtMethod = String(cmlCase?.discriminating_test?.method ?? cmlCase?.discriminating_test?.test_type ?? '').trim();
     if (dtMethod) {
+      if (isTestAsEventEnabled()) lines.push(`\n⚠ DISCRIMINATING TEST — HOW IT IS STAGED:`, ...buildTestAsEventLines());
       lines.push(`\n⚠ DISCRIMINATING TEST WINDOW: The story's "${dtMethod}" test MUST be staged as a concrete scene before the story ends. If this chapter has not yet performed it, do so now — do not defer to a later chapter. A post-hoc summary is NOT acceptable.`);
     }
   }

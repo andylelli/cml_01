@@ -82,6 +82,8 @@ import { sanitizeScenesCharacters } from "./sanitization.js";
 import type { CastDesign } from "../agent2-cast.js";
 import type { PromptBlockPriority, PromptContextBlock, PromptSectionInputs } from "./prompt-blocks.js";
 import { buildJudgedOnBlock } from "./prompt-blocks.js";
+import { buildRepeatBanBlock, isRepeatBanEnabled } from "./repeat-ban.js"; // A_94
+import { isAftermathScenePurposeEnabled, reframeSceneForAftermath } from "./obligation-block.js"; // A_94
 import type {
   ProseChapter,
   ChapterSummary,
@@ -1277,6 +1279,8 @@ export const buildPromptContextBlocks = (sections: PromptSectionInputs): PromptC
     { key: 'era_authenticity', content: sections.eraAuthenticityRules, priority: 'high', stability: 'run' },
     // chapter: buildLocationProfilesBlock takes scenesOverride + chapterStart.
     { key: 'location_profiles', content: sections.locationProfilesContext, priority: 'medium', stability: 'chapter' },
+    // A_94: a countable ban, rebuilt per chapter from what the prior chapters already repeat.
+    { key: 'repeat_ban', content: sections.repeatBanBlock ?? '', priority: 'high', stability: 'chapter' },
     { key: 'texture_pool', content: sections.texturePoolBlock ?? '', priority: 'medium', stability: 'chapter' },
     { key: 'temporal_context', content: sections.temporalContextBlock, priority: 'high', stability: 'run' }, // Fix A1: temporal consistency promoted from medium
     { key: 'locked_facts', content: sections.lockedFactsBlock, priority: 'critical', stability: 'run' },
@@ -2691,6 +2695,14 @@ ${body}`;
       }))
     : scenesWithAdjustedEstimates;
 
+  // A_94 — on an aftermath final chapter the outline scene's own purpose ("confirm alibis…; confront X")
+  // must not reach the prompt beside the AFTERMATH CONTRACT: 1 of 1 chapter-10 prompts on run 31372
+  // carried both, and the model obeyed both.
+  const scenesAsWritten =
+    isAftermathScenePurposeEnabled() && proseArcPosition === 'resolution' && activeStageMode === 'aftermath_consequence'
+      ? (scenesForPrompt as any[]).map((scene) => reframeSceneForAftermath(scene))
+      : scenesForPrompt;
+
   // Pillar 4 (Unit 4.3): build per-scene completeness contract block
   const completenessContractLines: string[] = [];
   if (inputs.enableOutlineCompleteness) {
@@ -2750,7 +2762,7 @@ ${body}`;
    * Removed from the user message rather than the system one on purpose: the system message is the
    * cached prefix, and the model already receives the contract there in full.
    */
-  const user = `Write the full prose following the outline scenes.\n\n${chapterObligationBlock}${timelineStateBlock}${storyToDateBlock}${completenessContractBlock}\n\n${buildContextSummary(inputs.caseData, inputs.cast)}\n\n${compactPronounHeader}Outline scenes:\n${JSON.stringify(scenesForPrompt, null, 2)}`;
+  const user = `Write the full prose following the outline scenes.\n\n${chapterObligationBlock}${timelineStateBlock}${storyToDateBlock}${completenessContractBlock}\n\n${buildContextSummary(inputs.caseData, inputs.cast)}\n\n${compactPronounHeader}Outline scenes:\n${JSON.stringify(scenesAsWritten, null, 2)}`;
 
   // ── Agent 7.5 geometry as prompt input (GEOMETRY-AGENT-DESIGN §8.2) ────────
   // A contract and a test, nothing between: these blocks state obligations in the vocabulary of the
@@ -2790,6 +2802,7 @@ ${body}`;
     physicalPlausibilityRules,
     eraAuthenticityRules,
     locationProfilesContext,
+    repeatBanBlock: isRepeatBanEnabled() ? buildRepeatBanBlock(priorChapters, inputs.lockedFacts) : '', // A_94
     temporalContextBlock,
     lockedFactsBlock,
     clueDescriptionBlock,

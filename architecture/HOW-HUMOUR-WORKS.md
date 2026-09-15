@@ -294,6 +294,7 @@ question of whether the humour LANDS is still a person reading the book.**
 |---|---|---|
 | `AGENT2B_TIC_TEMPLATE_BAN` | ON | 1 — bans the exhausted tic openings |
 | `AGENT9_WIT_BEAT` | ON | 5 — one named remark per chapter |
+| `AGENT9_WIT_SHAPES` | ON (2026-09-15, A_94) | 5 — the beat also asks for one FLAT ANSWER (≤4 words to a question) and one SHORT RETORT (≤6 words after ≥15) per chapter: the two shapes `wit-density.ts` finds 8.9× and 3.5× more often in the canon than in our books. The first book with the beat alone measured 0 understatement and 8.8 per 10k. |
 | `AGENT9_SKIP_ATMOSPHERE_REPAIR` | **OFF (reversed)** | not humour, but it deletes repeated phrases and its absence cost one book 29.8× the median repetition |
 | `AGENT9_PROMPT_BUDGET_CRAFT_FLOOR` | ON | protects craft blocks from the budgeter; `humour_guide` is deliberately NOT in the protected set |
 
