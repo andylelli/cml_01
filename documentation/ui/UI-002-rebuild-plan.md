@@ -135,7 +135,7 @@ so they are not "fixed" again.
 | B11 | `onScopeDispose` registers nothing when called outside an effect scope, and a Vue warning is the only sign | **FIXED** while writing `useErrorLog` — `failSilently` plus an explicit, idempotent `dispose()`. Found by reading test output rather than by reading code |
 
 | B12 | **Two owners of one localStorage key.** `WorkshopView` still wrote `persistState()` to `cml_ui_state` after the shell took that key with a versioned schema | **FIXED** (item 27 commit). The console's unversioned payload overwrote the shell's on every interaction; the shell's `hydrate()` then correctly rejected it for having no version; the visible effect was advanced mode silently reverting to user on every reload. **Found by running the app, not by reading it** — two owners of one key type-check perfectly and pass every test. The console now owns `cml_workshop_state`, which is right on the merits: the two persist different things |
-| B13 | `WorkshopView` holds its own `mode` and `spec` refs, independent of the shell's | **RECORDED, NOT FIXED.** No data is lost, but a spec configured in Create is not the spec the console shows, and advanced mode must be toggled again inside. The fix is to hoist both into shared state, which is **item 25** — and doing it here would mean changing the toggles the console's four existing tests drive. Partly reduced: both now use `defaultSpec()` and `coerceSpec()` from one vocabulary |
+| B13 | `WorkshopView` held its own `mode` and `spec` refs, independent of the shell's | **FIXED** with item 25. Both now come from `composables/useSessionState.ts` — module refs rather than a store, because two values with no actions and no async do not need one. **Verified end to end:** 1950s chosen in the Create wizard shows as 1950s in the console's Spec panel. The console also stopped *persisting* them, which was B12 one level down — the shell owns the versioned schema, and the console's key now holds only its own four values. The singleton needed `resetSessionState()` for tests, and the panel suite failed loudly until it was used — a module singleton leaking between tests is its own well-known trap |
 | B14 | **`npm run build` did not type-check.** The script was `vite build`, and `@vitejs/plugin-vue` transpiles without checking | **FIXED** (item 31). `vue-tsc@2.2.12` added to `@cml/web`; `npm run typecheck` added; `build` is now `npm run typecheck && vite build`. The first run found **32 errors across 5 files**, all pre-existing and all now fixed. The gate was then verified by injecting a bad type and confirming the build rejects it — a gate nobody has seen fire is a claim about the gate |
 
 Further bugs found during the rebuild are appended here with their item number.
@@ -189,11 +189,11 @@ keeps dense tables, its three tab groups and every panel. Two rules:
 | 22 | `App.vue` reduced to shell + view switch | **DONE — 3,391 to 125 lines** | `76532cde` |
 | 23 | `InspirationView` | **DONE** | `76532cde` |
 | 24 | `CasesView` + `ReadView` | **DONE — CasesView; ReadView folded into Inspiration + PDF download** | `76532cde` |
-| 25 | `WorkshopView` — console moved, tab groups preserved | **DEFERRED — see §9** | `76532cde` |
+| 25 | `WorkshopView` — console moved, tab groups preserved | **DONE — 3,226 to 638 lines; 6 panels + state composable** | `PENDING` |
 | 26 | Workshop: axis control (**fixes B3**) + tone/style coupling note (**B4**) | **DONE — B3 corrected, B4 + B5 surfaced** | `76532cde` |
 | 27 | Restyle existing feature components to tokens | **DONE — 1,088 uses, 0 remaining** | `76532cde` |
 | 28 | Responsive pass — three widths, no horizontal scroll | **DONE — verified 1400/800/375, no page-level x-scroll** | `76532cde` |
-| 29 | A11y pass — labels, `aria-current`, contrast, reduced motion | **DONE — auditor + 12 tests; was RED on 3 fields and 0 headings. Console non-default tabs not covered** | `PENDING` |
+| 29 | A11y pass — labels, `aria-current`, contrast, reduced motion | **DONE — all six panels audited; 11 more unlabelled fields found and fixed** | `PENDING` |
 | 30 | Remove dead code and old Tailwind palette classes | **DONE — old palette at zero** | `76532cde` |
 
 **Next item: 19** (see §9 first).
@@ -234,25 +234,37 @@ hard-coded tab list to be read from `mainTabs` instead, and that surfaced a seco
 noticed — `Ctrl+5` opened the `advanced` tab even when it was `disabled`. Waiting for item 25 would
 have left both live. **Built** (`90e7298a`), 17 tests.
 
-### 25 · Splitting `WorkshopView`'s internals — **STANDING, with a new reason**
+### 25 · Splitting `WorkshopView`'s internals — **DONE**
 
-The original reason has **expired**: it said moving and rewriting in one change makes a regression
-unattributable. The move is done and committed, so a rewrite now *is* attributable. That argument no
-longer applies and should not be re-used.
+Both earlier reasons are now spent, and both are kept because each was wrong in a different way.
 
-**The reason it still stands is different, and it is a design decision rather than a risk.** The
-component is ~1,600 lines of template bound to several dozen refs in one `<script setup>`. Splitting
-it into per-tab panels requires choosing how those refs reach the panels — prop-drilling, a
-`provide`/`inject` contract, or hoisting into the Pinia store — and that choice is the work. Picking
-it badly produces a component tree that is harder to follow than the monolith, which is strictly
-worse than leaving it.
+> *First reason:* moving and rewriting in one change makes a regression unattributable. True before
+> the move; **expired** the moment the move was committed.
+>
+> *Second reason:* "how the refs reach the panels is the work, and picking badly is worse than
+> leaving it." **Overstated.** Measuring answered it in one command: 130 bindings reach the template
+> and **100 are used by exactly one panel**, so only 30 are genuinely shared. The mechanism was never
+> in doubt once that was known.
 
-**How to do it when it is done:** one tab at a time, each panel getting a render test and passing the
-item-29 auditor before the next is started. The console's other twelve panels are `v-if`'d out of the
-DOM today and have never been audited, so that pass and this split are the same job.
+**What was built.**
 
-**This is still where B13 gets fixed** — the console's own `mode` and `spec` refs are what a split
-would hoist into shared state.
+| | |
+|---|---|
+| `workshop/useWorkshopState.ts` | the console's ~1,500 lines of logic, as ordinary TypeScript. Its **return type is the context**, inferred rather than hand-written across 121 fields, so the contract cannot drift from what is provided |
+| `workshop/panels/*.vue` | six panels — Project, Spec, Generate, Review, Advanced, Export — each injecting the state and declaring exactly the bindings and components it uses |
+| `WorkshopView.vue` | **3,226 → 638 lines** |
+
+**Two defects the split found, neither visible to the typechecker:**
+
+1. **`<script setup>` auto-registers only the components it imports itself.** Moving those imports
+   into the `.ts` silently un-registered them: the template still compiles, `vue-tsc` still passes,
+   and Vue complains only at **runtime** with "Failed to resolve component". Three tests caught it.
+2. **A `.vue` import at the wrong depth also passes the typechecker.** The panels sit three levels
+   below `src`, not two; `vue-tsc` was clean and vitest failed on resolution.
+
+**Item 29 finished here too**, because it was always the same job. The panels are `v-if`'d, so the
+auditor had only ever reached one of six. Visiting each found **11 more unlabelled fields** in the
+Spec panel — labels present, `for`/`id` absent — now bound, with 20 panel tests holding all six open.
 
 ---
 
@@ -280,17 +292,24 @@ sees — which is exactly why the app had accumulated them over its whole life.
 
 ## 11. WHAT IS LEFT
 
-**Every item on the board is resolved** — built and verified, or deferred with a standing reason.
-One item and one bug remain open, and they are the same job:
+**The board is finished.** All 30 items built and verified, plus items 31 (typecheck gate) and 32
+(the case file). Every bug B1–B14 is fixed, noted as already-correct, or withdrawn with its premise
+named.
 
-1. **Item 25 + B13 + the rest of item 29.** Splitting `WorkshopView` into per-tab panels, hoisting
-   its `mode` and `spec` into shared state, and running the item-29 auditor over the twelve panels
-   that are `v-if`'d out of the DOM today. §9 has the approach; it wants its own session and a
-   state-ownership decision made deliberately rather than in passing.
-2. **A run against a live API.** Everything here was verified against a server that was not running,
-   so every view has been seen in its empty-or-error state and none in its populated one. The
-   `useRunProgress` state machine is pinned by tests and mutation checks, but the wire underneath it
-   (`services/sse.ts`) has not been exercised since the refactor.
-3. **Consider extending the typecheck gate to `apps/api` and `apps/worker`.** `packages/*` build with
-   `tsc` so they are covered; those two were not audited, and `apps/web` had accumulated 32 errors in
-   exactly that situation.
+Three things are worth doing next, and none of them is on this board:
+
+1. **A paid run through the rebuilt UI.** The consumer path was verified against a live API with 38
+   existing projects, and `useRunProgress` is pinned by 20 tests and 5 mutation checks — but no run
+   has been *started* from the new wizard. That is the one path still unexercised end to end, and it
+   is also the first chance to see `humourLevel` actually reach a book.
+2. **The 100 panel-local bindings.** `useWorkshopState` is a staging post, not a destination:
+   MEASURED, 100 of its 130 bindings are used by exactly one panel and belong in that panel. Moving
+   them would shrink it from ~1,500 lines to something near the 30 that are genuinely shared. Each
+   panel now has a render test and an a11y case, so this is low-risk, incremental work.
+3. **The typecheck gate on `apps/api` and `apps/worker`.** `packages/*` are covered by their `tsc`
+   builds; those two were never audited, and `apps/web` had quietly accumulated 32 errors in exactly
+   that situation.
+
+**And one caveat that survives everything above:** `vue-tsc` did not catch either of the two defects
+the item-25 split produced — an un-registered component and a `.vue` import at the wrong depth. The
+gate is worth having and is not a substitute for running the thing.

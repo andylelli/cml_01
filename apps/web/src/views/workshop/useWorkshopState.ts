@@ -1,4 +1,4 @@
-import type { InjectionKey } from "vue";
+import { inject, type InjectionKey } from "vue";
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import ExportPanel from "../../components/ExportPanel.vue";
@@ -52,7 +52,8 @@ import { subscribeToRunEvents } from "../../services/sse";
 import { useRunProgress } from "../../composables/useRunProgress";
 import { useShortcuts, type Shortcut } from "../../composables/useShortcuts";
 import { deriveProgress, deriveStages, progressPercentFromEvent } from "../../run/timeline";
-import { coerceSpec, defaultSpec, type MysterySpec } from "../../spec/vocabulary";
+import { coerceSpec } from "../../spec/vocabulary";
+import { useSessionState } from "../../composables/useSessionState";
 
 /**
  * THE OPERATOR CONSOLE'S STATE, lifted out of WorkshopView.vue (UI-002 item 25).
@@ -91,7 +92,8 @@ export const useWorkshopState = () => {
     | "logs"
     | "quality";
 
-  const mode = ref<Mode>("user");
+  // B13: shared with the shell, not a second copy. See composables/useSessionState.ts.
+  const { mode, spec } = useSessionState();
   const currentView = ref<View>("dashboard");
 
   // Tab navigation state
@@ -324,7 +326,7 @@ export const useWorkshopState = () => {
    * here that drifts from it. This console's copy had no `humourLevel` field at all, so the control
    * for it could not have been added without this.
    */
-  const spec = ref<MysterySpec>(defaultSpec());
+  // `spec` comes from useSessionState above — the console and the wizard configure the same story.
 
   // Artifact + validation state lives in Pinia store
 
@@ -358,16 +360,26 @@ export const useWorkshopState = () => {
    */
   const STORAGE_KEY = "cml_workshop_state";
 
+  /**
+   * B13: `spec` and `mode` are NOT written here. They are shared with the shell now
+   * (composables/useSessionState.ts), and the shell persists them under its own versioned schema.
+   * Writing them from both places is B12 one level down — two owners of one value, which
+   * type-checks perfectly and passes every test.
+   *
+   * What stays is genuinely the console's own: which project it has open, and which of its panels.
+   */
   const persistState = () => {
     const state = {
       projectName: projectName.value,
       projectId: projectId.value,
       latestSpecId: latestSpecId.value,
-      spec: spec.value,
       currentView: currentView.value,
-      mode: mode.value,
     };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch {
+      // Quota or blocked storage. A lost convenience, never a broken watcher — B7.
+    }
   };
 
   const hydrateState = () => {
@@ -378,18 +390,13 @@ export const useWorkshopState = () => {
         projectName: string;
         projectId: string | null;
         latestSpecId: string | null;
-        spec: typeof spec.value;
         currentView: View;
-        mode: Mode;
       }>;
       if (saved.projectName) projectName.value = saved.projectName;
       if (typeof saved.projectId !== "undefined") projectId.value = saved.projectId;
       if (typeof saved.latestSpecId !== "undefined") latestSpecId.value = saved.latestSpecId;
-      // B8, in this file too: a stored spec went straight to the API. `primaryAxis` is the one field
-      // whose bad value throws at pipeline INIT, so a stale localStorage entry could abort a paid run.
-      if (saved.spec) spec.value = coerceSpec(saved.spec);
       if (saved.currentView) currentView.value = saved.currentView;
-      if (saved.mode) mode.value = saved.mode;
+      // `spec` and `mode` are deliberately NOT read here — the shell restores them. See persistState.
     } catch {
       // ignore invalid storage
     }
@@ -1692,3 +1699,21 @@ export const useWorkshopState = () => {
 export type WorkshopState = ReturnType<typeof useWorkshopState>;
 
 export const WORKSHOP_KEY: InjectionKey<WorkshopState> = Symbol("workshop-state");
+
+/**
+ * Inject the console's state from a panel component.
+ *
+ * Throws rather than returning undefined: a panel rendered outside the console is a wiring mistake,
+ * and the alternative is a cascade of "cannot read property of undefined" from inside a template,
+ * which says nothing about the cause.
+ */
+export const useWorkshop = (): WorkshopState => {
+	const state = inject(WORKSHOP_KEY);
+	if (!state) {
+		throw new Error(
+			"useWorkshop() called outside the console. A workshop panel must be rendered inside " +
+				"WorkshopView, which provides WORKSHOP_KEY.",
+		);
+	}
+	return state;
+};

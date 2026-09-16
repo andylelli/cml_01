@@ -7,7 +7,8 @@ import { useCreateFlow } from "./composables/useCreateFlow";
 import { useErrorLog } from "./composables/useErrorLog";
 import { useUiState, type Mode } from "./composables/useUiState";
 import { logActivity, type Project } from "./services/api";
-import { coerceSpec, type MysterySpec } from "./spec/vocabulary";
+import { useSessionState } from "./composables/useSessionState";
+import type { MysterySpec } from "./spec/vocabulary";
 import CaseView from "./views/CaseView.vue";
 import CasesView from "./views/CasesView.vue";
 import CreateView from "./views/CreateView.vue";
@@ -40,8 +41,10 @@ const log = useErrorLog({
 });
 
 const view = ref<ViewId>("create");
-const mode = ref<Mode>("user");
-const spec = ref<MysterySpec>(coerceSpec(null));
+
+// B13: one mode and one spec for the whole app. The console reads the same refs, so a story
+// configured in Create is the story the Workshop shows.
+const { mode, spec } = useSessionState();
 const projectId = ref<string | null>(null);
 const projectName = ref("");
 
