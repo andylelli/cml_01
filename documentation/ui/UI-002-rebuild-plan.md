@@ -200,42 +200,59 @@ keeps dense tables, its three tab groups and every panel. Two rules:
 
 ---
 
-## 9. WHAT IS DEFERRED, AND WHY
+## 9. THE DEFERRALS — TWO WITHDRAWN, ONE STANDING
 
-Three items are **deliberately not built**. Each could have been written and would have compiled and
-passed the suite; none could have been *verified*, and this repo has a recorded history of exactly
-that failure mode — six defects in seven fixes, four of them regressions, **every one caught by
-running the code and none by reading it**.
+This section deferred items 19, 21 and 25. **Two of those deferrals were wrong and are withdrawn**;
+the reasoning is kept rather than deleted, because the mistake is more useful than the conclusion.
 
-### 19 · `useRunProgress` — SSE and the two polling loops
+### 19 · `useRunProgress` — **WITHDRAWN. The reason was wrong.**
 
-~300 lines of interconnected state: an SSE subscription with reconnect handling, a 3s run-event poll,
-an 8s quality poll, run-completion and run-failure detection, and cross-refreshes of artifacts,
-scoring and LLM logs on the same cycles.
+> *What this section said:* "none of it can be exercised without a running API **and** Azure
+> credentials — the paths that matter are 'a run completed', 'a run failed', 'the stream dropped and
+> came back'. A refactor whose correct behaviour is unobservable is a refactor that ships its
+> regressions."
 
-**Why not now:** none of it can be exercised without a running API *and* Azure credentials — the
-paths that matter are "a run completed", "a run failed", "the stream dropped and came back". A
-refactor whose correct behaviour is unobservable is a refactor that ships its regressions. It also
-holds **B1**, a leak A_73 already had to retrofit here, and a split is precisely what re-introduces
-that class.
+**That confused the wire with the state machine.** Every one of those paths is entered through a
+callback the composable *hands out*. A test calls `onStatus({status:"running"})` then
+`onStatus({status:"idle"})` and the completion path runs exactly as it does in production. Only the
+transport needs a server, and the transport is `services/sse.ts` — thirty lines, and not where the
+bugs are.
 
-**When to do it:** with the API up and a run in flight, so each branch can be seen firing.
+Making `subscribe` an injected dependency rather than an import is the entire difference between
+"unobservable" and 20 tests. **Built** (`dda0581b`), with five mutation checks, all caught.
 
-### 21 · `useShortcuts`
+The one part of the original reasoning that held: B1. A split like this *is* how a timer's ownership
+gets lost, so both intervals belong to the composable, `dispose()` clears both, and a test asserts it.
 
-Small and self-contained, but its handler closes over the console's three tab groups, so extracting
-it means passing five refs back in — and it currently mutates `activeMainTab` directly from a
-hard-coded id list that duplicates the tab definitions. Worth doing **as part of item 25**, not
-before it, or the composable just inherits the duplication.
+### 21 · `useShortcuts` — **WITHDRAWN.** Built ahead of item 25, and it was right to.
 
-### 25 · Splitting `WorkshopView`'s internals
+> *What this section said:* "Worth doing **as part of item 25**, not before it, or the composable
+> just inherits the duplication."
 
-The console moved intact (3,391 lines) and was restyled, but it is still one component. Moving it and
-rewriting it in the same change would make any regression impossible to attribute — the move is
-verifiable by `git mv` plus a green suite; a rewrite is not.
+The duplication was the reason to do it *now*, not later: extracting the handler is what forced the
+hard-coded tab list to be read from `mainTabs` instead, and that surfaced a second defect nobody had
+noticed — `Ctrl+5` opened the `advanced` tab even when it was `disabled`. Waiting for item 25 would
+have left both live. **Built** (`90e7298a`), 17 tests.
 
-**This is where B13 gets fixed**: the console's own `mode` and `spec` refs are what a split would
-hoist into shared state.
+### 25 · Splitting `WorkshopView`'s internals — **STANDING, with a new reason**
+
+The original reason has **expired**: it said moving and rewriting in one change makes a regression
+unattributable. The move is done and committed, so a rewrite now *is* attributable. That argument no
+longer applies and should not be re-used.
+
+**The reason it still stands is different, and it is a design decision rather than a risk.** The
+component is ~1,600 lines of template bound to several dozen refs in one `<script setup>`. Splitting
+it into per-tab panels requires choosing how those refs reach the panels — prop-drilling, a
+`provide`/`inject` contract, or hoisting into the Pinia store — and that choice is the work. Picking
+it badly produces a component tree that is harder to follow than the monolith, which is strictly
+worse than leaving it.
+
+**How to do it when it is done:** one tab at a time, each panel getting a render test and passing the
+item-29 auditor before the next is started. The console's other twelve panels are `v-if`'d out of the
+DOM today and have never been audited, so that pass and this split are the same job.
+
+**This is still where B13 gets fixed** — the console's own `mode` and `spec` refs are what a split
+would hoist into shared state.
 
 ---
 
@@ -261,11 +278,19 @@ sees — which is exactly why the app had accumulated them over its whole life.
 
 ---
 
-## 11. RECOMMENDED NEXT, IN ORDER
+## 11. WHAT IS LEFT
 
-1. **Item 19**, with the API running so each SSE/poll branch can be seen firing.
-2. **Item 25**, which unblocks 21 and B13.
-3. **Item 29's remaining sweep** — the new components and `ContentSkeleton` are done; the console's
-   own dense tables have not been audited for labels and focus order.
-4. Consider extending the typecheck gate to the other workspaces — `packages/*` build with `tsc` so
-   they are covered, but `apps/api` and `apps/worker` were not audited as part of this work.
+**Every item on the board is resolved** — built and verified, or deferred with a standing reason.
+One item and one bug remain open, and they are the same job:
+
+1. **Item 25 + B13 + the rest of item 29.** Splitting `WorkshopView` into per-tab panels, hoisting
+   its `mode` and `spec` into shared state, and running the item-29 auditor over the twelve panels
+   that are `v-if`'d out of the DOM today. §9 has the approach; it wants its own session and a
+   state-ownership decision made deliberately rather than in passing.
+2. **A run against a live API.** Everything here was verified against a server that was not running,
+   so every view has been seen in its empty-or-error state and none in its populated one. The
+   `useRunProgress` state machine is pinned by tests and mutation checks, but the wire underneath it
+   (`services/sse.ts`) has not been exercised since the refactor.
+3. **Consider extending the typecheck gate to `apps/api` and `apps/worker`.** `packages/*` build with
+   `tsc` so they are covered; those two were not audited, and `apps/web` had accumulated 32 errors in
+   exactly that situation.
