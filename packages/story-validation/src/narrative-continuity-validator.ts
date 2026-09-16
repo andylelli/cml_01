@@ -206,7 +206,17 @@ export class NarrativeContinuityValidator implements Validator {
     };
   }
 
+  /**
+   * A_96 — WF-002 in a validator: `chapter-validator.ts` passes the case's mechanism terms and the
+   * mechanical-spring flag to this same analyser (REVIEW_12 §3.1) and this copy called it BARE, so
+   * the scene-level check had none of the protections the chapter-level one has had for months. Run
+   * 95041's four majors came from here, not from the chapter validator.
+   */
   private findTemporalMismatch(text: string): string | null {
+    // The documentary-month exclusion lives inside `analyzeTemporalConsistency`, so this copy gets it
+    // without the case. The REMAINING divergence is recorded in A_96: `chapter-validator.ts` also
+    // passes the case's mechanism terms and mechanical-spring flag, and `Story` carries no case, so
+    // this validator cannot. That half is unfixed and needs pipeline plumbing.
     const analysis = analyzeTemporalConsistency(text);
     if (analysis.conflictingSeasons.length === 0) return null;
     return `${analysis.mentionedMonths.join(', ')} vs ${analysis.conflictingSeasons.join(', ')}`;

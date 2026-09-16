@@ -268,6 +268,63 @@ export interface TemporalConsistencyAnalysis {
   seasonTriggers: Partial<Record<CanonicalSeason, string>>;
 }
 
+/**
+ * A_96 — A MONTH THAT DATES A DOCUMENT IS NOT THE STORY'S CALENDAR.
+ *
+ * Run 95041 ABORTED on four `temporal_contradiction` majors — *"(april, june, july, october vs
+ * winter)"* — and every one of those months was the case's own MECHANISM. The concealment was a
+ * forged excavation report dated *"the twenty-second of April"* on paper watermarked *"the tenth of
+ * October"*, with filing stamps running *"May, July, then June"*. The whole mystery is that
+ * contradiction; the validator read it as a continuity error and cost a £1.10 run its manuscript.
+ *
+ * This is the mechanical-spring exclusion's exact shape, one class over: a spring that is a clock
+ * part is not the season (REVIEW_12 §3.1), and a month that is a document's date is not the
+ * story's present. Documentary occurrences are removed BEFORE months are counted, so a genuine
+ * contradiction — "a bright April morning" in a winter book — still fires.
+ *
+ * Conservative by construction: the marker must sit within `DOC_WINDOW` characters of the month.
+ */
+const DOC_MARKERS =
+  "dated|date[ds]?|datelines?|watermarks?|stamps?|stamped|postmark(?:ed)?|filed|filing|logged|entry|entries|" +
+  "record(?:s|ed)?|report(?:s|ed)?|register(?:ed|s)?|ledger|invoice|receipt|certificate|licence|license|" +
+  "signature|signed|issued|docket|manifest|bill of lading|archive[ds]?|catalogue[ds]?|indexed|" +
+  "correspondence|letterhead|telegram|affidavit|deposition|testimony|statement";
+
+/** Characters either side of a month within which a documentary marker makes it an evidence value. */
+const DOC_WINDOW = 70;
+
+export const buildDocumentaryMonthRe = (): RegExp =>
+  new RegExp(
+    `(?:(?:${DOC_MARKERS})[^.!?]{0,${DOC_WINDOW}}?\\b(?:january|february|march|april|may|june|july|august|september|october|november|december)\\b)` +
+      `|(?:\\b(?:january|february|march|april|may|june|july|august|september|october|november|december)\\b[^.!?]{0,${DOC_WINDOW}}?(?:${DOC_MARKERS}))`,
+    "gi",
+  );
+
+/**
+ * Strip month mentions that sit in a documentary context. Returns the text with those occurrences
+ * blanked, so the month scan that follows never sees them.
+ */
+/**
+ * A month inside SINGLE quotes is a value being CITED — the book renders its evidence that way
+ * ("The words 'the tenth of October' shimmered faintly in the paper's grain") while dialogue uses
+ * double quotes. This second rule is needed because the documentary marker is often in the PRECEDING
+ * sentence, which the window above deliberately will not cross.
+ */
+const SINGLE_QUOTED_SPAN_RE = /'[^'\n]{0,120}'/g;
+
+const MONTH_TOKEN_RE =
+  /\b(january|february|march|april|may|june|july|august|september|october|november|december)\b/gi;
+
+const blankMonths = (segment: string): string => segment.replace(MONTH_TOKEN_RE, " ");
+
+export const stripDocumentaryMonths = (text: string): string =>
+  String(text ?? "")
+    .replace(buildDocumentaryMonthRe(), blankMonths)
+    .replace(SINGLE_QUOTED_SPAN_RE, blankMonths);
+
+export const isDocumentaryMonthExclusionEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.VALIDATION_DOCUMENTARY_MONTHS ?? "").trim());
+
 export function analyzeTemporalConsistency(
   text: string,
   temporalMonth?: string,
@@ -275,14 +332,17 @@ export function analyzeTemporalConsistency(
   /** True when the CASE names a spring as a physical object — see `caseNamesMechanicalSpring`. */
   caseNamesSpring = false,
 ): TemporalConsistencyAnalysis {
-  const lowered = (text || '').toLowerCase();
+  // A_96 — a month that dates a document is evidence, not the story's clock. Removed before the
+  // month scan so the case's own forged dates cannot be read as a season contradiction.
+  const scanSource = isDocumentaryMonthExclusionEnabled() ? stripDocumentaryMonths(text || '') : (text || '');
+  const lowered = scanSource.toLowerCase();
   const monthMentions = new Set<string>();
 
   for (const { month, pattern } of MONTH_PATTERNS) {
     // Ambiguous months ("May"/"March") match only inside an explicit calendar context (see
     // buildAmbiguousMonthPattern); test against the original text to preserve any day/year casing.
     // Other patterns are case-insensitive and can use the pre-lowercased copy.
-    const testTarget = AMBIGUOUS_MONTHS.has(month) ? text : lowered;
+    const testTarget = AMBIGUOUS_MONTHS.has(month) ? scanSource : lowered;
     if (pattern.test(testTarget)) {
       monthMentions.add(month);
     }

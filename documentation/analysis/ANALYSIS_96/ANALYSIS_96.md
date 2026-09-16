@@ -577,6 +577,65 @@ F8 stands as a measured non-fix.
 positively. *"She did not elaborate"*, the phrase banned BY NAME, only halved. That is C1 once more:
 the positively-stated rules landed and the prohibition did not.
 
+### §5.5 A_91 F4 — NOT BUILT, and the measurement is why
+
+F4 was queued as "the replacing detector" for the repetition still at 91.2 per 10k on arm B. Measuring
+before building retired it:
+
+| arm B's 32 repeated passages (×3+, merged) | |
+|---|---|
+| AUTHORED narration — removable | 22 |
+| MANDATED (a value the case requires restated) | 7 |
+| dialogue tag / the banned phrase | 2 |
+| costume | 1 |
+
+Three facts against building it:
+
+1. **A_91's own §7 forbids it** — *"Do not add another scrubber. Prose polish is an LLM line-edit
+   pass; strengthen the instruction."* And its §6 defines F4 as **a detector, reported not gated**,
+   which duplicates the `repetitionDensity` ship-check already shipping.
+2. **Repetition is a weak predictor.** A_95 §2: ρ **−0.13** against the headline, over 34 read books.
+   Register is the lever at −0.60, and arm B put it at **0.055**.
+3. **The biggest remaining offenders are repeated DIALOGUE lines** — *"I keep the books as best…"* ×4,
+   *"you think I would lie about…"* ×4 — and F4 of this document (`AGENT9_ATMOSPHERE_NARRATION_ONLY`)
+   now explicitly keeps the only pass that could touch them OUT of dialogue, because touching dialogue
+   is what corrupted three books.
+
+So the queued build was retired on its own evidence, and the budget went to a defect that was
+actually costing runs.
+
+### §5.6 THE RUN-KILLER — a month that dates a document is not the calendar · FIXED
+
+Run 95041's abort (§5.3) had a second cause I had not diagnosed: **four `temporal_contradiction`
+majors**, where both predecessor runs had zero. The threshold is `major > 5`
+(`pipeline.ts:141`), so these four were most of what killed it.
+
+Recovered from the Agent 9 checkpoint (the manuscript was never saved), every flagged month is the
+case's own MECHANISM:
+
+> *"the date plainly written — a quarter to four on the **twenty-second of April**. That is the
+> official record."*
+> *"The words '**the tenth of October**' shimmered faintly in the paper's grain."*
+> *"three stamps with dates ranging from **May to July** in illogical filing order."*
+
+The concealment was *an official record accepted without question, and wrong* — a forged excavation
+report whose date contradicts its own paper. **The validator flagged the murder method as a continuity
+error.**
+
+This is REVIEW_12 §3.1's mechanical-spring exclusion one class over: a spring that is a clock part is
+not the season; a month that dates a document is not the story's present.
+`VALIDATION_DOCUMENTARY_MONTHS` blanks documentary months before the month scan — a marker within 70
+characters, never across a sentence boundary, plus single-quoted spans (the book renders cited values
+in single quotes and dialogue in double). **KNOWN-POSITIVE pinned:** *"It was a bright April
+morning"* in a winter book still fires, and a documentary month elsewhere in the same text does not
+suppress it.
+
+**A divergence found and NOT fixed, recorded because it is real:** `chapter-validator.ts` passes the
+case's mechanism terms and mechanical-spring flag to this analyser; `narrative-continuity-validator.ts`
+calls it BARE. The `Story` type carries no case, so the scene validator cannot see one without
+pipeline plumbing. The documentary-month exclusion lives inside the shared analyser and so protects
+both, but the mechanism-term half of the divergence stands.
+
 **What none of it has yet is a run that finished.** Eleven levers went in on one book's evidence. The next fresh
 run carries all of them and settles, before a reader: chapter titles free of beat names; one
 `final_trap`; the reveal contract on the confession chapter; costume phrases ≤ 2 per book; no
