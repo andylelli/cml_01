@@ -302,6 +302,14 @@ try {
         targetLength: inputs.targetLength ?? null,
         eraPreference: inputs.eraPreference ?? null,
         locationPreset: inputs.locationPreset ?? null,
+        tone: inputs.tone ?? null,
+        detectiveType: inputs.detectiveType ?? null,
+        narrativeStyle: inputs.narrativeStyle ?? null,
+        // A_92 — the humour band the book was written to. Absent means the pipeline default
+        // ("classic"); it is recorded explicitly so a read's humour mark can be joined to the band
+        // that was asked for, which is the only way the wit instrument's target means anything.
+        humourLevel: inputs.humourLevel ?? null,
+        castSize: inputs.castSize ?? (Array.isArray(inputs.castNames) ? inputs.castNames.length : null),
         castNames: inputs.castNames ?? null,
         generatedAt: new Date().toISOString(),
       }, null, 2), "utf8");

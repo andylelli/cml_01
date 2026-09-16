@@ -1,0 +1,25 @@
+{
+  "seed": 50862,
+  "runId": "mystery-1789577884306",
+  "projectId": "canary_1789577884303",
+  "primaryAxis": "authority",
+  "storyAngle": "a record-attempt speed trial on the sands",
+  "targetLength": "short",
+  "eraPreference": "1930s",
+  "locationPreset": "SeasideHotel",
+  "tone": "Dark",
+  "detectiveType": "private",
+  "narrativeStyle": "atmospheric",
+  "humourLevel": "sharp",
+  "castSize": 6,
+  "castNames": [
+    "Gwendolyn Vance",
+    "Nora Quayle",
+    "Bertram Norbury",
+    "Harriet Kestrel",
+    "Theodora Lachlan",
+    "Montague Gaunt"
+  ],
+  "generatedAt": "2026-09-16T17:14:32.202Z",
+  "backfilled": "2026-09-16 from scripts/generated/run-params-50862.yaml — the sidecar predates A_95 recording the band"
+}

@@ -4,6 +4,10 @@ import YAML from "yaml";
 import { selectCanaryTheme } from "./theme-library.mjs";
 
 const ALLOWED_INPUT_KEYS = new Set([
+  // A_95 — `seed` is inert to the pipeline (canary-core reads it for the run report and the
+  // run-params.json sidecar) but it was missing here, so every sidecar recorded `"seed": null`
+  // and a shipped book could not be joined to the parameters that made it.
+  "seed",
   "theme",
   "storyAngle",
   "eraPreference",
