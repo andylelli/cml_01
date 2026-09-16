@@ -207,6 +207,61 @@ category. Same instruction shape as `sharedHistory`. And A_93 D1 (a place with a
 **Check:** the motive string carries a date/age and a verb; the reader's "generic" absent.
 **Prediction:** character life ≥ 8.
 
+### M6 — The middle of the book has no turn · plot + pacing · added 2026-09-16
+
+**The complaint, as the reader phrases it:** *"chapters 3–8 circle the same mirror/panel information"*,
+*"the evidence repeats"*, plot 7, pacing 7. Never "obvious culprit" — the rubric has no misdirection
+category, so this defect produces a positive sentence and a 7 (REVIEW_14's rule).
+
+**The mechanism — MEASURED on the bookshop book (`story_20260907-2203`, seed 63935) and the corpus:**
+
+Three vocabularies claim each chapter's job, and the prose obeys the concrete one.
+
+| vocabulary | owner | on the bookshop book | across the corpus |
+|---|---|---|---|
+| Golden-Age **beat label** on the scene | Agent 7 | scene 6 = `false_solution` | present in 50 of 51 outlines; near-fixed sequence |
+| scene **purpose** | Agent 7 | *"Reveal physical evidence linking murder weapon to concealed mechanism"* | `false_solution` scenes whose purpose names an innocent accused: **23 of 51 (45%)**; `alibis` scenes whose purpose has the second incident: **2 of 51 (4%)** |
+| **archetype** by chapter position | Agent 9 `buildMacroArcPlan(chapterCount)` | ch5 RED_HERRING, ch6–7 REVERSAL — delivered to every prompt by label | positional: drops CONFRONTATION on 10-chapter books; ch10 "confession or arrest" against B3's aftermath |
+
+The bookshop prose: chapters 3–7 are five consecutive "reveal evidence linking Percival" scenes;
+**0 sentences in ten chapters entertain any other suspect; 0 theories overturned; new-content rate
+60% → 25% by chapter 7.** RED_HERRING and REVERSAL were in the prompt and answered by clue reveals.
+Nothing enforces any of it: `lint.ts:817` — *"archetype validator disabled (false positives). Enforced
+via prompt injection only."* The label is worn, not done. A label is a rate; the purpose is an
+operation.
+
+**Build — three changes, one owner:**
+
+1. **Agent 7: the beat's job becomes REQUIRED, COUNTABLE fields on the scene**, validated by the
+   existing outline-completeness contract (which already requires `pivotElement`, `factEstablished`,
+   `redHerringPlacement` and passed 10/10 on 1358 — the machinery exists):
+   - `false_solution` → `accusedInnocent` (a cast name, not the culprit) and `flawFound` (one
+     sentence); the purpose must open *"Accuse <name> …"*.
+   - `alibis` → `secondIncident` (a dated event: a threat, a theft, a second discovery).
+   - `motives` → `suspicionShiftsTo` (a name, not the culprit).
+   - `secrets` → `unrelatedLie` (who lied about what, unconnected to the murder).
+   A missing field is a scene-level re-ask at the £0.02 stage, not an outline regeneration. Flag
+   `AGENT7_BEAT_JOB_FIELDS`.
+2. **Agent 9's archetype derives from the outline's beat** — `buildMacroArcPlan` reads the scene
+   beats instead of the chapter count (WF-002: one owner). `false_solution`→RED_HERRING,
+   `secrets`→REVERSAL, `final_trap`→CONFRONTATION, `revelation`→RESOLUTION-as-aftermath. Fixes the
+   dropped CONFRONTATION and the ch10 contradiction as a by-product. Flag `AGENT9_ARC_FROM_BEATS`.
+3. **The chapter contract names the fields**, not the archetype: *"This chapter accuses
+   <accusedInnocent>; <detective> finds the flaw — <flawFound> — before the chapter ends"* replaces
+   *"wrong lead followed and disproved"*. Concrete names are what the model obeys.
+
+**The instrument — turn density, in the SHIP-CHECK:** for chapters 3–8, the count of chapters in
+which a non-culprit is named within a sentence carrying *suspect / accuse / guilt / theory*, plus a
+theory-overturned marker. Telemetry (it would fire on most books today — B1). Bookshop: **0 of 6**.
+
+**Check and prediction:** outline `false_solution` scenes naming an innocent 45% → **100%** (schema-
+required); `alibis` second incident 4% → **≥ 80%**; on the page, **≥ 2 of chapters 3–8 entertain a
+non-culprit**; new-content rate not below 30% by chapter 7; the reader's "circle the same information"
+absent; **plot 8, pacing 8**. Upstream lever — needs a fresh run; bundles with §5 step 2.
+
+**What would falsify it:** a book whose outline names the innocent and whose prose still never
+accuses them — then the carry problem is Agent 9's, and the post-check becomes a regen channel.
+
 ---
 
 ## §4 WHAT IS NOT THE ROAD — with the evidence
@@ -231,7 +286,7 @@ category. Same instruction shape as `sharedHistory`. And A_93 D1 (a place with a
 | step | build | verify | settles |
 |---|---|---|---|
 | 1 | M1 register ban (polish-pass list) | matched pair on 1358, ~£0.45 | register < 7% and the pair's prose note |
-| 2 | M2 aftermath planned at Agent 7; M3a spatial reveal arithmetic | one fresh run, £1.10 | Ch.10 zero recap; the mechanism in three sentences |
+| 2 | M2 aftermath planned at Agent 7; M3a spatial reveal arithmetic; **M6 beat-job fields** | one fresh run, £1.10 | Ch.10 zero recap; the mechanism in three sentences; ≥2 middle chapters entertain a non-culprit |
 | 3 | M4 R7 shape-by-register; M5 dated motive | the same fresh run | wit ≥ 41.4; motive dated |
 | 4 | **one external read** of that book, humour scored | a reader | prose 8, ending 8, clues 8, dialogue 8: **≈ 86–87** |
 | 5 | M1 to floor 2 with sensory; M4 unintentional-comedy line | one run + one read | the first 9 in prose or dialogue: **88–90** |
@@ -257,5 +312,6 @@ the reader means injectors, and A_84's audit reopens); a book at canon-median wi
 | M3 | reveal arithmetic for spatial/behavioural; R3 ordering post-check | **NOT BUILT** | — |
 | M4 | R7 shape by register; band by axis; the unintentional line | **NOT BUILT** | — |
 | M5 | dated motive at Agent 3; plant the act, not the category | **NOT BUILT** | — |
+| M6 | beat-job fields at Agent 7; archetype from beats; turn density | **NOT BUILT** — designed 2026-09-16 | — |
 
 **NEXT ITEM: M1**, because it is the only move with a −0.6 behind it and a £0.45 test.
