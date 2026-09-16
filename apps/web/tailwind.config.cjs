@@ -32,7 +32,8 @@ module.exports = {
         accent: {
           DEFAULT: "#b03a2e",
           hover: "#963126",
-          wash: "#f6e7e2",
+          // The SELECTED fill — warm tan, not a tint of the accent. See tokens.css.
+          wash: "#f7ead2",
         },
         badge: {
           DEFAULT: "#d9b978",

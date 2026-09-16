@@ -51,8 +51,10 @@ const onChange = () => {
 	<div class="min-w-0">
 		<label :for="id" class="t-label mb-1.5 block">{{ label }}</label>
 
+		<!-- Bounded width: a stepper that stretches to the grid column puts its two buttons a hand's
+		     width apart, and the board's is compact. -->
 		<div
-			class="transition-control flex items-stretch overflow-hidden rounded border border-line bg-surface hover:border-line-strong"
+			class="transition-control flex max-w-[11rem] items-stretch overflow-hidden rounded border border-line bg-surface hover:border-line-strong"
 		>
 			<button
 				type="button"

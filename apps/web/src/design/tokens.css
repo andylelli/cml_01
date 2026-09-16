@@ -29,7 +29,9 @@
   /* ── accent: the primary action, and nothing else ────────────────── */
   --accent: #b03a2e;
   --accent-hover: #963126;
-  --accent-wash: #f6e7e2;
+  /* The SELECTED fill. Warm tan, not a tint of the accent — on both boards a chosen tile is cream
+     going gold with a red rule around it, and a pink tint reads as an error state instead. */
+  --accent-wash: #f7ead2;
 
   /* ── badges: step numbers and section icons ──────────────────────── */
   --badge: #d9b978;

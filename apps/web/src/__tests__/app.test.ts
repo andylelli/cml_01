@@ -2,9 +2,9 @@ import { describe, expect, it } from "vitest";
 import { mount } from "@vue/test-utils";
 import { nextTick } from "vue";
 import { createPinia } from "pinia";
-import App from "../App.vue";
+import App from "../views/WorkshopView.vue";
 
-describe("App shell (phase 1)", () => {
+describe("WorkshopView — the operator console", () => {
   it("hides CML viewer by default", () => {
     const wrapper = mount(App, {
       global: {

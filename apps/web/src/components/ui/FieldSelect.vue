@@ -2,7 +2,7 @@
 import { useId } from "vue";
 import AppIcon from "./AppIcon.vue";
 import type { IconName } from "./icons";
-import type { Option } from "./OptionGroup.vue";
+import type { Option } from "./types";
 
 /**
  * Board 2's control: a bordered field with the glyph in its own cell at the left and a chevron at

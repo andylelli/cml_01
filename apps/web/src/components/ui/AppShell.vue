@@ -2,7 +2,7 @@
 import { ref } from "vue";
 import { brand } from "../../design/brand";
 import AppIcon from "./AppIcon.vue";
-import type { IconName } from "./icons";
+import type { NavItem } from "./types";
 
 /**
  * The green frame: wordmark, nav, search pill, and the footer. Board 1 and board 2 differ only in
@@ -12,12 +12,6 @@ import type { IconName } from "./icons";
  * phone. The bottom bar is `position: fixed`, so the page reserves space for it with padding rather
  * than letting it cover the last control on the page.
  */
-export interface NavItem {
-	id: string;
-	label: string;
-	icon: IconName;
-}
-
 defineProps<{
 	items: readonly NavItem[];
 	current: string;

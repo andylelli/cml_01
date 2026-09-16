@@ -288,8 +288,10 @@ const onSubmit = () => {
 		</form>
 
 		<!-- ── the epigraph column (board 1) ───────────────────────────── -->
+		<!-- Sticky below the nav: on the board this column is full-height, and letting it scroll away
+		     leaves a tall empty gutter beside steps 3-6. `top` clears the sticky header. -->
 		<QuotePanel
-			class="hidden self-start xl:block"
+			class="hidden self-start xl:sticky xl:top-24 xl:block"
 			quote="In every house there is a secret, and in every secret, a story."
 			:features="[
 				{

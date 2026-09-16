@@ -1,6 +1,7 @@
 <script setup lang="ts" generic="T extends string">
 import AppIcon from "./AppIcon.vue";
 import type { IconName } from "./icons";
+import type { Option } from "./types";
 
 /**
  * The boards' row of illustrated, selectable tiles (Era, Setting, Tone).
@@ -16,13 +17,6 @@ import type { IconName } from "./icons";
  * The input is visually hidden rather than `display:none` — a hidden input is not focusable, which
  * would silently remove the whole group from the keyboard.
  */
-export interface Option<V extends string> {
-	value: V;
-	label: string;
-	hint?: string;
-	icon: string;
-}
-
 const props = defineProps<{
 	/** Radio group name; must be unique on the page. */
 	name: string;

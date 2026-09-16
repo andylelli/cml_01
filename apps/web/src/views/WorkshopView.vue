@@ -1,33 +1,33 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
-import ExportPanel from "./components/ExportPanel.vue";
-import ErrorNotification from "./components/ErrorNotification.vue";
-import ValidationPanel from "./components/ValidationPanel.vue";
-import ProseReader from "./components/ProseReader.vue";
-import RunHistory from "./components/RunHistory.vue";
-import NoveltyAudit from "./components/NoveltyAudit.vue";
-import ScoreCard from "./components/ScoreCard.vue";
-import PhaseBreakdownTable from "./components/PhaseBreakdownTable.vue";
-import ScoreTrendChart from "./components/ScoreTrendChart.vue";
-import TabBar from "./components/TabBar.vue";
-import TabPanel from "./components/TabPanel.vue";
-import ProgressIndicator from "./components/ProgressIndicator.vue";
-import type { PipelineStep } from "./components/pipelineTypes";
-import ArtifactStatusDashboard from "./components/ArtifactStatusDashboard.vue";
-import ErrorLogPanel from "./components/ErrorLogPanel.vue";
-import DebugPanel from "./components/DebugPanel.vue";
-import ContentSkeleton from "./components/ContentSkeleton.vue";
-import KeyboardShortcutHelp from "./components/KeyboardShortcutHelp.vue";
-import VirtualList from "./components/VirtualList.vue";
+import ExportPanel from "../components/ExportPanel.vue";
+import ErrorNotification from "../components/ErrorNotification.vue";
+import ValidationPanel from "../components/ValidationPanel.vue";
+import ProseReader from "../components/ProseReader.vue";
+import RunHistory from "../components/RunHistory.vue";
+import NoveltyAudit from "../components/NoveltyAudit.vue";
+import ScoreCard from "../components/ScoreCard.vue";
+import PhaseBreakdownTable from "../components/PhaseBreakdownTable.vue";
+import ScoreTrendChart from "../components/ScoreTrendChart.vue";
+import TabBar from "../components/TabBar.vue";
+import TabPanel from "../components/TabPanel.vue";
+import ProgressIndicator from "../components/ProgressIndicator.vue";
+import type { PipelineStep } from "../components/pipelineTypes";
+import ArtifactStatusDashboard from "../components/ArtifactStatusDashboard.vue";
+import ErrorLogPanel from "../components/ErrorLogPanel.vue";
+import DebugPanel from "../components/DebugPanel.vue";
+import ContentSkeleton from "../components/ContentSkeleton.vue";
+import KeyboardShortcutHelp from "../components/KeyboardShortcutHelp.vue";
+import VirtualList from "../components/VirtualList.vue";
 import type {
   ErrorItem,
   ErrorSeverity,
   Tab,
   TabStatus,
   GenerationReport,
-} from "./components/types";
-import { useProjectStore } from "./stores/projectStore";
+} from "../components/types";
+import { useProjectStore } from "../stores/projectStore";
 import {
   createProject,
   clearPersistenceStore,
@@ -47,8 +47,8 @@ import {
   runPipeline,
   saveSpec,
   type Project,
-} from "./services/api";
-import { subscribeToRunEvents } from "./services/sse";
+} from "../services/api";
+import { subscribeToRunEvents } from "../services/sse";
 
 type Mode = "user" | "advanced" | "expert";
 type View =

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AppIcon from "./AppIcon.vue";
-import type { IconName } from "./icons";
+import type { Feature } from "./types";
 
 /**
  * Board 1's dark green side column: a pull quote over a short list of what the product does.
@@ -9,12 +9,6 @@ import type { IconName } from "./icons";
  * the first thing dropped below 1180px (UI-001 §6) and is marked `aria-hidden` for the quote while
  * the feature list stays readable, because the list is real information and the epigraph is not.
  */
-export interface Feature {
-	icon: IconName;
-	title: string;
-	detail: string;
-}
-
 defineProps<{
 	quote: string;
 	features: readonly Feature[];
