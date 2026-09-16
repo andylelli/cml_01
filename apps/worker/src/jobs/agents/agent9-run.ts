@@ -102,6 +102,7 @@ import {
   // A_73 §11.1 — the one prose-stage clearance vocabulary.
   CLEARANCE_TERMS_RE,
   humourBand,  // A_92 — the band the run asked for, for the ship-check
+  auditMechanismActors, // A_96 F3
 } from "@cml/prompts-llm";
 import { noScaffoldValidator, detectTemplateLeakage, detectCopiedProse, detectScaffoldNotProse, detectDerivedContradictionLeak, detectEvidentiaryRegister, machineRegisterRate, REGISTER_TELEMETRY_THRESHOLD, bookVoiceConformance, VOICE_CONFORMANCE_DELIVERED, repetitionDensity, summariseRepetitionDensity } from "@cml/prose-guard";
 import {
@@ -6950,6 +6951,12 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
             if (culpritNames.length > 0 && otherSuspects.length > 0) {
               const turns = turnDensity(chapterTextsA65, culpritNames, otherSuspects);
               ctx.warnings.push(`[Agent 9] SHIP-CHECK: turns — ${summariseTurnDensity(turns)}`);
+            }
+            // A_96 F3 — a role the mechanism depends on that nobody in the cast holds (1 of 59 cases;
+            // on run 50862 "the judge" was fused onto the victim).
+            const offstage = auditMechanismActors(caseForTurns).offstage;
+            if (offstage.length > 0) {
+              ctx.warnings.push(`[A_96 F3] off-stage actor(s) in the mechanism, held by no cast member: ${offstage.join(", ")} — MEASURE only.`);
             }
           } catch {
             // Telemetry must never break a run.

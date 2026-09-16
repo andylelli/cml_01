@@ -52,6 +52,29 @@ describe("KNOWN-POSITIVE: a book with a middle does register one", () => {
     expect(turnDensity(edgesOnly, CULPRITS, OTHERS).chaptersSuspectingOthers).toBe(0);
   });
 
+  /**
+   * A_96 C3 / F6 — the first cut scored seed 50862 at 4 of 6 with no false solution a reader would
+   * believe: chapter 6 accused Gwendolyn and cleared her inside the same chapter. A turn is an
+   * accusation the chapter ENDS on.
+   */
+  it("REGRESSION: an accusation cleared in the same chapter is not a turn", () => {
+    const takenBack = CONVERGENT.map((t, i) =>
+      i === 5
+        ? `${t} Suspicion fell on Iris Thorne. Then the ledger cleared Iris Thorne before the hour was out.`
+        : t,
+    );
+    expect(turnDensity(takenBack, CULPRITS, OTHERS).chaptersSuspectingOthers).toBe(0);
+  });
+
+  it("but an accusation that survives to the chapter's end still counts", () => {
+    const survives = CONVERGENT.map((t, i) =>
+      i === 5
+        ? `${t} The ledger had cleared Iris Thorne of the theft. Yet suspicion fell squarely on Iris Thorne for the murder, and stayed there.`
+        : t,
+    );
+    expect(turnDensity(survives, CULPRITS, OTHERS).chaptersSuspectingOthers).toBe(1);
+  });
+
   it("no chapters, no crash", () => {
     expect(turnDensity([], CULPRITS, OTHERS).window).toBe(0);
   });
@@ -61,7 +84,7 @@ describe("the report line", () => {
   it("carries both halves and the baseline it is read against", () => {
     const line = summariseTurnDensity(turnDensity(CONVERGENT, CULPRITS, OTHERS));
     expect(line).toContain("0/6 middle chapters turn");
-    expect(line).toContain("non-culprit in the frame");
+    expect(line).toContain("non-culprit still in the frame");
     expect(line).toContain("MEASURE only");
   });
 });

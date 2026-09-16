@@ -257,6 +257,12 @@ const MALFORMED_SPLICE_PATTERNS: ReadonlyArray<RegExp> = [
   /\b(the|a|an|of|in|on|at|to|with|by)\s+\1\b/i,
   // possessive immediately followed by a finite pronoun clause: "her she was"
   /\b(?:his|her|its|their|my|our|your)\s+(?:he|she|it|they|we|i|you)\b/i,
+  // A_96 F4 (B3) — two shapes run 50862 shipped. A pronoun welded to a semicolon and then a gerund is
+  // a contraction whose apostrophe-and-letter were replaced: "You; searching for blame". A
+  // capitalised name followed by a bare " s " is a possessive that lost its apostrophe: "Norbury s
+  // gaze". Both only count when absent from the text before the splice.
+  /\b(?:you|i|we|they|he|she|it|who|that|there|what);\s+\w+ing\b/i,
+  /\b[A-Z][a-z]+ s [a-z]/,
 ];
 
 /**
@@ -310,12 +316,52 @@ export const rawTextContainsPhrase = (text: string, phrase: string): boolean => 
   return re !== null && re.test(String(text ?? ""));
 };
 
+/**
+ * A_96 F4 (B3) — `AGENT9_ATMOSPHERE_NARRATION_ONLY`. AtmosphereRepair's third recorded corruption:
+ * on run 50862 one line of DIALOGUE was paraphrased into four variants, two ungrammatical ("You;
+ * searching for blame in the shadowed places", "blame in the shadows places"). A_90 §12 #6 measured
+ * the pass authoring 5 of 20 reader-flagged lines; A_91 §12.3 measured "three past midnight past
+ * three". A_91 F4 — a detector that REPLACES from a pre-approved set — is the designed answer and is
+ * still unbuilt; until then the pass may not touch speech. A character's repeated line is a tic,
+ * which A_82 P10 handles at the source; a narrator's repeated phrase is what this pass is for.
+ */
+export const isAtmosphereNarrationOnlyEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT9_ATMOSPHERE_NARRATION_ONLY ?? "").trim());
+
+/**
+ * Apply `edit` only to the segments of `text` that lie OUTSIDE quotation marks. Segments alternate
+ * narration / speech / narration …; an unbalanced final quote leaves the tail as speech, which is the
+ * conservative side.
+ */
+export const editOutsideQuotes = (text: string, edit: (narration: string) => string): string => {
+  const parts = text.split(/([“"”])/);
+  let inside = false;
+  return parts
+    .map((part) => {
+      if (part === "“" || part === '"' || part === "”") {
+        inside = part === "”" ? false : part === "“" ? true : !inside;
+        return part;
+      }
+      return inside ? part : edit(part);
+    })
+    .join("");
+};
+
 export const applyPhraseSubstitutions = (
   paragraphs: string[],
   replacements: PhraseReplacement[],
 ): string[] => {
   if (replacements.length === 0) return paragraphs;
-  return paragraphs.map((para) => {
+  if (isAtmosphereNarrationOnlyEnabled()) {
+    return paragraphs.map((para) =>
+      editOutsideQuotes(para, (narration) => applyPhraseSubstitutionsToText(narration, replacements)),
+    );
+  }
+  return paragraphs.map((para) => applyPhraseSubstitutionsToText(para, replacements));
+};
+
+const applyPhraseSubstitutionsToText = (para: string, replacements: PhraseReplacement[]): string => {
+  {
     let result = para;
     for (const { original, replacement } of replacements) {
       // Punctuation-tolerant: the phrase arrives NORMALIZED (tokenizeWords), so an exact-literal
@@ -375,7 +421,7 @@ export const applyPhraseSubstitutions = (
       result = candidate;
     }
     return result;
-  });
+  }
 };
 
 export const runAtmosphereRepairIfNeeded = async (

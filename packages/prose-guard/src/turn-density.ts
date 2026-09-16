@@ -18,6 +18,15 @@
 const SUSPICION =
   /\b(suspect|suspicion|accus\w*|guilt\w*|culprit|killer|murderer|theory|must have|responsible|blame)\b/i;
 
+/**
+ * A_96 C3 / F6 — a chapter that names a non-culprit as suspect and CLEARS them in the same chapter
+ * has not turned; it has performed a turn and taken it back. Run 50862 scored 4 of 6 on the first
+ * cut of this instrument with no false solution a reader would believe for a page: chapter 6 accused
+ * Gwendolyn and resolved it inside the chapter. A turn is an accusation the chapter ENDS on.
+ */
+const CLEARING =
+  /\b(cleared|innocent|could not have|cannot have|ruled out|not (?:the )?(?:killer|murderer|culprit)|alibi (?:holds|held|confirmed|stands)|accounted for|exonerat\w*)\b/i;
+
 /** A sentence that overturns what was believed. */
 const OVERTURN =
   /\b(overturn\w*|wrong (?:about|all along)|had been mistaken|no longer|ruled out|could not have|cannot have|revis\w+|reconsider\w*|new theory|after all|in fact|it was not)\b/i;
@@ -60,17 +69,22 @@ export const turnDensity = (
     const text = chapters[i] ?? "";
     if (!text) continue;
     window += 1;
-    let s = false;
     let o = false;
-    for (const sentence of splitSentences(text)) {
-      if (!s && SUSPICION.test(sentence)) {
-        const namesOther = otherNames.some((n) => sentence.includes(n));
-        const namesCulprit = culpritNames.some((n) => sentence.includes(n));
-        if (namesOther && !namesCulprit) s = true;
+    // A name is "in the frame" at chapter end only if it was suspected and NOT cleared afterwards in
+    // the same chapter. Track the last suspicion and the last clearing per non-culprit name.
+    const lastSuspected = new Map<string, number>();
+    const lastCleared = new Map<string, number>();
+    const sentences = splitSentences(text);
+    sentences.forEach((sentence, idx) => {
+      const namesCulprit = culpritNames.some((n) => sentence.includes(n));
+      for (const n of otherNames) {
+        if (!sentence.includes(n)) continue;
+        if (SUSPICION.test(sentence) && !namesCulprit) lastSuspected.set(n, idx);
+        if (CLEARING.test(sentence)) lastCleared.set(n, idx);
       }
       if (!o && OVERTURN.test(sentence)) o = true;
-      if (s && o) break;
-    }
+    });
+    const s = [...lastSuspected.entries()].some(([n, at]) => (lastCleared.get(n) ?? -1) < at);
     if (s) suspecting += 1;
     if (o) overturning += 1;
     if (s || o) either += 1;
@@ -80,6 +94,7 @@ export const turnDensity = (
 
 /** One line for the run report. */
 export const summariseTurnDensity = (d: TurnDensity): string =>
-  `${d.chaptersWithATurn}/${d.window} middle chapters turn — ${d.chaptersSuspectingOthers} put a ` +
-  `non-culprit in the frame, ${d.chaptersOverturning} overturn a belief. The bookshop book measured ` +
-  `0 and 0 across ten chapters. MEASURE only.`;
+  `${d.chaptersWithATurn}/${d.window} middle chapters turn — ${d.chaptersSuspectingOthers} END with a ` +
+  `non-culprit still in the frame, ${d.chaptersOverturning} overturn a belief. The bookshop book measured ` +
+  `0 and 0 across ten chapters; seed 50862 scored 4 on the weaker first cut with no turn a reader ` +
+  `would believe. MEASURE only.`;
