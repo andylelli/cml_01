@@ -413,6 +413,9 @@ export {
   resolveHumourLevel,
   humourBand,
   chapterCarriesWitBeat,
+  bandForAxis,
+  isBandByAxisEnabled,
+  resolveBandForRun,
 } from "./humour-level.js";
 export type { HumourLevel, HumourBand } from "./humour-level.js";
 

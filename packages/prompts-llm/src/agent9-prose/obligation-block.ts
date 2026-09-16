@@ -258,6 +258,97 @@ export const isWitShapesEnabled = (env: NodeJS.ProcessEnv = process.env): boolea
  * was flat" 0 → 6. So: the shapes are two exchanges ADDED to a full chapter, and no register or shape
  * may be named as description.
  */
+/**
+ * A_95 M4 (R7) — SHAPE BY REGISTER. The reader who first scored our humour (A_94 §8.1) ranked the
+ * cast's comic voices in exactly the order Agent 2b assigned them — four for four — and then named
+ * the one thing to fix: *"several characters speak in similar polished aphorisms. Give each a
+ * different comic flavour."*
+ *
+ * The shapes were asked of the CHAPTER, so whoever was speaking supplied them and every register
+ * sounded the same. Here each shape is owned:
+ *
+ *   THE FLAT ANSWER    the understated register — dry_wit, understatement, deadpan, self_deprecating
+ *   THE SHORT RETORT   the sharp register — sardonic, polite_savagery, blunt, observational
+ *   THE UNMEANT JOKE   the humourless character, who is funny because they are not trying to be
+ *
+ * The third is the reader's own suggestion, verbatim in kind: *"Agatha should not be funny often. She
+ * is funniest only indirectly, because her seriousness is so rigid."*
+ */
+const UNDERSTATED = ["dry_wit", "understatement", "deadpan", "self_deprecating"] as const;
+const SHARP = ["sardonic", "polite_savagery", "blunt", "observational"] as const;
+
+const firstWithStyle = (
+  profiles: ReadonlyArray<BeatCandidate>,
+  styles: readonly string[],
+  chapterNumber: number,
+): BeatCandidate | undefined =>
+  rotate(
+    (profiles ?? []).filter(
+      (p) => p?.name && styles.includes(String(p.humourStyle ?? "").trim().toLowerCase()) && Number(p.humourLevel ?? 0) > 0,
+    ),
+    chapterNumber,
+  );
+
+/** The humourless character — the one whose seriousness is the joke. */
+const firstHumourless = (
+  profiles: ReadonlyArray<BeatCandidate>,
+  chapterNumber: number,
+): BeatCandidate | undefined =>
+  rotate(
+    (profiles ?? []).filter(
+      (p) => p?.name && (String(p.humourStyle ?? "none").trim().toLowerCase() === "none" || Number(p.humourLevel ?? 0) === 0),
+    ),
+    chapterNumber,
+  );
+
+export const isShapeByRegisterEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT9_SHAPE_BY_REGISTER ?? "").trim());
+
+/**
+ * The owned form. Falls back to the unowned wording for any shape this cast cannot supply, so a cast
+ * with no sharp register still gets its retort rather than losing the shape.
+ */
+export const buildOwnedShapeLines = (
+  profiles: ReadonlyArray<BeatCandidate>,
+  chapterNumber: number,
+): string[] => {
+  const flat = firstWithStyle(profiles, UNDERSTATED, chapterNumber);
+  const retort = firstWithStyle(profiles, SHARP, chapterNumber);
+  const unmeant = firstHumourless(profiles, chapterNumber);
+  const lines: string[] = [];
+  lines.push(
+    `  - TWO EXCHANGES TO ADD to this chapter's dialogue — additions, not a diet: the chapter keeps every ` +
+      `conversation it would otherwise have, at full length.`,
+  );
+  lines.push(
+    `    (a) THE FLAT ANSWER — ${flat ? `${flat.name} answers` : "somebody answers"} a question in four words ` +
+      `or fewer and does not go on to explain.`,
+  );
+  lines.push(
+    `    (b) THE SHORT RETORT — ${retort ? `${retort.name} answers` : "somebody answers"} a speech of fifteen ` +
+      `words or more in six words or fewer.`,
+  );
+  if (unmeant) {
+    lines.push(
+      `    (c) THE UNMEANT JOKE — ${unmeant.name} says something funny WITHOUT INTENDING TO: their seriousness, ` +
+        `taken one step further than the moment deserves, is the joke. They are not making it and must not ` +
+        `notice it. At most one, and skip it rather than force it.`,
+    );
+  }
+  lines.push(
+    `    Count them before you finish. Nobody explains what a short answer has already said, and no two ` +
+      `characters make the same kind of remark in this chapter.`,
+  );
+  lines.push(
+    `  - NEVER NAME A REGISTER OR A SHAPE IN NARRATION. Do not write "deadpan", "dry wit", "polite ` +
+      `savagery", "understatement", "sardonic", "flat", "her answer was flat" or "the retort landed" as ` +
+      `description. The register is in the words a character says; it is never labelled by the narrator. ` +
+      `Nor may the narrator remark that an answer was short, final, brief or unelaborated — no "Four words, ` +
+      `final.", no "She did not elaborate." The shortness is the line; it is never pointed at.`,
+  );
+  return lines;
+};
+
 export const buildWitShapeLines = (): string[] => [
   `  - TWO EXCHANGES TO ADD to this chapter's dialogue — additions, not a diet: the chapter keeps every ` +
     `conversation it would otherwise have, at full length. (a) THE FLAT ANSWER — somewhere, a question ` +
@@ -314,7 +405,12 @@ export const reframeSceneForAftermath = <T extends Record<string, unknown>>(scen
   return { ...rest, purpose: AFTERMATH_SCENE_PURPOSE } as T;
 };
 
-export const buildWitBeatLines = (beat: BeatCandidate | undefined, styles: Record<string, string>): string[] => {
+export const buildWitBeatLines = (
+  beat: BeatCandidate | undefined,
+  styles: Record<string, string>,
+  profiles?: ReadonlyArray<BeatCandidate>,
+  chapterNumber = 1,
+): string[] => {
   if (!beat) return [];
   const style = String(beat.humourStyle ?? "").trim();
   const definition = styles[style] ?? "";
@@ -327,7 +423,12 @@ export const buildWitBeatLines = (beat: BeatCandidate | undefined, styles: Recor
     `    If the scene is a discovery of a body, a moment of genuine grief, or the explanation of the ` +
       `mechanism, SKIP the beat entirely rather than force it. A missing beat costs nothing; a joke in ` +
       `those three places costs the chapter.`,
-    ...(isWitShapesEnabled() ? buildWitShapeLines() : []),
+    // A_95 M4 — owned by register when the flag is on; the A_94 wording otherwise.
+    ...(isWitShapesEnabled()
+      ? isShapeByRegisterEnabled()
+        ? buildOwnedShapeLines(profiles ?? [], chapterNumber)
+        : buildWitShapeLines()
+      : []),
   ];
 };
 
@@ -1053,7 +1154,14 @@ const REVEAL_SIGNAL_RE = /\b(culprit|confront|confession|resolve|resolution|deno
     // A_92 — the band decides WHICH chapters carry a beat; "classic" (the default) is every chapter,
     // "dry" every third, "none" not at all.
     if (isWitBeatEnabled() && chapterCarriesWitBeat(humourLevel, chapterNumber)) {
-      lines.push(...buildWitBeatLines(selectWitBeat(characterProfiles ?? [], chapterNumber), HUMOUR_STYLES));
+      lines.push(
+        ...buildWitBeatLines(
+          selectWitBeat(characterProfiles ?? [], chapterNumber),
+          HUMOUR_STYLES,
+          characterProfiles ?? [],
+          chapterNumber,
+        ),
+      );
     }
     if (isDepthBeatEnabled()) {
       lines.push(...buildDepthBeatLines(selectDepthBeat(characterProfiles ?? [], chapterNumber)));

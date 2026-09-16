@@ -6,7 +6,7 @@
  * and writes ctx.characterProfiles.
  */
 
-import {
+import { resolveBandForRun,
   generateCharacterProfiles,
   extractVoiceCapsule,
   checkVoiceCapsules,
@@ -34,7 +34,7 @@ export async function runAgent2b(ctx: OrchestratorContext): Promise<void> {
           caseData: ctx.cml!,
           cast: ctx.cast!.cast,
           tone: appendRetryFeedback(ctx.inputs.narrativeStyle || "classic", retryFeedback),
-          humourLevel: ctx.inputs.humourLevel,  // A_92
+          humourLevel: resolveBandForRun(ctx.inputs.humourLevel, ctx.inputs.primaryAxis),  // A_92 + A_95 M4
           targetWordCount: 1000,
           runId: ctx.runId,
           projectId: ctx.projectId || "",
@@ -68,7 +68,7 @@ export async function runAgent2b(ctx: OrchestratorContext): Promise<void> {
       caseData: ctx.cml!,
       cast: ctx.cast!.cast,
       tone: ctx.inputs.narrativeStyle || "classic",
-      humourLevel: ctx.inputs.humourLevel,  // A_92
+      humourLevel: resolveBandForRun(ctx.inputs.humourLevel, ctx.inputs.primaryAxis),  // A_92 + A_95 M4
       targetWordCount: 1000,
       runId: ctx.runId,
       projectId: ctx.projectId || "",
@@ -112,7 +112,7 @@ export async function runAgent2b(ctx: OrchestratorContext): Promise<void> {
           caseData: ctx.cml!,
           cast: ctx.cast!.cast,
           tone: appendRetryFeedback(ctx.inputs.narrativeStyle || "classic", feedback),
-          humourLevel: ctx.inputs.humourLevel,  // A_92
+          humourLevel: resolveBandForRun(ctx.inputs.humourLevel, ctx.inputs.primaryAxis),  // A_92 + A_95 M4
           targetWordCount: 1000,
           runId: ctx.runId,
           projectId: ctx.projectId || "",

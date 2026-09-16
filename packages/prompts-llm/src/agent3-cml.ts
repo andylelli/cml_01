@@ -292,6 +292,18 @@ export const applyAlibiPlanBeforeRetry = (
  * guess Agent 7's numbering. Removing the constant stops one wrong value being emitted 45/45; it
  * does not make the reference resolve. That needs reconciliation after the outline exists.
  */
+/**
+ * A_95 M5 - `AGENT3_DATED_MOTIVE`. The reader asks for this in 7 of 15 reviews: "the motive is still
+ * too broad: 'protect the theatre' is understandable, but generic. Make it specific."
+ *
+ * A_93 measured why it never arrives: 0 of ~4,700 stored character-profile field values carry a date,
+ * and the one lever that asked for a dated event - AGENT2_SHARED_HISTORY_EVENT on relationships -
+ * moved its field from 0% to 37%. This copies that precedent in the form this model obeys: not "be
+ * specific" (a quality) but three countable things - the act, when, and why it was fatal now.
+ */
+export const isDatedMotiveEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT3_DATED_MOTIVE ?? "").trim());
+
 export const isSceneRefPlaceholderEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
   /^(1|true|yes|on)$/i.test(String(env.AGENT3_SCENE_REF_PLACEHOLDER ?? "").trim());
 
@@ -595,7 +607,13 @@ GOLDEN AGE GENRE STRUCTURES (required — these make the case a fair-play myster
 - death_method: the PHYSICAL manner of death — HOW the victim was killed (e.g. "stabbed with a letter opener", "poisoned with arsenic", "struck with a fire iron", "strangled", "shot"). This MUST be a bodily killing action and MUST be DISTINCT from the concealment mechanism: the clock/timeline/alibi trick goes in hidden_model.mechanism, NEVER here. The reveal has to state how the victim DIED, not only how the crime was hidden — a case that explains only the concealment fails the fair-play contract and is rejected by the rubric's weak-murder-method gate.
 - false_solution: a CONVINCING but WRONG solution accusing an INNOCENT suspect, with a chain of supporting_points, and exactly one flaw (the_one_flaw) the detective later notices. The accused_suspect MUST NOT be the real culprit.
 - red_herrings: at least TWO misleading details. Each MUST have an innocent_explanation that resolves it — never leave a suspicious detail unexplained. Each red herring MUST misdirect TOWARD an INNOCENT suspect (ideally the false_solution's accused) and AWAY from the real culprit — a "red herring" that points at the actual culprit adds no misdirection and is wrong. Red herrings should be plausible and meaningful, not random.
-- motive: the culprit's motive must be specific and human, NOT a generic "financial desperation / inheritance / money troubles" cliché on its own (the #1 novelty-failure pattern). If money is involved, anchor it to a concrete, particular stake (a specific secret, relationship, reputation, or obligation) that makes THIS culprit's choice feel inevitable.
+- motive: the culprit's motive must be specific and human, NOT a generic "financial desperation / inheritance / money troubles" cliché on its own (the #1 novelty-failure pattern). If money is involved, anchor it to a concrete, particular stake (a specific secret, relationship, reputation, or obligation) that makes THIS culprit's choice feel inevitable.${isDatedMotiveEnabled() ? `
+  THE MOTIVE MUST NAME ONE DATED ACT (a countable requirement, not a request for depth):
+    - WHAT THE VICTIM DID, as a single completed act - what they discovered, signed, refused, sold, wrote or said, and TO WHOM;
+    - WHEN, as a date or an interval from now - "three weeks ago", "the Tuesday before the fete", "in the spring of 1931";
+    - WHY IT WAS FATAL NOW - what that act would have set in motion within days had the victim lived.
+  A standing condition is not a motive. "To protect the institution" is a condition; "he found the second mortgage on the ninth and meant to take it to the trustees on Friday" is an act with a date and a consequence.
+  MEASURED: the same instruction on relationship records - name ONE specific dated event - moved the share carrying a date from 0% to 37% over 850 records. Across ~4,700 character-profile field values, NONE carries a date at all.` : ""}
 - closed_circle.suspects: the sealed pool of suspects. The real culprit (culpability.culprits) MUST be a member. No outsider may be the culprit.
 - hidden_model.mechanism.actual_time_of_death / apparent_time_of_death: when the concealment fakes a TIME, both are REQUIRED as concrete clock times ("9:10", "a quarter past ten"). They MUST satisfy the direction that makes a false-time trick work:
     • the APPARENT time must fall INSIDE a window the culprit can account for — the staged time is what gives the culprit their alibi;

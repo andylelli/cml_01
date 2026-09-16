@@ -97,3 +97,34 @@ export const chapterCarriesWitBeat = (value: unknown, chapterNumber: number): bo
   if (beatEvery <= 0) return false;
   return Math.max(1, chapterNumber) % beatEvery === 0;
 };
+
+/**
+ * A_95 M4 — THE BAND BY AXIS, when the caller did not choose one.
+ *
+ * The two dialogue 8s in 61 reads are the two books the reader found witty, and wit correlates with
+ * character clarity (+0.35) and pacing (+0.37). But a band is a story decision, not a default to
+ * impose: `authority` and `identity` are the SOCIAL axes — a case about who is believed and who is
+ * who is carried by drawing-room talk — while `temporal`, `spatial` and `mechanical` turn on objects
+ * and clocks, where a sharp cast competes with the mechanism for the reader's attention.
+ *
+ * INFERRED, not measured: no read yet pairs an axis with a humour mark. Returns `classic` for
+ * anything it does not recognise, so this can only ever raise a book from the corpus default.
+ */
+export const bandForAxis = (axis: unknown): HumourLevel => {
+  const key = String(axis ?? "").trim().toLowerCase();
+  return key === "authority" || key === "identity" ? "sharp" : DEFAULT_HUMOUR_LEVEL;
+};
+
+export const isBandByAxisEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT2B_BAND_BY_AXIS ?? "").trim());
+
+/**
+ * The band a run should use: an explicit `humourLevel` always wins, so `--humour` and a generated
+ * yaml are never overridden. Only an ABSENT band is filled in from the axis.
+ */
+export const resolveBandForRun = (humourLevel: unknown, primaryAxis: unknown): HumourLevel => {
+  const explicit = String(humourLevel ?? "").trim();
+  if (explicit) return resolveHumourLevel(explicit);
+  if (!isBandByAxisEnabled()) return DEFAULT_HUMOUR_LEVEL;
+  return bandForAxis(primaryAxis);
+};
