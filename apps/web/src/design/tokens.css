@@ -1,0 +1,242 @@
+/**
+ * DESIGN TOKENS — the contract with documentation/ui/UI-001-design-system.md.
+ *
+ * Nothing in a component may hard-code a colour, radius or font family. If a value is needed that is
+ * not here, it belongs here first.
+ *
+ * These are plain CSS custom properties AND Tailwind theme colours (tailwind.config.cjs reads the
+ * same hexes). The duplication is deliberate: utilities like `bg-ground` cover the common case, and
+ * `var(--ground)` covers the cases Tailwind cannot reach — gradients, box-shadow colours, and the
+ * handful of inline styles in the operator console's charts.
+ */
+
+:root {
+  color-scheme: light;
+
+  /* ── ground and surfaces ─────────────────────────────────────────── */
+  --ground: #f5efe0;
+  --ground-warm: #f9f4e8;
+  --surface: #fffdf7;
+  --surface-sunken: #f2eada;
+
+  /* ── the frame: nav, footer, side panels ─────────────────────────── */
+  --frame: #2e4034;
+  --frame-deep: #233026;
+  --frame-tint: #3c5243;
+  --on-frame: #f5efe0;
+  --on-frame-soft: #b9c7bb;
+
+  /* ── accent: the primary action, and nothing else ────────────────── */
+  --accent: #b03a2e;
+  --accent-hover: #963126;
+  --accent-wash: #f6e7e2;
+
+  /* ── badges: step numbers and section icons ──────────────────────── */
+  --badge: #d9b978;
+  --badge-ink: #7a5a22;
+
+  /* ── ink ─────────────────────────────────────────────────────────── */
+  --ink: #2b2b28;
+  --ink-soft: #6b6257;
+  --ink-faint: #9a9183;
+
+  /* ── lines ───────────────────────────────────────────────────────── */
+  --line: #e3dac6;
+  --line-strong: #cfc2a6;
+
+  /* ── status. --danger is browner than --accent ON PURPOSE, so an
+        error can never be mistaken for the primary action. ─────────── */
+  --danger: #8c3b1e;
+  --danger-wash: #f7e9e1;
+  --ok: #4a6b4e;
+  --ok-wash: #e8efe6;
+  --warn: #a9791f;
+  --warn-wash: #f8f0dd;
+
+  /* ── type ────────────────────────────────────────────────────────── */
+  --font-display: "Playfair Display", Georgia, "Iowan Old Style", "Times New Roman", serif;
+  --font-body: "Source Sans 3", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-script: "Caveat", "Segoe Script", "Bradley Hand", cursive;
+  --font-mono: ui-monospace, SFMono-Regular, "Cascadia Mono", Consolas, monospace;
+
+  /* ── shape ───────────────────────────────────────────────────────── */
+  --radius-sm: 6px;
+  --radius: 10px;
+  --radius-lg: 16px;
+  --shadow-card: 0 1px 2px rgba(43, 43, 40, 0.04), 0 1px 12px rgba(43, 43, 40, 0.03);
+  --shadow-raised: 0 2px 6px rgba(43, 43, 40, 0.07), 0 8px 24px rgba(43, 43, 40, 0.05);
+  --focus-ring: 0 0 0 3px rgba(176, 58, 46, 0.28);
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   BASE
+   The boards are printed things. Body is cream, never white.
+   ───────────────────────────────────────────────────────────────────── */
+
+html {
+  background: var(--ground);
+}
+
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Wide content scrolls inside its own container; the page never scrolls sideways. */
+body {
+  overflow-x: hidden;
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   TYPE ROLES
+   Used as classes so a heading's ROLE is legible in the template.
+   ───────────────────────────────────────────────────────────────────── */
+
+.t-display {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(2rem, 1.2rem + 2.8vw, 3.25rem);
+  line-height: 1.08;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+}
+
+.t-display-sm {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.4rem, 1.1rem + 1.1vw, 1.9rem);
+  line-height: 1.15;
+  color: var(--ink);
+}
+
+/* The boards' section headers: letterspaced small caps in the display serif. */
+.t-section {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.t-eyebrow {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.t-subtitle {
+  font-size: 0.875rem;
+  color: var(--ink-soft);
+}
+
+.t-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+/* Decorative only — always paired with aria-hidden. */
+.t-script {
+  font-family: var(--font-script);
+  font-weight: 600;
+  font-size: 1.35rem;
+  line-height: 1.2;
+  color: var(--ink-soft);
+}
+
+.t-quote {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.25rem;
+  line-height: 1.45;
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   FOCUS
+   One visible focus treatment everywhere. Never remove it.
+   ───────────────────────────────────────────────────────────────────── */
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-color: var(--accent);
+}
+
+/* On the green frame the red ring is invisible; use a light ring there. */
+.on-frame :focus-visible {
+  box-shadow: 0 0 0 3px rgba(245, 239, 224, 0.55);
+  border-color: var(--on-frame);
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   MOTION
+   Colour and border only. No transforms on controls — the boards are
+   still, and bouncing tiles read as a different product entirely.
+   ───────────────────────────────────────────────────────────────────── */
+
+.transition-control {
+  transition:
+    background-color 150ms ease-out,
+    border-color 150ms ease-out,
+    color 150ms ease-out,
+    box-shadow 150ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   SCROLLBARS — warm, to match the ground rather than the browser default
+   ───────────────────────────────────────────────────────────────────── */
+
+.scroll-x {
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+}
+
+.scroll-x::-webkit-scrollbar {
+  height: 8px;
+}
+
+.scroll-x::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scroll-x::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border-radius: 999px;
+}
+
+.scroll-x::-webkit-scrollbar-thumb:hover {
+  background: var(--ink-faint);
+}
+
+/* Print: the reading view should print as a book, not as an app. */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    background: #fff;
+  }
+}

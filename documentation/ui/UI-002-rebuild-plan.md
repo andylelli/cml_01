@@ -1,0 +1,190 @@
+# UI-002 — REBUILD AND REFACTOR PLAN
+
+**Started 2026-09-16.** Status table in §8 is the live record; every item names its commit when done.
+Resumable from item 1 by reading §8 alone.
+
+---
+
+## 1. WHAT IS BEING REBUILT, AND WHY
+
+**MEASURED, before any change:**
+
+| | |
+|---|---|
+| `apps/web/src/App.vue` | **3,175 lines** — 1,745 of `<script setup>`, 1,643 of template |
+| all other components | 2,404 lines across 18 files |
+| tests | 174 passing across 15 files — **a green baseline that must stay green** |
+| `services/api.ts` | 43 exported calls, well factored, **not a problem** |
+| `stores/projectStore.ts` | 514 lines, holds artifacts and validation |
+
+The diagnosis is narrow: the API layer and the child components are fine. **One god component holds
+the entire application** — mode switching, three independent tab groups, project CRUD, spec editing,
+SSE, two polling loops, artifact loading, scoring, prose reading, PDF export, error handling,
+localStorage persistence and keyboard shortcuts. That is where the bugs live, and it is why a visual
+rebuild and a refactor are the same job rather than two.
+
+---
+
+## 2. THE SPEC VOCABULARY — WHAT THE PIPELINE ACTUALLY ACCEPTS
+
+**This is the section to read before adding any control.** Sourced from `apps/api/src/server.ts:673–697`
+and the packages it hands off to. A control offering a value not on this list is a control that lies.
+
+| spec field | accepted values | behaviour on an unrecognised value |
+|---|---|---|
+| `decade` | `1920s` `1930s` `1940s` `1950s` | passed through as free text to the era prompt |
+| `locationPreset` | `CountryHouse` `SeasideHotel` `Village` `Liner` `Theatre` | free text; the setting agent improvises |
+| `tone` | `Cozy` `Classic` `Dark` | free text — **and `Dark` alone also flips `narrativeStyle` to `atmospheric`** (`server.ts:675`) |
+| `primaryAxis` | `temporal` `spatial` `identity` `behavioral` `authority` | **THROWS at pipeline init.** The only field where a bad value aborts a paid run |
+| `castSize` | integer | — |
+| `castNames` | string[] | — |
+| `detectiveType` | `police` `private` `amateur` | defaults to `police` |
+| `targetLength` | `short` `medium` `long` | defaults to `medium` |
+| `narrativeStyle` | `classic` `modern` `atmospheric` | derived from tone if absent |
+| `humourLevel` | `none` `dry` `classic` `sharp` | silently resolves to `classic` (`humour-level.ts:87`) |
+| `proseBatchSize` | integer | — |
+| `theme` | free text | defaults to *"A classic murder mystery"* |
+
+**Three consequences for the design:**
+
+1. **`humourLevel` has never had a control.** It is a real, wired story parameter with four bands, each
+   resolving to countable operations, and the UI has never exposed it. Added at step 3 — see item 14.
+2. **The boards' Tone row conflates two parameters.** Board 1 offers *Traditional · Cosy · Dark ·
+   Humorous · Thrilling*. `Humorous` is not a tone, it is `humourLevel: sharp`; `Thrilling` has no
+   backend meaning at all. The build renders Tone as **Classic · Cosy · Dark** and gives humour its own
+   row, which is the board's visual language over the pipeline's real vocabulary.
+3. **The boards' Setting row is invented.** *City* and *Train* are not presets. The build uses the five
+   real ones with period labels: Country House, Seaside Hotel, Village, Ocean Liner, Theatre.
+
+**Fields on the boards with no backend at all** — Method, Victim's profile, Twists, Specific elements.
+These are *not* dropped and *not* faked: they compose into the free-text `theme` string, which the
+pipeline genuinely reads, exactly as `scripts/run-params.mjs` composes the story angle into `theme`.
+The composition is one pure function with its own tests (item 15) so what the user picked and what the
+pipeline received can never drift.
+
+---
+
+## 3. INFORMATION ARCHITECTURE
+
+The boards show a consumer product; the existing app is an operator's instrument. Both survive. Every
+nav destination is backed by an API call that already exists.
+
+| nav | view | backed by |
+|---|---|---|
+| **Create** | the numbered wizard — the boards, faithfully | `createProject`, `saveSpec`, `runPipeline` |
+| **Inspiration** | sample mysteries to read | `fetchSamples`, `fetchSampleContent` |
+| **My Cases** | project list, status, and the finished read | `fetchProjects`, `fetchProse`, `downloadStoryPdf` |
+| **Workshop** | the operator console, restyled not rebuilt | everything else |
+
+`Workshop` replaces the boards' `About`, which would have nothing behind it. It is visible only when
+advanced mode is on, preserving today's `user / advanced / expert` progression.
+
+---
+
+## 4. TARGET STRUCTURE
+
+```
+src/
+  design/
+    tokens.css          every colour, type and shape token (UI-001 §2)
+    brand.ts            wordmark + tagline, one object (UI-001 §7)
+  components/ui/        the 11 board primitives, no app knowledge
+  components/           existing feature components, restyled in place
+  composables/
+    useErrorLog.ts      error list + retry actions
+    useUiState.ts       localStorage persistence, one schema, versioned
+    useRunProgress.ts   SSE + the two polling loops + percent derivation
+    useArtifacts.ts     artifact loading and readiness flags
+    useShortcuts.ts     global keydown
+  views/
+    CreateView.vue      the wizard
+    InspirationView.vue
+    CasesView.vue
+    ReadView.vue        the finished book
+    WorkshopView.vue    operator console shell, owns the old tab groups
+  spec/
+    vocabulary.ts       §2's table as typed constants — ONE source
+    composeTheme.ts     board extras -> theme string, pure, tested
+  App.vue               shell + view switch only. Target under 150 lines.
+```
+
+**The rule that keeps this honest:** `spec/vocabulary.ts` is the only place a spec value is written
+down. Controls render from it, and a unit test asserts every option a control can emit is accepted by
+§2's table. A future option that the pipeline would silently downgrade fails that test.
+
+---
+
+## 5. BUGS
+
+Found during reconnaissance. Each is confirmed by reading the code, not inferred from behaviour.
+Items marked **fix** are scheduled below; items marked **note** are already correct and are recorded
+so they are not "fixed" again.
+
+| # | finding | status |
+|---|---|---|
+| B1 | Two polling intervals and the SSE subscription leaked on unmount | **note** — already fixed and commented at `App.vue:1726–1743` (A_73). Preserve this behaviour through the refactor; it is exactly what a split into composables can silently undo |
+| B2 | `skipNextProjectArtifactLoad` is a boolean guarding a race between project creation and the artifact watcher (`App.vue:509, 766, 1064, 1124`) | **fix** — a one-shot flag mutated from three places is a race workaround, not a fix. Ownership moves into `useArtifacts` with an explicit request token |
+| B3 | Spec defaults `primaryAxis: "temporal"` and the UI has no control for it, yet an unrecognised value **throws at pipeline init** | **fix** — expose it in Workshop with the five real axes; never let a free-text value reach it |
+| B4 | `tone: "Dark"` silently changes `narrativeStyle` as a side effect | **fix (surface, not change)** — the control says so. Changing the coupling is a pipeline decision, not a UI one |
+| B5 | `humourLevel` accepted by the API, never sent by the UI | **fix** — item 14 |
+| B6 | Mojibake in `App.vue` | **withdrawn — the premise was false.** Read via bare `Get-Content` under PS 5.1 (ANSI); the file is clean UTF-8 with 7 en-dashes and 19 em-dashes intact. "Fixing" it would have corrupted 26 characters. **Always read source with the Read tool or an explicit UTF-8 decode** |
+
+Further bugs found during the rebuild are appended here with their item number.
+
+---
+
+## 6. THE OPERATOR CONSOLE
+
+Restyled, not redesigned. It inherits UI-001's tokens and loses its slate/blue Tailwind palette, but
+keeps dense tables, its three tab groups and every panel. Two rules:
+
+- **Density is a feature.** Do not apply the wizard's padding to a table of run events.
+- **Wide tables scroll inside their own container**, never the page (UI-001 §6).
+
+---
+
+## 7. HOW EACH ITEM IS VERIFIED
+
+- `npm test` in `apps/web` stays green — **174 tests at baseline**, and the count only goes up.
+- `npm run build` in `apps/web` produces no TypeScript error.
+- A component item is done when it renders in the browser and its test asserts the *state*, not the
+  class names — a test pinning `bg-[#B03A2E]` pins the design, which is the thing being changed.
+
+---
+
+## 8. STATUS
+
+| # | item | status | commit |
+|---|---|---|---|
+| 1 | UI-001 design system documented | **DONE** | — |
+| 2 | UI-002 plan + spec vocabulary documented | **DONE** | — |
+| 3 | `design/tokens.css` + Tailwind theme extension | **DONE** | `PENDING` |
+| 4 | `design/brand.ts` | **DONE** | `PENDING` |
+| 5 | `spec/vocabulary.ts` + conformance test | **DONE** | `PENDING` |
+| 6 | `ui/AppShell` + `NavLink` + footer | **DONE** | `PENDING` |
+| 7 | `ui/HeroBanner` + typographic fallback state | **DONE** | `PENDING` |
+| 8 | `ui/StepCard` | **DONE** | `PENDING` |
+| 9 | `ui/OptionTile` + radio semantics + check glyph | **DONE** | `PENDING` |
+| 10 | `ui/FieldSelect`, `FieldNumber` | **DONE** | `PENDING` |
+| 11 | `ui/PrimaryButton`, `QuotePanel`, `FeatureRow`, `ScriptNote` | **partial — QuotePanel, ScriptNote, AppButton done; FeatureRow folded into QuotePanel** | `PENDING` |
+| 12 | `ui/icons/` glyph set | **DONE** | `PENDING` |
+| 13 | `CreateView` — steps 1–2 (era, setting, tone) | not started | — |
+| 14 | `CreateView` — step 3 humour band **(new parameter, B5)** | not started | — |
+| 15 | `spec/composeTheme.ts` + tests (board extras → theme) | **DONE** | `PENDING` |
+| 16 | `CreateView` — steps 4–6 + submit wiring | not started | — |
+| 17 | `composables/useErrorLog` | not started | — |
+| 18 | `composables/useUiState` (versioned schema) | not started | — |
+| 19 | `composables/useRunProgress` (SSE + polls, **preserve B1**) | not started | — |
+| 20 | `composables/useArtifacts` (**fixes B2**) | not started | — |
+| 21 | `composables/useShortcuts` | not started | — |
+| 22 | `App.vue` reduced to shell + view switch | not started | — |
+| 23 | `InspirationView` | not started | — |
+| 24 | `CasesView` + `ReadView` | not started | — |
+| 25 | `WorkshopView` — console moved, tab groups preserved | not started | — |
+| 26 | Workshop: axis control (**fixes B3**) + tone/style coupling note (**B4**) | not started | — |
+| 27 | Restyle existing feature components to tokens | not started | — |
+| 28 | Responsive pass — three widths, no horizontal scroll | not started | — |
+| 29 | A11y pass — labels, `aria-current`, contrast, reduced motion | not started | — |
+| 30 | Remove dead code and old Tailwind palette classes | not started | — |
+
+**Next item: 3.**

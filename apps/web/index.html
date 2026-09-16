@@ -3,9 +3,31 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CML Whodunit Builder</title>
+    <meta name="color-scheme" content="light" />
+    <title>Murder in Minutes</title>
+
+    <!--
+      Webfonts are an enhancement, never a dependency: this app runs on localhost against a local
+      API and has to be legible with no network at all. Every family in tokens.css carries a real
+      fallback, and nothing in the layout is positioned against a webfont's metrics.
+      `display=swap` means text paints immediately in the fallback rather than going invisible.
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Source+Sans+3:ital,wght@0,400;0,500;0,600;1,400&family=Caveat:wght@600&display=swap"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Source+Sans+3:ital,wght@0,400;0,500;0,600;1,400&family=Caveat:wght@600&display=swap"
+      />
+    </noscript>
   </head>
-  <body class="bg-slate-50 text-slate-900">
+  <body>
     <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>
   </body>
