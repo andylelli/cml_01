@@ -183,7 +183,7 @@ keeps dense tables, its three tab groups and every panel. Two rules:
 | 16 | `CreateView` — steps 4–6 + submit wiring | **DONE — emits spec; network wiring at item 22** | `PENDING` |
 | 17 | `composables/useErrorLog` | **DONE** | `PENDING` |
 | 18 | `composables/useUiState` (versioned schema) | **DONE** | `PENDING` |
-| 19 | `composables/useRunProgress` (SSE + polls, **preserve B1**) | **DEFERRED — see §9** | `76532cde` |
+| 19 | `composables/useRunProgress` (SSE + polls, **preserve B1**) | **DONE — 20 tests, 5 mutations caught; deferral reason was wrong** | `PENDING` |
 | 20 | `composables/useArtifacts` (**fixes B2**) | **DONE — B2 keyed to an id** | `76532cde` |
 | 21 | `composables/useShortcuts` | **DEFERRED — see §9** | `76532cde` |
 | 22 | `App.vue` reduced to shell + view switch | **DONE — 3,391 to 125 lines** | `76532cde` |

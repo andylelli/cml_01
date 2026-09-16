@@ -49,6 +49,7 @@ import {
   type Project,
 } from "../services/api";
 import { subscribeToRunEvents } from "../services/sse";
+import { useRunProgress } from "../composables/useRunProgress";
 import { coerceSpec, defaultSpec, type MysterySpec } from "../spec/vocabulary";
 
 type Mode = "user" | "advanced" | "expert";
@@ -289,7 +290,8 @@ const handleAdvancedTabChange = (tabId: string) => {
   activeAdvancedTab.value = tabId;
 };
 
-const runStatus = ref("Ready to generate");
+// runStatus, lastProjectStatus, isRunning, isStartingRun and pendingRunId now come from
+// useRunProgress — declared below, once the refs its dependencies close over exist.
 const scoringReport = ref<GenerationReport | null>(null);
 const scoringHistory = ref<GenerationReport[]>([]);
 const isScoringReportLoading = ref(false);
@@ -316,14 +318,11 @@ const selectedSample = ref<{ id: string; name: string; content: string } | null>
 const projectsList = ref<Project[]>([]);
 const selectedProjectId = ref("");
 const missingProjectNotified = ref(false);
-const lastProjectStatus = ref<string | null>(null);
-const pendingRunId = ref<string | null>(null);
 const showAdvancedValidation = ref(false);
 const updateInProgress = ref<string | null>(null);
 const selectedProseLength = ref<string | null>(null);
 const availableProseVersions = ref<string[]>([]);
-let unsubscribe: (() => void) | null = null;
-let runEventsInterval: ReturnType<typeof setInterval> | null = null;
+// The SSE handle and the 3s/8s intervals moved into useRunProgress, which owns their cleanup.
 
 /**
  * B12 — the console's OWN key, not the shell's.
@@ -491,8 +490,28 @@ const settingReady = computed(() => Boolean(settingData.value));
 const castReady = computed(() => Boolean(castData.value?.suspects?.length));
 const cluesReady = computed(() => Boolean(cluesData.value?.items?.length));
 const proseReady = computed(() => Boolean(proseData.value?.chapters?.length));
-const isRunning = computed(() => lastProjectStatus.value === "running");
-const isStartingRun = ref(false);
+/**
+ * The run state machine (UI-002 item 19).
+ *
+ * Declared here rather than beside the other refs because its dependencies close over `projectId`,
+ * `spec` and the tab refs above. Every dependency is an arrow evaluated at CALL time, so the
+ * functions below — `loadRunEventsForProject`, `pollScoringReport` — may be declared after this
+ * without a temporal-dead-zone problem: `useRunProgress` calls none of them during setup.
+ */
+const progress = useRunProgress({
+  subscribe: subscribeToRunEvents,
+  loadRunEvents: () => loadRunEventsForProject(),
+  latestEventStep: () => runEventsData.value[runEventsData.value.length - 1]?.step,
+  loadScoringReport: () => pollScoringReport(),
+  loadScoringHistory: () => loadScoringHistory(),
+  pollArtifacts: () => pollArtifacts(),
+  // The 8s poll is pointless traffic unless the quality panel is actually on screen.
+  shouldPollQuality: () => activeMainTab.value === "advanced" && activeAdvancedTab.value === "quality",
+  notify: (severity, message, detail) => addError(severity, "pipeline", message, detail),
+  logActivity: (message) => logActivity({ projectId: projectId.value, scope: "ui", message }),
+});
+
+const { runStatus, lastProjectStatus, isStartingRun, pendingRunId, isRunning } = progress;
 
 const advancedTabStatuses = computed<Record<string, TabStatus>>(() => ({
   quality: isRunning.value || isStartingRun.value ? "in-progress" : "available",
@@ -815,77 +834,17 @@ watch(
   { immediate: true },
 );
 
-const connectSse = () => {
-  if (!projectId.value) {
-    runStatus.value = "Create a project to begin";
-    return;
-  }
-  if (unsubscribe) {
-    unsubscribe();
-  }
-  unsubscribe = subscribeToRunEvents(
-    projectId.value,
-    async (payload) => {
-      const previous = lastProjectStatus.value;
-      lastProjectStatus.value = payload.status;
+/**
+ * The SSE subscription and the run state machine live in useRunProgress (UI-002 item 19). These
+ * four keep their names so every call site in this 3,300-line file stays where it is — the
+ * implementation moved, the interface did not.
+ *
+ * The state machine they now delegate to is pinned by 20 tests and 5 mutation checks. It used to be
+ * seventy lines here, reachable only from a live pipeline, and therefore never once exercised.
+ */
+const connectSse = () => progress.connect(projectId.value);
 
-      if (payload.status === "running") {
-        runStatus.value = "Building your mystery...";
-        startRunEventsPolling();
-        return;
-      }
-
-      if (previous === "running" && payload.status === "idle") {
-        isStartingRun.value = false;
-        stopRunEventsPolling();
-        await loadRunEventsForProject();
-
-        const latestEvent = runEventsData.value[runEventsData.value.length - 1];
-        const failed = latestEvent?.step === "pipeline_error" || latestEvent?.step === "run_failed";
-
-        if (failed) {
-          runStatus.value = "Generation stopped before completion. Check run history and retry.";
-          addError("warning", "pipeline", "Generation stopped before completion", "Open History/Logs for details, then retry.");
-          logActivity({ projectId: projectId.value, scope: "ui", message: "run_failed" });
-          // Still poll for a quality report — the pipeline may have saved a partial/aborted
-          // report with phase scores that are useful to display in the quality tab.
-          void pollScoringReport();
-          void loadScoringHistory();
-          return;
-        }
-
-        runStatus.value = "All set. Explore your results.";
-        pollArtifacts();
-        void pollScoringReport();
-        void loadScoringHistory();
-        addError("info", "pipeline", "Your mystery is ready.");
-        logActivity({ projectId: projectId.value, scope: "ui", message: "run_completed" });
-        return;
-      }
-
-      if (payload.status === "idle" && !isStartingRun.value && runStatus.value === "Building your mystery...") {
-        runStatus.value = "Ready to generate";
-      }
-    },
-    () => {
-      runStatus.value = "Reconnecting...";
-    },
-    () => {
-      // SSE reconnected — clear stale "Reconnecting..." status if not mid-run (U-6 fix)
-      if (lastProjectStatus.value !== "running") {
-        runStatus.value = "Ready to generate";
-      }
-    },
-  );
-};
-
-const disconnectSse = () => {
-  if (unsubscribe) {
-    unsubscribe();
-    unsubscribe = null;
-  }
-  stopRunEventsPolling();
-};
+const disconnectSse = () => progress.disconnect();
 
 const maybeRefreshLlmLogs = async () => {
   if (!projectId.value) return;
@@ -922,18 +881,9 @@ const loadRunEventsForProject = async () => {
   await maybeRefreshLlmLogs();
 };
 
-const startRunEventsPolling = () => {
-  if (runEventsInterval) return;
-  runEventsInterval = setInterval(() => {
-    loadRunEventsForProject();
-  }, 3000);
-};
+const startRunEventsPolling = () => progress.startEventsPolling();
 
-const stopRunEventsPolling = () => {
-  if (!runEventsInterval) return;
-  clearInterval(runEventsInterval);
-  runEventsInterval = null;
-};
+const stopRunEventsPolling = () => progress.stopEventsPolling();
 
 // Watchers for tab navigation sync
 // (Scoring report is only meaningful at run completion — do not poll it during
@@ -1018,23 +968,9 @@ watch(activeAdvancedTab, (newTab) => {
   }
 }, { immediate: true });
 
-// While a run is active and the quality tab is open, poll for partial reports.
-// savePartialReport() is called after each agent, so data appears incrementally.
-let qualityPollInterval: ReturnType<typeof setInterval> | null = null;
-
-watch(isRunning, (running) => {
-  if (qualityPollInterval) {
-    clearInterval(qualityPollInterval);
-    qualityPollInterval = null;
-  }
-  if (running) {
-    qualityPollInterval = setInterval(() => {
-      if (activeMainTab.value === "advanced" && activeAdvancedTab.value === "quality") {
-        void loadScoringReport();
-      }
-    }, 8000);
-  }
-});
+// The 8s quality poll follows isRunning and is owned by useRunProgress, which also clears it on
+// disposal. The watcher here only tells it that the flag changed.
+watch(isRunning, () => progress.syncQualityPolling());
 
 watch([activeMainTab, activeAdvancedTab, projectId], async ([mainTab, advancedTab, currentProject]) => {
   if (mainTab === "advanced" && advancedTab === "logs") {
@@ -1754,19 +1690,19 @@ onBeforeUnmount(() => {
   disconnectSse();
   window.removeEventListener("keydown", handleGlobalKeydown);
   /**
-   * A_73 — both polling intervals were left running on unmount.
+   * A_73 — both polling intervals were once left running on unmount.
    *
-   * `runEventsInterval` (3s) and `qualityPollInterval` (8s) were cleared only by their own start/stop
-   * helpers and by the `isRunning` watcher. Unmounting mid-run left both firing against a destroyed
-   * component. Single-root SPA, so today that is a page-close leak rather than a visible fault — but
-   * it multiplies the moment this app is routed or remounted, and a timer outliving its component is
-   * the shape behind the A_30 defect where a poll overwrote freshly-loaded state.
+   * The 3s run-events poll and the 8s quality poll were cleared only by their own start/stop helpers
+   * and by the `isRunning` watcher, so unmounting mid-run left both firing against a destroyed
+   * component — the shape behind the A_30 defect where a poll overwrote freshly-loaded state.
+   *
+   * Both timers now belong to `useRunProgress`, which is the change that most easily UNDOES this
+   * fix: a split like that is exactly how ownership of a timer gets lost. So the composable
+   * registers its own `onScopeDispose` as well, and the guarantee is asserted by test
+   * (`useRunProgress.test.ts`, "clears BOTH intervals and the subscription on scope disposal") and
+   * by a mutation check that removes the quality clear and confirms two cases go red.
    */
-  stopRunEventsPolling();
-  if (qualityPollInterval) {
-    clearInterval(qualityPollInterval);
-    qualityPollInterval = null;
-  }
+  progress.dispose();
 });
 </script>
 
