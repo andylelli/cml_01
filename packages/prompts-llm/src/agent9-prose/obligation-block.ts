@@ -33,6 +33,7 @@ import { sanitizeContinuityTailForPrompt } from "./continuity-tail.js";
 import { getSeasonAllowList, capitalizeWord } from "./lint.js";
 import { HUMOUR_STYLES } from "./prompt-blocks.js";
 import { chapterCarriesWitBeat } from "../humour-level.js";
+import { buildOffstageActorLines, isOffstageActorsEnabled } from "../agent3-offstage-actors.js"; // A_96 F3
 import type { CanonicalSeason } from "./lint.js";
 import { sanitizeClueField, tagCharacter, buildIdentityMap } from "./phrase-analysis.js";
 import { getTieredBannedPhrasePolicy } from "./banned-phrases.js";
@@ -442,8 +443,39 @@ export const buildWitBeatLines = (
   ];
 };
 
+/**
+ * A_96 F9 — `AGENT9_DEPTH_TRAIT_ONLY`. The depth beat forbade narrating the cause and then HANDED THE
+ * CAUSE OVER in full: the whole formativeIncident text, origin and all. Run 50862 narrated it as a
+ * label seven times — "a dignity hard-won after a false accusation years prior". Nothing the model is
+ * not shown can be copied, so the line now carries only the TRAIT clause — the text before the first
+ * origin connector — and says the cause is withheld on purpose.
+ */
+export const isDepthTraitOnlyEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT9_DEPTH_TRAIT_ONLY ?? "").trim());
+
+const ORIGIN_CONNECTOR_RE =
+  /\s+(?:ever since|since|after|because|when|following|owing to|from the (?:day|night|year|moment)|at (?:age|the age of)|in 1[89]\d\d|which)\b|\s*[—–]\s*|,\s+(?:which|a legacy|the result|born of)\b/i;
+
+export const traitOnly = (incident: unknown): string => {
+  const text = String(incident ?? "").trim();
+  if (!text) return "";
+  const m = ORIGIN_CONNECTOR_RE.exec(text);
+  const head = m && m.index > 0 ? text.slice(0, m.index) : text.split(/(?<=[.!?])\s+/)[0]!;
+  const clause = head.trim().replace(/[.,;:]+$/, "");
+  return clause.split(/\s+/).length >= 3 ? clause : text.split(/(?<=[.!?])\s+/)[0]!.trim();
+};
+
 export const buildDepthBeatLines = (beat: BeatCandidate | undefined): string[] => {
   if (!beat) return [];
+  if (isDepthTraitOnlyEnabled()) {
+    return [
+      `  - ⚠ ONE THING ABOUT ${beat.name.toUpperCase()}, shown once: ${traitOnly(beat.formativeIncident)}.`,
+      `    Put it on the page as an action or a physical detail in a sentence of ordinary business — the way ` +
+        `they stand, what they will not do, what their hands are doing. The CAUSE is withheld from you on ` +
+        `purpose: do not invent one, do not narrate one, do not have anyone explain it. The trait is ` +
+        `enough.`,
+    ];
+  }
   return [
     `  - ⚠ ONE THING FROM ${beat.name.toUpperCase()}'S LIFE BEFORE THIS CASE, shown once and not explained: ` +
       `${String(beat.formativeIncident ?? "").trim()}`,
@@ -1136,6 +1168,9 @@ const REVEAL_SIGNAL_RE = /\b(culprit|confront|confession|resolve|resolution|deno
       isPreRevealChapter && /false.?solution|false theory|wrong (?:theory|conclusion)|convincing (?:wrong|false)/i.test(sceneRegisterBlob);
 
     lines.push(`- Chapter ${chapterNumber}:`);
+    // A_96 F3 — a role the mechanism depends on that no cast member holds is named as OFF-STAGE, so
+    // it is not fused onto the victim (run 50862: "the judge" became the dead man).
+    if (isOffstageActorsEnabled()) lines.push(...buildOffstageActorLines(cmlCase));
     // [PHASE 5] Inject structural archetype contract
     if (macroArcPlan) {
       const arcEntry = macroArcPlan.find((e) => e.chapter === chapterNumber);

@@ -439,3 +439,7 @@ export {
   repairBeatSequence,
 } from "./agent7-beat-sequence.js";
 export type { BeatSequenceRepair } from "./agent7-beat-sequence.js";
+
+// A_96 F3 — the mechanism's actors must exist, or be named as absent.
+export { auditMechanismActors, isOffstageActorsEnabled, buildOffstageActorLines } from "./agent3-offstage-actors.js";
+export type { OffstageActorAudit } from "./agent3-offstage-actors.js";

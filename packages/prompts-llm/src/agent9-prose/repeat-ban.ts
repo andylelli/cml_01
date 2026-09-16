@@ -109,13 +109,39 @@ export const collectRepeatedSpans = (
   return passages.slice(0, limit);
 };
 
+/**
+ * A_96 F5 — MANDATED VALUES ARE EXEMPT, LIKE LOCKED ONES. Measured per passage on run 50862 the ban
+ * suppressed 28 of 38 listed passages entirely; the two that ROSE were an alibi value the clearance
+ * obligations require restated ("in the lounge at nine thirty", 35 mentions outside the ban block)
+ * and the brevity tag. A ban cannot beat a positive instruction in the same prompt, so the values the
+ * other instructions mandate are never listed: alibi windows, alibi spans, clearance methods.
+ */
+export const isRepeatBanAlibiExemptEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT9_REPEAT_BAN_ALIBI_EXEMPT ?? "").trim());
+
+export const mandatedValuesOf = (cmlCase: any): string[] => {
+  const out: string[] = [];
+  for (const c of (cmlCase?.cast ?? []) as any[]) {
+    for (const k of ["alibi_window", "alibi_span", "alibi", "alibi_claim"]) {
+      const v = c?.[k];
+      if (typeof v === "string" && v.trim()) out.push(v.trim());
+    }
+  }
+  for (const s of (cmlCase?.prose_requirements?.suspect_clearance_scenes ?? []) as any[]) {
+    const v = s?.clearance_method;
+    if (typeof v === "string" && v.trim()) out.push(v.trim());
+  }
+  return out;
+};
+
 export const buildRepeatBanBlock = (
   priorChapters: ReadonlyArray<ProseChapter> | undefined,
   lockedFacts: ReadonlyArray<{ value?: string }> | undefined,
+  extraExemptValues: ReadonlyArray<string> = [],
 ): string => {
   const spans = collectRepeatedSpans(
     priorChapters,
-    (lockedFacts ?? []).map((f) => String(f?.value ?? "")).filter(Boolean),
+    [...(lockedFacts ?? []).map((f) => String(f?.value ?? "")).filter(Boolean), ...extraExemptValues],
   );
   if (spans.length === 0) return "";
   return [

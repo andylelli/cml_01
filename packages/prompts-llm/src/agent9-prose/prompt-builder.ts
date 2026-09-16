@@ -82,7 +82,7 @@ import { sanitizeScenesCharacters } from "./sanitization.js";
 import type { CastDesign } from "../agent2-cast.js";
 import type { PromptBlockPriority, PromptContextBlock, PromptSectionInputs } from "./prompt-blocks.js";
 import { buildJudgedOnBlock } from "./prompt-blocks.js";
-import { buildRepeatBanBlock, isRepeatBanEnabled } from "./repeat-ban.js"; // A_94
+import { buildRepeatBanBlock, isRepeatBanEnabled, isRepeatBanAlibiExemptEnabled, mandatedValuesOf } from "./repeat-ban.js"; // A_94 + A_96 F5
 import { isAftermathScenePurposeEnabled, reframeSceneForAftermath } from "./obligation-block.js"; // A_94
 import type {
   ProseChapter,
@@ -194,6 +194,15 @@ export const buildRevealGroundworkCues = (revealImplications: string): string[] 
  * temporal/fashion/location is still provided  by the regular blocks so the
  * world brief focuses on voice, humour, and emotional arc.
  */
+export const isDescribeOnceEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT9_DESCRIBE_ONCE ?? "").trim());
+
+/** Cast members whose full name already appears in a prior chapter's text — introduced, so a name suffices. */
+export const namesAlreadyOnThePage = (priorChapters: ReadonlyArray<ProseChapter>, names: ReadonlyArray<string>): Set<string> => {
+  const text = (priorChapters ?? []).map((c) => (c?.paragraphs ?? []).join(" ")).join(" ");
+  return new Set(names.filter((n) => n && text.includes(n)));
+};
+
 export const buildWorldBriefBlock = (
   worldDoc: any,
   chapterIndex: number,
@@ -201,6 +210,7 @@ export const buildWorldBriefBlock = (
   characterPronouns?: Record<string, string>, // [PHASE 1] inline (he/him) labels in Character Voices headings
   activeCharacterNames?: Set<string>,
   narrativeState?: NarrativeState,
+  alreadyDescribed?: Set<string>, // A_96 F8
 ): string => {
   if (!worldDoc) return '';
 
@@ -282,6 +292,13 @@ export const buildWorldBriefBlock = (
     for (const portrait of worldDoc.characterPortraits) {
       if (activeCharacterNames?.size && !activeCharacterNames.has(portrait.name)) continue;
       lines.push(`\n### ${portrait.name}`);
+      // A_96 F8 — the portrait was handed to EVERY chapter and came back as a costume roll-call:
+      // "pastel tea dress" ×2 in the chapter-1 prompt, ×8 in the book. After the chapter that
+      // introduces a character, a name suffices.
+      if (isDescribeOnceEnabled() && alreadyDescribed?.has(portrait.name)) {
+        lines.push(`Already introduced in an earlier chapter. A name suffices: do NOT restate clothing, features, accessories or era detail. Describe only what has CHANGED since, if anything has.`);
+        continue;
+      }
       if (portrait.portrait) lines.push(portrait.portrait);
       if (portrait.eraIntersection) lines.push(`Era intersection: ${portrait.eraIntersection}`);
     }
@@ -2487,6 +2504,7 @@ ${body}`;
     inputs.narrativeState?.characterPronouns,
     activeCharacterNames.size > 0 ? activeCharacterNames : undefined,
     inputs.narrativeState,
+    namesAlreadyOnThePage(priorChapters, cast.map((c: any) => String(c?.name ?? ""))), // A_96 F8
   ); // [PHASE 1]
 
   const provisionalScoringFeedbackBlock = formatProvisionalScoringFeedbackBlock(
@@ -2802,7 +2820,7 @@ ${body}`;
     physicalPlausibilityRules,
     eraAuthenticityRules,
     locationProfilesContext,
-    repeatBanBlock: isRepeatBanEnabled() ? buildRepeatBanBlock(priorChapters, inputs.lockedFacts) : '', // A_94
+    repeatBanBlock: isRepeatBanEnabled() ? buildRepeatBanBlock(priorChapters, inputs.lockedFacts, isRepeatBanAlibiExemptEnabled() ? mandatedValuesOf(cmlCase) : []) : '', // A_94 + A_96 F5
     temporalContextBlock,
     lockedFactsBlock,
     clueDescriptionBlock,
