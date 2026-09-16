@@ -7,7 +7,7 @@ comparisons.
 
 **The run that produced this book passed its release gate and met the two predictions that mattered
 most** (A_95 §8). Reading it took twenty minutes and found nine defects, four of which no instrument
-we own can see. This document is the deep dive: every bug, its owner, the cross-agent cause where
+we own can see; a second pass with the prompt log open found four more and corrected one of the nine. This document is the deep dive: every bug, its owner, the cross-agent cause where
 there is one, and what to do.
 
 ---
@@ -28,7 +28,7 @@ The one instrument that got it right is the one we already had. The three new on
 
 ---
 
-## §1 THE NINE DEFECTS
+## §1 THE DEFECTS — nine on the first pass, thirteen on the second
 
 Numbered for reference. **Owner** is the agent or pass that produced the defect, not the one where it
 became visible.
