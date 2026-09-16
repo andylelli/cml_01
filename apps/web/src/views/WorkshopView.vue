@@ -49,6 +49,7 @@ import {
   type Project,
 } from "../services/api";
 import { subscribeToRunEvents } from "../services/sse";
+import { coerceSpec, defaultSpec, type MysterySpec } from "../spec/vocabulary";
 
 type Mode = "user" | "advanced" | "expert";
 type View =
@@ -297,18 +298,12 @@ const projectName = ref("Golden Age Prototype");
 const projectId = ref<string | null>(null);
 const projectIdInput = ref("");
 const latestSpecId = ref<string | null>(null);
-const spec = ref({
-  decade: "1930s",
-  locationPreset: "CountryHouse",
-  tone: "Cozy",
-  theme: "",
-  castSize: 6,
-  castNames: [] as string[],
-  detectiveType: "police" as "police" | "private" | "amateur",
-  primaryAxis: "temporal",
-  targetLength: "medium" as "short" | "medium" | "long",
-  proseBatchSize: 1,
-});
+/**
+ * One source for the spec shape and its defaults (spec/vocabulary.ts), rather than a second literal
+ * here that drifts from it. This console's copy had no `humourLevel` field at all, so the control
+ * for it could not have been added without this.
+ */
+const spec = ref<MysterySpec>(defaultSpec());
 
 // Artifact + validation state lives in Pinia store
 
@@ -372,7 +367,9 @@ const hydrateState = () => {
     if (saved.projectName) projectName.value = saved.projectName;
     if (typeof saved.projectId !== "undefined") projectId.value = saved.projectId;
     if (typeof saved.latestSpecId !== "undefined") latestSpecId.value = saved.latestSpecId;
-    if (saved.spec) spec.value = saved.spec;
+    // B8, in this file too: a stored spec went straight to the API. `primaryAxis` is the one field
+    // whose bad value throws at pipeline INIT, so a stale localStorage entry could abort a paid run.
+    if (saved.spec) spec.value = coerceSpec(saved.spec);
     if (saved.currentView) currentView.value = saved.currentView;
     if (saved.mode) mode.value = saved.mode;
   } catch {
@@ -519,7 +516,8 @@ const reviewTabStatuses = computed<Record<string, TabStatus>>(() => {
     prose: statusFor(!!proseData.value),
   };
 });
-const skipNextProjectArtifactLoad = ref(false);
+/** The project id whose artifacts a caller has already taken responsibility for loading. */
+const artifactLoadHandledFor = ref<string | null>(null);
 const isDownloadingStoryPdf = ref(false);
 const isDownloadingGamePackPdf = ref(false);
 const isDownloadingAllVersions = ref(false);
@@ -774,12 +772,23 @@ watch([projectName, projectId, latestSpecId, currentView, mode], () => {
   persistState();
 });
 
+/**
+ * B2 — the skip is now recorded AGAINST AN ID, not as a bare one-shot boolean.
+ *
+ * The old flag was set to true by two callers just before they assigned `projectId`, so the watcher
+ * would not double-load artifacts they were already loading. But a Vue watcher does not fire when
+ * the value is assigned the SAME id it already holds — and "load the project I already have open"
+ * is an ordinary thing to do from the project dropdown. The flag then stayed true and silently ate
+ * the NEXT genuine project change, so switching projects showed the previous project's artifacts.
+ *
+ * Keying the skip to the id it was recorded for makes that unrepresentable: it can only suppress
+ * the load it was meant for, and any transition clears it.
+ */
 watch(projectId, (nextId) => {
   if (nextId) {
-    if (skipNextProjectArtifactLoad.value) {
-      skipNextProjectArtifactLoad.value = false;
-      return;
-    }
+    const handled = artifactLoadHandledFor.value === nextId;
+    artifactLoadHandledFor.value = null;
+    if (handled) return;
     loadArtifacts();
     return;
   }
@@ -1074,8 +1083,9 @@ const handleCreateProject = async () => {
   clearErrors("project");
   try {
     isCreatingProject.value = true;
-    skipNextProjectArtifactLoad.value = true;
     const project = await createProject(projectName.value.trim() || "Untitled project");
+    // Recorded AFTER the id is known, and against that id — see the watcher's note on B2.
+    artifactLoadHandledFor.value = project.id;
     projectId.value = project.id;
     projectIdInput.value = project.id;
     selectedProjectId.value = project.id;
@@ -1134,8 +1144,10 @@ const handleLoadProject = async () => {
   }
   clearErrors("project");
   try {
-    skipNextProjectArtifactLoad.value = true;
     const project = await fetchProject(nextId);
+    // Against the id actually fetched, not the one requested — they can differ if the API
+    // canonicalises, and a skip recorded for the wrong id would suppress the wrong load.
+    artifactLoadHandledFor.value = project.id;
     projectId.value = project.id;
     projectName.value = project.name;
     // Restore the spec settings (decade, tone, etc.) from the last saved spec
@@ -2090,6 +2102,26 @@ onBeforeUnmount(() => {
                       <option>Classic</option>
                       <option>Dark</option>
                     </select>
+                    <!-- B4: server.ts:675 also flips narrativeStyle to "atmospheric" when tone is
+                         Dark. Surfacing the coupling, not changing it — that is a pipeline call. -->
+                    <div class="mt-1 text-[11px] text-ink-faint">
+                      <strong>Dark</strong> also sets the narrator to <em>atmospheric</em>.
+                    </div>
+                  </div>
+                  <div id="field-humourLevel">
+                    <label class="text-xs font-semibold text-ink-soft">Humour band</label>
+                    <select v-model="spec.humourLevel" class="mt-2 w-full rounded-md border border-line px-3 py-2 text-sm">
+                      <option value="none">None — no character is funny</option>
+                      <option value="dry">Dry — at most two, understated</option>
+                      <option value="classic">Classic — a beat each chapter (default)</option>
+                      <option value="sharp">Sharp — three wits, one unkind</option>
+                    </select>
+                    <!-- B5: wired through Agent 2b and Agent 9 since A_92 and never sent by any UI.
+                         Absent resolves to "classic" silently (humour-level.ts:87), so every run
+                         started from this app has used that band whether or not it was wanted. -->
+                    <div class="mt-1 text-[11px] text-ink-faint">
+                      Sets which humour styles the cast may take and how often a wit beat is asked for.
+                    </div>
                   </div>
                   <div class="md:col-span-2">
                     <label class="text-xs font-semibold text-ink-soft">Theme (optional)</label>

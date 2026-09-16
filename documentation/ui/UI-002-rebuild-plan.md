@@ -124,7 +124,7 @@ so they are not "fixed" again.
 |---|---|---|
 | B1 | Two polling intervals and the SSE subscription leaked on unmount | **note** — already fixed and commented at `App.vue:1726–1743` (A_73). Preserve this behaviour through the refactor; it is exactly what a split into composables can silently undo |
 | B2 | `skipNextProjectArtifactLoad` is a boolean guarding a race between project creation and the artifact watcher (`App.vue:509, 766, 1064, 1124`) | **fix** — a one-shot flag mutated from three places is a race workaround, not a fix. Ownership moves into `useArtifacts` with an explicit request token |
-| B3 | Spec defaults `primaryAxis: "temporal"` and the UI has no control for it, yet an unrecognised value **throws at pipeline init** | **fix** — expose it in Workshop with the five real axes; never let a free-text value reach it |
+| B3 | ~~Spec defaults `primaryAxis: "temporal"` and the UI has no control for it~~ | **PREMISE PARTLY FALSE.** The console has had an axis control with all five correct values since before this work (`WorkshopView.vue:2151`). What was true is narrower: no *consumer* path exposes it (correct — it is a craft decision), and nothing validated a value arriving from **storage**. That is the reachable risk and it is fixed by B8's `coerceSpec` plus the pre-flight in `useCreateFlow`, which rejects a bad axis **before the first network call** rather than letting the pipeline throw at init with a project created and a run paid for (X60: fail at the cheap end) |
 | B4 | `tone: "Dark"` silently changes `narrativeStyle` as a side effect | **fix (surface, not change)** — the control says so. Changing the coupling is a pipeline decision, not a UI one |
 | B5 | `humourLevel` accepted by the API, never sent by the UI | **fix** — item 14 |
 | B6 | Mojibake in `App.vue` | **withdrawn — the premise was false.** Read via bare `Get-Content` under PS 5.1 (ANSI); the file is clean UTF-8 with 7 en-dashes and 19 em-dashes intact. "Fixing" it would have corrupted 26 characters. **Always read source with the Read tool or an explicit UTF-8 decode** |
@@ -133,6 +133,10 @@ so they are not "fixed" again.
 | B9 | `addError` auto-dismissed info items with an untracked `setTimeout` (`App.vue:189`) | **FIXED** in `useErrorLog` (item 17). Same shape as the two polling intervals A_73 already had to fix here, and as the A_30 defect where a timer outlived its owner and overwrote freshly-loaded state |
 | B10 | The persisted payload carried **no schema version** | **FIXED** in `useUiState` (item 18). Any future change to the stored shape would have been read as valid and half-applied. A version discards an unreadable payload deliberately instead |
 | B11 | `onScopeDispose` registers nothing when called outside an effect scope, and a Vue warning is the only sign | **FIXED** while writing `useErrorLog` — `failSilently` plus an explicit, idempotent `dispose()`. Found by reading test output rather than by reading code |
+
+| B12 | **Two owners of one localStorage key.** `WorkshopView` still wrote `persistState()` to `cml_ui_state` after the shell took that key with a versioned schema | **FIXED** (item 27 commit). The console's unversioned payload overwrote the shell's on every interaction; the shell's `hydrate()` then correctly rejected it for having no version; the visible effect was advanced mode silently reverting to user on every reload. **Found by running the app, not by reading it** — two owners of one key type-check perfectly and pass every test. The console now owns `cml_workshop_state`, which is right on the merits: the two persist different things |
+| B13 | `WorkshopView` holds its own `mode` and `spec` refs, independent of the shell's | **RECORDED, NOT FIXED.** No data is lost, but a spec configured in Create is not the spec the console shows, and advanced mode must be toggled again inside. The fix is to hoist both into shared state, which is **item 25** — and doing it here would mean changing the toggles the console's four existing tests drive. Partly reduced: both now use `defaultSpec()` and `coerceSpec()` from one vocabulary |
+| B14 | **`npm run build` does not type-check.** The script is `vite build`, and `@vitejs/plugin-vue` transpiles without checking | **RECORDED, NOT FIXED — needs a dependency decision.** TypeScript errors ship silently; only `vitest` catches anything, and only where a test exercises the path. The fix is a `vue-tsc --noEmit` step, which means adding a devDependency (`npx vue-tsc` fails here: it resolves a TypeScript whose `exports` map has no `./lib/tsc`). Recommended, but an install is the user's call |
 
 Further bugs found during the rebuild are appended here with their item number.
 
@@ -179,17 +183,67 @@ keeps dense tables, its three tab groups and every panel. Two rules:
 | 16 | `CreateView` — steps 4–6 + submit wiring | **DONE — emits spec; network wiring at item 22** | `PENDING` |
 | 17 | `composables/useErrorLog` | **DONE** | `PENDING` |
 | 18 | `composables/useUiState` (versioned schema) | **DONE** | `PENDING` |
-| 19 | `composables/useRunProgress` (SSE + polls, **preserve B1**) | not started | — |
-| 20 | `composables/useArtifacts` (**fixes B2**) | not started | — |
-| 21 | `composables/useShortcuts` | not started | — |
-| 22 | `App.vue` reduced to shell + view switch | not started | — |
-| 23 | `InspirationView` | not started | — |
-| 24 | `CasesView` + `ReadView` | not started | — |
-| 25 | `WorkshopView` — console moved, tab groups preserved | not started | — |
-| 26 | Workshop: axis control (**fixes B3**) + tone/style coupling note (**B4**) | not started | — |
-| 27 | Restyle existing feature components to tokens | not started | — |
-| 28 | Responsive pass — three widths, no horizontal scroll | not started | — |
-| 29 | A11y pass — labels, `aria-current`, contrast, reduced motion | not started | — |
-| 30 | Remove dead code and old Tailwind palette classes | not started | — |
+| 19 | `composables/useRunProgress` (SSE + polls, **preserve B1**) | **DEFERRED — see §9** | `76532cde` |
+| 20 | `composables/useArtifacts` (**fixes B2**) | **DONE — B2 keyed to an id** | `76532cde` |
+| 21 | `composables/useShortcuts` | **DEFERRED — see §9** | `76532cde` |
+| 22 | `App.vue` reduced to shell + view switch | **DONE — 3,391 to 125 lines** | `76532cde` |
+| 23 | `InspirationView` | **DONE** | `76532cde` |
+| 24 | `CasesView` + `ReadView` | **DONE — CasesView; ReadView folded into Inspiration + PDF download** | `76532cde` |
+| 25 | `WorkshopView` — console moved, tab groups preserved | **DEFERRED — see §9** | `76532cde` |
+| 26 | Workshop: axis control (**fixes B3**) + tone/style coupling note (**B4**) | **DONE — B3 corrected, B4 + B5 surfaced** | `76532cde` |
+| 27 | Restyle existing feature components to tokens | **DONE — 1,088 uses, 0 remaining** | `76532cde` |
+| 28 | Responsive pass — three widths, no horizontal scroll | **DONE — verified 1400/800/375, no page-level x-scroll** | `76532cde` |
+| 29 | A11y pass — labels, `aria-current`, contrast, reduced motion | **partial — new components done, ContentSkeleton fixed; full sweep pending** | `76532cde` |
+| 30 | Remove dead code and old Tailwind palette classes | **DONE — old palette at zero** | `76532cde` |
 
-**Next item: 3.**
+**Next item: 19** (see §9 first).
+
+---
+
+## 9. WHAT IS DEFERRED, AND WHY
+
+Three items are **deliberately not built**. Each could have been written and would have compiled and
+passed the suite; none could have been *verified*, and this repo has a recorded history of exactly
+that failure mode — six defects in seven fixes, four of them regressions, **every one caught by
+running the code and none by reading it**.
+
+### 19 · `useRunProgress` — SSE and the two polling loops
+
+~300 lines of interconnected state: an SSE subscription with reconnect handling, a 3s run-event poll,
+an 8s quality poll, run-completion and run-failure detection, and cross-refreshes of artifacts,
+scoring and LLM logs on the same cycles.
+
+**Why not now:** none of it can be exercised without a running API *and* Azure credentials — the
+paths that matter are "a run completed", "a run failed", "the stream dropped and came back". A
+refactor whose correct behaviour is unobservable is a refactor that ships its regressions. It also
+holds **B1**, a leak A_73 already had to retrofit here, and a split is precisely what re-introduces
+that class.
+
+**When to do it:** with the API up and a run in flight, so each branch can be seen firing.
+
+### 21 · `useShortcuts`
+
+Small and self-contained, but its handler closes over the console's three tab groups, so extracting
+it means passing five refs back in — and it currently mutates `activeMainTab` directly from a
+hard-coded id list that duplicates the tab definitions. Worth doing **as part of item 25**, not
+before it, or the composable just inherits the duplication.
+
+### 25 · Splitting `WorkshopView`'s internals
+
+The console moved intact (3,391 lines) and was restyled, but it is still one component. Moving it and
+rewriting it in the same change would make any regression impossible to attribute — the move is
+verifiable by `git mv` plus a green suite; a rewrite is not.
+
+**This is where B13 gets fixed**: the console's own `mode` and `spec` refs are what a split would
+hoist into shared state.
+
+---
+
+## 10. RECOMMENDED NEXT, IN ORDER
+
+1. **B14 — add a type-check step.** `npm run build` is `vite build`; nothing type-checks this app, so
+   TS errors ship silently. Needs a `vue-tsc` devDependency, hence a decision rather than a commit.
+2. **Item 19**, with the API running.
+3. **Item 25**, which unblocks 21 and B13.
+4. **Item 29's remaining sweep** — the new components and `ContentSkeleton` are done; the console's
+   own dense tables have not been audited for labels and focus order.
