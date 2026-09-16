@@ -13,7 +13,7 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { deriveStoryTitle } from "@cml/prompts-llm";
+import { isStripBeatTitlesEnabled, stripBeatPrefixFromTitle, deriveStoryTitle } from "@cml/prompts-llm";
 
 /** Fold smart punctuation to ASCII — the corpus is compared as text, and quote style is noise. */
 export const normalizeStoryText = (s: unknown): string =>
@@ -63,7 +63,12 @@ export function saveReadableStory(
   const now = new Date();
   const lines: string[] = [`# ${storyTitle}`, ``, `*Run ID: ${runId} — Generated ${now.toDateString()}*`, ``, `---`];
   chapters.forEach((ch, i) => {
-    const chTitle = normalizeStoryText(ch?.title || `Chapter ${i + 1}`);
+    // A_96 F1 — the LAST surface before the reader. The Agent 9 sanitiser strips this too, but some
+    // internal path preserved the unstripped title on the 50862 pair (measured), and this is the
+    // boundary A_96 B5 actually named: Agent 7 titles for its own bookkeeping, and THIS prints it.
+    const chTitle = normalizeStoryText(
+      isStripBeatTitlesEnabled() ? stripBeatPrefixFromTitle(ch?.title || `Chapter ${i + 1}`) : (ch?.title || `Chapter ${i + 1}`),
+    );
     lines.push(``, `## Chapter ${i + 1}: ${chTitle}`, ``);
     const paragraphs = Array.isArray(ch?.paragraphs) ? ch.paragraphs : ch?.text ? [ch.text] : [];
     for (const p of paragraphs) {

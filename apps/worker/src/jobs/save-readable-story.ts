@@ -15,7 +15,7 @@
 import path from "path";
 import { mkdir, writeFile } from "fs/promises";
 import { repairMojibake } from "@cml/cml";
-import { deriveStoryTitle } from "@cml/prompts-llm";
+import { isStripBeatTitlesEnabled, stripBeatPrefixFromTitle, deriveStoryTitle } from "@cml/prompts-llm";
 
 // Mojibake (double-encoded UTF-8) + smart-punctuation → ASCII, matching the API's sanitizeProsePayload +
 // the previous inline story normalisation. Idempotent, so pre-sanitised prose is unaffected.
@@ -75,7 +75,10 @@ export async function saveReadableStory(args: SaveReadableStoryArgs): Promise<Sa
   const lines: string[] = [`# ${storyTitle}`, ``, `*Run ID: ${args.runId} — Generated ${now.toDateString()}*`, ``, `---`];
   for (let i = 0; i < chapters.length; i++) {
     const ch = chapters[i];
-    const chTitle = normText(ch.title || `Chapter ${i + 1}`);
+    // A_96 F1 — the other render path to the reader.
+    const chTitle = normText(
+      isStripBeatTitlesEnabled() ? stripBeatPrefixFromTitle(ch.title || `Chapter ${i + 1}`) : (ch.title || `Chapter ${i + 1}`),
+    );
     lines.push(``, `## Chapter ${i + 1}: ${chTitle}`, ``);
     const paragraphs = Array.isArray(ch.paragraphs) ? (ch.paragraphs as unknown[]) : (ch.text ? [ch.text] : []);
     for (const p of paragraphs) {

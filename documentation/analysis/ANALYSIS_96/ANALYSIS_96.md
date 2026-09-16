@@ -527,6 +527,56 @@ do NOT restate clothing…"*. Pinned by a regression test naming this run.
 portrait block was *described* as appearance and *did* two jobs — appearance and gender reinforcement
 — and nothing said so. Before suppressing a block, measure what else it carries.
 
+### §5.4 THE MATCHED PAIR — seed 50862, arm B `resume-1789585724953` · 2026-09-16 · £0.45
+
+`RESUME_REDO=prose` against byte-identical upstream. Arm A is the shipped 50862 book; arm B is the
+same thirteen artifacts with only the prose stage re-run, carrying the A_96 prose-side fixes. M1, M3a,
+M4, M5 and M6 were on for BOTH arms, so this isolates A_96. No fallback chapter.
+
+| | arm A | arm B | verdict |
+|---|---|---|---|
+| *"as brief as"* | 7 | **0** | **MET** |
+| stated word counts | 5 | **0** | **MET** |
+| narrated backstory labels (B11) | 11 | **0** | **MET** — F9 |
+| corrupt splices (B3) | 1 | **0** | **MET** — F4 |
+| pronoun failures | 0 / 1 | **0 / 0** | **MET** — the F8 regression did not recur |
+| machine register | 0.071 | **0.055** | **MET**, and the best measured on any book |
+| turn density (strict) | 3/6 | **4/6** | **MET** |
+| repetition per 10k | 159.6 | **91.2** | improved 43%, still far above 50 |
+| wit per 10k | 9.7 | **15.5** (retorts 3→9) | short of 20.6 |
+| *"She did not elaborate"* | 10 | **5** | **halved, not eliminated** |
+| speeches ≥ 15 words | 17/132 | **26/146** | short of 40 |
+| worst costume phrase | 8× *"pastel tea dress"* | **7× *"her cloche hat"*** | **F8 FAILED** |
+| chapter titles with a beat name | 3 | **3** | **F1 FAILED** |
+
+**Every fix reached every chapter** — verified by label in the prompt log: *"A name suffices"* ch2–10,
+*"OFF-STAGE ACTOR"* ch1–10, *"withheld from you on purpose"* ch1–10, *"TWENTY-FIVE WORDS OR MORE"*
+ch1–10, *"NEVER STATE A WORD COUNT"* ch1–10. So the four misses are compliance or wiring, not reach.
+
+**What this settles.** F9 and F4 work outright: the narrated-backstory label went 11 → 0 by withholding
+the cause from the prompt, and the corruption stopped when the pass was kept out of dialogue. Register
+at **0.055** is the lowest this project has measured and it moved on a prose-side change alone. And the
+F8 pronoun regression did not recur, so that fix holds.
+
+**F1 FAILED for a reason worth recording.** The strip is correct — `stripBeatPrefixFromTitle` turns
+*"False Solution: The Judge's Compass"* into *"The Judge's Compass"*, the dist carried it, and the
+flag read true. But the stored chapter kept the prefix, so some Agent 9 path preserves the title past
+`sanitizeGeneratedChapter`. **I could not determine which**, and chasing it further was poor value, so
+the fix moved to the boundary A_96 B5 actually named: the *print*. `story-output.ts` and
+`save-readable-story.ts` now strip at render, where no internal path can bypass it. Verified against
+arm B's own stored titles: both leaking chapters render clean, 0 of 10 leak.
+
+**F8 FAILED outright, and differently than expected.** Suppressing the portrait did not stop the
+costume roll-call — it changed which garment repeats (*"pastel tea dress"* ×8 → *"her cloche hat"* ×7).
+The model is not copying the portrait block; it is re-describing a character at every entrance because
+that is what it thinks prose does. **INFERRED:** an instruction not to restate cannot beat a habit;
+what might is the positive form — name the character and give the sentence a different job. Not built;
+F8 stands as a measured non-fix.
+
+**B1 is half-fixed.** *"as brief as"* and the word counts went to zero — the two things R4d names
+positively. *"She did not elaborate"*, the phrase banned BY NAME, only halved. That is C1 once more:
+the positively-stated rules landed and the prohibition did not.
+
 **What none of it has yet is a run that finished.** Eleven levers went in on one book's evidence. The next fresh
 run carries all of them and settles, before a reader: chapter titles free of beat names; one
 `final_trap`; the reveal contract on the confession chapter; costume phrases ≤ 2 per book; no
