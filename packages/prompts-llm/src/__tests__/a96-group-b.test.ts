@@ -140,6 +140,18 @@ describe("F8 — describe a character once", () => {
     expect(block).toContain("pastel tea dress");
   });
 
+  /**
+   * REGRESSION, MEASURED on run 95041 — which ABORTED because of it. The portraits carry the only
+   * prose-level gender signal ("she", "Her", "his"); suppressing five a chapter took pronoun failures
+   * from 1 to 10 (two gender mismatches, seven drifts) and story validation refused the book.
+   */
+  it("REGRESSION: the pronoun survives the suppression — it is the costume that repeats, not the gender", () => {
+    process.env.AGENT9_DESCRIBE_ONCE = "true";
+    const block = buildWorldBriefBlock(worldDoc, 3, 10, { "Gwendolyn Vance": "she/her" }, active, undefined, new Set(["Gwendolyn Vance"]));
+    expect(block).toContain("Gwendolyn Vance is she/her");
+    expect(block).not.toContain("pastel tea dress");
+  });
+
   it("ON: an introduced character gets a name and an instruction not to restate; a new one gets the portrait", () => {
     process.env.AGENT9_DESCRIBE_ONCE = "true";
     const block = buildWorldBriefBlock(worldDoc, 3, 10, undefined, active, undefined, new Set(["Gwendolyn Vance"]));

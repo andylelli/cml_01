@@ -296,7 +296,18 @@ export const buildWorldBriefBlock = (
       // "pastel tea dress" ×2 in the chapter-1 prompt, ×8 in the book. After the chapter that
       // introduces a character, a name suffices.
       if (isDescribeOnceEnabled() && alreadyDescribed?.has(portrait.name)) {
-        lines.push(`Already introduced in an earlier chapter. A name suffices: do NOT restate clothing, features, accessories or era detail. Describe only what has CHANGED since, if anything has.`);
+        /**
+         * MEASURED on run 95041, and it is why that run aborted: suppressing the portrait removed the
+         * only PROSE-level gender signal for five characters a chapter — the portraits carry "she",
+         * "Her", "his" — and pronoun failures went 1 -> 10 (two gender mismatches, seven drifts).
+         * The costume is what repeats; the pronoun is what the chapter needs. Keep the pronoun.
+         */
+        const pronouns = characterPronouns?.[portrait.name];
+        lines.push(
+          `Already introduced in an earlier chapter${pronouns ? ` — ${portrait.name} is ${pronouns}` : ''}. ` +
+            `A name suffices: do NOT restate clothing, features, accessories or era detail. Describe only ` +
+            `what has CHANGED since, if anything has.`,
+        );
         continue;
       }
       if (portrait.portrait) lines.push(portrait.portrait);

@@ -482,7 +482,52 @@ pre-approved set — F4 here is the interim; B13, the release gate reporting PAS
 reader skipped by the content filter — its own item, because the fix is in how a skipped gate
 reports, not in prose.
 
-**What none of it has yet is a run.** Eleven levers went in on one book's evidence. The next fresh
+### §5.2 THE VERIFICATION RUN — seed 95041 · 2026-09-16 · ABORTED, and worth its cost
+
+authority · 1930s · Village · Dark · short · amateur · atmospheric · cast 7 · `--humour classic` ·
+angle *"an archaeological dig and what it turned up"*. Project `canary_1789583740167`. Prose
+completed — **10 chapters, 13,928 words** — and then **story validation refused the book**: 7 major
+issues, so nothing was saved to `stories/`.
+
+**The fixes worked, measured from the ship-check before the abort:**
+
+| | seed 50862 | seed 95041 | |
+|---|---|---|---|
+| repetition per 10k | 159.6 | **20.8** (corpus median 17.3, "Normal") | **MET** (< 50) |
+| turn density, STRICT rule | — (4/6 on the weak rule) | **4 of 6** — 2 end with a non-culprit in frame, 3 overturn a belief | **MET** (≥ 2) |
+| wit per 10k | 9.7 | **29.6** — 3× | short of 41.4, but the band was `classic` not `sharp` |
+| machine register | 0.071 | **0.065** | **MET** (< 0.070) |
+| duplicated beats | `final_trap` ×2 | **none** | **MET** |
+| `[A_96 F2]` | — | *"relabelled s9 false_solution→pattern; clearances stripped after the reveal in s9; beat-name prefixes removed from 2 titles"* | **the repair fired, on its own** |
+
+Repetition fell by a factor of eight and the middle of the book turned four times under the *stricter*
+rule. Those are the two largest moves this project has measured from a prompt-side change.
+
+### §5.3 AND I CAUSED THE ABORT — F8, MEASURED
+
+| | 1358 | 50862 | **95041** |
+|---|---|---|---|
+| `pronoun_gender_mismatch` | 0 | 0 | **2** |
+| `pronoun_drift` | 1 | 1 | **7** |
+| `cleared_culprit_conflict` | 0 | 0 | **1** |
+
+*"Ambrose Rutherford has incorrect pronouns. Should use he/him/his but found: she"*; Frances Orme
+drifted in seven chapters.
+
+**The cause: `AGENT9_DESCRIBE_ONCE` (F8).** The world document's portraits carry the only PROSE-level
+gender signal — *"Frances Orme… **Her**… **she**"* — and suppressing them removed five gendered
+paragraphs per chapter. The `(she/her)` labels in the Voices block survived (7 of them in the
+chapter-5 prompt) and were not enough on their own.
+
+**I traded a costume roll-call for pronoun drift, and the trade cost a run.** The fix keeps the
+pronoun and drops only the costume: *"Already introduced — Frances Orme is she/her. A name suffices:
+do NOT restate clothing…"*. Pinned by a regression test naming this run.
+
+**The lesson, which is C2 again from the inside:** a block removed is not only its stated content. The
+portrait block was *described* as appearance and *did* two jobs — appearance and gender reinforcement
+— and nothing said so. Before suppressing a block, measure what else it carries.
+
+**What none of it has yet is a run that finished.** Eleven levers went in on one book's evidence. The next fresh
 run carries all of them and settles, before a reader: chapter titles free of beat names; one
 `final_trap`; the reveal contract on the confession chapter; costume phrases ≤ 2 per book; no
 narrated backstory label; turn density ≥ 2 of 6 under the stricter rule; and — the two unmeasured
