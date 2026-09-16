@@ -139,4 +139,7 @@ export {
   WIT_MIN_WORDS,
 } from "./wit-density.js";
 export type { WitDensity, WitShapeCounts, WitTarget } from "./wit-density.js";
+// A_95 M6 — does the middle of the book ever point somewhere else? Telemetry (B1).
+export { turnDensity, summariseTurnDensity } from "./turn-density.js";
+export type { TurnDensity } from "./turn-density.js";
 export type { RepetitionDensity } from "./repetition-density.js";

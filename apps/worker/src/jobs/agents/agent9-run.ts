@@ -114,7 +114,7 @@ import { validateArtifact, validateCml, isVictimArchetype, isDetectiveArchetype,
 // Agent 9 redesign Phase A (§4.2 / §9.7): the validation-gated-mutation law — a deterministic prose
 // pass may not ship a mutation it didn't re-validate. Default-off flag; legacy path byte-identical.
 import { mutateThenValidate, noMetadataDumpValidator } from "@cml/prose-guard";
-import { witDensity, summariseWitDensity } from "@cml/prose-guard";
+import { witDensity, summariseWitDensity, turnDensity, summariseTurnDensity } from "@cml/prose-guard";
 import { ProseScorer, StoryValidationPipeline, CharacterConsistencyValidator, repairChapterPronouns, repairPronouns, normalizeTitles, buildLocationRegistry, normalizeLocationNames, getGenerationParams, getPronounPolicySettings, validateCharacterLifecycle, hasActiveUse as lifecycleHasActiveUse, DEATH_RE as LIFECYCLE_DEATH_RE, CONFESSION_RE as LIFECYCLE_CONFESSION_RE, RECOLLECTION_FRAME_RE as LIFECYCLE_RECOLLECTION_RE, detectMissingCaseTransitionBridge, BRIDGE_TERMS, validateDialogueIdiolect, anonymiseNamedWalkOns, buildAllowedNameParts, computeArrestPivotIndex, ROLE_ALIAS_TERMS, detectAttributionFlips, detectImpossibleSelfReferences, detectVictimBodyPronounMismatch } from "@cml/story-validation";
 import type { PhaseScore, CastEntry } from "@cml/story-validation";
 import {
@@ -6934,6 +6934,27 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
            * books below the LOWEST-scoring real novel. Telemetry only — it would fire on 18 of 20,
            * which is B1 territory — but it is the first number a lever aimed at wit can move.
            */
+          /**
+           * A_95 M6 — TURN DENSITY. Does the middle of the book ever point somewhere else? The
+           * bookshop book measured 0 chapters suspecting a non-culprit and 0 overturning a belief,
+           * across ten chapters. Telemetry: it would fire on most books we have (B1).
+           */
+          try {
+            const caseForTurns: any = (ctx as any).cmlCase ?? (ctx as any).cml?.CASE ?? (ctx as any).cml ?? {};
+            const culpritNames: string[] = (caseForTurns?.culpability?.culprits ?? []).filter(
+              (n: any) => typeof n === "string" && n.trim(),
+            );
+            const otherSuspects: string[] = (caseForTurns?.cast ?? [])
+              .map((c: any) => String(c?.name ?? "").trim())
+              .filter((n: string) => n && !culpritNames.includes(n));
+            if (culpritNames.length > 0 && otherSuspects.length > 0) {
+              const turns = turnDensity(chapterTextsA65, culpritNames, otherSuspects);
+              ctx.warnings.push(`[Agent 9] SHIP-CHECK: turns — ${summariseTurnDensity(turns)}`);
+            }
+          } catch {
+            // Telemetry must never break a run.
+          }
+
           const wit = witDensity(chapterTextsA65.join(" "));
           // A_92 — read the measurement against the band the run asked for, not against the canon alone.
           const witBand = humourBand(inputs.humourLevel);

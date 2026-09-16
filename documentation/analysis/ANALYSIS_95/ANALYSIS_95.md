@@ -307,11 +307,50 @@ the reader means injectors, and A_84's audit reopens); a book at canon-median wi
 | # | item | state | commit |
 |---|---|---|---|
 | — | the arithmetic, the complaint counts, the correlations | **MEASURED** | this doc |
-| M1 | register ban list into the polish pass | **NOT BUILT** | — |
-| M2 | Agent 7 plans an aftermath scene; clearances before the test | **NOT BUILT** | — |
-| M3 | reveal arithmetic for spatial/behavioural; R3 ordering post-check | **NOT BUILT** | — |
-| M4 | R7 shape by register; band by axis; the unintentional line | **NOT BUILT** | — |
-| M5 | dated motive at Agent 3; plant the act, not the category | **NOT BUILT** | — |
-| M6 | beat-job fields at Agent 7; archetype from beats; turn density | **NOT BUILT** — designed 2026-09-16 | — |
+| **M3a** | **the reveal contract reached NO chapter** — `AGENT9_REVEAL_ON_DT_CHAPTER` | **BUILT, ON** | `7eac5c71` |
+| M1 | register ban list into the polish pass — `AGENT9_REGISTER_BAN` | **BUILT, ON** | `64e821c3` |
+| M6 | beat-job fields (`AGENT7_BEAT_JOB_FIELDS`); archetype from beats (`AGENT9_ARC_FROM_BEATS`) | **BUILT, ON** | `c78a473c` |
+| M4 | shape by register (`AGENT9_SHAPE_BY_REGISTER`); band by axis (`AGENT2B_BAND_BY_AXIS`) | **BUILT, ON** | `d0a42ae3` |
+| M5 | dated motive at Agent 3 — `AGENT3_DATED_MOTIVE` | **BUILT, ON** | `d0a42ae3` |
+| M6b | turn density in the SHIP-CHECK | **BUILT** | this commit |
+| M2 | Agent 7 plans an aftermath; clearances before the test | **SUBSTANTIALLY ALREADY BUILT** — see §7.1 | A_94 `R1`/`R2` + M6 |
+| M3b | R3 ordering post-check on the DT chapter | **NOT BUILT** — one observation only (A_94 §6.1) | — |
+| P1 | one run carrying all of it | **NOT RUN** | — |
 
-**NEXT ITEM: M1**, because it is the only move with a −0.6 behind it and a £0.45 test.
+### §7.1 Two premises that turned out false, and what changed because of them
+
+**M2's premise was wrong, and the measurement says so.** M2 was written as "clearances before the
+test". They already are: **48 of 51 stored outlines place a clearance scene before the discriminating
+test.** The defect was never the placement — it was the DUPLICATE clearance in the final scene, which
+A_94's R1 strips and R2 replaces. The remaining half, "Agent 7 plans the aftermath rather than Agent 9
+rescuing it", is what M6's `revelation` beat job now requires (`consequenceFor`). No separate
+machinery was built, because it would have been redundant.
+
+**M3's premise was wrong in a way that mattered far more.** M3 was written as "extend the reveal
+arithmetic to the spatial and behavioural axes", on the assumption the arithmetic was temporal-only.
+It is not: every stored case carries `actual_time_of_death` and `apparent_time_of_death` whatever its
+axis (A_83's finding). The real defect, found while checking that assumption:
+
+> **The reveal contract reached NO chapter in the last six runs** — `CULPRIT REVELATION REQUIRED`
+> appears in 39 of 57 runs in the prompt log and in **none** of the last six, which include the
+> 87-class brewery book, the 80/100 theatre book, its matched pair and seed 1358. The evidence chain,
+> the kill statement, the pronoun resolution, the resolution event, close-in-scene,
+> `AGENT9_REVEAL_DECEPTION_PURPOSE` and `AGENT9_REVEAL_ARITHMETIC` went with it. **A_90 built that
+> arithmetic to answer the 87 read's FIRST complaint and it has never once reached a prompt.**
+
+`isRevealChapter` requires `!isDiscriminatingTestChapter`; the winner-selection excludes the aftermath
+scene and then excludes every remaining candidate as the DT claim, so the winner is **null** and there
+is no later chapter to catch the drop. The coordinate join cannot prevent it — **51 of 51 stored cases
+put the revelation at "act 3, scene 6" while act 3 holds 2–5 scenes**. That is M3a, and it is the most
+valuable thing this analysis found.
+
+**NEXT ITEM: P1** — one fresh run carrying all six. Checkable before a reader:
+
+| prediction | today | pass |
+|---|---|---|
+| reveal obligations reach a chapter | **0 of the last 6 runs** | the DT chapter carries them |
+| register rate | 0.079–0.134 | **< 0.07** book-wide |
+| `[A_95 M6]` beat jobs done | 45% / 4% baseline | **≥ 80%** of job scenes |
+| turn density, chapters 3–8 | **0 of 6** | **≥ 2 of 6** |
+| wit per 10k | 20.5 | ≥ 41.4, with named owners per shape |
+| the culprit's motive | no date in ~4,700 field values | names an act, a date and a consequence |
