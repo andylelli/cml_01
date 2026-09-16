@@ -128,6 +128,11 @@ so they are not "fixed" again.
 | B4 | `tone: "Dark"` silently changes `narrativeStyle` as a side effect | **fix (surface, not change)** — the control says so. Changing the coupling is a pipeline decision, not a UI one |
 | B5 | `humourLevel` accepted by the API, never sent by the UI | **fix** — item 14 |
 | B6 | Mojibake in `App.vue` | **withdrawn — the premise was false.** Read via bare `Get-Content` under PS 5.1 (ANSI); the file is clean UTF-8 with 7 en-dashes and 19 em-dashes intact. "Fixing" it would have corrupted 26 characters. **Always read source with the Read tool or an explicit UTF-8 decode** |
+| B7 | `persistState` called `localStorage.setItem` with **no try/catch**, while `hydrateState` had one (`App.vue:335`) | **FIXED** in `useUiState` (item 18). `setItem` throws on quota exhaustion and in Safari private browsing, and it ran inside a **deep watcher on the spec** — one throw took the watcher down and silently ended all persistence for the session |
+| B8 | `hydrateState` restored the spec verbatim: `if (saved.spec) spec.value = saved.spec` (`App.vue:362`) | **FIXED** in `useUiState` (item 18). A spec written by an older build went straight to the API. With B3 this is the severe one: a stale `primaryAxis` in localStorage **throws at pipeline init and aborts a paid run**. Everything read now goes through `coerceSpec` |
+| B9 | `addError` auto-dismissed info items with an untracked `setTimeout` (`App.vue:189`) | **FIXED** in `useErrorLog` (item 17). Same shape as the two polling intervals A_73 already had to fix here, and as the A_30 defect where a timer outlived its owner and overwrote freshly-loaded state |
+| B10 | The persisted payload carried **no schema version** | **FIXED** in `useUiState` (item 18). Any future change to the stored shape would have been read as valid and half-applied. A version discards an unreadable payload deliberately instead |
+| B11 | `onScopeDispose` registers nothing when called outside an effect scope, and a Vue warning is the only sign | **FIXED** while writing `useErrorLog` — `failSilently` plus an explicit, idempotent `dispose()`. Found by reading test output rather than by reading code |
 
 Further bugs found during the rebuild are appended here with their item number.
 
@@ -158,22 +163,22 @@ keeps dense tables, its three tab groups and every panel. Two rules:
 |---|---|---|---|
 | 1 | UI-001 design system documented | **DONE** | — |
 | 2 | UI-002 plan + spec vocabulary documented | **DONE** | — |
-| 3 | `design/tokens.css` + Tailwind theme extension | **DONE** | `PENDING` |
-| 4 | `design/brand.ts` | **DONE** | `PENDING` |
-| 5 | `spec/vocabulary.ts` + conformance test | **DONE** | `PENDING` |
-| 6 | `ui/AppShell` + `NavLink` + footer | **DONE** | `PENDING` |
-| 7 | `ui/HeroBanner` + typographic fallback state | **DONE** | `PENDING` |
-| 8 | `ui/StepCard` | **DONE** | `PENDING` |
-| 9 | `ui/OptionTile` + radio semantics + check glyph | **DONE** | `PENDING` |
-| 10 | `ui/FieldSelect`, `FieldNumber` | **DONE** | `PENDING` |
-| 11 | `ui/PrimaryButton`, `QuotePanel`, `FeatureRow`, `ScriptNote` | **partial — QuotePanel, ScriptNote, AppButton done; FeatureRow folded into QuotePanel** | `PENDING` |
-| 12 | `ui/icons/` glyph set | **DONE** | `PENDING` |
-| 13 | `CreateView` — steps 1–2 (era, setting, tone) | not started | — |
-| 14 | `CreateView` — step 3 humour band **(new parameter, B5)** | not started | — |
-| 15 | `spec/composeTheme.ts` + tests (board extras → theme) | **DONE** | `PENDING` |
-| 16 | `CreateView` — steps 4–6 + submit wiring | not started | — |
-| 17 | `composables/useErrorLog` | not started | — |
-| 18 | `composables/useUiState` (versioned schema) | not started | — |
+| 3 | `design/tokens.css` + Tailwind theme extension | **DONE** | `2ccf7d23` |
+| 4 | `design/brand.ts` | **DONE** | `2ccf7d23` |
+| 5 | `spec/vocabulary.ts` + conformance test | **DONE** | `2ccf7d23` |
+| 6 | `ui/AppShell` + `NavLink` + footer | **DONE** | `2ccf7d23` |
+| 7 | `ui/HeroBanner` + typographic fallback state | **DONE** | `2ccf7d23` |
+| 8 | `ui/StepCard` | **DONE** | `2ccf7d23` |
+| 9 | `ui/OptionTile` + radio semantics + check glyph | **DONE** | `2ccf7d23` |
+| 10 | `ui/FieldSelect`, `FieldNumber` | **DONE** | `2ccf7d23` |
+| 11 | `ui/PrimaryButton`, `QuotePanel`, `FeatureRow`, `ScriptNote` | **DONE — FeatureRow folded into QuotePanel** | `2ccf7d23` |
+| 12 | `ui/icons/` glyph set | **DONE** | `2ccf7d23` |
+| 13 | `CreateView` — steps 1–2 (era, setting, tone) | **DONE** | `PENDING` |
+| 14 | `CreateView` — step 3 humour band **(new parameter, B5)** | **DONE** | `PENDING` |
+| 15 | `spec/composeTheme.ts` + tests (board extras → theme) | **DONE** | `2ccf7d23` |
+| 16 | `CreateView` — steps 4–6 + submit wiring | **DONE — emits spec; network wiring at item 22** | `PENDING` |
+| 17 | `composables/useErrorLog` | **DONE** | `PENDING` |
+| 18 | `composables/useUiState` (versioned schema) | **DONE** | `PENDING` |
 | 19 | `composables/useRunProgress` (SSE + polls, **preserve B1**) | not started | — |
 | 20 | `composables/useArtifacts` (**fixes B2**) | not started | — |
 | 21 | `composables/useShortcuts` | not started | — |
