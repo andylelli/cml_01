@@ -10,6 +10,7 @@ import { resolveStageModel } from "./model-tiering.js";
 import { tokenizeWords } from "./lint.js";
 import type { ProseChapter } from "./types.js";
 import type { ChapterRepairContext } from "./deterministic-repair.js";
+import { buildRegisterBanBlock, isRegisterBanEnabled } from "./register-ban.js"; // A_95 M1
 
 export interface PostPassPolishResult {
   chapter: ProseChapter;
@@ -215,6 +216,12 @@ export const buildPostPassPolishPrompt = (args: {
   lines.push("Do NOT copy any wording from these instructions into the chapter. They describe shapes to");
   lines.push("remove, not text to insert.");
   lines.push("");
+  // A_95 M1 — the five shapes above are prohibitions and the register rate has not moved since A_88.
+  // This names the chapter's OWN offending sentences, which is the form this model complies with.
+  if (isRegisterBanEnabled()) {
+    const registerBan = buildRegisterBanBlock(args.chapter);
+    if (registerBan) lines.push(registerBan);
+  }
   lines.push("ALSO, WHERE IT HELPS:");
   lines.push("- Vary sentence length and opening. Two long sentences in a row, or three openings sharing a");
   lines.push("  shape, flatten a paragraph however correct it is.");
