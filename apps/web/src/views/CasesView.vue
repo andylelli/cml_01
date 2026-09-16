@@ -18,7 +18,7 @@ import { downloadStoryPdf, fetchProjects, type Project } from "../services/api";
  */
 
 const props = defineProps<{ activeProjectId: string | null }>();
-const emit = defineEmits<{ openWorkshop: [] }>();
+const emit = defineEmits<{ openWorkshop: []; open: [Project] }>();
 
 const projects = ref<Project[]>([]);
 const loading = ref(true);
@@ -128,16 +128,29 @@ onBeforeUnmount(() => {
 						]"
 					/>
 
-					<span class="min-w-0 flex-1">
-						<span class="block truncate text-[0.92rem] font-semibold">{{ project.name }}</span>
+					<!-- The whole name opens the case. A row you can only download from was the entire
+					     consumer experience of a finished mystery until CaseView existed. -->
+					<button
+						type="button"
+						class="min-w-0 flex-1 text-left"
+						@click="emit('open', project)"
+					>
+						<span class="block truncate text-[0.92rem] font-semibold underline-offset-2 hover:underline">
+							{{ project.name }}
+						</span>
 						<span class="t-subtitle block text-[0.75rem]">
 							{{ statusLabel(project.status) }}
 							<span v-if="project.createdAt"> · {{ new Date(project.createdAt).toLocaleString() }}</span>
 						</span>
-					</span>
+					</button>
+
+					<AppButton size="sm" icon="chevronRight" @click="emit('open', project)">
+						{{ project.status === "running" ? "Follow" : "Open" }}
+					</AppButton>
 
 					<AppButton
 						size="sm"
+						variant="ghost"
 						icon="book"
 						:busy="downloading === project.id"
 						busy-label="Preparing…"

@@ -3,6 +3,7 @@ import { createPinia } from "pinia";
 import { describe, expect, it } from "vitest";
 import { auditA11y, formatFindings } from "../test-utils/a11y";
 import { defaultSpec } from "../spec/vocabulary";
+import CaseView from "../views/CaseView.vue";
 import CasesView from "../views/CasesView.vue";
 import CreateView from "../views/CreateView.vue";
 import InspirationView from "../views/InspirationView.vue";
@@ -53,6 +54,12 @@ describe("accessibility — the consumer views", () => {
 	it("CasesView", () => {
 		const wrapper = mountIn(CasesView, { activeProjectId: null });
 		audit(wrapper.element as unknown as ParentNode, "CasesView");
+		wrapper.unmount();
+	});
+
+	it("CaseView", () => {
+		const wrapper = mountIn(CaseView, { projectId: "proj_test", projectName: "A Test Case" });
+		audit(wrapper.element as unknown as ParentNode, "CaseView");
 		wrapper.unmount();
 	});
 });

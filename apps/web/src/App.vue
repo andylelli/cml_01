@@ -6,8 +6,9 @@ import ErrorNotification from "./components/ErrorNotification.vue";
 import { useCreateFlow } from "./composables/useCreateFlow";
 import { useErrorLog } from "./composables/useErrorLog";
 import { useUiState, type Mode } from "./composables/useUiState";
-import { logActivity } from "./services/api";
+import { logActivity, type Project } from "./services/api";
 import { coerceSpec, type MysterySpec } from "./spec/vocabulary";
+import CaseView from "./views/CaseView.vue";
 import CasesView from "./views/CasesView.vue";
 import CreateView from "./views/CreateView.vue";
 import InspirationView from "./views/InspirationView.vue";
@@ -23,7 +24,7 @@ import WorkshopView from "./views/WorkshopView.vue";
  * inside an operator's instrument.
  */
 
-type ViewId = "create" | "inspiration" | "cases" | "workshop";
+type ViewId = "create" | "inspiration" | "cases" | "case" | "workshop";
 
 const ui = useUiState();
 const log = useErrorLog({
@@ -43,6 +44,14 @@ const mode = ref<Mode>("user");
 const spec = ref<MysterySpec>(coerceSpec(null));
 const projectId = ref<string | null>(null);
 const projectName = ref("");
+
+/** The case being read. Set by My Cases, and by a generation the moment it starts. */
+const openCase = ref<{ id: string; name: string } | null>(null);
+
+const openCaseFile = (project: Project) => {
+	openCase.value = { id: project.id, name: project.name };
+	view.value = "case";
+};
 
 const flow = useCreateFlow({
 	existingProjectId: () => null, // every generation opens its own case
@@ -92,8 +101,10 @@ const onGenerate = async (submitted: MysterySpec) => {
 
 	if (result.phase === "started") {
 		projectId.value = result.projectId;
-		log.add("info", "pipeline", "Your mystery is being written. Follow it in My Cases.");
-		view.value = "cases";
+		openCase.value = { id: result.projectId, name: projectName.value || "New case" };
+		log.add("info", "pipeline", "Your mystery is being written.");
+		// Straight to the case file: the run's progress and every artifact as it lands are there.
+		view.value = "case";
 	}
 };
 
@@ -112,7 +123,8 @@ onMounted(() => {
 	// Workshop is only reachable outside user mode; an old payload could name it regardless.
 	const restored = saved.view as ViewId;
 	if (restored === "workshop" && saved.mode === "user") return;
-	if (["create", "inspiration", "cases", "workshop"].includes(restored)) view.value = restored;
+	if (restored === "case" && !openCase.value) return; // no case remembered: fall back to Create
+	if (["create", "inspiration", "cases", "case", "workshop"].includes(restored)) view.value = restored;
 });
 
 /** Escape hatch to the console for anyone who needs it without hunting for a toggle. */
@@ -136,6 +148,16 @@ const revealWorkshop = () => {
 		<CasesView
 			v-else-if="view === 'cases'"
 			:active-project-id="projectId"
+			@open="openCaseFile"
+			@open-workshop="revealWorkshop"
+		/>
+
+		<CaseView
+			v-else-if="view === 'case' && openCase"
+			:key="openCase.id"
+			:project-id="openCase.id"
+			:project-name="openCase.name"
+			@back="view = 'cases'"
 			@open-workshop="revealWorkshop"
 		/>
 
