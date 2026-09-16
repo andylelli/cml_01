@@ -387,6 +387,32 @@ export const renderLocationForProse = (label: string): string => {
  * the model is asked to say them, in order, as three sentences. Self-gating: nothing prints without
  * both death times; step 3 prints only when the device declares its deception pair (`derivedFrom`).
  */
+/**
+ * A_95 M3 — `AGENT9_REVEAL_ON_DT_CHAPTER`. The reveal contract must land SOMEWHERE.
+ *
+ * MEASURED across 57 runs in the prompt log: `CULPRIT REVELATION REQUIRED` reached a chapter in 39,
+ * and in **the last six runs it reached none at all** — including the book A_90 built the reveal
+ * arithmetic FOR. So `AGENT9_REVEAL_ARITHMETIC`, `AGENT9_REVEAL_DECEPTION_PURPOSE`, the evidence
+ * chain, the kill statement and the resolution event have never once reached a prompt.
+ *
+ * WHY. `isRevealChapter` requires `!isDiscriminatingTestChapter`, on the reasoning that the DT
+ * chapter "handles conviction above". It does convict — it does not carry the evidence chain, the
+ * kill statement, the pronoun resolution, the resolution event, the close-in-scene rule, the
+ * deception purpose or the arithmetic. When the winner-selection picks the same chapter the DT claim
+ * holds, every one of those is dropped silently, and the aftermath exclusion means there is no later
+ * chapter to catch them.
+ *
+ * The coordinate join cannot rescue it either: **51 of 51 stored cases put the revelation at "act 3,
+ * scene 6" while act 3 holds 2-5 scenes**, so `byCoordinate` is always empty and the winner always
+ * comes from a keyword or beat fallback — which is exactly where the collision happens.
+ *
+ * ON: when the DT chapter IS the reveal winner, it also carries the reveal obligations the DT
+ * contract does not duplicate. Nothing is emitted twice: the culprit-naming and motive lines stay
+ * with the DT block, which already states both.
+ */
+export const isRevealOnDtChapterEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT9_REVEAL_ON_DT_CHAPTER ?? "").trim());
+
 export const isRevealArithmeticEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
   /^(1|true|yes|on)$/i.test(String(env.AGENT9_REVEAL_ARITHMETIC ?? "").trim());
 
@@ -959,6 +985,25 @@ const REVEAL_SIGNAL_RE = /\b(culprit|confront|confession|resolve|resolution|deno
     // discriminating-test / revelation / aftermath chapters. Reveal-class clues (those
     // that name the culprit or explain the tamper mechanism) must NOT have their
     // "who it implicates" reasoning forced into these chapters.
+    /**
+     * A_95 M3 — the DT chapter is also the reveal winner. The reveal obligations the DT contract does
+     * not already state are emitted here rather than dropped.
+     */
+    const revealWinnerIsThisChapter =
+      revealWinnerSceneNumber != null && revealWinnerSceneNumber === Number((scene as any)?.sceneNumber);
+    /**
+     * MEASURED on the seed-1358 shape: the winner is not merely "some other chapter", it is NULL.
+     * Every candidate that could be the DT chapter is excluded by `!dtClaimStandsFor(c)`, and the only
+     * `revelation` beat is the aftermath scene, which the pool excludes. So the reveal contract has no
+     * home at all — which is why nothing downstream caught it. The DT chapter takes it in both cases:
+     * when it won outright, and when nobody did.
+     */
+    const carriesRevealOnDtChapter =
+      isRevealOnDtChapterEnabled() &&
+      isDiscriminatingTestChapter &&
+      !stageModeIsAftermath &&
+      (revealWinnerIsThisChapter || revealWinnerSceneNumber == null);
+
     const isPreRevealChapter = !isDiscriminatingTestChapter && !isRevealChapter && !isPostRevealChapter;
 
     // A_65 Phase 1 — the scene's register text (beat/title/purpose/summary), used by the
@@ -1406,15 +1451,17 @@ const REVEAL_SIGNAL_RE = /\b(culprit|confront|confession|resolve|resolution|deno
     // Culprit revelation scene obligation — when this chapter contains the revelation scene
     // and it is not already the discriminating test chapter (which handles conviction above).
     // `revelationScene` / `isRevealChapter` are computed above the clue loop (hoisted for B2).
-    if (isRevealChapter) {
+    if (isRevealChapter || carriesRevealOnDtChapter) {
       const culpritNames: string = (cmlCase.culpability?.culprits ?? []).filter((n: any) => typeof n === 'string' && n).join(', ');
-      const revealMethod: string = revelationScene.revelation_method ?? 'confrontation with evidence';
-      lines.push(`  - ⚠ CULPRIT REVELATION REQUIRED (${revealMethod}): this chapter MUST name "${culpritNames}" explicitly as the murderer before the chapter ends. Include a complete evidence chain using "because / therefore / which proves" for each piece of proof. Do not let the chapter end with the culprit unnamed or the verdict ambiguous.`);
+      const revealMethod: string = revelationScene?.revelation_method ?? 'confrontation with evidence';
+      // A_95 M3 — on the DT chapter this is already stated ("Convict: name X explicitly as the
+      // murderer"), so it is not repeated; everything below it is what the DT contract lacks.
+      if (!carriesRevealOnDtChapter)      lines.push(`  - ⚠ CULPRIT REVELATION REQUIRED (${revealMethod}): this chapter MUST name "${culpritNames}" explicitly as the murderer before the chapter ends. Include a complete evidence chain using "because / therefore / which proves" for each piece of proof. Do not let the chapter end with the culprit unnamed or the verdict ambiguous.`);
       const revealCulpritEntry = (cmlCase.cast ?? []).find(
         (c: any) => (cmlCase.culpability?.culprits ?? []).includes(c.name)
       );
       const revealCulpritMotive = String(revealCulpritEntry?.motive_seed ?? '').trim();
-      if (revealCulpritMotive) {
+      if (revealCulpritMotive && !carriesRevealOnDtChapter) {
         lines.push(`  - Motive statement REQUIRED: the culprit must explicitly state or acknowledge their motive in this chapter. Canonical motive: "${revealCulpritMotive}". Do not paraphrase or omit it.`);
       }
       // FIX-M2 + FIX-E1: Strengthen revelation completeness — require evidence chain and kill statement.
