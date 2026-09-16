@@ -56,21 +56,21 @@ const goToChapter = (index: number) => {
 </script>
 
 <template>
-  <div v-if="!prose" class="rounded-lg border border-slate-200 bg-white p-6">
-    <p class="text-sm text-slate-600">Prose not yet generated. Run the pipeline to create the story.</p>
+  <div v-if="!prose" class="rounded-lg border border-line bg-surface p-6">
+    <p class="text-sm text-ink-soft">Prose not yet generated. Run the pipeline to create the story.</p>
   </div>
   <div v-else class="flex gap-6">
     <!-- Chapter list sidebar -->
     <aside class="w-48 flex-shrink-0 space-y-2">
-      <div class="text-xs font-semibold uppercase text-slate-500">Chapters</div>
+      <div class="text-xs font-semibold uppercase text-ink-soft">Chapters</div>
       <button
         v-for="(chapter, idx) in prose.chapters"
         :key="idx"
         :class="[
           'w-full rounded-md px-3 py-2 text-left text-sm transition-colors',
           idx === currentChapterIndex
-            ? 'bg-slate-900 text-white'
-            : 'bg-slate-100 text-slate-700 hover:bg-slate-200',
+            ? 'bg-frame text-[--surface]'
+            : 'bg-surface-sunken text-ink hover:bg-surface-sunken',
         ]"
         @click="goToChapter(idx)"
       >
@@ -79,18 +79,18 @@ const goToChapter = (index: number) => {
     </aside>
 
     <!-- Chapter content -->
-    <div class="flex-1 rounded-lg border border-slate-200 bg-white p-8 shadow-sm">
-      <p v-if="prose.note" class="mb-4 rounded border border-indigo-200 bg-indigo-50 px-3 py-2 text-sm text-indigo-900">
+    <div class="flex-1 rounded-lg border border-line bg-surface p-8 shadow-sm">
+      <p v-if="prose.note" class="mb-4 rounded border border-line-strong bg-surface-sunken px-3 py-2 text-sm text-frame">
         {{ prose.note }}
       </p>
       <div v-if="currentChapter" class="prose prose-slate max-w-none">
-        <h2 class="mb-4 text-2xl font-serif font-bold text-slate-900">
+        <h2 class="mb-4 text-2xl font-serif font-bold text-ink">
           {{ currentChapter.title }}
         </h2>
-        <p v-if="currentChapter.summary" class="mb-6 italic text-slate-600">
+        <p v-if="currentChapter.summary" class="mb-6 italic text-ink-soft">
           {{ currentChapter.summary }}
         </p>
-        <div class="font-serif text-slate-800 leading-relaxed">
+        <div class="font-serif text-ink leading-relaxed">
           <p v-for="(para, idx) in currentChapter.paragraphs" :key="idx" class="mb-6 text-base indent-8 first:indent-0">
             {{ para }}
           </p>
@@ -98,20 +98,20 @@ const goToChapter = (index: number) => {
       </div>
 
       <!-- Navigation -->
-      <div class="mt-8 flex items-center justify-between border-t border-slate-200 pt-4">
+      <div class="mt-8 flex items-center justify-between border-t border-line pt-4">
         <button
           :disabled="!canGoPrev"
           :class="[
             'rounded-md px-4 py-2 text-sm font-semibold',
             canGoPrev
-              ? 'bg-slate-900 text-white hover:bg-slate-800'
-              : 'bg-slate-100 text-slate-400 cursor-not-allowed',
+              ? 'bg-frame text-[--surface] hover:bg-frame'
+              : 'bg-surface-sunken text-ink-faint cursor-not-allowed',
           ]"
           @click="goToPrev"
         >
           ← Previous
         </button>
-        <span class="text-sm text-slate-500">
+        <span class="text-sm text-ink-soft">
           Chapter {{ currentChapterIndex + 1 }} of {{ prose.chapters.length }}
         </span>
         <button
@@ -119,8 +119,8 @@ const goToChapter = (index: number) => {
           :class="[
             'rounded-md px-4 py-2 text-sm font-semibold',
             canGoNext
-              ? 'bg-slate-900 text-white hover:bg-slate-800'
-              : 'bg-slate-100 text-slate-400 cursor-not-allowed',
+              ? 'bg-frame text-[--surface] hover:bg-frame'
+              : 'bg-surface-sunken text-ink-faint cursor-not-allowed',
           ]"
           @click="goToNext"
         >

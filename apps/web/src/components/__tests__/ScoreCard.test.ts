@@ -201,18 +201,28 @@ describe("ScoreCard", () => {
     expect(wrapper.text()).toContain("standard");
   });
 
-  it("renders grade A in green tone (emerald class)", () => {
+  // These two used to assert `[class*='emerald']` and `[class*='rose']` — the raw Tailwind palette,
+  // which the redesign replaces (UI-002 §7). They now assert the design system's SEMANTIC tokens,
+  // which are a stable contract: `ok` and `danger` keep their meaning across any restyle, and
+  // UI-001 §1 requires `danger` to stay distinct from the primary accent.
+  it("marks a passing grade with the ok token", () => {
     const report = makeReport({ overall_grade: "A", overall_score: 95 });
     const wrapper = mount(ScoreCard, { props: { report } });
-    // Grade badge div should have emerald class
-    const badge = wrapper.find("[class*='emerald']");
-    expect(badge.exists()).toBe(true);
+    expect(wrapper.find("[class*='-ok']").exists()).toBe(true);
   });
 
-  it("renders grade F in red tone (rose class)", () => {
+  it("marks a failing grade with the danger token", () => {
     const report = makeReport({ overall_grade: "F", overall_score: 40, passed: false });
     const wrapper = mount(ScoreCard, { props: { report } });
-    const roseBadge = wrapper.find("[class*='rose']");
-    expect(roseBadge.exists()).toBe(true);
+    expect(wrapper.find("[class*='-danger']").exists()).toBe(true);
+  });
+
+  it("does not render a pass and a fail identically", () => {
+    // The assertion behind both of the above, stated without naming a token at all.
+    const pass = mount(ScoreCard, { props: { report: makeReport({ overall_grade: "A", overall_score: 95 }) } });
+    const fail = mount(ScoreCard, {
+      props: { report: makeReport({ overall_grade: "F", overall_score: 40, passed: false }) },
+    });
+    expect(pass.html()).not.toBe(fail.html());
   });
 });

@@ -38,9 +38,28 @@ describe("ContentSkeleton", () => {
     expect(wrapper.html()).toContain("animate-pulse");
   });
 
-  it("skeleton rows have bg-slate or bg-gray fill", () => {
+  it("gives every placeholder row a visible fill", () => {
+    // Was: `expect(html).toMatch(/bg-slate|bg-gray/)`. That pinned the raw Tailwind palette, which is
+    // the thing the redesign changes, so it had to be rewritten by the restyle and protected nothing
+    // (UI-002 §7). The contract that actually matters is that a row HAS a fill from the design
+    // system, not which hue that system currently uses.
     const wrapper = mount(ContentSkeleton);
-    const html = wrapper.html();
-    expect(html).toMatch(/bg-slate|bg-gray/);
+    const rows = wrapper.findAll(".animate-pulse [class*='bg-']");
+    expect(rows.length).toBeGreaterThan(0);
+    for (const row of rows) {
+      expect(row.classes().some((c) => c.startsWith("bg-"))).toBe(true);
+    }
+  });
+
+  it("is hidden from assistive technology or carries a status role", () => {
+    // A skeleton is either decorative or a loading announcement; silently reading its empty rows to
+    // a screen reader is the one option that is wrong.
+    const wrapper = mount(ContentSkeleton);
+    const root = wrapper.element as HTMLElement;
+    const marked =
+      root.getAttribute("aria-hidden") === "true" ||
+      root.getAttribute("role") === "status" ||
+      root.getAttribute("aria-busy") === "true";
+    expect(marked).toBe(true);
   });
 });

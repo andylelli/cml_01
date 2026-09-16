@@ -27,13 +27,13 @@ const filtered = computed(() => {
 const severityClass = (severity: ErrorSeverity): string => {
   switch (severity) {
     case "error":
-      return "text-rose-600 bg-rose-50 border-rose-200";
+      return "text-danger bg-danger-wash border-danger";
     case "warning":
-      return "text-amber-700 bg-amber-50 border-amber-200";
+      return "text-warn bg-warn-wash border-warn";
     case "info":
-      return "text-blue-700 bg-blue-50 border-blue-200";
+      return "text-frame bg-surface-sunken border-line-strong";
     default:
-      return "text-slate-600 bg-slate-50 border-slate-200";
+      return "text-ink-soft bg-ground border-line";
   }
 };
 
@@ -67,13 +67,13 @@ const handleCopy = () => {
 </script>
 
 <template>
-  <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+  <div class="rounded-lg border border-line bg-surface p-5 shadow-sm">
     <div class="flex items-center justify-between">
-      <div class="text-sm font-semibold text-slate-700">Error Log</div>
+      <div class="text-sm font-semibold text-ink">Error Log</div>
       <div class="flex items-center gap-2">
         <select
           v-model="filterSeverity"
-          class="rounded border border-slate-200 px-2 py-1 text-xs text-slate-600"
+          class="rounded border border-line px-2 py-1 text-xs text-ink-soft"
         >
           <option value="all">All</option>
           <option value="error">Errors</option>
@@ -81,13 +81,13 @@ const handleCopy = () => {
           <option value="info">Info</option>
         </select>
         <button
-          class="rounded border border-slate-200 px-2 py-1 text-xs text-slate-600 hover:bg-slate-50"
+          class="rounded border border-line px-2 py-1 text-xs text-ink-soft hover:bg-ground"
           @click="handleCopy"
         >
           Copy
         </button>
         <button
-          class="rounded border border-rose-200 px-2 py-1 text-xs text-rose-600 hover:bg-rose-50"
+          class="rounded border border-danger px-2 py-1 text-xs text-danger hover:bg-danger-wash"
           @click="emit('clear')"
         >
           Clear
@@ -95,7 +95,7 @@ const handleCopy = () => {
       </div>
     </div>
 
-    <div v-if="!filtered.length" class="mt-4 text-xs text-slate-400">No log entries.</div>
+    <div v-if="!filtered.length" class="mt-4 text-xs text-ink-faint">No log entries.</div>
 
     <ol v-else class="mt-3 space-y-2">
       <li

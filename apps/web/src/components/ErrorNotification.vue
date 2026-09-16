@@ -30,11 +30,11 @@ const sortedErrors = computed(() => {
 const getSeverityClass = (severity: ErrorSeverity) => {
   switch (severity) {
     case "error":
-      return "border-rose-200 bg-rose-50 text-rose-900";
+      return "border-danger bg-danger-wash text-danger";
     case "warning":
-      return "border-amber-200 bg-amber-50 text-amber-900";
+      return "border-warn bg-warn-wash text-warn";
     case "info":
-      return "border-blue-200 bg-blue-50 text-blue-900";
+      return "border-line-strong bg-surface-sunken text-frame";
   }
 };
 
@@ -163,10 +163,10 @@ onBeforeUnmount(() => {
         </button>
       </div>
     </div>
-    <div v-if="errors.length > 3" class="rounded-lg border border-slate-200 bg-white p-3 text-center shadow-lg">
-      <p class="text-sm text-slate-600">{{ errors.length - 3 }} more errors</p>
+    <div v-if="errors.length > 3" class="rounded-lg border border-line bg-surface p-3 text-center shadow-lg">
+      <p class="text-sm text-ink-soft">{{ errors.length - 3 }} more errors</p>
       <button
-        class="mt-2 text-xs font-semibold text-slate-700 underline"
+        class="mt-2 text-xs font-semibold text-ink underline"
         @click="emit('clear')"
       >
         Clear all

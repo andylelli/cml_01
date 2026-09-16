@@ -20,7 +20,7 @@ describe("NoveltyAudit.vue", () => {
       props: { audit },
     });
 
-    const badge = wrapper.find(".bg-emerald-100");
+    const badge = wrapper.find(".bg-ok-wash");
     expect(badge.exists()).toBe(true);
     expect(badge.text()).toContain("pass");
   });
@@ -34,7 +34,7 @@ describe("NoveltyAudit.vue", () => {
       props: { audit },
     });
 
-    const badge = wrapper.find(".bg-rose-100");
+    const badge = wrapper.find(".bg-danger-wash");
     expect(badge.exists()).toBe(true);
     expect(badge.text()).toContain("fail");
   });
@@ -48,7 +48,7 @@ describe("NoveltyAudit.vue", () => {
       props: { audit },
     });
 
-    const badge = wrapper.find(".bg-amber-100");
+    const badge = wrapper.find(".bg-warn-wash");
     expect(badge.exists()).toBe(true);
     expect(badge.text()).toContain("warn");
   });
@@ -107,7 +107,7 @@ describe("NoveltyAudit.vue", () => {
 
     // Check within pattern matches section, not status badge
     expect(wrapper.text()).toContain("85% similar");
-    const allBadges = wrapper.findAll(".bg-rose-100");
+    const allBadges = wrapper.findAll(".bg-danger-wash");
     const similarityBadge = allBadges.find((b) => b.text().includes("85%"));
     expect(similarityBadge).toBeDefined();
   });
@@ -130,7 +130,7 @@ describe("NoveltyAudit.vue", () => {
 
     // Check within pattern matches section
     expect(wrapper.text()).toContain("55% similar");
-    const allBadges = wrapper.findAll(".bg-amber-100");
+    const allBadges = wrapper.findAll(".bg-warn-wash");
     const similarityBadge = allBadges.find((b) => b.text().includes("55%"));
     expect(similarityBadge).toBeDefined();
   });
@@ -153,7 +153,7 @@ describe("NoveltyAudit.vue", () => {
 
     // Check within pattern matches section
     expect(wrapper.text()).toContain("25% similar");
-    const allBadges = wrapper.findAll(".bg-emerald-100");
+    const allBadges = wrapper.findAll(".bg-ok-wash");
     const similarityBadge = allBadges.find((b) => b.text().includes("25%"));
     expect(similarityBadge).toBeDefined();
   });

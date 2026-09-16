@@ -67,26 +67,26 @@ const trendLabel: Record<string, string> = {
 };
 
 const trendClass: Record<string, string> = {
-  improving: "text-emerald-600",
-  declining: "text-rose-600",
-  stable: "text-slate-500",
-  neutral: "text-slate-400",
+  improving: "text-ok",
+  declining: "text-danger",
+  stable: "text-ink-soft",
+  neutral: "text-ink-faint",
 };
 </script>
 
 <template>
-  <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+  <div class="rounded-lg border border-line bg-surface p-5 shadow-sm">
     <div class="flex items-center justify-between">
-      <div class="text-sm font-semibold text-slate-700">Score Trend</div>
+      <div class="text-sm font-semibold text-ink">Score Trend</div>
       <div class="flex items-center gap-4 text-xs">
-        <span class="text-slate-400">Avg: <span class="font-semibold text-slate-600">{{ avgScore }}</span></span>
+        <span class="text-ink-faint">Avg: <span class="font-semibold text-ink-soft">{{ avgScore }}</span></span>
         <span :class="trendClass[trend]" class="font-semibold">{{ trendLabel[trend] }}</span>
       </div>
     </div>
 
-    <div v-if="qualityHistory.length < 2" class="mt-4 py-6 text-center text-sm text-slate-400">
+    <div v-if="qualityHistory.length < 2" class="mt-4 py-6 text-center text-sm text-ink-faint">
       At least 2 generations needed to show trend.
-      <div v-if="excludedInfraCount > 0" class="mt-1 text-xs text-slate-400">
+      <div v-if="excludedInfraCount > 0" class="mt-1 text-xs text-ink-faint">
         {{ excludedInfraCount }} infra-failure run(s) excluded from quality trend.
       </div>
     </div>
@@ -207,20 +207,20 @@ const trendClass: Record<string, string> = {
       </svg>
     </div>
 
-    <div class="mt-2 flex items-center gap-4 text-[11px] text-slate-400">
+    <div class="mt-2 flex items-center gap-4 text-[11px] text-ink-faint">
       <div class="flex items-center gap-1">
-        <span class="inline-block h-2 w-2 rounded-full bg-indigo-500"></span>
+        <span class="inline-block h-2 w-2 rounded-full bg-frame"></span>
         Passed
       </div>
       <div class="flex items-center gap-1">
-        <span class="inline-block h-2 w-2 rounded-full bg-rose-500"></span>
+        <span class="inline-block h-2 w-2 rounded-full bg-danger"></span>
         Failed
       </div>
       <div class="flex items-center gap-1">
-        <span class="inline-block h-2 w-4 border-b-2 border-dashed border-amber-400"></span>
+        <span class="inline-block h-2 w-4 border-b-2 border-dashed border-warn"></span>
         Threshold (75)
       </div>
-      <div v-if="excludedInfraCount > 0" class="text-slate-400">
+      <div v-if="excludedInfraCount > 0" class="text-ink-faint">
         {{ excludedInfraCount }} infra-failure run(s) excluded
       </div>
     </div>

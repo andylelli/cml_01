@@ -84,26 +84,26 @@ const statusIcon = (status: PipelineStep["status"]): string => {
 const statusClass = (status: PipelineStep["status"]): string => {
   switch (status) {
     case "complete":
-      return "text-emerald-600";
+      return "text-ok";
     case "failed":
-      return "text-rose-600";
+      return "text-danger";
     case "running":
-      return "text-blue-600 font-semibold";
+      return "text-frame font-semibold";
     case "skipped":
-      return "text-slate-400 line-through";
+      return "text-ink-faint line-through";
     default:
-      return "text-slate-400";
+      return "text-ink-faint";
   }
 };
 </script>
 
 <template>
-  <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+  <div class="rounded-lg border border-line bg-surface p-5 shadow-sm">
     <div class="flex items-center justify-between">
-      <div class="text-sm font-semibold text-slate-700">Pipeline Progress</div>
+      <div class="text-sm font-semibold text-ink">Pipeline Progress</div>
       <button
         v-if="isRunning"
-        class="rounded border border-rose-200 bg-white px-2 py-1 text-xs font-medium text-rose-600 hover:bg-rose-50"
+        class="rounded border border-danger bg-surface px-2 py-1 text-xs font-medium text-danger hover:bg-danger-wash"
         @click="emit('cancel')"
       >
         Cancel
@@ -111,14 +111,14 @@ const statusClass = (status: PipelineStep["status"]): string => {
     </div>
 
     <!-- Progress bar -->
-    <div class="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-slate-200">
+    <div class="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-surface-sunken">
       <div
-        class="h-full rounded-full bg-slate-700 transition-all duration-700"
+        class="h-full rounded-full bg-frame-tint transition-all duration-700"
         :style="{ width: `${Math.min(100, progressPercent)}%` }"
       ></div>
     </div>
 
-    <div class="mt-1 flex items-center justify-between text-xs text-slate-500">
+    <div class="mt-1 flex items-center justify-between text-xs text-ink-soft">
       <span>{{ Math.round(progressPercent) }}%</span>
       <span v-if="isRunning">
         Elapsed: {{ formatMs(localElapsedMs) }}
@@ -127,7 +127,7 @@ const statusClass = (status: PipelineStep["status"]): string => {
     </div>
 
     <!-- Current step label -->
-    <div v-if="progressLabel" class="mt-2 text-xs text-slate-600">{{ progressLabel }}</div>
+    <div v-if="progressLabel" class="mt-2 text-xs text-ink-soft">{{ progressLabel }}</div>
 
     <!-- Step list -->
     <ol class="mt-4 space-y-1">
@@ -141,7 +141,7 @@ const statusClass = (status: PipelineStep["status"]): string => {
           {{ statusIcon(step.status) }}
         </span>
         <span class="flex-1">{{ step.label }}</span>
-        <span v-if="step.durationMs !== undefined" class="text-slate-400">
+        <span v-if="step.durationMs !== undefined" class="text-ink-faint">
           ({{ formatMs(step.durationMs) }})
         </span>
       </li>

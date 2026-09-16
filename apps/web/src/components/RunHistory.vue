@@ -26,10 +26,10 @@ const getEventIcon = (step: string) => {
 
 const getEventClass = (step: string) => {
   if (step.includes("done") || step.includes("finished") || step.includes("pass"))
-    return "text-emerald-600";
-  if (step.includes("failed") || step.includes("error")) return "text-rose-600";
-  if (step.includes("retry") || step.includes("warn")) return "text-amber-600";
-  return "text-slate-600";
+    return "text-ok";
+  if (step.includes("failed") || step.includes("error")) return "text-danger";
+  if (step.includes("retry") || step.includes("warn")) return "text-warn";
+  return "text-ink-soft";
 };
 
 const getEventCardClass = (step: string) => {
@@ -55,11 +55,11 @@ const isTruncated = computed(() => isPreviewMode.value && props.events.length > 
 </script>
 
 <template>
-  <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-    <div class="text-sm font-semibold text-slate-700">Run History</div>
-    <div v-if="runId" class="mt-1 text-xs text-slate-500">Run ID: {{ runId }}</div>
+  <div class="rounded-lg border border-line bg-surface p-4 shadow-sm">
+    <div class="text-sm font-semibold text-ink">Run History</div>
+    <div v-if="runId" class="mt-1 text-xs text-ink-soft">Run ID: {{ runId }}</div>
     
-    <div v-if="!hasEvents" class="mt-3 text-sm text-slate-600">
+    <div v-if="!hasEvents" class="mt-3 text-sm text-ink-soft">
       No events recorded yet. Run the pipeline to see execution history.
     </div>
 
@@ -68,7 +68,7 @@ const isTruncated = computed(() => isPreviewMode.value && props.events.length > 
         v-for="(event, idx) in displayedEvents"
         :key="`${event.step}-${idx}`"
         :class="[
-          'flex items-start gap-3 rounded border border-slate-200 bg-slate-50 px-3 py-2',
+          'flex items-start gap-3 rounded border border-line bg-ground px-3 py-2',
           getEventCardClass(event.step),
         ]"
       >
@@ -76,13 +76,13 @@ const isTruncated = computed(() => isPreviewMode.value && props.events.length > 
           {{ getEventIcon(event.step) }}
         </span>
         <div class="flex-1 min-w-0">
-          <div class="text-xs font-semibold uppercase text-slate-500">{{ event.step }}</div>
-          <div class="mt-0.5 text-sm text-slate-700">{{ event.message }}</div>
+          <div class="text-xs font-semibold uppercase text-ink-soft">{{ event.step }}</div>
+          <div class="mt-0.5 text-sm text-ink">{{ event.message }}</div>
         </div>
       </div>
       <div v-if="isTruncated" class="pt-1 text-right">
         <button
-          class="text-xs font-semibold text-slate-700 underline"
+          class="text-xs font-semibold text-ink underline"
           @click="emit('view-full')"
         >
           View full history

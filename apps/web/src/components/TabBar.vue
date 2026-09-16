@@ -31,13 +31,13 @@ const getStatusIcon = (status?: TabStatus) => {
 const getStatusColor = (status?: TabStatus) => {
   switch (status) {
     case "complete":
-      return "text-emerald-600";
+      return "text-ok";
     case "error":
-      return "text-rose-600";
+      return "text-danger";
     case "in-progress":
-      return "text-blue-600";
+      return "text-frame";
     case "locked":
-      return "text-slate-400";
+      return "text-ink-faint";
     default:
       return "";
   }
@@ -85,19 +85,19 @@ const handleKeyDown = (event: KeyboardEvent, currentIndex: number) => {
 </script>
 
 <template>
-  <div class="border-b border-slate-700 bg-slate-900">
+  <div class="border-b border-line-strong bg-frame">
     <div class="flex items-center overflow-x-auto flex-nowrap scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-slate-800">
       <button
         v-for="(tab, index) in tabs"
         :key="tab.id"
         :class="[
           'relative px-6 py-3 text-sm font-medium transition-colors whitespace-nowrap',
-          'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset',
+          'focus:outline-none focus:ring-2 focus:ring-line-strong focus:ring-inset',
           activeTab === tab.id
-            ? 'text-white border-b-2 border-blue-500 bg-slate-800'
+            ? 'text-[--surface] border-b-2 border-line-strong bg-frame'
             : isTabDisabled(tab)
-            ? 'text-slate-500 cursor-not-allowed'
-            : 'text-slate-300 hover:text-white hover:bg-slate-800',
+            ? 'text-ink-soft cursor-not-allowed'
+            : 'text-ink-faint hover:text-[--surface] hover:bg-frame',
         ]"
         :disabled="isTabDisabled(tab)"
         :aria-selected="activeTab === tab.id"

@@ -177,7 +177,7 @@ describe("ProseReader.vue", () => {
     });
 
     const chapterButtons = wrapper.findAll("button").filter((b) => b.text().includes("Chapter"));
-    const activeChapter = chapterButtons.find((b) => b.classes().includes("bg-slate-900"));
+    const activeChapter = chapterButtons.find((b) => b.classes().includes("bg-frame"));
     expect(activeChapter).toBeDefined();
     if (activeChapter) {
       expect(activeChapter.text()).toContain("Chapter 1");
@@ -194,7 +194,7 @@ describe("ProseReader.vue", () => {
     await nextTick();
 
     const chapterButtons = wrapper.findAll("button").filter((b) => b.text().includes("Chapter"));
-    const activeChapter = chapterButtons.find((b) => b.classes().includes("bg-slate-900"));
+    const activeChapter = chapterButtons.find((b) => b.classes().includes("bg-frame"));
     expect(activeChapter).toBeDefined();
     if (activeChapter) {
       expect(activeChapter.text()).toContain("Chapter 2");

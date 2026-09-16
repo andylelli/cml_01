@@ -33,11 +33,11 @@ const byCategory = (cat: string) => shortcuts.filter((s) => s.category === cat);
     @click.self="emit('close')"
     @keydown.esc="emit('close')"
   >
-    <div class="w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 shadow-xl">
+    <div class="w-full max-w-md rounded-xl border border-line bg-surface p-6 shadow-xl">
       <div class="flex items-center justify-between">
-        <div class="text-sm font-semibold text-slate-800">Keyboard Shortcuts</div>
+        <div class="text-sm font-semibold text-ink">Keyboard Shortcuts</div>
         <button
-          class="text-xs text-slate-400 hover:text-slate-600"
+          class="text-xs text-ink-faint hover:text-ink-soft"
           @click="emit('close')"
         >
           Close
@@ -46,19 +46,19 @@ const byCategory = (cat: string) => shortcuts.filter((s) => s.category === cat);
 
       <div class="mt-4 space-y-4">
         <div v-for="cat in categories" :key="cat">
-          <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-400">{{ cat }}</div>
+          <div class="text-[11px] font-semibold uppercase tracking-wide text-ink-faint">{{ cat }}</div>
           <div class="mt-2 space-y-1.5">
             <div
               v-for="shortcut in byCategory(cat)"
               :key="shortcut.description"
               class="flex items-center justify-between text-xs"
             >
-              <span class="text-slate-600">{{ shortcut.description }}</span>
+              <span class="text-ink-soft">{{ shortcut.description }}</span>
               <div class="flex items-center gap-1">
                 <kbd
                   v-for="key in shortcut.keys"
                   :key="key"
-                  class="rounded border border-slate-200 bg-slate-100 px-1.5 py-0.5 font-mono text-[11px] text-slate-700"
+                  class="rounded border border-line bg-surface-sunken px-1.5 py-0.5 font-mono text-[11px] text-ink"
                 >
                   {{ key }}
                 </kbd>

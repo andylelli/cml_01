@@ -13,19 +13,19 @@ const togglePhase = (agent: string) => {
 };
 
 const gradeColors: Record<string, string> = {
-  A: "bg-emerald-100 text-emerald-700",
-  B: "bg-blue-100 text-blue-700",
-  C: "bg-amber-100 text-amber-700",
-  D: "bg-orange-100 text-orange-700",
-  F: "bg-rose-100 text-rose-700",
+  A: "bg-ok-wash text-ok",
+  B: "bg-surface-sunken text-frame",
+  C: "bg-warn-wash text-warn",
+  D: "bg-warn-wash text-warn",
+  F: "bg-danger-wash text-danger",
 };
 
 const scoreBarColor = (score: number) => {
-  if (score >= 90) return "bg-emerald-500";
-  if (score >= 80) return "bg-blue-500";
-  if (score >= 70) return "bg-amber-500";
-  if (score >= 60) return "bg-orange-400";
-  return "bg-rose-500";
+  if (score >= 90) return "bg-ok";
+  if (score >= 80) return "bg-frame";
+  if (score >= 70) return "bg-warn";
+  if (score >= 60) return "bg-warn";
+  return "bg-danger";
 };
 
 const gradeColor = (grade: string) => gradeColors[grade] ?? gradeColors["F"];
@@ -121,11 +121,11 @@ const testsForCategory = (tests: ScoringTestResult[], cat: string) =>
 
 const severityClass = (severity?: string) => {
   switch (severity) {
-    case "critical": return "text-rose-600";
-    case "major": return "text-orange-600";
-    case "moderate": return "text-amber-600";
-    case "minor": return "text-slate-500";
-    default: return "text-slate-600";
+    case "critical": return "text-danger";
+    case "major": return "text-warn";
+    case "moderate": return "text-warn";
+    case "minor": return "text-ink-soft";
+    default: return "text-ink-soft";
   }
 };
 
@@ -134,48 +134,48 @@ const chapterComponentMinimum = (component: string): number => COMPONENT_MINIMUM
 const chapterComponentPassClass = (score: number | undefined, component: string): string => {
   const value = score ?? 0;
   return value >= chapterComponentMinimum(component)
-    ? 'text-emerald-600'
-    : 'text-rose-600';
+    ? 'text-ok'
+    : 'text-danger';
 };
 </script>
 
 <template>
-  <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
-    <div class="border-b border-slate-100 px-5 py-3">
-      <div class="text-sm font-semibold text-slate-700">Phase Breakdown</div>
-      <div class="mt-0.5 text-xs text-slate-500">Click any row to expand details</div>
+  <div class="rounded-lg border border-line bg-surface shadow-sm">
+    <div class="border-b border-line px-5 py-3">
+      <div class="text-sm font-semibold text-ink">Phase Breakdown</div>
+      <div class="mt-0.5 text-xs text-ink-soft">Click any row to expand details</div>
     </div>
 
-    <div v-if="!phases.length" class="p-6 text-center text-sm text-slate-500">
+    <div v-if="!phases.length" class="p-6 text-center text-sm text-ink-soft">
       No phase data available.
     </div>
 
-    <div v-else class="divide-y divide-slate-100">
+    <div v-else class="divide-y divide-line">
       <div v-for="phase in phases" :key="phase.agent">
         <!-- Phase row (clickable) -->
         <button
-          class="flex w-full items-center gap-3 px-5 py-3 text-left hover:bg-slate-50 transition-colors"
-          :class="expandedPhase === phase.agent ? 'bg-slate-50' : ''"
+          class="flex w-full items-center gap-3 px-5 py-3 text-left hover:bg-ground transition-colors"
+          :class="expandedPhase === phase.agent ? 'bg-ground' : ''"
           @click="togglePhase(phase.agent)"
         >
           <!-- Pass/fail indicator -->
-          <span class="flex-shrink-0 text-base" :class="phase.passed ? 'text-emerald-500' : 'text-rose-500'">
+          <span class="flex-shrink-0 text-base" :class="phase.passed ? 'text-ok' : 'text-danger'">
             {{ phase.passed ? "✓" : "✗" }}
           </span>
 
           <!-- Phase name -->
           <div class="min-w-0 flex-1">
-            <div class="truncate text-sm font-medium text-slate-800">{{ phase.phase_name }}</div>
+            <div class="truncate text-sm font-medium text-ink">{{ phase.phase_name }}</div>
             <div class="mt-0.5 flex items-center gap-2">
               <!-- Mini score bar -->
-              <div class="h-1.5 w-24 overflow-hidden rounded-full bg-slate-200">
+              <div class="h-1.5 w-24 overflow-hidden rounded-full bg-surface-sunken">
                 <div
                   class="h-full rounded-full"
                   :class="scoreBarColor(phase.score.total)"
                   :style="{ width: `${phase.score.total}%` }"
                 ></div>
               </div>
-              <span class="text-xs text-slate-500">{{ phase.score.total }}/100</span>
+              <span class="text-xs text-ink-soft">{{ phase.score.total }}/100</span>
               <!-- Component pills: V Q C Co -->
               <span class="flex items-center gap-0.5 ml-1">
                 <span
@@ -183,14 +183,14 @@ const chapterComponentPassClass = (score: number | undefined, component: string)
                   :key="cat"
                   class="rounded px-1 py-0.5 text-[10px] font-bold leading-none"
                   :class="componentPasses(phase, cat)
-                    ? 'bg-emerald-100 text-emerald-700'
-                    : 'bg-rose-100 text-rose-600'"
+                    ? 'bg-ok-wash text-ok'
+                    : 'bg-danger-wash text-danger'"
                   :title="`${categoryLabel(cat)}: ${Math.round(componentScore(phase, cat))}/100 (min ${COMPONENT_MINIMUMS[cat]})`"
                 >
                   {{ abbr }}
                 </span>
               </span>
-              <span v-if="phase.retry_count && phase.retry_count > 0" class="text-[11px] text-amber-600">
+              <span v-if="phase.retry_count && phase.retry_count > 0" class="text-[11px] text-warn">
                 ↻ {{ phase.retry_count }} retry{{ phase.retry_count > 1 ? 's' : '' }}
               </span>
             </div>
@@ -205,47 +205,47 @@ const chapterComponentPassClass = (score: number | undefined, component: string)
           </span>
 
           <!-- Duration -->
-          <span class="flex-shrink-0 w-16 text-right text-xs text-slate-400">{{ formatDuration(phase.duration_ms) }}</span>
+          <span class="flex-shrink-0 w-16 text-right text-xs text-ink-faint">{{ formatDuration(phase.duration_ms) }}</span>
 
           <!-- Cost -->
-          <span class="flex-shrink-0 w-16 text-right text-xs text-slate-400">${{ phase.cost.toFixed(3) }}</span>
+          <span class="flex-shrink-0 w-16 text-right text-xs text-ink-faint">${{ phase.cost.toFixed(3) }}</span>
 
           <!-- Expand chevron -->
-          <span class="flex-shrink-0 text-slate-400 text-xs">{{ expandedPhase === phase.agent ? "▼" : "▶" }}</span>
+          <span class="flex-shrink-0 text-ink-faint text-xs">{{ expandedPhase === phase.agent ? "▼" : "▶" }}</span>
         </button>
 
         <!-- Expanded detail panel -->
-        <div v-if="expandedPhase === phase.agent" class="border-t border-slate-100 bg-slate-50 px-5 py-4 space-y-4">
+        <div v-if="expandedPhase === phase.agent" class="border-t border-line bg-ground px-5 py-4 space-y-4">
 
           <!-- Component scores -->
           <div>
-            <div class="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">Category Scores</div>
+            <div class="text-xs font-semibold uppercase tracking-wide text-ink-soft mb-2">Category Scores</div>
             <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
               <div
                 v-for="cat in ['validation', 'quality', 'completeness', 'consistency']"
                 :key="cat"
                 class="rounded-md border p-2"
                 :class="componentPasses(phase, cat)
-                  ? 'border-slate-200 bg-white'
-                  : 'border-rose-200 bg-rose-50'"
+                  ? 'border-line bg-surface'
+                  : 'border-danger bg-danger-wash'"
               >
-                <div class="text-[11px] text-slate-500">{{ categoryLabel(cat) }} <span class="text-slate-400">({{ categoryWeight(cat) }})</span></div>
+                <div class="text-[11px] text-ink-soft">{{ categoryLabel(cat) }} <span class="text-ink-faint">({{ categoryWeight(cat) }})</span></div>
                 <div class="mt-1 flex items-center gap-1">
                   <span
                     class="text-sm font-bold"
-                    :class="componentPasses(phase, cat) ? 'text-slate-800' : 'text-rose-700'"
+                    :class="componentPasses(phase, cat) ? 'text-ink' : 'text-danger'"
                   >
                     {{ componentScore(phase, cat) }}
                   </span>
-                  <span class="text-[11px] text-slate-400">/ 100</span>
+                  <span class="text-[11px] text-ink-faint">/ 100</span>
                   <span
                     v-if="!componentPasses(phase, cat)"
-                    class="ml-1 text-[10px] text-rose-600 font-semibold"
+                    class="ml-1 text-[10px] text-danger font-semibold"
                   >
                     ✗ min {{ COMPONENT_MINIMUMS[cat] }}
                   </span>
                 </div>
-                <div class="mt-1 h-1 w-full overflow-hidden rounded-full bg-slate-200">
+                <div class="mt-1 h-1 w-full overflow-hidden rounded-full bg-surface-sunken">
                   <div
                     class="h-full rounded-full"
                     :class="scoreBarColor(componentScore(phase, cat))"
@@ -256,7 +256,7 @@ const chapterComponentPassClass = (score: number | undefined, component: string)
             </div>
 
             <!-- Component failure reason -->
-            <div v-if="phase.score.component_failures?.length" class="mt-2 rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700">
+            <div v-if="phase.score.component_failures?.length" class="mt-2 rounded-md border border-danger bg-danger-wash px-3 py-2 text-xs text-danger">
               <span class="font-semibold">Failed:</span> {{ phase.score.failure_reason }}
             </div>
           </div>
@@ -264,48 +264,48 @@ const chapterComponentPassClass = (score: number | undefined, component: string)
           <!-- Test results by category -->
           <div v-for="cat in ['validation', 'quality', 'completeness', 'consistency']" :key="`tests-${cat}`">
             <div v-if="testsForCategory(phase.tests, cat).length" class="space-y-1">
-              <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-400">{{ categoryLabel(cat) }} Tests</div>
+              <div class="text-[11px] font-semibold uppercase tracking-wide text-ink-faint">{{ categoryLabel(cat) }} Tests</div>
               <div
                 v-for="test in testsForCategory(phase.tests, cat)"
                 :key="test.name"
-                class="flex items-start gap-2 rounded-md border border-slate-200 bg-white px-3 py-2 text-xs"
+                class="flex items-start gap-2 rounded-md border border-line bg-surface px-3 py-2 text-xs"
               >
-                <span :class="test.passed ? 'text-emerald-500' : 'text-rose-500'" class="flex-shrink-0 font-bold">
+                <span :class="test.passed ? 'text-ok' : 'text-danger'" class="flex-shrink-0 font-bold">
                   {{ test.passed ? "✓" : "✗" }}
                 </span>
                 <div class="flex-1 min-w-0">
-                  <div class="font-medium text-slate-700">{{ test.name }}</div>
+                  <div class="font-medium text-ink">{{ test.name }}</div>
                   <div v-if="test.message" class="mt-0.5" :class="severityClass(test.severity)">{{ test.message }}</div>
                 </div>
-                <span class="flex-shrink-0 text-slate-500">{{ test.score }}/100</span>
+                <span class="flex-shrink-0 text-ink-soft">{{ test.score }}/100</span>
               </div>
             </div>
           </div>
 
           <!-- Retry history -->
           <div v-if="phase.retry_history?.length">
-            <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-400 mb-1">Retry History</div>
+            <div class="text-[11px] font-semibold uppercase tracking-wide text-ink-faint mb-1">Retry History</div>
             <div class="space-y-1">
               <div
                 v-for="attempt in phase.retry_history"
                 :key="attempt.attempt"
-                class="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800"
+                class="rounded-md border border-warn bg-warn-wash px-3 py-2 text-xs text-warn"
               >
                 <span class="font-semibold">Attempt {{ attempt.attempt }}:</span>
                 {{ attempt.reason }}
-                <span v-if="attempt.score_before !== undefined" class="ml-2 text-amber-600">(score: {{ attempt.score_before }})</span>
+                <span v-if="attempt.score_before !== undefined" class="ml-2 text-warn">(score: {{ attempt.score_before }})</span>
               </div>
             </div>
           </div>
 
           <!-- Chapter-by-chapter breakdown (prose phase only) -->
           <div v-if="isProsePhase(phase) && getChapterScores(phase).length">
-            <div class="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">Chapter Quality Scores</div>
-            <div class="mb-2 text-[11px] text-slate-400">Component columns: V=Validation, Q=Quality, C=Completeness, Co=Consistency</div>
+            <div class="text-xs font-semibold uppercase tracking-wide text-ink-soft mb-2">Chapter Quality Scores</div>
+            <div class="mb-2 text-[11px] text-ink-faint">Component columns: V=Validation, Q=Quality, C=Completeness, Co=Consistency</div>
             <div class="overflow-x-auto">
               <table class="w-full text-xs border-collapse">
                 <thead>
-                  <tr class="text-left text-slate-400 border-b border-slate-200">
+                  <tr class="text-left text-ink-faint border-b border-line">
                     <th class="pb-1 pr-4 font-medium">Chapter</th>
                     <th class="pb-1 pr-4 font-medium">Individual</th>
                     <th class="pb-1 pr-4 font-medium">Cumulative</th>
@@ -316,18 +316,18 @@ const chapterComponentPassClass = (score: number | undefined, component: string)
                     <th class="pb-1 font-medium w-32">Cumulative bar</th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100">
+                <tbody class="divide-y divide-line">
                   <tr
                     v-for="ch in getChapterScores(phase)"
                     :key="`first-${ch.chapter}`"
                   >
-                    <td class="pr-4 py-1 text-slate-600 font-medium">
+                    <td class="pr-4 py-1 text-ink-soft font-medium">
                       {{ ch.chapter }}/{{ ch.total_chapters }}
                     </td>
                     <td class="pr-4 py-1">
                       <span
                         class="font-semibold"
-                        :class="ch.individual_score >= 80 ? 'text-emerald-600' : ch.individual_score >= 70 ? 'text-amber-600' : 'text-rose-600'"
+                        :class="ch.individual_score >= 80 ? 'text-ok' : ch.individual_score >= 70 ? 'text-warn' : 'text-danger'"
                       >
                         {{ ch.individual_score }}/100
                       </span>
@@ -335,7 +335,7 @@ const chapterComponentPassClass = (score: number | undefined, component: string)
                     <td class="pr-4 py-1">
                       <span
                         class="font-semibold"
-                        :class="ch.cumulative_score >= 80 ? 'text-emerald-600' : ch.cumulative_score >= 70 ? 'text-amber-600' : 'text-rose-600'"
+                        :class="ch.cumulative_score >= 80 ? 'text-ok' : ch.cumulative_score >= 70 ? 'text-warn' : 'text-danger'"
                       >
                         {{ ch.cumulative_score }}/100
                       </span>
@@ -373,7 +373,7 @@ const chapterComponentPassClass = (score: number | undefined, component: string)
                       </span>
                     </td>
                     <td class="py-1 w-32">
-                      <div class="h-1.5 w-full overflow-hidden rounded-full bg-slate-200">
+                      <div class="h-1.5 w-full overflow-hidden rounded-full bg-surface-sunken">
                         <div
                           class="h-full rounded-full"
                           :class="scoreBarColor(ch.cumulative_score)"
@@ -389,12 +389,12 @@ const chapterComponentPassClass = (score: number | undefined, component: string)
 
           <!-- Chapter-by-chapter breakdown (repair prose run) -->
           <div v-if="isProsePhase(phase) && getRepairChapterScores(phase).length" class="mt-2">
-            <div class="text-xs font-semibold uppercase tracking-wide text-amber-600 mb-2">Chapter Quality Scores — Second Run</div>
-            <div class="mb-2 text-[11px] text-slate-400">Component columns: V=Validation, Q=Quality, C=Completeness, Co=Consistency</div>
+            <div class="text-xs font-semibold uppercase tracking-wide text-warn mb-2">Chapter Quality Scores — Second Run</div>
+            <div class="mb-2 text-[11px] text-ink-faint">Component columns: V=Validation, Q=Quality, C=Completeness, Co=Consistency</div>
             <div class="overflow-x-auto">
               <table class="w-full text-xs border-collapse">
                 <thead>
-                  <tr class="text-left text-slate-400 border-b border-slate-200">
+                  <tr class="text-left text-ink-faint border-b border-line">
                     <th class="pb-1 pr-4 font-medium">Chapter</th>
                     <th class="pb-1 pr-4 font-medium">Individual</th>
                     <th class="pb-1 pr-4 font-medium">Cumulative</th>
@@ -405,18 +405,18 @@ const chapterComponentPassClass = (score: number | undefined, component: string)
                     <th class="pb-1 font-medium w-32">Cumulative bar</th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100">
+                <tbody class="divide-y divide-line">
                   <tr
                     v-for="ch in getRepairChapterScores(phase)"
                     :key="`second-${ch.chapter}`"
                   >
-                    <td class="pr-4 py-1 text-slate-600 font-medium">
+                    <td class="pr-4 py-1 text-ink-soft font-medium">
                       {{ ch.chapter }}/{{ ch.total_chapters }}
                     </td>
                     <td class="pr-4 py-1">
                       <span
                         class="font-semibold"
-                        :class="ch.individual_score >= 80 ? 'text-emerald-600' : ch.individual_score >= 70 ? 'text-amber-600' : 'text-rose-600'"
+                        :class="ch.individual_score >= 80 ? 'text-ok' : ch.individual_score >= 70 ? 'text-warn' : 'text-danger'"
                       >
                         {{ ch.individual_score }}/100
                       </span>
@@ -424,7 +424,7 @@ const chapterComponentPassClass = (score: number | undefined, component: string)
                     <td class="pr-4 py-1">
                       <span
                         class="font-semibold"
-                        :class="ch.cumulative_score >= 80 ? 'text-emerald-600' : ch.cumulative_score >= 70 ? 'text-amber-600' : 'text-rose-600'"
+                        :class="ch.cumulative_score >= 80 ? 'text-ok' : ch.cumulative_score >= 70 ? 'text-warn' : 'text-danger'"
                       >
                         {{ ch.cumulative_score }}/100
                       </span>
@@ -462,7 +462,7 @@ const chapterComponentPassClass = (score: number | undefined, component: string)
                       </span>
                     </td>
                     <td class="py-1 w-32">
-                      <div class="h-1.5 w-full overflow-hidden rounded-full bg-slate-200">
+                      <div class="h-1.5 w-full overflow-hidden rounded-full bg-surface-sunken">
                         <div
                           class="h-full rounded-full"
                           :class="scoreBarColor(ch.cumulative_score)"
@@ -478,12 +478,12 @@ const chapterComponentPassClass = (score: number | undefined, component: string)
 
           <!-- Errors -->
           <div v-if="phase.errors?.length">
-            <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-400 mb-1">Errors</div>
+            <div class="text-[11px] font-semibold uppercase tracking-wide text-ink-faint mb-1">Errors</div>
             <ul class="space-y-1">
               <li
                 v-for="(err, idx) in phase.errors"
                 :key="idx"
-                class="rounded-md border border-rose-200 bg-rose-50 px-3 py-1 text-xs text-rose-700"
+                class="rounded-md border border-danger bg-danger-wash px-3 py-1 text-xs text-danger"
               >
                 {{ err }}
               </li>

@@ -46,7 +46,7 @@ describe("ErrorNotification.vue", () => {
       props: { errors },
     });
 
-    const errorCard = wrapper.find(".bg-rose-50");
+    const errorCard = wrapper.find(".bg-danger-wash");
     expect(errorCard.exists()).toBe(true);
     expect(errorCard.text()).toContain("Test error");
   });
@@ -65,7 +65,7 @@ describe("ErrorNotification.vue", () => {
       props: { errors },
     });
 
-    const warningCard = wrapper.find(".bg-amber-50");
+    const warningCard = wrapper.find(".bg-warn-wash");
     expect(warningCard.exists()).toBe(true);
     expect(warningCard.text()).toContain("Test warning");
   });
@@ -84,7 +84,7 @@ describe("ErrorNotification.vue", () => {
       props: { errors },
     });
 
-    const infoCard = wrapper.find(".bg-blue-50");
+    const infoCard = wrapper.find(".bg-surface-sunken");
     expect(infoCard.exists()).toBe(true);
     expect(infoCard.text()).toContain("Test info");
   });

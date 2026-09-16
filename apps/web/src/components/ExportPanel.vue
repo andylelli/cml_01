@@ -87,9 +87,9 @@ const handleExport = async () => {
 </script>
 
 <template>
-  <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-    <div class="text-sm font-semibold text-slate-700">Export</div>
-    <div class="mt-2 text-xs text-slate-500">Select artifacts to include.</div>
+  <div class="rounded-lg border border-line bg-surface p-4 shadow-sm">
+    <div class="text-sm font-semibold text-ink">Export</div>
+    <div class="mt-2 text-xs text-ink-soft">Select artifacts to include.</div>
     <div class="mt-3 space-y-2 text-sm">
       <label class="flex items-center gap-2">
         <input v-model="selection.setting" type="checkbox" />
@@ -141,7 +141,7 @@ const handleExport = async () => {
       </label>
     </div>
     <button
-      class="mt-4 w-full rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+      class="mt-4 w-full rounded-md bg-frame px-4 py-2 text-sm font-semibold text-[--surface] hover:bg-frame disabled:cursor-not-allowed disabled:opacity-50"
       :disabled="!canExport || isExporting"
       @click="handleExport"
     >
@@ -150,13 +150,13 @@ const handleExport = async () => {
         {{ isExporting ? "Preparing export..." : "Export selected" }}
       </span>
     </button>
-    <div v-if="isExporting" class="mt-3 h-1 w-full overflow-hidden rounded-full bg-slate-200">
-      <div class="h-full w-1/2 animate-pulse rounded-full bg-slate-600"></div>
+    <div v-if="isExporting" class="mt-3 h-1 w-full overflow-hidden rounded-full bg-surface-sunken">
+      <div class="h-full w-1/2 animate-pulse rounded-full bg-frame-tint"></div>
     </div>
-    <div v-if="exportMessage" class="mt-3 text-xs text-emerald-700">
+    <div v-if="exportMessage" class="mt-3 text-xs text-ok">
       {{ exportMessage }}
     </div>
-    <div v-if="exportError" class="mt-3 text-xs text-rose-700">
+    <div v-if="exportError" class="mt-3 text-xs text-danger">
       {{ exportError }}
     </div>
   </div>

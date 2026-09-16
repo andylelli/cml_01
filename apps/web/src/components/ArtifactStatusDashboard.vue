@@ -38,9 +38,9 @@ const formatTs = (iso: string | null): string => {
 };
 
 const chipClass = (entry: ArtifactEntry) => {
-  if (props.isRunning) return "bg-blue-100 text-blue-700";
-  if (entry.ready) return "bg-emerald-100 text-emerald-700";
-  return "bg-slate-100 text-slate-500";
+  if (props.isRunning) return "bg-surface-sunken text-frame";
+  if (entry.ready) return "bg-ok-wash text-ok";
+  return "bg-surface-sunken text-ink-soft";
 };
 
 const chipLabel = (entry: ArtifactEntry) => {
@@ -59,19 +59,19 @@ const unmetDeps = (entry: ArtifactEntry): string[] => {
 </script>
 
 <template>
-  <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-    <div class="text-sm font-semibold text-slate-700">Artifact Status</div>
-    <div class="mt-1 text-xs text-slate-500">All generated components and their current state.</div>
+  <div class="rounded-lg border border-line bg-surface p-5 shadow-sm">
+    <div class="text-sm font-semibold text-ink">Artifact Status</div>
+    <div class="mt-1 text-xs text-ink-soft">All generated components and their current state.</div>
 
     <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
       <div
         v-for="entry in artifacts"
         :key="entry.id"
-        class="flex flex-col gap-2 rounded-lg border border-slate-200 bg-slate-50 p-3"
+        class="flex flex-col gap-2 rounded-lg border border-line bg-ground p-3"
       >
         <!-- Header row -->
         <div class="flex items-center justify-between">
-          <span class="text-xs font-semibold text-slate-700">{{ entry.label }}</span>
+          <span class="text-xs font-semibold text-ink">{{ entry.label }}</span>
           <span
             class="rounded-full px-2 py-0.5 text-[11px] font-semibold"
             :class="chipClass(entry)"
@@ -81,12 +81,12 @@ const unmetDeps = (entry: ArtifactEntry): string[] => {
         </div>
 
         <!-- Timestamp -->
-        <div class="text-[11px] text-slate-400">
+        <div class="text-[11px] text-ink-faint">
           Last generated: {{ formatTs(entry.generatedAt) }}
         </div>
 
         <!-- Unmet dependencies warning -->
-        <div v-if="unmetDeps(entry).length" class="text-[11px] text-amber-600">
+        <div v-if="unmetDeps(entry).length" class="text-[11px] text-warn">
           ⚠ Waiting on:
           {{ unmetDeps(entry).map((id) => artifacts.find((a) => a.id === id)?.label ?? id).join(", ") }}
         </div>
@@ -95,13 +95,13 @@ const unmetDeps = (entry: ArtifactEntry): string[] => {
         <div class="flex gap-2">
           <button
             v-if="entry.ready"
-            class="rounded border border-slate-200 bg-white px-2 py-1 text-[11px] font-medium text-slate-600 hover:bg-slate-100"
+            class="rounded border border-line bg-surface px-2 py-1 text-[11px] font-medium text-ink-soft hover:bg-surface-sunken"
             @click="emit('view', entry.id)"
           >
             View
           </button>
           <button
-            class="rounded border border-slate-200 bg-white px-2 py-1 text-[11px] font-medium text-slate-600 hover:bg-slate-100 disabled:opacity-40"
+            class="rounded border border-line bg-surface px-2 py-1 text-[11px] font-medium text-ink-soft hover:bg-surface-sunken disabled:opacity-40"
             :disabled="isRunning"
             @click="emit('regenerate', entry.id)"
           >
