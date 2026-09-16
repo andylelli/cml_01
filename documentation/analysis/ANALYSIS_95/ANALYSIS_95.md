@@ -412,7 +412,7 @@ spans, while banned chapters range 33 to 304. Recorded as open.
 | item | state |
 |---|---|
 | M3a reveal obligations | **CONFIRMED on a run** — chapter 9, arithmetic included |
-| M6 turn density | **CONFIRMED** — 4 of 6 against a measured 0 of 6 |
+| M6 turn density | **NOT ESTABLISHED** — 4 of 6 against 0 of 6, but reading the book found no false solution a reader would believe; the instrument counts a suspicion sentence, which is too weak to carry the claim (A_96 §2 C3) |
 | M1 register ban | **PARTIAL** — 0.071 against < 0.070, but polish discard 54% → 0% |
 | M6 beat jobs | **PARTIAL** — 3/5, two named failures to fix |
 | M4 wit shapes | **FAILED, cause measured, R4d built** |

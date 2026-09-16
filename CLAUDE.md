@@ -41,6 +41,10 @@ An external read is the only instrument that has ever moved this project, and ca
 - **Never read a book whose SHIP-CHECK says WORTH A LOOK.** Run 31372 went to a reader at 29.8× the
   repetition median with the instrument saying so; the read cost 7 marks and settled nothing. A
   matched pair first (A_94).
+- **Read the book yourself before spending a reader.** Twenty minutes and £0 on seed 50862 found nine
+  defects, four of which no instrument reports — a banned phrase used 10 times, beat names printed as
+  chapter titles, clearances after the arrest, a mechanism whose key actor is not in the cast. It
+  PASSED its release gate (A_96).
 - **Bundle levers that touch different chapters** so one read scores several by category.
 - **Choose the next seed by AXIS** until every axis has three reads. Spatial and behavioural have 0–1.
 - **When a read names no injector, the injector audit is over.** Until then a read is an injector
