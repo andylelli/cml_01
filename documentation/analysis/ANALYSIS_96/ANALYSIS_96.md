@@ -450,18 +450,40 @@ nothing else did. This belongs in CLAUDE.md beside the fallback-chapter and WORT
 |---|---|---|---|
 | B1 | prompt vocabulary narrated, then spoken | Agent 9 prompt | **PARTLY FIXED** `39d6caba`, unmeasured |
 | B2 | brevity shortened all speech | Agent 9 prompt | **FIXED** `9e61fdd7`, unmeasured |
-| B3 | AtmosphereRepair corrupts paraphrases | Agent 9 pass | **NOT FIXED** — F4 |
-| B4 | repeat ban loses to competing instructions | A_94 R5 | **BOUNDED** — F5 |
-| B5 | beat names in chapter titles | Agent 7 → 9 | **NOT FIXED** — F1 |
-| B6 | duplicate beats; clearances after the arrest | Agent 7 | **NOT FIXED** — F2 |
-| B7 | mechanism actor absent from the cast | Agent 3 → 9 | **NOT FIXED** — F3 |
+| B3 | AtmosphereRepair corrupts paraphrases | Agent 9 pass | **INTERIM FIX** `56260d2d` — narration only + two splice shapes refused; A_91 F4 (a replacing detector) still unbuilt |
+| B4 | repeat ban loses to competing instructions | A_94 R5 | **FIXED** `e7e449ec` — alibi windows and clearance methods exempt by position |
+| B5 | beat names in chapter titles | Agent 7 → 9 | **FIXED** `f91a2c28` — stripped at Agent 7 and at chapter sanitisation |
+| B6 | duplicate beats; clearances after the arrest | Agent 7 | **FIXED** `f91a2c28` — relabel, strip after the first `final_trap`, retitle; a repair, never a gate |
+| B7 | mechanism actor absent from the cast | Agent 3 → 9 | **FIXED** `e7e449ec` — named as OFF-STAGE in the chapter block; `[A_96 F3]` telemetry |
 | B8 | reveal contract reached no chapter | Agent 9 | **FIXED & CONFIRMED** `7eac5c71` |
 | B9 | audit false negative; sidecar seed null | mine | **FIXED** `39d6caba`, `e0d970cc` |
-| B10 | costume roll-call instructed, then amplified | Agent 2b → 9 | **NOT FIXED** — F8 |
-| B11 | depth beat's cause narrated as a tag | Agent 9 | **NOT FIXED** — F9 |
-| B12 | reveal obligations one chapter after the confession | Agent 7 → 9 | **NOT FIXED** — F2/F10 |
+| B10 | costume roll-call instructed, then amplified | Agent 2b → 9 | **FIXED** `e7e449ec` — portrait only in the chapter a character enters |
+| B11 | depth beat's cause narrated as a tag | Agent 9 | **FIXED** `e7e449ec` — the trait clause only; the cause never enters the prompt |
+| B12 | reveal obligations one chapter after the confession | Agent 7 → 9 | **FIXED** `f91a2c28` — the earliest `final_trap` wins; F2 removes the duplicate at source |
 | B13 | gate passed with the blind reader skipped | Agent 6 | recorded |
 | — | B4's first draft ("issued and ignored") | this doc | **CORRECTED** — the ban works alone, loses to a competing instruction |
 
-**NEXT: F1, F2 and F3** — all three are deterministic, free, and none needs a run to build. Then a
-matched pair on 50862 to settle B1/B2 and the repetition attribution together.
+### §5.1 Built, 2026-09-16 — three groups, eleven flags, 49 tests, all default OFF and ON in `.env.local`
+
+| group | fixes | flags | commit |
+|---|---|---|---|
+| A — Agent 7 structure | F1, F2, F10 | `AGENT7_BEAT_SEQUENCE_REPAIR`, `AGENT9_STRIP_BEAT_TITLES`, `AGENT9_EARLIEST_TRAP_WINS` | `f91a2c28` |
+| B — what the prompt hands over | F3, F5, F8 (+F11), F9 | `AGENT9_OFFSTAGE_ACTORS`, `AGENT9_REPEAT_BAN_ALIBI_EXEMPT`, `AGENT9_DESCRIBE_ONCE`, `AGENT9_DEPTH_TRAIT_ONLY` | `e7e449ec` |
+| C — passes and instruments | F4 (interim), F6 | `AGENT9_ATMOSPHERE_NARRATION_ONLY`; turn density strengthened (no flag — an instrument) | `56260d2d` |
+
+Every fix is pinned on run 50862's own material: its outline (the duplicate `final_trap` relabelled
+to `pattern`, *"Confirm alibis of all innocent suspects; provide closure to their arcs"* reduced to
+*"Provide closure to their arcs"*, both leaking titles retitled), its mechanism text (the off-stage
+judge found; a cast that holds the role not flagged), its corrupt sentence (*"You; searching"*
+refused), and its false turn (an accusation cleared in-chapter scoring 0).
+
+**Still unbuilt, with the reason:** A_91 F4, a repetition detector that *replaces* from a
+pre-approved set — F4 here is the interim; B13, the release gate reporting PASSED with its blind
+reader skipped by the content filter — its own item, because the fix is in how a skipped gate
+reports, not in prose.
+
+**What none of it has yet is a run.** Eleven levers went in on one book's evidence. The next fresh
+run carries all of them and settles, before a reader: chapter titles free of beat names; one
+`final_trap`; the reveal contract on the confession chapter; costume phrases ≤ 2 per book; no
+narrated backstory label; turn density ≥ 2 of 6 under the stricter rule; and — the two unmeasured
+generations of the brevity fix — speeches of ≥ 15 words back above 40, and the banned tag absent.
