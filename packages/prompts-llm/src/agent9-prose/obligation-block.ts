@@ -325,8 +325,8 @@ export const buildOwnedShapeLines = (
       `or fewer and does not go on to explain.`,
   );
   lines.push(
-    `    (b) THE SHORT RETORT — ${retort ? `${retort.name} answers` : "somebody answers"} a speech of fifteen ` +
-      `words or more in six words or fewer.`,
+    `    (b) THE SHORT RETORT — somebody makes a speech of TWENTY-FIVE WORDS OR MORE (write that speech; it is ` +
+      `half the joke), and ${retort ? retort.name : "somebody"} answers it in six words or fewer.`,
   );
   if (unmeant) {
     lines.push(
@@ -336,15 +336,20 @@ export const buildOwnedShapeLines = (
     );
   }
   lines.push(
-    `    Count them before you finish. Nobody explains what a short answer has already said, and no two ` +
-      `characters make the same kind of remark in this chapter.`,
+    `    Count them before you finish. THESE ARE THE ONLY SHORT SPEECHES THE CHAPTER OWES: everybody else ` +
+      `talks at the length they would have talked at anyway, and a chapter with fewer long speeches than ` +
+      `short ones has misread this instruction. Nobody explains what a short answer has already said, and no ` +
+      `two characters make the same kind of remark in this chapter.`,
   );
   lines.push(
     `  - NEVER NAME A REGISTER OR A SHAPE IN NARRATION. Do not write "deadpan", "dry wit", "polite ` +
       `savagery", "understatement", "sardonic", "flat", "her answer was flat" or "the retort landed" as ` +
       `description. The register is in the words a character says; it is never labelled by the narrator. ` +
-      `Nor may the narrator remark that an answer was short, final, brief or unelaborated — no "Four words, ` +
-      `final.", no "She did not elaborate." The shortness is the line; it is never pointed at.`,
+      `Nor may the narrator remark that an answer was short, final, brief or unelaborated — not in ANY wording, ` +
+      `including one not listed here. MEASURED on run 50862: "Four words, final." and "She did not elaborate." ` +
+      `were both banned and the model wrote "her answer as brief as the fading light" seven times instead. ` +
+      `So, positively: the sentence after a short answer must be what SOMEBODY ELSE DOES — a movement, an ` +
+      `object handled, a look away, the next question. Never a description of the answer.`,
   );
   return lines;
 };

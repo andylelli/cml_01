@@ -50,7 +50,7 @@ describe("each shape is owned by a register", () => {
   it("the flat answer goes to an understated voice, the retort to a sharp one", () => {
     const lines = buildOwnedShapeLines(CAST, 1).join("\n");
     const flatOwner = /THE FLAT ANSWER — (\w+ \w+) answers/.exec(lines)?.[1];
-    const retortOwner = /THE SHORT RETORT — (\w+ \w+) answers/.exec(lines)?.[1];
+    const retortOwner = /and (\w+ \w+) answers it in six words/.exec(lines)?.[1];
     expect(["Edith Penhale", "Agatha Innes"]).toContain(flatOwner);
     expect(["Millicent Ashcombe", "Violet Radcliffe"]).toContain(retortOwner);
     expect(flatOwner).not.toBe(retortOwner);
@@ -71,7 +71,7 @@ describe("each shape is owned by a register", () => {
   it("a cast with no sharp register still gets its retort — the shape is never lost", () => {
     const mild = CAST.filter((c) => c.humourStyle === "dry_wit" || c.humourStyle === "none");
     const lines = buildOwnedShapeLines(mild, 1).join("\n");
-    expect(lines).toContain("THE SHORT RETORT — somebody answers");
+    expect(lines).toContain("and somebody answers it in six words or fewer");
   });
 
   it("a cast with nobody humourless gets no unmeant joke rather than a wrong one", () => {
@@ -83,7 +83,33 @@ describe("each shape is owned by a register", () => {
     const lines = buildOwnedShapeLines(CAST, 1).join("\n");
     expect(lines).toContain("additions, not a diet");
     expect(lines).toContain("NEVER NAME A REGISTER OR A SHAPE IN NARRATION");
-    expect(lines).toContain("never pointed at");
+    expect(lines).toContain("not in ANY wording");
+  });
+
+  /**
+   * R4d — MEASURED on run 50862. The chapter obeyed "short answers" by shortening ALL speech:
+   * speeches 230 -> 132, speeches of >=15 words 62 -> 17, mean 12.8 -> 9.5. The retort needs a long
+   * setup, so retorts collapsed 17 -> 3 and wit fell to 9.7 despite flat answers holding at 6. And
+   * the narration ban was routed around: "Four words, final." and "She did not elaborate." were both
+   * banned, and the model wrote "her answer as brief as the fading light" SEVEN times.
+   */
+  it("R4d: the long setup is itself an instruction, so the retort has something to deflate", () => {
+    const lines = buildOwnedShapeLines(CAST, 1).join("\n");
+    expect(lines).toContain("TWENTY-FIVE WORDS OR MORE");
+    expect(lines).toContain("write that speech");
+  });
+
+  it("R4d: it says explicitly that nobody else shortens", () => {
+    const lines = buildOwnedShapeLines(CAST, 1).join("\n");
+    expect(lines).toContain("THESE ARE THE ONLY SHORT SPEECHES THE CHAPTER OWES");
+    expect(lines).toContain("fewer long speeches than");
+  });
+
+  it("R4d: the brevity-tag rule is a positive operation, not another list to route around", () => {
+    const lines = buildOwnedShapeLines(CAST, 1).join("\n");
+    expect(lines).toContain("not in ANY wording");
+    expect(lines).toContain("what SOMEBODY ELSE DOES");
+    expect(lines).toContain("as brief as the fading light");
   });
 
   it("and it adds the differentiation the reader asked for", () => {

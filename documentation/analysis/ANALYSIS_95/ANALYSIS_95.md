@@ -344,7 +344,89 @@ is no later chapter to catch the drop. The coordinate join cannot prevent it —
 put the revelation at "act 3, scene 6" while act 3 holds 2–5 scenes**. That is M3a, and it is the most
 valuable thing this analysis found.
 
-**NEXT ITEM: P1** — one fresh run carrying all six. Checkable before a reader:
+## §8 P1 — THE RUN · seed 50862 · 2026-09-16 · £1.10
+
+authority · 1930s · SeasideHotel · Dark · short · private · atmospheric · cast 6 · `--humour sharp` ·
+angle *"a record-attempt speed trial on the sands"*. Project `canary_1789577884303`. 9,323 words, no
+fallback chapter, **release gate PASSED**. Every lever verified by agent label in the prompt log.
+
+| # | prediction | pass | measured | verdict |
+|---|---|---|---|---|
+| 1 | reveal obligations reach a chapter | the DT chapter carries them | **chapter 9: kill statement, evidence chain, resolution event AND the arithmetic** — first time in seven runs | **MET** |
+| 2 | turn density, chapters 3-8 | ≥ 2 of 6 | **4 of 6** — 4 chapters put a non-culprit in the frame (0 overturn a belief) | **MET** |
+| 3 | `[A_95 M6]` beat jobs | ≥ 80% | **3/5 scenes did the job, 4/5 carried the fields** — short: `alibis` purpose, `revelation` missing `consequenceFor` | **PARTIAL** (60/80%) |
+| 4 | register rate | < 0.070 | **0.071**, worst chapter 20.0% | **MISSED BY 0.001** |
+| 5 | wit per 10k | ≥ 41.4 | **9.7** (retort 3, flat 6) | **FAILED** — §8.1 |
+| 6 | culprit motive dated | names an act, a date, a consequence | *"Victim threatened to expose financial mismanagement"* — an act, no date | **FAILED** |
+| 7 | formative stems | ≤ 1 share a stem | **2 of 6** | **MISSED** |
+| — | repetition per 10k | < 50 | **159.6** — ship-check said WORTH A LOOK | **FAILED** — §8.2 |
+
+**And one number nobody predicted:** the polish pass **kept 9 of 9 chapters, 0% discarded**, against a
+historical 54% discard rate (A_86 item 85: 39 of 72 recorded calls thrown away). M1 gave that pass
+work it could do without tripping the rollback guard. That is the clearest single result of the run.
+
+### §8.1 Why wit failed, and it is A_94 §6.1 repeating in a new dimension — MEASURED
+
+| | seed 1358 (wit 20.5) | seed 50862 (wit 9.7) |
+|---|---|---|
+| speeches | 230 | **132** |
+| speeches of ≥ 15 words | 62 | **17** |
+| mean speech length | 12.8 | **9.5** |
+| flat answers (instrument) | 6 | 6 |
+| short retorts (instrument) | **17** | **3** |
+
+**The flat answer held; the retort collapsed, because its SETUP disappeared.** The shape needs a long
+speech to deflate, and the chapter obeyed "short answers" by shortening everything. A_94's R4b was
+written against exactly this failure — *"additions, not a diet — the chapter keeps every conversation
+at full length"* — and it did not prevent it; the diet simply moved from dialogue SHARE (11.9% on the
+pair) to speech LENGTH.
+
+**And the narration ban was routed around.** R4c banned *"Four words, final."* and *"She did not
+elaborate."* by name. The model wrote **"her answer as brief as the fading light" seven times** —
+an unbanned variant, which also became one of the book's most repeated passages. Banning specific
+strings teaches the shape and the model finds a wording not on the list.
+
+**R4d, built on this run:** the long setup becomes its own instruction (*"somebody makes a speech of
+TWENTY-FIVE WORDS OR MORE — write that speech; it is half the joke"*), the chapter is told explicitly
+that **these are the only short speeches it owes**, and the brevity-tag prohibition is replaced by a
+positive operation — *the sentence after a short answer must be what somebody else DOES*. A
+prohibition list is routed around; an operation is performed.
+
+### §8.2 Repetition — flagged, NOT attributed
+
+150 of 159.6 per 10k are authored, not mandated: locked values account for **9 of 150** repeated
+spans. So this is real. But **one run cannot attribute it**: repetition has ranged 23.6 to 516 per 10k
+on *identical* code (the brewery and theatre books), and CLAUDE.md's rule against concluding from a
+single canary applies exactly here.
+
+What IS measured, and it overturns an assumption behind A_94 R5: **the repeat ban list named these
+passages and the model wrote them anyway.** *"pastel tea dress"* was banned in the prompts of chapters
+3-10 and appears 4 times; *"answer as brief as"* was banned in 4-10 and appears 7 times. R5 was
+inferred from the tic-ban precedent and has now been measured on a run: **issued and ignored.**
+
+The register ban is NOT shown to be the cause — chapter 7 carried no ban block and has 205 repeated
+spans, while banned chapters range 33 to 304. Recorded as open.
+
+### §8.3 STATUS after P1
+
+| item | state |
+|---|---|
+| M3a reveal obligations | **CONFIRMED on a run** — chapter 9, arithmetic included |
+| M6 turn density | **CONFIRMED** — 4 of 6 against a measured 0 of 6 |
+| M1 register ban | **PARTIAL** — 0.071 against < 0.070, but polish discard 54% → 0% |
+| M6 beat jobs | **PARTIAL** — 3/5, two named failures to fix |
+| M4 wit shapes | **FAILED, cause measured, R4d built** |
+| M5 dated motive | **FAILED** — the act arrived, the date did not |
+| repetition | **FLAGGED, NOT ATTRIBUTED** — needs a matched pair |
+| R5 repeat ban | **REFUTED as an operation** — issued in 8 chapters, ignored |
+
+**NEXT: a matched pair on 50862** (`RESUME_REDO=prose`, ~£0.45) carrying R4d, which settles the wit
+cause and the repetition attribution against byte-identical upstream. M5's date and M6's two scene
+failures are upstream and need the run after it.
+
+---
+
+**The original P1 predictions, for the record:**
 
 | prediction | today | pass |
 |---|---|---|

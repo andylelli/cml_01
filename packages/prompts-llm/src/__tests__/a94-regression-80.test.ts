@@ -125,7 +125,9 @@ describe("R4 — the wit beat asks for the two shapes the instrument counts", ()
     const lines = buildWitBeatLines(beat, HUMOUR_STYLES).join("\n");
     expect(lines).toContain("additions, not a diet");
     expect(lines).toContain("NEVER NAME A REGISTER OR A SHAPE IN NARRATION");
-    // seed 1358: "'There are,' she replied. Four words, final." — the rule itself narrated
+    // seed 1358: "'There are,' she replied. Four words, final." — the rule itself narrated.
+    // R4d (run 50862) replaced the phrase list with a positive operation after the model routed
+    // around it; the unowned A_94 wording keeps the original sentence.
     expect(lines).toContain("never pointed at");
     // the wording that was read as a diet is gone
     expect(lines).not.toContain("Let people be short with each other");
