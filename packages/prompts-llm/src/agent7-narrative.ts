@@ -98,6 +98,8 @@ export interface NarrativeFormattingInputs {
 
 
 /** Human-readable beat guidance injected into the outline prompt for the 10-chapter format. */
+import { buildBeatJobContract, isBeatJobFieldsEnabled } from "./agent7-beat-jobs.js"; // A_95 M6
+
 export const GOLDEN_AGE_BEAT_GUIDE: Record<GoldenAgeBeat, string> = {
   gathering: "The Gathering — introduce era, setting, detective, victim, suspects, tensions; end on an unsettling incident.",
   crime: "The Crime — the central crime occurs/is discovered; crime scene, first clues, obvious suspect; end on a contradiction the detective notices.",
@@ -658,6 +660,11 @@ For EVERY scene you MUST fill these additional fields:
 By the end of Acts I and II every red herring ID listed in your context must appear in at least one scene's redHerringPlacement.${completenessOpts.redHerringIds.length === 0 ? "\n(No red herrings for this run — set redHerringPlacement: null for all Act I–II scenes.)" : ""}`
     : "";
 
+  // A_95 M6 — a beat label is a rate; the fields below are the operation. Measured: a false_solution
+  // scene's purpose names an innocent being accused in 23 of 51 outlines, an alibis scene carries its
+  // second incident in 2 of 51.
+  const beatJobContractBlock = isBeatJobFieldsEnabled() ? buildBeatJobContract() : "";
+
   return `# Narrative Outline Task
 
 Create a scene-by-scene outline for this mystery story.
@@ -853,7 +860,7 @@ Return a JSON object:
 }
 \`\`\`
 
-Create a complete, well-paced outline that brings this mystery to life.${completenessContractBlock}`;
+Create a complete, well-paced outline that brings this mystery to life.${completenessContractBlock}${beatJobContractBlock}`;
 }
 
 // ============================================================================

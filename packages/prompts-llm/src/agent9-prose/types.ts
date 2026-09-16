@@ -44,6 +44,48 @@ const ARCHETYPE_CONTRACTS: Record<Archetype, { mustContain: string; mustNotConta
   RESOLUTION:    { mustContain: 'confession or arrest, method explained', mustNotContain: 'unresolved loose ends' },
 };
 
+/**
+ * A_95 M6 — `AGENT9_ARC_FROM_BEATS`. The chapter archetype is Agent 9's own POSITIONAL guess, computed
+ * from the chapter COUNT while Agent 7 has already labelled every scene with a Golden-Age beat. Two
+ * owners for "what is this chapter for", and the positional one has two measured defects of its own:
+ * on a 10-chapter book the rounding drops CONFRONTATION entirely, and chapter 10 is handed
+ * "confession or arrest, method explained" against A_89 B3's aftermath contract.
+ *
+ * ON: the beat decides. `false_solution` → RED_HERRING, `secrets` → REVERSAL, `final_trap` →
+ * CONFRONTATION, `revelation` → RESOLUTION. Anything unlabelled keeps the positional archetype, so a
+ * beatless outline behaves exactly as before.
+ */
+export const isArcFromBeatsEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT9_ARC_FROM_BEATS ?? "").trim());
+
+const ARCHETYPE_BY_BEAT: Record<string, Archetype> = {
+  gathering: 'DISCOVERY',
+  crime: 'DISCOVERY',
+  first_enquiries: 'FIRST_CONTACT',
+  motives: 'EVIDENCE',
+  alibis: 'ALIBI_PROBE',
+  false_solution: 'RED_HERRING',
+  secrets: 'REVERSAL',
+  pattern: 'ISOLATION',
+  final_trap: 'CONFRONTATION',
+  revelation: 'RESOLUTION',
+};
+
+/**
+ * The plan, with each chapter's archetype taken from its scene's beat where one is present.
+ * `scenes` is the outline's scenes in chapter order.
+ */
+export function buildMacroArcPlanFromBeats(chapterCount: number, scenes: ReadonlyArray<{ beat?: unknown }>): MacroArcEntry[] {
+  const positional = buildMacroArcPlan(chapterCount);
+  if (!isArcFromBeatsEnabled() || !Array.isArray(scenes) || scenes.length === 0) return positional;
+  return positional.map((entry, idx) => {
+    const beat = String(scenes[idx]?.beat ?? '').trim().toLowerCase();
+    const archetype = ARCHETYPE_BY_BEAT[beat];
+    if (!archetype) return entry;
+    return { ...entry, archetype, ...ARCHETYPE_CONTRACTS[archetype] };
+  });
+}
+
 export function buildMacroArcPlan(chapterCount: number): MacroArcEntry[] {
   const n = Math.max(5, chapterCount);
   const archetypes: Archetype[] = [];

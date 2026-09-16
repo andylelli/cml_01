@@ -8,7 +8,7 @@
  */
 
 import { isChronologyEnabled as isA90ChronologyEnabled, deriveCaseChronology, findUnanchoredClockValues, summariseChronology } from "@cml/cml";
-import { formatNarrative, GOLDEN_AGE_BEATS, isAgent7StructuredOutputEnabled, auditCmlSceneRefs, summariseSceneRefAudit, reconcileCmlSceneRefs, isSceneRefReconcileEnabled, measureClueObligationLoad, summariseClueObligationLoad } from "@cml/prompts-llm";
+import { auditBeatJobs, isBeatJobFieldsEnabled, formatNarrative, GOLDEN_AGE_BEATS, isAgent7StructuredOutputEnabled, auditCmlSceneRefs, summariseSceneRefAudit, reconcileCmlSceneRefs, isSceneRefReconcileEnabled, measureClueObligationLoad, summariseClueObligationLoad } from "@cml/prompts-llm";
 import type { NarrativeOutline, ClueDistributionResult, WorldDocumentResult } from "@cml/prompts-llm";
 import { validateArtifact } from "@cml/cml";
 import type { CaseData } from "@cml/cml";
@@ -2205,6 +2205,24 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
   }
   const fieldHoist = hoistMisplacedSceneFields(narrative);
   recordAgent7Coercion(ctx, { fieldsHoisted: fieldHoist.hoisted });
+  // A_95 M6 — did each beat do its job? Telemetry, not a gate: the CONTRACT in the prompt is the
+  // operation (CLAUDE.md — a gate that drives retries costs +2.43 register points on the retried
+  // chapter), and this line is how the next run says whether the contract landed. Baseline to beat:
+  // false_solution 23 of 51, alibis 2 of 51.
+  if (isBeatJobFieldsEnabled()) {
+    const beatAudit = auditBeatJobs(narrative);
+    const done = beatAudit.checked - beatAudit.failures.length;
+    ctx.warnings.push(
+      `[A_95 M6] beat jobs: ${done}/${beatAudit.checked} scenes did their beat's job` +
+        (beatAudit.failures.length > 0
+          ? ` — short: ${beatAudit.failures
+              .map((f) => `s${f.sceneNumber}/${f.beat}${f.missingFields.length ? ` (no ${f.missingFields.join("+")})` : " (purpose)"}`)
+              .join(", ")}`
+          : "") +
+        " — MEASURE only.",
+    );
+  }
+
   // A_94 — the final scene may not order the alibi walk-back the prompt forbids (15 of 50 outlines did).
   if (isStripClearancesEnabled()) {
     const clearanceStrip = stripClearancesFromFinalScene(narrative);

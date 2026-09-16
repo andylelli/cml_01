@@ -102,7 +102,7 @@ export type {
   PlausibilityJudgeResult,
   PlausibilityJudgeContext,
 } from "./agent3b-plausibility-judge.js";
-export { generateProse, resolveVictimName, buildCharacterPersonalityBlock, buildLocationProfilesBlock, buildTemporalContextBlock, selectSensoryVariant, compileSensoryAtoms, extractBeatFingerprints, buildMacroArcPlan, RESOLUTION_RE, buildResolutionBackstopSentence, blindReadProse, isProseBlindReaderEnabled, isAtomicLockedFactValue, getForbiddenTimeForms, isWordFormTimeValue } from "./agent9-prose.js";
+export { generateProse, resolveVictimName, buildCharacterPersonalityBlock, buildLocationProfilesBlock, buildTemporalContextBlock, selectSensoryVariant, compileSensoryAtoms, extractBeatFingerprints, buildMacroArcPlanFromBeats, isArcFromBeatsEnabled, buildMacroArcPlan, RESOLUTION_RE, buildResolutionBackstopSentence, blindReadProse, isProseBlindReaderEnabled, isAtomicLockedFactValue, getForbiddenTimeForms, isWordFormTimeValue } from "./agent9-prose.js";
 export type { ProseBlindReadResult } from "./agent9-prose.js";
 export type { BeatFingerprint, MacroArcEntry } from "./agent9-prose.js";
 export { precompileStoryContract, resolveVictimContract } from "./story-contract.js";
@@ -415,3 +415,14 @@ export {
   chapterCarriesWitBeat,
 } from "./humour-level.js";
 export type { HumourLevel, HumourBand } from "./humour-level.js";
+
+// A_95 M6 — a beat's job, as required fields on the scene.
+export {
+  BEAT_JOBS,
+  beatJobFor,
+  isBeatJobFieldsEnabled,
+  buildBeatJobContract,
+  auditBeatJobs,
+  buildBeatJobFeedback,
+} from "./agent7-beat-jobs.js";
+export type { BeatJob, BeatJobAudit } from "./agent7-beat-jobs.js";

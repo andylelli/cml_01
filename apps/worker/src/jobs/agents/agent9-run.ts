@@ -32,6 +32,7 @@ import {
   stampDeployedAtoms,
   extractBeatFingerprints,
   buildMacroArcPlan,
+  buildMacroArcPlanFromBeats,
   precompileStoryContract,
   RESOLUTION_RE,
   buildResolutionBackstopSentence,
@@ -4501,7 +4502,12 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   const totalSceneCount =
     narrative.acts?.flatMap((a: any) => a.scenes || []).length || 0;
   // [PHASE 5] Pre-compute macro arc plan for structural archetype locking
-  const macroArcPlan = buildMacroArcPlan(totalSceneCount);
+  // A_95 M6 — the outline's beats own the archetype when AGENT9_ARC_FROM_BEATS is on; otherwise the
+  // positional plan, unchanged.
+  const macroArcPlan = buildMacroArcPlanFromBeats(
+    totalSceneCount,
+    (ctx.narrative as any)?.acts?.flatMap((a: any) => (Array.isArray(a?.scenes) ? a.scenes : [])) ?? [],
+  );
   const moralAmbiguityNote = hardLogicDevices.devices[0]?.moralAmbiguity;
   const proseLockedFacts = (hardLogicDevices.devices ?? []).flatMap((d: any) =>
     Array.isArray(d.lockedFacts) ? d.lockedFacts : []
