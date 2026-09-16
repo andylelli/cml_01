@@ -185,7 +185,7 @@ keeps dense tables, its three tab groups and every panel. Two rules:
 | 18 | `composables/useUiState` (versioned schema) | **DONE** | `PENDING` |
 | 19 | `composables/useRunProgress` (SSE + polls, **preserve B1**) | **DONE — 20 tests, 5 mutations caught; deferral reason was wrong** | `PENDING` |
 | 20 | `composables/useArtifacts` (**fixes B2**) | **DONE — B2 keyed to an id** | `76532cde` |
-| 21 | `composables/useShortcuts` | **DEFERRED — see §9** | `76532cde` |
+| 21 | `composables/useShortcuts` | **DONE — 17 tests; killed the duplicate tab list and the disabled-tab jump** | `PENDING` |
 | 22 | `App.vue` reduced to shell + view switch | **DONE — 3,391 to 125 lines** | `76532cde` |
 | 23 | `InspirationView` | **DONE** | `76532cde` |
 | 24 | `CasesView` + `ReadView` | **DONE — CasesView; ReadView folded into Inspiration + PDF download** | `76532cde` |
@@ -193,7 +193,7 @@ keeps dense tables, its three tab groups and every panel. Two rules:
 | 26 | Workshop: axis control (**fixes B3**) + tone/style coupling note (**B4**) | **DONE — B3 corrected, B4 + B5 surfaced** | `76532cde` |
 | 27 | Restyle existing feature components to tokens | **DONE — 1,088 uses, 0 remaining** | `76532cde` |
 | 28 | Responsive pass — three widths, no horizontal scroll | **DONE — verified 1400/800/375, no page-level x-scroll** | `76532cde` |
-| 29 | A11y pass — labels, `aria-current`, contrast, reduced motion | **partial — new components + ContentSkeleton done; console tables pending** | `PENDING` |
+| 29 | A11y pass — labels, `aria-current`, contrast, reduced motion | **DONE — auditor + 12 tests; was RED on 3 fields and 0 headings. Console non-default tabs not covered** | `PENDING` |
 | 30 | Remove dead code and old Tailwind palette classes | **DONE — old palette at zero** | `76532cde` |
 
 **Next item: 19** (see §9 first).

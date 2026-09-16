@@ -50,6 +50,7 @@ import {
 } from "../services/api";
 import { subscribeToRunEvents } from "../services/sse";
 import { useRunProgress } from "../composables/useRunProgress";
+import { useShortcuts, type Shortcut } from "../composables/useShortcuts";
 import { coerceSpec, defaultSpec, type MysterySpec } from "../spec/vocabulary";
 
 type Mode = "user" | "advanced" | "expert";
@@ -1650,37 +1651,54 @@ const handleValidationFieldFocus = (key: string) => {
   }, 150);
 };
 
-const handleGlobalKeydown = (e: KeyboardEvent) => {
-  const tag = (e.target as HTMLElement).tagName;
-  if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
-  // ? key – toggle shortcut help
-  if (e.key === "?" && !e.ctrlKey && !e.metaKey && !e.altKey) {
-    showShortcutHelp.value = !showShortcutHelp.value;
-    return;
-  }
-  // Esc – close shortcut help
-  if (e.key === "Escape") {
-    showShortcutHelp.value = false;
-    return;
-  }
-  // Ctrl/Cmd+1–6 – jump to main tab
-  if ((e.ctrlKey || e.metaKey) && e.key >= "1" && e.key <= "6") {
-    e.preventDefault();
-    const tabIds = ["project", "spec", "generate", "review", "advanced", "export"];
-    const idx = parseInt(e.key) - 1;
-    const tabId = tabIds[idx];
-    if (tabId) activeMainTab.value = tabId;
-    return;
-  }
-  // j/k – chapter navigation (play mode)
-  if (e.key === "j" && !e.ctrlKey && !e.metaKey) { nextChapter(); return; }
-  if (e.key === "k" && !e.ctrlKey && !e.metaKey) { prevChapter(); return; }
-};
+/**
+ * Keyboard shortcuts (UI-002 item 21), declared rather than branched.
+ *
+ * Two defects went with the rewrite, both of which a hand-written if-chain made easy to miss:
+ *
+ * - **The tab ids were a second copy of `mainTabs`** — a literal six-element array. Rename or
+ *   reorder a tab and Ctrl+3 quietly lands somewhere else. They are now READ FROM `mainTabs`.
+ * - **A disabled tab was still reachable.** `advanced` carries `disabled: !isAdvanced`, and the old
+ *   handler set `activeMainTab` to it regardless, so Ctrl+5 in user mode opened a tab the UI does
+ *   not offer. Disabled tabs are now skipped.
+ *
+ * `Escape` is `whileTyping` because closing a dialog must work from inside a field; the bare letters
+ * deliberately are not.
+ */
+const shortcuts = computed<Shortcut[]>(() => [
+  {
+    key: "?",
+    description: "Show or hide this help",
+    run: () => {
+      showShortcutHelp.value = !showShortcutHelp.value;
+    },
+  },
+  {
+    key: "Escape",
+    whileTyping: true,
+    description: "Close the help",
+    run: () => {
+      showShortcutHelp.value = false;
+    },
+  },
+  ...mainTabs.value.map((tab, index) => ({
+    key: String(index + 1),
+    ctrl: true,
+    preventDefault: true,
+    description: `Go to ${tab.label}`,
+    run: () => {
+      if (!tab.disabled) activeMainTab.value = tab.id;
+    },
+  })),
+  { key: "j", description: "Next chapter", run: () => nextChapter() },
+  { key: "k", description: "Previous chapter", run: () => prevChapter() },
+]);
+
+useShortcuts(shortcuts);
 
 onMounted(async () => {
   hydrateState();
   connectSse();
-  window.addEventListener("keydown", handleGlobalKeydown);
   await loadProjects();
   loadSamples();
   void loadScoringReport();
@@ -1688,7 +1706,6 @@ onMounted(async () => {
 
 onBeforeUnmount(() => {
   disconnectSse();
-  window.removeEventListener("keydown", handleGlobalKeydown);
   /**
    * A_73 — both polling intervals were once left running on unmount.
    *
@@ -1714,7 +1731,9 @@ onBeforeUnmount(() => {
       <aside class="hidden w-60 flex-col border-r border-line bg-surface px-4 py-6 md:flex">
         <!-- The old product name lived here. The app has a wordmark of its own now (brand.ts), and
              this panel is one view inside it rather than the whole application. -->
-        <div class="t-section">Workshop</div>
+        <!-- An h1, not a styled div: this view had no heading element anywhere, so it offered a
+             screen reader no structure to navigate by at all. Item 29. -->
+        <h1 class="t-section">Workshop</h1>
         <p class="t-subtitle mt-1 text-[0.75rem]">Every stage of the pipeline.</p>
         <nav class="mt-6 space-y-1 text-sm">
           <button
@@ -1929,8 +1948,11 @@ onBeforeUnmount(() => {
               <div class="text-sm font-semibold text-ink">Project setup</div>
               <div class="mt-4 grid gap-4 md:grid-cols-2">
                 <div>
-                  <label class="text-xs font-semibold text-ink-soft">Project name</label>
+                  <!-- `for`/`id`: the label was beside the field but not bound to it, so a screen
+                       reader announced an unnamed text box. Item 29. -->
+                  <label for="ws-project-name" class="text-xs font-semibold text-ink-soft">Project name</label>
                   <input
+                    id="ws-project-name"
                     v-model="projectName"
                     class="mt-2 w-full rounded-md border border-line px-3 py-2 text-sm"
                     placeholder="Golden Age Prototype"
@@ -1949,8 +1971,9 @@ onBeforeUnmount(() => {
                   </button>
                 </div>
                 <div>
-                  <label class="text-xs font-semibold text-ink-soft">Load project by ID</label>
+                  <label for="ws-project-id" class="text-xs font-semibold text-ink-soft">Load project by ID</label>
                   <input
+                    id="ws-project-id"
                     v-model="projectIdInput"
                     class="mt-2 w-full rounded-md border border-line px-3 py-2 text-sm"
                     placeholder="proj_..."
@@ -1965,8 +1988,9 @@ onBeforeUnmount(() => {
                   </button>
                 </div>
                 <div>
-                  <label class="text-xs font-semibold text-ink-soft">Load existing project</label>
+                  <label for="ws-project-select" class="text-xs font-semibold text-ink-soft">Load existing project</label>
                   <select
+                    id="ws-project-select"
                     v-model="selectedProjectId"
                     class="mt-2 w-full rounded-md border border-line px-3 py-2 text-sm"
                   >
