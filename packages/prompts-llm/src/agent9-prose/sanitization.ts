@@ -4,6 +4,7 @@
  * Also owns parseProseResponse to avoid circular dependency between generate.ts and repair.ts.
  */
 import { jsonrepair } from "jsonrepair";
+import { isStripBeatTitlesEnabled, stripBeatPrefixFromTitle } from "../agent7-beat-sequence.js"; // A_96 F1
 import { anonymizeUnknownTitledNames } from "@cml/story-validation";
 import type { CastDesign } from "../agent2-cast.js";
 import type { ProseChapter, ProseGenerationResult } from "./types.js";
@@ -145,7 +146,13 @@ export function sanitizeGeneratedChapter(chapter: ProseChapter, validCastNames: 
 
   return {
     ...chapter,
-    title: typeof chapter.title === 'string' ? sanitizeText(chapter.title) : chapter.title,
+    // A_96 F1 — 8 of 10 chapter titles on run 50862 were the outline's scene title verbatim, two
+    // carrying the beat name ("False Solution: The Judge's Compass"). The prefix is Agent 7's
+    // bookkeeping, not the reader's.
+    title:
+      typeof chapter.title === 'string'
+        ? sanitizeText(isStripBeatTitlesEnabled() ? stripBeatPrefixFromTitle(chapter.title) : chapter.title)
+        : chapter.title,
     summary: typeof chapter.summary === 'string' ? sanitizeText(chapter.summary) : chapter.summary,
     paragraphs: Array.isArray(chapter.paragraphs)
       ? chapter.paragraphs

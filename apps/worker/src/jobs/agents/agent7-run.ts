@@ -8,7 +8,7 @@
  */
 
 import { isChronologyEnabled as isA90ChronologyEnabled, deriveCaseChronology, findUnanchoredClockValues, summariseChronology } from "@cml/cml";
-import { auditBeatJobs, isBeatJobFieldsEnabled, formatNarrative, GOLDEN_AGE_BEATS, isAgent7StructuredOutputEnabled, auditCmlSceneRefs, summariseSceneRefAudit, reconcileCmlSceneRefs, isSceneRefReconcileEnabled, measureClueObligationLoad, summariseClueObligationLoad } from "@cml/prompts-llm";
+import { auditBeatJobs, isBeatJobFieldsEnabled, repairBeatSequence, isBeatSequenceRepairEnabled, formatNarrative, GOLDEN_AGE_BEATS, isAgent7StructuredOutputEnabled, auditCmlSceneRefs, summariseSceneRefAudit, reconcileCmlSceneRefs, isSceneRefReconcileEnabled, measureClueObligationLoad, summariseClueObligationLoad } from "@cml/prompts-llm";
 import type { NarrativeOutline, ClueDistributionResult, WorldDocumentResult } from "@cml/prompts-llm";
 import { validateArtifact } from "@cml/cml";
 import type { CaseData } from "@cml/cml";
@@ -2221,6 +2221,18 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
           : "") +
         " — MEASURE only.",
     );
+  }
+
+  // A_96 F2 — the beat sequence is a sequence: 36 of 52 stored outlines duplicated a beat, and a
+  // second final_trap on run 50862 put the clearances AFTER the arrest and the reveal contract one
+  // chapter late. Repairs (relabel / strip / retitle), never a gate.
+  if (isBeatSequenceRepairEnabled()) {
+    const seq = repairBeatSequence(narrative);
+    const parts: string[] = [];
+    if (seq.relabelled.length) parts.push(`relabelled ${seq.relabelled.map((r) => `s${r.sceneNumber} ${r.from}->${r.to}`).join(", ")}`);
+    if (seq.clearancesStripped.length) parts.push(`clearances stripped after the reveal in s${[...new Set(seq.clearancesStripped.map((c) => c.sceneNumber))].join(",s")}`);
+    if (seq.titlesStripped.length) parts.push(`beat-name prefixes removed from ${seq.titlesStripped.length} title(s)`);
+    if (parts.length) ctx.warnings.push(`[A_96 F2] beat sequence repaired: ${parts.join("; ")}`);
   }
 
   // A_94 — the final scene may not order the alibi walk-back the prompt forbids (15 of 50 outlines did).

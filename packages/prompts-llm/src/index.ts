@@ -429,3 +429,13 @@ export {
   buildBeatJobFeedback,
 } from "./agent7-beat-jobs.js";
 export type { BeatJob, BeatJobAudit } from "./agent7-beat-jobs.js";
+
+// A_96 F1/F2 — the beat sequence is a sequence, and its names are not for the reader.
+export {
+  BEAT_ORDER,
+  isBeatSequenceRepairEnabled,
+  isStripBeatTitlesEnabled,
+  stripBeatPrefixFromTitle,
+  repairBeatSequence,
+} from "./agent7-beat-sequence.js";
+export type { BeatSequenceRepair } from "./agent7-beat-sequence.js";

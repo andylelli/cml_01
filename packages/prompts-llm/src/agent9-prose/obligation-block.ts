@@ -521,6 +521,9 @@ export const renderLocationForProse = (label: string): string => {
  * contract does not duplicate. Nothing is emitted twice: the culprit-naming and motive lines stay
  * with the DT block, which already states both.
  */
+export const isEarliestTrapWinsEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT9_EARLIEST_TRAP_WINS ?? "").trim());
+
 export const isRevealOnDtChapterEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
   /^(1|true|yes|on)$/i.test(String(env.AGENT9_REVEAL_ON_DT_CHAPTER ?? "").trim());
 
@@ -1070,11 +1073,18 @@ const REVEAL_SIGNAL_RE = /\b(culprit|confront|confession|resolve|resolution|deno
       const trapBeats = aftermathExcluded
         ? pool.filter((c) => String(c?.beat ?? "").toLowerCase() === "final_trap" && !dtClaimStandsFor(c))
         : [];
+      /**
+       * A_96 F10 — when the outline carries two `final_trap` scenes (11 of 52 stored outlines), the
+       * prose confesses at the FIRST and the last-wins rule sent the reveal contract to the second:
+       * on run 50862 the kill statement and arithmetic reached chapter 9 while the arrest was in
+       * chapter 8. The earliest trap is where the confession happens.
+       */
+      const trapWinner = isEarliestTrapWinsEnabled() ? trapBeats[0] : trapBeats[trapBeats.length - 1];
       const winner =
         byCoordinate[byCoordinate.length - 1] ??
         freeKeywordClaimants[freeKeywordClaimants.length - 1] ??
         freeRevelationBeats[freeRevelationBeats.length - 1] ??
-        trapBeats[trapBeats.length - 1] ??
+        trapWinner ??
         null;
       revealWinnerSceneNumber = winner ? Number(winner.sceneNumber) : null;
     }
