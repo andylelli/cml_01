@@ -114,6 +114,17 @@ describe("the audit catches the defect on the book it was found in", () => {
     expect(auditBeatJobs({ acts: [{ scenes: [{ sceneNumber: 1, beat: "gathering", purpose: "Anything at all" }] }] }).checked).toBe(0);
   });
 
+  /**
+   * MEASURED on run 50862: the audit scored scene 5 as failing when its purpose read "end with a
+   * SECOND DRAMATIC INCIDENT" — an adjective between "second" and "incident" broke the match. A false
+   * negative in an audit is worse than no audit: it reports a defect that is not there and hides that
+   * the contract worked.
+   */
+  it("REGRESSION: an adjective between 'second' and 'incident' still counts", () => {
+    const n = { acts: [{ scenes: [{ sceneNumber: 5, beat: "alibis", purpose: "Test alibis and expose contradictions; end with a second dramatic incident", secondIncident: "A rival's car is tampered with overnight." }] }] };
+    expect(auditBeatJobs(n).failures).toEqual([]);
+  });
+
   it("no acts, no crash", () => {
     expect(auditBeatJobs(null)).toEqual({ failures: [], checked: 0 });
   });

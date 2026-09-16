@@ -61,10 +61,13 @@ export const BEAT_JOBS: readonly BeatJob[] = [
       '"secondIncident": a NEW event that happens in this scene — a threat, a theft, a second ' +
       "discovery, a disappearance. Not a deduction about the murder already committed. The beat ends " +
       "on it.",
-    // The first cut of this list had "theft" but not "broken into", and so failed its own worked
-    // fixture — the same shape as A_92's missing "stabbing". Widened with the physical intrusions a
-    // Golden Age second incident actually takes.
-    test: /second (incident|death|body|attack|shock|discovery)|threat|theft|stolen|broke?n? in(to)?|break-in|intrud|ransack|fire breaks|assault|disappear|vanish|another (death|body|attack)/i,
+    // Widened TWICE, both times because the detector was narrower than the language:
+    //   (a) it had "theft" but not "broken into", and failed its own worked fixture;
+    //   (b) MEASURED on run 50862 — it scored scene 5 as failing when the purpose read "end with a
+    //       SECOND DRAMATIC INCIDENT", because an adjective between "second" and "incident" broke the
+    //       match. A false negative in an audit is worse than no audit: it reports a defect that is
+    //       not there and hides that the contract WORKED.
+    test: /second\s+(?:\w+\s+)?(incident|death|body|attack|shock|discovery|crime)|threat|theft|stolen|broke?n? in(to)?|break-in|intrud|ransack|fire breaks|assault|disappear|vanish|another (death|body|attack)/i,
   },
   {
     beat: "motives",

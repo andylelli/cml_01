@@ -348,8 +348,13 @@ export const buildOwnedShapeLines = (
       `Nor may the narrator remark that an answer was short, final, brief or unelaborated — not in ANY wording, ` +
       `including one not listed here. MEASURED on run 50862: "Four words, final." and "She did not elaborate." ` +
       `were both banned and the model wrote "her answer as brief as the fading light" seven times instead. ` +
+      `AND NEVER STATE A WORD COUNT. The numbers in this instruction are for you, not for the page: no ` +
+      `"her answer was six words", no "his reply came in four words", and no character who says "Six ` +
+      `words". MEASURED on run 50862, which wrote the banned phrase "She did not elaborate" TEN times, ` +
+      `"as brief as" seven times, a word count six times, and gave one character the line "Six words." ` +
       `So, positively: the sentence after a short answer must be what SOMEBODY ELSE DOES — a movement, an ` +
-      `object handled, a look away, the next question. Never a description of the answer.`,
+      `object handled, a look away, the next question. Never a description of the answer, and never a ` +
+      `count of it.`,
   );
   return lines;
 };
