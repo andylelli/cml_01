@@ -418,7 +418,7 @@ spans, while banned chapters range 33 to 304. Recorded as open.
 | M4 wit shapes | **FAILED, cause measured, R4d built** |
 | M5 dated motive | **FAILED** — the act arrived, the date did not |
 | repetition | **FLAGGED, NOT ATTRIBUTED** — needs a matched pair |
-| R5 repeat ban | **REFUTED as an operation** — issued in 8 chapters, ignored |
+| R5 repeat ban | **BOUNDED, not refuted** — A_96 §1 B4 measured it per passage: 28 of 38 listed passages stopped entirely; the two that rose were forced by a competing obligation in the same prompt |
 
 **NEXT: a matched pair on 50862** (`RESUME_REDO=prose`, ~£0.45) carrying R4d, which settles the wit
 cause and the repetition attribution against byte-identical upstream. M5's date and M6's two scene
