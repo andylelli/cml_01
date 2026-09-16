@@ -136,7 +136,7 @@ so they are not "fixed" again.
 
 | B12 | **Two owners of one localStorage key.** `WorkshopView` still wrote `persistState()` to `cml_ui_state` after the shell took that key with a versioned schema | **FIXED** (item 27 commit). The console's unversioned payload overwrote the shell's on every interaction; the shell's `hydrate()` then correctly rejected it for having no version; the visible effect was advanced mode silently reverting to user on every reload. **Found by running the app, not by reading it** — two owners of one key type-check perfectly and pass every test. The console now owns `cml_workshop_state`, which is right on the merits: the two persist different things |
 | B13 | `WorkshopView` holds its own `mode` and `spec` refs, independent of the shell's | **RECORDED, NOT FIXED.** No data is lost, but a spec configured in Create is not the spec the console shows, and advanced mode must be toggled again inside. The fix is to hoist both into shared state, which is **item 25** — and doing it here would mean changing the toggles the console's four existing tests drive. Partly reduced: both now use `defaultSpec()` and `coerceSpec()` from one vocabulary |
-| B14 | **`npm run build` does not type-check.** The script is `vite build`, and `@vitejs/plugin-vue` transpiles without checking | **RECORDED, NOT FIXED — needs a dependency decision.** TypeScript errors ship silently; only `vitest` catches anything, and only where a test exercises the path. The fix is a `vue-tsc --noEmit` step, which means adding a devDependency (`npx vue-tsc` fails here: it resolves a TypeScript whose `exports` map has no `./lib/tsc`). Recommended, but an install is the user's call |
+| B14 | **`npm run build` did not type-check.** The script was `vite build`, and `@vitejs/plugin-vue` transpiles without checking | **FIXED** (item 31). `vue-tsc@2.2.12` added to `@cml/web`; `npm run typecheck` added; `build` is now `npm run typecheck && vite build`. The first run found **32 errors across 5 files**, all pre-existing and all now fixed. The gate was then verified by injecting a bad type and confirming the build rejects it — a gate nobody has seen fire is a claim about the gate |
 
 Further bugs found during the rebuild are appended here with their item number.
 
@@ -193,7 +193,7 @@ keeps dense tables, its three tab groups and every panel. Two rules:
 | 26 | Workshop: axis control (**fixes B3**) + tone/style coupling note (**B4**) | **DONE — B3 corrected, B4 + B5 surfaced** | `76532cde` |
 | 27 | Restyle existing feature components to tokens | **DONE — 1,088 uses, 0 remaining** | `76532cde` |
 | 28 | Responsive pass — three widths, no horizontal scroll | **DONE — verified 1400/800/375, no page-level x-scroll** | `76532cde` |
-| 29 | A11y pass — labels, `aria-current`, contrast, reduced motion | **partial — new components done, ContentSkeleton fixed; full sweep pending** | `76532cde` |
+| 29 | A11y pass — labels, `aria-current`, contrast, reduced motion | **partial — new components + ContentSkeleton done; console tables pending** | `PENDING` |
 | 30 | Remove dead code and old Tailwind palette classes | **DONE — old palette at zero** | `76532cde` |
 
 **Next item: 19** (see §9 first).
@@ -239,11 +239,33 @@ hoist into shared state.
 
 ---
 
-## 10. RECOMMENDED NEXT, IN ORDER
+## 10. WHAT THE TYPECHECK FOUND (item 31)
 
-1. **B14 — add a type-check step.** `npm run build` is `vite build`; nothing type-checks this app, so
-   TS errors ship silently. Needs a `vue-tsc` devDependency, hence a decision rather than a commit.
-2. **Item 19**, with the API running.
-3. **Item 25**, which unblocks 21 and B13.
-4. **Item 29's remaining sweep** — the new components and `ContentSkeleton` are done; the console's
+Adding `vue-tsc --noEmit` and gating the build on it surfaced **32 errors across 5 files**, every one
+pre-existing and invisible. They are worth listing because the distribution is the argument for the
+gate:
+
+| file | n | what it was |
+|---|---:|---|
+| `RunHistory.test.ts` + `RunHistory.vue` | 17 | `runId?: string` while **every call site passes `null`** — the store holds `string | null`. One wrong prop type, seventeen errors |
+| `WorkshopView.vue` | 9 | `outlineData.chapters` was `unknown`, so the `v-for` item typed as `never` and **every field read off a chapter was an error** |
+| `CreateView.vue` | 5 | mine: `FlavourOption` has no `icon`, `Option` required one. Split into `Option` (icon optional, for selects) and `TileOption` (icon required, for tiles) |
+| `ErrorNotification.test.ts` | 1 | helper typed as `Parameters<typeof mount>[1]`, which widens `stubs` to include its array form |
+
+None of these would have failed a test. `RunHistory` renders fine with `runId = null`; the outline
+template already coped with missing fields. They are the class of defect that only a type-checker
+sees — which is exactly why the app had accumulated them over its whole life.
+
+**The gate was then verified rather than assumed**: a deliberate bad value was injected into
+`vocabulary.ts`, the build was confirmed to reject it with `TS2322`, and the source restored.
+
+---
+
+## 11. RECOMMENDED NEXT, IN ORDER
+
+1. **Item 19**, with the API running so each SSE/poll branch can be seen firing.
+2. **Item 25**, which unblocks 21 and B13.
+3. **Item 29's remaining sweep** — the new components and `ContentSkeleton` are done; the console's
    own dense tables have not been audited for labels and focus order.
+4. Consider extending the typecheck gate to the other workspaces — `packages/*` build with `tsc` so
+   they are covered, but `apps/api` and `apps/worker` were not audited as part of this work.

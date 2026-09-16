@@ -8,7 +8,12 @@ export interface RunEvent {
 
 const props = defineProps<{
   events: RunEvent[];
-  runId?: string;
+  /**
+   * `| null` because that is what the caller actually has: the store holds `string | null`, and
+   * every call site was already passing null. The type said otherwise and nothing checked it —
+   * 17 of the 32 errors the new typecheck step found were this one omission.
+   */
+  runId?: string | null;
   maxEvents?: number;
 }>();
 
@@ -48,8 +53,12 @@ const getEventCardClass = (step: string) => {
 const hasEvents = computed(() => props.events.length > 0);
 const isPreviewMode = computed(() => typeof props.maxEvents === "number" && props.maxEvents > 0);
 const displayedEvents = computed(() => {
-  if (!isPreviewMode.value) return props.events;
-  return props.events.slice(-props.maxEvents).reverse();
+  // Read once into a local rather than relying on `isPreviewMode` to narrow `props.maxEvents` —
+  // a computed cannot narrow another ref's type, so `slice(-undefined)` was reachable to the
+  // compiler even though the guard makes it unreachable at runtime.
+  const limit = props.maxEvents;
+  if (!isPreviewMode.value || typeof limit !== "number") return props.events;
+  return props.events.slice(-limit).reverse();
 });
 const isTruncated = computed(() => isPreviewMode.value && props.events.length > (props.maxEvents ?? 0));
 </script>

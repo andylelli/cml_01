@@ -1,17 +1,32 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
-import { mount } from "@vue/test-utils";
+import { mount, type ComponentMountingOptions } from "@vue/test-utils";
 import { nextTick } from "vue";
 import ErrorNotification from "../ErrorNotification.vue";
 import type { ErrorItem } from "../types";
 
-const mountWithStubs = (options: Parameters<typeof mount>[1]) =>
+/**
+ * Typed against THIS component rather than `Parameters<typeof mount>[1]`.
+ *
+ * The generic form widens `stubs` to include its array shape, so spreading it produced a union with
+ * an array's members in it — which is why the error named `length` and `toLocaleString`. It also
+ * meant the helper accepted props this component does not have.
+ */
+type Options = ComponentMountingOptions<typeof ErrorNotification>;
+
+/** `stubs` may be a record OR an array of names; normalise before spreading. */
+const asStubRecord = (stubs: unknown): Record<string, unknown> =>
+  Array.isArray(stubs)
+    ? Object.fromEntries(stubs.map((name) => [String(name), true]))
+    : ((stubs as Record<string, unknown> | undefined) ?? {});
+
+const mountWithStubs = (options: Options = {}) =>
   mount(ErrorNotification, {
     ...options,
     global: {
-      ...(options?.global ?? {}),
+      ...(options.global ?? {}),
       stubs: {
         "font-awesome-icon": true,
-        ...(options?.global?.stubs ?? {}),
+        ...asStubRecord(options.global?.stubs),
       },
     },
   });

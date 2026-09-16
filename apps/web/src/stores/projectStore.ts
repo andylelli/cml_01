@@ -1,5 +1,22 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
+
+/**
+ * One chapter of the normalised outline.
+ *
+ * Every field is optional on purpose: `normalizeOutline` accepts two shapes — a payload that
+ * already has `chapters`, and one with `acts[].scenes[]` that it flattens — and neither guarantees
+ * any particular field. The templates already coped (`chapter.title || 'Untitled'`); what was
+ * missing was a type saying so.
+ */
+export interface OutlineChapter {
+  title?: string;
+  summary?: string;
+  description?: string;
+  events?: unknown[];
+  sceneNumber?: number;
+  [key: string]: unknown;
+}
 import type { AllValidation, ProseData, RunEvent, ValidationResult, NoveltyAuditData, CharacterProfilesData, LocationProfilesData, TemporalContextData, HardLogicDevicesData, BackgroundContextData } from "../components/types";
 import {
   fetchBackgroundContext,
@@ -64,7 +81,13 @@ export const useProjectStore = defineStore("project", () => {
   const castData = ref<{ suspects?: string[] } | null>(null);
   const cluesData = ref<{ summary?: string; items?: Array<{ id: string; category: string; text: string; pointsTo: string; redHerring: boolean; revealChapter?: number }> } | null>(null);
   const fairPlayReport = ref<{ summary?: string; checks?: Array<{ id: string; label: string; status: string }> } | null>(null);
-  const outlineData = ref<{ chapters?: unknown } | null>(null);
+  /**
+   * `chapters` was `unknown`, so every template that walked it typed its item as `never` and nine
+   * type errors sat in WorkshopView unseen — the build never type-checked (B14). The shape below is
+   * what `normalizeOutline` actually produces; every field stays optional because both source
+   * shapes (a `chapters` array, or `acts[].scenes[]`) are partial.
+   */
+  const outlineData = ref<{ chapters?: OutlineChapter[] } | null>(null);
   const synopsisData = ref<{ title?: string; summary?: string } | null>(null);
   const proseData = ref<ProseData | null>(null);
   const characterProfilesData = ref<CharacterProfilesData | null>(null);

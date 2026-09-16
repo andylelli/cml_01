@@ -1,7 +1,7 @@
 <script setup lang="ts" generic="T extends string">
 import AppIcon from "./AppIcon.vue";
 import type { IconName } from "./icons";
-import type { Option } from "./types";
+import type { TileOption } from "./types";
 
 /**
  * The boards' row of illustrated, selectable tiles (Era, Setting, Tone).
@@ -21,7 +21,7 @@ const props = defineProps<{
 	/** Radio group name; must be unique on the page. */
 	name: string;
 	legend: string;
-	options: readonly Option<T>[];
+	options: readonly TileOption<T>[];
 	/** Minimum tile width before the row wraps. Narrower for dense groups. */
 	minTile?: number;
 }>();
