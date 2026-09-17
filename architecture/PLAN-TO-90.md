@@ -1784,3 +1784,49 @@ label, with the flag ON. The two clearance strippers also dropped the confrontat
 reveal scene whenever it mentioned the culprit's broken alibi (45 of 120 dropped clauses carried
 reveal language) and are now one body. Neither would have been visible to a reader as anything but
 "chapter 10 recaps". Three latent shapes recorded, not built. Suites green (3,169), flags clean.
+
+## 18. A_97 — THE CORPUS, AND THE INSTRUMENTS THAT MOVED WITH IT · 2026-09-17 · £2.80
+
+The reference library was 14 works and 719,552 words, and A_77 §15's 39-title list had been built by
+opening a Gutenberg search page one title at a time. Enumerating the catalogue instead — one 21 MB
+CSV, 79,381 English text rows — and filtering by the §8.1 clearance rule gives **517 rows**, of which
+**431 are GREEN** in both jurisdictions.
+
+| | before | after |
+|---|---|---|
+| works | 14 | **166** |
+| words | 719,552 | **12,299,319** |
+| encoded cases | 12 | **30** |
+| novelty ledger | 14 | **28** (15 evidence-backed) |
+
+**The point for this board is not the acquisition. It is that three instruments changed without any
+code changing**, because all three were estimates taken from a 12-book sample:
+
+1. **The canon's own register numbers.** `meanSentenceWords` canon 16.09 → **14.88**, and ours is
+   14.88 — **the mean gap is now exactly 0.00**. `emDashesPer1000Words` 6.52 → **8.65**, so that gap
+   is −7.64 rather than −5.51 and is now the largest countable operation gap on the board.
+   `semicolonsPer1000Words` 4.82 → **3.66** — the old target was **32% too high**, and A_75 measured
+   a semicolon instruction actually moving the count 5 → 13, so it is a target that gets acted on.
+2. **The anti-copy threshold.** `DEFAULT_N` 10 → **11**. Same detector, same 229 known negatives: at
+   12 works n=8 fired on 2.9% of them, at 165 it fires on **45.9%**, and n=10 went 0.0% → 0.9%. **A
+   corpus change is a reason to re-baseline exactly as a code change is.**
+3. **Coverage against A_77 §9.** `identity` 2 → **13** and `behavioral` 4 → **7** now meet their
+   targets; `authority` 0 → 1 has an entry for the first time; the mechanism-family gap is 36 → 27.
+   §9.1's hand-counted table had said `behavioral` was 0 since before the first re-encode.
+
+The anti-copy index had to be rebuilt to survive this at all: a `Set<string>` of 10-grams costs 170
+bytes each and would be 1.8 GB here. A sorted `Float64Array` of 53-bit fingerprints is 8 bytes each,
+83 MB, with a computable collision rate of 4.4e-12 per queried n-gram.
+
+**Five defects, four of them invisible to reading.** Three were in filters I wrote — an illustrator
+counted as a co-author (which silently dropped four of the five reachable Van Dine novels), a
+pseudonym mismatch whose first fix *still* lost *The Greene Murder Case*, and a `Math.min` that
+accepted an Open Library record dating *The Moonstone* to 1800. Two were pre-existing: four scripts
+defaulting at a closed session's scratchpad, and `corpus-derive` silently overwriting
+`corpus-classify`'s judgements in the file they share. The one check that read like a validation —
+"38 of 39 curated ids recovered" — never ran the function that was broken.
+
+**NOT SETTLED: whether any of this makes a better book.** It is all input-side. The harness's accept
+rate on newly acquired text is 18 of 24 against 8 of 8 on the August books it was tuned against, and
+that is the thing to look at before the next batch is bought. 349 GREEN works remain unacquired, and
+`library/candidates.json` is committed, so the next batch is a script invocation.

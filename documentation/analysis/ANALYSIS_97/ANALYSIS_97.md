@@ -9,10 +9,11 @@ end — enumerate the catalogue, apply the clearance rule as a filter, and let t
 what exists rather than by what anyone remembered to look up.
 
 **Headline.** The reachable pool is not 39 works. It is **517 catalogue rows** that the Library of
-Congress calls detective fiction and whose author died in 1955 or earlier; **391 of them are GREEN**
-in both jurisdictions and not yet held. The library went from 14 works to **142**, from 719k words to
-**10.4M**. Everything below the headline is about the filters, because two of the three I wrote were
-wrong in ways that a summary would have hidden.
+Congress calls detective fiction and whose author died in 1955 or earlier. The library went from 14
+works to **166**, from 719k words to **12.3M**, and **349 cleared works remain unacquired**. 24 were
+encoded for £2.80; `identity` and `behavioral` now meet their §9 targets and `authority` has an entry
+for the first time. Everything below the headline is about the filters and the pipeline, because
+**five of the things I relied on were wrong**, and four of those were only visible by running them.
 
 ---
 
@@ -285,40 +286,122 @@ None of these were visible by reading.
 ## §9 Coverage — what the corpus actually holds
 
 `scripts/corpus-coverage.mjs` computes the A_77 §9 targets, which nothing did. **§9.1's hand-counted
-table has been wrong since the first re-encode landed**: it records `behavioral` as 0, and it is 4.
+table has been wrong since the first re-encode landed**: it records `behavioral` as 0, and it was 4.
 
-State before this analysis's encode batch, over the 12 encoded works:
+The £5 batch was spent on the §15.1 titles rather than on whatever was cheapest — the forms §9.3 says
+we hold none of, plus the empty `authority` axis. **MEASURED, 24 works, £2.799 of new spend** (ledger
+£2.1094 → £4.9084 against a £7.11 cumulative ceiling):
 
-| axis | have | target | gap |
+| axis | before | after | target |
 |---|---|---|---|
-| temporal | 1 | 8 | 7 |
-| spatial | 5 | 8 | 3 |
-| identity | 2 | 8 | 6 |
-| behavioral | 4 | 6 | 2 |
-| **authority** | **0** | 6 | 6 |
+| identity | 2 | **13** | 8 ✓ |
+| behavioral | 4 | **7** | 6 ✓ |
+| spatial | 5 | 6 | 8 |
+| temporal | 1 | 3 | 8 |
+| **authority** | **0** | **1** | 6 |
 
-Ten of the sixteen mechanism families are empty, **36 family slots short** of the §9.2 target of three
-attested works each. The schema carries sixteen families, not the fourteen §9.2 names —
-`role_invisibility` and `investigative_blind_spot` were added later and no analysis has counted them.
+Mechanism-family gap **36 → 27**; six of sixteen families now meet the target, up from two. The schema
+carries sixteen, not the fourteen §9.2 names — `role_invisibility` and `investigative_blind_spot` were
+added later and no analysis had counted them.
 
-**What coverage cannot do, deliberately:** it cannot say which *unacquired* work fills a gap. Axis and
-mechanism family are assigned by the ENCODE stage from the text (§10.3) precisely because assigning
-them from a title is how four hallucinated plots entered the library in the first place. So it reports
-the hole; choosing what to throw at it stays a judgement made from the curated column, re-measured
-after each batch rather than predicted before it.
+**18 of 24 encodes produced a validator-clean case. Six produced nothing**, which is the accept gate
+working: a case that cannot pass `validateCml` is not written. Anchor coverage on the new cases runs
+from 3/18 to **19/19** (*The Memoirs of Sherlock Holmes*).
+
+### 9.1 The derive stage overwrote the classify stage, and nothing said so
+
+`corpus-classify.mjs` writes `mechanism_family`, `false_assumption_pattern` and `inference_shape` back
+**into** `fingerprint.yaml` — the file `corpus-derive.mjs` generates. So a second derive run over the
+library replaces an LLM judgement with a regex guess, silently.
+
+**MEASURED, by doing it.** A bare `node scripts/corpus-derive.mjs` after the batch rewrote **12 of 12**
+pre-existing fingerprints. *A Jury of Her Peers* went `staged_scene` → `secret_will_inheritance` —
+which is the exact failure `corpus-classify.mjs`'s own header is written to explain, the word "will"
+appearing in the mechanism text as a **verb**. *The Mystery of the Yellow Room* and *The Big Bow
+Mystery* both lost `locked_room_timing`. The family histogram collapsed into two buckets: 12
+`impersonation` and 10 `staged_scene` out of 30, which is the signature of a bad classifier rather
+than of a corpus.
+
+A_79 §11.4 had already recorded the more expensive half of the same collision: derive builds
+`false_assumption_pattern` from the first four words of a sentence, the novelty judge uses it as a
+similarity key, and when a derived row last won, **a deliberate paraphrase of The Big Bow Mystery
+stopped being caught**.
+
+Reverted, and derive now **skips a work that already has a fingerprint** unless it is named explicitly
+or `--force` is passed. The default path — run derive after a batch — is now the safe one, which is
+the right way round for a script whose job is to be run repeatedly.
+
+**How wrong is the regex?** Classify changed **14 of the 18** new families, for £0.0481. The
+`false_assumption_pattern` values moved from name fragments (`medhurst_is_a_loyal`) to actual
+abstractions (`the_detective_is_a_trusted_ally`), which is what the novelty judge compares on.
+
+### 9.2 A fourth dead scratchpad path, and the one that was hardest to see
+
+`corpus-verify.mjs` defaulted its source directory to the same closed session's scratchpad as
+`corpus-encode.mjs` and `corpus-encode-all.mjs`. Its failure mode is the reason it lasted: a missing
+source prints **"source text not cached — cannot recompute"**, which reads like a fact about the
+corpus. Every work the script exists to rescue was in that bucket. Now defaults to `library/texts`.
+
+### 9.3 The ledger, and what the evidence gate kept out
+
+`packages/novelty/data/seed-fingerprints.yaml` is now 28 entries — 15 evidence-backed, 5
+`derived_unverified`, 8 legacy hand-authored. **The evidence gate demoted 10 works** whose anchor
+coverage is below 60%, six of them new. Those need re-encoding, not promoting, and the gate refusing
+to carry them is the corpus working as designed rather than a shortfall.
 
 ---
 
 ## §10 What this does not settle
 
-- **Nothing here has been read by a generator.** Acquisition and clearance are input-side work. The
-  novelty judge and the device library gain nothing from a text until an encode runs against it.
-- **The anti-copy baseline has not been re-run at the new corpus size.** `DEFAULT_N = 10` was
-  calibrated against 719,552 words and the index is now 14× that. The false-positive rate can only
-  have gone up, and the number is not yet known. **This is the first thing to run next**, and until it
-  is run `PROSE_ANTI_COPY_GATE` should stay off.
-- **The calibration corpus is still computed over 12 works.** `library/calibration/*.json` records
-  `canon_works: 12, canon_words: 720329`. Recomputing it over 141 works is free and would sharpen
-  exactly the p90 tail that A_93 identified as the register gap — but it has not been done here.
-- **391 GREEN rows remain unacquired**, and the survey that found them is a committed artifact
+- **Nothing here has been read by a generator.** This is all input-side. Whether a corpus of 166
+  works and 28 fingerprints produces a better book than one of 14 and 14 is untested, and a single
+  run cannot test it — A_96's rule applies, and the rubric cannot rank two books inside ~7 marks.
+- **Six of the 24 encodes failed and five more were demoted by the evidence gate.** The harness's
+  accept rate on newly acquired text is **18 of 24**, measured, against 8 of 8 on the August books it
+  was tuned against. That is worth a look before the next batch is bought.
+- **`authority` is at 1 of 6 and `temporal` at 3 of 8**, so the two axes A_77 §9 cared most about are
+  still the two thinnest. 27 family slots remain.
+- **349 GREEN rows remain unacquired**, and the survey that found them is a committed artifact
   (`library/candidates.json`), so the next batch is a script invocation rather than another sweep.
+- **The translated bucket is unresolved**, including one work already in the library
+  ([§5.1](#51-translations--38-rows-and-one-already-in-the-library)).
+
+---
+
+## §11 The corpus grew 14× and the clean threshold moved with it
+
+`DEFAULT_N = 10` was calibrated on 2026-08-31 against **719,552 words** in 12 works. The index is now
+**10,507,377 words** in 141. The false-positive rate can only go up with the index, and the question
+was how far.
+
+**MEASURED 2026-09-17 by `scripts/anticopy-baseline.mjs`, over 229 archived manuscripts** — every one
+of them a known negative by construction, because no source prose has ever reached a prompt.
+
+| n | indexed n-grams | manuscripts firing (2026-08-31, 12 works) | manuscripts firing (2026-09-17, 141 works) |
+|---|---|---|---|
+| 8 | 10,414,580 | 6 (2.9%) | **105 (45.9%)** |
+| 10 | 10,422,802 | 0 (0.0%) | **2 (0.9%)** |
+| 12 | 10,424,481 | — | **0 (0.0%)** |
+| 14 | 10,425,318 | 0 (0.0%) | 0 (0.0%) |
+
+**n=8 went from 2.9% to 45.9% — a sixteenfold rise on the same known negatives.** That is the whole
+argument for re-running a baseline after changing a corpus, stated in one row: nothing about the
+detector changed, and its false-positive rate changed by more than an order of magnitude.
+
+**n=10 is no longer clean.** It fires on 2 of 229, both at exactly ten words — *"the back of a chair
+as if to steady himself"* is the longer one, which is period-idiomatic phrasing colliding by chance,
+precisely the class A_79 §5 predicted and could not size without measuring. As a hard fail that is
+about one chapter in a hundred killed for nothing.
+
+**The synthetic positive is CAUGHT at every n tested**, at its full 40 words — a passage lifted
+verbatim from *The Moonstone*. So raising the threshold costs no detection on real copying, which is
+what makes the move free rather than a trade.
+
+Two things this does NOT establish, and they are recorded rather than assumed:
+
+1. The baseline ran at **141 works**; the library finished at **165**. The rate is monotonic in index
+   size, so n=12's zero has to be re-confirmed at the final corpus before `DEFAULT_N` is changed.
+   Setting it from a measurement taken against a different corpus is the drift this project has a
+   record of.
+2. A firing rate is not a detection rate. These 229 manuscripts say what the gate costs when nothing
+   is wrong; nothing here says what it catches when something is.
