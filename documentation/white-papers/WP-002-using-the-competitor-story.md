@@ -49,7 +49,8 @@ lever and this paper's ordering is wrong.
 Sections 1–2 place the guide against the pipeline. Section 3 is the measurements. Section 4 applies
 the compliance law to every control the reader proposed. Section 5 is the kit, ordered by evidence,
 each item with its flag, its instrument and its falsifier. Section 6 renders the reader's presets in
-this project's own parameter file. Section 7 is what not to do, with the receipt for each.
+this project's own parameter file. Section 7 is what not to do, with the receipt for each. Appendix B
+costs the kit in three tiers — what is free, what is pennies, and what is a spend.
 
 ---
 
@@ -545,7 +546,7 @@ measured here.
 
 ---
 
-## 11. APPENDIX — THE READER'S GUIDE, AS RECEIVED
+## 11. APPENDIX A — THE READER'S GUIDE, AS RECEIVED
 
 The guide's parameter tables are reproduced in §2 (crosswalk), §4 (rates), §5 (romance moves, social
 parameters, humour-by-role, evidence techniques, prompt modules) and §6 (presets and the worked
@@ -566,3 +567,96 @@ And its bottom line, which this paper agrees with in every clause but the last f
 
 `HUMOUR_MODE` is already a first-class control here and has not moved the mark; the archive says the
 gains are in the other four, in the order expertise, stakes, aftermath, arc.
+
+---
+
+## 12. APPENDIX B — WHAT IT COSTS, IN THREE TIERS
+
+Three kinds of cost, and they are not the same size. **Run-time cost** is what a lever adds to every
+book, forever: prompt tokens at Agent 9 (70% of the prose bill is the prompt —
+`report-total-cost-underreports-7x`), output tokens at the agents that gain a field. **Settlement
+cost** is what it takes to know whether the lever worked: a matched pair (`RESUME_REDO=prose`,
+~£0.45), a fresh run (~£1.15 and 40 minutes; the cost audit's direct mean over five runs to 2026-09-08
+was £0.60, the canary's true cost £1.09–1.26 with repeats), and an external read — free in money,
+the only instrument that has ever moved this project, ±3 marks of noise, and the scarce one. **Build
+cost** is sessions of work: files, tests, flags, and the audit rows each flag owes.
+
+The arithmetic that makes the first two tiers cheap, MEASURED from the price table
+(`cost-tracker.ts`: gpt-4.1 prompt $0.00158 per 1k tokens) and the call counts (10–21 prose calls a
+run, A_86): a chapter-stable block of 240 tokens carried on 20 calls is 4,800 tokens, **$0.0076 —
+about half a penny a book.** The whole kit's volatile additions come to roughly 2,400 tokens spread
+over ten chapters, so **under 2p per book at three times that call count**, and under 1% of a
+chapter prompt against a 56,000 ceiling with the fixed prefix at ~23,600. Run-stable additions land
+in the cached prefix and are paid once. Money is not where the kit's cost is; it is in the runs and
+reads that settle each lever, and in the build.
+
+### (a) No extra cost — adopt this week, nothing to pay, nothing to settle
+
+| item | what it is | run-time | build |
+|---|---|---|---|
+| K7 — the reader's ten questions as sub-checks in the read prompt | a document edit to `documentation/14_chat-gpt-scoring-alignment/scoring-approach.md`; the reader's time per book is the same | £0 | an hour |
+| K7 — the read-back ship-check | one telemetry line: every `run-params.json` key with a page-level trace, found or not; the sidecar exists (A_86 item 72) | £0 (deterministic) | an hour |
+| K4 — humour style defaults by role | a table in Agent 2b applied unless the band forbids the style; run-stable, so cached | ~40 tokens once per run | two hours, one test |
+| K4 — the wit beat's placement clause | one clause on the existing beat: ask for it in the chapter's scene of pressure, skip it elsewhere | ~20 tokens per wit chapter | an hour |
+| §6 — the presets as `run-params.mjs` draws | `--aftermath`, `--arc` pins and weighted picks, in the file that already draws `humourLevel`; adds the keys to `ALLOWED_INPUT_KEYS` | £0 | two hours |
+| §3 — the archive probes as standing instruments | occupation-to-clue count and pair count, from `data/store.json`; both scripts exist in this session's scratch and cost nothing to keep | £0 | an hour |
+| choosing the next paid run to exercise what is already ON | `--humour sharp`, the `authority` axis, an angle with an institution in it: the run is being bought anyway | £0 marginal | none |
+
+**Tier total: £0.00 per book, £0 to settle, about a day.** What it buys: the reader scores the next
+book against the competitor's virtues by name, the ship-check says which parameters reached the page,
+and the humour that is already built is assigned by role rather than freely.
+
+### (b) Minimal cost — pennies per book, settled on runs already planned
+
+| item | run-time per book | output tokens added | settlement | build |
+|---|---|---|---|---|
+| K6 — a wound in the opening line | ~40 tokens, chapter 1 only (< £0.001) | none | rides bundle 2's read | half a day: one clause, one test, one flag |
+| K3 — aftermath scope | ~60 tokens, chapter 10 only (< £0.001) | one Agent 7 field (`repairTarget`, ~30 tokens) | rides bundle 2's read | one day: a run-params key, an Agent 7 field, job E, an instrument, tests, a flag |
+| K1 — expertise as the clue engine | ~120 tokens × ~3 owning chapters ≈ 360 (< £0.002) | one Agent 2 field (`skill`, ~60 tokens); `unlockedBy` on three clues (~40) | bundle 1: one matched pair £0.45 + one read | two days: three agents, two schema fields, an instrument, ~12 tests, three flags |
+| K2 — social stakes | ~80 tokens × ~8 chapters ≈ 640 (< £0.002); case fields run-stable, cached | one Agent 2b field per profile (~40 × 6); two case fields (~80) | bundle 1, same pair and read | two days: an Agent 2b field, two case fields and a schema entry, the rotation beat, an instrument, ~12 tests, three flags |
+
+Bundle 1 (K1 + K2) touches the investigation chapters; bundle 2 (K3 + K4 + K6) touches chapter 1,
+the wit chapters and chapter 10. CLAUDE.md's rule — bundle levers that touch different chapters so one
+read scores several by category — means the two bundles share one fresh run and one read.
+
+**Tier total: about 1p per book; ~£1.60 to settle (one matched pair, one fresh run — which is the
+next verification run the plan already owes); one external read, two if the pair is read on its own;
+about a week of build.** What it buys: the three levers the archive says are missing, aimed at the
+two categories the reader marks lowest (clues 5, character life 6), with instruments that say on
+the day whether each reached the page.
+
+### (c) Reasonable spend — the arc, and turning the claim into a measurement
+
+| item | run-time per book | settlement | build |
+|---|---|---|---|
+| K5 — the relationship arc, at `subtext` | ~150 tokens × 8 chapters ≈ 1,200 (~£0.005) | its own matched pair against `none`, £0.45 + one read | two to three days: Agent 2 pair designation and method disagreement, Agent 9 beats by band, the two validation rules (arc partner ≠ culprit; no register named in narration), ~15 tests, two flags |
+| K5 at `attraction` | same | a second pair £0.45 + one read, only after `subtext` has a mark | a day: the two extra beats and the wound exchange |
+| the "glossy" preset — `sharp` · `attraction` · `institutional` | — | one fresh run £1.15 + one read, as a deliberate experiment in the competitor's own register, never a random draw | none beyond K3–K5 |
+| the paper's own falsifier | — | two reads of bundle 1 books (the £1.60 above already buys the books) | none |
+| the competitor's text under our instruments | — | £0, if the story can be obtained: wit density, machine register, repetition and the occupation-to-clue probe on the rival's book would say whether the reader's praise is measurable | an hour |
+
+**Tier total: about £2–3.50 of runs beyond tier (b), three or four external reads, about a week of
+build.** What it buys: the one lever that changes the genre contract, tested at the band that stays
+inside the canon before the band that does not; and a directional answer to whether this paper is
+right.
+
+**The honest limit of the spend.** At ±3 marks per read, three or four reads give a direction, not
+an effect size; book-level A/B on chapter-level effects needs 250+ pairs (CLAUDE.md), which no tier
+here buys. What tier (c) purchases is a DECISION — which flags stay ON for the corpus — not a proof.
+That is the same standard every lever in this project has been held to, and the reason each item in
+§5 carries a falsifier rather than a target.
+
+### The cost of being wrong, which is the cost that matters
+
+| failure shape | what it has cost before | how the kit is built against it |
+|---|---|---|
+| a lever aborts a run at validation | the manuscript — run 95041, £1.10, ten chapters never saved (A_96 §5.3, `AGENT9_DESCRIBE_ONCE`) | every flag default OFF; bundle 1 goes through a matched pair before a fresh run |
+| a read spent on a book the instruments already condemned | 7 marks and nothing settled — run 31372 at 29.8× the repetition median (A_94) | the ship-check gains the read-back line; a WORTH-A-LOOK book is never sent (CLAUDE.md) |
+| a parameter silently dropped before the run | `humourLevel` and `seed` each lost one run to `ALLOWED_INPUT_KEYS` (A_95) | tier (a) adds every new key to the allow-list the day the key exists |
+| an example reproduced as a template | 31 retired schoolteachers in 44 books (§3.1); ten of ten chapters on one opener (A_82) | no prompt in the kit carries an example |
+| a regression of the fix's own defect | 4 of 7 fixes in one batch (`fix-regresses-its-own-defect`) | every item ships with the instrument that would show it, and the archive probe that measured the gap is re-run after the build |
+
+**Grand total, all three tiers:** under 2p a book at run time; about £4–5 of runs; five or six
+external reads; three weeks of build. Against that, the categories in play are the five that have
+never been given a 9 in thirty-four reads, and the reader has now said, in a rival's book, what a 9
+in them looks like.
