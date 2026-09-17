@@ -46,7 +46,6 @@ describe("workshop panels — every tab renders", () => {
 	it.each(MAIN_TABS)("%s", async (label) => {
 		const wrapper = mountConsole();
 		// Advanced is gated; turn it on so its panel is reachable at all.
-		await wrapper.find('[data-testid="advanced-toggle"]').setValue(true);
 		await openTab(wrapper, label);
 
 		// A panel that threw would leave the section empty; a panel that resolved to nothing would
@@ -59,7 +58,6 @@ describe("workshop panels — every tab renders", () => {
 describe("workshop panels — accessibility", () => {
 	it.each(MAIN_TABS)("%s names its controls", async (label) => {
 		const wrapper = mountConsole();
-		await wrapper.find('[data-testid="advanced-toggle"]').setValue(true);
 		await openTab(wrapper, label);
 
 		const findings = auditA11y(wrapper.element as unknown as ParentNode, { requireHeading: false });
@@ -70,7 +68,6 @@ describe("workshop panels — accessibility", () => {
 
 	it.each(MAIN_TABS)("%s gives data tables scoped headers", async (label) => {
 		const wrapper = mountConsole();
-		await wrapper.find('[data-testid="advanced-toggle"]').setValue(true);
 		await openTab(wrapper, label);
 
 		const findings = auditA11y(wrapper.element as unknown as ParentNode, { requireHeading: false });
@@ -87,11 +84,11 @@ describe("the console shell", () => {
 		expect(() => mountConsole().unmount()).not.toThrow();
 	});
 
-	it("still hides the advanced tab group until advanced mode is on", async () => {
+	it("reaches the advanced tab group without a toggle", async () => {
+		// UI-003 §3: the toggle gated a group from inside a screen that was itself gated on the same
+		// flag, and turning it off stranded the user here (B15). Entering the console sets the mode.
 		const wrapper = mountConsole();
-		expect(wrapper.text()).not.toContain("CML Viewer");
-		await wrapper.find('[data-testid="advanced-toggle"]').setValue(true);
-		await nextTick();
+		await openTab(wrapper, "Advanced");
 		expect(wrapper.text()).toContain("CML Viewer");
 		wrapper.unmount();
 	});

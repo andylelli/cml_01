@@ -73,28 +73,9 @@ import { useSessionState } from "../../composables/useSessionState";
 export const useWorkshopState = () => {
 
   type Mode = "user" | "advanced" | "expert";
-  type View =
-    | "dashboard"
-    | "builder"
-    | "generate"
-    | "cast"
-    | "background"
-    | "hardLogic"
-    | "locations"
-    | "temporal"
-    | "clues"
-    | "outline"
-    | "samples"
-    | "cml"
-    | "prose"
-    | "history"
-    | "artifacts"
-    | "logs"
-    | "quality";
 
   // B13: shared with the shell, not a second copy. See composables/useSessionState.ts.
   const { mode, spec } = useSessionState();
-  const currentView = ref<View>("dashboard");
 
   // Tab navigation state
   const activeMainTab = ref<string>("project");
@@ -107,7 +88,8 @@ export const useWorkshopState = () => {
     { id: "spec", label: "Spec" },
     { id: "generate", label: "Generate" },
     { id: "review", label: "Review" },
-    { id: "advanced", label: "Advanced", disabled: !isAdvanced.value },
+    // No `disabled`: see the note on the tabStatuses watcher — the screen is the gate.
+    { id: "advanced", label: "Advanced" },
     { id: "export", label: "Export" },
   ]);
 
@@ -174,22 +156,20 @@ export const useWorkshopState = () => {
     spec: "available",
     generate: "available",
     review: "available",
-    advanced: "locked",
+    // Not "locked": the console is only reachable in operator mode, so the tab is always available.
+    advanced: "available",
     export: "available",
   });
 
-  const isAdvanced = computed(() => mode.value === "advanced" || mode.value === "expert");
-  const isExpert = computed(() => mode.value === "expert");
-
-  const advancedChecked = computed({
-    get: () => isAdvanced.value,
-    set: (checked: boolean) => handleAdvancedToggle(checked),
-  });
-
-  const expertChecked = computed({
-    get: () => isExpert.value,
-    set: (checked: boolean) => handleExpertToggle(checked),
-  });
+  /**
+   * Operator mode. Two modes now, not three — `expert` gated a badge, a JSON dump the Artifacts
+   * panel already showed, and DebugPanel, all of them inside a tab that was itself gated on this
+   * flag (UI-003 §3). Its two panels moved here.
+   *
+   * There is no TOGGLE for this any more: reaching the Workshop is what sets it. See
+   * `enterOperatorMode` and B15.
+   */
+  const isAdvanced = computed(() => mode.value !== "user");
 
   // Error management
   const errors = ref<ErrorItem[]>([]);
@@ -266,41 +246,32 @@ export const useWorkshopState = () => {
     }
   };
 
-  const setMode = (nextMode: Mode) => {
-    mode.value = nextMode;
+  /**
+   * B15 — entering the Workshop IS the switch.
+   *
+   * `mode` is shared with the shell (B13), and the shell only offers the Workshop when mode is not
+   * "user". So a toggle inside the Workshop that could set it back to "user" removed the Workshop
+   * from the nav while the Workshop was still the rendered view — VERIFIED stranded, UI-003 §3.
+   * The console now asserts the mode it needs and never offers to drop it.
+   */
+  const enterOperatorMode = () => {
+    if (mode.value === "user") mode.value = "advanced";
   };
 
-  const handleAdvancedToggle = (checked: boolean) => {
-    if (checked) {
-      if (mode.value !== "expert") {
-        setMode("advanced");
-      }
-      logActivity({ projectId: projectId.value, scope: "ui", message: "mode_advanced_on" });
-      return;
-    }
-    setMode("user");
-    logActivity({ projectId: projectId.value, scope: "ui", message: "mode_advanced_off" });
-  };
-
-  const handleExpertToggle = (checked: boolean) => {
-    if (checked) {
-      setMode("expert");
-      logActivity({ projectId: projectId.value, scope: "ui", message: "mode_expert_on" });
-      return;
-    }
-    setMode("advanced");
-    logActivity({ projectId: projectId.value, scope: "ui", message: "mode_expert_off" });
-  };
-
-  const setView = (nextView: View) => {
-    currentView.value = nextView;
-    persistState();
-    logActivity({
-      projectId: projectId.value,
-      scope: "ui",
-      message: "view_change",
-      payload: { view: nextView },
-    });
+  /**
+   * Navigate. Sets the tab refs and nothing else.
+   *
+   * This replaces `setView`, which wrote a `currentView` ref whose ONLY consumer was a watcher
+   * that set these same refs — and those refs had watchers that wrote `currentView` back. Four
+   * watchers in a cycle, terminating on value equality rather than by design, and every hop called
+   * persistState() and logActivity(). MEASURED at 2 log POSTs and 3 storage writes per click
+   * (UI-003 §2.1).
+   */
+  const goTo = (tab: string, section?: string) => {
+    activeMainTab.value = tab;
+    if (!section) return;
+    if (tab === "review") activeReviewTab.value = section;
+    else if (tab === "advanced") activeAdvancedTab.value = section;
   };
 
   const handleReviewTabChange = (tabId: string) => {
@@ -373,7 +344,6 @@ export const useWorkshopState = () => {
       projectName: projectName.value,
       projectId: projectId.value,
       latestSpecId: latestSpecId.value,
-      currentView: currentView.value,
     };
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -390,12 +360,10 @@ export const useWorkshopState = () => {
         projectName: string;
         projectId: string | null;
         latestSpecId: string | null;
-        currentView: View;
       }>;
       if (saved.projectName) projectName.value = saved.projectName;
       if (typeof saved.projectId !== "undefined") projectId.value = saved.projectId;
       if (typeof saved.latestSpecId !== "undefined") latestSpecId.value = saved.latestSpecId;
-      if (saved.currentView) currentView.value = saved.currentView;
       // `spec` and `mode` are deliberately NOT read here — the shell restores them. See persistState.
     } catch {
       // ignore invalid storage
@@ -459,35 +427,6 @@ export const useWorkshopState = () => {
       spec.value.theme = next;
     }
   };
-
-  const viewLabel = computed(() => {
-    switch (currentView.value) {
-      case "dashboard":
-        return "Dashboard";
-      case "builder":
-        return "Builder";
-      case "cast":
-        return "Cast";
-      case "background":
-        return "Background";
-      case "hardLogic":
-        return "Hard Logic";
-      case "clues":
-        return "Clue board";
-      case "outline":
-        return "Outline";
-      case "samples":
-        return "Samples";
-      case "cml":
-        return "CML Viewer";
-      case "artifacts":
-        return "Artifacts";
-      case "logs":
-        return "LLM Logs";
-      default:
-        return "Dashboard";
-    }
-  });
 
   const synopsisSummary = computed(() => {
     const summary = synopsisData.value?.summary?.trim();
@@ -683,7 +622,7 @@ export const useWorkshopState = () => {
     }
   });
 
-  watch([projectName, projectId, latestSpecId, currentView, mode], () => {
+  watch([projectName, projectId, latestSpecId, mode], () => {
     persistState();
   });
 
@@ -796,71 +735,33 @@ export const useWorkshopState = () => {
     await loadScoringReport();
     await loadScoringHistory();
   });
-  // Update tab status based on project state
+  /**
+   * THE THIRD GATE, REMOVED. UI-003 §3.
+   *
+   * The Advanced tab was gated three times over: `mode !== "user"`, `tab.disabled`, and
+   * `tabStatuses.advanced === "locked"` — all asking the same question, and the unlock here was not
+   * `immediate`, so the initial "locked" stood until something else changed. The console is only
+   * reachable in operator mode, so the answer is always yes and none of the three earns its place.
+   */
   watch([projectId, isAdvanced], ([nextId, nextAdvanced], [, prevAdvanced]) => {
     if (nextId) {
       tabStatuses.value.project = "complete";
     }
-    if (nextAdvanced) {
-      tabStatuses.value.advanced = "available";
-      if (!prevAdvanced && nextId) {
-        // Advanced mode just turned on with a project loaded — fetch CML (U-2 fix)
-        void loadArtifacts();
-      }
-    } else {
-      tabStatuses.value.advanced = "locked";
+    if (nextAdvanced && !prevAdvanced && nextId) {
+      // Operator mode arrived with a project already loaded — fetch CML (U-2 fix).
+      void loadArtifacts();
     }
   });
 
-  // Sync tab navigation with current view
-  watch(activeMainTab, (newTab) => {
-    switch (newTab) {
-      case "project":
-        setView("dashboard");
-        break;
-      case "spec":
-        setView("builder");
-        break;
-      case "generate":
-        setView("generate");
-        break;
-      case "review":
-        // Use active review sub-tab
-        if (activeReviewTab.value === "cast") setView("cast");
-        else if (activeReviewTab.value === "background") setView("background");
-        else if (activeReviewTab.value === "hardLogic") setView("hardLogic");
-        else if (activeReviewTab.value === "locations") setView("locations");
-        else if (activeReviewTab.value === "temporal") setView("temporal");
-        else if (activeReviewTab.value === "clues") setView("clues");
-        else if (activeReviewTab.value === "outline") setView("outline");
-        else if (activeReviewTab.value === "prose") setView("prose");
-        break;
-      case "advanced":
-        // Use active advanced sub-tab
-        if (activeAdvancedTab.value === "cml") setView("cml");
-        else if (activeAdvancedTab.value === "artifacts") setView("artifacts");
-        else if (activeAdvancedTab.value === "logs") setView("logs");
-        else if (activeAdvancedTab.value === "samples") setView("samples");
-        else if (activeAdvancedTab.value === "history") setView("history");
-        else if (activeAdvancedTab.value === "quality") setView("quality");
-        break;
-      // 'export' tab has no sub-view to sync; no setView call needed (U-1 fix)
-    }
-  });
-
-  watch(activeReviewTab, (newTab) => {
-    if (activeMainTab.value === "review") {
-      setView(newTab as View);
-    }
-  });
-
+  /**
+   * The quality panel fetches on open. What this watcher used to ALSO do was call `setView`, which
+   * is the cycle UI-003 §2.1 measured — the navigation half is gone and only the fetch remains,
+   * which is the part that was ever doing anything.
+   */
   watch(activeAdvancedTab, (newTab) => {
-    if (activeMainTab.value === "advanced") {
-      setView(newTab as View);
-      if (newTab === "quality") {
-        void loadScoringReport();
-        void loadScoringHistory();
-      }
+    if (activeMainTab.value === "advanced" && newTab === "quality") {
+      void loadScoringReport();
+      void loadScoringHistory();
     }
   }, { immediate: true });
 
@@ -878,38 +779,6 @@ export const useWorkshopState = () => {
     }
   });
 
-  // Sync currentView changes back to tabs (for sidebar navigation)
-  watch(currentView, (newView) => {
-    switch (newView) {
-      case "dashboard":
-      case "builder":
-        activeMainTab.value = newView === "dashboard" ? "project" : "spec";
-        break;
-      case "generate":
-        activeMainTab.value = "generate";
-        break;
-      case "cast":
-      case "background":
-      case "hardLogic":
-      case "locations":
-      case "temporal":
-      case "clues":
-      case "outline":
-      case "prose":
-        activeMainTab.value = "review";
-        activeReviewTab.value = newView;
-        break;
-      case "cml":
-      case "samples":
-      case "history":
-      case "artifacts":
-      case "logs":
-      case "quality":
-        activeMainTab.value = "advanced";
-        activeAdvancedTab.value = newView;
-        break;
-    }
-  });
 
   const handleCreateProject = async () => {
     clearErrors("project");
@@ -1449,22 +1318,24 @@ export const useWorkshopState = () => {
     addError("warning", "pipeline", "Cancel is not available mid-run.", "Wait for completion or refresh the page.");
   };
 
+  /** Artifact id -> the panel section that shows it. Values are sub-tab ids, not a separate vocabulary. */
+  const ARTIFACT_SECTION: Record<string, string> = {
+    setting: "background",
+    cast: "cast",
+    hard_logic_devices: "hardLogic",
+    cml: "cml",
+    clues: "clues",
+    outline: "outline",
+    character_profiles: "cast",
+    location_profiles: "locations",
+    temporal_context: "temporal",
+    background_context: "background",
+    prose: "prose",
+  };
+
   const handleArtifactView = (id: string) => {
-    const viewMap: Record<string, View> = {
-      setting: "background",
-      cast: "cast",
-      hard_logic_devices: "hardLogic",
-      cml: "cml",
-      clues: "clues",
-      outline: "outline",
-      character_profiles: "cast",
-      location_profiles: "locations",
-      temporal_context: "temporal",
-      background_context: "background",
-      prose: "prose",
-    };
-    const view = viewMap[id];
-    if (view) setView(view);
+    const section = ARTIFACT_SECTION[id];
+    if (section) goTo(section === "cml" || section === "artifacts" ? "advanced" : "review", section);
   };
 
   const handleArtifactRegenerate = (id: string) => {
@@ -1545,6 +1416,7 @@ export const useWorkshopState = () => {
   useShortcuts(shortcuts);
 
   onMounted(async () => {
+    enterOperatorMode();
     hydrateState();
     connectSse();
     await loadProjects();
@@ -1574,7 +1446,6 @@ export const useWorkshopState = () => {
     activeAdvancedTab,
     activeMainTab,
     activeReviewTab,
-    advancedChecked,
     advancedTabStatuses,
     advancedTabs,
     allValidation,
@@ -1599,12 +1470,10 @@ export const useWorkshopState = () => {
     cmlArtifact,
     connectSse,
     currentChapter,
-    currentView,
     debugLogs,
     disconnectSse,
     dismissError,
     errors,
-    expertChecked,
     fairPlayReady,
     fairPlayReport,
     filteredClues,
@@ -1637,7 +1506,6 @@ export const useWorkshopState = () => {
     isDownloadingAllVersions,
     isDownloadingGamePackPdf,
     isDownloadingStoryPdf,
-    isExpert,
     isRunning,
     isScoringReportLoading,
     isStartingRun,
@@ -1678,7 +1546,7 @@ export const useWorkshopState = () => {
     selectedProjectId,
     selectedProseLength,
     selectedSample,
-    setView,
+    goTo,
     settingArtifact,
     settingData,
     settingReady,

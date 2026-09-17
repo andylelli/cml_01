@@ -43,7 +43,6 @@ const {
   activeAdvancedTab,
   activeMainTab,
   activeReviewTab,
-  advancedChecked,
   advancedTabStatuses,
   advancedTabs,
   allValidation,
@@ -68,12 +67,10 @@ const {
   cmlArtifact,
   connectSse,
   currentChapter,
-  currentView,
   debugLogs,
   disconnectSse,
   dismissError,
   errors,
-  expertChecked,
   fairPlayReady,
   fairPlayReport,
   filteredClues,
@@ -106,7 +103,6 @@ const {
   isDownloadingAllVersions,
   isDownloadingGamePackPdf,
   isDownloadingStoryPdf,
-  isExpert,
   isRunning,
   isScoringReportLoading,
   isStartingRun,
@@ -147,7 +143,7 @@ const {
   selectedProjectId,
   selectedProseLength,
   selectedSample,
-  setView,
+  goTo,
   settingArtifact,
   settingData,
   settingReady,
@@ -169,108 +165,6 @@ const {
        page scroll past its own footer. -->
   <div>
     <div class="flex min-h-[70vh]">
-      <aside class="hidden w-60 flex-col border-r border-line bg-surface px-4 py-6 md:flex">
-        <!-- The old product name lived here. The app has a wordmark of its own now (brand.ts), and
-             this panel is one view inside it rather than the whole application. -->
-        <!-- An h1, not a styled div: this view had no heading element anywhere, so it offered a
-             screen reader no structure to navigate by at all. Item 29. -->
-        <h1 class="t-section">Workshop</h1>
-        <p class="t-subtitle mt-1 text-[0.75rem]">Every stage of the pipeline.</p>
-        <nav class="mt-6 space-y-1 text-sm">
-          <button
-            class="flex w-full items-center rounded-md px-3 py-2 text-left font-medium hover:bg-surface-sunken"
-            :class="currentView === 'dashboard' ? 'border-l-2 border-accent bg-accent-wash font-semibold text-ink' : 'border-l-2 border-transparent text-ink-soft'"
-            @click="setView('dashboard')"
-          >
-            Dashboard
-          </button>
-          <button
-            class="flex w-full items-center rounded-md px-3 py-2 text-left font-medium hover:bg-surface-sunken"
-            :class="currentView === 'builder' ? 'border-l-2 border-accent bg-accent-wash font-semibold text-ink' : 'border-l-2 border-transparent text-ink-soft'"
-            @click="setView('builder')"
-          >
-            Builder
-          </button>
-          <button
-            class="flex w-full items-center rounded-md px-3 py-2 text-left font-medium hover:bg-surface-sunken"
-            :class="currentView === 'cast' ? 'border-l-2 border-accent bg-accent-wash font-semibold text-ink' : 'border-l-2 border-transparent text-ink-soft'"
-            @click="setView('cast')"
-          >
-            Cast
-          </button>
-          <button
-            class="flex w-full items-center rounded-md px-3 py-2 text-left font-medium hover:bg-surface-sunken"
-            :class="currentView === 'background' ? 'border-l-2 border-accent bg-accent-wash font-semibold text-ink' : 'border-l-2 border-transparent text-ink-soft'"
-            @click="setView('background')"
-          >
-            Background
-          </button>
-          <button
-            class="flex w-full items-center rounded-md px-3 py-2 text-left font-medium hover:bg-surface-sunken"
-            :class="currentView === 'hardLogic' ? 'border-l-2 border-accent bg-accent-wash font-semibold text-ink' : 'border-l-2 border-transparent text-ink-soft'"
-            @click="setView('hardLogic')"
-          >
-            Hard Logic
-          </button>
-          <button
-            class="flex w-full items-center rounded-md px-3 py-2 text-left font-medium hover:bg-surface-sunken"
-            :class="currentView === 'locations' ? 'border-l-2 border-accent bg-accent-wash font-semibold text-ink' : 'border-l-2 border-transparent text-ink-soft'"
-            @click="setView('locations')"
-          >
-            Locations
-          </button>
-          <button
-            class="flex w-full items-center rounded-md px-3 py-2 text-left font-medium hover:bg-surface-sunken"
-            :class="currentView === 'temporal' ? 'border-l-2 border-accent bg-accent-wash font-semibold text-ink' : 'border-l-2 border-transparent text-ink-soft'"
-            @click="setView('temporal')"
-          >
-            Era & Culture
-          </button>
-          <button
-            class="flex w-full items-center rounded-md px-3 py-2 text-left font-medium hover:bg-surface-sunken"
-            :class="currentView === 'clues' ? 'border-l-2 border-accent bg-accent-wash font-semibold text-ink' : 'border-l-2 border-transparent text-ink-soft'"
-            @click="setView('clues')"
-          >
-            Clues
-          </button>
-          <button
-            class="flex w-full items-center rounded-md px-3 py-2 text-left font-medium hover:bg-surface-sunken"
-            :class="currentView === 'outline' ? 'border-l-2 border-accent bg-accent-wash font-semibold text-ink' : 'border-l-2 border-transparent text-ink-soft'"
-            @click="setView('outline')"
-          >
-            Outline
-          </button>
-          <button
-            class="flex w-full items-center rounded-md px-3 py-2 text-left font-medium hover:bg-surface-sunken"
-            :class="currentView === 'prose' ? 'border-l-2 border-accent bg-accent-wash font-semibold text-ink' : 'border-l-2 border-transparent text-ink-soft'"
-            @click="setView('prose')"
-          >
-            Prose
-          </button>
-          <button
-            class="flex w-full items-center rounded-md px-3 py-2 text-left font-medium hover:bg-surface-sunken"
-            :class="currentView === 'samples' ? 'border-l-2 border-accent bg-accent-wash font-semibold text-ink' : 'border-l-2 border-transparent text-ink-soft'"
-            @click="setView('samples')"
-          >
-            Samples
-          </button>
-          <button
-            class="flex w-full items-center rounded-md px-3 py-2 text-left font-medium hover:bg-surface-sunken"
-            :class="currentView === 'history' ? 'border-l-2 border-accent bg-accent-wash font-semibold text-ink' : 'border-l-2 border-transparent text-ink-soft'"
-            @click="setView('history')"
-          >
-            History
-          </button>
-          <button
-            v-if="isAdvanced"
-            class="flex w-full items-center rounded-md px-3 py-2 text-left font-medium hover:bg-surface-sunken"
-            :class="currentView === 'cml' ? 'border-l-2 border-accent bg-accent-wash font-semibold text-ink' : 'border-l-2 border-transparent text-ink-soft'"
-            @click="setView('cml')"
-          >
-            CML Viewer
-          </button>
-        </nav>
-      </aside>
 
       <!-- Error Notifications -->
       <ErrorNotification
@@ -283,30 +177,22 @@ const {
 
       <div class="flex min-w-0 flex-1 flex-col">
         <header class="flex items-center justify-between border-b border-line bg-surface px-6 py-4">
-          <div>
-            <div class="text-sm text-ink-soft">Project</div>
-            <div class="text-lg font-semibold">{{ projectName }}</div>
+          <div class="min-w-0">
+            <!-- The console's only h1 used to be in the sidebar. With the sidebar gone the view had
+                 no heading element at all, which the item-29 auditor caught immediately. -->
+            <p class="t-eyebrow">Workshop</p>
+            <h1 class="t-display-sm mt-0.5 truncate">{{ projectName || "No project open" }}</h1>
           </div>
           <div class="flex items-center gap-4 text-sm">
-            <label class="flex items-center gap-2 text-ink-soft">
-              <input
-                v-model="advancedChecked"
-                data-testid="advanced-toggle"
-                type="checkbox"
-                class="h-4 w-4 rounded border border-line-strong"
-              />
-              Advanced
-            </label>
-            <label class="flex items-center gap-2 text-ink-soft">
-              <input
-                v-model="expertChecked"
-                data-testid="expert-toggle"
-                type="checkbox"
-                class="h-4 w-4 rounded border border-line-strong"
-              />
-              Expert
-            </label>
-            <div class="ml-2 text-xs text-ink-soft">Mode: {{ mode }}</div>
+            <!--
+              The Advanced and Expert checkboxes lived here. Expert gated a badge and two panels
+              that were already inside a tab gated on the SAME flag; Advanced was circular — turning
+              it off removed the Workshop from the nav while the Workshop was still the rendered
+              view (B15, verified stranded). Reaching this screen is now the switch. UI-003 §3.
+            -->
+            <span class="t-eyebrow rounded-sm border border-line bg-surface-sunken px-2.5 py-1">
+              Operator
+            </span>
           </div>
         </header>
 
@@ -520,21 +406,21 @@ const {
                   <button
                     class="rounded-md border border-line px-3 py-1.5 text-xs font-semibold text-ink hover:bg-ground disabled:cursor-not-allowed disabled:opacity-60"
                     :disabled="!cluesReady"
-                    @click="setView('clues')"
+                    @click="goTo('review', 'clues')"
                   >
                     Explore clues
                   </button>
                   <button
                     class="rounded-md border border-line px-3 py-1.5 text-xs font-semibold text-ink hover:bg-ground disabled:cursor-not-allowed disabled:opacity-60"
                     :disabled="!outlineReady"
-                    @click="setView('outline')"
+                    @click="goTo('review', 'outline')"
                   >
                     Read outline
                   </button>
                   <button
                     class="rounded-md border border-line px-3 py-1.5 text-xs font-semibold text-ink hover:bg-ground disabled:cursor-not-allowed disabled:opacity-60"
                     :disabled="!proseReady"
-                    @click="setView('prose')"
+                    @click="goTo('review', 'prose')"
                   >
                     Open story
                   </button>

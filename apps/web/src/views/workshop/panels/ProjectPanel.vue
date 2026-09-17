@@ -11,7 +11,6 @@ import TabPanel from "../../../components/TabPanel.vue";
  */
 const {
 	activeMainTab,
-	currentView,
 	handleClearStore,
 	handleCreateProject,
 	handleLoadProject,
@@ -24,7 +23,7 @@ const {
 	projectsList,
 	scrollToSection,
 	selectedProjectId,
-	setView,
+	goTo,
 	synopsisData,
 	synopsisSummary,
 } = useWorkshop();
@@ -56,27 +55,27 @@ const {
 	    </button>
 	    <button
 	      class="rounded border border-line px-2 py-1 text-xs font-semibold text-ink-soft"
-	      @click="setView('clues')"
+	      @click="goTo('review', 'clues')"
 	    >
 	      Open Clue board
 	    </button>
 	    <button
 	      class="rounded border border-line px-2 py-1 text-xs font-semibold text-ink-soft"
-	      @click="setView('outline')"
+	      @click="goTo('review', 'outline')"
 	    >
 	      Open Outline
 	    </button>
 	    <button
 	      v-if="isAdvanced"
 	      class="rounded border border-line px-2 py-1 text-xs font-semibold text-ink-soft"
-	      @click="setView('cml')"
+	      @click="goTo('advanced', 'cml')"
 	    >
 	      Open CML Viewer
 	    </button>
 	  </div>
 	</div>
 
-	<div v-if="currentView === 'dashboard' || currentView === 'builder'" class="rounded-lg border border-line bg-surface p-6 shadow-sm">
+	<div class="rounded-lg border border-line bg-surface p-6 shadow-sm">
 	  <div class="text-sm font-semibold text-ink">Project setup</div>
 	  <div class="mt-4 grid gap-4 md:grid-cols-2">
 	    <div>

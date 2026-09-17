@@ -34,7 +34,6 @@ const {
 	handleSampleSelect,
 	hardLogicDevicesArtifact,
 	isAdvanced,
-	isExpert,
 	isRunning,
 	isScoringReportLoading,
 	isStartingRun,
@@ -77,8 +76,8 @@ const {
 	  <div class="flex items-center justify-between">
 	    <div class="text-sm font-semibold text-ink">CML Viewer</div>
 	    <div class="text-xs text-ink-soft">
-	      <span v-if="isExpert" class="rounded bg-danger-wash px-2 py-1 text-danger">Expert Mode - Editable</span>
-	      <span v-else class="rounded bg-surface-sunken px-2 py-1 text-ink">Read-only</span>
+	      <!-- Was v-else to an "Expert Mode" badge. The viewer is read-only in either mode. UI-003 s3. -->
+	      <span class="rounded bg-surface-sunken px-2 py-1 text-ink">Read-only</span>
 	    </div>
 	  </div>
 	  <div class="mt-2 text-xs text-ink-soft">
@@ -120,7 +119,7 @@ const {
 	    @regenerate="handleArtifactRegenerate"
 	  />
 	  <!-- Expert-only raw JSON dump -->
-	  <details v-if="isExpert" class="rounded-lg border border-line bg-surface p-5 shadow-sm">
+	  <details class="rounded-lg border border-line bg-surface p-5 shadow-sm">
 	    <summary class="cursor-pointer text-sm font-semibold text-ink">Raw Artifacts (Expert)</summary>
 	    <div class="mt-4 space-y-4 text-xs">
 	      <div>
@@ -200,7 +199,7 @@ const {
 	    <div v-else class="mt-4 text-sm text-ink-soft">No activity yet. Run generation to see entries.</div>
 	  </div>
 	  <!-- Expert: raw LLM debug panel -->
-	  <DebugPanel v-if="isExpert" :logs="debugLogs" />
+	  <DebugPanel :logs="debugLogs" />
 	</div>
 
 	<div v-if="activeAdvancedTab === 'history'">
