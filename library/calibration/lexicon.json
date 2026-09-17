@@ -1,1303 +1,1287 @@
 {
  "generated_by": "scripts/calibration-measure.mjs",
- "canon_works": 12,
- "canon_words": 720329,
- "our_manuscripts": 204,
- "our_words": 2226216,
+ "canon_works": 165,
+ "canon_words": 12290987,
+ "our_manuscripts": 229,
+ "our_words": 2478564,
  "note": "No verbatim sentence of any source novel appears in these files. Aggregates only.",
  "periodLexicon": [
   {
    "word": "know",
-   "canonPer1M": 3374,
-   "oursPer1M": 837,
-   "ratio": 4
+   "canonPer1M": 4263,
+   "oursPer1M": 803,
+   "ratio": 5.3
   },
   {
-   "word": "house",
-   "canonPer1M": 2718,
-   "oursPer1M": 219,
-   "ratio": 12.4
+   "word": "think",
+   "canonPer1M": 2555,
+   "oursPer1M": 499,
+   "ratio": 5.1
   },
   {
    "word": "come",
-   "canonPer1M": 2388,
-   "oursPer1M": 508,
-   "ratio": 4.7
-  },
-  {
-   "word": "asked",
-   "canonPer1M": 2184,
-   "oursPer1M": 453,
+   "canonPer1M": 2536,
+   "oursPer1M": 525,
    "ratio": 4.8
   },
   {
    "word": "went",
-   "canonPer1M": 2083,
-   "oursPer1M": 309,
-   "ratio": 6.7
-  },
-  {
-   "word": "tell",
-   "canonPer1M": 1899,
-   "oursPer1M": 284,
-   "ratio": 6.7
-  },
-  {
-   "word": "without",
-   "canonPer1M": 1745,
-   "oursPer1M": 426,
-   "ratio": 4.1
-  },
-  {
-   "word": "took",
-   "canonPer1M": 1642,
-   "oursPer1M": 315,
-   "ratio": 5.2
-  },
-  {
-   "word": "good",
-   "canonPer1M": 1597,
-   "oursPer1M": 100,
-   "ratio": 15.9
-  },
-  {
-   "word": "make",
-   "canonPer1M": 1594,
-   "oursPer1M": 316,
-   "ratio": 5
-  },
-  {
-   "word": "take",
-   "canonPer1M": 1522,
-   "oursPer1M": 188,
-   "ratio": 8.1
-  },
-  {
-   "word": "great",
-   "canonPer1M": 1514,
-   "oursPer1M": 97,
-   "ratio": 15.5
-  },
-  {
-   "word": "letter",
-   "canonPer1M": 1347,
-   "oursPer1M": 168,
-   "ratio": 8
-  },
-  {
-   "word": "right",
-   "canonPer1M": 1206,
-   "oursPer1M": 300,
-   "ratio": 4
-  },
-  {
-   "word": "going",
-   "canonPer1M": 1153,
-   "oursPer1M": 112,
-   "ratio": 10.3
-  },
-  {
-   "word": "having",
-   "canonPer1M": 1145,
-   "oursPer1M": 58,
-   "ratio": 19.6
-  },
-  {
-   "word": "young",
-   "canonPer1M": 1132,
-   "oursPer1M": 40,
-   "ratio": 28.4
-  },
-  {
-   "word": "give",
-   "canonPer1M": 1073,
-   "oursPer1M": 69,
-   "ratio": 15.6
-  },
-  {
-   "word": "friend",
-   "canonPer1M": 1063,
-   "oursPer1M": 61,
-   "ratio": 17.5
-  },
-  {
-   "word": "answered",
-   "canonPer1M": 1020,
-   "oursPer1M": 111,
-   "ratio": 9.2
-  },
-  {
-   "word": "girl",
-   "canonPer1M": 1017,
-   "oursPer1M": 10,
-   "ratio": 106
-  },
-  {
-   "word": "round",
-   "canonPer1M": 940,
-   "oursPer1M": 66,
-   "ratio": 14.3
-  },
-  {
-   "word": "person",
-   "canonPer1M": 938,
-   "oursPer1M": 206,
-   "ratio": 4.6
-  },
-  {
-   "word": "however",
-   "canonPer1M": 917,
-   "oursPer1M": 156,
-   "ratio": 5.9
-  },
-  {
-   "word": "work",
-   "canonPer1M": 893,
-   "oursPer1M": 213,
-   "ratio": 4.2
-  },
-  {
-   "word": "cried",
-   "canonPer1M": 882,
-   "oursPer1M": 2,
-   "ratio": 398.1
-  },
-  {
-   "word": "course",
-   "canonPer1M": 842,
-   "oursPer1M": 198,
-   "ratio": 4.3
-  },
-  {
-   "word": "murderer",
-   "canonPer1M": 805,
-   "oursPer1M": 116,
+   "canonPer1M": 2492,
+   "oursPer1M": 361,
    "ratio": 6.9
   },
   {
-   "word": "hear",
-   "canonPer1M": 794,
-   "oursPer1M": 169,
-   "ratio": 4.7
-  },
-  {
-   "word": "whole",
-   "canonPer1M": 792,
-   "oursPer1M": 179,
-   "ratio": 4.4
-  },
-  {
-   "word": "towards",
-   "canonPer1M": 789,
-   "oursPer1M": 24,
-   "ratio": 32.4
-  },
-  {
-   "word": "poor",
-   "canonPer1M": 760,
-   "oursPer1M": 43,
-   "ratio": 17.7
-  },
-  {
-   "word": "dear",
-   "canonPer1M": 754,
-   "oursPer1M": 20,
-   "ratio": 37.8
-  },
-  {
-   "word": "opened",
-   "canonPer1M": 707,
-   "oursPer1M": 172,
-   "ratio": 4.1
-  },
-  {
-   "word": "father",
-   "canonPer1M": 701,
-   "oursPer1M": 14,
-   "ratio": 50
-  },
-  {
-   "word": "street",
-   "canonPer1M": 683,
-   "oursPer1M": 35,
-   "ratio": 19.3
-  },
-  {
-   "word": "given",
-   "canonPer1M": 677,
-   "oursPer1M": 133,
+   "word": "asked",
+   "canonPer1M": 2424,
+   "oursPer1M": 477,
    "ratio": 5.1
   },
   {
-   "word": "part",
-   "canonPer1M": 672,
-   "oursPer1M": 165,
-   "ratio": 4.1
+   "word": "house",
+   "canonPer1M": 2172,
+   "oursPer1M": 257,
+   "ratio": 8.5
   },
   {
-   "word": "interest",
-   "canonPer1M": 661,
-   "oursPer1M": 52,
-   "ratio": 12.6
-  },
-  {
-   "word": "gentleman",
-   "canonPer1M": 654,
-   "oursPer1M": 10,
-   "ratio": 63.2
-  },
-  {
-   "word": "strange",
-   "canonPer1M": 648,
-   "oursPer1M": 103,
-   "ratio": 6.3
-  },
-  {
-   "word": "police",
-   "canonPer1M": 648,
-   "oursPer1M": 36,
-   "ratio": 17.9
-  },
-  {
-   "word": "called",
-   "canonPer1M": 640,
-   "oursPer1M": 120,
-   "ratio": 5.4
-  },
-  {
-   "word": "suddenly",
-   "canonPer1M": 638,
-   "oursPer1M": 145,
-   "ratio": 4.4
-  },
-  {
-   "word": "dead",
-   "canonPer1M": 638,
-   "oursPer1M": 149,
-   "ratio": 4.3
-  },
-  {
-   "word": "read",
-   "canonPer1M": 635,
-   "oursPer1M": 159,
-   "ratio": 4
-  },
-  {
-   "word": "best",
-   "canonPer1M": 630,
-   "oursPer1M": 147,
-   "ratio": 4.3
-  },
-  {
-   "word": "mean",
-   "canonPer1M": 622,
-   "oursPer1M": 157,
-   "ratio": 4
-  },
-  {
-   "word": "years",
-   "canonPer1M": 606,
-   "oursPer1M": 142,
-   "ratio": 4.3
-  },
-  {
-   "word": "says",
-   "canonPer1M": 576,
-   "oursPer1M": 78,
-   "ratio": 7.4
-  },
-  {
-   "word": "known",
-   "canonPer1M": 571,
-   "oursPer1M": 141,
-   "ratio": 4
-  },
-  {
-   "word": "mcmurdo",
-   "canonPer1M": 569,
-   "oursPer1M": 0,
-   "ratio": 568.5
-  },
-  {
-   "word": "soon",
-   "canonPer1M": 563,
-   "oursPer1M": 134,
-   "ratio": 4.2
-  },
-  {
-   "word": "daughter",
-   "canonPer1M": 561,
-   "oursPer1M": 1,
-   "ratio": 379.5
-  },
-  {
-   "word": "taking",
-   "canonPer1M": 558,
-   "oursPer1M": 75,
+   "word": "tell",
+   "canonPer1M": 2130,
+   "oursPer1M": 283,
    "ratio": 7.5
   },
   {
-   "word": "home",
-   "canonPer1M": 558,
-   "oursPer1M": 38,
-   "ratio": 14.8
+   "word": "good",
+   "canonPer1M": 1797,
+   "oursPer1M": 110,
+   "ratio": 16.3
   },
   {
-   "word": "yourself",
-   "canonPer1M": 547,
+   "word": "going",
+   "canonPer1M": 1673,
+   "oursPer1M": 121,
+   "ratio": 13.9
+  },
+  {
+   "word": "told",
+   "canonPer1M": 1615,
+   "oursPer1M": 351,
+   "ratio": 4.6
+  },
+  {
+   "word": "take",
+   "canonPer1M": 1530,
+   "oursPer1M": 189,
+   "ratio": 8.1
+  },
+  {
+   "word": "took",
+   "canonPer1M": 1526,
+   "oursPer1M": 323,
+   "ratio": 4.7
+  },
+  {
+   "word": "make",
+   "canonPer1M": 1470,
+   "oursPer1M": 308,
+   "ratio": 4.8
+  },
+  {
+   "word": "right",
+   "canonPer1M": 1466,
+   "oursPer1M": 308,
+   "ratio": 4.8
+  },
+  {
+   "word": "girl",
+   "canonPer1M": 1422,
+   "oursPer1M": 11,
+   "ratio": 134
+  },
+  {
+   "word": "course",
+   "canonPer1M": 1408,
+   "oursPer1M": 188,
+   "ratio": 7.5
+  },
+  {
+   "word": "young",
+   "canonPer1M": 1352,
+   "oursPer1M": 39,
+   "ratio": 34.6
+  },
+  {
+   "word": "woman",
+   "canonPer1M": 1337,
+   "oursPer1M": 267,
+   "ratio": 5
+  },
+  {
+   "word": "great",
+   "canonPer1M": 1213,
+   "oursPer1M": 101,
+   "ratio": 12
+  },
+  {
+   "word": "give",
+   "canonPer1M": 1052,
+   "oursPer1M": 70,
+   "ratio": 15
+  },
+  {
+   "word": "fact",
+   "canonPer1M": 984,
+   "oursPer1M": 241,
+   "ratio": 4.1
+  },
+  {
+   "word": "sure",
+   "canonPer1M": 949,
+   "oursPer1M": 197,
+   "ratio": 4.8
+  },
+  {
+   "word": "answered",
+   "canonPer1M": 912,
+   "oursPer1M": 117,
+   "ratio": 7.8
+  },
+  {
+   "word": "police",
+   "canonPer1M": 902,
+   "oursPer1M": 34,
+   "ratio": 26.2
+  },
+  {
+   "word": "doctor",
+   "canonPer1M": 879,
+   "oursPer1M": 204,
+   "ratio": 4.3
+  },
+  {
+   "word": "friend",
+   "canonPer1M": 874,
+   "oursPer1M": 56,
+   "ratio": 15.7
+  },
+  {
+   "word": "father",
+   "canonPer1M": 843,
+   "oursPer1M": 13,
+   "ratio": 66.9
+  },
+  {
+   "word": "mean",
+   "canonPer1M": 837,
+   "oursPer1M": 159,
+   "ratio": 5.3
+  },
+  {
+   "word": "better",
+   "canonPer1M": 832,
+   "oursPer1M": 205,
+   "ratio": 4.1
+  },
+  {
+   "word": "money",
+   "canonPer1M": 818,
+   "oursPer1M": 52,
+   "ratio": 15.6
+  },
+  {
+   "word": "round",
+   "canonPer1M": 817,
+   "oursPer1M": 72,
+   "ratio": 11.4
+  },
+  {
+   "word": "years",
+   "canonPer1M": 808,
+   "oursPer1M": 166,
+   "ratio": 4.9
+  },
+  {
+   "word": "sort",
+   "canonPer1M": 765,
+   "oursPer1M": 92,
+   "ratio": 8.3
+  },
+  {
+   "word": "suddenly",
+   "canonPer1M": 763,
+   "oursPer1M": 137,
+   "ratio": 5.6
+  },
+  {
+   "word": "street",
+   "canonPer1M": 749,
+   "oursPer1M": 51,
+   "ratio": 14.7
+  },
+  {
+   "word": "dead",
+   "canonPer1M": 746,
+   "oursPer1M": 150,
+   "ratio": 5
+  },
+  {
+   "word": "really",
+   "canonPer1M": 743,
+   "oursPer1M": 86,
+   "ratio": 8.6
+  },
+  {
+   "word": "home",
+   "canonPer1M": 742,
+   "oursPer1M": 37,
+   "ratio": 20
+  },
+  {
+   "word": "called",
+   "canonPer1M": 715,
+   "oursPer1M": 125,
+   "ratio": 5.7
+  },
+  {
+   "word": "didn",
+   "canonPer1M": 704,
+   "oursPer1M": 0,
+   "ratio": 703.8
+  },
+  {
+   "word": "opened",
+   "canonPer1M": 672,
+   "oursPer1M": 168,
+   "ratio": 4
+  },
+  {
+   "word": "having",
+   "canonPer1M": 672,
+   "oursPer1M": 56,
+   "ratio": 11.9
+  },
+  {
+   "word": "dear",
+   "canonPer1M": 671,
+   "oursPer1M": 21,
+   "ratio": 31.6
+  },
+  {
+   "word": "soon",
+   "canonPer1M": 630,
+   "oursPer1M": 131,
+   "ratio": 4.8
+  },
+  {
+   "word": "wife",
+   "canonPer1M": 614,
+   "oursPer1M": 11,
+   "ratio": 57.9
+  },
+  {
+   "word": "coming",
+   "canonPer1M": 602,
+   "oursPer1M": 143,
+   "ratio": 4.2
+  },
+  {
+   "word": "poor",
+   "canonPer1M": 585,
+   "oursPer1M": 44,
+   "ratio": 13.2
+  },
+  {
+   "word": "known",
+   "canonPer1M": 581,
+   "oursPer1M": 145,
+   "ratio": 4
+  },
+  {
+   "word": "certainly",
+   "canonPer1M": 575,
+   "oursPer1M": 27,
+   "ratio": 21.7
+  },
+  {
+   "word": "exclaimed",
+   "canonPer1M": 564,
+   "oursPer1M": 11,
+   "ratio": 53.1
+  },
+  {
+   "word": "possible",
+   "canonPer1M": 553,
+   "oursPer1M": 123,
+   "ratio": 4.5
+  },
+  {
+   "word": "detective",
+   "canonPer1M": 551,
+   "oursPer1M": 84,
+   "ratio": 6.6
+  },
+  {
+   "word": "idea",
+   "canonPer1M": 550,
+   "oursPer1M": 23,
+   "ratio": 23.7
+  },
+  {
+   "word": "walked",
+   "canonPer1M": 543,
+   "oursPer1M": 50,
+   "ratio": 10.8
+  },
+  {
+   "word": "talk",
+   "canonPer1M": 540,
    "oursPer1M": 85,
    "ratio": 6.4
   },
   {
-   "word": "manner",
-   "canonPer1M": 547,
-   "oursPer1M": 82,
-   "ratio": 6.7
-  },
-  {
-   "word": "short",
-   "canonPer1M": 542,
-   "oursPer1M": 101,
-   "ratio": 5.4
-  },
-  {
-   "word": "till",
-   "canonPer1M": 542,
-   "oursPer1M": 13,
-   "ratio": 43.2
-  },
-  {
-   "word": "possible",
-   "canonPer1M": 539,
-   "oursPer1M": 126,
-   "ratio": 4.3
-  },
-  {
-   "word": "chance",
-   "canonPer1M": 523,
-   "oursPer1M": 114,
-   "ratio": 4.6
-  },
-  {
-   "word": "sent",
-   "canonPer1M": 523,
-   "oursPer1M": 113,
-   "ratio": 4.6
-  },
-  {
-   "word": "black",
-   "canonPer1M": 521,
-   "oursPer1M": 50,
-   "ratio": 10.4
-  },
-  {
-   "word": "wife",
-   "canonPer1M": 518,
-   "oursPer1M": 10,
-   "ratio": 54
-  },
-  {
-   "word": "money",
-   "canonPer1M": 513,
-   "oursPer1M": 56,
-   "ratio": 9.1
-  },
-  {
-   "word": "really",
-   "canonPer1M": 510,
-   "oursPer1M": 87,
-   "ratio": 5.9
-  },
-  {
-   "word": "certainly",
-   "canonPer1M": 499,
-   "oursPer1M": 28,
-   "ratio": 17.8
-  },
-  {
-   "word": "large",
-   "canonPer1M": 499,
-   "oursPer1M": 75,
-   "ratio": 6.7
-  },
-  {
-   "word": "able",
-   "canonPer1M": 497,
-   "oursPer1M": 9,
-   "ratio": 56.1
-  },
-  {
-   "word": "indeed",
-   "canonPer1M": 497,
-   "oursPer1M": 123,
-   "ratio": 4.1
+   "word": "love",
+   "canonPer1M": 522,
+   "oursPer1M": 45,
+   "ratio": 11.6
   },
   {
    "word": "road",
-   "canonPer1M": 491,
-   "oursPer1M": 5,
-   "ratio": 95.1
+   "canonPer1M": 520,
+   "oursPer1M": 7,
+   "ratio": 78.4
   },
   {
-   "word": "doing",
-   "canonPer1M": 491,
-   "oursPer1M": 78,
-   "ratio": 6.3
+   "word": "cried",
+   "canonPer1M": 504,
+   "oursPer1M": 2,
+   "ratio": 253.7
   },
   {
-   "word": "view",
-   "canonPer1M": 478,
+   "word": "pretty",
+   "canonPer1M": 501,
+   "oursPer1M": 3,
+   "ratio": 189
+  },
+  {
+   "word": "mother",
+   "canonPer1M": 491,
+   "oursPer1M": 3,
+   "ratio": 148
+  },
+  {
+   "word": "towards",
+   "canonPer1M": 488,
+   "oursPer1M": 28,
+   "ratio": 17.5
+  },
+  {
+   "word": "probably",
+   "canonPer1M": 488,
+   "oursPer1M": 6,
+   "ratio": 81.8
+  },
+  {
+   "word": "black",
+   "canonPer1M": 476,
+   "oursPer1M": 48,
+   "ratio": 9.8
+  },
+  {
+   "word": "chance",
+   "canonPer1M": 476,
    "oursPer1M": 113,
    "ratio": 4.2
   },
   {
-   "word": "love",
-   "canonPer1M": 476,
-   "oursPer1M": 49,
-   "ratio": 9.8
-  },
-  {
-   "word": "country",
+   "word": "sent",
    "canonPer1M": 473,
-   "oursPer1M": 9,
-   "ratio": 53.4
+   "oursPer1M": 103,
+   "ratio": 4.6
   },
   {
-   "word": "yellow",
-   "canonPer1M": 470,
-   "oursPer1M": 10,
-   "ratio": 49
-  },
-  {
-   "word": "sort",
-   "canonPer1M": 465,
-   "oursPer1M": 90,
-   "ratio": 5.2
-  },
-  {
-   "word": "idea",
-   "canonPer1M": 460,
-   "oursPer1M": 22,
-   "ratio": 20.7
-  },
-  {
-   "word": "subject",
-   "canonPer1M": 454,
-   "oursPer1M": 37,
-   "ratio": 12.3
-  },
-  {
-   "word": "year",
-   "canonPer1M": 452,
-   "oursPer1M": 7,
-   "ratio": 61.1
-  },
-  {
-   "word": "friends",
-   "canonPer1M": 446,
-   "oursPer1M": 48,
-   "ratio": 9.3
-  },
-  {
-   "word": "servants",
-   "canonPer1M": 441,
-   "oursPer1M": 45,
-   "ratio": 9.8
-  },
-  {
-   "word": "moor",
-   "canonPer1M": 441,
-   "oursPer1M": 0,
-   "ratio": 441
-  },
-  {
-   "word": "wait",
-   "canonPer1M": 438,
-   "oursPer1M": 66,
-   "ratio": 6.7
-  },
-  {
-   "word": "evidently",
-   "canonPer1M": 436,
-   "oursPer1M": 0,
-   "ratio": 435.7
-  },
-  {
-   "word": "appearance",
-   "canonPer1M": 422,
-   "oursPer1M": 33,
-   "ratio": 12.7
-  },
-  {
-   "word": "walked",
-   "canonPer1M": 420,
-   "oursPer1M": 47,
+   "word": "interest",
+   "canonPer1M": 467,
+   "oursPer1M": 52,
    "ratio": 9
   },
   {
-   "word": "aunt",
-   "canonPer1M": 414,
-   "oursPer1M": 6,
-   "ratio": 70.1
-  },
-  {
-   "word": "surprise",
-   "canonPer1M": 406,
-   "oursPer1M": 27,
-   "ratio": 15.3
-  },
-  {
-   "word": "didn",
-   "canonPer1M": 398,
-   "oursPer1M": 0,
-   "ratio": 398.5
-  },
-  {
-   "word": "state",
-   "canonPer1M": 396,
-   "oursPer1M": 99,
-   "ratio": 4
-  },
-  {
-   "word": "opinion",
-   "canonPer1M": 393,
-   "oursPer1M": 18,
-   "ratio": 22.2
-  },
-  {
-   "word": "character",
-   "canonPer1M": 391,
-   "oursPer1M": 67,
-   "ratio": 5.8
-  },
-  {
-   "word": "cousin",
-   "canonPer1M": 391,
-   "oursPer1M": 4,
-   "ratio": 105.7
-  },
-  {
-   "word": "four",
-   "canonPer1M": 388,
-   "oursPer1M": 74,
-   "ratio": 5.3
-  },
-  {
-   "word": "ready",
-   "canonPer1M": 388,
-   "oursPer1M": 73,
-   "ratio": 5.3
-  },
-  {
-   "word": "fellow",
-   "canonPer1M": 377,
-   "oursPer1M": 10,
-   "ratio": 39.3
-  },
-  {
-   "word": "train",
-   "canonPer1M": 372,
-   "oursPer1M": 18,
-   "ratio": 21
-  },
-  {
-   "word": "received",
-   "canonPer1M": 369,
-   "oursPer1M": 55,
-   "ratio": 6.8
-  },
-  {
-   "word": "detective",
-   "canonPer1M": 369,
-   "oursPer1M": 91,
-   "ratio": 4.1
-  },
-  {
-   "word": "uncle",
-   "canonPer1M": 369,
-   "oursPer1M": 1,
-   "ratio": 369.3
-  },
-  {
-   "word": "teau",
-   "canonPer1M": 369,
-   "oursPer1M": 0,
-   "ratio": 369.3
-  },
-  {
-   "word": "mother",
-   "canonPer1M": 364,
-   "oursPer1M": 4,
-   "ratio": 98.6
-  },
-  {
-   "word": "circumstances",
-   "canonPer1M": 359,
-   "oursPer1M": 58,
-   "ratio": 6.2
-  },
-  {
-   "word": "brother",
-   "canonPer1M": 356,
-   "oursPer1M": 2,
-   "ratio": 160.7
-  },
-  {
-   "word": "trouble",
-   "canonPer1M": 353,
-   "oursPer1M": 89,
-   "ratio": 4
-  },
-  {
-   "word": "letters",
-   "canonPer1M": 351,
-   "oursPer1M": 52,
-   "ratio": 6.7
-  },
-  {
-   "word": "gallery",
-   "canonPer1M": 351,
-   "oursPer1M": 15,
-   "ratio": 23.7
-  },
-  {
-   "word": "nature",
-   "canonPer1M": 351,
-   "oursPer1M": 73,
-   "ratio": 4.8
-  },
-  {
-   "word": "talk",
-   "canonPer1M": 351,
-   "oursPer1M": 86,
-   "ratio": 4.1
-  },
-  {
-   "word": "discovered",
-   "canonPer1M": 340,
-   "oursPer1M": 75,
+   "word": "strange",
+   "canonPer1M": 458,
+   "oursPer1M": 101,
    "ratio": 4.5
   },
   {
-   "word": "bring",
-   "canonPer1M": 337,
-   "oursPer1M": 78,
-   "ratio": 4.3
-  },
-  {
-   "word": "town",
-   "canonPer1M": 337,
-   "oursPer1M": 28,
-   "ratio": 12
-  },
-  {
-   "word": "beautiful",
-   "canonPer1M": 335,
-   "oursPer1M": 0,
-   "ratio": 334.7
-  },
-  {
-   "word": "occasion",
-   "canonPer1M": 335,
-   "oursPer1M": 12,
-   "ratio": 28.3
-  },
-  {
-   "word": "immediately",
-   "canonPer1M": 332,
-   "oursPer1M": 74,
-   "ratio": 4.5
+   "word": "taking",
+   "canonPer1M": 448,
+   "oursPer1M": 76,
+   "ratio": 5.9
   },
   {
    "word": "husband",
-   "canonPer1M": 329,
+   "canonPer1M": 437,
    "oursPer1M": 5,
-   "ratio": 63.7
+   "ratio": 94.2
   },
   {
-   "word": "experience",
-   "canonPer1M": 327,
-   "oursPer1M": 57,
-   "ratio": 5.7
+   "word": "gentleman",
+   "canonPer1M": 429,
+   "oursPer1M": 10,
+   "ratio": 43.2
   },
   {
-   "word": "knows",
-   "canonPer1M": 327,
+   "word": "able",
+   "canonPer1M": 425,
+   "oursPer1M": 9,
+   "ratio": 49.3
+  },
+  {
+   "word": "smiled",
+   "canonPer1M": 422,
    "oursPer1M": 41,
-   "ratio": 7.9
+   "ratio": 10.3
   },
   {
-   "word": "comes",
-   "canonPer1M": 324,
-   "oursPer1M": 64,
+   "word": "thinking",
+   "canonPer1M": 420,
+   "oursPer1M": 54,
+   "ratio": 7.7
+  },
+  {
+   "word": "yourself",
+   "canonPer1M": 418,
+   "oursPer1M": 88,
+   "ratio": 4.8
+  },
+  {
+   "word": "doing",
+   "canonPer1M": 416,
+   "oursPer1M": 80,
+   "ratio": 5.2
+  },
+  {
+   "word": "large",
+   "canonPer1M": 412,
+   "oursPer1M": 72,
+   "ratio": 5.8
+  },
+  {
+   "word": "fellow",
+   "canonPer1M": 411,
+   "oursPer1M": 9,
+   "ratio": 44.3
+  },
+  {
+   "word": "town",
+   "canonPer1M": 407,
+   "oursPer1M": 25,
+   "ratio": 16.1
+  },
+  {
+   "word": "friends",
+   "canonPer1M": 405,
+   "oursPer1M": 44,
+   "ratio": 9.2
+  },
+  {
+   "word": "uncle",
+   "canonPer1M": 405,
+   "oursPer1M": 1,
+   "ratio": 404.6
+  },
+  {
+   "word": "brother",
+   "canonPer1M": 404,
+   "oursPer1M": 4,
+   "ratio": 101.7
+  },
+  {
+   "word": "manner",
+   "canonPer1M": 403,
+   "oursPer1M": 87,
+   "ratio": 4.6
+  },
+  {
+   "word": "trouble",
+   "canonPer1M": 401,
+   "oursPer1M": 97,
+   "ratio": 4.1
+  },
+  {
+   "word": "shot",
+   "canonPer1M": 397,
+   "oursPer1M": 68,
+   "ratio": 5.8
+  },
+  {
+   "word": "till",
+   "canonPer1M": 396,
+   "oursPer1M": 13,
+   "ratio": 29.8
+  },
+  {
+   "word": "laughed",
+   "canonPer1M": 395,
+   "oursPer1M": 68,
+   "ratio": 5.8
+  },
+  {
+   "word": "affair",
+   "canonPer1M": 388,
+   "oursPer1M": 26,
+   "ratio": 15
+  },
+  {
+   "word": "evidently",
+   "canonPer1M": 384,
+   "oursPer1M": 0,
+   "ratio": 384.4
+  },
+  {
+   "word": "wait",
+   "canonPer1M": 384,
+   "oursPer1M": 71,
+   "ratio": 5.4
+  },
+  {
+   "word": "bring",
+   "canonPer1M": 382,
+   "oursPer1M": 76,
    "ratio": 5
   },
   {
-   "word": "lodge",
+   "word": "getting",
+   "canonPer1M": 381,
+   "oursPer1M": 17,
+   "ratio": 22.1
+  },
+  {
+   "word": "he's",
+   "canonPer1M": 372,
+   "oursPer1M": 34,
+   "ratio": 11
+  },
+  {
+   "word": "safe",
+   "canonPer1M": 368,
+   "oursPer1M": 35,
+   "ratio": 10.5
+  },
+  {
+   "word": "thousand",
+   "canonPer1M": 363,
+   "oursPer1M": 3,
+   "ratio": 109.4
+  },
+  {
+   "word": "knows",
+   "canonPer1M": 356,
+   "oursPer1M": 43,
+   "ratio": 8.3
+  },
+  {
+   "word": "country",
+   "canonPer1M": 355,
+   "oursPer1M": 8,
+   "ratio": 44.6
+  },
+  {
+   "word": "aunt",
+   "canonPer1M": 355,
+   "oursPer1M": 5,
+   "ratio": 67
+  },
+  {
+   "word": "information",
+   "canonPer1M": 353,
+   "oursPer1M": 34,
+   "ratio": 10.2
+  },
+  {
+   "word": "surprise",
+   "canonPer1M": 351,
+   "oursPer1M": 26,
+   "ratio": 13.6
+  },
+  {
+   "word": "letters",
+   "canonPer1M": 350,
+   "oursPer1M": 58,
+   "ratio": 6.1
+  },
+  {
+   "word": "please",
+   "canonPer1M": 338,
+   "oursPer1M": 56,
+   "ratio": 6
+  },
+  {
+   "word": "ought",
+   "canonPer1M": 336,
+   "oursPer1M": 56,
+   "ratio": 6
+  },
+  {
+   "word": "except",
+   "canonPer1M": 332,
+   "oursPer1M": 53,
+   "ratio": 6.3
+  },
+  {
+   "word": "deal",
+   "canonPer1M": 319,
+   "oursPer1M": 51,
+   "ratio": 6.2
+  },
+  {
+   "word": "hundred",
+   "canonPer1M": 319,
+   "oursPer1M": 43,
+   "ratio": 7.4
+  },
+  {
+   "word": "to-night",
    "canonPer1M": 316,
    "oursPer1M": 0,
-   "ratio": 316.1
+   "ratio": 315.7
+  },
+  {
+   "word": "chief",
+   "canonPer1M": 316,
+   "oursPer1M": 4,
+   "ratio": 79.4
+  },
+  {
+   "word": "court",
+   "canonPer1M": 315,
+   "oursPer1M": 7,
+   "ratio": 43.2
+  },
+  {
+   "word": "glad",
+   "canonPer1M": 313,
+   "oursPer1M": 9,
+   "ratio": 33.8
   },
   {
    "word": "women",
-   "canonPer1M": 316,
+   "canonPer1M": 313,
+   "oursPer1M": 70,
+   "ratio": 4.5
+  },
+  {
+   "word": "wonder",
+   "canonPer1M": 312,
    "oursPer1M": 75,
    "ratio": 4.2
   },
   {
-   "word": "marriage",
-   "canonPer1M": 313,
-   "oursPer1M": 0,
-   "ratio": 313.5
-  },
-  {
-   "word": "coroner",
-   "canonPer1M": 313,
-   "oursPer1M": 9,
-   "ratio": 35.4
-  },
-  {
-   "word": "possession",
+   "word": "apparently",
    "canonPer1M": 311,
-   "oursPer1M": 22,
-   "ratio": 14
+   "oursPer1M": 7,
+   "ratio": 42.6
   },
   {
-   "word": "please",
+   "word": "train",
    "canonPer1M": 311,
-   "oursPer1M": 59,
-   "ratio": 5.3
-  },
-  {
-   "word": "servant",
-   "canonPer1M": 308,
    "oursPer1M": 36,
    "ratio": 8.5
   },
   {
-   "word": "safe",
-   "canonPer1M": 308,
-   "oursPer1M": 37,
-   "ratio": 8.3
-  },
-  {
-   "word": "sleep",
-   "canonPer1M": 303,
-   "oursPer1M": 62,
-   "ratio": 4.9
-  },
-  {
-   "word": "probably",
-   "canonPer1M": 303,
-   "oursPer1M": 7,
-   "ratio": 45.6
-  },
-  {
-   "word": "terrible",
-   "canonPer1M": 300,
-   "oursPer1M": 25,
-   "ratio": 12
-  },
-  {
-   "word": "affair",
-   "canonPer1M": 300,
-   "oursPer1M": 24,
-   "ratio": 12.3
-  },
-  {
-   "word": "thinking",
-   "canonPer1M": 300,
-   "oursPer1M": 55,
-   "ratio": 5.5
-  },
-  {
-   "word": "surprised",
-   "canonPer1M": 298,
-   "oursPer1M": 9,
-   "ratio": 33.6
-  },
-  {
-   "word": "following",
-   "canonPer1M": 295,
-   "oursPer1M": 63,
-   "ratio": 4.7
+   "word": "sergeant",
+   "canonPer1M": 309,
+   "oursPer1M": 1,
+   "ratio": 308.6
   },
   {
    "word": "stairs",
-   "canonPer1M": 295,
-   "oursPer1M": 30,
-   "ratio": 10
-  },
-  {
-   "word": "importance",
-   "canonPer1M": 292,
-   "oursPer1M": 17,
-   "ratio": 17.2
-  },
-  {
-   "word": "afterwards",
-   "canonPer1M": 292,
-   "oursPer1M": 10,
-   "ratio": 28.3
-  },
-  {
-   "word": "thus",
-   "canonPer1M": 292,
-   "oursPer1M": 19,
-   "ratio": 15.2
-  },
-  {
-   "word": "station",
-   "canonPer1M": 290,
-   "oursPer1M": 15,
-   "ratio": 19.6
-  },
-  {
-   "word": "danger",
-   "canonPer1M": 287,
-   "oursPer1M": 30,
-   "ratio": 9.5
-  },
-  {
-   "word": "ought",
-   "canonPer1M": 287,
-   "oursPer1M": 52,
-   "ratio": 5.5
-  },
-  {
-   "word": "saying",
-   "canonPer1M": 287,
-   "oursPer1M": 69,
-   "ratio": 4.1
-  },
-  {
-   "word": "exclaimed",
-   "canonPer1M": 284,
-   "oursPer1M": 12,
-   "ratio": 24.1
-  },
-  {
-   "word": "hundred",
-   "canonPer1M": 276,
-   "oursPer1M": 38,
-   "ratio": 7.3
-  },
-  {
-   "word": "revolver",
-   "canonPer1M": 276,
-   "oursPer1M": 0,
-   "ratio": 276.3
-  },
-  {
-   "word": "strong",
-   "canonPer1M": 274,
-   "oursPer1M": 68,
-   "ratio": 4
-  },
-  {
-   "word": "write",
-   "canonPer1M": 274,
-   "oursPer1M": 46,
-   "ratio": 6
-  },
-  {
-   "word": "interested",
-   "canonPer1M": 274,
+   "canonPer1M": 308,
    "oursPer1M": 28,
-   "ratio": 9.7
+   "ratio": 11.1
   },
   {
-   "word": "candle",
-   "canonPer1M": 274,
-   "oursPer1M": 27,
-   "ratio": 10.3
-  },
-  {
-   "word": "court",
-   "canonPer1M": 274,
-   "oursPer1M": 8,
-   "ratio": 33.7
-  },
-  {
-   "word": "secretary",
-   "canonPer1M": 274,
-   "oursPer1M": 5,
-   "ratio": 52.9
-  },
-  {
-   "word": "ladies",
-   "canonPer1M": 274,
-   "oursPer1M": 7,
-   "ratio": 37
-  },
-  {
-   "word": "surely",
-   "canonPer1M": 271,
-   "oursPer1M": 66,
-   "ratio": 4.1
-  },
-  {
-   "word": "gentlemen",
-   "canonPer1M": 271,
-   "oursPer1M": 7,
-   "ratio": 40.8
-  },
-  {
-   "word": "getting",
-   "canonPer1M": 268,
-   "oursPer1M": 18,
-   "ratio": 14.5
+   "word": "presently",
+   "canonPer1M": 306,
+   "oursPer1M": 0,
+   "ratio": 305.7
   },
   {
    "word": "likely",
-   "canonPer1M": 268,
-   "oursPer1M": 42,
-   "ratio": 6.4
+   "canonPer1M": 303,
+   "oursPer1M": 40,
+   "ratio": 7.6
   },
   {
-   "word": "chief",
-   "canonPer1M": 268,
-   "oursPer1M": 4,
-   "ratio": 60.5
+   "word": "ready",
+   "canonPer1M": 300,
+   "oursPer1M": 72,
+   "ratio": 4.2
   },
   {
-   "word": "mistress",
-   "canonPer1M": 268,
-   "oursPer1M": 14,
-   "ratio": 19.1
+   "word": "week",
+   "canonPer1M": 297,
+   "oursPer1M": 38,
+   "ratio": 7.9
   },
   {
-   "word": "stranger",
-   "canonPer1M": 266,
-   "oursPer1M": 21,
-   "ratio": 12.8
+   "word": "talking",
+   "canonPer1M": 293,
+   "oursPer1M": 30,
+   "ratio": 9.6
   },
   {
-   "word": "pretty",
-   "canonPer1M": 266,
+   "word": "daughter",
+   "canonPer1M": 293,
+   "oursPer1M": 2,
+   "ratio": 147.4
+  },
+  {
+   "word": "agreed",
+   "canonPer1M": 291,
+   "oursPer1M": 34,
+   "ratio": 8.4
+  },
+  {
+   "word": "married",
+   "canonPer1M": 289,
    "oursPer1M": 1,
-   "ratio": 179.8
+   "ratio": 289.3
   },
   {
-   "word": "companion",
-   "canonPer1M": 263,
-   "oursPer1M": 19,
-   "ratio": 13.7
-  },
-  {
-   "word": "bedroom",
-   "canonPer1M": 263,
-   "oursPer1M": 7,
-   "ratio": 39.6
-  },
-  {
-   "word": "instantly",
-   "canonPer1M": 263,
-   "oursPer1M": 6,
-   "ratio": 44.5
-  },
-  {
-   "word": "deal",
-   "canonPer1M": 260,
-   "oursPer1M": 45,
-   "ratio": 5.8
-  },
-  {
-   "word": "lived",
-   "canonPer1M": 260,
-   "oursPer1M": 23,
-   "ratio": 11.4
-  },
-  {
-   "word": "extraordinary",
-   "canonPer1M": 258,
-   "oursPer1M": 7,
-   "ratio": 34.9
-  },
-  {
-   "word": "visit",
-   "canonPer1M": 258,
-   "oursPer1M": 13,
-   "ratio": 20.5
-  },
-  {
-   "word": "common",
-   "canonPer1M": 255,
+   "word": "sorry",
+   "canonPer1M": 288,
    "oursPer1M": 18,
-   "ratio": 13.8
+   "ratio": 16.1
   },
   {
-   "word": "regard",
-   "canonPer1M": 255,
-   "oursPer1M": 3,
-   "ratio": 86.3
+   "word": "appearance",
+   "canonPer1M": 285,
+   "oursPer1M": 32,
+   "ratio": 8.8
+  },
+  {
+   "word": "colonel",
+   "canonPer1M": 284,
+   "oursPer1M": 12,
+   "ratio": 23.8
+  },
+  {
+   "word": "couldn",
+   "canonPer1M": 281,
+   "oursPer1M": 0,
+   "ratio": 281.4
+  },
+  {
+   "word": "search",
+   "canonPer1M": 280,
+   "oursPer1M": 38,
+   "ratio": 7.4
   },
   {
    "word": "child",
-   "canonPer1M": 255,
-   "oursPer1M": 4,
-   "ratio": 57.5
+   "canonPer1M": 277,
+   "oursPer1M": 6,
+   "ratio": 46.4
   },
   {
-   "word": "difficulty",
-   "canonPer1M": 252,
-   "oursPer1M": 5,
-   "ratio": 48.8
+   "word": "station",
+   "canonPer1M": 277,
+   "oursPer1M": 15,
+   "ratio": 18.1
   },
   {
-   "word": "information",
-   "canonPer1M": 252,
+   "word": "discovered",
+   "canonPer1M": 276,
+   "oursPer1M": 69,
+   "ratio": 4
+  },
+  {
+   "word": "circumstances",
+   "canonPer1M": 275,
+   "oursPer1M": 54,
+   "ratio": 5.1
+  },
+  {
+   "word": "declared",
+   "canonPer1M": 274,
+   "oursPer1M": 67,
+   "ratio": 4.1
+  },
+  {
+   "word": "strong",
+   "canonPer1M": 273,
+   "oursPer1M": 63,
+   "ratio": 4.3
+  },
+  {
+   "word": "to-morrow",
+   "canonPer1M": 271,
+   "oursPer1M": 0,
+   "ratio": 271.2
+  },
+  {
+   "word": "somebody",
+   "canonPer1M": 270,
+   "oursPer1M": 11,
+   "ratio": 25.4
+  },
+  {
+   "word": "visit",
+   "canonPer1M": 269,
+   "oursPer1M": 12,
+   "ratio": 22.5
+  },
+  {
+   "word": "wasn",
+   "canonPer1M": 269,
+   "oursPer1M": 0,
+   "ratio": 269.1
+  },
+  {
+   "word": "interested",
+   "canonPer1M": 262,
+   "oursPer1M": 32,
+   "ratio": 8.1
+  },
+  {
+   "word": "stay",
+   "canonPer1M": 262,
    "oursPer1M": 38,
-   "ratio": 6.6
+   "ratio": 6.9
   },
   {
-   "word": "prisoner",
-   "canonPer1M": 252,
-   "oursPer1M": 1,
-   "ratio": 252.4
+   "word": "important",
+   "canonPer1M": 261,
+   "oursPer1M": 38,
+   "ratio": 6.9
   },
   {
-   "word": "deceased",
-   "canonPer1M": 252,
-   "oursPer1M": 8,
-   "ratio": 31.1
+   "word": "brown",
+   "canonPer1M": 261,
+   "oursPer1M": 13,
+   "ratio": 19.7
   },
   {
-   "word": "handed",
-   "canonPer1M": 252,
-   "oursPer1M": 37,
-   "ratio": 6.8
+   "word": "comes",
+   "canonPer1M": 260,
+   "oursPer1M": 64,
+   "ratio": 4.1
   },
   {
-   "word": "worth",
-   "canonPer1M": 252,
+   "word": "subject",
+   "canonPer1M": 259,
+   "oursPer1M": 38,
+   "ratio": 6.9
+  },
+  {
+   "word": "number",
+   "canonPer1M": 258,
+   "oursPer1M": 36,
+   "ratio": 7.2
+  },
+  {
+   "word": "wouldn",
+   "canonPer1M": 257,
+   "oursPer1M": 0,
+   "ratio": 257.1
+  },
+  {
+   "word": "bank",
+   "canonPer1M": 255,
+   "oursPer1M": 7,
+   "ratio": 38.5
+  },
+  {
+   "word": "yard",
+   "canonPer1M": 254,
+   "oursPer1M": 27,
+   "ratio": 9.3
+  },
+  {
+   "word": "send",
+   "canonPer1M": 254,
+   "oursPer1M": 9,
+   "ratio": 29.5
+  },
+  {
+   "word": "following",
+   "canonPer1M": 253,
    "oursPer1M": 59,
    "ratio": 4.3
   },
   {
-   "word": "informed",
-   "canonPer1M": 252,
-   "oursPer1M": 2,
-   "ratio": 113.9
+   "word": "anybody",
+   "canonPer1M": 251,
+   "oursPer1M": 1,
+   "ratio": 251.5
   },
   {
-   "word": "mcginty",
-   "canonPer1M": 252,
-   "oursPer1M": 0,
-   "ratio": 252.4
-  },
-  {
-   "word": "week",
+   "word": "criminal",
    "canonPer1M": 250,
-   "oursPer1M": 30,
-   "ratio": 8.5
+   "oursPer1M": 19,
+   "ratio": 13
   },
   {
-   "word": "address",
+   "word": "pulled",
    "canonPer1M": 250,
-   "oursPer1M": 27,
-   "ratio": 9.1
+   "oursPer1M": 59,
+   "ratio": 4.2
   },
   {
-   "word": "message",
+   "word": "queer",
+   "canonPer1M": 249,
+   "oursPer1M": 1,
+   "ratio": 248.9
+  },
+  {
+   "word": "pounds",
+   "canonPer1M": 248,
+   "oursPer1M": 9,
+   "ratio": 28.7
+  },
+  {
+   "word": "received",
+   "canonPer1M": 248,
+   "oursPer1M": 53,
+   "ratio": 4.7
+  },
+  {
+   "word": "coroner",
    "canonPer1M": 247,
-   "oursPer1M": 35,
-   "ratio": 7
+   "oursPer1M": 9,
+   "ratio": 28.6
+  },
+  {
+   "word": "surprised",
+   "canonPer1M": 242,
+   "oursPer1M": 8,
+   "ratio": 30.4
+  },
+  {
+   "word": "year",
+   "canonPer1M": 242,
+   "oursPer1M": 8,
+   "ratio": 30.5
+  },
+  {
+   "word": "terrible",
+   "canonPer1M": 239,
+   "oursPer1M": 23,
+   "ratio": 10.3
+  },
+  {
+   "word": "companion",
+   "canonPer1M": 239,
+   "oursPer1M": 19,
+   "ratio": 12.9
+  },
+  {
+   "word": "somewhat",
+   "canonPer1M": 236,
+   "oursPer1M": 2,
+   "ratio": 118.4
+  },
+  {
+   "word": "live",
+   "canonPer1M": 236,
+   "oursPer1M": 31,
+   "ratio": 7.6
+  },
+  {
+   "word": "to-day",
+   "canonPer1M": 235,
+   "oursPer1M": 0,
+   "ratio": 235.4
+  },
+  {
+   "word": "doesn",
+   "canonPer1M": 233,
+   "oursPer1M": 0,
+   "ratio": 233.2
+  },
+  {
+   "word": "mysterious",
+   "canonPer1M": 231,
+   "oursPer1M": 3,
+   "ratio": 86.9
+  },
+  {
+   "word": "bill",
+   "canonPer1M": 231,
+   "oursPer1M": 3,
+   "ratio": 87.1
+  },
+  {
+   "word": "murdered",
+   "canonPer1M": 231,
+   "oursPer1M": 14,
+   "ratio": 16.6
+  },
+  {
+   "word": "handed",
+   "canonPer1M": 229,
+   "oursPer1M": 34,
+   "ratio": 6.6
+  },
+  {
+   "word": "decided",
+   "canonPer1M": 228,
+   "oursPer1M": 13,
+   "ratio": 17.2
   },
   {
    "word": "guess",
-   "canonPer1M": 247,
+   "canonPer1M": 227,
    "oursPer1M": 4,
-   "ratio": 55.8
+   "ratio": 57
   },
   {
-   "word": "search",
-   "canonPer1M": 247,
-   "oursPer1M": 39,
-   "ratio": 6.3
+   "word": "charge",
+   "canonPer1M": 225,
+   "oursPer1M": 46,
+   "ratio": 4.9
   },
   {
-   "word": "public",
-   "canonPer1M": 247,
-   "oursPer1M": 56,
-   "ratio": 4.4
-  },
-  {
-   "word": "learned",
-   "canonPer1M": 244,
-   "oursPer1M": 39,
-   "ratio": 6.2
-  },
-  {
-   "word": "magistrate",
-   "canonPer1M": 244,
+   "word": "beautiful",
+   "canonPer1M": 224,
    "oursPer1M": 0,
-   "ratio": 244.4
+   "ratio": 224
+  },
+  {
+   "word": "haven",
+   "canonPer1M": 224,
+   "oursPer1M": 38,
+   "ratio": 5.8
+  },
+  {
+   "word": "disappeared",
+   "canonPer1M": 223,
+   "oursPer1M": 12,
+   "ratio": 18.7
+  },
+  {
+   "word": "lawyer",
+   "canonPer1M": 222,
+   "oursPer1M": 2,
+   "ratio": 111.6
+  },
+  {
+   "word": "judge",
+   "canonPer1M": 222,
+   "oursPer1M": 42,
+   "ratio": 5.3
+  },
+  {
+   "word": "fool",
+   "canonPer1M": 222,
+   "oursPer1M": 14,
+   "ratio": 16
+  },
+  {
+   "word": "servants",
+   "canonPer1M": 222,
+   "oursPer1M": 40,
+   "ratio": 5.5
+  },
+  {
+   "word": "square",
+   "canonPer1M": 219,
+   "oursPer1M": 26,
+   "ratio": 8.5
+  },
+  {
+   "word": "bedroom",
+   "canonPer1M": 219,
+   "oursPer1M": 6,
+   "ratio": 36.8
   },
   {
    "word": "months",
-   "canonPer1M": 239,
-   "oursPer1M": 10,
-   "ratio": 24.9
+   "canonPer1M": 219,
+   "oursPer1M": 9,
+   "ratio": 23.6
   },
   {
-   "word": "sitting-room",
-   "canonPer1M": 239,
-   "oursPer1M": 0,
-   "ratio": 239.1
+   "word": "lived",
+   "canonPer1M": 217,
+   "oursPer1M": 23,
+   "ratio": 9.6
   },
   {
-   "word": "number",
-   "canonPer1M": 239,
-   "oursPer1M": 37,
-   "ratio": 6.5
+   "word": "game",
+   "canonPer1M": 216,
+   "oursPer1M": 46,
+   "ratio": 4.7
+  },
+  {
+   "word": "city",
+   "canonPer1M": 216,
+   "oursPer1M": 15,
+   "ratio": 14.8
+  },
+  {
+   "word": "yesterday",
+   "canonPer1M": 215,
+   "oursPer1M": 27,
+   "ratio": 7.9
+  },
+  {
+   "word": "happen",
+   "canonPer1M": 211,
+   "oursPer1M": 52,
+   "ratio": 4.1
+  },
+  {
+   "word": "although",
+   "canonPer1M": 207,
+   "oursPer1M": 1,
+   "ratio": 156.2
+  },
+  {
+   "word": "address",
+   "canonPer1M": 206,
+   "oursPer1M": 29,
+   "ratio": 7.1
+  },
+  {
+   "word": "opinion",
+   "canonPer1M": 206,
+   "oursPer1M": 18,
+   "ratio": 11.5
+  },
+  {
+   "word": "possibly",
+   "canonPer1M": 204,
+   "oursPer1M": 19,
+   "ratio": 10.6
+  },
+  {
+   "word": "club",
+   "canonPer1M": 204,
+   "oursPer1M": 13,
+   "ratio": 15.4
   },
   {
    "word": "serious",
-   "canonPer1M": 239,
-   "oursPer1M": 27,
-   "ratio": 8.7
+   "canonPer1M": 204,
+   "oursPer1M": 25,
+   "ratio": 8.3
   },
   {
-   "word": "third",
-   "canonPer1M": 236,
-   "oursPer1M": 13,
-   "ratio": 17.8
-  },
-  {
-   "word": "excuse",
-   "canonPer1M": 236,
+   "word": "message",
+   "canonPer1M": 201,
    "oursPer1M": 34,
-   "ratio": 7
+   "ratio": 5.8
   },
   {
-   "word": "natural",
-   "canonPer1M": 234,
-   "oursPer1M": 58,
-   "ratio": 4.1
+   "word": "possession",
+   "canonPer1M": 200,
+   "oursPer1M": 21,
+   "ratio": 9.7
   },
   {
-   "word": "glad",
-   "canonPer1M": 234,
-   "oursPer1M": 9,
-   "ratio": 26.4
+   "word": "paid",
+   "canonPer1M": 200,
+   "oursPer1M": 50,
+   "ratio": 4
   },
   {
-   "word": "laboratory",
-   "canonPer1M": 231,
-   "oursPer1M": 18,
-   "ratio": 12.5
+   "word": "looks",
+   "canonPer1M": 200,
+   "oursPer1M": 30,
+   "ratio": 6.6
   },
   {
-   "word": "allow",
-   "canonPer1M": 231,
-   "oursPer1M": 56,
-   "ratio": 4.1
+   "word": "clothes",
+   "canonPer1M": 199,
+   "oursPer1M": 10,
+   "ratio": 20
   },
   {
-   "word": "anybody",
-   "canonPer1M": 231,
-   "oursPer1M": 1,
-   "ratio": 231.1
+   "word": "naturally",
+   "canonPer1M": 197,
+   "oursPer1M": 15,
+   "ratio": 13.5
   },
   {
-   "word": "creature",
-   "canonPer1M": 231,
-   "oursPer1M": 3,
-   "ratio": 78.2
+   "word": "anyway",
+   "canonPer1M": 196,
+   "oursPer1M": 8,
+   "ratio": 24.6
   }
  ],
  "registerWords": [
   {
-   "word": "shall",
-   "ratio": 25.9
+   "word": "whom",
+   "ratio": 18.6
   },
   {
-   "word": "whom",
-   "ratio": 20.5
+   "word": "shall",
+   "ratio": 18.5
   },
   {
    "word": "which",
-   "ratio": 17.6
-  },
-  {
-   "word": "upon",
-   "ratio": 10.9
-  },
-  {
-   "word": "mine",
-   "ratio": 9.9
+   "ratio": 10.7
   },
   {
    "word": "very",
-   "ratio": 9.6
+   "ratio": 9.5
+  },
+  {
+   "word": "ours",
+   "ratio": 7.9
+  },
+  {
+   "word": "little",
+   "ratio": 6.1
   },
   {
    "word": "should",
-   "ratio": 7.6
-  },
-  {
-   "word": "myself",
-   "ratio": 7.4
-  },
-  {
-   "word": "other",
    "ratio": 5.8
   },
   {
    "word": "some",
-   "ratio": 5.8
+   "ratio": 5.6
   },
   {
-   "word": "little",
+   "word": "other",
    "ratio": 5.4
   },
   {
-   "word": "will",
+   "word": "upon",
+   "ratio": 5.2
+  },
+  {
+   "word": "mine",
    "ratio": 5.1
   },
   {
-   "word": "himself",
-   "ratio": 4.3
+   "word": "they",
+   "ratio": 4.7
   },
   {
-   "word": "such",
-   "ratio": 4.2
+   "word": "well",
+   "ratio": 4.4
   },
   {
    "word": "there",
    "ratio": 4
   },
   {
-   "word": "well",
+   "word": "himself",
    "ratio": 4
   },
   {
-   "word": "they",
+   "word": "will",
+   "ratio": 3.9
+  },
+  {
+   "word": "myself",
    "ratio": 3.8
   },
   {
-   "word": "also",
-   "ratio": 3.8
-  },
-  {
-   "word": "most",
-   "ratio": 3.6
-  },
-  {
-   "word": "being",
-   "ratio": 3.5
-  },
-  {
-   "word": "done",
+   "word": "such",
    "ratio": 3.4
   },
   {
-   "word": "have",
-   "ratio": 3.3
-  },
-  {
-   "word": "this",
+   "word": "about",
    "ratio": 3.2
   },
   {
@@ -1305,47 +1289,59 @@
    "ratio": 3.2
   },
   {
-   "word": "when",
+   "word": "also",
+   "ratio": 3.2
+  },
+  {
+   "word": "most",
    "ratio": 3.1
   },
   {
-   "word": "said",
-   "ratio": 3
-  },
-  {
-   "word": "many",
-   "ratio": 2.9
-  },
-  {
-   "word": "what",
+   "word": "when",
    "ratio": 2.8
   },
   {
-   "word": "again",
+   "word": "said",
+   "ratio": 2.8
+  },
+  {
+   "word": "many",
+   "ratio": 2.8
+  },
+  {
+   "word": "this",
    "ratio": 2.6
+  },
+  {
+   "word": "have",
+   "ratio": 2.5
   },
   {
    "word": "that",
    "ratio": 2.5
   },
   {
-   "word": "these",
+   "word": "being",
    "ratio": 2.5
   },
   {
-   "word": "about",
-   "ratio": 2.4
+   "word": "what",
+   "ratio": 2.5
+  },
+  {
+   "word": "done",
+   "ratio": 2.5
   },
   {
    "word": "another",
    "ratio": 2.4
   },
   {
-   "word": "under",
-   "ratio": 2.4
+   "word": "anything",
+   "ratio": 2.3
   },
   {
-   "word": "does",
+   "word": "again",
    "ratio": 2.2
   },
   {
@@ -1353,502 +1349,494 @@
    "ratio": 2.1
   },
   {
-   "word": "nothing",
+   "word": "these",
    "ratio": 2.1
   },
   {
-   "word": "would",
-   "ratio": 2
-  },
-  {
-   "word": "must",
-   "ratio": 2
-  },
-  {
-   "word": "anything",
+   "word": "those",
    "ratio": 2
   }
  ],
  "anachronismCandidates": [
   {
-   "word": "lobby",
-   "oursPer1M": 1391
-  },
-  {
    "word": "timeline",
-   "oursPer1M": 1332
-  },
-  {
-   "word": "logs",
-   "oursPer1M": 677
-  },
-  {
-   "word": "radio",
-   "oursPer1M": 665
-  },
-  {
-   "word": "tang",
-   "oursPer1M": 547
-  },
-  {
-   "word": "ledger",
-   "oursPer1M": 542
-  },
-  {
-   "word": "clocks",
-   "oursPer1M": 532
-  },
-  {
-   "word": "bravado",
-   "oursPer1M": 519
-  },
-  {
-   "word": "mingling",
-   "oursPer1M": 459
-  },
-  {
-   "word": "timing",
-   "oursPer1M": 453
-  },
-  {
-   "word": "flicked",
-   "oursPer1M": 426
-  },
-  {
-   "word": "alibis",
-   "oursPer1M": 404
-  },
-  {
-   "word": "chime",
-   "oursPer1M": 385
-  },
-  {
-   "word": "seaside",
-   "oursPer1M": 385
-  },
-  {
-   "word": "implications",
-   "oursPer1M": 374
-  },
-  {
-   "word": "muted",
-   "oursPer1M": 359
-  },
-  {
-   "word": "multiple",
-   "oursPer1M": 346
-  },
-  {
-   "word": "ticking",
-   "oursPer1M": 334
-  },
-  {
-   "word": "sensed",
-   "oursPer1M": 327
-  },
-  {
-   "word": "tick",
-   "oursPer1M": 305
+   "oursPer1M": 1250
   },
   {
    "word": "logbook",
-   "oursPer1M": 305
-  },
-  {
-   "word": "nearby",
-   "oursPer1M": 304
-  },
-  {
-   "word": "tampering",
-   "oursPer1M": 298
-  },
-  {
-   "word": "practiced",
-   "oursPer1M": 295
-  },
-  {
-   "word": "unreadable",
-   "oursPer1M": 295
+   "oursPer1M": 341
   },
   {
    "word": "unresolved",
-   "oursPer1M": 295
-  },
-  {
-   "word": "chimes",
-   "oursPer1M": 293
-  },
-  {
-   "word": "silhouette",
-   "oursPer1M": 284
-  },
-  {
-   "word": "windowpanes",
-   "oursPer1M": 281
-  },
-  {
-   "word": "filtered",
-   "oursPer1M": 279
-  },
-  {
-   "word": "manipulated",
-   "oursPer1M": 272
-  },
-  {
-   "word": "defensive",
-   "oursPer1M": 270
-  },
-  {
-   "word": "gestured",
-   "oursPer1M": 244
-  },
-  {
-   "word": "narrowing",
-   "oursPer1M": 242
-  },
-  {
-   "word": "hourglass",
-   "oursPer1M": 242
-  },
-  {
-   "word": "masquerade",
-   "oursPer1M": 239
-  },
-  {
-   "word": "fractured",
-   "oursPer1M": 230
-  },
-  {
-   "word": "gramophone",
-   "oursPer1M": 225
-  },
-  {
-   "word": "defensiveness",
-   "oursPer1M": 220
-  },
-  {
-   "word": "unwavering",
-   "oursPer1M": 208
-  },
-  {
-   "word": "heartbeat",
-   "oursPer1M": 205
-  },
-  {
-   "word": "overcast",
-   "oursPer1M": 202
+   "oursPer1M": 321
   },
   {
    "word": "surfaced",
-   "oursPer1M": 195
+   "oursPer1M": 212
   },
   {
-   "word": "casing",
-   "oursPer1M": 192
-  },
-  {
-   "word": "fingerprints",
-   "oursPer1M": 191
-  },
-  {
-   "word": "entries",
-   "oursPer1M": 186
+   "word": "defensiveness",
+   "oursPer1M": 204
   },
   {
    "word": "floorboards",
-   "oursPer1M": 185
+   "oursPer1M": 197
   },
   {
    "word": "align",
-   "oursPer1M": 180
-  },
-  {
-   "word": "maintenance",
-   "oursPer1M": 180
-  },
-  {
-   "word": "tailored",
-   "oursPer1M": 179
-  },
-  {
-   "word": "aftermath",
-   "oursPer1M": 177
+   "oursPer1M": 183
   },
   {
    "word": "rain-streaked",
-   "oursPer1M": 172
-  },
-  {
-   "word": "confrontation",
-   "oursPer1M": 168
-  },
-  {
-   "word": "seeped",
-   "oursPer1M": 161
-  },
-  {
-   "word": "unmoving",
-   "oursPer1M": 159
-  },
-  {
-   "word": "elevator",
-   "oursPer1M": 159
-  },
-  {
-   "word": "glinting",
-   "oursPer1M": 153
-  },
-  {
-   "word": "detachment",
-   "oursPer1M": 153
-  },
-  {
-   "word": "cracks",
-   "oursPer1M": 152
-  },
-  {
-   "word": "poise",
-   "oursPer1M": 149
-  },
-  {
-   "word": "deepening",
-   "oursPer1M": 148
-  },
-  {
-   "word": "rehearsed",
-   "oursPer1M": 148
-  },
-  {
-   "word": "testimonies",
-   "oursPer1M": 145
-  },
-  {
-   "word": "veneer",
-   "oursPer1M": 144
-  },
-  {
-   "word": "crackle",
-   "oursPer1M": 143
-  },
-  {
-   "word": "vulnerability",
-   "oursPer1M": 143
-  },
-  {
-   "word": "seeping",
-   "oursPer1M": 140
-  },
-  {
-   "word": "stubbornly",
-   "oursPer1M": 140
-  },
-  {
-   "word": "atop",
-   "oursPer1M": 140
-  },
-  {
-   "word": "unreliable",
-   "oursPer1M": 139
-  },
-  {
-   "word": "frost",
-   "oursPer1M": 136
-  },
-  {
-   "word": "sagged",
-   "oursPer1M": 135
-  },
-  {
-   "word": "flicking",
-   "oursPer1M": 134
+   "oursPer1M": 160
   },
   {
    "word": "routines",
-   "oursPer1M": 130
-  },
-  {
-   "word": "counterpoint",
-   "oursPer1M": 129
-  },
-  {
-   "word": "conflicting",
-   "oursPer1M": 129
-  },
-  {
-   "word": "easing",
-   "oursPer1M": 127
-  },
-  {
-   "word": "sheen",
-   "oursPer1M": 126
-  },
-  {
-   "word": "fraying",
-   "oursPer1M": 125
-  },
-  {
-   "word": "askew",
-   "oursPer1M": 124
-  },
-  {
-   "word": "timepiece",
-   "oursPer1M": 124
-  },
-  {
-   "word": "reassurance",
-   "oursPer1M": 123
-  },
-  {
-   "word": "crucible",
-   "oursPer1M": 123
-  },
-  {
-   "word": "tucked",
-   "oursPer1M": 120
-  },
-  {
-   "word": "stilled",
-   "oursPer1M": 119
+   "oursPer1M": 146
   },
   {
    "word": "mystery-",
-   "oursPer1M": 118
-  },
-  {
-   "word": "fingertips",
-   "oursPer1M": 118
-  },
-  {
-   "word": "bracing",
    "oursPer1M": 117
   },
   {
-   "word": "stance",
-   "oursPer1M": 117
-  },
-  {
-   "word": "illuminating",
-   "oursPer1M": 114
-  },
-  {
-   "word": "stable",
+   "word": "surfacing",
    "oursPer1M": 114
   },
   {
    "word": "notepad",
-   "oursPer1M": 113
-  },
-  {
-   "word": "napkin",
-   "oursPer1M": 112
+   "oursPer1M": 109
   },
   {
    "word": "rationing",
-   "oursPer1M": 112
-  },
-  {
-   "word": "furrowed",
-   "oursPer1M": 111
-  },
-  {
-   "word": "manipulate",
-   "oursPer1M": 111
-  },
-  {
-   "word": "clarify",
-   "oursPer1M": 109
-  },
-  {
-   "word": "confirming",
-   "oursPer1M": 109
-  },
-  {
-   "word": "location",
-   "oursPer1M": 108
-  },
-  {
-   "word": "finality",
-   "oursPer1M": 107
-  },
-  {
-   "word": "reflecting",
-   "oursPer1M": 106
-  },
-  {
-   "word": "beeswax",
-   "oursPer1M": 104
-  },
-  {
-   "word": "cadence",
-   "oursPer1M": 103
-  },
-  {
-   "word": "staged",
-   "oursPer1M": 102
-  },
-  {
-   "word": "teacup",
-   "oursPer1M": 100
-  },
-  {
-   "word": "cardigan",
-   "oursPer1M": 100
-  },
-  {
-   "word": "necklace",
-   "oursPer1M": 99
-  },
-  {
-   "word": "undercurrent",
-   "oursPer1M": 98
-  },
-  {
-   "word": "schedules",
-   "oursPer1M": 98
-  },
-  {
-   "word": "glimpsed",
-   "oursPer1M": 98
-  },
-  {
-   "word": "surf",
-   "oursPer1M": 95
-  },
-  {
-   "word": "surfacing",
-   "oursPer1M": 95
-  },
-  {
-   "word": "catalogued",
-   "oursPer1M": 95
-  },
-  {
-   "word": "patterned",
-   "oursPer1M": 94
-  },
-  {
-   "word": "ambiguity",
-   "oursPer1M": 91
-  },
-  {
-   "word": "aligned",
-   "oursPer1M": 91
-  },
-  {
-   "word": "envied",
-   "oursPer1M": 90
+   "oursPer1M": 105
   },
   {
    "word": "clipboard",
-   "oursPer1M": 89
+   "oursPer1M": 85
   },
   {
-   "word": "dampness",
-   "oursPer1M": 89
+   "word": "blackout",
+   "oursPer1M": 85
   },
   {
-   "word": "spine",
-   "oursPer1M": 89
+   "word": "bloodied",
+   "oursPer1M": 83
+  },
+  {
+   "word": "tea-length",
+   "oursPer1M": 80
+  },
+  {
+   "word": "evidence-the",
+   "oursPer1M": 78
+  },
+  {
+   "word": "sketchbook",
+   "oursPer1M": 78
+  },
+  {
+   "word": "backstage",
+   "oursPer1M": 76
+  },
+  {
+   "word": "grounding",
+   "oursPer1M": 74
+  },
+  {
+   "word": "orchestrated",
+   "oursPer1M": 74
+  },
+  {
+   "word": "deco",
+   "oursPer1M": 70
+  },
+  {
+   "word": "vernal",
+   "oursPer1M": 70
+  },
+  {
+   "word": "timelines",
+   "oursPer1M": 68
+  },
+  {
+   "word": "replayed",
+   "oursPer1M": 64
+  },
+  {
+   "word": "backdrop",
+   "oursPer1M": 55
+  },
+  {
+   "word": "terrazzo",
+   "oursPer1M": 48
+  },
+  {
+   "word": "stairwell",
+   "oursPer1M": 48
+  },
+  {
+   "word": "fulcrum",
+   "oursPer1M": 48
+  },
+  {
+   "word": "cufflinks",
+   "oursPer1M": 48
+  },
+  {
+   "word": "documented",
+   "oursPer1M": 45
+  },
+  {
+   "word": "layered",
+   "oursPer1M": 44
+  },
+  {
+   "word": "choreography",
+   "oursPer1M": 44
+  },
+  {
+   "word": "doorframe",
+   "oursPer1M": 43
+  },
+  {
+   "word": "upended",
+   "oursPer1M": 43
+  },
+  {
+   "word": "aligning",
+   "oursPer1M": 42
+  },
+  {
+   "word": "cufflink",
+   "oursPer1M": 42
+  },
+  {
+   "word": "misaligned",
+   "oursPer1M": 42
+  },
+  {
+   "word": "fingertip",
+   "oursPer1M": 41
+  },
+  {
+   "word": "rooftop",
+   "oursPer1M": 41
+  },
+  {
+   "word": "absolution",
+   "oursPer1M": 40
+  },
+  {
+   "word": "retry",
+   "oursPer1M": 40
+  },
+  {
+   "word": "drapes",
+   "oursPer1M": 40
+  },
+  {
+   "word": "snagged",
+   "oursPer1M": 39
+  },
+  {
+   "word": "validation",
+   "oursPer1M": 35
+  },
+  {
+   "word": "ligature",
+   "oursPer1M": 35
+  },
+  {
+   "word": "reframed",
+   "oursPer1M": 35
+  },
+  {
+   "word": "half-truths",
+   "oursPer1M": 34
+  },
+  {
+   "word": "stopwatch",
+   "oursPer1M": 34
+  },
+  {
+   "word": "closure",
+   "oursPer1M": 32
+  },
+  {
+   "word": "eyes-a",
+   "oursPer1M": 32
+  },
+  {
+   "word": "relief-a",
+   "oursPer1M": 32
+  },
+  {
+   "word": "anchoring",
+   "oursPer1M": 32
+  },
+  {
+   "word": "validator",
+   "oursPer1M": 32
+  },
+  {
+   "word": "reenactment",
+   "oursPer1M": 31
+  },
+  {
+   "word": "normalcy",
+   "oursPer1M": 30
+  },
+  {
+   "word": "aligns",
+   "oursPer1M": 30
+  },
+  {
+   "word": "misalignment",
+   "oursPer1M": 30
+  },
+  {
+   "word": "prickling",
+   "oursPer1M": 29
+  },
+  {
+   "word": "clock-its",
+   "oursPer1M": 29
+  },
+  {
+   "word": "template",
+   "oursPer1M": 29
+  },
+  {
+   "word": "gesturing",
+   "oursPer1M": 28
+  },
+  {
+   "word": "linen-draped",
+   "oursPer1M": 28
+  },
+  {
+   "word": "melodic",
+   "oursPer1M": 28
+  },
+  {
+   "word": "prompts-llm",
+   "oursPer1M": 28
+  },
+  {
+   "word": "drumbeat",
+   "oursPer1M": 26
+  },
+  {
+   "word": "geometric",
+   "oursPer1M": 26
+  },
+  {
+   "word": "buildchapterobligationblock",
+   "oursPer1M": 25
+  },
+  {
+   "word": "candlelit",
+   "oursPer1M": 25
+  },
+  {
+   "word": "it-a",
+   "oursPer1M": 25
+  },
+  {
+   "word": "armrest",
+   "oursPer1M": 25
+  },
+  {
+   "word": "shortages",
+   "oursPer1M": 24
+  },
+  {
+   "word": "accessed",
+   "oursPer1M": 23
+  },
+  {
+   "word": "them-a",
+   "oursPer1M": 23
+  },
+  {
+   "word": "fallback",
+   "oursPer1M": 23
+  },
+  {
+   "word": "replaying",
+   "oursPer1M": 23
+  },
+  {
+   "word": "lightweight",
+   "oursPer1M": 23
+  },
+  {
+   "word": "seawater",
+   "oursPer1M": 23
+  },
+  {
+   "word": "else-a",
+   "oursPer1M": 23
+  },
+  {
+   "word": "something-fear",
+   "oursPer1M": 22
+  },
+  {
+   "word": "thermal",
+   "oursPer1M": 22
+  },
+  {
+   "word": "gnomon",
+   "oursPer1M": 22
+  },
+  {
+   "word": "pipeline",
+   "oursPer1M": 21
+  },
+  {
+   "word": "transistor",
+   "oursPer1M": 21
+  },
+  {
+   "word": "sabotage",
+   "oursPer1M": 21
+  },
+  {
+   "word": "ironclad",
+   "oursPer1M": 21
+  },
+  {
+   "word": "shoreline",
+   "oursPer1M": 21
+  },
+  {
+   "word": "betrayals",
+   "oursPer1M": 21
+  },
+  {
+   "word": "guestbook",
+   "oursPer1M": 21
+  },
+  {
+   "word": "micro-moment",
+   "oursPer1M": 21
+  },
+  {
+   "word": "noticed-rough",
+   "oursPer1M": 21
+  },
+  {
+   "word": "unsupervised",
+   "oursPer1M": 21
+  },
+  {
+   "word": "positioned",
+   "oursPer1M": 20
+  },
+  {
+   "word": "her-a",
+   "oursPer1M": 20
+  },
+  {
+   "word": "floorboard",
+   "oursPer1M": 19
+  },
+  {
+   "word": "white-knuckled",
+   "oursPer1M": 19
+  },
+  {
+   "word": "paperwork",
+   "oursPer1M": 19
+  },
+  {
+   "word": "room-a",
+   "oursPer1M": 19
+  },
+  {
+   "word": "corridor-a",
+   "oursPer1M": 19
+  },
+  {
+   "word": "timeframe",
+   "oursPer1M": 19
+  },
+  {
+   "word": "malfunction",
+   "oursPer1M": 19
+  },
+  {
+   "word": "quip",
+   "oursPer1M": 19
+  },
+  {
+   "word": "reinforcing",
+   "oursPer1M": 19
+  },
+  {
+   "word": "resentments",
+   "oursPer1M": 19
+  },
+  {
+   "word": "deadpan",
+   "oursPer1M": 19
+  },
+  {
+   "word": "constraints",
+   "oursPer1M": 19
+  },
+  {
+   "word": "rawness",
+   "oursPer1M": 19
+  },
+  {
+   "word": "lintbatchprose",
+   "oursPer1M": 19
+  },
+  {
+   "word": "triggered",
+   "oursPer1M": 19
+  },
+  {
+   "word": "referenced",
+   "oursPer1M": 18
+  },
+  {
+   "word": "unsettle",
+   "oursPer1M": 18
+  },
+  {
+   "word": "quipped",
+   "oursPer1M": 18
+  },
+  {
+   "word": "accusatory",
+   "oursPer1M": 18
+  },
+  {
+   "word": "honed",
+   "oursPer1M": 17
+  },
+  {
+   "word": "beret",
+   "oursPer1M": 17
+  },
+  {
+   "word": "this-",
+   "oursPer1M": 17
+  },
+  {
+   "word": "deterministic",
+   "oursPer1M": 17
+  },
+  {
+   "word": "specifics",
+   "oursPer1M": 17
+  },
+  {
+   "word": "you-i",
+   "oursPer1M": 17
   }
  ]
 }
