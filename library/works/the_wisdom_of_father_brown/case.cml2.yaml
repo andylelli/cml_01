@@ -1,0 +1,394 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The wisdom of Father Brown
+    author: G. K. (Gilbert Keith) Chesterton
+    license: Public domain (first published 1913; author died 1936). Project Gutenberg ebook 223.
+    era:
+      decade: 1910s
+      realism_constraints:
+        - No modern forensic DNA analysis or electronic surveillance
+        - Limited police procedural methods relying on witness testimony and physical clues
+        - Communication and travel slower, no instant communication or rapid transport
+    setting:
+      location: England and various European locations including Paris, Cornwall, and a German principality
+      institution: >-
+        Local police and courts; also includes private investigators and amateur detectives like
+        Father Brown
+    crime_class:
+      category: murder
+      subtype: disguised or misdirected murder with false appearances
+  cast:
+    - name: Father Brown
+      age_range: middle-aged
+      role_archetype: amateur detective, small Catholic priest
+      relationships: []
+      public_persona: humble priest
+      private_secret: keen observer and insightful detective
+      motive_seed: n/a
+      motive_strength: none
+      alibi_window: always present
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells:
+        - observant
+        - reflective
+        - calm under pressure
+      stakes: solve mysteries and bring justice
+      evidence_sensitivity:
+        - keen to interpret subtle clues
+        - noticing psychological tells
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: low
+    - name: Dr Orion Hood
+      age_range: older adult
+      role_archetype: scientist and criminologist
+      relationships: []
+      public_persona: eminent criminologist
+      private_secret: skeptical of superstition
+      motive_seed: n/a
+      motive_strength: none
+      alibi_window: present at crime scene
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells:
+        - analytical
+        - skeptical
+      stakes: scientific reputation
+      evidence_sensitivity:
+        - examines physical clues
+        - analyzes knots and objects
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+    - name: James Todhunter (Zaladin)
+      age_range: young adult
+      role_archetype: victim and professional conjurer
+      relationships:
+        - Maggie MacNab (fiancee)
+      public_persona: quiet lodger
+      private_secret: practicing conjuring and ventriloquism
+      motive_seed: n/a
+      motive_strength: none
+      alibi_window: locked room
+      access_plausibility: low
+      opportunity_channels:
+        - locked room
+      behavioral_tells:
+        - pretends to be victim
+        - self-ties ropes
+      stakes: life
+      evidence_sensitivity:
+        - knots on ropes
+        - broken glass
+        - hat without hair traces
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: low
+    - name: Maggie MacNab
+      age_range: young adult
+      role_archetype: fiancee and witness
+      relationships:
+        - James Todhunter (fiance)
+      public_persona: daughter of Mrs MacNab
+      private_secret: concerned about Todhunter
+      motive_seed: love
+      motive_strength: moderate
+      alibi_window: present at discovery
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells:
+        - eager
+        - impatient
+      stakes: love and marriage
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: low
+    - name: Sir Wilson Seymour
+      age_range: middle-aged to older adult
+      role_archetype: aristocrat and patron of the arts
+      relationships:
+        - Aurora Rome (admired)
+      public_persona: distinguished aristocrat
+      private_secret: involved in Aurora Rome case
+      motive_seed: jealousy
+      motive_strength: weak
+      alibi_window: present at theatre
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells:
+        - calm
+        - composed
+      stakes: reputation
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: moderate
+    - name: Captain Cutler
+      age_range: middle-aged
+      role_archetype: soldier and rival
+      relationships:
+        - Aurora Rome (admired)
+      public_persona: popular soldier
+      private_secret: resentful rival
+      motive_seed: jealousy
+      motive_strength: moderate
+      alibi_window: present at theatre
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells:
+        - agitated
+        - passionate
+      stakes: honor
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: Isidore Bruno
+      age_range: middle-aged
+      role_archetype: actor and accused
+      relationships:
+        - Aurora Rome (partner)
+      public_persona: great actor
+      private_secret: jealousy and rivalry
+      motive_seed: jealousy
+      motive_strength: moderate
+      alibi_window: present at theatre
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells:
+        - volatile
+        - strong
+      stakes: reputation and freedom
+      evidence_sensitivity: []
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: moderate
+  culpability:
+    culprit_count: 1
+    culprits:
+      - Isidore Bruno
+  surface_model:
+    narrative:
+      summary: >-
+        The case appears to be a straightforward murder of Sir Claude Champion, found stabbed with a
+        sword in a romantic setting, with his rival John Boulnois as the prime suspect. The victim
+        was jealous and had been tormenting Boulnois, leading to a dramatic confrontation. The
+        evidence and witness statements seem to implicate Boulnois, but the truth is more complex.
+    accepted_facts:
+      - Sir Claude Champion was found stabbed with a sword in the garden.
+      - John Boulnois was absent from his home and later found at Pendragon Park.
+      - Witnesses reported seeing a sword thrown and blood on the blade.
+      - Mrs Boulnois testified that Sir Claude was jealous and killed himself.
+    inferred_conclusions:
+      - John Boulnois committed the murder out of jealousy.
+      - The dramatic setting and sword indicate a crime of passion.
+      - Sir Claude Champion's death was a homicide, not suicide.
+  hidden_model:
+    mechanism:
+      description: >-
+        Sir Claude Champion committed suicide by stabbing himself with his own sword in a dramatic
+        and symbolic manner to express his jealousy and despair. The sword was thrown to the ground
+        after the act, and the scene was staged to implicate John Boulnois. Boulnois was innocent
+        and was at Pendragon Park reading quietly at the time.
+      delivery_path:
+        - step: Sir Claude, overwhelmed by jealousy, decided to kill himself.
+        - step: He used his own sword to stab himself in the garden near the sundial.
+        - step: He threw the sword away from himself after stabbing.
+        - step: John Boulnois left his home and went to Pendragon Park.
+        - step: Witnesses found Sir Claude dead and assumed murder.
+        - step: Mrs Boulnois testified about the jealousy and suicide.
+        - step: Father Brown deduced the truth from moral and physical evidence.
+    outcome:
+      result: >-
+        John Boulnois was acquitted of murder as the death was ruled a suicide by Sir Claude
+        Champion.
+  false_assumption:
+    statement: John Boulnois was the murderer of Sir Claude Champion.
+    type: identity
+    why_it_seems_reasonable: >-
+      The presence of Boulnois near the crime scene and the dramatic nature of the death suggested a
+      personal motive and opportunity. Witnesses and the victim's wife supported this view, making
+      it a plausible accusation.
+    what_it_hides: >-
+      It hides the fact that the victim himself committed suicide in a staged manner to implicate
+      Boulnois, who was elsewhere at the time.
+  false_solution:
+    accused_suspect: Captain Cutler
+    supporting_points:
+      - Caught struggling with Isidore Bruno over the dagger
+      - Had a motive of jealousy over Aurora Rome
+      - Was present at the scene with no solid alibi at the time of death
+      - Was seen agitated and passionate during the events
+    the_one_flaw: >-
+      The dagger was used by Parkinson to kill Aurora Rome, and Cutler was only involved in the
+      struggle, not the murder.
+    refuted_in_chapter: 4
+  red_herrings:
+    - id: mr_glass_blackmail
+      description: >-
+        The mysterious Mr Glass who supposedly blackmailed James Todhunter and was involved in a
+        violent struggle.
+      points_at_suspect: James Todhunter as victim of blackmail and possible murderer
+      innocent_explanation: Mr Glass never existed; the noises and voices were conjuring tricks by Todhunter himself.
+      resolved_in_chapter: 1
+    - id: king_of_thieves_montano
+      description: >-
+        Ezza Montano, the self-styled King of Thieves, who captured the Harrogate family and staged
+        a ransom demand.
+      points_at_suspect: Montano as a dangerous brigand and criminal mastermind
+      innocent_explanation: >-
+        Montano was an actor and courier playing a role; the kidnapping was a staged event with no
+        real threat.
+      resolved_in_chapter: 2
+  closed_circle:
+    suspects:
+      - Isidore Bruno
+      - Captain Cutler
+      - Sir Wilson Seymour
+    rationale: >-
+      All three were present at the theatre at the time of Aurora Rome's murder, had motives related
+      to jealousy or rivalry, and were involved in the struggle over the dagger.
+  constraint_space:
+    time:
+      anchors:
+        - Aurora Rome was found dead within twenty minutes of discovery
+        - James Todhunter was found tied up but able to free himself
+        - Sir Claude Champion was stabbed shortly after John Boulnois left home
+        - Prince Otto was killed during a guarded period with rifles stationed
+      windows:
+        - Aurora Rome's murder occurred in broad daylight in the theatre passage
+        - James Todhunter's incident happened in a locked room during the afternoon
+        - Sir Claude Champion's death occurred at night in the garden
+        - Prince Otto's murder happened at night near the hermitage
+    access:
+      actors:
+        - James Todhunter had exclusive access to his locked room
+        - Aurora Rome's dressing room was accessible to Bruno, Cutler, Seymour
+        - Sir Claude Champion and John Boulnois had access to the garden and cottage
+        - Prince Otto was guarded by sentries and rifles
+      objects:
+        - Locked door of Todhunter's room
+        - Dagger and spear in theatre passage
+        - Sword used by Sir Claude Champion
+        - Military scarf used to strangle Prince Otto
+    social:
+      trust_channels:
+        - Witness testimony from Maggie MacNab, Sir Wilson Seymour, Captain Cutler
+        - Confessions and statements from Mrs Boulnois
+        - Scientific analysis by Dr Orion Hood
+        - Observations by Father Brown and Flambeau
+      authority_sources:
+        - Police and court proceedings presided by Mr Justice Monkhouse
+        - Scientific expertise of Dr Orion Hood
+        - Social standing of Sir Wilson Seymour and Captain Cutler
+        - Official military and police reports in Heiligwaldenstein
+  inference_path:
+    steps:
+      - observation: James Todhunter was found tied with knots he could undo himself
+        correction: The ropes were self-tied as part of conjuring practice
+        effect: Mr Glass was a fictitious blackmailer; the struggle was staged
+        required_evidence:
+          - Examination of knots on Todhunter's ropes for self-tying patterns and looseness
+          - Todhunter's own admission of conjuring practice and ventriloquism to Maggie MacNab
+        reader_observable: true
+      - observation: The black figure in the theatre passage was seen by multiple witnesses
+        correction: The figure was a reflection in a mirror
+        effect: The supposed mysterious figure was an optical illusion
+        required_evidence:
+          - Layout and angles of mirrors in the theatre dressing rooms and passage
+          - Testimony of Father Brown about seeing himself in the mirror during the investigation
+        reader_observable: true
+      - observation: Sir Claude Champion was stabbed with a sword and John Boulnois was absent
+        correction: Sir Claude committed suicide with the sword
+        effect: Boulnois was innocent of murder despite appearances
+        required_evidence:
+          - Fingerprints on the sword halfway down the blade, not on the hilt
+          - >-
+            Witness testimony of Mrs Boulnois and Father Brown's moral analysis of Sir Claude's
+            jealousy
+        reader_observable: true
+      - observation: Colonel Cray was poisoned and silverware was missing
+        correction: The poisoning was done via the cruet-stand with Indian poison
+        effect: The burglary was a cover-up for attempted murder
+        required_evidence:
+          - Presence of Indian poison and emetics in the cruet-stand on the dining table
+          - Dr Oman’s observation of the poison book open on the table near the scene
+        reader_observable: true
+      - observation: Prince Otto was found shot with no firearms allowed in the principality
+        correction: He was strangled with his own military scarf
+        effect: The murder was disguised as a shooting
+        required_evidence:
+          - Condition of the scarf with a bullet hole and bloodstains
+          - Testimony about the hermit Paul Arnhold and his servants' movements during the murder
+        reader_observable: true
+      - observation: The hotel proprietor was found dead and a secret society was suspected
+        correction: The secret society used assassination during noisy events to conceal crimes
+        effect: The murder was committed amidst crowd distractions
+        required_evidence:
+          - Witness accounts of the bandstand and the timing of the murder during the music
+          - >-
+            Discovery of the hotel proprietor’s body and the black society’s involvement in the
+            crowd
+        reader_observable: true
+      - observation: The note about the secret drawer was inaccurate
+        correction: The note was a deliberate forgery to mislead foreign spies
+        effect: Dr Hirsch was not a traitor but part of a complex deception
+        required_evidence:
+          - Inspection of the secret drawer at the War Office showing no formula present
+          - Analysis of the forged note’s errors in location and handwriting
+        reader_observable: true
+  discriminating_test:
+    method: constraint_proof
+    design: >-
+      Reenact the timing and positioning of Sir Claude Champion and John Boulnois on the night of
+      the murder. Verify the presence of Boulnois at Pendragon Park reading quietly while the murder
+      occurred in the garden. Examine the sword for fingerprints and the location of the wound on
+      Sir Claude.
+    knowledge_revealed: >-
+      This test reveals that Boulnois could not have committed the murder and that the death was
+      self-inflicted by Sir Claude.
+    pass_condition: >-
+      Boulnois is confirmed to be at Pendragon Park at the time of death, and the sword’s
+      fingerprints and wound location are consistent with suicide.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given detailed descriptions of the characters’ movements, the physical evidence
+      such as knots, broken glass, and fingerprints, and witness testimonies. The false assumption
+      about Boulnois’s guilt is challenged by the moral reasoning and physical clues analyzed by
+      Father Brown. The clues about the sword’s fingerprints and the victim’s behavior are all
+      presented before the solution is revealed, allowing an attentive reader to deduce the truth.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

@@ -1,0 +1,343 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The Strange Schemes of Randolph Mason
+    author: Melville Davisson Post
+    license: Public domain (first published 1896; author died 1930). Project Gutenberg ebook 51956.
+    era:
+      decade: 1890s
+      realism_constraints:
+        - No forensic DNA or modern forensic science available
+        - Legal procedures require direct proof of corpus delicti for murder conviction
+        - Communication and travel limited to telegraph, trains, and horse-drawn vehicles
+    setting:
+      location: New York City and West Virginia
+      institution: New York State Courts and West Virginia Courts
+    crime_class:
+      category: murder
+      subtype: corpus delicti evasion by body disappearance
+  cast:
+    - name: Randolph Mason
+      age_range: 40s
+      role_archetype: brilliant, cynical lawyer and legal strategist
+      relationships: []
+      public_persona: reclusive, mysterious lawyer known for legal acumen
+      private_secret: plans crimes that evade legal punishment
+      motive_seed: intellectual challenge and profit
+      motive_strength: moderate
+      alibi_window: present throughout the narrative
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: high
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: high
+    - name: Victor Ancona
+      age_range: adult
+      role_archetype: desperate criminal
+      relationships: []
+      public_persona: Mexican sailor
+      private_secret: murdered Nina San Croix
+      motive_seed: eliminate threat
+      motive_strength: strong
+      alibi_window: present at crime scene
+      access_plausibility: high
+      opportunity_channels:
+        - access to Nina San Croix's house
+      behavioral_tells:
+        - despair at arrest
+      stakes: high
+      evidence_sensitivity:
+        - bloody knife
+        - blood on clothes
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: low
+    - name: Nina San Croix
+      age_range: adult
+      role_archetype: victim with incriminating evidence
+      relationships:
+        - Richard Warren (Samuel Walcott)
+      public_persona: reclusive woman
+      private_secret: held evidence against Richard Warren (Samuel Walcott)
+      motive_seed: revenge or blackmail
+      motive_strength: none
+      alibi_window: killed
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: high
+      evidence_sensitivity: []
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: female
+      role: victim
+      moral_complexity: low
+    - name: Samuel Walcott (Richard Warren)
+      age_range: late 30s
+      role_archetype: wealthy man with dark past
+      relationships:
+        - Nina San Croix
+        - Virginia St. Clair
+      public_persona: wealthy real estate investor
+      private_secret: murdered original Samuel Walcott and assumed identity
+      motive_seed: self-preservation and gain
+      motive_strength: strong
+      alibi_window: present at club and home
+      access_plausibility: moderate
+      opportunity_channels: []
+      behavioral_tells:
+        - panic on receiving telegram
+      stakes: high
+      evidence_sensitivity: []
+      culprit_eligibility: eligible
+      culpability: unknown
+      gender: male
+      role: suspect
+      moral_complexity: high
+    - name: Marshall St. Clair
+      age_range: adult
+      role_archetype: concerned family member
+      relationships:
+        - Virginia St. Clair
+      public_persona: lawyer and brother of Virginia St. Clair
+      private_secret: none
+      motive_seed: none
+      motive_strength: none
+      alibi_window: present at club
+      access_plausibility: low
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: low
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+    - name: Mrs. Miriam Steuvisant
+      age_range: adult
+      role_archetype: socialite and matchmaker
+      relationships: []
+      public_persona: social matron
+      private_secret: none
+      motive_seed: none
+      motive_strength: none
+      alibi_window: present at social events
+      access_plausibility: low
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: low
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: bystander
+      moral_complexity: low
+  culpability:
+    culprit_count: 1
+    culprits:
+      - Victor Ancona
+  surface_model:
+    narrative:
+      summary: >-
+        Victor Ancona is arrested for the murder of Nina San Croix, whose body has mysteriously
+        disappeared. Despite overwhelming circumstantial evidence, the lack of a corpse leads to a
+        legal impasse, and the accused is acquitted. The case appears to be a straightforward murder
+        with a missing body, but the legal technicalities prevent conviction.
+    accepted_facts:
+      - Nina San Croix was last seen alive at her residence.
+      - >-
+        Victor Ancona was seen entering Nina San Croix's house and was found with bloodied clothes
+        and a bloody knife.
+      - The body of Nina San Croix was never found despite a thorough search.
+      - The law requires direct proof of death or criminal violence to convict for murder.
+    inferred_conclusions:
+      - Victor Ancona must be guilty because of the blood evidence and his despair.
+      - The victim is dead despite the absence of a body.
+      - The disappearance of the body was a deliberate act to evade justice.
+  hidden_model:
+    mechanism:
+      description: >-
+        Victor Ancona murdered Nina San Croix by stabbing her with a knife, then dismembered her
+        body in the bath-room using acid and heat to dissolve the remains completely. He carefully
+        removed all traces of the body and evidence, including disposing of the acid and cleaning
+        the scene, thus preventing discovery of the corpse and direct proof of death.
+      delivery_path:
+        - step: Victor Ancona enters Nina San Croix's residence at night.
+        - step: He kills Nina San Croix by stabbing her in the chest.
+        - step: He dismembers the body in the bath-room using a sharp Mexican knife.
+        - step: >-
+            He fills the tub with sulfuric acid and nitrate of soda and heats it to dissolve the
+            body.
+        - step: He disposes of the acid and cleans the bath-room thoroughly.
+        - step: >-
+            He hides the tools used and leaves the scene without leaving physical evidence of the
+            body.
+        - step: He is arrested shortly after but no corpse is found.
+    outcome:
+      result: >-
+        Victor Ancona is acquitted of murder due to the absence of direct proof of death, despite
+        overwhelming circumstantial evidence.
+  false_assumption:
+    statement: >-
+      The victim's death and the murderer's guilt can be conclusively proven by circumstantial
+      evidence alone.
+    type: authority
+    why_it_seems_reasonable: >-
+      The presence of blood, a bloody weapon, and the accused's despair strongly indicate guilt.
+      Legal authorities and the public accept these as sufficient proof of murder.
+    what_it_hides: >-
+      The law requires direct proof of death or criminal violence, which is absent due to the
+      missing body. This legal technicality prevents conviction despite the circumstantial evidence.
+  false_solution:
+    accused_suspect: Samuel Walcott (Richard Warren)
+    supporting_points:
+      - He had motive, as Nina San Croix threatened to expose his past crimes.
+      - He received a telegram from Nina San Croix threatening exposure.
+      - He panicked and acted suspiciously after the telegram.
+      - He was present in the city and had opportunity.
+    the_one_flaw: >-
+      He had an alibi for the time of the murder and no physical evidence linked him to the crime
+      scene.
+    refuted_in_chapter: 4
+  red_herrings:
+    - id: rich_man_with_dark_past
+      description: Samuel Walcott (Richard Warren) is suspected due to his false identity and possible motive.
+      points_at_suspect: His assumed identity and past murder of the original Samuel Walcott.
+      innocent_explanation: He did not kill Nina San Croix; she was killed by Victor Ancona.
+      resolved_in_chapter: 2
+    - id: missing_body_mystery
+      description: >-
+        The complete disappearance of Nina San Croix's body suggests supernatural or impossible
+        concealment.
+      points_at_suspect: Implies an elaborate cover-up or unknown accomplice.
+      innocent_explanation: Victor Ancona dissolved the body using acid and chemical means.
+      resolved_in_chapter: 4
+  closed_circle:
+    suspects:
+      - Victor Ancona
+      - Samuel Walcott (Richard Warren)
+    rationale: >-
+      Only Victor Ancona and Samuel Walcott had access and motive; other characters had no plausible
+      opportunity or motive.
+  constraint_space:
+    time:
+      anchors:
+        - Thursday evening at eight o'clock
+        - Friday morning at eleven o'clock
+        - Night of the murder
+      windows:
+        - Ancona's presence at the victim's house at 8 PM
+        - Police observation around 8 PM
+        - Search starting after 4:30 AM
+    access:
+      actors:
+        - Victor Ancona
+        - Nina San Croix
+      objects:
+        - Nina San Croix's house
+        - Bath-room with tub
+        - Sulfuric acid and nitrate of soda
+    social:
+      trust_channels:
+        - Old negro servant
+        - Police officers' testimony
+      authority_sources:
+        - Judge's ruling on corpus delicti
+        - Legal precedents cited by Mason
+  inference_path:
+    steps:
+      - observation: Bloodied knife found on Victor Ancona matching wound on victim's dress
+        correction: Knife is indeed the murder weapon
+        effect: Strong evidence of Ancona's involvement
+        required_evidence:
+          - Blood-stained dress identified as belonging to Nina San Croix
+          - Police officers' testimony about Ancona's presence
+        reader_observable: true
+      - observation: No body found despite thorough search
+        correction: Body was destroyed chemically
+        effect: No direct proof of death
+        required_evidence:
+          - Testimony of old negro servant about noises and footsteps
+          - Discovery of acid and chemical residues in bath-room
+        reader_observable: true
+      - observation: Ancona's despair and confession-like behavior
+        correction: Behavior consistent with guilt
+        effect: Public and jury convinced of guilt
+        required_evidence:
+          - Witness statements of Ancona's cries at arrest
+          - Circumstantial evidence of motive
+        reader_observable: true
+      - observation: Legal requirement for direct proof of death or criminal violence
+        correction: Circumstantial evidence insufficient for conviction
+        effect: Judge directs acquittal
+        required_evidence:
+          - Court rulings citing corpus delicti law
+          - Absence of corpse or eyewitness of killing
+        reader_observable: true
+      - observation: Telegram received by Samuel Walcott threatening exposure
+        correction: Threat from Nina San Croix
+        effect: Establishes motive for murder
+        required_evidence:
+          - Telegram text in Spanish
+          - Walcott's reaction and panic
+        reader_observable: true
+      - observation: Mason's legal argument about escape from punishment
+        correction: Legal loopholes exploited
+        effect: Culprit escapes criminal liability
+        required_evidence:
+          - Mason's courtroom speech
+          - Judge's ruling on corpus delicti
+        reader_observable: true
+      - observation: Ancona's use of acid and chemical means
+        correction: Body dissolved to prevent discovery
+        effect: No direct proof of death
+        required_evidence:
+          - Description of chemical process in bath-room
+          - Absence of body despite search
+        reader_observable: true
+  discriminating_test:
+    method: constraint_proof
+    design: >-
+      Reenact the chemical dissolution process in the bath-room using the same acids and heating
+      method. Observe whether the body can be completely destroyed and all traces removed within the
+      time frame and conditions described. Confirm that no physical remains would be left to prove
+      death directly.
+    knowledge_revealed: >-
+      This test reveals that the body can be chemically dissolved beyond recognition, explaining the
+      absence of a corpse and the impossibility of direct proof of death.
+    pass_condition: >-
+      Complete dissolution of a cadaver within the described time and conditions, leaving no
+      identifiable remains.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given detailed descriptions of the chemical process used to dissolve the body
+      and the legal requirement for direct proof of death. The presence of blood and the bloody
+      knife point strongly to murder, but the absence of a body and the legal rulings highlight the
+      loophole. The clues about the acid and the bath-room setup allow the reader to deduce the
+      method of body disposal and the legal implications.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

@@ -1,0 +1,420 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The Lodger
+    author: Marie Belloc Lowndes
+    license: Public domain (first published 1913; author died 1947). Project Gutenberg ebook 2014.
+    era:
+      decade: 1910s
+      realism_constraints:
+        - No modern forensic DNA analysis or electronic surveillance existed
+        - Police investigations relied heavily on witness testimony and physical evidence
+        - Communication was primarily via newspapers, telegrams, and in-person reports
+    setting:
+      location: >-
+        London, specifically Marylebone Road and surrounding areas including Regent’s Park and
+        King’s Cross
+      institution: Metropolitan Police, including Detective Section and Coroner’s Court
+    crime_class:
+      category: murder
+      subtype: serial killings by a religiously motivated madman
+  cast:
+    - name: Robert Bunting
+      age_range: 50-60
+      role_archetype: loyal butler and family man
+      relationships:
+        - Ellen Bunting (wife)
+        - Daisy (stepdaughter)
+        - Joe Chandler (friend)
+      public_persona: self-respecting man-servant
+      private_secret: harbors suspicion about lodger
+      motive_seed: protect family and home
+      motive_strength: weak
+      alibi_window: present at home during murders
+      access_plausibility: high
+      opportunity_channels:
+        - access to house
+        - interaction with lodger
+      behavioral_tells:
+        - nervousness
+        - increased tobacco use
+        - hesitation to involve police
+      stakes: family safety and reputation
+      evidence_sensitivity:
+        - blood on hand
+        - footprint analysis
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: Ellen Bunting
+      age_range: 45-55
+      role_archetype: worried wife and stepmother
+      relationships:
+        - Robert Bunting (husband)
+        - Daisy (stepdaughter)
+        - Mr. Sleuth (lodger)
+      public_persona: prim, prudent, careful woman
+      private_secret: knows lodger is madman but shelters him
+      motive_seed: fear and pity for lodger
+      motive_strength: strong
+      alibi_window: present at home during murders
+      access_plausibility: high
+      opportunity_channels:
+        - access to house
+        - control over lodger’s environment
+      behavioral_tells:
+        - nervousness
+        - hysterics
+        - secretive behavior
+      stakes: family safety and moral dilemma
+      evidence_sensitivity:
+        - knowledge of lodger’s bag and ink
+        - attendance at inquest
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: female
+      role: suspect
+      moral_complexity: high
+    - name: Joe Chandler
+      age_range: 20-30
+      role_archetype: young investigating and family friend
+      relationships:
+        - Robert Bunting (friend)
+        - Ellen Bunting (acquaintance)
+        - Daisy (love interest)
+      public_persona: keen and earnest police detective
+      private_secret: in love with Daisy
+      motive_seed: duty and affection
+      motive_strength: moderate
+      alibi_window: on duty or visiting Buntings
+      access_plausibility: medium
+      opportunity_channels:
+        - police access
+        - frequent visits to Buntings
+      behavioral_tells:
+        - disguise use
+        - emotional distress
+      stakes: catching the murderer and personal relationships
+      evidence_sensitivity:
+        - police reports
+        - witness statements
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+    - name: Daisy
+      age_range: '18'
+      role_archetype: young daughter and love interest
+      relationships:
+        - Robert Bunting (father)
+        - Ellen Bunting (stepmother)
+        - Joe Chandler (fiancé)
+      public_persona: cheerful, pretty young woman
+      private_secret: engaged to Joe Chandler
+      motive_seed: youthful innocence and affection
+      motive_strength: none
+      alibi_window: mostly at home or with Aunt Margaret
+      access_plausibility: low
+      opportunity_channels: []
+      behavioral_tells:
+        - curiosity about lodger
+      stakes: family and personal safety
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: low
+    - name: Mr. Sleuth
+      age_range: 40-50
+      role_archetype: mysterious lodger and secret madman
+      relationships:
+        - Robert Bunting (landlord)
+        - Ellen Bunting (landlady)
+        - Daisy (lodger’s acquaintance)
+      public_persona: eccentric gentleman and man of science
+      private_secret: The Avenger, homicidal maniac escaped from asylum
+      motive_seed: religious mania and vengeance
+      motive_strength: strong
+      alibi_window: often out at night committing murders
+      access_plausibility: high
+      opportunity_channels:
+        - access to victims at night
+        - lodgings providing cover
+      behavioral_tells:
+        - fear of women
+        - nocturnal outings
+        - religious readings
+      stakes: freedom and continuation of murders
+      evidence_sensitivity:
+        - disappearance after exposure
+        - blood on coat
+        - rubber-soled shoes
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Mr. Hopkins
+      age_range: 50-60
+      role_archetype: waxworks staff and acquaintance
+      relationships:
+        - Robert Bunting (acquaintance)
+        - Mrs. Bunting (acquaintance)
+        - Mr. Sleuth (lodger)
+      public_persona: friendly museum staff
+      private_secret: knows police commissioner
+      motive_seed: professional duty
+      motive_strength: none
+      alibi_window: at work during murders
+      access_plausibility: low
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: professional reputation
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+    - name: Sir John Burney
+      age_range: 50-60
+      role_archetype: Commissioner of Police
+      relationships:
+        - Joe Chandler (subordinate)
+        - Mr. Sleuth (suspect)
+      public_persona: police commissioner
+      private_secret: suspects lodger’s identity
+      motive_seed: law enforcement
+      motive_strength: strong
+      alibi_window: at police headquarters
+      access_plausibility: low
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: public safety and reputation
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+  culpability:
+    culprit_count: 1
+    culprits:
+      - Mr. Sleuth
+  surface_model:
+    narrative:
+      summary: >-
+        A series of brutal murders terrorize London, attributed to a mysterious figure called The
+        Avenger. The Buntings unknowingly shelter a lodger, Mr. Sleuth, whose eccentric behavior and
+        secretive nature raise suspicions. Despite police efforts and public fear, the killer
+        remains elusive until a final confrontation at Madame Tussaud’s.
+    accepted_facts:
+      - The Avenger committed multiple murders in London within a short period
+      - Mr. Sleuth is an eccentric lodger staying with the Buntings
+      - >-
+        The police have a description of the suspect as a young respectable man carrying a newspaper
+        parcel
+      - >-
+        The inquest revealed witness testimonies describing the murderer and a man carrying a
+        light-colored leather bag
+    inferred_conclusions:
+      - The Avenger is a respectable young man living in the East End
+      - The murders are committed by a single sane individual with a clear motive
+      - Mr. Sleuth is innocent and merely an eccentric gentleman
+  hidden_model:
+    mechanism:
+      description: >-
+        Mr. Sleuth, an escaped lunatic driven by religious mania, uses the cover of his lodgings
+        with the Buntings to hide his identity. He commits murders at night, carrying a bag
+        containing his weapon, and leaves a distinctive paper as a calling card. His eccentric
+        behavior and nocturnal outings mask his homicidal activities until his exposure at Madame
+        Tussaud’s forces him to flee.
+      delivery_path:
+        - step: Mr. Sleuth lodges with the Buntings, gaining their trust
+        - step: He carries a leather bag containing a peculiar knife used in murders
+        - step: He goes out at night, selecting victims in foggy, quiet hours
+        - step: Leaves a triangular piece of paper labeled 'The Avenger' pinned to victims
+        - step: Police collect witness statements and physical evidence including footprints
+        - step: Mr. Sleuth is confronted by police commissioner at Madame Tussaud’s
+        - step: He disappears, ending the series of murders
+    outcome:
+      result: >-
+        Mr. Sleuth is revealed as the Avenger, a homicidal maniac who escapes after exposure, ending
+        the murders.
+  false_assumption:
+    statement: The Avenger is a respectable young man carrying a newspaper parcel seen by witnesses.
+    type: identity
+    why_it_seems_reasonable: >-
+      Multiple witnesses described a man fitting this description near the crime scenes, and police
+      compiled an official description based on these accounts. The presence of a newspaper parcel
+      is a distinctive and memorable detail.
+    what_it_hides: >-
+      The description is a composite of different witnesses’ accounts and does not represent the
+      true identity of the murderer, who is an older, eccentric man with a different appearance.
+  false_solution:
+    accused_suspect: Robert Bunting
+    supporting_points:
+      - Blood found on Bunting’s hand
+      - His nervous behavior and secretive actions
+      - His proximity to the crime scenes as the lodger’s landlord
+      - His reluctance to involve the police
+    the_one_flaw: >-
+      Lack of direct evidence linking him to the murders and his genuine ignorance of the lodger’s
+      true nature
+    refuted_in_chapter: 27
+  red_herrings:
+    - id: the_barmaid_and_sovereign
+      description: >-
+        A barmaid who served a gentleman with a glass of milk paid by a sovereign, suspected to be
+        the Avenger.
+      points_at_suspect: Mr. Sleuth
+      innocent_explanation: >-
+        The gentleman was a harmless lunatic who gave the barmaid a sovereign out of kindness,
+        unrelated to the murders.
+      resolved_in_chapter: 24
+    - id: mr_cannot_witness
+      description: >-
+        Mr. Cannot claims to have met the murderer on the night of a crime and describes him as a
+        madman carrying a bag.
+      points_at_suspect: Mr. Sleuth
+      innocent_explanation: His testimony was dismissed as unreliable and not corroborated; he was considered a crank.
+      resolved_in_chapter: 19
+  closed_circle:
+    suspects:
+      - Robert Bunting
+      - Ellen Bunting
+      - Mr. Sleuth
+      - Joe Chandler
+      - Daisy
+    rationale: >-
+      The murders occurred within a limited area and time frame, and the main characters with access
+      to the house and vicinity were these individuals. The police investigation and inquest focused
+      on these persons and witnesses.
+  constraint_space:
+    time:
+      anchors:
+        - Murders occurred mostly between 1 and 4 a.m.
+        - Inquest held at 2 p.m. on the day after the double murder
+        - Mr. Sleuth’s nocturnal outings between 12 a.m. and 5 a.m.
+      windows:
+        - Mr. Sleuth’s absence from the house during night hours
+        - Bunting and Ellen’s presence at home during daytime
+        - Joe Chandler’s police duty hours
+    access:
+      actors:
+        - Mr. Sleuth (lodger)
+        - Robert Bunting (landlord)
+        - Ellen Bunting (landlady)
+        - Joe Chandler (detective)
+      objects:
+        - House at Marylebone Road
+        - Chiffonnier cupboard with locked bag
+        - Gas stove and kitchen
+        - Front door and gate
+    social:
+      trust_channels:
+        - Buntings’ trust in Mr. Sleuth
+        - Joe Chandler’s police authority
+        - Mrs. Bunting’s discretion and silence
+      authority_sources:
+        - Metropolitan Police
+        - Coroner’s Court
+        - Sir John Burney, Commissioner of Police
+  inference_path:
+    steps:
+      - observation: Witnesses describe a man carrying a newspaper parcel near crime scenes
+        correction: Descriptions are composite and inconsistent; the real murderer carries a leather bag
+        effect: Official suspect description is misleading
+        required_evidence:
+          - Witness statements from inquest including Lizzie Cole and warehouse wife
+          - Mr. Cannot’s testimony about a man with a leather bag
+        reader_observable: true
+      - observation: Blood found on Robert Bunting’s hand after meeting Mr. Sleuth
+        correction: Blood likely from Mr. Sleuth’s nosebleed or contact with dead animal
+        effect: Bunting’s guilt is doubtful
+        required_evidence:
+          - Bunting’s account of touching Mr. Sleuth’s damp cape
+          - Mr. Sleuth’s mention of brushing against a dead animal
+        reader_observable: true
+      - observation: Mr. Sleuth exhibits eccentric behavior and nocturnal outings
+        correction: Eccentricity masks homicidal mania and murderous activity
+        effect: Mr. Sleuth is prime suspect
+        required_evidence:
+          - Mrs. Bunting’s observations of lodger’s habits
+          - Joe Chandler’s police reports on Avenger’s movements
+        reader_observable: true
+      - observation: Mr. Sleuth disappears after confrontation at Madame Tussaud’s
+        correction: Disappearance confirms guilt and ends murder spree
+        effect: Case closure
+        required_evidence:
+          - Eyewitness account of Mr. Sleuth’s behavior at Madame Tussaud’s
+          - Subsequent lack of lodger’s return
+        reader_observable: true
+      - observation: Inquest reveals conflicting witness descriptions and unreliable testimony
+        correction: Witnesses influenced by fear, press, and confusion
+        effect: Official descriptions are unreliable
+        required_evidence:
+          - Inquest transcripts
+          - Coroner’s remarks on witness credibility
+        reader_observable: true
+      - observation: Police find a peculiar knife and rubber-soled shoe print near crime scenes
+        correction: Knife and shoe print match Mr. Sleuth’s belongings
+        effect: Physical evidence linking lodger to murders
+        required_evidence:
+          - Knife found on Primrose Hill wrapped with shoes
+          - Footprint outline published in newspapers
+        reader_observable: true
+      - observation: >-
+          Mr. Sleuth’s landlady and husband harbor suspicions but do not report to police out of
+          fear of social ruin and pity for the lodger, who is suspected to be an escaped lunatic
+          driven by religious mania
+        correction: >-
+          Their silence delays police action and allows the religiously motivated escaped lunatic to
+          continue his crimes
+        effect: Delay in apprehension and continued murders
+        required_evidence:
+          - Mrs. Bunting’s internal monologues and behavior regarding the escaped lunatic
+          - Bunting’s reluctance to involve authorities despite suspicion of religious mania
+        reader_observable: true
+  discriminating_test:
+    method: constraint_proof
+    design: >-
+      Reenact the lodger’s movements on the night of the double murder, verifying the timing of his
+      nocturnal outings and the presence of the leather bag. Confirm the presence of the
+      rubber-soled shoes and the peculiar knife in the lodger’s possession. Cross-check witness
+      statements with physical evidence and lodger’s alibi to prove he was the murderer.
+    knowledge_revealed: >-
+      This test reveals that only Mr. Sleuth had the opportunity, means, and motive to commit the
+      murders, and that the official suspect description is a composite misdirection.
+    pass_condition: >-
+      The lodger’s movements and possession of murder weapon and shoes match the crime scene
+      evidence and witness accounts, eliminating other suspects.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given detailed descriptions of the lodger’s habits, the physical evidence such
+      as the leather bag, knife, and rubber-soled shoes, and the inconsistencies in witness
+      testimonies. The suspicious behavior of the Buntings and Joe Chandler’s investigations provide
+      clues. The final revelation is supported by evidence presented earlier, allowing an attentive
+      reader to deduce the lodger’s guilt.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "John Bellingham was last seen alive at Hurst's house on November 23, 1902.",
+  "type": "temporal",
+  "why_it_seems_reasonable": "The housemaid at Hurst's house reported seeing a man claiming to be Bellingham there on that date. The presence of a scarab associated with Bellingham was found on the grounds.",
+  "what_it_hides": "The man seen was an impersonator, and Bellingham was last seen alive weeks earlier at his own house, where he died."
+ },
+ "mechanism_description": "Arthur Jellicoe murdered John Bellingham accidentally by causing him to fall down the stairs. He concealed the body by substituting it with an Egyptian mummy from Bellingham's collection. Jellicoe manipulated the will and evidence to secure the estate but was ultimately exposed by Thorndyke's investigation and committed suicide.",
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "Thorndyke used X-ray photography to examine the mummy presented to the British Museum, revealing dental fillings and surgical repairs matching John Bellingham's medical records, confirming the identity of the body inside the mummy case.",
+  "knowledge_revealed": "The test revealed that the mummy contained the real body of John Bellingham, proving the substitution and implicating Jellicoe.",
+  "pass_condition": "The X-ray photograph must show dental and surgical features matching Bellingham's known medical history."
+ },
+ "changed": [],
+ "confidence": "high"
+}

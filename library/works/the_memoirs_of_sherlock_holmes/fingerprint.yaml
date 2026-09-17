@@ -1,0 +1,12 @@
+- id: the_memoirs_of_sherlock_holmes
+  corpus: seed
+  axis: identity
+  mechanism_family: disguised_natural_agent
+  false_assumption_pattern: human_murderer_caused_the_death
+  discriminating_test_shape: reconstruction
+  inference_shape: reveal_true_cause_by_reenactment
+  premise: >-
+    The case appears to be a straightforward murder of a horse trainer and the disappearance of a
+    prized racehorse, with suspicion falling on a gambler who had bet against the horse. The horse
+    is missing,
+  source: library/works/the_memoirs_of_sherlock_holmes/case.cml2.yaml

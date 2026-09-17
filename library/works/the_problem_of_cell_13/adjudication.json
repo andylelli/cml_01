@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "Van Dusen escaped Cell 13 solely by mental power without any outside assistance.",
+  "type": "behavioral",
+  "why_it_seems_reasonable": "Van Dusen is portrayed as a brilliant logician who claims he can think his way out of any cell, and the prison authorities believe the cell is escape-proof. The mysterious notes and apparent impossibility of communication support this belief.",
+  "what_it_hides": "The actual escape involved physical assistance via a hidden drain pipe and an accomplice outside who cut the arc light feed wire, enabling Van Dusen to escape disguised as a workman."
+ },
+ "mechanism_description": "Professor Van Dusen escaped Cell 13 by using a hidden old drain pipe to communicate with an accomplice outside, who aided him by cutting the prison's arc light feed wire with acid, allowing Van Dusen to slip out disguised as an electrician. Jean, the valet, used a Turkish bath robe and a mirror on a flagpole to watch Henley and extinguish his gas light by blowing into the gas pipe from an adjacent apartment, accidentally killing Louise Regnier and later shooting Henley. Louise Clarke planned and assisted in the Ralston Bank robbery using violet perfume to mislead scent evidence and chemical solution to weaken granite around bars. Constans St. George held Grace Field captive using chloroform and attacked Victor Willis, who had threatened her.",
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "Reenact the escape from Cell 13 by simulating the conditions and testing the drain pipe communication and the cutting of the arc light feed wire with acid. Observe if the prisoner can exit the cell and prison undetected using the described method.",
+  "knowledge_revealed": "Confirms the physical means of escape via the drain pipe and external assistance, disproving the theory of mental escape alone.",
+  "pass_condition": "Successful exit from the cell and prison using the drain pipe and acid cutting method without detection."
+ },
+ "changed": [],
+ "confidence": "high"
+}

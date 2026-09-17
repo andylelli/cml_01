@@ -1,5 +1,5 @@
 {
- "totalGbp": 2.1093747182,
+ "totalGbp": 4.908380137850001,
  "runs": [
   {
    "slug": "the_big_bow_mystery",
@@ -144,6 +144,150 @@
    "costGbp": 0.2316,
    "valid": false,
    "spans": "14/20"
+  },
+  {
+   "slug": "the_problem_of_cell_13",
+   "costGbp": 0.1198,
+   "valid": true,
+   "spans": "15/20"
+  },
+  {
+   "slug": "the_strange_schemes_of_randolph_mason",
+   "costGbp": 0.0764,
+   "valid": true,
+   "spans": "12/19"
+  },
+  {
+   "slug": "the_amateur_cracksman",
+   "costGbp": 0.0805,
+   "valid": true,
+   "spans": "10/20"
+  },
+  {
+   "slug": "martin_hewitt_investigator",
+   "costGbp": 0.0839,
+   "valid": true,
+   "spans": "14/20"
+  },
+  {
+   "slug": "the_templeton_case",
+   "costGbp": 0.168,
+   "valid": false,
+   "spans": "13/20"
+  },
+  {
+   "slug": "the_secret_of_father_brown",
+   "costGbp": 0.0482,
+   "valid": true,
+   "spans": "13/20"
+  },
+  {
+   "slug": "an_african_millionaire",
+   "costGbp": 0.096,
+   "valid": true,
+   "spans": "9/20"
+  },
+  {
+   "slug": "max_carrados",
+   "costGbp": 0.1112,
+   "valid": true,
+   "spans": "3/18"
+  },
+  {
+   "slug": "the_red_thumb_mark",
+   "costGbp": 0.0727,
+   "valid": true,
+   "spans": "10/18"
+  },
+  {
+   "slug": "the_wisdom_of_father_brown",
+   "costGbp": 0.1527,
+   "valid": true,
+   "spans": "9/19"
+  },
+  {
+   "slug": "the_middle_temple_murder",
+   "costGbp": 0.1201,
+   "valid": true,
+   "spans": "13/20"
+  },
+  {
+   "slug": "the_lodger",
+   "costGbp": 0.122,
+   "valid": true,
+   "spans": "16/20"
+  },
+  {
+   "slug": "the_mystery_of_31_new_inn",
+   "costGbp": 0.1166,
+   "valid": false,
+   "spans": "aborted"
+  },
+  {
+   "slug": "the_sleuth_of_st_james_s_square",
+   "costGbp": 0.0338,
+   "valid": false,
+   "spans": "aborted"
+  },
+  {
+   "slug": "the_twenty_six_clues",
+   "costGbp": 0.1304,
+   "valid": false,
+   "spans": "aborted"
+  },
+  {
+   "slug": "the_canary_murder_case",
+   "costGbp": 0.2279,
+   "valid": false,
+   "spans": "aborted"
+  },
+  {
+   "slug": "the_mystery_of_a_hansom_cab",
+   "costGbp": 0.1313,
+   "valid": true,
+   "spans": "15/20"
+  },
+  {
+   "slug": "the_silent_bullet",
+   "costGbp": 0.0876,
+   "valid": true,
+   "spans": "17/20"
+  },
+  {
+   "slug": "the_golden_slipper_and_other_problems_for_violet_strange",
+   "costGbp": 0.124,
+   "valid": true,
+   "spans": "16/19"
+  },
+  {
+   "slug": "the_eye_of_osiris",
+   "costGbp": 0.1329,
+   "valid": true,
+   "spans": "15/20"
+  },
+  {
+   "slug": "the_memoirs_of_sherlock_holmes",
+   "costGbp": 0.1386,
+   "valid": true,
+   "spans": "19/19"
+  },
+  {
+   "slug": "ashes_to_ashes",
+   "costGbp": 0.134,
+   "valid": false,
+   "spans": "aborted"
+  },
+  {
+   "slug": "that_affair_next_door",
+   "costGbp": 0.1378,
+   "valid": true,
+   "spans": "8/19"
+  },
+  {
+   "slug": "the_bellamy_trial",
+   "costGbp": 0.1527,
+   "valid": true,
+   "spans": "7/19"
   }
  ]
 }

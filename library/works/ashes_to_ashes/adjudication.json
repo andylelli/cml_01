@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "Leila Storm died accidentally from a fainting spell and fall.",
+  "type": "behavioral",
+  "why_it_seems_reasonable": "The presence of a medical condition (petit mal) and the apparent accidental injuries support this theory. The staged scene and lack of immediate suspicion reinforce the belief.",
+  "what_it_hides": "It conceals the fact that Leila was deliberately murdered by her husband with a golf club driver."
+ },
+ "mechanism_description": "Norman Storm, driven by jealousy and financial desperation, murdered his wife Leila by striking her with a golf club driver after suspecting her of infidelity. Later, to recover from financial ruin caused by a swindler, Storm killed Jack Horton, the paymaster carrying a large sum of money, by hitting him on the back of the head with a heavy cane. Storm then concealed Horton's body by throwing it over a wall and secretly took possession of the money, which he hid in his apartment before planning to escape.",
+ "discriminating_test": {
+  "method": "trap",
+  "design": "Storm arranges a fishing trip with George in a remote lodge without guides or outsiders. He observes George's reactions and probes his knowledge of the case, testing if George suspects him. The isolation removes external influences and forces George to reveal any suspicions or knowledge.",
+  "knowledge_revealed": "George's behavior and responses reveal whether he has pieced together the truth about Storm's guilt.",
+  "pass_condition": "George fails to reveal any suspicion or knowledge of Storm’s crimes during the trip, confirming Storm’s control over the situation."
+ },
+ "changed": [],
+ "confidence": "high"
+}

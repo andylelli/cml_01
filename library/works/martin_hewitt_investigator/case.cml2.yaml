@@ -1,0 +1,378 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: Martin Hewitt, Investigator
+    author: Arthur Morrison
+    license: Public domain (first published 1894; author died 1945). Project Gutenberg ebook 11252.
+    era:
+      decade: 1890s
+      realism_constraints:
+        - No advanced forensic technology such as DNA or fingerprint databases
+        - Limited police procedural methods, reliance on observation and logical inference
+        - Communication and travel constrained by trains and horse-drawn vehicles
+    setting:
+      location: England, primarily London and surrounding counties
+      institution: Private investigation by Martin Hewitt, with occasional involvement of Scotland Yard police
+    crime_class:
+      category: theft
+      subtype: jewelry theft by trained animal accomplice
+  cast:
+    - name: Martin Hewitt
+      age_range: 30-40
+      role_archetype: private investigator with sharp intellect and keen observation
+      relationships: []
+      public_persona: cordial, genial private detective
+      private_secret: keen observer with no formal system but extraordinary faculties
+      motive_seed: professional success and reputation
+      motive_strength: none
+      alibi_window: always present
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells:
+        - sharp eye twinkle
+        - cheery manner
+      stakes: professional reputation
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: low
+    - name: Sir James Norris
+      age_range: 50-60
+      role_archetype: baronet and estate owner troubled by thefts
+      relationships:
+        - niece Dora Norris
+        - secretary Vernon Lloyd
+      public_persona: respectable gentleman and county historian
+      private_secret: none
+      motive_seed: recover stolen property and protect reputation
+      motive_strength: moderate
+      alibi_window: varied, mostly away from crime scenes
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: estate reputation
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+    - name: Vernon Lloyd
+      age_range: 30-40
+      role_archetype: secretary and accomplice
+      relationships:
+        - Sir James Norris
+        - parrot Polly
+      public_persona: trusted secretary
+      private_secret: mastermind behind thefts using trained parrot
+      motive_seed: financial gain
+      motive_strength: strong
+      alibi_window: claimed to be with ladies during first theft
+      access_plausibility: high, as secretary with access to rooms
+      opportunity_channels:
+        - parrot trained to steal jewelry
+      behavioral_tells:
+        - paled when confronted
+        - silent, resigned
+      stakes: avoid arrest and punishment
+      evidence_sensitivity:
+        - match with beak marks
+        - parrot behavior
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: moderate
+    - name: Mrs. Cazenove
+      age_range: 40-50
+      role_archetype: victim and guest
+      relationships:
+        - Sir James Norris (host)
+      public_persona: respectable lady
+      private_secret: none
+      motive_seed: none
+      motive_strength: none
+      alibi_window: present at time of theft
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: loss of valuable brooch
+      evidence_sensitivity:
+        - used match found on dressing-table
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: victim
+      moral_complexity: low
+    - name: Mrs. Heath
+      age_range: 40-50
+      role_archetype: victim and guest
+      relationships:
+        - Colonel Heath (husband)
+      public_persona: lady with valuable jewelry
+      private_secret: none
+      motive_seed: none
+      motive_strength: none
+      alibi_window: away on walk during theft
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: loss of valuable bracelet
+      evidence_sensitivity:
+        - used match found near missing bracelet
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: victim
+      moral_complexity: low
+    - name: Mrs. Armitage
+      age_range: 30-40
+      role_archetype: victim and guest
+      relationships:
+        - Sir James Norris (host)
+      public_persona: young widow
+      private_secret: none
+      motive_seed: none
+      motive_strength: none
+      alibi_window: out driving during theft
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: loss of brooch
+      evidence_sensitivity:
+        - used match found on dressing-table
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: victim
+      moral_complexity: low
+    - name: The Parrot (Polly)
+      age_range: adult bird
+      role_archetype: trained animal accomplice
+      relationships:
+        - Vernon Lloyd (owner and accomplice)
+      public_persona: pet parrot
+      private_secret: trained to steal jewelry carrying match
+      motive_seed: none
+      motive_strength: none
+      alibi_window: always present with Lloyd
+      access_plausibility: high, can enter rooms through windows
+      opportunity_channels:
+        - trained to steal and carry jewelry
+      behavioral_tells:
+        - quiet while carrying match and jewelry
+      stakes: none
+      evidence_sensitivity:
+        - match with beak marks matching parrot's toothpick bite
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: non-binary
+      role: culprit
+      moral_complexity: none
+  culpability:
+    culprit_count: 2
+    culprits:
+      - Vernon Lloyd
+      - The Parrot (Polly)
+  surface_model:
+    narrative:
+      summary: >-
+        A series of mysterious jewelry thefts occur at Sir James Norris's estate, each marked by a
+        used match left near the missing item. Despite locked doors and difficult access, valuable
+        pieces vanish without disturbance, baffling the police and household. Martin Hewitt
+        investigates and uncovers an unusual accomplice in the thefts.
+    accepted_facts:
+      - Jewelry was stolen from locked rooms with no signs of forced entry
+      - A used match was found near the missing items in each theft
+      - The windows were either open or locked but not tampered with
+      - Vernon Lloyd was present at the estate and had a pet parrot
+    inferred_conclusions:
+      - The thief must have been a human who entered through the window using a ladder
+      - The matches were used to light the room during the thefts
+      - The servants or visitors were responsible for the thefts
+  hidden_model:
+    mechanism:
+      description: >-
+        The thefts were carried out by a trained parrot owned by Vernon Lloyd, who was taught to
+        carry a match in its beak and steal jewelry from the dressing-tables. The match was used as
+        a deliberate false clue, placed near the stolen item to mislead investigators. Lloyd acted
+        as the accomplice, releasing the parrot and retrieving the stolen goods without arousing
+        suspicion.
+      delivery_path:
+        - step: Lloyd places a lit match in the parrot's beak and extinguishes it immediately
+        - step: The parrot flies to the victim's room through an open or slightly open window
+        - step: The parrot snatches a single piece of jewelry from the dressing-table
+        - step: The parrot drops the match near the stolen item to simulate human presence
+        - step: The parrot returns to Lloyd who collects the stolen jewelry
+        - step: Lloyd meets the returning party to establish an alibi
+        - step: The stolen items are disposed of or pawned through accomplices
+    outcome:
+      result: >-
+        Vernon Lloyd and his trained parrot are exposed as the culprits behind the mysterious
+        jewelry thefts.
+  false_assumption:
+    statement: >-
+      The used matches found near the stolen items were lit and used by a human thief during the
+      robbery.
+    type: behavioral
+    why_it_seems_reasonable: >-
+      Matches are commonly used for lighting in dark rooms, so finding a used match near the missing
+      jewelry suggests a human thief used it to see. The police detective also assumed the match
+      indicated the time of the theft.
+    what_it_hides: >-
+      The match was never lit to provide light but was used as a prop carried by the parrot to
+      mislead investigators about the presence and timing of a human thief.
+  false_solution:
+    accused_suspect: The Gardener
+    supporting_points:
+      - The ladder was found near the lawn where the gardener worked
+      - The gardener was questioned by the Scotland Yard detective
+      - No stranger was seen near the estate
+      - The gardener had opportunity to access the windows
+    the_one_flaw: The gardener had no motive and was cleared by lack of evidence and alibi
+    refuted_in_chapter: 1
+  red_herrings:
+    - id: ladder_near_lawn
+      description: >-
+        A ladder was found lying near the lawn, suggesting it might have been used to access the
+        windows.
+      points_at_suspect: The Gardener
+      innocent_explanation: >-
+        The gardener had placed the ladder there earlier in the day for his own work and did not use
+        it for theft.
+      resolved_in_chapter: 1
+    - id: gas_fitter_guard
+      description: A gas-fitter was working near Mrs. Armitage's door and claimed to have seen no one approach.
+      points_at_suspect: A stranger thief
+      innocent_explanation: The gas-fitter was honest and vigilant, effectively preventing human entry during his watch.
+      resolved_in_chapter: 1
+  closed_circle:
+    suspects:
+      - Vernon Lloyd
+      - The Gardener
+      - Sir James Norris
+      - Mrs. Cazenove
+      - Mrs. Heath
+      - Mrs. Armitage
+    rationale: >-
+      All persons present at the estate during the thefts were accounted for, and no strangers were
+      seen entering or leaving, forming a closed circle of suspects.
+  constraint_space:
+    time:
+      anchors:
+        - daylight during first theft
+        - dusk during first theft
+        - broad daylight during last theft
+      windows:
+        - few minutes when doors were open
+        - periods when windows were open or propped
+    access:
+      actors:
+        - Vernon Lloyd
+        - The Parrot
+        - servants
+        - visitors
+      objects:
+        - windows
+        - doors
+        - ladder
+        - parrot cage
+    social:
+      trust_channels:
+        - Sir James Norris's trust in Lloyd
+        - groom's observations
+        - housemaid's testimony
+      authority_sources:
+        - Scotland Yard detective
+        - Martin Hewitt's investigation
+  inference_path:
+    steps:
+      - observation: Used matches found near stolen jewelry in all thefts
+        correction: Matches were not used to light the room but carried by the thief
+        effect: Suggests a non-human thief carrying the match
+        required_evidence:
+          - Match with sharp indentations consistent with a bird's beak
+          - Parrot biting a quill toothpick leaving identical marks
+        reader_observable: true
+      - observation: Only one item stolen at a time despite many valuables present
+        correction: Thief limited in carrying capacity
+        effect: Supports the idea of a small thief, possibly an animal
+        required_evidence:
+          - Jewelry missing one piece at a time
+          - Parrot's ability to carry only one item
+        reader_observable: true
+      - observation: Windows locked or only slightly open, doors locked
+        correction: Human entry unlikely without detection
+        effect: Points to entry by a small, agile creature
+        required_evidence:
+          - Window sash propped open only a few inches
+          - Parrot's ability to enter through small openings
+        reader_observable: true
+      - observation: Lloyd's parrot known to escape and open its cage
+        correction: Parrot could be trained to perform thefts
+        effect: Parrot is a plausible accomplice
+        required_evidence:
+          - Groom's testimony of Lloyd carrying parrot under coat
+          - Parrot's demonstrated behavior during Hewitt's test
+        reader_observable: true
+      - observation: Lloyd pale and silent when confronted with parrot and evidence
+        correction: Lloyd's guilt inferred from behavior
+        effect: Lloyd identified as accomplice
+        required_evidence:
+          - Lloyd's reaction at discovery
+          - Groom's statement that Lloyd was alone in his room at the time of the theft
+        reader_observable: true
+      - observation: Jewelry found in parrot's training collection
+        correction: Parrot used to collect stolen items
+        effect: Confirms parrot's role in thefts
+        required_evidence:
+          - Collection of trinkets in Lloyd's room
+          - Parrot's behavior during private performance
+        reader_observable: true
+      - observation: Matches found were of the same type used in the establishment
+        correction: Matches deliberately chosen to mislead
+        effect: Matches are a planted clue
+        required_evidence:
+          - Matchbox type comparison
+          - Match condition inconsistent with lighting
+        reader_observable: true
+  discriminating_test:
+    method: reenactment
+    design: >-
+      Martin Hewitt spends a quiet hour alone with the parrot in Lloyd's room, providing it with a
+      match and observing its behavior as it picks up jewelry and drops the match near the item
+      without making noise or disturbance. He compares the marks on the match with the parrot's beak
+      marks and tests the parrot's ability to enter through the window opening.
+    knowledge_revealed: >-
+      The parrot can carry the match and jewelry silently and place the match near the stolen item,
+      replicating the crime scene clues.
+    pass_condition: >-
+      The parrot successfully performs the theft and match placement without alerting observers or
+      disturbing the room.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given detailed descriptions of the used matches, the locked doors and windows,
+      and the presence of the parrot and its owner. The marks on the match and the parrot's behavior
+      are described clearly, allowing the reader to deduce the role of the trained bird. The
+      improbability of human entry and the pattern of thefts support the solution. No essential clue
+      is withheld.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

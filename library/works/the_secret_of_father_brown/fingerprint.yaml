@@ -1,0 +1,12 @@
+- id: the_secret_of_father_brown
+  corpus: seed
+  axis: spatial
+  mechanism_family: staged_scene
+  false_assumption_pattern: locked_room_means_no_entry
+  discriminating_test_shape: reconstruction
+  inference_shape: reconstruct_true_sequence_of_events
+  premise: >-
+    Sir Humphrey Gwynne is found murdered in his garden with a bullet wound. The poet Osric Orm is
+    arrested due to suspicious behavior and lack of alibi. Meanwhile, a jewel theft involving a
+    disguised cri
+  source: library/works/the_secret_of_father_brown/case.cml2.yaml

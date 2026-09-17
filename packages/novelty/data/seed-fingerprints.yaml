@@ -14,7 +14,7 @@
 # `the_second_key` was retired: author "original", licence CC-BY, not a real novel — and the third
 # most-cited nearest neighbour across 32 archived audits.
 #
-# derived: 4   derived_unverified: 5   legacy: 8   total: 17
+# derived: 15   derived_unverified: 5   legacy: 8   total: 28
 - id: a_jury_of_her_peers
   corpus: seed
   axis: behavioral
@@ -40,6 +40,19 @@
     wounds but surrounded by blood. The police are baffled by the mysterious circumstances,
     including a cry
   source: library/works/a_study_in_scarlet/case.cml2.yaml
+  provenance: derived
+- id: martin_hewitt_investigator
+  corpus: seed
+  axis: behavioral
+  mechanism_family: staged_scene
+  false_assumption_pattern: physical_clue_proves_human_presence
+  discriminating_test_shape: reconstruction
+  inference_shape: demonstrate_alternate_cause_of_clue
+  premise: >-
+    A series of mysterious jewelry thefts occur at Sir James Norris's estate, each marked by a used
+    match left near the missing item. Despite locked doors and difficult access, valuable pieces
+    vanish with
+  source: library/works/martin_hewitt_investigator/case.cml2.yaml
   provenance: derived
 - id: the_big_bow_mystery
   corpus: seed
@@ -80,6 +93,19 @@
     hour of
   source: library/works/the_clue_of_the_twisted_candle/case.cml2.yaml
   provenance: derived_unverified
+- id: the_eye_of_osiris
+  corpus: seed
+  axis: temporal
+  mechanism_family: substituted_body
+  false_assumption_pattern: the_dead_is_who_they_appear
+  discriminating_test_shape: reconstruction
+  inference_shape: identify_true_body_by_medical_features
+  premise: >-
+    John Bellingham mysteriously disappears after last being seen at his solicitor's office. Human
+    remains are found scattered in various locations, suggesting murder. The will's complicated
+    burial clause
+  source: library/works/the_eye_of_osiris/case.cml2.yaml
+  provenance: derived
 - id: the_fenchurch_street_mystery
   corpus: seed
   axis: identity
@@ -93,6 +119,19 @@
     from a r
   source: library/works/the_fenchurch_street_mystery/case.cml2.yaml
   provenance: derived_unverified
+- id: the_golden_slipper_and_other_problems_for_violet_strange
+  corpus: seed
+  axis: identity
+  mechanism_family: impersonation
+  false_assumption_pattern: the_thief_is_the_obvious_suspect
+  discriminating_test_shape: timetable_contradiction
+  inference_shape: expose_identity_by_physical_trace
+  premise: >-
+    A series of mysterious jewel thefts occur within a close-knit group of young society women known
+    as The Inseparables, culminating in the disappearance of a valuable pendant from Violet
+    Strange's room 
+  source: library/works/the_golden_slipper_and_other_problems_for_violet_strange/case.cml2.yaml
+  provenance: derived
 - id: the_invisible_man
   corpus: seed
   axis: behavioral
@@ -106,6 +145,84 @@
     found stabb
   source: library/works/the_invisible_man/case.cml2.yaml
   provenance: derived_unverified
+- id: the_lodger
+  corpus: seed
+  axis: identity
+  mechanism_family: alibi_fabrication
+  false_assumption_pattern: the_official_description_identifies_the_killer
+  discriminating_test_shape: timetable_contradiction
+  inference_shape: disprove_composite_identity
+  premise: >-
+    A series of brutal murders terrorize London, attributed to a mysterious figure called The
+    Avenger. The Buntings unknowingly shelter a lodger, Mr. Sleuth, whose eccentric behavior and
+    secretive nature 
+  source: library/works/the_lodger/case.cml2.yaml
+  provenance: derived
+- id: the_memoirs_of_sherlock_holmes
+  corpus: seed
+  axis: identity
+  mechanism_family: disguised_natural_agent
+  false_assumption_pattern: human_murderer_caused_the_death
+  discriminating_test_shape: reconstruction
+  inference_shape: reveal_true_cause_by_reenactment
+  premise: >-
+    The case appears to be a straightforward murder of a horse trainer and the disappearance of a
+    prized racehorse, with suspicion falling on a gambler who had bet against the horse. The horse
+    is missing,
+  source: library/works/the_memoirs_of_sherlock_holmes/case.cml2.yaml
+  provenance: derived
+- id: the_middle_temple_murder
+  corpus: seed
+  axis: identity
+  mechanism_family: staged_scene
+  false_assumption_pattern: the_murder_was_committed_by_the_suspect_found_with_weapon
+  discriminating_test_shape: timetable_contradiction
+  inference_shape: reconstruct_true_sequence_of_events
+  premise: >-
+    An elderly man named John Marbury is found murdered in Middle Temple Lane, London, with no
+    identification except a scrap of paper bearing a young barrister's name. Suspicion falls on
+    Stephen Aylmore, 
+  source: library/works/the_middle_temple_murder/case.cml2.yaml
+  provenance: derived
+- id: the_mystery_of_a_hansom_cab
+  corpus: seed
+  axis: identity
+  mechanism_family: impersonation
+  false_assumption_pattern: the_man_seen_is_the_murderer
+  discriminating_test_shape: timetable_contradiction
+  inference_shape: disprove_identity_by_alibi
+  premise: >-
+    A man named Oliver Whyte is found murdered in a hansom cab in Melbourne. Brian Fitzgerald,
+    engaged to Madge Frettlby, is arrested based on circumstantial evidence but is later acquitted
+    when a key wit
+  source: library/works/the_mystery_of_a_hansom_cab/case.cml2.yaml
+  provenance: derived
+- id: the_problem_of_cell_13
+  corpus: seed
+  axis: behavioral
+  mechanism_family: hidden_accomplice
+  false_assumption_pattern: the_escape_was_solo_and_self_devised
+  discriminating_test_shape: reconstruction
+  inference_shape: trace_physical_aid_and_collusion
+  premise: >-
+    The cases appear as baffling mysteries involving locked cells, gas poisoning, missing persons,
+    haunted houses, bank robberies, and attempted murders. Each case presents seemingly impossible
+    circumstan
+  source: library/works/the_problem_of_cell_13/case.cml2.yaml
+  provenance: derived
+- id: the_secret_of_father_brown
+  corpus: seed
+  axis: spatial
+  mechanism_family: staged_scene
+  false_assumption_pattern: locked_room_means_no_entry
+  discriminating_test_shape: reconstruction
+  inference_shape: reconstruct_true_sequence_of_events
+  premise: >-
+    Sir Humphrey Gwynne is found murdered in his garden with a bullet wound. The poet Osric Orm is
+    arrested due to suspicious behavior and lack of alibi. Meanwhile, a jewel theft involving a
+    disguised cri
+  source: library/works/the_secret_of_father_brown/case.cml2.yaml
+  provenance: derived
 - id: the_sign_of_the_four
   corpus: seed
   axis: spatial
@@ -118,6 +235,32 @@
     the murderer. A valuable treasure has been stolen, and suspicion falls on his brother Thaddeus
     and househo
   source: library/works/the_sign_of_the_four/case.cml2.yaml
+  provenance: derived
+- id: the_silent_bullet
+  corpus: seed
+  axis: behavioral
+  mechanism_family: disguised_natural_agent
+  false_assumption_pattern: no_shot_fired_without_noise_or_smoke
+  discriminating_test_shape: reconstruction
+  inference_shape: demonstrate_hidden_physical_action
+  premise: >-
+    Kerr Parker, a Wall Street banker, dies suddenly in his office amidst open doors and many
+    witnesses, with no shot heard. A thirty-two-calibre bullet is found in his neck, but no weapon
+    or noise was de
+  source: library/works/the_silent_bullet/case.cml2.yaml
+  provenance: derived
+- id: the_strange_schemes_of_randolph_mason
+  corpus: seed
+  axis: authority
+  mechanism_family: substituted_body
+  false_assumption_pattern: the_body_must_be_found_to_prove_death
+  discriminating_test_shape: timetable_contradiction
+  inference_shape: demonstrate_body_destruction
+  premise: >-
+    Victor Ancona is arrested for the murder of Nina San Croix, whose body has mysteriously
+    disappeared. Despite overwhelming circumstantial evidence, the lack of a corpse leads to a legal
+    impasse, and th
+  source: library/works/the_strange_schemes_of_randolph_mason/case.cml2.yaml
   provenance: derived
 - id: the_valley_of_fear
   corpus: seed

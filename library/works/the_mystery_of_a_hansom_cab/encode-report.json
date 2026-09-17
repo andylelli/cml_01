@@ -1,0 +1,136 @@
+{
+ "slug": "the_mystery_of_a_hansom_cab",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "The victim was found murdered in a hansom cab",
+   "anchor": "body of a man who he had reason to believe had been murdered",
+   "span": "Kilda, and the driver made the startling statement that his cab contained the body of a man who he had reason to believe had been murdered.",
+   "ok": true
+  },
+  {
+   "claim": "The victim died from chloroform poisoning",
+   "anchor": "handkerchief which was saturated with chloroform",
+   "span": "The white silk handkerchief which was saturated with chloroform, and was found tied across the mouth of the deceased, marked with the letters O.",
+   "ok": true
+  },
+  {
+   "claim": "The victim was Oliver Whyte",
+   "anchor": "If Mr. Oliver Whyte does not return to Possum Villa",
+   "span": "If Mr. Oliver Whyte does not return to Possum Villa, Grey Street, St.",
+   "ok": true
+  },
+  {
+   "claim": "Brian Fitzgerald was arrested for the murder",
+   "anchor": "I arrest you in the Queen's name",
+   "span": "I arrest you in the Queen's name.",
+   "ok": true
+  },
+  {
+   "claim": "Sal Rawlins provided an alibi for Brian Fitzgerald",
+   "anchor": "Sal Rawlins had made her appearance at the eleventh hour",
+   "span": "Sal Rawlins had made her appearance at the eleventh hour, to the heartfelt thankfulness of Calton, who saw in her an angel from heaven, sent to save the life of an innocent man.",
+   "ok": true
+  },
+  {
+   "claim": "Mark Frettlby was secretly married to Rosanna Moore",
+   "anchor": "Rosanna Moore was Mr. Frettlby's wife",
+   "span": "it proves that Rosanna Moore was Mr. Frettlby's wife, and--\" she hesitated.",
+   "ok": true
+  },
+  {
+   "claim": "Mark Frettlby murdered Oliver Whyte to protect his secret",
+   "anchor": "Mark Frettlby had killed Whyte in order to obtain them",
+   "span": "I had no suspicion till then; but when you said that Whyte was murdered for the sake of certain papers, I, knowing full well what they were and to whom they were of value--guessed immediately that Mark Frettlby had killed Whyte in order to obtain them and to keep his secret.",
+   "ok": true
+  },
+  {
+   "claim": "Roger Moreland impersonated Brian Fitzgerald and committed the murder",
+   "anchor": "I put on his coat, which he left behind",
+   "span": "After he had gone out of the hotel, I put on his coat, which he left behind.",
+   "ok": true
+  },
+  {
+   "claim": "Whyte's coat was found hidden in Fitzroy Gardens",
+   "anchor": "I found it in the Fitzroy Gardens, near the gate",
+   "span": "I found it in the Fitzroy Gardens, near the gate that opens to George Street, East Melbourne.",
+   "ok": true
+  },
+  {
+   "claim": "The chloroform bottle was purchased by Oliver Whyte",
+   "anchor": "The man who purchased this was Oliver Whyte himself",
+   "span": "The man who purchased this was Oliver Whyte himself.",
+   "ok": true
+  },
+  {
+   "claim": "Mother Guttersnipe was Rosanna Moore's mother and Sal Rawlins' grandmother",
+   "anchor": "I am the mother of Rosanna Moore",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Mark Frettlby died of heart disease after shock",
+   "anchor": "He awoke suddenly, and the natural consequences followed--he dropped down dead",
+   "span": "He awoke suddenly, and the natural consequences followed--he dropped down dead.",
+   "ok": true
+  },
+  {
+   "claim": "Mark Frettlby's confession reveals the truth of the murder",
+   "anchor": "What I am now about to write is set forth by me so that the true circumstances",
+   "span": "What I am now about to write is set forth by me so that the true circumstances connected with the 'Hansom Cab Tragedy,' which took place in Melbourne in 18--, may be known.",
+   "ok": true
+  },
+  {
+   "claim": "Roger Moreland confessed to the murder",
+   "anchor": "Yes, I did it; it was Whyte's own fault",
+   "span": "Yes, I did it; it was Whyte's own fault.",
+   "ok": true
+  },
+  {
+   "claim": "Brian Fitzgerald was acquitted based on alibi and witness testimony",
+   "anchor": "The jury unanimously agreed, and returned a verdict of 'Not guilty'",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The marriage certificate was the motive for the murder",
+   "anchor": "They were the papers she gave Mr. Whyte",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Moreland demanded hush-money from Frettlby",
+   "anchor": "he asked me to assist him, which I did",
+   "span": "You are right--it was Roger Moreland--he is very hard up, and as he was a friend of poor Whyte's, he asked me to assist him, which I did.",
+   "ok": true
+  },
+  {
+   "claim": "Sal Rawlins delivered the letter that led to Brian's alibi",
+   "anchor": "I delivered a letter, addressed to him at the Melbourne Club",
+   "span": "I delivered a letter, addressed to him at the Melbourne Club, at a quarter to twelve o'clock on Thursday, 26th July.",
+   "ok": true
+  },
+  {
+   "claim": "The man in the light coat was not Brian Fitzgerald",
+   "anchor": "He took me by the arm, and ses 'e, ''Ere git out'",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The false accusation against Brian Fitzgerald was based on mistaken identity",
+   "anchor": "The man who got into the cab was dressed like the prisoner on that night",
+   "span": "",
+   "ok": false
+  }
+ ],
+ "costGbp": 0.13127967200000001,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-08-31"
+}

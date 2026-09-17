@@ -1,0 +1,46 @@
+pattern_id: max_carrados
+title: The Faked Theft
+family: spatial_routing
+axes:
+  - identity
+principle: >-
+  The coin theft was a staged ruse by the conspirators to mislead the investigator and the
+  authorities, masking their forgery operations.
+principleType: social_logic
+surface_illusion_template: >-
+  The thefts were committed by an insider with access to keys; The coin theft was a genuine robbery
+  from the British Museum; The accomplices were acting independently without a coordinated plan
+underlying_reality_template: >-
+  the culprit the the culprit rented multiple safes and secretly duplicated the keys to them. Using
+  disguises, he gained access to the safes without raising suspicion and removed valuables. the
+  culprit and her accomplices staged a fake coin theft from the British Museum to mislead
+  investigators and cover their forgery operations.
+feasibility:
+  eras:
+    - 1850
+    - 1860
+    - 1870
+    - 1880
+    - 1890
+    - 1900
+    - 1910
+    - 1920
+    - 1930
+    - 1940
+    - 1950
+  requires:
+    - social_deference
+    - physical_disguise
+    - key_duplication
+  forbids:
+    - cctv
+    - voice_authentication
+clue_archetypes:
+  - safe_deposit_access_logs
+  - physical_keys_held_by
+  - photograph_of_ulysses_k
+  - safe_rental_records_with
+  - testimony_of_madame_ferraja
+  - examination_of_coin_authenticity
+sources:
+  - Ernest Bramah, Max Carrados — library/works/max_carrados/case.cml2.yaml

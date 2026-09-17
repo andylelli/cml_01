@@ -1,0 +1,12 @@
+- id: the_problem_of_cell_13
+  corpus: seed
+  axis: behavioral
+  mechanism_family: hidden_accomplice
+  false_assumption_pattern: the_escape_was_solo_and_self_devised
+  discriminating_test_shape: reconstruction
+  inference_shape: trace_physical_aid_and_collusion
+  premise: >-
+    The cases appear as baffling mysteries involving locked cells, gas poisoning, missing persons,
+    haunted houses, bank robberies, and attempted murders. Each case presents seemingly impossible
+    circumstan
+  source: library/works/the_problem_of_cell_13/case.cml2.yaml

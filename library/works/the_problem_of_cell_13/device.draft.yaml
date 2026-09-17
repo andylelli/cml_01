@@ -1,0 +1,51 @@
+pattern_id: the_problem_of_cell_13
+title: The Secret Pipe
+family: behavioral
+axes:
+  - behavioral
+principle: >-
+  The actual escape involved physical assistance via a hidden drain pipe and an accomplice outside
+  who cut the arc light feed wire, enabling the investigator to escape disguised as a workman.
+principleType: physical_law
+surface_illusion_template: >-
+  the investigator escaped by sheer mental power without external help.; Regnault Cabell was
+  responsible for the attempts on the victim life.; a suspect a suspect murdered Grace Field.
+underlying_reality_template: >-
+  the investigator escaped Cell 13 by using a hidden old drain pipe to communicate with an
+  accomplice outside, who aided him by cutting the prison's arc light feed wire with acid, allowing
+  the investigator to slip out disguised as an electrician. the culprit, the valet, used a Turkish
+  bath robe and a mirror on a flagpole to watch the victim and extinguish his gas light by blowing
+  into the gas pipe from an adjacent apartment, accidentally killing the culprit Regnier and later
+  shooting the victim. the culprit planned and assisted in the Ralston Bank robbery using violet
+  perfume to mislead scent evidence and chemical solution to weaken granite around bars. a suspect
+  St. a suspect held Grace Field captive using chloroform and attacked a suspect a suspect, who had
+  threatened her.
+feasibility:
+  eras:
+    - 1850
+    - 1860
+    - 1870
+    - 1880
+    - 1890
+    - 1900
+    - 1910
+    - 1920
+    - 1930
+    - 1940
+    - 1950
+  requires:
+    - old_building_structure
+    - physical_disguise
+    - acid_application
+  forbids:
+    - cctv
+    - electronic_timekeeping
+clue_archetypes:
+  - linen_notes_with_money
+  - guard_s_report_of
+  - loose_gas_jet_tip
+  - mirror_on_flagpole_used
+  - chemical_test_matching_thread
+  - valet_s_possession_of
+sources:
+  - Jacques Futrelle, The problem of Cell 13 — library/works/the_problem_of_cell_13/case.cml2.yaml

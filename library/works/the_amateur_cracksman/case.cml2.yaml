@@ -1,0 +1,372 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The Amateur Cracksman
+    author: E. W. (Ernest William) Hornung
+    license: Public domain (first published 1899; author died 1921). Project Gutenberg ebook 706.
+    era:
+      decade: 1890s
+      realism_constraints:
+        - No modern forensic science such as DNA or advanced ballistics
+        - Limited police procedural methods, reliance on observation and witness testimony
+        - Communication by telegram and newspapers, no electronic surveillance
+    setting:
+      location: London and surrounding areas including Milchester Abbey, Esher, and aboard the steamer Uhlan
+      institution: Scotland Yard and local police forces
+    crime_class:
+      category: murder
+      subtype: self-defense killing during a burglary
+  cast:
+    - name: A. J. Raffles
+      age_range: 30-40
+      role_archetype: masterful gentleman thief and cricketer
+      relationships:
+        - Bunny Manders (friend and accomplice)
+        - Crawshay (criminal associate)
+      public_persona: celebrated cricketer and gentleman
+      private_secret: professional burglar and criminal mastermind
+      motive_seed: financial desperation and thrill of crime
+      motive_strength: moderate
+      alibi_window: present at crime scene but not the killer
+      access_plausibility: high
+      opportunity_channels:
+        - access to crime scenes via burglary skills
+        - social connections
+      behavioral_tells:
+        - calm under pressure
+        - master of disguise
+        - strategic thinker
+      stakes: high - risk of imprisonment or death
+      evidence_sensitivity:
+        - fingerprints on burglary tools
+        - presence at crime scenes
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: high
+    - name: Bunny Manders
+      age_range: 20-30
+      role_archetype: loyal but morally conflicted accomplice
+      relationships:
+        - A. J. Raffles (friend and partner)
+      public_persona: friend and companion of Raffles
+      private_secret: accomplice in burglaries
+      motive_seed: loyalty and desperation
+      motive_strength: weak
+      alibi_window: present with Raffles
+      access_plausibility: high
+      opportunity_channels:
+        - presence during crimes
+      behavioral_tells:
+        - nervousness
+        - easily influenced
+      stakes: moderate
+      evidence_sensitivity:
+        - presence at crime scenes
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: high
+    - name: Angus Baird
+      age_range: 50-60
+      role_archetype: money-lender and antagonist
+      relationships:
+        - Raffles (enemy)
+        - Jack Rutter (victim of blackmail)
+      public_persona: miserly money-lender
+      private_secret: blackmailer and pursuer of Raffles
+      motive_seed: financial gain and revenge
+      motive_strength: strong
+      alibi_window: dead at time of investigation
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells:
+        - threatening demeanor
+      stakes: high
+      evidence_sensitivity:
+        - body with wound
+        - poker near body
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: moderate
+    - name: Jack Rutter
+      age_range: 30-40
+      role_archetype: drunken blackmailer and murderer
+      relationships:
+        - Angus Baird (victim)
+      public_persona: disreputable man with debts
+      private_secret: killer of Angus Baird in self-defense
+      motive_seed: self-defense against blackmail and threats
+      motive_strength: strong
+      alibi_window: present at crime scene
+      access_plausibility: high
+      opportunity_channels:
+        - access to Baird's house
+      behavioral_tells:
+        - drunkenness
+        - violent outbursts
+      stakes: high - risk of execution
+      evidence_sensitivity:
+        - bloody shirt-front
+        - wounds on victim
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Reginald Crawshay
+      age_range: 40-50
+      role_archetype: escaped convict and ally
+      relationships:
+        - Raffles (ally)
+        - Bunny Manders (ally)
+      public_persona: escaped prisoner
+      private_secret: criminal but not murderer in this case
+      motive_seed: escape and survival
+      motive_strength: moderate
+      alibi_window: present at Albany
+      access_plausibility: high
+      opportunity_channels:
+        - access to Albany rooms
+      behavioral_tells:
+        - rough demeanor
+        - trust issues
+      stakes: high
+      evidence_sensitivity:
+        - presence at crime scene
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: Inspector Mackenzie
+      age_range: 50-60
+      role_archetype: dogged investigating
+      relationships:
+        - Raffles (suspect)
+        - Crawshay (suspect)
+      public_persona: Scotland Yard detective
+      private_secret: persistent pursuer of Raffles
+      motive_seed: law enforcement
+      motive_strength: strong
+      alibi_window: present at investigation
+      access_plausibility: high
+      opportunity_channels:
+        - police authority
+      behavioral_tells:
+        - stern demeanor
+        - cautious
+      stakes: moderate
+      evidence_sensitivity:
+        - warrant
+        - presence at crime scenes
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+  culpability:
+    culprit_count: 1
+    culprits:
+      - Jack Rutter
+  surface_model:
+    narrative:
+      summary: >-
+        Angus Baird, a money-lender, is found murdered in his home. Suspicion falls on the escaped
+        convict Crawshay, who has been seen nearby, and on Raffles and Bunny, who are involved in
+        criminal activities. The case appears to be a straightforward burglary gone wrong.
+    accepted_facts:
+      - Angus Baird was found dead with a wound to the head
+      - Jack Rutter was found with blood on his shirt and confessed to killing Baird
+      - Raffles and Bunny were present at the scene shortly after the murder
+      - Crawshay escaped from Dartmoor prison and was seen in the area
+    inferred_conclusions:
+      - Crawshay was the murderer trying to escape capture
+      - Raffles was involved in the murder to protect himself
+      - Jack Rutter's confession was a ploy to take the blame
+  hidden_model:
+    mechanism:
+      description: >-
+        Jack Rutter killed Angus Baird in self-defense during a confrontation at Baird's house.
+        Rutter had lured Baird into a trap and, when threatened, used a poker to strike Baird
+        fatally. Raffles and Bunny arrived afterward and helped Rutter escape to avoid suspicion
+        falling on them.
+      delivery_path:
+        - step: Rutter arranges a meeting with Baird at his house
+        - step: A confrontation ensues where Baird threatens Rutter
+        - step: Rutter strikes Baird with a poker in self-defense
+        - step: Raffles and Bunny arrive shortly after the incident
+        - step: They assist Rutter in escaping before the police arrive
+        - step: Rutter confesses to the killing claiming self-defense
+        - step: Raffles and Bunny cover for Rutter to avoid arrest
+    outcome:
+      result: >-
+        Jack Rutter is the murderer, having killed Angus Baird in self-defense, and is helped to
+        escape by Raffles and Bunny.
+  false_assumption:
+    statement: The escaped convict Crawshay is the murderer who killed Angus Baird.
+    type: identity
+    why_it_seems_reasonable: >-
+      Crawshay was recently escaped from prison and was seen near the crime scene, making him a
+      prime suspect. His criminal background and suspicious behavior make him a natural focus of
+      suspicion.
+    what_it_hides: >-
+      It hides the fact that the actual killer is Jack Rutter, who acted in self-defense and was
+      assisted by Raffles and Bunny to avoid capture.
+  false_solution:
+    accused_suspect: Reginald Crawshay
+    supporting_points:
+      - Crawshay escaped from Dartmoor prison recently
+      - He was seen near the victim's lodgings
+      - He had motive to avoid capture
+      - His presence at the Albany was suspicious
+    the_one_flaw: >-
+      No direct evidence links Crawshay to the murder, and the actual killer confessed and was
+      present at the scene.
+    refuted_in_chapter: 9
+  red_herrings:
+    - id: escaped_convict_crawshay
+      description: >-
+        Crawshay, an escaped convict, is suspected of the murder due to his recent escape and
+        suspicious presence.
+      points_at_suspect: His escape and presence near the crime scene
+      innocent_explanation: He was hiding and trying to avoid recapture, not involved in the murder.
+      resolved_in_chapter: 9
+    - id: detective_mackenzie
+      description: >-
+        Inspector Mackenzie is suspicious of Raffles and Crawshay, believing they are involved in
+        criminal activities.
+      points_at_suspect: His investigations and confrontations with Raffles and Crawshay
+      innocent_explanation: He is simply doing his duty as a detective and is not involved in the crime.
+      resolved_in_chapter: 9
+  closed_circle:
+    suspects:
+      - A. J. Raffles
+      - Bunny Manders
+      - Jack Rutter
+      - Reginald Crawshay
+    rationale: >-
+      All suspects were present in the vicinity of the crime scene and had opportunity and motive,
+      but only Rutter had the direct confrontation and motive leading to the murder.
+  constraint_space:
+    time:
+      anchors:
+        - 1:00 AM murder discovery
+        - 11:21 PM train departure
+        - early hours of the morning
+      windows:
+        - nighttime burglary and murder
+        - morning investigation
+    access:
+      actors:
+        - Raffles
+        - Bunny
+        - Rutter
+        - Crawshay
+      objects:
+        - house door
+        - window pane
+        - poker
+        - revolver
+    social:
+      trust_channels:
+        - Raffles trusts Bunny
+        - Crawshay trusts Raffles
+        - Raffles trusts Crawshay
+      authority_sources:
+        - Inspector Mackenzie
+        - police warrant
+        - Scotland Yard
+  inference_path:
+    steps:
+      - observation: Jack Rutter found with blood on his shirt-front and a revolver
+        correction: Rutter's blood is from the victim, not himself
+        effect: Rutter is directly connected to the victim's death
+        required_evidence:
+          - Rutter's bloody shirt-front found at the crime scene
+          - Witness statement of Rutter admitting to confrontation
+        reader_observable: true
+      - observation: Crawshay escaped from Dartmoor and was seen near the victim's house
+        correction: No evidence of Crawshay committing the murder
+        effect: Crawshay is a suspect but not the killer
+        required_evidence:
+          - Newspaper report of Crawshay's escape
+          - Eyewitness account placing Crawshay near the crime scene
+        reader_observable: true
+      - observation: Raffles and Bunny were present at the crime scene shortly after the murder
+        correction: They arrived after the murder and did not commit it
+        effect: Raffles and Bunny are witnesses, not culprits
+        required_evidence:
+          - Timeline of Raffles and Bunny's arrival
+          - Physical evidence showing no murder weapon in their possession
+        reader_observable: true
+      - observation: The poker was found near the victim with blood on it
+        correction: The poker was used by Rutter to strike Baird
+        effect: The murder weapon is linked to Rutter
+        required_evidence:
+          - Forensic examination of the poker
+          - Witness testimony about the poker's use
+        reader_observable: true
+      - observation: Rutter confessed to killing Baird in self-defense
+        correction: Rutter's confession is truthful and consistent
+        effect: Rutter is the actual murderer acting in self-defense
+        required_evidence:
+          - Physical evidence of blood spatter matching Rutter's account of the struggle
+          - Corroborating witness statements from Raffles and Bunny
+        reader_observable: true
+      - observation: Raffles and Bunny helped Rutter escape after the murder
+        correction: Their assistance was to protect themselves and Rutter
+        effect: They are accessories after the fact, not murderers
+        required_evidence:
+          - Testimony of Raffles and Bunny about aiding Rutter
+          - Lack of evidence implicating them in the murder act
+        reader_observable: true
+      - observation: Inspector Mackenzie suspects Raffles and Crawshay
+        correction: Mackenzie's suspicions are based on circumstantial evidence
+        effect: Mackenzie is misled by appearances
+        required_evidence:
+          - Police reports and warrant documents
+          - Mackenzie's own statements and observations
+        reader_observable: true
+  discriminating_test:
+    method: constraint_proof
+    design: >-
+      Reenact the timeline of the murder night, verifying the presence and actions of Rutter,
+      Raffles, Bunny, and Crawshay. Confirm the physical evidence such as the poker's blood traces
+      and the timing of arrivals at the crime scene. Cross-check witness statements with physical
+      traces and access records.
+    knowledge_revealed: >-
+      This test reveals that Rutter was the only person who had the opportunity and motive to kill
+      Baird in self-defense, and that Crawshay was not present at the time of the murder.
+    pass_condition: >-
+      The timeline and physical evidence must conclusively show that Rutter committed the murder and
+      that Crawshay could not have done so.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given detailed accounts of the characters' movements, the physical evidence such
+      as the poker and blood stains, and the confessions and statements of the involved parties. The
+      false suspicion of Crawshay is presented but contradicted by the timeline and evidence. The
+      presence of Raffles and Bunny at the scene is explained, and the motive and opportunity of
+      Rutter are clearly described, allowing the reader to deduce the true murderer.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

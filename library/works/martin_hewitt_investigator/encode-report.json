@@ -1,0 +1,136 @@
+{
+ "slug": "martin_hewitt_investigator",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "The used match was found near the missing bracelet",
+   "anchor": "a match, which had been lit and thrown down",
+   "span": "He seemed a pretty smart fellow, and the first thing he noticed on the dressing-table, within an inch or two of where the bracelet had been, was a match, which had been lit and thrown down.",
+   "ok": true
+  },
+  {
+   "claim": "The match was found near the missing brooch in Mrs. Armitage's room",
+   "anchor": "my thief left a match on the dressing-table",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The match had sharp indentations consistent with a bird's beak",
+   "anchor": "certain rather sharp indentations in the wood",
+   "span": "But on examining the match very closely I observed, as you can see for yourself, certain rather sharp indentations in the wood.",
+   "ok": true
+  },
+  {
+   "claim": "The parrot bit a quill toothpick leaving marks matching those on the match",
+   "anchor": "I played with the parrot, and induced it to bite a quill toothpick",
+   "span": "My chief object in going there was achieved when I played with the parrot, and induced it to bite a quill toothpick.",
+   "ok": true
+  },
+  {
+   "claim": "The parrot was trained to carry the match silently and steal jewelry",
+   "anchor": "Polly would take the match, mute as wax, jump on the table, pick up the brightest thing",
+   "span": "Polly would take the match, mute as wax, jump on the table, pick up the brightest thing he could see, in a great hurry, leave the match behind, and scuttle away round the room; but at first wouldn't give up the plunder to _me_.",
+   "ok": true
+  },
+  {
+   "claim": "Lloyd was pale and silent when confronted with the parrot and evidence",
+   "anchor": "Lloyd had sank on a chair, and, gray of face, was staring blind",
+   "span": "Lloyd had sank on a chair, and, gray of face, was staring blindly at the man he had run against at the office door that morning.",
+   "ok": true
+  },
+  {
+   "claim": "The parrot was the actual lifter of the stolen jewelry",
+   "anchor": "This was his little messenger, his useful Mercury",
+   "span": "This was his little messenger, his useful Mercury,\" Hewitt explained, tapping the cage complacently; \"in fact, the actual lifter.",
+   "ok": true
+  },
+  {
+   "claim": "The ladder found near the lawn was placed there by the gardener earlier",
+   "anchor": "ladder usually kept in the stable-yard was found lying along the edge of the lawn",
+   "span": "There was no water-pipe within any practicable distance of the window, but a ladder usually kept in the stable-yard was found lying along the edge of the lawn.",
+   "ok": true
+  },
+  {
+   "claim": "The gas-fitter was on guard and saw no one approach Mrs. Armitage's door",
+   "anchor": "gas-fitter... was ready to swear that nobody but my niece had been to the door",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The windows and doors were locked or only slightly open, making human entry difficult",
+   "anchor": "The door was locked, and the window shut fast",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The parrot was known to escape and open its cage",
+   "anchor": "the parrot... had learned the trick of opening its cage-door and escaping",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The parrot dropped the match near the stolen item as a deliberate clue",
+   "anchor": "the match was an article well chosen for its purpose",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The parrot's beak marks matched the indentations on the used match",
+   "anchor": "the marks corresponded exactly",
+   "span": "When you left me in the smoking-room, I compared the quill and the match very carefully, and found that the marks corresponded exactly.",
+   "ok": true
+  },
+  {
+   "claim": "The thefts were carried out without disturbance or signs of forced entry",
+   "anchor": "Everything was precisely where it had been left, except the bracelet",
+   "span": "Everything was precisely where it had been left, except the bracelet.",
+   "ok": true
+  },
+  {
+   "claim": "The parrot was carried under Lloyd's coat to avoid detection",
+   "anchor": "the groom had met Mr. Lloyd carrying his parrot under his coat",
+   "span": "Also, I learned that more than once the groom had met Mr. Lloyd carrying his parrot under his coat, it having, as its owner explained, learned the trick of opening its cage-door and escaping.",
+   "ok": true
+  },
+  {
+   "claim": "The parrot was quiet while carrying the match and jewelry",
+   "anchor": "a little consideration made that purpose pretty clear",
+   "span": "Certainly it must have been trained to do that for a purpose, and a little consideration made that purpose pretty clear.",
+   "ok": true
+  },
+  {
+   "claim": "The official detective was misled by the presence of the match",
+   "anchor": "the wrong conclusions adopted by the official detective",
+   "span": "The match was an article well chosen for its purpose, as being a not altogether unlikely thing to find on a dressing-table, and, if noticed, likely to lead to the wrong conclusions adopted by the official detective.",
+   "ok": true
+  },
+  {
+   "claim": "The parrot was the key to solving the mystery",
+   "anchor": "I think our business is about brought to a head now",
+   "span": "I think our business is about brought to a head now,\" Hewitt remarked, on the stairs.",
+   "ok": true
+  },
+  {
+   "claim": "Lloyd confessed to the thefts after being confronted",
+   "anchor": "He'll confess. Of that I'm sure. I know the sort of man",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The parrot was trained to keep quiet while carrying stolen items",
+   "anchor": "to teach it also to keep quiet while carrying",
+   "span": "What readier or more probably effectual way than, while teaching it to carry without dropping, to teach it also to keep quiet while carrying?",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.08385284755,
+ "models": {
+  "map": "gpt-4o-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-08-31"
+}

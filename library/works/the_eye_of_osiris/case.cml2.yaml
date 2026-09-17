@@ -1,0 +1,374 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The Eye of Osiris
+    author: R. Austin (Richard Austin) Freeman
+    license: Public domain (first published 1911; author died 1943). Project Gutenberg ebook 24201.
+    era:
+      decade: 1900s
+      realism_constraints:
+        - No modern forensic DNA or electronic surveillance
+        - Medical jurisprudence and X-ray photography are emerging sciences
+        - Legal procedures require physical evidence and witness testimony
+    setting:
+      location: London, England
+      institution: British Museum; Probate Court; Coroner's Court; Police
+    crime_class:
+      category: murder
+      subtype: body substitution with an Egyptian mummy
+  cast:
+    - name: John Thorndyke
+      age_range: 50-60
+      role_archetype: medico-legal expert and investigator
+      relationships: []
+      public_persona: respected medical jurist and lecturer
+      private_secret: keen investigator of the Bellingham case
+      motive_seed: professional interest
+      motive_strength: weak
+      alibi_window: always present in London
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: professional reputation
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: low
+    - name: Paul Berkeley
+      age_range: 25-30
+      role_archetype: young doctor and friend
+      relationships:
+        - Ruth Bellingham
+      public_persona: general practitioner
+      private_secret: involved in the investigation and personal affairs
+      motive_seed: friendship and professional interest
+      motive_strength: weak
+      alibi_window: present in London
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: friendship and professional duty
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+    - name: Godfrey Bellingham
+      age_range: 50-60
+      role_archetype: impecunious gentleman and brother of victim
+      relationships:
+        - Ruth Bellingham
+        - John Bellingham
+      public_persona: poor gentleman
+      private_secret: struggling with legal complications
+      motive_seed: inheritance
+      motive_strength: moderate
+      alibi_window: present at home or nearby
+      access_plausibility: medium
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: inheritance and family honor
+      evidence_sensitivity: []
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: Ruth Bellingham
+      age_range: 25-30
+      role_archetype: learned literary investigator and daughter
+      relationships:
+        - Godfrey Bellingham
+        - John Bellingham
+        - Paul Berkeley
+      public_persona: reserved and scholarly woman
+      private_secret: deeply involved in family mystery and personal feelings
+      motive_seed: inheritance and family loyalty
+      motive_strength: weak
+      alibi_window: present at home or museum
+      access_plausibility: medium
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: inheritance and reputation
+      evidence_sensitivity: []
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: female
+      role: suspect
+      moral_complexity: high
+    - name: Arthur Jellicoe
+      age_range: 50-60
+      role_archetype: solicitor and confidential agent
+      relationships:
+        - John Bellingham
+        - Godfrey Bellingham
+        - George Hurst
+      public_persona: discreet and cautious lawyer
+      private_secret: murderer of John Bellingham and manipulator of evidence
+      motive_seed: financial gain and control of estate
+      motive_strength: strong
+      alibi_window: present in London
+      access_plausibility: high
+      opportunity_channels:
+        - access to John Bellingham's house and mummy
+      behavioral_tells:
+        - secretive behavior
+        - attempts to mislead investigation
+      stakes: inheritance and personal gain
+      evidence_sensitivity:
+        - mummy substitution
+        - ring and finger removal
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: George Hurst
+      age_range: 50-60
+      role_archetype: cousin and beneficiary
+      relationships:
+        - John Bellingham
+        - Godfrey Bellingham
+      public_persona: stockbroker with past financial troubles
+      private_secret: potential beneficiary of will's failure
+      motive_seed: inheritance
+      motive_strength: moderate
+      alibi_window: present at home
+      access_plausibility: medium
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: inheritance
+      evidence_sensitivity: []
+      culprit_eligibility: eligible
+      culpability: unknown
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: Dr. Norbury
+      age_range: 50-60
+      role_archetype: museum official and friend
+      relationships:
+        - John Bellingham
+        - Thorndyke
+      public_persona: British Museum official
+      private_secret: knowledgeable about Egyptian antiquities
+      motive_seed: professional interest
+      motive_strength: none
+      alibi_window: present in London
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: professional reputation
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+  culpability:
+    culprit_count: 1
+    culprits:
+      - Arthur Jellicoe
+  surface_model:
+    narrative:
+      summary: >-
+        John Bellingham mysteriously disappears after last being seen at his solicitor's office.
+        Human remains are found scattered in various locations, suggesting murder. The will's
+        complicated burial clause causes legal disputes over inheritance.
+    accepted_facts:
+      - John Bellingham disappeared mysteriously in 1902.
+      - Human remains matching his description were found dismembered in Kent and Essex.
+      - A defective will made inheritance conditional on burial in a specific parish.
+      - An Egyptian mummy was presented to the British Museum from Bellingham's collection.
+    inferred_conclusions:
+      - John Bellingham left voluntarily and is alive in hiding.
+      - Godfrey Bellingham or his daughter Ruth murdered John Bellingham.
+      - The dismembered remains found are those of John Bellingham.
+  hidden_model:
+    mechanism:
+      description: >-
+        Arthur Jellicoe murdered John Bellingham accidentally by causing him to fall down the
+        stairs. He concealed the body by substituting it with an Egyptian mummy from Bellingham's
+        collection. Jellicoe manipulated the will and evidence to secure the estate but was
+        ultimately exposed by Thorndyke's investigation and committed suicide.
+      delivery_path:
+        - step: Jellicoe causes Bellingham's accidental death by pushing him down stairs.
+        - step: Jellicoe embalms and prepares Bellingham's body as a mummy.
+        - step: He substitutes the mummy for the real body in Bellingham's house.
+        - step: >-
+            Jellicoe disposes of the real mummy's remains in various locations to mislead
+            investigators.
+        - step: >-
+            He fabricates evidence including a personation at Hurst's house to fix disappearance
+            date.
+        - step: >-
+            Thorndyke investigates, uses X-ray photography to identify the mummy as Bellingham's
+            body.
+        - step: Jellicoe is confronted and commits suicide by cyanide poisoning.
+    outcome:
+      result: >-
+        The true cause of John Bellingham's death and the substitution of his body with a mummy are
+        revealed, and the culprit, Arthur Jellicoe, dies by suicide.
+  false_assumption:
+    statement: John Bellingham was last seen alive at Hurst's house on November 23, 1902.
+    type: temporal
+    why_it_seems_reasonable: >-
+      The housemaid at Hurst's house reported seeing a man claiming to be Bellingham there on that
+      date. The presence of a scarab associated with Bellingham was found on the grounds.
+    what_it_hides: >-
+      The man seen was an impersonator, and Bellingham was last seen alive weeks earlier at his own
+      house, where he died.
+  false_solution:
+    accused_suspect: Godfrey Bellingham
+    supporting_points:
+      - The scarab was found on his property.
+      - He had a motive related to inheritance.
+      - He refused a financial arrangement proposed by Hurst.
+      - He was present at the house when the visitor disappeared.
+    the_one_flaw: No evidence that he had opportunity or that the visitor was actually Bellingham.
+    refuted_in_chapter: 20
+  red_herrings:
+    - id: scarab_found_on_bellingham_property
+      description: >-
+        A scarab belonging to John Bellingham was found on the grounds of Godfrey Bellingham's
+        house, suggesting his presence there.
+      points_at_suspect: Godfrey Bellingham
+      innocent_explanation: The scarab was dropped by the real culprit, Jellicoe, to mislead suspicion.
+      resolved_in_chapter: 20
+    - id: dismembered_bones_in_watercress_bed
+      description: >-
+        Dismembered human remains were found in a watercress-bed and other ponds, suggesting a
+        violent murder.
+      points_at_suspect: George Hurst or unknown murderer
+      innocent_explanation: The remains were parts of the substituted mummy, not the real body.
+      resolved_in_chapter: 20
+  closed_circle:
+    suspects:
+      - Godfrey Bellingham
+      - Ruth Bellingham
+      - George Hurst
+      - Arthur Jellicoe
+    rationale: >-
+      The disappearance and murder involved only these family members and the solicitor, as
+      established by the will, property, and last known movements.
+  constraint_space:
+    time:
+      anchors:
+        - October 14, 1902 - last confirmed sighting of John Bellingham
+        - November 23, 1902 - alleged sighting at Hurst's house
+        - July 15, 1904 - discovery of dismembered arm in watercress-bed
+      windows:
+        - Between October 14 and November 23, 1902 - time of disappearance
+        - Two years after disappearance - period before presumption of death
+    access:
+      actors:
+        - Arthur Jellicoe - access to Bellingham's house and mummy
+        - Godfrey Bellingham - access to family property
+        - George Hurst - access to his own house
+      objects:
+        - Mummy case in British Museum
+        - Watercress-bed and ponds in Kent and Essex
+        - Bellingham's house in Queen Square
+    social:
+      trust_channels:
+        - Solicitor-client relationship between Jellicoe and John Bellingham
+        - Family trust between Bellingham brothers
+      authority_sources:
+        - Probate Court
+        - Coroner's Court
+        - British Museum officials
+  inference_path:
+    steps:
+      - observation: John Bellingham was last seen alive on October 14, 1902, at his house.
+        correction: The supposed later sighting on November 23 was an impersonation.
+        effect: The disappearance date is earlier than initially believed.
+        required_evidence:
+          - Testimony of Dr. Norbury and Mr. Jellicoe about last meeting with Bellingham
+          - Housemaid's statement denying presence of Bellingham on November 23
+        reader_observable: true
+      - observation: Dismembered human remains found in watercress-bed and ponds.
+        correction: The remains are parts of an Egyptian mummy, not a recent body.
+        effect: The remains do not belong to John Bellingham.
+        required_evidence:
+          - >-
+            X-ray photographs of the mummy showing dental fillings matching Bellingham's dentist
+            records
+          - Medical examination of bones showing no signs of recent injury
+        reader_observable: true
+      - observation: The third finger of the left hand is missing from the remains.
+        correction: The finger was removed after death to conceal identity.
+        effect: The removal was deliberate to mislead identification.
+        required_evidence:
+          - Medical testimony on bone condition of finger
+          - Knowledge of Bellingham's ring fitting tightly on that finger
+        reader_observable: true
+      - observation: A scarab belonging to Bellingham was found on the grounds of Godfrey Bellingham's house.
+        correction: The scarab was planted by the murderer to mislead suspicion.
+        effect: Suspicion on Godfrey Bellingham is unfounded.
+        required_evidence:
+          - Timing and location of scarab discovery
+          - Presence of Arthur Jellicoe at the scene
+        reader_observable: true
+      - observation: The will contains a burial clause making inheritance conditional.
+        correction: The clause was deliberately exploited by Jellicoe to manipulate inheritance.
+        effect: Jellicoe had motive to murder and conceal the body.
+        required_evidence:
+          - Copy of the will certified by Godfrey Bellingham
+          - Testimony of Mr. Marchmont and legal analysis
+        reader_observable: true
+      - observation: Mummy was delivered to the British Museum after Bellingham's disappearance.
+        correction: The mummy contains the real body of John Bellingham.
+        effect: The body was substituted to conceal the murder.
+        required_evidence:
+          - X-ray photographs identifying dental fillings and surgical wires
+          - Tattoo of Eye of Osiris matching Bellingham's tattoo
+        reader_observable: true
+      - observation: Arthur Jellicoe was last person to see Bellingham alive and had access to mummy.
+        correction: Jellicoe murdered Bellingham and concealed the body in the mummy.
+        effect: Jellicoe is the culprit.
+        required_evidence:
+          - >-
+            Presence of Arthur Jellicoe at Bellingham's house on October 14, 1902, as confirmed by
+            visitor log and witness statement
+          - Medical and forensic evidence from Thorndyke's investigation
+        reader_observable: true
+  discriminating_test:
+    method: reenactment
+    design: >-
+      Thorndyke used X-ray photography to examine the mummy presented to the British Museum,
+      revealing dental fillings and surgical repairs matching John Bellingham's medical records,
+      confirming the identity of the body inside the mummy case.
+    knowledge_revealed: >-
+      The test revealed that the mummy contained the real body of John Bellingham, proving the
+      substitution and implicating Jellicoe.
+    pass_condition: >-
+      The X-ray photograph must show dental and surgical features matching Bellingham's known
+      medical history.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given detailed descriptions of the will, the timeline of disappearances, the
+      discovery of remains, and the peculiarities of the mummy. Clues such as the missing finger,
+      the tight ring, the timing of the mummy's delivery, and the legal complications are all
+      presented. The reader could deduce the substitution and the involvement of the solicitor by
+      carefully analyzing these facts.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

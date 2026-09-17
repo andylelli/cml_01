@@ -1,0 +1,12 @@
+- id: the_eye_of_osiris
+  corpus: seed
+  axis: temporal
+  mechanism_family: substituted_body
+  false_assumption_pattern: the_dead_is_who_they_appear
+  discriminating_test_shape: reconstruction
+  inference_shape: identify_true_body_by_medical_features
+  premise: >-
+    John Bellingham mysteriously disappears after last being seen at his solicitor's office. Human
+    remains are found scattered in various locations, suggesting murder. The will's complicated
+    burial clause
+  source: library/works/the_eye_of_osiris/case.cml2.yaml

@@ -1,0 +1,50 @@
+pattern_id: an_african_millionaire
+title: The Borrowed Face
+family: identity
+axes:
+  - identity
+principle: >-
+  the culprit is actually Colonel the culprit himself, using the detective role to monitor and
+  mislead Sir the victim and his household, preventing his own capture.
+principleType: physical_law
+surface_illusion_template: >-
+  the culprit is a trustworthy detective; The photographs of disguises prove the identity beyond
+  doubt; the culprit is innocent and not involved in the crimes
+underlying_reality_template: >-
+  The crime was perpetrated by the culprit, who used his skill in disguise and impersonation to
+  assume various identities, including a seer, clergyman, count, professor, and detective. He
+  manipulated social situations, forged documents, and exploited personal relationships to defraud
+  Sir the victim of money and valuables. His accomplices, including the culprit and the culprit,
+  aided him by providing inside access and facilitating his schemes. The detective the culprit was
+  in fact the culprit himself, infiltrating Sir the victim household to monitor and mislead
+  investigations. The final capture was achieved by identifying the true identity of the culprit,
+  who was the culprit in his natural form.
+feasibility:
+  eras:
+    - 1850
+    - 1860
+    - 1870
+    - 1880
+    - 1890
+    - 1900
+    - 1910
+    - 1920
+    - 1930
+    - 1940
+    - 1950
+  requires:
+    - physical_disguise
+    - photographic_analysis
+    - social_deference
+  forbids:
+    - cctv
+    - voice_authentication
+clue_archetypes:
+  - note_from_landlord_about
+  - letter_from_colonel_clay
+  - dolly_lingfield_s_kodak
+  - dr_beddersley_s_analysis
+  - testimony_of_reverend_septimus
+  - testimony_of_dr_julius
+sources:
+  - Grant Allen, An African Millionaire — library/works/an_african_millionaire/case.cml2.yaml

@@ -1,0 +1,127 @@
+{
+ "slug": "the_mystery_of_31_new_inn",
+ "spans": [
+  {
+   "claim": "Mr. Graves was suffering from morphine poisoning",
+   "anchor": "clear and typical case of opium or morphine poisoning",
+   "span": "It was a clear and typical case of opium or morphine poisoning.",
+   "ok": true
+  },
+  {
+   "claim": "The secret house was located by compass bearings and timing",
+   "anchor": "I made the first entry in the little book",
+   "span": "I drew the board from my pocket, laid it on my knee, glanced at my watch, and, as the coachman climbed to his seat, I made the first entry in the little book.",
+   "ok": true
+  },
+  {
+   "claim": "The cuneiform inscription was hung upside down",
+   "anchor": "the photograph is upside down",
+   "span": "Obviously the photograph is upside down.",
+   "ok": true
+  },
+  {
+   "claim": "The second will was executed by a person impersonating Jeffrey Blackmore",
+   "anchor": "the second will is a forgery",
+   "span": "I have gone into this case with great care and have now no doubt that the second will is a forgery.",
+   "ok": true
+  },
+  {
+   "claim": "John Blackmore was the tenant of New Inn and the man known as Mr. Weiss",
+   "anchor": "the overwhelming probability is that Weiss and the tenant of New Inn were one and the same person",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Jeffrey Blackmore was secretly confined and chronically poisoned",
+   "anchor": "there was evidently a conspiracy to murder him",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Mrs. Schallibaum was an accomplice in the crime",
+   "anchor": "she was an accessory; my business was with the principal",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The spectacles found matched those prescribed to Jeffrey Blackmore",
+   "anchor": "Mr. Cuxton's description is identical with mine",
+   "span": "You see that Mr. Cuxton's description is identical with mine.",
+   "ok": true
+  },
+  {
+   "claim": "The cabman Wilkins identified the man and woman arriving at New Inn",
+   "anchor": "I saw a gentleman and a lady coming out",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The sugar given to Dr. Jervis was poisoned with aconitine",
+   "anchor": "I was immediately aware of a peculiar tingling sensation",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The house was secured with massive bolts and bars",
+   "anchor": "massive fastenings would be almost enough to settle them",
+   "span": "as to what has been going on in this house, these traces of massive fastenings would be almost enough to settle them.",
+   "ok": true
+  },
+  {
+   "claim": "The body found was identified as Jeffrey Blackmore",
+   "anchor": "I found the body of a man between fifty and sixty years of age",
+   "span": "'In the bedroom I found the body of a man between fifty and sixty years of age, which has since been identified in my presence as that of Mr.",
+   "ok": true
+  },
+  {
+   "claim": "The second will was signed in the presence of two witnesses",
+   "anchor": "the two men accordingly read the document, and, when Mr. Jeffrey had signed it",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The porter was deceived by the impersonation",
+   "anchor": "he assumed that the dead man is Mr. Blackmore",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The patient Mr. Graves was actually Jeffrey Blackmore",
+   "anchor": "the sick man, Graves, was Jeffrey Blackmore",
+   "span": "We have now furnished fairly conclusive evidence on three heads: we have proved that the sick man, Graves, was Jeffrey Blackmore; that the tenant of New Inn was John Blackmore; and that the man Weiss was also John Blackmore.",
+   "ok": true
+  },
+  {
+   "claim": "John Blackmore impersonated his brother and forged the will",
+   "anchor": "the man Weiss was also John Blackmore",
+   "span": "We have now furnished fairly conclusive evidence on three heads: we have proved that the sick man, Graves, was Jeffrey Blackmore; that the tenant of New Inn was John Blackmore; and that the man Weiss was also John Blackmore.",
+   "ok": true
+  },
+  {
+   "claim": "The murder was orchestrated by John Blackmore and Mrs. Schallibaum",
+   "anchor": "the capture was secured by Thorndyke's investigation",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The false assumption was that the second will was genuine",
+   "anchor": "the second will is a forgery",
+   "span": "I have gone into this case with great care and have now no doubt that the second will is a forgery.",
+   "ok": true
+  },
+  {
+   "claim": "The red herring of sleeping sickness was disproved",
+   "anchor": "the symptoms are not those of sleeping sickness",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The red herring of Mrs. Schallibaum's identity was resolved",
+   "anchor": "she had a divergent squint of the left eye",
+   "span": "In short, she had a divergent squint of the left eye.",
+   "ok": true
+  }
+ ],
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-08-31"
+}

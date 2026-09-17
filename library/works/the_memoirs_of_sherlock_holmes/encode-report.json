@@ -1,0 +1,130 @@
+{
+ "slug": "the_memoirs_of_sherlock_holmes",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "John Straker was found dead with a heavy blow and a knife wound",
+   "anchor": "the dead body of the unfortunate trainer. His head had been shattered by a savage blow",
+   "span": "Immediately beyond there was a bowl-shaped depression in the moor, and at the bottom of this was found the dead body of the unfortunate trainer. His head had been shattered by a savage blow from some heavy weapon, and he was wounded on the thigh, where there was a long, clean cut, inflicted evidently by some very sharp instrument.",
+   "ok": true
+  },
+  {
+   "claim": "Straker held a delicate cataract knife with blood stains",
+   "anchor": "in his right hand he held a small knife, which was clotted with blood up to the handle",
+   "span": "It was clear, however, that Straker had defended himself vigorously against his assailants, for in his right hand he held a small knife, which was clotted with blood up to the handle, while in his left he clasped a red and black silk cravat, which was recognised by the maid as having been worn on the preceding evening by the stranger who had visited the stables.",
+   "ok": true
+  },
+  {
+   "claim": "Stable-boy's curried mutton was drugged with powdered opium",
+   "anchor": "an analysis has shown that the remains of his supper left by the stable-lad contain an appreciable quantity of powdered opium",
+   "span": "Finally, an analysis has shown that the remains of his supper left by the stable-lad contain an appreciable quantity of powdered opium, while the people at the house partook of the same dish on the same night without any ill effect.",
+   "ok": true
+  },
+  {
+   "claim": "Fitzroy Simpson was found near the scene with the victim's cravat",
+   "anchor": "in his left he clasped a red and black silk cravat, which was recognised by the maid as having been worn on the preceding evening by the stranger",
+   "span": "It was clear, however, that Straker had defended himself vigorously against his assailants, for in his right hand he held a small knife, which was clotted with blood up to the handle, while in his left he clasped a red and black silk cravat, which was recognised by the maid as having been worn on the preceding evening by the stranger who had visited the stables.",
+   "ok": true
+  },
+  {
+   "claim": "Silas Brown hid the horse at Mapleton stables",
+   "anchor": "he had led it back and concealed it at Mapleton",
+   "span": "Then I described how his first impulse had been to lead him back to King's Pyland, and how the devil had shown him how he could hide the horse until the race was over, and how he had led it back and concealed it at Mapleton.",
+   "ok": true
+  },
+  {
+   "claim": "Horse tracks led from the crime scene to Mapleton stables",
+   "anchor": "The track of a horse was plainly outlined in the soft earth in front of him",
+   "span": "The track of a horse was plainly outlined in the soft earth in front of him, and the shoe which he took from his pocket exactly fitted the impression.",
+   "ok": true
+  },
+  {
+   "claim": "Straker was attempting to sabotage the horse by nicking its tendon",
+   "anchor": "it is possible to make a slight nick upon the tendons of a horse’s ham, and to do it subcutaneously",
+   "span": "You must know, with your wide experience of turf matters, Colonel Ross, that it is possible to make a slight nick upon the tendons of a horse's ham, and to do it subcutaneously, so as to leave absolutely no trace.",
+   "ok": true
+  },
+  {
+   "claim": "Straker was leading a double life under the alias Derbyshire",
+   "anchor": "a milliner’s account for thirty-seven pounds fifteen made out by Madame Lesurier, of Bond Street, to William Derbyshire",
+   "span": "This other is a milliner's account for thirty-seven pounds fifteen made out by Madame Lesurier, of Bond Street, to William Derbyshire.",
+   "ok": true
+  },
+  {
+   "claim": "The dog did not bark during the night despite intruder presence",
+   "anchor": "The dog did nothing in the night-time",
+   "span": "The dog did nothing in the night-time.",
+   "ok": true
+  },
+  {
+   "claim": "Straker's death was caused by the horse's hoof during his sabotage attempt",
+   "anchor": "the steel shoe had struck Straker full on the forehead",
+   "span": "Once in the hollow, he had got behind the horse and had struck a light; but the creature frightened at the sudden glare, and with the strange instinct of animals feeling that some mischief was intended, had lashed out, and the steel shoe had struck Straker full on the forehead.",
+   "ok": true
+  },
+  {
+   "claim": "Fitzroy Simpson was innocent of the murder",
+   "anchor": "Simpson becomes eliminated from the case",
+   "span": "Therefore Simpson becomes eliminated from the case, and our attention centres upon Straker and his wife, the only two people who could have chosen curried mutton for supper that night.",
+   "ok": true
+  },
+  {
+   "claim": "Silas Brown had motive to hide the horse and profit from betting",
+   "anchor": "he is convinced that I was watching him",
+   "span": "He tried to bluster out of it, but I described to him so exactly what his actions had been upon that morning that he is convinced that I was watching him.",
+   "ok": true
+  },
+  {
+   "claim": "Holmes's final explanation reveals the true culprit and mechanism",
+   "anchor": "The real murderer is standing immediately behind you",
+   "span": "The real murderer is standing immediately behind you.",
+   "ok": true
+  },
+  {
+   "claim": "The horse Silver Blaze was found and ran in the race",
+   "anchor": "Only five have passed. This must be he",
+   "span": "Only five have passed. This must be he.",
+   "ok": true
+  },
+  {
+   "claim": "The stable-boy was drugged to prevent him from watching the stables",
+   "anchor": "Hunter was obviously under the influence of some powerful drug",
+   "span": "Hunter was obviously under the influence of some powerful drug, and as no sense could be got out of him, he was left to sleep it off while the two lads and the two women ran out in search of the absentees.",
+   "ok": true
+  },
+  {
+   "claim": "Simpson had no wound, weakening the case against him",
+   "anchor": "there was no wound upon his person",
+   "span": "On the other hand, there was no wound upon his person, while the state of Straker's knife would show that one at least of his assailants must bear his mark upon him.",
+   "ok": true
+  },
+  {
+   "claim": "Straker's knife wound was likely self-inflicted during his fall",
+   "anchor": "It is more than possible; it is probable",
+   "span": "It is more than possible; it is probable,\" said Holmes.",
+   "ok": true
+  },
+  {
+   "claim": "Silas Brown was nervous and changed demeanor when confronted",
+   "anchor": "His face was ashy pale, beads of perspiration shone upon his brow",
+   "span": "His face was ashy pale, beads of perspiration shone upon his brow, and his hands shook until the hunting-crop wagged like a branch in the wind.",
+   "ok": true
+  },
+  {
+   "claim": "The horse Silver Blaze was hidden to avoid suspicion",
+   "anchor": "he will guard it as the apple of his eye",
+   "span": "My dear fellow, he will guard it as the apple of his eye.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.1385897,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-08-31"
+}

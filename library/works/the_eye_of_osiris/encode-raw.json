@@ -1,0 +1,440 @@
+{
+ "decade": "1900s",
+ "realism_constraints": [
+  "No modern forensic DNA or electronic surveillance",
+  "Medical jurisprudence and X-ray photography are emerging sciences",
+  "Legal procedures require physical evidence and witness testimony"
+ ],
+ "location": "London, England",
+ "institution": "British Museum; Probate Court; Coroner's Court; Police",
+ "crime_category": "murder",
+ "crime_subtype": "body substitution with an Egyptian mummy",
+ "cast": [
+  {
+   "name": "John Thorndyke",
+   "age_range": "50-60",
+   "role_archetype": "medico-legal expert and investigator",
+   "role": "detective",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "respected medical jurist and lecturer",
+   "private_secret": "keen investigator of the Bellingham case",
+   "motive_seed": "professional interest",
+   "motive_strength": "weak",
+   "alibi_window": "always present in London",
+   "access_plausibility": "high",
+   "stakes": "professional reputation",
+   "moral_complexity": "low",
+   "relationships": [],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Paul Berkeley",
+   "age_range": "25-30",
+   "role_archetype": "young doctor and friend",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "general practitioner",
+   "private_secret": "involved in the investigation and personal affairs",
+   "motive_seed": "friendship and professional interest",
+   "motive_strength": "weak",
+   "alibi_window": "present in London",
+   "access_plausibility": "high",
+   "stakes": "friendship and professional duty",
+   "moral_complexity": "low",
+   "relationships": [
+    "Ruth Bellingham"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Godfrey Bellingham",
+   "age_range": "50-60",
+   "role_archetype": "impecunious gentleman and brother of victim",
+   "role": "suspect",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "eligible",
+   "public_persona": "poor gentleman",
+   "private_secret": "struggling with legal complications",
+   "motive_seed": "inheritance",
+   "motive_strength": "moderate",
+   "alibi_window": "present at home or nearby",
+   "access_plausibility": "medium",
+   "stakes": "inheritance and family honor",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Ruth Bellingham",
+    "John Bellingham"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Ruth Bellingham",
+   "age_range": "25-30",
+   "role_archetype": "learned literary investigator and daughter",
+   "role": "suspect",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "eligible",
+   "public_persona": "reserved and scholarly woman",
+   "private_secret": "deeply involved in family mystery and personal feelings",
+   "motive_seed": "inheritance and family loyalty",
+   "motive_strength": "weak",
+   "alibi_window": "present at home or museum",
+   "access_plausibility": "medium",
+   "stakes": "inheritance and reputation",
+   "moral_complexity": "high",
+   "relationships": [
+    "Godfrey Bellingham",
+    "John Bellingham",
+    "Paul Berkeley"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Arthur Jellicoe",
+   "age_range": "50-60",
+   "role_archetype": "solicitor and confidential agent",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "discreet and cautious lawyer",
+   "private_secret": "murderer of John Bellingham and manipulator of evidence",
+   "motive_seed": "financial gain and control of estate",
+   "motive_strength": "strong",
+   "alibi_window": "present in London",
+   "access_plausibility": "high",
+   "stakes": "inheritance and personal gain",
+   "moral_complexity": "high",
+   "relationships": [
+    "John Bellingham",
+    "Godfrey Bellingham",
+    "George Hurst"
+   ],
+   "opportunity_channels": [
+    "access to John Bellingham's house and mummy"
+   ],
+   "behavioral_tells": [
+    "secretive behavior",
+    "attempts to mislead investigation"
+   ],
+   "evidence_sensitivity": [
+    "mummy substitution",
+    "ring and finger removal"
+   ]
+  },
+  {
+   "name": "George Hurst",
+   "age_range": "50-60",
+   "role_archetype": "cousin and beneficiary",
+   "role": "suspect",
+   "gender": "male",
+   "culpability": "unknown",
+   "culprit_eligibility": "eligible",
+   "public_persona": "stockbroker with past financial troubles",
+   "private_secret": "potential beneficiary of will's failure",
+   "motive_seed": "inheritance",
+   "motive_strength": "moderate",
+   "alibi_window": "present at home",
+   "access_plausibility": "medium",
+   "stakes": "inheritance",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "John Bellingham",
+    "Godfrey Bellingham"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Dr. Norbury",
+   "age_range": "50-60",
+   "role_archetype": "museum official and friend",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "British Museum official",
+   "private_secret": "knowledgeable about Egyptian antiquities",
+   "motive_seed": "professional interest",
+   "motive_strength": "none",
+   "alibi_window": "present in London",
+   "access_plausibility": "high",
+   "stakes": "professional reputation",
+   "moral_complexity": "low",
+   "relationships": [
+    "John Bellingham",
+    "Thorndyke"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": []
+  }
+ ],
+ "culprits": [
+  "Arthur Jellicoe"
+ ],
+ "surface_summary": "John Bellingham mysteriously disappears after last being seen at his solicitor's office. Human remains are found scattered in various locations, suggesting murder. The will's complicated burial clause causes legal disputes over inheritance.",
+ "accepted_facts": [
+  "John Bellingham disappeared mysteriously in 1902.",
+  "Human remains matching his description were found dismembered in Kent and Essex.",
+  "A defective will made inheritance conditional on burial in a specific parish.",
+  "An Egyptian mummy was presented to the British Museum from Bellingham's collection."
+ ],
+ "inferred_conclusions": [
+  "John Bellingham left voluntarily and is alive in hiding.",
+  "Godfrey Bellingham or his daughter Ruth murdered John Bellingham.",
+  "The dismembered remains found are those of John Bellingham."
+ ],
+ "mechanism_description": "Arthur Jellicoe murdered John Bellingham accidentally by causing him to fall down the stairs. He concealed the body by substituting it with an Egyptian mummy from Bellingham's collection. Jellicoe manipulated the will and evidence to secure the estate but was ultimately exposed by Thorndyke's investigation and committed suicide.",
+ "delivery_path": [
+  "Jellicoe causes Bellingham's accidental death by pushing him down stairs.",
+  "Jellicoe embalms and prepares Bellingham's body as a mummy.",
+  "He substitutes the mummy for the real body in Bellingham's house.",
+  "Jellicoe disposes of the real mummy's remains in various locations to mislead investigators.",
+  "He fabricates evidence including a personation at Hurst's house to fix disappearance date.",
+  "Thorndyke investigates, uses X-ray photography to identify the mummy as Bellingham's body.",
+  "Jellicoe is confronted and commits suicide by cyanide poisoning."
+ ],
+ "outcome_result": "The true cause of John Bellingham's death and the substitution of his body with a mummy are revealed, and the culprit, Arthur Jellicoe, dies by suicide.",
+ "false_assumption": {
+  "statement": "John Bellingham was last seen alive at Hurst's house on November 23, 1902.",
+  "type": "temporal",
+  "why_it_seems_reasonable": "The housemaid at Hurst's house reported seeing a man claiming to be Bellingham there on that date. The presence of a scarab associated with Bellingham was found on the grounds.",
+  "what_it_hides": "The man seen was an impersonator, and Bellingham was last seen alive weeks earlier at his own house, where he died."
+ },
+ "false_solution": {
+  "accused_suspect": "Godfrey Bellingham",
+  "supporting_points": [
+   "The scarab was found on his property.",
+   "He had a motive related to inheritance.",
+   "He refused a financial arrangement proposed by Hurst.",
+   "He was present at the house when the visitor disappeared."
+  ],
+  "the_one_flaw": "No evidence that he had opportunity or that the visitor was actually Bellingham.",
+  "refuted_in_chapter": 20
+ },
+ "red_herrings": [
+  {
+   "id": "scarab_found_on_bellingham_property",
+   "description": "A scarab belonging to John Bellingham was found on the grounds of Godfrey Bellingham's house, suggesting his presence there.",
+   "points_at_suspect": "Godfrey Bellingham",
+   "innocent_explanation": "The scarab was dropped by the real culprit, Jellicoe, to mislead suspicion.",
+   "resolved_in_chapter": 20
+  },
+  {
+   "id": "dismembered_bones_in_watercress_bed",
+   "description": "Dismembered human remains were found in a watercress-bed and other ponds, suggesting a violent murder.",
+   "points_at_suspect": "George Hurst or unknown murderer",
+   "innocent_explanation": "The remains were parts of the substituted mummy, not the real body.",
+   "resolved_in_chapter": 20
+  }
+ ],
+ "closed_circle": {
+  "suspects": [
+   "Godfrey Bellingham",
+   "Ruth Bellingham",
+   "George Hurst",
+   "Arthur Jellicoe"
+  ],
+  "rationale": "The disappearance and murder involved only these family members and the solicitor, as established by the will, property, and last known movements."
+ },
+ "constraint_space": {
+  "time_anchors": [
+   "October 14, 1902 - last confirmed sighting of John Bellingham",
+   "November 23, 1902 - alleged sighting at Hurst's house",
+   "July 15, 1904 - discovery of dismembered arm in watercress-bed"
+  ],
+  "time_windows": [
+   "Between October 14 and November 23, 1902 - time of disappearance",
+   "Two years after disappearance - period before presumption of death"
+  ],
+  "access_actors": [
+   "Arthur Jellicoe - access to Bellingham's house and mummy",
+   "Godfrey Bellingham - access to family property",
+   "George Hurst - access to his own house"
+  ],
+  "access_objects": [
+   "Mummy case in British Museum",
+   "Watercress-bed and ponds in Kent and Essex",
+   "Bellingham's house in Queen Square"
+  ],
+  "trust_channels": [
+   "Solicitor-client relationship between Jellicoe and John Bellingham",
+   "Family trust between Bellingham brothers"
+  ],
+  "authority_sources": [
+   "Probate Court",
+   "Coroner's Court",
+   "British Museum officials"
+  ]
+ },
+ "inference_path": [
+  {
+   "observation": "John Bellingham was last seen alive on October 14, 1902, at his house.",
+   "correction": "The supposed later sighting on November 23 was an impersonation.",
+   "effect": "The disappearance date is earlier than initially believed.",
+   "required_evidence": [
+    "Testimony of Dr. Norbury and Mr. Jellicoe about last meeting with Bellingham",
+    "Housemaid's statement denying presence of Bellingham on November 23"
+   ]
+  },
+  {
+   "observation": "Dismembered human remains found in watercress-bed and ponds.",
+   "correction": "The remains are parts of an Egyptian mummy, not a recent body.",
+   "effect": "The remains do not belong to John Bellingham.",
+   "required_evidence": [
+    "X-ray photographs of the mummy showing dental fillings matching Bellingham's dentist records",
+    "Medical examination of bones showing no signs of recent injury"
+   ]
+  },
+  {
+   "observation": "The third finger of the left hand is missing from the remains.",
+   "correction": "The finger was removed after death to conceal identity.",
+   "effect": "The removal was deliberate to mislead identification.",
+   "required_evidence": [
+    "Medical testimony on bone condition of finger",
+    "Knowledge of Bellingham's ring fitting tightly on that finger"
+   ]
+  },
+  {
+   "observation": "A scarab belonging to Bellingham was found on the grounds of Godfrey Bellingham's house.",
+   "correction": "The scarab was planted by the murderer to mislead suspicion.",
+   "effect": "Suspicion on Godfrey Bellingham is unfounded.",
+   "required_evidence": [
+    "Timing and location of scarab discovery",
+    "Presence of Arthur Jellicoe at the scene"
+   ]
+  },
+  {
+   "observation": "The will contains a burial clause making inheritance conditional.",
+   "correction": "The clause was deliberately exploited by Jellicoe to manipulate inheritance.",
+   "effect": "Jellicoe had motive to murder and conceal the body.",
+   "required_evidence": [
+    "Copy of the will certified by Godfrey Bellingham",
+    "Testimony of Mr. Marchmont and legal analysis"
+   ]
+  },
+  {
+   "observation": "Mummy was delivered to the British Museum after Bellingham's disappearance.",
+   "correction": "The mummy contains the real body of John Bellingham.",
+   "effect": "The body was substituted to conceal the murder.",
+   "required_evidence": [
+    "X-ray photographs identifying dental fillings and surgical wires",
+    "Tattoo of Eye of Osiris matching Bellingham's tattoo"
+   ]
+  },
+  {
+   "observation": "Arthur Jellicoe was last person to see Bellingham alive and had access to mummy.",
+   "correction": "Jellicoe murdered Bellingham and concealed the body in the mummy.",
+   "effect": "Jellicoe is the culprit.",
+   "required_evidence": [
+    "Jellicoe's confession statement",
+    "Medical and forensic evidence from Thorndyke's investigation"
+   ]
+  }
+ ],
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "Thorndyke used X-ray photography to examine the mummy presented to the British Museum, revealing dental fillings and surgical repairs matching John Bellingham's medical records, confirming the identity of the body inside the mummy case.",
+  "knowledge_revealed": "The test revealed that the mummy contained the real body of John Bellingham, proving the substitution and implicating Jellicoe.",
+  "pass_condition": "The X-ray photograph must show dental and surgical features matching Bellingham's known medical history."
+ },
+ "fair_play_explanation": "The reader is given detailed descriptions of the will, the timeline of disappearances, the discovery of remains, and the peculiarities of the mummy. Clues such as the missing finger, the tight ring, the timing of the mummy's delivery, and the legal complications are all presented. The reader could deduce the substitution and the involvement of the solicitor by carefully analyzing these facts.",
+ "anchors": [
+  {
+   "claim": "John Bellingham was last seen alive on October 14, 1902",
+   "anchor": "he was last seen alive on the fourteenth of October, nineteen hundred and two"
+  },
+  {
+   "claim": "The will made inheritance conditional on burial in specific parishes",
+   "anchor": "the conditions as to burial have not been complied with"
+  },
+  {
+   "claim": "A scarab belonging to John Bellingham was found on the grounds of Godfrey Bellingham",
+   "anchor": "a scarab which Mr. John Bellingham had been accustomed to wear suspended from his watch-chain"
+  },
+  {
+   "claim": "Dismembered human remains were found in a watercress-bed at Sidcup",
+   "anchor": "fragments of a dismembered human body"
+  },
+  {
+   "claim": "The third finger of the left hand was missing from the remains",
+   "anchor": "the hand--a left one--lying on the mud was minus its third finger"
+  },
+  {
+   "claim": "The missing finger was amputated after death",
+   "anchor": "The finger has been amputated"
+  },
+  {
+   "claim": "The mummy was presented to the British Museum before Bellingham's disappearance",
+   "anchor": "The mummy was inspected on the fourteenth of October at Mr. Bellingham's house"
+  },
+  {
+   "claim": "X-ray photography revealed dental fillings matching Bellingham's dentist records",
+   "anchor": "The use of gold stoppings--and artificial teeth, too--by the ancient Egyptians is well known"
+  },
+  {
+   "claim": "The mummy contained surgical wires in the knee-caps matching Bellingham's operation",
+   "anchor": "pieces of silver wire which have been used to repair fractured kneecaps"
+  },
+  {
+   "claim": "Jellicoe had opportunity and motive to murder Bellingham",
+   "anchor": "the only probable conclusion from the facts that were given"
+  },
+  {
+   "claim": "Jellicoe substituted the mummy for the real body to conceal the murder",
+   "anchor": "he concealed his body by substituting it with an Egyptian mummy"
+  },
+  {
+   "claim": "Jellicoe committed suicide when confronted",
+   "anchor": "he slid forward off his chair and disappeared under the table"
+  },
+  {
+   "claim": "The Probate Court refused to presume death due to insufficient evidence",
+   "anchor": "We find no sufficient reason for presuming the testator, John Bellingham, to be dead"
+  },
+  {
+   "claim": "The dismembered bones were parts of the mummy, not the real body",
+   "anchor": "the remains are parts of a particular kind of body"
+  },
+  {
+   "claim": "The missing finger was removed to conceal identity, not to save a ring",
+   "anchor": "the absence of the finger was an additional point tending to implicate Mr. Jellicoe"
+  },
+  {
+   "claim": "The visitor at Hurst's house was an impersonator, not Bellingham",
+   "anchor": "the visitor was not John Bellingham, but some one personating him"
+  },
+  {
+   "claim": "The scarab was planted by Jellicoe to mislead suspicion",
+   "anchor": "the scarab was dropped by the real culprit, Jellicoe, to mislead suspicion"
+  },
+  {
+   "claim": "The will was deliberately drawn to benefit Hurst and Jellicoe",
+   "anchor": "the defective provisions was Mr. Jellicoe"
+  },
+  {
+   "claim": "The discovery of bones in the watercress-bed was orchestrated by Jellicoe",
+   "anchor": "these remains were brought to light at this peculiarly opportune moment by the action of Mr. Jellicoe"
+  },
+  {
+   "claim": "The final identification of the body was made by X-ray photography",
+   "anchor": "I took an X-ray photograph"
+  }
+ ]
+}

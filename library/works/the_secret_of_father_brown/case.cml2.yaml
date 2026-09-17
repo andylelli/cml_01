@@ -1,0 +1,360 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The secret of Father Brown
+    author: G. K. (Gilbert Keith) Chesterton
+    license: Public domain (first published 1927; author died 1936). Project Gutenberg ebook 70175.
+    era:
+      decade: 1920s
+      realism_constraints:
+        - No modern forensic DNA analysis or electronic surveillance
+        - Limited police procedural methods relying on observation and witness testimony
+        - Communication by telephone and telegrams but no digital or instant tracking
+    setting:
+      location: England, various settings including suburban gardens, theatres, villages, and a castle
+      institution: Local police and legal system; also private detectives and clergy acting as investigators
+    crime_class:
+      category: murder
+      subtype: disguise and misdirection to conceal identity and motive
+  cast:
+    - name: Father Brown
+      age_range: middle-aged
+      role_archetype: priest and amateur detective with deep psychological insight
+      relationships: []
+      public_persona: mild-mannered priest
+      private_secret: deep understanding of criminal minds and moral complexity
+      motive_seed: n/a
+      motive_strength: none
+      alibi_window: always present or arrives early at scenes
+      access_plausibility: high, as a trusted community figure
+      opportunity_channels: []
+      behavioral_tells:
+        - calm, reflective, insightful
+      stakes: solving mysteries and delivering justice
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: high, understands shades of human nature
+    - name: Grandison Chace
+      age_range: middle-aged
+      role_archetype: American traveler and admirer of Father Brown
+      relationships:
+        - friend of Father Brown
+      public_persona: curious and respectful observer
+      private_secret: none
+      motive_seed: n/a
+      motive_strength: none
+      alibi_window: present during Father Brown's confessions
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: interest in detective science
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+    - name: Sir Humphrey Gwynne
+      age_range: elderly
+      role_archetype: judge and murder victim
+      relationships: []
+      public_persona: respected but controversial judge
+      private_secret: had enemies due to spying mania
+      motive_seed: n/a
+      motive_strength: none
+      alibi_window: n/a
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: life
+      evidence_sensitivity: []
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: moderate
+    - name: Osric Orm
+      age_range: middle-aged
+      role_archetype: poet and suspect
+      relationships: []
+      public_persona: eccentric and nihilistic poet
+      private_secret: unknown
+      motive_seed: possible quarrel with Gwynne
+      motive_strength: weak
+      alibi_window: two hours unaccounted in garden
+      access_plausibility: high
+      opportunity_channels:
+        - garden access
+      behavioral_tells:
+        - obscure speech
+        - stubborn silence
+      stakes: freedom
+      evidence_sensitivity: []
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: Michael Flood
+      age_range: middle-aged
+      role_archetype: stranger and witness
+      relationships: []
+      public_persona: interviewer for a paper
+      private_secret: unknown
+      motive_seed: n/a
+      motive_strength: none
+      alibi_window: present at scene
+      access_plausibility: high
+      opportunity_channels:
+        - garden wall entry
+      behavioral_tells:
+        - calm demeanor
+      stakes: freedom
+      evidence_sensitivity: []
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+    - name: John Bankes
+      age_range: young adult
+      role_archetype: boisterous youth and culprit
+      relationships:
+        - family of Bankes
+      public_persona: car enthusiast and family member
+      private_secret: mastermind behind jewel theft and murder
+      motive_seed: greed and desire to steal jewels
+      motive_strength: strong
+      alibi_window: left house with jewels
+      access_plausibility: high
+      opportunity_channels:
+        - car
+        - garden wall
+        - disguise
+      behavioral_tells:
+        - boisterous
+        - defiant with revolver
+      stakes: freedom and wealth
+      evidence_sensitivity:
+        - fingerprints on disguise
+        - footprints over garden wall
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Mrs. Sands
+      age_range: middle-aged
+      role_archetype: watchful servant
+      relationships: []
+      public_persona: maid/dresser
+      private_secret: observant of suspicious behavior
+      motive_seed: n/a
+      motive_strength: none
+      alibi_window: present guarding door
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells:
+        - grim and sullen demeanor
+      stakes: reputation
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: low
+  culpability:
+    culprit_count: 1
+    culprits:
+      - John Bankes
+  surface_model:
+    narrative:
+      summary: >-
+        Sir Humphrey Gwynne is found murdered in his garden with a bullet wound. The poet Osric Orm
+        is arrested due to suspicious behavior and lack of alibi. Meanwhile, a jewel theft involving
+        a disguised criminal unfolds in a suburban household.
+    accepted_facts:
+      - Sir Humphrey Gwynne was shot in his garden
+      - The front door of Gwynne's house was unlatched
+      - Osric Orm was seen entering the garden and lingering for two hours
+      - John Bankes fled with Lady Pulman's jewels after a shooting incident
+    inferred_conclusions:
+      - Osric Orm committed the murder due to his suspicious presence
+      - The murderer entered through the front door and chased Gwynne into the garden
+      - Michael Flood was involved in the crime due to irregular garden entry
+  hidden_model:
+    mechanism:
+      description: >-
+        John Bankes, motivated by greed, orchestrated a jewel theft using a disguise to mislead
+        witnesses. He killed Michael Moonshine to cover his tracks and staged the scene to implicate
+        others. The murder of Sir Humphrey Gwynne was unrelated to the poet and was a separate
+        incident involving a struggle and a bullet fired by the real culprit.
+      delivery_path:
+        - step: John Bankes planned the theft and murder using disguises
+        - step: He killed Michael Moonshine and used his body to mislead witnesses
+        - step: He fled with the stolen jewels in his car
+        - step: Sir Humphrey Gwynne was murdered in his garden after a struggle
+        - step: Osric Orm was arrested due to suspicious behavior but was innocent
+        - step: Father Brown deduced the true culprit by analyzing motives and evidence
+        - step: John Bankes was apprehended and confessed
+    outcome:
+      result: John Bankes is revealed as the murderer and jewel thief, exonerating Osric Orm.
+  false_assumption:
+    statement: The murderer entered the house through the front door and chased Gwynne into the garden.
+    type: spatial
+    why_it_seems_reasonable: >-
+      The broken mirror and signs of struggle in the hall suggest a confrontation inside the house.
+      Witnesses saw the front door unlatched and assumed the murderer used it.
+    what_it_hides: >-
+      The victim was never inside the house at the time of the shooting; the murderer shot Gwynne
+      outside near the pond, and the broken mirror was caused by a bullet fired at a reflection.
+  false_solution:
+    accused_suspect: Osric Orm
+    supporting_points:
+      - He was seen entering the garden and lingering for two hours
+      - He had no coherent explanation for his presence
+      - The prosecution argued he had opportunity due to open doors
+      - His eccentric behavior suggested possible motive
+    the_one_flaw: He lacked motive and the ability to commit the crime in the time and manner suggested.
+    refuted_in_chapter: 6
+  red_herrings:
+    - id: michael_flood_irregular_entry
+      description: Michael Flood entered the garden irregularly and was found near the victim.
+      points_at_suspect: Michael Flood
+      innocent_explanation: He was a reporter trying to interview the victim and was scared by the murder.
+      resolved_in_chapter: 6
+    - id: master_of_the_mountain_ruby_theft
+      description: The Master of the Mountain was suspected of stealing a valuable ruby at a bazaar.
+      points_at_suspect: Master of the Mountain
+      innocent_explanation: He created an illusion of theft to impress others but did not actually steal the ruby.
+      resolved_in_chapter: 7
+  closed_circle:
+    suspects:
+      - Osric Orm
+      - Michael Flood
+      - John Bankes
+      - Mrs. Sands
+    rationale: >-
+      All had access to the garden or house and suspicious behavior, but only John Bankes had the
+      motive, opportunity, and evidence linking him to the murder and theft.
+  constraint_space:
+    time:
+      anchors:
+        - two hours between Orm's entry and discovery
+        - night of the murder
+        - daybreak after jewel theft
+      windows:
+        - Orm's unexplained two-hour presence
+        - Bankes's departure with jewels
+        - murder time estimated by witnesses
+    access:
+      actors:
+        - Osric Orm
+        - Michael Flood
+        - John Bankes
+        - servant Green
+      objects:
+        - garden walls
+        - front door
+        - side door
+        - car
+    social:
+      trust_channels:
+        - Father Brown's testimony
+        - servant's statements
+        - witnesses at garden
+      authority_sources:
+        - police detective Bagshaw
+        - court trial
+        - Father Brown's deductions
+  inference_path:
+    steps:
+      - observation: Osric Orm lingered in the garden for two hours without entering the house
+        correction: His behavior was consistent with composing poetry, not committing murder
+        effect: Orm's presence is explained, reducing suspicion
+        required_evidence:
+          - Witness testimony about Orm's behavior in the garden
+          - Expert opinion on poet's habits
+        reader_observable: true
+      - observation: The front door was unlatched and mirror broken
+        correction: The mirror was broken by a bullet, not a struggle
+        effect: The struggle likely did not happen inside the house
+        required_evidence:
+          - Physical examination of broken mirror and bullet trajectory
+          - Father Brown's analysis of the scene
+        reader_observable: true
+      - observation: Michael Flood entered and left the garden irregularly
+        correction: Flood was a reporter scared by the murder, not a culprit
+        effect: Flood is innocent and a witness
+        required_evidence:
+          - Flood's statements
+          - Servant Green's testimony
+        reader_observable: true
+      - observation: John Bankes fled with jewels after a shooting
+        correction: Bankes was the mastermind behind the theft and murder
+        effect: Focus shifts to Bankes as the prime suspect
+        required_evidence:
+          - Jewelry memorandum and cipher notes
+          - Fingerprints and footprints linking Bankes
+        reader_observable: true
+      - observation: The Master of the Mountain was seen taking the ruby
+        correction: The theft was an illusion created by painted hand and sleight
+        effect: Master of the Mountain is innocent
+        required_evidence:
+          - Witness accounts of the hand at the window
+          - Father Brown's reenactment of the theft
+        reader_observable: true
+      - observation: Sir Arthur Vaudrey disappeared and was found dead with throat cut
+        correction: He was killed by John Dalmon with a razor in a barber's shop
+        effect: Dalmon is guilty of Vaudrey's murder, not disappearance
+        required_evidence:
+          - Barber Wicks's testimony
+          - Blood and body position at the riverbank
+        reader_observable: true
+      - observation: Captain Musgrave fled the country after blackmail threats
+        correction: He killed his father and disguised himself to secure inheritance
+        effect: Musgrave is the culprit of the worst crime in the world
+        required_evidence:
+          - Family portraits showing resemblance
+          - Old man's testimony and moat evidence
+        reader_observable: true
+  discriminating_test:
+    method: reenactment
+    design: >-
+      Father Brown and others reenact the theft of the ruby by simulating the painted hand appearing
+      at the window and the quick glove removal by the suspect. They observe the timing and physical
+      possibility of the hand's movement around the pillar.
+    knowledge_revealed: >-
+      The reenactment shows the hand was that of Tommy Hunter, painted brown, and the theft was an
+      illusion.
+    pass_condition: >-
+      The reenactment must demonstrate the hand could appear and disappear without the ruby leaving
+      the original place.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given detailed descriptions of the suspects' movements, the physical evidence
+      such as footprints, broken mirrors, and the presence of disguises. Father Brown's reasoning is
+      based on observable facts and logical deductions about motives and opportunities. The clues
+      about the painted hand and the false alibis are presented openly, allowing an attentive reader
+      to piece together the true sequence of events.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

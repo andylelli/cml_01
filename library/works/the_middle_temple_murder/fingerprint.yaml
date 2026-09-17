@@ -1,0 +1,12 @@
+- id: the_middle_temple_murder
+  corpus: seed
+  axis: identity
+  mechanism_family: staged_scene
+  false_assumption_pattern: the_murder_was_committed_by_the_suspect_found_with_weapon
+  discriminating_test_shape: timetable_contradiction
+  inference_shape: reconstruct_true_sequence_of_events
+  premise: >-
+    An elderly man named John Marbury is found murdered in Middle Temple Lane, London, with no
+    identification except a scrap of paper bearing a young barrister's name. Suspicion falls on
+    Stephen Aylmore, 
+  source: library/works/the_middle_temple_murder/case.cml2.yaml

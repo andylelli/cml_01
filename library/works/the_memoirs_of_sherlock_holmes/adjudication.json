@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "Fitzroy Simpson was the murderer who kidnapped the horse and killed Straker.",
+  "type": "identity",
+  "why_it_seems_reasonable": "Simpson was found near the crime scene with the victim's cravat in his hand and had a motive due to his betting against the horse. His wet clothes and possession of a heavy stick matching the murder weapon further incriminated him.",
+  "what_it_hides": "It conceals the fact that Straker was killed accidentally by the horse during his own sabotage attempt, and that Simpson was innocent and merely a red herring."
+ },
+ "mechanism_description": "John Straker attempted to sabotage Silver Blaze by surgically nicking the horse's tendon to affect its performance. During this act, the horse reacted violently, striking Straker with its hoof and fatally injuring him. The horse then fled but was hidden by Silas Brown, who sought to profit from the situation by betting against Silver Blaze while secretly protecting the horse.",
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "Holmes retraced the horse's tracks from the crime scene to Mapleton stables, comparing boot and horseshoe impressions with those of Silas Brown and Silver Blaze. He also examined the wound patterns on Straker and the knife to confirm the nature of the injury and the sequence of events.",
+  "knowledge_revealed": "The test revealed that the horse was hidden at Mapleton stables by Silas Brown and that Straker's death was caused by the horse's accidental blow during his sabotage attempt.",
+  "pass_condition": "Matching of boot and horseshoe prints to Silas Brown and Silver Blaze, and medical consistency of wounds with horse's hoof strike confirm the solution."
+ },
+ "changed": [],
+ "confidence": "high"
+}

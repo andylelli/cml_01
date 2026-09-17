@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "The used matches found near the stolen items were lit and used by a human thief during the robbery.",
+  "type": "behavioral",
+  "why_it_seems_reasonable": "Matches are commonly used for lighting in dark rooms, so finding a used match near the missing jewelry suggests a human thief used it to see. The police detective also assumed the match indicated the time of the theft.",
+  "what_it_hides": "The match was never lit to provide light but was used as a prop carried by the parrot to mislead investigators about the presence and timing of a human thief."
+ },
+ "mechanism_description": "The thefts were carried out by a trained parrot owned by Vernon Lloyd, who was taught to carry a match in its beak and steal jewelry from the dressing-tables. The match was used as a deliberate false clue, placed near the stolen item to mislead investigators. Lloyd acted as the accomplice, releasing the parrot and retrieving the stolen goods without arousing suspicion.",
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "Martin Hewitt spends a quiet hour alone with the parrot in Lloyd's room, providing it with a match and observing its behavior as it picks up jewelry and drops the match near the item without making noise or disturbance. He compares the marks on the match with the parrot's beak marks and tests the parrot's ability to enter through the window opening.",
+  "knowledge_revealed": "The parrot can carry the match and jewelry silently and place the match near the stolen item, replicating the crime scene clues.",
+  "pass_condition": "The parrot successfully performs the theft and match placement without alerting observers or disturbing the room."
+ },
+ "changed": [],
+ "confidence": "high"
+}

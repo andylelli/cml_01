@@ -1,0 +1,136 @@
+{
+ "slug": "an_african_millionaire",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Sir Charles Vandrift is the victim of repeated deception",
+   "anchor": "we've just been done jolly well brown",
+   "span": "I say, Sey, my boy, we've just been done jolly well brown, haven't we?",
+   "ok": true
+  },
+  {
+   "claim": "Colonel Clay is a master of disguise and deception",
+   "anchor": "he appears to possess an india-rubber face",
+   "span": "He is a Colonel, because he occasionally gives himself a commission; he is called Colonel Clay, because he appears to possess an india-rubber face, and he can mould it like clay in the hands of the potter.",
+   "ok": true
+  },
+  {
+   "claim": "Madame Picardet is an accomplice of Colonel Clay",
+   "anchor": "she and they spoke to you about him",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The forged cheque was signed by Sir Charles Vandrift",
+   "anchor": "a cheque to Self or Bearer, for 5000 pounds, signed by Sir Charles",
+   "span": "It lay in a cheque to Self or Bearer, for 5000 pounds, signed by Sir Charles, and evidently paid across the counter in London, as it bore on its face no stamp or indication of any other office.",
+   "ok": true
+  },
+  {
+   "claim": "Colonel Clay uses multiple aliases and disguises",
+   "anchor": "Senor Antonio Herrera, alias the Reverend Richard Peploe Brabazon",
+   "span": "You are--Colonel Clay, alias Senor Antonio Herrera, alias the Reverend Richard Peploe Brabazon.",
+   "ok": true
+  },
+  {
+   "claim": "Medhurst is actually Colonel Clay in disguise",
+   "anchor": "I will lay my plans deep, and I hope before long to secure him",
+   "span": "But I will lay my plans deep, and I hope before long to secure him.",
+   "ok": true
+  },
+  {
+   "claim": "Dolly Lingfield took photographs revealing Colonel Clay's true face",
+   "anchor": "one of his peculiar photographs taken by Dolly Lingfield",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Dr. Beddersley uses photographic analysis to reconstruct the true face",
+   "anchor": "I think I can point out certain details in common",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Paul Finglemore is the true identity of Colonel Clay",
+   "anchor": "Paul Finglemore, otherwise Cuthbert Clay, I arrest you",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The trial at the Old Bailey results in conviction",
+   "anchor": "We find him guilty on all the counts of the indictment",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The dispatch-box was stolen and returned by Madame Picardet",
+   "anchor": "I return your dispatch-box intact, with the papers untouched",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The ring with a tiny mirror was used to cheat at cards",
+   "anchor": "an extremely tiny convex mirror... he held this hand carelessly",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The real Reverend Brabazon appears in court, shaking identification",
+   "anchor": "Look at that gentleman! The Reverend Richard Brabazon",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Charles Vandrift's credibility is undermined by his own admissions",
+   "anchor": "Sir Charles Vandrift's obvious dishonesty",
+   "span": "Sir Charles Vandrift's obvious dishonesty.",
+   "ok": true
+  },
+  {
+   "claim": "Cesarine is an accomplice and lover of Colonel Clay",
+   "anchor": "Cesarine has long been accomplices",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Medhurst's reports are self-serving and misleading",
+   "anchor": "Medhurst promised to comply... I'll spot him",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The fake diamonds were used as a lure in the swindle",
+   "anchor": "They were only paste--very wonderful paste",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Colonel Clay's letter admits partial remorse but continues deception",
+   "anchor": "Yours, with a tinge of penitence, but still a rogue",
+   "span": "Yours, with a tinge of penitence, but still a rogue, CUTHBERT CLAY.",
+   "ok": true
+  },
+  {
+   "claim": "The final sentence of Paul Finglemore is fourteen years' imprisonment",
+   "anchor": "I sentence you to Fourteen Years' Imprisonment, with Hard Labour",
+   "span": "I sentence you to Fourteen Years' Imprisonment, with Hard Labour.",
+   "ok": true
+  },
+  {
+   "claim": "The composite face reveals the underlying true identity",
+   "anchor": "a tolerably correct idea of what the actual man himself looks like",
+   "span": "I _think_ by that time--putting two and two together--I can eliminate the false and build up for you a tolerably correct idea of what the actual man himself looks like.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.09604882805,
+ "models": {
+  "map": "gpt-4o-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-08-31"
+}

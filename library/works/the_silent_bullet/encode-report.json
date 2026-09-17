@@ -1,0 +1,136 @@
+{
+ "slug": "the_silent_bullet",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "The victim was shot with a thirty-two-calibre bullet",
+   "anchor": "thirty-two-calibre bullet",
+   "span": "Yet here on my desk is a thirty-two-calibre bullet.",
+   "ok": true
+  },
+  {
+   "claim": "No shot or noise was heard by witnesses",
+   "anchor": "no shot was fired, no smoke was seen, no noise was heard",
+   "span": "We have any number of witnesses of the whole affair, but as far as any of them knows no shot was fired, no smoke was seen, no noise was heard, nor was any weapon found.",
+   "ok": true
+  },
+  {
+   "claim": "The bullet bore fabric impressions matching a pongee coat",
+   "anchor": "marks on that fatal bullet correspond precisely with those on the bullet fired through the pongee coat",
+   "span": "I find that the marks on that fatal bullet correspond precisely with those on the bullet fired through the pongee coat.",
+   "ok": true
+  },
+  {
+   "claim": "James Bruce purchased a silencer for a thirty-two-calibre revolver",
+   "anchor": "one of the persons intimately connected with this case purchased not long ago a silencer for a thirty-two-calibre revolver",
+   "span": "For, one of the persons intimately connected with this case purchased not long ago a silencer for a thirty-two-calibre revolver, and I presume that that person carried the gun and the silencer at the time of the murder of Kerr Parker.",
+   "ok": true
+  },
+  {
+   "claim": "Mrs. Parker showed great emotion during the demonstration",
+   "anchor": "At the mention of the noiseless gun, I find that the curves of Miss La Neige, Mrs. Parker, and Mr. Downey are only so far from normal as would be natural",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "James Bruce showed great agitation during the demonstration",
+   "anchor": "The curve made by Mr. Bruce shows great agitation",
+   "span": "The curve made by Mr. Bruce shows great agitation and--\" I heard a metallic click at my side and turned hastily.",
+   "ok": true
+  },
+  {
+   "claim": "The coat with the bullet hole belonged to Mrs. Parker",
+   "anchor": "A woman's automobile-coat was thrown over a chair in a heap. Mr. Bruce picked it up. 'It's Mrs. Parker's,' he said",
+   "span": "A woman's automobile-coat was thrown over a chair in a heap. Mr. Bruce picked it up. 'It's Mrs. Parker's,' he said.",
+   "ok": true
+  },
+  {
+   "claim": "The bullet was fired through the coat, causing the hole",
+   "anchor": "The pocket on the right-hand side was scorched and burned, and a hole was torn clean through it",
+   "span": "The pocket on the right-hand side was scorched and burned, and a hole was torn clean through it.",
+   "ok": true
+  },
+  {
+   "claim": "The silencer muffled the gunshot and prevented smoke",
+   "anchor": "I place it over the muzzle of the thirty-two-calibre revolver I have so far been using--so",
+   "span": "I place it over the muzzle of the thirty-two-calibre revolver I have so far been using--so.",
+   "ok": true
+  },
+  {
+   "claim": "The bullet was concealed and removed after the shooting",
+   "anchor": "By removing and secreting the weapon afterward one very important piece of evidence would be suppressed",
+   "span": "By removing and secreting the weapon afterward one very important piece of evidence would be suppressed.",
+   "ok": true
+  },
+  {
+   "claim": "The wet, pulp-like paper was the remains of the note read by the victim",
+   "anchor": "in a certain wastebasket I found a mass of wet and pulp-like paper",
+   "span": "But in a certain wastebasket I found a mass of wet and pulp-like paper.",
+   "ok": true
+  },
+  {
+   "claim": "The bullet's fabric impressions link it to the coat",
+   "anchor": "marks on that fatal bullet correspond precisely with those on the bullet fired through the pongee coat",
+   "span": "I find that the marks on that fatal bullet correspond precisely with those on the bullet fired through the pongee coat.",
+   "ok": true
+  },
+  {
+   "claim": "The silenced revolver was demonstrated to fire silently",
+   "anchor": "I cover the pistol with a cloth. I defy anyone in this room to tell me the exact moment when I discharged the pistol",
+   "span": "I cover the pistol with a cloth. I defy anyone in this room to tell me the exact moment when I discharged the pistol.",
+   "ok": true
+  },
+  {
+   "claim": "James Bruce was arrested at the demonstration",
+   "anchor": "Inspector Barney O'Connor, who had stepped out of the shadow with a pair of hand-cuffs. 'James Bruce, you are under arrest,' he said",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Mrs. Parker's emotional reaction was due to grief, not guilt",
+   "anchor": "Mrs. Parker had betrayed great emotion",
+   "span": "At the production of the coat during the demonstration of the markings of the bullet, Mrs. Parker had betrayed great emotion, Mr.",
+   "ok": true
+  },
+  {
+   "claim": "The note was destroyed but fibers matched suspect's notepaper",
+   "anchor": "I have secured samples of the notepaper of every one who could be concerned, as far as I could see, with this case",
+   "span": "Through an agent of the police I have secured samples of the notepaper of every one who could be concerned, as far as I could see, with this case.",
+   "ok": true
+  },
+  {
+   "claim": "The murder occurred in a room with open doors and many witnesses",
+   "anchor": "The doors to the offices on both sides were open at the time. There were lots of people in each office",
+   "span": "The doors to the offices on both sides were open at the time. There were lots of people in each office.",
+   "ok": true
+  },
+  {
+   "claim": "The bullet struck the fleshy part of the neck",
+   "anchor": "The bullet struck in the fleshy part of the neck, quite a little back of and below his ear and just above his collar",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The bullet was flattened on one side by striking bone",
+   "anchor": "One side of it had apparently struck a bone in the neck of the murdered man, and was flattened",
+   "span": "One side of it had apparently struck a bone in the neck of the murdered man, and was flattened.",
+   "ok": true
+  },
+  {
+   "claim": "The silencer device was invented by a Hartford inventor",
+   "anchor": "I despatched a man to Hartford to see this inventor",
+   "span": "At once on being sure of this feature of the case I despatched a man to Hartford to see this inventor.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.087594884,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-08-31"
+}

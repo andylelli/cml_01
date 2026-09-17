@@ -1,0 +1,403 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The problem of Cell 13
+    author: Jacques Futrelle
+    license: Public domain (first published 1905; author died 1912). Project Gutenberg ebook 57669.
+    era:
+      decade: 1900s
+      realism_constraints:
+        - No modern electronic communication devices beyond telephones and telegraphs
+        - Chemical substances like nitric acid and phosphorus are known and usable
+        - No forensic DNA or advanced fingerprinting techniques
+    setting:
+      location: Boston and vicinity, including Chisholm Prison and various urban and rural settings
+      institution: Chisholm Prison for The Problem of Cell 13; Boston Police Department for other cases
+    crime_class:
+      category: murder
+      subtype: complex deception and misdirection involving impersonation and false evidence
+  cast:
+    - name: Professor Augustus S. F. X. Van Dusen (The Thinking Machine)
+      age_range: 50s
+      role_archetype: brilliant scientist and logician
+      relationships: []
+      public_persona: respected scientist and logician
+      private_secret: mastermind of logical deduction and escape
+      motive_seed: n/a
+      motive_strength: none
+      alibi_window: n/a
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: solving mysteries and proving intellectual superiority
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: low
+    - name: Hutchinson Hatch
+      age_range: 30s
+      role_archetype: persistent newspaper reporter
+      relationships: []
+      public_persona: reporter
+      private_secret: keen observer and investigator
+      motive_seed: n/a
+      motive_strength: none
+      alibi_window: n/a
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: uncovering truth and reporting news
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+    - name: Jean
+      age_range: 30s
+      role_archetype: valet and murderer
+      relationships:
+        - Regnault Cabell
+        - Louise Regnier
+      public_persona: loyal valet
+      private_secret: murderer who attempted to kill Henley and killed Louise Regnier
+      motive_seed: jealousy and revenge
+      motive_strength: strong
+      alibi_window: present in apartment
+      access_plausibility: high
+      opportunity_channels:
+        - access to apartments
+        - use of bath robe and mirror
+      behavioral_tells:
+        - anger when accused
+        - attempted escape
+      stakes: eliminating rival and accomplice
+      evidence_sensitivity:
+        - scarlet thread from bath robe
+        - mirror with screw hole
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: moderate
+    - name: Louise Clarke
+      age_range: 20s
+      role_archetype: secretary and bank robber accomplice
+      relationships:
+        - William Dineen
+        - Gustave Meyer
+        - Frank Seranno
+      public_persona: private secretary
+      private_secret: planned and assisted bank robbery
+      motive_seed: financial gain
+      motive_strength: strong
+      alibi_window: present at bank
+      access_plausibility: high
+      opportunity_channels:
+        - access to bank safe
+        - knowledge of bank operations
+      behavioral_tells:
+        - fainting during search
+        - change of perfume
+      stakes: money and freedom
+      evidence_sensitivity:
+        - handkerchief with violet perfume
+        - money bundles
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: female
+      role: culprit
+      moral_complexity: moderate
+    - name: Weldon Henley
+      age_range: 30s
+      role_archetype: victim and young broker
+      relationships:
+        - Charlotte Lipscomb
+        - Regnault Cabell
+        - Jean
+        - Louise Regnier
+      public_persona: successful broker
+      private_secret: engaged to Charlotte Lipscomb
+      motive_seed: n/a
+      motive_strength: none
+      alibi_window: n/a
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: life
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: low
+    - name: Constans St. George
+      age_range: 40s
+      role_archetype: eccentric artist
+      relationships:
+        - Grace Field
+        - Victor Willis
+      public_persona: artist
+      private_secret: obsessive love for model Grace Field
+      motive_seed: love and madness
+      motive_strength: moderate
+      alibi_window: studio
+      access_plausibility: high
+      opportunity_channels:
+        - studio
+        - chloroform
+      behavioral_tells:
+        - raving madness
+        - attempted murder
+      stakes: love and sanity
+      evidence_sensitivity:
+        - blood-stained revolver
+        - chloroform odor
+      culprit_eligibility: eligible
+      culpability: unknown
+      gender: male
+      role: suspect
+      moral_complexity: high
+    - name: Victor Willis
+      age_range: 20s
+      role_archetype: bank clerk and admirer
+      relationships:
+        - Grace Field
+        - Ellen Stanford
+      public_persona: bank clerk
+      private_secret: loved Grace Field
+      motive_seed: jealousy
+      motive_strength: weak
+      alibi_window: restaurant at 8pm
+      access_plausibility: medium
+      opportunity_channels:
+        - bank
+        - studio
+      behavioral_tells:
+        - sullen
+        - defiant
+      stakes: love and reputation
+      evidence_sensitivity: []
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+  culpability:
+    culprit_count: 2
+    culprits:
+      - Jean
+      - Louise Clarke
+  surface_model:
+    narrative:
+      summary: >-
+        The cases appear as baffling mysteries involving locked cells, gas poisoning, missing
+        persons, haunted houses, bank robberies, and attempted murders. Each case presents seemingly
+        impossible circumstances and multiple suspects with motives and opportunities.
+    accepted_facts:
+      - Professor Van Dusen was locked in Cell 13 and escaped within a week.
+      - Weldon Henley was nearly killed by gas poisoning and later shot.
+      - The Ralston National Bank was robbed with the safe blown open.
+      - Grace Field, the model for 'Fulfillment,' disappeared mysteriously.
+    inferred_conclusions:
+      - Van Dusen escaped by sheer mental power without external help.
+      - Regnault Cabell was responsible for the attempts on Henley's life.
+      - Victor Willis murdered Grace Field.
+  hidden_model:
+    mechanism:
+      description: >-
+        Professor Van Dusen escaped Cell 13 by using a hidden old drain pipe to communicate with an
+        accomplice outside, who aided him by cutting the prison's arc light feed wire with acid,
+        allowing Van Dusen to slip out disguised as an electrician. Jean, the valet, used a Turkish
+        bath robe and a mirror on a flagpole to watch Henley and extinguish his gas light by blowing
+        into the gas pipe from an adjacent apartment, accidentally killing Louise Regnier and later
+        shooting Henley. Louise Clarke planned and assisted in the Ralston Bank robbery using violet
+        perfume to mislead scent evidence and chemical solution to weaken granite around bars.
+        Constans St. George held Grace Field captive using chloroform and attacked Victor Willis,
+        who had threatened her.
+      delivery_path:
+        - step: Van Dusen discovered a disused drain pipe in Cell 13 used by rats.
+        - step: He sent a note tied to a rat through the pipe to a reporter.
+        - step: The reporter found the pipe's exit and helped Van Dusen pull in a line.
+        - step: Van Dusen used acid to cut the arc light feed wire near his cell.
+        - step: He escaped through the window during the resulting darkness, disguised as a workman.
+        - step: Jean used a mirror on a flagpole to watch Henley and blew out his gas light.
+        - step: Louise Clarke used violet perfume and chemical solution to facilitate the bank robbery.
+    outcome:
+      result: >-
+        All mysteries were solved by Professor Van Dusen, revealing the true culprits and the
+        ingenious methods they used.
+  false_assumption:
+    statement: Van Dusen escaped Cell 13 solely by mental power without any outside assistance.
+    type: behavioral
+    why_it_seems_reasonable: >-
+      Van Dusen is portrayed as a brilliant logician who claims he can think his way out of any
+      cell, and the prison authorities believe the cell is escape-proof. The mysterious notes and
+      apparent impossibility of communication support this belief.
+    what_it_hides: >-
+      The actual escape involved physical assistance via a hidden drain pipe and an accomplice
+      outside who cut the arc light feed wire, enabling Van Dusen to escape disguised as a workman.
+  false_solution:
+    accused_suspect: Regnault Cabell
+    supporting_points:
+      - Cabell had a motive due to rivalry over Miss Lipscomb.
+      - He was seen hurriedly packing to leave town after Henley was shot.
+      - The scarlet thread matched his bath robe.
+      - His valet was suspicious and had access.
+    the_one_flaw: Cabell was out of town during the critical times and had no opportunity to commit the crimes.
+    refuted_in_chapter: 6
+  red_herrings:
+    - id: regnault_cabell_rivalry
+      description: Cabell's rivalry over Miss Lipscomb and his sudden departure suggest guilt.
+      points_at_suspect: Regnault Cabell
+      innocent_explanation: Cabell was out of town and his valet was the actual culprit.
+      resolved_in_chapter: 6
+    - id: jack_curtis_jealousy
+      description: >-
+        Curtis's jealousy and possession of the murder weapon implicate him in Marguerite Melrose's
+        death.
+      points_at_suspect: Jack Curtis
+      innocent_explanation: >-
+        Marguerite Melrose was alive and married to Don MacLean; the murder victim was Elizabeth
+        Dow.
+      resolved_in_chapter: 6
+  closed_circle:
+    suspects:
+      - Jean
+      - Regnault Cabell
+      - Louise Clarke
+      - William Dineen
+      - Gustave Meyer
+      - Frank Seranno
+      - Victor Willis
+      - Constans St. George
+    rationale: >-
+      All suspects had opportunity and motive within their respective cases, and the investigation
+      was confined to these individuals due to the closed settings and limited access.
+  constraint_space:
+    time:
+      anchors:
+        - One week incarceration for Van Dusen
+        - Night of Henley's shooting
+        - Time of bank robbery at 2:39 AM
+        - Date of Grace Field's disappearance
+      windows:
+        - Van Dusen's daily jailer visits
+        - Henley's nightly gas light usage
+        - Bank closing hours
+        - St. George's studio absence period
+    access:
+      actors:
+        - Jailers and warden at Chisholm Prison
+        - Valet Jean in apartment house
+        - Bank employees and janitor
+        - St. George and Willis in studio
+      objects:
+        - Drain pipe in Cell 13
+        - Flagpole and mirror in apartment
+        - Bank safe and steel bars
+        - Studio closet and chloroform
+    social:
+      trust_channels:
+        - Communication via linen notes and rats
+        - Valet's access to apartments
+        - Miss Clarke's position as secretary
+        - Hatch's newspaper investigations
+      authority_sources:
+        - Warden of Chisholm Prison
+        - Police Detective Mallory
+        - Bank President Quinton Fraser
+        - Medical Examiner and Doctor Leonard
+  inference_path:
+    steps:
+      - observation: Van Dusen communicated with outside via linen notes tied to rats
+        correction: He used a hidden drain pipe to send and receive messages
+        effect: Established external communication despite prison isolation
+        required_evidence:
+          - Linen notes with money tied sent from Cell 13
+          - Guard's report of rat with linen note outside prison
+        reader_observable: true
+      - observation: Gas lights in Henley's apartment went out despite locked doors
+        correction: Gas jets were extinguished by blowing into gas pipes from adjacent apartment
+        effect: Explained how gas was put out without physical entry
+        required_evidence:
+          - Loose gas jet tip found in Cabell's apartment
+          - Mirror on flagpole used to watch Henley
+        reader_observable: true
+      - observation: Scarlet thread found on flagpole rope
+        correction: Thread came from Cabell's bath robe worn by the valet
+        effect: Linked valet Jean to the crime scene
+        required_evidence:
+          - Chemical test matching thread to bath robe
+          - Valet's possession of bath robe with scarlet stripe
+        reader_observable: true
+      - observation: Handkerchief with violet perfume found near bank safe
+        correction: Perfume linked to Louise Clarke, implicating her in the bank robbery
+        effect: Identified inside accomplice in bank burglary
+        required_evidence:
+          - Perfume odor on handkerchief and on Dunston's handkerchief
+          - Miss Clarke's change from violet to rose perfume
+        reader_observable: true
+      - observation: Grace Field disappeared; letter threatening her found
+        correction: She was held captive by St. George, who attacked Willis
+        effect: Connected disappearance and attack to St. George
+        required_evidence:
+          - Chloroform odor in studio closet
+          - Blood-stained revolver found with St. George
+        reader_observable: true
+      - observation: St. George escaped hospital and was found raving mad
+        correction: His mental collapse was due to attack and guilt over captivity
+        effect: Explained his erratic behavior and connection to Grace Field
+        required_evidence:
+          - Hospital records of St. George's condition
+          - Witness accounts of attack on Willis
+        reader_observable: true
+      - observation: Valet Jean's sullen and defiant behavior when accused
+        correction: Physical evidence and witness statements linked Jean to the murder and attempted murder
+        effect: Confirmed Jean as the culprit in Henley and Regnier cases
+        required_evidence:
+          - >-
+            Scarlet thread from bath robe found on flagpole and chemical test matching it to Jean's
+            robe
+          - Witness statement describing Jean's actions and presence during the critical times
+        reader_observable: true
+  discriminating_test:
+    method: reenactment
+    design: >-
+      Reenact the escape from Cell 13 by simulating the conditions and testing the drain pipe
+      communication and the cutting of the arc light feed wire with acid. Observe if the prisoner
+      can exit the cell and prison undetected using the described method.
+    knowledge_revealed: >-
+      Confirms the physical means of escape via the drain pipe and external assistance, disproving
+      the theory of mental escape alone.
+    pass_condition: >-
+      Successful exit from the cell and prison using the drain pipe and acid cutting method without
+      detection.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given detailed descriptions of the prison layout, the drain pipe, the notes
+      sent, and the presence of the arc light feed wire near the cell window. The chemical
+      properties of acid and the use of rats for message delivery are explained. Similarly, in other
+      cases, clues such as the scarlet thread, the mirror on the flagpole, the perfume scent on the
+      handkerchief, and the handwriting samples are all presented. Logical deduction and careful
+      attention to these clues allow the reader to solve the mysteries alongside the detective.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "The second will was genuine and executed by Jeffrey Blackmore himself.",
+  "type": "identity",
+  "why_it_seems_reasonable": "The will was signed in the presence of two unimpeachable witnesses who swore to the signatures and contents, and the body found was identified as Jeffrey Blackmore's. This gave the appearance of authenticity and legality.",
+  "what_it_hides": "It conceals the fact that John Blackmore impersonated Jeffrey and forged the will, while the real Jeffrey was secretly confined and poisoned elsewhere."
+ },
+ "mechanism_description": "John Blackmore impersonated his brother Jeffrey Blackmore, who was secretly confined and chronically poisoned in a house in Kennington Lane to enable John to inherit Jeffrey's estate by forging a second will. The man known as Mr. Graves was actually Jeffrey Blackmore, and the murder was orchestrated by John Blackmore and his accomplice Mrs. Schallibaum; their capture was secured by Thorndyke's investigation.",
+ "discriminating_test": {
+  "method": "constraint_proof",
+  "design": "Thorndyke uses compass bearings and timing to plot the carriage route to the secret house, then visits the location to verify the presence of the house and its features, including the covered way and new macadam patch. He locks the gate to detect any unauthorized entry, confirming the presence or absence of suspects.",
+  "knowledge_revealed": "This test confirms the exact location of the secret house and the presence of only authorized persons with keys, narrowing down suspects and confirming the concealment of Jeffrey Blackmore.",
+  "pass_condition": "The house is located at the plotted position with locked gates and no unknown persons entering during the observation period."
+ },
+ "changed": [],
+ "confidence": "high"
+}

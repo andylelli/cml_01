@@ -1,0 +1,422 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The Bellamy trial
+    author: Frances Noyes Hart
+    license: Public domain (first published 1927; author died 1943). Project Gutenberg ebook 75325.
+    era:
+      decade: 1920s
+      realism_constraints:
+        - No modern forensic DNA analysis available
+        - Fingerprinting is an established and reliable identification method
+        - Automobiles and telephones are common but not ubiquitous
+    setting:
+      location: Rosemont and Orchards estate, Bellechester County, New York
+      institution: Bellechester County Court, presided by Judge Anthony Bristed Carver
+    crime_class:
+      category: murder
+      subtype: murder concealed as robbery with forged alibi
+  cast:
+    - name: Susan Ives
+      age_range: 30s
+      role_archetype: high-society wife with a secretive and proud nature
+      relationships:
+        - Patrick Ives (husband)
+        - Stephen Bellamy (friend and co-defendant)
+        - Douglas Thorne (brother)
+      public_persona: refined, proud, and composed wife
+      private_secret: knows about husband's affair but did not commit murder
+      motive_seed: fear of losing children and social standing
+      motive_strength: moderate
+      alibi_window: 9:15 PM to 10:00 PM
+      access_plausibility: possible but unlikely due to time constraints
+      opportunity_channels:
+        - telephone call to Stephen Bellamy
+        - access to husband's study
+      behavioral_tells:
+        - initial denial of presence at cottage
+        - emotional testimony
+      stakes: high - life and freedom
+      evidence_sensitivity:
+        - fingerprints on lamp
+        - bloodstained coat
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: suspect
+      moral_complexity: high
+    - name: Stephen Bellamy
+      age_range: late 30s to early 40s
+      role_archetype: devoted husband, distraught and honorable
+      relationships:
+        - Madeleine Bellamy (wife, victim)
+        - Susan Ives (friend and co-defendant)
+      public_persona: grieving husband, respectable businessman
+      private_secret: aware of wife's affair but not involved in murder
+      motive_seed: jealousy and despair
+      motive_strength: weak
+      alibi_window: 9:15 PM to 10:00 PM
+      access_plausibility: possible but unlikely due to time constraints
+      opportunity_channels:
+        - car ride with Susan Ives
+        - visit to gardener’s cottage
+      behavioral_tells:
+        - initial incomplete testimony
+        - emotional distress
+      stakes: high - life and freedom
+      evidence_sensitivity:
+        - tire tracks matching his car
+        - absence of alibi
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: high
+    - name: Margaret Ives
+      age_range: 60s
+      role_archetype: desperate mother protecting family
+      relationships:
+        - Patrick Ives (son)
+        - Susan Ives (daughter-in-law)
+        - Madeleine Bellamy (victim)
+      public_persona: respected widow and devoted mother
+      private_secret: murdered Madeleine Bellamy to protect grandchildren
+      motive_seed: protect grandchildren from scandal and poverty
+      motive_strength: strong
+      alibi_window: night of June 19, 1926, approx. 9:30 PM
+      access_plausibility: high - had access to cottage and keys
+      opportunity_channels:
+        - access to gardener’s cottage keys
+        - knowledge of secret paths
+      behavioral_tells:
+        - confession letter
+        - concealment of evidence
+      stakes: very high - family honor and security
+      evidence_sensitivity:
+        - confession letter to Judge Carver
+        - possession of keys
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: female
+      role: culprit
+      moral_complexity: very high
+    - name: Douglas Thorne
+      age_range: 40s
+      role_archetype: protective brother and estate owner
+      relationships:
+        - Susan Ives (sister)
+      public_persona: devoted brother and stock exchange member
+      private_secret: withheld information about hearing scream and laugh
+      motive_seed: protect sister
+      motive_strength: weak
+      alibi_window: 9:30 PM to 9:55 PM
+      access_plausibility: high
+      opportunity_channels:
+        - presence near gardener’s cottage
+      behavioral_tells:
+        - did not report scream and laugh immediately
+      stakes: moderate
+      evidence_sensitivity:
+        - testimony about scream and laugh
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: moderate
+    - name: Elliot Farwell
+      age_range: 30s to 40s
+      role_archetype: jealous ex-fiancé and unreliable witness
+      relationships:
+        - Madeleine Bellamy (ex-fiancé)
+      public_persona: promoter and socialite
+      private_secret: drunken and emotionally unstable
+      motive_seed: jealousy
+      motive_strength: weak
+      alibi_window: evening of June 19, 1926
+      access_plausibility: high
+      opportunity_channels:
+        - presence near gardener’s cottage
+      behavioral_tells:
+        - drunkenness
+        - attempted suicide
+      stakes: low
+      evidence_sensitivity:
+        - cigarette lighter found near cottage
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: moderate
+    - name: Herbert Conroy
+      age_range: 50s
+      role_archetype: real estate agent and first discoverer
+      relationships: []
+      public_persona: businessman
+      private_secret: none
+      motive_seed: none
+      motive_strength: none
+      alibi_window: morning of June 20, 1926
+      access_plausibility: high
+      opportunity_channels:
+        - discovered body at gardener’s cottage
+      behavioral_tells: []
+      stakes: low
+      evidence_sensitivity:
+        - testimony about discovery of body
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+    - name: Kathleen Page
+      age_range: 20s to 30s
+      role_archetype: governess and reluctant witness
+      relationships:
+        - Susan Ives (employer)
+      public_persona: reserved governess
+      private_secret: resentment towards Mrs. Ives
+      motive_seed: resentment
+      motive_strength: weak
+      alibi_window: evening of June 19, 1926
+      access_plausibility: high
+      opportunity_channels:
+        - presence in nursery and house
+      behavioral_tells:
+        - emotional outbursts
+        - eavesdropping
+      stakes: low
+      evidence_sensitivity:
+        - testimony about overheard telephone call
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: moderate
+  culpability:
+    culprit_count: 1
+    culprits:
+      - Margaret Ives
+  surface_model:
+    narrative:
+      summary: >-
+        Madeleine Bellamy was found murdered in the gardener’s cottage, and Susan Ives and Stephen
+        Bellamy were accused of the crime based on circumstantial evidence including fingerprints,
+        tire tracks, and suspicious behavior. The prosecution argued they had motive, means, and
+        opportunity, while the defense presented alibis and character witnesses.
+    accepted_facts:
+      - Madeleine Bellamy was murdered in the gardener’s cottage on June 19, 1926
+      - Susan Ives and Stephen Bellamy were seen together during the evening
+      - Fingerprints of Mrs. Patrick Ives were found on the lamp at the crime scene
+      - Douglas Thorne heard a woman scream and a man laugh near the cottage around 9:30 PM
+    inferred_conclusions:
+      - Susan Ives and Stephen Bellamy committed the murder together
+      - The murder happened around 9:30 PM as fixed by Douglas Thorne’s testimony
+      - The car belonging to Stephen Bellamy was at the cottage during the murder
+  hidden_model:
+    mechanism:
+      description: >-
+        Margaret Ives, the mother of Patrick Ives, killed Madeleine Bellamy out of desperation to
+        protect her grandchildren from the consequences of Madeleine's affair with her son. She used
+        a pruning knife, concealed the evidence by burying the jewels, and created an alibi for
+        Susan Ives and Stephen Bellamy by misleading them and others about the timeline and
+        circumstances.
+      delivery_path:
+        - step: Margaret Ives learned of the affair and decided to act
+        - step: She obtained the gardener’s cottage keys and waited for Madeleine Bellamy
+        - step: She confronted Madeleine and stabbed her with a pruning knife
+        - step: She extinguished the lamp and concealed the body
+        - step: She removed and buried the jewels and other evidence
+        - step: She returned the knife and cleaned herself in the flower room
+        - step: She left the cottage and allowed Susan Ives and Stephen Bellamy to be implicated
+    outcome:
+      result: >-
+        Susan Ives and Stephen Bellamy were acquitted after Margaret Ives confessed in a letter to
+        Judge Carver.
+  false_assumption:
+    statement: >-
+      The murder occurred at 9:30 PM as fixed by Douglas Thorne’s testimony of hearing a scream and
+      a laugh.
+    type: temporal
+    why_it_seems_reasonable: >-
+      Douglas Thorne was a credible witness who heard a scream and a man’s laugh near the cottage
+      around that time, which logically would mark the time of the murder. The prosecution and
+      defense both relied on this timing to establish alibis or guilt.
+    what_it_hides: >-
+      The actual murder occurred later, after 10 PM, when Margaret Ives was alone at the cottage,
+      and the scream and laugh heard by Thorne were unrelated or misinterpreted, misleading the jury
+      about the true time of death.
+  false_solution:
+    accused_suspect: Susan Ives
+    supporting_points:
+      - Fingerprints of Mrs. Patrick Ives found on the lamp
+      - Bloodstained coat and knife linked to Susan Ives
+      - Telephone call arranging meeting with Stephen Bellamy
+      - Lack of alibi for the time of murder
+    the_one_flaw: >-
+      The timeline and physical evidence could not be reconciled with Susan Ives’s and Stephen
+      Bellamy’s presence at the cottage during the murder time; the real murderer acted alone and
+      earlier than assumed.
+    refuted_in_chapter: 8
+  red_herrings:
+    - id: elliot_farwell_drunkard
+      description: Elliot Farwell’s drunken testimony and attempted suicide suggested guilt or involvement.
+      points_at_suspect: Elliot Farwell
+      innocent_explanation: >-
+        Farwell was emotionally unstable and jealous but was not present at the murder and had no
+        involvement.
+      resolved_in_chapter: 6
+    - id: melanie_cordier_spy
+      description: >-
+        Melanie Cordier’s role as a go-between and her secretive behavior suggested she might have
+        motive or involvement.
+      points_at_suspect: Melanie Cordier
+      innocent_explanation: >-
+        She was a waitress with personal issues but had no connection to the murder beyond
+        delivering notes.
+      resolved_in_chapter: 6
+  closed_circle:
+    suspects:
+      - Susan Ives
+      - Stephen Bellamy
+      - Margaret Ives
+      - Douglas Thorne
+      - Elliot Farwell
+      - Melanie Cordier
+    rationale: >-
+      All individuals had opportunity or motive and were present in the vicinity; the investigation
+      and trial focused on this limited group with no evidence of outside involvement.
+  constraint_space:
+    time:
+      anchors:
+        - 9:15 PM - 10:00 PM (Susan Ives and Stephen Bellamy’s alibi window)
+        - 9:30 PM (Douglas Thorne’s scream and laugh)
+        - 10:00 PM (Margaret Ives’s arrival at cottage)
+        - 5:00 PM (Elliot Farwell’s conversation with Susan Ives)
+      windows:
+        - Evening of June 19, 1926
+        - Morning of June 20, 1926 (discovery of body)
+    access:
+      actors:
+        - Margaret Ives (access to keys and cottage)
+        - Susan Ives (access to study and telephone)
+        - Stephen Bellamy (access to car and cottage)
+        - Douglas Thorne (access to estate and keys)
+      objects:
+        - Gardener’s cottage keys
+        - Knife from flower room
+        - Telephone in flower room
+        - Car of Stephen Bellamy
+    social:
+      trust_channels:
+        - Telephone conversations
+        - Witness testimonies
+        - Letters and notes hidden in book
+      authority_sources:
+        - Judge Anthony Bristed Carver
+        - Prosecutor Daniel Farr
+        - Defense Counsel Dudley Lambert
+        - Fingerprint expert Dr. Gabriel Barretti
+  inference_path:
+    steps:
+      - observation: Fingerprints of Mrs. Patrick Ives found on the lamp at the crime scene
+        correction: Fingerprints indicate presence but not necessarily guilt
+        effect: Susan Ives’s presence at the cottage is confirmed but does not prove murder
+        required_evidence:
+          - Photographs of fingerprints on the brass lamp
+          - Testimony of Dr. Gabriel Barretti identifying the prints
+        reader_observable: true
+      - observation: Douglas Thorne heard a woman scream and a man laugh near the cottage around 9:30 PM
+        correction: The scream and laugh may not correspond to the time of murder
+        effect: The murder could have occurred later, invalidating alibis based on this timing
+        required_evidence:
+          - Testimony of Douglas Thorne about the scream and laugh
+          - Testimony of Mr. Phipps and Miss Dunne about their presence at the cottage after 10 PM
+        reader_observable: true
+      - observation: Susan Ives and Stephen Bellamy claimed to be away from the cottage during the murder time
+        correction: They had no alibi for the actual time of murder later than 9:30 PM
+        effect: Their innocence remains plausible given the adjusted timeline
+        required_evidence:
+          - Testimony of Susan Ives and Stephen Bellamy about their movements
+          - Testimony of witnesses at the gas station and Lakedale
+        reader_observable: true
+      - observation: Elliot Farwell’s cigarette lighter found near the cottage
+        correction: Farwell’s presence near the cottage was earlier and unrelated to the murder
+        effect: Farwell is excluded as a suspect
+        required_evidence:
+          - Testimony of Elliot Farwell about his whereabouts
+          - Testimony of witnesses about Farwell’s drinking and behavior
+        reader_observable: true
+      - observation: >-
+          Note from Madeleine Bellamy to Patrick Ives was missing from the book, and Margaret Ives,
+          as the mother, took the note out of desperation to protect her grandchildren from scandal.
+        correction: Margaret Ives took the note to manipulate events and protect her family.
+        effect: >-
+          She had knowledge and control over the murder’s circumstances, motivated by her role as
+          mother and her desperation to protect her grandchildren.
+        required_evidence:
+          - Testimony of Melanie Cordier about placing the note in the book in Mr. Ives’s study
+          - >-
+            Physical evidence of the missing note and Margaret Ives’s access to the study as mother
+            and her statements about desperation to protect her grandchildren
+        reader_observable: true
+      - observation: Tire tracks matching Stephen Bellamy’s car found near the cottage
+        correction: Car was parked away from the cottage during the murder
+        effect: Stephen Bellamy’s presence at the cottage is limited and does not prove murder
+        required_evidence:
+          - Testimony of Sergeant Hendrick Johnson about tire tracks
+          - Testimony of Luigi Orsini about car movements
+        reader_observable: true
+      - observation: >-
+          Margaret Ives’s letter confessing to the murder, written as a mother in desperation to
+          protect her grandchildren, was delivered to Judge Carver.
+        correction: >-
+          Confession is the ultimate proof of guilt and reveals her motive as a mother desperate to
+          protect her grandchildren.
+        effect: Margaret Ives is the true murderer, exonerating Susan Ives and Stephen Bellamy.
+        required_evidence:
+          - >-
+            Physical letter written by Margaret Ives, expressing her desperation as a mother to
+            protect her grandchildren, delivered to Judge Carver before the verdict
+          - Judge Carver’s reading and acceptance of the letter as evidence
+        reader_observable: true
+  discriminating_test:
+    method: constraint_proof
+    design: >-
+      Reconstruct the timeline of all key witnesses and suspects on the night of June 19, 1926,
+      focusing on the time of the scream and the presence at the gardener’s cottage. Verify the
+      impossibility of Susan Ives and Stephen Bellamy committing the murder within the established
+      time windows and locations, using witness statements, tire track analysis, and fingerprint
+      evidence.
+    knowledge_revealed: >-
+      The actual time of the murder was later than the scream heard by Douglas Thorne, and Susan
+      Ives and Stephen Bellamy had alibis for that later time. The presence of Margaret Ives at the
+      cottage during the murder is established.
+    pass_condition: >-
+      Demonstrate that the murder could not have been committed by Susan Ives and Stephen Bellamy
+      within the time constraints and locations established by credible witness testimonies and
+      physical evidence.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is provided with detailed testimonies, physical evidence such as fingerprints and
+      tire tracks, and a clear timeline of events. The false assumption about the time of the murder
+      is explicitly presented and later refuted by credible witnesses. The confession letter is
+      introduced only at the end, allowing the reader to piece together the true culprit from the
+      clues and inconsistencies in the testimonies.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

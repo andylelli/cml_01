@@ -1,0 +1,130 @@
+{
+ "slug": "the_bellamy_trial",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Madeleine Bellamy was found dead in the gardener’s cottage",
+   "anchor": "stretched out on the floor before him was a young woman in a white lace evening gown",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The cause of death was a stab wound to the heart",
+   "anchor": "Mrs. Bellamy’s heart was punctured by some sharp instrument—a knife",
+   "span": "Mrs. Bellamy's heart was punctured by some sharp instrument-a knife, I should say.",
+   "ok": true
+  },
+  {
+   "claim": "Fingerprints of Mrs. Patrick Ives were found on the lamp at the crime scene",
+   "anchor": "The hand in both cases was that of Mrs. Patrick Ives",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Douglas Thorne heard a woman scream and a man laugh near the cottage",
+   "anchor": "I heard a woman scream. Nothing else? Yes, a second or so afterward I heard a man laugh",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Susan Ives and Stephen Bellamy claimed to be away from the cottage during the murder time",
+   "anchor": "I was in my car on the River Road, about a mile or so from Lakedale. You were not in the neighbourhood of the Thorne estate, Orchards? Not within ten miles",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Elliot Farwell was near the cottage but uninvolved",
+   "anchor": "I went after her. To the gardener’s cottage? Yes. Was she there? No. How did you know that she wasn’t there, Mr. Farwell? Because there wasn’t any car, nor any music either",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Melanie Cordier placed a note in a book in Mr. Ives’s study",
+   "anchor": "she put something in it. She shoved it back onto the shelf and was starting toward the hall, when she drew back suddenly and stood very quiet",
+   "span": "She had a book in her hands-quite a large, thick book in a light tan cover, and she was looking back over her shoulder with a queer, furtive look while she put something in it. She shoved it back onto the shelf and was starting toward the hall, when she drew back suddenly and stood very quiet.",
+   "ok": true
+  },
+  {
+   "claim": "Tire tracks matching Stephen Bellamy’s car were found near the cottage",
+   "anchor": "The impressions of B 2 were even deeper than B 1, showing that the car must have stood much longer at one time than at another",
+   "span": "The impressions of B 2 were even deeper than B 1, showing that the car must have stood much longer at one time than at another.",
+   "ok": true
+  },
+  {
+   "claim": "Margaret Ives confessed to the murder in a letter to Judge Carver",
+   "anchor": "It was I who killed Madeleine Bellamy. It seems simply incredible to me that everyone should not have guessed it long before now",
+   "span": "It was I who killed Madeleine Bellamy. It seems simply incredible to me that everyone should not have guessed it long before now.",
+   "ok": true
+  },
+  {
+   "claim": "Margaret Ives buried the jewels to conceal evidence",
+   "anchor": "I stooped down and dug out two or three trowelfuls of earth close in to the roots and shook the pearls and the rings out of my handkerchief into the hole and covered it up",
+   "span": "I followed the hedge a little way before I came to the path, and I stooped down and dug out two or three trowelfuls of earth close in to the roots and shook the pearls and the rings out of my handkerchief into the hole and covered it up and went on.",
+   "ok": true
+  },
+  {
+   "claim": "Susan Ives and Stephen Bellamy were acquitted",
+   "anchor": "Foreman, how do you find as to Stephen Bellamy, guilty or not guilty? Not guilty. How do you find as to Susan Ives? Not guilty",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The false assumption about the time of murder was based on Douglas Thorne’s testimony",
+   "anchor": "he must have heard that scream between nine-thirty and twenty-five minutes to ten",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The murder actually occurred later than the scream",
+   "anchor": "Mr. Phipps and Miss Dunne arrived at the cottage between quarter to ten and ten",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Susan Ives had the key to the gardener’s cottage on the night of the murder",
+   "anchor": "I closed it and turned the key and dropped it into my bag",
+   "span": "I hesitated for a moment, and then I closed it and turned the key and dropped it into my bag.",
+   "ok": true
+  },
+  {
+   "claim": "Stephen Bellamy returned alone to the cottage after dropping Susan Ives home",
+   "anchor": "I returned to the cottage alone and stayed until it began to get light",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The knife used was a pruning knife from the flower room",
+   "anchor": "It was the knife that I was washing in the flower room",
+   "span": "It was the knife that I was washing in the flower room; it still had one or two little stains near the handle, but there wasn't any blood on my hands at all.",
+   "ok": true
+  },
+  {
+   "claim": "Margaret Ives had a strong motive to protect her grandchildren",
+   "anchor": "I had a great distaste for pity. False pride was about the only luxury that I indulged in",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The prosecution’s theory was refuted by the confession",
+   "anchor": "I am spending to-night writing you this in case it is not guilty. It was I who killed Madeleine Bellamy",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The alibi of Susan Ives and Stephen Bellamy was impossible to reconcile with the murder time",
+   "anchor": "it would have been physically impossible for them to reach the gardener’s cottage, execute this murder and return to Stephen Bellamy’s house between the time that the gasoline vender saw them leave Lakedale and the time that Orsini saw them arrive at Mr. Bellamy’s home",
+   "span": "",
+   "ok": false
+  }
+ ],
+ "costGbp": 0.152690252,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-08-31"
+}

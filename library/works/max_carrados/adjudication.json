@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "The British Museum coin theft was a genuine robbery.",
+  "type": "identity",
+  "why_it_seems_reasonable": "The museum officials reported missing coins and alerted the police, making it appear as a real theft. The presence of stolen coins with Madame Ferraja supported this belief.",
+  "what_it_hides": "The coin theft was a staged ruse by the conspirators to mislead Carrados and the authorities, masking their forgery operations."
+ },
+ "mechanism_description": "Harry the Actor rented multiple safes and secretly duplicated the keys to them. Using disguises, he gained access to the safes without raising suspicion and removed valuables. Madame Ferraja and her accomplices staged a fake coin theft from the British Museum to mislead investigators and cover their forgery operations.",
+ "discriminating_test": {
+  "method": "trap",
+  "design": "Carrados arranges a meeting at a house with the suspects and deliberately cuts the electric light, plunging the room into darkness. He relies on his acute hearing and marksmanship to control the situation and prevent escape or attack. The suspects' reactions and inability to move without noise confirm their guilt.",
+  "knowledge_revealed": "The test reveals the suspects' reliance on sight and their fear of Carrados's marksmanship, confirming their criminal intent and presence at the scene.",
+  "pass_condition": "The suspects remain immobilized and silent in darkness, unable to escape or overpower Carrados."
+ },
+ "changed": [],
+ "confidence": "high"
+}

@@ -1,0 +1,12 @@
+- id: the_golden_slipper_and_other_problems_for_violet_strange
+  corpus: seed
+  axis: identity
+  mechanism_family: impersonation
+  false_assumption_pattern: the_thief_is_the_obvious_suspect
+  discriminating_test_shape: timetable_contradiction
+  inference_shape: expose_identity_by_physical_trace
+  premise: >-
+    A series of mysterious jewel thefts occur within a close-knit group of young society women known
+    as The Inseparables, culminating in the disappearance of a valuable pendant from Violet
+    Strange's room 
+  source: library/works/the_golden_slipper_and_other_problems_for_violet_strange/case.cml2.yaml

@@ -1,0 +1,12 @@
+- id: the_strange_schemes_of_randolph_mason
+  corpus: seed
+  axis: authority
+  mechanism_family: substituted_body
+  false_assumption_pattern: the_body_must_be_found_to_prove_death
+  discriminating_test_shape: timetable_contradiction
+  inference_shape: demonstrate_body_destruction
+  premise: >-
+    Victor Ancona is arrested for the murder of Nina San Croix, whose body has mysteriously
+    disappeared. Despite overwhelming circumstantial evidence, the lack of a corpse leads to a legal
+    impasse, and th
+  source: library/works/the_strange_schemes_of_randolph_mason/case.cml2.yaml

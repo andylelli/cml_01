@@ -1,0 +1,454 @@
+{
+ "decade": "1910s",
+ "realism_constraints": [
+  "No advanced forensic DNA analysis available",
+  "Electricity and telegraphy are established but limited in domestic use",
+  "Photography exists but is not widely used for surveillance"
+ ],
+ "location": "London, England",
+ "institution": "Private inquiry agency of Mr Louis Carlyle and amateur detective Max Wynn Carrados",
+ "crime_category": "theft",
+ "crime_subtype": "safe deposit burglary by key duplication and insider observation",
+ "cast": [
+  {
+   "name": "Max Wynn Carrados",
+   "age_range": "40-50",
+   "role_archetype": "blind amateur detective with heightened senses",
+   "role": "detective",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "wealthy eccentric blind man",
+   "private_secret": "highly perceptive and skilled detective",
+   "motive_seed": "justice and intellectual challenge",
+   "motive_strength": "strong",
+   "alibi_window": "always present at investigation scenes",
+   "access_plausibility": "n/a",
+   "stakes": "professional reputation and moral duty",
+   "moral_complexity": "low",
+   "relationships": [],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "uses heightened senses to detect clues"
+   ],
+   "evidence_sensitivity": [
+    "touch",
+    "smell",
+    "hearing"
+   ]
+  },
+  {
+   "name": "Louis Carlyle",
+   "age_range": "40-50",
+   "role_archetype": "ex-solicitor turned private inquiry agent",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "professional private detective",
+   "private_secret": "former solicitor struck off for falsifying accounts",
+   "motive_seed": "professional duty",
+   "motive_strength": "moderate",
+   "alibi_window": "present with Carrados during investigations",
+   "access_plausibility": "n/a",
+   "stakes": "professional reputation",
+   "moral_complexity": "medium",
+   "relationships": [
+    "friend and assistant to Carrados"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Ulysses K. Groom (Harry the Actor)",
+   "age_range": "30-40",
+   "role_archetype": "master of disguise and criminal",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "various disguises, including elderly scholar",
+   "private_secret": "criminal who duplicates keys to safes",
+   "motive_seed": "financial gain",
+   "motive_strength": "strong",
+   "alibi_window": "present at safe deposit during thefts",
+   "access_plausibility": "high due to key duplication and disguise",
+   "stakes": "freedom and profit",
+   "moral_complexity": "low",
+   "relationships": [
+    "wife (accomplice)"
+   ],
+   "opportunity_channels": [
+    "safe deposit access",
+    "key duplication"
+   ],
+   "behavioral_tells": [
+    "psychological pause when hearing 'New York'"
+   ],
+   "evidence_sensitivity": [
+    "photograph",
+    "keys",
+    "safe deposit records"
+   ]
+  },
+  {
+   "name": "Madame Ferraja (Nina Brun)",
+   "age_range": "30-40",
+   "role_archetype": "accomplice and coin forger",
+   "role": "culprit",
+   "gender": "female",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "vineyard owner’s wife",
+   "private_secret": "involved in coin forgery and theft",
+   "motive_seed": "financial gain",
+   "motive_strength": "strong",
+   "alibi_window": "present at Heronsbourne Place during plot",
+   "access_plausibility": "high",
+   "stakes": "freedom and profit",
+   "moral_complexity": "medium",
+   "relationships": [
+    "husband Dompierre",
+    "accomplice Montmorency"
+   ],
+   "opportunity_channels": [
+    "access to coins",
+    "forgery skills"
+   ],
+   "behavioral_tells": [
+    "nervousness",
+    "contrived chatter"
+   ],
+   "evidence_sensitivity": [
+    "coins",
+    "garden step mark"
+   ]
+  },
+  {
+   "name": "Eustace Montmorency (Stoker)",
+   "age_range": "40-50",
+   "role_archetype": "criminal accomplice",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "former stoker on disabled liner",
+   "private_secret": "criminal conspirator",
+   "motive_seed": "financial gain",
+   "motive_strength": "strong",
+   "alibi_window": "present at Heronsbourne Place",
+   "access_plausibility": "high",
+   "stakes": "freedom and profit",
+   "moral_complexity": "low",
+   "relationships": [
+    "wife Madame Dompierre",
+    "accomplice Nina Brun"
+   ],
+   "opportunity_channels": [
+    "access to stolen coins"
+   ],
+   "behavioral_tells": [
+    "impatience",
+    "cold eye"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Inspector Beedel",
+   "age_range": "50-60",
+   "role_archetype": "Scotland Yard inspector",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "professional police inspector",
+   "private_secret": "respects Carrados's abilities",
+   "motive_seed": "law enforcement",
+   "motive_strength": "strong",
+   "alibi_window": "present at investigations",
+   "access_plausibility": "n/a",
+   "stakes": "professional duty",
+   "moral_complexity": "low",
+   "relationships": [
+    "works with Carrados"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Mr Carlyle's man-servant Parkinson",
+   "age_range": "30-40",
+   "role_archetype": "loyal and observant servant",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "faithful valet",
+   "private_secret": "highly observant and trained to assist Carrados",
+   "motive_seed": "loyalty",
+   "motive_strength": "strong",
+   "alibi_window": "always with Carrados",
+   "access_plausibility": "n/a",
+   "stakes": "service and loyalty",
+   "moral_complexity": "low",
+   "relationships": [
+    "servant to Carrados"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "keen observation"
+   ],
+   "evidence_sensitivity": []
+  }
+ ],
+ "culprits": [
+  "Ulysses K. Groom (Harry the Actor)",
+  "Madame Ferraja (Nina Brun)",
+  "Eustace Montmorency (Stoker)"
+ ],
+ "surface_summary": "A series of thefts from a supposedly impregnable safe deposit in London baffle investigators. An audacious criminal known as 'Harry the Actor' uses disguises and duplicated keys to steal valuables. Meanwhile, a coin forgery ring involving Madame Ferraja and accomplices is uncovered.",
+ "accepted_facts": [
+  "The safes at Lucas Street are highly secure with no duplicate keys officially existing",
+  "Several safes were found emptied without signs of forced entry",
+  "A man named Ulysses K. Groom rented multiple safes and was seen in disguises",
+  "Madame Ferraja and her husband possess stolen Greek coins from the British Museum"
+ ],
+ "inferred_conclusions": [
+  "The thefts were committed by an insider with access to keys",
+  "The coin theft was a genuine robbery from the British Museum",
+  "The accomplices were acting independently without a coordinated plan"
+ ],
+ "mechanism_description": "Harry the Actor rented multiple safes and secretly duplicated the keys to them. Using disguises, he gained access to the safes without raising suspicion and removed valuables. Madame Ferraja and her accomplices staged a fake coin theft from the British Museum to mislead investigators and cover their forgery operations.",
+ "delivery_path": [
+  "Harry the Actor rents multiple safes at the Lucas Street depository",
+  "He duplicates the keys during his visits using observation and disguise",
+  "He uses different disguises to avoid recognition and access safes",
+  "Valuables are removed from the safes without forced entry",
+  "Madame Ferraja and accomplices create a fake coin theft scenario",
+  "They use the fake theft to distract attention from their forgery",
+  "Carrados investigates and uncovers the true identities and methods"
+ ],
+ "outcome_result": "Carrados exposes Harry the Actor and his accomplices, recovering the stolen goods and foiling the forgery ring.",
+ "false_assumption": {
+  "statement": "The British Museum coin theft was a genuine robbery.",
+  "type": "identity",
+  "why_it_seems_reasonable": "The museum officials reported missing coins and alerted the police, making it appear as a real theft. The presence of stolen coins with Madame Ferraja supported this belief.",
+  "what_it_hides": "The coin theft was a staged ruse by the conspirators to mislead Carrados and the authorities, masking their forgery operations."
+ },
+ "false_solution": {
+  "accused_suspect": "Mr Carlyle",
+  "supporting_points": [
+   "He was present at many investigation scenes",
+   "He had knowledge of the cases and access to evidence",
+   "His past as a solicitor struck off for falsifying accounts",
+   "His close association with Carrados"
+  ],
+  "the_one_flaw": "There was no evidence of his involvement in the thefts or forgeries, and he actively assisted Carrados.",
+  "refuted_in_chapter": 6
+ },
+ "red_herrings": [
+  {
+   "id": "tawny_man",
+   "description": "A tawny man seen at the safe deposit aroused suspicion of involvement in the thefts.",
+   "points_at_suspect": "He was observed watching other clients and seemed suspicious.",
+   "innocent_explanation": "He was a legitimate client renting a safe and unrelated to the crimes.",
+   "resolved_in_chapter": 5
+  },
+  {
+   "id": "madame_ferraja_identity",
+   "description": "Madame Ferraja's identity as Nina Brun, the parlourmaid involved in coin forgery, was initially unknown.",
+   "points_at_suspect": "Her presence and knowledge of coins suggested involvement in theft.",
+   "innocent_explanation": "She was a victim or unwitting participant initially, but later revealed as a culprit.",
+   "resolved_in_chapter": 8
+  }
+ ],
+ "closed_circle": {
+  "suspects": [
+   "Ulysses K. Groom (Harry the Actor)",
+   "Madame Ferraja (Nina Brun)",
+   "Eustace Montmorency (Stoker)"
+  ],
+  "rationale": "Only these individuals had the opportunity, motive, and means to carry out the thefts and forgeries within the secure environment and with the necessary knowledge."
+ },
+ "constraint_space": {
+  "time_anchors": [
+   "Friday morning visit by Draycott",
+   "Tuesday and Wednesday thefts",
+   "Sunday dinner at The Turrets"
+  ],
+  "time_windows": [
+   "Safe deposit open hours",
+   "Evening and night for covert actions"
+  ],
+  "access_actors": [
+   "Harry the Actor",
+   "Madame Ferraja",
+   "Montmorency",
+   "Manager",
+   "Parkinson"
+  ],
+  "access_objects": [
+   "Safe deposit keys",
+   "Duplicated keys",
+   "Safe deposit inner boxes"
+  ],
+  "trust_channels": [
+   "Manager's trust in clients",
+   "Servants' observations",
+   "Insurance company communications"
+  ],
+  "authority_sources": [
+   "Scotland Yard",
+   "Private inquiry agency",
+   "Insurance company"
+  ]
+ },
+ "inference_path": [
+  {
+   "observation": "Several safes were found emptied without signs of forced entry",
+   "correction": "The theft was not by force but by key duplication",
+   "effect": "Focus investigation on key access and insider knowledge",
+   "required_evidence": [
+    "Safe deposit access logs showing no forced entry",
+    "Physical keys held by clients and staff"
+   ]
+  },
+  {
+   "observation": "A man in disguise was seen renting multiple safes",
+   "correction": "The man is likely the thief using disguises",
+   "effect": "Identify suspect by disguises and rental records",
+   "required_evidence": [
+    "Photograph of Ulysses K. Groom",
+    "Safe rental records with aliases"
+   ]
+  },
+  {
+   "observation": "Coins stolen from British Museum reported missing",
+   "correction": "The theft may be a staged ruse",
+   "effect": "Investigate possibility of forgery and deception",
+   "required_evidence": [
+    "Testimony of Madame Ferraja",
+    "Examination of coin authenticity"
+   ]
+  },
+  {
+   "observation": "Madame Ferraja and accomplices possess stolen coins",
+   "correction": "They are involved in forgery and theft",
+   "effect": "Link coin theft to forgery ring",
+   "required_evidence": [
+    "Coins found at Heronsbourne Place",
+    "Statements from accomplices"
+   ]
+  },
+  {
+   "observation": "Manager denies complicity but safe was opened",
+   "correction": "Manager unaware but security compromised by key duplication",
+   "effect": "Exclude manager as culprit but consider security flaws",
+   "required_evidence": [
+    "Manager's testimony",
+    "Safe deposit security measures documentation"
+   ]
+  },
+  {
+   "observation": "Photographs of record-book pages taken by accomplice's wife",
+   "correction": "Inside information used to target safes",
+   "effect": "Confirm insider assistance in thefts",
+   "required_evidence": [
+    "Photographs of record-book",
+    "Witness statements of accomplice's wife"
+   ]
+  },
+  {
+   "observation": "Carrados traps conspirators in darkness",
+   "correction": "Conspirators rely on darkness to control situation",
+   "effect": "Use darkness as equalizer in confrontation",
+   "required_evidence": [
+    "Burned-out wire in distributing box",
+    "Testimony of Montmorency and Dompierre"
+   ]
+  }
+ ],
+ "discriminating_test": {
+  "method": "trap",
+  "design": "Carrados arranges a meeting at a house with the suspects and deliberately cuts the electric light, plunging the room into darkness. He relies on his acute hearing and marksmanship to control the situation and prevent escape or attack. The suspects' reactions and inability to move without noise confirm their guilt.",
+  "knowledge_revealed": "The test reveals the suspects' reliance on sight and their fear of Carrados's marksmanship, confirming their criminal intent and presence at the scene.",
+  "pass_condition": "The suspects remain immobilized and silent in darkness, unable to escape or overpower Carrados."
+ },
+ "fair_play_explanation": "The reader is given detailed descriptions of the safe deposit's security measures and the suspects' disguises and behaviors. Clues such as the psychological pause on hearing 'New York,' the presence of duplicated keys, and the staged coin theft are all presented. The method of key duplication and the use of disguises are explained, allowing attentive readers to deduce the true mechanism.",
+ "anchors": [
+  {
+   "claim": "The victim of the theft is the Lucas Street safe deposit clients",
+   "anchor": "The Lucas Street depository was then generally accepted as being one of the strongest places in London"
+  },
+  {
+   "claim": "The cause of the theft is key duplication and disguise",
+   "anchor": "He duplicated the keys for his own private ends"
+  },
+  {
+   "claim": "The culprit is Ulysses K. Groom, known as Harry the Actor",
+   "anchor": "The man is called Ulysses K. Groom, but he is better known as 'Harry the Actor'"
+  },
+  {
+   "claim": "The mechanism involves renting multiple safes and duplicating keys",
+   "anchor": "He rented twelve safes of different sizes and made duplicates for his own private ends"
+  },
+  {
+   "claim": "The false assumption is that the British Museum coin theft was genuine",
+   "anchor": "There had been no robbery at the British Museum! That plausible concoction was as fictitious as the intentionally transparent tale of treasure trove"
+  },
+  {
+   "claim": "The red herring of the tawny man suspected of involvement",
+   "anchor": "The tawny man crossed our path"
+  },
+  {
+   "claim": "The red herring of Madame Ferraja's identity as Nina Brun",
+   "anchor": "Madame Ferraja, of the Sicilian tetradrachm incident"
+  },
+  {
+   "claim": "The discriminating test is the darkness trap",
+   "anchor": "Suddenly and instantly the room was plunged into absolute darkness"
+  },
+  {
+   "claim": "The evidence of the burned-out wire in the distributing box",
+   "anchor": "Every lamp on that fuse is cut off and in the distributing-box in the hall you will find a burned-out wire"
+  },
+  {
+   "claim": "The psychological pause when hearing 'New York' reveals the culprit",
+   "anchor": "Into his step there came the 'psychological pause,' an absolute arrest of perhaps a fifth of a second"
+  },
+  {
+   "claim": "The accomplice's photographs of the record-book pages",
+   "anchor": "Mrs Harry, with quite ridiculous ease, got photographs of the necessary page or two of the record-book"
+  },
+  {
+   "claim": "The manager's denial of complicity",
+   "anchor": "I have satisfied myself that the manager did not exist"
+  },
+  {
+   "claim": "The presence of the accomplices at Heronsbourne Place",
+   "anchor": "Madame Ferraja and her husband, Dompierre, and Montmorency"
+  },
+  {
+   "claim": "The final capture of the conspirators",
+   "anchor": "Inspector Beedel could not wait for me, after all"
+  },
+  {
+   "claim": "The motive of financial gain for the thefts",
+   "anchor": "He wanted money for the honeymoon"
+  },
+  {
+   "claim": "The use of disguises to avoid recognition",
+   "anchor": "He appeared at 'The Safe' in twelve different characters"
+  },
+  {
+   "claim": "The forged coins scheme involving Madame Ferraja",
+   "anchor": "Helene Brunesi, who in private life is Madame Dompierre"
+  },
+  {
+   "claim": "The accomplices' plan to mislead investigators with a fake theft",
+   "anchor": "The supposed British Museum coin theft was a ruse by Dompierre, Montmorency, and Madame Dompierre"
+  }
+ ]
+}

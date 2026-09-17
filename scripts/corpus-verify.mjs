@@ -32,9 +32,15 @@ const ROOT = "C:/CML";
 const WORKS = `${ROOT}/library/works`;
 const args = process.argv.slice(2);
 const WRITE = args.includes("--write");
+/**
+ * A_97: the fourth script in this family to default at a closed session's scratchpad directory, and
+ * the one where it was hardest to see — a missing source reports as "source text not cached — cannot
+ * recompute", which reads like a fact about the corpus rather than a broken path. Every work this
+ * script exists to rescue was in that bucket.
+ */
 const SRC =
   (args.find((a) => a.startsWith("--src=")) ?? "").split("=")[1] ||
-  "C:/Users/andyl/AppData/Local/Temp/claude/C--CML/37bf12e3-44c1-4bb6-ae7f-407b46016ade/scratchpad/src";
+  `${ROOT}/library/texts`;
 
 const N = (s) => String(s).replace(/\s+/g, " ").trim();
 const NORM = (t) => t.replace(/[\u2018\u2019]/g, "'").replace(/[\u201C\u201D]/g, '"').replace(/[\u2013\u2014]/g, "-");

@@ -1,0 +1,12 @@
+- id: the_silent_bullet
+  corpus: seed
+  axis: behavioral
+  mechanism_family: disguised_natural_agent
+  false_assumption_pattern: no_shot_fired_without_noise_or_smoke
+  discriminating_test_shape: reconstruction
+  inference_shape: demonstrate_hidden_physical_action
+  premise: >-
+    Kerr Parker, a Wall Street banker, dies suddenly in his office amidst open doors and many
+    witnesses, with no shot heard. A thirty-two-calibre bullet is found in his neck, but no weapon
+    or noise was de
+  source: library/works/the_silent_bullet/case.cml2.yaml

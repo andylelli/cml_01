@@ -1,0 +1,447 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: That Affair Next Door
+    author: Anna Katharine Green
+    license: Public domain (first published 1897; author died 1935). Project Gutenberg ebook 21617.
+    era:
+      decade: 1890s
+      realism_constraints:
+        - No modern forensic DNA or electronic surveillance
+        - Communication limited to letters, telegrams, and in-person testimony
+        - Transportation by horse-drawn carriages and early streetcars
+    setting:
+      location: New York City, specifically Gramercy Park and surrounding areas
+      institution: New York Police Department, Coroner's Jury
+    crime_class:
+      category: murder
+      subtype: disguise and identity swap
+  cast:
+    - name: Amelia (Araminta) Butterworth
+      age_range: middle-aged
+      role_archetype: amateur investigator and neighbor
+      relationships: []
+      public_persona: respectable neighbor and amateur detective
+      private_secret: keen observer and investigator
+      motive_seed: justice and curiosity
+      motive_strength: strong
+      alibi_window: present throughout investigation
+      access_plausibility: high
+      opportunity_channels:
+        - neighboring window observation
+        - interviews
+      behavioral_tells:
+        - persistent questioning
+        - keen observation
+      stakes: solving the mystery
+      evidence_sensitivity:
+        - hat-pin
+        - clock
+        - pin-cushion
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: low
+    - name: Mr. Gryce
+      age_range: elderly
+      role_archetype: experienced detective
+      relationships:
+        - Amelia Butterworth
+      public_persona: professional detective
+      private_secret: initially overconfident, later humbled
+      motive_seed: solve the case
+      motive_strength: strong
+      alibi_window: present throughout investigation
+      access_plausibility: high
+      opportunity_channels:
+        - police investigation
+        - interviews
+      behavioral_tells:
+        - sarcasm
+        - patience
+        - strategic
+      stakes: case resolution and reputation
+      evidence_sensitivity:
+        - hat-pin
+        - clock
+        - rings
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: moderate
+    - name: Howard Van Burnam
+      age_range: young adult
+      role_archetype: sensitive and conflicted husband
+      relationships:
+        - Louise Van Burnam (wife)
+        - Franklin Van Burnam (brother)
+      public_persona: reckless and distrusted son
+      private_secret: loved his wife, tried to protect her reputation
+      motive_seed: family conflict and fear
+      motive_strength: weak
+      alibi_window: varied, some uncertainty
+      access_plausibility: high
+      opportunity_channels:
+        - family home access
+        - midnight visit
+      behavioral_tells:
+        - contradictory testimony
+        - emotional outbursts
+      stakes: freedom and reputation
+      evidence_sensitivity:
+        - scar on ankle
+        - rings
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: high
+    - name: Franklin Van Burnam
+      age_range: young adult
+      role_archetype: proud and composed elder brother
+      relationships:
+        - Howard Van Burnam (brother)
+        - Louise Van Burnam (rival victim)
+      public_persona: respectable eldest son
+      private_secret: murderer and conspirator
+      motive_seed: jealousy and desire to remove rival
+      motive_strength: strong
+      alibi_window: uncertain, some contradictions
+      access_plausibility: high
+      opportunity_channels:
+        - family home access
+        - hotel room meeting
+      behavioral_tells:
+        - evasiveness
+        - contradictory statements
+      stakes: inheritance and social standing
+      evidence_sensitivity:
+        - rings
+        - letter
+        - keys
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: suspect
+      moral_complexity: high
+    - name: Louise Van Burnam
+      age_range: young adult
+      role_archetype: disliked wife and victim
+      relationships:
+        - Howard Van Burnam (husband)
+      public_persona: wife of Howard Van Burnam, socially ostracized
+      private_secret: victim of murder
+      motive_seed: none
+      motive_strength: none
+      alibi_window: deceased
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: life
+      evidence_sensitivity:
+        - scar on ankle
+        - rings
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: female
+      role: victim
+      moral_complexity: none
+    - name: Olive Randolph (Ruth Oliver)
+      age_range: young adult
+      role_archetype: rival woman and murderer
+      relationships:
+        - Randolph Stone (husband)
+      public_persona: disguised companion and boarder
+      private_secret: murderer who disguised herself in victim's clothes
+      motive_seed: revenge and rivalry
+      motive_strength: strong
+      alibi_window: uncertain, feverish and delirious at times
+      access_plausibility: high
+      opportunity_channels:
+        - family home access
+        - hotel room
+        - disguise
+      behavioral_tells:
+        - fever, delirium, evasiveness
+      stakes: escape and concealment
+      evidence_sensitivity:
+        - hat-pin
+        - pin-cushion
+        - rings
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: female
+      role: culprit
+      moral_complexity: high
+    - name: Randolph Stone (John Randolph)
+      age_range: young adult
+      role_archetype: husband and mastermind
+      relationships:
+        - Olive Randolph (wife)
+      public_persona: wealthy suitor and fiancé
+      private_secret: murderer and conspirator
+      motive_seed: self-interest and concealment
+      motive_strength: strong
+      alibi_window: uncertain
+      access_plausibility: high
+      opportunity_channels:
+        - family home access
+        - hotel room
+        - disguise
+      behavioral_tells:
+        - calm, imperturbable
+      stakes: social standing and freedom
+      evidence_sensitivity: []
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+  culpability:
+    culprit_count: 2
+    culprits:
+      - Olive Randolph (Ruth Oliver)
+      - Randolph Stone (John Randolph)
+  surface_model:
+    narrative:
+      summary: >-
+        A young woman is found dead under an overturned cabinet in the Van Burnam family mansion.
+        Initial suspicion falls on Howard Van Burnam, but evidence and investigation reveal a
+        complex plot involving disguise, rivalry, and deception within the family and their
+        acquaintances.
+    accepted_facts:
+      - The victim was found dead under a fallen cabinet in the Van Burnam house.
+      - A man and a woman entered the house at midnight; the man left shortly after.
+      - The victim was stabbed with a hat-pin causing death before the cabinet fell.
+      - Two hats and two pairs of gloves were found, indicating two women involved.
+    inferred_conclusions:
+      - Howard Van Burnam was the murderer due to his suspicious behavior.
+      - The victim committed suicide by stabbing herself with a hat-pin.
+      - Franklin Van Burnam was innocent and uninvolved in the crime.
+  hidden_model:
+    mechanism:
+      description: >-
+        Olive Randolph, the rival woman, murdered Louise Van Burnam by stabbing her with a hat-pin.
+        She then disguised herself in Louise's clothes to escape suspicion. Randolph Stone, Olive's
+        husband, was the mastermind behind the crime, orchestrating the deception and covering up
+        the murder. Franklin Van Burnam was falsely suspected due to circumstantial evidence.
+      delivery_path:
+        - step: Olive Randolph entered the Van Burnam house with Franklin Van Burnam.
+        - step: She stabbed Louise Van Burnam with a hat-pin, causing immediate death.
+        - step: Olive disguised herself in Louise's clothes, including a plaid silk dress.
+        - step: She pulled down the cabinet onto Louise's body to simulate an accident.
+        - step: Randolph Stone and Olive disposed of incriminating clothing and items.
+        - step: Olive fled and hid at Miss Althorpe's house, feigning illness.
+        - step: The police investigation uncovered the disguise and true culprits.
+    outcome:
+      result: >-
+        Olive Randolph and Randolph Stone are revealed as the murderers, while Howard Van Burnam is
+        exonerated.
+  false_assumption:
+    statement: Howard Van Burnam was the murderer who killed his wife with a hat-pin.
+    type: identity
+    why_it_seems_reasonable: >-
+      Howard's contradictory testimony and suspicious behavior suggested guilt, and he was found
+      near the crime scene. The presence of his wife's scar and rings on the victim supported this
+      assumption.
+    what_it_hides: >-
+      It obscures the fact that the rival woman, Olive Randolph, committed the murder and disguised
+      herself as the victim to mislead investigators.
+  false_solution:
+    accused_suspect: Howard Van Burnam
+    supporting_points:
+      - His evasive and contradictory testimony before the Coroner.
+      - His presence near the crime scene at unusual hours.
+      - The victim's scar and ring marks matching his wife's.
+      - His initial denial of the victim's identity as his wife.
+    the_one_flaw: >-
+      The discovery of the victim's rings and letter in Franklin Van Burnam's desk, and the disguise
+      and confession of Olive Randolph.
+    refuted_in_chapter: 41
+  red_herrings:
+    - id: howard_van_burnam_suspicion
+      description: >-
+        Howard Van Burnam's contradictory statements and emotional outbursts led to suspicion of his
+        guilt.
+      points_at_suspect: Howard Van Burnam
+      innocent_explanation: Howard was trying to protect his wife's reputation and was unaware of the true murderer.
+      resolved_in_chapter: 41
+    - id: clock_running_at_five
+      description: >-
+        The clock in the parlor was running and stopped at five, conflicting with the timeline of
+        the murder.
+      points_at_suspect: Franklin Van Burnam
+      innocent_explanation: >-
+        The clock was wound by the victim herself or an innocent party to create an alibi for the
+        murderer.
+      resolved_in_chapter: 32
+  closed_circle:
+    suspects:
+      - Howard Van Burnam
+      - Franklin Van Burnam
+      - Olive Randolph (Ruth Oliver)
+      - Randolph Stone (John Randolph)
+    rationale: >-
+      The suspects are limited to the Van Burnam brothers and the two women closely connected to the
+      family and the crime scene, forming a closed circle with no external suspects.
+  constraint_space:
+    time:
+      anchors:
+        - midnight entry into Van Burnam house
+        - discovery of body at morning
+        - clock stopped at five
+        - inquest and testimony dates
+      windows:
+        - 10 minutes inside the house at midnight
+        - interval between murder and cabinet falling
+        - two weeks granted for confession
+    access:
+      actors:
+        - Howard Van Burnam
+        - Franklin Van Burnam
+        - Olive Randolph
+        - Randolph Stone
+        - Mrs. Boppert
+      objects:
+        - house keys
+        - hat-pin
+        - cabinet
+        - clothing and rings
+    social:
+      trust_channels:
+        - Amelia Butterworth's testimony
+        - Mrs. Boppert's confession
+        - Miss Althorpe's observations
+        - Mr. Gryce's police investigation
+      authority_sources:
+        - Coroner's jury
+        - New York Police Department
+        - Mr. Gryce (detective)
+        - Superintendent of Police
+  inference_path:
+    steps:
+      - observation: >-
+          Two hats and two pairs of gloves found at the crime scene, matching the description of two
+          women in the advertisements.
+        correction: >-
+          Presence of two women involved, not just the victim, as supported by the advertisement for
+          a woman matching Olive's description.
+        effect: Suggests disguise or identity swap and the attempt to mislead investigators.
+        required_evidence:
+          - >-
+            Hat found in dining-room closet with a label matching the advertisement for a missing
+            woman
+          - Gloves found with the hats, matching the description in the advertisement
+        reader_observable: true
+      - observation: >-
+          Victim's body found with feet towards door, not wall, and the arrangement matches the
+          description in witness statements.
+        correction: Not an accident by pulling cabinet over herself; the position matches a staged scene.
+        effect: Supports murder theory and the attempt to incriminate another.
+        required_evidence:
+          - Body position at discovery as described by Amelia Butterworth
+          - Arrangement of clothing about feet, matching witness description
+        reader_observable: true
+      - observation: >-
+          Hat-pin found broken in victim's neck wound, matching the description of the murder weapon
+          in the advertisements.
+        correction: >-
+          Murder weapon identified as hat-pin, as described in the police advertisement for
+          information.
+        effect: Indicates deliberate stabbing and attempt to conceal the true assailant.
+        required_evidence:
+          - Broken hat-pin retrieved from register, matching the advertisement's description
+          - Autopsy report of wound, confirming the match to the hat-pin
+        reader_observable: true
+      - observation: >-
+          Clock stopped at five, but murder occurred earlier; the timeline contradicts the
+          description in the advertisement for witnesses.
+        correction: >-
+          Clock was wound after murder to create false alibi, as revealed by the testimony matching
+          the advertisement's request for information.
+        effect: Implies premeditation, alibi fabrication, and attempt to mislead investigators.
+        required_evidence:
+          - Clock found running after cabinet fell, as described in the police advertisement
+          - Testimony of Mrs. Boppert about winding clock, matching the advertisement's request
+        reader_observable: true
+      - observation: >-
+          Rings found in Franklin Van Burnam's desk, matching the description of missing items in
+          the advertisement.
+        correction: >-
+          Rings planted to implicate Franklin, as revealed by the advertisement for information
+          about the rings' possession.
+        effect: Suggests framing or deception and an attempt to incriminate another.
+        required_evidence:
+          - Testimony of maid placing rings, matching the advertisement's description
+          - Discovery of rings on desk hook, as described in the advertisement
+        reader_observable: true
+      - observation: >-
+          Olive Randolph's presence and feverish state, as matched by the advertisement for a woman
+          fitting her description, and her attempt to avoid detection.
+        correction: >-
+          She is the rival and murderer, as revealed by her possession of incriminating items and
+          her attempt to conceal her identity.
+        effect: Shifts suspicion from brothers to Olive and reveals her attempt to avoid incrimination.
+        required_evidence:
+          - >-
+            Identification by Chinaman and Mrs. Desberger, matching the advertisement's description
+            of the woman
+          - >-
+            Possession of the victim's rings and clothing by Olive, as revealed by the advertisement
+            and police search
+        reader_observable: true
+      - observation: >-
+          Randolph Stone's (John Randolph) involvement is revealed by the advertisement for a man
+          matching his description and his attempt to conceal evidence.
+        correction: >-
+          Mastermind behind murder and deception, as revealed by his possession of incriminating
+          items and attempt to mislead investigators.
+        effect: Completes the criminal conspiracy and reveals the attempt to conceal the true culprits.
+        required_evidence:
+          - >-
+            Possession of incriminating letters and items by Randolph Stone, matching the
+            advertisement's description
+          - Testimony of Randolph Stone regarding his attempt to mislead investigators
+        reader_observable: true
+  discriminating_test:
+    method: trap
+    design: >-
+      Amelia Butterworth advertises for a woman matching Olive Randolph's description without
+      mentioning personal details, to lure her out. Upon contact, she is observed and questioned
+      about possession of the victim's rings and clothing. The test confirms Olive's identity and
+      her connection to the crime by matching her to the advertisement and observing her attempt to
+      conceal incriminating items.
+    knowledge_revealed: >-
+      This test reveals Olive Randolph's presence, her possession of incriminating items, and her
+      attempt to conceal her identity, as matched to the advertisement and witness description.
+    pass_condition: >-
+      The suspect responds to the advertisement and is found in possession of the victim's rings and
+      clothing, confirming her involvement by matching the description and revealing incriminating
+      evidence.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given detailed observations from Amelia Butterworth, testimony from witnesses,
+      and clues such as the broken hat-pin, the clock's timing, and the discovery of two hats and
+      gloves. The advertisements and letters provide leads to Olive Randolph. The narrative includes
+      red herrings and false accusations, but all clues needed to deduce the true culprits are
+      presented fairly.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

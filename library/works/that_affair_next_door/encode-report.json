@@ -1,0 +1,130 @@
+{
+ "slug": "that_affair_next_door",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "The victim was found dead under an overturned cabinet",
+   "anchor": "a woman under a fallen piece of furniture",
+   "span": "In the darkness of a dim corner (for the room had no light save that which came through the doorway where I stood) lay the form of a woman under a fallen piece of furniture.",
+   "ok": true
+  },
+  {
+   "claim": "The murder weapon was a hat-pin",
+   "anchor": "The woman who was killed in that room owed her death to the stab of a thin, long pin",
+   "span": "The woman who was killed in that room owed her death to the stab of a thin, long pin.",
+   "ok": true
+  },
+  {
+   "claim": "The broken hat-pin was found in the register",
+   "anchor": "I perceived the round head of a broken hat-pin",
+   "span": "A square box of tin was visible below, at the bottom of which I perceived the round head of a broken hat-pin.",
+   "ok": true
+  },
+  {
+   "claim": "Two hats were found at the scene",
+   "anchor": "Two hats had been found on the scene of the tragedy",
+   "span": "Two hats had been found on the scene of the tragedy, and two pairs of gloves, and now I had learned that there had been two women there, the one whom Mrs.",
+   "ok": true
+  },
+  {
+   "claim": "The clock was running and stopped at five",
+   "anchor": "the clock began to tick",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The victim's scar on the ankle was noted",
+   "anchor": "a slight scar on the left ankle",
+   "span": "One; a slight scar on the left ankle.",
+   "ok": true
+  },
+  {
+   "claim": "The victim's rings were missing",
+   "anchor": "Where are the rings?",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Olive Randolph was found disguised in the victim's clothes",
+   "anchor": "she disguised herself in her clothes to escape suspicion",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Randolph Stone confessed to the murder",
+   "anchor": "I acknowledge that I did it, in the way and for the motive she alleged",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Howard Van Burnam was falsely accused",
+   "anchor": "Howard Van Burnam bore his release, as he had his arrest, with great outward composure",
+   "span": "[D] Howard Van Burnam bore his release, as he had his arrest, with great outward composure.",
+   "ok": true
+  },
+  {
+   "claim": "Franklin Van Burnam was found with the victim's rings",
+   "anchor": "the five missing rings were hanging on this same hook amid the sheets of Franklin's correspondence",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Amelia Butterworth observed the man entering the house",
+   "anchor": "I saw a gentleman descend and step briskly across the pavement",
+   "span": "I saw a gentleman descend and step briskly across the pavement to the neighboring stoop.",
+   "ok": true
+  },
+  {
+   "claim": "Mrs. Boppert let the victim into the house before the couple arrived",
+   "anchor": "I made valuable clue by confessing that she had let Mrs. Van Burnam into the house prior",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Olive Randolph was seen at the laundry",
+   "anchor": "there stood Miss Oliver, gazing like one under a spell through the lighted window-panes",
+   "span": "For there stood Miss Oliver, gazing like one under a spell through the lighted window-panes into the narrow shop where the owner bent over his ironing.",
+   "ok": true
+  },
+  {
+   "claim": "Olive Randolph interrupted Miss Althorpe's wedding",
+   "anchor": "Ruth Oliver interrupted these treacherous nuptials",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The clock was wound by the victim",
+   "anchor": "she wound the clock and set it at five o'clock",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The victim was stabbed before the cabinet fell",
+   "anchor": "she was dead before the shelves laden with bric-à-brac fell upon her",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The victim's gloves were found with the hats",
+   "anchor": "two pairs of gloves were found",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The victim was dressed differently from Mrs. Van Burnam's usual clothes",
+   "anchor": "Mrs. Van Burnam was dressed quite differently from the murdered woman",
+   "span": "",
+   "ok": false
+  }
+ ],
+ "costGbp": 0.13778958800000002,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-08-31"
+}

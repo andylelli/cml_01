@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "The side door was bolted from the inside all night, making entry or exit impossible.",
+  "type": "spatial",
+  "why_it_seems_reasonable": "The janitor and witnesses confirmed the door was bolted, and no one was seen entering or leaving through it. The telephone operators on duty also denied any unauthorized passage.",
+  "what_it_hides": "The door was manipulated by a mechanical device operated from outside, allowing the murderer to enter and exit without being seen and then rebolt the door, creating a false impression of security."
+ },
+ "mechanism_description": "Kenneth Spotswoode planned and executed the murder to prevent Margaret Odell from ruining his life through blackmail. He staged the crime to appear as a burglary, using a phonograph record to fake screams heard by witnesses. He manipulated the side door bolt using a string and tweezers device to create an alibi, and killed Tony Skeel, who had witnessed the murder and attempted to blackmail him.",
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "Vance demonstrated the side door manipulation by using tweezers tied to a string to unbolt and rebolt the door from outside without being seen. The phonograph record was played to simulate screams and calls for help timed to the murder. A staged poker game was used to analyze psychological traits of suspects.",
+  "knowledge_revealed": "The test revealed how the murderer could enter and exit undetected, create a mechanical alibi, and the psychological profile matching the true culprit.",
+  "pass_condition": "Successful unlocking and relocking of the side door by mechanical means without detection, and psychological behavior consistent with the murderer during the poker game."
+ },
+ "changed": [],
+ "confidence": "high"
+}

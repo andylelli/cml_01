@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "Howard Van Burnam was the murderer who killed his wife with a hat-pin.",
+  "type": "identity",
+  "why_it_seems_reasonable": "Howard's contradictory testimony and suspicious behavior suggested guilt, and he was found near the crime scene. The presence of his wife's scar and rings on the victim supported this assumption.",
+  "what_it_hides": "It obscures the fact that the rival woman, Olive Randolph, committed the murder and disguised herself as the victim to mislead investigators."
+ },
+ "mechanism_description": "Olive Randolph, the rival woman, murdered Louise Van Burnam by stabbing her with a hat-pin. She then disguised herself in Louise's clothes to escape suspicion. Randolph Stone, Olive's husband, was the mastermind behind the crime, orchestrating the deception and covering up the murder. Franklin Van Burnam was falsely suspected due to circumstantial evidence.",
+ "discriminating_test": {
+  "method": "trap",
+  "design": "Amelia Butterworth advertises for a woman matching Olive Randolph's description without mentioning personal details, to lure her out. Upon contact, she is observed and questioned about possession of the victim's rings and clothing. The test confirms Olive's identity and her connection to the crime.",
+  "knowledge_revealed": "This test reveals Olive Randolph's presence, her possession of incriminating items, and her attempt to conceal her identity.",
+  "pass_condition": "The suspect responds to the advertisement and is found in possession of the victim's rings and clothing, confirming her involvement."
+ },
+ "changed": [],
+ "confidence": "high"
+}

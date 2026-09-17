@@ -1,0 +1,130 @@
+{
+ "slug": "the_golden_slipper_and_other_problems_for_violet_strange",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "The pendant was taken from Violet Strange's dresser through the open window",
+   "anchor": "somebody reached in from the balcony and took it from my dresser",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "A gold-colored slipper was found outside Violet Strange's window",
+   "anchor": "I found it outside my window",
+   "span": "I found it outside my window,\" she explained.",
+   "ok": true
+  },
+  {
+   "claim": "The red-stained paste on the pendant stains the fingers of the thief",
+   "anchor": "I used that paste on my pendant last night just after you left me",
+   "span": "I used that paste on my pendant last night just after you left me, and being awfully sleepy I didn't stop to rub it off.",
+   "ok": true
+  },
+  {
+   "claim": "Caroline West confessed to taking the pendant to expose Alicia Driscoll",
+   "anchor": "I wore Alicia’s slippers and I took the jewels",
+   "span": "I wore Alicia's slippers and I took the jewels, because it was time that an end should come to your mutual dissimulation.",
+   "ok": true
+  },
+  {
+   "claim": "Alicia Driscoll was innocent of the thefts",
+   "anchor": "Miss West stands self-convicted",
+   "span": "Miss West stands self-convicted.",
+   "ok": true
+  },
+  {
+   "claim": "Miss West refused to remove her gloves during the investigation",
+   "anchor": "Oh, you have your gloves on! You are the guilty one!",
+   "span": "Oh, you have your gloves on! You are the guilty one!\" and her laugh rang out like a peal of bells, robbing her next sentence of even a suggestion of sarcasm.",
+   "ok": true
+  },
+  {
+   "claim": "Violet Strange used the red-stained fingers test to identify the thief",
+   "anchor": "If your finger-tips are not red, you never touched the pendant",
+   "span": "If your finger-tips are not red, you never touched the pendant, Miss Driscoll.",
+   "ok": true
+  },
+  {
+   "claim": "The thefts were motivated by personal revenge and social scandal",
+   "anchor": "The love I once felt for her she has herself deliberately killed",
+   "span": "The love I once felt for her she has herself deliberately killed.",
+   "ok": true
+  },
+  {
+   "claim": "The Inseparables were involved in a series of jewel thefts and returns",
+   "anchor": "The Inseparables had just made their call and the three who had sat on the couch",
+   "span": "The Inseparables had just made their call and the three who had sat on the couch were Miss Driscoll, Miss Hughson, and Miss Benedict.",
+   "ok": true
+  },
+  {
+   "claim": "The gold slipper found was Alicia Driscoll's but worn by Caroline West",
+   "anchor": "It is mine. But it was not I who walked in it down the balcony",
+   "span": "It is mine. But it was not I who walked in it down the balcony.",
+   "ok": true
+  },
+  {
+   "claim": "The red-stained paste is vivid and stains fingers dreadfully",
+   "anchor": "It’s of a vivid red, and stains the fingers dreadfully if you don’t take care",
+   "span": "It's of a vivid red, and stains the fingers dreadfully if you don't take care.",
+   "ok": true
+  },
+  {
+   "claim": "The social setting and relationships provided opportunity and motive",
+   "anchor": "The Inseparables had formed themselves into a coterie of five",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Violet Strange's investigation cleared Alicia Driscoll's name",
+   "anchor": "Violet Strange’s red-stained fingers test revealed the true thief",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Caroline West was considered immune from suspicion before the test",
+   "anchor": "Of all the five, she was the one who was considered absolutely immune from suspicion",
+   "span": "Of all the five, she was the one who was considered absolutely immune from suspicion ever since the night Mrs.",
+   "ok": true
+  },
+  {
+   "claim": "The thefts involved entering rooms via balconies and windows",
+   "anchor": "Two separate beams of light shot across it as she looked",
+   "span": "Two separate beams of light shot across it as she looked, and presently another, and, after some waiting, a fourth.",
+   "ok": true
+  },
+  {
+   "claim": "The red-stained fingers test was a decisive piece of evidence",
+   "anchor": "They are as white as milk",
+   "span": "They are as white as milk.",
+   "ok": true
+  },
+  {
+   "claim": "The gold slipper was a key physical clue",
+   "anchor": "Whose slipper is this?",
+   "span": "Whose slipper is this?\" he asked in a manner not to be gainsaid.",
+   "ok": true
+  },
+  {
+   "claim": "The social scandal and accusations caused tension among the group",
+   "anchor": "The anguish of this gave asperity to his manner",
+   "span": "The anguish of this gave asperity to his manner, and in a strange, hoarse tone he loudly cried: \"One of you did this.",
+   "ok": true
+  },
+  {
+   "claim": "The true culprit was revealed by a combination of physical and behavioral evidence",
+   "anchor": "Miss Strange has called it a jest",
+   "span": "Miss Strange has called it a jest,\" she coldly commented.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.123990816,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-08-31"
+}

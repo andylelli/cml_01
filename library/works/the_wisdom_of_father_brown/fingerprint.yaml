@@ -1,0 +1,12 @@
+- id: the_wisdom_of_father_brown
+  corpus: seed
+  axis: identity
+  mechanism_family: staged_scene
+  false_assumption_pattern: the_scene_proves_murder_by_other
+  discriminating_test_shape: timetable_contradiction
+  inference_shape: reconstruct_true_sequence_of_events
+  premise: >-
+    The case appears to be a straightforward murder of Sir Claude Champion, found stabbed with a
+    sword in a romantic setting, with his rival John Boulnois as the prime suspect. The victim was
+    jealous and 
+  source: library/works/the_wisdom_of_father_brown/case.cml2.yaml

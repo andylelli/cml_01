@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "John Boulnois was the murderer of Sir Claude Champion.",
+  "type": "identity",
+  "why_it_seems_reasonable": "The presence of Boulnois near the crime scene and the dramatic nature of the death suggested a personal motive and opportunity. Witnesses and the victim's wife supported this view, making it a plausible accusation.",
+  "what_it_hides": "It hides the fact that the victim himself committed suicide in a staged manner to implicate Boulnois, who was elsewhere at the time."
+ },
+ "mechanism_description": "Sir Claude Champion committed suicide by stabbing himself with his own sword in a dramatic and symbolic manner to express his jealousy and despair. The sword was thrown to the ground after the act, and the scene was staged to implicate John Boulnois. Boulnois was innocent and was at Pendragon Park reading quietly at the time.",
+ "discriminating_test": {
+  "method": "constraint_proof",
+  "design": "Reenact the timing and positioning of Sir Claude Champion and John Boulnois on the night of the murder. Verify the presence of Boulnois at Pendragon Park reading quietly while the murder occurred in the garden. Examine the sword for fingerprints and the location of the wound on Sir Claude.",
+  "knowledge_revealed": "This test reveals that Boulnois could not have committed the murder and that the death was self-inflicted by Sir Claude.",
+  "pass_condition": "Boulnois is confirmed to be at Pendragon Park at the time of death, and the sword’s fingerprints and wound location are consistent with suicide."
+ },
+ "changed": [],
+ "confidence": "high"
+}

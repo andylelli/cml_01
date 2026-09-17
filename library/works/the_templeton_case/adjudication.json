@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "The cigar band found at the scene uniquely identified the artist Grayson as the murderer.",
+  "type": "identity",
+  "why_it_seems_reasonable": "The cigar band was found at the crime scene and matched the brand smoked by Grayson, linking him to the yacht at the time of the murder. The presence of multiple bands of the same brand in the grate reinforced this belief.",
+  "what_it_hides": "The cigar band was switched during the inquest by the coroner to implicate Grayson falsely. The actual murderer, Norwood, possessed the same brand and manipulated the evidence to mislead investigators."
+ },
+ "mechanism_description": "Norwood, fearing exposure for his embezzlement, arranged a meeting with Templeton under the pretense of settling a blackmail demand. He accompanied Templeton back to the yacht, where he murdered him with a dagger. Norwood staged the scene by changing the cigar band and planting a dummy walking-stick to mislead the investigation.",
+ "discriminating_test": {
+  "method": "trap",
+  "design": "Detective Colson planted the original walking-stick in the dinghy and watched to see if the suspect would attempt to retrieve it. The suspect’s behavior in attempting to recover the stick would confirm his guilt.",
+  "knowledge_revealed": "The test revealed that Norwood was the only one who tried to recover the walking-stick, confirming his involvement.",
+  "pass_condition": "The suspect must be observed attempting to retrieve the planted walking-stick from the dinghy."
+ },
+ "changed": [],
+ "confidence": "high"
+}

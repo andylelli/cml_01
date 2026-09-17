@@ -1,0 +1,50 @@
+pattern_id: the_memoirs_of_sherlock_holmes
+title: The Hidden Hoof
+family: behavioral
+axes:
+  - identity
+principle: >-
+  It conceals the fact that the victim was killed accidentally by the horse during his own sabotage
+  attempt, and that a suspect was innocent and merely a red herring.
+principleType: physical_law
+surface_illusion_template: >-
+  a suspect a suspect kidnapped the horse and murdered the victim during a confrontation.; The horse
+  was stolen by gypsies who fled the area.; the victim was killed by a suspect using the heavy stick
+  found at the scene.
+underlying_reality_template: >-
+  a witness the victim attempted to sabotage Silver Blaze by surgically nicking the horse's tendon
+  to affect its performance. During this attempt, the horse reacted violently, striking the victim
+  with its hoof and fatally injuring him. The horse then fled in a blaze of panic but was hidden by
+  the culprit, who sought to profit from the situation by betting against Silver Blaze while
+  secretly protecting the horse.
+feasibility:
+  eras:
+    - 1850
+    - 1860
+    - 1870
+    - 1880
+    - 1890
+    - 1900
+    - 1910
+    - 1920
+    - 1930
+    - 1940
+    - 1950
+  requires:
+    - animal_behavior
+    - physical_evidence_analysis
+    - medical_wound_examination
+  forbids:
+    - cctv
+    - modern_toxicology_screen
+clue_archetypes:
+  - chemical_analysis_report_of
+  - stable_boy_ned_hunter
+  - stable_boy_s_account
+  - dog_s_behavior_report
+  - examination_of_the_knife
+  - holmes_s_knowledge_of
+sources:
+  - >-
+    Arthur Conan Doyle, The Memoirs of Sherlock Holmes —
+    library/works/the_memoirs_of_sherlock_holmes/case.cml2.yaml

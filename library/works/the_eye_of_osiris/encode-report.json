@@ -1,0 +1,136 @@
+{
+ "slug": "the_eye_of_osiris",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "John Bellingham was last seen alive on October 14, 1902",
+   "anchor": "he was last seen alive on the fourteenth of October, nineteen hundred and two",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The will made inheritance conditional on burial in specific parishes",
+   "anchor": "the conditions as to burial have not been complied with",
+   "span": "He points out--quite correctly, I am afraid--that as the conditions as to burial have not been complied with, the property must come to him, and he proposes a very neat little arrangement, which is this: That I shall support him and Jellicoe in their application for permission to presume death and to administer the will, and that he shall pay me four hundred a year for life; the arrangement to hold good _in all eventualities_.",
+   "ok": true
+  },
+  {
+   "claim": "A scarab belonging to John Bellingham was found on the grounds of Godfrey Bellingham",
+   "anchor": "a scarab which Mr. John Bellingham had been accustomed to wear suspended from his watch-chain",
+   "span": "The latter picked it up, and they all recognized it as a scarab which Mr. John Bellingham had been accustomed to wear suspended from his watch-chain.",
+   "ok": true
+  },
+  {
+   "claim": "Dismembered human remains were found in a watercress-bed at Sidcup",
+   "anchor": "fragments of a dismembered human body",
+   "span": "But before proceeding to a description of the circumstances of the actual discovery or of the objects found--which, however, it may be stated at once, are nothing more or less than the fragments of a dismembered human body--it will be interesting to trace the remarkable chain of coincidences by virtue of which the discovery was made.",
+   "ok": true
+  },
+  {
+   "claim": "The third finger of the left hand was missing from the remains",
+   "anchor": "the hand--a left one--lying on the mud was minus its third finger",
+   "span": "And now another very strange fact came to light; for it was seen that the hand--a left one--lying on the mud was minus its third finger.",
+   "ok": true
+  },
+  {
+   "claim": "The missing finger was amputated after death",
+   "anchor": "The finger has been amputated",
+   "span": "'The finger has been amputated,' was the reply.",
+   "ok": true
+  },
+  {
+   "claim": "The mummy was presented to the British Museum before Bellingham's disappearance",
+   "anchor": "The mummy was inspected on the fourteenth of October at Mr. Bellingham's house",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "X-ray photography revealed dental fillings matching Bellingham's dentist records",
+   "anchor": "The use of gold stoppings--and artificial teeth, too--by the ancient Egyptians is well known",
+   "span": "The use of gold stoppings--and artificial teeth, too--by the ancient Egyptians is well known, but we have no examples in this Museum.",
+   "ok": true
+  },
+  {
+   "claim": "The mummy contained surgical wires in the knee-caps matching Bellingham's operation",
+   "anchor": "pieces of silver wire which have been used to repair fractured kneecaps",
+   "span": "They are pieces of silver wire which have been used to repair fractured kneecaps.",
+   "ok": true
+  },
+  {
+   "claim": "Jellicoe had opportunity and motive to murder Bellingham",
+   "anchor": "the only probable conclusion from the facts that were given",
+   "span": "But I did decide that that was the only probable conclusion from the facts that were given.",
+   "ok": true
+  },
+  {
+   "claim": "Jellicoe substituted the mummy for the real body to conceal the murder",
+   "anchor": "he concealed his body by substituting it with an Egyptian mummy",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Jellicoe committed suicide when confronted",
+   "anchor": "he slid forward off his chair and disappeared under the table",
+   "span": "Suddenly his head dropped on his breast and his body seemed to collapse; and as with one accord we sprang to our feet, he slid forward off his chair and disappeared under the table.",
+   "ok": true
+  },
+  {
+   "claim": "The Probate Court refused to presume death due to insufficient evidence",
+   "anchor": "We find no sufficient reason for presuming the testator, John Bellingham, to be dead",
+   "span": "We find no sufficient reason for presuming the testator, John Bellingham, to be dead,\" he nodded approvingly.",
+   "ok": true
+  },
+  {
+   "claim": "The dismembered bones were parts of the mummy, not the real body",
+   "anchor": "the remains are parts of a particular kind of body",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The missing finger was removed to conceal identity, not to save a ring",
+   "anchor": "the absence of the finger was an additional point tending to implicate Mr. Jellicoe",
+   "span": "Whence it followed that the absence of the finger was an additional point tending to implicate Mr. Jellicoe.",
+   "ok": true
+  },
+  {
+   "claim": "The visitor at Hurst's house was an impersonator, not Bellingham",
+   "anchor": "the visitor was not John Bellingham, but some one personating him",
+   "span": "Hurst's house had only one reasonable explanation, namely, that the visitor was not John Bellingham, but some one personating him; and that that some one was Mr.",
+   "ok": true
+  },
+  {
+   "claim": "The scarab was planted by Jellicoe to mislead suspicion",
+   "anchor": "the scarab was dropped by the real culprit, Jellicoe, to mislead suspicion",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The will was deliberately drawn to benefit Hurst and Jellicoe",
+   "anchor": "the defective provisions was Mr. Jellicoe",
+   "span": "And this was the odd feature in the case, for whereas the party responsible for the defective provisions was Mr. Jellicoe, the party who benefited was Hurst.",
+   "ok": true
+  },
+  {
+   "claim": "The discovery of bones in the watercress-bed was orchestrated by Jellicoe",
+   "anchor": "these remains were brought to light at this peculiarly opportune moment by the action of Mr. Jellicoe",
+   "span": "Therefore these remains were brought to light at this peculiarly opportune moment by the action of Mr. Jellicoe.",
+   "ok": true
+  },
+  {
+   "claim": "The final identification of the body was made by X-ray photography",
+   "anchor": "I took an X-ray photograph",
+   "span": "I took an X-ray photograph.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.132853668,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-08-31"
+}

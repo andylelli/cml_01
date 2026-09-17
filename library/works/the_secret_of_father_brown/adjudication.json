@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "The murderer entered the house through the front door and chased Gwynne into the garden.",
+  "type": "spatial",
+  "why_it_seems_reasonable": "The broken mirror and signs of struggle in the hall suggest a confrontation inside the house. Witnesses saw the front door unlatched and assumed the murderer used it.",
+  "what_it_hides": "The victim was never inside the house at the time of the shooting; the murderer shot Gwynne outside near the pond, and the broken mirror was caused by a bullet fired at a reflection."
+ },
+ "mechanism_description": "John Bankes, motivated by greed, orchestrated a jewel theft using a disguise to mislead witnesses. He killed Michael Moonshine to cover his tracks and staged the scene to implicate others. The murder of Sir Humphrey Gwynne was unrelated to the poet and was a separate incident involving a struggle and a bullet fired by the real culprit.",
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "Father Brown and others reenact the theft of the ruby by simulating the painted hand appearing at the window and the quick glove removal by the suspect. They observe the timing and physical possibility of the hand's movement around the pillar.",
+  "knowledge_revealed": "The reenactment shows the hand was that of Tommy Hunter, painted brown, and the theft was an illusion.",
+  "pass_condition": "The reenactment must demonstrate the hand could appear and disappear without the ruby leaving the original place."
+ },
+ "changed": [],
+ "confidence": "high"
+}

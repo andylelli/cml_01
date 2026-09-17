@@ -1,0 +1,46 @@
+pattern_id: the_lodger
+title: The Composite Phantom
+family: timing
+axes:
+  - identity
+principle: >-
+  The description is a composite of different witnesses’ accounts and does not represent the true
+  identity of the murderer, who is an older, eccentric man with a different appearance.
+principleType: cognitive_bias
+surface_illusion_template: >-
+  The Avenger is a respectable young man living in the East End; The murders are committed by a
+  single sane individual with a clear motive; Mr. the culprit is innocent and merely an eccentric
+  gentleman
+underlying_reality_template: >-
+  Mr. the culprit, an escaped lunatic driven by religious mania, uses the cover of his lodgings with
+  the Buntings to hide his identity. He commits murders at night, carrying a bag containing his
+  weapon, and leaves a distinctive paper as a calling card. His eccentric behavior and nocturnal
+  outings mask his homicidal activities until his exposure at Madame Tussaud’s forces him to flee.
+feasibility:
+  eras:
+    - 1850
+    - 1860
+    - 1870
+    - 1880
+    - 1890
+    - 1900
+    - 1910
+    - 1920
+    - 1930
+    - 1940
+    - 1950
+  requires:
+    - social_deference
+    - witness_statement_collection
+  forbids:
+    - cctv
+    - voice_authentication
+clue_archetypes:
+  - witness_statements_from_inquest
+  - mr_cannot_s_testimony
+  - bunting_s_account_of
+  - mr_sleuth_s_mention
+  - mrs_bunting_s_observations
+  - joe_chandler_s_police
+sources:
+  - Marie Belloc Lowndes, The Lodger — library/works/the_lodger/case.cml2.yaml

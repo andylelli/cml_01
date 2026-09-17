@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "No shot was fired because no noise or smoke was detected by witnesses.",
+  "type": "behavioral",
+  "why_it_seems_reasonable": "Witnesses in the office heard no gunshot or saw smoke, and the doors were open with many people present. It is natural to conclude no shot was fired or it was fired outside.",
+  "what_it_hides": "The use of a silencer and the concealment of the weapon in a coat allowed the shot to be fired silently and unseen within the office."
+ },
+ "mechanism_description": "James Bruce concealed a silenced thirty-two-calibre revolver in Mrs. Parker's pongee automobile-coat. He fired the shot unseen and unheard within the office, using the coat to deaden the flash. The bullet passed through the coat, leaving fabric impressions matching the coat found. The silencer prevented noise and smoke, explaining the witnesses' lack of detection.",
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "Kennedy fired a thirty-two-calibre revolver through a piece of pongee silk matching the victim's coat, using a silencer device to demonstrate the absence of noise and smoke. The bullet was then compared microscopically to the bullet recovered from the victim's neck to confirm matching fabric impressions.",
+  "knowledge_revealed": "This test revealed that the shot was fired silently through the coat, explaining the witnesses' failure to hear or see the weapon, and linking the bullet to the coat belonging to Mrs. Parker.",
+  "pass_condition": "The bullet fired through the silenced revolver and pongee coat must bear identical fabric impressions to the bullet recovered from the victim."
+ },
+ "changed": [],
+ "confidence": "high"
+}

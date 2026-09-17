@@ -1,0 +1,12 @@
+- id: that_affair_next_door
+  corpus: seed
+  axis: identity
+  mechanism_family: impersonation
+  false_assumption_pattern: the_dead_is_who_they_appear
+  discriminating_test_shape: behavioral_tell
+  inference_shape: unmask_false_identity
+  premise: >-
+    A young woman is found dead under an overturned cabinet in the Van Burnam family mansion.
+    Initial suspicion falls on Howard Van Burnam, but evidence and investigation reveal a complex
+    plot involving d
+  source: library/works/that_affair_next_door/case.cml2.yaml

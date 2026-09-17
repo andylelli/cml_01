@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "Brian Fitzgerald was the man who got into the cab with Oliver Whyte and murdered him.",
+  "type": "identity",
+  "why_it_seems_reasonable": "The cabman Royston swore that the man who got into the cab resembled Fitzgerald and spoke as if he knew Whyte. Fitzgerald was known to have threatened Whyte and was found with Whyte's glove in his coat pocket.",
+  "what_it_hides": "It hides the fact that the man who got into the cab was actually Roger Moreland impersonating Fitzgerald, and that Fitzgerald had a solid alibi supported by Sal Rawlins."
+ },
+ "mechanism_description": "Mark Frettlby, to protect his secret marriage and prevent Oliver Whyte from marrying his daughter Madge, murdered Whyte by administering chloroform in a hansom cab. Roger Moreland, an accomplice, impersonated Brian Fitzgerald to mislead witnesses and escape detection. The murder was committed quietly without struggle, and the stolen marriage certificate was taken from Whyte's secret pocket.",
+ "discriminating_test": {
+  "method": "constraint_proof",
+  "design": "Investigators compared the timeline of Brian Fitzgerald's alibi with the time the murder occurred, using testimonies about the kitchen clock corrected by a watchmaker and the witness Sal Rawlins' account of Fitzgerald's presence at the slum. They also examined the presence of a diamond ring on the man who left the cab, which Fitzgerald never wore but Moreland did. The discovery of Whyte's coat in the Fitzroy Gardens further constrained the possible movements of suspects.",
+  "knowledge_revealed": "The test revealed that Fitzgerald could not have been the murderer as he was accounted for during the murder time, and that Moreland's movements and possessions matched those of the murderer.",
+  "pass_condition": "The suspect must have been physically present at the murder scene during the time of the crime and possess the distinctive items (ring, coat) linked to the murder."
+ },
+ "changed": [],
+ "confidence": "high"
+}

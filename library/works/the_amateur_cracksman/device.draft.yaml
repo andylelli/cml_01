@@ -1,0 +1,48 @@
+pattern_id: the_amateur_cracksman
+title: The Borrowed Alibi
+family: timing
+axes:
+  - identity
+principle: >-
+  It hides the fact that the actual killer is the culprit, who acted in self-defense and was
+  assisted by the investigator and a witness to avoid capture.
+principleType: social_logic
+surface_illusion_template: >-
+  a suspect was the murderer trying to escape capture; the investigator was involved in the murder
+  to protect himself; the culprit confession was a ploy to take the blame
+underlying_reality_template: >-
+  the culprit killed the victim in self-defense during a confrontation at the victim house. the
+  culprit had lured the victim into a trap and, when threatened, used a poker to strike the victim
+  fatally. the investigator and a witness arrived afterward and helped the culprit escape to avoid
+  suspicion falling on them.
+feasibility:
+  eras:
+    - 1850
+    - 1860
+    - 1870
+    - 1880
+    - 1890
+    - 1900
+    - 1910
+    - 1920
+    - 1930
+    - 1940
+    - 1950
+  requires:
+    - social_deference
+    - timed_arrival
+    - physical_evidence_manipulation
+  forbids:
+    - cctv
+    - electronic_timekeeping
+clue_archetypes:
+  - rutter_s_bloody_shirt
+  - witness_statement_of_rutter
+  - newspaper_report_of_crawshay
+  - eyewitness_account_placing_crawshay
+  - timeline_of_raffles_and
+  - physical_evidence_showing_no
+sources:
+  - >-
+    E. W. (Ernest William) Hornung, The Amateur Cracksman —
+    library/works/the_amateur_cracksman/case.cml2.yaml

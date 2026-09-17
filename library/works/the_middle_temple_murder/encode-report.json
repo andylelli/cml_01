@@ -1,0 +1,136 @@
+{
+ "slug": "the_middle_temple_murder",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "The victim was found lying in an entry in Middle Temple Lane",
+   "anchor": "a man lying in one of them entries down the lane",
+   "span": "him, there-the porter-that there's a man lying in one of them entries down the lane, and he thinks he's dead.",
+   "ok": true
+  },
+  {
+   "claim": "The victim was struck down from behind by a terrible blow",
+   "anchor": "the back of his skull is smashed in",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "A scrap of grey paper with Ronald Breton's name was found on the victim",
+   "anchor": "a scrap of grey writing paper crumpled up in the poor man’s waistcoat pocket",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The victim was identified as John Marbury who had recently arrived from Australia",
+   "anchor": "John Marbury, Coolumbidgee, New South Wales",
+   "span": "'John Marbury, Coolumbidgee, New South Wales,'\" said Rathbury.",
+   "ok": true
+  },
+  {
+   "claim": "Stephen Aylmore, M.P., was arrested on suspicion of the murder",
+   "anchor": "Mr. Stephen Aylmore, M.P., was arrested at two o’clock this afternoon",
+   "span": "Mr. Stephen Aylmore, M.P., was arrested at two o'clock this afternoon, on his way to the House of Commons, on a charge of being concerned in the murder of John Marbury in Middle Temple Lane on the night of June 21st last.",
+   "ok": true
+  },
+  {
+   "claim": "The murder weapon was found and identified as belonging to Aylmore",
+   "anchor": "some of his hair on it—mixed with blood",
+   "span": "There's some of his hair on it-mixed with blood,\" he answered.",
+   "ok": true
+  },
+  {
+   "claim": "The leather box deposited by the victim was found empty",
+   "anchor": "The box was empty!",
+   "span": "The box was empty! Empty, as anything that can be empty is empty!",
+   "ok": true
+  },
+  {
+   "claim": "A silver ticket of Market Milcaster racecourse was found in the leather box",
+   "anchor": "one of the original silver stand tickets of the old racecourse at Market Milcaster",
+   "span": "It's one of the original silver stand tickets of the old racecourse at Market Milcaster,\" answered Crowfoot.",
+   "ok": true
+  },
+  {
+   "claim": "The victim was actually John Maitland, ex-bank manager and ex-convict",
+   "anchor": "John Maitland, aged 42, bank manager",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Chamberlayne faked his death and assumed the identity of Cardlestone",
+   "anchor": "The old man in that room, whom you know as Nicholas Cardlestone, is in reality Chamberlayne",
+   "span": "The old man in that room, whom you know as Nicholas Cardlestone, is in reality Chamberlayne, the stockbroker, of Market Milcaster, whose name was so freely mentioned when your father was tried there.",
+   "ok": true
+  },
+  {
+   "claim": "Elphick and Cardlestone fled after being confronted with evidence",
+   "anchor": "Mr. Elphick and Mr. Cardlestone early this morning—soon after seven",
+   "span": "I got a taxi for Mr. Elphick and Mr. Cardlestone early this morning-soon after seven.",
+   "ok": true
+  },
+  {
+   "claim": "Myerst was involved in blackmail and had knowledge of the murder",
+   "anchor": "I helped to carry out his mock death and burial—I was a solicitor in those days",
+   "span": "I helped to carry out his mock death and burial-I was a solicitor in those days, and my name was-something else.",
+   "ok": true
+  },
+  {
+   "claim": "Myerst found the victim's body and stripped it of valuables",
+   "anchor": "I was the first person to find my father lying dead",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Elphick confessed to taking the victim to his chambers on the night of the murder",
+   "anchor": "I took Marbury into the Temple that night",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The victim was murdered at the foot of Cardlestone's stairs",
+   "anchor": "Maitland was found lying dead at the foot of Cardlestone’s stairs",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The coffin of Chamberlayne was found empty and filled with sawdust and lead",
+   "anchor": "The coffin was packed to the brim with sawdust",
+   "span": "The coffin was packed to the brim with sawdust, tightly pressed down.",
+   "ok": true
+  },
+  {
+   "claim": "The rare Australian stamps were found in Cardlestone's chambers",
+   "anchor": "those stamps were in the hands of—Cardlestone",
+   "span": "And-I found out that those stamps were in the hands of-Cardlestone!",
+   "ok": true
+  },
+  {
+   "claim": "Myerst explained the conspiracy and his role in it",
+   "anchor": "I know no more of the absolute murder of your father than I know of what is going on in Timbuctoo",
+   "span": "Well, the plain truth is that I know no more of the absolute murder of your father than I know of what is going on in Timbuctoo at this moment!",
+   "ok": true
+  },
+  {
+   "claim": "Stephen Aylmore was cleared of the murder charge",
+   "anchor": "Stephen Aylmore walk out of the Bow Street dock, cleared of the charge",
+   "span": "Some days later, Spargo, having seen Stephen Aylmore walk out of the Bow Street dock, cleared of the charge against him, and in a fair way of being cleared of the affair of twenty years before, found himself in a very quiet corner of the Court holding the hand of Jessie Aylmore, who, he discovered, was saying things to him which he scarcely comprehended.",
+   "ok": true
+  },
+  {
+   "claim": "Ronald Breton is the son of the murdered man John Maitland",
+   "anchor": "Ronald Breton is the son of the murdered man, and Ronald Breton is in reality Maitland’s son",
+   "span": "",
+   "ok": false
+  }
+ ],
+ "costGbp": 0.12007589200000002,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-08-31"
+}

@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "The escaped convict Crawshay is the murderer who killed Angus Baird.",
+  "type": "identity",
+  "why_it_seems_reasonable": "Crawshay was recently escaped from prison and was seen near the crime scene, making him a prime suspect. His criminal background and suspicious behavior make him a natural focus of suspicion.",
+  "what_it_hides": "It hides the fact that the actual killer is Jack Rutter, who acted in self-defense and was assisted by Raffles and Bunny to avoid capture."
+ },
+ "mechanism_description": "Jack Rutter killed Angus Baird in self-defense during a confrontation at Baird's house. Rutter had lured Baird into a trap and, when threatened, used a poker to strike Baird fatally. Raffles and Bunny arrived afterward and helped Rutter escape to avoid suspicion falling on them.",
+ "discriminating_test": {
+  "method": "constraint_proof",
+  "design": "Reenact the timeline of the murder night, verifying the presence and actions of Rutter, Raffles, Bunny, and Crawshay. Confirm the physical evidence such as the poker's blood traces and the timing of arrivals at the crime scene. Cross-check witness statements with physical traces and access records.",
+  "knowledge_revealed": "This test reveals that Rutter was the only person who had the opportunity and motive to kill Baird in self-defense, and that Crawshay was not present at the time of the murder.",
+  "pass_condition": "The timeline and physical evidence must conclusively show that Rutter committed the murder and that Crawshay could not have done so."
+ },
+ "changed": [],
+ "confidence": "high"
+}

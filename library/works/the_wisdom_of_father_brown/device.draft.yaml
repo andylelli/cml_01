@@ -1,0 +1,47 @@
+pattern_id: the_wisdom_of_father_brown
+title: The Framed Death
+family: spatial_routing
+axes:
+  - identity
+principle: >-
+  It hides the fact that the victim himself committed suicide in a staged manner to implicate
+  Boulnois, who was elsewhere at the time.
+principleType: cognitive_bias
+surface_illusion_template: >-
+  John Boulnois committed the murder out of jealousy.; The dramatic setting and sword indicate a
+  crime of passion.; Sir Claude Champion's death was a homicide, not suicide.
+underlying_reality_template: >-
+  Sir Claude Champion committed suicide by stabbing himself with his own sword in a dramatic and
+  symbolic manner to express his jealousy and despair. The sword was thrown to the ground after the
+  act, and the scene was staged to implicate John Boulnois. Boulnois was innocent and was at
+  Pendragon Park reading quietly at the time.
+feasibility:
+  eras:
+    - 1850
+    - 1860
+    - 1870
+    - 1880
+    - 1890
+    - 1900
+    - 1910
+    - 1920
+    - 1930
+    - 1940
+    - 1950
+  requires:
+    - physical_staging
+    - social_testimony
+  forbids:
+    - cctv
+    - voice_authentication
+clue_archetypes:
+  - examination_of_knots_on
+  - todhunter_s_own_admission
+  - layout_and_angles_of
+  - testimony_of_father_brown
+  - fingerprints_on_the_sword
+  - witness_testimony_of_mrs
+sources:
+  - >-
+    G. K. (Gilbert Keith) Chesterton, The wisdom of Father Brown —
+    library/works/the_wisdom_of_father_brown/case.cml2.yaml

@@ -1,0 +1,49 @@
+pattern_id: the_secret_of_father_brown
+title: The Painted Hand
+family: spatial_routing
+axes:
+  - spatial
+principle: >-
+  The victim was never inside the house at the time of the shooting; the murderer shot the victim
+  outside near the pond, and the broken mirror was caused by a bullet fired at a reflection.
+principleType: cognitive_bias
+surface_illusion_template: >-
+  a suspect a suspect committed the murder due to his suspicious presence; The murderer entered
+  through the front door and chased the victim into the garden; a witness a witness was involved in
+  the crime due to irregular garden entry
+underlying_reality_template: >-
+  the culprit, motivated by greed, orchestrated a jewel theft using a disguise to mislead witnesses.
+  He killed a witness Moonshine to cover his tracks and staged the scene to implicate others. The
+  murder of Sir the victim was unrelated to the poet and was a separate incident involving a
+  struggle and a bullet fired by the real culprit.
+feasibility:
+  eras:
+    - 1850
+    - 1860
+    - 1870
+    - 1880
+    - 1890
+    - 1900
+    - 1910
+    - 1920
+    - 1930
+    - 1940
+    - 1950
+  requires:
+    - physical_disguise
+    - mirror_or_glass
+    - quick_hand_movement
+  forbids:
+    - cctv
+    - voice_authentication
+clue_archetypes:
+  - witness_testimony_about_orm
+  - expert_opinion_on_poet
+  - physical_examination_of_broken
+  - father_brown_s_analysis
+  - flood_s_statements
+  - servant_green_s_testimony
+sources:
+  - >-
+    G. K. (Gilbert Keith) Chesterton, The secret of Father Brown —
+    library/works/the_secret_of_father_brown/case.cml2.yaml

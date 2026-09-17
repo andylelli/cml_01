@@ -1,0 +1,124 @@
+{
+ "slug": "max_carrados",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "The victim of the theft is the Lucas Street safe deposit clients",
+   "anchor": "The Lucas Street depository was then generally accepted as being one of the strongest places in London",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The cause of the theft is key duplication and disguise",
+   "anchor": "He duplicated the keys for his own private ends",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The culprit is Ulysses K. Groom, known as Harry the Actor",
+   "anchor": "The man is called Ulysses K. Groom, but he is better known as 'Harry the Actor'",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The mechanism involves renting multiple safes and duplicating keys",
+   "anchor": "He rented twelve safes of different sizes and made duplicates for his own private ends",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The false assumption is that the British Museum coin theft was genuine",
+   "anchor": "There had been no robbery at the British Museum! That plausible concoction was as fictitious as the intentionally transparent tale of treasure trove",
+   "span": "There had been no robbery at the British Museum! That plausible concoction was as fictitious as the intentionally transparent tale of treasure trove.",
+   "ok": true
+  },
+  {
+   "claim": "The red herring of the tawny man suspected of involvement",
+   "anchor": "The tawny man crossed our path",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The red herring of Madame Ferraja's identity as Nina Brun",
+   "anchor": "Madame Ferraja, of the Sicilian tetradrachm incident",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The discriminating test is the darkness trap",
+   "anchor": "Suddenly and instantly the room was plunged into absolute darkness",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The evidence of the burned-out wire in the distributing box",
+   "anchor": "Every lamp on that fuse is cut off and in the distributing-box in the hall you will find a burned-out wire",
+   "span": "Every lamp on that fuse is cut off and in the distributing-box in the hall you will find a burned-out wire.",
+   "ok": true
+  },
+  {
+   "claim": "The psychological pause when hearing 'New York' reveals the culprit",
+   "anchor": "Into his step there came the 'psychological pause,' an absolute arrest of perhaps a fifth of a second",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The accomplice's photographs of the record-book pages",
+   "anchor": "Mrs Harry, with quite ridiculous ease, got photographs of the necessary page or two of the record-book",
+   "span": "Mrs Harry, with quite ridiculous ease, got photographs of the necessary page or two of the record-book.",
+   "ok": true
+  },
+  {
+   "claim": "The manager's denial of complicity",
+   "anchor": "I have satisfied myself that the manager did not exist",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The presence of the accomplices at Heronsbourne Place",
+   "anchor": "Madame Ferraja and her husband, Dompierre, and Montmorency",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The final capture of the conspirators",
+   "anchor": "Inspector Beedel could not wait for me, after all",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The motive of financial gain for the thefts",
+   "anchor": "He wanted money for the honeymoon",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The use of disguises to avoid recognition",
+   "anchor": "He appeared at 'The Safe' in twelve different characters",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The forged coins scheme involving Madame Ferraja",
+   "anchor": "Helene Brunesi, who in private life is Madame Dompierre",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The accomplices' plan to mislead investigators with a fake theft",
+   "anchor": "The supposed British Museum coin theft was a ruse by Dompierre, Montmorency, and Madame Dompierre",
+   "span": "",
+   "ok": false
+  }
+ ],
+ "costGbp": 0.11123263200000003,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-08-31"
+}

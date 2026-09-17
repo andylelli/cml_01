@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "The thumbprint found in the safe was genuine and conclusively proved Reuben's guilt.",
+  "type": "identity",
+  "why_it_seems_reasonable": "Fingerprint experts from Scotland Yard identified the print as Reuben's with absolute certainty, supported by the presence of a distinctive scar. The paper was found inside the locked safe with no signs of forced entry.",
+  "what_it_hides": "It hides the possibility that the thumbprint was a carefully crafted forgery made using photographic and stamping techniques, exploiting the genuine thumbprint from the 'Thumbograph' and using defibrinated blood to simulate a fresh print."
+ },
+ "mechanism_description": "The crime was committed by forging the thumbprint found in the safe using a stamp made from the genuine thumbprint in the 'Thumbograph' book. The forged print was larger and included an accidental mark from a loose fibre on the original paper, proving it was a photo-mechanical reproduction designed to implicate Reuben falsely. Walter Hornby, skilled in photography and printing, had access to the 'Thumbograph' and typewriter, enabling him to create the forgery and frame Reuben.",
+ "discriminating_test": {
+  "method": "trap",
+  "design": "Thorndyke prepared a sheet with twenty thumbprint squares, ten genuine and ten forged using multiple stamps from different impressions. The sheet was presented to fingerprint experts to identify genuine versus forged prints without prior knowledge of the distribution.",
+  "knowledge_revealed": "The experts failed to correctly distinguish forged prints from genuine ones, proving that the forged prints were indistinguishable and that fingerprint evidence alone is unreliable.",
+  "pass_condition": "Experts must fail to correctly identify all forged prints, demonstrating the possibility of undetectable fingerprint forgery."
+ },
+ "changed": [],
+ "confidence": "high"
+}

@@ -1,0 +1,127 @@
+{
+ "slug": "the_templeton_case",
+ "spans": [
+  {
+   "claim": "Reginald Templeton was found dead on the floor of the yacht cabin",
+   "anchor": "lying there in the cabin—on the floor",
+   "span": "I found him lying there in the cabin-on the floor.",
+   "ok": true
+  },
+  {
+   "claim": "Templeton was stabbed in the back with a triangular wound",
+   "anchor": "Stabbed in the back",
+   "span": "Stabbed in the back,\" he said presently, \"and whoever did it knew the right place-right through the heart, as far as I can see.",
+   "ok": true
+  },
+  {
+   "claim": "A cigar band was found on the floor of the cabin",
+   "anchor": "a band off a cigar—lying on the floor of the cabin",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The cigar band was similar to those smoked by Canon Fittleworth",
+   "anchor": "particular brand reserved for the planters",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The walking-stick found in the dinghy was not Templeton’s",
+   "anchor": "I found under the stern seat of the dinghy",
+   "span": "I found under the stern seat of the dinghy.",
+   "ok": true
+  },
+  {
+   "claim": "The walking-stick had a chipped handle",
+   "anchor": "a small piece had been chipped off the handle",
+   "span": "The only noticeable thing about it was that a small piece had been chipped off the handle.",
+   "ok": true
+  },
+  {
+   "claim": "The suspect changed the cigar band during the inquest",
+   "anchor": "the original cigar band was changed while passing round the jury",
+   "span": "Well, it's fairly obvious that the original cigar band was changed while passing round the jury.",
+   "ok": true
+  },
+  {
+   "claim": "Isaac Moss fled suddenly on Sunday morning",
+   "anchor": "He’s gone back to London, sir, with Mrs. Moss",
+   "span": "He's gone back to London, sir, with Mrs. Moss.",
+   "ok": true
+  },
+  {
+   "claim": "Harold Grayson left the inn suddenly early Sunday morning",
+   "anchor": "he came downstairs very early and announced his intention of leaving",
+   "span": "The landlady says he came downstairs very early and announced his intention of leaving at once.",
+   "ok": true
+  },
+  {
+   "claim": "Norwood was the coroner and a lawyer with financial troubles",
+   "anchor": "Francis Norwood was one of the best-known professional men",
+   "span": "Francis Norwood was one of the best-known professional men in Frattenbury and its neighbourhood.",
+   "ok": true
+  },
+  {
+   "claim": "Norwood was arrested for the murder of Templeton",
+   "anchor": "Mr. Norwood, I arrest you for the murder of Reginald Templeton",
+   "span": "Mr. Norwood, I arrest you for the murder of Reginald Templeton.",
+   "ok": true
+  },
+  {
+   "claim": "Norwood committed suicide in custody",
+   "anchor": "they found him hanging to the bar of the window",
+   "span": "But in the morning they found him hanging to the bar of the window-they have out-of-date cells in Frattenbury-his braces substituted for the rope that he would have eventually earned.",
+   "ok": true
+  },
+  {
+   "claim": "Ezra Grice was Norwood’s clerk and had incriminating proof",
+   "anchor": "Ezra Grice had been clerk in Francis Norwood’s office",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Templeton was blackmailing Norwood over embezzlement",
+   "anchor": "he must get those proofs in any case; it would mean utter ruin to him",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The murder was committed before 1 am Sunday",
+   "anchor": "the Cathedral clock strike one",
+   "span": "Just then I heard the Cathedral clock strike one.",
+   "ok": true
+  },
+  {
+   "claim": "The murderer left the walking-stick in the dinghy",
+   "anchor": "he left his walking-stick in the dinghy",
+   "span": "Blank' was a left-handed man, and thirdly that he made one fatal mistake-he left his walking-stick in the dinghy-and this is it!",
+   "ok": true
+  },
+  {
+   "claim": "The murderer returned the dinghy to the yacht by canoe",
+   "anchor": "he took the dinghy back to the yacht again",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The motive was to prevent exposure of Norwood’s crime",
+   "anchor": "he was desperate that night",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The false assumption about the cigar band implicated Grayson",
+   "anchor": "the cigar band found at the scene uniquely identified the artist Grayson",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The walking-stick was a key clue to the murderer’s identity",
+   "anchor": "the stick had been stowed away under the seat of the dinghy",
+   "span": "The point that Colson was building upon was the fact that the stick had been stowed away under the seat of the dinghy and was not found on board the yacht itself.",
+   "ok": true
+  }
+ ],
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-08-31"
+}

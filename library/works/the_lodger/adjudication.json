@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "The Avenger is a respectable young man carrying a newspaper parcel seen by witnesses.",
+  "type": "identity",
+  "why_it_seems_reasonable": "Multiple witnesses described a man fitting this description near the crime scenes, and police compiled an official description based on these accounts. The presence of a newspaper parcel is a distinctive and memorable detail.",
+  "what_it_hides": "The description is a composite of different witnesses’ accounts and does not represent the true identity of the murderer, who is an older, eccentric man with a different appearance."
+ },
+ "mechanism_description": "Mr. Sleuth, an escaped lunatic driven by religious mania, uses the cover of his lodgings with the Buntings to hide his identity. He commits murders at night, carrying a bag containing his weapon, and leaves a distinctive paper as a calling card. His eccentric behavior and nocturnal outings mask his homicidal activities until his exposure at Madame Tussaud’s forces him to flee.",
+ "discriminating_test": {
+  "method": "constraint_proof",
+  "design": "Reenact the lodger’s movements on the night of the double murder, verifying the timing of his nocturnal outings and the presence of the leather bag. Confirm the presence of the rubber-soled shoes and the peculiar knife in the lodger’s possession. Cross-check witness statements with physical evidence and lodger’s alibi to prove he was the murderer.",
+  "knowledge_revealed": "This test reveals that only Mr. Sleuth had the opportunity, means, and motive to commit the murders, and that the official suspect description is a composite misdirection.",
+  "pass_condition": "The lodger’s movements and possession of murder weapon and shoes match the crime scene evidence and witness accounts, eliminating other suspects."
+ },
+ "changed": [],
+ "confidence": "high"
+}

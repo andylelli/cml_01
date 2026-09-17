@@ -1,0 +1,364 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The Golden Slipper, and Other Problems for Violet Strange
+    author: Anna Katharine Green
+    license: Public domain (first published 1915; author died 1935). Project Gutenberg ebook 3071.
+    era:
+      decade: 1900s
+      realism_constraints:
+        - No modern forensic DNA or electronic surveillance
+        - Limited police procedural technology and reliance on witness testimony
+        - Social class and reputation heavily influence investigation and motives
+    setting:
+      location: New York City and surrounding areas
+      institution: Private detective agency (firm of ---- & ----) and local police
+    crime_class:
+      category: murder
+      subtype: mistaken identity and misdirected accusation
+  cast:
+    - name: Violet Strange
+      age_range: young adult
+      role_archetype: clever young female detective agent
+      relationships:
+        - Arthur Strange (brother)
+        - Roger Upjohn (client and love interest)
+      public_persona: vivacious society girl and debutante
+      private_secret: skilled investigator with a detective agency
+      motive_seed: dedication to justice and helping others
+      motive_strength: strong
+      alibi_window: always present and active
+      access_plausibility: high
+      opportunity_channels:
+        - social events
+        - private investigations
+      behavioral_tells:
+        - uses red-stained fingers test
+        - discreet and observant
+      stakes: professional reputation and personal integrity
+      evidence_sensitivity:
+        - jewelry
+        - witness statements
+        - physical traces
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: detective
+      moral_complexity: moderate
+    - name: Alicia Driscoll
+      age_range: young adult
+      role_archetype: society belle under suspicion
+      relationships:
+        - Mr. Driscoll (father)
+        - Captain Holliday (suitor)
+      public_persona: accomplished daughter of a wealthy family
+      private_secret: involved in theft accusations
+      motive_seed: unknown; possibly social pressure
+      motive_strength: weak
+      alibi_window: present at dinner party
+      access_plausibility: high
+      opportunity_channels:
+        - social gatherings
+      behavioral_tells:
+        - serene demeanor despite accusations
+      stakes: family reputation
+      evidence_sensitivity:
+        - jewelry
+        - footprints
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: female
+      role: suspect
+      moral_complexity: moderate
+    - name: Caroline West
+      age_range: young adult
+      role_archetype: friend and co-conspirator
+      relationships:
+        - Alicia Driscoll (friend and rival)
+      public_persona: member of The Inseparables, considered immune from suspicion
+      private_secret: confessed to taking the pendant to expose Alicia
+      motive_seed: revenge for lost lover and betrayal
+      motive_strength: strong
+      alibi_window: present at dinner party
+      access_plausibility: high
+      opportunity_channels:
+        - private access to rooms via balcony
+      behavioral_tells:
+        - wears gloves to hide stained fingers
+      stakes: personal vengeance and social justice
+      evidence_sensitivity:
+        - red-stained fingers
+        - gold slipper
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: female
+      role: culprit
+      moral_complexity: high
+    - name: Mr. Driscoll
+      age_range: middle-aged
+      role_archetype: patriarch and host
+      relationships:
+        - Alicia Driscoll (daughter)
+      public_persona: wealthy father and host of dinner party
+      private_secret: concerned about daughter's reputation
+      motive_seed: family honor
+      motive_strength: moderate
+      alibi_window: present at dinner party
+      access_plausibility: high
+      opportunity_channels:
+        - social events
+      behavioral_tells:
+        - anxious and observant
+      stakes: family reputation
+      evidence_sensitivity:
+        - jewelry
+        - guest testimonies
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+    - name: Captain Holliday
+      age_range: young adult
+      role_archetype: suitor and observer
+      relationships:
+        - Alicia Driscoll (fiancée)
+      public_persona: military officer and Alicia's suitor
+      private_secret: unaware of theft accusations
+      motive_seed: love and protection
+      motive_strength: none
+      alibi_window: present at dinner party
+      access_plausibility: medium
+      opportunity_channels:
+        - social events
+      behavioral_tells:
+        - concerned and attentive
+      stakes: relationship with Alicia
+      evidence_sensitivity:
+        - witness statements
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+    - name: Miss West
+      age_range: young adult
+      role_archetype: friend and suspect
+      relationships:
+        - Caroline West (friend)
+      public_persona: member of The Inseparables
+      private_secret: accused but denies involvement
+      motive_seed: unknown
+      motive_strength: weak
+      alibi_window: present at dinner party
+      access_plausibility: high
+      opportunity_channels:
+        - social gatherings
+      behavioral_tells:
+        - refuses to remove gloves
+      stakes: social standing
+      evidence_sensitivity:
+        - gloves
+        - fingerprints
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: female
+      role: suspect
+      moral_complexity: moderate
+  culpability:
+    culprit_count: 1
+    culprits:
+      - Caroline West
+  surface_model:
+    narrative:
+      summary: >-
+        A series of mysterious jewel thefts occur within a close-knit group of young society women
+        known as The Inseparables, culminating in the disappearance of a valuable pendant from
+        Violet Strange's room during a dinner party. Suspicion falls heavily on Alicia Driscoll, the
+        host's daughter, but Violet's investigation reveals hidden motives and secret actions among
+        the group.
+    accepted_facts:
+      - Valuable jewels have been mysteriously stolen and later returned.
+      - A gold-colored slipper was found outside Violet Strange's window.
+      - Caroline West was wearing gloves during the theft and refuses to remove them.
+      - Violet Strange used a red-stained paste on her pendant that would mark the thief's fingers.
+    inferred_conclusions:
+      - Alicia Driscoll was the primary thief responsible for the jewel thefts.
+      - The thief entered Violet Strange's room through the balcony unnoticed.
+      - Miss West was complicit in the theft due to her refusal to remove gloves.
+  hidden_model:
+    mechanism:
+      description: >-
+        Caroline West disguised herself by wearing Alicia Driscoll's slippers to access Violet
+        Strange's room via the balcony. She took the pendant by reaching through the open window and
+        stole it, believing it would expose Alicia's misdeeds. The red-stained paste on the pendant
+        marked her fingers, revealing her guilt despite her attempt to conceal it with gloves.
+      delivery_path:
+        - step: Caroline West wore Alicia Driscoll's slippers to mimic her presence.
+        - step: She accessed Violet Strange's room by traversing the balcony.
+        - step: The window was left ajar, allowing her hand to reach inside.
+        - step: She seized the pendant from the dresser.
+        - step: The red-stained paste on the pendant stained her fingers.
+        - step: She fled the scene, leaving behind a gold-colored slipper.
+        - step: Violet Strange's red-stained fingers test identified Caroline as the thief.
+    outcome:
+      result: >-
+        Caroline West confessed to the theft, clearing Alicia Driscoll's name and restoring order
+        among the group.
+  false_assumption:
+    statement: Alicia Driscoll was the thief who repeatedly stole and returned jewels.
+    type: identity
+    why_it_seems_reasonable: >-
+      Alicia was the most conspicuous member of the group and had been associated with several
+      thefts, making her the obvious suspect. The pattern of stolen items coinciding with her
+      presence reinforced this belief.
+    what_it_hides: >-
+      The true culprit was Caroline West, who used Alicia's identity and slippers to mislead others
+      and conceal her own guilt.
+  false_solution:
+    accused_suspect: Alicia Driscoll
+    supporting_points:
+      - Alicia was present at all theft incidents.
+      - She was found with a pale complexion and nervous demeanor.
+      - A gold slipper matching Alicia's was found near the scene.
+      - Her father accused her openly during the dinner party.
+    the_one_flaw: >-
+      The red-stained paste test on the thief's fingers showed Alicia's fingers were clean,
+      disproving her guilt.
+    refuted_in_chapter: 1
+  red_herrings:
+    - id: miss_west_gloves
+      description: Miss West's refusal to remove her gloves during the investigation suggested guilt.
+      points_at_suspect: Miss West
+      innocent_explanation: She wore gloves to hide red-stained fingers caused by the paste, but was not the thief.
+      resolved_in_chapter: 1
+    - id: alicia_pale_nervous
+      description: Alicia Driscoll's pale and nervous behavior during the accusations made her appear guilty.
+      points_at_suspect: Alicia Driscoll
+      innocent_explanation: Her demeanor was due to stress and fear of social scandal, not guilt.
+      resolved_in_chapter: 1
+  closed_circle:
+    suspects:
+      - Alicia Driscoll
+      - Caroline West
+      - Miss West
+      - Miss Hughson
+      - Miss Yates
+      - Miss Benedict
+      - Violet Strange
+    rationale: >-
+      The thefts occurred only during social gatherings involving these women, all of whom had
+      access to the rooms and opportunity to commit the crime.
+  constraint_space:
+    time:
+      anchors:
+        - dinner party night
+        - early morning after theft
+      windows:
+        - nighttime hours when guests retired
+        - intervals between social events
+    access:
+      actors:
+        - Caroline West
+        - Alicia Driscoll
+        - Miss West
+      objects:
+        - balcony
+        - window
+        - dresser
+    social:
+      trust_channels:
+        - social invitations
+        - family relationships
+      authority_sources:
+        - Mr. Driscoll (father)
+        - private detective agency
+  inference_path:
+    steps:
+      - observation: The pendant was stolen from Violet Strange's room through an open window.
+        correction: The window was left ajar intentionally to allow access.
+        effect: The thief had to be someone with knowledge of the room and access to the balcony.
+        required_evidence:
+          - Description of the open window and balcony access
+          - Witness statement about the window being left ajar
+        reader_observable: true
+      - observation: A gold-colored slipper was found outside Violet Strange's window.
+        correction: The slipper belonged to Caroline West, not Alicia Driscoll.
+        effect: The thief disguised herself using Alicia's slippers to mislead others.
+        required_evidence:
+          - Physical slipper found outside the window
+          - Testimony identifying the slipper's owner
+        reader_observable: true
+      - observation: The thief's fingers would be stained by the red paste used on the pendant.
+        correction: Caroline West's fingers were stained, but she wore gloves to conceal this.
+        effect: The red-stained fingers test revealed the true thief despite attempts to hide evidence.
+        required_evidence:
+          - Red-stained paste on pendant
+          - Observation of Caroline West wearing gloves
+        reader_observable: true
+      - observation: Alicia Driscoll was pale and nervous during accusations.
+        correction: Her demeanor was due to social pressure, not guilt.
+        effect: Alicia was innocent and a victim of misdirected suspicion.
+        required_evidence:
+          - Witness statements about Alicia's behavior
+          - Red-stained fingers test results
+        reader_observable: true
+      - observation: Miss West refused to remove gloves.
+        correction: She was hiding red-stained fingers but was not the thief.
+        effect: Miss West was a red herring, diverting suspicion from the real culprit.
+        required_evidence:
+          - Glove removal request and refusal
+          - Red-stained fingers test results
+        reader_observable: true
+      - observation: The pendant was returned mysteriously after thefts.
+        correction: Caroline West returned some stolen items to expose Alicia's guilt.
+        effect: The thefts were part of a personal vendetta, not random crimes.
+        required_evidence:
+          - Testimony about returned jewels
+          - Physical evidence of returned pendant in Violet Strange's room
+        reader_observable: true
+      - observation: Violet Strange's red-stained fingers test was decisive.
+        correction: The test conclusively identified Caroline West as the thief.
+        effect: The true culprit was revealed and cleared Alicia Driscoll.
+        required_evidence:
+          - Red-stained fingers test results showing stains on Caroline West's hands
+          - Physical observation of red stains on Caroline West's fingers after glove removal
+        reader_observable: true
+  discriminating_test:
+    method: constraint_proof
+    design: >-
+      Violet Strange applied a red-stained paste to her pendant, which would mark the fingers of
+      anyone who touched it. During the investigation, all suspects were asked to remove gloves and
+      show their hands. The presence or absence of red stains on their fingers served as a concrete
+      test of who had handled the pendant.
+    knowledge_revealed: >-
+      This test revealed that Caroline West's fingers were stained despite her attempts to conceal
+      them with gloves, proving her guilt.
+    pass_condition: >-
+      The true thief must have red-stained fingers matching the paste on the pendant, eliminating
+      all others.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given detailed descriptions of the social setting, the presence of the
+      red-stained paste on the pendant, and the discovery of the gold-colored slipper. The behavior
+      of the suspects, especially Caroline West's refusal to remove gloves, and Violet Strange's
+      observations provide all necessary clues. The red-stained fingers test is explicitly
+      described, allowing attentive readers to deduce the true culprit before the confession.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

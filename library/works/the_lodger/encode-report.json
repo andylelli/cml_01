@@ -1,0 +1,136 @@
+{
+ "slug": "the_lodger",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "The lodger is carrying a bag containing his murder weapon",
+   "anchor": "carried a bag—a rather light-coloured leather bag",
+   "span": "The man carried a bag-a rather light-coloured leather bag, in his left hand.",
+   "ok": true
+  },
+  {
+   "claim": "The Avenger leaves a triangular piece of paper pinned to victims",
+   "anchor": "pinned to the dress of the victim—a drunken woman—had been found a three-cornered piece of paper",
+   "span": "Then had come the third-and with that a wave of keen excitement, for pinned to the dress of the victim-a drunken woman-had been found a three-cornered piece of paper, on which was written, in red ink, and in printed characters, the words, \"THE AVENGER\" It was then realised, not only by those whose business it is to investigate such terrible happenings, but also by the vast world of men and women who take an intelligent interest in such sinister mysteries, that the same miscreant had committed all three crimes; and before that extraordinary fact had had time to soak well into the public mind there took place yet another murder, and again the murderer had been to special pains to make it clear that some obscure and terrible lust for vengeance possessed him.",
+   "ok": true
+  },
+  {
+   "claim": "Mr. Sleuth is an eccentric gentleman with a dislike of women",
+   "anchor": "a queer kind of fear and dislike of women",
+   "span": "It hadn't taken the landlady very long to find out that her lodger had a queer kind of fear and dislike of women.",
+   "ok": true
+  },
+  {
+   "claim": "Mr. Sleuth goes out at night during the murders",
+   "anchor": "he had gone out at two in the morning and had only come in at five",
+   "span": "Sleuth's stay under her roof that she became aware that he had gone out at two in the morning and had only come in at five.",
+   "ok": true
+  },
+  {
+   "claim": "Witnesses gave conflicting descriptions of the murderer",
+   "anchor": "Most positively, most confidently, the witness declared that she had seen a newspaper parcel",
+   "span": "Most positively, most confidently, the witness declared that she had seen a newspaper parcel under his arm; it had bulged out at the back-so she declared.",
+   "ok": true
+  },
+  {
+   "claim": "Mr. Sleuth’s bag disappears and is hidden in the locked chiffonnier",
+   "anchor": "the bag of which the disappearance had so surprised her was there, safely locked away",
+   "span": "Slowly, laboriously, she tipped the chiffonnier backwards and forwards-once, twice, thrice-satisfied, yet strangely troubled in her mind, for she now felt sure that the bag of which the disappearance had so surprised her was there, safely locked away by its owner.",
+   "ok": true
+  },
+  {
+   "claim": "Blood found on Bunting’s hand after contact with Mr. Sleuth",
+   "anchor": "the stretch of cloth against which his hand lay for a moment was not only damp, damp maybe from stray flakes of snow which had settled upon it, but wet—wet and gluey",
+   "span": "Sleuth, the back of Bunting's bare left hand brushed lightly against the long Inverness cape the lodger was wearing, and, to Bunting's surprise, the stretch of cloth against which his hand lay for a moment was not only damp, damp maybe from stray flakes of snow which had settled upon it, but wet-wet and gluey.",
+   "ok": true
+  },
+  {
+   "claim": "The police find a peculiar knife and rubber-soled shoe print",
+   "anchor": "a very peculiar kind o’ knife—‘keen as a razor, pointed as a dagger’",
+   "span": "At any rate, within a hundred yards of that little dark passage where they found the bodies-one at each end, that was-there was discovered this morning a very peculiar kind o' knife-'keen as a razor, pointed as a dagger'-that's the exact words the boss used when he was describing it to a lot of us.",
+   "ok": true
+  },
+  {
+   "claim": "The police commissioner suspects the lodger’s identity",
+   "anchor": "I personally have a very strong suspicion of his identity",
+   "span": "I didn't say we knew _where_ he was; I only said we knew who he was, or, rather, perhaps I ought to say that I personally have a very strong suspicion of his identity.",
+   "ok": true
+  },
+  {
+   "claim": "Mr. Sleuth is revealed as the escaped lunatic and murderer",
+   "anchor": "a month ago this criminal lunatic, as we must of course regard him, made his escape from the asylum",
+   "span": "I have just been informed that a month ago this criminal lunatic, as we must of course regard him, made his escape from the asylum where he was confined.",
+   "ok": true
+  },
+  {
+   "claim": "Mr. Sleuth threatens Mrs. Bunting for betrayal",
+   "anchor": "Your end will be bitter as wormwood and sharp as a two-edged sword",
+   "span": "Your end will be bitter as wormwood and sharp as a two-edged sword.",
+   "ok": true
+  },
+  {
+   "claim": "The lodger disappears after exposure at Madame Tussaud’s",
+   "anchor": "Mr. Sleuth and Sir John Burney were face to face. Mr. Sleuth swerved to one side",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Witness Lizzie Cole’s testimony is unreliable and contradictory",
+   "anchor": "I never said so! I was made to say all those things by the young man what came to me from the Evening Sun",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The barmaid’s story about the gentleman with the sovereign is a red herring",
+   "anchor": "The eccentric old gent she talks about was only a harmless luny",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The special investigator publishes footprint evidence",
+   "anchor": "authentic reproduction of the footprint of the half-worn rubber sole",
+   "span": "We are glad to be able to present our readers with an authentic reproduction of the footprint of the half-worn rubber sole which was almost certainly worn by The Avenger when he committed his double murder ten days ago.",
+   "ok": true
+  },
+  {
+   "claim": "Mrs. Bunting attends the inquest and hears witness testimonies",
+   "anchor": "The coroner—a clever-looking gentleman, though not so old as Mrs. Bunting thought he ought to have been",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Mr. Cannot claims to have met the murderer but is dismissed",
+   "anchor": "I have remained silent—I have locked what I knew within my own breast",
+   "span": "I have remained silent-I have locked what I knew within my own breast\"-began Mr.",
+   "ok": true
+  },
+  {
+   "claim": "Joe Chandler’s police reports and investigations",
+   "anchor": "I was one of the first there, and it fairly turned me sick",
+   "span": "You see, this time I was one of the first there, and it fairly turned me sick-that it did.",
+   "ok": true
+  },
+  {
+   "claim": "Mr. Sleuth’s nocturnal experiment causes a strong acrid smell",
+   "anchor": "a faint acrid odour in the room",
+   "span": "Then, gradually, she became aware that there was a faint acrid odour in the room.",
+   "ok": true
+  },
+  {
+   "claim": "The lodger’s money diminishes over time, passing to the Buntings",
+   "anchor": "the much-diminished heap of sovereigns",
+   "span": "Yes, there lay the much-diminished heap of sovereigns.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.121980424,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-08-31"
+}

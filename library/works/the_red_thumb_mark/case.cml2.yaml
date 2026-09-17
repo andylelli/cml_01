@@ -1,0 +1,424 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The Red Thumb Mark
+    author: R. Austin Freeman
+    license: Public domain (first published 1907; author died 1943). Project Gutenberg ebook 11128.
+    era:
+      decade: 1900s
+      realism_constraints:
+        - Fingerprint identification is a new but imperfect science
+        - Photographic and microscopic technology is available for forensic analysis
+        - Legal procedures include magistrate courts and trials at the Central Criminal Court
+    setting:
+      location: London, England
+      institution: Scotland Yard and the Central Criminal Court
+    crime_class:
+      category: theft
+      subtype: forged fingerprint to frame nephew
+  cast:
+    - name: John Evelyn Thorndyke
+      age_range: 40s
+      role_archetype: medical jurist and scientific investigator
+      relationships:
+        - Christopher Jervis (assistant)
+        - Polton (assistant)
+      public_persona: medical jurist and lecturer
+      private_secret: expert in medico-legal investigations
+      motive_seed: professional duty to prove innocence
+      motive_strength: strong
+      alibi_window: n/a
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells:
+        - calm, methodical, secretive
+      stakes: professional reputation and justice
+      evidence_sensitivity:
+        - microscope
+        - photographs
+        - fingerprint samples
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: moderate
+    - name: Christopher Jervis
+      age_range: 30s
+      role_archetype: medical agent and assistant
+      relationships:
+        - John Evelyn Thorndyke
+        - Juliet Gibson
+      public_persona: medical agent
+      private_secret: assistant to Thorndyke
+      motive_seed: loyalty and friendship
+      motive_strength: moderate
+      alibi_window: n/a
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells:
+        - observant
+        - loyal
+      stakes: friendship and justice
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+    - name: Reuben Hornby
+      age_range: 20s
+      role_archetype: young man falsely accused
+      relationships:
+        - John Hornby (uncle)
+        - Walter Hornby (cousin)
+        - Juliet Gibson (friend)
+      public_persona: nephew and employee of John Hornby
+      private_secret: innocent of theft
+      motive_seed: none
+      motive_strength: none
+      alibi_window: present at club and home at time of crime
+      access_plausibility: had access to keys but no evidence of use
+      opportunity_channels:
+        - access to safe keys
+      behavioral_tells:
+        - calm under trial
+        - maintains innocence
+      stakes: freedom and reputation
+      evidence_sensitivity:
+        - thumbprint
+        - alibi
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: low
+    - name: Walter Hornby
+      age_range: 20s
+      role_archetype: cousin with ambiguous character
+      relationships:
+        - Reuben Hornby (cousin)
+        - Juliet Gibson (friend)
+      public_persona: cousin and employee, expert photographer
+      private_secret: possible financial troubles and secretive behavior
+      motive_seed: financial gain
+      motive_strength: moderate
+      alibi_window: present at home during some times
+      access_plausibility: had access to keys and photographic equipment
+      opportunity_channels:
+        - access to 'Thumbograph'
+        - photographic skills
+      behavioral_tells:
+        - keen on money
+        - secretive
+      stakes: financial and social position
+      evidence_sensitivity:
+        - typewritten documents
+        - photographic prints
+      culprit_eligibility: eligible
+      culpability: unknown
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: John Hornby
+      age_range: 60s
+      role_archetype: uncle and employer
+      relationships:
+        - Reuben Hornby (nephew)
+        - Walter Hornby (nephew)
+        - Mrs. Hornby (wife)
+      public_persona: businessman and gold refiner
+      private_secret: financial difficulties
+      motive_seed: financial pressure
+      motive_strength: moderate
+      alibi_window: present at office
+      access_plausibility: had sole custody of keys
+      opportunity_channels:
+        - access to safe and keys
+      behavioral_tells:
+        - agitated
+        - nervous
+      stakes: business and reputation
+      evidence_sensitivity: []
+      culprit_eligibility: eligible
+      culpability: unknown
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: Miss Juliet Gibson
+      age_range: 20s
+      role_archetype: companion and friend
+      relationships:
+        - Reuben Hornby (friend)
+        - Walter Hornby (fiancé)
+        - Mrs. Hornby (companion)
+      public_persona: companion to Mrs. Hornby
+      private_secret: engaged to Walter Hornby
+      motive_seed: loyalty to Reuben
+      motive_strength: moderate
+      alibi_window: n/a
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells:
+        - supportive
+        - frank
+      stakes: friendship and love
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: low
+    - name: Mrs. Hornby
+      age_range: 50s
+      role_archetype: family matriarch
+      relationships:
+        - John Hornby (husband)
+        - Reuben Hornby (nephew)
+        - Walter Hornby (nephew)
+        - Miss Juliet Gibson (companion)
+      public_persona: wife of John Hornby
+      private_secret: possessor of the 'Thumbograph'
+      motive_seed: protect family
+      motive_strength: strong
+      alibi_window: n/a
+      access_plausibility: had access to 'Thumbograph'
+      opportunity_channels:
+        - access to 'Thumbograph'
+      behavioral_tells:
+        - emotional
+        - protective
+      stakes: family honor
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: moderate
+  culpability:
+    culprit_count: 1
+    culprits:
+      - Walter Hornby
+  surface_model:
+    narrative:
+      summary: >-
+        Reuben Hornby is accused of stealing diamonds from his uncle's safe, with a bloody
+        thumbprint found inside identified as his. The evidence seems overwhelming, and the police
+        and prosecution are confident of conviction. However, Thorndyke suspects the thumbprint is a
+        forgery and investigates further.
+    accepted_facts:
+      - Diamonds were stolen from John Hornby's safe which was locked and undisturbed externally.
+      - A bloody thumbprint was found on a paper inside the safe, identified as Reuben Hornby's.
+      - >-
+        The 'Thumbograph' book containing genuine thumbprints of the family was temporarily missing
+        and then returned.
+      - Walter Hornby recently acquired a typewriter and is skilled in photography and printing.
+    inferred_conclusions:
+      - Reuben Hornby committed the theft as indicated by the thumbprint evidence.
+      - The thumbprint found in the safe was genuine and irrefutable proof of guilt.
+      - No one else had access to the safe or the means to forge the thumbprint.
+  hidden_model:
+    mechanism:
+      description: >-
+        The crime was committed by forging the thumbprint found in the safe using a stamp made from
+        the genuine thumbprint in the 'Thumbograph' book. The forged print was larger and included
+        an accidental mark from a loose fibre on the original paper, proving it was a
+        photo-mechanical reproduction designed to implicate Reuben falsely. Walter Hornby, skilled
+        in photography and printing, had access to the 'Thumbograph' and typewriter, enabling him to
+        create the forgery and frame Reuben.
+      delivery_path:
+        - step: Walter Hornby secretly obtained the 'Thumbograph' book containing genuine thumbprints.
+        - step: He made a photographic negative of Reuben's thumbprint from the book.
+        - step: >-
+            Using chromicized gelatine and photographic techniques, he created a stamp replicating
+            the thumbprint.
+        - step: >-
+            He used defibrinated blood to make a clear forged thumbprint impression on a piece of
+            paper.
+        - step: The forged paper was placed inside the safe after the diamonds were stolen.
+        - step: >-
+            The forged thumbprint included an accidental mark from a loose fibre on the original
+            paper.
+        - step: >-
+            The forged print was larger than the genuine print, detectable by microscopic
+            measurement.
+    outcome:
+      result: >-
+        Reuben Hornby was acquitted after Thorndyke proved the thumbprint was a forgery implicating
+        him falsely.
+  false_assumption:
+    statement: The thumbprint found in the safe was genuine and conclusively proved Reuben's guilt.
+    type: identity
+    why_it_seems_reasonable: >-
+      Fingerprint experts from Scotland Yard identified the print as Reuben's with absolute
+      certainty, supported by the presence of a distinctive scar. The paper was found inside the
+      locked safe with no signs of forced entry.
+    what_it_hides: >-
+      It hides the possibility that the thumbprint was a carefully crafted forgery made using
+      photographic and stamping techniques, exploiting the genuine thumbprint from the 'Thumbograph'
+      and using defibrinated blood to simulate a fresh print.
+  false_solution:
+    accused_suspect: Reuben Hornby
+    supporting_points:
+      - The thumbprint found in the safe matched Reuben's left thumb exactly.
+      - No forced entry was detected, implying the thief had a key or access.
+      - Reuben had custody of the keys at times and was present at the premises.
+      - Police and fingerprint experts testified to the print's authenticity.
+    the_one_flaw: >-
+      The thumbprint was a photo-mechanical forgery made from the genuine print in the 'Thumbograph'
+      book, not a real print made by Reuben.
+    refuted_in_chapter: 16
+  red_herrings:
+    - id: john_hornby_financial_troubles
+      description: John Hornby's financial difficulties and possible motive to steal the diamonds.
+      points_at_suspect: John Hornby
+      innocent_explanation: >-
+        He had no legal liability and no evidence linked him to the theft; his financial troubles
+        were unrelated.
+      resolved_in_chapter: 8
+    - id: walter_hornby_typewriter_and_photography
+      description: >-
+        Walter Hornby's recent purchase of a typewriter and skill in photography suggested he might
+        have forged documents and prints.
+      points_at_suspect: Walter Hornby
+      innocent_explanation: >-
+        His skills and equipment were initially suspicious but ultimately used to uncover the
+        forgery and frame Reuben.
+      resolved_in_chapter: 16
+  closed_circle:
+    suspects:
+      - Reuben Hornby
+      - Walter Hornby
+      - John Hornby
+    rationale: >-
+      Only these three had access to the safe keys and the premises, and thus the opportunity to
+      commit the theft or forge the evidence.
+  constraint_space:
+    time:
+      anchors:
+        - Evening of 9th March to morning of 10th March
+      windows:
+        - Safe locked by John Hornby after depositing diamonds
+        - Safe opened next morning by John Hornby
+    access:
+      actors:
+        - John Hornby
+        - Reuben Hornby
+        - Walter Hornby
+      objects:
+        - Safe keys
+        - Thumbograph book
+        - Typewriter
+    social:
+      trust_channels:
+        - Mrs. Hornby
+        - Miss Juliet Gibson
+      authority_sources:
+        - Scotland Yard Fingerprint Department
+        - Central Criminal Court
+  inference_path:
+    steps:
+      - observation: >-
+          The thumbprint found in the safe was identified as Reuben Hornby's by Scotland Yard
+          experts.
+        correction: >-
+          Thorndyke observed the print was larger than genuine prints and had an accidental mark
+          from a loose fibre.
+        effect: This suggested the print was a photo-mechanical forgery, not a genuine fingerprint.
+        required_evidence:
+          - Photograph of the thumbprint with micrometer scale
+          - Examination of the 'Thumbograph' book containing genuine thumbprints
+        reader_observable: true
+      - observation: The blood on the paper was fresh and liquid, producing a clear print.
+        correction: >-
+          Medical expert Dr. Rowe testified that fresh blood cannot produce such a clear print
+          without artificial treatment.
+        effect: >-
+          The blood was likely defibrinated or chemically treated, indicating artificial preparation
+          for forgery.
+        required_evidence:
+          - Medical testimony on blood clotting and fingerprint clarity
+          - Microscopic examination of blood smears on the paper
+        reader_observable: true
+      - observation: The 'Thumbograph' book had disappeared and reappeared mysteriously.
+        correction: >-
+          Mrs. Hornby confirmed the book was taken from her writing table and returned during her
+          absence.
+        effect: Someone had access to the book and could have used it to create the forged print.
+        required_evidence:
+          - Mrs. Hornby's testimony about the disappearance and return of the 'Thumbograph'
+          - Physical custody records of the book
+        reader_observable: true
+      - observation: Walter Hornby recently purchased a typewriter and is skilled in photography.
+        correction: >-
+          The typewriter used to type a suspicious label was a rare literary model with a unique
+          worn letter 'e' matching Walter's machine.
+        effect: Walter had the means and skills to produce the forged fingerprint and tampered documents.
+        required_evidence:
+          - Typewritten label with unique typewriter characteristics
+          - Testimony about Walter's typewriter purchase and photographic skills
+        reader_observable: true
+      - observation: Fingerprint experts confidently identified the print as genuine.
+        correction: >-
+          Thorndyke demonstrated that the experts could not distinguish the forged prints from
+          genuine ones in a controlled test.
+        effect: Fingerprint evidence alone is insufficient and can be fabricated to mislead experts.
+        required_evidence:
+          - Thorndyke's demonstration with forged and genuine prints
+          - Expert witness testimony during trial
+        reader_observable: true
+      - observation: The forged prints were made with a single stamp, expected to be identical.
+        correction: Thorndyke used multiple stamps from different impressions to avoid detection by experts.
+        effect: >-
+          The forgery was sophisticated enough to evade expert detection by mimicking natural
+          variations.
+        required_evidence:
+          - Thorndyke's multiple stamp preparation
+          - Expert witness confusion during trial
+        reader_observable: true
+      - observation: Walter Hornby was suspected due to his skills and suspicious behavior.
+        correction: >-
+          Walter's motive and opportunity aligned with the forgery and theft, implicating him as the
+          true culprit.
+        effect: Walter Hornby was identified as the actual thief and forger, framing Reuben.
+        required_evidence:
+          - Walter's access to 'Thumbograph' and typewriter
+          - Discrepancies in Walter's statements and behavior
+        reader_observable: true
+  discriminating_test:
+    method: trap
+    design: >-
+      Thorndyke prepared a sheet with twenty thumbprint squares, ten genuine and ten forged using
+      multiple stamps from different impressions. The sheet was presented to fingerprint experts to
+      identify genuine versus forged prints without prior knowledge of the distribution.
+    knowledge_revealed: >-
+      The experts failed to correctly distinguish forged prints from genuine ones, proving that the
+      forged prints were indistinguishable and that fingerprint evidence alone is unreliable.
+    pass_condition: >-
+      Experts must fail to correctly identify all forged prints, demonstrating the possibility of
+      undetectable fingerprint forgery.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given detailed descriptions of the 'Thumbograph' book, the fingerprint evidence,
+      the photographic and microscopic techniques used, and the suspicious behavior of Walter
+      Hornby. The clues about the forgery, the accidental mark on the print, and the typewriter's
+      unique characteristics are all presented before the solution. The demonstration of the forgery
+      and the experts' failure to detect it is described in court, allowing attentive readers to
+      deduce the true mechanism.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

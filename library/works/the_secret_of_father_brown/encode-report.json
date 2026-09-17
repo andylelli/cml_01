@@ -1,0 +1,136 @@
+{
+ "slug": "the_secret_of_father_brown",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Sir Humphrey Gwynne was found dead with a bullet wound in the temple",
+   "anchor": "the damage done by the bullet wound in the temple",
+   "span": "The face was gaunt and rather sinister, the brow bald, and the scanty curls dark grey, like iron rings; and, despite the damage done by the bullet wound in the temple, Underhill had no difficulty in recognizing the features he had seen in the many portraits of Sir Humphrey Gwynne.",
+   "ok": true
+  },
+  {
+   "claim": "The front door was unlatched during the murder investigation",
+   "anchor": "the front door would be shut, but it's left on the latch",
+   "span": "I thought the front door would be shut, but it's left on the latch.",
+   "ok": true
+  },
+  {
+   "claim": "Osric Orm lingered in the garden for two hours without entering the house",
+   "anchor": "he had certainly had the time to commit six murders",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Michael Flood entered the garden irregularly and was found near the victim",
+   "anchor": "he entered the garden in an irregular fashion",
+   "span": "Because he entered the garden in an irregular fashion,\" answered the cleric.",
+   "ok": true
+  },
+  {
+   "claim": "John Bankes fled with Lady Pulman's jewels after a shooting incident",
+   "anchor": "John Bankes has gone and the emeralds and all the other jewels with him",
+   "span": "John Bankes has gone and the emeralds and all the other jewels with him.",
+   "ok": true
+  },
+  {
+   "claim": "The broken mirror was caused by a bullet, not a struggle",
+   "anchor": "a bullet broke the mirror",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The Master of the Mountain was suspected of stealing a ruby",
+   "anchor": "the living presence of the Master of the Mountain",
+   "span": "It was then that they first became conscious, slowly and almost creepily conscious, of the living presence of the Master of the Mountain.",
+   "ok": true
+  },
+  {
+   "claim": "The ruby was never actually stolen but hidden in plain sight",
+   "anchor": "the ruby has been here all the time",
+   "span": "But the ruby has been here all the time.",
+   "ok": true
+  },
+  {
+   "claim": "Sir Arthur Vaudrey was killed by John Dalmon with a razor",
+   "anchor": "he perceived in the inner room the razor you had just laid down",
+   "span": "You stepped outside for a moment, as shopmen often do, to make sure of what he meant; and in that moment of time he perceived in the inner room the razor you had just laid down, and the yellow-white head of Sir Arthur in the barber's chair; probably both glimmering in the light of that little window beyond.",
+   "ok": true
+  },
+  {
+   "claim": "Captain Musgrave killed his father and disguised himself",
+   "anchor": "he was exactly like his father, with a little make-up",
+   "span": "When he shaved and put the wig on his cropped head he was exactly like his father, with a little make-up.",
+   "ok": true
+  },
+  {
+   "claim": "The duel between James and Maurice Mair ended with Maurice's death",
+   "anchor": "Maurice fell before the bullet flew, and lay perfectly still",
+   "span": "You told me how quickly it seemed to come; in fact, Maurice fell before the bullet flew, and lay perfectly still, waiting.",
+   "ok": true
+  },
+  {
+   "claim": "Hugo Romaine stood motionless during the duel, waiting",
+   "anchor": "Romaine was waiting for the thunder to follow the lightning",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Father Brown's method involves imagining the criminal's state of mind",
+   "anchor": "I am always inside a man, moving his arms and legs",
+   "span": "I am always inside a man, moving his arms and legs; but I wait till I know I am inside a murderer, thinking his thoughts, wrestling with his passions; till I have bent myself into the posture of his hunched and peering hatred; till I see the world with his bloodshot and squinting eyes, looking between the blinkers of his half-witted concentration; looking up the short and sharp perspective of a straight road to a pool of blood.",
+   "ok": true
+  },
+  {
+   "claim": "The false assumption was that the murderer entered through the front door",
+   "anchor": "the murderer came in at the front door",
+   "span": "You suppose the murderer came in at the front door, met the Judge in the front hall, struggling with him and breaking the mirror; that the judge then retreated into the garden, where he was finally shot.",
+   "ok": true
+  },
+  {
+   "claim": "The painted hand at the window was a trick by Tommy Hunter",
+   "anchor": "Hunter leapt forward and leaned out of the window",
+   "span": "Hunter leapt forward and leaned out of the window; in a flash he could tear off his glove, tuck up his sleeve, and thrust his hand back round the other side of the pillar, while he gripped the Indian with the other hand and halloed out that he'd caught the thief.",
+   "ok": true
+  },
+  {
+   "claim": "The false solution accused Osric Orm of murder",
+   "anchor": "the trial of Osric Orm for the murder of Sir Humphrey Gwynne",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "John Bankes was the real culprit behind the jewel theft and murder",
+   "anchor": "John Bankes has gone and the emeralds and all the other jewels with him",
+   "span": "John Bankes has gone and the emeralds and all the other jewels with him.",
+   "ok": true
+  },
+  {
+   "claim": "The discriminating test proved the ruby theft was an illusion",
+   "anchor": "the brown hand coming in at the window",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Father Brown's niece overheard Captain Musgrave laughing alone",
+   "anchor": "he was sitting quite alone in the middle of that gallery",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The worst crime in the world was patricide disguised by the son",
+   "anchor": "he killed his father",
+   "span": "",
+   "ok": false
+  }
+ ],
+ "costGbp": 0.0481892495,
+ "models": {
+  "map": "gpt-4o-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-08-31"
+}

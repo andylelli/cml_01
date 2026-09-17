@@ -1,0 +1,136 @@
+{
+ "slug": "the_amateur_cracksman",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "The victim was found dead with a wound and blood",
+   "anchor": "Angus Baird was lying on his own floor, dead, with his gray hairs glued together by his blood",
+   "span": "Angus Baird was lying on his own floor, dead, with his gray hairs glued together by his blood; near him a poker with the black end glistening; in a corner his desk, ransacked, littered.",
+   "ok": true
+  },
+  {
+   "claim": "Rutter confessed to killing Baird in self-defense",
+   "anchor": "I've killed a robber; that's all. I've killed a robber, a usurer, a jackal, a blackmailer",
+   "span": "I've killed a robber; that's all. I've killed a robber, a usurer, a jackal, a blackmailer, the cleverest and the cruellest villain unhung.",
+   "ok": true
+  },
+  {
+   "claim": "Raffles and Bunny were present at the crime scene shortly after the murder",
+   "anchor": "Raffles and Bunny discover that Crawshay killed Angus Baird in self-defense",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Crawshay escaped from Dartmoor prison and was seen near the victim's lodgings",
+   "anchor": "Crawshay escaped from Dartmoor yesterday afternoon",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Raffles is a masterful gentleman thief and cricketer",
+   "anchor": "A. J. Raffles would be my friend! It was as though all the world had come round suddenly to my side",
+   "span": "A. J. Raffles would be my friend! It was as though all the world had come round suddenly to my side; so far therefore from resisting his action, I caught and clasped his hand with a fervor as uncontrollable as the frenzy which had preceded it.",
+   "ok": true
+  },
+  {
+   "claim": "Raffles and Bunny helped Rutter escape to avoid suspicion",
+   "anchor": "We must take on this job; we aren't in a position to refuse it; even if we were, I should take it on!",
+   "span": "We must take on this job; we aren't in a position to refuse it; even if we were, I should take it on! Our friend is a great sportsman; he has got clear away from Dartmoor; it would be a thousand pities to let him go back.",
+   "ok": true
+  },
+  {
+   "claim": "The poker was found near the victim with blood on it",
+   "anchor": "Near him a poker with the black end glistening",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Inspector Mackenzie is a persistent detective from Scotland Yard",
+   "anchor": "Inspector Mackenzie of Scotland Yard--the very man I sent the message",
+   "span": "He is also Inspector Mackenzie of Scotland Yard--the very man I sent the message to that night last April.",
+   "ok": true
+  },
+  {
+   "claim": "Raffles and Bunny are involved in criminal activities but innocent of murder",
+   "anchor": "Raffles was a burglar. I had helped him to commit one burglary, therefore I was a burglar, too",
+   "span": "Raffles was a burglar. I had helped him to commit one burglary, therefore I was a burglar, too.",
+   "ok": true
+  },
+  {
+   "claim": "The false assumption that Crawshay is the murderer is refuted",
+   "anchor": "I daresay you wonder what I've been thinking about all this time? ... Crawshay killed Baird in self-defense",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Raffles uses disguise and cunning to evade suspicion",
+   "anchor": "Disguises? In some cases they're half the battle",
+   "span": "Disguises? In some cases they're half the battle, and it's always pleasant to feel that, if the worst comes to the worst, you needn't necessarily be convicted under your own name.",
+   "ok": true
+  },
+  {
+   "claim": "The murder happened during a burglary gone wrong",
+   "anchor": "I told him how he'd robbed me, but, by God, he shouldn't rob me any more",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Raffles and Bunny's loyalty to each other is strong",
+   "anchor": "You would stick at nothing for a pal--what? At nothing in this world",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The murder weapon was a poker",
+   "anchor": "Near him a poker with the black end glistening",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Rutter is remorseful and ready to confess",
+   "anchor": "I shall go mad if I don't! I wish I was one!",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Raffles and Bunny decide to help Crawshay escape",
+   "anchor": "Raffles and Bunny discover that Crawshay killed Angus Baird in self-defense after Baird threatened him",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The police investigation is thorough but misled",
+   "anchor": "I shall have the entire building to ransack",
+   "span": "Our man seems to have gone for the leads; but unless he's left more marks outside than in, or we find him up there, I shall have the entire building to ransack.",
+   "ok": true
+  },
+  {
+   "claim": "The timeline of events is crucial to solving the case",
+   "anchor": "The clocks began striking twelve",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Raffles is a master of planning and deception",
+   "anchor": "I tell you, my dear man, that at this moment I'm as hard up as you ever were",
+   "span": "I tell you, my dear man, that at this moment I'm as hard up as you ever were.",
+   "ok": true
+  },
+  {
+   "claim": "The murder was not premeditated but a result of self-defense",
+   "anchor": "I was like a savage till the thing was done",
+   "span": "I was like a savage till the thing was done.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.08048258905,
+ "models": {
+  "map": "gpt-4o-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-08-31"
+}

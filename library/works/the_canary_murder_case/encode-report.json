@@ -1,0 +1,121 @@
+{
+ "slug": "the_canary_murder_case",
+ "spans": [
+  {
+   "claim": "Margaret Odell was strangled in her apartment",
+   "anchor": "the girl’s strangled body",
+   "span": "And yet, huddled on the great silken davenport in her living-room lay the girl's strangled body, giving the lie to so grotesque a conclusion.",
+   "ok": true
+  },
+  {
+   "claim": "The side door was bolted on the inside all night",
+   "anchor": "the side door to the building was bolted on the inside",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Fingerprints of Tony Skeel were found in the apartment",
+   "anchor": "finger-prints of Skeel",
+   "span": "-We've got some finger-prints of Skeel, which might have been made late Monday afternoon.",
+   "ok": true
+  },
+  {
+   "claim": "Jessup was the telephone operator who saw no one enter or leave",
+   "anchor": "Jessup, the night telephone operator then on duty",
+   "span": "She had called at once to Jessup, the night telephone operator then on duty, who, after one glance into the living-room, had notified the police.",
+   "ok": true
+  },
+  {
+   "claim": "Kenneth Spotswoode had a verified alibi at the Stuyvesant Club",
+   "anchor": "Judge Redfern, who saw him descend from the taxi",
+   "span": "Judge Redfern, who saw him descend from the taxi, insisted on his coming up-stairs and playing poker with some men who were waiting in the Judge's rooms for him.",
+   "ok": true
+  },
+  {
+   "claim": "The jewel-case was forced open with a steel chisel",
+   "anchor": "the steel chisel was found",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The phonograph record was used to fake screams heard by witnesses",
+   "anchor": "phonograph record to fake screams",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The side door was manipulated by a string and tweezers device",
+   "anchor": "tiny pair of tweezers to the end of which was tied a piece of purple twine",
+   "span": "] He took from his pocket a tiny pair of tweezers to the end of which was tied a piece of purple twine about four feet long.",
+   "ok": true
+  },
+  {
+   "claim": "Tony Skeel was hiding in the clothes-press during the murder",
+   "anchor": "Skeel was hiding in the clothes-press",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Jessup was arrested and found to be an impostor named Benton",
+   "anchor": "His real moniker is Benton",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Spotswoode confessed to the murder and explained his motive",
+   "anchor": "I arrest you for the murder of Margaret Odell",
+   "span": "I arrest you for the murder of Margaret Odell.",
+   "ok": true
+  },
+  {
+   "claim": "Spotswoode staged the burglary to cover the murder",
+   "anchor": "he proceeded to wreck the apartment in order to give the effect of a professional burglary",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Spotswoode used the phonograph record to create an alibi",
+   "anchor": "he placed the record on the machine, set it going, and calmly walked out",
+   "span": "When this had been done, he placed the record on the machine, set it going, and calmly walked out.",
+   "ok": true
+  },
+  {
+   "claim": "Spotswoode killed Tony Skeel to silence him",
+   "anchor": "he strangled him like he did Odell",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Vance demonstrated the mechanical unlocking and relocking of the side door",
+   "anchor": "he turned them at a very slight angle to the left and then ran the twine under the door",
+   "span": "Placing the tweezers over the vertical bolt-handle, he turned them at a very slight angle to the left and then ran the twine under the door so that about a foot of it projected over the sill.",
+   "ok": true
+  },
+  {
+   "claim": "The poker game revealed psychological traits matching the murderer",
+   "anchor": "the most remarkable bluff ever made in a game of poker",
+   "span": "It was probably the most remarkable bluff ever made in a game of poker.",
+   "ok": true
+  },
+  {
+   "claim": "The phonograph record was the key evidence that exposed Spotswoode",
+   "anchor": "The Beethoven Andante",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Jessup could not have manipulated the door as Vance demonstrated",
+   "anchor": "I know that it was Skeel, and not Jessup, who unbolted that door",
+   "span": "I know that it was Skeel, and not Jessup, who unbolted that door before the crime, and rebolted it afterward.",
+   "ok": true
+  },
+  {
+   "claim": "Spotswoode committed suicide after arrest",
+   "anchor": "He’s shot himself",
+   "span": "He's shot himself!",
+   "ok": true
+  }
+ ],
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-08-31"
+}

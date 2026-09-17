@@ -1,0 +1,130 @@
+{
+ "slug": "the_wisdom_of_father_brown",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "James Todhunter was tied with knots he could undo himself",
+   "anchor": "Every one of those knots he has made himself",
+   "span": "Every one of those knots he has made himself and could loosen himself; not one of them would have been made by an enemy really trying to pinion him.",
+   "ok": true
+  },
+  {
+   "claim": "Mr Glass never existed and was a figment of Todhunter's conjuring",
+   "anchor": "There was never anybody so absent as Mr Glass",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The black figure in the passage was a reflection in a mirror",
+   "anchor": "The man you saw in the passage was yourself",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Aurora Rome was killed by Parkinson with a spear during a struggle",
+   "anchor": "Parkinson came out of the prisoner’s room and lunged with the spear",
+   "span": "She struggled to free herself, and as she did so Parkinson came out of the prisoner's room and lunged with the spear.",
+   "ok": true
+  },
+  {
+   "claim": "Sir Claude Champion committed suicide with his own sword",
+   "anchor": "Boulnois did it... jealous of me...he was jealous",
+   "span": "Boulnois did it... jealous of me...he was jealous, he was, he was.",
+   "ok": true
+  },
+  {
+   "claim": "Fingerprints on the sword were halfway down the blade",
+   "anchor": "There were finger-prints on that sword... half-way down the blade",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Colonel Cray was poisoned with Indian poison administered via the cruet-stand",
+   "anchor": "That book on his table was a work on poisons",
+   "span": "That book on his table was a work on poisons; and was put down open at the place where it stated that a certain Indian poison, though deadly and difficult to trace, was particularly easily reversible by the use of the commonest emetics.",
+   "ok": true
+  },
+  {
+   "claim": "The poison was reversible by emetics found in the cruet-stand",
+   "anchor": "The emetic had very suddenly taken effect",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Prince Otto was strangled with his own military scarf",
+   "anchor": "He was strangled by a strong, soft gag suddenly twisted round his head",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The murder was disguised as a shooting with no firearms present",
+   "anchor": "Prince Otto of Heiligwaldenstein was lying... with his face flung up",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The note about the secret drawer was a deliberate forgery",
+   "anchor": "The note is utterly wrong about the facts",
+   "span": "The note is utterly wrong about the facts.",
+   "ok": true
+  },
+  {
+   "claim": "The forged note misled foreign spies about the location of the secret formula",
+   "anchor": "It says the paper is in the cupboard on the right of the Secretary’s desk",
+   "span": "It says the paper is in the cupboard on the right of the Secretary's desk.",
+   "ok": true
+  },
+  {
+   "claim": "The murder under the bandstand was committed during a noisy event",
+   "anchor": "A man is throttled close by the big stand at Epsom",
+   "span": "A man is throttled close by the big stand at Epsom.",
+   "ok": true
+  },
+  {
+   "claim": "The secret society uses assassination amid crowds to conceal crimes",
+   "anchor": "The twisting of a neck-cloth, the thrusting of a body behind a door",
+   "span": "The twisting of a neck-cloth, the thrusting of a body behind a door could be done in an instant--so long as it was that instant.",
+   "ok": true
+  },
+  {
+   "claim": "The false assumption that Boulnois was the murderer",
+   "anchor": "Boulnois did it... jealous of me...he was jealous",
+   "span": "Boulnois did it... jealous of me...he was jealous, he was, he was.",
+   "ok": true
+  },
+  {
+   "claim": "The discriminating test confirms Boulnois’s alibi and the nature of the death",
+   "anchor": "I think this crime of his... is something very like a moral impossibility",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The false suspect Isidore Bruno was involved in a struggle but was innocent",
+   "anchor": "They began to struggle for the dagger",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The black figure in the passage was described as having horns like a devil",
+   "anchor": "The shape was short and thick, but had two sharp, black projections curved upwards",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The absence of Mr Glass is a key clue to the Todhunter case",
+   "anchor": "The absence of Mr Glass",
+   "span": "",
+   "ok": false
+  }
+ ],
+ "costGbp": 0.152685828,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-08-31"
+}

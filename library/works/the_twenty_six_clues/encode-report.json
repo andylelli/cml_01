@@ -1,0 +1,127 @@
+{
+ "slug": "the_twenty_six_clues",
+ "spans": [
+  {
+   "claim": "Evelyn Jarvis was found strangled in the crime museum",
+   "anchor": "stretched upon the table lay no skeleton but the rounded life-like form",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The scarf knotted about Evelyn's throat was the murder weapon",
+   "anchor": "the blue scarf which had been knotted so ruthlessly about her slender throat",
+   "span": "It would seem almost that she slept until her face was seen and then the distorted swollen features, the staring eyes and blackened, protruding tongue revealed the hideous truth no less surely than the blue scarf which had been knotted so ruthlessly about her slender throat as to seem almost embedded in the flesh.",
+   "ok": true
+  },
+  {
+   "claim": "The museum door was locked with a Yale lock",
+   "anchor": "small, flat key of the Yale patent and held it out",
+   "span": "He produced a small, flat key of the Yale patent and held it out.",
+   "ok": true
+  },
+  {
+   "claim": "A glove was found wedged on the ladder to the museum window",
+   "anchor": "a limp, crumpled, brown object which he smoothed into a semblance of shape. \"A glove!\"",
+   "span": "Leaning from the window where the two ends of the ladder protruded above the sill he reached down and drew forth a limp, crumpled, brown object which he smoothed into a semblance of shape. \"A glove!\" McCarty marveled.",
+   "ok": true
+  },
+  {
+   "claim": "Evelyn was blackmailed with letters made of macaroni paste",
+   "anchor": "communications of macaroni paste!",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The blackmail letters demanded money under the rose bush on the 26th",
+   "anchor": "'Does lady forget date of next Sat. night? 5000 under rose bush yard then or all told.'",
+   "span": "'Does lady forget date of next Sat. night? 5000 under rose bush yard then or all told.'--Humph!",
+   "ok": true
+  },
+  {
+   "claim": "Victor Marchal was found dead with a pistol and signs of struggle",
+   "anchor": "he was lying dead on the floor over there in the corner behind the table, with his own French army pistol in his hand",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Two shots were fired at Victor Marchal but only one bullet entered",
+   "anchor": "Two shots were fired, but only one entered the body",
+   "span": "Two shots were fired, but only one entered the body; the other--the first--must have gone wild.",
+   "ok": true
+  },
+  {
+   "claim": "Victor Marchal left a signed statement revealing the murderer's identity",
+   "anchor": "Signed, \"Victor Marchal\"",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Eric Vivaseur is actually Leonidas Hoyos, the murderer",
+   "anchor": "Leonidas Hoyos, alias Eric Vivaseur",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Kate Stricker sold the blackmail letters to Norwood",
+   "anchor": "I'm Kate Stricker. I was stewardess on _The Muette_ and I sold the letters to Mr. Norwood.",
+   "span": "I'm Kate Stricker. I was stewardess on _The Muette_ and I sold the letters to Mr. Norwood.\" Slowly, inexorably she raised her arm and pointed to the cowering, cringing figure before her.",
+   "ok": true
+  },
+  {
+   "claim": "The murder was motivated by fear of exposure and blackmail",
+   "anchor": "He killed her to prevent exposure of their past and to recover letters that blackmailed her.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The murderer staged Victor Marchal's death as a suicide",
+   "anchor": "He shot him twice, one shot being a blank to fake suicide.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The ladder to the museum window was used for ingress and egress",
+   "anchor": "A short ladder has been placed against the house, its upper end resting upon the ledge of the window.",
+   "span": "A short ladder has been placed against the house, its upper end resting upon the ledge of the window.\" \"The ladder!",
+   "ok": true
+  },
+  {
+   "claim": "The museum door was picked open with a spider tool",
+   "anchor": "there were some little fine scratches around the keyhole; I'd seen the like when I was on the force in more than one housebreaking case",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The blackmail letters were hidden in a wallet",
+   "anchor": "a worn black wallet has come into my possession which contains the only tangible clue",
+   "span": "For instance, within the last few days a worn black wallet has come into my possession which contains the only tangible clue to a mystery which aroused and baffled the city ten years ago.",
+   "ok": true
+  },
+  {
+   "claim": "The cake marked 'Noel' was a secret message to Evelyn",
+   "anchor": "a huge, circular, frosted cake, its top elaborately iced in the highest perfection of the confectioner's art.",
+   "span": "There, banked in wads of soft, white oiled paper, he beheld a huge, circular, frosted cake, its top elaborately iced in the highest perfection of the confectioner's art. \"A birthday cake!",
+   "ok": true
+  },
+  {
+   "claim": "The physiological test showed Captain Marchal's emotional reactions",
+   "anchor": "The moisture excretions here are abnormally profuse from the start and quickly reached the maximum",
+   "span": "The moisture excretions here are abnormally profuse from the start and quickly reached the maximum, but since the increase was steady and not in spurts it indicates general nervousness rather than the effect of emotional reaction.",
+   "ok": true
+  },
+  {
+   "claim": "The false assumption that Captain Marchal was the murderer",
+   "anchor": "Captain Marchal is the murderer of Mrs. Jarvis.",
+   "span": "Captain Marchal is the murderer of Mrs. Jarvis.\" CHAPTER XII \"BACK FROM THE DEAD\" \"I've had enough and to spare of the workings of science!",
+   "ok": true
+  },
+  {
+   "claim": "The discriminating test was a reenactment of the murder scene",
+   "anchor": "I will ask you all to seat yourselves and take hold of this wire with your right hands on the bulbs.",
+   "span": "When the others come I will ask you all to seat yourselves and take hold of this wire with your right hands on the bulbs. You will then be blindfolded and listen to a brief résumé of the case.",
+   "ok": true
+  }
+ ],
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-08-31"
+}

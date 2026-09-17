@@ -1,0 +1,408 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The Middle Temple Murder
+    author: J. S. (Joseph Smith) Fletcher
+    license: Public domain (first published 1919; author died 1935). Project Gutenberg ebook 10373.
+    era:
+      decade: 1910s
+      realism_constraints:
+        - No modern forensic DNA analysis or electronic surveillance
+        - Communication primarily by telegrams and face-to-face interviews
+        - Travel and investigation constrained by early 20th century transportation and social norms
+    setting:
+      location: London, England; specifically Middle Temple Lane and Market Milcaster
+      institution: New Scotland Yard; The Watchman newspaper office; The Coroner's Court
+    crime_class:
+      category: murder
+      subtype: murder disguised as robbery with identity concealment
+  cast:
+    - name: Frank Spargo
+      age_range: 30-40
+      role_archetype: persistent investigative journalist
+      relationships: []
+      public_persona: sub-editor of the Watchman newspaper
+      private_secret: none
+      motive_seed: professional ambition to solve a big case
+      motive_strength: moderate
+      alibi_window: not applicable
+      access_plausibility: high
+      opportunity_channels:
+        - journalistic investigation
+        - police collaboration
+      behavioral_tells:
+        - keen observation
+        - persistence
+      stakes: professional reputation and justice
+      evidence_sensitivity:
+        - scrap of grey paper
+        - silver ticket
+        - rare stamps
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: low
+    - name: Ronald Breton
+      age_range: 20-30
+      role_archetype: young barrister with personal stake
+      relationships:
+        - engaged to Jessie Aylmore
+        - ward of Mr. Elphick
+      public_persona: young barrister engaged to Jessie Aylmore
+      private_secret: son of the murdered man John Maitland
+      motive_seed: none
+      motive_strength: none
+      alibi_window: present at various investigation points
+      access_plausibility: high
+      opportunity_channels:
+        - legal profession
+        - family connections
+      behavioral_tells:
+        - nervousness about family secret
+      stakes: family honor and justice
+      evidence_sensitivity:
+        - photograph of child
+        - rare stamps
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: Stephen Aylmore (Stephen Ainsworth)
+      age_range: 50-60
+      role_archetype: public man with hidden past
+      relationships:
+        - father of Jessie and Evelyn Aylmore
+        - connected to Maitland
+      public_persona: Member of Parliament for Brookminster
+      private_secret: ex-convict with a criminal past
+      motive_seed: fear of exposure of past
+      motive_strength: moderate
+      alibi_window: present at various times
+      access_plausibility: high
+      opportunity_channels:
+        - political influence
+        - private chambers
+      behavioral_tells:
+        - evasiveness
+        - refusal to disclose past
+      stakes: reputation and freedom
+      evidence_sensitivity:
+        - murder weapon found
+        - identity papers
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: high
+    - name: Mr. Septimus Elphick
+      age_range: 60-70
+      role_archetype: elderly barrister and guardian with secrets
+      relationships:
+        - guardian to Ronald Breton
+        - friend of Cardlestone
+      public_persona: barrister and guardian to Ronald Breton
+      private_secret: involved in murder cover-up and conspiracy
+      motive_seed: protecting Cardlestone and self
+      motive_strength: strong
+      alibi_window: present at crime vicinity
+      access_plausibility: high
+      opportunity_channels:
+        - legal chambers
+        - access to crime scene
+      behavioral_tells:
+        - flight from investigation
+        - nervousness
+      stakes: freedom and reputation
+      evidence_sensitivity:
+        - burned papers
+        - cheques
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Mr. Nicholas Cardlestone (James Chamberlayne)
+      age_range: 60-70
+      role_archetype: elderly philatelist and stockbroker with criminal past
+      relationships:
+        - friend of Elphick
+      public_persona: elderly barrister and philatelist
+      private_secret: real identity as Chamberlayne, faked death, involved in murder
+      motive_seed: concealing embezzlement and murder
+      motive_strength: strong
+      alibi_window: present at crime vicinity
+      access_plausibility: high
+      opportunity_channels:
+        - legal chambers
+        - access to victim
+      behavioral_tells:
+        - flight from investigation
+        - destruction of papers
+      stakes: freedom and hidden fortune
+      evidence_sensitivity:
+        - rare stamps
+        - burned documents
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Mr. E.P. Myerst
+      age_range: 50-60
+      role_archetype: secretary with knowledge and blackmail power
+      relationships:
+        - connected to Elphick and Cardlestone
+      public_persona: Secretary of the London and Universal Safe Deposit Company
+      private_secret: knows much about the murder and conspiracy
+      motive_seed: financial gain through blackmail
+      motive_strength: moderate
+      alibi_window: present at key moments
+      access_plausibility: high
+      opportunity_channels:
+        - safe deposit access
+        - legal knowledge
+      behavioral_tells:
+        - blackmailing
+        - manipulation
+      stakes: money and leverage
+      evidence_sensitivity:
+        - cheques
+        - securities
+      culprit_eligibility: eligible
+      culpability: unknown
+      gender: male
+      role: suspect
+      moral_complexity: high
+    - name: Miss Baylis
+      age_range: 50-60
+      role_archetype: stern guardian with grudges
+      relationships:
+        - guardian to Maitland's son
+        - connected to Elphick
+      public_persona: sister-in-law and guardian of Maitland's son
+      private_secret: knows family secrets but hostile to Maitland
+      motive_seed: protecting family reputation
+      motive_strength: weak
+      alibi_window: present at various times
+      access_plausibility: medium
+      opportunity_channels: []
+      behavioral_tells:
+        - hostility to Maitland
+      stakes: family honor
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: moderate
+  culpability:
+    culprit_count: 2
+    culprits:
+      - Mr. Septimus Elphick
+      - Mr. Nicholas Cardlestone (James Chamberlayne)
+  surface_model:
+    narrative:
+      summary: >-
+        An elderly man named John Marbury is found murdered in Middle Temple Lane, London, with no
+        identification except a scrap of paper bearing a young barrister's name. Suspicion falls on
+        Stephen Aylmore, a Member of Parliament with a hidden criminal past, but the investigation
+        reveals a complex web of identity, embezzlement, and conspiracy involving several legal
+        professionals and a mysterious stockbroker.
+    accepted_facts:
+      - John Marbury was found murdered in Middle Temple Lane with no valuables on him.
+      - A scrap of grey paper with Ronald Breton's name was found on the victim.
+      - Stephen Aylmore, M.P., was arrested on suspicion of the murder.
+      - The victim was identified as John Maitland, an ex-convict and ex-bank manager.
+    inferred_conclusions:
+      - Stephen Aylmore murdered John Marbury to silence him.
+      - The murder was committed for robbery of the victim's valuables.
+      - Ronald Breton was unaware of his true parentage and uninvolved in the crime.
+  hidden_model:
+    mechanism:
+      description: >-
+        John Maitland, under the alias John Marbury, was lured to the chambers of Cardlestone (real
+        identity Chamberlayne) by the promise of selling rare stamps. Maitland threatened to expose
+        Cardlestone's past crimes, leading Cardlestone and his friend Elphick to murder him
+        discreetly in the entryway. The body was stripped of valuables and staged to appear as a
+        robbery. Myerst, who knew the truth, manipulated the investigation for blackmail but did not
+        commit the murder.
+      delivery_path:
+        - step: Maitland arrives at Cardlestone's chambers late at night with rare stamps.
+        - step: Maitland confronts Cardlestone about past crimes and threatens exposure.
+        - step: Cardlestone and Elphick decide to murder Maitland to protect their secrets.
+        - step: They kill Maitland in the entryway and strip him of valuables.
+        - step: Myerst finds the body and hides evidence to mislead the police.
+        - step: Elphick and Cardlestone attempt to cover their tracks by destroying papers and fleeing.
+        - step: Spargo and Breton uncover the conspiracy through investigation and evidence gathering.
+    outcome:
+      result: >-
+        Stephen Aylmore is cleared of murder charges, while the true culprits, Elphick and
+        Cardlestone (Chamberlayne), are exposed and implicated in the murder and related
+        conspiracies.
+  false_assumption:
+    statement: Stephen Aylmore murdered John Marbury to silence him.
+    type: identity
+    why_it_seems_reasonable: >-
+      Aylmore was found with the murder weapon and had a hidden criminal past, making him a prime
+      suspect. His evasive behavior and refusal to disclose his past increased suspicion.
+    what_it_hides: >-
+      It conceals the involvement of Elphick and Cardlestone, who orchestrated the murder to protect
+      their own secrets and identities.
+  false_solution:
+    accused_suspect: Stephen Aylmore (Stephen Ainsworth)
+    supporting_points:
+      - Murder weapon found in his chambers with victim's hair and blood
+      - His identity as an ex-convict was revealed, suggesting motive
+      - He was last seen with the victim before the murder
+      - He refused to fully disclose his past, arousing suspicion
+    the_one_flaw: Lack of direct evidence linking him to the murder and his eventual exoneration
+    refuted_in_chapter: 36
+  red_herrings:
+    - id: stephen_aylmore_suspicion
+      description: >-
+        Stephen Aylmore is arrested and suspected due to his criminal past and possession of the
+        murder weapon.
+      points_at_suspect: Stephen Aylmore
+      innocent_explanation: >-
+        Aylmore was innocent and was framed by the real culprits; the murder weapon was stolen from
+        his chambers.
+      resolved_in_chapter: 36
+    - id: john_marbury_identity
+      description: The victim's identity as John Marbury misleads investigators about his past and connections.
+      points_at_suspect: Unknown; misleads the investigation
+      innocent_explanation: >-
+        The victim was actually John Maitland, an ex-convict with a complex history unrelated to the
+        immediate suspects.
+      resolved_in_chapter: 20
+  closed_circle:
+    suspects:
+      - Stephen Aylmore (Stephen Ainsworth)
+      - Mr. Septimus Elphick
+      - Mr. Nicholas Cardlestone (James Chamberlayne)
+      - Mr. E.P. Myerst
+    rationale: >-
+      All had access to the victim and motive related to past crimes and secrets; investigation
+      showed no other plausible suspects.
+  constraint_space:
+    time:
+      anchors:
+        - Night of June 21-22, 1912
+        - Day of victim's arrival in London
+        - Time of murder around midnight
+      windows:
+        - Victim's movements between 3:15 PM and 9:15 PM
+        - Murder occurred shortly after midnight
+        - Elphick and Cardlestone fled early morning
+    access:
+      actors:
+        - Mr. Septimus Elphick
+        - Mr. Nicholas Cardlestone
+        - Stephen Aylmore
+        - Mr. E.P. Myerst
+      objects:
+        - Victim's chambers
+        - Cardlestone's chambers
+        - Safe deposit box
+        - Murder weapon
+    social:
+      trust_channels:
+        - Legal profession connections
+        - Family and guardian relationships
+        - Safe deposit company authority
+      authority_sources:
+        - New Scotland Yard
+        - Coroner's Court
+        - Home Secretary (for grave opening)
+  inference_path:
+    steps:
+      - observation: Scrap of grey paper with Ronald Breton's name found on victim
+        correction: Victim was seeking legal advice from Breton
+        effect: Links victim to Breton and legal circles
+        required_evidence:
+          - Scrap of grey paper found in victim's waistcoat pocket
+          - Witness testimony of Breton not recognizing victim
+        reader_observable: true
+      - observation: Victim identified as John Marbury, but no papers found
+        correction: Victim's real identity is John Maitland, ex-convict
+        effect: Reveals victim's criminal past and motive for murder
+        required_evidence:
+          - Market Milcaster newspaper report on John Maitland's trial
+          - Silver ticket linked to Maitland's family
+        reader_observable: true
+      - observation: Stephen Aylmore arrested due to possession of murder weapon
+        correction: Weapon was stolen and planted to frame Aylmore
+        effect: Aylmore is innocent of murder
+        required_evidence:
+          - Murder weapon found in sewer trap
+          - Testimony of woman who recognized weapon from Aylmore's chambers
+        reader_observable: true
+      - observation: Elphick and Cardlestone flee and destroy papers
+        correction: They are involved in conspiracy and cover-up
+        effect: They are prime suspects in murder and conspiracy
+        required_evidence:
+          - Burned papers and chaotic chambers found after their flight
+          - Porter testimony of their early morning departure
+        reader_observable: true
+      - observation: Rare Australian stamps found in Cardlestone's chambers
+        correction: Victim had been at Cardlestone's chambers before murder
+        effect: Places victim at scene with suspects
+        required_evidence:
+          - Testimony of stamp dealer Criedir
+          - Stamps found by Spargo in Cardlestone's rooms
+        reader_observable: true
+      - observation: Myerst claims knowledge but denies murder
+        correction: Myerst involved in blackmail and conspiracy but not murder
+        effect: Separates Myerst's role from actual murder
+        required_evidence:
+          - Myerst's possession of cheques and securities
+          - Cheques and securities found in Myerst's safe deposit box
+        reader_observable: true
+      - observation: Victim found murdered at foot of Cardlestone's stairs
+        correction: Murder committed by Cardlestone or with his knowledge
+        effect: Identifies true murderers
+        required_evidence:
+          - Myerst's testimony about finding the body
+          - Evidence of victim's valuables in Cardlestone's possession
+        reader_observable: true
+  discriminating_test:
+    method: constraint_proof
+    design: >-
+      Spargo and Breton examine the rare Australian stamps found in Cardlestone's chambers and
+      reconstruct the victim's movements, establishing that Maitland was last seen entering
+      Cardlestone's chambers. They compare the timeline of Elphick and Cardlestone's actions,
+      including their destruction of papers and flight, with the time of the murder.
+    knowledge_revealed: >-
+      The test reveals that Maitland was present in Cardlestone's chambers immediately before his
+      death, and that Elphick and Cardlestone's actions correspond to the murder and cover-up, while
+      Aylmore's timeline and possession of the weapon are explained by a frame-up.
+    pass_condition: >-
+      Physical evidence places Maitland at Cardlestone's chambers before his murder, and Elphick and
+      Cardlestone's destruction of papers and flight confirm their involvement, while Aylmore's
+      innocence is established by the timeline and lack of motive.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is provided with detailed clues such as the scrap of grey paper, the silver ticket,
+      the rare stamps, and the testimony of witnesses like Myerst and Mother Gutch. The
+      investigation's timeline and character relationships are clearly laid out, allowing attentive
+      readers to piece together the true identities and motives. The false accusation against
+      Aylmore is presented but later refuted, guiding the reader to reconsider initial assumptions.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

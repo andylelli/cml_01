@@ -1,0 +1,12 @@
+- id: the_bellamy_trial
+  corpus: seed
+  axis: temporal
+  mechanism_family: locked_room_timing
+  false_assumption_pattern: the_body_died_before_the_room_opened
+  discriminating_test_shape: timetable_contradiction
+  inference_shape: reconstruct_true_time_of_death
+  premise: >-
+    Madeleine Bellamy was found murdered in the gardener’s cottage, and Susan Ives and Stephen
+    Bellamy were accused of the crime based on circumstantial evidence including fingerprints, tire
+    tracks, and s
+  source: library/works/the_bellamy_trial/case.cml2.yaml

@@ -1,0 +1,350 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The Silent Bullet
+    author: Arthur B. (Arthur Benjamin) Reeve
+    license: Public domain (first published 1910; author died 1936). Project Gutenberg ebook 2454.
+    era:
+      decade: 1910s
+      realism_constraints:
+        - No advanced electronic surveillance or DNA analysis available
+        - Chemical and bacteriological methods are emerging but limited to basic lab tests
+        - Wireless electricity and early wireless telegraphy are experimental and rare
+    setting:
+      location: New York City and surrounding areas
+      institution: New York Police Department, Central Office, and university laboratory
+    crime_class:
+      category: murder
+      subtype: silent bullet with silenced revolver concealed in a coat
+  cast:
+    - name: Craig Kennedy
+      age_range: 40-50
+      role_archetype: scientific detective and professor of criminal science
+      relationships: []
+      public_persona: professor of chemistry and criminal science
+      private_secret: uses scientific methods to solve crimes
+      motive_seed: dedication to justice and science
+      motive_strength: none
+      alibi_window: always present
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: professional reputation
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: low
+    - name: Walter Jameson
+      age_range: 30-40
+      role_archetype: newspaper reporter and assistant
+      relationships:
+        - Craig Kennedy
+      public_persona: reporter for the Star
+      private_secret: friend and assistant to Kennedy
+      motive_seed: professional curiosity
+      motive_strength: none
+      alibi_window: always present
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: career
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+    - name: Kerr Parker
+      age_range: 50-60
+      role_archetype: victim, Wall Street banker
+      relationships:
+        - James Bruce
+        - Mrs. Parker
+        - John Downey
+      public_persona: banker and businessman
+      private_secret: involved in risky financial schemes
+      motive_seed: n/a
+      motive_strength: none
+      alibi_window: n/a
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: life
+      evidence_sensitivity: []
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: moderate
+    - name: James Bruce
+      age_range: 40-50
+      role_archetype: partner in business, secret murderer
+      relationships:
+        - Kerr Parker
+        - Mrs. Parker
+      public_persona: business partner of Kerr Parker
+      private_secret: murdered Kerr Parker using a silenced revolver
+      motive_seed: financial gain and control of business
+      motive_strength: strong
+      alibi_window: present at the office during murder
+      access_plausibility: high
+      opportunity_channels:
+        - office
+        - ladies' department
+      behavioral_tells:
+        - agitation during demonstration
+      stakes: business and money
+      evidence_sensitivity:
+        - bullet with fabric impressions
+        - silenced revolver purchase
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Mrs. Parker
+      age_range: 40-50
+      role_archetype: wife of victim, emotional witness
+      relationships:
+        - Kerr Parker
+        - James Bruce
+      public_persona: wife of Kerr Parker
+      private_secret: emotional involvement in financial and personal affairs
+      motive_seed: n/a
+      motive_strength: none
+      alibi_window: present at office
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells:
+        - great emotion during demonstration
+      stakes: husband's life and estate
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: moderate
+    - name: John Downey
+      age_range: 30-40
+      role_archetype: confidential clerk, loyal assistant
+      relationships:
+        - Kerr Parker
+        - James Bruce
+        - Mrs. Parker
+      public_persona: confidential clerk at Kerr Parker & Co.
+      private_secret: keeps secrets, loyal to firm
+      motive_seed: n/a
+      motive_strength: none
+      alibi_window: present at murder
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: firm's reputation and estate
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+  culpability:
+    culprit_count: 1
+    culprits:
+      - James Bruce
+  surface_model:
+    narrative:
+      summary: >-
+        Kerr Parker, a Wall Street banker, dies suddenly in his office amidst open doors and many
+        witnesses, with no shot heard. A thirty-two-calibre bullet is found in his neck, but no
+        weapon or noise was detected. Suspicion falls on his partner James Bruce, who was seen
+        agitated during a scientific demonstration.
+    accepted_facts:
+      - Kerr Parker was shot with a thirty-two-calibre bullet
+      - No shot or noise was heard by witnesses in the office
+      - The bullet bore impressions matching a woman's pongee automobile-coat
+      - James Bruce purchased a silencer for a thirty-two-calibre revolver
+    inferred_conclusions:
+      - The murderer fired the shot from outside the office
+      - Mrs. Parker was involved in the murder due to her emotional reaction
+      - The shot was fired without any silencer or special device
+  hidden_model:
+    mechanism:
+      description: >-
+        James Bruce concealed a silenced thirty-two-calibre revolver in Mrs. Parker's pongee
+        automobile-coat. He fired the shot unseen and unheard within the office, using the coat to
+        deaden the flash. The bullet passed through the coat, leaving fabric impressions matching
+        the coat found. The silencer prevented noise and smoke, explaining the witnesses' lack of
+        detection.
+      delivery_path:
+        - step: James Bruce obtained a silencer for a thirty-two-calibre revolver
+        - step: He concealed the revolver inside Mrs. Parker's pongee automobile-coat
+        - step: During the meeting, he entered the ladies' department with the coat
+        - step: He fired the revolver through the coat, shooting Kerr Parker
+        - step: The bullet passed through the coat, leaving fabric impressions
+        - step: The silencer muffled the sound and prevented smoke
+        - step: The weapon was removed and hidden, leaving no trace
+    outcome:
+      result: >-
+        James Bruce was arrested and convicted for the murder of Kerr Parker using a silenced
+        revolver concealed in a woman's coat.
+  false_assumption:
+    statement: No shot was fired because no noise or smoke was detected by witnesses.
+    type: behavioral
+    why_it_seems_reasonable: >-
+      Witnesses in the office heard no gunshot or saw smoke, and the doors were open with many
+      people present. It is natural to conclude no shot was fired or it was fired outside.
+    what_it_hides: >-
+      The use of a silencer and the concealment of the weapon in a coat allowed the shot to be fired
+      silently and unseen within the office.
+  false_solution:
+    accused_suspect: Mrs. Parker
+    supporting_points:
+      - Mrs. Parker showed great emotion during the demonstration
+      - She was present in the ladies' department near the time of the shot
+      - The coat with the bullet hole belonged to her
+      - She had motive related to financial and personal affairs
+    the_one_flaw: >-
+      No physical evidence or witness placed her firing the shot, and the silenced revolver was
+      traced to James Bruce
+    refuted_in_chapter: 1
+  red_herrings:
+    - id: mrs_parker_emotional_reaction
+      description: Mrs. Parker's strong emotional reaction during the scientific demonstration suggested guilt.
+      points_at_suspect: Mrs. Parker
+      innocent_explanation: Her reaction was due to shock and grief over her husband's death, not guilt.
+      resolved_in_chapter: 1
+    - id: note_and_red_haired_woman
+      description: A mysterious note and a red-haired actress suspected to be involved in the murder plot.
+      points_at_suspect: Miss Phoebe La Neige
+      innocent_explanation: She confessed to involvement in a side plot unrelated to the murder and was not the shooter.
+      resolved_in_chapter: 1
+  closed_circle:
+    suspects:
+      - James Bruce
+      - Mrs. Parker
+      - John Downey
+      - Miss Phoebe La Neige
+      - Kerr Parker
+    rationale: >-
+      All were present in the office at the time of the murder, had access, and possible motives; no
+      outsiders could have committed the crime unnoticed.
+  constraint_space:
+    time:
+      anchors:
+        - time of the meeting
+        - time of the shot
+        - time of the note reception
+      windows:
+        - duration of the meeting
+        - time between note and murder
+    access:
+      actors:
+        - James Bruce
+        - Mrs. Parker
+        - John Downey
+        - Miss Phoebe La Neige
+      objects:
+        - pongee automobile-coat
+        - revolver
+        - silencer
+        - office rooms
+    social:
+      trust_channels:
+        - police communication
+        - messenger calls
+        - laboratory tests
+      authority_sources:
+        - coroner's physician
+        - police inspector
+        - professor of criminal science
+  inference_path:
+    steps:
+      - observation: A thirty-two-calibre bullet was found in the victim's neck with fabric impressions.
+        correction: The bullet must have passed through a fabric matching the impressions.
+        effect: Identifies the coat as the fabric through which the bullet was fired.
+        required_evidence:
+          - Thirty-two-calibre bullet with fabric impressions recovered from Kerr Parker's neck
+          - Pongee silk from Mrs. Parker's automobile-coat with a bullet hole
+        reader_observable: true
+      - observation: No noise or smoke was reported by witnesses during the shooting.
+        correction: A silencer was used to muffle the gunshot and prevent smoke.
+        effect: Explains the silent nature of the shooting despite many witnesses.
+        required_evidence:
+          - Purchase records of silencer for thirty-two-calibre revolver by James Bruce
+          - Demonstration of silenced revolver firing in laboratory
+        reader_observable: true
+      - observation: Mrs. Parker showed great emotion during the demonstration of the coat and bullet.
+        correction: Emotional reaction due to grief, not guilt.
+        effect: Removes suspicion from Mrs. Parker as the shooter.
+        required_evidence:
+          - Emotional response curves recorded during the demonstration
+          - Witness testimony of Mrs. Parker's behavior after the murder
+        reader_observable: true
+      - observation: James Bruce was agitated during the demonstration and had access to the coat.
+        correction: His agitation indicates guilt and opportunity.
+        effect: Focuses suspicion on James Bruce as the murderer.
+        required_evidence:
+          - Emotional response curves showing agitation of James Bruce
+          - Tracing of messenger calls leading to Bruce's apartment
+        reader_observable: true
+      - observation: No weapon was found at the scene.
+        correction: The weapon was concealed and removed after the shooting.
+        effect: Explains absence of weapon and supports theory of concealed silenced revolver.
+        required_evidence:
+          - Absence of revolver at the office
+          - Purchase and tracing of silencer and revolver by police
+        reader_observable: true
+      - observation: A wet, pulp-like mass of paper was found in the wastebasket.
+        correction: It was the remains of the note read by the victim.
+        effect: Links the note to the murder context and suspects.
+        required_evidence:
+          - Microphotographs of fibers in the wet paper matching suspect's notepaper
+          - Witness testimony about the note's existence and timing
+        reader_observable: true
+      - observation: The bullet hole in the coat was scorched and burned.
+        correction: The bullet was fired through the coat, causing the hole.
+        effect: Confirms the coat was used to conceal the weapon during shooting.
+        required_evidence:
+          - Physical examination of the coat showing bullet hole and scorch marks
+          - Laboratory demonstration firing bullet through pongee coat
+        reader_observable: true
+  discriminating_test:
+    method: reenactment
+    design: >-
+      Kennedy fired a thirty-two-calibre revolver through a piece of pongee silk matching the
+      victim's coat, using a silencer device to demonstrate the absence of noise and smoke. The
+      bullet was then compared microscopically to the bullet recovered from the victim's neck to
+      confirm matching fabric impressions.
+    knowledge_revealed: >-
+      This test revealed that the shot was fired silently through the coat, explaining the
+      witnesses' failure to hear or see the weapon, and linking the bullet to the coat belonging to
+      Mrs. Parker.
+    pass_condition: >-
+      The bullet fired through the silenced revolver and pongee coat must bear identical fabric
+      impressions to the bullet recovered from the victim.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given detailed descriptions of the bullet with fabric impressions, the silencer
+      device, the coat with the bullet hole, and the tracing of messenger calls. The emotional
+      reactions of suspects and the laboratory demonstrations provide concrete clues. The presence
+      of a silenced revolver and its concealment in the coat are explicitly shown, allowing an
+      attentive reader to deduce the murderer's identity.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

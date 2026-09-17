@@ -62,9 +62,46 @@ const TEST_SHAPE = {
 const tokenise = (s) =>
   String(s).toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "").split("_").slice(0, 4).join("_");
 
-const slugs = process.argv.slice(2).length
-  ? process.argv.slice(2)
-  : readdirSync(WORKS).filter((s) => existsSync(`${WORKS}/${s}/case.cml2.yaml`));
+/**
+ * A_97 — DERIVE DOES NOT OVERWRITE A FINGERPRINT THAT CLASSIFY HAS ALREADY CORRECTED.
+ *
+ * `corpus-classify.mjs` writes `mechanism_family`, `false_assumption_pattern` and `inference_shape`
+ * back INTO `fingerprint.yaml` — the same file this script generates. So a second `corpus-derive`
+ * run over the whole library silently replaces an LLM judgement with a regex guess, with no warning
+ * and no diff anyone is looking at.
+ *
+ * MEASURED 2026-09-17, by doing it: a bare `node scripts/corpus-derive.mjs` after an encode batch
+ * rewrote 12 of 12 pre-existing fingerprints. *A Jury of Her Peers* went from `staged_scene` to
+ * `secret_will_inheritance` — which is the exact failure `corpus-classify.mjs`'s own header is
+ * written to explain, the word "will" appearing in the mechanism text as a VERB. *The Mystery of the
+ * Yellow Room* and *The Big Bow Mystery* both lost `locked_room_timing`, and the family histogram
+ * collapsed into two buckets: 12 `impersonation` and 10 `staged_scene` out of 30.
+ *
+ * A_79 §11.4 had already recorded the more expensive half of the same collision: derive builds
+ * `false_assumption_pattern` from the first four words of a sentence, the novelty judge uses it as a
+ * similarity key, and when a derived row last won, a deliberate paraphrase of The Big Bow Mystery
+ * stopped being caught.
+ *
+ * So a work that already has a fingerprint is SKIPPED unless it is named explicitly or `--force` is
+ * passed. The default path — run derive after a batch — is now the safe one, which is the right way
+ * round for a script whose whole job is to be run repeatedly.
+ */
+const FORCE = process.argv.includes("--force");
+const explicit = process.argv.slice(2).filter((a) => !a.startsWith("--"));
+const skipped = [];
+const slugs = explicit.length
+  ? explicit
+  : readdirSync(WORKS)
+    .filter((s) => existsSync(`${WORKS}/${s}/case.cml2.yaml`))
+    .filter((s) => {
+      if (FORCE || !existsSync(`${WORKS}/${s}/fingerprint.yaml`)) return true;
+      skipped.push(s);
+      return false;
+    });
+if (skipped.length) {
+  console.log(`skipping ${skipped.length} work(s) that already have a fingerprint — classify may have`);
+  console.log(`corrected them, and re-deriving would replace that with a regex guess. --force to override.`);
+}
 
 const rows = [];
 for (const slug of slugs) {

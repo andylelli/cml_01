@@ -1,0 +1,12 @@
+- id: the_red_thumb_mark
+  corpus: seed
+  axis: identity
+  mechanism_family: alibi_fabrication
+  false_assumption_pattern: a_fingerprint_proves_presence_and_guilt
+  discriminating_test_shape: behavioral_tell
+  inference_shape: demonstrate_fingerprint_forgery
+  premise: >-
+    Reuben Hornby is accused of stealing diamonds from his uncle's safe, with a bloody thumbprint
+    found inside identified as his. The evidence seems overwhelming, and the police and prosecution
+    are confid
+  source: library/works/the_red_thumb_mark/case.cml2.yaml

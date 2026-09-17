@@ -1,0 +1,12 @@
+- id: the_mystery_of_a_hansom_cab
+  corpus: seed
+  axis: identity
+  mechanism_family: impersonation
+  false_assumption_pattern: the_man_seen_is_the_murderer
+  discriminating_test_shape: timetable_contradiction
+  inference_shape: disprove_identity_by_alibi
+  premise: >-
+    A man named Oliver Whyte is found murdered in a hansom cab in Melbourne. Brian Fitzgerald,
+    engaged to Madge Frettlby, is arrested based on circumstantial evidence but is later acquitted
+    when a key wit
+  source: library/works/the_mystery_of_a_hansom_cab/case.cml2.yaml

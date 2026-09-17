@@ -1,0 +1,429 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: Max Carrados
+    author: Ernest Bramah
+    license: Public domain (first published 1914; author died 1942). Project Gutenberg ebook 34732.
+    era:
+      decade: 1910s
+      realism_constraints:
+        - No advanced forensic DNA analysis available
+        - Electricity and telegraphy are established but limited in domestic use
+        - Photography exists but is not widely used for surveillance
+    setting:
+      location: London, England
+      institution: Private inquiry agency of Mr Louis Carlyle and amateur detective Max Wynn Carrados
+    crime_class:
+      category: theft
+      subtype: safe deposit burglary by key duplication and insider observation
+  cast:
+    - name: Max Wynn Carrados
+      age_range: 40-50
+      role_archetype: blind amateur detective with heightened senses
+      relationships: []
+      public_persona: wealthy eccentric blind man
+      private_secret: highly perceptive and skilled detective
+      motive_seed: justice and intellectual challenge
+      motive_strength: strong
+      alibi_window: always present at investigation scenes
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells:
+        - uses heightened senses to detect clues
+      stakes: professional reputation and moral duty
+      evidence_sensitivity:
+        - touch
+        - smell
+        - hearing
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: low
+    - name: Louis Carlyle
+      age_range: 40-50
+      role_archetype: ex-solicitor turned private inquiry agent
+      relationships:
+        - friend and assistant to Carrados
+      public_persona: professional private detective
+      private_secret: former solicitor struck off for falsifying accounts
+      motive_seed: professional duty
+      motive_strength: moderate
+      alibi_window: present with Carrados during investigations
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: professional reputation
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: medium
+    - name: Ulysses K. Groom (Harry the Actor)
+      age_range: 30-40
+      role_archetype: master of disguise and criminal
+      relationships:
+        - wife (accomplice)
+      public_persona: various disguises, including elderly scholar
+      private_secret: criminal who duplicates keys to safes
+      motive_seed: financial gain
+      motive_strength: strong
+      alibi_window: present at safe deposit during thefts
+      access_plausibility: high due to key duplication and disguise
+      opportunity_channels:
+        - safe deposit access
+        - key duplication
+      behavioral_tells:
+        - psychological pause when hearing 'New York'
+      stakes: freedom and profit
+      evidence_sensitivity:
+        - photograph
+        - keys
+        - safe deposit records
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: low
+    - name: Madame Ferraja (Nina Brun)
+      age_range: 30-40
+      role_archetype: accomplice and coin forger
+      relationships:
+        - husband Dompierre
+        - accomplice Montmorency
+      public_persona: vineyard owner’s wife
+      private_secret: involved in coin forgery and theft
+      motive_seed: financial gain
+      motive_strength: strong
+      alibi_window: present at Heronsbourne Place during plot
+      access_plausibility: high
+      opportunity_channels:
+        - access to coins
+        - forgery skills
+      behavioral_tells:
+        - nervousness
+        - contrived chatter
+      stakes: freedom and profit
+      evidence_sensitivity:
+        - coins
+        - garden step mark
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: female
+      role: culprit
+      moral_complexity: medium
+    - name: Eustace Montmorency (Stoker)
+      age_range: 40-50
+      role_archetype: criminal accomplice
+      relationships:
+        - wife Madame Dompierre
+        - accomplice Nina Brun
+      public_persona: former stoker on disabled liner
+      private_secret: criminal conspirator
+      motive_seed: financial gain
+      motive_strength: strong
+      alibi_window: present at Heronsbourne Place
+      access_plausibility: high
+      opportunity_channels:
+        - access to stolen coins
+      behavioral_tells:
+        - impatience
+        - cold eye
+      stakes: freedom and profit
+      evidence_sensitivity: []
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: low
+    - name: Inspector Beedel
+      age_range: 50-60
+      role_archetype: Scotland Yard inspector
+      relationships:
+        - works with Carrados
+      public_persona: professional police inspector
+      private_secret: respects Carrados's abilities
+      motive_seed: law enforcement
+      motive_strength: strong
+      alibi_window: present at investigations
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: professional duty
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+    - name: Mr Carlyle's man-servant Parkinson
+      age_range: 30-40
+      role_archetype: loyal and observant servant
+      relationships:
+        - servant to Carrados
+      public_persona: faithful valet
+      private_secret: highly observant and trained to assist Carrados
+      motive_seed: loyalty
+      motive_strength: strong
+      alibi_window: always with Carrados
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells:
+        - keen observation
+      stakes: service and loyalty
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+  culpability:
+    culprit_count: 2
+    culprits:
+      - Ulysses K. Groom (Harry the Actor)
+      - Madame Ferraja (Nina Brun)
+  surface_model:
+    narrative:
+      summary: >-
+        A series of thefts from a supposedly impregnable safe deposit in London baffle
+        investigators. An audacious criminal known as 'Harry the Actor' uses disguises and
+        duplicated keys to steal valuables. Meanwhile, a coin forgery ring involving Madame Ferraja
+        and accomplices is uncovered.
+    accepted_facts:
+      - The safes at Lucas Street are highly secure with no duplicate keys officially existing
+      - Several safes were found emptied without signs of forced entry
+      - A man named Ulysses K. Groom rented multiple safes and was seen in disguises
+      - Madame Ferraja and her husband possess stolen Greek coins from the British Museum
+    inferred_conclusions:
+      - The thefts were committed by an insider with access to keys
+      - The coin theft was a genuine robbery from the British Museum
+      - The accomplices were acting independently without a coordinated plan
+  hidden_model:
+    mechanism:
+      description: >-
+        Harry the Actor rented multiple safes and secretly duplicated the keys to them. Using
+        disguises, he gained access to the safes without raising suspicion and removed valuables.
+        Madame Ferraja and her accomplices staged a fake coin theft from the British Museum to
+        mislead investigators and cover their forgery operations.
+      delivery_path:
+        - step: Harry the Actor rents multiple safes at the Lucas Street depository
+        - step: He duplicates the keys during his visits using observation and disguise
+        - step: He uses different disguises to avoid recognition and access safes
+        - step: Valuables are removed from the safes without forced entry
+        - step: Madame Ferraja and accomplices create a fake coin theft scenario
+        - step: They use the fake theft to distract attention from their forgery
+        - step: Carrados investigates and uncovers the true identities and methods
+    outcome:
+      result: >-
+        Carrados exposes Harry the Actor and his accomplices, recovering the stolen goods and
+        foiling the forgery ring.
+  false_assumption:
+    statement: The British Museum coin theft was a genuine robbery.
+    type: identity
+    why_it_seems_reasonable: >-
+      The museum officials reported missing coins and alerted the police, making it appear as a real
+      theft. The presence of stolen coins with Madame Ferraja supported this belief.
+    what_it_hides: >-
+      The coin theft was a staged ruse by the conspirators to mislead Carrados and the authorities,
+      masking their forgery operations.
+  false_solution:
+    accused_suspect: Mr Carlyle
+    supporting_points:
+      - He was present at many investigation scenes
+      - He had knowledge of the cases and access to evidence
+      - His past as a solicitor struck off for falsifying accounts
+      - His close association with Carrados
+    the_one_flaw: >-
+      There was no evidence of his involvement in the thefts or forgeries, and he actively assisted
+      Carrados.
+    refuted_in_chapter: 6
+  red_herrings:
+    - id: tawny_man
+      description: A tawny man seen at the safe deposit aroused suspicion of involvement in the thefts.
+      points_at_suspect: He was observed watching other clients and seemed suspicious.
+      innocent_explanation: He was a legitimate client renting a safe and unrelated to the crimes.
+      resolved_in_chapter: 5
+    - id: madame_ferraja_identity
+      description: >-
+        Madame Ferraja's identity as Nina Brun, the parlourmaid involved in coin forgery, was
+        initially unknown.
+      points_at_suspect: Her presence and knowledge of coins suggested involvement in theft.
+      innocent_explanation: She was a victim or unwitting participant initially, but later revealed as a culprit.
+      resolved_in_chapter: 8
+  closed_circle:
+    suspects:
+      - Ulysses K. Groom (Harry the Actor)
+      - Madame Ferraja (Nina Brun)
+      - Eustace Montmorency (Stoker)
+    rationale: >-
+      Only these individuals had the opportunity, motive, and means to carry out the thefts and
+      forgeries within the secure environment and with the necessary knowledge.
+  constraint_space:
+    time:
+      anchors:
+        - Friday morning visit by Draycott
+        - Tuesday and Wednesday thefts
+        - Sunday dinner at The Turrets
+      windows:
+        - Safe deposit open hours
+        - Evening and night for covert actions
+    access:
+      actors:
+        - Harry the Actor
+        - Madame Ferraja
+        - Montmorency
+        - Manager
+        - Parkinson
+      objects:
+        - Safe deposit keys
+        - Duplicated keys
+        - Safe deposit inner boxes
+    social:
+      trust_channels:
+        - Manager's trust in clients
+        - Servants' observations
+        - Insurance company communications
+      authority_sources:
+        - Scotland Yard
+        - Private inquiry agency
+        - Insurance company
+  inference_path:
+    steps:
+      - observation: >-
+          Several safes were found emptied without signs of forced entry or disturbance to the
+          electric light arrangements in the house.
+        correction: >-
+          The theft was not by force but by key duplication, and the electric light was not tampered
+          with during the thefts.
+        effect: >-
+          Focus investigation on key access, insider knowledge, and the arrangement of the house's
+          electric light system.
+        required_evidence:
+          - >-
+            Safe deposit access logs showing no forced entry or interruption to electric light
+            arrangements in the house
+          - >-
+            Physical keys held by clients and staff, and inspection of the house's electric light
+            wiring
+        reader_observable: true
+      - observation: >-
+          A man in disguise was seen renting multiple safes and arranging his visits to avoid
+          notice.
+        correction: The man is likely the thief using disguises and careful arrangement of his house visits.
+        effect: Identify suspect by disguises, rental records, and the arrangement of his house visits.
+        required_evidence:
+          - Photograph of Ulysses K. Groom in disguise taken during one of his arranged house visits
+          - Safe rental records with aliases and arrangement of visit times
+        reader_observable: true
+      - observation: >-
+          Coins stolen from British Museum reported missing, and the arrangement of the house
+          suggested a planned deception.
+        correction: >-
+          The theft may be a staged ruse, with the arrangement of the house and electric light used
+          to mislead.
+        effect: >-
+          Investigate possibility of forgery, deception, and arrangement of the house's electric
+          light for alibi.
+        required_evidence:
+          - Testimony of Madame Ferraja about the arrangement of the house during the supposed theft
+          - Examination of coin authenticity and arrangement of the house's electric light system
+        reader_observable: true
+      - observation: >-
+          Madame Ferraja and accomplices possess stolen coins and arranged their house to avoid
+          suspicion.
+        correction: >-
+          They are involved in forgery and theft, and arranged the house and electric light to
+          support their alibi.
+        effect: >-
+          Link coin theft to forgery ring and arrangement of the house's electric light as part of
+          the deception.
+        required_evidence:
+          - Coins found at Heronsbourne Place and arrangement of the house's electric light switches
+          - Statements from accomplices about the arrangement of the house during the theft
+        reader_observable: true
+      - observation: >-
+          Manager denies complicity but safe was opened and the arrangement of the house's electric
+          light was unchanged.
+        correction: >-
+          Manager unaware but security compromised by key duplication and arrangement of the house's
+          electric light.
+        effect: >-
+          Exclude manager as culprit but consider security flaws and arrangement of the house's
+          electric light.
+        required_evidence:
+          - >-
+            Manager's testimony about the arrangement of the house's electric light during the
+            thefts
+          - >-
+            Safe deposit security measures documentation and arrangement of the house's electric
+            light
+        reader_observable: true
+      - observation: >-
+          Photographs of record-book pages taken by accomplice's wife revealed the arrangement of
+          the house and suspects' reliance on sight.
+        correction: >-
+          Inside information used to target safes, and arrangement of the house's electric light
+          exploited suspects' reliance on sight.
+        effect: >-
+          Confirm insider assistance in thefts, arrangement of the house, and suspects' reliance on
+          sight.
+        required_evidence:
+          - Photographs of record-book showing arrangement of the house and electric light
+          - >-
+            Witness statements of accomplice's wife about arrangement of the house and suspects'
+            reliance on sight
+        reader_observable: true
+      - observation: >-
+          Carrados traps conspirators in darkness by arranging the house's electric light to be cut,
+          revealing the suspects' reliance on sight.
+        correction: >-
+          Conspirators rely on darkness to control situation, but arrangement of the house's
+          electric light and their reliance on sight exposes them.
+        effect: >-
+          Use darkness and arrangement of the house's electric light as equalizer in confrontation,
+          revealing the suspects' reliance on sight.
+        required_evidence:
+          - Burned-out wire in distributing box showing arrangement of the house's electric light
+          - >-
+            Testimony of Montmorency and Dompierre about arrangement of the house and their reliance
+            on sight
+        reader_observable: true
+  discriminating_test:
+    method: trap
+    design: >-
+      Carrados arranges a meeting at a house with the suspects and deliberately cuts the electric
+      light, plunging the room into darkness. He relies on his acute hearing and marksmanship to
+      control the situation and prevent escape or attack. The suspects' reactions and inability to
+      move without noise confirm their guilt.
+    knowledge_revealed: >-
+      The test reveals the suspects' reliance on sight and their fear of Carrados's marksmanship,
+      confirming their criminal intent and presence at the scene.
+    pass_condition: >-
+      The suspects remain immobilized and silent in darkness, unable to escape or overpower
+      Carrados.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given detailed descriptions of the safe deposit's security measures and the
+      suspects' disguises and behaviors. Clues such as the psychological pause on hearing 'New
+      York,' the presence of duplicated keys, and the staged coin theft are all presented. The
+      method of key duplication and the use of disguises are explained, allowing attentive readers
+      to deduce the true mechanism.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

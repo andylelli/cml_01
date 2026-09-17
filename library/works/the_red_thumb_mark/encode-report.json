@@ -1,0 +1,124 @@
+{
+ "slug": "the_red_thumb_mark",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "The diamonds were locked in the safe by John Hornby",
+   "anchor": "he closed the safe and locked it",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "A bloody thumbprint was found on a paper inside the safe",
+   "anchor": "a remarkably distinct and clean print of a thumb",
+   "span": "Near to it were two or three smaller smears and a remarkably distinct and clean print of a thumb.",
+   "ok": true
+  },
+  {
+   "claim": "The thumbprint was identified as Reuben Hornby's by Scotland Yard experts",
+   "anchor": "it agrees in every respect with the thumb-print of Mr. Reuben Hornby",
+   "span": "The report of the experts is that the thumb-print does not agree with any of the thumb-prints of criminals in their possession; that it is a very peculiar one, inasmuch as the ridge-pattern on the bulb of the thumb--which is a remarkably distinct and characteristic one--is crossed by the scar of a deep cut, rendering identification easy and infallible; that it agrees in every respect with the thumb-print of Mr. Reuben Hornby, and is, in fact, his thumb-print beyond any possible doubt.",
+   "ok": true
+  },
+  {
+   "claim": "The 'Thumbograph' book contained genuine thumbprints of the family",
+   "anchor": "the little book and showed it to the detective",
+   "span": "She suddenly remembered the 'Thumbograph,' and thinking to set the question at rest once for all, fetched the little book and showed it to the detective.",
+   "ok": true
+  },
+  {
+   "claim": "The 'Thumbograph' book was temporarily missing and then returned",
+   "anchor": "the 'Thumbograph' was not in the drawer",
+   "span": "' So she went, and presently she came back and said that the 'Thumbograph' was not in the drawer.",
+   "ok": true
+  },
+  {
+   "claim": "Walter Hornby recently purchased a typewriter with a literary typewheel",
+   "anchor": "Walter bought it from one of his literary friends about a week ago",
+   "span": "Walter bought it from one of his literary friends about a week ago; but he is getting quite clever with it already, though he does make a few mistakes still, as you can see.",
+   "ok": true
+  },
+  {
+   "claim": "The forged thumbprint was larger than the genuine print",
+   "anchor": "the suspected print was larger by the fortieth of an inch",
+   "span": "I photographed the print with the micrometer in contact and on comparing this with a genuine thumb-print, also photographed with the same micrometer in contact, I found that the suspected print was larger by the fortieth of an inch, from one given point on the ridge-pattern to another given point.",
+   "ok": true
+  },
+  {
+   "claim": "The forged thumbprint included an accidental mark from a loose fibre",
+   "anchor": "a minute white mark or space ... of the shape of a capital S",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The blood on the paper was artificially treated to prevent clotting",
+   "anchor": "it was either defibrinated blood or that it had been treated with an alkaline salt",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Thorndyke demonstrated the possibility of forging thumbprints using stamps",
+   "anchor": "by means of a stamp, either of indiarubber or, more probably, of chromicized gelatine",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Thorndyke prepared a test sheet with genuine and forged prints",
+   "anchor": "I propose to make on ten of the squares counterfeits of the prisoner's thumb-mark",
+   "span": "I propose to make on ten of the squares counterfeits of the prisoner's thumb-mark, and to fill the remaining ten with real thumb-marks.",
+   "ok": true
+  },
+  {
+   "claim": "Fingerprint experts failed to distinguish forged prints from genuine ones",
+   "anchor": "their conclusions are wrong in every instance",
+   "span": "Now, the strange thing is this: their conclusions are wrong in every instance\" (here I nearly laughed aloud, for, as I glanced at the two experts, the expression of smug satisfaction on their countenances changed with lightning rapidity to a ludicrous spasm of consternation); \"not sometimes wrong and sometimes right, as would have been the case if they had made mere guesses, but wrong every time.",
+   "ok": true
+  },
+  {
+   "claim": "Walter Hornby had motive and means to forge the prints and frame Reuben",
+   "anchor": "Walter Hornby ... has recently bought a second-hand Blickensderfer",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Reuben Hornby was acquitted due to the proof of forgery",
+   "anchor": "the jury ... found you to be not guilty of the crime",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Thorndyke's expertise averted a miscarriage of justice",
+   "anchor": "the public at large, are deeply indebted to Dr. Thorndyke",
+   "span": "I desire to express my admiration at the manner in which that defence was conducted, and I desire especially to observe that not you alone, but the public at large, are deeply indebted to Dr. Thorndyke, who, by his insight, his knowledge and his ingenuity, has probably averted a very serious miscarriage of justice.",
+   "ok": true
+  },
+  {
+   "claim": "The forged print was a photo-mechanical reproduction of the 'Thumbograph' print",
+   "anchor": "the red thumb-print is a photo-mechanical reproduction of the 'Thumbograph' print",
+   "span": "The conclusion is thus inevitable that the red thumb-print is a photo-mechanical reproduction of the 'Thumbograph' print.",
+   "ok": true
+  },
+  {
+   "claim": "The forged print was made with defibrinated blood to produce a clear impression",
+   "anchor": "the forger ... put a drop on the slab, roll it out into a thin film and take a clean impression",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The 'Thumbograph' was taken and returned secretly during Mrs. Hornby's absence",
+   "anchor": "somebody must have taken it out and put it back while we were away",
+   "span": "",
+   "ok": false
+  }
+ ],
+ "costGbp": 0.07269737999999999,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-08-31"
+}

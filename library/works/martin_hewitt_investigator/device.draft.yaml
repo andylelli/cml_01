@@ -1,0 +1,48 @@
+pattern_id: martin_hewitt_investigator
+title: The Parrot's Match
+family: spatial_routing
+axes:
+  - behavioral
+principle: >-
+  The match was never lit to provide light but was used as a prop carried by the parrot to mislead
+  investigators about the presence and timing of a human thief.
+principleType: cognitive_bias
+surface_illusion_template: >-
+  The thief must have been a human who entered through the window using a ladder; The matches were
+  used to light the room during the thefts; The servants or visitors were responsible for the thefts
+underlying_reality_template: >-
+  The thefts were carried out by a trained parrot owned by the culprit, who was taught to carry a
+  match in its beak and steal jewelry from the dressing-tables. The match was used as a deliberate
+  false clue, placed near the stolen item to mislead investigators. the culprit acted as the
+  accomplice, releasing the parrot and retrieving the stolen goods without arousing suspicion.
+feasibility:
+  eras:
+    - 1850
+    - 1860
+    - 1870
+    - 1880
+    - 1890
+    - 1900
+    - 1910
+    - 1920
+    - 1930
+    - 1940
+    - 1950
+  requires:
+    - trained_animal
+    - physical_prop
+    - window_access
+  forbids:
+    - cctv
+    - voice_authentication
+clue_archetypes:
+  - match_with_sharp_indentations
+  - parrot_biting_a_quill
+  - jewelry_missing_one_piece
+  - parrot_s_ability_to
+  - window_sash_propped_open
+  - parrot_s_ability_to
+sources:
+  - >-
+    Arthur Morrison, Martin Hewitt, Investigator —
+    library/works/martin_hewitt_investigator/case.cml2.yaml

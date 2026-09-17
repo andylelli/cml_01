@@ -1,0 +1,136 @@
+{
+ "slug": "the_problem_of_cell_13",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Van Dusen was locked in Cell 13 and escaped within a week",
+   "anchor": "Lock me in any cell in any prison anywhere at any time",
+   "span": "Lock me in any cell in any prison anywhere at any time, wearing only what is necessary, and I'll escape in a week,\" he declared, sharply.",
+   "ok": true
+  },
+  {
+   "claim": "Van Dusen found a small opening in the floor used by rats",
+   "anchor": "He came upon a small opening in the floor, level with the cement",
+   "span": "He came upon a small opening in the floor, level with the cement.",
+   "ok": true
+  },
+  {
+   "claim": "Van Dusen sent a note tied to a rat through the drain pipe",
+   "anchor": "I tied the linen and money firmly to one leg",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Van Dusen cut the arc light feed wire with acid",
+   "anchor": "Early in the evening of the last day of my imprisonment, when it was dark, I planned to cut the feed wire",
+   "span": "That cleared the way to freedom perfectly: Early in the evening of the last day of my imprisonment, when it was dark, I planned to cut the feed wire which was only a few feet from my window, reaching it with an acid-tipped wire I had.",
+   "ok": true
+  },
+  {
+   "claim": "Jean used a mirror on a flagpole to watch Henley",
+   "anchor": "A screw was driven into the frame--it has been removed now--it was swung on the flagpole rope",
+   "span": "A screw was driven into the frame--it has been removed now--it was swung on the flagpole rope and pulled out to the end of the pole, facing the building.",
+   "ok": true
+  },
+  {
+   "claim": "Jean extinguished the gas by blowing into the gas pipe",
+   "anchor": "Every gas light in this house might be extinguished at the same time from this room without leaving it",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Louise Clarke used violet perfume linked to the handkerchief",
+   "anchor": "There was the faint, clinging odor of violet perfume",
+   "span": "There was the faint, clinging odor of violet perfume.",
+   "ok": true
+  },
+  {
+   "claim": "Louise Clarke planned and assisted in the bank robbery",
+   "anchor": "Miss Clarke has confessed",
+   "span": "Miss Clarke has confessed,\" he said.",
+   "ok": true
+  },
+  {
+   "claim": "Grace Field disappeared and was the model for 'Fulfillment'",
+   "anchor": "Where the light slants down softly into one corner of a noted art museum in Boston there hangs a large picture. Its title is \"Fulfillment.\"",
+   "span": "THE MYSTERY OF A STUDIO Where the light slants down softly into one corner of a noted art museum in Boston there hangs a large picture. Its title is \"Fulfillment.\" Discriminating art critics have alternately raved at it and praised it; from the day it appeared there it has been a fruitful source of acrimonious discussion.",
+   "ok": true
+  },
+  {
+   "claim": "St. George held Grace Field captive and attacked Willis",
+   "anchor": "There on the floor lay huddled the figure of a man. Blood had run from several wounds on his head.",
+   "span": "There on the floor lay huddled the figure of a man. Blood had run from several wounds on his head. The Thinking Machine stooped a moment, and his slender fingers fumbled over the heart.",
+   "ok": true
+  },
+  {
+   "claim": "The scrap of paper contained a threatening letter",
+   "anchor": "If you go to th(at stud)io Wednesday to see that artist, (I will k)ill you",
+   "span": "If you go to th(at stud)io Wednesday to see that artist, (I will k)ill you bec(ause I w)on't have it known to the world tha(t you a)re a model.",
+   "ok": true
+  },
+  {
+   "claim": "Van Dusen explained the entire escape plan logically",
+   "anchor": "I cut the electric light wire with acid, as I said, when the current was off",
+   "span": "I cut the electric light wire with acid, as I said, when the current was off.",
+   "ok": true
+  },
+  {
+   "claim": "The scarlet thread matched the bath robe worn by the culprit",
+   "anchor": "Both came from that bath robe. Plain logic shows that the person who blew down the gas pipes worked the mirror trick",
+   "span": "Both came from that bath robe. Plain logic shows that the person who blew down the gas pipes worked the mirror trick; the person who worked the mirror trick left the thread; the thread comes back to the bath robe--that bath robe there,\" he pointed dramatically.",
+   "ok": true
+  },
+  {
+   "claim": "The handkerchief with violet perfume was found near the bank safe",
+   "anchor": "I noticed the odor of perfume--violet perfume",
+   "span": "Instantly I got the handkerchief I noticed the odor of perfume--violet perfume.",
+   "ok": true
+  },
+  {
+   "claim": "The ghost was created by George Weston using phosphorus and mirrors",
+   "anchor": "He put on the robe already covered with phosphorus, and merely stepped out",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The sliding mirror was used to create the flaming phantom",
+   "anchor": "The crash startled the man who operated the ghost from the top of a box",
+   "span": "The crash startled the man who operated the ghost from the top of a box, giving it the appearance of extreme height, and he started out through the kitchen, as he had entered.",
+   "ok": true
+  },
+  {
+   "claim": "The bank robbery was committed with inside help using chemical solution",
+   "anchor": "A certain chemical solution to the granite sockets of the steel bars",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Miss Clarke confessed to the bank robbery and murder",
+   "anchor": "Miss Clarke has confessed",
+   "span": "Miss Clarke has confessed,\" he said.",
+   "ok": true
+  },
+  {
+   "claim": "St. George escaped hospital and was found raving mad",
+   "anchor": "Constans St. George, raving mad, has escaped from the hospital and disappeared",
+   "span": "Constans St. George, raving mad, has escaped from the hospital and disappeared.",
+   "ok": true
+  },
+  {
+   "claim": "The closet was used to imprison Grace Field with chloroform",
+   "anchor": "The little closet in which he had found the artist and Grace Field. It was practically a padded cell",
+   "span": "",
+   "ok": false
+  }
+ ],
+ "costGbp": 0.119808556,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-08-31"
+}

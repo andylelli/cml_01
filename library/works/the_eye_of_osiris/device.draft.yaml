@@ -1,0 +1,49 @@
+pattern_id: the_eye_of_osiris
+title: The Mummy Switch
+family: identity
+axes:
+  - temporal
+principle: >-
+  The man seen was an impersonator, and a suspect was last seen alive weeks earlier at his own
+  house, where he died.
+principleType: physical_law
+surface_illusion_template: >-
+  the investigator a suspect left voluntarily and is alive in hiding.; a suspect a suspect or his
+  daughter a suspect murdered the investigator a suspect.; The dismembered remains found are those
+  of the investigator a suspect.
+underlying_reality_template: >-
+  the culprit murdered the investigator a suspect accidentally by causing him to fall down the
+  stairs. He concealed the body by substituting it with an Egyptian mummy from a suspect collection.
+  the culprit manipulated the will and evidence to secure the estate but was ultimately exposed by
+  the investigator investigation and committed suicide.
+feasibility:
+  eras:
+    - 1850
+    - 1860
+    - 1870
+    - 1880
+    - 1890
+    - 1900
+    - 1910
+    - 1920
+    - 1930
+    - 1940
+    - 1950
+  requires:
+    - body_preparation
+    - medical_records
+    - museum_artifact_access
+  forbids:
+    - cctv
+    - modern_toxicology_screen
+clue_archetypes:
+  - testimony_of_dr_norbury
+  - housemaid_s_statement_denying
+  - x_ray_photographs_of
+  - medical_examination_of_bones
+  - medical_testimony_on_bone
+  - knowledge_of_bellingham_s
+sources:
+  - >-
+    R. Austin (Richard Austin) Freeman, The Eye of Osiris —
+    library/works/the_eye_of_osiris/case.cml2.yaml

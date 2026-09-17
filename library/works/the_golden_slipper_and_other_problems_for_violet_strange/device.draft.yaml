@@ -1,0 +1,49 @@
+pattern_id: the_golden_slipper_and_other_problems_for_violet_strange
+title: The Borrowed Slipper
+family: identity
+axes:
+  - identity
+principle: >-
+  The true culprit was the culprit, who used a suspect identity and slippers to mislead others and
+  conceal her own guilt.
+principleType: physical_law
+surface_illusion_template: >-
+  a suspect a suspect was the primary thief responsible for the jewel thefts.; The thief entered the
+  investigator room through the balcony unnoticed.; Miss the culprit was complicit in the theft due
+  to her refusal to remove gloves.
+underlying_reality_template: >-
+  the culprit disguised herself by wearing a suspect a suspect slippers to access the investigator
+  room via the balcony. She took the pendant by reaching through the open window and stole it,
+  believing it would expose a suspect misdeeds. The red-stained paste on the pendant marked her
+  fingers, revealing her guilt despite her attempt to conceal it with gloves.
+feasibility:
+  eras:
+    - 1850
+    - 1860
+    - 1870
+    - 1880
+    - 1890
+    - 1900
+    - 1910
+    - 1920
+    - 1930
+    - 1940
+    - 1950
+  requires:
+    - physical_disguise
+    - open_window_access
+    - traceable_substance
+  forbids:
+    - cctv
+    - automated_fingerprint_search
+clue_archetypes:
+  - description_of_the_open
+  - witness_statement_about_the
+  - physical_slipper_found_outside
+  - testimony_identifying_the_slipper
+  - red_stained_paste_on
+  - observation_of_caroline_west
+sources:
+  - >-
+    Anna Katharine Green, The Golden Slipper, and Other Problems for Violet Strange —
+    library/works/the_golden_slipper_and_other_problems_for_violet_strange/case.cml2.yaml

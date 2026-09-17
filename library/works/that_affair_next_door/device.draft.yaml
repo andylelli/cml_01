@@ -1,0 +1,46 @@
+pattern_id: that_affair_next_door
+title: The Borrowed Face
+family: identity
+axes:
+  - identity
+principle: >-
+  It obscures the fact that the rival woman, the culprit, committed the murder and disguised herself
+  as the victim to mislead investigators.
+principleType: cognitive_bias
+surface_illusion_template: >-
+  a suspect a suspect a suspect was the murderer due to his suspicious behavior.; The victim
+  committed suicide by stabbing herself with a hat-pin.; a suspect a suspect a suspect was innocent
+  and uninvolved in the crime.
+underlying_reality_template: >-
+  the culprit, the rival woman, murdered the victim a suspect a suspect by stabbing her with a
+  hat-pin. She then disguised herself in the victim clothes to escape suspicion. the culprit, the
+  culprit husband, was the mastermind behind the crime, orchestrating the deception and covering up
+  the murder. a suspect a suspect a suspect was falsely suspected due to circumstantial evidence.
+feasibility:
+  eras:
+    - 1850
+    - 1860
+    - 1870
+    - 1880
+    - 1890
+    - 1900
+    - 1910
+    - 1920
+    - 1930
+    - 1940
+    - 1950
+  requires:
+    - physical_disguise
+    - personal_effects_access
+  forbids:
+    - cctv
+    - voice_authentication
+clue_archetypes:
+  - hat_found_in_dining
+  - gloves_found_with_the
+  - body_position_at_discovery
+  - arrangement_of_clothing_about
+  - broken_hat_pin_retrieved
+  - autopsy_report_of_wound
+sources:
+  - Anna Katharine Green, That Affair Next Door — library/works/that_affair_next_door/case.cml2.yaml
