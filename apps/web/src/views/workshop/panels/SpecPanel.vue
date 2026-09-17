@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useWorkshop } from "../useWorkshopState";
-import TabPanel from "../../../components/TabPanel.vue";
 
 /**
  * Spec — The story specification sent to the pipeline.
@@ -10,7 +9,6 @@ import TabPanel from "../../../components/TabPanel.vue";
  * interface. The block below is the original markup, moved unchanged.
  */
 const {
-	activeMainTab,
 	castNamesInput,
 	handleSuggestTheme,
 	spec,
@@ -18,7 +16,6 @@ const {
 </script>
 
 <template>
-	<TabPanel id="spec-tab" :active="activeMainTab === 'spec'" :lazy="true">
 	  <div class="rounded-lg border border-line bg-surface p-6 shadow-card">
 	    <div class="t-section">Story Specification</div>
 	    <div class="mt-4 text-sm text-ink-soft">
@@ -169,5 +166,4 @@ const {
 	      This is a minimal spec draft for Phase 1; additional fields will be added in later phases.
 	    </div>
 	  </div>
-	</TabPanel>
 </template>

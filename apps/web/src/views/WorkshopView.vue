@@ -225,14 +225,18 @@ const {
 
         <main class="flex min-h-0 flex-1 gap-6 overflow-auto bg-ground px-6 py-6">
           <section class="flex min-w-0 flex-1 flex-col gap-6">
-            <!-- Project Tab -->
-            <ProjectPanel />
-
-            <!-- Spec Tab -->
-            <SpecPanel />
-
-            <!-- Generate Tab -->
-            <GeneratePanel />
+            <!--
+              BUILD — one tab, three sections. Opening a project, configuring the spec and starting
+              a run is a single linear workflow; it used to be three tabs, so doing one thing meant
+              hopping between them. UI-003 W4.
+            -->
+            <TabPanel id="build-tab" :active="activeMainTab === 'build'" :lazy="true">
+              <div class="flex flex-col gap-6">
+                <ProjectPanel />
+                <SpecPanel />
+                <GeneratePanel />
+              </div>
+            </TabPanel>
 
             <!-- Review Tab with sub-tabs -->
             <ReviewPanel />

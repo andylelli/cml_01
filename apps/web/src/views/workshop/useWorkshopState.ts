@@ -78,15 +78,13 @@ export const useWorkshopState = () => {
   const { mode, spec } = useSessionState();
 
   // Tab navigation state
-  const activeMainTab = ref<string>("project");
+  const activeMainTab = ref<string>("build");
   const activeReviewTab = ref<string>("cast");
   const activeAdvancedTab = ref<string>("cml");
 
   // Define main tabs
   const mainTabs = computed<Tab[]>(() => [
-    { id: "project", label: "Project" },
-    { id: "spec", label: "Spec" },
-    { id: "generate", label: "Generate" },
+    { id: "build", label: "Build" },
     { id: "review", label: "Review" },
     // No `disabled`: see the note on the tabStatuses watcher — the screen is the gate.
     { id: "advanced", label: "Advanced" },
@@ -151,9 +149,7 @@ export const useWorkshopState = () => {
 
   // Tab status tracking
   const tabStatuses = ref<Record<string, TabStatus>>({
-    project: "available",
-    spec: "available",
-    generate: "available",
+    build: "available",
     review: "available",
     // Not "locked": the console is only reachable in operator mode, so the tab is always available.
     advanced: "available",
@@ -744,7 +740,7 @@ export const useWorkshopState = () => {
    */
   watch([projectId, isAdvanced], ([nextId, nextAdvanced], [, prevAdvanced]) => {
     if (nextId) {
-      tabStatuses.value.project = "complete";
+      tabStatuses.value.build = "complete";
     }
     if (nextAdvanced && !prevAdvanced && nextId) {
       // Operator mode arrived with a project already loaded — fetch CML (U-2 fix).

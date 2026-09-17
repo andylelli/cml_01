@@ -18,7 +18,12 @@ import WorkshopView from "../../WorkshopView.vue";
  * this repo's "green mutation means the fixture is wrong" lessons applies.
  */
 
-const MAIN_TABS = ["Project", "Spec", "Generate", "Review", "Advanced", "Export"] as const;
+/**
+ * Four tabs, not six. Project, Spec and Generate merged into **Build** — they are one linear
+ * workflow (open a project, configure the spec, start a run) and splitting them across three tabs
+ * meant hopping between them to do a single thing. UI-003 W4.
+ */
+const MAIN_TABS = ["Build", "Review", "Advanced", "Export"] as const;
 
 /**
  * `mode` and `spec` are module singletons (B13), so they outlive a test. Without this reset the

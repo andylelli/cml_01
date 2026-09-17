@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useWorkshop } from "../useWorkshopState";
 import ProgressIndicator from "../../../components/ProgressIndicator.vue";
-import TabPanel from "../../../components/TabPanel.vue";
 
 /**
  * Generate — Start a run and watch its stages.
@@ -11,7 +10,6 @@ import TabPanel from "../../../components/TabPanel.vue";
  * interface. The block below is the original markup, moved unchanged.
  */
 const {
-	activeMainTab,
 	castCount,
 	cluesCount,
 	fairPlayReady,
@@ -33,7 +31,6 @@ const {
 </script>
 
 <template>
-	<TabPanel id="generate-tab" :active="activeMainTab === 'generate'" :lazy="true">
 	  <div class="rounded-lg border border-line bg-surface p-6 shadow-card">
 	    <div class="t-section">Generate</div>
 	    <div class="mt-4 text-sm text-ink-soft">
@@ -148,5 +145,4 @@ const {
 	      </div>
 	    </div>
 	  </div>
-	</TabPanel>
 </template>

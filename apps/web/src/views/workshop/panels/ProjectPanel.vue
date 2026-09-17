@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useWorkshop } from "../useWorkshopState";
-import TabPanel from "../../../components/TabPanel.vue";
 
 /**
  * Project — Create, load and clear projects.
@@ -10,7 +9,6 @@ import TabPanel from "../../../components/TabPanel.vue";
  * interface. The block below is the original markup, moved unchanged.
  */
 const {
-	activeMainTab,
 	handleClearStore,
 	handleCreateProject,
 	handleLoadProject,
@@ -30,7 +28,6 @@ const {
 </script>
 
 <template>
-	<TabPanel id="project-tab" :active="activeMainTab === 'project'" :lazy="true">
 	  <div class="flex flex-col gap-6">
 
 	<div class="rounded-lg border border-line bg-ground-warm p-5">
@@ -158,5 +155,4 @@ const {
 	</div>
 
 	  </div>
-	</TabPanel>
 </template>

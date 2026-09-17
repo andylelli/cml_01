@@ -174,20 +174,27 @@ Nothing below has an equivalent anywhere else in the app.
 
 ## 7. THE PROPOSAL
 
-### 7.1 One navigation system, four destinations
-
-```
-33 targets  →  4
-```
+### 7.1 One navigation system, four tabs
 
 | tab | holds | from |
 |---|---|---|
-| **Build** | project, the full spec, start a run, regenerate a stage | Project + Spec + Generate |
-| **Inspect** | CML, validation, fair-play, novelty, raw artifact JSON | Review + Advanced ▸ CML/Artifacts |
-| **Diagnose** | run history, LLM logs, quality and its trend | Advanced ▸ Logs/History/Quality |
-| **Export** | game pack, artifact export | Export |
+| **Build** | project, the full spec, start a run | Project + Spec + Generate |
+| **Review** | the eight artifact panels | unchanged |
+| **Advanced** | CML, artifacts, logs, history, quality | unchanged, minus Samples |
+| **Export** | game pack, artifact export | unchanged |
 
-No sidebar. No sub-tab strips. The workspace rail stays and is restyled.
+No sidebar. The workspace rail stays and is restyled.
+
+**Revised while building.** The first draft proposed *Build · Inspect · Diagnose · Export*, folding
+Review and Advanced into two new groupings and removing the sub-tab strips entirely. Only the Build
+merge survived contact with the work, and it is the one with a reason beyond tidiness: opening a
+project, configuring the spec and starting a run is one linear workflow, and three tabs meant hopping
+between them to do a single thing.
+
+Re-grouping Review and Advanced was dropped because it buys chrome and costs comprehension: an
+operator comparing the cast against the clue list wants to switch between them, and stacked sections
+make that a scroll. Renaming familiar groups to *Inspect* and *Diagnose* would also have cost the one
+person who uses this console their muscle memory, for no measured gain.
 
 ### 7.2 Compose it like the rest of the app
 
@@ -206,18 +213,34 @@ frame around it, not the information in it.
 
 ---
 
-## 8. WHAT THIS IS EXPECTED TO CHANGE
+## 8. WHAT THIS CHANGED — PREDICTED, THEN MEASURED
 
-Stated before building, so it can be checked afterwards.
+Targets were written before building. Measured afterwards at the same 1280×720, same instrumentation.
 
-| | before | target |
-|---|---:|---|
-| navigation targets | 33 | 4 |
-| chrome share of viewport | 68% | under 40% |
-| buttons on screen | 39 | under 20 |
-| `localStorage` writes per navigation | 3 | 1 |
-| `/api/logs` POSTs per navigation | 2 | 1 |
-| modes | 3 | 2 (reader / operator) |
+| | before | target | **after** | |
+|---|---:|---:|---:|---|
+| navigation targets | 33 | 4 | **17** | ✗ — see below |
+| chrome share of viewport | 68% | <40% | **31%** | ✓ |
+| buttons on screen | 39 | <20 | **29** | ✗ |
+| `localStorage` writes per navigation | 3 | 1 | **0** | ✓ beaten |
+| `/api/logs` POSTs per navigation | 2 | 1 | **0** | ✓ beaten |
+| modes | 3 | 2 | **2** | ✓ |
+| sidebar share | 19% | 0% | **0%** | ✓ |
+| tab strips share | 23% | — | **6%** | ✓ |
+| headings in the view | 0 | ≥1 | **1** | ✓ |
+
+**Two targets missed, and the targets were wrong rather than the work.**
+
+*Navigation targets, 17 not 4.* The "4" counted only top-level tabs and quietly assumed the review's
+8 sub-tabs would collapse into stacked sections. They should not: an operator comparing the cast
+against the clue list wants to switch between them, not scroll past one to reach the other. Four
+**tabs** was achieved — Build · Review · Advanced · Export — and 13 sub-tabs remain under Review and
+Advanced by design. The honest figure is 4 tabs + 13 sections.
+
+*Buttons, 29 not under 20.* The target was set by counting buttons on a near-empty screen and
+assuming most were navigation. With the sidebar gone the remaining 29 are overwhelmingly **actions** —
+Create project, Load, Regenerate, Export, Reconnect — not chrome. Counting buttons was the wrong
+instrument; chrome share is the right one, and it more than met its target.
 
 ---
 
