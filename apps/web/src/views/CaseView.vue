@@ -139,6 +139,29 @@ const download = async () => {
 
 const title = computed(() => synopsisData.value?.title || props.projectName || "Untitled case");
 
+/**
+ * THE LEDE MUST NOT GIVE THE METHOD AWAY.
+ *
+ * `synopsisData.summary` is not a synopsis. The API builds it as
+ * `A ${crime_class.subtype} case unfolds.` (server.ts), which on a real project reads
+ * "A stabbed with ceremonial dagger case unfolds." — the murder weapon, in the header, on the
+ * page built to hold exactly that back. It is also an enum in a sentence template, so it does not
+ * read as English either.
+ *
+ * `backdropSummary` is written for this: the world and its pressures, with no crime in it.
+ *
+ * The stub is still preferred over nothing, minus the template, because a project generated
+ * before Agent 2e existed has no backdrop and a bare header looks broken.
+ */
+const CRIME_STUB = /^A .* case unfolds\.?$|^A mysterious crime has occurred\.?$/;
+
+const lede = computed(() => {
+	const backdrop = backgroundContextData.value?.backdropSummary?.trim();
+	if (backdrop) return backdrop;
+	const summary = synopsisData.value?.summary?.trim();
+	return summary && !CRIME_STUB.test(summary) ? summary : undefined;
+});
+
 const when = computed(() => {
 	const t = temporalContextData.value;
 	if (!t?.specificDate) return null;
@@ -223,7 +246,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-	<HeroBanner compact eyebrow="Case file" :title="title" :lede="synopsisData?.summary" />
+	<HeroBanner compact eyebrow="Case file" :title="title" :lede="lede" />
 
 	<div class="shell flex flex-col gap-4 py-8">
 		<!-- ── where you are ───────────────────────────────────────────── -->

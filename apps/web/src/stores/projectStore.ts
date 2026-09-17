@@ -218,18 +218,20 @@ export const useProjectStore = defineStore("project", () => {
         : typeof profile.text === "string"
           ? profile.text.split(/\n\n+/).filter(Boolean)
           : [];
+      // CARRY EVERYTHING, then repair only what needs repairing.
+      //
+      // This was a hand-listed set of 13 keys against a payload of 17, so `internalConflict`,
+      // `signatureTic`, `personalStakeInCase` and `motiveStrength` were dropped on every
+      // character — MEASURED on proj_035fdeda, 7 of 7. Two of them are fields the case file
+      // renders in the safe tier, so they drew nothing at all, and nothing failed: an absent
+      // optional property is not a type error.
+      //
+      // A whitelist here has to be updated every time the pipeline gains a field, and there is
+      // no test that can notice when it has not been. Spreading cannot go stale.
       return {
+        ...(profile as Record<string, unknown>),
         name: profile.name ?? `Character ${index + 1}`,
-        summary: profile.summary,
-        publicPersona: profile.publicPersona,
-        privateSecret: profile.privateSecret,
-        motiveSeed: profile.motiveSeed,
-        alibiWindow: profile.alibiWindow,
-        accessPlausibility: profile.accessPlausibility,
-        stakes: profile.stakes,
-        humourStyle: profile.humourStyle,
         humourLevel: typeof profile.humourLevel === "number" ? profile.humourLevel : undefined,
-        speechMannerisms: profile.speechMannerisms,
         paragraphs,
         order: profile.order ?? index + 1,
       };

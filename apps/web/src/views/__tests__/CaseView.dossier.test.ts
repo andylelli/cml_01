@@ -248,3 +248,58 @@ describe("a case the pipeline has not finished", () => {
 		wrapper.unmount();
 	});
 });
+
+describe("the lede does not give the method away", () => {
+	/**
+	 * `synopsisData.summary` is built by the API as `A ${crime_class.subtype} case unfolds.`, which on
+	 * a real project reads "A stabbed with ceremonial dagger case unfolds." — the murder weapon, in
+	 * the header, on the page designed to hold it back. MEASURED in the running app.
+	 */
+	beforeEach(() => {
+		setActivePinia(createPinia());
+		localStorage.clear();
+		const store = useProjectStore();
+		store.loadRunEvents = vi.fn(async () => {}) as never;
+		store.loadArtifacts = vi.fn(async () => {}) as never;
+		store.synopsisData = {
+			title: "The Manor Clock's Silent Betrayal",
+			summary: "A stabbed with ceremonial dagger case unfolds.",
+		} as never;
+	});
+
+	afterEach(() => vi.clearAllMocks());
+
+	it("prefers the backdrop, which has no crime in it", async () => {
+		const store = useProjectStore();
+		store.backgroundContextData = {
+			backdropSummary: "Amidst strict class divisions, the Marwood family are confined to a remote manor.",
+		} as never;
+		const wrapper = mountCase();
+		await settled();
+
+		expect(wrapper.text()).toContain("Amidst strict class divisions");
+		expect(wrapper.text(), "the weapon is in the header").not.toContain("ceremonial dagger");
+		wrapper.unmount();
+	});
+
+	it("shows no lede at all rather than the stub, when there is no backdrop", async () => {
+		const wrapper = mountCase();
+		await settled();
+		expect(wrapper.text()).not.toContain("case unfolds");
+		// The title still renders, so the header is not empty.
+		expect(wrapper.text()).toContain("The Manor Clock's Silent Betrayal");
+		wrapper.unmount();
+	});
+
+	it("keeps a real synopsis when the pipeline writes one", async () => {
+		const store = useProjectStore();
+		store.synopsisData = {
+			title: "A Title",
+			summary: "Six guests, one snowed-in weekend, and a host who invited none of them.",
+		} as never;
+		const wrapper = mountCase();
+		await settled();
+		expect(wrapper.text()).toContain("Six guests, one snowed-in weekend");
+		wrapper.unmount();
+	});
+});
