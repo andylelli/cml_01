@@ -19,15 +19,15 @@ const {
 
 <template>
 	<TabPanel id="spec-tab" :active="activeMainTab === 'spec'" :lazy="true">
-	  <div class="rounded-lg border border-line bg-surface p-6 shadow-sm">
-	    <div class="text-sm font-semibold text-ink">Story Specification</div>
+	  <div class="rounded-lg border border-line bg-surface p-6 shadow-card">
+	    <div class="t-section">Story Specification</div>
 	    <div class="mt-4 text-sm text-ink-soft">
 	      Configure your mystery story settings. These specifications will guide the AI generation.
 	    </div>
 	    <div class="mt-6 grid gap-4 md:grid-cols-2">
 	      <div id="field-setting">
 	        <label for="field-decade" class="text-xs font-semibold text-ink-soft">Decade</label>
-	        <select id="field-decade" v-model="spec.decade" class="mt-2 w-full rounded-md border border-line px-3 py-2 text-sm">
+	        <select id="field-decade" v-model="spec.decade" class="transition-control mt-2 w-full rounded border border-line bg-surface px-3 py-2.5 text-[0.9rem] text-ink outline-none hover:border-line-strong">
 	          <option>1930s</option>
 	          <option>1940s</option>
 	          <option>1950s</option>
@@ -35,7 +35,7 @@ const {
 	      </div>
 	      <div id="field-location">
 	        <label for="field-locationPreset" class="text-xs font-semibold text-ink-soft">Location preset</label>
-	        <select id="field-locationPreset" v-model="spec.locationPreset" class="mt-2 w-full rounded-md border border-line px-3 py-2 text-sm">
+	        <select id="field-locationPreset" v-model="spec.locationPreset" class="transition-control mt-2 w-full rounded border border-line bg-surface px-3 py-2.5 text-[0.9rem] text-ink outline-none hover:border-line-strong">
 	          <option>CountryHouse</option>
 	          <option>SeasideHotel</option>
 	          <option>Village</option>
@@ -45,7 +45,7 @@ const {
 	      </div>
 	      <div id="field-tone">
 	        <label for="f-tone" class="text-xs font-semibold text-ink-soft">Tone</label>
-	        <select id="f-tone" v-model="spec.tone" class="mt-2 w-full rounded-md border border-line px-3 py-2 text-sm">
+	        <select id="f-tone" v-model="spec.tone" class="transition-control mt-2 w-full rounded border border-line bg-surface px-3 py-2.5 text-[0.9rem] text-ink outline-none hover:border-line-strong">
 	          <option>Cozy</option>
 	          <option>Classic</option>
 	          <option>Dark</option>
@@ -58,7 +58,7 @@ const {
 	      </div>
 	      <div id="field-humourLevel">
 	        <label for="f-humour-band" class="text-xs font-semibold text-ink-soft">Humour band</label>
-	        <select id="f-humour-band" v-model="spec.humourLevel" class="mt-2 w-full rounded-md border border-line px-3 py-2 text-sm">
+	        <select id="f-humour-band" v-model="spec.humourLevel" class="transition-control mt-2 w-full rounded border border-line bg-surface px-3 py-2.5 text-[0.9rem] text-ink outline-none hover:border-line-strong">
 	          <option value="none">None — no character is funny</option>
 	          <option value="dry">Dry — at most two, understated</option>
 	          <option value="classic">Classic — a beat each chapter (default)</option>
@@ -81,7 +81,7 @@ const {
 	            placeholder="A charity gala with hidden rivalries"
 	          />
 	          <button
-	            class="rounded-md border border-line bg-surface px-3 py-2 text-xs font-semibold text-ink hover:bg-ground"
+	            class="transition-control rounded border border-line bg-surface px-3 py-1.5 text-[0.8rem] font-medium text-ink hover:border-line-strong hover:bg-surface-sunken"
 	            type="button"
 	            @click="handleSuggestTheme"
 	          >
@@ -100,7 +100,7 @@ const {
 	          type="number"
 	          min="4"
 	          max="12"
-	          class="mt-2 w-full rounded-md border border-line px-3 py-2 text-sm"
+	          class="transition-control mt-2 w-full rounded border border-line bg-surface px-3 py-2.5 text-[0.9rem] text-ink outline-none hover:border-line-strong"
 	        />
 	        <div class="mt-1 text-[11px] text-ink-faint">
 	          Suspects &amp; witnesses. The detective is always added as an extra character (+1).
@@ -108,7 +108,7 @@ const {
 	      </div>
 	      <div id="field-detectiveType">
 	        <label for="f-detective-type" class="text-xs font-semibold text-ink-soft">Detective type</label>
-	        <select id="f-detective-type" v-model="spec.detectiveType" class="mt-2 w-full rounded-md border border-line px-3 py-2 text-sm">
+	        <select id="f-detective-type" v-model="spec.detectiveType" class="transition-control mt-2 w-full rounded border border-line bg-surface px-3 py-2.5 text-[0.9rem] text-ink outline-none hover:border-line-strong">
 	          <option value="police">Police Inspector / Detective</option>
 	          <option value="private">Private Investigator</option>
 	          <option value="amateur">Amateur / Layperson</option>
@@ -122,7 +122,7 @@ const {
 	        <input
 	        	id="f-cast-names"
 	          v-model="castNamesInput"
-	          class="mt-2 w-full rounded-md border border-line px-3 py-2 text-sm"
+	          class="transition-control mt-2 w-full rounded border border-line bg-surface px-3 py-2.5 text-[0.9rem] text-ink outline-none hover:border-line-strong"
 	          placeholder="Avery, Blair, Casey, Dana, Ellis, Finley"
 	        />
 	        <div class="mt-1 text-[11px] text-ink-faint">
@@ -131,7 +131,7 @@ const {
 	      </div>
 	      <div>
 	        <label for="f-primary-axis" class="text-xs font-semibold text-ink-soft">Primary axis</label>
-	        <select id="f-primary-axis" v-model="spec.primaryAxis" class="mt-2 w-full rounded-md border border-line px-3 py-2 text-sm">
+	        <select id="f-primary-axis" v-model="spec.primaryAxis" class="transition-control mt-2 w-full rounded border border-line bg-surface px-3 py-2.5 text-[0.9rem] text-ink outline-none hover:border-line-strong">
 	          <option>temporal</option>
 	          <option>spatial</option>
 	          <option>identity</option>
@@ -141,7 +141,7 @@ const {
 	      </div>
 	      <div>
 	        <label for="f-story-length" class="text-xs font-semibold text-ink-soft">Story length</label>
-	        <select id="f-story-length" v-model="spec.targetLength" class="mt-2 w-full rounded-md border border-line px-3 py-2 text-sm">
+	        <select id="f-story-length" v-model="spec.targetLength" class="transition-control mt-2 w-full rounded border border-line bg-surface px-3 py-2.5 text-[0.9rem] text-ink outline-none hover:border-line-strong">
 	          <option value="short">Short (15-25K words)</option>
 	          <option value="medium">Medium (40-60K words)</option>
 	          <option value="long">Long (70-100K words)</option>
@@ -158,7 +158,7 @@ const {
 	          type="number"
 	          min="1"
 	          max="10"
-	          class="mt-2 w-full rounded-md border border-line px-3 py-2 text-sm"
+	          class="transition-control mt-2 w-full rounded border border-line bg-surface px-3 py-2.5 text-[0.9rem] text-ink outline-none hover:border-line-strong"
 	        />
 	        <div class="mt-1 text-[11px] text-ink-faint">
 	          Chapters generated per LLM call (1–10). Higher = fewer API calls but coarser retries. Default: 1.

@@ -110,7 +110,6 @@ export const useWorkshopState = () => {
     { id: "cml", label: "CML" },
     { id: "artifacts", label: "Artifacts" },
     { id: "logs", label: "LLM Logs" },
-    { id: "samples", label: "Samples" },
     { id: "history", label: "History" },
     { id: "quality", label: "Quality" },
   ]);

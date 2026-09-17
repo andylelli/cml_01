@@ -126,7 +126,7 @@ implementations of the same job. MEASURED by comparing which data each reads:
 | `characterProfilesData` | Review ▸ Cast | **CaseView** | duplicate |
 | `locationProfilesData` | Review ▸ Locations | **CaseView** | duplicate |
 | `temporalContextData` | Review ▸ Era & Culture | **CaseView** | duplicate |
-| `proseData` | Review ▸ Prose | **CaseView** | duplicate |
+| `proseData` | Review ▸ Prose | **CaseView** | **claim corrected on inspection — NOT a duplicate.** The *reading* is, but the panel also carries the PDF version selector (short/medium/long) and *Export all versions*, which are operator-only and have no equivalent anywhere else. Kept |
 | story PDF | **Export ▸ *and* Review ▸ Prose** | CasesView, CaseView | the console duplicates *itself* |
 | project list / load | Project tab | My Cases | overlapping |
 | run progress | Generate tab | CaseView's `ProgressTrack` | overlapping |
@@ -165,7 +165,7 @@ Nothing below has an equivalent anywhere else in the app.
 | **Expert mode** | gates a badge, a JSON dump the Artifacts tab duplicates, and DebugPanel | **cut the mode**, keep the two panels under Advanced |
 | **The Advanced/Expert checkboxes** | raw, undesigned, and circular (§3, B15) | **cut from the Workshop**; entering the Workshop *is* the switch |
 | **Advanced ▸ Samples** | duplicate of Inspiration | **cut** |
-| **Review ▸ Prose** | duplicate of CaseView's reader, and a second story-PDF button | **cut**; link to the case file |
+| ~~**Review ▸ Prose**~~ | ~~duplicate of CaseView's reader~~ | **WITHDRAWN — the premise was wrong.** Inspecting it before cutting found the PDF version selector and *Export all versions*, which exist nowhere else. Only the reading is duplicated. **Kept** |
 | **`currentView` + `setView`** | a whole parallel state with one consumer, which is a watcher that writes back | **cut** |
 | **Connection: Reconnect / Disconnect** | manual SSE controls. `useRunProgress` reconnects on its own and reports it | **cut** — INFERRED, see §9 |
 | **Six main tabs** | Project/Spec/Generate are one workflow; Advanced holds six unrelated things | **merge to four** |

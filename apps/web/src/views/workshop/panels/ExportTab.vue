@@ -37,8 +37,8 @@ const {
 <template>
 	<TabPanel id="export-tab" :active="activeMainTab === 'export'" :lazy="true">
 	  <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
-	    <div class="rounded-lg border border-line bg-surface p-6 shadow-sm">
-	      <div class="text-sm font-semibold text-ink">Export your mystery</div>
+	    <div class="rounded-lg border border-line bg-surface p-6 shadow-card">
+	      <div class="t-section">Export your mystery</div>
 	      <div class="mt-2 text-sm text-ink-soft">
 	        Download artifacts as JSON, or export reader-ready PDFs when available.
 	      </div>
@@ -46,7 +46,7 @@ const {
 	      <div class="mt-5 grid gap-4 sm:grid-cols-2">
 	        <div class="rounded-md border border-line bg-ground p-4">
 	          <div class="text-xs font-semibold uppercase tracking-wide text-ink-soft">Game pack PDF</div>
-	          <div class="mt-2 text-xs text-ink-soft">
+	          <div class="t-subtitle mt-1">
 	            {{ gamePackReady ? 'Ready to download' : 'Generate content first to enable export' }}
 	          </div>
 	          <button
@@ -63,7 +63,7 @@ const {
 
 	        <div class="rounded-md border border-line bg-ground p-4">
 	          <div class="text-xs font-semibold uppercase tracking-wide text-ink-soft">Story PDF</div>
-	          <div class="mt-2 text-xs text-ink-soft">
+	          <div class="t-subtitle mt-1">
 	            {{ proseReady ? 'Ready to download' : 'Generate prose first to enable export' }}
 	          </div>
 	          <button

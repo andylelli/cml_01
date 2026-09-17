@@ -51,7 +51,7 @@ const {
 	<TabPanel id="review-tab" :active="activeMainTab === 'review'" :lazy="true">
 	  <div class="flex flex-col gap-6">
 
-	<div class="rounded-lg border border-line-strong bg-surface-sunken p-4 shadow-sm">
+	<div class="rounded-lg border border-line bg-ground-warm p-5">
 	  <div class="text-sm font-semibold text-frame">Review Generated Content</div>
 	  <div class="mt-2 text-sm text-frame">
 	    <span v-if="activeReviewTab === 'cast'">Review character profiles with public and private details.</span>
@@ -74,13 +74,13 @@ const {
 	  </div>
 	</div>
 
-	<div v-if="activeReviewTab === 'cast'" class="rounded-lg border border-line bg-surface p-5 shadow-sm">
+	<div v-if="activeReviewTab === 'cast'" class="rounded-lg border border-line bg-surface p-6 shadow-card">
 	  <div>
 	    <div class="flex items-center justify-between">
-	      <div class="text-sm font-semibold text-ink">Character Profiles</div>
+	      <div class="t-section">Character Profiles</div>
 	      <div class="text-xs text-ink-soft">{{ castData?.suspects?.length || characterProfilesData?.profiles?.length || 0 }} total cast</div>
 	    </div>
-	    <div class="mt-1 text-xs text-ink-soft">
+	    <div class="t-subtitle mt-1">
 	      {{ characterProfilesData?.note ?? "Character profiles are derived from the cast." }}
 	    </div>
 	    <!-- Loading skeleton while cast data is being generated -->
@@ -117,7 +117,7 @@ const {
 	          <div v-else-if="profile.humourStyle === 'none'" class="mt-1 text-xs text-ink-faint italic">
 	            Plays it straight — no humour
 	          </div>
-	          <div v-if="profile.speechMannerisms" class="mt-1 text-xs text-ink-soft">
+	          <div v-if="profile.speechMannerisms" class="t-subtitle mt-1">
 	            <span class="font-semibold">Voice:</span> {{ profile.speechMannerisms }}
 	          </div>
 	          <div v-if="isAdvanced" class="space-y-1 text-xs text-ink-soft">
@@ -141,9 +141,9 @@ const {
 	  </div>
 	</div>
 
-	<div v-if="activeReviewTab === 'locations'" class="rounded-lg border border-line bg-surface p-5 shadow-sm">
+	<div v-if="activeReviewTab === 'locations'" class="rounded-lg border border-line bg-surface p-6 shadow-card">
 	  <div class="flex items-center justify-between">
-	    <div class="text-sm font-semibold text-ink">Location Profiles</div>
+	    <div class="t-section">Location Profiles</div>
 	    <div class="text-xs text-ink-soft">
 	      {{ locationProfilesData ? `${locationProfilesData.keyLocations?.length || 0} key locations` : 'Not generated' }}
 	    </div>
@@ -157,7 +157,7 @@ const {
 	        <div class="text-sm font-semibold text-ink">{{ locationProfilesData.primary.name }}</div>
 	        <span class="rounded bg-surface-sunken px-2 py-0.5 text-xs text-frame">Primary</span>
 	      </div>
-	      <div class="mt-1 text-xs text-ink-soft">
+	      <div class="t-subtitle mt-1">
 	        {{ locationProfilesData.primary.type }}
 	        <span v-if="locationProfilesData.primary.place || locationProfilesData.primary.country" class="text-ink-faint"> • </span>
 	        <span v-if="locationProfilesData.primary.place">{{ locationProfilesData.primary.place }}</span>
@@ -172,7 +172,7 @@ const {
 
 	    <!-- Atmosphere -->
 	    <div v-if="locationProfilesData.atmosphere" class="rounded-md border border-line bg-warn-wash p-4">
-	      <div class="text-sm font-semibold text-ink">Atmosphere</div>
+	      <div class="t-section">Atmosphere</div>
 	      <div class="mt-2 grid gap-2 text-xs">
 	        <div><span class="font-semibold text-ink-soft">Mood:</span> {{ locationProfilesData.atmosphere.mood }}</div>
 	        <div><span class="font-semibold text-ink-soft">Weather:</span> {{ locationProfilesData.atmosphere.weather }}</div>
@@ -189,7 +189,7 @@ const {
 
 	    <!-- Key Locations -->
 	    <div v-if="locationProfilesData.keyLocations?.length" class="space-y-3">
-	      <div class="text-sm font-semibold text-ink">Key Locations</div>
+	      <div class="t-section">Key Locations</div>
 	      <details
 	        v-for="(location, idx) in locationProfilesData.keyLocations"
 	        :key="`location-${idx}`"
@@ -238,9 +238,9 @@ const {
 
 	</div>
 
-	<div v-if="activeReviewTab === 'background'" class="rounded-lg border border-line bg-surface p-5 shadow-sm">
+	<div v-if="activeReviewTab === 'background'" class="rounded-lg border border-line bg-surface p-6 shadow-card">
 	  <div class="flex items-center justify-between">
-	    <div class="text-sm font-semibold text-ink">Story Background</div>
+	    <div class="t-section">Story Background</div>
 	    <div class="text-xs text-ink-soft">Background context</div>
 	  </div>
 
@@ -253,24 +253,24 @@ const {
 	      <div class="rounded-md border border-line bg-ground p-3">
 	        <div class="text-xs font-semibold uppercase tracking-wide text-ink-soft">Setting</div>
 	        <div class="mt-1 text-sm text-ink">{{ backgroundContextData?.setting?.location ?? settingData?.locationPreset ?? "Not generated" }}</div>
-	        <div class="mt-1 text-xs text-ink-soft">{{ backgroundContextData?.setting?.institution ?? "Institution pending" }}</div>
+	        <div class="t-subtitle mt-1">{{ backgroundContextData?.setting?.institution ?? "Institution pending" }}</div>
 	      </div>
 	      <div class="rounded-md border border-line bg-ground p-3">
 	        <div class="text-xs font-semibold uppercase tracking-wide text-ink-soft">Atmosphere</div>
 	        <div class="mt-1 text-sm text-ink">{{ backgroundContextData?.setting?.weather ?? settingData?.weather ?? locationProfilesData?.atmosphere?.weather ?? "Not generated" }}</div>
-	        <div class="mt-1 text-xs text-ink-soft">{{ locationProfilesData?.atmosphere?.mood ?? "Mood pending" }}</div>
+	        <div class="t-subtitle mt-1">{{ locationProfilesData?.atmosphere?.mood ?? "Mood pending" }}</div>
 	      </div>
 	      <div class="rounded-md border border-line bg-ground p-3">
 	        <div class="text-xs font-semibold uppercase tracking-wide text-ink-soft">Period</div>
 	        <div class="mt-1 text-sm text-ink">
 	          {{ backgroundContextData?.era?.decade ?? (temporalContextData ? `${temporalContextData.specificDate.month} ${temporalContextData.specificDate.year}` : "Not generated") }}
 	        </div>
-	        <div class="mt-1 text-xs text-ink-soft">{{ backgroundContextData?.era?.socialStructure ?? temporalContextData?.specificDate?.era ?? "Era pending" }}</div>
+	        <div class="t-subtitle mt-1">{{ backgroundContextData?.era?.socialStructure ?? temporalContextData?.specificDate?.era ?? "Era pending" }}</div>
 	      </div>
 	    </div>
 
 	    <div v-if="backgroundContextData?.castAnchors?.length" class="rounded-md border border-line bg-surface p-4">
-	      <div class="text-sm font-semibold text-ink">Cast anchors</div>
+	      <div class="t-section">Cast anchors</div>
 	      <div class="mt-2 flex flex-wrap gap-2 text-xs">
 	        <span
 	          v-for="name in backgroundContextData.castAnchors"
@@ -283,8 +283,8 @@ const {
 	    </div>
 
 	    <div v-if="locationProfilesData?.primary" class="rounded-md border border-line bg-surface p-4">
-	      <div class="text-sm font-semibold text-ink">Primary location</div>
-	      <div class="mt-1 text-xs text-ink-soft">
+	      <div class="t-section">Primary location</div>
+	      <div class="t-subtitle mt-1">
 	        {{ locationProfilesData.primary.name }}
 	        <span v-if="locationProfilesData.primary.place"> • {{ locationProfilesData.primary.place }}</span>
 	        <span v-if="locationProfilesData.primary.country">, {{ locationProfilesData.primary.country }}</span>
@@ -293,7 +293,7 @@ const {
 	    </div>
 
 	    <div v-if="temporalContextData?.paragraphs?.length" class="rounded-md border border-line bg-surface p-4">
-	      <div class="text-sm font-semibold text-ink">Backdrop notes</div>
+	      <div class="t-section">Backdrop notes</div>
 	      <p class="mt-2 text-sm text-ink-soft">{{ temporalContextData.paragraphs[0] }}</p>
 	    </div>
 	  </div>
@@ -301,9 +301,9 @@ const {
 
 	</div>
 
-	<div v-if="activeReviewTab === 'hardLogic'" class="rounded-lg border border-line bg-surface p-5 shadow-sm">
+	<div v-if="activeReviewTab === 'hardLogic'" class="rounded-lg border border-line bg-surface p-6 shadow-card">
 	  <div class="flex items-center justify-between">
-	    <div class="text-sm font-semibold text-ink">Hard-Logic Devices</div>
+	    <div class="t-section">Hard-Logic Devices</div>
 	    <div class="text-xs text-ink-soft">{{ hardLogicDevicesData?.devices?.length || 0 }} devices</div>
 	  </div>
 
@@ -348,9 +348,9 @@ const {
 
 	</div>
 
-	<div v-if="activeReviewTab === 'temporal'" class="rounded-lg border border-line bg-surface p-5 shadow-sm">
+	<div v-if="activeReviewTab === 'temporal'" class="rounded-lg border border-line bg-surface p-6 shadow-card">
 	  <div class="flex items-center justify-between">
-	    <div class="text-sm font-semibold text-ink">Era & Cultural Context</div>
+	    <div class="t-section">Era & Cultural Context</div>
 	    <div v-if="temporalContextData" class="text-xs text-ink-soft">
 	      {{ temporalContextData.specificDate.month }} {{ temporalContextData.specificDate.year }}
 	    </div>
@@ -360,7 +360,7 @@ const {
 	  <div v-else-if="temporalContextData" class="mt-4 space-y-6">
 	    <!-- Specific Date -->
 	    <div class="rounded-md border border-line bg-surface-sunken p-4">
-	      <div class="text-sm font-semibold text-ink">Specific Date</div>
+	      <div class="t-section">Specific Date</div>
 	      <div class="mt-2 text-sm text-ink-soft">
 	        <span class="font-semibold">{{ temporalContextData.specificDate.month }}</span>
 	        <span v-if="temporalContextData.specificDate.day"> {{ temporalContextData.specificDate.day }},</span>
@@ -376,7 +376,7 @@ const {
 
 	    <!-- Seasonal Context -->
 	    <div v-if="temporalContextData.seasonal" class="rounded-md border border-line bg-ok-wash p-4">
-	      <div class="text-sm font-semibold text-ink">Seasonal Context</div>
+	      <div class="t-section">Seasonal Context</div>
 	      <div class="mt-2 space-y-2 text-xs">
 	        <div><span class="font-semibold text-ink-soft">Season:</span> {{ temporalContextData.seasonal.season }}</div>
 	        <div><span class="font-semibold text-ink-soft">Daylight:</span> {{ temporalContextData.seasonal.daylight }}</div>
@@ -485,7 +485,7 @@ const {
 
 	    <!-- Atmospheric Details -->
 	    <div v-if="temporalContextData.atmosphericDetails?.length" class="rounded-md border border-line bg-ground p-4">
-	      <div class="text-sm font-semibold text-ink">Atmospheric Details</div>
+	      <div class="t-section">Atmospheric Details</div>
 	      <ul class="ml-4 mt-2 list-disc space-y-1 text-xs text-ink-soft">
 	        <li v-for="(detail, idx) in temporalContextData.atmosphericDetails" :key="`atm-${idx}`">{{ detail }}</li>
 	      </ul>
@@ -495,11 +495,11 @@ const {
 
 	</div>
 
-	<div v-if="activeReviewTab === 'clues'" class="rounded-lg border border-line bg-surface p-5 shadow-sm">
+	<div v-if="activeReviewTab === 'clues'" class="rounded-lg border border-line bg-surface p-6 shadow-card">
 	  <div class="flex items-center justify-between">
 	    <div>
-	      <div class="text-sm font-semibold text-ink">Clue Board</div>
-	      <div class="mt-1 text-xs text-ink-soft">{{ cluesData?.items?.length || 0 }} total clues</div>
+	      <div class="t-section">Clue Board</div>
+	      <div class="t-subtitle mt-1">{{ cluesData?.items?.length || 0 }} total clues</div>
 	    </div>
 	    <div class="flex items-center gap-3 text-xs">
 	      <label class="flex items-center gap-1">
@@ -529,7 +529,7 @@ const {
 	        >
 	          <div class="font-semibold text-ink">{{ clue.category }}</div>
 	          <div class="mt-1 text-ink-soft">{{ clue.text }}</div>
-	          <div class="mt-1 text-xs text-ink-soft">
+	          <div class="t-subtitle mt-1">
 	            Points to: {{ clue.pointsTo }}
 	            <span v-if="clue.revealChapter"> • Reveal: Ch.{{ clue.revealChapter }}</span>
 	          </div>
@@ -540,9 +540,9 @@ const {
 	  <div v-else class="mt-4 text-sm text-ink-soft">No clues yet. Generate to create them.</div>
 	</div>
 
-	<div v-if="activeReviewTab === 'outline'" class="rounded-lg border border-line bg-surface p-5 shadow-sm">
+	<div v-if="activeReviewTab === 'outline'" class="rounded-lg border border-line bg-surface p-6 shadow-card">
 	  <div class="flex items-center justify-between">
-	    <div class="text-sm font-semibold text-ink">Story Outline</div>
+	    <div class="t-section">Story Outline</div>
 	    <div class="text-xs text-ink-soft">{{ outlineData?.chapters?.length || 0 }} chapters</div>
 	  </div>
 	  <ContentSkeleton v-if="!(outlineData?.chapters?.length) && (isRunning || isStartingRun || artifactsStatus === 'loading')" class="mt-4" :rows="5" />
@@ -550,7 +550,7 @@ const {
 	    <div v-for="(chapter, idx) in outlineData.chapters" :key="idx" class="border-l-2 border-line-strong pl-4">
 	      <div class="text-sm font-semibold text-ink">Chapter {{ idx + 1 }}: {{ chapter.title || 'Untitled' }}</div>
 	      <div class="mt-1 text-sm text-ink-soft">{{ chapter.summary || chapter.description || 'No summary available' }}</div>
-	      <div v-if="chapter.events && chapter.events.length" class="mt-2 text-xs text-ink-soft">
+	      <div v-if="chapter.events && chapter.events.length" class="t-subtitle mt-1">
 	        {{ chapter.events.length }} event(s)
 	      </div>
 	    </div>
@@ -572,14 +572,14 @@ const {
 	    <div class="flex items-center gap-2">
 	      <button
 	        v-if="availableProseVersions.length > 1"
-	        class="rounded-md border border-line bg-surface px-3 py-1 text-xs font-semibold text-ink hover:bg-ground disabled:cursor-not-allowed disabled:opacity-60"
+	        class="transition-control rounded border border-line bg-surface px-3 py-1.5 text-[0.8rem] font-medium text-ink hover:border-line-strong hover:bg-surface-sunken disabled:cursor-not-allowed disabled:text-ink-faint disabled:hover:bg-surface"
 	        :disabled="!proseData || !projectId || isDownloadingAllVersions"
 	        @click="handleDownloadAllProseVersions"
 	      >
 	        Export all versions
 	      </button>
 	      <button
-	        class="rounded-md border border-line bg-surface px-3 py-1 text-xs font-semibold text-ink hover:bg-ground disabled:cursor-not-allowed disabled:opacity-60"
+	        class="transition-control rounded border border-line bg-surface px-3 py-1.5 text-[0.8rem] font-medium text-ink hover:border-line-strong hover:bg-surface-sunken disabled:cursor-not-allowed disabled:text-ink-faint disabled:hover:bg-surface"
 	        :disabled="!proseData || !projectId || isDownloadingStoryPdf"
 	        @click="handleDownloadStoryPdf"
 	      >

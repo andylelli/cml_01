@@ -31,7 +31,6 @@ const {
 	gamePackArtifact,
 	handleArtifactRegenerate,
 	handleArtifactView,
-	handleSampleSelect,
 	hardLogicDevicesArtifact,
 	isAdvanced,
 	isRunning,
@@ -50,7 +49,6 @@ const {
 	samples,
 	scoringHistory,
 	scoringReport,
-	selectedSample,
 	settingArtifact,
 	temporalContextArtifact,
 } = useWorkshop();
@@ -60,7 +58,7 @@ const {
 	<TabPanel id="advanced-tab" :active="activeMainTab === 'advanced' && isAdvanced" :lazy="true">
 	  <div class="flex flex-col gap-6">
 
-	<div class="rounded-lg border border-warn bg-warn-wash p-4 shadow-sm">
+	<div class="rounded-lg border border-warn bg-warn-wash p-5">
 	  <div class="text-sm font-semibold text-warn">Advanced Mode</div>
 	  <div class="mt-2 text-sm text-warn">
 	    <span v-if="activeAdvancedTab === 'cml'">View the raw CML (Compositional Mystery Language) structure. Expert mode enables editing.</span>
@@ -72,15 +70,15 @@ const {
 	  </div>
 	</div>
 
-	<div v-if="activeAdvancedTab === 'cml'" class="rounded-lg border border-line bg-surface p-5 shadow-sm">
+	<div v-if="activeAdvancedTab === 'cml'" class="rounded-lg border border-line bg-surface p-6 shadow-card">
 	  <div class="flex items-center justify-between">
-	    <div class="text-sm font-semibold text-ink">CML Viewer</div>
+	    <div class="t-section">CML Viewer</div>
 	    <div class="text-xs text-ink-soft">
 	      <!-- Was v-else to an "Expert Mode" badge. The viewer is read-only in either mode. UI-003 s3. -->
 	      <span class="rounded bg-surface-sunken px-2 py-1 text-ink">Read-only</span>
 	    </div>
 	  </div>
-	  <div class="mt-2 text-xs text-ink-soft">
+	  <div class="t-subtitle mt-1">
 	    CML (Compositional Mystery Language) is the canonical source of truth for your mystery structure.
 	  </div>
 	  <div v-if="cmlArtifact" class="mt-4">
@@ -89,26 +87,8 @@ const {
 	  <div v-else class="mt-4 text-sm text-ink-soft">CML will appear after generation.</div>
 	</div>
 
-	<div v-if="activeAdvancedTab === 'samples'" class="rounded-lg border border-line bg-surface p-5 shadow-sm">
-	  <div class="text-sm font-semibold text-ink">Sample Mystery Structures</div>
-	  <div class="mt-2 text-xs text-ink-soft">
-	    Browse classic mystery examples for structural inspiration. These show patterns and techniques, but content should not be copied to ensure novelty.
-	  </div>
-	  <div class="mt-4 grid gap-2">
-	    <button
-	      v-for="sample in samples"
-	      :key="sample.id"
-	      class="rounded-md border border-line px-3 py-2 text-left text-sm hover:bg-ground"
-	      :class="selectedSample?.id === sample.id ? 'bg-surface-sunken' : ''"
-	      @click="handleSampleSelect(sample.id)"
-	    >
-	      {{ sample.name }}
-	    </button>
-	  </div>
-	  <div v-if="selectedSample" class="mt-4">
-	    <pre class="overflow-auto rounded-md bg-frame p-4 text-xs text-on-frame">{{ selectedSample.content }}</pre>
-	  </div>
-	</div>
+	<!-- Advanced ▸ Samples was cut: it fetched the same two endpoints as
+	     InspirationView and rendered them worse. UI-003 §4, W6. -->
 
 	<div v-if="activeAdvancedTab === 'artifacts'" class="flex flex-col gap-4">
 	  <!-- High-level artifact status dashboard -->
@@ -119,7 +99,7 @@ const {
 	    @regenerate="handleArtifactRegenerate"
 	  />
 	  <!-- Expert-only raw JSON dump -->
-	  <details class="rounded-lg border border-line bg-surface p-5 shadow-sm">
+	  <details class="rounded-lg border border-line bg-surface p-6 shadow-card">
 	    <summary class="cursor-pointer text-sm font-semibold text-ink">Raw Artifacts (Expert)</summary>
 	    <div class="mt-4 space-y-4 text-xs">
 	      <div>
@@ -174,9 +154,9 @@ const {
 	  <!-- Application error log -->
 	  <ErrorLogPanel :errors="errors" @clear="clearErrors()" />
 	  <!-- LLM operational log -->
-	  <div class="rounded-lg border border-line bg-surface p-5 shadow-sm">
-	    <div class="text-sm font-semibold text-ink">LLM Log Entries</div>
-	    <div class="mt-2 text-xs text-ink-soft">Operational log entries (model, tokens, cost, latency). Raw prompts are not stored.</div>
+	  <div class="rounded-lg border border-line bg-surface p-6 shadow-card">
+	    <div class="t-section">LLM Log Entries</div>
+	    <div class="t-subtitle mt-1">Operational log entries (model, tokens, cost, latency). Raw prompts are not stored.</div>
 	    <div v-if="llmLogs.length" class="mt-4 space-y-2 text-xs">
 	      <div
 	        v-for="(entry, idx) in llmLogs"

@@ -245,9 +245,9 @@ const {
 
             <!-- Dashboard details shown in Project tab only -->
             <div v-if="activeMainTab === 'project'" id="dashboard-details" class="grid gap-6 md:grid-cols-2">
-              <div v-if="settingData" class="rounded-lg border border-line bg-surface p-5 shadow-sm">
+              <div v-if="settingData" class="rounded-lg border border-line bg-surface p-6 shadow-card">
                 <div class="flex items-center justify-between">
-                  <div class="text-sm font-semibold text-ink">Setting overview</div>
+                  <div class="t-section">Setting overview</div>
                   <span
                     class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold transition"
                     :class="settingReady ? 'bg-ok-wash text-ok' : 'bg-surface-sunken text-ink-soft'"
@@ -261,13 +261,13 @@ const {
                   {{ settingData.locationPreset ?? "Unknown location" }} •
                   {{ settingData.weather ?? "Unknown weather" }}
                 </div>
-                <div v-if="settingData?.socialStructure" class="mt-1 text-xs text-ink-soft">
+                <div v-if="settingData?.socialStructure" class="t-subtitle mt-1">
                   Social: {{ settingData.socialStructure }}
                 </div>
               </div>
-              <div class="rounded-lg border border-line bg-surface p-5 shadow-sm">
+              <div class="rounded-lg border border-line bg-surface p-6 shadow-card">
                 <div class="flex items-center justify-between">
-                  <div class="text-sm font-semibold text-ink">Cast cards</div>
+                  <div class="t-section">Cast cards</div>
                   <span
                     class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold transition"
                     :class="castReady ? 'bg-ok-wash text-ok' : 'bg-surface-sunken text-ink-soft'"
@@ -290,9 +290,9 @@ const {
                   Cast not available yet. Select Generate to create your cast.
                 </div>
               </div>
-              <div class="rounded-lg border border-line bg-surface p-5 shadow-sm">
+              <div class="rounded-lg border border-line bg-surface p-6 shadow-card">
                 <div class="flex items-center justify-between">
-                  <div class="text-sm font-semibold text-ink">Clue board</div>
+                  <div class="t-section">Clue board</div>
                   <span
                     class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold transition"
                     :class="cluesReady ? 'bg-ok-wash text-ok' : 'bg-surface-sunken text-ink-soft'"
@@ -358,9 +358,9 @@ const {
                   </VirtualList>
                 </div>
               </div>
-              <div class="rounded-lg border border-line bg-surface p-5 shadow-sm">
+              <div class="rounded-lg border border-line bg-surface p-6 shadow-card">
                 <div class="flex items-center justify-between">
-                  <div class="text-sm font-semibold text-ink">Outline</div>
+                  <div class="t-section">Outline</div>
                   <span
                     class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold transition"
                     :class="outlineReady ? 'bg-ok-wash text-ok' : 'bg-surface-sunken text-ink-soft'"
@@ -373,9 +373,9 @@ const {
                   {{ outlineReady ? "Your story outline is ready." : "Outline will appear after generation." }}
                 </div>
               </div>
-              <div class="rounded-lg border border-line bg-surface p-5 shadow-sm">
+              <div class="rounded-lg border border-line bg-surface p-6 shadow-card">
                 <div class="flex items-center justify-between">
-                  <div class="text-sm font-semibold text-ink">Story</div>
+                  <div class="t-section">Story</div>
                   <span
                     class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold transition"
                     :class="proseReady ? 'bg-ok-wash text-ok' : 'bg-surface-sunken text-ink-soft'"
@@ -388,9 +388,9 @@ const {
                   {{ proseReady ? "Your story is ready to read." : "Story text will appear after generation." }}
                 </div>
               </div>
-              <div class="rounded-lg border border-line bg-surface p-5 shadow-sm">
+              <div class="rounded-lg border border-line bg-surface p-6 shadow-card">
                 <div class="flex items-center justify-between">
-                  <div class="text-sm font-semibold text-ink">What’s next?</div>
+                  <div class="t-section">What’s next?</div>
                   <span
                     class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold transition"
                     :class="cluesReady || outlineReady || proseReady ? 'bg-ok-wash text-ok' : 'bg-surface-sunken text-ink-soft'"
@@ -404,21 +404,21 @@ const {
                 </div>
                 <div class="mt-4 flex flex-wrap gap-2">
                   <button
-                    class="rounded-md border border-line px-3 py-1.5 text-xs font-semibold text-ink hover:bg-ground disabled:cursor-not-allowed disabled:opacity-60"
+                    class="transition-control rounded border border-line bg-surface px-3 py-1.5 text-[0.8rem] font-medium text-ink hover:border-line-strong hover:bg-surface-sunken disabled:cursor-not-allowed disabled:text-ink-faint disabled:hover:bg-surface"
                     :disabled="!cluesReady"
                     @click="goTo('review', 'clues')"
                   >
                     Explore clues
                   </button>
                   <button
-                    class="rounded-md border border-line px-3 py-1.5 text-xs font-semibold text-ink hover:bg-ground disabled:cursor-not-allowed disabled:opacity-60"
+                    class="transition-control rounded border border-line bg-surface px-3 py-1.5 text-[0.8rem] font-medium text-ink hover:border-line-strong hover:bg-surface-sunken disabled:cursor-not-allowed disabled:text-ink-faint disabled:hover:bg-surface"
                     :disabled="!outlineReady"
                     @click="goTo('review', 'outline')"
                   >
                     Read outline
                   </button>
                   <button
-                    class="rounded-md border border-line px-3 py-1.5 text-xs font-semibold text-ink hover:bg-ground disabled:cursor-not-allowed disabled:opacity-60"
+                    class="transition-control rounded border border-line bg-surface px-3 py-1.5 text-[0.8rem] font-medium text-ink hover:border-line-strong hover:bg-surface-sunken disabled:cursor-not-allowed disabled:text-ink-faint disabled:hover:bg-surface"
                     :disabled="!proseReady"
                     @click="goTo('review', 'prose')"
                   >
@@ -426,9 +426,9 @@ const {
                   </button>
                 </div>
               </div>
-              <div class="rounded-lg border border-line bg-surface p-5 shadow-sm">
+              <div class="rounded-lg border border-line bg-surface p-6 shadow-card">
                 <div class="flex items-center justify-between">
-                  <div class="text-sm font-semibold text-ink">Fair-play report</div>
+                  <div class="t-section">Fair-play report</div>
                   <span
                     class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold transition"
                     :class="fairPlayReady ? 'bg-ok-wash text-ok' : 'bg-surface-sunken text-ink-soft'"
@@ -447,9 +447,9 @@ const {
                   </div>
                 </div>
               </div>
-              <div class="rounded-lg border border-line bg-surface p-5 shadow-sm">
+              <div class="rounded-lg border border-line bg-surface p-6 shadow-card">
                 <div class="flex items-center justify-between">
-                  <div class="text-sm font-semibold text-ink">Game pack</div>
+                  <div class="t-section">Game pack</div>
                   <span
                     class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold transition"
                     :class="gamePackReady ? 'bg-ok-wash text-ok' : 'bg-surface-sunken text-ink-soft'"
@@ -461,7 +461,7 @@ const {
                 <div class="mt-2 text-sm text-ink-soft">
                   {{ gamePackData?.title ?? "Game pack will appear after generation." }}
                 </div>
-                <div class="mt-2 text-xs text-ink-soft">
+                <div class="t-subtitle mt-1">
                   {{ gamePackData?.suspects?.length ?? 0 }} suspects · {{ gamePackData?.materials?.length ?? 0 }} materials
                 </div>
                 <button
@@ -484,8 +484,8 @@ const {
               <div class="text-xs font-semibold uppercase tracking-wide text-ink-soft">Workspace panel</div>
               <div class="mt-1 text-[11px] text-ink-soft">Status, validation, and diagnostics</div>
             </div>
-            <div class="rounded-lg border border-line bg-surface p-4 shadow-sm">
-              <div class="text-sm font-semibold text-ink">Status</div>
+            <div class="rounded-lg border border-line bg-surface p-5 shadow-card">
+              <div class="t-section">Status</div>
               <div class="mt-2 text-sm text-ink-soft">{{ runProgressLabel }}</div>
               <div v-if="isRunning || isStartingRun" class="mt-3 h-1 w-full overflow-hidden rounded-full bg-surface-sunken">
                 <div
@@ -493,23 +493,23 @@ const {
                   :style="{ width: `${runProgressPercent}%` }"
                 ></div>
               </div>
-              <div v-if="isRunning || isStartingRun" class="mt-2 text-xs text-ink-soft">
+              <div v-if="isRunning || isStartingRun" class="t-subtitle mt-1">
                 {{ Math.round(runProgressPercent) }}% complete
               </div>
               <div class="mt-3 text-xs text-ink-soft">{{ lastUpdatedLabel }}</div>
             </div>
 
-            <div v-if="!isAdvanced" class="rounded-lg border border-line bg-surface p-4 shadow-sm">
-              <div class="text-sm font-semibold text-ink">Helpful fixes</div>
+            <div v-if="!isAdvanced" class="rounded-lg border border-line bg-surface p-5 shadow-card">
+              <div class="t-section">Helpful fixes</div>
               <ul class="mt-2 space-y-1 text-xs text-ink-soft">
                 <li v-for="(suggestion, index) in fixSuggestions" :key="index">{{ suggestion }}</li>
               </ul>
             </div>
 
             <div v-if="isAdvanced" class="space-y-4">
-              <div class="rounded-lg border border-line bg-surface p-4 shadow-sm">
+              <div class="rounded-lg border border-line bg-surface p-5 shadow-card">
                 <div class="flex items-center justify-between">
-                  <div class="text-sm font-semibold text-ink">Validation details</div>
+                  <div class="t-section">Validation details</div>
                   <button
                     class="text-xs font-semibold text-ink-soft underline"
                     @click="showAdvancedValidation = !showAdvancedValidation"
@@ -522,14 +522,14 @@ const {
                 </div>
               </div>
               <NoveltyAudit :audit="noveltyAuditData" />
-              <div class="rounded-lg border border-line bg-surface p-4 shadow-sm">
-                <div class="text-sm font-semibold text-ink">Connection</div>
-                <div class="mt-2 text-xs text-ink-soft">Advanced diagnostics</div>
+              <div class="rounded-lg border border-line bg-surface p-5 shadow-card">
+                <div class="t-section">Connection</div>
+                <div class="t-subtitle mt-1">Advanced diagnostics</div>
                 <div class="mt-3 flex gap-2">
-                  <button class="rounded-md border border-line px-3 py-1 text-xs font-semibold" @click="connectSse">
+                  <button class="transition-control rounded border border-line bg-surface px-3 py-1.5 text-[0.8rem] font-medium text-ink hover:border-line-strong hover:bg-surface-sunken" @click="connectSse">
                     Reconnect
                   </button>
-                  <button class="rounded-md border border-line px-3 py-1 text-xs font-semibold" @click="disconnectSse">
+                  <button class="transition-control rounded border border-line bg-surface px-3 py-1.5 text-[0.8rem] font-medium text-ink hover:border-line-strong hover:bg-surface-sunken" @click="disconnectSse">
                     Disconnect
                   </button>
                 </div>

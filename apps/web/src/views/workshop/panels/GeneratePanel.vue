@@ -34,8 +34,8 @@ const {
 
 <template>
 	<TabPanel id="generate-tab" :active="activeMainTab === 'generate'" :lazy="true">
-	  <div class="rounded-lg border border-line bg-surface p-6 shadow-sm">
-	    <div class="text-sm font-semibold text-ink">Generate</div>
+	  <div class="rounded-lg border border-line bg-surface p-6 shadow-card">
+	    <div class="t-section">Generate</div>
 	    <div class="mt-4 text-sm text-ink-soft">
 	      Generate your mystery in one click. We handle the rest.
 	    </div>
@@ -58,7 +58,7 @@ const {
 
 	    <div class="mt-4 flex flex-wrap gap-3">
 	      <button
-	        class="rounded-md bg-frame px-4 py-2 text-sm font-semibold text-[--surface] hover:bg-frame disabled:cursor-not-allowed disabled:opacity-60"
+	        class="transition-control rounded border border-accent bg-accent px-4 py-2 text-[0.88rem] font-medium text-[--surface] hover:border-accent-hover hover:bg-accent-hover disabled:cursor-not-allowed disabled:border-line disabled:bg-surface-sunken disabled:text-ink-faint"
 	        :disabled="!projectId || isRunning || isStartingRun"
 	        @click="handleRunPipeline"
 	      >
@@ -68,7 +68,7 @@ const {
 	        </span>
 	      </button>
 	      <button
-	        class="rounded-md border border-line bg-surface px-4 py-2 text-sm font-semibold text-ink hover:bg-ground"
+	        class="transition-control rounded border border-line bg-surface px-4 py-2 text-[0.88rem] font-medium text-ink hover:border-line-strong hover:bg-surface-sunken"
 	        @click="handleSaveSpec"
 	      >
 	        Save draft
@@ -143,7 +143,7 @@ const {
 	      <div v-if="updateInProgress" class="mt-3 h-1 w-full overflow-hidden rounded-full bg-surface-sunken">
 	        <div class="h-full w-1/2 animate-pulse rounded-full bg-frame-tint"></div>
 	      </div>
-	      <div class="mt-2 text-xs text-ink-soft">
+	      <div class="t-subtitle mt-1">
 	        Update a single section without rerunning everything.
 	      </div>
 	    </div>

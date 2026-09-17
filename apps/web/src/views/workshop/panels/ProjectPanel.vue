@@ -33,15 +33,15 @@ const {
 	<TabPanel id="project-tab" :active="activeMainTab === 'project'" :lazy="true">
 	  <div class="flex flex-col gap-6">
 
-	<div class="rounded-lg border border-line-strong bg-surface-sunken p-4 shadow-sm">
+	<div class="rounded-lg border border-line bg-ground-warm p-5">
 	  <div class="text-sm font-semibold text-frame">Welcome to your Mystery Generator</div>
 	  <div class="mt-2 text-sm text-frame">
 	    This is your project dashboard. Create a new project, configure your story settings in the Spec tab, then generate your mystery in the Generate tab. All generated content will appear here and in the Review tab.
 	  </div>
 	</div>
 
-	<div v-if="synopsisData" class="rounded-lg border border-line bg-surface p-6 shadow-sm">
-	  <div class="text-sm font-semibold text-ink">Synopsis</div>
+	<div v-if="synopsisData" class="rounded-lg border border-line bg-surface p-6 shadow-card">
+	  <div class="t-section">Synopsis</div>
 	  <div class="mt-2 text-sm text-ink-soft">
 	    <strong v-if="synopsisData.title" class="text-ink">{{ synopsisData.title }}</strong>
 	    <span :class="synopsisData.title ? 'ml-2' : ''">{{ synopsisSummary }}</span>
@@ -75,8 +75,8 @@ const {
 	  </div>
 	</div>
 
-	<div class="rounded-lg border border-line bg-surface p-6 shadow-sm">
-	  <div class="text-sm font-semibold text-ink">Project setup</div>
+	<div class="rounded-lg border border-line bg-surface p-6 shadow-card">
+	  <div class="t-section">Project setup</div>
 	  <div class="mt-4 grid gap-4 md:grid-cols-2">
 	    <div>
 	      <!-- `for`/`id`: the label was beside the field but not bound to it, so a screen
@@ -85,13 +85,13 @@ const {
 	      <input
 	        id="ws-project-name"
 	        v-model="projectName"
-	        class="mt-2 w-full rounded-md border border-line px-3 py-2 text-sm"
+	        class="transition-control mt-2 w-full rounded border border-line bg-surface px-3 py-2.5 text-[0.9rem] text-ink outline-none hover:border-line-strong"
 	        placeholder="Golden Age Prototype"
 	      />
 	    </div>
 	    <div class="flex items-end">
 	      <button
-	        class="rounded-md bg-frame px-4 py-2 text-sm font-semibold text-[--surface] hover:bg-frame disabled:cursor-not-allowed disabled:opacity-60"
+	        class="transition-control rounded border border-accent bg-accent px-4 py-2 text-[0.88rem] font-medium text-[--surface] hover:border-accent-hover hover:bg-accent-hover disabled:cursor-not-allowed disabled:border-line disabled:bg-surface-sunken disabled:text-ink-faint"
 	        :disabled="isCreatingProject"
 	        @click="handleCreateProject"
 	      >
@@ -106,13 +106,13 @@ const {
 	      <input
 	        id="ws-project-id"
 	        v-model="projectIdInput"
-	        class="mt-2 w-full rounded-md border border-line px-3 py-2 text-sm"
+	        class="transition-control mt-2 w-full rounded border border-line bg-surface px-3 py-2.5 text-[0.9rem] text-ink outline-none hover:border-line-strong"
 	        placeholder="proj_..."
 	      />
 	    </div>
 	    <div class="flex items-end">
 	      <button
-	        class="rounded-md border border-line bg-surface px-4 py-2 text-sm font-semibold text-ink hover:bg-ground"
+	        class="transition-control rounded border border-line bg-surface px-4 py-2 text-[0.88rem] font-medium text-ink hover:border-line-strong hover:bg-surface-sunken"
 	        @click="handleLoadProject"
 	      >
 	        Load project
@@ -123,7 +123,7 @@ const {
 	      <select
 	        id="ws-project-select"
 	        v-model="selectedProjectId"
-	        class="mt-2 w-full rounded-md border border-line px-3 py-2 text-sm"
+	        class="transition-control mt-2 w-full rounded border border-line bg-surface px-3 py-2.5 text-[0.9rem] text-ink outline-none hover:border-line-strong"
 	      >
 	        <option value="">Select a project</option>
 	        <option v-for="project in projectsList" :key="project.id" :value="project.id">
@@ -133,7 +133,7 @@ const {
 	    </div>
 	    <div class="flex items-end">
 	      <button
-	        class="rounded-md border border-line bg-surface px-4 py-2 text-sm font-semibold text-ink hover:bg-ground"
+	        class="transition-control rounded border border-line bg-surface px-4 py-2 text-[0.88rem] font-medium text-ink hover:border-line-strong hover:bg-surface-sunken"
 	        :disabled="!selectedProjectId"
 	        @click="projectIdInput = selectedProjectId; handleLoadProject()"
 	      >
