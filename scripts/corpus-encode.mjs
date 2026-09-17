@@ -74,8 +74,14 @@ const slug = args[0];
 const BUDGET = Number((args.find((a) => a.startsWith("--budget=")) ?? "--budget=5").split("=")[1]);
 if (!slug) { console.error("usage: corpus-encode.mjs <slug> [--budget=5]"); process.exit(2); }
 
+/**
+ * A_97: this defaulted to a scratchpad directory belonging to a session that no longer exists, so
+ * every invocation without an explicit `--text=` had failed since that session closed. The acquired
+ * corpus lives in `library/texts/<slug>.txt` (written by `scripts/corpus-acquire.mjs`), which is the
+ * same directory `packages/prose-guard/src/anti-copy.ts` indexes — one home for the text.
+ */
 const textPath = (args.find((a) => a.startsWith("--text=")) ?? "").split("=")[1]
-  || `C:/Users/andyl/AppData/Local/Temp/claude/C--CML/37bf12e3-44c1-4bb6-ae7f-407b46016ade/scratchpad/src/${slug}.txt`;
+  || `${ROOT}/library/texts/${slug}.txt`;
 
 // ── budget ledger ────────────────────────────────────────────────────────────────────────────────
 const loadLedger = () => (existsSync(LEDGER) ? JSON.parse(readFileSync(LEDGER, "utf8")) : { totalGbp: 0, runs: [] });

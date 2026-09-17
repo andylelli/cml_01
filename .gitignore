@@ -102,3 +102,11 @@ logs/*.json
 # and the reviews are cold reads of it — published, and cached by third parties even if
 # later removed. If that is not wanted, make the repo private BEFORE the next push..rehearsal/
 scripts/generated/
+
+# A_97 corpus survey caches — reproducible from their sources, and the catalogue is 21 MB.
+# `library/candidates.json` IS committed: it is the survey's finding, and the clearance verdict
+# behind every acquisition has to be readable without re-running anything.
+library/.pg-catalog.csv
+library/.pubyear-cache.json
+library/.acquire-report.json
+library/.survey-cache.json

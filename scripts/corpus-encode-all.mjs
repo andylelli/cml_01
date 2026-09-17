@@ -12,20 +12,24 @@
  * corpus-encode.mjs) and parallel long prompts simply queue behind each other while burning retries.
  */
 import { spawnSync } from "node:child_process";
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, existsSync, readdirSync } from "node:fs";
 
 const ROOT = "C:/CML";
 const LEDGER = `${ROOT}/library/.encode-ledger.json`;
-const SRC = "C:/Users/andyl/AppData/Local/Temp/claude/C--CML/37bf12e3-44c1-4bb6-ae7f-407b46016ade/scratchpad/src";
+/**
+ * A_97: was a scratchpad path belonging to a closed session, alongside a hardcoded list of the eight
+ * legacy slugs — so the batch runner could only ever encode the books of August 2026 and, after that
+ * session's temp directory was cleared, none at all. The queue is now DERIVED from what is on disk:
+ * every work that has an acquired text and no `case.cml2.yaml` yet. Acquisition therefore extends
+ * the queue by itself, which is the property the corpus needed in order to grow.
+ */
+const SRC = `${ROOT}/library/texts`;
 
 const BUDGET = Number((process.argv.find((a) => a.startsWith("--budget=")) ?? "--budget=5").split("=")[1]);
 const only = (process.argv.find((a) => a.startsWith("--only=")) ?? "").split("=")[1];
 
-const ALL = [
-  "the_big_bow_mystery", "the_sign_of_the_four", "a_study_in_scarlet",
-  "the_valley_of_fear", "the_hound_of_the_baskervilles",
-  "the_mystery_of_the_yellow_room", "the_leavenworth_case", "the_moonstone",
-];
+const ALL = readdirSync(`${ROOT}/library/works`)
+  .filter((s) => existsSync(`${ROOT}/library/works/${s}/provenance.yaml`));
 const queue = (only ? only.split(",") : ALL)
   .filter((s) => existsSync(`${SRC}/${s}.txt`))
   .filter((s) => !existsSync(`${ROOT}/library/works/${s}/case.cml2.yaml`))

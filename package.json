@@ -63,7 +63,11 @@
     "probe:victim-alive": "node scripts/probe-victim-alive-recall.mjs",
     "test:touched": "node scripts/test-touched.mjs",
     "probe:temporal-spine": "node scripts/probe-temporal-spine-replay.mjs",
-    "probe:weapon-confusion": "node scripts/probe-weapon-confusion.mjs"
+    "probe:weapon-confusion": "node scripts/probe-weapon-confusion.mjs",
+    "corpus:survey": "node scripts/corpus-survey.mjs",
+    "corpus:acquire": "node scripts/corpus-acquire.mjs",
+    "corpus:coverage": "node scripts/corpus-coverage.mjs",
+    "corpus:clearance": "node scripts/corpus-clearance-check.mjs"
   },
   "devDependencies": {
     "typescript": "^5.5.4"
