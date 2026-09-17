@@ -146,26 +146,37 @@ class FingerprintSet implements NgramSet {
 /**
  * Build an index from `{ name -> text }`. Pure: no file access, so it is trivially testable.
  *
- * Two passes rather than one, because a growable array of 40M numbers would defeat the point: the
- * first counts the n-grams so the typed array is allocated once at its final length, the second fills
- * it. Sorting and de-duplicating happen in place.
+ * Two passes rather than one, because a growable array of tens of millions of numbers would defeat
+ * the point: the first counts the n-grams so the typed array is allocated once at its final length,
+ * the second fills it. Sorting and de-duplicating happen in place.
+ *
+ * ── THE WORD LISTS ARE NOT KEPT BETWEEN THE PASSES ───────────────────────────────────────────────
+ *
+ * The first version of this held every text's `normaliseWords` output so pass two would not have to
+ * recompute it. MEASURED 2026-09-17: that is fine at twelve novels and it stalls at 141 — 10.4M
+ * strings resident at once is over a gigabyte of small-object heap, and the process made no progress
+ * in 25 minutes where the old `Set` build had taken 1.8 seconds. Saving the memory was the entire
+ * point of the change, and holding the intermediate gave it straight back.
+ *
+ * So each text is normalised TWICE and its word list is released immediately. Normalisation is a
+ * regex pass over a string, which is cheap and does not grow the heap; the array of 10M short strings
+ * is what costs. The build is memoised once per process, so the doubled work is paid once.
  */
 export function buildAntiCopyIndex(texts: Record<string, string>, n: number): AntiCopyIndex {
   const sources: string[] = [];
-  const wordLists: string[][] = [];
   let total = 0;
   for (const [name, text] of Object.entries(texts)) {
-    const words = normaliseWords(text);
-    if (words.length < n) continue;
+    const count = normaliseWords(text).length;
+    if (count < n) continue;
     sources.push(name);
-    wordLists.push(words);
-    total += words.length - n + 1;
+    total += count - n + 1;
   }
 
   const buf = new Float64Array(total);
   let w = 0;
-  for (const words of wordLists) {
-    for (let i = 0; i + n <= words.length; i += 1) buf[w++] = fingerprint(key(words, i, n));
+  for (const name of sources) {
+    const words = normaliseWords(texts[name]!);
+    for (let i = 0; i + n <= words.length && w < total; i += 1) buf[w++] = fingerprint(key(words, i, n));
   }
   buf.sort();
 
