@@ -1,0 +1,32 @@
+# Provenance + clearance. ACQUIRED by scripts/corpus-acquire.mjs on 2026-09-17.
+# STATUS: text acquired, awaiting encode. `case.cml2.yaml` appears only once a verified encode exists
+# (A_77 §10.3) — a work with a fingerprint and no case has never been read by anything.
+
+slug: the_house_of_the_arrow
+title: "The House of the Arrow"
+author: "A. E. W. (Alfred Edward Woodley) Mason"
+author_death_year: 1948
+first_publication_year: 1924
+
+source:
+  host: "Project Gutenberg"
+  ebook_id: 67514
+  url: "https://www.gutenberg.org/ebooks/67514"
+  text_url: "https://www.gutenberg.org/cache/epub/67514/pg67514.txt"
+  retrieved: 2026-09-17
+  sha256: "041c5826087c095af2c029906d94296bfc7de33b05743e54c11e29d61d0e2a31"
+  words: 95958
+
+clearance:
+  # DERIVED by the A_77 §8.1 rule at acquisition time, never hand-written.
+  # uk green iff 1948 + 70 < 2026   -> 2019
+  # us green iff 1924 + 95 < 2026   -> 2020
+  uk: green
+  us: green
+  verdict: green
+  calculated_on: 2026-09-17
+
+status:
+  case_cml2: pending_encode
+  fingerprint: pending
+  device_pattern: pending

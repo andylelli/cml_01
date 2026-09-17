@@ -1,0 +1,32 @@
+# Provenance + clearance. ACQUIRED by scripts/corpus-acquire.mjs on 2026-09-17.
+# STATUS: text acquired, awaiting encode. `case.cml2.yaml` appears only once a verified encode exists
+# (A_77 §10.3) — a work with a fingerprint and no case has never been read by anything.
+
+slug: annihilation
+title: "Annihilation"
+author: "Isabel Ostrander"
+author_death_year: 1924
+first_publication_year: 1924
+
+source:
+  host: "Project Gutenberg"
+  ebook_id: 72948
+  url: "https://www.gutenberg.org/ebooks/72948"
+  text_url: "https://www.gutenberg.org/cache/epub/72948/pg72948.txt"
+  retrieved: 2026-09-17
+  sha256: "8115bcbe75d01ad15144e4fb911cf2dbd2730e468b011f58dd440118b7550815"
+  words: 86952
+
+clearance:
+  # DERIVED by the A_77 §8.1 rule at acquisition time, never hand-written.
+  # uk green iff 1924 + 70 < 2026   -> 1995
+  # us green iff 1924 + 95 < 2026   -> 2020
+  uk: green
+  us: green
+  verdict: green
+  calculated_on: 2026-09-17
+
+status:
+  case_cml2: pending_encode
+  fingerprint: pending
+  device_pattern: pending

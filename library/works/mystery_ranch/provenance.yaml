@@ -1,0 +1,32 @@
+# Provenance + clearance. ACQUIRED by scripts/corpus-acquire.mjs on 2026-09-17.
+# STATUS: text acquired, awaiting encode. `case.cml2.yaml` appears only once a verified encode exists
+# (A_77 §10.3) — a work with a fingerprint and no case has never been read by anything.
+
+slug: mystery_ranch
+title: "Mystery Ranch"
+author: "Arthur Chapman"
+author_death_year: 1935
+first_publication_year: 1921
+
+source:
+  host: "Project Gutenberg"
+  ebook_id: 30989
+  url: "https://www.gutenberg.org/ebooks/30989"
+  text_url: "https://www.gutenberg.org/cache/epub/30989/pg30989.txt"
+  retrieved: 2026-09-17
+  sha256: "0dd7db71790fb9a3ec400129f2c9fd5cfd2653c5c251dba7d18833c2d4e50e05"
+  words: 51564
+
+clearance:
+  # DERIVED by the A_77 §8.1 rule at acquisition time, never hand-written.
+  # uk green iff 1935 + 70 < 2026   -> 2006
+  # us green iff 1921 + 95 < 2026   -> 2017
+  uk: green
+  us: green
+  verdict: green
+  calculated_on: 2026-09-17
+
+status:
+  case_cml2: pending_encode
+  fingerprint: pending
+  device_pattern: pending

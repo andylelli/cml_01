@@ -1,0 +1,32 @@
+# Provenance + clearance. ACQUIRED by scripts/corpus-acquire.mjs on 2026-09-17.
+# STATUS: text acquired, awaiting encode. `case.cml2.yaml` appears only once a verified encode exists
+# (A_77 §10.3) — a work with a fingerprint and no case has never been read by anything.
+
+slug: dark_power
+title: "Dark power"
+author: "Elisabeth Sanxay Holding"
+author_death_year: 1955
+first_publication_year: 1930
+
+source:
+  host: "Project Gutenberg"
+  ebook_id: 78323
+  url: "https://www.gutenberg.org/ebooks/78323"
+  text_url: "https://www.gutenberg.org/cache/epub/78323/pg78323.txt"
+  retrieved: 2026-09-17
+  sha256: "6930af603e70f3387bd50c645688f847f45e1a95162c8d3b981b216d29122559"
+  words: 50818
+
+clearance:
+  # DERIVED by the A_77 §8.1 rule at acquisition time, never hand-written.
+  # uk green iff 1955 + 70 < 2026   -> 2026
+  # us green iff 1930 + 95 < 2026   -> 2026
+  uk: green
+  us: green
+  verdict: green
+  calculated_on: 2026-09-17
+
+status:
+  case_cml2: pending_encode
+  fingerprint: pending
+  device_pattern: pending

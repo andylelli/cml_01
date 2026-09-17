@@ -1,0 +1,32 @@
+# Provenance + clearance. ACQUIRED by scripts/corpus-acquire.mjs on 2026-09-17.
+# STATUS: text acquired, awaiting encode. `case.cml2.yaml` appears only once a verified encode exists
+# (A_77 §10.3) — a work with a fingerprint and no case has never been read by anything.
+
+slug: the_yellow_streak
+title: "The Yellow Streak"
+author: "Valentine Williams"
+author_death_year: 1946
+first_publication_year: 1922
+
+source:
+  host: "Project Gutenberg"
+  ebook_id: 9974
+  url: "https://www.gutenberg.org/ebooks/9974"
+  text_url: "https://www.gutenberg.org/cache/epub/9974/pg9974.txt"
+  retrieved: 2026-09-17
+  sha256: "e6378520afc7f503474c5b028dc7dcae2405f7063fd14384f361eb66bd0dcbf6"
+  words: 67969
+
+clearance:
+  # DERIVED by the A_77 §8.1 rule at acquisition time, never hand-written.
+  # uk green iff 1946 + 70 < 2026   -> 2017
+  # us green iff 1922 + 95 < 2026   -> 2018
+  uk: green
+  us: green
+  verdict: green
+  calculated_on: 2026-09-17
+
+status:
+  case_cml2: pending_encode
+  fingerprint: pending
+  device_pattern: pending

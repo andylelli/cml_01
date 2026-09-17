@@ -1,0 +1,32 @@
+# Provenance + clearance. ACQUIRED by scripts/corpus-acquire.mjs on 2026-09-17.
+# STATUS: text acquired, awaiting encode. `case.cml2.yaml` appears only once a verified encode exists
+# (A_77 §10.3) — a work with a fingerprint and no case has never been read by anything.
+
+slug: poison_shadows
+title: "Poison shadows"
+author: "William Le Queux"
+author_death_year: 1927
+first_publication_year: 1927
+
+source:
+  host: "Project Gutenberg"
+  ebook_id: 77378
+  url: "https://www.gutenberg.org/ebooks/77378"
+  text_url: "https://www.gutenberg.org/cache/epub/77378/pg77378.txt"
+  retrieved: 2026-09-17
+  sha256: "5f87dbeaf7a12a01453706b0877fbf2f72f9733646ae786ff41a7f080379bf89"
+  words: 80655
+
+clearance:
+  # DERIVED by the A_77 §8.1 rule at acquisition time, never hand-written.
+  # uk green iff 1927 + 70 < 2026   -> 1998
+  # us green iff 1927 + 95 < 2026   -> 2023
+  uk: green
+  us: green
+  verdict: green
+  calculated_on: 2026-09-17
+
+status:
+  case_cml2: pending_encode
+  fingerprint: pending
+  device_pattern: pending

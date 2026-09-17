@@ -1,0 +1,32 @@
+# Provenance + clearance. ACQUIRED by scripts/corpus-acquire.mjs on 2026-09-17.
+# STATUS: text acquired, awaiting encode. `case.cml2.yaml` appears only once a verified encode exists
+# (A_77 §10.3) — a work with a fingerprint and no case has never been read by anything.
+
+slug: the_mystery_of_a_hansom_cab
+title: "The Mystery of a Hansom Cab"
+author: "Fergus Hume"
+author_death_year: 1932
+first_publication_year: 1890
+
+source:
+  host: "Project Gutenberg"
+  ebook_id: 4223
+  url: "https://www.gutenberg.org/ebooks/4223"
+  text_url: "https://www.gutenberg.org/cache/epub/4223/pg4223.txt"
+  retrieved: 2026-09-17
+  sha256: "0a318cbbadbf68c00a3eda6c69e26d5f318028cae24acfbb98ab43f310822c8d"
+  words: 87924
+
+clearance:
+  # DERIVED by the A_77 §8.1 rule at acquisition time, never hand-written.
+  # uk green iff 1932 + 70 < 2026   -> 2003
+  # us green iff 1890 + 95 < 2026   -> 1986
+  uk: green
+  us: green
+  verdict: green
+  calculated_on: 2026-09-17
+
+status:
+  case_cml2: pending_encode
+  fingerprint: pending
+  device_pattern: pending

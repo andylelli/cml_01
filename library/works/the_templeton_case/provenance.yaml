@@ -1,0 +1,32 @@
+# Provenance + clearance. ACQUIRED by scripts/corpus-acquire.mjs on 2026-09-17.
+# STATUS: text acquired, awaiting encode. `case.cml2.yaml` appears only once a verified encode exists
+# (A_77 §10.3) — a work with a fingerprint and no case has never been read by anything.
+
+slug: the_templeton_case
+title: "The Templeton case"
+author: "Victor L. (Victor Lorenzo) Whitechurch"
+author_death_year: 1933
+first_publication_year: 1924
+
+source:
+  host: "Project Gutenberg"
+  ebook_id: 75669
+  url: "https://www.gutenberg.org/ebooks/75669"
+  text_url: "https://www.gutenberg.org/cache/epub/75669/pg75669.txt"
+  retrieved: 2026-09-17
+  sha256: "daeb60685d440e30acd0d7958c1e3a2b262d4b0d0f838a9892c873dfc7709764"
+  words: 59120
+
+clearance:
+  # DERIVED by the A_77 §8.1 rule at acquisition time, never hand-written.
+  # uk green iff 1933 + 70 < 2026   -> 2004
+  # us green iff 1924 + 95 < 2026   -> 2020
+  uk: green
+  us: green
+  verdict: green
+  calculated_on: 2026-09-17
+
+status:
+  case_cml2: pending_encode
+  fingerprint: pending
+  device_pattern: pending

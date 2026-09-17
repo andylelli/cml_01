@@ -1,0 +1,32 @@
+# Provenance + clearance. ACQUIRED by scripts/corpus-acquire.mjs on 2026-09-17.
+# STATUS: text acquired, awaiting encode. `case.cml2.yaml` appears only once a verified encode exists
+# (A_77 §10.3) — a work with a fingerprint and no case has never been read by anything.
+
+slug: footprints
+title: "Footprints"
+author: "Kay Cleaver Strahan"
+author_death_year: 1941
+first_publication_year: 1929
+
+source:
+  host: "Project Gutenberg"
+  ebook_id: 75577
+  url: "https://www.gutenberg.org/ebooks/75577"
+  text_url: "https://www.gutenberg.org/cache/epub/75577/pg75577.txt"
+  retrieved: 2026-09-17
+  sha256: "929d98759f4c832943ef60a290c50e265f063c6a06211b55fbab931a27b0d661"
+  words: 84624
+
+clearance:
+  # DERIVED by the A_77 §8.1 rule at acquisition time, never hand-written.
+  # uk green iff 1941 + 70 < 2026   -> 2012
+  # us green iff 1929 + 95 < 2026   -> 2025
+  uk: green
+  us: green
+  verdict: green
+  calculated_on: 2026-09-17
+
+status:
+  case_cml2: pending_encode
+  fingerprint: pending
+  device_pattern: pending

@@ -144,8 +144,32 @@ status:
 
 // ── select what to acquire ───────────────────────────────────────────────────────────────────────
 
+/**
+ * A_77 §15.1 — the thirty-nine ids that section verified by hand, kept as data so `--curated` can put
+ * them at the front. Those still missing from the library are the gap-targeted ones: each row of
+ * §15.1 was chosen to fill a named hole in §9.3 (inverted, courtroom, armchair, non-visual,
+ * non-elite register, rogue, professional female detective), and a catalogue sweep ranked by subject
+ * heading cannot know that.
+ */
+const CURATED_IDS = new Set([
+  204, 223, 70175, 20872, 34732, 10556, 11128, 72719, 2861, 70788, 70634, 75157, 78655, 59478,
+  75325, 73155, 75669, 57669, 10373, 24201, 12187, 72581, 3071, 21617, 51956, 834, 2038, 2043,
+  74548, 11252, 20674, 4715, 706, 4223, 2014, 22173, 2454, 54869, 77423,
+]);
+
 let rows = [];
-if (args.includes("--from-candidates")) {
+if (args.includes("--curated")) {
+  /**
+   * The owner's scope, 2026-09-17: Golden Age proper plus the §15.1 remainder. 1920 is not an
+   * arbitrary cut — it is where the form this project generates actually starts, and the US ceiling
+   * of 1930 closes the window from the other side, so "golden_age" here is the whole of the Golden
+   * Age that is legally reachable at all.
+   */
+  const cand = JSON.parse(readFileSync(`${ROOT}/library/candidates.json`, "utf8"));
+  rows = cand.green.filter((r) => r.era === "golden_age" || CURATED_IDS.has(r.id));
+  rows.sort((a, b) => (CURATED_IDS.has(b.id) ? 1 : 0) - (CURATED_IDS.has(a.id) ? 1 : 0)
+    || b.genre_score - a.genre_score);
+} else if (args.includes("--from-candidates")) {
   const cand = JSON.parse(readFileSync(`${ROOT}/library/candidates.json`, "utf8"));
   const minGenre = Number(flag("min-genre", 2));
   const top = Number(flag("top", 1e9));
@@ -153,7 +177,7 @@ if (args.includes("--from-candidates")) {
 } else if (flag("ids")) {
   const cand = existsSync(`${ROOT}/library/candidates.json`)
     ? JSON.parse(readFileSync(`${ROOT}/library/candidates.json`, "utf8")) : { green: [], amber: [], red: [] };
-  const all = [...cand.green, ...cand.amber, ...cand.red];
+  const all = [...cand.green, ...cand.amber, ...cand.red, ...(cand.translated ?? [])];
   for (const id of String(flag("ids")).split(",").map(Number)) {
     const hit = all.find((r) => r.id === id);
     if (!hit) { console.error(`! id ${id} is not in candidates.json — pass --id with --title/--death/--pub`); process.exit(2); }
@@ -170,7 +194,7 @@ if (args.includes("--from-candidates")) {
     genre_score: 9,
   }];
 } else {
-  console.error("usage: corpus-acquire.mjs --from-candidates [--top N] [--min-genre N] | --ids a,b,c | --id N --title ... --author ... --death YYYY --pub YYYY");
+  console.error("usage: corpus-acquire.mjs --curated | --from-candidates [--top N] [--min-genre N] | --ids a,b,c | --id N --title ... --author ... --death YYYY --pub YYYY");
   process.exit(2);
 }
 

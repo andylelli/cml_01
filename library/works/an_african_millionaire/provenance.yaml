@@ -1,0 +1,32 @@
+# Provenance + clearance. ACQUIRED by scripts/corpus-acquire.mjs on 2026-09-17.
+# STATUS: text acquired, awaiting encode. `case.cml2.yaml` appears only once a verified encode exists
+# (A_77 §10.3) — a work with a fingerprint and no case has never been read by anything.
+
+slug: an_african_millionaire
+title: "An African Millionaire"
+author: "Grant Allen"
+author_death_year: 1899
+first_publication_year: 1897
+
+source:
+  host: "Project Gutenberg"
+  ebook_id: 4715
+  url: "https://www.gutenberg.org/ebooks/4715"
+  text_url: "https://www.gutenberg.org/cache/epub/4715/pg4715.txt"
+  retrieved: 2026-09-17
+  sha256: "2516f39e715a947fc0cba0d563e810bc215ec94c8c8367ea30c310923ac80b8a"
+  words: 65491
+
+clearance:
+  # DERIVED by the A_77 §8.1 rule at acquisition time, never hand-written.
+  # uk green iff 1899 + 70 < 2026   -> 1970
+  # us green iff 1897 + 95 < 2026   -> 1993
+  uk: green
+  us: green
+  verdict: green
+  calculated_on: 2026-09-17
+
+status:
+  case_cml2: pending_encode
+  fingerprint: pending
+  device_pattern: pending

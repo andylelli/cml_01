@@ -1,0 +1,32 @@
+# Provenance + clearance. ACQUIRED by scripts/corpus-acquire.mjs on 2026-09-17.
+# STATUS: text acquired, awaiting encode. `case.cml2.yaml` appears only once a verified encode exists
+# (A_77 §10.3) — a work with a fingerprint and no case has never been read by anything.
+
+slug: the_crime_code
+title: "The crime code"
+author: "William Le Queux"
+author_death_year: 1927
+first_publication_year: 1928
+
+source:
+  host: "Project Gutenberg"
+  ebook_id: 78372
+  url: "https://www.gutenberg.org/ebooks/78372"
+  text_url: "https://www.gutenberg.org/cache/epub/78372/pg78372.txt"
+  retrieved: 2026-09-17
+  sha256: "790cf4849893630abf055bd7af45b9c0ffe5eb6200b33e41922b4e601778757d"
+  words: 73750
+
+clearance:
+  # DERIVED by the A_77 §8.1 rule at acquisition time, never hand-written.
+  # uk green iff 1927 + 70 < 2026   -> 1998
+  # us green iff 1928 + 95 < 2026   -> 2024
+  uk: green
+  us: green
+  verdict: green
+  calculated_on: 2026-09-17
+
+status:
+  case_cml2: pending_encode
+  fingerprint: pending
+  device_pattern: pending

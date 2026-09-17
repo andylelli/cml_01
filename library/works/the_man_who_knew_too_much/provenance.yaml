@@ -1,0 +1,32 @@
+# Provenance + clearance. ACQUIRED by scripts/corpus-acquire.mjs on 2026-09-17.
+# STATUS: text acquired, awaiting encode. `case.cml2.yaml` appears only once a verified encode exists
+# (A_77 §10.3) — a work with a fingerprint and no case has never been read by anything.
+
+slug: the_man_who_knew_too_much
+title: "The Man Who Knew Too Much"
+author: "G. K. (Gilbert Keith) Chesterton"
+author_death_year: 1936
+first_publication_year: 1922
+
+source:
+  host: "Project Gutenberg"
+  ebook_id: 1720
+  url: "https://www.gutenberg.org/ebooks/1720"
+  text_url: "https://www.gutenberg.org/cache/epub/1720/pg1720.txt"
+  retrieved: 2026-09-17
+  sha256: "bc6cc4f41009fa51df6500f9c86405a84c76c21d1bf19d2aee96304ce4aaac8e"
+  words: 59750
+
+clearance:
+  # DERIVED by the A_77 §8.1 rule at acquisition time, never hand-written.
+  # uk green iff 1936 + 70 < 2026   -> 2007
+  # us green iff 1922 + 95 < 2026   -> 2018
+  uk: green
+  us: green
+  verdict: green
+  calculated_on: 2026-09-17
+
+status:
+  case_cml2: pending_encode
+  fingerprint: pending
+  device_pattern: pending

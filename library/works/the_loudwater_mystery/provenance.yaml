@@ -1,0 +1,32 @@
+# Provenance + clearance. ACQUIRED by scripts/corpus-acquire.mjs on 2026-09-17.
+# STATUS: text acquired, awaiting encode. `case.cml2.yaml` appears only once a verified encode exists
+# (A_77 §10.3) — a work with a fingerprint and no case has never been read by anything.
+
+slug: the_loudwater_mystery
+title: "The Loudwater Mystery"
+author: "Edgar Jepson"
+author_death_year: 1938
+first_publication_year: 1920
+
+source:
+  host: "Project Gutenberg"
+  ebook_id: 9808
+  url: "https://www.gutenberg.org/ebooks/9808"
+  text_url: "https://www.gutenberg.org/cache/epub/9808/pg9808.txt"
+  retrieved: 2026-09-17
+  sha256: "08d431a95a4af3e2807fa5f67ce2802bac08ac0aabd89a03185662869e2e77e5"
+  words: 62431
+
+clearance:
+  # DERIVED by the A_77 §8.1 rule at acquisition time, never hand-written.
+  # uk green iff 1938 + 70 < 2026   -> 2009
+  # us green iff 1920 + 95 < 2026   -> 2016
+  uk: green
+  us: green
+  verdict: green
+  calculated_on: 2026-09-17
+
+status:
+  case_cml2: pending_encode
+  fingerprint: pending
+  device_pattern: pending

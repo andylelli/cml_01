@@ -1,0 +1,32 @@
+# Provenance + clearance. ACQUIRED by scripts/corpus-acquire.mjs on 2026-09-17.
+# STATUS: text acquired, awaiting encode. `case.cml2.yaml` appears only once a verified encode exists
+# (A_77 §10.3) — a work with a fingerprint and no case has never been read by anything.
+
+slug: anderson_crow_detective
+title: "Anderson Crow, Detective"
+author: "George Barr McCutcheon"
+author_death_year: 1928
+first_publication_year: 1920
+
+source:
+  host: "Project Gutenberg"
+  ebook_id: 28229
+  url: "https://www.gutenberg.org/ebooks/28229"
+  text_url: "https://www.gutenberg.org/cache/epub/28229/pg28229.txt"
+  retrieved: 2026-09-17
+  sha256: "1c3db2b7d635b81dc4a61a958307c62d264d95fe95ded1ddc77d3ba50deeeaf4"
+  words: 74968
+
+clearance:
+  # DERIVED by the A_77 §8.1 rule at acquisition time, never hand-written.
+  # uk green iff 1928 + 70 < 2026   -> 1999
+  # us green iff 1920 + 95 < 2026   -> 2016
+  uk: green
+  us: green
+  verdict: green
+  calculated_on: 2026-09-17
+
+status:
+  case_cml2: pending_encode
+  fingerprint: pending
+  device_pattern: pending

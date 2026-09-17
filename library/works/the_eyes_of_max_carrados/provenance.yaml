@@ -1,0 +1,32 @@
+# Provenance + clearance. ACQUIRED by scripts/corpus-acquire.mjs on 2026-09-17.
+# STATUS: text acquired, awaiting encode. `case.cml2.yaml` appears only once a verified encode exists
+# (A_77 §10.3) — a work with a fingerprint and no case has never been read by anything.
+
+slug: the_eyes_of_max_carrados
+title: "The eyes of Max Carrados"
+author: "Ernest Bramah"
+author_death_year: 1942
+first_publication_year: 1923
+
+source:
+  host: "Project Gutenberg"
+  ebook_id: 77788
+  url: "https://www.gutenberg.org/ebooks/77788"
+  text_url: "https://www.gutenberg.org/cache/epub/77788/pg77788.txt"
+  retrieved: 2026-09-17
+  sha256: "1a0ea550d835c3d5bca90d5a669078f5a0ff160759229e59c9f32b7e00020f2f"
+  words: 93975
+
+clearance:
+  # DERIVED by the A_77 §8.1 rule at acquisition time, never hand-written.
+  # uk green iff 1942 + 70 < 2026   -> 2013
+  # us green iff 1923 + 95 < 2026   -> 2019
+  uk: green
+  us: green
+  verdict: green
+  calculated_on: 2026-09-17
+
+status:
+  case_cml2: pending_encode
+  fingerprint: pending
+  device_pattern: pending

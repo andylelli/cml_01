@@ -1,0 +1,32 @@
+# Provenance + clearance. ACQUIRED by scripts/corpus-acquire.mjs on 2026-09-17.
+# STATUS: text acquired, awaiting encode. `case.cml2.yaml` appears only once a verified encode exists
+# (A_77 §10.3) — a work with a fingerprint and no case has never been read by anything.
+
+slug: the_stretton_street_affair
+title: "The Stretton Street Affair"
+author: "William Le Queux"
+author_death_year: 1927
+first_publication_year: 1922
+
+source:
+  host: "Project Gutenberg"
+  ebook_id: 27147
+  url: "https://www.gutenberg.org/ebooks/27147"
+  text_url: "https://www.gutenberg.org/cache/epub/27147/pg27147.txt"
+  retrieved: 2026-09-17
+  sha256: "cf39667f92b9d9c219c68f1eafd511fb078e5957edf84f174015849aae9de325"
+  words: 85025
+
+clearance:
+  # DERIVED by the A_77 §8.1 rule at acquisition time, never hand-written.
+  # uk green iff 1927 + 70 < 2026   -> 1998
+  # us green iff 1922 + 95 < 2026   -> 2018
+  uk: green
+  us: green
+  verdict: green
+  calculated_on: 2026-09-17
+
+status:
+  case_cml2: pending_encode
+  fingerprint: pending
+  device_pattern: pending

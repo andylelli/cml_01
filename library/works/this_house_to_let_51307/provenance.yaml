@@ -1,0 +1,32 @@
+# Provenance + clearance. ACQUIRED by scripts/corpus-acquire.mjs on 2026-09-17.
+# STATUS: text acquired, awaiting encode. `case.cml2.yaml` appears only once a verified encode exists
+# (A_77 §10.3) — a work with a fingerprint and no case has never been read by anything.
+
+slug: this_house_to_let_51307
+title: "This House to Let"
+author: "William Le Queux"
+author_death_year: 1927
+first_publication_year: 1921
+
+source:
+  host: "Project Gutenberg"
+  ebook_id: 51307
+  url: "https://www.gutenberg.org/ebooks/51307"
+  text_url: "https://www.gutenberg.org/cache/epub/51307/pg51307.txt"
+  retrieved: 2026-09-17
+  sha256: "e8bddfb4ce512fbdf9bcb93ef74d2d5c884e51832020faa8ba5ed8dd767ac2ad"
+  words: 74548
+
+clearance:
+  # DERIVED by the A_77 §8.1 rule at acquisition time, never hand-written.
+  # uk green iff 1927 + 70 < 2026   -> 1998
+  # us green iff 1921 + 95 < 2026   -> 2017
+  uk: green
+  us: green
+  verdict: green
+  calculated_on: 2026-09-17
+
+status:
+  case_cml2: pending_encode
+  fingerprint: pending
+  device_pattern: pending

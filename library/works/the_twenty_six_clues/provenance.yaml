@@ -1,0 +1,32 @@
+# Provenance + clearance. ACQUIRED by scripts/corpus-acquire.mjs on 2026-09-17.
+# STATUS: text acquired, awaiting encode. `case.cml2.yaml` appears only once a verified encode exists
+# (A_77 §10.3) — a work with a fingerprint and no case has never been read by anything.
+
+slug: the_twenty_six_clues
+title: "The twenty-six clues"
+author: "Isabel Ostrander"
+author_death_year: 1924
+first_publication_year: 1919
+
+source:
+  host: "Project Gutenberg"
+  ebook_id: 77423
+  url: "https://www.gutenberg.org/ebooks/77423"
+  text_url: "https://www.gutenberg.org/cache/epub/77423/pg77423.txt"
+  retrieved: 2026-09-17
+  sha256: "f2c650c4b99d28115f4cebf6b763d6259cfced641b877e69e423481f6eacf19b"
+  words: 81543
+
+clearance:
+  # DERIVED by the A_77 §8.1 rule at acquisition time, never hand-written.
+  # uk green iff 1924 + 70 < 2026   -> 1995
+  # us green iff 1919 + 95 < 2026   -> 2015
+  uk: green
+  us: green
+  verdict: green
+  calculated_on: 2026-09-17
+
+status:
+  case_cml2: pending_encode
+  fingerprint: pending
+  device_pattern: pending

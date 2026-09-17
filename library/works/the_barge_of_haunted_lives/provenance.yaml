@@ -1,0 +1,32 @@
+# Provenance + clearance. ACQUIRED by scripts/corpus-acquire.mjs on 2026-09-17.
+# STATUS: text acquired, awaiting encode. `case.cml2.yaml` appears only once a verified encode exists
+# (A_77 §10.3) — a work with a fingerprint and no case has never been read by anything.
+
+slug: the_barge_of_haunted_lives
+title: "The barge of haunted lives"
+author: "J. Aubrey (John Aubrey) Tyson"
+author_death_year: 1930
+first_publication_year: 1923
+
+source:
+  host: "Project Gutenberg"
+  ebook_id: 77879
+  url: "https://www.gutenberg.org/ebooks/77879"
+  text_url: "https://www.gutenberg.org/cache/epub/77879/pg77879.txt"
+  retrieved: 2026-09-17
+  sha256: "3cf4dfcfdd3430a62bdac2c04ea869e1ce6fa1b4005f25bc48bb4440fbbeb6ee"
+  words: 98375
+
+clearance:
+  # DERIVED by the A_77 §8.1 rule at acquisition time, never hand-written.
+  # uk green iff 1930 + 70 < 2026   -> 2001
+  # us green iff 1923 + 95 < 2026   -> 2019
+  uk: green
+  us: green
+  verdict: green
+  calculated_on: 2026-09-17
+
+status:
+  case_cml2: pending_encode
+  fingerprint: pending
+  device_pattern: pending

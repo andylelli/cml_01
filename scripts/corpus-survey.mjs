@@ -135,10 +135,30 @@ function authorFacts(authors) {
   if (!authors || /^Various$/i.test(authors)) return null;
   // Split on ";" only — the comma is inside a single author's own name.
   const list = authors.split(";").map((s) => s.trim()).filter(Boolean);
-  if (list.length !== 1) return null;
-  const m = list[0].match(/^(.*?),\s*(\d{3,4})\??\s*-\s*(\d{3,4})\??\s*$/);
-  if (!m) return { name: list[0], death: null };
-  return { name: m[1].trim(), death: Number(m[3]) };
+
+  /**
+   * Contributors carrying a role tag are not authors. MEASURED 2026-09-17: the first version of this
+   * function required the whole field to name exactly ONE person, and Gutenberg lists the
+   * illustrator alongside the novelist — so it silently dropped *The Greene Murder Case*, *The Benson
+   * Murder Case*, *The Scarab Murder Case*, *Lady Molly of Scotland Yard* and *The Clue*, five works
+   * A_77 §15.1 had named by hand. Four of them are Van Dine, which is to say most of the Golden Age
+   * proper that is legally reachable at all.
+   *
+   * That defect survived a validation pass that reported "38 of 39 curated ids recovered", because
+   * that pass scored the genre heading and never ran this function — the negative result was a claim
+   * about the PROBE.
+   *
+   * The illustrator's own copyright is real and is not waived by ignoring them here: the acquired
+   * artifact is `text/plain`, which contains no illustrations. An EDITOR-led volume is a different
+   * case and still yields null, because an anthology's clearance is per-story.
+   */
+  const ROLE_TAG = /\[(editor|illustrator|translator|contributor|commentator|author of introduction|introduction|editor of compilation|compiler|photographer|engraver)\]/i;
+  const authored = list.filter((x) => !ROLE_TAG.test(x));
+  if (authored.length !== 1) return null;
+
+  const m = authored[0].match(/^(.*?),\s*(\d{3,4})\??\s*-\s*(\d{3,4})\??\s*$/);
+  if (!m) return { name: authored[0], birth: null, death: null };
+  return { name: m[1].trim(), birth: Number(m[2]), death: Number(m[3]) };
 }
 
 /** "Surname, First" -> "First Surname", the shape the thirteen existing provenance files use. */
@@ -234,8 +254,9 @@ for (const r of rowsIter) {
 
   shortlist.push({
     id, title, author: naturalName(a.name), author_surname: a.name.split(",")[0].trim(),
-    author_death_year: a.death, genre_score: g, slug,
+    author_birth_year: a.birth, author_death_year: a.death, genre_score: g, slug,
     issued: r[col.Issued],
+    locc: (r[col.LoCC] || "").trim(),
     subjects: r[col.Subjects].split(";").map((s) => s.trim()).filter(Boolean),
     bookshelves: r[col.Bookshelves].split(";").map((s) => s.trim()).filter(Boolean),
   });
@@ -260,7 +281,11 @@ console.log("  dropped:", JSON.stringify(stats));
  * intended behaviour and not a failure of the script — it is §10.2's "unknown is not permission", and
  * such rows are listed separately so a wanted title can be resolved by hand and acquired by id.
  */
-async function firstPublishYear(title, surname, death) {
+/** Titles compared on letters and digits only, with a leading article dropped. */
+const normTitle = (t) => String(t).toLowerCase().replace(/^(the|a|an)\s+/, "")
+  .replace(/[^a-z0-9]+/g, " ").trim();
+
+async function firstPublishYear(title, surname, birth, death) {
   const cleanTitle = title.split(/[;:]|\(/)[0].trim();
   /**
    * `sort=old` is load-bearing. MEASURED: without it, *The Memoirs of Sherlock Holmes* resolves to
@@ -276,11 +301,46 @@ async function firstPublishYear(title, surname, death) {
       if (res.status === 429 || res.status >= 500) throw new Error(`http ${res.status}`);
       if (!res.ok) return null;
       const j = await res.json();
-      const s = surname.toLowerCase();
-      const years = (j.docs || [])
-        .filter((d) => (d.author_name || []).some((n) => n.toLowerCase().includes(s)))
-        .map((d) => d.first_publish_year)
-        .filter((y) => Number.isInteger(y) && y >= 1800 && (!death || y <= death + 5));
+      const docs = j.docs || [];
+
+      /**
+       * The title must actually be the title. Open Library answers a title query with near matches,
+       * and for *The Greene Murder Case* one of them is a 1900 record — twenty-eight years early, and
+       * inside the sanity window, so a bare `Math.min` would have taken it. Anchoring on the
+       * normalised title drops it without needing to know it was wrong.
+       */
+      const want = normTitle(cleanTitle);
+      const titled = docs.filter((d) => {
+        const t = normTitle(d.title || "");
+        return t === want || t.startsWith(`${want} `);
+      });
+
+      /**
+       * PSEUDONYMS — and why there is no client-side author test at all.
+       *
+       * MEASURED 2026-09-17: all four Philo Vance novels resolved to NULL and went AMBER, because
+       * Gutenberg files them under "Van Dine, S. S." while Open Library files them under Willard
+       * Huntington Wright. A first attempt kept the surname test and fell back to the server's rows
+       * only when it matched NOTHING — which still lost *The Greene Murder Case*, because a 2025
+       * reprint IS filed under "S. S. Van Dine", so the surname matched one useless row and the real
+       * 1928 record under Wright never entered the pool. A filter that fires on the wrong row is
+       * worse than one that fires on none.
+       *
+       * `author=` already did the matching server side, and Open Library resolves pseudonyms. So the
+       * pool is every title-anchored row, and precision comes from the title anchor and the window.
+       */
+      const lo = Math.max(1800, Number.isInteger(birth) ? birth + 15 : 1800);
+      const hi = Number.isInteger(death) ? death + 5 : 9999;
+
+      /**
+       * The lower bound is the author's birth year plus fifteen, not a constant. MEASURED: Open
+       * Library carries a record for *The Moonstone* dated **1800** — Wilkie Collins was born in 1824
+       * — and another for *The Bishop Murder Case* dated **1900**, twenty-nine years early. Both sit
+       * inside any fixed window and both would win a `Math.min`. Against the author's own lifetime
+       * they are impossible, and impossible is a thing a script can check.
+       */
+      const years = titled.map((d) => d.first_publish_year)
+        .filter((y) => Number.isInteger(y) && y >= lo && y <= hi);
       return years.length ? Math.min(...years) : null;
     } catch {
       await new Promise((r) => setTimeout(r, 2000 * (i + 1)));
@@ -295,7 +355,7 @@ if (!NO_YEARS) {
   shortlist.sort((a, b) => b.genre_score - a.genre_score || a.id - b.id);
   for (const row of shortlist) {
     if (yearCache[row.id] !== undefined) { row.first_publication_year = yearCache[row.id]; continue; }
-    row.first_publication_year = await firstPublishYear(row.title, row.author_surname, row.author_death_year);
+    row.first_publication_year = await firstPublishYear(row.title, row.author_surname, row.author_birth_year, row.author_death_year);
     yearCache[row.id] = row.first_publication_year;
     if (++n % 20 === 0) {
       process.stdout.write(`\r  openlibrary: ${n} fetched of ${shortlist.length}   `);
@@ -315,8 +375,36 @@ for (const row of shortlist) {
   row.era = era(row.first_publication_year);
 }
 
-const green = shortlist.filter((r) => r.clearance.verdict === "green");
-const amber = shortlist.filter((r) => r.clearance.verdict === "amber");
+/**
+ * A translation is a separate copyright, and this survey clears the AUTHOR only.
+ *
+ * MEASURED 2026-09-17: 21 of the 452 otherwise-green rows carry a Library of Congress class outside
+ * PR/PS/PZ (English literature, American literature, juvenile fiction) — nineteen PQ and two PT.
+ * They are Gaboriau, Leblanc, Leroux, Du Boisgobey: the French roman policier, which is genuinely
+ * part of this genre's ancestry and genuinely not clearable by the rule in §8.1. Gaboriau died in
+ * 1873 and his 1880s English translator did not, and nobody has ever looked up who that translator
+ * was.
+ *
+ * So they are bucketed, not dropped: the list is the input to a clearance decision somebody can make
+ * per-translator, and a work admitted that way goes in by `--id` with its years stated. Note that the
+ * library ALREADY holds one of these — `the_mystery_of_the_yellow_room` is Leroux in translation, and
+ * its provenance clears Leroux (d. 1927) and is silent about the translator.
+ */
+const isTranslation = (r) => !/P[RSZ]/.test(r.locc || "");
+
+/**
+ * PZ with no PR or PS beside it is juvenile fiction, and the catalogue gives it the same subject
+ * heading as the genre proper. MEASURED 2026-09-17: 24 such rows — the Rover Boys, Poppy Ott, Jerry
+ * Todd, Horatio Alger, the *Old Sleuth* dime novels. They are detective stories for twelve-year-olds
+ * and nothing this generator is pointed at. Bucketed rather than dropped, because "juvenile" is a
+ * catalogue judgement and somebody may want them for something.
+ */
+const isJuvenile = (r) => /PZ/.test(r.locc || "") && !/P[RS]/.test(r.locc || "");
+const juvenile = shortlist.filter((r) => r.clearance.verdict !== "red" && isJuvenile(r));
+const usable = (r) => !isTranslation(r) && !isJuvenile(r);
+const translated = shortlist.filter((r) => r.clearance.verdict !== "red" && isTranslation(r));
+const green = shortlist.filter((r) => r.clearance.verdict === "green" && usable(r));
+const amber = shortlist.filter((r) => r.clearance.verdict === "amber" && usable(r));
 const red = shortlist.filter((r) => r.clearance.verdict === "red");
 green.sort((a, b) => b.genre_score - a.genre_score || (b.first_publication_year - a.first_publication_year));
 
@@ -325,12 +413,12 @@ writeFileSync(OUT, JSON.stringify({
   source: { catalogue: CATALOG_URL, years: "https://openlibrary.org/search.json" },
   rule: "uk: death+70 < year; us: pub+95 < year; missing year = red (A_77 §8.1/§10.2)",
   current_year: YEAR,
-  stats: { ...stats, shortlist: shortlist.length, green: green.length, amber: amber.length, red: red.length },
+  stats: { ...stats, shortlist: shortlist.length, green: green.length, amber: amber.length, red: red.length, translated: translated.length, juvenile: juvenile.length },
   held: [...heldSlugs],
-  green, amber, red,
+  green, amber, red, translated, juvenile,
 }, null, 1));
 
-console.log(`\nGREEN ${green.length}   AMBER ${amber.length}   RED/unresolved-year ${red.length}`);
+console.log(`\nGREEN ${green.length}   AMBER ${amber.length}   RED ${red.length}   TRANSLATED ${translated.length}   JUVENILE ${juvenile.length}`);
 const byEra = {};
 for (const r of green) byEra[r.era] = (byEra[r.era] || 0) + 1;
 console.log("green by era:", byEra);

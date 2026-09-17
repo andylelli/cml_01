@@ -1,0 +1,32 @@
+# Provenance + clearance. ACQUIRED by scripts/corpus-acquire.mjs on 2026-09-17.
+# STATUS: text acquired, awaiting encode. `case.cml2.yaml` appears only once a verified encode exists
+# (A_77 §10.3) — a work with a fingerprint and no case has never been read by anything.
+
+slug: the_markenmore_mystery
+title: "The Markenmore Mystery"
+author: "J. S. (Joseph Smith) Fletcher"
+author_death_year: 1935
+first_publication_year: 1922
+
+source:
+  host: "Project Gutenberg"
+  ebook_id: 59818
+  url: "https://www.gutenberg.org/ebooks/59818"
+  text_url: "https://www.gutenberg.org/cache/epub/59818/pg59818.txt"
+  retrieved: 2026-09-17
+  sha256: "e0e09a3536cb106139434a358fc95d5fcdf36144624d3a4985c75bb82490d46b"
+  words: 78335
+
+clearance:
+  # DERIVED by the A_77 §8.1 rule at acquisition time, never hand-written.
+  # uk green iff 1935 + 70 < 2026   -> 2006
+  # us green iff 1922 + 95 < 2026   -> 2018
+  uk: green
+  us: green
+  verdict: green
+  calculated_on: 2026-09-17
+
+status:
+  case_cml2: pending_encode
+  fingerprint: pending
+  device_pattern: pending

@@ -1,0 +1,32 @@
+# Provenance + clearance. ACQUIRED by scripts/corpus-acquire.mjs on 2026-09-17.
+# STATUS: text acquired, awaiting encode. `case.cml2.yaml` appears only once a verified encode exists
+# (A_77 §10.3) — a work with a fingerprint and no case has never been read by anything.
+
+slug: jack_o_judgment
+title: "Jack O' Judgment"
+author: "Edgar Wallace"
+author_death_year: 1932
+first_publication_year: 1921
+
+source:
+  host: "Project Gutenberg"
+  ebook_id: 24767
+  url: "https://www.gutenberg.org/ebooks/24767"
+  text_url: "https://www.gutenberg.org/cache/epub/24767/pg24767.txt"
+  retrieved: 2026-09-17
+  sha256: "985a1329b15bc206de7efe195e0b19ae7ced91081ddcaf0c427be96da55f6a49"
+  words: 71624
+
+clearance:
+  # DERIVED by the A_77 §8.1 rule at acquisition time, never hand-written.
+  # uk green iff 1932 + 70 < 2026   -> 2003
+  # us green iff 1921 + 95 < 2026   -> 2017
+  uk: green
+  us: green
+  verdict: green
+  calculated_on: 2026-09-17
+
+status:
+  case_cml2: pending_encode
+  fingerprint: pending
+  device_pattern: pending

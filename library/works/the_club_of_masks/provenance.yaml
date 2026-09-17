@@ -1,0 +1,32 @@
+# Provenance + clearance. ACQUIRED by scripts/corpus-acquire.mjs on 2026-09-17.
+# STATUS: text acquired, awaiting encode. `case.cml2.yaml` appears only once a verified encode exists
+# (A_77 §10.3) — a work with a fingerprint and no case has never been read by anything.
+
+slug: the_club_of_masks
+title: "The club of masks"
+author: "Allen Upward"
+author_death_year: 1926
+first_publication_year: 1926
+
+source:
+  host: "Project Gutenberg"
+  ebook_id: 69845
+  url: "https://www.gutenberg.org/ebooks/69845"
+  text_url: "https://www.gutenberg.org/cache/epub/69845/pg69845.txt"
+  retrieved: 2026-09-17
+  sha256: "f14ac55e3502f4f8f8f2027884ab6115e818770eea2b3471e8b65ce32fa19b74"
+  words: 75795
+
+clearance:
+  # DERIVED by the A_77 §8.1 rule at acquisition time, never hand-written.
+  # uk green iff 1926 + 70 < 2026   -> 1997
+  # us green iff 1926 + 95 < 2026   -> 2022
+  uk: green
+  us: green
+  verdict: green
+  calculated_on: 2026-09-17
+
+status:
+  case_cml2: pending_encode
+  fingerprint: pending
+  device_pattern: pending

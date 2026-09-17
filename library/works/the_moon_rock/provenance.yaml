@@ -1,0 +1,32 @@
+# Provenance + clearance. ACQUIRED by scripts/corpus-acquire.mjs on 2026-09-17.
+# STATUS: text acquired, awaiting encode. `case.cml2.yaml` appears only once a verified encode exists
+# (A_77 §10.3) — a work with a fingerprint and no case has never been read by anything.
+
+slug: the_moon_rock
+title: "The Moon Rock"
+author: "Arthur J. (Arthur John) Rees"
+author_death_year: 1942
+first_publication_year: 1922
+
+source:
+  host: "Project Gutenberg"
+  ebook_id: 12509
+  url: "https://www.gutenberg.org/ebooks/12509"
+  text_url: "https://www.gutenberg.org/cache/epub/12509/pg12509.txt"
+  retrieved: 2026-09-17
+  sha256: "c4ebcbb0cd51db6b6941c2a82397dd0eff9bbdbd41707517a74c9d0e059d9254"
+  words: 106782
+
+clearance:
+  # DERIVED by the A_77 §8.1 rule at acquisition time, never hand-written.
+  # uk green iff 1942 + 70 < 2026   -> 2013
+  # us green iff 1922 + 95 < 2026   -> 2018
+  uk: green
+  us: green
+  verdict: green
+  calculated_on: 2026-09-17
+
+status:
+  case_cml2: pending_encode
+  fingerprint: pending
+  device_pattern: pending

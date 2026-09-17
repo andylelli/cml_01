@@ -1,0 +1,32 @@
+# Provenance + clearance. ACQUIRED by scripts/corpus-acquire.mjs on 2026-09-17.
+# STATUS: text acquired, awaiting encode. `case.cml2.yaml` appears only once a verified encode exists
+# (A_77 §10.3) — a work with a fingerprint and no case has never been read by anything.
+
+slug: the_astounding_crime_on_torrington_road
+title: "The astounding crime on Torrington Road"
+author: "William Gillette"
+author_death_year: 1937
+first_publication_year: 1927
+
+source:
+  host: "Project Gutenberg"
+  ebook_id: 75646
+  url: "https://www.gutenberg.org/ebooks/75646"
+  text_url: "https://www.gutenberg.org/cache/epub/75646/pg75646.txt"
+  retrieved: 2026-09-17
+  sha256: "d826fcce3a286a003ed84c95083a401400c119fcf0bec00dd915e673588c23b1"
+  words: 110604
+
+clearance:
+  # DERIVED by the A_77 §8.1 rule at acquisition time, never hand-written.
+  # uk green iff 1937 + 70 < 2026   -> 2008
+  # us green iff 1927 + 95 < 2026   -> 2023
+  uk: green
+  us: green
+  verdict: green
+  calculated_on: 2026-09-17
+
+status:
+  case_cml2: pending_encode
+  fingerprint: pending
+  device_pattern: pending

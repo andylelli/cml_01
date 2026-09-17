@@ -1,0 +1,32 @@
+# Provenance + clearance. ACQUIRED by scripts/corpus-acquire.mjs on 2026-09-17.
+# STATUS: text acquired, awaiting encode. `case.cml2.yaml` appears only once a verified encode exists
+# (A_77 §10.3) — a work with a fingerprint and no case has never been read by anything.
+
+slug: the_crow_s_inn_tragedy
+title: "The Crow's Inn tragedy"
+author: "Annie Haynes"
+author_death_year: 1929
+first_publication_year: 1927
+
+source:
+  host: "Project Gutenberg"
+  ebook_id: 75307
+  url: "https://www.gutenberg.org/ebooks/75307"
+  text_url: "https://www.gutenberg.org/cache/epub/75307/pg75307.txt"
+  retrieved: 2026-09-17
+  sha256: "2b4889c4c4220ef49dca3b3055c89dbc16a4da63c7979ebbd568040679b1f032"
+  words: 67965
+
+clearance:
+  # DERIVED by the A_77 §8.1 rule at acquisition time, never hand-written.
+  # uk green iff 1929 + 70 < 2026   -> 2000
+  # us green iff 1927 + 95 < 2026   -> 2023
+  uk: green
+  us: green
+  verdict: green
+  calculated_on: 2026-09-17
+
+status:
+  case_cml2: pending_encode
+  fingerprint: pending
+  device_pattern: pending

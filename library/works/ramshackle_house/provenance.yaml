@@ -1,0 +1,32 @@
+# Provenance + clearance. ACQUIRED by scripts/corpus-acquire.mjs on 2026-09-17.
+# STATUS: text acquired, awaiting encode. `case.cml2.yaml` appears only once a verified encode exists
+# (A_77 §10.3) — a work with a fingerprint and no case has never been read by anything.
+
+slug: ramshackle_house
+title: "Ramshackle House"
+author: "Hulbert Footner"
+author_death_year: 1944
+first_publication_year: 1922
+
+source:
+  host: "Project Gutenberg"
+  ebook_id: 57138
+  url: "https://www.gutenberg.org/ebooks/57138"
+  text_url: "https://www.gutenberg.org/cache/epub/57138/pg57138.txt"
+  retrieved: 2026-09-17
+  sha256: "26510b0801b06f2b8106e27cdbabb942856f76a505fd1a8f9ec8fd08db6403e4"
+  words: 76048
+
+clearance:
+  # DERIVED by the A_77 §8.1 rule at acquisition time, never hand-written.
+  # uk green iff 1944 + 70 < 2026   -> 2015
+  # us green iff 1922 + 95 < 2026   -> 2018
+  uk: green
+  us: green
+  verdict: green
+  calculated_on: 2026-09-17
+
+status:
+  case_cml2: pending_encode
+  fingerprint: pending
+  device_pattern: pending

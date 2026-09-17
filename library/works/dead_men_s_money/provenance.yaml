@@ -1,0 +1,32 @@
+# Provenance + clearance. ACQUIRED by scripts/corpus-acquire.mjs on 2026-09-17.
+# STATUS: text acquired, awaiting encode. `case.cml2.yaml` appears only once a verified encode exists
+# (A_77 §10.3) — a work with a fingerprint and no case has never been read by anything.
+
+slug: dead_men_s_money
+title: "Dead Men's Money"
+author: "J. S. (Joseph Smith) Fletcher"
+author_death_year: 1935
+first_publication_year: 1920
+
+source:
+  host: "Project Gutenberg"
+  ebook_id: 12239
+  url: "https://www.gutenberg.org/ebooks/12239"
+  text_url: "https://www.gutenberg.org/cache/epub/12239/pg12239.txt"
+  retrieved: 2026-09-17
+  sha256: "2e75f6d44bf1a086d6e363e37131482fd7bd4aa926c4c98924cd7b48b5e81d30"
+  words: 75278
+
+clearance:
+  # DERIVED by the A_77 §8.1 rule at acquisition time, never hand-written.
+  # uk green iff 1935 + 70 < 2026   -> 2006
+  # us green iff 1920 + 95 < 2026   -> 2016
+  uk: green
+  us: green
+  verdict: green
+  calculated_on: 2026-09-17
+
+status:
+  case_cml2: pending_encode
+  fingerprint: pending
+  device_pattern: pending

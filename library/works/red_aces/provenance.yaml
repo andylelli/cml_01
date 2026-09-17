@@ -1,0 +1,32 @@
+# Provenance + clearance. ACQUIRED by scripts/corpus-acquire.mjs on 2026-09-17.
+# STATUS: text acquired, awaiting encode. `case.cml2.yaml` appears only once a verified encode exists
+# (A_77 §10.3) — a work with a fingerprint and no case has never been read by anything.
+
+slug: red_aces
+title: "Red aces"
+author: "Edgar Wallace"
+author_death_year: 1932
+first_publication_year: 1929
+
+source:
+  host: "Project Gutenberg"
+  ebook_id: 76541
+  url: "https://www.gutenberg.org/ebooks/76541"
+  text_url: "https://www.gutenberg.org/cache/epub/76541/pg76541.txt"
+  retrieved: 2026-09-17
+  sha256: "71cbdb70b933c514b52c38705d8521e146fa904a688481c520e450b019059b36"
+  words: 68271
+
+clearance:
+  # DERIVED by the A_77 §8.1 rule at acquisition time, never hand-written.
+  # uk green iff 1932 + 70 < 2026   -> 2003
+  # us green iff 1929 + 95 < 2026   -> 2025
+  uk: green
+  us: green
+  verdict: green
+  calculated_on: 2026-09-17
+
+status:
+  case_cml2: pending_encode
+  fingerprint: pending
+  device_pattern: pending

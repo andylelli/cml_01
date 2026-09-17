@@ -1,0 +1,32 @@
+# Provenance + clearance. ACQUIRED by scripts/corpus-acquire.mjs on 2026-09-17.
+# STATUS: text acquired, awaiting encode. `case.cml2.yaml` appears only once a verified encode exists
+# (A_77 §10.3) — a work with a fingerprint and no case has never been read by anything.
+
+slug: the_bellamy_trial
+title: "The Bellamy trial"
+author: "Frances Noyes Hart"
+author_death_year: 1943
+first_publication_year: 1927
+
+source:
+  host: "Project Gutenberg"
+  ebook_id: 75325
+  url: "https://www.gutenberg.org/ebooks/75325"
+  text_url: "https://www.gutenberg.org/cache/epub/75325/pg75325.txt"
+  retrieved: 2026-09-17
+  sha256: "0e6643fcfa47fcfa4c49e0f241916f24e6cc8a58c6b1b013612327f8b91ea550"
+  words: 108950
+
+clearance:
+  # DERIVED by the A_77 §8.1 rule at acquisition time, never hand-written.
+  # uk green iff 1943 + 70 < 2026   -> 2014
+  # us green iff 1927 + 95 < 2026   -> 2023
+  uk: green
+  us: green
+  verdict: green
+  calculated_on: 2026-09-17
+
+status:
+  case_cml2: pending_encode
+  fingerprint: pending
+  device_pattern: pending

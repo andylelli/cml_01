@@ -1,0 +1,32 @@
+# Provenance + clearance. ACQUIRED by scripts/corpus-acquire.mjs on 2026-09-17.
+# STATUS: text acquired, awaiting encode. `case.cml2.yaml` appears only once a verified encode exists
+# (A_77 §10.3) — a work with a fingerprint and no case has never been read by anything.
+
+slug: a_silent_witness
+title: "A silent witness"
+author: "R. Austin (Richard Austin) Freeman"
+author_death_year: 1943
+first_publication_year: 1929
+
+source:
+  host: "Project Gutenberg"
+  ebook_id: 76796
+  url: "https://www.gutenberg.org/ebooks/76796"
+  text_url: "https://www.gutenberg.org/cache/epub/76796/pg76796.txt"
+  retrieved: 2026-09-17
+  sha256: "427d3a0706afc6e69090e5a5c9b5c8b18c39502460b6413ff2a56ef1eaca1808"
+  words: 107435
+
+clearance:
+  # DERIVED by the A_77 §8.1 rule at acquisition time, never hand-written.
+  # uk green iff 1943 + 70 < 2026   -> 2014
+  # us green iff 1929 + 95 < 2026   -> 2025
+  uk: green
+  us: green
+  verdict: green
+  calculated_on: 2026-09-17
+
+status:
+  case_cml2: pending_encode
+  fingerprint: pending
+  device_pattern: pending
