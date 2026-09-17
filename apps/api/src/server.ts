@@ -670,12 +670,20 @@ const runPipeline = async (
     // here would override the NOVELTY_CROSS_RUN cap and silently disable the audit (P1.1 dead flip).
     const skipNoveltyCheck = String(process.env.NOVELTY_SKIP || "").toLowerCase() === "true";
 
+
+    const storyAngle = typeof specPayload?.storyAngle === "string" && specPayload.storyAngle.trim()
+      ? String(specPayload.storyAngle).trim()
+      : undefined;
+    const themeWithAngle = composeThemeWithAngle(specPayload?.theme as string | undefined, storyAngle);
     const tone = (specPayload?.tone as string | undefined) ?? undefined;
     const narrativeStyle = (specPayload?.narrativeStyle as "classic" | "modern" | "atmospheric")
       || (tone === "Dark" ? "atmospheric" : "classic");
 
     const inputs: MysteryGenerationInputs = {
-      theme: (specPayload?.theme as string) || "A classic murder mystery",
+      theme: themeWithAngle,
+      // Agents 1 and 2 never see the theme, so the angle is passed as a field as well as folded
+      // into it above. Sending only one leaves half the pipeline blind to it.
+      storyAngle,
       eraPreference: specPayload?.decade as string,
       locationPreset: specPayload?.locationPreset as string,
       tone,
@@ -887,6 +895,37 @@ const appendActivityLog = async (entry: Record<string, unknown>) => {
   await fs.appendFile(logPath, `${JSON.stringify(entry)}\n`, "utf-8");
 };
 
+/**
+ * THE ANGLE TRAVELS BY TWO ROUTES, AND NEEDS BOTH.
+ *
+ * `storyAngle` is a first-class input that Agents 1 and 2 read directly — they are never shown the
+ * theme at all (agent1-setting.ts:204, agent2-cast.ts:561). Agents 2e, 3b and 3 are the other way
+ * round: they read the theme and never see the field. So the angle is passed as a field AND
+ * appended to the theme. Sending only one leaves half the pipeline blind to it.
+ *
+ * MEASURED: until this existed, apps/api never built `storyAngle` into `inputs` at all — `grep -rn
+ * storyAngle apps/api/src` returned nothing — so every run started from a UI had it undefined and
+ * those two prompt blocks never fired. Only the seeded path reached them, because canary-core.mjs
+ * passes its whole YAML through. Same shape as humourLevel (A_92): wired end to end, never sent.
+ *
+ * THE FRAMING SENTENCE IS NOT DECORATION. run-params.mjs found that without "background colour …
+ * NOT the murder mechanism", the angle displaces the concealment: the theme is read by substring
+ * matchers that lock the murder device onto a family, so a world offered as scenery is taken as a
+ * method. It is reproduced VERBATIM from run-params.mjs:592 and __tests__/story-angle.test.ts
+ * parses it out of that file and fails if the two drift.
+ */
+export const ANGLE_FRAMING =
+  " This is background colour for the setting, the cast's occupations and the motive; it is NOT " +
+  "the murder mechanism and must not displace the concealment above.";
+
+/** The theme actually sent to the pipeline. Falls back to the same default the spec has always had. */
+export const composeThemeWithAngle = (theme: string | undefined, storyAngle: string | undefined): string => {
+  const base = (theme ?? "").trim() || "A classic murder mystery";
+  const angle = (storyAngle ?? "").trim();
+  if (!angle) return base;
+  // The angle arrives as a phrase, not a sentence; the full stop is ours.
+  return `${base} Story angle: ${angle.replace(/\.*$/, "")}.${ANGLE_FRAMING}`;
+};
 export const createServer = () => {
   const app = express();
   const repoPromise = createRepository();

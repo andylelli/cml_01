@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import { useWorkshop } from "../useWorkshopState";
+import { ANGLE_GROUPS, randomAngle } from "../../../spec/storyAngles";
+import { mechanismNote } from "../../../spec/composeTheme";
 
 /**
  * Spec — The story specification sent to the pipeline.
@@ -13,6 +16,27 @@ const {
 	handleSuggestTheme,
 	spec,
 } = useWorkshop();
+
+/**
+ * THE ANGLE — the world the crime happens inside, as opposed to the crime.
+ *
+ * It is a separate spec field rather than something to type into the theme, because it travels by
+ * a different route: Agents 1 and 2 read `storyAngle` directly and are never shown the theme at
+ * all, while Agents 2e/3b/3 read the theme and never see the field. The API fans one value out to
+ * both (`composeThemeWithAngle`, server.ts). MEASURED: before that existed the API never sent the
+ * field, so those two prompt blocks had never once fired for a run started from this app.
+ */
+const pickRandomAngle = () => {
+	spec.value.storyAngle = randomAngle();
+};
+
+/**
+ * The angle is appended to the theme, and the theme is read by SUBSTRING matchers that lock the
+ * murder device onto a family — "championship" contains "ship". The 107 listed angles are
+ * self-tested against those matchers by the generator; free text is not, so it gets the same note
+ * the theme field would give. A note, never an error: sometimes it is exactly what is wanted.
+ */
+const angleSteer = computed(() => mechanismNote(spec.value.storyAngle ?? ""));
 </script>
 
 <template>
@@ -87,6 +111,53 @@ const {
 	        </div>
 	        <div class="mt-1 text-[11px] text-ink-faint">
 	          Optional. Adds a thematic jolt to steer the mystery.
+	        </div>
+	      </div>
+	      <div class="md:col-span-2">
+	        <label for="f-story-angle" class="text-xs font-semibold text-ink-soft">Story angle (optional)</label>
+	        <div class="mt-2 flex flex-wrap gap-2">
+	          <input
+	            id="f-story-angle"
+	            v-model="spec.storyAngle"
+	            list="story-angle-options"
+	            class="flex-1 rounded-md border border-line px-3 py-2 text-sm"
+	            placeholder="a racing stable in the weeks before a classic"
+	          />
+	          <button
+	            class="transition-control rounded border border-line bg-surface px-3 py-1.5 text-[0.8rem] font-medium text-ink hover:border-line-strong hover:bg-surface-sunken"
+	            type="button"
+	            @click="pickRandomAngle"
+	          >
+	            Surprise me
+	          </button>
+	          <button
+	            v-if="spec.storyAngle"
+	            class="transition-control rounded border border-line bg-surface px-3 py-1.5 text-[0.8rem] font-medium text-ink-soft hover:border-line-strong hover:bg-surface-sunken"
+	            type="button"
+	            @click="spec.storyAngle = ''"
+	          >
+	            Clear
+	          </button>
+	        </div>
+	      
+	        <!--
+	          A datalist rather than a 107-row select: it filters as you type, and it still accepts free
+	          text, which is what `run-params.mjs --angle "<text>"` does. The listed 107 are the ones the
+	          generator self-tests against the mechanism matchers.
+	        -->
+	        <datalist id="story-angle-options">
+	          <template v-for="group in ANGLE_GROUPS" :key="group.category">
+	            <option v-for="angle in group.angles" :key="angle" :value="angle">{{ group.category }}</option>
+	          </template>
+	        </datalist>
+	      
+	        <div class="mt-1 text-[11px] text-ink-faint">
+	          The world the story draws on — sport, the services, politics, the arts, invention, crime,
+	          trade, institutions. It colours the setting, the cast's occupations and the motive. It is
+	          not the murder method, and the pipeline is told so.
+	        </div>
+	        <div v-if="angleSteer" class="mt-1.5 rounded border border-warn bg-warn-wash px-2 py-1 text-[11px] text-warn">
+	          {{ angleSteer }}
 	        </div>
 	      </div>
 	      <div id="field-cast">

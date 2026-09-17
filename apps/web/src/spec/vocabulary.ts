@@ -149,6 +149,13 @@ export interface MysterySpec {
 	locationPreset: LocationPreset;
 	tone: Tone;
 	theme: string;
+	/**
+	 * The WORLD the crime happens inside — "a racing stable", "a by-election". Separate from
+	 * `theme` because it travels by a different route: Agents 1 and 2 read `storyAngle` directly and
+	 * are never shown the theme, while Agents 2e/3b/3 read the theme and never see the field. The API
+	 * fans one value out to both. Empty string means no angle.
+	 */
+	storyAngle: string;
 	castSize: number;
 	castNames: string[];
 	detectiveType: DetectiveType;
@@ -166,6 +173,7 @@ export const defaultSpec = (): MysterySpec => ({
 	locationPreset: "CountryHouse",
 	tone: "Classic",
 	theme: "",
+	storyAngle: "",
 	castSize: 6,
 	castNames: [],
 	detectiveType: "amateur",
@@ -197,6 +205,7 @@ export const coerceSpec = (stored: Partial<MysterySpec> | null | undefined): Mys
 		locationPreset: pick(LOCATION_PRESETS, stored.locationPreset, base.locationPreset),
 		tone: pick(TONES, stored.tone, base.tone),
 		theme: typeof stored.theme === "string" ? stored.theme : base.theme,
+		storyAngle: typeof stored.storyAngle === "string" ? stored.storyAngle : base.storyAngle,
 		castSize: Number.isFinite(castSize)
 			? Math.min(CAST_SIZE_MAX, Math.max(CAST_SIZE_MIN, Math.round(castSize)))
 			: base.castSize,
