@@ -61,7 +61,7 @@ const {
 	<div class="rounded-lg border border-warn bg-warn-wash p-5">
 	  <div class="text-sm font-semibold text-warn">Advanced Mode</div>
 	  <div class="mt-2 text-sm text-warn">
-	    <span v-if="activeAdvancedTab === 'cml'">View the raw CML (Compositional Mystery Language) structure. Expert mode enables editing.</span>
+	    <span v-if="activeAdvancedTab === 'cml'">View the raw CML (Compositional Mystery Language) structure. Read-only.</span>
 	    <span v-else-if="activeAdvancedTab === 'artifacts'">Inspect the raw JSON artifacts saved from the pipeline.</span>
 	    <span v-else-if="activeAdvancedTab === 'logs'">Review LLM operational logs (model, tokens, cost, latency).</span>
 	    <span v-else-if="activeAdvancedTab === 'samples'">Browse example mystery structures for inspiration. Use these as patterns, not templates to copy.</span>
@@ -98,9 +98,9 @@ const {
 	    @view="handleArtifactView"
 	    @regenerate="handleArtifactRegenerate"
 	  />
-	  <!-- Expert-only raw JSON dump -->
+	  <!-- Raw JSON, for when the rendered view is lying -->
 	  <details class="rounded-lg border border-line bg-surface p-6 shadow-card">
-	    <summary class="cursor-pointer text-sm font-semibold text-ink">Raw Artifacts (Expert)</summary>
+	    <summary class="cursor-pointer t-section">Raw Artifacts</summary>
 	    <div class="mt-4 space-y-4 text-xs">
 	      <div>
 	        <div class="font-semibold text-ink-soft">Setting</div>
@@ -178,7 +178,7 @@ const {
 	    </div>
 	    <div v-else class="mt-4 text-sm text-ink-soft">No activity yet. Run generation to see entries.</div>
 	  </div>
-	  <!-- Expert: raw LLM debug panel -->
+	  <!-- Raw LLM debug panel -->
 	  <DebugPanel :logs="debugLogs" />
 	</div>
 

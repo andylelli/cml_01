@@ -1,6 +1,6 @@
 <script lang="ts">
 /**
- * DebugPanel — Expert mode only.
+ * DebugPanel — the raw LLM call log, inside the Advanced tab.
  * Shows raw LLM request/response log entries, network timings, and performance metrics.
  */
 export type { LlmLogEntry } from "./debugPanelTypes";
@@ -54,7 +54,7 @@ const handleCopyEntry = (entry: LlmLogEntry) => {
 
 <template>
   <div class="rounded-lg border border-line bg-surface p-5 shadow-sm">
-    <div class="text-sm font-semibold text-ink">Debug Panel <span class="ml-1 rounded bg-surface-sunken px-1.5 py-0.5 text-[11px] font-normal text-ink-soft">Expert</span></div>
+    <div class="t-section">Debug Panel</div>
 
     <!-- Performance summary -->
     <div class="mt-3 grid grid-cols-3 gap-3 text-xs">

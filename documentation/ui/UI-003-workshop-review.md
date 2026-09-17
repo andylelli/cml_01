@@ -244,6 +244,83 @@ instrument; chrome share is the right one, and it more than met its target.
 
 ---
 
+## 8b. DOES IT ACTUALLY WORK? A FUNCTIONAL PASS
+
+§8 measured chrome and kept the tests green. Neither of those is the same as **using** it, so this is
+a click-through of every panel against a real project — `proj_035fdeda`, 12 artifacts, live API.
+
+### Every panel, with real data
+
+| tab | panel | rendered | evidence |
+|---|---|---|---|
+| Review | Cast | ✓ | 7 named suspects |
+| Review | Background | ✓ | 2,216 chars of backdrop |
+| Review | Hard Logic | ✓ | 3 devices, each with its law |
+| Review | Locations | ✓ | primary + 4 rooms |
+| Review | Era & Culture | ✓ | 3,358 chars |
+| Review | Clues | ✓ | 4,372 chars, with reveal chapters |
+| Review | Outline | ✓ | 4,433 chars |
+| Review | Prose | ✓ | 8,391 chars, chapter 1 of 10, nav works |
+| Advanced | CML | ✓ | **21,778 chars** of real CML |
+| Advanced | Artifacts | ✓ | status dashboard, View + Regenerate per artifact |
+| Advanced | LLM Logs | ✓ | **134 calls**, with tokens and cost |
+| Advanced | History | ✓ | 9,567 chars of run events, including a failure |
+| Advanced | Quality | ✓ | per-phase scores, durations and costs |
+| Export | Story PDF | ✓ | **135,216 bytes**, `application/pdf` |
+| Export | Game pack | ✓ | correctly **disabled** — the artifact genuinely 404s |
+| Export | Artifact JSON | ✓ | selectable list |
+
+**Everything works.** No panel is broken, and the empty states that do appear are correct.
+
+**Not exercised, deliberately:** *Generate* and *Regenerate* start paid pipeline runs. They were not
+clicked. *Reconnect / Disconnect* remain unexercised for the reason in §9.
+
+### FOUR PROBE ERRORS, ALL MINE, ALL CAUGHT BEFORE THEY BECAME FINDINGS
+
+Recorded because the ratio is the point — I nearly reported three defects that did not exist.
+
+1. **"No project has any artifact."** My survey called `/api/projects/:id/cast` instead of
+   `…/cast/**latest**`. Every endpoint 404'd, and the conclusion was pure probe.
+2. **"No CML, novelty audit or game pack in any of the 38."** The corrected survey fired 570
+   concurrent fetches; some failed silently under the browser's connection limit. Re-run **serially**
+   for one project, CML was there all along.
+3. **"CML returns 403 — the endpoint is gated."** It is, but the client sends `x-cml-mode: advanced`
+   and my raw `fetch` did not. Not a defect: my request was the thing that was wrong.
+4. **"LLM Logs is broken — the API returns 5 entries and the panel shows zero."** Sampled 600ms after
+   the click. Waiting properly: **134 calls**, loaded correctly. A panel is not broken because you
+   read it too early.
+
+### One thing the pass DID find
+
+**`Expert` labels survived the mode.** A badge reading *Expert* on `DebugPanel`, a `Raw Artifacts
+(Expert)` summary, *"Expert mode enables editing"* under the CML viewer, and `CML (Advanced/Expert)`
+in the export list — all still on screen after the mode was removed. A badge naming a mode the
+product no longer has is worse than no badge. Cleared.
+
+### And one thing worth knowing about the mode
+
+The CML endpoint is gated **server-side** — `ALLOWED_CML_MODES`, 403 otherwise — which is a **fourth**
+gate on advanced mode beyond the three §3 removed. It is the one that should stay, and it is why
+cutting the *flag* rather than only the *toggle* would have broken CML access.
+
+But the client sends **`x-cml-mode: "advanced"` hard-coded** (`api.ts:157`), regardless of the user's
+actual mode. So the gate exists and this client unconditionally defeats it. Not a security concern in
+a local operator tool, but it is not doing what it looks like it is doing, and anyone reading the
+server would reasonably assume otherwise.
+
+### Useful to the user? — now with evidence rather than assertion
+
+§5 justified each feature by what it *shows*. This pass checked whether it shows anything:
+
+| verdict | |
+|---|---|
+| **Earns its place** | CML viewer (21K), LLM logs (134 calls, cost), History (a real failure recorded), Quality (per-phase cost and duration), Raw artifacts, Story PDF, the full spec |
+| **Works, but thinner than the consumer view** | Review ▸ Cast lists 7 names; **CaseView** shows the same people with summary, public persona, voice and a spoiler gate. The console's version is the weaker one |
+| **Correctly empty** | Game pack — no artifact exists for any project tested |
+| **Still unproven** | Reconnect / Disconnect (§9) |
+
+---
+
 ## 9. WHAT THIS REVIEW COULD NOT DETERMINE
 
 - **Whether anyone uses the sidebar.** `logActivity` records `view_change` with the view name, but

@@ -117,7 +117,7 @@ const handleExport = async () => {
       </label>
       <label class="flex items-center gap-2">
         <input v-model="selection.cml" type="checkbox" :disabled="!available.cml" />
-        CML (Advanced/Expert)
+        CML
       </label>
       <label class="flex items-center gap-2">
         <input v-model="selection.clues" type="checkbox" />
