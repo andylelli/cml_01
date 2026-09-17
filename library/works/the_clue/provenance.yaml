@@ -1,0 +1,32 @@
+# Provenance + clearance. ACQUIRED by scripts/corpus-acquire.mjs on 2026-09-17.
+# STATUS: text acquired, awaiting encode. `case.cml2.yaml` appears only once a verified encode exists
+# (A_77 §10.3) — a work with a fingerprint and no case has never been read by anything.
+
+slug: the_clue
+title: "The Clue"
+author: "Carolyn Wells"
+author_death_year: 1942
+first_publication_year: 1909
+
+source:
+  host: "Project Gutenberg"
+  ebook_id: 54869
+  url: "https://www.gutenberg.org/ebooks/54869"
+  text_url: "https://www.gutenberg.org/cache/epub/54869/pg54869.txt"
+  retrieved: 2026-09-17
+  sha256: "73ad1559c97c2cc0b0b64a5786a3c942213ae4ed002e29f25ffce1b6911fa916"
+  words: 65788
+
+clearance:
+  # DERIVED by the A_77 §8.1 rule at acquisition time, never hand-written.
+  # uk green iff 1942 + 70 < 2026   -> 2013
+  # us green iff 1909 + 95 < 2026   -> 2005
+  uk: green
+  us: green
+  verdict: green
+  calculated_on: 2026-09-17
+
+status:
+  case_cml2: pending_encode
+  fingerprint: pending
+  device_pattern: pending

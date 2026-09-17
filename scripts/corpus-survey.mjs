@@ -400,8 +400,18 @@ const isTranslation = (r) => !/P[RSZ]/.test(r.locc || "");
  * catalogue judgement and somebody may want them for something.
  */
 const isJuvenile = (r) => /PZ/.test(r.locc || "") && !/P[RS]/.test(r.locc || "");
+
+/**
+ * Verse and drama, which the catalogue files under the same subject heading as the novels. MEASURED:
+ * Edgar Lee Masters's *Domesday Book* (1920) is a book-length narrative POEM about a coroner's
+ * inquest, catalogued "Detective and mystery stories, American" and acquired before this test
+ * existed. It is not prose and every craft measure computed over the corpus would have read it as if
+ * it were.
+ */
+const isVerse = (r) => (r.subjects || []).concat(r.bookshelves || [])
+  .some((x) => /poetry|poems|verse|drama|plays/i.test(x));
 const juvenile = shortlist.filter((r) => r.clearance.verdict !== "red" && isJuvenile(r));
-const usable = (r) => !isTranslation(r) && !isJuvenile(r);
+const usable = (r) => !isTranslation(r) && !isJuvenile(r) && !isVerse(r);
 const translated = shortlist.filter((r) => r.clearance.verdict !== "red" && isTranslation(r));
 const green = shortlist.filter((r) => r.clearance.verdict === "green" && usable(r));
 const amber = shortlist.filter((r) => r.clearance.verdict === "amber" && usable(r));

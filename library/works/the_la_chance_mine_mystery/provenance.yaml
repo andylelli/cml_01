@@ -1,0 +1,32 @@
+# Provenance + clearance. ACQUIRED by scripts/corpus-acquire.mjs on 2026-09-17.
+# STATUS: text acquired, awaiting encode. `case.cml2.yaml` appears only once a verified encode exists
+# (A_77 §10.3) — a work with a fingerprint and no case has never been read by anything.
+
+slug: the_la_chance_mine_mystery
+title: "The La Chance Mine Mystery"
+author: "Susan Morrow Jones"
+author_death_year: 1926
+first_publication_year: 1920
+
+source:
+  host: "Project Gutenberg"
+  ebook_id: 27209
+  url: "https://www.gutenberg.org/ebooks/27209"
+  text_url: "https://www.gutenberg.org/cache/epub/27209/pg27209.txt"
+  retrieved: 2026-09-17
+  sha256: "60afff945b89974ea41ca88c7846e9c210d1df5e8602cd2cb8a741529432136a"
+  words: 69255
+
+clearance:
+  # DERIVED by the A_77 §8.1 rule at acquisition time, never hand-written.
+  # uk green iff 1926 + 70 < 2026   -> 1997
+  # us green iff 1920 + 95 < 2026   -> 2016
+  uk: green
+  us: green
+  verdict: green
+  calculated_on: 2026-09-17
+
+status:
+  case_cml2: pending_encode
+  fingerprint: pending
+  device_pattern: pending
