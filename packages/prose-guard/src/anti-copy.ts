@@ -51,9 +51,15 @@ export interface CopiedSpan {
   length: number;
 }
 
+/** Membership only. The index never has to enumerate itself, which is what makes §A_97 possible. */
+export interface NgramSet {
+  has(key: string): boolean;
+  readonly size: number;
+}
+
 export interface AntiCopyIndex {
   n: number;
-  hashes: Set<string>;
+  hashes: NgramSet;
   /** Works the index was built from, for the failure message. */
   sources: string[];
   /** Total n-grams indexed, for the log line. */
@@ -81,16 +87,94 @@ export const normaliseWords = (text: string): string[] =>
  */
 const key = (words: string[], i: number, n: number): string => words.slice(i, i + n).join("");
 
-/** Build an index from `{ name -> text }`. Pure: no file access, so it is trivially testable. */
+/**
+ * A 53-bit fingerprint of one n-gram key, as a plain `number`.
+ *
+ * ── WHY THE KEYS ARE NOT STORED ──────────────────────────────────────────────────────────────────
+ *
+ * MEASURED 2026-09-17, before A_97's acquisition: a `Set<string>` of joined 10-grams cost **170 bytes
+ * per n-gram** — 13 works, 790k n-grams, 134.5 MB of heap and 293 MB RSS. That is affordable for
+ * twelve novels, and it is the reason the corpus could not grow: the index is one set held whole in
+ * memory, so it scales with the library, and at 8M words it would be 1.4 GB. A_79 §6 requires this
+ * gate ON before any source prose reaches a prompt, so "it is off by default" is not an answer.
+ *
+ * Two 32-bit rolling hashes are combined into one integer below 2^53, which a float64 represents
+ * exactly — so the store is a plain `Float64Array` at **8 bytes per n-gram, a 21x reduction**, with no
+ * BigInt arithmetic on the hot path.
+ *
+ * ── WHAT THIS COSTS, STATED HONESTLY ─────────────────────────────────────────────────────────
+ *
+ * Storing a fingerprint instead of the key admits false positives by collision, which the exact Set
+ * could not have. The rate is computable rather than a hope: with `m` n-grams indexed in a space of
+ * 2^53, the chance a given queried n-gram collides is `m / 2^53`. Across the whole 523-work survey
+ * (~40M n-grams) that is **4.4e-12 per n-gram**, about one spurious hit per 200 million chapters. The
+ * gate's measured false-positive rate is dominated by period-idiomatic phrasing by twelve orders of
+ * magnitude (see `DEFAULT_N`), so this changes nothing observable — and the baseline, not this
+ * comment, remains the instrument that decides `n`.
+ */
+function fingerprint(s: string): number {
+  let h1 = 0x811c9dc5 | 0;
+  let h2 = 0x1505 | 0;
+  for (let i = 0; i < s.length; i += 1) {
+    const c = s.charCodeAt(i);
+    h1 = Math.imul(h1 ^ c, 0x01000193);
+    h2 = (Math.imul(h2, 33) ^ c) | 0;
+  }
+  // 21 bits of h1 above 32 bits of h2 = 53 bits, the exact-integer ceiling of a float64.
+  return ((h1 >>> 11) * 4294967296) + (h2 >>> 0);
+}
+
+/** A sorted `Float64Array` of fingerprints, queried by binary search. Membership only, by design. */
+class FingerprintSet implements NgramSet {
+  constructor(private readonly sorted: Float64Array) {}
+  get size(): number { return this.sorted.length; }
+  has(k: string): boolean {
+    const target = fingerprint(k);
+    let lo = 0;
+    let hi = this.sorted.length - 1;
+    while (lo <= hi) {
+      const mid = (lo + hi) >>> 1;
+      const v = this.sorted[mid]!;
+      if (v === target) return true;
+      if (v < target) lo = mid + 1;
+      else hi = mid - 1;
+    }
+    return false;
+  }
+}
+
+/**
+ * Build an index from `{ name -> text }`. Pure: no file access, so it is trivially testable.
+ *
+ * Two passes rather than one, because a growable array of 40M numbers would defeat the point: the
+ * first counts the n-grams so the typed array is allocated once at its final length, the second fills
+ * it. Sorting and de-duplicating happen in place.
+ */
 export function buildAntiCopyIndex(texts: Record<string, string>, n: number): AntiCopyIndex {
-  const hashes = new Set<string>();
   const sources: string[] = [];
+  const wordLists: string[][] = [];
+  let total = 0;
   for (const [name, text] of Object.entries(texts)) {
     const words = normaliseWords(text);
     if (words.length < n) continue;
     sources.push(name);
-    for (let i = 0; i + n <= words.length; i += 1) hashes.add(key(words, i, n));
+    wordLists.push(words);
+    total += words.length - n + 1;
   }
+
+  const buf = new Float64Array(total);
+  let w = 0;
+  for (const words of wordLists) {
+    for (let i = 0; i + n <= words.length; i += 1) buf[w++] = fingerprint(key(words, i, n));
+  }
+  buf.sort();
+
+  // De-duplicate in place: a phrase repeated across two works is one entry, as it was in the Set.
+  let unique = 0;
+  for (let i = 0; i < buf.length; i += 1) {
+    if (i === 0 || buf[i] !== buf[i - 1]) buf[unique++] = buf[i]!;
+  }
+  const hashes = new FingerprintSet(buf.subarray(0, unique));
   return { n, hashes, sources, size: hashes.size };
 }
 
