@@ -8,7 +8,7 @@
  */
 
 import { isChronologyEnabled as isA90ChronologyEnabled, deriveCaseChronology, findUnanchoredClockValues, summariseChronology } from "@cml/cml";
-import { auditBeatJobs, isBeatJobFieldsEnabled, repairBeatSequence, isBeatSequenceRepairEnabled, formatNarrative, GOLDEN_AGE_BEATS, isAgent7StructuredOutputEnabled, auditCmlSceneRefs, summariseSceneRefAudit, reconcileCmlSceneRefs, isSceneRefReconcileEnabled, measureClueObligationLoad, summariseClueObligationLoad } from "@cml/prompts-llm";
+import { auditBeatJobs, isBeatJobFieldsEnabled, repairBeatSequence, isBeatSequenceRepairEnabled, stripClearanceText, formatNarrative, GOLDEN_AGE_BEATS, isAgent7StructuredOutputEnabled, auditCmlSceneRefs, summariseSceneRefAudit, reconcileCmlSceneRefs, isSceneRefReconcileEnabled, measureClueObligationLoad, summariseClueObligationLoad } from "@cml/prompts-llm";
 import type { NarrativeOutline, ClueDistributionResult, WorldDocumentResult } from "@cml/prompts-llm";
 import { validateArtifact } from "@cml/cml";
 import type { CaseData } from "@cml/cml";
@@ -1950,25 +1950,20 @@ export function synthesiseMissingWordCounts(
 export const isStripClearancesEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
   /^(1|true|yes|on)$/i.test(String(env.AGENT7_STRIP_CLEARANCES_FROM_REVEAL ?? "").trim());
 
-const CLEARANCE_RE = /\b(?:alibis?|clear(?:s|ed|ing|ances?)?|eliminat\w*)\b/i;
-
+/**
+ * 2026-09-17 bug check — the clause loop and its regex were a second body of
+ * `stripClearanceText` in `agent7-beat-sequence.ts` (WF-002: two components computing the same set
+ * disagree exactly where one feeds a WRITE, and both of these write the outline). One body now, and
+ * it carries the reveal-clause guard: a confrontation that mentions the culprit's broken alibi is
+ * not a clearance.
+ */
 export function stripClearancesFromFinalScene(narrative: unknown): { stripped: string[] } {
   const acts = (narrative as any)?.acts;
   if (!Array.isArray(acts)) return { stripped: [] };
   const scenes = acts.flatMap((a: any) => (Array.isArray(a?.scenes) ? a.scenes : []));
   const last = scenes[scenes.length - 1];
   if (!last || typeof last !== "object") return { stripped: [] };
-  const stripped: string[] = [];
-  for (const field of ["purpose", "summary"] as const) {
-    const text = last[field];
-    if (typeof text !== "string" || !CLEARANCE_RE.test(text)) continue;
-    const parts = text.split(/(?<=[.!?])\s+|;\s*/).map((x: string) => x.trim()).filter(Boolean);
-    const kept = parts.filter((x: string) => !CLEARANCE_RE.test(x));
-    if (kept.length === 0 || kept.length === parts.length) continue;
-    stripped.push(...parts.filter((x: string) => CLEARANCE_RE.test(x)));
-    const joined = kept.join(" ").trim();
-    last[field] = joined.charAt(0).toUpperCase() + joined.slice(1);
-  }
+  const stripped: string[] = [...stripClearanceText(last)];
   if (typeof last.title === "string" && /^\s*clearances?\s+(?:and|&)\s+/i.test(last.title)) {
     stripped.push(last.title);
     last.title = last.title.replace(/^\s*clearances?\s+(?:and|&)\s+/i, "").trim();

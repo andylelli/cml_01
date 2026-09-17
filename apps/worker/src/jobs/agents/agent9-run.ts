@@ -8428,7 +8428,11 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
    * It is not deleted, because it is the only reader of that telemetry: it now fires only when the
    * lead is actually ENABLED, where a low coverage is a real finding about the prose.
    */
-  const groundingLeadEnabled = String(process.env.AGENT9_GROUNDING_LEAD ?? "").trim() !== "0";
+  // 2026-09-17 bug check: this read `!== "0"`, so an UNSET variable — every environment without
+  // .env.local, including CI — counted as enabled and the gate fired on every run there, which is
+  // the B1 defect the block above describes. `isGroundingLeadEnabled` is the prepend's own reader
+  // (default OFF), so the gate and the feature that produces its number now agree by construction.
+  const groundingLeadEnabled = isGroundingLeadEnabled();
   if (groundingLeadEnabled && sceneGrounding.coverage < 0.9) {
     releaseGateReasons.push(
       `scene-grounding coverage below target (${sceneGrounding.grounded}/${sceneGrounding.total} chapters grounded)`,
@@ -8436,7 +8440,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   } else if (!groundingLeadEnabled && sceneGrounding.coverage < 0.9) {
     console.info(
       `[Agent 9][A_86 item 71] scene-grounding coverage ${sceneGrounding.grounded}/${sceneGrounding.total} ` +
-        `— NOT a release-gate reason while AGENT9_GROUNDING_LEAD=0, which is what produces it.`,
+        `— NOT a release-gate reason while the grounding lead is off (AGENT9_GROUNDING_LEAD unset or 0), which is what produces it.`,
     );
   }
   // NSD divergence: split into two distinct cases.

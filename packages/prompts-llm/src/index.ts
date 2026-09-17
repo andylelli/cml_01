@@ -437,6 +437,7 @@ export {
   isStripBeatTitlesEnabled,
   stripBeatPrefixFromTitle,
   repairBeatSequence,
+  stripClearanceText,
 } from "./agent7-beat-sequence.js";
 export type { BeatSequenceRepair } from "./agent7-beat-sequence.js";
 

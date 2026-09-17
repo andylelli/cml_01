@@ -1776,3 +1776,11 @@ withdrawn mid-build by its own test: moving the frame after a leading conjunctio
 would have risked aborts, because `RECOLLECTION_FRAME_RE` is anchored at the sentence start.
 **Identity's third read is ready**, which completes the board's target for that axis.
 
+**BUG CHECK OF THE WEEK'S CODE · 2026-09-17 · £0** (`ANALYSIS_96` §5.7). Every change since 2026-09-10
+read, and every suspect RUN against the archive. Six defects fixed and pinned, the largest in A_96
+F2: the beat dedupe kept the first occurrence, and `revelation` is the one beat whose duplicate is
+the final scene — **23 of 65 stored outlines** would have lost their aftermath chapter to a `pattern`
+label, with the flag ON. The two clearance strippers also dropped the confrontation clause of a
+reveal scene whenever it mentioned the culprit's broken alibi (45 of 120 dropped clauses carried
+reveal language) and are now one body. Neither would have been visible to a reader as anything but
+"chapter 10 recaps". Three latent shapes recorded, not built. Suites green (3,169), flags clean.

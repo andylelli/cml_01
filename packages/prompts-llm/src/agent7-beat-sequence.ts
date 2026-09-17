@@ -69,18 +69,32 @@ export interface BeatSequenceRepair {
 const CLEARANCE_RE = /\b(?:alibis?|clear(?:s|ed|ing|ances?)?|eliminat\w*)\b/i;
 
 /**
+ * A clause whose ACTION is the reveal — a confrontation, an accusation, a confession, an exposure,
+ * an arrest — is kept even when it mentions an alibi: "confronts Charles Fenwick with the evidence of
+ * clock tampering and his falsified alibi" is the culprit's alibi being broken, not an innocent being
+ * cleared. MEASURED 2026-09-17 over the 65 stored outlines: without this guard the two strippers
+ * dropped 120 clauses, 45 of them carrying reveal language, among them the confrontation clause of
+ * more than one final scene. A kept clause costs a recap; a dropped reveal clause costs the reveal.
+ */
+const REVEAL_CLAUSE_RE = /\b(?:confront\w*|accus\w*|confess\w*|expos\w*|unmask\w*|arrest\w*|reveal\w*)\b/i;
+const isClearanceClause = (clause: string): boolean => CLEARANCE_RE.test(clause) && !REVEAL_CLAUSE_RE.test(clause);
+
+/**
  * Drop clearance clauses/sentences from a scene's purpose and summary. Same shape as A_94 R1, and
  * the same loss-proof rule: nothing is dropped when nothing separable would remain.
+ *
+ * Exported so `agent7-run.ts`'s final-scene stripper (A_94 R1) is the SAME body — it carried its own
+ * copy of this loop and regex until 2026-09-17, which is the WF-002 shape this repo keeps paying for.
  */
-const stripClearanceText = (scene: any): string[] => {
+export const stripClearanceText = (scene: any): string[] => {
   const dropped: string[] = [];
   for (const field of ["purpose", "summary"] as const) {
     const text = scene?.[field];
     if (typeof text !== "string" || !CLEARANCE_RE.test(text)) continue;
     const parts = text.split(/(?<=[.!?])\s+|;\s*/).map((x: string) => x.trim()).filter(Boolean);
-    const kept = parts.filter((x: string) => !CLEARANCE_RE.test(x));
+    const kept = parts.filter((x: string) => !isClearanceClause(x));
     if (kept.length === 0 || kept.length === parts.length) continue;
-    dropped.push(...parts.filter((x: string) => CLEARANCE_RE.test(x)));
+    dropped.push(...parts.filter((x: string) => isClearanceClause(x)));
     const joined = kept.join(" ").trim();
     scene[field] = joined.charAt(0).toUpperCase() + joined.slice(1);
   }
@@ -103,14 +117,30 @@ export const repairBeatSequence = (narrative: unknown): BeatSequenceRepair => {
   if (scenes.length === 0) return out;
 
   // 1. duplicates
+  /**
+   * MEASURED 2026-09-17, before this was corrected, over the 65 stored outlines: the first cut kept
+   * the FIRST occurrence of every beat and relabelled the later one — and `revelation` is the one
+   * beat whose duplicate is the FINAL scene (21 of 52 outlines end `…, final_trap, revelation,
+   * revelation`). It relabelled the final scene of 23 of 65 outlines to `pattern` or `secrets`,
+   * which un-made the aftermath chapter (`isGoldenAgeAftermathFinalChapter` keys on the final beat
+   * being `revelation`), handed chapter 10 the ISOLATION archetype under AGENT9_ARC_FROM_BEATS and
+   * moved the reveal contract. So `revelation` is exempt — its earlier copy is the reveal and its
+   * last is the aftermath, the exact shape A_89 B3 was built on — and the final scene is never
+   * relabelled. A replacement is a beat NO scene carries: the positional one when free, else the
+   * nearest free beat forward of that position, then backward. "First unused in order" could hand a
+   * late scene `gathering`, and a beat some later scene already holds would only move the duplicate.
+   */
   const used = new Set<string>();
+  const present = new Set(scenes.map((scene) => String(scene?.beat ?? "").trim().toLowerCase()).filter(Boolean));
+  const lastIdx = scenes.length - 1;
+  const free = (b: string): boolean => b !== "revelation" && !present.has(b) && !used.has(b);
   scenes.forEach((scene, idx) => {
     const beat = String(scene?.beat ?? "").trim().toLowerCase();
     if (!beat) return;
     if (!used.has(beat)) { used.add(beat); return; }
-    const positional = BEAT_ORDER[Math.min(idx, BEAT_ORDER.length - 1)];
-    const replacement =
-      positional && !used.has(positional) ? positional : BEAT_ORDER.find((b) => !used.has(b));
+    if (beat === "revelation" || idx === lastIdx) return;
+    const at = Math.min(idx, BEAT_ORDER.length - 1);
+    const replacement = BEAT_ORDER.slice(at).find(free) ?? [...BEAT_ORDER.slice(0, at)].reverse().find(free);
     if (!replacement) return;
     used.add(replacement);
     out.relabelled.push({ sceneNumber: Number(scene?.sceneNumber ?? idx + 1), from: beat, to: replacement });

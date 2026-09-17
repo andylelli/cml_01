@@ -453,7 +453,7 @@ nothing else did. This belongs in CLAUDE.md beside the fallback-chapter and WORT
 | B3 | AtmosphereRepair corrupts paraphrases | Agent 9 pass | **INTERIM FIX** `56260d2d` — narration only + two splice shapes refused; A_91 F4 (a replacing detector) still unbuilt |
 | B4 | repeat ban loses to competing instructions | A_94 R5 | **FIXED** `e7e449ec` — alibi windows and clearance methods exempt by position |
 | B5 | beat names in chapter titles | Agent 7 → 9 | **FIXED** `f91a2c28` — stripped at Agent 7 and at chapter sanitisation |
-| B6 | duplicate beats; clearances after the arrest | Agent 7 | **FIXED** `f91a2c28` — relabel, strip after the first `final_trap`, retitle; a repair, never a gate |
+| B6 | duplicate beats; clearances after the arrest | Agent 7 | **FIXED** `f91a2c28`, **CORRECTED 2026-09-17 (§5.7)** — the first cut relabelled the FINAL scene of 23 of 65 stored outlines away from `revelation`; `revelation` is now exempt and the final scene is never relabelled |
 | B7 | mechanism actor absent from the cast | Agent 3 → 9 | **FIXED** `e7e449ec` — named as OFF-STAGE in the chapter block; `[A_96 F3]` telemetry |
 | B8 | reveal contract reached no chapter | Agent 9 | **FIXED & CONFIRMED** `7eac5c71` |
 | B9 | audit false negative; sidecar seed null | mine | **FIXED** `39d6caba`, `e0d970cc` |
@@ -635,6 +635,38 @@ case's mechanism terms and mechanical-spring flag to this analyser; `narrative-c
 calls it BARE. The `Story` type carries no case, so the scene validator cannot see one without
 pipeline plumbing. The documentary-month exclusion lives inside the shared analyser and so protects
 both, but the mechanism-term half of the divergence stands.
+
+### §5.7 BUG CHECK, 2026-09-17 — every code change of the week, read and RUN
+
+Asked for after §5.6: *"check for bugs in all the code changes over the last week"*. 112 commits, ~6,600
+added lines on the pipeline side and ~10,000 on the UI. Every suspect was settled by running the code
+against the archive or a fixture, never by reading alone (`fix-regresses-its-own-defect`: six defects
+in seven fixes, all found by running). Six defects, all now fixed and pinned; three latent shapes
+recorded and left.
+
+| # | where | defect | MEASURED | fix |
+|---|---|---|---|---|
+| 1 | `agent7-beat-sequence.ts` (F2) | the dedupe kept the FIRST occurrence of a beat, and `revelation` is the one beat whose duplicate is the final scene | **23 of 65** stored outlines had their final scene relabelled `pattern` or `secrets` — which un-makes the aftermath chapter (`isGoldenAgeAftermathFinalChapter` keys on the final beat), hands chapter 10 ISOLATION under `AGENT9_ARC_FROM_BEATS`, and moves the reveal contract | `revelation` exempt; the final scene never relabelled; a replacement is a beat no scene carries, nearest forward then backward |
+| 2 | both clearance strippers (A_94 R1, F2) | `alibi` in a CONFRONTATION clause read as a clearance | **45 of 120** dropped clauses carried reveal language — *"She confronts Charles Fenwick with the evidence of clock tampering and his falsified alibi"* went for the word "alibi" | a clause whose action is the reveal (confront/accuse/confess/expose/unmask/arrest/reveal) is kept; and the two bodies are now ONE (`stripClearanceText`, exported) |
+| 3 | `restoreProperNounCasing` (A_89 C1) | a capital that OPENS a quotation, or follows a colon or a dash, was read as mid-sentence casing | `He said, "The floor creaked."` → the spliced phrase became *"The light through The window"*; colon and dash the same | positional capitals skipped; pinned |
+| 4 | `agent9-run.ts` (A_86 item 71) | the grounding gate read `!== "0"`, so an UNSET variable counted as ENABLED | every environment without `.env.local` (CI) fires the gate on every run — the B1 defect the change was made to remove | `isGroundingLeadEnabled()`, the prepend's own reader |
+| 5 | `generate.ts` (A_86 item 25) | a salvaged polish was recorded twice in the repair ledger | one salvage = two calls and two kept in `repairEfficacy` | one row per call |
+| 6 | `obligation-block.ts` (M3) | with `AGENT9_REVEAL_ON_DT_CHAPTER` on and `AGENT9_SCENE_REF_ARBITRATION` off the winner is null on every chapter | the kill statement landed on BOTH the DT chapter and the legacy reveal chapter — the ch8-repeats-ch9 complaint made by a flag pairing (both are ON in `.env.local`, so no shipped book carried it) | the null-winner fallback yields when another scene is the legacy reveal chapter |
+
+**Latent, recorded, not built:** `reframeSceneForAftermath` rewrites EVERY scene in the final batch
+when the batch is aftermath, so a `proseBatchSize` above 1 would reframe the reveal chapter too
+(default 1, every canary uses 1); `isRateLimitError` substring-matches `"429"` anywhere in a message,
+so a content error mentioning that number would earn the 429 attempt budget; the new malformed-splice
+shape `you; searching` also matches *"that was it; nothing more"* — the cost is one refused variety
+substitution, the lesser defect.
+
+**Checked and clean:** the chronology solver, the alibi plan (dial arithmetic at both edges of twelve),
+`impliedIntervalFactId` (no clock string parses as a duration — probed), `editOutsideQuotes`,
+`repeat-ban` position exemption, the retry budget, `parseRetryAfterMs`, the truncation guard, the
+documentary-month strip, the web composables (`vue-tsc` clean, 336 tests). `useWorkshopState.ts`
+(1,586 lines, a mechanical lift out of the SFC) was not line-reviewed; another session has it open.
+
+Suites after the fixes: worker 843, prompts-llm 1,770, story-validation 556; both flag audits clean.
 
 **What none of it has yet is a run that finished.** Eleven levers went in on one book's evidence. The next fresh
 run carries all of them and settles, before a reader: chapter titles free of beat names; one

@@ -1151,11 +1151,30 @@ const REVEAL_SIGNAL_RE = /\b(culprit|confront|confession|resolve|resolution|deno
      * home at all — which is why nothing downstream caught it. The DT chapter takes it in both cases:
      * when it won outright, and when nobody did.
      */
+    /**
+     * MEASURED 2026-09-17 (bug check): with this flag ON and `AGENT9_SCENE_REF_ARBITRATION` OFF the
+     * winner is null on EVERY chapter — the arbitration is what computes it — so the DT chapter took
+     * the reveal extras while the legacy predicate below ALSO handed them to the reveal chapter: the
+     * kill statement on two chapters, the ch8-repeats-ch9 complaint manufactured by a flag pairing.
+     * The null-winner fallback therefore applies only when the arbitration ran, or when no other
+     * scene is the legacy reveal chapter.
+     */
+    const thisSceneNumber = Number((scene as any)?.sceneNumber);
+    const legacyRevealElsewhere =
+      !isSceneRefArbitrationEnabled() &&
+      revelationScene != null &&
+      Array.isArray(allOutlineScenes) &&
+      (allOutlineScenes as any[]).some(
+        (c) =>
+          Number(c?.sceneNumber) !== thisSceneNumber &&
+          !dtClaimStandsFor(c) &&
+          resolveSceneRef(c, revelationScene, allOutlineScenes, REVEAL_SIGNAL_RE) !== "none",
+      );
     const carriesRevealOnDtChapter =
       isRevealOnDtChapterEnabled() &&
       isDiscriminatingTestChapter &&
       !stageModeIsAftermath &&
-      (revealWinnerIsThisChapter || revealWinnerSceneNumber == null);
+      (revealWinnerIsThisChapter || (revealWinnerSceneNumber == null && !legacyRevealElsewhere));
 
     const isPreRevealChapter = !isDiscriminatingTestChapter && !isRevealChapter && !isPostRevealChapter;
 

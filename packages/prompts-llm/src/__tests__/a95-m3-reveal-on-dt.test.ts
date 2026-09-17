@@ -174,3 +174,38 @@ describe("with the flag on, the reveal obligations land on the DT chapter", () =
     expect(blockFor(9)).not.toContain("the REAL time of death");
   });
 });
+
+/**
+ * 2026-09-17 bug check. With M3 ON and the arbitration OFF the winner is null on every chapter, so
+ * the first cut put the reveal extras on the DT chapter while the legacy predicate ALSO put them on
+ * the reveal chapter — the kill statement twice, which is the ch8-repeats-ch9 complaint made by a
+ * flag pairing. The null-winner fallback now yields when another scene is the legacy reveal chapter.
+ */
+describe("REGRESSION: M3 without the arbitration must not hand the reveal to two chapters", () => {
+  const scenesWithReveal = [
+    ...SCENES.slice(0, 8),
+    scene(9, "final_trap", "The Discriminating Test", "Execute the clock comparison test and prove the trick"),
+    scene(10, "revelation", "The Culprit Confronted", "Confront the culprit with the evidence"),
+  ];
+  const blockOn = (chapterNumber: number): string =>
+    buildChapterObligationBlock(
+      [scenesWithReveal[chapterNumber - 1]], chapterNumber, CASE, undefined, undefined, undefined, undefined, undefined,
+      undefined, chapterNumber === 10 ? "resolution" : chapterNumber >= 9 ? "climax" : "rising", undefined, undefined,
+      scenesWithReveal, undefined, undefined, undefined, undefined,
+    );
+
+  it("arbitration OFF: exactly one chapter carries the kill statement, and it is the legacy reveal chapter", () => {
+    process.env.AGENT9_REVEAL_ON_DT_CHAPTER = "true";
+    delete process.env.AGENT9_SCENE_REF_ARBITRATION;
+    const carrying = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].filter((n) => blockOn(n).includes("KILL STATEMENT REQUIRED"));
+    expect(carrying).toEqual([10]);
+  });
+
+  it("arbitration OFF, and NO legacy reveal chapter: the DT chapter still takes it (the M3 rescue)", () => {
+    process.env.AGENT9_REVEAL_ON_DT_CHAPTER = "true";
+    delete process.env.AGENT9_SCENE_REF_ARBITRATION;
+    // the final scene is the seed-1358 aftermath ("Quiet Aftermath"), which no keyword claims
+    const carrying = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].filter((n) => blockFor(n).includes("KILL STATEMENT REQUIRED"));
+    expect(carrying).toEqual([9]);
+  });
+});

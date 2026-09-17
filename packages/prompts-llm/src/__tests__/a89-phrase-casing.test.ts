@@ -52,6 +52,23 @@ describe("A_89 C1 — the phrase splice must not lowercase names", () => {
     expect(out[0]).toContain("as the hour turned");
   });
 
+  /**
+   * 2026-09-17 bug check. A capital that OPENS a quotation, or follows a colon or a dash, carries no
+   * casing information either; the first cut stripped the quote and saw `He said,` — not a sentence
+   * end — and wrote "The light through The window".
+   */
+  it("REGRESSION: a capital opening a quotation does not teach it to capitalise the same word", () => {
+    const para = 'He said, "The floor creaked." Then Nora Gaunt let a flicker of amusement cross her face.';
+    expect(restoreProperNounCasing("the light through the window", para)).toBe("the light through the window");
+    // and a proper noun that sits MID-sentence in the same paragraph is still restored
+    expect(restoreProperNounCasing("nora gaunt turned", para)).toBe("Nora Gaunt turned");
+  });
+
+  it("REGRESSION: nor does a capital after a colon or a dash", () => {
+    expect(restoreProperNounCasing("the clock on the wall", "Two things stood out: The first was the clock. Nora Gaunt said nothing.")).toBe("the clock on the wall");
+    expect(restoreProperNounCasing("the clock on the wall", "She turned — The clock had stopped. Nora Gaunt waited.")).toBe("the clock on the wall");
+  });
+
   it("still preserves ALL-CAPS and sentence-opening capitals", () => {
     const para = "NORA GAUNT LET A FLICKER SHOW. Then she turned away.";
     const out = applyPhraseSubstitutions([para], [

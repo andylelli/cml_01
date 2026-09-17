@@ -762,9 +762,15 @@ export const restoreProperNounCasing = (phrase: string, source: string): string 
   while ((m = WORD.exec(text)) !== null) {
     const word = m[0];
     if (word[0] !== word[0].toUpperCase() || word[0] === word[0].toLowerCase()) continue;
-    // Sentence-initial capitals carry no information about the word itself.
-    const before = text.slice(0, m.index).replace(/["'‘’“”(\[\s]+$/, "");
-    if (before.length === 0 || /[.!?…]$/.test(before)) continue;
+    // Sentence-initial capitals carry no information about the word itself — and neither does a
+    // capital that OPENS a quotation or follows a colon or a dash. MEASURED 2026-09-17 (bug check):
+    // `He said, "The floor creaked."`, `Two things: The first…` and `She turned — The clock…` each
+    // taught the first cut to write "The" for every "the" in the spliced phrase ("The light through
+    // The window"), because stripping the quote left `He said,` which is not a sentence end.
+    const rawBefore = text.slice(0, m.index);
+    if (/[“"‘'(\[]\s*$/.test(rawBefore)) continue;
+    const before = rawBefore.replace(/[”’)\]\s]+$/, "");
+    if (before.length === 0 || /[.!?…:;—–-]$/.test(before)) continue;
     const key = word.toLowerCase();
     if (!casing.has(key)) casing.set(key, word);
   }

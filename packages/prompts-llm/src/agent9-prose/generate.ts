@@ -3598,7 +3598,14 @@ export async function generateProse(
               if (!polished.applied) {
                 recordRepairOutcome("post_pass_polish", "no_change", "not_attempted");
               } else if (polished.keptPolishedVersion) {
-                recordRepairByDiff("post_pass_polish", chapter, polished.chapter);
+                // 2026-09-17 bug check: a salvaged chapter was recorded TWICE — here by diff and
+                // again below as "salvaged_one_paragraph" — so every salvage inflated the pass's
+                // call count by one and its kept count by one. One row per call.
+                if (typeof polished.salvagedParagraphIndex === "number") {
+                  recordRepairOutcome("post_pass_polish", "changed", "salvaged_one_paragraph");
+                } else {
+                  recordRepairByDiff("post_pass_polish", chapter, polished.chapter);
+                }
               } else {
                 /**
                  * A_86 item 23 — record the DETAIL, not just the class.
@@ -3639,7 +3646,6 @@ export async function generateProse(
                     `${polished.salvagedParagraphIndex} and kept the rest, instead of discarding the whole ` +
                     `chapter. Original regression: ${polished.rollbackDetail ?? "(unrecorded)"}`,
                 );
-                recordRepairOutcome("post_pass_polish", "changed", "salvaged_one_paragraph");
               }
               if (polished.keptPolishedVersion) {
                 chapter = polished.chapter;

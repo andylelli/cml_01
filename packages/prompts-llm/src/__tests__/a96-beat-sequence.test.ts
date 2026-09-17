@@ -100,6 +100,58 @@ describe("F2 — the duplicate final_trap is relabelled, and the clearances afte
   it("no acts, no crash", () => {
     expect(repairBeatSequence(null).relabelled).toEqual([]);
   });
+
+  /**
+   * 2026-09-17 bug check. MEASURED over the 65 stored outlines: the first cut relabelled the FINAL
+   * scene of 23 of them — every outline ending `…, final_trap, revelation, revelation` lost its last
+   * `revelation` to `pattern` or `secrets`, which un-made the aftermath chapter and moved the reveal.
+   */
+  it("REGRESSION: a duplicated `revelation` is the reveal-then-aftermath shape and is left alone", () => {
+    const n = outline50862();
+    const sc = scenesOf(n);
+    sc[8].beat = "revelation"; sc[8].title = "The Culprit Revealed"; sc[8].purpose = "Reveal the culprit through confrontation";
+    const r = repairBeatSequence(n);
+    expect(r.relabelled).toEqual([]);
+    expect(sc[8].beat).toBe("revelation");
+    expect(sc[9].beat).toBe("revelation");
+  });
+
+  it("REGRESSION: the final scene is never relabelled, whatever its beat duplicates", () => {
+    const n = outline50862();
+    const sc = scenesOf(n);
+    sc[8].beat = "pattern";
+    sc[9].beat = "final_trap"; // a duplicate of scene 8's, at the end of the book
+    repairBeatSequence(n);
+    expect(sc[9].beat).toBe("final_trap");
+  });
+
+  it("a replacement is a beat NO scene carries, so a relabel cannot create the next duplicate", () => {
+    const n = { acts: [{ scenes: [
+      { sceneNumber: 1, beat: "gathering" }, { sceneNumber: 2, beat: "motives" }, { sceneNumber: 3, beat: "motives" },
+      { sceneNumber: 4, beat: "alibis" }, { sceneNumber: 5, beat: "revelation" },
+    ] }] };
+    const r = repairBeatSequence(n);
+    // positional for index 2 is first_enquiries (free); crime is also free but first_enquiries is nearer forward
+    expect(r.relabelled).toEqual([{ sceneNumber: 3, from: "motives", to: "first_enquiries" }]);
+    const beats = scenesOf(n).map((s: any) => s.beat);
+    expect(new Set(beats).size).toBe(beats.length);
+  });
+
+  /**
+   * 2026-09-17 bug check. MEASURED over the 65 stored outlines: 45 of the 120 clauses the two
+   * clearance strippers dropped carried reveal language — "She confronts Charles Fenwick with the
+   * evidence of clock tampering and his falsified alibi" went because of the word "alibi".
+   */
+  it("REGRESSION: a confrontation that mentions the culprit's broken alibi is not a clearance", () => {
+    const n = outline50862();
+    const sc = scenesOf(n);
+    sc[9].purpose =
+      "Inspector Harcourt systematically clears Annabelle Marwood and Harold Grimshaw. " +
+      "She confronts Charles Fenwick with the evidence of clock tampering and his falsified alibi, exposing his motive and method.";
+    const r = repairBeatSequence(n);
+    expect(sc[9].purpose).toBe("She confronts Charles Fenwick with the evidence of clock tampering and his falsified alibi, exposing his motive and method.");
+    expect(r.clearancesStripped.map((c) => c.dropped)).toContain("Inspector Harcourt systematically clears Annabelle Marwood and Harold Grimshaw.");
+  });
 });
 
 describe("F1 — beat names are not for the reader", () => {
