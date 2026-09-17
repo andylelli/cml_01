@@ -19,11 +19,11 @@ import WorkshopView from "../../WorkshopView.vue";
  */
 
 /**
- * Four tabs, not six. Project, Spec and Generate merged into **Build** — they are one linear
- * workflow (open a project, configure the spec, start a run) and splitting them across three tabs
- * meant hopping between them to do a single thing. UI-003 W4.
+ * Four tabs, not six. Project, Spec and Generate merged into one tab (UI-003 W4), which then lost
+ * the spec form altogether: story setup belongs to Create, so what is left is opening a project,
+ * watching it run and re-running a stage — hence **Run** (UI-006). The tab id is still `build`.
  */
-const MAIN_TABS = ["Build", "Review", "Advanced", "Export"] as const;
+const MAIN_TABS = ["Run", "Review", "Advanced", "Export"] as const;
 
 /**
  * `mode` and `spec` are module singletons (B13), so they outlive a test. Without this reset the

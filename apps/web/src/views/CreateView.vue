@@ -11,6 +11,7 @@ import ScriptNote from "../components/ui/ScriptNote.vue";
 import StepCard from "../components/ui/StepCard.vue";
 import { brand } from "../design/brand";
 import { composeTheme, mechanismNote } from "../spec/composeTheme";
+import { ANGLE_GROUPS, randomAngle } from "../spec/storyAngles";
 import {
 	CRIME_METHODS,
 	KEY_THEMES,
@@ -76,6 +77,23 @@ const composedTheme = computed(() =>
  * family; the user is told rather than finding out by reading the book.
  */
 const steer = computed(() => mechanismNote(composedTheme.value));
+
+/**
+ * THE ANGLE IS NOT THE THEME, and the difference is the reason it is its own step.
+ *
+ * The theme is the CRIME. The angle is the WORLD the crime happens inside. They are not
+ * alternatives — a story has both — and they do not even reach the same agents: Agents 1 and 2
+ * read `storyAngle` directly and are never shown the theme, while Agents 2e/3b/3 read the theme
+ * and never see the field. The API fans one value out to both (`composeThemeWithAngle`).
+ *
+ * So it is NOT folded into `composedTheme` here: doing that would send it twice.
+ */
+const pickAngle = () => {
+	spec.value.storyAngle = randomAngle();
+};
+
+/** Free text in the angle can lock the murder method just as free text in the theme can. */
+const angleSteer = computed(() => mechanismNote(spec.value.storyAngle ?? ""));
 
 const showComposed = ref(false);
 
@@ -202,7 +220,63 @@ const onSubmit = () => {
 				</div>
 			</StepCard>
 
-			<StepCard :step="6" title="Extra Details" subtitle="Add more flavour, or let fate decide.">
+			<!--
+				THE WORLD — its own step, because the angle is the one lever against sameness and it was
+				previously unreachable from anywhere a reader goes. It is also the field most easily confused
+				with the theme, so the two are separated by a step and the copy says which is which.
+			-->
+			<StepCard :step="6" title="The World" subtitle="What world does the story move in?">
+				<p class="max-w-prose text-[0.86rem] leading-relaxed text-ink-soft">
+					The <strong class="font-semibold text-ink">crime</strong> is one thing; the
+					<strong class="font-semibold text-ink">world it happens in</strong> is another. A racing
+					stable, a by-election, a cathedral restoration — this colours the place, what the characters
+					do for a living and what they stand to lose. It is never the murder method.
+				</p>
+			
+				<div class="mt-4">
+					<label for="story-angle" class="t-label mb-1.5 block">
+						Story angle <span class="font-normal text-ink-faint">(optional)</span>
+					</label>
+					<div class="flex flex-wrap gap-2">
+						<input
+							id="story-angle"
+							v-model="spec.storyAngle"
+							list="create-angle-options"
+							aria-describedby="story-angle-help"
+							placeholder="a racing stable in the weeks before a classic"
+							class="transition-control min-w-0 flex-1 rounded border border-line bg-surface px-3 py-2.5 text-[0.9rem] text-ink outline-none hover:border-line-strong placeholder:text-ink-faint"
+						/>
+						<AppButton type="button" size="sm" icon="shuffle" @click="pickAngle">Surprise me</AppButton>
+						<AppButton
+							v-if="spec.storyAngle"
+							type="button"
+							size="sm"
+							variant="ghost"
+							@click="spec.storyAngle = ''"
+						>
+							Clear
+						</AppButton>
+					</div>
+			
+					<!-- A datalist, not a 107-row select: it filters as you type and still takes free text. -->
+					<datalist id="create-angle-options">
+						<template v-for="group in ANGLE_GROUPS" :key="group.category">
+							<option v-for="angle in group.angles" :key="angle" :value="angle">{{ group.category }}</option>
+						</template>
+					</datalist>
+			
+					<p id="story-angle-help" class="mt-1.5 text-[0.72rem] leading-snug text-ink-soft">
+						Pick one, type your own, or leave it blank. Without an angle every mystery tends toward the
+						same country house.
+					</p>
+					<p v-if="angleSteer" class="mt-2 flex items-start gap-1.5 text-[0.72rem] leading-snug text-warn">
+						<AppIcon name="sparkle" :size="13" class="mt-0.5 shrink-0" />
+						<span>{{ angleSteer }}</span>
+					</p>
+				</div>
+			</StepCard>
+
+			<StepCard :step="7" title="Extra Details" subtitle="Add more flavour, or let fate decide.">
 				<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 					<FieldSelect
 						v-model="flavour.elements"
@@ -228,10 +302,15 @@ const onSubmit = () => {
 
 				<div class="mt-4">
 					<label for="theme-text" class="t-label mb-1.5 block">
-						Anything else <span class="font-normal text-ink-faint">(optional)</span>
+						The theme <span class="font-normal text-ink-faint">(optional)</span>
 					</label>
+					<p id="theme-help" class="mb-2 text-[0.72rem] leading-snug text-ink-soft">
+						The <strong class="font-semibold text-ink">crime</strong> — what happens and what hides it.
+						Not to be confused with the story angle in step 6, which is the world it happens in.
+					</p>
 					<textarea
 						id="theme-text"
+						aria-describedby="theme-help"
 						v-model="spec.theme"
 						rows="2"
 						placeholder="An inheritance nobody wanted."
@@ -244,7 +323,7 @@ const onSubmit = () => {
 					steer note below it surfaces a coupling the user would otherwise discover only by
 					reading a book about a clock they never asked for.
 				-->
-				<div v-if="composedTheme" class="mt-4 rounded border border-line bg-surface-sunken p-3">
+				<div v-if="composedTheme || spec.storyAngle" class="mt-4 rounded border border-line bg-surface-sunken p-3">
 					<button
 						type="button"
 						class="flex w-full items-center gap-2 text-left"
@@ -261,6 +340,16 @@ const onSubmit = () => {
 					</button>
 					<p v-if="showComposed" class="mt-2 font-display text-[0.85rem] italic leading-relaxed text-ink">
 						{{ composedTheme }}
+					</p>
+					<!--
+						Shown separately rather than appended, because the API is what appends it (and passes it as
+						its own field besides). Composing it here too would send the angle twice.
+					-->
+					<p v-if="showComposed && spec.storyAngle" class="mt-2 text-[0.78rem] leading-relaxed text-ink-soft">
+						<span class="t-label">Story angle</span> — {{ spec.storyAngle }}
+						<span class="block text-[0.72rem] text-ink-faint">
+							Goes to the setting and cast directly, and is added to the text above as background.
+						</span>
 					</p>
 					<p v-if="steer" class="mt-2 flex items-start gap-1.5 text-[0.72rem] leading-snug text-warn">
 						<AppIcon name="sparkle" :size="13" class="mt-0.5 shrink-0" />

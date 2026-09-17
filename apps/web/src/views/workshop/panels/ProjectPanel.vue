@@ -2,22 +2,24 @@
 import { useWorkshop } from "../useWorkshopState";
 
 /**
- * Project — Create, load and clear projects.
+ * Project — open one, and see what is in it.
  *
- * Extracted from WorkshopView (UI-002 item 25). It injects the console state rather than taking
- * props: this panel alone binds 17 values, and a prop signature that wide is not an
- * interface. The block below is the original markup, moved unchanged.
+ * NO LONGER CREATES PROJECTS. A project is created in Create, as part of setting a story up;
+ * having a second Create-project button here meant two ways to start the same thing, one of
+ * which skipped every story field and produced an empty project the reader then had to
+ * configure in a form that also lived in two places (UI-006).
+ *
+ * What is left is the half the console actually needs: pick an existing project, and the
+ * synopsis of the one that is open. `Clear all persistence` moved to Advanced ▸ Operator — it
+ * is a destructive diagnostic, not setup, and it was sitting under a heading that invited
+ * clicking.
  */
 const {
-	handleClearStore,
-	handleCreateProject,
 	handleLoadProject,
 	isAdvanced,
-	isCreatingProject,
 	latestSpecId,
 	projectId,
 	projectIdInput,
-	projectName,
 	projectsList,
 	scrollToSection,
 	selectedProjectId,
@@ -33,7 +35,7 @@ const {
 	<div class="rounded-lg border border-line bg-ground-warm p-5">
 	  <div class="text-sm font-semibold text-frame">Welcome to your Mystery Generator</div>
 	  <div class="mt-2 text-sm text-frame">
-	    Open or create a project, set the story parameters below, then generate. Everything the pipeline produces appears under Review; the raw CML, logs and scores are under Advanced.
+	    Open a project to watch it being written and to read everything the pipeline produced. Stories are set up and started under <strong>Create</strong>; everything generated appears under <strong>Review</strong>, and the raw CML, logs and scores under <strong>Advanced</strong>.
 	  </div>
 	</div>
 
@@ -73,50 +75,10 @@ const {
 	</div>
 
 	<div class="rounded-lg border border-line bg-surface p-6 shadow-card">
-	  <div class="t-section">Project setup</div>
+	  <div class="t-section">Open a project</div>
 	  <div class="mt-4 grid gap-4 md:grid-cols-2">
 	    <div>
-	      <!-- `for`/`id`: the label was beside the field but not bound to it, so a screen
-	           reader announced an unnamed text box. Item 29. -->
-	      <label for="ws-project-name" class="text-xs font-semibold text-ink-soft">Project name</label>
-	      <input
-	        id="ws-project-name"
-	        v-model="projectName"
-	        class="transition-control mt-2 w-full rounded border border-line bg-surface px-3 py-2.5 text-[0.9rem] text-ink outline-none hover:border-line-strong"
-	        placeholder="Golden Age Prototype"
-	      />
-	    </div>
-	    <div class="flex items-end">
-	      <button
-	        class="transition-control rounded border border-accent bg-accent px-4 py-2 text-[0.88rem] font-medium text-[--surface] hover:border-accent-hover hover:bg-accent-hover disabled:cursor-not-allowed disabled:border-line disabled:bg-surface-sunken disabled:text-ink-faint"
-	        :disabled="isCreatingProject"
-	        @click="handleCreateProject"
-	      >
-	        <span class="inline-flex items-center gap-2">
-	          <font-awesome-icon v-if="isCreatingProject" icon="spinner" spin />
-	          {{ isCreatingProject ? "Creating..." : "Create project" }}
-	        </span>
-	      </button>
-	    </div>
-	    <div>
-	      <label for="ws-project-id" class="text-xs font-semibold text-ink-soft">Load project by ID</label>
-	      <input
-	        id="ws-project-id"
-	        v-model="projectIdInput"
-	        class="transition-control mt-2 w-full rounded border border-line bg-surface px-3 py-2.5 text-[0.9rem] text-ink outline-none hover:border-line-strong"
-	        placeholder="proj_..."
-	      />
-	    </div>
-	    <div class="flex items-end">
-	      <button
-	        class="transition-control rounded border border-line bg-surface px-4 py-2 text-[0.88rem] font-medium text-ink hover:border-line-strong hover:bg-surface-sunken"
-	        @click="handleLoadProject"
-	      >
-	        Load project
-	      </button>
-	    </div>
-	    <div>
-	      <label for="ws-project-select" class="text-xs font-semibold text-ink-soft">Load existing project</label>
+	      <label for="ws-project-select" class="text-xs font-semibold text-ink-soft">Existing projects</label>
 	      <select
 	        id="ws-project-select"
 	        v-model="selectedProjectId"
@@ -130,27 +92,35 @@ const {
 	    </div>
 	    <div class="flex items-end">
 	      <button
-	        class="transition-control rounded border border-line bg-surface px-4 py-2 text-[0.88rem] font-medium text-ink hover:border-line-strong hover:bg-surface-sunken"
+	        class="transition-control rounded border border-accent bg-accent px-4 py-2 text-[0.88rem] font-medium text-[--surface] hover:border-accent-hover hover:bg-accent-hover disabled:cursor-not-allowed disabled:border-line disabled:bg-surface-sunken disabled:text-ink-faint"
 	        :disabled="!selectedProjectId"
 	        @click="projectIdInput = selectedProjectId; handleLoadProject()"
 	      >
-	        Load selected
+	        Open
+	      </button>
+	    </div>
+	    <div>
+	      <!-- Kept: an operator working from a log line or a run report has an id, not a name. -->
+	      <label for="ws-project-id" class="text-xs font-semibold text-ink-soft">Or open by ID</label>
+	      <input
+	        id="ws-project-id"
+	        v-model="projectIdInput"
+	        class="transition-control mt-2 w-full rounded border border-line bg-surface px-3 py-2.5 text-[0.9rem] text-ink outline-none hover:border-line-strong"
+	        placeholder="proj_..."
+	      />
+	    </div>
+	    <div class="flex items-end">
+	      <button
+	        class="transition-control rounded border border-line bg-surface px-4 py-2 text-[0.88rem] font-medium text-ink hover:border-line-strong hover:bg-surface-sunken"
+	        :disabled="!projectIdInput"
+	        @click="handleLoadProject"
+	      >
+	        Open by ID
 	      </button>
 	    </div>
 	  </div>
-	  <div class="mt-4 flex items-center justify-between rounded-md border border-danger bg-danger-wash px-4 py-3">
-	    <div class="text-xs text-danger">
-	      Clears saved projects, artifacts, run history, scoring reports, LLM logs, and prompt history.
-	    </div>
-	    <button
-	      class="rounded-md border border-danger bg-surface px-3 py-2 text-xs font-semibold text-danger hover:bg-danger-wash"
-	      @click="handleClearStore"
-	    >
-	      Clear all persistence
-	    </button>
-	  </div>
-	  <div class="mt-3 text-xs text-ink-soft">
-	    Project ID: {{ projectId ?? "not created" }} • Spec: {{ latestSpecId ?? "not saved" }}
+	  <div class="mt-4 text-xs text-ink-soft">
+	    Project: {{ projectId ?? "none open" }} • Spec: {{ latestSpecId ?? "not saved" }}
 	  </div>
 	</div>
 

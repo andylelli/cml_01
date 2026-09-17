@@ -164,7 +164,7 @@ const revealWorkshop = () => {
 			@open-workshop="revealWorkshop"
 		/>
 
-		<WorkshopView v-else-if="view === 'workshop'" />
+		<WorkshopView v-else-if="view === 'workshop'" @open-create="view = 'create'" />
 	</AppShell>
 
 	<ErrorNotification :errors="log.errors.value" @dismiss="log.dismiss" @action="onRetry" />

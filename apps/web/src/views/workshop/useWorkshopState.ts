@@ -84,7 +84,10 @@ export const useWorkshopState = () => {
 
   // Define main tabs
   const mainTabs = computed<Tab[]>(() => [
-    { id: "build", label: "Build" },
+    // Label only — the id stays `build` so shortcuts, stored state and the activity log keep
+    // matching. It is no longer where a story is configured: setup moved to Create (UI-006),
+    // and what remains is starting a run, watching it and re-running a stage.
+    { id: "build", label: "Run" },
     { id: "review", label: "Review" },
     // No `disabled`: see the note on the tabStatuses watcher — the screen is the gate.
     { id: "advanced", label: "Advanced" },
@@ -111,6 +114,10 @@ export const useWorkshopState = () => {
     { id: "logs", label: "LLM Logs" },
     { id: "history", label: "History" },
     { id: "quality", label: "Quality" },
+    // The two spec fields that are NOT story setup: the concealment axis is a craft decision
+    // and the one field whose bad value aborts a run, and the batch size is a throughput knob.
+    // Neither belongs on a page a reader uses, so they did not move to Create with the rest.
+    { id: "operator", label: "Operator" },
   ]);
 
   const projectStore = useProjectStore();

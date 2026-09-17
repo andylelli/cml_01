@@ -8,6 +8,7 @@ import RunHistory from "../../../components/RunHistory.vue";
 import ScoreCard from "../../../components/ScoreCard.vue";
 import ScoreTrendChart from "../../../components/ScoreTrendChart.vue";
 import TabPanel from "../../../components/TabPanel.vue";
+import { AXIS_OPTIONS } from "../../../spec/vocabulary";
 
 /**
  * Advanced — CML, artifacts, logs, history and quality.
@@ -18,6 +19,8 @@ import TabPanel from "../../../components/TabPanel.vue";
  */
 const {
 	activeAdvancedTab,
+	handleClearStore,
+	spec,
 	activeMainTab,
 	artifactEntries,
 	backgroundContextArtifact,
@@ -61,7 +64,8 @@ const {
 	<div class="rounded-lg border border-warn bg-warn-wash p-5">
 	  <div class="text-sm font-semibold text-warn">Advanced Mode</div>
 	  <div class="mt-2 text-sm text-warn">
-	    <span v-if="activeAdvancedTab === 'cml'">View the raw CML (Compositional Mystery Language) structure. Read-only.</span>
+	    <span v-if="activeAdvancedTab === 'operator'">The two spec fields that are not story setup. Everything else about a story is configured under Create.</span>
+	    <span v-else-if="activeAdvancedTab === 'cml'">View the raw CML (Compositional Mystery Language) structure. Read-only.</span>
 	    <span v-else-if="activeAdvancedTab === 'artifacts'">Inspect the raw JSON artifacts saved from the pipeline.</span>
 	    <span v-else-if="activeAdvancedTab === 'logs'">Review LLM operational logs (model, tokens, cost, latency).</span>
 	    <span v-else-if="activeAdvancedTab === 'samples'">Browse example mystery structures for inspiration. Use these as patterns, not templates to copy.</span>
@@ -220,5 +224,69 @@ const {
 	  </template>
 	</div>
 	  </div>
+	<div v-if="activeAdvancedTab === 'operator'" class="flex flex-col gap-4">
+	  <div class="rounded-lg border border-line bg-surface p-6 shadow-card">
+	    <div class="t-section">Run parameters</div>
+	    <p class="mt-2 max-w-prose text-sm text-ink-soft">
+	      Story setup — era, setting, tone, cast, theme, story angle — lives under <strong>Create</strong>.
+	      These two stayed here because neither is a story decision a reader should be asked to make.
+	    </p>
+	    <div class="mt-4 grid gap-4 md:grid-cols-2">
+	      <div>
+	        <label for="op-primary-axis" class="text-xs font-semibold text-ink-soft">Concealment axis</label>
+	        <select
+	          id="op-primary-axis"
+	          v-model="spec.primaryAxis"
+	          class="transition-control mt-2 w-full rounded border border-line bg-surface px-3 py-2.5 text-[0.9rem] text-ink outline-none hover:border-line-strong"
+	        >
+	          <option v-for="axis in AXIS_OPTIONS" :key="axis.value" :value="axis.value">
+	            {{ axis.label }} — {{ axis.hint }}
+	          </option>
+	        </select>
+	        <!--
+	          The ONE spec field whose bad value throws at pipeline init rather than degrading
+	          silently — after the project is made, the spec is saved and the run has begun costing
+	          money. A closed list here is what keeps that from ever happening (X60).
+	        -->
+	        <div class="mt-1 text-[11px] text-ink-faint">
+	          What the deception turns on. An unrecognised value aborts the run at init, so this is
+	          never free text.
+	        </div>
+	      </div>
+	      <div>
+	        <label for="op-prose-batch" class="text-xs font-semibold text-ink-soft">Prose batch size</label>
+	        <input
+	          id="op-prose-batch"
+	          v-model.number="spec.proseBatchSize"
+	          type="number"
+	          min="1"
+	          max="5"
+	          class="transition-control mt-2 w-full rounded border border-line bg-surface px-3 py-2.5 text-[0.9rem] text-ink outline-none hover:border-line-strong"
+	        />
+	        <div class="mt-1 text-[11px] text-ink-faint">
+	          Chapters written per LLM call. A throughput knob, not a craft one.
+	        </div>
+	      </div>
+	    </div>
+	  </div>
+
+	  <!--
+	    Moved out of Project setup, where it sat under a heading that invited clicking. It is a
+	    destructive diagnostic and it belongs behind the advanced gate with the other ones.
+	  -->
+	  <div class="flex items-center justify-between rounded-lg border border-danger bg-danger-wash px-4 py-3">
+	    <div class="text-xs text-danger">
+	      Clears saved projects, artifacts, run history, scoring reports, LLM logs and prompt history.
+	      This cannot be undone.
+	    </div>
+	    <button
+	      class="rounded-md border border-danger bg-surface px-3 py-2 text-xs font-semibold text-danger hover:bg-danger-wash"
+	      @click="handleClearStore"
+	    >
+	      Clear all persistence
+	    </button>
+	  </div>
+	</div>
+
 	</TabPanel>
 </template>

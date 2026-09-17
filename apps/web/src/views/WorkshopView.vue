@@ -4,7 +4,7 @@ import { useWorkshopState, WORKSHOP_KEY } from "./workshop/useWorkshopState";
 
 // The six tab panels, each injecting the provided state.
 import ProjectPanel from "./workshop/panels/ProjectPanel.vue";
-import SpecPanel from "./workshop/panels/SpecPanel.vue";
+import SpecSummary from "./workshop/panels/SpecSummary.vue";
 import GeneratePanel from "./workshop/panels/GeneratePanel.vue";
 import ReviewPanel from "./workshop/panels/ReviewPanel.vue";
 import AdvancedPanel from "./workshop/panels/AdvancedPanel.vue";
@@ -40,6 +40,11 @@ import VirtualList from "../components/VirtualList.vue";
 const ctx = useWorkshopState();
 provide(WORKSHOP_KEY, ctx);
 
+/**
+ * The console does not own the spec any more, so it needs a way to hand the user back to the
+ * page that does. UI-006.
+ */
+const emit = defineEmits<{ openCreate: [] }>();
 const {
   activeAdvancedTab,
   activeMainTab,
@@ -54,7 +59,6 @@ const {
   castArtifact,
   castCount,
   castData,
-  castNamesInput,
   castReady,
   chapterOptions,
   characterProfilesArtifact,
@@ -80,7 +84,6 @@ const {
   handleArtifactView,
   handleCancelRun,
   handleClearStore,
-  handleCreateProject,
   handleDownloadAllProseVersions,
   handleDownloadGamePackPdf,
   handleDownloadStoryPdf,
@@ -91,11 +94,9 @@ const {
   handleRunPipeline,
   handleSampleSelect,
   handleSaveSpec,
-  handleSuggestTheme,
   hardLogicDevicesArtifact,
   hardLogicDevicesData,
   isAdvanced,
-  isCreatingProject,
   isDownloadingAllVersions,
   isDownloadingGamePackPdf,
   isDownloadingStoryPdf,
@@ -216,9 +217,13 @@ const {
         <main class="flex min-h-0 flex-1 gap-6 overflow-auto bg-ground px-6 py-6">
           <section class="flex min-w-0 flex-1 flex-col gap-6">
             <!--
-              BUILD — one tab, three sections. Opening a project, configuring the spec and starting
-              a run is a single linear workflow; it used to be three tabs, so doing one thing meant
-              hopping between them. UI-003 W4.
+              RUN — open a project, watch it being written, re-run a stage.
+
+              It was BUILD: open a project, configure the whole spec, generate. The spec form is
+              gone — story setup belongs to Create, and having it here too meant two editors for
+              one module-singleton value with nothing on screen saying which the run had used.
+              What replaces it is the same spec read-only, because reviewing what the pipeline
+              produced is meaningless without knowing what it was asked for. UI-006.
             -->
             <TabPanel id="build-tab" :active="activeMainTab === 'build'" :lazy="true">
               <div class="flex flex-col gap-6">
@@ -233,8 +238,7 @@ const {
                   <a
                     v-for="s in [
                       { id: 'build-project', label: 'Project' },
-                      { id: 'build-spec', label: 'Spec' },
-                      { id: 'build-generate', label: 'Generate' },
+                      { id: 'build-generate', label: 'Run' },
                     ]"
                     :key="s.id"
                     :href="`#${s.id}`"
@@ -245,7 +249,7 @@ const {
                 </nav>
 
                 <div id="build-project" class="scroll-mt-24"><ProjectPanel /></div>
-                <div id="build-spec" class="scroll-mt-24"><SpecPanel /></div>
+                <SpecSummary @open-create="emit('openCreate')" />
                 <div id="build-generate" class="scroll-mt-24"><GeneratePanel /></div>
               </div>
             </TabPanel>

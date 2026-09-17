@@ -21,11 +21,14 @@ const submitted = (wrapper: ReturnType<typeof mountView>): MysterySpec => {
 };
 
 describe("CreateView", () => {
-	it("renders all six numbered steps", () => {
+	it("renders all seven numbered steps", () => {
 		const wrapper = mountView();
 		const headings = wrapper.findAll("h2").map((h) => h.text());
-		expect(headings).toHaveLength(6);
-		for (const title of ["Era", "Setting", "Tone", "Characters", "The Crime", "Extra Details"]) {
+		expect(headings).toHaveLength(7);
+		// "The World" is the angle, and it is a step of its own rather than a field inside Extra
+		// Details: it is the one lever against every mystery being the same country house, and it is
+		// the field most easily confused with the theme, so the two are kept a step apart.
+		for (const title of ["Era", "Setting", "Tone", "Characters", "The Crime", "The World", "Extra Details"]) {
 			expect(headings.some((h) => h.includes(title)), `missing step: ${title}`).toBe(true);
 		}
 	});
