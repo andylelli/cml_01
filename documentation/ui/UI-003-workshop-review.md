@@ -386,6 +386,65 @@ status read as a contradiction — "Ready to generate" directly above "ABORTED".
 
 ---
 
+## 8e. WHAT THE VALIDATION CARD IN THE RAIL ACTUALLY DOES
+
+> *"What does validation do in the right bar?"*
+
+It is a disclosure holding `ValidationPanel`, which renders **five read-only rows** — setting,
+cast, cml, clues, outline. None of them is a check the console runs. All five are artifacts the
+API writes once, at the moment each stage completes, by reading things the pipeline had already
+produced:
+
+| row | what it actually reports | written at |
+|---|---|---|
+| **setting** | `setting.realism.anachronisms` + `.implausibilities`, each prefixed | `server.ts:726` |
+| **cast** | `cast.diversity.stereotypeCheck` as errors, `.recommendations` as warnings | `server.ts:741` |
+| **cml** | the real schema validator — **the only genuine check of the five** | `server.ts:1552` |
+| **clues** | run warnings starting `Inference coverage:` / `Agent 5: Guardrail`; `[critical]` ones become errors | `server.ts:794` |
+| **outline** | run warnings starting `Outline coverage gap:` | `server.ts:810` |
+
+So it is a **post-mortem digest of four warning streams plus one schema check**, not validation in
+the sense of something the operator triggers. `Fix →` jumps to the Spec tab and scrolls to
+`field-<key>`.
+
+### Three defects, MEASURED
+
+**1. It shows five green ticks for checks that have never run.** `defaultValidation` is
+`{ valid: true, errors: [], warnings: [] }` (`projectStore.ts:56`), and it is what every row falls
+back to when its artifact 404s — which is the state of every project before a run. `getStatusIcon`
+then draws ✅ and the expanded row reads *"No issues found."* A check that cannot fail is an off
+switch with extra steps (B1); a check that reports PASS for data that does not exist is worse,
+because it is indistinguishable from a real pass.
+
+**2. `Fix →` on two of the four rows scrolls to nothing.** The button is offered for
+`setting`, `cast`, `clues` and `outline` (`ValidationPanel.vue:75`). `SpecPanel` defines
+`id="field-setting"` and `id="field-cast"`. It defines **no** `field-clues` and **no**
+`field-outline` — MEASURED, 0 matches each across `apps/web/src`. `getElementById` returns null,
+the handler's `if (target)` guard swallows it, and the click does nothing at all. It is also
+conceptually wrong for those two: a clue-coverage gap is not something you repair by editing the
+spec.
+
+**3. Outline can be invalid with zero errors.** `outline_validation` is written with
+`valid: outlineWarningLines.length === 0` but `errors: []` — the content goes in `warnings`. When a
+coverage gap exists the row renders the `!result.valid` branch, whose badge prints
+`{{ result.errors.length }} errors` — so it reads **"0 errors"** in red beside a ✗, while the real
+finding sits in the collapsed half.
+
+### And it was never restyled
+
+`ValidationPanel.vue` still uses `text-sm font-semibold` labels, emoji status (✅ ⚠️ ❌) and `▶`/`▼`
+text glyphs for disclosure. It is one of the components UI-002 item 27 recoloured without
+recomposing (§0), and the rail rebuild in §8d did not reach inside it.
+
+### Status
+
+**Recorded, not fixed.** The question asked what it does; these are the answer, not a work order.
+Each is small and independent: (1) needs a fourth state — *not checked* — distinct from *passed*,
+(2) needs the button dropped for `clues`/`outline` or two ids added, (3) needs the badge to count
+`errors.length + warnings.length` or the row to report warnings honestly.
+
+---
+
 ## 9. WHAT THIS REVIEW COULD NOT DETERMINE
 
 - **Whether anyone uses the sidebar.** `logActivity` records `view_change` with the view name, but
