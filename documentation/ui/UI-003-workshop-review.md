@@ -264,12 +264,12 @@ instrument; chrome share is the right one, and it more than met its target.
 | # | item | status | commit |
 |---|---|---|---|
 | W1 | This review | **DONE** | — |
-| W2 | Cut the sidebar, `currentView`/`setView` and the watcher cycle | not started | — |
-| W3 | Cut expert mode; fold its two panels under Advanced | not started | — |
-| W4 | Four tabs: Build · Inspect · Diagnose · Export | not started | — |
-| W5 | Recompose panels onto `StepCard` / `t-section` / `AppButton` | not started | — |
-| W6 | Cut the duplicate Samples and Prose panels; link to the consumer views | not started | — |
-| W7 | Fix **B15** — entering the Workshop is the switch | not started | — |
-| W8 | Re-measure §8 and record the result here | not started | — |
+| W2 | Cut the sidebar, `currentView`/`setView` and the watcher cycle | **DONE** — 0 log POSTs and 0 storage writes per click, from 2 and 3 | `266b48dc` |
+| W3 | Cut expert mode; fold its two panels under Advanced | **DONE** — and a THIRD gate on the same flag removed | `266b48dc` |
+| W4 | Four tabs — **Build** · Review · Advanced · Export | **DONE** — the Inspect/Diagnose regroup was dropped, §7.1 | `e8f86c9a` |
+| W5 | Recompose panels onto the design system | **DONE** — 107 shape remaps | `b4d04b9f` |
+| W6 | Cut the panels the consumer views duplicate | **partial** — Samples cut; **Prose WITHDRAWN**, the premise was wrong (§4) | `b4d04b9f` |
+| W7 | Fix **B15** — entering the Workshop is the switch | **DONE** — verified in the browser | `266b48dc` |
+| W8 | Re-measure §8 and record the result | **DONE** — 7 of 9 met or beaten; both misses were wrong targets | `e8f86c9a` |
 
-**Next item: W2.**
+**The board is closed.** What remains is in §9 — the three things this review could not determine.
