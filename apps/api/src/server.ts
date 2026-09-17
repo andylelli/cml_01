@@ -1915,25 +1915,65 @@ export const createServer = () => {
     }
   });
 
+  /**
+   * THE LAST N RECORDS, WITHOUT READING THE WHOLE FILE.
+   *
+   * This used to `readFile` the entire log, split it into an array of every line, and JSON.parse
+   * all of them — then return the last 200. MEASURED on the live file: 36 MB on disk, 10,795 lines,
+   * ~136 MB of heap and 250 MB RSS per request. The file grows every run and is never rotated, so
+   * the cost of this endpoint grew without bound, and the API died of heap exhaustion at 3.8 GB
+   * during a paid run.
+   *
+   * Now it reads a window off the END. The first line of the window is discarded because it is
+   * almost certainly a fragment — a partial line parses as nothing and would silently vanish, which
+   * is the kind of quiet loss that is worse than an error.
+   *
+   * TRADE-OFF, stated rather than hidden: filtering by `projectId` only sees entries inside the
+   * window. A project whose calls are older than the last 32 MB returns fewer rows than it has.
+   * That is the right trade against an endpoint that can kill the server mid-run.
+   */
   app.get("/api/llm-logs", async (req, res) => {
+    const WINDOW_BYTES = 32 * 1024 * 1024;
     try {
-      const limit = Number(req.query.limit ?? 200);
+      const limit = Math.max(1, Math.min(2000, Number(req.query.limit ?? 200)));
       const projectId = typeof req.query.projectId === "string" ? req.query.projectId : null;
       const logPath = process.env.LOG_FILE_PATH || path.resolve(process.cwd(), "logs", "llm.jsonl");
-      const raw = await fs.readFile(logPath, "utf-8");
-      const lines = raw.trim().split("\n").filter(Boolean);
-      const entries = lines
-        .map((line) => {
-          try {
-            return JSON.parse(line) as Record<string, unknown>;
-          } catch {
-            return null;
-          }
-        })
-        .filter((entry): entry is Record<string, unknown> => Boolean(entry));
-      const filtered = projectId ? entries.filter((entry) => entry.projectId === projectId) : entries;
-      const sliced = filtered.slice(-Math.max(1, limit));
-      res.json({ entries: sliced });
+
+      const { size } = await fs.stat(logPath);
+      const from = Math.max(0, size - WINDOW_BYTES);
+      const handle = await fs.open(logPath, "r");
+      let raw: string;
+      try {
+        const buffer = Buffer.allocUnsafe(size - from);
+        await handle.read(buffer, 0, buffer.length, from);
+        raw = buffer.toString("utf-8");
+      } finally {
+        await handle.close();
+      }
+
+      const lines = raw.split("\n");
+      // Drop the leading fragment when we did not start at byte 0.
+      if (from > 0) lines.shift();
+
+      const entries: Record<string, unknown>[] = [];
+      // Walk BACKWARDS and stop once we have enough: the newest records are at the end, so there is
+      // no reason to parse the rest of the window.
+      for (let i = lines.length - 1; i >= 0 && entries.length < limit; i--) {
+        const line = lines[i];
+        if (!line) continue;
+        let entry: Record<string, unknown>;
+        try {
+          entry = JSON.parse(line) as Record<string, unknown>;
+        } catch {
+          continue;
+        }
+        if (projectId && entry.projectId !== projectId) continue;
+        entries.push(entry);
+      }
+
+      // Collected newest-first; the client expects oldest-first, as the old slice(-limit) gave.
+      entries.reverse();
+      res.json({ entries, windowed: from > 0 });
     } catch {
       res.status(404).json({ error: "LLM log file not found" });
     }
