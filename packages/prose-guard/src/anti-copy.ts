@@ -239,13 +239,38 @@ export function findCopiedSpans(prose: string, index: AntiCopyIndex): CopiedSpan
  * false positives are ordinary dialogue ("i don't know what you mean"), which is exactly the
  * period-idiomatic collision §5 predicted and could not size without measuring.
  *
- * 10 is the smallest clean value, and smaller is more sensitive, so anything larger trades real
- * detection for no measured benefit. A synthetic positive — 40 words lifted verbatim from The
- * Moonstone — is caught at every n tested, so the quiet at n=10 is selectivity and not blindness.
+ * ── RE-MEASURED 2026-09-17 (A_97), BECAUSE THE CORPUS GREW 17x ─────────────────────────────
+ *
+ * The index is now **165 works and 12,299,319 words** against the 12 works and 719,552 the table
+ * above was measured on, and 229 known negatives rather than 204. The detector did not change; its
+ * false-positive rate changed by more than an order of magnitude.
+ *
+ *     n     indexed n-grams   manuscripts firing   longest false run
+ *      8         10,414,580          105 (45.9%)           10 words      <- was 2.9% at 12 works
+ *     10         12,212,831            2  (0.9%)           10 words      <- was 0.0%
+ *     11         12,214,138            0  (0.0%)                  -
+ *     12         12,214,972            0  (0.0%)                  -
+ *
+ * **n=8 went from 2.9% to 45.9% on the same population.** That row is the whole argument for
+ * re-baselining after a corpus change, and it is why this constant is documented rather than chosen.
+ *
+ * **10 is no longer clean.** It fires on 2 of 229, both at exactly ten words — the longer is "the back
+ * of a chair as if to steady himself", period-idiomatic phrasing colliding by chance. As a hard fail
+ * that kills roughly one chapter in a hundred for nothing.
+ *
+ * 11 is now the smallest clean value, and smaller is more sensitive, so anything larger trades real
+ * detection for no measured benefit — which is also why this is 11 and not 12: the first A_97 run,
+ * taken at 141 works before the last acquisitions landed, recommended 12, and re-running it at the
+ * corpus the gate will actually query moved it back down a word.
+ *
+ * The synthetic positive — 40 words lifted verbatim from The Moonstone — is caught at n=10, 11 and 12
+ * alike, at its full length. So the quiet at n=11 is selectivity and not blindness, and raising the
+ * threshold costs no detection on real copying.
  *
  * Changing this without re-running the baseline is the unmeasured change the boards argue against.
+ * **So is changing the CORPUS without re-running it**, which is the lesson A_97 added.
  */
-export const DEFAULT_N = 10;
+export const DEFAULT_N = 11;
 
 // ── wiring ───────────────────────────────────────────────────────────────────────────────────────
 

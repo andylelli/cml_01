@@ -111,10 +111,15 @@ describe('the gate', () => {
 });
 
 describe('the measured default', () => {
-  it('is 10 — the smallest n with a zero false-positive rate over 204 known negatives', () => {
+  it('is 11 — the smallest n with a zero false-positive rate over 229 known negatives', () => {
     // A_79 §5 proposed 6. At n=6 the baseline measured 92.2% of our OWN manuscripts firing, which is
     // an off switch with extra steps (CLAUDE.md B1). Changing this without re-running
     // scripts/anticopy-baseline.mjs is the unmeasured change the boards argue against.
-    expect(DEFAULT_N).toBe(10);
+    //
+    // A_97 moved it 10 -> 11, and NOT by changing the detector. The corpus went from 12 works and
+    // 719,552 words to 165 and 12,299,319, and on the same known negatives n=8 went from 2.9% to
+    // 45.9% while n=10 went from 0.0% to 0.9%. So a corpus change is a reason to re-baseline exactly
+    // as a code change is — which is the part this test exists to make someone notice.
+    expect(DEFAULT_N).toBe(11);
   });
 });
