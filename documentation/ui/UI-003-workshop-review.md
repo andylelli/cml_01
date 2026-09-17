@@ -339,6 +339,53 @@ Renaming both would have been a refactor with a vocabulary change hidden inside 
 
 ---
 
+## 8d. THE RAIL — 16% OF THE WINDOW FOR 191 CHARACTERS
+
+§5 listed "Workspace rail: status + validation" as *genuinely useful beside the content*. Reading it
+with a project fully loaded — twelve artifacts, a finished run — showed that was wrong.
+
+**MEASURED. Its entire content, at its best:**
+
+> WORKSPACE PANEL · Status, validation, and diagnostics · STATUS · Ready to generate · Not updated
+> yet · VALIDATION DETAILS · Novelty Audit · Novelty audit not yet run.
+
+**191 characters**, in a 320px column taking **16% of the viewport**. A header naming itself, a header
+describing itself, one useful phrase, a timestamp that was not there, a collapsed disclosure, and a
+card whose whole content was that its subject had not run.
+
+### What a persistent column is actually for
+
+It should answer the two questions you cannot answer from whichever panel you happen to be in:
+**what am I looking at**, and **is it any good**.
+
+| card | why |
+|---|---|
+| **This case** | The spec — axis, era, setting, tone, humour, length, detective, cast. It took two clicks to see and is the thing you most need while reading any *other* panel. **The axis leads**: it is the craft decision the whole mystery turns on |
+| **Run** | Progress while running; the verdict, the cost and the duration once it is not — `GenerationReport` has carried `run_outcome`, `total_cost` and `total_duration_ms` all along and the rail showed none of it |
+| **Fair play** | The release gate's answer with counts, rather than a link to a panel |
+| **Validation** | Kept as a disclosure. It is long, and it is not always wanted |
+| **Novelty** | Rendered **only when the audit has run**. A card whose entire content is "this has not run" has nothing to say |
+
+### Cut
+
+- the *Workspace panel* header and its *Status, validation, and diagnostics* subtitle — two lines
+  describing the column to someone already looking at it;
+- **Helpful fixes** — it carried `v-if="!isAdvanced"` in a console that is always in operator mode,
+  so it **could not render at all**;
+- *"Not updated yet"* — the absence of information wearing the costume of information.
+
+### What it says now, same project
+
+> THIS CASE · Axis **Identity** · Era 1930s · Setting Country House · Tone Cosy · Humour Classic ·
+> Length Short · Detective Police inspector · Cast 6 — RUN · Ready to generate · **Last run:
+> ABORTED · C · 74 · £0.07 · 8 min** — FAIR PLAY · **clear** · 4 checks — VALIDATION DETAILS
+
+That last run being **aborted at grade C for sevenpence** was previously invisible unless you opened
+the Quality tab and knew to look. *Last run* is labelled as such because stacking it under the live
+status read as a contradiction — "Ready to generate" directly above "ABORTED".
+
+---
+
 ## 9. WHAT THIS REVIEW COULD NOT DETERMINE
 
 - **Whether anyone uses the sidebar.** `logActivity` records `view_change` with the view name, but

@@ -9,6 +9,7 @@ import GeneratePanel from "./workshop/panels/GeneratePanel.vue";
 import ReviewPanel from "./workshop/panels/ReviewPanel.vue";
 import AdvancedPanel from "./workshop/panels/AdvancedPanel.vue";
 import ExportTab from "./workshop/panels/ExportTab.vue";
+import WorkspaceRail from "./workshop/WorkspaceRail.vue";
 
 // Components are imported HERE, not in the composable: <script setup> auto-registers only what it
 // imports itself, and a component imported elsewhere fails to resolve at runtime with nothing at
@@ -45,7 +46,6 @@ const {
   activeReviewTab,
   advancedTabStatuses,
   advancedTabs,
-  allValidation,
   artifactEntries,
   artifactsStatus,
   availableProseVersions,
@@ -72,7 +72,6 @@ const {
   fairPlayReady,
   fairPlayReport,
   filteredClues,
-  fixSuggestions,
   gamePackArtifact,
   gamePackData,
   gamePackReady,
@@ -93,7 +92,6 @@ const {
   handleSampleSelect,
   handleSaveSpec,
   handleSuggestTheme,
-  handleValidationFieldFocus,
   hardLogicDevicesArtifact,
   hardLogicDevicesData,
   isAdvanced,
@@ -104,7 +102,6 @@ const {
   isRunning,
   isScoringReportLoading,
   isStartingRun,
-  lastUpdatedLabel,
   latestRunId,
   latestSpecId,
   llmLogs,
@@ -114,7 +111,6 @@ const {
   maxChapter,
   mode,
   nextChapter,
-  noveltyAuditData,
   outlineArtifact,
   outlineData,
   outlineReady,
@@ -132,11 +128,8 @@ const {
   reviewTabStatuses,
   reviewTabs,
   runEventsData,
-  runProgressLabel,
-  runProgressPercent,
   samples,
   scoringHistory,
-  scoringReport,
   scrollToSection,
   selectedProjectId,
   selectedProseLength,
@@ -145,7 +138,6 @@ const {
   settingArtifact,
   settingData,
   settingReady,
-  showAdvancedValidation,
   showRedHerrings,
   showShortcutHelp,
   spec,
@@ -503,73 +495,7 @@ const {
 
           </section>
 
-          <aside class="hidden w-80 flex-shrink-0 flex-col gap-4 rounded-xl border border-line bg-ground/80 p-3 md:flex md:self-start md:sticky md:top-4 md:max-h-[calc(100vh-2rem)] md:overflow-y-auto">
-            <div class="px-1 pt-1">
-              <div class="text-xs font-semibold uppercase tracking-wide text-ink-soft">Workspace panel</div>
-              <div class="mt-1 text-[11px] text-ink-soft">Status, validation, and diagnostics</div>
-            </div>
-            <div class="rounded-lg border border-line bg-surface p-5 shadow-card">
-              <div class="t-section">Status</div>
-              <div class="mt-2 text-sm text-ink-soft">{{ runProgressLabel }}</div>
-              <div v-if="isRunning || isStartingRun" class="mt-3 h-1 w-full overflow-hidden rounded-full bg-surface-sunken">
-                <div
-                  class="h-full rounded-full bg-frame-tint transition-all duration-500"
-                  :style="{ width: `${runProgressPercent}%` }"
-                ></div>
-              </div>
-              <div v-if="isRunning || isStartingRun" class="t-subtitle mt-1">
-                {{ Math.round(runProgressPercent) }}% complete
-              </div>
-              <div class="mt-3 text-xs text-ink-soft">{{ lastUpdatedLabel }}</div>
-            </div>
-
-            <div v-if="!isAdvanced" class="rounded-lg border border-line bg-surface p-5 shadow-card">
-              <div class="t-section">Helpful fixes</div>
-              <ul class="mt-2 space-y-1 text-xs text-ink-soft">
-                <li v-for="(suggestion, index) in fixSuggestions" :key="index">{{ suggestion }}</li>
-              </ul>
-            </div>
-
-            <div v-if="isAdvanced" class="space-y-4">
-              <!--
-                ONE disclosure, not two. This was a card with a title AND a "Show details" link
-                beside it — a disclosure inside a disclosure, with two things to read before you
-                could decide whether to open anything. The whole header is now the control.
-              -->
-              <div class="rounded-lg border border-line bg-surface shadow-card">
-                <button
-                  type="button"
-                  class="transition-control flex w-full items-center gap-2 rounded-lg px-5 py-4 text-left hover:bg-surface-sunken"
-                  :aria-expanded="showAdvancedValidation"
-                  @click="showAdvancedValidation = !showAdvancedValidation"
-                >
-                  <span class="t-section flex-1">Validation details</span>
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    class="text-ink-soft transition-transform duration-150"
-                    :class="showAdvancedValidation ? 'rotate-180' : ''"
-                    aria-hidden="true"
-                  >
-                    <path d="m6 9.5 6 6 6-6" />
-                  </svg>
-                </button>
-                <div v-if="showAdvancedValidation" class="border-t border-line px-5 py-4">
-                  <ValidationPanel :validation="allValidation" @field-focus="handleValidationFieldFocus" />
-                </div>
-              </div>
-              <NoveltyAudit :audit="noveltyAuditData" />
-              <!-- The Connection card (Reconnect / Disconnect) was cut on the owner's decision,
-                   2026-09-17. useRunProgress reconnects on its own and reports it in the status
-                   line; two manual buttons for it were diagnostics the operator never needed to
-                   reach for. connectSse/disconnectSse remain — they are the lifecycle, not the UI. -->
-            </div>
-          </aside>
+          <WorkspaceRail />
         </main>
       </div>
     </div>
