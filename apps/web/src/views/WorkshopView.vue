@@ -230,9 +230,31 @@ const {
             -->
             <TabPanel id="build-tab" :active="activeMainTab === 'build'" :lazy="true">
               <div class="flex flex-col gap-6">
-                <ProjectPanel />
-                <SpecPanel />
-                <GeneratePanel />
+                <!--
+                  Merging three tabs into one made the page long, which is the trade. A jump bar
+                  pays for it: the three sections are still one workflow, and now you can also get
+                  straight to the one you want. `scroll-mt` keeps the heading clear of the sticky
+                  tab strip when you land on it.
+                -->
+                <nav aria-label="Build sections" class="flex flex-wrap items-center gap-2">
+                  <span class="t-eyebrow">Jump to</span>
+                  <a
+                    v-for="s in [
+                      { id: 'build-project', label: 'Project' },
+                      { id: 'build-spec', label: 'Spec' },
+                      { id: 'build-generate', label: 'Generate' },
+                    ]"
+                    :key="s.id"
+                    :href="`#${s.id}`"
+                    class="transition-control rounded-sm border border-line bg-surface px-2.5 py-1 text-[0.78rem] font-medium text-ink no-underline hover:border-line-strong hover:bg-surface-sunken"
+                  >
+                    {{ s.label }}
+                  </a>
+                </nav>
+
+                <div id="build-project" class="scroll-mt-24"><ProjectPanel /></div>
+                <div id="build-spec" class="scroll-mt-24"><SpecPanel /></div>
+                <div id="build-generate" class="scroll-mt-24"><GeneratePanel /></div>
               </div>
             </TabPanel>
 
@@ -509,17 +531,35 @@ const {
             </div>
 
             <div v-if="isAdvanced" class="space-y-4">
-              <div class="rounded-lg border border-line bg-surface p-5 shadow-card">
-                <div class="flex items-center justify-between">
-                  <div class="t-section">Validation details</div>
-                  <button
-                    class="text-xs font-semibold text-ink-soft underline"
-                    @click="showAdvancedValidation = !showAdvancedValidation"
+              <!--
+                ONE disclosure, not two. This was a card with a title AND a "Show details" link
+                beside it — a disclosure inside a disclosure, with two things to read before you
+                could decide whether to open anything. The whole header is now the control.
+              -->
+              <div class="rounded-lg border border-line bg-surface shadow-card">
+                <button
+                  type="button"
+                  class="transition-control flex w-full items-center gap-2 rounded-lg px-5 py-4 text-left hover:bg-surface-sunken"
+                  :aria-expanded="showAdvancedValidation"
+                  @click="showAdvancedValidation = !showAdvancedValidation"
+                >
+                  <span class="t-section flex-1">Validation details</span>
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    class="text-ink-soft transition-transform duration-150"
+                    :class="showAdvancedValidation ? 'rotate-180' : ''"
+                    aria-hidden="true"
                   >
-                    {{ showAdvancedValidation ? "Hide" : "Show" }} details
-                  </button>
-                </div>
-                <div v-if="showAdvancedValidation" class="mt-3">
+                    <path d="m6 9.5 6 6 6-6" />
+                  </svg>
+                </button>
+                <div v-if="showAdvancedValidation" class="border-t border-line px-5 py-4">
                   <ValidationPanel :validation="allValidation" @field-focus="handleValidationFieldFocus" />
                 </div>
               </div>

@@ -56,12 +56,17 @@ const {
 	  <div class="mt-2 text-sm text-frame">
 	    <span v-if="activeReviewTab === 'cast'">Review character profiles with public and private details.</span>
 	    <span v-else-if="activeReviewTab === 'background'">Review setting, place, and period context for the mystery backdrop.</span>
-	    <span v-else-if="activeReviewTab === 'hardLogic'">Inspect generated hard-logic devices that ground the mystery mechanism.</span>
+	    <span v-else-if="activeReviewTab === 'hardLogic'">How the crime was actually done — the physical and social devices that make the deception hold, and what would break each one mechanism.</span>
 	    <span v-else-if="activeReviewTab === 'locations'">Explore detailed location profiles with sensory details and atmosphere.</span>
-	    <span v-else-if="activeReviewTab === 'temporal'">View the specific date, era, fashion, culture, and historical context.</span>
+	    <span v-else-if="activeReviewTab === 'temporal'">The date the story happens on, and what it has to get right about that year — weather, clothes, manners and what was in the news context.</span>
 	    <span v-else-if="activeReviewTab === 'clues'">Browse all clues with red herring filtering and play mode to reveal by chapter.</span>
 	    <span v-else-if="activeReviewTab === 'outline'">View the story structure broken down by chapters and events.</span>
-	    <span v-else-if="activeReviewTab === 'prose'">Read the full narrative story text.</span>
+	    <!--
+				#1: the story is readable in two places and nothing said which was which. This panel is the
+				VERSION and EXPORT tool — short/medium/long, and the PDFs. The case file under My Cases is
+				the reading experience, with the spoilers held back.
+			-->
+			<span v-else-if="activeReviewTab === 'prose'">The generated text, with its length variants and PDF exports. To read it properly — chapter by chapter, spoilers held back — open the case under My Cases.</span>
 	  </div>
 	</div>
 

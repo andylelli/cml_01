@@ -95,9 +95,10 @@ export const useWorkshopState = () => {
   const reviewTabs = computed<Tab[]>(() => [
     { id: "cast", label: "Cast" },
     { id: "background", label: "Background" },
-    { id: "hardLogic", label: "Hard Logic" },
+    // Label only — the id stays `hardLogic` so logs and artifact names keep matching.
+    { id: "hardLogic", label: "Method" },
     { id: "locations", label: "Locations" },
-    { id: "temporal", label: "Era & Culture" },
+    { id: "temporal", label: "Period" },
     { id: "clues", label: "Clues" },
     { id: "outline", label: "Outline" },
     { id: "prose", label: "Prose" },

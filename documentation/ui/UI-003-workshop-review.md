@@ -321,6 +321,24 @@ server would reasonably assume otherwise.
 
 ---
 
+## 8c. THE FIVE THINGS STILL NOT INTUITIVE — AND WHAT HAPPENED TO THEM
+
+Raised after §8b, when the question was whether the console is *intuitive* rather than merely
+smaller. Four were built; one was withdrawn on inspection.
+
+| | finding | outcome |
+|---|---|---|
+| **1** | The story is readable in **two** places — Review ▸ Prose and the case file — and nothing said which was which | **Built.** The panel now says it is the version and export tool, and points at My Cases for reading |
+| **2** | ~~Review ▸ Cast is the weaker twin of the case file's people view~~ | **WITHDRAWN — premise wrong.** The 399-character reading was the COLLAPSED state. Expanded, it is **17,819 characters across 7 disclosures, including motive, private secret and alibi** — more than the case file shows, and correct for an operator. My fifth probe error of the session, caught before acting |
+| **3** | Sub-tabs speak pipeline: *Hard Logic*, *Era & Culture* | **Built.** Labels only — **ids unchanged**, so logs, artifact names and every watcher keep matching. *Hard Logic → Method*, *Era & Culture → Period*. Their descriptions repeated the term rather than explaining it ("Inspect generated hard-logic devices"); both rewritten to say what the panel is for |
+| **4** | Build is a long scroll after the three-tab merge | **Built.** A *Jump to* bar — Project · Spec · Generate — with `scroll-mt` so a heading lands clear of the sticky tab strip. The length is the price of the merge; this pays it |
+| **5** | A disclosure inside a disclosure: *Validation details* card with a *Show details* link beside the title | **Built.** The whole header is now the control, with one chevron and `aria-expanded` |
+
+**On #3, the rule applied:** a label is what the operator reads; an id is what the system matches on.
+Renaming both would have been a refactor with a vocabulary change hidden inside it.
+
+---
+
 ## 9. WHAT THIS REVIEW COULD NOT DETERMINE
 
 - **Whether anyone uses the sidebar.** `logActivity` records `view_change` with the view name, but
