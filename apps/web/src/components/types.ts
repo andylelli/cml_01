@@ -40,19 +40,50 @@ export interface ProseData {
   note?: string;
 }
 
+/**
+ * A character, as Agent 2b writes them.
+ *
+ * ── THE TWO TIERS, AND THEY ARE MEASURED RATHER THAN ASSUMED ──────────────────────────────────
+ *
+ * Some of this is backstory a reader can have BEFORE the book; the rest gives the answer away. The
+ * split below was established by checking real payloads, not by reading field names — `paragraphs`
+ * looks like harmless colour and is not: one profile's second paragraph opened "His affair with
+ * Annabelle Marwood was a dangerous dance", which is verbatim what `privateSecret` holds.
+ *
+ * `src/spec/spoilers.ts` enforces the split and has a test that scans real shapes for leaks.
+ */
 export interface CharacterProfile {
   name: string;
+  /** SAFE — who they are at a glance. */
   summary?: string;
+  /** SAFE — how they appear to others. */
   publicPersona?: string;
-  privateSecret?: string;
-  motiveSeed?: string;
-  alibiWindow?: string;
-  accessPlausibility?: string;
-  stakes?: string;
+  /** SAFE — how they talk. */
+  speechMannerisms?: string;
+  /** SAFE — their one quotable line. */
+  signatureTic?: string;
+  /** SAFE — the tension they carry, without naming what caused it. */
+  internalConflict?: string;
+  /** SAFE — dry wit, deadpan, polite savagery. */
   humourStyle?: string;
   humourLevel?: number;
-  speechMannerisms?: string;
+
+  /** SPOILER — what they are hiding. */
+  privateSecret?: string;
+  /** SPOILER — why they might have done it. */
+  motiveSeed?: string;
+  motiveStrength?: string | number;
+  /** SPOILER — where they say they were. */
+  alibiWindow?: string;
+  /** SPOILER — whether they could have. */
+  accessPlausibility?: string;
+  /** SPOILER — what they stand to lose. */
+  stakes?: string;
+  /** SPOILER — what the investigation threatens for them specifically. */
+  personalStakeInCase?: string;
+  /** SPOILER — the long-form profile. Contains the secret; see the note above. */
   paragraphs: string[];
+
   order?: number;
 }
 
@@ -73,10 +104,22 @@ export interface LocationProfilesData {
     summary: string;
     paragraphs: string[];
   };
+  /**
+   * MEASURED against a real payload, 2026-09-17: this shape was wrong. It declared `description`
+   * and an `accessibility` object; the pipeline emits `purpose`, `visualDetails` and a plain-string
+   * `accessControl`. Anything rendering the declared fields drew nothing, silently, because an
+   * absent optional is not a type error.
+   *
+   * `purpose` is the one SPOILER field here — it reads "Crime scene". Everything else on a location,
+   * including its paragraphs, is safe backstory.
+   */
   keyLocations: Array<{
+    id?: string;
     name: string;
     type: string;
-    description: string;
+    /** "Crime scene", "Servants' hall" — SPOILER. Gate it. */
+    purpose?: string;
+    visualDetails?: string;
     paragraphs: string[];
     sensoryDetails?: {
       sights?: string[];
@@ -84,17 +127,18 @@ export interface LocationProfilesData {
       smells?: string[];
       tactile?: string[];
     };
-    accessibility?: {
-      publicAccess?: boolean;
-      whoCanEnter?: string[];
-      restrictions?: string[];
-    };
+    sensoryVariants?: Record<string, unknown>;
+    /** Who may enter, as prose. */
+    accessControl?: string;
   }>;
   atmosphere: {
     mood: string;
     weather: string;
+    era?: string;
+    timeFlow?: string;
     eraMarkers: string[];
     sensoryPalette: string[];
+    paragraphs?: string[];
   };
 }
 

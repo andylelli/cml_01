@@ -150,6 +150,53 @@ const profiles = computed(() => characterProfilesData.value?.profiles ?? []);
 const places = computed(() => locationProfilesData.value?.keyLocations ?? []);
 const chapters = computed(() => proseData.value?.chapters ?? []);
 
+/** The four senses a location records, as labelled lines, skipping any it does not have. */
+const senses = (place: { sensoryDetails?: Record<string, string[] | undefined> }) =>
+	(
+		[
+			["Sights", "sights"],
+			["Sounds", "sounds"],
+			["Smells", "smells"],
+			["Touch", "tactile"],
+		] as const
+	)
+		.map(([term, key]) => ({ term, value: (place.sensoryDetails?.[key] ?? []).join(" · ") }))
+		.filter((s) => s.value.length > 0);
+
+const atmosphere = computed(() => {
+	const a = locationProfilesData.value?.atmosphere;
+	if (!a) return null;
+	return [a.mood, a.weather, a.timeFlow].filter(Boolean).join(" · ") || null;
+});
+
+/**
+ * The held-back half of a profile, in reading order — what they hide, then why, then whether they
+ * could have. Empty fields are dropped rather than rendered as a blank line.
+ */
+const secretsOf = (person: {
+	privateSecret?: string;
+	motiveSeed?: string;
+	stakes?: string;
+	personalStakeInCase?: string;
+	alibiWindow?: string;
+	accessPlausibility?: string;
+}) =>
+	(
+		[
+			["Hiding", person.privateSecret],
+			["Motive", person.motiveSeed],
+			["Stands to lose", person.stakes],
+			["At stake in this case", person.personalStakeInCase],
+			["Alibi", person.alibiWindow],
+			["Could have", person.accessPlausibility],
+		] as const
+	)
+		.map(([term, value]) => ({ term, value: (value ?? "").trim() }))
+		.filter((f) => f.value.length > 0);
+
+/** Tics arrive quoted in the payload; the template supplies its own quotation marks. */
+const stripQuotes = (text: string) => text.replace(/^["“'‘\s]+|["”'’\s]+$/g, "");
+
 /** Something to read, as opposed to a case still being assembled. */
 const hasStory = computed(() => chapters.value.length > 0);
 
@@ -272,6 +319,7 @@ onBeforeUnmount(() => {
 			</dl>
 		</StepCard>
 
+		<!-- ── THE PLACES · safe to read before the book ──────────────── -->
 		<StepCard
 			v-if="locationProfilesData"
 			icon="house"
@@ -281,53 +329,65 @@ onBeforeUnmount(() => {
 			<p v-if="locationProfilesData.primary?.summary" class="reader">
 				{{ locationProfilesData.primary.summary }}
 			</p>
+			<div v-if="locationProfilesData.primary?.paragraphs?.length" class="reader mt-3 max-w-prose">
+				<p v-for="(para, i) in locationProfilesData.primary.paragraphs" :key="i" class="mb-3">{{ para }}</p>
+			</div>
 
-			<ul v-if="places.length" class="mt-4 grid gap-3 p-0 sm:grid-cols-2">
-				<li
-					v-for="place in places"
-					:key="place.name"
-					class="list-none rounded border border-line bg-ground-warm p-3.5"
-				>
-					<p class="flex items-baseline gap-2">
-						<span class="text-[0.9rem] font-semibold">{{ place.name }}</span>
+			<!--
+				Everything drawn here is safe before the book — MEASURED, 20 of 21 location fields scanned
+				clean. `purpose` is the exception: it reads "Crime scene", so it is gated.
+			-->
+			<ul v-if="places.length" class="mt-5 flex flex-col gap-3 p-0">
+				<li v-for="place in places" :key="place.name" class="list-none rounded border border-line bg-ground-warm p-4">
+					<p class="flex flex-wrap items-baseline gap-2">
+						<span class="font-display text-[0.98rem] font-semibold">{{ place.name }}</span>
 						<span v-if="place.type" class="t-subtitle text-[0.72rem]">{{ place.type }}</span>
+						<span
+							v-if="showSpoilers && place.purpose"
+							class="rounded-sm bg-warn-wash px-1.5 py-0.5 text-[0.68rem] font-semibold text-warn"
+						>{{ place.purpose }}</span>
 					</p>
-					<p v-if="place.description" class="mt-1 text-[0.82rem] leading-snug text-ink-soft">
-						{{ place.description }}
-					</p>
+					<p v-if="place.visualDetails" class="mt-1.5 text-[0.85rem] leading-relaxed text-ink">{{ place.visualDetails }}</p>
+					<div v-if="place.paragraphs?.length" class="reader mt-2.5 max-w-prose text-[0.92rem]">
+						<p v-for="(para, i) in place.paragraphs" :key="i" class="mb-2.5">{{ para }}</p>
+					</div>
+					<dl v-if="senses(place).length" class="mt-3 grid gap-2 sm:grid-cols-2">
+						<div v-for="sense in senses(place)" :key="sense.term">
+							<dt class="t-label">{{ sense.term }}</dt>
+							<dd class="m-0 text-[0.8rem] leading-snug text-ink-soft">{{ sense.value }}</dd>
+						</div>
+					</dl>
 					<p
-						v-if="place.sensoryDetails?.sounds?.length || place.sensoryDetails?.smells?.length"
-						class="mt-2 text-[0.75rem] italic text-ink-faint"
+						v-if="showSpoilers && place.accessControl"
+						class="mt-3 rounded border border-warn bg-warn-wash p-2.5 text-[0.8rem] leading-snug"
 					>
-						{{ [...(place.sensoryDetails?.sounds ?? []), ...(place.sensoryDetails?.smells ?? [])].slice(0, 3).join(" · ") }}
+						<span class="t-label !text-warn">Who can get in</span> — {{ place.accessControl }}
 					</p>
 				</li>
 			</ul>
+
+			<p v-if="atmosphere" class="mt-4 border-t border-line pt-4 text-[0.85rem] leading-relaxed text-ink-soft">
+				<span class="t-label">Atmosphere</span> — {{ atmosphere }}
+			</p>
 		</StepCard>
 
+		<!-- ── THE PEOPLE ────────────────────────────────────────────── -->
 		<StepCard
 			v-if="profiles.length || castData?.suspects?.length"
 			icon="people"
 			title="The People"
 			:subtitle="`${profiles.length || castData?.suspects?.length || 0} in the house`"
 		>
-			<!-- Names only, until the profiles land. -->
 			<ul v-if="!profiles.length" class="flex flex-wrap gap-2 p-0">
 				<li
 					v-for="name in castData?.suspects ?? []"
 					:key="name"
 					class="list-none rounded-sm border border-line bg-ground-warm px-2.5 py-1 text-[0.82rem]"
-				>
-					{{ name }}
-				</li>
+				>{{ name }}</li>
 			</ul>
 
 			<ul v-else class="flex flex-col gap-3 p-0">
-				<li
-					v-for="person in profiles"
-					:key="person.name"
-					class="list-none rounded border border-line bg-ground-warm p-4"
-				>
+				<li v-for="person in profiles" :key="person.name" class="list-none rounded border border-line bg-ground-warm p-4">
 					<p class="flex flex-wrap items-baseline gap-2">
 						<span class="font-display text-[1rem] font-semibold">{{ person.name }}</span>
 						<span v-if="person.humourStyle && person.humourStyle !== 'none'" class="t-subtitle text-[0.72rem]">
@@ -336,32 +396,38 @@ onBeforeUnmount(() => {
 					</p>
 
 					<p v-if="person.summary" class="mt-1.5 text-[0.86rem] leading-relaxed">{{ person.summary }}</p>
-
 					<p v-if="person.publicPersona" class="mt-2 text-[0.82rem] leading-snug text-ink-soft">
 						<span class="t-label">In public</span> — {{ person.publicPersona }}
 					</p>
-
 					<p v-if="person.speechMannerisms" class="mt-1.5 text-[0.82rem] leading-snug text-ink-soft">
 						<span class="t-label">Speaks</span> — {{ person.speechMannerisms }}
 					</p>
+					<p v-if="person.internalConflict" class="mt-1.5 text-[0.82rem] leading-snug text-ink-soft">
+						<span class="t-label">Torn between</span> — {{ person.internalConflict }}
+					</p>
+					<p v-if="person.signatureTic" class="mt-2 font-display text-[0.9rem] italic text-ink">
+						{{ stripQuotes(person.signatureTic) }}
+					</p>
 
-					<!-- Held back by default. See the spoiler rule at the top of this file. -->
+					<!--
+						The long profile sits WITH the secrets, not with the background. It looks like harmless
+						colour and is not: measured on a real payload, a suspect's second paragraph opens with
+						the contents of `privateSecret`. See spec/spoilers.ts.
+					-->
 					<div v-if="showSpoilers" class="mt-3 rounded border border-warn bg-warn-wash p-3">
-						<p v-if="person.privateSecret" class="text-[0.82rem] leading-snug">
-							<span class="t-label !text-warn">Hiding</span> — {{ person.privateSecret }}
-						</p>
-						<p v-if="person.motiveSeed" class="mt-1.5 text-[0.82rem] leading-snug">
-							<span class="t-label !text-warn">Motive</span> — {{ person.motiveSeed }}
-						</p>
-						<p v-if="person.alibiWindow" class="mt-1.5 text-[0.82rem] leading-snug">
-							<span class="t-label !text-warn">Alibi</span> — {{ person.alibiWindow }}
-						</p>
+						<div v-if="person.paragraphs?.length" class="reader max-w-prose text-[0.9rem]">
+							<p v-for="(para, i) in person.paragraphs" :key="i" class="mb-2.5">{{ para }}</p>
+						</div>
+						<dl v-if="secretsOf(person).length" class="flex flex-col gap-1.5 border-t border-warn pt-2.5" :class="person.paragraphs?.length ? 'mt-2' : ''">
+							<div v-for="fact in secretsOf(person)" :key="fact.term" class="text-[0.82rem] leading-snug">
+								<dt class="t-label !text-warn inline">{{ fact.term }}</dt>
+								<dd class="m-0 inline"> — {{ fact.value }}</dd>
+							</div>
+						</dl>
 					</div>
 				</li>
 			</ul>
 		</StepCard>
-
-		<!-- ── the story ───────────────────────────────────────────────── -->
 		<StepCard
 			v-if="hasStory"
 			icon="book"

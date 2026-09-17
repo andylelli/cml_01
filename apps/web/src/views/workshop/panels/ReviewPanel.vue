@@ -204,7 +204,11 @@ const {
 	          {{ location.name }} <span class="text-xs font-normal text-ink-soft">({{ location.type }})</span>
 	        </summary>
 	        <div class="mt-2 space-y-3">
-	          <p class="text-sm italic text-ink-soft">{{ location.description }}</p>
+	          <!-- `description` and `accessibility` never existed in the payload; these lines drew
+	               nothing until the type was corrected. Real fields: purpose, visualDetails,
+	               accessControl. UI-003 follow-up. -->
+	          <p v-if="location.purpose" class="text-xs font-semibold uppercase tracking-wide text-warn">{{ location.purpose }}</p>
+	          <p v-if="location.visualDetails" class="text-sm italic text-ink-soft">{{ location.visualDetails }}</p>
 	          <div class="space-y-2 text-sm text-ink-soft">
 	            <p v-for="(para, paraIdx) in location.paragraphs" :key="`loc-${idx}-para-${paraIdx}`">{{ para }}</p>
 	          </div>
@@ -223,18 +227,10 @@ const {
 	              <span class="font-semibold text-ink-soft">Tactile:</span> {{ location.sensoryDetails.tactile.join(', ') }}
 	            </div>
 	          </div>
-	          <div v-if="location.accessibility" class="rounded bg-ground p-2 text-xs">
-	            <div class="font-semibold text-ink">Access:</div>
-	            <div class="mt-1">
-	              <span class="font-semibold text-ink-soft">Public:</span> {{ location.accessibility.publicAccess ? 'Yes' : 'No' }}
-	            </div>
-	            <div v-if="location.accessibility.whoCanEnter?.length" class="mt-1">
-	              <span class="font-semibold text-ink-soft">Who can enter:</span> {{ location.accessibility.whoCanEnter.join(', ') }}
-	            </div>
-	            <div v-if="location.accessibility.restrictions?.length" class="mt-1">
-	              <span class="font-semibold text-ink-soft">Restrictions:</span> {{ location.accessibility.restrictions.join(', ') }}
-	            </div>
-	          </div>
+	          <div v-if="location.accessControl" class="rounded bg-ground p-2 text-xs">
+								<div class="font-semibold text-ink">Access</div>
+								<div class="mt-1 text-ink-soft">{{ location.accessControl }}</div>
+							</div>
 	        </div>
 	      </details>
 	    </div>
