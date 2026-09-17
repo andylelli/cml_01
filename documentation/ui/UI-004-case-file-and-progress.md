@@ -5,7 +5,7 @@
 `/location-profiles`) or read from source. Companion to [UI-001](UI-001-design-system.md),
 [UI-002](UI-002-rebuild-plan.md) and [UI-003](UI-003-workshop-review.md).
 
-Commits: `e7500d4a` (the dossier), `bffe95be` (the progress tests).
+Commits: `e7500d4a` (the dossier), `bffe95be` (the progress tests), `cef6a34e` (the rendering tests).
 
 ---
 
@@ -59,6 +59,7 @@ A green test proves nothing until it has been shown to fail. Two mutations, both
 |---|---|
 | comment out `syncPoll()` — the poll never starts | *polls while running and stops when it is not* — "expected 1 to be greater than 1" |
 | freeze `stages`/`progress` at setup instead of computing | *advances when more events arrive — without remounting* |
+| put `place.description` back — the original defect verbatim | *draws every safe location field*, on the exact string that stopped rendering — **and `vue-tsc`**, which it could not do before (§2a) |
 
 ### 1b. Reader's language, not the console's
 
@@ -104,6 +105,14 @@ throughout.
 
 This is the same shape as the CLAUDE.md probe rule: a component that renders nothing is a claim about
 the *component*, not about the data. Correcting the type is what surfaced it.
+
+It is also what makes the defect **catchable**. Restoring `place.description` as a mutation now
+fails `vue-tsc` as well as the test, because the type finally describes the payload. Before
+`e7500d4a` neither guard existed; there are now two, and they are independent.
+
+`views/__tests__/CaseView.dossier.test.ts` (9 tests) asserts every safe field appears **by its exact
+text** — a card that silently empties fails there rather than in a reader's hands — and that all 9
+spoiler fields are absent before the toggle and present after it, so nothing is unreachable either.
 
 `atmosphere` also gained `era`, `timeFlow` and `paragraphs`, all of which the payload has always
 returned and no view has ever shown.
@@ -163,7 +172,9 @@ the rule, and a rule whose evidence is deleted becomes a comment.
 | People card: 3 fields → full safe tier | done | `e7500d4a` |
 | bonus tier behind the spoiler control | done | `e7500d4a` |
 | spoiler split enforced by test | done | `e7500d4a` |
+| dossier fields asserted to reach the screen | pinned, mutation-tested | `cef6a34e` |
+| unfinished-run states (no empty cards, bare cast names, no orphaned labels) | pinned | `cef6a34e` |
 | poll blanks a loaded card on a non-404 rejection | **recorded, not built** (§1c) | — |
 | a paid run through the rebuilt case file | **outstanding** — everything above is proven against events and payloads, never against a live run | — |
 
-350 tests pass; `npm run typecheck` clean.
+359 tests pass; `npm run typecheck` clean.
