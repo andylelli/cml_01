@@ -33,7 +33,7 @@ const {
 	<div class="rounded-lg border border-line bg-ground-warm p-5">
 	  <div class="text-sm font-semibold text-frame">Welcome to your Mystery Generator</div>
 	  <div class="mt-2 text-sm text-frame">
-	    This is your project dashboard. Create a new project, configure your story settings in the Spec tab, then generate your mystery in the Generate tab. All generated content will appear here and in the Review tab.
+	    Open or create a project, set the story parameters below, then generate. Everything the pipeline produces appears under Review; the raw CML, logs and scores are under Advanced.
 	  </div>
 	</div>
 

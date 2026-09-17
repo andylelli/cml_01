@@ -1,30 +1,40 @@
 <script setup lang="ts">
+import { computed } from "vue";
 /**
  * KeyboardShortcutHelp
  * Overlay panel (press ? to open) showing all global keyboard shortcuts.
  */
+const props = defineProps<{
+  /**
+   * The tab labels the Ctrl+N shortcuts actually reach, in order.
+   *
+   * Passed in rather than written here. This list used to be six hard-coded entries naming Project,
+   * Spec and Generate; after those merged into Build (UI-003 W4) the panel was describing tabs that
+   * no longer existed, against numbers that no longer matched. That is exactly the defect
+   * `useShortcuts` was built to remove — a second copy of the tab list — reappearing one component
+   * along, and it is why this one is derived instead.
+   */
+  tabLabels?: string[];
+}>();
+
 const emit = defineEmits<{
   close: [];
 }>();
 
-const shortcuts: Array<{ keys: string[]; description: string; category: string }> = [
-  // Tab navigation
-  { keys: ["Ctrl", "1"], description: "Go to Project tab", category: "Navigation" },
-  { keys: ["Ctrl", "2"], description: "Go to Spec tab", category: "Navigation" },
-  { keys: ["Ctrl", "3"], description: "Go to Generate tab", category: "Navigation" },
-  { keys: ["Ctrl", "4"], description: "Go to Review tab", category: "Navigation" },
-  { keys: ["Ctrl", "5"], description: "Go to Advanced tab", category: "Navigation" },
-  { keys: ["Ctrl", "6"], description: "Go to Export tab", category: "Navigation" },
-  // Clue/chapter navigation
+const shortcuts = computed<Array<{ keys: string[]; description: string; category: string }>>(() => [
+  ...(props.tabLabels ?? []).map((label, i) => ({
+    keys: ["Ctrl", String(i + 1)],
+    description: `Go to ${label}`,
+    category: "Navigation",
+  })),
   { keys: ["J"], description: "Next clue / chapter", category: "Content" },
   { keys: ["K"], description: "Previous clue / chapter", category: "Content" },
-  // Actions
   { keys: ["?"], description: "Show keyboard shortcuts", category: "General" },
   { keys: ["Esc"], description: "Close this panel", category: "General" },
-];
+]);
 
-const categories = [...new Set(shortcuts.map((s) => s.category))];
-const byCategory = (cat: string) => shortcuts.filter((s) => s.category === cat);
+const categories = computed(() => [...new Set(shortcuts.value.map((s) => s.category))]);
+const byCategory = (cat: string) => shortcuts.value.filter((s) => s.category === cat);
 </script>
 
 <template>

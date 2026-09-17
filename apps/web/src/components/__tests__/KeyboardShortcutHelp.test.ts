@@ -8,13 +8,30 @@ describe("KeyboardShortcutHelp", () => {
     expect(wrapper.exists()).toBe(true);
   });
 
-  it("shows keyboard shortcuts in a table", () => {
-    const wrapper = mount(KeyboardShortcutHelp);
-    // kbd elements render key parts separately e.g. <kbd>Ctrl</kbd><kbd>1</kbd>
+  it("describes exactly the tabs it is given, numbered in order", () => {
+    // Was: mount with no props and assert "Ctrl" plus any digit 1-6. That passed against a
+    // hard-coded list of six tabs, and kept passing after three of them merged into Build — the
+    // panel was describing tabs that no longer existed (UI-003 W4). The labels are now a prop, so
+    // the contract is that it describes THOSE and only those.
+    const wrapper = mount(KeyboardShortcutHelp, {
+      props: { tabLabels: ["Build", "Review", "Advanced", "Export"] },
+    });
     const text = wrapper.text();
     expect(text).toContain("Ctrl");
-    // At least one number key 1-6 should appear alongside Ctrl
-    expect(text).toMatch(/[1-6]/);
+    for (const [i, label] of ["Build", "Review", "Advanced", "Export"].entries()) {
+      expect(text).toContain(`Go to ${label}`);
+      expect(text).toContain(String(i + 1));
+    }
+    // Nothing invented: there is no fifth tab to go to.
+    expect(text).not.toContain("Go to Spec");
+    expect(text).not.toContain("Go to Project");
+  });
+
+  it("lists no tab shortcuts when it is told of no tabs", () => {
+    const wrapper = mount(KeyboardShortcutHelp);
+    expect(wrapper.text()).not.toMatch(/Go to /);
+    // The non-tab shortcuts still show.
+    expect(wrapper.text()).toContain("chapter");
   });
 
   it("shows J/K navigation shortcuts", () => {

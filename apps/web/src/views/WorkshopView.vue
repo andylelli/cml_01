@@ -65,10 +65,8 @@ const {
   cluesData,
   cluesReady,
   cmlArtifact,
-  connectSse,
   currentChapter,
   debugLogs,
-  disconnectSse,
   dismissError,
   errors,
   fairPlayReady,
@@ -526,18 +524,10 @@ const {
                 </div>
               </div>
               <NoveltyAudit :audit="noveltyAuditData" />
-              <div class="rounded-lg border border-line bg-surface p-5 shadow-card">
-                <div class="t-section">Connection</div>
-                <div class="t-subtitle mt-1">Advanced diagnostics</div>
-                <div class="mt-3 flex gap-2">
-                  <button class="transition-control rounded border border-line bg-surface px-3 py-1.5 text-[0.8rem] font-medium text-ink hover:border-line-strong hover:bg-surface-sunken" @click="connectSse">
-                    Reconnect
-                  </button>
-                  <button class="transition-control rounded border border-line bg-surface px-3 py-1.5 text-[0.8rem] font-medium text-ink hover:border-line-strong hover:bg-surface-sunken" @click="disconnectSse">
-                    Disconnect
-                  </button>
-                </div>
-              </div>
+              <!-- The Connection card (Reconnect / Disconnect) was cut on the owner's decision,
+                   2026-09-17. useRunProgress reconnects on its own and reports it in the status
+                   line; two manual buttons for it were diagnostics the operator never needed to
+                   reach for. connectSse/disconnectSse remain — they are the lifecycle, not the UI. -->
             </div>
           </aside>
         </main>
@@ -545,6 +535,12 @@ const {
     </div>
   </div>
   <!-- Global keyboard shortcut help overlay (? key) -->
-  <KeyboardShortcutHelp v-if="showShortcutHelp" @close="showShortcutHelp = false" />
+  <!-- Labels come from the real tab list, so the help cannot describe tabs that are not there —
+       which it did, for six of them, after the Build merge. -->
+  <KeyboardShortcutHelp
+    v-if="showShortcutHelp"
+    :tab-labels="mainTabs.map((t) => t.label)"
+    @close="showShortcutHelp = false"
+  />
 </template>
 
