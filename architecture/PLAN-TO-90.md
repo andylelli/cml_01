@@ -1861,3 +1861,20 @@ an index needs to know which side of that rule they are on. The state it leaves:
 verified encodings, 4 legacy, 135 awaiting encode, 24 seed cases reaching Agent 3, one directory.
 *The Moonstone* — the genre's founding text — is still unencoded; it was the longest book in A_97's
 batch, sorted last, and did not complete. ~£0.30 and one command.
+
+## 20. A_99 — HOW TO GET TO 90 · 2026-09-18 · £0
+
+**The board's arithmetic, re-run at n=61, gives the same answer it gave in §12.1: best-ever-everywhere
+stacks to 89.** And two months of levers on the prose stage — sixty of them, measured, most working —
+moved the mean from 80.5 (August, 20 reads) to 80.3 (September, 16 reads). `ANALYSIS_99` argues the
+plateau is structural: five properties of the v1 prose engine, each MEASURED (it writes sentences the
+model did not write; the unit is the chapter with prior chapters handed over to copy; a 31-block
+compliance prompt; instruments that only point down; one draft, no selection), and that 90
+consistently needs an engine without them. It supersedes the ORDER in §8.5 and in A_95 §5 with a
+bounded rebuild — **Prose Engine v2**, alongside v1 behind one switch — in three phases: the floor
+(delete the writers and the aborts), the engine (the book as the unit; contract + brief; best-of-three
+by instrument; an anchored critic), and the writer (the frontier-draft experiment never run, then the
+positive operations). Acceptance is defined before the first v2 read: three reads per book, median,
+five consecutive books ≥ 90 and none below 88. ~£25 of runs, ~33 reads. The honest limit is in its
+§8: no book has had a prose or dialogue 9, and the writer is the one lever never pulled.
+
