@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { REPO_ROOT, config } from './config.js';
-import { countWords } from './text.js';
+import { countWords } from '../../packages/narrator/src/index.js';
 
 /* ------------------------------------------------------------------ *
  * The story picker, gated on the external read score.

@@ -1,5 +1,5 @@
-import { escapeXml } from './azure.js';
-import { segmentParagraph } from './dialogue.js';
+import { escapeXml } from './xml.js';
+import { segmentParagraph, speakerCueIn } from './dialogue.js';
 import { EM_OPEN, EM_CLOSE, ST_OPEN, ST_CLOSE } from './text.js';
 
 /* ------------------------------------------------------------------ *
@@ -169,7 +169,14 @@ export function buildChunkSsml({ chunk, voices, options = {}, state = { inQuote:
     }
 
     const r = segmentParagraph(b.text, { lastSpeaker: next.lastSpeaker, inQuote: next.inQuote });
-    next = { inQuote: r.inQuote, lastSpeaker: r.lastSpeaker };
+    // Same rule as segmentParagraphs: a narration-only paragraph that names a
+    // speaker hands them the floor for the paragraph that follows. Without
+    // this, rendering would attribute differently from detection.
+    const spoke = r.segments.some((s) => s.kind === 'dialogue');
+    next = {
+      inQuote: r.inQuote,
+      lastSpeaker: spoke ? r.lastSpeaker : speakerCueIn(b.text) || r.lastSpeaker,
+    };
 
     for (const seg of r.segments) {
       const voice =

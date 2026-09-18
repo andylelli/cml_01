@@ -2,20 +2,22 @@ import crypto from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { config, paths } from './config.js';
-import { synthesize } from './azure.js';
-import { planStory } from './text.js';
-import { buildChunkSsml } from './ssml.js';
-import { concatMp3, buildM4b, makeSilence, durationSeconds, formatDuration } from './audio.js';
+import {
+  planNarration,
+  renderBook,
+  normaliseOptions as coreNormaliseOptions,
+  estimateCost as coreEstimateCost,
+  slug,
+} from '../../packages/narrator/src/index.js';
 import { saveJob, loadJob } from './store.js';
 
 /* ------------------------------------------------------------------ *
- * The render loop.
+ * Job records for the standalone app.
  *
- * A 10k-word story is ~35 Azure requests. Three things make that survivable:
- *   - every chunk is cached on disk by content hash, so a failed or cancelled
- *     render resumes instead of re-paying for work already done
- *   - a small concurrency pool keeps wall-clock down without tripping 429s
- *   - chunks are written per chapter, so output survives a partial failure
+ * Chunking, SSML, synthesis, caching and audio assembly all live in
+ * @cml/narrator so the workshop runs the SAME code. What stays here is the
+ * bookkeeping this app needs and the API does not: a JSON job file, cancel
+ * handles, and progress persisted for polling.
  * ------------------------------------------------------------------ */
 
 const running = new Map(); // jobId -> { controller }
@@ -31,65 +33,30 @@ export function cancelJob(id) {
   return true;
 }
 
-function chunkHash({ ssml, outputFormat }) {
-  return crypto.createHash('sha256').update(`${outputFormat} ${ssml}`).digest('hex');
+function rates() {
+  const c = config();
+  return {
+    usdPerMillionNeural: c.usdPerMillionNeural,
+    usdPerMillionPersonal: c.usdPerMillionPersonal,
+    usdToGbp: c.usdToGbp,
+  };
 }
 
 export function estimateCost(chars, voiceKind) {
-  const c = config();
-  const perMillion = voiceKind === 'personal' ? c.usdPerMillionPersonal : c.usdPerMillionNeural;
-  const usd = (chars / 1_000_000) * perMillion;
-  return {
-    chars,
-    usdPerMillion: perMillion,
-    usd: Math.round(usd * 100) / 100,
-    gbp: Math.round(usd * c.usdToGbp * 100) / 100,
-  };
+  return coreEstimateCost(chars, voiceKind, rates());
 }
 
-/** Normalise whatever the UI sent into the option shape the renderer wants. */
 export function normaliseOptions(options = {}, voice = {}) {
-  return {
-    locale: options.locale || voice.locale || 'en-GB',
-    rate: options.rate || '',
-    pitch: options.pitch || '',
-    style: options.style || '',
-    paragraphPauseMs: Number(options.paragraphPauseMs ?? 550),
-    scenePauseMs: Number(options.scenePauseMs ?? 1400),
-    headingPauseMs: Number(options.headingPauseMs ?? 1100),
-    readChapterTitles: options.readChapterTitles !== false,
-    skipFrontMatter: options.skipFrontMatter !== false,
-    emphasis: options.emphasis !== false,
-    multiVoice: options.multiVoice === true,
-    lexicon: options.lexicon && typeof options.lexicon === 'object' ? options.lexicon : {},
-    characterVoices: Array.isArray(options.characterVoices) ? options.characterVoices : [],
-    makeM4b: options.makeM4b !== false,
-  };
-}
-
-/**
- * Expand the user's per-character assignments into a lookup keyed by every
- * spelling of the name. The detector reports "Katherine" and "Katherine
- * Bellamy" separately; both must land on the same voice.
- */
-function characterVoiceMap(characterVoices) {
-  const map = {};
-  for (const entry of characterVoices) {
-    if (!entry?.voice?.id) continue;
-    for (const key of [entry.name, ...(entry.aliases || [])]) {
-      if (key) map[key] = entry.voice;
-    }
-  }
-  return map;
+  const c = config();
+  return coreNormaliseOptions(
+    { maxChunkChars: c.maxChunkChars, concurrency: c.concurrency, ...options },
+    voice
+  );
 }
 
 export async function createJob({ text, storyTitle, voice, sourceLabel, options = {} }) {
-  const c = config();
   const opts = normaliseOptions(options, voice);
-  const plan = planStory(text, {
-    maxChunkChars: c.maxChunkChars,
-    skipFrontMatter: opts.skipFrontMatter,
-  });
+  const plan = planNarration(text, { options: opts, voiceKind: voice.kind, rates: rates() });
   const id = `job_${new Date().toISOString().replace(/[-:.TZ]/g, '').slice(0, 14)}_${crypto.randomBytes(3).toString('hex')}`;
 
   const job = {
@@ -109,20 +76,11 @@ export async function createJob({ text, storyTitle, voice, sourceLabel, options 
     },
     options: opts,
     totals: plan.totals,
-    estimate: estimateCost(plan.totals.chars, voice.kind),
+    estimate: plan.estimate,
     progress: { done: 0, total: plan.totals.chunks, cachedHits: 0, failed: 0 },
     chapters: plan.chapters
       .filter((ch) => !ch.skipped)
-      .map((ch, position) => ({
-        index: ch.index,
-        position,
-        title: ch.title,
-        titled: ch.titled,
-        chunks: ch.chunks.length,
-        chars: ch.chars,
-        words: ch.words,
-        status: 'pending',
-      })),
+      .map((ch, position) => ({ ...ch, position, status: 'pending' })),
     outputs: {},
     error: null,
   };
@@ -136,85 +94,6 @@ export async function createJob({ text, storyTitle, voice, sourceLabel, options 
   return job;
 }
 
-async function cachedOrSynthesize({ ssml, signal, onCacheHit }) {
-  const c = config();
-  const hash = chunkHash({ ssml, outputFormat: c.outputFormat });
-  const cachePath = path.join(paths.cache, `${hash}.mp3`);
-  if (process.env.NARRATOR_DEBUG) {
-    console.log(`[chunk] ${hash.slice(0, 12)} ${ssml.length} chars`);
-  }
-
-  try {
-    const stat = await fs.stat(cachePath);
-    if (stat.size > 0) {
-      onCacheHit?.();
-      return cachePath;
-    }
-  } catch {
-    /* cache miss - synthesize below */
-  }
-
-  const audio = await synthesize(ssml, { signal });
-  await fs.mkdir(paths.cache, { recursive: true });
-  const tmp = `${cachePath}.tmp`;
-  await fs.writeFile(tmp, audio);
-  await fs.rename(tmp, cachePath);
-  return cachePath;
-}
-
-/** Run `limit` tasks at a time, stopping early if the job is aborted. */
-async function pool(tasks, limit, signal) {
-  let cursor = 0;
-  const workers = Array.from({ length: Math.max(1, Math.min(limit, tasks.length)) }, async () => {
-    for (;;) {
-      if (signal.aborted) return;
-      const i = cursor++;
-      if (i >= tasks.length) return;
-      await tasks[i]();
-    }
-  });
-  await Promise.all(workers);
-}
-
-/**
- * Build every chunk's SSML up front, in reading order.
- *
- * This cannot happen inside the concurrency pool: quote state and the current
- * speaker thread from one chunk to the next, so the documents must be composed
- * sequentially even though they are then synthesized in parallel.
- */
-export function composeSsml(plan, job) {
-  const voices = {
-    narrator: job.voice,
-    byCharacter: characterVoiceMap(job.options.characterVoices),
-  };
-  const baseModel = config().personalVoiceBaseModel;
-  const out = [];
-
-  for (const ch of plan.chapters.filter((x) => !x.skipped)) {
-    // Quote state resets at a chapter boundary; speech never runs across one.
-    let state = { inQuote: false, lastSpeaker: null };
-    const chunks = [];
-    for (const chunk of ch.chunks) {
-      const blocks = job.options.readChapterTitles
-        ? chunk.blocks
-        : chunk.blocks.filter((b) => b.type !== 'heading');
-      if (!blocks.length) continue;
-
-      const built = buildChunkSsml({
-        chunk: { ...chunk, blocks },
-        voices,
-        options: { ...job.options, baseModel },
-        state,
-      });
-      state = built.state;
-      chunks.push(built.ssml);
-    }
-    out.push({ chapter: ch, ssml: chunks });
-  }
-  return out;
-}
-
 export async function runJob(id) {
   if (running.has(id)) return loadJob(id);
 
@@ -226,8 +105,6 @@ export async function runJob(id) {
 
   const c = config();
   const dir = path.join(paths.output, id);
-  const chaptersDir = path.join(dir, 'chapters');
-  const started = Date.now();
 
   const touch = async (patch) => {
     Object.assign(job, patch, { updatedAt: new Date().toISOString() });
@@ -235,123 +112,46 @@ export async function runJob(id) {
   };
 
   try {
-    await fs.mkdir(chaptersDir, { recursive: true });
     await touch({ status: 'running', error: null, startedAt: new Date().toISOString() });
+    const markdown = await fs.readFile(path.join(dir, 'source.md'), 'utf8');
 
-    const text = await fs.readFile(path.join(dir, 'source.md'), 'utf8');
-    const plan = planStory(text, {
-      maxChunkChars: c.maxChunkChars,
-      skipFrontMatter: job.options.skipFrontMatter,
+    const result = await renderBook({
+      markdown,
+      title: job.title,
+      voice: job.voice,
+      options: job.options,
+      creds: {
+        key: c.speechKey,
+        region: c.region,
+        outputFormat: c.outputFormat,
+        apiVersion: c.apiVersion,
+        companyName: c.companyName,
+      },
+      dirs: { cache: paths.cache, out: dir },
+      baseModel: c.personalVoiceBaseModel,
+      signal: controller.signal,
+      rates: rates(),
+      onProgress: (p) => {
+        job.progress = { ...job.progress, done: p.done, total: p.total, cachedHits: p.cachedHits };
+        job.status = p.phase === 'assembling' ? 'assembling' : 'running';
+        saveJob(job).catch(() => {});
+      },
     });
 
-    const composed = composeSsml(plan, job);
-    const results = composed.map((entry) => new Array(entry.ssml.length));
-
-    const tasks = [];
-    composed.forEach((entry, chapterPos) => {
-      entry.ssml.forEach((ssml, chunkPos) => {
-        tasks.push(async () => {
-          const file = await cachedOrSynthesize({
-            ssml,
-            signal: controller.signal,
-            onCacheHit: () => {
-              job.progress.cachedHits += 1;
-            },
-          });
-          results[chapterPos][chunkPos] = file;
-          job.progress.done += 1;
-          saveJob(job).catch(() => {});
-        });
-      });
-    });
-
-    job.progress.total = tasks.length;
-    await touch({});
-
-    await pool(tasks, c.concurrency, controller.signal);
-
-    if (controller.signal.aborted) {
-      await touch({ status: 'cancelled' });
-      return job;
-    }
-
-    // ---- assemble ----
-    await touch({ status: 'assembling' });
-
-    const chapterFiles = [];
-    const chapterMeta = [];
-    for (let i = 0; i < composed.length; i++) {
-      const files = results[i].filter(Boolean);
-      if (!files.length) continue;
-      const ch = composed[i].chapter;
-      // Number by reading position, not source index - skipped front matter
-      // must not leave a gap that makes the first chapter file "02".
-      const n = String(chapterFiles.length + 1).padStart(2, '0');
-      const out = path.join(chaptersDir, `${n}-${slug(ch.title)}.mp3`);
-      await concatMp3(files, out, { workDir: dir });
-      chapterFiles.push(out);
-      chapterMeta.push({ title: ch.title, file: path.basename(out) });
-      const jc = job.chapters.find((x) => x.index === ch.index);
-      if (jc) jc.status = 'done';
-      await saveJob(job);
-    }
-
-    if (!chapterFiles.length) {
-      throw new Error('Nothing was synthesized - the story text appears to be empty.');
-    }
-
-    const silence = path.join(paths.cache, 'silence-1200.mp3');
-    try {
-      await fs.access(silence);
-    } catch {
-      await makeSilence(silence, 1.2);
-    }
-
-    const interleaved = [];
-    chapterFiles.forEach((f, i) => {
-      if (i > 0) interleaved.push(silence);
-      interleaved.push(f);
-    });
-
-    const fullMp3 = path.join(dir, `${slug(job.title)}.mp3`);
-    await concatMp3(interleaved, fullMp3, { workDir: dir });
-
-    const outputs = { mp3: path.basename(fullMp3), chapters: chapterMeta };
-
-    if (job.options.makeM4b) {
-      try {
-        const m4b = path.join(dir, `${slug(job.title)}.m4b`);
-        await buildM4b({
-          chapterFiles,
-          chapters: chapterMeta,
-          outFile: m4b,
-          meta: { title: job.title, artist: job.voice.label, album: job.title },
-          workDir: dir,
-        });
-        outputs.m4b = path.basename(m4b);
-        await fs.rm(path.join(dir, 'chapters.ffmeta'), { force: true });
-      } catch (e) {
-        // An m4b failure must not lose a finished mp3.
-        job.warnings = [...(job.warnings || []), `m4b build failed: ${e.message}`];
-      }
-    }
-
-    const seconds = await durationSeconds(fullMp3);
-    const paidChars = Math.round(
-      job.totals.chars * (1 - job.progress.cachedHits / Math.max(1, job.progress.total))
-    );
+    for (const ch of job.chapters) ch.status = 'done';
     await touch({
       status: 'done',
-      outputs,
+      outputs: result.outputs,
+      warnings: result.warnings.length ? result.warnings : undefined,
       finishedAt: new Date().toISOString(),
-      durationSeconds: seconds,
-      durationLabel: formatDuration(seconds),
-      elapsedSeconds: Math.round((Date.now() - started) / 1000),
-      actualCost: estimateCost(Math.max(0, paidChars), job.voice.kind),
+      durationSeconds: result.durationSeconds,
+      durationLabel: result.durationLabel,
+      elapsedSeconds: result.elapsedSeconds,
+      actualCost: result.cost,
     });
     return job;
   } catch (err) {
-    const aborted = controller.signal.aborted || err?.name === 'AbortError';
+    const aborted = controller.signal.aborted || err?.cancelled || err?.name === 'AbortError';
     await touch({
       status: aborted ? 'cancelled' : 'failed',
       error: aborted ? 'Cancelled' : String(err.message || err),
@@ -362,13 +162,4 @@ export async function runJob(id) {
   }
 }
 
-export function slug(s) {
-  return (
-    String(s)
-      .toLowerCase()
-      .replace(/[^\w\s-]/g, '')
-      .trim()
-      .replace(/\s+/g, '_')
-      .slice(0, 60) || 'story'
-  );
-}
+export { slug };

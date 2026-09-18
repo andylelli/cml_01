@@ -4,7 +4,7 @@ import path from 'node:path';
 import express from 'express';
 import multer from 'multer';
 
-import { config, assertConfigured, paths } from './config.js';
+import { config, assertConfigured, paths, creds } from './config.js';
 import {
   listPrebuiltVoices,
   ensureProject,
@@ -14,11 +14,14 @@ import {
   deletePersonalVoice,
   consentStatement,
   synthesize,
-} from './azure.js';
-import { toConsentWav, ffmpegBinary, runFfmpeg } from './audio.js';
-import { planStory, parseChapters } from './text.js';
-import { detectCast } from './dialogue.js';
-import { buildChunkSsml } from './ssml.js';
+  toConsentWav,
+  ffmpegBinary,
+  runFfmpeg,
+  planStory,
+  parseChapters,
+  detectCast,
+  buildChunkSsml,
+} from '../../packages/narrator/src/index.js';
 import { listVoices, getVoice, saveVoice, removeVoice, listJobs, loadJob, deleteJob, ensureDirs } from './store.js';
 import { createJob, runJob, cancelJob, isRunning, estimateCost, slug, normaliseOptions } from './jobs.js';
 import { listStories, readStory } from './stories.js';
@@ -81,7 +84,7 @@ app.get('/api/voices', wrap(async (req, res) => {
       prebuilt = prebuiltCache.voices;
     } else {
       try {
-        prebuilt = await listPrebuiltVoices();
+        prebuilt = await listPrebuiltVoices(creds());
         prebuiltCache = { at: Date.now(), voices: prebuilt };
       } catch (e) {
         prebuiltError = e.message;
@@ -123,7 +126,7 @@ app.post(
     };
 
     const projectId = 'cml_narrator';
-    await ensureProject(projectId);
+    await ensureProject(projectId, creds());
 
     const consentId = `${id}_consent`;
     await createConsent({
@@ -132,13 +135,13 @@ app.post(
       voiceTalentName: name.trim(),
       locale,
       audio: await prep(consentFile, 'consent'),
-    });
+    }, creds());
 
     const prepared = [];
     for (let i = 0; i < samples.length; i++) prepared.push(await prep(samples[i], `sample${i + 1}`));
 
-    await createPersonalVoice({ personalVoiceId: id, projectId, consentId, samples: prepared });
-    const done = await waitForPersonalVoice(id);
+    await createPersonalVoice({ personalVoiceId: id, projectId, consentId, samples: prepared }, creds());
+    const done = await waitForPersonalVoice(id, creds());
 
     const speakerProfileId = done.speakerProfileId || done.SpeakerProfileId;
     if (!speakerProfileId) throw new Error(`Azure returned no speakerProfileId: ${JSON.stringify(done).slice(0, 300)}`);
@@ -166,7 +169,7 @@ app.delete('/api/voices/:id', wrap(async (req, res) => {
   const voice = await getVoice(req.params.id);
   if (!voice) return res.status(404).json({ error: 'No such voice' });
   try {
-    await deletePersonalVoice(voice.id);
+    await deletePersonalVoice(voice.id, creds());
   } catch (e) {
     // Losing the remote copy must not strand the local record.
     req.log = e.message;
@@ -275,7 +278,7 @@ app.post('/api/audition', wrap(async (req, res) => {
         voices: { narrator: voice, byCharacter: {} },
         options: { ...options, baseModel: config().personalVoiceBaseModel },
       });
-      const audio = await synthesize(ssml);
+      const audio = await synthesize(ssml, creds());
       const name = `${slug(voice.label || voice.id)}-${crypto.randomBytes(3).toString('hex')}.mp3`;
       await fs.writeFile(path.join(outDir, name), audio);
       results.push({

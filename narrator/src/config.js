@@ -46,6 +46,22 @@ export const paths = {
   public: path.join(ROOT, 'public'),
 };
 
+/**
+ * Credentials for @cml/narrator, assembled at call time.
+ * The package takes these as an argument rather than reading env itself, so a
+ * .env edit lands on the next request instead of being frozen at import.
+ */
+export function creds() {
+  const c = config();
+  return {
+    key: c.speechKey,
+    region: c.region,
+    apiVersion: c.apiVersion,
+    outputFormat: c.outputFormat,
+    companyName: c.companyName,
+  };
+}
+
 export function assertConfigured() {
   const c = config();
   if (!c.speechKey) {

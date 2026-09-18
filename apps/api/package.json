@@ -4,6 +4,7 @@
   "type": "module",
   "dependencies": {
     "@cml/cml": "file:../../packages/cml",
+    "@cml/narrator": "file:../../packages/narrator",
     "@cml/prompts-llm": "file:../../packages/prompts-llm",
     "@cml/worker": "file:../worker",
     "cors": "^2.8.5",

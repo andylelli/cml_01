@@ -136,9 +136,31 @@ export function segmentParagraph(paragraph, { lastSpeaker = null, inQuote = fals
 }
 
 /**
+ * A speaker named in narration that carries no dialogue of its own.
+ *
+ * Fiction routinely introduces a speaker in one paragraph and gives them the
+ * next one outright:
+ *
+ *     Ferdinand Carrick's clipped voice cut through the hush.
+ *
+ *     "I was in my quarters, as the logs will show."
+ *
+ * Attribution that only looks inside a paragraph cannot see this, and hands
+ * the line to whoever spoke last - the wrong character, in a different voice.
+ */
+export function speakerCueIn(text) {
+  for (const re of [POSSESSIVE_VOICE, ANY_NAME_VERB, ANY_VERB_NAME]) {
+    const n = cleanName(re.exec(text || '')?.[1]);
+    if (n) return n;
+  }
+  return null;
+}
+
+/**
  * Segment a run of paragraphs, threading quote state and speaker through.
  * This is the entry point everything else should use - segmenting a paragraph
- * in isolation cannot know whether it begins inside a quote.
+ * in isolation cannot know whether it begins inside a quote, nor who the
+ * previous paragraph just put on stage.
  */
 export function segmentParagraphs(paragraphs, { lastSpeaker = null, inQuote = false } = {}) {
   const out = [];
@@ -146,8 +168,15 @@ export function segmentParagraphs(paragraphs, { lastSpeaker = null, inQuote = fa
   let quote = inQuote;
   for (const p of paragraphs) {
     const r = segmentParagraph(p, { lastSpeaker: carried, inQuote: quote });
-    carried = r.lastSpeaker;
     quote = r.inQuote;
+
+    const spoke = r.segments.some((s) => s.kind === 'dialogue');
+    if (spoke) {
+      carried = r.lastSpeaker;
+    } else {
+      // Narration only: if it names someone about to speak, hand them the floor.
+      carried = speakerCueIn(p) || r.lastSpeaker;
+    }
     out.push(r.segments);
   }
   return { paragraphs: out, lastSpeaker: carried, inQuote: quote };

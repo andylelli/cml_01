@@ -1,0 +1,20 @@
+{
+  "name": "@cml/narrator",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Manuscript to narrated audio: chunking, dialogue attribution, SSML, Azure synthesis, audio assembly.",
+  "main": "src/index.js",
+  "types": "index.d.ts",
+  "exports": {
+    ".": { "types": "./index.d.ts", "default": "./src/index.js" }
+  },
+  "files": ["src", "index.d.ts"],
+  "dependencies": {
+    "ffmpeg-static": "^5.2.0"
+  },
+  "scripts": {
+    "check": "node -e \"for (const f of require('fs').readdirSync('src')) require('child_process').execFileSync(process.execPath,['--check','src/'+f],{stdio:'inherit'}); console.log('syntax ok')\"",
+    "test": "node --test test/*.test.mjs"
+  }
+}
