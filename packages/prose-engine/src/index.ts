@@ -24,3 +24,15 @@ export { buildBookContract } from "./book-contract.js";
 export { planSegments, priorChapters, TOKENS_PER_WORD, CAP_UTILISATION, CHAPTERS_PER_ACT_SEGMENT } from "./segments.js";
 export { parseWriterOutput, writerFormatInstruction, continueInstruction } from "./writer-format.js";
 export type { ParseResult } from "./writer-format.js";
+export {
+  scoreDraft,
+  chooseDraft,
+  checkHardGates,
+  measureInstruments,
+  emDashPer1k,
+  summariseSelection,
+  CALIBRATION,
+  CALIBRATION_N,
+  CALIBRATION_RHO,
+} from "./selector.js";
+export type { ScoredDraft } from "./selector.js";
