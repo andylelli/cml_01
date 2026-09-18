@@ -46,6 +46,12 @@ the run-id front matter that would otherwise have opened every audiobook.
 
 All items resolved. One WITHDRAWN — see below.
 
+**End-to-end, through the UI, against live Azure** (project `proj_035fdeda`, 14,355 words, 51 passages):
+render started from the case page, progressed 0 → 10/51 (20%) in ~18s, Cancel returned status
+`cancelled`. Stopped deliberately — this was a verification run, not a book. The 10 synthesized
+chunks stay in the content-addressed cache and survive deleting the job, so the ~£0.28 is credited
+to the next render of that manuscript rather than spent.
+
 The staged fixture used to build the player has been removed.
 
 ---

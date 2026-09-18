@@ -59,6 +59,11 @@ corpus/
 # pipeline; store.json is recreated empty when absent (apps/api/src/db.ts loadState
 # returns null on a missing file).
 data/store.json
+
+# Rendered narration audio. A 70-minute book is ~80MB of mp3 plus an m4b, and the
+# chunk cache beside it is larger still. Both are reproducible from the manuscript,
+# and the cache is content-addressed, so a re-render of unchanged text is free.
+data/narration/
 apps/api/data/reports/
 documentation/prompts/actual/*/
 results/
