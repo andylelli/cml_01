@@ -31,7 +31,13 @@ import {
 } from "../jobs/resume-hydration.js";
 import { fileURLToPath } from "node:url";
 import * as fsMod from "node:fs";
-import { latestArtifact, loadArtifactStore, loadProjectSpec } from "../jobs/artifact-store.js";
+import {
+  latestArtifact,
+  loadArtifactStore,
+  loadProjectSpec,
+  resolveProjectSpec,
+  specToInputs,
+} from "../jobs/artifact-store.js";
 import type { OrchestratorContext } from "../jobs/agents/shared.js";
 
 const emptyCtx = (): OrchestratorContext => ({}) as unknown as OrchestratorContext;
@@ -151,6 +157,112 @@ describe("artifact-store reader", () => {
     } finally {
       rmSync(root, { recursive: true, force: true });
     }
+  });
+
+  describe("a project's spec is its own or it is nothing", () => {
+    // The reader used to fall back to `specs[specs.length - 1]` when a project had none. Canary runs
+    // persist artifacts but no spec, so every canary resume silently loaded an unrelated project's
+    // era, tone, axis and detective type — and completed, and reported success.
+    const storeWith = (specs: unknown[], extra: (r: string) => void = () => {}) =>
+      withTempWorkspace((r) => {
+        writeFileSync(join(r, "data", "store.json"), JSON.stringify({ artifacts: [], specs }));
+        extra(r);
+      });
+
+    it("KNOWN-POSITIVE: a project with no spec of its own gets `none`, not the last row", () => {
+      const root = storeWith([
+        { project_id: "other", spec: { decade: "1890s", locationPreset: "CountryHouse", tone: "Classic" } },
+      ]);
+      try {
+        const resolved = resolveProjectSpec(root, "canary_1");
+        expect(resolved.source).toBe("none");
+        expect(resolved.spec).toEqual({});
+        expect(resolved.detail).toContain("canary_1");
+      } finally {
+        rmSync(root, { recursive: true, force: true });
+      }
+    });
+
+    it("its own spec still wins, and is reported as coming from the store", () => {
+      const root = storeWith([
+        { project_id: "mine", spec: { tone: "Dark" } },
+        { project_id: "other", spec: { tone: "Classic" } },
+      ]);
+      try {
+        const resolved = resolveProjectSpec(root, "mine");
+        expect(resolved.source).toBe("store");
+        expect(resolved.spec).toEqual({ tone: "Dark" });
+      } finally {
+        rmSync(root, { recursive: true, force: true });
+      }
+    });
+
+    it("a canary's own run-params sidecar is found by the projectId IT names", () => {
+      const root = storeWith([{ project_id: "other", spec: { tone: "Classic" } }], (r) => {
+        mkdirSync(join(r, "stories", "story_x"), { recursive: true });
+        mkdirSync(join(r, "stories", "story_y"), { recursive: true });
+        writeFileSync(
+          join(r, "stories", "story_x", "run-params.json"),
+          JSON.stringify({ projectId: "someone_else", tone: "Classic" }),
+        );
+        writeFileSync(
+          join(r, "stories", "story_y", "run-params.json"),
+          JSON.stringify({ projectId: "canary_1", seed: 50862, tone: "Dark", primaryAxis: "authority" }),
+        );
+        mkdirSync(join(r, "scripts", "generated"), { recursive: true });
+        writeFileSync(
+          join(r, "scripts", "generated", "run-params-50862.yaml"),
+          `seed: 50862\ntheme: "Golden Age murder mystery built on WHO IS BELIEVED."\ntone: "Dark"\n`,
+        );
+      });
+      try {
+        const resolved = resolveProjectSpec(root, "canary_1");
+        expect(resolved.source).toBe("sidecar");
+        expect(resolved.spec.tone).toBe("Dark");
+        expect(resolved.spec.primaryAxis).toBe("authority");
+        expect(resolved.spec.theme).toBe("Golden Age murder mystery built on WHO IS BELIEVED.");
+        expect(resolved.detail).toContain("story_y");
+      } finally {
+        rmSync(root, { recursive: true, force: true });
+      }
+    });
+
+    it("a sidecar with no seed file still yields its parameters, minus the theme", () => {
+      const root = storeWith([], (r) => {
+        mkdirSync(join(r, "stories", "story_x"), { recursive: true });
+        writeFileSync(
+          join(r, "stories", "story_x", "run-params.json"),
+          JSON.stringify({ projectId: "canary_1", seed: 999999, tone: "Dark" }),
+        );
+      });
+      try {
+        const resolved = resolveProjectSpec(root, "canary_1");
+        expect(resolved.source).toBe("sidecar");
+        expect(resolved.spec.tone).toBe("Dark");
+        expect(resolved.spec.theme).toBeUndefined();
+      } finally {
+        rmSync(root, { recursive: true, force: true });
+      }
+    });
+  });
+
+  describe("specToInputs", () => {
+    it("maps the store's `decade` onto the orchestrator's `eraPreference`", () => {
+      // The API does this at apps/api/src/server.ts; resume and replay spread the spec raw and never
+      // did, so Agent 1 fell to its `|| "1930s"` default and re-dated the book.
+      expect(specToInputs({ decade: "1890s" }).eraPreference).toBe("1890s");
+    });
+
+    it("does not overwrite an eraPreference the sidecar already carries", () => {
+      expect(specToInputs({ decade: "1890s", eraPreference: "1930s" }).eraPreference).toBe("1930s");
+    });
+
+    it("passes every other field through, including ones it has never heard of", () => {
+      // An allow-list here is how a parameter gets wired and never sent.
+      const out = specToInputs({ tone: "Dark", somethingNew: 7 });
+      expect(out.tone).toBe("Dark");
+      expect(out.somethingNew).toBe(7);
+    });
   });
 
   it("throws on a missing store rather than reporting an empty one", () => {

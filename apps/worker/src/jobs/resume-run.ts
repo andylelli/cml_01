@@ -33,7 +33,7 @@
 import { join } from "node:path";
 
 import { generateMystery, type MysteryGenerationInputs } from "./mystery-orchestrator.js";
-import { loadArtifactStore, loadProjectSpec } from "./artifact-store.js";
+import { loadArtifactStore, resolveProjectSpec, specToInputs } from "./artifact-store.js";
 import { makeJsonArtifactPersister } from "./json-artifact-store.js";
 import { buildClient, loadEnvFiles } from "./cli-runtime.js";
 import {
@@ -145,7 +145,26 @@ async function main(): Promise<void> {
   }
 
   // ── inputs: the dead run's spec, not a new one ─────────────────────────────
-  const spec = loadProjectSpec(workspaceRoot, projectId);
+  //
+  // A resume exists to hold everything upstream byte-identical while ONE stage runs again. Inputs the
+  // stage reads — era, tone, axis, humour band, target length — are part of "everything upstream", so
+  // a resume that cannot find this project's spec has no business inventing one. It used to: the
+  // reader fell back to the last spec in the file, and canary projects (which persist artifacts but
+  // no spec) all landed on an unrelated project's parameters. That is now `source: "none"` and a
+  // refusal, because the run would otherwise have completed, looked fine, and measured nothing.
+  const resolved = resolveProjectSpec(workspaceRoot, projectId);
+  console.log(`[resume-run] spec       : ${resolved.source} — ${resolved.detail}`);
+  if (resolved.source === "none" && process.env.RESUME_ALLOW_NO_SPEC !== "1") {
+    console.error(
+      `[resume-run] REFUSING: ${resolved.detail}.\n` +
+        `             The stage would run on default inputs — a different book wearing these ` +
+        `artifacts.\n` +
+        `             Set RESUME_ALLOW_NO_SPEC=1 to accept defaults, and say so in the ledger.`,
+    );
+    process.exit(4);
+    return;
+  }
+  const spec = specToInputs(resolved.spec);
   const runId = `resume-${Date.now()}`;
   const inputs: MysteryGenerationInputs = {
     ...(spec as Partial<MysteryGenerationInputs>),
@@ -170,6 +189,13 @@ async function main(): Promise<void> {
   const client = buildClient(workspaceRoot);
   const startedAt = Date.now();
   console.log(`[resume-run] runId      : ${runId}`);
+  console.log(
+    `[resume-run] inputs     : axis=${inputs.primaryAxis ?? "-"} era=${inputs.eraPreference ?? "-"} ` +
+      `location=${inputs.locationPreset ?? "-"} tone=${inputs.tone ?? "-"} length=${inputs.targetLength} ` +
+      `detective=${inputs.detectiveType ?? "-"} style=${inputs.narrativeStyle} humour=${inputs.humourLevel ?? "-"} ` +
+      `cast=${inputs.castSize ?? "-"}`,
+  );
+  console.log(`[resume-run] angle      : ${inputs.storyAngle ?? "(none)"}`);
   console.log(`[resume-run] resuming ...`);
 
   /**

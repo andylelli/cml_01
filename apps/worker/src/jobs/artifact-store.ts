@@ -18,7 +18,7 @@
  * REVIEW §2.4 is about.
  */
 
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 /** One row as it may appear in `data/store.json`, across every spelling the file has used. */
@@ -117,20 +117,129 @@ export function projectIdsWithArtifact(store: StoreArtifact[], type: string): st
   return [...seen];
 }
 
+/** Where a project's spec came from. `none` means NOT FOUND — never another project's. */
+export type SpecSource = "store" | "sidecar" | "none";
+
+export interface ResolvedSpec {
+  spec: Record<string, unknown>;
+  source: SpecSource;
+  /** Human-readable provenance, for the caller to print before it spends money. */
+  detail: string;
+}
+
 /**
  * The generation spec a project was created from — theme, era, cast size, tone.
  *
  * Resume and replay both need it: the orchestrator's inputs are derived from the spec, and a resumed
  * run that invented a different theme would be a different story wearing the dead run's artifacts.
- * Falls back to the last spec in the file when the project has none, matching the replay bench's
- * long-standing behaviour rather than introducing a second rule.
+ *
+ * ── WHY THERE IS NO LONGER A FALLBACK TO THE LAST SPEC IN THE FILE ──────────────────────────────
+ *
+ * There was one, and its own doc comment described the failure it caused. Canary projects persist
+ * artifacts but NO spec — `makeJsonArtifactPersister` writes `artifacts` only — so every canary
+ * project reached `specs[specs.length - 1]`, which belongs to whichever project happened to write a
+ * spec last. Resuming `canary_1789577884303` (SeasideHotel / Dark / private / authority) loaded a
+ * CountryHouse / Classic / amateur / temporal spec from an unrelated project and would have run a
+ * matched pair with mismatched inputs while reporting success. A wrong answer that looks like a
+ * right one is worse than no answer: the project has paid for that shape before (see the archived-
+ * data and fixture-drift lessons). `none` is now returned and the caller decides.
+ *
+ * The sidecar tier is not a fallback in that sense — `stories/<run>/run-params.json` names its own
+ * `projectId`, so it either IS this project's provenance or it is not consulted.
  */
-export function loadProjectSpec(workspaceRoot: string, projectId: string): Record<string, unknown> {
+export function resolveProjectSpec(workspaceRoot: string, projectId: string): ResolvedSpec {
   const parsed = JSON.parse(readFileSync(artifactStorePath(workspaceRoot), "utf8"));
-  const specs = Array.isArray(parsed.specs) ? parsed.specs : Object.values(parsed.specs ?? {});
-  const mine = (specs as any[]).filter((s) => s && (s.project_id ?? s.projectId) === projectId);
-  const rec = mine[mine.length - 1] ?? (specs as any[])[(specs as any[]).length - 1];
-  return (rec?.spec ?? rec ?? {}) as Record<string, unknown>;
+  const specs = (Array.isArray(parsed.specs) ? parsed.specs : Object.values(parsed.specs ?? {})) as any[];
+  const mine = specs.filter((s) => s && (s.project_id ?? s.projectId) === projectId);
+  const rec = mine[mine.length - 1];
+  if (rec) {
+    return {
+      spec: (rec.spec ?? rec) as Record<string, unknown>,
+      source: "store",
+      detail: `data/store.json, ${mine.length} spec row(s) for this project`,
+    };
+  }
+  const sidecar = findRunParamsSidecar(workspaceRoot, projectId);
+  if (sidecar) return sidecar;
+  return {
+    spec: {},
+    source: "none",
+    detail: `no spec row for ${projectId} in data/store.json, and no stories/*/run-params.json names it`,
+  };
+}
+
+/**
+ * A canary run's provenance sidecar, found by the projectId it records (A_86 item 72).
+ *
+ * The sidecar carries every parameter except the theme, which lives in the generated seed file the
+ * run was launched from. That file is the run's provenance and CLAUDE.md forbids overwriting it, so
+ * reading one line out of it is safe in a way that regenerating it would not be.
+ */
+function findRunParamsSidecar(workspaceRoot: string, projectId: string): ResolvedSpec | null {
+  const storiesDir = join(workspaceRoot, "stories");
+  let entries: string[];
+  try {
+    entries = readdirSync(storiesDir);
+  } catch {
+    return null;
+  }
+  for (const entry of entries) {
+    const path = join(storiesDir, entry, "run-params.json");
+    let params: Record<string, unknown>;
+    try {
+      params = JSON.parse(readFileSync(path, "utf8"));
+    } catch {
+      continue;
+    }
+    if (params?.projectId !== projectId) continue;
+    const spec: Record<string, unknown> = { ...params };
+    const theme = themeForSeed(workspaceRoot, params.seed);
+    let detail = `stories/${entry}/run-params.json`;
+    if (theme) {
+      spec.theme = theme;
+      detail += ` + theme from scripts/generated/run-params-${String(params.seed)}.yaml`;
+    }
+    return { spec, source: "sidecar", detail };
+  }
+  return null;
+}
+
+/**
+ * The `theme:` line of a generated seed file, or null.
+ *
+ * One quoted scalar on one line, written by `scripts/run-params.mjs`. Read with a regex rather than
+ * a parser because `yaml` is not a declared dependency of this app, and a miss here costs the
+ * caller's default theme rather than a wrong one.
+ */
+function themeForSeed(workspaceRoot: string, seed: unknown): string | null {
+  if (typeof seed !== "number" && typeof seed !== "string") return null;
+  try {
+    const raw = readFileSync(join(workspaceRoot, "scripts", "generated", `run-params-${seed}.yaml`), "utf8");
+    const line = /^theme:\s*"(.+)"\s*$/m.exec(raw);
+    return line?.[1]?.trim() ? line[1] : null;
+  } catch {
+    return null;
+  }
+}
+
+/** The spec of `projectId`, or `{}` when it has none. Prefer `resolveProjectSpec` before spending. */
+export function loadProjectSpec(workspaceRoot: string, projectId: string): Record<string, unknown> {
+  return resolveProjectSpec(workspaceRoot, projectId).spec;
+}
+
+/**
+ * A stored spec as the orchestrator's inputs.
+ *
+ * The API maps `decade` onto `eraPreference` when it starts a run (`apps/api/src/server.ts`); resume
+ * and replay spread the spec raw and never did, so `eraPreference` arrived undefined and Agent 1 fell
+ * to its `|| "1930s"` default — a resumed 1890s book was quietly re-dated. Everything else passes
+ * through untouched: an allow-list here would silently drop the next parameter someone adds, which is
+ * the failure recorded as "parameters wired but never sent".
+ */
+export function specToInputs(spec: Record<string, unknown>): Record<string, unknown> {
+  const out: Record<string, unknown> = { ...spec };
+  if (out.eraPreference == null && typeof out.decade === "string") out.eraPreference = out.decade;
+  return out;
 }
 
 /** Every artifact type present for a project, in first-seen order. Used by resume diagnostics. */
