@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useWorkshop } from "../useWorkshopState";
 import ExportPanel from "../../../components/ExportPanel.vue";
+import NarrationPanel from "../../../components/NarrationPanel.vue";
 import TabPanel from "../../../components/TabPanel.vue";
 
 /**
@@ -77,6 +78,23 @@ const {
 	            </span>
 	          </button>
 	        </div>
+	      </div>
+
+	      <!-- Audio sits with the other exports rather than in a tab of its own:
+	           it is the same manuscript in a third format, next to PDF and JSON. -->
+	      <div class="mt-6 border-t border-line pt-5">
+	        <div class="text-xs font-semibold uppercase tracking-wide text-ink-soft">Audiobook</div>
+	        <div class="t-subtitle mt-1 mb-3">
+	          {{ proseReady
+	            ? 'Narrate the manuscript, play it here, or download the file.'
+	            : 'Generate prose first to enable narration' }}
+	        </div>
+	        <NarrationPanel
+	          v-if="projectId"
+	          :project-id="projectId"
+	          :has-story="Boolean(proseReady)"
+	        />
+	        <p v-else class="t-subtitle">Open or create a project first.</p>
 	      </div>
 	    </div>
 
