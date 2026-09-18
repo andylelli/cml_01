@@ -189,3 +189,38 @@ test('the pronunciation lexicon rewrites names via sub alias', () => {
   assert.ok(ssml.includes('<sub alias="Fair-wether">Fairweather</sub>'));
   assert.ok(xmlWellFormed(ssml));
 });
+
+/* --------------------------- quote styles --------------------------- */
+
+test('curly quotes are attributed exactly like straight ones', async () => {
+  const { detectCast, segmentParagraphs } = await import('../src/dialogue.js');
+  const curly = [
+    '“The fog’s thickening again,” Harold Simmons remarked, his voice muffled by the cold.',
+    '“I saw him at four,” Eleanor Hargrave said.',
+  ];
+  const straight = curly.map((p) => p.replace(/[“”]/g, '"'));
+
+  const a = detectCast(curly).map((c) => c.name).sort();
+  const b = detectCast(straight).map((c) => c.name).sort();
+  assert.deepEqual(a, b, 'quote style must not change who is speaking');
+  assert.ok(a.some((n) => /Harold/.test(n)) && a.some((n) => /Eleanor/.test(n)));
+
+  // The apostrophe in "fog's" must not be read as a quote mark.
+  const { paragraphs } = segmentParagraphs(curly);
+  const spoken = paragraphs[0].filter((s) => s.kind === 'dialogue').map((s) => s.text).join('');
+  assert.ok(spoken.includes('thickening'), 'the whole line must stay inside the quote');
+  assert.ok(!spoken.includes('remarked'), 'the attribution must stay narration');
+});
+
+test('speech running across paragraphs stays speech', async () => {
+  const { segmentParagraphs } = await import('../src/dialogue.js');
+  const paras = [
+    '“I was in the lounge all evening,',
+    '“and I never once saw him,” Iris said.',
+    'The clock had stopped.',
+  ];
+  const { paragraphs } = segmentParagraphs(paras);
+  assert.equal(paragraphs[0][0].kind, 'dialogue');
+  assert.equal(paragraphs[1][0].kind, 'dialogue');
+  assert.equal(paragraphs[2][0].kind, 'narration', 'narration after the quote closes must not invert');
+});

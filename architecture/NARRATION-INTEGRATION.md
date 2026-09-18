@@ -33,15 +33,19 @@ the run-id front matter that would otherwise have opened every audiobook.
 
 | # | Item | State | Commit |
 |---|------|-------|--------|
-| 1 | `packages/narrator` — core extracted, credentials explicit, `.d.ts` | DONE | 7f1a |
-| 2 | Standalone `narrator/` app re-pointed at the package, still working | DONE — live render after refactor | 7f1a |
-| 3 | `proseToMarkdown` — artifact → narratable markdown, summaries excluded | DONE — 13 tests | 7f1a |
-| 4 | API narration routes + job runner + storage | | |
-| 5 | API audio streaming with HTTP Range (seeking in the player) | | |
+| 1 | `packages/narrator` — core extracted, credentials explicit, `.d.ts` | DONE | bbf5b67 |
+| 2 | Standalone `narrator/` app re-pointed at the package, still working | DONE — live render after refactor | bbf5b67 |
+| 3 | `proseToMarkdown` — artifact → narratable markdown, summaries excluded | DONE — 13 tests | bbf5b67 |
+| 4 | API narration routes + job runner + storage | DONE | (this) |
+| 5 | API audio streaming with HTTP Range (seeking in the player) | DONE — 200/206/416 verified | (this) |
 | 6 | Web `api.ts` narration service functions | | |
 | 7 | Web `AudioPlayer.vue` — play/pause, scrub, speed, chapter jump | | |
 | 8 | Web `NarrationPanel.vue` — voice, cast, render, progress | | |
 | 9 | Wired into the case view; download audio alongside download PDF | | |
 | 10 | Tests | | |
 
-Next item: 4 (API routes).
+Next item: 6 (web service functions).
+
+**Temporary:** a staged fixture sits at `data/narration/projects/proj_a2bec449-.../` (audio copied from a
+standalone render) so the player can be built against real bytes without paying for a render. DELETE
+before finishing.

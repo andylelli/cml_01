@@ -16,6 +16,7 @@ import {
 import { generateMystery } from "@cml/worker/jobs/mystery-orchestrator.js";
 import { saveReadableStory } from "@cml/worker/jobs/save-readable-story.js";
 import type { MysteryGenerationInputs } from "@cml/worker/jobs/mystery-orchestrator.js";
+import { registerNarrationRoutes } from "./narration.js";
 
 const ALLOWED_CML_MODES = new Set(["advanced", "expert"] as const);
 
@@ -1167,6 +1168,10 @@ export const createServer = () => {
     });
     next();
   });
+
+  // Narration: manuscript -> audiobook. Implementation in narration.ts so this
+  // file does not grow another few hundred lines.
+  registerNarrationRoutes(app, repoPromise);
 
   app.get("/api/health", (_req, res) => {
     res.json({ status: "ok", service: "api" });

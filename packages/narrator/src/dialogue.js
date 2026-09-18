@@ -64,26 +64,58 @@ function cleanName(raw) {
  * with a quote mark in each new paragraph but only closes once at the end. So
  * a leading quote while already inside a quote is a re-opener, not a closer.
  */
+/* Directional quotes are unambiguous; the straight one has to toggle.
+ *
+ * Both occur: manuscripts written to stories/*.md use straight quotes, while
+ * the prose artifacts in the store use curly ones. Handling only `"` made cast
+ * detection silently return zero speakers on every stored manuscript - a filter
+ * returning no rows, which reads exactly like "this book has no dialogue".
+ *
+ * U+2019 is deliberately absent: it is the apostrophe in "don't", and treating
+ * it as a quote mark shreds every line of dialogue that contains one. */
+const OPEN_QUOTES = new Set(['“', '«', '„']);
+const CLOSE_QUOTES = new Set(['”', '»']);
+const LEADING_REOPEN = /^(\s*)["“«„]/;
+
 export function splitQuotes(paragraph, startInQuote = false) {
   const spans = [];
   let buf = '';
   let inQuote = startInQuote;
-  let text = paragraph;
+  let text = String(paragraph);
 
-  if (inQuote && /^\s*"/.test(text)) {
-    text = text.replace(/^(\s*)"/, '$1');
+  // Continued speech re-opens with a quote mark in each new paragraph but only
+  // closes once at the end, so a leading quote while already inside one is a
+  // re-opener, not a closer.
+  if (inQuote && LEADING_REOPEN.test(text)) {
+    text = text.replace(LEADING_REOPEN, '$1');
   }
+
+  const flush = (quoted) => {
+    if (buf.trim()) spans.push({ quoted, text: buf });
+    buf = '';
+  };
 
   for (const ch of text) {
     if (ch === '"') {
-      if (buf.trim()) spans.push({ quoted: inQuote, text: buf });
-      buf = '';
+      flush(inQuote);
       inQuote = !inQuote;
+      continue;
+    }
+    if (OPEN_QUOTES.has(ch)) {
+      if (inQuote) continue; // mid-speech re-open; stay inside
+      flush(false);
+      inQuote = true;
+      continue;
+    }
+    if (CLOSE_QUOTES.has(ch)) {
+      if (!inQuote) continue; // stray close; ignore rather than invert everything
+      flush(true);
+      inQuote = false;
       continue;
     }
     buf += ch;
   }
-  if (buf.trim()) spans.push({ quoted: inQuote, text: buf });
+  flush(inQuote);
   return { spans, endInQuote: inQuote };
 }
 
