@@ -52,27 +52,22 @@ function cleanName(raw) {
 /**
  * Split a paragraph into quoted and unquoted spans.
  *
- * Straight double quotes only - that is what the prose uses, and treating the
- * apostrophe in "don't" as a quote mark would shred every line of dialogue.
+ * Two quote styles occur and both must work: manuscripts written to
+ * stories/*.md use straight quotes, the prose artifacts in the store use curly
+ * ones. Handling only `"` made cast detection silently return zero speakers on
+ * every stored manuscript - a filter returning no rows, which reads exactly
+ * like "this book has no dialogue".
+ *
+ * U+2019 is deliberately NOT a quote here: it is the apostrophe in "don't",
+ * and treating it as one shreds every line of dialogue that contains one.
  *
  * Quote state is threaded ACROSS paragraphs, because speech routinely runs on:
  * a paragraph can open a quote and never close it. Tracking parity per
  * paragraph inverts every span after the first such run - narration gets read
- * as dialogue and dialogue as narration.
- *
- * The one convention that needs special handling: continued speech re-opens
- * with a quote mark in each new paragraph but only closes once at the end. So
- * a leading quote while already inside a quote is a re-opener, not a closer.
+ * as dialogue and dialogue as narration. Continued speech also re-opens with a
+ * quote mark in each new paragraph but closes only once at the end, so a
+ * leading quote while already inside one is a re-opener, not a closer.
  */
-/* Directional quotes are unambiguous; the straight one has to toggle.
- *
- * Both occur: manuscripts written to stories/*.md use straight quotes, while
- * the prose artifacts in the store use curly ones. Handling only `"` made cast
- * detection silently return zero speakers on every stored manuscript - a filter
- * returning no rows, which reads exactly like "this book has no dialogue".
- *
- * U+2019 is deliberately absent: it is the apostrophe in "don't", and treating
- * it as a quote mark shreds every line of dialogue that contains one. */
 const OPEN_QUOTES = new Set(['“', '«', '„']);
 const CLOSE_QUOTES = new Set(['”', '»']);
 const LEADING_REOPEN = /^(\s*)["“«„]/;
@@ -221,6 +216,8 @@ export function segmentParagraphs(paragraphs, { lastSpeaker = null, inQuote = fa
 export function detectCast(paragraphs) {
   const counts = new Map();
   const { paragraphs: segmented } = segmentParagraphs(paragraphs);
+
+
   for (const segments of segmented) {
     for (const s of segments) {
       if (s.kind !== 'dialogue' || !s.speaker) continue;
@@ -232,7 +229,9 @@ export function detectCast(paragraphs) {
   }
 
   const cast = [...counts.values()];
-  return mergeAliases(cast).sort((a, b) => b.lines - a.lines);
+  const merged = mergeAliases(cast);
+
+  return merged.sort((a, b) => b.lines - a.lines);
 }
 
 /**

@@ -553,3 +553,144 @@ export const deleteProjectCompletely = (
 
 export const clearStore = (): Promise<{ cleared: string[] }> =>
 	admin("/api/admin/clear-store", { method: "POST" });
+
+/* ------------------------------------------------------------------ *
+ * Narration — the manuscript, read aloud.
+ * ------------------------------------------------------------------ */
+
+export type NarrationVoice = {
+	id: string;
+	kind: "prebuilt" | "personal";
+	name?: string;
+	label?: string;
+	locale: string;
+	localeName?: string;
+	gender?: string;
+	styles?: string[];
+};
+
+export type NarrationCastMember = {
+	name: string;
+	lines: number;
+	chars: number;
+	aliases: string[];
+};
+
+export type NarrationChapter = {
+	title: string;
+	file: string;
+	index: number;
+	startSeconds?: number;
+	durationSeconds?: number;
+};
+
+export type NarrationPlan = {
+	title: string;
+	source: string;
+	totals: { chapters: number; chunks: number; chars: number; words: number; estimatedMinutes: number };
+	estimate: { chars: number; usd: number; gbp: number; usdPerMillion: number };
+	chapters: Array<{ index: number; title: string; words: number; chars: number; chunks: number; skipped?: boolean }>;
+};
+
+export type NarrationJob = {
+	projectId: string;
+	status: "queued" | "running" | "assembling" | "done" | "failed" | "cancelled";
+	title: string;
+	voice: NarrationVoice;
+	progress: { done: number; total: number; cachedHits: number; phase?: string };
+	outputs?: { mp3: string; m4b?: string; chapters: NarrationChapter[] };
+	durationSeconds?: number;
+	durationLabel?: string;
+	elapsedSeconds?: number;
+	cost?: { usd: number; gbp: number; chars: number };
+	estimate?: { usd: number; gbp: number; chars: number };
+	warnings?: string[];
+	error?: string | null;
+};
+
+export type NarrationOptions = {
+	rate?: string;
+	pitch?: string;
+	style?: string;
+	paragraphPauseMs?: number;
+	scenePauseMs?: number;
+	multiVoice?: boolean;
+	emphasis?: boolean;
+	readChapterTitles?: boolean;
+	makeM4b?: boolean;
+	characterVoices?: Array<{ name: string; aliases: string[]; voice: NarrationVoice }>;
+	lexicon?: Record<string, string>;
+};
+
+const narration = async <T>(path: string, init?: RequestInit): Promise<T> => {
+	const response = await fetch(`${apiBase}${path}`, init);
+	const text = await response.text();
+	const body = text ? JSON.parse(text) : {};
+	if (!response.ok) throw new Error(body?.error || `Narration request failed (${response.status})`);
+	return body as T;
+};
+
+export const fetchNarrationStatus = (): Promise<{
+	configured: boolean;
+	keySource: string;
+	region: string;
+	pricing: { usdPerMillionNeural: number; usdPerMillionPersonal: number; usdToGbp: number };
+}> => narration("/api/narration/status");
+
+export const fetchNarrationVoices = (): Promise<{ voices: NarrationVoice[]; error?: string }> =>
+	narration("/api/narration/voices");
+
+export const fetchNarrationPlan = (projectId: string, voiceKind = "prebuilt"): Promise<NarrationPlan> =>
+	narration(`/api/projects/${encodeURIComponent(projectId)}/narration/plan?voiceKind=${voiceKind}`);
+
+export const fetchNarrationCast = (
+	projectId: string,
+): Promise<{ cast: NarrationCastMember[]; speakers: number; dialogueLines: number }> =>
+	narration(`/api/projects/${encodeURIComponent(projectId)}/narration/cast`);
+
+export const fetchNarration = (projectId: string): Promise<{ job: NarrationJob | null; running?: boolean }> =>
+	narration(`/api/projects/${encodeURIComponent(projectId)}/narration`);
+
+export const startNarration = (
+	projectId: string,
+	voice: NarrationVoice,
+	options: NarrationOptions,
+): Promise<{ job: NarrationJob }> =>
+	narration(`/api/projects/${encodeURIComponent(projectId)}/narration/render`, {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ voice, options }),
+	});
+
+export const cancelNarration = (projectId: string): Promise<{ cancelled: boolean }> =>
+	narration(`/api/projects/${encodeURIComponent(projectId)}/narration/cancel`, { method: "POST" });
+
+export const deleteNarration = (projectId: string): Promise<{ ok: boolean }> =>
+	narration(`/api/projects/${encodeURIComponent(projectId)}/narration`, { method: "DELETE" });
+
+/**
+ * The audio is streamed by URL, never fetched into a Blob: a 70-minute mp3 is
+ * ~80 MB, and buffering it just to hand it to <audio> would block playback
+ * until the whole book arrived and would break seeking.
+ */
+export const narrationAudioUrl = (projectId: string): string =>
+	`${apiBase}/api/projects/${encodeURIComponent(projectId)}/narration/audio`;
+
+export const narrationDownloadUrl = (projectId: string, format: "mp3" | "m4b" = "mp3"): string =>
+	`${apiBase}/api/projects/${encodeURIComponent(projectId)}/narration/download?format=${format}`;
+
+export const narrationChapterUrl = (projectId: string, file: string): string =>
+	`${apiBase}/api/projects/${encodeURIComponent(projectId)}/narration/chapter/${encodeURIComponent(file)}`;
+
+export type NarrationSummary = {
+	projectId: string;
+	title: string;
+	durationLabel?: string;
+	durationSeconds?: number;
+	hasM4b: boolean;
+	voice?: string;
+};
+
+/** One call for the whole cases list — per-row polling would be N requests. */
+export const fetchNarrationLibrary = (): Promise<{ narrations: NarrationSummary[] }> =>
+	narration("/api/narration/library");

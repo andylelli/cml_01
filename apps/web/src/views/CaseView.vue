@@ -6,6 +6,7 @@ import AppIcon from "../components/ui/AppIcon.vue";
 import HeroBanner from "../components/ui/HeroBanner.vue";
 import ProgressTrack from "../components/ui/ProgressTrack.vue";
 import StepCard from "../components/ui/StepCard.vue";
+import NarrationPanel from "../components/NarrationPanel.vue";
 import { downloadStoryPdf, fetchProjectStatus } from "../services/api";
 import { deriveProgress, deriveStages } from "../run/timeline";
 import { useProjectStore } from "../stores/projectStore";
@@ -483,6 +484,16 @@ onBeforeUnmount(() => {
 					</p>
 				</div>
 			</article>
+		</StepCard>
+
+		<!-- ── read aloud ──────────────────────────────────────────────── -->
+		<StepCard
+			v-if="hasStory"
+			icon="speaker"
+			title="Listen"
+			subtitle="The manuscript, narrated. Play it here or take the file with you."
+		>
+			<NarrationPanel :project-id="projectId" :has-story="hasStory" />
 		</StepCard>
 
 		<!-- ── spoilers ────────────────────────────────────────────────── -->

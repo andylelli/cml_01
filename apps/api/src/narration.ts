@@ -249,6 +249,41 @@ export const registerNarrationRoutes = (
     })
   );
 
+  /**
+   * Which cases already have audio.
+   *
+   * One call for the whole list view. Asking per row would be N requests to
+   * render a page that mostly says "no".
+   */
+  app.get(
+    "/api/narration/library",
+    wrap(async (_req, res) => {
+      const base = path.join(settings().root, "projects");
+      let ids: string[] = [];
+      try {
+        ids = await fs.readdir(base);
+      } catch {
+        res.json({ narrations: [] });
+        return;
+      }
+      const narrations = [];
+      for (const id of ids) {
+        const job = await loadJob(id);
+        if (job?.status === "done" && job.outputs?.mp3) {
+          narrations.push({
+            projectId: id,
+            title: job.title,
+            durationLabel: job.durationLabel,
+            durationSeconds: job.durationSeconds,
+            hasM4b: Boolean(job.outputs.m4b),
+            voice: job.voice?.label || job.voice?.id,
+          });
+        }
+      }
+      res.json({ narrations });
+    })
+  );
+
   /* -------------------------------- plan --------------------------------- */
 
   app.get(

@@ -4,7 +4,14 @@ import AppButton from "../components/ui/AppButton.vue";
 import AppIcon from "../components/ui/AppIcon.vue";
 import HeroBanner from "../components/ui/HeroBanner.vue";
 import StepCard from "../components/ui/StepCard.vue";
-import { downloadStoryPdf, fetchProjects, type Project } from "../services/api";
+import {
+	downloadStoryPdf,
+	fetchNarrationLibrary,
+	fetchProjects,
+	narrationDownloadUrl,
+	type NarrationSummary,
+	type Project,
+} from "../services/api";
 
 /**
  * The case list: what has been generated, what is still being written, and how to read it.
@@ -24,6 +31,20 @@ const projects = ref<Project[]>([]);
 const loading = ref(true);
 const error = ref<string | null>(null);
 const downloading = ref<string | null>(null);
+
+/**
+ * Which cases have audio. Fetched once for the whole list rather than per row:
+ * asking each row would be N requests to render a page that mostly says "no".
+ */
+const narrations = ref<Record<string, NarrationSummary>>({});
+const loadNarrations = async () => {
+	try {
+		const { narrations: list } = await fetchNarrationLibrary();
+		narrations.value = Object.fromEntries(list.map((n) => [n.projectId, n]));
+	} catch {
+		/* audio is an extra here; the list must render without it */
+	}
+};
 
 let poll: ReturnType<typeof setInterval> | null = null;
 
@@ -78,7 +99,10 @@ const download = async (project: Project) => {
 const statusLabel = (status?: string) =>
 	status === "running" ? "Being written" : status === "idle" ? "Ready" : (status ?? "Unknown");
 
-onMounted(load);
+onMounted(() => {
+	void load();
+	void loadNarrations();
+});
 
 onBeforeUnmount(() => {
 	if (poll) {
@@ -141,11 +165,26 @@ onBeforeUnmount(() => {
 						<span class="t-subtitle block text-[0.75rem]">
 							{{ statusLabel(project.status) }}
 							<span v-if="project.createdAt"> · {{ new Date(project.createdAt).toLocaleString() }}</span>
+							<span v-if="narrations[project.id]" class="text-ink-faint">
+								· narrated, {{ narrations[project.id].durationLabel }}
+							</span>
 						</span>
 					</button>
 
 					<AppButton size="sm" icon="chevronRight" @click="emit('open', project)">
 						{{ project.status === "running" ? "Follow" : "Open" }}
+					</AppButton>
+
+					<!-- Audio only appears once a narration exists; the player lives in the case. -->
+					<AppButton
+						v-if="narrations[project.id]"
+						size="sm"
+						variant="ghost"
+						icon="speaker"
+						download
+						:href="narrationDownloadUrl(project.id, 'mp3')"
+					>
+						Audio
 					</AppButton>
 
 					<AppButton

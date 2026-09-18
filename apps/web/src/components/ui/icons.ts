@@ -61,7 +61,12 @@ export const ICON_PATHS = {
 	globe: "M12 20.5a8.5 8.5 0 1 0 0-17 8.5 8.5 0 0 0 0 17ZM3.5 12h17M12 3.5c2.1 2.3 3.2 5.3 3.2 8.5S14.1 18.2 12 20.5C9.9 18.2 8.8 15.2 8.8 12S9.9 5.8 12 3.5Z",
 	fingerprint:
 		"M12 20.5c-1-1.6-1.5-3.6-1.5-5.6M8.4 19.5A11 11 0 0 1 7 14.2a5 5 0 0 1 10 0c0 1.5-.2 2.9-.6 4.2M5.2 16.6A8.6 8.6 0 0 1 4.5 13a7.5 7.5 0 0 1 15 0c0 1.3-.1 2.6-.4 3.8M6 8.2a7.5 7.5 0 0 1 12 0M13.6 14.2a1.6 1.6 0 0 0-3.2 0c0 2 .4 3.9 1.1 5.6",
+	/* ── narration ─────────────────────────────────────────────────── */
+	speaker: "M4 9.5h3.6L12 5.6v12.8L7.6 14.5H4V9.5ZM15.5 9.6a3.6 3.6 0 0 1 0 4.8M18 7a7 7 0 0 1 0 10",
+	play: "M8.5 5.6v12.8L19 12 8.5 5.6Z",
+	pause: "M9.5 5.5v13M14.5 5.5v13",
+	download: "M12 4v10.5M12 14.5 8 10.5M12 14.5l4-4M4.5 19.5h15",
 } as const;
 
 /** Glyphs whose shapes read better without rounded joins. */
-export const SQUARE_JOIN: readonly IconName[] = ["dice", "book", "bookmark", "tag"];
+export const SQUARE_JOIN: readonly IconName[] = ["dice", "book", "bookmark", "tag", "pause"];

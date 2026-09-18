@@ -8,6 +8,10 @@ import type { IconName } from "./icons";
  *
  * `busy` keeps the button's width and swaps the label, rather than shrinking it — a CTA that
  * changes size mid-click moves whatever is under the pointer.
+ *
+ * `href` renders an anchor instead. A file download has to be a real link: the browser streams it
+ * and shows its own progress, where fetching to a Blob would buffer a whole audiobook in memory
+ * before anything appeared to happen.
  */
 withDefaults(
 	defineProps<{
@@ -19,6 +23,9 @@ withDefaults(
 		busyLabel?: string;
 		size?: "md" | "sm";
 		block?: boolean;
+		/** Render as a link. Downloads and out-of-app navigation, not actions. */
+		href?: string;
+		download?: boolean;
 	}>(),
 	{
 		variant: "secondary",
@@ -29,14 +36,20 @@ withDefaults(
 		busyLabel: "Working…",
 		size: "md",
 		block: false,
+		href: undefined,
+		download: false,
 	},
 );
 </script>
 
 <template>
-	<button
-		:type="type"
-		:disabled="disabled || busy"
+	<component
+		:is="href ? 'a' : 'button'"
+		:href="href"
+		:download="href && download ? '' : undefined"
+		:type="href ? undefined : type"
+		:disabled="href ? undefined : disabled || busy"
+		:aria-disabled="href && (disabled || busy) ? 'true' : undefined"
 		:aria-busy="busy || undefined"
 		class="transition-control inline-flex items-center justify-center gap-2 rounded border font-medium disabled:cursor-not-allowed"
 		:class="[
@@ -58,7 +71,7 @@ withDefaults(
 		<AppIcon v-else-if="icon" :name="icon" :size="size === 'sm' ? 14 : 17" />
 		<span v-if="busy">{{ busyLabel }}</span>
 		<slot v-else />
-	</button>
+	</component>
 </template>
 
 <style scoped>
