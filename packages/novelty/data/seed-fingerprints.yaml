@@ -14,7 +14,7 @@
 # `the_second_key` was retired: author "original", licence CC-BY, not a real novel — and the third
 # most-cited nearest neighbour across 32 archived audits.
 #
-# derived: 34   derived_unverified: 5   legacy: 8   total: 47
+# derived: 34   derived_unverified: 5   legacy: 7   total: 46
 - id: a_jury_of_her_peers
   corpus: seed
   axis: behavioral
@@ -591,14 +591,4 @@
   inference_shape: unmask_insider_mastermind
   premise: The mastermind 'Mr Brown' is hiding in plain sight among the trusted circle.
   source: examples/the_secret_adversary_cml2.yaml
-  provenance: legacy_hand_authored
-- id: the_leak
-  corpus: seed
-  axis: identity
-  mechanism_family: information_leak
-  false_assumption_pattern: the_obvious_suspect_had_the_access
-  discriminating_test_shape: behavioral_tell
-  inference_shape: trace_information_to_unsuspected_conduit
-  premise: A confidential leak traced past the obvious suspect to an overlooked conduit.
-  source: examples/the_leak_cml2.yaml
   provenance: legacy_hand_authored

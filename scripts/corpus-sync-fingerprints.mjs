@@ -78,7 +78,22 @@ const LEGACY_BASELINE = `${ROOT}/packages/novelty/data/seed-fingerprints.legacy.
 const MANIFEST = `${WORKS}/.verification.json`;
 const CHECK = process.argv.includes("--check");
 
-const RETIRED = new Set(["the_second_key"]);
+/**
+ * Entries that are not corpus works and must never reach the ledger, whatever the legacy baseline
+ * says. Both are in `library/retired/` with their reasons.
+ *
+ *   the_second_key  synthetic — an invented fixture, never an encoding of a novel. It was the SOLE
+ *                   attestation of the `locked_room_key` family (A_77 §4.2).
+ *   the_leak        a stub — a Futrelle short story A_77 §15.4 could not resolve to an ebook id, with
+ *                   no source text behind it and no way to verify one.
+ *
+ * `the_leak` was retired to `library/retired/` by A_98 and NOT added here, so it kept being carried
+ * forward from the legacy baseline: MEASURED 2026-09-18, it was still supplying the ledger's only
+ * occupant of `identity | information_leak`, and the WP-003 cell map counted that cell as a form the
+ * genre uses. A retired file that is still in a derived ledger is the same defect this project has
+ * now recorded three times — a fact restated in a second place that nothing regenerates against.
+ */
+const RETIRED = new Set(["the_second_key", "the_leak"]);
 
 /** Minimum share of a work's own anchors that must be found in its own source text. */
 const MIN_COVERAGE = 0.6;
