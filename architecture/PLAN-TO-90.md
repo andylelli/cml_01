@@ -1974,3 +1974,59 @@ touched those rows, but no probe was run against a known-positive. The paid run 
 rather than relying on the inference: `CML_JSON_DB_PATH` points reader and writer at a private copy,
 so neither direction can disturb the other. **A_86 item 5's write-back is not safe against a running
 API server, and that should be settled with a probe before it is depended on.**
+
+### §22.4 THE FIRST PAID v2 RUN — `resume-1789750237998`, £0.14, AND IT REFUTED §10.4
+
+Seed 50862 · `canary_1789577884303` · authority · 1930s · SeasideHotel · Dark · short · private ·
+atmospheric · sharp · cast 6 · angle *"a record-attempt speed trial on the sands"*. Thirteen upstream
+artifacts restored byte-identical; `PROSE_ENGINE=v2` the only change. 12 calls, 0 repeats, 1.2 min.
+
+**The result: a 2-chapter book. 1,964 words against the v1 arm's 8,965.**
+
+azure:gpt-4.1 was handed all ten chapter contracts and a 32,768-token cap, wrote CHAPTER 1 — about
+1,300 tokens, 4% of the cap, not truncated — and stopped. The continuation was an `if`, so it ran
+once, bought chapter 2, and the book shipped.
+
+| prediction | verdict |
+|---|---|
+| `deterministic writes: 0` | **HELD** — the telemetry's first line, on a real run |
+| the book written in ONE call per draft | **FAILED** — one CHAPTER per call, and §10.4's premise with it |
+| 3 drafts, selector picks by composite | **HELD** — 3 drafts, scored, chosen |
+| register rate below the corpus mean | **VOID** — 0.0132 against v1's 0.0552, but on 2 chapters |
+| gate stops only for the two fair-play conditions | **HELD** — both fired, correctly, on a 2-chapter book |
+| no deterministic fallback | **HELD** — no chapter fell back |
+
+**§10.4's measurement was right and its inference was wrong.** 52 of 53 archived books fit inside one
+writer response: they fit the CAP. They do not fit the model's idea of a turn. The fix is the
+continuation loop, which keeps M2's actual goal — one contract, one voice, the whole book in context
+— while letting the transport take as many calls as the model wants.
+
+### §22.5 THE INSTRUMENTS PREFERRED THE BROKEN BOOK
+
+Scored against the v1 arm, the 2-chapter manuscript won on **every instrument the selector measures**:
+register 0.0552 → 0.0132, repetition 96.0 → 0.0, speech-open 0.174 → 0.232, long sentences 0.028 →
+0.138, wit 15.6 → 76.4 per 10k.
+
+None of that is an effect. Two chapters of careful prose beat ten of ordinary prose on every RATE,
+because a rate has no opinion about a book that stopped. **The composite has no length term and the
+selector compares drafts of the same contract, so it was never wrong — but a report that reads the
+instruments without reading `chapters: 2 of 10` first would have called this a triumph.** The v2
+telemetry names the missing chapters; the comparison script now prints the chapter count beside every
+rate, and `agent9-v2-continuation.test.ts` fails the engine rather than the reader noticing.
+
+### §22.6 TWO DEFECTS THAT MADE THE FAILURE PERMANENT AND INVISIBLE
+
+**The checkpoint recorded the 2-of-10 segment as done** (`chosen: 1, stored: 2, expected: 10`), so
+every later run on that project would have restored it and never called the writer. A truncated book,
+made permanent, announced as *"restored from the checkpoint"*.
+
+**The v2 telemetry never printed.** It is pushed to `ctx.warnings`, which the canary path prints as a
+`WARNINGS` line and the RESUME path does not print at all — so the engine's whole instrument panel
+was invisible on the one path the design names for matched pairs. The numbers above were recovered
+from the prompt ledger and the artifact. Not yet fixed; it is the next item.
+
+**Both v2 test files were skipping.** They derived the repo root from `process.cwd()`, which is right
+only when vitest runs from `apps/worker`; from the repo root it resolved to `C:/`, the store was not
+found and every test skipped. That is the *"3 skipped"* the worker suite has reported all along. 981
+passing and 0 skipped now, up from 866 and 3.
+

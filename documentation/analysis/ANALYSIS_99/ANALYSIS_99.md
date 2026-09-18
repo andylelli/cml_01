@@ -542,7 +542,7 @@ doing for the floor alone; phase 3 is the experiment, and its falsifier is writt
 | # | move | state | commit |
 |---|---|---|---|
 | M1 | the floor: no writer, no abort after prose | **BUILT in v2** (`gate.ts`, two fair-play stops); v1's own surgery DEFERRED — see below | `dfb33dbe` |
-| M2 | the book as the unit | **BUILT** — `segments.ts`, one call for 52 of 53 archived books | `8e621d77` |
+| M2 | the book as the unit | **BUILT, and its one-call premise REFUTED by the first paid run** — the model writes a CHAPTER per call; the continuation is now a loop and the book stays one contract, one voice, one context | `8e621d77`, `aa674393` |
 | M3 | contract + brief | **BUILT** — `contract.ts`, `bible.ts`, `brief.ts`; whole prompt 7,959 tokens against v1's 23,600 prefix | `072073db`, `df94d51b` |
 | M4 | best-of-three, selected by instrument | **BUILT and CALIBRATED** — composite ρ 0.571 against register alone 0.502 | `4de418df` |
 | M5 | the critic replaces the gates | **BUILT** — anchored findings, edit lists, eight guards | `4046959d` |
@@ -608,10 +608,20 @@ RESUME_REDO=prose PROSE_ENGINE=v2 node --use-system-ca apps/worker/dist/jobs/res
 `standsToLose` at Agent 2b, the relationship arc at Agent 2). The contract reads all three and says
 nothing about them when they are absent, so they are additive whenever the upstream agents emit them.
 
-**The one thing to watch on the first v2 run:** the writer has never been asked for a whole book in
-one call by this pipeline. §8's first row is that risk, its signal is the register rate and
-repetition rising by chapter within a draft, and its fallback is the act-sized plan, which is one
-environment variable (`PROSE_V2_WRITER_MAX_TOKENS`) away.
+**The one thing to watch on the first v2 run** was that the writer had never been asked for a whole
+book in one call by this pipeline. §8's first row was that risk. **It happened, and not in the shape
+predicted.** The run is recorded in PLAN-TO-90 §22.4: azure:gpt-4.1 wrote chapter 1, used 4% of its
+cap, was not truncated, and stopped. The signal §8 named — register and repetition rising by chapter
+within a draft — would never have fired, and the fallback it named (a smaller cap) would not have
+helped, because the cap was never the constraint. The model writes a chapter per call.
+
+The fix is the continuation loop (`aa674393`), which keeps this move's actual claim — ONE contract,
+one voice, the whole book in context — and lets the transport take as many calls as the model wants.
+**What this move bought is unchanged and what it assumed about transport was wrong.**
+
+**And the instruments preferred the broken book** (§22.5): the 2-chapter manuscript beat the v1 arm
+on every rate the selector measures. Not an error in the selector, which compares drafts of one
+contract — but a standing warning that `chapters: N of M` is read BEFORE any rate in this document.
 
 The design for every move is §10; the work breakdown with acceptance criteria per item is §10.14.
 
