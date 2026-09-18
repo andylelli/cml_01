@@ -407,6 +407,8 @@ export type { NameHygieneResult } from "./agent9-prose/name-hygiene.js";
 
 // A_92 — humour as a story parameter, in the same family as tone and era.
 export {
+  UNDERSTATED_STYLES,
+  SHARP_STYLES,
   HUMOUR_LEVELS,
   HUMOUR_BANDS,
   DEFAULT_HUMOUR_LEVEL,
@@ -444,3 +446,23 @@ export type { BeatSequenceRepair } from "./agent7-beat-sequence.js";
 // A_96 F3 — the mechanism's actors must exist, or be named as absent.
 export { auditMechanismActors, isOffstageActorsEnabled, buildOffstageActorLines } from "./agent3-offstage-actors.js";
 export type { OffstageActorAudit } from "./agent3-offstage-actors.js";
+
+/**
+ * ── PROSE ENGINE v2 (ANALYSIS_99 §10) ────────────────────────────────────────────────────────────
+ *
+ * `@cml/prose-engine` derives the book contract from the same functions v1 uses, rather than
+ * carrying its own copies — L6, one owner per fact. Nothing below is new code; these are the
+ * existing owners of clue ownership, clue presence, the beat rotation and the aftermath predicate,
+ * exported so a second package can read them.
+ */
+export {
+  getRequiredClueIdsForScene,
+  chapterMentionsRequiredClue,
+  isAftermathFinalScene,
+  surfaceSpecKeyTerms,
+  tokenizeForClueObligation,
+  tokenMatchesText,
+} from "./agent9-prose/clue-validation.js";
+export { selectWitBeat, selectDepthBeat, traitOnly } from "./agent9-prose/obligation-block.js";
+export type { BeatCandidate } from "./agent9-prose/obligation-block.js";
+export { HUMOUR_STYLES } from "./agent9-prose/prompt-blocks.js";

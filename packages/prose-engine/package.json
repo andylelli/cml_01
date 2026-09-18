@@ -1,0 +1,21 @@
+{
+  "name": "@cml/prose-engine",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Prose Engine v2 (ANALYSIS_99 §10): the book contract, the bible and brief, segmentation, draft selection, anchored findings and guarded edits. PURE — no LLM client, so every module is testable against the archive without a call.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": { ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" } },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run --passWithNoTests",
+    "type-check": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@cml/cml": "file:../cml",
+    "@cml/prompts-llm": "file:../prompts-llm",
+    "@cml/prose-guard": "file:../prose-guard"
+  },
+  "devDependencies": { "@types/node": "^20.11.0", "typescript": "^5.5.4", "vitest": "^1.2.0" }
+}

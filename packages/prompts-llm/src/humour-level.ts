@@ -43,6 +43,20 @@ export interface HumourBand {
 
 const MILD = ["understatement", "deadpan", "self_deprecating"] as const;
 
+/**
+ * A_95 M4 — the two register FAMILIES the wit shapes are owned by. They lived as private consts in
+ * `agent9-prose/obligation-block.ts`; moved here (2026-09-18) so the Prose Engine v2 contract and the
+ * v1 obligation block read ONE list. A second body of a register list is the WF-002 shape, and while
+ * this one feeds a prompt rather than a write, the cost of single-sourcing it was four lines.
+ *
+ *   UNDERSTATED  owns THE FLAT ANSWER  — a question answered in four words or fewer.
+ *   SHARP        owns THE SHORT RETORT — a long speech answered in six words or fewer.
+ *
+ * A character with neither (style `none`, or level 0) owns THE UNMEANT JOKE: funny without trying.
+ */
+export const UNDERSTATED_STYLES = ["dry_wit", "understatement", "deadpan", "self_deprecating"] as const;
+export const SHARP_STYLES = ["sardonic", "polite_savagery", "blunt", "observational"] as const;
+
 export const HUMOUR_BANDS: Record<HumourLevel, HumourBand> = {
   none: {
     level: "none",

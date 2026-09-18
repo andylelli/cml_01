@@ -32,7 +32,7 @@ import {
 import { sanitizeContinuityTailForPrompt } from "./continuity-tail.js";
 import { getSeasonAllowList, capitalizeWord } from "./lint.js";
 import { HUMOUR_STYLES } from "./prompt-blocks.js";
-import { chapterCarriesWitBeat } from "../humour-level.js";
+import { chapterCarriesWitBeat, UNDERSTATED_STYLES, SHARP_STYLES } from "../humour-level.js";
 import { buildOffstageActorLines, isOffstageActorsEnabled } from "../agent3-offstage-actors.js"; // A_96 F3
 import type { CanonicalSeason } from "./lint.js";
 import { sanitizeClueField, tagCharacter, buildIdentityMap } from "./phrase-analysis.js";
@@ -275,8 +275,9 @@ export const isWitShapesEnabled = (env: NodeJS.ProcessEnv = process.env): boolea
  * The third is the reader's own suggestion, verbatim in kind: *"Agatha should not be funny often. She
  * is funniest only indirectly, because her seriousness is so rigid."*
  */
-const UNDERSTATED = ["dry_wit", "understatement", "deadpan", "self_deprecating"] as const;
-const SHARP = ["sardonic", "polite_savagery", "blunt", "observational"] as const;
+// Single-sourced in `humour-level.ts` (2026-09-18) so v1 and the Prose Engine v2 contract agree.
+const UNDERSTATED = UNDERSTATED_STYLES;
+const SHARP = SHARP_STYLES;
 
 const firstWithStyle = (
   profiles: ReadonlyArray<BeatCandidate>,
