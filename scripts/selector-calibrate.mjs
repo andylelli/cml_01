@@ -20,6 +20,8 @@
 import fs from "node:fs";
 import path from "node:path";
 
+import { splitReads } from "./external-read-ledger.mjs";
+
 import {
   machineRegisterRate,
   repetitionDensity,
@@ -47,9 +49,21 @@ const readBooks = () => {
     const manuscript = files.find((f) => f.endsWith(".md"));
     if (!review || !manuscript) continue;
     const reviewText = fs.readFileSync(path.join(dir, review), "utf8");
-    const match =
-      /As written:\s*(\d{2,3})\s*\/\s*100/i.exec(reviewText) ??
-      /score (?:this|it) (?:around|at)\s*(\d{2,3})\s*\/\s*100/i.exec(reviewText);
+    /**
+     * THE LAST read in the file, not the first (ANALYSIS_99 §10.14 W1). A book that was re-read after
+     * a repair carries several closing statements, and `story_20260912-1815` carries three — 79, 82
+     * and 87. Taking the first made the highest mark this project has ever received invisible to the
+     * calibration as well as to the ledger, which is the same defect in two places: `splitReads` is
+     * imported rather than re-implemented so it stays one.
+     */
+    const segments = splitReads(reviewText);
+    const marks = segments
+      .map((segment) =>
+        /As written:\s*(\d{2,3})\s*\/\s*100/i.exec(segment) ??
+        /score (?:this|it) (?:around|at)\s*(\d{2,3})\s*\/\s*100/i.exec(segment),
+      )
+      .filter(Boolean);
+    const match = marks[marks.length - 1];
     if (!match) continue;
     const text = fs.readFileSync(path.join(dir, manuscript), "utf8");
     const words = text.split(/\s+/).filter(Boolean).length;

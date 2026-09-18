@@ -105,6 +105,37 @@ export const SUPPLEMENTARY_HEADINGS = [
  * Returns `{ final, categories, notes, problems }`. `problems` is never empty when something did not
  * parse — the caller decides whether that is fatal, and `--check` says it is.
  */
+/**
+ * A review FILE may hold more than one read.
+ *
+ * ANALYSIS_99 §10.14 W1. `story_20260912-1815/chatgpt-review.txt` carries THREE closing statements —
+ * 79, 82 and 87 — because the book was re-read after repairs, and every consumer of this ledger has
+ * been reading the first of them. The 87 is the highest external mark this project has ever received
+ * and it does not appear in the ledger, in `A_99`'s own arithmetic, or in the selector's calibration.
+ *
+ * Splitting on the CLOSING statement is safe where splitting on a bare `/100` is not: the closing
+ * form is the one readers use once per read, and a forecast ("this could reach 89-91/100") never
+ * takes it. A file with one read returns one segment, unchanged.
+ */
+export function splitReads(text) {
+  const source = String(text ?? "");
+  const pattern = /as\s+written\s*:\s*\d{1,3}\s*\/\s*100\s*\.?/gi;
+  const ends = [];
+  let match;
+  while ((match = pattern.exec(source)) !== null) ends.push(match.index + match[0].length);
+  if (ends.length <= 1) return [source];
+  const segments = [];
+  let start = 0;
+  for (const end of ends) {
+    segments.push(source.slice(start, end));
+    start = end;
+  }
+  const tail = source.slice(start).trim();
+  // A trailing forecast or sign-off belongs to the read it follows, not to a read of its own.
+  if (tail.length > 0) segments[segments.length - 1] += source.slice(start);
+  return segments;
+}
+
 export function parseExternalRead(text) {
   const problems = [];
   const categories = {};
@@ -235,10 +266,21 @@ if (invokedDirectly) {
   let fatal = 0;
 
   for (const f of found) {
-    const parsed = parseExternalRead(readFileSync(join(ROOT, f.readPath), "utf8"));
+    /**
+     * W1 — a file with several closing statements is several reads. The LAST is the current state of
+     * the manuscript (a re-read follows a repair), so it is the one that carries the bundle; the
+     * earlier ones are recorded beside it rather than discarded, because the difference between two
+     * reads of one book is the only direct measurement this project has of the reader's own error bar
+     * (PLAN-TO-90 §11.3 measured it at about +/-1 that way).
+     */
+    const raw = readFileSync(join(ROOT, f.readPath), "utf8");
+    const segments = splitReads(raw);
+    const parsedAll = segments.map((segment) => parseExternalRead(segment)).filter((r) => r.final != null);
+    const parsed = parsedAll.length > 0 ? parsedAll[parsedAll.length - 1] : parseExternalRead(raw);
     const stem = f.storyPath.split("/").slice(-2).join("/");
     const existing = byStoryStem.get(stem);
     const bundleId = existing?.bundleId ?? f.storyPath.split("/").slice(-2, -1)[0].replace(/^story_/, "read-");
+    const earlierReads = parsedAll.slice(0, -1).map((r) => r.final);
 
     if (parsed.problems.length) fatal += 1;
 
@@ -248,6 +290,7 @@ if (invokedDirectly) {
       storyPath: f.storyPath,
       readPath: f.readPath,
       externalFinal: parsed.final ?? existing?.externalFinal ?? null,
+      ...(earlierReads.length > 0 ? { externalEarlierReads: earlierReads } : {}),
       ...(parsed.finalDerived ? { externalFinalDerived: true } : {}),
       externalCategories: Object.keys(parsed.categories).length ? parsed.categories : (existing?.externalCategories ?? {}),
       externalNotes: Object.keys(parsed.notes).length ? parsed.notes : (existing?.externalNotes ?? {}),

@@ -268,11 +268,12 @@ describe("the calibration is what the script measured", () => {
     expect(Object.keys(CALIBRATION)).toHaveLength(6);
   });
 
-  it("records that the composite beats register alone, and by how much", () => {
-    // The design's absolute bar was |rho| >= 0.55, set when register measured -0.60 at n=34. On all
-    // 49 read manuscripts above the word floor register is -0.454 and the composite 0.524: the bar
-    // as written is NOT met, and the criterion that decides anything is.
+  it("records that the composite beats register alone AND clears the design's bar", () => {
+    // The first calibration reported 0.524 against a bar of 0.55 and was recorded as a miss. The
+    // cause was a ledger defect, not the instruments: one review file holds three reads of one book
+    // (79, 82, 87) and every consumer took the first, which suppressed the measured agreement of
+    // every instrument at once. W1 fixed it; this is the corrected figure.
     expect(CALIBRATION_RHO.composite).toBeGreaterThan(CALIBRATION_RHO.registerAlone);
-    expect(CALIBRATION_RHO.composite).toBeLessThan(0.55);
+    expect(CALIBRATION_RHO.composite).toBeGreaterThanOrEqual(CALIBRATION_RHO.designBar);
   });
 });

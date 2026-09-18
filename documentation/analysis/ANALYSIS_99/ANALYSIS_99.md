@@ -79,7 +79,7 @@ with a headline):
 | 2026-06 | 10 | 63.9 | 52 | 74 |
 | 2026-07 | 10 | 76.1 | 69 | 81 |
 | 2026-08 | 20 | 80.5 | 74 | 86 |
-| 2026-09 | 16 | 80.3 | 76 | 85 (one 87 on a second read of `story_20260912-1815`, recorded below the first) |
+| 2026-09 | 16 | 80.3 | 76 | **87** (a third read of `story_20260912-1815`, invisible to the ledger until §9.1) |
 
 August and September together: **n = 36, mean 81.2, sd 3.6; 7 of 36 at 85 or above; 0 at 88.** The
 canonical ledger (`scripts/external-read-ledger.mjs`) agrees on every book it parses; it takes the
@@ -100,10 +100,10 @@ Over the 61 reads with a category table (n per row where a category is newer):
 |---|---:|---:|---|---|
 | Premise / concept | 8.05 | 9 | 13 times | — |
 | Atmosphere / setting | 7.75 | 9 | 5 | — |
-| Opening hook | 7.34 | 8 | never | *"solid but slightly abstract"* |
+| Opening hook | 7.34 | **9** | **once** (§9.1) | *"solid but slightly abstract"* |
 | Plot structure | 7.31 | 9 | once | *"false and real solution blur"* |
 | Pacing | 7.25 | 8 | never | *"repeats … suspicion often"* |
-| Character clarity | 6.89 | 8 | never | *"Nora as first-scene witness/culprit needs firmer handling"*; name collisions |
+| Character clarity | 6.89 | **9** | **once** (§9.1) | *"Nora as first-scene witness/culprit needs firmer handling"*; name collisions |
 | Mystery clues / evidence logic | 6.73 | 9 | twice | *"does not yet prove opportunity/location cleanly"* |
 | Ending / reveal | 6.69 | 9 | twice | *"repeats the proof after the confession"* |
 | Dialogue | 6.59 | 8 | never | *"similar polished aphorisms"*; *"scaffold lines intrude"* |
@@ -193,9 +193,9 @@ days went into levers on the v1 engine.
 
 | | value | source |
 |---|---:|---|
-| best-ever mark in each of the ten categories, summed | 85 | ledger, n=61 |
+| best-ever mark in each of the ten categories, summed | ~~85~~ **87** (corrected, §9.1) | ledger, n=61 |
 | reader's offset (headline − sum), mean | +4 to +6 (top books +5 to +8) | this parse and A_95 §0 |
-| the stack: best-ever-everywhere plus the offset | **89–91** | — |
+| the stack: best-ever-everywhere plus the offset | ~~89–91~~ **92–93** (corrected, §9.1) | — |
 | times the best-ever marks have co-occurred | 0 | — |
 | 90 without a first-ever 9 in prose or dialogue | impossible: 8+8 in those two caps the sum at 83 with every other category at its best | — |
 
@@ -541,18 +541,77 @@ doing for the floor alone; phase 3 is the experiment, and its falsifier is writt
 
 | # | move | state | commit |
 |---|---|---|---|
-| M1 | the floor: writers deleted, no abort after prose | not started | — |
-| M2 | the book as the unit | not started | — |
-| M3 | contract + brief | not started | — |
-| M4 | best-of-three, selected by instrument | not started | — |
-| M5 | the critic replaces the gates | not started | — |
-| M6 | the writer experiment | not started | — |
-| M7 | the positive operations on v2 | not started (K1–K3 specified in WP-002; O1–O5 in WP-001) | — |
-| M8 | the read protocol; ledger takes every read in a file | not started | — |
+| M1 | the floor: no writer, no abort after prose | **BUILT in v2** (`gate.ts`, two fair-play stops); v1's own surgery DEFERRED — see below | `dfb33dbe` |
+| M2 | the book as the unit | **BUILT** — `segments.ts`, one call for 52 of 53 archived books | `8e621d77` |
+| M3 | contract + brief | **BUILT** — `contract.ts`, `bible.ts`, `brief.ts`; whole prompt 7,959 tokens against v1's 23,600 prefix | `072073db`, `df94d51b` |
+| M4 | best-of-three, selected by instrument | **BUILT and CALIBRATED** — composite ρ 0.571 against register alone 0.502 | `4de418df` |
+| M5 | the critic replaces the gates | **BUILT** — anchored findings, edit lists, eight guards | `4046959d` |
+| M6 | the writer experiment | **WIRED, not run** — `PROSE_V2_WRITER=anthropic:claude-opus-5` needs a paid run | `dfb33dbe` |
+| M7 | the positive operations on v2 | the contract carries the hooks (`unlockedBy`, `standsToLose`, `aftermathScope`); the upstream agents do not emit them yet | — |
+| M8 | the read protocol; ledger takes every read in a file | **the ledger is FIXED**; the acceptance definition is §5's table and stands | this commit |
 
-**Next item:** M8's ledger fix and the acceptance definition (a day, £0), then M1 on a branch:
-`PROSE_ENGINE=v2` switch, the deletion list, the anchored edit request in place of the clue paste,
-`needs_revision → ship with warnings`. The first v2 read is the matched pair on seed 50862.
+### §9.1 THE LEDGER FIX CHANGED THIS DOCUMENT'S CENTRAL ARITHMETIC
+
+W1 was a ten-line change to `scripts/external-read-ledger.mjs` and it is the most consequential thing
+in this session.
+
+`stories/story_20260912-1815/chatgpt-review.txt` holds **three reads of one book** — 79, then 82,
+then **87 after repairs** — and every consumer of the ledger took the first. So the highest external
+mark this project has ever received was invisible to the ledger, to §0 and §1 of this document, and
+to the selector's calibration.
+
+| | as recorded in §1–§2 | corrected |
+|---|---|---|
+| best external read ever | 86 (twice) | **87** |
+| best-ever mark in each category, summed | 85 | **87** |
+| categories never given a 9 | five (prose, dialogue, character, pacing, hook) | **three** — prose, dialogue, pacing |
+| opening hook | max 8, never a 9 | **9 once** (this book) |
+| character clarity | max 8, never a 9 | **9 once** (this book) |
+
+The 87 book's table: premise 9, hook 9, plot 8, character 9, dialogue 8, atmosphere 9, clues 8,
+pacing 8, ending 8, prose 8 — sum 84, offset +3, headline 87.
+
+**What it changes.** §2.1 said 90 needs a mark no book has ever received; that stands for prose and
+dialogue, which are still capped at 8 in every read. What it corrects is the size of the gap: the
+best-ever stack is 87, not 85, so best-everywhere plus the reader's usual offset projects to **92–93
+rather than 89**, and reaching 90 needs three of the remaining eight categories at their best rather
+than a perfect stack plus the largest offset ever recorded. **The rebuild's case is unchanged and its
+target is nearer than this document recorded.**
+
+**What it says about the instruments.** Every correlation in the selector's calibration was being
+suppressed by that one misread book: register −0.454 → **−0.502**, dialogue-open +0.291 → **+0.337**,
+long sentences +0.241 → **+0.293**, wit +0.187 → **+0.250**, and the composite 0.524 → **0.571**,
+which clears the absolute bar §10.6 set and the first run missed. A defect in a ledger is a defect in
+every number drawn through it.
+
+### §9.2 WHAT IS BUILT, AND WHAT IS DELIBERATELY NOT
+
+**Built:** `packages/prose-engine` — a pure package with no LLM client, 107 tests, replayed over all
+53 archived projects — plus `apps/worker/src/jobs/agents/agent9-v2/` and one switch at the top of
+`runAgent9`. Seven environment variables for a whole engine, against v1's ~90.
+
+**Deferred, with the reason — W3 and W4, the surgery on v1.** Phase 1 was written to delete v1's ten
+deterministic writers and its post-prose aborts *"because v2 does not exist yet and the floor is
+worth having either way"*. v2 now exists and has the floor by construction: it has no writers to
+delete and two fair-play stops. Cutting v1's writers today would destabilise the engine that is still
+the default, for a book nobody will read, while `PROSE_ENGINE=v2` gets the same floor for free. **The
+right order is now: read a v2 book first, and retire v1 whole (W20) rather than repair it.**
+
+**Not built, and not buildable here:** every paid run and every read — W5, W13, W15, W19. The first
+one is the matched pair, and it is one command:
+
+```
+RESUME_REDO=prose PROSE_ENGINE=v2 node --use-system-ca apps/worker/dist/jobs/resume-run.js <projectId>
+```
+
+**Also not built:** W16–W18 (the upstream fields WP-002's kit needs — `unlockedBy` at Agent 5,
+`standsToLose` at Agent 2b, the relationship arc at Agent 2). The contract reads all three and says
+nothing about them when they are absent, so they are additive whenever the upstream agents emit them.
+
+**The one thing to watch on the first v2 run:** the writer has never been asked for a whole book in
+one call by this pipeline. §8's first row is that risk, its signal is the register rate and
+repetition rising by chapter within a draft, and its fallback is the act-sized plan, which is one
+environment variable (`PROSE_V2_WRITER_MAX_TOKENS`) away.
 
 The design for every move is §10; the work breakdown with acceptance criteria per item is §10.14.
 

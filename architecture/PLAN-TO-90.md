@@ -1878,3 +1878,42 @@ positive operations). Acceptance is defined before the first v2 read: three read
 five consecutive books ≥ 90 and none below 88. ~£25 of runs, ~33 reads. The honest limit is in its
 §8: no book has had a prose or dialogue 9, and the writer is the one lever never pulled.
 
+## 21. PROSE ENGINE v2 — BUILT · 2026-09-18 · £0
+
+`ANALYSIS_99` §10's design, implemented: `packages/prose-engine` (pure, no LLM client, 107 tests
+replayed over all 53 archived projects), `apps/worker/src/jobs/agents/agent9-v2/`, and one switch at
+the top of `runAgent9`. `PROSE_ENGINE` unset leaves v1 untouched. **Seven environment variables for a
+whole engine, against v1's ~90.** M1–M5 and M8 are built; M6 is wired and needs a paid run; M7 waits
+on three upstream fields.
+
+Four defects were found by measurement during the build, each before a run could pay for it:
+
+1. **The role table's first cut agreed with v1 on 19 of 53 outlines.** It read A_96 F10 — *the prose
+   confesses at the earliest trap* — as the general rule, when the dominant arc is trap-then-
+   revelation and the revelation names. Corrected to 51 of 53, both remaining disagreements being v1
+   putting the kill statement on a chapter whose purpose is *"Officially clear all innocent
+   suspects"*. A chapter between the reveal and the aftermath is now a CLOSURE chapter.
+2. **The segmentation plan was sized from Agent 7's `estimatedWordCount`**, which over the 48 books
+   with both an outline and a manuscript estimates 19,915 words against 10,870 delivered — a ratio of
+   0.56 on every one of them. It put 41 of 53 books into act-sized segments for nothing; from the
+   policy's target, 52 of 53 fit ONE call.
+3. **An unrecognised writer model fell back to a blind 16,384-token cap**, silently re-segmenting a
+   book that fits one call. Found by the dry run.
+4. **THE LEDGER TOOK THE FIRST READ IN A FILE.** `story_20260912-1815/chatgpt-review.txt` holds three
+   reads of one book — 79, 82 and **87** — and the 87 is the highest external mark this project has
+   ever received. It was invisible to the ledger, to A_99's own arithmetic and to the selector's
+   calibration.
+
+**§12.1's arithmetic is superseded by A_99 §9.1.** Best-ever-in-every-category is **87, not 85**;
+opening hook and character clarity have each had a 9 (both on that book); the categories never given
+a 9 are **three, not five** — prose, dialogue, pacing. Best-everywhere plus the reader's offset now
+projects to **92–93 rather than 89**. The rebuild's case is unchanged and its target is nearer than
+every document on this board recorded.
+
+The same correction lifted every instrument's measured agreement with the reader: register −0.454 →
+**−0.502**, dialogue-open +0.291 → **+0.337**, long sentences +0.241 → **+0.293**, wit +0.187 →
+**+0.250**, and the selector's composite 0.524 → **0.571**, which clears the bar A_99 §10.6 set and
+the first calibration missed.
+
+**The next item is a paid one:** `RESUME_REDO=prose PROSE_ENGINE=v2` on a read project, ~£0.45, which
+is the v1-versus-v2 matched pair against byte-identical upstream.
