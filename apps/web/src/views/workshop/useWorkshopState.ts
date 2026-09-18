@@ -78,45 +78,25 @@ export const useWorkshopState = () => {
 
   // Tab navigation state
   const activeMainTab = ref<string>("build");
-  const activeReviewTab = ref<string>("cast");
-  const activeAdvancedTab = ref<string>("cml");
 
-  // Define main tabs
+  /**
+   * THREE TABS, NO SUB-TABS (UI-009).
+   *
+   * There were four main tabs over two sub-tab strips — eighteen controls, three navigation rows
+   * stacked before any content. The middle row had no answer to "what can you DO here": Review
+   * rendered artifacts that `CaseView` already shows a reader and that Advanced already dumps raw,
+   * and only two of its eight sections had a control at all.
+   *
+   * What is left is what the console is for: start a run, find out whether it is any good, take the
+   * result away. Long pages carry a jump bar, which is the trade the Run tab already made.
+   *
+   * Ids are unchanged where they existed (`build`, `export`) so shortcuts, stored state and the
+   * activity log keep matching.
+   */
   const mainTabs = computed<Tab[]>(() => [
-    // Label only — the id stays `build` so shortcuts, stored state and the activity log keep
-    // matching. It is no longer where a story is configured: setup moved to Create (UI-006),
-    // and what remains is starting a run, watching it and re-running a stage.
     { id: "build", label: "Run" },
-    { id: "review", label: "Review" },
-    // No `disabled`: see the note on the tabStatuses watcher — the screen is the gate.
-    { id: "advanced", label: "Advanced" },
+    { id: "inspect", label: "Inspect" },
     { id: "export", label: "Export" },
-  ]);
-
-  // Define review sub-tabs
-  const reviewTabs = computed<Tab[]>(() => [
-    { id: "cast", label: "Cast" },
-    { id: "background", label: "Background" },
-    // Label only — the id stays `hardLogic` so logs and artifact names keep matching.
-    { id: "hardLogic", label: "Method" },
-    { id: "locations", label: "Locations" },
-    { id: "temporal", label: "Period" },
-    { id: "clues", label: "Clues" },
-    { id: "outline", label: "Outline" },
-    { id: "prose", label: "Prose" },
-  ]);
-
-  // Define advanced sub-tabs
-  const advancedTabs = computed<Tab[]>(() => [
-    { id: "cml", label: "CML" },
-    { id: "artifacts", label: "Artifacts" },
-    { id: "logs", label: "LLM Logs" },
-    { id: "history", label: "History" },
-    { id: "quality", label: "Quality" },
-    // The two spec fields that are NOT story setup: the concealment axis is a craft decision
-    // and the one field whose bad value aborts a run, and the batch size is a throughput knob.
-    // Neither belongs on a page a reader uses, so they did not move to Create with the rest.
-    { id: "operator", label: "Operator" },
   ]);
 
   const projectStore = useProjectStore();
@@ -154,12 +134,11 @@ export const useWorkshopState = () => {
     llmLogs,
   } = storeToRefs(projectStore);
 
-  // Tab status tracking
+  // Tab status tracking. Not "locked" on any of them: the console is only reachable in operator
+  // mode, so every tab is always available once you are here.
   const tabStatuses = ref<Record<string, TabStatus>>({
     build: "available",
-    review: "available",
-    // Not "locked": the console is only reachable in operator mode, so the tab is always available.
-    advanced: "available",
+    inspect: "available",
     export: "available",
   });
 
@@ -262,19 +241,19 @@ export const useWorkshopState = () => {
    * persistState() and logActivity(). MEASURED at 2 log POSTs and 3 storage writes per click
    * (UI-003 §2.1).
    */
+  /**
+   * Go to a tab, and optionally to a section within it.
+   *
+   * `section` used to select a sub-tab. There are no sub-tabs now (UI-009), so it is an element id
+   * on the destination page and this scrolls to it — the same anchors the jump bars use. Deep links
+   * keep working; they just land on a heading instead of a tab.
+   */
   const goTo = (tab: string, section?: string) => {
     activeMainTab.value = tab;
     if (!section) return;
-    if (tab === "review") activeReviewTab.value = section;
-    else if (tab === "advanced") activeAdvancedTab.value = section;
-  };
-
-  const handleReviewTabChange = (tabId: string) => {
-    activeReviewTab.value = tabId;
-  };
-
-  const handleAdvancedTabChange = (tabId: string) => {
-    activeAdvancedTab.value = tabId;
+    requestAnimationFrame(() => {
+      document.getElementById(section)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
   };
 
   // runStatus, lastProjectStatus, isRunning, isStartingRun and pendingRunId now come from
@@ -465,35 +444,15 @@ export const useWorkshopState = () => {
     loadScoringHistory: () => loadScoringHistory(),
     pollArtifacts: () => pollArtifacts(),
     // The 8s poll is pointless traffic unless the quality panel is actually on screen.
-    shouldPollQuality: () => activeMainTab.value === "advanced" && activeAdvancedTab.value === "quality",
+    shouldPollQuality: () => activeMainTab.value === "inspect",
     notify: (severity, message, detail) => addError(severity, "pipeline", message, detail),
     logActivity: (message) => logActivity({ projectId: projectId.value, scope: "ui", message }),
   });
 
   const { runStatus, lastProjectStatus, isStartingRun, pendingRunId, isRunning } = progress;
 
-  const advancedTabStatuses = computed<Record<string, TabStatus>>(() => ({
-    quality: isRunning.value || isStartingRun.value ? "in-progress" : "available",
-  }));
 
-  // Per-stage status for the Review sub-tabs so each agent's output visibly "lights up" as it is
-  // generated: complete once its artifact has arrived (polled every 3s during the run), in-progress
-  // while the run is active and it hasn't arrived yet, otherwise available.
-  const reviewTabStatuses = computed<Record<string, TabStatus>>(() => {
-    const running = isRunning.value || isStartingRun.value;
-    const statusFor = (present: boolean): TabStatus =>
-      present ? "complete" : running ? "in-progress" : "available";
-    return {
-      cast: statusFor(!!castData.value),
-      background: statusFor(!!backgroundContextData.value),
-      hardLogic: statusFor(!!hardLogicDevicesData.value),
-      locations: statusFor(!!locationProfilesData.value),
-      temporal: statusFor(!!temporalContextData.value),
-      clues: statusFor(!!cluesData.value),
-      outline: statusFor(!!outlineData.value),
-      prose: statusFor(!!proseData.value),
-    };
-  });
+
   /** The project id whose artifacts a caller has already taken responsibility for loading. */
   const artifactLoadHandledFor = ref<string | null>(null);
   const isDownloadingStoryPdf = ref(false);
@@ -677,7 +636,7 @@ export const useWorkshopState = () => {
 
   const maybeRefreshLlmLogs = async () => {
     if (!projectId.value) return;
-    const shouldRefresh = (activeMainTab.value === "advanced" && activeAdvancedTab.value === "logs") || isRunning.value;
+    const shouldRefresh = activeMainTab.value === "inspect" || isRunning.value;
     if (!shouldRefresh) return;
     try {
       await projectStore.loadLlmLogs(projectId.value, 200);
@@ -748,30 +707,30 @@ export const useWorkshopState = () => {
   });
 
   /**
-   * The quality panel fetches on open. What this watcher used to ALSO do was call `setView`, which
-   * is the cycle UI-003 §2.1 measured — the navigation half is gone and only the fetch remains,
-   * which is the part that was ever doing anything.
+   * Inspect fetches what it shows when you open it.
+   *
+   * This used to be two watchers keyed on sub-tabs — one for Quality, one for LLM Logs. Both are
+   * sections of the one Inspect page now (UI-009), so opening the tab is the trigger, and both
+   * fetches happen together rather than on whichever sub-tab you happened to click.
    */
-  watch(activeAdvancedTab, (newTab) => {
-    if (activeMainTab.value === "advanced" && newTab === "quality") {
+  watch(
+    [activeMainTab, projectId],
+    async ([mainTab, currentProject]) => {
+      if (mainTab !== "inspect") return;
       void loadScoringReport();
       void loadScoringHistory();
-    }
-  }, { immediate: true });
-
-  // The 8s quality poll follows isRunning and is owned by useRunProgress, which also clears it on
-  // disposal. The watcher here only tells it that the flag changed.
-  watch(isRunning, () => progress.syncQualityPolling());
-
-  watch([activeMainTab, activeAdvancedTab, projectId], async ([mainTab, advancedTab, currentProject]) => {
-    if (mainTab === "advanced" && advancedTab === "logs") {
       try {
         await projectStore.loadLlmLogs(currentProject, 200);
       } catch {
         // handled via error banner if needed
       }
-    }
-  });
+    },
+    { immediate: true },
+  );
+
+  // The 8s quality poll follows isRunning and is owned by useRunProgress, which also clears it on
+  // disposal. The watcher here only tells it that the flag changed.
+  watch(isRunning, () => progress.syncQualityPolling());
 
 
   const handleCreateProject = async () => {
@@ -1268,40 +1227,14 @@ export const useWorkshopState = () => {
     addError("warning", "pipeline", "Cancel is not available mid-run.", "Wait for completion or refresh the page.");
   };
 
-  /** Artifact id -> the panel section that shows it. Values are sub-tab ids, not a separate vocabulary. */
-  const ARTIFACT_SECTION: Record<string, string> = {
-    setting: "background",
-    cast: "cast",
-    hard_logic_devices: "hardLogic",
-    cml: "cml",
-    clues: "clues",
-    outline: "outline",
-    character_profiles: "cast",
-    location_profiles: "locations",
-    temporal_context: "temporal",
-    background_context: "background",
-    prose: "prose",
-  };
-
-  const handleArtifactView = (id: string) => {
-    const section = ARTIFACT_SECTION[id];
-    if (section) goTo(section === "cml" || section === "artifacts" ? "advanced" : "review", section);
-  };
-
-  const handleValidationFieldFocus = (key: string) => {
-    // Jump to the spec tab so fields are visible
-    activeMainTab.value = "spec";
-    // After tab transition, scroll to the relevant field group
-    setTimeout(() => {
-      const fieldId = `field-${key}`;
-      const target = document.getElementById(fieldId);
-      if (target) {
-        target.scrollIntoView({ behavior: "smooth", block: "center" });
-        target.classList.add("ring-2", "ring-line-strong", "ring-offset-1");
-        setTimeout(() => target.classList.remove("ring-2", "ring-line-strong", "ring-offset-1"), 2500);
-      }
-    }, 150);
-  };
+  /**
+   * "View" on the artifact dashboard jumps to that artifact on the Inspect page.
+   *
+   * This used to be a map from artifact id to sub-tab id — eleven entries pointing at a second
+   * vocabulary that had to be kept in step with the tabs. With one page and one anchor per artifact
+   * (UI-009) the id IS the address, so the map is gone.
+   */
+  const handleArtifactView = (id: string) => goTo("inspect", `artifact-${id}`);
 
   /**
    * Keyboard shortcuts (UI-002 item 21), declared rather than branched.
@@ -1376,11 +1309,7 @@ export const useWorkshopState = () => {
   });
 
   return {
-    activeAdvancedTab,
     activeMainTab,
-    activeReviewTab,
-    advancedTabStatuses,
-    advancedTabs,
     allValidation,
     artifactEntries,
     artifactsStatus,
@@ -1414,7 +1343,6 @@ export const useWorkshopState = () => {
     gamePackArtifact,
     gamePackData,
     gamePackReady,
-    handleAdvancedTabChange,
     handleArtifactView,
     handleCancelRun,
     handleClearStore,
@@ -1424,11 +1352,9 @@ export const useWorkshopState = () => {
     handleDownloadStoryPdf,
     handleErrorAction,
     handleLoadProject,
-    handleReviewTabChange,
     handleRunPipeline,
     handleSampleSelect,
     handleSuggestTheme,
-    handleValidationFieldFocus,
     hardLogicDevicesArtifact,
     hardLogicDevicesData,
     isAdvanced,
@@ -1464,8 +1390,6 @@ export const useWorkshopState = () => {
     proseArtifact,
     proseData,
     proseReady,
-    reviewTabStatuses,
-    reviewTabs,
     runEventsData,
     runProgressLabel,
     runProgressPercent,

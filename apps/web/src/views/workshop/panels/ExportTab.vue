@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useWorkshop } from "../useWorkshopState";
+import AppButton from "../../../components/ui/AppButton.vue";
 import ExportPanel from "../../../components/ExportPanel.vue";
 import NarrationPanel from "../../../components/NarrationPanel.vue";
 import TabPanel from "../../../components/TabPanel.vue";
@@ -21,16 +22,20 @@ const {
 	gamePackArtifact,
 	gamePackData,
 	gamePackReady,
+	availableProseVersions,
+	handleDownloadAllProseVersions,
 	handleDownloadGamePackPdf,
 	handleDownloadStoryPdf,
 	hardLogicDevicesArtifact,
 	isAdvanced,
+	isDownloadingAllVersions,
 	isDownloadingGamePackPdf,
 	isDownloadingStoryPdf,
 	outlineArtifact,
 	projectId,
 	proseArtifact,
 	proseReady,
+	selectedProseLength,
 	settingArtifact,
 } = useWorkshop();
 </script>
@@ -62,21 +67,51 @@ const {
 	          </button>
 	        </div>
 
+	        <!-- The version picker and "all versions" were duplicated on Review ▸ Prose, which is
+	             gone (UI-009). Downloads belong together, so they landed here. -->
 	        <div class="rounded-md border border-line bg-ground p-4">
 	          <div class="text-xs font-semibold uppercase tracking-wide text-ink-soft">Story PDF</div>
 	          <div class="t-subtitle mt-1">
 	            {{ proseReady ? 'Ready to download' : 'Generate prose first to enable export' }}
 	          </div>
-	          <button
-	            class="mt-3 rounded-md border border-line bg-surface px-3 py-1.5 text-xs font-semibold text-ink hover:bg-surface-sunken disabled:cursor-not-allowed disabled:opacity-60"
-	            :disabled="!proseReady || !projectId || isDownloadingStoryPdf"
-	            @click="handleDownloadStoryPdf"
-	          >
-	            <span class="inline-flex items-center gap-2">
-	              <font-awesome-icon v-if="isDownloadingStoryPdf" icon="spinner" spin />
-	              Download story PDF
-	            </span>
-	          </button>
+
+	          <div v-if="availableProseVersions.length > 1" class="mt-3 flex items-center gap-2">
+	            <label for="f-pdf-version" class="text-xs font-semibold text-ink-soft">Version</label>
+	            <select
+	              id="f-pdf-version"
+	              v-model="selectedProseLength"
+	              class="rounded-md border border-line bg-surface px-3 py-1 text-xs"
+	            >
+	              <option v-for="length in availableProseVersions" :key="length" :value="length">
+	                {{ length === 'short' ? 'Short (15-25K)' : length === 'medium' ? 'Medium (40-60K)' : 'Long (70-100K)' }}
+	              </option>
+	            </select>
+	          </div>
+
+	          <div class="mt-3 flex flex-wrap gap-2">
+	            <AppButton
+	              size="sm"
+	              icon="download"
+	              :busy="isDownloadingStoryPdf"
+	              busy-label="Preparing…"
+	              :disabled="!proseReady || !projectId"
+	              @click="handleDownloadStoryPdf"
+	            >
+	              Story PDF
+	            </AppButton>
+	            <AppButton
+	              v-if="availableProseVersions.length > 1"
+	              size="sm"
+	              variant="ghost"
+	              icon="download"
+	              :busy="isDownloadingAllVersions"
+	              busy-label="Preparing…"
+	              :disabled="!proseReady || !projectId"
+	              @click="handleDownloadAllProseVersions"
+	            >
+	              All versions
+	            </AppButton>
+	          </div>
 	        </div>
 	      </div>
 

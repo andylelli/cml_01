@@ -55,7 +55,6 @@ const {
 	allValidation,
 	noveltyAuditData,
 	showAdvancedValidation,
-	handleValidationFieldFocus,
 } = useWorkshop();
 
 /** Render a stored value with the label the operator chose it by, not its wire form. */
@@ -225,7 +224,7 @@ const hasTimestamp = computed(() => {
 				</svg>
 			</button>
 			<div v-if="showAdvancedValidation" class="border-t border-line px-5 py-4">
-				<ValidationPanel :validation="allValidation" @field-focus="handleValidationFieldFocus" />
+				<ValidationPanel :validation="allValidation" />
 			</div>
 		</section>
 

@@ -31,7 +31,7 @@ describe("ValidationPanel.vue", () => {
     expect(wrapper.text()).toContain("outline");
   });
 
-  it("shows checkmark icon for valid artifacts", () => {
+  it("marks valid artifacts valid", () => {
     const validation: AllValidation = {
       setting: { valid: true, errors: [], warnings: [] },
       cast: { valid: true, errors: [], warnings: [] },
@@ -43,11 +43,12 @@ describe("ValidationPanel.vue", () => {
       props: { validation },
     });
 
-    const checkmarks = wrapper.findAll("span").filter((w) => w.text() === "✅");
-    expect(checkmarks.length).toBe(5);
+    // Asserted by accessible name, not by which picture is used: the emoji became AppIcon glyphs
+    // (UI-009), and a test pinned to the emoji pins the thing that was wrong.
+    expect(wrapper.findAll('[aria-label="valid"]').length).toBe(5);
   });
 
-  it("shows error icon for invalid artifacts", () => {
+  it("marks invalid artifacts invalid", () => {
     const validation: AllValidation = {
       setting: { valid: false, errors: ["Error 1"], warnings: [] },
       cast: { valid: true, errors: [], warnings: [] },
@@ -59,11 +60,10 @@ describe("ValidationPanel.vue", () => {
       props: { validation },
     });
 
-    const errorIcons = wrapper.findAll("span").filter((w) => w.text() === "❌");
-    expect(errorIcons.length).toBe(1);
+    expect(wrapper.findAll('[aria-label="invalid"]').length).toBe(1);
   });
 
-  it("shows warning icon for artifacts with warnings only", () => {
+  it("marks artifacts that only have warnings", () => {
     const validation: AllValidation = {
       setting: { valid: true, errors: [], warnings: ["Warning 1"] },
       cast: { valid: true, errors: [], warnings: [] },
@@ -75,8 +75,7 @@ describe("ValidationPanel.vue", () => {
       props: { validation },
     });
 
-    const warningIcons = wrapper.findAll("span").filter((w) => w.text() === "⚠️");
-    expect(warningIcons.length).toBe(1);
+    expect(wrapper.findAll('[aria-label="has warnings"]').length).toBe(1);
   });
 
   it("displays error count badge when errors present", () => {

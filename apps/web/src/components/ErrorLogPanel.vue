@@ -73,6 +73,7 @@ const handleCopy = () => {
       <div class="flex items-center gap-2">
         <select
           v-model="filterSeverity"
+          aria-label="Filter the error log by severity"
           class="rounded border border-line px-2 py-1 text-xs text-ink-soft"
         >
           <option value="all">All</option>

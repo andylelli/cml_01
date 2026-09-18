@@ -2,12 +2,11 @@
 import { provide } from "vue";
 import { useWorkshopState, WORKSHOP_KEY } from "./workshop/useWorkshopState";
 
-// The six tab panels, each injecting the provided state.
+// The tab panels, each injecting the provided state.
 import ProjectPanel from "./workshop/panels/ProjectPanel.vue";
 import SpecSummary from "./workshop/panels/SpecSummary.vue";
 import GeneratePanel from "./workshop/panels/GeneratePanel.vue";
-import ReviewPanel from "./workshop/panels/ReviewPanel.vue";
-import AdvancedPanel from "./workshop/panels/AdvancedPanel.vue";
+import InspectPanel from "./workshop/panels/InspectPanel.vue";
 import ExportTab from "./workshop/panels/ExportTab.vue";
 import WorkspaceRail from "./workshop/WorkspaceRail.vue";
 
@@ -46,11 +45,7 @@ provide(WORKSHOP_KEY, ctx);
  */
 const emit = defineEmits<{ openCreate: [] }>();
 const {
-  activeAdvancedTab,
   activeMainTab,
-  activeReviewTab,
-  advancedTabStatuses,
-  advancedTabs,
   artifactEntries,
   artifactsStatus,
   availableProseVersions,
@@ -79,7 +74,6 @@ const {
   gamePackArtifact,
   gamePackData,
   gamePackReady,
-  handleAdvancedTabChange,
   handleArtifactView,
   handleCancelRun,
   handleClearStore,
@@ -88,7 +82,6 @@ const {
   handleDownloadStoryPdf,
   handleErrorAction,
   handleLoadProject,
-  handleReviewTabChange,
   handleRunPipeline,
   handleSampleSelect,
   hardLogicDevicesArtifact,
@@ -123,8 +116,6 @@ const {
   proseArtifact,
   proseData,
   proseReady,
-  reviewTabStatuses,
-  reviewTabs,
   runEventsData,
   samples,
   scoringHistory,
@@ -190,25 +181,7 @@ const {
           :tab-statuses="tabStatuses"
         />
 
-        <!-- Sub-tab Navigation for Review -->
-        <TabBar
-          v-if="activeMainTab === 'review'"
-          :tabs="reviewTabs"
-          :active-tab="activeReviewTab"
-          :tab-statuses="reviewTabStatuses"
-          @update:activeTab="handleReviewTabChange"
-          class="bg-ground"
-        />
-
-        <!-- Sub-tab Navigation for Advanced -->
-        <TabBar
-          v-if="activeMainTab === 'advanced' && isAdvanced"
-          :tabs="advancedTabs"
-          :active-tab="activeAdvancedTab"
-          :tab-statuses="advancedTabStatuses"
-          @update:activeTab="handleAdvancedTabChange"
-          class="bg-ground"
-        />
+        <!-- No second tab row (UI-009). Long pages carry a jump bar instead. -->
 
         <main class="flex min-h-0 flex-1 gap-6 overflow-auto bg-ground px-6 py-6">
           <section class="flex min-w-0 flex-1 flex-col gap-6">
@@ -250,11 +223,8 @@ const {
               </div>
             </TabPanel>
 
-            <!-- Review Tab with sub-tabs -->
-            <ReviewPanel />
-
-            <!-- Advanced Tab with sub-tabs -->
-            <AdvancedPanel />
+            <!-- Inspect: quality, clues, artifacts, logs, history -->
+            <InspectPanel />
 
             <!-- Export Tab -->
             <ExportTab />
@@ -422,21 +392,21 @@ const {
                   <button
                     class="transition-control rounded border border-line bg-surface px-3 py-1.5 text-[0.8rem] font-medium text-ink hover:border-line-strong hover:bg-surface-sunken disabled:cursor-not-allowed disabled:text-ink-faint disabled:hover:bg-surface"
                     :disabled="!cluesReady"
-                    @click="goTo('review', 'clues')"
+                    @click="goTo('inspect', 'inspect-clues')"
                   >
                     Explore clues
                   </button>
                   <button
                     class="transition-control rounded border border-line bg-surface px-3 py-1.5 text-[0.8rem] font-medium text-ink hover:border-line-strong hover:bg-surface-sunken disabled:cursor-not-allowed disabled:text-ink-faint disabled:hover:bg-surface"
                     :disabled="!outlineReady"
-                    @click="goTo('review', 'outline')"
+                    @click="goTo('inspect', 'artifact-outline')"
                   >
                     Read outline
                   </button>
                   <button
                     class="transition-control rounded border border-line bg-surface px-3 py-1.5 text-[0.8rem] font-medium text-ink hover:border-line-strong hover:bg-surface-sunken disabled:cursor-not-allowed disabled:text-ink-faint disabled:hover:bg-surface"
                     :disabled="!proseReady"
-                    @click="goTo('review', 'prose')"
+                    @click="goTo('export')"
                   >
                     Open story
                   </button>

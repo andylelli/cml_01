@@ -19,11 +19,11 @@ import WorkshopView from "../../WorkshopView.vue";
  */
 
 /**
- * Four tabs, not six. Project, Spec and Generate merged into one tab (UI-003 W4), which then lost
- * the spec form altogether: story setup belongs to Create, so what is left is opening a project,
- * watching it run and re-running a stage — hence **Run** (UI-006). The tab id is still `build`.
+ * Three tabs. Project, Spec and Generate merged into Run (UI-003 W4, UI-006); Review and Advanced
+ * merged into Inspect (UI-009), which dropped six display-only sections that duplicated CaseView
+ * and kept the two that had controls. The tab id for Run is still `build`.
  */
-const MAIN_TABS = ["Run", "Review", "Advanced", "Export"] as const;
+const MAIN_TABS = ["Run", "Inspect", "Export"] as const;
 
 /**
  * `mode` and `spec` are module singletons (B13), so they outlive a test. Without this reset the
@@ -50,7 +50,6 @@ const openTab = async (wrapper: ReturnType<typeof mountConsole>, label: string) 
 describe("workshop panels — every tab renders", () => {
 	it.each(MAIN_TABS)("%s", async (label) => {
 		const wrapper = mountConsole();
-		// Advanced is gated; turn it on so its panel is reachable at all.
 		await openTab(wrapper, label);
 
 		// A panel that threw would leave the section empty; a panel that resolved to nothing would
@@ -89,12 +88,12 @@ describe("the console shell", () => {
 		expect(() => mountConsole().unmount()).not.toThrow();
 	});
 
-	it("reaches the advanced tab group without a toggle", async () => {
+	it("reaches the operator sections without a toggle", async () => {
 		// UI-003 §3: the toggle gated a group from inside a screen that was itself gated on the same
 		// flag, and turning it off stranded the user here (B15). Entering the console sets the mode.
 		const wrapper = mountConsole();
-		await openTab(wrapper, "Advanced");
-		expect(wrapper.text()).toContain("CML Viewer");
+		await openTab(wrapper, "Inspect");
+		expect(wrapper.text()).toContain("Raw artifacts");
 		wrapper.unmount();
 	});
 });

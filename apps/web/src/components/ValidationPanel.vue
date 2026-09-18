@@ -1,13 +1,18 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
+import AppIcon from "./ui/AppIcon.vue";
+import type { IconName } from "./ui/icons";
 import type { AllValidation, ValidationResult } from "./types";
 
+/**
+ * Validation results, as a list you can expand.
+ *
+ * It used to carry a "Fix →" button per row. That button navigated to a `spec` tab which has not
+ * existed since UI-006 moved setup to Create, and scrolled to `field-*` ids that exist nowhere in
+ * the app — so it blanked the console's content area and did nothing else. Removed (UI-009).
+ */
 const props = defineProps<{
   validation: AllValidation | null;
-}>();
-
-const emit = defineEmits<{
-  fieldFocus: [key: string];
 }>();
 
 const validationEntries = computed(() => Object.entries(props.validation ?? {}));
@@ -24,10 +29,11 @@ const toggleExpand = (key: string) => {
   expanded.value[key] = !expanded.value[key];
 };
 
-const getStatusIcon = (valid: boolean, hasWarnings: boolean) => {
-  if (!valid) return "❌";
-  if (hasWarnings) return "⚠️";
-  return "✅";
+/** Glyphs, not emoji — UI-001 §4. Each carries a word too, so colour is never the only signal. */
+const getStatus = (valid: boolean, hasWarnings: boolean): { icon: IconName; label: string } => {
+  if (!valid) return { icon: "close", label: "invalid" };
+  if (hasWarnings) return { icon: "bookmark", label: "has warnings" };
+  return { icon: "check", label: "valid" };
 };
 
 const getStatusClass = (valid: boolean, hasWarnings: boolean) => {
@@ -55,14 +61,13 @@ const hasIssues = (result: ValidationResult) => {
           @click="toggleExpand(String(key))"
         >
           <div class="flex items-center gap-2">
-            <span
-              :class="[
-                'text-sm',
-                getStatusClass(result.valid, Boolean(result.warnings?.length)),
-              ]"
-            >
-              {{ getStatusIcon(result.valid, Boolean(result.warnings?.length)) }}
-            </span>
+            <AppIcon
+              :name="getStatus(result.valid, Boolean(result.warnings?.length)).icon"
+              :size="14"
+              role="img"
+              :aria-label="getStatus(result.valid, Boolean(result.warnings?.length)).label"
+              :class="getStatusClass(result.valid, Boolean(result.warnings?.length))"
+            />
             <span class="text-sm font-medium capitalize">{{ key }}</span>
             <span
               v-if="!result.valid"
@@ -77,18 +82,12 @@ const hasIssues = (result: ValidationResult) => {
               {{ result.warnings.length }} {{ result.warnings.length === 1 ? 'warning' : 'warnings' }}
             </span>
           </div>
-          <div class="flex items-center gap-2">
-            <button
-              v-if="hasIssues(result) && ['setting', 'cast', 'clues', 'outline'].includes(String(key))"
-              class="rounded border border-line-strong bg-surface-sunken px-2 py-0.5 text-[10px] font-semibold text-frame hover:bg-surface-sunken"
-              @click.stop="emit('fieldFocus', String(key))"
-            >
-              Fix →
-            </button>
-            <span class="text-xs text-ink-faint">
-              {{ expanded[String(key)] ? '▼' : '▶' }}
-            </span>
-          </div>
+          <AppIcon
+            :name="expanded[String(key)] ? 'chevronDown' : 'chevronRight'"
+            :size="14"
+            class="shrink-0 text-ink-faint"
+            aria-hidden="true"
+          />
         </button>
         <div
           v-if="expanded[String(key)]"

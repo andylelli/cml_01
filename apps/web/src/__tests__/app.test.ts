@@ -30,12 +30,12 @@ describe("WorkshopView — the operator console", () => {
   it("enters operator mode on mount rather than asking", async () => {
     const wrapper = mountConsole();
     await nextTick();
-    // The Advanced tab carries `disabled: !isAdvanced`. Enabled without anyone toggling anything
-    // is the observable fact; the old test asserted the text "CML Viewer", which was the SIDEBAR's
-    // 13th button rather than the panel, and so described the nav rather than the mode.
-    const advanced = wrapper.findAll("button").find((b) => b.text().trim() === "Advanced");
-    expect(advanced, "no Advanced tab").toBeTruthy();
-    expect(advanced?.attributes("disabled")).toBeUndefined();
+    // Enabled without anyone toggling anything is the observable fact; the old test asserted the
+    // text "CML Viewer", which was the SIDEBAR's 13th button rather than the panel, and so
+    // described the nav rather than the mode. The Advanced tab it checked became Inspect (UI-009).
+    const inspect = wrapper.findAll("button").find((b) => b.text().trim() === "Inspect");
+    expect(inspect, "no Inspect tab").toBeTruthy();
+    expect(inspect?.attributes("disabled")).toBeUndefined();
     wrapper.unmount();
   });
 
@@ -65,26 +65,22 @@ describe("WorkshopView — the operator console", () => {
     wrapper.unmount();
   });
 
-  it("switches review sub-tabs", async () => {
+  /**
+   * This was "switches review sub-tabs", clicking Clues then Outline then Prose. There are no
+   * sub-tabs (UI-009): Inspect is one page, so the sections are all present at once and the
+   * assertion is that they are, not that clicking moves between them.
+   */
+  it("shows every Inspect section on one page", async () => {
     const wrapper = mountConsole();
 
-    await wrapper.findAll("button").find((btn) => btn.text().trim() === "Review")?.trigger("click");
+    await wrapper.findAll("button").find((btn) => btn.text().trim() === "Inspect")?.trigger("click");
+    await nextTick();
     await nextTick();
 
-    await wrapper.findAll("button").find((btn) => btn.text().trim() === "Clues")?.trigger("click");
-    await nextTick();
-
-    expect(wrapper.text()).toContain("Clue Board");
-
-    await wrapper.findAll("button").find((btn) => btn.text().trim() === "Outline")?.trigger("click");
-    await nextTick();
-
-    expect(wrapper.text()).toContain("Story Outline");
-
-    await wrapper.findAll("button").find((btn) => btn.text().trim() === "Prose")?.trigger("click");
-    await nextTick();
-
-    expect(wrapper.text()).toContain("No story text yet. Generate to create it.");
+    const text = wrapper.text();
+    expect(text).toContain("Clue board");
+    expect(text).toContain("Raw artifacts");
+    expect(text).toContain("LLM log entries");
     wrapper.unmount();
   });
 });
