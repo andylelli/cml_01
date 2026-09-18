@@ -33,6 +33,7 @@ const ORDER = [
   "@cml/story-validation",   // → cml, llm-client
   // depend on the above
   "@cml/prompts-llm",        // → cml, llm-client, period-kb, story-validation, prose-guard
+  "@cml/prose-engine",       // → cml, prompts-llm, prose-guard (ANALYSIS_99 §10)
   "@cml/worker",             // → cml, llm-client, prompts-llm, story-validation, prose-guard, beat-scheduler, rubric-score, clue-spec, story-geometry
   "@cml/api",                // → cml, prompts-llm, worker
 ];

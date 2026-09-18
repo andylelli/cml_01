@@ -90,6 +90,11 @@ const FLAG_PATTERN = new RegExp(
   // backwards: a LIVE lever the register cannot police.
   String.raw`\b(AGENT\d*[A-Z]*_[A-Z0-9_]+|LLM_HTTP_TRANSPORT|RUBRIC_[A-Z0-9_]+|NOVELTY_[A-Z0-9_]+|` +
     String.raw`DEVICE_LIBRARY_[A-Z0-9_]+|SEED_CORPUS_[A-Z0-9_]+|PROSE_ANTI_COPY_[A-Z0-9_]+|` +
+    // ANALYSIS_99 §10 — Prose Engine v2's switch and its four role variables, added 2026-09-18. The
+    // same structural blindness this pattern's own header describes for DEVICE_LIBRARY_* and
+    // SEED_CORPUS_*: without this line the whole of v2 could be read by shipped code and appear in
+    // no register, which is the "live lever the register cannot police" half of the defect.
+    String.raw`PROSE_ENGINE|PROSE_V2_[A-Z0-9_]+|` +
     `${LOGGING_KEYS.join("|")})\\b`,
   "g",
 );

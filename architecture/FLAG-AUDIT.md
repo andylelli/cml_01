@@ -883,3 +883,38 @@ untouched — asserted by a test that keeps a too-small budget truncating with t
 count paragraphs opening on speech in the manuscript — **that half needs no external read**, and the
 target is movement off 9.0% toward the canon's 59.7%. **If the probe never runs:** the operations
 stay undelivered and the five-category ceiling stays unexplained by anything we have tried.
+
+---
+
+## Addendum — PROSE ENGINE v2, registered 2026-09-18 (ANALYSIS_99 §10)
+
+**One switch and four role variables.** v2 is built ALONGSIDE v1, not in place of it: `PROSE_ENGINE`
+unset or `v1` leaves every line of the v1 stage untouched, and `runAgent9`'s first statement is the
+only place the two meet. The reason is in A_99 §7 — a rebuild half-landed is two engines both partly
+true, which is the shape A_98 has just finished cleaning out of the corpus — and in §10.15: v1 is
+retired when v2 has beaten it on the reader's own table, not before.
+
+**Why there are only seven variables for a whole engine.** v1's prose stage reads about ninety of the
+129 flags in `.env.local`, and this week's bug check found two pairs that disagree with each other
+(A_96 §5.7 #1 and #6). v2's behaviour lives in a contract and a brief that are derived, tested and
+replayable over the archive; there is nothing left for a flag to toggle, which is the point.
+
+| flag | today | state | why |
+|---|---|---|---|
+| `PROSE_ENGINE` | unset → v1 | **OFF — the master switch** | `v2` routes the whole prose stage to `agent9-v2/run.ts`. Nothing else in the codebase changes behaviour on it. The switch exists so a matched pair (`RESUME_REDO=prose PROSE_ENGINE=v2` against byte-identical upstream) is the v1-versus-v2 experiment, which is the first thing phase 2 buys (§10.11). |
+| `PROSE_V2_DRAFTS` | unset → 3 | default 3, range 1–5 | How many drafts per segment the selector chooses between. Three is the design's number; 1 makes v2 a single-draft engine and is how the selection itself is A/B'd. MEASURED before building: the composite agrees with the reader at ρ 0.524 against register alone at 0.454 (`scripts/selector-calibrate.mjs`, 49 read manuscripts). |
+| `PROSE_V2_DRY` | unset → off | **the £0 test** | Builds every prompt and makes no call. `apps/worker/src/__tests__/agent9-v2-dry-run.test.ts` runs it over a real archived project: **10 chapters in one segment, biggest prompt 7,959 tokens** (bible 4,669 + brief 688), against v1's ~23,600-token FIXED PREFIX alone. That number is what makes a frontier writer affordable (§10.10). |
+| `PROSE_V2_WRITER` | unset → `azure:gpt-4.1` | the M6 experiment, as a variable | `provider:model`. `anthropic:claude-opus-5` and `anthropic:claude-sonnet-5` are the two the writer experiment compares. A missing `ANTHROPIC_API_KEY` degrades to Azure with one warning rather than aborting a run that has already paid for everything upstream. |
+| `PROSE_V2_CRITIC` | unset → `azure:gpt-4.1` | one read-only pass | Finds and quotes; never ranks, never writes. Its findings are anchored or discarded (L3). |
+| `PROSE_V2_EDITOR` | unset → `azure:gpt-4.1` | the only thing that changes a sentence | Returns an edit list; each edit is applied alone under `mutateThenValidate` with eight guards, every one of them a corruption this project has shipped. |
+| `PROSE_V2_JUDGE` | unset → `azure:gpt-4.1-mini` | the tie-break, rarely | Called only when two drafts' composites are within 0.25 sd and neither has a hard failure the other lacks. It resolves ten marks and cannot resolve five (PLAN-TO-90 §9), so it is never asked a close question. |
+
+Each role also takes `<VAR>_MAX_TOKENS`. **A malformed or unknown model falls back to the ROLE'S OWN
+default cap and warns**, because the segmentation plan is sized against that number: the first cut
+fell back to a blind 16,384 and silently planned a book that fits one call as three segments. The dry
+run caught it; `agent9-v2-dry-run.test.ts` pins it.
+
+**What v2 does NOT add:** a flag for any behaviour. There is no `PROSE_V2_REPEAT_BAN`, no
+`PROSE_V2_AFTERMATH_JOB`, no `PROSE_V2_WIT_SHAPES`. Those are contract and brief content, derived
+from the artifacts and asserted by 107 tests over the 53-project archive. A behaviour worth a flag in
+v2 is a behaviour that has not been measured yet.

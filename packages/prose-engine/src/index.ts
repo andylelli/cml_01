@@ -50,3 +50,7 @@ export {
 export type { CheckerOptions, CriticParseResult } from "./findings.js";
 export { applyEditList, buildGuards, buildEditorPrompt, parseEditList, summariseEdits } from "./edits.js";
 export type { ApplyOptions, GuardContext } from "./edits.js";
+export { applyGate } from "./gate.js";
+export type { GateVerdict } from "./gate.js";
+export { buildTelemetryBlock } from "./telemetry.js";
+export type { RunTelemetry } from "./telemetry.js";

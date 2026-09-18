@@ -14,6 +14,7 @@
  */
 
 import { dirname, join } from "path";
+import { isProseEngineV2, runProseEngineV2 } from "./agent9-v2/run.js"; // ANALYSIS_99 §10
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import {
   buildAssetDiagnosticReport,
@@ -4145,6 +4146,19 @@ export const warnOnUncheckedPronounGenders = (
 };
 
 export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
+  /**
+   * ANALYSIS_99 §10.1 — PROSE ENGINE v2, behind one switch.
+   *
+   * `PROSE_ENGINE=v2` routes the whole stage to `agent9-v2/run.ts`; anything else leaves every line
+   * below untouched. v2 is built ALONGSIDE v1 and not in place of it, because a rebuild half-landed
+   * is two engines both partly true — the shape A_98 has just finished cleaning up in the corpus —
+   * and because v1 has to stay runnable until v2 has beaten it on the reader's own table (§10.15).
+   */
+  if (isProseEngineV2()) {
+    await runProseEngineV2(ctx);
+    return;
+  }
+
   const {
     client,
     inputs,
