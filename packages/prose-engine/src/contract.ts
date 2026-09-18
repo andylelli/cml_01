@@ -379,10 +379,19 @@ export const buildContractCore = (input: ContractInput): ContractCore => {
       eliminationsAllowed: clearanceByChapter.get(chapter) ?? [],
       job: readBeatJob(scene, beat),
       beats: {},
-      words: {
-        preferred: Number(scene.estimatedWordCount) > 0 ? Number(scene.estimatedWordCount) : targets.chapterIdeal,
-        floor: Math.round(targets.chapterIdeal * 0.75),
-      },
+      /**
+       * THE POLICY'S TARGET, NOT THE OUTLINE'S ESTIMATE.
+       *
+       * MEASURED 2026-09-18 over the 48 archived books that have both an outline and a manuscript:
+       * the outline estimates **19,915 words** and the book comes out at **10,870** — a ratio of
+       * 0.56, on every one of the 48, with a per-scene estimate of 1,970 against ~1,090 delivered.
+       * Agent 7's `estimatedWordCount` is aspirational and has never once been met.
+       *
+       * Planning from it would segment every short book that comfortably fits one writer call, and
+       * asking for it would ask for a chapter twice the length this pipeline has ever produced. The
+       * policy's `chapterIdeal` is what the books actually hit, so it is what the contract states.
+       */
+      words: { preferred: targets.chapterIdeal, floor: Math.round(targets.chapterIdeal * 0.75) },
     };
 
     if (witCandidate?.name) {
@@ -413,6 +422,13 @@ export const buildContractCore = (input: ContractInput): ContractCore => {
     // The crime chapter is the one place the case fixes a clock window, so it is the one place a
     // time window is stated. Everywhere else the brief's clock rule does the work, and inventing a
     // window would put a value on the page that no chronology row backs.
+    const outlineEstimate = Number(scene.estimatedWordCount);
+    if (Number.isFinite(outlineEstimate) && outlineEstimate > targets.chapterIdeal * 1.5) {
+      notes.push(
+        `chapter ${chapter}: the outline estimates ${outlineEstimate} words against the policy's ${targets.chapterIdeal}; the policy is what the contract states`,
+      );
+    }
+
     if (beat === "crime") {
       const apparent = String(mechanism?.apparent_time_of_death ?? "").trim();
       const actual = String(mechanism?.actual_time_of_death ?? "").trim();
