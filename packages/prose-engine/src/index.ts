@@ -36,3 +36,17 @@ export {
   CALIBRATION_RHO,
 } from "./selector.js";
 export type { ScoredDraft } from "./selector.js";
+export {
+  collectCheckerFindings,
+  anchorFindings,
+  buildCriticPrompt,
+  parseCriticFindings,
+  summariseFindings,
+  bookRegisterRate,
+  SEVERITY,
+  CRITIC_CLASSES,
+  MIN_QUOTE_WORDS,
+} from "./findings.js";
+export type { CheckerOptions, CriticParseResult } from "./findings.js";
+export { applyEditList, buildGuards, buildEditorPrompt, parseEditList, summariseEdits } from "./edits.js";
+export type { ApplyOptions, GuardContext } from "./edits.js";
