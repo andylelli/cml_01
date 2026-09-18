@@ -553,3 +553,506 @@ doing for the floor alone; phase 3 is the experiment, and its falsifier is writt
 **Next item:** M8's ledger fix and the acceptance definition (a day, £0), then M1 on a branch:
 `PROSE_ENGINE=v2` switch, the deletion list, the anchored edit request in place of the clue paste,
 `needs_revision → ship with warnings`. The first v2 read is the matched pair on seed 50862.
+
+The design for every move is §10; the work breakdown with acceptance criteria per item is §10.14.
+
+---
+
+## §10 THE DESIGN — PROSE ENGINE v2, IN DETAIL
+
+This section is the engineering design for §4's eight moves: the laws it is built under, the shape of
+the stage, every type it introduces, the four LLM roles and their prompts (as structure, never as
+example text), the selector's arithmetic, the critic's vocabulary, the editor's guards, the gate
+policy, the providers, the checkpoints, the telemetry, the tests, and the work breakdown with an
+acceptance criterion per item. Every interface below names the existing code it plugs into; where a
+signature is quoted it was read from the tree on 2026-09-18.
+
+### §10.0 Ten laws, each with its receipt
+
+| # | law | receipt |
+|---|---|---|
+| L1 | **No deterministic pass writes or rewrites prose.** A checker may find; only an LLM role may change a sentence, and only through an edit list. | A_84: every reader-named "generated line" was ours; the clue paste on 8 of 10 chapters of run 95041 |
+| L2 | **Every mutation is validated before it ships**, one edit at a time, with rollback of that edit alone. `mutateThenValidate(value, mutate, validate)` in `@cml/prose-guard/mutate.ts` is the only door. | the pronoun sweep that flipped a correct pronoun; the atmosphere splice (A_96 B3) |
+| L3 | **A finding is anchored or it does not exist.** A critic's claim must quote ≥ 8 words verbatim from the chapter it names, or it is discarded and counted. `anchorFullStoryFindings` already does this. | full-story diagnostic (A_69 §5); the blind reader's 8% false veto |
+| L4 | **Ship with warnings; never abort after the first draft exists.** `BestDraftTracker` holds the best draft from the first segment on. Exactly two fair-play breaches may stop a run (§10.9). | 95041: ten chapters written, nothing saved |
+| L5 | **Operations, never statistics. No prohibitions, no worked examples, no word counts** in any prompt this engine builds. Every ask is a countable act a chapter can perform once. | the compliance law; A_67; A_96 B1/B2; 31 of 44 schoolteachers |
+| L6 | **One owner per fact.** The contract is derived from upstream artifacts by pure functions; the prompt is derived from the contract; the checkers read the contract. Nothing in the prose path recomputes a set another module owns. | WF-002; the scene-ref join at 0 of 45; this week's beat-sequence and M3 pairs |
+| L7 | **Flags read at call time, default OFF, one master switch** (`PROSE_ENGINE`), and a v2 flag set of at most twelve. | ADR-0004; 201 flag reads on v1 |
+| L8 | **Instruments select; gates stop only for fair play.** A check that fires on most books is telemetry. | B1; +2.43 register per retry |
+| L9 | **Every LLM call carries a role label** the cost tracker can attribute: `Agent9v2-<Role>-<segment>-<attempt>`. | A_86 items 79–88 |
+| L10 | **The `prose` artifact shape is unchanged.** Downstream — story output, the rubric scorer, the UI, the ledger — reads the same `ProseGenerationResult`; v2 adds optional metadata only. | the API/UI alignment surface (13_system_redesign §5) |
+
+### §10.1 The shape of the stage
+
+```
+upstream artifacts: cml · clues · outline · profiles · world · era · locations · locked facts · humourLevel
+        │
+        ▼
+ [1] contract.ts     buildBookContract(ctx)  ─────────────►  BookContract { bible, brief, chronology, roles, scenes[], fairPlay }
+        │                                                    (pure; tested by replay over the 66 stored projects)
+        ▼
+ [2] segments.ts     planSegments(contract, writer.maxOutput) ──►  SegmentPlan: whole book | acts | chapters
+        │
+        ▼                                     ┌──────── k drafts, in parallel ────────┐
+ [3] writer.ts       draft(segment, priorText) │ Writer role ×k → parse delimiters     │ ──► Draft[]
+        │             CONTINUE on truncation    └───────────────────────────────────────┘
+        ▼
+ [4] selector.ts     score(draft): fair-play hard gates → instrument vector → (rare) ordinal judge ──► chosen
+        │             BestDraftTracker: never empty after segment 1
+        ▼
+ [5] findings.ts     checkers (anchored by construction) + Critic role (anchored or discarded) ──► Finding[] by chapter
+        │
+        ▼
+ [6] edits.ts        per chapter: Editor role → EditList; apply one edit at a time under mutateThenValidate + guards
+        │             ≤ 2 rounds (round 2: fair-play and defect severities only)
+        ▼
+ [7] gate.ts         two hard stops · everything else a WARNING line · checkpoint · ctx.prose · telemetry
+```
+
+**Where it lives.** A new pure package, `packages/prose-engine/` — `types.ts`, `contract.ts`,
+`bible.ts`, `brief.ts`, `segments.ts`, `writer-format.ts`, `selector.ts`, `findings.ts`, `edits.ts`,
+`gate.ts`, `telemetry.ts` — with no LLM client dependency, so every module is testable against the
+archive without a call. It depends on `@cml/prose-guard` (mutate, backstop, the instruments, the
+scaffold and anti-copy detectors, `deriveChapterContracts`), `@cml/cml` (`deriveCaseChronology`,
+`parseClockTime`, the alibi plan) and the type and builder exports of `@cml/prompts-llm` it needs
+(`resolveClueOwnership`, `humourBand`, `selectWitBeat`, `selectDepthBeat`, `beatJobFor`,
+`buildOwnedShapeLines`' data, the clue matcher). The worker side is
+`apps/worker/src/jobs/agents/agent9-v2/`: `run.ts` (`runProseEngineV2(ctx)`), `roles.ts` (a
+`ChatCapableClient` and model per role), `checkpoint.ts`. The switch is the first statement of
+`runAgent9` in `agent9-run.ts`:
+
+```ts
+if (isProseEngineV2()) return runProseEngineV2(ctx);   // PROSE_ENGINE=v2, read at call time
+```
+
+v1 is not touched by phase 2; it is deleted by §6 after v2 has won three reads.
+
+### §10.2 The Book Contract
+
+The contract is the one document every role reads and every checker checks. It is derived, never
+authored, and it is the only place a chapter's obligations exist.
+
+```ts
+export interface BookContract {
+  engine: "v2";
+  book: { chapters: number; words: { min: number; max: number } };   // from story_length_policy
+  bible: Bible;                 // §10.3 — run-stable, cached
+  brief: Brief;                 // §10.4 — one page
+  chronology: ChronologyTable;  // rows the model copies, never recomputes
+  roles: ChapterRoles;          // { reveal, discriminatingTest, aftermath, falseSolution, clearances[] }
+  scenes: SceneContract[];      // one per chapter, in chapter order
+  fairPlay: FairPlayContract;   // { culprit, victim, mechanismSummary, decisiveClueIds, revealChapter }
+}
+
+export type ChapterRole =
+  | "opening" | "investigation" | "false_solution" | "clearances"
+  | "discriminating_test" | "reveal" | "aftermath";
+
+export interface SceneContract {
+  chapter: number;
+  beat: GoldenAgeBeat | null;            // Agent 7's label, after repairBeatSequence
+  role: ChapterRole;                     // assignChapterRoles(), §10.2.1
+  title: string;                         // stripBeatPrefixFromTitle(scene.title)
+  present: string[];                     // cast names; the model may add no one
+  location: string; timeOfDay?: string;
+  timeWindow?: { from: ClockLabel; to: ClockLabel };   // labels from the chronology table
+  mustSurface: ClueSurface[];            // owned here: { id, observable, as, unlockedBy? }
+  mayMention: ClueRef[];                 // owned by an earlier chapter: { id, terms, firstChapter }
+  mustNotReveal: Withheld[];             // { what: "culprit"|"mechanism"|clueId, until: chapter }
+  eliminationsAllowed: Elimination[];    // { name, method } — from suspect_clearance_scenes via ownership
+  job: BeatJobFields | null;             // accusedInnocent+flawFound | secondIncident | suspicionShiftsTo | unrelatedLie | consequenceFor
+  beats: {                               // rotation by chapter number, deterministic (A_91)
+    wit?: { name: string; style: string; shapes: OwnedShape[] };
+    depth?: { name: string; trait: string };          // trait clause only (A_96 F9)
+    stake?: { name: string; standsToLose: string };   // WP-002 K2, phase 3
+    relationship?: RelationshipBeat;                  // WP-002 K5, phase 3, band-gated
+  };
+  aftermath?: AftermathJob;              // jobs A–E when role === "aftermath"
+  words: { preferred: number; floor: number };
+}
+```
+
+**Derivation, module by module, all pure:**
+
+- `assignChapterRoles(scenes)` (§10.2.1) replaces the v1 scene-ref arbitration and the `revelation
+  / discriminating_test / clearance` coordinate joins that resolve 0 of 45 (A_87). It reads only the
+  outline's beats and positions.
+- `mustSurface` / `mayMention`: `resolveClueOwnership(cml, scenes)` (A_89 B1, exists) gives the first
+  owning chapter; a clue required by a later scene is `mayMention` there. The reveal and the
+  discriminating test are never retired (A_90 §13), so at those chapters every decisive clue is
+  `mayMention` with its terms.
+- `mustNotReveal`: the culprit and the mechanism until `roles.reveal`; each clue until its owner.
+- `eliminationsAllowed`: `resolveClearanceOwnership` (A_76 §14, exists) by ordinal within act.
+- `job`: the beat-job fields Agent 7 already emits under `AGENT7_BEAT_JOB_FIELDS`; absent fields stay
+  null and the brief says nothing about them (no invented names).
+- `beats`: `selectWitBeat` / `selectDepthBeat` (exist), gated by `chapterCarriesWitBeat(band, n)`;
+  the stake and relationship beats arrive in phase 3.
+- `chronology`: `deriveCaseChronology(cml, lockedFacts)` (exists) rendered as rows —
+  `"<clock as the locked fact spells it>" — <event>` and `"<from>" to "<to>" — <interval> (<length>)` —
+  the ONE spelling of every value; `timeWindow` labels reference these rows.
+- `fairPlay`: from `culpability`, `hidden_model.mechanism`, the decisive-trace clue ids (`decisive-trace-not-essential`).
+
+#### §10.2.1 Chapter roles — the rule table that replaces the arbitration
+
+| role | rule | v1 behaviour it replaces |
+|---|---|---|
+| `aftermath` | the LAST scene, iff its beat is `revelation` AND an earlier scene carries `final_trap` | `isAftermathFinalScene` (A_89 B3), kept as the same rule |
+| `reveal` | the FIRST `final_trap` scene; if none, the last `revelation` scene that is not the aftermath; if none, the last scene | `revealWinnerSceneNumber` with its five-way fallback (A_87 P4c, A_95 M3, A_96 F10) |
+| `discriminating_test` | the `reveal` chapter, unless a scene before it carries `pattern` with a `test`-bearing job field, in which case that scene | `dtClaimStandsFor` and the keyword path |
+| `false_solution` | the `false_solution` scene | the archetype by position |
+| `clearances` | every `alibis` scene, plus the scene immediately before `reveal` when the outline gives it an elimination | `suspect_clearance_scenes` coordinates |
+| `opening` | scene 1 | — |
+| `investigation` | everything else | — |
+
+Exactly one `reveal`, at most one `aftermath`, and `aftermath` is never `reveal` — asserted by
+construction, not by a belt-and-braces check. Replayed over the 66 stored outlines and the 45
+archived (cml, outline) pairs the a87 fixtures hold, the rule must agree with the v1 arbitration's
+final answer on ≥ 44 of 45 (the one disagreement, if any, is written down with the outline that
+produced it).
+
+**Agent 7 in phase 2 changes nothing**: the contract derives from `sceneNumber`, `beat`,
+`characters`, `setting`, `cluesRevealed`, `purpose`, `summary` and the beat-job fields it already
+emits. Phase 3 adds `unlockedBy` at Agent 5 (K1) and `standsToLose` at Agent 2b (K2).
+
+### §10.3 The Bible — the cached prefix
+
+Run-stable, assembled once, placed FIRST in every Writer, Critic and Editor prompt so that Azure's
+automatic prefix caching and Anthropic's `cache_control` both apply (v1's cross-chapter prefix is
+7.6%; the bible is ≥ 90% of a v2 prompt's stable half). Contents, in order, with token budgets that
+`bible.ts` enforces by truncating the LAST sections first (never the first four):
+
+| section | source | budget |
+|---|---|---:|
+| the case: victim, cause of death, the mechanism as the case states it, the culprit and the dated motive, the false solution, the red herrings and their innocent explanations | `cml` | 1,800 |
+| the cast: name, role, age, occupation and skill, public persona, private secret, stakes, register style and level, signature tic, formative trait clause, pronouns | `cast` + `characterProfiles` | 2,400 |
+| the world: setting, era detail and the anachronism list, the locations that matter with one sensory line each | `setting`, `temporalContext`, `locationProfiles`, `worldDocument` | 1,800 |
+| the chronology table and the locked facts, verbatim | `chronology`, `lockedFactRegistry` | 600 |
+| the clue register: every clue's id, observable, owner chapter | `clues` + ownership | 900 |
+| relationships as content (A_89 D1's form) | `cast.relationships.pairs` | 600 |
+| **total** | | **≤ 8,100** |
+
+Sanitisation rules the bible enforces: no schema, no internal field names in prose-facing text, clue
+ids only in the clue register and the contract (a checker rejects any id in the prose), locked values
+in the spelling the locked fact uses and no other, and nothing that is an example of prose.
+
+### §10.4 The Brief — one page
+
+Generated per book by `brief.ts` from the band, the profiles, the counts, and the contract's roles.
+Budget ≤ 1,500 tokens. Its sections, each a list of countable acts:
+
+1. **The register.** The humour band's directive (`HUMOUR_BANDS[level].castDirective`), and per
+   character: their style, their tic (grammar, not a phrase — A_91 F3), the one thing they will not
+   do. Nothing about frequency.
+2. **The shapes, owned.** The flat answer to the understated character, the retort to the sharp one,
+   the unmeant joke to the humourless one (A_95 M4's `buildOwnedShapeLines`, data only), placed in
+   the chapter's scene of pressure.
+3. **The page.** Per chapter, as acts: N paragraphs open on speech (N from the band: 6 at `classic`,
+   4 at `dry`); two sentences run past thirty words; two em-dashes; one paragraph that does no job
+   (WP-001 O5); every paragraph has a thing in it and a person doing something with or to it (the
+   register instrument's four features, stated positively).
+4. **The clock.** Every clock value on the page is a row of the chronology table, spelled as the row
+   spells it; a character who reasons about time reasons from two rows.
+5. **The reader's tests, stated as what the book does.** The reveal is a demonstration a witness
+   watches before anyone explains (A_94 R3); after the confession, nothing is proved again; the
+   aftermath's jobs A–E (A_86 item 1 + K3); the culprit's motive is one dated act (A_95 M5).
+6. **Length**: the chapter's `words.preferred`, once.
+
+Not in the brief, by L5: any prohibition beyond `mustNotReveal`, any worked example, any rate.
+
+### §10.5 Segmentation and the Writer role
+
+`planSegments(contract, writer.maxOutputTokens)`:
+
+```
+estimate = chapters × chapter_ideal_words × 1.45          // tokens; short: 10 × 1,000 × 1.45 ≈ 14,500
+if estimate ≤ 0.8 × maxOutput      → one segment (the whole book)          // gpt-4.1: 32,768 → 26,200
+else                                → segments on act boundaries, ≤ 4 chapters each, in order
+```
+
+The v1 cap of 20,000 output tokens (`generate.ts:2847`) does not apply; the Writer's cap is the
+model's. Each Writer call carries, in this order: the bible (cached), the brief, the contracts for the
+segment's chapters, **THE BOOK SO FAR** — every accepted chapter verbatim, never a summary — and the
+ask. The ask names the chapters to write and the output format:
+
+```
+=== CHAPTER 4: <title from the contract> ===
+<paragraphs separated by blank lines>
+=== CHAPTER 5: ... ===
+```
+
+Plain text with delimiters, not JSON: a 25,000-token JSON string is where `jsonrepair` earns its five
+call sites, and a delimiter parser cannot corrupt a paragraph. `writer-format.ts` parses, asserts the
+chapter numbers and order, and returns `ProseChapter[]` (`title`, `paragraphs`; `summary` derived
+later by the critic pass, never asked of the writer).
+
+**Truncation is a CONTINUE, never a redraft.** If `finishReason === "length"` or the last chapter is
+missing or ends mid-sentence, the engine issues one call with the segment's accepted chapters as prior
+text and the remaining chapters as the ask. A_88's finding that an absent `finish_reason` defaults to
+`stop` is why `finishReasonPresent` (built) is read here, and why the delimiter count is the primary
+truncation test.
+
+**k drafts.** `PROSE_V2_DRAFTS` (default 3) Writer calls per segment, issued in parallel; latency is
+one draft's. On Azure the calls share the cached bible; on Anthropic the bible carries a
+`cache_control` breakpoint (§10.10). Temperature: the model's default (Claude accepts none); v1's
+temperature escalation on retry is gone with the retries.
+
+### §10.6 The Selector
+
+`score(draft, priorText, contract) → { hard: HardGate[]; vector: InstrumentVector; composite: number }`.
+
+**Hard gates**, computed per chapter and summed, each a count not a boolean:
+
+| gate | reads | checker (exists) |
+|---|---|---|
+| chapters present, numbered, in order | the parse | `writer-format.ts` |
+| every `mustSurface` clue present in its chapter | the contract | `chapterMentionsRequiredClue` / `collectEvidence` (clue-validation) |
+| nothing in `mustNotReveal` present before its chapter — the culprit as murderer, the mechanism explained, a clue early | the contract | the premature-disclosure detector; `detectCopiedProse` for a clue's spec sentence |
+| no clue id, no scaffold token, no template family in the prose | — | `detectScaffoldNotProse`, `detectTemplateLeakage`, `detectEvidentiaryRegister` |
+| no one present who is not in `present`, no walk-on with a name | the contract | `anonymiseNamedWalkOns`' detector half, `buildAllowedNameParts` |
+
+A draft with hard failures is ranked below every draft without; it is never discarded (L4). If every
+draft fails, the one with the fewest failures proceeds and each failure becomes a `fairplay`-severity
+finding for the editor.
+
+**The instrument vector**, per draft, aggregated over chapters (chapter values kept for telemetry):
+
+| instrument | direction | weight | source |
+|---|---|---:|---|
+| machine-register rate at threshold 3 | lower | 3.0 | `machineRegisterRate` — the only validated predictor (ρ −0.60) |
+| repetition per 10k, six-word spans ×3 | lower | 1.0 | `repetitionDensity` |
+| copied spans against the prior text | lower | 1.0 | `anti-copy` |
+| paragraphs opening on speech, share | higher, to 0.6 | 1.5 | new, trivial (§1.4) |
+| sentences over thirty words, share | higher, to 0.10 | 1.0 | new, trivial |
+| wit density per 10k against the band's target | closer | 1.0 | `witDensity` + `humourBand().targetPer10k` |
+| turn density, chapters 3–8 | higher | 0.5 | `turnDensity` |
+| clock values not on the chronology table | lower | 1.0 | `findUnanchoredClockValues` |
+| pronoun and name mismatches | lower | 1.0 | `detectAttributionFlips`, `detectVictimBodyPronounMismatch` |
+
+Each instrument is normalised to a z-score against its distribution over the 34 read manuscripts
+(constants in `selector.ts`, dated, regenerated by `scripts/selector-calibrate.mjs`), signed so that
+"better" is positive, and the composite is the weighted sum. **Calibration is a test, not a hope**
+(§10.13): the composite must rank-correlate with the reader's headline over those 34 books at least
+as strongly as the register rate alone (|ρ| ≥ 0.55), or M4 does not ship.
+
+**The judge, rarely.** When the top two composites are within 0.25 sd AND neither has a hard failure
+the other lacks, the ordinal judge (`scripts/judge-pairwise.mjs`'s prompt, both orderings, one model)
+breaks the tie; otherwise it is not called. It resolves ten marks, not five (PLAN-TO-90 §9), so it is
+never asked to decide a close call it cannot see. Every judge call is counted in telemetry.
+
+All k drafts, their vectors and the choice are written to the checkpoint, so a later experiment can
+read two and ask whether the selector chose what the reader would have.
+
+### §10.7 The Critic role and the finding vocabulary
+
+Findings come from two sources into one list, both anchored:
+
+**Checkers** (deterministic, anchored by construction because they quote what they matched):
+`clue_missing`, `clue_early`, `culprit_early`, `mechanism_early`, `clock_off_table`,
+`name_collision`, `walk_on_named`, `pronoun_drift`, `victim_alive`, `scaffold_token`,
+`register_sentence` (score ≥ 3, the chapter's worst eight — A_95 M1's list), `repeat_passage`,
+`copied_sentence`, `clearance_after_reveal`, `reveal_residue_in_aftermath` (evidence-chain and
+clearance sentences in the aftermath chapter — A_94's scorer).
+
+**The Critic** (one read-only LLM pass over the whole book, ~30k input, ≤ 2k output, JSON by schema on
+Azure structured outputs; `resolveStageModel("polish")` or `PROSE_V2_CRITIC_MODEL`), producing only:
+`timing_contradiction` (two clock statements the table cannot reconcile — the reader's top item),
+`mechanism_told_not_shown`, `motive_as_category`, `wound_missing` (a character with no life outside
+the case in their chapters), `register_named_in_narration` ("her answer was flat"),
+`humour_forced`, and the five the full-story diagnostic already owns (`pacing_drift`,
+`tonal_escalation_missing`, `motif_abandoned`, `voice_inconsistency`, `flat_reveal`).
+
+```ts
+export interface Finding {
+  class: FindingClass;                 // the closed enum above
+  chapter: number;
+  quote: string;                       // ≥ 8 words, verbatim in that chapter, or the finding is discarded
+  note: string;                        // ≤ 30 words: what is wrong, in the reader's terms
+  severity: "fairplay" | "defect" | "craft";
+  source: "checker" | "critic";
+}
+```
+
+The Critic prompt is the bible, the contract's roles and chronology table, the whole book, the
+vocabulary with one-line definitions, and the rule: quote or omit. It is told what the book is FOR
+(the contract), not what to dislike. Anchoring uses `anchorFullStoryFindings` (exists); discarded
+findings are counted per class in telemetry, and a class whose discard rate exceeds 30% over ten
+books is removed from the Critic's vocabulary.
+
+### §10.8 The Editor role and the edit list
+
+For each chapter with findings, one Editor call: the bible (cached), the brief, that chapter's
+contract, the whole book as read-only context, the chapter's findings, and the ask — return an edit
+list, nothing else:
+
+```ts
+export interface EditList {
+  edits: Array<{ find: string; replace: string; addresses: number[] }>;   // find: verbatim, ≥ 8 words, unique in the chapter
+  cannot: Array<{ finding: number; why: string }>;                         // what it declined to change, and why
+}
+```
+
+`edits.ts` applies the list **one edit at a time**, cumulatively, each under
+`mutateThenValidate(chapter, applyOne, allOf(...guards))` with these guards, every one a function
+that exists or is a one-line composition of one:
+
+| guard | rolls back the edit when |
+|---|---|
+| `lockedValuesIntact` | any locked-fact value (verbatim spelling) present before is absent after |
+| `clockValuesIntact` | the set of `extractClockValues` dials changes (A_90's rule, `substitutionChangesClockValues`) |
+| `castNamesIntact` | a cast name's count falls, or a name not in `present` appears |
+| `clueCoverageNotWorse` | a `mustSurface` clue present before is absent after |
+| `noNewScaffold` | `detectScaffoldNotProse` / template families fire on the new text |
+| `noMalformedSplice` | `substitutionIntroducesMalformedText` (A_96 F4's patterns) |
+| `registerNotWorse` | the chapter's register rate rises |
+| `lengthWithin` | the chapter moves more than 15% from its length |
+
+A `find` that does not match exactly once is skipped and counted. Two rounds at most: round 1 for
+every finding; round 2 only for `fairplay` and `defect` severities that survive; then the book ships
+with the survivors as warnings. There is no whole-chapter regeneration in this loop — a chapter with
+a structural hole (missing, truncated) goes back to the Writer's CONTINUE path, which is the only
+place prose is written after the draft.
+
+The existing polish pass (`polishPassingChapter`, with the register ban list) is kept as an optional
+third step under `PROSE_V2_POLISH`, run after the edit loop with the same guards; its 26% of spend
+must earn a measured register move on v2 or the flag stays OFF.
+
+### §10.9 The gate policy and the report
+
+Two hard stops, both fair play, both checked against the contract:
+
+1. the culprit is never named as the murderer in the `reveal` chapter;
+2. a decisive clue (`fairPlay.decisiveClueIds`) is absent from every chapter before the reveal.
+
+Both are unreachable when the selector's hard gates and the editor's round 2 have done their work,
+and each is reported with the draft that came closest, so a stop is a diagnosis rather than a loss.
+Everything else — every v1 release-gate reason, every `StoryValidationPipeline` major — is a
+WARNING line in the release-gate report, grouped by class with counts. `pipeline.ts`'s
+`needs_revision` no longer fails a run: its majors that are not already findings become round-2
+findings; the rest are warnings. The report's first line is the assertion `deterministic writes: 0`.
+
+### §10.10 Roles, providers and models
+
+| role | env | default | alternatives | output | label |
+|---|---|---|---|---|---|
+| Writer | `PROSE_V2_WRITER` | `azure:gpt-4.1` | `anthropic:claude-opus-5`, `anthropic:claude-sonnet-5` | delimited text, up to the model's cap | `Agent9v2-Writer-S<seg>-D<k>` |
+| Critic | `PROSE_V2_CRITIC` | `azure:gpt-4.1` | `azure:gpt-4.1-mini` | JSON by schema | `Agent9v2-Critic` |
+| Editor | `PROSE_V2_EDITOR` | `azure:gpt-4.1` | `anthropic:claude-sonnet-5` | JSON by schema | `Agent9v2-Editor-Ch<n>-R<round>` |
+| Judge | `PROSE_V2_JUDGE` | `azure:gpt-4.1-mini` | — | one token | `Agent9v2-Judge-S<seg>` |
+
+`roles.ts` resolves `provider:model` to a `ChatCapableClient` — the `AzureOpenAIClient` the run
+already holds, or the `AnthropicClient` the polish path already constructs — and to the options each
+provider accepts. Claude specifics (15_llm §3): `temperature` is omitted; JSON is by `output_config`
+schema or a `strict` tool, so the Critic and Editor schemas are written once in JSON Schema and
+rendered for either provider; caching needs a `cache_control` breakpoint after the bible, which is one
+optional field on the Anthropic adapter's message builder. On Azure, `responseSchema` (built, R3) is
+used for the Critic and Editor instead of `jsonMode`.
+
+Cost per book, INFERRED from list prices at v2 volumes (three drafts of a ~14k-token short book with a
+~12k prompt plus prior text; one critic pass; ~6 editor calls):
+
+| writer | drafts (in / out) | critic + editor | total per book |
+|---|---:|---:|---:|
+| `gpt-4.1` | ~$0.25 / $0.35 | ~$0.25 | **≈ £0.70** |
+| Claude Sonnet 5 (list) | ~$0.40 / $0.65 | ~$0.25 | **≈ £1.05** |
+| Claude Opus 5 | ~$0.75 / $2.05 | ~$0.25 | **≈ £2.40** |
+
+against £1.09–1.26 true on v1 today. The v1 bill is the prompt (70%) and the retries (96% of tokens at
+the redesign's measurement); v2 has neither.
+
+### §10.11 Checkpoints, resume, and the matched pair
+
+`checkpoint.ts` writes `apps/worker/logs/agent9-checkpoint-<projectId>.json` (the existing path
+convention, `agent9CheckpointPath`) after every accepted segment and after the edit loop:
+
+```ts
+{ engine: "v2", contractHash, plan: SegmentPlan,
+  segments: [{ index, drafts: Draft[], scores: InstrumentVector[], chosen: number, judgeCalls: number }],
+  findings: Finding[], edits: { applied: number; rolledBack: Record<Guard, number>; skipped: number },
+  chapters: ProseChapter[] }
+```
+
+Resume skips accepted segments. **`RESUME_REDO=prose PROSE_ENGINE=v2` on a project that ran v1 is the
+v1-versus-v2 matched pair** — byte-identical upstream, one prose stage swapped — and it is the first
+experiment of phase 2. The `prose` artifact keeps `ProseGenerationResult`'s shape (`chapters`,
+`cast`, `status`, `cost`, `durationMs`, `prompt_fingerprints`) and adds optional
+`engine: "v2"`, `writer`, `drafts`, `selection` fields; the sidecar `run-params.json` and the
+ledger gain `engine` and `writer`, and `ALLOWED_INPUT_KEYS` gains nothing (the switch is env, not an
+input).
+
+### §10.12 Telemetry and the ship-check
+
+One `[Agent 9 v2]` block per run in `ctx.warnings` and one `prose_v2_telemetry` artifact:
+
+- `deterministic writes: 0` — asserted, and the run fails its own ship-check if not;
+- the drafts table: segment × draft × every instrument, the composite, the choice, judge calls;
+- findings: produced / anchored / discarded per class and source;
+- edits: proposed / applied / rolled back per guard / skipped (no unique match);
+- contract coverage: `mustSurface` present n/N; `mustNotReveal` breaches; roles; chronology
+  anchoring;
+- instruments against the band's and the canon's targets (wit, dialogue share, tail, register);
+- cost per role and wall time per phase;
+- the read-back line: every sidecar key with a page-level trace, found or not.
+
+### §10.13 Tests — what must be green before each flag is promoted
+
+| test | fixture | pass condition |
+|---|---|---|
+| contract replay | the 66 stored projects | `buildBookContract` never throws; one `reveal`, ≤ 1 `aftermath`; every clue owned exactly once; every `timeWindow` label resolves to a table row |
+| role agreement | the 45 (cml, outline) pairs in the a87 fixtures | `assignChapterRoles` agrees with the v1 arbitration's final answer on ≥ 44; the disagreement is written into the test |
+| bible budget | the 66 projects | ≤ 8,100 tokens by the tokenizer the client uses; sections truncated last-first, never the case |
+| brief law | property test over bands × profiles | no prohibition, no quoted example, no rate word (`per`, `%`, `average`), ≤ 1,500 tokens |
+| writer parser | delimited fixtures incl. truncation mid-sentence, a missing chapter, a re-numbered chapter | chapters recovered in order; truncation detected by count, not `finishReason` |
+| selector calibration | the 34 read manuscripts with headlines | composite rank-correlates with the headline at \|ρ\| ≥ 0.55; every hard gate fires on a known-positive |
+| findings recall | the 15 reviewed books, with the reader's named complaints hand-labelled | checkers + critic (replayed) recall ≥ 60% of labelled complaints, ≥ 90% of produced findings anchored |
+| edit guards | the A_96 corruptions (`"You; searching"`, `"froze at three past midnight past three"`, `"Nora gaunt"`) as edits | every one rolled back by the named guard; a clean edit applies; a non-unique `find` is skipped |
+| gate policy | fixtures with the culprit unnamed / a decisive clue never planted / everything else | exactly the two stop; nothing else does |
+| dry run | `PROSE_V2_DRY=1` over a stored project | every prompt built without a call; token sizes within budget; snapshot diffed on change |
+
+### §10.14 Work breakdown, with an acceptance criterion per item
+
+**Phase 1 — the floor** (M1, M8; on v1, because v2 does not exist yet and the floor is worth having
+either way)
+
+| # | item | files | days | acceptance |
+|---|---|---|---:|---|
+| W1 | the ledger takes every read in a file; the acceptance definition written into `PLAN-TO-90` | `scripts/external-read-ledger.mjs`, the board | 1 | the 87 appears; the protocol is one paragraph |
+| W2 | `PROSE_ENGINE` switch and `agent9-v2/run.ts` stub that delegates to v1 | `agent9-run.ts`, `agent9-v2/` | 0.5 | a run with `PROSE_ENGINE=v1` is byte-identical |
+| W3 | delete the deterministic writers; each becomes an anchored edit request through the existing regen-edit-list path or a WARNING | `agent9-run.ts`, `deterministic-repair.ts`, `repair.ts` | 4 | `deterministic writes: 0` on a resumed 50862; every deleted writer's flag row moved to superseded |
+| W4 | never abort after prose begins: `needs_revision → warnings`; hard stops reduced to the two | `pipeline.ts`, `agent9-run.ts` gate section | 2 | a replay of 95041's checkpoint SHIPS with warnings |
+| W5 | matched pair on 50862 and one fresh run; three reads | — | — | prose ≥ 7 on both; the reader's word "scaffold" absent |
+
+**Phase 2 — the engine** (M2–M5)
+
+| # | item | files | days | acceptance |
+|---|---|---|---:|---|
+| W6 | `packages/prose-engine` scaffold, `types.ts`, `contract.ts`, `assignChapterRoles` | new package | 3 | contract replay and role agreement tests green |
+| W7 | `bible.ts`, `brief.ts` | new | 2 | bible budget and brief law tests green; dry run snapshot |
+| W8 | `segments.ts`, `writer-format.ts`, the Writer role, CONTINUE | new; `roles.ts` | 3 | parser tests green; one whole-book draft of a stored project parses 10/10 chapters |
+| W9 | `selector.ts` + `scripts/selector-calibrate.mjs` | new | 3 | calibration test ≥ 0.55; hard gates fire on known-positives |
+| W10 | `findings.ts` — checkers adapters + the Critic role + anchoring | new; reuses full-story-diagnostic | 3 | findings recall test green |
+| W11 | `edits.ts` — the Editor role, edit-list application, the eight guards | new | 3 | edit-guard tests green |
+| W12 | `gate.ts`, `telemetry.ts`, `checkpoint.ts`, the `prose` artifact metadata, sidecar and ledger fields | new; `story-output.ts`, `canary-core.mjs` | 2 | dry run end to end; the ship-check block prints; resume from a segment checkpoint |
+| W13 | the v1-vs-v2 matched pair on 50862 (three reads), one whole-book fresh run, one act-segmented fresh run (three reads each) | — | — | v2 ≥ v1 + 2 on the median; repetition below the corpus median with no ban; sd of the three reads ≤ 2 |
+
+**Phase 3 — the writer and the 9s** (M6, M7)
+
+| # | item | files | days | acceptance |
+|---|---|---|---:|---|
+| W14 | Anthropic Writer: `cache_control` breakpoint, schema JSON for Critic/Editor on both providers | `anthropic-client.ts`, `roles.ts` | 2 | a dry run on each provider builds identical prompts; cached tokens reported > 0 on the second draft |
+| W15 | the writer experiment: Opus 5, Sonnet 5, gpt-4.1 under v2, one book each, three reads each | — | — | a decision: which writer per role, written into the board |
+| W16 | K1 `unlockedBy` at Agent 5 + the contract's `ClueSurface.unlockedBy`; K2 `standsToLose` at Agent 2b + the stake beat; K3 `aftermathScope` + job E | Agents 5, 2b, 7; `contract.ts`, `brief.ts` | 5 | WP-002's instruments read on the page; the archive probes re-run |
+| W17 | WP-001 O4/O5 counts in the brief; the divergent scene inventory at Agent 7 (O6) | `brief.ts`, `agent7-narrative.ts` | 3 | dialogue-open share ≥ 30%, tail share ≥ 8% on the next book |
+| W18 | K5 relationship arc at `subtext` (band, pair, beat) | Agent 2, `contract.ts`, `brief.ts` | 3 | its own pair and read (WP-002 App. B (c)) |
+| W19 | acceptance: five consecutive v2 books, three reads each | — | — | median ≥ 90, none below 88 |
+| W20 | retire v1: the §6 deletion list, the flag rows to superseded, `PROSE_ENGINE` default `v2` | everywhere in §6 | 3 | `flags:check` clean at a v1-free count; the suites green |
+
+Roughly 45 build-days across the three phases, with the reads on the critical path from W5 onward.
+
+### §10.15 Cut-over
+
+v2 becomes the default when W13's medians beat v1's and W19's five books pass; until then every run
+records its engine in the sidecar and the ledger, and no read is ever entered without it. v1 is
+deleted in W20 as one commit series against the §6 list, each flag row moved to *superseded by v2*
+rather than removed — the repo's rule, and the receipt for the next person who wonders why a lever
+that once measured well is gone.
+
