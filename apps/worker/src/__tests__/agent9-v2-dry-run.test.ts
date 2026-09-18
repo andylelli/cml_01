@@ -12,14 +12,32 @@
  */
 import { afterEach, describe, expect, it } from "vitest";
 import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { buildContractInput, generateBookV2, isProseEngineV2 } from "../jobs/agents/agent9-v2/run.js";
 import { hashContract } from "../jobs/agents/agent9-v2/checkpoint.js";
 import { resetRoleCache, resolveRole, roleLabel } from "../jobs/agents/agent9-v2/roles.js";
 import type { OrchestratorContext } from "../jobs/agents/shared.js";
 
-const REPO_ROOT = join(process.cwd(), "..", "..");
+/**
+ * The repo root, found by walking up from THIS FILE until the store is there.
+ *
+ * It used to be `join(process.cwd(), "..", "..")`, which is right only when vitest is invoked from
+ * `apps/worker`. Run from the repo root — which is how `npx vitest run apps/worker` and CI both do
+ * it — it resolved to `C:/`, the store was not found, and every test in the file SKIPPED. A suite
+ * that reports "3 skipped" and moves on is a suite that is not running.
+ */
+const repoRoot = (): string => {
+  let dir = dirname(fileURLToPath(import.meta.url));
+  for (let up = 0; up < 8; up += 1) {
+    if (existsSync(join(dir, "data", "store.json"))) return dir;
+    dir = dirname(dir);
+  }
+  return join(process.cwd(), "..", "..");
+};
+
+const REPO_ROOT = repoRoot();
 
 const loadProject = (): Record<string, unknown> | null => {
   const path = join(REPO_ROOT, "data", "store.json");

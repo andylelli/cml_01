@@ -55,6 +55,16 @@ import { resolveRole, roleLabel, type ResolvedRole, type RoleTelemetry } from ".
 export const isProseEngineV2 = (env: NodeJS.ProcessEnv = process.env): boolean =>
   String(env.PROSE_ENGINE ?? "").trim().toLowerCase() === "v2";
 
+/**
+ * How many continuation calls one draft may use.
+ *
+ * The measured behaviour is one chapter per call, so the bound is the chapters owed plus a little
+ * slack for a round that delivers two — not a number chosen for its own sake. It is a BOUND, not a
+ * plan: the no-progress guard normally stops first, and a model that writes the book in one call
+ * never enters the loop.
+ */
+const maxContinuations = (chaptersInSegment: number): number => chaptersInSegment + 2;
+
 /** How many drafts per segment. Three is the design's default; one makes v2 a single-draft engine. */
 const draftCount = (): number => {
   const raw = Number((process.env.PROSE_V2_DRAFTS ?? "").trim());
@@ -225,17 +235,44 @@ export const generateBookV2 = async (ctx: OrchestratorContext): Promise<V2Result
   let checkpoint: V2Checkpoint =
     readCheckpoint(checkpointPath, contractHash) ?? emptyCheckpoint(ctx.projectId ?? "", ctxRunId(ctx), contractHash);
 
-  const written: ProseChapterLike[] = [...checkpoint.chapters];
-  const writtenNumbers: number[] = plan.segments
-    .flatMap((s) => s.chapters)
-    .slice(0, written.length);
+  const written: ProseChapterLike[] = [];
+  const writtenNumbers: number[] = [];
   const selections: Array<{ segment: number; scored: ScoredDraft[]; chosen: ScoredDraft | null }> = [];
 
+  /**
+   * A checkpointed segment is reusable only if it is COMPLETE.
+   *
+   * MEASURED 2026-09-18: a run whose writer stopped after chapter 1 recorded segment 0 as done with
+   * one chapter of ten, and every later run on that project restored it and never called the writer
+   * at all. A truncated book became permanent, silently, and the telemetry said "restored from the
+   * checkpoint" as though that were good news. The checkpoint's job is to avoid paying twice for
+   * work that FINISHED; a segment missing nine of its chapters did not finish.
+   *
+   * This also repairs checkpoints written before the fix: they are simply not reused.
+   */
+  const reusable = (index: number, expected: number[]): ProseChapterLike[] | null => {
+    const stored = checkpoint.segments.find((s) => s.index === index && s.chosen !== null);
+    if (!stored) return null;
+    const chosen = stored.drafts.find((d) => d.attempt === stored.chosen);
+    const chapters = chosen?.chapters ?? [];
+    return chapters.length === expected.length ? chapters : null;
+  };
+
   for (const segment of plan.segments) {
-    // A resumed run skips what the checkpoint already accepted.
-    if (checkpoint.segments.some((s) => s.index === segment.index && s.chosen !== null)) {
-      ctx.warnings.push(`[Agent 9 v2] segment ${segment.index} restored from the checkpoint`);
+    // A resumed run skips what the checkpoint already accepted IN FULL.
+    const restored = reusable(segment.index, segment.chapters);
+    if (restored) {
+      ctx.warnings.push(
+        `[Agent 9 v2] segment ${segment.index} restored from the checkpoint (${restored.length} chapter(s))`,
+      );
+      written.push(...restored);
+      writtenNumbers.push(...segment.chapters);
       continue;
+    }
+    if (checkpoint.segments.some((s) => s.index === segment.index && s.chosen !== null)) {
+      ctx.warnings.push(
+        `[Agent 9 v2] segment ${segment.index} was checkpointed INCOMPLETE and is being rewritten`,
+      );
     }
 
     const contracts = segment.chapters.map((c) => renderSceneContract(contract, c)).join("\n\n");
@@ -280,8 +317,28 @@ export const generateBookV2 = async (ctx: OrchestratorContext): Promise<V2Result
             ctx,
           });
           let draft = parseWriterOutput(raw, segment.chapters, segment.index, attempt);
-          // A truncated segment is CONTINUED, never redrafted: the chapters that finished are paid for.
-          if (draft.truncated && draft.chapters.length > 0 && draft.missing.length > 0) {
+          // An unfinished segment is CONTINUED, never redrafted: the chapters that finished are paid
+          // for, and the continuation carries the whole book so far, so the voice is one voice.
+          //
+          // ── WHY THIS IS A LOOP AND NOT AN `if` ──────────────────────────────────────────────────
+          //
+          // It was an `if`, on the assumption that a model stops mid-book only when it runs out of
+          // output tokens, so one continuation finishes the job.
+          //
+          // MEASURED 2026-09-18, seed 50862, azure:gpt-4.1 with a 32,768-token cap and all ten
+          // chapters owed: the first call returned CHAPTER 1 and stopped — about 1,300 tokens, 4% of
+          // the cap. It was not truncated. It wrote a chapter, the way the contract describes a
+          // chapter, and considered the turn done. The single continuation bought chapter 2, and the
+          // book SHIPPED AT 2 OF 10 — 1,964 words against the v1 arm's 8,965.
+          //
+          // The model writes A CHAPTER per call however many are owed, so the continuation runs
+          // until the chapters owed are delivered. `truncated` is no longer consulted: the real
+          // condition was always "chapters are missing", and reading a truncation flag instead is
+          // what made a stopped model look like a finished one.
+          let rounds = 0;
+          while (draft.missing.length > 0 && draft.chapters.length > 0 && rounds < maxContinuations(segment.chapters.length)) {
+            rounds += 1;
+            const owed = draft.missing.length;
             const accepted = segment.chapters.filter((c) => !draft.missing.includes(c));
             const continued = await chat(writer, {
               system: WRITER_SYSTEM,
@@ -293,7 +350,7 @@ export const generateBookV2 = async (ctx: OrchestratorContext): Promise<V2Result
                 continueInstruction(accepted, draft.missing),
               ].join("\n"),
               maxTokens: writer.maxOutputTokens,
-              label: roleLabel("writer", `S${segment.index}-D${attempt}-continue`),
+              label: roleLabel("writer", `S${segment.index}-D${attempt}-continue${rounds}`),
               ctx,
             });
             const rest = parseWriterOutput(continued, draft.missing, segment.index, attempt);
@@ -303,6 +360,22 @@ export const generateBookV2 = async (ctx: OrchestratorContext): Promise<V2Result
               missing: rest.missing,
               truncated: rest.missing.length > 0,
             };
+            // NO PROGRESS: a continuation that delivered nothing will not deliver anything next time
+            // either, and every round re-sends the whole book. Stop, and let the selector and the
+            // gate report a short draft rather than paying for the same refusal ten times.
+            if (draft.missing.length >= owed) {
+              ctx.warnings.push(
+                `[Agent 9 v2] segment ${segment.index} draft ${attempt}: continuation ${rounds} added ` +
+                  `no chapter; stopping with ${draft.missing.length} of ${segment.chapters.length} unwritten`,
+              );
+              break;
+            }
+          }
+          if (rounds > 0) {
+            ctx.warnings.push(
+              `[Agent 9 v2] segment ${segment.index} draft ${attempt}: ${draft.chapters.length} chapter(s) ` +
+                `in 1 + ${rounds} call(s)` + (draft.missing.length > 0 ? `, ${draft.missing.length} unwritten` : ""),
+            );
           }
           return draft;
         } catch (error) {
@@ -329,9 +402,21 @@ export const generateBookV2 = async (ctx: OrchestratorContext): Promise<V2Result
       continue;
     }
     written.push(...chosen.draft.chapters);
-    writtenNumbers.push(...segment.chapters.slice(0, chosen.draft.chapters.length));
-    checkpoint = recordSegment(checkpoint, segment, scored.map((s) => ({ draft: s.draft, score: s.score })), chosen.draft.attempt, chosen.draft.chapters);
-    writeCheckpoint(checkpointPath, checkpoint);
+    // The numbers a draft DELIVERED, not the first N of the segment: a writer that skipped chapter 3
+    // and wrote 4 would otherwise have chapter 4's prose filed under chapter 3, and every downstream
+    // check — the clue audit, the reveal gate, the editor's anchors — would read the wrong page.
+    writtenNumbers.push(...segment.chapters.filter((c) => !chosen.draft.missing.includes(c)));
+    // A segment is checkpointed only when it is COMPLETE; see `reusable` above for what an
+    // incomplete one cost.
+    if (chosen.draft.missing.length === 0) {
+      checkpoint = recordSegment(checkpoint, segment, scored.map((s) => ({ draft: s.draft, score: s.score })), chosen.draft.attempt, chosen.draft.chapters);
+      writeCheckpoint(checkpointPath, checkpoint);
+    } else {
+      ctx.warnings.push(
+        `[Agent 9 v2] segment ${segment.index} NOT checkpointed: ${chosen.draft.missing.length} of ` +
+          `${segment.chapters.length} chapter(s) unwritten, so a later run rewrites it rather than inheriting it`,
+      );
+    }
   }
 
   const expected = plan.segments.flatMap((s) => s.chapters);
