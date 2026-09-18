@@ -17,3 +17,7 @@ export {
   unwrapCase,
   flattenScenes,
 } from "./contract.js";
+export { buildBible, estimateTokens, BIBLE_BUDGET, BIBLE_BUDGETS } from "./bible.js";
+export { buildBrief, briefLawViolations, BRIEF_BUDGET } from "./brief.js";
+export type { BriefInput, BriefProfile } from "./brief.js";
+export { buildBookContract } from "./book-contract.js";
