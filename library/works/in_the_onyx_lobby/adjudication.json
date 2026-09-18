@@ -1,0 +1,19 @@
+{
+ "false_assumption": {
+  "statement": "The dying message 'women did this' was taken literally to mean female perpetrators.",
+  "type": "identity",
+  "why_it_seems_reasonable": "The message was clearly written by the dying victim and explicitly states 'women did this'. The victim was known to have many female acquaintances, making the accusation plausible.",
+  "what_it_hides": "The initial letter 'T' was written on the wall, not the paper, making the message actually read 'Two men did this', thus hiding the true identity of the culprits."
+ },
+ "mechanism_description": "Sir Herbert Binney was murdered by two men, George Vail and Doctor Weldon, who conspired to kill him to gain control of the valuable secret recipe. The doctor, skilled in surgery, stabbed Binney with a paper-cutter while Vail created an alibi by riding the elevator with the night porter. Binney, in his dying moments, attempted to write a message but began on the wall, causing the first letter 'T' to be missed, leading to the misinterpretation of 'women' instead of 'two men'.",
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "Reenact the timeline of the murder night focusing on the elevator ride with Vail and Bob Moore, the presence of Sir Herbert in the lobby, and the timing of the stabbing. Confirm the impossibility of Vail being the murderer due to his elevator alibi and the presence of the doctor with him. Verify the location and timing of all suspects and witnesses to exclude or implicate them.",
+  "knowledge_revealed": "This test reveals that Vail’s alibi is solid and that the murder required a skilled hand, implicating the doctor. It also clarifies the timing and opportunity of the murder, excluding the women suspects.",
+  "pass_condition": "The alibi of Vail being in the elevator with Moore at the time of the murder is confirmed, and the doctor’s presence with Vail is established, eliminating women suspects."
+ },
+ "changed": [
+  "false_assumption.type"
+ ],
+ "confidence": "high"
+}

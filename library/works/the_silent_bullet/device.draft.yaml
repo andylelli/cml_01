@@ -30,7 +30,7 @@ feasibility:
     - 1950
   requires:
     - firearm_with_silencer
-    - fabric_barrier
+    - fabric_concealment
   forbids:
     - cctv
     - modern_toxicology_screen

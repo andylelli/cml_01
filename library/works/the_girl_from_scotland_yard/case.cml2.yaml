@@ -1,0 +1,433 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The girl from Scotland Yard
+    author: Edgar Wallace
+    license: Public domain (first published 1927; author died 1932). Project Gutenberg ebook 76677.
+    era:
+      decade: 1920s
+      realism_constraints:
+        - No advanced forensic DNA analysis available
+        - Limited police communication technology (telephones, telegrams)
+        - Social stigma and legal complexity around divorce and illegitimacy
+    setting:
+      location: London, England
+      institution: Scotland Yard
+    crime_class:
+      category: murder
+      subtype: blackmail-related shooting
+  cast:
+    - name: Leslie Maughan
+      age_range: early 20s
+      role_archetype: young, intelligent female detective
+      relationships:
+        - Peter Dawlish (friend and subject of investigation)
+      public_persona: assistant to Chief Inspector Coldwell at Scotland Yard
+      private_secret: deeply involved in the case with personal feelings
+      motive_seed: professional duty and personal curiosity
+      motive_strength: strong
+      alibi_window: present throughout investigation
+      access_plausibility: high
+      opportunity_channels:
+        - official police access
+      behavioral_tells:
+        - keen observation
+        - persistent inquiry
+      stakes: solving the case and protecting the innocent
+      evidence_sensitivity:
+        - found emerald pendant
+        - discovered marriage certificate
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: detective
+      moral_complexity: low
+    - name: Peter Dawlish
+      age_range: late 20s
+      role_archetype: wrongfully imprisoned man seeking justice and family
+      relationships:
+        - Jane Raytham (former wife)
+        - Leslie Maughan (investigator)
+      public_persona: ex-convict and envelope addressor
+      private_secret: father of a lost child, victim of blackmail
+      motive_seed: anger at Druze and desire to find his child
+      motive_strength: moderate
+      alibi_window: mostly accounted for
+      access_plausibility: medium
+      opportunity_channels:
+        - lodgings
+        - social contacts
+      behavioral_tells:
+        - resentment
+        - determination
+      stakes: clearing his name and finding his child
+      evidence_sensitivity:
+        - gun found planted
+        - letters and envelopes
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: Jane Raytham
+      age_range: late 20s
+      role_archetype: socialite with a troubled past
+      relationships:
+        - Peter Dawlish (former husband)
+        - Lord Raytham (current husband)
+      public_persona: Lady Raytham, married to Lord Raytham
+      private_secret: bigamist, mother of a lost child, blackmail victim
+      motive_seed: fear and secrecy
+      motive_strength: weak
+      alibi_window: mostly accounted for
+      access_plausibility: high
+      opportunity_channels:
+        - home
+        - social events
+      behavioral_tells:
+        - nervousness
+        - evasiveness
+      stakes: protecting reputation and family
+      evidence_sensitivity:
+        - emerald necklace
+        - marriage certificate
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: victim
+      moral_complexity: high
+    - name: Princess Anita Bellini
+      age_range: 50s
+      role_archetype: manipulative socialite and blackmailer
+      relationships:
+        - Druze (sister and victim)
+        - Greta Gurden (companion)
+      public_persona: wealthy princess with a sharp tongue
+      private_secret: blackmailer and murderer
+      motive_seed: financial gain and power
+      motive_strength: strong
+      alibi_window: uncertain
+      access_plausibility: high
+      opportunity_channels:
+        - her residence
+        - social connections
+      behavioral_tells:
+        - ruthlessness
+        - anger
+      stakes: maintaining control and wealth
+      evidence_sensitivity:
+        - emerald pendant
+        - blackmail letters
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: female
+      role: culprit
+      moral_complexity: high
+    - name: Druze (Alice Druze)
+      age_range: middle-aged
+      role_archetype: disguised woman, blackmailer, and victim
+      relationships:
+        - Princess Anita Bellini (sister)
+        - Lady Raytham (employer)
+      public_persona: butler to Lady Raytham
+      private_secret: female masquerading as male, blackmailer
+      motive_seed: financial gain
+      motive_strength: moderate
+      alibi_window: not applicable
+      access_plausibility: high
+      opportunity_channels:
+        - household access
+      behavioral_tells:
+        - nervousness
+        - secretiveness
+      stakes: survival and secrecy
+      evidence_sensitivity:
+        - emerald pendant
+        - gunpowder burn
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: victim
+      moral_complexity: high
+    - name: Greta Gurden
+      age_range: middle-aged
+      role_archetype: companion and reluctant witness
+      relationships:
+        - Princess Anita Bellini (employer)
+      public_persona: former chorus girl, journalist
+      private_secret: fearful of Anita, injured
+      motive_seed: self-preservation
+      motive_strength: weak
+      alibi_window: mostly accounted for
+      access_plausibility: medium
+      opportunity_channels:
+        - her flat
+        - social visits
+      behavioral_tells:
+        - fear
+        - evasiveness
+      stakes: personal safety
+      evidence_sensitivity:
+        - gunshot wound
+        - perfume scent
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: moderate
+    - name: Mrs. Inglethorne
+      age_range: middle-aged
+      role_archetype: baby farmer and fence
+      relationships:
+        - Elizabeth (foster child)
+      public_persona: landlady
+      private_secret: baby farmer, receiver of stolen goods
+      motive_seed: financial gain
+      motive_strength: strong
+      alibi_window: uncertain
+      access_plausibility: high
+      opportunity_channels:
+        - lodgings
+        - storage room
+      behavioral_tells:
+        - hostility
+        - evasiveness
+      stakes: avoiding arrest
+      evidence_sensitivity:
+        - stolen silk bolts
+        - baby clothes
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: female
+      role: suspect
+      moral_complexity: low
+  culpability:
+    culprit_count: 1
+    culprits:
+      - Princess Anita Bellini
+  surface_model:
+    narrative:
+      summary: >-
+        Druze, a butler who was secretly a woman, is found shot dead holding an emerald pendant
+        belonging to Lady Raytham. Suspicion falls on Peter Dawlish, a recently released convict
+        with a grudge, but the investigation reveals a tangled web of blackmail, secret marriages,
+        and lost children involving Lady Raytham, Princess Anita Bellini, and others.
+    accepted_facts:
+      - Druze was masquerading as a male butler and was actually a woman.
+      - Druze was shot at close range and found holding an emerald pendant.
+      - Peter Dawlish was recently released from prison and had threatened Druze.
+      - Lady Raytham was paying large sums of money and was involved in blackmail.
+    inferred_conclusions:
+      - Peter Dawlish murdered Druze out of revenge.
+      - Lady Raytham was protecting her own interests by hiding the truth.
+      - Princess Anita Bellini was innocent and only a victim of circumstances.
+  hidden_model:
+    mechanism:
+      description: >-
+        Princess Anita Bellini killed Druze during a confrontation over blackmail. In a struggle,
+        Anita shot Druze, who managed to hold onto the emerald pendant. Anita then concealed Druze's
+        body by placing it in a car and leaving it at a remote spot. The murder was motivated by
+        Anita's desire to protect her blackmail scheme and maintain control over the secrets
+        involving Lady Raytham and the lost child.
+      delivery_path:
+        - step: Druze confronts Anita Bellini over blackmail demands.
+        - step: A struggle ensues during which Anita shoots Druze multiple times.
+        - step: Druze retains the emerald pendant in her hand despite being shot.
+        - step: Anita panics and places Druze's body in a car.
+        - step: Anita drives to a secluded location and leaves the body there.
+        - step: The body is discovered by the police on Barnes Common.
+        - step: Anita attempts to cover up her involvement and manipulate witnesses.
+    outcome:
+      result: >-
+        Princess Anita Bellini is arrested and charged with the murder of Druze, ending the
+        blackmail scheme and revealing the hidden family secrets.
+  false_assumption:
+    statement: Peter Dawlish, as the resentful ex-convict, is the murderer of Druze.
+    type: identity
+    why_it_seems_reasonable: >-
+      Peter had a known grudge against Druze and was seen near the crime scene; his criminal past
+      makes him a natural suspect. The evidence of a planted gun and his threats reinforce this
+      belief.
+    what_it_hides: >-
+      It obscures the true culprit, Princess Anita Bellini, who had both motive and opportunity to
+      kill Druze to protect her blackmail operation.
+  false_solution:
+    accused_suspect: Peter Dawlish
+    supporting_points:
+      - Peter had threatened Druze previously.
+      - A gun was found hidden in Peter’s lodgings.
+      - Peter was seen near the crime scene around the time of death.
+      - Peter’s mother charged him with threatening to murder Anita Bellini.
+    the_one_flaw: >-
+      The gun was planted after the murder, and Peter had no motive to kill Druze, who was not the
+      forger he was accused of being.
+    refuted_in_chapter: 16
+  red_herrings:
+    - id: peter_dawlish_suspect
+      description: >-
+        Peter Dawlish is suspected due to his criminal record, threats against Druze, and a gun
+        found hidden in his room.
+      points_at_suspect: Peter Dawlish
+      innocent_explanation: >-
+        The gun was planted by others to frame him, and he had no direct involvement in Druze’s
+        murder.
+      resolved_in_chapter: 16
+    - id: lady_raytham_necklace
+      description: >-
+        The emerald pendant found in Druze’s hand matches Lady Raytham’s necklace, suggesting her
+        involvement.
+      points_at_suspect: Jane Raytham
+      innocent_explanation: >-
+        The pendant was taken by Druze during blackmail dealings; Lady Raytham was unaware of the
+        murder details.
+      resolved_in_chapter: 24
+  closed_circle:
+    suspects:
+      - Peter Dawlish
+      - Princess Anita Bellini
+      - Jane Raytham
+      - Mrs. Inglethorne
+      - Greta Gurden
+    rationale: >-
+      All had motive, opportunity, or suspicious behavior connected to Druze’s death and the
+      blackmail scheme, and were closely linked by social and familial ties.
+  constraint_space:
+    time:
+      anchors:
+        - Druze’s body found between eleven forty-five and midnight
+        - Peter Dawlish’s attack occurred shortly before his arrest
+        - Lady Raytham’s dinner with Anita Bellini before half-past nine
+        - Leslie Maughan’s visits and interviews during daytime and evening
+      windows:
+        - Druze’s murder occurred shortly before body discovery
+        - Peter’s presence at lodgings during evening
+        - Anita Bellini’s movements around the time of murder
+    access:
+      actors:
+        - Princess Anita Bellini
+        - Druze
+        - Peter Dawlish
+        - Mrs. Inglethorne
+      objects:
+        - Emerald necklace and pendant
+        - Pistol used in shooting
+        - Locked rooms and wardrobes
+        - Letters and blackmail documents
+    social:
+      trust_channels:
+        - Lady Raytham’s statements
+        - Leslie Maughan’s police authority
+        - Statements from Mrs. Inglethorne and Greta Gurden
+        - Police and Scotland Yard investigations
+      authority_sources:
+        - Scotland Yard
+        - Chief Inspector Coldwell
+        - Court and magistrate rulings
+        - Medical doctors’ testimonies
+  inference_path:
+    steps:
+      - observation: Druze was found shot with an emerald pendant in her hand.
+        correction: The pendant was part of Lady Raytham’s necklace, but the chain was intact at her home.
+        effect: The pendant was likely torn off during a struggle, indicating a violent confrontation.
+        required_evidence:
+          - Emerald pendant found in Druze’s hand
+          - Intact emerald necklace in Lady Raytham’s safe
+        reader_observable: true
+      - observation: Peter Dawlish had a gun hidden under a loose board in his room.
+        correction: >-
+          The gun was planted recently, as the police had searched the room earlier without finding
+          it.
+        effect: Peter’s possession of the gun is suspicious but does not prove guilt.
+        required_evidence:
+          - Police search records of Peter’s room
+          - Discovery of gun under loose floorboard
+        reader_observable: true
+      - observation: Druze was shot multiple times and had a gunpowder burn on her hand.
+        correction: Druze fired the gun in self-defense, indicating a struggle with her killer.
+        effect: The murder was not a simple execution but involved resistance.
+        required_evidence:
+          - Gunpowder burn on Druze’s hand
+          - Medical examination report of wounds
+        reader_observable: true
+      - observation: Anita Bellini was seen arguing with Druze and had motive for blackmail.
+        correction: Anita had opportunity and motive to kill Druze to protect her blackmail scheme.
+        effect: Anita becomes the prime suspect for murder.
+        required_evidence:
+          - Witness statements about Anita and Druze’s quarrel
+          - Blackmail letters and financial records
+        reader_observable: true
+      - observation: Mrs. Inglethorne was a fence and baby farmer with a locked room.
+        correction: She concealed stolen goods and possibly evidence related to the child’s disappearance.
+        effect: Mrs. Inglethorne’s role complicates the search for the lost child.
+        required_evidence:
+          - Stolen silk bolts found in Mrs. Inglethorne’s locked cupboard
+          - Testimony about baby farming activities
+        reader_observable: true
+      - observation: Leslie Maughan was abducted by Javanese men working for Anita Bellini.
+        correction: Anita tried to silence Leslie to prevent exposure of the blackmail and murder.
+        effect: Anita’s desperation confirms her guilt and involvement.
+        required_evidence:
+          - Leslie’s testimony of abduction
+          - Police raid and rescue at May Towers
+        reader_observable: true
+      - observation: Elizabeth, the lost child, was found locked in a room at Anita Bellini’s house.
+        correction: The child was hidden to maintain control over Lady Raytham and Peter Dawlish.
+        effect: The child’s recovery resolves the family mystery and blackmail leverage.
+        required_evidence:
+          - Elizabeth’s testimony and location at May Towers
+          - Police discovery of the hidden room
+        reader_observable: true
+      - observation: >-
+          Police observed the scene and reenacted the shooting using an automatic pistol to test the
+          gunpowder burns and firing sequence.
+        correction: >-
+          The reenactment showed that Druze fired the pistol in self-defense, producing gunpowder
+          burns identical to those found on her hand.
+        effect: >-
+          This confirmed that Druze shot during a struggle and was not a passive victim, supporting
+          the theory of a violent confrontation.
+        required_evidence:
+          - >-
+            Police reenactment using an automatic pistol to observe gunpowder burns and firing
+            sequence
+          - Comparison of gunpowder burns on Druze’s hand with those produced in the reenactment
+        reader_observable: true
+  discriminating_test:
+    method: reenactment
+    design: >-
+      Police reenacted the shooting using an automatic pistol to observe the gunpowder burns and
+      firing effects. They compared the marks on Druze’s hand with those from the reenactment to
+      determine if she fired the gun. They also tested the timing and sequence of shots to confirm
+      the struggle scenario.
+    knowledge_revealed: >-
+      The reenactment showed that Druze fired multiple shots in rapid succession and received the
+      gunpowder burn on her hand, indicating self-defense and a struggle with the killer.
+    pass_condition: >-
+      The presence of identical gunpowder burns on the hand after firing multiple shots confirms
+      that Druze fired the weapon and was not a passive victim.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given all key facts: the discovery of the emerald pendant, the blackmail scheme,
+      the presence of the gun, and the relationships between characters. Clues such as the forged
+      will, the locked rooms, and the hidden child are presented openly. The false suspicion on
+      Peter Dawlish is supported by planted evidence, but inconsistencies and alibis are also
+      provided. The final confession and police actions reveal the true culprit, allowing an
+      attentive reader to deduce the solution.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

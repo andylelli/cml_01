@@ -1,0 +1,47 @@
+pattern_id: the_melody_of_death
+title: The Borrowed Guilt
+family: identity
+axes:
+  - identity
+principle: >-
+  It hides the investigator true role as a vigilante thief who steals from the gang to recover
+  stolen property and finance his efforts to make restitution.
+principleType: social_logic
+surface_illusion_template: >-
+  the investigator is the burglar stealing jewels for personal gain.; Mrs. a witness is involved in
+  the theft due to financial troubles.; The fourth man at the bank robbery is an independent
+  criminal.
+underlying_reality_template: >-
+  the investigator, formerly a Foreign Office official, uses his knowledge of the gang's activities
+  and the Stock Exchange to secretly recover stolen goods from the gang's safe. He exploits the
+  gang's safe agency scheme, where safes are sold with keys allowing the gang access. the
+  investigator takes money and jewels from the gang's safe to finance his investments, intending to
+  restore the stolen property to rightful owners.
+feasibility:
+  eras:
+    - 1850
+    - 1860
+    - 1870
+    - 1880
+    - 1890
+    - 1900
+    - 1910
+    - 1920
+    - 1930
+    - 1940
+    - 1950
+  requires:
+    - physical_key_access
+    - social_misdirection
+  forbids:
+    - cctv
+    - voice_authentication
+clue_archetypes:
+  - the_necklace_found_in
+  - gilbert_s_calm_explanation
+  - inspector_goldberg_s_observation
+  - the_discovery_of_the
+  - description_of_the_masked
+  - gilbert_s_admission_of
+sources:
+  - Edgar Wallace, The melody of death — library/works/the_melody_of_death/case.cml2.yaml

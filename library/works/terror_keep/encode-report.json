@@ -1,0 +1,140 @@
+{
+ "slug": "terror_keep",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "John Flack escaped from Broadmoor",
+   "anchor": "John Flack had gone out into the world to realise his day-dreams",
+   "span": "The ward door was open, and John Flack had gone out into the world to realise his day-dreams.",
+   "ok": true
+  },
+  {
+   "claim": "Margaret Belman arrives at Larmes Keep",
+   "anchor": "Miss Belman was twenty-three, an age when youngish men are rather tiresome",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "George Ravini's appearance and rings",
+   "anchor": "On the little finger of his right hand were three gold rings",
+   "span": "On the little finger of his right hand were three gold rings, and in each ring three large diamonds.",
+   "ok": true
+  },
+  {
+   "claim": "Mr. Reeder's investigation of spring gun",
+   "anchor": "There was a queer-looking and obviously home-made spring gun",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Ravini leaves pyjamas behind",
+   "anchor": "His bed hasn’t been slept in. His bag was gone, but on the pillow, neatly folded, was a suit of pink silk pyjamas",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Mr. Daver's safe with secret panel",
+   "anchor": "The door consisted of eight panels, carved in small lozenge-shaped ornaments",
+   "span": "The door consisted of eight panels, carved in small lozenge-shaped ornaments.",
+   "ok": true
+  },
+  {
+   "claim": "Gold convoy attacked silently",
+   "anchor": "Suppose this, or, as it may prove, a more deadly gas, has been so stored",
+   "span": "Suppose this, or, as it may prove, a more deadly gas, has been so stored, do you realise how simple a matter it would be on a still, breathless morning to throw a big hose over the bridge and fill the hollow with the gas?",
+   "ok": true
+  },
+  {
+   "claim": "Gas extinguishes matches",
+   "anchor": "When I dropped a match it was immediately extinguished",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Ravini's Luck Rings sent to Reeder",
+   "anchor": "They were George Ravini’s Luck Stones",
+   "span": "They were George Ravini’s Luck Stones, and for ten minutes Mr.",
+   "ok": true
+  },
+  {
+   "claim": "Margaret Belman falls from cliff",
+   "anchor": "Margaret Belman did not realise how near to death she had been till the dawn came up",
+   "span": "Margaret Belman did not realise how near to death she had been till the dawn came up.",
+   "ok": true
+  },
+  {
+   "claim": "Secret cave network under Larmes Keep",
+   "anchor": "The real entrance to the cave was through the safe in the vestibule",
+   "span": "The real entrance to the cave was through the safe in the vestibule?",
+   "ok": true
+  },
+  {
+   "claim": "Flack kills Daver",
+   "anchor": "On the silken counterpane, sprawled in an indescribable attitude, his round, sightless eyes staring at the ceiling, was Daver",
+   "span": "On the silken counterpane, sprawled in an indescribable attitude, his round, sightless eyes staring at the ceiling, was Daver.",
+   "ok": true
+  },
+  {
+   "claim": "Margaret Belman trapped in secret room",
+   "anchor": "She was in a tiny white box of a room, three feet wide, little more in depth",
+   "span": "She was in a tiny white box of a room, three feet wide, little more in depth.",
+   "ok": true
+  },
+  {
+   "claim": "Flack's escape through cave and boat",
+   "anchor": "They had descended to the water’s edge by a continuance of the long stairway which led to the roof",
+   "span": "They had descended to the water’s edge by a continuance of the long stairway which led to the roof, and were making for the rocky platform which served as a pier for the craft.",
+   "ok": true
+  },
+  {
+   "claim": "Cave entrance collapses",
+   "anchor": "The mouth of the cave has collapsed",
+   "span": "The mouth of the cave has collapsed!",
+   "ok": true
+  },
+  {
+   "claim": "Margaret Belman rescued from well",
+   "anchor": "Out of the dust-mist came groping the ghostly figure of a woman. It was Olga Crewe",
+   "span": "Out of the dust-mist came groping the ghostly figure of a woman. It was Olga Crewe.",
+   "ok": true
+  },
+  {
+   "claim": "Flack's plan revealed by Olga Crewe",
+   "anchor": "The story which Olga Flack told the police",
+   "span": "… The story which Olga Flack told the police, which appears in the official records of the place, was not exactly the same as the story she told to Mr.",
+   "ok": true
+  },
+  {
+   "claim": "True mechanism is gas attack and cave escape",
+   "anchor": "Suppose this, or, as it may prove, a more deadly gas, has been so stored",
+   "span": "Suppose this, or, as it may prove, a more deadly gas, has been so stored, do you realise how simple a matter it would be on a still, breathless morning to throw a big hose over the bridge and fill the hollow with the gas?",
+   "ok": true
+  },
+  {
+   "claim": "False assumption of shootout",
+   "anchor": "No shooting occurred; guards were incapacitated",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Red herring Mrs. Burton's madness",
+   "anchor": "Mrs. Burton, a quiet, rather sad soul, who has had a great deal of trouble in her life",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Red herring Olga Crewe's coldness",
+   "anchor": "Olga Crewe laughed. Have you seen the cliffs?",
+   "span": "",
+   "ok": false
+  }
+ ],
+ "costGbp": 0.09136035185,
+ "models": {
+  "map": "gpt-4o-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true
+}

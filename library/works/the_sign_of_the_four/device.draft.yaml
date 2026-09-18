@@ -1,5 +1,5 @@
 pattern_id: the_sign_of_the_four
-title: The Secret Trap-Door
+title: The Hidden Trapdoor
 family: spatial_routing
 axes:
   - spatial
@@ -29,11 +29,12 @@ feasibility:
     - 1940
     - 1950
   requires:
-    - hidden_entry_point
-    - rope_and_harness
-    - small_accomplice
+    - old_building_structure
+    - physical_accomplice
+    - rope_and_climbing
   forbids:
     - cctv
+    - electronic_timekeeping
 clue_archetypes:
   - inspection_of_the_locked
   - witness_statement_from_housekeeper

@@ -4,7 +4,7 @@
   mechanism_family: impersonation
   false_assumption_pattern: the_detective_is_a_trusted_ally
   discriminating_test_shape: timetable_contradiction
-  inference_shape: reveal_true_identity_via_physical_evidence
+  inference_shape: reveal_true_identity_by_physical_analysis
   premise: >-
     Sir Charles Vandrift, a wealthy financier, is repeatedly deceived and defrauded by a master con
     artist known as Colonel Clay, who assumes multiple disguises and identities. Despite employing

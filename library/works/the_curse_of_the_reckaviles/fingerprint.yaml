@@ -1,0 +1,12 @@
+- id: the_curse_of_the_reckaviles
+  corpus: seed
+  axis: identity
+  mechanism_family: recorded_presence
+  false_assumption_pattern: a_heard_voice_proves_presence
+  discriminating_test_shape: reconstruction
+  inference_shape: debunk_voice_as_presence
+  premise: >-
+    Lord Reckavile is found murdered in his locked library with no apparent means of entry or exit
+    for the killer. Suspicion falls on various locals and visitors, including the mysterious Halley
+    and Jack 
+  source: library/works/the_curse_of_the_reckaviles/case.cml2.yaml

@@ -1,0 +1,134 @@
+{
+ "slug": "room_13",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Emanuel Legge was murdered in Room 13",
+   "anchor": "Emanuel Legge had passed beyond the sphere of his evil activities.",
+   "span": "Emanuel Legge had passed beyond the sphere of his evil activities. “The poker came from--where?",
+   "ok": true
+  },
+  {
+   "claim": "Jeff Legge was shot and wounded",
+   "anchor": "Jeff Legge stooped and jerked open the door of the cupboard, and a man came stooping into the light.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Johnny Gray was present at the club during the murder",
+   "anchor": "Johnny was the first of the guests to arrive, and Stevens helped him to take off his raincoat.",
+   "span": "CHAPTER XXVI Johnny was the first of the guests to arrive, and Stevens helped him to take off his raincoat. As he did so, he asked in a low voice: “Got a gun, Captain?",
+   "ok": true
+  },
+  {
+   "claim": "Secret mechanism hidden in the buffet",
+   "anchor": "He bent down and must have touched some piece of mechanism; for, without any visible assistance, the lid of the buffet turned over on some invisible axis",
+   "span": "He bent down and must have touched some piece of mechanism; for, without any visible assistance, the lid of the buffet turned over on some invisible axis, revealing a small but highly complicated piece of machinery, which Johnny recognised instantly as one of those little presses employed by banknote printers when a limited series of notes, generally of a high denomination, were being made.",
+   "ok": true
+  },
+  {
+   "claim": "Peter Kane was drugged and incapacitated",
+   "anchor": "He has been drugged: that’s obvious,",
+   "span": "He has been drugged: that’s obvious,” said Mr.",
+   "ok": true
+  },
+  {
+   "claim": "Marney Kane was held captive in Keytown Jail",
+   "anchor": "The cell was a small one, the floor of worn stone, but a new bedstead had been fitted up in one corner.",
+   "span": "The cell was a small one, the floor of worn stone, but a new bedstead had been fitted up in one corner. There was a washstand; and, as she was to discover, the cell communicated with another containing a stone bath and wash-place.",
+   "ok": true
+  },
+  {
+   "claim": "Jeff Legge attempted to escape but was captured",
+   "anchor": "Jeffrey raised his hands to their fullest extent, for Mr. Reeder was not alone.",
+   "span": "Jeffrey raised his hands to their fullest extent, for Mr. Reeder was not alone. Behind him were four armed policemen, a cordon of mounted constabulary, spread in a semicircle, cutting off all avenues of escape.",
+   "ok": true
+  },
+  {
+   "claim": "Johnny Gray had a double who impersonated him",
+   "anchor": "He stood in the centre of the astounded group. Into Marney’s heart had crept a wild hope.",
+   "span": "He stood in the centre of the astounded group. Into Marney’s heart had crept a wild hope. “Johnny,” she said, “was it this man who committed the crime for which you were punished?",
+   "ok": true
+  },
+  {
+   "claim": "Poker was used as the murder weapon",
+   "anchor": "The poker came from--where? mused Mr. Reeder, examining the weapon thoughtfully.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Johnny Gray's alibi supported by Inspector Flaherty",
+   "anchor": "Flaherty owes me a lot. Good night, Parker.",
+   "span": "Flaherty owes me a lot. Good night, Parker.” “Good night, sir.",
+   "ok": true
+  },
+  {
+   "claim": "Jeff Legge is the Big Printer",
+   "anchor": "I’m going to put all my cards on the table. I want my wife.",
+   "span": "I’m going to put all my cards on the table. I want my wife.” “You know where Lila is better than I,” said Peter.",
+   "ok": true
+  },
+  {
+   "claim": "Emanuel Legge and Jeff Legge planned to trap Peter Kane",
+   "anchor": "Suppose we ask Peter and his girl and Johnny Gray to dinner? A nice little dinner party, eh?",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The dinner party was a trap to kill Emanuel Legge",
+   "anchor": "And then all the lights of the room went out.",
+   "span": "And then all the lights of the room went out. Instantly Johnny was on his feet, his back to the wall, his gun fanning the dark.",
+   "ok": true
+  },
+  {
+   "claim": "Jeff Legge controlled the secret mechanism",
+   "anchor": "He pressed a switch, and the largest of the wheels began to spin",
+   "span": "He pressed a switch, and the largest of the wheels began to spin, and with it a dozen tiny platens and cylinders.",
+   "ok": true
+  },
+  {
+   "claim": "Peter Kane escaped after being drugged",
+   "anchor": "Peter Kane escaped on the way to Keytown, and he went back to the club and killed my father!",
+   "span": "Peter Kane escaped on the way to Keytown, and he went back to the club and killed my father!” CHAPTER XXX The girl looked at him, speechless.",
+   "ok": true
+  },
+  {
+   "claim": "Johnny Gray escaped from Keytown Jail",
+   "anchor": "He inserted the key, and the gate was opened before the man could turn to face the levelled revolver.",
+   "span": "He inserted the key, and the gate was opened before the man could turn to face the levelled revolver. “Don’t shout,” whispered Johnny.",
+   "ok": true
+  },
+  {
+   "claim": "Mr. Reeder is actually Mr. Golden, a government investigator",
+   "anchor": "I’m rather a wolf in sheep’s clothing, or a sheep in wolf’s clothing.",
+   "span": "I’m rather a wolf in sheep’s clothing, or a sheep in wolf’s clothing. The truth is, my name is Golden.",
+   "ok": true
+  },
+  {
+   "claim": "Jeff Legge killed Emanuel Legge",
+   "anchor": "Emanuel Legge had passed beyond the sphere of his evil activities.",
+   "span": "Emanuel Legge had passed beyond the sphere of his evil activities. “The poker came from--where?",
+   "ok": true
+  },
+  {
+   "claim": "Johnny Gray is innocent of murder",
+   "anchor": "Johnny Gray is in this. He’s been working my slush for years.",
+   "span": "Johnny Gray is in this. He’s been working my slush for years. You’ll find the presses in the second hall, but the other birds have done some quick flying.",
+   "ok": true
+  },
+  {
+   "claim": "The secret printing works are in the club basement and roof",
+   "anchor": "The basement was empty, and for a second the mystery of the copper plate baffled him.",
+   "span": "The basement was empty, and for a second the mystery of the copper plate baffled him. “We may not have found the Big Printer, but we’ve certainly found the Big Engraver,” he said.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.0492081283,
+ "models": {
+  "map": "gpt-4o-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true
+}

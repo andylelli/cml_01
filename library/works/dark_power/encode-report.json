@@ -1,0 +1,134 @@
+{
+ "slug": "dark_power",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Diana Leonard is the central victim and protagonist",
+   "anchor": "Diana Leonard (Di)",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Aunt Emma is the manipulative aunt and culprit",
+   "anchor": "Aunt Emma",
+   "span": "Well, your Aunt Emma--her idea was--perhaps you’d come to us--act as her secretary, with the usual financial arrangement, y’know.",
+   "ok": true
+  },
+  {
+   "claim": "Miles confesses to killing James Fennel",
+   "anchor": "Miles Confesses",
+   "span": "Miles Confesses Doctor Coat signed, in a neat, small hand, and Uncle Peter added a scrawling, infantile signature.",
+   "ok": true
+  },
+  {
+   "claim": "James Fennel is found dead in the woods",
+   "anchor": "carrying between them a limp body",
+   "span": "And she had a glimpse of two men, carrying between them a limp body; then they passed beyond the stream of light, and she could see them no more.",
+   "ok": true
+  },
+  {
+   "claim": "Uncle Rufus is dead and replaced by Wren's impersonation",
+   "anchor": "Wren to impersonate Rufus",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Aunt Emma coerces Wren and controls the household",
+   "anchor": "Aunt Emma was the one who held her bound ankles",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Diana is confined and threatened by Aunt Emma",
+   "anchor": "The door was locked",
+   "span": "The door was locked.",
+   "ok": true
+  },
+  {
+   "claim": "Diana escapes with help from James Fennel and Angelina",
+   "anchor": "Angelina sprang out, and ran along the path",
+   "span": "The car had stopped and Angelina sprang out, and ran along the path.",
+   "ok": true
+  },
+  {
+   "claim": "The forged letter from Fennel to Diana",
+   "anchor": "enclosed as a little mark of my admiration",
+   "span": "Please accept the enclosed as a little mark of my admiration--and my regret that we cannot meet again.",
+   "ok": true
+  },
+  {
+   "claim": "Miles's remorse and confession",
+   "anchor": "I didn’t mean to do that!",
+   "span": "I swear I had no idea of--of _that_--when I left the house… But when I saw him… Di, I didn’t mean to do that! I swear I didn’t!",
+   "ok": true
+  },
+  {
+   "claim": "The locked door of Uncle Rufus's room with key outside",
+   "anchor": "door was locked, with the key outside",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Aunt Emma's plan to secure inheritance via will",
+   "anchor": "I’ll make a will. And you promise to tell me",
+   "span": "I’ll make a will. And you promise to tell me, as soon as I’ve done that?",
+   "ok": true
+  },
+  {
+   "claim": "Doctor Coat and Mr. Purvis are deceived by Aunt Emma",
+   "anchor": "Doctor Coat’s benevolent and stupid face",
+   "span": "said Aunt Emma, and turning on her heel, walked into Uncle Rufus’s room just as Doctor Coat’s benevolent and stupid face appeared at the head of the stairs.",
+   "ok": true
+  },
+  {
+   "claim": "The note warning Diana not to leave the house",
+   "anchor": "Do not leave this house. If you go they will kill me",
+   "span": "Do not leave this house. If you go they will kill me.",
+   "ok": true
+  },
+  {
+   "claim": "The white figure at the foot of the pines",
+   "anchor": "there, at the foot of the dark pines, lay a white figure",
+   "span": "For there, at the foot of the dark pines, lay a white figure.",
+   "ok": true
+  },
+  {
+   "claim": "The shooting through the door injuring James Fennel",
+   "anchor": "I got a bullet in the leg, through the door",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The final rescue and revelation of the truth",
+   "anchor": "It’s over! We’re all sorry for the terrible things",
+   "span": "It’s over! We’re all sorry for the terrible things that have happened--but they’re done.",
+   "ok": true
+  },
+  {
+   "claim": "The disappearance and death of Wren",
+   "anchor": "Wren was found dying from the effect of a murderous assault",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The forged will signed by Diana",
+   "anchor": "This is my last will and testament",
+   "span": "This is my last will and testament,” said Di.",
+   "ok": true
+  },
+  {
+   "claim": "The presence of the taxi driver as a witness",
+   "anchor": "My taxi’s waiting! Don’t go away without me",
+   "span": "",
+   "ok": false
+  }
+ ],
+ "costGbp": 0.08461484995,
+ "models": {
+  "map": "gpt-4o-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true
+}

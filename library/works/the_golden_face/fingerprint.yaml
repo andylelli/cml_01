@@ -1,0 +1,12 @@
+- id: the_golden_face
+  corpus: seed
+  axis: identity
+  mechanism_family: impersonation
+  false_assumption_pattern: the_victim_is_who_they_appear
+  discriminating_test_shape: reconstruction
+  inference_shape: expose_true_identity
+  premise: >-
+    A series of high-profile jewel thefts and frauds baffle the police, with a seemingly respectable
+    country gentleman, Rudolph Rayne, at the center. His trusted servant George Hargreave is
+    reluctantly dr
+  source: library/works/the_golden_face/case.cml2.yaml

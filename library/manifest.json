@@ -5,9 +5,9 @@
  "totals": {
   "works": 169,
   "with_text": 165,
-  "encoded_verified": 30,
+  "encoded_verified": 56,
   "encoded_legacy": 4,
-  "awaiting_encode": 135,
+  "awaiting_encode": 109,
   "words": 11425058
  },
  "clearance": {
@@ -15,10 +15,10 @@
   "amber": 3
  },
  "axis": {
-  "behavioral": 7,
-  "identity": 13,
-  "temporal": 3,
-  "spatial": 6,
+  "behavioral": 15,
+  "identity": 29,
+  "temporal": 4,
+  "spatial": 7,
   "authority": 1
  },
  "works": [
@@ -229,7 +229,7 @@
    "first_publication_year": 1930,
    "clearance": "green",
    "structural_only": false,
-   "encoding": "none",
+   "encoding": "verified",
    "text": {
     "words": 50818,
     "bytes": 295144
@@ -238,7 +238,10 @@
     "host": "Project Gutenberg",
     "ebook_id": 78323
    },
-   "fingerprint": null
+   "fingerprint": {
+    "axis": "identity",
+    "mechanism_family": "impersonation"
+   }
   },
   {
    "slug": "dead_men_s_money",
@@ -267,7 +270,7 @@
    "first_publication_year": 1924,
    "clearance": "green",
    "structural_only": false,
-   "encoding": "none",
+   "encoding": "verified",
    "text": {
     "words": 56263,
     "bytes": 333809
@@ -276,7 +279,10 @@
     "host": "Project Gutenberg",
     "ebook_id": 65383
    },
-   "fingerprint": null
+   "fingerprint": {
+    "axis": "identity",
+    "mechanism_family": "impersonation"
+   }
   },
   {
    "slug": "dorcas_dene_detective",
@@ -286,7 +292,7 @@
    "first_publication_year": 1920,
    "clearance": "green",
    "structural_only": false,
-   "encoding": "none",
+   "encoding": "verified",
    "text": {
     "words": 46960,
     "bytes": 257607
@@ -295,7 +301,10 @@
     "host": "Project Gutenberg",
     "ebook_id": 77243
    },
-   "fingerprint": null
+   "fingerprint": {
+    "axis": "behavioral",
+    "mechanism_family": "staged_scene"
+   }
   },
   {
    "slug": "dorcas_dene_detective_78210",
@@ -305,7 +314,7 @@
    "first_publication_year": 1920,
    "clearance": "green",
    "structural_only": false,
-   "encoding": "none",
+   "encoding": "verified",
    "text": {
     "words": 36446,
     "bytes": 200056
@@ -314,7 +323,10 @@
     "host": "Project Gutenberg",
     "ebook_id": 78210
    },
-   "fingerprint": null
+   "fingerprint": {
+    "axis": "behavioral",
+    "mechanism_family": "locked_room_timing"
+   }
   },
   {
    "slug": "feathers_left_around",
@@ -419,7 +431,7 @@
    "first_publication_year": 1920,
    "clearance": "green",
    "structural_only": false,
-   "encoding": "none",
+   "encoding": "verified",
    "text": {
     "words": 62081,
     "bytes": 364960
@@ -428,7 +440,10 @@
     "host": "Project Gutenberg",
     "ebook_id": 35254
    },
-   "fingerprint": null
+   "fingerprint": {
+    "axis": "identity",
+    "mechanism_family": "alibi_fabrication"
+   }
   },
   {
    "slug": "jack_o_judgment",
@@ -634,7 +649,7 @@
    "first_publication_year": 1920,
    "clearance": "green",
    "structural_only": false,
-   "encoding": "none",
+   "encoding": "verified",
    "text": {
     "words": 55302,
     "bytes": 320542
@@ -643,7 +658,10 @@
     "host": "Project Gutenberg",
     "ebook_id": 26396
    },
-   "fingerprint": null
+   "fingerprint": {
+    "axis": "identity",
+    "mechanism_family": "staged_scene"
+   }
   },
   {
    "slug": "nobody_s_man",
@@ -710,7 +728,7 @@
    "first_publication_year": 1920,
    "clearance": "green",
    "structural_only": false,
-   "encoding": "none",
+   "encoding": "verified",
    "text": {
     "words": 60485,
     "bytes": 358219
@@ -719,7 +737,10 @@
     "host": "Project Gutenberg",
     "ebook_id": 5335
    },
-   "fingerprint": null
+   "fingerprint": {
+    "axis": "behavioral",
+    "mechanism_family": "locked_room_key"
+   }
   },
   {
    "slug": "ravensdene_court",
@@ -767,7 +788,7 @@
    "first_publication_year": 1920,
    "clearance": "green",
    "structural_only": false,
-   "encoding": "none",
+   "encoding": "verified",
    "text": {
     "words": 59219,
     "bytes": 341736
@@ -776,7 +797,10 @@
     "host": "Project Gutenberg",
     "ebook_id": 76168
    },
-   "fingerprint": null
+   "fingerprint": {
+    "axis": "identity",
+    "mechanism_family": "staged_scene"
+   }
   },
   {
    "slug": "spooky_hollow",
@@ -862,7 +886,7 @@
    "first_publication_year": 1927,
    "clearance": "green",
    "structural_only": false,
-   "encoding": "none",
+   "encoding": "verified",
    "text": {
     "words": 53864,
     "bytes": 308465
@@ -871,7 +895,10 @@
     "host": "Project Gutenberg",
     "ebook_id": 75949
    },
-   "fingerprint": null
+   "fingerprint": {
+    "axis": "behavioral",
+    "mechanism_family": "disguised_natural_agent"
+   }
   },
   {
    "slug": "that_affair_next_door",
@@ -1200,7 +1227,7 @@
    "first_publication_year": 1922,
    "clearance": "green",
    "structural_only": false,
-   "encoding": "none",
+   "encoding": "verified",
    "text": {
     "words": 60310,
     "bytes": 350184
@@ -1209,7 +1236,10 @@
     "host": "Project Gutenberg",
     "ebook_id": 66627
    },
-   "fingerprint": null
+   "fingerprint": {
+    "axis": "identity",
+    "mechanism_family": "poison_substitution"
+   }
   },
   {
    "slug": "the_charing_cross_mystery",
@@ -1336,7 +1366,7 @@
    "first_publication_year": 1921,
    "clearance": "green",
    "structural_only": false,
-   "encoding": "none",
+   "encoding": "verified",
    "text": {
     "words": 60055,
     "bytes": 338942
@@ -1345,7 +1375,10 @@
     "host": "Project Gutenberg",
     "ebook_id": 30868
    },
-   "fingerprint": null
+   "fingerprint": {
+    "axis": "identity",
+    "mechanism_family": "impersonation"
+   }
   },
   {
    "slug": "the_corbin_necklace",
@@ -1355,7 +1388,7 @@
    "first_publication_year": 1926,
    "clearance": "green",
    "structural_only": false,
-   "encoding": "none",
+   "encoding": "verified",
    "text": {
     "words": 58651,
     "bytes": 328967
@@ -1364,7 +1397,10 @@
     "host": "Project Gutenberg",
     "ebook_id": 76546
    },
-   "fingerprint": null
+   "fingerprint": {
+    "axis": "identity",
+    "mechanism_family": "substituted_body"
+   }
   },
   {
    "slug": "the_crime_code",
@@ -1450,7 +1486,7 @@
    "first_publication_year": 1927,
    "clearance": "green",
    "structural_only": false,
-   "encoding": "none",
+   "encoding": "verified",
    "text": {
     "words": 52574,
     "bytes": 289276
@@ -1459,7 +1495,10 @@
     "host": "Project Gutenberg",
     "ebook_id": 72629
    },
-   "fingerprint": null
+   "fingerprint": {
+    "axis": "identity",
+    "mechanism_family": "recorded_presence"
+   }
   },
   {
    "slug": "the_d_arblay_mystery",
@@ -1760,7 +1799,7 @@
    "first_publication_year": 1927,
    "clearance": "green",
    "structural_only": false,
-   "encoding": "none",
+   "encoding": "verified",
    "text": {
     "words": 62219,
     "bytes": 357022
@@ -1769,7 +1808,10 @@
     "host": "Project Gutenberg",
     "ebook_id": 76677
    },
-   "fingerprint": null
+   "fingerprint": {
+    "axis": "identity",
+    "mechanism_family": "staged_scene"
+   }
   },
   {
    "slug": "the_golden_face",
@@ -1779,7 +1821,7 @@
    "first_publication_year": 1922,
    "clearance": "green",
    "structural_only": false,
-   "encoding": "none",
+   "encoding": "verified",
    "text": {
     "words": 56460,
     "bytes": 317555
@@ -1788,7 +1830,10 @@
     "host": "Project Gutenberg",
     "ebook_id": 27705
    },
-   "fingerprint": null
+   "fingerprint": {
+    "axis": "identity",
+    "mechanism_family": "impersonation"
+   }
   },
   {
    "slug": "the_golden_slipper_and_other_problems_for_violet_strange",
@@ -2084,7 +2129,7 @@
    },
    "fingerprint": {
     "axis": "identity",
-    "mechanism_family": "alibi_fabrication"
+    "mechanism_family": "impersonation"
    }
   },
   {
@@ -2095,7 +2140,7 @@
    "first_publication_year": 1920,
    "clearance": "green",
    "structural_only": false,
-   "encoding": "none",
+   "encoding": "verified",
    "text": {
     "words": 62431,
     "bytes": 346127
@@ -2104,7 +2149,10 @@
     "host": "Project Gutenberg",
     "ebook_id": 9808
    },
-   "fingerprint": null
+   "fingerprint": {
+    "axis": "behavioral",
+    "mechanism_family": "alibi_fabrication"
+   }
   },
   {
    "slug": "the_magic_casket",
@@ -2152,7 +2200,7 @@
    "first_publication_year": 1922,
    "clearance": "green",
    "structural_only": false,
-   "encoding": "none",
+   "encoding": "verified",
    "text": {
     "words": 59750,
     "bytes": 328602
@@ -2161,7 +2209,10 @@
     "host": "Project Gutenberg",
     "ebook_id": 1720
    },
-   "fingerprint": null
+   "fingerprint": {
+    "axis": "behavioral",
+    "mechanism_family": "staged_scene"
+   }
   },
   {
    "slug": "the_mardi_gras_mystery",
@@ -2171,7 +2222,7 @@
    "first_publication_year": 1921,
    "clearance": "green",
    "structural_only": false,
-   "encoding": "none",
+   "encoding": "verified",
    "text": {
     "words": 56285,
     "bytes": 323061
@@ -2180,7 +2231,10 @@
     "host": "Project Gutenberg",
     "ebook_id": 39229
    },
-   "fingerprint": null
+   "fingerprint": {
+    "axis": "identity",
+    "mechanism_family": "impersonation"
+   }
   },
   {
    "slug": "the_markenmore_mystery",
@@ -2209,7 +2263,7 @@
    "first_publication_year": 1927,
    "clearance": "green",
    "structural_only": false,
-   "encoding": "none",
+   "encoding": "verified",
    "text": {
     "words": 46522,
     "bytes": 266495
@@ -2218,7 +2272,10 @@
     "host": "Project Gutenberg",
     "ebook_id": 75702
    },
-   "fingerprint": null
+   "fingerprint": {
+    "axis": "identity",
+    "mechanism_family": "impersonation"
+   }
   },
   {
    "slug": "the_memoirs_of_sherlock_holmes",
@@ -2250,7 +2307,7 @@
    "first_publication_year": 1923,
    "clearance": "green",
    "structural_only": false,
-   "encoding": "none",
+   "encoding": "verified",
    "text": {
     "words": 54360,
     "bytes": 331144
@@ -2259,7 +2316,10 @@
     "host": "Project Gutenberg",
     "ebook_id": 58597
    },
-   "fingerprint": null
+   "fingerprint": {
+    "axis": "identity",
+    "mechanism_family": "staged_scene"
+   }
   },
   {
    "slug": "the_middle_of_things",
@@ -2364,7 +2424,7 @@
    "first_publication_year": 1922,
    "clearance": "green",
    "structural_only": false,
-   "encoding": "none",
+   "encoding": "verified",
    "text": {
     "words": 61788,
     "bytes": 363452
@@ -2373,7 +2433,10 @@
     "host": "Project Gutenberg",
     "ebook_id": 44984
    },
-   "fingerprint": null
+   "fingerprint": {
+    "axis": "spatial",
+    "mechanism_family": "disguised_natural_agent"
+   }
   },
   {
    "slug": "the_mystery_of_31_new_inn",
@@ -2473,7 +2536,7 @@
    },
    "fingerprint": {
     "axis": "spatial",
-    "mechanism_family": "locked_room_timing"
+    "mechanism_family": "locked_room_key"
    }
   },
   {
@@ -2582,7 +2645,7 @@
    "first_publication_year": 1921,
    "clearance": "green",
    "structural_only": false,
-   "encoding": "none",
+   "encoding": "verified",
    "text": {
     "words": 55020,
     "bytes": 313827
@@ -2591,7 +2654,10 @@
     "host": "Project Gutenberg",
     "ebook_id": 10575
    },
-   "fingerprint": null
+   "fingerprint": {
+    "axis": "behavioral",
+    "mechanism_family": "hidden_accomplice"
+   }
   },
   {
    "slug": "the_rat_trap",
@@ -2876,7 +2942,7 @@
    "first_publication_year": 1925,
    "clearance": "green",
    "structural_only": false,
-   "encoding": "none",
+   "encoding": "verified",
    "text": {
     "words": 62052,
     "bytes": 355902
@@ -2885,7 +2951,10 @@
     "host": "Project Gutenberg",
     "ebook_id": 75858
    },
-   "fingerprint": null
+   "fingerprint": {
+    "axis": "identity",
+    "mechanism_family": "hidden_accomplice"
+   }
   },
   {
    "slug": "the_strange_schemes_of_randolph_mason",
@@ -2955,7 +3024,7 @@
    "first_publication_year": 1924,
    "clearance": "green",
    "structural_only": false,
-   "encoding": "none",
+   "encoding": "verified",
    "text": {
     "words": 59120,
     "bytes": 346426
@@ -2964,7 +3033,10 @@
     "host": "Project Gutenberg",
     "ebook_id": 75669
    },
-   "fingerprint": null
+   "fingerprint": {
+    "axis": "temporal",
+    "mechanism_family": "staged_scene"
+   }
   },
   {
    "slug": "the_terriford_mystery",
@@ -2993,7 +3065,7 @@
    "first_publication_year": 1924,
    "clearance": "green",
    "structural_only": false,
-   "encoding": "none",
+   "encoding": "verified",
    "text": {
     "words": 61722,
     "bytes": 361579
@@ -3002,7 +3074,10 @@
     "host": "Project Gutenberg",
     "ebook_id": 67890
    },
-   "fingerprint": null
+   "fingerprint": {
+    "axis": "behavioral",
+    "mechanism_family": "unconscious_act"
+   }
   },
   {
    "slug": "the_three_just_men",
@@ -3069,7 +3144,7 @@
    "first_publication_year": 1921,
    "clearance": "green",
    "structural_only": false,
-   "encoding": "none",
+   "encoding": "verified",
    "text": {
     "words": 58382,
     "bytes": 355915
@@ -3078,7 +3153,10 @@
     "host": "Project Gutenberg",
     "ebook_id": 68679
    },
-   "fingerprint": null
+   "fingerprint": {
+    "axis": "identity",
+    "mechanism_family": "impersonation"
+   }
   },
   {
    "slug": "the_valley_of_fear",

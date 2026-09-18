@@ -1,0 +1,12 @@
+- id: the_loudwater_mystery
+  corpus: seed
+  axis: behavioral
+  mechanism_family: alibi_fabrication
+  false_assumption_pattern: the_visible_suspects_are_the_only_possible
+  discriminating_test_shape: timetable_contradiction
+  inference_shape: reconstruct_true_time_and_access
+  premise: >-
+    Lord Loudwater is found murdered in his smoking-room with a knife in his heart. Suspicion falls
+    on several people close to him, including his wife Lady Loudwater, her lover Colonel Grey, and
+    the disch
+  source: library/works/the_loudwater_mystery/case.cml2.yaml

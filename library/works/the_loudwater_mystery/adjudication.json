@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "Lady Loudwater and Colonel Grey were the murderers motivated by passion.",
+  "type": "behavioral",
+  "why_it_seems_reasonable": "They were seen together secretly and lied about hearing Lord Loudwater snore, suggesting guilt. The victim had threatened divorce and quarrelled violently with them.",
+  "what_it_hides": "It obscures the fact that the real murderer was Herbert Manley, who had a stronger financial motive and opportunity, and that Lady Loudwater and Colonel Grey were protecting each other."
+ },
+ "mechanism_description": "Herbert Manley forged a letter from Lord Loudwater instructing the bank to pay a large sum to Helena Truslove, securing her financial future. To prevent Lord Loudwater from revoking this and exposing the forgery, Manley murdered him by stabbing him in the heart while he was asleep in his smoking-room. Manley wore gloves to avoid leaving fingerprints and left the knife in the wound to avoid bloodstains.",
+ "discriminating_test": {
+  "method": "constraint_proof",
+  "design": "Reenact the timeline of visits through the library window and verify the presence of suspects at the smoking-room during the murder window. Examine the signatures on letters and cheques for forgery by comparing ink types and signature flow. Analyze the presence or absence of fingerprints on the murder weapon to confirm glove usage.",
+  "knowledge_revealed": "This test reveals the true time of death, the forged letter by Manley, and the use of gloves to avoid detection, thereby excluding other suspects and confirming Manley's guilt.",
+  "pass_condition": "The forged letter is confirmed by ink and signature analysis, and the glove evidence on the knife excludes all suspects except Manley, who had motive and opportunity."
+ },
+ "changed": [],
+ "confidence": "high"
+}

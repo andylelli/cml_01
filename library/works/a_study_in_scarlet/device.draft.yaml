@@ -1,5 +1,5 @@
 pattern_id: a_study_in_scarlet
-title: The Dual Pills
+title: The Dual Pill
 family: timing
 axes:
   - behavioral
@@ -31,7 +31,7 @@ feasibility:
     - 1950
   requires:
     - period_poison
-    - identical_containers
+    - physical_container
   forbids:
     - modern_toxicology_screen
 clue_archetypes:

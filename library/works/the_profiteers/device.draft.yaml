@@ -1,0 +1,47 @@
+pattern_id: the_profiteers
+title: The Trusted Staff
+family: behavioral
+axes:
+  - behavioral
+principle: >-
+  It conceals the fact that the victim was abducted and held hostage as part of a calculated scheme
+  to force the directors to break their wheat corner.
+principleType: social_logic
+surface_illusion_template: >-
+  the victim disappeared voluntarily to escape scandal; the investigator is innocent and only a
+  concerned friend; The disappearance is unrelated to the wheat speculation
+underlying_reality_template: >-
+  the investigator orchestrates the kidnapping of the three directors—the culprit, a witness, and
+  the victim—holding them hostage in a witness house. He uses this to blackmail them into selling
+  wheat at a drastically reduced price to break their market corner. The captivity is maintained by
+  trusted servants and accomplices, ensuring secrecy and control.
+feasibility:
+  eras:
+    - 1850
+    - 1860
+    - 1870
+    - 1880
+    - 1890
+    - 1900
+    - 1910
+    - 1920
+    - 1930
+    - 1940
+    - 1950
+  requires:
+    - social_deference
+    - household_servant_network
+  forbids:
+    - cctv
+    - voice_authentication
+clue_archetypes:
+  - statement_from_hotel_manager
+  - testimony_of_rees_valet
+  - servant_grant_s_testimony
+  - physical_evidence_of_bindings
+  - servant_s_statement_that
+  - telephone_records_showing_wingate
+sources:
+  - >-
+    E. Phillips (Edward Phillips) Oppenheim, The Profiteers —
+    library/works/the_profiteers/case.cml2.yaml

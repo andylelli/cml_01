@@ -1,473 +1,479 @@
 {
  "decade": "1920s",
  "realism_constraints": [
-  "No advanced forensic technology like DNA or modern ballistics",
-  "Communication limited to telegraph, telephone, and postal mail",
-  "Transportation by bicycles, motor cars, boats, and trains without modern tracking"
+  "No advanced forensic DNA or fingerprint analysis available",
+  "Communication limited to telephones, telegrams, and postal mail",
+  "Transportation by bicycles, motor cars, boats, and trains only"
  ],
  "location": "Marsh Quay and Frattenbury, southern England",
- "institution": "Frattenbury Police, including Detective-Sergeant Colson and Chief Constable Major Renshaw",
+ "institution": "Frattenbury Police and local coroner's inquest",
  "crime_category": "murder",
- "crime_subtype": "premeditated blackmail murder with staged evidence",
+ "crime_subtype": "blackmail murder with staged evidence",
  "cast": [
   {
    "name": "Reginald Templeton",
-   "age_range": "middle-aged",
-   "role_archetype": "explorer and victim",
+   "age_range": "50s",
+   "role_archetype": "wealthy explorer and victim",
    "role": "victim",
    "gender": "male",
    "culpability": "innocent",
    "culprit_eligibility": "locked",
-   "public_persona": "Fellow of the Royal Geographical Society, explorer",
-   "private_secret": "carried blackmail material against Norwood",
-   "motive_seed": "none",
-   "motive_strength": "none",
+   "public_persona": "Fellow of the Royal Geographical Society",
+   "private_secret": "Carried incriminating papers against Norwood",
+   "motive_seed": "Possession of blackmail material",
+   "motive_strength": "strong",
    "alibi_window": "N/A",
    "access_plausibility": "N/A",
-   "stakes": "his life",
-   "moral_complexity": "victim of blackmail and murder",
+   "stakes": "Life",
+   "moral_complexity": "moderate",
    "relationships": [
     "Canon Fittleworth (cousin)",
     "Winnie Cotterill (beneficiary)"
    ],
    "opportunity_channels": [],
    "behavioral_tells": [],
-   "evidence_sensitivity": []
+   "evidence_sensitivity": [
+    "diamond bag",
+    "walking-stick",
+    "cigar band",
+    "blotting-pad letter"
+   ]
   },
   {
    "name": "Detective-Sergeant Colson",
-   "age_range": "middle-aged",
+   "age_range": "40s",
    "role_archetype": "methodical police detective",
    "role": "detective",
    "gender": "male",
    "culpability": "innocent",
    "culprit_eligibility": "locked",
-   "public_persona": "police detective",
-   "private_secret": "none",
-   "motive_seed": "none",
-   "motive_strength": "none",
+   "public_persona": "Frattenbury police detective",
+   "private_secret": "None",
+   "motive_seed": "Solve the murder",
+   "motive_strength": "strong",
    "alibi_window": "N/A",
    "access_plausibility": "N/A",
-   "stakes": "justice and career",
-   "moral_complexity": "dedicated to truth",
+   "stakes": "Justice and career",
+   "moral_complexity": "low",
    "relationships": [
     "Mrs. Colson (wife)"
    ],
    "opportunity_channels": [],
    "behavioral_tells": [],
-   "evidence_sensitivity": []
+   "evidence_sensitivity": [
+    "walking-stick",
+    "cigar band",
+    "blotting-pad letter"
+   ]
   },
   {
    "name": "Francis Norwood",
-   "age_range": "middle-aged to elderly",
-   "role_archetype": "coroner and corrupt lawyer",
+   "age_range": "50s",
+   "role_archetype": "coroner and secret embezzler",
    "role": "culprit",
    "gender": "male",
    "culpability": "guilty",
    "culprit_eligibility": "eligible",
-   "public_persona": "coroner and respected lawyer",
-   "private_secret": "embezzler and murderer",
-   "motive_seed": "fear of exposure and financial ruin",
+   "public_persona": "Respected coroner and lawyer",
+   "private_secret": "Embezzled money, blackmailed Templeton",
+   "motive_seed": "Avoid exposure and financial ruin",
    "motive_strength": "strong",
    "alibi_window": "Saturday night to early Sunday morning",
-   "access_plausibility": "high, lived opposite the yacht",
-   "stakes": "freedom and reputation",
-   "moral_complexity": "complex, desperate and calculating",
+   "access_plausibility": "High, lived in Frattenbury",
+   "stakes": "Freedom and reputation",
+   "moral_complexity": "high",
    "relationships": [
-    "Ezra Grice (former clerk)",
-    "Canon Fittleworth (acquaintance)"
+    "Canon Fittleworth (acquaintance)",
+    "Ezra Grice (former clerk)"
    ],
    "opportunity_channels": [
-    "access to yacht via dinghy and canoe",
-    "knowledge of local area"
+    "Access to Templeton via appointment",
+    "Use of walking-stick and cigars"
    ],
    "behavioral_tells": [
-    "changed cigar band at inquest",
-    "used walking-stick left in dinghy"
+    "Left walking-stick in dinghy",
+    "Changed cigar band at inquest"
    ],
    "evidence_sensitivity": [
-    "cigar band",
     "walking-stick",
-    "dagger",
-    "letters"
-   ]
-  },
-  {
-   "name": "Ezra Grice",
-   "age_range": "middle-aged",
-   "role_archetype": "disgraced former clerk and key witness",
-   "role": "witness",
-   "gender": "male",
-   "culpability": "innocent",
-   "culprit_eligibility": "locked",
-   "public_persona": "former clerk, emigrant",
-   "private_secret": "knew Norwood's crimes and held incriminating proof",
-   "motive_seed": "revenge against Norwood",
-   "motive_strength": "moderate",
-   "alibi_window": "N/A",
-   "access_plausibility": "N/A",
-   "stakes": "truth and justice",
-   "moral_complexity": "complex, victim of Norwood's threats",
-   "relationships": [
-    "Francis Norwood (former employer)",
-    "Reginald Templeton (friend)"
-   ],
-   "opportunity_channels": [],
-   "behavioral_tells": [],
-   "evidence_sensitivity": [
-    "confession paper",
-    "testimony"
-   ]
-  },
-  {
-   "name": "Isaac Moss",
-   "age_range": "middle-aged",
-   "role_archetype": "diamond dealer and suspect",
-   "role": "suspect",
-   "gender": "male",
-   "culpability": "innocent",
-   "culprit_eligibility": "locked",
-   "public_persona": "jeweler and diamond dealer",
-   "private_secret": "carried diamonds from South Africa",
-   "motive_seed": "fear and panic",
-   "motive_strength": "weak",
-   "alibi_window": "Sunday night",
-   "access_plausibility": "medium",
-   "stakes": "freedom",
-   "moral_complexity": "nervous and fearful",
-   "relationships": [
-    "Reginald Templeton (business associate)"
-   ],
-   "opportunity_channels": [
-    "boat access"
-   ],
-   "behavioral_tells": [
-    "fled suddenly",
-    "nervous demeanor"
-   ],
-   "evidence_sensitivity": [
-    "diamonds",
-    "receipt"
+    "cigar band",
+    "dagger in hall",
+    "changed cigar band"
    ]
   },
   {
    "name": "Harold Grayson",
-   "age_range": "young adult",
-   "role_archetype": "artist and suspect",
+   "age_range": "mid-20s",
+   "role_archetype": "artist and initial suspect",
    "role": "suspect",
    "gender": "male",
    "culpability": "innocent",
-   "culprit_eligibility": "locked",
-   "public_persona": "artist and lodger",
-   "private_secret": "family feud with Templeton",
-   "motive_seed": "resentment",
-   "motive_strength": "weak",
+   "culprit_eligibility": "eligible",
+   "public_persona": "Artist lodging at Mariner’s Arms",
+   "private_secret": "Avoided Templeton due to family lawsuit",
+   "motive_seed": "None",
+   "motive_strength": "none",
    "alibi_window": "Saturday night to Sunday morning",
-   "access_plausibility": "medium",
-   "stakes": "freedom and reputation",
-   "moral_complexity": "complex, shell-shocked veteran",
+   "access_plausibility": "Present at Marsh Quay",
+   "stakes": "Freedom",
+   "moral_complexity": "low",
    "relationships": [
-    "Reginald Templeton (adversary)",
-    "Winnie Cotterill (fiancée)"
+    "Winnie Cotterill (friend and fiancée)"
    ],
    "opportunity_channels": [],
    "behavioral_tells": [
-    "left suddenly",
-    "smoked cigars matching evidence"
+    "Sudden departure"
    ],
    "evidence_sensitivity": [
-    "lodging records",
-    "cigar bands"
+    "cigar band"
+   ]
+  },
+  {
+   "name": "Isaac Moss",
+   "age_range": "40s",
+   "role_archetype": "diamond dealer and witness",
+   "role": "suspect",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "eligible",
+   "public_persona": "Jewish diamond dealer",
+   "private_secret": "Panicked and fled after discovering body",
+   "motive_seed": "None",
+   "motive_strength": "none",
+   "alibi_window": "Saturday night to Sunday morning",
+   "access_plausibility": "Had access to yacht",
+   "stakes": "Freedom",
+   "moral_complexity": "low",
+   "relationships": [
+    "Mrs. Moss (wife)"
+   ],
+   "opportunity_channels": [
+    "Boat to yacht"
+   ],
+   "behavioral_tells": [
+    "Fled suddenly",
+    "Nervous demeanor"
+   ],
+   "evidence_sensitivity": [
+    "diamond bag"
    ]
   },
   {
    "name": "Joseph Proctor",
    "age_range": "elderly",
-   "role_archetype": "retired cigar merchant and bystander",
+   "role_archetype": "retired cigar merchant and local man",
    "role": "suspect",
    "gender": "male",
    "culpability": "innocent",
-   "culprit_eligibility": "locked",
-   "public_persona": "retired merchant and local gentleman",
-   "private_secret": "clever and cautious",
-   "motive_seed": "none",
+   "culprit_eligibility": "eligible",
+   "public_persona": "Retired cigar merchant living opposite Marsh Quay",
+   "private_secret": "Clever and suspicious behavior",
+   "motive_seed": "None",
    "motive_strength": "none",
    "alibi_window": "Saturday night to Sunday morning",
-   "access_plausibility": "high",
-   "stakes": "reputation",
-   "moral_complexity": "wily but innocent",
+   "access_plausibility": "High, lived opposite yacht",
+   "stakes": "Reputation",
+   "moral_complexity": "moderate",
    "relationships": [
-    "Philip Proctor (great-nephew)"
+    "Philip (nephew)",
+    "Stephen Merrifield (friend)"
    ],
    "opportunity_channels": [
-    "knowledge of local boats"
+    "Access to boats",
+    "Knowledge of local tides"
    ],
    "behavioral_tells": [
-    "changed cigar band suspicion",
-    "recovered canoe"
+    "Changed cigar band at inquest",
+    "Set a trap for Colson"
    ],
    "evidence_sensitivity": [
-    "cigar boxes",
-    "canoe"
+    "cigar band",
+    "walking-stick"
    ]
+  },
+  {
+   "name": "Winnie Cotterill",
+   "age_range": "mid-20s",
+   "role_archetype": "beneficiary and concerned friend",
+   "role": "witness",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "Art student and beneficiary of Templeton’s will",
+   "private_secret": "Unaware of father’s disgrace",
+   "motive_seed": "None",
+   "motive_strength": "none",
+   "alibi_window": "N/A",
+   "access_plausibility": "N/A",
+   "stakes": "Inheritance",
+   "moral_complexity": "low",
+   "relationships": [
+    "Reginald Templeton (benefactor)",
+    "Harold Grayson (fiancé)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": []
   }
  ],
  "culprits": [
   "Francis Norwood"
  ],
- "surface_summary": "Reginald Templeton is found murdered on his yacht at Marsh Quay. Suspicion falls on several men including an artist lodger, a diamond dealer, and a retired cigar merchant, with clues such as a cigar band and a walking-stick complicating the investigation.",
+ "surface_summary": "Reginald Templeton is found murdered on his yacht at Marsh Quay. Initial suspects include an artist who fled suddenly, a diamond dealer who left town abruptly, and a retired cigar merchant with suspicious behavior. The case involves mysterious cigar bands, a walking-stick, and missing diamonds.",
  "accepted_facts": [
-  "Templeton was murdered on his yacht sometime around midnight.",
-  "A cigar band found at the scene was initially thought to implicate the artist Grayson.",
-  "A walking-stick was found in the dinghy, suggesting the murderer left it behind.",
-  "Norwood was the coroner and a respected lawyer with financial troubles."
+  "Templeton was murdered on his yacht late Saturday night or early Sunday morning",
+  "Templeton had diamonds and incriminating papers related to Norwood’s embezzlement",
+  "A cigar band found at the scene was changed during the inquest",
+  "The walking-stick found in the dinghy did not belong to Templeton"
  ],
  "inferred_conclusions": [
-  "The artist Grayson was the murderer due to the cigar band evidence.",
-  "Isaac Moss fled because he was guilty of the murder.",
-  "The cigar band found was unique and exclusive to Canon Fittleworth’s cigars."
+  "The artist Grayson was the murderer due to his sudden departure and cigar evidence",
+  "Isaac Moss was guilty because he fled and had access to the yacht",
+  "Joseph Proctor was the culprit because he changed the cigar band and had opportunity"
  ],
- "mechanism_description": "Norwood, fearing exposure for his embezzlement, arranged a meeting with Templeton under the pretense of settling a blackmail demand. He accompanied Templeton back to the yacht, where he murdered him with a dagger. Norwood staged the scene by changing the cigar band and planting a dummy walking-stick to mislead the investigation.",
+ "mechanism_description": "Norwood arranged a secret meeting with Templeton to obtain incriminating papers. He accompanied Templeton back to the yacht, where he murdered him with a dagger. Norwood then staged the scene by leaving his walking-stick in the dinghy and changing the cigar band at the inquest to mislead investigators. He used the canoe and dinghy to create an alibi and escape unnoticed.",
  "delivery_path": [
-  "Norwood sent his domestics to a public event to ensure privacy.",
-  "He met Templeton in Frattenbury and walked back with him to Marsh Quay.",
-  "Norwood boarded the yacht with Templeton using the dinghy.",
-  "He killed Templeton with a dagger during the meeting on the yacht.",
-  "Norwood rifled Templeton’s pockets and took papers to cover his tracks.",
-  "He returned to shore in the dinghy, then used a canoe to return the dinghy to the yacht.",
-  "Norwood altered the cigar band at the inquest to deflect suspicion."
+  "Norwood met Templeton in Frattenbury and walked back with him to Marsh Quay",
+  "They boarded the yacht together; Norwood was smoking a cigar",
+  "Norwood used a dagger to fatally stab Templeton in the cabin",
+  "Norwood searched Templeton’s pockets and took papers but missed the diamond bag",
+  "Norwood rowed back in the dinghy, leaving his walking-stick behind",
+  "He returned the dinghy to the yacht using a canoe to avoid suspicion",
+  "At the inquest, Norwood swapped the cigar band to implicate another suspect"
  ],
- "outcome_result": "Francis Norwood is arrested for the murder of Reginald Templeton and commits suicide in custody.",
+ "outcome_result": "Francis Norwood is arrested for the murder of Reginald Templeton and later commits suicide in custody.",
  "false_assumption": {
-  "statement": "The cigar band found at the scene uniquely identified the artist Grayson as the murderer.",
-  "type": "identity",
-  "why_it_seems_reasonable": "The cigar band was found at the crime scene and matched the brand smoked by Grayson, linking him to the yacht at the time of the murder. The presence of multiple bands of the same brand in the grate reinforced this belief.",
-  "what_it_hides": "The cigar band was switched during the inquest by the coroner to implicate Grayson falsely. The actual murderer, Norwood, possessed the same brand and manipulated the evidence to mislead investigators."
+  "statement": "The murder was committed by someone who boarded the yacht before Templeton returned.",
+  "type": "temporal",
+  "why_it_seems_reasonable": "The presence of the walking-stick in the dinghy and the open cabin door suggested the killer was already aboard. Witnesses assumed the murderer was waiting on the yacht.",
+  "what_it_hides": "The killer actually accompanied Templeton to the yacht and committed the murder upon arrival, not before."
  },
  "false_solution": {
   "accused_suspect": "Harold Grayson",
   "supporting_points": [
-   "Cigar bands matching his cigars were found at the crime scene.",
-   "He left the inn suddenly early on the morning the murder was discovered.",
-   "He had a motive due to a family feud with Templeton.",
-   "He could not provide a full alibi for the night."
+   "Sudden departure from Marsh Quay",
+   "Possession of cigars matching the cigar band found",
+   "Lack of alibi for the time of murder",
+   "Avoidance of Templeton during his stay"
   ],
-  "the_one_flaw": "The cigar band evidence was tampered with by the coroner, and Grayson was verified to have been at a different location overnight.",
+  "the_one_flaw": "Grayson was proven to have been elsewhere during the murder and did not have access to the yacht at the critical time.",
   "refuted_in_chapter": 12
  },
  "red_herrings": [
   {
-   "id": "isaac_moss_suspicion",
-   "description": "Isaac Moss fled suddenly after the murder and was found with diamonds linked to Templeton.",
-   "points_at_suspect": "Isaac Moss",
-   "innocent_explanation": "Moss was frightened of being suspected and had legitimate business with Templeton involving diamonds; he was at a hotel during the murder.",
-   "resolved_in_chapter": 16
+   "id": "harold_grayson_departure",
+   "description": "Harold Grayson’s sudden departure and cigar evidence suggested guilt.",
+   "points_at_suspect": "Harold Grayson",
+   "innocent_explanation": "Grayson left early due to personal reasons unrelated to the murder and was confirmed to be elsewhere during the crime.",
+   "resolved_in_chapter": 12
   },
   {
-   "id": "cigar_band_clue",
-   "description": "The cigar band found at the scene was thought to be unique and incriminating.",
-   "points_at_suspect": "Harold Grayson",
-   "innocent_explanation": "The cigar band was switched during the inquest by the coroner to implicate Grayson falsely; the brand was common among several people.",
-   "resolved_in_chapter": 17
+   "id": "isaac_moss_flight",
+   "description": "Isaac Moss’s abrupt departure and nervous behavior raised suspicion.",
+   "points_at_suspect": "Isaac Moss",
+   "innocent_explanation": "Moss fled out of fear after discovering Templeton’s body and was later corroborated to have an alibi at the hotel.",
+   "resolved_in_chapter": 16
   }
  ],
  "closed_circle": {
   "suspects": [
-   "Francis Norwood",
-   "Isaac Moss",
    "Harold Grayson",
-   "Joseph Proctor"
+   "Isaac Moss",
+   "Joseph Proctor",
+   "Francis Norwood"
   ],
-  "rationale": "The investigation narrowed down to four main suspects with access and motives, all local or connected to Marsh Quay, with no outsiders involved."
+  "rationale": "All suspects were local or had access to the area and were investigated thoroughly; no outsiders were involved."
  },
  "constraint_space": {
   "time_anchors": [
-   "Saturday evening 8:30 pm - Templeton leaves Canon Fittleworth",
-   "Midnight to 1 am - estimated time of murder",
-   "Sunday early morning - discovery of body"
+   "Saturday evening departure from Canon Fittleworth’s house",
+   "Murder estimated before or shortly after midnight",
+   "Sunday morning discovery of the body"
   ],
   "time_windows": [
-   "Saturday night - inquest and public house closing time",
-   "Sunday morning - arrival of police and witnesses"
+   "Templeton’s return to yacht between 9 pm and midnight",
+   "Murder committed between 11:30 pm and 1 am",
+   "Norwood’s presence in Frattenbury during the night"
   ],
   "access_actors": [
    "Reginald Templeton",
    "Francis Norwood",
    "Isaac Moss",
-   "Harold Grayson",
+   "Jim Webb",
    "Joseph Proctor"
   ],
   "access_objects": [
-   "dinghy",
-   "canoe",
-   "yacht Firefly",
-   "walking-stick",
-   "dagger"
+   "Yacht Firefly",
+   "Dinghy",
+   "Canoe",
+   "Walking-stick",
+   "Cigar box"
   ],
   "trust_channels": [
    "Canon Fittleworth’s testimony",
-   "Jim Webb’s witness account",
-   "Isaac Moss’s confession",
-   "Joe Thatcher’s late-night observation"
+   "Jim Webb’s witness statement",
+   "Isaac Moss’s hotel alibi",
+   "Harold Grayson’s lodging records"
   ],
   "authority_sources": [
-   "Frattenbury Police",
+   "Frattenbury Police Superintendent",
+   "Detective-Sergeant Colson",
    "Coroner Francis Norwood",
    "Chief Constable Major Renshaw"
   ]
  },
  "inference_path": [
   {
-   "observation": "Walking-stick found in dinghy under stern seat",
-   "correction": "The stick was a dummy planted to mislead",
-   "effect": "Indicates murderer left the stick deliberately",
+   "observation": "Walking-stick found in dinghy did not belong to Templeton",
+   "correction": "The stick belonged to the murderer who left it behind",
+   "effect": "Focused suspicion on a left-handed man carrying a walking-stick",
    "required_evidence": [
-    "Housekeeper’s denial of seeing the stick before",
-    "Comparison of stick ferrule with known walking-sticks"
+    "Housekeeper’s statement denying stick belonged to Moss",
+    "Observation of Norwood using left hand to draw cork and carry stick"
    ]
   },
   {
-   "observation": "Cigar band found at crime scene matched Grayson’s cigars",
-   "correction": "Band was switched during inquest by coroner",
-   "effect": "Exonerates Grayson from suspicion based on cigar evidence",
+   "observation": "Cigar band found at scene was changed during inquest",
+   "correction": "Coroner Norwood swapped the band to mislead investigators",
+   "effect": "Initial suspicion on Grayson and others smoking similar cigars",
    "required_evidence": [
-    "Testimony of Canon Fittleworth rejecting band as his own",
-    "Witness accounts of band passing through jury hands"
+    "Witnesses noting cigar band change at inquest",
+    "Discovery of identical cigar boxes in Norwood’s house"
    ]
   },
   {
-   "observation": "Isaac Moss fled suddenly after murder",
+   "observation": "Templeton had diamonds but only one found on body",
+   "correction": "Diamonds were handed over to Moss earlier",
+   "effect": "Robbery was not the primary motive",
+   "required_evidence": [
+    "Moss’s testimony about receiving diamonds and giving receipt",
+    "Discovery of diamond bag in Moss’s possession"
+   ]
+  },
+  {
+   "observation": "Norwood was wealthy and respected coroner",
+   "correction": "Norwood was financially ruined and embezzled money",
+   "effect": "Motive for murder was to prevent exposure and blackmail",
+   "required_evidence": [
+    "Grice’s confession and proof of Norwood’s embezzlement",
+    "Norwood’s financial difficulties and bankruptcy risk"
+   ]
+  },
+  {
+   "observation": "Moss fled suddenly before murder discovery",
    "correction": "Moss fled out of fear, not guilt",
-   "effect": "Moss is innocent despite suspicious behavior",
+   "effect": "Moss was cleared as suspect",
    "required_evidence": [
-    "Hotel registration and witness statements confirming Moss’s presence",
-    "Receipt and diamonds accounted for by Moss"
+    "Hotel records confirming Moss’s presence Sunday night",
+    "Witness statements corroborating Moss’s alibi"
    ]
   },
   {
-   "observation": "Norwood had financial troubles and access to the scene",
-   "correction": "Norwood’s motive was to prevent blackmail exposure",
-   "effect": "Norwood is prime suspect",
+   "observation": "Grayson left suddenly and had no alibi for murder time",
+   "correction": "Grayson was at Selham and had witnesses",
+   "effect": "Grayson was cleared as suspect",
    "required_evidence": [
-    "Norwood’s ownership of walking-stick matching dummy",
-    "Norwood’s presence near yacht at time of murder"
+    "Police surveillance and witness statements at Selham",
+    "Landlady’s testimony about Grayson’s presence"
    ]
   },
   {
-   "observation": "Blotting-pad letter mentioning 'Ezra Grice’s confession & proof'",
-   "correction": "Letter implicates Norwood’s past crime and blackmail",
-   "effect": "Connects Norwood to motive for murder",
+   "observation": "Norwood’s walking-stick matched the one found in dinghy",
+   "correction": "Norwood planted a dummy stick and kept original",
+   "effect": "Direct evidence linking Norwood to the crime scene",
    "required_evidence": [
-    "Advertisement for Ezra Grice",
-    "Testimony of Ezra Grice about Norwood’s embezzlement"
-   ]
-  },
-  {
-   "observation": "Norwood’s alibi challenged by witness Merrifield",
-   "correction": "Merrifield confirms Norwood’s presence at dinner until 1:30 am",
-   "effect": "Narrows time window for murder and confirms Norwood’s opportunity",
-   "required_evidence": [
-    "Merrifield’s testimony at police station",
-    "Time of death estimated by doctor"
-   ]
-  },
-  {
-   "observation": "Norwood changed cigar band at inquest",
-   "correction": "This was an attempt to mislead investigation",
-   "effect": "Shows Norwood’s cunning and guilt",
-   "required_evidence": [
-    "Witness accounts of band passing",
-    "Discovery of original band in Norwood’s possession"
+    "Housekeeper’s recognition of Norwood’s stick",
+    "Colson’s controlled placement of dummy stick in dinghy"
    ]
   }
  ],
  "discriminating_test": {
   "method": "trap",
-  "design": "Detective Colson planted the original walking-stick in the dinghy and watched to see if the suspect would attempt to retrieve it. The suspect’s behavior in attempting to recover the stick would confirm his guilt.",
-  "knowledge_revealed": "The test revealed that Norwood was the only one who tried to recover the walking-stick, confirming his involvement.",
-  "pass_condition": "The suspect must be observed attempting to retrieve the planted walking-stick from the dinghy."
+  "design": "Detective Colson secretly replaces the walking-stick in the dinghy with a duplicate. He then watches to see if the suspect attempts to retrieve the stick, confirming possession and guilt. This test uses the walking-stick and the suspect’s behavior as key elements.",
+  "knowledge_revealed": "The test reveals that the culprit is aware of the walking-stick’s location and attempts to recover it, confirming his involvement.",
+  "pass_condition": "The suspect is observed retrieving the walking-stick from the dinghy during the night."
  },
- "fair_play_explanation": "The reader is given all necessary clues including the cigar band, walking-stick, witness testimonies, and the blotting-pad letter. The detective’s reasoning is transparent and the false leads are clearly marked. The key to the solution lies in recognizing the tampering of the cigar band and the significance of the walking-stick, both of which are presented openly. The motive of blackmail and Norwood’s financial troubles are also revealed early enough for the reader to deduce the culprit.",
+ "fair_play_explanation": "The reader is given all necessary clues including the walking-stick’s ownership, the cigar band’s change, the diamond transactions, and the suspect’s movements. The detective’s reasoning is laid out clearly, and the false leads are explained and refuted. The incriminating letter and Grice’s confession provide background to motive and identity. Careful attention to the timeline and physical evidence allows the reader to deduce the true culprit.",
  "anchors": [
   {
-   "claim": "Reginald Templeton was found dead on the floor of the yacht cabin",
-   "anchor": "lying there in the cabin—on the floor"
+   "claim": "Reginald Templeton was found dead on his yacht",
+   "anchor": "lying on his face, was dead"
   },
   {
-   "claim": "Templeton was stabbed in the back with a triangular wound",
+   "claim": "The cause of death was a stab wound through the heart",
    "anchor": "Stabbed in the back"
   },
   {
    "claim": "A cigar band was found on the floor of the cabin",
-   "anchor": "a band off a cigar—lying on the floor of the cabin"
+   "anchor": "a band off a cigar—lying on the floor"
   },
   {
-   "claim": "The cigar band was similar to those smoked by Canon Fittleworth",
-   "anchor": "particular brand reserved for the planters"
+   "claim": "The cigar band was from Canon Fittleworth’s special cigars",
+   "anchor": "this box was sent to me by my Spanish friend"
   },
   {
-   "claim": "The walking-stick found in the dinghy was not Templeton’s",
+   "claim": "The walking-stick found in the dinghy did not belong to Templeton",
    "anchor": "I found under the stern seat of the dinghy"
   },
   {
-   "claim": "The walking-stick had a chipped handle",
-   "anchor": "a small piece had been chipped off the handle"
+   "claim": "The walking-stick had a distinctive Alpine ferrule",
+   "anchor": "a small square hole showing in the soft soil"
   },
   {
-   "claim": "The suspect changed the cigar band during the inquest",
+   "claim": "The cigar band was changed during the inquest",
    "anchor": "the original cigar band was changed while passing round the jury"
   },
   {
-   "claim": "Isaac Moss fled suddenly on Sunday morning",
-   "anchor": "He’s gone back to London, sir, with Mrs. Moss"
+   "claim": "Harold Grayson was initially suspected due to his sudden departure",
+   "anchor": "He left early this morning"
   },
   {
-   "claim": "Harold Grayson left the inn suddenly early Sunday morning",
-   "anchor": "he came downstairs very early and announced his intention of leaving"
+   "claim": "Isaac Moss fled suddenly before the murder was discovered",
+   "anchor": "He left in a hurry on Sunday morning"
   },
   {
-   "claim": "Norwood was the coroner and a lawyer with financial troubles",
-   "anchor": "Francis Norwood was one of the best-known professional men"
+   "claim": "Joseph Proctor possessed the same brand of cigars as the cigar band",
+   "anchor": "I have the same brand in my house"
   },
   {
-   "claim": "Norwood was arrested for the murder of Templeton",
-   "anchor": "Mr. Norwood, I arrest you for the murder of Reginald Templeton"
+   "claim": "Norwood was left-handed and carried a walking-stick in his left hand",
+   "anchor": "he held the bottle with his right hand and drew it with his left"
+  },
+  {
+   "claim": "Norwood changed the cigar band to mislead the investigation",
+   "anchor": "the coroner picked up one from the grate and changed it"
+  },
+  {
+   "claim": "Norwood was financially ruined and embezzled money",
+   "anchor": "he was a ruined man, with no more use for the world"
+  },
+  {
+   "claim": "Grice’s confession incriminated Norwood",
+   "anchor": "Ezra Grice’s confession and proof"
+  },
+  {
+   "claim": "Norwood committed the murder to prevent exposure and extort money",
+   "anchor": "he persuaded Templeton I had the money"
   },
   {
    "claim": "Norwood committed suicide in custody",
-   "anchor": "they found him hanging to the bar of the window"
+   "anchor": "found him hanging to the bar of the window"
   },
   {
-   "claim": "Ezra Grice was Norwood’s clerk and had incriminating proof",
-   "anchor": "Ezra Grice had been clerk in Francis Norwood’s office"
+   "claim": "The walking-stick was planted as false evidence",
+   "anchor": "the one you removed from the dinghy the next night was a dummy"
   },
   {
-   "claim": "Templeton was blackmailing Norwood over embezzlement",
-   "anchor": "he must get those proofs in any case; it would mean utter ruin to him"
+   "claim": "The murderer rowed back in the dinghy leaving the walking-stick behind",
+   "anchor": "he got into the dinghy, laying his walking-stick down in the stern"
   },
   {
-   "claim": "The murder was committed before 1 am Sunday",
-   "anchor": "the Cathedral clock strike one"
+   "claim": "The murderer used the canoe to return the dinghy to the yacht",
+   "anchor": "he took the canoe and took the dinghy back to the yacht"
   },
   {
-   "claim": "The murderer left the walking-stick in the dinghy",
-   "anchor": "he left his walking-stick in the dinghy"
-  },
-  {
-   "claim": "The murderer returned the dinghy to the yacht by canoe",
-   "anchor": "he took the dinghy back to the yacht again"
-  },
-  {
-   "claim": "The motive was to prevent exposure of Norwood’s crime",
-   "anchor": "he was desperate that night"
-  },
-  {
-   "claim": "The false assumption about the cigar band implicated Grayson",
-   "anchor": "the cigar band found at the scene uniquely identified the artist Grayson"
-  },
-  {
-   "claim": "The walking-stick was a key clue to the murderer’s identity",
-   "anchor": "the stick had been stowed away under the seat of the dinghy"
+   "claim": "The motive was blackmail involving incriminating papers",
+   "anchor": "the law would call him a blackmailer"
   }
  ]
 }

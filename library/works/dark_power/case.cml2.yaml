@@ -1,0 +1,439 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: Dark power
+    author: Elisabeth Sanxay Holding
+    license: Public domain (first published 1930; author died 1955). Project Gutenberg ebook 78323.
+    era:
+      decade: 1930s
+      realism_constraints:
+        - No modern forensic DNA analysis available
+        - Telephones exist but can be disconnected or unreliable
+        - Automobiles and trains are common modes of transport
+    setting:
+      location: The Châlet, a large wooden house in the woods near East Hazelwood
+      institution: East Hazelwood Police Station
+    crime_class:
+      category: murder
+      subtype: imposture and concealment of death
+  cast:
+    - name: Diana Leonard (Di)
+      age_range: early 20s
+      role_archetype: young, inexperienced but courageous woman
+      relationships:
+        - Uncle Rufus Leonard (uncle)
+        - Aunt Emma (aunt)
+        - Miles (cousin)
+        - Uncle Peter (uncle)
+        - James Fennel (friend)
+      public_persona: secretary and heiress
+      private_secret: uncertain about family and her own stability
+      motive_seed: none
+      motive_strength: none
+      alibi_window: present at the house throughout
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells:
+        - naive trust
+        - resilience under duress
+      stakes: high - her life and inheritance
+      evidence_sensitivity:
+        - letter from Mrs. Frick
+        - will signed in favor of Aunt Emma
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: victim
+      moral_complexity: high - struggles with family loyalty and survival
+    - name: Aunt Emma
+      age_range: middle-aged
+      role_archetype: controlling, manipulative matriarch
+      relationships:
+        - Diana Leonard (niece)
+        - Miles (nephew)
+        - Uncle Rufus Leonard (brother)
+        - Uncle Peter (brother)
+      public_persona: psychologist and caretaker
+      private_secret: plots to secure family fortune by murder and deception
+      motive_seed: need for money to continue her work
+      motive_strength: strong
+      alibi_window: present at the house throughout
+      access_plausibility: high - head of household
+      opportunity_channels:
+        - household control
+        - manipulation of others
+      behavioral_tells:
+        - calm demeanor
+        - cigarette smoking
+        - psychological manipulation
+      stakes: very high - financial and personal survival
+      evidence_sensitivity:
+        - letter to Diana
+        - will manipulation
+        - locked room access
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: female
+      role: culprit
+      moral_complexity: high - coldly rationalizes murder for gain
+    - name: Miles
+      age_range: late 20s
+      role_archetype: troubled, alcoholic heir
+      relationships:
+        - Diana Leonard (cousin)
+        - Aunt Emma (mother figure)
+        - Uncle Peter (father)
+      public_persona: disreputable cousin
+      private_secret: accidentally killed James Fennel
+      motive_seed: jealousy and fear of losing Diana
+      motive_strength: moderate
+      alibi_window: present at the house throughout
+      access_plausibility: high - family member
+      opportunity_channels:
+        - access to cellar and woods
+      behavioral_tells:
+        - nervousness
+        - reckless driving
+        - contrition
+      stakes: high - family fortune and personal freedom
+      evidence_sensitivity:
+        - letter found in his pocket
+        - witness statements
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high - remorseful but reckless
+    - name: Uncle Rufus Leonard
+      age_range: elderly
+      role_archetype: wealthy, paranoid invalid
+      relationships:
+        - Diana Leonard (niece)
+        - Aunt Emma (sister)
+        - Miles (nephew)
+        - Uncle Peter (brother)
+      public_persona: old man with health issues
+      private_secret: feared family would kill him for money
+      motive_seed: none
+      motive_strength: none
+      alibi_window: confined to house
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells:
+        - paranoia
+        - wearing cap and muffler
+      stakes: inheritance
+      evidence_sensitivity:
+        - will
+        - disguise by Wren
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: low
+    - name: Uncle Peter
+      age_range: middle-aged
+      role_archetype: trivial, ineffectual man
+      relationships:
+        - Diana Leonard (niece)
+        - Miles (son)
+        - Aunt Emma (sister)
+        - Uncle Rufus (brother)
+      public_persona: family member, somewhat simple
+      private_secret: unknowingly involved in family schemes
+      motive_seed: none
+      motive_strength: none
+      alibi_window: present at the house throughout
+      access_plausibility: high
+      opportunity_channels:
+        - access to cellar
+      behavioral_tells:
+        - smokes cigar
+        - sometimes brutal
+      stakes: family loyalty
+      evidence_sensitivity:
+        - footprints
+        - blood on hands
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: low
+    - name: Wren
+      age_range: middle-aged
+      role_archetype: servant, reluctant accomplice
+      relationships:
+        - Diana Leonard (employer)
+        - Aunt Emma (master)
+      public_persona: loyal servant
+      private_secret: forced to impersonate Uncle Rufus
+      motive_seed: fear and coercion
+      motive_strength: weak
+      alibi_window: present at the house throughout
+      access_plausibility: high
+      opportunity_channels:
+        - access to rooms and disguise
+      behavioral_tells:
+        - nervousness
+        - furtive
+      stakes: life and safety
+      evidence_sensitivity:
+        - wound on foot
+        - disappearance
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: James Fennel
+      age_range: young adult
+      role_archetype: mysterious friend and victim
+      relationships:
+        - Diana Leonard (friend)
+        - Angelina Herbert (sister)
+      public_persona: gentleman thief
+      private_secret: brother of Angelina Herbert
+      motive_seed: help Diana
+      motive_strength: none
+      alibi_window: present at the house until killed
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells:
+        - quiet confidence
+        - trustworthy
+      stakes: friendship and survival
+      evidence_sensitivity:
+        - letter to Diana
+        - injury from shooting
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: moderate
+  culpability:
+    culprit_count: 2
+    culprits:
+      - Aunt Emma
+      - Miles
+  surface_model:
+    narrative:
+      summary: >-
+        Diana Leonard arrives at a remote house to care for her ailing uncle Rufus. Strange events
+        unfold involving family members, a mysterious disappearance, and a threatening atmosphere,
+        culminating in Diana being held captive and a series of deaths.
+    accepted_facts:
+      - Uncle Rufus Leonard is seriously ill and paranoid about his family.
+      - James Fennel came to see Diana but disappeared mysteriously.
+      - Wren, the servant, disappeared after being involved in a robbery.
+      - Miles confessed to killing James Fennel accidentally.
+    inferred_conclusions:
+      - James Fennel was a thief who betrayed Diana and the family.
+      - Wren was the mastermind behind the robbery and disappearance.
+      - Uncle Rufus is alive and well, merely hiding in the house.
+  hidden_model:
+    mechanism:
+      description: >-
+        Aunt Emma orchestrates the concealment of Uncle Rufus's death by forcing Wren to impersonate
+        him in his room, while Miles, under her influence, accidentally kills James Fennel in the
+        woods. The imposture allows Aunt Emma to manipulate the family, control Diana, and secure
+        the inheritance, with the deaths and disappearances serving to maintain her scheme.
+      delivery_path:
+        - step: Miles confronts James Fennel in the woods and strikes him with a loaded stick.
+        - step: Fennel falls and is dragged to a hidden quarry by Miles.
+        - step: Wren is coerced by Aunt Emma to impersonate the incapacitated Uncle Rufus.
+        - step: Aunt Emma manipulates family members and controls Diana to secure the will.
+        - step: Diana is confined and threatened to prevent her from exposing the truth.
+        - step: James Fennel returns injured and is locked in a room with Diana.
+        - step: Diana and Fennel are rescued by Angelina and the police after a violent struggle.
+    outcome:
+      result: >-
+        Aunt Emma and Miles are exposed as culprits; Diana is rescued and the truth about the
+        murders and imposture is revealed.
+  false_assumption:
+    statement: Uncle Rufus is alive and ill in his room.
+    type: identity
+    why_it_seems_reasonable: >-
+      Family members and staff report seeing Uncle Rufus in his room, and his illness is used to
+      explain his absence and erratic behavior.
+    what_it_hides: >-
+      This assumption conceals the fact that Uncle Rufus is actually dead and has been impersonated
+      by Wren, enabling Aunt Emma to manipulate the inheritance and cover up the murder.
+  false_solution:
+    accused_suspect: James Fennel
+    supporting_points:
+      - Detective Rogers calls him a society burglar.
+      - He brought a letter from Mrs. Frick with money.
+      - He disappeared mysteriously after the robbery.
+      - Aunt Emma and others treat him with suspicion.
+    the_one_flaw: >-
+      Fennel was actually a victim and friend, not a criminal; the evidence against him was
+      fabricated.
+    refuted_in_chapter: 15
+  red_herrings:
+    - id: james_fennel_thief
+      description: James Fennel is suspected of being a society burglar who stole money from Uncle Rufus.
+      points_at_suspect: James Fennel
+      innocent_explanation: Fennel was a friend trying to help Diana and was framed by Aunt Emma.
+      resolved_in_chapter: 15
+    - id: wren_the_servant
+      description: Wren is believed to have stolen money and disappeared, implicating him in the crime.
+      points_at_suspect: Wren
+      innocent_explanation: Wren was coerced into impersonating Uncle Rufus and was a victim of Aunt Emma's schemes.
+      resolved_in_chapter: 16
+  closed_circle:
+    suspects:
+      - Aunt Emma
+      - Miles
+      - Uncle Peter
+      - Wren
+      - James Fennel
+      - Diana Leonard
+    rationale: >-
+      All suspects are family members or close associates confined to the house or immediate
+      vicinity, with no outsiders involved.
+  constraint_space:
+    time:
+      anchors:
+        - night of disappearance
+        - day of will signing
+        - evening of confession
+      windows:
+        - Diana's presence at the house
+        - Miles's movements during the night
+        - Aunt Emma's control periods
+    access:
+      actors:
+        - Aunt Emma
+        - Miles
+        - Wren
+        - Uncle Peter
+      objects:
+        - locked rooms
+        - cellar
+        - woods near the house
+    social:
+      trust_channels:
+        - Aunt Emma's authority
+        - Diana's trust in Fennel
+        - Miles's remorse
+      authority_sources:
+        - Aunt Emma's control
+        - Doctor Coat's medical opinion
+        - Mr. Purvis's legal role
+  inference_path:
+    steps:
+      - observation: >-
+          James Fennel disappeared after visiting the house and was suspected of theft, but his
+          opportunity and conduct during the night must be verified.
+        correction: Fennel was actually a friend and victim, not a thief.
+        effect: Shifts suspicion away from Fennel to family members.
+        required_evidence:
+          - >-
+            Letter from James Fennel to Diana explaining his absence and confirming his opportunity
+            and conduct
+          - A timestamped access record from the front gate showing Fennel's arrival and departure
+        reader_observable: true
+      - observation: >-
+          Wren disappeared after the robbery and was believed to be a thief, but his access to the
+          cellar and conduct under Aunt Emma's authority require confirmation.
+        correction: Wren was forced to impersonate Uncle Rufus and was a victim.
+        effect: Reveals a conspiracy to conceal Uncle Rufus's death.
+        required_evidence:
+          - Doctor Coat's medical examination of Wren's foot wound and access to the cellar
+          - >-
+            Testimony about Wren's impersonation of Uncle Rufus and his conduct while under Aunt
+            Emma's orchestration
+        reader_observable: true
+      - observation: >-
+          Uncle Rufus is alive and ill in his room, but access to his room and the conduct of those
+          entering must be verified.
+        correction: Uncle Rufus is dead and replaced by Wren's impersonation.
+        effect: Uncovers the murder and deception at the heart of the case.
+        required_evidence:
+          - Locked door and key left outside Uncle Rufus's room, confirming access and concealment
+          - Physical examination showing Uncle Rufus's death while under Wren's impersonation
+        reader_observable: true
+      - observation: >-
+          Miles is distraught and talks of remorse and crime; his access to the woods and cellar and
+          his conduct during the disappearance must be verified.
+        correction: Miles accidentally killed James Fennel in a panic while in the woods.
+        effect: Identifies the accidental murder and motive.
+        required_evidence:
+          - >-
+            Access record showing Miles in the woods and cellar at the time of Fennel's
+            disappearance
+          - Letter found in Miles's pocket addressed to Diana describing his conduct and opportunity
+        reader_observable: true
+      - observation: >-
+          Aunt Emma appears as a caring psychologist and caretaker, but her orchestration of events
+          and access to key locations must be confirmed.
+        correction: Aunt Emma is the mastermind behind the conspiracy and murders.
+        effect: Reveals the true culprit and her motives.
+        required_evidence:
+          - Aunt Emma's admission of plans to Diana, confirming her orchestration and concealment
+          - Will signed in favor of Aunt Emma while under suspicious circumstances
+        reader_observable: true
+      - observation: >-
+          Diana is held captive and threatened to prevent exposure, and her access to the cellar and
+          locked rooms is restricted under Aunt Emma's conduct.
+        correction: Diana escapes with help from James Fennel and Angelina.
+        effect: Leads to the resolution and arrest of culprits.
+        required_evidence:
+          - Diana's testimony of captivity in the cellar and locked rooms
+          - Arrival of Angelina and police at the house, confirming access and opportunity
+        reader_observable: true
+      - observation: >-
+          Doctor Coat and Mr. Purvis trust Aunt Emma and the family, but their conduct and authority
+          must be verified for complicity or unwitting aid in the orchestration.
+        correction: They are deceived and unwittingly aid the conspiracy.
+        effect: Shows the extent of Aunt Emma's manipulation.
+        required_evidence:
+          - >-
+            Statements from Doctor Coat and Mr. Purvis about their conduct and authority during key
+            events
+          - >-
+            Evidence of their presence and access to the house while the concealment was
+            orchestrated
+        reader_observable: true
+  discriminating_test:
+    method: constraint_proof
+    design: >-
+      A reenactment of the timeline and access to the woods and cellar is conducted, verifying who
+      could have been present at the time of James Fennel's death. The locked rooms and keys are
+      examined to confirm the imposture of Uncle Rufus by Wren. This test uses the opportunity,
+      access, and conduct of each suspect to confirm or refute their involvement, and verifies the
+      orchestration and concealment while under Aunt Emma's authority.
+    knowledge_revealed: >-
+      This test reveals that only Miles had the opportunity to kill Fennel and that Wren
+      impersonated Uncle Rufus after his death, confirming Aunt Emma's orchestration and concealment
+      while under her authority.
+    pass_condition: >-
+      The test passes if it is proven, by verifying access records and conduct, that Miles was at
+      the scene of the murder and that Wren was impersonating Uncle Rufus in the locked room under
+      Aunt Emma's orchestration.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given access to all key characters, their movements, and motives through
+      detailed narrative and dialogue. Clues such as the forged letter, the locked room, Wren's
+      disappearance, and Miles's confession are presented openly. The psychological manipulation by
+      Aunt Emma is hinted at through her conversations and behavior. The reader could piece together
+      the imposture and accidental murder by careful attention to timelines and character
+      interactions.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

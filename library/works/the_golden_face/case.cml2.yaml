@@ -1,0 +1,416 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The Golden Face
+    author: William Le Queux
+    license: Public domain (first published 1922; author died 1927). Project Gutenberg ebook 27705.
+    era:
+      decade: 1920s
+      realism_constraints:
+        - No modern forensic DNA or electronic surveillance
+        - Fingerprinting is established and used by police
+        - International travel by train and steamer is common
+    setting:
+      location: >-
+        England (Yorkshire, London, Eastbourne, Ripley), France (Paris), Italy (Naples, Rome, Pisa),
+        Bulgaria (Sofia)
+      institution: Scotland Yard and various European police forces
+    crime_class:
+      category: theft
+      subtype: mastermind's cat's-paw jewel theft and framing
+  cast:
+    - name: George Hargreave
+      age_range: 30s
+      role_archetype: reluctant insider and narrator
+      relationships:
+        - Lola Rayne (love interest)
+        - Rudolph Rayne (employer)
+        - Madame Duperre (associate)
+      public_persona: loyal chauffeur and secretary
+      private_secret: forced accomplice in thefts
+      motive_seed: love for Lola and self-preservation
+      motive_strength: strong
+      alibi_window: varies by episode
+      access_plausibility: high
+      opportunity_channels:
+        - chauffeur duties
+        - trusted by Rayne's circle
+      behavioral_tells:
+        - hesitation
+        - reluctance to steal
+      stakes: personal freedom and love
+      evidence_sensitivity:
+        - presence at crime scenes
+        - possession of master-key
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: high
+    - name: Rudolph Rayne
+      age_range: middle-aged
+      role_archetype: mastermind criminal and aristocrat
+      relationships:
+        - Lola Rayne (daughter)
+        - George Hargreave (servant)
+        - Vincent and Madame Duperre (associates)
+      public_persona: wealthy country gentleman and landowner
+      private_secret: leader of a vast criminal gang
+      motive_seed: greed and power
+      motive_strength: strong
+      alibi_window: varies
+      access_plausibility: high
+      opportunity_channels:
+        - control over associates
+        - wealth and influence
+      behavioral_tells:
+        - abrupt dismissals
+        - sharp suspicion
+      stakes: criminal empire and freedom
+      evidence_sensitivity:
+        - master-key
+        - communications
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Lola Rayne
+      age_range: early 20s
+      role_archetype: innocent daughter and love interest
+      relationships:
+        - George Hargreave (love interest)
+        - Rudolph Rayne (father)
+      public_persona: daughter of a wealthy squire
+      private_secret: aware of father's criminality
+      motive_seed: love for George and desire for truth
+      motive_strength: moderate
+      alibi_window: varies
+      access_plausibility: medium
+      opportunity_channels: []
+      behavioral_tells:
+        - inquisitiveness
+        - apprehension
+      stakes: family reputation and love
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: moderate
+    - name: Vincent Duperre
+      age_range: middle-aged
+      role_archetype: trusted lieutenant and operative
+      relationships:
+        - Madame Duperre (wife)
+        - Rudolph Rayne (boss)
+      public_persona: business associate
+      private_secret: active criminal and forger
+      motive_seed: loyalty to Rayne and greed
+      motive_strength: strong
+      alibi_window: varies
+      access_plausibility: high
+      opportunity_channels:
+        - direct involvement in thefts
+      behavioral_tells:
+        - calm under arrest
+        - manipulative
+      stakes: freedom and profit
+      evidence_sensitivity:
+        - blood-stained gloves
+        - master-key
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Madame Duperre
+      age_range: late 30s
+      role_archetype: female accomplice and social manipulator
+      relationships:
+        - Vincent Duperre (husband)
+        - Rudolph Rayne (associate)
+      public_persona: lady of society
+      private_secret: involved in criminal schemes
+      motive_seed: loyalty and self-interest
+      motive_strength: moderate
+      alibi_window: varies
+      access_plausibility: high
+      opportunity_channels:
+        - social access
+        - concealment of jewels
+      behavioral_tells:
+        - calm under arrest
+        - secretive
+      stakes: freedom and social standing
+      evidence_sensitivity:
+        - feathers with jewels
+        - master-key
+      culprit_eligibility: eligible
+      culpability: unknown
+      gender: female
+      role: suspect
+      moral_complexity: high
+    - name: Lady Lydbrook (Betty Tressider)
+      age_range: mid 20s
+      role_archetype: female thief and agent
+      relationships:
+        - George Hargreave (accomplice)
+        - Rudolph Rayne (boss)
+      public_persona: wealthy married woman
+      private_secret: professional thief and agent of Rayne
+      motive_seed: greed and loyalty to Rayne
+      motive_strength: strong
+      alibi_window: varies
+      access_plausibility: high
+      opportunity_channels:
+        - social access
+        - possession of pearls
+      behavioral_tells:
+        - nervousness
+        - manipulative
+      stakes: freedom and wealth
+      evidence_sensitivity:
+        - master-key
+        - jewel-case
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: female
+      role: culprit
+      moral_complexity: high
+    - name: Charles Otley
+      age_range: late 20s
+      role_archetype: fallen gentleman and victim
+      relationships:
+        - Peggy Urquhart (lover)
+      public_persona: motor engineer and gentleman
+      private_secret: embezzler under pressure
+      motive_seed: financial desperation
+      motive_strength: moderate
+      alibi_window: known
+      access_plausibility: medium
+      opportunity_channels: []
+      behavioral_tells:
+        - gloomy
+        - desperate
+      stakes: freedom and love
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: moderate
+  culpability:
+    culprit_count: 2
+    culprits:
+      - Rudolph Rayne
+      - Vincent Duperre
+  surface_model:
+    narrative:
+      summary: >-
+        A series of high-profile jewel thefts and frauds baffle the police, with a seemingly
+        respectable country gentleman, Rudolph Rayne, at the center. His trusted servant George
+        Hargreave is reluctantly drawn into the criminal schemes, including the theft of Lady
+        Lydbrook's pearls. The case appears to be a straightforward criminal conspiracy with a
+        clever mastermind and his agents.
+    accepted_facts:
+      - Lady Lydbrook's pearls were stolen from her hotel room
+      - Fingerprints of four distinct fingers were found at a bank robbery
+      - Hugh Martyn was convicted based on planted fingerprints
+      - Rudolph Rayne is the leader of a vast criminal organization
+    inferred_conclusions:
+      - George Hargreave is the prime thief of Lady Lydbrook's jewels
+      - Vincent Duperre acted alone in the bank robbery
+      - Lady Lydbrook is an innocent victim unaware of the theft
+  hidden_model:
+    mechanism:
+      description: >-
+        Rudolph Rayne orchestrated the thefts using trusted agents and elaborate disguises. He
+        manipulated George Hargreave into stealing Lady Lydbrook's pearls under duress, but the
+        pearls were actually imitation. The real Lady Lydbrook was an accomplice named Betty
+        Tressider who used the theft to cover her own criminal activities. Rayne also framed Hugh
+        Martyn by transferring Martyn's fingerprints onto gloves used in a bank robbery, ensuring
+        Martyn's conviction while Rayne remained clean.
+      delivery_path:
+        - step: Rayne acquires stolen jewels and breaks them down for sale
+        - step: Jewels are concealed in unusual containers (e.g., stuffed dog)
+        - step: False fingerprints are transferred to gloves worn during crimes
+        - step: George Hargreave is coerced to steal pearls from Lady Lydbrook
+        - step: Betty Tressider poses as Lady Lydbrook to mislead others
+        - step: Stolen jewels are sold through receivers and fences abroad
+        - step: Rayne maintains clean hands by using intermediaries and deception
+    outcome:
+      result: >-
+        Rudolph Rayne and his key accomplices are exposed and arrested, while George Hargreave
+        escapes prosecution and plans to marry Lola Rayne.
+  false_assumption:
+    statement: George Hargreave is the actual thief of Lady Lydbrook's pearls.
+    type: identity
+    why_it_seems_reasonable: >-
+      Hargreave is found in possession of the pearls and has access to Lady Lydbrook's room with a
+      master-key. He is coerced into stealing, making him appear guilty.
+    what_it_hides: >-
+      The real Lady Lydbrook is an accomplice named Betty Tressider, and the pearls stolen by
+      Hargreave are imitation. The theft is a setup to implicate Hargreave and conceal the true
+      criminals.
+  false_solution:
+    accused_suspect: George Hargreave
+    supporting_points:
+      - He was found with the stolen jewel-case
+      - He had access to Lady Lydbrook's room via a master-key
+      - He was coerced by Rayne's agents to commit the theft
+      - His behavior was suspicious and evasive
+    the_one_flaw: >-
+      The pearls stolen were imitation and Lady Lydbrook was actually an accomplice, making
+      Hargreave a pawn rather than the true culprit.
+    refuted_in_chapter: 9
+  red_herrings:
+    - id: the_hunchback_impostor
+      description: A man impersonating the hunchback Morley Tarrant tries to trap Hargreave on Clifton Bridge.
+      points_at_suspect: suggests Hargreave might be involved with criminals
+      innocent_explanation: The impostor is a Scotland Yard detective attempting to catch Rayne's gang.
+      resolved_in_chapter: 3
+    - id: madame_duperre_and_stuffed_dog
+      description: >-
+        Madame Duperre's involvement and the use of a stuffed dog to hide stolen jewels mislead the
+        police.
+      points_at_suspect: implies Madame Duperre is the main thief
+      innocent_explanation: Madame Duperre is an accomplice but the dog trick was a diversion to mislead the police.
+      resolved_in_chapter: 2
+  closed_circle:
+    suspects:
+      - George Hargreave
+      - Rudolph Rayne
+      - Vincent Duperre
+      - Madame Duperre
+      - Lady Lydbrook (Betty Tressider)
+    rationale: >-
+      All suspects are closely connected within Rayne's criminal circle, with access and motive to
+      commit the thefts and frame others.
+  constraint_space:
+    time:
+      anchors:
+        - The night of the bank robbery
+        - The evening of the dance at Eastbourne
+        - The train journey to Madrid
+        - The house-party at Hawstead
+        - The meeting at the Talbot Hotel
+      windows:
+        - Between Lady Lydbrook's pearl disappearance and discovery
+        - During the bank robbery hours
+        - During the train stops and station arrivals
+        - During the house-party days
+        - During the night of the Ripley meeting
+    access:
+      actors:
+        - George Hargreave
+        - Vincent Duperre
+        - Madame Duperre
+        - Lady Lydbrook (Betty Tressider)
+        - Rudolph Rayne
+      objects:
+        - Master-key to Lady Lydbrook's room
+        - Suit-case containing stolen jewels
+        - False fingerprint gloves
+        - Jewel-case with pearls
+        - Silver Spider box
+    social:
+      trust_channels:
+        - Rayne's orders to Hargreave
+        - Duperre's instructions to accomplices
+        - Lady Lydbrook's friendship with Hargreave
+        - Madame Duperre's social influence
+      authority_sources:
+        - Rudolph Rayne as gang leader
+        - Scotland Yard fingerprint department
+        - Court judgments on Hugh Martyn
+        - Legal authority of magistrates
+  inference_path:
+    steps:
+      - observation: Blood-stained surgical rubber gloves were found after the bank robbery.
+        correction: The gloves had fingerprints transferred from Hugh Martyn.
+        effect: Hugh Martyn was framed for the robbery.
+        required_evidence:
+          - Photographs of the four distinct fingerprints on the gloves
+          - Court testimony of fingerprint experts
+        reader_observable: true
+      - observation: Lady Lydbrook's pearls disappeared from her hotel room.
+        correction: The pearls were imitation; the real Lady Lydbrook was an accomplice.
+        effect: The theft was a setup to implicate George Hargreave.
+        required_evidence:
+          - Comparison of pearls worn by Lady Lydbrook and those stolen
+          - Receipt from the Paris jeweler showing purchase of imitation pearls
+        reader_observable: true
+      - observation: A stuffed dog was thrown into the Seine with broken jewelry inside.
+        correction: The dog was used to conceal stolen jewels temporarily.
+        effect: The police search failed to find the jewels.
+        required_evidence:
+          - Testimony of Vincent Duperre about the dog
+          - Witness statement of boys who saw the dog thrown
+        reader_observable: true
+      - observation: Rudolph Rayne was seen with a master-key that opened many rooms.
+        correction: Rayne used the master-key to orchestrate thefts without direct involvement.
+        effect: Rayne maintained plausible deniability.
+        required_evidence:
+          - Description of the master-key
+          - Hotel room access log showing Rayne's use of the key
+        reader_observable: true
+      - observation: George Hargreave was coerced to steal Lady Lydbrook's pearls.
+        correction: Hargreave was forced and not the mastermind.
+        effect: Hargreave is a pawn in Rayne's schemes.
+        required_evidence:
+          - Letter from Rayne ordering Hargreave
+          - Note from Lady Lydbrook threatening exposure if Hargreave refused
+        reader_observable: true
+      - observation: Lady Lydbrook was seen paying a man fifty pounds under threat.
+        correction: She was involved in blackmail and criminal activities.
+        effect: She is an active participant, not a victim.
+        required_evidence:
+          - Witness account of the blackmail incident
+          - Hargreave's report of Lady Lydbrook's behavior
+        reader_observable: true
+      - observation: Rudolph Rayne was arrested and extradited on a bank fraud charge.
+        correction: Rayne's criminal empire was dismantled.
+        effect: The criminal activities ceased and key players arrested.
+        required_evidence:
+          - Newspaper reports of Rayne's arrest
+          - Court records of extradition and trial
+        reader_observable: true
+  discriminating_test:
+    method: reenactment
+    design: >-
+      George Hargreave is instructed to attempt the theft of Lady Lydbrook's pearls using the
+      master-key and the trick attache-case. The test observes whether the pearls disappear or if
+      the victim confronts the thief, revealing the true accomplice. The presence of imitation
+      pearls and the victim's reaction are key.
+    knowledge_revealed: >-
+      This reenactment reveals that the pearls stolen by Hargreave are imitation and that Lady
+      Lydbrook is complicit, not a victim.
+    pass_condition: >-
+      The pearls vanish into the trick case without resistance, and the victim confronts the thief,
+      proving the theft was staged.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given detailed descriptions of the master-key, the trick attache-case, and the
+      behavior of key characters such as Lady Lydbrook and George Hargreave. Fingerprint evidence
+      and the framing of Hugh Martyn are explained. Clues about the true nature of Lady Lydbrook and
+      the coercion of Hargreave are present but require careful synthesis. The false solution is
+      explicitly presented and later refuted, allowing attentive readers to deduce the truth.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

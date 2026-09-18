@@ -1,0 +1,134 @@
+{
+ "slug": "the_mardi_gras_mystery",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Joseph Maillard was shot twice through the heart",
+   "anchor": "Dead,\" he said, curtly. \"Shot twice--each bullet through the heart.",
+   "span": "Dead,\" he said, curtly. \"Shot twice--each bullet through the heart. Judge Forester, I'm afraid there is no alternative but to call in the police.",
+   "ok": true
+  },
+  {
+   "claim": "Bob Maillard was found changing out of an aviator's uniform",
+   "anchor": "Five minutes afterward he was found in a near-by room, hastily changing out of an aviator's uniform into his masquerade costume.",
+   "span": "Five minutes afterward he was found in a near-by room, hastily changing out of an aviator's uniform into his masquerade costume. Obviously, he had assumed the guise of the Masquer as a joke on his friends, and the joke had a tragic ending.",
+   "ok": true
+  },
+  {
+   "claim": "Ben Chacherre was found with the stolen loot and aviator's costume",
+   "anchor": "Ben Chacherre, who had stolen the loot and the aviator's costume, was arrested.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Jachin Fell is a lawyer and chess master with mysterious connections",
+   "anchor": "Jachin Fell was a member of the most exclusive New Orleans clubs. He was even received in the inner circles of Creole society.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The oil seepage on Lucie Ledanois' land was planted by Fell",
+   "anchor": "I planted that oil seepage myself--or had it done by men I could trust,\" said Jachin Fell, calmly.",
+   "span": "Merely that I planted that oil seepage myself--or had it done by men I could trust,\" said Jachin Fell, calmly. He sat back in his chair and took up his cigar with an air of finality.",
+   "ok": true
+  },
+  {
+   "claim": "Gramont was the original Midnight Masquer acting to expose the gang",
+   "anchor": "Yes. One reason was that I suspected someone in society, someone high up in New Orleans, to be connected with the gang; but I never dreamed that you were the man, Fell.",
+   "span": "Yes. One reason was that I suspected someone in society, someone high up in New Orleans, to be connected with the gang; but I never dreamed that you were the man, Fell. I rather suspected young Maillard.",
+   "ok": true
+  },
+  {
+   "claim": "Ben Chacherre murdered the sheriff and Joseph Maillard",
+   "anchor": "Ben Chacherre is charged with the murder of the sheriff of Terrebonne Parish, in which I have clear evidence against him.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Fell is protected by government secrecy as a special agent",
+   "anchor": "I am a special agent of the Department of Justice, employed in that capacity through the efforts of Judge Forester and Senator Flaxman.",
+   "span": "These gentlemen will tell you that I am a special agent of the Department of Justice, employed in that capacity through the efforts of Judge Forester and Senator Flaxman. I regret that this had to be held so secret that not even the governor himself was aware of it until this evening.",
+   "ok": true
+  },
+  {
+   "claim": "Gramont arrests Memphis Izzy Gumberts and gang members",
+   "anchor": "I went out to the Gumberts place on Bayou Terrebonne this morning, arrested Memphis Izzy Gumberts and four other men engaged in operating a lottery.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The aviator's automatic pistol was used to kill Joseph Maillard",
+   "anchor": "The Midnight Masquer had fired two bullets into Maillard. Two cartridges were gone from this automatic.",
+   "span": "The Midnight Masquer had fired two bullets into Maillard. Two cartridges were gone from this automatic. CHAPTER XV _When the Heavens Fall_ The chief of police entered the office of Jachin Fell, high in the Maison Blanche building, at eight o'clock on Friday evening.",
+   "ok": true
+  },
+  {
+   "claim": "Gramont is wounded by Charlie the Goog during the arrest",
+   "anchor": "Charlie the Goog lay dead on the floor--a touch of heroic tragedy in his last desperate action; he had got me in the arm.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Fell threatens Gramont to vote with him on the oil deal",
+   "anchor": "I want you to vote with me--and I'm going to put my cards on the table before you.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Fell admits planting the oil seepage to enrich Lucie Ledanois",
+   "anchor": "I planted that oil seepage myself--or had it done by men I could trust.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Gramont calls the governor to confirm Fell's arrest",
+   "anchor": "I called up the governor, and have been told not to arrest him.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Fell reveals he is a government agent to avoid arrest",
+   "anchor": "I have done this by the authority of the United States, in order to apprehend Memphis Izzy Gumberts and other men at one crack.",
+   "span": "I have done this by the authority of the United States, in order to apprehend Memphis Izzy Gumberts and other men at one crack. These gentlemen will tell you that I am a special agent of the Department of Justice, employed in that capacity through the efforts of Judge Forester and Senator Flaxman.",
+   "ok": true
+  },
+  {
+   "claim": "Gramont has the evidence to put the lottery business into Federal hands",
+   "anchor": "I have secured an abundance of evidence to prove that the lottery gang has extended its operations to adjacent states.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Fell is arrested as the head of the criminal gang",
+   "anchor": "I now call upon you to hold him in custody as a Federal prisoner.",
+   "span": "I have disregarded these facts, and I now call upon you to hold him in custody as a Federal prisoner. He has boasted to me that you will not touch him--and if you don't, there's going to be a shakeup that will make history!",
+   "ok": true
+  },
+  {
+   "claim": "Lucie Ledanois is made financially secure through the oil deal",
+   "anchor": "I shall see to it that you will not be injured because of that signed statement.",
+   "span": "Even if no oil is ever found there, I shall see to it that you will not be injured because of that signed statement.\" Gramont nodded dull comprehension.",
+   "ok": true
+  },
+  {
+   "claim": "The Midnight Masquer's loot was returned to the owners",
+   "anchor": "A number of people have received back property this afternoon--loot the bandit had taken.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Ben Chacherre tries to frame Hammond for murder",
+   "anchor": "They claim I done it----",
+   "span": "They claim I done it----\" \"A dead man!",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.09043932639999999,
+ "models": {
+  "map": "gpt-4o-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true
+}

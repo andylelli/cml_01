@@ -1,0 +1,49 @@
+pattern_id: the_corbin_necklace
+title: The Pawned Gem
+family: identity
+axes:
+  - identity
+principle: >-
+  The actual thief was an outsider hiding in the house, and the real necklace had been pawned and
+  replaced with an imitation.
+principleType: cognitive_bias
+surface_illusion_template: >-
+  a suspect a suspect a witness was innocent and only worried about the family; a witness a witness
+  was the thief who stole the necklace; a suspect a suspect was unaware of the necklace's true
+  status and innocent
+underlying_reality_template: >-
+  a suspect a suspect a witness, facing financial difficulties, had the real necklace pawned and
+  secretly replaced it with a perfect imitation. The thief, Raglan, hired as a window shade hanger,
+  hid in the house in pajamas and stole the imitation necklace from the safe during a moment when
+  the house was distracted. Upon discovering it was a fake, he returned it to the grandmother's room
+  to mislead the family and avoid suspicion. The real necklace was kept by a suspect a suspect, who
+  was unaware of the substitution.
+feasibility:
+  eras:
+    - 1850
+    - 1860
+    - 1870
+    - 1880
+    - 1890
+    - 1900
+    - 1910
+    - 1920
+    - 1930
+    - 1940
+    - 1950
+  requires:
+    - object_duplication
+    - secure_storage_access
+    - social_disguise
+  forbids:
+    - cctv
+    - modern_toxicology_screen
+clue_archetypes:
+  - punch_s_observation_of
+  - mrs_corbin_s_admission
+  - the_empty_morocco_box
+  - the_imitation_necklace_found
+  - punch_s_witness_statement
+  - lavender_silk_pajamas_with
+sources:
+  - Henry Kitchell Webster, The Corbin necklace — library/works/the_corbin_necklace/case.cml2.yaml

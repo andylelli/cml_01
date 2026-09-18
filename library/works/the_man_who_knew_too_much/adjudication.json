@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "The deaths of police officers at the tower were caused by Prince Michael's violent escape.",
+  "type": "behavioral",
+  "why_it_seems_reasonable": "Prince Michael was surrounded and shots were fired from the tower, and he was known for violent escapes. Witnesses saw him at the scene and he was arrested for the murders.",
+  "what_it_hides": "The actual murderer was the police officer Wilson, who killed his comrades in a bid for promotion, and Prince Michael was innocent of these murders."
+ },
+ "mechanism_description": "Sir Henry Harland Fisher murdered his brother Horne Fisher in a duel using duplicate swords. Horne Hewitt was killed during this duel and the scene was staged to look like an accident involving a fallen statue. Sir Henry also stole important state papers from Hewitt to prevent them falling into enemy hands. The other deaths and disappearances were connected to political intrigue and cover-ups, with false accusations directed at others.",
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "Horne Fisher and Harold March recreate the duel using the duplicate swords and the statue setting. They observe the sequence of events, including the removal of the coat, the fatal wound, and the statue's fall. They also test the physical impossibility of moving the statue after the murder. This reenactment confirms the timing and method of the murder and the staging of the scene.",
+  "knowledge_revealed": "The reenactment reveals that the victim removed his coat before the duel, the murderer used a duplicate sword, and the statue fell after the victim was killed, making it impossible for the murderer to have moved the body afterward.",
+  "pass_condition": "The reenactment must demonstrate that the murder and staging could be performed by one person alone, with the victim removing his coat, and that the statue could not have been lifted after falling."
+ },
+ "changed": [],
+ "confidence": "high"
+}

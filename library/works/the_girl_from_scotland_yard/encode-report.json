@@ -1,0 +1,134 @@
+{
+ "slug": "the_girl_from_scotland_yard",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Druze was found dead holding an emerald pendant",
+   "anchor": "the thing that the dead man held fell with a tinkle",
+   "span": "she said in a hushed voice, and, kneeling down, Inspector Coldwell pried loose the fingers, and the thing that the dead man held fell with a tinkle to the gravelled path.",
+   "ok": true
+  },
+  {
+   "claim": "The emerald pendant matches Lady Raytham’s necklace",
+   "anchor": "the pendant on the chain she had seen that evening glittering",
+   "span": "It was the pendant on the chain she had seen that evening glittering on Lady Raytham’s neck!",
+   "ok": true
+  },
+  {
+   "claim": "Peter Dawlish was recently released from prison",
+   "anchor": "Peter Dawlish was out. Could you call and see me to-night?",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Peter Dawlish was threatened and attacked by unknown men",
+   "anchor": "something fell over his head. He raised his hand quickly",
+   "span": "He had decided upon this action, when something fell over his head. He raised his hand quickly to catch at the thin rope, but it was too late.",
+   "ok": true
+  },
+  {
+   "claim": "Druze was shot at close range with an automatic pistol",
+   "anchor": "Druze has been shot three times; that’s rather a queer thing",
+   "span": "Druze has been shot three times; that’s rather a queer thing, and he has been shot through the heart!",
+   "ok": true
+  },
+  {
+   "claim": "Druze had a gunpowder burn on the back of her hand",
+   "anchor": "a big black-powder burn at the base of her right thumb",
+   "span": "There’s a big black-powder burn at the base of her right thumb, that is to say on the back of her hand.",
+   "ok": true
+  },
+  {
+   "claim": "Anita Bellini was involved in blackmail and had motive to kill Druze",
+   "anchor": "Anita Bellini was a woman distraught. She was terribly fond of Druze",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The gun found in Peter’s room was planted after the murder",
+   "anchor": "The gun was planted since. Peter might have put it there",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Mrs. Inglethorne was a baby farmer and fence for stolen goods",
+   "anchor": "Mrs. Inglethorne was a fence, a buyer of stolen property",
+   "span": "Mrs. Inglethorne was a fence, a buyer of stolen property.",
+   "ok": true
+  },
+  {
+   "claim": "Leslie Maughan was abducted by Javanese men working for Anita Bellini",
+   "anchor": "The car slipped across Hammersmith Bridge, and after a few minutes",
+   "span": "The car slipped across Hammersmith Bridge, and after a few minutes she could identify the spot where the body of Druze had been found.",
+   "ok": true
+  },
+  {
+   "claim": "Elizabeth, the lost child, was hidden in a locked room at Anita’s house",
+   "anchor": "The child was sitting up in a small bed, looking with astonishment",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Anita Bellini was arrested for the murder of Druze",
+   "anchor": "Anita Bellini went out of her life forever, except for the day",
+   "span": "They waited only long enough for Leslie to gather a change of dress and a coat for the prisoner, and thereafter Anita Bellini went out of her life forever, except for the day when Leslie stood in the witness box and testified against the monocled prisoner, who did not look at her but sat staring straight ahead at the scarlet-robed judge.",
+   "ok": true
+  },
+  {
+   "claim": "The marriage certificate proves Jane Raytham and Peter Dawlish were married",
+   "anchor": "It was a marriage certificate, performed apparently by the Reverend",
+   "span": "It was a marriage certificate, performed apparently by the Reverend H.",
+   "ok": true
+  },
+  {
+   "claim": "Peter Dawlish was falsely accused and arrested for threatening Anita Bellini",
+   "anchor": "Peter Dawlish was arrested last night on charge of threatening to murder",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The forged will disinherited Peter Dawlish",
+   "anchor": "The will was proved six weeks ago. They can do nothing now",
+   "span": "The will was proved six weeks ago. They can do nothing now, but they nag and nag and I’m getting tired of it all.",
+   "ok": true
+  },
+  {
+   "claim": "The blackmail scheme involved Lady Raytham, Anita Bellini, and Druze",
+   "anchor": "Jane gave her emerald chain, and with this Druze went off",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Druze was killed during a struggle with Anita Bellini",
+   "anchor": "Anita, who was the stronger of the two, snatched the chain from her",
+   "span": "Anita, who was the stronger of the two, snatched the chain from her sister’s hands, never expecting that the woman, infuriated with drink and anger, carried a pistol.",
+   "ok": true
+  },
+  {
+   "claim": "The gun was fired multiple times by Druze in self-defense",
+   "anchor": "She fired an automatic--five or six shots in rapid succession",
+   "span": "She fired an automatic--five or six shots in rapid succession--and got the backfire.",
+   "ok": true
+  },
+  {
+   "claim": "Mrs. Inglethorne concealed stolen goods and evidence related to the child",
+   "anchor": "There were three bolts of silk, one still bearing the label",
+   "span": "There were three bolts of silk, one still bearing the label of the wholesaler from whom it had been stolen.",
+   "ok": true
+  },
+  {
+   "claim": "Leslie Maughan’s reenactment proved Druze fired the gun",
+   "anchor": "I was firing an automatic this morning to see what would happen",
+   "span": "I was firing an automatic this morning to see what would happen, and I’ve got exactly the same mark as she has.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.09188029035,
+ "models": {
+  "map": "gpt-4o-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true
+}

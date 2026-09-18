@@ -1,0 +1,12 @@
+- id: the_cat_s_paw
+  corpus: seed
+  axis: identity
+  mechanism_family: poison_substitution
+  false_assumption_pattern: the_poison_was_applied_to_all_food
+  discriminating_test_shape: reconstruction
+  inference_shape: reconstruct_delivery_mechanism
+  premise: >-
+    Miss Susan Baird is found dead in her locked library, apparently poisoned by prussic acid on a
+    peach. Suspicion falls on various relatives and acquaintances, including Kitty Baird, her niece
+    and heir,
+  source: library/works/the_cat_s_paw/case.cml2.yaml

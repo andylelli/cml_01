@@ -1,5 +1,5 @@
 pattern_id: the_secret_of_father_brown
-title: The Painted Hand
+title: The Broken Mirror
 family: spatial_routing
 axes:
   - spatial
@@ -31,8 +31,8 @@ feasibility:
     - 1950
   requires:
     - physical_disguise
+    - old_building_structure
     - mirror_or_glass
-    - quick_hand_movement
   forbids:
     - cctv
     - voice_authentication

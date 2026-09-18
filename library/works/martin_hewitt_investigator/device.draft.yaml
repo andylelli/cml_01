@@ -1,5 +1,5 @@
 pattern_id: martin_hewitt_investigator
-title: The Parrot's Match
+title: The Parrot's Prop
 family: spatial_routing
 axes:
   - behavioral
@@ -30,11 +30,10 @@ feasibility:
     - 1950
   requires:
     - trained_animal
-    - physical_prop
     - window_access
+    - small_portable_object
   forbids:
     - cctv
-    - voice_authentication
 clue_archetypes:
   - match_with_sharp_indentations
   - parrot_biting_a_quill

@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "Joe Richards was the murderer because he possessed the stolen bonds and watch.",
+  "type": "identity",
+  "why_it_seems_reasonable": "Richards had financial motives and was found with stolen bonds and the victim's watch, and his alibi had an unexplained gap. The circumstantial evidence pointed strongly to him.",
+  "what_it_hides": "The real murder weapon was a concealed rapier used by John Hale, and the theft was a separate act by Jim Turner to cover the crime."
+ },
+ "mechanism_description": "John Hale killed Austin Hale with a concealed rapier hidden in his bamboo cane during a secret meeting at the house between midnight and 1 AM. Jim Turner, disguised as a maid, stole bonds and jewelry from the safe and Judith's bedroom, and attempted to mislead the investigation. The murder weapon was the rapier cane, and the theft was a cover-up to distract suspicion.",
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "Reenact the timeline of Tuesday night to Wednesday morning, focusing on John Hale's movements and the use of his sword cane. Verify the presence of the rapier weapon and the timing of the murder wound. Cross-check alibis of all suspects during the murder hour and test the plausibility of the theft and abduction by Turner.",
+  "knowledge_revealed": "Confirms John Hale's presence and use of the rapier cane to kill Austin Hale, and Turner's role in theft and abduction.",
+  "pass_condition": "The reenactment must demonstrate that John Hale had opportunity and means to commit the murder, and that Turner's movements align with the theft and abduction timeline."
+ },
+ "changed": [],
+ "confidence": "high"
+}

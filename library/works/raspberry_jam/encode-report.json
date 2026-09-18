@@ -1,0 +1,134 @@
+{
+ "slug": "raspberry_jam",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Sanford Embury was found dead in his locked bedroom",
+   "anchor": "he’s dead, and no doctors can help that!",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The poison was administered through the ear",
+   "anchor": "Sanford met his death by foul play. The means used was the administering of poison--through the ear!",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Medicine dropper containing henbane found in bathroom",
+   "anchor": "By means of this,” Driscoll declared. “This fluid is henbane",
+   "span": "By means of this,” Driscoll declared. “This fluid is henbane--that is the commercial name of it--known to the profession, however, as hyoscyamus or hyoscyamine.",
+   "ok": true
+  },
+  {
+   "claim": "Locked bedroom doors had strong snap-locks",
+   "anchor": "they have strong brass catches that work only on the inside",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Windows could not be used for entry due to height and no balconies",
+   "anchor": "The windows show a sheer drop of ten stories to the ground",
+   "span": "The windows show a sheer drop of ten stories to the ground.",
+   "ok": true
+  },
+  {
+   "claim": "Aunt Abby Ames claimed to see victim's spirit and tasted raspberry jam",
+   "anchor": "I tasted raspberry jam.”",
+   "span": "But, anyway, I bit at him, and so I bit at the woolen sleeve--it was unmistakable--and on it I tasted raspberry jam.” “What!",
+   "ok": true
+  },
+  {
+   "claim": "Raspberry jam jar found on window sill of nearby apartment",
+   "anchor": "there on the pantry window-sill sat what was unmistakably a jam jar!",
+   "span": "And to the boy’s astonished and delighted eyes, there on the pantry window-sill sat what was unmistakably a jam jar! So far, so good.",
+   "ok": true
+  },
+  {
+   "claim": "Alvord Hendricks had an alibi in Boston",
+   "anchor": "He was in Boston from the afternoon of the day before Mr. Embury’s death",
+   "span": "He was in Boston from the afternoon of the day before Mr. Embury’s death until noon of the next day.",
+   "ok": true
+  },
+  {
+   "claim": "Willy Hanlon was a human fly performer training to climb buildings",
+   "anchor": "Willy Hanlon is practicing to be a human fly.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Hanlon confessed on his deathbed to killing Embury",
+   "anchor": "Willy Hanlon--a human fly.” ... “I did. I--I--oh, I can’t--talk.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Hanlon entered through Aunt Abby's window to commit the murder",
+   "anchor": "you climbed up the side of the apartment house--on the cross street--and you got in at Miss Ames’ window.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Hanlon administered poison via medicine dropper into Embury's ear",
+   "anchor": "you killed Mr. Embury with that henbane stuff.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The poison dropper was accidentally dropped near Aunt Abby's bed",
+   "anchor": "perhaps from your breast pocket--the little glass dropper you had used--and as you bent over the old lady, she grabbed at you",
+   "span": "There you accidentally let fall--perhaps from your breast pocket--the little glass dropper you had used--and as you bent over the old lady, she grabbed at you, and felt your jersey sleeve--even bit at it--and tasted raspberry jam.",
+   "ok": true
+  },
+  {
+   "claim": "Eunice Embury was at a bridge party during the murder",
+   "anchor": "Eunice went to a bridge game at a house to which he had forbidden me to go.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Fifi Desternay was a friend turned antagonist with knowledge of the case",
+   "anchor": "Fifi Desternay, you have been instrumental in bringing our dear Eunice under a dreadful, and absolutely unfounded suspicion",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Mason Elliott had motive but no opportunity",
+   "anchor": "Mr. Elliott had no opportunity. We have learned beyond all doubt that he was at his club or at his home all that night.",
+   "span": "Embury, Mr. Elliott had no opportunity. We have learned beyond all doubt that he was at his club or at his home all that night. Next, Mr.",
+   "ok": true
+  },
+  {
+   "claim": "Alvord Hendricks bought hyoscyamine for earache treatment",
+   "anchor": "Alvord Hendricks bought some hyoscyamine, on a doctor’s prescription, about a month ago",
+   "span": "So Terence McGuire learned that Alvord Hendricks bought some hyoscyamine, on a doctor’s prescription, about a month ago--the same to be used to relieve a serious case of earache.",
+   "ok": true
+  },
+  {
+   "claim": "The locked doors snap-bolted automatically when closed",
+   "anchor": "They are big, strong, snap-locks on the inside of the doors.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The poison caused sudden death with no external marks",
+   "anchor": "Mr. Embury died because of a sudden and complete paralysis of respiration and circulation.",
+   "span": "Mr. Embury died because of a sudden and complete paralysis of respiration and circulation. There is nothing we can find to account for that and by elimination of all other possible causes we are brought to the consideration of poison.",
+   "ok": true
+  },
+  {
+   "claim": "The perfect alibi is suspicious and likely fabricated",
+   "anchor": "the more perfect the alibi, the more we must distrust it.",
+   "span": "Stone, he says, the more perfect the alibi, the more we must distrust it. So he went for that alibi--and he found that Mr.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.09180465970000001,
+ "models": {
+  "map": "gpt-4o-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true
+}

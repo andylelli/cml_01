@@ -1,0 +1,50 @@
+pattern_id: the_strange_countess
+title: The Framed Claimant
+family: behavioral
+axes:
+  - identity
+principle: >-
+  The evidence was planted by the the culprit to frame the victim and remove her as a claimant to
+  the estate. The true murderer was never identified, and the victim was innocent.
+principleType: social_logic
+surface_illusion_template: >-
+  the victim was guilty of murder and deserved her sentence.; The accidents and attempts on the
+  victim life were unrelated incidents.; the culprit and Dr. the culprit were innocent or merely
+  minor accomplices.
+underlying_reality_template: >-
+  The the culprit of the culprit orchestrated the wrongful imprisonment of the victim by planting
+  evidence and manipulating the trial. To prevent the victim from uncovering the truth and claiming
+  the estate, the the culprit and her accomplices the culprit and Dr. the culprit arranged for the
+  victim to be abducted and detained in a remote farm disguised as a mental home. Attempts on the
+  victim life included poisoned chocolates and dangerous accidents, all intended to eliminate her as
+  a threat. the investigator investigation exposed the conspiracy and led to the rescue of the
+  victim and the victim.
+feasibility:
+  eras:
+    - 1850
+    - 1860
+    - 1870
+    - 1880
+    - 1890
+    - 1900
+    - 1910
+    - 1920
+    - 1930
+    - 1940
+    - 1950
+  requires:
+    - social_manipulation
+    - physical_evidence_planting
+    - complicit_staff
+  forbids:
+    - cctv
+    - voice_authentication
+clue_archetypes:
+  - description_of_scar_on
+  - lois_s_visit_to
+  - michael_dorn_s_discovery
+  - countess_s_refusal_to
+  - michael_dorn_s_investigation
+  - witness_accounts_of_car
+sources:
+  - Edgar Wallace, The strange countess — library/works/the_strange_countess/case.cml2.yaml

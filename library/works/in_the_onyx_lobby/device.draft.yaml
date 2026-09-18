@@ -1,0 +1,49 @@
+pattern_id: in_the_onyx_lobby
+title: The Missing Letter
+family: timing
+axes:
+  - identity
+principle: >-
+  The initial letter 'T' was written on the wall, not the paper, making the message actually read
+  'Two men did this', thus hiding the true identity of the culprits.
+principleType: cognitive_bias
+surface_illusion_template: >-
+  The murder was committed by women involved in the family feud; a suspect a suspect and Mrs a
+  suspect acted together to kill Sir the victim; The dying message clearly meant 'women did this'
+  and not 'two men did this'
+underlying_reality_template: >-
+  Sir the victim was murdered by two men, the culprit and the culprit, who conspired to kill him to
+  gain control of the valuable secret recipe. The doctor, skilled in surgery, stabbed the victim
+  with a paper-cutter while the culprit created an alibi by riding the elevator with the night
+  porter. the victim, in his dying moments, attempted to write a message but began on the wall,
+  causing the first letter 'T' to be missed, leading to the misinterpretation of 'women' instead of
+  'two men'.
+feasibility:
+  eras:
+    - 1850
+    - 1860
+    - 1870
+    - 1880
+    - 1890
+    - 1900
+    - 1910
+    - 1920
+    - 1930
+    - 1940
+    - 1950
+  requires:
+    - handwritten_message
+    - wall_surface
+    - dying_victim
+  forbids:
+    - cctv
+    - voice_authentication
+clue_archetypes:
+  - the_paper_left_by
+  - pencil_mark_t_on
+  - bob_moore_s_witness
+  - vail_s_own_confirmation
+  - testimony_from_letitia_prall
+  - discovery_of_paper_cutter
+sources:
+  - Carolyn Wells, In the Onyx Lobby — library/works/in_the_onyx_lobby/case.cml2.yaml

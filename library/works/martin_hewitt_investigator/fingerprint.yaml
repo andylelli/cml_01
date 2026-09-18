@@ -2,9 +2,9 @@
   corpus: seed
   axis: behavioral
   mechanism_family: staged_scene
-  false_assumption_pattern: physical_clue_proves_human_presence
+  false_assumption_pattern: used_match_indicates_human_presence
   discriminating_test_shape: reconstruction
-  inference_shape: demonstrate_alternate_cause_of_clue
+  inference_shape: demonstrate_false_clue_origin
   premise: >-
     A series of mysterious jewelry thefts occur at Sir James Norris's estate, each marked by a used
     match left near the missing item. Despite locked doors and difficult access, valuable pieces

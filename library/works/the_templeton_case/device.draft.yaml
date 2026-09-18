@@ -1,0 +1,50 @@
+pattern_id: the_templeton_case
+title: The Planted Stick
+family: spatial_routing
+axes:
+  - temporal
+principle: >-
+  The killer actually accompanied the victim to the yacht and committed the murder upon arrival, not
+  before.
+principleType: cognitive_bias
+surface_illusion_template: >-
+  The artist a suspect was the murderer due to his sudden departure and cigar evidence; a suspect a
+  suspect was guilty because he fled and had access to the yacht; a suspect a suspect was the
+  culprit because he changed the cigar band and had opportunity
+underlying_reality_template: >-
+  the culprit arranged a secret meeting with the victim to obtain incriminating papers. He
+  accompanied the victim back to the yacht, where he murdered him with a dagger. the culprit then
+  staged the scene by leaving his walking-stick in the dinghy and changing the cigar band at the
+  inquest to mislead investigators. He used the canoe and dinghy to create an alibi and escape
+  unnoticed.
+feasibility:
+  eras:
+    - 1850
+    - 1860
+    - 1870
+    - 1880
+    - 1890
+    - 1900
+    - 1910
+    - 1920
+    - 1930
+    - 1940
+    - 1950
+  requires:
+    - physical_object_placement
+    - social_observation
+    - period_cigar_band
+  forbids:
+    - cctv
+    - voice_authentication
+clue_archetypes:
+  - housekeeper_s_statement_denying
+  - observation_of_norwood_using
+  - witnesses_noting_cigar_band
+  - discovery_of_identical_cigar
+  - moss_s_testimony_about
+  - discovery_of_diamond_bag
+sources:
+  - >-
+    Victor L. (Victor Lorenzo) Whitechurch, The Templeton case —
+    library/works/the_templeton_case/case.cml2.yaml

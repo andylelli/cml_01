@@ -1,0 +1,134 @@
+{
+ "slug": "the_corbin_necklace",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "The safe was found unlocked by Punch",
+   "anchor": "Why, Gran, it wasn’t locked!",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Judy laughed oddly when the necklace was found missing",
+   "anchor": "She laughed as if it was something that didn’t matter",
+   "span": "She laughed as if it was something that didn’t matter very much, but was rather funny.",
+   "ok": true
+  },
+  {
+   "claim": "Victoria pawned the real necklace and had an imitation made",
+   "anchor": "Mother had had an imitation necklace made then",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Punch saw a man in pajamas with a tear in the leg",
+   "anchor": "The legs of these pajamas crossed this patch he saw them",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Raglan was hiding in the trunk closet",
+   "anchor": "He’s in the trunk closet",
+   "span": "He’s in the trunk closet.",
+   "ok": true
+  },
+  {
+   "claim": "Raglan confessed to the theft and substitution",
+   "anchor": "I worked here for two days",
+   "span": "I worked here for two days; I must have put up hundreds of them, all over the house--practically all over the house.",
+   "ok": true
+  },
+  {
+   "claim": "The real necklace was kept by Bruce Applebury",
+   "anchor": "The real necklace was in my pocket",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Judy and Bill eloped and planned a secret marriage",
+   "anchor": "They’re going to be married now",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Bruce Applebury accused Bill Grant of theft",
+   "anchor": "He said he thought his cousin had come back and got it",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Mr. Smith’s expert opinion on the necklace and thief",
+   "anchor": "Mr. Smith pulled up an easy chair for himself",
+   "span": "When he’d made me comfortable and gone away, Mr. Smith pulled up an easy chair for himself and lighted a cigar.",
+   "ok": true
+  },
+  {
+   "claim": "Punch’s theory about the pajamas and thief",
+   "anchor": "Punch’s ghost, the man in pajamas",
+   "span": "Punch’s ghost, the man in pajamas.",
+   "ok": true
+  },
+  {
+   "claim": "The imitation necklace was returned to mislead the family",
+   "anchor": "The necklace is there, gleaming, creamy and wonderful",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Victoria’s motive was financial desperation",
+   "anchor": "She’d tried to raise the money to get it back",
+   "span": "She’d tried to raise the money to get it back and she couldn’t.",
+   "ok": true
+  },
+  {
+   "claim": "Judy’s secret letter was hidden in a Chinese vase",
+   "anchor": "She pushed her letter down inside",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Punch kept the imitation necklace hidden in his pocket",
+   "anchor": "I didn’t forget to change it when I changed my clothes",
+   "span": "I didn’t forget to change it when I changed my clothes,” he told me, “and I bolted my door and hung my coat on the door-knob.",
+   "ok": true
+  },
+  {
+   "claim": "Raglan’s pajamas had a distinctive tear",
+   "anchor": "Lavender silk pajamas, with a big nail tear in one of the legs",
+   "span": "Lavender silk pajamas, with a big nail tear in one of the legs.",
+   "ok": true
+  },
+  {
+   "claim": "The thief used pajamas to move unnoticed at night",
+   "anchor": "No one would pay any attention to a man in pajamas",
+   "span": "No one would pay any attention to a man in pajamas on his way to the bathroom.",
+   "ok": true
+  },
+  {
+   "claim": "The necklace was stolen during the servants’ lunch break",
+   "anchor": "The servants were all at lunch, I knew",
+   "span": "The servants were all at lunch, I knew, and the family out on the veranda waiting for the guests to come.",
+   "ok": true
+  },
+  {
+   "claim": "The necklace was returned to the grandmother’s room",
+   "anchor": "I went down-stairs and put the necklace back",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The final resolution involved the recovery of the necklace and Raglan’s capture",
+   "anchor": "Raglan was looking venomous by now",
+   "span": "Raglan was looking venomous by now.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.09252192835,
+ "models": {
+  "map": "gpt-4o-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true
+}

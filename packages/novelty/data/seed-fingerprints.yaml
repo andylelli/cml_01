@@ -14,14 +14,14 @@
 # `the_second_key` was retired: author "original", licence CC-BY, not a real novel — and the third
 # most-cited nearest neighbour across 32 archived audits.
 #
-# derived: 15   derived_unverified: 5   legacy: 8   total: 28
+# derived: 34   derived_unverified: 5   legacy: 8   total: 47
 - id: a_jury_of_her_peers
   corpus: seed
   axis: behavioral
   mechanism_family: staged_scene
-  false_assumption_pattern: evidence_is_only_in_obvious_places
+  false_assumption_pattern: crime_evidence_is_in_obvious_places
   discriminating_test_shape: timetable_contradiction
-  inference_shape: reinterpret_overlooked_details
+  inference_shape: reinterpret_domestic_clues
   premise: >-
     John Wright is found strangled with a rope in his own bed, his wife rocking downstairs saying
     she slept sound and knew nothing. The sheriff and county attorney search the bedroom and the
@@ -32,27 +32,92 @@
   corpus: seed
   axis: behavioral
   mechanism_family: poison_substitution
-  false_assumption_pattern: the_victim_chose_freely_between_identical_options
+  false_assumption_pattern: the_victim_chose_freely_between_equal_options
   discriminating_test_shape: reconstruction
-  inference_shape: test_alternate_pills_for_poison
+  inference_shape: test_pills_for_poison
   premise: >-
     A wealthy American named Enoch J. Drebber is found dead in an empty London house with no visible
     wounds but surrounded by blood. The police are baffled by the mysterious circumstances,
     including a cry
   source: library/works/a_study_in_scarlet/case.cml2.yaml
   provenance: derived
+- id: dark_power
+  corpus: seed
+  axis: identity
+  mechanism_family: impersonation
+  false_assumption_pattern: the_dead_is_who_they_appear
+  discriminating_test_shape: timetable_contradiction
+  inference_shape: reveal_true_identity
+  premise: >-
+    Diana Leonard arrives at a remote house to care for her ailing uncle Rufus. Strange events
+    unfold involving family members, a mysterious disappearance, and a threatening atmosphere,
+    culminating in Dia
+  source: library/works/dark_power/case.cml2.yaml
+  provenance: derived
+- id: dorcas_dene_detective_78210
+  corpus: seed
+  axis: behavioral
+  mechanism_family: locked_room_timing
+  false_assumption_pattern: locked_room_means_no_entry
+  discriminating_test_shape: timetable_contradiction
+  inference_shape: reframe_access_at_discovery
+  premise: >-
+    Prince ---- of ---- mysteriously disappears in London, presumed kidnapped by anarchists.
+    Meanwhile, Sir Joshua Broome faces blackmail threatening his wife's reputation. Dorcas Dene
+    investigates both c
+  source: library/works/dorcas_dene_detective_78210/case.cml2.yaml
+  provenance: derived
+- id: in_the_onyx_lobby
+  corpus: seed
+  axis: identity
+  mechanism_family: alibi_fabrication
+  false_assumption_pattern: the_message_means_women_are_guilty
+  discriminating_test_shape: reconstruction
+  inference_shape: reinterpret_clue_as_true_identity
+  premise: >-
+    Sir Herbert Binney is found stabbed to death in the onyx lobby of The Campanile. A dying message
+    seemingly accuses women of the murder, leading to suspicion of two feuding women and their
+    households. 
+  source: library/works/in_the_onyx_lobby/case.cml2.yaml
+  provenance: derived
 - id: martin_hewitt_investigator
   corpus: seed
   axis: behavioral
   mechanism_family: staged_scene
-  false_assumption_pattern: physical_clue_proves_human_presence
+  false_assumption_pattern: used_match_indicates_human_presence
   discriminating_test_shape: reconstruction
-  inference_shape: demonstrate_alternate_cause_of_clue
+  inference_shape: demonstrate_false_clue_origin
   premise: >-
     A series of mysterious jewelry thefts occur at Sir James Norris's estate, each marked by a used
     match left near the missing item. Despite locked doors and difficult access, valuable pieces
     vanish with
   source: library/works/martin_hewitt_investigator/case.cml2.yaml
+  provenance: derived
+- id: room_13
+  corpus: seed
+  axis: identity
+  mechanism_family: staged_scene
+  false_assumption_pattern: locked_room_means_no_entry
+  discriminating_test_shape: reconstruction
+  inference_shape: reconstruct_true_sequence_of_events
+  premise: >-
+    Emanuel Legge is found murdered in a locked club room after a tense dinner involving his son
+    Jeff Legge, Peter Kane, and Johnny Gray. The shooting of Jeff Legge and the disappearance of
+    Marney Kane ad
+  source: library/works/room_13/case.cml2.yaml
+  provenance: derived
+- id: terror_keep
+  corpus: seed
+  axis: behavioral
+  mechanism_family: disguised_natural_agent
+  false_assumption_pattern: violent_attack_caused_the_deaths
+  discriminating_test_shape: reconstruction
+  inference_shape: identify_true_cause_of_incapacitation
+  premise: >-
+    The case appears as a daring gold convoy robbery involving an escaped madman, John Flack, and
+    his criminal associates at Larmes Keep. Suspicious disappearances, mysterious guests, and
+    strange happenin
+  source: library/works/terror_keep/case.cml2.yaml
   provenance: derived
 - id: the_big_bow_mystery
   corpus: seed
@@ -73,13 +138,26 @@
   mechanism_family: staged_scene
   false_assumption_pattern: the_body_died_where_it_was_found
   discriminating_test_shape: timetable_contradiction
-  inference_shape: reconstruct_true_crime_scene
+  inference_shape: reconstruct_true_crime_location
   premise: >-
     A goods train rounds a curve to find a man lying face down with his neck across the rail, and
     takes his head off before it can stop. The dead man is a diamond merchant; his watch, pin and
     twelve pound
   source: library/works/the_case_of_oscar_brodski/case.cml2.yaml
   provenance: derived_unverified
+- id: the_cat_s_paw
+  corpus: seed
+  axis: identity
+  mechanism_family: poison_substitution
+  false_assumption_pattern: the_poison_was_applied_to_all_food
+  discriminating_test_shape: reconstruction
+  inference_shape: reconstruct_delivery_mechanism
+  premise: >-
+    Miss Susan Baird is found dead in her locked library, apparently poisoned by prussic acid on a
+    peach. Suspicion falls on various relatives and acquaintances, including Kitty Baird, her niece
+    and heir,
+  source: library/works/the_cat_s_paw/case.cml2.yaml
+  provenance: derived
 - id: the_clue_of_the_twisted_candle
   corpus: seed
   axis: temporal
@@ -93,6 +171,32 @@
     hour of
   source: library/works/the_clue_of_the_twisted_candle/case.cml2.yaml
   provenance: derived_unverified
+- id: the_come_back
+  corpus: seed
+  axis: identity
+  mechanism_family: impersonation
+  false_assumption_pattern: the_dead_is_who_they_appear
+  discriminating_test_shape: behavioral_tell
+  inference_shape: expose_false_identity
+  premise: >-
+    Peter Crane was presumed dead after a Labrador expedition, but his father believed in spirit
+    communications from him through a medium. Meanwhile, Gilbert Blair, a friend, was mysteriously
+    poisoned, an
+  source: library/works/the_come_back/case.cml2.yaml
+  provenance: derived
+- id: the_curse_of_the_reckaviles
+  corpus: seed
+  axis: identity
+  mechanism_family: recorded_presence
+  false_assumption_pattern: a_heard_voice_proves_presence
+  discriminating_test_shape: reconstruction
+  inference_shape: debunk_voice_as_presence
+  premise: >-
+    Lord Reckavile is found murdered in his locked library with no apparent means of entry or exit
+    for the killer. Suspicion falls on various locals and visitors, including the mysterious Halley
+    and Jack 
+  source: library/works/the_curse_of_the_reckaviles/case.cml2.yaml
+  provenance: derived
 - id: the_eye_of_osiris
   corpus: seed
   axis: temporal
@@ -119,11 +223,37 @@
     from a r
   source: library/works/the_fenchurch_street_mystery/case.cml2.yaml
   provenance: derived_unverified
+- id: the_girl_from_scotland_yard
+  corpus: seed
+  axis: identity
+  mechanism_family: staged_scene
+  false_assumption_pattern: the_suspect_with_a_grudge_is_guilty
+  discriminating_test_shape: reconstruction
+  inference_shape: reconstruct_true_sequence_of_events
+  premise: >-
+    Druze, a butler who was secretly a woman, is found shot dead holding an emerald pendant
+    belonging to Lady Raytham. Suspicion falls on Peter Dawlish, a recently released convict with a
+    grudge, but the 
+  source: library/works/the_girl_from_scotland_yard/case.cml2.yaml
+  provenance: derived
+- id: the_golden_face
+  corpus: seed
+  axis: identity
+  mechanism_family: impersonation
+  false_assumption_pattern: the_victim_is_who_they_appear
+  discriminating_test_shape: reconstruction
+  inference_shape: expose_true_identity
+  premise: >-
+    A series of high-profile jewel thefts and frauds baffle the police, with a seemingly respectable
+    country gentleman, Rudolph Rayne, at the center. His trusted servant George Hargreave is
+    reluctantly dr
+  source: library/works/the_golden_face/case.cml2.yaml
+  provenance: derived
 - id: the_golden_slipper_and_other_problems_for_violet_strange
   corpus: seed
   axis: identity
   mechanism_family: impersonation
-  false_assumption_pattern: the_thief_is_the_obvious_suspect
+  false_assumption_pattern: the_thief_is_the_person_seen
   discriminating_test_shape: timetable_contradiction
   inference_shape: expose_identity_by_physical_trace
   premise: >-
@@ -136,9 +266,9 @@
   corpus: seed
   axis: behavioral
   mechanism_family: impersonation
-  false_assumption_pattern: a_uniformed_worker_is_not_a_stranger
+  false_assumption_pattern: uniformed_worker_is_not_a_suspect
   discriminating_test_shape: timetable_contradiction
-  inference_shape: reinterpret_witness_testimony
+  inference_shape: reclassify_social_role_as_person
   premise: >-
     Isidore Smythe, threatened by an unseen enemy, is left alone in a top-floor flat whose single
     entrance is watched by four men. Within the hour there is blood on his hall floor, his body is
@@ -148,49 +278,114 @@
 - id: the_lodger
   corpus: seed
   axis: identity
-  mechanism_family: alibi_fabrication
-  false_assumption_pattern: the_official_description_identifies_the_killer
+  mechanism_family: impersonation
+  false_assumption_pattern: the_official_description_matches_the_killer
   discriminating_test_shape: timetable_contradiction
-  inference_shape: disprove_composite_identity
+  inference_shape: reconcile_witness_accounts_with_evidence
   premise: >-
     A series of brutal murders terrorize London, attributed to a mysterious figure called The
     Avenger. The Buntings unknowingly shelter a lodger, Mr. Sleuth, whose eccentric behavior and
     secretive nature 
   source: library/works/the_lodger/case.cml2.yaml
   provenance: derived
+- id: the_loudwater_mystery
+  corpus: seed
+  axis: behavioral
+  mechanism_family: alibi_fabrication
+  false_assumption_pattern: the_visible_suspects_are_the_only_possible
+  discriminating_test_shape: timetable_contradiction
+  inference_shape: reconstruct_true_time_and_access
+  premise: >-
+    Lord Loudwater is found murdered in his smoking-room with a knife in his heart. Suspicion falls
+    on several people close to him, including his wife Lady Loudwater, her lover Colonel Grey, and
+    the disch
+  source: library/works/the_loudwater_mystery/case.cml2.yaml
+  provenance: derived
+- id: the_man_who_knew_too_much
+  corpus: seed
+  axis: behavioral
+  mechanism_family: staged_scene
+  false_assumption_pattern: accident_scene_hides_true_murder
+  discriminating_test_shape: reconstruction
+  inference_shape: reconstruct_true_sequence_of_events
+  premise: >-
+    A series of mysterious deaths and disappearances involving political figures, aristocrats, and
+    criminals unfold across England. The deaths appear as accidents or unrelated crimes, but
+    underlying them 
+  source: library/works/the_man_who_knew_too_much/case.cml2.yaml
+  provenance: derived
+- id: the_melody_of_death
+  corpus: seed
+  axis: identity
+  mechanism_family: impersonation
+  false_assumption_pattern: the_found_thief_is_the_criminal
+  discriminating_test_shape: reconstruction
+  inference_shape: reveal_true_identity_and_motive
+  premise: >-
+    A series of daring burglaries in London safes baffle the police. Gilbert Standerton, recently
+    disinherited and married, is suspected due to possession of stolen jewels. The notorious gang
+    led by Georg
+  source: library/works/the_melody_of_death/case.cml2.yaml
+  provenance: derived
 - id: the_memoirs_of_sherlock_holmes
   corpus: seed
   axis: identity
   mechanism_family: disguised_natural_agent
-  false_assumption_pattern: human_murderer_caused_the_death
+  false_assumption_pattern: human_action_caused_the_death
   discriminating_test_shape: reconstruction
-  inference_shape: reveal_true_cause_by_reenactment
+  inference_shape: reconstruct_true_cause_of_death
   premise: >-
     The case appears to be a straightforward murder of a horse trainer and the disappearance of a
     prized racehorse, with suspicion falling on a gambler who had bet against the horse. The horse
     is missing,
   source: library/works/the_memoirs_of_sherlock_holmes/case.cml2.yaml
   provenance: derived
+- id: the_meredith_mystery
+  corpus: seed
+  axis: identity
+  mechanism_family: staged_scene
+  false_assumption_pattern: physical_evidence_proves_guilt
+  discriminating_test_shape: reconstruction
+  inference_shape: debunk_planted_evidence
+  premise: >-
+    John Meredith is found dead with a throat wound in his mansion. Suspicion falls on his niece
+    Anne Meredith due to circumstantial evidence including her fingerprints and hair found on the
+    victim. The c
+  source: library/works/the_meredith_mystery/case.cml2.yaml
+  provenance: derived
 - id: the_middle_temple_murder
   corpus: seed
   axis: identity
   mechanism_family: staged_scene
-  false_assumption_pattern: the_murder_was_committed_by_the_suspect_found_with_weapon
+  false_assumption_pattern: the_scene_indicates_robbery_motive
   discriminating_test_shape: timetable_contradiction
-  inference_shape: reconstruct_true_sequence_of_events
+  inference_shape: reconstruct_true_motive_and_identity
   premise: >-
     An elderly man named John Marbury is found murdered in Middle Temple Lane, London, with no
     identification except a scrap of paper bearing a young barrister's name. Suspicion falls on
     Stephen Aylmore, 
   source: library/works/the_middle_temple_murder/case.cml2.yaml
   provenance: derived
+- id: the_mystery_girl
+  corpus: seed
+  axis: spatial
+  mechanism_family: disguised_natural_agent
+  false_assumption_pattern: locked_room_means_no_entry
+  discriminating_test_shape: reconstruction
+  inference_shape: reconstruct_true_method_of_death
+  premise: >-
+    John Waring, the president-elect of the University of Corinth, is found dead in his locked study
+    with a stab wound and no weapon present. Suspicion falls on Anita Austin, a mysterious young
+    woman with
+  source: library/works/the_mystery_girl/case.cml2.yaml
+  provenance: derived
 - id: the_mystery_of_a_hansom_cab
   corpus: seed
   axis: identity
   mechanism_family: impersonation
-  false_assumption_pattern: the_man_seen_is_the_murderer
+  false_assumption_pattern: the_dead_is_who_they_appear
   discriminating_test_shape: timetable_contradiction
-  inference_shape: disprove_identity_by_alibi
+  inference_shape: reconstruct_true_identity
   premise: >-
     A man named Oliver Whyte is found murdered in a hansom cab in Melbourne. Brian Fitzgerald,
     engaged to Madge Frettlby, is arrested based on circumstantial evidence but is later acquitted
@@ -201,14 +396,27 @@
   corpus: seed
   axis: behavioral
   mechanism_family: hidden_accomplice
-  false_assumption_pattern: the_escape_was_solo_and_self_devised
+  false_assumption_pattern: the_prisoner_had_no_outside_help
   discriminating_test_shape: reconstruction
-  inference_shape: trace_physical_aid_and_collusion
+  inference_shape: trace_hidden_communication_path
   premise: >-
     The cases appear as baffling mysteries involving locked cells, gas poisoning, missing persons,
     haunted houses, bank robberies, and attempted murders. Each case presents seemingly impossible
     circumstan
   source: library/works/the_problem_of_cell_13/case.cml2.yaml
+  provenance: derived
+- id: the_profiteers
+  corpus: seed
+  axis: behavioral
+  mechanism_family: hidden_accomplice
+  false_assumption_pattern: disappearance_means_voluntary_absence
+  discriminating_test_shape: timetable_contradiction
+  inference_shape: identify_accomplice_network
+  premise: >-
+    Stanley Rees, a young director of the British and Imperial Granaries, mysteriously disappears.
+    The company directors, including Phipps and Dredlinton, face public outrage over their wheat
+    speculation.
+  source: library/works/the_profiteers/case.cml2.yaml
   provenance: derived
 - id: the_secret_of_father_brown
   corpus: seed
@@ -216,7 +424,7 @@
   mechanism_family: staged_scene
   false_assumption_pattern: locked_room_means_no_entry
   discriminating_test_shape: reconstruction
-  inference_shape: reconstruct_true_sequence_of_events
+  inference_shape: reframe_access_at_discovery
   premise: >-
     Sir Humphrey Gwynne is found murdered in his garden with a bullet wound. The poet Osric Orm is
     arrested due to suspicious behavior and lack of alibi. Meanwhile, a jewel theft involving a
@@ -229,7 +437,7 @@
   mechanism_family: locked_room_key
   false_assumption_pattern: locked_room_means_no_entry
   discriminating_test_shape: timetable_contradiction
-  inference_shape: reveal_hidden_access_route
+  inference_shape: reframe_access_at_discovery
   premise: >-
     Bartholomew Sholto is found dead in a locked room with no apparent means of entry or exit for
     the murderer. A valuable treasure has been stolen, and suspicion falls on his brother Thaddeus
@@ -249,6 +457,19 @@
     or noise was de
   source: library/works/the_silent_bullet/case.cml2.yaml
   provenance: derived
+- id: the_strange_countess
+  corpus: seed
+  axis: identity
+  mechanism_family: hidden_accomplice
+  false_assumption_pattern: the_evidence_proves_guilt
+  discriminating_test_shape: reconstruction
+  inference_shape: expose_conspirators_and_motive
+  premise: >-
+    Lois Reddle, secretary to the Countess of Moron, discovers her mother was wrongfully imprisoned
+    for murder. After a sequence of accidents and attempts on her life, Lois is abducted and
+    detained in a r
+  source: library/works/the_strange_countess/case.cml2.yaml
+  provenance: derived
 - id: the_strange_schemes_of_randolph_mason
   corpus: seed
   axis: authority
@@ -262,13 +483,39 @@
     impasse, and th
   source: library/works/the_strange_schemes_of_randolph_mason/case.cml2.yaml
   provenance: derived
+- id: the_thirteenth_letter
+  corpus: seed
+  axis: behavioral
+  mechanism_family: unconscious_act
+  false_assumption_pattern: the_actor_acted_knowingly
+  discriminating_test_shape: behavioral_tell
+  inference_shape: reconstruct_true_sequence_of_events
+  premise: >-
+    Paul Abbott, a war-wounded architect, is found stabbed in his bed at his country estate. The
+    nurse on duty, Miriam Ward, was chloroformed and unconscious during the murder. Suspicion falls
+    on several 
+  source: library/works/the_thirteenth_letter/case.cml2.yaml
+  provenance: derived
+- id: the_unseen_ear
+  corpus: seed
+  axis: identity
+  mechanism_family: impersonation
+  false_assumption_pattern: the_person_seen_is_their_true_identity
+  discriminating_test_shape: reconstruction
+  inference_shape: unmask_disguised_actor
+  premise: >-
+    Austin Hale is found murdered in the library of the Hale household with a pair of bloodstained
+    shears nearby. Suspicion falls on several family members and servants, with Joe Richards, the
+    husband of 
+  source: library/works/the_unseen_ear/case.cml2.yaml
+  provenance: derived
 - id: the_valley_of_fear
   corpus: seed
   axis: spatial
   mechanism_family: substituted_body
   false_assumption_pattern: the_dead_is_who_they_appear
   discriminating_test_shape: behavioral_tell
-  inference_shape: reveal_body_identity_switch
+  inference_shape: reveal_true_identity_of_body
   premise: >-
     John Douglas is found murdered in his locked manor house with evidence suggesting an outside
     intruder escaped through the window. A mysterious bicycle and blood marks point to a fugitive,

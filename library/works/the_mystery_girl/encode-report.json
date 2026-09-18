@@ -1,0 +1,134 @@
+{
+ "slug": "the_mystery_girl",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "John Waring was found dead in his study with a stab wound",
+   "anchor": "Doctor Waring—as you see him now",
+   "span": "I broke in at that glass door, being unable to get in any other way, and I found Doctor Waring—as you see him now.",
+   "ok": true
+  },
+  {
+   "claim": "The study door was locked from the inside",
+   "anchor": "The study door is locked",
+   "span": "The study door is locked.",
+   "ok": true
+  },
+  {
+   "claim": "No weapon was found at the scene",
+   "anchor": "No weapon about",
+   "span": "No weapon about.",
+   "ok": true
+  },
+  {
+   "claim": "Anita Austin possessed money and a ruby pin belonging to Waring",
+   "anchor": "roll of bills—exactly one hundred dollars worth",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Anita Austin's fingerprints and dress button imprints were found on a chair in the study",
+   "anchor": "finger prints on the chair",
+   "span": "Lockwood, fresh finger prints on the chair which stood near Doctor Waring’s desk.",
+   "ok": true
+  },
+  {
+   "claim": "Nogi, the Japanese servant, disappeared after the death",
+   "anchor": "Nogi is gone",
+   "span": "Nogi is gone—he cannot be questioned.",
+   "ok": true
+  },
+  {
+   "claim": "Lockwood smoothed the chair back to erase incriminating marks",
+   "anchor": "carefully smoothing the plush of the little chair",
+   "span": "Lockwood was coming to breakfast, and I perceived him carefully smoothing the plush of the little chair, sir.",
+   "ok": true
+  },
+  {
+   "claim": "A red circular mark was found on Waring's forehead",
+   "anchor": "There was a red circle on Waring’s forehead",
+   "span": "There was a red circle on Waring’s forehead, that looked as if it had been put there of some purpose.",
+   "ok": true
+  },
+  {
+   "claim": "Waring opened the small window and put his hand out",
+   "anchor": "he opened it. But for a moment—Did he put his hand out?",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The missing icicle was the murder weapon that melted",
+   "anchor": "the fringe of icicles that hung from that particular window sash showed one missing",
+   "span": "Stone did so, and without doubt, the fringe of icicles that hung from that particular window sash showed one missing!",
+   "ok": true
+  },
+  {
+   "claim": "Waring stabbed himself with the icicle",
+   "anchor": "he decided to stab himself with an icicle, and he did",
+   "span": "he decided to stab himself with an icicle, and he did.",
+   "ok": true
+  },
+  {
+   "claim": "The Latin epigram describes a death by falling ice",
+   "anchor": "Book IV, Epigram 18",
+   "span": "Aloud, the detective read this: TRANSLATION Book IV, Epigram 18 On a youth killed by the fall of a piece of ice.",
+   "ok": true
+  },
+  {
+   "claim": "Anita Austin is John Waring’s secret daughter",
+   "anchor": "Doctor John Waring was my father",
+   "span": "Doctor John Waring was my father.",
+   "ok": true
+  },
+  {
+   "claim": "Waring gave Anita money and a ruby pin as gifts",
+   "anchor": "He gave me the money, for he was afraid I hadn’t sufficient cash",
+   "span": "He gave me the money, for he was afraid I hadn’t sufficient cash with me, and he gave me the ruby pin, saying I must keep it forever as my father’s first gift to me.",
+   "ok": true
+  },
+  {
+   "claim": "Waring locked the study door after Anita left",
+   "anchor": "he softly opened the glass door for me. I went away and he closed the door",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Nogi witnessed the death and fled",
+   "anchor": "I was afraid, and I ran away—fast",
+   "span": "I was afraid, and I ran away—fast.",
+   "ok": true
+  },
+  {
+   "claim": "Lockwood loved Anita and tried to protect her",
+   "anchor": "I love you, I believe in you and I want you",
+   "span": "I know you are in no way guiltily connected with this crime—if you are mixed up with it, it is through force of circumstances, and anyway, I don’t care who or what you are—I love you, I believe in you and I want you.",
+   "ok": true
+  },
+  {
+   "claim": "Maurice Trask tried to manipulate Anita with threats and proposals",
+   "anchor": "Marry me, and I’ll clear you of all suspicion",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The red ring mark was caused by resting on the telephone",
+   "anchor": "he rested his head on the instrument",
+   "span": "Without doubt, Doctor Waring was telephoning—or perhaps was answering a call and he rested his head on the instrument.",
+   "ok": true
+  },
+  {
+   "claim": "The case was solved by reenactment and examination of the icicle",
+   "anchor": "Nogi was made to imitate the movements he saw Doctor Waring make",
+   "span": "They went to the study, and Nogi was made to imitate the movements he saw Doctor Waring make.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.128406521,
+ "models": {
+  "map": "gpt-4o-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true
+}

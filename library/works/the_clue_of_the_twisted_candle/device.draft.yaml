@@ -1,5 +1,5 @@
 pattern_id: the_clue_of_the_twisted_candle
-title: The Melting Candle
+title: The Candle Clock
 family: timing
 axes:
   - temporal
@@ -31,9 +31,9 @@ feasibility:
     - 1940
     - 1950
   requires:
-    - mechanical_latch
-    - period_candle
     - predictable_heat_source
+    - mechanical_latch
+    - period_telephone
   forbids:
     - cctv
     - electronic_timekeeping

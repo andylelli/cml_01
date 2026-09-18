@@ -2,9 +2,9 @@
   corpus: seed
   axis: identity
   mechanism_family: alibi_fabrication
-  false_assumption_pattern: the_suspect_was_present_at_crime
+  false_assumption_pattern: the_suspect_is_the_actual_killer
   discriminating_test_shape: timetable_contradiction
-  inference_shape: reconstruct_true_time_of_presence
+  inference_shape: reconstruct_true_sequence_of_events
   premise: >-
     Angus Baird, a money-lender, is found murdered in his home. Suspicion falls on the escaped
     convict Crawshay, who has been seen nearby, and on Raffles and Bunny, who are involved in

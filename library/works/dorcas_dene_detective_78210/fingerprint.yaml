@@ -1,0 +1,12 @@
+- id: dorcas_dene_detective_78210
+  corpus: seed
+  axis: behavioral
+  mechanism_family: locked_room_timing
+  false_assumption_pattern: locked_room_means_no_entry
+  discriminating_test_shape: timetable_contradiction
+  inference_shape: reframe_access_at_discovery
+  premise: >-
+    Prince ---- of ---- mysteriously disappears in London, presumed kidnapped by anarchists.
+    Meanwhile, Sir Joshua Broome faces blackmail threatening his wife's reputation. Dorcas Dene
+    investigates both c
+  source: library/works/dorcas_dene_detective_78210/case.cml2.yaml

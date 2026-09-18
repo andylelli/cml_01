@@ -1,0 +1,48 @@
+pattern_id: the_girl_from_scotland_yard
+title: The Moved Body
+family: spatial_routing
+axes:
+  - identity
+principle: >-
+  It obscures the true culprit, the culprit, who had both motive and opportunity to kill the victim
+  to protect her blackmail operation.
+principleType: social_logic
+surface_illusion_template: >-
+  a suspect a suspect murdered the victim out of revenge.; Lady the victim was protecting her own
+  interests by hiding the truth.; the culprit was innocent and only a victim of circumstances.
+underlying_reality_template: >-
+  the culprit killed the victim during a confrontation over blackmail. In a struggle, the culprit
+  shot the victim, who managed to hold onto the emerald pendant. the culprit then concealed the
+  victim body by placing it in a car and leaving it at a remote spot. The murder was motivated by
+  the culprit desire to protect her blackmail scheme and maintain control over the secrets involving
+  Lady the victim and the lost child.
+feasibility:
+  eras:
+    - 1850
+    - 1860
+    - 1870
+    - 1880
+    - 1890
+    - 1900
+    - 1910
+    - 1920
+    - 1930
+    - 1940
+    - 1950
+  requires:
+    - vehicle_access
+    - physical_strength
+  forbids:
+    - cctv
+    - automated_fingerprint_search
+clue_archetypes:
+  - emerald_pendant_found_in
+  - intact_emerald_necklace_in
+  - police_search_records_of
+  - discovery_of_gun_under
+  - gunpowder_burn_on_druze
+  - medical_examination_report_of
+sources:
+  - >-
+    Edgar Wallace, The girl from Scotland Yard —
+    library/works/the_girl_from_scotland_yard/case.cml2.yaml

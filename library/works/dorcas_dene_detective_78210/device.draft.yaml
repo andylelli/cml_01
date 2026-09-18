@@ -1,0 +1,48 @@
+pattern_id: dorcas_dene_detective_78210
+title: The Timed Escape
+family: timing
+axes:
+  - behavioral
+principle: >-
+  Inspector Carr was actually incapacitated by an accident, not a struggle, allowing the culprit to
+  escape without confrontation.
+principleType: physical_law
+surface_illusion_template: >-
+  The the victim was complicit in the Prince's kidnapping; the culprit escaped by overpowering
+  Inspector Carr; Lady a witness is guilty of the charges and the blackmail is justified
+underlying_reality_template: >-
+  The Prince was lured to the the victim house by a woman he knew, where anarchists including the
+  culprit captured and drugged him to keep him captive. the culprit escaped by seizing a cab and
+  driving off after Inspector Carr was incapacitated in an accident. The blackmail against Lady a
+  witness was orchestrated by Mrs. a suspect, who used knowledge of Lady a witness past and an
+  American connection to extort money.
+feasibility:
+  eras:
+    - 1850
+    - 1860
+    - 1870
+    - 1880
+    - 1890
+    - 1900
+    - 1910
+    - 1920
+    - 1930
+    - 1940
+    - 1950
+  requires:
+    - accidental_incapacitation
+    - vehicle_control
+  forbids:
+    - cctv
+    - electronic_timekeeping
+clue_archetypes:
+  - valet_s_testimony_about
+  - surveillance_reports_of_countess
+  - witness_statement_of_old
+  - recorded_anarchist_conversation_in
+  - police_report_of_carr
+  - witness_testimony_of_policeman
+sources:
+  - >-
+    George R. (George Robert) Sims, Dorcas Dene, detective —
+    library/works/dorcas_dene_detective_78210/case.cml2.yaml

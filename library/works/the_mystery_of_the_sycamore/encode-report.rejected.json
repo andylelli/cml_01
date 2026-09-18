@@ -1,0 +1,136 @@
+{
+ "slug": "the_mystery_of_the_sycamore",
+ "valid": false,
+ "errors": [
+  "CASE.inference_path.steps[5].required_evidence[1] relies on detective-only behavioral shorthand (\"Hospital visitor sign-in sheet showing Curtis Keefe's visit to John Mills on the day before Mills signed the confession, with time and witness signatures\") — replace it with a concrete pre-test observation, document, timeline fact, physical trace, or access record"
+ ],
+ "spans": [
+  {
+   "claim": "Samuel Appleby was shot dead in his chair",
+   "anchor": "Samuel Appleby dead in his chair, with a bullet through his heart",
+   "span": "He entered to see Samuel Appleby dead in his chair, with a bullet through his heart.",
+   "ok": true
+  },
+  {
+   "claim": "Daniel Wheeler confessed to the murder to shield his daughter",
+   "anchor": "I killed him myself, was the straightforward reply",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Sara Wheeler confessed falsely to protect family",
+   "anchor": "I shot Mr. Appleby myself. That’s why I’m so agitated",
+   "span": "I shot Mr. Appleby myself. That’s why I’m so agitated.",
+   "ok": true
+  },
+  {
+   "claim": "Maida Wheeler confessed falsely to shield her father",
+   "anchor": "I am the real criminal! Can’t you see that my father and mother are both trying to shield me?",
+   "span": "For I am the real criminal! Can’t you see that my father and mother are both trying to shield me? I did it, because of that awful man’s hold on my father!",
+   "ok": true
+  },
+  {
+   "claim": "A bugle call was heard the night before the murder",
+   "anchor": "a bugle to which she listened—the clear, though not loud, notes of a bugle",
+   "span": "But wide awake in a moment, she heard more of it, and realized that it was a bugle to which she listened—the clear, though not loud, notes of a bugle.",
+   "ok": true
+  },
+  {
+   "claim": "The pistol was found hidden in the fern bed",
+   "anchor": "he drew forth a revolver, which he turned over to Burdon",
+   "span": "he said, and with a quick thrust of his arm down among the ferns, he drew forth a revolver, which he turned over to Burdon.",
+   "ok": true
+  },
+  {
+   "claim": "The bullet entered from the bay window side",
+   "anchor": "the bullet entered Mr. Appleby’s body from the direction of Miss Maida, in the bay window",
+   "span": "I found out all those things, and the result proves that the bullet entered Mr. Appleby’s body from the direction of Miss Maida, in the bay window, and directly opposite from what would have been its direction if fired by Mr.",
+   "ok": true
+  },
+  {
+   "claim": "Keefe was absent briefly during the garage fire",
+   "anchor": "Keefe disappeared for a moment, and, later was again at Allen’s side",
+   "span": "Allen, Keefe disappeared for a moment, and, later was again at Allen’s side.",
+   "ok": true
+  },
+  {
+   "claim": "John Mills signed a false confession on his deathbed",
+   "anchor": "a signed confession of a man on his death-bed",
+   "span": "This is a signed confession of a man on his death-bed——” “No longer that,” said Keefe, solemnly, “he died this afternoon.",
+   "ok": true
+  },
+  {
+   "claim": "Rachel the maid was coached to fabricate the bugler story",
+   "anchor": "Rachel turned state’s evidence and told how you bribed her to make up that story of the bugler",
+   "span": "Rachel turned state’s evidence and told how you bribed her to make up that story of the bugler—or rather, to relate parrot-like—the story you taught to her.",
+   "ok": true
+  },
+  {
+   "claim": "Keefe purchased the bugle used to create the phantom bugler ruse",
+   "anchor": "Mr. Keefe bought that bugle—don’t you?",
+   "span": "Well, anyway—Miss Lane here knows that Mr. Keefe bought that bugle—don’t you?” He turned to Genevieve, who, after a glance at Keefe, nodded affirmation.",
+   "ok": true
+  },
+  {
+   "claim": "Keefe orchestrated the garage fire using acid",
+   "anchor": "he used the acids as the man Fulton described",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Keefe manipulated witnesses and bribed Mills",
+   "anchor": "Curtis Keefe went to him and told him that you were about to be dispossessed",
+   "span": "But Curtis Keefe went to him and told him that you were about to be dispossessed of your home and fortune, and that if he would sign the confession—knowing what it was—that he, Keefe, would settle a large sum of money on Mrs.",
+   "ok": true
+  },
+  {
+   "claim": "Keefe committed suicide when cornered",
+   "anchor": "with his right he quickly pulled open a drawer, grasped the pistol that was in it, and saying, with a slight smile: “A life for a life!” drew the trigger",
+   "span": "Keefe stepped to the table desk, where the paper lay, but as he laid his left hand upon it, with his right he quickly pulled open a drawer, grasped the pistol that was in it, and saying, with a slight smile: “A life for a life!” drew the trigger and fell to the floor.",
+   "ok": true
+  },
+  {
+   "claim": "The big sycamore tree fell into Massachusetts",
+   "anchor": "The wind has torn up the sycamore! Unrooted it, and it has fallen over",
+   "span": "The wind has torn up the sycamore! Unrooted it, and it has fallen over——” “Over into Massachusetts!",
+   "ok": true
+  },
+  {
+   "claim": "Appleby’s letter states Wheeler can go when the sycamore goes into Massachusetts",
+   "anchor": "when the big sycamore tree went into Massachusetts, Wheeler can go",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The fire was started by a chemical reaction using acid bottles",
+   "anchor": "bottles like that contained acid which, when combined with another acid, caused spontaneous combustion",
+   "span": "I was in the war, and bottles like that contained acid which, when combined with another acid, caused spontaneous combustion.",
+   "ok": true
+  },
+  {
+   "claim": "Three family members confessed to the murder",
+   "anchor": "both your parents have confessed to being the criminal",
+   "span": "Now, both your parents have confessed to being the criminal——” “What?",
+   "ok": true
+  },
+  {
+   "claim": "The signed confession of Mills was witnessed by nurses",
+   "anchor": "he signed—they witnessed—and there it is",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Keefe’s bugler story was a deliberate fabrication",
+   "anchor": "he coached her, all right, and she got scared before the performance came off and that’s why she ran away",
+   "span": "Well, he coached her, all right, and she got scared before the performance came off and that’s why she ran away.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.1888370496,
+ "models": {
+  "map": "gpt-4o-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": false
+}

@@ -1,0 +1,134 @@
+{
+ "slug": "the_loudwater_mystery",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Lord Loudwater was stabbed in his smoking-room",
+   "anchor": "knife which was in the inkstand on the library table stickin' in 'is 'eart",
+   "span": "There's that knife which was in the inkstand on the library table stickin' in 'is 'eart,\" said Wilkins in a dismal voice.",
+   "ok": true
+  },
+  {
+   "claim": "A forged letter instructed the bank to pay Helena Truslove",
+   "anchor": "Lord Loudwater's letter of instructions with regard to the twelve thousand pounds",
+   "span": "He made no bones about showing them Lord Loudwater's letter of instructions with regard to the twelve thousand pounds.",
+   "ok": true
+  },
+  {
+   "claim": "Lady Loudwater and Colonel Grey lied about hearing Lord Loudwater snore",
+   "anchor": "Lady Loudwater lied about the snoring",
+   "span": "But why had Lady Loudwater lied about the snoring?",
+   "ok": true
+  },
+  {
+   "claim": "James Hutchings was discharged and threatened Lord Loudwater",
+   "anchor": "He dashed at the electric bell by the fireplace, set his thumb on it, and kept it there",
+   "span": "He dashed at the electric bell by the fireplace, set his thumb on it, and kept it there.",
+   "ok": true
+  },
+  {
+   "claim": "A mysterious woman had a quarrel with Lord Loudwater late at night",
+   "anchor": "there was a woman, or rather I should say a lady, with his lordship in the smoking-room last night",
+   "span": "Well, there was a woman, or rather I should say a lady, with his lordship in the smoking-room last night--about eleven o'clock.",
+   "ok": true
+  },
+  {
+   "claim": "Herbert Manley forged the letter and murdered Lord Loudwater",
+   "anchor": "Mr. Flexen said: \"We've discovered that the signature of Lord Loudwater's letter of instructions to his bankers to pay that cheque for twelve thousand pounds into your wife's account was forged.\"",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The murderer wore gloves to avoid leaving fingerprints",
+   "anchor": "The murderer had worn a glove.",
+   "span": "_The murderer had worn a glove._ CHAPTER XIII Mr.",
+   "ok": true
+  },
+  {
+   "claim": "The forged signature differs in ink and pauses from genuine ones",
+   "anchor": "The forged signature is written with the same kind of nib as the genuine ones.",
+   "span": "The forged signature is written with the same kind of nib as the genuine ones. Also, the bodies of the letters are written in a fountain-pen ink--the 'Swan,' I think.",
+   "ok": true
+  },
+  {
+   "claim": "Mr. Manley admits inventing the threat to halve Helena's allowance",
+   "anchor": "Lord Loudwater never talked of halving my wife's allowance. That was an invention of mine.",
+   "span": "Lord Loudwater never talked of halving my wife's allowance. That was an invention of mine. I told her that he was doing so just to tease her,\" said Mr.",
+   "ok": true
+  },
+  {
+   "claim": "William Roper spreads scandalous rumors about Lady Loudwater and Colonel Grey",
+   "anchor": "William Roper, one of the under-gamekeepers, spreads a scandalous and lying story about you and Colonel Grey",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The mysterious woman is Helena Truslove, wife of Herbert Manley",
+   "anchor": "I've found the mysterious woman, and she's now Mrs. Herbert Manley",
+   "span": "I've found the mysterious woman, and she's now Mrs. Herbert Manley,\" said Mr.",
+   "ok": true
+  },
+  {
+   "claim": "Lord Loudwater was a violent man with many enemies",
+   "anchor": "He was the most unpleasant brute I ever came across in my life",
+   "span": "He was the most unpleasant brute I ever came across in my life,\" said Mr.",
+   "ok": true
+  },
+  {
+   "claim": "Lord Loudwater threatened to divorce Lady Loudwater and hound Colonel Grey out of the Army",
+   "anchor": "He'd hound you out of the Army inside of a month",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The knife was left in the wound to avoid bloodstains",
+   "anchor": "He wears a glove and leaves the knife in the wound, so that there are no bloodstains",
+   "span": "He wears a glove and leaves the knife in the wound, so that there are no bloodstains.",
+   "ok": true
+  },
+  {
+   "claim": "Mr. Manley is a clever manipulator and aspiring dramatist",
+   "anchor": "He had the art of making himself valued",
+   "span": "He had the art of making himself valued (at far more than his real worth, said his enemies), and his air of importance continuously impressed them.",
+   "ok": true
+  },
+  {
+   "claim": "Lady Loudwater and Colonel Grey had an affair",
+   "anchor": "Lady Loudwater and Colonel Grey were seen kissing in the East wood",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "James Hutchings returned to the castle late at night",
+   "anchor": "James Hutchings had come and gone by the library window",
+   "span": "However, only himself and William Roper knew, at present, that James Hutchings had come and gone by the library window, had actually passed twice within a few feet of his sleeping, or dead, master.",
+   "ok": true
+  },
+  {
+   "claim": "Mr. Flexen doubts the suicide theory",
+   "anchor": "I don't believe that Lord Loudwater had committed suicide",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Mr. Manley refuses to help find the murderer",
+   "anchor": "If I could help you in any way to discover the criminal, I wouldn't",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The forged letter was written with different ink than the body of the letter",
+   "anchor": "The forged signature is also written in Stephens' blue-black ink",
+   "span": "The forged signature is also written in Stephens' blue-black ink.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.091278022,
+ "models": {
+  "map": "gpt-4o-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true
+}

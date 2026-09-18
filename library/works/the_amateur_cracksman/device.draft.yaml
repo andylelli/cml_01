@@ -1,5 +1,5 @@
 pattern_id: the_amateur_cracksman
-title: The Borrowed Alibi
+title: The Shifted Blame
 family: timing
 axes:
   - identity
@@ -31,7 +31,6 @@ feasibility:
   requires:
     - social_deference
     - timed_arrival
-    - physical_evidence_manipulation
   forbids:
     - cctv
     - electronic_timekeeping

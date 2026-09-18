@@ -34,8 +34,8 @@ feasibility:
     - 1950
   requires:
     - photographic_reproduction
-    - stamp_making
-    - defibrinated_blood
+    - blood_simulation
+    - fingerprint_sample
   forbids:
     - automated_fingerprint_search
     - forensic_document_dating

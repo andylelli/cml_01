@@ -1,0 +1,128 @@
+{
+ "slug": "dorcas_dene_detective_78210",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Prince ---- of ---- left his hotel alone and disappeared",
+   "anchor": "his Royal Highness Prince ---- of ---- left his hotel yesterday evening unaccompanied",
+   "span": "his Royal Highness Prince ---- of ---- left his hotel yesterday evening unaccompanied by any member of the small suite he has with him, and he has not been seen or heard of since.",
+   "ok": true
+  },
+  {
+   "claim": "Anarchists hold the Prince hostage to save condemned comrades",
+   "anchor": "We have at our mercy the heir to the throne of ----",
+   "span": "We have at our mercy the heir to the throne of ----.",
+   "ok": true
+  },
+  {
+   "claim": "Jean Vossche escaped by driving the cab after Inspector Carr's accident",
+   "anchor": "Jean Vossche, the Anarchist, driving furiously",
+   "span": "THE HOUSE IN REGENT'S PARK_ When the hansom which should have been driven by Inspector Carr, and should have had Jean Vossche inside, dashed past us empty and with Jean Vossche, the Anarchist, driving furiously, Dorcas Dene stood for a moment dumbfounded.",
+   "ok": true
+  },
+  {
+   "claim": "Countess Elstein was found dead with a cord and heavy weights",
+   "anchor": "Round her body was a stout cord, and attached to the cord two heavy weights",
+   "span": "Round her body was a stout cord, and attached to the cord two heavy weights.",
+   "ok": true
+  },
+  {
+   "claim": "Lady Broome was convicted under the name Margaret Grey",
+   "anchor": "Margaret Grey, governess, aged twenty-five, was sentenced to six months' imprisonment",
+   "span": "Margaret Grey, governess, aged twenty-five, was sentenced to six months' imprisonment for stealing some rings from a jeweller's tray while examining goods.",
+   "ok": true
+  },
+  {
+   "claim": "Blackmail letter threatens Sir Joshua Broome about his wife's past",
+   "anchor": "It will be a nice disgrace to you and her and all your family",
+   "span": "It will be a nice disgrace to you and her and all your family when you see in the _Court Circular_ that the presentation of Lady Broome has been cancelled by the Queen's command.",
+   "ok": true
+  },
+  {
+   "claim": "John Garrod concealed Lady Broome's past by letting her use an alias",
+   "anchor": "I recommended a young lady whom I believed to be an honest woman",
+   "span": "Broome--I didn't know he was Sir Joshua--I recommended a young lady whom I believed to be an honest woman.",
+   "ok": true
+  },
+  {
+   "claim": "Anarchists' secret meeting discussing hostage and execution reprieve",
+   "anchor": "Our brave comrades shall not die--we may even compel the Government to set them secretly at liberty",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Zelie Vossche is maid to Countess Elstein and sister to Jean Vossche",
+   "anchor": "Zelie Vossche, who is maid to the Prince of ----'s morganatic wife, is sister to Jean Vossche",
+   "span": "Yes, Zelie Vossche, who is maid to the Prince of ----'s morganatic wife, is sister to Jean Vossche, one of the Anarchists who hold the Prince as hostage for the safety of the condemned Anarchists of ----.",
+   "ok": true
+  },
+  {
+   "claim": "Jean Vossche was captured and escaped custody",
+   "anchor": "The man, with a desperate effort, had wrenched himself free",
+   "span": "The man, with a desperate effort, had wrenched himself free.",
+   "ok": true
+  },
+  {
+   "claim": "Dorcas Dene used a flower to force Count von Phalsdorf to reveal a scar",
+   "anchor": "I wanted to put that nice spiky carnation into his button-hole",
+   "span": "That's why I wanted to put that nice spiky carnation into his button-hole.",
+   "ok": true
+  },
+  {
+   "claim": "Mrs. Winter is the author of the blackmail letters",
+   "anchor": "I know who wrote this letter... a woman who calls herself Mrs. Winter",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Inspector Carr was incapacitated by accident, not by Vossche",
+   "anchor": "Carr's got rid of him... the man who was driving the hansom so furiously",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The Prince was drugged to keep him quiet",
+   "anchor": "He was under the influence of some drug, I should think",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The Countess was struck down by Vossche when she tried to intervene",
+   "anchor": "The Countess rushed out, hearing the noise, but was struck down by Vossche",
+   "span": "The Countess rushed out, hearing the noise, but was struck down by Vossche.",
+   "ok": true
+  },
+  {
+   "claim": "The blackmail scheme was designed to extort £1,000",
+   "anchor": "I'll pay £1,000 to two infamous wretches",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Jean Vossche communicated with his accomplices about police pursuit",
+   "anchor": "He drove off because he is in a desperate hurry to warn his accomplices",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Dorcas Dene's assistants watched the Countess's house",
+   "anchor": "One has been watching the entrance in the Inner Circle",
+   "span": "One has been watching the entrance in the Inner Circle, and the other is concealed in the Park watching the grounds.",
+   "ok": true
+  },
+  {
+   "claim": "The maid Zelie Vossche was silent but implicated",
+   "anchor": "Zelie Vossche, who remained obstinately silent, was removed in custody",
+   "span": "A couple of hours later a brougham arrived with the Chief of Police and the Prince's aide-de-camp, and his Royal Highness was quietly taken to the doctor's house, and Zelie Vossche, who remained obstinately silent, was removed in custody.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.07774433450000001,
+ "models": {
+  "map": "gpt-4o-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true
+}

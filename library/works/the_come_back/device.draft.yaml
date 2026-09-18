@@ -1,0 +1,47 @@
+pattern_id: the_come_back
+title: The Living Ghost
+family: identity
+axes:
+  - identity
+principle: >-
+  The medium and an accomplice fabricated the messages and materializations using stolen items, and
+  the investigator was actually alive, having survived the accident.
+principleType: cognitive_bias
+surface_illusion_template: >-
+  the investigator spirit is truly communicating with his parents; the culprit killed the victim out
+  of jealousy; The materialized objects at seances are supernatural manifestations
+underlying_reality_template: >-
+  the culprit murdered the victim by secretly poisoning a soda mint with prussic acid, which the
+  victim unknowingly consumed. The medium, the culprit, was complicit in fabricating spirit
+  communications and materializations using stolen personal items of the investigator to deceive the
+  Cranes and others. the investigator, alive but incognito, uncovered the fraud and the true
+  murderer.
+feasibility:
+  eras:
+    - 1850
+    - 1860
+    - 1870
+    - 1880
+    - 1890
+    - 1900
+    - 1910
+    - 1920
+    - 1930
+    - 1940
+    - 1950
+  requires:
+    - physical_disguise
+    - stolen_personal_items
+    - social_deference
+  forbids:
+    - cctv
+    - voice_authentication
+clue_archetypes:
+  - medical_examiner_s_autopsy
+  - search_of_blair_s
+  - police_report_on_discovery
+  - witness_testimony_on_thorpe
+  - observation_of_ouija_board
+  - handwriting_analysis_of_forged
+sources:
+  - Carolyn Wells, The Come Back — library/works/the_come_back/case.cml2.yaml

@@ -1,0 +1,12 @@
+- id: the_strange_countess
+  corpus: seed
+  axis: identity
+  mechanism_family: hidden_accomplice
+  false_assumption_pattern: the_evidence_proves_guilt
+  discriminating_test_shape: reconstruction
+  inference_shape: expose_conspirators_and_motive
+  premise: >-
+    Lois Reddle, secretary to the Countess of Moron, discovers her mother was wrongfully imprisoned
+    for murder. After a sequence of accidents and attempts on her life, Lois is abducted and
+    detained in a r
+  source: library/works/the_strange_countess/case.cml2.yaml

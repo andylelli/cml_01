@@ -1,0 +1,429 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The Profiteers
+    author: E. Phillips (Edward Phillips) Oppenheim
+    license: Public domain (first published 1921; author died 1946). Project Gutenberg ebook 10575.
+    era:
+      decade: 1920s
+      realism_constraints:
+        - No modern forensic DNA or electronic surveillance available
+        - Communication by telephone and telegram is common but slow and monitored
+        - Physical restraint and hostage-taking possible but must be covert and plausible
+    setting:
+      location: London, England
+      institution: Scotland Yard
+    crime_class:
+      category: disappearance
+      subtype: hostage blackmail to force commodity price manipulation
+  cast:
+    - name: John Wingate
+      age_range: 30-40
+      role_archetype: wealthy American financier and war hero
+      relationships:
+        - Josephine Dredlinton (friend and love interest)
+      public_persona: American millionaire and speculator
+      private_secret: orchestrator of the kidnapping and blackmail
+      motive_seed: revenge against unscrupulous wheat speculators
+      motive_strength: strong
+      alibi_window: present throughout the hostage event
+      access_plausibility: high, owns the house and controls servants
+      opportunity_channels:
+        - control of servants
+        - financial resources
+        - personal strength
+      behavioral_tells:
+        - calm under pressure
+        - strategic
+        - secretive
+      stakes: high, wants to break the wheat corner
+      evidence_sensitivity:
+        - letter from Josephine
+        - telephone records
+        - hostage room setup
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: high, uses illegal means for perceived justice
+    - name: Josephine Dredlinton
+      age_range: 30-35
+      role_archetype: unhappy aristocratic wife and ally
+      relationships:
+        - Lord Dredlinton (husband)
+        - John Wingate (friend and lover)
+        - Sarah Baldwin (friend)
+      public_persona: Countess, socially admired
+      private_secret: dislikes husband and supports Wingate
+      motive_seed: escape unhappy marriage and corrupt business
+      motive_strength: moderate
+      alibi_window: present with Wingate during key events
+      access_plausibility: high, lives in the house
+      opportunity_channels:
+        - access to house
+        - knowledge of husband's affairs
+      behavioral_tells:
+        - fearful of husband
+        - trusting of Wingate
+      stakes: personal freedom and happiness
+      evidence_sensitivity:
+        - cable message
+        - presence at hostage scene
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: moderate, conflicted loyalties
+    - name: Lord Dredlinton
+      age_range: 40-50
+      role_archetype: unscrupulous aristocrat and director
+      relationships:
+        - Josephine Dredlinton (wife)
+        - Peter Phipps (business partner)
+      public_persona: director of British and Imperial Granaries
+      private_secret: embezzler and blackmailer
+      motive_seed: financial gain and control
+      motive_strength: strong
+      alibi_window: present at house during hostage event
+      access_plausibility: high, owns house and servants
+      opportunity_channels:
+        - authority over servants
+        - access to company secrets
+      behavioral_tells:
+        - drunkenness
+        - nervousness
+        - threatening behavior
+      stakes: financial ruin if corner broken
+      evidence_sensitivity:
+        - blackmail letter
+        - telephone call
+        - presence at hostage scene
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high, villainous and cowardly
+    - name: Peter Phipps
+      age_range: 50-60
+      role_archetype: ruthless chairman and speculator
+      relationships:
+        - Lord Dredlinton (associate)
+        - Stanley Rees (nephew)
+      public_persona: Chairman of British and Imperial Granaries
+      private_secret: manipulates market and involved in kidnapping
+      motive_seed: profit and market control
+      motive_strength: strong
+      alibi_window: present at house during hostage event
+      access_plausibility: high, controls company and servants
+      opportunity_channels:
+        - company resources
+        - authority over staff
+      behavioral_tells:
+        - malice
+        - anger
+        - fear of ruin
+      stakes: financial empire and reputation
+      evidence_sensitivity:
+        - cable message
+        - hostage room
+        - telephone records
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high, cold and calculating
+    - name: Stanley Rees
+      age_range: 25-35
+      role_archetype: young director and victim
+      relationships:
+        - Peter Phipps (uncle)
+      public_persona: young director and nephew of Phipps
+      private_secret: under thumb of Phipps, no known secrets
+      motive_seed: none
+      motive_strength: none
+      alibi_window: disappeared and held hostage
+      access_plausibility: none
+      opportunity_channels: []
+      behavioral_tells:
+        - fear
+        - helplessness
+      stakes: life and freedom
+      evidence_sensitivity:
+        - hostage bindings
+        - letters
+        - servant testimony
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: low
+    - name: Sarah Baldwin
+      age_range: 20-30
+      role_archetype: young working woman and friend
+      relationships:
+        - Josephine Dredlinton (friend)
+        - Jimmy Wilshaw (fiancé)
+      public_persona: taxicab driver
+      private_secret: close friend of Josephine
+      motive_seed: none
+      motive_strength: none
+      alibi_window: present at social events
+      access_plausibility: low
+      opportunity_channels: []
+      behavioral_tells:
+        - concern for Josephine
+      stakes: friendship and safety
+      evidence_sensitivity:
+        - witness statements
+        - social observations
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: low
+    - name: Jimmy Wilshaw
+      age_range: 20-30
+      role_archetype: young clerk and fiancé
+      relationships:
+        - Sarah Baldwin (fiancé)
+      public_persona: young man starting career in City
+      private_secret: none
+      motive_seed: none
+      motive_strength: none
+      alibi_window: present at social events
+      access_plausibility: low
+      opportunity_channels: []
+      behavioral_tells:
+        - nervousness
+        - youthful enthusiasm
+      stakes: future and love
+      evidence_sensitivity:
+        - witness statements
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+  culpability:
+    culprit_count: 2
+    culprits:
+      - Lord Dredlinton
+      - Peter Phipps
+  surface_model:
+    narrative:
+      summary: >-
+        Stanley Rees, a young director of the British and Imperial Granaries, mysteriously
+        disappears. The company directors, including Phipps and Dredlinton, face public outrage over
+        their wheat speculation. Wingate, an American financier and enemy of Phipps, threatens and
+        confronts the directors amid rising tensions.
+    accepted_facts:
+      - Stanley Rees has disappeared from his hotel room without explanation
+      - The British and Imperial Granaries have cornered a large portion of the wheat market
+      - Wingate is an enemy of Phipps and opposes the company's speculation
+      - The directors have been under pressure and receiving threatening letters
+    inferred_conclusions:
+      - Stanley Rees disappeared voluntarily to escape scandal
+      - Wingate is innocent and only a concerned friend
+      - The disappearance is unrelated to the wheat speculation
+  hidden_model:
+    mechanism:
+      description: >-
+        John Wingate orchestrates the kidnapping of the three directors—Phipps, Dredlinton, and
+        Rees—holding them hostage in Dredlinton's house. He uses this to blackmail them into selling
+        wheat at a drastically reduced price to break their market corner. The captivity is
+        maintained by trusted servants and accomplices, ensuring secrecy and control.
+      delivery_path:
+        - step: Stanley Rees is lured from his hotel and brought secretly to Dredlinton House
+        - step: Phipps is similarly brought to the house under false pretenses
+        - step: Dredlinton is subdued and confined in his own home
+        - step: Wingate controls the servants and communications to isolate the captives
+        - step: The captives are bound and gagged, then released only after agreeing to sell wheat
+        - step: Dredlinton dies from exhaustion during captivity
+        - step: The captives are released after the sale is confirmed
+    outcome:
+      result: >-
+        The directors are forced to sell wheat at a lower price, breaking their corner, and the
+        kidnapped men are released, though Dredlinton dies during captivity.
+  false_assumption:
+    statement: Stanley Rees disappeared voluntarily to avoid scandal or personal trouble.
+    type: behavioral
+    why_it_seems_reasonable: >-
+      Rees was seen leaving his room without coat or hat and had social engagements that evening,
+      suggesting a voluntary absence. The lack of immediate evidence of foul play supports this.
+    what_it_hides: >-
+      It conceals the fact that Rees was abducted and held hostage as part of a calculated scheme to
+      force the directors to break their wheat corner.
+  false_solution:
+    accused_suspect: John Wingate
+    supporting_points:
+      - Wingate is the enemy of the directors and openly threatens them
+      - He is present at many key moments and has access to the house
+      - He shows knowledge of the disappearance and market manipulation
+      - He controls the servants and communications
+    the_one_flaw: >-
+      Wingate orchestrates the kidnapping but is not the victimizer; the actual blackmail and market
+      manipulation are carried out by the directors themselves under duress.
+    refuted_in_chapter: 22
+  red_herrings:
+    - id: lord_dredlinton_drunk_rage
+      description: >-
+        Lord Dredlinton's drunken outbursts and aggressive behavior suggest he might be responsible
+        for Rees' disappearance.
+      points_at_suspect: Lord Dredlinton
+      innocent_explanation: >-
+        His drunkenness is genuine but he is himself a victim of the kidnapping and blackmail
+        scheme.
+      resolved_in_chapter: 21
+    - id: peter_phipps_market_manipulation
+      description: >-
+        Peter Phipps' ruthless market dealings and threats imply he might have orchestrated the
+        disappearance to protect his interests.
+      points_at_suspect: Peter Phipps
+      innocent_explanation: Though involved in the scheme, Phipps is coerced and held hostage, not the mastermind.
+      resolved_in_chapter: 23
+  closed_circle:
+    suspects:
+      - Peter Phipps
+      - Lord Dredlinton
+      - Stanley Rees
+      - John Wingate
+    rationale: >-
+      The disappearance and hostage situation involve only the directors and Wingate, all confined
+      within Dredlinton House with no outside access, forming a closed circle of suspects and
+      victims.
+  constraint_space:
+    time:
+      anchors:
+        - Stanley Rees disappeared at 4 AM
+        - Hostage captivity lasted overnight until morning
+      windows:
+        - Hostage event from night to next morning
+        - Sale of wheat executed at dawn
+    access:
+      actors:
+        - John Wingate
+        - Grant (butler)
+        - other servants
+        - footmen
+      objects:
+        - Dredlinton House
+        - telephone
+        - keys to rooms
+    social:
+      trust_channels:
+        - Servants loyal to Wingate
+        - Telephone communications with Harrison
+      authority_sources:
+        - Lord Dredlinton's nominal authority
+        - Peter Phipps' company authority
+  inference_path:
+    steps:
+      - observation: Stanley Rees disappeared mysteriously from his hotel room leaving coat and hat behind
+        correction: Rees was abducted and brought to Dredlinton House
+        effect: Rees is a victim, not a voluntary runaway
+        required_evidence:
+          - >-
+            Statement from hotel manager about Rees' disappearance and the time he was last seen
+            leaving his room without coat or hat
+          - >-
+            Testimony of Rees' valet about the noise and missing master from the hotel room at the
+            time of disappearance
+        reader_observable: true
+      - observation: Phipps and Dredlinton are missing and unaccounted for
+        correction: They are held captive in Dredlinton House
+        effect: All three directors are hostages
+        required_evidence:
+          - >-
+            Servant Grant's testimony about seeing Phipps and Dredlinton inside the locked room
+            during the night
+          - Physical evidence of bindings and gags found in the room where the directors were held
+        reader_observable: true
+      - observation: Wingate openly threatens the directors and controls the house
+        correction: Wingate is the orchestrator of the kidnapping
+        effect: Wingate is the mastermind behind the blackmail
+        required_evidence:
+          - >-
+            Servant's statement that Wingate gave all orders to the staff and controlled access to
+            the directors' rooms during the captivity
+          - >-
+            Telephone records showing Wingate's exclusive use of the house line to communicate with
+            outside parties during the hostage period
+        reader_observable: true
+      - observation: A coded cable message reveals a secret shipment of wheat
+        correction: The shipment will break the wheat corner if shares are sold
+        effect: The motive for the kidnapping is to force sale of shares
+        required_evidence:
+          - >-
+            Josephine's reading of the decoded cable message about the Universal Line steamers and
+            wheat cargo
+          - Correspondence showing the shipment details and its impact on the wheat market
+        reader_observable: true
+      - observation: The directors refuse to sell wheat at a lower price
+        correction: They are held hostage and threatened with death
+        effect: Their compliance is coerced by Wingate
+        required_evidence:
+          - Hostage bindings and threats with pistol as described by the released directors
+          - >-
+            Telephone orders to Harrison to sell wheat at reduced price, placed from Dredlinton
+            House during captivity
+        reader_observable: true
+      - observation: Lord Dredlinton dies suddenly during captivity
+        correction: Death caused by exhaustion and heart disease exacerbated by stress
+        effect: The hostage situation has fatal consequences
+        required_evidence:
+          - >-
+            Doctor's report certifying cause of death as exhaustion and heart disease after
+            examining Dredlinton's body
+          - >-
+            Observation of Dredlinton's deteriorating condition by the other captives and servants
+            during captivity
+        reader_observable: true
+      - observation: After sale orders, the market collapses and wheat prices fall
+        correction: The blackmail achieves its goal of breaking the corner
+        effect: Wingate's plan succeeds
+        required_evidence:
+          - >-
+            Telephone confirmation of sales to Harrison from Dredlinton House during the captivity
+            window
+          - Market price reports showing collapse of wheat prices immediately after the sale
+        reader_observable: true
+  discriminating_test:
+    method: constraint_proof
+    design: >-
+      Wingate arranges for the three directors to be confined together in a locked room within
+      Dredlinton House, with all access controlled by his trusted servants. The test is to verify
+      that no one outside this circle could have entered or left unnoticed during the relevant time
+      window, by checking servants' testimonies, access records, and the physical security of the
+      house.
+    knowledge_revealed: >-
+      This test reveals that the disappearance and captivity could only have been orchestrated by
+      someone with full control of the house and servants, eliminating external suspects.
+    pass_condition: >-
+      No evidence of unauthorized entry or exit during the captivity period is found, confirming the
+      closed circle of suspects.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given access to all key characters, their motives, and movements. The coded
+      cable message is presented and can be decoded by attentive readers. The presence of servants
+      loyal to Wingate and the locked house are described in detail. The false assumption about
+      Rees' voluntary disappearance is clearly contradicted by witness statements and the physical
+      evidence of captivity. The final confession and unmasking are foreshadowed, allowing the
+      reader to deduce the true mechanism.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

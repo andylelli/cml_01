@@ -2,9 +2,9 @@
   corpus: seed
   axis: identity
   mechanism_family: staged_scene
-  false_assumption_pattern: the_murder_was_committed_by_the_suspect_found_with_weapon
+  false_assumption_pattern: the_scene_indicates_robbery_motive
   discriminating_test_shape: timetable_contradiction
-  inference_shape: reconstruct_true_sequence_of_events
+  inference_shape: reconstruct_true_motive_and_identity
   premise: >-
     An elderly man named John Marbury is found murdered in Middle Temple Lane, London, with no
     identification except a scrap of paper bearing a young barrister's name. Suspicion falls on

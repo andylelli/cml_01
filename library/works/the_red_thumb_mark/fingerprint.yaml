@@ -2,9 +2,9 @@
   corpus: seed
   axis: identity
   mechanism_family: alibi_fabrication
-  false_assumption_pattern: a_fingerprint_proves_presence_and_guilt
+  false_assumption_pattern: a_fingerprint_proves_physical_presence
   discriminating_test_shape: behavioral_tell
-  inference_shape: demonstrate_fingerprint_forgery
+  inference_shape: demonstrate_forgery_of_evidence
   premise: >-
     Reuben Hornby is accused of stealing diamonds from his uncle's safe, with a bloody thumbprint
     found inside identified as his. The evidence seems overwhelming, and the police and prosecution

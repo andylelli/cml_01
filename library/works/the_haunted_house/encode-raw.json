@@ -1,0 +1,543 @@
+{
+ "decade": "1910s",
+ "realism_constraints": [
+  "No advanced forensic technology like DNA or modern forensics",
+  "Communication limited to letters, telegrams, and telephone",
+  "Social class and inheritance laws strongly influence property and status"
+ ],
+ "location": "Rackham Catchings, Sussex, England",
+ "institution": "Local police with involvement of a private detective (Mr. Pretherton)",
+ "crime_category": "fraud",
+ "crime_subtype": "haunting to manipulate property sale",
+ "cast": [
+  {
+   "name": "John Maple",
+   "age_range": "early 20s",
+   "role_archetype": "young heir struggling for rightful inheritance",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "performer and heir to Rackham",
+   "private_secret": "mastermind behind the ghost haunting",
+   "motive_seed": "recover family estate from aunt",
+   "motive_strength": "strong",
+   "alibi_window": "present at Rackham during haunting",
+   "access_plausibility": "high",
+   "stakes": "regain family home and fortune",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Aunt Hilda Maple (antagonistic guardian)",
+    "Bo Hellup (fiancée)"
+   ],
+   "opportunity_channels": [
+    "access to house and keys",
+    "ventriloquism skills"
+   ],
+   "behavioral_tells": [
+    "calm under pressure",
+    "dual life as performer"
+   ],
+   "evidence_sensitivity": [
+    "letters to Aunt Hilda",
+    "key to locked room",
+    "cloak and ruff costume"
+   ]
+  },
+  {
+   "name": "Bo Hellup",
+   "age_range": "early 20s",
+   "role_archetype": "wealthy heiress and co-conspirator",
+   "role": "culprit",
+   "gender": "female",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "American heiress and socialite",
+   "private_secret": "partner in haunting scheme",
+   "motive_seed": "help John regain Rackham",
+   "motive_strength": "strong",
+   "alibi_window": "present at Rackham during haunting",
+   "access_plausibility": "high",
+   "stakes": "support lover and secure future",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "John Maple (fiancé)",
+    "Lord Hellup (father)"
+   ],
+   "opportunity_channels": [
+    "access to house",
+    "knowledge of social circles"
+   ],
+   "behavioral_tells": [
+    "confident",
+    "manipulative"
+   ],
+   "evidence_sensitivity": [
+    "cloak and ruff costume",
+    "letters",
+    "dog Lovey-Lad"
+   ]
+  },
+  {
+   "name": "Hilda Maple",
+   "age_range": "50s",
+   "role_archetype": "guardian and reluctant seller",
+   "role": "suspect",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "eligible",
+   "public_persona": "widow managing Rackham Catchings",
+   "private_secret": "financially desperate, forced to sell",
+   "motive_seed": "debts and pressure to sell estate",
+   "motive_strength": "strong",
+   "alibi_window": "present at Rackham",
+   "access_plausibility": "high",
+   "stakes": "financial survival",
+   "moral_complexity": "high",
+   "relationships": [
+    "John Maple (nephew)",
+    "William Maple (deceased husband)"
+   ],
+   "opportunity_channels": [
+    "control of house and staff"
+   ],
+   "behavioral_tells": [
+    "nervous",
+    "proud"
+   ],
+   "evidence_sensitivity": [
+    "letters from John",
+    "financial documents"
+   ]
+  },
+  {
+   "name": "Lord Mere de Beaurivage (George Huggins)",
+   "age_range": "60s",
+   "role_archetype": "wealthy peer and potential buyer",
+   "role": "victim",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "eligible",
+   "public_persona": "newly ennobled millionaire peer",
+   "private_secret": "fearful and superstitious about ghost",
+   "motive_seed": "desire to buy Rackham",
+   "motive_strength": "moderate",
+   "alibi_window": "present at Rackham during haunting",
+   "access_plausibility": "high",
+   "stakes": "acquire prestigious estate",
+   "moral_complexity": "low",
+   "relationships": [
+    "Amathea, Lady de Beaurivage (wife)"
+   ],
+   "opportunity_channels": [
+    "access as guest"
+   ],
+   "behavioral_tells": [
+    "nervous",
+    "superstitious"
+   ],
+   "evidence_sensitivity": [
+    "bedroom door lock",
+    "witness accounts"
+   ]
+  },
+  {
+   "name": "Amathea, Lady de Beaurivage",
+   "age_range": "50s",
+   "role_archetype": "social climber and buyer’s wife",
+   "role": "suspect",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "eligible",
+   "public_persona": "peeress and socialite",
+   "private_secret": "ambitious for Rackham",
+   "motive_seed": "support husband’s purchase",
+   "motive_strength": "moderate",
+   "alibi_window": "present at Rackham",
+   "access_plausibility": "high",
+   "stakes": "social status",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Lord Mere de Beaurivage (husband)"
+   ],
+   "opportunity_channels": [
+    "access as guest"
+   ],
+   "behavioral_tells": [
+    "assertive",
+    "emotional"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Lord Hellup",
+   "age_range": "60s",
+   "role_archetype": "wealthy American peer and potential buyer",
+   "role": "suspect",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "eligible",
+   "public_persona": "American millionaire peer",
+   "private_secret": "financially cautious",
+   "motive_seed": "interest in Rackham",
+   "motive_strength": "moderate",
+   "alibi_window": "present at Rackham",
+   "access_plausibility": "high",
+   "stakes": "acquire country estate",
+   "moral_complexity": "low",
+   "relationships": [
+    "Isabeau Hellup (daughter)"
+   ],
+   "opportunity_channels": [
+    "access as guest"
+   ],
+   "behavioral_tells": [
+    "calm",
+    "pragmatic"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Lord Hambourne",
+   "age_range": "30s-40s",
+   "role_archetype": "poor academic peer and skeptic",
+   "role": "suspect",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "eligible",
+   "public_persona": "Oxford don and peer",
+   "private_secret": "skeptical of ghost stories",
+   "motive_seed": "interest in antiques and Rackham",
+   "motive_strength": "weak",
+   "alibi_window": "present at Rackham",
+   "access_plausibility": "high",
+   "stakes": "social advancement",
+   "moral_complexity": "low",
+   "relationships": [],
+   "opportunity_channels": [
+    "access as guest"
+   ],
+   "behavioral_tells": [
+    "nervous",
+    "talkative"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Corton",
+   "age_range": "60s",
+   "role_archetype": "loyal butler",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "faithful servant",
+   "private_secret": "aware of household tensions",
+   "motive_seed": "loyalty to family",
+   "motive_strength": "none",
+   "alibi_window": "present at Rackham",
+   "access_plausibility": "high",
+   "stakes": "maintain household order",
+   "moral_complexity": "low",
+   "relationships": [
+    "Hilda Maple",
+    "John Maple"
+   ],
+   "opportunity_channels": [
+    "access to all parts of house"
+   ],
+   "behavioral_tells": [
+    "nervous about ghost"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Mrs. Fry",
+   "age_range": "50s-60s",
+   "role_archetype": "cook and household staff",
+   "role": "witness",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "household cook",
+   "private_secret": "superstitious and frightened",
+   "motive_seed": "fear of ghost",
+   "motive_strength": "none",
+   "alibi_window": "present at Rackham",
+   "access_plausibility": "high",
+   "stakes": "personal safety",
+   "moral_complexity": "low",
+   "relationships": [
+    "Corton",
+    "Betsy Broom"
+   ],
+   "opportunity_channels": [
+    "access to kitchen and passages"
+   ],
+   "behavioral_tells": [
+    "fearful",
+    "emotional"
+   ],
+   "evidence_sensitivity": []
+  }
+ ],
+ "culprits": [
+  "John Maple",
+  "Bo Hellup"
+ ],
+ "surface_summary": "A wealthy estate, Rackham Catchings, is the subject of a fierce bidding war complicated by a ghost haunting. The ghost appears to terrify one potential buyer, Lord Mere de Beaurivage, causing him to collapse and be hospitalized, threatening the sale and stirring unrest among the household.",
+ "accepted_facts": [
+  "Lord Mere de Beaurivage was terrified by a ghostly apparition in his bedroom.",
+  "The ghost is described as a headless figure with a sword and Elizabethan ruff.",
+  "John Maple and Bo Hellup are present at Rackham during the haunting events.",
+  "Hilda Maple is financially desperate and intends to sell Rackham Catchings."
+ ],
+ "inferred_conclusions": [
+  "The ghost is a supernatural spirit haunting the house.",
+  "Lord Hambourne is involved in the ghostly events due to his interest in psychology.",
+  "Hilda Maple is orchestrating the haunting to drive up the sale price."
+ ],
+ "mechanism_description": "John Maple and Bo Hellup orchestrated the ghost haunting to frighten Lord Mere de Beaurivage and disrupt the sale negotiations. John disguised himself in a black cloak with a ruff and sword, entering the locked side room adjacent to Lord Mere’s bedroom to create the apparition. They used ventriloquism and household accomplices to spread ghostly noises and sightings, manipulating the household and buyers.",
+ "delivery_path": [
+  "John and Bo prepare a costume with a black cloak, sword, and Elizabethan ruff.",
+  "John obtains the key to the locked side room next to Lord Mere’s bedroom.",
+  "John enters the side room and appears as the headless ghost to Lord Mere.",
+  "Bo and John use ventriloquism to produce ghostly voices heard by Lord Mere and others.",
+  "Household staff are influenced to report supernatural disturbances, increasing fear.",
+  "Lord Mere is terrified, collapses, and is hospitalized, disrupting the sale.",
+  "The ghost story is publicized in the press, damaging the estate’s market value."
+ ],
+ "outcome_result": "John Maple and Bo Hellup’s haunting scheme successfully disrupts the sale, allowing John to negotiate to buy Rackham Catchings at a fair price.",
+ "false_assumption": {
+  "statement": "The ghost haunting is a genuine supernatural phenomenon affecting the household.",
+  "type": "identity",
+  "why_it_seems_reasonable": "Multiple witnesses, including Lord Mere de Beaurivage, report seeing and hearing the ghost. The detailed description and timing of the apparition align with the anniversary of a historical murder, lending credibility.",
+  "what_it_hides": "It conceals the fact that the ghost is a human impersonation by John Maple using a costume and ventriloquism to manipulate the buyers and household."
+ },
+ "false_solution": {
+  "accused_suspect": "Hilda Maple",
+  "supporting_points": [
+   "She is financially desperate and stands to gain from the sale.",
+   "She has control over the household and staff who report ghostly disturbances.",
+   "She is seen arguing with guests and showing signs of stress during the haunting.",
+   "She tries to dismiss the ghost stories as nonsense."
+  ],
+  "the_one_flaw": "She lacks the opportunity and skills to create the ghostly apparition and is unaware of the costume and ventriloquism used.",
+  "refuted_in_chapter": 16
+ },
+ "red_herrings": [
+  {
+   "id": "lord_hambourne_psychology_freak",
+   "description": "Lord Hambourne’s interest in psychology and his talk of telepathy and phantasms suggest he might be fabricating or influencing the ghost phenomena.",
+   "points_at_suspect": "Lord Hambourne",
+   "innocent_explanation": "He is merely an academic fascinated by the events and tries to rationalize them scientifically.",
+   "resolved_in_chapter": 14
+  },
+  {
+   "id": "household_staff_fear",
+   "description": "The household staff’s fear and reports of supernatural events imply they might be involved or exaggerating the haunting.",
+   "points_at_suspect": "Household staff including Corton and Mrs. Fry",
+   "innocent_explanation": "They are genuinely frightened by the staged events and have no role in creating the ghost.",
+   "resolved_in_chapter": 15
+  }
+ ],
+ "closed_circle": {
+  "suspects": [
+   "John Maple",
+   "Bo Hellup",
+   "Hilda Maple",
+   "Lord Mere de Beaurivage",
+   "Lord Hellup",
+   "Lord Hambourne",
+   "Amathea, Lady de Beaurivage"
+  ],
+  "rationale": "All key players are present at Rackham during the haunting weekend with access to the house and motive related to the estate’s sale."
+ },
+ "constraint_space": {
+  "time_anchors": [
+   "Sunday noon to Monday morning",
+   "Evening of haunting before dinner",
+   "Early morning arrival of ambulance"
+  ],
+  "time_windows": [
+   "John’s presence in the house during ghost appearances",
+   "Guests’ attendance at Rackham during the weekend"
+  ],
+  "access_actors": [
+   "John Maple",
+   "Bo Hellup",
+   "Household staff",
+   "Guests"
+  ],
+  "access_objects": [
+   "Key to locked side room",
+   "Costume cloak and ruff",
+   "Letters and documents",
+   "Telephone"
+  ],
+  "trust_channels": [
+   "John’s relationship with Corton",
+   "Bo’s influence over Lovey-Lad",
+   "Household staff loyalty"
+  ],
+  "authority_sources": [
+   "Hilda Maple’s control of the house",
+   "Lord Mere de Beaurivage’s social status",
+   "Lord Hellup’s financial power"
+  ]
+ },
+ "inference_path": [
+  {
+   "observation": "Lord Mere de Beaurivage hears faint voices and sees a headless figure in his bedroom.",
+   "correction": "The figure is a man in costume using ventriloquism to produce voices.",
+   "effect": "The ghost is revealed as a human impersonation.",
+   "required_evidence": [
+    "John Maple’s cloak and ruff costume found in his room",
+    "Witness statement from Corton about John’s movements"
+   ]
+  },
+  {
+   "observation": "Household staff report supernatural disturbances and refuse to sleep in the house.",
+   "correction": "Staff are influenced by staged noises and the atmosphere created by John and Bo.",
+   "effect": "Staff fear is manipulated to increase the haunting’s credibility.",
+   "required_evidence": [
+    "Testimony of Mrs. Fry and Betsy Broom about noises",
+    "Corton’s account of being unable to use the passage"
+   ]
+  },
+  {
+   "observation": "Hilda Maple appears nervous and eager to sell the estate.",
+   "correction": "Her financial desperation motivates her but she is not behind the ghost.",
+   "effect": "Hilda is a red herring suspect.",
+   "required_evidence": [
+    "Financial documents showing debts",
+    "Letters from Mr. Rupert de Vere pressing for payment"
+   ]
+  },
+  {
+   "observation": "Lord Hambourne talks about telepathy and investigates the house.",
+   "correction": "He is a skeptic and academic, not involved in the haunting.",
+   "effect": "His behavior is a distraction from the real culprits.",
+   "required_evidence": [
+    "Lord Hambourne’s letters and newspaper columns",
+    "Witness accounts of his presence and actions"
+   ]
+  },
+  {
+   "observation": "The ghost’s appearance coincides with the anniversary of a historical murder.",
+   "correction": "The timing is deliberately chosen by John and Bo to maximize fear.",
+   "effect": "The haunting is a planned event, not supernatural.",
+   "required_evidence": [
+    "Historical records of the murder date",
+    "John and Bo’s planning discussions"
+   ]
+  },
+  {
+   "observation": "The press publishes exclusive photos and stories of the ghost.",
+   "correction": "Bo arranges for the press coverage to sabotage the sale.",
+   "effect": "Publicity damages the estate’s market value.",
+   "required_evidence": [
+    "Photographs taken by Columbus",
+    "Bo’s payment to Columbus and arrangement with The Howl"
+   ]
+  },
+  {
+   "observation": "John offers to buy Rackham for £20,000 after the haunting.",
+   "correction": "The haunting was designed to force a sale at a fair price.",
+   "effect": "John achieves his goal through deception.",
+   "required_evidence": [
+    "Signed letters between John and Hilda",
+    "Witnesses to John’s presence and actions during haunting"
+   ]
+  }
+ ],
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "Recreate the ghost apparition using the cloak, ruff, and sword in the locked side room adjacent to Lord Mere’s bedroom. Use ventriloquism to produce ghostly voices and observe reactions of a test subject placed in the bedroom. Confirm if the ghost can be produced by a human impersonator with these props and access.",
+  "knowledge_revealed": "This test reveals that the ghost is a human impersonation using costume and ventriloquism, not a supernatural entity.",
+  "pass_condition": "The test subject perceives the ghostly apparition and voices as in the original haunting, confirming the mechanism."
+ },
+ "fair_play_explanation": "The reader is given detailed descriptions of the ghost’s appearance, John’s ventriloquism talent, the locked side room, and the costume. The presence of letters, keys, and witness statements about John’s movements provide concrete clues. The ghost’s timing on the murder anniversary and the staged noises are also described. All these elements allow the reader to deduce the human origin of the haunting.",
+ "anchors": [
+  {
+   "claim": "The ghost is described as a headless figure with a sword and Elizabethan ruff",
+   "anchor": "a long black coat she has got for me; and we’ve taken down one of the swords from the sham armour that Aunt Hilda bought the other day, and shall stick it through the slit in the coat. Then she’s made a big ruff."
+  },
+  {
+   "claim": "John Maple has the key to the locked side room",
+   "anchor": "I can squeeze the cloak over my head between the head of the bed and the wall. And I’ll be waiting in the little room which opens out of his bedroom, and which they never use. They always keep the door locked. But Corton gave me the key."
+  },
+  {
+   "claim": "Lord Mere de Beaurivage is terrified by the ghost and collapses",
+   "anchor": "He was still struggling with the tying of his white tie... He was still struggling... when there came... a hand came out from behind the head of the bed... He gave a loud shriek and crashed to the ground."
+  },
+  {
+   "claim": "Household staff are frightened and protest against the ghost",
+   "anchor": "Partial, but representative deputation of the domestic staff of Rackham Catchings protesting against the Headless Thing"
+  },
+  {
+   "claim": "Lord Hambourne is interested in the ghost and calls the press",
+   "anchor": "Lord Hambourne showed initiative beyond his academic kind. He took up the telephone again. He gave rapid advice to Lord Toronto’s other serfs."
+  },
+  {
+   "claim": "Bo Hellup arranges for press coverage to sabotage the sale",
+   "anchor": "She could trust Lord Toronto to have it all over London that evening. Meanwhile she must be rid of Hilda’s policeman."
+  },
+  {
+   "claim": "John Maple and Bo Hellup plan the haunting to disrupt the sale",
+   "anchor": "John and Bo were occupied by greater things—one of which was Bo... 'We are haunting this house,' said John."
+  },
+  {
+   "claim": "Hilda Maple is financially desperate and must sell Rackham",
+   "anchor": "Hilda Maple was embarrassed. Damnably! Hence the purchases in London; hence the antiques; hence the Ancestor."
+  },
+  {
+   "claim": "John Maple offers to buy Rackham for £20,000",
+   "anchor": "I can and do offer you £20,000. It’s firm."
+  },
+  {
+   "claim": "The ghost is a human impersonation using costume and ventriloquism",
+   "anchor": "John Maple and Bo Hellup orchestrated the ghost haunting... John disguised himself in a black cloak with a ruff and sword..."
+  },
+  {
+   "claim": "Lord Mere de Beaurivage hears ghostly voices and sees the apparition",
+   "anchor": "Lord Mere de Beaurivage gave a startled twist... He had heard—he thought he had heard—an evil whisper..."
+  },
+  {
+   "claim": "Corton refuses to use the passage due to fear of the ghost",
+   "anchor": "‘No, madam,’ he said again, most tragically, and with a tremor in his voice, ‘I am not mad.’"
+  },
+  {
+   "claim": "The press publishes exclusive photos and story of the ghost",
+   "anchor": "The picture of Rackham Catchings came out enormous on the front page of The Howl: they had the exclusive story; they had the exclusive snaps;"
+  },
+  {
+   "claim": "John and Bo use ventriloquism to produce ghostly voices",
+   "anchor": "John Maple was standing by in the dark corner... he muttered a word... The Mate sprang up all tense and said, trembling, that he didn’t like it."
+  },
+  {
+   "claim": "Hilda Maple tries to dismiss the ghost stories as nonsense",
+   "anchor": "‘Look here, all of you, it’s sheer bunkum, and dangerous at that.’"
+  },
+  {
+   "claim": "Lord Mere de Beaurivage is hospitalized after ghost encounter",
+   "anchor": "In a flash the figure had passed the fallen man... and he was breathing. His eyes opened for a moment, but he stared vacantly..."
+  },
+  {
+   "claim": "John and Bo’s plan includes using the dog Lovey-Lad to control the situation",
+   "anchor": "Bo put two fingers between her teeth and with a piercing whistle recalled the well-meaning but mistaken hound."
+  },
+  {
+   "claim": "John and Bo’s plan is to frighten Lord Mere to disrupt the sale",
+   "anchor": "‘We’ll haunt ’em good and hard—and then, Jacko, Rackham’s yours for the asking.’"
+  },
+  {
+   "claim": "Lord Hellup is skeptical but supportive of John and Bo",
+   "anchor": "‘He’ll buy—settle, and clinch; leave that to him,’ she said. ‘He’s a little Napoleon, is Jacko.’"
+  },
+  {
+   "claim": "Hilda Maple admits she is a sinful woman and signs over rights",
+   "anchor": "‘Woman! Woman!’ he boomed... ‘Is he not the Rightful Heir?’... ‘Oh, sir, I am a sinful woman!’"
+  }
+ ]
+}

@@ -1,0 +1,48 @@
+pattern_id: the_thirteenth_letter
+title: The Chloroformed Witness
+family: behavioral
+axes:
+  - behavioral
+principle: >-
+  It hides the fact that the culprit, the physician, had both motive and opportunity, and that he
+  chloroformed a suspect to cover his own crime.
+principleType: cognitive_bias
+surface_illusion_template: >-
+  a suspect a suspect killed the victim while he slept; a witness a witness was involved in the
+  murder to secure inheritance; a suspect a suspect impersonated the victim to cover up the crime
+underlying_reality_template: >-
+  the culprit, a drug addict and confederate of Boris Zybinn, murdered the victim by stabbing him
+  with a nut pick while the nurse, a suspect a suspect, was chloroformed and unconscious. the
+  culprit then manipulated the scene by placing the body back in the bed and attempting to destroy
+  evidence. The coded letters concealed the location of the Paltoff diamond, which the culprit
+  sought to steal.
+feasibility:
+  eras:
+    - 1850
+    - 1860
+    - 1870
+    - 1880
+    - 1890
+    - 1900
+    - 1910
+    - 1920
+    - 1930
+    - 1940
+    - 1950
+  requires:
+    - chemical_sedation
+    - physical_manipulation
+  forbids:
+    - cctv
+    - voice_authentication
+clue_archetypes:
+  - cotton_with_chloroform_odor
+  - miriam_s_own_testimony
+  - telegram_from_betty_carter
+  - marriage_certificate_signed_by
+  - muddy_shoes_found_on
+  - description_of_the_marriage
+sources:
+  - >-
+    Natalie Sumner Lincoln, The Thirteenth Letter —
+    library/works/the_thirteenth_letter/case.cml2.yaml

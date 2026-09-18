@@ -1,0 +1,420 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: Dorcas Dene, detective
+    author: George R. (George Robert) Sims
+    license: Public domain (first published 1920; author died 1922). Project Gutenberg ebook 77243.
+    era:
+      decade: 1890s
+      realism_constraints:
+        - No modern forensic DNA or fingerprint analysis available
+        - Communication limited to telegraph and letters, no telephones widely used
+        - Transportation primarily horse-drawn carriages and early trains
+    setting:
+      location: London, England
+      institution: Private investigation by Dorcas Dene, with occasional cooperation from Scotland Yard
+    crime_class:
+      category: murder
+      subtype: hidden inheritance fraud and staged murder
+  cast:
+    - name: Dorcas Dene
+      age_range: 30-40
+      role_archetype: brilliant female private detective
+      relationships:
+        - Paul Dene (husband)
+        - Mrs. Lester (mother)
+      public_persona: famous lady detective
+      private_secret: former actress turned detective
+      motive_seed: justice and truth
+      motive_strength: strong
+      alibi_window: always present investigating
+      access_plausibility: high
+      opportunity_channels:
+        - private inquiries
+        - disguises
+        - social observation
+      behavioral_tells:
+        - keen observation
+        - disguise use
+        - strategic planning
+      stakes: professional reputation and client welfare
+      evidence_sensitivity:
+        - footprints
+        - letters
+        - jewellery
+        - keys
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: detective
+      moral_complexity: low
+    - name: Paul Dene
+      age_range: 30-40
+      role_archetype: blind artist and supportive husband
+      relationships:
+        - Dorcas Dene (wife)
+        - Mrs. Lester (mother-in-law)
+      public_persona: blind artist
+      private_secret: none
+      motive_seed: support for wife
+      motive_strength: none
+      alibi_window: always at home or with Dorcas
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: family wellbeing
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: bystander
+      moral_complexity: low
+    - name: Lady Anna Barraclough
+      age_range: 25-30
+      role_archetype: wronged wife seeking truth
+      relationships:
+        - Judkins Barraclough (husband)
+      public_persona: aristocratic wife
+      private_secret: suspects husband's bigamy
+      motive_seed: freedom from fraudulent marriage
+      motive_strength: strong
+      alibi_window: present at home
+      access_plausibility: medium
+      opportunity_channels: []
+      behavioral_tells:
+        - nervousness
+        - suspicion
+      stakes: personal freedom and reputation
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: moderate
+    - name: Judkins Barraclough
+      age_range: 40-50
+      role_archetype: wealthy villain with dual identity
+      relationships:
+        - Lady Anna Barraclough (second wife)
+        - Mrs. Judkins (first wife)
+        - Aleem Mohammed (accomplice)
+      public_persona: millionaire businessman
+      private_secret: bigamist and attempted murderer
+      motive_seed: concealment of bigamy and control over first wife
+      motive_strength: strong
+      alibi_window: variable, often late night
+      access_plausibility: high
+      opportunity_channels:
+        - private house
+        - keys
+        - disguises
+      behavioral_tells:
+        - nervousness
+        - secretive behavior
+        - use of disguise
+      stakes: freedom, wealth, reputation
+      evidence_sensitivity:
+        - keys
+        - bloodstains
+        - locked cupboard
+        - wire cage
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Mrs. Judkins
+      age_range: 40-50
+      role_archetype: first wife, victim of attempted murder
+      relationships:
+        - Judkins Barraclough (husband)
+      public_persona: reclusive woman
+      private_secret: imprisoned and drugged by husband
+      motive_seed: survival
+      motive_strength: none
+      alibi_window: imprisoned in cage
+      access_plausibility: none
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: life
+      evidence_sensitivity:
+        - wire cage
+        - chloral bottles
+        - brandy bottles
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: victim
+      moral_complexity: low
+    - name: Aleem Mohammed
+      age_range: 50-60
+      role_archetype: accomplice and housekeeper
+      relationships:
+        - Judkins Barraclough (employer)
+      public_persona: Indian gentleman and housekeeper
+      private_secret: accomplice to Barraclough
+      motive_seed: money and loyalty
+      motive_strength: moderate
+      alibi_window: present in house
+      access_plausibility: high
+      opportunity_channels:
+        - house keys
+        - access to rooms
+      behavioral_tells:
+        - nervousness
+        - cooperation with police
+      stakes: freedom
+      evidence_sensitivity:
+        - telegram
+        - keys
+        - locked cupboard
+      culprit_eligibility: eligible
+      culpability: unknown
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: Flash George
+      age_range: 30-40
+      role_archetype: criminal and gambler
+      relationships: []
+      public_persona: known criminal and gambler
+      private_secret: in possession of suspicious banknotes
+      motive_seed: financial gain
+      motive_strength: weak
+      alibi_window: seen near crime scene
+      access_plausibility: medium
+      opportunity_channels:
+        - presence near crime scene
+      behavioral_tells:
+        - sudden wealth
+        - nervousness
+      stakes: freedom
+      evidence_sensitivity:
+        - banknotes
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: low
+  culpability:
+    culprit_count: 1
+    culprits:
+      - Judkins Barraclough
+  surface_model:
+    narrative:
+      summary: >-
+        The case appears to be a straightforward murder of Mrs. Hannaford, with her husband Mr.
+        Hannaford as the prime suspect. Suspicious characters like Flash George and mysterious
+        banknotes linked to the victim's first husband add complexity, while Lady Anna Barraclough
+        suspects her millionaire husband of bigamy and foul play.
+    accepted_facts:
+      - Mrs. Hannaford was found murdered in her drawing-room with a poker as the weapon.
+      - Mr. Hannaford was found absent from the house and later committed to Broadmoor as insane.
+      - >-
+        Flash George was seen near the crime scene and later found with banknotes linked to the
+        victim's first husband.
+      - >-
+        Judkins Barraclough is suspected by his second wife Lady Anna of being a bigamist and
+        involved in suspicious activities.
+    inferred_conclusions:
+      - Mr. Hannaford committed the murder in a fit of madness.
+      - Flash George was the murderer or an accomplice in the murder.
+      - Judkins Barraclough is innocent of any crime and merely a victim of suspicion.
+  hidden_model:
+    mechanism:
+      description: >-
+        Judkins Barraclough, the millionaire, was a bigamist who kept his first wife, Mrs. Judkins,
+        imprisoned drugged and caged in a locked room in an empty house he rented. He attempted to
+        murder her by forcing her to drink chloral-laced brandy to cause a slow death. The murder of
+        Mrs. Hannaford was committed by Charles Drayson, Mrs. Hannaford's first husband who faked
+        his death and returned to retrieve hidden banknotes concealed in a bear lamp. Drayson killed
+        Mrs. Hannaford to prevent exposure of his fraud and to recover the money.
+      delivery_path:
+        - step: Charles Drayson faked his death in the Opéra Comique fire by discarding his watch.
+        - step: >-
+            Drayson lived secretly and planned to recover hidden banknotes concealed by himself in
+            the bear lamp.
+        - step: >-
+            On the night of the murder, Drayson entered the house using a latchkey preserved from
+            his previous ownership.
+        - step: He moved the bear lamp to access the concealed banknotes and hid behind it.
+        - step: >-
+            Mrs. Hannaford entered the drawing-room expecting her husband and was attacked from
+            behind with a poker.
+        - step: Drayson struck her to render her senseless to secure the banknotes.
+        - step: Drayson fled the scene; Flash George acted as his lookout and accomplice.
+    outcome:
+      result: >-
+        Charles Drayson was revealed as the murderer, and Mr. Hannaford was exonerated and released
+        from Broadmoor.
+  false_assumption:
+    statement: The husband, Mr. Hannaford, was guilty of murdering his wife in a fit of madness.
+    type: behavioral
+    why_it_seems_reasonable: >-
+      The husband was found absent from the house shortly after the murder and was in a nervous,
+      excited state. The quarrels and his mental breakdown made him a plausible suspect.
+    what_it_hides: >-
+      It conceals the fact that the real murderer was the first husband, Charles Drayson, who had
+      faked his death and returned to commit the crime for financial motives.
+  false_solution:
+    accused_suspect: Mr. Hannaford
+    supporting_points:
+      - He was absent from the house at the time of the murder.
+      - He had a history of quarrels with his wife.
+      - He was found in a nervous and excited state after the crime.
+      - The police had strong circumstantial evidence against him.
+    the_one_flaw: >-
+      He was insane and incapable of coherent action, and the real murderer was someone else
+      entirely.
+    refuted_in_chapter: 11
+  red_herrings:
+    - id: flash_george_suspicion
+      description: >-
+        Flash George, a known criminal, was seen near the crime scene and had sudden wealth after
+        the murder.
+      points_at_suspect: Flash George
+      innocent_explanation: >-
+        Flash George was an accomplice to Charles Drayson but not the murderer; his sudden wealth
+        came from swindling unrelated to the murder.
+      resolved_in_chapter: 11
+    - id: judkins_barraclough_bigamy
+      description: Judkins Barraclough was suspected of bigamy and foul play by his second wife Lady Anna.
+      points_at_suspect: Judkins Barraclough
+      innocent_explanation: >-
+        While guilty of bigamy and attempted murder of his first wife, he was not involved in Mrs.
+        Hannaford's murder.
+      resolved_in_chapter: 11
+  closed_circle:
+    suspects:
+      - Mr. Hannaford
+      - Flash George
+      - Judkins Barraclough
+      - Charles Drayson
+    rationale: >-
+      The suspects are limited to those with access to the house and motive: the husband, a known
+      criminal nearby, the millionaire with a secret, and the first husband presumed dead.
+  constraint_space:
+    time:
+      anchors:
+        - night of January 5
+        - half-past two in the morning
+        - midnight meeting on Hungerford Bridge
+      windows:
+        - time between Mrs. Hannaford going to bed and discovery of murder
+        - time of Flash George's presence near the house
+        - time of Drayson's secret entry and murder
+    access:
+      actors:
+        - Mr. Hannaford
+        - Charles Drayson
+        - Flash George
+        - Judkins Barraclough
+        - Aleem Mohammed
+      objects:
+        - latchkeys to the house
+        - bear lamp with hidden compartment
+        - poker used as weapon
+        - wire cage in Burton Crescent house
+    social:
+      trust_channels:
+        - Dorcas Dene's private inquiries
+        - Inspector Stromberg's cooperation
+        - Colonel Hargreaves' trust in Dorcas
+        - Lady Anna Barraclough's cooperation
+      authority_sources:
+        - Scotland Yard
+        - Private detective Dorcas Dene
+        - Local police superintendent
+        - Coroner's inquest
+  inference_path:
+    steps:
+      - observation: Mrs. Hannaford was attacked with a poker found near her body.
+        correction: The poker was likely used by the intruder hiding in the room, not by the husband.
+        effect: Shifts suspicion from husband to an intruder with access to the house.
+        required_evidence:
+          - Plan of the drawing-room showing poker position
+          - Caretaker's testimony about furniture arrangement
+        reader_observable: true
+      - observation: Flash George was seen near the crime scene and had sudden wealth.
+        correction: Flash George was an accomplice or lookout, not the murderer.
+        effect: Focuses investigation on his connections and accomplices.
+        required_evidence:
+          - Banknote traced to Charles Drayson
+          - Witness statement of Flash George's movements
+        reader_observable: true
+      - observation: Banknotes linked to the victim's first husband resurfaced after the murder.
+        correction: The first husband may be alive and involved.
+        effect: Reveals that Charles Drayson faked his death and is a suspect.
+        required_evidence:
+          - Testimony of Thomas Holmes about Drayson
+          - Discovery of banknotes in bear lamp
+        reader_observable: true
+      - observation: Judkins Barraclough rents an empty house with a locked cage and drugged woman.
+        correction: He is imprisoning and attempting to murder his first wife.
+        effect: Establishes Barraclough's guilt in attempted murder and bigamy.
+        required_evidence:
+          - Discovery of wire cage and drug bottles
+          - Testimony of Mrs. Judkins
+        reader_observable: true
+      - observation: The brown bear lamp was moved recently and has a hidden compartment.
+        correction: The murderer used it to hide stolen banknotes.
+        effect: Links the murder to financial motives and Drayson's return.
+        required_evidence:
+          - Examination of bear lamp and carpet discoloration
+          - Dorcas Dene's reenactment behind the bear lamp
+        reader_observable: true
+      - observation: The front door opened with a cracking sound before the murder.
+        correction: An intruder entered quietly and hid before attacking.
+        effect: Supports the theory of a hidden assailant, not the husband.
+        required_evidence:
+          - Caretaker's testimony on door sound
+          - Dorcas Dene's listening test in the bedroom
+        reader_observable: true
+      - observation: Charles Drayson was seen attempting suicide and later found dead after the murder.
+        correction: >-
+          His actions and the evidence of the banknotes and lamp confirm he was the murderer acting
+          to recover hidden money.
+        effect: Confirms Drayson's guilt and clears Mr. Hannaford.
+        required_evidence:
+          - Discovery of Drayson's body with suicide note referencing the banknotes and lamp
+          - Police report on Drayson's movements and connection to the bear lamp
+        reader_observable: true
+  discriminating_test:
+    method: reenactment
+    design: >-
+      Dorcas Dene had the assistant lie behind the brown bear lamp to test if a person could be
+      concealed there and strike silently with the poker. She also tested the sound of the front
+      door opening and the timing of the victim's movements in the house.
+    knowledge_revealed: >-
+      This reenactment demonstrated that the murderer hid behind the bear lamp and attacked Mrs.
+      Hannaford silently, and that the door opening sound was the key to the victim's movement
+      before the attack.
+    pass_condition: >-
+      The test passes if the assistant can be completely concealed behind the bear lamp and can
+      strike without alerting an observer, and if the door opening sound matches the caretaker's
+      description.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given detailed descriptions of the crime scene, the position of the poker, the
+      discovery of the bear lamp and its hidden compartment, and the suspicious behavior of Flash
+      George and Judkins Barraclough. Clues such as the banknotes, the door sound, and the testimony
+      of witnesses are all presented. The detective's reasoning and the reenactment provide a
+      logical path to the solution, allowing an attentive reader to deduce the true murderer.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

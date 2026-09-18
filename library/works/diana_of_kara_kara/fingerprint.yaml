@@ -1,0 +1,12 @@
+- id: diana_of_kara_kara
+  corpus: seed
+  axis: identity
+  mechanism_family: impersonation
+  false_assumption_pattern: the_dead_is_who_they_appear
+  discriminating_test_shape: timetable_contradiction
+  inference_shape: reveal_true_identity
+  premise: >-
+    A man named Gordon Selsbury is impersonated by a criminal known as Double Dan, who, with the
+    help of a female accomplice, attempts to rob him by accessing his safe. The household is thrown
+    into confus
+  source: library/works/diana_of_kara_kara/case.cml2.yaml

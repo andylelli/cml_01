@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "Eunice Embury, the wife, is the murderer due to motive and opportunity.",
+  "type": "behavioral",
+  "why_it_seems_reasonable": "Eunice had frequent quarrels with her husband and lacked personal cash, providing a plausible motive. The locked room and presence of the poison dropper in her bathroom suggest opportunity.",
+  "what_it_hides": "The real murderer used an external agent to bypass the locked doors, and the poison dropper was accidentally left behind by the killer, not Eunice."
+ },
+ "mechanism_description": "The murderer hired Willy Hanlon, a performer training as a human fly, to climb the exterior of the apartment building and enter through Aunt Abby Ames' window. Hanlon silently traversed the locked suite, administered henbane poison into Sanford Embury's ear while he slept, and exited the same way. The poison caused sudden death with no external signs, and the medicine dropper was accidentally dropped near Aunt Abby's bed during the escape.",
+ "discriminating_test": {
+  "method": "constraint_proof",
+  "design": "Reenact the locked-room conditions by securing the bedroom doors with the same snap-locks and observing if any person can enter or exit without unlocking. Additionally, test the possibility of entry through the window by a skilled climber simulating Hanlon's human fly technique. Observe if any physical traces such as raspberry jam or gasoline odor can be replicated during the entry and exit.",
+  "knowledge_revealed": "This test reveals that no one inside the locked doors could have administered the poison, and that entry through the window by a climber is feasible and explains the physical evidence.",
+  "pass_condition": "Successful demonstration that the window entry is possible and that the locked doors prevent any other access or egress."
+ },
+ "changed": [],
+ "confidence": "high"
+}

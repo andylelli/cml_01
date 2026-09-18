@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "The Indians and Jim McFann were guilty of the murder on the Dollar Sign road.",
+  "type": "identity",
+  "why_it_seems_reasonable": "The presence of Indian pony tracks and moccasin prints around the body, combined with local prejudice and circumstantial evidence, made the Indians and McFann prime suspects. The staking down of the body suggested an Indian ritual, reinforcing this belief.",
+  "what_it_hides": "It conceals the fact that the real murderer was Edward B. Sargent, who staged the scene to frame the Indians and impersonated his twin brother to evade suspicion."
+ },
+ "mechanism_description": "Edward B. Sargent killed his twin brother Willis Morgan in self-defense during a confrontation on the Dollar Sign road. To cover up the crime, Sargent staged the body of Morgan, tying it with the victim's own tent stakes and rope to suggest an Indian attack. He impersonated Morgan to maintain the deception. Bill Talpers, involved in bootlegging and theft, robbed the body and was later killed by Jim McFann after being double-crossed.",
+ "discriminating_test": {
+  "method": "constraint_proof",
+  "design": "Examine the mud imprint near the murder scene for the Greek letter brand matching the old white horse at the ranch. Confirm the presence of the branded horse at the time of murder to link the rider to the crime. Cross-reference witness statements about the horse and rider's presence.",
+  "knowledge_revealed": "The branded horse's imprint proves that the murderer was the rider of the horse, who was impersonating Willis Morgan.",
+  "pass_condition": "Presence of the Greek letter brand imprint in mud at the murder scene matching the old white horse proves the rider's identity and implicates Edward B. Sargent."
+ },
+ "changed": [],
+ "confidence": "high"
+}

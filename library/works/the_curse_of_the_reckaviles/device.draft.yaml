@@ -1,0 +1,50 @@
+pattern_id: the_curse_of_the_reckaviles
+title: The Simulated Argument
+family: timing
+axes:
+  - identity
+principle: >-
+  The real murderer was the culprit, who manipulated evidence and used the dictaphone to fake the
+  presence of another person, diverting suspicion onto the culprit.
+principleType: physical_law
+surface_illusion_template: >-
+  the culprit was the murderer, using the alibi to cover his crime.; a suspect a witness was
+  involved in the murder due to his secretive behavior and possession of stolen notes.; The murder
+  was caused by the the culprit family curse or supernatural forces.
+underlying_reality_template: >-
+  the culprit, the old servant, murdered Lord the culprit in a fit of revenge by stabbing him with a
+  knife while the culprit was distracted. He used the dictaphone to play a recorded argument to
+  mislead witnesses and create an alibi for another suspect. the culprit then locked the room and
+  staged the scene to suggest an impossible crime, hiding the murder weapon and the recording to
+  delay discovery.
+feasibility:
+  eras:
+    - 1850
+    - 1860
+    - 1870
+    - 1880
+    - 1890
+    - 1900
+    - 1910
+    - 1920
+    - 1930
+    - 1940
+    - 1950
+  requires:
+    - sound_recording_playback
+    - locked_room_mechanism
+    - servant_access
+  forbids:
+    - cctv
+    - voice_authentication
+clue_archetypes:
+  - dictaphone_found_in_the
+  - brown_s_witness_statement
+  - testimonies_of_southgate_mrs
+  - police_records_of_halley
+  - southgate_s_statement_about
+  - a_receipt_showing_giles
+sources:
+  - >-
+    Walter S. (Walter Sidney) Masterman, The curse of the Reckaviles —
+    library/works/the_curse_of_the_reckaviles/case.cml2.yaml

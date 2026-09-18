@@ -1,0 +1,134 @@
+{
+ "slug": "the_melody_of_death",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "The burglary at Warrell's involved a safe forcibly opened with a blow-pipe",
+   "anchor": "A semi-circle of holes had been burnt in its solid iron door about the lock",
+   "span": "A semi-circle of holes had been burnt in its solid iron door about the lock.",
+   "ok": true
+  },
+  {
+   "claim": "Gilbert Standerton is disinherited and financially troubled",
+   "anchor": "he had deemed it advisable to alter the terms of his will",
+   "span": "Then, a month before this story opens, had come like a bombshell a curt notification from his relative that he had deemed it advisable to alter the terms of his will, and that Gilbert might look for no more than the thousand pounds to which, in common with innumerable other nephews, he was entitled.",
+   "ok": true
+  },
+  {
+   "claim": "Gilbert is nervous and absent-minded on his wedding night",
+   "anchor": "He was nervous, she had noticed his hand shaking",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The 'Melody in F' is linked to a cancer diagnosis message",
+   "anchor": "He gave me two cards and an addressed envelope",
+   "span": "He gave me two cards and an addressed envelope, addressed to an old musician in London whom he patronised.",
+   "ok": true
+  },
+  {
+   "claim": "George Wallis is a notorious burglar under police surveillance",
+   "anchor": "George Wallis, that most notorious of burglars",
+   "span": "said George Wallis, that most notorious of burglars, “and at the hands of an expert, I beg you to believe.",
+   "ok": true
+  },
+  {
+   "claim": "Wallis uses a double disguised as a chauffeur to mislead police",
+   "anchor": "George Wallis is waiting inside made up exactly like him",
+   "span": "the driver comes up and George Wallis is waiting inside made up exactly like him.",
+   "ok": true
+  },
+  {
+   "claim": "The gang operates a safe agency selling safes with keys for burglary",
+   "anchor": "You tout safes round to country mansions, offer them at ridiculous prices",
+   "span": "You tout safes round to country mansions, offer them at ridiculous prices, and the rest is simple.",
+   "ok": true
+  },
+  {
+   "claim": "Gilbert secretly robs the gang's safe to recover stolen goods",
+   "anchor": "I have taken ten thousand sovereigns in bullion and in French banknotes",
+   "span": "’ I want to say to you: ‘I have taken ten thousand sovereigns in bullion and in French banknotes from your store, here is that amount for yourself, here is a similar amount which is to be restored to the people from whom it was taken.",
+   "ok": true
+  },
+  {
+   "claim": "Gilbert invests stolen money on the Stock Exchange to generate income",
+   "anchor": "I have been rather fortunate on the Stock Exchange lately",
+   "span": "Yes, I have been rather fortunate on the Stock Exchange lately--I made twelve thousand pounds out of American rails.",
+   "ok": true
+  },
+  {
+   "claim": "Gilbert is locked in the gang's safe room as a captive",
+   "anchor": "Put up your hands, Mr. Gilbert Standerton",
+   "span": "Put up your hands, Mr. Gilbert Standerton,” said George.",
+   "ok": true
+  },
+  {
+   "claim": "Mrs. Cathcart's necklace was stolen from the broker's safe",
+   "anchor": "Your diamond necklace has been stolen from my safe",
+   "span": "Your diamond necklace has been stolen from my safe.",
+   "ok": true
+  },
+  {
+   "claim": "The mysterious fourth man at the bank robbery was not a criminal",
+   "anchor": "The fourth man seems to have taken no part in the robbery",
+   "span": "The fourth man seems to have taken no part in the robbery, and to have been present without the knowledge or without the goodwill of the burglars.",
+   "ok": true
+  },
+  {
+   "claim": "Gilbert's possession of the necklace raises suspicion",
+   "anchor": "There in the palm of her hand, clearly revealed by the electric lamp",
+   "span": "There in the palm of her hand, clearly revealed by the electric lamp above her head, shone her diamond necklace!",
+   "ok": true
+  },
+  {
+   "claim": "Gilbert's secret meetings and observations of the gang",
+   "anchor": "I have watched these people, and they have known they were being observed",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Gilbert's resignation from the Foreign Office to pursue his plan",
+   "anchor": "I have given up the Foreign Office work",
+   "span": "I have given up the Foreign Office work,” he said quietly.",
+   "ok": true
+  },
+  {
+   "claim": "The safe agency's large safe is used to store stolen goods",
+   "anchor": "He switched round the combination lock, and opened the safe",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Wallis threatens Gilbert with a revolver in the safe room",
+   "anchor": "Put up your hands, Mr. Gilbert Standerton",
+   "span": "Put up your hands, Mr. Gilbert Standerton,” said George.",
+   "ok": true
+  },
+  {
+   "claim": "Gilbert's note to his wife explaining his absence",
+   "anchor": "If you would like to send a perfectly non-committal note to your wife",
+   "span": "If you would like to send a perfectly non-committal note to your wife, saying that you were too busy to come back, I should be delighted to see it delivered.",
+   "ok": true
+  },
+  {
+   "claim": "Gilbert's plan to restore stolen goods to rightful owners",
+   "anchor": "I hope by good fortune not only to compensate you for what I have taken",
+   "span": "I hope by good fortune not only to compensate you for what I have taken from you, but to return every penny that you have stolen.",
+   "ok": true
+  },
+  {
+   "claim": "The police's inability to catch the gang due to lack of evidence",
+   "anchor": "I could lay my hands on them to-day, but it would be a million pounds to one",
+   "span": "There is only one gang in England which could do this, and I could lay my hands on them to-day, but it would be a million pounds to one against my being able to secure at the same time evidence to convict them.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.08128231790000001,
+ "models": {
+  "map": "gpt-4o-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true
+}

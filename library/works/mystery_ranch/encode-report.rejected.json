@@ -1,0 +1,136 @@
+{
+ "slug": "mystery_ranch",
+ "valid": false,
+ "errors": [
+  "CASE.culpability.culprits names \"Edward B. Sargent\", who is the victim"
+ ],
+ "spans": [
+  {
+   "claim": "The victim was found staked down on the prairie",
+   "anchor": "a man has been murdered on the road just off the reservation",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The victim was shot with a sawed-off shotgun",
+   "anchor": "Buckshot, from a sawed-off shotgun probably",
+   "span": "Buckshot, from a sawed-off shotgun probably,\" said the agent, shuddering.",
+   "ok": true
+  },
+  {
+   "claim": "The victim was tied with his own tent stakes and rope",
+   "anchor": "ropes were fastened to tent-stakes driven into the prairie",
+   "span": "These ropes were fastened to tent-stakes driven into the prairie.",
+   "ok": true
+  },
+  {
+   "claim": "Indian pony tracks were found around the body",
+   "anchor": "Indian pony tracks--no doubt about that",
+   "span": "They're Indian pony tracks--no doubt about that,\" said the interpreter, \"but there is no telling just when they were made.",
+   "ok": true
+  },
+  {
+   "claim": "The murdered man was Edward B. Sargent",
+   "anchor": "indicating that the victim was Edward B. Sargent, of St. Louis",
+   "span": "Papers were found in the pockets indicating that the victim was Edward B. Sargent, of St. Louis.",
+   "ok": true
+  },
+  {
+   "claim": "Helen Ervin is the stepdaughter of Willis Morgan",
+   "anchor": "From your affectionate stepfather, Willis Morgan",
+   "span": "From your affectionate stepfather, Willis Morgan.",
+   "ok": true
+  },
+  {
+   "claim": "Bill Talpers held up a letter from Helen Ervin",
+   "anchor": "Bill Talpers held up the letter and read it",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Jim McFann was arrested and accused of murder",
+   "anchor": "Jim McFann was hiding away up in the big hills",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Fire Bear was released on his word to appear at trial",
+   "anchor": "If Fire Bear will give me his word of honor that he will not try to escape",
+   "span": "If Fire Bear will give me his word of honor that he will not try to escape,\" said the agent, \"I will guarantee his appearance on the day set for his trial.",
+   "ok": true
+  },
+  {
+   "claim": "Talpers was killed by Jim McFann",
+   "anchor": "the murder of our esteemed neighbor, William Talpers, by James McFann",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The old white horse had a Greek letter brand",
+   "anchor": "bearing the impression of the Greek Letter brand",
+   "span": "Yet there in the mud, and visible to-day, was made the imprint of your horse's shoulder, _bearing the impression of the Greek Letter brand_!",
+   "ok": true
+  },
+  {
+   "claim": "Edward B. Sargent confessed to killing Willis Morgan",
+   "anchor": "I committed the murder, much as you have explained it",
+   "span": "I committed the murder, much as you have explained it, but I did not ride the white horse to the hill.",
+   "ok": true
+  },
+  {
+   "claim": "Sargent impersonated Willis Morgan to cover the crime",
+   "anchor": "I am Edward Sargent. Morgan was the man whom I killed and staked down on the prairie",
+   "span": "I am Edward Sargent. Morgan was the man whom I killed and staked down on the prairie!",
+   "ok": true
+  },
+  {
+   "claim": "The letter from Helen warned Sargent not to come to the ranch",
+   "anchor": "I have learned all. Do not come to the ranch for me",
+   "span": "Slowly Bill took from the envelope a note which read: _Dear Uncle and Benefactor_: I have learned all. Do not come to the ranch for me, as you have planned.",
+   "ok": true
+  },
+  {
+   "claim": "Talpers robbed the murdered man and hid stolen money",
+   "anchor": "You took money from that murdered man",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "McFann killed Talpers after discovering the theft",
+   "anchor": "I killed him. It was better that he should die",
+   "span": "When he tried to shoot me, I killed him. It was better that he should die.",
+   "ok": true
+  },
+  {
+   "claim": "The branded horse's imprint in the mud was key evidence",
+   "anchor": "the Greek letter brand still shows in the mud where the horse rolled",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Fire Bear and McFann were acquitted at trial",
+   "anchor": "Not guilty! was the word that was passed to those outside the building",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The murder was a planned deception to frame the Indians",
+   "anchor": "to throw suspicion on others, it might be possible for me to pass myself off as my brother",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Helen Ervin was threatened by Talpers to keep silent",
+   "anchor": "If you stay there any time at all, he'll have you in an insane asylum or the grave",
+   "span": "If you stay there any time at all, he'll have you in an insane asylum or the grave.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.18931781200000003,
+ "models": {
+  "map": "gpt-4o-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": false
+}

@@ -1,0 +1,12 @@
+- id: the_man_who_knew_too_much
+  corpus: seed
+  axis: behavioral
+  mechanism_family: staged_scene
+  false_assumption_pattern: accident_scene_hides_true_murder
+  discriminating_test_shape: reconstruction
+  inference_shape: reconstruct_true_sequence_of_events
+  premise: >-
+    A series of mysterious deaths and disappearances involving political figures, aristocrats, and
+    criminals unfold across England. The deaths appear as accidents or unrelated crimes, but
+    underlying them 
+  source: library/works/the_man_who_knew_too_much/case.cml2.yaml

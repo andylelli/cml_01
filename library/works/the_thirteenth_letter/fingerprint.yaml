@@ -1,0 +1,12 @@
+- id: the_thirteenth_letter
+  corpus: seed
+  axis: behavioral
+  mechanism_family: unconscious_act
+  false_assumption_pattern: the_actor_acted_knowingly
+  discriminating_test_shape: behavioral_tell
+  inference_shape: reconstruct_true_sequence_of_events
+  premise: >-
+    Paul Abbott, a war-wounded architect, is found stabbed in his bed at his country estate. The
+    nurse on duty, Miriam Ward, was chloroformed and unconscious during the murder. Suspicion falls
+    on several 
+  source: library/works/the_thirteenth_letter/case.cml2.yaml

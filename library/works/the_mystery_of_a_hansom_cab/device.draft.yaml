@@ -6,7 +6,7 @@ axes:
 principle: >-
   It hides the fact that the man who got into the cab was actually the culprit impersonating a
   suspect, and that a suspect had a solid alibi supported by a witness a witness.
-principleType: cognitive_bias
+principleType: social_logic
 surface_illusion_template: >-
   a suspect a suspect was the murderer; The man in the light coat was a suspect a suspect; the
   culprit was innocent

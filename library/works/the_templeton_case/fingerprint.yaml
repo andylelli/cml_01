@@ -1,0 +1,12 @@
+- id: the_templeton_case
+  corpus: seed
+  axis: temporal
+  mechanism_family: staged_scene
+  false_assumption_pattern: the_killer_was_already_on_board
+  discriminating_test_shape: behavioral_tell
+  inference_shape: reconstruct_true_sequence_of_events
+  premise: >-
+    Reginald Templeton is found murdered on his yacht at Marsh Quay. Initial suspects include an
+    artist who fled suddenly, a diamond dealer who left town abruptly, and a retired cigar merchant
+    with suspic
+  source: library/works/the_templeton_case/case.cml2.yaml

@@ -1,0 +1,12 @@
+- id: the_corbin_necklace
+  corpus: seed
+  axis: identity
+  mechanism_family: substituted_body
+  false_assumption_pattern: the_object_is_the_original
+  discriminating_test_shape: reconstruction
+  inference_shape: reveal_object_substitution
+  premise: >-
+    The Corbin family is thrown into turmoil when the famous family necklace is reported stolen from
+    a supposedly locked safe. An imitation necklace is returned mysteriously, and suspicions arise
+    among fa
+  source: library/works/the_corbin_necklace/case.cml2.yaml

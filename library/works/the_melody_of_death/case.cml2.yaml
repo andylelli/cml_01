@@ -1,0 +1,471 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The melody of death
+    author: Edgar Wallace
+    license: Public domain (first published 1927; author died 1932). Project Gutenberg ebook 75702.
+    era:
+      decade: 1920s
+      realism_constraints:
+        - No advanced forensic DNA or electronic surveillance available
+        - Safecracking possible with blow-pipe and mechanical tools
+        - Police rely on witness statements, physical evidence, and observation
+    setting:
+      location: London, England
+      institution: City Police and Scotland Yard
+    crime_class:
+      category: theft
+      subtype: safe agency burglary and recovery
+  cast:
+    - name: Gilbert Standerton
+      age_range: 30-40
+      role_archetype: disinherited gentleman with secret double life
+      relationships:
+        - Edith Cathcart (wife)
+        - Leslie Frankfort (friend)
+        - Mrs. Cathcart (mother-in-law)
+        - George Wallis (antagonist)
+      public_persona: Foreign Office official and newlywed
+      private_secret: secretly robs the robbers to recover stolen goods
+      motive_seed: financial desperation and moral duty
+      motive_strength: strong
+      alibi_window: varied, often out at night
+      access_plausibility: high, has knowledge and opportunity
+      opportunity_channels:
+        - knowledge of gang
+        - access to safe keys
+        - Stock Exchange for financing
+      behavioral_tells:
+        - nervousness
+        - secretive night outings
+        - resignation from official post
+      stakes: high, personal and financial
+      evidence_sensitivity:
+        - fingerprint impression on keys
+        - presence at burglary sites
+        - possession of stolen necklace
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: high
+    - name: Edith Cathcart
+      age_range: 20-30
+      role_archetype: young wife caught between loyalty and suspicion
+      relationships:
+        - Gilbert Standerton (husband)
+        - Mrs. Cathcart (mother)
+      public_persona: wife of Gilbert Standerton
+      private_secret: harbors doubts about husband but grows to trust
+      motive_seed: family loyalty and desire for truth
+      motive_strength: moderate
+      alibi_window: mostly at home
+      access_plausibility: low
+      opportunity_channels: []
+      behavioral_tells:
+        - curiosity about husband’s activities
+        - initiative to investigate
+      stakes: emotional and social
+      evidence_sensitivity:
+        - letter from Gilbert
+        - discovery of necklace
+        - interaction with May Wing
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: moderate
+    - name: Mrs. Cathcart
+      age_range: 50-60
+      role_archetype: domineering mother with social ambitions
+      relationships:
+        - Edith Cathcart (daughter)
+        - Gilbert Standerton (son-in-law)
+      public_persona: wealthy socialite and mother
+      private_secret: financial troubles and loss of necklace
+      motive_seed: financial desperation
+      motive_strength: weak
+      alibi_window: mostly at home
+      access_plausibility: low
+      opportunity_channels: []
+      behavioral_tells:
+        - anger and scheming
+        - concealment of financial losses
+      stakes: financial and social
+      evidence_sensitivity:
+        - letter from Edith
+        - conversation with broker Warrell
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: suspect
+      moral_complexity: moderate
+    - name: George Wallis
+      age_range: 40-50
+      role_archetype: notorious burglar and gang leader
+      relationships:
+        - Callidino (associate)
+        - Persh (associate)
+        - Smith (chauffeur)
+      public_persona: criminal under surveillance
+      private_secret: leader of burglary gang
+      motive_seed: financial gain
+      motive_strength: strong
+      alibi_window: mostly at home or dining out
+      access_plausibility: high
+      opportunity_channels:
+        - gang operations
+        - safe agency scheme
+      behavioral_tells:
+        - calm under police watch
+        - use of disguises
+      stakes: high, criminal enterprise
+      evidence_sensitivity:
+        - presence at crime scenes
+        - possession of stolen goods
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: low
+    - name: Callidino
+      age_range: 30-40
+      role_archetype: practical burglar and technician
+      relationships:
+        - George Wallis (leader)
+        - Persh (associate)
+      public_persona: Italian burglar
+      private_secret: gang member
+      motive_seed: financial gain
+      motive_strength: strong
+      alibi_window: variable
+      access_plausibility: high
+      opportunity_channels:
+        - safecracking tools
+      behavioral_tells:
+        - nervousness under pressure
+      stakes: high
+      evidence_sensitivity:
+        - tools found at crime scene
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: suspect
+      moral_complexity: low
+    - name: Persh
+      age_range: 40-50
+      role_archetype: stout agile burglar
+      relationships:
+        - George Wallis (leader)
+        - Callidino (associate)
+      public_persona: escaped convict and burglar
+      private_secret: gang member
+      motive_seed: financial gain
+      motive_strength: strong
+      alibi_window: mostly with gang
+      access_plausibility: high
+      opportunity_channels:
+        - safecracking and robbery
+      behavioral_tells:
+        - mortally wounded during robbery
+      stakes: high
+      evidence_sensitivity:
+        - body found in taxi
+        - wounds matching crime
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: low
+    - name: Leslie Frankfort
+      age_range: 30-40
+      role_archetype: cheerful stockbroker and friend
+      relationships:
+        - Gilbert Standerton (friend)
+        - Mr. Warrell (partner)
+      public_persona: stockbroker and friend of Gilbert
+      private_secret: none significant
+      motive_seed: none
+      motive_strength: none
+      alibi_window: mostly at work or social
+      access_plausibility: low
+      opportunity_channels: []
+      behavioral_tells:
+        - naive about Gilbert’s troubles
+      stakes: low
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+  culpability:
+    culprit_count: 2
+    culprits:
+      - George Wallis
+      - Callidino
+  surface_model:
+    narrative:
+      summary: >-
+        A series of daring burglaries in London safes baffle the police. Gilbert Standerton,
+        recently disinherited and married, is suspected due to possession of stolen jewels. The
+        notorious gang led by George Wallis is under surveillance, but the true nature of Gilbert's
+        involvement remains unclear.
+    accepted_facts:
+      - The safe at Warrell's was forcibly opened and a diamond necklace stolen.
+      - George Wallis and his gang are known criminals under police watch.
+      - Gilbert Standerton has been seen near burglary scenes and possesses stolen jewels.
+      - A mysterious 'Melody in F' played by a violinist is linked to Gilbert's change in behavior.
+    inferred_conclusions:
+      - Gilbert Standerton is the burglar stealing jewels for personal gain.
+      - Mrs. Cathcart is involved in the theft due to financial troubles.
+      - The fourth man at the bank robbery is an independent criminal.
+  hidden_model:
+    mechanism:
+      description: >-
+        Gilbert Standerton, formerly a Foreign Office official, uses his knowledge of the gang's
+        activities and the Stock Exchange to secretly recover stolen goods from the gang's safe. He
+        exploits the gang's safe agency scheme, where safes are sold with keys allowing the gang
+        access. Gilbert takes money and jewels from the gang's safe to finance his investments,
+        intending to restore the stolen property to rightful owners.
+      delivery_path:
+        - step: Gilbert observes the gang's activities and learns their safe agency scheme.
+        - step: He acquires a safe from the agency to understand their methods.
+        - step: Gilbert secretly accesses the gang's safe using copied keys and combination.
+        - step: He removes stolen goods and money, storing them securely.
+        - step: Gilbert invests the stolen money on the Stock Exchange to generate income.
+        - step: He returns some stolen items to owners or police to mitigate harm.
+        - step: The gang becomes aware of a mysterious thief robbing them, leading to confrontation.
+    outcome:
+      result: >-
+        Gilbert Standerton is revealed as the secret thief who robs the robbers to recover stolen
+        goods and restore them, ending the gang's operations.
+  false_assumption:
+    statement: Gilbert Standerton is the criminal burglar stealing jewels for personal profit.
+    type: identity
+    why_it_seems_reasonable: >-
+      Gilbert is found with stolen jewels and is often absent during burglaries, and his financial
+      troubles suggest motive. His secretive behavior and possession of the necklace point to guilt.
+    what_it_hides: >-
+      It hides Gilbert's true role as a vigilante thief who steals from the gang to recover stolen
+      property and finance his efforts to make restitution.
+  false_solution:
+    accused_suspect: Gilbert Standerton
+    supporting_points:
+      - He possesses the stolen necklace found in his pocket.
+      - He is absent from home during the times of burglaries.
+      - He has financial motives due to disinheritance and debts.
+      - His behavior is secretive and nervous.
+    the_one_flaw: >-
+      Gilbert's actions are aimed at recovering stolen goods and not personal enrichment; he does
+      not fence stolen items but invests legitimately.
+    refuted_in_chapter: 15
+  red_herrings:
+    - id: mrs_cathcart_financial_troubles
+      description: >-
+        Mrs. Cathcart's financial losses and secret deposit of the necklace suggest possible
+        involvement in theft.
+      points_at_suspect: Mrs. Cathcart
+      innocent_explanation: >-
+        She deposited the necklace as security and was unaware of the burglary; her financial
+        troubles are unrelated to the crime.
+      resolved_in_chapter: 10
+    - id: fourth_man_at_bank
+      description: >-
+        Presence of a mysterious fourth man at the bank robbery suggests a second independent
+        criminal.
+      points_at_suspect: Unknown fourth man
+      innocent_explanation: >-
+        The fourth man was a bystander who helped the bound guard and was not involved in the
+        robbery.
+      resolved_in_chapter: 11
+  closed_circle:
+    suspects:
+      - George Wallis
+      - Callidino
+      - Persh
+      - Gilbert Standerton
+      - Mrs. Cathcart
+      - Leslie Frankfort
+    rationale: >-
+      All suspects are connected to the burglary events, with limited access points and known
+      relationships; the gang and Gilbert are the primary active parties.
+  constraint_space:
+    time:
+      anchors:
+        - night of May 27th, 1925
+        - evening of the bank robbery
+        - time of Gilbert's absences
+      windows:
+        - hours between 8 pm and midnight
+        - times when safes were broken into
+    access:
+      actors:
+        - George Wallis and gang
+        - Gilbert Standerton
+        - Mrs. Cathcart
+      objects:
+        - keys to safes
+        - safe agency premises
+        - vehicles used by gang
+    social:
+      trust_channels:
+        - broker Warrell
+        - Leslie Frankfort
+        - Dr. Barclay-Seymour
+      authority_sources:
+        - City Police
+        - Scotland Yard
+        - General Sir John Standerton
+  inference_path:
+    steps:
+      - observation: >-
+          Gilbert is seen with the stolen necklace in his pocket and is suspected of being the
+          burglar.
+        correction: >-
+          Gilbert claims he found it and intends to return it, and suggests a reenactment could
+          recreate the scenario to observe whether he could have taken it silently.
+        effect: >-
+          Suspicion arises but motive is unclear; the possibility to recreate and observe the
+          scenario is considered.
+        required_evidence:
+          - The necklace found in Gilbert's pocket under electric light, as observed by Edith
+          - >-
+            Gilbert's calm explanation to Edith about finding the necklace and his willingness to
+            recreate the scenario
+        reader_observable: true
+      - observation: >-
+          George Wallis is under constant police surveillance and has alibis, but the police cannot
+          observe whether he is the legitimate suspect or a double.
+        correction: >-
+          Wallis uses a double disguised as a chauffeur to mislead police, silently removing himself
+          from suspicion.
+        effect: >-
+          Wallis's movements are deceptive, complicating police tracking and removing legitimate
+          suspicion from himself.
+        required_evidence:
+          - >-
+            Inspector Goldberg's observation of Wallis's flat and chauffeur, noting the possibility
+            to observe silently from the street
+          - >-
+            The discovery of the disguised double at Wallis's residence, which removes suspicion
+            from Wallis at key times
+        reader_observable: true
+      - observation: >-
+          A mysterious masked man interrupts the gang during a burglary, and the gang cannot
+          determine whether he is a suspect or a legitimate rival.
+        correction: >-
+          The masked man is Gilbert, observing and later robbing the gang, recreating the scenario
+          of a burglary within a burglary.
+        effect: >-
+          Gilbert is revealed as the intruder disrupting the gang, and the scenario can be recreated
+          to observe his actions silently.
+        required_evidence:
+          - >-
+            Description of the masked man holding a revolver during the safecracking, as observed by
+            the gang
+          - >-
+            Gilbert's admission of watching the gang and taking money, which can be tested by
+            reenactment
+        reader_observable: true
+      - observation: >-
+          The 'Melody in F' played by a violinist triggers Gilbert's distress, and the police
+          observe his behavior silently.
+        correction: >-
+          The melody is linked to a cancer diagnosis message sent wrongly, removing suspicion from
+          Gilbert's legitimate actions.
+        effect: >-
+          Gilbert's change in behavior is explained by health fears, and the police can observe
+          whether his actions are legitimate or not.
+        required_evidence:
+          - >-
+            Doctor Barclay-Seymour's story of the wrong card sent with 'Melody in F', as observed by
+            Edith
+          - >-
+            May Wing's testimony about the letter and playing the melody, which can be observed in
+            the household
+        reader_observable: true
+      - observation: >-
+          Gilbert resigns from the Foreign Office and takes up stock trading, and the police observe
+          whether his financial activities are legitimate or suspect.
+        correction: >-
+          He uses stock trading to launder and increase stolen money, but the transactions are
+          legitimate and can be observed in records.
+        effect: >-
+          Gilbert's financial activities support his secret mission, and the legitimacy can be
+          tested by observing records.
+        required_evidence:
+          - Gilbert's discussions with Leslie Frankfort about investments, as observed in the office
+          - >-
+            Broker Warrell's statements about Gilbert's stock transactions, which can be observed in
+            financial records
+        reader_observable: true
+      - observation: >-
+          The gang's safe agency sells safes with keys allowing access, and the police consider
+          whether this scenario can be recreated to observe how the safes are accessed silently.
+        correction: >-
+          The gang uses this to access clients' valuables for theft, and the scenario can be
+          recreated to test whether the keys and combination allow silent entry.
+        effect: >-
+          The safe agency is a front for burglaries, and the reenactment can observe whether the
+          suspect can remove items silently and legitimately.
+        required_evidence:
+          - >-
+            Wallis's explanation of the safe agency scheme to Gilbert, which can be observed in the
+            agency office
+          - >-
+            Gilbert's purchase and inspection of a safe at the agency, recreating the scenario and
+            observing the process
+        reader_observable: true
+      - observation: >-
+          Gilbert is locked in the gang's safe room for 48 hours, and the police observe whether he
+          can remove himself or items silently and legitimately.
+        correction: >-
+          Wallis intends to rob Gilbert but is unaware of his true role; the scenario can be
+          recreated to observe whether Gilbert can remove items without detection.
+        effect: >-
+          The confrontation reveals Gilbert's knowledge and intentions, and the reenactment can
+          observe whether the removal of items is possible silently and legitimately.
+        required_evidence:
+          - Wallis locking Gilbert in the safe room and providing food, as observed by the gang
+          - >-
+            Gilbert's calm demeanor and explanation during captivity, which can be observed and
+            tested by recreating the scenario
+        reader_observable: true
+  discriminating_test:
+    method: reenactment
+    design: >-
+      Recreate the safe agency scenario with the same safe and keys. Observe if the safe can be
+      accessed silently and if the keys match the locks. Monitor if the suspect can enter and exit
+      without detection using the keys and combination known to the gang.
+    knowledge_revealed: >-
+      This test reveals whether the suspect has legitimate access to the safe and can remove items
+      without forced entry, confirming knowledge of the gang's methods.
+    pass_condition: >-
+      The suspect successfully opens the safe using keys and combination without causing noise or
+      visible disturbance, proving insider access rather than forced burglary.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is provided with detailed descriptions of the gang's methods, the safe agency
+      scheme, and Gilbert's movements and possessions. Clues such as the presence of the necklace,
+      the masked intruder, and the safe keys impression are all presented. The reader can deduce
+      Gilbert's true role by connecting his financial activities, knowledge of the gang, and his
+      secret visits to the safe agency.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

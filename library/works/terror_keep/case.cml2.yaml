@@ -1,0 +1,493 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: Terror keep
+    author: Edgar Wallace
+    license: Public domain (first published 1927; author died 1932). Project Gutenberg ebook 75949.
+    era:
+      decade: 1920s
+      realism_constraints:
+        - No advanced forensic DNA analysis available
+        - Communication primarily via telephone and letters
+        - Transportation by train, motor cars, and boats
+    setting:
+      location: Larmes Keep, near Siltbury, England
+      institution: Public Prosecutor's Office and Scotland Yard
+    crime_class:
+      category: theft
+      subtype: gold convoy gas incapacitation and cave escape
+  cast:
+    - name: John Flack
+      age_range: 70s
+      role_archetype: mad genius criminal mastermind
+      relationships:
+        - Olga Crewe (daughter)
+        - Mrs. Burton (wife)
+      public_persona: escaped homicidal maniac and master criminal
+      private_secret: orchestrated gold convoy robbery and murder
+      motive_seed: greed and securing daughter's future
+      motive_strength: strong
+      alibi_window: none
+      access_plausibility: high
+      opportunity_channels:
+        - escape from Broadmoor
+        - use of cave network
+      behavioral_tells:
+        - madness used as cover
+        - dramatic threats
+      stakes: very high
+      evidence_sensitivity:
+        - letters in safe
+        - fingerprint on door panel
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Margaret Belman
+      age_range: early 20s
+      role_archetype: innocent secretary and victim
+      relationships:
+        - J. G. Reeder (friend/detective)
+        - John Flack (enemy)
+      public_persona: young secretary at Larmes Keep
+      private_secret: target and hostage in Flack's scheme
+      motive_seed: none
+      motive_strength: none
+      alibi_window: present at Larmes Keep until escape
+      access_plausibility: high
+      opportunity_channels:
+        - boarding house
+        - letters delivery
+      behavioral_tells:
+        - fear and suspicion
+        - escape attempt
+      stakes: high personal danger
+      evidence_sensitivity:
+        - triangular pink silk patch
+        - footprints near cave
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: victim
+      moral_complexity: low
+    - name: J. G. Reeder
+      age_range: late 40s to 50s
+      role_archetype: methodical, mild-mannered detective
+      relationships:
+        - Margaret Belman (friend/love interest)
+      public_persona: detective to the Public Prosecutor's Office
+      private_secret: deeply involved in Flack case, secretly in love with Margaret
+      motive_seed: justice and protection of Margaret
+      motive_strength: strong
+      alibi_window: present at Larmes Keep and London
+      access_plausibility: high
+      opportunity_channels:
+        - investigation
+        - surveillance
+      behavioral_tells:
+        - reticent manner
+        - philosophical musings
+      stakes: high professional and personal
+      evidence_sensitivity:
+        - fingerprint on door panel
+        - spring gun trap
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: moderate
+    - name: George Ravini
+      age_range: 30s to 40s
+      role_archetype: gang leader and betrayer
+      relationships:
+        - Olga Crewe (acquaintance)
+      public_persona: criminal associate of Flack
+      private_secret: betrayed Flack, killed by Flack
+      motive_seed: greed and self-preservation
+      motive_strength: strong
+      alibi_window: absent from Larmes Keep at death
+      access_plausibility: high
+      opportunity_channels:
+        - boarding house
+        - criminal network
+      behavioral_tells:
+        - confidence
+        - overestimation of power
+      stakes: high
+      evidence_sensitivity:
+        - Luck Rings
+        - letters
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: moderate
+    - name: Olga Crewe
+      age_range: early 20s
+      role_archetype: beautiful, conflicted daughter
+      relationships:
+        - John Flack (father)
+        - Mrs. Burton (mother)
+      public_persona: boarder at Larmes Keep
+      private_secret: daughter of Flack, involved in gang
+      motive_seed: family loyalty and fear
+      motive_strength: moderate
+      alibi_window: present at Larmes Keep
+      access_plausibility: high
+      opportunity_channels:
+        - boarding house
+        - cave network
+      behavioral_tells:
+        - coldness
+        - emotional conflict
+      stakes: high
+      evidence_sensitivity:
+        - marriage certificate
+        - letters
+      culprit_eligibility: eligible
+      culpability: unknown
+      gender: female
+      role: suspect
+      moral_complexity: high
+    - name: Mr. Daver
+      age_range: 50s
+      role_archetype: secretive proprietor and double agent
+      relationships:
+        - Mrs. Burton (housekeeper)
+        - John Flack (associate)
+      public_persona: proprietor of Larmes Keep
+      private_secret: collaborator with Flack, double-crossed
+      motive_seed: greed and fear
+      motive_strength: strong
+      alibi_window: present at Larmes Keep
+      access_plausibility: high
+      opportunity_channels:
+        - boarding house
+        - safe and secret passages
+      behavioral_tells:
+        - nervousness
+        - evasiveness
+      stakes: high
+      evidence_sensitivity:
+        - press cuttings
+        - hidden passages
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Mrs. Burton (Mrs. Flack)
+      age_range: 40s to 50s
+      role_archetype: housekeeper and secret wife
+      relationships:
+        - John Flack (husband)
+        - Olga Crewe (stepdaughter)
+      public_persona: housekeeper at Larmes Keep
+      private_secret: wife of John Flack, involved in gang
+      motive_seed: loyalty and self-preservation
+      motive_strength: moderate
+      alibi_window: present at Larmes Keep
+      access_plausibility: high
+      opportunity_channels:
+        - boarding house
+        - secret passages
+      behavioral_tells:
+        - irritation
+        - complaints
+      stakes: moderate
+      evidence_sensitivity:
+        - rings
+        - letters
+      culprit_eligibility: eligible
+      culpability: unknown
+      gender: female
+      role: suspect
+      moral_complexity: high
+    - name: Colonel Hothling
+      age_range: 40s to 50s
+      role_archetype: military man with criminal past
+      relationships:
+        - Olga Crewe
+        - Rev. Dean
+      public_persona: boarder at Larmes Keep
+      private_secret: criminal associate of Flack
+      motive_seed: greed and loyalty
+      motive_strength: moderate
+      alibi_window: present at Larmes Keep
+      access_plausibility: high
+      opportunity_channels:
+        - boarding house
+        - cave network
+      behavioral_tells:
+        - nervousness
+        - evasiveness
+      stakes: moderate
+      evidence_sensitivity: []
+      culprit_eligibility: eligible
+      culpability: unknown
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: Reverend Dean
+      age_range: 60s
+      role_archetype: clergyman with criminal ties
+      relationships:
+        - Olga Crewe
+        - Colonel Hothling
+      public_persona: boarder at Larmes Keep
+      private_secret: criminal associate of Flack
+      motive_seed: greed and loyalty
+      motive_strength: moderate
+      alibi_window: present at Larmes Keep
+      access_plausibility: high
+      opportunity_channels:
+        - boarding house
+        - cave network
+      behavioral_tells:
+        - calmness
+        - evasiveness
+      stakes: moderate
+      evidence_sensitivity: []
+      culprit_eligibility: eligible
+      culpability: unknown
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: Detective Brill
+      age_range: 30s to 40s
+      role_archetype: undercover investigating
+      relationships:
+        - J. G. Reeder
+      public_persona: Scotland Yard detective
+      private_secret: undercover in Larmes Keep
+      motive_seed: justice
+      motive_strength: strong
+      alibi_window: present at Larmes Keep
+      access_plausibility: high
+      opportunity_channels:
+        - investigation
+        - cave network
+      behavioral_tells:
+        - injured but alive
+      stakes: high
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+  culpability:
+    culprit_count: 2
+    culprits:
+      - John Flack
+      - George Ravini
+  surface_model:
+    narrative:
+      summary: >-
+        The case appears as a daring gold convoy robbery involving an escaped madman, John Flack,
+        and his criminal associates at Larmes Keep. Suspicious disappearances, mysterious guests,
+        and strange happenings at the boarding house suggest a complex criminal conspiracy.
+    accepted_facts:
+      - John Flack escaped from Broadmoor and is believed to be in London
+      - George Ravini disappeared leaving behind his pyjamas and was later found dead
+      - A gold convoy was intercepted and stolen near Tilbury without gunfire
+      - Margaret Belman was taken hostage and later escaped from Larmes Keep
+    inferred_conclusions:
+      - The robbery was a straightforward armed attack on the convoy
+      - George Ravini was killed by an unknown rival gang member
+      - Margaret Belman was complicit in the robbery or a willing accomplice
+  hidden_model:
+    mechanism:
+      description: >-
+        John Flack orchestrated the robbery by using a gas attack to incapacitate the gold convoy
+        guards at a narrow road cutting. The gang used a disguised lorry and gas stored in a water
+        wagon to silently kill the guards. The stolen gold was taken to Larmes Keep, which served as
+        their headquarters, connected to a network of caves for escape. Flack killed Ravini to
+        eliminate a threat and used his daughter Olga and the housekeeper Mrs. Burton as
+        accomplices.
+      delivery_path:
+        - step: Purchase and modification of an old water wagon to store deadly gas
+        - step: Deployment of gas hose over the bridge at the convoy's route to release gas
+        - step: Convoy incapacitated silently, lorry swerves and crashes, men die from gas
+        - step: Gang members wearing gas masks retrieve the gold and drive away in disguised lorry
+        - step: Gold and gang retreat to Larmes Keep, using secret cave passages
+        - step: Ravini is killed by Flack to prevent betrayal
+        - step: Flack and accomplices prepare to escape by motor boat through cave network
+    outcome:
+      result: >-
+        The gold convoy robbery is solved, the culprits are identified, and Margaret Belman is
+        rescued from captivity.
+  false_assumption:
+    statement: The robbery was a violent shootout with the gold convoy guards.
+    type: behavioral
+    why_it_seems_reasonable: >-
+      The presence of armed guards and the disappearance of the convoy suggest a gun battle. No
+      witnesses reported gas or silent incapacitation, so a shootout is the natural assumption.
+    what_it_hides: >-
+      The actual use of a gas attack that silently incapacitated the guards, leaving no gunfire or
+      struggle, which was a clever and unexpected method.
+  false_solution:
+    accused_suspect: Olga Crewe
+    supporting_points:
+      - Olga Crewe was present at Larmes Keep during the robbery
+      - She behaved coldly and evasively, arousing suspicion
+      - Her relationship with Flack and Ravini suggested inside knowledge
+      - She was seen near the caves shortly before the gold was moved
+    the_one_flaw: >-
+      Olga was coerced and manipulated by her father, and evidence shows she was not the mastermind
+      or main perpetrator.
+    refuted_in_chapter: 20
+  red_herrings:
+    - id: mrs_burton_housekeeper_madness
+      description: Mrs. Burton's apparent madness and complaints mislead suspicion onto her.
+      points_at_suspect: Mrs. Burton
+      innocent_explanation: Her behavior stems from frustration and fear, not criminal intent.
+      resolved_in_chapter: 18
+    - id: olga_crewe_cold_behavior
+      description: Olga Crewe's cold and evasive behavior suggests she might be the mastermind.
+      points_at_suspect: Olga Crewe
+      innocent_explanation: She is conflicted and fearful, coerced by her father and circumstances.
+      resolved_in_chapter: 20
+  closed_circle:
+    suspects:
+      - John Flack
+      - George Ravini
+      - Mr. Daver
+      - Olga Crewe
+      - Mrs. Burton
+      - Colonel Hothling
+      - Reverend Dean
+    rationale: >-
+      All suspects were present at Larmes Keep, had connections to Flack, and had opportunity and
+      motive related to the gold convoy robbery and subsequent events.
+  constraint_space:
+    time:
+      anchors:
+        - John Flack escaped a week before the robbery
+        - Gold convoy left Bank of England early morning
+        - Ravini left Larmes Keep early morning before disappearance
+        - Margaret Belman arrived at Larmes Keep before robbery
+        - Flack and gang fled before dawn after robbery
+      windows:
+        - Nighttime at Larmes Keep for surveillance and escape
+        - Early morning hours for robbery and gas attack
+        - Daytime for investigation and search
+    access:
+      actors:
+        - John Flack
+        - George Ravini
+        - Mr. Daver
+        - Olga Crewe
+        - Mrs. Burton
+        - Colonel Hothling
+        - Reverend Dean
+        - J. G. Reeder
+        - Detective Brill
+      objects:
+        - Safe in Larmes Keep
+        - Secret panel door
+        - Cave network under Larmes Keep
+        - Water wagon modified for gas
+        - Gold convoy lorry
+        - Motor boat in cave
+    social:
+      trust_channels:
+        - Letters and notes between Flack and gang
+        - Verbal instructions from Flack
+        - Mr. Daver's authority as proprietor
+        - Olga Crewe's interactions with Ravini
+      authority_sources:
+        - Public Prosecutor's Office
+        - Scotland Yard
+        - Mr. Daver as proprietor
+        - John Flack as gang leader
+  inference_path:
+    steps:
+      - observation: Gold convoy disappeared silently without gunfire
+        correction: No shooting occurred; guards were incapacitated
+        effect: Suggests use of gas or chemical agent
+        required_evidence:
+          - Description of convoy route and timing from police reports
+          - Medical examination of dead guards showing no gunshot wounds
+        reader_observable: true
+      - observation: Old water wagon found near robbery site
+        correction: Wagon modified to store and release gas
+        effect: Source of incapacitating agent identified
+        required_evidence:
+          - Physical inspection of water wagon and hose
+          - Purchase records of municipal equipment
+        reader_observable: true
+      - observation: Ravini left Larmes Keep suddenly, pyjamas torn
+        correction: Ravini was killed by Flack to prevent betrayal
+        effect: Ravini is victim, not mastermind
+        required_evidence:
+          - Luck Rings sent to Reeder with threatening note
+          - Witness statements about Ravini's last movements
+        reader_observable: true
+      - observation: Safe in Larmes Keep has secret panel leading to caves
+        correction: Gang used secret passages for escape and hiding
+        effect: Explains how Flack escaped and hid
+        required_evidence:
+          - Inspection of safe and secret door
+          - Mapping of cave network under Larmes Keep
+        reader_observable: true
+      - observation: Margaret Belman escaped from cave after fall
+        correction: She was held hostage to ensure Reeder's compliance
+        effect: Margaret is innocent victim, not accomplice
+        required_evidence:
+          - Margaret's testimony and physical evidence of fall
+          - Witness accounts of her captivity and escape
+        reader_observable: true
+      - observation: Mr. Daver acts nervously and tries to mislead
+        correction: Daver is collaborator with Flack, double-crossed by him
+        effect: Daver is co-conspirator and victim of Flack's paranoia
+        required_evidence:
+          - Daver's secret notes and correspondence
+          - Witness statements about his behavior
+        reader_observable: true
+      - observation: Flack's escape and presence at Larmes Keep
+        correction: Flack masterminded robbery and orchestrated escape
+        effect: Identifies Flack as primary culprit
+        required_evidence:
+          - Brill's testimony of Flack's movements
+          - Physical inspection of the secret panel door and cave entrance at Larmes Keep
+        reader_observable: true
+  discriminating_test:
+    method: reenactment
+    design: >-
+      Recreate the robbery scenario by releasing gas from a water wagon at the convoy's route and
+      observe the effect on guards. Simultaneously, test the secret panel door and cave passages at
+      Larmes Keep to verify escape routes. Confirm the presence of gas and the timing of
+      incapacitation.
+    knowledge_revealed: >-
+      This test reveals the use of gas to incapacitate guards silently and the use of secret
+      passages for escape, confirming the actual mechanism of the crime.
+    pass_condition: >-
+      The gas release incapacitates guards without gunfire, and secret passages provide a viable
+      escape route.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given detailed descriptions of the convoy's disappearance, the presence of a
+      water wagon, the secret panel in the safe, and the cave network. The suspicious behavior of
+      suspects and the discovery of gas traces and the secret ladder are all presented. The
+      detective's reasoning and the clues about the gas and escape routes are accessible, allowing a
+      careful reader to deduce the true mechanism.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

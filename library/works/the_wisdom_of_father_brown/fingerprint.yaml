@@ -2,9 +2,9 @@
   corpus: seed
   axis: identity
   mechanism_family: staged_scene
-  false_assumption_pattern: the_scene_proves_murder_by_other
+  false_assumption_pattern: the_body_was_killed_by_another
   discriminating_test_shape: timetable_contradiction
-  inference_shape: reconstruct_true_sequence_of_events
+  inference_shape: reconstruct_true_cause_of_death
   premise: >-
     The case appears to be a straightforward murder of Sir Claude Champion, found stabbed with a
     sword in a romantic setting, with his rival John Boulnois as the prime suspect. The victim was

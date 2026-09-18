@@ -1,0 +1,46 @@
+pattern_id: dark_power
+title: The Borrowed Face
+family: identity
+axes:
+  - identity
+principle: >-
+  This assumption conceals the fact that the victim is actually dead and has been impersonated by a
+  suspect, enabling the culprit to manipulate the inheritance and cover up the murder.
+principleType: social_logic
+surface_illusion_template: >-
+  the victim was a thief who betrayed the victim and the family.; a suspect was the mastermind
+  behind the robbery and disappearance.; the victim is alive and well, merely hiding in the house.
+underlying_reality_template: >-
+  the culprit orchestrates the concealment of the victim death by forcing a suspect to impersonate
+  him in his room, while the culprit, under her influence, accidentally kills the victim in the
+  woods. The imposture allows the culprit to manipulate the family, control the victim, and secure
+  the inheritance, with the deaths and disappearances serving to maintain her scheme.
+feasibility:
+  eras:
+    - 1850
+    - 1860
+    - 1870
+    - 1880
+    - 1890
+    - 1900
+    - 1910
+    - 1920
+    - 1930
+    - 1940
+    - 1950
+  requires:
+    - physical_disguise
+    - social_deference
+    - locked_room
+  forbids:
+    - cctv
+    - voice_authentication
+clue_archetypes:
+  - letter_from_james_fennel
+  - a_timestamped_access_record
+  - doctor_coat_s_medical
+  - testimony_about_wren_s
+  - locked_door_and_key
+  - physical_examination_showing_uncle
+sources:
+  - Elisabeth Sanxay Holding, Dark power — library/works/dark_power/case.cml2.yaml

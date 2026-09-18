@@ -34,11 +34,11 @@ feasibility:
     - 1950
   requires:
     - physical_disguise
-    - photographic_analysis
     - social_deference
+    - photographic_evidence
   forbids:
-    - cctv
     - voice_authentication
+    - cctv
 clue_archetypes:
   - note_from_landlord_about
   - letter_from_colonel_clay

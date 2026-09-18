@@ -1,0 +1,134 @@
+{
+ "slug": "the_cat_s_paw",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Miss Susan Baird was found dead in the library",
+   "anchor": "Miss Susan Baird still sat in her throne-shaped chair",
+   "span": "Miss Susan Baird still sat in her throne-shaped chair, but the light fell full on her glazing eyes and distorted features.",
+   "ok": true
+  },
+  {
+   "claim": "Death was caused by prussic acid poisoning",
+   "anchor": "death was due to prussic acid, the most active of poisons",
+   "span": "We found on investigation of the gastric contents that death was due to prussic acid, the most active of poisons,\" Fisher replied, with blunt directness.",
+   "ok": true
+  },
+  {
+   "claim": "Poison was applied only to one side of the fruit knife",
+   "anchor": "The poison had been put on one side of the knife-blade only",
+   "span": "The poison had been put on one side of the knife-blade only.",
+   "ok": true
+  },
+  {
+   "claim": "The front door was locked from the outside with the key in the lock",
+   "anchor": "We found the key of the front door in the lock on the outside",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Kitty Baird inherited a large fortune from her aunt",
+   "anchor": "Miss Susan Baird left Kitty an heiress",
+   "span": "Miss Susan Baird left Kitty an heiress.",
+   "ok": true
+  },
+  {
+   "claim": "Charles Craige was the lawyer and godfather with financial troubles",
+   "anchor": "Charles Craige murdered Miss Susan Baird due to financial desperation",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Oscar was a loyal servant but lied about his whereabouts",
+   "anchor": "Oscar had to catch the three o'clock train to get there",
+   "span": "Oscar had to catch the three o'clock train to get there to-night.",
+   "ok": true
+  },
+  {
+   "claim": "Mrs. Amos Parsons attempted to bribe Oscar to steal papers",
+   "anchor": "Please, please keep up your search, Oscar. I'll give you more than I promised",
+   "span": "' And a woman's voice replied: 'Please, please keep up your search, Oscar. I'll give you more than I promised--a hundred dollars more.",
+   "ok": true
+  },
+  {
+   "claim": "Kitty's red coat was sold and then destroyed",
+   "anchor": "The coat looked like Kitty's--with a single stride he was at the counter",
+   "span": "The coat looked like Kitty's--with a single stride he was at the counter--the coat _was_ Kitty's.",
+   "ok": true
+  },
+  {
+   "claim": "Mrs. Parsons was killed by poison on the cat's paw",
+   "anchor": "the poison which Craige sprayed on the cat's paw--and thus killed Cecelia Parsons",
+   "span": "It is filled with the poison which Craige sprayed on the cat's paw--and thus killed Cecelia Parsons, his fianc�e.",
+   "ok": true
+  },
+  {
+   "claim": "Charles Craige confessed to the murders",
+   "anchor": "Charles Craige did as he was told. A small rubber bulb syringe dropped to the floor",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The poison syringe was used to apply the poison",
+   "anchor": "I sprayed some hydrocyanic acid on the knife-blade",
+   "span": "Before cutting the peach in two, I sprayed some hydrocyanic acid on the knife-blade when Miss Baird was not looking, holding the knife just over the edge of the table and the bulb in my left hand, out of sight in my lap.",
+   "ok": true
+  },
+  {
+   "claim": "Leigh Wallace was seen entering the house with peaches",
+   "anchor": "Mrs. Murray claims that it was about five o'clock or a little after",
+   "span": "Mrs. Murray claims that it was about five o'clock or a little after,\" Donovan replied, consulting his notes.",
+   "ok": true
+  },
+  {
+   "claim": "The revolver with Kitty's initials was found in Rodgers' car",
+   "anchor": "That's Kitty's revolver. I had her initials engraved upon it",
+   "span": "That's Kitty's revolver. I had her initials engraved upon it--see--\" And turning the revolver slightly, Mitchell was able to decipher the letters on the plate: \"K.",
+   "ok": true
+  },
+  {
+   "claim": "Mrs. Parsons tried to blackmail Kitty with papers",
+   "anchor": "Mrs. Parsons was as clever as they make them, but she overreached herself",
+   "span": "Mrs. Parsons was as clever as they make them, but she overreached herself when she tried to involve you, Mr.",
+   "ok": true
+  },
+  {
+   "claim": "Craige planted evidence to frame Kitty and Rodgers",
+   "anchor": "I slipped upstairs to your room and went through your desk",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Oscar overheard a quarrel about Major Wallace",
+   "anchor": "Miss Susan and her niece quarreling on Sunday",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The Dutch door panel was used for secret access",
+   "anchor": "this resembles a Dutch door. That is exactly what it is",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The murder was premeditated and carefully planned",
+   "anchor": "The crime was deliberately planned and by some one with nerves absolutely under control",
+   "span": "The crime was deliberately planned and by some one with nerves absolutely under control.",
+   "ok": true
+  },
+  {
+   "claim": "The motive was financial desperation and to cover forgery",
+   "anchor": "I had forged Miss Susan Baird's name in my desperation last week",
+   "span": "I had forged Miss Susan Baird's name in my desperation last week.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.05079891574999999,
+ "models": {
+  "map": "gpt-4o-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true
+}

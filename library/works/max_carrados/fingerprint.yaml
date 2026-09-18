@@ -4,7 +4,7 @@
   mechanism_family: staged_scene
   false_assumption_pattern: the_reported_crime_is_genuine
   discriminating_test_shape: behavioral_tell
-  inference_shape: expose_faked_event
+  inference_shape: expose_false_crime_scene
   premise: >-
     A series of thefts from a supposedly impregnable safe deposit in London baffle investigators. An
     audacious criminal known as 'Harry the Actor' uses disguises and duplicated keys to steal

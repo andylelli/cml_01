@@ -32,11 +32,10 @@ feasibility:
     - 1950
   requires:
     - physical_disguise
-    - secret_room_or_space
-    - blood_simulation
+    - old_building_structure
   forbids:
     - cctv
-    - automated_fingerprint_search
+    - voice_authentication
 clue_archetypes:
   - slippers_found_under_hall
   - blood_mark_on_window

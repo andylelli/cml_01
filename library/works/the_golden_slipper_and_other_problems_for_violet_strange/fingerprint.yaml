@@ -2,7 +2,7 @@
   corpus: seed
   axis: identity
   mechanism_family: impersonation
-  false_assumption_pattern: the_thief_is_the_obvious_suspect
+  false_assumption_pattern: the_thief_is_the_person_seen
   discriminating_test_shape: timetable_contradiction
   inference_shape: expose_identity_by_physical_trace
   premise: >-

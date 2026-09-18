@@ -1,0 +1,122 @@
+{
+ "slug": "the_golden_face",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "George Hargreave was coerced into stealing Lady Lydbrook's pearls",
+   "anchor": "I slipped the pendant into Lady Lydbrook's soft hand",
+   "span": "NEW YORK THE MACAULAY COMPANY COPYRIGHT, 1922, BY THE MACAULAY COMPANY _Printed in the United States of America_ [Illustration: I slipped the pendant into Lady Lydbrook's soft hand as she stood in _deshabille_ at the half-opened door of her bedroom.",
+   "ok": true
+  },
+  {
+   "claim": "The bank robbery involved cutting the safe door with oxyacetylene",
+   "anchor": "they had cut out the door as butter could be cut with a hot knife",
+   "span": "The bank robbers had apparently used a most up-to-date oxyacetylene plant for cutting steel, and from the strong-room in the basement--believed to be impregnable and which could only be opened by a time-clock, and, moreover, could be flooded at will--they had cut out the door as butter could be cut with a hot knife.",
+   "ok": true
+  },
+  {
+   "claim": "Fingerprints of four distinct fingers were found at the bank robbery",
+   "anchor": "finger-prints of four distinct fingers upon the door",
+   "span": "It is evident that one of the thieves cut his hand badly, for we understand that the detectives of the City police have found blood-stained finger-prints of four distinct fingers upon the door and in other parts of the strong-room.",
+   "ok": true
+  },
+  {
+   "claim": "Hugh Martyn was framed by transferring his fingerprints onto gloves",
+   "anchor": "devilish malice aforethought, had contrived to get him to handle the glass cube",
+   "span": "Slowly it became plain that Rayne, having been betrayed by the astute American crook, had met him in Edinburgh and with devilish malice aforethought, had contrived to get him to handle the glass cube which served as a paper-weight, and which I had quite innocently conveyed to the old hunchback, who had succeeded in taking the finger-prints and by photography transferring them upon the surgical rubber glove, thin as paper--really a false skin--which Duperre had worn over his hands when he and his associates made an attack upon the bank.",
+   "ok": true
+  },
+  {
+   "claim": "Jewels were concealed inside a stuffed dog to evade police search",
+   "anchor": "ripping open the pelt behind the forelegs he quickly drew out the stuffing",
+   "span": "He took the dog, which had probably been purchased from a naturalist only that day, and ripping open the pelt behind the forelegs he quickly drew out the stuffing.",
+   "ok": true
+  },
+  {
+   "claim": "Madame Duperre wore a hat with hollow quills filled with gems",
+   "anchor": "all three of the hollow quills were filled with gems",
+   "span": "I then saw to my amazement that, though hardly distinguishable, all three of the hollow quills were filled with gems, the smaller being put in first.",
+   "ok": true
+  },
+  {
+   "claim": "Lady Lydbrook is actually Betty Tressider, a thief and accomplice",
+   "anchor": "Lady Lydbrook, who was not Sir Owen's wife at all but one of his agents",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Rudolph Rayne is the mastermind known as 'The Golden Face'",
+   "anchor": "He is called 'Golden Face' by his intimates",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The Silver Spider is a family heirloom hiding stolen pearls",
+   "anchor": "upon it there stood a silver model of a gigantic tarantula",
+   "span": "As I stood gossiping with her, my eyes fell upon a little Florentine table of polished black marble inlaid with colored stones forming a basket of fruit, a marvel of Renaissance art, and upon it there stood a silver model of a gigantic tarantula, or spider, the body being about seven inches long by five broad, with eight long curved legs, most perfectly copied from nature.",
+   "ok": true
+  },
+  {
+   "claim": "Rudolph Rayne was arrested and extradited on a bank fraud charge",
+   "anchor": "the arrest of Mr. Rudolph Rayne of Overstow Hall",
+   "span": "It was not until a week later that we read in the English newspapers the sensation caused by the arrest of Mr. Rudolph Rayne of Overstow Hall, Yorkshire, upon an extradition warrant applied for by the Danish Government.",
+   "ok": true
+  },
+  {
+   "claim": "George Hargreave receives a warning letter from Lola to destroy the suit-case",
+   "anchor": "Private. I have suspicion that the suit-case you have you should get rid of at once",
+   "span": "Private. I have suspicion that the suit-case you have you should get rid of at once.",
+   "ok": true
+  },
+  {
+   "claim": "The master-key opens Lady Lydbrook's room allowing theft",
+   "anchor": "Here it is. But I really cannot accede to this! Though I have fallen into a clever trap",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The false solution accuses George Hargreave of the theft",
+   "anchor": "I was being forced against my will to become a thief",
+   "span": "I was being forced against my will to become a thief.",
+   "ok": true
+  },
+  {
+   "claim": "The true culprit is the criminal mastermind Rudolph Rayne",
+   "anchor": "the man who had, for some mysterious reason of his own, ascertained that I could sing",
+   "span": "One subject, however, we have mutually agreed never to mention, namely, the evil machinations and ingenious activities of her father, the man who had, for some mysterious reason of his own, ascertained that I could sing, and who, in overconfidence at his own cunning, was at last unmasked--\"The Golden Face.",
+   "ok": true
+  },
+  {
+   "claim": "The false assumption is that George Hargreave is the thief",
+   "anchor": "I was torn between the path of honesty from which, alas! I had been slowly slipping",
+   "span": "I was torn between the path of honesty from which, alas! I had been slowly slipping ever since I had made that accursed compact with Rudolph Rayne, and my love for Lola, who had, I knew, every confidence in me, while at the same time she was growing highly suspicious of her father.",
+   "ok": true
+  },
+  {
+   "claim": "The red herring of the hunchback impostor attempting to trap Hargreave",
+   "anchor": "I put out my arm, and peering into the man's face, asked: Is there nothing else, eh?",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The red herring of Madame Duperre's involvement with the stuffed dog",
+   "anchor": "Madame was writing a letter, while Duperre was in the act of lighting a cigarette",
+   "span": "Madame was writing a letter, while Duperre was in the act of lighting a cigarette.",
+   "ok": true
+  },
+  {
+   "claim": "The discriminating test involves reenacting the theft with the trick case",
+   "anchor": "I slipped the pendant into Lady Lydbrook's soft hand as she stood in deshabille",
+   "span": "",
+   "ok": false
+  }
+ ],
+ "costGbp": 0.08834867830000001,
+ "models": {
+  "map": "gpt-4o-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true
+}

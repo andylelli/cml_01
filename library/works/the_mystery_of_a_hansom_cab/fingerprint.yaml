@@ -2,9 +2,9 @@
   corpus: seed
   axis: identity
   mechanism_family: impersonation
-  false_assumption_pattern: the_man_seen_is_the_murderer
+  false_assumption_pattern: the_dead_is_who_they_appear
   discriminating_test_shape: timetable_contradiction
-  inference_shape: disprove_identity_by_alibi
+  inference_shape: reconstruct_true_identity
   premise: >-
     A man named Oliver Whyte is found murdered in a hansom cab in Melbourne. Brian Fitzgerald,
     engaged to Madge Frettlby, is arrested based on circumstantial evidence but is later acquitted

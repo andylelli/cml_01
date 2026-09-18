@@ -1,0 +1,50 @@
+pattern_id: the_mardi_gras_mystery
+title: The Borrowed Costume
+family: identity
+axes:
+  - identity
+principle: >-
+  The real Midnight Masquer was the investigator, and the murder was committed by the culprit to
+  frame a suspect. The costume and loot were stolen and used to mislead investigators.
+principleType: social_logic
+surface_illusion_template: >-
+  a suspect the victim was the Midnight Masquer and killed his father accidentally.; the culprit was
+  the thief who stole the loot but not the murderer.; the culprit is an innocent man caught in the
+  criminal web.
+underlying_reality_template: >-
+  the culprit masterminded the criminal operations, including the lottery and automobile theft ring,
+  using the culprit as his enforcer. the culprit murdered the victim during a confrontation at the
+  Comus ball, using the stolen aviator's costume and pistol to implicate a suspect the victim. the
+  culprit planted false evidence, including a fabricated oil seepage, to manipulate the oil company
+  deal and protect a witness a witness financially while maintaining his criminal enterprise under
+  the guise of respectability.
+feasibility:
+  eras:
+    - 1850
+    - 1860
+    - 1870
+    - 1880
+    - 1890
+    - 1900
+    - 1910
+    - 1920
+    - 1930
+    - 1940
+    - 1950
+  requires:
+    - physical_disguise
+    - social_deference
+  forbids:
+    - cctv
+    - voice_authentication
+clue_archetypes:
+  - the_aviator_costume_found
+  - witness_statement_of_bob
+  - bloodied_knife_with_chacherre
+  - a_telegram_sent_by
+  - lease_option_on_adjoining
+  - statement_by_jachin_fell
+sources:
+  - >-
+    H. (Henry) Bedford-Jones, The Mardi Gras Mystery —
+    library/works/the_mardi_gras_mystery/case.cml2.yaml

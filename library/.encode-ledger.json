@@ -1,5 +1,5 @@
 {
- "totalGbp": 4.908380137850001,
+ "totalGbp": 7.778139652050001,
  "runs": [
   {
    "slug": "the_big_bow_mystery",
@@ -288,6 +288,192 @@
    "costGbp": 0.1527,
    "valid": true,
    "spans": "7/19"
+  },
+  {
+   "slug": "dorcas_dene_detective_78210",
+   "costGbp": 0.0777,
+   "valid": true,
+   "spans": "13/19"
+  },
+  {
+   "slug": "the_melody_of_death",
+   "costGbp": 0.0813,
+   "valid": true,
+   "spans": "17/20"
+  },
+  {
+   "slug": "dorcas_dene_detective",
+   "costGbp": 0.0818,
+   "valid": true,
+   "spans": "11/19"
+  },
+  {
+   "slug": "dark_power",
+   "costGbp": 0.0846,
+   "valid": true,
+   "spans": "13/20"
+  },
+  {
+   "slug": "mystery_ranch",
+   "costGbp": 0.1893,
+   "valid": false,
+   "spans": "12/20"
+  },
+  {
+   "slug": "the_curse_of_the_reckaviles",
+   "costGbp": 0.086,
+   "valid": true,
+   "spans": "12/20"
+  },
+  {
+   "slug": "terror_keep",
+   "costGbp": 0.0914,
+   "valid": true,
+   "spans": "14/21"
+  },
+  {
+   "slug": "the_meredith_mystery",
+   "costGbp": 0.0843,
+   "valid": true,
+   "spans": "12/20"
+  },
+  {
+   "slug": "the_profiteers",
+   "costGbp": 0.0864,
+   "valid": true,
+   "spans": "12/20"
+  },
+  {
+   "slug": "no_clue",
+   "costGbp": 0.0476,
+   "valid": true,
+   "spans": "11/19"
+  },
+  {
+   "slug": "diana_of_kara_kara",
+   "costGbp": 0.0923,
+   "valid": true,
+   "spans": "11/20"
+  },
+  {
+   "slug": "the_mardi_gras_mystery",
+   "costGbp": 0.0904,
+   "valid": true,
+   "spans": "10/20"
+  },
+  {
+   "slug": "the_golden_face",
+   "costGbp": 0.0883,
+   "valid": true,
+   "spans": "13/18"
+  },
+  {
+   "slug": "the_unseen_ear",
+   "costGbp": 0.0927,
+   "valid": true,
+   "spans": "13/20"
+  },
+  {
+   "slug": "the_corbin_necklace",
+   "costGbp": 0.0925,
+   "valid": true,
+   "spans": "11/20"
+  },
+  {
+   "slug": "the_templeton_case",
+   "costGbp": 0.0896,
+   "valid": true,
+   "spans": "7/20"
+  },
+  {
+   "slug": "room_13",
+   "costGbp": 0.0492,
+   "valid": true,
+   "spans": "17/20"
+  },
+  {
+   "slug": "the_man_who_knew_too_much",
+   "costGbp": 0.0868,
+   "valid": true,
+   "spans": "13/20"
+  },
+  {
+   "slug": "the_come_back",
+   "costGbp": 0.098,
+   "valid": true,
+   "spans": "12/20"
+  },
+  {
+   "slug": "the_cat_s_paw",
+   "costGbp": 0.0508,
+   "valid": true,
+   "spans": "14/20"
+  },
+  {
+   "slug": "raspberry_jam",
+   "costGbp": 0.0918,
+   "valid": true,
+   "spans": "10/20"
+  },
+  {
+   "slug": "feathers_left_around",
+   "costGbp": 0.0519,
+   "valid": false,
+   "spans": "aborted"
+  },
+  {
+   "slug": "aaron_rodd_diviner",
+   "costGbp": 0.0914,
+   "valid": false,
+   "spans": "aborted"
+  },
+  {
+   "slug": "the_mystery_of_the_sycamore",
+   "costGbp": 0.1888,
+   "valid": false,
+   "spans": "16/20"
+  },
+  {
+   "slug": "the_thirteenth_letter",
+   "costGbp": 0.0889,
+   "valid": true,
+   "spans": "14/20"
+  },
+  {
+   "slug": "the_mystery_girl",
+   "costGbp": 0.1284,
+   "valid": true,
+   "spans": "16/20"
+  },
+  {
+   "slug": "the_haunted_house",
+   "costGbp": 0.0978,
+   "valid": false,
+   "spans": "aborted"
+  },
+  {
+   "slug": "the_strange_countess",
+   "costGbp": 0.1017,
+   "valid": true,
+   "spans": "12/20"
+  },
+  {
+   "slug": "in_the_onyx_lobby",
+   "costGbp": 0.1046,
+   "valid": true,
+   "spans": "17/20"
+  },
+  {
+   "slug": "the_girl_from_scotland_yard",
+   "costGbp": 0.0919,
+   "valid": true,
+   "spans": "14/20"
+  },
+  {
+   "slug": "the_loudwater_mystery",
+   "costGbp": 0.0913,
+   "valid": true,
+   "spans": "14/20"
   }
  ]
 }

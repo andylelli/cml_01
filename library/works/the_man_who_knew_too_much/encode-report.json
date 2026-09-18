@@ -1,0 +1,134 @@
+{
+ "slug": "the_man_who_knew_too_much",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "The victim was found with a deep gash across the jugular",
+   "anchor": "deep gash across the jugular",
+   "span": "One was that the unfortunate Hewitt had a deep gash across the jugular, which the triumphant doctor instantly identified as having been made with a sharp steel edge like a razor.",
+   "ok": true
+  },
+  {
+   "claim": "Two swords of identical pattern were present at the crime scene",
+   "anchor": "two swords of exactly the same shape",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The statue of Britannia was toppled and laying prone on the garden path",
+   "anchor": "stone image of Britannia was lying prone and face downward",
+   "span": "The monstrous stone image of Britannia was lying prone and face downward on the garden path; and there stuck out at random from underneath it, like the legs of a smashed fly, an arm clad in a white shirt sleeve and a leg clad in a khaki trouser, and hair of the unmistakable sandy gray that belonged to Horne Fisher's unfortunate uncle.",
+   "ok": true
+  },
+  {
+   "claim": "The victim took off his coat before he was killed",
+   "anchor": "Horne Hewitt took off his own coat before he was killed",
+   "span": "Horne Hewitt took off his own coat before he was killed.",
+   "ok": true
+  },
+  {
+   "claim": "The murderer used a sword of a particular pattern to kill Hewitt",
+   "anchor": "wound was made by a sword of that particular pattern",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The duplicate swords were brought by Horne Fisher himself",
+   "anchor": "I brought them both into the garden myself",
+   "span": "It may be partly explained, by the fact that I brought them both into the garden myself .",
+   "ok": true
+  },
+  {
+   "claim": "The iron bar used in the murder was the iron clamp or prop on the statue pedestal",
+   "anchor": "iron clamp or prop on the pedestal",
+   "span": "It was the iron clamp or prop on the pedestal, stuck on to keep the wretched image upright when it began to wobble, I suppose.",
+   "ok": true
+  },
+  {
+   "claim": "The murderer swung the iron bar over the victim's head with dying energies",
+   "anchor": "with his dying energies he swung it over my head",
+   "span": "I do not know whether the iron bar was rotted with rust and came away in his hand, or whether he rent it out of the rock with his apelike strength; but the thing was in his hand, and with his dying energies he swung it over my head, as I knelt there unarmed beside him.",
+   "ok": true
+  },
+  {
+   "claim": "The statue fell and crushed the victim in its fall",
+   "anchor": "the great carven column of rock was rolled away",
+   "span": "They all bent their strength to the business; there was a silence save for heavy breathing; and then, after an instant of the tottering and staggering of eight legs, the great carven column of rock was rolled away, and the body lying in its shirt and trousers was fully revealed.",
+   "ok": true
+  },
+  {
+   "claim": "The false accusation against Hugo was refuted",
+   "anchor": "Whether that Hungarian fugitive would ever be caught appeared to Horne Fisher to be highly doubtful",
+   "span": "Whether that Hungarian fugitive would ever be caught appeared to Horne Fisher to be highly doubtful; nor can it be pretended that he displayed any very demoniac detective energy in the matter as he leaned back in the boat cushions, smoking, and watching the swaying reeds slide past.",
+   "ok": true
+  },
+  {
+   "claim": "Prince Michael was innocent of the murders of police officers",
+   "anchor": "This man, Hooker Wilson, as soon as he had put his head in at that window, killed his two comrades",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The relic was stolen using a magnet on a string through a hole in the floor",
+   "anchor": "the thing was done by means of a magnet",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The victim was alive at the inn but dead before reaching the rocks",
+   "anchor": "He was alive at the inn, but he was dead long before he came to the rocks",
+   "span": "He was alive at the inn, but he was dead long before he came to the rocks.",
+   "ok": true
+  },
+  {
+   "claim": "The murderer was a first-class shot who pretended to be a bad shot",
+   "anchor": "He was a first-class shot who can pretend to be a very bad shot",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The duplicate swords were the only equal weapons available for the duel",
+   "anchor": "they were the only equal weapons I could find",
+   "span": "The swords were among some specimens sent down here for the Prime Minister's inspection; he is a collector, you know; they were the only equal weapons I could find.",
+   "ok": true
+  },
+  {
+   "claim": "The victim was killed by a slash to the neck with a sword",
+   "anchor": "mine sank into the joint in his neck",
+   "span": "His sword grazed my forehead almost at the moment when mine sank into the joint in his neck.",
+   "ok": true
+  },
+  {
+   "claim": "The murderer fled on a motorbike after the duel",
+   "anchor": "I fled up the garden path to where my motor bike was waiting",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The false assumption that the murderer lifted the statue after killing the victim is physically impossible",
+   "anchor": "I bet he couldn't easily have lifted it up again",
+   "span": "But I bet he couldn't easily have lifted it up again.",
+   "ok": true
+  },
+  {
+   "claim": "The political documents were stolen by the victim and then taken by the murderer",
+   "anchor": "he stole the state papers from him",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The false accusation against Leonard Crane was disproved",
+   "anchor": "I didn't kill him because I threw away my sword",
+   "span": "I didn't kill him because I threw away my sword,\" said the other.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.08677526295000001,
+ "models": {
+  "map": "gpt-4o-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true
+}

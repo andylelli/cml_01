@@ -1,0 +1,46 @@
+pattern_id: the_mystery_girl
+title: The Melting Weapon
+family: behavioral
+axes:
+  - spatial
+principle: >-
+  It hides the fact that the victim himself locked the door after committing suicide and that the
+  weapon was an icicle that melted, leaving no trace.
+principleType: physical_law
+surface_illusion_template: >-
+  a suspect a suspect murdered the victim to gain his money and inheritance.; the culprit, the
+  Japanese servant who disappeared, was involved in the murder and theft.; a suspect a suspect, the
+  secretary, erased evidence to protect a suspect and is complicit.
+underlying_reality_template: >-
+  the victim committed suicide by stabbing himself with an icicle he broke off from the window. The
+  icicle melted in the wound, leaving no weapon behind. He locked the study door after a suspect a
+  suspect left, creating the appearance of a locked room mystery. His death was motivated by the
+  burden of his secret past and the potential scandal affecting his family and the university.
+feasibility:
+  eras:
+    - 1850
+    - 1860
+    - 1870
+    - 1880
+    - 1890
+    - 1900
+    - 1910
+    - 1920
+    - 1930
+    - 1940
+    - 1950
+  requires:
+    - predictable_heat_source
+    - window_access
+  forbids:
+    - cctv
+    - modern_toxicology_screen
+clue_archetypes:
+  - photographs_of_the_study
+  - statements_from_mrs_peyton
+  - nogi_s_testimony_about
+  - photograph_of_icicles_on
+  - anita_s_testimony_about
+  - check_stub_for_10
+sources:
+  - Carolyn Wells, The Mystery Girl — library/works/the_mystery_girl/case.cml2.yaml

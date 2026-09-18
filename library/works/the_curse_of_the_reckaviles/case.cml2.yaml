@@ -1,0 +1,437 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The curse of the Reckaviles
+    author: Walter S. (Walter Sidney) Masterman
+    license: Public domain (first published 1927; author died 1946). Project Gutenberg ebook 72629.
+    era:
+      decade: 1920s
+      realism_constraints:
+        - No advanced forensic technology like DNA analysis or modern fingerprinting
+        - Communication limited to telegrams, letters, and early telephone use
+        - Travel and investigation constrained by slower transport and limited police resources
+    setting:
+      location: Portham-on-Sea and Reckavile Castle, England
+      institution: Scotland Yard and local police at Ashstead
+    crime_class:
+      category: murder
+      subtype: locked room murder with staged alibi and mechanical deception
+  cast:
+    - name: Fletcher
+      age_range: 30-40
+      role_archetype: young ambitious detective
+      relationships:
+        - Sergeant Andrews
+        - Brown
+        - Sinclair
+        - Ena Sefton
+        - Jack Sefton
+        - Halley
+      public_persona: official Scotland Yard detective
+      private_secret: struggles with doubts and professional setbacks
+      motive_seed: professional ambition
+      motive_strength: weak
+      alibi_window: always on duty
+      access_plausibility: high
+      opportunity_channels:
+        - official investigation
+        - access to crime scene
+      behavioral_tells:
+        - impatience
+        - skepticism
+        - professional rigor
+      stakes: career and reputation
+      evidence_sensitivity:
+        - inquest papers
+        - physical evidence at castle
+        - witness statements
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: moderate
+    - name: Ena Sefton
+      age_range: 20-25
+      role_archetype: innocent young woman caught in mystery
+      relationships:
+        - Jack Sefton
+        - Halley
+        - Fletcher
+      public_persona: sister of Jack Sefton, local resident
+      private_secret: trusts Halley despite suspicions
+      motive_seed: family loyalty
+      motive_strength: none
+      alibi_window: at home or local area
+      access_plausibility: low
+      opportunity_channels: []
+      behavioral_tells:
+        - emotional trust
+        - naivety
+      stakes: family safety and reputation
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: low
+    - name: Jack Sefton
+      age_range: 25-30
+      role_archetype: medical student with secret
+      relationships:
+        - Ena Sefton
+        - Halley
+        - Fletcher
+      public_persona: medical student, brother to Ena
+      private_secret: conducts secret psychoanalytic treatment
+      motive_seed: financial desperation
+      motive_strength: weak
+      alibi_window: variable, often absent
+      access_plausibility: moderate
+      opportunity_channels:
+        - access to bungalow and treatment room
+      behavioral_tells:
+        - evasiveness
+        - nervousness
+      stakes: future career and family welfare
+      evidence_sensitivity:
+        - five pound note changed at Black Horse
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: Halley (Lord Reckavile)
+      age_range: 40-50
+      role_archetype: disguised heir and victim's half-brother
+      relationships:
+        - Ena Sefton
+        - Jack Sefton
+        - Southgate
+        - Giles
+      public_persona: mysterious stranger, doctor
+      private_secret: true identity as Lord Reckavile and murderer
+      motive_seed: revenge and inheritance dispute
+      motive_strength: strong
+      alibi_window: claimed alibi at Black Horse
+      access_plausibility: high
+      opportunity_channels:
+        - access to castle
+        - knowledge of family secrets
+      behavioral_tells:
+        - calm under suspicion
+        - reserved demeanor
+      stakes: title and estate
+      evidence_sensitivity:
+        - dictaphone record
+        - wound treated by Jack Sefton
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Giles (Mr. Wheatland)
+      age_range: 60-70
+      role_archetype: old servant with dark past
+      relationships:
+        - Lord Reckavile
+        - Southgate
+        - Winnie Wheatland
+      public_persona: loyal butler
+      private_secret: murderer motivated by revenge
+      motive_seed: revenge for past grievances and family disgrace
+      motive_strength: strong
+      alibi_window: present at castle
+      access_plausibility: high
+      opportunity_channels:
+        - access to castle and murder weapon
+      behavioral_tells:
+        - nervousness
+        - confession under pressure
+      stakes: personal vengeance
+      evidence_sensitivity:
+        - confession statement
+        - hidden marriage certificate
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Southgate
+      age_range: 50-60
+      role_archetype: landlord and loyal servant
+      relationships:
+        - Halley
+        - Giles
+        - Mrs. Southgate
+      public_persona: landlord of Black Horse
+      private_secret: knows family secrets, aids Halley
+      motive_seed: loyalty
+      motive_strength: none
+      alibi_window: present at Black Horse
+      access_plausibility: moderate
+      opportunity_channels: []
+      behavioral_tells:
+        - awkwardness
+        - loyalty
+      stakes: local reputation
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+    - name: Mr. Cook
+      age_range: 40-50
+      role_archetype: house agent with nervousness
+      relationships:
+        - Lord Reckavile
+        - Giles
+      public_persona: estate agent
+      private_secret: fearful of involvement
+      motive_seed: self-preservation
+      motive_strength: none
+      alibi_window: present at castle
+      access_plausibility: moderate
+      opportunity_channels: []
+      behavioral_tells:
+        - confusion
+        - nervousness
+      stakes: professional reputation
+      evidence_sensitivity:
+        - receipt of ground rents
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+  culpability:
+    culprit_count: 1
+    culprits:
+      - Giles (Mr. Wheatland)
+  surface_model:
+    narrative:
+      summary: >-
+        Lord Reckavile is found murdered in his locked library with no apparent means of entry or
+        exit for the killer. Suspicion falls on various locals and visitors, including the
+        mysterious Halley and Jack Sefton, but no clear evidence emerges. The case appears baffling
+        with rumors of a family curse and supernatural elements clouding the investigation.
+    accepted_facts:
+      - Lord Reckavile was stabbed in his locked library with no sign of forced entry.
+      - Two voices were heard arguing before the murder, one identified as Lord Reckavile's.
+      - Halley was seen at the Black Horse with a strong alibi for the time of the murder.
+      - A dictaphone recording of a prior conversation was found at the scene.
+    inferred_conclusions:
+      - Halley was the murderer, using the alibi to cover his crime.
+      - >-
+        Jack Sefton was involved in the murder due to his secretive behavior and possession of
+        stolen notes.
+      - The murder was caused by the Reckavile family curse or supernatural forces.
+  hidden_model:
+    mechanism:
+      description: >-
+        Giles, the old servant, murdered Lord Reckavile in a fit of revenge by stabbing him with a
+        knife while Reckavile was distracted. He used the dictaphone to play a recorded argument to
+        mislead witnesses and create an alibi for another suspect. Giles then locked the room and
+        staged the scene to suggest an impossible crime, hiding the murder weapon and the recording
+        to delay discovery.
+      delivery_path:
+        - step: Giles waited for Reckavile to be alone in the library.
+        - step: He entered quietly and stabbed Reckavile with a concealed knife.
+        - step: >-
+            Giles activated the dictaphone to play a recorded quarrel to simulate presence of
+            another person.
+        - step: He locked the library door from inside and hid the key.
+        - step: Giles cleaned the scene to mislead about the source of blood.
+        - step: He removed the dictaphone record to prevent immediate detection.
+        - step: Giles feigned ignorance and later confessed under pressure.
+    outcome:
+      result: Giles confesses to the murder, revealing the staged scene and clearing all other suspects.
+  false_assumption:
+    statement: Halley was the murderer, using a clever alibi and disguise to evade suspicion.
+    type: identity
+    why_it_seems_reasonable: >-
+      Halley was seen near the crime scene and had a mysterious background, plus the constable
+      believed he heard his voice arguing with Reckavile. His presence and behavior raised
+      suspicion.
+    what_it_hides: >-
+      The real murderer was Giles, who manipulated evidence and used the dictaphone to fake the
+      presence of another person, diverting suspicion onto Halley.
+  false_solution:
+    accused_suspect: Halley (Lord Reckavile)
+    supporting_points:
+      - Constable Brown swore he heard Halley's voice arguing with Reckavile.
+      - Halley was found wounded and treated secretly by Jack Sefton.
+      - Halley had a mysterious identity and was evasive about his past.
+      - He was arrested and detained on suspicion by the police.
+    the_one_flaw: >-
+      Halley had a strong alibi supported by multiple witnesses at the Black Horse during the time
+      of the murder.
+    refuted_in_chapter: 13
+  red_herrings:
+    - id: jack_sefton_secret_treatment
+      description: >-
+        Jack Sefton secretly treated the missing bank manager Summers at The Red Cote, raising
+        suspicions about his involvement in the disappearance and murder.
+      points_at_suspect: Jack Sefton
+      innocent_explanation: >-
+        Jack was conducting psychoanalytic treatment and had no motive or opportunity to commit
+        murder.
+      resolved_in_chapter: 11
+    - id: bungalow_red_cote_mystery
+      description: >-
+        The mysterious activity at The Red Cote bungalow, including nightly lights and visits by
+        Summers and Sefton, suggested a secretive and possibly criminal operation.
+      points_at_suspect: Jack Sefton and Summers
+      innocent_explanation: >-
+        The bungalow was used for private medical treatment of a mentally disturbed patient,
+        Summers.
+      resolved_in_chapter: 11
+  closed_circle:
+    suspects:
+      - Giles (Mr. Wheatland)
+      - Halley (Lord Reckavile)
+      - Jack Sefton
+      - Southgate
+      - Mr. Cook
+    rationale: >-
+      All had access to the castle or knowledge of the family secrets, but only Giles had the
+      motive, opportunity, and means to commit the murder.
+  constraint_space:
+    time:
+      anchors:
+        - 7 p.m. on January 20th
+        - Night of the murder
+        - Arrival of constable Brown
+        - Time of dictaphone recording
+        - Halley's alibi at Black Horse
+      windows:
+        - Evening hours when Reckavile was killed
+        - Period when Halley was seen at Black Horse
+        - Interval between murder and discovery
+    access:
+      actors:
+        - Giles
+        - Halley
+        - Jack Sefton
+        - Southgate
+        - Mr. Cook
+      objects:
+        - Library door and key
+        - Dictaphone and recording
+        - Murder weapon (old dagger)
+        - Castle windows and doors
+    social:
+      trust_channels:
+        - Constable Brown's testimony
+        - Giles' confession
+        - Witnesses at Black Horse
+        - Seftons' statements
+      authority_sources:
+        - Chief Inspector Sinclair
+        - Sergeant Andrews
+        - Scotland Yard
+        - Local police at Ashstead
+  inference_path:
+    steps:
+      - observation: Constable Brown heard two voices arguing and recognized one as Reckavile's.
+        correction: The second voice was a dictaphone recording, not a live person.
+        effect: Disproves presence of a second living person in the library at murder time.
+        required_evidence:
+          - Dictaphone found in the library with recorded quarrel
+          - Brown's witness statement describing the voices
+        reader_observable: true
+      - observation: Halley was seen at the Black Horse with multiple witnesses.
+        correction: Halley's alibi is strong and verified.
+        effect: Halley could not have been at the castle during the murder.
+        required_evidence:
+          - Testimonies of Southgate, Mrs. Southgate, and a fisherman
+          - Police records of Halley's presence at Black Horse
+        reader_observable: true
+      - observation: Jack Sefton changed a stolen five pound note at the Black Horse.
+        correction: Jack's possession of the note was innocent and linked to Giles.
+        effect: Jack is cleared of suspicion regarding the stolen money and murder.
+        required_evidence:
+          - Southgate's statement about changing the note for Giles
+          - A receipt showing Giles, the servant, received the five pound note from Reckavile
+        reader_observable: true
+      - observation: >-
+          Giles appeared nervous and gave conflicting statements, and was the only servant with
+          access to the library and the murder weapon.
+        correction: Giles was hiding his guilt and motive for revenge.
+        effect: Giles becomes prime suspect due to motive, opportunity, and access as a servant.
+        required_evidence:
+          - A record of Giles' employment and access to the library as a servant
+          - A letter from Giles expressing revenge against Reckavile
+        reader_observable: true
+      - observation: >-
+          The library door was locked with no key found, and only Giles the servant was seen near
+          the door after the murder.
+        correction: Giles locked the door after the murder and hid the key.
+        effect: Explains the locked room mystery and lack of forced entry.
+        required_evidence:
+          - Physical examination of door and lock showing it was locked from inside
+          - A timeline showing Giles the servant was alone near the library after the murder
+        reader_observable: true
+      - observation: >-
+          Blood stains in the library were inconsistent with Reckavile's wound, and a knife was
+          missing from the servant's quarters.
+        correction: >-
+          Some blood came from the assailant, Giles, during the struggle, and the stabbing was done
+          with the servant's knife.
+        effect: Supports theory of a violent struggle, use of a knife, and staged scene.
+        required_evidence:
+          - Jack Sefton's medical observation of blood stains inconsistent with a single wound
+          - Inventory record showing a knife missing from the servant's quarters
+        reader_observable: true
+      - observation: >-
+          Marriage certificate and dictaphone record were missing, and the knife was later found
+          hidden in the servant's belongings.
+        correction: Both documents and the knife were hidden in a secret drawer in the desk by Giles.
+        effect: Recovered evidence confirmed Halley's identity, Giles' plot, and the use of the knife.
+        required_evidence:
+          - >-
+            Secret drawer in the desk containing marriage certificate, dictaphone record, and the
+            knife
+          - Sinclair's examination and playback of dictaphone recording found with the knife
+        reader_observable: true
+  discriminating_test:
+    method: reenactment
+    design: >-
+      A staged reenactment of the murder night was arranged in the library with all suspects and
+      witnesses present. The dictaphone was played to simulate the argument, and the locking of the
+      door was demonstrated to show how the room could be sealed from inside. The timing of the
+      alibis was cross-checked with witness statements and physical evidence, including the
+      servant's access and the use of the knife.
+    knowledge_revealed: >-
+      The reenactment proved that the dictaphone recording could mimic a second person's voice, that
+      the door could be locked from inside without a key, and that only the servant had access to
+      the knife and opportunity for revenge.
+    pass_condition: >-
+      The demonstration must show that the murder could be committed and the room locked by Giles
+      alone using the servant's knife, and that Halley's alibi is consistent and unbreakable.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given all necessary clues: the locked room with no key, the dictaphone
+      recording, the alibi of Halley supported by multiple witnesses, the blood evidence
+      inconsistent with the victim's wound, the missing knife from the servant's quarters, and
+      Giles' nervous behavior. The confession and the discovery of the hidden marriage certificate,
+      recording, and knife are foreshadowed. The false solution accusing Halley is presented but
+      contradicted by alibi and evidence, allowing the attentive reader to deduce the true culprit.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

@@ -1,0 +1,12 @@
+- id: terror_keep
+  corpus: seed
+  axis: behavioral
+  mechanism_family: disguised_natural_agent
+  false_assumption_pattern: violent_attack_caused_the_deaths
+  discriminating_test_shape: reconstruction
+  inference_shape: identify_true_cause_of_incapacitation
+  premise: >-
+    The case appears as a daring gold convoy robbery involving an escaped madman, John Flack, and
+    his criminal associates at Larmes Keep. Suspicious disappearances, mysterious guests, and
+    strange happenin
+  source: library/works/terror_keep/case.cml2.yaml

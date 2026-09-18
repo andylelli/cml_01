@@ -1,0 +1,577 @@
+{
+ "decade": "1920s",
+ "realism_constraints": [
+  "No advanced forensic technology like DNA or modern fingerprinting",
+  "Communication limited to telephone, telegram, and in-person",
+  "Safe technology is mechanical with combination locks, vulnerable to skilled manipulation"
+ ],
+ "location": "The Oaks, a large country house in Illinois",
+ "institution": "The Corbin family and their private circle; no official police involvement until the end",
+ "crime_category": "theft",
+ "crime_subtype": "imitation necklace substitution and staged theft",
+ "cast": [
+  {
+   "name": "Punch Corbin",
+   "age_range": "13-15",
+   "role_archetype": "observant and protective family member",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "loyal grandson and vigilant guardian of the necklace",
+   "private_secret": "keeps the imitation necklace hidden in his pocket",
+   "motive_seed": "protect family honor and find the thief",
+   "motive_strength": "strong",
+   "alibi_window": "always accounted for during key events",
+   "access_plausibility": "high access to family areas but no motive",
+   "stakes": "family reputation and safety of sister",
+   "moral_complexity": "low",
+   "relationships": [
+    "Judy Corbin (sister)",
+    "Mrs. Corbin (grandmother)",
+    "Victoria Ashcroft Corbin (mother)"
+   ],
+   "opportunity_channels": [
+    "household presence",
+    "knowledge of safe and rooms"
+   ],
+   "behavioral_tells": [
+    "persistent vigilance",
+    "honest reporting"
+   ],
+   "evidence_sensitivity": [
+    "saw man in pajamas",
+    "found necklace in pocket"
+   ]
+  },
+  {
+   "name": "Judith \"Judy\" Corbin",
+   "age_range": "15-20",
+   "role_archetype": "young bride-to-be caught in family drama",
+   "role": "witness",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "obedient granddaughter and bride",
+   "private_secret": "disguised sprained ankle; involved in elopement plan",
+   "motive_seed": "protect family and mother; avoid scandal",
+   "motive_strength": "moderate",
+   "alibi_window": "present at house except during elopement",
+   "access_plausibility": "high access but no motive for theft",
+   "stakes": "family honor, personal freedom",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Punch Corbin (brother)",
+    "Victoria Ashcroft Corbin (mother)",
+    "Bruce Applebury (fiancé)",
+    "Bill Grant (lover)"
+   ],
+   "opportunity_channels": [
+    "household presence",
+    "access to grandmother's room"
+   ],
+   "behavioral_tells": [
+    "laughing oddly at empty box",
+    "secretive behavior"
+   ],
+   "evidence_sensitivity": [
+    "letter hidden in vase",
+    "elopement with Bill Grant"
+   ]
+  },
+  {
+   "name": "Victoria Ashcroft Corbin",
+   "age_range": "35-45",
+   "role_archetype": "mother with financial and social pressures",
+   "role": "suspect",
+   "gender": "female",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "worried mother and daughter-in-law",
+   "private_secret": "pawned the real necklace and orchestrated substitution",
+   "motive_seed": "financial desperation and control over inheritance",
+   "motive_strength": "strong",
+   "alibi_window": "present in house but with opportunity",
+   "access_plausibility": "high access to safe and necklace",
+   "stakes": "financial security, family control",
+   "moral_complexity": "high",
+   "relationships": [
+    "Judy Corbin (daughter)",
+    "Punch Corbin (son)",
+    "Mrs. Corbin (mother-in-law)"
+   ],
+   "opportunity_channels": [
+    "access to safe",
+    "knowledge of necklace and family dynamics"
+   ],
+   "behavioral_tells": [
+    "quarrels over necklace",
+    "attempts to suppress police involvement"
+   ],
+   "evidence_sensitivity": [
+    "pawn ticket",
+    "note about necklace retrieval"
+   ]
+  },
+  {
+   "name": "Mrs. Corbin",
+   "age_range": "70-80",
+   "role_archetype": "matriarch with declining health",
+   "role": "witness",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "imperious grandmother and owner of necklace",
+   "private_secret": "morphine addict; unaware of substitution",
+   "motive_seed": "family legacy and control",
+   "motive_strength": "none",
+   "alibi_window": "mostly confined to her room",
+   "access_plausibility": "high access but limited mobility",
+   "stakes": "family honor and inheritance",
+   "moral_complexity": "low",
+   "relationships": [
+    "Victoria Ashcroft Corbin (daughter-in-law)",
+    "Punch Corbin (grandson)",
+    "Judy Corbin (granddaughter)"
+   ],
+   "opportunity_channels": [
+    "control over safe",
+    "knowledge of necklace"
+   ],
+   "behavioral_tells": [
+    "strong reactions to necklace news"
+   ],
+   "evidence_sensitivity": [
+    "reaction to empty box",
+    "final acceptance of necklace"
+   ]
+  },
+  {
+   "name": "Bruce Applebury",
+   "age_range": "25-30",
+   "role_archetype": "fiancé with pride and suspicion",
+   "role": "suspect",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "respectable fiancé and family man",
+   "private_secret": "resentment over financial dealings and family tensions",
+   "motive_seed": "protect reputation and financial interests",
+   "motive_strength": "weak",
+   "alibi_window": "present at house and town errands",
+   "access_plausibility": "moderate",
+   "stakes": "marriage and family honor",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Judy Corbin (fiancée)",
+    "Bill Grant (cousin)",
+    "Victoria Ashcroft Corbin (future mother-in-law)"
+   ],
+   "opportunity_channels": [
+    "access to necklace via family trust"
+   ],
+   "behavioral_tells": [
+    "anger at cousin",
+    "accusations against Bill Grant"
+   ],
+   "evidence_sensitivity": [
+    "note from Judy",
+    "presence during theft"
+   ]
+  },
+  {
+   "name": "Bill Grant",
+   "age_range": "25-30",
+   "role_archetype": "lover and outsider",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "cousin and best man",
+   "private_secret": "secret relationship with Judy",
+   "motive_seed": "love and protection of Judy",
+   "motive_strength": "strong",
+   "alibi_window": "absent during key theft moments",
+   "access_plausibility": "moderate",
+   "stakes": "relationship and reputation",
+   "moral_complexity": "low",
+   "relationships": [
+    "Judy Corbin (lover)",
+    "Bruce Applebury (cousin)"
+   ],
+   "opportunity_channels": [
+    "access to rooms",
+    "presence at house"
+   ],
+   "behavioral_tells": [
+    "avoids discussing necklace",
+    "hasty departure for license"
+   ],
+   "evidence_sensitivity": [
+    "note left for Bruce",
+    "elopement with Judy"
+   ]
+  },
+  {
+   "name": "Ethelbert Smith",
+   "age_range": "70-80",
+   "role_archetype": "expert jeweler and family friend",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "knowledgeable and calm advisor",
+   "private_secret": "keen observer of family dynamics",
+   "motive_seed": "protect family legacy",
+   "motive_strength": "none",
+   "alibi_window": "present at cottage and house",
+   "access_plausibility": "limited",
+   "stakes": "family reputation and truth",
+   "moral_complexity": "low",
+   "relationships": [
+    "Mrs. Corbin (old friend)",
+    "Punch Corbin (friend)"
+   ],
+   "opportunity_channels": [
+    "limited access"
+   ],
+   "behavioral_tells": [
+    "analytical",
+    "patient"
+   ],
+   "evidence_sensitivity": [
+    "inspection of necklace",
+    "recognition of thief"
+   ]
+  },
+  {
+   "name": "Alexander Corbin (Uncle Alec)",
+   "age_range": "50-60",
+   "role_archetype": "family elder and enforcer",
+   "role": "suspect",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "responsible family man",
+   "private_secret": "resentment and suspicion of others",
+   "motive_seed": "family honor and control",
+   "motive_strength": "weak",
+   "alibi_window": "present at house",
+   "access_plausibility": "high",
+   "stakes": "family reputation",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Mrs. Corbin (mother)",
+    "Punch Corbin (nephew)"
+   ],
+   "opportunity_channels": [
+    "access to safe and rooms"
+   ],
+   "behavioral_tells": [
+    "stubborn",
+    "authoritative"
+   ],
+   "evidence_sensitivity": [
+    "presence during events"
+   ]
+  },
+  {
+   "name": "Miss Digby",
+   "age_range": "50-60",
+   "role_archetype": "nurse and caretaker",
+   "role": "witness",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "loyal nurse",
+   "private_secret": "fear and distress over events",
+   "motive_seed": "protect Mrs. Corbin",
+   "motive_strength": "none",
+   "alibi_window": "present at house",
+   "access_plausibility": "high",
+   "stakes": "family health and secrecy",
+   "moral_complexity": "low",
+   "relationships": [
+    "Mrs. Corbin (patient)",
+    "Punch Corbin (acquaintance)"
+   ],
+   "opportunity_channels": [
+    "access to safe combination"
+   ],
+   "behavioral_tells": [
+    "emotional",
+    "protective"
+   ],
+   "evidence_sensitivity": [
+    "heard door shut",
+    "accused wrongly"
+   ]
+  }
+ ],
+ "culprits": [
+  "Victoria Ashcroft Corbin"
+ ],
+ "surface_summary": "The Corbin family is thrown into turmoil when the famous family necklace is reported stolen from a supposedly locked safe. An imitation necklace is returned mysteriously, and suspicions arise among family members and guests, with accusations flying and a secret elopement complicating matters.",
+ "accepted_facts": [
+  "The necklace was stolen from the safe at The Oaks",
+  "An imitation necklace was returned to the grandmother's room",
+  "Punch Corbin saw a man in pajamas moving in the house at night",
+  "Judy Corbin eloped with Bill Grant and planned to marry him secretly"
+ ],
+ "inferred_conclusions": [
+  "Victoria Ashcroft Corbin was innocent and only worried about the family",
+  "Bill Grant was the thief who stole the necklace",
+  "Bruce Applebury was unaware of the necklace's true status and innocent"
+ ],
+ "mechanism_description": "Victoria Ashcroft Corbin, facing financial difficulties, had the real necklace pawned and secretly replaced it with a perfect imitation. The thief, Raglan, hired as a window shade hanger, hid in the house in pajamas and stole the imitation necklace from the safe during a moment when the house was distracted. Upon discovering it was a fake, he returned it to the grandmother's room to mislead the family and avoid suspicion. The real necklace was kept by Bruce Applebury, who was unaware of the substitution.",
+ "delivery_path": [
+  "Victoria arranges for an imitation necklace to be made and pawns the real one",
+  "Raglan is hired to work in the house and conceals himself in a trunk room",
+  "During a lunch break, Raglan steals the imitation necklace from the unlocked safe",
+  "Raglan discovers the necklace is fake and returns it to the grandmother's room",
+  "Bruce Applebury retrieves the real necklace from the bank and keeps it",
+  "Judy and Bill Grant elope and plan to marry secretly to avoid scandal",
+  "The family confronts the situation leading to the exposure of Raglan and resolution"
+ ],
+ "outcome_result": "The real necklace is recovered, the thief Raglan is caught, and Judy marries Bill Grant with the family's reluctant blessing.",
+ "false_assumption": {
+  "statement": "The necklace was stolen by an insider during the wedding preparations.",
+  "type": "identity",
+  "why_it_seems_reasonable": "Multiple family members had access and motives, and the safe was found unlocked. Suspicious behavior by family members and guests suggested an inside job.",
+  "what_it_hides": "The actual thief was an outsider hiding in the house, and the real necklace had been pawned and replaced with an imitation."
+ },
+ "false_solution": {
+  "accused_suspect": "Bill Grant",
+  "supporting_points": [
+   "Bill was seen entering Bruce's room at night",
+   "He eloped with Judy unexpectedly",
+   "He avoided discussing the necklace openly",
+   "He was in a hurry to get a marriage license"
+  ],
+  "the_one_flaw": "Bill had no motive to steal and was trusted by Judy; the real thief was an outsider",
+  "refuted_in_chapter": 16
+ },
+ "red_herrings": [
+  {
+   "id": "bill_grant_suspicion",
+   "description": "Bill Grant's secretive behavior and elopement with Judy suggested he might have stolen the necklace.",
+   "points_at_suspect": "Bill Grant",
+   "innocent_explanation": "Bill was protecting Judy and had no motive to steal; he was helping her escape an unwanted marriage.",
+   "resolved_in_chapter": 16
+  },
+  {
+   "id": "bruce_applebury_accusation",
+   "description": "Bruce Applebury accused his cousin Bill Grant of stealing the necklace, fueling suspicion.",
+   "points_at_suspect": "Bill Grant",
+   "innocent_explanation": "Bruce's accusation was driven by anger and misunderstanding; the necklace was stolen by Raglan.",
+   "resolved_in_chapter": 16
+  }
+ ],
+ "closed_circle": {
+  "suspects": [
+   "Victoria Ashcroft Corbin",
+   "Bruce Applebury",
+   "Bill Grant",
+   "Alexander Corbin (Uncle Alec)",
+   "Miss Digby",
+   "Raglan"
+  ],
+  "rationale": "All these individuals had access to the house and the necklace during the relevant times, and the mystery was confined to the household and its immediate guests."
+ },
+ "constraint_space": {
+  "time_anchors": [
+   "Wednesday afternoon when Mrs. Corbin showed the necklace",
+   "Thursday afternoon when the imitation necklace was stolen",
+   "Night of the theft and return of the imitation necklace",
+   "Early morning when Judy and Bill eloped",
+   "Morning of the wedding day when the real necklace was stolen from Bruce"
+  ],
+  "time_windows": [
+   "Lunch hour Thursday when servants were away",
+   "Night hours when guests were asleep",
+   "Morning before dawn when Judy and Bill left"
+  ],
+  "access_actors": [
+   "Victoria Ashcroft Corbin",
+   "Raglan",
+   "Bruce Applebury",
+   "Bill Grant",
+   "Punch Corbin",
+   "Miss Digby"
+  ],
+  "access_objects": [
+   "The safe in grandmother's sitting room",
+   "Grandmother's room",
+   "Bruce Applebury's room",
+   "Trunk closet on the top floor",
+   "The imitation necklace",
+   "The real necklace"
+  ],
+  "trust_channels": [
+   "Victoria's authority over the necklace",
+   "Punch's trustworthiness as guardian",
+   "Mr. Smith's expert opinion",
+   "Family relations and social expectations"
+  ],
+  "authority_sources": [
+   "Mrs. Corbin as family matriarch",
+   "Victoria as mother and daughter-in-law",
+   "Alexander Corbin as family elder",
+   "Mr. Smith as expert jeweler"
+  ]
+ },
+ "inference_path": [
+  {
+   "observation": "The safe was found unlocked when Punch opened it.",
+   "correction": "Mrs. Corbin had forgotten to lock the safe.",
+   "effect": "The necklace could have been taken without forced entry.",
+   "required_evidence": [
+    "Punch's observation of the unlocked safe door",
+    "Mrs. Corbin's admission of forgetting to lock the safe"
+   ]
+  },
+  {
+   "observation": "The imitation necklace was returned to the grandmother's room.",
+   "correction": "The thief realized the necklace was fake and returned it.",
+   "effect": "The returned necklace was a decoy to mislead the family.",
+   "required_evidence": [
+    "Raglan's confession about discovering the imitation",
+    "The empty morocco box found by Judy and Punch"
+   ]
+  },
+  {
+   "observation": "Punch saw a man in pajamas moving in the house at night.",
+   "correction": "The man was Raglan, the thief hiding in the house.",
+   "effect": "The thief used pajamas to move unnoticed among guests.",
+   "required_evidence": [
+    "Punch's witness statement of the man in pajamas",
+    "Discovery of Raglan hiding in the trunk closet"
+   ]
+  },
+  {
+   "observation": "Bruce Applebury had the real necklace in his pocket.",
+   "correction": "Bruce was entrusted with the real necklace for safekeeping.",
+   "effect": "The real necklace was not stolen from the safe but kept by Bruce.",
+   "required_evidence": [
+    "Bruce's testimony about retrieving the necklace from the bank",
+    "Judy's note left for Bruce about keeping the necklace"
+   ]
+  },
+  {
+   "observation": "Victoria had financial troubles and pawned the necklace.",
+   "correction": "Victoria orchestrated the substitution to hide the pawned necklace.",
+   "effect": "Victoria is the mastermind behind the substitution and theft.",
+   "required_evidence": [
+    "Victoria's confession to Judy about the pawned necklace",
+    "Bank documents or notes about the pawn transaction"
+   ]
+  },
+  {
+   "observation": "Judy and Bill eloped and planned to marry secretly.",
+   "correction": "Their elopement was to avoid scandal and family conflict.",
+   "effect": "Judy's behavior was motivated by family pressures, not theft.",
+   "required_evidence": [
+    "Judy's note to her mother and Bruce",
+    "Judy and Bill's conversation with the narrator"
+   ]
+  },
+  {
+   "observation": "Raglan confessed and returned the real necklace.",
+   "correction": "Raglan was caught hiding in the house and surrendered.",
+   "effect": "The theft was solved by uncovering the outsider thief.",
+   "required_evidence": [
+    "Raglan's confession and appearance in the trunk closet",
+    "Recovery of the real necklace from Raglan's possession"
+   ]
+  }
+ ],
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "Recreate the timeline of the necklace's disappearance and return by tracking the movements of all suspects and witnesses during the critical hours. Verify the presence of the man in pajamas and the accessibility of the safe and rooms. Confirm the identity of the pajamas and the hiding place of the thief.",
+  "knowledge_revealed": "This test reveals that only an outsider disguised in pajamas could have stolen and returned the imitation necklace without detection, and that the real necklace was pawned and kept by Bruce.",
+  "pass_condition": "The test passes if the pajamas with the tear are matched to Raglan and the safe's access times align with his presence, excluding all family members as the thief."
+ },
+ "fair_play_explanation": "The reader is given detailed accounts of the necklace's whereabouts, the characters' movements, and the discovery of the pajamas with the tear. Punch's observations and Mr. Smith's expert analysis provide clues to the thief's identity. The false accusations and red herrings are clearly presented and later refuted, allowing the attentive reader to deduce the true mechanism.",
+ "anchors": [
+  {
+   "claim": "The safe was found unlocked by Punch",
+   "anchor": "Why, Gran, it wasn’t locked!"
+  },
+  {
+   "claim": "Judy laughed oddly when the necklace was found missing",
+   "anchor": "She laughed as if it was something that didn’t matter"
+  },
+  {
+   "claim": "Victoria pawned the real necklace and had an imitation made",
+   "anchor": "Mother had had an imitation necklace made then"
+  },
+  {
+   "claim": "Punch saw a man in pajamas with a tear in the leg",
+   "anchor": "The legs of these pajamas crossed this patch he saw them"
+  },
+  {
+   "claim": "Raglan was hiding in the trunk closet",
+   "anchor": "He’s in the trunk closet"
+  },
+  {
+   "claim": "Raglan confessed to the theft and substitution",
+   "anchor": "I worked here for two days"
+  },
+  {
+   "claim": "The real necklace was kept by Bruce Applebury",
+   "anchor": "The real necklace was in my pocket"
+  },
+  {
+   "claim": "Judy and Bill eloped and planned a secret marriage",
+   "anchor": "They’re going to be married now"
+  },
+  {
+   "claim": "Bruce Applebury accused Bill Grant of theft",
+   "anchor": "He said he thought his cousin had come back and got it"
+  },
+  {
+   "claim": "Mr. Smith’s expert opinion on the necklace and thief",
+   "anchor": "Mr. Smith pulled up an easy chair for himself"
+  },
+  {
+   "claim": "Punch’s theory about the pajamas and thief",
+   "anchor": "Punch’s ghost, the man in pajamas"
+  },
+  {
+   "claim": "The imitation necklace was returned to mislead the family",
+   "anchor": "The necklace is there, gleaming, creamy and wonderful"
+  },
+  {
+   "claim": "Victoria’s motive was financial desperation",
+   "anchor": "She’d tried to raise the money to get it back"
+  },
+  {
+   "claim": "Judy’s secret letter was hidden in a Chinese vase",
+   "anchor": "She pushed her letter down inside"
+  },
+  {
+   "claim": "Punch kept the imitation necklace hidden in his pocket",
+   "anchor": "I didn’t forget to change it when I changed my clothes"
+  },
+  {
+   "claim": "Raglan’s pajamas had a distinctive tear",
+   "anchor": "Lavender silk pajamas, with a big nail tear in one of the legs"
+  },
+  {
+   "claim": "The thief used pajamas to move unnoticed at night",
+   "anchor": "No one would pay any attention to a man in pajamas"
+  },
+  {
+   "claim": "The necklace was stolen during the servants’ lunch break",
+   "anchor": "The servants were all at lunch, I knew"
+  },
+  {
+   "claim": "The necklace was returned to the grandmother’s room",
+   "anchor": "I went down-stairs and put the necklace back"
+  },
+  {
+   "claim": "The final resolution involved the recovery of the necklace and Raglan’s capture",
+   "anchor": "Raglan was looking venomous by now"
+  }
+ ]
+}

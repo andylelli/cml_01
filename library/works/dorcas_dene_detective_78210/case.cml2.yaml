@@ -1,0 +1,470 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: Dorcas Dene, detective
+    author: George R. (George Robert) Sims
+    license: Public domain (first published 1920; author died 1922). Project Gutenberg ebook 78210.
+    era:
+      decade: 1880s
+      realism_constraints:
+        - No modern forensic science such as DNA or advanced fingerprinting
+        - Communication by telegram and letters, no telephones or electronic surveillance
+        - Police rely on physical surveillance, informants, and witness testimony
+    setting:
+      location: London, England
+      institution: Scotland Yard
+    crime_class:
+      category: disappearance
+      subtype: kidnapping by anarchists
+  cast:
+    - name: Dorcas Dene
+      age_range: 30-40
+      role_archetype: renowned female detective with investigative skills
+      relationships:
+        - Paul Dene (husband)
+      public_persona: celebrated private detective
+      private_secret: deeply committed to justice and truth
+      motive_seed: solve the mystery of the missing prince
+      motive_strength: strong
+      alibi_window: present throughout investigation
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells:
+        - confident
+        - calm under pressure
+      stakes: high
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: detective
+      moral_complexity: low
+    - name: Paul Dene
+      age_range: 30-50
+      role_archetype: supportive blind husband
+      relationships:
+        - Dorcas Dene (wife)
+      public_persona: blind artist and husband of Dorcas
+      private_secret: supports Dorcas's detective work
+      motive_seed: support Dorcas
+      motive_strength: none
+      alibi_window: present at home
+      access_plausibility: low
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: low
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+    - name: Jean Vossche
+      age_range: 30-40
+      role_archetype: desperate anarchist and kidnapper
+      relationships:
+        - Zelie Vossche (sister)
+      public_persona: dangerous anarchist
+      private_secret: holds the prince hostage
+      motive_seed: save condemned anarchists by hostage
+      motive_strength: strong
+      alibi_window: present at anarchist meeting and house
+      access_plausibility: high
+      opportunity_channels:
+        - house of Countess Elstein
+        - anarchist network
+      behavioral_tells:
+        - desperate
+        - reckless
+      stakes: very high
+      evidence_sensitivity:
+        - presence at anarchist meeting
+        - escape in cab
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Zelie Vossche
+      age_range: 20-30
+      role_archetype: maid and accomplice
+      relationships:
+        - Jean Vossche (brother)
+        - Countess Elstein (employer)
+      public_persona: maid to Countess Elstein
+      private_secret: communicates with anarchists
+      motive_seed: family loyalty
+      motive_strength: moderate
+      alibi_window: present at Countess's house
+      access_plausibility: high
+      opportunity_channels:
+        - house of Countess Elstein
+      behavioral_tells:
+        - silent
+        - obstinate
+      stakes: high
+      evidence_sensitivity:
+        - presence at house
+        - statement at inquest
+      culprit_eligibility: eligible
+      culpability: unknown
+      gender: female
+      role: suspect
+      moral_complexity: moderate
+    - name: Countess Elstein
+      age_range: 40-50
+      role_archetype: morganatic wife with possible complicity
+      relationships:
+        - Zelie Vossche (maid)
+        - Prince ---- (husband)
+      public_persona: aristocrat and morganatic wife of prince
+      private_secret: possibly unaware of kidnapping plot
+      motive_seed: unknown
+      motive_strength: none
+      alibi_window: present at house
+      access_plausibility: high
+      opportunity_channels:
+        - house in Regent's Park
+      behavioral_tells:
+        - charming
+        - graceful
+      stakes: high
+      evidence_sensitivity:
+        - body found with cord and weights
+        - bruise on temple
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: victim
+      moral_complexity: low
+    - name: Sir Joshua Broome
+      age_range: 50-60
+      role_archetype: wealthy City magnate and client
+      relationships:
+        - Lady Broome (wife)
+      public_persona: knighted merchant
+      private_secret: concerned about blackmail against wife
+      motive_seed: protect family reputation
+      motive_strength: moderate
+      alibi_window: present at home
+      access_plausibility: low
+      opportunity_channels: []
+      behavioral_tells:
+        - anxious
+        - grieving
+      stakes: high
+      evidence_sensitivity:
+        - blackmail letter
+        - telegram
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+    - name: Lady Broome (Margaret Grey)
+      age_range: 25-35
+      role_archetype: former governess with hidden past
+      relationships:
+        - Sir Joshua Broome (husband)
+        - John Garrod (former employer)
+      public_persona: graceful society lady
+      private_secret: was imprisoned under maiden name
+      motive_seed: clear her name from blackmail
+      motive_strength: strong
+      alibi_window: ill in bed during investigation
+      access_plausibility: low
+      opportunity_channels: []
+      behavioral_tells:
+        - prostrated
+        - indignant
+      stakes: high
+      evidence_sensitivity:
+        - Old Bailey conviction record
+        - blackmail letter
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: female
+      role: suspect
+      moral_complexity: moderate
+    - name: John Garrod
+      age_range: 50-60
+      role_archetype: American gentleman and former employer
+      relationships:
+        - Lady Broome (former governess)
+      public_persona: respectable American gentleman
+      private_secret: concealed Lady Broome's past
+      motive_seed: protect Lady Broome
+      motive_strength: moderate
+      alibi_window: present in London
+      access_plausibility: low
+      opportunity_channels: []
+      behavioral_tells:
+        - defensive
+        - emotional
+      stakes: moderate
+      evidence_sensitivity:
+        - court records
+        - letter of recommendation
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: moderate
+    - name: Mr. Winter
+      age_range: 40-50
+      role_archetype: tobacconist and suspected blackmailer
+      relationships:
+        - Mrs. Winter (wife)
+      public_persona: tobacconist
+      private_secret: involved in blackmail scheme
+      motive_seed: financial gain
+      motive_strength: moderate
+      alibi_window: present at shop
+      access_plausibility: high
+      opportunity_channels:
+        - shop at Wellborough Street
+      behavioral_tells:
+        - deceptive
+        - secretive
+      stakes: moderate
+      evidence_sensitivity:
+        - letters and parcels handled
+        - blackmail address
+      culprit_eligibility: eligible
+      culpability: unknown
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: Mrs. Winter
+      age_range: 30-40
+      role_archetype: blackmailer with American accent
+      relationships:
+        - Mr. Winter (husband)
+      public_persona: well-mannered woman
+      private_secret: author of blackmail letters
+      motive_seed: revenge and money
+      motive_strength: strong
+      alibi_window: present at shop
+      access_plausibility: high
+      opportunity_channels:
+        - Wellborough Street shop
+      behavioral_tells:
+        - heavy drinker
+        - educated
+      stakes: high
+      evidence_sensitivity:
+        - blackmail letters
+        - American accent
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: female
+      role: culprit
+      moral_complexity: high
+  culpability:
+    culprit_count: 2
+    culprits:
+      - Jean Vossche
+      - Mrs. Winter
+  surface_model:
+    narrative:
+      summary: >-
+        Prince ---- of ---- mysteriously disappears in London, presumed kidnapped by anarchists.
+        Meanwhile, Sir Joshua Broome faces blackmail threatening his wife's reputation. Dorcas Dene
+        investigates both cases, uncovering a kidnapping plot and a blackmail conspiracy.
+    accepted_facts:
+      - Prince ---- disappeared from his hotel and was not seen since
+      - Anarchists hold the Prince hostage to save condemned comrades
+      - Lady Broome was previously convicted under the name Margaret Grey
+      - Sir Joshua Broome received anonymous blackmail letters threatening his wife
+    inferred_conclusions:
+      - The Countess Elstein was complicit in the Prince's kidnapping
+      - Jean Vossche escaped by overpowering Inspector Carr
+      - Lady Broome is guilty of the charges and the blackmail is justified
+  hidden_model:
+    mechanism:
+      description: >-
+        The Prince was lured to the Countess Elstein's house by a woman he knew, where anarchists
+        including Jean Vossche captured and drugged him to keep him captive. Jean Vossche escaped by
+        seizing a cab and driving off after Inspector Carr was incapacitated in an accident. The
+        blackmail against Lady Broome was orchestrated by Mrs. Winter, who used knowledge of Lady
+        Broome's past and an American connection to extort money.
+      delivery_path:
+        - step: Prince leaves hotel alone and goes to Countess Elstein's house
+        - step: Zelie Vossche admits Prince and conspirators capture him inside
+        - step: Prince is drugged to prevent escape or outcry
+        - step: Jean Vossche escapes by taking control of a cab after Carr's accident
+        - step: Dorcas and police discover Prince captive and rescue him
+        - step: Mrs. Winter sends anonymous blackmail letters to Sir Joshua Broome
+        - step: Dorcas investigates and exposes Mrs. Winter and Mr. Winter's blackmail scheme
+    outcome:
+      result: Prince is rescued unharmed and blackmailers are exposed, clearing Lady Broome's name.
+  false_assumption:
+    statement: Jean Vossche escaped the cab by overpowering Inspector Carr in a struggle.
+    type: behavioral
+    why_it_seems_reasonable: >-
+      The sudden appearance of Jean Vossche driving the cab suggested a violent takeover. Inspector
+      Carr was found unconscious, implying a struggle.
+    what_it_hides: >-
+      Inspector Carr was actually incapacitated by an accident, not a struggle, allowing Vossche to
+      escape without confrontation.
+  false_solution:
+    accused_suspect: Lady Broome (Margaret Grey)
+    supporting_points:
+      - Lady Broome's past conviction for theft
+      - Evidence of secret meetings with Count von Phalsdorf
+      - Blackmail letter threatening to expose her past
+      - Witnesses testified against her in divorce case
+    the_one_flaw: >-
+      The conviction was under a false name and orchestrated by conspirators; Lady Broome was
+      innocent of the charges.
+    refuted_in_chapter: 9
+  red_herrings:
+    - id: countess_elstein_complicity
+      description: >-
+        Countess Elstein was suspected of aiding the kidnapping due to her connection with the
+        Prince and presence at the house.
+      points_at_suspect: Countess Elstein
+      innocent_explanation: >-
+        She was unaware of the anarchists' plot and was struck down by them when she tried to
+        intervene.
+      resolved_in_chapter: 3
+    - id: jean_vossche_cab_escape
+      description: >-
+        Jean Vossche's escape in the cab was thought to be by force after overpowering Inspector
+        Carr.
+      points_at_suspect: Jean Vossche
+      innocent_explanation: >-
+        Inspector Carr was incapacitated by an accident, not by Vossche, who took advantage of the
+        situation.
+      resolved_in_chapter: 3
+  closed_circle:
+    suspects:
+      - Jean Vossche
+      - Zelie Vossche
+      - Mrs. Winter
+      - Mr. Winter
+      - Lady Broome (Margaret Grey)
+    rationale: >-
+      All had access to key locations or information and motives related to the kidnapping or
+      blackmail; others were excluded by alibis or irrelevance.
+  constraint_space:
+    time:
+      anchors:
+        - Prince left hotel at 10 PM
+        - Anarchist meeting at 1 AM
+        - Blackmail letter received after Lady Broome's presentation at Drawing Room
+      windows:
+        - Prince's disappearance between 10 PM and following morning
+        - Jean Vossche's escape shortly after 1 AM
+        - Blackmail letters sent within weeks of Lady Broome's presentation
+    access:
+      actors:
+        - Jean Vossche
+        - Zelie Vossche
+        - Mrs. Winter
+        - Mr. Winter
+        - Lady Broome
+      objects:
+        - Countess Elstein's house
+        - Wellborough Street tobacconist shop
+        - Prince's hotel
+        - Blackmail letters
+    social:
+      trust_channels:
+        - Old Charley the watchman
+        - John Garrod's recommendation
+        - Police constables
+        - Dorcas Dene's assistants
+      authority_sources:
+        - Scotland Yard
+        - Home Secretary
+        - Court records
+        - Police officers
+  inference_path:
+    steps:
+      - observation: Prince disappeared without trace after leaving hotel alone
+        correction: He was lured to Countess Elstein's house by a woman he knew
+        effect: Focus shifts to Countess's house as kidnapping site
+        required_evidence:
+          - Valet's testimony about Prince's evening dress and departure
+          - Surveillance reports of Countess Elstein's house
+        reader_observable: true
+      - observation: Anarchists held a secret meeting discussing hostage
+        correction: They have the Prince as hostage to save condemned comrades
+        effect: Identifies motive and group responsible
+        required_evidence:
+          - Witness statement of Old Charley the watchman
+          - Recorded anarchist conversation in French
+        reader_observable: true
+      - observation: Jean Vossche escaped in cab after Inspector Carr was found unconscious
+        correction: Inspector Carr was incapacitated by accident, not by Vossche
+        effect: Refutes theory of violent escape, clarifies sequence
+        required_evidence:
+          - Police report of Carr's accident with market wagon
+          - Witness testimony of policeman who took Carr to hospital
+        reader_observable: true
+      - observation: Countess Elstein found dead with cord and weights
+        correction: She was struck down by Vossche to prevent interference
+        effect: Establishes murder and removes suspicion from Countess
+        required_evidence:
+          - Medical examination of bruise on temple
+          - Zelie Vossche's statement at inquest
+        reader_observable: true
+      - observation: Lady Broome was convicted of theft under name Margaret Grey
+        correction: Conviction was of Dorcas's client's wife who assumed alias
+        effect: Separates Lady Broome's true identity from conviction
+        required_evidence:
+          - Old Bailey conviction records
+          - John Garrod's testimony about alias and concealment
+        reader_observable: true
+      - observation: Blackmail letters threaten Sir Joshua Broome about Lady Broome's past
+        correction: Mrs. Winter, with American accent, is author of blackmail
+        effect: Identifies blackmail culprit and motive
+        required_evidence:
+          - Observation of Mrs. Winter's accent and behavior
+          - Telegram and letters addressed to Wellborough Street tobacconist
+        reader_observable: true
+      - observation: John Garrod recommended Margaret Grey to Sir Joshua Broome
+        correction: Garrod concealed his wife's criminal past by letting her use alias
+        effect: Explains how Lady Broome's past was hidden
+        required_evidence:
+          - Interview with John Garrod at Hotel Métropole
+          - Court records and newspaper reports of conviction
+        reader_observable: true
+  discriminating_test:
+    method: constraint_proof
+    design: >-
+      Dorcas Dene and the police reconstructed the timeline of Jean Vossche's escape by examining
+      the accident scene and interviewing witnesses, establishing that Inspector Carr was
+      incapacitated by accident before Vossche took control of the cab.
+    knowledge_revealed: >-
+      The sequence of events proved that Jean Vossche did not overpower Inspector Carr, but
+      exploited the accident to escape.
+    pass_condition: >-
+      Witnesses and physical evidence confirm Inspector Carr was incapacitated by accident before
+      Jean Vossche took the cab.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given all necessary clues: the maid's name linking to the anarchists, the
+      recovered jewel with its inscription, the intercepted anarchist meeting, and the blackmail
+      letters with identifiable handwriting and accents. The scar on the Count and the flower trick
+      are foreshadowed. The false assumptions about Jean Vossche's escape and Lady Broome's guilt
+      are clearly presented and later refuted, allowing attentive readers to solve the case.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

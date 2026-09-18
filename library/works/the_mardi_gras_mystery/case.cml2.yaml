@@ -1,0 +1,409 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The Mardi Gras Mystery
+    author: H. (Henry) Bedford-Jones
+    license: Public domain (first published 1921; author died 1949). Project Gutenberg ebook 39229.
+    era:
+      decade: 1920s
+      realism_constraints:
+        - No advanced forensic DNA analysis available
+        - Automobiles and telegraph communication are common
+        - Law enforcement influenced by political and social connections
+    setting:
+      location: New Orleans, Louisiana, USA
+      institution: Exeter National Bank and New Orleans Police Department
+    crime_class:
+      category: murder
+      subtype: disguised banditry and framing
+  cast:
+    - name: Jachin Fell
+      age_range: middle-aged
+      role_archetype: enigmatic lawyer and criminal mastermind
+      relationships:
+        - Lucie Ledanois (ward and beloved)
+        - Ben Chacherre (henchman)
+        - Henry Gramont (business partner and adversary)
+      public_persona: lawyer, chess master, socially prominent
+      private_secret: head of criminal gang and lottery operation
+      motive_seed: protect and enrich Lucie Ledanois
+      motive_strength: strong
+      alibi_window: present at social events, but controls gang activities
+      access_plausibility: high
+      opportunity_channels:
+        - legal profession
+        - social connections
+        - criminal network
+      behavioral_tells:
+        - shy and toneless voice
+        - precise and calm demeanor
+      stakes: maintain power and control over criminal enterprise
+      evidence_sensitivity:
+        - dictograph recordings
+        - confession of accomplices
+        - forged oil seepage
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Henry Gramont
+      age_range: young adult
+      role_archetype: engineer, geologist, and amateur detective
+      relationships:
+        - Lucie Ledanois (friend and love interest)
+        - Jachin Fell (business partner and adversary)
+        - Hammond (chauffeur and accomplice)
+      public_persona: American prince, geologist, oil investor
+      private_secret: Midnight Masquer (disguised bandit)
+      motive_seed: expose criminal activities and protect Lucie
+      motive_strength: strong
+      alibi_window: uncertain due to late night wandering
+      access_plausibility: high
+      opportunity_channels:
+        - oil business
+        - social events
+        - Midnight Masquer disguise
+      behavioral_tells:
+        - calm under pressure
+        - strategic thinker
+      stakes: justice and personal safety
+      evidence_sensitivity:
+        - confession recorded on dictograph
+        - presence at crime scenes
+        - possession of stolen loot
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: moderate
+    - name: Lucie Ledanois
+      age_range: young adult
+      role_archetype: ward and heiress
+      relationships:
+        - Jachin Fell (guardian and protector)
+        - Henry Gramont (friend and love interest)
+        - Joseph Maillard (relative and victim)
+      public_persona: young woman of modest means
+      private_secret: unaware of criminal schemes around her
+      motive_seed: inheritance and protection of family land
+      motive_strength: none
+      alibi_window: present at social events
+      access_plausibility: low
+      opportunity_channels: []
+      behavioral_tells:
+        - trusting
+        - concerned for family
+      stakes: financial security and personal safety
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: low
+    - name: Ben Chacherre
+      age_range: middle-aged
+      role_archetype: criminal henchman
+      relationships:
+        - Jachin Fell (master)
+        - Memphis Izzy Gumberts (gang leader)
+      public_persona: former criminal, bank check casher
+      private_secret: murderer of sheriff and Joseph Maillard
+      motive_seed: protect gang interests and cover crimes
+      motive_strength: strong
+      alibi_window: no alibi, caught with stolen loot
+      access_plausibility: high
+      opportunity_channels:
+        - criminal network
+        - gang operations
+      behavioral_tells:
+        - impudent
+        - defiant under pressure
+      stakes: avoid arrest and maintain gang position
+      evidence_sensitivity:
+        - bloodied knife
+        - stolen loot possession
+        - confession under duress
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: low
+    - name: Joseph Maillard
+      age_range: elderly
+      role_archetype: banker and victim
+      relationships:
+        - Bob Maillard (son, suspect)
+        - Lucie Ledanois (relative)
+      public_persona: bank president
+      private_secret: financial manipulations and family tensions
+      motive_seed: n/a
+      motive_strength: none
+      alibi_window: n/a
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: life
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: moderate
+    - name: Bob Maillard
+      age_range: young adult
+      role_archetype: drunken son and suspect
+      relationships:
+        - Joseph Maillard (father, victim)
+        - Lucie Ledanois (cousin)
+      public_persona: banker's son, known for wildness
+      private_secret: drunkenness and family conflict
+      motive_seed: possible financial gain
+      motive_strength: weak
+      alibi_window: uncertain, found changing costume
+      access_plausibility: moderate
+      opportunity_channels:
+        - family home
+        - social events
+      behavioral_tells:
+        - drunkenness
+        - impatience
+      stakes: freedom and family reputation
+      evidence_sensitivity: []
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: Hammond
+      age_range: middle-aged
+      role_archetype: chauffeur and former criminal
+      relationships:
+        - Henry Gramont (employer)
+        - Ben Chacherre (enemy)
+      public_persona: chauffeur
+      private_secret: former criminal, loyal to Gramont
+      motive_seed: n/a
+      motive_strength: none
+      alibi_window: in jail during murder
+      access_plausibility: low
+      opportunity_channels: []
+      behavioral_tells:
+        - loyalty
+        - fear of frame-up
+      stakes: freedom
+      evidence_sensitivity: []
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+  culpability:
+    culprit_count: 2
+    culprits:
+      - Jachin Fell
+      - Ben Chacherre
+  surface_model:
+    narrative:
+      summary: >-
+        The Midnight Masquer, a mysterious bandit, robs high society during Mardi Gras, culminating
+        in the murder of Joseph Maillard. Bob Maillard, the son, is arrested but maintains his
+        innocence. Henry Gramont, a geologist and former Midnight Masquer, investigates and uncovers
+        a criminal gang led by Jachin Fell.
+    accepted_facts:
+      - Joseph Maillard was shot twice through the heart during the Comus ball.
+      - Bob Maillard was found changing out of an aviator's costume shortly after the murder.
+      - Ben Chacherre was found with the stolen loot and the aviator's costume.
+      - Jachin Fell is a prominent lawyer and chess master with mysterious connections.
+    inferred_conclusions:
+      - Bob Maillard was the Midnight Masquer and killed his father accidentally.
+      - Ben Chacherre was the thief who stole the loot but not the murderer.
+      - Jachin Fell is an innocent man caught in the criminal web.
+  hidden_model:
+    mechanism:
+      description: >-
+        Jachin Fell masterminded the criminal operations, including the lottery and automobile theft
+        ring, using Ben Chacherre as his enforcer. Chacherre murdered Joseph Maillard during a
+        confrontation at the Comus ball, using the stolen aviator's costume and pistol to implicate
+        Bob Maillard. Fell planted false evidence, including a fabricated oil seepage, to manipulate
+        the oil company deal and protect Lucie Ledanois financially while maintaining his criminal
+        enterprise under the guise of respectability.
+      delivery_path:
+        - step: Jachin Fell orchestrates the Midnight Masquer robberies using an aviator disguise.
+        - step: Ben Chacherre steals the loot and the aviator's costume from Gramont's car.
+        - step: At the Comus ball, Chacherre kills Joseph Maillard using the stolen pistol.
+        - step: Chacherre frames Bob Maillard by planting evidence and implicating him.
+        - step: Fell plants false oil seepage to inflate the value of Lucie Ledanois' land.
+        - step: >-
+            Gramont investigates, uncovers the criminal gang, and arrests members including
+            Chacherre.
+        - step: Fell's true role as gang leader is revealed but he is protected by government secrecy.
+    outcome:
+      result: >-
+        Jachin Fell is revealed as the criminal mastermind behind the murders and the lottery gang,
+        but is protected by his secret role as a government agent, while Ben Chacherre is arrested
+        for murder.
+  false_assumption:
+    statement: Bob Maillard was the Midnight Masquer and accidentally killed his father.
+    type: identity
+    why_it_seems_reasonable: >-
+      Bob was found changing out of the aviator costume shortly after the murder and was known for
+      his wild behavior and drinking. The evidence circumstantially pointed to him as the bandit and
+      murderer.
+    what_it_hides: >-
+      The real Midnight Masquer was Henry Gramont, and the murder was committed by Ben Chacherre to
+      frame Bob. The costume and loot were stolen and used to mislead investigators.
+  false_solution:
+    accused_suspect: Bob Maillard
+    supporting_points:
+      - Found changing out of the aviator's costume shortly after the murder.
+      - Known for drunkenness and wild behavior.
+      - Circumstantial evidence linking him to the crime scene.
+      - His story about the murder was weak and inconsistent.
+    the_one_flaw: >-
+      He had no motive to kill his father and was not the original Midnight Masquer; the real
+      murderer was Ben Chacherre.
+    refuted_in_chapter: 15
+  red_herrings:
+    - id: henry_gramont_midnight_masquer
+      description: Henry Gramont was suspected to be the Midnight Masquer and possibly involved in the crimes.
+      points_at_suspect: His possession of the aviator costume and involvement in the robberies.
+      innocent_explanation: >-
+        Gramont was the original Midnight Masquer acting to expose the criminal gang and protect
+        Lucie Ledanois.
+      resolved_in_chapter: 15
+    - id: ben_chacherre_criminal_alibi
+      description: Ben Chacherre was initially suspected of stealing the loot and being involved in the murder.
+      points_at_suspect: Found with stolen loot and implicated by fingerprint evidence.
+      innocent_explanation: >-
+        Chacherre was the murderer but acted under Fell's orders; his arrest was part of the larger
+        plan to dismantle the gang.
+      resolved_in_chapter: 15
+  closed_circle:
+    suspects:
+      - Bob Maillard
+      - Ben Chacherre
+      - Henry Gramont
+      - Jachin Fell
+    rationale: >-
+      All suspects were present at the social events and had access to the victim and the crime
+      scenes; the investigation focused on this limited group.
+  constraint_space:
+    time:
+      anchors:
+        - midnight at Comus ball
+        - early morning at Paradis
+        - Friday evening company meeting
+      windows:
+        - time of murder at midnight
+        - Gramont's absence from home until after midnight
+        - Chacherre's presence at crime scenes
+    access:
+      actors:
+        - Jachin Fell
+        - Ben Chacherre
+        - Henry Gramont
+        - Bob Maillard
+      objects:
+        - aviator costume
+        - automatic pistol
+        - stolen loot
+        - oil seepage site
+    social:
+      trust_channels:
+        - Jachin Fell's influence over police and politicians
+        - gang loyalty among criminals
+        - Gramont's partnership with Fell
+      authority_sources:
+        - Governor's commission to Gramont
+        - Chief of Police
+        - Federal Department of Justice
+  inference_path:
+    steps:
+      - observation: Bob Maillard was found changing out of the aviator's costume shortly after the murder.
+        correction: He was not the original Midnight Masquer; the costume was stolen from Gramont's car.
+        effect: Bob's guilt as the bandit and murderer is questioned.
+        required_evidence:
+          - The aviator costume found in Ben Chacherre's possession
+          - Witness statement of Bob changing costume after the murder
+        reader_observable: true
+      - observation: Ben Chacherre was found with the stolen loot and the aviator's costume.
+        correction: Chacherre was acting under orders from Jachin Fell and committed the murder.
+        effect: Chacherre is identified as the murderer, not Bob Maillard.
+        required_evidence:
+          - Bloodied knife with Chacherre's name
+          - A telegram sent by Chacherre instructing an associate to destroy evidence
+        reader_observable: true
+      - observation: Oil seepage was found on Lucie Ledanois' land.
+        correction: The oil seepage was planted by Jachin Fell to inflate land value.
+        effect: The oil discovery is a fraud to manipulate the oil company deal.
+        required_evidence:
+          - Lease option on adjoining land
+          - Statement by Jachin Fell admitting planting oil seepage
+        reader_observable: true
+      - observation: Jachin Fell is a respected lawyer and chess master.
+        correction: He is the head of the criminal gang and lottery operation.
+        effect: Fell's public persona conceals his criminal mastermind role.
+        required_evidence:
+          - Gang members' testimony
+          - Evidence of lottery operations and stolen cars at Gumberts' place
+        reader_observable: true
+      - observation: Gramont was the original Midnight Masquer.
+        correction: He acted to expose the gang and protect Lucie Ledanois.
+        effect: Gramont is innocent and a key investigator.
+        required_evidence:
+          - Gramont's commission from the governor
+          - A telegram sent by Gramont instructing his associate to meet at Houma
+        reader_observable: true
+      - observation: Jachin Fell's influence prevents his arrest by local police.
+        correction: He is a secret special agent of the Department of Justice.
+        effect: Fell's criminal activities are part of a covert government operation.
+        required_evidence:
+          - Fell's claim of being a special agent
+          - Federal agents' refusal to arrest Fell
+        reader_observable: true
+      - observation: Ben Chacherre tries to frame Hammond for murder.
+        correction: Chacherre is the real murderer; Hammond is innocent.
+        effect: Hammond's arrest is a frame-up by the gang.
+        required_evidence:
+          - Hammond's knife without blood
+          - A destroyed bundle of evidence found in Chacherre's associate's possession
+        reader_observable: true
+  discriminating_test:
+    method: trap
+    design: >-
+      Gramont sends a telegram under Chacherre's name instructing an associate not to destroy a
+      bundle of evidence and to meet him at Houma. He then personally arrests gang members and
+      confronts them with the evidence, including the aviator's costume and pistol. The test reveals
+      the true murderer and the gang's operations by forcing confessions and capturing key members.
+    knowledge_revealed: >-
+      The test reveals Ben Chacherre as the murderer, Jachin Fell as the gang leader, and exposes
+      the planted oil seepage fraud.
+    pass_condition: >-
+      The bundle of evidence is recovered intact at Houma, and the aviator's costume and pistol are
+      found in the gang's possession, confirming the mechanism without alerting the criminals.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given all necessary clues, including the presence of the aviator costume, the
+      stolen loot, the false oil seepage, and the suspicious behavior of key characters. The notes,
+      witness statements, and the discovery of the criminal gang's operations provide concrete
+      evidence. The false solution is clearly presented and refuted, allowing attentive readers to
+      deduce the true mechanism.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

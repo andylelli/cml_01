@@ -1,0 +1,12 @@
+- id: the_meredith_mystery
+  corpus: seed
+  axis: identity
+  mechanism_family: staged_scene
+  false_assumption_pattern: physical_evidence_proves_guilt
+  discriminating_test_shape: reconstruction
+  inference_shape: debunk_planted_evidence
+  premise: >-
+    John Meredith is found dead with a throat wound in his mansion. Suspicion falls on his niece
+    Anne Meredith due to circumstantial evidence including her fingerprints and hair found on the
+    victim. The c
+  source: library/works/the_meredith_mystery/case.cml2.yaml

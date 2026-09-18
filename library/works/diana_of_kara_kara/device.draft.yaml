@@ -1,0 +1,47 @@
+pattern_id: diana_of_kara_kara
+title: The Borrowed Face
+family: identity
+axes:
+  - identity
+principle: >-
+  It conceals the fact that the real the victim is a victim suffering from delusions and that the
+  true criminal is the culprit, who uses impersonation as a cover for theft.
+principleType: social_logic
+surface_illusion_template: >-
+  the victim himself is the criminal the culprit; The accomplice the culprit van the culprit is
+  innocent and a victim; The intruder escaped through the front door
+underlying_reality_template: >-
+  the culprit impersonated the victim to gain access to his home and safe. Using detailed knowledge
+  provided by his accomplice the culprit, who lured the victim away, they entered the house during
+  the night. The safe was opened by a skilled burglar, Mr. a witness, who was aided by the
+  distraction caused by the impersonation. The real the victim was confined and mistaken for the
+  impostor until the truth was revealed by Inspector Carslake.
+feasibility:
+  eras:
+    - 1850
+    - 1860
+    - 1870
+    - 1880
+    - 1890
+    - 1900
+    - 1910
+    - 1920
+    - 1930
+    - 1940
+    - 1950
+  requires:
+    - physical_disguise
+    - inside_information
+    - social_deference
+  forbids:
+    - cctv
+    - voice_authentication
+clue_archetypes:
+  - telegram_dated_just_leaving
+  - bobbie_selsbury_s_witness
+  - diana_ford_s_eyewitness
+  - mr_superbus_s_surveillance
+  - inspection_of_the_small
+  - safe_lock_mechanism_and
+sources:
+  - Edgar Wallace, Diana of Kara-Kara — library/works/diana_of_kara_kara/case.cml2.yaml

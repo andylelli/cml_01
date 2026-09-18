@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "The robbery was a violent shootout with the gold convoy guards.",
+  "type": "behavioral",
+  "why_it_seems_reasonable": "The presence of armed guards and the disappearance of the convoy suggest a gun battle. No witnesses reported gas or silent incapacitation, so a shootout is the natural assumption.",
+  "what_it_hides": "The actual use of a gas attack that silently incapacitated the guards, leaving no gunfire or struggle, which was a clever and unexpected method."
+ },
+ "mechanism_description": "John Flack orchestrated the robbery by using a gas attack to incapacitate the gold convoy guards at a narrow road cutting. The gang used a disguised lorry and gas stored in a water wagon to silently kill the guards. The stolen gold was taken to Larmes Keep, which served as their headquarters, connected to a network of caves for escape. Flack killed Ravini to eliminate a threat and used his daughter Olga and the housekeeper Mrs. Burton as accomplices.",
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "Recreate the robbery scenario by releasing gas from a water wagon at the convoy's route and observe the effect on guards. Simultaneously, test the secret panel door and cave passages at Larmes Keep to verify escape routes. Confirm the presence of gas and the timing of incapacitation.",
+  "knowledge_revealed": "This test reveals the use of gas to incapacitate guards silently and the use of secret passages for escape, confirming the actual mechanism of the crime.",
+  "pass_condition": "The gas release incapacitates guards without gunfire, and secret passages provide a viable escape route."
+ },
+ "changed": [],
+ "confidence": "high"
+}

@@ -1,5 +1,5 @@
 pattern_id: the_hound_of_the_baskervilles
-title: The Phosphor Hound
+title: The Phantom Beast
 family: behavioral
 axes:
   - behavioral
@@ -29,9 +29,9 @@ feasibility:
     - 1940
     - 1950
   requires:
-    - large_dog
-    - phosphorescent_chemical
-    - local_legend
+    - predictable_heat_source
+    - animal_training
+    - chemical_coating
   forbids:
     - cctv
     - modern_toxicology_screen

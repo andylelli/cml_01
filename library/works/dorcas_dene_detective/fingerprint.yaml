@@ -1,0 +1,12 @@
+- id: dorcas_dene_detective
+  corpus: seed
+  axis: behavioral
+  mechanism_family: staged_scene
+  false_assumption_pattern: the_husband_committed_the_murder
+  discriminating_test_shape: reconstruction
+  inference_shape: reconstruct_true_killer_identity
+  premise: >-
+    The case appears to be a straightforward murder of Mrs. Hannaford, with her husband Mr.
+    Hannaford as the prime suspect. Suspicious characters like Flash George and mysterious banknotes
+    linked to the v
+  source: library/works/dorcas_dene_detective/case.cml2.yaml

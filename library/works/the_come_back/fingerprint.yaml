@@ -1,0 +1,12 @@
+- id: the_come_back
+  corpus: seed
+  axis: identity
+  mechanism_family: impersonation
+  false_assumption_pattern: the_dead_is_who_they_appear
+  discriminating_test_shape: behavioral_tell
+  inference_shape: expose_false_identity
+  premise: >-
+    Peter Crane was presumed dead after a Labrador expedition, but his father believed in spirit
+    communications from him through a medium. Meanwhile, Gilbert Blair, a friend, was mysteriously
+    poisoned, an
+  source: library/works/the_come_back/case.cml2.yaml

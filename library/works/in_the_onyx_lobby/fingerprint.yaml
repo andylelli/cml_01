@@ -1,0 +1,12 @@
+- id: in_the_onyx_lobby
+  corpus: seed
+  axis: identity
+  mechanism_family: alibi_fabrication
+  false_assumption_pattern: the_message_means_women_are_guilty
+  discriminating_test_shape: reconstruction
+  inference_shape: reinterpret_clue_as_true_identity
+  premise: >-
+    Sir Herbert Binney is found stabbed to death in the onyx lobby of The Campanile. A dying message
+    seemingly accuses women of the murder, leading to suspicion of two feuding women and their
+    households. 
+  source: library/works/in_the_onyx_lobby/case.cml2.yaml

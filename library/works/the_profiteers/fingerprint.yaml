@@ -1,0 +1,12 @@
+- id: the_profiteers
+  corpus: seed
+  axis: behavioral
+  mechanism_family: hidden_accomplice
+  false_assumption_pattern: disappearance_means_voluntary_absence
+  discriminating_test_shape: timetable_contradiction
+  inference_shape: identify_accomplice_network
+  premise: >-
+    Stanley Rees, a young director of the British and Imperial Granaries, mysteriously disappears.
+    The company directors, including Phipps and Dredlinton, face public outrage over their wheat
+    speculation.
+  source: library/works/the_profiteers/case.cml2.yaml

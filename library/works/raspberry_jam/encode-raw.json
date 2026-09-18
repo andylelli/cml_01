@@ -1,0 +1,471 @@
+{
+ "decade": "1910s",
+ "realism_constraints": [
+  "No modern forensic DNA analysis or electronic surveillance",
+  "Medical knowledge includes recognition of subtle poisons but limited chemical detection",
+  "Locked-room mysteries rely on mechanical locks and physical barriers without advanced security systems"
+ ],
+ "location": "New York City, Park Avenue apartment",
+ "institution": "Metropolitan Athletic Club and New York Homicide Bureau",
+ "crime_category": "murder",
+ "crime_subtype": "locked-room poisoning via ear administration",
+ "cast": [
+  {
+   "name": "Eunice Embury",
+   "age_range": "20s",
+   "role_archetype": "high-society wife with a fiery temper and financial frustrations",
+   "role": "suspect",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "eligible",
+   "public_persona": "affectionate wife, socialite",
+   "private_secret": "lacks personal cash allowance, quarrels with husband",
+   "motive_seed": "desire for financial independence and resentment",
+   "motive_strength": "weak",
+   "alibi_window": "at bridge party during murder",
+   "access_plausibility": "locked bedroom doors",
+   "stakes": "accused of murdering husband, social ruin",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Sanford Embury (husband)",
+    "Aunt Abby Ames (aunt)",
+    "Mason Elliott (friend)"
+   ],
+   "opportunity_channels": [
+    "locked bedroom suite"
+   ],
+   "behavioral_tells": [
+    "angry outbursts",
+    "defiant demeanor"
+   ],
+   "evidence_sensitivity": [
+    "presence of poison dropper in bathroom",
+    "attendance at bridge party"
+   ]
+  },
+  {
+   "name": "Sanford Embury",
+   "age_range": "late 20s",
+   "role_archetype": "wealthy athletic club candidate and husband",
+   "role": "victim",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "successful businessman and club president candidate",
+   "private_secret": "strict control over wife's finances",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "dead at home",
+   "access_plausibility": "locked bedroom",
+   "stakes": "life",
+   "moral_complexity": "none",
+   "relationships": [
+    "Eunice Embury (wife)",
+    "Alvord Hendricks (rival)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": [
+    "cause of death by poison in ear"
+   ]
+  },
+  {
+   "name": "Aunt Abby Ames",
+   "age_range": "elderly",
+   "role_archetype": "eccentric spiritualist aunt",
+   "role": "suspect",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "eligible",
+   "public_persona": "psychic and medium enthusiast",
+   "private_secret": "hypnotized and manipulated",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "locked bedroom suite",
+   "access_plausibility": "locked bedroom doors",
+   "stakes": "accused falsely, mental distress",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Eunice Embury (niece)"
+   ],
+   "opportunity_channels": [
+    "locked bedroom suite"
+   ],
+   "behavioral_tells": [
+    "claims vision of victim's spirit"
+   ],
+   "evidence_sensitivity": [
+    "medicine dropper found near her bed"
+   ]
+  },
+  {
+   "name": "Mason Elliott",
+   "age_range": "30s",
+   "role_archetype": "loyal friend and admirer",
+   "role": "suspect",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "eligible",
+   "public_persona": "businessman and friend",
+   "private_secret": "secret love for Eunice",
+   "motive_seed": "jealousy",
+   "motive_strength": "weak",
+   "alibi_window": "at home or club",
+   "access_plausibility": "no access to locked rooms",
+   "stakes": "friendship and reputation",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Eunice Embury (object of affection)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "defends Eunice strongly"
+   ],
+   "evidence_sensitivity": [
+    "alibi confirmed"
+   ]
+  },
+  {
+   "name": "Alvord Hendricks",
+   "age_range": "30s",
+   "role_archetype": "rival candidate and secret antagonist",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "club rival and friend",
+   "private_secret": "hired killer to remove Embury",
+   "motive_seed": "political ambition and financial pressure",
+   "motive_strength": "strong",
+   "alibi_window": "claimed Boston trip",
+   "access_plausibility": "used human fly to enter locked rooms",
+   "stakes": "club presidency, financial ruin",
+   "moral_complexity": "strong",
+   "relationships": [
+    "Sanford Embury (rival)",
+    "Eunice Embury (object of affection)"
+   ],
+   "opportunity_channels": [
+    "via human fly Willy Hanlon"
+   ],
+   "behavioral_tells": [
+    "denies earache initially",
+    "deflects suspicion"
+   ],
+   "evidence_sensitivity": [
+    "drug purchase records",
+    "hospital confession"
+   ]
+  },
+  {
+   "name": "Fleming Stone",
+   "age_range": "40s",
+   "role_archetype": "celebrated detective",
+   "role": "detective",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "professional investigator",
+   "private_secret": "",
+   "motive_seed": "justice",
+   "motive_strength": "strong",
+   "alibi_window": "N/A",
+   "access_plausibility": "N/A",
+   "stakes": "solving the case",
+   "moral_complexity": "none",
+   "relationships": [
+    "Fibsy (assistant)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "methodical and logical"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Willy Hanlon",
+   "age_range": "young adult",
+   "role_archetype": "performer and hired assassin",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "mind-reader and human fly performer",
+   "private_secret": "hired to kill Embury using poison",
+   "motive_seed": "financial gain",
+   "motive_strength": "moderate",
+   "alibi_window": "at murder scene",
+   "access_plausibility": "climbed building to enter locked room",
+   "stakes": "life and freedom",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Alvord Hendricks (employer)"
+   ],
+   "opportunity_channels": [
+    "entry via window in locked suite"
+   ],
+   "behavioral_tells": [
+    "confession on deathbed"
+   ],
+   "evidence_sensitivity": [
+    "medicine dropper with poison",
+    "hospital confession"
+   ]
+  }
+ ],
+ "culprits": [
+  "Alvord Hendricks",
+  "Willy Hanlon"
+ ],
+ "surface_summary": "Sanford Embury is found mysteriously dead in his locked bedroom with no apparent cause. Suspicion falls on his wife Eunice due to marital tensions and the presence of a poison dropper in her bathroom. The case involves a locked-room mystery with multiple suspects and conflicting alibis.",
+ "accepted_facts": [
+  "Sanford Embury died suddenly in his locked bedroom",
+  "No external signs of violence or forced entry were found",
+  "A medicine dropper containing henbane poison was found in the bathroom",
+  "Only Eunice Embury and Aunt Abby Ames had access to the locked suite"
+ ],
+ "inferred_conclusions": [
+  "Eunice Embury poisoned her husband out of financial frustration",
+  "Aunt Abby Ames was hypnotized and accidentally administered the poison",
+  "Alvord Hendricks had a perfect alibi and could not have been involved"
+ ],
+ "mechanism_description": "The murderer hired Willy Hanlon, a performer training as a human fly, to climb the exterior of the apartment building and enter through Aunt Abby Ames' window. Hanlon silently traversed the locked suite, administered henbane poison into Sanford Embury's ear while he slept, and exited the same way. The poison caused sudden death with no external signs, and the medicine dropper was accidentally dropped near Aunt Abby's bed during the escape.",
+ "delivery_path": [
+  "Alvord Hendricks hires Willy Hanlon to kill Sanford Embury",
+  "Hanlon climbs the exterior of the apartment building as a human fly",
+  "Hanlon enters through Aunt Abby Ames' window into the locked suite",
+  "Hanlon administers henbane poison into Embury's ear while he sleeps",
+  "Hanlon accidentally drops the poison dropper near Aunt Abby's bed",
+  "Hanlon exits the suite the same way he entered",
+  "Embury dies suddenly from the poison with no external marks"
+ ],
+ "outcome_result": "Alvord Hendricks is arrested and convicted for orchestrating Sanford Embury's murder through Willy Hanlon.",
+ "false_assumption": {
+  "statement": "Eunice Embury, the wife, is the murderer due to motive and opportunity.",
+  "type": "behavioral",
+  "why_it_seems_reasonable": "Eunice had frequent quarrels with her husband and lacked personal cash, providing a plausible motive. The locked room and presence of the poison dropper in her bathroom suggest opportunity.",
+  "what_it_hides": "The real murderer used an external agent to bypass the locked doors, and the poison dropper was accidentally left behind by the killer, not Eunice."
+ },
+ "false_solution": {
+  "accused_suspect": "Eunice Embury",
+  "supporting_points": [
+   "She had a motive due to financial frustrations and quarrels",
+   "The poison dropper was found in her bathroom",
+   "She was present in the locked suite with the victim",
+   "Her behavior was defensive and angry when accused"
+  ],
+  "the_one_flaw": "The locked doors and windows made it impossible for her to have administered the poison without detection, and the real killer had an external means of entry.",
+  "refuted_in_chapter": 18
+ },
+ "red_herrings": [
+  {
+   "id": "aunt_abby_ames_hypnotized_confession",
+   "description": "Aunt Abby Ames confesses to the murder under supposed hypnotism, suggesting she was the killer.",
+   "points_at_suspect": "Aunt Abby Ames",
+   "innocent_explanation": "Her confession was false, made to protect Eunice, and she was not responsible for the murder.",
+   "resolved_in_chapter": 18
+  },
+  {
+   "id": "mason_elliott_motive_jealousy",
+   "description": "Mason Elliott is suspected due to his secret love for Eunice and possible jealousy.",
+   "points_at_suspect": "Mason Elliott",
+   "innocent_explanation": "He had a strong alibi and no opportunity to commit the crime.",
+   "resolved_in_chapter": 18
+  }
+ ],
+ "closed_circle": {
+  "suspects": [
+   "Eunice Embury",
+   "Aunt Abby Ames",
+   "Mason Elliott",
+   "Alvord Hendricks",
+   "Ferdinand",
+   "Willy Hanlon"
+  ],
+  "rationale": "The locked bedroom suite was accessible only to these individuals, and no external entry was possible through windows or doors."
+ },
+ "constraint_space": {
+  "time_anchors": [
+   "night of Sanford Embury's death",
+   "daybreak when body was found"
+  ],
+  "time_windows": [
+   "time between midnight and early morning",
+   "bridge party duration for Eunice's alibi"
+  ],
+  "access_actors": [
+   "Eunice Embury",
+   "Aunt Abby Ames",
+   "Ferdinand",
+   "Willy Hanlon"
+  ],
+  "access_objects": [
+   "locked bedroom doors with snap-locks",
+   "windows without balconies"
+  ],
+  "trust_channels": [
+   "Mason Elliott's testimony",
+   "Ferdinand's statements",
+   "Aunt Abby's vision"
+  ],
+  "authority_sources": [
+   "Medical Examiner Dr. Crowell",
+   "Detectives Shane and Driscoll",
+   "Detective Fleming Stone"
+  ]
+ },
+ "inference_path": [
+  {
+   "observation": "Poison dropper containing henbane found in Miss Ames' bathroom medicine chest",
+   "correction": "The dropper was dropped accidentally by the killer during escape",
+   "effect": "Shifts suspicion away from Eunice and Aunt Abby as intentional poisoners",
+   "required_evidence": [
+    "Maggie's maid testimony about finding the dropper beside Miss Ames' bed",
+    "Hospital confession of Willy Hanlon about the murder method"
+   ]
+  },
+  {
+   "observation": "Alvord Hendricks had a perfect alibi in Boston during the murder",
+   "correction": "Hendricks arranged a trumped-up trip to Boston to create an alibi",
+   "effect": "Reopens suspicion on Hendricks despite alibi",
+   "required_evidence": [
+    "Travel records confirming Hendricks' presence in Boston",
+    "Fibsy's surveillance of Hanlon and Hendricks' meeting"
+   ]
+  },
+  {
+   "observation": "Locked bedroom doors with snap-locks prevent entry or exit",
+   "correction": "Entry was made through Aunt Abby's window by a skilled climber",
+   "effect": "Explains how the murderer accessed the victim despite locked doors",
+   "required_evidence": [
+    "Window inspection showing no forced entry but accessible by climbing",
+    "Hanlon's human fly performance and training"
+   ]
+  },
+  {
+   "observation": "Aunt Abby claims to have seen victim's spirit with raspberry jam taste and gasoline smell",
+   "correction": "The vision was a real person (Hanlon) passing by, leaving physical traces",
+   "effect": "Supports the theory that the killer was physically present and left clues",
+   "required_evidence": [
+    "Aunt Abby's detailed account of the vision",
+    "Presence of raspberry jam jar on nearby apartment window sill"
+   ]
+  },
+  {
+   "observation": "Eunice Embury had motive and opportunity due to quarrels and financial issues",
+   "correction": "Eunice was at a bridge party during the murder and had no access",
+   "effect": "Weakens case against Eunice and points to external perpetrator",
+   "required_evidence": [
+    "Bridge party witness statements",
+    "Locked suite doors confirmed by butler Ferdinand"
+   ]
+  },
+  {
+   "observation": "Willy Hanlon was a performer with skills in climbing and deception",
+   "correction": "Hanlon was hired by Hendricks to commit the murder using his climbing skills",
+   "effect": "Identifies the actual murderer and method of entry",
+   "required_evidence": [
+    "Hanlon's hospital confession",
+    "Fibsy's surveillance and investigation linking Hanlon and Hendricks"
+   ]
+  },
+  {
+   "observation": "Henbane poison was administered through the victim's ear",
+   "correction": "The poison was delivered using a medicine dropper during sleep",
+   "effect": "Explains cause of death and method of murder",
+   "required_evidence": [
+    "Medical Examiner's report on cause of death",
+    "Medicine dropper found in bathroom with henbane residue"
+   ]
+  }
+ ],
+ "discriminating_test": {
+  "method": "constraint_proof",
+  "design": "Reenact the locked-room conditions by securing the bedroom doors with the same snap-locks and observing if any person can enter or exit without unlocking. Additionally, test the possibility of entry through the window by a skilled climber simulating Hanlon's human fly technique. Observe if any physical traces such as raspberry jam or gasoline odor can be replicated during the entry and exit.",
+  "knowledge_revealed": "This test reveals that no one inside the locked doors could have administered the poison, and that entry through the window by a climber is feasible and explains the physical evidence.",
+  "pass_condition": "Successful demonstration that the window entry is possible and that the locked doors prevent any other access or egress."
+ },
+ "fair_play_explanation": "The reader is provided with all necessary clues including the locked doors, the poison dropper, the presence of raspberry jam and gasoline odor, and the knowledge of Hanlon's climbing skills. The alibis and motives of suspects are clearly stated, and the suspicious perfect alibi is highlighted. The confession of Hanlon and the connection to Hendricks are foreshadowed. The reader could deduce the true mechanism by questioning the locked-room impossibility and considering an external entry via the window.",
+ "anchors": [
+  {
+   "claim": "Sanford Embury was found dead in his locked bedroom",
+   "anchor": "he’s dead, and no doctors can help that!"
+  },
+  {
+   "claim": "The poison was administered through the ear",
+   "anchor": "Sanford met his death by foul play. The means used was the administering of poison--through the ear!"
+  },
+  {
+   "claim": "Medicine dropper containing henbane found in bathroom",
+   "anchor": "By means of this,” Driscoll declared. “This fluid is henbane"
+  },
+  {
+   "claim": "Locked bedroom doors had strong snap-locks",
+   "anchor": "they have strong brass catches that work only on the inside"
+  },
+  {
+   "claim": "Windows could not be used for entry due to height and no balconies",
+   "anchor": "The windows show a sheer drop of ten stories to the ground"
+  },
+  {
+   "claim": "Aunt Abby Ames claimed to see victim's spirit and tasted raspberry jam",
+   "anchor": "I tasted raspberry jam.”"
+  },
+  {
+   "claim": "Raspberry jam jar found on window sill of nearby apartment",
+   "anchor": "there on the pantry window-sill sat what was unmistakably a jam jar!"
+  },
+  {
+   "claim": "Alvord Hendricks had an alibi in Boston",
+   "anchor": "He was in Boston from the afternoon of the day before Mr. Embury’s death"
+  },
+  {
+   "claim": "Willy Hanlon was a human fly performer training to climb buildings",
+   "anchor": "Willy Hanlon is practicing to be a human fly."
+  },
+  {
+   "claim": "Hanlon confessed on his deathbed to killing Embury",
+   "anchor": "Willy Hanlon--a human fly.” ... “I did. I--I--oh, I can’t--talk."
+  },
+  {
+   "claim": "Hanlon entered through Aunt Abby's window to commit the murder",
+   "anchor": "you climbed up the side of the apartment house--on the cross street--and you got in at Miss Ames’ window."
+  },
+  {
+   "claim": "Hanlon administered poison via medicine dropper into Embury's ear",
+   "anchor": "you killed Mr. Embury with that henbane stuff."
+  },
+  {
+   "claim": "The poison dropper was accidentally dropped near Aunt Abby's bed",
+   "anchor": "perhaps from your breast pocket--the little glass dropper you had used--and as you bent over the old lady, she grabbed at you"
+  },
+  {
+   "claim": "Eunice Embury was at a bridge party during the murder",
+   "anchor": "Eunice went to a bridge game at a house to which he had forbidden me to go."
+  },
+  {
+   "claim": "Fifi Desternay was a friend turned antagonist with knowledge of the case",
+   "anchor": "Fifi Desternay, you have been instrumental in bringing our dear Eunice under a dreadful, and absolutely unfounded suspicion"
+  },
+  {
+   "claim": "Mason Elliott had motive but no opportunity",
+   "anchor": "Mr. Elliott had no opportunity. We have learned beyond all doubt that he was at his club or at his home all that night."
+  },
+  {
+   "claim": "Alvord Hendricks bought hyoscyamine for earache treatment",
+   "anchor": "Alvord Hendricks bought some hyoscyamine, on a doctor’s prescription, about a month ago"
+  },
+  {
+   "claim": "The locked doors snap-bolted automatically when closed",
+   "anchor": "They are big, strong, snap-locks on the inside of the doors."
+  },
+  {
+   "claim": "The poison caused sudden death with no external marks",
+   "anchor": "Mr. Embury died because of a sudden and complete paralysis of respiration and circulation."
+  },
+  {
+   "claim": "The perfect alibi is suspicious and likely fabricated",
+   "anchor": "the more perfect the alibi, the more we must distrust it."
+  }
+ ]
+}

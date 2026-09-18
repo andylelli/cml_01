@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "The ghost haunting is a genuine supernatural phenomenon affecting the household.",
+  "type": "identity",
+  "why_it_seems_reasonable": "Multiple witnesses, including Lord Mere de Beaurivage, report seeing and hearing the ghost. The detailed description and timing of the apparition align with the anniversary of a historical murder, lending credibility.",
+  "what_it_hides": "It conceals the fact that the ghost is a human impersonation by John Maple using a costume and ventriloquism to manipulate the buyers and household."
+ },
+ "mechanism_description": "John Maple and Bo Hellup orchestrated the ghost haunting to frighten Lord Mere de Beaurivage and disrupt the sale negotiations. John disguised himself in a black cloak with a ruff and sword, entering the locked side room adjacent to Lord Mere’s bedroom to create the apparition. They used ventriloquism and household accomplices to spread ghostly noises and sightings, manipulating the household and buyers.",
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "Recreate the ghost apparition using the cloak, ruff, and sword in the locked side room adjacent to Lord Mere’s bedroom. Use ventriloquism to produce ghostly voices and observe reactions of a test subject placed in the bedroom. Confirm if the ghost can be produced by a human impersonator with these props and access.",
+  "knowledge_revealed": "This test reveals that the ghost is a human impersonation using costume and ventriloquism, not a supernatural entity.",
+  "pass_condition": "The test subject perceives the ghostly apparition and voices as in the original haunting, confirming the mechanism."
+ },
+ "changed": [],
+ "confidence": "high"
+}

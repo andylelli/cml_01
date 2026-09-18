@@ -1,0 +1,472 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: '"No Clue!"'
+    author: James Hay
+    license: Public domain (first published 1920; author died 1936). Project Gutenberg ebook 26396.
+    era:
+      decade: 1920s
+      realism_constraints:
+        - No advanced forensic DNA analysis available
+        - Communication limited to telephone and postal mail
+        - Transportation by automobile and train, but no rapid air travel
+    setting:
+      location: Sloanehurst, Virginia, USA
+      institution: Sheriff's Office of Alexandria County and private investigation by Jefferson Hastings
+    crime_class:
+      category: murder
+      subtype: premeditated stabbing with improvised dagger
+  cast:
+    - name: Jefferson Hastings
+      age_range: 50-60
+      role_archetype: experienced consulting detective
+      relationships: []
+      public_persona: modest, unassuming criminologist
+      private_secret: keen intuition and analytical mind
+      motive_seed: n/a
+      motive_strength: none
+      alibi_window: n/a
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells:
+        - whittling wood while thinking
+        - persistent questioning
+      stakes: solve the murder and protect innocent parties
+      evidence_sensitivity:
+        - envelope flap with handwriting
+        - steel particles from dagger
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: high
+    - name: Mildred Brace
+      age_range: early 20s
+      role_archetype: victim, young woman caught in blackmail and love affairs
+      relationships:
+        - daughter of Catherine Brace
+        - former employee of Berne Webster
+      public_persona: daughter of Mrs. Brace, former stenographer
+      private_secret: wrote a threatening letter to Wilton
+      motive_seed: n/a
+      motive_strength: none
+      alibi_window: killed between 11 pm and midnight
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: her life
+      evidence_sensitivity:
+        - grey envelope with letter
+        - dagger wound
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: female
+      role: victim
+      moral_complexity: moderate
+    - name: Catherine Brace
+      age_range: 40-50
+      role_archetype: calculating mother, manipulative
+      relationships:
+        - mother of Mildred Brace
+      public_persona: bereaved mother, cold and hard
+      private_secret: blackmailing Wilton, seeking money
+      motive_seed: financial desperation and revenge
+      motive_strength: strong
+      alibi_window: present in Washington during murder
+      access_plausibility: low
+      opportunity_channels:
+        - blackmail letters
+        - manipulation of sheriff
+      behavioral_tells:
+        - coldness
+        - threats
+        - scheming
+      stakes: money and revenge
+      evidence_sensitivity:
+        - grey envelope flap
+        - financial records
+      culprit_eligibility: eligible
+      culpability: unknown
+      gender: female
+      role: suspect
+      moral_complexity: high
+    - name: Arthur Sloane
+      age_range: 60-70
+      role_archetype: wealthy, nervous patriarch
+      relationships:
+        - father of Lucille Sloane
+      public_persona: sickly, nervous man
+      private_secret: was on the lawn before light was turned on
+      motive_seed: anger at Mildred for interfering with family
+      motive_strength: moderate
+      alibi_window: out on lawn before midnight
+      access_plausibility: high
+      opportunity_channels:
+        - access to house and grounds
+      behavioral_tells:
+        - nervousness
+        - refusal to talk
+      stakes: family reputation and health
+      evidence_sensitivity:
+        - wet sandals
+        - missing bed slat
+      culprit_eligibility: eligible
+      culpability: unknown
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: Lucille Sloane
+      age_range: early 20s
+      role_archetype: devoted daughter, protective fiancee
+      relationships:
+        - daughter of Arthur Sloane
+        - fiancee of Berne Webster
+      public_persona: engaged to Berne Webster, composed
+      private_secret: suspects her father but loves Berne
+      motive_seed: n/a
+      motive_strength: none
+      alibi_window: present in house
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells:
+        - trembling hands
+        - anxiety
+      stakes: family and fiance's innocence
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: moderate
+    - name: Berne Webster
+      age_range: 30-35
+      role_archetype: young lawyer, suspect under pressure
+      relationships:
+        - fiance of Lucille Sloane
+        - former employer of Mildred Brace
+      public_persona: fiance of Lucille, lawyer
+      private_secret: financial troubles, missing nail file
+      motive_seed: financial desperation
+      motive_strength: moderate
+      alibi_window: present at house, collapsed under questioning
+      access_plausibility: high
+      opportunity_channels:
+        - access to dagger materials
+      behavioral_tells:
+        - nervous gestures
+        - forced smiles
+        - collapse
+      stakes: freedom and reputation
+      evidence_sensitivity:
+        - missing nail file
+        - dagger made from bed slat
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: high
+    - name: Judge Tom Wilton
+      age_range: 50-60
+      role_archetype: respected judge with dark past
+      relationships:
+        - friend of Arthur Sloane
+        - accomplice to Berne Webster in concealment
+      public_persona: honorable judge
+      private_secret: obsession to kill, murderer of Mildred Brace
+      motive_seed: fear of exposure of past crime
+      motive_strength: strong
+      alibi_window: at Sloanehurst, made dagger and killed victim
+      access_plausibility: high
+      opportunity_channels:
+        - access to house
+        - manufacture of weapon
+      behavioral_tells:
+        - nervousness
+        - contradictory statements
+        - concealment
+      stakes: reputation, freedom
+      evidence_sensitivity:
+        - cigar stump
+        - steel particles
+        - missing bed slat
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: very high
+    - name: Eugene Russell
+      age_range: 30-35
+      role_archetype: jealous suitor, initially suspect
+      relationships:
+        - former suitor of Mildred Brace
+      public_persona: real estate salesman
+      private_secret: lied about alibi
+      motive_seed: jealousy
+      motive_strength: moderate
+      alibi_window: claimed to be miles away, but seen near crime scene
+      access_plausibility: medium
+      opportunity_channels:
+        - presence near crime scene
+      behavioral_tells:
+        - nervousness
+        - conflicting statements
+      stakes: freedom
+      evidence_sensitivity:
+        - wet shoes with mud
+        - witness statement from Stevens
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: Sheriff Crown
+      age_range: 40-50
+      role_archetype: local law enforcement, politically motivated
+      relationships: []
+      public_persona: sheriff
+      private_secret: susceptible to manipulation
+      motive_seed: political ambition
+      motive_strength: weak
+      alibi_window: n/a
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells:
+        - frustration
+        - susceptibility to Mrs. Brace
+      stakes: career
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: moderate
+    - name: Jarvis
+      age_range: 50-60
+      role_archetype: butler, secretive
+      relationships:
+        - servant to Arthur Sloane
+      public_persona: loyal servant
+      private_secret: unknown
+      motive_seed: n/a
+      motive_strength: none
+      alibi_window: present at house
+      access_plausibility: high
+      opportunity_channels:
+        - access to house
+      behavioral_tells:
+        - discreet
+        - alert
+      stakes: employment
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+  culpability:
+    culprit_count: 1
+    culprits:
+      - Judge Tom Wilton
+  surface_model:
+    narrative:
+      summary: >-
+        Mildred Brace is found murdered on the lawn of Sloanehurst. Suspicion falls on several
+        people including Berne Webster and Eugene Russell, while the family and local authorities
+        struggle to uncover the truth amid conflicting alibis and motives.
+    accepted_facts:
+      - Mildred Brace was stabbed to death with a dagger made from a nail file and wood.
+      - A threatening letter in a grey envelope was sent to the murderer.
+      - Eugene Russell had an alibi placing him miles away shortly after the murder.
+      - Judge Wilton and Berne Webster were found bending over the body at discovery.
+    inferred_conclusions:
+      - Berne Webster killed Mildred Brace to silence her demands.
+      - Eugene Russell was the murderer acting out of jealousy.
+      - Arthur Sloane was involved in the murder or is covering for someone.
+  hidden_model:
+    mechanism:
+      description: >-
+        Judge Tom Wilton, driven by fear of exposure of a past murder and financial desperation,
+        crafted an improvised dagger from a nail file and a bed slat. He killed Mildred Brace at the
+        appointed time after receiving her letter. He attempted to conceal his guilt by manipulating
+        others and staging the discovery of the body.
+      delivery_path:
+        - step: Wilton receives threatening letter from Mildred Brace.
+        - step: He files a nail file to create a dagger with a wooden handle from a bed slat.
+        - step: Wilton goes out onto the lawn before midnight, armed with the dagger.
+        - step: He murders Mildred Brace by stabbing her with the improvised weapon.
+        - step: >-
+            Wilton returns to the house, concealing the dagger and staging his discovery of the
+            body.
+        - step: He attempts to silence suspicion by influencing others and concealing facts.
+        - step: The detective uncovers the physical evidence linking Wilton to the murder.
+    outcome:
+      result: Judge Tom Wilton is charged with the murder of Mildred Brace based on conclusive evidence.
+  false_assumption:
+    statement: Berne Webster was the murderer motivated by financial desperation.
+    type: identity
+    why_it_seems_reasonable: >-
+      Webster had a missing nail file matching the dagger blade and was found bending over the body,
+      showing nervous behavior. His financial troubles and collapse under questioning suggested
+      guilt.
+    what_it_hides: >-
+      It obscures the true culprit, Judge Wilton, who actually made the dagger and committed the
+      murder, manipulating Webster and others to cover his tracks.
+  false_solution:
+    accused_suspect: Berne Webster
+    supporting_points:
+      - Missing nail file from Webster's dressing case matching the dagger blade.
+      - Webster was found bending over the body at the time of discovery.
+      - Financial desperation motive due to need for money.
+      - Webster's nervous behavior and collapse under questioning.
+    the_one_flaw: >-
+      Webster's alibi was later proven false by witness testimony placing him near the crime scene
+      at the time of murder.
+    refuted_in_chapter: 18
+  red_herrings:
+    - id: eugene_russell_alibi
+      description: >-
+        Eugene Russell's alibi initially seems strong but is later disproven by a witness who saw
+        him near the crime scene.
+      points_at_suspect: Eugene Russell
+      innocent_explanation: Russell lied about his alibi out of fear and confusion but did not commit the murder.
+      resolved_in_chapter: 18
+    - id: arthur_sloane_nervousness
+      description: Arthur Sloane's nervous and evasive behavior suggests guilt or knowledge of the crime.
+      points_at_suspect: Arthur Sloane
+      innocent_explanation: >-
+        Sloane's nervousness is due to chronic illness and fear of scandal, not involvement in the
+        murder.
+      resolved_in_chapter: 21
+  closed_circle:
+    suspects:
+      - Berne Webster
+      - Eugene Russell
+      - Arthur Sloane
+      - Judge Tom Wilton
+      - Catherine Brace
+    rationale: >-
+      All suspects had motive, opportunity, and were present or connected to the crime scene,
+      forming a closed circle of possible perpetrators.
+  constraint_space:
+    time:
+      anchors:
+        - Murder occurred between 11 pm and midnight
+        - Letter mailed before midnight collection
+        - Russell seen on Hub Hill at 11:07 pm
+        - Wilton absent from house for 45 minutes before dinner
+      windows:
+        - Wilton's absence from 4:15 pm to 5:00 pm
+        - Russell's presence near crime scene before 11:20 pm
+    access:
+      actors:
+        - Judge Wilton
+        - Berne Webster
+        - Arthur Sloane
+        - Eugene Russell
+        - Catherine Brace
+      objects:
+        - Nail file from Webster's dressing case
+        - Bed slat from Hastings' room
+        - Grey envelope with letter
+        - Improvised dagger
+    social:
+      trust_channels:
+        - Lucille Sloane's testimony
+        - Mrs. Brace's accusations
+        - Sheriff Crown's investigations
+        - Detective Hastings' analysis
+      authority_sources:
+        - Sheriff Crown
+        - Coroner Dr. Garnet
+        - Judge Tom Wilton
+        - Detective Jefferson Hastings
+  inference_path:
+    steps:
+      - observation: Missing nail file from Webster's dressing case matches dagger blade
+        correction: Nail file was used by Wilton to make dagger
+        effect: Points suspicion away from Webster as maker of weapon
+        required_evidence:
+          - Steel particles found on floor of Webster's room
+          - Magnet test results from Webster's room floor
+        reader_observable: true
+      - observation: Wilton had cigar stump in pocket when found at crime scene
+        correction: Wilton extinguished cigar before murder and put it in pocket to appear innocent
+        effect: Shows Wilton's calculated attempt to fake innocence
+        required_evidence:
+          - Handkerchief with cigar ashes and tobacco particles
+          - Witness testimony of Wilton's behavior at crime scene
+        reader_observable: true
+      - observation: Russell's alibi places him miles away at 11:20 pm
+        correction: Witness Stevens saw Russell near crime scene at 11:07 pm
+        effect: Russell's alibi is false, but he is not the murderer
+        required_evidence:
+          - Testimony of Stevens from York, Pennsylvania
+          - Police report of Russell's arrest
+        reader_observable: true
+      - observation: Mrs. Brace accuses Webster of murder and blackmail
+        correction: Mrs. Brace is motivated by greed and blackmail, not truth
+        effect: Her accusations are unreliable and manipulative
+        required_evidence:
+          - Financial records showing Mrs. Brace's debts
+          - Witness statements about Mrs. Brace's behavior
+        reader_observable: true
+      - observation: Arthur Sloane was out on the lawn before light was turned on
+        correction: Sloane was following a 'dew treatment' for nervousness
+        effect: Sloane's presence on lawn is innocent
+        required_evidence:
+          - Wet sandals found in Sloane's closet
+          - Pamphlet on dew treatment found in Sloane's room
+        reader_observable: true
+      - observation: Wilton and Webster found bending over the body simultaneously
+        correction: Wilton was the murderer and Webster arrived shortly after
+        effect: Wilton's guilt is confirmed
+        required_evidence:
+          - Witness statements of discovery
+          - Physical evidence linking Wilton to murder weapon
+        reader_observable: true
+      - observation: Grey envelope flap with handwriting found in Webster's room
+        correction: Wilton planted the flap to implicate Webster
+        effect: Evidence against Webster is fabricated
+        required_evidence:
+          - Envelope flap with Mildred's handwriting
+          - Location of envelope flap in Webster's fireplace
+        reader_observable: true
+  discriminating_test:
+    method: constraint_proof
+    design: >-
+      Reenact the timeline of Wilton's movements on the day of the murder, verifying the absence of
+      the nail file from Webster's case and the presence of steel particles in Webster's room.
+      Confirm the presence of the shortened bed slat and matching grooves on the dagger handle and
+      Wilton's penknife. Cross-check witness statements about Wilton's behavior and the timing of
+      the murder.
+    knowledge_revealed: >-
+      This test reveals that Wilton had the opportunity and means to manufacture the murder weapon
+      and commit the crime, disproving Webster's guilt and confirming Wilton's premeditation.
+    pass_condition: >-
+      Physical evidence matches Wilton's tools and timeline, and witness statements confirm his
+      presence and actions consistent with the murder.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is provided with detailed accounts of each suspect's movements, motives, and
+      alibis. Physical evidence such as the dagger, nail file, and bed slat are described. The grey
+      envelope flap with handwriting is presented as a clue. The contradictions in alibis and
+      witness statements are openly discussed, allowing the reader to deduce the true culprit by
+      analyzing the timeline and physical evidence.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

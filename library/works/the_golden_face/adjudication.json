@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "George Hargreave is the actual thief of Lady Lydbrook's pearls.",
+  "type": "identity",
+  "why_it_seems_reasonable": "Hargreave is found in possession of the pearls and has access to Lady Lydbrook's room with a master-key. He is coerced into stealing, making him appear guilty.",
+  "what_it_hides": "The real Lady Lydbrook is an accomplice named Betty Tressider, and the pearls stolen by Hargreave are imitation. The theft is a setup to implicate Hargreave and conceal the true criminals."
+ },
+ "mechanism_description": "Rudolph Rayne orchestrated the thefts using trusted agents and elaborate disguises. He manipulated George Hargreave into stealing Lady Lydbrook's pearls under duress, but the pearls were actually imitation. The real Lady Lydbrook was an accomplice named Betty Tressider who used the theft to cover her own criminal activities. Rayne also framed Hugh Martyn by transferring Martyn's fingerprints onto gloves used in a bank robbery, ensuring Martyn's conviction while Rayne remained clean.",
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "George Hargreave is instructed to attempt the theft of Lady Lydbrook's pearls using the master-key and the trick attache-case. The test observes whether the pearls disappear or if the victim confronts the thief, revealing the true accomplice. The presence of imitation pearls and the victim's reaction are key.",
+  "knowledge_revealed": "This reenactment reveals that the pearls stolen by Hargreave are imitation and that Lady Lydbrook is complicit, not a victim.",
+  "pass_condition": "The pearls vanish into the trick case without resistance, and the victim confronts the thief, proving the theft was staged."
+ },
+ "changed": [],
+ "confidence": "high"
+}

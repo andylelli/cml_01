@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "Gordon Selsbury is the criminal Double Dan impersonating himself.",
+  "type": "identity",
+  "why_it_seems_reasonable": "Gordon's strange behavior, delusions, and the presence of a man acting as 'Uncle Isaac' create confusion about his identity. The impostor's perfect mimicry and the real Gordon's odd conduct make the assumption plausible.",
+  "what_it_hides": "It conceals the fact that the real Gordon is a victim suffering from delusions and that the true criminal is Guiseppi Dempsi, who uses impersonation as a cover for theft."
+ },
+ "mechanism_description": "Double Dan impersonated Gordon Selsbury to gain access to his home and safe. Using detailed knowledge provided by his accomplice Heloise, who lured Gordon away, they entered the house during the night. The safe was opened by a skilled burglar, Mr. Stark, who was aided by the distraction caused by the impersonation. The real Gordon was confined and mistaken for the impostor until the truth was revealed by Inspector Carslake.",
+ "discriminating_test": {
+  "method": "constraint_proof",
+  "design": "A controlled watch is maintained over the house with Mr. Superbus and Diana present, all exits locked except a small casement window. The safe is secured with both combination and key. Any attempt to open the safe or leave the house triggers immediate response. The test observes who can access the safe and how the intruder enters or escapes.",
+  "knowledge_revealed": "This test reveals that the criminal must have inside knowledge of the safe and access to hidden doors, and that the real Gordon is confined and not the thief.",
+  "pass_condition": "The safe is opened only when the accomplice uses the key and combination, and the intruder escapes through the casement window, confirming the method of crime."
+ },
+ "changed": [],
+ "confidence": "high"
+}

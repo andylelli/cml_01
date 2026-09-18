@@ -1,0 +1,47 @@
+pattern_id: room_13
+title: The Secret Buffet
+family: spatial_routing
+axes:
+  - identity
+principle: >-
+  It conceals the culprit the victim role as the true murderer who manipulated the situation using
+  secret mechanisms and drugging, and who had stronger motives and opportunity.
+principleType: physical_law
+surface_illusion_template: >-
+  the investigator committed the murder of the victim.; a suspect a suspect was involved in the
+  murder and attempted to escape.; the culprit the victim was innocent and a victim of the attack.
+underlying_reality_template: >-
+  the culprit the victim orchestrated the murder of his father the victim during a staged dinner at
+  the Highlow Club. Using a secret mechanism hidden in the buffet, he controlled the environment and
+  drugged a suspect a suspect and the investigator to incapacitate them. The murder weapon, a poker,
+  was used in the struggle, and the crime scene was manipulated to mislead investigators. the
+  culprit then held Marney a suspect captive in Keytown Jail to leverage his position.
+feasibility:
+  eras:
+    - 1850
+    - 1860
+    - 1870
+    - 1880
+    - 1890
+    - 1900
+    - 1910
+    - 1920
+    - 1930
+    - 1940
+    - 1950
+  requires:
+    - hidden_mechanism
+    - drug_application
+    - controlled_lighting
+  forbids:
+    - cctv
+    - electronic_timekeeping
+clue_archetypes:
+  - inspector_flaherty_s_witness
+  - guest_book_records_of
+  - medical_report_on_jeff
+  - witness_testimony_of_jeff
+  - forensic_examination_of_poker
+  - witness_accounts_of_noises
+sources:
+  - Edgar Wallace, Room 13 — library/works/room_13/case.cml2.yaml

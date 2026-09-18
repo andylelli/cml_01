@@ -1,0 +1,488 @@
+{
+ "decade": "1920s",
+ "realism_constraints": [
+  "No advanced forensic DNA analysis available",
+  "Locked room mysteries rely on mechanical or physical tricks",
+  "Communication by telegram and telephone is common but limited"
+ ],
+ "location": "Corinth, a New England college town",
+ "institution": "University of Corinth and local police",
+ "crime_category": "murder",
+ "crime_subtype": "locked room mystery with disappearing weapon",
+ "cast": [
+  {
+   "name": "John Waring",
+   "age_range": "40-50",
+   "role_archetype": "distinguished scholar and president-elect",
+   "role": "victim",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "respected and liked college president-elect",
+   "private_secret": "had a secret daughter from a brief marriage",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "locked in study until death",
+   "access_plausibility": "n/a",
+   "stakes": "high - reputation and future of university",
+   "moral_complexity": "high - sacrifice to protect family and institution",
+   "relationships": [
+    "Emily Bates (fiancée)",
+    "Anita Austin (secret daughter)"
+   ],
+   "opportunity_channels": [
+    "study room with locked door"
+   ],
+   "behavioral_tells": [
+    "nervousness after broken teacup",
+    "reading Martial's Epigrams"
+   ],
+   "evidence_sensitivity": [
+    "blood-stained Martial book",
+    "missing weapon",
+    "locked study door"
+   ]
+  },
+  {
+   "name": "Anita Austin",
+   "age_range": "20-25",
+   "role_archetype": "mysterious young woman, secret daughter",
+   "role": "suspect",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "art student and boarder, aloof and secretive",
+   "private_secret": "daughter of John Waring, unaware of full family history",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "present at Adams boarding house, visited Waring study",
+   "access_plausibility": "allowed entry by Waring",
+   "stakes": "high - reputation and freedom",
+   "moral_complexity": "high - caught in family secrets and suspicion",
+   "relationships": [
+    "John Waring (father)",
+    "Gordon Lockwood (lover)",
+    "Maurice Trask (suitor)"
+   ],
+   "opportunity_channels": [
+    "French window entry to study"
+   ],
+   "behavioral_tells": [
+    "contradictory statements",
+    "emotional distress",
+    "burning papers"
+   ],
+   "evidence_sensitivity": [
+    "fingerprints on chair",
+    "possession of money and ruby pin",
+    "footprints in snow"
+   ]
+  },
+  {
+   "name": "Gordon Lockwood",
+   "age_range": "30-40",
+   "role_archetype": "loyal secretary and lover",
+   "role": "suspect",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "calm, impassive secretary",
+   "private_secret": "in love with Anita, willing to protect her",
+   "motive_seed": "financial troubles",
+   "motive_strength": "weak",
+   "alibi_window": "outside study until 11pm",
+   "access_plausibility": "had keys to study",
+   "stakes": "high - love and loyalty",
+   "moral_complexity": "moderate - conflicted between duty and love",
+   "relationships": [
+    "John Waring (employer)",
+    "Anita Austin (fiancee)",
+    "Maurice Trask (rival)"
+   ],
+   "opportunity_channels": [
+    "study room access"
+   ],
+   "behavioral_tells": [
+    "smoothing chair to erase marks",
+    "defensive demeanor"
+   ],
+   "evidence_sensitivity": [
+    "fingerprints on chair",
+    "possession of penholder",
+    "financial debts"
+   ]
+  },
+  {
+   "name": "Maurice Trask",
+   "age_range": "40-50",
+   "role_archetype": "distant cousin and heir",
+   "role": "suspect",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "eligible",
+   "public_persona": "self-made man, eager heir",
+   "private_secret": "knows Anita's secret and tries to manipulate her",
+   "motive_seed": "inheritance",
+   "motive_strength": "moderate",
+   "alibi_window": "present in town",
+   "access_plausibility": "possible visitor",
+   "stakes": "high - inheritance and social position",
+   "moral_complexity": "moderate - manipulative but not proven criminal",
+   "relationships": [
+    "John Waring (cousin)",
+    "Anita Austin (object of affection)"
+   ],
+   "opportunity_channels": [
+    "access to Waring household"
+   ],
+   "behavioral_tells": [
+    "pressure on Anita to marry him",
+    "threats to reveal secrets"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Mrs. Peyton",
+   "age_range": "50-60",
+   "role_archetype": "housekeeper with grudges",
+   "role": "witness",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "loyal housekeeper",
+   "private_secret": "resentful of impending dismissal",
+   "motive_seed": "loss of position",
+   "motive_strength": "weak",
+   "alibi_window": "in house",
+   "access_plausibility": "full access",
+   "stakes": "moderate - livelihood",
+   "moral_complexity": "low",
+   "relationships": [
+    "Helen Peyton (daughter)",
+    "John Waring (employer)"
+   ],
+   "opportunity_channels": [
+    "house access"
+   ],
+   "behavioral_tells": [
+    "emotional outbursts",
+    "hostility to Anita"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Helen Peyton",
+   "age_range": "18-20",
+   "role_archetype": "jealous daughter",
+   "role": "suspect",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "young woman with social ambitions",
+   "private_secret": "jealous of Anita",
+   "motive_seed": "envy",
+   "motive_strength": "weak",
+   "alibi_window": "in house",
+   "access_plausibility": "full access",
+   "stakes": "low",
+   "moral_complexity": "low",
+   "relationships": [
+    "Mrs. Peyton (mother)",
+    "John Waring (employer)"
+   ],
+   "opportunity_channels": [
+    "house access"
+   ],
+   "behavioral_tells": [
+    "spiteful remarks",
+    "jealousy"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Nogi",
+   "age_range": "20-30",
+   "role_archetype": "mysterious servant",
+   "role": "suspect",
+   "gender": "male",
+   "culpability": "unknown",
+   "culprit_eligibility": "eligible",
+   "public_persona": "new Japanese servant",
+   "private_secret": "disappeared after death",
+   "motive_seed": "unknown",
+   "motive_strength": "unknown",
+   "alibi_window": "absent after midnight",
+   "access_plausibility": "full access",
+   "stakes": "unknown",
+   "moral_complexity": "unknown",
+   "relationships": [
+    "Ito (butler)",
+    "John Waring (employer)"
+   ],
+   "opportunity_channels": [
+    "house access"
+   ],
+   "behavioral_tells": [
+    "stealthy manner",
+    "disappearance"
+   ],
+   "evidence_sensitivity": []
+  }
+ ],
+ "culprits": [],
+ "surface_summary": "John Waring, the president-elect of the University of Corinth, is found dead in his locked study with a stab wound and no weapon present. Suspicion falls on Anita Austin, a mysterious young woman with a secret connection to Waring, and others in the household, but the locked room and missing weapon puzzle investigators.",
+ "accepted_facts": [
+  "John Waring was found dead in his locked study with a stab wound.",
+  "No weapon was found at the scene.",
+  "Anita Austin was seen entering and leaving the study on the night of the death.",
+  "A large sum of money and a ruby pin belonging to Waring were found in Anita's possession."
+ ],
+ "inferred_conclusions": [
+  "Anita Austin murdered John Waring to gain his money and inheritance.",
+  "Nogi, the Japanese servant who disappeared, was involved in the murder and theft.",
+  "Gordon Lockwood, the secretary, erased evidence to protect Anita and is complicit."
+ ],
+ "mechanism_description": "John Waring committed suicide by stabbing himself with an icicle he broke off from the window. The icicle melted in the wound, leaving no weapon behind. He locked the study door after Anita Austin left, creating the appearance of a locked room mystery. His death was motivated by the burden of his secret past and the potential scandal affecting his family and the university.",
+ "delivery_path": [
+  "Waring opens the small rear window and breaks off a sharp icicle.",
+  "He returns to his desk and stabs himself in the jugular vein with the icicle.",
+  "The icicle melts in the wound, leaving no weapon behind.",
+  "Anita Austin visits Waring and leaves before the stabbing.",
+  "Waring closes and locks the study door from the inside.",
+  "Nogi, the servant, witnesses the death and flees in fear.",
+  "The locked room and missing weapon create the illusion of murder."
+ ],
+ "outcome_result": "The death is ruled a suicide by stabbing with a melting icicle, clearing Anita Austin of suspicion.",
+ "false_assumption": {
+  "statement": "The locked study room and missing weapon prove that John Waring was murdered.",
+  "type": "spatial",
+  "why_it_seems_reasonable": "The study was locked from the inside with no apparent secret exit, and no weapon was found, suggesting an impossible murder scenario. The presence of suspicious footprints and Anita Austin's possession of valuables further support the murder theory.",
+  "what_it_hides": "It hides the fact that Waring himself locked the door after committing suicide and that the weapon was an icicle that melted, leaving no trace."
+ },
+ "false_solution": {
+  "accused_suspect": "Anita Austin",
+  "supporting_points": [
+   "She was seen entering and leaving the study on the night of the death.",
+   "She possessed the missing money and ruby pin.",
+   "Her fingerprints and dress button imprints were found on the chair in the study.",
+   "She had a mysterious background and contradictory statements."
+  ],
+  "the_one_flaw": "The physical impossibility of entering or leaving the locked study without detection and the absence of a murder weapon.",
+  "refuted_in_chapter": 18
+ },
+ "red_herrings": [
+  {
+   "id": "nogi_disappearance",
+   "description": "Nogi, the Japanese servant, disappears after the death, suggesting guilt.",
+   "points_at_suspect": "Nogi",
+   "innocent_explanation": "Nogi fled in fear after witnessing Waring's sudden death and had no involvement in the crime.",
+   "resolved_in_chapter": 18
+  },
+  {
+   "id": "gordon_lockwood_suspicion",
+   "description": "Lockwood's smoothing of the chair and possession of a penholder matching the wound size raise suspicion.",
+   "points_at_suspect": "Gordon Lockwood",
+   "innocent_explanation": "Lockwood was erasing accidental evidence to protect Anita and had no motive or opportunity to commit murder.",
+   "resolved_in_chapter": 18
+  }
+ ],
+ "closed_circle": {
+  "suspects": [
+   "Anita Austin",
+   "Gordon Lockwood",
+   "Nogi",
+   "Maurice Trask",
+   "Helen Peyton",
+   "Mrs. Peyton"
+  ],
+  "rationale": "All had access to the study or motive, but the locked room and missing weapon limited the possibilities to those inside the household."
+ },
+ "constraint_space": {
+  "time_anchors": [
+   "Sunday night to Monday morning",
+   "Locking of study door at about 10 PM",
+   "Last sighting of Waring alive before midnight"
+  ],
+  "time_windows": [
+   "Lockwood outside study until 11 PM",
+   "Nogi disappears after midnight"
+  ],
+  "access_actors": [
+   "John Waring",
+   "Anita Austin",
+   "Gordon Lockwood",
+   "Nogi"
+  ],
+  "access_objects": [
+   "study door",
+   "French window",
+   "small stained glass windows"
+  ],
+  "trust_channels": [
+   "Lockwood's testimony",
+   "Mrs. Peyton's observations",
+   "Old Salt Adams' support"
+  ],
+  "authority_sources": [
+   "Detective Morton",
+   "Medical Examiner Marsh",
+   "Doctor Greenfield",
+   "District Attorney Cray",
+   "Detective Fleming Stone"
+  ]
+ },
+ "inference_path": [
+  {
+   "observation": "The study door was locked from the inside with no secret passage found.",
+   "correction": "Waring locked the door himself after the fatal act.",
+   "effect": "Eliminates possibility of murderer entering or leaving after the stabbing.",
+   "required_evidence": [
+    "Photographs of the study showing no secret exits",
+    "Statements from Mrs. Peyton and Ito about door locking"
+   ]
+  },
+  {
+   "observation": "No murder weapon was found despite a stab wound.",
+   "correction": "The weapon was an icicle that melted in the wound.",
+   "effect": "Explains absence of weapon and supports suicide theory.",
+   "required_evidence": [
+    "Nogi's testimony about Waring opening the window",
+    "Photograph of icicles on the window with one missing"
+   ]
+  },
+  {
+   "observation": "Anita Austin possessed Waring's money and ruby pin.",
+   "correction": "Waring gave these to Anita as gifts during her visit.",
+   "effect": "Removes motive of theft or murder from Anita.",
+   "required_evidence": [
+    "Anita's testimony about receiving gifts",
+    "Check stub for $10,000 dated on day of death"
+   ]
+  },
+  {
+   "observation": "Fingerprints and dress button imprints found on chair in study.",
+   "correction": "Anita visited the study and sat in the chair before the death.",
+   "effect": "Confirms Anita's presence but not guilt.",
+   "required_evidence": [
+    "Fingerprint analysis report",
+    "Helen Peyton's testimony about dress button pattern"
+   ]
+  },
+  {
+   "observation": "Nogi disappeared after the death.",
+   "correction": "Nogi fled in fear after witnessing the death, not as a murderer.",
+   "effect": "Removes Nogi as a suspect.",
+   "required_evidence": [
+    "Saltonstall Adams' witness statement of Nogi leaving on milk train",
+    "Nogi's own testimony after being found"
+   ]
+  },
+  {
+   "observation": "Lockwood smoothed the chair back after body was found.",
+   "correction": "Lockwood erased incriminating marks to protect Anita.",
+   "effect": "Shows Lockwood's loyalty, not guilt.",
+   "required_evidence": [
+    "Ito and Mrs. Peyton's witness statements",
+    "Lockwood's own admission and behavior"
+   ]
+  },
+  {
+   "observation": "A red circular mark was found on Waring's forehead.",
+   "correction": "Waring rested his head on the telephone transmitter before death.",
+   "effect": "Explains the mark as accidental, not a sign of murder.",
+   "required_evidence": [
+    "Medical Examiner's report on mark",
+    "Fibsy's observation of red ring on his own forehead"
+   ]
+  }
+ ],
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "The Japanese servant Nogi reenacts his movements on the night of the death, including taking the water tray and peeping through the small window. Fibsy McGuire tests the hypothesis by examining the icicles on the window and the locking mechanism. The reenactment confirms that Waring could have broken an icicle and stabbed himself, then locked the door.",
+  "knowledge_revealed": "The test reveals the actual mechanism of death as suicide by stabbing with an icicle and explains the locked room and missing weapon.",
+  "pass_condition": "The reenactment must show that Waring could stab himself with an icicle and lock the door from inside without assistance."
+ },
+ "fair_play_explanation": "The reader is given all necessary clues: the locked study with no secret passage, the missing weapon, the presence of Anita Austin and her possession of valuables, the footprints in the snow, and the blood-stained book of Martial. The Latin epigram and the missing icicle are described and can be connected logically. The behavior of characters and the physical evidence allow deduction of the suicide mechanism.",
+ "anchors": [
+  {
+   "claim": "John Waring was found dead in his study with a stab wound",
+   "anchor": "Doctor Waring—as you see him now"
+  },
+  {
+   "claim": "The study door was locked from the inside",
+   "anchor": "The study door is locked"
+  },
+  {
+   "claim": "No weapon was found at the scene",
+   "anchor": "No weapon about"
+  },
+  {
+   "claim": "Anita Austin possessed money and a ruby pin belonging to Waring",
+   "anchor": "roll of bills—exactly one hundred dollars worth"
+  },
+  {
+   "claim": "Anita Austin's fingerprints and dress button imprints were found on a chair in the study",
+   "anchor": "finger prints on the chair"
+  },
+  {
+   "claim": "Nogi, the Japanese servant, disappeared after the death",
+   "anchor": "Nogi is gone"
+  },
+  {
+   "claim": "Lockwood smoothed the chair back to erase incriminating marks",
+   "anchor": "carefully smoothing the plush of the little chair"
+  },
+  {
+   "claim": "A red circular mark was found on Waring's forehead",
+   "anchor": "There was a red circle on Waring’s forehead"
+  },
+  {
+   "claim": "Waring opened the small window and put his hand out",
+   "anchor": "he opened it. But for a moment—Did he put his hand out?"
+  },
+  {
+   "claim": "The missing icicle was the murder weapon that melted",
+   "anchor": "the fringe of icicles that hung from that particular window sash showed one missing"
+  },
+  {
+   "claim": "Waring stabbed himself with the icicle",
+   "anchor": "he decided to stab himself with an icicle, and he did"
+  },
+  {
+   "claim": "The Latin epigram describes a death by falling ice",
+   "anchor": "Book IV, Epigram 18"
+  },
+  {
+   "claim": "Anita Austin is John Waring’s secret daughter",
+   "anchor": "Doctor John Waring was my father"
+  },
+  {
+   "claim": "Waring gave Anita money and a ruby pin as gifts",
+   "anchor": "He gave me the money, for he was afraid I hadn’t sufficient cash"
+  },
+  {
+   "claim": "Waring locked the study door after Anita left",
+   "anchor": "he softly opened the glass door for me. I went away and he closed the door"
+  },
+  {
+   "claim": "Nogi witnessed the death and fled",
+   "anchor": "I was afraid, and I ran away—fast"
+  },
+  {
+   "claim": "Lockwood loved Anita and tried to protect her",
+   "anchor": "I love you, I believe in you and I want you"
+  },
+  {
+   "claim": "Maurice Trask tried to manipulate Anita with threats and proposals",
+   "anchor": "Marry me, and I’ll clear you of all suspicion"
+  },
+  {
+   "claim": "The red ring mark was caused by resting on the telephone",
+   "anchor": "he rested his head on the instrument"
+  },
+  {
+   "claim": "The case was solved by reenactment and examination of the icicle",
+   "anchor": "Nogi was made to imitate the movements he saw Doctor Waring make"
+  }
+ ]
+}

@@ -1,5 +1,5 @@
 pattern_id: a_jury_of_her_peers
-title: The Trifling Clues
+title: The Trifling Motive
 family: spatial_routing
 axes:
   - behavioral
@@ -31,10 +31,9 @@ feasibility:
     - 1950
   requires:
     - domestic_detail
-    - gendered_expectation
+    - social_role_blindness
   forbids:
     - cctv
-    - forensic_document_dating
 clue_archetypes:
   - the_bucket_of_sugar
   - the_dish_towel_on

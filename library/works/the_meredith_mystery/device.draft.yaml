@@ -1,0 +1,48 @@
+pattern_id: the_meredith_mystery
+title: The Framed Evidence
+family: spatial_routing
+axes:
+  - identity
+principle: >-
+  The evidence was planted or misinterpreted; the hair color discrepancy and the accidental wound by
+  Mrs. a suspect were overlooked, and the culprit role as the actual murderer was concealed.
+principleType: cognitive_bias
+surface_illusion_template: >-
+  the victim killed her uncle to avoid marriage and inherit the fortune; The missing documents were
+  stolen by the victim to secure her inheritance; The murder weapon was dropped by the victim and
+  found in the wrong place
+underlying_reality_template: >-
+  the culprit, knowing the victim had two wounds, stabbed John the victim after Mrs. a suspect
+  accidentally inflicted a superficial wound. the culprit chloroformed the victim to prevent her
+  interference, stole the key to the victim's secret safe, and attempted to implicate the victim by
+  planting evidence. Mrs. a suspect wound was accidental and non-fatal, while the culprit attack was
+  the actual cause of death.
+feasibility:
+  eras:
+    - 1850
+    - 1860
+    - 1870
+    - 1880
+    - 1890
+    - 1900
+    - 1910
+    - 1920
+    - 1930
+    - 1940
+    - 1950
+  requires:
+    - physical_evidence_manipulation
+    - access_to_victim
+    - social_distraction
+  forbids:
+    - cctv
+    - modern_toxicology_screen
+clue_archetypes:
+  - inspector_mitchell_s_statement
+  - physical_sample_of_chestnut
+  - inventory_sheet_with_notation
+  - hollister_s_testimony_about
+  - inspector_mitchell_s_reenactment
+  - location_of_scalpel_in
+sources:
+  - Natalie Sumner Lincoln, The Meredith Mystery — library/works/the_meredith_mystery/case.cml2.yaml

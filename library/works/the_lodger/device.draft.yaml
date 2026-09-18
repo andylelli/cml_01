@@ -1,6 +1,6 @@
 pattern_id: the_lodger
 title: The Composite Phantom
-family: timing
+family: identity
 axes:
   - identity
 principle: >-
@@ -31,7 +31,7 @@ feasibility:
     - 1950
   requires:
     - social_deference
-    - witness_statement_collection
+    - physical_disguise
   forbids:
     - cctv
     - voice_authentication

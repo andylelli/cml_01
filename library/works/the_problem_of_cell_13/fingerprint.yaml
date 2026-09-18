@@ -2,9 +2,9 @@
   corpus: seed
   axis: behavioral
   mechanism_family: hidden_accomplice
-  false_assumption_pattern: the_escape_was_solo_and_self_devised
+  false_assumption_pattern: the_prisoner_had_no_outside_help
   discriminating_test_shape: reconstruction
-  inference_shape: trace_physical_aid_and_collusion
+  inference_shape: trace_hidden_communication_path
   premise: >-
     The cases appear as baffling mysteries involving locked cells, gas poisoning, missing persons,
     haunted houses, bank robberies, and attempted murders. Each case presents seemingly impossible

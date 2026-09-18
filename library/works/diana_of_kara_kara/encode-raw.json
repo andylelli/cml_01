@@ -1,0 +1,503 @@
+{
+ "decade": "1920s",
+ "realism_constraints": [
+  "No modern forensic DNA analysis or electronic surveillance",
+  "Travel by train and ship is common and takes hours or days",
+  "Communication relies on telegrams, letters, and telephone with limited privacy"
+ ],
+ "location": "London, England, specifically Cheynel Gardens",
+ "institution": "Scotland Yard",
+ "crime_category": "theft",
+ "crime_subtype": "impersonation and safe robbery",
+ "cast": [
+  {
+   "name": "Diana Ford",
+   "age_range": "20s",
+   "role_archetype": "resourceful young woman with a strong will",
+   "role": "witness",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "orphan heiress managing her affairs",
+   "private_secret": "has complex relationships with several men",
+   "motive_seed": "protect her cousin and herself from imposters",
+   "motive_strength": "strong",
+   "alibi_window": "present in the house during the crime",
+   "access_plausibility": "high",
+   "stakes": "high personal and financial stakes",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Gordon Selsbury (cousin)",
+    "Guiseppi Dempsi (old lover)",
+    "Bobbie Selsbury (family friend)",
+    "Heloise van Oynne (antagonist)"
+   ],
+   "opportunity_channels": [
+    "household management",
+    "interaction with suspects"
+   ],
+   "behavioral_tells": [
+    "assertive",
+    "strategic",
+    "skeptical"
+   ],
+   "evidence_sensitivity": [
+    "knowledge of safe combination",
+    "observations of imposters"
+   ]
+  },
+  {
+   "name": "Gordon Selsbury",
+   "age_range": "40s",
+   "role_archetype": "intellectual bachelor, victim of impersonation",
+   "role": "victim",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "respectable insurance broker",
+   "private_secret": "suffers from delusions, believes himself to be 'Uncle Isaac'",
+   "motive_seed": "victim of Double Dan's impersonation and theft",
+   "motive_strength": "none",
+   "alibi_window": "absent from house during key events",
+   "access_plausibility": "high",
+   "stakes": "high financial loss and reputation damage",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Diana Ford (cousin)",
+    "Bobbie Selsbury (brother)",
+    "Heloise van Oynne (antagonist)"
+   ],
+   "opportunity_channels": [
+    "household access",
+    "safe access"
+   ],
+   "behavioral_tells": [
+    "confused",
+    "submissive under pressure"
+   ],
+   "evidence_sensitivity": [
+    "safe combination knowledge",
+    "presence in house"
+   ]
+  },
+  {
+   "name": "Bobbie Selsbury",
+   "age_range": "30s",
+   "role_archetype": "pragmatic brother and investigator",
+   "role": "suspect",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "tea broker, practical man",
+   "private_secret": "skeptical of Gordon's behavior",
+   "motive_seed": "concerned for family and financial matters",
+   "motive_strength": "weak",
+   "alibi_window": "present in London during events",
+   "access_plausibility": "high",
+   "stakes": "moderate family loyalty",
+   "moral_complexity": "low",
+   "relationships": [
+    "Gordon Selsbury (brother)",
+    "Diana Ford (family friend)"
+   ],
+   "opportunity_channels": [
+    "household access",
+    "financial dealings"
+   ],
+   "behavioral_tells": [
+    "cynical",
+    "pragmatic"
+   ],
+   "evidence_sensitivity": [
+    "knowledge of family affairs"
+   ]
+  },
+  {
+   "name": "Mr. Julius Superbus",
+   "age_range": "50s-60s",
+   "role_archetype": "amateur detective, comic relief",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "detective with theatrical manner",
+   "private_secret": "has a history as a court bailiff",
+   "motive_seed": "protect the household from Double Dan",
+   "motive_strength": "strong",
+   "alibi_window": "present in house during crime",
+   "access_plausibility": "high",
+   "stakes": "professional pride",
+   "moral_complexity": "low",
+   "relationships": [
+    "Diana Ford (employer)",
+    "Gordon Selsbury (subject)"
+   ],
+   "opportunity_channels": [
+    "household surveillance"
+   ],
+   "behavioral_tells": [
+    "naive",
+    "loyal"
+   ],
+   "evidence_sensitivity": [
+    "presence during crime",
+    "injury from shooting"
+   ]
+  },
+  {
+   "name": "Guiseppi Dempsi (Double Dan)",
+   "age_range": "30s-40s",
+   "role_archetype": "criminal mastermind, impostor",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "old lover of Diana, charming but dangerous",
+   "private_secret": "Double Dan, professional impersonator and thief",
+   "motive_seed": "financial gain through impersonation and theft",
+   "motive_strength": "strong",
+   "alibi_window": "present in house during crime",
+   "access_plausibility": "high",
+   "stakes": "high personal gain",
+   "moral_complexity": "high",
+   "relationships": [
+    "Diana Ford (former lover)",
+    "Heloise van Oynne (partner)"
+   ],
+   "opportunity_channels": [
+    "impersonation",
+    "safe access"
+   ],
+   "behavioral_tells": [
+    "manipulative",
+    "deceptive"
+   ],
+   "evidence_sensitivity": [
+    "injury from shooting",
+    "presence at crime scene"
+   ]
+  },
+  {
+   "name": "Heloise van Oynne (Sally Chowster)",
+   "age_range": "30s",
+   "role_archetype": "accomplice, conflicted woman",
+   "role": "culprit",
+   "gender": "female",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "refined woman, companion to Diana",
+   "private_secret": "partner and decoy for Double Dan",
+   "motive_seed": "financial gain and coercion",
+   "motive_strength": "strong",
+   "alibi_window": "present in house during crime",
+   "access_plausibility": "high",
+   "stakes": "high personal risk",
+   "moral_complexity": "high",
+   "relationships": [
+    "Guiseppi Dempsi (partner)",
+    "Diana Ford (host)"
+   ],
+   "opportunity_channels": [
+    "decoying victims",
+    "information gathering"
+   ],
+   "behavioral_tells": [
+    "nervous",
+    "manipulative"
+   ],
+   "evidence_sensitivity": [
+    "presence at crime scene",
+    "attempted escape"
+   ]
+  },
+  {
+   "name": "Mr. Stark",
+   "age_range": "40s-50s",
+   "role_archetype": "window cleaner, unwitting accomplice",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "window cleaner",
+   "private_secret": "former lock-maker, skilled safe opener",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "present during attempted burglary",
+   "access_plausibility": "high",
+   "stakes": "low",
+   "moral_complexity": "low",
+   "relationships": [
+    "Diana Ford (employer)"
+   ],
+   "opportunity_channels": [
+    "access to house via windows"
+   ],
+   "behavioral_tells": [
+    "nervous",
+    "cooperative"
+   ],
+   "evidence_sensitivity": [
+    "presence at crime scene",
+    "safe opening tools"
+   ]
+  }
+ ],
+ "culprits": [
+  "Guiseppi Dempsi (Double Dan)",
+  "Heloise van Oynne (Sally Chowster)"
+ ],
+ "surface_summary": "A man named Gordon Selsbury is impersonated by a criminal known as Double Dan, who, with the help of a female accomplice, attempts to rob him by accessing his safe. The household is thrown into confusion as imposters take over, and the real Gordon is mistaken for the criminal. The detective Mr. Superbus is hired to watch over the house, but a shooting incident occurs during the attempted robbery.",
+ "accepted_facts": [
+  "Gordon Selsbury is absent from his home for a week",
+  "There is fifty thousand dollars in the safe at 61 Cheynel Gardens",
+  "Double Dan is a master impersonator who targets brokers",
+  "The safe was opened during the night by an intruder"
+ ],
+ "inferred_conclusions": [
+  "Gordon Selsbury himself is the criminal Double Dan",
+  "The accomplice Heloise van Oynne is innocent and a victim",
+  "The intruder escaped through the front door"
+ ],
+ "mechanism_description": "Double Dan impersonated Gordon Selsbury to gain access to his home and safe. Using detailed knowledge provided by his accomplice Heloise, who lured Gordon away, they entered the house during the night. The safe was opened by a skilled burglar, Mr. Stark, who was aided by the distraction caused by the impersonation. The real Gordon was confined and mistaken for the impostor until the truth was revealed by Inspector Carslake.",
+ "delivery_path": [
+  "Heloise lures Gordon away from the house under false pretenses",
+  "Double Dan, disguised as Gordon, enters the house through the garden gate",
+  "The real Gordon is confined and made to impersonate 'Uncle Isaac' to avoid suspicion",
+  "Mr. Stark, the burglar, opens the safe using the combination and key information",
+  "Double Dan and Heloise take the money from the safe",
+  "Mr. Superbus attempts to intervene but is shot in the toe by Dempsi",
+  "Inspector Carslake arrives and arrests Double Dan"
+ ],
+ "outcome_result": "Double Dan (Guiseppi Dempsi) and his accomplice Heloise van Oynne are exposed and arrested, while the real Gordon Selsbury is freed and the stolen money recovered.",
+ "false_assumption": {
+  "statement": "Gordon Selsbury is the criminal Double Dan impersonating himself.",
+  "type": "identity",
+  "why_it_seems_reasonable": "Gordon's strange behavior, delusions, and the presence of a man acting as 'Uncle Isaac' create confusion about his identity. The impostor's perfect mimicry and the real Gordon's odd conduct make the assumption plausible.",
+  "what_it_hides": "It conceals the fact that the real Gordon is a victim suffering from delusions and that the true criminal is Guiseppi Dempsi, who uses impersonation as a cover for theft."
+ },
+ "false_solution": {
+  "accused_suspect": "Gordon Selsbury",
+  "supporting_points": [
+   "Gordon's erratic behavior and delusions",
+   "His presence in the house during the crime",
+   "His inability to convincingly deny being Double Dan",
+   "The circumstantial evidence of his changed appearance"
+  ],
+  "the_one_flaw": "Gordon lacks the criminal intent and opportunity; the real Double Dan is another man impersonating him.",
+  "refuted_in_chapter": 25
+ },
+ "red_herrings": [
+  {
+   "id": "uncle_isaac_delusion",
+   "description": "Gordon Selsbury believes himself to be 'Uncle Isaac' and behaves erratically, suggesting mental instability.",
+   "points_at_suspect": "Gordon Selsbury",
+   "innocent_explanation": "Gordon is suffering from delusions and is a victim of the impersonation scheme.",
+   "resolved_in_chapter": 24
+  },
+  {
+   "id": "heloise_van_oynne_loyalty",
+   "description": "Heloise van Oynne appears to be a refined companion but is suspected of being involved in the crime.",
+   "points_at_suspect": "Heloise van Oynne",
+   "innocent_explanation": "She is coerced and conflicted, showing moments of genuine distress and loyalty to Diana.",
+   "resolved_in_chapter": 27
+  }
+ ],
+ "closed_circle": {
+  "suspects": [
+   "Gordon Selsbury",
+   "Guiseppi Dempsi (Double Dan)",
+   "Heloise van Oynne (Sally Chowster)",
+   "Bobbie Selsbury",
+   "Mr. Julius Superbus",
+   "Mr. Stark"
+  ],
+  "rationale": "All suspects have access to the house and knowledge of the safe; the crime could only have been committed by someone within this group."
+ },
+ "constraint_space": {
+  "time_anchors": [
+   "Gordon's absence for a week",
+   "The night of the safe robbery",
+   "Telegram timestamps from Gordon's journey"
+  ],
+  "time_windows": [
+   "Nighttime hours when the safe was opened",
+   "Daytime hours when Gordon was away"
+  ],
+  "access_actors": [
+   "Gordon Selsbury",
+   "Guiseppi Dempsi",
+   "Heloise van Oynne",
+   "Mr. Stark",
+   "Mr. Julius Superbus"
+  ],
+  "access_objects": [
+   "Safe at 61 Cheynel Gardens",
+   "Garden gate and side door",
+   "Pass-key to the study door"
+  ],
+  "trust_channels": [
+   "Diana's trust in Gordon",
+   "Heloise's role as decoy",
+   "Mr. Superbus's surveillance"
+  ],
+  "authority_sources": [
+   "Inspector Carslake of Scotland Yard",
+   "Mr. Collings and Mr. Cathcart (lawyers)",
+   "Mr. Superbus (detective)"
+  ]
+ },
+ "inference_path": [
+  {
+   "observation": "Gordon is absent from the house for a week and sends telegrams from various stations.",
+   "correction": "Gordon is genuinely traveling and not impersonating anyone.",
+   "effect": "Eliminates Gordon as the criminal during the time of the theft.",
+   "required_evidence": [
+    "Telegram dated 'Just leaving Euston. Take care of yourself. Gordon.'",
+    "Bobbie Selsbury's witness statement about Gordon's absence"
+   ]
+  },
+  {
+   "observation": "A man resembling Gordon appears in the house wearing a loud suit and behaving oddly.",
+   "correction": "This man is an imposter, Double Dan, not the real Gordon.",
+   "effect": "Identifies the presence of an impersonator in the house.",
+   "required_evidence": [
+    "Diana Ford's eyewitness account of the man claiming to be Gordon",
+    "Mr. Superbus's surveillance notes"
+   ]
+  },
+  {
+   "observation": "The safe is found open with money missing, but the door is locked and bolted.",
+   "correction": "The intruder used a hidden door and had knowledge of the safe's combination and key.",
+   "effect": "Shows the method of entry and theft was sophisticated and planned.",
+   "required_evidence": [
+    "Inspection of the small door behind the curtain leading to the courtyard",
+    "Safe lock mechanism and key found by Diana"
+   ]
+  },
+  {
+   "observation": "Mr. Stark, a window cleaner and former lock-maker, is caught opening the safe.",
+   "correction": "He is an accomplice hired by Double Dan to open the safe.",
+   "effect": "Reveals the role of a skilled burglar in the crime.",
+   "required_evidence": [
+    "Mr. Stark's confession and tools found",
+    "Marks on the safe door and window"
+   ]
+  },
+  {
+   "observation": "Mr. Superbus is shot in the toe during a struggle in the house.",
+   "correction": "The shooting was accidental during the confrontation with Dempsi (Double Dan).",
+   "effect": "Confirms the presence of the criminal and his accomplice in the house.",
+   "required_evidence": [
+    "Medical report of Mr. Superbus's injury",
+    "Witness accounts of the shooting incident"
+   ]
+  },
+  {
+   "observation": "Inspector Carslake arrives and arrests Guiseppi Dempsi as Double Dan.",
+   "correction": "Dempsi is the real Double Dan and the mastermind behind the impersonation and theft.",
+   "effect": "Identifies the true culprit and resolves the case.",
+   "required_evidence": [
+    "Inspector Carslake's arrest report",
+    "Confession and identification of Dempsi"
+   ]
+  },
+  {
+   "observation": "Heloise van Oynne is arrested as an accomplice but has fled.",
+   "correction": "She was the decoy and partner in crime with Dempsi.",
+   "effect": "Completes the identification of the criminal team.",
+   "required_evidence": [
+    "Police records of Heloise's arrest warrant",
+    "Statements linking her to Dempsi and the crime"
+   ]
+  }
+ ],
+ "discriminating_test": {
+  "method": "constraint_proof",
+  "design": "A controlled watch is maintained over the house with Mr. Superbus and Diana present, all exits locked except a small casement window. The safe is secured with both combination and key. Any attempt to open the safe or leave the house triggers immediate response. The test observes who can access the safe and how the intruder enters or escapes.",
+  "knowledge_revealed": "This test reveals that the criminal must have inside knowledge of the safe and access to hidden doors, and that the real Gordon is confined and not the thief.",
+  "pass_condition": "The safe is opened only when the accomplice uses the key and combination, and the intruder escapes through the casement window, confirming the method of crime."
+ },
+ "fair_play_explanation": "The reader is given detailed descriptions of the characters, their movements, and the timing of events, including telegrams and witness statements. The presence of the impostor and his accomplice is foreshadowed through their interactions and the suspicious behavior of Heloise. The locked doors, safe mechanisms, and the presence of the detective provide clues to the method of entry and theft. The false assumption about Gordon's identity is challenged by the timeline and alibis, allowing a careful reader to deduce the true mechanism.",
+ "anchors": [
+  {
+   "claim": "Diana Ford is an orphan with a large bank balance",
+   "anchor": "She is an orphan"
+  },
+  {
+   "claim": "Gordon Selsbury is a bachelor insurance broker",
+   "anchor": "Mr. Gordon Selsbury had at moments serious but comfortable doubts"
+  },
+  {
+   "claim": "Mr. Julius Superbus is a detective hired to watch for Double Dan",
+   "anchor": "He was officially styled “First Enquiry Clerk.”"
+  },
+  {
+   "claim": "Double Dan is a master impersonator who robs brokers",
+   "anchor": "He can make himself fat, he can make himself thin; he can impersonate"
+  },
+  {
+   "claim": "The safe at 61 Cheynel Gardens contains fifty thousand dollars",
+   "anchor": "There is fifty thousand dollars in the safe"
+  },
+  {
+   "claim": "Gordon Selsbury suffers from delusions and believes himself 'Uncle Isaac'",
+   "anchor": "Gordon was in his shirt sleeves, a baize apron covering his detestable suit"
+  },
+  {
+   "claim": "Heloise van Oynne is the accomplice and decoy for Double Dan",
+   "anchor": "She is a partner and decoy for Double Dan"
+  },
+  {
+   "claim": "Mr. Stark is a window cleaner and skilled safe opener",
+   "anchor": "Stark’s my name--I’m not giving any trouble"
+  },
+  {
+   "claim": "Mr. Superbus is shot in the toe during the struggle",
+   "anchor": "Dempsi had been completely subdued ever since. Not once had he described her as his angel"
+  },
+  {
+   "claim": "Inspector Carslake arrests Guiseppi Dempsi as Double Dan",
+   "anchor": "Inspector Carslake from Scotland Yard"
+  },
+  {
+   "claim": "The safe was opened using both combination and key",
+   "anchor": "The combination is ‘Telma’"
+  },
+  {
+   "claim": "The intruder escaped through the casement window",
+   "anchor": "The casement opened. A long pause, in which the newcomer was invisible"
+  },
+  {
+   "claim": "Diana Ford locks Dempsi in a room for his protection",
+   "anchor": "She heard his door close, went silently up the stairs and slipped a key into the lock"
+  },
+  {
+   "claim": "Double Dan and Heloise quarrel over the stolen money",
+   "anchor": "We’ll have to share. The old terms, mind--none of your fifty-fifty stuff"
+  },
+  {
+   "claim": "Gordon Selsbury returns from his journey and is mistaken for Double Dan",
+   "anchor": "Gordon and Miss Ford are engaged"
+  },
+  {
+   "claim": "Heloise van Oynne is arrested but escapes",
+   "anchor": "Inspector called at 61 Cheynel Gardens to arrest and detain one Sarah Chowster"
+  },
+  {
+   "claim": "The shooting incident causes Mr. Superbus to lose a toe",
+   "anchor": "Ten little toes had Mr. Superbus brought to 61 Cheynel Gardens"
+  },
+  {
+   "claim": "The real Guiseppi Dempsi is a clergyman and old lover of Diana",
+   "anchor": "Father Guiseppi Dempsi, Vicar of Banhurst"
+  },
+  {
+   "claim": "The impostor is Guiseppi Dempsi aka Double Dan",
+   "anchor": "That noble brow and those sparkling eyes belong to an old friend of mine, Dan Throgood, yclept Double Dan"
+  },
+  {
+   "claim": "The crime is solved by combining witness statements and physical evidence",
+   "anchor": "The broken door of the safe"
+  }
+ ]
+}

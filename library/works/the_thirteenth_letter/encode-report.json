@@ -1,0 +1,134 @@
+{
+ "slug": "the_thirteenth_letter",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Paul Abbott was stabbed in the back with a nut pick",
+   "anchor": "Paul Abbott was stabbed in the back",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Miriam Ward was chloroformed and unconscious during the murder",
+   "anchor": "you, a trained nurse, are unaware that you were chloroformed",
+   "span": "how comes it that you, a trained nurse, are unaware that you were chloroformed?",
+   "ok": true
+  },
+  {
+   "claim": "Betty Carter denied being at Abbott's Lodge on the night of the murder",
+   "anchor": "I was not here last night",
+   "span": "I was not here last night.",
+   "ok": true
+  },
+  {
+   "claim": "Alan Mason impersonated Paul Abbott by wearing a beard",
+   "anchor": "I climbed into the empty bed, to avoid being seen",
+   "span": "When they came closer I climbed into the empty bed, to avoid being seen, and pulled the bedclothes up over me.",
+   "ok": true
+  },
+  {
+   "claim": "Doctor Roberts was the murderer",
+   "anchor": "Doctor Roberts murdered Paul Abbott",
+   "span": "Doctor Roberts murdered Paul Abbott,\" stated Trenholm, and his announcement created a profound sensation.",
+   "ok": true
+  },
+  {
+   "claim": "The murder weapon was a nut pick",
+   "anchor": "the wound was spindle-shaped",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The coded letters contained a stamp code revealing the hiding place of the diamond",
+   "anchor": "the peculiar use of five one-cent Canadian stamps",
+   "span": "tucked under the upholstery and the seat cushion where it evidently had fallen; and she suspected that a code was concealed in the peculiar use of five one-cent Canadian stamps, in place of the regular three-cent postage, on thirteen letters.",
+   "ok": true
+  },
+  {
+   "claim": "The thirteenth letter of the alphabet 'M' is the key to the code",
+   "anchor": "Watch thirteenth letter suicides grave",
+   "span": "And the completed message then stands--'Watch thirteenth letter suicides grave,'\" repeated Miriam.",
+   "ok": true
+  },
+  {
+   "claim": "The Paltoff diamond was hidden inside an antique watch",
+   "anchor": "the antique watch... wad of cotton... lost jewel",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Doctor Roberts chloroformed Miriam Ward to cover his crime",
+   "anchor": "I was lying near the bed unconscious, having been chloroformed",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Betty Carter married Paul Abbott under false pretenses",
+   "anchor": "I flatly contradicted your statement that I was here in this room",
+   "span": "It was before him that I flatly contradicted your statement that I was here in this room with Paul on Monday night.",
+   "ok": true
+  },
+  {
+   "claim": "Alan Mason loved Betty Carter and was not the murderer",
+   "anchor": "I knew that you were here on Monday night, and then you denied your visit",
+   "span": "I knew that you were here on Monday night, and then you denied your visit.",
+   "ok": true
+  },
+  {
+   "claim": "Corbin was bribed to conceal evidence",
+   "anchor": "I gave the bloodstained sheet to Sheriff Trenholm",
+   "span": "I gave the bloodstained sheet to Sheriff Trenholm,\" he whispered.",
+   "ok": true
+  },
+  {
+   "claim": "The thirteenth letter envelope was used as bait in a trap",
+   "anchor": "I arranged to have the room vacated for an hour or two",
+   "span": "I arranged to have the room vacated for an hour or two.",
+   "ok": true
+  },
+  {
+   "claim": "Doctor Roberts confessed to the murder",
+   "anchor": "After I left Abbott's Lodge I motored to Upper Marlboro",
+   "span": "After I left Abbott's Lodge I motored to Upper Marlboro, deciding, as it was such a bad night, that I would remain at the hotel.",
+   "ok": true
+  },
+  {
+   "claim": "The coded letters warned the murderer about the diamond's hiding place",
+   "anchor": "Let him who hopes to solve the mystery of Paul Abbott's death find the lost Paltoff jewel",
+   "span": "The few lines it bore were unsigned and in an unknown handwriting: Let him who hopes to solve the mystery of Paul Abbott's death find the lost Paltoff jewel.",
+   "ok": true
+  },
+  {
+   "claim": "The nurse found a strange man in the bed instead of Paul Abbott",
+   "anchor": "I put down the lamp and looked down--a strange man lay in the bed",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The will revoked Betty Carter's inheritance if she remarried",
+   "anchor": "Should Miss Carter marry after my death, my special bequest to her stands revoked",
+   "span": "Should Miss Carter marry after my death, my special bequest to her stands revoked, and Alan Mason will become my residuary legatee, provided he is married before my death.",
+   "ok": true
+  },
+  {
+   "claim": "The suicide's grave is the thirteenth grave in the Mason family cemetery",
+   "anchor": "Thirteen graves... suicide's grave",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The murderer tried to steal the thirteenth letter envelope",
+   "anchor": "I arrest you for the murder of Paul Abbott",
+   "span": "In the name of the law I arrest you for the murder of Paul Abbott\"--Trenholm's voice died away at sight of the distorted, ghastly face confronting him, then rose in horror--\"Doctor Roberts.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.08885643895,
+ "models": {
+  "map": "gpt-4o-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true
+}

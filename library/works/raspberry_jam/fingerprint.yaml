@@ -1,0 +1,12 @@
+- id: raspberry_jam
+  corpus: seed
+  axis: behavioral
+  mechanism_family: locked_room_key
+  false_assumption_pattern: locked_room_means_no_entry
+  discriminating_test_shape: timetable_contradiction
+  inference_shape: reframe_access_at_discovery
+  premise: >-
+    Sanford Embury is found mysteriously dead in his locked bedroom with no apparent cause.
+    Suspicion falls on his wife Eunice due to marital tensions and the presence of a poison dropper
+    in her bathroom.
+  source: library/works/raspberry_jam/case.cml2.yaml

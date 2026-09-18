@@ -1,0 +1,20 @@
+{
+ "false_assumption": {
+  "statement": "Uncle Rufus is alive and ill in his room.",
+  "type": "identity",
+  "why_it_seems_reasonable": "Family members and staff report seeing Uncle Rufus in his room, and his illness is used to explain his absence and erratic behavior.",
+  "what_it_hides": "This assumption conceals the fact that Uncle Rufus is actually dead and has been impersonated by Wren, enabling Aunt Emma to manipulate the inheritance and cover up the murder."
+ },
+ "mechanism_description": "Aunt Emma orchestrates the concealment of Uncle Rufus's death by forcing Wren to impersonate him in his room, while Miles, under her influence, accidentally kills James Fennel in the woods. The imposture allows Aunt Emma to manipulate the family, control Diana, and secure the inheritance, with the deaths and disappearances serving to maintain her scheme.",
+ "discriminating_test": {
+  "method": "constraint_proof",
+  "design": "A reenactment of the timeline and access to the woods and cellar is conducted, verifying who could have been present at the time of James Fennel's death. The locked rooms and keys are examined to confirm the imposture of Uncle Rufus by Wren.",
+  "knowledge_revealed": "This test reveals that only Miles had the opportunity to kill Fennel and that Wren impersonated Uncle Rufus after his death, confirming Aunt Emma's orchestration.",
+  "pass_condition": "The test passes if it is proven that Miles was at the scene of the murder and that Wren was impersonating Uncle Rufus in the locked room."
+ },
+ "changed": [
+  "false_assumption",
+  "mechanism_description"
+ ],
+ "confidence": "high"
+}

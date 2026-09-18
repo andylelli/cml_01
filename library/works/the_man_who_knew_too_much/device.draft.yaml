@@ -1,0 +1,50 @@
+pattern_id: the_man_who_knew_too_much
+title: The Fallen Statue
+family: spatial_routing
+axes:
+  - behavioral
+principle: >-
+  The actual murderer was the police officer Wilson, who killed his comrades in a bid for promotion,
+  and a witness Michael was innocent of these murders.
+principleType: physical_law
+surface_illusion_template: >-
+  Hugo, the Hungarian fugitive, was the murderer of Sir the victim.; a witness Michael escaped the
+  police ring and killed the officers in self-defense.; a suspect a suspect killed Lord Bulmer due
+  to a quarrel and disappearance.
+underlying_reality_template: >-
+  Sir the culprit the investigator murdered his brother the investigator in a duel using duplicate
+  swords. the investigator Hewitt was killed during this duel and the scene was staged to look like
+  an accident involving a fallen statue. Sir the culprit also stole important state papers from
+  Hewitt to prevent them falling into enemy hands. The other deaths and disappearances were
+  connected to political intrigue and cover-ups, with false accusations directed at others.
+feasibility:
+  eras:
+    - 1850
+    - 1860
+    - 1870
+    - 1880
+    - 1890
+    - 1900
+    - 1910
+    - 1920
+    - 1930
+    - 1940
+    - 1950
+  requires:
+    - duplicate_weapon
+    - heavy_statue
+    - physical_staging
+  forbids:
+    - cctv
+    - forensic_document_dating
+clue_archetypes:
+  - pools_of_blood_around
+  - doctor_prince_s_wound
+  - description_of_swords_with
+  - horne_fisher_s_admission
+  - absence_of_struggle_signs
+  - coat_found_folded_on
+sources:
+  - >-
+    G. K. (Gilbert Keith) Chesterton, The Man Who Knew Too Much —
+    library/works/the_man_who_knew_too_much/case.cml2.yaml

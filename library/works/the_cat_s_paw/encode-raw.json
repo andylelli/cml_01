@@ -1,0 +1,566 @@
+{
+ "decade": "1920s",
+ "realism_constraints": [
+  "No advanced forensic DNA analysis available",
+  "Telephone and automobiles are in common use",
+  "Police investigations rely on witness testimony and physical clues"
+ ],
+ "location": "Washington, D.C., primarily at the Baird mansion 'Rose Hill' in Georgetown",
+ "institution": "Metropolitan Police Force, Central Office; Coroner's Office",
+ "crime_category": "murder",
+ "crime_subtype": "poisoning with prussic acid on a peach",
+ "cast": [
+  {
+   "name": "Kitty Baird",
+   "age_range": "early 20s",
+   "role_archetype": "young heiress and social secretary",
+   "role": "victim",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "eligible",
+   "public_persona": "respectable niece and social secretary",
+   "private_secret": "unaware of her aunt's fortune until recently",
+   "motive_seed": "inheritance and protection from suspicion",
+   "motive_strength": "none",
+   "alibi_window": "away at cousins' apartment Sunday night",
+   "access_plausibility": "high",
+   "stakes": "inheritance and reputation",
+   "moral_complexity": "low",
+   "relationships": [
+    "Miss Susan Baird (aunt)",
+    "Edward Rodgers (lover)",
+    "Charles Craige (godfather)",
+    "Major Leigh Wallace (former suitor)",
+    "Ben Potter (second cousin)"
+   ],
+   "opportunity_channels": [
+    "access to house and kitchen",
+    "presence in house before death"
+   ],
+   "behavioral_tells": [
+    "nervousness under questioning",
+    "defense of innocence"
+   ],
+   "evidence_sensitivity": [
+    "red coat",
+    "revolver",
+    "mauve note"
+   ]
+  },
+  {
+   "name": "Miss Susan Baird",
+   "age_range": "70s",
+   "role_archetype": "wealthy eccentric spinster",
+   "role": "victim",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "poor and eccentric old lady",
+   "private_secret": "secretly wealthy with hidden fortune",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "dead at time of crime",
+   "access_plausibility": "n/a",
+   "stakes": "life",
+   "moral_complexity": "none",
+   "relationships": [
+    "Kitty Baird (niece)",
+    "Charles Craige (lawyer)",
+    "Oscar (servant)",
+    "Mandy (housekeeper)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Charles Craige",
+   "age_range": "50s",
+   "role_archetype": "lawyer with financial desperation",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "trusted lawyer and godfather",
+   "private_secret": "forger and murderer",
+   "motive_seed": "financial desperation and to cover forgery",
+   "motive_strength": "strong",
+   "alibi_window": "present at house during investigation",
+   "access_plausibility": "high",
+   "stakes": "avoid prison and financial ruin",
+   "moral_complexity": "high",
+   "relationships": [
+    "Kitty Baird (godchild)",
+    "Miss Susan Baird (victim)",
+    "Mrs. Amos Parsons (fiancée)"
+   ],
+   "opportunity_channels": [
+    "access to house",
+    "knowledge of household"
+   ],
+   "behavioral_tells": [
+    "nervousness",
+    "evasiveness",
+    "attempt to frame others"
+   ],
+   "evidence_sensitivity": [
+    "poison syringe",
+    "forged papers",
+    "love letter",
+    "handkerchief"
+   ]
+  },
+  {
+   "name": "Edward Rodgers",
+   "age_range": "30s-40s",
+   "role_archetype": "handwriting expert and loyal suitor",
+   "role": "suspect",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "eligible",
+   "public_persona": "respected handwriting expert",
+   "private_secret": "deeply in love with Kitty",
+   "motive_seed": "protect Kitty and solve murder",
+   "motive_strength": "none",
+   "alibi_window": "present at house and with Kitty",
+   "access_plausibility": "high",
+   "stakes": "Kitty's safety and justice",
+   "moral_complexity": "low",
+   "relationships": [
+    "Kitty Baird (lover)",
+    "Charles Craige (lawyer)",
+    "Ben Potter (friend)"
+   ],
+   "opportunity_channels": [
+    "access to house",
+    "investigative role"
+   ],
+   "behavioral_tells": [
+    "protective",
+    "determined"
+   ],
+   "evidence_sensitivity": [
+    "red coat",
+    "revolver",
+    "I.O.U."
+   ]
+  },
+  {
+   "name": "Major Leigh Wallace",
+   "age_range": "30s-40s",
+   "role_archetype": "disgraced army officer and former suitor",
+   "role": "suspect",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "eligible",
+   "public_persona": "wounded war veteran",
+   "private_secret": "gambling debts and family scandal",
+   "motive_seed": "inheritance and jealousy",
+   "motive_strength": "weak",
+   "alibi_window": "seen entering house with peaches",
+   "access_plausibility": "high",
+   "stakes": "inheritance and reputation",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Kitty Baird (former suitor)",
+    "Miss Susan Baird (victim)",
+    "Nina Potter (wife)"
+   ],
+   "opportunity_channels": [
+    "access to house"
+   ],
+   "behavioral_tells": [
+    "nervousness",
+    "drunkenness"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Mrs. Amos Parsons",
+   "age_range": "40s-50s",
+   "role_archetype": "socialite and manipulator",
+   "role": "suspect",
+   "gender": "female",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "wealthy widow and hostess",
+   "private_secret": "blackmailer and conspirator",
+   "motive_seed": "financial gain and social ambition",
+   "motive_strength": "strong",
+   "alibi_window": "present at various social events",
+   "access_plausibility": "medium",
+   "stakes": "money and influence",
+   "moral_complexity": "high",
+   "relationships": [
+    "Kitty Baird (secretary)",
+    "Charles Craige (fiancé)",
+    "Ben Potter (acquaintance)"
+   ],
+   "opportunity_channels": [
+    "access to house",
+    "social connections"
+   ],
+   "behavioral_tells": [
+    "evasiveness",
+    "manipulation"
+   ],
+   "evidence_sensitivity": [
+    "bribery attempts",
+    "phone calls",
+    "death by cat scratch"
+   ]
+  },
+  {
+   "name": "Ben Potter",
+   "age_range": "40s-50s",
+   "role_archetype": "naturalist and jealous cousin",
+   "role": "suspect",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "eligible",
+   "public_persona": "scientist and family relative",
+   "private_secret": "jealous and aggressive",
+   "motive_seed": "jealousy and inheritance",
+   "motive_strength": "moderate",
+   "alibi_window": "present at social events and office",
+   "access_plausibility": "medium",
+   "stakes": "family fortune and control",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Nina Potter (wife)",
+    "Kitty Baird (cousin)",
+    "Mrs. Amos Parsons (acquaintance)"
+   ],
+   "opportunity_channels": [
+    "access to house"
+   ],
+   "behavioral_tells": [
+    "aggression",
+    "jealousy"
+   ],
+   "evidence_sensitivity": [
+    "red coat",
+    "phone calls"
+   ]
+  },
+  {
+   "name": "Oscar",
+   "age_range": "60s-70s",
+   "role_archetype": "loyal servant with secrets",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "faithful old servant",
+   "private_secret": "knows more than he admits",
+   "motive_seed": "loyalty to family",
+   "motive_strength": "none",
+   "alibi_window": "present in house until afternoon",
+   "access_plausibility": "high",
+   "stakes": "loyalty and safety",
+   "moral_complexity": "low",
+   "relationships": [
+    "Miss Susan Baird (employer)",
+    "Kitty Baird (employer)"
+   ],
+   "opportunity_channels": [
+    "access to house"
+   ],
+   "behavioral_tells": [
+    "evasiveness",
+    "fear"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Mandy",
+   "age_range": "60s-70s",
+   "role_archetype": "housekeeper and protector",
+   "role": "witness",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "loyal housekeeper",
+   "private_secret": "protective of Kitty",
+   "motive_seed": "loyalty",
+   "motive_strength": "none",
+   "alibi_window": "present in house",
+   "access_plausibility": "high",
+   "stakes": "loyalty and safety",
+   "moral_complexity": "low",
+   "relationships": [
+    "Oscar (husband)",
+    "Kitty Baird (employer)"
+   ],
+   "opportunity_channels": [
+    "access to house"
+   ],
+   "behavioral_tells": [
+    "protectiveness"
+   ],
+   "evidence_sensitivity": []
+  }
+ ],
+ "culprits": [
+  "Charles Craige"
+ ],
+ "surface_summary": "Miss Susan Baird is found dead in her locked library, apparently poisoned by prussic acid on a peach. Suspicion falls on various relatives and acquaintances, including Kitty Baird, her niece and heir, and Major Leigh Wallace, a suitor. The investigation uncovers family secrets, forged wills, and a complex web of motives.",
+ "accepted_facts": [
+  "Miss Susan Baird died from prussic acid poisoning administered on a peach.",
+  "The house was locked from the outside with the key left in the front door.",
+  "Kitty Baird inherited a large fortune from her aunt, previously unknown to her.",
+  "Charles Craige had financial troubles and was close to Miss Susan Baird."
+ ],
+ "inferred_conclusions": [
+  "Kitty Baird murdered her aunt to inherit the fortune.",
+  "Major Leigh Wallace was responsible due to jealousy and family disputes.",
+  "Mrs. Amos Parsons was involved in the murder to gain blackmail material."
+ ],
+ "mechanism_description": "Charles Craige, driven by financial desperation and to cover up his forgery, poisoned Miss Susan Baird by applying prussic acid to one side of a fruit knife used to cut a peach. He ensured only Miss Baird ate the poisoned half by eating the safe side himself. He attempted to frame others by planting evidence and manipulating servants. He later killed Mrs. Parsons to silence her when she threatened exposure.",
+ "delivery_path": [
+  "Craige applies prussic acid to one side of the fruit knife blade.",
+  "Craige cuts the peach and places the poisoned half for Miss Baird.",
+  "Miss Baird eats the poisoned half and dies within minutes.",
+  "Craige plants forged papers and the revolver in Rodgers' car to frame others.",
+  "Mrs. Parsons attempts blackmail using stolen papers.",
+  "Craige kills Mrs. Parsons by spraying poison on the cat's paw to silence her.",
+  "Craige is caught and confesses after being confronted."
+ ],
+ "outcome_result": "Charles Craige is arrested and confesses to the murder of Miss Susan Baird and Mrs. Parsons.",
+ "false_assumption": {
+  "statement": "Kitty Baird is the murderer who poisoned her aunt to inherit the fortune.",
+  "type": "behavioral",
+  "why_it_seems_reasonable": "Kitty had a quarrel with her aunt shortly before the death and stood to gain a large inheritance. The revolver with her initials was found in the victim's car, suggesting involvement.",
+  "what_it_hides": "The revolver was planted by the real culprit, Charles Craige, to frame Kitty. The quarrel was unrelated to the murder, and Kitty was innocent."
+ },
+ "false_solution": {
+  "accused_suspect": "Kitty Baird",
+  "supporting_points": [
+   "Kitty quarreled with her aunt on the day of the murder.",
+   "Kitty inherited a large fortune from her aunt.",
+   "A revolver with Kitty's initials was found in the victim's car.",
+   "Kitty was seen entering the house with a package of peaches."
+  ],
+  "the_one_flaw": "The revolver was planted and the evidence was manipulated by Charles Craige.",
+  "refuted_in_chapter": 21
+ },
+ "red_herrings": [
+  {
+   "id": "major_leigh_wallace_suspicion",
+   "description": "Major Leigh Wallace was suspected due to his quarrel with Miss Susan Baird and his presence with peaches at the house.",
+   "points_at_suspect": "His agitation and presence at the house at the time of the murder.",
+   "innocent_explanation": "He brought peaches as a peace offering and was not involved in the murder.",
+   "resolved_in_chapter": 21
+  },
+  {
+   "id": "mrs_amos_parsons_blackmail",
+   "description": "Mrs. Amos Parsons was suspected of blackmail and involvement in the murder due to her attempts to bribe Oscar and her suspicious behavior.",
+   "points_at_suspect": "Her bribery attempts and possession of incriminating papers.",
+   "innocent_explanation": "She was trying to gain leverage but was ultimately killed by Craige to silence her.",
+   "resolved_in_chapter": 21
+  }
+ ],
+ "closed_circle": {
+  "suspects": [
+   "Kitty Baird",
+   "Major Leigh Wallace",
+   "Charles Craige",
+   "Mrs. Amos Parsons",
+   "Ben Potter",
+   "Edward Rodgers"
+  ],
+  "rationale": "All had access to the house, motives related to inheritance or personal interests, and were involved in the social circle around Miss Susan Baird."
+ },
+ "constraint_space": {
+  "time_anchors": [
+   "Sunday afternoon between 3 and 5 PM",
+   "Discovery of body Monday morning",
+   "Oscar's train departure at 3 PM Sunday",
+   "Shooting of Rodgers late Monday night"
+  ],
+  "time_windows": [
+   "Time between poisoning and death (2-5 minutes)",
+   "Oscar's presence in house until 2:30 PM Sunday",
+   "Craige's movements Monday morning"
+  ],
+  "access_actors": [
+   "Charles Craige",
+   "Kitty Baird",
+   "Major Leigh Wallace",
+   "Oscar",
+   "Mandy"
+  ],
+  "access_objects": [
+   "Side door with modern lock and key",
+   "Front door with old-fashioned lock and key",
+   "Library with Dutch door panel",
+   "Fruit knife used to cut peach",
+   "Ivory dice cup hiding poison bottle"
+  ],
+  "trust_channels": [
+   "Oscar's testimony",
+   "Mandy's statements",
+   "Mrs. Parsons' information",
+   "Craige's legal authority"
+  ],
+  "authority_sources": [
+   "Inspector Mitchell",
+   "Coroner Penfield",
+   "Dr. Leonard McLean"
+  ]
+ },
+ "inference_path": [
+  {
+   "observation": "Poison was found only on one side of the fruit knife blade.",
+   "correction": "The poison was deliberately applied to only one side to poison only Miss Baird.",
+   "effect": "Indicates a planned murder with knowledge of victim's eating habits.",
+   "required_evidence": [
+    "Deputy Coroner Fisher's autopsy report",
+    "Inspection of the fruit knife with poison residue"
+   ]
+  },
+  {
+   "observation": "The front door key was found in the lock on the outside.",
+   "correction": "The door was locked from outside to trap or exclude others.",
+   "effect": "Suggests the murderer locked the house to create a closed circle.",
+   "required_evidence": [
+    "Inspector Mitchell's testimony about the key",
+    "Police report on door lock status"
+   ]
+  },
+  {
+   "observation": "Oscar was reported to have left on the 3 PM train but was heard talking at 5 PM.",
+   "correction": "Oscar lied about his departure to conceal his presence.",
+   "effect": "Oscar's testimony about the household movements is unreliable.",
+   "required_evidence": [
+    "Witness statement of Oscar's voice at 5 PM",
+    "Train records confirming Oscar's departure time"
+   ]
+  },
+  {
+   "observation": "Kitty's red coat was found in a second-hand store and then burned.",
+   "correction": "The coat was sold and then forcibly reclaimed and destroyed to hide evidence.",
+   "effect": "Indicates attempts to conceal or manipulate evidence related to Kitty.",
+   "required_evidence": [
+    "Proprietor's testimony about coat sale",
+    "Rodgers' recovery of coat and partial destruction"
+   ]
+  },
+  {
+   "observation": "Mrs. Parsons was found dead with cat scratches and poison on the cat's paw.",
+   "correction": "Mrs. Parsons was murdered to silence her after she attempted blackmail.",
+   "effect": "Reveals the murderer is willing to kill to cover tracks.",
+   "required_evidence": [
+    "Medical report on Mrs. Parsons' death",
+    "Observation of cat's injured paw and poison traces"
+   ]
+  },
+  {
+   "observation": "Charles Craige had forged documents and financial troubles.",
+   "correction": "Craige had motive to kill to cover forgery and gain financially.",
+   "effect": "Identifies Craige as the murderer with strong motive and opportunity.",
+   "required_evidence": [
+    "Forgery evidence from Holt will case",
+    "Financial records showing Craige's debts"
+   ]
+  },
+  {
+   "observation": "The rubber bulb syringe with poison was found missing and then returned.",
+   "correction": "Craige used the syringe to apply poison and Mrs. Parsons returned it to frame others.",
+   "effect": "Shows the use of syringe as murder weapon and framing device.",
+   "required_evidence": [
+    "Discovery of syringe in library",
+    "Mrs. Parsons' attempt to bribe Oscar for papers"
+   ]
+  }
+ ],
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "Reenact the poisoning by applying poison to one side of a fruit knife and cutting a peach, then observing that only the person eating the poisoned side is affected. Test the accessibility of the Dutch door panel and the worn floorboards to confirm secret entry or exit. Examine the timing of Oscar's presence and the location of the poison syringe to confirm the sequence of events.",
+  "knowledge_revealed": "This test reveals that the poison was deliberately applied to one side of the knife, that the Dutch door panel was used for secret access, and that Oscar's testimony about his whereabouts was false.",
+  "pass_condition": "The reenactment confirms that only the person eating the poisoned half is affected, the Dutch door panel moves silently and is well used, and Oscar's presence at the house at 5 PM is confirmed by witness statements."
+ },
+ "fair_play_explanation": "The reader is provided with detailed descriptions of the locked house, the poison application, and the movements of key characters. The discovery of the poison only on one side of the knife, the secret Dutch door panel, and the forged will papers are all clues available to the reader. The false suspicions cast on Kitty and Wallace are supported by evidence but ultimately refuted by the confession and final revelations. The reader could solve the case by carefully analyzing the timing, access, and motives presented.",
+ "anchors": [
+  {
+   "claim": "Miss Susan Baird was found dead in the library",
+   "anchor": "Miss Susan Baird still sat in her throne-shaped chair"
+  },
+  {
+   "claim": "Death was caused by prussic acid poisoning",
+   "anchor": "death was due to prussic acid, the most active of poisons"
+  },
+  {
+   "claim": "Poison was applied only to one side of the fruit knife",
+   "anchor": "The poison had been put on one side of the knife-blade only"
+  },
+  {
+   "claim": "The front door was locked from the outside with the key in the lock",
+   "anchor": "We found the key of the front door in the lock on the outside"
+  },
+  {
+   "claim": "Kitty Baird inherited a large fortune from her aunt",
+   "anchor": "Miss Susan Baird left Kitty an heiress"
+  },
+  {
+   "claim": "Charles Craige was the lawyer and godfather with financial troubles",
+   "anchor": "Charles Craige murdered Miss Susan Baird due to financial desperation"
+  },
+  {
+   "claim": "Oscar was a loyal servant but lied about his whereabouts",
+   "anchor": "Oscar had to catch the three o'clock train to get there"
+  },
+  {
+   "claim": "Mrs. Amos Parsons attempted to bribe Oscar to steal papers",
+   "anchor": "Please, please keep up your search, Oscar. I'll give you more than I promised"
+  },
+  {
+   "claim": "Kitty's red coat was sold and then destroyed",
+   "anchor": "The coat looked like Kitty's--with a single stride he was at the counter"
+  },
+  {
+   "claim": "Mrs. Parsons was killed by poison on the cat's paw",
+   "anchor": "the poison which Craige sprayed on the cat's paw--and thus killed Cecelia Parsons"
+  },
+  {
+   "claim": "Charles Craige confessed to the murders",
+   "anchor": "Charles Craige did as he was told. A small rubber bulb syringe dropped to the floor"
+  },
+  {
+   "claim": "The poison syringe was used to apply the poison",
+   "anchor": "I sprayed some hydrocyanic acid on the knife-blade"
+  },
+  {
+   "claim": "Leigh Wallace was seen entering the house with peaches",
+   "anchor": "Mrs. Murray claims that it was about five o'clock or a little after"
+  },
+  {
+   "claim": "The revolver with Kitty's initials was found in Rodgers' car",
+   "anchor": "That's Kitty's revolver. I had her initials engraved upon it"
+  },
+  {
+   "claim": "Mrs. Parsons tried to blackmail Kitty with papers",
+   "anchor": "Mrs. Parsons was as clever as they make them, but she overreached herself"
+  },
+  {
+   "claim": "Craige planted evidence to frame Kitty and Rodgers",
+   "anchor": "I slipped upstairs to your room and went through your desk"
+  },
+  {
+   "claim": "Oscar overheard a quarrel about Major Wallace",
+   "anchor": "Miss Susan and her niece quarreling on Sunday"
+  },
+  {
+   "claim": "The Dutch door panel was used for secret access",
+   "anchor": "this resembles a Dutch door. That is exactly what it is"
+  },
+  {
+   "claim": "The murder was premeditated and carefully planned",
+   "anchor": "The crime was deliberately planned and by some one with nerves absolutely under control"
+  },
+  {
+   "claim": "The motive was financial desperation and to cover forgery",
+   "anchor": "I had forged Miss Susan Baird's name in my desperation last week"
+  }
+ ]
+}

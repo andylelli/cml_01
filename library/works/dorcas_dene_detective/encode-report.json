@@ -1,0 +1,128 @@
+{
+ "slug": "dorcas_dene_detective",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Dorcas Dene is a famous lady detective",
+   "anchor": "that, my dear fellow, is Dorcas Dene, the famous lady detective",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Lord Helsham's disappearance involved a secret about his birth",
+   "anchor": "The child which Lady Helsham bore in this house was not the child she returned to London with",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Judkins Barraclough is suspected of bigamy and cruelty",
+   "anchor": "Lady Anna Barraclough suspects her husband of being a bigamist",
+   "span": "But you say Lady Anna Barraclough suspects her husband of being a bigamist--what has put such an unpleasant idea into her head?",
+   "ok": true
+  },
+  {
+   "claim": "Mrs. Judkins is imprisoned drugged in a wire cage",
+   "anchor": "wire netting nearly six feet high was stretched from side to side of the room",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The poker was the murder weapon found near Mrs. Hannaford's body",
+   "anchor": "the poker was found lying between the fireplace and the body",
+   "span": "On making a search of the room the poker was found lying between the fireplace and the body.",
+   "ok": true
+  },
+  {
+   "claim": "Flash George was seen near the crime scene and had sudden wealth",
+   "anchor": "Flash George, who had been lost sight of for some time by our people, was reported to have been seen",
+   "span": "Hannaford was murdered Flash George, who had been lost sight of for some time by our people, was reported to have been seen by the Inspector who was going his rounds in the neighbourhood.",
+   "ok": true
+  },
+  {
+   "claim": "Banknotes linked to Charles Drayson resurfaced after the murder",
+   "anchor": "The hundred-pound note which was in Flash George's possession was one of a number which were paid over the counter of the Union Bank of London for a five-thousand-pound cheque",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Charles Drayson faked his death in the Opéra Comique fire",
+   "anchor": "He had flung his watch down in order that it might be found as evidence of his death",
+   "span": "He had flung his watch down in order that it might be found as evidence of his death.",
+   "ok": true
+  },
+  {
+   "claim": "The brown bear lamp contained hidden banknotes",
+   "anchor": "The brown bear stands on a square mahogany stand, and the exact square now shows in the colour of the carpet",
+   "span": "The brown bear stands on a square mahogany stand, and the exact square now shows in the colour of the carpet that has been hidden by it.",
+   "ok": true
+  },
+  {
+   "claim": "The murderer hid behind the brown bear lamp to attack Mrs. Hannaford",
+   "anchor": "The murderer of Mrs. Hannaford concealed himself behind that brown bear lamp",
+   "span": "The murderer of Mrs. Hannaford concealed himself behind that brown bear lamp, and attacked her in exactly the way I have indicated.",
+   "ok": true
+  },
+  {
+   "claim": "The front door opening sound was key to the victim's movements",
+   "anchor": "The noise made by the opening of that front door which first attracted the attention of the murdered woman",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Charles Drayson confessed to the murder before dying",
+   "anchor": "With his dying breath Charles Drayson declared that he had no intention of killing his wife",
+   "span": "With his dying breath Charles Drayson declared that he had no intention of killing his wife.",
+   "ok": true
+  },
+  {
+   "claim": "Judkins Barraclough kept his first wife drugged and caged",
+   "anchor": "The chloral is given, I take it, with the same object as this wire cage has been built around her",
+   "span": "The chloral is given, I take it, with the same object as this wire cage has been built around her (probably while she lay helpless and insensible under the influence of the drug)--to keep her from making a noise, shouting or beating against the walls, or going to the windows and attracting the attention of the neighbours.",
+   "ok": true
+  },
+  {
+   "claim": "Aleem Mohammed was an accomplice to Barraclough",
+   "anchor": "Aleem swears that he only got the house and the things Barraclough ordered him to",
+   "span": "Aleem swears that he only got the house and the things Barraclough ordered him to, and that he has never interfered in any way with the woman.",
+   "ok": true
+  },
+  {
+   "claim": "Dorcas Dene's reenactment proved the murderer's concealment",
+   "anchor": "Dorcas, standing in the drawing-room doorway, declared that I was completely hidden",
+   "span": "I obeyed, and Dorcas, standing in the drawing-room doorway, declared that I was completely hidden.",
+   "ok": true
+  },
+  {
+   "claim": "The false assumption that Mr. Hannaford was guilty",
+   "anchor": "The police were satisfied, and would make no further investigation",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Flash George was a red herring suspect",
+   "anchor": "He was seen about half-past two o'clock in the morning looking rather dilapidated and seedy",
+   "span": "He was seen about half-past two o'clock in the morning looking rather dilapidated and seedy.",
+   "ok": true
+  },
+  {
+   "claim": "Judkins Barraclough's bigamy and attempted murder of first wife",
+   "anchor": "He had intended to write to his wife after he decamped, but he had got into fresh trouble",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The discriminating test was a reenactment of the murderer's hiding place",
+   "anchor": "Dorcas had the assistant lie behind the brown bear lamp to test if a person could be concealed there",
+   "span": "",
+   "ok": false
+  }
+ ],
+ "costGbp": 0.08181016035,
+ "models": {
+  "map": "gpt-4o-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true
+}

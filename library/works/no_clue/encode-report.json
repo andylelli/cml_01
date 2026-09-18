@@ -1,0 +1,128 @@
+{
+ "slug": "no_clue",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Mildred Brace was found dead on the lawn with a stab wound",
+   "anchor": "the upturned face of a woman who lay prostrate on the lawn",
+   "span": "Rounding the corner, they saw, scarcely fifteen yards from the bay-window of the ballroom, the upturned face of a woman who lay prostrate on the lawn.",
+   "ok": true
+  },
+  {
+   "claim": "The murder weapon was an improvised dagger made from a nail file",
+   "anchor": "a dagger consisting of a sharpened nail file, about three inches long",
+   "span": "It was a dagger consisting of a sharpened nail file, about three inches long, driven into a roughly rounded piece of wood.",
+   "ok": true
+  },
+  {
+   "claim": "The grey envelope flap bore Mildred's handwriting",
+   "anchor": "the flap of the grey envelope...bearing the impression in ink of her handwriting",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Judge Wilton had a cigar stump in his pocket at the crime scene",
+   "anchor": "he had had in that pocket a cigar stump wet from his saliva",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Wilton fabricated an alibi and tried to appear innocent",
+   "anchor": "he had gone out of his way to put a cigar stump into his pocket",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Eugene Russell's alibi was disproven by a witness who saw him near the crime scene",
+   "anchor": "Stevens said he was the only sober man in the crowd...saw a man slide on to the running board",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Mrs. Brace was blackmailing Wilton and manipulating the investigation",
+   "anchor": "Mrs. Brace, her daughter's funeral barely three hours old, had started to make her threats good",
+   "span": "Mrs. Brace, her daughter's funeral barely three hours old, had started to make her threats good.",
+   "ok": true
+  },
+  {
+   "claim": "Arthur Sloane was out on the lawn before the murder but was not the killer",
+   "anchor": "I looked through his room, and I found a pair of straw sandals in the closet",
+   "span": "That night--rather, the early morning hours following--while the rest of you were in the library, I looked through his room, and I found a pair of straw sandals in the closet--such as a man could slip on and off without having to bend down to adjust them.",
+   "ok": true
+  },
+  {
+   "claim": "Wilton made the dagger from a bed slat with matching grooves",
+   "anchor": "the handle of the dagger matches the wood of the slat I've just mentioned",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Wilton killed Mildred Brace out of fear of exposure and financial motives",
+   "anchor": "he killed her, with premeditation, having planned it after receiving a letter from her",
+   "span": "I say now he killed her, with premeditation, having planned it after receiving a letter from her.",
+   "ok": true
+  },
+  {
+   "claim": "Wilton tried to silence Judge Wilton's outcry by gagging him",
+   "anchor": "Berne put out his hand; his arm shot across her; and his hand closed the judge's mouth",
+   "span": "Berne put out his hand; his arm shot across her; and his hand closed the judge's mouth.",
+   "ok": true
+  },
+  {
+   "claim": "Wilton's confession reveals his obsession with killing and past crime",
+   "anchor": "I've lived in hell and walked with devils, against my will",
+   "span": "I've lived in hell and walked with devils, against my will.",
+   "ok": true
+  },
+  {
+   "claim": "Wilton concealed evidence and manipulated others to cover his crime",
+   "anchor": "he persuaded you to pay money to Mrs. Brace...to buy off the woman who was after him",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The grey envelope flap was planted in Webster's fireplace to implicate him",
+   "anchor": "I found it last night in the fireplace, behind the screen, in your room upstairs",
+   "span": "I found it last night in the fireplace, behind the screen, in your room upstairs.",
+   "ok": true
+  },
+  {
+   "claim": "Wilton's behavior at the crime scene was inconsistent and suspicious",
+   "anchor": "he mechanically fubbed out his cigar...and, when we stood beside him, he had put a half-smoked, unlit cigar into his mouth",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The detective's final accusation and evidence presentation",
+   "anchor": "Arrest him, Crown! He's proved his case",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Mrs. Brace admits to blackmail and her role in the murder's background",
+   "anchor": "I thought, if my daughter could talk to him, he would be brought to do the right thing",
+   "span": "I thought, if my daughter could talk to him, he would be brought to do the right thing.",
+   "ok": true
+  },
+  {
+   "claim": "Wilton's past murder in Pursuit and its connection to the current crime",
+   "anchor": "The Dalton case--and your part in it",
+   "span": "The Dalton case--and your part in it.",
+   "ok": true
+  },
+  {
+   "claim": "Wilton's obsession with killing explains his motive and method",
+   "anchor": "an endless command: 'Kill! Draw blood! Kill!'",
+   "span": "'--but an uproar, an imperial voice, an endless command: 'Kill! Draw blood! Kill!'--What it did to me---- \"But to this day I've beaten it!",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.04764085125,
+ "models": {
+  "map": "gpt-4o-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true
+}

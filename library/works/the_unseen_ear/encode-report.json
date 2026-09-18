@@ -1,0 +1,134 @@
+{
+ "slug": "the_unseen_ear",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Austin Hale was stabbed to death in the library",
+   "anchor": "Austin Hale lying dead in this library",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The murder weapon was a rapier concealed in a cane",
+   "anchor": "bamboo cane conceals a rapier",
+   "span": "Who knows that this ordinary-appearing bamboo cane conceals a rapier?",
+   "ok": true
+  },
+  {
+   "claim": "John Hale was not at the French Embassy during the murder",
+   "anchor": "I was not at the French Embassy during that time",
+   "span": "I was not at the French Embassy during that time.",
+   "ok": true
+  },
+  {
+   "claim": "Joe Richards sold bonds stolen from the safe",
+   "anchor": "Major Richards sold ten bonds of the Troy Valve Company",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Jewelry including a Mizpah locket was stolen from Judith's bedroom",
+   "anchor": "theft of her jewelry to any one",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Judith Richards wears a hidden earphone to hear",
+   "anchor": "the cleverly concealed earphone which she wore continually",
+   "span": "Judith started at the abrupt question, for Ferguson, recalling her deafness and forgetful of the cleverly concealed earphone which she wore continually, raised his voice almost to a bellow.",
+   "ok": true
+  },
+  {
+   "claim": "Jim Turner disguised as a maid committed theft and murder",
+   "anchor": "Jim Turner, disguised as a maid, murdered Austin Hale",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Polly Davis disappeared after the murder",
+   "anchor": "Polly has gone",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Robert Hale installed a dictograph in Judith's boudoir",
+   "anchor": "dictograph in this house",
+   "span": "Robert Hale, why are you using a dictograph in this house?",
+   "ok": true
+  },
+  {
+   "claim": "John Hale and Austin Hale had a hostile relationship",
+   "anchor": "you and Austin were not on good terms",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "John Hale's sword cane had bloodstains",
+   "anchor": "covered with blood",
+   "span": "One blade was covered with bloodstains.",
+   "ok": true
+  },
+  {
+   "claim": "Joe Richards arrived home after midnight with unexplained time gap",
+   "anchor": "he reached this house about twenty minutes past one",
+   "span": "This: according to Major Richards, he reached this house about twenty minutes past one o’clock in the morning and he was last seen in the club a little before midnight.",
+   "ok": true
+  },
+  {
+   "claim": "Austin Hale carried a letter in a locket",
+   "anchor": "carried it in a locket to have it in instant readiness",
+   "span": "Austin wrote me at the same time he did you, telling of the existence of such a letter, and that he carried it in a locket to have it in instant readiness.",
+   "ok": true
+  },
+  {
+   "claim": "Polly Davis was seen leaving the library at the time of murder",
+   "anchor": "she was seen leaving the library",
+   "span": "Polly knew he would be here Tuesday night, witness her presence in the house at midnight; she supplied him with the combination of my safe; she was seen leaving the library at the very time he must have been murdered, and his body was found lying near the _open_ safe--” “Hold on, she may have been here and all that,” John broke in with rough vehemence, “but some one else may have killed Austin even in her presence--” “Then why has she not told the police?",
+   "ok": true
+  },
+  {
+   "claim": "The safe was found open without forced entry",
+   "anchor": "The lock’s not been forced",
+   "span": "The lock’s not been forced,” he muttered.",
+   "ok": true
+  },
+  {
+   "claim": "The stolen bonds were found in Richards' possession",
+   "anchor": "Joseph Richards had disposed of the ten bonds",
+   "span": "Joseph Richards had disposed of the ten bonds owned by his wife--which Judith desired to sell--to cover his margins in stock speculations.",
+   "ok": true
+  },
+  {
+   "claim": "Judith Richards was abducted and gagged to prevent her hearing",
+   "anchor": "blindfolded me, disconnected my earphone, and gagged me",
+   "span": "when some one stole behind me, blindfolded me, disconnected my earphone, and gagged me.",
+   "ok": true
+  },
+  {
+   "claim": "The locket contained a compromising letter",
+   "anchor": "a letter of a foolish, indiscreet girl",
+   "span": "This is a letter of a foolish, indiscreet girl, longing for a little attention, a little of this world’s fun,” she said soberly.",
+   "ok": true
+  },
+  {
+   "claim": "John Hale confessed to killing Austin Hale",
+   "anchor": "You did not reach me",
+   "span": "You did not reach me.",
+   "ok": true
+  },
+  {
+   "claim": "Jim Turner confessed to the murder and theft",
+   "anchor": "I killed Austin Hale because he penetrated my disguise",
+   "span": "",
+   "ok": false
+  }
+ ],
+ "costGbp": 0.09273288599999999,
+ "models": {
+  "map": "gpt-4o-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true
+}

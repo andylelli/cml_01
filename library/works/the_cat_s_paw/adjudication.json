@@ -1,0 +1,19 @@
+{
+ "false_assumption": {
+  "statement": "Kitty Baird is the murderer who poisoned her aunt to inherit the fortune.",
+  "type": "identity",
+  "why_it_seems_reasonable": "Kitty had a quarrel with her aunt shortly before the death and stood to gain a large inheritance. The revolver with her initials was found in the victim's car, suggesting involvement.",
+  "what_it_hides": "The revolver was planted by the real culprit, Charles Craige, to frame Kitty. The quarrel was unrelated to the murder, and Kitty was innocent."
+ },
+ "mechanism_description": "Charles Craige, driven by financial desperation and to cover up his forgery, poisoned Miss Susan Baird by applying prussic acid to one side of a fruit knife used to cut a peach. He ensured only Miss Baird ate the poisoned half by eating the safe side himself. He attempted to frame others by planting evidence and manipulating servants. He later killed Mrs. Parsons to silence her when she threatened exposure.",
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "Reenact the poisoning by applying poison to one side of a fruit knife and cutting a peach, then observing that only the person eating the poisoned side is affected. Test the accessibility of the Dutch door panel and the worn floorboards to confirm secret entry or exit. Examine the timing of Oscar's presence and the location of the poison syringe to confirm the sequence of events.",
+  "knowledge_revealed": "This test reveals that the poison was deliberately applied to one side of the knife, that the Dutch door panel was used for secret access, and that Oscar's testimony about his whereabouts was false.",
+  "pass_condition": "The reenactment confirms that only the person eating the poisoned half is affected, the Dutch door panel moves silently and is well used, and Oscar's presence at the house at 5 PM is confirmed by witness statements."
+ },
+ "changed": [
+  "false_assumption.type"
+ ],
+ "confidence": "high"
+}

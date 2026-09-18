@@ -1,0 +1,134 @@
+{
+ "slug": "the_curse_of_the_reckaviles",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "The victim was found stabbed in the locked library",
+   "anchor": "Lord Reckavile was lying across the sofa, face downwards, and an ugly knife was sticking in his ribs",
+   "span": "Lord Reckavile was lying across the sofa, face downwards, and an ugly knife was sticking in his ribs.",
+   "ok": true
+  },
+  {
+   "claim": "Two voices were heard arguing before the murder",
+   "anchor": "they distinctly heard Reckavile say ‘Never, never, only over my dead body!’ The other replied ‘I only want justice and my right.’",
+   "span": "He says they distinctly heard Reckavile say ‘Never, never, only over my dead body!’ The other replied ‘I only want justice and my right.’ They seemed to be angry.",
+   "ok": true
+  },
+  {
+   "claim": "The library door was locked with no key found",
+   "anchor": "The door was locked, where was the key? One last question, sir. What was the weapon?",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Halley had a strong alibi at the Black Horse",
+   "anchor": "On the night when the murder took place, Mr. Halley was at the Black Horse with Southgate and his wife",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Jack Sefton changed a stolen five pound note at the Black Horse",
+   "anchor": "That note, sir, we doesn’t ’ave notes ’ere as a rule, but I changed this for old Giles",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Giles confessed to the murder",
+   "anchor": "You asked just now who killed Lord Reckavile—I did",
+   "span": "You asked just now who killed Lord Reckavile—I did.",
+   "ok": true
+  },
+  {
+   "claim": "Giles used the dictaphone recording to fake a second person's presence",
+   "anchor": "I turned on the Dictaphone, and came back for Brown—but in my excitement I made one fatal mistake, I forgot to open the French window",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The marriage certificate and dictaphone record were hidden in a secret drawer",
+   "anchor": "Stooping down he touched a secret spring, and a drawer, carefully hidden in the carving at the back, sprang open",
+   "span": "Stooping down he touched a secret spring, and a drawer, carefully hidden in the carving at the back, sprang open.",
+   "ok": true
+  },
+  {
+   "claim": "The blood stains indicated a struggle and some blood came from the assailant",
+   "anchor": "I have enough medical knowledge to know that the clean stab which killed the man could not have caused all that amount of blood",
+   "span": "Well, I have enough medical knowledge to know that the clean stab which killed the man could not have caused all that amount of blood.",
+   "ok": true
+  },
+  {
+   "claim": "Halley was disguised as the old Lord Reckavile to protect himself",
+   "anchor": "Being as you know, an actor, I had no difficulty in disguising myself as old Reckavile",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The false solution accused Halley of the murder",
+   "anchor": "I knew that fellow with his superior manners and hypocritical ways was a crook",
+   "span": "I knew that fellow with his superior manners and hypocritical ways was a crook, though why he should make love to a penniless girl like Ena Sefton, is beyond me.",
+   "ok": true
+  },
+  {
+   "claim": "The locked room mystery was explained by Giles locking the door and hiding the key",
+   "anchor": "I opened the door very slowly and carefully, and peeped in",
+   "span": "I opened the door very slowly and carefully, and peeped in, and nearly spoilt everything by crying out, for the first words I heard were those of Mr.",
+   "ok": true
+  },
+  {
+   "claim": "The dictaphone recording was played during the reenactment",
+   "anchor": "Sinclair rose and put the record on the Dictaphone which he wound up and started",
+   "span": "Sinclair rose and put the record on the Dictaphone which he wound up and started.",
+   "ok": true
+  },
+  {
+   "claim": "The confession was obtained by staging a meeting",
+   "anchor": "Thank you, Giles. That is what we wanted",
+   "span": "Thank you, Giles. That is what we wanted.",
+   "ok": true
+  },
+  {
+   "claim": "Giles committed suicide by poison after confessing",
+   "anchor": "No, you fools, he’s taken poison",
+   "span": "No, you fools, he’s taken poison,” and Sinclair rushed round the table, and forced open the grim jaws, but it was too late, and with a heavy groan the old man collapsed.",
+   "ok": true
+  },
+  {
+   "claim": "Halley was arrested but released due to alibi",
+   "anchor": "Halley was released with profuse apologies from the Inspector",
+   "span": "When all the evidence had been heard, there was only one thing to do; Halley was released with profuse apologies from the Inspector, and was sent off in the same car in which he had been brought in as a suspected person.",
+   "ok": true
+  },
+  {
+   "claim": "The Curse was a family superstition but had no bearing on the murder",
+   "anchor": "We do not live in the age of witches and magic, there was only one man who could have had access to Reckavile",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The murder weapon was an old dagger with a thin blade",
+   "anchor": "The weapon? An old dagger, with a thin blade",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The victim was stabbed from the back, penetrating the heart",
+   "anchor": "The blade driven in between the ribs from the back, and had penetrated the heart",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The dictaphone recording contained the quarrel between Reckavile and the other",
+   "anchor": "The now familiar words of the quarrel were repeated between the dead and the living",
+   "span": "The now familiar words of the quarrel were repeated between the dead and the living.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.08603256025,
+ "models": {
+  "map": "gpt-4o-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true
+}

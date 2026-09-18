@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "The necklace was stolen by an insider during the wedding preparations.",
+  "type": "identity",
+  "why_it_seems_reasonable": "Multiple family members had access and motives, and the safe was found unlocked. Suspicious behavior by family members and guests suggested an inside job.",
+  "what_it_hides": "The actual thief was an outsider hiding in the house, and the real necklace had been pawned and replaced with an imitation."
+ },
+ "mechanism_description": "Victoria Ashcroft Corbin, facing financial difficulties, had the real necklace pawned and secretly replaced it with a perfect imitation. The thief, Raglan, hired as a window shade hanger, hid in the house in pajamas and stole the imitation necklace from the safe during a moment when the house was distracted. Upon discovering it was a fake, he returned it to the grandmother's room to mislead the family and avoid suspicion. The real necklace was kept by Bruce Applebury, who was unaware of the substitution.",
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "Recreate the timeline of the necklace's disappearance and return by tracking the movements of all suspects and witnesses during the critical hours. Verify the presence of the man in pajamas and the accessibility of the safe and rooms. Confirm the identity of the pajamas and the hiding place of the thief.",
+  "knowledge_revealed": "This test reveals that only an outsider disguised in pajamas could have stolen and returned the imitation necklace without detection, and that the real necklace was pawned and kept by Bruce.",
+  "pass_condition": "The test passes if the pajamas with the tear are matched to Raglan and the safe's access times align with his presence, excluding all family members as the thief."
+ },
+ "changed": [],
+ "confidence": "high"
+}

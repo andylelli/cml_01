@@ -1,0 +1,134 @@
+{
+ "slug": "the_strange_countess",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Lois Margeritta Reddle is the daughter of Mary Pinder",
+   "anchor": "Lois Margeritta! Her own name! And the star-shaped burn on her arm!",
+   "span": "Chapter Four Lois Margeritta! Her own name! And the star-shaped burn on her arm! Her head was in a whirl; the room seemed to be spinning round drunkenly and it needed all her strength of mind to keep her from crying out.",
+   "ok": true
+  },
+  {
+   "claim": "Mary Pinder was convicted of murder and imprisoned for life",
+   "anchor": "Mary Pinder--Murder. Convicted at Hereford Assizes. Sentenced to death; commuted to penal servitude for life.",
+   "span": "said the other, and she took up the book and read: Mary Pinder--Murder. Convicted at Hereford Assizes. Sentenced to death; commuted to penal servitude for life. This is a typical case of a murder for gain.",
+   "ok": true
+  },
+  {
+   "claim": "Countess of Moron employs Lois as secretary",
+   "anchor": "The Countess of Moron is pleased to learn that Miss Reddle will take up her duties as resident secretary",
+   "span": "The Countess of Moron is pleased to learn that Miss Reddle will take up her duties as resident secretary on Monday, the 17th.",
+   "ok": true
+  },
+  {
+   "claim": "Michael Dorn is a detective investigating the case",
+   "anchor": "Michael Dorn had not closed his eyes for more than thirty-six hours.",
+   "span": "Then he returned to his flat, and, taking off his collar and his tie, lay down on the bed for the sleep he so badly needed; for Michael Dorn had not closed his eyes for more than thirty-six hours. Chapter Eight All her life, Lois Reddle could never recall what happened that morning.",
+   "ok": true
+  },
+  {
+   "claim": "Countess’s safe disguised as a book with electric shock",
+   "anchor": "A very good imitation, but it is less of a book than a steel box, and any person who attempts to pull it out automatically makes contact with a very powerful electric current.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Poisoned chocolates sent to Lois",
+   "anchor": "Of course they were poisoned. Hydrocyanic acid. Why did you think I came into your room that night to get them away?",
+   "span": "Of course they were poisoned. Hydrocyanic acid. Why did you think I came into your room that night to get them away? I came with my heart in my mouth as I did a few minutes ago, expecting to find you dead.",
+   "ok": true
+  },
+  {
+   "claim": "Lois is abducted and detained at Gallows Farm",
+   "anchor": "Miss Reddle is at Gallows Farm, near Whitcomb in Somerset",
+   "span": "Miss Reddle is at Gallows Farm, near Whitcomb in Somerset, and, if you do not hear from me by telegram in the course of the day, it is extremely likely that I shall also be there--against my will.",
+   "ok": true
+  },
+  {
+   "claim": "Dr. Tappatt runs an unlicensed mental home and detains victims",
+   "anchor": "I don’t see why I should allow you to make a search. You have no more authority to act as a detective than I have to run a mental home.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Chesney Praye demands Lois marry him to secure release",
+   "anchor": "The first is that you marry me! That you marry me to-morrow.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Countess offers money to Mary Pinder to leave and keep silent",
+   "anchor": "I want you to take your daughter to South America. I will pay you a yearly sum, more than sufficient for your needs.",
+   "span": "I want you to take your daughter to South America. I will pay you a yearly sum, more than sufficient for your needs. If you undertake to do that, you will never be troubled again.",
+   "ok": true
+  },
+  {
+   "claim": "Michael Dorn rescues Lois and Mary after fire",
+   "anchor": "The fire had taken hold; great tongues of flame were leaping up from the roof.",
+   "span": "The fire had taken hold; great tongues of flame were leaping up from the roof. “It will burn like tinder.",
+   "ok": true
+  },
+  {
+   "claim": "False accusation against Lois for attempted murder",
+   "anchor": "I charge her with being concerned in the attempted murder of John Braime!",
+   "span": "I charge her with being concerned in the attempted murder of John Braime!” The girl listened, thunderstruck, rooted to the spot.",
+   "ok": true
+  },
+  {
+   "claim": "Selwyn Moron is weak and dominated by his mother",
+   "anchor": "He was a weakling, entirely under the domination of his mother, a quiet and harmless man with simple, almost childish, tastes.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Countess’s plot to remove Mary Pinder as claimant",
+   "anchor": "Lady Moron is a woman of infinite resource. Here, she thought, was an opportunity of removing for ever a possible claimant to the Moron estate.",
+   "span": "Lady Moron is a woman of infinite resource. Here, she thought, was an opportunity of removing for ever a possible claimant to the Moron estate. On the table were a number of jewels and some money, which the woman had put there in her madness.",
+   "ok": true
+  },
+  {
+   "claim": "Michael Dorn’s persistence leads to exposure of conspiracy",
+   "anchor": "I never make mistakes, and I have every right to be here.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Lois’s scar is a key identifying mark",
+   "anchor": "It was Lizzy’s faith that whenever the scar irritated, rain was in the offing.",
+   "span": "It was Lizzy’s faith that whenever the scar irritated, rain was in the offing. “You’ll have to have that electrocuted, or whatever the word is,” said the snub-nosed girl when the other shook her head.",
+   "ok": true
+  },
+  {
+   "claim": "Sergeant Braime is a CID officer planted in Countess’s household",
+   "anchor": "Braime is an officer of the Criminal Investigation Department, who has been in your service for six months.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Countess’s son Selwyn installs microphone to spy",
+   "anchor": "Somewhere in the house, probably in the drawing-room, was a concealed microphone, and too late that night he had remembered that he had not disconnected the instrument.",
+   "span": "Somewhere in the house, probably in the drawing-room, was a concealed microphone, and too late that night he had remembered that he had not disconnected the instrument. Lady Moron was puzzled as to how her son knew so much.",
+   "ok": true
+  },
+  {
+   "claim": "Countess’s photograph of young officer left in Lois’s room",
+   "anchor": "He was a boy I knew some many years ago.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Countess’s safe-box is empty and electrified",
+   "anchor": "Empty, eh? Of course, it would be. You suspected Braime, and left a little notebook around carelessly in your bedroom, in which you made reference to the Life of Washington.",
+   "span": "",
+   "ok": false
+  }
+ ],
+ "costGbp": 0.10166674319999999,
+ "models": {
+  "map": "gpt-4o-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true
+}

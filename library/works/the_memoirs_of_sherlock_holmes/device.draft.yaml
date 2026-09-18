@@ -6,7 +6,7 @@ axes:
 principle: >-
   It conceals the fact that the victim was killed accidentally by the horse during his own sabotage
   attempt, and that a suspect was innocent and merely a red herring.
-principleType: physical_law
+principleType: cognitive_bias
 surface_illusion_template: >-
   a suspect a suspect kidnapped the horse and murdered the victim during a confrontation.; The horse
   was stolen by gypsies who fled the area.; the victim was killed by a suspect using the heavy stick
@@ -32,8 +32,8 @@ feasibility:
     - 1950
   requires:
     - animal_behavior
-    - physical_evidence_analysis
-    - medical_wound_examination
+    - medical_wound_analysis
+    - circumstantial_evidence
   forbids:
     - cctv
     - modern_toxicology_screen

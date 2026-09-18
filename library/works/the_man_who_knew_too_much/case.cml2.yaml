@@ -1,0 +1,422 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The Man Who Knew Too Much
+    author: G. K. (Gilbert Keith) Chesterton
+    license: Public domain (first published 1922; author died 1936). Project Gutenberg ebook 1720.
+    era:
+      decade: 1910s
+      realism_constraints:
+        - No advanced forensic DNA analysis available
+        - Motor cars exist but are relatively new and noisy
+        - Communication relies on telegrams and physical documents
+    setting:
+      location: >-
+        England, various locations including Torwood Park, a remote tower by the sea, a country
+        estate called Prior's Park, and a seaside hotel in Kent
+      institution: >-
+        British police and detective service, with involvement of political figures and military
+        officials
+    crime_class:
+      category: murder
+      subtype: disguised political assassination and espionage
+  cast:
+    - name: Horne Fisher
+      age_range: 40-50
+      role_archetype: languid but brilliant investigator and political idealist
+      relationships:
+        - Harold March (friend)
+        - Sir Henry Harland Fisher (brother)
+        - Lord James Herries (kinsman)
+        - Prime Minister (family friend)
+      public_persona: eccentric scholar and political candidate
+      private_secret: knows deep political corruption and family ties
+      motive_seed: desire to expose corruption and protect country
+      motive_strength: strong
+      alibi_window: present throughout investigation
+      access_plausibility: high
+      opportunity_channels:
+        - political connections
+        - access to estates and government
+      behavioral_tells:
+        - languid demeanor
+        - sharp insights
+        - occasional irony
+      stakes: national security and personal integrity
+      evidence_sensitivity:
+        - knowledge of duplicate swords
+        - presence at crime scenes
+        - political documents
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: high
+    - name: Harold March
+      age_range: 30-40
+      role_archetype: idealistic journalist and friend
+      relationships:
+        - Horne Fisher (friend)
+      public_persona: rising political journalist
+      private_secret: none
+      motive_seed: desire for truth and reform
+      motive_strength: moderate
+      alibi_window: present throughout
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells:
+        - curiosity
+        - persistence
+      stakes: truth and justice
+      evidence_sensitivity:
+        - newspaper articles
+        - personal observations
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: moderate
+    - name: Lord James Herries
+      age_range: 50-60
+      role_archetype: corrupt Chancellor of the Exchequer
+      relationships:
+        - Prime Minister
+        - Horne Fisher (kinsman)
+      public_persona: high-ranking government minister
+      private_secret: involved in financial abuses
+      motive_seed: self-preservation and power
+      motive_strength: strong
+      alibi_window: uncertain
+      access_plausibility: high
+      opportunity_channels:
+        - government access
+      behavioral_tells:
+        - nervousness
+        - alcohol use
+      stakes: political survival
+      evidence_sensitivity:
+        - presence at crime scene
+        - political documents
+      culprit_eligibility: eligible
+      culpability: unknown
+      gender: male
+      role: suspect
+      moral_complexity: high
+    - name: Sir Isaac Hook
+      age_range: 60-70
+      role_archetype: victim, self-made millionaire and blackmailer
+      relationships:
+        - Horne Fisher (acquaintance)
+      public_persona: wealthy industrialist
+      private_secret: blackmailer with many enemies
+      motive_seed: none
+      motive_strength: none
+      alibi_window: n/a
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: life
+      evidence_sensitivity:
+        - body found strangled
+        - blackmail letters
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: high
+    - name: Leonard Crane
+      age_range: 30-40
+      role_archetype: architect, falsely suspected
+      relationships:
+        - Juliet Bray (fiancée)
+      public_persona: quiet professional
+      private_secret: engaged to Juliet Bray
+      motive_seed: none
+      motive_strength: none
+      alibi_window: present at house
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells:
+        - calm under suspicion
+      stakes: reputation and freedom
+      evidence_sensitivity:
+        - presence at scene
+        - lost sword
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: low
+    - name: Sir Henry Harland Fisher
+      age_range: 40-50
+      role_archetype: brother, secret antagonist
+      relationships:
+        - Horne Fisher (brother)
+      public_persona: successful government official
+      private_secret: kidnapper and murderer of his brother
+      motive_seed: political power and family disgrace
+      motive_strength: strong
+      alibi_window: present at crime
+      access_plausibility: high
+      opportunity_channels:
+        - access to estate and weapons
+      behavioral_tells:
+        - sullen
+        - hypocritical
+      stakes: political control and secrecy
+      evidence_sensitivity:
+        - presence in locked room
+        - duplicate swords
+        - blood traces
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Doctor Prince
+      age_range: 50-60
+      role_archetype: police surgeon and investigating
+      relationships:
+        - Horne Fisher (colleague)
+      public_persona: official investigator
+      private_secret: none
+      motive_seed: professional duty
+      motive_strength: none
+      alibi_window: present at crime scenes
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells:
+        - professional detachment
+      stakes: justice
+      evidence_sensitivity:
+        - wound analysis
+        - blood evidence
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+  culpability:
+    culprit_count: 1
+    culprits:
+      - Sir Henry Harland Fisher
+  surface_model:
+    narrative:
+      summary: >-
+        A series of mysterious deaths and disappearances involving political figures, aristocrats,
+        and criminals unfold across England. The deaths appear as accidents or unrelated crimes, but
+        underlying them are political conspiracies, blackmail, and betrayals. The final murder
+        involves a family betrayal with a complex duel and theft of state papers.
+    accepted_facts:
+      - Lord Bulmer disappeared after a mysterious cry and was never found.
+      - >-
+        Sir Isaac Hook was found strangled on his island with evidence pointing to a fugitive named
+        Hugo.
+      - >-
+        Prince Michael was surrounded in a tower and the deaths of police officers were initially
+        blamed on him.
+      - Horne Hewitt was found dead under a fallen statue with a throat cut by a sword.
+    inferred_conclusions:
+      - Hugo, the Hungarian fugitive, was the murderer of Sir Isaac Hook.
+      - Prince Michael escaped the police ring and killed the officers in self-defense.
+      - Leonard Crane killed Lord Bulmer due to a quarrel and disappearance.
+  hidden_model:
+    mechanism:
+      description: >-
+        Sir Henry Harland Fisher murdered his brother Horne Fisher in a duel using duplicate swords.
+        Horne Hewitt was killed during this duel and the scene was staged to look like an accident
+        involving a fallen statue. Sir Henry also stole important state papers from Hewitt to
+        prevent them falling into enemy hands. The other deaths and disappearances were connected to
+        political intrigue and cover-ups, with false accusations directed at others.
+      delivery_path:
+        - step: Horne Hewitt removes his coat before the duel to be killed.
+        - step: >-
+            The duel occurs with two identical swords, one wielded by Horne Fisher and one by Sir
+            Henry.
+        - step: Hewitt is fatally wounded and falls against the statue, breaking the iron prop.
+        - step: The statue falls, crushing Hewitt and creating the illusion of an accident.
+        - step: Sir Henry steals the state papers from Hewitt's coat pocket.
+        - step: Sir Henry flees the scene on a motorbike to deliver the papers safely.
+        - step: Horne Fisher later reveals the truth and confronts his brother in captivity.
+    outcome:
+      result: >-
+        Sir Henry Harland Fisher is revealed as the murderer and thief, having killed his brother to
+        protect state secrets and political interests.
+  false_assumption:
+    statement: The deaths of police officers at the tower were caused by Prince Michael's violent escape.
+    type: behavioral
+    why_it_seems_reasonable: >-
+      Prince Michael was surrounded and shots were fired from the tower, and he was known for
+      violent escapes. Witnesses saw him at the scene and he was arrested for the murders.
+    what_it_hides: >-
+      The actual murderer was the police officer Wilson, who killed his comrades in a bid for
+      promotion, and Prince Michael was innocent of these murders.
+  false_solution:
+    accused_suspect: Hugo
+    supporting_points:
+      - Hugo was a discharged bodyguard with a grudge against Sir Isaac Hook.
+      - Hugo was seen near the scene and had a threatening letter found.
+      - The police arrested Hugo based on circumstantial evidence.
+      - Hugo had a motive of revenge and was a fugitive.
+    the_one_flaw: >-
+      Hugo was not present at the time of the murder and had an alibi; the real murder occurred
+      earlier and was staged.
+    refuted_in_chapter: 5
+  red_herrings:
+    - id: prince_michael_escape
+      description: Prince Michael's supposed violent escape and killing of police officers.
+      points_at_suspect: Prince Michael
+      innocent_explanation: >-
+        The murders were actually committed by police officer Wilson, who killed his comrades for
+        personal gain.
+      resolved_in_chapter: 2
+    - id: leonard_crane_suspicion
+      description: Leonard Crane's quarrel with Lord Bulmer and disappearance raised suspicion.
+      points_at_suspect: Leonard Crane
+      innocent_explanation: >-
+        Crane did not kill Bulmer; Bulmer disappeared mysteriously and was later found dead due to
+        other causes.
+      resolved_in_chapter: 6
+  closed_circle:
+    suspects:
+      - Horne Fisher
+      - Sir Henry Harland Fisher
+      - Lord James Herries
+      - Leonard Crane
+      - Long Adam
+      - Sir Francis Verner
+      - Mr. Brain
+    rationale: >-
+      All suspects were present at the estates or involved in the political and social circles
+      connected to the crimes, with limited access to the crime scenes and motives.
+  constraint_space:
+    time:
+      anchors:
+        - Night of the murder at Prior's Park
+        - Daybreak when Lord Bulmer's cry was heard
+        - Daytime of Sir Isaac Hook's strangulation
+        - Time of Prince Michael's siege at the tower
+        - Evening of Horne Hewitt's murder
+      windows:
+        - Night hours for the murder and body placement
+        - Morning hours for discovery of bodies
+        - Daytime for political meetings and alibis
+    access:
+      actors:
+        - Horne Fisher
+        - Sir Henry Harland Fisher
+        - Leonard Crane
+        - Lord James Herries
+        - Long Adam
+        - Mr. Brain
+      objects:
+        - Duplicate swords
+        - Statue of Britannia
+        - Locked temple door
+        - Motorbike
+        - State papers
+        - Iron prop from statue
+    social:
+      trust_channels:
+        - Family relationships
+        - Political alliances
+        - Police hierarchy
+        - Servants and staff
+      authority_sources:
+        - British police
+        - Government ministers
+        - Military officials
+        - Legal authorities
+  inference_path:
+    steps:
+      - observation: The statue of Britannia was found toppled with a body beneath it.
+        correction: The body was placed there after death; the statue fell after the murder.
+        effect: The death was staged to look like an accident.
+        required_evidence:
+          - Pools of blood around the statue and body
+          - Doctor Prince's wound analysis of the throat cut
+        reader_observable: true
+      - observation: Two swords of identical pattern were present at the scene.
+        correction: One sword was used in the duel; the other was a duplicate brought by Horne Fisher.
+        effect: The murder weapon was not unique, complicating identification.
+        required_evidence:
+          - Description of swords with wavy edges and jeweled hilts
+          - Horne Fisher's admission of bringing duplicate swords
+        reader_observable: true
+      - observation: Horne Hewitt's coat was removed before death.
+        correction: He removed it himself to prepare for the duel.
+        effect: Explains how the murderer could remove the coat without suspicion.
+        required_evidence:
+          - Absence of struggle signs on the coat
+          - Coat found folded on the garden bench before the duel
+        reader_observable: true
+      - observation: Sir Henry Harland Fisher was found in captivity in a locked room.
+        correction: He was captured by his brother Horne Fisher after the murder.
+        effect: Reveals the family betrayal and motive.
+        required_evidence:
+          - Description of locked room with iron grating
+          - Horne Fisher's testimony about captivity
+        reader_observable: true
+      - observation: Lord Bulmer disappeared after a cry was heard at daybreak.
+        correction: He was murdered on the ice by a deliberate crack and sabotage.
+        effect: The disappearance was a murder disguised as an accident.
+        required_evidence:
+          - Description of cracked ice and thawing
+          - Witness statements about Bulmer's last movements
+        reader_observable: true
+      - observation: Prince Michael was accused of killing police officers at the tower.
+        correction: Police officer Wilson killed his comrades to remove obstacles to promotion.
+        effect: Prince Michael was innocent of the murders.
+        required_evidence:
+          - Wilson's firing pattern and revolver charges
+          - Nolan's dying gesture identifying Wilson
+        reader_observable: true
+      - observation: The relic St. Paul's Penny was stolen from a locked glass case.
+        correction: It was removed using a magnet on a string through a hole in the floor.
+        effect: The theft was a clever mechanical trick, not a supernatural event.
+        required_evidence:
+          - Description of broken wire and hole in floor
+          - Mesmerist's trance observations
+        reader_observable: true
+  discriminating_test:
+    method: reenactment
+    design: >-
+      Horne Fisher and Harold March recreate the duel using the duplicate swords and the statue
+      setting. They observe the sequence of events, including the removal of the coat, the fatal
+      wound, and the statue's fall. They also test the physical impossibility of moving the statue
+      after the murder. This reenactment confirms the timing and method of the murder and the
+      staging of the scene.
+    knowledge_revealed: >-
+      The reenactment reveals that the victim removed his coat before the duel, the murderer used a
+      duplicate sword, and the statue fell after the victim was killed, making it impossible for the
+      murderer to have moved the body afterward.
+    pass_condition: >-
+      The reenactment must demonstrate that the murder and staging could be performed by one person
+      alone, with the victim removing his coat, and that the statue could not have been lifted after
+      falling.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given detailed descriptions of the duplicate swords, the statue and its iron
+      prop, and the timing of events. The presence of two swords of identical pattern and the
+      victim's coat removal are explicitly mentioned. The physical impossibility of moving the
+      statue after the murder is discussed by the detective. The family relationships and political
+      motives are clearly outlined. The false accusations against other suspects are presented and
+      refuted within the narrative, allowing the attentive reader to deduce the true culprit.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "Peter Crane was dead and communicating from beyond the grave.",
+  "type": "identity",
+  "why_it_seems_reasonable": "The Cranes received messages and materializations through a medium that appeared to be from Peter, supported by physical objects like a tobacco pouch and handkerchief. The medium was respected and the messages consistent with their beliefs.",
+  "what_it_hides": "The medium and an accomplice fabricated the messages and materializations using stolen items, and Peter Crane was actually alive, having survived the accident."
+ },
+ "mechanism_description": "McClellan Thorpe murdered Gilbert Blair by secretly poisoning a soda mint with prussic acid, which Blair unknowingly consumed. The medium, Madame Parlato, was complicit in fabricating spirit communications and materializations using stolen personal items of Peter Crane to deceive the Cranes and others. Peter Crane, alive but incognito, uncovered the fraud and the true murderer.",
+ "discriminating_test": {
+  "method": "trap",
+  "design": "A controlled seance is arranged where the medium must materialize specific objects provided by Peter Crane incognito, with observers including the detective and witnesses. The medium is instructed to follow exact directions and is monitored for any deviation or failure to produce the objects.",
+  "knowledge_revealed": "The medium's inability to produce the objects without prior access or collusion reveals the fraud and identifies the accomplice supplying the items.",
+  "pass_condition": "Successful materialization of the objects exactly as provided confirms complicity; failure or deviation exposes fraud."
+ },
+ "changed": [],
+ "confidence": "high"
+}

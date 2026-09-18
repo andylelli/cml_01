@@ -4,7 +4,7 @@
   mechanism_family: substituted_body
   false_assumption_pattern: the_dead_is_who_they_appear
   discriminating_test_shape: behavioral_tell
-  inference_shape: reveal_body_identity_switch
+  inference_shape: reveal_true_identity_of_body
   premise: >-
     John Douglas is found murdered in his locked manor house with evidence suggesting an outside
     intruder escaped through the window. A mysterious bicycle and blood marks point to a fugitive,

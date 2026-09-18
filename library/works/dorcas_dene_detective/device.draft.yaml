@@ -1,0 +1,51 @@
+pattern_id: dorcas_dene_detective
+title: The Hidden Lamp
+family: spatial_routing
+axes:
+  - behavioral
+principle: >-
+  It conceals the fact that the real murderer was the first husband, Charles Drayson, who had faked
+  his death and returned to commit the crime for financial motives.
+principleType: cognitive_bias
+surface_illusion_template: >-
+  Mr. Hannaford committed the murder in a fit of madness.; a suspect a suspect was the murderer or
+  an accomplice in the murder.; the culprit a witness is innocent of any crime and merely a victim
+  of suspicion.
+underlying_reality_template: >-
+  the culprit a witness, the millionaire, was a bigamist who kept his first wife, Mrs. the culprit,
+  imprisoned drugged and caged in a locked room in an empty house he rented. He attempted to murder
+  her by forcing her to drink chloral-laced brandy to cause a slow death. The murder of Mrs.
+  Hannaford was committed by Charles Drayson, Mrs. Hannaford's first husband who faked his death and
+  returned to retrieve hidden banknotes concealed in a bear lamp. Drayson killed Mrs. Hannaford to
+  prevent exposure of his fraud and to recover the money.
+feasibility:
+  eras:
+    - 1850
+    - 1860
+    - 1870
+    - 1880
+    - 1890
+    - 1900
+    - 1910
+    - 1920
+    - 1930
+    - 1940
+    - 1950
+  requires:
+    - old_building_structure
+    - physical_concealment
+    - preserved_latchkey
+  forbids:
+    - cctv
+    - voice_authentication
+clue_archetypes:
+  - plan_of_the_drawing
+  - caretaker_s_testimony_about
+  - banknote_traced_to_charles
+  - witness_statement_of_flash
+  - testimony_of_thomas_holmes
+  - discovery_of_banknotes_in
+sources:
+  - >-
+    George R. (George Robert) Sims, Dorcas Dene, detective —
+    library/works/dorcas_dene_detective/case.cml2.yaml

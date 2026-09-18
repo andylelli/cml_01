@@ -1,0 +1,534 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The strange countess
+    author: Edgar Wallace
+    license: Public domain (first published 1925; author died 1932). Project Gutenberg ebook 75858.
+    era:
+      decade: 1920s
+      realism_constraints:
+        - >-
+          No modern forensic DNA analysis or electronic surveillance beyond early telephone and
+          microphone technology
+        - >-
+          Limited police procedural resources; reliance on informants, physical evidence, and
+          legwork
+        - >-
+          Transportation by motor cars and early aeroplanes available but no advanced communication
+          devices
+    setting:
+      location: London and Somersetshire, England
+      institution: Criminal Investigation Department (CID) and Home Office
+    crime_class:
+      category: fraud
+      subtype: orchestrated wrongful imprisonment and attempted murder to secure inheritance
+  cast:
+    - name: Lois Margeritta Reddle
+      age_range: 20-30
+      role_archetype: determined young woman seeking justice
+      relationships:
+        - Mary Pinder (mother)
+        - Lizzy Smith (friend)
+        - Michael Dorn (protector)
+      public_persona: secretary to the Countess of Moron
+      private_secret: daughter of Mary Pinder, wrongfully imprisoned
+      motive_seed: desire to prove her mother’s innocence
+      motive_strength: strong
+      alibi_window: present throughout most events, except brief abductions
+      access_plausibility: high
+      opportunity_channels:
+        - office work
+        - Countess’s household
+      behavioral_tells:
+        - persistent
+        - cautious
+        - trusting of Michael Dorn
+      stakes: high personal and familial freedom and reputation
+      evidence_sensitivity:
+        - scar on arm
+        - letters and documents
+        - presence at key locations
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: victim
+      moral_complexity: low
+    - name: Mary Pinder
+      age_range: 50-60
+      role_archetype: wrongfully convicted mother
+      relationships:
+        - Lois Margeritta Reddle (daughter)
+      public_persona: convicted murderess serving life sentence
+      private_secret: innocent of the crime, victim of Countess’s plot
+      motive_seed: none
+      motive_strength: none
+      alibi_window: imprisoned during crime
+      access_plausibility: none
+      opportunity_channels: []
+      behavioral_tells:
+        - silent
+        - reserved
+      stakes: freedom and reputation
+      evidence_sensitivity:
+        - prison records
+        - trial documents
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: female
+      role: victim
+      moral_complexity: low
+    - name: Leonora, Countess of Moron
+      age_range: 50-60
+      role_archetype: wealthy manipulative antagonist
+      relationships:
+        - Selwyn Moron (son)
+        - Chesney Praye (confidant)
+        - Dr. Tappatt (accomplice)
+      public_persona: noblewoman and employer
+      private_secret: orchestrated wrongful imprisonment and attempts on Lois’s life
+      motive_seed: eliminate rival claimant to estate
+      motive_strength: strong
+      alibi_window: present at key events
+      access_plausibility: high
+      opportunity_channels:
+        - household
+        - legal influence
+      behavioral_tells:
+        - cold
+        - calculating
+        - authoritative
+      stakes: inheritance and social standing
+      evidence_sensitivity:
+        - hidden safe
+        - poisoned chocolates
+        - letters
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: female
+      role: culprit
+      moral_complexity: high
+    - name: Chesney Praye
+      age_range: 40-50
+      role_archetype: opportunistic financial adviser
+      relationships:
+        - Leonora, Countess of Moron (employer)
+        - Dr. Tappatt (associate)
+      public_persona: financial adviser to Countess
+      private_secret: involved in schemes to detain Lois and Mary
+      motive_seed: personal gain and loyalty to Countess
+      motive_strength: moderate
+      alibi_window: present at key conspiratorial meetings
+      access_plausibility: high
+      opportunity_channels:
+        - Countess’s household
+        - legal and financial dealings
+      behavioral_tells:
+        - smooth
+        - threatening when cornered
+      stakes: wealth and influence
+      evidence_sensitivity:
+        - telegram
+        - financial records
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: moderate
+    - name: Dr. Tappatt
+      age_range: 50-60
+      role_archetype: disreputable doctor and accomplice
+      relationships:
+        - Leonora, Countess of Moron (client)
+        - Chesney Praye (associate)
+      public_persona: doctor with questionable reputation
+      private_secret: runs unlicensed mental home, detains victims
+      motive_seed: financial gain and protection from law
+      motive_strength: moderate
+      alibi_window: present at farm and involved in detentions
+      access_plausibility: high
+      opportunity_channels:
+        - Gallows Farm
+        - mental home
+      behavioral_tells:
+        - drunkenness
+        - sarcasm
+        - threatening
+      stakes: freedom and income
+      evidence_sensitivity:
+        - drugged coffee
+        - handcuffs
+        - cellar room
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: moderate
+    - name: Michael Dorn
+      age_range: 30-40
+      role_archetype: dedicated detective and protector
+      relationships:
+        - Lois Margeritta Reddle (protégé)
+        - Sergeant Braime (ally)
+      public_persona: private detective
+      private_secret: deep personal interest in Lois
+      motive_seed: justice and affection
+      motive_strength: strong
+      alibi_window: present throughout investigation
+      access_plausibility: high
+      opportunity_channels:
+        - investigation
+        - surveillance
+      behavioral_tells:
+        - persistent
+        - cautious
+        - resourceful
+      stakes: truth and safety of victims
+      evidence_sensitivity:
+        - letters
+        - physical evidence
+        - witness statements
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: low
+    - name: Selwyn Moron
+      age_range: 30-40
+      role_archetype: weak and childish nobleman
+      relationships:
+        - Leonora, Countess of Moron (mother)
+        - Lizzy Smith (friend)
+      public_persona: Earl of Moron, son of Countess
+      private_secret: mentally deficient, dominated by mother
+      motive_seed: none
+      motive_strength: none
+      alibi_window: present at household
+      access_plausibility: high
+      opportunity_channels:
+        - household
+      behavioral_tells:
+        - childish
+        - sulky
+      stakes: family reputation
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: low
+    - name: Lizzy Smith
+      age_range: 20-30
+      role_archetype: loyal friend and companion
+      relationships:
+        - Lois Margeritta Reddle (friend)
+        - Selwyn Moron (acquaintance)
+      public_persona: stenographer and friend
+      private_secret: supports Lois and aids investigation
+      motive_seed: friendship
+      motive_strength: strong
+      alibi_window: present with Lois
+      access_plausibility: high
+      opportunity_channels:
+        - lodgings
+        - office
+      behavioral_tells:
+        - practical
+        - loyal
+        - outspoken
+      stakes: friend’s safety
+      evidence_sensitivity:
+        - letters
+        - witness accounts
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: low
+    - name: Rab Mackenzie
+      age_range: 60-70
+      role_archetype: kindly old landlord and musician
+      relationships:
+        - Lois Margeritta Reddle (tenant)
+        - Lizzy Smith (tenant)
+      public_persona: landlord and musician
+      private_secret: knows about Lois’s background
+      motive_seed: friendship
+      motive_strength: weak
+      alibi_window: present at lodgings
+      access_plausibility: low
+      opportunity_channels:
+        - lodgings
+      behavioral_tells:
+        - kind
+        - musical
+      stakes: friend’s welfare
+      evidence_sensitivity:
+        - witness statements
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+  culpability:
+    culprit_count: 2
+    culprits:
+      - Leonora, Countess of Moron
+      - Chesney Praye
+  surface_model:
+    narrative:
+      summary: >-
+        Lois Reddle, secretary to the Countess of Moron, discovers her mother was wrongfully
+        imprisoned for murder. After a sequence of accidents and attempts on her life, Lois is
+        abducted and detained in a remote farm under the care of a dubious doctor. Michael Dorn, a
+        detective, investigates the case, uncovering a conspiracy involving the Countess and her
+        associates to secure the Moron estate by eliminating Mary Pinder and her daughter.
+    accepted_facts:
+      - Mary Pinder was convicted of murder and imprisoned for life.
+      - Lois Margeritta Reddle is Mary Pinder’s daughter and has a distinctive star-shaped scar.
+      - >-
+        The Countess of Moron employed Lois as her secretary and is involved in suspicious
+        activities.
+      - Michael Dorn is a detective investigating the case and protecting Lois.
+    inferred_conclusions:
+      - Mary Pinder was guilty of murder and deserved her sentence.
+      - The accidents and attempts on Lois’s life were unrelated incidents.
+      - Chesney Praye and Dr. Tappatt were innocent or merely minor accomplices.
+  hidden_model:
+    mechanism:
+      description: >-
+        The Countess of Moron orchestrated the wrongful imprisonment of Mary Pinder by planting
+        evidence and manipulating the trial. To prevent Lois from uncovering the truth and claiming
+        the estate, the Countess and her accomplices Chesney Praye and Dr. Tappatt arranged for Lois
+        to be abducted and detained in a remote farm disguised as a mental home. Attempts on Lois’s
+        life included poisoned chocolates and dangerous accidents, all intended to eliminate her as
+        a threat. Michael Dorn’s investigation exposed the conspiracy and led to the rescue of Lois
+        and Mary.
+      delivery_path:
+        - step: Countess arranges for Mary Pinder’s conviction by planting cyanide and jewels.
+        - step: Mary Pinder is imprisoned; her baby Lois is taken away and raised by a neighbor.
+        - step: Lois discovers her true identity and is employed by the Countess as secretary.
+        - step: Countess attempts to eliminate Lois through accidents and poisoned gifts.
+        - step: Lois is abducted and detained at Gallows Farm under Dr. Tappatt’s care.
+        - step: Michael Dorn investigates, discovers the conspiracy, and locates Gallows Farm.
+        - step: Dorn rescues Lois and Mary; Countess’s plot is exposed and foiled.
+    outcome:
+      result: >-
+        The conspiracy is uncovered, Lois and Mary are freed, and the Countess’s schemes are
+        defeated.
+  false_assumption:
+    statement: Mary Pinder was guilty of murder and the evidence against her was conclusive.
+    type: identity
+    why_it_seems_reasonable: >-
+      The trial record and discovery of cyanide and jewels in her possession strongly suggested
+      guilt. The refusal to provide information and lack of marriage certificate reinforced
+      suspicion.
+    what_it_hides: >-
+      The evidence was planted by the Countess to frame Mary Pinder and remove her as a claimant to
+      the estate. The true murderer was never identified, and Mary was innocent.
+  false_solution:
+    accused_suspect: Lois Margeritta Reddle
+    supporting_points:
+      - Lois was arrested for attempted murder of John Braime.
+      - She was found near the scene of the butler’s injury.
+      - Her presence at suspicious locations and association with the Countess.
+      - Her erratic behavior and supposed delusions.
+    the_one_flaw: >-
+      Lois was manipulated and framed by the Countess and her accomplices; she was innocent of any
+      crime.
+    refuted_in_chapter: 34
+  red_herrings:
+    - id: michael_dorn_suspected_stalking
+      description: >-
+        Michael Dorn’s persistent following of Lois and his intrusion into her room suggested he
+        might be a threat or culprit.
+      points_at_suspect: Michael Dorn
+      innocent_explanation: >-
+        Dorn was protecting Lois and investigating the conspiracy; his actions were motivated by
+        concern and duty.
+      resolved_in_chapter: 15
+    - id: selwyn_moron_rebellion
+      description: >-
+        Selwyn Moron’s childish outbursts and opposition to his mother suggested he might be
+        involved in the plot or acting suspiciously.
+      points_at_suspect: Selwyn Moron
+      innocent_explanation: Selwyn was mentally weak and manipulated by his mother; he had no involvement in the crimes.
+      resolved_in_chapter: 36
+  closed_circle:
+    suspects:
+      - Leonora, Countess of Moron
+      - Chesney Praye
+      - Dr. Tappatt
+      - Selwyn Moron
+    rationale: >-
+      These individuals had access, motive, and opportunity to orchestrate the wrongful imprisonment
+      and attempts on Lois’s life, while others were either victims or uninvolved.
+  constraint_space:
+    time:
+      anchors:
+        - Mary Pinder’s trial and imprisonment over 20 years ago
+        - Lois’s employment starting Monday the 17th
+        - Release of Mary Pinder at 10 PM
+        - Lois’s abduction and detention over several days
+        - Planned marriage of Chesney Praye the following morning
+      windows:
+        - Lois’s presence in Chester Square before abduction
+        - Countess’s presence at home during key events
+        - Dr. Tappatt’s drunken and sober periods
+        - Michael Dorn’s investigation timeline
+    access:
+      actors:
+        - Countess of Moron
+        - Chesney Praye
+        - Dr. Tappatt
+        - Selwyn Moron
+        - Michael Dorn
+        - Lois Margeritta Reddle
+      objects:
+        - Gallows Farm
+        - Countess’s house at 307 Chester Square
+        - Hidden safe disguised as a book
+        - Locked prison cells and underground room
+        - Motor cars and aeroplanes
+    social:
+      trust_channels:
+        - Countess’s authority over household and servants
+        - Chesney Praye’s financial influence
+        - Dr. Tappatt’s medical role
+        - Michael Dorn’s detective credentials
+      authority_sources:
+        - Home Office orders
+        - Police and CID authority
+        - Countess’s social and legal influence
+        - Doctor’s professional status
+  inference_path:
+    steps:
+      - observation: Lois has a star-shaped scar matching Mary Pinder’s baby scar
+        correction: Lois is Mary Pinder’s daughter, not a random coincidence
+        effect: Establishes familial link and motive to prove innocence
+        required_evidence:
+          - >-
+            Description of scar on Lois’s arm and prison doctor’s account, including the sequence of
+            events leading to the identification of the scar
+          - >-
+            Lois’s visit to Telsbury Prison and reading of Mary Pinder’s case, as documented in the
+            event records
+        reader_observable: true
+      - observation: Countess of Moron has a hidden safe disguised as a book with electric shock
+        correction: Countess uses extreme measures to protect secrets and intimidate
+        effect: Indicates Countess’s willingness to harm servants or intruders
+        required_evidence:
+          - >-
+            Michael Dorn’s discovery of the electrified book safe and the sequence of his
+            investigation into the safe’s mechanism
+          - Countess’s refusal to reveal contents and reaction, as recorded in the event transcript
+        reader_observable: true
+      - observation: Poisoned chocolates sent to Lois and her near-fatal car accidents
+        correction: Attempts on Lois’s life are deliberate and connected to Countess’s plot
+        effect: Confirms active efforts to eliminate Lois
+        required_evidence:
+          - >-
+            Michael Dorn’s investigation and removal of chocolates, including the sequence of events
+            and physical trace of hydrocyanic acid
+          - Witness accounts of car collisions and injuries, as documented in the event records
+        reader_observable: true
+      - observation: >-
+          Lois and Mary Pinder are detained at Gallows Farm under Dr. Tappatt, in an event involving
+          abduction and detention
+        correction: >-
+          They are held against their will in a disguised mental home, and the sequence of their
+          abduction and detention is orchestrated by the Countess and her accomplices
+        effect: Reveals the physical captivity and abuse, and the wrongful imprisonment of both women
+        required_evidence:
+          - >-
+            Descriptions of Gallows Farm and locked rooms, including physical traces of detention
+            and imprisonment
+          - >-
+            Michael Dorn’s search and confrontation with Dr. Tappatt, as documented in the event
+            sequence
+        reader_observable: true
+      - observation: >-
+          Chesney Praye demands Lois marry him to secure her and her mother’s release, as part of
+          the orchestrated conspiracy
+        correction: >-
+          Praye uses coercion and blackmail as part of the conspiracy, and his actions are part of
+          the event sequence leading to the exposure of the plot
+        effect: >-
+          Exposes Praye’s opportunistic and villainous role in the wrongful imprisonment and
+          abduction
+        required_evidence:
+          - Lois’s refusal and Praye’s threats, as documented in the event transcript and sequence
+          - >-
+            Special marriage licence and telegram to vicar, as physical evidence of the orchestrated
+            plan
+        reader_observable: true
+      - observation: >-
+          Countess offers to pay Mary Pinder to leave and keep silent, attempting to plant the idea
+          of escape and silence
+        correction: >-
+          Countess seeks to buy silence and secure her position, furthering the wrongful
+          imprisonment and abduction
+        effect: >-
+          Shows Countess’s manipulative and controlling nature, and her orchestration of the event
+          sequence
+        required_evidence:
+          - Countess’s conversation with Mary Pinder, as recorded in the event transcript
+          - Mary Pinder’s refusal and recounting of truth, as documented in the event sequence
+        reader_observable: true
+      - observation: >-
+          Michael Dorn rescues Lois and Mary after fire and confrontation, ending the sequence of
+          abduction and detention
+        correction: >-
+          Dorn’s persistence leads to exposure and collapse of conspiracy, and the wrongful
+          imprisonment is ended
+        effect: Resolution of the case and liberation of victims, and the event sequence is completed
+        required_evidence:
+          - >-
+            Fire at Gallows Farm and escape, as documented in the event records and physical traces
+            of detention
+          - >-
+            Confrontation with Chesney Praye and Countess, as recorded in the event transcript and
+            sequence
+        reader_observable: true
+  discriminating_test:
+    method: reenactment
+    design: >-
+      Michael Dorn reenacts the sequence of events leading to the abduction and detention of Lois
+      and Mary, including the discovery of the electrified book safe and the timing of the poisoned
+      chocolates. He verifies the presence and movements of the Countess, Chesney Praye, and Dr.
+      Tappatt at critical times and locations. The test includes checking the physical evidence such
+      as the scar, the locked rooms, and the intercepted letters.
+    knowledge_revealed: >-
+      This reenactment confirms the Countess’s orchestration of the wrongful imprisonment and
+      attempts on Lois’s life, and the complicity of Chesney Praye and Dr. Tappatt in detaining the
+      victims.
+    pass_condition: >-
+      The reenactment must demonstrate that only the Countess and her accomplices had the
+      opportunity and means to carry out the conspiracy, and that the physical evidence aligns with
+      their involvement.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is provided with detailed accounts of the key characters’ movements, the discovery
+      of the scar, the poisoned chocolates, and the locked safe disguised as a book. The testimony
+      of witnesses, the timeline of letters and telegrams, and the detective’s observations are all
+      presented transparently. The false solution accusing Lois is clearly refuted by evidence
+      accessible to the reader. The clues about the Countess’s motives and the roles of Chesney
+      Praye and Dr. Tappatt are embedded in dialogue and narrative, allowing an attentive reader to
+      deduce the true conspiracy.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

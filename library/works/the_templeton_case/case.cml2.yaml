@@ -1,0 +1,455 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The Templeton case
+    author: Victor L. (Victor Lorenzo) Whitechurch
+    license: Public domain (first published 1924; author died 1933). Project Gutenberg ebook 75669.
+    era:
+      decade: 1920s
+      realism_constraints:
+        - No advanced forensic DNA or fingerprint analysis available
+        - Communication limited to telephones, telegrams, and postal mail
+        - Transportation by bicycles, motor cars, boats, and trains only
+    setting:
+      location: Marsh Quay and Frattenbury, southern England
+      institution: Frattenbury Police and local coroner's inquest
+    crime_class:
+      category: murder
+      subtype: blackmail murder with staged evidence
+  cast:
+    - name: Reginald Templeton
+      age_range: 50s
+      role_archetype: wealthy explorer and victim
+      relationships:
+        - Canon Fittleworth (cousin)
+        - Winnie Cotterill (beneficiary)
+      public_persona: Fellow of the Royal Geographical Society
+      private_secret: Carried incriminating papers against Norwood
+      motive_seed: Possession of blackmail material
+      motive_strength: strong
+      alibi_window: N/A
+      access_plausibility: N/A
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: Life
+      evidence_sensitivity:
+        - diamond bag
+        - walking-stick
+        - cigar band
+        - blotting-pad letter
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: moderate
+    - name: Detective-Sergeant Colson
+      age_range: 40s
+      role_archetype: methodical police detective
+      relationships:
+        - Mrs. Colson (wife)
+      public_persona: Frattenbury police detective
+      private_secret: None
+      motive_seed: Solve the murder
+      motive_strength: strong
+      alibi_window: N/A
+      access_plausibility: N/A
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: Justice and career
+      evidence_sensitivity:
+        - walking-stick
+        - cigar band
+        - blotting-pad letter
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: low
+    - name: Francis Norwood
+      age_range: 50s
+      role_archetype: coroner and secret embezzler
+      relationships:
+        - Canon Fittleworth (acquaintance)
+        - Ezra Grice (former clerk)
+      public_persona: Respected coroner and lawyer
+      private_secret: Embezzled money, blackmailed Templeton
+      motive_seed: Avoid exposure and financial ruin
+      motive_strength: strong
+      alibi_window: Saturday night to early Sunday morning
+      access_plausibility: High, lived in Frattenbury
+      opportunity_channels:
+        - Access to Templeton via appointment
+        - Use of walking-stick and cigars
+      behavioral_tells:
+        - Left walking-stick in dinghy
+        - Changed cigar band at inquest
+      stakes: Freedom and reputation
+      evidence_sensitivity:
+        - walking-stick
+        - cigar band
+        - dagger in hall
+        - changed cigar band
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Harold Grayson
+      age_range: mid-20s
+      role_archetype: artist and initial suspect
+      relationships:
+        - Winnie Cotterill (friend and fiancée)
+      public_persona: Artist lodging at Mariner’s Arms
+      private_secret: Avoided Templeton due to family lawsuit
+      motive_seed: None
+      motive_strength: none
+      alibi_window: Saturday night to Sunday morning
+      access_plausibility: Present at Marsh Quay
+      opportunity_channels: []
+      behavioral_tells:
+        - Sudden departure
+      stakes: Freedom
+      evidence_sensitivity:
+        - cigar band
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: low
+    - name: Isaac Moss
+      age_range: 40s
+      role_archetype: diamond dealer and witness
+      relationships:
+        - Mrs. Moss (wife)
+      public_persona: Jewish diamond dealer
+      private_secret: Panicked and fled after discovering body
+      motive_seed: None
+      motive_strength: none
+      alibi_window: Saturday night to Sunday morning
+      access_plausibility: Had access to yacht
+      opportunity_channels:
+        - Boat to yacht
+      behavioral_tells:
+        - Fled suddenly
+        - Nervous demeanor
+      stakes: Freedom
+      evidence_sensitivity:
+        - diamond bag
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: low
+    - name: Joseph Proctor
+      age_range: elderly
+      role_archetype: retired cigar merchant and local man
+      relationships:
+        - Philip (nephew)
+        - Stephen Merrifield (friend)
+      public_persona: Retired cigar merchant living opposite Marsh Quay
+      private_secret: Clever and suspicious behavior
+      motive_seed: None
+      motive_strength: none
+      alibi_window: Saturday night to Sunday morning
+      access_plausibility: High, lived opposite yacht
+      opportunity_channels:
+        - Access to boats
+        - Knowledge of local tides
+      behavioral_tells:
+        - Changed cigar band at inquest
+        - Set a trap for Colson
+      stakes: Reputation
+      evidence_sensitivity:
+        - cigar band
+        - walking-stick
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: Winnie Cotterill
+      age_range: mid-20s
+      role_archetype: beneficiary and concerned friend
+      relationships:
+        - Reginald Templeton (benefactor)
+        - Harold Grayson (fiancé)
+      public_persona: Art student and beneficiary of Templeton’s will
+      private_secret: Unaware of father’s disgrace
+      motive_seed: None
+      motive_strength: none
+      alibi_window: N/A
+      access_plausibility: N/A
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: Inheritance
+      evidence_sensitivity: []
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: low
+  culpability:
+    culprit_count: 1
+    culprits:
+      - Francis Norwood
+  surface_model:
+    narrative:
+      summary: >-
+        Reginald Templeton is found murdered on his yacht at Marsh Quay. Initial suspects include an
+        artist who fled suddenly, a diamond dealer who left town abruptly, and a retired cigar
+        merchant with suspicious behavior. The case involves mysterious cigar bands, a
+        walking-stick, and missing diamonds.
+    accepted_facts:
+      - Templeton was murdered on his yacht late Saturday night or early Sunday morning
+      - Templeton had diamonds and incriminating papers related to Norwood’s embezzlement
+      - A cigar band found at the scene was changed during the inquest
+      - The walking-stick found in the dinghy did not belong to Templeton
+    inferred_conclusions:
+      - The artist Grayson was the murderer due to his sudden departure and cigar evidence
+      - Isaac Moss was guilty because he fled and had access to the yacht
+      - Joseph Proctor was the culprit because he changed the cigar band and had opportunity
+  hidden_model:
+    mechanism:
+      description: >-
+        Norwood arranged a secret meeting with Templeton to obtain incriminating papers. He
+        accompanied Templeton back to the yacht, where he murdered him with a dagger. Norwood then
+        staged the scene by leaving his walking-stick in the dinghy and changing the cigar band at
+        the inquest to mislead investigators. He used the canoe and dinghy to create an alibi and
+        escape unnoticed.
+      delivery_path:
+        - step: Norwood met Templeton in Frattenbury and walked back with him to Marsh Quay
+        - step: They boarded the yacht together; Norwood was smoking a cigar
+        - step: Norwood used a dagger to fatally stab Templeton in the cabin
+        - step: Norwood searched Templeton’s pockets and took papers but missed the diamond bag
+        - step: Norwood rowed back in the dinghy, leaving his walking-stick behind
+        - step: He returned the dinghy to the yacht using a canoe to avoid suspicion
+        - step: At the inquest, Norwood swapped the cigar band to implicate another suspect
+    outcome:
+      result: >-
+        Francis Norwood is arrested for the murder of Reginald Templeton and later commits suicide
+        in custody.
+  false_assumption:
+    statement: The murder was committed by someone who boarded the yacht before Templeton returned.
+    type: temporal
+    why_it_seems_reasonable: >-
+      The presence of the walking-stick in the dinghy and the open cabin door suggested the killer
+      was already aboard. Witnesses assumed the murderer was waiting on the yacht.
+    what_it_hides: >-
+      The killer actually accompanied Templeton to the yacht and committed the murder upon arrival,
+      not before.
+  false_solution:
+    accused_suspect: Harold Grayson
+    supporting_points:
+      - Sudden departure from Marsh Quay
+      - Possession of cigars matching the cigar band found
+      - Lack of alibi for the time of murder
+      - Avoidance of Templeton during his stay
+    the_one_flaw: >-
+      Grayson was proven to have been elsewhere during the murder and did not have access to the
+      yacht at the critical time.
+    refuted_in_chapter: 12
+  red_herrings:
+    - id: harold_grayson_departure
+      description: Harold Grayson’s sudden departure and cigar evidence suggested guilt.
+      points_at_suspect: Harold Grayson
+      innocent_explanation: >-
+        Grayson left early due to personal reasons unrelated to the murder and was confirmed to be
+        elsewhere during the crime.
+      resolved_in_chapter: 12
+    - id: isaac_moss_flight
+      description: Isaac Moss’s abrupt departure and nervous behavior raised suspicion.
+      points_at_suspect: Isaac Moss
+      innocent_explanation: >-
+        Moss fled out of fear after discovering Templeton’s body and was later corroborated to have
+        an alibi at the hotel.
+      resolved_in_chapter: 16
+  closed_circle:
+    suspects:
+      - Harold Grayson
+      - Isaac Moss
+      - Joseph Proctor
+      - Francis Norwood
+    rationale: >-
+      All suspects were local or had access to the area and were investigated thoroughly; no
+      outsiders were involved.
+  constraint_space:
+    time:
+      anchors:
+        - Saturday evening departure from Canon Fittleworth’s house
+        - Murder estimated before or shortly after midnight
+        - Sunday morning discovery of the body
+      windows:
+        - Templeton’s return to yacht between 9 pm and midnight
+        - Murder committed between 11:30 pm and 1 am
+        - Norwood’s presence in Frattenbury during the night
+    access:
+      actors:
+        - Reginald Templeton
+        - Francis Norwood
+        - Isaac Moss
+        - Jim Webb
+        - Joseph Proctor
+      objects:
+        - Yacht Firefly
+        - Dinghy
+        - Canoe
+        - Walking-stick
+        - Cigar box
+    social:
+      trust_channels:
+        - Canon Fittleworth’s testimony
+        - Jim Webb’s witness statement
+        - Isaac Moss’s hotel alibi
+        - Harold Grayson’s lodging records
+      authority_sources:
+        - Frattenbury Police Superintendent
+        - Detective-Sergeant Colson
+        - Coroner Francis Norwood
+        - Chief Constable Major Renshaw
+  inference_path:
+    steps:
+      - observation: >-
+          Walking-stick found in dinghy did not belong to Templeton and its location was arranged to
+          incriminate another.
+        correction: >-
+          The stick belonged to the murderer who left it behind to mislead and was aware of its
+          location.
+        effect: >-
+          Focused suspicion on a left-handed man carrying a walking-stick and revealed the culprit's
+          attempt to arrange evidence.
+        required_evidence:
+          - >-
+            Housekeeper’s statement denying stick belonged to Moss and confirming Norwood's stick
+            was missing from his umbrella stand on Sunday morning
+          - >-
+            Observation of Norwood using left hand to draw cork and carry stick, and being seen near
+            the dinghy at the relevant time
+        reader_observable: true
+      - observation: >-
+          Cigar band found at scene was changed during inquest, revealing a deliberate attempt to
+          mislead.
+        correction: >-
+          Coroner Norwood swapped the band to mislead investigators and was aware of the
+          incriminating evidence.
+        effect: >-
+          Initial suspicion on Grayson and others smoking similar cigars, but the act revealed the
+          culprit's manipulation.
+        required_evidence:
+          - >-
+            Witnesses noting cigar band change at inquest and Norwood's handling of the evidence
+            tray
+          - Discovery of identical cigar boxes in Norwood’s house and a record of the band swap
+        reader_observable: true
+      - observation: >-
+          Templeton had diamonds but only one found on body; the rest were missing, and the culprit
+          arranged to obtain them.
+        correction: >-
+          Diamonds were handed over to Moss earlier, and the culprit was not aware the diamond bag
+          remained.
+        effect: >-
+          Robbery was not the primary motive, and the culprit's lack of awareness of the diamond
+          bag's location is revealed.
+        required_evidence:
+          - >-
+            Moss’s testimony about receiving diamonds and giving receipt, showing the arrangement of
+            the transaction
+          - >-
+            Discovery of diamond bag in Moss’s possession and Templeton's receipt book with the
+            transaction recorded
+        reader_observable: true
+      - observation: >-
+          Norwood was wealthy and respected coroner, but secretly arranged to obtain incriminating
+          papers and was aware of the risk.
+        correction: >-
+          Norwood was financially ruined and embezzled money, and the incriminating papers
+          threatened to reveal his crimes.
+        effect: >-
+          Motive for murder was to prevent exposure and blackmail, and the culprit's secret was the
+          driving force.
+        required_evidence:
+          - >-
+            Bank records showing Norwood's financial difficulties and bankruptcy risk, and a letter
+            arranging a meeting with Templeton
+          - >-
+            Ezra Grice’s written statement describing Norwood's embezzlement and the incriminating
+            documents
+        reader_observable: true
+      - observation: Moss fled suddenly before murder discovery, but was not aware of the murder at the time.
+        correction: Moss fled out of fear, not guilt, and his location was confirmed by access records.
+        effect: Moss was cleared as suspect, and the access record revealed his innocence.
+        required_evidence:
+          - Hotel records confirming Moss’s presence Sunday night, showing his location
+          - >-
+            Witness statements corroborating Moss’s alibi and his awareness of the murder only after
+            the fact
+        reader_observable: true
+      - observation: >-
+          Grayson left suddenly and had no alibi for murder time, but was not aware of the murder or
+          the location of the crime.
+        correction: >-
+          Grayson was at Selham and had witnesses, and access records revealed his absence from the
+          scene.
+        effect: Grayson was cleared as suspect, and the access record revealed his innocence.
+        required_evidence:
+          - >-
+            Police surveillance and witness statements at Selham confirming Grayson's location at
+            the time of the murder
+          - >-
+            Landlady’s testimony about Grayson’s presence and his lack of awareness of the murder
+            until later
+        reader_observable: true
+      - observation: >-
+          Norwood’s walking-stick matched the one found in dinghy, and he arranged to plant a dummy
+          stick as incriminating evidence.
+        correction: >-
+          Norwood planted a dummy stick and kept original, revealing his attempt to incriminate
+          others and his awareness of the evidence's location.
+        effect: >-
+          Direct evidence linking Norwood to the crime scene, and the arrangement of the stick
+          revealed the culprit's manipulation.
+        required_evidence:
+          - >-
+            Housekeeper’s recognition of Norwood’s stick and its absence from his umbrella stand,
+            showing the arrangement
+          - >-
+            Colson’s controlled placement of dummy stick in dinghy and observation of Norwood
+            attempting to retrieve it, revealing the culprit's awareness and intent
+        reader_observable: true
+  discriminating_test:
+    method: trap
+    design: >-
+      Detective Colson secretly replaces the walking-stick in the dinghy with a duplicate. He then
+      watches to see if the suspect attempts to retrieve the stick, confirming possession and guilt.
+      This test uses the walking-stick and the suspect’s behavior as key elements, and reveals the
+      culprit's awareness of the stick's location and his attempt to arrange incriminating evidence.
+    knowledge_revealed: >-
+      The test reveals that the culprit is aware of the walking-stick’s location and attempts to
+      recover it, confirming his involvement and arrangement of the evidence.
+    pass_condition: >-
+      The suspect is observed retrieving the walking-stick from the dinghy during the night,
+      demonstrating awareness of its location and intent to obtain incriminating evidence.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given all necessary clues including the walking-stick’s ownership, the cigar
+      band’s change, the diamond transactions, and the suspect’s movements. The detective’s
+      reasoning is laid out clearly, and the false leads are explained and refuted. The
+      incriminating letter and Grice’s confession provide background to motive and identity. Careful
+      attention to the timeline and physical evidence allows the reader to deduce the true culprit.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

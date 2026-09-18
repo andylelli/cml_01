@@ -1,0 +1,557 @@
+{
+ "decade": "1920s",
+ "realism_constraints": [
+  "No forensic DNA or modern ballistics; reliance on witness testimony and physical evidence like bullet trajectory and signatures",
+  "Communication limited to telephone and in-person; no electronic surveillance or instant data sharing",
+  "Transportation by motor cars and trains; no air travel or digital tracking"
+ ],
+ "location": "Sycamore Ridge, on the state line between Massachusetts and Connecticut",
+ "institution": "Local police detectives Burdon and Hallen, assisted by private detective Fleming Stone and his assistant Terence McGuire",
+ "crime_category": "murder",
+ "crime_subtype": "false confessions and framing with a phantom bugler ruse",
+ "cast": [
+  {
+   "name": "Curtis Keefe",
+   "age_range": "30s-40s",
+   "role_archetype": "ambitious secretary with hidden motives",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "loyal secretary and investigator",
+   "private_secret": "he is the rightful heir to the estate and the murderer",
+   "motive_seed": "ambition to be governor and to remove Appleby",
+   "motive_strength": "strong",
+   "alibi_window": "brief absence during garage fire",
+   "access_plausibility": "high, as insider and trusted secretary",
+   "stakes": "high, political power and inheritance",
+   "moral_complexity": "high",
+   "relationships": [
+    "Samuel Appleby (employer)",
+    "Maida Wheeler (love interest)",
+    "Genevieve Lane (rival for affection)"
+   ],
+   "opportunity_channels": [
+    "garage fire distraction",
+    "access to pistol",
+    "knowledge of family dynamics"
+   ],
+   "behavioral_tells": [
+    "manipulates witnesses",
+    "creates false phantom bugler story"
+   ],
+   "evidence_sensitivity": [
+    "bugle purchase record",
+    "signed confession of Mills",
+    "presence at fire and shooting"
+   ]
+  },
+  {
+   "name": "Samuel Appleby (senior)",
+   "age_range": "60s",
+   "role_archetype": "powerful ex-governor and political figure",
+   "role": "victim",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "respected elder statesman",
+   "private_secret": "held leverage over Wheeler family",
+   "motive_seed": "political rivalry",
+   "motive_strength": "none",
+   "alibi_window": "n/a",
+   "access_plausibility": "n/a",
+   "stakes": "political legacy",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Samuel Appleby (junior) (son)",
+    "Curtis Keefe (secretary)",
+    "Daniel Wheeler (enemy)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Daniel Wheeler",
+   "age_range": "60s",
+   "role_archetype": "honorable but stubborn patriarch",
+   "role": "suspect",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "eligible",
+   "public_persona": "morose, principled man",
+   "private_secret": "restricted by conditional pardon",
+   "motive_seed": "resentment and political opposition",
+   "motive_strength": "moderate",
+   "alibi_window": "claimed absence from den at shooting",
+   "access_plausibility": "high",
+   "stakes": "freedom and family honor",
+   "moral_complexity": "high",
+   "relationships": [
+    "Sara Wheeler (wife)",
+    "Maida Wheeler (daughter)",
+    "Samuel Appleby (enemy)"
+   ],
+   "opportunity_channels": [
+    "presence in house",
+    "access to pistol"
+   ],
+   "behavioral_tells": [
+    "confessed to shield daughter"
+   ],
+   "evidence_sensitivity": [
+    "pistol found in fern bed",
+    "witness statements about location"
+   ]
+  },
+  {
+   "name": "Sara Wheeler",
+   "age_range": "50s",
+   "role_archetype": "devoted wife and mother",
+   "role": "suspect",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "eligible",
+   "public_persona": "gentlewoman",
+   "private_secret": "confessed falsely to shield family",
+   "motive_seed": "family protection",
+   "motive_strength": "moderate",
+   "alibi_window": "claimed upstairs at time",
+   "access_plausibility": "moderate",
+   "stakes": "family safety",
+   "moral_complexity": "high",
+   "relationships": [
+    "Daniel Wheeler (husband)",
+    "Maida Wheeler (daughter)"
+   ],
+   "opportunity_channels": [
+    "access to pistol"
+   ],
+   "behavioral_tells": [
+    "confessed falsely"
+   ],
+   "evidence_sensitivity": [
+    "maid Rachel's testimony",
+    "presence at scene"
+   ]
+  },
+  {
+   "name": "Maida Wheeler",
+   "age_range": "20s",
+   "role_archetype": "impulsive and devoted daughter",
+   "role": "suspect",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "eligible",
+   "public_persona": "engaged to Jeffrey Allen",
+   "private_secret": "confessed falsely to shield father",
+   "motive_seed": "protect father and family",
+   "motive_strength": "strong",
+   "alibi_window": "present in den at shooting",
+   "access_plausibility": "high",
+   "stakes": "family honor and love",
+   "moral_complexity": "high",
+   "relationships": [
+    "Daniel Wheeler (father)",
+    "Sara Wheeler (mother)",
+    "Jeffrey Allen (fiancé)",
+    "Curtis Keefe (suitor)"
+   ],
+   "opportunity_channels": [
+    "access to pistol"
+   ],
+   "behavioral_tells": [
+    "confessed falsely",
+    "emotional distress"
+   ],
+   "evidence_sensitivity": [
+    "father's testimony",
+    "bullet trajectory"
+   ]
+  },
+  {
+   "name": "Jeffrey Allen",
+   "age_range": "20s",
+   "role_archetype": "loyal fiancé and protector",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "engaged to Maida",
+   "private_secret": "none",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "at garage fire",
+   "access_plausibility": "none",
+   "stakes": "love and family",
+   "moral_complexity": "low",
+   "relationships": [
+    "Maida Wheeler (fiancée)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Genevieve Lane",
+   "age_range": "20s",
+   "role_archetype": "ambitious stenographer and schemer",
+   "role": "witness",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "stenographer",
+   "private_secret": "in love with Keefe",
+   "motive_seed": "ambition and affection",
+   "motive_strength": "weak",
+   "alibi_window": "present at house",
+   "access_plausibility": "none",
+   "stakes": "love rivalry",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Curtis Keefe (love interest)",
+    "Maida Wheeler (friend)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "scheming",
+    "manipulative"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Fleming Stone",
+   "age_range": "50s",
+   "role_archetype": "professional detective",
+   "role": "investigator",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "detective",
+   "private_secret": "none",
+   "motive_seed": "justice",
+   "motive_strength": "strong",
+   "alibi_window": "n/a",
+   "access_plausibility": "n/a",
+   "stakes": "truth and justice",
+   "moral_complexity": "low",
+   "relationships": [
+    "Terence McGuire (assistant)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Terence McGuire (Fibsy)",
+   "age_range": "teens",
+   "role_archetype": "assistant detective with wit",
+   "role": "investigator",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "detective assistant",
+   "private_secret": "tells fibs occasionally",
+   "motive_seed": "curiosity and loyalty",
+   "motive_strength": "moderate",
+   "alibi_window": "n/a",
+   "access_plausibility": "n/a",
+   "stakes": "learning and success",
+   "moral_complexity": "low",
+   "relationships": [
+    "Fleming Stone (employer)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "exaggeration",
+    "playful deceit"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "John Mills",
+   "age_range": "elderly",
+   "role_archetype": "loyal butler and dying man",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "faithful servant",
+   "private_secret": "confessed falsely under bribery",
+   "motive_seed": "family welfare",
+   "motive_strength": "weak",
+   "alibi_window": "bedridden at time",
+   "access_plausibility": "none",
+   "stakes": "family support",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Daniel Wheeler (employer)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "confession under duress"
+   ],
+   "evidence_sensitivity": [
+    "signed confession",
+    "hospital testimony"
+   ]
+  }
+ ],
+ "culprits": [
+  "Curtis Keefe"
+ ],
+ "surface_summary": "Samuel Appleby is found murdered at Sycamore Ridge, with three members of the Wheeler family each confessing to the crime. A mysterious bugle call and a suspicious garage fire add to the intrigue, while a phantom bugler is suspected. The investigation involves multiple false confessions and conflicting testimonies, clouding the true identity of the killer.",
+ "accepted_facts": [
+  "Samuel Appleby was shot dead in the den at Sycamore Ridge.",
+  "Daniel Wheeler, Sara Wheeler, and Maida Wheeler each confessed to the murder.",
+  "A bugle call was heard the night before the murder, linked to a family superstition.",
+  "A fire broke out in the garage at the time of the murder, possibly a distraction."
+ ],
+ "inferred_conclusions": [
+  "The murderer must be one of the Wheeler family members who confessed.",
+  "The phantom bugler was a real person who committed the murder.",
+  "The signed confession of John Mills proves he was the killer."
+ ],
+ "mechanism_description": "Curtis Keefe, motivated by ambition and knowledge of his rightful inheritance, orchestrated the murder of Samuel Appleby. He staged a fire in the garage using acid to create a distraction, then slipped away briefly to shoot Appleby through the bay window from the veranda. To mislead the investigation, Keefe coached the maid Rachel to fabricate the story of a phantom bugler and secured a false confession from the dying butler John Mills by bribery. Keefe's plan was to frame the Wheelers and protect his own interests.",
+ "delivery_path": [
+  "Keefe purchased a bugle and used it to create the phantom bugler legend.",
+  "He arranged for the garage fire using acid to distract the household.",
+  "During the fire, Keefe briefly left the group to shoot Appleby through the bay window.",
+  "He threw the murder weapon into the fern bed to hide it.",
+  "Keefe bribed John Mills to sign a false confession before his death.",
+  "He coached maid Rachel to falsely testify about the bugler on the veranda.",
+  "Keefe manipulated family members and witnesses to maintain the false narrative."
+ ],
+ "outcome_result": "Curtis Keefe is revealed as the true murderer, but he commits suicide before arrest.",
+ "false_assumption": {
+  "statement": "The murder was committed by one of the Wheeler family members who confessed.",
+  "type": "identity",
+  "why_it_seems_reasonable": "All three Wheelers confessed to the crime, and no other suspects were initially apparent. The family had clear motives and opportunity.",
+  "what_it_hides": "It conceals the fact that an outsider, Curtis Keefe, orchestrated the murder and framed the family using false confessions and manipulated witnesses."
+ },
+ "false_solution": {
+  "accused_suspect": "John Mills",
+  "supporting_points": [
+   "Signed a written confession on his deathbed.",
+   "Was devoted to the Wheeler family and had motive to protect them.",
+   "Maid Rachel and others initially testified seeing a man on the veranda matching Mills’ description.",
+   "The confession was witnessed and verified by nurses and family."
+  ],
+  "the_one_flaw": "John Mills was bedridden and physically incapable of committing the murder at the time.",
+  "refuted_in_chapter": 18
+ },
+ "red_herrings": [
+  {
+   "id": "phantom_bugler",
+   "description": "A mysterious bugle call heard the night before the murder, believed to be a supernatural omen and linked to the crime.",
+   "points_at_suspect": "An unknown intruder or the murderer using the bugle to frighten the family.",
+   "innocent_explanation": "The bugle was played by Curtis Keefe himself to create a diversion and mislead the investigation.",
+   "resolved_in_chapter": 18
+  },
+  {
+   "id": "multiple_confessions",
+   "description": "Daniel Wheeler, Sara Wheeler, and Maida Wheeler each confess to the murder, confusing the investigation.",
+   "points_at_suspect": "Each family member is suspected as the true killer.",
+   "innocent_explanation": "The confessions were made to shield the real culprit and protect each other out of family loyalty.",
+   "resolved_in_chapter": 18
+  }
+ ],
+ "closed_circle": {
+  "suspects": [
+   "Daniel Wheeler",
+   "Sara Wheeler",
+   "Maida Wheeler"
+  ],
+  "rationale": "All three had motive and opportunity, and no other suspects were initially considered, making the family the exclusive suspects."
+ },
+ "constraint_space": {
+  "time_anchors": [
+   "time of garage fire",
+   "time of shooting",
+   "time of bugle call"
+  ],
+  "time_windows": [
+   "Keefe's brief absence during fire",
+   "Presence of Wheelers in house at shooting"
+  ],
+  "access_actors": [
+   "Curtis Keefe",
+   "Daniel Wheeler",
+   "Sara Wheeler",
+   "Maida Wheeler",
+   "John Mills"
+  ],
+  "access_objects": [
+   "Wheeler's revolver",
+   "bugle",
+   "garage",
+   "bay window",
+   "fern bed"
+  ],
+  "trust_channels": [
+   "family loyalty",
+   "servants' testimony",
+   "signed confession",
+   "witness statements"
+  ],
+  "authority_sources": [
+   "Fleming Stone (detective)",
+   "local police detectives",
+   "Samuel Appleby (victim and political figure)"
+  ]
+ },
+ "inference_path": [
+  {
+   "observation": "Three family members confess to the murder.",
+   "correction": "Confessions are likely false and made to shield the true culprit.",
+   "effect": "Investigation must consider possibility of collusion and false confessions.",
+   "required_evidence": [
+    "Signed confession of John Mills with witnesses",
+    "Testimonies of family members and servants"
+   ]
+  },
+  {
+   "observation": "Maid Rachel and cook report seeing a man with a bugle on the veranda.",
+   "correction": "Rachel was coached by Keefe to fabricate this story; cook's testimony is mistaken.",
+   "effect": "The phantom bugler is a ruse to mislead investigators.",
+   "required_evidence": [
+    "Rachel's testimony and subsequent disappearance",
+    "Purchase record of bugle by Keefe"
+   ]
+  },
+  {
+   "observation": "Pistol found in fern bed matching Wheeler's revolver.",
+   "correction": "Weapon was thrown there by the murderer to hide evidence.",
+   "effect": "Confirms murder weapon and suggests premeditation.",
+   "required_evidence": [
+    "Physical location of pistol",
+    "Ballistics matching bullet to pistol"
+   ]
+  },
+  {
+   "observation": "Bullet trajectory indicates shot came from bay window direction.",
+   "correction": "Daniel Wheeler could not have fired the shot from his position.",
+   "effect": "Exonerates Daniel Wheeler as shooter.",
+   "required_evidence": [
+    "Medical examiner's report on bullet entry",
+    "Witness statements about positions in room"
+   ]
+  },
+  {
+   "observation": "Keefe absent briefly during garage fire.",
+   "correction": "Keefe used this opportunity to commit the murder unnoticed.",
+   "effect": "Establishes opportunity for Keefe to kill Appleby.",
+   "required_evidence": [
+    "Testimony of Jeffrey Allen about Keefe's disappearance",
+    "Timing of fire and shooting"
+   ]
+  },
+  {
+   "observation": "John Mills signed confession before death.",
+   "correction": "Mills was bribed by Keefe to confess falsely.",
+   "effect": "Discredits Mills' confession as evidence of guilt.",
+   "required_evidence": [
+    "Testimony of Mrs. Mills about bribe",
+    "Keefe's access to Mills in hospital"
+   ]
+  },
+  {
+   "observation": "Keefe purchased bugle and was seen bugling at night.",
+   "correction": "Keefe used bugle to create phantom bugler legend to divert suspicion.",
+   "effect": "Reveals Keefe's manipulation of evidence and witnesses.",
+   "required_evidence": [
+    "Purchase record of bugle",
+    "Genevieve Lane's observation of Keefe bugling"
+   ]
+  }
+ ],
+ "discriminating_test": {
+  "method": "constraint_proof",
+  "design": "Reconstruct the positions of victim, Daniel Wheeler, and Maida Wheeler at the time of the shooting, and analyze the bullet trajectory and entry wound direction. Verify if the shot could have come from Daniel Wheeler's position or only from the bay window side where Maida sat. Confirm the timing of Keefe's absence during the garage fire to establish opportunity.",
+  "knowledge_revealed": "The bullet entered from the bay window side, excluding Daniel Wheeler as shooter. Keefe's brief absence coincides with the shooting time, proving his opportunity.",
+  "pass_condition": "The bullet trajectory and witness statements prove the shooter was not Daniel Wheeler but someone positioned near the bay window, and Keefe's absence during the fire confirms his opportunity."
+ },
+ "fair_play_explanation": "The reader is given all necessary clues: the bullet trajectory, the timing of the fire and Keefe's absence, the false confessions, and the phantom bugler story. The discovery of the pistol in the fern bed and the maid Rachel's testimony provide concrete evidence. The false confessions and the bugler legend are presented as red herrings but are logically challenged by the evidence. The reader could deduce the real murderer by piecing together the timing, physical evidence, and motive.",
+ "anchors": [
+  {
+   "claim": "Samuel Appleby was shot dead in his chair",
+   "anchor": "Samuel Appleby dead in his chair, with a bullet through his heart"
+  },
+  {
+   "claim": "Daniel Wheeler confessed to the murder to shield his daughter",
+   "anchor": "I killed him myself, was the straightforward reply"
+  },
+  {
+   "claim": "Sara Wheeler confessed falsely to protect family",
+   "anchor": "I shot Mr. Appleby myself. That’s why I’m so agitated"
+  },
+  {
+   "claim": "Maida Wheeler confessed falsely to shield her father",
+   "anchor": "I am the real criminal! Can’t you see that my father and mother are both trying to shield me?"
+  },
+  {
+   "claim": "A bugle call was heard the night before the murder",
+   "anchor": "a bugle to which she listened—the clear, though not loud, notes of a bugle"
+  },
+  {
+   "claim": "The pistol was found hidden in the fern bed",
+   "anchor": "he drew forth a revolver, which he turned over to Burdon"
+  },
+  {
+   "claim": "The bullet entered from the bay window side",
+   "anchor": "the bullet entered Mr. Appleby’s body from the direction of Miss Maida, in the bay window"
+  },
+  {
+   "claim": "Keefe was absent briefly during the garage fire",
+   "anchor": "Keefe disappeared for a moment, and, later was again at Allen’s side"
+  },
+  {
+   "claim": "John Mills signed a false confession on his deathbed",
+   "anchor": "a signed confession of a man on his death-bed"
+  },
+  {
+   "claim": "Rachel the maid was coached to fabricate the bugler story",
+   "anchor": "Rachel turned state’s evidence and told how you bribed her to make up that story of the bugler"
+  },
+  {
+   "claim": "Keefe purchased the bugle used to create the phantom bugler ruse",
+   "anchor": "Mr. Keefe bought that bugle—don’t you?"
+  },
+  {
+   "claim": "Keefe orchestrated the garage fire using acid",
+   "anchor": "he used the acids as the man Fulton described"
+  },
+  {
+   "claim": "Keefe manipulated witnesses and bribed Mills",
+   "anchor": "Curtis Keefe went to him and told him that you were about to be dispossessed"
+  },
+  {
+   "claim": "Keefe committed suicide when cornered",
+   "anchor": "with his right he quickly pulled open a drawer, grasped the pistol that was in it, and saying, with a slight smile: “A life for a life!” drew the trigger"
+  },
+  {
+   "claim": "The big sycamore tree fell into Massachusetts",
+   "anchor": "The wind has torn up the sycamore! Unrooted it, and it has fallen over"
+  },
+  {
+   "claim": "Appleby’s letter states Wheeler can go when the sycamore goes into Massachusetts",
+   "anchor": "when the big sycamore tree went into Massachusetts, Wheeler can go"
+  },
+  {
+   "claim": "The fire was started by a chemical reaction using acid bottles",
+   "anchor": "bottles like that contained acid which, when combined with another acid, caused spontaneous combustion"
+  },
+  {
+   "claim": "Three family members confessed to the murder",
+   "anchor": "both your parents have confessed to being the criminal"
+  },
+  {
+   "claim": "The signed confession of Mills was witnessed by nurses",
+   "anchor": "he signed—they witnessed—and there it is"
+  },
+  {
+   "claim": "Keefe’s bugler story was a deliberate fabrication",
+   "anchor": "he coached her, all right, and she got scared before the performance came off and that’s why she ran away"
+  }
+ ]
+}

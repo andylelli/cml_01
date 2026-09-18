@@ -2,9 +2,9 @@
   corpus: seed
   axis: identity
   mechanism_family: staged_scene
-  false_assumption_pattern: circumstantial_evidence_points_to_guilt
+  false_assumption_pattern: the_incriminating_evidence_proves_guilt
   discriminating_test_shape: behavioral_tell
-  inference_shape: eliminate_suspects_by_evidence
+  inference_shape: reveal_planted_evidence
   premise: >-
     Mr. Leavenworth is found murdered in his locked library. Suspicion falls on his nieces,
     especially Eleanore, due to circumstantial evidence and secretive behavior. A secret marriage

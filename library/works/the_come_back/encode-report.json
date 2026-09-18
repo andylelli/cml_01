@@ -1,0 +1,134 @@
+{
+ "slug": "the_come_back",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Peter Crane was lost and presumed dead in a snowstorm",
+   "anchor": "Peter died in the snow",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Gilbert Blair was poisoned with prussic acid",
+   "anchor": "Mr. Blair was poisoned by prussic acid",
+   "span": "The autopsy revealed the mere fact that Mr. Blair was poisoned by prussic acid, taken into the stomach.",
+   "ok": true
+  },
+  {
+   "claim": "McClellan Thorpe and Blair had a rivalry over prize sketches",
+   "anchor": "there was bad blood between the two men",
+   "span": "But there was doubtless a scrap,--a row about the pictures or drawings,--in fact,-- I hate to tell you these things, but we have learned that there was bad blood between the two men, for each thought the other had imitated his own ideas.",
+   "ok": true
+  },
+  {
+   "claim": "A small bottle smelling of prussic acid was found in Thorpe's paint-box",
+   "anchor": "a very small bottle, without cork or label, but smelling unmistakably of prussic acid",
+   "span": "Nothing less than a very small bottle, without cork or label, but smelling unmistakably of prussic acid.",
+   "ok": true
+  },
+  {
+   "claim": "Spirit messages and Ouija Board implicated Thorpe",
+   "anchor": "the Ouija Board promptly replied \"No\" to Thorpe's guilt",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Materialized tobacco pouch was presented at a seance",
+   "anchor": "materialization of the tobacco pouch, detailed exactly as Benjamin Crane had told",
+   "span": "Not the least of the reasons for this was the astounding account of the materialization of the tobacco pouch, detailed exactly as Benjamin Crane had told the story the night of the occurrence.",
+   "ok": true
+  },
+  {
+   "claim": "Materialized handkerchief appeared at a seance",
+   "anchor": "a handkerchief, the duplicate of the one already \"materialized\" and bearing the monogram",
+   "span": "She opened the papers, and found the first to be a handkerchief, the duplicate of the one already \"materialized\" and bearing the monogram Carly had so painstakingly embroidered.",
+   "ok": true
+  },
+  {
+   "claim": "A forged note in Peter's handwriting was delivered to Julie",
+   "anchor": "It is in Peter's own writing!",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Peter Crane returned alive incognito as Louis Bartram",
+   "anchor": "Peter Boots was a tall, gaunt man, who walked with a slight limp",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Peter Crane attended seances and investigated the medium",
+   "anchor": "Peter Boots arranged and rearranged his plans for the seance many times",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Shelby confessed to poisoning Blair",
+   "anchor": "Shelby cried out, \"I did, oh, Peter, I did!\"",
+   "span": "went on the figure that seemed to be Peter, and with wild eyes, fairly starting from their sockets at the sight, Shelby cried out, \"I did, oh, Peter, I did!\" and then he fell in a convulsion of fright and terror.",
+   "ok": true
+  },
+  {
+   "claim": "Medium Madame Parlato was a fraud using stolen items",
+   "anchor": "Madame Parlato was completely suborned",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The poisoned soda mint was the murder weapon",
+   "anchor": "poisoned soda mint, as has been suspected",
+   "span": "The method was by a poisoned soda mint, as has been suspected, and this I know, because Shelby and I talked over methods of murder, when we were discussing detective stories, and he detailed to me the very plan that I am sure he used himself, that of putting one poisoned pellet in a bottle of plain ones, and letting the result happen when it might.",
+   "ok": true
+  },
+  {
+   "claim": "Thorpe had motive of jealousy and ambition",
+   "anchor": "Shelby and Blair quarreled over prize sketches and personal matters",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Peter Crane decided to keep his return secret to protect his father",
+   "anchor": "He must get away by himself and meet this strange, new emergency",
+   "span": "He must get away by himself and meet this strange, new emergency that had come to him.",
+   "ok": true
+  },
+  {
+   "claim": "Ouija Board messages reflect subconscious expectations",
+   "anchor": "Whenever I have asked the Board who killed Gilbert it has responded with the name of the person whom my companion thought guilty",
+   "span": "Whenever I have asked the Board who killed Gilbert it has responded with the name of the person whom my companion thought guilty.",
+   "ok": true
+  },
+  {
+   "claim": "The hidden poison bottle was planted to incriminate Thorpe",
+   "anchor": "The bottle had been emptied and washed, but that poison has such an enduring odor",
+   "span": "The bottle had been emptied and washed, but that poison has such an enduring odor that it is practically impossible to eliminate it entirely.",
+   "ok": true
+  },
+  {
+   "claim": "Peter Crane's father wrote a book about spirit communications",
+   "anchor": "Benjamin Crane found himself famous",
+   "span": "Edition after edition was sold, and Benjamin Crane found himself famous.",
+   "ok": true
+  },
+  {
+   "claim": "The seance with materializations was staged to expose the fraud",
+   "anchor": "The seance was staged in the Crane home",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Peter Crane's confession freed Thorpe and exposed Shelby",
+   "anchor": "Peter Boots himself switched on the lights, threw off his long cloak",
+   "span": "And then, Peter Boots himself switched on the lights, threw off his long cloak, and turned to take his mother in his arms.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.09800195689999999,
+ "models": {
+  "map": "gpt-4o-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true
+}

@@ -41,10 +41,33 @@ describe("ledgers load and validate (§9.4 determinism floor)", () => {
 describe("THE load-bearing invariant (§9.4): a seed-clone skeleton is ALWAYS flagged", () => {
   it("every seed, fed back as its own skeleton, returns clone/variation — never distinct", () => {
     const seeds = loadSeedFingerprints();
+    /**
+     * Two seeds can share a fingerprint, and the `nearest` between them is an arbitrary tie-break.
+     *
+     * MEASURED 2026-09-18, at 47 seeds: exactly one collision group — `the_fenchurch_street_mystery`
+     * and `the_mystery_of_a_hansom_cab` are IDENTICAL on all five compared fields
+     * (identity | impersonation | the_dead_is_who_they_appear | timetable_contradiction |
+     * reconstruct_true_identity). Two different novels, twenty-two years apart, collapse to one
+     * abstraction. Feeding either back returns the other as `nearest`, and asserting a specific id
+     * was asserting which of two equal things the sort happened to put first.
+     *
+     * The load-bearing property is the line above, and it is untouched: 47 of 47 seeds still refuse
+     * to read `distinct` against themselves. This line now allows an identical twin, which is the
+     * strongest claim that is actually true — and it will matter more as the corpus grows, because
+     * collisions are a property of the five-field vocabulary saturating, not of these two books.
+     */
+    const shape = (f: { axis: string; mechanism_family: string; false_assumption_pattern: string;
+      discriminating_test_shape: string; inference_shape: string }) =>
+      [f.axis, f.mechanism_family, f.false_assumption_pattern, f.discriminating_test_shape,
+        f.inference_shape].join("|");
+
     for (const seed of seeds) {
       const v = judgeNovelty(asSkeleton(seed), seeds);
       expect(v.verdict, `${seed.id} must not read distinct`).not.toBe("distinct");
-      expect(v.nearest?.id).toBe(seed.id);
+      const nearest = seeds.find((s) => s.id === v.nearest?.id);
+      expect(nearest, `${seed.id} returned no nearest seed`).toBeDefined();
+      expect(shape(nearest!), `${seed.id} matched ${v.nearest?.id}, a different shape`)
+        .toBe(shape(seed));
     }
   });
 

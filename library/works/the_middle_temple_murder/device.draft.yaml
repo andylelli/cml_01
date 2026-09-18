@@ -1,5 +1,5 @@
 pattern_id: the_middle_temple_murder
-title: The Framed Robbery
+title: The Faked Robbery
 family: spatial_routing
 axes:
   - identity
@@ -31,11 +31,11 @@ feasibility:
     - 1940
     - 1950
   requires:
-    - physical_evidence_manipulation
-    - social_deception
+    - physical_staging
+    - identity_concealment
   forbids:
     - cctv
-    - forensic_document_dating
+    - modern_toxicology_screen
 clue_archetypes:
   - scrap_of_grey_paper
   - witness_testimony_of_breton

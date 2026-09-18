@@ -1,0 +1,526 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The Come Back
+    author: Carolyn Wells
+    license: Public domain (first published 1921; author died 1942). Project Gutenberg ebook 30868.
+    era:
+      decade: 1920s
+      realism_constraints:
+        - No modern forensic DNA or electronic surveillance available
+        - Communication limited to letters, telegrams, and in-person or telephone contact
+        - Occult phenomena and spiritualism widely believed but scientifically unproven
+    setting:
+      location: New York City and Labrador wilderness
+      institution: New York Police Department
+    crime_class:
+      category: murder
+      subtype: poisoning with prussic acid via tampered soda mint
+  cast:
+    - name: Peter Crane
+      age_range: 27-30
+      role_archetype: adventurous young man presumed dead
+      relationships:
+        - Benjamin Crane (father)
+        - Mrs. Crane (mother)
+        - Julie Crane (sister)
+        - Carlotta Harper (love interest)
+        - Kit Shelby (friend)
+        - Gilbert Blair (friend, murder victim)
+        - McClellan Thorpe (suspect, Julie's love interest)
+      public_persona: presumed dead explorer
+      private_secret: alive incognito investigating murder
+      motive_seed: clear Thorpe's name and expose real murderer
+      motive_strength: strong
+      alibi_window: present at seance and investigation
+      access_plausibility: high
+      opportunity_channels:
+        - access to family home
+        - knowledge of medium and occult events
+      behavioral_tells:
+        - careful concealment of identity
+        - strategic planning
+      stakes: clearing innocent man and restoring family honor
+      evidence_sensitivity:
+        - tobacco pouch
+        - handkerchief
+        - forged letter
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: high
+    - name: Benjamin Crane
+      age_range: 60-65
+      role_archetype: grieving father and spiritist believer
+      relationships:
+        - Peter Crane (son)
+        - Mrs. Crane (wife)
+        - Julie Crane (daughter)
+        - Madame Parlato (medium)
+      public_persona: author of book on son's spirit communications
+      private_secret: deeply believes in son's spirit messages
+      motive_seed: comfort from spiritual communications
+      motive_strength: none
+      alibi_window: always at home
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells:
+        - strong belief in spiritism
+        - defense of accused Thorpe
+      stakes: family reputation and emotional solace
+      evidence_sensitivity:
+        - book
+        - medium sessions
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: bystander
+      moral_complexity: moderate
+    - name: Mrs. Crane
+      age_range: 55-60
+      role_archetype: grieving mother and spiritist believer
+      relationships:
+        - Benjamin Crane (husband)
+        - Peter Crane (son)
+        - Julie Crane (daughter)
+      public_persona: supportive wife and mother
+      private_secret: shares husband's belief in spirit communications
+      motive_seed: comfort from spiritual communications
+      motive_strength: none
+      alibi_window: always at home
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells:
+        - emotional support for spiritism
+      stakes: family emotional well-being
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: bystander
+      moral_complexity: moderate
+    - name: Julie Crane
+      age_range: 20-25
+      role_archetype: emotional daughter skeptical of spiritism
+      relationships:
+        - Benjamin Crane (father)
+        - Mrs. Crane (mother)
+        - Peter Crane (brother)
+        - McClellan Thorpe (fiance)
+      public_persona: daughter opposing spiritism
+      private_secret: loves McClellan Thorpe and defends him
+      motive_seed: protect Thorpe from false accusation
+      motive_strength: moderate
+      alibi_window: present at home and seances
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells:
+        - resentment of Carly
+        - defense of Thorpe
+      stakes: love and family loyalty
+      evidence_sensitivity:
+        - forged note
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: moderate
+    - name: Gilbert Blair
+      age_range: 27-30
+      role_archetype: victim, young architect and friend
+      relationships:
+        - Kit Shelby (friend)
+        - McClellan Thorpe (rival)
+        - Carlotta Harper (love interest)
+      public_persona: promising architect
+      private_secret: suspected Thorpe of idea theft
+      motive_seed: rivalry with Thorpe
+      motive_strength: none
+      alibi_window: dead at time of crime
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells:
+        - nervousness before death
+      stakes: life
+      evidence_sensitivity:
+        - poisoned soda mint
+        - sketches
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: low
+    - name: McClellan Thorpe
+      age_range: 27-35
+      role_archetype: suspect, rival architect, Julie's love interest
+      relationships:
+        - Julie Crane (fiance)
+        - Gilbert Blair (rival and victim)
+        - Carlotta Harper (love interest)
+      public_persona: friend and rival architect
+      private_secret: murdered Blair to secure prize and love
+      motive_seed: jealousy and ambition
+      motive_strength: strong
+      alibi_window: had exclusive access to victim's room
+      access_plausibility: high
+      opportunity_channels:
+        - shared apartment with Blair
+        - access to poison bottle
+      behavioral_tells:
+        - nervousness
+        - flight from scene
+        - confession under pressure
+      stakes: prize competition and Carlotta's affections
+      evidence_sensitivity:
+        - hidden poison bottle
+        - forged letter
+        - poisoned soda mint
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Kit Shelby
+      age_range: 27-35
+      role_archetype: friend, playwright, and producer
+      relationships:
+        - Gilbert Blair (friend and rival)
+        - Carlotta Harper (love interest)
+        - Peter Crane (friend)
+      public_persona: successful architect and producer
+      private_secret: admired Carlotta, rival with Blair
+      motive_seed: jealousy and ambition
+      motive_strength: weak
+      alibi_window: present at seance and social events
+      access_plausibility: medium
+      opportunity_channels:
+        - access to Blair's sketches
+        - presence at medium's sessions
+      behavioral_tells:
+        - nervousness at accusation
+        - denial of guilt
+      stakes: prize competition and love
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: Carlotta Harper
+      age_range: 20-25
+      role_archetype: love interest, medium board user
+      relationships:
+        - Peter Crane (love interest)
+        - Gilbert Blair (friend)
+        - Kit Shelby (friend)
+      public_persona: friend and love interest
+      private_secret: skilled with Ouija Board but skeptical
+      motive_seed: love for Peter and concern for truth
+      motive_strength: moderate
+      alibi_window: present at seances and social events
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells:
+        - skepticism of spiritism
+        - honest use of Ouija Board
+      stakes: love and friendship
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: low
+    - name: Pennington Wise
+      age_range: 40-50
+      role_archetype: professional investigating
+      relationships:
+        - Zizi (assistant)
+        - Benjamin Crane (client)
+        - McClellan Thorpe (suspect)
+      public_persona: skilled investigator
+      private_secret: skeptical of spiritism but open-minded
+      motive_seed: solve murder and clear innocent
+      motive_strength: strong
+      alibi_window: always at investigation scenes
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells:
+        - methodical investigation
+      stakes: justice
+      evidence_sensitivity:
+        - hidden poison bottle
+        - handwriting analysis
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+    - name: Zizi
+      age_range: 20-25
+      role_archetype: investigating's assistant, skeptic of spiritism
+      relationships:
+        - Pennington Wise (partner)
+        - Benjamin Crane (client)
+        - Peter Crane (ally)
+      public_persona: assistant and skeptic
+      private_secret: disbelieves medium and spiritism
+      motive_seed: expose fraud and help justice
+      motive_strength: strong
+      alibi_window: present at seances and investigations
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells:
+        - observant
+        - skeptical
+      stakes: truth and justice
+      evidence_sensitivity:
+        - medium's materializations
+        - forged note
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: low
+    - name: Madame Parlato
+      age_range: 40-50
+      role_archetype: medium and fraudster
+      relationships:
+        - Benjamin Crane (client)
+        - Peter Crane (target)
+        - Louis Bartram (accomplice)
+      public_persona: respected medium
+      private_secret: fabricates spirit communications and materializations
+      motive_seed: financial gain and influence
+      motive_strength: strong
+      alibi_window: present at seances
+      access_plausibility: high
+      opportunity_channels:
+        - access to Crane home and belongings
+      behavioral_tells:
+        - trance acting
+        - evasiveness
+      stakes: money and reputation
+      evidence_sensitivity:
+        - materialized tobacco pouch
+        - handkerchief
+        - forged letter
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: female
+      role: culprit
+      moral_complexity: high
+  culpability:
+    culprit_count: 2
+    culprits:
+      - McClellan Thorpe
+      - Madame Parlato
+  surface_model:
+    narrative:
+      summary: >-
+        Peter Crane was presumed dead after a Labrador expedition, but his father believed in spirit
+        communications from him through a medium. Meanwhile, Gilbert Blair, a friend, was
+        mysteriously poisoned, and McClellan Thorpe, Julie Crane's love interest, was accused. The
+        case appears to be a supernatural mystery intertwined with rivalry and jealousy.
+    accepted_facts:
+      - Peter Crane died in a snowstorm in Labrador
+      - Gilbert Blair was poisoned with prussic acid
+      - McClellan Thorpe and Blair were rivals in a prize competition
+      - Benjamin Crane received spirit messages from his dead son via Madame Parlato
+    inferred_conclusions:
+      - Peter Crane's spirit is truly communicating with his parents
+      - McClellan Thorpe killed Gilbert Blair out of jealousy
+      - The materialized objects at seances are supernatural manifestations
+  hidden_model:
+    mechanism:
+      description: >-
+        McClellan Thorpe murdered Gilbert Blair by secretly poisoning a soda mint with prussic acid,
+        which Blair unknowingly consumed. The medium, Madame Parlato, was complicit in fabricating
+        spirit communications and materializations using stolen personal items of Peter Crane to
+        deceive the Cranes and others. Peter Crane, alive but incognito, uncovered the fraud and the
+        true murderer.
+      delivery_path:
+        - step: Thorpe and Blair quarreled over prize sketches and personal matters
+        - step: Thorpe secretly obtained prussic acid and a small bottle
+        - step: Thorpe poisoned a soda mint pellet and placed it among Blair's mints
+        - step: Blair consumed the poisoned mint and died in his bed
+        - step: Thorpe concealed the poison bottle in his paint-box
+        - step: Madame Parlato used stolen personal items to fake spirit materializations
+        - step: Peter Crane returned incognito to investigate and expose the fraud and murder
+    outcome:
+      result: >-
+        McClellan Thorpe confessed to poisoning Gilbert Blair, Madame Parlato's fraud was exposed,
+        and Peter Crane was reunited with his family alive.
+  false_assumption:
+    statement: Peter Crane was dead and communicating from beyond the grave.
+    type: identity
+    why_it_seems_reasonable: >-
+      The Cranes received messages and materializations through a medium that appeared to be from
+      Peter, supported by physical objects like a tobacco pouch and handkerchief. The medium was
+      respected and the messages consistent with their beliefs.
+    what_it_hides: >-
+      The medium and an accomplice fabricated the messages and materializations using stolen items,
+      and Peter Crane was actually alive, having survived the accident.
+  false_solution:
+    accused_suspect: Kit Shelby
+    supporting_points:
+      - Shelby had motive due to rivalry with Blair
+      - Shelby had opportunity as Blair's friend and frequent visitor
+      - Ouija Board sessions and spirit messages pointed to Shelby
+      - Shelby was present at key seances and implicated by circumstantial evidence
+    the_one_flaw: >-
+      No direct evidence proved Shelby administered the poison; the spirit messages were fabricated
+      and the real poison bottle was found elsewhere.
+    refuted_in_chapter: 18
+  red_herrings:
+    - id: madame_parlato_medium
+      description: >-
+        Madame Parlato's spirit communications and materializations convinced the Cranes of
+        supernatural contact.
+      points_at_suspect: McClellan Thorpe as the murderer
+      innocent_explanation: >-
+        Madame Parlato was a fraud who used stolen items to fake spirit manifestations, not a
+        genuine medium.
+      resolved_in_chapter: 18
+    - id: ouija_board_messages
+      description: Ouija Board sessions repeatedly spelled out Thorpe's guilt.
+      points_at_suspect: McClellan Thorpe
+      innocent_explanation: >-
+        Ouija Board messages reflected the subconscious expectations of the participants, especially
+        Carlotta and Shelby, not actual spirit communications.
+      resolved_in_chapter: 17
+  closed_circle:
+    suspects:
+      - McClellan Thorpe
+      - Kit Shelby
+      - Madame Parlato
+    rationale: >-
+      The murder occurred in a shared apartment with limited access; only these individuals had
+      motive, opportunity, and access to poison or victim's belongings.
+  constraint_space:
+    time:
+      anchors:
+        - night of Blair's death
+        - morning of discovery
+        - date of Peter's fall in snowstorm
+      windows:
+        - nighttime when Blair was poisoned
+        - seance dates with medium
+        - period of Peter's absence
+    access:
+      actors:
+        - McClellan Thorpe
+        - Kit Shelby
+        - Madame Parlato
+        - Peter Crane (incognito)
+      objects:
+        - poison bottle
+        - soda mint bottle
+        - tobacco pouch
+        - handkerchief
+        - forged letter
+    social:
+      trust_channels:
+        - Ouija Board sessions
+        - medium's communications
+        - family testimonies
+      authority_sources:
+        - Medical Examiner
+        - Police Detective Weston
+        - Pennington Wise (private detective)
+  inference_path:
+    steps:
+      - observation: Gilbert Blair died from prussic acid poisoning with no container found
+        correction: Poison was likely administered in a way leaving no glass or container
+        effect: Focus on indirect poisoning methods like tampered consumables
+        required_evidence:
+          - Medical Examiner's autopsy report detailing prussic acid poisoning
+          - Search of Blair's room and belongings for poison containers
+        reader_observable: true
+      - observation: A small bottle smelling of prussic acid was found hidden in Thorpe's paint-box
+        correction: The bottle was concealed after use, indicating Thorpe's involvement
+        effect: Thorpe gains suspicion as having access and motive
+        required_evidence:
+          - Police report on discovery of poison bottle in Thorpe's belongings
+          - Witness testimony on Thorpe's access to the apartment
+        reader_observable: true
+      - observation: Spirit messages and Ouija Board sessions implicate Thorpe
+        correction: Messages are influenced by participants' subconscious or fabricated
+        effect: Discredit supernatural evidence as reliable proof
+        required_evidence:
+          - Observation of Ouija Board sessions with Carly Harper and Kit Shelby
+          - Handwriting analysis of forged note to Julie Crane
+        reader_observable: true
+      - observation: Materialized objects like tobacco pouch and handkerchief appear at seances
+        correction: Objects were stolen or duplicated and used by the medium to fake manifestations
+        effect: Medium is complicit in deception
+        required_evidence:
+          - Testimony of Zizi observing medium's possession of stolen items
+          - Comparison of original items with materialized ones
+        reader_observable: true
+      - observation: Peter Crane is presumed dead but is seen alive incognito
+        correction: Peter survived accident and concealed identity to investigate
+        effect: Peter can act as detective and expose fraud and murderer
+        required_evidence:
+          - Peter Crane's appearance at Crane home and meeting with Zizi
+          - Interview with reporter Tom Douglas about Peter's return
+        reader_observable: true
+      - observation: Shelby is accused and arrested for Blair's murder
+        correction: Shelby is innocent and his confession was coerced by pressure and confusion
+        effect: >-
+          Attention shifts to the real murderer, as evidence against Shelby is circumstantial and
+          contradicted by physical clues
+        required_evidence:
+          - >-
+            Police arrest record for Kit Shelby and timeline of his whereabouts on the night of the
+            murder
+          - Analysis of the poison bottle found in Thorpe's paint-box and fingerprints on the bottle
+        reader_observable: true
+      - observation: Medium's fraud is exposed during controlled seance with Peter Crane present
+        correction: Medium is unable to produce objects provided only at the seance, revealing the fraud
+        effect: Fraudulent spirit communications are discredited and the medium's complicity is proven
+        required_evidence:
+          - Seance transcript and materialization with Peter Crane's direction
+          - >-
+            Inventory of objects provided to the medium immediately before the seance and comparison
+            with materialized items
+        reader_observable: true
+  discriminating_test:
+    method: trap
+    design: >-
+      A controlled seance is arranged where the medium must materialize specific objects provided by
+      Peter Crane incognito, with observers including the detective and witnesses. The medium is
+      instructed to follow exact directions and is monitored for any deviation or failure to produce
+      the objects.
+    knowledge_revealed: >-
+      The medium's inability to produce the objects without prior access or collusion reveals the
+      fraud and identifies the accomplice supplying the items.
+    pass_condition: >-
+      Successful materialization of the objects exactly as provided confirms complicity; failure or
+      deviation exposes fraud.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given all necessary clues including the discovery of the hidden poison bottle,
+      the nature of the poison, the rivalry and motives among the suspects, the inconsistencies in
+      the spirit communications, and the forged note. Observations of the Ouija Board sessions and
+      the medium's behavior provide grounds for skepticism. The presence of Peter Crane alive and
+      his investigation are foreshadowed. Careful attention to these details allows the reader to
+      deduce the true murderer and the medium's fraud before the final reveal.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

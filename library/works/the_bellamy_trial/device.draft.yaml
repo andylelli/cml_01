@@ -1,5 +1,5 @@
 pattern_id: the_bellamy_trial
-title: The Mistimed Scream
+title: The Misheard Scream
 family: timing
 axes:
   - temporal
@@ -7,7 +7,7 @@ principle: >-
   The actual murder occurred later, after 10 PM, when the culprit a suspect was alone at the
   cottage, and the scream and laugh heard by a witness were unrelated or misinterpreted, misleading
   the jury about the true time of death.
-principleType: physical_law
+principleType: cognitive_bias
 surface_illusion_template: >-
   a suspect a suspect and a suspect a suspect committed the murder together; The murder happened
   around 9:30 PM as fixed by a witness a witness testimony; The car belonging to a suspect a suspect
@@ -34,7 +34,7 @@ feasibility:
   requires:
     - witness_testimony
     - physical_evidence
-    - time_constraint
+    - time_window
   forbids:
     - electronic_timekeeping
     - cctv

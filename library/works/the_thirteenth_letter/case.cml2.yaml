@@ -1,0 +1,392 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The Thirteenth Letter
+    author: Natalie Sumner Lincoln
+    license: Public domain (first published 1924; author died 1935). Project Gutenberg ebook 67890.
+    era:
+      decade: 1920s
+      realism_constraints:
+        - No advanced forensic DNA analysis available
+        - Telephones and automobiles are in use
+        - Chloroform and hypodermic syringes are common medical tools
+    setting:
+      location: Abbott's Lodge, Hills Bridge, Prince Georges County, Maryland, USA
+      institution: Prince Georges County Sheriff's Office
+    crime_class:
+      category: murder
+      subtype: stabbed with a nut pick while chloroforming the nurse
+  cast:
+    - name: Paul Abbott
+      age_range: 30s
+      role_archetype: shell-shocked war veteran and wealthy heir
+      relationships:
+        - Alan Mason (cousin)
+        - Betty Carter (fiancée)
+        - Doctor Roberts (physician)
+      public_persona: promising young architect, social favorite
+      private_secret: carried the Paltoff diamond secretly
+      motive_seed: none
+      motive_strength: none
+      alibi_window: dead at night between 1:30 and 3:00 am
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: high, inheritance and valuable diamond
+      evidence_sensitivity: []
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: none
+    - name: Miriam Ward
+      age_range: mid-20s
+      role_archetype: dedicated nurse, outsider
+      relationships:
+        - Paul Abbott (patient)
+        - Guy Trenholm (detective ally)
+        - Doctor Roberts (physician)
+      public_persona: trained nurse from New York
+      private_secret: related to the Paltoff family, knows about the diamond
+      motive_seed: none
+      motive_strength: none
+      alibi_window: asleep and chloroformed during murder
+      access_plausibility: high, nurse on duty
+      opportunity_channels:
+        - access to victim's room
+      behavioral_tells:
+        - fainting under chloroform
+        - vivid memory of events
+      stakes: professional reputation
+      evidence_sensitivity:
+        - half-burnt envelope with black crest
+        - unopened letter with Canadian stamps
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: female
+      role: suspect
+      moral_complexity: high, struggles with trust and love
+    - name: Betty Carter
+      age_range: 20s
+      role_archetype: fiancée, conflicted woman
+      relationships:
+        - Paul Abbott (fiancé)
+        - Alan Mason (lover)
+        - Doctor Nash (companion)
+      public_persona: Paul Abbott's fiancée
+      private_secret: loves Alan Mason, married Paul under false pretenses
+      motive_seed: fear of losing inheritance
+      motive_strength: weak
+      alibi_window: present at Abbott's Lodge Monday night until just before murder
+      access_plausibility: high
+      opportunity_channels:
+        - access to victim's room
+      behavioral_tells:
+        - denial of presence
+        - emotional breakdown
+      stakes: inheritance and social position
+      evidence_sensitivity:
+        - telegram to Paul Abbott
+        - bloodstained scarf
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: moderate
+    - name: Alan Mason
+      age_range: 30s
+      role_archetype: cousin, reporter, secret lover
+      relationships:
+        - Paul Abbott (cousin)
+        - Betty Carter (lover)
+        - Miriam Ward (friend)
+      public_persona: Paul Abbott's cousin and reporter
+      private_secret: loves Betty Carter, wore beard to impersonate Paul
+      motive_seed: jealousy and love
+      motive_strength: weak
+      alibi_window: present at Abbott's Lodge Monday night
+      access_plausibility: high
+      opportunity_channels:
+        - access to victim's room
+      behavioral_tells:
+        - nervousness
+        - attempted impersonation
+      stakes: inheritance, love
+      evidence_sensitivity:
+        - ring given by Paul
+        - muddy shoes on veranda roof
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: Doctor Roberts
+      age_range: 50s
+      role_archetype: physician, drug addict, murderer
+      relationships:
+        - Paul Abbott (patient)
+        - Miriam Ward (nurse)
+        - Boris Zybinn (confederate)
+      public_persona: trusted family physician
+      private_secret: drug addict, conspired to steal diamond, murdered Paul Abbott
+      motive_seed: addiction and greed
+      motive_strength: strong
+      alibi_window: left Abbott's Lodge after chloroforming nurse
+      access_plausibility: high
+      opportunity_channels:
+        - access to victim's room
+        - medical knowledge
+      behavioral_tells:
+        - nervousness
+        - attempted to destroy evidence
+      stakes: money from diamond theft
+      evidence_sensitivity:
+        - bloodstained nut pick
+        - chloroform cotton
+        - coded letters
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Guy Trenholm
+      age_range: 40s
+      role_archetype: sheriff, investigator
+      relationships:
+        - Alan Mason (friend)
+        - Miriam Ward (ally)
+        - Doctor Roberts (suspect)
+      public_persona: county sheriff
+      private_secret: wealthy heir, intelligent and resourceful
+      motive_seed: none
+      motive_strength: none
+      alibi_window: investigating throughout
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: justice
+      evidence_sensitivity: []
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: low
+  culpability:
+    culprit_count: 1
+    culprits:
+      - Doctor Roberts
+  surface_model:
+    narrative:
+      summary: >-
+        Paul Abbott, a war-wounded architect, is found stabbed in his bed at his country estate. The
+        nurse on duty, Miriam Ward, was chloroformed and unconscious during the murder. Suspicion
+        falls on several people including the nurse, the fiancée Betty Carter, and the cousin Alan
+        Mason, but the case is complicated by secret letters coded in postage stamps and a missing
+        valuable diamond.
+    accepted_facts:
+      - Paul Abbott was stabbed in the back with a nut pick
+      - Miriam Ward was chloroformed and unconscious during the murder
+      - Betty Carter denied being at Abbott's Lodge on the night of the murder
+      - A coded message was found in letters sent by Boris Zybinn to Paul Abbott
+    inferred_conclusions:
+      - Miriam Ward killed Paul Abbott while he slept
+      - Betty Carter was involved in the murder to secure inheritance
+      - Alan Mason impersonated Paul Abbott to cover up the crime
+  hidden_model:
+    mechanism:
+      description: >-
+        Doctor Roberts, a drug addict and confederate of Boris Zybinn, murdered Paul Abbott by
+        stabbing him with a nut pick while the nurse, Miriam Ward, was chloroformed and unconscious.
+        Roberts then manipulated the scene by placing the body back in the bed and attempting to
+        destroy evidence. The coded letters concealed the location of the Paltoff diamond, which
+        Roberts sought to steal.
+      delivery_path:
+        - step: Roberts arrives at Abbott's Lodge and finds the coded letter
+        - step: He attempts to open the letter but is surprised by Paul Abbott
+        - step: Roberts stabs Paul Abbott with the nut pick to silence him
+        - step: Roberts chloroforms Miriam Ward to prevent her from witnessing
+        - step: He places Paul's body back in the bed and removes incriminating evidence
+        - step: Roberts tries to decode the letters to find the diamond's hiding place
+        - step: Sheriff Trenholm sets a trap with the thirteenth letter envelope
+    outcome:
+      result: >-
+        Doctor Roberts is arrested for the murder of Paul Abbott and the theft of the Paltoff
+        diamond.
+  false_assumption:
+    statement: >-
+      Miriam Ward was the murderer because she was the last person with Paul Abbott and was
+      chloroformed to cover the crime.
+    type: behavioral
+    why_it_seems_reasonable: >-
+      Miriam was alone with the victim and unconscious during the murder, making her the prime
+      suspect. Her inconsistent memories and the chloroform suggested guilt or complicity.
+    what_it_hides: >-
+      It hides the fact that Doctor Roberts, the physician, had both motive and opportunity, and
+      that he chloroformed Miriam to cover his own crime.
+  false_solution:
+    accused_suspect: Miriam Ward
+    supporting_points:
+      - She was the last known person with Paul Abbott
+      - She was chloroformed and unconscious during the murder
+      - She found a strange man in the bed instead of Paul
+      - Her statements about Betty Carter's visit were initially disbelieved
+    the_one_flaw: >-
+      She was chloroformed by the real murderer and had no motive or opportunity to kill Paul
+      Abbott.
+    refuted_in_chapter: 20
+  red_herrings:
+    - id: betty_carter_denial
+      description: >-
+        Betty Carter denies being at Abbott's Lodge on the night of the murder, casting suspicion on
+        her.
+      points_at_suspect: Betty Carter
+      innocent_explanation: >-
+        Betty was protecting her reputation and inheritance rights; she was indeed present and
+        married Paul Abbott.
+      resolved_in_chapter: 19
+    - id: alan_mason_impersonation
+      description: >-
+        Alan Mason impersonates Paul Abbott by wearing a beard and hiding in the bed, suggesting
+        possible guilt.
+      points_at_suspect: Alan Mason
+      innocent_explanation: >-
+        Alan was hiding to avoid upsetting Betty and Paul during their marriage ceremony and had no
+        involvement in the murder.
+      resolved_in_chapter: 20
+  closed_circle:
+    suspects:
+      - Miriam Ward
+      - Betty Carter
+      - Alan Mason
+      - Doctor Roberts
+      - Corbin
+    rationale: >-
+      All had access to Abbott's Lodge and opportunity to commit the murder, but only Doctor Roberts
+      had the motive, opportunity, and evidence linking him to the crime.
+  constraint_space:
+    time:
+      anchors:
+        - Between 1:30 am and 3:00 am Monday night
+        - Miriam chloroformed shortly after midnight
+        - Betty and Doctor Nash arrive just before midnight
+        - Alan Mason arrives after midnight and hides in bed
+      windows:
+        - Miriam's unconscious period during murder
+        - Betty's presence before murder
+        - Alan's presence after midnight
+        - Doctor Roberts' departure and return times
+    access:
+      actors:
+        - Miriam Ward
+        - Betty Carter
+        - Alan Mason
+        - Doctor Roberts
+        - Corbin
+      objects:
+        - Paul Abbott's bedroom
+        - Sunparlor
+        - Caretaker's quarters
+        - Garage
+        - Mason family graveyard
+    social:
+      trust_channels:
+        - Doctor Roberts' medical authority
+        - Miriam Ward's nurse status
+        - Betty Carter's social standing
+        - Alan Mason's family relation
+      authority_sources:
+        - Sheriff Trenholm
+        - Coroner Dixon
+        - Doctor Roberts
+        - Daniel Corcoran (lawyer)
+  inference_path:
+    steps:
+      - observation: Miriam was chloroformed and unconscious during the murder
+        correction: She was incapacitated and could not have committed the murder
+        effect: Exonerates Miriam as the culprit
+        required_evidence:
+          - Cotton with chloroform odor found under the bed
+          - Miriam's own testimony of being chloroformed
+        reader_observable: true
+      - observation: Betty Carter denied being at Abbott's Lodge on the night of the murder
+        correction: Betty admitted later she was present and married Paul Abbott
+        effect: Removes suspicion from Betty
+        required_evidence:
+          - Telegram from Betty Carter to Paul Abbott sent on the night of the murder
+          - Marriage certificate signed by Doctor Nash and witnessed by Alan Mason
+        reader_observable: true
+      - observation: Alan Mason was found hiding in Paul's bed wearing a beard
+        correction: Alan was hiding to avoid disturbing the marriage ceremony
+        effect: Alan's presence explained, no motive for murder
+        required_evidence:
+          - Muddy shoes found on the veranda roof matching Alan Mason's size and recent use
+          - Description of the marriage ceremony from Doctor Nash's written statement
+        reader_observable: true
+      - observation: Bloodstained nut pick found in the sunparlor
+        correction: Nut pick was the murder weapon used by Doctor Roberts
+        effect: Identifies murder weapon and links to culprit
+        required_evidence:
+          - Nut pick with blood stains
+          - Doctor Roberts' fingerprints on the nut pick handle
+        reader_observable: true
+      - observation: Coded letters with unusual postage stamps found
+        correction: Letters contain a code revealing the hiding place of the Paltoff diamond
+        effect: Reveals motive related to diamond theft
+        required_evidence:
+          - Decoded messages from the letters showing the hiding place
+          - Thirteenth letter envelope with code and matching stamps
+        reader_observable: true
+      - observation: Doctor Roberts was seen with the letters and acted suspiciously
+        correction: Roberts was the murderer and tried to decode the letters to find the diamond
+        effect: Identifies Roberts as the culprit
+        required_evidence:
+          - >-
+            Roberts caught in Mrs. Nash's bedroom with the thirteenth letter envelope and a
+            perforation gauge
+          - Perforation gauge with Doctor Roberts' initials found at the scene
+        reader_observable: true
+      - observation: Paul Abbott was found stabbed with no external blood stains
+        correction: The wound was internal, explaining the lack of blood on sheets
+        effect: Clarifies cause of death and scene
+        required_evidence:
+          - Autopsy report by Coroner Dixon detailing internal bleeding
+          - Bloodstained sheets and bedclothes examination showing minimal external stains
+        reader_observable: true
+  discriminating_test:
+    method: trap
+    design: >-
+      Sheriff Trenholm placed the thirteenth letter envelope in Mrs. Nash's bedroom dustpan as bait.
+      He hid and waited to catch the person attempting to steal the coded letter. When Doctor
+      Roberts entered and tried to take the letter with a perforation gauge, he was arrested.
+    knowledge_revealed: >-
+      The test revealed that Doctor Roberts was the person trying to recover the coded letter,
+      implicating him as the murderer and conspirator.
+    pass_condition: >-
+      The person who attempts to steal the thirteenth letter envelope from the dustpan is identified
+      and arrested.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given all necessary clues including the chloroform evidence, the coded letters
+      with the stamp code, the presence and motives of all suspects, and the inconsistencies in
+      Betty Carter's and Alan Mason's stories. The decoding of the letters and the discovery of the
+      thirteenth letter code are explained in detail, allowing an attentive reader to deduce the
+      involvement of Doctor Roberts. The false assumptions about Miriam Ward and Betty Carter are
+      clearly presented and refuted.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

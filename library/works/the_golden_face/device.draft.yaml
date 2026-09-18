@@ -1,0 +1,49 @@
+pattern_id: the_golden_face
+title: The Borrowed Face
+family: identity
+axes:
+  - identity
+principle: >-
+  The real Lady the culprit is an accomplice named the culprit, and the pearls stolen by the
+  investigator are imitation. The theft is a setup to implicate the investigator and conceal the
+  true criminals.
+principleType: social_logic
+surface_illusion_template: >-
+  the investigator is the prime thief of Lady the culprit jewels; the culprit acted alone in the
+  bank robbery; Lady the culprit is an innocent victim unaware of the theft
+underlying_reality_template: >-
+  the culprit orchestrated the thefts using trusted agents and elaborate disguises. He manipulated
+  the investigator into stealing Lady the culprit pearls under duress, but the pearls were actually
+  imitation. The real Lady the culprit was an accomplice named the culprit who used the theft to
+  cover her own criminal activities. the culprit also framed Hugh Martyn by transferring Martyn's
+  fingerprints onto gloves used in a bank robbery, ensuring Martyn's conviction while the culprit
+  remained clean.
+feasibility:
+  eras:
+    - 1850
+    - 1860
+    - 1870
+    - 1880
+    - 1890
+    - 1900
+    - 1910
+    - 1920
+    - 1930
+    - 1940
+    - 1950
+  requires:
+    - physical_disguise
+    - social_deference
+    - master_key
+  forbids:
+    - cctv
+    - voice_authentication
+clue_archetypes:
+  - photographs_of_the_four
+  - court_testimony_of_fingerprint
+  - comparison_of_pearls_worn
+  - receipt_from_the_paris
+  - testimony_of_vincent_duperre
+  - witness_statement_of_boys
+sources:
+  - William Le Queux, The Golden Face — library/works/the_golden_face/case.cml2.yaml

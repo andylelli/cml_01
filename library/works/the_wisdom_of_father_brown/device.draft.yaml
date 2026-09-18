@@ -1,5 +1,5 @@
 pattern_id: the_wisdom_of_father_brown
-title: The Framed Death
+title: The Framed Suicide
 family: spatial_routing
 axes:
   - identity
@@ -30,10 +30,10 @@ feasibility:
     - 1950
   requires:
     - physical_staging
-    - social_testimony
+    - social_reputation
   forbids:
     - cctv
-    - voice_authentication
+    - modern_toxicology_screen
 clue_archetypes:
   - examination_of_knots_on
   - todhunter_s_own_admission

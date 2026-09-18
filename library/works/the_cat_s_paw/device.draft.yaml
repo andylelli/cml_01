@@ -1,0 +1,47 @@
+pattern_id: the_cat_s_paw
+title: The Split Blade
+family: timing
+axes:
+  - identity
+principle: >-
+  The revolver was planted by the real culprit, the culprit, to frame the victim. The quarrel was
+  unrelated to the murder, and the victim was innocent.
+principleType: physical_law
+surface_illusion_template: >-
+  the victim murdered her aunt to inherit the fortune.; a suspect a suspect a suspect was
+  responsible due to jealousy and family disputes.; Mrs. a suspect a suspect was involved in the
+  murder to gain blackmail material.
+underlying_reality_template: >-
+  the culprit, driven by financial desperation and to cover up his forgery, poisoned Miss the victim
+  by applying prussic acid to one side of a fruit knife used to cut a peach. He ensured only Miss
+  the victim ate the poisoned half by eating the safe side himself. He attempted to frame others by
+  planting evidence and manipulating servants. He later killed Mrs. a suspect to silence her when
+  she threatened exposure.
+feasibility:
+  eras:
+    - 1850
+    - 1860
+    - 1870
+    - 1880
+    - 1890
+    - 1900
+    - 1910
+    - 1920
+    - 1930
+    - 1940
+    - 1950
+  requires:
+    - period_poison
+    - knife_with_two_sides
+    - food_serving_control
+  forbids:
+    - modern_toxicology_screen
+clue_archetypes:
+  - deputy_coroner_fisher_s
+  - inspection_of_the_fruit
+  - inspector_mitchell_s_testimony
+  - police_report_on_door
+  - witness_statement_of_oscar
+  - train_records_confirming_oscar
+sources:
+  - Natalie Sumner Lincoln, The Cat's Paw — library/works/the_cat_s_paw/case.cml2.yaml

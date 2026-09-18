@@ -1,6 +1,6 @@
 pattern_id: the_mystery_of_the_yellow_room
-title: The Climbing Escape
-family: timing
+title: The External Escape
+family: spatial_routing
 axes:
   - spatial
 principle: >-
@@ -30,9 +30,9 @@ feasibility:
     - 1940
     - 1950
   requires:
-    - prepared_climbing_apparatus
-    - window_access
-    - building_exterior
+    - old_building_structure
+    - physical_climbing
+    - prepared_escape_tool
   forbids:
     - cctv
     - electronic_timekeeping

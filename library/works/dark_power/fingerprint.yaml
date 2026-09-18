@@ -1,0 +1,12 @@
+- id: dark_power
+  corpus: seed
+  axis: identity
+  mechanism_family: impersonation
+  false_assumption_pattern: the_dead_is_who_they_appear
+  discriminating_test_shape: timetable_contradiction
+  inference_shape: reveal_true_identity
+  premise: >-
+    Diana Leonard arrives at a remote house to care for her ailing uncle Rufus. Strange events
+    unfold involving family members, a mysterious disappearance, and a threatening atmosphere,
+    culminating in Dia
+  source: library/works/dark_power/case.cml2.yaml

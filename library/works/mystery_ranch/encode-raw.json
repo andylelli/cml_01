@@ -1,0 +1,655 @@
+{
+ "decade": "1920s",
+ "realism_constraints": [
+  "No modern forensic DNA or electronic surveillance",
+  "Travel primarily by automobile, horseback, and stagecoach",
+  "Law enforcement limited to local sheriffs, Indian police, and agents"
+ ],
+ "location": "Indian reservation near White Lodge, Northwestern United States",
+ "institution": "Indian agency and local county authorities",
+ "crime_category": "murder",
+ "crime_subtype": "framing by staged body and false identity",
+ "cast": [
+  {
+   "name": "Walter Lowell",
+   "age_range": "30-40",
+   "role_archetype": "dedicated government agent",
+   "role": "detective",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "Indian agent working for justice",
+   "private_secret": "deeply involved in investigation and protective of Helen",
+   "motive_seed": "justice and protection of innocent",
+   "motive_strength": "strong",
+   "alibi_window": "throughout investigation",
+   "access_plausibility": "high",
+   "stakes": "high",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Helen Ervin",
+    "Plenty Buffalo",
+    "Jim McFann",
+    "Bill Talpers"
+   ],
+   "opportunity_channels": [
+    "official authority",
+    "access to reservation"
+   ],
+   "behavioral_tells": [
+    "persistent investigation",
+    "protective of Helen"
+   ],
+   "evidence_sensitivity": [
+    "scene of murder",
+    "letter from Helen",
+    "muddy horse tracks"
+   ]
+  },
+  {
+   "name": "Plenty Buffalo",
+   "age_range": "40-50",
+   "role_archetype": "chief of Indian police",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "loyal Indian policeman",
+   "private_secret": "skilled tracker and loyal to justice",
+   "motive_seed": "duty",
+   "motive_strength": "strong",
+   "alibi_window": "present at investigation and rescue",
+   "access_plausibility": "high",
+   "stakes": "moderate",
+   "moral_complexity": "low",
+   "relationships": [
+    "Walter Lowell",
+    "Fire Bear",
+    "Jim McFann"
+   ],
+   "opportunity_channels": [
+    "police authority"
+   ],
+   "behavioral_tells": [
+    "skilled trailing",
+    "calm under pressure"
+   ],
+   "evidence_sensitivity": [
+    "pony tracks",
+    "trail evidence"
+   ]
+  },
+  {
+   "name": "Edward B. Sargent",
+   "age_range": "50-60",
+   "role_archetype": "wealthy inventor and victim impostor",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "murdered tourist",
+   "private_secret": "actually the murderer and impersonator of his twin brother",
+   "motive_seed": "self-defense and revenge",
+   "motive_strength": "strong",
+   "alibi_window": "at ranch after murder",
+   "access_plausibility": "high",
+   "stakes": "very high",
+   "moral_complexity": "high",
+   "relationships": [
+    "Willis Morgan",
+    "Helen Ervin",
+    "Wong"
+   ],
+   "opportunity_channels": [
+    "knowledge of ranch and reservation",
+    "access to victim's belongings"
+   ],
+   "behavioral_tells": [
+    "cold voice",
+    "scholarly demeanor",
+    "secretive"
+   ],
+   "evidence_sensitivity": [
+    "muddy horse tracks with Greek letter brand",
+    "staked body",
+    "letter from Helen"
+   ]
+  },
+  {
+   "name": "Willis Morgan",
+   "age_range": "50-60",
+   "role_archetype": "recluse and victim",
+   "role": "victim",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "squaw professor, recluse",
+   "private_secret": "dead, killed by twin brother",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "deceased",
+   "access_plausibility": "none",
+   "stakes": "none",
+   "moral_complexity": "none",
+   "relationships": [
+    "Edward B. Sargent",
+    "Helen Ervin"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Helen Ervin",
+   "age_range": "18-25",
+   "role_archetype": "young woman caught in family mystery",
+   "role": "witness",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "stepdaughter of Willis Morgan",
+   "private_secret": "knows family secrets and threatened by Talpers",
+   "motive_seed": "protection and justice",
+   "motive_strength": "strong",
+   "alibi_window": "mostly at ranch or riding",
+   "access_plausibility": "moderate",
+   "stakes": "high",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Willis Morgan",
+    "Edward B. Sargent",
+    "Walter Lowell",
+    "Bill Talpers"
+   ],
+   "opportunity_channels": [
+    "access to ranch and letters"
+   ],
+   "behavioral_tells": [
+    "nervousness around Talpers",
+    "determined and brave"
+   ],
+   "evidence_sensitivity": [
+    "letter to Sargent",
+    "knowledge of Talpers's theft"
+   ]
+  },
+  {
+   "name": "Bill Talpers",
+   "age_range": "40-50",
+   "role_archetype": "cunning trader and bootlegger",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "storekeeper and postmaster",
+   "private_secret": "bootlegger, thief, and conspirator",
+   "motive_seed": "profit and control",
+   "motive_strength": "strong",
+   "alibi_window": "present at store and camp",
+   "access_plausibility": "high",
+   "stakes": "high",
+   "moral_complexity": "high",
+   "relationships": [
+    "Jim McFann",
+    "Helen Ervin",
+    "Walter Lowell"
+   ],
+   "opportunity_channels": [
+    "store, post office, and reservation line"
+   ],
+   "behavioral_tells": [
+    "arrogant",
+    "threatening",
+    "drunkenness"
+   ],
+   "evidence_sensitivity": [
+    "stolen letter",
+    "stolen money",
+    "safe robbery"
+   ]
+  },
+  {
+   "name": "Jim McFann",
+   "age_range": "30-40",
+   "role_archetype": "half-breed outlaw and reluctant accomplice",
+   "role": "suspect",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "eligible",
+   "public_persona": "bootlegger and accused murderer",
+   "private_secret": "used by Talpers, later kills Talpers",
+   "motive_seed": "fear and survival",
+   "motive_strength": "moderate",
+   "alibi_window": "hiding in hills and camp",
+   "access_plausibility": "high",
+   "stakes": "high",
+   "moral_complexity": "high",
+   "relationships": [
+    "Bill Talpers",
+    "Fire Bear",
+    "Helen Ervin"
+   ],
+   "opportunity_channels": [
+    "reservation and hills"
+   ],
+   "behavioral_tells": [
+    "violent temper",
+    "fear of lynching"
+   ],
+   "evidence_sensitivity": [
+    "presence at murder scene",
+    "possession of stolen watch"
+   ]
+  },
+  {
+   "name": "Fire Bear",
+   "age_range": "20-30",
+   "role_archetype": "young Indian leader and scapegoat",
+   "role": "suspect",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "eligible",
+   "public_persona": "medicine man and Indian leader",
+   "private_secret": "tuberculosis patient, innocent",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "at camp during murder",
+   "access_plausibility": "high",
+   "stakes": "high",
+   "moral_complexity": "low",
+   "relationships": [
+    "Plenty Buffalo",
+    "Jim McFann",
+    "Walter Lowell"
+   ],
+   "opportunity_channels": [
+    "Indian reservation"
+   ],
+   "behavioral_tells": [
+    "calm demeanor",
+    "religious fervor"
+   ],
+   "evidence_sensitivity": [
+    "presence at scene",
+    "trail evidence"
+   ]
+  },
+  {
+   "name": "Miss Scovill",
+   "age_range": "50-60",
+   "role_archetype": "foster mother and school head",
+   "role": "witness",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "school principal and guardian",
+   "private_secret": "knows Helen's background",
+   "motive_seed": "care for Helen",
+   "motive_strength": "strong",
+   "alibi_window": "at school and traveling",
+   "access_plausibility": "low",
+   "stakes": "moderate",
+   "moral_complexity": "low",
+   "relationships": [
+    "Helen Ervin",
+    "Edward B. Sargent"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "calm",
+    "concerned"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Wong",
+   "age_range": "40-50",
+   "role_archetype": "loyal servant and cook",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "Chinese cook at ranch",
+   "private_secret": "helps Helen and Sargent",
+   "motive_seed": "loyalty",
+   "motive_strength": "strong",
+   "alibi_window": "at ranch",
+   "access_plausibility": "high",
+   "stakes": "moderate",
+   "moral_complexity": "low",
+   "relationships": [
+    "Helen Ervin",
+    "Edward B. Sargent",
+    "Willis Morgan"
+   ],
+   "opportunity_channels": [
+    "ranch household"
+   ],
+   "behavioral_tells": [
+    "discreet",
+    "helpful"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Sheriff Tom Redmond",
+   "age_range": "50-60",
+   "role_archetype": "local lawman with prejudice",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "county sheriff",
+   "private_secret": "biased against Indians",
+   "motive_seed": "law enforcement",
+   "motive_strength": "moderate",
+   "alibi_window": "throughout investigation",
+   "access_plausibility": "high",
+   "stakes": "moderate",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Walter Lowell",
+    "Bill Talpers",
+    "Jim McFann"
+   ],
+   "opportunity_channels": [
+    "law enforcement"
+   ],
+   "behavioral_tells": [
+    "prejudice",
+    "skepticism"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Ed Rogers",
+   "age_range": "30-40",
+   "role_archetype": "chief clerk and confidant",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "agency clerk",
+   "private_secret": "supports Lowell",
+   "motive_seed": "loyalty",
+   "motive_strength": "moderate",
+   "alibi_window": "at agency",
+   "access_plausibility": "high",
+   "stakes": "low",
+   "moral_complexity": "low",
+   "relationships": [
+    "Walter Lowell"
+   ],
+   "opportunity_channels": [
+    "agency office"
+   ],
+   "behavioral_tells": [
+    "supportive"
+   ],
+   "evidence_sensitivity": []
+  }
+ ],
+ "culprits": [
+  "Edward B. Sargent",
+  "Bill Talpers"
+ ],
+ "surface_summary": "A man is found murdered, staked down near an Indian reservation, with suspicion falling on local Indians and a half-breed bootlegger. The Indian agent Walter Lowell investigates amid local prejudice and intrigue involving a mysterious ranch, a threatening trader, and a young woman connected to the victim.",
+ "accepted_facts": [
+  "Edward B. Sargent was found murdered and staked down on the prairie.",
+  "Jim McFann and Fire Bear were arrested as suspects.",
+  "Bill Talpers was a trader and bootlegger involved with McFann.",
+  "The murdered man was robbed of money and valuables."
+ ],
+ "inferred_conclusions": [
+  "The Indians and Jim McFann committed the murder.",
+  "Bill Talpers was innocent and only a victim of circumstance.",
+  "The murder was a random act of violence by bootleggers."
+ ],
+ "mechanism_description": "Edward B. Sargent killed his twin brother Willis Morgan in self-defense during a confrontation on the Dollar Sign road. To cover up the crime, Sargent staged the body of Morgan, tying it with the victim's own tent stakes and rope to suggest an Indian attack. He impersonated Morgan to maintain the deception. Bill Talpers, involved in bootlegging and theft, robbed the body and was later killed by Jim McFann after being double-crossed.",
+ "delivery_path": [
+  "Sargent encounters Morgan on the road and kills him with a sawed-off shotgun.",
+  "Sargent uses Morgan's tent stakes and rope to stake down Morgan's body on the prairie.",
+  "Sargent impersonates Morgan to mislead others and maintain control of the ranch.",
+  "Talpers arrives at the murder scene, robs the body, and hides stolen money and a watch.",
+  "Talpers deceives McFann about the loot, leading to a falling out.",
+  "McFann kills Talpers after discovering the betrayal.",
+  "Sargent's horse rolls in mud near the murder scene, leaving a branded impression that reveals the truth."
+ ],
+ "outcome_result": "Edward B. Sargent confesses to the murder and impersonation, clearing the innocent accused and resolving the mystery.",
+ "false_assumption": {
+  "statement": "The Indians and Jim McFann were guilty of the murder on the Dollar Sign road.",
+  "type": "identity",
+  "why_it_seems_reasonable": "The presence of Indian pony tracks and moccasin prints around the body, combined with local prejudice and circumstantial evidence, made the Indians and McFann prime suspects. The staking down of the body suggested an Indian ritual, reinforcing this belief.",
+  "what_it_hides": "It conceals the fact that the real murderer was Edward B. Sargent, who staged the scene to frame the Indians and impersonated his twin brother to evade suspicion."
+ },
+ "false_solution": {
+  "accused_suspect": "Jim McFann",
+  "supporting_points": [
+   "McFann was found near the murder scene.",
+   "Rope used to tie the victim was cut from McFann's lariat.",
+   "McFann had a motive related to bootlegging and was hostile.",
+   "Public opinion and local authorities strongly suspected him."
+  ],
+  "the_one_flaw": "McFann's testimony and alibi, supported by Fire Bear and other evidence, proved he was not the murderer and was manipulated by Talpers.",
+  "refuted_in_chapter": 14
+ },
+ "red_herrings": [
+  {
+   "id": "fire_bear_and_indian_tracks",
+   "description": "Indian pony tracks and Fire Bear's group were found near the murder scene, suggesting their involvement.",
+   "points_at_suspect": "Fire Bear and his followers",
+   "innocent_explanation": "They came upon the body after the murder and left tracks while investigating, but were not involved in the crime.",
+   "resolved_in_chapter": 14
+  },
+  {
+   "id": "bill_talpers_letter_hold_up",
+   "description": "Bill Talpers held up a letter from Helen Ervin, using it to threaten and control her.",
+   "points_at_suspect": "Bill Talpers",
+   "innocent_explanation": "While Talpers was a villain in other respects, the letter hold-up was a separate act of intimidation and not directly related to the murder mechanism.",
+   "resolved_in_chapter": 12
+  }
+ ],
+ "closed_circle": {
+  "suspects": [
+   "Fire Bear",
+   "Jim McFann",
+   "Bill Talpers",
+   "Edward B. Sargent"
+  ],
+  "rationale": "The suspects were limited to those with access to the reservation and the murder scene, and who had motives or suspicious behavior connected to the crime."
+ },
+ "constraint_space": {
+  "time_anchors": [
+   "Day before murder: letter mailed by Helen",
+   "Morning of murder: Sargent kills Morgan",
+   "Day of murder: body found and investigated",
+   "Trial day: Fire Bear and McFann appear",
+   "Post-trial: Sargent's confession"
+  ],
+  "time_windows": [
+   "Murder occurred early morning on the Dollar Sign road",
+   "Talpers's robbery and McFann's killing of Talpers occurred after murder",
+   "Helen's kidnapping and rescue occurred within days after murder"
+  ],
+  "access_actors": [
+   "Edward B. Sargent",
+   "Willis Morgan",
+   "Bill Talpers",
+   "Jim McFann",
+   "Fire Bear",
+   "Walter Lowell"
+  ],
+  "access_objects": [
+   "Old white horse with Greek letter brand",
+   "Tent stakes and rawhide lariat rope",
+   "Automobile on Dollar Sign road",
+   "Talpers's store and safe",
+   "Letter from Helen Ervin"
+  ],
+  "trust_channels": [
+   "Indian police loyalty to Walter Lowell",
+   "Helen's trust in Walter Lowell",
+   "Talpers's control over McFann",
+   "Miss Scovill's guardianship of Helen"
+  ],
+  "authority_sources": [
+   "Indian agency authority of Walter Lowell",
+   "County sheriff Tom Redmond",
+   "Judge Garford's court rulings"
+  ]
+ },
+ "inference_path": [
+  {
+   "observation": "Indian pony tracks and moccasin prints around the body",
+   "correction": "Tracks were made after the murder by Indians investigating",
+   "effect": "Indians are not the murderers",
+   "required_evidence": [
+    "Plenty Buffalo's trail report of timing of tracks",
+    "Fire Bear's testimony of presence after murder"
+   ]
+  },
+  {
+   "observation": "Jim McFann admitted presence at murder scene and possession of victim's watch",
+   "correction": "McFann was misled by Talpers and did not commit murder",
+   "effect": "McFann is innocent of murder",
+   "required_evidence": [
+    "McFann's court testimony",
+    "Talpers's presence at murder scene as described by McFann"
+   ]
+  },
+  {
+   "observation": "Bill Talpers had motive and was found near murder scene",
+   "correction": "Talpers was a thief and bootlegger but not the original murderer",
+   "effect": "Talpers is guilty of robbery and later murder but not the first killing",
+   "required_evidence": [
+    "McFann's testimony of Talpers's robbery",
+    "Talpers's killing by McFann"
+   ]
+  },
+  {
+   "observation": "Edward B. Sargent was the victim",
+   "correction": "Sargent was the murderer who killed his twin brother Willis Morgan",
+   "effect": "Sargent is the true culprit",
+   "required_evidence": [
+    "Mud imprint of horse with Greek letter brand",
+    "Sargent's confession and identity revelation"
+   ]
+  },
+  {
+   "observation": "Letter from Helen warning Sargent not to come to ranch",
+   "correction": "Letter was intercepted and held by Talpers",
+   "effect": "Talpers used letter to control Helen and conceal his crimes",
+   "required_evidence": [
+    "Letter held by Talpers",
+    "Helen's testimony about letter"
+   ]
+  },
+  {
+   "observation": "Sargent's horse rolled in mud leaving branded imprint",
+   "correction": "This imprint linked Sargent to the murder scene",
+   "effect": "Physical evidence disproves Sargent's assumed identity",
+   "required_evidence": [
+    "Mud imprint with Greek letter brand",
+    "Lowell's discovery of imprint at murder scene"
+   ]
+  },
+  {
+   "observation": "Fire Bear appeared at trial and surrendered voluntarily",
+   "correction": "Fire Bear was innocent and had no motive",
+   "effect": "Fire Bear is cleared of suspicion",
+   "required_evidence": [
+    "Fire Bear's testimony",
+    "Judge Garford's ruling and release"
+   ]
+  }
+ ],
+ "discriminating_test": {
+  "method": "constraint_proof",
+  "design": "Examine the mud imprint near the murder scene for the Greek letter brand matching the old white horse at the ranch. Confirm the presence of the branded horse at the time of murder to link the rider to the crime. Cross-reference witness statements about the horse and rider's presence.",
+  "knowledge_revealed": "The branded horse's imprint proves that the murderer was the rider of the horse, who was impersonating Willis Morgan.",
+  "pass_condition": "Presence of the Greek letter brand imprint in mud at the murder scene matching the old white horse proves the rider's identity and implicates Edward B. Sargent."
+ },
+ "fair_play_explanation": "The reader is given detailed descriptions of the murder scene, including the staking down of the body and the presence of the branded horse's tracks. Testimonies from multiple witnesses, including McFann and Fire Bear, provide alibis and conflicting accounts. The letter from Helen and Talpers's suspicious behavior are presented openly. The key clue—the branded horse's imprint in the mud—is described and accessible to the reader, allowing deduction of the true murderer. The final confession confirms the solution without introducing new facts.",
+ "anchors": [
+  {
+   "claim": "The victim was found staked down on the prairie",
+   "anchor": "a man has been murdered on the road just off the reservation"
+  },
+  {
+   "claim": "The victim was shot with a sawed-off shotgun",
+   "anchor": "Buckshot, from a sawed-off shotgun probably"
+  },
+  {
+   "claim": "The victim was tied with his own tent stakes and rope",
+   "anchor": "ropes were fastened to tent-stakes driven into the prairie"
+  },
+  {
+   "claim": "Indian pony tracks were found around the body",
+   "anchor": "Indian pony tracks--no doubt about that"
+  },
+  {
+   "claim": "The murdered man was Edward B. Sargent",
+   "anchor": "indicating that the victim was Edward B. Sargent, of St. Louis"
+  },
+  {
+   "claim": "Helen Ervin is the stepdaughter of Willis Morgan",
+   "anchor": "From your affectionate stepfather, Willis Morgan"
+  },
+  {
+   "claim": "Bill Talpers held up a letter from Helen Ervin",
+   "anchor": "Bill Talpers held up the letter and read it"
+  },
+  {
+   "claim": "Jim McFann was arrested and accused of murder",
+   "anchor": "Jim McFann was hiding away up in the big hills"
+  },
+  {
+   "claim": "Fire Bear was released on his word to appear at trial",
+   "anchor": "If Fire Bear will give me his word of honor that he will not try to escape"
+  },
+  {
+   "claim": "Talpers was killed by Jim McFann",
+   "anchor": "the murder of our esteemed neighbor, William Talpers, by James McFann"
+  },
+  {
+   "claim": "The old white horse had a Greek letter brand",
+   "anchor": "bearing the impression of the Greek Letter brand"
+  },
+  {
+   "claim": "Edward B. Sargent confessed to killing Willis Morgan",
+   "anchor": "I committed the murder, much as you have explained it"
+  },
+  {
+   "claim": "Sargent impersonated Willis Morgan to cover the crime",
+   "anchor": "I am Edward Sargent. Morgan was the man whom I killed and staked down on the prairie"
+  },
+  {
+   "claim": "The letter from Helen warned Sargent not to come to the ranch",
+   "anchor": "I have learned all. Do not come to the ranch for me"
+  },
+  {
+   "claim": "Talpers robbed the murdered man and hid stolen money",
+   "anchor": "You took money from that murdered man"
+  },
+  {
+   "claim": "McFann killed Talpers after discovering the theft",
+   "anchor": "I killed him. It was better that he should die"
+  },
+  {
+   "claim": "The branded horse's imprint in the mud was key evidence",
+   "anchor": "the Greek letter brand still shows in the mud where the horse rolled"
+  },
+  {
+   "claim": "Fire Bear and McFann were acquitted at trial",
+   "anchor": "Not guilty! was the word that was passed to those outside the building"
+  },
+  {
+   "claim": "The murder was a planned deception to frame the Indians",
+   "anchor": "to throw suspicion on others, it might be possible for me to pass myself off as my brother"
+  },
+  {
+   "claim": "Helen Ervin was threatened by Talpers to keep silent",
+   "anchor": "If you stay there any time at all, he'll have you in an insane asylum or the grave"
+  }
+ ]
+}

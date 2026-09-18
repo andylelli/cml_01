@@ -1,0 +1,12 @@
+- id: the_mardi_gras_mystery
+  corpus: seed
+  axis: identity
+  mechanism_family: impersonation
+  false_assumption_pattern: the_dead_is_who_they_appear
+  discriminating_test_shape: behavioral_tell
+  inference_shape: reveal_true_identity_of_actor
+  premise: >-
+    The Midnight Masquer, a mysterious bandit, robs high society during Mardi Gras, culminating in
+    the murder of Joseph Maillard. Bob Maillard, the son, is arrested but maintains his innocence.
+    Henry Gram
+  source: library/works/the_mardi_gras_mystery/case.cml2.yaml

@@ -1,0 +1,12 @@
+- id: the_melody_of_death
+  corpus: seed
+  axis: identity
+  mechanism_family: impersonation
+  false_assumption_pattern: the_found_thief_is_the_criminal
+  discriminating_test_shape: reconstruction
+  inference_shape: reveal_true_identity_and_motive
+  premise: >-
+    A series of daring burglaries in London safes baffle the police. Gilbert Standerton, recently
+    disinherited and married, is suspected due to possession of stolen jewels. The notorious gang
+    led by Georg
+  source: library/works/the_melody_of_death/case.cml2.yaml

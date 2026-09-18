@@ -1,0 +1,413 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The Meredith Mystery
+    author: Natalie Sumner Lincoln
+    license: Public domain (first published 1923; author died 1935). Project Gutenberg ebook 58597.
+    era:
+      decade: 1920s
+      realism_constraints:
+        - No modern forensic DNA analysis or electronic surveillance
+        - Communication limited to telephone and telegrams
+        - Transportation by automobile but with mechanical unreliability
+    setting:
+      location: Ten Acres, a historic mansion near Washington, D.C.
+      institution: Coroner's office and local police (Inspector Mitchell)
+    crime_class:
+      category: murder
+      subtype: murder by concealed weapon and staged scene
+  cast:
+    - name: David Curtis
+      age_range: 30s
+      role_archetype: blind but resourceful and honorable man
+      relationships:
+        - Anne Meredith (fiancée)
+        - Leonard McLane (friend)
+        - Sam Hollister (lawyer)
+      public_persona: blind surgeon and fiancé to Anne Meredith
+      private_secret: none
+      motive_seed: none
+      motive_strength: none
+      alibi_window: present at Ten Acres during murder and investigation
+      access_plausibility: resident guest
+      opportunity_channels:
+        - present at mansion
+        - access to rooms
+      behavioral_tells:
+        - keen hearing
+        - careful observation despite blindness
+      stakes: personal and emotional involvement with Anne Meredith
+      evidence_sensitivity:
+        - discovered missing documents
+        - found key in Anne's possession
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: high; struggles with love and honor
+    - name: Anne Meredith
+      age_range: late teens
+      role_archetype: young heiress under pressure
+      relationships:
+        - David Curtis (fiancé)
+        - Mrs. Meredith (mother)
+        - Lucille Hull (cousin)
+      public_persona: heiress and fiancée to David Curtis
+      private_secret: carrying a key linked to the murder mystery
+      motive_seed: inheritance and forced marriage
+      motive_strength: weak
+      alibi_window: present at mansion during murder
+      access_plausibility: resident
+      opportunity_channels:
+        - access to mansion rooms
+      behavioral_tells:
+        - shy but resolute
+        - protective of Curtis
+      stakes: inheritance and personal freedom
+      evidence_sensitivity:
+        - fingerprints on scalpel
+        - hair on victim's jacket
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: female
+      role: victim
+      moral_complexity: moderate; conflicted about marriage and family
+    - name: Mrs. Marshall Meredith
+      age_range: middle-aged
+      role_archetype: ambitious mother
+      relationships:
+        - Anne Meredith (daughter)
+        - John Meredith (brother-in-law)
+      public_persona: socially ambitious widow
+      private_secret: concealed prenuptial agreement and codicil
+      motive_seed: control over Anne's marriage and fortune
+      motive_strength: moderate
+      alibi_window: present at mansion
+      access_plausibility: resident
+      opportunity_channels:
+        - access to documents and rooms
+      behavioral_tells:
+        - calm composure
+        - secretive
+      stakes: social status and wealth
+      evidence_sensitivity:
+        - possession of missing documents
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: female
+      role: suspect
+      moral_complexity: high; manipulative but protective
+    - name: Gerald Armstrong
+      age_range: 30s
+      role_archetype: businessman and antagonist
+      relationships:
+        - Lucille Hull (former fiancée)
+        - Colonel Julian Hull (partner)
+      public_persona: stockbroker and family acquaintance
+      private_secret: murderer and conspirator
+      motive_seed: financial gain and escape from ruin
+      motive_strength: strong
+      alibi_window: left mansion before murder but returned
+      access_plausibility: had access via keys and knowledge
+      opportunity_channels:
+        - access to mansion
+        - knowledge of safe deposit box
+      behavioral_tells:
+        - avoids police
+        - nervous under pressure
+      stakes: money and freedom
+      evidence_sensitivity:
+        - caught with murder weapon
+        - used chloroform
+        - masked intruder
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high; cold-blooded and manipulative
+    - name: Lucille Hull
+      age_range: mid-20s
+      role_archetype: socialite and cousin
+      relationships:
+        - Gerald Armstrong (former fiancé)
+        - Colonel Julian Hull (father)
+      public_persona: heiress and socialite
+      private_secret: engaged to Armstrong, involved in family dispute
+      motive_seed: inheritance contest
+      motive_strength: weak
+      alibi_window: present at mansion
+      access_plausibility: resident
+      opportunity_channels:
+        - access to mansion
+      behavioral_tells:
+        - nervousness
+        - avoids direct answers
+      stakes: inheritance and social standing
+      evidence_sensitivity:
+        - mistaken identity in overheard conversation
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: female
+      role: suspect
+      moral_complexity: moderate; conflicted loyalties
+    - name: Sam Hollister
+      age_range: middle-aged
+      role_archetype: lawyer and family advisor
+      relationships:
+        - Anne Meredith (client)
+        - Lucille Hull (love interest)
+      public_persona: lawyer for Anne Meredith
+      private_secret: has feelings for Lucille Hull
+      motive_seed: protect Anne and Lucille
+      motive_strength: weak
+      alibi_window: present at mansion
+      access_plausibility: resident guest
+      opportunity_channels:
+        - access to documents and rooms
+      behavioral_tells:
+        - temper flare-ups
+        - protective
+      stakes: professional reputation
+      evidence_sensitivity:
+        - possessed inventory sheet
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: moderate; conflicted loyalties
+    - name: Mrs. Hull
+      age_range: middle-aged
+      role_archetype: mother and accidental assailant
+      relationships:
+        - Lucille Hull (daughter)
+        - Gerald Armstrong (family acquaintance)
+      public_persona: socially conservative matron
+      private_secret: accidentally inflicted non-fatal wound
+      motive_seed: financial desperation
+      motive_strength: moderate
+      alibi_window: present at mansion during murder
+      access_plausibility: resident
+      opportunity_channels:
+        - access to mansion and victim's room
+      behavioral_tells:
+        - emotional distress
+        - confession
+      stakes: family honor and financial security
+      evidence_sensitivity:
+        - confessed stabbing
+        - presence at scene
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: female
+      role: culprit
+      moral_complexity: high; remorseful and tragic
+  culpability:
+    culprit_count: 2
+    culprits:
+      - Gerald Armstrong
+      - Mrs. Hull
+  surface_model:
+    narrative:
+      summary: >-
+        John Meredith is found dead with a throat wound in his mansion. Suspicion falls on his niece
+        Anne Meredith due to circumstantial evidence including her fingerprints and hair found on
+        the victim. The case involves missing documents, a mysterious key, and a parrot that seems
+        to implicate Anne.
+    accepted_facts:
+      - John Meredith died from a throat wound that could not be self-inflicted
+      - No murder weapon was initially found near the body
+      - Anne Meredith was seen in the victim's bedroom late at night
+      - Missing prenuptial agreement and codicil documents affect inheritance
+    inferred_conclusions:
+      - Anne Meredith killed her uncle to avoid marriage and inherit the fortune
+      - The missing documents were stolen by Anne to secure her inheritance
+      - The murder weapon was dropped by the victim and found in the wrong place
+  hidden_model:
+    mechanism:
+      description: >-
+        Gerald Armstrong, knowing the victim had two wounds, stabbed John Meredith after Mrs. Hull
+        accidentally inflicted a superficial wound. Armstrong chloroformed Anne Meredith to prevent
+        her interference, stole the key to the victim's secret safe, and attempted to implicate Anne
+        by planting evidence. Mrs. Hull's wound was accidental and non-fatal, while Armstrong's
+        attack was the actual cause of death.
+      delivery_path:
+        - step: Mrs. Hull visits John Meredith late at night seeking financial aid
+        - step: Mrs. Hull accidentally slashes Meredith's throat superficially with a knife
+        - step: Meredith staggers away wounded and is followed by Armstrong
+        - step: Armstrong catches Meredith, inflicts fatal throat wound with a surgical scalpel
+        - step: Armstrong chloroforms Anne Meredith to prevent her interference
+        - step: Armstrong steals the key to Meredith's secret compartment and the money
+        - step: Armstrong attempts to frame Anne by planting evidence and fleeing
+    outcome:
+      result: >-
+        Gerald Armstrong is arrested for the murder, Mrs. Hull confesses to the accidental wound,
+        and Anne Meredith is exonerated.
+  false_assumption:
+    statement: Anne Meredith was the murderer based on her fingerprints and hair on the victim.
+    type: identity
+    why_it_seems_reasonable: >-
+      Anne was found in the victim's bedroom late at night, and physical evidence such as her
+      fingerprints on the scalpel and hair on the victim's jacket seemed to implicate her. The
+      parrot's cry also suggested her guilt.
+    what_it_hides: >-
+      The evidence was planted or misinterpreted; the hair color discrepancy and the accidental
+      wound by Mrs. Hull were overlooked, and Armstrong's role as the actual murderer was concealed.
+  false_solution:
+    accused_suspect: Anne Meredith
+    supporting_points:
+      - Fingerprints found on the murder weapon
+      - Hair matching Anne's found on the victim's jacket
+      - Witnesses overheard threatening conversations involving Anne
+      - The parrot's repeated phrase implicating Anne
+    the_one_flaw: >-
+      The evidence was circumstantial and manipulated; the hair color was inconsistent and the
+      actual fatal wound was inflicted by another person.
+    refuted_in_chapter: 19
+  red_herrings:
+    - id: the_parrot_accusation
+      description: >-
+        The parrot repeatedly cries 'Anne—I’ve caught you—you devil!' seeming to implicate Anne
+        Meredith.
+      points_at_suspect: Anne Meredith
+      innocent_explanation: >-
+        The parrot was chloroformed and its cries were a repetition of the victim's last words, not
+        a true accusation.
+      resolved_in_chapter: 18
+    - id: missing_documents
+      description: >-
+        The disappearance of the prenuptial agreement and codicil suggested Anne Meredith stole them
+        to secure inheritance.
+      points_at_suspect: Anne Meredith
+      innocent_explanation: Mrs. Meredith secretly took the documents to protect Anne's interests.
+      resolved_in_chapter: 18
+  closed_circle:
+    suspects:
+      - Anne Meredith
+      - Mrs. Meredith
+      - Gerald Armstrong
+      - Lucille Hull
+      - Sam Hollister
+      - Mrs. Hull
+      - David Curtis
+    rationale: >-
+      All suspects were present at Ten Acres during the murder with limited access to the victim and
+      knowledge of the household; no outsiders were admitted after Armstrong's departure until the
+      murder.
+  constraint_space:
+    time:
+      anchors:
+        - Sunday night after midnight
+        - Quarter past two when body was found
+        - Inquest held Tuesday and Thursday
+      windows:
+        - Armstrong left before midnight and returned before Curtis went to bed
+        - Mrs. Hull arrived after midnight
+        - Murder occurred between midnight and 2:15 am
+    access:
+      actors:
+        - Residents and guests of Ten Acres
+        - Servants including Fernando and Damason
+        - Gerald Armstrong with key access
+      objects:
+        - Safe deposit box at Metropolis Bank
+        - Secret compartment in Meredith's bedroom
+        - House telephone and keys
+    social:
+      trust_channels:
+        - Servants' loyalty to Anne Meredith
+        - Lawyer Sam Hollister's role
+        - Family relationships and social ties
+      authority_sources:
+        - Coroner Penfield
+        - Inspector Mitchell
+        - Legal authority of Sam Hollister
+  inference_path:
+    steps:
+      - observation: Hair found on victim's jacket was chestnut but Fernando claimed white
+        correction: Fernando lied to protect Anne
+        effect: Discredits Fernando's testimony and raises suspicion on Armstrong
+        required_evidence:
+          - Inspector Mitchell's statement about chestnut hair wound around button
+          - Physical sample of chestnut hair from victim's jacket, preserved in evidence envelope
+        reader_observable: true
+      - observation: Missing prenuptial agreement and codicil documents
+        correction: Mrs. Meredith took the documents secretly
+        effect: Shifts suspicion from Anne to Mrs. Meredith
+        required_evidence:
+          - >-
+            Inventory sheet with notation of prenuptial agreement and codicil last seen on
+            Meredith's bed
+          - Hollister's testimony about documents last seen on bed
+        reader_observable: true
+      - observation: Murder weapon found in wrong fern box
+        correction: Weapon was thrown into a different box than expected
+        effect: Invalidates Anne's theory of suicide
+        required_evidence:
+          - Inspector Mitchell's reenactment of knife drop
+          - Location of scalpel in fern box
+        reader_observable: true
+      - observation: Mrs. Hull confessed to stabbing Meredith
+        correction: Wound was superficial and non-fatal
+        effect: Indicates another person inflicted fatal wound
+        required_evidence:
+          - Post-mortem examination report
+          - Curtis' testimony on wound depth
+        reader_observable: true
+      - observation: Armstrong absent during murder time but returned later
+        correction: Armstrong had opportunity to commit murder after returning
+        effect: Establishes Armstrong's opportunity and motive
+        required_evidence:
+          - Hollister's testimony on Armstrong's departure and return
+          - Armstrong's note excusing absence from inquest
+        reader_observable: true
+      - observation: Monkey's paw severed and used to send message
+        correction: Armstrong used monkey to test if Curtis was awake
+        effect: Links Armstrong to attempted burglary and murder
+        required_evidence:
+          - Sergeant Brown's testimony on monkey's injury
+          - Curtis' testimony on monkey's visit
+        reader_observable: true
+      - observation: Duplicate Yale key found in safe deposit box and on Anne's chain
+        correction: Key opens secret compartment with money and documents
+        effect: Connects Anne and Meredith's secret assets
+        required_evidence:
+          - Curtis' discovery of secret compartment
+          - Hollister and Mitchell's search for lock matching key
+        reader_observable: true
+  discriminating_test:
+    method: reenactment
+    design: >-
+      Inspector Mitchell and Sergeant Brown reenact the dropping of the scalpel through the
+      banisters while simulating Meredith's fall. They observe where the scalpel lands relative to
+      the fern boxes to test Anne's theory of suicide.
+    knowledge_revealed: >-
+      The scalpel falls into a different fern box than where the murder weapon was found, disproving
+      the suicide theory and indicating the weapon was placed deliberately.
+    pass_condition: >-
+      The scalpel does not land in the fern box where the bloodstained weapon was found,
+      invalidating the claim that Meredith dropped it himself.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given detailed testimony, physical evidence, and character interactions that
+      allow deduction of the true murderer. The discrepancy in hair color, the missing documents,
+      the presence of the duplicate key, and the reenactment of the scalpel drop are all clues
+      available before the solution is revealed. The false accusation against Anne is supported by
+      plausible but incomplete evidence, encouraging the reader to question and infer the truth.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "The husband, Mr. Hannaford, was guilty of murdering his wife in a fit of madness.",
+  "type": "behavioral",
+  "why_it_seems_reasonable": "The husband was found absent from the house shortly after the murder and was in a nervous, excited state. The quarrels and his mental breakdown made him a plausible suspect.",
+  "what_it_hides": "It conceals the fact that the real murderer was the first husband, Charles Drayson, who had faked his death and returned to commit the crime for financial motives."
+ },
+ "mechanism_description": "Judkins Barraclough, the millionaire, was a bigamist who kept his first wife, Mrs. Judkins, imprisoned drugged and caged in a locked room in an empty house he rented. He attempted to murder her by forcing her to drink chloral-laced brandy to cause a slow death. The murder of Mrs. Hannaford was committed by Charles Drayson, Mrs. Hannaford's first husband who faked his death and returned to retrieve hidden banknotes concealed in a bear lamp. Drayson killed Mrs. Hannaford to prevent exposure of his fraud and to recover the money.",
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "Dorcas Dene had the assistant lie behind the brown bear lamp to test if a person could be concealed there and strike silently with the poker. She also tested the sound of the front door opening and the timing of the victim's movements in the house.",
+  "knowledge_revealed": "This reenactment demonstrated that the murderer hid behind the bear lamp and attacked Mrs. Hannaford silently, and that the door opening sound was the key to the victim's movement before the attack.",
+  "pass_condition": "The test passes if the assistant can be completely concealed behind the bear lamp and can strike without alerting an observer, and if the door opening sound matches the caretaker's description."
+ },
+ "changed": [],
+ "confidence": "high"
+}

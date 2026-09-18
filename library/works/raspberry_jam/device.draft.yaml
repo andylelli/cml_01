@@ -1,0 +1,47 @@
+pattern_id: raspberry_jam
+title: The Human Fly Entry
+family: spatial_routing
+axes:
+  - behavioral
+principle: >-
+  The real murderer used an external agent to bypass the locked doors, and the poison dropper was
+  accidentally left behind by the killer, not a suspect.
+principleType: physical_law
+surface_illusion_template: >-
+  a suspect a suspect poisoned her husband out of financial frustration; a suspect a suspect a
+  suspect was hypnotized and accidentally administered the poison; the culprit had a perfect alibi
+  and could not have been involved
+underlying_reality_template: >-
+  The murderer hired the culprit, a performer training as a human fly, to climb the exterior of the
+  apartment building and enter through a suspect a suspect a suspect' window. the culprit silently
+  traversed the locked suite, administered henbane poison into the victim a suspect ear while he
+  slept, and exited the same way. The poison caused sudden death with no external signs, and the
+  medicine dropper was accidentally dropped near a suspect a suspect bed during the escape.
+feasibility:
+  eras:
+    - 1850
+    - 1860
+    - 1870
+    - 1880
+    - 1890
+    - 1900
+    - 1910
+    - 1920
+    - 1930
+    - 1940
+    - 1950
+  requires:
+    - old_building_structure
+    - physical_climbing_skill
+  forbids:
+    - cctv
+    - electronic_timekeeping
+clue_archetypes:
+  - maggie_s_maid_testimony
+  - medicine_dropper_found_in
+  - travel_records_confirming_hendricks
+  - fibsy_s_surveillance_of
+  - window_inspection_showing_no
+  - hanlon_s_human_fly
+sources:
+  - Carolyn Wells, Raspberry Jam — library/works/raspberry_jam/case.cml2.yaml

@@ -1,0 +1,19 @@
+{
+ "false_assumption": {
+  "statement": "Bob Maillard was the Midnight Masquer and accidentally killed his father.",
+  "type": "identity",
+  "why_it_seems_reasonable": "Bob was found changing out of the aviator costume shortly after the murder and was known for his wild behavior and drinking. The evidence circumstantially pointed to him as the bandit and murderer.",
+  "what_it_hides": "The real Midnight Masquer was Henry Gramont, and the murder was committed by Ben Chacherre to frame Bob. The costume and loot were stolen and used to mislead investigators."
+ },
+ "mechanism_description": "Jachin Fell masterminded the criminal operations, including the lottery and automobile theft ring, using Ben Chacherre as his enforcer. Chacherre murdered Joseph Maillard during a confrontation at the Comus ball, using the stolen aviator's costume and pistol to implicate Bob Maillard. Fell planted false evidence, including a fabricated oil seepage, to manipulate the oil company deal and protect Lucie Ledanois financially while maintaining his criminal enterprise under the guise of respectability.",
+ "discriminating_test": {
+  "method": "trap",
+  "design": "Gramont sends a telegram under Chacherre's name instructing an associate not to destroy a bundle of evidence and to meet him at Houma. He then personally arrests gang members and confronts them with the evidence, including the aviator's costume and pistol. The test reveals the true murderer and the gang's operations by forcing confessions and capturing key members.",
+  "knowledge_revealed": "The test reveals Ben Chacherre as the murderer, Jachin Fell as the gang leader, and exposes the planted oil seepage fraud.",
+  "pass_condition": "Successful capture and confession of gang members, and recovery of incriminating evidence without alerting the criminals."
+ },
+ "changed": [
+  "discriminating_test"
+ ],
+ "confidence": "high"
+}

@@ -2,7 +2,7 @@
   corpus: seed
   axis: temporal
   mechanism_family: locked_room_timing
-  false_assumption_pattern: the_body_died_before_the_room_opened
+  false_assumption_pattern: the_murder_happened_at_the_reported_time
   discriminating_test_shape: timetable_contradiction
   inference_shape: reconstruct_true_time_of_death
   premise: >-

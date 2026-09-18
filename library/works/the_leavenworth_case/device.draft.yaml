@@ -1,5 +1,5 @@
 pattern_id: the_leavenworth_case
-title: The Planted Clue
+title: The Planted Proof
 family: spatial_routing
 axes:
   - identity
@@ -30,9 +30,9 @@ feasibility:
     - 1940
     - 1950
   requires:
+    - physical_access
     - forgery_skill
-    - access_to_scene
-    - period_paper
+    - poison_delivery
   forbids:
     - cctv
     - forensic_document_dating

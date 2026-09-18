@@ -32,11 +32,11 @@ feasibility:
     - 1940
     - 1950
   requires:
-    - mechanical_lock
-    - sedative_drug
+    - period_poison
+    - old_building_structure
   forbids:
     - cctv
-    - electronic_timekeeping
+    - modern_toxicology_screen
 clue_archetypes:
   - testimony_of_inspector_howlett
   - grodman_s_explanation_of

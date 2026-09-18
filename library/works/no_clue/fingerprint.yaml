@@ -1,0 +1,12 @@
+- id: no_clue
+  corpus: seed
+  axis: identity
+  mechanism_family: staged_scene
+  false_assumption_pattern: the_discoverer_is_the_murderer
+  discriminating_test_shape: timetable_contradiction
+  inference_shape: reconstruct_true_sequence_of_events
+  premise: >-
+    Mildred Brace is found murdered on the lawn of Sloanehurst. Suspicion falls on several people
+    including Berne Webster and Eugene Russell, while the family and local authorities struggle to
+    uncover the
+  source: library/works/no_clue/case.cml2.yaml

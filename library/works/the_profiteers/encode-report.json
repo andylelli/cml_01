@@ -1,0 +1,134 @@
+{
+ "slug": "the_profiteers",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Stanley Rees disappeared mysteriously from his hotel room",
+   "anchor": "He was engaged to dine out at Hampstead with some friends",
+   "span": "He was engaged to dine out at Hampstead with some friends, who telephoned for him several times during the evening.",
+   "ok": true
+  },
+  {
+   "claim": "Wingate is an enemy of Phipps and opposes the company's speculation",
+   "anchor": "I am scarcely a fair person to ask because Peter Phipps is a personal enemy of mine",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Josephine Dredlinton is unhappy in her marriage and allies with Wingate",
+   "anchor": "I have so few friends",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Lord Dredlinton is unscrupulous and involved in blackmail",
+   "anchor": "I put you on because of your wife",
+   "span": "I put you on because of your wife.",
+   "ok": true
+  },
+  {
+   "claim": "Phipps offers to buy Wingate's shares for a secret purpose",
+   "anchor": "An Asiatic Power has offered me an immense commission",
+   "span": "An Asiatic Power has offered me an immense commission if I can arrange the sale to them of the Atlantic fleet of the Universal Line.",
+   "ok": true
+  },
+  {
+   "claim": "Wingate refuses to sell shares to Phipps",
+   "anchor": "I have a very high opinion of Mr. Phipps' judgment as a business man",
+   "span": "I have a very high opinion of Mr. Phipps' judgment as a business man.",
+   "ok": true
+  },
+  {
+   "claim": "Dredlinton is drunk and causes a disturbance at a party",
+   "anchor": "I carried him out of the room and locked him up",
+   "span": "I carried him out of the room and locked him up,\" he told her.",
+   "ok": true
+  },
+  {
+   "claim": "Stanley Rees, Phipps, and Dredlinton disappear and are held hostage",
+   "anchor": "The three men now were seated around the table, bound to their chairs and gagged",
+   "span": "The three men now were seated around the table, bound to their chairs and gagged.",
+   "ok": true
+  },
+  {
+   "claim": "Wingate demands the directors sell wheat at a drastically reduced price",
+   "anchor": "You must sell wheat at about sixty per cent less than the present market value",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Lord Dredlinton dies during captivity from exhaustion and heart disease",
+   "anchor": "Lord Dredlinton is dead",
+   "span": "Lord Dredlinton is dead,\" he announced in a shocked tone.",
+   "ok": true
+  },
+  {
+   "claim": "The directors finally agree to sell wheat to secure release",
+   "anchor": "We have decided to sell wheat",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The market collapses after the sale orders",
+   "anchor": "Great fall of wheat in every market! Cheap bread next week!",
+   "span": "Great fall of wheat in every market! Cheap bread next week!\" The eyes of the two men met.",
+   "ok": true
+  },
+  {
+   "claim": "Inspector Shields investigates and finds the death natural",
+   "anchor": "Lord Dredlinton's death was due to exhaustion, but the doctor certifies that he was suffering",
+   "span": "Lord Dredlinton's death was due to exhaustion, but the doctor certifies that he was suffering, and has been for some time, from advanced valvular disease of the heart.",
+   "ok": true
+  },
+  {
+   "claim": "Wingate controls the house and servants to maintain captivity",
+   "anchor": "Your servants don't seem in a great hurry to answer that bell",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The coded cable reveals the secret wheat shipment",
+   "anchor": "Confirm eleven steamers Universal Line withdrawn Japan trade loading secretly huge wheat cargo for Liverpool",
+   "span": "Listen: 'Confirm eleven steamers Universal Line withdrawn Japan trade loading secretly huge wheat cargo for Liverpool.",
+   "ok": true
+  },
+  {
+   "claim": "Wingate threatens to shoot the captives if they reveal the truth",
+   "anchor": "This is the finest automatic pistol in the world, and I am one of the best marksmen",
+   "span": "This is the finest automatic pistol in the world, and I am one of the best marksmen in the American Army.",
+   "ok": true
+  },
+  {
+   "claim": "The false assumption that Rees disappeared voluntarily",
+   "anchor": "He came down to the bar to have a cocktail, leaving his coat and hat and scarf up in his room",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Red herring: Lord Dredlinton's drunken behavior",
+   "anchor": "He was drunk. He was rude to everybody",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Red herring: Phipps' ruthless market dealings",
+   "anchor": "Peter Phipps is utterly unscrupulous and possesses every qualification of a blackguard",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The final release of the captives after compliance",
+   "anchor": "You are going away, I can see, with one idea in your mind",
+   "span": "You are going away, I can see, with one idea in your mind.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.08644879545,
+ "models": {
+  "map": "gpt-4o-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true
+}

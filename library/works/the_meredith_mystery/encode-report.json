@@ -1,0 +1,134 @@
+{
+ "slug": "the_meredith_mystery",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "The victim was found dead with a throat wound",
+   "anchor": "John Meredith was lying dead at his feet",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The murder weapon was a surgical scalpel",
+   "anchor": "It is a scalpel",
+   "span": "It is a scalpel.",
+   "ok": true
+  },
+  {
+   "claim": "The missing prenuptial agreement and codicil affect inheritance",
+   "anchor": "the prenuptial agreement and the codicil have disappeared",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Anne Meredith was seen in the victim's bedroom late at night",
+   "anchor": "Anne was up and about at the time of her uncle’s murder",
+   "span": "Meredith said nothing to connect Anne with the crime, but it did prove that Anne was up and about at the time of her uncle’s murder.",
+   "ok": true
+  },
+  {
+   "claim": "The parrot repeated a phrase implicating Anne",
+   "anchor": "Anne—I’ve caught you—you devil!",
+   "span": "Anne—I’ve caught you—you devil!” CHAPTER V THE INQUEST The opening and closing of doors and the murmur of distant voices came fitfully to David Curtis as he sat near the window of his bedroom, his head propped against his hand and his sightless eyes turned toward the view over the hills to the National Capital.",
+   "ok": true
+  },
+  {
+   "claim": "The duplicate Yale key was found in Meredith's safe deposit box",
+   "anchor": "The box was empty except for this key",
+   "span": "The box was empty except for this key,” and he laid it in Curtis’ hand.",
+   "ok": true
+  },
+  {
+   "claim": "Anne Meredith carried a similar Yale key on a gold chain",
+   "anchor": "the key which Anne had worn on the gold chain",
+   "span": "Going over to the chair where he had cast his suit, he took out the key which Anne had worn on the gold chain and put it inside the pocket of the jacket of his pajamas, fastening the flap with a safety pin.",
+   "ok": true
+  },
+  {
+   "claim": "Mrs. Hull confessed to stabbing Meredith",
+   "anchor": "You! You killed John Meredith!",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Armstrong was the masked man who chloroformed Anne",
+   "anchor": "I chloroformed the parrot also",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The scalpel was found in a fern box inconsistent with suicide theory",
+   "anchor": "I found the monkey in the grove of trees down beyond",
+   "span": "I found the monkey in the grove of trees down beyond, where you suggested he might be, sir,” he said.",
+   "ok": true
+  },
+  {
+   "claim": "Fernando lied about the hair color to protect Anne",
+   "anchor": "Fernando lied as to their color and stole them from my wallet",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Mrs. Meredith secretly took the missing documents",
+   "anchor": "I took the prenuptial agreement, Anne, that I might safeguard your interests",
+   "span": "I took the prenuptial agreement, Anne, that I might safeguard your interests—” Anne turned deadly white.",
+   "ok": true
+  },
+  {
+   "claim": "The reenactment disproved the suicide theory",
+   "anchor": "The scalpel fell directly into this box",
+   "span": "The scalpel fell directly into this box,” laying his hand upon it.",
+   "ok": true
+  },
+  {
+   "claim": "Armstrong fled after being confronted with evidence",
+   "anchor": "He stood staring stupidly at a pair of handcuffs dangling from his wrists",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The monkey's paw was severed to free it from Curtis' grasp",
+   "anchor": "A severed hand in his grasp",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Curtis discovered a secret compartment with money and documents",
+   "anchor": "He ran his fingers lightly over its surface and found the small keyhole",
+   "span": "He ran his fingers lightly over its surface and found the small keyhole.",
+   "ok": true
+  },
+  {
+   "claim": "Anne's fingerprints were on the scalpel",
+   "anchor": "finding your fingerprints on the knife",
+   "span": "What clinched the case against you, Miss Meredith, was finding your fingerprints on the knife.",
+   "ok": true
+  },
+  {
+   "claim": "Hollister found the inventory sheet with a clipped corner",
+   "anchor": "That notation reads: ‘Contents of safe deposit box belongs to.’",
+   "span": "That notation reads: ‘Contents of safe deposit box belongs to.’” He folded the paper and replaced it in his wallet.",
+   "ok": true
+  },
+  {
+   "claim": "Curtis was blind but used his other senses to investigate",
+   "anchor": "Since my blindness my fingers have been my eyes",
+   "span": "Since my blindness my fingers have been my eyes,” replied Curtis.",
+   "ok": true
+  },
+  {
+   "claim": "The false accusation against Anne was refuted",
+   "anchor": "Gerald Armstrong is arrested for the murder",
+   "span": "",
+   "ok": false
+  }
+ ],
+ "costGbp": 0.084264876,
+ "models": {
+  "map": "gpt-4o-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true
+}

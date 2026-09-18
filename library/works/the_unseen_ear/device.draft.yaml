@@ -1,0 +1,47 @@
+pattern_id: the_unseen_ear
+title: The Hidden Maid
+family: identity
+axes:
+  - identity
+principle: >-
+  The real murder weapon was a concealed rapier used by the culprit the victim, and the theft was a
+  separate act by the culprit to cover the crime.
+principleType: social_logic
+surface_illusion_template: >-
+  a suspect a witness murdered the victim to cover up theft of bonds.; a suspect a suspect is guilty
+  of the murder due to her suspicious behavior and disappearance.; the culprit the victim was at the
+  French Embassy during the murder and is innocent.
+underlying_reality_template: >-
+  the culprit the victim killed the victim with a concealed rapier hidden in his bamboo cane during
+  a secret meeting at the house between midnight and 1 AM. the culprit, disguised as a maid, stole
+  bonds and jewelry from the safe and a witness bedroom, and attempted to mislead the investigation.
+  The murder weapon was the rapier cane, and the theft was a cover-up to distract suspicion.
+feasibility:
+  eras:
+    - 1850
+    - 1860
+    - 1870
+    - 1880
+    - 1890
+    - 1900
+    - 1910
+    - 1920
+    - 1930
+    - 1940
+    - 1950
+  requires:
+    - physical_disguise
+    - social_deference
+    - concealed_weapon
+  forbids:
+    - cctv
+    - voice_authentication
+clue_archetypes:
+  - testimony_of_frank_latimer
+  - inventory_of_bonds_missing
+  - watchmaker_jennings_testimony_about
+  - richards_account_of_events
+  - polly_s_letter_to
+  - mrs_davis_testimony_about
+sources:
+  - Natalie Sumner Lincoln, The unseen ear — library/works/the_unseen_ear/case.cml2.yaml

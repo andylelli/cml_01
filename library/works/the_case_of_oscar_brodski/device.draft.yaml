@@ -1,5 +1,5 @@
 pattern_id: the_case_of_oscar_brodski
-title: The Moved Corpse
+title: The Relocated Corpse
 family: spatial_routing
 axes:
   - spatial
@@ -32,11 +32,12 @@ feasibility:
     - 1940
     - 1950
   requires:
-    - physical_strength
-    - broken_glass_matching
-    - scene_staging
+    - physical_transport
+    - bloodstain_analysis
+    - glass_fragment_matching
   forbids:
     - cctv
+    - electronic_timekeeping
 clue_archetypes:
   - the_glancing_scalp_wound
   - the_engine_driver_s

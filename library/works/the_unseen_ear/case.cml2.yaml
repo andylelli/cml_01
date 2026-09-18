@@ -1,0 +1,455 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The unseen ear
+    author: Natalie Sumner Lincoln
+    license: Public domain (first published 1921; author died 1935). Project Gutenberg ebook 68679.
+    era:
+      decade: 1920s
+      realism_constraints:
+        - No advanced forensic DNA analysis or modern surveillance technology
+        - Electric lighting and telephones are in use, but communication is limited to wired devices
+        - Safe cracking requires knowledge of combination or expert skill; no electronic locks
+    setting:
+      location: Washington, D.C., USA
+      institution: Police Headquarters and Coroner's Office
+    crime_class:
+      category: murder
+      subtype: disguise and deception to conceal identity and motive
+  cast:
+    - name: Judith Richards
+      age_range: 20-30
+      role_archetype: young, deaf wife with concealed hearing aid
+      relationships:
+        - wife of Joe Richards
+        - daughter of Robert Hale
+        - friend of Polly Davis
+      public_persona: devoted wife and daughter
+      private_secret: wears a hidden earphone to hear
+      motive_seed: protect Polly Davis and her husband
+      motive_strength: strong
+      alibi_window: present in boudoir with husband during jewelry theft
+      access_plausibility: high
+      opportunity_channels:
+        - access to boudoir and bedroom
+      behavioral_tells:
+        - conceals hearing aid
+        - protective of Polly
+      stakes: family reputation and husband's freedom
+      evidence_sensitivity:
+        - jewelry box
+        - Mizpah locket
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: high
+    - name: Joe Richards
+      age_range: 30-40
+      role_archetype: handsome, charming husband with financial troubles
+      relationships:
+        - husband of Judith Richards
+      public_persona: devoted husband and military major
+      private_secret: speculated in stocks, sold wife's bonds without full disclosure
+      motive_seed: financial need
+      motive_strength: moderate
+      alibi_window: claimed at club until midnight, arrived home after 1 AM
+      access_plausibility: high
+      opportunity_channels:
+        - access to safe and boudoir
+      behavioral_tells:
+        - nervousness about whereabouts
+        - refusal to explain watch possession
+      stakes: marriage and reputation
+      evidence_sensitivity:
+        - Troy Valve bonds
+        - Austin Hale's watch
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: Austin Hale
+      age_range: 20-30
+      role_archetype: victim, stepson of John Hale
+      relationships:
+        - stepson of John Hale
+        - former fiancé of Polly Davis
+      public_persona: young man with debts and romantic entanglements
+      private_secret: carried compromising letter in locket
+      motive_seed: none
+      motive_strength: none
+      alibi_window: dead between midnight and 1 AM
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: life
+      evidence_sensitivity:
+        - Mizpah locket
+        - antique watch
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: low
+    - name: Robert Hale
+      age_range: 50-60
+      role_archetype: eminent scientist, head of household
+      relationships:
+        - father of Judith Richards
+        - brother of John Hale
+      public_persona: patriarch and scientist
+      private_secret: installed dictograph in boudoir
+      motive_seed: protect family reputation
+      motive_strength: moderate
+      alibi_window: ill in bed during murder
+      access_plausibility: high
+      opportunity_channels:
+        - access to safe and house
+      behavioral_tells:
+        - secretive
+        - controlling
+      stakes: family honor
+      evidence_sensitivity:
+        - safe
+        - dictograph device
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: moderate
+    - name: Agatha Hale
+      age_range: 50-60
+      role_archetype: domineering matriarch
+      relationships:
+        - wife of Robert Hale
+        - mother of Judith Richards
+      public_persona: socially prominent wife
+      private_secret: protects family secrets
+      motive_seed: family reputation
+      motive_strength: moderate
+      alibi_window: at French Embassy reception
+      access_plausibility: low
+      opportunity_channels: []
+      behavioral_tells:
+        - manipulative
+      stakes: family honor
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: moderate
+    - name: John Hale
+      age_range: 40-50
+      role_archetype: hot-tempered uncle with concealed weapon
+      relationships:
+        - brother of Robert Hale
+        - stepfather of Austin Hale
+      public_persona: stern family member
+      private_secret: carried concealed rapier in cane, killed Austin Hale
+      motive_seed: resentment and family conflict
+      motive_strength: strong
+      alibi_window: not at French Embassy between midnight and 1 AM
+      access_plausibility: high
+      opportunity_channels:
+        - access to house and weapon
+      behavioral_tells:
+        - anger
+        - violent outbursts
+      stakes: family control and secrets
+      evidence_sensitivity:
+        - sword cane with blood
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Polly Davis
+      age_range: 20-30
+      role_archetype: secretary with complicated loyalties
+      relationships:
+        - secretary to Robert Hale
+        - former fiancé of Austin Hale
+      public_persona: secretary and family friend
+      private_secret: stole jewelry to protect herself
+      motive_seed: fear of implication
+      motive_strength: moderate
+      alibi_window: present in house at midnight, then disappeared
+      access_plausibility: high
+      opportunity_channels:
+        - access to house and jewelry
+      behavioral_tells:
+        - evasiveness
+        - flight
+      stakes: freedom and reputation
+      evidence_sensitivity:
+        - Mizpah locket
+        - letters
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: female
+      role: suspect
+      moral_complexity: high
+    - name: Anna
+      age_range: 30-40
+      role_archetype: injured waitress
+      relationships:
+        - servant to Hale family
+      public_persona: loyal servant
+      private_secret: none
+      motive_seed: none
+      motive_strength: none
+      alibi_window: injured and confined to room
+      access_plausibility: low
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: employment
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: low
+    - name: Jim Turner (Maud)
+      age_range: 30-40
+      role_archetype: disguised murderer and thief
+      relationships:
+        - servant in Hale household
+      public_persona: maid
+      private_secret: male disguised as maid, murderer of Austin Hale
+      motive_seed: fear of exposure and criminal past
+      motive_strength: strong
+      alibi_window: present in house at time of murder
+      access_plausibility: high
+      opportunity_channels:
+        - access to house and safe
+      behavioral_tells:
+        - disguise
+        - nervousness
+      stakes: freedom and concealment
+      evidence_sensitivity:
+        - disguise
+        - confession
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+  culpability:
+    culprit_count: 2
+    culprits:
+      - John Hale
+      - Jim Turner (Maud)
+  surface_model:
+    narrative:
+      summary: >-
+        Austin Hale is found murdered in the library of the Hale household with a pair of
+        bloodstained shears nearby. Suspicion falls on several family members and servants, with Joe
+        Richards, the husband of Judith Richards, accused of theft and possibly murder due to
+        possession of stolen bonds and the victim's watch. The case appears to be a straightforward
+        burglary gone wrong.
+    accepted_facts:
+      - Austin Hale was stabbed to death in the library between midnight and 1 AM.
+      - The safe in Robert Hale's library was found open without forced entry.
+      - Jewelry including a Mizpah locket was stolen from Judith Richards' bedroom.
+      - Joe Richards sold bonds belonging to Judith that were stolen from the safe.
+    inferred_conclusions:
+      - Joe Richards murdered Austin Hale to cover up theft of bonds.
+      - Polly Davis is guilty of the murder due to her suspicious behavior and disappearance.
+      - John Hale was at the French Embassy during the murder and is innocent.
+  hidden_model:
+    mechanism:
+      description: >-
+        John Hale killed Austin Hale with a concealed rapier hidden in his bamboo cane during a
+        secret meeting at the house between midnight and 1 AM. Jim Turner, disguised as a maid,
+        stole bonds and jewelry from the safe and Judith's bedroom, and attempted to mislead the
+        investigation. The murder weapon was the rapier cane, and the theft was a cover-up to
+        distract suspicion.
+      delivery_path:
+        - step: John Hale returned from the French Embassy reception to meet Austin Hale.
+        - step: John Hale used his concealed rapier cane to stab Austin Hale in the library.
+        - step: Jim Turner, disguised as a maid, entered the house and stole bonds and jewelry.
+        - step: Turner blindfolded and gagged Judith Richards to prevent her from hearing or seeing.
+        - step: Turner attempted to mislead the investigation by planting false evidence.
+        - step: Joe Richards unknowingly became implicated due to possession of stolen bonds and watch.
+        - step: The dictograph installed by Robert Hale recorded incriminating conversations.
+    outcome:
+      result: >-
+        John Hale and Jim Turner are revealed as the murderers, with John Hale killing Austin Hale
+        and Turner committing theft and attempted concealment.
+  false_assumption:
+    statement: Joe Richards was the murderer because he possessed the stolen bonds and watch.
+    type: identity
+    why_it_seems_reasonable: >-
+      Richards had financial motives and was found with stolen bonds and the victim's watch, and his
+      alibi had an unexplained gap. The circumstantial evidence pointed strongly to him.
+    what_it_hides: >-
+      The real murder weapon was a concealed rapier used by John Hale, and the theft was a separate
+      act by Jim Turner to cover the crime.
+  false_solution:
+    accused_suspect: Joe Richards
+    supporting_points:
+      - Possession of stolen Troy Valve bonds belonging to Judith.
+      - Possession of Austin Hale's watch with his name on the repair tag.
+      - Unexplained absence from the club for over an hour during the murder time.
+      - Suspicious behavior and refusal to explain possession of the watch.
+    the_one_flaw: >-
+      No direct evidence links Richards to the murder weapon or the act of killing; the murder
+      weapon was a rapier concealed in John Hale's cane.
+    refuted_in_chapter: 19
+  red_herrings:
+    - id: polly_davis_disappearance
+      description: Polly Davis disappears after the murder, leading to suspicion she killed Austin Hale.
+      points_at_suspect: Polly Davis
+      innocent_explanation: >-
+        Polly fled due to fear of being implicated and to protect herself, not because she was
+        guilty.
+      resolved_in_chapter: 19
+    - id: joe_richards_financial_troubles
+      description: Joe Richards' financial difficulties and sale of Judith's bonds suggest a motive for murder.
+      points_at_suspect: Joe Richards
+      innocent_explanation: >-
+        Richards sold the bonds to cover losses but did not commit murder; he was unaware of the
+        murderer's identity.
+      resolved_in_chapter: 19
+  closed_circle:
+    suspects:
+      - Joe Richards
+      - John Hale
+      - Polly Davis
+      - Jim Turner (Maud)
+      - Robert Hale
+      - Agatha Hale
+      - Judith Richards
+    rationale: >-
+      All suspects were present in or had access to the house during the murder time, and no
+      external intruder was possible due to locked windows and doors.
+  constraint_space:
+    time:
+      anchors:
+        - Between midnight and 1 AM Wednesday morning
+        - Joe Richards last seen at club just before midnight
+        - Joe Richards arrived home about 1:20 AM
+        - Austin Hale found dead early Wednesday morning
+        - Polly Davis disappeared after midnight
+      windows:
+        - Murder occurred between midnight and 1 AM
+        - Jewelry theft between 9:30 PM and 11:30 PM
+        - Joe Richards' unaccounted hour between midnight and 1:20 AM
+    access:
+      actors:
+        - John Hale
+        - Jim Turner (disguised maid)
+        - Joe Richards
+        - Polly Davis
+        - Judith Richards
+      objects:
+        - Robert Hale's safe
+        - Judith Richards' jewelry box
+        - Library and boudoir doors
+        - John Hale's sword cane
+    social:
+      trust_channels:
+        - Family relationships
+        - Servants' loyalty
+        - Friendship between John Hale and Frank Latimer
+      authority_sources:
+        - Police Headquarters
+        - Coroner Penfield
+        - Dr. McLane (family physician)
+  inference_path:
+    steps:
+      - observation: Joe Richards possessed Troy Valve bonds stolen from Robert Hale's safe on Tuesday night.
+        correction: The bonds were stolen by Jim Turner and sold by Richards, who was unaware of their origin.
+        effect: Richards' financial troubles are explained but do not prove guilt in murder.
+        required_evidence:
+          - Testimony of Frank Latimer about bond sale on Tuesday evening
+          - Inventory of bonds missing from safe after Tuesday night
+        reader_observable: true
+      - observation: >-
+          Austin Hale's antique watch was found in Richards' possession with repair tag dated
+          Wednesday.
+        correction: Richards left the watch for repair after finding it on Austin's body to conceal evidence.
+        effect: Watch possession is explained as an attempt to cover up discovery, not murder.
+        required_evidence:
+          - Watchmaker Jennings' testimony about Wednesday morning delivery
+          - Richards' account of events after finding Austin's body on Wednesday
+        reader_observable: true
+      - observation: Polly Davis disappeared after the murder and had suspicious behavior on Tuesday night.
+        correction: Polly fled out of fear and suspicion, not guilt.
+        effect: Polly is cleared as a suspect for murder.
+        required_evidence:
+          - Polly's letter to her mother describing her movement on Tuesday night
+          - Mrs. Davis' testimony about Polly's whereabouts on Wednesday
+        reader_observable: true
+      - observation: John Hale claimed to be at French Embassy during murder time on Tuesday night.
+        correction: John Hale returned home secretly to meet Austin and committed the murder.
+        effect: John Hale's alibi is disproved, making him the murderer.
+        required_evidence:
+          - Witness testimony of John Hale's arrival at the house late Tuesday night
+          - Bloodstained sword cane found in John's possession after Wednesday morning search
+        reader_observable: true
+      - observation: Bloodstains found on John Hale's sword cane after Tuesday night incident.
+        correction: The cane concealed a rapier used to kill Austin Hale.
+        effect: Identifies murder weapon and links it to John Hale.
+        required_evidence:
+          - Autopsy report describing wound consistent with rapier on Wednesday
+          - Examination of sword cane revealing concealed blade and blood after Tuesday night
+        reader_observable: true
+      - observation: >-
+          Judith Richards was found bound, gagged, and blindfolded in her boudoir on Wednesday
+          morning, unable to focus or move.
+        correction: Jim Turner attempted to silence Judith to prevent discovery of his theft and identity.
+        effect: Reveals Turner's role as accomplice and thief.
+        required_evidence:
+          - Judith's testimony of abduction and inability to focus or move on Tuesday night
+          - Physical evidence of bindings and gag found in boudoir after Wednesday morning
+        reader_observable: true
+      - observation: >-
+          Dictograph device found in Judith's boudoir recorded conversations from Tuesday night to
+          Wednesday morning.
+        correction: Robert Hale installed it to secretly monitor conversations and gather evidence.
+        effect: Provides surveillance evidence aiding investigation.
+        required_evidence:
+          - Testimony of Robert Hale about dictograph installation on Tuesday
+          - Recorded conversations implicating suspects between Tuesday night and Wednesday morning
+        reader_observable: true
+  discriminating_test:
+    method: reenactment
+    design: >-
+      Reenact the timeline of Tuesday night to Wednesday morning, focusing on John Hale's movements
+      and the use of his sword cane. Verify the presence of the rapier weapon and the timing of the
+      murder wound. Cross-check alibis of all suspects during the murder hour and test the
+      plausibility of the theft and abduction by Turner.
+    knowledge_revealed: >-
+      Confirms John Hale's presence and use of the rapier cane to kill Austin Hale, and Turner's
+      role in theft and abduction.
+    pass_condition: >-
+      The reenactment must demonstrate that John Hale had opportunity and means to commit the
+      murder, and that Turner's movements align with the theft and abduction timeline.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is provided with detailed timelines, character alibis, and physical evidence such
+      as the bloodstained sword cane and the stolen bonds. The presence of the dictograph and the
+      testimony of servants offer clues to the true murderer. The false solution is supported by
+      circumstantial evidence but contradicted by the concealed weapon and the confession, allowing
+      an attentive reader to deduce the truth.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

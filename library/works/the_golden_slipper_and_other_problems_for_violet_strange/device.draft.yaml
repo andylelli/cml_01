@@ -32,10 +32,10 @@ feasibility:
   requires:
     - physical_disguise
     - open_window_access
-    - traceable_substance
+    - trace_marking_substance
   forbids:
     - cctv
-    - automated_fingerprint_search
+    - voice_authentication
 clue_archetypes:
   - description_of_the_open
   - witness_statement_about_the

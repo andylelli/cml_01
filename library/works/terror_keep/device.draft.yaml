@@ -1,0 +1,48 @@
+pattern_id: terror_keep
+title: The Silent Gas
+family: behavioral
+axes:
+  - behavioral
+principle: >-
+  The actual use of a gas attack that silently incapacitated the guards, leaving no gunfire or
+  struggle, which was a clever and unexpected method.
+principleType: physical_law
+surface_illusion_template: >-
+  The robbery was a straightforward armed attack on the convoy; the culprit was killed by an unknown
+  rival gang member; the victim was complicit in the robbery or a willing accomplice
+underlying_reality_template: >-
+  the culprit orchestrated the robbery by using a gas attack to incapacitate the gold convoy guards
+  at a narrow road cutting. The gang used a disguised lorry and gas stored in a water wagon to
+  silently kill the guards. The stolen gold was taken to Larmes Keep, which served as their
+  headquarters, connected to a network of caves for escape. the culprit killed the culprit to
+  eliminate a threat and used his daughter a suspect and the housekeeper Mrs. a suspect as
+  accomplices.
+feasibility:
+  eras:
+    - 1850
+    - 1860
+    - 1870
+    - 1880
+    - 1890
+    - 1900
+    - 1910
+    - 1920
+    - 1930
+    - 1940
+    - 1950
+  requires:
+    - period_poison
+    - mechanical_gas_delivery
+    - secret_passage_structure
+  forbids:
+    - modern_toxicology_screen
+    - cctv
+clue_archetypes:
+  - description_of_convoy_route
+  - medical_examination_of_dead
+  - physical_inspection_of_water
+  - purchase_records_of_municipal
+  - luck_rings_sent_to
+  - witness_statements_about_ravini
+sources:
+  - Edgar Wallace, Terror keep — library/works/terror_keep/case.cml2.yaml

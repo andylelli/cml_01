@@ -1,0 +1,12 @@
+- id: the_unseen_ear
+  corpus: seed
+  axis: identity
+  mechanism_family: impersonation
+  false_assumption_pattern: the_person_seen_is_their_true_identity
+  discriminating_test_shape: reconstruction
+  inference_shape: unmask_disguised_actor
+  premise: >-
+    Austin Hale is found murdered in the library of the Hale household with a pair of bloodstained
+    shears nearby. Suspicion falls on several family members and servants, with Joe Richards, the
+    husband of 
+  source: library/works/the_unseen_ear/case.cml2.yaml

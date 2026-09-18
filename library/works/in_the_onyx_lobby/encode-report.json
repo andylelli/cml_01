@@ -1,0 +1,134 @@
+{
+ "slug": "in_the_onyx_lobby",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "The victim was stabbed in the onyx lobby",
+   "anchor": "lying in a contorted heap on the floor",
+   "span": "A glance toward the front doorway showed him a figure of a man, lying in a contorted heap on the floor, about half way between himself and the entrance.",
+   "ok": true
+  },
+  {
+   "claim": "The dying message read 'women did this'",
+   "anchor": "women did this get",
+   "span": "This is what he read: [Illustration (handwritten note): women did this get [unreadable]] CHAPTER IV The Busy Police But even the astonishing disclosure of the scrawled statement did not cause Bob Moore to lose his head.",
+   "ok": true
+  },
+  {
+   "claim": "Bob Moore took Mr Vail up in the elevator at the time of the murder",
+   "anchor": "I took him up in the elevator to his floor",
+   "span": "—and I took him up in the elevator to his floor, and when I came down, Mr Binney was there just as you see him now,—only, he was still alive.",
+   "ok": true
+  },
+  {
+   "claim": "The paper-cutter missing from Miss Prall’s library set was found at the crime scene",
+   "anchor": "paper-cutter belonging to a set of writing implements on Miss Prall’s library table",
+   "span": "this is the paper-cutter belonging to a set of writing implements on Miss Prall’s library table; and I have just come from there, and I noticed that, though the sheath of this was up there, the paper-cutter was missing!",
+   "ok": true
+  },
+  {
+   "claim": "Molly was married by Vail to silence her",
+   "anchor": "I married you to keep your mouth shut",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Mrs Everett was seen in the hall fully dressed at the time of the murder",
+   "anchor": "she was seen fully dressed, as she had been in the evening",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Letitia Prall expressed willingness to kill Sir Herbert if sure not caught",
+   "anchor": "If I was sure I wouldn’t get caught, I’d kill him myself",
+   "span": "She was wishing it so hard that I myself heard her say, ‘If I was sure I wouldn’t get caught, I’d kill him myself!",
+   "ok": true
+  },
+  {
+   "claim": "The secret recipe was hidden behind the wallpaper in Sir Herbert’s apartment",
+   "anchor": "disclosed a rectangular space where the wall paper had been cut away",
+   "span": "Loosening the screws, which he had only partially readjusted, Wise lifted down the mirror, and disclosed a rectangular space where the wall paper had been cut away.",
+   "ok": true
+  },
+  {
+   "claim": "The initial letter 'T' was written on the wall, not the paper",
+   "anchor": "The part on the wall is one letter,—the initial letter of what he wrote",
+   "span": "The part on the wall is one letter,—the initial letter of what he wrote——” “What was it?",
+   "ok": true
+  },
+  {
+   "claim": "Vail was in the elevator with Moore at the time of the murder",
+   "anchor": "Vail darted on ahead, and managed adroitly to get into the elevator with Moore",
+   "span": "When near The Campanile, Vail darted on ahead, and managed adroitly to get into the elevator with Moore and be on the way up when Binney and Dr Weldon entered the onyx lobby.",
+   "ok": true
+  },
+  {
+   "claim": "Doctor Weldon stabbed Sir Herbert with the paper-cutter",
+   "anchor": "With it, the skilled surgeon stabbed his victim",
+   "span": "With it, the skilled surgeon stabbed his victim and made away at once.",
+   "ok": true
+  },
+  {
+   "claim": "The dying message was misread due to the initial letter on the wall",
+   "anchor": "His habit of connecting words, or his inability from weakness to lift his pencil, made the words ‘Two men,’ the capital missing, seem to be ‘women’",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Molly lied about seeing a veiled woman and later admitted seeing a man",
+   "anchor": "I know I did, but I—I made a mistake. It was sorta dark, you know",
+   "span": "I know I did, but I—I made a mistake. It was sorta dark, you know.",
+   "ok": true
+  },
+  {
+   "claim": "Molly was married under duress to keep her silent",
+   "anchor": "He married you in an extremity of fear",
+   "span": "He married you in an extremity of fear,—fear that you would tell of his visit to the room,—now, who could it be, Penny?",
+   "ok": true
+  },
+  {
+   "claim": "The feud between Letitia Prall and Mrs Everett is longstanding and bitter",
+   "anchor": "the famous feud was such justification",
+   "span": "And any reference to or participation in the famous feud was such justification.",
+   "ok": true
+  },
+  {
+   "claim": "Sir Herbert Binney was found dying with a pencil dropping from his fingers",
+   "anchor": "the pencil dropped from Sir Herbert’s fingers just as he fell back dead",
+   "span": "he said, the pencil dropped from Sir Herbert’s fingers just as he fell back dead——” “Oh, no, he didn’t say that!",
+   "ok": true
+  },
+  {
+   "claim": "The paper-cutter was found stuck between the palings of a fence near the delivery entrance",
+   "anchor": "A boy connected with the service department found it stuck between the palings of a fence",
+   "span": "A boy connected with the service department found it stuck between the palings of a fence near the delivery entrance.",
+   "ok": true
+  },
+  {
+   "claim": "Vail was seen lurking in the halls at the time of the murder",
+   "anchor": "I caught sight of a woman with a shawl over her head",
+   "span": "But I went down farther and I caught sight of a woman with a shawl over her head——” “What kind of a shawl?",
+   "ok": true
+  },
+  {
+   "claim": "Dorcas Everett was in the hall about midnight, not at the time of the murder",
+   "anchor": "I was in the hall about midnight to,—to meet somebody",
+   "span": "I was in the hall about midnight to,—to meet somebody.",
+   "ok": true
+  },
+  {
+   "claim": "Sir Herbert Binney had the sitting-room repapered before moving in",
+   "anchor": "Sir Herbert had this room repapered when he took the apartment",
+   "span": "Sir Herbert had this room repapered when he took the apartment.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.1046153471,
+ "models": {
+  "map": "gpt-4o-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true
+}

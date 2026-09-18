@@ -1,10 +1,10 @@
 - id: the_lodger
   corpus: seed
   axis: identity
-  mechanism_family: alibi_fabrication
-  false_assumption_pattern: the_official_description_identifies_the_killer
+  mechanism_family: impersonation
+  false_assumption_pattern: the_official_description_matches_the_killer
   discriminating_test_shape: timetable_contradiction
-  inference_shape: disprove_composite_identity
+  inference_shape: reconcile_witness_accounts_with_evidence
   premise: >-
     A series of brutal murders terrorize London, attributed to a mysterious figure called The
     Avenger. The Buntings unknowingly shelter a lodger, Mr. Sleuth, whose eccentric behavior and
