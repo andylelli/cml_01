@@ -70,10 +70,10 @@ export function loadArtifactStore(workspaceRoot: string): StoreArtifact[] {
   return rows as StoreArtifact[];
 }
 
-const rowProjectId = (row: StoreArtifact): string | undefined => row.project_id ?? row.projectId;
-const rowType = (row: StoreArtifact): string | undefined => row.artifact_type ?? row.type;
+export const rowProjectId = (row: StoreArtifact): string | undefined => row.project_id ?? row.projectId;
+export const rowType = (row: StoreArtifact): string | undefined => row.artifact_type ?? row.type;
 
-const rowPayload = (row: StoreArtifact): unknown => {
+export const rowPayload = (row: StoreArtifact): unknown => {
   const raw = row.payload !== undefined ? row.payload : row.payload_json;
   if (typeof raw === "string") {
     try {
