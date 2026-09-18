@@ -88,11 +88,14 @@ const castNames = computed(() => (spec.value.castNames ?? []).filter(Boolean));
 			<dd class="m-0 text-[0.86rem] text-ink">{{ castNames.join(", ") }}</dd>
 		</div>
 
+		<!-- These two moved out of "Advanced ▸ Operator" and onto Run itself (UI-009), so this points
+		     at the section rather than at a tab that no longer exists. -->
 		<p v-if="isAdvanced" class="mt-4 border-t border-line pt-3 text-[0.72rem] text-ink-faint">
-			Concealment axis and prose batch size are under
-			<button type="button" class="underline hover:text-ink" @click="goTo('advanced', 'operator')">
-				Advanced ▸ Operator
-			</button>.
+			Concealment axis and prose batch size are with the
+			<button type="button" class="underline hover:text-ink" @click="goTo('build', 'build-generate')">
+				Generate
+			</button>
+			controls below.
 		</p>
 	</div>
 </template>

@@ -249,6 +249,22 @@ export const useWorkshopState = () => {
    * keep working; they just land on a heading instead of a tab.
    */
   const goTo = (tab: string, section?: string) => {
+    /**
+     * An unknown tab id is REFUSED, not assigned.
+     *
+     * Every panel is `v-if`'d on `activeMainTab`, so setting it to a tab that does not exist
+     * matches nothing and the console renders a blank page with no error. That is not theoretical:
+     * the "Fix →" button pointed at a `spec` tab removed in UI-006, and after UI-009 renamed the
+     * tabs four more links still pointed at `review` and `advanced`. All five blanked the screen.
+     * Failing loudly in development is what stops the sixth.
+     */
+    if (!mainTabs.value.some((t) => t.id === tab)) {
+      if (import.meta.env.DEV) {
+        console.error(`[workshop] goTo("${tab}") — no such tab. Ignored.`);
+      }
+      return;
+    }
+
     activeMainTab.value = tab;
     if (!section) return;
     requestAnimationFrame(() => {

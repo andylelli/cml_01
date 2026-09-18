@@ -54,20 +54,20 @@ const {
 	    </button>
 	    <button
 	      class="rounded border border-line px-2 py-1 text-xs font-semibold text-ink-soft"
-	      @click="goTo('review', 'clues')"
+	      @click="goTo('inspect', 'inspect-clues')"
 	    >
 	      Open Clue board
 	    </button>
 	    <button
 	      class="rounded border border-line px-2 py-1 text-xs font-semibold text-ink-soft"
-	      @click="goTo('review', 'outline')"
+	      @click="goTo('inspect', 'artifact-outline')"
 	    >
 	      Open Outline
 	    </button>
 	    <button
 	      v-if="isAdvanced"
 	      class="rounded border border-line px-2 py-1 text-xs font-semibold text-ink-soft"
-	      @click="goTo('advanced', 'cml')"
+	      @click="goTo('inspect', 'artifact-cml')"
 	    >
 	      Open CML Viewer
 	    </button>
