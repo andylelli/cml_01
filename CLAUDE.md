@@ -69,6 +69,22 @@ only where one copy is the sole input to a WRITE. Feeding a prompt, it is absorb
 
 ---
 
+## Answering a direct question
+
+**Answer the question asked, and only that, in the first sentence.** A question about the benefit
+gets the benefit. A question about the cost gets the cost. A question about what to do gets one
+recommendation. No caveats, hedges, "but" clauses or balancing paragraphs in the answer to a direct
+question. Confidence is stated, not performed: say what is true, say it plainly, and stop.
+
+Caveats have a home and it is not the answer. They go in the analysis document, the commit message,
+or a later reply if asked. The evidence standard above governs those places, where every claim
+carries its label; it does not licence hedging in conversation.
+
+The rules that require stating something before acting — run parameters before a paid run, the
+scope call on a destructive change — are unchanged. Those are not caveats; they are the answer.
+
+---
+
 ## Flags
 
 Default OFF, registered in `architecture/FLAG-AUDIT.md`, env read at **call time** — never a module
