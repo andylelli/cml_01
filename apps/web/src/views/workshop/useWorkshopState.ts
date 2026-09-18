@@ -43,7 +43,6 @@ import {
   fetchScoringReport,
   fetchScoringHistory,
   logActivity,
-  regenerateArtifact,
   runPipeline,
   saveSpec,
   type Project,
@@ -177,7 +176,7 @@ export const useWorkshopState = () => {
   // Error management
   const errors = ref<ErrorItem[]>([]);
   let errorIdCounter = 0;
-  const lastFailedAction = ref<null | { type: "pipeline" | "regenerate" | "spec"; scope?: "setting" | "cast" | "clues" | "outline" | "prose" | "character_profiles" }>(null);
+  const lastFailedAction = ref<null | { type: "pipeline" }>(null);
 
   const addError = (severity: ErrorSeverity, scope: string, message: string, details?: string) => {
     const error: ErrorItem = {
@@ -224,14 +223,7 @@ export const useWorkshopState = () => {
       return;
     }
 
-    if (action.type === "spec") {
-      await handleSaveSpec();
-      return;
-    }
 
-    if (action.type === "regenerate" && action.scope) {
-      await handleRegenerate(action.scope);
-    }
   };
 
   const dismissError = (id: string) => {
@@ -314,7 +306,6 @@ export const useWorkshopState = () => {
   const selectedProjectId = ref("");
   const missingProjectNotified = ref(false);
   const showAdvancedValidation = ref(false);
-  const updateInProgress = ref<string | null>(null);
   const selectedProseLength = ref<string | null>(null);
   const availableProseVersions = ref<string[]>([]);
   // The SSE handle and the 3s/8s intervals moved into useRunProgress, which owns their cleanup.
@@ -878,25 +869,6 @@ export const useWorkshopState = () => {
     }
   };
 
-  const handleSaveSpec = async () => {
-    if (!projectId.value) {
-      addError("warning", "spec", "Create a project first");
-      return;
-    }
-    clearErrors("spec");
-    try {
-      const saved = await saveSpec(projectId.value, spec.value);
-      latestSpecId.value = saved.id;
-      addError("info", "spec", `Spec saved: ${saved.id}`);
-      persistState();
-      logActivity({ projectId: projectId.value, scope: "ui", message: "spec_saved", payload: { specId: saved.id } });
-      lastFailedAction.value = null;
-    } catch (error) {
-      addError("error", "spec", "Failed to save spec", error instanceof Error ? error.message : String(error));
-      logActivity({ projectId: projectId.value, scope: "ui", message: "spec_save_failed" });
-      lastFailedAction.value = { type: "spec" };
-    }
-  };
 
   const handleClearStore = async () => {
     if (!confirm("This will delete all saved projects, generated results, reports, logs, and prompt history. Continue?")) {
@@ -1121,31 +1093,6 @@ export const useWorkshopState = () => {
     }
   };
 
-  const handleRegenerate = async (scope: "setting" | "cast" | "clues" | "outline" | "prose" | "character_profiles") => {
-    if (!projectId.value) {
-      addError("warning", "regenerate", "Create a project first");
-      return;
-    }
-    clearErrors("regenerate");
-    try {
-      updateInProgress.value = scope;
-      await regenerateArtifact(projectId.value, scope);
-      await loadArtifacts();
-      lastUpdatedAt.value = Date.now();
-      addError("info", "regenerate", "Section updated");
-      logActivity({ projectId: projectId.value, scope: "ui", message: "regenerate", payload: { scope } });
-      lastFailedAction.value = null;
-    } catch (error) {
-      addError("error", "regenerate", "We couldn’t update that section", error instanceof Error ? error.message : String(error));
-      logActivity({ projectId: projectId.value, scope: "ui", message: "regenerate_failed", payload: { scope } });
-      lastFailedAction.value = { type: "regenerate", scope };
-    } finally {
-      if (updateInProgress.value === scope) {
-        updateInProgress.value = null;
-      }
-    }
-  };
-
   const handleDownloadGamePackPdf = async () => {
     if (!projectId.value) {
       addError("warning", "export", "Create a project first");
@@ -1341,23 +1288,6 @@ export const useWorkshopState = () => {
     if (section) goTo(section === "cml" || section === "artifacts" ? "advanced" : "review", section);
   };
 
-  const handleArtifactRegenerate = (id: string) => {
-    const scopeMap: Partial<Record<string, "setting" | "cast" | "clues" | "outline" | "prose" | "character_profiles">> = {
-      setting: "setting",
-      cast: "cast",
-      clues: "clues",
-      outline: "outline",
-      character_profiles: "character_profiles",
-      prose: "prose",
-    };
-    const scope = scopeMap[id];
-    if (scope) {
-      handleRegenerate(scope);
-    } else {
-      addError("warning", "regenerate", `Regeneration for '${id}' is not available individually.`);
-    }
-  };
-
   const handleValidationFieldFocus = (key: string) => {
     // Jump to the spec tab so fields are visible
     activeMainTab.value = "spec";
@@ -1485,7 +1415,6 @@ export const useWorkshopState = () => {
     gamePackData,
     gamePackReady,
     handleAdvancedTabChange,
-    handleArtifactRegenerate,
     handleArtifactView,
     handleCancelRun,
     handleClearStore,
@@ -1495,11 +1424,9 @@ export const useWorkshopState = () => {
     handleDownloadStoryPdf,
     handleErrorAction,
     handleLoadProject,
-    handleRegenerate,
     handleReviewTabChange,
     handleRunPipeline,
     handleSampleSelect,
-    handleSaveSpec,
     handleSuggestTheme,
     handleValidationFieldFocus,
     hardLogicDevicesArtifact,
@@ -1562,7 +1489,6 @@ export const useWorkshopState = () => {
     tabStatuses,
     temporalContextArtifact,
     temporalContextData,
-    updateInProgress,
   };
 };
 

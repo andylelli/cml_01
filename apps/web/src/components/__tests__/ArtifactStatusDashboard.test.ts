@@ -63,32 +63,19 @@ describe("ArtifactStatusDashboard", () => {
     }
   });
 
-  it("emits regenerate event when Regenerate button clicked", async () => {
+  /**
+   * `isRunning` used to disable a Regenerate button. That feature is gone — it offered
+   * nine scopes and implemented one — so the prop's only remaining job is the status
+   * badge: an artifact that is not ready yet reads "Pending" while a run is in flight.
+   */
+  it("marks unfinished artifacts Pending while a run is in flight", () => {
     const wrapper = mount(ArtifactStatusDashboard, {
       props: {
-        artifacts: [{ id: "setting", label: "Setting", generatedAt: null, ready: true, dependsOn: [] }],
-        isRunning: false,
-      },
-    });
-    const buttons = wrapper.findAll("button");
-    const regenBtn = buttons.find((b) => b.text().toLowerCase().includes("regenerate"));
-    if (regenBtn) {
-      await regenBtn.trigger("click");
-      expect(wrapper.emitted("regenerate")).toBeDefined();
-      expect(wrapper.emitted("regenerate")?.[0]).toEqual(["setting"]);
-    }
-  });
-
-  it("disables action buttons when isRunning is true", () => {
-    const wrapper = mount(ArtifactStatusDashboard, {
-      props: {
-        artifacts: [{ id: "setting", label: "Setting", generatedAt: null, ready: true, dependsOn: [] }],
+        artifacts: [{ id: "setting", label: "Setting", generatedAt: null, ready: false, dependsOn: [] }],
         isRunning: true,
       },
     });
-    const buttons = wrapper.findAll("button");
-    const disabledBtns = buttons.filter((b) => b.attributes("disabled") !== undefined);
-    expect(disabledBtns.length).toBeGreaterThan(0);
+    expect(wrapper.text()).toContain("Pending");
   });
 
   it("shows dependency warning when deps not met", () => {

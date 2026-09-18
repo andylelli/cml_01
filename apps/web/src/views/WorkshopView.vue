@@ -80,7 +80,6 @@ const {
   gamePackData,
   gamePackReady,
   handleAdvancedTabChange,
-  handleArtifactRegenerate,
   handleArtifactView,
   handleCancelRun,
   handleClearStore,
@@ -89,11 +88,9 @@ const {
   handleDownloadStoryPdf,
   handleErrorAction,
   handleLoadProject,
-  handleRegenerate,
   handleReviewTabChange,
   handleRunPipeline,
   handleSampleSelect,
-  handleSaveSpec,
   hardLogicDevicesArtifact,
   hardLogicDevicesData,
   isAdvanced,
@@ -147,7 +144,6 @@ const {
   tabStatuses,
   temporalContextArtifact,
   temporalContextData,
-  updateInProgress,
 } = ctx;
 </script>
 

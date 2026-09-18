@@ -24,7 +24,6 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   view: [id: string];
-  regenerate: [id: string];
 }>();
 
 const formatTs = (iso: string | null): string => {
@@ -99,13 +98,6 @@ const unmetDeps = (entry: ArtifactEntry): string[] => {
             @click="emit('view', entry.id)"
           >
             View
-          </button>
-          <button
-            class="rounded border border-line bg-surface px-2 py-1 text-[11px] font-medium text-ink-soft hover:bg-surface-sunken disabled:opacity-40"
-            :disabled="isRunning"
-            @click="emit('regenerate', entry.id)"
-          >
-            Regenerate
           </button>
         </div>
       </div>

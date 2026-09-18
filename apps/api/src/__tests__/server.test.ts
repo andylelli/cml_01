@@ -79,25 +79,6 @@ describe("API server (phase 1)", () => {
     }
   });
 
-  it("regenerates a single artifact scope", async () => {
-    const originalEndpoint = process.env.AZURE_OPENAI_ENDPOINT;
-    const originalApiKey = process.env.AZURE_OPENAI_API_KEY;
-    process.env.AZURE_OPENAI_ENDPOINT = "";
-    process.env.AZURE_OPENAI_API_KEY = "";
-    try {
-      const created = await request(app).post("/api/projects").send({ name: "Regen Project" });
-      await request(app).post(`/api/projects/${created.body.id}/specs`).send({ decade: "1930s" });
-
-      const regen = await request(app)
-        .post(`/api/projects/${created.body.id}/regenerate`)
-        .send({ scope: "clues" });
-      expect(regen.status).toBe(503);
-    } finally {
-      process.env.AZURE_OPENAI_ENDPOINT = originalEndpoint;
-      process.env.AZURE_OPENAI_API_KEY = originalApiKey;
-    }
-  });
-
   it("serves samples list and content", async () => {
     const list = await request(app).get("/api/samples");
     expect(list.status).toBe(200);

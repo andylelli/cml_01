@@ -140,18 +140,6 @@ export const runPipeline = async (projectId: string) => {
   return response.json() as Promise<{ status: string; projectId: string; runId?: string }>;
 };
 
-export const regenerateArtifact = async (projectId: string, scope: string) => {
-  const response = await fetch(`${apiBase}/api/projects/${projectId}/regenerate`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ scope }),
-  });
-  if (!response.ok) {
-    throw new Error(`Regenerate failed (${response.status})`);
-  }
-  return response.json() as Promise<{ status: string; scope: string }>;
-};
-
 export const fetchCml = async (projectId: string): Promise<Artifact> => {
   const response = await fetch(`${apiBase}/api/projects/${projectId}/cml/latest`, {
     headers: { "x-cml-mode": "advanced" },

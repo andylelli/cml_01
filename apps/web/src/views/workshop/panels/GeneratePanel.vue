@@ -15,9 +15,7 @@ const {
 	fairPlayReady,
 	gamePackReady,
 	handleCancelRun,
-	handleRegenerate,
 	handleRunPipeline,
-	handleSaveSpec,
 	isRunning,
 	isStartingRun,
 	outlineReady,
@@ -26,7 +24,6 @@ const {
 	projectId,
 	runProgressLabel,
 	runProgressPercent,
-	updateInProgress,
 } = useWorkshop();
 </script>
 
@@ -64,85 +61,7 @@ const {
 	          Generate
 	        </span>
 	      </button>
-	      <button
-	        class="transition-control rounded border border-line bg-surface px-4 py-2 text-[0.88rem] font-medium text-ink hover:border-line-strong hover:bg-surface-sunken"
-	        @click="handleSaveSpec"
-	      >
-	        Save draft
-	      </button>
 	    </div>
 
-	    <!-- Regenerate Controls -->
-	    <div class="mt-6 rounded-lg border border-line bg-ground p-4">
-	      <div class="text-xs font-semibold uppercase tracking-wide text-ink-soft">Update sections</div>
-	      <div class="mt-3 flex flex-wrap gap-2">
-	        <button
-	          class="rounded-md border border-line-strong bg-surface px-3 py-1.5 text-xs font-semibold text-ink hover:bg-ground disabled:opacity-50"
-	          :disabled="!projectId || updateInProgress !== null"
-	          @click="handleRegenerate('setting')"
-	        >
-	          <span class="inline-flex items-center gap-2">
-	            <font-awesome-icon v-if="updateInProgress === 'setting'" icon="spinner" spin />
-	            Update setting
-	          </span>
-	        </button>
-	        <button
-	          class="rounded-md border border-line-strong bg-surface px-3 py-1.5 text-xs font-semibold text-ink hover:bg-ground disabled:opacity-50"
-	          :disabled="!projectId || updateInProgress !== null"
-	          @click="handleRegenerate('cast')"
-	        >
-	          <span class="inline-flex items-center gap-2">
-	            <font-awesome-icon v-if="updateInProgress === 'cast'" icon="spinner" spin />
-	            Update cast
-	          </span>
-	        </button>
-	        <button
-	          class="rounded-md border border-line-strong bg-surface px-3 py-1.5 text-xs font-semibold text-ink hover:bg-ground disabled:opacity-50"
-	          :disabled="!projectId || updateInProgress !== null"
-	          @click="handleRegenerate('character_profiles')"
-	        >
-	          <span class="inline-flex items-center gap-2">
-	            <font-awesome-icon v-if="updateInProgress === 'character_profiles'" icon="spinner" spin />
-	            Update profiles
-	          </span>
-	        </button>
-	        <button
-	          class="rounded-md border border-line-strong bg-surface px-3 py-1.5 text-xs font-semibold text-ink hover:bg-ground disabled:opacity-50"
-	          :disabled="!projectId || updateInProgress !== null"
-	          @click="handleRegenerate('clues')"
-	        >
-	          <span class="inline-flex items-center gap-2">
-	            <font-awesome-icon v-if="updateInProgress === 'clues'" icon="spinner" spin />
-	            Update clues
-	          </span>
-	        </button>
-	        <button
-	          class="rounded-md border border-line-strong bg-surface px-3 py-1.5 text-xs font-semibold text-ink hover:bg-ground disabled:opacity-50"
-	          :disabled="!projectId || updateInProgress !== null"
-	          @click="handleRegenerate('outline')"
-	        >
-	          <span class="inline-flex items-center gap-2">
-	            <font-awesome-icon v-if="updateInProgress === 'outline'" icon="spinner" spin />
-	            Update outline
-	          </span>
-	        </button>
-	        <button
-	          class="rounded-md border border-line-strong bg-surface px-3 py-1.5 text-xs font-semibold text-ink hover:bg-ground disabled:opacity-50"
-	          :disabled="!projectId || updateInProgress !== null"
-	          @click="handleRegenerate('prose')"
-	        >
-	          <span class="inline-flex items-center gap-2">
-	            <font-awesome-icon v-if="updateInProgress === 'prose'" icon="spinner" spin />
-	            Update story
-	          </span>
-	        </button>
-	      </div>
-	      <div v-if="updateInProgress" class="mt-3 h-1 w-full overflow-hidden rounded-full bg-surface-sunken">
-	        <div class="h-full w-1/2 animate-pulse rounded-full bg-frame-tint"></div>
-	      </div>
-	      <div class="t-subtitle mt-1">
-	        Update a single section without rerunning everything.
-	      </div>
-	    </div>
 	  </div>
 </template>

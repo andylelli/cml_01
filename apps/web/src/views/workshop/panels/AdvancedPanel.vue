@@ -32,7 +32,6 @@ const {
 	debugLogs,
 	errors,
 	gamePackArtifact,
-	handleArtifactRegenerate,
 	handleArtifactView,
 	hardLogicDevicesArtifact,
 	isAdvanced,
@@ -100,7 +99,6 @@ const {
 	    :artifacts="artifactEntries"
 	    :is-running="isRunning || isStartingRun"
 	    @view="handleArtifactView"
-	    @regenerate="handleArtifactRegenerate"
 	  />
 	  <!-- Raw JSON, for when the rendered view is lying -->
 	  <details class="rounded-lg border border-line bg-surface p-6 shadow-card">

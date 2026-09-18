@@ -27,7 +27,7 @@ export interface ErrorItem {
 
 /** What to retry when the user presses the action on a notification. */
 export interface FailedAction {
-	type: "pipeline" | "regenerate" | "spec";
+	type: "pipeline";
 	scope?: string;
 }
 

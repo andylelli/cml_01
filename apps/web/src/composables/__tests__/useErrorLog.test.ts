@@ -93,10 +93,10 @@ describe("useErrorLog", () => {
 
 	it("returns the action to retry, and forgets it afterwards", () => {
 		const log = useErrorLog();
-		log.recordFailure({ type: "regenerate", scope: "cast" });
-		const item = log.add("error", "cast", "Regenerate failed");
+		log.recordFailure({ type: "pipeline" });
+		const item = log.add("error", "pipeline", "Run failed");
 
-		expect(log.resolve(item)).toEqual({ type: "regenerate", scope: "cast" });
+		expect(log.resolve(item)).toEqual({ type: "pipeline" });
 		// A second press must not re-run it.
 		expect(log.resolve(item)).toBeNull();
 	});

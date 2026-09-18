@@ -51,8 +51,7 @@ const getSeverityIcon = (severity: ErrorSeverity) => {
 
 const getPrimaryActionLabel = (scope: string, severity: ErrorSeverity) => {
   if (severity === "info") return "Okay";
-  if (scope === "pipeline" || scope === "regenerate") return "Try again";
-  if (scope === "spec") return "Save draft";
+  if (scope === "pipeline") return "Try again";
   if (scope === "project") return "Try again";
   return "Try again";
 };

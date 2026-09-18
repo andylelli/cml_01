@@ -6,7 +6,7 @@ import { fileURLToPath } from "url";
 import { createRepository } from "./db.js";
 import { validateCml, MOJIBAKE_REPLACEMENTS } from "@cml/cml";
 import { AzureOpenAIClient } from "@cml/llm-client";
-import { deriveStoryTitle, generateCharacterProfiles } from "@cml/prompts-llm";
+import { deriveStoryTitle } from "@cml/prompts-llm";
 import { FileReportRepository, type AggregateStats } from "@cml/story-validation";
 import {
   buildLlmLogger as buildWorkerLlmLogger,
@@ -419,40 +419,6 @@ const buildLlmClient = () => {
   }
 
   return new AzureOpenAIClient(config);
-};
-
-const normalizeCastForProfiles = (castPayload: Record<string, unknown>) => {
-  const cast = (castPayload as any)?.cast ?? castPayload;
-  const characters = Array.isArray(cast?.characters)
-    ? cast.characters
-    : Array.isArray(cast?.suspects)
-      ? cast.suspects.map((name: string) => ({
-          name,
-          ageRange: "adult",
-          occupation: "resident",
-          roleArchetype: "suspect",
-          publicPersona: "reserved",
-          privateSecret: "keeps a secret",
-          motiveSeed: "inheritance",
-          motiveStrength: "moderate",
-          alibiWindow: "evening",
-          accessPlausibility: "possible",
-          stakes: "reputation",
-          characterArcPotential: "discovers hidden resolve",
-        }))
-      : [];
-
-  return {
-    characters,
-    relationships: { pairs: [] },
-    diversity: { stereotypeCheck: [], recommendations: [] },
-    crimeDynamics: {
-      possibleCulprits: [],
-      redHerrings: [],
-      victimCandidates: [],
-      detectiveCandidates: [],
-    },
-  };
 };
 
 /**
@@ -1350,71 +1316,6 @@ export const createServer = () => {
       .catch(() => res.status(500).json({ error: "Failed to fetch project" }));
   });
 
-  app.post("/api/projects/:id/regenerate", express.json(), async (req, res) => {
-    const scope = typeof req.body?.scope === "string" ? req.body.scope : "";
-    const allowedScopes = new Set([
-      "setting",
-      "cast",
-      "character_profiles",
-      "cml",
-      "clues",
-      "outline",
-      "prose",
-      "game_pack",
-      "fair_play_report",
-    ]);
-    if (!allowedScopes.has(scope)) {
-      res.status(400).json({ error: "scope must be one of setting, cast, character_profiles, cml, clues, outline, prose, game_pack, fair_play_report" });
-      return;
-    }
-
-    try {
-      const repo = await repoPromise;
-      const spec = await repo.getLatestSpec(req.params.id);
-      if (!spec) {
-        res.status(404).json({ error: "Spec not found" });
-        return;
-      }
-
-      const latestRun = await repo.getLatestRun(req.params.id).catch(() => null);
-      const runId = latestRun?.id ?? null;
-
-      const client = buildLlmClient();
-      if (!client) {
-        res.status(503).json({ error: "Azure OpenAI credentials missing; regeneration requires LLM access." });
-        return;
-      }
-
-      if (scope === "character_profiles") {
-        const cast = await repo.getLatestArtifact(req.params.id, "cast");
-        const cml = await repo.getLatestArtifact(req.params.id, "cml");
-        if (!cast || !cml) {
-          res.status(409).json({ error: "Cast and CML artifacts required for character profiles regeneration" });
-          return;
-        }
-        const profiles = await generateCharacterProfiles(client, {
-          caseData: cml.payload as any,
-          cast: normalizeCastForProfiles(cast.payload as Record<string, unknown>),
-          tone: (spec.spec as Record<string, unknown>)?.tone as string | undefined,
-          targetWordCount: 1000,
-          runId: runId ?? undefined,
-          projectId: req.params.id,
-        });
-        await repo.createArtifact(req.params.id, "character_profiles", profiles, spec.id);
-      } else {
-        res.status(409).json({ error: "Regeneration for this scope requires a full pipeline run to ensure fresh LLM output." });
-        return;
-      }
-
-      if (runId) {
-        await repo.addRunEvent(runId, `${scope}_regenerated`, `${scope} regenerated`);
-      }
-
-      res.status(200).json({ status: "ok", scope });
-    } catch (error) {
-      res.status(500).json({ error: "Failed to regenerate artifact" });
-    }
-  });
 
   app.post("/api/projects/:id/specs", (_req, res) => {
     repoPromise
