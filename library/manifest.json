@@ -1,0 +1,3315 @@
+{
+ "generated_by": "scripts/corpus-manifest.mjs",
+ "generated_on": "2026-09-18",
+ "note": "DERIVED from library/works/*/provenance.yaml and what is on disk beside it. Never hand-edit; run `npm run corpus:manifest`. CI checks it with --check.",
+ "totals": {
+  "works": 169,
+  "with_text": 165,
+  "encoded_verified": 30,
+  "encoded_legacy": 4,
+  "awaiting_encode": 135,
+  "words": 11425058
+ },
+ "clearance": {
+  "green": 166,
+  "amber": 3
+ },
+ "axis": {
+  "behavioral": 7,
+  "identity": 13,
+  "temporal": 3,
+  "spatial": 6,
+  "authority": 1
+ },
+ "works": [
+  {
+   "slug": "a_jury_of_her_peers",
+   "title": "A Jury of Her Peers",
+   "author": "Susan Glaspell",
+   "author_death_year": 1948,
+   "first_publication_year": 1917,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "verified",
+   "text": {
+    "words": null,
+    "bytes": 15614
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 20872
+   },
+   "fingerprint": {
+    "axis": "behavioral",
+    "mechanism_family": "staged_scene"
+   }
+  },
+  {
+   "slug": "a_silent_witness",
+   "title": "A silent witness",
+   "author": "R. Austin (Richard Austin) Freeman",
+   "author_death_year": 1943,
+   "first_publication_year": 1929,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 107435,
+    "bytes": 612729
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 76796
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "a_study_in_scarlet",
+   "title": "A Study in Scarlet",
+   "author": "Arthur Conan Doyle",
+   "author_death_year": 1930,
+   "first_publication_year": 1887,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "verified",
+   "text": {
+    "words": null,
+    "bytes": 244072
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 244
+   },
+   "fingerprint": {
+    "axis": "behavioral",
+    "mechanism_family": "poison_substitution"
+   }
+  },
+  {
+   "slug": "aaron_rodd_diviner",
+   "title": "Aaron Rodd, Diviner",
+   "author": "E. Phillips (Edward Phillips) Oppenheim",
+   "author_death_year": 1946,
+   "first_publication_year": 1920,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 61335,
+    "bytes": 351824
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 51076
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "an_african_millionaire",
+   "title": "An African Millionaire",
+   "author": "Grant Allen",
+   "author_death_year": 1899,
+   "first_publication_year": 1897,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "verified",
+   "text": {
+    "words": 65491,
+    "bytes": 375238
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 4715
+   },
+   "fingerprint": {
+    "axis": "identity",
+    "mechanism_family": "impersonation"
+   }
+  },
+  {
+   "slug": "anderson_crow_detective",
+   "title": "Anderson Crow, Detective",
+   "author": "George Barr McCutcheon",
+   "author_death_year": 1928,
+   "first_publication_year": 1920,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 74968,
+    "bytes": 424460
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 28229
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "annihilation",
+   "title": "Annihilation",
+   "author": "Isabel Ostrander",
+   "author_death_year": 1924,
+   "first_publication_year": 1924,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 86952,
+    "bytes": 500435
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 72948
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "as_a_thief_in_the_night",
+   "title": "As a thief in the night",
+   "author": "R. Austin (Richard Austin) Freeman",
+   "author_death_year": 1943,
+   "first_publication_year": 1928,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 87292,
+    "bytes": 498856
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 72782
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "ashes_to_ashes",
+   "title": "Ashes to ashes",
+   "author": "Isabel Ostrander",
+   "author_death_year": 1924,
+   "first_publication_year": 1919,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 98651,
+    "bytes": 562566
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 73155
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "bull_dog_drummond",
+   "title": "Bull-dog Drummond",
+   "author": "H. C. (Herman Cyril) McNeile",
+   "author_death_year": 1937,
+   "first_publication_year": 1920,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 80725,
+    "bytes": 465799
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 49935
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "dark_power",
+   "title": "Dark power",
+   "author": "Elisabeth Sanxay Holding",
+   "author_death_year": 1955,
+   "first_publication_year": 1930,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 50818,
+    "bytes": 295144
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 78323
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "dead_men_s_money",
+   "title": "Dead Men's Money",
+   "author": "J. S. (Joseph Smith) Fletcher",
+   "author_death_year": 1935,
+   "first_publication_year": 1920,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 75278,
+    "bytes": 411174
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 12239
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "diana_of_kara_kara",
+   "title": "Diana of Kara-Kara",
+   "author": "Edgar Wallace",
+   "author_death_year": 1932,
+   "first_publication_year": 1924,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 56263,
+    "bytes": 333809
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 65383
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "dorcas_dene_detective",
+   "title": "Dorcas Dene, detective",
+   "author": "George R. (George Robert) Sims",
+   "author_death_year": 1922,
+   "first_publication_year": 1920,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 46960,
+    "bytes": 257607
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 77243
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "dorcas_dene_detective_78210",
+   "title": "Dorcas Dene, detective",
+   "author": "George R. (George Robert) Sims",
+   "author_death_year": 1922,
+   "first_publication_year": 1920,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 36446,
+    "bytes": 200056
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 78210
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "feathers_left_around",
+   "title": "Feathers left around",
+   "author": "Carolyn Wells",
+   "author_death_year": 1942,
+   "first_publication_year": 1923,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 61052,
+    "bytes": 361100
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 75642
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "find_the_woman",
+   "title": "Find the Woman",
+   "author": "Arthur Somers Roche",
+   "author_death_year": 1935,
+   "first_publication_year": 1921,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 77402,
+    "bytes": 446963
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 42740
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "footprints",
+   "title": "Footprints",
+   "author": "Kay Cleaver Strahan",
+   "author_death_year": 1941,
+   "first_publication_year": 1929,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 84624,
+    "bytes": 468781
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 75577
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "gunman_s_bluff",
+   "title": "Gunman's bluff",
+   "author": "Edgar Wallace",
+   "author_death_year": 1932,
+   "first_publication_year": 1929,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 66885,
+    "bytes": 382511
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 78794
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "in_the_mayor_s_parlour",
+   "title": "In the Mayor's Parlour",
+   "author": "J. S. (Joseph Smith) Fletcher",
+   "author_death_year": 1935,
+   "first_publication_year": 1922,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 71818,
+    "bytes": 418220
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 25424
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "in_the_onyx_lobby",
+   "title": "In the Onyx Lobby",
+   "author": "Carolyn Wells",
+   "author_death_year": 1942,
+   "first_publication_year": 1920,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 62081,
+    "bytes": 364960
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 35254
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "jack_o_judgment",
+   "title": "Jack O' Judgment",
+   "author": "Edgar Wallace",
+   "author_death_year": 1932,
+   "first_publication_year": 1921,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 71624,
+    "bytes": 401642
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 24767
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "jacob_s_ladder",
+   "title": "Jacob's Ladder",
+   "author": "E. Phillips (Edward Phillips) Oppenheim",
+   "author_death_year": 1946,
+   "first_publication_year": 1921,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 62664,
+    "bytes": 359576
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 32732
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "lady_molly_of_scotland_yard",
+   "title": "Lady Molly of Scotland Yard",
+   "author": "Orczy, Emmuska Orczy, Baroness",
+   "author_death_year": 1947,
+   "first_publication_year": 1910,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 81751,
+    "bytes": 469330
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 72581
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "mademoiselle_of_monte_carlo",
+   "title": "Mademoiselle of Monte Carlo",
+   "author": "William Le Queux",
+   "author_death_year": 1927,
+   "first_publication_year": 1921,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 80886,
+    "bytes": 472278
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 4694
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "malcolm_sage_detective",
+   "title": "Malcolm Sage, Detective",
+   "author": "Herbert George Jenkins",
+   "author_death_year": 1923,
+   "first_publication_year": 1921,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 63159,
+    "bytes": 366676
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 28084
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "martin_hewitt_investigator",
+   "title": "Martin Hewitt, Investigator",
+   "author": "Arthur Morrison",
+   "author_death_year": 1945,
+   "first_publication_year": 1894,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "verified",
+   "text": {
+    "words": 56581,
+    "bytes": 314580
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 11252
+   },
+   "fingerprint": {
+    "axis": "behavioral",
+    "mechanism_family": "staged_scene"
+   }
+  },
+  {
+   "slug": "max_carrados",
+   "title": "Max Carrados",
+   "author": "Ernest Bramah",
+   "author_death_year": 1942,
+   "first_publication_year": 1914,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "verified",
+   "text": {
+    "words": 67776,
+    "bytes": 392865
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 34732
+   },
+   "fingerprint": {
+    "axis": "identity",
+    "mechanism_family": "staged_scene"
+   }
+  },
+  {
+   "slug": "murder_in_the_maze",
+   "title": "Murder in the maze",
+   "author": "J. J. Connington",
+   "author_death_year": 1947,
+   "first_publication_year": 1927,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 78325,
+    "bytes": 448122
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 71351
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "mystery_at_lynden_sands",
+   "title": "Mystery at Lynden Sands",
+   "author": "J. J. Connington",
+   "author_death_year": 1947,
+   "first_publication_year": 1928,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 84647,
+    "bytes": 483778
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 73126
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "mystery_ranch",
+   "title": "Mystery Ranch",
+   "author": "Arthur Chapman",
+   "author_death_year": 1935,
+   "first_publication_year": 1921,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 51564,
+    "bytes": 290217
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 30989
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "no_clue",
+   "title": "\"No Clue!\"",
+   "author": "James Hay",
+   "author_death_year": 1936,
+   "first_publication_year": 1920,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 55302,
+    "bytes": 320542
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 26396
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "nobody_s_man",
+   "title": "Nobody's Man",
+   "author": "E. Phillips (Edward Phillips) Oppenheim",
+   "author_death_year": 1946,
+   "first_publication_year": 1921,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 79051,
+    "bytes": 446380
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 17356
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "poison_shadows",
+   "title": "Poison shadows",
+   "author": "William Le Queux",
+   "author_death_year": 1927,
+   "first_publication_year": 1927,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 80655,
+    "bytes": 472725
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 77378
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "ramshackle_house",
+   "title": "Ramshackle House",
+   "author": "Hulbert Footner",
+   "author_death_year": 1944,
+   "first_publication_year": 1922,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 76048,
+    "bytes": 422073
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 57138
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "raspberry_jam",
+   "title": "Raspberry Jam",
+   "author": "Carolyn Wells",
+   "author_death_year": 1942,
+   "first_publication_year": 1920,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 60485,
+    "bytes": 358219
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 5335
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "ravensdene_court",
+   "title": "Ravensdene Court",
+   "author": "J. S. (Joseph Smith) Fletcher",
+   "author_death_year": 1935,
+   "first_publication_year": 1920,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 79864,
+    "bytes": 453652
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 26324
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "red_aces",
+   "title": "Red aces",
+   "author": "Edgar Wallace",
+   "author_death_year": 1932,
+   "first_publication_year": 1929,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 68271,
+    "bytes": 393233
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 76541
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "room_13",
+   "title": "Room 13",
+   "author": "Edgar Wallace",
+   "author_death_year": 1932,
+   "first_publication_year": 1920,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 59219,
+    "bytes": 341736
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 76168
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "spooky_hollow",
+   "title": "Spooky Hollow",
+   "author": "Carolyn Wells",
+   "author_death_year": 1942,
+   "first_publication_year": 1923,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 68475,
+    "bytes": 396658
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 77966
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "stolen_idols",
+   "title": "Stolen Idols",
+   "author": "E. Phillips (Edward Phillips) Oppenheim",
+   "author_death_year": 1946,
+   "first_publication_year": 1925,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 79004,
+    "bytes": 450605
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 45636
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "tales_of_terror_and_mystery",
+   "title": "Tales of Terror and Mystery",
+   "author": "Arthur Conan Doyle",
+   "author_death_year": 1930,
+   "first_publication_year": 1922,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 75133,
+    "bytes": 412827
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 537
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "tangled_trails",
+   "title": "Tangled Trails",
+   "author": "William MacLeod Raine",
+   "author_death_year": 1954,
+   "first_publication_year": 1921,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 67587,
+    "bytes": 371374
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 17066
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "terror_keep",
+   "title": "Terror keep",
+   "author": "Edgar Wallace",
+   "author_death_year": 1932,
+   "first_publication_year": 1927,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 53864,
+    "bytes": 308465
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 75949
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "that_affair_next_door",
+   "title": "That Affair Next Door",
+   "author": "Anna Katharine Green",
+   "author_death_year": 1935,
+   "first_publication_year": 1897,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "verified",
+   "text": {
+    "words": 104947,
+    "bytes": 569495
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 21617
+   },
+   "fingerprint": {
+    "axis": "identity",
+    "mechanism_family": "impersonation"
+   }
+  },
+  {
+   "slug": "the_amateur_cracksman",
+   "title": "The Amateur Cracksman",
+   "author": "E. W. (Ernest William) Hornung",
+   "author_death_year": 1921,
+   "first_publication_year": 1899,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "verified",
+   "text": {
+    "words": 51977,
+    "bytes": 281543
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 706
+   },
+   "fingerprint": {
+    "axis": "identity",
+    "mechanism_family": "alibi_fabrication"
+   }
+  },
+  {
+   "slug": "the_angel_of_terror",
+   "title": "The Angel of Terror",
+   "author": "Edgar Wallace",
+   "author_death_year": 1932,
+   "first_publication_year": 1923,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 62840,
+    "bytes": 349298
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 21530
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_astounding_crime_on_torrington_road",
+   "title": "The astounding crime on Torrington Road",
+   "author": "William Gillette",
+   "author_death_year": 1937,
+   "first_publication_year": 1927,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 110604,
+    "bytes": 636754
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 75646
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_avenger",
+   "title": "The avenger",
+   "author": "Edgar Wallace",
+   "author_death_year": 1932,
+   "first_publication_year": 1924,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 63972,
+    "bytes": 373929
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 69788
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_barge_of_haunted_lives",
+   "title": "The barge of haunted lives",
+   "author": "J. Aubrey (John Aubrey) Tyson",
+   "author_death_year": 1930,
+   "first_publication_year": 1923,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 98375,
+    "bytes": 553694
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 77879
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_bellamy_trial",
+   "title": "The Bellamy trial",
+   "author": "Frances Noyes Hart",
+   "author_death_year": 1943,
+   "first_publication_year": 1927,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "verified",
+   "text": {
+    "words": 108950,
+    "bytes": 633150
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 75325
+   },
+   "fingerprint": {
+    "axis": "temporal",
+    "mechanism_family": "locked_room_timing"
+   }
+  },
+  {
+   "slug": "the_benson_murder_case",
+   "title": "The Benson murder case",
+   "author": "S. S. Van Dine",
+   "author_death_year": 1939,
+   "first_publication_year": 1926,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 83120,
+    "bytes": 501316
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 70634
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_big_bow_mystery",
+   "title": "The Big Bow Mystery",
+   "author": "Israel Zangwill",
+   "author_death_year": 1926,
+   "first_publication_year": 1892,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "verified",
+   "text": {
+    "words": null,
+    "bytes": 249690
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 28164
+   },
+   "fingerprint": {
+    "axis": "spatial",
+    "mechanism_family": "locked_room_timing"
+   }
+  },
+  {
+   "slug": "the_bishop_murder_case",
+   "title": "The Bishop Murder Case",
+   "author": "S. S. Van Dine",
+   "author_death_year": 1939,
+   "first_publication_year": 1929,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 86699,
+    "bytes": 521992
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 75157
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_black_abbot",
+   "title": "The Black Abbot",
+   "author": "Edgar Wallace",
+   "author_death_year": 1932,
+   "first_publication_year": 1927,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 90148,
+    "bytes": 512503
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 75643
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_blue_scarab",
+   "title": "The blue scarab",
+   "author": "R. Austin (Richard Austin) Freeman",
+   "author_death_year": 1943,
+   "first_publication_year": 1923,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 67032,
+    "bytes": 389965
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 76116
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_canary_murder_case",
+   "title": "The \"Canary\" murder case",
+   "author": "S. S. Van Dine",
+   "author_death_year": 1939,
+   "first_publication_year": 1927,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 83399,
+    "bytes": 503982
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 70788
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_case_book_of_sherlock_holmes",
+   "title": "The case-book of Sherlock Holmes",
+   "author": "Arthur Conan Doyle",
+   "author_death_year": 1930,
+   "first_publication_year": 1927,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 82829,
+    "bytes": 453738
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 69700
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_case_of_oscar_brodski",
+   "title": "The Case of Oscar Brodski",
+   "author": "R. Austin Freeman",
+   "author_death_year": 1943,
+   "first_publication_year": 1912,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "verified",
+   "text": {
+    "words": null,
+    "bytes": 97379
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 59478
+   },
+   "fingerprint": {
+    "axis": "spatial",
+    "mechanism_family": "staged_scene"
+   }
+  },
+  {
+   "slug": "the_case_with_nine_solutions",
+   "title": "The case with nine solutions",
+   "author": "J. J. Connington",
+   "author_death_year": 1947,
+   "first_publication_year": 1929,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 74697,
+    "bytes": 430815
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 72816
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_cat_s_paw",
+   "title": "The Cat's Paw",
+   "author": "Natalie Sumner Lincoln",
+   "author_death_year": 1935,
+   "first_publication_year": 1922,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 60310,
+    "bytes": 350184
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 66627
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_charing_cross_mystery",
+   "title": "The Charing Cross Mystery",
+   "author": "J. S. (Joseph Smith) Fletcher",
+   "author_death_year": 1935,
+   "first_publication_year": 1923,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 71932,
+    "bytes": 424949
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 59893
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_chestermarke_instinct",
+   "title": "The Chestermarke Instinct",
+   "author": "J. S. (Joseph Smith) Fletcher",
+   "author_death_year": 1935,
+   "first_publication_year": 1921,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 70606,
+    "bytes": 412218
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 27965
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_club_of_masks",
+   "title": "The club of masks",
+   "author": "Allen Upward",
+   "author_death_year": 1926,
+   "first_publication_year": 1926,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 75795,
+    "bytes": 421713
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 69845
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_clue",
+   "title": "The Clue",
+   "author": "Carolyn Wells",
+   "author_death_year": 1942,
+   "first_publication_year": 1909,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 65788,
+    "bytes": 382600
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 54869
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_clue_of_the_new_pin",
+   "title": "The clue of the new pin",
+   "author": "Edgar Wallace",
+   "author_death_year": 1932,
+   "first_publication_year": 1923,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 70123,
+    "bytes": 395137
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 70882
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_clue_of_the_twisted_candle",
+   "title": "The Clue of the Twisted Candle",
+   "author": "Edgar Wallace",
+   "author_death_year": 1932,
+   "first_publication_year": 1918,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "verified",
+   "text": {
+    "words": null,
+    "bytes": 325812
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 2688
+   },
+   "fingerprint": {
+    "axis": "temporal",
+    "mechanism_family": "locked_room_timing"
+   }
+  },
+  {
+   "slug": "the_come_back",
+   "title": "The Come Back",
+   "author": "Carolyn Wells",
+   "author_death_year": 1942,
+   "first_publication_year": 1921,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 60055,
+    "bytes": 338942
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 30868
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_corbin_necklace",
+   "title": "The Corbin necklace",
+   "author": "Henry Kitchell Webster",
+   "author_death_year": 1932,
+   "first_publication_year": 1926,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 58651,
+    "bytes": 328967
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 76546
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_crime_code",
+   "title": "The crime code",
+   "author": "William Le Queux",
+   "author_death_year": 1927,
+   "first_publication_year": 1928,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 73750,
+    "bytes": 423622
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 78372
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_crimson_circle",
+   "title": "The crimson circle",
+   "author": "Edgar Wallace",
+   "author_death_year": 1932,
+   "first_publication_year": 1922,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 64965,
+    "bytes": 374390
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 76257
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_crow_s_inn_tragedy",
+   "title": "The Crow's Inn tragedy",
+   "author": "Annie Haynes",
+   "author_death_year": 1929,
+   "first_publication_year": 1927,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 67965,
+    "bytes": 390209
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 75307
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_crystal_claw",
+   "title": "The crystal claw",
+   "author": "William Le Queux",
+   "author_death_year": 1927,
+   "first_publication_year": 1924,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 63939,
+    "bytes": 363577
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 72870
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_curse_of_the_reckaviles",
+   "title": "The curse of the Reckaviles",
+   "author": "Walter S. (Walter Sidney) Masterman",
+   "author_death_year": 1946,
+   "first_publication_year": 1927,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 52574,
+    "bytes": 289276
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 72629
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_d_arblay_mystery",
+   "title": "The D'Arblay mystery",
+   "author": "R. Austin (Richard Austin) Freeman",
+   "author_death_year": 1943,
+   "first_publication_year": 1926,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 81440,
+    "bytes": 461962
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 70996
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_dangerfield_talisman",
+   "title": "The Dangerfield Talisman",
+   "author": "J. J. Connington",
+   "author_death_year": 1947,
+   "first_publication_year": 1926,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 66480,
+    "bytes": 386575
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 73753
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_dangerous_game",
+   "title": "The dangerous game",
+   "author": "William Le Queux",
+   "author_death_year": 1927,
+   "first_publication_year": 1926,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 71375,
+    "bytes": 411971
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 78029
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_dark_eyes_of_london",
+   "title": "The dark eyes of London",
+   "author": "Edgar Wallace",
+   "author_death_year": 1932,
+   "first_publication_year": 1924,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 70000,
+    "bytes": 398587
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 75589
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_desert_moon_mystery",
+   "title": "The Desert Moon mystery",
+   "author": "Kay Cleaver Strahan",
+   "author_death_year": 1941,
+   "first_publication_year": 1928,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 87099,
+    "bytes": 480580
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 75436
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_devil_s_paw",
+   "title": "The Devil's Paw",
+   "author": "E. Phillips (Edward Phillips) Oppenheim",
+   "author_death_year": 1946,
+   "first_publication_year": 1920,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 63503,
+    "bytes": 374800
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 2767
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_draycott_murder_mystery",
+   "title": "The Draycott murder mystery",
+   "author": "Molly Thynne",
+   "author_death_year": 1950,
+   "first_publication_year": 1928,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 82091,
+    "bytes": 453953
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 75222
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_evil_shepherd",
+   "title": "The Evil Shepherd",
+   "author": "E. Phillips (Edward Phillips) Oppenheim",
+   "author_death_year": 1946,
+   "first_publication_year": 1922,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 72534,
+    "bytes": 422203
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 5743
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_eye_of_osiris",
+   "title": "The Eye of Osiris",
+   "author": "R. Austin (Richard Austin) Freeman",
+   "author_death_year": 1943,
+   "first_publication_year": 1911,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "verified",
+   "text": {
+    "words": 94537,
+    "bytes": 539332
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 24201
+   },
+   "fingerprint": {
+    "axis": "temporal",
+    "mechanism_family": "substituted_body"
+   }
+  },
+  {
+   "slug": "the_eyes_of_max_carrados",
+   "title": "The eyes of Max Carrados",
+   "author": "Ernest Bramah",
+   "author_death_year": 1942,
+   "first_publication_year": 1923,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 93975,
+    "bytes": 560259
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 77788
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_fellowship_of_the_frog",
+   "title": "The Fellowship of the Frog",
+   "author": "Edgar Wallace",
+   "author_death_year": 1932,
+   "first_publication_year": 1923,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 101273,
+    "bytes": 583493
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 69789
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_fenchurch_street_mystery",
+   "title": "The Fenchurch Street Mystery",
+   "author": "Baroness Orczy",
+   "author_death_year": 1947,
+   "first_publication_year": 1908,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "verified",
+   "text": {
+    "words": null,
+    "bytes": 37584
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 10556
+   },
+   "fingerprint": {
+    "axis": "identity",
+    "mechanism_family": "impersonation"
+   }
+  },
+  {
+   "slug": "the_film_mystery",
+   "title": "The Film Mystery",
+   "author": "Arthur B. (Arthur Benjamin) Reeve",
+   "author_death_year": 1936,
+   "first_publication_year": 1921,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 78288,
+    "bytes": 445519
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 5270
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_four_stragglers",
+   "title": "The Four Stragglers",
+   "author": "Frank L. (Frank Lucius) Packard",
+   "author_death_year": 1942,
+   "first_publication_year": 1923,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 76319,
+    "bytes": 435525
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 59895
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_girl_from_hollywood",
+   "title": "The girl from Hollywood",
+   "author": "Edgar Rice Burroughs",
+   "author_death_year": 1950,
+   "first_publication_year": 1923,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 97674,
+    "bytes": 550070
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 62409
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_girl_from_scotland_yard",
+   "title": "The girl from Scotland Yard",
+   "author": "Edgar Wallace",
+   "author_death_year": 1932,
+   "first_publication_year": 1927,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 62219,
+    "bytes": 357022
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 76677
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_golden_face",
+   "title": "The Golden Face",
+   "author": "William Le Queux",
+   "author_death_year": 1927,
+   "first_publication_year": 1922,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 56460,
+    "bytes": 317555
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 27705
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_golden_slipper_and_other_problems_for_violet_strange",
+   "title": "The Golden Slipper, and Other Problems for Violet Strange",
+   "author": "Anna Katharine Green",
+   "author_death_year": 1935,
+   "first_publication_year": 1915,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "verified",
+   "text": {
+    "words": 91135,
+    "bytes": 507343
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 3071
+   },
+   "fingerprint": {
+    "axis": "identity",
+    "mechanism_family": "impersonation"
+   }
+  },
+  {
+   "slug": "the_gray_mask",
+   "title": "The Gray Mask",
+   "author": "Wadsworth Camp",
+   "author_death_year": 1936,
+   "first_publication_year": 1920,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 65875,
+    "bytes": 376754
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 33230
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_greene_murder_case",
+   "title": "The Greene murder case",
+   "author": "S. S. Van Dine",
+   "author_death_year": 1939,
+   "first_publication_year": 1928,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 95191,
+    "bytes": 573522
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 72719
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_hand_in_the_dark",
+   "title": "The Hand in the Dark",
+   "author": "Arthur J. (Arthur John) Rees",
+   "author_death_year": 1942,
+   "first_publication_year": 1920,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 106612,
+    "bytes": 602795
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 20546
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_hand_of_power",
+   "title": "The hand of power",
+   "author": "Edgar Wallace",
+   "author_death_year": 1932,
+   "first_publication_year": 1930,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 102486,
+    "bytes": 590595
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 78508
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_haunted_house",
+   "title": "The haunted house",
+   "author": "Hilaire Belloc",
+   "author_death_year": 1953,
+   "first_publication_year": 1927,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 61897,
+    "bytes": 355934
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 79269
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_hound_of_the_baskervilles",
+   "title": "The Hound of the Baskervilles",
+   "author": "Arthur Conan Doyle",
+   "author_death_year": 1930,
+   "first_publication_year": 1902,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "verified",
+   "text": {
+    "words": null,
+    "bytes": 325105
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 2852
+   },
+   "fingerprint": {
+    "axis": "behavioral",
+    "mechanism_family": "disguised_natural_agent"
+   }
+  },
+  {
+   "slug": "the_house_of_the_arrow",
+   "title": "The House of the Arrow",
+   "author": "A. E. W. (Alfred Edward Woodley) Mason",
+   "author_death_year": 1948,
+   "first_publication_year": 1924,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 95958,
+    "bytes": 536545
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 67514
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_house_without_a_key",
+   "title": "The house without a key",
+   "author": "Earl Derr Biggers",
+   "author_death_year": 1933,
+   "first_publication_year": 1925,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 82453,
+    "bytes": 468472
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 73771
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_invisible_man",
+   "title": "The Invisible Man",
+   "author": "G. K. Chesterton",
+   "author_death_year": 1936,
+   "first_publication_year": 1911,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "verified",
+   "text": null,
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 204
+   },
+   "fingerprint": {
+    "axis": "behavioral",
+    "mechanism_family": "impersonation"
+   }
+  },
+  {
+   "slug": "the_la_chance_mine_mystery",
+   "title": "The La Chance Mine Mystery",
+   "author": "Susan Morrow Jones",
+   "author_death_year": 1926,
+   "first_publication_year": 1920,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 69255,
+    "bytes": 364360
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 27209
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_lake_mystery",
+   "title": "The Lake Mystery",
+   "author": "Marvin Dana",
+   "author_death_year": 1926,
+   "first_publication_year": 1923,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 68057,
+    "bytes": 394611
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 59790
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_lazy_detective",
+   "title": "The lazy detective",
+   "author": "George Dilnot",
+   "author_death_year": 1951,
+   "first_publication_year": 1926,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 70462,
+    "bytes": 387849
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 75493
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_leavenworth_case",
+   "title": "The Leavenworth Case",
+   "author": "Anna Katharine Green",
+   "author_death_year": 1935,
+   "first_publication_year": 1878,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "verified",
+   "text": {
+    "words": null,
+    "bytes": 626751
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 4047
+   },
+   "fingerprint": {
+    "axis": "identity",
+    "mechanism_family": "staged_scene"
+   }
+  },
+  {
+   "slug": "the_lodger",
+   "title": "The Lodger",
+   "author": "Marie Belloc Lowndes",
+   "author_death_year": 1947,
+   "first_publication_year": 1913,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "verified",
+   "text": {
+    "words": 77416,
+    "bytes": 445958
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 2014
+   },
+   "fingerprint": {
+    "axis": "identity",
+    "mechanism_family": "alibi_fabrication"
+   }
+  },
+  {
+   "slug": "the_loudwater_mystery",
+   "title": "The Loudwater Mystery",
+   "author": "Edgar Jepson",
+   "author_death_year": 1938,
+   "first_publication_year": 1920,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 62431,
+    "bytes": 346127
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 9808
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_magic_casket",
+   "title": "The magic casket",
+   "author": "R. Austin (Richard Austin) Freeman",
+   "author_death_year": 1943,
+   "first_publication_year": 1927,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 76471,
+    "bytes": 441476
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 76919
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_man_in_the_dark",
+   "title": "The man in the dark",
+   "author": "J. A. (John Alexander) Ferguson",
+   "author_death_year": 1952,
+   "first_publication_year": 1928,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 78455,
+    "bytes": 428456
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 79160
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_man_who_knew_too_much",
+   "title": "The Man Who Knew Too Much",
+   "author": "G. K. (Gilbert Keith) Chesterton",
+   "author_death_year": 1936,
+   "first_publication_year": 1922,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 59750,
+    "bytes": 328602
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 1720
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_mardi_gras_mystery",
+   "title": "The Mardi Gras Mystery",
+   "author": "H. (Henry) Bedford-Jones",
+   "author_death_year": 1949,
+   "first_publication_year": 1921,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 56285,
+    "bytes": 323061
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 39229
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_markenmore_mystery",
+   "title": "The Markenmore Mystery",
+   "author": "J. S. (Joseph Smith) Fletcher",
+   "author_death_year": 1935,
+   "first_publication_year": 1922,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 78335,
+    "bytes": 470081
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 59818
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_melody_of_death",
+   "title": "The melody of death",
+   "author": "Edgar Wallace",
+   "author_death_year": 1932,
+   "first_publication_year": 1927,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 46522,
+    "bytes": 266495
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 75702
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_memoirs_of_sherlock_holmes",
+   "title": "The Memoirs of Sherlock Holmes",
+   "author": "Arthur Conan Doyle",
+   "author_death_year": 1930,
+   "first_publication_year": 1894,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "verified",
+   "text": {
+    "words": 95487,
+    "bytes": 581651
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 834
+   },
+   "fingerprint": {
+    "axis": "identity",
+    "mechanism_family": "disguised_natural_agent"
+   }
+  },
+  {
+   "slug": "the_meredith_mystery",
+   "title": "The Meredith Mystery",
+   "author": "Natalie Sumner Lincoln",
+   "author_death_year": 1935,
+   "first_publication_year": 1923,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 54360,
+    "bytes": 331144
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 58597
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_middle_of_things",
+   "title": "The Middle of Things",
+   "author": "J. S. (Joseph Smith) Fletcher",
+   "author_death_year": 1935,
+   "first_publication_year": 1922,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 72432,
+    "bytes": 413243
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 9902
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_middle_temple_murder",
+   "title": "The Middle Temple Murder",
+   "author": "J. S. (Joseph Smith) Fletcher",
+   "author_death_year": 1935,
+   "first_publication_year": 1919,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "verified",
+   "text": {
+    "words": 72231,
+    "bytes": 427855
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 10373
+   },
+   "fingerprint": {
+    "axis": "identity",
+    "mechanism_family": "staged_scene"
+   }
+  },
+  {
+   "slug": "the_moon_rock",
+   "title": "The Moon Rock",
+   "author": "Arthur J. (Arthur John) Rees",
+   "author_death_year": 1942,
+   "first_publication_year": 1922,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 106782,
+    "bytes": 598972
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 12509
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_moonstone",
+   "title": "The Moonstone",
+   "author": "Wilkie Collins",
+   "author_death_year": 1889,
+   "first_publication_year": 1868,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "legacy",
+   "text": {
+    "words": null,
+    "bytes": 1093665
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 155
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_mysterious_affair_at_styles",
+   "title": "The Mysterious Affair at Styles",
+   "author": "Agatha Christie",
+   "author_death_year": 1976,
+   "first_publication_year": 1920,
+   "clearance": "amber",
+   "structural_only": true,
+   "encoding": "legacy",
+   "text": null,
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 863
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_mystery_girl",
+   "title": "The Mystery Girl",
+   "author": "Carolyn Wells",
+   "author_death_year": 1942,
+   "first_publication_year": 1922,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 61788,
+    "bytes": 363452
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 44984
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_mystery_of_31_new_inn",
+   "title": "The Mystery of 31 New Inn",
+   "author": "R. Austin (Richard Austin) Freeman",
+   "author_death_year": 1943,
+   "first_publication_year": 1912,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 78212,
+    "bytes": 440332
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 12187
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_mystery_of_a_hansom_cab",
+   "title": "The Mystery of a Hansom Cab",
+   "author": "Fergus Hume",
+   "author_death_year": 1932,
+   "first_publication_year": 1890,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "verified",
+   "text": {
+    "words": 87924,
+    "bytes": 490452
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 4223
+   },
+   "fingerprint": {
+    "axis": "identity",
+    "mechanism_family": "impersonation"
+   }
+  },
+  {
+   "slug": "the_mystery_of_angelina_frood",
+   "title": "The mystery of Angelina Frood",
+   "author": "R. Austin (Richard Austin) Freeman",
+   "author_death_year": 1943,
+   "first_publication_year": 1925,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 90315,
+    "bytes": 515513
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 76072
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_mystery_of_the_sycamore",
+   "title": "The Mystery of the Sycamore",
+   "author": "Carolyn Wells",
+   "author_death_year": 1942,
+   "first_publication_year": 1921,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 61373,
+    "bytes": 361892
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 50209
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_mystery_of_the_yellow_room",
+   "title": "The Mystery of the Yellow Room",
+   "author": "Gaston Leroux",
+   "author_death_year": 1927,
+   "first_publication_year": 1907,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "verified",
+   "text": {
+    "words": null,
+    "bytes": 427180
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 1685
+   },
+   "fingerprint": {
+    "axis": "spatial",
+    "mechanism_family": "locked_room_timing"
+   }
+  },
+  {
+   "slug": "the_orange_yellow_diamond",
+   "title": "The Orange-Yellow Diamond",
+   "author": "J. S. (Joseph Smith) Fletcher",
+   "author_death_year": 1935,
+   "first_publication_year": 1920,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 73982,
+    "bytes": 428652
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 9297
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_owl_taxi",
+   "title": "The Owl Taxi",
+   "author": "Hulbert Footner",
+   "author_death_year": 1944,
+   "first_publication_year": 1921,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 78303,
+    "bytes": 434617
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 57088
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_paradise_mystery",
+   "title": "The Paradise Mystery",
+   "author": "J. S. (Joseph Smith) Fletcher",
+   "author_death_year": 1935,
+   "first_publication_year": 1920,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 74455,
+    "bytes": 440533
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 5308
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_porcelain_mask",
+   "title": "The porcelain mask",
+   "author": "John Jay Chichester",
+   "author_death_year": 1950,
+   "first_publication_year": 1924,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 77899,
+    "bytes": 446209
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 77022
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_problem_of_cell_13",
+   "title": "The problem of Cell 13",
+   "author": "Jacques Futrelle",
+   "author_death_year": 1912,
+   "first_publication_year": 1905,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "verified",
+   "text": {
+    "words": 77825,
+    "bytes": 440266
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 57669
+   },
+   "fingerprint": {
+    "axis": "behavioral",
+    "mechanism_family": "hidden_accomplice"
+   }
+  },
+  {
+   "slug": "the_profiteers",
+   "title": "The Profiteers",
+   "author": "E. Phillips (Edward Phillips) Oppenheim",
+   "author_death_year": 1946,
+   "first_publication_year": 1921,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 55020,
+    "bytes": 313827
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 10575
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_rat_trap",
+   "title": "The rat trap",
+   "author": "William Le Queux",
+   "author_death_year": 1927,
+   "first_publication_year": 1928,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 80960,
+    "bytes": 451138
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 77737
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_red_thumb_mark",
+   "title": "The Red Thumb Mark",
+   "author": "R. Austin Freeman",
+   "author_death_year": 1943,
+   "first_publication_year": 1907,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "verified",
+   "text": {
+    "words": 70226,
+    "bytes": 397835
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 11128
+   },
+   "fingerprint": {
+    "axis": "identity",
+    "mechanism_family": "alibi_fabrication"
+   }
+  },
+  {
+   "slug": "the_scarab_murder_case",
+   "title": "The scarab murder case",
+   "author": "S. S. Van Dine",
+   "author_death_year": 1939,
+   "first_publication_year": 1930,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 78557,
+    "bytes": 480525
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 78655
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_secret_adversary",
+   "title": "The Secret Adversary",
+   "author": "Agatha Christie",
+   "author_death_year": 1976,
+   "first_publication_year": 1922,
+   "clearance": "amber",
+   "structural_only": true,
+   "encoding": "legacy",
+   "text": null,
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 1155
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_secret_of_father_brown",
+   "title": "The secret of Father Brown",
+   "author": "G. K. (Gilbert Keith) Chesterton",
+   "author_death_year": 1936,
+   "first_publication_year": 1927,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "verified",
+   "text": {
+    "words": 63036,
+    "bytes": 349538
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 70175
+   },
+   "fingerprint": {
+    "axis": "spatial",
+    "mechanism_family": "staged_scene"
+   }
+  },
+  {
+   "slug": "the_shadow_of_the_wolf",
+   "title": "The shadow of the Wolf",
+   "author": "R. Austin (Richard Austin) Freeman",
+   "author_death_year": 1943,
+   "first_publication_year": 1923,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 78250,
+    "bytes": 450315
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 75244
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_sign_of_the_four",
+   "title": "The Sign of the Four",
+   "author": "Arthur Conan Doyle",
+   "author_death_year": 1930,
+   "first_publication_year": 1890,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "verified",
+   "text": {
+    "words": null,
+    "bytes": 236647
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 2097
+   },
+   "fingerprint": {
+    "axis": "spatial",
+    "mechanism_family": "locked_room_key"
+   }
+  },
+  {
+   "slug": "the_silent_bullet",
+   "title": "The Silent Bullet",
+   "author": "Arthur B. (Arthur Benjamin) Reeve",
+   "author_death_year": 1936,
+   "first_publication_year": 1910,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "verified",
+   "text": {
+    "words": 89315,
+    "bytes": 505312
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 2454
+   },
+   "fingerprint": {
+    "axis": "behavioral",
+    "mechanism_family": "disguised_natural_agent"
+   }
+  },
+  {
+   "slug": "the_sleuth_of_st_james_s_square",
+   "title": "The Sleuth of St. James's Square",
+   "author": "Melville Davisson Post",
+   "author_death_year": 1930,
+   "first_publication_year": 1920,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 79860,
+    "bytes": 444253
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 2861
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_splendid_outcast",
+   "title": "The Splendid Outcast",
+   "author": "George Gibbs",
+   "author_death_year": 1942,
+   "first_publication_year": 1920,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 99129,
+    "bytes": 564691
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 47900
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_step_on_the_stair",
+   "title": "The step on the stair",
+   "author": "Anna Katharine Green",
+   "author_death_year": 1935,
+   "first_publication_year": 1923,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 107462,
+    "bytes": 576643
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 68153
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_sting",
+   "title": "The sting",
+   "author": "William Le Queux",
+   "author_death_year": 1927,
+   "first_publication_year": 1928,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 71109,
+    "bytes": 411152
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 77530
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_story_of_ivy",
+   "title": "The story of Ivy",
+   "author": "Marie Belloc Lowndes",
+   "author_death_year": 1947,
+   "first_publication_year": 1927,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 85242,
+    "bytes": 484242
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 79259
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_stowmarket_mystery",
+   "title": "The Stowmarket Mystery",
+   "author": "Louis Tracy",
+   "author_death_year": 1928,
+   "first_publication_year": 1929,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 66249,
+    "bytes": 378308
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 14853
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_strange_countess",
+   "title": "The strange countess",
+   "author": "Edgar Wallace",
+   "author_death_year": 1932,
+   "first_publication_year": 1925,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 62052,
+    "bytes": 355902
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 75858
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_strange_schemes_of_randolph_mason",
+   "title": "The Strange Schemes of Randolph Mason",
+   "author": "Melville Davisson Post",
+   "author_death_year": 1930,
+   "first_publication_year": 1896,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "verified",
+   "text": {
+    "words": 51329,
+    "bytes": 283366
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 51956
+   },
+   "fingerprint": {
+    "axis": "authority",
+    "mechanism_family": "substituted_body"
+   }
+  },
+  {
+   "slug": "the_stretton_street_affair",
+   "title": "The Stretton Street Affair",
+   "author": "William Le Queux",
+   "author_death_year": 1927,
+   "first_publication_year": 1922,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 85025,
+    "bytes": 479558
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 27147
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_talleyrand_maxim",
+   "title": "The Talleyrand Maxim",
+   "author": "J. S. (Joseph Smith) Fletcher",
+   "author_death_year": 1935,
+   "first_publication_year": 1920,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 70649,
+    "bytes": 406936
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 9834
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_templeton_case",
+   "title": "The Templeton case",
+   "author": "Victor L. (Victor Lorenzo) Whitechurch",
+   "author_death_year": 1933,
+   "first_publication_year": 1924,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 59120,
+    "bytes": 346426
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 75669
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_terriford_mystery",
+   "title": "The Terriford mystery",
+   "author": "Marie Belloc Lowndes",
+   "author_death_year": 1947,
+   "first_publication_year": 1924,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 112629,
+    "bytes": 644678
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 70810
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_thirteenth_letter",
+   "title": "The Thirteenth Letter",
+   "author": "Natalie Sumner Lincoln",
+   "author_death_year": 1935,
+   "first_publication_year": 1924,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 61722,
+    "bytes": 361579
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 67890
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_three_just_men",
+   "title": "The Three Just Men",
+   "author": "Edgar Wallace",
+   "author_death_year": 1932,
+   "first_publication_year": 1929,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 92335,
+    "bytes": 532808
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 69790
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_trouble_at_pinelands",
+   "title": "The trouble at Pinelands",
+   "author": "Ernest M. Poate",
+   "author_death_year": 1935,
+   "first_publication_year": 1922,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 74172,
+    "bytes": 438337
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 78103
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_twenty_six_clues",
+   "title": "The twenty-six clues",
+   "author": "Isabel Ostrander",
+   "author_death_year": 1924,
+   "first_publication_year": 1919,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 81543,
+    "bytes": 457155
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 77423
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_unseen_ear",
+   "title": "The unseen ear",
+   "author": "Natalie Sumner Lincoln",
+   "author_death_year": 1935,
+   "first_publication_year": 1921,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 58382,
+    "bytes": 355915
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 68679
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_valley_of_fear",
+   "title": "The Valley of Fear",
+   "author": "Arthur Conan Doyle",
+   "author_death_year": 1930,
+   "first_publication_year": 1915,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "verified",
+   "text": {
+    "words": null,
+    "bytes": 322324
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 3289
+   },
+   "fingerprint": {
+    "axis": "spatial",
+    "mechanism_family": "substituted_body"
+   }
+  },
+  {
+   "slug": "the_valley_of_ghosts",
+   "title": "The valley of ghosts",
+   "author": "Edgar Wallace",
+   "author_death_year": 1932,
+   "first_publication_year": 1923,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 69673,
+    "bytes": 400012
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 77976
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_vanishing_of_betty_varian",
+   "title": "The Vanishing of Betty Varian",
+   "author": "Carolyn Wells",
+   "author_death_year": 1942,
+   "first_publication_year": 1922,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 62910,
+    "bytes": 369365
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 45912
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_wisdom_of_father_brown",
+   "title": "The wisdom of Father Brown",
+   "author": "G. K. (Gilbert Keith) Chesterton",
+   "author_death_year": 1936,
+   "first_publication_year": 1913,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "verified",
+   "text": {
+    "words": 71670,
+    "bytes": 407480
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 223
+   },
+   "fingerprint": {
+    "axis": "identity",
+    "mechanism_family": "staged_scene"
+   }
+  },
+  {
+   "slug": "the_wolves_and_the_lamb",
+   "title": "The wolves and the lamb",
+   "author": "J. S. (Joseph Smith) Fletcher",
+   "author_death_year": 1935,
+   "first_publication_year": 1925,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 85002,
+    "bytes": 501637
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 79012
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "the_yellow_streak",
+   "title": "The Yellow Streak",
+   "author": "Valentine Williams",
+   "author_death_year": 1946,
+   "first_publication_year": 1922,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 67969,
+    "bytes": 390908
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 9974
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "this_house_to_let",
+   "title": "This House to Let",
+   "author": "William Le Queux",
+   "author_death_year": 1927,
+   "first_publication_year": 1921,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 74580,
+    "bytes": 415598
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 41187
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "this_house_to_let_51307",
+   "title": "This House to Let",
+   "author": "William Le Queux",
+   "author_death_year": 1927,
+   "first_publication_year": 1921,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 74548,
+    "bytes": 411856
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 51307
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "three_sevens",
+   "title": "Three sevens",
+   "author": "Perley Poore Sheehan",
+   "author_death_year": 1943,
+   "first_publication_year": 1927,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 65406,
+    "bytes": 371472
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 78011
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "tragedy_at_ravensthorpe",
+   "title": "Tragedy at Ravensthorpe",
+   "author": "J. J. Connington",
+   "author_death_year": 1947,
+   "first_publication_year": 1927,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 70891,
+    "bytes": 409843
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 75407
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "trents_last_case",
+   "title": "Trent's Last Case",
+   "author": "E. C. Bentley",
+   "author_death_year": 1956,
+   "first_publication_year": 1913,
+   "clearance": "amber",
+   "structural_only": true,
+   "encoding": "legacy",
+   "text": null,
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 2568
+   },
+   "fingerprint": null
+  },
+  {
+   "slug": "unravelled_knots",
+   "title": "Unravelled Knots",
+   "author": "Orczy, Emmuska Orczy, Baroness",
+   "author_death_year": 1947,
+   "first_publication_year": 1925,
+   "clearance": "green",
+   "structural_only": false,
+   "encoding": "none",
+   "text": {
+    "words": 104902,
+    "bytes": 589019
+   },
+   "source": {
+    "host": "Project Gutenberg",
+    "ebook_id": 68237
+   },
+   "fingerprint": null
+  }
+ ]
+}

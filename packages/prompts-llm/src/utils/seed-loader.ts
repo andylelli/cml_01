@@ -3,24 +3,26 @@
  */
 
 import { existsSync, readFileSync, readdirSync } from "fs";
-import { join } from "path";
+import { basename, dirname, join } from "path";
 import { parse as parseYAML } from "yaml";
 import type { SeedPattern } from "../types.js";
 
 /**
- * A_79 B — the corpus is loaded from `library/works/<slug>/case.cml2.yaml` as well as from the flat
- * `examples/` directory.
+ * A_79 B — the corpus is loaded from `library/works/<slug>/`.
  *
- * Every file in `examples/` is a legacy encoding: A_77 §4.2 measured 0 of 14 passing `validateCml`,
- * and §3.2 found four of them materially wrong about their own plots — one naming a character who
- * does not exist in the book. `library/works/` holds re-encodings verified span-by-span against the
- * source text. Both are read, and the corpus is read FIRST so that where a work exists in both the
- * verified copy is the one an axis filter reaches.
+ * Each work is read at its BEST available encoding: `case.cml2.yaml` when a verified re-encode
+ * exists, `case.legacy.yaml` otherwise. The legacy files are not good — A_77 §4.2 measured 0 of 14
+ * passing `validateCml` and §3.2 found four materially wrong about their own plots, one naming a
+ * character who does not exist in the book — but they are what four works still have, and dropping
+ * them silently would be a change to every Agent 3 prompt disguised as a tidy-up.
  *
- * Default OFF, for the same reason A1 is: this changes what every Agent 3 prompt is built from.
+ * **A_98: `SEED_CORPUS_FROM_LIBRARY` is retired, not flipped.** It chose between the corpus and the
+ * flat `examples/` directory. `examples/` is gone — 9 of its 14 files were byte-identical copies of
+ * `library/works/<slug>/case.legacy.yaml`, three have migrated into the library, and two were not
+ * novels and are in `library/retired/`. With one source of truth the flag could only choose between
+ * the corpus and nothing, and a flag whose off position empties the seed corpus is a trapdoor rather
+ * than a switch. Recorded as RETIRED in `architecture/FLAG-AUDIT.md` rather than deleted.
  */
-const corpusSeedsEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
-  /^(1|true|yes|on)$/i.test(String(env.SEED_CORPUS_FROM_LIBRARY ?? "").trim());
 
 /**
  * A_79 §11.3 — skip works the evidence gate FAILED.
@@ -47,18 +49,43 @@ const failedWorks = (root: string): Set<string> => {
   }
 };
 
-const loadLibraryWorks = (examplesDir: string): any[] => {
-  if (!corpusSeedsEnabled()) return [];
-  const root =
-    String(process.env.SEED_CORPUS_LIBRARY_DIR ?? "").trim() ||
-    join(examplesDir, "..", "library", "works");
+/**
+ * Resolve the library root from whatever a caller passed. Historically every call site passed
+ * `<workspace>/examples`; that directory no longer exists (A_98) and the callers were not all worth
+ * changing, so a path that is not itself a `works` directory is treated as a sibling hint.
+ */
+const libraryRoot = (hint: string): string => {
+  const override = String(process.env.SEED_CORPUS_LIBRARY_DIR ?? "").trim();
+  if (override) return override;
+  /**
+   * Compared with `basename`/`dirname` rather than a regex over the raw string. The first version
+   * of this line was `/[\/]library[\/]works[\/]?$/`, lost its backslash somewhere between being
+   * written and being saved, and so matched forward-slash paths only. On Windows `join()` produces
+   * backslashes, so handing this function the library directly resolved to
+   * `<works>/../library/works` and returned NOTHING — while the legacy `examples/` hint kept working,
+   * which is exactly the kind of silent empty list A_98 exists to stop. Caught by the test below it,
+   * not by reading.
+   */
+  const trimmed = hint.replace(/[\/]+$/, "");
+  if (basename(trimmed) === "works" && basename(dirname(trimmed)) === "library") return trimmed;
+  return join(hint, "..", "library", "works");
+};
+
+const loadLibraryWorks = (hint: string): any[] => {
+  const root = libraryRoot(hint);
   if (!existsSync(root)) return [];
   const failed = failedWorks(root);
   const out: any[] = [];
   for (const slug of readdirSync(root).sort()) {
     if (failed.has(slug)) continue;
-    const file = join(root, slug, "case.cml2.yaml");
-    if (!existsSync(file)) continue;
+    /**
+     * Verified first, legacy second. A work with both is read at its re-encode; a work with only a
+     * legacy file is still read, because that is exactly what the four un-re-encoded works have and
+     * losing them is a silent regression, not a cleanup.
+     */
+    const file = [join(root, slug, "case.cml2.yaml"), join(root, slug, "case.legacy.yaml")]
+      .find((f) => existsSync(f));
+    if (!file) continue;
     try {
       out.push({ filename: `${slug}.yaml`, cml: parseYAML(readFileSync(file, "utf-8")) });
     } catch {
@@ -68,19 +95,22 @@ const loadLibraryWorks = (examplesDir: string): any[] => {
   return out;
 };
 
-export function loadSeedCMLFiles(examplesDir: string): any[] {
-  if (!examplesDir || !existsSync(examplesDir)) {
-    return loadLibraryWorks(examplesDir ?? "");
-  }
-
+/**
+ * The seed corpus, from the one place it lives.
+ *
+ * `seedRoot` is a hint, not a requirement — pass `<workspace>/library/works` or anything beside it.
+ * Every historical call site passes `<workspace>/examples`, which A_98 deleted; `libraryRoot` maps
+ * that to the library rather than returning nothing, so a caller that was never updated still gets
+ * the corpus instead of silently getting zero patterns.
+ *
+ * There is deliberately no second directory to union in any more. Two directories holding the same
+ * cases is what A_98 existed to end: `examples/` and `library/works/` held NINE byte-identical pairs,
+ * the API served one and the generator read the other, and that is why the UI showed 14 works while
+ * the corpus held 166.
+ */
+export function loadSeedCMLFiles(seedRoot: string): any[] {
   try {
-    const corpus = loadLibraryWorks(examplesDir);
-    const seen = new Set(corpus.map((e) => e.filename.replace(/\.ya?ml$/, "")));
-    const files = readdirSync(examplesDir).filter((f) => f.endsWith(".yaml") || f.endsWith(".yml"));
-    const legacy = files
-      .filter((f) => !seen.has(f.replace(/_cml2\.ya?ml$/, "").replace(/\.ya?ml$/, "")))
-      .map((file) => ({ filename: file, cml: parseYAML(readFileSync(join(examplesDir, file), "utf-8")) }));
-    return [...corpus, ...legacy];
+    return loadLibraryWorks(seedRoot ?? "");
   } catch {
     return [];
   }

@@ -1262,7 +1262,7 @@ export const useWorkshopState = () => {
   const loadSamples = async () => {
     clearErrors("samples");
     try {
-      samples.value = await fetchSamples();
+      samples.value = (await fetchSamples()).samples;
     } catch (error) {
       addError("error", "samples", "Failed to load samples", error instanceof Error ? error.message : String(error));
     }

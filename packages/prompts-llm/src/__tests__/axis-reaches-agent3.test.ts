@@ -98,19 +98,28 @@ describe('the seed library actually reaches the prompt', () => {
    * so a relative 'examples' silently reads nothing and every assertion below would pass vacuously
    * on an empty array — the exact shape of the bug this file exists to catch.
    */
-  const examplesDir = (() => {
+  const seedRoot = (() => {
     let dir = dirname(fileURLToPath(import.meta.url));
     for (let i = 0; i < 6; i += 1) {
-      const candidate = join(dir, 'examples');
-      // Must actually hold seed YAML. `packages/prompts-llm/examples/` exists and contains only
-      // TypeScript demos, so a bare existsSync stops there and every assertion below passes
-      // vacuously on an empty array — which is precisely the failure this file exists to catch.
-      if (existsSync(candidate) && readdirSync(candidate).some((n) => n.endsWith('.yaml'))) return candidate;
+      const candidate = join(dir, 'library', 'works');
+      // Must actually hold an ENCODED work, not merely exist. A_98 moved the corpus out of
+      // `examples/` and into `library/works/`, where 135 of the 169 work directories hold a text and
+      // a provenance file and no case at all — so a bare existsSync would stop at a directory that
+      // yields zero patterns and every assertion below would pass vacuously on an empty array, which
+      // is precisely the failure this file exists to catch.
+      if (
+        existsSync(candidate)
+        && readdirSync(candidate).some((slug) =>
+          existsSync(join(candidate, slug, 'case.cml2.yaml'))
+          || existsSync(join(candidate, slug, 'case.legacy.yaml')))
+      ) {
+        return candidate;
+      }
       dir = resolve(dir, '..');
     }
-    throw new Error('no examples/ with seed YAML found above ' + dirname(fileURLToPath(import.meta.url)));
+    throw new Error('no library/works with an encoded case found above ' + dirname(fileURLToPath(import.meta.url)));
   })();
-  const patterns = extractStructuralPatterns(loadSeedCMLFiles(examplesDir));
+  const patterns = extractStructuralPatterns(loadSeedCMLFiles(seedRoot));
 
   it('found the corpus at all', () => {
     expect(patterns.length).toBeGreaterThanOrEqual(10);
@@ -131,11 +140,19 @@ describe('the seed library actually reaches the prompt', () => {
     }
   });
 
-  it('documents the two axes the corpus does NOT cover', () => {
-    // Asserted so the gap is visible and dated rather than discovered again on a paid run. When a
-    // behavioral or authority seed is added, this test is the one to update.
+  /**
+   * This assertion used to read `toEqual([])` for both axes, with a note saying it was the test to
+   * update when a behavioral or authority seed was added. A_97 added them: the corpus went from
+   * `behavioral` 4 and `authority` 0 to 7 and 1, by encoding Chesterton, Bramah, Morrison and Post
+   * against their own source texts.
+   *
+   * Inverted rather than deleted, because the property worth pinning is the same one either way —
+   * that what the corpus holds is what an axis filter can actually reach. It was the gap that needed
+   * watching then; it is the coverage that needs watching now.
+   */
+  it('reaches the two axes the corpus used to have nothing for', () => {
     for (const axis of ['behavioral', 'authority']) {
-      expect(selectRelevantPatterns(patterns, axis, 3)).toEqual([]);
+      expect(selectRelevantPatterns(patterns, axis, 3).length).toBeGreaterThan(0);
     }
   });
 });

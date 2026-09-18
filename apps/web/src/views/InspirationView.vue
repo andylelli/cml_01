@@ -1,10 +1,15 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import AppButton from "../components/ui/AppButton.vue";
 import AppIcon from "../components/ui/AppIcon.vue";
 import HeroBanner from "../components/ui/HeroBanner.vue";
 import StepCard from "../components/ui/StepCard.vue";
-import { fetchSampleContent, fetchSamples, type SampleSummary } from "../services/api";
+import {
+	fetchSampleContent,
+	fetchSamples,
+	type LibrarySummary,
+	type SampleSummary,
+} from "../services/api";
 
 /**
  * Sample mysteries, read in the app.
@@ -14,6 +19,7 @@ import { fetchSampleContent, fetchSamples, type SampleSummary } from "../service
  */
 
 const samples = ref<SampleSummary[]>([]);
+const library = ref<LibrarySummary | null>(null);
 const selected = ref<{ id: string; name: string; content: string } | null>(null);
 const loadingList = ref(true);
 const loadingId = ref<string | null>(null);
@@ -21,11 +27,26 @@ const error = ref<string | null>(null);
 
 const message = (e: unknown) => (e instanceof Error ? e.message : String(e));
 
+/**
+ * Both numbers, always. The Archive used to read the flat `examples/` directory and report "14
+ * cases on file" while the reference library held 166 works — the count was accurate about the
+ * directory it read and silent about the one that mattered (A_98). Showing the encoded count beside
+ * the library total makes the difference legible instead of mysterious.
+ */
+const archiveSubtitle = computed(() => {
+	const cases = `${samples.value.length} ${samples.value.length === 1 ? "case" : "cases"} on file`;
+	const lib = library.value;
+	if (!lib || lib.works <= samples.value.length) return cases;
+	return `${cases} · ${lib.works} works in the library, ${lib.awaitingEncode} not yet encoded`;
+});
+
 const loadList = async () => {
 	loadingList.value = true;
 	error.value = null;
 	try {
-		samples.value = await fetchSamples();
+		const data = await fetchSamples();
+		samples.value = data.samples;
+		library.value = data.library ?? null;
 	} catch (e) {
 		error.value = `Could not load the samples: ${message(e)}`;
 	} finally {
@@ -59,7 +80,7 @@ onMounted(loadList);
 	/>
 
 	<div class="shell grid gap-6 py-8 lg:grid-cols-[minmax(0,320px)_minmax(0,1fr)]">
-		<StepCard icon="book" title="The Archive" :subtitle="`${samples.length} cases on file`">
+		<StepCard icon="book" title="The Archive" :subtitle="archiveSubtitle">
 			<p v-if="loadingList" class="t-subtitle">Opening the archive…</p>
 
 			<p v-else-if="samples.length === 0" class="t-subtitle">

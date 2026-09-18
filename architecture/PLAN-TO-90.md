@@ -1830,3 +1830,34 @@ defaulting at a closed session's scratchpad, and `corpus-derive` silently overwr
 rate on newly acquired text is 18 of 24 against 8 of 8 on the August books it was tuned against, and
 that is the thing to look at before the next batch is bought. 349 GREEN works remain unacquired, and
 `library/candidates.json` is committed, so the next batch is a script invocation.
+
+## 19. A_98 — ONE CORPUS, ONE HOME · 2026-09-18 · £0
+
+A_97 grew the library to 166 works and the owner could still only see 14, because `/api/samples` read
+`examples/` and the generator read `library/works/`. **Nine of the fourteen files in `examples/` were
+byte-identical copies** of `library/works/<slug>/case.legacy.yaml` — git recorded every migration as
+`R100`. A_77 §10.7 had specified the consolidation and nobody had done it.
+
+`examples/` is deleted. Three AMBER works migrated in as `structural_only` with a per-work reason in
+git; two entries that were never novels moved to `library/retired/`. `SEED_CORPUS_FROM_LIBRARY` and
+`CORPUS_JURISDICTION` are both retired — the first because with one home its OFF position empties the
+seed corpus, the second because one env var admitting every amber work at once is the blunt switch B1
+argues against.
+
+**The rule the board should carry forward, now paid for three times:** anything that restates a fact
+must be generated from that fact and checkable against it.
+
+| | two files, one fact, no derivation | cost |
+|---|---|---|
+| A_77 §4.3 | `seed-fingerprints.yaml` claimed to be derived, was hand-authored | wrong in **11 of 14** entries |
+| A_97 §9.1 | `corpus-derive` and `corpus-classify` share `fingerprint.yaml` | a bare derive replaced **12 of 12** LLM families with regex guesses |
+| A_98 | `examples/` and `library/works/` held the same cases | the UI showed **14** works while the corpus held **166** |
+
+`library/manifest.json` is the index A_77 §10.2 asked for, generated with `--check` wired into
+`npm run corpus:check`.
+
+**Nothing here moves a score.** It is plumbing, and it is on the board because the next person to add
+an index needs to know which side of that rule they are on. The state it leaves: 169 works, 30
+verified encodings, 4 legacy, 135 awaiting encode, 24 seed cases reaching Agent 3, one directory.
+*The Moonstone* — the genre's founding text — is still unencoded; it was the longest book in A_97's
+batch, sorted last, and did not complete. ~£0.30 and one command.

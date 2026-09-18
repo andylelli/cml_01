@@ -1,0 +1,39 @@
+# Provenance + clearance. Migrated from examples/ by the A_98 consolidation on 2026-09-18.
+# STRUCTURE ONLY. No text is held for this work and none may be acquired while it is AMBER:
+# `library/texts/the_secret_adversary.txt` must not exist, and the clearance gate enforces that.
+
+slug: the_secret_adversary
+title: "The Secret Adversary"
+author: "Agatha Christie"
+author_birth_year: 1890
+author_death_year: 1976
+first_publication_year: 1922
+
+source:
+  host: "Project Gutenberg"
+  ebook_id: 1155
+  url: "https://www.gutenberg.org/ebooks/1155"
+  retrieved: null
+  sha256: "f38aa84102f560e9344c5c2b7c44cceb012cde2025cd155000a8e98b610df193"   # of case.legacy.yaml, not of any source text — none is held
+  words: null
+
+clearance:
+  # DERIVED by the A_77 §8.1 rule, recomputed on every build by scripts/corpus-clearance-check.mjs.
+  # uk green iff 1976 + 70 < 2026   -> 2047
+  # us green iff 1922 + 95 < 2026   -> 2018
+  uk: red
+  us: green
+  verdict: amber
+  calculated_on: 2026-09-18
+
+# A_77 §8.2 — an AMBER work is admitted to the STRUCTURAL corpus only by this explicit declaration,
+# per work, in git, with its reason. It is never admitted to the calibration corpus, and the gate
+# refuses it the moment a text appears on disk for it.
+structural_only: true
+structural_only_reason: >-
+  UK clears 2047 (Christie d.1976). US public domain. Structural encoding only.
+
+status:
+  case_cml2: not_eligible_while_amber
+  fingerprint: legacy_hand_authored
+  device_pattern: none

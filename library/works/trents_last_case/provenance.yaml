@@ -1,0 +1,39 @@
+# Provenance + clearance. Migrated from examples/ by the A_98 consolidation on 2026-09-18.
+# STRUCTURE ONLY. No text is held for this work and none may be acquired while it is AMBER:
+# `library/texts/trents_last_case.txt` must not exist, and the clearance gate enforces that.
+
+slug: trents_last_case
+title: "Trent's Last Case"
+author: "E. C. Bentley"
+author_birth_year: 1875
+author_death_year: 1956
+first_publication_year: 1913
+
+source:
+  host: "Project Gutenberg"
+  ebook_id: 2568
+  url: "https://www.gutenberg.org/ebooks/2568"
+  retrieved: null
+  sha256: "70d9a94de0ed68bdce2ae478ef7db074ca5cf0ec76f74b2f67482040868010ab"   # of case.legacy.yaml, not of any source text — none is held
+  words: null
+
+clearance:
+  # DERIVED by the A_77 §8.1 rule, recomputed on every build by scripts/corpus-clearance-check.mjs.
+  # uk green iff 1956 + 70 < 2026   -> 2027
+  # us green iff 1913 + 95 < 2026   -> 2009
+  uk: red
+  us: green
+  verdict: amber
+  calculated_on: 2026-09-18
+
+# A_77 §8.2 — an AMBER work is admitted to the STRUCTURAL corpus only by this explicit declaration,
+# per work, in git, with its reason. It is never admitted to the calibration corpus, and the gate
+# refuses it the moment a text appears on disk for it.
+structural_only: true
+structural_only_reason: >-
+  UK clears 1 Jan 2027 (Bentley d.1956). The genre's canonical detective-is-wrong novel and one of the two best `authority` exemplars available; A_77 §8.2 says schedule it rather than drop it.
+
+status:
+  case_cml2: not_eligible_while_amber
+  fingerprint: legacy_hand_authored
+  device_pattern: none
