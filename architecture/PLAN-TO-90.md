@@ -1917,3 +1917,60 @@ the first calibration missed.
 
 **The next item is a paid one:** `RESUME_REDO=prose PROSE_ENGINE=v2` on a read project, ~£0.45, which
 is the v1-versus-v2 matched pair against byte-identical upstream.
+
+---
+
+## 22. THE MATCHED PAIR, AND WHAT PREPARING IT FOUND · 2026-09-18
+
+Two defects stood between the approved £0.45 and a valid measurement. Both would have let the run
+complete and report success, which is the expensive kind.
+
+### §22.1 A PROJECT'S SPEC WAS NOT ITS OWN — `f65dcd50`
+
+`loadProjectSpec` fell back to `specs[specs.length - 1]` when a project had no spec of its own, and
+its docblock said so as if it were a convenience. Canary projects persist artifacts but NO spec —
+`makeJsonArtifactPersister` writes `artifacts` only — so **every canary project reached that
+fallback**.
+
+MEASURED: `canary_1789577884303` is SeasideHotel / Dark / private / **authority** / sharp. It
+resolved to `proj_ae78f68a`'s spec: CountryHouse / Classic / amateur / **temporal**, angle *"a
+retired general writing his memoirs"*. The pair would have run with a different book's parameters
+and reported a clean result.
+
+- a project with no spec now resolves `source: "none"`, and resume REFUSES rather than inventing one
+- `stories/*/run-params.json` is consulted by the projectId **it** names, with the theme lifted from
+  the generated seed file that run was launched from — provenance, not a guess
+- `specToInputs` maps the store's `decade` onto `eraPreference`, which the API has always done
+  (`apps/api/src/server.ts:698`) and **resume never did**: every resumed run since resume existed
+  silently fell to Agent 1's `|| "1930s"` default, so a resumed 1890s book was re-dated
+
+This is the shape recorded as *"fixture drift certifies the bug"* and *"parameters wired but never
+sent"*, met again at the point where a measurement is paid for.
+
+### §22.2 AN EMPTY ARTIFACT LANDED ON A FULL ONE — `dbba11c7`
+
+Every reader takes the LAST row for a project and type, so an appended empty row is a silent delete.
+
+MEASURED: two `PROSE_V2_DRY=1` dry runs — no LLM call, documented as costing nothing — appended two
+0-chapter `prose` rows over seed 50862's 10-chapter book, and the store then reported that project
+as having no prose. **No flag is needed to reach it:** a run that dies inside Agent 9 persists what
+it has, which is nothing.
+
+The guard is on the DATA, not on the flag that exposed it: an empty payload is refused only when a
+non-empty one of the same type already exists for that project. A first empty artifact still writes.
+The one writer every out-of-API path shares (`canary-core.mjs`, `resume-run.ts`) had **no tests**; it
+has ten, including the row spellings the API writes — a guard that understood only its own camelCase
+would have waved the erasure through on any store the API had touched, which is every real one.
+
+### §22.3 TWO API SERVERS OWN `data/store.json` WHILE A RUN WRITES TO IT
+
+Found while explaining why the two empty rows disappeared before they could be cleaned up: PIDs for
+`apps/api/dist/index.js` and `apps/api/src/server.ts` were both live against this workspace. The API
+rewrites the whole store from its in-memory copy, which was loaded at startup, so **a run's
+write-back can be reverted by a server that never saw it**.
+
+INFERRED, not measured — the disappearance is consistent with it and nothing else in the session
+touched those rows, but no probe was run against a known-positive. The paid run works around it
+rather than relying on the inference: `CML_JSON_DB_PATH` points reader and writer at a private copy,
+so neither direction can disturb the other. **A_86 item 5's write-back is not safe against a running
+API server, and that should be settled with a probe before it is depended on.**
