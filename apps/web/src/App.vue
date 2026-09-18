@@ -14,6 +14,7 @@ import CasesView from "./views/CasesView.vue";
 import CreateView from "./views/CreateView.vue";
 import InspirationView from "./views/InspirationView.vue";
 import WorkshopView from "./views/WorkshopView.vue";
+import SettingsView from "./views/SettingsView.vue";
 
 /**
  * THE SHELL. Frame, view switch, and the one path from the wizard to a running pipeline.
@@ -25,7 +26,7 @@ import WorkshopView from "./views/WorkshopView.vue";
  * inside an operator's instrument.
  */
 
-type ViewId = "create" | "inspiration" | "cases" | "case" | "workshop";
+type ViewId = "create" | "inspiration" | "cases" | "case" | "workshop" | "settings";
 
 const ui = useUiState();
 const log = useErrorLog({
@@ -69,7 +70,25 @@ const navItems = computed<NavItem[]>(() => {
 		{ id: "inspiration", label: "Inspiration", icon: "book" },
 		{ id: "cases", label: "My Cases", icon: "bookmark" },
 	];
+	/**
+	 * THE OPEN CASE WAS AN ORPHAN.
+	 *
+	 * `view === "case"` is where a run is watched — the progress track, and every artifact as it
+	 * lands. It had no nav entry, so while a mystery was being written the nav bar showed nothing
+	 * selected, and the only way back to it was My Cases → Open. The page you are most likely to
+	 * want during the forty minutes a run takes was the one page you could not navigate to.
+	 */
+	if (openCase.value) {
+		items.push({
+			id: "case",
+			// The case name, but a spec-derived name like "1930s · CountryHouse" can run long in a
+			// horizontal bar, so it is trimmed rather than allowed to push the other items around.
+			label: openCase.value.name.length > 18 ? `${openCase.value.name.slice(0, 17)}…` : openCase.value.name,
+			icon: "book",
+		});
+	}
 	if (mode.value !== "user") items.push({ id: "workshop", label: "Workshop", icon: "gear" });
+	if (mode.value !== "user") items.push({ id: "settings", label: "Settings", icon: "spectacles" });
 	return items;
 });
 
@@ -165,6 +184,8 @@ const revealWorkshop = () => {
 		/>
 
 		<WorkshopView v-else-if="view === 'workshop'" @open-create="view = 'create'" />
+
+		<SettingsView v-else-if="view === 'settings'" />
 	</AppShell>
 
 	<ErrorNotification :errors="log.errors.value" @dismiss="log.dismiss" @action="onRetry" />

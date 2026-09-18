@@ -30,9 +30,9 @@
     "eval:external": "node scripts/eval-golden.mjs --external",
     "eval:dry": "node scripts/eval-golden.mjs --dry",
     "eval:freeze": "node scripts/eval-freeze-bundle.mjs",
-    "resume": "node --use-system-ca apps/worker/dist/jobs/resume-run.js",
-    "canary:core": "npm run build:all && node scripts/canary-core.mjs",
-    "canary:agent-loop": "node scripts/canary-agent-loop.mjs",
+    "resume": "node --max-old-space-size=6144 --use-system-ca apps/worker/dist/jobs/resume-run.js",
+    "canary:core": "npm run build:all && node --max-old-space-size=6144 scripts/canary-core.mjs",
+    "canary:agent-loop": "node --max-old-space-size=6144 scripts/canary-agent-loop.mjs",
     "canary:agent1": "npm run canary:agent-loop -- --agent Agent1-SettingRefiner --startFromAgent Agent1-SettingRefiner --hydratePriorFromRun true",
     "canary:agent2": "npm run canary:agent-loop -- --agent Agent2-CastDesigner --startFromAgent Agent2-CastDesigner --hydratePriorFromRun true",
     "canary:agent2b": "npm run canary:agent-loop -- --agent Agent2b-CharacterProfiles --startFromAgent Agent2b-CharacterProfiles --hydratePriorFromRun true",
@@ -67,7 +67,9 @@
     "corpus:survey": "node scripts/corpus-survey.mjs",
     "corpus:acquire": "node scripts/corpus-acquire.mjs",
     "corpus:coverage": "node scripts/corpus-coverage.mjs",
-    "corpus:clearance": "node scripts/corpus-clearance-check.mjs"
+    "corpus:clearance": "node scripts/corpus-clearance-check.mjs",
+    "corpus:manifest": "node scripts/corpus-manifest.mjs",
+    "corpus:check": "node scripts/corpus-clearance-check.mjs && node scripts/corpus-manifest.mjs --check"
   },
   "devDependencies": {
     "typescript": "^5.5.4"

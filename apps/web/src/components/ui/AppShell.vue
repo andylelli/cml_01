@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { brand } from "../../design/brand";
 import AppIcon from "./AppIcon.vue";
 import type { NavItem } from "./types";
@@ -12,7 +12,7 @@ import type { NavItem } from "./types";
  * phone. The bottom bar is `position: fixed`, so the page reserves space for it with padding rather
  * than letting it cover the last control on the page.
  */
-defineProps<{
+const props = defineProps<{
 	items: readonly NavItem[];
 	current: string;
 	/** Hidden when there is nothing to search yet. */
@@ -20,6 +20,25 @@ defineProps<{
 }>();
 
 const emit = defineEmits<{ navigate: [string]; search: [string] }>();
+
+/**
+ * THE PHONE TAB BAR FITS FOUR, AND THERE ARE NOW SIX SECTIONS.
+ *
+ * It used to be `items.slice(0, 4)`, which silently dropped whatever came fifth. That was harmless
+ * while there were four; it stopped being harmless when the open case joined the list, because the
+ * open case is the page a run is watched from — so on a phone, during the forty minutes a mystery
+ * takes to write, the tab bar would show four sections and none of them would be the live one, nor
+ * would any be highlighted.
+ *
+ * So: the first three, plus the current section whenever it is not already among them. Where you are
+ * is always reachable and always indicated.
+ */
+const phoneTabs = computed<readonly NavItem[]>(() => {
+	const head = props.items.slice(0, 4);
+	if (head.some((item) => item.id === props.current)) return head;
+	const active = props.items.find((item) => item.id === props.current);
+	return active ? [...props.items.slice(0, 3), active] : head;
+});
 
 const menuOpen = ref(false);
 const query = ref("");
@@ -143,7 +162,7 @@ const go = (id: string) => {
 			aria-label="Sections"
 		>
 			<button
-				v-for="item in items.slice(0, 4)"
+				v-for="item in phoneTabs"
 				:key="item.id"
 				type="button"
 				class="flex flex-1 flex-col items-center gap-1 py-2.5 text-[0.65rem] font-medium"

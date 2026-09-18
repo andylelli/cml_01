@@ -53,6 +53,14 @@ export type ProjectRepository = {
     { id: string; projectId: string; type: string; payload: unknown } | null
   >;
   clearAllData: () => Promise<void>;
+  /** What the store holds, for the Settings page. Cheap: counts, not contents. */
+  countStoreContents: () => Promise<{ projects: number; specs: number; runs: number; runEvents: number; artifacts: number; logs: number }>;
+  /** Drop the diagnostic activity log, keeping everything that is a record. Returns how many went. */
+  trimLogs: () => Promise<number>;
+  /** Delete one project and everything belonging to it. */
+  deleteProject: (id: string) => Promise<{ artifacts: number; specs: number; runs: number } | null>;
+  /** Where this repository is persisting, so the UI can say so. */
+  storeLocation: () => string;
 };
 
 type FileState = {
@@ -239,6 +247,35 @@ const createMemoryRepository = async (filePath?: string): Promise<ProjectReposit
     await persistState(snapshot());
   };
 
+  /**
+   * THE ACTIVITY LOG IS DIAGNOSTIC, AND IT WAS NEITHER BOUNDED NOR CHEAP.
+   *
+   * Every HTTP request writes one (server.ts, the request logger), and every write called
+   * `persist()` — a full snapshot and `JSON.stringify` of the whole store. MEASURED: the store had
+   * reached 39.7 MB, 12.7 MB of which was 46,544 log entries, and the case file polls 20 endpoints
+   * every 4 seconds during a run. Five 39.7 MB serialisations a second, into V8's large-object
+   * space. The API died of heap exhaustion at 3.8 GB mid-run.
+   *
+   * So: keep a bounded window, and flush it on a timer rather than on every entry. Losing a second
+   * of diagnostic log to a crash costs nothing. Everything that is a RECORD — projects, specs,
+   * runs, artifacts — still persists synchronously on write, as before.
+   */
+  const MAX_LOGS = 2000;
+  const LOG_FLUSH_MS = 2000;
+  let logFlushTimer: NodeJS.Timeout | null = null;
+
+  const persistLogsSoon = () => {
+    if (logFlushTimer) return;
+    logFlushTimer = setTimeout(() => {
+      logFlushTimer = null;
+      void persist().catch(() => {
+        /* a lost diagnostic flush is not worth crashing the API for */
+      });
+    }, LOG_FLUSH_MS);
+    // Never hold the process open for a diagnostic write.
+    logFlushTimer.unref?.();
+  };
+
   if (restored) {
     Object.entries(restored.projects ?? {}).forEach(([id, project]) => projects.set(id, project));
     Object.entries(restored.specs ?? {}).forEach(([id, spec]) => specs.set(id, spec));
@@ -340,7 +377,9 @@ const createMemoryRepository = async (filePath?: string): Promise<ProjectReposit
       const createdAt = new Date().toISOString();
       const entry: ActivityLog = { id, createdAt, ...log };
       logs.push(entry);
-      await persist();
+      // Bounded: splice from the front once over the cap, so memory and store size both stop growing.
+      if (logs.length > MAX_LOGS) logs.splice(0, logs.length - MAX_LOGS);
+      persistLogsSoon();
       return entry;
     },
     async listLogs(projectId?: string | null) {
@@ -359,6 +398,55 @@ const createMemoryRepository = async (filePath?: string): Promise<ProjectReposit
     async getLatestArtifact(projectId: string, type: string) {
       const matches = artifacts.filter((artifact) => artifact.projectId === projectId && artifact.type === type);
       return matches[matches.length - 1] ?? null;
+    },
+    async countStoreContents() {
+      return {
+        projects: projects.size,
+        specs: specs.size,
+        runs: runs.size,
+        runEvents: runEvents.length,
+        artifacts: artifacts.length,
+        logs: logs.length,
+      };
+    },
+    async trimLogs() {
+      const removed = logs.length;
+      logs.length = 0;
+      await persist();
+      return removed;
+    },
+    async deleteProject(id: string) {
+      if (!projects.has(id)) return null;
+
+      // Count first, so the caller can be told what actually went.
+      const removed = {
+        artifacts: artifacts.filter((a) => a.projectId === id).length,
+        specs: [...specs.values()].filter((sp) => sp.projectId === id).length,
+        runs: [...runs.values()].filter((r) => r.projectId === id).length,
+      };
+
+      const runIds = new Set([...runs.values()].filter((r) => r.projectId === id).map((r) => r.id));
+
+      projects.delete(id);
+      for (const [specId, sp] of [...specs.entries()]) if (sp.projectId === id) specs.delete(specId);
+      for (const [runId, r] of [...runs.entries()]) if (r.projectId === id) runs.delete(runId);
+
+      // Splice in place rather than reassigning: these are `const` bindings closed over by every
+      // method above, so a reassignment would silently orphan them.
+      const dropWhere = <T>(arr: T[], pred: (item: T) => boolean) => {
+        for (let i = arr.length - 1; i >= 0; i--) if (pred(arr[i])) arr.splice(i, 1);
+      };
+      dropWhere(artifacts, (a) => a.projectId === id);
+      dropWhere(specOrder, (e) => e.projectId === id);
+      dropWhere(runOrder, (e) => e.projectId === id);
+      dropWhere(runEvents, (e) => runIds.has(e.runId));
+      dropWhere(logs, (l) => l.projectId === id);
+
+      await persist();
+      return removed;
+    },
+    storeLocation() {
+      return storePath;
     },
     async clearAllData() {
       projects.clear();
@@ -557,6 +645,49 @@ const createPostgresRepository = async (connectionString: string): Promise<Proje
         [projectId, type],
       );
       return result.rows[0] ?? null;
+    },
+    async countStoreContents() {
+      const one = async (table: string) => {
+        const r = await pool.query(`SELECT COUNT(*)::int AS n FROM ${table}`);
+        return r.rows[0]?.n ?? 0;
+      };
+      return {
+        projects: await one("projects"),
+        specs: await one("spec_versions"),
+        runs: await one("runs"),
+        runEvents: await one("run_events"),
+        artifacts: await one("artifact_versions"),
+        logs: await one("activity_logs"),
+      };
+    },
+    async trimLogs() {
+      const r = await pool.query("DELETE FROM activity_logs");
+      return r.rowCount ?? 0;
+    },
+    async deleteProject(id: string) {
+      const exists = await pool.query("SELECT 1 FROM projects WHERE id = $1", [id]);
+      if (exists.rowCount === 0) return null;
+      const count = async (table: string) => {
+        const r = await pool.query(`SELECT COUNT(*)::int AS n FROM ${table} WHERE project_id = $1`, [id]);
+        return r.rows[0]?.n ?? 0;
+      };
+      const removed = {
+        artifacts: await count("artifact_versions"),
+        specs: await count("spec_versions"),
+        runs: await count("runs"),
+      };
+      // run_events references runs; delete it first rather than relying on a cascade that the
+      // schema above does not actually declare for that table.
+      await pool.query("DELETE FROM run_events WHERE run_id IN (SELECT id FROM runs WHERE project_id = $1)", [id]);
+      await pool.query("DELETE FROM activity_logs WHERE project_id = $1", [id]);
+      await pool.query("DELETE FROM artifact_versions WHERE project_id = $1", [id]);
+      await pool.query("DELETE FROM spec_versions WHERE project_id = $1", [id]);
+      await pool.query("DELETE FROM runs WHERE project_id = $1", [id]);
+      await pool.query("DELETE FROM projects WHERE id = $1", [id]);
+      return removed;
+    },
+    storeLocation() {
+      return "postgres";
     },
     async clearAllData() {
       await pool.query(

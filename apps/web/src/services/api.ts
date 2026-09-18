@@ -361,15 +361,29 @@ export const fetchProseVersions = async (projectId: string): Promise<Record<stri
   return data.versions;
 };
 
-export type SampleSummary = { id: string; name: string; filename: string };
+export type SampleSummary = {
+  id: string;
+  name: string;
+  filename: string;
+  /** `verified` = re-encoded and checked span-by-span against the source text; `legacy` = the
+   *  hand-authored 2025 encoding, which A_77 §3.2 found materially wrong in four known cases. */
+  state?: "verified" | "legacy";
+};
 
-export const fetchSamples = async (): Promise<SampleSummary[]> => {
+/** Totals for the whole reference library, not just the cases that are openable. */
+export type LibrarySummary = {
+  works: number;
+  encoded: number;
+  legacy: number;
+  awaitingEncode: number;
+};
+
+export const fetchSamples = async (): Promise<{ samples: SampleSummary[]; library?: LibrarySummary }> => {
   const response = await fetch(`${apiBase}/api/samples`);
   if (!response.ok) {
     throw new Error(`Fetch samples failed (${response.status})`);
   }
-  const data = (await response.json()) as { samples: SampleSummary[] };
-  return data.samples;
+  return (await response.json()) as { samples: SampleSummary[]; library?: LibrarySummary };
 };
 
 export const fetchSampleContent = async (id: string): Promise<{ id: string; name: string; content: string }> => {
@@ -488,3 +502,54 @@ export const fetchLlmLogs = async (projectId?: string | null, limit = 200): Prom
   const data = (await response.json()) as { entries: LlmLogEntry[] };
   return data.entries;
 };
+
+/* ── admin / storage ─────────────────────────────────────────────────────────────────────────── */
+
+export interface StorageFile {
+	name: string;
+	bytes: number;
+	modified: string;
+}
+
+export interface StorageReport {
+	store: {
+		path: string;
+		bytes: number;
+		modified: string | null;
+		counts: { projects: number; specs: number; runs: number; runEvents: number; artifacts: number; logs: number };
+	};
+	live: StorageFile[];
+	archived: StorageFile[];
+}
+
+const admin = async <T>(path: string, init?: RequestInit): Promise<T> => {
+	const response = await fetch(`${apiBase}${path}`, init);
+	if (!response.ok) {
+		const detail = await response.json().catch(() => null);
+		throw new Error((detail as { error?: string } | null)?.error ?? `Request failed (${response.status})`);
+	}
+	return response.json() as Promise<T>;
+};
+
+/**
+ * What storage costs, not just what it occupies. The store's size is the number that matters: it is
+ * re-serialised on every write, so a large store is per-request CPU, not disk space.
+ */
+export const fetchStorage = (): Promise<StorageReport> => admin<StorageReport>("/api/admin/storage");
+
+export const archiveLogs = (): Promise<{ moved: Array<{ name: string; bytes: number }>; archivedTo: string }> =>
+	admin("/api/admin/logs/archive", { method: "POST" });
+
+export const deleteArchive = (name: string): Promise<{ deleted: string; bytes: number }> =>
+	admin(`/api/admin/logs/archive/${encodeURIComponent(name)}`, { method: "DELETE" });
+
+export const trimStoreLogs = (): Promise<{ removed: number }> =>
+	admin("/api/admin/store/trim-logs", { method: "POST" });
+
+export const deleteProjectCompletely = (
+	id: string,
+): Promise<{ artifacts: number; specs: number; runs: number }> =>
+	admin(`/api/admin/projects/${encodeURIComponent(id)}`, { method: "DELETE" });
+
+export const clearStore = (): Promise<{ cleared: string[] }> =>
+	admin("/api/admin/clear-store", { method: "POST" });

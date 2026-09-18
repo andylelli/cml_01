@@ -51,12 +51,56 @@ const requireCmlAccess = (req: ModeRequest, res: ModeResponse, next: ModeNext) =
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const workspaceRoot = path.resolve(__dirname, "../../..");
-const examplesDir = path.resolve(workspaceRoot, "examples");
+const libraryWorksDir = path.resolve(workspaceRoot, "library", "works");
 const storiesDir = path.resolve(workspaceRoot, "stories");
 
-const listSampleFiles = async () => {
-  const files = await fs.readdir(examplesDir);
-  return files.filter((file) => file.endsWith(".yaml") || file.endsWith(".yml"));
+/**
+ * A_98 — the samples endpoints read `library/works/`, which is where the corpus lives.
+ *
+ * They used to read `examples/`, a flat directory of 14 files. NINE of those were byte-identical
+ * copies of `library/works/<slug>/case.legacy.yaml`: the API served one copy and the generator read
+ * the other, so the Archive view reported "14 cases on file" while the library held 166 works and 30
+ * encoded cases. That gap is the symptom that started A_98; `examples/` is now gone.
+ *
+ * Each work is listed at its BEST encoding — `case.cml2.yaml` where a verified re-encode exists,
+ * `case.legacy.yaml` otherwise — and `state` says which, because "verified span-by-span against the
+ * source text" and "hand-authored, and wrong about its own plot in four known cases" should not look
+ * the same in a list. The title comes from `provenance.yaml` rather than from the slug, so a reader
+ * gets *The "Canary" Murder Case* rather than *The Canary Murder Case*.
+ */
+type SampleFile = { id: string; file: string; state: "verified" | "legacy"; title: string };
+
+const readProvenanceTitle = async (slug: string): Promise<string | null> => {
+  try {
+    const raw = await fs.readFile(path.join(libraryWorksDir, slug, "provenance.yaml"), "utf-8");
+    const m = raw.match(/^title:[ 	]*"?(.+?)"?[ 	]*$/m);
+    return m ? m[1] : null;
+  } catch {
+    return null;
+  }
+};
+
+const listSampleFiles = async (): Promise<SampleFile[]> => {
+  const slugs = await fs.readdir(libraryWorksDir);
+  const out: SampleFile[] = [];
+  for (const slug of slugs.sort()) {
+    if (slug.startsWith(".")) continue;
+    const candidates = [
+      { file: "case.cml2.yaml", state: "verified" as const },
+      { file: "case.legacy.yaml", state: "legacy" as const },
+    ];
+    for (const c of candidates) {
+      const full = path.join(libraryWorksDir, slug, c.file);
+      try {
+        await fs.access(full);
+      } catch {
+        continue;
+      }
+      out.push({ id: slug, file: full, state: c.state, title: (await readProvenanceTitle(slug)) ?? toTitle(slug) });
+      break;
+    }
+  }
+  return out;
 };
 
 const getSampleId = (filename: string) => filename.replace(/\.(yaml|yml)$/i, "");
@@ -1128,6 +1172,139 @@ export const createServer = () => {
     res.json({ status: "ok", service: "api" });
   });
 
+  /* ── storage admin ────────────────────────────────────────────────────────────────────────── */
+
+  // The repo root is two levels above apps/api; the API process cwd is not reliable.
+  const LOG_DIR = path.resolve(process.cwd(), process.cwd().endsWith(path.join("apps", "api")) ? "../../logs" : "logs");
+  const ARCHIVE_DIR = path.join(LOG_DIR, "archive");
+
+  /** Files the pipeline appends to for as long as it runs. These are what grow without bound. */
+  const LIVE_LOGS = ["llm-prompts-full.jsonl", "llm.jsonl", "activity.jsonl"];
+
+  const statOrNull = async (p: string) => {
+    try {
+      const st = await fs.stat(p);
+      return { bytes: st.size, modified: st.mtime.toISOString() };
+    } catch {
+      return null;
+    }
+  };
+
+  /**
+   * What is taking up space, and what it costs. The store size is the important number: it is
+   * re-serialised on every write, so it is not disk usage, it is per-request CPU and heap.
+   */
+  app.get("/api/admin/storage", async (_req, res) => {
+    try {
+      const repoForPath = await repoPromise;
+      const storePath = repoForPath.storeLocation();
+      const store = await statOrNull(storePath);
+
+      const live = [];
+      for (const name of LIVE_LOGS) {
+        const st = await statOrNull(path.join(LOG_DIR, name));
+        if (st) live.push({ name, ...st });
+      }
+
+      let archived: Array<{ name: string; bytes: number; modified: string }> = [];
+      try {
+        const names = await fs.readdir(ARCHIVE_DIR);
+        for (const name of names) {
+          const st = await statOrNull(path.join(ARCHIVE_DIR, name));
+          if (st) archived.push({ name, ...st });
+        }
+        archived.sort((a, b) => b.modified.localeCompare(a.modified));
+      } catch {
+        archived = [];
+      }
+
+      const counts = await repoForPath.countStoreContents();
+
+      res.json({ store: { path: storePath, ...(store ?? { bytes: 0, modified: null }), counts }, live, archived });
+    } catch {
+      res.status(500).json({ error: "Failed to read storage information" });
+    }
+  });
+
+  /**
+   * Move the live log files aside, timestamped. They are recreated on the next write, so this is
+   * safe at any time — though doing it mid-run splits that run's prompts across two files.
+   */
+  app.post("/api/admin/logs/archive", async (_req, res) => {
+    try {
+      await fs.mkdir(ARCHIVE_DIR, { recursive: true });
+      const stamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+      const moved: Array<{ name: string; bytes: number }> = [];
+      for (const name of LIVE_LOGS) {
+        const from = path.join(LOG_DIR, name);
+        const st = await statOrNull(from);
+        if (!st) continue;
+        const base = name.replace(/\.jsonl$/, "");
+        await fs.rename(from, path.join(ARCHIVE_DIR, `${base}-${stamp}.jsonl`));
+        moved.push({ name, bytes: st.bytes });
+      }
+      res.json({ status: "ok", moved, archivedTo: ARCHIVE_DIR });
+    } catch (error) {
+      res.status(500).json({ error: `Failed to archive logs: ${(error as Error).message}` });
+    }
+  });
+
+  /** Delete ONE archived file. Named explicitly — never a wildcard, never the live logs. */
+  app.delete("/api/admin/logs/archive/:name", async (req, res) => {
+    try {
+      const name = path.basename(req.params.name);
+      // basename() already strips any path, but be explicit: nothing outside the archive dir.
+      const target = path.join(ARCHIVE_DIR, name);
+      if (path.dirname(target) !== ARCHIVE_DIR) {
+        res.status(400).json({ error: "Not an archived file" });
+        return;
+      }
+      const st = await statOrNull(target);
+      if (!st) {
+        res.status(404).json({ error: "Archive not found" });
+        return;
+      }
+      await fs.unlink(target);
+      res.json({ status: "ok", deleted: name, bytes: st.bytes });
+    } catch (error) {
+      res.status(500).json({ error: `Failed to delete archive: ${(error as Error).message}` });
+    }
+  });
+
+  /**
+   * Drop the diagnostic activity log from the store, keeping everything that is a record.
+   *
+   * This is the cheap half of the size problem: 46,544 entries were 12.7 MB of a 39.7 MB store, and
+   * the store is re-serialised on every write. Projects, specs, runs and artifacts are untouched.
+   */
+  app.post("/api/admin/store/trim-logs", async (_req, res) => {
+    try {
+      const repo = await repoPromise;
+      const removed = await repo.trimLogs();
+      res.json({ status: "ok", removed: removed });
+    } catch (error) {
+      res.status(500).json({ error: `Failed to trim logs: ${(error as Error).message}` });
+    }
+  });
+
+  /**
+   * Delete one project and everything belonging to it. Used to clear out the test-suite leftovers
+   * that accumulated when the API tests wrote to the real store.
+   */
+  app.delete("/api/admin/projects/:id", async (req, res) => {
+    try {
+      const repo = await repoPromise;
+      const removed = await repo.deleteProject(req.params.id);
+      if (!removed) {
+        res.status(404).json({ error: "Project not found" });
+        return;
+      }
+      res.json({ status: "ok", ...removed });
+    } catch (error) {
+      res.status(500).json({ error: `Failed to delete project: ${(error as Error).message}` });
+    }
+  });
+
   app.post("/api/admin/clear-store", async (_req, res) => {
     try {
       await httpLogSettled.catch(() => undefined);
@@ -2138,11 +2315,25 @@ export const createServer = () => {
   app.get("/api/samples", async (_req, res) => {
     try {
       const files = await listSampleFiles();
-      const samples = files.map((file) => {
-        const id = getSampleId(file);
-        return { id, name: toTitle(id), filename: file };
-      });
-      res.json({ samples });
+      const samples = files.map((f) => ({
+        id: f.id,
+        name: f.title,
+        filename: `${f.id}.yaml`,
+        state: f.state,
+      }));
+      /**
+       * The library totals travel with the list, because the gap between them is what made the old
+       * number confusing: a reader seeing "34 cases" has no way to tell whether the corpus is 34
+       * works or 169 of which 34 are encoded. It is the second, and now the payload says so.
+       */
+      const slugs = (await fs.readdir(libraryWorksDir)).filter((d) => !d.startsWith("."));
+      const library = {
+        works: slugs.length,
+        encoded: samples.filter((x) => x.state === "verified").length,
+        legacy: samples.filter((x) => x.state === "legacy").length,
+        awaitingEncode: slugs.length - samples.length,
+      };
+      res.json({ samples, library });
     } catch (error) {
       res.status(500).json({ error: "Failed to list samples" });
     }
@@ -2151,13 +2342,18 @@ export const createServer = () => {
   app.get("/api/samples/:name", async (_req, res) => {
     try {
       const files = await listSampleFiles();
-      const match = files.find((file) => getSampleId(file) === _req.params.name || file === _req.params.name);
+      /**
+       * `<slug>_cml2` is accepted as well as `<slug>`: that is the id the old `examples/`-backed
+       * endpoint minted, and a saved link should not 404 because the corpus moved house.
+       */
+      const wanted = getSampleId(String(_req.params.name)).replace(/_cml2$/i, "");
+      const match = files.find((f) => f.id === wanted);
       if (!match) {
         res.status(404).json({ error: "Sample not found" });
         return;
       }
-      const contents = await fs.readFile(path.join(examplesDir, match), "utf-8");
-      res.json({ id: getSampleId(match), name: toTitle(getSampleId(match)), content: contents });
+      const contents = await fs.readFile(match.file, "utf-8");
+      res.json({ id: match.id, name: match.title, content: contents, state: match.state });
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch sample" });
     }
