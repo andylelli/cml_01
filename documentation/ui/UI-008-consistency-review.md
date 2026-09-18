@@ -256,3 +256,72 @@ Worth recording so it is not "fixed" later:
 - **`StepCard`.** Used uniformly across all five consumer views, `number` or `icon`, never both.
 - **Accessibility groundwork.** Sections are `<section aria-labelledby>`, nav items carry
   `aria-current="page"`, controls have labels. The defects found above are specific, not systemic.
+
+---
+
+## E. VESTIGIAL FEATURES
+
+Added after a second pass looking specifically for things left in from earlier designs.
+
+### E1 — "Update sections" · REMOVED (commit 4a2ef6ae)
+
+Six buttons under the caption *"Update a single section without rerunning everything."* The endpoint
+behind them accepted nine scopes and implemented one — `character_profiles`. Every other scope
+returned 409. **Five of the six visible buttons could only ever fail**, and the caption was false for
+all five.
+
+Removed end to end: route (99 lines, with `normalizeCastForProfiles` and the
+`generateCharacterProfiles` import, both of which existed only for it), `regenerateArtifact`,
+`handleRegenerate`, `handleArtifactRegenerate`, the Regenerate button on `ArtifactStatusDashboard`,
+the `"regenerate"` retry type, and the panel block.
+
+If per-artifact regeneration is ever wanted, it should be one control that says what it does rather
+than nine that mostly 409.
+
+### E2 — "Save draft" · REMOVED (commit 4a2ef6ae)
+
+On a screen with **zero editable spec fields** — setup moved to Create in UI-006, and `ProjectPanel`
+and `GeneratePanel` bind no `v-model="spec"` between them. It saved a spec you could not change from
+there, and it was redundant anyway: `handleRunPipeline` already calls `saveSpec()` itself before
+starting. Generate covers it.
+
+### E3 — Two dead API routes · FLAGGED, not removed
+
+Neither is called by the web client (verified against every `fetch` URL in `services/`):
+
+| route | note |
+|---|---|
+| `GET /api/specs/:id` | The client only ever uses `/projects/:id/specs/latest`. |
+| `POST /api/projects/:id/cml/validate` | The server half of CML editing, which UI-003 §3 deliberately made read-only. |
+
+**Not removed, deliberately.** Both are documented (`documentation/07_workflow`,
+`04_architecture_backend`) and covered by `server.test.ts`, and `cml/validate` is access-gated — it
+is a documented API surface, not an accident. That is a decision to take rather than a cleanup to
+perform.
+
+Worth noting if it is kept: `cml/validate` writes a `cml_validation` artifact **from the request
+body**, so a caller could overwrite the pipeline's own validation record with arbitrary input.
+
+### E4 — Missing artifacts are reported as errors · LOW
+
+On loading a case the client requests every artifact type unconditionally, and the API returns 404
+for ones that do not exist. MEASURED on a normal project: `game-pack/latest`, `novelty-audit/latest`
+and `cml/validation/latest` all 404, and each shows in the console as a failed request.
+
+Nothing is broken — it is the ordinary state of a project that has not produced a game pack. But
+"this artifact was never generated" is not an error, and a console full of red for the normal case
+trains you to ignore it. (`cml/validation/latest` 404s precisely *because* nothing calls E2's
+validate endpoint.)
+
+**Recommend:** return `200 { artifact: null }` for a known type with no artifact, keeping 404 for an
+unknown type. Failing that, have the client swallow 404 for these without logging.
+
+### Checked and clean
+
+Worth recording so it is not re-investigated: **no unused bindings.** All six workshop panels
+destructure from `useWorkshop()` and use everything they take — 35, 20, 14, 11, 31 and 3 bindings
+respectively, none unused.
+
+That result took two attempts. The first probe reported *every* binding as unused, which was a claim
+about the probe: `\b` had been eaten by shell escaping down to a literal backspace character, so the
+word-boundary match could never fire. The corrected probe uses spelled-out lookarounds.
