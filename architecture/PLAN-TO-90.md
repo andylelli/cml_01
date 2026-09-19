@@ -2030,3 +2030,83 @@ only when vitest runs from `apps/worker`; from the repo root it resolved to `C:/
 found and every test skipped. That is the *"3 skipped"* the worker suite has reported all along. 981
 passing and 0 skipped now, up from 866 and 3.
 
+### §22.7 THE SECOND v2 RUN — `resume-1789805865810`, £0.21 — THE FIRST HONEST PAIR
+
+Same seed, same thirteen restored artifacts, `PROSE_V2_DRAFTS=1`. The continuation loop, the
+checkpoint rule, the delivered-numbers fix and the telemetry print were all in. **10 chapters, 8,182
+words, 23 calls, 0 repeats, 3.2 min, £0.21** — against the v1 arm's 10 chapters and 8,965 words.
+
+| prediction | verdict |
+|---|---|
+| all 10 chapters arrive | **HELD** — 10 of 10, in 1 + 2 calls |
+| 7,500–12,500 words | **HELD** — 8,182 |
+| the telemetry prints | **HELD** — the block, ending `manuscript: 10 chapter(s), 8182 words` |
+| register measured on a full book | **HELD** — see below |
+| cost ≈ £0.34 | **BEAT** — £0.21; the model delivered several chapters per continuation, not one |
+| gate stops only for fair play | **HELD in form, FALSE in fact** — one stop, and it was wrong (§22.8) |
+
+**The matched pair, both arms 10 chapters:**
+
+| instrument | v1 | v2 | z vs corpus |
+|---|---|---|---|
+| words | 8,965 | 8,182 | — |
+| **machine-register rate** | 0.0552 | **0.0328** | −2.62 |
+| repetition / 10k | 96.0 | **9.4** | −0.47 |
+| speech-open share | 0.1739 | **0.1322** | −0.03 |
+| long-sentence share | 0.0276 | **0.0613** | +1.57 |
+| wit / 10k | 15.6 | **25.7** | +2.44 |
+
+**Register — the only validated instrument — falls 41%, on comparable books.** Repetition falls 90%.
+Long sentences and wit rise. **Speech-open share falls and that is the one regression**, from 0.174
+to 0.132 against a corpus mean of 0.134: v1 was above the mean here and v2 sits on it, while the
+brief asks for six speech-opening paragraphs a chapter. Wit reaches 25.7 against the sharp band's
+target of 41, so the humour operation is landing at about 60%.
+
+**Nothing here is a mark.** These are the instruments, not a reader, and the rubric cannot rank two
+books. The pair says the prose moved in the direction every instrument agrees with; only a read says
+whether it moved a mark.
+
+### §22.8 THE STOP WAS WRONG, AND THE GATE HAD NO TESTS — `4a999116`
+
+The run was recorded `status: failure` on one stop: *"the reveal chapter (9) never names Nora Quayle
+as the murderer."* Chapter 9 says:
+
+> *"Nora Quayle engineered the murder, exploited the authority of the judge, and doctored the records
+> to conceal the truth."*
+
+The verb list was `killed|murdered|poisoned|strangled|struck`. The prose used **`engineered`**, with
+**`murder` as a noun**, so nothing matched. Re-running the fixed gate over that same manuscript and
+its own artifacts: **SHIP true, no stops.** The book was compliant the whole time.
+
+**This is the third time this project has paid for a closed vocabulary deciding a pass** — the guilt
+marker with no blunt-force verb, the domain nouns colliding with a validator wordlist, and now this.
+So the fix covers the CONSTRUCTION — agent plus guilt noun, a deed attributed to a name, a confession
+— rather than adding one more verb to a list that will be missing the next word the prose uses.
+
+The predicate runs in BOTH directions: the reveal must satisfy it and every earlier chapter must not.
+Widening it too far would stop every book at chapter 1 instead, so four known-negatives pin it —
+suspicion, speculation, exclusive knowledge and a counterfactual all still fail to count as an
+accusation.
+
+**The gate had no tests at all.** That is how a stop that fires on a compliant book shipped inside a
+design whose whole argument is that only two things should ever stop a run. It has 9 now, including
+the verbatim sentence.
+
+### §22.9 WHERE v2 STANDS
+
+Built, switched off by default, and now measured once against v1 on byte-identical upstream. What is
+settled: the engine writes a whole book, writes no deterministic prose, reports itself, and moves
+every instrument but one in the right direction, for £0.21 a run.
+
+What is NOT settled, and should not be claimed:
+
+- **whether it is worth a mark.** No read. The instruments are not the reader, and A_94's rule stands.
+- **whether best-of-three helps.** This run used one draft, so the selector chose nothing.
+- **speech-open share**, the one instrument that went the wrong way.
+- **the 26 unresolved findings and 12 rolled-back edits** the telemetry reports — the editor applied
+  37 and reverted 12, ten of them on `clockValuesIntact`, which is worth its own look.
+
+**The next thing to spend is a read, not a run** — and the book to read is this one, because it is
+the first v2 manuscript that is a whole book and its ship-check now passes.
+
+
