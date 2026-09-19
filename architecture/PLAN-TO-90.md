@@ -2239,5 +2239,54 @@ None of these threatens the §22.7 measurement: the pair compared two manuscript
 that live outside this pipeline. They mean v2's **repair** stage is doing markedly less than its
 telemetry claims — which makes the §22.7 result a FLOOR for what the engine can do, not a ceiling.
 
+### §23.8 STATUS — ALL SIX FIXED, `12b29a1d`
+
+| # | defect | state | measured after |
+|---|---|---|---|
+| §23.5 | chapters mapped by position | **FIXED** — the number travels with the prose (`chapter-index.ts`) | with a gap, chapter 9 maps to chapter 9 and chapter 3 reports ABSENT |
+| §23.4 | a no-op edit counted as applied | **FIXED** — one paragraph, and a byte-identical result is skipped | the spanning edit now reports `applied 0, skipped 1`, finding unresolved |
+| §23.1 D1 | clock check read half the table | **FIXED** — value AND label, both normalised | **11 findings → 0**, all of them false |
+| §23.1 D2 | its repair is one the guards revert | **FIXED** — the class is `report`, no editor is asked | 11 attempted / 11 reverted is now 0 attempted |
+| §23.3 | `CASE` under `/i` | **FIXED** — markers case-sensitive, jargon still folded | **1 → 0**; "cigarette case" clears, `CASE` and "discriminating test" still fire |
+| §23.2 | obligations no prose could satisfy | **FIXED** — excluded, named once in `contract.notes` | **23 obligations → 14, and 14/14 resolve** |
+| §23.6 | five smaller | **FIXED** — `cannot` surfaced, both sides of a repetition, "because" dropped, critic 2,000 → 6,000, `measureGuards` exported | — |
+
+**Checker findings on the real book: 31 → 9.** The nine that remain — 5 `clue_early`,
+3 `register_sentence`, 1 `clue_missing` — are real work, and the gate still ships the book.
+
+### §23.9 THE SEVENTH, FOUND WHILE FIXING THE THIRD
+
+`gate.ts` carried the comment *"the same predicate the selector uses, so the gate and the selector
+cannot disagree (L6)"*. There were **two copies of `namesAsCulprit`**, and they had drifted in both
+directions:
+
+- `gate.ts`'s was widened on 2026-09-19 to recognise *"engineered the murder"*, the sentence that had
+  cost a run. `selector.ts`'s was not — so after that fix the reveal gate and the early-naming gate
+  genuinely disagreed about what counts as an accusation, and nothing said so.
+- `selector.ts`'s carried a clause `gate.ts` never had: a bare `\bI (killed|murdered|…)\b` **with no
+  name in it**. In the early-naming direction that fires on any first-person admission by anybody — a
+  red herring's false confession, a witness quoting the victim — and it fires for EVERY culprit at
+  once, because nothing in it refers to the person being tested.
+
+One body in `culprit.ts` now. The first-person clause is not reinstated, with its reason written
+down: it names nobody, so it cannot answer the question the function is asked, and a reveal carried
+entirely by an unattributed *"I killed him"* genuinely does not name its culprit.
+
+**This is WF-002's divergence rule meeting the case it warns about** — two components computing one
+set, where one copy is the sole input to a WRITE. Feeding a prompt it would have been absorbed; here
+it stops a run and spends an editor call. Worth a sweep for other pairs.
+
+### §23.10 WHAT THIS DOES NOT CHANGE
+
+The §22.7 pair stands: it compared two manuscripts with instruments that live outside this pipeline,
+and none of them moved. What changed is that v2's repair stage now spends its calls on the nine
+findings that are real instead of the thirty-one it used to report — so **the next v2 run is the
+first one whose `applied` and `unresolved` numbers mean what they say**, and §22.7's register figure
+remains a floor.
+
+Nothing here has been run against a paid LLM. Every number above is from replaying the fixed code
+over the manuscript `resume-1789805865810` already produced, at £0.
+
+
 
 
