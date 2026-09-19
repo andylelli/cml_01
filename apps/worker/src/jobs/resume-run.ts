@@ -165,6 +165,27 @@ async function main(): Promise<void> {
     return;
   }
   const spec = specToInputs(resolved.spec);
+  /**
+   * A spec that EXISTS but is missing the fields the resumed stage reads.
+   *
+   * The refusal above catches "no spec at all". It does not catch a sidecar that was written before
+   * a parameter existed — and most archived canary sidecars record `targetLength` and `primaryAxis`
+   * and nothing else. `humourLevel` is the one that matters most and is missing most often: it sets
+   * the wit band, which decides which chapters carry a wit beat and what rate the contract asks for.
+   * A resume that defaults it writes to a DIFFERENT contract than the run being compared against,
+   * and the comparison quietly stops being a matched pair.
+   *
+   * Not a refusal — a stated default is a usable run, an unstated one is not. This prints what is
+   * falling back so the run reports its own limits, and the ledger entry can say so.
+   */
+  const READ_BY_AGENT_9 = ["humourLevel", "targetLength", "primaryAxis", "tone", "narrativeStyle", "eraPreference"] as const;
+  const defaulted = READ_BY_AGENT_9.filter((k) => spec[k] === undefined || spec[k] === null || spec[k] === "");
+  if (defaulted.length > 0) {
+    console.log(
+      `[resume-run] DEFAULTS   : ${defaulted.join(", ")} are not recorded for this project and fall ` +
+        `back. This run is NOT a controlled matched pair on those parameters — say so in the ledger.`,
+    );
+  }
   const runId = `resume-${Date.now()}`;
   const inputs: MysteryGenerationInputs = {
     ...(spec as Partial<MysteryGenerationInputs>),

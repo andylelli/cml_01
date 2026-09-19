@@ -2382,6 +2382,106 @@ reader who did it.
 here is v1's. The writer, the critic and the editor need LLM calls, so the only test of v2's prose is
 a paid run — and the matched pair in §22.7 remains the only one.
 
+---
+
+## 25. THREE v2 ARMS AGAINST THREE EXISTING v1 STORIES · 2026-09-19 · £0.46
+
+The last three archived stories with resolvable parameters, prose re-run under `PROSE_ENGINE=v2`,
+`PROSE_V2_DRAFTS=1`, thirteen upstream artifacts restored byte-identical in each.
+
+| | A `canary_1789577884303` | B `canary_1789497521861` | C `canary_1789232316543` |
+|---|---|---|---|
+| axis · era · location | authority · 1930s · SeasideHotel | authority · 1950s · CountryHouse | **temporal** · 1940s · CountryHouse |
+| v1 external read | **77** | none | **87** — the best this project has |
+| controlled? | **yes, 4/4 parameters** | no — humour, tone, style default | no — humour, tone, style default |
+| runId | `resume-1789845235708` | `resume-1789845389564` | `resume-1789845583760` |
+| cost | £0.15 | £0.17 | £0.14 |
+
+**Every arm printed its own limits**: B and C logged `DEFAULTS: humourLevel, tone, narrativeStyle are
+not recorded … NOT a controlled matched pair on those parameters`. Their prose comparison is
+indicative; only A's is controlled.
+
+### §25.1 WHAT HELD — THE ENGINE GENERALISES
+
+**3 of 3 delivered a complete 10-chapter book, each in 1 + 2 writer calls, 0 repeats, 2.5–3.2 min.**
+The continuation loop, the checkpoint rule and the telemetry were debugged on ONE book (§22–§23) and
+they work on three, across two axes, three eras and two locations. That was the open question and it
+is answered.
+
+### §25.2 FOUR INSTRUMENTS IMPROVE, THE SAME ONE REGRESSES, 3 OF 3
+
+| instrument | A | B | C | verdict |
+|---|---|---|---|---|
+| machine-register | 0.0552 → **0.0319** | 0.0791 → **0.0561** | 0.1031 → **0.0075** | better 3/3 |
+| repetition /10k | 96.0 → **4.2** | 24.3 → **19.2** | 122.8 → **11.1** | better 3/3 |
+| long-sentence share | 0.028 → **0.079** | 0.072 → **0.147** | 0.062 → **0.069** | better 3/3 |
+| wit /10k | 15.6 → **37.7** | 20.6 → **31.2** | 9.7 → **26.0** | better 3/3 |
+| **speech-open share** | 0.174 → **0.073** | 0.202 → **0.088** | 0.152 → **0.067** | **worse 3/3** |
+| words | 8,965 → 6,893 | 11,155 → 7,054 | 10,333 → 6,925 | **23–33% shorter, 3/3** |
+
+Register — the only validated predictor — falls on every arm, and on C it falls **93%**, from a book
+that read 87. Four of five instruments move the right way every time.
+
+### §25.3 THE TWO REGRESSIONS ARE BOTH THE COMPLIANCE LAW
+
+**Speech-open share halves on every arm.** The brief states the operation plainly: *"6 paragraphs in
+each chapter open on a line somebody speaks."* At ~690 words a chapter that is roughly half the
+paragraphs. Delivered: about **one**. This is an OPERATION, countable, in the prompt, and ignored —
+the shape recorded in `voice-spec-is-a-dead-lever` and `prompts-move-operations-not-statistics`, now
+on v2's own brief. **It is also the one instrument in the calibration that v2 makes worse**, so it is
+the first thing to fix in the brief.
+
+**The books run short.** The brief asks for *"about 1000 words"* a chapter and a 7,500–12,500 book;
+the arms delivered 690, 705 and 693 words a chapter and **all three fell below the stated floor**. A
+word count is a STATISTIC, which this model does not comply with — the same law, and the same fix
+shape: ask for countable things, not rates.
+
+### §25.4 AND THE FAIR-PLAY GATE STOPPED TWO OF THREE — CORRECTLY
+
+A and B both stopped: *no chapter at or after the reveal names the culprit as the murderer.* Both
+were read before the verdict was accepted, because this predicate has now been widened twice:
+
+> **A, chapter 9** — *"Theodora, her voice steady, offered the flat answer: 'You mean Nora Quayle.'
+> Bertram nodded."* And chapter 10: *"the ink still faintly smudged from Nora Quayle's undoing."*
+>
+> **B, chapter 9** — *"The only person who **could** advance the manor hall clock, control the
+> records, and assert the official time was Agatha Innes."*
+
+The first is an oblique confirmation and a euphemism; the second is OPPORTUNITY. Neither says anybody
+killed anybody. **The gate is right, and v2 has just reproduced the defect §24.3 found in 35% of v1's
+books.** The brief tells the reveal chapter to *name X and state the act in a verb they own*; the
+model named X and did not state the act.
+
+So the reveal is not a v1 problem that v2 fixes. It is a defect of this pipeline's prose at every
+version, the instrument for it now exists and fires, and the lever is the brief.
+
+### §25.5 THE VARIANCE IS LARGE, WHICH IS THE ARGUMENT FOR THE SELECTOR
+
+Arm A is the SAME project, the same contract and the same inputs as §22.7's run eleven hours earlier.
+
+| | §22.7 | §25 arm A |
+|---|---|---|
+| words | 8,182 | 6,893 |
+| reveal | *"Nora Quayle engineered the murder…"* — ships | *"You mean Nora Quayle."* — **stops** |
+
+One draft, temperature 0.7, and the book swung 16% in length and from a clean reveal to an
+unshippable one. **This is exactly the lower tail §10.6 built the selector to cut, and every run so
+far has had `PROSE_V2_DRAFTS=1` and therefore no selection at all.** Best-of-three has still never
+been tested; on this evidence it is the next thing worth a paid run, and the first thing that could
+turn a floor into a consistent one.
+
+### §25.6 WHAT IS AND IS NOT SETTLED
+
+**Settled:** the engine writes complete books on projects it was not debugged on; four of five
+instruments improve every time; the fair-play gate fires on a real and recurring defect.
+
+**Not settled:** whether any of it is worth a mark — no read. And **nothing here tested the
+selector**, which is v2's main claim about consistency.
+
+**Two defects to fix before the next run, both in the brief, both £0:** the speech-open operation is
+ignored 3/3, and the reveal's "state the act in a verb they own" is half-complied with 2/3.
+
+
 
 
 
