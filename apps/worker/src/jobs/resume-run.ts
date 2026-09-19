@@ -227,8 +227,39 @@ async function main(): Promise<void> {
     persistArtifact,
   );
 
+  /**
+   * ── THE STAGE'S OWN TELEMETRY, ON THE PATH THAT MEASURES IT ───────────────────────────────────
+   *
+   * Agent 9 v2 reports itself through `ctx.warnings` — chapters written, the draft table, the
+   * selector's numbers, the gate's verdict. The canary path prints those as a `WARNINGS` line; THIS
+   * path printed nothing, so the engine's whole instrument panel was invisible on the one path the
+   * design names for matched pairs.
+   *
+   * MEASURED 2026-09-18: the first paid v2 run shipped a 2-of-10-chapter book, and its telemetry
+   * said so in a line nobody saw. The numbers had to be recovered afterwards from the prompt ledger
+   * and the stored artifact. A run that cannot report itself is a run that has to be re-read.
+   *
+   * Errors print too, and the chapter count prints LAST, because a rate means nothing until you know
+   * how much book it was measured over.
+   */
+  const telemetry = (result.warnings ?? []).filter((w) => /^\[Agent 9 v2\]/.test(String(w)));
+  if (telemetry.length > 0) {
+    console.log(`[resume-run] ── Agent 9 v2 ──`);
+    for (const line of telemetry) console.log(`  ${line.replace(/^\[Agent 9 v2\] /, "")}`);
+  }
+  for (const error of result.errors ?? []) console.log(`[resume-run] ERROR      : ${error}`);
+
   const storyDir = join(workspaceRoot, "stories", storyFolderName(new Date()));
   const { filePath } = saveReadableStory(result.prose, runId, storyDir, `Resumed ${runId}`);
+  const chapters = Array.isArray((result.prose as { chapters?: unknown[] })?.chapters)
+    ? (result.prose as { chapters: unknown[] }).chapters.length
+    : 0;
+  const words = String((result.prose as { chapters?: Array<{ paragraphs?: string[]; content?: string }> })?.chapters
+    ?.map((c) => (c.paragraphs ?? []).join(" ") || c.content || "")
+    .join(" ") ?? "")
+    .split(/\s+/)
+    .filter(Boolean).length;
+  console.log(`[resume-run] manuscript : ${chapters} chapter(s), ${words} words`);
   const mins = ((Date.now() - startedAt) / 60000).toFixed(1);
   console.log(`[resume-run] story      : ${filePath}`);
   console.log(`[resume-run] DONE in ${mins} min — skipped ${found.length} stage(s) that had survived.`);
