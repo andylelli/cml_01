@@ -27,6 +27,7 @@ import {
   buildEditorPrompt,
   buildTelemetryBlock,
   chooseDraft,
+  indexChapters,
   collectCheckerFindings,
   continueInstruction,
   parseCriticFindings,
@@ -123,7 +124,7 @@ const bookSoFar = (chapters: ProseChapterLike[], numbers: number[]): string => {
   const lines: string[] = ["THE BOOK SO FAR — every word of it, for continuity and for voice:"];
   chapters.forEach((chapter, index) => {
     lines.push("");
-    lines.push(`=== CHAPTER ${numbers[index]}: ${chapter.title} ===`);
+    lines.push(`=== CHAPTER ${chapter.number ?? numbers[index]}: ${chapter.title} ===`);
     for (const paragraph of chapter.paragraphs ?? []) lines.push(paragraph);
   });
   return lines.join("\n");
@@ -432,7 +433,10 @@ export const generateBookV2 = async (ctx: OrchestratorContext): Promise<V2Result
       const raw = await chat(critic, {
         system: "You find defects in a finished novella and quote them. You never write prose.",
         user: buildCriticPrompt({ chapters: written, core: contract, expected }),
-        maxTokens: 2_000,
+        // The critic reads a whole book and answers for every chapter; the editor gets 4,000 for ONE
+        // chapter. Four critic findings failed to anchor on the first full run and truncation was a
+        // candidate cause that nothing had separated from bad quoting. Cheap to rule out.
+        maxTokens: 6_000,
         label: roleLabel("critic"),
         ctx,
       });
@@ -444,11 +448,7 @@ export const generateBookV2 = async (ctx: OrchestratorContext): Promise<V2Result
     }
   }
 
-  const byChapter = new Map<number, ProseChapterLike>();
-  [...expected].sort((a, b) => a - b).forEach((chapter, index) => {
-    const chapterText = written[index];
-    if (chapterText) byChapter.set(chapter, chapterText);
-  });
+  const byChapter = indexChapters(written, expected);
   const { anchored, discarded } = anchorFindings([...checkerFindings, ...criticFindings], byChapter);
 
   // ── edits: two rounds, the second for fair play and defects only ───────────────────────────────
@@ -463,7 +463,11 @@ export const generateBookV2 = async (ctx: OrchestratorContext): Promise<V2Result
   let standing = anchored;
   for (const round of [1, 2]) {
     if (isDryRun() || standing.length === 0) break;
-    const forThisRound = round === 1 ? standing : standing.filter((f) => f.severity !== "craft");
+    // A `report` finding never reaches an editor: its repair is one the guards revert, so asking
+    // costs a call per chapter and buys a rollback. It stays in `standing` and reaches the gate's
+    // warnings, where a human can see it.
+    const repairable = standing.filter((f) => f.severity !== "report");
+    const forThisRound = round === 1 ? repairable : repairable.filter((f) => f.severity !== "craft");
     if (forThisRound.length === 0) break;
     const nextStanding: Finding[] = standing.filter((f) => !forThisRound.includes(f));
 
@@ -490,8 +494,10 @@ export const generateBookV2 = async (ctx: OrchestratorContext): Promise<V2Result
           findings,
         });
         byChapter.set(chapter, edited);
-        const index = [...expected].sort((a, b) => a - b).indexOf(chapter);
-        if (index >= 0 && written[index]) written[index] = edited;
+        // Write back by IDENTITY, not by position: `written` is missing any chapter the writer did
+        // not deliver, so the index of a chapter number in `expected` is not its index in `written`.
+        const index = written.findIndex((c) => c === chapterText);
+        if (index >= 0) written[index] = edited;
         editOutcomes.push(outcome);
         nextStanding.push(...outcome.unresolved);
       } catch (error) {

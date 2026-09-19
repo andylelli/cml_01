@@ -255,6 +255,8 @@ export const decisiveClueIds = (caseBlock: Record<string, unknown>, clues: unkno
  */
 export const buildContractCore = (input: ContractInput): ContractCore => {
   const notes: string[] = [];
+  /** Outline clue ids the clues artifact does not hold; reported once, not once per chapter. */
+  const unresolvableClueIds = new Set<string>();
   const caseBlock = unwrapCase(input.cml);
   const scenes = flattenScenes(input.outline);
   const clues = asArray(input.clues?.clues);
@@ -336,6 +338,25 @@ export const buildContractCore = (input: ContractInput): ContractCore => {
     const mustSurface: ClueSurface[] = [];
     const mayMention: ClueRef[] = [];
     for (const id of required) {
+      /**
+       * An obligation the clues artifact cannot explain is a CONTRACT defect, not a prose defect.
+       *
+       * MEASURED 2026-09-19 on seed 50862: 9 of 23 obligations were ids the OUTLINE invented and
+       * the clues artifact never held — `time_of_death`, `compass_casing_wear`,
+       * `clerk_ledger_testimony` and six more. `surfaceOf` gives each of them an empty observable
+       * and no key terms, so `checkHardGates` reported `clue_missing` for every one on every run
+       * (there is nothing to look for, so nothing can be found), the editor's prompt printed "the
+       * reader can use: " and stopped, and `clueCoverageNotWorse` guarded zero terms.
+       *
+       * Requiring prose to surface a clue nobody can describe is not a thing prose can do. It is
+       * recorded as a note — the run report's channel for what the derivation could not do — and
+       * left out of the obligations. This is `cml-outline-scene-join-never-resolved` surfacing in
+       * v2; the real repair is upstream, where the outline should name ids the clues artifact holds.
+       */
+      if (!clueById.has(id)) {
+        unresolvableClueIds.add(id);
+        continue;
+      }
       const owner = ownership.get(id);
       if (owner === undefined || owner === chapter) mustSurface.push(surfaceOf(id));
       else mayMention.push(refOf(id, owner));
@@ -472,6 +493,13 @@ export const buildContractCore = (input: ContractInput): ContractCore => {
       decisiveClueIds: decisive,
       revealChapter: roles.reveal,
     },
-    notes,
+    notes: unresolvableClueIds.size > 0
+      ? [
+          ...notes,
+          `${unresolvableClueIds.size} clue id(s) the outline requires are in no clues artifact and ` +
+            `carry no observable, so no prose could surface them; they are not required of any ` +
+            `chapter: ${[...unresolvableClueIds].sort().join(", ")}`,
+        ]
+      : notes,
   };
 };

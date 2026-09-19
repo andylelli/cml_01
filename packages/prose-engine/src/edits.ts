@@ -189,7 +189,18 @@ export const applyEditList = (
       continue;
     }
     const body = bodyOf(current);
-    if (countOccurrences(body, find) !== 1) {
+    /**
+     * The quote must occur once in the chapter AND live inside one paragraph.
+     *
+     * `bodyOf` joins paragraphs with a blank line and the replacement runs PER PARAGRAPH, so a
+     * `find` that spans a paragraph break passes a body-level uniqueness check and then matches no
+     * paragraph at all. MEASURED 2026-09-19: such an edit returned `applied: 1, skipped: 0,
+     * rolledBack: {}, unresolved: 0` with the text byte-identical — counted as a repair, marking its
+     * finding resolved, having changed nothing. Every `applied` and `unresolved` this engine has
+     * reported was measured with that ruler.
+     */
+    const paragraphsWithFind = (current.paragraphs ?? []).filter((p) => p.includes(find));
+    if (countOccurrences(body, find) !== 1 || paragraphsWithFind.length !== 1) {
       skipped += 1;
       continue;
     }
@@ -219,13 +230,23 @@ export const applyEditList = (
       continue;
     }
 
+    // Belt and braces: an edit that leaves the chapter byte-identical is not a repair, whatever
+    // route it took to get here. It is counted as skipped so the tally stays honest.
+    if (bodyOf(candidate) === body) {
+      skipped += 1;
+      continue;
+    }
+
     current = candidate;
     applied += 1;
     for (const index of edit.addresses ?? []) addressed.add(index);
   }
 
   const unresolved = options.findings.filter((_, index) => !addressed.has(index));
-  return { chapter: current, outcome: { applied, skipped, rolledBack, unresolved } };
+  const declined = (list.cannot ?? [])
+    .filter((c) => c.finding >= 0 && c.finding < options.findings.length && c.why)
+    .map((c) => ({ finding: c.finding, why: c.why }));
+  return { chapter: current, outcome: { applied, skipped, rolledBack, unresolved, declined } };
 };
 
 /**
@@ -321,5 +342,10 @@ export const summariseEdits = (outcomes: ReadonlyArray<EditOutcome>): string => 
     .map(([guard, count]) => `${guard} ${count}`)
     .join(", ");
   const unresolved = outcomes.reduce((n, o) => n + o.unresolved.length, 0);
-  return `applied ${applied}, skipped ${skipped} (no unique match), rolled back ${Object.values(rolled).reduce((a, b) => a + b, 0)}${rolledText ? ` [${rolledText}]` : ""}, unresolved ${unresolved}`;
+  const declined = outcomes.reduce((n, o) => n + (o.declined?.length ?? 0), 0);
+  return (
+    `applied ${applied}, skipped ${skipped} (no unique match), rolled back ` +
+    `${Object.values(rolled).reduce((a, b) => a + b, 0)}${rolledText ? ` [${rolledText}]` : ""}, ` +
+    `unresolved ${unresolved}${declined > 0 ? `, declined ${declined}` : ""}`
+  );
 };

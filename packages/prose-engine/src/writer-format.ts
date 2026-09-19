@@ -96,7 +96,7 @@ export const parseWriterOutput = (
     const paragraphs = toParagraphs(entry.body);
     if (paragraphs.length === 0) continue;
     seen.add(chapter);
-    chapters.push({ title: entry.title, paragraphs });
+    chapters.push({ title: entry.title, number: chapter, paragraphs });
   }
 
   const missing = wanted.filter((chapter) => !seen.has(chapter));

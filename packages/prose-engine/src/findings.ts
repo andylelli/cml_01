@@ -37,6 +37,7 @@ import {
 } from "@cml/prose-guard";
 import { extractClockValues } from "@cml/cml";
 
+import { indexChapters } from "./chapter-index.js";
 import { checkHardGates } from "./selector.js";
 import type {
   ContractCore,
@@ -53,7 +54,18 @@ export const SEVERITY: Record<FindingClass, FindingSeverity> = {
   clue_early: "fairplay",
   culprit_early: "fairplay",
   mechanism_early: "fairplay",
-  clock_off_table: "defect",
+  /**
+   * REPORT-ONLY. A `clock_off_table` finding asks for a clock value to change, and
+   * `clockValuesIntact` in `edits.ts` reverts any edit that changes a chapter's set of clock dials —
+   * the guard exists because a repetition pass once produced "froze at three past midnight past
+   * three". MEASURED 2026-09-19: replaying the obvious repair for all eleven of this class on a real
+   * book gave 11 attempted, 11 reverted, 11 by `clockValuesIntact`, and the run's own telemetry
+   * agreed from the other side.
+   *
+   * Sending it to the editor bought nothing and cost a call per chapter carrying one. It is reported
+   * so a human sees it, and no editor is asked to fix what the guards forbid.
+   */
+  clock_off_table: "report",
   name_collision: "defect",
   walk_on_named: "defect",
   pronoun_drift: "defect",
@@ -151,11 +163,7 @@ export const collectCheckerFindings = (
 ): Finding[] => {
   const out: Finding[] = [];
   const order = [...expected].sort((a, b) => a - b);
-  const byChapter = new Map<number, ProseChapterLike>();
-  order.forEach((chapter, index) => {
-    const written = chapters[index];
-    if (written) byChapter.set(chapter, written);
-  });
+  const byChapter = indexChapters(chapters, expected);
 
   // 1. the hard gates, restated as findings so one list reaches the editor.
   for (const hit of checkHardGates(chapters, core, expected, options.clueDistribution)) {
@@ -174,16 +182,38 @@ export const collectCheckerFindings = (
   }
 
   // 2. every clock value on the page is a row of the table (A_90 — the reader does this arithmetic).
-  const tableValues = core.chronology.rows.map((r) => r.value.toLowerCase());
-  if (tableValues.length > 0) {
+  //
+  // ── WHAT THIS CHECK GOT WRONG, MEASURED ───────────────────────────────────────────────────────
+  //
+  // It compared the prose against `row.value` only, with a plain `includes`. On
+  // `resume-1789805865810` that produced ELEVEN findings on a compliant book:
+  //
+  //   * the table holds `nine o'clock` with a STRAIGHT apostrophe and the prose writes `nine
+  //     o’clock` with a typographic one, so five findings were the same true time called
+  //     off-table;
+  //   * the numeric forms the prose uses — `eight fifty`, `nine fifteen`, `nine forty-five` — live
+  //     in the row's LABEL ("eight fifty to nine fifteen — Harriet cleaning rooms"), which was
+  //     never read.
+  //
+  // So the haystack is now value AND label, and both sides are normalised for the punctuation a
+  // typesetter changes and a reader does not notice.
+  const normaliseClock = (text: string): string =>
+    text
+      .toLowerCase()
+      .replace(/[\u2018\u2019\u02bc\u2032]/g, "'")
+      .replace(/[\u2013\u2014]/g, "-")
+      .replace(/\s+/g, " ")
+      .trim();
+  const tableText = core.chronology.rows.map((r) => normaliseClock(`${r.value} ${r.label}`));
+  if (tableText.length > 0) {
     for (const [chapter, written] of byChapter) {
       const body = bodyOf(written);
       const seen = new Set<string>();
       for (const value of extractClockValues(body)) {
-        const raw = value.raw.toLowerCase();
+        const raw = normaliseClock(value.raw);
         if (seen.has(raw)) continue;
         seen.add(raw);
-        if (tableValues.some((row) => row.includes(raw))) continue;
+        if (tableText.some((row) => row.includes(raw))) continue;
         out.push(
           finding(
             "clock_off_table",
@@ -239,21 +269,29 @@ export const collectCheckerFindings = (
   const density = repetitionDensity(whole);
   for (const worst of density.worst.slice(0, 5)) {
     if (worst.span.split(/\s+/).length < MIN_QUOTE_WORDS) continue;
+    // Both sides, not one. The `break` here reported only the FIRST chapter carrying a repeated
+    // span, so the editor repaired one copy and the other stood — and a repetition needs two places
+    // to be a repetition. Capped at three chapters so a stock phrase cannot flood the list.
+    let reported = 0;
     for (const chapter of order) {
+      if (reported >= 3) break;
       const body = bodyOf(byChapter.get(chapter));
       if (!body.toLowerCase().includes(worst.span)) continue;
       out.push(
         finding("repeat_passage", chapter, sentenceContaining(body, [worst.span]), `this book has used this run of words ${worst.count} times`),
       );
-      break;
+      reported += 1;
     }
   }
 
   // 6. the aftermath re-arguing the case — 8 of the last 16 reviews ask for chapter 10 to be trimmed.
   if (core.roles.aftermath !== null) {
     const body = bodyOf(byChapter.get(core.roles.aftermath));
+    // `because` was in this list and is an ordinary English word an aftermath uses for reasons that
+    // are not argument — "she left because the season was over". The markers kept are ones that only
+    // appear when a chapter is still PROVING something.
     const residue = sentencesOf(body).filter((s) =>
-      /\b(because|therefore|which proves|the evidence|alibi|timeline|could not have|ruled out)\b/i.test(s),
+      /\b(therefore|which proves|the evidence (?:shows|proves|placed|put)|alibi|timeline|could not have|ruled out)\b/i.test(s),
     );
     for (const sentence of residue.slice(0, 4)) {
       out.push(
@@ -339,8 +377,9 @@ export const buildCriticPrompt = (args: {
   lines.push("  Return JSON only: {\"findings\":[{\"class\":\"\",\"chapter\":0,\"quote\":\"\",\"note\":\"\"}]}");
   lines.push("");
   lines.push("THE BOOK");
-  order.forEach((chapter, index) => {
-    const written = args.chapters[index];
+  const bookByChapter = indexChapters(args.chapters, args.expected);
+  order.forEach((chapter) => {
+    const written = bookByChapter.get(chapter);
     if (!written) return;
     lines.push("");
     lines.push(`=== CHAPTER ${chapter}: ${written.title} ===`);

@@ -66,6 +66,8 @@ import {
   REGISTER_TELEMETRY_THRESHOLD,
 } from "@cml/prose-guard";
 import { chapterMentionsRequiredClue, tokenMatchesText } from "@cml/prompts-llm";
+import { indexChapters } from "./chapter-index.js";
+import { namesAsCulprit } from "./culprit.js";
 
 import type {
   ContractCore,
@@ -150,24 +152,29 @@ export const emDashPer1k = (chapters: ReadonlyArray<ProseChapterLike>): number =
 
 // ── hard gates ───────────────────────────────────────────────────────────────────────────────────
 
-/** Anything that names a character as the murderer. Deliberately narrow: an accusation, not a suspicion. */
-const namesAsCulprit = (text: string, culprit: string): boolean => {
-  if (!culprit) return false;
-  const escaped = culprit.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const surname = culprit.split(/\s+/).slice(-1)[0] ?? culprit;
-  const escapedSurname = surname.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const name = `(?:${escaped}|${escapedSurname})`;
-  return new RegExp(
-    `${name}[^.!?]{0,80}\\b(killed|murdered|poisoned|strangled|struck|is the (?:killer|murderer|culprit)|did it)\\b` +
-      `|\\b(killer|murderer|culprit) (?:is|was)[^.!?]{0,20}${name}` +
-      `|\\bI (?:killed|murdered|poisoned|strangled|struck)\\b[^.!?]{0,40}`,
-    "i",
-  ).test(text);
-};
+/**
+ * A scaffold token: an internal word that has no business on a page.
+ *
+ * TWO regexes, because the tokens fall into two kinds and one flag cannot serve both.
+ *
+ * `JARGON_RE` is case-insensitive: these are identifiers and phrases from our own artifacts that no
+ * Golden Age novelist writes — `clue_compass_tilt`, `prose_requirements`, "the discriminating test".
+ * Lowercased in prose they are still ours, so folding case is right.
+ *
+ * `MARKER_RE` is case-SENSITIVE, and that is the whole point. `CASE` and `CML` are the CML markers,
+ * and under `/i` they become the ordinary words *case* and *cml* — in a DETECTIVE NOVEL. MEASURED
+ * 2026-09-19 on `resume-1789805865810`: chapter 5's *"She retrieved her cigarette case"* was
+ * reported as generator scaffolding. Only one fired per chapter because `exec` takes the first
+ * match, which hid how often it was wrong. This is `domain-nouns-collide-with-validator-wordlists`
+ * on the most predictable noun in the genre, and the fix is the flag, not a list of exceptions.
+ */
+const JARGON_RE =
+  /\b(clue_[a-z0-9_]+|act_?\d+|scene_?\d+|sceneNumber|prose_requirements|hidden_model|discriminating[_ ]test|locked[_ ]fact)\b/i;
+const MARKER_RE = /\b(CASE|CML)\b/;
 
-/** A scaffold token: an internal word that has no business on a page. */
-const SCAFFOLD_RE =
-  /\b(clue_[a-z0-9_]+|act_?\d+|scene_?\d+|sceneNumber|prose_requirements|hidden_model|discriminating[_ ]test|locked[_ ]fact|CASE\b|cml\b)/i;
+/** The first scaffold token in a body, of either kind, or null. */
+const findScaffold = (body: string): string | null =>
+  JARGON_RE.exec(body)?.[0] ?? MARKER_RE.exec(body)?.[0] ?? null;
 
 export const checkHardGates = (
   chapters: ReadonlyArray<ProseChapterLike>,
@@ -176,11 +183,7 @@ export const checkHardGates = (
   clueDistribution?: { clues?: unknown[] },
 ): HardGateHit[] => {
   const hits: HardGateHit[] = [];
-  const byChapter = new Map<number, ProseChapterLike>();
-  [...expected].sort((a, b) => a - b).forEach((chapter, index) => {
-    const chapterText = chapters[index];
-    if (chapterText) byChapter.set(chapter, chapterText);
-  });
+  const byChapter = indexChapters(chapters, expected);
 
   for (const chapter of expected) {
     if (!byChapter.has(chapter)) hits.push({ kind: "chapter_missing", chapter, detail: "not in the draft" });
@@ -225,8 +228,8 @@ export const checkHardGates = (
       }
     }
 
-    const scaffold = SCAFFOLD_RE.exec(body);
-    if (scaffold) hits.push({ kind: "scaffold", chapter, detail: scaffold[0] });
+    const scaffold = findScaffold(body);
+    if (scaffold) hits.push({ kind: "scaffold", chapter, detail: scaffold });
   }
 
   return hits;

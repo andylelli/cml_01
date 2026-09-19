@@ -284,6 +284,15 @@ export interface ProseChapterLike {
   title: string;
   summary?: string;
   paragraphs: string[];
+  /**
+   * Which chapter this is, from the header the writer wrote.
+   *
+   * Set by `parseWriterOutput` and read through `indexChapters`. Six sites used to infer it from
+   * position, which misfiles the whole tail of a book the moment one chapter is missing — see
+   * `chapter-index.ts` for the measurement. Optional because prose written before this field
+   * existed does not carry it; never absent on anything v2 produced.
+   */
+  number?: number;
 }
 
 export interface Draft {
@@ -374,7 +383,14 @@ export const FINDING_CLASSES = [
 
 export type FindingClass = (typeof FINDING_CLASSES)[number];
 
-export type FindingSeverity = "fairplay" | "defect" | "craft";
+/**
+ * How the edit loop treats a finding.
+ *
+ * `report` is the fourth and it is not a weaker `craft`: it means NO editor is asked to repair this,
+ * because the guards would revert the repair. A class whose fix the engine forbids is a warning for
+ * a human, and pretending otherwise spends a call per chapter to roll back everything it buys.
+ */
+export type FindingSeverity = "fairplay" | "defect" | "craft" | "report";
 
 export interface Finding {
   class: FindingClass;
@@ -411,6 +427,14 @@ export type GuardName =
   | "lengthWithin";
 
 export interface EditOutcome {
+  /**
+   * Findings the editor declined, with its reason.
+   *
+   * It was parsed and dropped on the floor. This is the ONE channel by which the model tells us a
+   * finding is wrong — the cheapest possible signal that a checker is firing where it should not —
+   * and every run threw it away.
+   */
+  declined?: Array<{ finding: number; why: string }>;
   applied: number;
   skipped: number;
   rolledBack: Partial<Record<GuardName, number>>;
