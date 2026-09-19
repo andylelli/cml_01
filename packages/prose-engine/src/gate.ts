@@ -32,17 +32,51 @@ export interface GateVerdict {
 const bodyOf = (chapter: ProseChapterLike | undefined): string =>
   String((chapter?.paragraphs ?? []).join(" "));
 
-/** The same predicate the selector uses, so the gate and the selector cannot disagree (L6). */
+/**
+ * Is this text naming `culprit` as the murderer?
+ *
+ * The same predicate the selector uses, so the gate and the selector cannot disagree (L6). It is
+ * used in BOTH directions — the reveal chapter must satisfy it and every earlier chapter must not —
+ * which is why it is deliberately narrow: an accusation, never a suspicion. Widening it to catch a
+ * missed reveal also makes the early-naming gate fire on the middle of the book doing its job, so
+ * every addition below is a construction that cannot be said about a merely suspected person.
+ *
+ * ── WHY THE VERB LIST GREW ──────────────────────────────────────────────────────────────────────
+ *
+ * MEASURED 2026-09-19, run `resume-1789805865810`: the gate STOPPED a book whose reveal chapter
+ * says *"Nora Quayle engineered the murder, exploited the authority of the judge, and doctored the
+ * records to conceal the truth."* The verb is `engineered` and `murder` is a NOUN, so a list built
+ * from `killed|murdered|poisoned|strangled|struck` matched nothing. A ten-chapter, 8,182-word book
+ * that names its culprit in the reveal was recorded as a failed run.
+ *
+ * This project has paid for this exact shape before — the guilt marker with no blunt-force verb, the
+ * domain nouns colliding with a validator wordlist. A closed vocabulary that decides a PASS is a
+ * vocabulary that will be missing the next word the prose uses, so the two families below cover the
+ * construction (agent + guilt noun) rather than adding one more verb.
+ */
 const namesAsCulprit = (text: string, culprit: string): boolean => {
   if (!culprit) return false;
   const escape = (v: string) => v.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const surname = culprit.split(/\s+/).slice(-1)[0] ?? culprit;
   const name = `(?:${escape(culprit)}|${escape(surname)})`;
-  return new RegExp(
-    `${name}[^.!?]{0,80}\\b(killed|murdered|poisoned|strangled|struck|is the (?:killer|murderer|culprit)|did it)\\b` +
-      `|\\b(killer|murderer|culprit) (?:is|was)[^.!?]{0,20}${name}`,
-    "i",
-  ).test(text);
+  /** Doing the deed, named directly. */
+  const didIt = `${name}[^.!?]{0,80}\\b(?:killed|murdered|poisoned|strangled|struck|is the (?:killer|murderer|culprit)|did it)\\b`;
+  /** "the murderer was X" — the deed first, the name second. */
+  const wasThem = `\\b(?:killer|murderer|culprit) (?:is|was)[^.!?]{0,20}${name}`;
+  /**
+   * Agent + guilt NOUN: "X engineered the murder", "X carried out the killing". Every verb here is
+   * one of authorship, so none of them can be said of a suspect the detective is merely watching.
+   */
+  const authored =
+    `${name}[^.!?]{0,80}\\b(?:engineered|committed|carried out|planned|plotted|staged|arranged|` +
+    `contrived|orchestrated|devised|executed)\\b[^.!?]{0,20}\\b(?:murder|killing|crime|death)\\b`;
+  /** The deed, attributed: "the murder was the work of X", "the killing was committed by X". */
+  const attributed =
+    `\\b(?:murder|killing|crime)\\b[^.!?]{0,40}\\b(?:was|were)\\b[^.!?]{0,20}` +
+    `(?:committed by|the work of|done by)[^.!?]{0,20}${name}`;
+  /** A confession is an accusation the culprit makes about themselves. */
+  const confessed = `${name}[^.!?]{0,60}\\bconfess(?:ed|es|ion)\\b|\\bconfess(?:ed|es|ion)[^.!?]{0,40}${name}`;
+  return new RegExp([didIt, wasThem, authored, attributed, confessed].join("|"), "i").test(text);
 };
 
 export const applyGate = (args: {
