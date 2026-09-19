@@ -50,6 +50,7 @@ import { FINDING_CLASSES } from "./types.js";
 
 /** How each class is treated by the edit loop: round 1 takes everything, round 2 only the first two. */
 export const SEVERITY: Record<FindingClass, FindingSeverity> = {
+  reveal_unnamed: "fairplay",
   clue_missing: "fairplay",
   clue_early: "fairplay",
   culprit_early: "fairplay",
@@ -170,13 +171,15 @@ export const collectCheckerFindings = (
     const body = bodyOf(byChapter.get(hit.chapter));
     if (hit.kind === "chapter_missing") continue; // a missing chapter is a CONTINUE, not an edit
     const cls: FindingClass =
-      hit.kind === "clue_missing"
-        ? "clue_missing"
-        : hit.kind === "clue_early"
-          ? "clue_early"
-          : hit.kind === "culprit_early"
-            ? "culprit_early"
-            : "scaffold_token";
+      hit.kind === "reveal_unnamed"
+        ? "reveal_unnamed"
+        : hit.kind === "clue_missing"
+          ? "clue_missing"
+          : hit.kind === "clue_early"
+            ? "clue_early"
+            : hit.kind === "culprit_early"
+              ? "culprit_early"
+              : "scaffold_token";
     const needle = hit.detail.split(":").pop() ?? "";
     out.push(finding(cls, hit.chapter, sentenceContaining(body, [needle.trim(), hit.detail]), hit.detail));
   }

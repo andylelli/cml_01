@@ -263,10 +263,33 @@ async function main(): Promise<void> {
    * Errors print too, and the chapter count prints LAST, because a rate means nothing until you know
    * how much book it was measured over.
    */
-  const telemetry = (result.warnings ?? []).filter((w) => /^\[Agent 9 v2\]/.test(String(w)));
-  if (telemetry.length > 0) {
+  /**
+   * The block is `[Agent 9 v2] …` lines PLUS the indented rows that belong to them — the per-draft
+   * table is emitted as `  * draft 1: composite …`, with no prefix of its own.
+   *
+   * MEASURED 2026-09-19, `resume-1789846757984`: the first run with three drafts printed
+   * `segment 0 drafts:` and then nothing, because this filter kept only prefixed lines. The run was
+   * bought to see the spread between drafts, and the spread was the one thing it did not print. The
+   * numbers were recovered from the checkpoint afterwards; they should not have needed recovering.
+   */
+  const v2Lines: string[] = [];
+  let inBlock = false;
+  for (const raw of result.warnings ?? []) {
+    const line = String(raw);
+    if (/^\[Agent 9 v2\]/.test(line)) {
+      inBlock = true;
+      v2Lines.push(line);
+      continue;
+    }
+    if (inBlock && /^\s/.test(line)) {
+      v2Lines.push(line);
+      continue;
+    }
+    inBlock = false;
+  }
+  if (v2Lines.length > 0) {
     console.log(`[resume-run] ── Agent 9 v2 ──`);
-    for (const line of telemetry) console.log(`  ${line.replace(/^\[Agent 9 v2\] /, "")}`);
+    for (const line of v2Lines) console.log(`  ${line.replace(/^\[Agent 9 v2\] /, "")}`);
   }
   for (const error of result.errors ?? []) console.log(`[resume-run] ERROR      : ${error}`);
 

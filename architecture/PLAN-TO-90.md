@@ -2481,6 +2481,94 @@ selector**, which is v2's main claim about consistency.
 **Two defects to fix before the next run, both in the brief, both £0:** the speech-open operation is
 ignored 3/3, and the reveal's "state the act in a verb they own" is half-complied with 2/3.
 
+---
+
+## 26. THE FIRST BEST-OF-THREE RUN · 2026-09-19 · £0.32 · `resume-1789846757984`
+
+Seed 50862, the only fully controlled project, `PROSE_V2_DRAFTS=3` and nothing else changed. Two
+drafts=1 baselines existed for this exact contract: 8,182 words shipping, and 6,893 words stopping.
+
+### §26.1 THE DRAFTS ARE FAR APART — §10.6's CENTRAL CLAIM SURVIVES
+
+Three drafts of ONE contract, same prompt, temperature 0.7:
+
+| draft | composite | register | repetition | speech-open | wit | words |
+|---|---|---|---|---|---|---|
+| 1 | 24.49 | 0.0447 | 2.7 | 10% | 29.1 | 7,225 |
+| **2** | **27.19** | **0.0306** | **0.0** | **17%** | **33.9** | 6,485 |
+| 3 | 20.54 | 0.0734 | 14.1 | 10% | 28.0 | 6,783 |
+
+**Composite spread 20.5 → 27.2; register varies 2.4× between drafts of the same contract.** There is
+real variance to select from, which is the assumption the whole move rests on and had never been
+measured. **Prediction 1 HELD.**
+
+**Prediction 2 HELD:** the selector chose draft 2, not draft 1 — selection by composite, not by order.
+
+### §26.2 AND IT CHOSE A DRAFT THAT COULD NOT SHIP
+
+**The run STOPPED:** *no chapter at or after the reveal names Nora Quayle.* **Prediction 3 FAILED.**
+
+The checkpoint holds all three drafts, so the counterfactual is free:
+
+> **Draft 3 NAMES THE CULPRIT. Drafts 1 and 2 do not. The selector chose draft 2.**
+
+`applyGate` stops for a condition `checkHardGates` never checked. So the selector could not prefer a
+draft that ships, and — worse — **no editor was ever asked to repair the one defect that loses the
+whole run**, because it was not in the findings list either.
+
+**Fixed (`reveal_unnamed`, a hard-gate kind and a `fairplay` finding), and verified on this run's own
+three drafts at £0: the fixed selector chooses draft 3.**
+
+| | hard failures | of which `reveal_unnamed` | composite | |
+|---|---|---|---|---|
+| draft 1 | 7 | 1 | 24.49 | |
+| draft 2 | 4 | 1 | 27.19 | ← the run chose this |
+| draft 3 | **3** | **0** | 20.54 | ← **the fixed selector chooses this** |
+
+The lower tail the selector exists to cut was sitting in the draft set the whole time, and the
+instrument that ranks drafts was blind to the only thing that stops a run.
+
+### §26.3 THE COMPOSITE HAS NO LENGTH TERM, AND IT PICKED THE SHORTEST
+
+Drafts ran 7,225 / 6,485 / 6,783 words. **The selector took the shortest**, and the shipped manuscript
+came to 6,691 — the shortest book v2 has produced, against a contract asking 7,500–12,500.
+
+§22.5 recorded that the composite has no length term as a reason it was never wrong. Given three
+drafts that are all short, it is now a reason it makes the shortest choice available. Not yet fixed;
+the honest options are a floor (reject a draft below the contract's minimum) or a length term, and
+neither should be chosen without measuring which drafts a floor would have discarded.
+
+### §26.4 THE RUN COULD NOT PRINT ITS OWN ANSWER
+
+`segment 0 drafts:` printed, and then nothing. The per-draft rows are emitted as indented
+continuations with no `[Agent 9 v2]` prefix, and §22.6's telemetry filter — added in this session —
+kept only prefixed lines. **The run was bought to see the spread between drafts and the spread was
+the one thing it did not print.** Every number in §26.1 was recovered from the checkpoint afterwards.
+Fixed: the filter now keeps an indented row that follows a v2 line.
+
+### §26.5 WHAT THE §23 FIXES LOOK LIKE ON A LIVE RUN
+
+| | §22.7 (before) | this run |
+|---|---|---|
+| findings | `clue_missing 10, clock_off_table 11, clue_early 5, scaffold 3, register 14` | `register 9, clue_early 2, clue_missing 1` |
+| edits rolled back | **12** (10 of them `clockValuesIntact`) | **1** (`lengthWithin`) |
+| edits declined | not reported | **5**, with reasons |
+
+The repair stage now spends its calls on findings that are real and can be fixed. That was §23's
+claim and this is the first live run to show it.
+
+### §26.6 STATUS
+
+**Settled:** drafts of one contract differ enough to select between; the selector selects; and it was
+selecting on the wrong criterion, which is now fixed and verified against this run's own drafts.
+
+**Not settled:** whether best-of-three ships more often — that needs a run with the FIXED selector,
+which has not happened. And no read, so still no mark.
+
+**The next paid run is the same command again**, now that the selector can see the stop. If it ships,
+that is the lower tail cut, measured end to end.
+
+
 
 
 

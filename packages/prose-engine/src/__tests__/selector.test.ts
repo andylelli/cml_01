@@ -114,6 +114,10 @@ const CLEAN: ProseChapterLike[] = [
   chapter([
     "The ledger lay open at a fresh entry, the ink a shade darker than the rest, written at nine o'clock.",
     "Nora watched him read it and said nothing at all.",
+    // The reveal chapter of a CLEAN book names its culprit. It did not, and the hard gates did not
+    // notice, which is the defect `reveal_unnamed` was added for: the release gate stopped runs for
+    // a condition the selector could not see.
+    "Nora Quayle killed him, and the compass had been saying so for two days.",
   ]),
   chapter(["The promenade had been swept, and the kiosk was open again."]),
 ];

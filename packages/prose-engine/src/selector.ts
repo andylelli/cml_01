@@ -232,6 +232,33 @@ export const checkHardGates = (
     if (scaffold) hits.push({ kind: "scaffold", chapter, detail: scaffold });
   }
 
+  /**
+   * THE CONDITION THAT STOPS THE RUN MUST BE ONE THE SELECTOR CAN SEE.
+   *
+   * `applyGate` stops a book whose reveal never attributes the act. This function — which is what
+   * ranks drafts and what feeds the editor — did not check it, so two things followed: the selector
+   * could not prefer a draft that shipped, and no editor was ever asked to repair the one defect
+   * that loses the whole run.
+   *
+   * MEASURED, `resume-1789846757984`: three drafts of one contract, draft 3 named the culprit and
+   * drafts 1 and 2 did not. The selector chose draft 2 on composite. The run stopped.
+   */
+  const culprits = core.fairPlay.culprits;
+  if (culprits.length > 0) {
+    const atOrAfterReveal = [...expected]
+      .sort((a, b) => a - b)
+      .filter((c) => c >= core.roles.reveal)
+      .map((c) => (byChapter.get(c)?.paragraphs ?? []).join(" "))
+      .join(" ");
+    if (atOrAfterReveal.trim() && !culprits.some((c) => namesAsCulprit(atOrAfterReveal, c))) {
+      hits.push({
+        kind: "reveal_unnamed",
+        chapter: core.roles.reveal,
+        detail: `${culprits.join(", ")} is never named as the murderer at or after chapter ${core.roles.reveal}`,
+      });
+    }
+  }
+
   return hits;
 };
 

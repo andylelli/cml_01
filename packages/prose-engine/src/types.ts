@@ -315,7 +315,7 @@ export type HardGateKind =
   | "clue_early"
   | "clue_id_in_prose"
   | "scaffold"
-  | "absent_character";
+  | "absent_character" | "reveal_unnamed";
 
 export interface HardGateHit {
   kind: HardGateKind;
@@ -352,6 +352,16 @@ export interface DraftScore {
 
 export const FINDING_CLASSES = [
   // checkers — anchored by construction, because they quote what they matched
+  /**
+   * The reveal never attributes the act to the culprit.
+   *
+   * The release gate has always stopped for this; the SELECTOR never checked it, so it could
+   * not prefer a draft that satisfied it, and no editor was ever asked to repair it. MEASURED
+   * 2026-09-19, run `resume-1789846757984`: of three drafts of one contract, draft 3 named the
+   * culprit and drafts 1 and 2 did not — and the selector chose draft 2, on composite, because
+   * the condition that stops the run was invisible to it.
+   */
+  "reveal_unnamed",
   "clue_missing",
   "clue_early",
   "culprit_early",
