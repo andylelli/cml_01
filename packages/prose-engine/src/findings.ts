@@ -170,6 +170,7 @@ export const collectCheckerFindings = (
   for (const hit of checkHardGates(chapters, core, expected, options.clueDistribution)) {
     const body = bodyOf(byChapter.get(hit.chapter));
     if (hit.kind === "chapter_missing") continue; // a missing chapter is a CONTINUE, not an edit
+    if (hit.kind === "book_short") continue; // a short book is a WRITER problem; no edit lengthens it
     const cls: FindingClass =
       hit.kind === "reveal_unnamed"
         ? "reveal_unnamed"

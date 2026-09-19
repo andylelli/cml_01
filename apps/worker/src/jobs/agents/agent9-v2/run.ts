@@ -27,6 +27,7 @@ import {
   buildEditorPrompt,
   buildTelemetryBlock,
   chooseDraft,
+  fullParagraphs,
   indexChapters,
   collectCheckerFindings,
   continueInstruction,
@@ -35,6 +36,7 @@ import {
   parseWriterOutput,
   planSegments,
   priorChapters,
+  revealOperation,
   scoreDraft,
   writerFormatInstruction,
   type BookContract,
@@ -131,7 +133,7 @@ const bookSoFar = (chapters: ProseChapterLike[], numbers: number[]): string => {
 };
 
 /** One chapter's contract, as the writer reads it. Countable obligations, no prohibitions beyond the withheld. */
-const renderSceneContract = (contract: BookContract, chapter: number): string => {
+export const renderSceneContract = (contract: BookContract, chapter: number): string => {
   const scene = contract.scenes.find((s) => s.chapter === chapter);
   if (!scene) return "";
   const lines: string[] = [];
@@ -180,7 +182,16 @@ const renderSceneContract = (contract: BookContract, chapter: number): string =>
     if (scene.aftermath.consequenceFor) lines.push(`  Whose life this shows changed: ${scene.aftermath.consequenceFor}.`);
     if (scene.aftermath.repairTarget) lines.push(`  One thing outside a person put right: ${scene.aftermath.repairTarget}.`);
   }
-  lines.push(`  About ${scene.words.preferred} words.`);
+  /**
+   * The two operations the first four v2 books missed, restated where the writing happens. The
+   * brief says both once for the whole book; a continuation writing chapter 9 has that brief twenty
+   * thousand tokens behind it and this contract directly in front. Em-dashes proved the brief is
+   * read; these two are the ones that need saying twice.
+   */
+  if (scene.role === "reveal") lines.push(`  ${revealOperation(contract)}`);
+  lines.push(
+    `  At least ${fullParagraphs(scene.words.preferred)} paragraphs here run to four sentences or more, for about ${scene.words.preferred} words.`,
+  );
   return lines.join("\n");
 };
 

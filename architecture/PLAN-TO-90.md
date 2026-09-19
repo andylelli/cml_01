@@ -2568,6 +2568,74 @@ which has not happened. And no read, so still no mark.
 **The next paid run is the same command again**, now that the selector can see the stop. If it ships,
 that is the lower tail cut, measured end to end.
 
+---
+
+## 27. WHY v2 MISSED ITS OWN OPERATIONS, AND THE FIX · 2026-09-19 · £0
+
+Four v2 books, three failures the instruments agreed on: the reveal never attributes the act, the
+speech-open share halves, the books run 23–33% short. §25 called them "the compliance law". This
+section measured WHICH law, per chapter, across the three drafts of `resume-1789846757984`.
+
+### §27.1 THE BRIEF IS READ — THE FAILURES ARE THE AMBIGUOUS ASK AND THE STATISTIC
+
+| operation | asked as | draft 1 | draft 2 | draft 3 | v1 |
+|---|---|---|---|---|---|
+| em-dashes | "at least three" | **6.3** | **7.9** | **8.2** | 4.2 |
+| sentences past 30 words | "at least four" | 4.8 | 2.7 | 2.7 | 1.5 |
+| speech-opening paragraphs | "open on a line somebody speaks" | 1.5 | 2.8 | 1.7 | 1.2 |
+| words | "about 1000" | 722 | 648 | 678 | 896 |
+| paragraphs | not asked | **14.5** | **16.9** | **16.2** | 6.9 |
+| words per paragraph | not asked | **49** | **39** | **42** | **130** |
+
+**Em-dashes arrived at twice the ask.** So the brief is read, and distance from the writing is not
+the mechanism — the first hypothesis, refuted by the first row. What failed:
+
+- **"open on a line somebody speaks" is ambiguous.** A paragraph that runs *Bertram turned. "You hold
+  it flat," he said.* was being counted. The operation now names the first character.
+- **"about 1000 words" is a statistic.** What the model delivers reliably is paragraphs — 14 to 17 a
+  chapter, every draft. They were thin: 39–49 words against v1's 130. The words went there.
+- **The speech-open SHARE regression is mostly this.** v2 has the same number of speech openings as
+  v1 (1.5–2.8 against 1.2) and three times the paragraphs, so the share halves. Fix the paragraphs
+  and the share follows.
+- **"states the act in a verb they own" is an abstraction.** The model complied with "names X" and
+  not with the abstraction, 3 books in 4.
+
+### §27.2 THE FIX — SHAPES, NOT ABSTRACTIONS, AND SAID WHERE THE WRITING HAPPENS
+
+| | was | is |
+|---|---|---|
+| speech openings | *open on a line somebody speaks* | *begin with a spoken line: the first character of the paragraph is the opening quotation mark* |
+| length | *Each chapter runs to about 1000 words* | ***At least 12 paragraphs in each chapter run to four sentences or more.*** *That is what brings a chapter to its 1000 words* — `fullParagraphs(preferred)`, derived, one number for brief and contract |
+| the reveal | *names X, states the act in a verb they own* | *carries one sentence, spoken aloud by the person who worked it out, that states as settled fact that **Nora Quayle killed Montague Gaunt**: the culprit's name and a verb of killing in the same sentence* |
+
+The reveal and length operations are now ALSO on each chapter's own contract (`renderSceneContract`),
+the text nearest a continuation that is writing chapter 9 with the brief twenty thousand tokens
+behind it. Speech openings stay in the brief alone, so the next run tests the wording hypothesis
+cleanly against the em-dash precedent.
+
+**And the selector gained a length term it can defend:** ONE `book_short` hard hit when a complete
+draft is under the contract minimum — not one per chapter, which would let length outrank every
+instrument that predicts the score. It reaches no editor, because no edit lengthens a book.
+
+### §27.3 THE £0 CHECKS
+
+1. **The prompt, rebuilt for seed 50862:** chapter 9's contract now ends with the reveal sentence
+   and the paragraph operation; every chapter carries the paragraph operation; the brief is 707
+   tokens and passes its own law (no prohibition, no rate, no example).
+2. **The selector, replayed over the three saved drafts:** still chooses draft 3. `book_short` lands
+   on all three (7,225 / 6,485 / 6,783 against 7,500), so it changes nothing here, exactly as it
+   should — it discriminates only once a draft clears the floor.
+3. **The corpus, replayed:** 31 of 51 ship, 20 stop, 222 orphans — the judgement side is unchanged.
+
+Tests: 1030 passed, 14 new. Every one a shape the drafts actually delivered.
+
+### §27.4 WHAT THIS DOES NOT SETTLE
+
+Whether the model complies with the new wording. The em-dash row is the reason to expect it; the
+speech-open row is the reason to check. **One paid run, same command as §26, settles all three
+operations and the selector at once — and if it ships, it is the first v2 book worth a reader.**
+
+
 
 
 

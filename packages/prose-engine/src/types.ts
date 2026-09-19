@@ -315,7 +315,7 @@ export type HardGateKind =
   | "clue_early"
   | "clue_id_in_prose"
   | "scaffold"
-  | "absent_character" | "reveal_unnamed";
+  | "absent_character" | "reveal_unnamed" | "book_short";
 
 export interface HardGateHit {
   kind: HardGateKind;

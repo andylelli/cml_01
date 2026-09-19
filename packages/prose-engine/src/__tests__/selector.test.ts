@@ -124,7 +124,9 @@ const CLEAN: ProseChapterLike[] = [
 
 describe("the hard gates fire on a real defect and not on clean prose", () => {
   it("clean prose trips nothing", () => {
-    const hits = checkHardGates(CLEAN, core, [1, 2, 3]);
+    // `book_short` is excluded here only because CLEAN is a three-paragraph toy, not a book; the
+    // length hit is pinned against real numbers in operations.test.ts.
+    const hits = checkHardGates(CLEAN, core, [1, 2, 3]).filter((h) => h.kind !== "book_short");
     expect(hits, JSON.stringify(hits)).toEqual([]);
   });
 

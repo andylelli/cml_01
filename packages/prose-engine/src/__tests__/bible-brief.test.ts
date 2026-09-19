@@ -122,7 +122,7 @@ describe("the brief's law", () => {
   it("every ask is a countable act, and the counts are the canon gap", () => {
     const brief = buildBrief({ core, profiles, humourLevel: "classic" });
     const page = brief.asks.filter((a) => a.section === "page").map((a) => a.line);
-    expect(page.join(" ")).toMatch(/6 paragraphs in each chapter open on a line somebody speaks/);
+    expect(page.join(" ")).toMatch(/6 paragraphs in each chapter begin with a spoken line: the first character of the paragraph is the opening quotation mark/);
     expect(page.join(" ")).toMatch(/at least four sentences/i);
     expect(page.join(" ")).toMatch(/at least three em-dashes/i);
   });
@@ -136,7 +136,7 @@ describe("the brief's law", () => {
 
   it("names the reveal chapter and what it owes", () => {
     const brief = buildBrief({ core, profiles, humourLevel: "classic" });
-    expect(brief.text).toMatch(/Chapter 2 names Agatha Innes/);
+    expect(brief.text).toMatch(/Chapter 2 carries one sentence[^]*?Agatha Innes killed/);
   });
 
   it("gives every character a register, including the one who is not funny", () => {

@@ -243,6 +243,24 @@ export const checkHardGates = (
    * MEASURED, `resume-1789846757984`: three drafts of one contract, draft 3 named the culprit and
    * drafts 1 and 2 did not. The selector chose draft 2 on composite. The run stopped.
    */
+  /**
+   * ONE hit, at book level, when the draft is under the contract's minimum.
+   *
+   * The composite has no length term — recorded in §22.5 as a reason it was never wrong — and on
+   * the first best-of-three run it chose the SHORTEST of three drafts (6,485 of 7,225 / 6,485 /
+   * 6,783) against a minimum of 7,500. One hit rather than one per short chapter, so a draft that
+   * meets the floor beats any that does not, and among drafts that all miss it the composite still
+   * decides; ten hits would let a chapter's length outrank every instrument that predicts the score.
+   * It reaches no editor (`collectCheckerFindings` skips it): an editor cannot lengthen a book.
+   */
+  const bookWords = [...byChapter.values()].reduce(
+    (n, c) => n + (c.paragraphs ?? []).join(" ").split(/\s+/).filter(Boolean).length,
+    0,
+  );
+  if (byChapter.size === expected.length && bookWords < core.book.words.min) {
+    hits.push({ kind: "book_short", chapter: 0, detail: `${bookWords} words against a minimum of ${core.book.words.min}` });
+  }
+
   const culprits = core.fairPlay.culprits;
   if (culprits.length > 0) {
     const atOrAfterReveal = [...expected]

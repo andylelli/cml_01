@@ -15,6 +15,7 @@
  */
 import { afterEach, describe, expect, it } from "vitest";
 import { existsSync, readFileSync } from "node:fs";
+import { randomUUID } from "node:crypto";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -144,6 +145,13 @@ const refusesToContinue = (calls: Call[]) => ({
  * test's book and never calls the writer. That is not a test artefact — it is the production defect
  * this file pins, met in the test harness first.
  */
+/**
+ * Per RUN, not per pid: Windows reuses pids and the contract hash is stable for one archived project,
+ * so `<pid>-<seq>` collided with a file an earlier run of this same test left in tmpdir, restored
+ * that run's book, and made zero writer calls — the production defect this file pins, met a second
+ * time in its own harness.
+ */
+const RUN_ID = randomUUID();
 let checkpointSeq = 0;
 
 const contextWith = (client: unknown): OrchestratorContext =>
@@ -154,7 +162,7 @@ const contextWith = (client: unknown): OrchestratorContext =>
       humourLevel: "classic",
       agent9CheckpointPath: join(
         tmpdir(),
-        `cml-v2-checkpoint-${process.pid}-${(checkpointSeq += 1)}.json`,
+        `cml-v2-checkpoint-${RUN_ID}-${(checkpointSeq += 1)}.json`,
       ),
     },
     runId: "continuation",

@@ -68,6 +68,33 @@ const text = (value: unknown): string => String(value ?? "").replace(/\s+/g, " "
 /** How many paragraphs open on speech, by band. The canon opens three in five. */
 const speechOpenings = (level: string): number => (level === "none" || level === "dry" ? 4 : 6);
 
+/**
+ * How many paragraphs of four or more sentences bring a chapter to its target. At the sentence
+ * lengths this pipeline writes, a four-sentence paragraph is ~80 words, so a 1,000-word chapter is
+ * twelve of them plus whatever else the scene needs. Exported so the per-chapter contract states the
+ * same number the brief does (L6).
+ */
+export const fullParagraphs = (preferredWords: number): number => Math.max(6, Math.round(preferredWords / 85));
+
+/**
+ * The one sentence a mystery owes its reader, stated so it can be counted.
+ *
+ * It read *"names X, states the act in a verb they own, and closes in the scene"* and the model
+ * complied with the first clause and not the second: *"You mean Nora Quayle."* — *"the only person
+ * who could advance the clock … was Agatha Innes"*. Three of four v2 books, and §24 measured the
+ * same defect in 35% of v1's. "The act" and "a verb they own" are abstractions; a name, a verb of
+ * killing and the victim in one sentence is a shape. Stated once here and again on the reveal
+ * chapter's own contract, which is the text nearest the writing (L6: one function, two readers).
+ */
+export const revealOperation = (core: ContractCore): string => {
+  const culprit = core.fairPlay.culprits.join(", ") || "the culprit";
+  const victim = core.fairPlay.victim || "the victim";
+  return (
+    `Chapter ${core.roles.reveal} carries one sentence, spoken aloud by the person who worked it out, that states as settled fact that ${culprit} killed ${victim}: ` +
+    `the culprit's name and a verb of killing in the same sentence. The chapter closes in the scene.`
+  );
+};
+
 export const buildBrief = (input: BriefInput): Brief => {
   const { core } = input;
   const level = text(input.humourLevel).toLowerCase() || "classic";
@@ -121,7 +148,17 @@ export const buildBrief = (input: BriefInput): Brief => {
 
   // ── the page ───────────────────────────────────────────────────────────────────────────────────
   const openings = speechOpenings(level);
-  add("page", `${openings} paragraphs in each chapter open on a line somebody speaks.`);
+  /**
+   * MEASURED 2026-09-19 over three drafts of one contract: em-dashes, asked as "at least three",
+   * arrived at 6-8 a chapter; this line, asked as "open on a line somebody speaks", arrived at
+   * 1.5-2.8 against 6. The brief is read. The wording was ambiguous — a paragraph that runs
+   * `Bertram turned. "You hold it flat," he said.` was being counted as opening on speech. So the
+   * operation now names the first character.
+   */
+  add(
+    "page",
+    `${openings} paragraphs in each chapter begin with a spoken line: the first character of the paragraph is the opening quotation mark, and the speech comes before any narration.`,
+  );
   add("page", "At least four sentences in each chapter run past thirty words, because the thought they carry is that long.");
   add("page", "At least three em-dashes in each chapter, where a sentence turns on itself.");
   add(
@@ -150,10 +187,7 @@ export const buildBrief = (input: BriefInput): Brief => {
       `In chapter ${dt} a named witness first says what they believe, then the test is performed on the page by named people, and only after it is watched does anyone say how it works.`,
     );
   }
-  add(
-    "tests",
-    `Chapter ${core.roles.reveal} names ${core.fairPlay.culprits.join(", ") || "the culprit"}, states the act in a verb they own, and closes in the scene.`,
-  );
+  add("tests", revealOperation(core));
   if (core.roles.aftermath !== null) {
     const aftermath = core.scenes.find((s) => s.chapter === core.roles.aftermath)?.aftermath;
     add(
@@ -174,7 +208,17 @@ export const buildBrief = (input: BriefInput): Brief => {
 
   // ── length ─────────────────────────────────────────────────────────────────────────────────────
   const preferred = core.scenes[0]?.words.preferred ?? 1_000;
-  add("length", `Each chapter runs to about ${preferred} words. The book runs to ${core.book.words.min}-${core.book.words.max}.`);
+  /**
+   * "About 1,000 words" is a STATISTIC and this model does not comply with those — three drafts
+   * delivered 648, 678 and 722. What it does deliver is paragraphs: 14-17 a chapter, every time. They
+   * were thin (39-49 words each, against v1's 130), which is where the words went. So the ask is the
+   * countable thing that fixes it: paragraphs of substance. The word figure stays as the target it
+   * describes.
+   */
+  add(
+    "length",
+    `At least ${fullParagraphs(preferred)} paragraphs in each chapter run to four sentences or more. That is what brings a chapter to its ${preferred} words, and the book to ${core.book.words.min}-${core.book.words.max}.`,
+  );
 
   const bySection = new Map<BriefAsk["section"], string[]>();
   for (const ask of asks) bySection.set(ask.section, [...(bySection.get(ask.section) ?? []), ask.line]);
