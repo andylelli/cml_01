@@ -46,13 +46,53 @@ export const applyGate = (args: {
   const order = [...args.expected].sort((a, b) => a - b);
   const byChapter = indexChapters(args.chapters, args.expected);
 
-  // 1. the culprit is named where the contract says they are named.
-  const revealBody = bodyOf(byChapter.get(args.core.roles.reveal));
-  const named = args.core.fairPlay.culprits.filter((c) => namesAsCulprit(revealBody, c));
-  if (args.core.fairPlay.culprits.length > 0 && named.length === 0) {
-    stops.push(
-      `the reveal chapter (${args.core.roles.reveal}) never names ${args.core.fairPlay.culprits.join(", ")} as the murderer`,
-    );
+  /**
+   * 1. THE READER IS TOLD WHO DID IT.
+   *
+   * ── WHY THIS STOP IS BOOK-LEVEL AND NOT CHAPTER-LEVEL ─────────────────────────────────────────
+   *
+   * It used to require the naming in exactly `roles.reveal`. MEASURED 2026-09-19 by replaying this
+   * gate over all 51 archived books v1 SHIPPED: **it stopped 44 of them**, every one for this reason.
+   * A hard fair-play guarantee that fires on 86% of shipped books is not a guarantee.
+   *
+   * The diagnosis split in two, and only one half was the gate's business:
+   *
+   *   18 books name the culprit SOMEWHERE ELSE, and in 16 of those it is exactly one chapter later
+   *      than this contract's reveal. Those books were written to a different plan, and naming the
+   *      culprit a chapter later than planned is a contract mismatch, not a breach of fair play.
+   *      It is a WARNING.
+   *   26 books name the culprit NOWHERE by any construction. Two constructions out of that set were
+   *      real accusations the predicate could not see (`was responsible`, the arrest) and are now in
+   *      `culprit.ts`. What remains after that is a book that never attributes the act to anybody —
+   *      the "X22 wall" recorded in `guilt-marker-has-no-blunt-force-verb`. That IS the breach this
+   *      stop exists for, and it should be rare.
+   *
+   * So: the stop is "named nowhere at or after the reveal", which is the property a reader would
+   * actually complain about, and §10.9's rule decides the rest — a book that exists is worth more
+   * than a book that would have been slightly better.
+   */
+  const culprits = args.core.fairPlay.culprits;
+  if (culprits.length > 0) {
+    const revealBody = bodyOf(byChapter.get(args.core.roles.reveal));
+    const namedInReveal = culprits.filter((c) => namesAsCulprit(revealBody, c));
+    const laterBody = order
+      .filter((c) => c > args.core.roles.reveal)
+      .map((c) => bodyOf(byChapter.get(c)))
+      .join(" ");
+    const namedLater = culprits.filter((c) => namesAsCulprit(laterBody, c));
+    const namedAnywhere = new Set([...namedInReveal, ...namedLater]);
+
+    if (namedAnywhere.size === 0) {
+      stops.push(
+        `no chapter at or after the reveal (${args.core.roles.reveal}) names ` +
+          `${culprits.join(", ")} as the murderer — the reader is never told who did it`,
+      );
+    } else if (namedInReveal.length === 0) {
+      warnings.push(
+        `the culprit is named after the reveal chapter (${args.core.roles.reveal}), not in it — ` +
+          `the book resolves later than the contract planned`,
+      );
+    }
   }
 
   // 2. every decisive clue is on a page before the reveal.

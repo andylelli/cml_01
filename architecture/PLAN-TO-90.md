@@ -2287,6 +2287,102 @@ remains a floor.
 Nothing here has been run against a paid LLM. Every number above is from replaying the fixed code
 over the manuscript `resume-1789805865810` already produced, at £0.
 
+---
+
+## 24. v2's JUDGEMENT REPLAYED OVER 51 SHIPPED v1 BOOKS · 2026-09-19 · £0
+
+v2's contract, checkers, hard gates, release gate and instruments are pure — no LLM — so they run
+over every archived project for nothing. 51 projects hold every artifact v2 needs **plus v1's own
+prose**, which makes this the test §23 could not be: the fixes measured at corpus scale rather than
+on the one book that found them.
+
+**Read the confound first.** These books were written to v1's plan, not to v2's contract. Where v2
+says "the reveal is chapter 9" and the book resolves in chapter 10, the book is not wrong — it was
+never told. Anything below that compares the BOOK to the CONTRACT is a mismatch and is labelled as
+one; only what compares the book to itself is a defect.
+
+### §24.1 THE GATE STOPPED 44 OF 51 BOOKS v1 SHIPPED
+
+MEASURED, before any change: **44 of 51**, every one of them for *"the culprit is never named as the
+murderer in the reveal chapter"*. A hard fair-play guarantee that fires on 86% of shipped books is
+B1's off switch wearing a guarantee's authority.
+
+The diagnosis split cleanly, and only one half was the gate's business:
+
+| | books | cause |
+|---|---|---|
+| named in the reveal chapter | 7 | fine |
+| named SOMEWHERE ELSE | 18 | **16 of them exactly one chapter later** — the contract mismatch above, not a breach |
+| named NOWHERE, by any construction | 26 | either the predicate is blind, or the book never says it |
+
+**Both halves were real.** Harvesting what those 26 books actually say, rather than guessing a third
+time at verbs:
+
+- **8 of 26 end on an ARREST and nothing else** — a constable comes, the culprit is led away, and no
+  sentence ever attributes the act;
+- **3 of 26 say "X was responsible"** and nothing stronger — *"Captain Ivor Hale was responsible; the
+  evidence allowed no other reading."*
+
+Both are accusations. Both are now in `culprit.ts`, chosen from the corpus rather than imagined.
+
+### §24.2 AND THE STOP IS NOW BOOK-LEVEL
+
+Naming the culprit a chapter later than the contract planned is a contract mismatch; never naming
+them is the breach. So the stop became *"no chapter at or after the reveal names the culprit"* and
+the chapter mismatch became a WARNING — which is §10.9's own rule applied to its own gate.
+
+**Result: 44 stops → 20. Ship 14% → 61%.**
+
+### §24.3 WHAT THE REMAINING 20 ARE, AND WHY THEY SHOULD STOP
+
+18 of the 20 name their culprit NOWHERE in the book by any of seven constructions; 2 name them only
+BEFORE the reveal. Spot-checked, and the example is the finding:
+
+> `canary_1785694688532`, chapter 9, **titled "The Culprit Revealed"**. Every sentence naming Hugo
+> Vane in that chapter, in full — the strongest is:
+>
+> *"'Finding this here,' she said, 'means Hugo Vane must have been near the clock when it was set
+> back to a quarter past ten.'"*
+
+**That is placement, not attribution.** A reader finishing the chapter called "The Culprit Revealed"
+has been told the culprit was *near the clock*. The book never says he killed anybody.
+
+**MEASURED: 18 of 51 archived books — 35% — never attribute the murder to anybody in plain words.**
+This is the "X22 wall" recorded in `guilt-marker-has-no-blunt-force-verb` ("Ch8's disclosure is
+genuinely implicit — no sentence in it attributes the act"), and it is now a corpus figure rather
+than one chapter's anecdote. It is a real fair-play defect in a third of what this pipeline has
+shipped, and it is exactly what v2's brief instructs the reveal chapter to do instead: *name X, state
+the act in a verb they own*.
+
+### §24.4 EVERYTHING ELSE THE REPLAY MEASURED
+
+| | over 51 books | reading |
+|---|---|---|
+| contracts built | **51 of 51, none threw** | the derivation is robust on real artifacts |
+| chapter-count mismatch | **0** | the contract's chapter count matches the prose everywhere |
+| orphan clue obligations | **222 excluded, across 40 of 51 books**, median 5 | §23.2 is not one book's accident — it is the norm |
+| `scaffold_token` | **3 in 51 books** | was ~1 per book before the `/i` fix |
+| `clock_off_table` | 4.4 per book | down from 11 on one book; what remains is v1 stating times off its own table |
+| `copied_sentence` | 6.2 per book | genuine, and the repetition instrument agrees |
+| `register_sentence` | **57.6 per book** | at the 8-per-chapter cap for most chapters |
+| `clue_early` | **25.8 per book** | mismatch, not defect — see the confound |
+
+**Two numbers deserve their own item.** `register_sentence` at 57.6 a book means the editor is handed
+roughly sixty craft findings per run, which is more calls than the design costed; and `clue_early` at
+25.8 is almost certainly the confound rather than a defect, but nothing has separated the two. Both
+are cheap to settle and neither is settled here.
+
+### §24.5 WHAT THIS DOES AND DOES NOT SETTLE
+
+**Settled:** the contract builds on every real project; the §23 fixes hold at 51× the evidence; v2's
+one hard gate now stops 20 books instead of 44, and the 20 are books that genuinely never tell the
+reader who did it.
+
+**Not settled, and not settleable this way:** whether v2 WRITES a better book. Every word of prose
+here is v1's. The writer, the critic and the editor need LLM calls, so the only test of v2's prose is
+a paid run — and the matched pair in §22.7 remains the only one.
+
+
 
 
 

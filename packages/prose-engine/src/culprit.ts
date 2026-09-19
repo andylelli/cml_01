@@ -56,6 +56,32 @@ export const namesAsCulprit = (text: string, culprit: string): boolean => {
     `(?:committed by|the work of|done by)[^.!?]{0,20}${name}`;
   /** A confession is an accusation the culprit makes about themselves. */
   const confessed = `${name}[^.!?]{0,60}\\bconfess(?:ed|es|ion)\\b|\\bconfess(?:ed|es|ion)[^.!?]{0,40}${name}`;
+  /**
+   * "X was responsible", "responsible for the murder ... X".
+   *
+   * MEASURED over the 26 archived books this predicate found NOTHING in: 3 of them say exactly this
+   * and nothing stronger — *"Captain Ivor Hale was responsible; the evidence allowed no other
+   * reading."* It is an attribution of the act, not a suspicion.
+   */
+  const responsible =
+    // "was responsible" with nothing after it, or followed by the deed — never "responsible for the
+    // linen", which is a duty roster and was the first false positive this clause produced.
+    `${name}[^.!?]{0,60}\\b(?:was|is|had been)\\s+guilty\\b` +
+    `|${name}[^.!?]{0,60}\\b(?:was|is|had been)\\s+responsible\\b(?!\\s+for\\s+)` +
+    `|${name}[^.!?]{0,60}\\b(?:was|is|had been)\\s+responsible\\s+for\\s+(?:the\\s+)?(?:murder|killing|death|crime)\\b` +
+    `|\\bresponsible for (?:the )?(?:murder|killing|death|crime)\\b[^.!?]{0,40}${name}`;
+  /**
+   * The arrest. Eight of those 26 end on it and on nothing else: a constable comes, the culprit is
+   * led away, and no sentence ever says they killed anybody.
+   *
+   * It carries a known risk in the OTHER direction — a mid-book arrest of the real culprit, later
+   * released, would read as an early naming. That is the genre's stock move performed on the wrong
+   * person far more often than the right one, and the asymmetry decides it: a missed reveal STOPS a
+   * finished book, while a false early naming costs one editor call.
+   */
+  const arrested =
+    `${name}[^.!?]{0,60}\\b(?:was arrested|were arrested|taken into custody|led away|charged with (?:the )?(?:murder|killing|crime))\\b` +
+    `|\\b(?:arrest(?:ed)?|collect|take into custody)\\b[^.!?]{0,30}${name}[^.!?]{0,40}\\b(?:constable|police|inspector|sergeant|custody)\\b`;
 
-  return new RegExp([didIt, wasThem, authored, attributed, confessed].join("|"), "i").test(text);
+  return new RegExp([didIt, wasThem, authored, attributed, confessed, responsible, arrested].join("|"), "i").test(text);
 };

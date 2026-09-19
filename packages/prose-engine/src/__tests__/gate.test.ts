@@ -106,11 +106,11 @@ const bookWithReveal = (revealText: string): ProseChapterLike[] =>
 const verdict = (chapters: ProseChapterLike[]) =>
   applyGate({ chapters, core, expected: EXPECTED, findings: [], deterministicWrites: 0 });
 
-describe("stop 1 — the culprit is named in the reveal chapter", () => {
+describe("stop 1 — the reader is told who did it", () => {
   it("KNOWN-POSITIVE: a reveal chapter that never names the culprit stops the run", () => {
     const v = verdict(bookWithReveal("Bertram folded the ledger away and said nothing at all."));
     expect(v.ship).toBe(false);
-    expect(v.stops.some((s) => /never names Nora Quayle/.test(s))).toBe(true);
+    expect(v.stops.some((s) => /never told who did it/.test(s))).toBe(true);
   });
 
   it("REGRESSION: 'engineered the murder' is naming the culprit — the sentence that cost a run", () => {
@@ -158,7 +158,7 @@ describe("stop 1 — the culprit is named in the reveal chapter", () => {
     ]) {
       const v = verdict(bookWithReveal(text));
       expect(v.ship, text).toBe(false);
-      expect(v.stops.some((s) => /never names/.test(s)), text).toBe(true);
+      expect(v.stops.some((s) => /never told who did it/.test(s)), text).toBe(true);
     }
   });
 
@@ -171,7 +171,80 @@ describe("stop 1 — the culprit is named in the reveal chapter", () => {
       findings: [],
       deterministicWrites: 0,
     });
-    expect(v.stops.some((s) => /never names/.test(s))).toBe(false);
+    expect(v.stops.some((s) => /never told who did it/.test(s))).toBe(false);
+  });
+});
+
+describe("the stop is BOOK-level, measured over 51 shipped books", () => {
+  // Replaying this gate over every archived v1 book stopped 44 of 51, all for this one reason. The
+  // diagnosis: 18 name the culprit one chapter later than the contract planned (a contract mismatch,
+  // not a breach) and the rest used constructions the predicate could not see.
+  const bookNaming = (revealText: string, afterText: string): ProseChapterLike[] =>
+    EXPECTED.map((n) => (n === REVEAL ? chapter(revealText) : n < REVEAL ? CLUE_PAGE : chapter(afterText)));
+
+  it("KNOWN-POSITIVE: named nowhere at or after the reveal still STOPS", () => {
+    const v = verdict(bookNaming("Bertram folded the ledger away.", "The promenade had been swept."));
+    expect(v.ship).toBe(false);
+    expect(v.stops.some((s) => /never told who did it/.test(s))).toBe(true);
+  });
+
+  it("named AFTER the reveal ships, with a warning — the book resolves late, it does not cheat", () => {
+    const v = verdict(bookNaming("Bertram folded the ledger away.", "Nora Quayle killed him, and she did not deny it."));
+    expect(v.stops).toEqual([]);
+    expect(v.ship).toBe(true);
+    expect(v.warnings.some((w) => /named after the reveal chapter/.test(w))).toBe(true);
+  });
+
+  it("named IN the reveal ships with no warning about it", () => {
+    const v = verdict(bookNaming("Nora Quayle killed him, and Bertram had known since the dunes.", "The promenade was swept."));
+    expect(v.stops).toEqual([]);
+    expect(v.warnings.some((w) => /named after the reveal chapter/.test(w))).toBe(false);
+  });
+
+  it("KNOWN-POSITIVE: named ONLY before the reveal is not a reveal", () => {
+    const early = EXPECTED.map((n) =>
+      n === 1 ? chapter("Nora Quayle killed him, and everybody knew it by breakfast.") : chapter("Nothing was said."),
+    );
+    expect(verdict(early).ship).toBe(false);
+  });
+});
+
+describe("the constructions the corpus actually uses", () => {
+  const revealSays = (text: string) =>
+    verdict(EXPECTED.map((n) => (n === REVEAL ? chapter(text) : n < REVEAL ? CLUE_PAGE : chapter("After."))));
+
+  it("KNOWN-POSITIVE: 'was responsible' — 3 of 26 books said this and nothing stronger", () => {
+    // canary_1785860662360, chapter 10, verbatim.
+    expect(revealSays("Nora Quayle was responsible; the evidence allowed no other reading.").stops).toEqual([]);
+  });
+
+  it("KNOWN-POSITIVE: the arrest — 8 of 26 ended on it and on nothing else", () => {
+    for (const text of [
+      "She watched as Nora Quayle was led away, her head bowed, the hotel's fragile order restored.",
+      "Nora Quayle was taken into custody before the tide turned.",
+      "Nora Quayle was charged with the murder that evening.",
+    ]) {
+      expect(revealSays(text).stops, text).toEqual([]);
+    }
+  });
+
+  it("KNOWN-NEGATIVE: placement is not attribution", () => {
+    // canary_1785694688532, chapter 9 — a chapter titled "The Culprit Revealed" whose strongest
+    // sentence puts the culprit NEAR the clock and never says he killed anybody. The gate must keep
+    // stopping this, because a reader finishing it has not been told who did it.
+    const v = revealSays(
+      "Finding this here means Nora Quayle must have been near the clock when it was set back to a quarter past ten.",
+    );
+    expect(v.ship).toBe(false);
+  });
+
+  it("KNOWN-NEGATIVE: an unrelated use of the verbs does not accuse", () => {
+    for (const text of [
+      "Nora Quayle, who had once orchestrated the routines of the hotel with unyielding care, said nothing.",
+      "Nora Quayle was responsible for the linen, and had been for eleven years.",
+    ]) {
+      expect(revealSays(text).ship, text).toBe(false);
+    }
   });
 });
 
