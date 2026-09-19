@@ -2109,4 +2109,135 @@ What is NOT settled, and should not be claimed:
 **The next thing to spend is a read, not a run** — and the book to read is this one, because it is
 the first v2 manuscript that is a whole book and its ship-check now passes.
 
+---
+
+## 23. v2 DEFECT REVIEW · 2026-09-19 · £0
+
+Read of `packages/prose-engine` and `apps/worker/.../agent9-v2` (4,052 lines), with every finding
+probed against the manuscript v2 actually produced (`resume-1789805865810`) rather than argued from
+the source. **No code changed in this pass.** Six defects, ordered by what they cost.
+
+### §23.1 THE FINDINGS PIPELINE SPENDS MOST OF ITS EFFORT ON FALSE OR UNFIXABLE WORK
+
+On the real book the checkers produce **31 findings**, of which:
+
+| class | n | verdict |
+|---|---|---|
+| `clock_off_table` | 11 | mostly FALSE, and 11 of 11 UNFIXABLE |
+| `clue_missing` | 10 | 9 are obligations that cannot be satisfied (§23.2) |
+| `clue_early` | 5 | not examined |
+| `register_sentence` | 3 | genuine |
+| `scaffold_token` | 1 | FALSE (§23.3) |
+| `reveal_residue_in_aftermath` | 1 | not examined |
+
+**D1 — `clock_off_table` compares only the chronology's `value`, and does not normalise apostrophes.**
+`findings.ts:177` builds `tableValues` from `rows.map(r => r.value)`. Two consequences, both MEASURED:
+
+- the table holds `nine o'clock` with a STRAIGHT apostrophe and the prose writes `nine o’clock` with a
+  typographic one, so **five of the eleven findings are the same true time reported as off-table**;
+- the numeric forms the prose uses — `eight fifty`, `nine fifteen`, `nine forty-five` — live in the
+  row's `label` (*"eight fifty to nine fifteen — Harriet cleaning rooms"*), which is never compared.
+
+**D2 — and no `clock_off_table` finding can ever be repaired.** The finding asks the editor to change
+a clock value; `clockValuesIntact` (`edits.ts:212`) reverts any edit that changes the chapter's set of
+clock dials. Measured by replaying the obvious repair for each of the eleven findings through
+`applyEditList`: **11 attempted, 11 reverted, 11 of them by `clockValuesIntact`.** The run's own
+telemetry says the same thing from the other side — `rolled back 12 [clockValuesIntact 10, ...]`.
+
+This is the B1 shape twice over: a check that fires on most runs, whose repair the engine forbids.
+**Fix D1 before D2** — most of the class disappears, and what remains needs a repair the guard permits
+(re-word around the time, never restate it) or it should be a WARNING that no editor is asked to fix.
+
+### §23.2 NINE OF TWENTY-THREE CLUE OBLIGATIONS CANNOT BE SATISFIED BY ANY PROSE
+
+MEASURED: the contract carries 23 `mustSurface` obligations. **Only 14 have an id the clues artifact
+knows.** The other nine come from the OUTLINE's `cluesRevealed` and exist nowhere else:
+
+`time_of_death`, `time_anchor_nine_thirty`, `time_anchor_eight_fifty`, `time_anchor_nine_fifteen`,
+`judge_compass_testimony`, `compass_casing_wear`, `witness_harriet_cleaning`, `ledger_ink_variations`,
+`clerk_ledger_testimony`.
+
+Each has **no observable and no key terms**, so:
+
+- `checkHardGates` reports `clue_missing` for it on every run, unconditionally — there is nothing to
+  look for, so nothing can be found;
+- the editor's prompt prints `the reader can use: ` and stops, asking the model to preserve a blank;
+- `clueCoverageNotWorse` counts zero terms for it, so the guard protecting it protects nothing.
+
+This is [[cml-outline-scene-join-never-resolved]] alive in v2. **The gate is unaffected** — its one
+decisive clue resolves and carries 8 key terms — so this costs editor calls and a misleading finding
+count, not fair play. The fix belongs upstream (the outline should name clue ids the clues artifact
+holds) with a contract-side guard that reports an unresolvable obligation as a CONTRACT defect rather
+than as a defect in the prose.
+
+### §23.3 `CASE\b` UNDER `/i` FLAGS THE COMMONEST NOUN IN THE GENRE
+
+`selector.ts:170` lists `CASE\b` among the scaffold tokens and applies the regex with the `i` flag, so
+it matches the ordinary word *case*. MEASURED on this book: chapter 5, *"She retrieved her cigarette
+**case**, fingers tapping out"*, reported as generator scaffolding.
+
+The token meant is the CML `{CASE:` marker. `/i` destroys the only thing that distinguished it. In a
+DETECTIVE NOVEL this is [[domain-nouns-collide-with-validator-wordlists]] on the most predictable noun
+available. Only one fires per chapter because `SCAFFOLD_RE.exec` takes the first match, which hides
+how often it is wrong.
+
+### §23.4 AN EDIT THAT CHANGES NOTHING IS COUNTED AS APPLIED
+
+`edits.ts:192` checks `find` occurs once in the body — paragraphs joined with `\n\n`. `edits.ts:199`
+then applies it **per paragraph**. A `find` that SPANS a paragraph break satisfies the uniqueness
+check and matches no single paragraph, so the mutation is a no-op, the validator sees no fall, and the
+edit is recorded as applied.
+
+MEASURED: `applied: 1, skipped: 0, rolledBack: {}, unresolved: 0`, text unchanged.
+
+So `applied 37` in the run is an upper bound and `unresolved 26` is an under-count, and any finding
+addressed by such an edit is reported resolved while standing. **The engine's own success metric is
+not sound.** Fix: require the `find` to occur exactly once in exactly one paragraph, and skip it
+otherwise.
+
+### §23.5 A MISSING CHAPTER SILENTLY MIS-FILES EVERY CHAPTER AFTER IT
+
+Six sites map chapter numbers to prose **positionally** — `written[index]` for the index-th expected
+chapter (`findings.ts:155`, `findings.ts:342`, `gate.ts:93`, `selector.ts:180`, `run.ts:124`,
+`run.ts:448`). That holds only when no chapter is missing.
+
+MEASURED on the real book: drop chapter 3 and the gate reads `written[8]` as chapter 9. `written[8]`
+is now *"Confrontation and Aftermath"* — chapter 10. **The fair-play reveal check reads the aftermath
+and says nothing.** In this instance it still shipped, because chapter 10 also names the culprit;
+that is luck, and the silence is the defect.
+
+The trigger is not hypothetical: it is exactly what the continuation loop's no-progress guard leaves
+behind, and the first paid v2 run took that path. `writtenNumbers` (`run.ts:408`) already computes the
+delivered numbers correctly for the continuation prompt — **the same value should be threaded into
+every one of the six sites** instead of each recomputing a position.
+
+### §23.6 SMALLER — WORTH FIXING, NOTHING MEASURED AGAINST THEM
+
+- **the editor's `cannot` is parsed and discarded.** `edits.ts:285` reads it; nothing else in the
+  package or the worker ever reads it back. The model's stated reason for declining a repair — the
+  one place it tells us a finding is wrong — is thrown away. It should reach the run report.
+- **the critic gets 2,000 output tokens for a whole book** (`run.ts:435`) while the editor gets 4,000
+  for one chapter. Four critic findings failed to anchor in this run; truncation is one candidate
+  cause that has not been separated from bad quoting.
+- **`repeat_passage` flags one side of a repetition** (`findings.ts:248` breaks after the first
+  chapter carrying the span), so the editor repairs one copy and the other stands.
+- **`reveal_residue_in_aftermath` keys on `because`** (`findings.ts:256`), an ordinary English word an
+  aftermath chapter will use for reasons that are not argument.
+- **`measureGuards` is not re-exported** from the package index, so the rollback detail is unavailable
+  to anything outside the package — including any future probe of exactly the guard conflict in §23.1.
+
+### §23.7 RECOMMENDED ORDER
+
+1. **§23.5** — silent and wrong beats loud and wrong; thread the delivered chapter numbers through.
+2. **§23.4** — until it is fixed, every other number in this review is measured with a broken ruler.
+3. **§23.1 D1** then **D2** — the largest finding class, mostly false, entirely unfixable.
+4. **§23.3** — one character (`/i`), one word, a reader-visible false positive.
+5. **§23.2** — the real fix is upstream; the contract-side guard is the cheap half.
+6. **§23.6** as they come.
+
+None of these threatens the §22.7 measurement: the pair compared two manuscripts with instruments
+that live outside this pipeline. They mean v2's **repair** stage is doing markedly less than its
+telemetry claims — which makes the §22.7 result a FLOOR for what the engine can do, not a ceiling.
+
+
 
