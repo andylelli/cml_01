@@ -2707,6 +2707,65 @@ reappear through the critic's `timing_contradiction` (C: 5 of 6) — the D2 conf
 not fixed here; and no v2 book has been read. The next spend is a read, and the book is the fixed
 selector's draft 3 of `resume-1790098211785`: above the floor, names the culprit, best speech-open.
 
+---
+
+## 29. THE FIXED SELECTOR, LIVE · 2026-09-22 · £0.38 · `resume-1790099060243`
+
+Seed 50862 again, everything as §28's last run, with the §28.2 ranking fix in the live path for the
+first time. The checkpoint was cleared because nothing the writer sees had changed and the hash would
+have restored the previous drafts.
+
+| draft | words | speech-open /ch | culprit in ch9 | hard (ranking) | composite | |
+|---|---|---|---|---|---|---|
+| 1 | 7,714 | 4.7 | yes | 0 (0) | 23.56 | |
+| 2 | 8,161 | **6.1** | yes | 1 (1) `clue_missing` | **26.05** | highest composite |
+| 3 | 9,339 | 5.7 | yes | 0 (0) | 24.52 | **chosen** |
+
+**The selector passed over the highest composite for the draft that satisfies the contract**, which
+is the rule §28.2 wrote, and the £0 replay over the same drafts agrees. Draft 2's `clue_missing` is
+one the editor can repair, so the choice is arguable — but it is the designed choice, made live.
+
+| prediction | verdict |
+|---|---|
+| 0 ranking failures chosen whenever any draft has 0 | **HELD** |
+| shipped book ≥ 7,500 | **HELD** — 9,551, the first v2 book longer than its v1 arm (8,965) |
+| reveal names the culprit in ch9 | **HELD** — 3/3, now **15 of 15** drafts since §27 |
+| the gate ships | **HELD** — no stop |
+| the draft table prints `hard N ranking of M` | **HELD** |
+| ≈ £0.32 | **OVER** — £0.38; the 9,339-word draft cost its extra output |
+
+### §29.1 FIVE OF FIVE, FOR THE FIRST TIME
+
+The shipped manuscript against the v1 arm, both 10 chapters:
+
+| instrument | v1 | v2 live | |
+|---|---|---|---|
+| words | 8,965 | **9,551** | longer |
+| machine-register | 0.0552 | **0.0251** | better |
+| repetition /10k | 96.0 | **7.1** | better |
+| **speech-open share** | 0.1739 | **0.2661** | **better — the regression of every earlier run, turned** |
+| long-sentence share | 0.0276 | **0.0547** | better |
+| wit /10k | 15.6 | **38.7** | better |
+
+Speech-open crossed v1 through two levers together: the dialogue-layout FORMAT rule (§28.3) lifted
+every draft, and the selector's composite — which carries speech-open share at +1.5 — then preferred
+a draft that had it. Prompting got the model most of the way; selection did the rest. That is the
+mechanism §28.5 predicted for a qualified property the model will not produce on demand.
+
+Edits: 27 applied, 0 skipped, 2 rolled back, 3 declined with reasons — the repair stage spending its
+calls on real work.
+
+### §29.2 WHAT THIS SETTLES, AND THE ONE THING IT CANNOT
+
+Settled: the engine writes a complete book that clears every structural bar the contract sets —
+length, fair play, the operations the model will obey — and beats its v1 arm on every calibrated
+instrument, on the only controlled project. The selector cuts the tail it was built to cut, live.
+
+Not settled, and not settleable by any instrument this project owns: whether it is worth a mark.
+**This is the book to read**: `stories/` for `resume-1790099060243`, seed 50862, against the v1 arm's
+77. Session spend £1.77 across the two approvals.
+
+
 
 
 
