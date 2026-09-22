@@ -241,7 +241,13 @@ export const generateBookV2 = async (ctx: OrchestratorContext): Promise<V2Result
     aftermath: contract.roles.aftermath,
     clueIds: contract.scenes.flatMap((s) => s.mustSurface.map((m) => m.id)),
     // The whole ask: a reworded brief or chapter contract must not restore drafts written to the old one.
-    prompt: [contract.bible.text, contract.brief.text, ...contract.scenes.map((s) => renderSceneContract(contract, s.chapter))].join("\n"),
+    prompt: [
+      contract.bible.text,
+      contract.brief.text,
+      ...contract.scenes.map((s) => renderSceneContract(contract, s.chapter)),
+      // The format block is part of the ask too — a layout rule added there must not restore drafts written without it.
+      writerFormatInstruction(contract.scenes.map((s) => s.chapter)),
+    ].join("\n"),
   });
   const checkpointPath =
     String((ctx.inputs as { agent9CheckpointPath?: string }).agent9CheckpointPath ?? "").trim() ||

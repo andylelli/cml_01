@@ -15,6 +15,7 @@
 import { describe, expect, it } from "vitest";
 
 import { briefLawViolations, buildBrief, fullParagraphs, revealOperation } from "../brief.js";
+import { writerFormatInstruction } from "../writer-format.js";
 import { buildContractCore } from "../contract.js";
 import { collectCheckerFindings } from "../findings.js";
 import { checkHardGates } from "../selector.js";
@@ -126,5 +127,23 @@ describe("a book below the contract minimum is ONE hard failure", () => {
     const perChapter = Math.floor((min * 0.6) / expected.length);
     const findings = collectCheckerFindings(expected.map((n) => ch(n, perChapter)), core, expected);
     expect(findings.some((f) => /book_short/.test(f.class) || /minimum of/.test(f.note))).toBe(false);
+  });
+});
+
+describe("the format block carries the two layout rules the brief could not land", () => {
+  it("states dialogue layout and narration layout as format, next to the header rule", () => {
+    const text = writerFormatInstruction([1, 2, 3]);
+    expect(text).toMatch(/each spoken line begins a new paragraph/);
+    expect(text).toMatch(/begins with the\s+opening quotation mark/); // the block joins on newlines
+    expect(text).toMatch(/runs to four sentences or more/);
+    expect(text).toMatch(/=== CHAPTER <number>: <the chapter's title> ===/);
+    expect(text).toMatch(/Chapters owed: 1, 2, 3\./);
+  });
+
+  it("is a layout rule, not a prohibition, a rate or an example", () => {
+    const text = writerFormatInstruction([1]);
+    expect(text).not.toMatch(/\b(never|must not|avoid|do not)\b/i);
+    expect(text).not.toMatch(/\b(per cent|percent|average|roughly one|about one)\b|%/i);
+    expect(text).not.toMatch(/\b(for example|e\.g\.|such as|for instance)\b/);
   });
 });

@@ -110,6 +110,21 @@ export const parseWriterOutput = (
  * The format instruction the writer is given. Structure only — it names no wording, quotes no prose,
  * and shows no example sentence, because A_67 is unambiguous that an example is a template.
  */
+/**
+ * ── WHY DIALOGUE LAYOUT IS A FORMAT RULE AND NOT A BRIEF OPERATION ──────────────────────────────
+ *
+ * The chapter-header rule above has been obeyed on every chapter of every v2 run. The brief's
+ * operations have not: across five runs, "6 paragraphs open on speech" delivered 1.5–3.4 under two
+ * wordings, and "12 paragraphs of four sentences" delivered 4.2 while paragraph COUNT rose from 15
+ * to 20 — the model honoured the number and dropped the qualifier, both times. Em-dashes, a count
+ * of a simple thing, arrived at twice the ask.
+ *
+ * So the model obeys counts of simple things, and it obeys FORMAT. Where a spoken line goes and how
+ * long a paragraph of narration runs are layout, the same kind of thing as the header, and they are
+ * stated here as layout rules rather than as craft counts — the one lever the evidence says is left.
+ * The next run is the test; if this too is ignored, speech-open is a dead lever at prompt level and
+ * the record says so with three wordings tried.
+ */
 export const writerFormatInstruction = (chapters: ReadonlyArray<number>): string =>
   [
     "Write the chapters below, in order, as plain prose.",
@@ -120,6 +135,11 @@ export const writerFormatInstruction = (chapters: ReadonlyArray<number>): string
     "",
     "Separate paragraphs with a blank line. Use no other headings, no numbering inside a chapter, no",
     "notes to the reader and no commentary about the writing.",
+    "",
+    "Dialogue layout: each spoken line begins a new paragraph, and that paragraph begins with the",
+    "opening quotation mark; what the speaker does comes after the words, in the same paragraph.",
+    "Narration layout: a paragraph of narration runs to four sentences or more before the next",
+    "paragraph begins.",
     "",
     `Chapters owed: ${chapters.join(", ")}.`,
   ].join("\n");
