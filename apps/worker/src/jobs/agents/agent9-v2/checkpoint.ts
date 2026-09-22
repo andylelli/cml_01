@@ -72,13 +72,30 @@ export const readCheckpoint = (path: string, contractHash: string): V2Checkpoint
 };
 
 /** A cheap, stable identity for a contract: the chapters, the roles and the clue ownership. */
+/**
+ * A checkpoint is reusable only for the SAME ASK.
+ *
+ * The identity used to be the structure alone — chapters, roles, clue ids — which is the right key
+ * for "is this the same book?" and the wrong key for "may these drafts stand in for new ones?". A
+ * brief change (§27 reworded three operations) leaves the structure identical, so every draft the
+ * old wording produced would have been restored under the new wording, and the run bought to test
+ * the new wording would have made zero writer calls and reported the old drafts as its result.
+ *
+ * So the hash also covers `prompt`: everything the writer is told that is not the structure — the
+ * bible, the brief and every rendered chapter contract. Change a word of the ask and the drafts are
+ * written again, which is the only honest thing a cache can do.
+ */
 export const hashContract = (input: {
   chapters: number;
   reveal: number;
   aftermath: number | null;
   clueIds: ReadonlyArray<string>;
+  /** The writer's whole ask, minus the structure. Optional only for callers that predate it. */
+  prompt?: string;
 }): string => {
-  const source = `${input.chapters}|${input.reveal}|${input.aftermath ?? "-"}|${[...input.clueIds].sort().join(",")}`;
+  const source =
+    `${input.chapters}|${input.reveal}|${input.aftermath ?? "-"}|${[...input.clueIds].sort().join(",")}` +
+    `|${input.prompt ?? ""}`;
   let hash = 0;
   for (let i = 0; i < source.length; i += 1) {
     hash = (hash << 5) - hash + source.charCodeAt(i);
