@@ -2765,6 +2765,66 @@ Not settled, and not settleable by any instrument this project owns: whether it 
 **This is the book to read**: `stories/` for `resume-1790099060243`, seed 50862, against the v1 arm's
 77. Session spend £1.77 across the two approvals.
 
+---
+
+## 30. THE LAST THREE STORIES ON THE FINAL ENGINE · 2026-09-22 · £0.59
+
+B and C, run for the first time with BOTH the dialogue-layout format rule and the fixed selector; A's
+live run of §29 stands as the third. B and C printed their `DEFAULTS` line — indicative, not
+controlled.
+
+| run | book | drafts (words) | chosen | shipped | culprit in ch9 | gate | live = replay | cost |
+|---|---|---|---|---|---|---|---|---|
+| `resume-1790099060243` | A | 7,714 / 8,161 / 9,339 | 3 | **9,551** | 3/3 | ship | yes | £0.38 |
+| `resume-1790099653544` | B | 6,469 / 6,895 / 7,144 | 3 | 7,195 | 3/3 | ship | yes | £0.28 |
+| `resume-1790099847162` | C | 7,822 / 8,331 / 6,280 | 2 | **8,413** | 3/3 | ship | yes | £0.31 |
+
+### §30.1 PREDICTIONS
+
+| | verdict |
+|---|---|
+| reveal names the culprit in all six drafts | **HELD** — **21 of 21** drafts since §27 |
+| both ship | **HELD** |
+| the chosen draft has 0 ranking failures whenever any does | **HELD** — C took draft 2 (8,331, 0 failures, composite 28.51); B had no draft above the floor, so all three carried `book_short` and the composite decided, which is the rule |
+| both ≥ 7,500 | **C HELD** (8,413); **B FAILED** (7,195 — no draft cleared it) |
+| speech-open lifts as on A | **C yes** — chosen draft 5.7 against 1.6–3.2 before; **B modest** — 2.3–3.9 against 1.6–3.6 |
+| ~£0.40 each | **UNDER** — £0.28 and £0.31 |
+
+### §30.2 THE INSTRUMENTS, THREE ARMS
+
+| instrument | A (v1 77) | B (no read) | C (v1 **87**) | across arms |
+|---|---|---|---|---|
+| machine-register | 0.0552 → **0.0251** | 0.0791 → **0.0344** | 0.1031 → **0.0116** | better 3/3 |
+| repetition /10k | 96.0 → **7.1** | 24.3 → **22.8** | 122.8 → **5.7** | better 3/3 |
+| speech-open share | 0.174 → **0.266** | 0.202 → 0.194 | 0.152 → **0.256** | better 2/3, B at parity (−0.008) |
+| long-sentence share | 0.028 → **0.055** | 0.072 → **0.110** | 0.062 → **0.085** | better 3/3 |
+| wit /10k | 15.6 → **38.7** | 20.6 → **33.4** | 9.7 → **34.5** | better 3/3 |
+| words | 8,965 → **9,551** | 11,155 → 7,195 | 10,333 → 8,413 | A longer; B, C shorter |
+
+**C is the arm to notice: it is the book that read 87, and register falls 89% on it.**
+
+### §30.3 THE ONE THING THAT DID NOT HOLD, AND WHY IT MATTERS
+
+**B's length.** The same contract produced 8,493 / 8,644 / 9,031 words in §28 and 6,469 / 6,895 /
+7,144 here — three drafts, none above the floor, and the selector can only choose among what it is
+given. This is the variance §25.5 named, now at the length axis: three drafts are enough to select a
+shipping reveal (21 of 21) and usually enough to select a long-enough book (A, C), and not always.
+Nothing here separates two candidate causes — ordinary temperature-0.7 variance, or the new dialogue
+layout shortening B's paragraphs — and both are cheap to settle with a fourth draft on B, which was
+not spent.
+
+### §30.4 STATUS
+
+All three of the last stories now ship from the final engine, name their culprit, and beat their v1
+arms on register, repetition, long sentences and wit; two of three on speech-open; A on length. The
+selector agreed with its own replay on every run. **Session spend £2.36.**
+
+Not settled, by construction: a mark. Three books are ready — `resume-1790099060243` (A, against
+77), `resume-1790099847162` (C, against 87), `resume-1790099653544` (B, unread v1). The next spend is
+a read, and C is the sharpest test this project can set: the highest mark it has ever received,
+against a v2 arm with a tenth of its register rate.
+
+
 
 
 
