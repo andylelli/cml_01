@@ -52,7 +52,8 @@ import { FINDING_CLASSES } from "./types.js";
 export const SEVERITY: Record<FindingClass, FindingSeverity> = {
   reveal_unnamed: "fairplay",
   clue_missing: "fairplay",
-  clue_early: "fairplay",
+  /** An ownership mismatch, not a fair-play breach: the reader got the clue EARLY, which cheats nobody. */
+  clue_early: "defect",
   culprit_early: "fairplay",
   mechanism_early: "fairplay",
   /**

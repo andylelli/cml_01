@@ -2635,6 +2635,79 @@ Whether the model complies with the new wording. The em-dash row is the reason t
 speech-open row is the reason to check. **One paid run, same command as §26, settles all three
 operations and the selector at once — and if it ships, it is the first v2 book worth a reader.**
 
+---
+
+## 28. THE FIXES, VERIFIED ON FOUR PAID RUNS · 2026-09-22 · £1.39 of a £1.50 budget
+
+Every fix from §23–§27 was in, and four runs at `PROSE_V2_DRAFTS=3` measured them. Only A is a
+controlled pair; B and C printed their `DEFAULTS` line and are indicative.
+
+| run | book | chosen → shipped words | drafts naming the culprit in ch9 | gate | speech-open per chapter, by draft | cost |
+|---|---|---|---|---|---|---|
+| `resume-1790097243765` | A | 7,537 → 7,854 | **3 / 3** | ship | 2.3 / 2.0 / 3.4 | £0.33 |
+| `resume-1790097526900` | B | 8,493 → 8,749 | **3 / 3** | ship | 1.6 / 1.9 / 3.6 | £0.43 |
+| `resume-1790097751711` | C | 6,620 → 6,665 | **3 / 3** | ship | 1.6 / 3.2 / 1.9 | £0.31 |
+| `resume-1790098211785` | A, + format rules | 6,970 → 7,159 | **3 / 3** | ship | **2.9 / 4.2 / 5.3** | £0.32 |
+
+### §28.1 THE FAIR-PLAY FIX HOLDS: 12 OF 12 DRAFTS
+
+Before §27, three of four v2 books never attributed the act, and at §26 none of three drafts did so
+in chapter 9. With the reveal asked as a shape — *name, verb of killing, victim, in one sentence, as
+fact* — and stated on the chapter's own contract, **every draft of every run named the culprit in the
+reveal chapter, and every run shipped.** B, which had stopped on *"the only person who could…"*,
+ships. This is the one operation that was a reader-visible breach, and it is fixed on three books.
+
+### §28.2 LENGTH: BETTER, NOT YET RELIABLE — AND THE SELECTOR WAS MAKING IT WORSE
+
+Drafts above the 7,500 floor: A 3 of 3, B 3 of 3, C 1 of 3, A-format 2 of 3. The paragraph operation
+raised words by adding paragraphs (§27), so the floor is reachable now where it was not before.
+
+**But the selector twice chose a sub-floor draft over an above-floor one.** C: draft 1 at 7,615 with
+composite 22.92 lost to draft 2 at 6,620 with 20.07. A-format: draft 3 at 7,758 lost to draft 1 at
+6,970. The cause, read from the checkpoints: every hard kind counted one, and `clue_early` fired
+**9–19 times on every draft** — on *manor, hall, clock, half past seven*, the book's setting recurring
+in chapter 1. Thirteen vocabulary overlaps outranked a sub-floor book with a worse composite.
+
+**Fixed, and chosen from the corpus:** the `clue_early` threshold swept over six saved drafts —
+19/17/17 and 13/9/12 at the old rule, **0–2 at ≥ max(4, 90%)** — and only the kinds that stop or
+spoil a book now rank drafts (`RANKING_KINDS`; `clue_early` is a `defect` finding, not a fair-play
+breach). Replayed over the saved drafts at £0: **C → draft 1 (7,615), A-format → draft 3 (7,758),
+B unchanged.** Both books that shipped short had a longer, cleaner draft on the table.
+
+### §28.3 SPEECH-OPEN MOVED FOR THE FIRST TIME — AS A FORMAT RULE
+
+Two brief wordings did nothing (1.5–3.4 across five runs). Stated as dialogue LAYOUT in the format
+block — the block with 100% compliance on chapter headers — the three drafts came in at
+**2.9 / 4.2 / 5.3**, mean 4.1 against 2.6 the run before. Not the 6 asked, but the only lever of
+three that moved it, and under the fixed selector the 5.3 draft is the one that ships.
+
+### §28.4 PARAGRAPH FULLNESS IS A DEAD LEVER — THREE WORDINGS
+
+*About 1,000 words* (statistic) → 39–49 words a paragraph. *At least 12 paragraphs of four sentences*
+(count with qualifier) → more paragraphs, 35–42 words each. *A paragraph of narration runs to four
+sentences or more* (format rule) → 2.2–3.6 full paragraphs a chapter, from 4.2. Recorded as dead at
+prompt level; the record says so with the three wordings.
+
+### §28.5 THE LAW, SHARPENED
+
+`prompts-move-operations-not-statistics` said operations move and statistics do not. Four runs say
+more precisely: **this model obeys a COUNT of a SIMPLE thing** (em-dashes, "at least three" → 6–8)
+**and it obeys FORMAT** (headers 100%; dialogue layout 2.6 → 4.1); **it drops the QUALIFIER on a
+counted thing** (paragraphs ↑, four-sentence ↓; "paragraphs that begin with a quotation mark" under
+two wordings) **and ignores a statistic outright.** Recorded in memory.
+
+### §28.6 INSTRUMENTS, AND WHAT IS NOT SETTLED
+
+The first verification run against v1, both 10 chapters: register **0.0552 → 0.0152** (the lowest any
+A run has produced), repetition 96 → 13.5, long sentences 0.028 → 0.094, wit 15.6 → 34.4, speech-open
+share 0.174 → 0.122 — still the one regression on the instrument, narrowing.
+
+**Not settled:** the fixed selector has been replayed, not run live; `clockValuesIntact` rollbacks
+reappear through the critic's `timing_contradiction` (C: 5 of 6) — the D2 conflict by another door,
+not fixed here; and no v2 book has been read. The next spend is a read, and the book is the fixed
+selector's draft 3 of `resume-1790098211785`: above the floor, names the culprit, best speech-open.
+
+
 
 
 

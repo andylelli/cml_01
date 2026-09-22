@@ -29,6 +29,8 @@ export type { ParseResult } from "./writer-format.js";
 export {
   scoreDraft,
   chooseDraft,
+  rankingFailures,
+  RANKING_KINDS,
   checkHardGates,
   measureInstruments,
   emDashPer1k,

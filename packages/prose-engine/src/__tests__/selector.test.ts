@@ -164,7 +164,10 @@ describe("the hard gates fire on a real defect and not on clean prose", () => {
     const early = [
       chapter([
         ...CLEAN[0]!.paragraphs,
-        "The ledger lay open at a fresh entry, the ink a shade darker, written at nine o'clock.",
+        // The WHOLE clue on the early page. Under the corpus-chosen threshold (>= max(4, 90%) of the
+        // key terms) a paraphrase that shares most of the vocabulary is not staging — see
+        // selector-ranking.test.ts for why; this fixture is a genuine early staging.
+        "The ledger lay open at a fresh ledger entry in different ink at nine o'clock, and nobody remarked on it.",
       ]),
       CLEAN[1]!,
       CLEAN[2]!,

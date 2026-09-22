@@ -220,10 +220,24 @@ export const checkHardGates = (
       const owed = core.scenes
         .flatMap((s) => s.mustSurface)
         .find((s) => s.id === withheld.what);
-      if (!owed || owed.keyTerms.length < 3) continue;
+      /**
+       * ── THE THRESHOLD IS FROM THE CORPUS, NOT A GUESS ─────────────────────────────────────────
+       *
+       * At ">= max(3, 70%) of the key terms" this fired 9-19 times on EVERY draft of two books
+       * (2026-09-22, six saved drafts). The terms it matched were *manor, hall, clock, half, past,
+       * seven* — the book's setting, recurring in chapter 1 because the book is about that clock in
+       * that hall, not because a clue was staged there. Swept over the same six drafts:
+       *
+       *     >= max(3, 70%)   19 / 17 / 17   and   13 / 9 / 12
+       *     >= max(4, 80%)    5 /  3 /  6   and    7 / 2 /  3
+       *     >= max(4, 90%)    2 /  1 /  0   and    1 / 0 /  1
+       *
+       * A clue genuinely staged in the wrong chapter is rare; the last row looks like that.
+       */
+      if (!owed || owed.keyTerms.length < 4) continue;
       const lowered = body.toLowerCase();
       const hitTerms = owed.keyTerms.filter((t) => tokenMatchesText(t, lowered)).length;
-      if (hitTerms >= Math.max(3, Math.ceil(owed.keyTerms.length * 0.7))) {
+      if (hitTerms >= Math.max(4, Math.ceil(owed.keyTerms.length * 0.9))) {
         hits.push({ kind: "clue_early", chapter, detail: `${withheld.what} is owed to chapter ${withheld.until}` });
       }
     }
@@ -339,11 +353,40 @@ export interface ScoredDraft {
  * nothing when given something (L4) — a draft with no chapters loses to one with any, and if every
  * draft is empty the caller gets `null` and owns that, because there is no book to ship.
  */
+/**
+ * The hard-gate kinds that RANK drafts: the ones that stop a run or spoil the book for a reader.
+ *
+ * Every kind used to count one, so any hit outranked the whole composite. MEASURED 2026-09-22,
+ * `resume-1790097751711`: draft 1 was 7,615 words, above the floor, composite 22.92, and named the
+ * culprit; the selector chose draft 2 — 6,620 words, BELOW the floor, composite 20.07 — because
+ * draft 1 carried 13 `clue_early` hits to draft 2's 9 plus one `book_short`. Thirteen vocabulary
+ * overlaps outranked a sub-floor book with a worse composite, and the shipped manuscript was the
+ * shortest of the three on offer.
+ *
+ * `clue_early` is an ownership mismatch — a clue's terms appearing before the chapter the contract
+ * gave it — which is a finding for the editor and not a reason to prefer one draft over another.
+ * The kinds below are.
+ */
+export const RANKING_KINDS: ReadonlySet<HardGateHit["kind"]> = new Set([
+  "chapter_missing",
+  "reveal_unnamed",
+  "culprit_early",
+  "book_short",
+  "scaffold",
+  "clue_missing",
+]);
+
+/** How many of a draft's hard hits are the kind that ranks it. */
+export const rankingFailures = (score: DraftScore): number =>
+  score.hard.filter((h) => RANKING_KINDS.has(h.kind)).length;
+
 export const chooseDraft = (scored: ReadonlyArray<ScoredDraft>): ScoredDraft | null => {
   const real = scored.filter((s) => s.draft.chapters.length > 0);
   if (real.length === 0) return null;
   return [...real].sort((a, b) => {
-    if (a.score.hard.length !== b.score.hard.length) return a.score.hard.length - b.score.hard.length;
+    const ra = rankingFailures(a.score);
+    const rb = rankingFailures(b.score);
+    if (ra !== rb) return ra - rb;
     return b.score.composite - a.score.composite;
   })[0]!;
 };
@@ -355,7 +398,7 @@ export const summariseSelection = (scored: ReadonlyArray<ScoredDraft>, chosen: S
     const v = s.score.vector;
     return (
       `${mark} draft ${s.draft.attempt}: composite ${s.score.composite.toFixed(2)}, ` +
-      `hard ${s.score.hard.length}, register ${v.registerRate.toFixed(3)}, ` +
+      `hard ${rankingFailures(s.score)} ranking of ${s.score.hard.length}, register ${v.registerRate.toFixed(3)}, ` +
       `repetition ${v.repetitionPer10k.toFixed(1)}, speech-open ${(100 * v.dialogueOpenShare).toFixed(0)}%, ` +
       `tail ${(100 * v.longSentenceShare).toFixed(0)}%, wit ${v.witPer10k.toFixed(1)}/${v.witTarget}`
     );
