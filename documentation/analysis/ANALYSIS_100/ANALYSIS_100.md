@@ -10,11 +10,11 @@ code it describes (CLAUDE.md, *Long tasks*). Resume from the first row that is n
 
 | # | item | state | commit | note |
 |---|---|---|---|---|
-| A2 | encode the 110 held works, intent tranche first | **running** | — | ceiling `--budget=19.81`; logs `/tmp/encode3a.log`, `/tmp/encode3b.log` |
+| A2 | encode the 110 held works, intent tranche first | done | fd74d62d (artifacts) | 99 attempts · 81 valid cases · £11.83; library 132 verified cases + 18 rejected encodes of 169 works (A_103 B46) |
 | A0 | this record | done | — | |
-| B1 | `scripts/corpus-parts.mjs` → `library/index/parts.json` | done | (this) | 57 cases · 397 steps · 114 herrings · 57 false solutions; chapter denominators from text headings, 37/59 |
-| B2 | part-type vocabulary (LLM-typed, batched) → `library/index/part-types.json` | **running** (rerun) | | first run: herrings 118/118 into 14 types, then Azure content filter 400 on the step batch; now split-and-retry, incremental write |
-| A1 | ranked exemplar selection, `SEED_SELECTION_RANKED` | done | (this) | flag off pinned byte-identical; 5 new tests; memo key carries mode + source; FLAG-AUDIT row |
+| B1 | `scripts/corpus-parts.mjs` → `library/index/parts.json` | done | fd74d62d | 137 cases · 957 steps · 274 herrings · 137 false solutions; chapter denominators from text headings, 102/137 (35 short stories have none) |
+| B2 | part-type vocabulary (LLM-typed, batched) → `library/index/part-types.json` | done | (A_103 second pass) | flaw 135/137 into 14 types (1 refused by the content filter even alone), herring 274/274 into 14, step 957/957 into 14 (top: deception_and_fabrication 218, motive_and_responsibility 172, method_explanation 128); cumulative £0.0716. Failed twice on the step proposal first - A_103 B43 (truncated JSON parsed) and B47 (sample defined as a stride grew to 192 with the encode) |
+| A1 | ranked exemplar selection, `SEED_SELECTION_RANKED` | done | fd74d62d | flag off pinned byte-identical; 6 tests; memo key carries mode + source; FLAG-AUDIT row; A_103 B4 found the production call shape inert and fixed it |
 | B3 | grammar fit: PMI, transitions, positions → `library/index/grammar.json` | pending | | |
 | B4 | falsifier: dispersion of our last 20 shipped runs vs the canon | pending | | **gate** for phase C |
 | A3 | ledger backfill (97 runs) | pending | | ~£0.29 |

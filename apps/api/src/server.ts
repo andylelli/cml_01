@@ -69,7 +69,7 @@ const storiesDir = path.resolve(workspaceRoot, "stories");
  * the same in a list. The title comes from `provenance.yaml` rather than from the slug, so a reader
  * gets *The "Canary" Murder Case* rather than *The Canary Murder Case*.
  */
-type SampleFile = { id: string; file: string; state: "verified" | "legacy"; title: string };
+type SampleFile = { id: string; file: string; state: "verified" | "unverified" | "failed" | "legacy"; title: string };
 
 const readProvenanceTitle = async (slug: string): Promise<string | null> => {
   try {
@@ -93,6 +93,20 @@ const readProvenanceTitle = async (slug: string): Promise<string | null> => {
 
 const listSampleFiles = async (): Promise<SampleFile[]> => {
   const slugs = await fs.readdir(libraryWorksDir);
+  /**
+   * A_103 B63: `verified` meant "case.cml2.yaml exists". The evidence gate's verdict lives in
+   * `library/works/.verification.json`, and the generator's loader skips every work it marks `failed`
+   * - MEASURED 17 such works served here as verified. The Archive now says what the loader does:
+   * `verified` (evidence passes), `unverified` (no evidence on disk), `failed` (evidence says unsound).
+   */
+  let verification: Record<string, string> = {};
+  try {
+    verification = JSON.parse(await fs.readFile(path.join(libraryWorksDir, ".verification.json"), "utf8")).works ?? {};
+  } catch {
+    verification = {};
+  }
+  const gateState = (slug: string): SampleFile["state"] =>
+    verification[slug] === "failed" ? "failed" : verification[slug] === "derived_unverified" ? "unverified" : "verified";
   const out: SampleFile[] = [];
   for (const slug of slugs.sort()) {
     if (slug.startsWith(".")) continue;
@@ -107,7 +121,7 @@ const listSampleFiles = async (): Promise<SampleFile[]> => {
       } catch {
         continue;
       }
-      out.push({ id: slug, file: full, state: c.state, title: (await readProvenanceTitle(slug)) ?? toTitle(slug) });
+      out.push({ id: slug, file: full, state: c.state === "verified" ? gateState(slug) : c.state, title: (await readProvenanceTitle(slug)) ?? toTitle(slug) });
       break;
     }
   }
@@ -717,7 +731,8 @@ const runPipeline = async (
       narrativeStyle,
       // A_92 — the humour band. Free text like tone; anything unrecognised resolves to "classic",
       // which is the behaviour every run had before the parameter existed.
-      humourLevel: specPayload?.humourLevel as string | undefined,
+      // A_103 B85: "auto" from the wizard means "not chosen"; only an explicit band reaches the resolver.
+      humourLevel: specPayload?.humourLevel === "auto" ? undefined : (specPayload?.humourLevel as string | undefined),
       proseBatchSize: specPayload?.proseBatchSize as number | undefined,
       similarityThreshold,
       skipNoveltyCheck,
@@ -944,8 +959,10 @@ export const composeThemeWithAngle = (theme: string | undefined, storyAngle: str
   const base = (theme ?? "").trim() || "A classic murder mystery";
   const angle = (storyAngle ?? "").trim();
   if (!angle) return base;
-  // The angle arrives as a phrase, not a sentence; the full stop is ours.
-  return `${base} Story angle: ${angle.replace(/\.*$/, "")}.${ANGLE_FRAMING}`;
+  // The angle arrives as a phrase, not a sentence; the full stop is ours - on BOTH sides. A_103 B84:
+  // the default base has no stop, so every UI run with an angle and no theme sent
+  // "A classic murder mystery Story angle: ..." and the test certified it.
+  return `${base.replace(/\.?$/, ".")} Story angle: ${angle.replace(/\.*$/, "")}.${ANGLE_FRAMING}`;
 };
 export const createServer = () => {
   const app = express();
@@ -2028,17 +2045,24 @@ export const createServer = () => {
   app.get("/api/llm-logs", async (req, res) => {
     const WINDOW_BYTES = 32 * 1024 * 1024;
     try {
-      const limit = Math.max(1, Math.min(2000, Number(req.query.limit ?? 200)));
+      // A_103 B78: `Number("abc")` is NaN, `entries.length < NaN` is false, and the route returned
+      // `{ entries: [] }` with a 200 for `?limit=abc` or a repeated `limit`. A non-number is the default.
+      const requested = Number(req.query.limit ?? 200);
+      const limit = Number.isFinite(requested) ? Math.max(1, Math.min(2000, requested)) : 200;
       const projectId = typeof req.query.projectId === "string" ? req.query.projectId : null;
       const logPath = process.env.LOG_FILE_PATH || path.resolve(process.cwd(), "logs", "llm.jsonl");
 
       const { size } = await fs.stat(logPath);
       const from = Math.max(0, size - WINDOW_BYTES);
+      // A_103 B79: read ONE byte before the window. If it is the newline that ends the previous record,
+      // the window's first line is a whole record and the unconditional shift below discards it - now
+      // that shift removes the empty string the leading newline splits off instead.
+      const readFrom = from > 0 ? from - 1 : 0;
       const handle = await fs.open(logPath, "r");
       let raw: string;
       try {
-        const buffer = Buffer.allocUnsafe(size - from);
-        await handle.read(buffer, 0, buffer.length, from);
+        const buffer = Buffer.allocUnsafe(size - readFrom);
+        await handle.read(buffer, 0, buffer.length, readFrom);
         raw = buffer.toString("utf-8");
       } finally {
         await handle.close();
@@ -2246,6 +2270,8 @@ export const createServer = () => {
       const library = {
         works: slugs.length,
         encoded: samples.filter((x) => x.state === "verified").length,
+        unverified: samples.filter((x) => x.state === "unverified").length,
+        failed: samples.filter((x) => x.state === "failed").length,
         legacy: samples.filter((x) => x.state === "legacy").length,
         awaitingEncode: slugs.length - samples.length,
       };

@@ -310,14 +310,31 @@ export function loadAntiCopyIndex(n: number = DEFAULT_N): AntiCopyIndex {
   if (cache && cache.n === n) return cache;
   const dir = textsDir();
   const texts: Record<string, string> = {};
+  /**
+   * A_103 B65: one try around the whole loop meant the first unreadable entry (a directory named
+   * `x.txt`, a permission error) dropped every file after it, and the warning said "no source texts"
+   * about a directory that had them. MEASURED: a.txt, a directory b.txt, c.txt -> index of ["a"], and
+   * a lift of c.txt passed the hard gate. Now per file, and the warning names what was skipped.
+   */
+  let listed: string[] = [];
   try {
-    for (const f of fs.readdirSync(dir)) {
-      if (!f.endsWith(".txt")) continue;
-      texts[f.replace(/\.txt$/, "")] = fs.readFileSync(path.join(dir, f), "utf8");
-    }
+    listed = fs.readdirSync(dir);
   } catch {
     // eslint-disable-next-line no-console
     console.warn(`[anti-copy] no source texts at ${dir} — the gate can find nothing and will pass everything`);
+  }
+  const skipped: string[] = [];
+  for (const f of listed) {
+    if (!f.endsWith(".txt")) continue;
+    try {
+      texts[f.replace(/\.txt$/, "")] = fs.readFileSync(path.join(dir, f), "utf8");
+    } catch {
+      skipped.push(f);
+    }
+  }
+  if (skipped.length > 0) {
+    // eslint-disable-next-line no-console
+    console.warn(`[anti-copy] ${skipped.length} source text(s) unreadable and NOT indexed — lifts from them will pass: ${skipped.slice(0, 5).join(", ")}${skipped.length > 5 ? " …" : ""}`);
   }
   cache = buildAntiCopyIndex(texts, n);
   return cache;

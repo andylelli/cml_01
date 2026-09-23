@@ -53,7 +53,7 @@
 import type { MechanismFamily } from "@cml/novelty";
 import type { PriorRunRecord } from "./novelty-ledger.js";
 
-/** `@cml/novelty`'s 14 values, plus the honest escape hatch. */
+/** `@cml/novelty`'s 16 values, plus the honest escape hatch. */
 export type LedgerFamily = MechanismFamily | "unclassified";
 
 /**
@@ -78,6 +78,9 @@ const FAMILY_RULES: ReadonlyArray<{ family: MechanismFamily; re: RegExp }> = [
   { family: "information_leak", re: /\b(overheard|letter|telegram|note|leaked|intercepted (post|mail))\b/i },
   { family: "disguised_natural_agent", re: /\b(natural causes|allerg|bee sting|heart failure|apparent accident)\b/i },
   { family: "unconscious_act", re: /\b(sleepwalk|somnambul|hypnot|drugged into|no memory of)\b/i },
+  // A_103 B61: least specific, so they are reached only when no device vocabulary above has fired.
+  { family: "role_invisibility", re: /\b(invisible (man|servant|postman|figure)|nobody (looks at|notices|sees)|no one (looks at|notices|sees)|beneath notice|part of the furniture|unnoticed servant|overlooked (servant|figure|caller)|the (servant|postman|maid|waiter|porter) (whom )?(nobody|no one) (sees|notices|noticed))\b/i },
+  { family: "investigative_blind_spot", re: /\b(blind spot|unexamined assumption|took for granted|never thought to (check|ask|question|look)|no one thought to (check|ask|question|look)|the police (assumed|took it|never questioned)|investigat\w+ (assumed|assumption))\b/i },
 ];
 
 /**

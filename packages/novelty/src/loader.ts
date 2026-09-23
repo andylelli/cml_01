@@ -122,6 +122,13 @@ export function loadReferenceCorpus(priorRuns: Fingerprint[] = []): Fingerprint[
       byKey.set(key, fp);
       continue;
     }
+    if (fp.corpus === existing.corpus) {
+      // A_103 B66: two SEED novels with one structural key are two novels, not a duplicate - MEASURED
+      // `the_mystery_of_a_hansom_cab` was dropped from every reference corpus behind a warning that
+      // said "across corpora". Keyed apart, both stay; the judge can name either as nearest.
+      byKey.set(`${key}|${fp.id}`, fp);
+      continue;
+    }
     const keep = (CORPUS_SPECIFICITY[fp.corpus] ?? 0) > (CORPUS_SPECIFICITY[existing.corpus] ?? 0) ? fp : existing;
     const drop = keep === fp ? existing : fp;
     // eslint-disable-next-line no-console

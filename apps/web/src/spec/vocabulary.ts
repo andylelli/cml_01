@@ -85,17 +85,21 @@ export const TONE_OPTIONS: readonly SpecOption<Tone>[] = [
  *
  * The hints below are the bands' real, countable effects — not flavour text.
  */
-export const HUMOUR_LEVELS = ["none", "dry", "classic", "sharp"] as const;
+// A_103 B85: "auto" is "not chosen". The wizard used to send "classic" on every run, and the resolver
+// returns an explicit value before it consults AGENT2B_BAND_BY_AXIS - so the flag could never fire
+// for a UI run. The API maps "auto" to undefined; the pipeline's own fallback is still "classic".
+export const HUMOUR_LEVELS = ["auto", "none", "dry", "classic", "sharp"] as const;
 export type HumourLevel = (typeof HUMOUR_LEVELS)[number];
 
 export const HUMOUR_OPTIONS: readonly SpecOption<HumourLevel>[] = [
+	{ value: "auto", label: "Auto", hint: "Let the pipeline choose (classic unless a flag varies it by axis)", icon: "gear" },
 	{ value: "none", label: "None", hint: "Earnest throughout; no character is funny", icon: "nib" },
 	{ value: "dry", label: "Dry", hint: "At most two light touches, understated", icon: "spectacles" },
 	{ value: "classic", label: "Classic", hint: "What the genre does — a beat each chapter", icon: "book" },
 	{ value: "sharp", label: "Sharp", hint: "Three wits, one of them unkind", icon: "masks" },
 ] as const;
 
-export const DEFAULT_HUMOUR_LEVEL: HumourLevel = "classic";
+export const DEFAULT_HUMOUR_LEVEL: HumourLevel = "auto";
 
 /* ── DETECTIVE ───────────────────────────────────────────────────────────────────────────────── */
 

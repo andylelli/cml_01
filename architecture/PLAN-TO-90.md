@@ -2872,6 +2872,13 @@ see the note there and A_101 §10.
 
 ## §32 THE CASE NOW PROVES THE ACT — A_102, built and measured, not yet in a book
 
+**§32 CORRECTION (A_103 B68/B69, 2026-09-23) — the 0 of 3 → 6 of 8 was measured on the wrong axis with
+no theme.** The harness read `meta.primary_axis`/`meta.theme` (fields no CML carries) and built every
+request on `temporal` with the no-theme branch, against an `authority` project with a 60-word theme.
+The paid run below failing all three predictions is consistent with that: the harness and the run
+were not the same prompt. The requirement is unchanged and still shipped; its measured effect is
+unknown until the harness (now: canonical axis, `--theme` required) is re-run - ~£0.15 for eight.
+
 **A_102's finding:** 48 of 56 archived cases (86%) prove the culprit was PRESENT and never that they
 struck the blow. The external reader named exactly that in **four consecutive reads**, and `clues` is
 the project's lowest-scoring category at 6.38 against 7.19–8.19 elsewhere.

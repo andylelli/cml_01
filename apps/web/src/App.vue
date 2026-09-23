@@ -110,7 +110,11 @@ const navigate = (id: string) => {
 };
 
 const onGenerate = async (submitted: MysterySpec) => {
-	spec.value = submitted;
+	// A_103 B74: `submitted.theme` is the COMPOSED theme (lead + flavour sentences). Writing it back into
+	// the shared spec made the next Generate compose on top of it - MEASURED: every flavour sentence
+	// doubled on the second run and after a reload, and the "theme (optional)" box showed machine text.
+	// The wizard keeps the raw theme; the composed one travels only in the request.
+	spec.value = { ...submitted, theme: spec.value.theme };
 	log.clear("pipeline");
 
 	const result = await flow.start(submitted);
@@ -123,7 +127,9 @@ const onGenerate = async (submitted: MysterySpec) => {
 
 	if (result.phase === "started") {
 		projectId.value = result.projectId;
-		openCase.value = { id: result.projectId, name: projectName.value || "New case" };
+		// A_103 B80: the project was created as "<decade> · <location>" (useCreateFlow's projectName) while the
+		// nav and the case-file header said "New case" for the whole run. One name, computed the same way.
+		openCase.value = { id: result.projectId, name: projectName.value || `${submitted.decade} · ${submitted.locationPreset}` };
 		log.add("info", "pipeline", "Your mystery is being written.");
 		// Straight to the case file: the run's progress and every artifact as it lands are there.
 		view.value = "case";

@@ -44,7 +44,13 @@ export type MechanismFamily =
   | "hidden_accomplice"
   | "information_leak"
   | "recorded_presence"
-  | "secret_will_inheritance";
+  | "secret_will_inheritance"
+  // A_103 B61: the scheduler serves these two (A_79 §7.1) and the fingerprint schema has held them since
+  // A_77 §9.2, but this union stopped at fourteen - so a shipped run in either family was filed
+  // `unclassified`, its cell never gained depth, and the walk locked onto it. MEASURED: 8 of 8
+  // consecutive scheduled picks were `role_invisibility` once the other twelve had all been used.
+  | "role_invisibility"
+  | "investigative_blind_spot";
 
 export type DiscriminatingTestShape =
   | "physical_trace"

@@ -10,6 +10,14 @@
  * a generated case; this reads archived cases WITH their clues, which the harness has no access to.
  */
 import { readFileSync } from "node:fs";
+import { pathToFileURL } from "node:url";
+
+// A_103 B72: the classifier is IMPORTED from the harness (built to dist), not mirrored - the mirror had
+// drifted (STOP list two words short, substring matching). The local variants below stay for the
+// old-vs-new comparison this script exists to print; the headline is the harness's own verdict.
+const { provesTheAct } = await import(pathToFileURL("C:/CML/apps/worker/dist/harness/agent3-direct-llm-check-harness.js").href);
+const escapeRe = (w) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const wordRe = (w) => new RegExp(`\\b${escapeRe(w)}\\b`, "i");
 
 const store = JSON.parse(readFileSync("C:/CML/data/store.json", "utf8"));
 const byProject = new Map();
@@ -26,7 +34,7 @@ const weaponWords = (dm) => {
   const s = String(dm);
   const instrument = / with /i.test(s) ? s.split(/ with /i).slice(1).join(" ") : "";
   return instrument.toLowerCase().replace(/[^a-z\s]/g, " ").split(/\s+/)
-    .filter((w) => w.length > 3 && !["with", "were", "from", "into", "that", "this", "used", "been"].includes(w));
+    .filter((w) => w.length > 3 && !["with", "were", "from", "into", "that", "this", "used", "been", "some", "their"].includes(w));
 };
 
 const TITLES = new Set(["mr", "mrs", "miss", "ms", "dr", "sir", "lady", "lord", "the"]);
@@ -35,6 +43,7 @@ const nameTokens = (c) => String(c).split(/[\s.,]+/).map((w) => w.trim())
 
 let n = 0, provesAct = 0, presenceOnly = 0, byTrace = 0, byTest = 0, byClue = 0;
 let oldProves = 0;
+let harnessProves = 0;
 const forensicRe = /fingerprint|finger-print|finger print|blood group|blood type|bloodstain matching|dna/i;
 let forensicLinks = 0;
 
@@ -46,9 +55,10 @@ for (const [pid, a] of byProject) {
   const culprits = (C.culpability?.culprits ?? []).map(String);
   if (culprits.length === 0) continue;
   n += 1;
+  if (provesTheAct(C).verdict === "PROVES THE ACT") harnessProves += 1;
 
-  const has = (t) => words.some((w) => String(t).toLowerCase().includes(w));
-  const namesCulpritNew = (t) => culprits.some((c) => t.includes(c) || nameTokens(c).some((w) => t.includes(w)));
+  const has = (t) => words.some((w) => wordRe(w).test(String(t)));
+  const namesCulpritNew = (t) => culprits.some((c) => t.includes(c) || nameTokens(c).some((w) => new RegExp(`\\b${escapeRe(w)}\\b`).test(t)));
   const namesCulpritOld = (t) => culprits.some((c) => t.includes(c) || t.includes(String(c.split(" ").pop())));
 
   const dt = C.discriminating_test;
@@ -75,6 +85,7 @@ for (const [pid, a] of byProject) {
 console.log(`cases with a death method, a test and clues: ${n}\n`);
 console.log(`  ORIGINAL rule (surname only, clues only)  proves the act: ${oldProves}  (${(100 * oldProves / n).toFixed(0)}%)`);
 console.log(`  CORRECTED rule (any name token + traces)  proves the act: ${provesAct}  (${(100 * provesAct / n).toFixed(0)}%)`);
+console.log(`  HARNESS classifier (imported, whole-word) proves the act: ${harnessProves}  (${(100 * harnessProves / n).toFixed(0)}%)`);
 console.log(`                                            presence only : ${presenceOnly}  (${(100 * presenceOnly / n).toFixed(0)}%)\n`);
 console.log(`  of those that link — by the test: ${byTest}   by a physical trace: ${byTrace}   by a clue: ${byClue}`);
 console.log(`  links that rest on a print / blood group / DNA (the case-closing kind): ${forensicLinks}`);

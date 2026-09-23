@@ -86,11 +86,11 @@ const {
 	          v-model.number="spec.proseBatchSize"
 	          type="number"
 	          min="1"
-	          max="5"
+	          max="2"
 	          class="transition-control mt-2 w-full rounded border border-line bg-surface px-3 py-2.5 text-[0.9rem] text-ink outline-none hover:border-line-strong"
 	        />
 	        <div class="mt-1 text-[11px] text-ink-faint">
-	          Chapters written per LLM call. A throughput knob, not a craft one.
+	          Chapters written per LLM call, 1 or 2 - the worker clamps anything higher to 2 (A_103 B77). A throughput knob, not a craft one.
 	        </div>
 	      </div>
 	    </div>

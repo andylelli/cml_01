@@ -13,7 +13,7 @@
   }
  },
  "inputs": {
-  "canon_fingerprints": 43,
+  "canon_fingerprints": 49,
   "ledger_runs": 134,
   "ledger_runs_with_family": 34,
   "ledger_family_out_of_enum": {
@@ -21,26 +21,26 @@
   }
  },
  "tiers": {
-  "neither": 48,
+  "neither": 47,
   "both": 3,
-  "canon-not-us": 22,
+  "canon-not-us": 23,
   "us-only": 7
  },
  "richness": {
-  "observed_cells": 25,
-  "chao1_estimate": 65.5,
+  "observed_cells": 26,
+  "chao1_estimate": 58.4,
   "ci95": [
-   36.7,
-   165.6
+   35.8,
+   133.4
   ],
   "singletons_f1": 18,
-  "doubletons_f2": 4,
-  "caution": "f2=4: the estimate rests on 4 observations and the interval is wide. Order of magnitude, not a target.",
-  "encodes_for_80pct": 110,
-  "encodes_for_90pct": 178,
+  "doubletons_f2": 5,
+  "caution": null,
+  "encodes_for_80pct": 91,
+  "encodes_for_90pct": 152,
   "projection": {
-   "+109_held": 52.3,
-   "+458_entire_pool": 65.1
+   "+109_held": 48.9,
+   "+458_entire_pool": 58.2
   }
  },
  "cells": [
@@ -184,6 +184,7 @@
    "mechanism_family": "locked_room_key",
    "tier": "canon-not-us",
    "canon": [
+    "the_mystery_of_the_yellow_room",
     "the_sign_of_the_four"
    ],
    "ourRuns": 0
@@ -194,8 +195,7 @@
    "mechanism_family": "locked_room_timing",
    "tier": "both",
    "canon": [
-    "the_big_bow_mystery",
-    "the_mystery_of_the_yellow_room"
+    "the_big_bow_mystery"
    ],
    "ourRuns": 2
   },
@@ -340,7 +340,8 @@
    "mechanism_family": "alibi_fabrication",
    "tier": "canon-not-us",
    "canon": [
-    "in_the_onyx_lobby"
+    "in_the_onyx_lobby",
+    "the_red_thumb_mark"
    ],
    "ourRuns": 0
   },
@@ -351,6 +352,7 @@
    "tier": "canon-not-us",
    "canon": [
     "dark_power",
+    "diana_of_kara_kara",
     "the_come_back",
     "the_fenchurch_street_mystery",
     "the_golden_face",
@@ -367,8 +369,10 @@
    "cell": "identity|substituted_body",
    "axis": "identity",
    "mechanism_family": "substituted_body",
-   "tier": "neither",
-   "canon": [],
+   "tier": "canon-not-us",
+   "canon": [
+    "the_corbin_necklace"
+   ],
    "ourRuns": 0
   },
   {
@@ -395,10 +399,12 @@
    "mechanism_family": "staged_scene",
    "tier": "both",
    "canon": [
+    "no_clue",
     "room_13",
     "the_girl_from_scotland_yard",
     "the_meredith_mystery",
-    "the_middle_temple_murder"
+    "the_middle_temple_murder",
+    "the_wisdom_of_father_brown"
    ],
    "ourRuns": 2
   },
@@ -543,6 +549,7 @@
    "tier": "canon-not-us",
    "canon": [
     "a_jury_of_her_peers",
+    "dorcas_dene_detective",
     "martin_hewitt_investigator",
     "the_man_who_knew_too_much"
    ],
@@ -758,38 +765,6 @@
   "unanchored": 14,
   "top": [
    {
-    "cell": "authority|locked_room_key",
-    "tier": "neither",
-    "anchored": true,
-    "routes": [
-     {
-      "change": "axis",
-      "from": "spatial",
-      "to": "authority",
-      "source_works": [
-       "the_sign_of_the_four"
-      ]
-     },
-     {
-      "change": "mechanism_family",
-      "from": "substituted_body",
-      "to": "locked_room_key",
-      "source_works": [
-       "the_strange_schemes_of_randolph_mason"
-      ]
-     },
-     {
-      "change": "mechanism_family",
-      "from": "secret_will_inheritance",
-      "to": "locked_room_key",
-      "source_works": [
-       "the_leavenworth_case"
-      ]
-     }
-    ],
-    "remoteness": 3
-   },
-   {
     "cell": "authority|poison_delayed",
     "tier": "neither",
     "anchored": true,
@@ -868,46 +843,6 @@
      }
     ],
     "remoteness": 3
-   },
-   {
-    "cell": "temporal|locked_room_key",
-    "tier": "neither",
-    "anchored": true,
-    "routes": [
-     {
-      "change": "axis",
-      "from": "spatial",
-      "to": "temporal",
-      "source_works": [
-       "the_sign_of_the_four"
-      ]
-     },
-     {
-      "change": "mechanism_family",
-      "from": "locked_room_timing",
-      "to": "locked_room_key",
-      "source_works": [
-       "the_clue_of_the_twisted_candle"
-      ]
-     },
-     {
-      "change": "mechanism_family",
-      "from": "substituted_body",
-      "to": "locked_room_key",
-      "source_works": [
-       "the_eye_of_osiris"
-      ]
-     },
-     {
-      "change": "mechanism_family",
-      "from": "poison_delayed",
-      "to": "locked_room_key",
-      "source_works": [
-       "the_mysterious_affair_at_styles"
-      ]
-     }
-    ],
-    "remoteness": 4
    },
    {
     "cell": "temporal|unconscious_act",
@@ -1070,6 +1005,39 @@
     "remoteness": 4
    },
    {
+    "cell": "authority|locked_room_key",
+    "tier": "neither",
+    "anchored": true,
+    "routes": [
+     {
+      "change": "axis",
+      "from": "spatial",
+      "to": "authority",
+      "source_works": [
+       "the_mystery_of_the_yellow_room",
+       "the_sign_of_the_four"
+      ]
+     },
+     {
+      "change": "mechanism_family",
+      "from": "substituted_body",
+      "to": "locked_room_key",
+      "source_works": [
+       "the_strange_schemes_of_randolph_mason"
+      ]
+     },
+     {
+      "change": "mechanism_family",
+      "from": "secret_will_inheritance",
+      "to": "locked_room_key",
+      "source_works": [
+       "the_leavenworth_case"
+      ]
+     }
+    ],
+    "remoteness": 4
+   },
+   {
     "cell": "temporal|poison_delayed",
     "tier": "canon-not-us",
     "anchored": true,
@@ -1092,54 +1060,6 @@
      }
     ],
     "remoteness": 4
-   },
-   {
-    "cell": "temporal|alibi_fabrication",
-    "tier": "neither",
-    "anchored": true,
-    "routes": [
-     {
-      "change": "axis",
-      "from": "identity",
-      "to": "temporal",
-      "source_works": [
-       "in_the_onyx_lobby"
-      ]
-     },
-     {
-      "change": "axis",
-      "from": "behavioral",
-      "to": "temporal",
-      "source_works": [
-       "the_loudwater_mystery"
-      ]
-     },
-     {
-      "change": "mechanism_family",
-      "from": "locked_room_timing",
-      "to": "alibi_fabrication",
-      "source_works": [
-       "the_clue_of_the_twisted_candle"
-      ]
-     },
-     {
-      "change": "mechanism_family",
-      "from": "substituted_body",
-      "to": "alibi_fabrication",
-      "source_works": [
-       "the_eye_of_osiris"
-      ]
-     },
-     {
-      "change": "mechanism_family",
-      "from": "poison_delayed",
-      "to": "alibi_fabrication",
-      "source_works": [
-       "the_mysterious_affair_at_styles"
-      ]
-     }
-    ],
-    "remoteness": 5
    },
    {
     "cell": "temporal|poison_substitution",
@@ -1190,6 +1110,47 @@
     "remoteness": 5
    },
    {
+    "cell": "temporal|locked_room_key",
+    "tier": "neither",
+    "anchored": true,
+    "routes": [
+     {
+      "change": "axis",
+      "from": "spatial",
+      "to": "temporal",
+      "source_works": [
+       "the_mystery_of_the_yellow_room",
+       "the_sign_of_the_four"
+      ]
+     },
+     {
+      "change": "mechanism_family",
+      "from": "locked_room_timing",
+      "to": "locked_room_key",
+      "source_works": [
+       "the_clue_of_the_twisted_candle"
+      ]
+     },
+     {
+      "change": "mechanism_family",
+      "from": "substituted_body",
+      "to": "locked_room_key",
+      "source_works": [
+       "the_eye_of_osiris"
+      ]
+     },
+     {
+      "change": "mechanism_family",
+      "from": "poison_delayed",
+      "to": "locked_room_key",
+      "source_works": [
+       "the_mysterious_affair_at_styles"
+      ]
+     }
+    ],
+    "remoteness": 5
+   },
+   {
     "cell": "authority|hidden_accomplice",
     "tier": "neither",
     "anchored": true,
@@ -1231,36 +1192,53 @@
     "remoteness": 5
    },
    {
-    "cell": "authority|substituted_body",
-    "tier": "canon-not-us",
+    "cell": "temporal|alibi_fabrication",
+    "tier": "neither",
     "anchored": true,
     "routes": [
      {
       "change": "axis",
-      "from": "temporal",
-      "to": "authority",
+      "from": "identity",
+      "to": "temporal",
+      "source_works": [
+       "in_the_onyx_lobby",
+       "the_red_thumb_mark"
+      ]
+     },
+     {
+      "change": "axis",
+      "from": "behavioral",
+      "to": "temporal",
+      "source_works": [
+       "the_loudwater_mystery"
+      ]
+     },
+     {
+      "change": "mechanism_family",
+      "from": "locked_room_timing",
+      "to": "alibi_fabrication",
+      "source_works": [
+       "the_clue_of_the_twisted_candle"
+      ]
+     },
+     {
+      "change": "mechanism_family",
+      "from": "substituted_body",
+      "to": "alibi_fabrication",
       "source_works": [
        "the_eye_of_osiris"
       ]
      },
      {
-      "change": "axis",
-      "from": "spatial",
-      "to": "authority",
-      "source_works": [
-       "the_valley_of_fear"
-      ]
-     },
-     {
       "change": "mechanism_family",
-      "from": "secret_will_inheritance",
-      "to": "substituted_body",
+      "from": "poison_delayed",
+      "to": "alibi_fabrication",
       "source_works": [
-       "the_leavenworth_case"
+       "the_mysterious_affair_at_styles"
       ]
      }
     ],
-    "remoteness": 5
+    "remoteness": 6
    },
    {
     "cell": "temporal|hidden_accomplice",
@@ -1361,40 +1339,40 @@
     "remoteness": 6
    },
    {
-    "cell": "temporal|substituted_body",
+    "cell": "authority|substituted_body",
     "tier": "canon-not-us",
     "anchored": true,
     "routes": [
      {
       "change": "axis",
+      "from": "temporal",
+      "to": "authority",
+      "source_works": [
+       "the_eye_of_osiris"
+      ]
+     },
+     {
+      "change": "axis",
       "from": "spatial",
-      "to": "temporal",
+      "to": "authority",
       "source_works": [
        "the_valley_of_fear"
       ]
      },
      {
       "change": "axis",
-      "from": "authority",
-      "to": "temporal",
+      "from": "identity",
+      "to": "authority",
       "source_works": [
-       "the_strange_schemes_of_randolph_mason"
+       "the_corbin_necklace"
       ]
      },
      {
       "change": "mechanism_family",
-      "from": "locked_room_timing",
+      "from": "secret_will_inheritance",
       "to": "substituted_body",
       "source_works": [
-       "the_clue_of_the_twisted_candle"
-      ]
-     },
-     {
-      "change": "mechanism_family",
-      "from": "poison_delayed",
-      "to": "substituted_body",
-      "source_works": [
-       "the_mysterious_affair_at_styles"
+       "the_leavenworth_case"
       ]
      }
     ],
@@ -1458,6 +1436,54 @@
     "remoteness": 7
    },
    {
+    "cell": "temporal|substituted_body",
+    "tier": "canon-not-us",
+    "anchored": true,
+    "routes": [
+     {
+      "change": "axis",
+      "from": "spatial",
+      "to": "temporal",
+      "source_works": [
+       "the_valley_of_fear"
+      ]
+     },
+     {
+      "change": "axis",
+      "from": "identity",
+      "to": "temporal",
+      "source_works": [
+       "the_corbin_necklace"
+      ]
+     },
+     {
+      "change": "axis",
+      "from": "authority",
+      "to": "temporal",
+      "source_works": [
+       "the_strange_schemes_of_randolph_mason"
+      ]
+     },
+     {
+      "change": "mechanism_family",
+      "from": "locked_room_timing",
+      "to": "substituted_body",
+      "source_works": [
+       "the_clue_of_the_twisted_candle"
+      ]
+     },
+     {
+      "change": "mechanism_family",
+      "from": "poison_delayed",
+      "to": "substituted_body",
+      "source_works": [
+       "the_mysterious_affair_at_styles"
+      ]
+     }
+    ],
+    "remoteness": 7
+   },
+   {
     "cell": "spatial|poison_delayed",
     "tier": "neither",
     "anchored": true,
@@ -1475,6 +1501,7 @@
       "from": "locked_room_key",
       "to": "poison_delayed",
       "source_works": [
+       "the_mystery_of_the_yellow_room",
        "the_sign_of_the_four"
       ]
      },
@@ -1483,8 +1510,7 @@
       "from": "locked_room_timing",
       "to": "poison_delayed",
       "source_works": [
-       "the_big_bow_mystery",
-       "the_mystery_of_the_yellow_room"
+       "the_big_bow_mystery"
       ]
      },
      {
@@ -1533,6 +1559,7 @@
       "from": "locked_room_key",
       "to": "unconscious_act",
       "source_works": [
+       "the_mystery_of_the_yellow_room",
        "the_sign_of_the_four"
       ]
      },
@@ -1541,8 +1568,7 @@
       "from": "locked_room_timing",
       "to": "unconscious_act",
       "source_works": [
-       "the_big_bow_mystery",
-       "the_mystery_of_the_yellow_room"
+       "the_big_bow_mystery"
       ]
      },
      {
@@ -1591,6 +1617,7 @@
       "from": "locked_room_key",
       "to": "recorded_presence",
       "source_works": [
+       "the_mystery_of_the_yellow_room",
        "the_sign_of_the_four"
       ]
      },
@@ -1599,8 +1626,7 @@
       "from": "locked_room_timing",
       "to": "recorded_presence",
       "source_works": [
-       "the_big_bow_mystery",
-       "the_mystery_of_the_yellow_room"
+       "the_big_bow_mystery"
       ]
      },
      {
@@ -1649,6 +1675,7 @@
       "from": "locked_room_key",
       "to": "secret_will_inheritance",
       "source_works": [
+       "the_mystery_of_the_yellow_room",
        "the_sign_of_the_four"
       ]
      },
@@ -1657,8 +1684,7 @@
       "from": "locked_room_timing",
       "to": "secret_will_inheritance",
       "source_works": [
-       "the_big_bow_mystery",
-       "the_mystery_of_the_yellow_room"
+       "the_big_bow_mystery"
       ]
      },
      {
@@ -1682,48 +1708,6 @@
       "change": "mechanism_family",
       "from": "disguised_natural_agent",
       "to": "secret_will_inheritance",
-      "source_works": [
-       "the_mystery_girl"
-      ]
-     }
-    ],
-    "remoteness": 8
-   },
-   {
-    "cell": "spatial|locked_room_key",
-    "tier": "canon-not-us",
-    "anchored": true,
-    "routes": [
-     {
-      "change": "mechanism_family",
-      "from": "locked_room_timing",
-      "to": "locked_room_key",
-      "source_works": [
-       "the_big_bow_mystery",
-       "the_mystery_of_the_yellow_room"
-      ]
-     },
-     {
-      "change": "mechanism_family",
-      "from": "substituted_body",
-      "to": "locked_room_key",
-      "source_works": [
-       "the_valley_of_fear"
-      ]
-     },
-     {
-      "change": "mechanism_family",
-      "from": "staged_scene",
-      "to": "locked_room_key",
-      "source_works": [
-       "the_case_of_oscar_brodski",
-       "the_secret_of_father_brown"
-      ]
-     },
-     {
-      "change": "mechanism_family",
-      "from": "disguised_natural_agent",
-      "to": "locked_room_key",
       "source_works": [
        "the_mystery_girl"
       ]
@@ -1757,6 +1741,7 @@
       "from": "locked_room_key",
       "to": "poison_substitution",
       "source_works": [
+       "the_mystery_of_the_yellow_room",
        "the_sign_of_the_four"
       ]
      },
@@ -1765,8 +1750,7 @@
       "from": "locked_room_timing",
       "to": "poison_substitution",
       "source_works": [
-       "the_big_bow_mystery",
-       "the_mystery_of_the_yellow_room"
+       "the_big_bow_mystery"
       ]
      },
      {
@@ -1790,6 +1774,47 @@
       "change": "mechanism_family",
       "from": "disguised_natural_agent",
       "to": "poison_substitution",
+      "source_works": [
+       "the_mystery_girl"
+      ]
+     }
+    ],
+    "remoteness": 9
+   },
+   {
+    "cell": "spatial|locked_room_key",
+    "tier": "canon-not-us",
+    "anchored": true,
+    "routes": [
+     {
+      "change": "mechanism_family",
+      "from": "locked_room_timing",
+      "to": "locked_room_key",
+      "source_works": [
+       "the_big_bow_mystery"
+      ]
+     },
+     {
+      "change": "mechanism_family",
+      "from": "substituted_body",
+      "to": "locked_room_key",
+      "source_works": [
+       "the_valley_of_fear"
+      ]
+     },
+     {
+      "change": "mechanism_family",
+      "from": "staged_scene",
+      "to": "locked_room_key",
+      "source_works": [
+       "the_case_of_oscar_brodski",
+       "the_secret_of_father_brown"
+      ]
+     },
+     {
+      "change": "mechanism_family",
+      "from": "disguised_natural_agent",
+      "to": "locked_room_key",
       "source_works": [
        "the_mystery_girl"
       ]
@@ -1824,6 +1849,7 @@
       "from": "locked_room_key",
       "to": "hidden_accomplice",
       "source_works": [
+       "the_mystery_of_the_yellow_room",
        "the_sign_of_the_four"
       ]
      },
@@ -1832,8 +1858,7 @@
       "from": "locked_room_timing",
       "to": "hidden_accomplice",
       "source_works": [
-       "the_big_bow_mystery",
-       "the_mystery_of_the_yellow_room"
+       "the_big_bow_mystery"
       ]
      },
      {
@@ -1879,6 +1904,14 @@
      },
      {
       "change": "axis",
+      "from": "identity",
+      "to": "spatial",
+      "source_works": [
+       "the_corbin_necklace"
+      ]
+     },
+     {
+      "change": "axis",
       "from": "authority",
       "to": "spatial",
       "source_works": [
@@ -1890,6 +1923,7 @@
       "from": "locked_room_key",
       "to": "substituted_body",
       "source_works": [
+       "the_mystery_of_the_yellow_room",
        "the_sign_of_the_four"
       ]
      },
@@ -1898,8 +1932,7 @@
       "from": "locked_room_timing",
       "to": "substituted_body",
       "source_works": [
-       "the_big_bow_mystery",
-       "the_mystery_of_the_yellow_room"
+       "the_big_bow_mystery"
       ]
      },
      {
@@ -1920,7 +1953,7 @@
       ]
      }
     ],
-    "remoteness": 10
+    "remoteness": 11
    },
    {
     "cell": "spatial|disguised_natural_agent",
@@ -1949,6 +1982,7 @@
       "from": "locked_room_key",
       "to": "disguised_natural_agent",
       "source_works": [
+       "the_mystery_of_the_yellow_room",
        "the_sign_of_the_four"
       ]
      },
@@ -1957,8 +1991,7 @@
       "from": "locked_room_timing",
       "to": "disguised_natural_agent",
       "source_works": [
-       "the_big_bow_mystery",
-       "the_mystery_of_the_yellow_room"
+       "the_big_bow_mystery"
       ]
      },
      {
@@ -1980,204 +2013,6 @@
      }
     ],
     "remoteness": 11
-   },
-   {
-    "cell": "authority|staged_scene",
-    "tier": "neither",
-    "anchored": true,
-    "routes": [
-     {
-      "change": "axis",
-      "from": "spatial",
-      "to": "authority",
-      "source_works": [
-       "the_case_of_oscar_brodski",
-       "the_secret_of_father_brown"
-      ]
-     },
-     {
-      "change": "axis",
-      "from": "identity",
-      "to": "authority",
-      "source_works": [
-       "room_13",
-       "the_girl_from_scotland_yard",
-       "the_meredith_mystery"
-      ]
-     },
-     {
-      "change": "axis",
-      "from": "behavioral",
-      "to": "authority",
-      "source_works": [
-       "a_jury_of_her_peers",
-       "martin_hewitt_investigator",
-       "the_man_who_knew_too_much"
-      ]
-     },
-     {
-      "change": "mechanism_family",
-      "from": "substituted_body",
-      "to": "staged_scene",
-      "source_works": [
-       "the_strange_schemes_of_randolph_mason"
-      ]
-     },
-     {
-      "change": "mechanism_family",
-      "from": "secret_will_inheritance",
-      "to": "staged_scene",
-      "source_works": [
-       "the_leavenworth_case"
-      ]
-     }
-    ],
-    "remoteness": 11
-   },
-   {
-    "cell": "temporal|staged_scene",
-    "tier": "neither",
-    "anchored": true,
-    "routes": [
-     {
-      "change": "axis",
-      "from": "spatial",
-      "to": "temporal",
-      "source_works": [
-       "the_case_of_oscar_brodski",
-       "the_secret_of_father_brown"
-      ]
-     },
-     {
-      "change": "axis",
-      "from": "identity",
-      "to": "temporal",
-      "source_works": [
-       "room_13",
-       "the_girl_from_scotland_yard",
-       "the_meredith_mystery"
-      ]
-     },
-     {
-      "change": "axis",
-      "from": "behavioral",
-      "to": "temporal",
-      "source_works": [
-       "a_jury_of_her_peers",
-       "martin_hewitt_investigator",
-       "the_man_who_knew_too_much"
-      ]
-     },
-     {
-      "change": "mechanism_family",
-      "from": "locked_room_timing",
-      "to": "staged_scene",
-      "source_works": [
-       "the_clue_of_the_twisted_candle"
-      ]
-     },
-     {
-      "change": "mechanism_family",
-      "from": "substituted_body",
-      "to": "staged_scene",
-      "source_works": [
-       "the_eye_of_osiris"
-      ]
-     },
-     {
-      "change": "mechanism_family",
-      "from": "poison_delayed",
-      "to": "staged_scene",
-      "source_works": [
-       "the_mysterious_affair_at_styles"
-      ]
-     }
-    ],
-    "remoteness": 12
-   },
-   {
-    "cell": "behavioral|locked_room_key",
-    "tier": "neither",
-    "anchored": true,
-    "routes": [
-     {
-      "change": "axis",
-      "from": "spatial",
-      "to": "behavioral",
-      "source_works": [
-       "the_sign_of_the_four"
-      ]
-     },
-     {
-      "change": "mechanism_family",
-      "from": "locked_room_timing",
-      "to": "locked_room_key",
-      "source_works": [
-       "dorcas_dene_detective_78210"
-      ]
-     },
-     {
-      "change": "mechanism_family",
-      "from": "alibi_fabrication",
-      "to": "locked_room_key",
-      "source_works": [
-       "the_loudwater_mystery"
-      ]
-     },
-     {
-      "change": "mechanism_family",
-      "from": "impersonation",
-      "to": "locked_room_key",
-      "source_works": [
-       "the_invisible_man"
-      ]
-     },
-     {
-      "change": "mechanism_family",
-      "from": "poison_substitution",
-      "to": "locked_room_key",
-      "source_works": [
-       "a_study_in_scarlet"
-      ]
-     },
-     {
-      "change": "mechanism_family",
-      "from": "staged_scene",
-      "to": "locked_room_key",
-      "source_works": [
-       "a_jury_of_her_peers",
-       "martin_hewitt_investigator",
-       "the_man_who_knew_too_much"
-      ]
-     },
-     {
-      "change": "mechanism_family",
-      "from": "unconscious_act",
-      "to": "locked_room_key",
-      "source_works": [
-       "the_thirteenth_letter"
-      ]
-     },
-     {
-      "change": "mechanism_family",
-      "from": "disguised_natural_agent",
-      "to": "locked_room_key",
-      "source_works": [
-       "terror_keep",
-       "the_silent_bullet"
-      ]
-     },
-     {
-      "change": "mechanism_family",
-      "from": "hidden_accomplice",
-      "to": "locked_room_key",
-      "source_works": [
-       "the_problem_of_cell_13",
-       "the_profiteers"
-      ]
-     }
-    ],
-    "remoteness": 13
    },
    {
     "cell": "behavioral|poison_delayed",
@@ -2230,8 +2065,8 @@
       "to": "poison_delayed",
       "source_works": [
        "a_jury_of_her_peers",
-       "martin_hewitt_investigator",
-       "the_man_who_knew_too_much"
+       "dorcas_dene_detective",
+       "martin_hewitt_investigator"
       ]
      },
      {
@@ -2261,7 +2096,7 @@
       ]
      }
     ],
-    "remoteness": 13
+    "remoteness": 14
    },
    {
     "cell": "behavioral|secret_will_inheritance",
@@ -2314,8 +2149,8 @@
       "to": "secret_will_inheritance",
       "source_works": [
        "a_jury_of_her_peers",
-       "martin_hewitt_investigator",
-       "the_man_who_knew_too_much"
+       "dorcas_dene_detective",
+       "martin_hewitt_investigator"
       ]
      },
      {
@@ -2345,7 +2180,7 @@
       ]
      }
     ],
-    "remoteness": 13
+    "remoteness": 14
    },
    {
     "cell": "behavioral|unconscious_act",
@@ -2390,8 +2225,8 @@
       "to": "unconscious_act",
       "source_works": [
        "a_jury_of_her_peers",
-       "martin_hewitt_investigator",
-       "the_man_who_knew_too_much"
+       "dorcas_dene_detective",
+       "martin_hewitt_investigator"
       ]
      },
      {
@@ -2413,7 +2248,60 @@
       ]
      }
     ],
-    "remoteness": 13
+    "remoteness": 14
+   },
+   {
+    "cell": "authority|staged_scene",
+    "tier": "neither",
+    "anchored": true,
+    "routes": [
+     {
+      "change": "axis",
+      "from": "spatial",
+      "to": "authority",
+      "source_works": [
+       "the_case_of_oscar_brodski",
+       "the_secret_of_father_brown"
+      ]
+     },
+     {
+      "change": "axis",
+      "from": "identity",
+      "to": "authority",
+      "source_works": [
+       "no_clue",
+       "room_13",
+       "the_girl_from_scotland_yard"
+      ]
+     },
+     {
+      "change": "axis",
+      "from": "behavioral",
+      "to": "authority",
+      "source_works": [
+       "a_jury_of_her_peers",
+       "dorcas_dene_detective",
+       "martin_hewitt_investigator"
+      ]
+     },
+     {
+      "change": "mechanism_family",
+      "from": "substituted_body",
+      "to": "staged_scene",
+      "source_works": [
+       "the_strange_schemes_of_randolph_mason"
+      ]
+     },
+     {
+      "change": "mechanism_family",
+      "from": "secret_will_inheritance",
+      "to": "staged_scene",
+      "source_works": [
+       "the_leavenworth_case"
+      ]
+     }
+    ],
+    "remoteness": 14
    },
    {
     "cell": "authority|impersonation",
@@ -2426,8 +2314,8 @@
       "to": "authority",
       "source_works": [
        "dark_power",
-       "the_come_back",
-       "the_fenchurch_street_mystery"
+       "diana_of_kara_kara",
+       "the_come_back"
       ]
      },
      {
@@ -2455,33 +2343,42 @@
       ]
      }
     ],
-    "remoteness": 13
+    "remoteness": 14
    },
    {
-    "cell": "behavioral|alibi_fabrication",
-    "tier": "canon-not-us",
+    "cell": "behavioral|locked_room_key",
+    "tier": "neither",
     "anchored": true,
     "routes": [
      {
       "change": "axis",
-      "from": "identity",
+      "from": "spatial",
       "to": "behavioral",
       "source_works": [
-       "in_the_onyx_lobby"
+       "the_mystery_of_the_yellow_room",
+       "the_sign_of_the_four"
       ]
      },
      {
       "change": "mechanism_family",
       "from": "locked_room_timing",
-      "to": "alibi_fabrication",
+      "to": "locked_room_key",
       "source_works": [
        "dorcas_dene_detective_78210"
       ]
      },
      {
       "change": "mechanism_family",
+      "from": "alibi_fabrication",
+      "to": "locked_room_key",
+      "source_works": [
+       "the_loudwater_mystery"
+      ]
+     },
+     {
+      "change": "mechanism_family",
       "from": "impersonation",
-      "to": "alibi_fabrication",
+      "to": "locked_room_key",
       "source_works": [
        "the_invisible_man"
       ]
@@ -2489,7 +2386,7 @@
      {
       "change": "mechanism_family",
       "from": "poison_substitution",
-      "to": "alibi_fabrication",
+      "to": "locked_room_key",
       "source_works": [
        "a_study_in_scarlet"
       ]
@@ -2497,17 +2394,17 @@
      {
       "change": "mechanism_family",
       "from": "staged_scene",
-      "to": "alibi_fabrication",
+      "to": "locked_room_key",
       "source_works": [
        "a_jury_of_her_peers",
-       "martin_hewitt_investigator",
-       "the_man_who_knew_too_much"
+       "dorcas_dene_detective",
+       "martin_hewitt_investigator"
       ]
      },
      {
       "change": "mechanism_family",
       "from": "unconscious_act",
-      "to": "alibi_fabrication",
+      "to": "locked_room_key",
       "source_works": [
        "the_thirteenth_letter"
       ]
@@ -2515,7 +2412,7 @@
      {
       "change": "mechanism_family",
       "from": "disguised_natural_agent",
-      "to": "alibi_fabrication",
+      "to": "locked_room_key",
       "source_works": [
        "terror_keep",
        "the_silent_bullet"
@@ -2524,14 +2421,14 @@
      {
       "change": "mechanism_family",
       "from": "hidden_accomplice",
-      "to": "alibi_fabrication",
+      "to": "locked_room_key",
       "source_works": [
        "the_problem_of_cell_13",
        "the_profiteers"
       ]
      }
     ],
-    "remoteness": 14
+    "remoteness": 15
    },
    {
     "cell": "behavioral|poison_substitution",
@@ -2576,8 +2473,8 @@
       "to": "poison_substitution",
       "source_works": [
        "a_jury_of_her_peers",
-       "martin_hewitt_investigator",
-       "the_man_who_knew_too_much"
+       "dorcas_dene_detective",
+       "martin_hewitt_investigator"
       ]
      },
      {
@@ -2607,7 +2504,68 @@
       ]
      }
     ],
-    "remoteness": 14
+    "remoteness": 15
+   },
+   {
+    "cell": "temporal|staged_scene",
+    "tier": "neither",
+    "anchored": true,
+    "routes": [
+     {
+      "change": "axis",
+      "from": "spatial",
+      "to": "temporal",
+      "source_works": [
+       "the_case_of_oscar_brodski",
+       "the_secret_of_father_brown"
+      ]
+     },
+     {
+      "change": "axis",
+      "from": "identity",
+      "to": "temporal",
+      "source_works": [
+       "no_clue",
+       "room_13",
+       "the_girl_from_scotland_yard"
+      ]
+     },
+     {
+      "change": "axis",
+      "from": "behavioral",
+      "to": "temporal",
+      "source_works": [
+       "a_jury_of_her_peers",
+       "dorcas_dene_detective",
+       "martin_hewitt_investigator"
+      ]
+     },
+     {
+      "change": "mechanism_family",
+      "from": "locked_room_timing",
+      "to": "staged_scene",
+      "source_works": [
+       "the_clue_of_the_twisted_candle"
+      ]
+     },
+     {
+      "change": "mechanism_family",
+      "from": "substituted_body",
+      "to": "staged_scene",
+      "source_works": [
+       "the_eye_of_osiris"
+      ]
+     },
+     {
+      "change": "mechanism_family",
+      "from": "poison_delayed",
+      "to": "staged_scene",
+      "source_works": [
+       "the_mysterious_affair_at_styles"
+      ]
+     }
+    ],
+    "remoteness": 15
    },
    {
     "cell": "temporal|impersonation",
@@ -2620,8 +2578,8 @@
       "to": "temporal",
       "source_works": [
        "dark_power",
-       "the_come_back",
-       "the_fenchurch_street_mystery"
+       "diana_of_kara_kara",
+       "the_come_back"
       ]
      },
      {
@@ -2657,11 +2615,11 @@
       ]
      }
     ],
-    "remoteness": 14
+    "remoteness": 15
    },
    {
-    "cell": "behavioral|substituted_body",
-    "tier": "neither",
+    "cell": "behavioral|locked_room_timing",
+    "tier": "canon-not-us",
     "anchored": true,
     "routes": [
      {
@@ -2669,7 +2627,7 @@
       "from": "temporal",
       "to": "behavioral",
       "source_works": [
-       "the_eye_of_osiris"
+       "the_clue_of_the_twisted_candle"
       ]
      },
      {
@@ -2677,29 +2635,13 @@
       "from": "spatial",
       "to": "behavioral",
       "source_works": [
-       "the_valley_of_fear"
-      ]
-     },
-     {
-      "change": "axis",
-      "from": "authority",
-      "to": "behavioral",
-      "source_works": [
-       "the_strange_schemes_of_randolph_mason"
-      ]
-     },
-     {
-      "change": "mechanism_family",
-      "from": "locked_room_timing",
-      "to": "substituted_body",
-      "source_works": [
-       "dorcas_dene_detective_78210"
+       "the_big_bow_mystery"
       ]
      },
      {
       "change": "mechanism_family",
       "from": "alibi_fabrication",
-      "to": "substituted_body",
+      "to": "locked_room_timing",
       "source_works": [
        "the_loudwater_mystery"
       ]
@@ -2707,7 +2649,7 @@
      {
       "change": "mechanism_family",
       "from": "impersonation",
-      "to": "substituted_body",
+      "to": "locked_room_timing",
       "source_works": [
        "the_invisible_man"
       ]
@@ -2715,7 +2657,7 @@
      {
       "change": "mechanism_family",
       "from": "poison_substitution",
-      "to": "substituted_body",
+      "to": "locked_room_timing",
       "source_works": [
        "a_study_in_scarlet"
       ]
@@ -2723,17 +2665,17 @@
      {
       "change": "mechanism_family",
       "from": "staged_scene",
-      "to": "substituted_body",
+      "to": "locked_room_timing",
       "source_works": [
        "a_jury_of_her_peers",
-       "martin_hewitt_investigator",
-       "the_man_who_knew_too_much"
+       "dorcas_dene_detective",
+       "martin_hewitt_investigator"
       ]
      },
      {
       "change": "mechanism_family",
       "from": "unconscious_act",
-      "to": "substituted_body",
+      "to": "locked_room_timing",
       "source_works": [
        "the_thirteenth_letter"
       ]
@@ -2741,7 +2683,7 @@
      {
       "change": "mechanism_family",
       "from": "disguised_natural_agent",
-      "to": "substituted_body",
+      "to": "locked_room_timing",
       "source_works": [
        "terror_keep",
        "the_silent_bullet"
@@ -2750,14 +2692,91 @@
      {
       "change": "mechanism_family",
       "from": "hidden_accomplice",
-      "to": "substituted_body",
+      "to": "locked_room_timing",
       "source_works": [
        "the_problem_of_cell_13",
        "the_profiteers"
       ]
      }
     ],
-    "remoteness": 15
+    "remoteness": 16
+   },
+   {
+    "cell": "behavioral|alibi_fabrication",
+    "tier": "canon-not-us",
+    "anchored": true,
+    "routes": [
+     {
+      "change": "axis",
+      "from": "identity",
+      "to": "behavioral",
+      "source_works": [
+       "in_the_onyx_lobby",
+       "the_red_thumb_mark"
+      ]
+     },
+     {
+      "change": "mechanism_family",
+      "from": "locked_room_timing",
+      "to": "alibi_fabrication",
+      "source_works": [
+       "dorcas_dene_detective_78210"
+      ]
+     },
+     {
+      "change": "mechanism_family",
+      "from": "impersonation",
+      "to": "alibi_fabrication",
+      "source_works": [
+       "the_invisible_man"
+      ]
+     },
+     {
+      "change": "mechanism_family",
+      "from": "poison_substitution",
+      "to": "alibi_fabrication",
+      "source_works": [
+       "a_study_in_scarlet"
+      ]
+     },
+     {
+      "change": "mechanism_family",
+      "from": "staged_scene",
+      "to": "alibi_fabrication",
+      "source_works": [
+       "a_jury_of_her_peers",
+       "dorcas_dene_detective",
+       "martin_hewitt_investigator"
+      ]
+     },
+     {
+      "change": "mechanism_family",
+      "from": "unconscious_act",
+      "to": "alibi_fabrication",
+      "source_works": [
+       "the_thirteenth_letter"
+      ]
+     },
+     {
+      "change": "mechanism_family",
+      "from": "disguised_natural_agent",
+      "to": "alibi_fabrication",
+      "source_works": [
+       "terror_keep",
+       "the_silent_bullet"
+      ]
+     },
+     {
+      "change": "mechanism_family",
+      "from": "hidden_accomplice",
+      "to": "alibi_fabrication",
+      "source_works": [
+       "the_problem_of_cell_13",
+       "the_profiteers"
+      ]
+     }
+    ],
+    "remoteness": 16
    },
    {
     "cell": "behavioral|hidden_accomplice",
@@ -2810,8 +2829,8 @@
       "to": "hidden_accomplice",
       "source_works": [
        "a_jury_of_her_peers",
-       "martin_hewitt_investigator",
-       "the_man_who_knew_too_much"
+       "dorcas_dene_detective",
+       "martin_hewitt_investigator"
       ]
      },
      {
@@ -2832,11 +2851,11 @@
       ]
      }
     ],
-    "remoteness": 15
+    "remoteness": 16
    },
    {
-    "cell": "behavioral|locked_room_timing",
-    "tier": "canon-not-us",
+    "cell": "behavioral|substituted_body",
+    "tier": "neither",
     "anchored": true,
     "routes": [
      {
@@ -2844,7 +2863,7 @@
       "from": "temporal",
       "to": "behavioral",
       "source_works": [
-       "the_clue_of_the_twisted_candle"
+       "the_eye_of_osiris"
       ]
      },
      {
@@ -2852,14 +2871,37 @@
       "from": "spatial",
       "to": "behavioral",
       "source_works": [
-       "the_big_bow_mystery",
-       "the_mystery_of_the_yellow_room"
+       "the_valley_of_fear"
+      ]
+     },
+     {
+      "change": "axis",
+      "from": "identity",
+      "to": "behavioral",
+      "source_works": [
+       "the_corbin_necklace"
+      ]
+     },
+     {
+      "change": "axis",
+      "from": "authority",
+      "to": "behavioral",
+      "source_works": [
+       "the_strange_schemes_of_randolph_mason"
+      ]
+     },
+     {
+      "change": "mechanism_family",
+      "from": "locked_room_timing",
+      "to": "substituted_body",
+      "source_works": [
+       "dorcas_dene_detective_78210"
       ]
      },
      {
       "change": "mechanism_family",
       "from": "alibi_fabrication",
-      "to": "locked_room_timing",
+      "to": "substituted_body",
       "source_works": [
        "the_loudwater_mystery"
       ]
@@ -2867,7 +2909,7 @@
      {
       "change": "mechanism_family",
       "from": "impersonation",
-      "to": "locked_room_timing",
+      "to": "substituted_body",
       "source_works": [
        "the_invisible_man"
       ]
@@ -2875,7 +2917,7 @@
      {
       "change": "mechanism_family",
       "from": "poison_substitution",
-      "to": "locked_room_timing",
+      "to": "substituted_body",
       "source_works": [
        "a_study_in_scarlet"
       ]
@@ -2883,17 +2925,17 @@
      {
       "change": "mechanism_family",
       "from": "staged_scene",
-      "to": "locked_room_timing",
+      "to": "substituted_body",
       "source_works": [
        "a_jury_of_her_peers",
-       "martin_hewitt_investigator",
-       "the_man_who_knew_too_much"
+       "dorcas_dene_detective",
+       "martin_hewitt_investigator"
       ]
      },
      {
       "change": "mechanism_family",
       "from": "unconscious_act",
-      "to": "locked_room_timing",
+      "to": "substituted_body",
       "source_works": [
        "the_thirteenth_letter"
       ]
@@ -2901,7 +2943,7 @@
      {
       "change": "mechanism_family",
       "from": "disguised_natural_agent",
-      "to": "locked_room_timing",
+      "to": "substituted_body",
       "source_works": [
        "terror_keep",
        "the_silent_bullet"
@@ -2910,14 +2952,14 @@
      {
       "change": "mechanism_family",
       "from": "hidden_accomplice",
-      "to": "locked_room_timing",
+      "to": "substituted_body",
       "source_works": [
        "the_problem_of_cell_13",
        "the_profiteers"
       ]
      }
     ],
-    "remoteness": 16
+    "remoteness": 17
    }
   ]
  }

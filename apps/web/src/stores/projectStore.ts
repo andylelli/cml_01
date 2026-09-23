@@ -112,14 +112,18 @@ export const useProjectStore = defineStore("project", () => {
 
   const normalizeSetting = (payload: any) => {
     if (!payload || typeof payload !== "object") return null;
-    const era = payload.era ?? {};
-    const location = payload.location ?? {};
-    const atmosphere = payload.atmosphere ?? {};
+    // A_103 B81: the artifact is `{ setting: { era, location, atmosphere, realism }, rawResponse }` and
+    // this read `payload.era` - MEASURED 0 of 87 stored settings are flat, so every field came back
+    // undefined and `settingReady` reported an empty object as Ready. Read the nested block first.
+    const src = payload.setting && typeof payload.setting === "object" ? payload.setting : payload;
+    const era = src.era ?? {};
+    const location = src.location ?? {};
+    const atmosphere = src.atmosphere ?? {};
     return {
-      decade: payload.decade ?? era.decade,
-      locationPreset: payload.locationPreset ?? location.type ?? location.description,
-      weather: payload.weather ?? atmosphere.weather,
-      socialStructure: payload.socialStructure ?? (Array.isArray(era.socialNorms) ? era.socialNorms[0] : undefined),
+      decade: src.decade ?? era.decade,
+      locationPreset: src.locationPreset ?? location.type ?? location.description,
+      weather: src.weather ?? atmosphere.weather,
+      socialStructure: src.socialStructure ?? (Array.isArray(era.socialNorms) ? era.socialNorms[0] : undefined),
     };
   };
 

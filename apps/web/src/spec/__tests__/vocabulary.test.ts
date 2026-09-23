@@ -46,14 +46,23 @@ describe("spec vocabulary conformance", () => {
 		const match = src.match(/export const HUMOUR_LEVELS = \[([^\]]+)\]/);
 		expect(match, "HUMOUR_LEVELS not found in humour-level.ts").toBeTruthy();
 		const pipeline = [...(match as RegExpMatchArray)[1].matchAll(/"([^"]+)"/g)].map((m) => m[1]);
-		expect([...HUMOUR_LEVELS]).toEqual(pipeline);
+		// A_103 B85: the wizard carries one value the pipeline does not - "auto", which the API maps to
+		// undefined so the pipeline's own resolver (and the axis flag) decides. Every OTHER level is the
+		// pipeline's, in the pipeline's order.
+		expect(HUMOUR_LEVELS[0]).toBe("auto");
+		expect([...HUMOUR_LEVELS].filter((l) => l !== "auto")).toEqual(pipeline);
 	});
 
 	it("the default humour band is the pipeline's default", () => {
 		const src = read("packages/prompts-llm/src/humour-level.ts");
 		if (!src) return;
 		const match = src.match(/DEFAULT_HUMOUR_LEVEL: HumourLevel = "([^"]+)"/);
-		expect(defaultSpec().humourLevel).toBe((match as RegExpMatchArray)[1]);
+		// A_103 B85: the wizard defaults to "auto" (not chosen), which the API drops from the request so
+		// the pipeline's default applies. MEASURED before: every UI run sent "classic" explicitly, and the
+		// resolver returns an explicit band before it consults AGENT2B_BAND_BY_AXIS - the flag was dead
+		// for UI runs. The pipeline's default must still be one of the bands the wizard offers.
+		expect(defaultSpec().humourLevel).toBe("auto");
+		expect([...HUMOUR_LEVELS]).toContain((match as RegExpMatchArray)[1]);
 	});
 
 	it("location presets match the seeded generator", () => {

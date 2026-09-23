@@ -34,14 +34,14 @@
 
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 import dotenv from "dotenv";
 import { AzureOpenAIClient, LLMLogger, type LogLevel } from "@cml/llm-client";
 import { generateCML } from "@cml/prompts-llm";
 
 import { buildCmlGenerationRequest } from "../jobs/agents/agent3-run.js";
-import { deriveHardLogicDirectives, mergeHardLogicDirectives } from "../jobs/agents/shared.js";
+import { deriveHardLogicDirectives, mergeHardLogicDirectives, normalizePrimaryAxis } from "../jobs/agents/shared.js";
 import type { OrchestratorContext } from "../jobs/agents/shared.js";
 
 type CliArgs = {
@@ -51,7 +51,6 @@ type CliArgs = {
   primaryAxis?: string;
   tone?: string;
   model?: string;
-  temperature: number;
   maxAttempts: number;
   runId: string;
   outputPath?: string;
@@ -75,11 +74,10 @@ const printUsage = (): void => {
       "",
       "Options:",
       "  --store <path>            Artifact store (default: <repo>/data/store.json)",
-      "  --theme <text>            Override the theme (default: the project's own)",
-      "  --axis <axis>             temporal|spatial|identity|behavioral|authority (default: the project's)",
+      "  --theme <text>            REQUIRED. A persisted CML carries no theme: copy `theme:` from scripts/generated/run-params-<seed>.yaml",
+      "  --axis <axis>             temporal|spatial|identity|behavioral|authority (default: the CML's false_assumption.type)",
       "  --tone <text>             Override the tone",
-      "  --model <deployment>      Default: AZURE_OPENAI_DEPLOYMENT_NAME",
-      "  --temperature <number>    Default: the configured Agent 3 temperature",
+      "  --model <deployment>      Default: AZURE_OPENAI_DEPLOYMENT_NAME_DESIGN, then AZURE_OPENAI_DEPLOYMENT_NAME (applied through the env Agent 3 reads)",
       "  --maxAttempts <number>    Default: 1 — a harness run should not hide a first-attempt failure",
       "  --runId <id>              Default: harness-agent3-<timestamp>",
       "  --out <path>              Where to write the CML and the report",
@@ -99,7 +97,11 @@ const parseArgs = (argv: string[]): CliArgs => {
   }
   const projectId = get("--project");
   if (!projectId) throw new Error("Missing required --project argument.");
-  const temperature = Number(get("--temperature") ?? "NaN");
+  if (get("--temperature") !== undefined) {
+    // A_103 B70: parsed, written into the report, never sent - Agent 3 reads its temperature from
+    // generation-params (agent3_cml.params.model.temperature). Refuse rather than pretend.
+    throw new Error("--temperature is not supported: Agent 3 reads temperature from generation-params (agent3_cml.params.model.temperature).");
+  }
   const maxAttempts = Number(get("--maxAttempts") ?? "1");
   return {
     projectId,
@@ -108,7 +110,6 @@ const parseArgs = (argv: string[]): CliArgs => {
     primaryAxis: get("--axis"),
     tone: get("--tone"),
     model: get("--model"),
-    temperature,
     maxAttempts: Number.isFinite(maxAttempts) && maxAttempts > 0 ? maxAttempts : 1,
     runId: get("--runId") ?? `harness-agent3-${Date.now()}`,
     outputPath: get("--out"),
@@ -133,7 +134,7 @@ const latestArtifact = (rows: any[], projectId: string, type: string): any => {
  * when the physical traces or a culprit-linked fact do. Presence, access and knowledge do not count —
  * that is the whole distinction.
  */
-const provesTheAct = (caseBlock: any): { verdict: string; detail: string } => {
+export const provesTheAct = (caseBlock: any): { verdict: string; detail: string } => {
   const dm = String(caseBlock?.death_method ?? "").trim();
   if (!dm) return { verdict: "UNKNOWN", detail: "the case records no death_method" };
   // The INSTRUMENT, not the verb. death_method reads "<verb> with a <instrument>", and the verb
@@ -152,7 +153,11 @@ const provesTheAct = (caseBlock: any): { verdict: string; detail: string } => {
     return { verdict: "UNKNOWN", detail: `death_method names no instrument to trace: "${dm}"` };
   }
 
-  const has = (text: string): boolean => words.some((w) => text.toLowerCase().includes(w));
+  // A_103 B71: raw substring matching read "rope" in "proper", "iron" in "environment" and "Eve" in
+  // "Everard" as PROVES THE ACT (MEASURED, three fixtures). Whole words only, on both matchers.
+  const escapeRe = (w: string): string => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const wordRe = (w: string): RegExp => new RegExp(`\\b${escapeRe(w)}\\b`, "i");
+  const has = (text: string): boolean => words.some((w) => wordRe(w).test(text));
   const dt = caseBlock?.discriminating_test ?? {};
   const testText = `${dt.design ?? ""} ${dt.knowledge_revealed ?? ""} ${dt.pass_condition ?? ""}`;
   const traces: string[] = Array.isArray(caseBlock?.constraint_space?.physical?.traces)
@@ -170,7 +175,7 @@ const provesTheAct = (caseBlock: any): { verdict: string; detail: string } => {
       .map((w) => w.trim())
       .filter((w) => w.length >= 3 && !TITLES.has(w.toLowerCase()));
   const namesCulprit = (t: string): boolean =>
-    culprits.some((c) => t.includes(c) || nameTokens(c).some((w) => t.includes(w)));
+    culprits.some((c) => t.includes(c) || nameTokens(c).some((w) => new RegExp(`\\b${escapeRe(w)}\\b`).test(t)));
 
   if (has(testText)) return { verdict: "PROVES THE ACT", detail: `the discriminating test names the means of death` };
 
@@ -259,8 +264,25 @@ const main = async (): Promise<void> => {
   }
 
   const priorCase = priorCml?.CASE ?? priorCml;
-  const theme = args.theme ?? String(priorCase?.meta?.theme ?? "") ?? undefined;
-  const primaryAxis = (args.primaryAxis ?? priorCase?.meta?.primary_axis ?? "temporal") as never;
+  /**
+   * A_103 B68/B69: `meta.primary_axis` and `meta.theme` are not fields any persisted CML carries
+   * (MEASURED 0 of 64), so every harness run to date built its request on `temporal` and the
+   * no-theme branch - the whole A_102 §6/§7 series ran against an `authority` project whose 60-word
+   * theme never reached the prompt. The axis now comes from the field that IS canonical, validated
+   * the way the orchestrator validates it; the theme is required, because a persisted case cannot
+   * supply it and a run without it measures a different prompt.
+   */
+  if (!args.theme) {
+    throw new Error(
+      "--theme is required: a persisted CML carries no theme, and a run without the project's theme measures a different prompt. Copy `theme:` from scripts/generated/run-params-<seed>.yaml.",
+    );
+  }
+  const theme: string = args.theme;
+  const axisSource = args.primaryAxis ?? (priorCase?.false_assumption?.type as string | undefined);
+  if (!axisSource) throw new Error("no axis: pass --axis, or point at a project whose CML carries false_assumption.type.");
+  const primaryAxis = normalizePrimaryAxis(axisSource, (message) => {
+    throw new Error(message);
+  });
 
   /**
    * The context `buildCmlGenerationRequest` reads — no more of it than that function touches, so a
@@ -292,6 +314,10 @@ const main = async (): Promise<void> => {
     logToFile: true,
     logFilePath: process.env.LOG_FILE_PATH || "apps/api/logs/llm.jsonl",
   });
+  // A_103 B70: `generateCML` sends `resolveDesignModel()` - AZURE_OPENAI_DEPLOYMENT_NAME_DESIGN, then
+  // _NAME, read at call time - so `defaultModel` below never reached the request when either env var
+  // was set (it is, here). Apply the override where Agent 3 reads.
+  if (args.model) process.env.AZURE_OPENAI_DEPLOYMENT_NAME_DESIGN = args.model;
   const client = new AzureOpenAIClient({
     endpoint,
     apiKey,
@@ -339,8 +365,14 @@ const main = async (): Promise<void> => {
   );
 };
 
-main().catch((error) => {
-  // eslint-disable-next-line no-console
-  console.error(`Harness failed: ${(error as Error).message}`);
-  process.exit(1);
-});
+// A_103 B72: guarded so `provesTheAct` can be imported (scripts/analysis/proves-what.mjs) without running
+// the harness. The script's own mirror of the classifier had already diverged from this one.
+const invokedDirectly =
+  Boolean(process.argv[1]) && import.meta.url.toLowerCase() === pathToFileURL(process.argv[1]).href.toLowerCase();
+if (invokedDirectly) {
+  main().catch((error) => {
+    // eslint-disable-next-line no-console
+    console.error(`Harness failed: ${(error as Error).message}`);
+    process.exit(1);
+  });
+}

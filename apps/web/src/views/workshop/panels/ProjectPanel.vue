@@ -35,7 +35,7 @@ const {
 	<div class="rounded-lg border border-line bg-ground-warm p-5">
 	  <div class="text-sm font-semibold text-frame">Welcome to your Mystery Generator</div>
 	  <div class="mt-2 text-sm text-frame">
-	    Open a project to watch it being written and to read everything the pipeline produced. Stories are set up and started under <strong>Create</strong>; everything generated appears under <strong>Review</strong>, and the raw CML, logs and scores under <strong>Advanced</strong>.
+	    Open a project to watch it being written and to read everything the pipeline produced. Stories are set up and started under <strong>Create</strong>; everything generated appears under <strong>Build</strong>, and the raw CML, logs and scores under <strong>Inspect</strong>.
 	  </div>
 	</div>
 

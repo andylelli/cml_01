@@ -355,13 +355,17 @@ export type SampleSummary = {
   filename: string;
   /** `verified` = re-encoded and checked span-by-span against the source text; `legacy` = the
    *  hand-authored 2025 encoding, which A_77 §3.2 found materially wrong in four known cases. */
-  state?: "verified" | "legacy";
+  state?: "verified" | "unverified" | "failed" | "legacy";
 };
 
 /** Totals for the whole reference library, not just the cases that are openable. */
 export type LibrarySummary = {
   works: number;
   encoded: number;
+  /** Encoded, no anchor evidence on disk yet — readable, not vouched for (A_103 B63). */
+  unverified?: number;
+  /** Encoded, and the evidence gate says the encoding is unsound — the generator skips these. */
+  failed?: number;
   legacy: number;
   awaitingEncode: number;
 };

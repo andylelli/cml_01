@@ -44,8 +44,9 @@ describe("CreateView", () => {
 		// run started from this app silently used the "classic" band.
 		const wrapper = mountView();
 		const humour = wrapper.findAll('input[name="humour"]');
-		expect(humour).toHaveLength(4);
-		expect(humour.map((i) => i.attributes("value"))).toEqual(["none", "dry", "classic", "sharp"]);
+		// A_103 B85: "auto" first - it is the default, and it is what lets the pipeline (or the axis flag) choose.
+		expect(humour).toHaveLength(5);
+		expect(humour.map((i) => i.attributes("value"))).toEqual(["auto", "none", "dry", "classic", "sharp"]);
 	});
 
 	it("renders option groups as real radio inputs, not clickable divs", () => {

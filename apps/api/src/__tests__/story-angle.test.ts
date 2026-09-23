@@ -74,7 +74,7 @@ describe("composeThemeWithAngle", () => {
 
 	it("still applies the angle when the user typed no theme", () => {
 		const composed = composeThemeWithAngle("", "a by-election in a market town");
-		expect(composed.startsWith("A classic murder mystery Story angle: a by-election in a market town.")).toBe(true);
+		expect(composed.startsWith("A classic murder mystery. Story angle: a by-election in a market town.")).toBe(true);
 		expect(composed).toContain("NOT the murder mechanism");
 	});
 

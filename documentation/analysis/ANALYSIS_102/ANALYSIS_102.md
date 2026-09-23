@@ -146,6 +146,17 @@ resume that already said it.
 
 ---
 
+> **CORRECTION (A_103 B68/B69, 2026-09-23).** Every harness run below was built on `primaryAxis:
+> temporal` with NO theme. The harness read `meta.primary_axis` and `meta.theme`, fields no persisted
+> CML carries (MEASURED 0 of 64 in the store), and defaulted. The project it ran against
+> (`canary_1789577884303`, seed 50862) is an `authority` case with a 60-word theme naming the
+> concealment and a story angle. So §6's reproduction and §7's 0 of 3 → 6 of 8 measured the
+> requirement under a different axis, mechanism-family set, hard-logic modes and tone from the run
+> that fed §8. The numbers stand as what they are - the requirement's effect on a temporal, bare-theme
+> prompt - and are NOT evidence about the production prompt until re-run with the canonical axis
+> (`false_assumption.type`, now what the harness reads) and `--theme` (now required). Nothing here is
+> deleted; this note is the finding.
+
 ## §6 THE AGENT 3 HARNESS — BUILT, AND IT REPRODUCES THE DEFECT ON FRESH CASES
 
 `npm run -w @cml/worker harness:agent3:direct -- --project <projectId>` generates ONE case from a

@@ -42,6 +42,12 @@ import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 
 const ROOT = process.env.CML_WORKSPACE_ROOT || process.cwd();
+// A_103 B62: `loadCorpusCells()` reads NOVELTY_CELL_SCHEDULER_CORPUS at call time, and this script
+// never loaded the env the worker runs under - so even with the corpus passed, a dry run said
+// "corpus not consulted" while `.env.local` set the flag on. Same files, same precedence as the worker.
+const { default: dotenv } = await import("dotenv");
+dotenv.config({ path: join(ROOT, ".env.local") });
+dotenv.config({ path: join(ROOT, ".env") });
 const BASE_YAML = join(ROOT, "scripts", "canary-core-inputs.yaml");
 const OUT_DIR = join(ROOT, "scratchpad", "scheduled");
 
@@ -55,7 +61,7 @@ const flagValue = (name) => {
 // script cannot silently run different logic from the pipeline (A_73 §19.1).
 const dist = (p) => pathToFileURL(join(ROOT, "apps", "worker", "dist", "jobs", p)).href;
 const { loadNoveltyLedger } = await import(dist("novelty-ledger.js"));
-const { scheduleCell, cellDirective } = await import(dist("cell-scheduler.js"));
+const { scheduleCell, cellDirective, loadCorpusCells } = await import(dist("cell-scheduler.js"));
 const { ledgerDispersion } = await import(dist("novelty-dispersion.js"));
 
 /** Every fair-play constraint from the control brief; no mechanism family, no era, no location. */
@@ -66,7 +72,14 @@ const NEUTRAL_THEME =
   "every red herring is inference-isolated from the true solution chain.";
 
 const records = await loadNoveltyLedger();
-let cell = scheduleCell(records);
+/**
+ * A_103 B62: the orchestrator's SHADOW log consulted the corpus (`loadCorpusCells()`, gated by
+ * NOVELTY_CELL_SCHEDULER_CORPUS) while this script - the only path that WRITES a scheduled cell into
+ * a run - called `scheduleCell(records)` with none. MEASURED on the live ledger with the flag on:
+ * script `behavioral x locked_room_key | unknown`, shadow `behavioral x impersonation | canon-not-us`.
+ * The flag changed the log and never the run. WF-002: the sole input to a write is where it matters.
+ */
+let cell = scheduleCell(records, 20, loadCorpusCells());
 
 const excludeAxis = flagValue("--exclude-axis");
 if (excludeAxis && cell.axis === excludeAxis) {

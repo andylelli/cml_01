@@ -37,8 +37,17 @@ const archiveSubtitle = computed(() => {
 	const cases = `${samples.value.length} ${samples.value.length === 1 ? "case" : "cases"} on file`;
 	const lib = library.value;
 	if (!lib || lib.works <= samples.value.length) return cases;
-	return `${cases} · ${lib.works} works in the library, ${lib.awaitingEncode} not yet encoded`;
+	// A_103 B67: the payload carried `failed` and `unverified` and the subtitle showed neither.
+	const gate = [
+		lib.failed ? `${lib.failed} failed verification` : "",
+		lib.unverified ? `${lib.unverified} unverified` : "",
+	].filter(Boolean);
+	return `${cases} · ${lib.works} works in the library, ${lib.awaitingEncode} not yet encoded${gate.length ? ` · ${gate.join(", ")}` : ""}`;
 });
+
+/** One word beside a case the generator will not use, or has not checked (A_103 B67). */
+const stateBadge = (state: SampleSummary["state"]): string | null =>
+	state === "failed" ? "failed check" : state === "unverified" ? "unverified" : state === "legacy" ? "legacy" : null;
 
 const loadList = async () => {
 	loadingList.value = true;
@@ -84,7 +93,7 @@ onMounted(loadList);
 			<p v-if="loadingList" class="t-subtitle">Opening the archive…</p>
 
 			<p v-else-if="samples.length === 0" class="t-subtitle">
-				No samples on file yet. Generate a mystery and it will appear here.
+				No cases on file. The archive lists the reference library's encoded cases; encoding a work adds one.
 			</p>
 
 			<ul v-else class="flex flex-col gap-1.5 p-0">
@@ -109,6 +118,7 @@ onMounted(loadList);
 							]"
 						/>
 						<span class="min-w-0 flex-1 truncate text-[0.88rem] font-medium">{{ sample.name }}</span>
+						<span v-if="stateBadge(sample.state)" class="shrink-0 rounded border border-line px-1.5 py-0.5 text-[0.7rem] uppercase tracking-wide text-ink-soft">{{ stateBadge(sample.state) }}</span>
 					</button>
 				</li>
 			</ul>

@@ -374,10 +374,16 @@ export const scheduleCell = (
  * 9. The `divergeFrom` machinery still runs alongside this; it is now a supplement to an obligation
  * rather than the only constraint in the prompt.
  */
+/**
+ * A_103 B64: the test shape is not stored on a ledger record, so `usedShapes` is always empty and
+ * `shapeOrder[0]` is always `physical_trace` - MEASURED, one value across a 12-run walk. The directive
+ * ordered that shape as non-negotiable on every scheduled run, which is the monoculture the module
+ * exists to break. The coordinate stays on the cell (the walk is unchanged); the PROMPT no longer
+ * dictates it until the ledger can carry it.
+ */
 export const cellDirective = (cell: Cell): string =>
   `MECHANISM ASSIGNMENT (this run, non-negotiable): the case MUST turn on a ` +
-  `**${cell.family.replace(/_/g, " ")}** mechanism, on the **${cell.axis}** axis, and the ` +
-  `discriminating test MUST take the form of a **${cell.testShape.replace(/_/g, " ")}**. ` +
+  `**${cell.family.replace(/_/g, " ")}** mechanism, on the **${cell.axis}** axis. ` +
   `This is an assignment, not a suggestion, and it replaces any default the theme implies. ` +
   `The mechanism must be REALIZED — it is what the murder actually depends on and what the ` +
   `final deduction actually proves — not merely mentioned in passing while the case turns on ` +

@@ -229,8 +229,10 @@ const {
             <!-- Export Tab -->
             <ExportTab />
 
-            <!-- Dashboard details shown in Project tab only -->
-            <div v-if="activeMainTab === 'project'" id="dashboard-details" class="grid gap-6 md:grid-cols-2">
+            <!-- Dashboard details, with the Build tab. A_103 B73: e8f86c9a removed the `project` tab and
+                 this guard kept its name, so Setting overview, Cast, Clue board, Outline, Story, Fair-play
+                 and the game-pack download could never render, and "View details below" scrolled to nothing. -->
+            <div v-if="activeMainTab === 'build'" id="dashboard-details" class="grid gap-6 md:grid-cols-2">
               <div v-if="settingData" class="rounded-lg border border-line bg-surface p-6 shadow-card">
                 <div class="flex items-center justify-between">
                   <div class="t-section">Setting overview</div>

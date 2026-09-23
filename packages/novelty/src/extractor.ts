@@ -30,6 +30,7 @@ const MECHANISM_FAMILIES: readonly MechanismFamily[] = [
   "locked_room_key", "locked_room_timing", "alibi_fabrication", "impersonation", "substituted_body",
   "poison_delayed", "poison_substitution", "staged_scene", "unconscious_act", "disguised_natural_agent",
   "hidden_accomplice", "information_leak", "recorded_presence", "secret_will_inheritance",
+  "role_invisibility", "investigative_blind_spot",   // A_103 B61: the schema's 15th and 16th
 ];
 const TEST_SHAPES: readonly DiscriminatingTestShape[] = [
   "physical_trace", "timetable_contradiction", "behavioral_tell", "identity_disambiguation",

@@ -1,25 +1,10 @@
 import { inject, type InjectionKey } from "vue";
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
-import ExportPanel from "../../components/ExportPanel.vue";
-import ErrorNotification from "../../components/ErrorNotification.vue";
-import ValidationPanel from "../../components/ValidationPanel.vue";
-import ProseReader from "../../components/ProseReader.vue";
-import RunHistory from "../../components/RunHistory.vue";
-import NoveltyAudit from "../../components/NoveltyAudit.vue";
-import ScoreCard from "../../components/ScoreCard.vue";
-import PhaseBreakdownTable from "../../components/PhaseBreakdownTable.vue";
-import ScoreTrendChart from "../../components/ScoreTrendChart.vue";
-import TabBar from "../../components/TabBar.vue";
-import TabPanel from "../../components/TabPanel.vue";
 import ProgressIndicator from "../../components/ProgressIndicator.vue";
 import type { PipelineStep } from "../../components/pipelineTypes";
 import ArtifactStatusDashboard from "../../components/ArtifactStatusDashboard.vue";
-import ErrorLogPanel from "../../components/ErrorLogPanel.vue";
 import DebugPanel from "../../components/DebugPanel.vue";
-import ContentSkeleton from "../../components/ContentSkeleton.vue";
-import KeyboardShortcutHelp from "../../components/KeyboardShortcutHelp.vue";
-import VirtualList from "../../components/VirtualList.vue";
 import type {
   ErrorItem,
   ErrorSeverity,
@@ -51,8 +36,8 @@ import { subscribeToRunEvents } from "../../services/sse";
 import { useRunProgress } from "../../composables/useRunProgress";
 import { useShortcuts, type Shortcut } from "../../composables/useShortcuts";
 import { deriveProgress, deriveStages, progressPercentFromEvent } from "../../run/timeline";
-import { coerceSpec } from "../../spec/vocabulary";
-import { useSessionState } from "../../composables/useSessionState";
+import { coerceSpec, isPrimaryAxis } from "../../spec/vocabulary";
+import { setSpec, useSessionState } from "../../composables/useSessionState";
 
 /**
  * THE OPERATOR CONSOLE'S STATE, lifted out of WorkshopView.vue (UI-002 item 25).
@@ -735,6 +720,9 @@ export const useWorkshopState = () => {
       if (mainTab !== "inspect") return;
       void loadScoringReport();
       void loadScoringHistory();
+      // A_103 B75: with no project open this fetched the newest 200 entries of EVERY project and the
+      // panel showed another project's costs and models under "LLM log entries".
+      if (!currentProject) return;
       try {
         await projectStore.loadLlmLogs(currentProject, 200);
       } catch {
@@ -826,7 +814,12 @@ export const useWorkshopState = () => {
         if (savedSpec) {
           latestSpecId.value = savedSpec.id;
           if (savedSpec.spec && typeof savedSpec.spec === "object") {
-            spec.value = { ...spec.value, ...(savedSpec.spec as typeof spec.value) };
+            // A_103 B76: the stored spec was spread into the shared singleton with no repair - an older
+            // build's or a hand-posted spec rode in unchecked (the repairing setter had zero callers).
+            // Its `theme` is the COMPOSED theme the Create wizard sent (B74); restoring it would make
+            // the wizard compose on top of it, so the session's own theme is kept.
+            const { theme: _composed, ...restored } = savedSpec.spec as Partial<typeof spec.value>;
+            setSpec({ ...spec.value, ...restored, theme: spec.value.theme });
           }
         }
       } catch {
@@ -1037,6 +1030,12 @@ export const useWorkshopState = () => {
       return;
     }
     clearErrors("pipeline");
+    // A_103 B76: the Create path checks the one field that aborts a run before spending anything; this
+    // path saved the spec, created the run row and let pipeline init throw (X60: fail at the cheap end).
+    if (!isPrimaryAxis(spec.value.primaryAxis)) {
+      addError("error", "pipeline", `Axis "${String(spec.value.primaryAxis)}" is not one the pipeline accepts - choose one under Generate.`);
+      return;
+    }
     try {
       isStartingRun.value = true;
       projectStore.clearArtifactsOnly(); // clear stale artifacts immediately so Review tabs don't show old data
