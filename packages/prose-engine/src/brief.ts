@@ -95,7 +95,15 @@ export const revealOperation = (core: ContractCore): string => {
     // A_101 §6: asked for one countable sentence, the model wrote that sentence and little else — on A
     // the reveal listed the evidence, then gave the verdict, and the reader wanted "a clearer
     // confession or breakdown". The culprit's own line is the second countable thing.
-    `Then ${core.fairPlay.culprits.join(", ") || "the culprit"} answers, in their own words on the page: an admission, a denial or a breaking. ` +
+    // A_101 §14.3 — the read of 2026-09-23 scored the ending 7/10: the answer arrived and was "a bit
+    // too cute for a murder confession", built out of the culprit's catchphrase. The operation asked
+    // for an answer and never said what the answer must CARRY. It carries the reason now — as a
+    // shape, not as text: the motive is in the bible, and pasting it here is how A_67 puts a phrase
+    // on the page word for word.
+    // Positive only: "never the evidence, and never a joke" was the first wording and the brief's own
+    // law rejected it as a prohibition — the law working on the hand that wrote it.
+    `Then ${culprit} answers, in their own words on the page, and what ${culprit} says is the reason: ` +
+    `what ${victim} was going to do to them, or what they stood to lose. ` +
     `The chapter closes in the scene.`
   );
 };

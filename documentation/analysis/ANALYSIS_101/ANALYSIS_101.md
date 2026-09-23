@@ -438,8 +438,44 @@ interesting, yet it still does not fully prove the murder in a satisfying, physi
 sits at 7/10 while everything around it reaches 8. A_101's remaining recommendations are unchanged,
 and one is added:
 
-| # | next | cost |
-|---|---|---|
-| 1 | the confession carries the motive, as a countable operation | £0 |
-| 2 | the decisive clue must tie the culprit to the weapon, not only to the opportunity — Agent 5 | £0 to design |
-| 3 | then a pair, and a read | ~£0.30 + a read |
+| # | next | cost | state |
+|---|---|---|---|
+| 1 | the confession carries the motive, as a countable operation | £0 | **built** — §14.6 |
+| 2 | the decisive clue must tie the culprit to the weapon, not only to the opportunity — Agent 5 | £0 | **built** — §14.6 |
+| 3 | then a pair, and a read | ~£0.30 + a read | next |
+
+### §14.6 THE TWO FREE FIXES, BUILT
+
+**1. The confession carries its reason (v2, `brief.ts`).** The operation asked the culprit to answer
+and never said what the answer must carry, so it came out as her catchphrase. It now reads: *"Then X
+answers, in their own words on the page, and what X says is the reason: what Y was going to do to
+them, or what they stood to lose."*
+
+No motive TEXT enters the prompt. Verified on seed 50862: the motive is in the **bible** (`true`) and
+not in the **brief** (`false`) — pasting it into an operation is how A_67 puts a phrase on the page
+word for word.
+
+**The brief's own law rejected my first wording.** *"never the evidence, and never a joke"* is a
+prohibition, which a v2 brief may not contain; `briefLawViolations` failed the test and the wording is
+positive now. The law working on the hand that wrote it.
+
+**2. A clue that ties the culprit to the weapon (upstream, Agent 5).** MEASURED on seed 50862, and the
+reason the reader's complaint was exactly right: of fourteen essential clues, **one mentions the
+paperweight** (*"visible head wound and bloodied heavy paperweight found at the scene"*) and **zero
+tie it to Nora**. Slot 2b already asked for "the unique trace, preparation detail, **or** mechanism
+link" — a disjunction, and the model took the abstract branch, producing *"Nora's exclusive access and
+knowledge of the ledger and compass usage patterns"*.
+
+The new slot asks for the physical branch alone: *a PHYSICAL trace connecting X to the means of death
+itself (<death_method>) or to the place it was kept … Access, knowledge, opportunity and presence do
+NOT satisfy this slot.* It describes a construction and gives **no example**, because A_67 is that an
+illustrative clue in a prompt is reproduced rather than adapted.
+
+**Reach and how it can be tested.** This is Agent 5, upstream of Agent 9. `RESUME_REDO=prose` restores
+the clues artifact byte-identical, so **a prose-only pair cannot test it** — it needs a full run
+(~£1.15) or a resume from Agent 5. Fix 1 is testable by the usual ~£0.30 prose pair. Two
+implementations of the required-slot list exist (`generateExplicitClueRequirements` in the prompt,
+`deriveClueSpec` in `@cml/clue-spec`); the prompt is the write path and has the slot, the deriver is
+shadow telemetry and does not (WF-002 — a divergence that feeds no write is absorbed).
+
+Tests: 184 prose-engine, 4 new for the Agent 5 slot, 4,543 across every suite.

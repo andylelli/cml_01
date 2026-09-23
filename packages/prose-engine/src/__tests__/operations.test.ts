@@ -78,6 +78,45 @@ describe("the reveal and the test, after A_101 §6", () => {
     expect(line).toMatch(/Then Nora Quayle answers, in their own words on the page/);
   });
 
+  it("A_101 §14.3: the answer must carry the reason, not the evidence and not a joke", () => {
+    // The read scored the ending 7/10 — the answer arrived and was "a bit too cute for a murder
+    // confession". The operation now names what the answer carries.
+    const line = revealOperation(core);
+    expect(line).toMatch(/what Nora Quayle says is the reason/);
+    expect(line).toMatch(/what Montague Gaunt was going to do to them, or what they stood to lose/);
+    // and it stays POSITIVE: the brief's own law rejects a prohibition, including one of ours — the
+    // first wording was "never the evidence, and never a joke" and this test failed on it.
+    expect(briefLawViolations(buildBrief({ core, humourLevel: "classic" }))).toEqual([]);
+  });
+
+  it("and no motive TEXT enters the operation — the bible carries it (A_67)", () => {
+    const withMotive = buildContractCore({
+      cml: {
+        CASE: {
+          culpability: { culprits: ["Nora Quayle"] },
+          victim: { name: "Montague Gaunt" },
+          cast: [
+            { name: "Nora Quayle", role_archetype: "suspect", motive_seed: "Montague threatened to expose her misconduct in the books" },
+            { name: "Bertram Norbury", role_archetype: "detective" },
+            { name: "Montague Gaunt", role_archetype: "victim" },
+          ],
+          hidden_model: { mechanism: { description: "a compass tilt" } },
+          prose_requirements: { clue_to_scene_mapping: [] },
+        },
+      },
+      clues: { clues: [{ id: "clue_compass_tilt", observable: "the scuffed brass casing", description: "worn", criticality: "essential" }] },
+      outline: core ? { acts: [{ scenes: [
+        { sceneNumber: 1, act: 1, beat: "gathering", title: "A", characters: [], setting: { location: "x" }, cluesRevealed: ["clue_compass_tilt"] },
+        { sceneNumber: 2, act: 2, beat: "final_trap", title: "B", characters: [], setting: { location: "y" } },
+        { sceneNumber: 3, act: 3, beat: "revelation", title: "C", characters: [], setting: { location: "z" } },
+      ] }] } : null,
+      cast: { characters: [{ name: "Nora Quayle" }, { name: "Bertram Norbury" }, { name: "Montague Gaunt", role_archetype: "victim" }] },
+      humourLevel: "classic",
+    });
+    expect(revealOperation(withMotive)).not.toMatch(/misconduct|threatened to expose/);
+    expect(buildBrief({ core: withMotive, humourLevel: "classic" }).text).not.toMatch(/misconduct in the books/);
+  });
+
   it("the test chapter ends on its result when the reveal is a later chapter", () => {
     const brief = buildBrief({ core, humourLevel: "classic" });
     const tests = brief.asks.filter((a) => a.section === "tests").map((a) => a.line).join(" ");
