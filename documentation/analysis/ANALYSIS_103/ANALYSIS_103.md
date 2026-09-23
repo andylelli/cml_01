@@ -1,6 +1,6 @@
 # ANALYSIS_103 — Bug hunt over the corpus stream: fifty defects, recent changes first
 
-**Started 2026-09-23; closed the same day at 88 rows: 79 fixed, 5 withdrawn, 2 deferred, 2 folded into another row. £0.07 (part-types reruns).** Scope, in order: the corpus scripts and
+**Started 2026-09-23; closed the same day. MEASURED from the table: 68 rows (numbered to 88 - a number was assigned when a candidate was listed, and 20 never earned a row), 61 fixed, 5 withdrawn, 2 deferred. £0.07 spent (part-types reruns).** Scope, in order: the corpus scripts and
 package changes of 2026-09-17 → 09-19 (A_97, A_98, WP-003/004, A_100), then the pre-existing corpus
 pipeline they call (`corpus-classify`, `corpus-derive`, `corpus-encode*`, `corpus-verify`,
 `corpus-sync-fingerprints`), then the API/web edits. Each defect is **verified by running**, not by
