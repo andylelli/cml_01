@@ -27,6 +27,8 @@ import {
   buildEditorPrompt,
   buildTelemetryBlock,
   chooseDraft,
+  CONTRACT_TEMPLATE_PHRASES,
+  TEMPLATE,
   fullParagraphs,
   indexChapters,
   collectCheckerFindings,
@@ -137,17 +139,36 @@ export const renderSceneContract = (contract: BookContract, chapter: number): st
   const scene = contract.scenes.find((s) => s.chapter === chapter);
   if (!scene) return "";
   const lines: string[] = [];
-  lines.push(`=== CHAPTER ${chapter}: ${scene.title} ===`);
+  /**
+   * A title that announces the reveal on the aftermath chapter is the outline's mistake shown to the
+   * reader: C's chapter 10 was titled "The Culprit Revealed" after chapter 9 had done it, and the
+   * read said so. The writer titles such a chapter itself.
+   */
+  const title =
+    scene.role === "aftermath" && /\b(reveal|unmask|culprit|confess|exposed)/i.test(scene.title)
+      ? `(your own title: this chapter is the aftermath, and ${contract.fairPlay.culprits.join(", ") || "the culprit"} was named in chapter ${contract.roles.reveal})`
+      : scene.title;
+  lines.push(`=== CHAPTER ${chapter}: ${title} ===`);
   lines.push(`  This chapter is the ${scene.role.replace(/_/g, " ")}.`);
-  if (scene.present.length > 0) lines.push(`  On the page: ${scene.present.join(", ")}.`);
+  /**
+   * The victim is on the page as a body, not as a speaker. A's chapter 1 listed Montague Gaunt among
+   * the living and the writer gave him lines and then a corpse in one scene; the read called the
+   * transition "two scene versions spliced together".
+   */
+  const victim = contract.fairPlay.victim;
+  const living = scene.present.filter((n) => n !== victim);
+  if (living.length > 0) lines.push(`  On the page: ${living.join(", ")}.`);
+  if (victim && scene.present.includes(victim)) {
+    lines.push(`  The body: ${victim} — found dead; on the page as the body, as an object handled, and in what others remember.`);
+  }
   if (scene.location) lines.push(`  Where: ${scene.location}${scene.timeOfDay ? `, ${scene.timeOfDay}` : ""}.`);
   if (scene.timeWindow) lines.push(`  The clock: between ${scene.timeWindow.from} and ${scene.timeWindow.to}.`);
   for (const surface of scene.mustSurface) {
-    lines.push(`  A reader must be able to use, from this chapter: ${surface.observable || surface.keyTerms.join(", ")}`);
+    lines.push(`  ${TEMPLATE.readerCanUse}: ${surface.observable || surface.keyTerms.join(", ")}`);
     if (surface.unlockedBy) lines.push(`    ${surface.unlockedBy.name} reads it because they know ${surface.unlockedBy.skill}.`);
   }
   for (const ref of scene.mayMention) {
-    lines.push(`  Already on the page from chapter ${ref.firstChapter} — refer to it, do not stage it again: ${ref.keyTerms.slice(0, 5).join(", ")}`);
+    lines.push(`  Already on the page from chapter ${ref.firstChapter} — ${TEMPLATE.referNotStage}: ${ref.keyTerms.slice(0, 5).join(", ")}`);
   }
   for (const withheld of scene.mustNotReveal) {
     if (withheld.what === "culprit") lines.push(`  The culprit is named in chapter ${withheld.until}.`);
@@ -157,8 +178,8 @@ export const renderSceneContract = (contract: BookContract, chapter: number): st
     const closure = chapter > contract.roles.reveal;
     lines.push(
       closure
-        ? `  ${elimination.name} is already cleared by the arrest: give them one human beat, and settle the rest in a clause.`
-        : `  ${elimination.name} is cleared here — ${elimination.method} — shown, and carrying one human beat.`,
+        ? `  ${elimination.name} is already cleared by the arrest: give them ${TEMPLATE.humanBeat}, and ${TEMPLATE.settleInClause}.`
+        : `  ${elimination.name} is cleared here — ${elimination.method} — shown, and carrying ${TEMPLATE.humanBeat}.`,
     );
   }
   if (scene.job) {
@@ -168,14 +189,23 @@ export const renderSceneContract = (contract: BookContract, chapter: number): st
     }
   }
   if (scene.beats.wit) {
-    const shapes = scene.beats.wit.shapes.map((s) => `${s.shape.replace(/_/g, " ")} — ${s.name}`).join("; ");
-    lines.push(`  Wit beat: ${scene.beats.wit.name}, ${scene.beats.wit.style.replace(/_/g, " ")}. ${shapes}`);
+    // No labels. "flat answer", "short retort" and "unmeant joke" were the prompt's names for these
+    // moves and the reads found all three on the page. The move is described; the name is not said.
+    const owner = (shape: string): string | undefined => scene.beats.wit?.shapes.find((s) => s.shape === shape)?.name;
+    const parts: string[] = [];
+    if (owner("flat_answer")) parts.push(`${TEMPLATE.veryShortAnswer} is ${owner("flat_answer")}'s`);
+    if (owner("short_retort")) parts.push(`${TEMPLATE.shortReplyToLongSpeech} is ${owner("short_retort")}'s`);
+    if (owner("unmeant_joke")) parts.push(`${TEMPLATE.funnierThanMeant} is ${owner("unmeant_joke")}'s`);
+    lines.push(
+      `  ${TEMPLATE.twoExchanges}, carried by ${scene.beats.wit.name} (${scene.beats.wit.style.replace(/_/g, " ")})` +
+        (parts.length > 0 ? `: ${parts.join("; ")}.` : "."),
+    );
   }
   if (scene.beats.depth) {
-    lines.push(`  One thing about ${scene.beats.depth.name}, shown as an action and never explained: ${scene.beats.depth.trait}`);
+    lines.push(`  One thing about ${scene.beats.depth.name}, ${TEMPLATE.shownAsAction}: ${scene.beats.depth.trait}`);
   }
   if (scene.aftermath) {
-    lines.push(`  Opens on the settled outcome: ${scene.aftermath.outcome}.`);
+    lines.push(`  ${TEMPLATE.opensOnSettledOutcome}: ${scene.aftermath.outcome}.`);
     if (scene.aftermath.survivors.length > 0) {
       lines.push(`  Two survivors with one concrete change each: ${scene.aftermath.survivors.join(", ")}.`);
     }
@@ -444,6 +474,9 @@ export const generateBookV2 = async (ctx: OrchestratorContext): Promise<V2Result
   // ── findings ───────────────────────────────────────────────────────────────────────────────────
   const checkerFindings = collectCheckerFindings(written, contract, expected, {
     clueDistribution: (ctx.clues ?? undefined) as { clues?: unknown[] } | undefined,
+    // Our own instructions, so the checker can catch them coming back as prose.
+    instructionLines: [...contract.brief.asks.map((a) => a.line), ...CONTRACT_TEMPLATE_PHRASES],
+    caseText: contract.bible.text,
   });
   let criticFindings: Finding[] = [];
   let criticMalformed = 0;

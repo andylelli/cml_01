@@ -274,6 +274,8 @@ export const buildContractCore = (input: ContractInput): ContractCore => {
     .map((n) => String(n ?? "").trim())
     .filter(Boolean);
   const victim = nameOf(cast.find((c) => /victim/.test(roleTextOf(c)))) || String(caseBlock.victim ?? "");
+  /** Everyone who can still act: the victim carries no wit shape, no depth beat, no line. */
+  const living = profiles.filter((p) => nameOf(p) !== victim);
   const mechanism = (caseBlock.hidden_model as Record<string, unknown> | undefined)?.mechanism as
     | Record<string, unknown>
     | undefined;
@@ -380,9 +382,9 @@ export const buildContractCore = (input: ContractInput): ContractCore => {
 
     const witCandidate =
       band.beatEvery > 0 && chapterCarriesWitBeat(input.humourLevel, chapter)
-        ? selectWitBeat(profiles, chapter)
+        ? selectWitBeat(living, chapter)
         : undefined;
-    const depthCandidate = selectDepthBeat(profiles, chapter);
+    const depthCandidate = selectDepthBeat(living, chapter);
 
     const contract: SceneContract = {
       chapter,
@@ -419,7 +421,11 @@ export const buildContractCore = (input: ContractInput): ContractCore => {
       contract.beats.wit = {
         name: witCandidate.name,
         style: String(witCandidate.humourStyle ?? "").trim(),
-        shapes: assignOwnedShapes(profiles, chapter),
+        // The dead do not carry a comic beat. MEASURED 2026-09-22: the victim held the "unmeant joke"
+        // in all ten chapters of two books, because the unmeant joke goes to the humourless character
+        // and the victim's profile is the one with humour level 0. The reader saw "Leonard's unmeant
+        // joke" seven times.
+        shapes: assignOwnedShapes(living, chapter),
       };
     }
     if (depthCandidate?.name && String(depthCandidate.formativeIncident ?? "").trim()) {

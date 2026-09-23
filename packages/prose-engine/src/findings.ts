@@ -38,6 +38,7 @@ import {
 import { extractClockValues } from "@cml/cml";
 
 import { indexChapters } from "./chapter-index.js";
+import { findCatchphrases, findInstructionEchoes, instructionPhrases } from "./instruction-echo.js";
 import { checkHardGates } from "./selector.js";
 import type {
   ContractCore,
@@ -75,6 +76,7 @@ export const SEVERITY: Record<FindingClass, FindingSeverity> = {
   scaffold_token: "defect",
   register_sentence: "craft",
   repeat_passage: "craft",
+  catchphrase_repeated: "craft",
   copied_sentence: "defect",
   clearance_after_reveal: "defect",
   reveal_residue_in_aftermath: "defect",
@@ -151,6 +153,10 @@ export interface CheckerOptions {
   clueDistribution?: { clues?: unknown[] };
   /** How many register sentences to name per chapter. A_95 M1 named eight. */
   registerPerChapter?: number;
+  /** The writer's instruction lines — the brief's asks and the contract's template phrases. */
+  instructionLines?: ReadonlyArray<string>;
+  /** The bible: anything in it is case vocabulary and is never called an echo. */
+  caseText?: string;
 }
 
 /**
@@ -289,7 +295,23 @@ export const collectCheckerFindings = (
     }
   }
 
-  // 6. the aftermath re-arguing the case — 8 of the last 16 reviews ask for chapter 10 to be trimmed.
+  // 6. our own instructions, come back as prose (the reads of 2026-09-22 named five such phrases).
+  if (options.instructionLines && options.instructionLines.length > 0) {
+    const castNames = [...new Set([...core.scenes.flatMap((s) => s.present), ...core.fairPlay.culprits, core.fairPlay.victim])];
+    const phrases = instructionPhrases(options.instructionLines, castNames, options.caseText ?? "");
+    for (const hit of findInstructionEchoes(byChapter, phrases)) {
+      out.push(finding("scaffold_token", hit.chapter, hit.sentence, `"${hit.phrase}" is the brief's wording, not the book's`));
+    }
+  }
+
+  // 7. a line said so often it has become a label (the reader on A listed five; this lists the same five).
+  for (const hit of findCatchphrases(byChapter)) {
+    out.push(
+      finding("catchphrase_repeated", hit.chapter, hit.sentence, `"${hit.line}" is said ${hit.count} times in the book; after two it reads as a label`),
+    );
+  }
+
+  // 8. the aftermath re-arguing the case — 8 of the last 16 reviews ask for chapter 10 to be trimmed.
   if (core.roles.aftermath !== null) {
     const body = bodyOf(byChapter.get(core.roles.aftermath));
     // `because` was in this list and is an ordinary English word an aftermath uses for reasons that

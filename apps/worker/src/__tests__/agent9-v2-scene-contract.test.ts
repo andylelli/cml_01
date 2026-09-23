@@ -29,7 +29,8 @@ const contract = buildBookContract({
     acts: [
       {
         scenes: [
-          { sceneNumber: 1, act: 1, beat: "gathering", title: "Arrival", characters: ["Bertram Norbury"], setting: { location: "the office" }, cluesRevealed: ["clue_compass_tilt"] },
+          // The victim is IN chapter 1, as seed 50862's outline has him — the case the body rule exists for.
+          { sceneNumber: 1, act: 1, beat: "gathering", title: "Arrival", characters: ["Bertram Norbury", "Montague Gaunt"], setting: { location: "the office" }, cluesRevealed: ["clue_compass_tilt"] },
           { sceneNumber: 2, act: 2, beat: "final_trap", title: "The Test", characters: ["Bertram Norbury"], setting: { location: "the dunes" } },
           { sceneNumber: 3, act: 3, beat: "revelation", title: "After", characters: ["Bertram Norbury"], setting: { location: "the promenade" } },
         ],
@@ -46,6 +47,31 @@ const contract = buildBookContract({
   humourLevel: "classic",
   primaryAxis: undefined,
   targetLength: "short",
+});
+
+describe("what the reads of 2026-09-22 found in the contract", () => {
+  it("KNOWN-POSITIVE: the victim is the body, never on the page among the living", () => {
+    const text = renderSceneContract(contract, 1);
+    expect(text).toMatch(/The body: Montague Gaunt/);
+    expect(text).not.toMatch(/On the page:.*Montague Gaunt/);
+  });
+
+  it("the wit line names nobody's move by its label", () => {
+    for (const scene of contract.scenes) {
+      const text = renderSceneContract(contract, scene.chapter);
+      expect(text).not.toMatch(/flat answer|short retort|unmeant joke/);
+    }
+  });
+
+  it("an aftermath chapter whose outline title announces the reveal is titled by the writer", () => {
+    const aftermath = contract.roles.aftermath;
+    if (aftermath === null) return;
+    const scene = contract.scenes.find((s) => s.chapter === aftermath)!;
+    const mislabelled = { ...contract, scenes: contract.scenes.map((s) => (s === scene ? { ...s, title: "The Culprit Revealed" } : s)) };
+    const text = renderSceneContract(mislabelled, aftermath);
+    expect(text).toMatch(/your own title: this chapter is the aftermath/);
+    expect(text).not.toMatch(/The Culprit Revealed/);
+  });
 });
 
 describe("the per-chapter contract carries the operations the book missed", () => {

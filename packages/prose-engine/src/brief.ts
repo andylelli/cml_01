@@ -132,13 +132,15 @@ export const buildBrief = (input: BriefInput): Brief => {
       "shapes",
       `In each chapter that names a wit beat (${witChapters.join(", ")}), two exchanges are added to the conversation the chapter would have had anyway, at its full length.`,
     );
+    // The moves keep their counts and lose their NAMES: "flat answer" and "short retort" were on the
+    // page of two read books, and "delivered a speech" on a third, straight from these lines.
     add(
       "shapes",
-      "THE FLAT ANSWER: the named character answers a question in four words or fewer, and the next sentence moves on.",
+      "The first exchange: the named character answers a question in four words or fewer, and the next sentence moves on.",
     );
     add(
       "shapes",
-      "THE SHORT RETORT: somebody makes a speech of twenty-five words or more — write that speech, it is half the joke — and the named character answers it in six words or fewer.",
+      "The second exchange: somebody speaks at length, twenty-five words or more, written in full because it is half the joke, and the named character answers in six words or fewer.",
     );
     add(
       "shapes",
