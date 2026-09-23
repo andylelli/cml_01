@@ -11,7 +11,7 @@ import { describe, expect, it } from "vitest";
 
 import { buildContractCore } from "../contract.js";
 import { SEVERITY } from "../findings.js";
-import { checkHardGates, chooseDraft, RANKING_KINDS, rankingFailures, type ScoredDraft } from "../selector.js";
+import { checkHardGates, chooseDraft, CALIBRATION, RANKING_KINDS, rankingFailures, REGISTER_FLOOR, scoreDraft, type ScoredDraft } from "../selector.js";
 import type { DraftScore, ProseChapterLike } from "../types.js";
 
 const core = buildContractCore({
@@ -98,5 +98,42 @@ describe("only the kinds that stop or spoil a book rank drafts", () => {
   it("the ranking set is exactly the kinds that stop or spoil, and clue_early is not in it", () => {
     expect([...RANKING_KINDS].sort()).toEqual(["book_short", "chapter_missing", "clue_missing", "culprit_early", "reveal_unnamed", "scaffold"]);
     expect(rankingFailures({ hard: [{ kind: "clue_early", chapter: 1, detail: "" }], composite: 0 } as DraftScore)).toBe(0);
+  });
+});
+
+describe("register enters the composite no lower than the calibrated floor (A_101 §4)", () => {
+  const draftOf = (paragraphs: string[]) => ({
+    segment: 0,
+    attempt: 1,
+    chapters: [1, 2, 3].map((n) => ({ title: "t", number: n, paragraphs })),
+    truncated: false,
+    missing: [],
+  });
+  const expectedContribution = (rate: number) =>
+    (CALIBRATION.registerRate.weight * (Math.max(rate, REGISTER_FLOOR) - CALIBRATION.registerRate.mean)) /
+    CALIBRATION.registerRate.sd;
+
+  it("the contribution is computed from max(rate, floor), for any draft", () => {
+    for (const prose of [
+      ["Bertram set the compass on the ledger and turned the brass case to the window."],
+      ["The situation remained fundamentally uncertain, and the implications of the matter were considerable and far-reaching."],
+    ]) {
+      const score = scoreDraft(draftOf(prose), core, [1, 2, 3]);
+      // The selector reports contributions rounded to four places, so three is the honest precision.
+      expect(score.contributions.registerRate).toBeCloseTo(expectedContribution(score.vector.registerRate), 3);
+    }
+  });
+
+  it("KNOWN-POSITIVE: two drafts both under the floor get the same register term", () => {
+    const a = scoreDraft(draftOf(["Bertram set the compass on the ledger."]), core, [1, 2, 3]);
+    const b = scoreDraft(draftOf(["Nora wiped the spanner and hung it on the nail by the door."]), core, [1, 2, 3]);
+    expect(a.vector.registerRate).toBeLessThan(REGISTER_FLOOR);
+    expect(b.vector.registerRate).toBeLessThan(REGISTER_FLOOR);
+    expect(a.contributions.registerRate).toBe(b.contributions.registerRate);
+  });
+
+  it("the vector still reports the true rate", () => {
+    const a = scoreDraft(draftOf(["Bertram set the compass on the ledger."]), core, [1, 2, 3]);
+    expect(a.vector.registerRate).toBeLessThan(REGISTER_FLOOR);
   });
 });

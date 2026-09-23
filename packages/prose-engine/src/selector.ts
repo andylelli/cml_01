@@ -102,6 +102,20 @@ export const CALIBRATION = {
 /** The composite's measured agreement with the reader, and the number it has to beat. */
 export const CALIBRATION_RHO = { composite: 0.571, registerAlone: 0.502, designBar: 0.55 } as const;
 
+/**
+ * The lowest machine-register of any v1 book with an external read (A_101 §4).
+ *
+ * Below it the calibration has no evidence at all. v2's read books sit at 0.012–0.034; refitted on 55
+ * v1 reads, register predicts them at 88–90, and they read 80–84. So register enters the composite no
+ * lower than this floor: between two drafts that are both under it, register decides nothing and the
+ * other instruments do. The vector still reports the true rate.
+ *
+ * Units: the calibration measured saved manuscripts and the selector measures draft paragraphs,
+ * which read up to ±0.015 apart on the same book. It is a floor, not a threshold, so the placement
+ * need not be exact to stop the selector preferring ever-lower register past where it predicts.
+ */
+export const REGISTER_FLOOR = 0.058;
+
 type CalibratedKey = keyof typeof CALIBRATION;
 
 const textOf = (chapters: ReadonlyArray<ProseChapterLike>): string =>
@@ -324,7 +338,7 @@ export const scoreDraft = (
   const witTarget = options.witTargetPer10k ?? 41;
   const vector = measureInstruments(draft.chapters, witTarget);
   const values: Record<CalibratedKey, number> = {
-    registerRate: vector.registerRate,
+    registerRate: Math.max(vector.registerRate, REGISTER_FLOOR),
     repetitionPer10k: vector.repetitionPer10k,
     dialogueOpenShare: vector.dialogueOpenShare,
     longSentenceShare: vector.longSentenceShare,

@@ -63,14 +63,50 @@ describe("what the reads of 2026-09-22 found in the contract", () => {
     }
   });
 
-  it("an aftermath chapter whose outline title announces the reveal is titled by the writer", () => {
+  const retitled = (chapter: number, title: string) => ({
+    ...contract,
+    scenes: contract.scenes.map((s) => (s.chapter === chapter ? { ...s, title } : s)),
+  });
+
+  it("KNOWN-POSITIVE: an aftermath titled as a reveal loses the title, and no instruction enters the header", () => {
     const aftermath = contract.roles.aftermath;
     if (aftermath === null) return;
-    const scene = contract.scenes.find((s) => s.chapter === aftermath)!;
-    const mislabelled = { ...contract, scenes: contract.scenes.map((s) => (s === scene ? { ...s, title: "The Culprit Revealed" } : s)) };
-    const text = renderSceneContract(mislabelled, aftermath);
-    expect(text).toMatch(/your own title: this chapter is the aftermath/);
-    expect(text).not.toMatch(/The Culprit Revealed/);
+    for (const title of ["The Culprit Revealed", "Confrontation and Aftermath"]) {
+      const text = renderSceneContract(retitled(aftermath, title), aftermath);
+      expect(text, title).toMatch(new RegExp(`^=== CHAPTER ${aftermath} ===$`, "m"));
+      expect(text, title).toMatch(/Its title is yours: this chapter comes after Nora Quayle was named/);
+      expect(text, title).not.toContain(title);
+    }
+  });
+
+  it("KNOWN-POSITIVE: a reveal titled 'Clearing the Innocent' loses the title — all three read books", () => {
+    const reveal = contract.roles.reveal;
+    const text = renderSceneContract(retitled(reveal, "Clearing the Innocent"), reveal);
+    expect(text).toMatch(new RegExp(`^=== CHAPTER ${reveal} ===$`, "m"));
+    expect(text).toMatch(/Its title is yours: this is the chapter where Nora Quayle is named/);
+  });
+
+  it("KNOWN-NEGATIVE: titles that fit their role are kept", () => {
+    const reveal = contract.roles.reveal;
+    expect(renderSceneContract(retitled(reveal, "The Culprit Revealed"), reveal)).toMatch(/: The Culprit Revealed ===/);
+    const aftermath = contract.roles.aftermath;
+    if (aftermath !== null) {
+      expect(renderSceneContract(retitled(aftermath, "The Rector's Unimpeachable Word"), aftermath)).toMatch(/: The Rector's Unimpeachable Word ===/);
+    }
+  });
+
+  it("the aftermath is told to begin after the case closes, and never told who was exposed", () => {
+    const aftermath = contract.roles.aftermath;
+    if (aftermath === null) return;
+    const text = renderSceneContract(contract, aftermath);
+    expect(text).toMatch(/Opens on the first ordinary thing that happens once the case is closed/);
+    expect(text).toMatch(/mentioned in one clause or not at all/);
+    expect(text).not.toMatch(/settled outcome|was exposed in chapter/);
+  });
+
+  it("the reveal asks for the culprit's own answer on the page", () => {
+    const text = renderSceneContract(contract, contract.roles.reveal);
+    expect(text).toMatch(/Then Nora Quayle answers, in their own words on the page/);
   });
 });
 

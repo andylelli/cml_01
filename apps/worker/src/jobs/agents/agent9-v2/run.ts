@@ -140,15 +140,35 @@ export const renderSceneContract = (contract: BookContract, chapter: number): st
   if (!scene) return "";
   const lines: string[] = [];
   /**
-   * A title that announces the reveal on the aftermath chapter is the outline's mistake shown to the
-   * reader: C's chapter 10 was titled "The Culprit Revealed" after chapter 9 had done it, and the
-   * read said so. The writer titles such a chapter itself.
+   * ── THE REVEAL AND THE AFTERMATH CARRY TITLES THAT MATCH WHAT THEY DO ─────────────────────────
+   *
+   * The outline titles chapters by its own beats, and v2's roles do not always agree. On all three
+   * books read on 2026-09-22 the reveal chapter was titled "Clearing the Innocent", and the aftermath
+   * "Confrontation and Aftermath" or "The Culprit Revealed". The writer honoured the role AND the
+   * title, and the readers found the reveal in chapters 9 and 10 both (A_101 §6).
+   *
+   * So a title that contradicts the chapter's role is not shown: the header carries the number alone
+   * and one line says what the title must fit, which the writer's own header — the format rule
+   * requires one — supplies. The first cut put a parenthetical instruction INSIDE the header, which the
+   * writer would have copied onto the page (A_67); it never ran.
    */
-  const title =
-    scene.role === "aftermath" && /\b(reveal|unmask|culprit|confess|exposed)/i.test(scene.title)
-      ? `(your own title: this chapter is the aftermath, and ${contract.fairPlay.culprits.join(", ") || "the culprit"} was named in chapter ${contract.roles.reveal})`
-      : scene.title;
-  lines.push(`=== CHAPTER ${chapter}: ${title} ===`);
+  const culpritNames = contract.fairPlay.culprits.join(", ") || "the culprit";
+  const REVEAL_TITLE = /\b(reveal|unmask|culprit|confess|expos|confront|accus|guilt|verdict|truth)/i;
+  const CLEARING_TITLE = /\b(clear|innocent|alibi|eliminat)/i;
+  const titleFits =
+    scene.role === "reveal"
+      ? REVEAL_TITLE.test(scene.title) && !CLEARING_TITLE.test(scene.title)
+      : scene.role === "aftermath"
+        ? !REVEAL_TITLE.test(scene.title)
+        : true;
+  lines.push(titleFits && scene.title ? `=== CHAPTER ${chapter}: ${scene.title} ===` : `=== CHAPTER ${chapter} ===`);
+  if (!titleFits) {
+    lines.push(
+      scene.role === "reveal"
+        ? `  ${TEMPLATE.titleIsYours}: this is the chapter where ${culpritNames} is named.`
+        : `  ${TEMPLATE.titleIsYours}: this chapter comes after ${culpritNames} was named in chapter ${contract.roles.reveal}, and is about what happens next.`,
+    );
+  }
   lines.push(`  This chapter is the ${scene.role.replace(/_/g, " ")}.`);
   /**
    * The victim is on the page as a body, not as a speaker. A's chapter 1 listed Montague Gaunt among
@@ -205,7 +225,11 @@ export const renderSceneContract = (contract: BookContract, chapter: number): st
     lines.push(`  One thing about ${scene.beats.depth.name}, ${TEMPLATE.shownAsAction}: ${scene.beats.depth.trait}`);
   }
   if (scene.aftermath) {
-    lines.push(`  ${TEMPLATE.opensOnSettledOutcome}: ${scene.aftermath.outcome}.`);
+    // It used to open "on the settled outcome: X was exposed in chapter 9" — an instruction to say who
+    // did it again, which B's chapter 10 obeyed, down to the words "the outcome was settled" (A_101 §6).
+    lines.push(
+      `  ${TEMPLATE.opensAfterClose}; the proof belongs to chapter ${contract.roles.reveal}, and here it is mentioned in one clause or not at all.`,
+    );
     if (scene.aftermath.survivors.length > 0) {
       lines.push(`  Two survivors with one concrete change each: ${scene.aftermath.survivors.join(", ")}.`);
     }

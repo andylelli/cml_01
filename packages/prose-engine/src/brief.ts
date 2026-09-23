@@ -91,7 +91,12 @@ export const revealOperation = (core: ContractCore): string => {
   const victim = core.fairPlay.victim || "the victim";
   return (
     `Chapter ${core.roles.reveal} carries one sentence, spoken aloud by the person who worked it out, that states as settled fact that ${culprit} killed ${victim}: ` +
-    `the culprit's name and a verb of killing in the same sentence. The chapter closes in the scene.`
+    `the culprit's name and a verb of killing in the same sentence. ` +
+    // A_101 §6: asked for one countable sentence, the model wrote that sentence and little else — on A
+    // the reveal listed the evidence, then gave the verdict, and the reader wanted "a clearer
+    // confession or breakdown". The culprit's own line is the second countable thing.
+    `Then ${core.fairPlay.culprits.join(", ") || "the culprit"} answers, in their own words on the page: an admission, a denial or a breaking. ` +
+    `The chapter closes in the scene.`
   );
 };
 
@@ -186,7 +191,11 @@ export const buildBrief = (input: BriefInput): Brief => {
   if (dt !== null) {
     add(
       "tests",
-      `In chapter ${dt} a named witness first says what they believe, then the test is performed on the page by named people, and only after it is watched does anyone say how it works.`,
+      `In chapter ${dt} a named witness first says what they believe, then the test is performed on the page by named people, and only after it is watched does anyone say how it works.` +
+        // On B the accusation followed the test in chapter 8, a chapter before its contract, and the
+        // reveal happened twice. When the test and the reveal are different chapters, the test ends on
+        // its result.
+        (dt !== core.roles.reveal ? ` The chapter ends on the test's result; the name comes in chapter ${core.roles.reveal}.` : ""),
     );
   }
   add("tests", revealOperation(core));
@@ -194,7 +203,7 @@ export const buildBrief = (input: BriefInput): Brief => {
     const aftermath = core.scenes.find((s) => s.chapter === core.roles.aftermath)?.aftermath;
     add(
       "tests",
-      `Chapter ${core.roles.aftermath} opens on the outcome as a settled fact, gives two named survivors one concrete change each, carries one memory of the dead that is nothing to do with how they died, and ends on the place resuming ordinary use.`,
+      `Chapter ${core.roles.aftermath} opens on the first ordinary thing that happens once the case is closed, mentions the proof in one clause or not at all, gives two named survivors one concrete change each, carries one memory of the dead that is nothing to do with how they died, and ends on the place resuming ordinary use.`,
     );
     if (aftermath?.repairTarget) {
       add("tests", `Chapter ${core.roles.aftermath} also shows one thing outside a person put right: ${aftermath.repairTarget}.`);

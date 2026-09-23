@@ -304,3 +304,14 @@ separated from their defaulted voice, so a read of either settles nothing about 
 | checkers, measured | instruction echo: 12/12 true positives on the three read books, 0.18 false findings per book on the 51 v1 books that never saw the brief |
 | spend on v2 | £3.49 over 13 paid runs; three reads at no cost |
 | next paid step | recommendation 3, after 1 and 2 |
+
+---
+
+## §12 STATUS OF THE RECOMMENDATIONS
+
+| # | recommendation | state | commit | measured at £0 before the paid run |
+|---|---|---|---|---|
+| 1 | the reveal structure | **built** | this commit | on all three read books: the reveal chapter ("Clearing the Innocent") is untitled and told it is where the culprit is named; the aftermath keeps a title only if it does not announce a reveal (A's and C's lose theirs, B's is kept); the aftermath opens once the case is closed and mentions the proof in one clause or not at all; the test chapter ends on its result; the reveal adds the culprit's own answer; the brief's law is clean |
+| 2 | register no lower than 0.058 in the composite | **built** | this commit | replayed over the nine saved drafts: composites below the floor fall by 1.0–3.6, **no choice changes** — those were decided on contract fitness |
+| 3 | one controlled pair on A, then a read | **next** | — | budget £0.50 |
+| 4–6 | voice parameters, ledger guard, blind read | not started | — | — |

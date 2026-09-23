@@ -9,7 +9,8 @@
  * instruction-echo checker can catch whatever still comes back.
  */
 export const TEMPLATE = {
-  opensOnSettledOutcome: "Opens on the settled outcome",
+  opensAfterClose: "Opens on the first ordinary thing that happens once the case is closed",
+  titleIsYours: "Its title is yours",
   humanBeat: "one human beat",
   settleInClause: "settle the rest in a clause",
   shownAsAction: "shown as an action and never explained",

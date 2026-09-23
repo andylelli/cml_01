@@ -71,6 +71,29 @@ describe("the reveal is asked for as a shape, not an abstraction", () => {
   });
 });
 
+describe("the reveal and the test, after A_101 §6", () => {
+  it("the reveal gains the culprit's answer and keeps its countable sentence", () => {
+    const line = revealOperation(core);
+    expect(line).toMatch(/Nora Quayle killed/);
+    expect(line).toMatch(/Then Nora Quayle answers, in their own words on the page/);
+  });
+
+  it("the test chapter ends on its result when the reveal is a later chapter", () => {
+    const brief = buildBrief({ core, humourLevel: "classic" });
+    const tests = brief.asks.filter((a) => a.section === "tests").map((a) => a.line).join(" ");
+    if (core.roles.discriminatingTest !== null && core.roles.discriminatingTest !== core.roles.reveal) {
+      expect(tests).toMatch(new RegExp(`the name comes in chapter ${core.roles.reveal}`));
+    }
+    expect(briefLawViolations(brief)).toEqual([]);
+  });
+
+  it("the aftermath ask no longer opens on the outcome", () => {
+    const brief = buildBrief({ core, humourLevel: "classic" });
+    const tests = brief.asks.filter((a) => a.section === "tests").map((a) => a.line).join(" ");
+    expect(tests).not.toMatch(/opens on the outcome as a settled fact/);
+  });
+});
+
 describe("length is asked for as a count of full paragraphs", () => {
   it("derives the count from the chapter's target and never asks for fewer than six", () => {
     expect(fullParagraphs(1_000)).toBe(12);
