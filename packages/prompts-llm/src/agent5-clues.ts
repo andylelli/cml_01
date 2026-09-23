@@ -421,45 +421,25 @@ function generateExplicitClueRequirements(cml: Record<string, unknown>): Require
     });
 
     /**
-     * A_101 §14.4 — THE TRACE ON THE WEAPON.
+     * ── WHY THERE IS NO "TRACE ON THE WEAPON" SLOT HERE, AND WHERE IT BELONGS ────────────────────
      *
-     * MEASURED on seed 50862, and named by the reader twice: the case's fourteen essential clues put
-     * the weapon at the scene ("visible head wound and bloodied heavy paperweight") and tie the
-     * culprit to the LEDGER and the COMPASS ("Nora's exclusive access and knowledge of the ledger and
-     * compass usage patterns"). Nothing ties her to the thing that killed him. The read: *"the reveal
-     * does not really use it... that would lift the murder proof from good suspicion to solid
-     * accusation"*, and `clues` scored 7/10 while every category around it reached 8.
+     * A_101 §14.4 asked for one: the read of 2026-09-23 said the paperweight "is introduced well…
+     * but the reveal does not really use it", and of seed 50862's fourteen essential clues, one
+     * mentioned the weapon and none tied it to the culprit.
      *
-     * Slot 2b above already offers "the unique trace, preparation detail, or mechanism link" — a
-     * disjunction, and the model takes the abstract branch every time. This slot asks for the
-     * physical branch and nothing else.
+     * A slot was added here and REMOVED after measuring it (`harness:agent5:direct`, three runs on
+     * the frozen CML, A_101 §15). The case authors no such trace — `constraint_space.physical.traces`
+     * is the compass wear, the ledger ink and footprints in the dunes — so asking this agent for one
+     * does not surface evidence, it invents it. All three runs answered "fingerprints on the
+     * paperweight", the genre's default, anchored on the ERA's capability line ("Fingerprinting
+     * standard"), and each cited a `sourceInCML` that says something else entirely — ledger entries,
+     * witness statements. Every one passed the guardrails.
      *
-     * The requirement describes a CONSTRUCTION and gives no example: A_67 is that an illustrative
-     * clue in a prompt is reproduced rather than adapted, and the death-method slot above already
-     * carries that risk with its `tellHints.examples`.
-     *
-     * Reach: the Agent 5 PROMPT is the write path. `deriveClueSpec` (@cml/clue-spec) computes a
-     * second, coarser slot list for shadow telemetry only and does not have this slot; nothing reads
-     * it into a prompt (WF-002 — a divergence that feeds no write is absorbed).
+     * A clue the case cannot support is a fair-play defect wearing a citation, and a fingerprint on
+     * the murder weapon also closes the case before the discriminating test can matter. The
+     * requirement belongs to AGENT 3, which authors `constraint_space.physical.traces`; once the case
+     * carries such a trace, the existing slots surface it without being asked twice.
      */
-    if (typeof caseData?.death_method === "string" && caseData.death_method.trim()) {
-      const weapon = String(caseData.death_method).trim();
-      requirements.push({
-        requirement:
-          `Generate one essential mid-story clue that is a PHYSICAL trace connecting ${culprit.name} to the means of death itself (${weapon}) ` +
-          `or to the place it was kept: a mark one object leaves on another, or a thing of ${culprit.name}'s found where it could only have come from handling it. ` +
-          `Access, knowledge, opportunity and presence do NOT satisfy this slot — those are elsewhere in the clue set. ` +
-          `It must be observable by a witness at the time it is found, and usable by the reader before the reveal.`,
-        supportsInferenceStep: undefined,
-        evidenceType: "observation",
-        criticality: "essential",
-        sourceInCML: "CASE.death_method + CASE.culpability.culprits[0]",
-        keyTerms: [culprit.name, ...extractKeyTerms(weapon)].slice(0, 4),
-        suggestedPlacement: "mid",
-        category: "physical",
-      });
-    }
-
     // A_50 §9.3 fix #2 — UNIQUE-MEANS discriminator. When the concealment mechanism needs a special
     // skill/tool/access to execute, plant (early/mid, reader-visible) that ONLY the culprit had it —
     // so the reveal never has to invent "only X had the mechanical knowledge" (the probe's unfair-reveal).

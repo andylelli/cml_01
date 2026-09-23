@@ -441,7 +441,7 @@ and one is added:
 | # | next | cost | state |
 |---|---|---|---|
 | 1 | the confession carries the motive, as a countable operation | £0 | **built** — §14.6 |
-| 2 | the decisive clue must tie the culprit to the weapon, not only to the opportunity — Agent 5 | £0 | **built** — §14.6 |
+| 2 | the decisive clue must tie the culprit to the weapon — Agent 5 | £0 | **WITHDRAWN after measuring — §15** |
 | 3 | then a pair, and a read | ~£0.30 + a read | next |
 
 ### §14.6 THE TWO FREE FIXES, BUILT
@@ -479,3 +479,72 @@ implementations of the required-slot list exist (`generateExplicitClueRequiremen
 shadow telemetry and does not (WF-002 — a divergence that feeds no write is absorbed).
 
 Tests: 184 prose-engine, 4 new for the Agent 5 slot, 4,543 across every suite.
+
+---
+
+## §15 THE AGENT 5 HARNESS: THE WEAPON-LINK FIX WAS AIMED ONE STAGE TOO LATE
+
+`npm run -w @cml/worker harness:agent5:direct` runs Agent 5 alone against a frozen CML. Four calls on
+seed 50862's CML, pennies, and they withdrew §14.6's second fix.
+
+### §15.1 THE SLOT WORKED, AND WHAT IT PRODUCED WAS FABRICATED
+
+| run | wording asked for | the clue that came back | `sourceInCML` it cited | that path actually holds |
+|---|---|---|---|---|
+| 1 | a physical trace tying the culprit to the means of death | *"Fingerprint analysis links Nora Quayle's print to the paperweight"* | `constraint_space.physical.traces[1]` | "Ledger entries with fresh ink" |
+| 2 | + "must have an innocent explanation available" | *"Nora Quayle's fingerprints are found on the bloodied paperweight"* | `cast[1].evidence_sensitivity[0]` | "Ledger entries" |
+| 3 | + "a TRANSFER BETWEEN TWO OBJECTS… a property of the body does not satisfy this slot" | *"Fingerprints on the heavy paperweight match Nora Quayle's"* | `inference_path.steps[2].required_evidence[2]` | witness statements, time of death, compass bearing |
+
+**All three passed every guardrail** (`pass: true`, `deterministicContracts.passed: true`). **MEASURED.**
+
+**The case authors no trace on the weapon.** `constraint_space.physical.traces` is, in full: *"Wear on
+compass casing consistent with tilting"*, *"Ledger entries with fresh ink under close inspection"*,
+*"Footprints near dunes inconsistent with suspect timeline"*. The only mention of a print anywhere in
+the CASE is the ERA's capability line — *"Fingerprinting standard, basic toxicology"* — which says what
+the 1930s could do, not what happened here.
+
+So the slot did not surface evidence; **it asked for evidence that does not exist, and the model
+invented the genre's default and cited a path that says something else.** Three wordings did not move
+it, including one that ruled out properties of the body in as many words.
+
+### §15.2 WHAT THIS SETTLES, AND WHAT IT COSTS TO HAVE LEARNED IT
+
+**Withdrawn as harmful (CLAUDE.md — *surface anything withdrawn because building it would have caused
+harm*).** The slot is removed and the reason is recorded where it stood. A clue the case cannot
+support is a fair-play defect wearing a citation: the reader would meet a fingerprint on the murder
+weapon, and it would also close the case before the discriminating test could matter — undoing §6's
+work on the reveal.
+
+**Three findings worth more than the fix:**
+
+1. **The requirement belongs to Agent 3**, which authors `constraint_space.physical.traces`. Once the
+   case carries a trace on the means of death, the existing culprit-direct and mechanism slots surface
+   it with no new slot at all. This also explains the reader's complaint exactly: *"the paperweight is
+   introduced well… but the reveal does not really use it"* — the case never gave it anything to use.
+2. **Asking any agent for evidence its input does not contain produces fabrication, not absence.**
+   The model does not answer "there is no such trace"; it invents one and cites a neighbour. This is
+   the shape to expect from every "generate a clue that…" requirement whose anchor is missing.
+3. **`sourceInCML` is not checked against what the path holds.** Agent 5 has strict source-path
+   machinery — the harness log shows it auto-repairing other clues' paths — and it passed a clue whose
+   citation supports nothing like it, three times. A citation nothing verifies is
+   [[restated-facts-must-be-generated-and-checked]] in a new place, and it is cheap to close: compare
+   the clue's key terms against the text at the path it names.
+
+### §15.3 THE ROUTE ITSELF
+
+`RESUME_REDO=clues` works and keeps the CML frozen, but re-runs **nine** stages — clues, fair-play,
+profiles, locations, temporal, world, outline, geometry, prose. The outline and profiles regenerating
+means a book from that route is not one lever from the 82 and cannot be read against it. It could not
+be priced from the logs (`logs/llm.jsonl` carries no token counts and the original run has rolled out
+of the window); bounded between the £0.32 prose pair and a full book. **The single-agent harness is
+the right instrument for an upstream prompt change, and it cost pennies to overturn a fix.**
+
+### §15.4 THE RECOMMENDATIONS, REVISED
+
+| # | next | cost | state |
+|---|---|---|---|
+| 1 | the confession carries its reason (v2) | £0 | **built** — §14.6, untested on a book |
+| 2 | ~~the weapon-link clue slot in Agent 5~~ | — | **withdrawn — §15.1** |
+| 2a | Agent 3 authors a trace on the means of death in `constraint_space.physical.traces` | £0 to build, needs a full run to test | not started |
+| 2b | check `sourceInCML` against the text at that path | £0 | not started |
+| 3 | a prose pair on A for fix 1, then a read | ~£0.30 + a read | next |
