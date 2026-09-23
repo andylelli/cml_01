@@ -2897,3 +2897,13 @@ number of harness cases can answer it. **Next: a full paid run on a fresh seed (
 which is A_102 §4's step 4 and now has its justification. The prediction to check is narrow and the
 reader has stated it four times: the reveal names a physical fact connecting the culprit to the means
 of death, and the read does not repeat *"does not fully prove the murder in a satisfying, physical way"*.
+
+**§32 UPDATE — the paid run failed all three testable predictions.** Seed 61062,
+`mystery-1790200611969`, **$0.955**, status failure, release gate warning, rubric 65, repetition 4.3×
+the median so **the book must not be read**. The four shapes were obeyed and bound to the **clock**,
+not to the ceremonial letter opener that `death_method` names; the one trace touching the weapon names
+nobody. Separately, the case listed a culprit its own cast marks innocent, normalization reassigned,
+and the means-link slot was left naming an innocent — **nothing checks the name in the slot against
+the culprit**. Full account in A_102 §8. **Do not buy a second run** until the block names the weapon
+rather than referring to it, the culprit-in-slot check is wired in, and the harness is re-run on an
+upstream whose mechanism and weapon are distinct objects.

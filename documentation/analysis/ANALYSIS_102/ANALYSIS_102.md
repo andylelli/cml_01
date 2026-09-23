@@ -293,3 +293,103 @@ Agent 3 rather than asked for downstream.
   remaining question is whether the link survives nine downstream stages, and no number of harness
   cases can answer that.
 
+---
+
+## §8 THE PAID RUN — SEED 61062. ALL THREE TESTABLE PREDICTIONS FAILED, AND THE REASON IS DIAGNOSABLE
+
+| | |
+|---|---|
+| run id | `mystery-1790200611969` |
+| project id | `canary_1790200611967` |
+| seed | 61062 · temporal · Liner 1920s · private detective · classic · 6 cast · angle "a brewery dynasty" |
+| cost | **$0.955** (upper bound; cache hits billed at full input rate) |
+| status | **failure**, 2 errors |
+| release gate | **warning** — `geometry unaccounted_time` |
+| rubric (shadow) | **65/100**, capped: *"central clue stated as two flat values, not one contradiction → clues ≤ 6"* |
+| ship-check | repetition **75.2 per 10k against a corpus median of 17.3 — 4.3× — WORTH A LOOK BEFORE READING** |
+
+**The book is not going to a reader.** CLAUDE.md, and A_94 before it: a book at 29.8× the repetition
+median went to a reader, cost 7 marks and settled nothing. This one is at 4.3× with the instrument
+saying so.
+
+### §8.1 EVERY PREDICTION, INCLUDING THE FAILURES
+
+| # | prediction | result |
+|---|---|---|
+| 1 | the case links the culprit to the act | **FAILED** — `TRACE ONLY` |
+| 2 | Agent 5 turns that trace into a clue | **NOT REACHED** — there was no trace to surface |
+| 3 | the reveal names a physical fact tying culprit to means of death | **FAILED** — the reveal rests on clock tampering and a confession |
+| 4 | the read stops naming the complaint | **UNTESTABLE** — the book must not be read |
+
+### §8.2 THE SHAPES WERE OBEYED. THEY WERE FILLED IN ABOUT THE WRONG OBJECT.
+
+`death_method` is *"stabbed with a ceremonial letter opener"*. The concealment is a tampered lounge
+clock. **The block's four shapes bound themselves to the CLOCK.**
+
+```
+traces: "Smudged fingerprints on clock face near hour hand — Neville Underhill"
+        "Clock hour hand showing ninety degrees displacement — measurable physical misalignment"
+        "Missing smudge on letter opener handle — indicates careful handling"
+        "Displaced clock casing screws — by Katherine Bellamy"
+access.permissions: "First-class lounge — reachable by Katherine Bellamy, Ferdinand Jardine,
+                     Neville Underhill; not reachable by Edmund Carrick during key hours"
+```
+
+Two traces carry the `(c)` shape exactly, with the em-dash and a name. Both are about the clock. The
+reach list in the `(b)` shape names the lounge, which is where the clock is, not where the letter
+opener was kept. **The one trace touching the murder weapon names nobody and records an ABSENCE** —
+*"Missing smudge … indicates careful handling"* — which is the `(d)` instinct applied to the slot that
+was supposed to carry the link.
+
+This is [[axis-reaches-reasoning-not-device]] in a new place: **the case's centre of gravity is the
+concealment, and a requirement that says "the implement named in death_method" gets bound to the
+mechanism device anyway.** The harness never showed it because seed 50862's mechanism was a compass
+and its weapon a dagger — two unlike objects, and the shapes bound to the dagger 6 times in 8. Here
+the mechanism is a clock, the weapon a letter opener, and the clock won. **n=1 for this failure mode.**
+
+### §8.3 AND THE NAME IN THE SLOT IS NEVER CHECKED AGAINST THE CULPRIT
+
+The run log carries a line no harness case ever produced:
+
+> *"Agent 3 returned no usable culprit (culprits=[Katherine Bellamy]); normalization assigned
+> 'Ferdinand Jardine' from the cast. The case did not decide its own answer."*
+
+Agent 3 contradicted itself. It listed **Katherine Bellamy** in `culpability.culprits` while marking
+her `culprit_eligibility: ineligible` and `culpability: innocent` in its own cast, and marking
+**Ferdinand Jardine** `eligible` and `guilty`. Normalization recovered correctly by preferring the
+cast's `guilty`.
+
+But the means-link trace had already been written as **`"Displaced clock casing screws — by Katherine
+Bellamy"`** — the `(c)` shape, filled with the name of a suspect the same case marks innocent.
+
+**Nothing verifies that the name in the means-link slots is the culprit.** The harness classifier does
+exactly that check and is not wired into the pipeline. **MEASURED**, and it is the cheapest of the
+three fixes below.
+
+### §8.4 WHAT THIS COSTS AND WHAT IT BOUGHT
+
+£0.76 for a book nobody can read. It bought two failure modes that eight harness cases could not
+surface, because both need a full case with a mechanism device and a normalization pass:
+
+1. **The shapes bind to the concealment device, not to `death_method`.** Fixable in the prompt by
+   naming the object rather than referring to it: the block should restate the weapon, and should say
+   in its own words that the mechanism device is not it.
+2. **The culprit named in the slots is never checked.** Fixable deterministically after normalization,
+   using the check the harness already contains.
+3. **A case can name a culprit its own cast marks innocent.** Pre-existing, recorded here because it
+   is what orphaned the link.
+
+**This does not settle whether the means-link helps a book.** It settles that the requirement as
+written does not survive a case whose mechanism is a distinct object from its weapon. A second paid
+run should not be bought until 1 and 2 are built and the harness is re-run **on an upstream whose
+mechanism and weapon differ**, which seed 50862's does not sufficiently.
+
+### §8.5 UNRELATED, AND ON THE RECORD
+
+- **Agent 6's blind-reader gate did not run.** Azure refused the prompt twice on content filtering,
+  because the case's death method is in it. The gate is **SKIPPED, not passed**, and its remediation
+  loop did not run. Pre-existing (A_71), and it means this run had one fewer check than it appears to.
+- **The run was not recorded in the DE1 ledger**, because its status is failure. The corpus therefore
+  holds only clean runs, which is a biased sample and is [[archived-data-encodes-the-bug]] in its
+  cheapest form.
+
