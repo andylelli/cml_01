@@ -136,12 +136,21 @@ const latestArtifact = (rows: any[], projectId: string, type: string): any => {
 const provesTheAct = (caseBlock: any): { verdict: string; detail: string } => {
   const dm = String(caseBlock?.death_method ?? "").trim();
   if (!dm) return { verdict: "UNKNOWN", detail: "the case records no death_method" };
-  const words = dm
+  // The INSTRUMENT, not the verb. death_method reads "<verb> with a <instrument>", and the verb
+  // ("stabbed") appears in every sentence that describes the murder — including ones that prove only
+  // presence. Matching it made the probe agree with anything. Take what follows " with ".
+  const STOP = new Set(["with", "were", "from", "into", "that", "this", "used", "been", "some", "their"]);
+  const instrument = / with /i.test(dm) ? dm.split(/ with /i).slice(1).join(" ") : "";
+  const words = instrument
     .toLowerCase()
     .replace(/[^a-z\s]/g, " ")
     .split(/\s+/)
-    .filter((w) => w.length > 3 && !["with", "were", "from", "into", "that", "this", "used", "been"].includes(w));
-  if (words.length === 0) return { verdict: "UNKNOWN", detail: `death_method has no usable noun: "${dm}"` };
+    .filter((w) => w.length > 3 && !STOP.has(w));
+  if (words.length === 0) {
+    // No named instrument (strangled, smothered, pushed). Nothing to match on; the case can still
+    // link by a trace that names the culprit, which the caller sees below via namesCulprit alone.
+    return { verdict: "UNKNOWN", detail: `death_method names no instrument to trace: "${dm}"` };
+  }
 
   const has = (text: string): boolean => words.some((w) => text.toLowerCase().includes(w));
   const dt = caseBlock?.discriminating_test ?? {};
@@ -152,20 +161,52 @@ const provesTheAct = (caseBlock: any): { verdict: string; detail: string } => {
   const culprits: string[] = Array.isArray(caseBlock?.culpability?.culprits)
     ? caseBlock.culpability.culprits.map(String)
     : [];
+  // Match ANY name token of the culprit, not just the surname: a trace reading "traces to
+  // Gwendolyn" names the culprit as surely as one reading "Vance". Titles are not names.
+  const TITLES = new Set(["mr", "mrs", "miss", "ms", "dr", "sir", "lady", "lord", "the"]);
+  const nameTokens = (c: string): string[] =>
+    c
+      .split(/[\s.,]+/)
+      .map((w) => w.trim())
+      .filter((w) => w.length >= 3 && !TITLES.has(w.toLowerCase()));
   const namesCulprit = (t: string): boolean =>
-    culprits.some((c) => t.includes(c) || t.includes(String(c.split(/\s+/).pop())));
+    culprits.some((c) => t.includes(c) || nameTokens(c).some((w) => t.includes(w)));
 
   if (has(testText)) return { verdict: "PROVES THE ACT", detail: `the discriminating test names the means of death` };
-  const trace = traces.find((t) => has(t));
-  if (trace) {
+
+  // EVERY trace that touches the means of death, not the first one. A case can carry a forensic
+  // trace pointing at an innocent AND a provenance trace naming the culprit; stopping at the first
+  // reported the weaker of the two and hid the one the requirement was written to produce.
+  const weaponTraces = traces.filter((t) => has(t));
+  const linking = weaponTraces.filter((t) => namesCulprit(t));
+  if (linking.length > 0) {
+    const others = weaponTraces.filter((t) => !namesCulprit(t));
     return {
-      verdict: namesCulprit(trace) ? "PROVES THE ACT" : "TRACE ONLY",
-      detail: `physical trace: "${trace}"${namesCulprit(trace) ? "" : " — but it names no culprit"}`,
+      verdict: "PROVES THE ACT",
+      detail:
+        `${linking.map((t) => `"${t}"`).join("; ")}` +
+        (others.length > 0 ? `  [also on the weapon, naming nobody: ${others.map((t) => `"${t}"`).join("; ")}]` : ""),
+    };
+  }
+  // Traces that name the culprit without repeating a noun of death_method. The requirement asks for
+  // what the implement's TAKING disturbed, which frequently sits somewhere the implement is not
+  // ("blood on her clothing", "scratches on the box it came from"); demanding the weapon noun scored
+  // one such case PRESENCE ONLY. The verdict stays conservative; these are surfaced to be read.
+  const culpritTraces = traces.filter((t) => namesCulprit(t) && !has(t));
+  const adjudicate =
+    culpritTraces.length > 0
+      ? `\n    NAMES THE CULPRIT, no weapon noun — adjudicate: ${culpritTraces.map((t) => `"${t}"`).join("; ")}`
+      : "";
+
+  if (weaponTraces.length > 0) {
+    return {
+      verdict: "TRACE ONLY",
+      detail: `${weaponTraces.map((t) => `"${t}"`).join("; ")} — none names a culprit${adjudicate}`,
     };
   }
   return {
     verdict: "PRESENCE ONLY",
-    detail: `nothing connects ${culprits.join(", ") || "the culprit"} to "${dm}" — pass_condition: "${String(dt.pass_condition ?? "").slice(0, 110)}"`,
+    detail: `nothing connects ${culprits.join(", ") || "the culprit"} to "${dm}" — pass_condition: "${String(dt.pass_condition ?? "").slice(0, 110)}"${adjudicate}`,
   };
 };
 
@@ -174,6 +215,26 @@ const main = async (): Promise<void> => {
   dotenv.config({ path: path.join(workerRoot, ".env") });
   dotenv.config({ path: path.join(repoRoot, ".env.local") });
   dotenv.config({ path: path.join(repoRoot, ".env") });
+
+  // --classify: re-score saved harness reports with this same classifier and exit. No LLM call, no
+  // cost. Used to re-read an earlier arm after the classifier itself is corrected.
+  const classifyPaths = process.argv.slice(2).reduce<string[]>((acc, a, i, all) => {
+    if (a === "--classify") return all.slice(i + 1).filter((x) => !x.startsWith("--"));
+    return acc;
+  }, []);
+  if (classifyPaths.length > 0) {
+    for (const p of classifyPaths) {
+      const saved = JSON.parse(await readFile(p, "utf8"));
+      const block = saved?.cml?.CASE ?? saved?.cml ?? saved?.CASE ?? saved;
+      const verdict = provesTheAct(block);
+      const culprits = (block?.culpability?.culprits ?? []).join(", ");
+      console.log(`\n${path.basename(p)}`);
+      console.log(`  culprit: ${culprits}   death_method: ${block?.death_method ?? "?"}`);
+      console.log(`  A_102 classification: ${verdict.verdict}`);
+      console.log(`    ${verdict.detail}`);
+    }
+    return;
+  }
 
   const args = parseArgs(process.argv.slice(2));
 

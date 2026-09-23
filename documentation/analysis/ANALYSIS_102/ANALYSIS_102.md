@@ -186,3 +186,110 @@ stage whose failures previously cost £1.15 to observe. The requirement in §3 c
 times, measured, and redrafted, before any book is written.
 
 **The rate to beat is 0 of 3.**
+
+---
+
+## §7 THE REQUIREMENT, DRAFTED AND ITERATED — 0 of 3 TO 6 of 8, FOR £0.12
+
+Fourteen harness cases, `$0.155` — **about 12 pence** — against a stage whose failures previously cost
+£1.15 each to observe. Four drafts, and the thing that moved the number was not the argument. It was
+the **shape**.
+
+### §7.1 THE ARMS
+
+Every arm is the same upstream (`canary_1789577884303`, seed 50862) and the same classifier, which was
+corrected four times during the work (§7.3) and every arm re-scored with the final one.
+
+| arm | what changed | links the culprit to the act | of those, by a PRINT |
+|---|---|---|---|
+| baseline | — | **0 of 3** | — |
+| draft 1 | one trace, with a route list and "Do NOT make it a fingerprint" | 2 of 3 | **1** |
+| draft 2 | prints reassigned to an innocent as a red herring | 2 of 3 | **1** |
+| draft 3 | every slot given a literal string shape | **3 of 4** | **0** |
+| draft 4 | the culprit moved INTO the reach-list shape | **3 of 4** | **0** |
+
+**6 of 8 on the final wording, 0 of 8 resting on a print. MEASURED.**
+
+### §7.2 WHAT THE FOUR DRAFTS SETTLED
+
+**1. A prohibition does not steer this model, and this is now the fourth time it has been paid for.**
+A_101 §15 spent three Agent 5 wordings on "not a fingerprint" and got three fingerprints. Draft 1 said
+it again at Agent 3 — *"Do NOT make it a fingerprint, a blood group, or any reading taken off a body:
+those are laboratory verdicts"* — and got a fingerprint in 3 of 3. Draft 2 stopped forbidding it and
+**assigned it a job**: prints on the implement belong to an innocent and become one of the two
+red_herrings the case already owes. That was obeyed 3 of 3 immediately, because it lands in an
+existing counted structure with named fields.
+
+**2. A shape is obeyed; the same request in prose is not.** This is the cleanest measurement of the
+compliance law the project has. Drafts 2 and 3 asked for the *same three facts*. Draft 2 asked in
+sentences; draft 3 gave each a literal string shape:
+
+| slot | draft 2, asked in prose | draft 3, asked as a shape |
+|---|---|---|
+| whose the implement was | **0 of 3** | **4 of 4** |
+| who could reach where it was kept | **1 of 3** | **4 of 4** |
+
+Nothing else changed. **MEASURED**, and it is the operational form of
+[[prompts-move-operations-not-statistics]]: a slot inside a shape is filled, a requirement beside the
+shape is dropped.
+
+**3. A qualifier is dropped even when it is the point.** Draft 3 wrote the shape for the reach list and
+then added *"The culprit is one of the reachable names"* as the next sentence. In 1 of 4 cases the
+reach list named two suspects and the culprit was not among them — the requirement's whole purpose,
+lost to its position. Draft 4 changed nothing but moved the culprit **into the shape** as a slot, and
+it held in 3 of 4.
+
+**4. The case-closing constraint was satisfied by construction, not by instruction.** A_102 §3 required
+that the link must not end the mystery at chapter 5. No draft ever says so. The place-slot does it: a
+trace written as `"<what was found> in <a room this case names> — <culprit>"` cannot be a print on the
+weapon, because the implement is not a room. What the cases produced instead is ordinary Golden Age
+evidence — *"Displaced dagger sheath in proprietor's office — Nora Quayle"*, *"Scratches on letter
+opener box in proprietor's office — Nora Quayle"*, *"Sand and blood stains on Gwendolyn Vance's
+clothing"*. Every inference step using them NARROWS the pool; none names the culprit.
+
+### §7.3 FOUR DEFECTS IN THE INSTRUMENT, ALL FOUND BY READING THE CASES IT SCORED
+
+The classifier was wrong four times, in both directions, and every one was found by reading the cases
+rather than by reading the code. **This is the session's most transferable finding.**
+
+| # | defect | it reported | truth |
+|---|---|---|---|
+| 1 | matched the culprit by full name or SURNAME only | *"traces to Gwendolyn"* names nobody | it names the culprit |
+| 2 | took the FIRST trace mentioning the weapon and stopped | a case's fingerprint | the same case also carried *"sheath with Gwendolyn Vance's initials"* |
+| 3 | required the weapon noun in the trace | *"blood stains on Gwendolyn Vance's clothing"* is PRESENCE ONLY | it is the required link exactly |
+| 4 | matched the killing VERB | *"reveals Nora's presence when Gaunt was **stabbed**"* PROVES THE ACT | it says **presence** in as many words |
+
+Defects 1–3 understated the fix. Defect 4 **overstated** it, and awarded the instrument's strongest
+verdict to a sentence stating the very thing the instrument exists to detect. Had the arms been scored
+once and believed, draft 4 would have read 3 of 4 on a case that proves nothing.
+
+Defects 2 and 4 are fixed by **construction**: score every matching trace rather than the first, and
+take the instrument from what follows `" with "` rather than keeping every long word. Defect 3 is not
+fixed by growing a vocabulary of act-nouns — [[closed-vocabulary-deciding-a-pass]], three prior
+occurrences — so the verdict stays conservative and the classifier now **surfaces** culprit-naming
+traces it cannot settle, for a person to adjudicate.
+
+### §7.4 §0 RE-MEASURED, AND IT HOLDS
+
+All four corrections were applied to the archive script and it was re-run. **48 of 56 cases — 86% —
+prove presence only**, against §0's 85% of 61. The n falls because five cases name no instrument
+("strangled"), which the corrected rule declines to score rather than guessing. **The headline of this
+document survives every correction to the instrument that produced it.**
+
+One figure sharpens: **0 of 56 archived cases ever linked the culprit to the act by a physical trace.**
+All eight that link do so through the discriminating test or a clue. The trace route the requirement
+uses has never once fired in this pipeline's history, which is why the fix had to be authored at
+Agent 3 rather than asked for downstream.
+
+### §7.5 WHAT IS NOT SETTLED
+
+- **That any of this reaches a book.** Eight cases are not a run. Agent 3 sits above nine stages, and
+  whether Agent 5 surfaces the new trace, the outline places it and Agent 9 uses it in the reveal is
+  **untested**. §4's step 4 is now due: a full paid run on a fresh seed, and a read.
+- **That it moves a mark.** [[rubric-cannot-rank-two-books]] — any A/B under ~7 marks is unmeasured,
+  and the reader's 86–91 is their estimate of their own suggestion, not a measurement.
+- **2 of 8 still author no link at all.** Both misses put the shape in the wrong slot or omitted the
+  disturbance trace. A fifth draft is affordable at £0.011 a case; it was not attempted, because the
+  remaining question is whether the link survives nine downstream stages, and no number of harness
+  cases can answer that.
+

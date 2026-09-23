@@ -40,6 +40,7 @@ import {
   extractStructuralPatterns,
   selectRelevantPatterns,
   formatPatternsForPrompt,
+  seedSelectionKey,
 } from "./utils/seed-loader.js";
 import { join } from "path";
 import { classifyDeathMethod, type DeathMethodKind } from "./shared/death-method-patterns.js";
@@ -348,7 +349,11 @@ export function buildCMLPrompt(inputs: CMLPromptInputs, examplesDir?: string): P
   let seedPatternsText = "No seed patterns loaded (will generate from first principles).";
   if (examplesDir) {
     // A_53 P10 (seed-loader-recompute-per-generate-call): serve from the (dir, axis) memo when present.
-    const seedCacheKey = `${examplesDir}::${inputs.primaryAxis}`;
+    // A_100 A1: the key also carries the selection mode and any must-include slug. A ranked pick
+    // that depends on an obligation must not be served from another run's memo — the same shape as
+    // the allowlist defect, one layer up (WP-004 §4.3).
+    const seedPrefs = { mustInclude: inputs.noveltyConstraints?.skeletonSourceSlug };
+    const seedCacheKey = `${examplesDir}::${inputs.primaryAxis}::${seedSelectionKey(seedPrefs)}`;
     const cached = seedPatternsTextCache.get(seedCacheKey);
     if (cached !== undefined) {
       seedPatternsText = cached;
@@ -356,7 +361,7 @@ export function buildCMLPrompt(inputs: CMLPromptInputs, examplesDir?: string): P
       try {
         const cmlFiles = loadSeedCMLFiles(examplesDir);
         const patterns = extractStructuralPatterns(cmlFiles);
-        const relevantPatterns = selectRelevantPatterns(patterns, inputs.primaryAxis, 3);
+        const relevantPatterns = selectRelevantPatterns(patterns, inputs.primaryAxis, 3, seedPrefs);
         seedPatternsText = formatPatternsForPrompt(relevantPatterns);
         seedPatternsTextCache.set(seedCacheKey, seedPatternsText);
       } catch (error) {
@@ -630,6 +635,7 @@ Before finalizing, run a silent checklist:
 - if the concealment fakes a time: apparent_time_of_death sits inside a culprit alibi window, actual_time_of_death sits in a culprit gap, and the two differ
 - all required top-level keys present
 - 3-5 inference steps with required_evidence in each
+- the implement named in death_method has a stated keeper, a stated place it was kept with two or more suspects able to reach it, and one trace naming the culprit in what its taking disturbed; prints on the implement itself belong to an innocent
 - discriminating_test uses only previously exposed evidence
 - false_solution accuses an innocent suspect and has exactly one flaw
 - at least two red_herrings, each with an innocent_explanation
@@ -868,6 +874,28 @@ ${hardLogicDeviceText}
     Every entry must include at least one concrete anchor (person/object/document/location/time phrase/trace/access record/witness statement).
     Forbidden entries include abstract placeholders and detective-only interpretation (for example "suspicious behavior", "signals of guilt", "detective insight").
    e. reader_observable: true (all steps must be reader-observable for fair play)
+8b. THE MEANS-LINK — the case must connect the culprit to the ACT, not only to the scene.
+   A broken alibi puts the culprit in the room. It never shows whose hand did it, and a reveal that
+   asserts the killing on opportunity alone is the single most common failure of these cases.
+   death_method names an implement. That implement has a history, and the case states it. Write all
+   FOUR of the following, each in the shape given:
+   a. WHOSE IT WAS — one entry in constraint_space.access.objects, in this shape:
+        "<the implement named in death_method> — kept by <cast member's full name>, in <where it was kept>, because <their ordinary reason for having it>"
+   b. WHO COULD REACH IT — one entry in constraint_space.access.permissions, in this shape:
+        "<where it was kept> — reachable by <the culprit's full name> and <one or more other suspect names>; not by <at least one suspect name>"
+   c. WHAT ITS TAKING DISTURBED — one entry in constraint_space.physical.traces, in this shape:
+        "<what was found> in <a room or place this case already names> — <culprit's full name>"
+      What was found is the mark left when the implement was taken, carried or put back: something
+      out of its place, something missing from where it belonged, something refastened or repacked by
+      another hand, or matter off the implement carried onto the culprit's clothing, luggage or room.
+      The place slot holds a room or location from the setting, so this trace sits somewhere the
+      implement was not when the victim died.
+   d. WHERE THE OBVIOUS EVIDENCE POINTS — any print, smudge or handling mark found ON the implement
+      belongs to an INNOCENT suspect and is written up as one of the two required red_herrings with
+      its innocent_explanation. The implement's own surface carries misdirection, never the answer.
+   ONE inference step lists (b) and (c) in its required_evidence. That step's effect NARROWS the pool
+   to the reachable names from (b); two or more suspects survive it and the culprit is among them. A
+   step whose effect is the culprit's name has put the answer before the discriminating test.
 9. Create discriminating test appropriate for ${inputs.primaryAxis} axis, following these HARD RULES:
    a. DESIGN ORDER: Write all inference_path steps FIRST (progressively revealing the mechanism). Design the discriminating test LAST, based only on what those steps already establish.
    b. NO NEW FACTS IN THE TEST: Every mechanical, physical, or causal detail the test exploits MUST already appear as required_evidence in at least one prior inference step. If your test relies on "clock spring tension" or "premeditated purchase" — that exact evidence must be in an earlier step's required_evidence and marked reader_observable: true.
