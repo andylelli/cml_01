@@ -1,0 +1,136 @@
+{
+ "slug": "bull_dog_drummond",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "The American millionaire Hiram C. Potts is kidnapped and drugged",
+   "anchor": "Hiram C. Potts—the celebrated American millionaire—is progressing favourably",
+   "span": "Hiram C. Potts-the celebrated American millionaire-is progressing favourably.",
+   "ok": true
+  },
+  {
+   "claim": "Mr. Granger, Potts’s secretary, was murdered in Belfast",
+   "anchor": "Mr. Granger was murdered in Belfast, by a member of the gang that kidnapped you",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Carl Peterson is the leader of the criminal gang disguised as Comte de Guy",
+   "anchor": "Carl Peterson and his daughter leave for England. A country gentleman, I think, is Carl Peterson",
+   "span": "To-morrow, Irma, the Comte de Guy dies, and Carl Peterson and his daughter leave for England. A country gentleman, I think, is Carl Peterson.",
+   "ok": true
+  },
+  {
+   "claim": "Henry Lakington is a dangerous criminal and associate of Peterson",
+   "anchor": "Henry Lakington is the second most dangerous man in England",
+   "span": "Henry Lakington is the second most dangerous man in England.",
+   "ok": true
+  },
+  {
+   "claim": "Peterson masterminded a vast criminal conspiracy to incite revolution",
+   "anchor": "Carl Peterson masterminded a vast criminal conspiracy to incite a syndicalist revolution in England",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Drummond infiltrated and dismantled the gang by rescuing Potts",
+   "anchor": "Drummond infiltrated and dismantled the gang by rescuing Potts, exposing the plot",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The ledger details payments to revolutionaries and financiers",
+   "anchor": "Every page contained an entry—sometimes half a dozen—of the same type",
+   "span": "Every page contained an entry-sometimes half a dozen-of the same type, and as the immensity of the project dawned on the two men their faces grew serious.",
+   "ok": true
+  },
+  {
+   "claim": "Irma Peterson involved in pearls theft and criminal activities",
+   "anchor": "Irma Peterson had entered the room with young Laidley",
+   "span": "Then suddenly his jaw tightened: Irma Peterson had entered the room with young Laidley.",
+   "ok": true
+  },
+  {
+   "claim": "Lakington uses chemical baths and torture devices",
+   "anchor": "Lakington produced an instrument from his pocket. Hugh saw the man shrink back in terror",
+   "span": "For a quarter of an hour the scene continued; then Lakington produced an instrument from his pocket. Hugh saw the man shrink back in terror, and reach for the pen.",
+   "ok": true
+  },
+  {
+   "claim": "Peterson’s calm demeanor and control over gang",
+   "anchor": "Peterson, with a faint smile, opened the envelope in his hand",
+   "span": "Drummond looked at her coldly, while Peterson, with a faint smile, opened the envelope in his hand.",
+   "ok": true
+  },
+  {
+   "claim": "Murder of Mr. Granger to prevent exposure",
+   "anchor": "The unfortunate victim of this dastardly outrage—his head... was nearly severed from his body",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Peterson and Irma escape at the end",
+   "anchor": "That man Peterson and the girl have got away. No trace of ’em",
+   "span": "That man Peterson and the girl have got away. No trace of 'em.",
+   "ok": true
+  },
+  {
+   "claim": "False assumption that revolutionaries alone mastermind the plot",
+   "anchor": "Bolshevists, Anarchists, members of the Do-no-work-and-have-all-the-money Brigade",
+   "span": "Bolshevists, Anarchists, members of the Do-no-work-and-have-all-the-money Brigade,\" answered Hugh.",
+   "ok": true
+  },
+  {
+   "claim": "False solution accusing Irma Peterson",
+   "anchor": "She lies on a sofa in the garden and yawns. She’s no more English than that waiter",
+   "span": "She lies on a sofa in the garden and yawns. She's no more English than that waiter.",
+   "ok": true
+  },
+  {
+   "claim": "Red herring: the intimidated rabbit",
+   "anchor": "The intimidated rabbit, with the light of battle in his watery eye",
+   "span": "The intimidated rabbit, with the light of battle in his watery eye, was declaiming on the glories of Workmen's Councils; a bullet-headed man who looked like a down-at-heels racing tout was shouting an inspiring battle-cry about no starvation wages and work for all.",
+   "ok": true
+  },
+  {
+   "claim": "Red herring: the Indian entertainer Ram Dar is actually Lakington",
+   "anchor": "It was the Duchess he was concerned with and her pearls, and the arrival of the Indian was not going to put him off his guard",
+   "span": "It was the Duchess he was concerned with and her pearls, and the arrival of the Indian was not going to put him off his guard.",
+   "ok": true
+  },
+  {
+   "claim": "Discriminating test: opening the safe with gelignite",
+   "anchor": "Dexterously he proceeded to seal up every crack in the safe door with the soap",
+   "span": "Dexterously he proceeded to seal up every crack in the safe door with the soap, leaving a small gap at the top unsealed.",
+   "ok": true
+  },
+  {
+   "claim": "Drummond’s final confrontation with Peterson",
+   "anchor": "Carl Peterson came in. Good afternoon, gentlemen, he began, and then he saw Hugh",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Peterson’s ledger exposes the conspiracy",
+   "anchor": "Every page contained an entry—sometimes half a dozen—of the same type",
+   "span": "Every page contained an entry-sometimes half a dozen-of the same type, and as the immensity of the project dawned on the two men their faces grew serious.",
+   "ok": true
+  },
+  {
+   "claim": "Lakington’s death by his own mechanical device",
+   "anchor": "Suddenly a heavy steel weight revolving on an arm whizzed out from the wall and struck Lakington behind the neck",
+   "span": "For suddenly a heavy steel weight revolving on an arm whizzed out from the wall and struck Lakington behind the neck.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.127803988,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

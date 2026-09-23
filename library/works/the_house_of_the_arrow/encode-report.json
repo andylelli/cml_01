@@ -1,0 +1,148 @@
+{
+ "slug": "the_house_of_the_arrow",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Mrs. Harlowe died a natural death on the night of April 27th",
+   "anchor": "Mrs. Harlowe died, so far as we know, quite peacefully in her bed during the night",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Betty Harlowe was at a ball from 9pm to after 1am",
+   "anchor": "Mademoiselle was dancing with her friends on this night when she is supposed to be committing the most monstrous of crimes",
+   "span": "Yes, Mademoiselle was dancing with her friends on this night when she is supposed to be committing the most monstrous of crimes.",
+   "ok": true
+  },
+  {
+   "claim": "No trace of poison was found in Mrs. Harlowe's body",
+   "anchor": "no more morphia was discovered in it than one sleeping-dose would explain and no trace at all of any other poison",
+   "span": "that no more morphia was discovered in it than one sleeping-dose would explain and no trace at all of any other poison?",
+   "ok": true
+  },
+  {
+   "claim": "The poison arrow head was found disguised as a pen-holder",
+   "anchor": "There it was--the slender, pencil-like shaft expanding into a slight bulb where the fingers held it, and the nib inserted into the tiny cleft made for the stem of the iron dart",
+   "span": "There it was--the slender, pencil-like shaft expanding into a slight bulb where the fingers held it, and the nib inserted into the tiny cleft made for the stem of the iron dart!",
+   "ok": true
+  },
+  {
+   "claim": "Betty Harlowe and Francine Rollard administered the poison",
+   "anchor": "Betty Harlowe stretched out upon the bed to represent Madame, and Francine whispering 'That will do now'",
+   "span": "Betty Harlowe stretched out upon the bed to represent Madame, and Francine whispering 'That will do now'?",
+   "ok": true
+  },
+  {
+   "claim": "Ann Upcott was abducted to prevent her revealing the truth",
+   "anchor": "Ann Upcott was bound hand and foot and brought here",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Jean Cladel was murdered to silence him",
+   "anchor": "Jean Cladel has been murdered--cruelly",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The secret passage connects Maison Grenelle and Hôtel de Brebizart",
+   "anchor": "a secret passage in that age of secret passages",
+   "span": "Between this house and the Maison Grenelle he had constructed a secret passage in that age of secret passages.",
+   "ok": true
+  },
+  {
+   "claim": "The clock on the marquetry cabinet was moved to mislead",
+   "anchor": "the clock was not upon the mantelshelf but upon the marquetry cabinet",
+   "span": "When the seals were removed and we entered this room for the first time, the clock was not upon the mantelshelf but upon the marquetry cabinet.",
+   "ok": true
+  },
+  {
+   "claim": "The pearl necklace was stolen to provide motive",
+   "anchor": "A pearl necklace ... had disappeared",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Boris Waberski's accusation was a false lead",
+   "anchor": "Boris Waberski ... declared that Betty Harlowe did wilfully give to her adoptive mother an overdose of a narcotic",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Anonymous letters were typed on a Corona machine",
+   "anchor": "the letters were typed upon a Corona machine",
+   "span": "do not tell me that you have discovered that the letters were typed upon a Corona machine.",
+   "ok": true
+  },
+  {
+   "claim": "Hanaud replaced the Treatise on Strophanthus on the bookshelf",
+   "anchor": "I replace the book about the arrows on the bookshelf in its obvious place",
+   "span": "I replace the book about the arrows on the bookshelf in its obvious place.",
+   "ok": true
+  },
+  {
+   "claim": "Betty Harlowe sent a telegram to London about Hanaud's involvement",
+   "anchor": "The telegram sent to my firm by Miss Harlowe on Monday",
+   "span": "The telegram sent to my firm by Miss Harlowe on Monday--yes, by George, this last Monday.",
+   "ok": true
+  },
+  {
+   "claim": "Ann Upcott's story of the night is partly true but adapted",
+   "anchor": "Ann Upcott is left alone after Mademoiselle Harlowe's departure to Monsieur de Pouillac's Ball",
+   "span": "Ann Upcott is left alone after Mademoiselle Harlowe's departure to Monsieur de Pouillac's Ball.",
+   "ok": true
+  },
+  {
+   "claim": "The poison arrow was used as a hypodermic needle",
+   "anchor": "the head of the arrow-shaft should be the pen-holder with which I have written this memorandum",
+   "span": "For Life, the incorrigible Dramatist, had arranged that the head of the arrow-shaft should be the pen-holder with which I have written this memorandum.",
+   "ok": true
+  },
+  {
+   "claim": "The secret passage was used to move between houses",
+   "anchor": "the secret passage was lost ... Simon Harlowe ... restored the passage",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The murder was committed at half-past ten",
+   "anchor": "the hour was half-past ten",
+   "span": "The hour was half-past ten.",
+   "ok": true
+  },
+  {
+   "claim": "The missing pearl necklace was found hidden in a matchbox",
+   "anchor": "a string of pearls perfectly graded in size",
+   "span": "From the cotton-wool he took a string of pearls perfectly graded in size, and gleaming softly with a pink lustre which, even to his untutored eyes, was indescribably lovely.",
+   "ok": true
+  },
+  {
+   "claim": "Jean Cladel was admitted by a friend and murdered",
+   "anchor": "He was admitted as a friend or a client",
+   "span": "I think that he was admitted as a friend or a client--I fancy Jean Cladel had not a few clients who preferred to call upon him by the back way in the dark of the night.",
+   "ok": true
+  },
+  {
+   "claim": "Betty Harlowe was the mastermind behind the murder and blackmail",
+   "anchor": "Betty Harlowe had prepared to divert suspicion from herself upon Ann Upcott",
+   "span": "Betty Harlowe had prepared to divert suspicion from herself upon Ann Upcott, should suspicion arise.",
+   "ok": true
+  },
+  {
+   "claim": "The facade of Notre Dame symbolizes Ann Upcott's guilt",
+   "anchor": "That, Monsieur Frobisher, is what I sent you out to see",
+   "span": "That, Monsieur Frobisher, is what I sent you out to see,\" said Hanaud gravely.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.179357808,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

@@ -1,0 +1,130 @@
+{
+ "slug": "the_draycott_murder_mystery",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Mrs. Draycott was found shot in the temple at close range",
+   "anchor": "a wound in the temple from which the blood had already ceased to flow",
+   "span": "Raising the thick fair hair at the side of her head he revealed a wound in the temple from which the blood had already ceased to flow.",
+   "ok": true
+  },
+  {
+   "claim": "John Leslie found the body in his sitting-room",
+   "anchor": "I say, Gunnet, I want you up at the farm. Something’s happened.",
+   "span": "I say, Gunnet, I want you up at the farm. Something's happened.\" He stopped, apparently not wishing to go further before Mrs.",
+   "ok": true
+  },
+  {
+   "claim": "The front door was open and the latch undamaged",
+   "anchor": "The front door of the house stood open and, with each gust of wind, it swung with a heavy thud",
+   "span": "The front door of the house stood open and, with each gust of wind, it swung with a heavy thud against the inside wall of the dark passage, but no one came to close it and there was no light at any of the windows of the apparently deserted house.",
+   "ok": true
+  },
+  {
+   "claim": "Leslie’s revolver was found with one chamber discharged",
+   "anchor": "In a drawer in Mr. Leslie’s bedroom I found a Webley Service revolver, one chamber of which had been discharged",
+   "span": "In a drawer in Mr. Leslie's bedroom I found a Webley Service revolver, one chamber of which had been discharged.",
+   "ok": true
+  },
+  {
+   "claim": "The murder weapon bullet matches Leslie’s revolver",
+   "anchor": "Does it correspond with those used in the weapon you found at the farm? It does.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "A car with a broken number plate was seen near the farm",
+   "anchor": "There was a car went out on the evening of the twenty-third, at about six o’clock",
+   "span": "There was a car went out on the evening of the twenty-third, at about six o'clock.",
+   "ok": true
+  },
+  {
+   "claim": "Kean drove the car under the alias 'Page'",
+   "anchor": "Page was the name I gave when I garaged the car at Whitbury",
+   "span": "Page was the name I gave when I garaged the car at Whitbury.",
+   "ok": true
+  },
+  {
+   "claim": "Kean met Mrs. Draycott and shot her at Leslie’s farm",
+   "anchor": "I put it to her that she would have to count the notes in my presence before I could undertake to hand them over to her",
+   "span": "I put it to her that she would have to count the notes in my presence before I could undertake to hand them over to her and that, in view of the size of the payment, I had no intention of making it without a receipt.",
+   "ok": true
+  },
+  {
+   "claim": "Kean planted the Red Dwarf pen dropped near the gate",
+   "anchor": "I found the pen almost immediately. It took him but a second to find the entry he needed.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Sybil Kean knew the secret of her first husband’s survival",
+   "anchor": "I’ve known it for the last six years. As a matter of fact, I fetched him from Germany myself and placed him in an asylum in Dorset.",
+   "span": "I've known it for the last six years. As a matter of fact, I fetched him from Germany myself and placed him in an asylum in Dorset. You know he's hopelessly insane, I suppose.",
+   "ok": true
+  },
+  {
+   "claim": "Kean confessed to the murder to Fayre",
+   "anchor": "I made up my mind to kill Mrs. Draycott.",
+   "span": "that I made up my mind to kill Mrs. Draycott.\" Chapter XXV There was a tense silence, broken only by the sound of the distant traffic in Victoria Street.",
+   "ok": true
+  },
+  {
+   "claim": "Kean died by suicide after the confession",
+   "anchor": "Sir Edward, sir. He shot himself just after you left.",
+   "span": "Sir Edward, sir. He shot himself just after you left. .",
+   "ok": true
+  },
+  {
+   "claim": "The tramp was innocent and scared of police",
+   "anchor": "I ain’t got no luck, I ’aven’t. Never ’ad!",
+   "span": "I ain't got no luck, I 'aven't. Never 'ad!\" The little man's voice was bitter.",
+   "ok": true
+  },
+  {
+   "claim": "Dr. Gregg was innocent and had a solid alibi",
+   "anchor": "I was going through when a boy ran out of one of the cottages and yelled something at me.",
+   "span": "I was going through when a boy ran out of one of the cottages and yelled something at me. I stopped the car and shouted back that, unless it was urgent, I could not see any one just then.",
+   "ok": true
+  },
+  {
+   "claim": "Leslie was acquitted after the truth was revealed",
+   "anchor": "John Leslie was never out of her mind in these days and, though it would seem that the worst had happened, she lived in hourly dread of some further attack on her fortitude.",
+   "span": "John Leslie was never out of her mind in these days and, though it would seem that the worst had happened, she lived in hourly dread of some further attack on her fortitude. \"Have you come from John?",
+   "ok": true
+  },
+  {
+   "claim": "Kean’s false alibi was exposed by train and garage records",
+   "anchor": "He was held up at York for driving without side-lights.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Mrs. Draycott was blackmailing Kean over Sybil’s first husband",
+   "anchor": "She had only to threaten to go with the story to Sybil and she had me absolutely at her mercy.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The murder was staged to implicate Leslie",
+   "anchor": "I put it to her that she would have to count the notes in my presence before I could undertake to hand them over to her and that, in view of the size of the payment, I had no intention of making it without a receipt.",
+   "span": "I put it to her that she would have to count the notes in my presence before I could undertake to hand them over to her and that, in view of the size of the payment, I had no intention of making it without a receipt. I had some argument with her over the last point, but she had seen the notes in the light of my head-lamps and her cupidity had been aroused.",
+   "ok": true
+  },
+  {
+   "claim": "Kean broke the number plate to cover his tracks",
+   "anchor": "I broke it myself as a precaution. I had it replaced and the mudguard mended in Carlisle.",
+   "span": "I broke it myself as a precaution. I had it replaced and the mudguard mended in Carlisle. You took it for granted that, when the car was removed from the first garage in Carlisle on March 26th it was driven to London.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.125006756,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

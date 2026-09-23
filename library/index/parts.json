@@ -130,7 +130,7 @@
    "test_method": "reenactment",
    "false_assumption": "The blood-written word 'RACHE' was a genuine clue pointing to a German political assassin.",
    "cast_size": 7,
-   "chapter_count": 28,
+   "chapter_count": 14,
    "chain": [
     {
      "i": 0,
@@ -1665,7 +1665,7 @@
    "test_method": "constraint_proof",
    "false_assumption": "Luke Maddison was the forger who ruined Rex Leferre and fled to avoid prosecution.",
    "cast_size": 7,
-   "chapter_count": 64,
+   "chapter_count": 32,
    "chain": [
     {
      "i": 0,
@@ -3316,7 +3316,7 @@
    "test_method": "constraint_proof",
    "false_assumption": "Donald Counsell is guilty of murdering Collis Dongan due to financial motive and circumstantial evidence.",
    "cast_size": 7,
-   "chapter_count": 16,
+   "chapter_count": 15,
    "chain": [
     {
      "i": 0,
@@ -3669,7 +3669,7 @@
    "test_method": "reenactment",
    "false_assumption": "Johnny Gray was the murderer because he was present at the crime scene and had a criminal past.",
    "cast_size": 7,
-   "chapter_count": 66,
+   "chapter_count": 33,
    "chain": [
     {
      "i": 0,
@@ -4023,7 +4023,7 @@
    "test_method": "reenactment",
    "false_assumption": "The robbery was a violent shootout with the gold convoy guards.",
    "cast_size": 10,
-   "chapter_count": 42,
+   "chapter_count": 21,
    "chain": [
     {
      "i": 0,
@@ -4731,7 +4731,7 @@
    "test_method": "reenactment",
    "false_assumption": "The victim's death was either suicide or murder by someone who entered and exited the locked room.",
    "cast_size": 7,
-   "chapter_count": 24,
+   "chapter_count": 12,
    "chain": [
     {
      "i": 0,
@@ -5429,7 +5429,7 @@
    "test_method": "trap",
    "false_assumption": "Lady Riversreade was the woman Hannaford referred to and was involved in the murder.",
    "cast_size": 7,
-   "chapter_count": 28,
+   "chapter_count": 27,
    "chain": [
     {
      "i": 0,
@@ -5547,7 +5547,7 @@
    "test_method": "trap",
    "false_assumption": "John Horbury absconded with the securities and jewels and caused Frederick Hollis's death.",
    "cast_size": 7,
-   "chapter_count": 32,
+   "chapter_count": 31,
    "chain": [
     {
      "i": 0,
@@ -6021,7 +6021,7 @@
    "test_method": "reenactment",
    "false_assumption": "A room that seals itself from the inside was sealed by the man inside it.",
    "cast_size": 6,
-   "chapter_count": 46,
+   "chapter_count": 23,
    "chain": [
     {
      "i": 0,
@@ -6482,7 +6482,7 @@
    "test_method": "constraint_proof",
    "false_assumption": "Thalia Drummond is the mastermind behind the Crimson Circle’s crimes.",
    "cast_size": 7,
-   "chapter_count": 86,
+   "chapter_count": 43,
    "chain": [
     {
      "i": 0,
@@ -7779,7 +7779,7 @@
    "test_method": "reenactment",
    "false_assumption": "John Bellingham was last seen alive at Hurst's house on November 23, 1902.",
    "cast_size": 7,
-   "chapter_count": 21,
+   "chapter_count": 20,
    "chain": [
     {
      "i": 0,
@@ -9312,7 +9312,7 @@
    "test_method": "trap",
    "false_assumption": "The hound is a supernatural fiend causing the deaths.",
    "cast_size": 10,
-   "chapter_count": 30,
+   "chapter_count": 15,
    "chain": [
     {
      "i": 0,
@@ -9891,7 +9891,7 @@
    "test_method": "reenactment",
    "false_assumption": "Penelope Noelson was initially assumed to be the principal thief and accomplice.",
    "cast_size": 9,
-   "chapter_count": 60,
+   "chapter_count": 30,
    "chain": [
     {
      "i": 0,
@@ -10127,7 +10127,7 @@
    "test_method": "constraint_proof",
    "false_assumption": "The Avenger is a respectable young man carrying a newspaper parcel seen by witnesses.",
    "cast_size": 7,
-   "chapter_count": 54,
+   "chapter_count": 27,
    "chain": [
     {
      "i": 0,
@@ -10953,7 +10953,7 @@
    "test_method": "reenactment",
    "false_assumption": "Gilbert Standerton is the criminal burglar stealing jewels for personal profit.",
    "cast_size": 7,
-   "chapter_count": 32,
+   "chapter_count": 16,
    "chain": [
     {
      "i": 0,
@@ -11307,7 +11307,7 @@
    "test_method": "trap",
    "false_assumption": "Langton Hyde was the murderer who killed Ashton for robbery.",
    "cast_size": 7,
-   "chapter_count": 30,
+   "chapter_count": 29,
    "chain": [
     {
      "i": 0,
@@ -12144,7 +12144,7 @@
    "test_method": "reenactment",
    "false_assumption": "The little black book found and recovered early in the investigation was the genuine incriminating evidence.",
    "cast_size": 7,
-   "chapter_count": 24,
+   "chapter_count": 23,
    "chain": [
     {
      "i": 0,
@@ -12734,7 +12734,7 @@
    "test_method": "trap",
    "false_assumption": "The thumbprint found in the safe was genuine and conclusively proved Reuben's guilt.",
    "cast_size": 7,
-   "chapter_count": 34,
+   "chapter_count": 17,
    "chain": [
     {
      "i": 0,
@@ -13206,7 +13206,7 @@
    "test_method": "constraint_proof",
    "false_assumption": "The murderer must have entered through the locked door or window.",
    "cast_size": 7,
-   "chapter_count": 24,
+   "chapter_count": 12,
    "chain": [
     {
      "i": 0,
@@ -13796,7 +13796,7 @@
    "test_method": "reenactment",
    "false_assumption": "Roger Gretorex was the murderer because he was the last to see Jervis alive and had access to arsenic.",
    "cast_size": 7,
-   "chapter_count": 44,
+   "chapter_count": 22,
    "chain": [
     {
      "i": 0,
@@ -14032,7 +14032,7 @@
    "test_method": "reenactment",
    "false_assumption": "Mary Pinder was guilty of murder and the evidence against her was conclusive.",
    "cast_size": 9,
-   "chapter_count": 72,
+   "chapter_count": 36,
    "chain": [
     {
      "i": 0,
@@ -14386,7 +14386,7 @@
    "test_method": "trap",
    "false_assumption": "Parrawhite escaped to America and is alive, avoiding capture.",
    "cast_size": 7,
-   "chapter_count": 29,
+   "chapter_count": 28,
    "chain": [
     {
      "i": 0,
@@ -15094,7 +15094,7 @@
    "test_method": "trap",
    "false_assumption": "The bloodstain on the window sill was made by the murderer escaping through the window.",
    "cast_size": 7,
-   "chapter_count": 28,
+   "chapter_count": 14,
    "chain": [
     {
      "i": 0,
@@ -15585,7 +15585,7 @@
    "test_method": "reenactment",
    "false_assumption": "The death of Hartley Parrish was a straightforward suicide caused by business worries.",
    "cast_size": 7,
-   "chapter_count": 56,
+   "chapter_count": 28,
    "chain": [
     {
      "i": 0,

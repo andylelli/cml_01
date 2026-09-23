@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "John Carsdale killed Sydney Werrick during a confrontation at Mrs. Walsingham’s flat.",
+  "type": "identity",
+  "why_it_seems_reasonable": "Sophie Guyner, the maid, accuses Carsdale of shooting Werrick, and he is found standing over the body with a revolver. The police initially detain Carsdale based on this testimony and the suspicious circumstances.",
+  "what_it_hides": "The actual shooter was Mrs. Walsingham acting in self-defense, and Carsdale arrived after the shooting. The maid’s accusation is driven by fear and confusion, and the revolver had been discharged earlier."
+ },
+ "mechanism_description": "Mrs. Walsingham stole the genuine diamond necklace from Barclay Leverton’s safe and substituted a perfect paste duplicate. She pawned the real necklace to secure a loan. She and Carsdale conspired to defraud Richard Shrewsbury by controlling his investments and deceiving him about the necklace. Sydney Werrick was shot by Mrs. Walsingham in self-defense during a confrontation, after which she fled disguised. William Kedgin, Shrewsbury’s valet, aided her escape and stole valuables from Shrewsbury’s flat before killing Mrs. Walsingham to cover his tracks.",
+ "discriminating_test": {
+  "method": "trap",
+  "design": "A private supper-party is arranged where Mrs. Walsingham is persuaded to wear the real diamond necklace while Burgoyne and Blair observe. Blair, an expert in precious stones, examines the necklace to confirm its authenticity. The necklace is then secretly swapped with the paste duplicate held by Mrs. Walsingham, exposing her possession of the real necklace.",
+  "knowledge_revealed": "This test reveals that Mrs. Walsingham possesses the genuine necklace, confirming her guilt in the theft and substitution.",
+  "pass_condition": "Mrs. Walsingham is found wearing the real necklace during the supper, which is then swapped with the fake, proving her possession of the stolen item."
+ },
+ "changed": [],
+ "confidence": "high"
+}

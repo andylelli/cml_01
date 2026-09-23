@@ -1,0 +1,136 @@
+{
+ "slug": "the_twenty_six_clues",
+ "valid": false,
+ "errors": [
+  "CASE.discriminating_test.design relies on detective-only reaction/confession language (\"McCarty presents the signed statement, macaroni paste letters, and forensic details (such as powder marks and the altered cartridge) to all key witnesses and suspects. The test demonstrates that only Hoyos had access to the museum at the critical time, the means to stage the suicide, and is named in Marchal's statement. The proof is based on physical evidence and timeline contradictions, not on any confession or reaction.\") — replace it with a concrete pre-test fact, contradiction, mechanism detail, or elimination the reader can verify without interpreting emotions"
+ ],
+ "spans": [
+  {
+   "claim": "Evelyn Jarvis was found strangled in Norwood's crime museum",
+   "anchor": "stretched upon the table lay no skeleton but the rounded life-like form of a young woman",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The scarf knotted about Evelyn's throat was the cause of death",
+   "anchor": "the blue scarf which had been knotted so ruthlessly about her slender throat",
+   "span": "It would seem almost that she slept until her face was seen and then the distorted swollen features, the staring eyes and blackened, protruding tongue revealed the hideous truth no less surely than the blue scarf which had been knotted so ruthlessly about her slender throat as to seem almost embedded in the flesh.",
+   "ok": true
+  },
+  {
+   "claim": "A long strand of black hair was caught on the museum window",
+   "anchor": "a long, curling strand of glossy, jet-black hair",
+   "span": "From between the thumb and forefinger dangled a long, curling strand of glossy, jet-black hair.",
+   "ok": true
+  },
+  {
+   "claim": "A glove smeared with oil was found on the ladder leading to the museum",
+   "anchor": "A glove! McCarty marveled. A man's glove--chauffeur's, by the smell of it!",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Margot claimed the dressing-room was undisturbed at 8 pm",
+   "anchor": "she swore that Madame's apartments were quite as usual when last I entered them, before eight o'clock",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Etta Barney was reluctant to discuss the burglary and murder",
+   "anchor": "she flared up at him like a spitfire and then refused point blank to answer another question",
+   "span": "Inspector Druet tried to cross-examine her about yesterday, making her repeat what she told us all last night and she flared up at him like a spitfire and then refused point blank to answer another question.",
+   "ok": true
+  },
+  {
+   "claim": "Victor Marchal was blind and deeply affected by Evelyn's death",
+   "anchor": "He was pale but composed and there was no trace of the prostration",
+   "span": "He was pale but composed and there was no trace of the prostration of which Norwood had spoken.",
+   "ok": true
+  },
+  {
+   "claim": "Victor Marchal left a signed statement implicating the murderer",
+   "anchor": "a sheet of blank typewriter paper with a signature scrawled half-way down the page",
+   "span": "The object of his scrutiny was apparently a sheet of blank typewriter paper with a signature scrawled half-way down the page and the Inspector regarded it with raised eyebrows.",
+   "ok": true
+  },
+  {
+   "claim": "Two shots were fired at Victor Marchal, one was a blank",
+   "anchor": "Two shots were fired, but only one entered the body",
+   "span": "Two shots were fired, but only one entered the body; the other--the first--must have gone wild.",
+   "ok": true
+  },
+  {
+   "claim": "The blackmail letters were made of macaroni paste",
+   "anchor": "communications composed of macaroni paste",
+   "span": "You will remember that in those fantastic communications composed of macaroni paste she was never threatened with death, but only with exposure; it was to the blackmailer's obvious interest to keep her alive and he is probably highly chagrined at the tragic turn of affairs.",
+   "ok": true
+  },
+  {
+   "claim": "The Christmas cake marked 'Noel' was a secret message",
+   "anchor": "a big cake with 'Noel' on it in sugar",
+   "span": "Jarvis received a gift of a big cake with 'Noel' on it in sugar; she didn't know who sent it but she nearly passed away, for she knew that someone from out of the past had spotted her and her secret would never be safe again.",
+   "ok": true
+  },
+  {
+   "claim": "Leonidas Hoyos was the real murderer and blackmailer",
+   "anchor": "Leonidas Hoyos, under the alias Eric Vivaseur, blackmailed Evelyn Jarvis",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Oliver Jarvis had a suspicious alibi gap on the day of the murder",
+   "anchor": "there was an interval of an hour and a half just at the time when the murder is supposed to have taken place",
+   "span": "He had told them that he went directly from his attorneys to the French consulate, when, as a matter of fact, there was an interval of an hour and a half just at the time when the murder is supposed to have taken place, which he said nothing about.",
+   "ok": true
+  },
+  {
+   "claim": "The museum door was opened with a spider lock pick",
+   "anchor": "the door to the museum itself he opened with a spider",
+   "span": "He managed to get possession of a key to the Norwood house but the door to the museum itself he opened with a spider.",
+   "ok": true
+  },
+  {
+   "claim": "Victor Marchal was murdered to silence him",
+   "anchor": "Captain Marchal did not kill himself. He was murdered, shot down in cold blood",
+   "span": "Captain Marchal did not kill himself. He was murdered, shot down in cold blood by the same hand that had strangled Mrs.",
+   "ok": true
+  },
+  {
+   "claim": "Kate Stricker sold the letters to Norwood",
+   "anchor": "I'm Kate Stricker. I was stewardess on The Muette and I sold the letters to Mr. Norwood",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The letters contained the secret of Evelyn's past and blackmail",
+   "anchor": "the letters had to do with the murder of some foreign gentleman with an outlandish name on board of a yacht",
+   "span": "The old man told the police, it seems, that the letters had to do with the murder of some foreign gentleman with an outlandish name on board of a yacht in the Hudson some years back.",
+   "ok": true
+  },
+  {
+   "claim": "The murder was staged to look like a suicide",
+   "anchor": "He put the empty shell of one cartridge at the feet of the corpse, dropped the pistol by his hand",
+   "span": "He put the empty shell of one cartridge at the feet of the corpse, dropped the pistol by his hand, pocketed the other shell and the second bullet, and pulled the furniture around like a barricade to make people think exactly what they did; then he went away greatly pleased with himself and the job, I've no doubt, but he'd forgot just three things.",
+   "ok": true
+  },
+  {
+   "claim": "The signed statement was typed without ink ribbon, leaving indentations",
+   "anchor": "the ribbon on the typewriter was broken and no writing appeared on the papers at all but just his signature",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The blackmail was connected to a murder ten years ago on the twenty-sixth of May",
+   "anchor": "On the twenty-sixth of the month, in the late afternoon, Hoyos had come aboard",
+   "span": "On the twenty-sixth of the month, in the late afternoon, Hoyos had come aboard, ordered dinner for two and sent the dingey back to the wharf to meet his guest.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.225400904,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": false
+}

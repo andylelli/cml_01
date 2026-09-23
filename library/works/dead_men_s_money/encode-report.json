@@ -1,0 +1,136 @@
+{
+ "slug": "dead_men_s_money",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "The victim was found lying in the roadside grass with a knife wound",
+   "anchor": "lying in the roadside grass at my feet",
+   "span": "And I knew on the instant that this was the stain of blood, and I do not think I was surprised when, advancing a step or two further, I saw, lying in the roadside grass at my feet, the still figure and white face of a man who, I knew with a sure and certain instinct, was not only dead but had been cruelly murdered.",
+   "ok": true
+  },
+  {
+   "claim": "The cause of death was a knife thrust into the heart from behind",
+   "anchor": "a single blow from a knife or dagger which had been thrust into his heart from behind",
+   "span": "For I had heard what the doctor said--that the man had been killed on the spot by a single blow from a knife or dagger which had been thrust into his heart from behind with tremendous force, and the thought of it was sickening me.",
+   "ok": true
+  },
+  {
+   "claim": "Sir Gilbert Carstairs was seen with two missing fingers on his right hand",
+   "anchor": "two first fingers had completely disappeared",
+   "span": "I was close enough to him now to look more particularly at his hand, and I saw that the two first fingers had completely disappeared, and that the rest of it was no more than a claw.",
+   "ok": true
+  },
+  {
+   "claim": "Gilverthwaite's will was witnessed by John Phillips and Michael Carstairs",
+   "anchor": "John Phillips, Michael Carstairs--and I let out a cry of astonishment",
+   "span": "And I saw the two names at once--John Phillips, Michael Carstairs--and I let out a cry of astonishment.",
+   "ok": true
+  },
+  {
+   "claim": "Abel Crone was found drowned with bruises and a puncture wound",
+   "anchor": "there is queer marks on the body. Like as if--as near as Turndale could describe it--as if the man had been struck down before he was drowned",
+   "span": "But by Turndale's account--it was him brought in the news--there is queer marks on the body. Like as if--as near as Turndale could describe it--as if the man had been struck down before he was drowned.",
+   "ok": true
+  },
+  {
+   "claim": "The murder weapon was likely an ice-ax",
+   "anchor": "one of the latest forms of the ice-ax",
+   "span": "look at that--which is one of the latest forms of the ice-ax.",
+   "ok": true
+  },
+  {
+   "claim": "Sir Gilbert Carstairs offered Hugh Moneylaws a stewardship with a salary of five hundred a year",
+   "anchor": "The post's at your disposal, if you like to take it",
+   "span": "The post's at your disposal, if you like to take it.",
+   "ok": true
+  },
+  {
+   "claim": "Sir Gilbert Carstairs attempted to drown Hugh Moneylaws at sea",
+   "anchor": "he deliberately steered her clear away from me",
+   "span": "And when I came up, a couple of boat's-lengths from the yacht, expecting to find that he was bringing her up so that I could scramble aboard, I saw with amazed and incredulous affright that he was doing nothing of the sort; instead, working at it as hard as he could go, he was letting out a couple of reefs which he had taken up in the mainsail an hour before--in another minute they were out, the yacht moved more swiftly, and, springing to the tiller, he deliberately steered her clear away from me.",
+   "ok": true
+  },
+  {
+   "claim": "Maisie Dunlop was held captive in the turret of Hathercleugh House",
+   "anchor": "there's another stair that leads up to the turret, and you'll find her there--and safe",
+   "span": "And beyond the door there's another stair that leads up to the turret, and you'll find her there--and safe--and so--go your ways, now, Moneylaws, and I'll go mine!",
+   "ok": true
+  },
+  {
+   "claim": "Hollins, the butler, was found murdered with a throat wound",
+   "anchor": "he was lying dead in the old tower",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Nance Maguire killed Hollins and Meekin in revenge for Crone",
+   "anchor": "she plunged knee-deep into the Till and held him down under the water until he was drowned",
+   "span": "And taking no more notice of me than if I had been one of the stocks and stones close by, she suddenly gripped him, writhing as he was, by the throat, and drawing him over the bank as easily as if he had been a child in her grasp, she plunged knee-deep into the Till and held him down under the water until he was drowned.",
+   "ok": true
+  },
+  {
+   "claim": "The impostor was identified as Dr. Francis Meekin, a friend of the real Gilbert Carstairs",
+   "anchor": "His name is Francis Meekin--he's various medical letters to it",
+   "span": "His name is Francis Meekin--he's various medical letters to it.",
+   "ok": true
+  },
+  {
+   "claim": "Michael Carstairs secretly married Mary Smeaton, making Gavin Smeaton the rightful heir",
+   "anchor": "the entry of the marriage of one Michael Carstairs with a Mary Smeaton",
+   "span": "When he read of the Phillips inquest, and what I'd said then, he thought of those registers and turned them up, out of a chest where they'd lain for thirty years anyway; and he at once found the entry of the marriage of one Michael Carstairs with a Mary Smeaton, which was by licence, and performed by the last vicar of Walholm--it was, as a matter of fact, the very last marriage which ever took place in the old church.",
+   "ok": true
+  },
+  {
+   "claim": "The impostor sold off most of the Carstairs estate and converted proceeds into American securities",
+   "anchor": "he has sold nearly every yard of them except Hathercleugh",
+   "span": "Sir Gilbert Carstairs has now been in possession of his estates for a little over a year, and during that time he has sold nearly every yard of them except Hathercleugh!",
+   "ok": true
+  },
+  {
+   "claim": "The impostor fled after abandoning the yacht at Largo",
+   "anchor": "the yacht was found empty",
+   "span": "For, as I remarked just now, my lad, the mere fact that the yacht was found empty doesn't prove that Carstairs has been drowned!",
+   "ok": true
+  },
+  {
+   "claim": "The handwriting on the letter matches Michael Carstairs' signature on the will",
+   "anchor": "I'll stake all I'm worth that that signature and that letter are the work of the same hand",
+   "span": "I'll stake all I'm worth that that signature and that letter are the work of the same hand!",
+   "ok": true
+  },
+  {
+   "claim": "Maisie Dunlop was missing but later found safe",
+   "anchor": "Miss Dunlop says Sir Gilbert was here last night!--and it was he and Hollins imprisoned her above there",
+   "span": "But I'll tell you this: Miss Dunlop says Sir Gilbert was here last night!--and it was he and Hollins imprisoned her above there--frightened she'd let out on them if she got away.",
+   "ok": true
+  },
+  {
+   "claim": "The impostor was ultimately killed by Nance Maguire",
+   "anchor": "she drove the knife into him for the third time",
+   "span": "I shut my eyes, sick with horror, as she drove the knife into him for the third time.",
+   "ok": true
+  },
+  {
+   "claim": "Hugh Moneylaws was shot in the knee by Meekin during pursuit",
+   "anchor": "the bullet went through my left knee",
+   "span": "And whether he meant to kill me, or only to cripple me, I don't know; but the bullet went through my left knee, at the lower edge of the knee-cap, and the next thing I knew I was sprawling on all-fours on the earth, and the next--and it was in the succeeding second, before even I felt a smart--I was staring up from that position to see the vengeance that fell on my would-be murderer in the very instant of his attempt on me.",
+   "ok": true
+  },
+  {
+   "claim": "The impostor tried to silence Hugh Moneylaws by attempted murder",
+   "anchor": "he fired at me--from some twelve or fifteen yards' distance",
+   "span": "It was then that he fired at me--from some twelve or fifteen yards' distance.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.12186224,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

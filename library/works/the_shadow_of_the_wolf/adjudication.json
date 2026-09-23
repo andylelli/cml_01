@@ -1,0 +1,19 @@
+{
+ "false_assumption": {
+  "statement": "Purcell landed at Penzance and other ports after the yacht voyage and is alive.",
+  "type": "identity",
+  "why_it_seems_reasonable": "Varney, the sole companion, testified to Purcell's landing and subsequent sightings; letters purportedly from Purcell were received after his disappearance. These facts appeared to confirm Purcell's survival.",
+  "what_it_hides": "Varney fabricated the sightings and forged the letters to conceal Purcell's murder and death during the voyage."
+ },
+ "mechanism_description": "Varney murdered Purcell during the yacht voyage by shooting him and disposing of his body weighted with an iron half-hundred weight. He fabricated evidence of Purcell's survival by forging letters and inventing false sightings at ports. Scientific evidence, including the blood stain on the sail and the cork button with a marine worm tube found on the sea bottom near Wolf Rock, proved Purcell's death and Varney's guilt.",
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "A search expedition using creepers and trawl-rope is conducted near Wolf Rock to recover physical evidence. The search focuses on the area identified by the marine worm tube analysis and the missing ballast weight. The test observes if the body or identifiable remains can be recovered to conclusively prove death.",
+  "knowledge_revealed": "The test reveals the location of Purcell's body and physical evidence linking Varney to the murder and disposal.",
+  "pass_condition": "Recovery of Purcell's identifiable remains, such as the oilskin coat with the button and skull with bullet hole, from the sea bottom near Wolf Rock."
+ },
+ "changed": [
+  "false_assumption.type"
+ ],
+ "confidence": "high"
+}

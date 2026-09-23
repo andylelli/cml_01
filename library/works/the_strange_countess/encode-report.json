@@ -66,20 +66,20 @@
   {
    "claim": "Michael Dorn rescues Lois and Mary after fire",
    "anchor": "The fire had taken hold; great tongues of flame were leaping up from the roof.",
-   "span": "The fire had taken hold; great tongues of flame were leaping up from the roof. “It will burn like tinder.",
+   "span": "The fire had taken hold; great tongues of flame were leaping up from the roof. \"It will burn like tinder.",
    "ok": true
   },
   {
    "claim": "False accusation against Lois for attempted murder",
    "anchor": "I charge her with being concerned in the attempted murder of John Braime!",
-   "span": "I charge her with being concerned in the attempted murder of John Braime!” The girl listened, thunderstruck, rooted to the spot.",
+   "span": "I charge her with being concerned in the attempted murder of John Braime!\" The girl listened, thunderstruck, rooted to the spot.",
    "ok": true
   },
   {
    "claim": "Selwyn Moron is weak and dominated by his mother",
    "anchor": "He was a weakling, entirely under the domination of his mother, a quiet and harmless man with simple, almost childish, tastes.",
-   "span": "",
-   "ok": false
+   "span": "She was to learn later that he was a weakling, entirely under the domination of his mother, a quiet and harmless man with simple, almost childish, tastes. \"Not for you, my boy,\" said Mr.",
+   "ok": true
   },
   {
    "claim": "Countess’s plot to remove Mary Pinder as claimant",
@@ -96,7 +96,7 @@
   {
    "claim": "Lois’s scar is a key identifying mark",
    "anchor": "It was Lizzy’s faith that whenever the scar irritated, rain was in the offing.",
-   "span": "It was Lizzy’s faith that whenever the scar irritated, rain was in the offing. “You’ll have to have that electrocuted, or whatever the word is,” said the snub-nosed girl when the other shook her head.",
+   "span": "It was Lizzy's faith that whenever the scar irritated, rain was in the offing. \"You'll have to have that electrocuted, or whatever the word is,\" said the snub-nosed girl when the other shook her head.",
    "ok": true
   },
   {
@@ -130,5 +130,7 @@
   "encode": "gpt-4.1-mini",
   "sweep": "gpt-4o-mini"
  },
- "case_written": true
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
 }

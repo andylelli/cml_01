@@ -12,20 +12,20 @@
   {
    "claim": "The cause of death was a stab wound through the heart",
    "anchor": "Stabbed in the back",
-   "span": "Stabbed in the back,” he said presently, “and whoever did it knew the right place—right through the heart, as far as I can see.",
+   "span": "Stabbed in the back,\" he said presently, \"and whoever did it knew the right place-right through the heart, as far as I can see.",
    "ok": true
   },
   {
    "claim": "A cigar band was found on the floor of the cabin",
    "anchor": "a band off a cigar—lying on the floor",
-   "span": "",
-   "ok": false
+   "span": "A band off a cigar-lying on the floor of the cabin-here it is,\" and he laid it on the table.",
+   "ok": true
   },
   {
    "claim": "The cigar band was from Canon Fittleworth’s special cigars",
    "anchor": "this box was sent to me by my Spanish friend",
-   "span": "",
-   "ok": false
+   "span": "This box was sent to me by my Spanish friend, De Garcia-you remember him?",
+   "ok": true
   },
   {
    "claim": "The walking-stick found in the dinghy did not belong to Templeton",
@@ -42,7 +42,7 @@
   {
    "claim": "The cigar band was changed during the inquest",
    "anchor": "the original cigar band was changed while passing round the jury",
-   "span": "Well, it’s fairly obvious that the original cigar band was changed while passing round the jury.",
+   "span": "Well, it's fairly obvious that the original cigar band was changed while passing round the jury.",
    "ok": true
   },
   {
@@ -66,8 +66,8 @@
   {
    "claim": "Norwood was left-handed and carried a walking-stick in his left hand",
    "anchor": "he held the bottle with his right hand and drew it with his left",
-   "span": "",
-   "ok": false
+   "span": "He held the bottle with his right hand and drew it with his left.",
+   "ok": true
   },
   {
    "claim": "Norwood changed the cigar band to mislead the investigation",
@@ -96,14 +96,14 @@
   {
    "claim": "Norwood committed suicide in custody",
    "anchor": "found him hanging to the bar of the window",
-   "span": "But in the morning they found him hanging to the bar of the window—they have out-of-date cells in Frattenbury—his braces substituted for the rope that he would have eventually earned.",
+   "span": "But in the morning they found him hanging to the bar of the window-they have out-of-date cells in Frattenbury-his braces substituted for the rope that he would have eventually earned.",
    "ok": true
   },
   {
    "claim": "The walking-stick was planted as false evidence",
    "anchor": "the one you removed from the dinghy the next night was a dummy",
-   "span": "",
-   "ok": false
+   "span": "The one you removed from the dinghy the next night was a dummy.",
+   "ok": true
   },
   {
    "claim": "The murderer rowed back in the dinghy leaving the walking-stick behind",
@@ -130,5 +130,7 @@
   "encode": "gpt-4.1-mini",
   "sweep": "gpt-4o-mini"
  },
- "case_written": true
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
 }

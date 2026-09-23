@@ -1,0 +1,475 @@
+{
+ "decade": "1910s",
+ "realism_constraints": [
+  "No modern forensic DNA analysis available",
+  "Telephones and motor cars exist but are not ubiquitous",
+  "Police rely on fingerprints, photography, and logical deduction"
+ ],
+ "location": "England, various locations including London, Surrey, Hampshire, Essex",
+ "institution": "Malcolm Sage Detective Bureau",
+ "crime_category": "murder",
+ "crime_subtype": "locked-room shooting with forged suicide",
+ "cast": [
+  {
+   "name": "Malcolm Sage",
+   "age_range": "40-60",
+   "role_archetype": "analytical private detective",
+   "role": "detective",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "respected detective with keen analytical skills",
+   "private_secret": "uses photography and logical deduction extensively",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "always present at investigation scenes",
+   "access_plausibility": "n/a",
+   "stakes": "professional reputation and justice",
+   "moral_complexity": "low",
+   "relationships": [],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "restless hands when thinking",
+    "keen observational skills"
+   ],
+   "evidence_sensitivity": [
+    "photographs of crime scenes",
+    "fingerprints",
+    "physical traces"
+   ]
+  },
+  {
+   "name": "Sir James Walton",
+   "age_range": "60-70",
+   "role_archetype": "loyal friend and former chief of staff",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "respected elder statesman",
+   "private_secret": "close friend of victim Geoffrey Challoner",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "present at crime scene discovery",
+   "access_plausibility": "high",
+   "stakes": "justice for friend",
+   "moral_complexity": "low",
+   "relationships": [
+    "Geoffrey Challoner (victim)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Peters",
+   "age_range": "40-50",
+   "role_archetype": "butler with criminal past",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "trustworthy butler",
+   "private_secret": "forger and murderer",
+   "motive_seed": "financial gain and concealment of forgery",
+   "motive_strength": "strong",
+   "alibi_window": "present at crime scene and locked room",
+   "access_plausibility": "high",
+   "stakes": "avoid arrest and punishment",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Geoffrey Challoner (victim)"
+   ],
+   "opportunity_channels": [
+    "access to library",
+    "knowledge of locks"
+   ],
+   "behavioral_tells": [
+    "nervousness",
+    "practice marks on doors"
+   ],
+   "evidence_sensitivity": [
+    "fingerprints",
+    "marks on door bottom",
+    "photographs of body and keys"
+   ]
+  },
+  {
+   "name": "Richard Dane",
+   "age_range": "20-30",
+   "role_archetype": "nephew with contentious relationship",
+   "role": "suspect",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "eligible",
+   "public_persona": "nervous young man",
+   "private_secret": "engaged to a secretary against uncle's wishes",
+   "motive_seed": "disinheritance threat",
+   "motive_strength": "moderate",
+   "alibi_window": "uncertain late night",
+   "access_plausibility": "medium",
+   "stakes": "inheritance",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Geoffrey Challoner (victim, uncle)"
+   ],
+   "opportunity_channels": [
+    "access to house"
+   ],
+   "behavioral_tells": [
+    "nervous twitching"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Sir Jasper Chambers",
+   "age_range": "60-70",
+   "role_archetype": "philanthropist with secret motive",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "respected humanitarian and friend of victim",
+   "private_secret": "killed to prevent serum revelation",
+   "motive_seed": "prevent societal chaos from serum discovery",
+   "motive_strength": "strong",
+   "alibi_window": "present at laboratory before murder",
+   "access_plausibility": "high",
+   "stakes": "societal welfare vs personal friendship",
+   "moral_complexity": "high",
+   "relationships": [
+    "Professor James McMurray (victim)"
+   ],
+   "opportunity_channels": [
+    "access to laboratory"
+   ],
+   "behavioral_tells": [
+    "left-handed",
+    "smokes specific tobacco"
+   ],
+   "evidence_sensitivity": [
+    "pipe",
+    "tobacco",
+    "marmalade dislike"
+   ]
+  },
+  {
+   "name": "Lady Glanedale",
+   "age_range": "40-50",
+   "role_archetype": "fraudulent victim",
+   "role": "culprit",
+   "gender": "female",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "socialite victim of burglary",
+   "private_secret": "staged robbery to claim insurance",
+   "motive_seed": "financial gain",
+   "motive_strength": "strong",
+   "alibi_window": "present at home during staged crime",
+   "access_plausibility": "high",
+   "stakes": "insurance money",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Robert Glanedale (stepson)"
+   ],
+   "opportunity_channels": [
+    "access to safe and jewels"
+   ],
+   "behavioral_tells": [
+    "rehearsed story",
+    "contradictory actions"
+   ],
+   "evidence_sensitivity": [
+    "footprints",
+    "water-pipe marks",
+    "jewel list"
+   ]
+  },
+  {
+   "name": "Gladys Norman",
+   "age_range": "20-30",
+   "role_archetype": "loyal secretary",
+   "role": "witness",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "devoted secretary",
+   "private_secret": "admiration and affection for Sage",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "always at bureau",
+   "access_plausibility": "n/a",
+   "stakes": "professional loyalty",
+   "moral_complexity": "low",
+   "relationships": [
+    "Malcolm Sage (detective)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": []
+  }
+ ],
+ "culprits": [
+  "Peters",
+  "Sir Jasper Chambers",
+  "Lady Glanedale"
+ ],
+ "surface_summary": "The case initially appears as a locked-room suicide of Geoffrey Challoner, with no apparent motive and impossible entry. Later, a mysterious murder of Professor McMurray with a rejuvenated body and a missing document puzzles the police. Finally, a staged burglary by Lady Glanedale and the disappearance of boxer Charley Burns add complexity to the detective's investigations.",
+ "accepted_facts": [
+  "Geoffrey Challoner was found shot in a locked library with the door locked from inside",
+  "Professor McMurray was found dead with a battered head and appeared younger",
+  "Lady Glanedale reported a burglary with stolen jewels and footprints outside her window",
+  "Charley Burns disappeared before a major fight and was later found held captive"
+ ],
+ "inferred_conclusions": [
+  "Challoner committed suicide due to family disputes",
+  "The tramp arrested for McMurray's murder was the killer",
+  "The burglaries and cattle-maimings were unrelated isolated crimes"
+ ],
+ "mechanism_description": "Peters, the butler, forged cheques and murdered Geoffrey Challoner by shooting him from behind, then locked the door using a string and pencil trick to simulate suicide. Sir Jasper Chambers killed Professor McMurray to prevent the serum's revelation, staging the scene to mislead investigators. Lady Glanedale faked a burglary to claim insurance money, creating false footprints and staging the scene.",
+ "delivery_path": [
+  "Peters practiced locking doors with string and pencil to simulate locked-room",
+  "Peters shot Challoner from behind while he was absorbed in his passbook",
+  "Peters replaced passbook to hide forgery evidence",
+  "Sir Jasper Chambers entered McMurray's lab by appointment and killed him with a left-handed blow",
+  "Sir Jasper staged forced entry and destroyed evidence including manuscripts",
+  "Lady Glanedale created false footprints and staged burglary to claim insurance",
+  "Malcolm Sage used photography, fingerprints, and logical deduction to uncover the truth"
+ ],
+ "outcome_result": "Malcolm Sage exposes Peters as the murderer of Challoner, Sir Jasper Chambers as McMurray's killer, and Lady Glanedale as a fraudster, restoring justice.",
+ "false_assumption": {
+  "statement": "Geoffrey Challoner's death was a straightforward suicide due to family quarrel.",
+  "type": "behavioral",
+  "why_it_seems_reasonable": "The locked door and presence of a pistol in Challoner's hand suggest suicide, and the family dispute provides a plausible motive. The police and doctor initially confirm the suicide verdict.",
+  "what_it_hides": "It conceals the fact that the door was locked from outside using a string and pencil trick by Peters, who murdered Challoner to cover up forgery."
+ },
+ "false_solution": {
+  "accused_suspect": "Richard Dane",
+  "supporting_points": [
+   "He had a quarrel with his uncle and was threatened with disinheritance",
+   "He returned late at night and was nervous",
+   "He had motive to cause distress to Challoner",
+   "He was present in the house at the relevant time"
+  ],
+  "the_one_flaw": "He lacked the opportunity and means to commit the murder in a locked room, and no evidence linked him directly to the crime.",
+  "refuted_in_chapter": 3
+ },
+ "red_herrings": [
+  {
+   "id": "richard_dane_nervousness",
+   "description": "Richard Dane's nervous behavior and family quarrel suggest guilt.",
+   "points_at_suspect": "Richard Dane",
+   "innocent_explanation": "His nervousness was due to stress over his engagement and family disputes, not guilt.",
+   "resolved_in_chapter": 3
+  },
+  {
+   "id": "tramp_mcmurray_murder",
+   "description": "A tramp was arrested for McMurray's murder based on possession of the watch and bloodstains.",
+   "points_at_suspect": "Tramp",
+   "innocent_explanation": "The tramp found the watch and was wrongly accused; the real murderer was Sir Jasper Chambers.",
+   "resolved_in_chapter": 11
+  }
+ ],
+ "closed_circle": {
+  "suspects": [
+   "Peters",
+   "Richard Dane",
+   "Sir James Walton",
+   "Sir Jasper Chambers",
+   "Lady Glanedale"
+  ],
+  "rationale": "All had access to the crime scenes and potential motives; the locked-room nature and forensic evidence narrowed suspects to those with opportunity and means."
+ },
+ "constraint_space": {
+  "time_anchors": [
+   "Half-past seven in the morning when body was found",
+   "Evening of previous day when quarrel occurred",
+   "Tuesday night for McMurray's murder",
+   "Early morning of burglary at Lady Glanedale's"
+  ],
+  "time_windows": [
+   "Between 10 pm and midnight for Challoner's murder",
+   "Between dinner and next morning for McMurray's murder",
+   "Around 1 am for Lady Glanedale's burglary",
+   "Day before fight for Burns's disappearance"
+  ],
+  "access_actors": [
+   "Peters (butler)",
+   "Richard Dane (nephew)",
+   "Sir Jasper Chambers (friend)",
+   "Lady Glanedale (resident)"
+  ],
+  "access_objects": [
+   "Library door and windows",
+   "Laboratory door and wicket",
+   "Safe and jewel cases",
+   "Cars and bicycles at The Towers"
+  ],
+  "trust_channels": [
+   "Butler's testimony",
+   "Fingerprints and photography",
+   "Handwriting experts",
+   "Witness statements"
+  ],
+  "authority_sources": [
+   "Scotland Yard inspectors",
+   "Medical doctors",
+   "Insurance company assessors",
+   "Malcolm Sage's detective authority"
+  ]
+ },
+ "inference_path": [
+  {
+   "observation": "The library door was locked from inside with key in place",
+   "correction": "A string and pencil trick was used to lock the door from outside",
+   "effect": "Shows the locked-room was faked",
+   "required_evidence": [
+    "Marks of string on the bottom edge of the library door",
+    "Photograph showing reflection of cord marks under the door"
+   ]
+  },
+  {
+   "observation": "Challoner's hand held the pistol unnaturally with second joint on trigger",
+   "correction": "Murderer shot him from behind, causing unnatural hand position",
+   "effect": "Indicates murder, not suicide",
+   "required_evidence": [
+    "Photograph of Malcolm Sage simulating shooting from behind",
+    "Photograph of the wound showing abrasion consistent with head jerk"
+   ]
+  },
+  {
+   "observation": "Professor McMurray's body appeared younger than his age",
+   "correction": "Serum experiment caused rejuvenation, motive for murder",
+   "effect": "Suggests scientific breakthrough and motive",
+   "required_evidence": [
+    "Press-cutting of article 'The Dangers of Longevity'",
+    "Sir Jasper Chambers' confession letter"
+   ]
+  },
+  {
+   "observation": "Missing document replaced by blank sheets identical in number and quality",
+   "correction": "Theft was planned by someone knowing document's arrival and contents",
+   "effect": "Narrows suspect to insiders",
+   "required_evidence": [
+    "Safe contents and dummy packet",
+    "Note from Sir Lyster Grayne about document placement"
+   ]
+  },
+  {
+   "observation": "Footprints and marks on water-pipe at Lady Glanedale's window",
+   "correction": "Footprints made before rain, inconsistent with story",
+   "effect": "Indicates staged burglary",
+   "required_evidence": [
+    "Measurements of footprints and stride length",
+    "Rain drops on leaves inside footprints"
+   ]
+  },
+  {
+   "observation": "Anonymous letters written on Olympic Script paper",
+   "correction": "Secret ink revealed by heating letters",
+   "effect": "Identifies letter writer",
+   "required_evidence": [
+    "Letters sealed by vicar and opened with metal plate and flame",
+    "Handwriting analysis of letters and sermons"
+   ]
+  },
+  {
+   "observation": "Charley Burns disappeared before fight",
+   "correction": "Kidnapped by well-dressed men with damaged nose and umbrella",
+   "effect": "Reveals motive and suspects",
+   "required_evidence": [
+    "Footprints and marks near rhododendrons",
+    "Cigar with red and gold band found at scene"
+   ]
+  }
+ ],
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "Malcolm Sage reenacted the shooting position and examined the locked door with a mirror and torch to detect marks of the string and pencil trick. He also measured footprints and marks at Lady Glanedale's house, and heated letters to reveal secret ink.",
+  "knowledge_revealed": "The reenactment revealed that the locked door was manipulated from outside, the footprints were inconsistent with the story, and the letters contained secret ink identifying the true writer.",
+  "pass_condition": "Physical evidence such as string marks under the door and secret ink appearing on heated letters must be observable and consistent with the reenactment."
+ },
+ "fair_play_explanation": "The reader is given detailed descriptions of the locked door, the position of the body and keys, the marks on the door bottom, and the photographs taken. The secret of the string and pencil trick is explained and illustrated. The inconsistencies in footprints and the secret ink in letters are presented with sufficient clues. The reader could deduce the true culprit by careful attention to these details and logical reasoning.",
+ "anchors": [
+  {
+   "claim": "Geoffrey Challoner was found dead in the locked library",
+   "anchor": "We found Challoner seated at his table dead, shot through the head."
+  },
+  {
+   "claim": "The library door was locked on the inside with key in position",
+   "anchor": "The door had been locked _on the inside_, and the key was in position."
+  },
+  {
+   "claim": "The butler Peters discovered the body and locked the door",
+   "anchor": "I locked the door; here is the key,\" he said, producing it from his jacket pocket."
+  },
+  {
+   "claim": "The marks of the cord were clearly defined and reflected in the mirror",
+   "anchor": "The marks of the cord were clearly defined and reflected in the mirror."
+  },
+  {
+   "claim": "Peters was wanted for forgery and had a criminal past",
+   "anchor": "We've been on the look-out for him for more than a year,\" said Inspector Wensdale."
+  },
+  {
+   "claim": "Professor McMurray was found dead with a battered head",
+   "anchor": "He was found dead in his laboratory, his head fearfully battered in by some blunt instrument."
+  },
+  {
+   "claim": "Sir Jasper Chambers was the last to see McMurray alive",
+   "anchor": "You were the last to see him alive, I understand."
+  },
+  {
+   "claim": "The murderer was left-handed and had medical knowledge",
+   "anchor": "The poker marks suggest a left-handed man. The wound in the head proves it."
+  },
+  {
+   "claim": "Sir Jasper Chambers confessed to killing McMurray to prevent chaos",
+   "anchor": "I had to choose between myself and the welfare of the race, and I chose the race."
+  },
+  {
+   "claim": "Lady Glanedale staged a burglary to claim insurance",
+   "anchor": "Lady Glanedale confessed the fraud she had sought to practise upon the Corporation."
+  },
+  {
+   "claim": "Footprints at Lady Glanedale's window were made before rain",
+   "anchor": "On these leaves were drops of rain just as they had fallen."
+  },
+  {
+   "claim": "Anonymous letters were written on Olympic Script paper",
+   "anchor": "One peculiarity of the letters was that all were written upon the same paper, known as \"Olympic Script.\""
+  },
+  {
+   "claim": "Secret ink was revealed by heating the letters",
+   "anchor": "There in the centre of the page, in bluish-coloured letters, which had not been there when the paper was smoothed out, appeared the words"
+  },
+  {
+   "claim": "Charley Burns disappeared before a major fight",
+   "anchor": "That morning at six o'clock, when Alf Pond, Burns's trainer, had entered his room to warn him that it was time to get up, he found it unoccupied."
+  },
+  {
+   "claim": "Malcolm Sage deduced the kidnappers by footprints and cigar",
+   "anchor": "Behind that clump of rhododendrons, there is written a whole history. The marks of boots, or shoes, with very high heels suggests a woman."
+  },
+  {
+   "claim": "Malcolm Sage used photography to simulate shooting angles",
+   "anchor": "You shoot me through the right temple, approaching from behind."
+  },
+  {
+   "claim": "The butler Peters had marks on his door from practicing the lock trick",
+   "anchor": "I found that of one room, which I after discovered to be Peters', was heavily scored at the bottom."
+  },
+  {
+   "claim": "The electric light was off when the body was found",
+   "anchor": "Did you happen to notice if the electric light was on when you entered the library? No, it was not."
+  },
+  {
+   "claim": "The pistol was held unnaturally in the victim's hand",
+   "anchor": "The position of the head on the table, and the way in which the hand was holding the pistol, not to speak of the curve of the arm, were unnatural."
+  },
+  {
+   "claim": "The murderer was careful to avoid leaving fingerprints",
+   "anchor": "I can then identify those of any stranger that I may find."
+  }
+ ]
+}

@@ -1,0 +1,130 @@
+{
+ "slug": "the_greene_murder_case",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "The Greene mansion was the scene of the murders",
+   "anchor": "The Greene mansion, New York, as it appeared at the time",
+   "span": "Van Dine [Frontispiece: The Greene mansion, New York, as it appeared at the time of the notorious Greene murder case.",
+   "ok": true
+  },
+  {
+   "claim": "Philo Vance is the amateur detective who solved the case",
+   "anchor": "I have chosen to call him Philo Vance",
+   "span": "His name I am not at liberty to divulge, but for the purposes of these chronicles I have chosen to call him Philo Vance.",
+   "ok": true
+  },
+  {
+   "claim": "Julia Greene was shot in her locked bedroom",
+   "anchor": "Julia is killed by a contact shot, fired from the front",
+   "span": "Julia is killed by a contact shot, fired from the front, at 11.",
+   "ok": true
+  },
+  {
+   "claim": "Ada Greene was shot from behind and survived",
+   "anchor": "Ada is shot from behind, also by a contact shot. She recovers",
+   "span": "Ada is shot from behind, also by a contact shot. She recovers.",
+   "ok": true
+  },
+  {
+   "claim": "Chester Greene was murdered in his bedroom",
+   "anchor": "Chester is murdered by a contact shot fired from a .32 revolver",
+   "span": ", Chester is murdered by a contact shot fired from a .32 revolver.",
+   "ok": true
+  },
+  {
+   "claim": "Rex Greene was murdered in his bedroom with no sign of struggle",
+   "anchor": "Rex is shot in the forehead with a .32 revolver",
+   "span": "Rex is shot in the forehead with a .32 revolver, at 11.",
+   "ok": true
+  },
+  {
+   "claim": "Ada Greene is the culprit who planned and executed the murders",
+   "anchor": "Ada had copied every act of hers, every method, every device",
+   "span": "Ada had copied every act of hers, every method, every device, every detail, from its pages-_from actual criminal history_!",
+   "ok": true
+  },
+  {
+   "claim": "Ada used criminal techniques from Tobias Greene’s criminology library",
+   "anchor": "Ada had copied every act of hers, every method, every device, every detail, from its pages",
+   "span": "Ada had copied every act of hers, every method, every device, every detail, from its pages-_from actual criminal history_!",
+   "ok": true
+  },
+  {
+   "claim": "Ada faked her own shooting to mislead investigators",
+   "anchor": "Ada shot herself in the back to fake an attack",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Ada used a secret passage between her room and Rex’s to murder Rex",
+   "anchor": "an aperture was made between the two rooms, running from one of the panels in Ada’s mantel to the corresponding panel in Rex’s mantel",
+   "span": "The Greene house, as you know, is very old, and at some time in the past-perhaps when the fireplaces were built-an aperture was made between the two rooms, running from one of the panels in Ada's mantel to the corresponding panel in Rex's mantel.",
+   "ok": true
+  },
+  {
+   "claim": "Ada fabricated footprints using Chester’s galoshes",
+   "anchor": "the galoshes weren’t there when your sleuths were looking for the revolver",
+   "span": "the galoshes weren't there when your sleuths were looking for the revolver.",
+   "ok": true
+  },
+  {
+   "claim": "Mrs. Greene was paralyzed and could not have walked",
+   "anchor": "Mrs. Greene’s leg muscles had wasted away—gone plumb flabby",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Ada poisoned herself and others using stolen morphine and strychnine",
+   "anchor": "Ada took the morphine and strychnine from Von Blon’s case",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Ada attempted to kill Sibella by running her over a cliff",
+   "anchor": "Ada had run her over the precipice in the machine",
+   "span": "Otherwise, I doubt if we'd have reached her before Ada had run her over the precipice in the machine.",
+   "ok": true
+  },
+  {
+   "claim": "The revolver was rigged to fire through a secret panel to kill Rex",
+   "anchor": "the revolver, being on a hair-trigger, would discharge straight along the shaft and inevitably kill any one looking into the opening",
+   "span": "Ada, following Gross's diagram, pressed the handle of the gun tightly between the tapering claws of the bootjack, which would have held it like a vise; then tied a string to the trigger, and attached the other end to the inside of Rex's panel, so that when the panel was opened wide the revolver, being on a hair-trigger, would discharge straight along the shaft and inevitably kill any one looking into the opening.",
+   "ok": true
+  },
+  {
+   "claim": "Ada’s gun was disposed of by hanging it out the window with a cord",
+   "anchor": "the revolver was drawn over the sill and disappeared in the drift of soft snow on the balcony steps",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Ada’s story about the cryptic diagram was fabricated to mislead",
+   "anchor": "the paper in the hall was a pure fabrication",
+   "span": "The story of her finding the paper in the hall was a pure fabrication, but she knew it would pique our curiosity.",
+   "ok": true
+  },
+  {
+   "claim": "Ada was captured after attempting to shoot Vance",
+   "anchor": "Ada, frustrated in her attempt to shoot him, hurled herself upon him",
+   "span": "Ada, frustrated in her attempt to shoot him, hurled herself upon him with savage fury.",
+   "ok": true
+  },
+  {
+   "claim": "Mrs. Greene’s death was by strychnine poisoning administered by Ada",
+   "anchor": "Mrs. Greene died in convulsions as a result of strychnine-poisoning",
+   "span": "At some time between one and two the next morning Mrs. Greene died in convulsions as a result of strychnine-poisoning.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.148676104,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

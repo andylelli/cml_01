@@ -1,0 +1,121 @@
+{
+ "slug": "the_barge_of_haunted_lives",
+ "spans": [
+  {
+   "claim": "Colonel Canbeck was a solitary duckhunter with one eye",
+   "anchor": "The hunter was a thick-set, sullen-looking man, with a broad, clean-shaven face and thick, curly gray hair. He had only one eye",
+   "span": "The hunter was a thick-set, sullen-looking man, with a broad, clean-shaven face and thick, curly gray hair. He had only one eye--a greenish-yellow, searching left eye which often produced uncanny effects on persons on whom it gazed.",
+   "ok": true
+  },
+  {
+   "claim": "Paula Trevison arrived at the barge veiled and was called the Veiled Aeronaut",
+   "anchor": "the Veiled Aeronaut is now a member of our company",
+   "span": "the Veiled Aeronaut is now a member of our company.",
+   "ok": true
+  },
+  {
+   "claim": "Alfred Ferguson is actually Cecil, Lord Galonfield",
+   "anchor": "Though, for reasons which you will soon understand, I have been known recently by the name of Alfred Ferguson, I am no other than Cecil, Lord Galonfield",
+   "span": "CHAPTER V THE EYES OF RAJIID Though, for reasons which you will soon understand, I have been known recently by the name of Alfred Ferguson, I am no other than Cecil, Lord Galonfield, and am the possessor of one of the most venerable titles and one of the most debt-encumbered estates in the United Kingdom.",
+   "ok": true
+  },
+  {
+   "claim": "The lost diamonds are called the Eyes of Rajiid’s Buddha",
+   "anchor": "For these gems most women--aye, even those who wear queenly crowns--would sell their very souls. They are the lost eyes of Rajiid’s Buddha",
+   "span": "for these gems most women--aye, even those who wear queenly crowns--would sell their very souls. They are the lost eyes of Rajiid's Buddha.",
+   "ok": true
+  },
+  {
+   "claim": "Prince Maranotti was murdered and his body found at the foot of a cliff",
+   "anchor": "Prince Maranotti had been murdered at Basselanto only a few hours before! The dead man’s body, bruised and scratched, apparently by human hands, had been found at the foot of a cliff",
+   "span": "Prince Maranotti had been murdered at Basselanto only a few hours before! The dead man's body, bruised and scratched, apparently by human hands, had been found at the foot of a cliff over which, it was thought, it had been hurled by the murderer.",
+   "ok": true
+  },
+  {
+   "claim": "Simon Glyncamp was believed dead but revived during a post-mortem",
+   "anchor": "My consternation may easily be imagined when I saw Glyncamp, sitting almost upright on the operating table, and supported by Felkner",
+   "span": "My consternation may easily be imagined when I saw Glyncamp, sitting almost upright on the operating table, and supported by Felkner.",
+   "ok": true
+  },
+  {
+   "claim": "The Sentimental Gargoyle was suspected but is innocent of the murder",
+   "anchor": "That the cataleptic mind-reader was right when he accused you of his murder is a fact that is clear to all of us.",
+   "span": "That the cataleptic mind-reader was right when he accused you of his murder is a fact that is clear to all of us.\" The Nervous Physician, turning slowly livid, rose unsteadily.",
+   "ok": true
+  },
+  {
+   "claim": "The Homicidal Professor witnessed the murder of Prince Maranotti",
+   "anchor": "I am the only person who saw Prince Maranotti die at the hands of his assassin.",
+   "span": "Having heard what others have said of the affair, I am compelled to believe that I am the only person who saw Prince Maranotti die at the hands of his assassin.\" \"You were there?",
+   "ok": true
+  },
+  {
+   "claim": "The diamonds were hidden in a jade image and a lead cylinder",
+   "anchor": "I thrust into the inner pocket of my coat a hard, oblong object that was sewed in a little bag of oiled silk which exhaled the odor of fragrant spices",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The safe-deposit box seals were broken before the jaboowallah opened it",
+   "anchor": "Glancing at the box as my companion drew it out, I saw that the seals, which Ferguson had affixed to the bundle, were broken.",
+   "span": "Glancing at the box as my companion drew it out, I saw that the seals, which Ferguson had affixed to the bundle, were broken. \"Some one else has been here,\" I whispered, fearfully.",
+   "ok": true
+  },
+  {
+   "claim": "Paula Trevison is the daughter of the late Prince Maranotti",
+   "anchor": "I am the daughter of the late Prince Maranotti.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The seaplane left Paula Trevison stranded near the barge",
+   "anchor": "I came in the seaplane... compelled to alight, however.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The Gargoyle died after revealing the truth about the diamonds and Paula",
+   "anchor": "The Gargoyle fell to the floor... The Gargoyle took her hands. Good-night, my Princess.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The Nervous Physician is the murderer of Simon Glyncamp",
+   "anchor": "Dr. Felkner, beginning the operation with a deep, rapid incision, had inflicted a mortal wound.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The jaboowallah tortured Ferguson and cut Forsythe’s vocal cords",
+   "anchor": "Having been brought to India... I was compelled to seat myself... I was decapitated... I had my vocal cords cut.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Rayon Demain was a wild man raised in the wilderness",
+   "anchor": "Rayon Demain, a young man raised in the wilderness, husband of Paula.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The Hypochondriacal Painter raised Rayon Demain and taught him he was a god",
+   "anchor": "I took the infant... I told him that this child was Rayon Demain--the son of the Great Spirit.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The burning of Mrs. Seaver’s house was caused by Glenagassett",
+   "anchor": "It was this Indian who had lighted the fire that destroyed Mrs. Seaver’s buildings.",
+   "span": "It had been learned also that for many years an Indian, named Glenagassett, had been Demain's almost constant attendant, and that it was this Indian who had lighted the fire that destroyed Mrs. Seaver's buildings. What had been the motive that inspired this deed, no man knew.",
+   "ok": true
+  },
+  {
+   "claim": "The final confession reveals Alfred Ferguson as the murderer",
+   "anchor": "It is unfortunate that the endings of many true love stories should be so uncertain... the story may be said to be scarcely more than begun.",
+   "span": "",
+   "ok": false
+  }
+ ],
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

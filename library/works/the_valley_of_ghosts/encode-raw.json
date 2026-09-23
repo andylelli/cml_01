@@ -1,0 +1,503 @@
+{
+ "decade": "1920s",
+ "realism_constraints": [
+  "No advanced forensic DNA or electronic surveillance technology",
+  "Communication limited to telephone, telegrams, and in-person visits",
+  "Transportation primarily by car, train, and on foot"
+ ],
+ "location": "Beverley Green and surrounding areas, England",
+ "institution": "Local police and Dr. Andrew Macleod (assistant pathologist and detective)",
+ "crime_category": "murder",
+ "crime_subtype": "double murder with forged financial documents and identity deception",
+ "cast": [
+  {
+   "name": "Andrew Macleod",
+   "age_range": "30-40",
+   "role_archetype": "analytical pathologist and detective",
+   "role": "detective",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "assistant pathologist and detective",
+   "private_secret": "deeply involved emotionally with Stella Nelson",
+   "motive_seed": "professional duty and personal affection",
+   "motive_strength": "strong",
+   "alibi_window": "not applicable",
+   "access_plausibility": "high",
+   "stakes": "high professional and personal",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Stella Nelson (romantic interest)",
+    "Scottie (ally)",
+    "Mr. Boyd Salter (informant)"
+   ],
+   "opportunity_channels": [
+    "investigative access",
+    "social visits"
+   ],
+   "behavioral_tells": [
+    "protective of Stella",
+    "persistent investigator"
+   ],
+   "evidence_sensitivity": [
+    "letter from Hilda Masters",
+    "marriage certificate",
+    "forged bills"
+   ]
+  },
+  {
+   "name": "Stella Nelson",
+   "age_range": "20-25",
+   "role_archetype": "young woman under suspicion, victim of circumstance",
+   "role": "suspect",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "daughter of artist, socially connected",
+   "private_secret": "financial difficulties, nursing Scottie",
+   "motive_seed": "protecting family and self",
+   "motive_strength": "moderate",
+   "alibi_window": "night of murder",
+   "access_plausibility": "high",
+   "stakes": "high personal risk",
+   "moral_complexity": "high",
+   "relationships": [
+    "Kenneth Nelson (father)",
+    "Andrew Macleod (friend and love interest)",
+    "Scottie (friend)"
+   ],
+   "opportunity_channels": [
+    "visited Merrivan's house",
+    "burned documents"
+   ],
+   "behavioral_tells": [
+    "calm under pressure",
+    "self-sacrificing"
+   ],
+   "evidence_sensitivity": [
+    "emerald ring",
+    "scarf found in orchard",
+    "burnt letter"
+   ]
+  },
+  {
+   "name": "Kenneth Leonard Nelson",
+   "age_range": "50-60",
+   "role_archetype": "troubled alcoholic artist",
+   "role": "bystander",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "artist with a drinking problem",
+   "private_secret": "forged bills implicating him",
+   "motive_seed": "financial desperation",
+   "motive_strength": "weak",
+   "alibi_window": "not applicable",
+   "access_plausibility": "high",
+   "stakes": "moderate",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Stella Nelson (daughter)",
+    "Darius Merrivan (associate)"
+   ],
+   "opportunity_channels": [
+    "access to forged bills"
+   ],
+   "behavioral_tells": [
+    "erratic behavior",
+    "drunken outbursts"
+   ],
+   "evidence_sensitivity": [
+    "forged bills",
+    "financial records"
+   ]
+  },
+  {
+   "name": "Arthur Wilmot (Flora)",
+   "age_range": "30-40",
+   "role_archetype": "mysterious relative and milliner",
+   "role": "suspect",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "eligible",
+   "public_persona": "nephew of Merrivan, milliner",
+   "private_secret": "attempted to cover theft of documents",
+   "motive_seed": "inheritance and financial gain",
+   "motive_strength": "strong",
+   "alibi_window": "night of murder",
+   "access_plausibility": "high",
+   "stakes": "high",
+   "moral_complexity": "high",
+   "relationships": [
+    "Darius Merrivan (uncle)",
+    "Stella Nelson (object of affection)"
+   ],
+   "opportunity_channels": [
+    "access to Merrivan's house",
+    "possession of marriage certificate"
+   ],
+   "behavioral_tells": [
+    "evasiveness",
+    "anger when confronted"
+   ],
+   "evidence_sensitivity": [
+    "missing documents",
+    "marriage certificate"
+   ]
+  },
+  {
+   "name": "Darius Merrivan (Abraham Selim)",
+   "age_range": "50-60",
+   "role_archetype": "victim with secret identity",
+   "role": "victim",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "Canadian geologist and community figure",
+   "private_secret": "alias Abraham Selim, moneylender, blackmailer",
+   "motive_seed": "concealing identity and financial fraud",
+   "motive_strength": "none (victim)",
+   "alibi_window": "time of murder",
+   "access_plausibility": "not applicable",
+   "stakes": "high",
+   "moral_complexity": "high",
+   "relationships": [
+    "Arthur Wilmot (nephew)",
+    "Stella Nelson (friend)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": [
+    "forged bills",
+    "secret marriage certificate"
+   ]
+  },
+  {
+   "name": "Mr. Boyd Salter (John Aldayn Severn)",
+   "age_range": "50-60",
+   "role_archetype": "sleepwalking murderer and heir",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "Justice of the Peace and invalid",
+   "private_secret": "real identity John Aldayn Severn, murderer",
+   "motive_seed": "protect inheritance and family reputation",
+   "motive_strength": "strong",
+   "alibi_window": "night of murder",
+   "access_plausibility": "high",
+   "stakes": "very high",
+   "moral_complexity": "high",
+   "relationships": [
+    "Darius Merrivan (blackmailed)",
+    "Stella Nelson (family friend)"
+   ],
+   "opportunity_channels": [
+    "access to Merrivan's house",
+    "sleepwalking episodes"
+   ],
+   "behavioral_tells": [
+    "nervousness",
+    "sleepwalking",
+    "violent outbursts"
+   ],
+   "evidence_sensitivity": [
+    "bloodstains",
+    "footprints",
+    "burnt documents"
+   ]
+  },
+  {
+   "name": "Allison John Wicker (Four-Eyed Scottie)",
+   "age_range": "40-50",
+   "role_archetype": "reformed criminal and informant",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "scientist and reformed crook",
+   "private_secret": "past criminal activities",
+   "motive_seed": "self-preservation and assistance",
+   "motive_strength": "weak",
+   "alibi_window": "time of murder",
+   "access_plausibility": "medium",
+   "stakes": "moderate",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Andrew Macleod (friend)",
+    "Stella Nelson (friend)",
+    "Mrs. Crafton-Bonsor (acquaintance)"
+   ],
+   "opportunity_channels": [
+    "access to crime scenes"
+   ],
+   "behavioral_tells": [
+    "evasiveness",
+    "knowledge of underworld"
+   ],
+   "evidence_sensitivity": [
+    "injured hand bandaged by Stella",
+    "knowledge of gamekeeper"
+   ]
+  }
+ ],
+ "culprits": [
+  "Mr. Boyd Salter (John Aldayn Severn)"
+ ],
+ "surface_summary": "Darius Merrivan, a wealthy man with a secret identity as Abraham Selim, is found murdered along with his clerk Sweeny. Suspicion falls on Stella Nelson due to circumstantial evidence including a ring and scarf, while Arthur Wilmot and others have motives related to inheritance and financial fraud. The case is complicated by forged bills, secret marriages, and mysterious visitors.",
+ "accepted_facts": [
+  "Darius Merrivan was murdered in his home.",
+  "A second man, Sweeny, was found dead in the orchard.",
+  "Forged bills implicating Kenneth Nelson were found and then destroyed.",
+  "Abraham Selim and Darius Merrivan are the same person."
+ ],
+ "inferred_conclusions": [
+  "Stella Nelson was the murderer due to evidence found near her home.",
+  "Arthur Wilmot was involved in the murder to secure inheritance.",
+  "Abraham Selim was an external criminal who killed Merrivan."
+ ],
+ "mechanism_description": "Mr. Boyd Salter, whose real name was John Aldayn Severn, killed Darius Merrivan (also known as Abraham Selim) to protect his inheritance and family reputation. Salter, suffering from sleepwalking and mental instability, committed the murders and attempted to cover his tracks by burning incriminating documents and impersonating a gamekeeper. The forged bills and secret marriage certificate were central to the motive, and Salter's guilt was revealed through careful investigation and his own sleepwalking confession.",
+ "delivery_path": [
+  "Salter, fearing exposure due to forged bills and secret marriage, plans to kill Merrivan.",
+  "He enters Merrivan's house through an unbolted window, dressed as a gamekeeper.",
+  "Salter shoots Merrivan, then kills Sweeny who was watching the house.",
+  "He burns incriminating documents in the fireplace to destroy evidence.",
+  "Salter escapes through the servants' hall and later attempts to burglarize Beverley Hall.",
+  "He sleepwalks, reenacting the crime and revealing his guilt to the detective.",
+  "Salter dies accidentally from a trap gun set in the park during a sleepwalking episode."
+ ],
+ "outcome_result": "Mr. Boyd Salter (John Aldayn Severn) is revealed as the murderer and dies accidentally during a sleepwalking episode, ending the mystery.",
+ "false_assumption": {
+  "statement": "The woman seen leaving Merrivan's house at eleven o'clock was Stella Nelson and she was involved in the murder.",
+  "type": "identity",
+  "why_it_seems_reasonable": "Dr. Macleod testified seeing a woman leave Merrivan's house at that time, and circumstantial evidence like Stella's ring and scarf were found near the crime scene. The press and some investigators accepted this as strong evidence.",
+  "what_it_hides": "The woman seen was actually a servant of Mr. Sheppard, not Stella. Dr. Macleod had fabricated the story to protect Stella, and the real murderer was Mr. Boyd Salter, whose sleepwalking and disguise misled investigators."
+ },
+ "false_solution": {
+  "accused_suspect": "Stella Nelson",
+  "supporting_points": [
+   "Emerald ring found in the garden matching Stella's engagement ring.",
+   "Scarf with Stella's monogram found in the orchard near the murder scene.",
+   "Dr. Macleod's testimony of seeing a woman leave Merrivan's house at eleven o'clock.",
+   "Press articles suggesting Stella's involvement and financial motives."
+  ],
+  "the_one_flaw": "The timeline and physical impossibility of Stella being at the murder scene at the time of the killings, plus her consistent alibis and lack of motive for murder.",
+  "refuted_in_chapter": 31
+ },
+ "red_herrings": [
+  {
+   "id": "arthur_wilmot_mysterious_business",
+   "description": "Arthur Wilmot's secretive profession as a milliner and his possession of stolen documents suggested involvement in the crime.",
+   "points_at_suspect": "Arthur Wilmot",
+   "innocent_explanation": "Wilmot was a milliner operating legitimate businesses and was trying to protect his inheritance; he was not involved in the murders.",
+   "resolved_in_chapter": 31
+  },
+  {
+   "id": "four_eyed_scottie_alibi",
+   "description": "Scottie, a known jewel thief with a criminal past, was initially suspected due to his presence and knowledge of the area.",
+   "points_at_suspect": "Allison John Wicker (Four-Eyed Scottie)",
+   "innocent_explanation": "Scottie was reformed, had a strong alibi, and was nursing an injury; he assisted the investigation rather than committing the crime.",
+   "resolved_in_chapter": 31
+  }
+ ],
+ "closed_circle": {
+  "suspects": [
+   "Stella Nelson",
+   "Arthur Wilmot (Flora)",
+   "Kenneth Leonard Nelson",
+   "Mr. Boyd Salter (John Aldayn Severn)",
+   "Allison John Wicker (Four-Eyed Scottie)"
+  ],
+  "rationale": "The suspects were limited to residents and frequent visitors of Beverley Green with access to Merrivan's house and motive related to inheritance, financial fraud, or personal relationships."
+ },
+ "constraint_space": {
+  "time_anchors": [
+   "night of 24th June",
+   "between midnight and one o'clock",
+   "eleven o'clock (woman leaving house)",
+   "morning after murder discovery"
+  ],
+  "time_windows": [
+   "Scottie's alibi during the murder",
+   "Stella's movements on the night of the murder",
+   "Arthur Wilmot's visits to the city and house",
+   "Salter's sleepwalking episodes at night"
+  ],
+  "access_actors": [
+   "Mr. Boyd Salter",
+   "Arthur Wilmot",
+   "Stella Nelson",
+   "Scottie",
+   "Kenneth Nelson"
+  ],
+  "access_objects": [
+   "Merrivan's house",
+   "secret drawer in bedstead",
+   "safe behind Chinese cabinet",
+   "Beverley Hall",
+   "Ashlar Buildings office"
+  ],
+  "trust_channels": [
+   "Scottie's testimony",
+   "Butler's statements",
+   "Inspector Dane's reports",
+   "Statements from Mrs. Crafton-Bonsor"
+  ],
+  "authority_sources": [
+   "Dr. Andrew Macleod",
+   "Inspector Dane",
+   "Justice of the Peace Boyd Salter",
+   "Coroner's inquest"
+  ]
+ },
+ "inference_path": [
+  {
+   "observation": "A woman was seen leaving Merrivan's house at 11 PM.",
+   "correction": "The woman was a servant of Mr. Sheppard, not Stella Nelson.",
+   "effect": "Stella's presence at the crime scene at that time is disproved.",
+   "required_evidence": [
+    "Interview with Mr. Sheppard's servant who left the house at that time",
+    "Butler's testimony about visitors that evening"
+   ]
+  },
+  {
+   "observation": "Forged bills signed by Kenneth Nelson and accepted by Merrivan were found.",
+   "correction": "The bills were forgeries intended to implicate others and were destroyed by the murderer.",
+   "effect": "Motive for murder linked to financial fraud is established.",
+   "required_evidence": [
+    "Partially burnt bills found in Merrivan's fireplace",
+    "Testimony of Arthur Wilmot about the bills"
+   ]
+  },
+  {
+   "observation": "Arthur Wilmot possessed stolen documents and a marriage certificate.",
+   "correction": "Wilmot stole these to hide evidence and was not the murderer.",
+   "effect": "Wilmot is a suspect but not the culprit.",
+   "required_evidence": [
+    "Wilmot's admission of theft without reporting",
+    "Discovery of missing documents from his safe"
+   ]
+  },
+  {
+   "observation": "Scottie claimed to see a man dressed as a gamekeeper entering Merrivan's house.",
+   "correction": "The man was Mr. Boyd Salter, the real murderer disguised as a gamekeeper.",
+   "effect": "Identifies Salter as the murderer.",
+   "required_evidence": [
+    "Scottie's eyewitness account",
+    "Salter's sleepwalking behavior and clothing description"
+   ]
+  },
+  {
+   "observation": "Mr. Boyd Salter was seen sleepwalking near the crime scene with a gun.",
+   "correction": "Salter committed the murders during sleepwalking episodes.",
+   "effect": "Explains how Salter committed the crime unnoticed.",
+   "required_evidence": [
+    "Johnston's testimony of seeing Salter in dressing-gown at night",
+    "Salter's death by accidental trap gun"
+   ]
+  },
+  {
+   "observation": "Mrs. Crafton-Bonsor had a past connection with Abraham Selim.",
+   "correction": "She was married to Selim and holds part of his fortune.",
+   "effect": "Reveals Selim's true identity and connections.",
+   "required_evidence": [
+    "Mrs. Crafton-Bonsor's confession",
+    "Marriage certificate and statement"
+   ]
+  },
+  {
+   "observation": "Severn was paying Selim regularly according to a contract.",
+   "correction": "The contract was a forgery and Selim extorted money illegally.",
+   "effect": "Establishes financial motive and deception.",
+   "required_evidence": [
+    "Contract found in Wentworth's boxes",
+    "Testimony of Mr. Boyd Salter about Severn"
+   ]
+  }
+ ],
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "Detective Macleod waits in Merrivan's empty room at night with the window unbolted. When the sleepwalking suspect enters through the window and reenacts the crime scene, Macleod confronts him and observes his behavior and identity. The suspect's actions and possession of the murder weapon confirm his guilt.",
+  "knowledge_revealed": "The test reveals that Mr. Boyd Salter is the murderer, acting under sleepwalking episodes and disguise.",
+  "pass_condition": "The suspect enters the room through the unbolted window and behaves as the murderer did, confirming opportunity and identity."
+ },
+ "fair_play_explanation": "The reader is provided with detailed descriptions of characters, their motives, and movements. Clues such as the forged bills, the secret marriage certificate, the burnt documents, and the sleepwalking behavior of Salter are all presented. The false assumption about Stella's guilt is explicitly challenged, and the presence of the gamekeeper figure is noted. The final reenactment and confession clarify the true mechanism, allowing attentive readers to solve the case.",
+ "anchors": [
+  {
+   "claim": "Stella Nelson was seen at the post office with a ring on her engagement finger",
+   "anchor": "a ring on the engagement finger; a gold ring with little emeralds"
+  },
+  {
+   "claim": "Darius Merrivan was found murdered with a gunshot wound and powder burns",
+   "anchor": "He had been shot at close quarters, for there was a blackening of powder upon his white waistcoat"
+  },
+  {
+   "claim": "A letter threatening Merrivan was found on his desk",
+   "anchor": "I have given you a chance. You have failed me. You must bear the consequence"
+  },
+  {
+   "claim": "A woman’s voice was heard by the butler in Merrivan’s house",
+   "anchor": "The butler had admitted nobody, and yet, coming downstairs half an hour after Mr. Merrivan had told him to go to bed, he heard the sound of voices, and one of those voices was a woman’s"
+  },
+  {
+   "claim": "The emerald ring found in the garden belonged to Stella Nelson",
+   "anchor": "It was Stella Nelson’s ring. He had seen it on her engagement finger in the post office"
+  },
+  {
+   "claim": "Arthur Wilmot possessed a stolen marriage certificate and forged bills",
+   "anchor": "He locked the door of his room when he got in, pulled down the blinds, and switched on the lights. Then he emptied the contents of his pocket"
+  },
+  {
+   "claim": "Abraham Selim and Darius Merrivan are the same person",
+   "anchor": "Abraham Selim and Merrivan were one and the same person"
+  },
+  {
+   "claim": "Mr. Boyd Salter was seen sleepwalking and reenacting the murder",
+   "anchor": "He was asleep. Andrew had known that when he heard the slurred, harsh voice"
+  },
+  {
+   "claim": "Salter died accidentally from a trap gun set in the park",
+   "anchor": "There was a crash. Mrs. Crafton-Bonsor had fallen to the floor in a dead faint"
+  },
+  {
+   "claim": "Scottie was injured by a gunshot wound during a burglary",
+   "anchor": "Scottie hurt himself. He didn’t want to go to a doctor, and, you see, I had a nursing course"
+  },
+  {
+   "claim": "Mrs. Crafton-Bonsor confessed her past and marriage to John Severn",
+   "anchor": "My name is Mirabel Hilda Crafton-Bonsor. I am not sure whether that was my late husband’s real name"
+  },
+  {
+   "claim": "The forged bills were signed by Kenneth Nelson and accepted by Merrivan",
+   "anchor": "Two forged bills drawn by Mr. Nelson in favour of Abraham Selim and accepted by my uncle"
+  },
+  {
+   "claim": "The marriage certificate was stolen from Wilmot’s safe",
+   "anchor": "The marriage certificate is gone!"
+  },
+  {
+   "claim": "The gamekeeper was the murderer disguised",
+   "anchor": "He was a gamekeeper. Which of the bunch I couldn’t swear to"
+  },
+  {
+   "claim": "The letter threatening Merrivan was written by Merrivan himself",
+   "anchor": "The threatening letter which he had thought had been received by Merrivan had really been written by him"
+  },
+  {
+   "claim": "Scottie was reformed and helped the investigation",
+   "anchor": "Scottie was a reformed character. I believe he is posing for Mr. Nelson"
+  },
+  {
+   "claim": "Arthur Wilmot’s secret profession was a milliner named Flora",
+   "anchor": "Arthur Wilmot; he is, in fact, Flora. He has three stores in town"
+  },
+  {
+   "claim": "The forged bills were destroyed in the fireplace",
+   "anchor": "There was in the fireplace when the police came upon the spot a heap of burnt paper"
+  },
+  {
+   "claim": "The final ghost is laid with Salter’s death",
+   "anchor": "The last ghost is laid"
+  }
+ ]
+}

@@ -6,8 +6,8 @@
   {
    "claim": "The pendant was taken from Violet Strange's dresser through the open window",
    "anchor": "somebody reached in from the balcony and took it from my dresser",
-   "span": "",
-   "ok": false
+   "span": "Somebody reached in from the balcony and took it from my dresser in the night.",
+   "ok": true
   },
   {
    "claim": "A gold-colored slipper was found outside Violet Strange's window",
@@ -126,5 +126,5 @@
  },
  "case_written": true,
  "verified_by": "corpus-verify.mjs",
- "verified_on": "2026-08-31"
+ "verified_on": "2026-09-23"
 }

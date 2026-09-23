@@ -1,0 +1,438 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: This House to Let
+    author: William Le Queux
+    license: Public domain (first published 1921; author died 1927). Project Gutenberg ebook 51307.
+    era:
+      decade: 1910s
+      realism_constraints:
+        - No modern forensic DNA analysis available
+        - Communication primarily via letters and telegrams
+        - Police investigations rely on witness statements and physical evidence
+    setting:
+      location: >-
+        London, specifically Kensington and surrounding areas including Cathcart Square and Eaton
+        Place
+      institution: Scotland Yard
+    crime_class:
+      category: murder
+      subtype: murder disguised as suicide with forged identity
+  cast:
+    - name: Major Hugh Murchison
+      age_range: 30s
+      role_archetype: aristocratic military man, honourable and steadfast
+      relationships:
+        - Jack Pomfret (friend)
+        - Guy Spencer (friend)
+      public_persona: popular officer, gentleman
+      private_secret: investigating Norah and George Burton
+      motive_seed: none
+      motive_strength: none
+      alibi_window: N/A
+      access_plausibility: N/A
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: high - life
+      evidence_sensitivity: []
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: low
+    - name: Norah Burton (Mrs. Pomfret, Mrs. Spencer, Stella Keane)
+      age_range: 20s-30s
+      role_archetype: charming adventuress with criminal past
+      relationships:
+        - George Burton (partner in crime, cousin)
+        - Jack Pomfret (former husband)
+        - Guy Spencer (husband)
+      public_persona: respectable wife of Guy Spencer
+      private_secret: former accomplice of George Burton, involved in forgery and murder
+      motive_seed: fear of exposure and loss of social position
+      motive_strength: strong
+      alibi_window: N/A
+      access_plausibility: high - had key and caretaker absent
+      opportunity_channels:
+        - access to empty house via broken window
+        - knowledge of victim's movements
+      behavioral_tells:
+        - forced smiles
+        - restlessness under questioning
+      stakes: high - freedom and life
+      evidence_sensitivity:
+        - diary entries
+        - detective surveillance
+        - confession
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: female
+      role: culprit
+      moral_complexity: high
+    - name: George Burton (alias George Dutton)
+      age_range: 40s-50s
+      role_archetype: criminal, forger, partner in crime
+      relationships:
+        - Norah Burton (partner in crime)
+      public_persona: common stockbroker, cousin of Norah
+      private_secret: forger and accomplice in murder
+      motive_seed: avoid detection and continue criminal activities
+      motive_strength: strong
+      alibi_window: N/A
+      access_plausibility: high - access to house and victim
+      opportunity_channels:
+        - access via broken window
+        - presence at murder scene
+      behavioral_tells:
+        - nervousness
+        - planning murder
+      stakes: high - freedom and life
+      evidence_sensitivity:
+        - detective surveillance
+        - confession
+        - diary
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Reginald Davis
+      age_range: 30s
+      role_archetype: wrongly accused man, survivor
+      relationships:
+        - Caroline Masters (sister)
+        - Iris Deane (sister)
+      public_persona: falsely accused fugitive
+      private_secret: alive and hiding
+      motive_seed: none
+      motive_strength: none
+      alibi_window: N/A
+      access_plausibility: N/A
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: high - freedom
+      evidence_sensitivity: []
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+    - name: Jack Pomfret
+      age_range: 20s
+      role_archetype: young, impulsive friend
+      relationships:
+        - Norah Burton (wife)
+        - Hugh Murchison (friend)
+      public_persona: young officer
+      private_secret: secretly married Norah Burton
+      motive_seed: none
+      motive_strength: none
+      alibi_window: N/A
+      access_plausibility: N/A
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: high - life
+      evidence_sensitivity: []
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: low
+    - name: Guy Spencer
+      age_range: 30s
+      role_archetype: wealthy heir, husband
+      relationships:
+        - Stella Keane (wife)
+      public_persona: aristocrat, husband of Stella Keane
+      private_secret: unaware of wife's past
+      motive_seed: none
+      motive_strength: none
+      alibi_window: N/A
+      access_plausibility: N/A
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: high - social standing and personal happiness
+      evidence_sensitivity: []
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: bystander
+      moral_complexity: low
+    - name: Caroline Masters
+      age_range: 30s
+      role_archetype: devoted sister
+      relationships:
+        - Reginald Davis (brother)
+      public_persona: widow, sister of Reginald Davis
+      private_secret: swore false identification
+      motive_seed: protect brother
+      motive_strength: strong
+      alibi_window: N/A
+      access_plausibility: N/A
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: moderate - family safety
+      evidence_sensitivity: []
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: moderate
+  culpability:
+    culprit_count: 2
+    culprits:
+      - Norah Burton (Mrs. Pomfret, Mrs. Spencer, Stella Keane)
+      - George Burton (alias George Dutton)
+  surface_model:
+    narrative:
+      summary: >-
+        A man is found dead in a locked house in Cathcart Square with a slit throat and a razor in
+        his hand, initially ruled a suicide and identified as Reginald Davis, a fugitive accused of
+        murder. Suspicion arises when the real Reginald Davis reappears alive, and investigations
+        reveal the victim to be Major Hugh Murchison, murdered by a criminal couple who staged the
+        death to look like Davis's suicide.
+    accepted_facts:
+      - A man was found dead in No. 10 Cathcart Square with a slit throat and a razor in his hand.
+      - The dead man was initially identified as Reginald Davis, a fugitive accused of murder.
+      - Reginald Davis was later found alive and well, proving the dead man was misidentified.
+      - >-
+        Major Hugh Murchison disappeared around the time of the murder and was later identified as
+        the victim.
+    inferred_conclusions:
+      - The death was a suicide by Reginald Davis due to fear of capture.
+      - Norah Burton was an innocent woman unaware of the murder.
+      - George Burton was a respectable stockbroker unrelated to the crime.
+  hidden_model:
+    mechanism:
+      description: >-
+        Norah Burton and George Burton murdered Major Hugh Murchison to prevent him from exposing
+        their criminal past. They used the victim's resemblance to Reginald Davis to forge letters
+        and stage the murder as Davis's suicide. They gained entry to the empty house by breaking a
+        window pane and incapacitated Murchison before killing him and placing the razor in his hand
+        to simulate suicide.
+      delivery_path:
+        - step: Norah Burton and George Burton planned to eliminate Major Hugh Murchison.
+        - step: >-
+            They broke a pane of glass in the scullery window of No. 10 Cathcart Square to gain
+            entry.
+        - step: The caretaker was given a holiday to avoid disturbance during the murder.
+        - step: Norah used a stupefying agent to incapacitate Murchison during their meeting.
+        - step: George Burton slit Murchison's throat while he was incapacitated.
+        - step: They placed a razor in the victim's hand to simulate suicide.
+        - step: They planted forged letters addressed to Reginald Davis to mislead investigators.
+    outcome:
+      result: >-
+        Norah Burton and George Burton commit suicide to avoid arrest after their crime is
+        uncovered.
+  false_assumption:
+    statement: >-
+      The dead man in Cathcart Square was Reginald Davis who committed suicide out of fear of
+      capture.
+    type: identity
+    why_it_seems_reasonable: >-
+      The body was found with letters addressed to Reginald Davis and identified by his sister,
+      supported by a forged suicide note. The victim's resemblance to Davis reinforced this belief.
+    what_it_hides: >-
+      The victim was actually Major Hugh Murchison, murdered and disguised as Davis to mislead the
+      police. The identification was a deliberate deception by the culprits.
+  false_solution:
+    accused_suspect: Miles
+    supporting_points:
+      - Broken window pane suggested forced entry.
+      - Caretaker was absent during the murder.
+      - Caretaker had a weak character and was suspected of lying.
+      - Caretaker had no alibi for the night.
+    the_one_flaw: Miles had a solid alibi supported by witnesses and was not involved in the crime.
+    refuted_in_chapter: 23
+  red_herrings:
+    - id: miles_caretaker_alibi
+      description: Caretaker Miles was suspected due to his absence and broken window but had a credible alibi.
+      points_at_suspect: Miles
+      innocent_explanation: Miles was on holiday with a friend and had no involvement in the murder.
+      resolved_in_chapter: 1
+    - id: jack_pomfret_suicide
+      description: Jack Pomfret's suicide was initially thought to be related to the murder mystery.
+      points_at_suspect: Norah Burton
+      innocent_explanation: >-
+        Pomfret's suicide was due to despair after discovering Norah's criminal past, not the murder
+        itself.
+      resolved_in_chapter: 7
+  closed_circle:
+    suspects:
+      - Norah Burton (Mrs. Pomfret, Mrs. Spencer, Stella Keane)
+      - George Burton (alias George Dutton)
+      - Miles
+    rationale: >-
+      Only these individuals had plausible access to the empty house and motive; Miles was cleared
+      by alibi, leaving Norah and George as the only eligible culprits.
+  constraint_space:
+    time:
+      anchors:
+        - early morning of July 5th, 1919
+        - evening of July 4th, 1919
+      windows:
+        - caretaker's absence
+        - murder time between caretaker's holiday and discovery
+    access:
+      actors:
+        - Norah Burton
+        - George Burton
+        - caretaker Miles
+      objects:
+        - broken scullery window
+        - key given by caretaker
+    social:
+      trust_channels:
+        - Caroline Masters' identification
+        - detective Bryant's testimony
+      authority_sources:
+        - Scotland Yard
+        - Coroner's inquest
+  inference_path:
+    steps:
+      - observation: >-
+          Body found with letters addressed to Reginald Davis and a suicide note in his name;
+          initial investigation did not monitor the condition of the body for movement or verify the
+          identity beyond surface resemblance.
+        correction: >-
+          Reginald Davis was later found alive, so the letters and note were planted and the
+          opportunity for misidentification was exploited.
+        effect: >-
+          The identity of the dead man is questioned, and the need to verify movement and condition
+          of the body is established.
+        required_evidence:
+          - >-
+            Letters addressed to Reginald Davis found on the body and the suicide note, both of
+            which were later revealed as forgeries
+          - >-
+            Reginald Davis's reappearance and testimony, which provided a concrete opportunity to
+            reveal the misidentification
+        reader_observable: true
+      - observation: >-
+          Caretaker Miles was absent and window broken, but surveillance and movement records were
+          used to monitor his opportunity and verify his alibi condition.
+        correction: >-
+          Miles had a credible alibi supported by witnesses and movement logs, eliminating his
+          opportunity.
+        effect: Caretaker is cleared as suspect; his movements and condition at the time are verified.
+        required_evidence:
+          - >-
+            Miles's alibi testimony from friend at Shepperton, including movement records and
+            time-stamped statements
+          - >-
+            Testimony of constables Brown and younger colleague, who monitored Miles's movements and
+            verified his condition
+        reader_observable: true
+      - observation: >-
+          Norah Burton's close association with known criminals and suspicious behavior was
+          monitored through detective surveillance, revealing clandestine movement and opportunity.
+        correction: >-
+          Detective Bryant confirms Norah Burton is the same person as Stella Keane, and her
+          movements were verified to coincide with key events.
+        effect: Norah identified as a suspect with criminal past and monitored opportunity.
+        required_evidence:
+          - >-
+            Detective Bryant's identification of Norah Burton as Stella Keane, supported by
+            surveillance of her movements
+          - >-
+            Surveillance reports of meetings between Norah and George Burton, verifying their
+            opportunity and motive
+        reader_observable: true
+      - observation: >-
+          George Burton operates a bucket-shop and has a criminal record; his movements and meetings
+          with Norah were monitored to verify opportunity and motive.
+        correction: >-
+          George Burton is confirmed as the same person as George Dutton, and his movements were
+          tracked to confirm his presence at key times.
+        effect: George Burton identified as accomplice with verified opportunity and motive.
+        required_evidence:
+          - >-
+            Detective Bryant's identification of George Dutton as George Burton, including movement
+            logs and surveillance records
+          - >-
+            City office records of George Dutton, showing his movements and opportunity to meet
+            Norah
+        reader_observable: true
+      - observation: >-
+          Major Hugh Murchison disappeared suddenly and belongings left at station; detectives
+          monitored the movement of his luggage and verified the condition of his possessions.
+        correction: >-
+          Body exhumed and identified as Major Murchison, not Reginald Davis, using witness
+          statements and verification of physical condition.
+        effect: >-
+          Victim identity confirmed as Murchison, confirming murder and revealing the opportunity
+          for the culprits.
+        required_evidence:
+          - >-
+            Exhumation and identification of body by multiple witnesses including Guy Spencer,
+            verifying the condition and identity
+          - >-
+            Hotel manager's testimony about Murchison's departure, monitoring his last known
+            movements
+        reader_observable: true
+      - observation: >-
+          Diary found in victim's luggage detailing events leading to murder; detectives monitored
+          the movement of the diary and verified its condition as evidence.
+        correction: >-
+          Diary entries implicate Norah and George in murder plot, revealing their motive and
+          opportunity.
+        effect: >-
+          Strong evidence against Norah and George, revealing their motive and monitored
+          opportunity.
+        required_evidence:
+          - >-
+            Diary entries recovered from victim's luggage, showing movement and condition of the
+            evidence
+          - Detective Bryant's analysis of diary, verifying the motive and opportunity described
+        reader_observable: true
+      - observation: >-
+          Surveillance shows Norah and George meeting clandestinely and exchanging envelopes;
+          detectives monitored their movement and verified the condition of the exchanges.
+        correction: >-
+          Envelope exchanges likely payments or bribes related to crime, revealing ongoing
+          opportunity and motive.
+        effect: Confirms ongoing criminal collaboration, monitored opportunity, and motive.
+        required_evidence:
+          - >-
+            Detective Parkinson's surveillance reports, documenting movement and condition of
+            meetings
+          - Witness statements of meetings at City restaurants, verifying opportunity and motive
+        reader_observable: true
+  discriminating_test:
+    method: constraint_proof
+    design: >-
+      Detectives monitor Norah Burton and George Dutton's movements and meetings, verifying if they
+      can meet only under conditions consistent with conspiracy. They also verify the caretaker's
+      absence and window break timing to confirm access. The exhumed body is identified by multiple
+      witnesses to confirm victim identity.
+    knowledge_revealed: >-
+      The test reveals that Norah and George had opportunity and motive, and that the victim was
+      Major Murchison, not Reginald Davis.
+    pass_condition: >-
+      Identification of the exhumed body as Major Murchison and confirmed clandestine meetings
+      between Norah and George prove their guilt.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given all key facts: the broken window, the caretaker's absence and alibi, the
+      forged letters, the reappearance of Reginald Davis, the suspicious behavior of Norah and
+      George, and the diary found with the victim. The false identification and planted evidence are
+      clearly presented. The detective's reasoning and surveillance are described in detail,
+      allowing the reader to deduce the true identity of the victim and the culprits' method.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

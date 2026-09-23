@@ -1,0 +1,136 @@
+{
+ "slug": "the_trouble_at_pinelands",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Doctor Gaskell was killed by a shotgun blast",
+   "anchor": "a horrid, gaping wound, about which his white shirt was all tattered and stained",
+   "span": "In the very center of his body, just above the belt, was a horrid, gaping wound, about which his white shirt was all tattered and stained.",
+   "ok": true
+  },
+  {
+   "claim": "Lewis Parker was found at the scene with a shotgun",
+   "anchor": "Lewis and the constable, side by side, staring silently at nothing",
+   "span": "Here I found Lewis and the constable, side by side, staring silently at nothing.",
+   "ok": true
+  },
+  {
+   "claim": "Aunt Mary McGregor is paralyzed and confined to a wheelchair",
+   "anchor": "paralyzed from the waist down, these fourteen years",
+   "span": "Then I thought briefly of Aunt Mary McGregor, paralyzed from the waist down, these fourteen years, and bearing her troubles with such saintly patience; where would she go, and how would she live after the wedding?",
+   "ok": true
+  },
+  {
+   "claim": "The Poltergeist caused disturbances in the house",
+   "anchor": "the Poltergeist had been in Rosina’s room and pulled the bedclothes off her",
+   "span": "We ran down there, and the Poltergeist had been in Rosina's room and pulled the bedclothes off her and stuck pins into her legs, and everything.",
+   "ok": true
+  },
+  {
+   "claim": "Aunt Mary was seen walking despite her paralysis",
+   "anchor": "I caught one furtive glimpse of Mary McGregor, indubitably erect, walking, upon her two paralyzed legs",
+   "span": "I caught one furtive glimpse of Mary McGregor, indubitably erect, walking, upon her two paralyzed legs, like any other person.",
+   "ok": true
+  },
+  {
+   "claim": "Aunt Mary admitted to being the Poltergeist and shooting Gaskell",
+   "anchor": "If you must have it--yes! I was the Poltergeist. It was easy, so easy!",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Aunt Mary accidentally killed herself with a faulty shotgun",
+   "anchor": "the kick broke it open again, so the shell drove backward out of the breech and struck her in the temple",
+   "span": "When she closed the breech, this catch failed to take hold, and the kick broke it open again, so the shell drove backward out of the breech and struck her in the temple.",
+   "ok": true
+  },
+  {
+   "claim": "Lewis Parker was arrested and charged with murder",
+   "anchor": "We find that Doc Gaskell come t’ his death f’om a shotgun full o’ bird shot at th’ hands o’ Doc Parker",
+   "span": "We find that Doc Gaskell come t' his death f'om a shotgun full o' bird shot at th' hands o' Doc Parker, yonder; an' we riccomend holdin' him f'r th' superior court!",
+   "ok": true
+  },
+  {
+   "claim": "The quail's whistle was imitated by Doctor Somers",
+   "anchor": "From his lips, at regular, three-second intervals, came the shrill cry of the bobwhite quail",
+   "span": "From his lips, at regular, three-second intervals, came the shrill cry of the bobwhite quail, exactly imitated!",
+   "ok": true
+  },
+  {
+   "claim": "Aunt Mary was disturbed by the quail's whistle",
+   "anchor": "That noise--that noise--it’s killing me!",
+   "span": "That noise--that noise--it's killing me!\" She drooped in her wheel chair, head on a shoulder, translucent eyelids flickering down, unconscious.",
+   "ok": true
+  },
+  {
+   "claim": "The Poltergeist stabbed Doctor Somers' bed",
+   "anchor": "And there, driven deep through coverlet and sheets, right into the mattress, was a carving knife",
+   "span": "And there, driven deep through coverlet and sheets, right into the mattress, was a carving knife!",
+   "ok": true
+  },
+  {
+   "claim": "Roaring Lafe Rutledge was the leader of the bootleggers",
+   "anchor": "That’s Lafe Rutledge--Roaring Lafe, he calls himself",
+   "span": "That's Lafe Rutledge--Roaring Lafe, he calls himself.",
+   "ok": true
+  },
+  {
+   "claim": "Roaring Lafe Rutledge threatened to kill Doctor Gaskell",
+   "anchor": "He was shouting at the maid that Gaskell had until sun-up to settle with him",
+   "span": "He was shouting at the maid that Gaskell had until sun-up to settle with him!",
+   "ok": true
+  },
+  {
+   "claim": "Doctor Somers was drunk to gain information",
+   "anchor": "I had to chum up with him and his crowd; I had to drink with them",
+   "span": "So I had to chum up with him and his crowd; I had to drink with them, though I assure you it wasn't an unmixed pleasure, by any means.",
+   "ok": true
+  },
+  {
+   "claim": "The grand jury indicted Lewis Parker for murder",
+   "anchor": "Grand jury proceedings are out, and they’ve indicted Lewis Parker for murder in the first degree",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Aunt Mary McGregor was the Poltergeist and murderer",
+   "anchor": "You were the Poltergeist, weren’t you? Aunt Mary only sobbed",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Aunt Mary shot Doctor Gaskell after he insulted her",
+   "anchor": "He--he insulted me--insulted a poor, helpless paralytic! He laughed!",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Aunt Mary died from a shotgun blast caused by a malfunction",
+   "anchor": "the kick broke it open again, so the shell drove backward out of the breech and struck her in the temple",
+   "span": "When she closed the breech, this catch failed to take hold, and the kick broke it open again, so the shell drove backward out of the breech and struck her in the temple.",
+   "ok": true
+  },
+  {
+   "claim": "Lewis Parker was exonerated and freed",
+   "anchor": "he marked Lewis Parker’s indictment, “_nolle pros_,” with a very bad grace",
+   "span": "Somers and I went to the State solicitor, Toby Vanbrugh, with our tale, and he marked Lewis Parker's indictment, \"_nolle pros_,\" with a very bad grace.",
+   "ok": true
+  },
+  {
+   "claim": "The quail whistle 'bob_white' is a recurring motif",
+   "anchor": "the quail whistle “bob_white_! bob_white_!” without disturbing the rest of either",
+   "span": "We put flowers on both graves impartially, as the genial sun of North Carolina shines on both; and the quail whistle \"bob_white_! bob_white_!\" without disturbing the rest of either.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.12140846400000001,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

@@ -1,0 +1,492 @@
+{
+ "decade": "1920s",
+ "realism_constraints": [
+  "No modern forensic DNA analysis or electronic surveillance",
+  "Limited chemical knowledge, with some poisons unknown to Western science",
+  "Communication and travel limited to telephone, postal mail, and trains"
+ ],
+ "location": "London, England, primarily Chelsea and Cavendish Square; also Herefordshire and Paris",
+ "institution": "Home Office medical advisory and Scotland Yard police",
+ "crime_category": "murder",
+ "crime_subtype": "poisoning with rare exotic toxin",
+ "cast": [
+  {
+   "name": "Dr. Cassilis",
+   "age_range": "20-30",
+   "role_archetype": "young medical assistant and narrator",
+   "role": "detective",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "confidential assistant to Sir Frank Tarleton",
+   "private_secret": "in love with Lady Violet Bredwardine",
+   "motive_seed": "protect Lady Violet",
+   "motive_strength": "strong",
+   "alibi_window": "present throughout investigation",
+   "access_plausibility": "high",
+   "stakes": "career and personal safety",
+   "moral_complexity": "high",
+   "relationships": [
+    "Sir Frank Tarleton (mentor)",
+    "Lady Violet Bredwardine (love interest)"
+   ],
+   "opportunity_channels": [
+    "access to Domino Club disguised as Zenobia"
+   ],
+   "behavioral_tells": [
+    "defends Lady Violet",
+    "shows bias against Sarah Neobard"
+   ],
+   "evidence_sensitivity": [
+    "presence at Domino Club",
+    "possession of Zenobia costume"
+   ]
+  },
+  {
+   "name": "Sir Frank Tarleton",
+   "age_range": "60-70",
+   "role_archetype": "experienced toxicologist and official investigator",
+   "role": "detective",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "principal medical adviser to the Home Office",
+   "private_secret": "deep knowledge of poisons including upasine",
+   "motive_seed": "solve the murder and protect innocent victims",
+   "motive_strength": "strong",
+   "alibi_window": "present throughout investigation",
+   "access_plausibility": "high",
+   "stakes": "professional reputation and justice",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Dr. Cassilis (assistant)",
+    "Lady Violet Bredwardine (protected)"
+   ],
+   "opportunity_channels": [
+    "official access to crime scenes and evidence"
+   ],
+   "behavioral_tells": [
+    "skeptical of easy explanations",
+    "persistent in investigation"
+   ],
+   "evidence_sensitivity": [
+    "possession of upasine bottle",
+    "fingerprint evidence"
+   ]
+  },
+  {
+   "name": "Madame Bonnell (Leonie Marchand)",
+   "age_range": "40-50",
+   "role_archetype": "proprietress of the Domino Club, shrewd and unscrupulous",
+   "role": "culprit",
+   "gender": "female",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "respectable businesswoman managing the club",
+   "private_secret": "murderer who poisoned Dr. Weathered with upasine",
+   "motive_seed": "protect her position and extort money",
+   "motive_strength": "strong",
+   "alibi_window": "present at club during murder",
+   "access_plausibility": "high",
+   "stakes": "livelihood and freedom",
+   "moral_complexity": "high",
+   "relationships": [
+    "Dr. Weathered (employer and victim)",
+    "Gerard (waiter, accomplice)"
+   ],
+   "opportunity_channels": [
+    "access to poison and victim’s drinks"
+   ],
+   "behavioral_tells": [
+    "bribed waiter Gerard",
+    "fabricated stories about threats"
+   ],
+   "evidence_sensitivity": [
+    "possession of fake poison bottle",
+    "fingerprint identification"
+   ]
+  },
+  {
+   "name": "Dr. Weathered (Wilson)",
+   "age_range": "50-60",
+   "role_archetype": "victim, West End physician and blackmailer",
+   "role": "victim",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "consultant and club founder",
+   "private_secret": "blackmailer of patients, user of exotic poisons",
+   "motive_seed": "financial gain and control",
+   "motive_strength": "strong",
+   "alibi_window": "dead at time of investigation",
+   "access_plausibility": "n/a",
+   "stakes": "life",
+   "moral_complexity": "high",
+   "relationships": [
+    "Mrs. Weathered (wife)",
+    "Sarah Neobard (step-daughter)",
+    "Lady Violet Bredwardine (patient)"
+   ],
+   "opportunity_channels": [
+    "access to poison and victims"
+   ],
+   "behavioral_tells": [
+    "carried opium pellets for defense"
+   ],
+   "evidence_sensitivity": [
+    "pockets with opium pellets",
+    "disguise costume"
+   ]
+  },
+  {
+   "name": "Sarah Neobard (Salome)",
+   "age_range": "20-25",
+   "role_archetype": "step-daughter, suspicious and jealous",
+   "role": "suspect",
+   "gender": "female",
+   "culpability": "unknown",
+   "culprit_eligibility": "eligible",
+   "public_persona": "daughter of Mrs. Weathered",
+   "private_secret": "resentful of step-father, possible informer",
+   "motive_seed": "hatred and jealousy",
+   "motive_strength": "moderate",
+   "alibi_window": "present at club",
+   "access_plausibility": "high",
+   "stakes": "family and personal safety",
+   "moral_complexity": "high",
+   "relationships": [
+    "Mrs. Weathered (mother)",
+    "Dr. Weathered (step-father)"
+   ],
+   "opportunity_channels": [
+    "access to poison and club"
+   ],
+   "behavioral_tells": [
+    "accuses Lady Violet",
+    "flees to Paris with mother"
+   ],
+   "evidence_sensitivity": [
+    "presence at club",
+    "denunciations"
+   ]
+  },
+  {
+   "name": "Lady Violet Bredwardine",
+   "age_range": "18-22",
+   "role_archetype": "young noblewoman, patient and victim",
+   "role": "suspect",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "eligible",
+   "public_persona": "daughter of Earl of Ledbury, patient of Weathered",
+   "private_secret": "lent costume to Dr. Cassilis, victim of blackmail",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "absent from London at time of murder",
+   "access_plausibility": "low",
+   "stakes": "reputation and freedom",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Dr. Cassilis (friend and love interest)",
+    "Earl of Ledbury (father)"
+   ],
+   "opportunity_channels": [
+    "lent costume to Cassilis"
+   ],
+   "behavioral_tells": [
+    "refuses to name champion",
+    "maintains dignity under pressure"
+   ],
+   "evidence_sensitivity": [
+    "costume traced to her",
+    "appointment-book numbers"
+   ]
+  },
+  {
+   "name": "Mrs. Amelia Baker",
+   "age_range": "40-50",
+   "role_archetype": "widow of explorer, possessor of poison",
+   "role": "suspect",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "eligible",
+   "public_persona": "sister and executrix of Captain Armstrong",
+   "private_secret": "possessed upasine poison bottle",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "present at home",
+   "access_plausibility": "high",
+   "stakes": "personal safety",
+   "moral_complexity": "low",
+   "relationships": [
+    "Captain Armstrong (brother)"
+   ],
+   "opportunity_channels": [
+    "access to poison"
+   ],
+   "behavioral_tells": [
+    "lost bottle of poison"
+   ],
+   "evidence_sensitivity": [
+    "missing poison bottle"
+   ]
+  }
+ ],
+ "culprits": [
+  "Madame Bonnell (Leonie Marchand)"
+ ],
+ "surface_summary": "Dr. Weathered, a West End physician and founder of the Domino Club, is found dead in a masked dance, apparently poisoned. Suspicion falls on several women connected to him, including Lady Violet Bredwardine and Sarah Neobard, amid a backdrop of blackmail and secret correspondence. The investigation reveals a rare poison and a complex web of motives and deceptions.",
+ "accepted_facts": [
+  "Dr. Weathered was found dead at the Domino Club in a masked costume",
+  "He was poisoned by a substance causing symptoms unlike common poisons",
+  "Lady Violet Bredwardine had lent her costume to someone else on the night",
+  "Madame Bonnell was the proprietress of the Domino Club and had access to the victim"
+ ],
+ "inferred_conclusions": [
+  "Lady Violet was the murderer due to her presence at the club",
+  "Sarah Neobard poisoned Dr. Weathered out of jealousy",
+  "Dr. Cassilis was guilty of administering the fatal poison"
+ ],
+ "mechanism_description": "Madame Bonnell, the proprietress of the Domino Club, murdered Dr. Weathered by poisoning him with upasine, a rare and deadly drug stolen from Mrs. Amelia Baker. She used her position to administer the poison during the masked dance, exploiting the victim's trust and the club's secrecy. She attempted to frame others and cover her tracks but was ultimately exposed by the investigation.",
+ "delivery_path": [
+  "Madame Bonnell obtains upasine poison from Mrs. Amelia Baker’s stolen bottle",
+  "She bribes the waiter Gerard to watch Dr. Weathered’s drinks",
+  "During the masked dance, she administers the poison to Dr. Weathered’s coffee",
+  "Dr. Weathered consumes the poison and dies with symptoms of upasine poisoning",
+  "Madame Bonnell fabricates stories to mislead investigators and protect herself",
+  "Investigation uncovers the fake poison bottle and fingerprint evidence",
+  "Madame Bonnell is arrested and confesses to the murder"
+ ],
+ "outcome_result": "Madame Bonnell is arrested and convicted for the murder of Dr. Weathered by poisoning.",
+ "false_assumption": {
+  "statement": "Lady Violet Bredwardine was the murderer because she wore the Zenobia costume and was seen with Dr. Weathered.",
+  "type": "identity",
+  "why_it_seems_reasonable": "Lady Violet’s costume was traced to her and she was known to be a patient of Dr. Weathered, with motive suggested by jealousy and blackmail. Witnesses and the accuser Sarah Neobard implicated her.",
+  "what_it_hides": "The real murderer was Madame Bonnell who used the costume and impersonation to mislead, and Lady Violet had a solid alibi being out of London at the time."
+ },
+ "false_solution": {
+  "accused_suspect": "Lady Violet Bredwardine",
+  "supporting_points": [
+   "Her name appeared in the club’s members list and appointment book",
+   "She was seen wearing the Zenobia costume at the club",
+   "Sarah Neobard accused her of poisoning Dr. Weathered",
+   "She had a motive due to her complicated relationship with Dr. Weathered"
+  ],
+  "the_one_flaw": "She had a confirmed alibi being in Herefordshire at the time of the murder",
+  "refuted_in_chapter": 20
+ },
+ "red_herrings": [
+  {
+   "id": "sarah_neobard_accusation",
+   "description": "Sarah Neobard accuses Lady Violet of poisoning Dr. Weathered and claims to have witnessed it.",
+   "points_at_suspect": "Lady Violet Bredwardine",
+   "innocent_explanation": "Sarah was motivated by jealousy and personal animosity, and her accusations were uncorroborated and contradicted by Lady Violet’s alibi.",
+   "resolved_in_chapter": 19
+  },
+  {
+   "id": "upasine_poison_bottle_theft",
+   "description": "The disappearance of the upasine poison bottle from Mrs. Amelia Baker’s house suggests a theft and implicates multiple suspects.",
+   "points_at_suspect": "Mrs. Amelia Baker and Madame Bonnell",
+   "innocent_explanation": "Mrs. Baker was unaware of the theft and Madame Bonnell obtained the poison through other means; the real murderer was Madame Bonnell who used the poison.",
+   "resolved_in_chapter": 20
+  }
+ ],
+ "closed_circle": {
+  "suspects": [
+   "Madame Bonnell (Leonie Marchand)",
+   "Sarah Neobard",
+   "Lady Violet Bredwardine",
+   "Mrs. Amelia Baker",
+   "Dr. Cassilis"
+  ],
+  "rationale": "All had opportunity and motives linked to Dr. Weathered’s death and the Domino Club; investigation narrowed to these key figures with no outsiders involved."
+ },
+ "constraint_space": {
+  "time_anchors": [
+   "Night of the masked dance at the Domino Club",
+   "Discovery of Dr. Weathered’s body around 4:30 am",
+   "Lady Violet’s departure from London two days before the dance",
+   "Arrival of Sir Frank Tarleton at the club shortly after 5 am"
+  ],
+  "time_windows": [
+   "Duration of the masked dance",
+   "Interval between poisoning and death",
+   "Period of investigation before arrest"
+  ],
+  "access_actors": [
+   "Madame Bonnell (proprietress)",
+   "Gerard (waiter)",
+   "Dr. Cassilis (disguised visitor)",
+   "Sarah Neobard (step-daughter)",
+   "Lady Violet Bredwardine (costume owner)"
+  ],
+  "access_objects": [
+   "Upasine poison bottle",
+   "Dr. Weathered’s coffee cup",
+   "Domino Club costumes",
+   "Dr. Weathered’s safe and case-book"
+  ],
+  "trust_channels": [
+   "Madame Bonnell’s control over club records",
+   "Gerard’s testimony and bribery",
+   "Dr. Weathered’s patients’ letters",
+   "Dr. Cassilis’s relationship with Lady Violet"
+  ],
+  "authority_sources": [
+   "Sir Frank Tarleton (Home Office medical adviser)",
+   "Inspector Charles (Scotland Yard)",
+   "French police in Paris",
+   "Earl of Ledbury (family authority)"
+  ]
+ },
+ "inference_path": [
+  {
+   "observation": "Dr. Weathered’s body shows symptoms inconsistent with common poisons",
+   "correction": "Presence of a rare poison called upasine known only to few",
+   "effect": "Murder by exotic poison suspected",
+   "required_evidence": [
+    "Autopsy report describing skin parchment-like and rapid death",
+    "Chemical analysis of upasine sample from Captain Armstrong’s collection"
+   ]
+  },
+  {
+   "observation": "Zenobia costume worn by a dancer at the club traced to Lady Violet",
+   "correction": "Lady Violet was out of London at the time; costume lent to Dr. Cassilis",
+   "effect": "Disproves Lady Violet’s presence at the crime scene",
+   "required_evidence": [
+    "Train records showing Lady Violet’s departure to Herefordshire",
+    "Testimony of maid retrieving costume from wardrobe"
+   ]
+  },
+  {
+   "observation": "Madame Bonnell claims to have the poison bottle but presents a fake",
+   "correction": "Real poison was stolen and replaced with harmless powder",
+   "effect": "Madame Bonnell’s involvement in theft and murder suspected",
+   "required_evidence": [
+    "Chemical analysis of powder in Madame Bonnell’s bottle",
+    "Gerard’s testimony about warnings and bribery"
+   ]
+  },
+  {
+   "observation": "Letters of patients advertised for return by solicitors with false names",
+   "correction": "Blackmail scheme by unknown party using letters",
+   "effect": "Motive for murder linked to secret correspondence",
+   "required_evidence": [
+    "Advertisement in newspaper by Messrs. James, Halliday & James",
+    "Mrs. Neobard’s and Mrs. Weathered’s testimony about letters"
+   ]
+  },
+  {
+   "observation": "Mrs. Neobard and Mrs. Weathered flee to Paris",
+   "correction": "Police surveillance and French cooperation track them",
+   "effect": "Suspects under watch but not necessarily guilty",
+   "required_evidence": [
+    "French police report of surveillance at Hotel Saint Catherine",
+    "Communication between Scotland Yard and French police"
+   ]
+  },
+  {
+   "observation": "Madame Bonnell’s fingerprint matches a wanted criminal in France",
+   "correction": "She is a fugitive and likely the murderer",
+   "effect": "Strong evidence for Madame Bonnell’s guilt",
+   "required_evidence": [
+    "Fingerprint photograph from Scotland Yard",
+    "French police identification and arrest report"
+   ]
+  },
+  {
+   "observation": "Madame Bonnell’s behavior and testimony inconsistent and evasive",
+   "correction": "She fabricated stories to mislead investigators",
+   "effect": "Reveals her as the true culprit",
+   "required_evidence": [
+    "Gerard’s testimony about bribery and warnings",
+    "Discovery of real poison missing from Madame Bonnell’s possession"
+   ]
+  }
+ ],
+ "discriminating_test": {
+  "method": "constraint_proof",
+  "design": "Investigators verify Lady Violet’s alibi by confirming her presence at Tyberton Castle during the murder night through train records and servant testimony about the costume’s location. Simultaneously, fingerprint comparison and chemical analysis of poison samples are conducted to link the real poison to Madame Bonnell. The test eliminates suspects who could not have been present or lacked access to the poison.",
+  "knowledge_revealed": "The test confirms Lady Violet’s absence from the crime scene and Madame Bonnell’s possession of the rare poison and her fingerprint match with a wanted criminal.",
+  "pass_condition": "Confirmed alibi for Lady Violet and positive fingerprint and poison evidence against Madame Bonnell."
+ },
+ "fair_play_explanation": "The reader is provided with detailed descriptions of the characters, their motives, and the timeline of events. Clues such as the rare poison upasine, the costume lending, the missing letters, and the fingerprint evidence are all presented before the solution. The false accusations against Lady Violet and Sarah Neobard are clearly laid out, allowing attentive readers to question their validity and consider alternative suspects. The detective’s reasoning is transparent, enabling readers to follow and solve the mystery alongside him.",
+ "anchors": [
+  {
+   "claim": "Dr. Weathered was found dead in the Domino Club wearing an Inquisitor costume",
+   "anchor": "Within the curtains, stretched at full length on a low divan, was a figure attired as an Inquisitor"
+  },
+  {
+   "claim": "The victim carried opium pellets in his waistcoat pocket",
+   "anchor": "he extracted a silver matchbox from the waistcoat, and opened it... two pellets the size of small peas"
+  },
+  {
+   "claim": "The safe at Dr. Weathered’s house was found open with keys left inside",
+   "anchor": "The door of the safe standing wide open. The key was in the keyhole, with the whole bunch, including the latchkey, dangling from it"
+  },
+  {
+   "claim": "Lady Violet Bredwardine’s name appeared in the club’s members list and appointment book",
+   "anchor": "Lady Violet Bredwardine... was also one of Weathered’s patients, which means that she may have been in his power"
+  },
+  {
+   "claim": "Lady Violet had a solid alibi being at Tyberton Castle during the murder",
+   "anchor": "Lady Violet Bredwardine is down in Herefordshire at her father’s seat, Tyberton Castle. She left London for the Castle the day before yesterday"
+  },
+  {
+   "claim": "The rare poison upasine was identified as the cause of death",
+   "anchor": "There is one drug known to me which does in fact produce appearances exactly like those we have seen... I have called it upasine"
+  },
+  {
+   "claim": "Madame Bonnell was the proprietor of the Domino Club and had access to the victim",
+   "anchor": "Madame Bonnell, the proprietress of the club... She had obviously employed her time since the discovery of this particular mischance in making the best of her personal appearance"
+  },
+  {
+   "claim": "Madame Bonnell’s bottle contained harmless powder, not the real poison",
+   "anchor": "The powder now in this bottle is a harmless mixture of charcoal and common salt"
+  },
+  {
+   "claim": "Madame Bonnell’s fingerprint matched a wanted criminal in France",
+   "anchor": "You have dyed your hair, Leonie Marchand, since I saw you last, but you haven’t changed your finger-print"
+  },
+  {
+   "claim": "The poison bottle was stolen from Mrs. Amelia Baker’s house",
+   "anchor": "The bottle is gone!... The bottle of upasine was not there"
+  },
+  {
+   "claim": "Mrs. Neobard secretly took the poison bottle from her husband’s house",
+   "anchor": "I took a bunch of all the keys I could find in the house... almost the first key I tried opened the chiffonier and there stood the bottle"
+  },
+  {
+   "claim": "The blackmail advertisement was placed by a solicitor with false names",
+   "anchor": "The names in the advertisement are bogus ones... The man’s real name is Stillman"
+  },
+  {
+   "claim": "Dr. Cassilis disguised himself as Zenobia to meet Dr. Weathered",
+   "anchor": "I had to disguise myself in a costume with which he was familiar... the Zenobia helmet"
+  },
+  {
+   "claim": "Sarah Neobard accused Lady Violet of poisoning Dr. Weathered",
+   "anchor": "I saw her drop something into his cup"
+  },
+  {
+   "claim": "Lady Violet lent her costume to Dr. Cassilis",
+   "anchor": "She lent me the Zenobia costume"
+  },
+  {
+   "claim": "Dr. Weathered was a blackmailer who kept secret letters from patients",
+   "anchor": "The doctor’s case-book that was missing, the book containing the secrets of the women"
+  },
+  {
+   "claim": "The rare poison upasine causes skin to look like parchment",
+   "anchor": "the whole surface of the skin was corrugated by tiny wrinkles, so that it presented the appearance of a mummy dried by the embalmer"
+  },
+  {
+   "claim": "Madame Bonnell bribed the waiter Gerard to watch Dr. Weathered’s drinks",
+   "anchor": "your continued hints made Gerard watchful, and on the fatal night he did see something dropped in the doctor’s cup"
+  },
+  {
+   "claim": "The murder was motivated by Madame Bonnell’s desire to protect her position and extort money",
+   "anchor": "She was ready to help me on her own terms. I undertook to transfer the whole property in the Domino Club to her on my husband’s death"
+  }
+ ]
+}

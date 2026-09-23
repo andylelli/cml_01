@@ -6,7 +6,7 @@
   {
    "claim": "Diana Ford is an orphan with a large bank balance",
    "anchor": "She is an orphan",
-   "span": "She is an orphan,” said Mr.",
+   "span": "She is an orphan,\" said Mr.",
    "ok": true
   },
   {
@@ -18,7 +18,7 @@
   {
    "claim": "Mr. Julius Superbus is a detective hired to watch for Double Dan",
    "anchor": "He was officially styled “First Enquiry Clerk.”",
-   "span": "He was officially styled “First Enquiry Clerk.” The “detective” which was printed on the corner of his visiting card was wholly unofficial, and his request to his superiors that a nickel badge should be designed that he might wear on his waistcoat and display at fitting moments when it was necessary to disclose his identity, was refused as being “impracticable and undesirable.",
+   "span": "He was officially styled \"First Enquiry Clerk.\" The \"detective\" which was printed on the corner of his visiting card was wholly unofficial, and his request to his superiors that a nickel badge should be designed that he might wear on his waistcoat and display at fitting moments when it was necessary to disclose his identity, was refused as being \"impracticable and undesirable.",
    "ok": true
   },
   {
@@ -48,7 +48,7 @@
   {
    "claim": "Mr. Stark is a window cleaner and skilled safe opener",
    "anchor": "Stark’s my name--I’m not giving any trouble",
-   "span": "Stark’s my name--I’m not giving any trouble, and if you tell the judge I had a gun you’re a liar.",
+   "span": "Stark's my name--I'm not giving any trouble, and if you tell the judge I had a gun you're a liar.",
    "ok": true
   },
   {
@@ -60,14 +60,14 @@
   {
    "claim": "Inspector Carslake arrests Guiseppi Dempsi as Double Dan",
    "anchor": "Inspector Carslake from Scotland Yard",
-   "span": "I am Inspector Carslake from Scotland Yard,” he said.",
+   "span": "I am Inspector Carslake from Scotland Yard,\" he said.",
    "ok": true
   },
   {
    "claim": "The safe was opened using both combination and key",
    "anchor": "The combination is ‘Telma’",
-   "span": "",
-   "ok": false
+   "span": "You'll only have to work on one lock--the combination is 'Telma'--got that?",
+   "ok": true
   },
   {
    "claim": "The intruder escaped through the casement window",
@@ -84,7 +84,7 @@
   {
    "claim": "Double Dan and Heloise quarrel over the stolen money",
    "anchor": "We’ll have to share. The old terms, mind--none of your fifty-fifty stuff",
-   "span": "We’ll have to share. The old terms, mind--none of your fifty-fifty stuff.",
+   "span": "We'll have to share. The old terms, mind--none of your fifty-fifty stuff.",
    "ok": true
   },
   {
@@ -96,8 +96,8 @@
   {
    "claim": "Heloise van Oynne is arrested but escapes",
    "anchor": "Inspector called at 61 Cheynel Gardens to arrest and detain one Sarah Chowster",
-   "span": "",
-   "ok": false
+   "span": "It was later in the day, and from information received, that the inspector called at 61 Cheynel Gardens to arrest and detain one Sarah Chowster, British subject _alias_ Heloise van Oynne.",
+   "ok": true
   },
   {
    "claim": "The shooting incident causes Mr. Superbus to lose a toe",
@@ -114,14 +114,14 @@
   {
    "claim": "The impostor is Guiseppi Dempsi aka Double Dan",
    "anchor": "That noble brow and those sparkling eyes belong to an old friend of mine, Dan Throgood, yclept Double Dan",
-   "span": "",
-   "ok": false
+   "span": "but that noble brow and those sparkling eyes belong to an old friend of mine, Dan Throgood, yclept Double Dan.",
+   "ok": true
   },
   {
    "claim": "The crime is solved by combining witness statements and physical evidence",
    "anchor": "The broken door of the safe",
-   "span": "",
-   "ok": false
+   "span": "said Carslake, and glanced at the broken door of the safe.",
+   "ok": true
   }
  ],
  "costGbp": 0.09227258065000002,
@@ -130,5 +130,7 @@
   "encode": "gpt-4.1-mini",
   "sweep": "gpt-4o-mini"
  },
- "case_written": true
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
 }

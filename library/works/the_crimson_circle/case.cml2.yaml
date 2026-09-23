@@ -1,0 +1,426 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The crimson circle
+    author: Edgar Wallace
+    license: Public domain (first published 1922; author died 1932). Project Gutenberg ebook 76257.
+    era:
+      decade: 1910s
+      realism_constraints:
+        - No advanced forensic DNA analysis available
+        - Limited police communication technology, reliant on telegrams and telephone
+        - Prison escapes extremely difficult due to physical security and patrols
+    setting:
+      location: London and surrounding English countryside
+      institution: Metropolitan Police, including Inspector Parr and unofficial detective Derrick Yale
+    crime_class:
+      category: murder
+      subtype: criminal mastermind using infiltration and deception
+  cast:
+    - name: Thalia Drummond Parr
+      age_range: 20-30
+      role_archetype: enigmatic female criminal and secret agent
+      relationships:
+        - Derrick Yale (father)
+        - Jack Beardmore (lover)
+        - Raphael Willings (acquaintance)
+      public_persona: thief and secretary
+      private_secret: leader and operative of the Crimson Circle
+      motive_seed: loyalty to her father and criminal organisation
+      motive_strength: strong
+      alibi_window: varied, often alone or unaccounted
+      access_plausibility: high
+      opportunity_channels:
+        - employment at bank and detective office
+        - criminal network
+      behavioral_tells:
+        - cool composure
+        - mockery of police
+        - secretive movements
+      stakes: high personal risk and criminal empire
+      evidence_sensitivity:
+        - footprints in garden
+        - possession of murder weapons
+        - prison escape
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: female
+      role: culprit
+      moral_complexity: high
+    - name: Derrick Yale
+      age_range: 40-50
+      role_archetype: brilliant but duplicitous investigating
+      relationships:
+        - Thalia Drummond Parr (daughter)
+        - Inspector Parr (rival)
+      public_persona: psychometric detective and crime solver
+      private_secret: criminal mastermind known as the Crimson Circle
+      motive_seed: power, control, and revenge
+      motive_strength: strong
+      alibi_window: present at crime scenes but manipulates evidence
+      access_plausibility: very high
+      opportunity_channels:
+        - police investigations
+        - criminal network
+      behavioral_tells:
+        - psychometric claims
+        - manipulation of evidence
+        - double life
+      stakes: avoidance of capture and maintaining criminal empire
+      evidence_sensitivity:
+        - murder weapons
+        - stolen documents
+        - office break-in
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: very high
+    - name: Inspector Parr
+      age_range: 50-60
+      role_archetype: stolid, old-fashioned police inspector
+      relationships:
+        - Thalia Drummond Parr (daughter)
+        - Derrick Yale (rival)
+      public_persona: dedicated police officer
+      private_secret: none significant
+      motive_seed: justice
+      motive_strength: strong
+      alibi_window: present at investigations
+      access_plausibility: high
+      opportunity_channels:
+        - police authority
+      behavioral_tells:
+        - skepticism of psychometry
+        - dogged persistence
+      stakes: career and reputation
+      evidence_sensitivity:
+        - official documents
+        - police reports
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: Jack Beardmore
+      age_range: 20-30
+      role_archetype: young wealthy heir and lover
+      relationships:
+        - Thalia Drummond Parr (lover)
+        - James Beardmore (father)
+      public_persona: wealthy gentleman
+      private_secret: loves Thalia Drummond
+      motive_seed: love and loyalty
+      motive_strength: moderate
+      alibi_window: varied
+      access_plausibility: medium
+      opportunity_channels:
+        - family estate
+      behavioral_tells:
+        - emotional distress
+        - protective of Thalia
+      stakes: family legacy and love
+      evidence_sensitivity:
+        - family papers
+        - safe contents
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+    - name: Harvey Froyant
+      age_range: 50-60
+      role_archetype: miserly businessman and victim
+      relationships:
+        - Thalia Drummond Parr (secretary)
+      public_persona: secretive and stingy employer
+      private_secret: fearful of the Crimson Circle
+      motive_seed: self-preservation
+      motive_strength: strong
+      alibi_window: present at home
+      access_plausibility: high
+      opportunity_channels:
+        - home and office
+      behavioral_tells:
+        - paranoia
+        - stinginess
+      stakes: life and property
+      evidence_sensitivity:
+        - murder scene
+        - letter threats
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: low
+    - name: Felix Marl
+      age_range: 40-50
+      role_archetype: land speculator and suspect
+      relationships:
+        - James Beardmore (business associate)
+      public_persona: nervous and evasive
+      private_secret: criminal past and fear
+      motive_seed: self-preservation
+      motive_strength: moderate
+      alibi_window: uncertain
+      access_plausibility: medium
+      opportunity_channels:
+        - estate grounds
+      behavioral_tells:
+        - panic attacks
+        - lies about movements
+      stakes: freedom and reputation
+      evidence_sensitivity:
+        - footprints
+        - letters
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: Raphael Willings
+      age_range: 40-50
+      role_archetype: disgraced politician and victim
+      relationships:
+        - Thalia Drummond Parr (acquaintance)
+      public_persona: cabinet minister
+      private_secret: unsavory reputation
+      motive_seed: political power
+      motive_strength: weak
+      alibi_window: present at home
+      access_plausibility: high
+      opportunity_channels:
+        - home and country house
+      behavioral_tells:
+        - arrogance
+        - susceptibility to charm
+      stakes: life and career
+      evidence_sensitivity:
+        - stab wound
+        - missing dagger
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: moderate
+  culpability:
+    culprit_count: 2
+    culprits:
+      - Derrick Yale
+      - Thalia Drummond Parr
+  surface_model:
+    narrative:
+      summary: >-
+        The Crimson Circle is a mysterious criminal organization responsible for a series of murders
+        and blackmail in London. Thalia Drummond, a secretary with a criminal past, is suspected of
+        involvement, but the true mastermind is the psychometric detective Derrick Yale, who uses
+        his position to manipulate events and eliminate threats.
+    accepted_facts:
+      - Thalia Drummond was arrested for theft and linked to the Crimson Circle
+      - Derrick Yale is a detective with unusual psychometric abilities
+      - Harvey Froyant and Felix Marl were murdered under mysterious circumstances
+      - The Crimson Circle sent threatening letters demanding large sums of money
+    inferred_conclusions:
+      - Thalia Drummond is the leader of the Crimson Circle
+      - Felix Marl was responsible for the murder of James Beardmore
+      - Derrick Yale is a genuine detective working against the Crimson Circle
+  hidden_model:
+    mechanism:
+      description: >-
+        Derrick Yale, secretly the Crimson Circle's leader, infiltrated the police and used his
+        psychometric detective persona to control the criminal network. He manipulated Thalia
+        Drummond to gather intelligence and misdirect suspicion. Yale committed murders himself,
+        including those of Froyant and Marl, using clever methods such as poison gas bubbles and
+        staged attacks, while maintaining his cover as a crime solver.
+      delivery_path:
+        - step: Yale recruits Thalia Drummond into the Crimson Circle under false pretenses
+        - step: Thalia acts as Yale’s agent within the bank and detective offices
+        - step: Yale uses psychometric claims to mislead police and public
+        - step: Yale murders Froyant using a concealed knife and leaves misleading evidence
+        - step: Yale orchestrates Marl’s murder using poison gas bubbles
+        - step: Yale fakes an attack on himself to divert suspicion
+        - step: Yale manipulates events to frame others and maintain control
+    outcome:
+      result: >-
+        Derrick Yale is unmasked as the Crimson Circle leader and is captured, while Thalia Drummond
+        is revealed as his accomplice but ultimately spared.
+  false_assumption:
+    statement: Thalia Drummond is the mastermind behind the Crimson Circle’s crimes.
+    type: identity
+    why_it_seems_reasonable: >-
+      Thalia’s criminal record, suspicious behavior, and possession of incriminating items point to
+      her guilt. She is frequently seen near crime scenes and has connections to known criminals.
+    what_it_hides: >-
+      The true leader is Derrick Yale, who uses Thalia as a pawn to divert suspicion and gather
+      information, while committing the murders himself.
+  false_solution:
+    accused_suspect: Felix Marl
+    supporting_points:
+      - Marl’s panic and erratic behavior near the crime scene
+      - His criminal past and association with the victim
+      - The letter he wrote indicating fear of being targeted
+      - His presence at the estate shortly before the murder
+    the_one_flaw: >-
+      Marl was killed before he could act, and evidence shows he was a victim rather than
+      perpetrator.
+    refuted_in_chapter: 30
+  red_herrings:
+    - id: flush_barnet
+      description: Flush Barnet, a known crook, is arrested for burglary and suspected of murder.
+      points_at_suspect: His possession of stolen goods and presence near Marl’s house.
+      innocent_explanation: >-
+        Barnet was hired as a burglar by others and was unaware of the murders; he was manipulated
+        and later arrested.
+      resolved_in_chapter: 18
+    - id: harvey_froyant
+      description: >-
+        Harvey Froyant’s suspicious behavior and accusations against Thalia suggest he might be
+        involved.
+      points_at_suspect: His fear of the Crimson Circle and harsh treatment of Thalia.
+      innocent_explanation: >-
+        Froyant was a victim of the Crimson Circle’s blackmail and was murdered by Yale to silence
+        him.
+      resolved_in_chapter: 30
+  closed_circle:
+    suspects:
+      - Thalia Drummond Parr
+      - Derrick Yale
+      - Inspector Parr
+      - Jack Beardmore
+      - Harvey Froyant
+      - Felix Marl
+      - Raphael Willings
+    rationale: >-
+      All suspects had access to the victims or crime scenes and were connected to the Crimson
+      Circle investigation, making the circle closed and manageable for the detective work.
+  constraint_space:
+    time:
+      anchors:
+        - Marl’s visit to Beardmore estate
+        - Froyant’s murder night
+        - Brabazon’s bank account closure
+        - Thalia’s arrest and prison escape
+        - Cabinet meeting date
+      windows:
+        - Marl’s panic and return to London
+        - Froyant’s last hours at home
+        - Thalia’s movements on the night of Froyant’s murder
+        - Yale’s office break-in timing
+        - Willings’s stabbing afternoon
+    access:
+      actors:
+        - Thalia Drummond Parr
+        - Derrick Yale
+        - Inspector Parr
+        - Felix Marl
+        - ‘Flush’ Barnet
+      objects:
+        - Froyant’s bomb-proof shelter key
+        - Beardmore’s safe and documents
+        - Yale’s office and desk
+        - Marl’s house and safe
+        - Willings’s country house
+    social:
+      trust_channels:
+        - Thalia’s employment by Yale
+        - Yale’s detective status
+        - Inspector Parr’s authority
+        - Crimson Circle’s internal secrecy
+        - Brabazon’s bank dealings
+      authority_sources:
+        - Metropolitan Police
+        - Detective Derrick Yale’s unofficial role
+        - Government Cabinet
+        - Inspector Parr’s official investigations
+        - Crimson Circle’s criminal hierarchy
+  inference_path:
+    steps:
+      - observation: Marl’s panic near Beardmore estate and claim to have seen Beardmore
+        correction: Marl could not have seen Beardmore at that time; Marl lied
+        effect: Marl’s testimony is unreliable, suggesting fear and deception
+        required_evidence:
+          - Jack Beardmore’s statement that his father was indoors all morning
+          - Location and timing of Marl’s movements near the estate
+        reader_observable: true
+      - observation: Yale’s psychometric claims about the murderer’s identity
+        correction: Psychometry is unreliable and used to mislead
+        effect: Yale’s detective persona is a cover for his criminal activities
+        required_evidence:
+          - Yale’s office break-in and stolen documents
+          - Contradictions in Yale’s accounts of events
+        reader_observable: true
+      - observation: Thalia’s footprints found at Froyant’s house and possession of murder weapons
+        correction: Thalia was manipulated and used as a pawn
+        effect: Thalia is an accomplice but not the mastermind
+        required_evidence:
+          - Discovery of Yale’s glove and knife matching murder weapons
+          - Thalia’s prison escape arranged by police
+        reader_observable: true
+      - observation: Brabazon’s sudden flight and involvement with stolen money
+        correction: Brabazon was a fence coerced by the Crimson Circle
+        effect: Brabazon is a minor player, not the leader
+        required_evidence:
+          - >-
+            Bank statement showing large deposit of stolen notes by Brabazon on the day after the
+            robbery
+          - Police surveillance log of Brabazon’s movements between the bank and his flat
+        reader_observable: true
+      - observation: Willings’s stabbing and missing dagger
+        correction: Attack was premeditated by Yale to frame Thalia
+        effect: Willings is a victim, not a suspect
+        required_evidence:
+          - Witness accounts of Willings’s house and servants
+          - Thalia’s escape and recovery of dagger
+        reader_observable: true
+      - observation: Empty letter-box and ransacked Yale’s office
+        correction: Thalia’s prison escape and theft of documents
+        effect: Thalia’s role as spy and accomplice confirmed
+        required_evidence:
+          - Servant’s testimony about Thalia’s visit
+          - Physical evidence of office break-in
+        reader_observable: true
+      - observation: Inspector Parr’s resignation and public criticism
+        correction: Parr is innocent but sidelined due to internal politics
+        effect: Parr’s investigations are genuine and crucial
+        required_evidence:
+          - Commissioner’s statements about Parr’s performance
+          - Parr’s detailed knowledge of the case
+        reader_observable: true
+  discriminating_test:
+    method: constraint_proof
+    design: >-
+      Reenact the timeline and physical access of suspects to the crime scenes, focusing on the
+      footprints, keys, and timing of arrivals and departures. Verify the presence of murder weapons
+      and documents in suspects’ possession at critical times. Cross-check alibis with physical
+      evidence such as footprints and locked doors.
+    knowledge_revealed: >-
+      This test reveals that only Derrick Yale had the opportunity and means to commit the murders
+      and manipulate evidence, while Thalia’s movements are consistent with being an accomplice but
+      not the mastermind.
+    pass_condition: >-
+      The test passes if the timeline and physical evidence exclude all suspects except Derrick Yale
+      as the murderer and leader of the Crimson Circle.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given detailed accounts of suspects’ movements, physical evidence such as
+      footprints and murder weapons, and the timeline of events. The psychometric claims and false
+      leads are presented but can be questioned. The final solution is supported by clues about
+      Yale’s dual role and Thalia’s coerced involvement, all available before the reveal.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

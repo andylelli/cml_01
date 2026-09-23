@@ -1,0 +1,136 @@
+{
+ "slug": "gunman_s_bluff",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Rex Leferre's suicide note blaming Luke Maddison",
+   "anchor": "Margaret darling, I have lost. For months I have been gambling. To-day I took a desperate step on the advice of Luke Maddison",
+   "span": "Margaret darling, I have lost. For months I have been gambling. To-day I took a desperate step on the advice of Luke Maddison.",
+   "ok": true
+  },
+  {
+   "claim": "Luke Maddison was found with forged checks",
+   "anchor": "I found three loose checks on the Northern & Southern Bank",
+   "span": "I found three loose checks on the Northern & Southern Bank--that's where you keep your private account, ain't it?",
+   "ok": true
+  },
+  {
+   "claim": "Danton Morell was in possession of stolen checks",
+   "anchor": "You came into my house and you were in my sitting room long enough to extract ten checks",
+   "span": "You came into my house and you were in my sitting room long enough to extract ten checks.",
+   "ok": true
+  },
+  {
+   "claim": "Gunner Haynes rescued Luke from gang captivity",
+   "anchor": "He lifted the unconscious Luke onto the chair",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Luke Maddison was involved in a smash-and-grab robbery",
+   "anchor": "Bearded Man and Pretty Girl Rob Taffanny’s of £20,000 Diamond Necklace",
+   "span": "Then he read: DARING WEST END ROBBERY Bearded Man and Pretty Girl Rob Taffanny's of £20,000 Diamond Necklace.",
+   "ok": true
+  },
+  {
+   "claim": "Danton Morell is a confidence man and antagonist",
+   "anchor": "Danton Morell. The man is a common swindler. I was warned against him by",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Margaret Leferre's check book had missing checks",
+   "anchor": "One of them was brought to the bank to-day, made out in Luke’s name and signed by him",
+   "span": "One of them was brought to the bank to-day, made out in Luke's name and signed by him.",
+   "ok": true
+  },
+  {
+   "claim": "Luke Maddison escaped from police custody by climbing out window",
+   "anchor": "He flung up the window and his legs went out almost in the same motion",
+   "span": "He flung up the window and his legs went out almost in the same motion.",
+   "ok": true
+  },
+  {
+   "claim": "Connor is a gang leader holding Luke captive",
+   "anchor": "Connor was sitting at a table shuffling a pack of cards. He looked up as Luke entered the room",
+   "span": "Connor was sitting at a table shuffling a pack of cards. He looked up as Luke entered the room.",
+   "ok": true
+  },
+  {
+   "claim": "Gunner Haynes warns about Connor and Morell",
+   "anchor": "He was a man I don’t wish to see, and a man I don’t think you ought to see",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Danton Morell stole checks to extort money",
+   "anchor": "I don’t know what you mean. I steal checks? What nonsense you’re talking",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Luke Maddison was found wearing stolen clothes",
+   "anchor": "These clothes were found in the possession of a river thief",
+   "span": "These clothes were found in the possession of a river thief, who was trying to sell them this morning,\" he said.",
+   "ok": true
+  },
+  {
+   "claim": "Margaret Leferre and Gunner Haynes collaborate to find Luke",
+   "anchor": "I’ve been searching for him all day, and I haven’t even got a thread of a clue",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Danton Morell’s letters reveal his duplicity",
+   "anchor": "Danty Morell. The man is a common swindler. I was warned against him by Luke Maddison",
+   "span": "To-day I took a desperate step on the advice of Danty Morell. The man is a common swindler. I was warned against him by Luke Maddison.",
+   "ok": true
+  },
+  {
+   "claim": "Luke Maddison’s forged checks were not honored",
+   "anchor": "On my instructions the check was not honoured",
+   "span": "On my instructions the check was not honoured.",
+   "ok": true
+  },
+  {
+   "claim": "Luke Maddison was involved in a gang conflict",
+   "anchor": "As a result of a stabbing affray, arising, it is believed, from a quarrel between members of rival race gangs",
+   "span": "As a result of a stabbing affray, arising, it is believed, from a quarrel between members of rival race gangs, a man named Lewing was killed, and his companion, whose identity the police are anxious to establish, is now lying in a dangerous condition at St.",
+   "ok": true
+  },
+  {
+   "claim": "Margaret Leferre’s telegram from Luke Maddison",
+   "anchor": "You can hardly expect me to come back to you. In a few months I will furnish you with sufficient evidence",
+   "span": "It was a telegram addressed to Margaret Maddison: You can hardly expect me to come back to you. In a few months I will furnish you with sufficient evidence to enable you to secure a divorce.",
+   "ok": true
+  },
+  {
+   "claim": "Danton Morell stole checks from Margaret’s desk",
+   "anchor": "I’ve left instructions that unless I am back in my house in three quarters of an hour my butler will ring up Mr. Bird",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Luke Maddison’s escape from police and subsequent rescue",
+   "anchor": "He drew a lungful of air and dived toward the launch, swimming hard against the tide",
+   "span": "He drew a lungful of air and dived toward the launch, swimming hard against the tide.",
+   "ok": true
+  },
+  {
+   "claim": "Disguised Luke Maddison was mistaken for a burglar",
+   "anchor": "He was taken aback. He had expected an opportunity of parleying",
+   "span": "",
+   "ok": false
+  }
+ ],
+ "costGbp": 0.11059052000000003,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

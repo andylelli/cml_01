@@ -36,8 +36,8 @@
   {
    "claim": "The murder weapon was a nut pick",
    "anchor": "the wound was spindle-shaped",
-   "span": "",
-   "ok": false
+   "span": "The wound was spindle-shaped,\" Miriam added in a voice not quite steady, and Trenholm bowed his head.",
+   "ok": true
   },
   {
    "claim": "The coded letters contained a stamp code revealing the hiding place of the diamond",
@@ -130,5 +130,7 @@
   "encode": "gpt-4.1-mini",
   "sweep": "gpt-4o-mini"
  },
- "case_written": true
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
 }

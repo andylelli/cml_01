@@ -47,8 +47,8 @@
   {
    "claim": "Mary Leavenworth is the heiress in the will",
    "anchor": "he made no secret of his intentions to any one",
-   "span": "",
-   "ok": false
+   "span": "He made no secret of his intentions to any one.",
+   "ok": true
   },
   {
    "claim": "Mary Leavenworth wrote a letter to Mr. Clavering",
@@ -59,8 +59,8 @@
   {
    "claim": "Hannah Chester disappeared from the house",
    "anchor": "she was here last night, and she isn’t here this morning",
-   "span": "",
-   "ok": false
+   "span": "She was here last night, and she isn't here this morning, and so I says she's gone.",
+   "ok": true
   },
   {
    "claim": "Hannah Chester was found dead in Mrs. Belden’s house",
@@ -136,5 +136,5 @@
   "sweep": "gpt-4o-mini"
  },
  "verified_by": "corpus-verify.mjs",
- "verified_on": "2026-08-31"
+ "verified_on": "2026-09-23"
 }

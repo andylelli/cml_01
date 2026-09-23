@@ -1,0 +1,19 @@
+{
+ "false_assumption": {
+  "statement": "Parrawhite escaped to America and is alive, avoiding capture.",
+  "type": "identity",
+  "why_it_seems_reasonable": "Murgatroyd's telegram claimed Parrawhite left for America, and no immediate evidence of foul play was known. Pratt's scheme to fake Parrawhite's departure was plausible given the era's limited communication.",
+  "what_it_hides": "It conceals that Parrawhite was actually murdered by Pratt and his body disposed of locally to prevent exposure."
+ },
+ "mechanism_description": "Pratt stole the will from the dead Antony Bartle's pocket after Bartle's sudden death in the solicitor's office. Parrawhite, who witnessed the theft and sought to blackmail Pratt, was murdered by Pratt in a disused quarry and his body weighted with scrap iron and dumped in a water-filled pit. Pratt then used the will to blackmail Mrs. Mallathorpe and gain control over her affairs.",
+ "discriminating_test": {
+  "method": "trap",
+  "design": "Investigators advertise for Parrawhite to lure Pratt into revealing knowledge or presence. They monitor Pratt's reactions to the advertisements and his contacts with known associates. Simultaneously, they search the quarry pit for Parrawhite's body, using local knowledge and assistance from retired quarry owner Shepherd.",
+  "knowledge_revealed": "The test reveals Pratt's guilt by his nervousness and flight after the advertisements, and the discovery of Parrawhite's body confirms murder.",
+  "pass_condition": "Discovery of Parrawhite's body in the quarry pit and Pratt's disappearance from his office confirm the mechanism and identify the culprit."
+ },
+ "changed": [
+  "false_assumption.type"
+ ],
+ "confidence": "high"
+}

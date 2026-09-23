@@ -1,0 +1,491 @@
+{
+ "decade": "1920s",
+ "realism_constraints": [
+  "No modern forensic DNA or fingerprint analysis available",
+  "Limited police procedural methods, relying on witness testimony and physical evidence",
+  "Communication by telegram and typewritten letters are common"
+ ],
+ "location": "Hathelsborough, an ancient English borough",
+ "institution": "Borough Police and Coroner's Court of Hathelsborough",
+ "crime_category": "murder",
+ "crime_subtype": "secret passage murder with political conspiracy",
+ "cast": [
+  {
+   "name": "Richard Brent",
+   "age_range": "30-40",
+   "role_archetype": "determined relative and amateur investigator",
+   "role": "detective",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "London journalist and reformer",
+   "private_secret": "newly settled in Hathelsborough to continue cousin's work",
+   "motive_seed": "avenging cousin's murder and reforming town",
+   "motive_strength": "strong",
+   "alibi_window": "present throughout investigation",
+   "access_plausibility": "none",
+   "stakes": "high, personal and civic",
+   "moral_complexity": "low",
+   "relationships": [
+    "John Wallingford (cousin)",
+    "Queenie Crood (fiancée)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "John Wallingford",
+   "age_range": "40-50",
+   "role_archetype": "reformer and victim",
+   "role": "victim",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "Mayor of Hathelsborough, solicitor",
+   "private_secret": "investigating corrupt Town Trustees",
+   "motive_seed": "political reform and exposure of corruption",
+   "motive_strength": "strong",
+   "alibi_window": "murdered in Mayor's Parlour evening of crime",
+   "access_plausibility": "n/a",
+   "stakes": "high, life and legacy",
+   "moral_complexity": "low",
+   "relationships": [
+    "Richard Brent (cousin)",
+    "Mrs. Saumarez (friend)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Krevin Crood",
+   "age_range": "50-60",
+   "role_archetype": "fallen gentleman, intermediary, and actual murderer",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "disgraced former solicitor, pensioner",
+   "private_secret": "murdered Wallingford on behalf of Town Trustees",
+   "motive_seed": "financial dependence on corrupt trustees and bribe",
+   "motive_strength": "strong",
+   "alibi_window": "present at Mallett's dinner, left to commit murder",
+   "access_plausibility": "high via secret passage",
+   "stakes": "high, personal survival and financial",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Simon Crood (brother)",
+    "Mallett (confederate)",
+    "Coppinger (confederate)"
+   ],
+   "opportunity_channels": [
+    "secret passage between St. Lawrence tower and Moot Hall",
+    "back door via Bunning's rooms"
+   ],
+   "behavioral_tells": [
+    "calm and defiant demeanor at arrest and trial"
+   ],
+   "evidence_sensitivity": [
+    "blood-stained handkerchief",
+    "memorandum book with notes",
+    "typewritten threatening letter from Simon Crood's machine"
+   ]
+  },
+  {
+   "name": "Simon Crood",
+   "age_range": "60-70",
+   "role_archetype": "powerful, corrupt Deputy Mayor and Town Trustee",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "Deputy Mayor, wealthy tannery owner",
+   "private_secret": "conspired to murder Wallingford to protect corrupt interests",
+   "motive_seed": "maintaining corrupt financial control",
+   "motive_strength": "strong",
+   "alibi_window": "present at Mallett's dinner, charged accessory",
+   "access_plausibility": "high",
+   "stakes": "high, political and financial",
+   "moral_complexity": "high",
+   "relationships": [
+    "Krevin Crood (brother)",
+    "Mallett (confederate)",
+    "Coppinger (confederate)",
+    "Queenie Crood (niece)"
+   ],
+   "opportunity_channels": [
+    "conspiratorial meetings at Mallett's house"
+   ],
+   "behavioral_tells": [
+    "anger and indignation at arrest"
+   ],
+   "evidence_sensitivity": [
+    "typewritten threatening letter from his typewriter",
+    "memorandum book found at his house"
+   ]
+  },
+  {
+   "name": "Stephen Mallett",
+   "age_range": "50-60",
+   "role_archetype": "bank manager, Town Trustee, conspirator",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "bank manager, Town Trustee",
+   "private_secret": "conspired to murder Wallingford, affair with Mrs. Saumarez",
+   "motive_seed": "protecting corrupt financial interests",
+   "motive_strength": "strong",
+   "alibi_window": "present at dinner with conspirators",
+   "access_plausibility": "high",
+   "stakes": "high, financial and social",
+   "moral_complexity": "high",
+   "relationships": [
+    "Simon Crood (confederate)",
+    "Krevin Crood (confederate)",
+    "Mrs. Mallett (wife)",
+    "Mrs. Saumarez (lover)"
+   ],
+   "opportunity_channels": [
+    "conspiratorial meetings at his house"
+   ],
+   "behavioral_tells": [
+    "calm demeanor",
+    "secretive behavior"
+   ],
+   "evidence_sensitivity": [
+    "memorandum book found at Krevin's lodgings",
+    "telegram to Mrs. Saumarez"
+   ]
+  },
+  {
+   "name": "James Coppinger",
+   "age_range": "40-50",
+   "role_archetype": "borough treasurer, Town Trustee, conspirator",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "borough treasurer, Town Trustee",
+   "private_secret": "conspired to murder Wallingford",
+   "motive_seed": "maintaining corrupt financial control",
+   "motive_strength": "strong",
+   "alibi_window": "present at Mallett's dinner, absconded before arrest",
+   "access_plausibility": "high",
+   "stakes": "high, political and financial",
+   "moral_complexity": "high",
+   "relationships": [
+    "Simon Crood (confederate)",
+    "Stephen Mallett (confederate)"
+   ],
+   "opportunity_channels": [
+    "conspiratorial meetings at Mallett's house"
+   ],
+   "behavioral_tells": [
+    "absconded before arrest"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Mrs. Saumarez",
+   "age_range": "30-40",
+   "role_archetype": "wealthy young widow, political dabbler, murderess",
+   "role": "culprit",
+   "gender": "female",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "wealthy widow, friend of Wallingford and Wellesley",
+   "private_secret": "murdered Wallingford with rapier during quarrel",
+   "motive_seed": "fear of exposure and loss of letters",
+   "motive_strength": "strong",
+   "alibi_window": "absent from house early morning after murder",
+   "access_plausibility": "high via Bunning's back door and secret passage",
+   "stakes": "high, personal freedom and reputation",
+   "moral_complexity": "high",
+   "relationships": [
+    "John Wallingford (friend and rejected suitor)",
+    "Dr. Wellesley (former suitor)",
+    "Stephen Mallett (lover)"
+   ],
+   "opportunity_channels": [
+    "secret passage",
+    "Bunning's back door",
+    "quarrel in Mayor's Parlour"
+   ],
+   "behavioral_tells": [
+    "anxiety and desire for secrecy",
+    "fainted at inquest"
+   ],
+   "evidence_sensitivity": [
+    "blood-stained rapier",
+    "letters destroyed in fire",
+    "telegram from Mallett"
+   ]
+  }
+ ],
+ "culprits": [
+  "Krevin Crood",
+  "Simon Crood",
+  "Stephen Mallett",
+  "James Coppinger",
+  "Mrs. Saumarez"
+ ],
+ "surface_summary": "Mayor John Wallingford is found murdered in his Parlour with a rapier wound. The crime appears to be politically motivated, with suspicion falling on the Town Trustees and their associates. A secret passage and a blood-stained handkerchief add mystery to the case.",
+ "accepted_facts": [
+  "Wallingford was murdered in the Mayor's Parlour late evening",
+  "Access to the Parlour was possible via a secret passage from St. Lawrence tower",
+  "A blood-stained, partially burnt cambric handkerchief belonging to Dr. Wellesley was found at the scene",
+  "Krevin Crood was arrested with incriminating papers and a memorandum book belonging to Wallingford"
+ ],
+ "inferred_conclusions": [
+  "Dr. Wellesley was the murderer due to jealousy over Mrs. Saumarez",
+  "Krevin Crood acted alone in the murder",
+  "Mrs. Mallett was involved in the murder conspiracy"
+ ],
+ "mechanism_description": "Krevin Crood, acting on behalf of the Town Trustees, used his knowledge of the secret passage between St. Lawrence tower and the Moot Hall to enter the Mayor's Parlour undetected. During a quarrel between Wallingford and Mrs. Saumarez, she fatally stabbed him with a rapier. Krevin then attempted to cover up the crime by burning a blood-stained handkerchief and removing incriminating papers, but was ultimately caught.",
+ "delivery_path": [
+  "Krevin obtains keys to St. Lawrence church and locks himself inside the tower",
+  "He uses the secret passage through the connecting wall to reach the Mayor's Parlour",
+  "Overhears a quarrel between Wallingford and Mrs. Saumarez",
+  "Mrs. Saumarez fatally stabs Wallingford with a rapier during the quarrel",
+  "Krevin enters the Parlour, wipes blood with a handkerchief, and burns it partially",
+  "Krevin takes Wallingford's papers and memorandum book",
+  "Krevin leaves the Parlour via the secret passage"
+ ],
+ "outcome_result": "Krevin Crood confesses the truth, revealing Mrs. Saumarez as the actual murderer, leading to the collapse of the corrupt Town Trustees' regime.",
+ "false_assumption": {
+  "statement": "Dr. Wellesley was the murderer motivated by jealousy over Mrs. Saumarez.",
+  "type": "behavioral",
+  "why_it_seems_reasonable": "Dr. Wellesley was absent from his surgery during the murder time, had a known rivalry with Wallingford over Mrs. Saumarez, and a blood-stained handkerchief of his was found at the scene. Witness testimony suggested jealousy and secret meetings.",
+  "what_it_hides": "It conceals the actual use of the secret passage by Krevin Crood and the involvement of Mrs. Saumarez in the murder, misleading investigators to focus on Wellesley."
+ },
+ "false_solution": {
+  "accused_suspect": "Dr. Wellesley",
+  "supporting_points": [
+   "Absence from surgery during the nineteen-minute interval",
+   "Jealousy over Mrs. Saumarez testified by witnesses",
+   "Blood-stained handkerchief belonging to him found at the scene",
+   "Secret meetings with Mrs. Saumarez and Mrs. Mallett"
+  ],
+  "the_one_flaw": "Lack of direct evidence placing him at the murder scene and the existence of a secret passage used by the real murderer",
+  "refuted_in_chapter": 24
+ },
+ "red_herrings": [
+  {
+   "id": "dr_wellesley_jealousy",
+   "description": "Dr. Wellesley was suspected due to his jealousy over Mrs. Saumarez and his unexplained absence during the murder time.",
+   "points_at_suspect": "Dr. Wellesley",
+   "innocent_explanation": "He was with his assistant and patients during the absence, and the handkerchief was mistakenly mixed in laundry.",
+   "resolved_in_chapter": 24
+  },
+  {
+   "id": "mrs_mallett_secret_visits",
+   "description": "Mrs. Mallett's secret visits to Dr. Wellesley and the Mayor suggested involvement in the murder plot.",
+   "points_at_suspect": "Mrs. Mallett",
+   "innocent_explanation": "Her visits were for private reasons unrelated to the murder, and she fled town due to personal reasons.",
+   "resolved_in_chapter": 19
+  }
+ ],
+ "closed_circle": {
+  "suspects": [
+   "Krevin Crood",
+   "Simon Crood",
+   "Stephen Mallett",
+   "James Coppinger",
+   "Mrs. Saumarez"
+  ],
+  "rationale": "All had motive to prevent Wallingford's reforms, access via secret passage, and were connected by conspiracy; no outsiders had plausible access."
+ },
+ "constraint_space": {
+  "time_anchors": [
+   "Wallingford entered Mayor's Parlour about 7:25 pm",
+   "Murder occurred between 7:30 and 7:49 pm",
+   "Mrs. Bunning absent from 7:30 to nearly 8:00 pm",
+   "Krevin Crood arrested at 6:30 pm previous evening"
+  ],
+  "time_windows": [
+   "19-minute absence of Dr. Wellesley from surgery",
+   "Half-hour window of unguarded back door access"
+  ],
+  "access_actors": [
+   "Krevin Crood",
+   "Mrs. Saumarez",
+   "Mrs. Bunning",
+   "Simon Crood",
+   "Stephen Mallett",
+   "James Coppinger"
+  ],
+  "access_objects": [
+   "Secret passage between St. Lawrence tower and Moot Hall",
+   "Back door via Bunning's rooms",
+   "Mayor's Parlour door",
+   "Typewriter used by Simon Crood"
+  ],
+  "trust_channels": [
+   "Police Superintendent Hawthwaite",
+   "Coroner Seagrave",
+   "Solicitor Tansley",
+   "Editor Peppermore"
+  ],
+  "authority_sources": [
+   "Town Trustees (Simon Crood, Mallett, Coppinger)",
+   "Local Government Board Inspector",
+   "Coroner's Court"
+  ]
+ },
+ "inference_path": [
+  {
+   "observation": "Blood-stained, partially burnt cambric handkerchief found at murder scene",
+   "correction": "Handkerchief belongs to Dr. Wellesley but was mistakenly mixed in laundry",
+   "effect": "Dr. Wellesley is suspected but alibi and laundry records needed",
+   "required_evidence": [
+    "Mrs. Marriner's testimony about laundry handkerchiefs",
+    "Laundry books and customer records"
+   ]
+  },
+  {
+   "observation": "Dr. Wellesley absent from surgery for nineteen minutes around murder time",
+   "correction": "He was in his drawing-room with a secret caller",
+   "effect": "Raises suspicion of involvement",
+   "required_evidence": [
+    "Testimony of Dr. Carstairs about surgery hours",
+    "Testimony of Mrs. Mallett about secret visit"
+   ]
+  },
+  {
+   "observation": "Secret passage between St. Lawrence tower and Moot Hall discovered",
+   "correction": "Passage used by Krevin Crood to enter Mayor's Parlour",
+   "effect": "Explains how murderer accessed and escaped",
+   "required_evidence": [
+    "Dr. Pellery's expert testimony on secret passage",
+    "Spizey and Mrs. Spizey's testimony about keys and access"
+   ]
+  },
+  {
+   "observation": "Krevin Crood arrested with Mayor's papers and memorandum book",
+   "correction": "Krevin was intermediary for Town Trustees and present at murder scene",
+   "effect": "Links Krevin to conspiracy and cover-up",
+   "required_evidence": [
+    "Detective-Sergeant Welton's search reports",
+    "Louisa Speck's testimony about handkerchief and linen"
+   ]
+  },
+  {
+   "observation": "Typewritten threatening letter sent to Mayor from Simon Crood's typewriter",
+   "correction": "Simon Crood and associates conspired to bribe and silence Mayor",
+   "effect": "Establishes motive and conspiracy",
+   "required_evidence": [
+    "Samuel Owthwaite's expert testimony on typewriter",
+    "Queenie Crood's demonstration of typewriter defects"
+   ]
+  },
+  {
+   "observation": "Mrs. Saumarez's letters destroyed secretly",
+   "correction": "She was desperate to hide correspondence revealing her involvement",
+   "effect": "Suggests her guilt and motive",
+   "required_evidence": [
+    "Brent's observation of burnt letters in fire",
+    "Mrs. Saumarez's nervous behavior and desire for secrecy"
+   ]
+  },
+  {
+   "observation": "Krevin Crood's confession naming Mrs. Saumarez as murderer",
+   "correction": "Mrs. Saumarez stabbed Wallingford during quarrel in Mayor's Parlour",
+   "effect": "Reveals true murderer and clears Krevin",
+   "required_evidence": [
+    "Krevin Crood's sworn statement in court",
+    "Physical evidence of rapier and blood-stained handkerchief"
+   ]
+  }
+ ],
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "Reenact the timeline and movements on the evening of the murder, focusing on the secret passage usage and the presence of Mrs. Saumarez in the Mayor's Parlour. Verify the timing of Mrs. Bunning's absence and the accessibility of the back door and passage. Observe the possibility of a rapid murder and escape via the secret passage.",
+  "knowledge_revealed": "Confirms that the murderer used the secret passage to enter and exit, and that Mrs. Saumarez was present and responsible for the stabbing.",
+  "pass_condition": "Demonstration that the secret passage allows access within the murder time window and that Mrs. Saumarez's presence and actions are consistent with the murder timeline."
+ },
+ "fair_play_explanation": "The reader is provided with detailed descriptions of the secret passage, the timing of key events, the discovery of the handkerchief, and the relationships between characters. Clues such as the typewritten letter, the laundry mix-up, and Krevin's knowledge of the passage are all presented. The final confession by Krevin and the physical evidence are foreshadowed, allowing an attentive reader to deduce the true mechanism and culprit.",
+ "anchors": [
+  {
+   "claim": "Mayor John Wallingford was found dead in the Mayor's Parlour",
+   "anchor": "found Wallingford lying across his desk, dead"
+  },
+  {
+   "claim": "The murder weapon was a rapier found behind the bookcase",
+   "anchor": "long, thin, highly polished rapier"
+  },
+  {
+   "claim": "A blood-stained cambric handkerchief was found partially burnt on the hearth",
+   "anchor": "blood-stained, charred, cambric pocket-handkerchief"
+  },
+  {
+   "claim": "Dr. Wellesley admitted the handkerchief was his",
+   "anchor": "that is certainly part of a handkerchief of mine"
+  },
+  {
+   "claim": "Dr. Wellesley was absent from his surgery for nineteen minutes",
+   "anchor": "he went out of the surgery... half-past seven to eleven minutes to eight"
+  },
+  {
+   "claim": "Secret passage exists between St. Lawrence tower and Moot Hall",
+   "anchor": "secret passage through the apparently solid arch in St. Lawrence Lane"
+  },
+  {
+   "claim": "Krevin Crood obtained keys to St. Lawrence church and used secret passage",
+   "anchor": "I called at Spizey's cottage in St. Lawrence churchyard and got the keys"
+  },
+  {
+   "claim": "Krevin overheard quarrel between Wallingford and Mrs. Saumarez",
+   "anchor": "Wallingford was not alone. He had a woman with him"
+  },
+  {
+   "claim": "Mrs. Saumarez stabbed Wallingford with the rapier",
+   "anchor": "she had snatched up that rapier and run him through"
+  },
+  {
+   "claim": "Krevin Crood wiped blood with handkerchief and burned it partially",
+   "anchor": "I pulled out my handkerchief... and threw the handkerchief in the fire"
+  },
+  {
+   "claim": "Krevin Crood took Wallingford's papers and memorandum book",
+   "anchor": "I took up a mass of papers and a memorandum book which Wallingford had laid down"
+  },
+  {
+   "claim": "Typewritten threatening letter was typed on Simon Crood's machine",
+   "anchor": "the broken letters... all on Uncle Simon's machine"
+  },
+  {
+   "claim": "Louisa Speck identified the handkerchief as the one missing from Mallett's drawer",
+   "anchor": "I noticed then that the handkerchief had gone"
+  },
+  {
+   "claim": "Krevin Crood confessed the truth in court",
+   "anchor": "I did not kill Wallingford, and accordingly my brother could not be an accessory"
+  },
+  {
+   "claim": "Mrs. Saumarez is the actual murderer",
+   "anchor": "Who was she, then? ... Mrs. Saumarez!"
+  },
+  {
+   "claim": "The memorandum book with Wallingford's notes was found at Krevin Crood's lodgings",
+   "anchor": "I there found in an old writing-case... papers in the handwriting of the late Mayor"
+  },
+  {
+   "claim": "The Local Government Board inquiry was a farce manipulated by Town Trustees",
+   "anchor": "I have resigned my appointment... I know the financial affairs of the borough are rotten-ripe"
+  },
+  {
+   "claim": "Mrs. Mallett fled town due to her husband's affair with Mrs. Saumarez",
+   "anchor": "Mrs. Mallett has left her husband"
+  },
+  {
+   "claim": "The secret passage door panel slides back easily",
+   "anchor": "The panelling... slides back, and gives access to a passage"
+  },
+  {
+   "claim": "Krevin Crood used the secret passage to enter the Mayor's Parlour",
+   "anchor": "I slipped open the panel, and crossed over to the Moot Hall"
+  }
+ ]
+}

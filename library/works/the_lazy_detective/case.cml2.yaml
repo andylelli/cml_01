@@ -1,0 +1,468 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The lazy detective
+    author: George Dilnot
+    license: Public domain (first published 1926; author died 1951). Project Gutenberg ebook 75493.
+    era:
+      decade: 1920s
+      realism_constraints:
+        - No advanced forensic DNA analysis or modern surveillance technology
+        - Communication relies on telephones, telegrams, and personal messages
+        - Police procedures include physical surveillance, informants, and manual evidence gathering
+    setting:
+      location: London and Romney Marshes, England
+      institution: Scotland Yard Criminal Investigation Department
+    crime_class:
+      category: theft
+      subtype: organized burglary with blackmail and forgery
+  cast:
+    - name: Harry Labar
+      age_range: 30-40
+      role_archetype: lazy but capable detective inspector
+      relationships:
+        - Penelope Noelson (fiancée)
+      public_persona: lazy divisional detective inspector
+      private_secret: deeply committed and capable detective
+      motive_seed: professional duty and personal stake in case
+      motive_strength: strong
+      alibi_window: not applicable
+      access_plausibility: full access as detective
+      opportunity_channels:
+        - official police investigation
+        - surveillance
+        - interrogation
+      behavioral_tells:
+        - initial suspicion of Penelope
+        - persistence despite obstacles
+      stakes: career and justice
+      evidence_sensitivity:
+        - forged cheque
+        - stolen goods
+        - confessions
+        - witness statements
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: moderate
+    - name: Penelope Noelson
+      age_range: 20-25
+      role_archetype: young woman caught between loyalties
+      relationships:
+        - Adèle Gertstein (friend)
+        - Harry Labar (fiancé)
+      public_persona: companion to Mrs. Gertstein
+      private_secret: knows more than she initially admits
+      motive_seed: fear and loyalty
+      motive_strength: moderate
+      alibi_window: present at Streetly House and abducted
+      access_plausibility: limited access as companion
+      opportunity_channels:
+        - delivery of forged cheque
+        - abduction by Larry Hughes
+      behavioral_tells:
+        - initial denial
+        - fainting under pressure
+        - eventual cooperation
+      stakes: freedom and safety
+      evidence_sensitivity:
+        - forged cheque
+        - abduction details
+        - statements
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: high
+    - name: Larry Hughes
+      age_range: 40-50
+      role_archetype: gentleman criminal mastermind
+      relationships:
+        - Penelope Noelson (intended bride)
+        - Adèle Gertstein (former lover)
+        - Billy Bungey (associate)
+        - Stebbins (accomplice)
+        - Sophie Lengholm (associate)
+      public_persona: wealthy, cultured gentleman
+      private_secret: mastermind of burglary and blackmail
+      motive_seed: profit and control
+      motive_strength: strong
+      alibi_window: varied, often absent
+      access_plausibility: high access through associates
+      opportunity_channels:
+        - criminal network
+        - secret tunnel
+        - blackmail
+      behavioral_tells:
+        - nervous toe tapping
+        - arrogance
+        - threats and violence
+      stakes: freedom and criminal empire
+      evidence_sensitivity:
+        - secret tunnel
+        - forged cheque
+        - confessions
+        - stolen goods
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Adèle Gertstein
+      age_range: 30-40
+      role_archetype: blackmailed wife and forger
+      relationships:
+        - Solly Gertstein (husband)
+        - Larry Hughes (former lover)
+        - Penelope Noelson (companion)
+      public_persona: wealthy socialite
+      private_secret: forgery and blackmail victim
+      motive_seed: financial desperation
+      motive_strength: strong
+      alibi_window: away from Streetly House during burglary
+      access_plausibility: access to cheque book
+      opportunity_channels:
+        - forgery
+        - blackmail payments
+      behavioral_tells:
+        - attempted murder
+        - panic
+        - pleading
+      stakes: freedom and reputation
+      evidence_sensitivity:
+        - forged cheque
+        - letter to Larry Hughes
+        - attempted murder evidence
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: female
+      role: suspect
+      moral_complexity: high
+    - name: Solly Gertstein
+      age_range: 50-60
+      role_archetype: wealthy financier and victim
+      relationships:
+        - Adèle Gertstein (wife)
+      public_persona: wealthy financier
+      private_secret: disconnected from wife's crimes
+      motive_seed: none
+      motive_strength: none
+      alibi_window: present at Streetly House
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: loss of property and reputation
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: low
+    - name: Billy Bungey
+      age_range: 30-40
+      role_archetype: violent gang leader
+      relationships:
+        - Larry Hughes (leader)
+      public_persona: notorious gang leader
+      private_secret: associate of Larry Hughes
+      motive_seed: criminal gain
+      motive_strength: moderate
+      alibi_window: absent during burglary
+      access_plausibility: high
+      opportunity_channels:
+        - burglary
+        - gang activities
+      behavioral_tells:
+        - violence
+        - recklessness
+      stakes: freedom
+      evidence_sensitivity:
+        - gunshot wound
+        - capture evidence
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: low
+    - name: Stebbins
+      age_range: 30-40
+      role_archetype: drugged odd-job man and accomplice
+      relationships:
+        - Billy Bungey (associate)
+        - Larry Hughes (leader)
+      public_persona: odd-job man
+      private_secret: drugged and used as tool
+      motive_seed: money
+      motive_strength: weak
+      alibi_window: absent night of burglary
+      access_plausibility: high
+      opportunity_channels:
+        - key impressions
+        - inside information
+      behavioral_tells:
+        - drunkenness
+        - drug use
+      stakes: freedom
+      evidence_sensitivity:
+        - letter with gum arabic
+        - fingerprints
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: low
+    - name: Sophie Lengholm (Cummings)
+      age_range: 40-50
+      role_archetype: loyal but reluctant accomplice
+      relationships:
+        - Larry Hughes (employer)
+        - Penelope Noelson (ward)
+      public_persona: housekeeper/associate
+      private_secret: protects Penelope and herself
+      motive_seed: self-preservation
+      motive_strength: moderate
+      alibi_window: present at 'Mope's Bottom'
+      access_plausibility: high
+      opportunity_channels:
+        - guarding
+        - information control
+      behavioral_tells:
+        - neutral attitude
+        - protective actions
+      stakes: freedom
+      evidence_sensitivity:
+        - confession
+        - testimony
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: female
+      role: suspect
+      moral_complexity: high
+    - name: Bill Malone
+      age_range: 30-40
+      role_archetype: loyal sergeant and aide
+      relationships:
+        - Harry Labar (superior)
+      public_persona: detective sergeant
+      private_secret: trusted assistant
+      motive_seed: professional duty
+      motive_strength: strong
+      alibi_window: present throughout investigation
+      access_plausibility: full
+      opportunity_channels:
+        - investigation
+        - arrest
+      behavioral_tells:
+        - loyalty
+        - persistence
+      stakes: justice and safety
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+  culpability:
+    culprit_count: 2
+    culprits:
+      - Larry Hughes
+      - Billy Bungey
+  surface_model:
+    narrative:
+      summary: >-
+        A high-value burglary at Streetly House involves a complex criminal network led by Larry
+        Hughes. The investigation uncovers forged cheques, blackmail, and abduction, with suspects
+        including the victim's wife and her companion. The detective inspector pursues the gang
+        through London and the Romney Marshes, culminating in a dramatic capture.
+    accepted_facts:
+      - The burglary at Streetly House was expertly executed without forced entry
+      - Larry Hughes is the mastermind behind the burglary and associated crimes
+      - Adèle Gertstein forged her husband's cheque under blackmail pressure
+      - Penelope Noelson was abducted to prevent her giving evidence
+    inferred_conclusions:
+      - Penelope Noelson was a willing accomplice in the burglary
+      - Larry Hughes was not involved directly and was framed by others
+      - Mrs. Gertstein was innocent of forgery and blackmail
+  hidden_model:
+    mechanism:
+      description: >-
+        Larry Hughes orchestrated the burglary by using Stebbins to gain inside information and make
+        wax impressions of keys. The stolen goods were hidden in a secret tunnel at 'Mope's Bottom'
+        on the Romney Marshes. Hughes used blackmail and abduction to control witnesses and
+        accomplices, including forcing Penelope Noelson's silence by abduction and intending to
+        marry her to prevent testimony.
+      delivery_path:
+        - step: Stebbins employed as odd-job man at Streetly House to gather information
+        - step: Wax impressions of keys made and duplicate keys created
+        - step: Burglary executed with inside knowledge, alarms disabled without forced entry
+        - step: Stolen goods transported and stored in secret tunnel at 'Mope's Bottom'
+        - step: Blackmail and forgery used to finance and cover the operation
+        - step: Penelope Noelson abducted to prevent her testimony
+        - step: Police investigation leads to discovery of tunnel and arrest of gang
+    outcome:
+      result: Larry Hughes and his gang are captured and convicted, ending their criminal enterprise.
+  false_assumption:
+    statement: Penelope Noelson was initially assumed to be the principal thief and accomplice.
+    type: identity
+    why_it_seems_reasonable: >-
+      She was caught delivering a forged cheque and tried to bribe the detective, which suggested
+      guilt. Her photograph was found in Larry Hughes' possession, linking her to the crime.
+    what_it_hides: >-
+      Her involvement was coerced and she was primarily a victim of abduction and blackmail, not a
+      willing participant.
+  false_solution:
+    accused_suspect: Penelope Noelson
+    supporting_points:
+      - She gave the detective a forged cheque
+      - She fainted under interrogation, suggesting guilt
+      - She was seen in suspicious circumstances with Larry Hughes
+      - She initially denied knowing Larry Hughes
+    the_one_flaw: She was acting under duress and was abducted to prevent her testimony, not a willing criminal.
+    refuted_in_chapter: 6
+  red_herrings:
+    - id: adele_gertstein_blackmail
+      description: >-
+        Adèle Gertstein's forgery and blackmail scheme misleads suspicion towards her as the main
+        culprit.
+      points_at_suspect: Adèle Gertstein
+      innocent_explanation: >-
+        Her actions were driven by desperation and blackmail, not direct involvement in the
+        burglary.
+      resolved_in_chapter: 13
+    - id: gold_dust_teddy_drunk_burglar
+      description: >-
+        Gold Dust Teddy's drunkenness and criminal record make him a suspect, but he is more a pawn
+        than mastermind.
+      points_at_suspect: Gold Dust Teddy
+      innocent_explanation: He was used as a tool by Larry Hughes and was not the organizer.
+      resolved_in_chapter: 8
+  closed_circle:
+    suspects:
+      - Larry Hughes
+      - Billy Bungey
+      - Stebbins
+      - Adèle Gertstein
+      - Sophie Lengholm (Cummings)
+      - Penelope Noelson
+    rationale: >-
+      The suspects are limited to those closely connected to the burglary, blackmail, and abduction,
+      all within a defined social and geographic circle.
+  constraint_space:
+    time:
+      anchors:
+        - Monday night of the burglary
+        - Day of the robbery discovery
+        - Day of Larry Hughes' capture
+      windows:
+        - Night of the burglary
+        - Day following the burglary
+        - Period of Penelope's abduction
+    access:
+      actors:
+        - Stebbins
+        - Larry Hughes
+        - Billy Bungey
+        - Penelope Noelson
+        - Adèle Gertstein
+      objects:
+        - Streetly House
+        - Secret tunnel at Mope's Bottom
+        - Stolen goods
+        - Forged cheque
+    social:
+      trust_channels:
+        - Blackmail correspondence
+        - Criminal network
+        - Personal relationships
+      authority_sources:
+        - Scotland Yard
+        - Kent Constabulary
+        - Sussex Police
+  inference_path:
+    steps:
+      - observation: A forged cheque was cashed in the name of Solly Gertstein.
+        correction: The cheque was forged by Adèle Gertstein under blackmail pressure.
+        effect: Identifies forgery and blackmail as part of the crime.
+        required_evidence:
+          - Letter from Adèle Gertstein to Larry Hughes requesting money
+          - Handwriting analysis report comparing forged cheque and letters
+        reader_observable: true
+      - observation: Penelope Noelson gave a forged cheque to the detective and tried to bribe him.
+        correction: Penelope was acting under coercion and was abducted to prevent testimony.
+        effect: Shifts suspicion from Penelope as culprit to victim.
+        required_evidence:
+          - Witness statement of Penelope's abduction
+          - Observation of Penelope's fainting and interrogation
+        reader_observable: true
+      - observation: No forced entry or broken locks at Streetly House.
+        correction: Stebbins made wax impressions of keys to gain access.
+        effect: Explains how the burglary was executed without forced entry.
+        required_evidence:
+          - Recovered duplicate keys matching locks at Streetly House
+          - Wax residue found on keyholes and Stebbins' personal effects
+        reader_observable: true
+      - observation: Stolen goods were not found in Larry Hughes' house.
+        correction: Goods were hidden in a secret tunnel at 'Mope's Bottom'.
+        effect: Reveals the storage and transport method of stolen goods.
+        required_evidence:
+          - Discovery of secret tunnel and steel boxes
+          - Recovered stolen items from tunnel
+        reader_observable: true
+      - observation: Larry Hughes was elusive and not caught during initial raids.
+        correction: Larry escaped through the tunnel and later was captured after a chase.
+        effect: Explains Larry's temporary escape and eventual capture.
+        required_evidence:
+          - Witness accounts of Larry's escape
+          - Train confrontation and arrest records
+        reader_observable: true
+      - observation: Larry Hughes offered bribes to the detective to drop the case.
+        correction: Detective refused and continued pursuit leading to capture.
+        effect: Shows detective's integrity and determination.
+        required_evidence:
+          - Letter from Larry Hughes offering bribe
+          - Detective's testimony rejecting bribe
+        reader_observable: true
+      - observation: Penelope Noelson and Mrs. Gertstein were held captive at 'Mope's Bottom'.
+        correction: They were coerced to prevent testimony and cooperation with police.
+        effect: Explains their behavior and eventual cooperation.
+        required_evidence:
+          - Statements from Penelope and Mrs. Gertstein
+          - Observation of their captivity and treatment
+        reader_observable: true
+  discriminating_test:
+    method: reenactment
+    design: >-
+      Detectives recreated the burglary by using wax impressions of keys and tested access to
+      Streetly House without forced entry. They also examined the secret tunnel at 'Mope's Bottom'
+      to confirm it as the storage site for stolen goods. The test involved verifying the opening of
+      steel doors and the transport route of the loot.
+    knowledge_revealed: >-
+      The test confirmed the method of entry using duplicate keys and the existence of a secret
+      tunnel used to hide stolen property, directly linking Larry Hughes to the crime.
+    pass_condition: Successful opening of doors with duplicate keys and discovery of stolen goods in the tunnel.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given detailed descriptions of the forged cheque, the secret tunnel, and the
+      relationships between suspects. Clues such as Penelope's fainting, the forged cheque's origin,
+      and the discovery of the tunnel are all presented. The detective's reasoning and the suspects'
+      behaviors provide sufficient information for an attentive reader to deduce the true mechanism
+      and culprit.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

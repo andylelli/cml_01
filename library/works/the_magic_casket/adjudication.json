@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "Jonathan Ingle died naturally and was cremated with proper certificates.",
+  "type": "identity",
+  "why_it_seems_reasonable": "The death certificates were signed by doctors and the body was cremated, which usually confirms death. The insurance company accepted the death as genuine.",
+  "what_it_hides": "The body cremated was not human but butcher’s meat, and the death certificates were forged to fake Ingle’s death and cover up fraud."
+ },
+ "mechanism_description": "The magic casket contained a secret message etched on a Japanese magic mirror revealing the hiding place of the stolen pearls. Uyenishi hid the pearls in a disused pump in Jockey’s Fields. The pearls were recovered by Thorndyke after interpreting the secret message. The other cases involve forged death certificates, planted evidence, and misdirection, with Thorndyke uncovering the truth through scientific and observational methods.",
+ "discriminating_test": {
+  "method": "constraint_proof",
+  "design": "Thorndyke examined the magic casket under strong light to reveal the secret etched message. He then visited the pump in Jockey’s Fields to check for the hidden pearls. The presence of the pearls in the pump confirmed the secret message’s accuracy and the location of the stolen pearls.",
+  "knowledge_revealed": "The test revealed that the pearls were hidden in the pump as indicated by the secret message on the magic mirror bottom of the casket.",
+  "pass_condition": "The pearls must be physically found inside the pump at Jockey’s Fields."
+ },
+ "changed": [],
+ "confidence": "high"
+}

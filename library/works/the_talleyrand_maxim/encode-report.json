@@ -1,0 +1,136 @@
+{
+ "slug": "the_talleyrand_maxim",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Antony Bartle died suddenly in Eldrick's office",
+   "anchor": "he just sat down, laid his head back, and died",
+   "span": "He just sat down, laid his head back, and died.",
+   "ok": true
+  },
+  {
+   "claim": "Pratt stole the will from Bartle's pocket",
+   "anchor": "he unbuttoned Antony Bartle's coat, and drew a folded paper from the inner pocket",
+   "span": "And then, without hesitation, and with fingers that remained as steady as if nothing had happened, he unbuttoned Antony Bartle's coat, and drew a folded paper from the inner pocket.",
+   "ok": true
+  },
+  {
+   "claim": "Parrawhite threatened Pratt about the will",
+   "anchor": "I heard everything, I tell you!--and saw everything",
+   "span": "I heard everything, I tell you!--and saw everything.",
+   "ok": true
+  },
+  {
+   "claim": "Parrawhite was murdered and body weighted with iron",
+   "anchor": "He fetched a quantity of the iron, fastened it to the dead man's clothing",
+   "span": "He fetched a quantity of the iron, fastened it to the dead man's clothing, drew the body, thus weighted, to the edge of the pit, and prepared to slide it into the black water.",
+   "ok": true
+  },
+  {
+   "claim": "Mrs. Mallathorpe locked the dangerous foot-bridge gates",
+   "anchor": "she herself went back to the foot-bridge and secured its wicket gates at both ends",
+   "span": "But she immediately went to the estate carpenter's shop, and there she procured two short lengths of chain, and two padlocks, and she herself went back to the foot-bridge and secured its wicket gates at both ends.",
+   "ok": true
+  },
+  {
+   "claim": "Murgatroyd booked a passage for Parrawhite to America",
+   "anchor": "he booked him his passage, for which he paid you whatever it was",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Duplicate will found in John Mallathorpe's clothes",
+   "anchor": "I saw them, and I thought I'd see what they were. And this was one",
+   "span": "I never looked at them until this very day--but this morning I happened to open that box, and I saw them, and I thought I'd see what they were. And this was one--you see, it's in a plain envelope--it was sealed, but there's no writing on it.",
+   "ok": true
+  },
+  {
+   "claim": "Pratt obtained power of attorney from Mrs. Mallathorpe",
+   "anchor": "Mrs. Mallathorpe has put him in charge of her affairs",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Pratt murdered Parrawhite to silence him",
+   "anchor": "Pratt murdered Parrawhite on the night of November twenty-third last",
+   "span": "I am certain that Pratt murdered Parrawhite on the night of November twenty-third last.",
+   "ok": true
+  },
+  {
+   "claim": "Pratt committed suicide when cornered",
+   "anchor": "And now, without the least hesitation, he drew it out and sent one of its bullets through his brain",
+   "span": "And now, without the least hesitation, he drew it out and sent one of its bullets through his brain.",
+   "ok": true
+  },
+  {
+   "claim": "Esther Mawson drugged Pratt and stole documents",
+   "anchor": "I drugged him. There's something afoot--something gone wrong with his schemes",
+   "span": "I drugged him. There's something afoot--something gone wrong with his schemes--at Barford, and he came here on his way--elsewhere.",
+   "ok": true
+  },
+  {
+   "claim": "Mrs. Mallathorpe burned the will",
+   "anchor": "she tore them into fragments and flung the fragments in the fire",
+   "span": "Then she tore them into fragments and flung the fragments in the fire--and as they blazed up, she turned and looked at Esther Mawson in a way which made Esther shrink a little.",
+   "ok": true
+  },
+  {
+   "claim": "Mrs. Gaukrodger found the duplicate will",
+   "anchor": "I cut the envelope open, and drew the paper out, and I saw at once it was Mr. John Mallathorpe's will",
+   "span": "I cut the envelope open, and drew the paper out, and I saw at once it was Mr. John Mallathorpe's will--so I came straight to you with it.",
+   "ok": true
+  },
+  {
+   "claim": "Pratt used forged telegram to fake Parrawhite's escape",
+   "anchor": "I want you, tomorrow morning, early, to send a telegram to these people",
+   "span": "I want you, tomorrow morning, early, to send a telegram to these people, Halstead & Byner, St.",
+   "ok": true
+  },
+  {
+   "claim": "Police found Parrawhite's body in the quarry pit",
+   "anchor": "Parrawhite's body has been found",
+   "span": "Parrawhite's body has been found,\" he said quietly.",
+   "ok": true
+  },
+  {
+   "claim": "Pratt fled after seeing police at Murgatroyd's",
+   "anchor": "he never came out, and finally my man made an excuse and asked for him there",
+   "span": "I'd a man watching for him outside his lodgings from an early hour this morning, but he never came out, and finally my man made an excuse and asked for him there, and then he heard that he'd never been home last night.",
+   "ok": true
+  },
+  {
+   "claim": "Pratt blackmailed Mrs. Mallathorpe with the will",
+   "anchor": "Pratt held power of attorney and controlled Mrs. Mallathorpe's affairs",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The will disposes estate away from Mallathorpe family",
+   "anchor": "he left everything he possessed to the town of Barford for an educational trust",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Pratt's death ends the case",
+   "anchor": "Pratt's dead body, with a revolver wound, was found in the old part of the house",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The false telegram misled investigators",
+   "anchor": "he wired to Halstead & Byner to say that he booked Parrawhite to New York last November",
+   "span": "",
+   "ok": false
+  }
+ ],
+ "costGbp": 0.12072685200000002,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

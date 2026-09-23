@@ -1,0 +1,421 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The Gray Mask
+    author: Wadsworth Camp
+    license: Public domain (first published 1920; author died 1936). Project Gutenberg ebook 33230.
+    era:
+      decade: 1910s
+      realism_constraints:
+        - No advanced forensic technology like DNA or modern fingerprinting
+        - Communication limited to telephones, telegrams, and physical messages
+        - Transportation by trains, automobiles, and horse-drawn carriages
+    setting:
+      location: New York City and vicinity, including Elmford and Deacon's Bay
+      institution: New York Police Department Detective Bureau
+    crime_class:
+      category: murder
+      subtype: disguised murder and conspiracy with false supernatural elements
+  cast:
+    - name: Garth
+      age_range: 30-40
+      role_archetype: young, brave detective
+      relationships:
+        - Nora (friend and love interest)
+        - Inspector (chief)
+      public_persona: dedicated detective
+      private_secret: deep feelings for Nora
+      motive_seed: justice and love
+      motive_strength: strong
+      alibi_window: present throughout investigations
+      access_plausibility: high
+      opportunity_channels:
+        - police authority
+        - investigative access
+      behavioral_tells:
+        - persistent
+        - cautious
+        - brave
+      stakes: life and love
+      evidence_sensitivity:
+        - gray mask
+        - trail of coins
+        - witness statements
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: moderate
+    - name: Nora
+      age_range: 20-30
+      role_archetype: intelligent and brave woman involved in investigation
+      relationships:
+        - Garth (love interest)
+        - Inspector (father)
+      public_persona: inspector's daughter, nurse, undercover operative
+      private_secret: works undercover in dangerous cases
+      motive_seed: justice and protection of Garth
+      motive_strength: strong
+      alibi_window: present at key events
+      access_plausibility: high
+      opportunity_channels:
+        - undercover access
+        - police cooperation
+      behavioral_tells:
+        - brave
+        - resourceful
+        - emotional
+      stakes: life and love
+      evidence_sensitivity:
+        - disguise
+        - bomb handling
+        - witness testimony
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: moderate
+    - name: Inspector
+      age_range: 50-60
+      role_archetype: experienced police chief, protective father
+      relationships:
+        - Nora (daughter)
+        - Garth (detective)
+      public_persona: police inspector
+      private_secret: deeply cares for Nora and Garth
+      motive_seed: justice and family protection
+      motive_strength: strong
+      alibi_window: present at headquarters
+      access_plausibility: high
+      opportunity_channels:
+        - police authority
+      behavioral_tells:
+        - stern
+        - worried
+        - protective
+      stakes: career and family
+      evidence_sensitivity:
+        - telegrams
+        - police reports
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: moderate
+    - name: Slim
+      age_range: 30-40
+      role_archetype: criminal mastermind
+      relationships:
+        - George (accomplice)
+        - Nora (target)
+      public_persona: quiet, polite criminal
+      private_secret: leader of criminal gang
+      motive_seed: profit and revenge
+      motive_strength: strong
+      alibi_window: present at crime scenes
+      access_plausibility: high
+      opportunity_channels:
+        - gang resources
+        - criminal network
+      behavioral_tells:
+        - calm
+        - calculating
+        - ruthless
+      stakes: freedom and power
+      evidence_sensitivity:
+        - acid bottle
+        - handcuffs
+        - witness testimony
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: strong
+    - name: George
+      age_range: 30-40
+      role_archetype: brutal criminal accomplice
+      relationships:
+        - Slim (leader)
+        - Nora (target)
+      public_persona: rough, animalistic
+      private_secret: violent enforcer
+      motive_seed: loyalty and greed
+      motive_strength: strong
+      alibi_window: present at crime scenes
+      access_plausibility: high
+      opportunity_channels:
+        - gang resources
+        - criminal network
+      behavioral_tells:
+        - aggressive
+        - impulsive
+      stakes: freedom and survival
+      evidence_sensitivity:
+        - acid bottle
+        - handcuffs
+        - witness testimony
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: strong
+    - name: Mrs. Taylor
+      age_range: 30-40
+      role_archetype: widow with dark secret
+      relationships:
+        - Taylor (husband, victim)
+        - Reed (lover)
+      public_persona: grieving widow
+      private_secret: murderer of husband
+      motive_seed: escape and love
+      motive_strength: strong
+      alibi_window: present in house
+      access_plausibility: high
+      opportunity_channels:
+        - house access
+      behavioral_tells:
+        - nervous
+        - deceptive
+      stakes: freedom and reputation
+      evidence_sensitivity:
+        - black gown
+        - knife
+        - witness testimony
+      culprit_eligibility: eligible
+      culpability: unknown
+      gender: female
+      role: suspect
+      moral_complexity: strong
+    - name: Reed
+      age_range: 30-40
+      role_archetype: lover and accomplice
+      relationships:
+        - Mrs. Taylor (lover)
+        - Taylor (victim)
+      public_persona: friend of family
+      private_secret: involved in murder
+      motive_seed: love and jealousy
+      motive_strength: moderate
+      alibi_window: present in house
+      access_plausibility: high
+      opportunity_channels:
+        - house access
+      behavioral_tells:
+        - nervous
+        - emotional
+      stakes: love and freedom
+      evidence_sensitivity:
+        - black gown
+        - knife
+        - witness testimony
+      culprit_eligibility: eligible
+      culpability: unknown
+      gender: male
+      role: suspect
+      moral_complexity: strong
+  culpability:
+    culprit_count: 2
+    culprits:
+      - Slim
+      - George
+  surface_model:
+    narrative:
+      summary: >-
+        The case appears as a series of mysterious murders and attempted murders involving a veiled
+        woman who seems to appear and disappear through locked doors, with supernatural overtones.
+        The police are baffled by the ghostly figure and the complex criminal conspiracy threatening
+        a wealthy businessman.
+    accepted_facts:
+      - Taylor died from a gunshot wound in an apparent suicide
+      - A veiled woman was seen walking through locked doors in Alsop's house
+      - Brown, a private detective, was attacked and later died after seeing the veiled woman
+      - Slim and George are dangerous criminals involved in a conspiracy
+    inferred_conclusions:
+      - The veiled woman is a supernatural ghost
+      - Taylor committed suicide due to illness and despair
+      - The criminal conspiracy is led by a mysterious ghostly figure
+  hidden_model:
+    mechanism:
+      description: >-
+        The veiled woman was actually the housekeeper working for the criminal gang led by Slim and
+        George. She used disguises and secret passages to enter locked rooms and steal or sabotage.
+        The murders were committed to cover up the conspiracy against Alsop and to eliminate
+        threats. The ghostly appearances were tricks involving hidden doors and accomplices.
+      delivery_path:
+        - step: The gang uses secret entrances and hidden passages in old houses
+        - step: The veiled woman disguises herself to gain access to locked rooms
+        - step: She steals or sabotages documents and attacks witnesses
+        - step: Slim and George coordinate the criminal activities and enforce silence
+        - step: The gang attempts to eliminate Garth and Nora to protect their operation
+        - step: Nora infiltrates the gang disguised as a housemaid to gather evidence
+        - step: Garth and the police coordinate a raid to capture the criminals
+    outcome:
+      result: >-
+        Slim and George are captured and the criminal conspiracy is dismantled, with Nora and Garth
+        safe.
+  false_assumption:
+    statement: The veiled woman is a supernatural ghost who can pass through locked doors.
+    type: behavioral
+    why_it_seems_reasonable: >-
+      Multiple witnesses report seeing a woman in white appearing and disappearing mysteriously, and
+      the locked rooms seem impenetrable. The strange moans and cries add to the supernatural
+      impression.
+    what_it_hides: >-
+      The veiled woman is a human criminal using secret passages and disguises, and the supernatural
+      elements are deliberate deceptions to mislead investigators.
+  false_solution:
+    accused_suspect: Mrs. Taylor
+    supporting_points:
+      - She was found near the murder scene
+      - She had motive due to unhappy marriage
+      - She was seen acting suspiciously
+      - The black gown and knife linked to her
+    the_one_flaw: >-
+      She lacked opportunity and was protected by accomplices; the black gown was planted to
+      mislead.
+    refuted_in_chapter: 17
+  red_herrings:
+    - id: ghostly_veiled_woman
+      description: The veiled woman appearing and disappearing through locked doors, believed to be a ghost.
+      points_at_suspect: Mrs. Taylor and the housekeeper
+      innocent_explanation: >-
+        The veiled woman is a disguise used by the housekeeper and gang members using secret
+        passages.
+      resolved_in_chapter: 20
+    - id: brown_mask_and_simmons
+      description: The initial case involving the gray mask and Simmons, a man with a scarred face.
+      points_at_suspect: Simmons and the Hennion gang
+      innocent_explanation: Simmons was a decoy and Garth impersonated him to infiltrate the gang.
+      resolved_in_chapter: 3
+  closed_circle:
+    suspects:
+      - Slim
+      - George
+      - Mrs. Taylor
+      - Reed
+      - McDonald's daughter
+    rationale: >-
+      All had access to the crime scenes, motives, and opportunity; the investigation narrowed to
+      these key figures involved in the conspiracy and murder.
+  constraint_space:
+    time:
+      anchors:
+        - Elmford murder night
+        - Alsop's conference night at 9 PM
+        - Slim and George's trial and escape
+      windows:
+        - Nighttime for attacks and raids
+        - Daytime for investigation and arrests
+    access:
+      actors:
+        - Garth
+        - Nora
+        - Slim
+        - George
+        - Mrs. Taylor
+        - Reed
+        - McDonald's daughter
+      objects:
+        - locked doors
+        - secret passages
+        - safe
+        - cellar doors
+        - train cars
+    social:
+      trust_channels:
+        - Nora's undercover role
+        - inspector's authority
+        - gang's internal loyalty
+      authority_sources:
+        - New York Police Department
+        - Inspector
+        - District Attorney
+  inference_path:
+    steps:
+      - observation: Veiled woman seen walking through locked doors
+        correction: Secret passages and hidden doors exist in the house
+        effect: Explains how the woman could enter and exit locked rooms
+        required_evidence:
+          - Garth's observation of secret door behind curtain in Alsop's house
+          - Testimony of Alsop and Marvin about locked doors and veiled woman
+        reader_observable: true
+      - observation: Taylor's death appears as suicide with a note
+        correction: Note was written before death to mislead
+        effect: Suggests murder disguised as suicide
+        required_evidence:
+          - Handwriting analysis of note matching Taylor's
+          - Presence of black gown and knife near body
+        reader_observable: true
+      - observation: Brown attacked after seeing veiled woman
+        correction: Attack was to silence a witness to the conspiracy
+        effect: Confirms veiled woman is part of criminal gang
+        required_evidence:
+          - Brown's hospital testimony mentioning veiled woman
+          - Discovery of dictaphone in Alsop's house
+        reader_observable: true
+      - observation: Nora disappears in empty house
+        correction: She entered through hidden door and was captured
+        effect: Shows gang's awareness and trap for Nora
+        required_evidence:
+          - Inspector's observation of Nora entering empty house
+          - Garth's discovery of hidden trap door
+        reader_observable: true
+      - observation: Slim and George escape custody
+        correction: They kidnap Nora to use as leverage
+        effect: Raises stakes and urgency for rescue
+        required_evidence:
+          - Tailor's eyewitness account of kidnapping
+          - Pieces of Nora's muff dropped as trail
+        reader_observable: true
+      - observation: Veiled woman carries bomb to Alsop's house
+        correction: Nora impersonates veiled woman to trap gang
+        effect: Allows police to capture gang members
+        required_evidence:
+          - Nora's disguise and testimony
+          - Police surrounding Alsop's house and ambush
+        reader_observable: true
+      - observation: Slim threatens to blind Garth with acid
+        correction: Nora's plan uses staged train wreck to distract
+        effect: Garth is saved and gang captured
+        required_evidence:
+          - Nora's testimony about acid bottle switch
+          - Inspector's coordination of police during train incident
+        reader_observable: true
+  discriminating_test:
+    method: trap
+    design: >-
+      Nora disguises herself as the veiled woman and waits at the locked door with a bomb. Garth
+      hides nearby to ambush the real veiled woman when she arrives to take the bomb. Police
+      surround the house to arrest the gang members once the trap is sprung.
+    knowledge_revealed: >-
+      This test reveals that the veiled woman is a human criminal using disguises and secret
+      passages, not a supernatural ghost.
+    pass_condition: >-
+      The real veiled woman is caught attempting to take the bomb, confirming her identity and
+      method.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given detailed descriptions of the locked rooms, secret doors, and the behavior
+      of the veiled woman. Clues such as the black gown, the secret passages, and the testimonies of
+      witnesses like Alsop and Marvin are presented. The trail of coins and the disguise used by
+      Nora provide logical means to deduce the true nature of the veiled woman and the conspiracy.
+      The supernatural explanation is a deliberate misdirection, but the physical evidence and
+      character actions allow a careful reader to solve the mystery.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

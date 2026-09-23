@@ -1,0 +1,439 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The Draycott murder mystery
+    author: Molly Thynne
+    license: Public domain (first published 1928; author died 1950). Project Gutenberg ebook 75222.
+    era:
+      decade: 1920s
+      realism_constraints:
+        - No forensic DNA or advanced ballistics analysis available
+        - Telephones and automobiles exist but are not ubiquitous
+        - Travel by train and car is common but slower than modern times
+    setting:
+      location: North of England, village of Keys and surrounding countryside
+      institution: >-
+        Local police (Sergeant Brace and Constable Gunnet), legal system with barrister Sir Edward
+        Kean
+    crime_class:
+      category: murder
+      subtype: blackmail murder disguised as a frame-up
+  cast:
+    - name: John Leslie
+      age_range: 30-40
+      role_archetype: young farmer, fiancé under suspicion
+      relationships:
+        - engaged to Cynthia Bell
+        - friend of Hatter Fayre
+      public_persona: hardworking, honest farmer
+      private_secret: none
+      motive_seed: none
+      motive_strength: none
+      alibi_window: 5pm to 8pm on night of murder
+      access_plausibility: high
+      opportunity_channels:
+        - farmhouse access
+        - revolver owner
+      behavioral_tells:
+        - nervous but truthful demeanor
+      stakes: high - facing trial and death penalty
+      evidence_sensitivity:
+        - revolver found in his drawer
+        - empty chamber in revolver
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: low
+    - name: Mrs. Draycott (Christina Mary Draycott, née Baxter, formerly Allen)
+      age_range: 50-60
+      role_archetype: blackmailing woman with a shady past
+      relationships:
+        - sister of Miss Allen
+        - enemy of Sir Edward Kean
+      public_persona: expensively dressed, socially connected
+      private_secret: blackmailing Sir Edward Kean over Sybil's first husband
+      motive_seed: blackmail
+      motive_strength: strong
+      alibi_window: murdered around 6:30pm
+      access_plausibility: high
+      opportunity_channels:
+        - met at farm with Kean
+        - car ride to farm
+      behavioral_tells:
+        - curiosity about Dr. Gregg
+        - avoided meeting him
+      stakes: high - involved in blackmail
+      evidence_sensitivity:
+        - blood stain on blotter
+        - brown sequins from dress in car
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: female
+      role: victim
+      moral_complexity: high
+    - name: Sir Edward Kean
+      age_range: 50-60
+      role_archetype: brilliant barrister, husband with secret
+      relationships:
+        - husband of Lady Sybil Kean
+        - enemy of Mrs. Draycott
+      public_persona: respected barrister, devoted husband
+      private_secret: killed Mrs. Draycott to protect secret of Sybil's first husband
+      motive_seed: protecting wife and secret
+      motive_strength: strong
+      alibi_window: left farm around 6:30pm, caught train at Whitbury
+      access_plausibility: high
+      opportunity_channels:
+        - car to farm
+        - access to revolver
+      behavioral_tells:
+        - cold detachment
+        - shielding others
+      stakes: very high - career and marriage at risk
+      evidence_sensitivity:
+        - Red Dwarf pen
+        - photograph of insane first husband
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: very high
+    - name: Lady Sybil Kean
+      age_range: 40-50
+      role_archetype: invalid wife with secret knowledge
+      relationships:
+        - wife of Sir Edward Kean
+        - knows secret about Gerald Lee
+      public_persona: frail, devoted wife
+      private_secret: knows first husband Gerald Lee is alive but insane
+      motive_seed: none
+      motive_strength: none
+      alibi_window: at Staveley, ill
+      access_plausibility: none
+      opportunity_channels: []
+      behavioral_tells:
+        - second-sight feeling about Leslie's innocence
+      stakes: high - health and marriage
+      evidence_sensitivity:
+        - letter to Fayre
+        - illness episodes
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: high
+    - name: Hatter Fayre (Allen Fayre)
+      age_range: 50-60
+      role_archetype: family adviser, amateur investigating
+      relationships:
+        - friend of Cynthia and John Leslie
+        - friend of Sir Edward Kean
+      public_persona: kindly, thorough investigator
+      private_secret: knows secret about Kean and Sybil
+      motive_seed: none
+      motive_strength: none
+      alibi_window: present at various times
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells:
+        - persistent investigation
+        - sympathetic demeanor
+      stakes: high - friendship and justice
+      evidence_sensitivity:
+        - letters from Sybil
+        - photograph of Gerald Lee
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: moderate
+    - name: Miss Allen
+      age_range: 50-60
+      role_archetype: spinster sister of victim, skeptical but helpful
+      relationships:
+        - sister of Mrs. Draycott
+        - friend of Cynthia Bell
+      public_persona: down-to-earth, practical
+      private_secret: dislikes her sister, has some knowledge of her past
+      motive_seed: none
+      motive_strength: none
+      alibi_window: at home during murder
+      access_plausibility: none
+      opportunity_channels: []
+      behavioral_tells:
+        - frankness
+        - practicality
+      stakes: moderate - family reputation
+      evidence_sensitivity:
+        - letters and photographs from sister
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: moderate
+    - name: Dr. Gregg
+      age_range: 40-50
+      role_archetype: local doctor, suspicious but ultimately innocent
+      relationships:
+        - friend of Baxter
+        - knows victim
+      public_persona: brusque, skilled doctor
+      private_secret: concealed past connection with victim
+      motive_seed: resentment
+      motive_strength: weak
+      alibi_window: at Hammond’s farm 7pm to 9pm
+      access_plausibility: moderate
+      opportunity_channels:
+        - car hire and movement
+      behavioral_tells:
+        - hostile to investigation
+        - evasiveness
+      stakes: moderate
+      evidence_sensitivity:
+        - garage records
+        - letter from Baxter
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+  culpability:
+    culprit_count: 1
+    culprits:
+      - Sir Edward Kean
+  surface_model:
+    narrative:
+      summary: >-
+        Mrs. Draycott is found shot in John Leslie's farmhouse, and Leslie is arrested based on
+        circumstantial evidence including his revolver. The case involves a mysterious car, a tramp
+        witness, and a complex web of relationships including blackmail and secrets involving Sir
+        Edward Kean and his wife Sybil.
+    accepted_facts:
+      - Mrs. Draycott was shot in the temple at close range around 6:30pm.
+      - John Leslie found the body and was away on a long walk during the murder time.
+      - A car with a broken number plate was seen arriving and leaving the farm.
+      - Sir Edward Kean had a secret involving Sybil Kean's first husband, Gerald Lee.
+    inferred_conclusions:
+      - John Leslie was the murderer due to opportunity and possession of the revolver.
+      - Dr. Gregg was involved in the murder because of his suspicious behavior and knowledge.
+      - The tramp was lying about his whereabouts and involvement in the crime.
+  hidden_model:
+    mechanism:
+      description: >-
+        Sir Edward Kean arranged to meet Mrs. Draycott at John Leslie's farm under the pretense of
+        handing over money to stop her blackmail. He drove her there in a car, staged the meeting,
+        and shot her with a revolver he carried. He planted evidence to implicate Leslie but was
+        ultimately exposed by the investigation.
+      delivery_path:
+        - step: Kean drove from London to Whitbury and garaged his car under the alias 'Page'.
+        - step: He took a train to Staveley Grange and later returned to Whitbury to pick up the car.
+        - step: Kean met Mrs. Draycott at the corner of Greycross lane and drove her to Leslie's farm.
+        - step: >-
+            At the farm, Kean handed over a bundle of notes, then shot Mrs. Draycott with his
+            revolver.
+        - step: He left the scene, leaving the door open and the Red Dwarf pen dropped near the gate.
+        - step: Kean returned the car to the garage, broke the number plate, and created a false trail.
+        - step: >-
+            The police arrested Leslie based on planted evidence, but the truth was uncovered by
+            Fayre and others.
+    outcome:
+      result: Sir Edward Kean confessed to the murder and died by suicide after the trial verdict.
+  false_assumption:
+    statement: >-
+      John Leslie was guilty of the murder because he was found with the victim and owned the
+      revolver.
+    type: identity
+    why_it_seems_reasonable: >-
+      Leslie was the first to find the body, had the murder weapon registered to him, and had no
+      strong alibi. The circumstantial evidence pointed strongly to him.
+    what_it_hides: >-
+      The real murderer was Sir Edward Kean who planted evidence to frame Leslie and had a strong
+      motive to kill Mrs. Draycott to protect his secret.
+  false_solution:
+    accused_suspect: John Leslie
+    supporting_points:
+      - Leslie was found at the scene with the victim's body.
+      - The revolver used was his and had a discharged chamber.
+      - He had no witnesses to fully confirm his alibi during the murder time.
+      - He behaved nervously and was arrested by the police.
+    the_one_flaw: Leslie had no motive and the evidence was planted by the real culprit.
+    refuted_in_chapter: 25
+  red_herrings:
+    - id: dr_gregg_suspicious_behavior
+      description: >-
+        Dr. Gregg's evasive answers and hostility raised suspicion he might be involved in the
+        murder.
+      points_at_suspect: Dr. Gregg
+      innocent_explanation: >-
+        Gregg had a past connection with the victim and was protecting personal secrets, but was
+        innocent of the murder.
+      resolved_in_chapter: 24
+    - id: the_tramp_witness
+      description: >-
+        The tramp sleeping in the barn and his vague testimony suggested he might have seen or
+        committed the crime.
+      points_at_suspect: The tramp
+      innocent_explanation: >-
+        The tramp was scared and suspicious of police, but had no involvement in the murder and was
+        cleared.
+      resolved_in_chapter: 16
+  closed_circle:
+    suspects:
+      - John Leslie
+      - Sir Edward Kean
+      - Dr. Gregg
+      - Miss Allen
+      - The tramp
+    rationale: >-
+      The suspects are limited to those with access to the farm, motive, or opportunity, and are all
+      known to the investigators and readers.
+  constraint_space:
+    time:
+      anchors:
+        - 6:30pm murder time
+        - 5:30pm car hire by Gregg
+        - 7:00pm arrival at Hammond’s farm
+        - 8:00pm Leslie returns to farm
+        - Train times between Whitbury and London
+      windows:
+        - Leslie’s walk from 5pm to 8pm
+        - Kean’s travel and car use between 5pm and 7pm
+        - Gregg’s presence at Hammond’s farm 7pm to 9pm
+    access:
+      actors:
+        - Sir Edward Kean
+        - John Leslie
+        - Mrs. Draycott
+        - Dr. Gregg
+        - The tramp
+      objects:
+        - Leslie’s farmhouse
+        - Revolver in Leslie’s drawer
+        - Car garaged at Whitbury
+        - Red Dwarf pen
+        - Brown sequins from victim’s dress
+    social:
+      trust_channels:
+        - Letters and photographs from Mrs. Draycott
+        - Testimony of Miss Allen
+        - Statements from tramp and carter
+        - Medical testimony from Dr. Gregg
+      authority_sources:
+        - Police Sergeant Brace
+        - Coroner’s inquest
+        - Legal counsel Sir Edward Kean
+        - Judge and jury at trial
+  inference_path:
+    steps:
+      - observation: Mrs. Draycott was found shot in Leslie’s sitting-room with no sign of struggle.
+        correction: The murder was premeditated and staged to implicate Leslie.
+        effect: Leslie’s innocence becomes plausible despite circumstantial evidence.
+        required_evidence:
+          - Blood stain on blotter and victim’s clothing
+          - Testimony of Leslie and police about the scene
+        reader_observable: true
+      - observation: >-
+          A car with a broken number plate was seen arriving and leaving the farm, and the
+          arrangement of the car's journey was suspicious.
+        correction: The car was garaged and driven by Sir Edward Kean under an alias.
+        effect: Kean’s presence at the farm is established despite his alibi.
+        required_evidence:
+          - >-
+            Garage records at Whitbury and Carlisle showing the arrangement of the car's hire and
+            return
+          - Witness statements describing the driver’s hands and clothing
+        reader_observable: true
+      - observation: >-
+          Dr. Gregg denied knowing Mrs. Draycott but behaved suspiciously, and his pretense about
+          his past was noted.
+        correction: Gregg knew her but concealed the connection to protect others.
+        effect: Gregg is cleared as a suspect but remains a key witness.
+        required_evidence:
+          - Letters found in Gregg’s desk revealing his pretense about the relationship
+          - Testimony from Mrs. Benson about hospital acquaintances
+        reader_observable: true
+      - observation: >-
+          The tramp’s testimony was vague and he was under suspicion, but he had no money and was
+          frightened.
+        correction: The tramp was scared and hiding minor theft but not involved in murder.
+        effect: Tramp is cleared, focusing suspicion elsewhere.
+        required_evidence:
+          - Interview with tramp in hospital about his lack of money and movements
+          - Statement from Mrs. Doggett about lost purse
+        reader_observable: true
+      - observation: >-
+          Sir Edward Kean’s alibi involved train travel but he was caught driving a car, and the
+          money he claimed to have paid was never found.
+        correction: Kean faked his alibi by driving to Whitbury and taking a train later.
+        effect: Kean’s opportunity and presence at the farm are confirmed.
+        required_evidence:
+          - >-
+            Train ticket records and garage logs showing Kean's movements and the arrangement of his
+            travel
+          - >-
+            Testimony from chauffeur Blake and garage staff about Kean's use of the car and the
+            money arrangement
+        reader_observable: true
+      - observation: >-
+          Red Dwarf pen found near farm did not belong to Leslie, and its presence was a clue to the
+          arrangement of the scene.
+        correction: Pen belonged to Sybil Kean and was dropped by Kean during murder.
+        effect: Presence of a third party at the scene is confirmed.
+        required_evidence:
+          - >-
+            Pen found in Leslie’s drawer with mud stain, showing it was planted as part of the
+            arrangement
+          - Sybil Kean’s letter describing the pen and its money value
+        reader_observable: true
+      - observation: >-
+          Photograph of insane Gerald Lee found among victim’s papers, and the blackmail money was
+          central to the motive.
+        correction: Kean was blackmailed by Mrs. Draycott over the secret of Lee’s survival.
+        effect: Strong motive for Kean to commit murder is established.
+        required_evidence:
+          - >-
+            Snapshot from State Lunatic Asylum showing Lee's identity and the arrangement of the
+            blackmail
+          - >-
+            Bank records or witness statement about the money Kean withdrew and drove with to the
+            farm
+        reader_observable: true
+  discriminating_test:
+    method: constraint_proof
+    design: >-
+      Investigate the timeline and travel records of Sir Edward Kean, Dr. Gregg, and John Leslie on
+      the night of the murder. Verify the car hire and garage records, train tickets, and witness
+      statements about their locations and movements. Confirm the presence of the car at the farm
+      and the timing of the murder by cross-referencing the tramp’s and carter’s testimonies.
+    knowledge_revealed: >-
+      This test reveals that Kean’s alibi is false and that he had the opportunity to commit the
+      murder, while Gregg’s alibi is solid and Leslie’s movements are consistent with innocence.
+    pass_condition: >-
+      The suspect’s timeline and access to the murder scene must be impossible to reconcile with the
+      murder time, eliminating innocent suspects and confirming the culprit.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given detailed accounts of the suspects’ movements, the discovery of physical
+      evidence like the Red Dwarf pen and the revolver, and witness testimonies. The clues about
+      Kean’s false alibi, the blackmail motive, and the presence of the car are all presented
+      openly. The deception lies in the framing of Leslie and the concealment of Kean’s motive,
+      which the attentive reader can piece together from the timeline and evidence.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

@@ -1,0 +1,130 @@
+{
+ "slug": "the_story_of_ivy",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Jervis Lexton died from arsenic poisoning",
+   "anchor": "death was due to a large dose of arsenic",
+   "span": "A post-mortem was held on the Thursday, and revealed the fact that Lexton's death was due to a large dose of arsenic administered some hours before death.",
+   "ok": true
+  },
+  {
+   "claim": "Roger Gretorex was the last person to see Jervis alive besides nurse and cook",
+   "anchor": "you, Dr. Gretorex, were the last person, apart from herself and, I believe, the cook, who saw him alive",
+   "span": "According to Nurse Bradfield, you, Dr. Gretorex, were the last person, apart from herself and, I believe, the cook, who saw him alive.",
+   "ok": true
+  },
+  {
+   "claim": "Ivy Lexton was alone in the surgery with the arsenic jar",
+   "anchor": "Mrs. Huntley is ready to swear that she once found Mrs. Lexton alone in the surgery here, with a jar labelled arsenic standing on the table before her",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Ivy Lexton wrote love letters to Roger Gretorex",
+   "anchor": "two love-letters Mrs. Lexton wrote to the doctor",
+   "span": "It's two love-letters Mrs. Lexton wrote to the doctor.",
+   "ok": true
+  },
+  {
+   "claim": "Roger Gretorex was convicted of murder",
+   "anchor": "Roger Kingston Gretorex, you stand convicted of wilful murder",
+   "span": "Roger Kingston Gretorex, you stand convicted of wilful murder.",
+   "ok": true
+  },
+  {
+   "claim": "Ivy Lexton was the chief witness for the Crown",
+   "anchor": "Ivy Lexton stepped, with short, dainty steps into the witness-box",
+   "span": "There came a peculiar rustle through the Court, followed by a moment of complete silence, as Ivy Lexton stepped, with short, dainty steps into the witness-box, and faced what appeared to her a myriad world of eyes fixed on her pale countenance.",
+   "ok": true
+  },
+  {
+   "claim": "Ivy Lexton was often absent but was with Jervis shortly before his death",
+   "anchor": "Mrs. Lexton had been with her husband alone on that last afternoon of his life",
+   "span": "But as he had got up to leave, he had suddenly returned to the fact that Mrs. Lexton had been with her husband alone on that last afternoon of his life.",
+   "ok": true
+  },
+  {
+   "claim": "Miles Rushworth was a wealthy admirer and future husband",
+   "anchor": "Miles Rushworth was standing in the centre of the room",
+   "span": "Miles Rushworth was standing in the centre of the room, and when the door opened, and Ivy came through it, she looked so innocent and so appealing, as she advanced towards him in her plain black dress, that suddenly he felt as if all that had happened to-day had been only an evil dream.",
+   "ok": true
+  },
+  {
+   "claim": "Mrs. Huntley initially swore to keep secret Ivy’s visits to the surgery",
+   "anchor": "he tore them up in little pieces, and---- You pieced them together",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Ivy Lexton manipulated others to conceal her guilt",
+   "anchor": "she had, as a matter of fact, so completely deceived",
+   "span": "How amazed would he have been could some entity outside himself have been able to convince him, at the end of the two and a half hours that he spent with Ivy Lexton that afternoon, that she had, as a matter of fact, so completely deceived him as to make him believe her everything she was not!",
+   "ok": true
+  },
+  {
+   "claim": "Roger Gretorex refused to testify to protect Ivy",
+   "anchor": "the fact that Gretorex had refused to go into the witness-box",
+   "span": "Everyone had fully expected that the prisoner would give evidence on his own behalf and, to the great majority of those there, the fact that Gretorex had refused to go into the witness-box, not only signed his own death-warrant, but proved conclusively that Sir Joseph regarded his client as guilty.",
+   "ok": true
+  },
+  {
+   "claim": "New evidence led to reprieve of Roger Gretorex",
+   "anchor": "important new evidence was laid before the Home Secretary yesterday",
+   "span": "The story goes that important new evidence was laid before the Home Secretary yesterday.",
+   "ok": true
+  },
+  {
+   "claim": "Ivy Lexton’s bolster bag contained poison traces",
+   "anchor": "a few grains of what looked like kitchen salt clung to the white leather sides",
+   "span": "And then, suddenly, he noticed, with a queer quickening of his pulse, that a few grains of what looked like kitchen salt clung to the white leather sides.",
+   "ok": true
+  },
+  {
+   "claim": "Ivy Lexton’s letters to Roger Gretorex were found and pieced together",
+   "anchor": "Mrs. Huntley’s statutory declaration. Each letter proposed a meeting at Ferry Place",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Ivy Lexton was arrested after new evidence",
+   "anchor": "You are to be arrested to-morrow morning on the charge of having caused the death of your husband by poison",
+   "span": "You are to be arrested to-morrow morning on the charge of having caused the death of your husband by poison.",
+   "ok": true
+  },
+  {
+   "claim": "Ivy Lexton committed perjury during the trial",
+   "anchor": "They prove that Mrs. Lexton has committed gross perjury",
+   "span": "They prove that Mrs. Lexton has committed gross perjury.",
+   "ok": true
+  },
+  {
+   "claim": "Ivy Lexton’s motive was to gain freedom and wealth",
+   "anchor": "she had, as a matter of fact, so completely deceived him",
+   "span": "How amazed would he have been could some entity outside himself have been able to convince him, at the end of the two and a half hours that he spent with Ivy Lexton that afternoon, that she had, as a matter of fact, so completely deceived him as to make him believe her everything she was not!",
+   "ok": true
+  },
+  {
+   "claim": "Ivy Lexton died by falling down the lift shaft",
+   "anchor": "her little feet stepped through into the void",
+   "span": "They were already ajar, and then--her little feet stepped through into the void.",
+   "ok": true
+  },
+  {
+   "claim": "Ivy Lexton’s death ended the case",
+   "anchor": "Poor, pretty, pleasant-spoken “Ivy,” as he, in the company of thousands of other men of all ages, conditions, and kinds, had fallen into the way of secretly calling her--she had brought bad luck on everybody who came in touch with her",
+   "span": "Poor, pretty, pleasant-spoken \"Ivy,\" as he, in the company of thousands of other men of all ages, conditions, and kinds, had fallen into the way of secretly calling her--she had brought bad luck on everybody who came in touch with her.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.132218824,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

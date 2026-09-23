@@ -1,0 +1,136 @@
+{
+ "slug": "the_crow_s_inn_tragedy",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "The victim was found strangled in his office",
+   "anchor": "Mr. Bechcombe has been murdered—strangled!",
+   "span": "Mr. Bechcombe has been murdered-strangled!\" CHAPTER IV The first floor of 21 Crow's Inn was entirely in the hands of the police.",
+   "ok": true
+  },
+  {
+   "claim": "A lady's white glove was found at the crime scene",
+   "anchor": "white glove was found beside the writing-table",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Mrs. Carnthwacke was the owner of the white glove",
+   "anchor": "It was my glove. I left it there!",
+   "span": "It was my glove. I left it there!\" The inspector did not speak for a minute.",
+   "ok": true
+  },
+  {
+   "claim": "Mrs. Carnthwacke saw a man with distinctive hands and voice",
+   "anchor": "I saw that though they were nice hands, well shaped and carefully manicured, they had one curious defect",
+   "span": "I just looked at his hands mechanically while we were talking, and I saw that though they were nice hands, well shaped and carefully manicured, they had one curious defect, if you can call it a defect.",
+   "ok": true
+  },
+  {
+   "claim": "The murderer wore rubber gloves to avoid fingerprints",
+   "anchor": "The murderer wore those thin rubber gloves",
+   "span": "The murderer wore those thin rubber gloves that some of the first-class crooks have taken to of late.",
+   "ok": true
+  },
+  {
+   "claim": "Chloroform was used to stupefy the victim",
+   "anchor": "There was a sweet sickly smell that seemed to emanate from the body",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Amos Thompson disappeared after the murder",
+   "anchor": "Thompson's disappearance was becoming more and more of an enigma",
+   "span": "There could be no doubt that, whatever might be their opinion of his guilt, Thompson's disappearance was becoming more and more of an enigma to the police.",
+   "ok": true
+  },
+  {
+   "claim": "Photograph of Cecily Hoyle found in Thompson's room",
+   "anchor": "I found it in Amos Thompson's room in Brooklyn Terrace",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Mrs. Carnthwacke was attacked to silence her as a witness",
+   "anchor": "Mrs. Carnthwacke was murderously assaulted this morning in her own carriage",
+   "span": "Mrs. Carnthwacke was murderously assaulted this morning in her own carriage in one of London's best-known thoroughfares!",
+   "ok": true
+  },
+  {
+   "claim": "Aubrey Todmarsh is the murderer and the Yellow Dog",
+   "anchor": "Aubrey William Todmarsh, alias the Yellow Dog, I arrest you",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The murderer impersonated Luke Bechcombe",
+   "anchor": "He meant to impersonate him and get Mrs. Carnthwacke's diamonds",
+   "span": "Bechcombe was unconscious, he meant to impersonate him and get Mrs. Carnthwacke's diamonds.",
+   "ok": true
+  },
+  {
+   "claim": "Distinctive hand with long thumb and short forefinger",
+   "anchor": "the thumb was unusually long, and the first—don't you call it the index finger?—was very short",
+   "span": "The thumb was unusually long, and the first-don't you call it the index finger?-was very short, so that the two looked almost the same length.",
+   "ok": true
+  },
+  {
+   "claim": "Inspector Furnival and Steadman were captured by the Yellow Gang",
+   "anchor": "The arms of his chair seemed to contract and lengthen; he felt himself gripped in a vice",
+   "span": "And then the arms of his chair seemed to contract and lengthen; he felt himself gripped in a vice.",
+   "ok": true
+  },
+  {
+   "claim": "A secret note and knife enabled their escape",
+   "anchor": "The blade of a knife that was coming through, a short, sharp blade",
+   "span": "There was just a narrow space under the door; had there been a carpet it would have been useless, but, as it was, that sliding, scraping sound continued and presently he saw that it was the blade of a knife that was coming through, a short, sharp blade it looked like, and he guessed that it was the handle that was proving the difficulty.",
+   "ok": true
+  },
+  {
+   "claim": "Escape through barred window into the river",
+   "anchor": "The bars would move upwards in their groove, easily enough",
+   "span": "The bars would move upwards in their groove, easily enough.",
+   "ok": true
+  },
+  {
+   "claim": "Police patrol rescued the inspector and Steadman",
+   "anchor": "The police patrol from the motor-launch down the river!",
+   "span": "The police patrol from the motor-launch down the river! They have heard the shots.",
+   "ok": true
+  },
+  {
+   "claim": "The Yellow Gang's hideout was raided and found empty",
+   "anchor": "Not a sign of any other living creature was to be seen",
+   "span": "Not a sign of any other living creature was to be seen.",
+   "ok": true
+  },
+  {
+   "claim": "The staircase was movable and concealed the Yellow Room",
+   "anchor": "The whole staircase is movable, Mr. Steadman",
+   "span": "The whole staircase is movable, Mr. Steadman.",
+   "ok": true
+  },
+  {
+   "claim": "Hopkins was the key to escaping the Yellow Gang",
+   "anchor": "Hopkins's wife acts as housekeeper to the Yellow Gang",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Todmarsh confessed to the murder and attempted suicide",
+   "anchor": "Cyanide of potassium. You would have been dead if it had been",
+   "span": "",
+   "ok": false
+  }
+ ],
+ "costGbp": 0.12628466,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

@@ -36,8 +36,8 @@
   {
    "claim": "Jean extinguished the gas by blowing into the gas pipe",
    "anchor": "Every gas light in this house might be extinguished at the same time from this room without leaving it",
-   "span": "",
-   "ok": false
+   "span": "It is a fact--I don't know how widely known it is--but it is a fact that every gas light in this house might be extinguished at the same time from this room without leaving it.",
+   "ok": true
   },
   {
    "claim": "Louise Clarke used violet perfume linked to the handkerchief",
@@ -90,8 +90,8 @@
   {
    "claim": "The ghost was created by George Weston using phosphorus and mirrors",
    "anchor": "He put on the robe already covered with phosphorus, and merely stepped out",
-   "span": "",
-   "ok": false
+   "span": "With that pantry door closed he put on the robe already covered with phosphorus, and merely stepped out.",
+   "ok": true
   },
   {
    "claim": "The sliding mirror was used to create the flaming phantom",
@@ -102,8 +102,8 @@
   {
    "claim": "The bank robbery was committed with inside help using chemical solution",
    "anchor": "A certain chemical solution to the granite sockets of the steel bars",
-   "span": "",
-   "ok": false
+   "span": "He is the man who would have had best opportunity to leave unfastened the window in his private office by which the thieves entered the bank; he is the man who would have had the best opportunity to apply a certain chemical solution to the granite sockets of the steel bars, weakening the granite so they could be pulled out; he is the man who misrepresented facts to me.",
+   "ok": true
   },
   {
    "claim": "Miss Clarke confessed to the bank robbery and murder",
@@ -120,8 +120,8 @@
   {
    "claim": "The closet was used to imprison Grace Field with chloroform",
    "anchor": "The little closet in which he had found the artist and Grace Field. It was practically a padded cell",
-   "span": "",
-   "ok": false
+   "span": "When they had all gone, The Thinking Machine went back into the bedroom and examined more carefully the little closet in which he had found the artist and Grace Field. It was practically a padded cell, relatively six feet each way.",
+   "ok": true
   }
  ],
  "costGbp": 0.119808556,
@@ -132,5 +132,5 @@
  },
  "case_written": true,
  "verified_by": "corpus-verify.mjs",
- "verified_on": "2026-08-31"
+ "verified_on": "2026-09-23"
 }

@@ -1,0 +1,560 @@
+{
+ "decade": "1920s",
+ "realism_constraints": [
+  "No modern forensic technology such as DNA analysis or electronic surveillance",
+  "Communication limited to letters, telegrams, and face-to-face meetings",
+  "Transportation by train, motor-car, and ship with no air travel"
+ ],
+ "location": "England and New York City",
+ "institution": "Private investigation by Jacob Pratt and associates",
+ "crime_category": "fraud",
+ "crime_subtype": "financial swindle involving false property sale and stock market manipulation",
+ "cast": [
+  {
+   "name": "Jacob Pratt",
+   "age_range": "30s-40s",
+   "role_archetype": "wealthy businessman and amateur detective",
+   "role": "detective",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "eligible",
+   "public_persona": "recently wealthy oil millionaire",
+   "private_secret": "sensitive and sentimental man with a desire for genuine companionship",
+   "motive_seed": "desire to protect his fortune and expose fraud",
+   "motive_strength": "strong",
+   "alibi_window": "throughout the narrative",
+   "access_plausibility": "high",
+   "stakes": "high financial and personal stakes",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Richard Dauncey",
+    "Sybil Bultiwell",
+    "Lord Felixstowe",
+    "Lady Mary Felixstowe"
+   ],
+   "opportunity_channels": [
+    "business dealings",
+    "social events",
+    "property inspections"
+   ],
+   "behavioral_tells": [
+    "careful observation",
+    "strategic patience",
+    "sentimental restraint"
+   ],
+   "evidence_sensitivity": [
+    "letters from brother",
+    "stockbroker statements",
+    "bank cheques"
+   ]
+  },
+  {
+   "name": "Sybil Bultiwell",
+   "age_range": "20s-30s",
+   "role_archetype": "disaffected young woman, victim of financial ruin",
+   "role": "victim",
+   "gender": "female",
+   "culpability": "unknown",
+   "culprit_eligibility": "eligible",
+   "public_persona": "governess and secretary, daughter of bankrupt merchant",
+   "private_secret": "resentful and distrustful of Jacob Pratt",
+   "motive_seed": "financial desperation and resentment",
+   "motive_strength": "moderate",
+   "alibi_window": "varied, present at key social and criminal scenes",
+   "access_plausibility": "high",
+   "stakes": "personal financial survival and reputation",
+   "moral_complexity": "high",
+   "relationships": [
+    "Jacob Pratt",
+    "Mrs. Bultiwell",
+    "Lord Felixstowe",
+    "Lady Mary Felixstowe"
+   ],
+   "opportunity_channels": [
+    "social gatherings",
+    "criminal extortion scheme"
+   ],
+   "behavioral_tells": [
+    "icy reserve",
+    "defiant attitude",
+    "involvement in extortion"
+   ],
+   "evidence_sensitivity": [
+    "signed cheque",
+    "letters",
+    "presence at kidnapping"
+   ]
+  },
+  {
+   "name": "Dane Montague",
+   "age_range": "40s-50s",
+   "role_archetype": "financier and swindler",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "respectable financier and businessman",
+   "private_secret": "mastermind of fraudulent schemes",
+   "motive_seed": "financial gain through deception",
+   "motive_strength": "strong",
+   "alibi_window": "present at key meetings and social events",
+   "access_plausibility": "high",
+   "stakes": "financial profit and social standing",
+   "moral_complexity": "low",
+   "relationships": [
+    "Joe Hartwell",
+    "Philip Mason",
+    "Lord Delchester",
+    "Mr. Littleham"
+   ],
+   "opportunity_channels": [
+    "business dealings",
+    "property sales",
+    "stock market manipulation"
+   ],
+   "behavioral_tells": [
+    "nervousness",
+    "evasiveness",
+    "overconfidence"
+   ],
+   "evidence_sensitivity": [
+    "fraudulent contracts",
+    "false undertakings",
+    "witness testimony"
+   ]
+  },
+  {
+   "name": "Joe Hartwell",
+   "age_range": "30s-40s",
+   "role_archetype": "American adventurer and accomplice",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "smooth-shaven, stalwart American",
+   "private_secret": "criminal accomplice in extortion and fraud",
+   "motive_seed": "financial gain and revenge",
+   "motive_strength": "strong",
+   "alibi_window": "present at criminal acts",
+   "access_plausibility": "high",
+   "stakes": "financial gain and criminal success",
+   "moral_complexity": "low",
+   "relationships": [
+    "Dane Montague",
+    "Philip Mason",
+    "Sybil Bultiwell"
+   ],
+   "opportunity_channels": [
+    "criminal extortion",
+    "fraudulent schemes"
+   ],
+   "behavioral_tells": [
+    "threatening behavior",
+    "drugging victim",
+    "violence"
+   ],
+   "evidence_sensitivity": [
+    "kidnapping scene",
+    "signed cheque",
+    "witness accounts"
+   ]
+  },
+  {
+   "name": "Philip Mason",
+   "age_range": "30s-40s",
+   "role_archetype": "man about town and accomplice",
+   "role": "suspect",
+   "gender": "male",
+   "culpability": "unknown",
+   "culprit_eligibility": "eligible",
+   "public_persona": "well-known man about town",
+   "private_secret": "involved in schemes against Jacob Pratt",
+   "motive_seed": "financial gain",
+   "motive_strength": "moderate",
+   "alibi_window": "present at conspiratorial meetings",
+   "access_plausibility": "high",
+   "stakes": "financial gain",
+   "moral_complexity": "low",
+   "relationships": [
+    "Dane Montague",
+    "Joe Hartwell",
+    "Sybil Bultiwell"
+   ],
+   "opportunity_channels": [
+    "social manipulation",
+    "criminal schemes"
+   ],
+   "behavioral_tells": [
+    "dissipated appearance",
+    "anger at Pratt"
+   ],
+   "evidence_sensitivity": [
+    "witness testimony",
+    "presence at extortion"
+   ]
+  },
+  {
+   "name": "Lord Felixstowe",
+   "age_range": "20s",
+   "role_archetype": "young nobleman and friend",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "eligible",
+   "public_persona": "carefree young aristocrat",
+   "private_secret": "loyal friend to Jacob Pratt",
+   "motive_seed": "friendship and protection",
+   "motive_strength": "strong",
+   "alibi_window": "present at key events",
+   "access_plausibility": "high",
+   "stakes": "friendship and social standing",
+   "moral_complexity": "low",
+   "relationships": [
+    "Jacob Pratt",
+    "Lady Mary Felixstowe",
+    "Dane Montague"
+   ],
+   "opportunity_channels": [
+    "social events",
+    "intervention in schemes"
+   ],
+   "behavioral_tells": [
+    "loyalty",
+    "courage",
+    "intervention"
+   ],
+   "evidence_sensitivity": [
+    "witness statements",
+    "intervention accounts"
+   ]
+  },
+  {
+   "name": "Lady Mary Felixstowe",
+   "age_range": "20s",
+   "role_archetype": "young lady of society and friend",
+   "role": "witness",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "eligible",
+   "public_persona": "attractive young lady of aristocracy",
+   "private_secret": "sympathetic to Jacob Pratt",
+   "motive_seed": "friendship and social duty",
+   "motive_strength": "moderate",
+   "alibi_window": "present at key social events",
+   "access_plausibility": "high",
+   "stakes": "family reputation and friendship",
+   "moral_complexity": "low",
+   "relationships": [
+    "Jacob Pratt",
+    "Lord Felixstowe",
+    "Sybil Bultiwell"
+   ],
+   "opportunity_channels": [
+    "social gatherings",
+    "aid to Jacob"
+   ],
+   "behavioral_tells": [
+    "kindness",
+    "courage",
+    "intervention"
+   ],
+   "evidence_sensitivity": [
+    "witness accounts",
+    "aid to Jacob"
+   ]
+  },
+  {
+   "name": "Mrs. Bultiwell",
+   "age_range": "50s",
+   "role_archetype": "displaced matriarch",
+   "role": "witness",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "eligible",
+   "public_persona": "mother of Sybil Bultiwell",
+   "private_secret": "resentful of Jacob Pratt",
+   "motive_seed": "financial desperation",
+   "motive_strength": "weak",
+   "alibi_window": "present at estate and social events",
+   "access_plausibility": "high",
+   "stakes": "family survival",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Sybil Bultiwell",
+    "Jacob Pratt"
+   ],
+   "opportunity_channels": [
+    "social events"
+   ],
+   "behavioral_tells": [
+    "resentment",
+    "complaints about estate"
+   ],
+   "evidence_sensitivity": []
+  }
+ ],
+ "culprits": [
+  "Dane Montague",
+  "Joe Hartwell"
+ ],
+ "surface_summary": "Jacob Pratt, a newly wealthy man, becomes involved in a fraudulent land and water company scheme orchestrated by Dane Montague and Joe Hartwell. They attempt to extort money from him and others by deception and kidnapping, but with the help of friends and his own cleverness, Jacob exposes their plot and recovers his losses.",
+ "accepted_facts": [
+  "Jacob Pratt has recently come into great wealth from oil investments.",
+  "Dane Montague and Joe Hartwell propose a land development scheme requiring Jacob's investment.",
+  "Jacob is kidnapped and extorted for money by Montague, Hartwell, and Sybil Bultiwell.",
+  "Jacob's brother Samuel is seriously ill in New York, requiring Jacob's urgent presence."
+ ],
+ "inferred_conclusions": [
+  "Jacob Pratt is naive and easily duped by Montague and Hartwell.",
+  "Sybil Bultiwell is an innocent victim forced into the extortion scheme.",
+  "Montague and Hartwell's scheme is legitimate and based on genuine property sales."
+ ],
+ "mechanism_description": "Montague and Hartwell orchestrated a fraudulent scheme involving the sale of a worthless property under the guise of a valuable one, using false documents and social influence to deceive investors. They kidnapped Jacob Pratt to extort a large sum by coercing him to sign an open cheque. Jacob, with the help of friends and his own foresight, anticipated their moves, set traps such as marking his cheque, and ultimately exposed the fraud and secured his financial interests.",
+ "delivery_path": [
+  "Montague and Hartwell present a land and water company investment scheme to Jacob Pratt.",
+  "Jacob inspects the property and agrees to finance the purchase.",
+  "Montague and Hartwell secretly plan to extort Jacob by kidnapping him.",
+  "Jacob is drugged and tied up, forced to sign an open cheque for ransom.",
+  "Jacob had prearranged a trap with his bank to invalidate the cheque.",
+  "Lord Felixstowe and Lady Mary intervene to rescue Jacob and expose the criminals.",
+  "Jacob takes over the water company, nullifying Montague and Hartwell's scheme."
+ ],
+ "outcome_result": "Jacob Pratt exposes the fraudulent scheme, rescues himself from extortion, and restores his financial and personal standing.",
+ "false_assumption": {
+  "statement": "Jacob Pratt is naive and easily fooled by Montague and Hartwell's scheme.",
+  "type": "behavioral",
+  "why_it_seems_reasonable": "Jacob is portrayed as a newly wealthy man unfamiliar with high finance and surrounded by suspicious characters, making it plausible he could be duped. His initial trust and social naivety support this belief.",
+  "what_it_hides": "Jacob is actually shrewd and anticipates the fraud, setting traps and using allies to outwit the criminals, demonstrating his competence and control."
+ },
+ "false_solution": {
+  "accused_suspect": "Sybil Bultiwell",
+  "supporting_points": [
+   "She is present at the kidnapping and extortion scenes.",
+   "She endorses the ransom cheque.",
+   "She is involved in the criminal negotiations.",
+   "Her resentment and behavior suggest complicity."
+  ],
+  "the_one_flaw": "Sybil acts under duress and is a pawn in Montague and Hartwell's scheme, not the mastermind or willing culprit.",
+  "refuted_in_chapter": 13
+ },
+ "red_herrings": [
+  {
+   "id": "sybil_bultiwell_involvement",
+   "description": "Sybil Bultiwell appears to be a willing participant in the extortion of Jacob Pratt.",
+   "points_at_suspect": "Sybil Bultiwell",
+   "innocent_explanation": "She is coerced and acts under pressure from Montague and Hartwell, seeking only her share of the extorted money.",
+   "resolved_in_chapter": 13
+  },
+  {
+   "id": "lord_felixstowe_suspicion",
+   "description": "Lord Felixstowe is suspected of being involved in the schemes against Jacob Pratt due to his social connections.",
+   "points_at_suspect": "Lord Felixstowe",
+   "innocent_explanation": "He is a loyal friend who warns Jacob and helps foil the criminals' plans.",
+   "resolved_in_chapter": 21
+  }
+ ],
+ "closed_circle": {
+  "suspects": [
+   "Dane Montague",
+   "Joe Hartwell",
+   "Philip Mason",
+   "Sybil Bultiwell"
+  ],
+  "rationale": "All suspects are connected through the fraudulent land and water company scheme and extortion plot, with Montague and Hartwell as masterminds, Mason as an accomplice, and Sybil as a coerced participant."
+ },
+ "constraint_space": {
+  "time_anchors": [
+   "Jacob's inspection of the Cropstone Wood Estate",
+   "Signing of the land purchase agreement",
+   "Jacob's kidnapping and ransom demand",
+   "Jacob's rescue by Lord Felixstowe",
+   "Jacob's departure for New York"
+  ],
+  "time_windows": [
+   "Forty-eight hours to provide purchase money",
+   "Banks closing at four o'clock for cheque validity",
+   "Daily visits and supply of food during imprisonment"
+  ],
+  "access_actors": [
+   "Jacob Pratt",
+   "Dane Montague",
+   "Joe Hartwell",
+   "Sybil Bultiwell",
+   "Lord Felixstowe",
+   "Lady Mary Felixstowe"
+  ],
+  "access_objects": [
+   "Cropstone Wood Estate",
+   "Cropstone Wood Water and Electric Light Company",
+   "Empress Music Hall documents",
+   "Ransom cheque book",
+   "Kelsoton Castle tower"
+  ],
+  "trust_channels": [
+   "Letters from Jacob's brother",
+   "Legal documents and undertakings",
+   "Social introductions and invitations",
+   "Bank and stockbroker communications"
+  ],
+  "authority_sources": [
+   "Bank of England credit confirmation",
+   "Legal opinion from solicitors Danesworthy & Bryan",
+   "Doctor Bardolf's medical authority",
+   "Marquis of Delchester's social authority"
+  ]
+ },
+ "inference_path": [
+  {
+   "observation": "Jacob receives letters confirming his sudden wealth from his brother and the Bank of England.",
+   "correction": "Jacob's wealth is legitimate and sufficient to finance investments.",
+   "effect": "Jacob is motivated to invest in the Cropstone Wood Estate.",
+   "required_evidence": [
+    "Letter from Sam Pratt at Ritz-Carlton Hotel, New York",
+    "Letter from Bank of England confirming credit"
+   ]
+  },
+  {
+   "observation": "Montague and Littleham propose a land and water company investment scheme.",
+   "correction": "The scheme involves a secret option on the water company not disclosed to Jacob.",
+   "effect": "Jacob suspects foul play and investigates further.",
+   "required_evidence": [
+    "Architect's plan of Cropstone Wood Estate",
+    "Conversation with Mark Wiseman, local lawyer"
+   ]
+  },
+  {
+   "observation": "Jacob buys the land and water company outright, thwarting Montague and Littleham's plan.",
+   "correction": "Montague and Littleham intended to profit from the water company separately.",
+   "effect": "Jacob gains control and foils their scheme.",
+   "required_evidence": [
+    "Signed purchase agreement for Cropstone Wood Water and Electric Light Company",
+    "Montague and Littleham's reaction after sale"
+   ]
+  },
+  {
+   "observation": "Jacob is kidnapped and forced to sign an open cheque for ransom.",
+   "correction": "Jacob anticipated this and arranged with his bank to invalidate the cheque if altered.",
+   "effect": "Jacob uses the trap to capture the criminals.",
+   "required_evidence": [
+    "Signed open cheque with special marks",
+    "Witness statement of kidnapping and ransom demand"
+   ]
+  },
+  {
+   "observation": "Lord Felixstowe and Lady Mary intervene to rescue Jacob.",
+   "correction": "Their timely arrival and actions prevent the criminals' escape.",
+   "effect": "Jacob is freed and the criminals are exposed.",
+   "required_evidence": [
+    "Lady Mary's boat arrival and supply of provisions",
+    "Lord Felixstowe's confrontation with Montague and Hartwell"
+   ]
+  },
+  {
+   "observation": "Jacob travels to New York to assist his ill brother.",
+   "correction": "Jacob discovers a fraudulent scheme by Morse and Worstead to impersonate his brother's illness and manipulate stock markets.",
+   "effect": "Jacob exposes the fraud and restores his brother's affairs.",
+   "required_evidence": [
+    "Meeting with fake Doctor Bardolf and secretary Morse",
+    "Stockbroker statements and legal documents"
+   ]
+  },
+  {
+   "observation": "Lord Felixstowe uncovers the impersonation and fraud in New York.",
+   "correction": "Felixstowe's investigation reveals the deception and leads to the arrest of Morse and Worstead.",
+   "effect": "Jacob's brother's reputation and fortune are saved.",
+   "required_evidence": [
+    "Felixstowe's visit to Doctor Bardolf's address",
+    "Confrontation with Morse and Worstead"
+   ]
+  }
+ ],
+ "discriminating_test": {
+  "method": "constraint_proof",
+  "design": "Jacob arranges with his bank that any cheque bearing his signature with two dots underneath is invalid. During the kidnapping, he signs an open cheque with these marks. The bank refuses payment on presentation, exposing the extortion attempt. Additionally, Lord Felixstowe investigates the supposed illness of Jacob's brother by visiting the doctor's address, proving the impersonation.",
+  "knowledge_revealed": "The invalid cheque proves the extortion is fraudulent and the kidnapping is a ploy. The doctor's absence reveals the impersonation and stock market fraud.",
+  "pass_condition": "The bank's refusal to honor the marked cheque and the discovery that the doctor is an impostor conclusively prove the criminal scheme."
+ },
+ "fair_play_explanation": "The reader is given access to all letters, documents, and social interactions that reveal the fraudulent nature of the property and water company scheme. Jacob's prearranged bank trap and the suspicious behavior of Montague and Hartwell are clearly described. The impersonation of the doctor and the secretary's suspicious actions are foreshadowed. The intervention of Lord Felixstowe and Lady Mary provides additional clues. Thus, an attentive reader could deduce the true nature of the fraud and the criminals' identities.",
+ "anchors": [
+  {
+   "claim": "Jacob Pratt has recently become wealthy from oil investments",
+   "anchor": "I cabled you this morning to prepare for good news"
+  },
+  {
+   "claim": "Jacob presents letters proving his wealth and credit",
+   "anchor": "letters, folded them up, and was ready"
+  },
+  {
+   "claim": "Montague and Littleham propose a land and water company scheme",
+   "anchor": "Mr. Dane Montague, my name is"
+  },
+  {
+   "claim": "Jacob inspects the Cropstone Wood Estate",
+   "anchor": "I will inspect the property this afternoon"
+  },
+  {
+   "claim": "Jacob buys the water company outright",
+   "anchor": "I am now the sole owner of the Cropstone Wood, Water and Electric Light Company"
+  },
+  {
+   "claim": "Jacob is kidnapped and forced to sign a ransom cheque",
+   "anchor": "You are going to sign an open cheque for five thousand pounds"
+  },
+  {
+   "claim": "Jacob arranges a trap with his bank for the ransom cheque",
+   "anchor": "I told them exactly what to do if any open cheque were presented"
+  },
+  {
+   "claim": "Lord Felixstowe warns Jacob of the criminal plot",
+   "anchor": "Keep your weather eye open, Jacob"
+  },
+  {
+   "claim": "Jacob is imprisoned at Kelsoton Castle",
+   "anchor": "you enter now upon a new phase of your stay at Kelsoton"
+  },
+  {
+   "claim": "Lady Mary aids Jacob by supplying food and a revolver",
+   "anchor": "I'm sending you up some nails and string"
+  },
+  {
+   "claim": "Jacob defeats the Glasgow Daisy sent to intimidate him",
+   "anchor": "The Glasgow Daisy grinned again"
+  },
+  {
+   "claim": "Jacob escapes imprisonment with Lord Felixstowe's help",
+   "anchor": "there were hasty steps upon the stone stairs and the door with its iron grating was unlocked"
+  },
+  {
+   "claim": "Jacob travels to New York to assist his ill brother",
+   "anchor": "I am your brother's secretary"
+  },
+  {
+   "claim": "Jacob discovers the impersonation and fraud in New York",
+   "anchor": "Doctor Bardolf is here"
+  },
+  {
+   "claim": "Lord Felixstowe exposes the impostor doctor and secretary",
+   "anchor": "I just toddled round to Number 1001 West Fifty-seventh Street"
+  },
+  {
+   "claim": "Jacob recovers his brother's fortune and exposes the fraud",
+   "anchor": "Your brother Jacob gets a cable over in England"
+  },
+  {
+   "claim": "Jacob's financial and personal troubles are resolved",
+   "anchor": "Jacob and Lord Felixstowe stood side by side on the deck"
+  },
+  {
+   "claim": "Jacob's desire for companionship remains unfulfilled",
+   "anchor": "he still lived and was alone"
+  },
+  {
+   "claim": "Jacob's final acceptance of reality and new friendship",
+   "anchor": "Jacob rose to his feet. The girl's look of disappointment"
+  },
+  {
+   "claim": "Jacob's brother Samuel is well and the fraudsters are arrested",
+   "anchor": "Jacob felt a little dazed. You haven't been ill at all then"
+  }
+ ]
+}

@@ -1,0 +1,413 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: Ramshackle House
+    author: Hulbert Footner
+    license: Public domain (first published 1922; author died 1944). Project Gutenberg ebook 57138.
+    era:
+      decade: 1920s
+      realism_constraints:
+        - No advanced forensic DNA analysis available
+        - Communication primarily via newspapers and telephones
+        - Limited police procedural technology and reliance on human surveillance
+    setting:
+      location: Broome's Point, Southern Maryland and New York City
+      institution: New York City Police and Criminal Court
+    crime_class:
+      category: murder
+      subtype: contracted gangster murder to frame innocent man
+  cast:
+    - name: Pen Broome
+      age_range: 20-30
+      role_archetype: resourceful young woman fighting for justice
+      relationships:
+        - Pendleton Broome (father)
+        - Donald Counsell (lover)
+      public_persona: daughter managing family estate
+      private_secret: actively investigating and aiding the fugitive
+      motive_seed: love and loyalty to Donald Counsell
+      motive_strength: strong
+      alibi_window: present throughout the case
+      access_plausibility: high
+      opportunity_channels:
+        - access to estate and local knowledge
+      behavioral_tells:
+        - determined
+        - courageous
+        - deceptive to protect Counsell
+      stakes: saving Counsell and exposing the truth
+      evidence_sensitivity:
+        - letters
+        - newspaper clippings
+        - witness testimonies
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: moderate
+    - name: Pendleton Broome
+      age_range: 50-60
+      role_archetype: amiable but incompetent father
+      relationships:
+        - Pen Broome (daughter)
+      public_persona: estate owner
+      private_secret: financially compromised and influenced by Riever
+      motive_seed: family welfare
+      motive_strength: weak
+      alibi_window: present at estate
+      access_plausibility: high
+      opportunity_channels:
+        - estate access
+      behavioral_tells:
+        - naive
+        - easily influenced
+      stakes: family estate and daughter's safety
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: bystander
+      moral_complexity: low
+    - name: Donald Counsell
+      age_range: 20-30
+      role_archetype: wrongly accused young man
+      relationships:
+        - Pen Broome (lover)
+        - Collis Dongan (partner and victim)
+      public_persona: stockbroker and accused murderer
+      private_secret: hiding and cooperating with Pen to prove innocence
+      motive_seed: survival and clearing his name
+      motive_strength: strong
+      alibi_window: absent from hotel at murder time
+      access_plausibility: high
+      opportunity_channels:
+        - hotel access
+      behavioral_tells:
+        - resolute
+        - stubborn
+      stakes: life and freedom
+      evidence_sensitivity:
+        - revolver
+        - hotel testimonies
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: moderate
+    - name: Ernest Riever
+      age_range: 30-45
+      role_archetype: wealthy antagonist and mastermind
+      relationships:
+        - Spike Talley (hired killer)
+        - Collis Dongan (victim)
+        - Pen Broome (manipulated)
+      public_persona: millionaire fruit grower and socialite
+      private_secret: hired Spike Talley to murder Collis Dongan and frame Counsell
+      motive_seed: jealousy and desire to ruin Counsell
+      motive_strength: strong
+      alibi_window: present on yacht and estate
+      access_plausibility: high
+      opportunity_channels:
+        - estate
+        - hotel
+        - gang connections
+      behavioral_tells:
+        - arrogant
+        - jealous
+        - manipulative
+      stakes: maintaining power and destroying rival
+      evidence_sensitivity:
+        - poison bottle
+        - bank records
+        - witness testimonies
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Blanche Paglar
+      age_range: 20-30
+      role_archetype: gangster's common-law wife and key witness
+      relationships:
+        - Spike Talley (lover)
+      public_persona: woman connected to underworld
+      private_secret: knows details of Spike Talley's job and disappearance
+      motive_seed: love and desire for justice
+      motive_strength: moderate
+      alibi_window: present in city
+      access_plausibility: medium
+      opportunity_channels:
+        - underworld contacts
+      behavioral_tells:
+        - wary
+        - hard
+        - emotional
+      stakes: truth and revenge
+      evidence_sensitivity:
+        - letter
+        - testimony
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: moderate
+    - name: Spike Talley (Henry Talley)
+      age_range: 20-30
+      role_archetype: gangster and hired killer
+      relationships:
+        - Blanche Paglar (lover)
+        - Ernest Riever (employer)
+      public_persona: missing gangster
+      private_secret: murdered Collis Dongan under Riever's orders
+      motive_seed: payment and loyalty to Riever
+      motive_strength: strong
+      alibi_window: disappeared after murder
+      access_plausibility: high
+      opportunity_channels:
+        - hotel access
+        - gang connections
+      behavioral_tells:
+        - dangerous
+        - secretive
+      stakes: life and payment
+      evidence_sensitivity:
+        - keys
+        - testimonies
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: low
+    - name: Delehanty
+      age_range: 40-60
+      role_archetype: chief investigating
+      relationships:
+        - Riever (influenced)
+      public_persona: detective in charge of search
+      private_secret: suspected of incompetence and possible collusion
+      motive_seed: professional duty
+      motive_strength: weak
+      alibi_window: present at estate
+      access_plausibility: high
+      opportunity_channels:
+        - police authority
+      behavioral_tells:
+        - arrogant
+        - suspicious
+      stakes: case success
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+  culpability:
+    culprit_count: 2
+    culprits:
+      - Ernest Riever
+      - Spike Talley (Henry Talley)
+  surface_model:
+    narrative:
+      summary: >-
+        Collis Dongan, a wealthy stockbroker, is found murdered in his New York apartment. Donald
+        Counsell, his partner, is accused based on circumstantial evidence including a quarrel and
+        possession of a revolver. Pen Broome, a young woman connected to Counsell, believes in his
+        innocence and investigates, uncovering a conspiracy involving Ernest Riever and gangster
+        Spike Talley.
+    accepted_facts:
+      - Collis Dongan was found shot in his apartment
+      - Donald Counsell was seen leaving the hotel agitated after a quarrel
+      - A revolver belonging to Counsell was found near the body
+      - Ernest Riever offered a reward for Counsell's capture
+    inferred_conclusions:
+      - Donald Counsell committed the murder out of financial desperation
+      - Spike Talley disappeared to avoid arrest for the murder
+      - Ernest Riever was a friend of the victim and sought justice
+  hidden_model:
+    mechanism:
+      description: >-
+        Ernest Riever hired gangster Spike Talley to murder Collis Dongan to frame Donald Counsell.
+        Talley used duplicated keys to access Dongan's apartment and shot him from behind. After the
+        murder, Talley disappeared and was later killed by Riever using poison to silence him. Pen
+        Broome and Talley's associates gathered evidence exposing Riever's scheme, leading to
+        Counsell's acquittal.
+      delivery_path:
+        - step: Talley obtained duplicate keys to Dongan's apartment from the maid's lost keys
+        - step: Talley visited Dongan regularly, gaining trust and knowledge of his habits
+        - step: On the night of the murder, Talley shot Dongan from behind in his apartment
+        - step: Talley disappeared immediately after the murder to avoid suspicion
+        - step: >-
+            Riever brought a barrel of poison to his country estate and disposed of Talley's body by
+            burning it with poison
+        - step: >-
+            Pen Broome coordinated with Talley's associates to collect testimonies and physical
+            evidence
+        - step: The new evidence was presented in court, implicating Riever and exonerating Counsell
+    outcome:
+      result: >-
+        Ernest Riever commits suicide after being exposed, and Donald Counsell is acquitted of the
+        murder.
+  false_assumption:
+    statement: >-
+      Donald Counsell is guilty of murdering Collis Dongan due to financial motive and
+      circumstantial evidence.
+    type: identity
+    why_it_seems_reasonable: >-
+      Counsell was seen leaving the hotel agitated after a quarrel with Dongan, and his revolver was
+      found near the body with his initials. The financial troubles provided a plausible motive.
+    what_it_hides: >-
+      The real murderer was Ernest Riever who orchestrated the crime using Spike Talley as a hired
+      killer to frame Counsell.
+  false_solution:
+    accused_suspect: Donald Counsell
+    supporting_points:
+      - Counsell was seen leaving the hotel shortly after the murder
+      - The revolver with Counsell's initials was found near the body
+      - Counsell had financial troubles and motive
+      - Witnesses testified to quarrels between Counsell and Dongan
+    the_one_flaw: >-
+      No direct evidence placed Counsell at the scene at the time of the murder, and the revolver
+      was lost and unaccounted for before the murder
+    refuted_in_chapter: 13
+  red_herrings:
+    - id: donald_counsell_guilt
+      description: Donald Counsell appears guilty due to quarrel, missing revolver, and flight.
+      points_at_suspect: Donald Counsell
+      innocent_explanation: >-
+        He was framed by Riever who used Talley to commit the murder and planted evidence to
+        implicate Counsell.
+      resolved_in_chapter: 13
+    - id: detective_delehanty_suspicion
+      description: Detective Delehanty is suspiciously obstructive and possibly colluding.
+      points_at_suspect: Delehanty
+      innocent_explanation: He is simply an overzealous and flawed detective, not involved in the crime.
+      resolved_in_chapter: 13
+  closed_circle:
+    suspects:
+      - Donald Counsell
+      - Ernest Riever
+      - Spike Talley (Henry Talley)
+      - Delehanty
+    rationale: >-
+      The suspects are limited to those with access to the victim's apartment and motive: Counsell
+      as partner, Riever as rival, Talley as hired killer, and Delehanty as chief detective involved
+      in the case.
+  constraint_space:
+    time:
+      anchors:
+        - Murder occurred on Friday night at 11:15 PM
+        - Talley disappeared on May 27th
+        - Riever deposited and withdrew money around the murder date
+      windows:
+        - Counsell absent from hotel after 11:20 PM
+        - Talley seen dining nightly before disappearance
+        - Riever at estate during murder and subsequent days
+    access:
+      actors:
+        - Spike Talley with duplicate keys
+        - Ernest Riever with estate and hotel access
+        - Donald Counsell as partner with apartment access
+      objects:
+        - Duplicate keys to victim's apartment
+        - Revolver belonging to Counsell
+        - Poison barrel at Riever's estate
+    social:
+      trust_channels:
+        - Pen Broome's relationship with Counsell
+        - Blanche Paglar's testimony about Talley
+        - Talley's associates' cooperation
+      authority_sources:
+        - New York Police
+        - Detective Delehanty
+        - Criminal Court Judge Stockman
+  inference_path:
+    steps:
+      - observation: Talley had duplicate keys to the victim's apartment
+        correction: Talley used these keys to enter the apartment undetected
+        effect: Talley could commit the murder without forced entry
+        required_evidence:
+          - Testimony of maid Mary Crehan about lost keys and Talley duplicating them
+          - Identification of keys by locksmith
+        reader_observable: true
+      - observation: Talley disappeared after the murder
+        correction: Talley was eliminated by Riever to silence him
+        effect: Talley's disappearance was staged to cover up Riever's involvement
+        required_evidence:
+          - Blanche Paglar's testimony of Talley's last days
+          - Discovery of Talley's remains burned with poison traces
+        reader_observable: true
+      - observation: Riever deposited and withdrew large sums of money around the murder date
+        correction: The money was used to pay Talley and cover up the crime
+        effect: Financial motive and means for Riever to orchestrate the murder
+        required_evidence:
+          - Bank records showing cash transactions
+          - Witness testimony about Riever's financial activities
+        reader_observable: true
+      - observation: Poison found in a bottle at Riever's estate
+        correction: Poison was used to kill Talley after the murder
+        effect: Riever attempted to eliminate Talley to prevent exposure
+        required_evidence:
+          - Chemical analysis of poison bottle
+          - Testimony of laborer who saw barrel burned
+        reader_observable: true
+      - observation: Counsell's revolver was found near the victim
+        correction: Revolver was lost earlier and planted to frame Counsell
+        effect: Evidence against Counsell was fabricated
+        required_evidence:
+          - Bookkeeper's testimony about revolver loan
+          - Lack of direct witness placing Counsell at murder scene
+        reader_observable: true
+      - observation: Pen Broome and Talley's associates gathered new witnesses
+        correction: These witnesses provided a chain of evidence implicating Riever
+        effect: The case against Riever was built leading to Counsell's acquittal
+        required_evidence:
+          - Testimonies of Blanche Paglar, taxi drivers, Mr. Slaughter, and others
+          - Judge's acceptance of new evidence in chambers
+        reader_observable: true
+      - observation: Riever committed suicide after being exposed
+        correction: His death ended prosecution and confirmed guilt
+        effect: Counsell was acquitted and the truth revealed
+        required_evidence:
+          - Police report of Riever's suicide
+          - Newspaper announcement of death and trial outcome
+        reader_observable: true
+  discriminating_test:
+    method: constraint_proof
+    design: >-
+      The test involved presenting the new witnesses and physical evidence in court chambers to the
+      judge, who evaluated the collective importance of the testimonies and material evidence
+      linking Talley and Riever to the murder. The evidence included key duplications, hotel
+      sightings, poison traces, and financial transactions.
+    knowledge_revealed: >-
+      This test revealed that the murder was orchestrated by Riever using Talley as a hired killer
+      and that Counsell was framed. It proved the connection between the poison barrel and Talley's
+      disappearance.
+    pass_condition: >-
+      The judge's acceptance of the new evidence as material and important enough to warrant
+      reopening the case and delaying the trial.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader had access to all key facts including the suspicious disappearance of Talley, the
+      duplicated keys, the poison evidence, and the financial transactions of Riever. Pen's
+      investigations and the testimonies of witnesses were presented clearly, allowing attentive
+      readers to piece together the conspiracy. The false assumption of Counsell's guilt was
+      supported by circumstantial evidence but contradicted by the new testimonies and physical
+      proof, which were all available before the final reveal.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

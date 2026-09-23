@@ -1,0 +1,484 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The crystal claw
+    author: William Le Queux
+    license: Public domain (first published 1924; author died 1927). Project Gutenberg ebook 72870.
+    era:
+      decade: 1920s
+      realism_constraints:
+        - No advanced forensic DNA analysis available
+        - Communication by telegram and letters only, no electronic surveillance
+        - Travel by train, automobile, and foot; no air travel or modern transport
+    setting:
+      location: England and Switzerland (Mürren, London, Bexhill, Cannes, Saumur, Stamford)
+      institution: Scotland Yard and local police
+    crime_class:
+      category: murder
+      subtype: locked room disappearance and attempted murder by poisoning and arson
+  cast:
+    - name: Rex Yelverton
+      age_range: 20-30
+      role_archetype: young solicitor and romantic protagonist
+      relationships:
+        - Thelma Audley (friend and love interest)
+        - Dr. Feng Tsu'tong (friend)
+        - Hartley Humphreys (antagonist)
+      public_persona: respectable solicitor
+      private_secret: deeply in love with Thelma Audley
+      motive_seed: protect and find truth about Thelma's husband
+      motive_strength: strong
+      alibi_window: present throughout investigation
+      access_plausibility: high
+      opportunity_channels:
+        - investigation
+        - social interaction
+      behavioral_tells:
+        - persistent
+        - romantic
+        - trusting
+      stakes: high personal and emotional stakes
+      evidence_sensitivity:
+        - letters from Thelma
+        - threatening notes
+        - hospital records
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: moderate
+    - name: Thelma Audley
+      age_range: 18-22
+      role_archetype: young bride and heiress
+      relationships:
+        - Rex Yelverton (friend and love interest)
+        - Stanley Audley (husband, deceased)
+        - Dr. Feng Tsu'tong (protector)
+        - Hartley Humphreys (enemy)
+      public_persona: charming young bride
+      private_secret: heiress to Sung-tchun's fortune, under threat
+      motive_seed: survival and protection
+      motive_strength: none
+      alibi_window: mostly present with Rex or missing during disappearance
+      access_plausibility: high
+      opportunity_channels:
+        - social
+        - secret meetings
+      behavioral_tells:
+        - secretive
+        - fearful
+        - devoted
+      stakes: life and inheritance
+      evidence_sensitivity:
+        - telegram
+        - letters
+        - crystal claw pendant
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: victim
+      moral_complexity: low
+    - name: Stanley Audley (alias Philip Graydon)
+      age_range: 25-35
+      role_archetype: missing husband, victim of forgery gang
+      relationships:
+        - Thelma Audley (wife)
+        - Harold Ruthen (accomplice)
+        - Graydon (alias)
+      public_persona: electrical engineer and gentleman
+      private_secret: involved under duress with forgery gang
+      motive_seed: escape and protect wife
+      motive_strength: strong
+      alibi_window: disappeared after telegram, later died from accident
+      access_plausibility: high
+      opportunity_channels:
+        - forgery gang activities
+        - secret meetings
+      behavioral_tells:
+        - secretive
+        - fearful
+        - fugitive
+      stakes: life and freedom
+      evidence_sensitivity:
+        - burned notes
+        - forged banknotes
+        - hospital records
+      culprit_eligibility: locked
+      culpability: guilty
+      gender: male
+      role: suspect
+      moral_complexity: high
+    - name: Dr. Feng Tsu'tong
+      age_range: 60-75
+      role_archetype: wise old friend and protector
+      relationships:
+        - Rex Yelverton (friend)
+        - Thelma Audley (protégé)
+        - Hartley Humphreys (enemy)
+      public_persona: cultured Chinese doctor and friend
+      private_secret: agent of Thu-tseng society protecting Thelma
+      motive_seed: protect Thelma and Rex
+      motive_strength: strong
+      alibi_window: present at key events
+      access_plausibility: high
+      opportunity_channels:
+        - investigation
+        - social
+      behavioral_tells:
+        - secretive
+        - calm
+        - wise
+      stakes: protection of Thelma and justice
+      evidence_sensitivity:
+        - telegram cables
+        - hospital records
+        - crystal claw pendant
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: moderate
+    - name: Hartley Humphreys
+      age_range: 60-75
+      role_archetype: antagonist, financier and criminal mastermind
+      relationships:
+        - Dr. Feng Tsu'tong (friend and co-conspirator)
+        - Stanley Audley (enemy)
+        - Rex Yelverton (enemy)
+      public_persona: wealthy financier and invalid
+      private_secret: criminal plotting murder and forgery
+      motive_seed: inherit Sung-tchun fortune
+      motive_strength: strong
+      alibi_window: present at key conspiracies
+      access_plausibility: high
+      opportunity_channels:
+        - social
+        - criminal activities
+      behavioral_tells:
+        - calculating
+        - ruthless
+        - deceptive
+      stakes: fortune and power
+      evidence_sensitivity:
+        - forged notes
+        - letters
+        - police records
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Harold Ruthen
+      age_range: 25-35
+      role_archetype: accomplice and suspicious associate
+      relationships:
+        - Stanley Audley (friend and accomplice)
+        - Hartley Humphreys (associate)
+      public_persona: foppish ex-officer and friend of Audley
+      private_secret: involved in forgery gang
+      motive_seed: criminal gain
+      motive_strength: moderate
+      alibi_window: present in London and Paris
+      access_plausibility: high
+      opportunity_channels:
+        - criminal activities
+        - social
+      behavioral_tells:
+        - secretive
+        - persistent
+      stakes: freedom and profit
+      evidence_sensitivity:
+        - police arrest records
+        - forged notes
+      culprit_eligibility: eligible
+      culpability: unknown
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: Marigold Day
+      age_range: 20-30
+      role_archetype: witness and friend
+      relationships:
+        - Thelma Audley (friend)
+        - Stanley Audley (acquaintance)
+        - Harold Ruthen (acquaintance)
+      public_persona: mannequin and friend of Thelma
+      private_secret: knows some truths about Audley
+      motive_seed: friendship
+      motive_strength: none
+      alibi_window: present in London
+      access_plausibility: medium
+      opportunity_channels:
+        - social
+      behavioral_tells:
+        - secretive
+        - distressed
+      stakes: friendship
+      evidence_sensitivity:
+        - statements
+        - social observations
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: low
+  culpability:
+    culprit_count: 1
+    culprits:
+      - Hartley Humphreys
+  surface_model:
+    narrative:
+      summary: >-
+        Thelma Audley, a young bride, is left in the care of Rex Yelverton after her husband Stanley
+        Audley mysteriously disappears. Strange warnings, forged banknotes, and secret meetings hint
+        at a complex plot involving deception, forgery, and danger, culminating in an apparent
+        locked-room disappearance and attempted murder.
+    accepted_facts:
+      - >-
+        Stanley Audley disappeared shortly after his marriage and was believed dead in a motor
+        accident.
+      - Thelma Audley received a mysterious crystal claw pendant from China.
+      - Rex Yelverton was entrusted to care for Thelma during Stanley's absence.
+      - Hartley Humphreys was a close friend of Dr. Feng and had a hidden agenda.
+    inferred_conclusions:
+      - Stanley Audley was a criminal who willingly participated in forgery.
+      - Thelma was complicit in her husband's criminal activities.
+      - Dr. Feng was secretly working against Thelma and Rex.
+  hidden_model:
+    mechanism:
+      description: >-
+        Hartley Humphreys orchestrated a plot to eliminate Stanley Audley, who was entangled with a
+        forgery gang and posed a threat to Humphreys' claim on a vast inheritance. Humphreys
+        manipulated events to separate Audley from Thelma and attempted to murder Rex Yelverton and
+        Thelma by poisoning and arson. Dr. Feng, aware of the conspiracy, protected Rex and Thelma,
+        ultimately revealing the truth and ensuring justice.
+      delivery_path:
+        - step: Humphreys learned of Thelma's inheritance and plotted to secure it.
+        - step: Stanley Audley was coerced into forgery and forced to assume an alias.
+        - step: Audley was sent away by a false telegram to protect Humphreys' interests.
+        - step: >-
+            Humphreys attempted to poison Rex Yelverton and later trap him and Thelma in a burning
+            house.
+        - step: Dr. Feng monitored Humphreys and intervened to save Rex and Thelma.
+        - step: Audley died from injuries sustained rescuing Thelma from the fire.
+        - step: Humphreys committed suicide when cornered by the police.
+    outcome:
+      result: >-
+        The true story of Stanley Audley's death and Humphreys' criminal plot is revealed, leading
+        to Humphreys' suicide and the safe recovery of Thelma and Rex.
+  false_assumption:
+    statement: Stanley Audley was dead from the beginning and Thelma was free to remarry.
+    type: identity
+    why_it_seems_reasonable: >-
+      Reports of a fatal motor accident and a deathbed confession suggested Audley's death; Thelma's
+      disappearance and telegrams reinforced this belief.
+    what_it_hides: >-
+      Audley was alive for months after the accident, hiding due to criminal involvement, and Thelma
+      was in danger and not free.
+  false_solution:
+    accused_suspect: Harold Ruthen
+    supporting_points:
+      - He was seen pressuring Thelma and was suspected of being an enemy.
+      - He was involved with the forgery gang and had motives.
+      - He was evasive about Audley's whereabouts.
+    the_one_flaw: >-
+      He was arrested alongside other gang members and was not responsible for the murder or
+      disappearance.
+    refuted_in_chapter: 22
+  red_herrings:
+    - id: harold_ruthen_suspicion
+      description: Harold Ruthen was suspected due to his secretive behavior and pressure on Thelma.
+      points_at_suspect: Harold Ruthen
+      innocent_explanation: He was an accomplice in the forgery gang but not the mastermind or murderer.
+      resolved_in_chapter: 22
+    - id: doctor_feng_hostility
+      description: Dr. Feng's initial hostility towards Thelma and Rex suggested he might be an antagonist.
+      points_at_suspect: Dr. Feng Tsu'tong
+      innocent_explanation: He was secretly protecting Thelma and Rex and working against Humphreys.
+      resolved_in_chapter: 22
+  closed_circle:
+    suspects:
+      - Hartley Humphreys
+      - Stanley Audley (alias Philip Graydon)
+      - Harold Ruthen
+      - Dr. Feng Tsu'tong
+    rationale: >-
+      The suspects are limited to those closely connected to Thelma and Audley, involved in the
+      forgery gang, or with motives related to the inheritance and disappearance.
+  constraint_space:
+    time:
+      anchors:
+        - Stanley Audley’s disappearance after telegram at Mürren
+        - Rex’s poisoning attempt at Stamford hotel
+        - Thelma’s disappearance from Bexhill
+        - Audley’s death in Saumur hospital
+        - Humphreys’ suicide after police arrest
+      windows:
+        - Three days between telegram and Audley’s disappearance
+        - Five months of Rex’s unconsciousness after fire
+        - Days between Thelma’s disappearance and discovery
+    access:
+      actors:
+        - Rex Yelverton
+        - Thelma Audley
+        - Hartley Humphreys
+        - Dr. Feng Tsu'tong
+        - Stanley Audley
+        - Harold Ruthen
+      objects:
+        - Locked room at Lancaster Gate
+        - Heathermoor Gardens house
+        - Stamford hotel rooms
+        - Crystal Claw pendant
+        - Letters and telegrams
+    social:
+      trust_channels:
+        - Friendship between Rex and Thelma
+        - Dr. Feng’s guidance
+        - Hartley Humphreys’ false friendship
+        - Letters and telegrams
+      authority_sources:
+        - Scotland Yard police
+        - Dr. Feng’s knowledge of Thu-tseng
+        - Hospital doctors
+        - Police Prefect at Saumur
+  inference_path:
+    steps:
+      - observation: >-
+          Stanley Audley disappeared after receiving a telegram at Mürren, which seemed to reveal a
+          threat and orchestrate his absence.
+        correction: >-
+          The telegram was a false warning to force Audley into hiding, entangling him further in
+          the forgery gang's plot.
+        effect: >-
+          Audley’s disappearance was voluntary and coerced, not a death, and his involvement with
+          the gang was confirmed.
+        required_evidence:
+          - >-
+            Telegram received by Stanley Audley at Mürren, which revealed the threat and
+            orchestrated his absence
+          - >-
+            Testimony of hotel staff about Audley’s sudden departure and the involvement of a
+            mysterious visitor
+        reader_observable: true
+      - observation: >-
+          A locked room at Lancaster Gate was found empty with signs of burning and forged notes,
+          which seemed impregnable but actually posed a staged threat.
+        correction: >-
+          Audley escaped by unlocking the door with pliers and destroyed evidence, confirming the
+          room was not truly impregnable.
+        effect: >-
+          The locked room was a staged disappearance, orchestrated to hide Audley's involvement and
+          threat to the gang.
+        required_evidence:
+          - >-
+            Key left inside locked door at Lancaster Gate, confirming the possibility of escape and
+            the room's lack of impregnable security
+          - >-
+            Burned forged banknotes found in fireplace, revealing the entanglement with the forgery
+            gang
+        reader_observable: true
+      - observation: >-
+          Rex Yelverton was found unconscious with a forged suicide note and poison bottle, which
+          seemed to confirm his involvement in a suicide but actually posed a threat to his life.
+        correction: Rex was drugged and attacked by an unknown assailant, orchestrated by the criminal gang.
+        effect: >-
+          Attempted murder disguised as suicide, revealing the threat to Rex and confirming the
+          gang's involvement.
+        required_evidence:
+          - Forged suicide note found in hotel room, revealing the orchestration of the attack
+          - Medical report of poisoning and drugging, confirming the threat to Rex's life
+        reader_observable: true
+      - observation: >-
+          Thelma Audley disappeared after receiving a telegram and burning it, which seemed to
+          confirm her voluntary absence but actually revealed her entanglement in the plot.
+        correction: >-
+          She was lured away by a message from her husband and taken captive, orchestrated by the
+          gang.
+        effect: >-
+          Her disappearance was forced and part of a murder plot, confirming the threat posed by the
+          conspirators.
+        required_evidence:
+          - Telegram burned in Thelma’s fireplace, revealing the orchestration of her disappearance
+          - Witness statement of Thelma’s secret meeting with Dr. Feng, confirming her entanglement
+        reader_observable: true
+      - observation: >-
+          A fire at Heathermoor Gardens trapped Rex and Thelma with a petrol-filled balloon, which
+          seemed accidental but was orchestrated as a threat.
+        correction: >-
+          The fire was an attempted murder by Humphreys to eliminate them, confirming his
+          involvement.
+        effect: The plot was to kill both and destroy evidence, revealing the orchestration of the threat.
+        required_evidence:
+          - >-
+            Petrol-filled balloon found suspended over candle, confirming the orchestration of the
+            fire and the posed threat
+          - Police report of forced entry and rescue, revealing the involvement of Humphreys
+        reader_observable: true
+      - observation: >-
+          Stanley Audley died in a motor accident in France with forged notes, which seemed to
+          confirm his death and end his involvement.
+        correction: >-
+          The man who died was the false Audley; the real Audley died later from burns, revealing
+          the entanglement and orchestration of identities.
+        effect: >-
+          The identity of the dead man was initially mistaken, confirming the involvement of the
+          forgery gang.
+        required_evidence:
+          - Police report from Saumur hospital, confirming the mistaken identity and involvement
+          - Photographs of dead man and accomplices, revealing the orchestration of the plot
+        reader_observable: true
+      - observation: >-
+          Hartley Humphreys committed suicide when police came to arrest him, which seemed to
+          confirm his guilt and reveal the end of the threat.
+        correction: >-
+          Humphreys was the mastermind behind the forgery and murder plots, orchestrating all events
+          and entangling all parties.
+        effect: >-
+          The criminal conspiracy was ended with his death, confirming the full involvement and
+          orchestration of the crimes.
+        required_evidence:
+          - Police arrest records, confirming the involvement and orchestration by Humphreys
+          - >-
+            Confiscated documents linking Humphreys to forgery gang, revealing the full extent of
+            the threat
+        reader_observable: true
+  discriminating_test:
+    method: constraint_proof
+    design: >-
+      Reenact the locked room escape by attempting to turn the key from outside with pliers, and
+      test the timing of burning the coat and notes to confirm the possibility of escape before door
+      forced open. Verify the presence of forged notes and the timeline of disappearance and
+      reappearance of Stanley Audley.
+    knowledge_revealed: >-
+      This test reveals that the locked room was not impregnable and that the disappearance was
+      staged. It also confirms the involvement of forged notes and the criminal gang.
+    pass_condition: >-
+      The key can be turned from outside with pliers and the coat can be burned within the time
+      window before the door was forced open.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given all necessary clues: the forged notes, the locked room with the key
+      inside, the threatening letters, the secret meetings, and the timeline of events. The false
+      identities and the dual role of Stanley Audley are clearly presented. The clues about the
+      crystal claw and the Thu-tseng society hint at protection and hidden alliances. The reader
+      could deduce the true mechanism by careful attention to the locked room details and the forged
+      notes.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

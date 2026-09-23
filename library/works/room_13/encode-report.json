@@ -6,7 +6,7 @@
   {
    "claim": "Emanuel Legge was murdered in Room 13",
    "anchor": "Emanuel Legge had passed beyond the sphere of his evil activities.",
-   "span": "Emanuel Legge had passed beyond the sphere of his evil activities. “The poker came from--where?",
+   "span": "Emanuel Legge had passed beyond the sphere of his evil activities. \"The poker came from--where?",
    "ok": true
   },
   {
@@ -18,7 +18,7 @@
   {
    "claim": "Johnny Gray was present at the club during the murder",
    "anchor": "Johnny was the first of the guests to arrive, and Stevens helped him to take off his raincoat.",
-   "span": "CHAPTER XXVI Johnny was the first of the guests to arrive, and Stevens helped him to take off his raincoat. As he did so, he asked in a low voice: “Got a gun, Captain?",
+   "span": "CHAPTER XXVI Johnny was the first of the guests to arrive, and Stevens helped him to take off his raincoat. As he did so, he asked in a low voice: \"Got a gun, Captain?",
    "ok": true
   },
   {
@@ -30,7 +30,7 @@
   {
    "claim": "Peter Kane was drugged and incapacitated",
    "anchor": "He has been drugged: that’s obvious,",
-   "span": "He has been drugged: that’s obvious,” said Mr.",
+   "span": "He has been drugged: that's obvious,\" said Mr.",
    "ok": true
   },
   {
@@ -48,7 +48,7 @@
   {
    "claim": "Johnny Gray had a double who impersonated him",
    "anchor": "He stood in the centre of the astounded group. Into Marney’s heart had crept a wild hope.",
-   "span": "He stood in the centre of the astounded group. Into Marney’s heart had crept a wild hope. “Johnny,” she said, “was it this man who committed the crime for which you were punished?",
+   "span": "He stood in the centre of the astounded group. Into Marney's heart had crept a wild hope. \"Johnny,\" she said, \"was it this man who committed the crime for which you were punished?",
    "ok": true
   },
   {
@@ -60,13 +60,13 @@
   {
    "claim": "Johnny Gray's alibi supported by Inspector Flaherty",
    "anchor": "Flaherty owes me a lot. Good night, Parker.",
-   "span": "Flaherty owes me a lot. Good night, Parker.” “Good night, sir.",
+   "span": "Flaherty owes me a lot. Good night, Parker.\" \"Good night, sir.",
    "ok": true
   },
   {
    "claim": "Jeff Legge is the Big Printer",
    "anchor": "I’m going to put all my cards on the table. I want my wife.",
-   "span": "I’m going to put all my cards on the table. I want my wife.” “You know where Lila is better than I,” said Peter.",
+   "span": "I'm going to put all my cards on the table. I want my wife.\" \"You know where Lila is better than I,\" said Peter.",
    "ok": true
   },
   {
@@ -90,37 +90,37 @@
   {
    "claim": "Peter Kane escaped after being drugged",
    "anchor": "Peter Kane escaped on the way to Keytown, and he went back to the club and killed my father!",
-   "span": "Peter Kane escaped on the way to Keytown, and he went back to the club and killed my father!” CHAPTER XXX The girl looked at him, speechless.",
+   "span": "Peter Kane escaped on the way to Keytown, and he went back to the club and killed my father!\" CHAPTER XXX The girl looked at him, speechless.",
    "ok": true
   },
   {
    "claim": "Johnny Gray escaped from Keytown Jail",
    "anchor": "He inserted the key, and the gate was opened before the man could turn to face the levelled revolver.",
-   "span": "He inserted the key, and the gate was opened before the man could turn to face the levelled revolver. “Don’t shout,” whispered Johnny.",
+   "span": "He inserted the key, and the gate was opened before the man could turn to face the levelled revolver. \"Don't shout,\" whispered Johnny.",
    "ok": true
   },
   {
    "claim": "Mr. Reeder is actually Mr. Golden, a government investigator",
    "anchor": "I’m rather a wolf in sheep’s clothing, or a sheep in wolf’s clothing.",
-   "span": "I’m rather a wolf in sheep’s clothing, or a sheep in wolf’s clothing. The truth is, my name is Golden.",
+   "span": "I'm rather a wolf in sheep's clothing, or a sheep in wolf's clothing. The truth is, my name is Golden.",
    "ok": true
   },
   {
    "claim": "Jeff Legge killed Emanuel Legge",
    "anchor": "Emanuel Legge had passed beyond the sphere of his evil activities.",
-   "span": "Emanuel Legge had passed beyond the sphere of his evil activities. “The poker came from--where?",
+   "span": "Emanuel Legge had passed beyond the sphere of his evil activities. \"The poker came from--where?",
    "ok": true
   },
   {
    "claim": "Johnny Gray is innocent of murder",
    "anchor": "Johnny Gray is in this. He’s been working my slush for years.",
-   "span": "Johnny Gray is in this. He’s been working my slush for years. You’ll find the presses in the second hall, but the other birds have done some quick flying.",
+   "span": "Johnny Gray is in this. He's been working my slush for years. You'll find the presses in the second hall, but the other birds have done some quick flying.",
    "ok": true
   },
   {
    "claim": "The secret printing works are in the club basement and roof",
    "anchor": "The basement was empty, and for a second the mystery of the copper plate baffled him.",
-   "span": "The basement was empty, and for a second the mystery of the copper plate baffled him. “We may not have found the Big Printer, but we’ve certainly found the Big Engraver,” he said.",
+   "span": "The basement was empty, and for a second the mystery of the copper plate baffled him. \"We may not have found the Big Printer, but we've certainly found the Big Engraver,\" he said.",
    "ok": true
   }
  ],
@@ -130,5 +130,7 @@
   "encode": "gpt-4.1-mini",
   "sweep": "gpt-4o-mini"
  },
- "case_written": true
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
 }

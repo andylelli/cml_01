@@ -1,0 +1,527 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The scarab murder case
+    author: S. S. Van Dine
+    license: Public domain (first published 1930; author died 1939). Project Gutenberg ebook 78655.
+    era:
+      decade: 1920s
+      realism_constraints:
+        - No modern forensic DNA analysis or electronic surveillance existed
+        - Fingerprinting was established but limited in evidential power
+        - Communication was by telephone and telegraph; no mobile or digital devices
+    setting:
+      location: >-
+        New York City, specifically the Bliss Museum of Egyptian Antiquities and adjoining
+        residences
+      institution: New York County District Attorney's Office and Homicide Bureau
+    crime_class:
+      category: murder
+      subtype: planted evidence to implicate a rival
+  cast:
+    - name: Philo Vance
+      age_range: 40-50
+      role_archetype: amateur detective with analytic mind and flair for psychology
+      relationships: []
+      public_persona: debonaire, whimsical, superficially cynical
+      private_secret: keen insight into psychological and forensic details
+      motive_seed: none
+      motive_strength: none
+      alibi_window: n/a
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells:
+        - persistent skepticism
+        - strategic patience
+      stakes: solve the case and prevent miscarriage of justice
+      evidence_sensitivity:
+        - hieroglyphic letter
+        - death trap mechanism
+        - fingerprints on statue
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: high
+    - name: John F.-X. Markham
+      age_range: 50-60
+      role_archetype: stern, aggressive, straightforward District Attorney
+      relationships: []
+      public_persona: official, duty-bound prosecutor
+      private_secret: doubts about evidence sufficiency
+      motive_seed: none
+      motive_strength: none
+      alibi_window: n/a
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells:
+        - impatience
+        - reluctance to delay arrest
+      stakes: justice and public reputation
+      evidence_sensitivity:
+        - fingerprints
+        - footprints
+        - financial report
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: bystander
+      moral_complexity: moderate
+    - name: Ernest Heath
+      age_range: 40-50
+      role_archetype: honest, capable but uninspired police sergeant
+      relationships: []
+      public_persona: dogged investigator
+      private_secret: frustration with complex cases
+      motive_seed: none
+      motive_strength: none
+      alibi_window: n/a
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells:
+        - impatience
+        - reliance on physical evidence
+      stakes: case resolution
+      evidence_sensitivity:
+        - footprints
+        - fingerprints
+        - opium in coffee
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: bystander
+      moral_complexity: low
+    - name: Dr. Mindrum W.C. Bliss
+      age_range: 40-50
+      role_archetype: famous Egyptologist, meticulous and scholarly but jealous
+      relationships:
+        - husband of Meryt-Amen
+        - rival of Robert Salveter
+        - employer of Scarlett and Hani
+      public_persona: respected scholar and museum head
+      private_secret: murdered Kyle to secure funding and eliminate rival
+      motive_seed: fear of losing funding and jealousy of Salveter
+      motive_strength: strong
+      alibi_window: claimed asleep under influence of opium
+      access_plausibility: high
+      opportunity_channels:
+        - access to museum and study
+        - control over artifacts and documents
+      behavioral_tells:
+        - attempted escape
+        - planting false evidence
+        - feigned innocence
+      stakes: continued funding and personal relationships
+      evidence_sensitivity:
+        - fingerprints on statue
+        - scarab pin
+        - financial report
+        - footprints
+        - opium in coffee
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Benjamin H. Kyle
+      age_range: 60-70
+      role_archetype: philanthropist and art patron
+      relationships:
+        - uncle of Robert Salveter
+        - godfather of Meryt-Amen
+      public_persona: generous benefactor
+      private_secret: none
+      motive_seed: none
+      motive_strength: none
+      alibi_window: n/a
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: life
+      evidence_sensitivity: []
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: none
+    - name: Meryt-Amen
+      age_range: 25-30
+      role_archetype: young wife, half Egyptian, emotionally complex
+      relationships:
+        - wife of Bliss
+        - godchild of Kyle
+        - object of Salveter's affection
+      public_persona: loyal wife
+      private_secret: possible affection for Salveter
+      motive_seed: none
+      motive_strength: none
+      alibi_window: out shopping during murder
+      access_plausibility: medium
+      opportunity_channels: []
+      behavioral_tells:
+        - defends Bliss
+        - emotional distress
+      stakes: inheritance and personal safety
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: moderate
+    - name: Robert Salveter
+      age_range: 30-35
+      role_archetype: assistant curator, nephew of victim, passionate and impulsive
+      relationships:
+        - nephew of Kyle
+        - assistant to Bliss
+        - lover of Meryt-Amen
+      public_persona: earnest and aggressive
+      private_secret: in love with Meryt-Amen, wrote incriminating letter
+      motive_seed: jealousy and desire to continue excavations
+      motive_strength: moderate
+      alibi_window: out of house on errand during murder
+      access_plausibility: high
+      opportunity_channels:
+        - access to museum and study
+      behavioral_tells:
+        - evasiveness
+        - denial of love for Meryt-Amen
+      stakes: inheritance and love
+      evidence_sensitivity:
+        - forged letter
+        - opium tin found in room
+        - access to dagger sheath
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: Donald Scarlett
+      age_range: 40-45
+      role_archetype: technical expert, friend of Vance, loyal but worried
+      relationships:
+        - friend of Vance
+        - staff of Bliss
+        - rival of Salveter
+      public_persona: scholarly and honest
+      private_secret: suspected Bliss, tried to intervene
+      motive_seed: none
+      motive_strength: none
+      alibi_window: found unconscious in sarcophagus after attack
+      access_plausibility: high
+      opportunity_channels:
+        - access to museum
+      behavioral_tells:
+        - hesitation to accuse
+        - protective actions
+      stakes: life and truth
+      evidence_sensitivity:
+        - injury from mace
+        - hieroglyphic letter found in pocket
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: high
+    - name: Anûpu Hani
+      age_range: 40-50
+      role_archetype: family retainer, Egyptian, loyal protector
+      relationships:
+        - servant to Bliss and family
+        - protector of Meryt-Amen and Salveter
+      public_persona: devoted servant
+      private_secret: killed Bliss to end the plot
+      motive_seed: protect Meryt-Amen and Salveter, stop desecration
+      motive_strength: strong
+      alibi_window: present in house, acted at night
+      access_plausibility: high
+      opportunity_channels:
+        - access to museum and house
+      behavioral_tells:
+        - evasiveness
+        - superstitious pretenses
+        - calm demeanor
+      stakes: loyalty and justice
+      evidence_sensitivity:
+        - gloves used to avoid prints
+        - removal of dagger sheath
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Brush
+      age_range: 50-60
+      role_archetype: butler, nervous and frightened
+      relationships:
+        - servant to Bliss household
+      public_persona: dutiful servant
+      private_secret: left front door unlatched
+      motive_seed: none
+      motive_strength: none
+      alibi_window: present in house
+      access_plausibility: high
+      opportunity_channels:
+        - access to house
+      behavioral_tells:
+        - nervousness
+        - fear of blame
+      stakes: personal safety
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+    - name: Dingle
+      age_range: 50-60
+      role_archetype: cook, taciturn and observant
+      relationships:
+        - servant to Bliss household
+      public_persona: domestic staff
+      private_secret: heard noises but uncertain
+      motive_seed: none
+      motive_strength: none
+      alibi_window: present in kitchen
+      access_plausibility: high
+      opportunity_channels:
+        - access to house
+      behavioral_tells:
+        - reticent
+        - vague
+      stakes: personal safety
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: low
+  culpability:
+    culprit_count: 2
+    culprits:
+      - Dr. Mindrum W.C. Bliss
+      - Anûpu Hani
+  surface_model:
+    narrative:
+      summary: >-
+        Benjamin H. Kyle was found murdered in the Bliss Museum with a heavy statue nearby and a
+        rare scarab pin beside him, implicating Dr. Bliss. The evidence seemed to point to Bliss,
+        who was arrested, but inconsistencies and a death trap suggested a more complex plot
+        involving other household members.
+    accepted_facts:
+      - Benjamin H. Kyle was murdered by a blow to the head with a statue of Sakhmet
+      - Dr. Bliss’s scarab pin and a financial report were found near the body
+      - >-
+        Bliss was found with his fingerprints on the statue and had bloody footprints leading to his
+        study
+      - An opium powder was found in Bliss’s coffee, suggesting he was drugged
+    inferred_conclusions:
+      - Dr. Bliss was the murderer acting alone
+      - The bloody footprints and planted evidence conclusively prove Bliss’s guilt
+      - The death trap was intended to kill Kyle and implicate Salveter
+  hidden_model:
+    mechanism:
+      description: >-
+        Dr. Bliss murdered Benjamin H. Kyle by striking him from behind with a heavy mace, then
+        arranged the scene by placing the statue of Sakhmet as a death trap and planting his own
+        scarab pin and financial report near the body to implicate himself. He drugged his coffee
+        with opium to create an alibi. Later, Anûpu Hani killed Bliss to end the plot, carefully
+        avoiding leaving evidence.
+      delivery_path:
+        - step: >-
+            Bliss arranged an appointment with Kyle and ensured Kyle would come early to inspect new
+            artifacts
+        - step: Bliss drugged his own coffee with opium to simulate being asleep
+        - step: >-
+            Bliss killed Kyle by a blow from behind using a mace, then placed the statue of Sakhmet
+            to simulate a death trap
+        - step: >-
+            Bliss planted his scarab pin and financial report near Kyle’s body and made bloody
+            footprints with one tennis shoe
+        - step: >-
+            Bliss attempted to frame Salveter by planting forged letters and hiding the dagger
+            sheath in Salveter’s room
+        - step: Scarlett discovered the plot and was attacked and hidden in a sarcophagus by Bliss
+        - step: >-
+            Anûpu Hani, knowing the truth and to protect the innocent, killed Bliss by breaking the
+            statue of Anûbis over his head
+    outcome:
+      result: >-
+        Dr. Bliss was the murderer of Benjamin H. Kyle, and Anûpu Hani killed Bliss to end the plot;
+        the case was solved by Philo Vance.
+  false_assumption:
+    statement: Dr. Bliss was the sole murderer and acted without any accomplices or interference.
+    type: identity
+    why_it_seems_reasonable: >-
+      All direct evidence such as fingerprints, footprints, and planted items pointed to Bliss, and
+      he was found with incriminating items and attempted escape. The opium in his coffee suggested
+      he was drugged and innocent.
+    what_it_hides: >-
+      It conceals the involvement of Anûpu Hani who ultimately killed Bliss, and the fact that
+      Bliss’s evidence was deliberately planted to implicate himself and frame Salveter.
+  false_solution:
+    accused_suspect: Robert Salveter
+    supporting_points:
+      - Salveter had a motive due to jealousy and inheritance
+      - A forged hieroglyphic letter implicating Salveter was found
+      - The dagger sheath was hidden in Salveter’s room
+      - Salveter was evasive about his whereabouts during the murder
+    the_one_flaw: >-
+      The letter and dagger sheath were planted by Bliss to frame Salveter, and Salveter’s alibi was
+      corroborated.
+    refuted_in_chapter: 21
+  red_herrings:
+    - id: anupu_hani_superstition
+      description: >-
+        Hani’s talk of the vengeance of Sakhmet and mystical retribution suggested he might be
+        involved in a supernatural killing or be the murderer.
+      points_at_suspect: Anûpu Hani
+      innocent_explanation: >-
+        Hani used superstition as a cover to protect Salveter and Meryt-Amen and to mislead
+        investigators.
+      resolved_in_chapter: 21
+    - id: robert_salveter_letter
+      description: >-
+        Salveter’s hieroglyphic letter containing ominous words suggested he had a motive and was
+        involved in the murder.
+      points_at_suspect: Robert Salveter
+      innocent_explanation: >-
+        The letter was a linguistic exercise and was forged and planted by Bliss to implicate
+        Salveter.
+      resolved_in_chapter: 21
+  closed_circle:
+    suspects:
+      - Dr. Mindrum W.C. Bliss
+      - Robert Salveter
+      - Anûpu Hani
+      - Meryt-Amen
+      - Donald Scarlett
+      - Brush
+      - Dingle
+    rationale: >-
+      The suspects are limited to the household and close associates with access to the museum and
+      house during the time of the murder; no outside intruders were possible due to locked doors
+      and lack of evidence.
+  constraint_space:
+    time:
+      anchors:
+        - Friday, July 13; 10 a.m. to 11 a.m.
+        - Friday, July 13; 11 a.m. to 12 p.m.
+        - Friday, July 13; 12 p.m. to 2 p.m.
+        - Saturday, July 14; 10 p.m. to 11 p.m.
+      windows:
+        - Kyle’s arrival and murder between 10:00 and 10:30 a.m.
+        - Salveter’s absence from 9:30 p.m. Saturday to next morning
+        - Scarlett’s attack between 8:00 and 8:30 p.m. Saturday
+    access:
+      actors:
+        - Bliss
+        - Salveter
+        - Scarlett
+        - Hani
+        - Household servants
+      objects:
+        - Museum and study rooms
+        - Cabinet with new shipment
+        - Doctor Bliss’s study desk
+        - Breakfast-room and coffee percolator
+        - Sarcophagus in museum
+    social:
+      trust_channels:
+        - Household relationships and loyalties
+        - Communication via telephone
+        - Servants’ reports
+      authority_sources:
+        - District Attorney Markham
+        - Sergeant Heath and Homicide Bureau
+        - Philo Vance’s detective insight
+  inference_path:
+    steps:
+      - observation: Scarab pin of Bliss found beside Kyle’s body
+        correction: Pin was planted to implicate Bliss
+        effect: Bliss’s guilt is not proven by pin alone
+        required_evidence:
+          - Testimony of Scarlett about pin last seen in Bliss’s study
+          - Location of pin on scene inconsistent with natural loss
+        reader_observable: true
+      - observation: Bliss’s fingerprints on statue of Sakhmet
+        correction: Bliss handled statue earlier to straighten it, not to kill
+        effect: Fingerprints do not prove murder
+        required_evidence:
+          - Bliss’s own admission of adjusting statue before bedtime
+          - Scarlett’s testimony on Bliss’s habit of orderliness
+        reader_observable: true
+      - observation: Bloody footprints of tennis shoe leading to Bliss’s study
+        correction: Only one tennis shoe found downstairs; other shoe hidden upstairs
+        effect: Footprints were staged to mislead
+        required_evidence:
+          - Discovery of left tennis shoe in Bliss’s bedroom
+          - Butler’s testimony on locked front door
+        reader_observable: true
+      - observation: Opium found in Bliss’s coffee
+        correction: Bliss drugged his own coffee to fake alibi
+        effect: Bliss was not narcotized, but feigning
+        required_evidence:
+          - Hani’s admission of opium tin location
+          - Chemical analysis of coffee residue
+        reader_observable: true
+      - observation: Forged hieroglyphic letter implicating Salveter
+        correction: Letter was planted by Bliss to frame Salveter
+        effect: Salveter’s guilt is doubtful
+        required_evidence:
+          - Reconstruction of letter from waste-basket fragments
+          - Salveter’s testimony about original letter
+        reader_observable: true
+      - observation: Scarlett found unconscious in sarcophagus
+        correction: Bliss attacked Scarlett to prevent exposure
+        effect: Scarlett was victim, not culprit
+        required_evidence:
+          - Medical report on Scarlett’s injury
+          - Vance’s discovery of letter in Scarlett’s pocket
+        reader_observable: true
+      - observation: Bliss’s death by falling statue of Anûbis
+        correction: Hani killed Bliss to end the murderous plot
+        effect: Bliss’s death was murder by Hani
+        required_evidence:
+          - Vance’s conversation with Hani about legal impossibility of convicting Bliss
+          - Physical evidence of statue’s broken ankles and position over Bliss
+        reader_observable: true
+  discriminating_test:
+    method: trap
+    design: >-
+      Vance reconstructed the death trap by placing the statue of Sakhmet precariously balanced on a
+      pencil wedge on the cabinet edge with the curtain partially drawn and the loose brass ring
+      under the statue’s base. Pulling the curtain caused the statue to topple exactly where Kyle’s
+      head had been, demonstrating the plausibility of the staged death trap.
+    knowledge_revealed: >-
+      The test showed that the statue could fall and kill someone standing in front of the cabinet,
+      supporting the theory that the trap was staged after the murder to mislead investigators.
+    pass_condition: >-
+      The statue must topple and land precisely on the spot corresponding to Kyle’s head position,
+      confirming the trap’s feasibility.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given detailed descriptions of the physical evidence, the timing of arrivals and
+      departures, and the relationships and motives of the household members. The planted evidence
+      and the forged letter are clearly presented, as are the inconsistencies in Bliss’s alibi and
+      the presence of opium. The death trap experiment is described in detail, allowing the reader
+      to question the obvious conclusions. The final confession and unmasking are foreshadowed,
+      making the solution accessible to a careful and attentive reader.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

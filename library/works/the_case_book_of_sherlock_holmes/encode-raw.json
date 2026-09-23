@@ -1,0 +1,487 @@
+{
+ "decade": "1900s",
+ "realism_constraints": [
+  "No advanced forensic DNA analysis available",
+  "Limited police investigative technology, reliance on observation and deduction",
+  "Communication via telegrams and letters, no electronic surveillance"
+ ],
+ "location": "England, various including London, Sussex, Hampshire, Bedfordshire, Berkshire",
+ "institution": "Sherlock Holmes's private detective agency and local police forces",
+ "crime_category": "murder",
+ "crime_subtype": "ingenious concealment and framing",
+ "cast": [
+  {
+   "name": "Sherlock Holmes",
+   "age_range": "40-50",
+   "role_archetype": "famous private detective",
+   "role": "detective",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "brilliant and eccentric detective",
+   "private_secret": "keen observer with deep knowledge of crime",
+   "motive_seed": "justice and intellectual challenge",
+   "motive_strength": "strong",
+   "alibi_window": "always present at investigation scenes",
+   "access_plausibility": "high",
+   "stakes": "solving complex crimes",
+   "moral_complexity": "high",
+   "relationships": [],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "methodical observation",
+    "disguises",
+    "deductive reasoning"
+   ],
+   "evidence_sensitivity": [
+    "letters",
+    "physical traces",
+    "witness statements"
+   ]
+  },
+  {
+   "name": "Dr. John H. Watson",
+   "age_range": "40-50",
+   "role_archetype": "medical doctor and loyal companion",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "Holmes's friend and biographer",
+   "private_secret": "medical expertise and observer",
+   "motive_seed": "friendship and justice",
+   "motive_strength": "strong",
+   "alibi_window": "usually present with Holmes",
+   "access_plausibility": "high",
+   "stakes": "supporting Holmes and truth",
+   "moral_complexity": "low",
+   "relationships": [
+    "Sherlock Holmes"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "medical insight",
+    "narration"
+   ],
+   "evidence_sensitivity": [
+    "medical reports",
+    "witness accounts"
+   ]
+  },
+  {
+   "name": "Baron Adelbert Gruner",
+   "age_range": "40-50",
+   "role_archetype": "wealthy, dangerous aristocrat with a murderous past",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "charming and cultured nobleman",
+   "private_secret": "murderer and womanizer",
+   "motive_seed": "maintain reputation and marriage",
+   "motive_strength": "strong",
+   "alibi_window": "present at home during burglary",
+   "access_plausibility": "high",
+   "stakes": "marriage and freedom",
+   "moral_complexity": "high",
+   "relationships": [
+    "Violet de Merville",
+    "Miss Kitty Winter"
+   ],
+   "opportunity_channels": [
+    "home study",
+    "inner study"
+   ],
+   "behavioral_tells": [
+    "waxed moustache tips",
+    "silky voice"
+   ],
+   "evidence_sensitivity": [
+    "lust diary",
+    "photographs"
+   ]
+  },
+  {
+   "name": "Miss Kitty Winter",
+   "age_range": "20-30",
+   "role_archetype": "wronged former mistress with fierce hatred",
+   "role": "witness",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "fallen woman",
+   "private_secret": "victim of Gruner's cruelty",
+   "motive_seed": "revenge",
+   "motive_strength": "strong",
+   "alibi_window": "with Holmes during burglary",
+   "access_plausibility": "high",
+   "stakes": "justice",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Baron Adelbert Gruner"
+   ],
+   "opportunity_channels": [
+    "home study"
+   ],
+   "behavioral_tells": [
+    "fierce energy",
+    "hatred"
+   ],
+   "evidence_sensitivity": [
+    "vitriol attack",
+    "testimony"
+   ]
+  },
+  {
+   "name": "Violet de Merville",
+   "age_range": "20-30",
+   "role_archetype": "innocent, obsessed young woman",
+   "role": "victim",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "wealthy heiress",
+   "private_secret": "madly in love with Gruner",
+   "motive_seed": "love",
+   "motive_strength": "strong",
+   "alibi_window": "at home",
+   "access_plausibility": "high",
+   "stakes": "marriage and reputation",
+   "moral_complexity": "low",
+   "relationships": [
+    "Baron Adelbert Gruner",
+    "General de Merville"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "aloofness",
+    "fanaticism"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Josiah Amberley",
+   "age_range": "60-70",
+   "role_archetype": "retired colourman, betrayed and ruined",
+   "role": "victim",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "miserly retired businessman",
+   "private_secret": "betrayed by wife and doctor",
+   "motive_seed": "recover stolen property",
+   "motive_strength": "strong",
+   "alibi_window": "at home during theft",
+   "access_plausibility": "high",
+   "stakes": "life savings",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Mrs. Amberley",
+    "Dr. Ray Ernest"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "melancholy",
+    "paranoia"
+   ],
+   "evidence_sensitivity": [
+    "strong-room",
+    "stolen securities"
+   ]
+  },
+  {
+   "name": "Mrs. Amberley",
+   "age_range": "40-50",
+   "role_archetype": "faithless wife and thief",
+   "role": "culprit",
+   "gender": "female",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "respectable wife",
+   "private_secret": "eloped with doctor, stole money",
+   "motive_seed": "greed and love affair",
+   "motive_strength": "strong",
+   "alibi_window": "absent during theft",
+   "access_plausibility": "high",
+   "stakes": "financial gain",
+   "moral_complexity": "high",
+   "relationships": [
+    "Josiah Amberley",
+    "Dr. Ray Ernest"
+   ],
+   "opportunity_channels": [
+    "strong-room access"
+   ],
+   "behavioral_tells": [
+    "secretive",
+    "deceptive"
+   ],
+   "evidence_sensitivity": [
+    "deed-box",
+    "cash and securities"
+   ]
+  }
+ ],
+ "culprits": [
+  "Baron Adelbert Gruner",
+  "Mrs. Amberley"
+ ],
+ "surface_summary": "The case appears as a series of complex crimes involving murder, betrayal, and deception among the British upper class and their associates. Initial evidence points to obvious suspects, but the true mechanisms involve subtle framing and concealed motives.",
+ "accepted_facts": [
+  "Baron Gruner is a known murderer with a dangerous reputation.",
+  "Miss Kitty Winter attacked Baron Gruner with vitriol.",
+  "Josiah Amberley's wife eloped with Dr. Ray Ernest taking his savings.",
+  "Sherlock Holmes was seriously assaulted but survived."
+ ],
+ "inferred_conclusions": [
+  "Miss Kitty Winter was the sole culprit behind the vitriol attack.",
+  "Josiah Amberley was complicit in the theft of his own property.",
+  "Baron Gruner's marriage was prevented solely by public scandal."
+ ],
+ "mechanism_description": "Baron Gruner's incriminating 'lust diary' was stolen during a staged burglary orchestrated by Holmes and Miss Kitty Winter, who attacked Gruner to distract him. Mrs. Amberley conspired with Dr. Ray Ernest to steal Josiah Amberley's savings and elope, using a duplicate key to access the strong-room. Holmes's injuries were part of a ruse to mislead Gruner and facilitate the recovery of the diary.",
+ "delivery_path": [
+  "Holmes receives a delicate case involving Baron Gruner's impending marriage.",
+  "Holmes sends Dr. Watson disguised as a doctor with a valuable Ming saucer to Gruner's home.",
+  "During Watson's visit, Holmes and Miss Kitty Winter execute a burglary to steal the lust diary.",
+  "Miss Kitty Winter attacks Baron Gruner with vitriol to incapacitate him.",
+  "Holmes exaggerates his injuries to mislead Gruner about his recovery.",
+  "Mrs. Amberley uses a duplicate key to access Josiah Amberley's strong-room and steals valuables.",
+  "Holmes and his agents coordinate to recover stolen items and expose the culprits."
+ ],
+ "outcome_result": "The marriage between Baron Gruner and Violet de Merville is prevented, and the culprits are exposed and brought to justice.",
+ "false_assumption": {
+  "statement": "Miss Kitty Winter was solely responsible for the vitriol attack and the burglary was a spontaneous act.",
+  "type": "behavioral",
+  "why_it_seems_reasonable": "Miss Winter openly admits her hatred and involvement, and the attack was public and violent. The burglary appeared opportunistic during the attack.",
+  "what_it_hides": "The burglary was a carefully planned operation coordinated with Holmes and Watson, and the attack was part of a larger strategy to obtain the diary and prevent the marriage."
+ },
+ "false_solution": {
+  "accused_suspect": "Miss Kitty Winter",
+  "supporting_points": [
+   "She was seen attacking Baron Gruner with vitriol.",
+   "She openly expressed hatred and desire for revenge.",
+   "Her presence at the scene was undeniable.",
+   "She was tried and sentenced for the attack."
+  ],
+  "the_one_flaw": "The burglary and theft of the diary were orchestrated by Holmes and Watson, and Miss Winter acted under their direction rather than independently.",
+  "refuted_in_chapter": 1
+ },
+ "red_herrings": [
+  {
+   "id": "steve_dixie_intimidation",
+   "description": "Steve Dixie, a bruiser, threatens Holmes to deter him from investigating.",
+   "points_at_suspect": "Barney Stockdale's gang",
+   "innocent_explanation": "Steve Dixie is a blustering but harmless thug used to intimidate but not capable of serious crime.",
+   "resolved_in_chapter": 4
+  },
+  {
+   "id": "ian_murdoch_suspicion",
+   "description": "Ian Murdoch, a taciturn mathematical coach, is suspected of the scourging murder.",
+   "points_at_suspect": "Ian Murdoch",
+   "innocent_explanation": "Murdoch was a friend of the victim and was himself a victim of the mysterious sea creature's sting.",
+   "resolved_in_chapter": 9
+  }
+ ],
+ "closed_circle": {
+  "suspects": [
+   "Baron Adelbert Gruner",
+   "Miss Kitty Winter",
+   "Mrs. Amberley",
+   "Dr. Ray Ernest",
+   "Josiah Amberley"
+  ],
+  "rationale": "All suspects had access to the crime scenes, motives related to personal gain or revenge, and were under surveillance or investigation by Holmes and the police."
+ },
+ "constraint_space": {
+  "time_anchors": [
+   "September 3, 1902",
+   "January 1903",
+   "July 2, 1902",
+   "October 3, 1906",
+   "November 19, 1907"
+  ],
+  "time_windows": [
+   "Holmes's injury recovery period",
+   "Nighttime burglary at Gruner's house",
+   "Theatre attendance by Josiah Amberley",
+   "Intervals of Professor Presbury's strange behavior"
+  ],
+  "access_actors": [
+   "Holmes",
+   "Watson",
+   "Miss Kitty Winter",
+   "Mrs. Amberley",
+   "Dr. Ray Ernest"
+  ],
+  "access_objects": [
+   "Baron Gruner's inner study",
+   "Josiah Amberley's strong-room",
+   "Holmes's private rooms",
+   "Professor Presbury's box"
+  ],
+  "trust_channels": [
+   "Shinwell Johnson's underworld contacts",
+   "Langdale Pike's gossip network",
+   "Inspector MacKinnon's police reports"
+  ],
+  "authority_sources": [
+   "Scotland Yard",
+   "Local police constables",
+   "Medical experts like Sir Leslie Oakshott"
+  ]
+ },
+ "inference_path": [
+  {
+   "observation": "Miss Kitty Winter claims knowledge of a locked brown leather book with gold arms.",
+   "correction": "Holmes obtains the book during a staged burglary.",
+   "effect": "The book is used as a weapon to break off the marriage.",
+   "required_evidence": [
+    "Miss Winter's testimony about the book",
+    "Holmes's report of the burglary and recovery of the book"
+   ]
+  },
+  {
+   "observation": "Baron Gruner shows suspicion and anger during Watson's visit.",
+   "correction": "Watson's knowledge of Chinese pottery distracts Gruner.",
+   "effect": "Holmes gains time to act and recover the diary.",
+   "required_evidence": [
+    "Watson's letter to Gruner",
+    "Holmes's account of the visit"
+   ]
+  },
+  {
+   "observation": "Josiah Amberley reports theft and disappearance of wife and doctor.",
+   "correction": "Mrs. Amberley and Dr. Ernest conspired to steal and elope.",
+   "effect": "Amberley's savings are stolen, and the culprits flee.",
+   "required_evidence": [
+    "Amberley's testimony",
+    "Police reports of theft"
+   ]
+  },
+  {
+   "observation": "Holmes is attacked and seriously injured.",
+   "correction": "The attack was orchestrated to mislead Gruner.",
+   "effect": "Gruner underestimates Holmes's recovery and plans.",
+   "required_evidence": [
+    "Medical reports by Sir Leslie Oakshott",
+    "Holmes's own account of the attack"
+   ]
+  },
+  {
+   "observation": "Violet de Merville refuses to believe accusations against Gruner.",
+   "correction": "The lust diary reveals Gruner's true nature.",
+   "effect": "Violet breaks off the engagement.",
+   "required_evidence": [
+    "The lust diary itself",
+    "Newspaper announcement of broken engagement"
+   ]
+  },
+  {
+   "observation": "Miss Kitty Winter is sentenced for vitriol attack.",
+   "correction": "Her sentence is mitigated due to extenuating circumstances.",
+   "effect": "She remains a key witness but not the sole culprit.",
+   "required_evidence": [
+    "Court records of trial",
+    "Holmes's explanation of the case"
+   ]
+  },
+  {
+   "observation": "Holmes and Inspector MacKinnon cooperate to recover stolen securities.",
+   "correction": "Holmes's burglary and investigation reveal the hiding place.",
+   "effect": "Amberley's property is recovered and culprits arrested.",
+   "required_evidence": [
+    "Holmes's burglary report",
+    "Police recovery records"
+   ]
+  }
+ ],
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "Holmes uses Dr. Watson's revolver tied to a string and weight to simulate the trajectory of a thrown weapon over Thor Bridge. The revolver strikes the parapet and falls into the water, replicating the chip marks found on the bridge's stonework.",
+  "knowledge_revealed": "This reenactment proves that the weapon could not have been thrown from the bridge by the accused, disproving the murder accusation against Miss Dunbar.",
+  "pass_condition": "The revolver's path and impact replicate the physical evidence exactly, eliminating the possibility of Miss Dunbar's guilt."
+ },
+ "fair_play_explanation": "The reader is provided with detailed descriptions of the crime scenes, physical evidence such as the lust diary, the vitriol attack, and the locked strong-room. Holmes's deductions are based on observable facts and logical reasoning. Clues such as the presence of the diary, the timing of events, and the behavior of suspects are all presented transparently, allowing an attentive reader to solve the case.",
+ "anchors": [
+  {
+   "claim": "Baron Gruner is attacked with vitriol by Miss Kitty Winter",
+   "anchor": "Some had climbed through the window and others had rushed out"
+  },
+  {
+   "claim": "The lust diary is a key piece of evidence to break off the marriage",
+   "anchor": "Here is the book the woman talked of"
+  },
+  {
+   "claim": "Holmes was seriously injured in an attack",
+   "anchor": "A crimson patch had soaked through the white linen compress"
+  },
+  {
+   "claim": "Josiah Amberley's wife eloped with Dr. Ray Ernest taking his savings",
+   "anchor": "The couple went off together last week--destination untraced"
+  },
+  {
+   "claim": "Miss Kitty Winter's testimony reveals Gruner's cruelty",
+   "anchor": "I am his last mistress. I am one of a hundred"
+  },
+  {
+   "claim": "Holmes uses a wax effigy to trap Count Sylvius",
+   "anchor": "The impassive head and the collar of the dressing-gown"
+  },
+  {
+   "claim": "Miss Dunbar is falsely accused of murder",
+   "anchor": "A revolver with one discharged chamber and a calibre"
+  },
+  {
+   "claim": "The chip on the stonework of Thor Bridge is a crucial clue",
+   "anchor": "There was a distinct chip on the ledge"
+  },
+  {
+   "claim": "Holmes's reenactment with the revolver proves the murder weapon's trajectory",
+   "anchor": "It had hardly gone before Holmes was kneeling beside the stonework"
+  },
+  {
+   "claim": "Professor Presbury's strange behavior is linked to a serum from Prague",
+   "anchor": "Since your esteemed visit I have thought much of your case"
+  },
+  {
+   "claim": "The Lion's Mane jellyfish caused Fitzroy McPherson's death",
+   "anchor": "Cyanea Capillata is the miscreant's full name"
+  },
+  {
+   "claim": "Mrs. Ronder was attacked by the lion after her husband's murder",
+   "anchor": "Ronder lay, with the back of his head crushed in"
+  },
+  {
+   "claim": "Sir Robert Norberton faked his sister's death to protect his estate",
+   "anchor": "We opened such a coffin, removed the contents, and placed her"
+  },
+  {
+   "claim": "Josiah Amberley was murdered by gas in his strong-room",
+   "anchor": "The pipe runs out into the strong-room, as you can see"
+  },
+  {
+   "claim": "The bodies were concealed in a disused well covered by a dog kennel",
+   "anchor": "Try your luck there"
+  },
+  {
+   "claim": "Holmes and Inspector MacKinnon collaborated to solve the Amberley case",
+   "anchor": "I can usually get my essentials without leaving this room"
+  },
+  {
+   "claim": "The false telegram from the vicar was a forgery",
+   "anchor": "There is only one vicarage, sir, and only one vicar"
+  },
+  {
+   "claim": "The lust diary was kept in a locked brown leather book",
+   "anchor": "A brown leather book with a lock, and his arms in gold"
+  },
+  {
+   "claim": "Holmes's disguise as Dr. Hill Barton was crucial to gaining access",
+   "anchor": "You will call upon Baron Gruner. I know something of his habits"
+  },
+  {
+   "claim": "Miss Kitty Winter was sent away for her safety after the attack",
+   "anchor": "Tell Shinwell Johnson to get that girl out of the way"
+  }
+ ]
+}

@@ -1,0 +1,136 @@
+{
+ "slug": "the_markenmore_mystery",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Guy Markenmore was found shot dead near Markenmore Hollow",
+   "anchor": "dead body of a man whom some of those present recognized as Mr. Guy Markenmore",
+   "span": "There we found the dead body of a man whom some of those present recognized as Mr. Guy Markenmore.",
+   "ok": true
+  },
+  {
+   "claim": "Sir Anthony Markenmore died in his sleep early that morning",
+   "anchor": "Sir Anthony died in his sleep early this morning",
+   "span": "Sir Anthony died in his sleep early this morning, sir,\" replied Braxfield mournfully.",
+   "ok": true
+  },
+  {
+   "claim": "Guy Markenmore had three thousand pounds in notes on him",
+   "anchor": "a purse containing seventy-five pounds in notes and gold",
+   "span": "A purse containing seventy-five pounds in notes and gold-mostly five-pound notes.",
+   "ok": true
+  },
+  {
+   "claim": "An automatic pistol was found discarded in a badger hole",
+   "anchor": "dragged forth an object which shone bright in the glare of the torch. With a sharp exclamation he held it up to Mr. Fransemmery. “Look at that!” said Blick.",
+   "span": "He suddenly stooped forward, pushed the dog aside and from the gravelly soil and loose sand that he had thrown up dragged forth an object which shone bright in the glare of the torch. With a sharp exclamation he held it up to Mr. Fransemmery. \"Look at that!\" said Blick. Mr.",
+   "ok": true
+  },
+  {
+   "claim": "The automatic pistol was sold to Harry Markenmore",
+   "anchor": "I sold it,” assented Waters. “I remember it well enough. He wanted a revolver—I recommended that.",
+   "span": "I sold it,\" assented Waters. \"I remember it well enough. He wanted a revolver-I recommended that.\" \"Would you know it again?",
+   "ok": true
+  },
+  {
+   "claim": "Mrs. Braxfield admitted using an automatic pistol to scare foxes",
+   "anchor": "I’ve been a fool about that! After I heard of Guy Markenmore’s murder, I got nervous—frightened.",
+   "span": "I've been a fool about that! After I heard of Guy Markenmore's murder, I got nervous-frightened. I thought there might be a search made-you never know-and it would look queer for me to have a pistol, and so-well, I threw it away.",
+   "ok": true
+  },
+  {
+   "claim": "Mrs. Braxfield was seen near Markenmore Hollow early morning",
+   "anchor": "Mrs. Braxfield, she wented into the witness-box and gived evidence. Her said as how her see’d Master Harborough at a certain place on the hillside",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "John Harborough wrote a threatening letter to Guy Markenmore",
+   "anchor": "The next time I meet you, wherever it is, and whenever it is, whether tomorrow, or a year hence, or five years hence, or ten years hence, I shall shoot you dead like the dog you are.",
+   "span": "It runs as follows: 'GUY MARKENMORE, The next time I meet you, wherever it is, and whenever it is, whether tomorrow, or a year hence, or five years hence, or ten years hence, I shall shoot you dead like the dog you are. JOHN HARBOROUGH.",
+   "ok": true
+  },
+  {
+   "claim": "John Harborough had an alibi at time of murder",
+   "anchor": "Her evidence was quite correct—I was.",
+   "span": "Her evidence was quite correct-I was.\" \"You have travelled a great deal in wild countries, I believe, Mr.",
+   "ok": true
+  },
+  {
+   "claim": "Guy Markenmore was with Mrs. Tretheroe alone from 10:30 pm to 12:45 am",
+   "anchor": "He stayed until a quarter to twelve,” answered Mrs. Tretheroe. “About an hour—yes.”",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Guy Markenmore had a secret marriage and son with Myra Halliwell",
+   "anchor": "Myra Halliwell, pledging Margaret to secrecy, confided to her that she was married to Mr. Guy Markenmore, and that the child in the perambulator, now three years old, was their son",
+   "span": "And the result was that Myra Halliwell, pledging Margaret to secrecy, confided to her that she was married to Mr. Guy Markenmore, and that the child in the perambulator, now three years old, was their son--\" Mrs.",
+   "ok": true
+  },
+  {
+   "claim": "Mr. Carter was the murderer who killed Guy Markenmore",
+   "anchor": "That’s what it means! There’s Spindler’s formula, and there’s your opinion about it. And—this is the chap who killed Guy Markenmore!",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Mr. Carter died from a fall while evading capture",
+   "anchor": "Two days later, a man was found dead at the foot of a cliff, identified as Carter, assistant to the professor",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The secret formula was the motive for murder",
+   "anchor": "Guy Markenmore was murdered for the Spindler formula! Dead certain!",
+   "span": "Guy Markenmore was murdered for the Spindler formula! Dead certain!\" The Professor laughed again, and slapped his elegantly-gloved hand on the desk at his side.",
+   "ok": true
+  },
+  {
+   "claim": "Mrs. Braxfield threw away the automatic pistol after the murder",
+   "anchor": "I thought there might be a search made—you never know—and it would look queer for me to have a pistol, and so—well, I threw it away.",
+   "span": "I thought there might be a search made-you never know-and it would look queer for me to have a pistol, and so-well, I threw it away.\" \"Where?",
+   "ok": true
+  },
+  {
+   "claim": "Baron von Eckhardstein disappeared mysteriously after the murder",
+   "anchor": "Von Eckhardstein has disappeared! During this last night. Clean gone!",
+   "span": "Well-von Eckhardstein has disappeared! During this last night. Clean gone! I suppose you don't know anything about that?",
+   "ok": true
+  },
+  {
+   "claim": "Jim Roper threatened Guy Markenmore but is innocent",
+   "anchor": "I believe Jim Roper didn’t kill Guy Markenmore, because if he had he’s just the man to have let it be known that he’d had his revenge!",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Mrs. Tretheroe accused John Harborough of murder out of jealousy",
+   "anchor": "Then—then—there’s the man who murdered him!—I know it! Dare to say you didn’t, John Harborough!",
+   "span": "Then-then-there's the man who murdered him!-I know it! Dare to say you didn't, John Harborough!-you know you did!",
+   "ok": true
+  },
+  {
+   "claim": "The automatic pistol was found near the murder scene in Deep Lane",
+   "anchor": "He pushes aside the bushes and drops his weapon into one of the deepest holes.",
+   "span": "He pushes aside the bushes and drops his weapon into one of the deepest holes. And there it might have lain for ages-if it hadn't been for Fransemmery's dog.",
+   "ok": true
+  },
+  {
+   "claim": "The secret formula and money were found on Carter’s body",
+   "anchor": "Blick suddenly dropped on his knees by the dead man’s side and abruptly plunged a hand into an inner pocket of the clothing... produced a letter-case, and from it drew out a wad of bank-notes and two papers.",
+   "span": "",
+   "ok": false
+  }
+ ],
+ "costGbp": 0.088292928,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

@@ -1,0 +1,136 @@
+{
+ "slug": "the_film_mystery",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Stella Lamar died from a tiny scratch caused by a needle",
+   "anchor": "the tiniest possible scratch ending in an almost invisible puncture",
+   "span": "Then through the glass I could detect upon her forearm the tiniest possible scratch ending in an almost invisible puncture, such as might have been made by a very sharp needle or the point of an incredibly fine hypodermic syringe.",
+   "ok": true
+  },
+  {
+   "claim": "The needle was hidden in the library curtains",
+   "anchor": "two small holes, almost microscopic, in the close-woven material",
+   "span": "There were two small holes, almost microscopic, in the close-woven material.",
+   "ok": true
+  },
+  {
+   "claim": "Blood spots on the towel found in the studio washroom",
+   "anchor": "There were also some small round drops of dark red",
+   "span": "They were the very faint stains of some other yellow substance, a liquid which had dried and did not rub off as the make-up, and there were also some small round drops of dark red, almost hidden in the fancy red scrollwork of the lettering on the towel, \"Manton Pictures, Inc.",
+   "ok": true
+  },
+  {
+   "claim": "The blood on the towel contained antivenin",
+   "anchor": "They are not exactly the same--in fact, I should say they were complementary",
+   "span": "They are not exactly the same--in fact, I should say they were complementary, or, perhaps better, antithetical.",
+   "ok": true
+  },
+  {
+   "claim": "Werner was poisoned with botulin toxin in his wine glass",
+   "anchor": "In the stem of the glass I find the toxin of the Bacillus botulinus",
+   "span": "In the stem of the glass I find the toxin of the Bacillus botulinus.",
+   "ok": true
+  },
+  {
+   "claim": "The fire in the film vault was incendiary and intended to destroy evidence",
+   "anchor": "The fire in the negative vault this morning was incendiary",
+   "span": "The fire in the negative vault this morning was incendiary.",
+   "ok": true
+  },
+  {
+   "claim": "The murderer planted false evidence to implicate others",
+   "anchor": "The promoter flicked the ashes from his cigar into a highly polished cuspidor",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Shirley was poisoned with belladonna to simulate suicide",
+   "anchor": "The poison used was belladonna, selected because this victim had purchased some",
+   "span": "Yet the poison used was belladonna, selected because this victim had purchased some and because it would seem sure, therefore, that he had committed suicide.",
+   "ok": true
+  },
+  {
+   "claim": "The towel was impregnated with itching salve to force the thief to wash hands",
+   "anchor": "I impregnated it with a colorless chemical which will cling to the fibers",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Fibers of the impregnated towel were found on suspect's fingernail files",
+   "anchor": "On one of these files or knife blades I have found and identified the fibers",
+   "span": "On one of these files or knife blades I have found and identified the fibers of that towel.",
+   "ok": true
+  },
+  {
+   "claim": "Blood samples from suspects showed antivenin in the murderer",
+   "anchor": "One shows that the person from whom I obtained the sample has been inoculated with antivenin",
+   "span": "I have analyzed these and one shows that the person from whom I obtained the sample has been inoculated with antivenin.",
+   "ok": true
+  },
+  {
+   "claim": "The murderer is Lawrence Millard",
+   "anchor": "Your own profession, the moving picture, with all its detail of photography and electricity",
+   "span": "Your own profession, the moving picture, with all its detail of photography and electricity, its blending of art and drama and mechanics, is indicative of that, but\"--a pause for emphasis--\"it is of my own profession I wish to talk just now, the detection and prevention of crime.",
+   "ok": true
+  },
+  {
+   "claim": "Millard wrote the note to Stella Lamar to lure her",
+   "anchor": "You wrote that note for her to meet you at the tearoom",
+   "span": "You wrote that note for her to meet you at the tearoom,\" Kennedy muttered, eyes narrowing grimly, \"knowing she would be dead before that time.",
+   "ok": true
+  },
+  {
+   "claim": "Millard's jealousy and financial motives led to the murders",
+   "anchor": "Jealousy of the narrowest, most primitive, sort actuated him",
+   "span": "Jealousy, jealousy of the narrowest, most primitive, sort actuated him.",
+   "ok": true
+  },
+  {
+   "claim": "The snake venom used was crotalin from rattlesnake",
+   "anchor": "Without a doubt it is crotalin, the venom of the rattlesnake",
+   "span": "without a doubt it is crotalin, the venom of the rattlesnake, Crotalus horridus.",
+   "ok": true
+  },
+  {
+   "claim": "The antivenin used was a serum developed at Castleton Institute",
+   "anchor": "It is, he explained, some of the very anticrotalus venin which we have perfected",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Werner was the second man at the house break-in and was trying to expose the murderer",
+   "anchor": "Werner was the second man, the man who watched the actual intruder",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The fire was caused by a phosphorus bomb placed in the film vault",
+   "anchor": "A bomb was constructed of wet phosphorus and old film and placed in the vault",
+   "span": "I have proved to the satisfaction of several of us that a bomb was constructed of wet phosphorus and old film and placed in the vault by trickery four days ago, the same day Stella Lamar was killed.",
+   "ok": true
+  },
+  {
+   "claim": "Werner died from respiratory paralysis caused by botulin toxin",
+   "anchor": "There was respiration paralysis. It seemed also as though the cranial nerves were partially paralyzed",
+   "span": "There was respiration paralysis. It seemed also as though the cranial nerves were partially paralyzed.",
+   "ok": true
+  },
+  {
+   "claim": "The needle was removed from the curtains the night after Stella's death",
+   "anchor": "The night following her death some one broke into the room there at Tarrytown and removed the needle",
+   "span": "The night following her death some one broke into the room there at Tarrytown and removed the needle.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.12050028000000002,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

@@ -1,0 +1,136 @@
+{
+ "slug": "as_a_thief_in_the_night",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Harold Monkhouse died from arsenic poisoning",
+   "anchor": "deceased died from the effects of arsenic poisoning",
+   "span": "From the post mortem examination and the analysis taken together, I came to the conclusion that deceased died from the effects of arsenic poisoning.",
+   "ok": true
+  },
+  {
+   "claim": "Barbara Monkhouse was absent during poisonings",
+   "anchor": "poisoning occurred only when Mrs. Monkhouse was away from home",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Arsenic was found in the medicine bottle after death but not before",
+   "anchor": "at six o’clock in the evening, that bottle of medicine did not contain more than a drachm",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Arsenic crystals found on wallpaper in victim's room",
+   "anchor": "The whole surface was spangled over with minute crystals",
+   "span": "The whole surface was spangled over with minute crystals, many of them hardly a ten-thousandth of an inch in diameter, sparkling in the strong light like diamonds and perfectly unmistakable; the characteristic octahedral crystals of arsenious acid.",
+   "ok": true
+  },
+  {
+   "claim": "Arsenic found in soot from Barbara's bedroom chimney",
+   "anchor": "The soot from Barbara’s bedroom chimney yielded... a very appreciable amount of arsenic",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Barbara supplied stearine candles",
+   "anchor": "he used to have to go to a German shop at Sparrow Corner by the Tower, to get packets of Schneider’s stearine candles",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Candles can emit arsenic vapors and dust",
+   "anchor": "If a candle is charged with finely powdered arsenious acid... the air in the neighbourhood of the candle will contain small traces of arsine",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "X-ray imaging revealed arsenic deposits in Stella’s hair",
+   "anchor": "the shape of the tress was faintly visible and was soon to be crossed by a number of perfectly distinct pale bands",
+   "span": "In the best negative, the shape of the tress was faintly visible and was soon to be crossed by a number of perfectly distinct pale bands.",
+   "ok": true
+  },
+  {
+   "claim": "Barbara confessed to the murders and committed suicide",
+   "anchor": "This letter is to bid you farewell... I alone am responsible for the death of my late husband",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "False clues were created by adding arsenic to medicine after death",
+   "anchor": "the bottle which was handed to the analysts was one that had been exposed for three days in a room which had been visited by a number of persons",
+   "span": "I merely say that no evidence was given that proved the presence of Fowler's Solution in that bottle before the man died; and that the bottle which was handed to the analysts was one that had been exposed for three days in a room which had been visited by a number of persons, including Mrs.",
+   "ok": true
+  },
+  {
+   "claim": "Wallingford possessed illegal drugs but was innocent of murder",
+   "anchor": "he had obtained those drugs fraudulently by forging an order in Dimsdale’s name",
+   "span": "He admitted that he had obtained those drugs fraudulently by forging an order in Dimsdale's name, written on Dimsdale's headed note-paper, to the wholesale druggists to deliver to bearer the drugs mentioned.",
+   "ok": true
+  },
+  {
+   "claim": "Infernal machine sent to Thorndyke was a booby-trap",
+   "anchor": "a muzzle-loading pistol... The trigger is probably hinged and folds forward into a recess",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Madeline Norris owned a pistol matching the infernal machine",
+   "anchor": "I opened it and found a shaped recess of the exact form of a pocket pistol",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Barbara’s absences coincided with Stella’s relapses",
+   "anchor": "the periods during which Barbara was absent from home coincided most singularly with Stella’s relapses",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Arsenic was detected in candle wax trimmings",
+   "anchor": "I made an analysis of the trimmings. The result was the discovery of considerable quantities of arsenic in the wax",
+   "span": "I began by trimming the wax mould in readiness for casting and then I made an analysis of the trimmings. The result was the discovery of considerable quantities of arsenic in the wax.",
+   "ok": true
+  },
+  {
+   "claim": "Arsenic poisoning was not by ingestion alone",
+   "anchor": "the poison had been partly inhaled and partly applied to the skin",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Barbara sent the infernal machine to mislead suspicion",
+   "anchor": "the sending of that abomination was not an isolated or independent act",
+   "span": "The sending of that abomination was not an isolated or independent act.",
+   "ok": true
+  },
+  {
+   "claim": "Barbara’s letter revealed her motive and guilt",
+   "anchor": "I have always loved you, even when I was a little girl and you were a boy",
+   "span": "I have always loved you, even when I was a little girl and you were a boy.",
+   "ok": true
+  },
+  {
+   "claim": "Thorndyke’s final proof linked Barbara to the murders",
+   "anchor": "the two cases served to corroborate one another in pointing to Barbara as the poisoner",
+   "span": "The complete proof in this case lent added weight to the less complete proof in the case of Monkhouse; and the two cases served to corroborate one another in pointing to Barbara as the poisoner.",
+   "ok": true
+  },
+  {
+   "claim": "Exhumation of Stella’s body confirmed arsenic poisoning",
+   "anchor": "I was able to say that I had positive knowledge that Stella Keene had been poisoned with arsenic",
+   "span": "When I made the application I was able to say that I had positive knowledge that Stella Keene had been poisoned with arsenic.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.084718336,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

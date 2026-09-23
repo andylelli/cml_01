@@ -1,0 +1,130 @@
+{
+ "slug": "the_sleuth_of_st_james_s_square",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "The victim was found stabbed in the left shoulder",
+   "anchor": "stabbed in the back, on the left side, where the neck joins to the shoulder",
+   "span": "He had been stabbed in the back, on the left side, where the neck joins to the shoulder.",
+   "ok": true
+  },
+  {
+   "claim": "The butler was present at the scene with no alibi",
+   "anchor": "The butler had been arrested, charged with the crime",
+   "span": "The butler had been arrested, charged with the crime, and his trial was now going on in the Criminal Court.",
+   "ok": true
+  },
+  {
+   "claim": "The will was forged by altering a figure from 3 to 5",
+   "anchor": "The top curl of a figure 3 had been erased, and the bar of a 5 added",
+   "span": "The top curl of a figure 3 had been erased, and the bar of a 5 added.",
+   "ok": true
+  },
+  {
+   "claim": "Chemical reagent revealed the forgery in the will's ink",
+   "anchor": "Under the chemical reagent the figure in the bequest of fifty thousand dollars changed beautifully",
+   "span": "And under the chemical reagent the figure in the bequest of fifty thousand dollars changed beautifully; the bar of the 5 turned blue, and the remainder of it a deep purple-red like the body of the will.",
+   "ok": true
+  },
+  {
+   "claim": "The glove drop implicates the left-handed nephew",
+   "anchor": "Look, monsieur, it is his left hand he is holding up",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The wound's position matches a left-handed attacker",
+   "anchor": "If the assassin carried the knife in his left hand, then the wound would be where it is",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The forced drawer was pried open with an ice-pick from the butler's pantry",
+   "anchor": "An ice-pick from the butler's pantry had been used to force it",
+   "span": "An ice-pick from the butler's pantry had been used to force it.",
+   "ok": true
+  },
+  {
+   "claim": "The footprints and blood stains were fabricated",
+   "anchor": "Nobody ever had a foot cambered like that, or with a heel like it, or with toes like it",
+   "span": "'Nobody ever had a foot cambered like that, or with a heel like it, or with toes like it.",
+   "ok": true
+  },
+  {
+   "claim": "The butler's attorney withdrew due to loss of confidence",
+   "anchor": "The attorney for the defendant rose and addressed the court... he was able to convey the impression that he had been misled",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The young woman drew a detailed plan of the crime scene",
+   "anchor": "She carried in her hand the menu upon which... she had made a drawing of the scene of the homicide",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The left-handedness of the nephew is a key clue",
+   "anchor": "He is left-handed; I sometimes make that mistake",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The butler was framed with planted evidence",
+   "anchor": "Your man from Maryland, Mr. Henderson, had paid in on court costs",
+   "span": "the sheriff showed me some gold eagles that your man from Maryland, Mr. Henderson, had paid in on court costs.",
+   "ok": true
+  },
+  {
+   "claim": "The butler was exonerated after the true culprit was revealed",
+   "anchor": "I believe you. I believe every word.... I think your husband is innocent",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The forged will gave Gosford a larger inheritance",
+   "anchor": "The figure 3 had been changed to 5 so cunningly is to deceive the eye",
+   "span": "The figure 3 had been changed to 5 so cunningly is to deceive the eye, but not to deceive the vast magnification of the crystal.",
+   "ok": true
+  },
+  {
+   "claim": "The chemical test showed different inks on the will and the forged part",
+   "anchor": "Your writing is blue, Mr. Gosford, and Marshall's red",
+   "span": "Your writing is blue, Mr. Gosford, and Marshall's red!",
+   "ok": true
+  },
+  {
+   "claim": "The murder was committed by the left-handed nephew",
+   "anchor": "He has the money, too... he is left-handed",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The butler was innocent and the real murderer was the nephew",
+   "anchor": "I think your husband is innocent",
+   "span": "I think your husband is innocent.",
+   "ok": true
+  },
+  {
+   "claim": "The butler was arrested based on circumstantial evidence",
+   "anchor": "The butler had been arrested, charged with the crime",
+   "span": "The butler had been arrested, charged with the crime, and his trial was now going on in the Criminal Court.",
+   "ok": true
+  },
+  {
+   "claim": "The young woman exposed the true murderer in court",
+   "anchor": "The extraordinary event had happened so swiftly that the attorney for the prosecution had not been able to interpose an objection",
+   "span": "The extraordinary event had happened so swiftly that the attorney for the prosecution had not been able to interpose an objection.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.07867104400000001,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

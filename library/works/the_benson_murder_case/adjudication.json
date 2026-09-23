@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "The presence of Muriel St. Clair’s gloves and handbag at the crime scene proves she was the murderer.",
+  "type": "identity",
+  "why_it_seems_reasonable": "The personal items were found in the victim’s living-room and she was known to have dined with him that night. It is natural to suspect someone whose belongings are at the scene.",
+  "what_it_hides": "It hides the fact that the victim himself brought her belongings home and that the real murderer planted these items to mislead the investigation."
+ },
+ "mechanism_description": "Major Anthony Benson, motivated by financial desperation and the desire to obtain jewels and securities held by his brother Alvin, planned and executed the murder. He entered Alvin’s house by tapping on the window, was admitted without Alvin’s toupee and false teeth, shot him at close range aiming deliberately at the forehead, then turned off the lights and left. He planted evidence to implicate others, including the dinner companion and Captain Leacock, but psychological analysis and alibi investigation revealed his guilt.",
+ "discriminating_test": {
+  "method": "constraint_proof",
+  "design": "Investigators verify the alibi of Major Benson by checking the testimony of the elevator boy and other witnesses, and inspect the Major’s apartment for the murder weapon and stolen jewels. The presence of the gun and jewels in the Major’s locked apartment, combined with the broken alibi, confirms his opportunity and means.",
+  "knowledge_revealed": "The test reveals that Major Benson’s alibi is false and that he possessed the murder weapon and stolen jewels, proving his guilt.",
+  "pass_condition": "Physical evidence of the gun and jewels in Major Benson’s apartment and credible witness testimony disproving his alibi."
+ },
+ "changed": [],
+ "confidence": "high"
+}

@@ -2,15 +2,15 @@
  "false_assumption": {
   "statement": "The murder was committed by one of the Wheeler family members who confessed.",
   "type": "identity",
-  "why_it_seems_reasonable": "All three Wheelers confessed to the crime, and no other suspects were initially apparent. The family had clear motives and opportunity.",
-  "what_it_hides": "It conceals the fact that an outsider, Curtis Keefe, orchestrated the murder and framed the family using false confessions and manipulated witnesses."
+  "why_it_seems_reasonable": "All three Wheelers confessed to the crime, and no other suspects were apparent. Their motives and opportunity were clear, making them the natural suspects.",
+  "what_it_hides": "It conceals the fact that an outsider, Curtis Keefe, orchestrated the murder and manipulated the family and witnesses to confess falsely."
  },
- "mechanism_description": "Curtis Keefe, motivated by ambition and knowledge of his rightful inheritance, orchestrated the murder of Samuel Appleby. He staged a fire in the garage using acid to create a distraction, then slipped away briefly to shoot Appleby through the bay window from the veranda. To mislead the investigation, Keefe coached the maid Rachel to fabricate the story of a phantom bugler and secured a false confession from the dying butler John Mills by bribery. Keefe's plan was to frame the Wheelers and protect his own interests.",
+ "mechanism_description": "Curtis Keefe orchestrated the murder by setting a fire to create a distraction. During the commotion, he slipped away briefly and shot Samuel Appleby through the bay window from the south veranda. To mislead the investigation, Keefe fabricated the story of a bugler and coerced or bribed witnesses to support false confessions and a fake signed confession from John Mills. His motive was political ambition and to secure his inheritance.",
  "discriminating_test": {
   "method": "constraint_proof",
-  "design": "Reconstruct the positions of victim, Daniel Wheeler, and Maida Wheeler at the time of the shooting, and analyze the bullet trajectory and entry wound direction. Verify if the shot could have come from Daniel Wheeler's position or only from the bay window side where Maida sat. Confirm the timing of Keefe's absence during the garage fire to establish opportunity.",
-  "knowledge_revealed": "The bullet entered from the bay window side, excluding Daniel Wheeler as shooter. Keefe's brief absence coincides with the shooting time, proving his opportunity.",
-  "pass_condition": "The bullet trajectory and witness statements prove the shooter was not Daniel Wheeler but someone positioned near the bay window, and Keefe's absence during the fire confirms his opportunity."
+  "design": "Reconstruct the bullet trajectory and correlate it with the positions of Wheeler and Maida at the time of the shooting. Verify the presence and movements of Keefe during the fire distraction using witness statements and physical evidence such as the location of the revolver and the timing of the fire. Cross-check the authenticity and circumstances of the signed confession by John Mills with hospital records and witness testimonies.",
+  "knowledge_revealed": "This test reveals that the shot could only have come from the veranda where Keefe was briefly present, disproving Wheeler and Maida's confessions. It also exposes the fabricated confession and staged evidence orchestrated by Keefe.",
+  "pass_condition": "The bullet trajectory and witness testimonies exclude Wheeler and Maida as shooters, and the confession of John Mills is proven false by his incapacity and bribery evidence."
  },
  "changed": [],
  "confidence": "high"

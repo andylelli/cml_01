@@ -6,14 +6,14 @@
   {
    "claim": "Dorcas Dene is a famous lady detective",
    "anchor": "that, my dear fellow, is Dorcas Dene, the famous lady detective",
-   "span": "",
-   "ok": false
+   "span": "That, my dear fellow, is Dorcas Dene, the famous lady detective.",
+   "ok": true
   },
   {
    "claim": "Lord Helsham's disappearance involved a secret about his birth",
    "anchor": "The child which Lady Helsham bore in this house was not the child she returned to London with",
-   "span": "",
-   "ok": false
+   "span": "'That the child which Lady Helsham bore in this house was not the child she returned to London with as the heir.",
+   "ok": true
   },
   {
    "claim": "Judkins Barraclough is suspected of bigamy and cruelty",
@@ -24,8 +24,8 @@
   {
    "claim": "Mrs. Judkins is imprisoned drugged in a wire cage",
    "anchor": "wire netting nearly six feet high was stretched from side to side of the room",
-   "span": "",
-   "ok": false
+   "span": "Wire netting nearly six feet high was stretched from side to side of the room on ropes which were fastened in the walls by iron rings.",
+   "ok": true
   },
   {
    "claim": "The poker was the murder weapon found near Mrs. Hannaford's body",
@@ -66,8 +66,8 @@
   {
    "claim": "The front door opening sound was key to the victim's movements",
    "anchor": "The noise made by the opening of that front door which first attracted the attention of the murdered woman",
-   "span": "",
-   "ok": false
+   "span": "The probability is that it was the noise made by the opening of that front door which first attracted the attention of the murdered woman.",
+   "ok": true
   },
   {
    "claim": "Charles Drayson confessed to the murder before dying",
@@ -96,8 +96,8 @@
   {
    "claim": "The false assumption that Mr. Hannaford was guilty",
    "anchor": "The police were satisfied, and would make no further investigation",
-   "span": "",
-   "ok": false
+   "span": "The poor old lady declared that she was perfectly certain that her son could not have been guilty of such a deed, but the police were satisfied, and would make no further investigation.",
+   "ok": true
   },
   {
    "claim": "Flash George was a red herring suspect",
@@ -108,8 +108,8 @@
   {
    "claim": "Judkins Barraclough's bigamy and attempted murder of first wife",
    "anchor": "He had intended to write to his wife after he decamped, but he had got into fresh trouble",
-   "span": "",
-   "ok": false
+   "span": "He explained that he had intended to write to his wife after he decamped, but he had got into fresh trouble and had to clear out of the country.",
+   "ok": true
   },
   {
    "claim": "The discriminating test was a reenactment of the murderer's hiding place",
@@ -124,5 +124,7 @@
   "encode": "gpt-4.1-mini",
   "sweep": "gpt-4o-mini"
  },
- "case_written": true
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
 }

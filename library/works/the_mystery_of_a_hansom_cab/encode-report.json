@@ -96,8 +96,8 @@
   {
    "claim": "The marriage certificate was the motive for the murder",
    "anchor": "They were the papers she gave Mr. Whyte",
-   "span": "",
-   "ok": false
+   "span": "And they were the papers she gave Mr. Whyte.",
+   "ok": true
   },
   {
    "claim": "Moreland demanded hush-money from Frettlby",
@@ -120,8 +120,8 @@
   {
    "claim": "The false accusation against Brian Fitzgerald was based on mistaken identity",
    "anchor": "The man who got into the cab was dressed like the prisoner on that night",
-   "span": "",
-   "ok": false
+   "span": "CALTON: Then it is only because the man who got into the cab was dressed like the prisoner on that night that you thought they were both the same?",
+   "ok": true
   }
  ],
  "costGbp": 0.13127967200000001,
@@ -132,5 +132,5 @@
  },
  "case_written": true,
  "verified_by": "corpus-verify.mjs",
- "verified_on": "2026-08-31"
+ "verified_on": "2026-09-23"
 }

@@ -1,0 +1,127 @@
+{
+ "slug": "the_blue_scarab",
+ "spans": [
+  {
+   "claim": "The scarab contained English words giving directions to the burial site",
+   "anchor": "the scarab contained all the required information",
+   "span": "I saw at a glance that the scarab contained all the required information.",
+   "ok": true
+  },
+  {
+   "claim": "The footprints lacked little toes, indicating a rare disease",
+   "anchor": "there was no vestige of little toe",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The black man Macauley was identified by footprints and finger-prints",
+   "anchor": "the ink-prints and the photographs are identical",
+   "span": "The ink-prints and the photographs are identical, to every line and skin-marking.",
+   "ok": true
+  },
+  {
+   "claim": "The derelict hat was the key clue to the identity of the New Jersey Sphinx",
+   "anchor": "the derelict hat was, of course, the starting point",
+   "span": "The derelict hat was, of course, the starting point.",
+   "ok": true
+  },
+  {
+   "claim": "The lost will was recovered from Baxfield's possession",
+   "anchor": "the lost will was recovered",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The stolen gold bars were replaced by lead bars and melted into gold bolts",
+   "anchor": "the gold bars were replaced by lead bars",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The burned body was not Reginald Reed but Walter Jarman",
+   "anchor": "the body was not Reed’s body",
+   "span": "Consequently if the plate was not Reed's plate, the skull was not Reed's skull, and the body was not Reed's body.",
+   "ok": true
+  },
+  {
+   "claim": "The dental plate matched Jarman, not Reed",
+   "anchor": "the plate and the jaw of deceased agree completely",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Gerrard and Reed are the same person",
+   "anchor": "Arthur Gerrard and Reginald Reed are one and the same person",
+   "span": "I suspect that Arthur Gerrard and Reginald Reed are one and the same person.",
+   "ok": true
+  },
+  {
+   "claim": "Gerrard committed suicide when confronted",
+   "anchor": "Arthur Gerrard fell back across a bench with a trickle of blood",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The police initially believed the burned body was Reed's",
+   "anchor": "the body was found to be Reed’s",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The presence of the dental plate contradicted the initial identification",
+   "anchor": "the dental plate presented a most striking discrepancy",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The plaster casts of footprints matched Reed's boot protectors",
+   "anchor": "the agreement is complete",
+   "span": "The agreement is complete.",
+   "ok": true
+  },
+  {
+   "claim": "The distinctive watch-chain and pipes linked the body to Reed",
+   "anchor": "the clay pipe was evidently one of a pair",
+   "span": "The clay pipe was evidently one of a pair--of which the second one has been recovered--probably silver mounted and carried in a case, the steel frame of which has been found.",
+   "ok": true
+  },
+  {
+   "claim": "The cigarette-tube found near the chalk-pit was lost by Baxfield",
+   "anchor": "Is that the tube that you lost?",
+   "span": "Is that the tube that you lost?\" he asked.",
+   "ok": true
+  },
+  {
+   "claim": "The footprints with absent little toes indicated a black man suffering from ainhum",
+   "anchor": "it was a case of double ainhum",
+   "span": "Obviously it was a case of double ainhum.",
+   "ok": true
+  },
+  {
+   "claim": "The dummy bullion case was substituted at Garbridge station",
+   "anchor": "the dummy case was prepared in advance",
+   "span": "The dummy case was prepared in advance, and evidently by somebody who knew what the real case was like, and how and when it was to be despatched from Bellhaven.",
+   "ok": true
+  },
+  {
+   "claim": "The gold bolts recovered from the barge matched the weight of the stolen bars",
+   "anchor": "these bolts represent those bars",
+   "span": "There is not the least doubt that these bolts are gold; and as you see that their aggregate weight is a hundred and thirteen while the weight of the four missing bars is a hundred and thirteen pounds, two ounces, it is a reasonable inference that these bolts represent those bars; and an uncommonly good job they made of the melting to lose only two ounces.",
+   "ok": true
+  },
+  {
+   "claim": "The wax impression of the scarab was used to decode the burial site",
+   "anchor": "the wax impression of it, which is the same thing",
+   "span": "We had the scarab; that is to say we had the wax impression of it, which is the same thing.",
+   "ok": true
+  },
+  {
+   "claim": "The footprints on the floor were made by a man who had lost his little toes",
+   "anchor": "there was no vestige of little toe",
+   "span": "",
+   "ok": false
+  }
+ ],
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

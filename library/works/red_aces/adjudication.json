@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "Kenneth McKay forged the cheque and murdered Wentford to cover his crime.",
+  "type": "behavioral",
+  "why_it_seems_reasonable": "McKay was found with blood on his shirt cuff and was in debt, making him a plausible suspect. The forged cheque traced back to him reinforced the suspicion.",
+  "what_it_hides": "The true culprits were Machfield and Lamontaine, who orchestrated the crime to frame McKay and avenge past grievances."
+ },
+ "mechanism_description": "Rufus Machfield and Antonio Lamontaine, former cardsharps, sought revenge on Wentford (alias Lynn) for a past swindle involving a rigged gambling scheme. They murdered Constable Verity to impersonate police and gain access to Wentford’s house, where they killed Wentford after deceiving him. They staged the scene with playing cards and planted forged cheques to mislead investigators and implicate Kenneth McKay. Their plan unraveled due to Reeder’s careful investigation and evidence gathering.",
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "Reeder arranges a controlled reenactment of the murder night, including the timing of the mounted policeman’s patrol and the arrival of the culprits in disguise. The test focuses on the feasibility of the murderers impersonating the policeman and gaining access to Wentford’s house, as well as the planting of evidence such as the playing cards and forged cheques.",
+  "knowledge_revealed": "The reenactment reveals that only Machfield and Lamontaine could have executed the murder and deception as planned, disproving McKay’s involvement.",
+  "pass_condition": "The reenactment confirms the timing and method of the murderers’ approach and the impossibility of McKay’s presence during the crime."
+ },
+ "changed": [],
+ "confidence": "high"
+}

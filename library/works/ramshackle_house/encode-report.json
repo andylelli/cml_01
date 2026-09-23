@@ -1,0 +1,136 @@
+{
+ "slug": "ramshackle_house",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Collis Dongan was found dead in his apartment",
+   "anchor": "Collis Dongan of the old New York family, wealthy clubman and member of the Stock Exchange, was found dead in his apartment last night",
+   "span": "Collis Dongan of the old New York family, wealthy clubman and member of the Stock Exchange, was found dead in his apartment last night.",
+   "ok": true
+  },
+  {
+   "claim": "The revolver with which the deed was done was found lying near",
+   "anchor": "The revolver with which the deed was done was found lying near",
+   "span": "The revolver with which the deed was done was found lying near, and at first it was supposed to be a case of suicide.",
+   "ok": true
+  },
+  {
+   "claim": "Donald Counsell was seen leaving the hotel in agitation",
+   "anchor": "At 11.20 the night clerk saw Counsell leaving the hotel, clearly in a state of agitation",
+   "span": "At 11.20 the night clerk saw Counsell leaving the hotel, clearly in a state of agitation.",
+   "ok": true
+  },
+  {
+   "claim": "Ernest Riever offered a reward for Counsell's capture",
+   "anchor": "A reward of five thousand dollars had been offered for Counsell's capture",
+   "span": "We had a message from New York last night that a reward of five thousand dollars had been offered for Counsell's capture.",
+   "ok": true
+  },
+  {
+   "claim": "Spike Talley was a gangster who disappeared after the murder",
+   "anchor": "Spike Talley was a leading member of the notorious Chick Murphy gang, and is suspected of complicity in half a dozen crimes of violence",
+   "span": "Spike Talley was a leading member of the notorious Chick Murphy gang, and is suspected of complicity in half a dozen crimes of violence.",
+   "ok": true
+  },
+  {
+   "claim": "Talley had duplicate keys to the victim's apartment",
+   "anchor": "Talley brought the maid's keys to a locksmith to be duplicated",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Poison was found at Riever's country estate",
+   "anchor": "He ordered the laborer to gather up all the piles of twigs and branches... He then had a small can of coal oil... and set it afire",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Talley's remains were found burned with poison traces",
+   "anchor": "Some little burned lumps of bone... a piece of scorched fabric... part of a jawbone in which six teeth were still fairly intact",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Riever deposited and withdrew ten thousand dollars around the murder",
+   "anchor": "We can show that three days before the murder he drew ten thousand dollars in cash from the bank",
+   "span": "We can show that three days before the murder he drew ten thousand dollars in cash from the bank.",
+   "ok": true
+  },
+  {
+   "claim": "Blanche Paglar testified about Talley's job and disappearance",
+   "anchor": "She will testify that Talley told her at this time that he had undertaken a job for a rich man",
+   "span": "She will testify that Talley told her at this time that he had undertaken a job for a rich man, whose name he never told her, and that he was to get ten thousand dollars for it.",
+   "ok": true
+  },
+  {
+   "claim": "Taxi drivers identified Talley and the man who admitted him to the house",
+   "anchor": "He unhesitatingly picked out one which he is ready to swear is that of the man who admitted Talley",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The maid testified Talley was gathering information about the victim's apartment",
+   "anchor": "Talley was pumping her for information as to the lay-out of Mr. Dongan's apartment",
+   "span": "It appears from what she recollects of their conversation that Talley was pumping her for information as to the lay-out of Mr. Dongan's apartment, and Mr.",
+   "ok": true
+  },
+  {
+   "claim": "The chemist testified poison was cyanide",
+   "anchor": "The chemist... who is prepared to testify that it contained well defined traces of cyanide",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Riever was identified as the mastermind behind the murder",
+   "anchor": "It is Ernest Riever",
+   "span": "It is Ernest Riever,\" she said.",
+   "ok": true
+  },
+  {
+   "claim": "Riever committed suicide after being exposed",
+   "anchor": "Ernest Riever was found dead in a house... He had shot himself through the head",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Pen Broome helped gather new evidence and witnesses",
+   "anchor": "Miss Broome... has collected the testimony and brought me the witnesses",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Counsell was acquitted after Riever's death",
+   "anchor": "Mr. Riever's self-inflicted death renders the acquittal of Counsell merely a matter of form",
+   "span": "Mr. Riever's self-inflicted death renders the acquittal of Counsell merely a matter of form.",
+   "ok": true
+  },
+  {
+   "claim": "Pen Broome warned Counsell and helped him hide",
+   "anchor": "Pen ran into the dining-room... found the little man seated at the table... Donald Counsell... was accused of having done it",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Pen Broome led detectives away from Counsell's hiding place",
+   "anchor": "Pen led them away from the house into the woods and left them there",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Pen Broome disguised herself to meet Blanche Paglar",
+   "anchor": "She had a black cotton servant's dress that had been designed to fit a more ample figure than hers",
+   "span": "She had a black cotton servant's dress that had been designed to fit a more ample figure than hers.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.07873961600000001,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

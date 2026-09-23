@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "The mysterious illnesses and deaths were caused by a supernatural curse or evil spirits.",
+  "type": "behavioral",
+  "why_it_seems_reasonable": "The house had a long history of sudden deaths and eerie phenomena, and witnesses reported strange lights and incantations. The pattern of male victims and the mysterious green light supported the idea of a curse.",
+  "what_it_hides": "It conceals the human agency and the use of a secret poison by John Dare, diverting suspicion from a rational explanation to superstition."
+ },
+ "mechanism_description": "John Dare, a criminal lunatic known as 'The Chameleon,' used a secret time-poison called ipoh gadong, applied via poisoned ink in a fountain pen and splinters of mahogany on the banister. He infected victims by pricking them imperceptibly, causing delayed fatal heart disease. His secret cellar exit allowed him to enter the house undetected at night.",
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "The police and Sibell's servants keep a night vigil in the Guest House to catch the intruder. They observe the green light and the intruder's use of gloves and slippers, and catch him contaminating the fountain pen and banister with poison. The test replicates the conditions under which the poison is delivered.",
+  "knowledge_revealed": "This reveals the identity of the intruder, his method of poisoning, and the secret cellar exit he uses to enter the house.",
+  "pass_condition": "The intruder is caught in the act of contaminating objects with poison and cannot escape."
+ },
+ "changed": [],
+ "confidence": "high"
+}

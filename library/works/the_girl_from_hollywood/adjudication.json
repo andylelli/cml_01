@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "Custer Pennington was the murderer because he was found near the crime scene with incriminating evidence.",
+  "type": "identity",
+  "why_it_seems_reasonable": "Custer was found with the victim’s horseshoe and had no solid alibi, and circumstantial evidence and witness testimony pointed to him. The prosecution presented a coherent narrative of jealousy and opportunity.",
+  "what_it_hides": "It hides the fact that the real murderer was Guy Evans, who had motive and opportunity, and that the evidence was planted by a third party to frame Custer."
+ },
+ "mechanism_description": "Guy Evans killed Wilson Crumb in revenge for Crumb’s role in the downfall and death of his sister Grace. Evans rode to Crumb’s camp, confronted him, and shot him. To divert suspicion, Slick Allen planted evidence implicating Custer Pennington by placing the horse’s missing shoe under the body and misleading authorities. Shannon Burke, unaware of the full truth, initially tried to protect Custer by erasing tracks.",
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "Reenact the movements of the horses and riders on the night of the murder, including the timing of the pack train and the location of the murder. Compare the horseshoes and tracks found at the scene with those of the Pennington horses and the burros. Verify the presence or absence of the murder weapon with each suspect.",
+  "knowledge_revealed": "This test reveals who had physical access to the crime scene at the time of the murder and whose horseshoes and tracks match those found. It also clarifies who could have carried the murder weapon.",
+  "pass_condition": "The reenactment confirms that only Guy Evans’s movements and horse tracks align with the murder scene and timing, and that the murder weapon was not in Shannon’s possession."
+ },
+ "changed": [],
+ "confidence": "high"
+}

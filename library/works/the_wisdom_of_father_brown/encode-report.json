@@ -12,8 +12,8 @@
   {
    "claim": "Mr Glass never existed and was a figment of Todhunter's conjuring",
    "anchor": "There was never anybody so absent as Mr Glass",
-   "span": "",
-   "ok": false
+   "span": "that there was never anybody so absent as Mr Glass.",
+   "ok": true
   },
   {
    "claim": "The black figure in the passage was a reflection in a mirror",
@@ -48,8 +48,8 @@
   {
    "claim": "The poison was reversible by emetics found in the cruet-stand",
    "anchor": "The emetic had very suddenly taken effect",
-   "span": "",
-   "ok": false
+   "span": "said Brown, with the shadow of a smile; for the emetic had very suddenly taken effect.",
+   "ok": true
   },
   {
    "claim": "Prince Otto was strangled with his own military scarf",
@@ -102,8 +102,8 @@
   {
    "claim": "The false suspect Isidore Bruno was involved in a struggle but was innocent",
    "anchor": "They began to struggle for the dagger",
-   "span": "",
-   "ok": false
+   "span": "Father Brown instantly ran across to him, taking no notice of Cutler and the colossal actor, though the room already rang with their blows and they began to struggle for the dagger.",
+   "ok": true
   },
   {
    "claim": "The black figure in the passage was described as having horns like a devil",
@@ -114,8 +114,8 @@
   {
    "claim": "The absence of Mr Glass is a key clue to the Todhunter case",
    "anchor": "The absence of Mr Glass",
-   "span": "",
-   "ok": false
+   "span": "The Absence of Mr Glass 2.",
+   "ok": true
   }
  ],
  "costGbp": 0.152685828,
@@ -126,5 +126,5 @@
  },
  "case_written": true,
  "verified_by": "corpus-verify.mjs",
- "verified_on": "2026-08-31"
+ "verified_on": "2026-09-23"
 }

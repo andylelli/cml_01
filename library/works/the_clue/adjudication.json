@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "The note found on the table was a dying confession written by Madeleine Van Norman herself.",
+  "type": "behavioral",
+  "why_it_seems_reasonable": "The note was in handwriting very similar to Madeleine's and was found beside her body, suggesting she wrote it just before dying. The presence of the note and the nature of the wound led many to believe it was a suicide.",
+  "what_it_hides": "The note was actually written by Cicely Dupuy days earlier and planted to mislead investigators. This false assumption obscured the fact that Madeleine was murdered by another person."
+ },
+ "mechanism_description": "Tom Willard entered the house through a cellar window and climbed up the ash-chute in the drawing-room fireplace to the library. There, in a fit of rage during a quarrel with Madeleine, he stabbed her with the Venetian dagger. He then left the same way, leaving the house locked and undisturbed. The note was a forgery by Cicely Dupuy to suggest suicide.",
+ "discriminating_test": {
+  "method": "constraint_proof",
+  "design": "Fleming Stone examined the locked house and discovered the ash-chute in the fireplace as a secret entry and exit route. He measured the opening and confirmed that only someone with Tom Willard's engineering skills could have used it. The presence of a rare cachou in the drawing-room linked the suspect to the scene. This physical constraint proof eliminated other suspects who lacked access or ability.",
+  "knowledge_revealed": "The murderer entered and exited through the cellar window and ash-chute, bypassing locked doors and windows, proving the impossibility of other suspects' involvement.",
+  "pass_condition": "Verification that the ash-chute opening matches the physical capability of the suspect and that no other entry was possible."
+ },
+ "changed": [],
+ "confidence": "high"
+}

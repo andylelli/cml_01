@@ -1,0 +1,136 @@
+{
+ "slug": "the_haunted_house",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "The estate is called Rackham Catchings after renovations",
+   "anchor": "Rackham Catchings",
+   "span": "said Aunt Hilda 130 Fond embrace of Hilda, relict of the late William Maple, Esquire, of Rackham Catchings in the County of Sussex, and Amathea, wife of George, First Baron de Beaurivage (pronounced Bruvvish) 146 Lord Hambourne is astonished at the modern habits of the fifteenth century 156 Mr.",
+   "ok": true
+  },
+  {
+   "claim": "John Maple is the rightful heir to Rackham",
+   "anchor": "John Maple was the heir",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Hilda Maple is financially pressured to sell the estate",
+   "anchor": "Aunt Hilda was up to the neck in worry",
+   "span": "Aunt Hilda was up to the neck in worry.",
+   "ok": true
+  },
+  {
+   "claim": "Lord Mere de Beaurivage is frightened by a headless ghost",
+   "anchor": "there IT stood, for the half second",
+   "span": "There IT stood, for the half second in which he still retained his sanity.",
+   "ok": true
+  },
+  {
+   "claim": "John Maple uses a black cloak and ruff to simulate a headless ghost",
+   "anchor": "a long black coat she has got for me; and we’ve taken down one of the swords",
+   "span": "I'm going to put on a long black coat she has got for me; and we've taken down one of the swords from the sham armour that Aunt Hilda bought the other day, and shall stick it through the slit in the coat.",
+   "ok": true
+  },
+  {
+   "claim": "John Maple uses ventriloquism to produce ghostly voices",
+   "anchor": "John Maple had discovered in those five minutes how easy it was—for him at least, or in the right surroundings—to ventriloquise",
+   "span": "John Maple had discovered in those five minutes how easy it was-for him at least, or in the right surroundings-to ventriloquise.",
+   "ok": true
+  },
+  {
+   "claim": "Household staff are terrified and protest against the ghost",
+   "anchor": "Partial, but representative deputation of the domestic staff of Rackham Catchings protesting against the Headless Thing",
+   "span": "Corton reads _The Spectator_ 188 John Maple explains his plan 194 Growing nervousness of Lord de Beaurivage 226 Lord Hellup accepting from Lord Hambourne the interesting scientific discovery that motor-cars are less susceptible to psychic influence than horses 236 Partial, but representative deputation of the domestic staff of Rackham Catchings protesting against the Headless Thing 238 Unaffected emotion of George, First Baron de Beaurivage on the appearance of an historic figure 242 Distraction of Lord Hambourne on being offered the usual terms 248 Effect of the other world on Miss Broom, housemaid 250 Solid satisfaction of Mr.",
+   "ok": true
+  },
+  {
+   "claim": "Photographer Columbus takes staged photos of the ghost",
+   "anchor": "He elaborately fixed the tripod; he covered his head with the cloth",
+   "span": "He put himself squarely facing the antique front of Rackham Catchings; he elaborately fixed the tripod; he covered his head with the cloth; he went through all the gestures of a performance dear to our fathers.",
+   "ok": true
+  },
+  {
+   "claim": "Detective Pretherton is chased off by the dog Lovey-Lad",
+   "anchor": "Then was it seen with what majesty the British policeman bolts",
+   "span": "Pretherton at the pressed pace of Columbus_] Then was it seen with what majesty the British policeman bolts!",
+   "ok": true
+  },
+  {
+   "claim": "Hilda Maple signs documents selling Rackham to John Maple",
+   "anchor": "She signed",
+   "span": "She signed.",
+   "ok": true
+  },
+  {
+   "claim": "The ghost is a fabrication to frighten off rival bidders",
+   "anchor": "I am the ghost, and I know",
+   "span": "For I am the ghost, and I know.",
+   "ok": true
+  },
+  {
+   "claim": "Lord Hambourne calls the press to report the ghost story",
+   "anchor": "Lord Hambourne showed initiative beyond his academic kind",
+   "span": "While the agony thus proceeded upstairs, Lord Hambourne showed initiative beyond his academic kind.",
+   "ok": true
+  },
+  {
+   "claim": "Lord Mere de Beaurivage suffers a health crisis after ghost sighting",
+   "anchor": "He gave a loud shriek and crashed to the ground",
+   "span": "He gave a loud shriek and crashed to the ground.",
+   "ok": true
+  },
+  {
+   "claim": "Bo Hellup and John Maple conspire to haunt the house",
+   "anchor": "We are haunting this house",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Hilda Maple is financially ruined and forced to sell",
+   "anchor": "Aunt Hilda was ruined",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "John Maple and Bo use the ghost to manipulate the sale",
+   "anchor": "We’ll haunt ’em good and hard—and then Rackham’s yours for the asking",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The ghost is seen only in the presence of John Maple",
+   "anchor": "John Maple led out through the damnable rhododendrons",
+   "span": "John Maple led out through the damnable rhododendrons and across the accursed rock garden to where Aunt Hilda had arranged a little fountain with a leaden Cupid in the middle holding a duck which squirted a fountain of water from its bill.",
+   "ok": true
+  },
+  {
+   "claim": "The ghost costume includes a sword sewn through a slit in the cloak",
+   "anchor": "she’s made a big ruff. I shall put the whole thing over my head",
+   "span": "Then she's made a big ruff. I shall put the whole thing over my head, and there I shall be.",
+   "ok": true
+  },
+  {
+   "claim": "The ghost story is publicized in The Howl newspaper",
+   "anchor": "The picture of Rackham Catchings came out enormous on the front page of The Howl",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Hilda Maple’s financial documents show debts forcing sale",
+   "anchor": "the accountancy document with a mass of other papers",
+   "span": "He had very generously provided much more, really, than the difference between the rents and the interest could possibly have covered; she had all the papers in due order, and she had brought with her the accountancy document with a mass of other papers, which her sick brother-in-law had neither the energy nor the clearness of mind to follow.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.05062295509999999,
+ "models": {
+  "map": "gpt-4o-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

@@ -1,0 +1,136 @@
+{
+ "slug": "tragedy_at_ravensthorpe",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "The theft of the replicas was discovered during the masked ball",
+   "anchor": "The Theft at the Masked Ball",
+   "span": "The Theft at the Masked Ball IV.",
+   "ok": true
+  },
+  {
+   "claim": "Foss was murdered in the museum with a Japanese sword",
+   "anchor": "The Murder in the Museum",
+   "span": "The Murder in the Museum IX.",
+   "ok": true
+  },
+  {
+   "claim": "Maurice Chacewater was found dead in a secret underground chamber",
+   "anchor": "Maurice Chacewater’s body",
+   "span": "He's found Maurice Chacewater's body.",
+   "ok": true
+  },
+  {
+   "claim": "The man in white escaped capture by diving into the lake",
+   "anchor": "living statue disguise",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The otophone was used to pick the safe lock",
+   "anchor": "Marconi Otophone",
+   "span": "'Marconi Otophone.",
+   "ok": true
+  },
+  {
+   "claim": "Cecil Chacewater lied about his arrival time",
+   "anchor": "he didn’t come by the first train",
+   "span": "He didn't come by the first train; he wasn't in it!",
+   "ok": true
+  },
+  {
+   "claim": "Morden cut his hand on the glass during the murder",
+   "anchor": "his hand was streaming with blood",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Fingerprints on the sword matched Maurice Chacewater",
+   "anchor": "finger-prints from Maurice Chacewater’s razors",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Fingerprints on the pistol matched Foss",
+   "anchor": "finger-prints we found on the automatic pistol",
+   "span": "represents the finger-prints we found on the automatic pistol.",
+   "ok": true
+  },
+  {
+   "claim": "The replicas were substituted for the real medallions by Foss",
+   "anchor": "Foss had the real medallions in his possession",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Brackley was the mastermind who planned the second burglary",
+   "anchor": "Brackley was the brain of the gang",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Maurice suffered from agoraphobia and committed suicide",
+   "anchor": "It begins with A. Of course it did.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The secret passage was discovered behind a panel in the museum",
+   "anchor": "a door gaped in the panelling",
+   "span": "There was a sharp snap; and when they turned round again a door gaped in the panelling at the end of the room.",
+   "ok": true
+  },
+  {
+   "claim": "The living statue disguise was used to escape the police",
+   "anchor": "the white marble statue above him started suddenly into life",
+   "span": "To the amazement of the group around him, the white marble statue above him started suddenly into life.",
+   "ok": true
+  },
+  {
+   "claim": "Morden’s parcel was a ruse to monitor Foss",
+   "anchor": "the parcel with the incomplete address",
+   "span": "The parcel with the incomplete address was the first thing that interested me.",
+   "ok": true
+  },
+  {
+   "claim": "Foss was a confidence trickster with multiple aliases",
+   "anchor": "Thomas Pailton, alias Cocoa Tom",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The police used a trap with the otophone and night watch to catch the burglar",
+   "anchor": "We saw the whole show from start to finish",
+   "span": "We saw the whole show from start to finish.",
+   "ok": true
+  },
+  {
+   "claim": "The Fairy Houses were used as refuges for Maurice",
+   "anchor": "Fairy Houses set me thinking",
+   "span": "The Fairy Houses set me thinking at the start.",
+   "ok": true
+  },
+  {
+   "claim": "The motive for stealing replicas was to mislead about the real medallions",
+   "anchor": "the replicas which they stole and not the real medallions",
+   "span": "And yet, with that knowledge, it was the replicas which they stole and not the real medallions.",
+   "ok": true
+  },
+  {
+   "claim": "Morden murdered Foss with the Muramasa sword",
+   "anchor": "Foss was dead, stabbed with the Muramasa sword",
+   "span": "Foss was dead, stabbed with the Muramasa sword.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.128797808,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

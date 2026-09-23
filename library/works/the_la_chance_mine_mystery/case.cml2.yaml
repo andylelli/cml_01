@@ -1,0 +1,526 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The La Chance Mine Mystery
+    author: Susan Morrow Jones
+    license: Public domain (first published 1920; author died 1926). Project Gutenberg ebook 27209.
+    era:
+      decade: 1920s
+      realism_constraints:
+        - No advanced forensic technology like DNA or modern ballistics
+        - Limited communication means, reliance on physical letters and messengers
+        - Transportation limited to horses, wagons, and canoes; no motor vehicles in remote areas
+    setting:
+      location: La Chance mine and surrounding bush country near Caraquet, Quebec, Canada
+      institution: Local mine management and informal posse; no formal police force prominently featured
+    crime_class:
+      category: murder
+      subtype: mine superintendent's secret takeover and murder
+  cast:
+    - name: Nick Stretton
+      age_range: 27-35
+      role_archetype: loyal partner and amateur investigator
+      relationships:
+        - Paulette Brown (Tatiana Paulina Valenka)
+        - Dudley Wilbraham
+        - Macartney (Dick Hutton)
+      public_persona: mine partner and worker
+      private_secret: deeply in love with Paulette
+      motive_seed: protecting the mine and Paulette
+      motive_strength: strong
+      alibi_window: present throughout the story
+      access_plausibility: high
+      opportunity_channels:
+        - mine
+        - bush
+        - road to Caraquet
+      behavioral_tells:
+        - persistent suspicion
+        - protective of Paulette
+      stakes: high
+      evidence_sensitivity:
+        - Thompson's cards
+        - wolf dope evidence
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: moderate
+    - name: Dudley Wilbraham
+      age_range: 40-50
+      role_archetype: mine owner, troubled alcoholic
+      relationships:
+        - Marcia Wilbraham
+        - Paulette Brown (Tatiana Paulina Valenka)
+        - Nick Stretton
+      public_persona: mine owner, drinker
+      private_secret: drug use, troubled by Macartney's schemes
+      motive_seed: maintain control of mine and protect Paulette
+      motive_strength: moderate
+      alibi_window: last seen before death in bush
+      access_plausibility: high
+      opportunity_channels:
+        - mine
+        - bush
+      behavioral_tells:
+        - drunkenness
+        - nervousness
+      stakes: very high
+      evidence_sensitivity:
+        - wolf dope on clothes
+        - dead body in bush
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: high
+    - name: Paulette Brown (Tatiana Paulina Valenka)
+      age_range: 20-30
+      role_archetype: mysterious woman with a secret past
+      relationships:
+        - Dudley Wilbraham
+        - Nick Stretton
+        - Macartney (Dick Hutton)
+      public_persona: Dudley's fiancée
+      private_secret: real identity as Tatiana Paulina Valenka, linked to stolen emeralds
+      motive_seed: protect herself and Dudley from Macartney
+      motive_strength: strong
+      alibi_window: mostly at La Chance or traveling with Nick
+      access_plausibility: high
+      opportunity_channels:
+        - mine
+        - road to Caraquet
+        - bush
+      behavioral_tells:
+        - secret meetings
+        - fear of Hutton
+      stakes: very high
+      evidence_sensitivity:
+        - sealed gold boxes
+        - letter signed with real name
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: suspect
+      moral_complexity: high
+    - name: Macartney (Dick Hutton)
+      age_range: 30-40
+      role_archetype: antagonist, criminal mastermind
+      relationships:
+        - Marcia Wilbraham
+        - Paulette Brown (Tatiana Paulina Valenka)
+      public_persona: mine superintendent
+      private_secret: real identity as Dick Hutton, criminal with a gang
+      motive_seed: take over La Chance mine and gain wealth
+      motive_strength: strong
+      alibi_window: present at mine and Skunk's Misery
+      access_plausibility: very high
+      opportunity_channels:
+        - mine
+        - Skunk's Misery
+        - road to Caraquet
+      behavioral_tells:
+        - set look in eyes
+        - fainting fits
+        - deceptive charm
+      stakes: very high
+      evidence_sensitivity:
+        - wolf dope
+        - Thompson's murder
+        - dead men in assay office
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Marcia Wilbraham
+      age_range: 30-40
+      role_archetype: suspicious sister with hidden motives
+      relationships:
+        - Dudley Wilbraham
+        - Macartney (Dick Hutton)
+        - Paulette Brown (Tatiana Paulina Valenka)
+      public_persona: Dudley's sister
+      private_secret: dislikes Paulette, possibly allied with Macartney
+      motive_seed: protect family interests or personal gain
+      motive_strength: moderate
+      alibi_window: mostly at La Chance
+      access_plausibility: high
+      opportunity_channels:
+        - mine
+        - shack
+      behavioral_tells:
+        - secretive
+        - manipulative
+      stakes: moderate
+      evidence_sensitivity:
+        - letter found in ashes
+        - letting Macartney in
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: suspect
+      moral_complexity: high
+    - name: Collins
+      age_range: 20-30
+      role_archetype: Yale-educated rockman, double agent
+      relationships:
+        - Dunn
+        - Macartney (Dick Hutton)
+      public_persona: mine worker
+      private_secret: in league with Macartney, involved in sabotage
+      motive_seed: gain from mine's gold
+      motive_strength: strong
+      alibi_window: mostly at mine and secret den
+      access_plausibility: high
+      opportunity_channels:
+        - mine
+        - secret tunnels
+        - Skunk's Misery
+      behavioral_tells:
+        - secretive
+        - mocking laughter
+      stakes: high
+      evidence_sensitivity:
+        - secret den
+        - explosives
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: suspect
+      moral_complexity: high
+    - name: Dunn
+      age_range: 20-30
+      role_archetype: Yale-educated rockman, reckless
+      relationships:
+        - Collins
+        - Macartney (Dick Hutton)
+      public_persona: mine worker
+      private_secret: in league with Macartney, involved in sabotage
+      motive_seed: gain from mine's gold
+      motive_strength: strong
+      alibi_window: mostly at mine and secret den
+      access_plausibility: high
+      opportunity_channels:
+        - mine
+        - secret tunnels
+        - Skunk's Misery
+      behavioral_tells:
+        - reckless chuckle
+      stakes: high
+      evidence_sensitivity:
+        - secret den
+        - explosives
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: suspect
+      moral_complexity: high
+    - name: Baker
+      age_range: 30-40
+      role_archetype: loyal servant turned double agent
+      relationships:
+        - Dudley Wilbraham
+        - Macartney (Dick Hutton)
+      public_persona: Dudley's man
+      private_secret: possibly in league with Macartney
+      motive_seed: self-preservation
+      motive_strength: weak
+      alibi_window: present at Skunk's Misery and La Chance
+      access_plausibility: high
+      opportunity_channels:
+        - mine
+        - Skunk's Misery
+      behavioral_tells:
+        - secretive
+      stakes: moderate
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: unknown
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: Charliet
+      age_range: 40-50
+      role_archetype: French-Canadian cook and ally
+      relationships:
+        - Collins
+        - Dunn
+        - Nick Stretton
+      public_persona: cook
+      private_secret: ally of Collins and Dunn
+      motive_seed: loyalty to friends
+      motive_strength: moderate
+      alibi_window: present at La Chance and Skunk's Misery
+      access_plausibility: high
+      opportunity_channels:
+        - mine
+        - kitchen
+        - Skunk's Misery
+      behavioral_tells:
+        - loyalty
+      stakes: moderate
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+    - name: Thompson (William D. Thompson)
+      age_range: 50-60
+      role_archetype: former superintendent, victim
+      relationships:
+        - Dudley Wilbraham
+        - Macartney (Dick Hutton)
+      public_persona: former mine superintendent
+      private_secret: knew Macartney's true nature
+      motive_seed: expose Macartney
+      motive_strength: strong
+      alibi_window: dead before story unfolds
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: high
+      evidence_sensitivity:
+        - letter with hidden message
+        - playing cards with secret writing
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: high
+  culpability:
+    culprit_count: 2
+    culprits:
+      - Macartney (Dick Hutton)
+      - Collins
+  surface_model:
+    narrative:
+      summary: >-
+        The La Chance mine is plagued by mysterious deaths, sabotage, and theft. Suspicion falls on
+        various characters including Paulette Brown and the new superintendent Macartney, with wolf
+        bait and secret meetings adding to the intrigue.
+    accepted_facts:
+      - Thompson, the former superintendent, was found dead under suspicious circumstances.
+      - Macartney is the new mine superintendent and has a secretive and suspicious nature.
+      - Wolf bait was used to lure wolves to attack Dudley Wilbraham.
+      - Paulette Brown is actually Tatiana Paulina Valenka, linked to a stolen emerald necklace.
+    inferred_conclusions:
+      - Paulette Brown is a thief and involved in the murders.
+      - Billy Jones murdered Thompson.
+      - Dunn and Collins are dead and not involved in the conspiracy.
+  hidden_model:
+    mechanism:
+      description: >-
+        Macartney, whose real name is Dick Hutton, orchestrated a plan to take over the La Chance
+        mine by murdering Thompson and Dudley Wilbraham. He used wolf bait to cause Dudley's death
+        and sabotaged the mine's operations. He sealed the gold boxes to prevent theft but planned
+        to steal them himself. Dunn and Collins, initially thought dead, were his accomplices hiding
+        in secret tunnels. The truth was revealed through Thompson's secret messages and the efforts
+        of Nick Stretton and Paulette.
+      delivery_path:
+        - step: Macartney uses wolf bait to lure wolves to attack Dudley Wilbraham.
+        - step: He sabotages the road by placing a boulder to cripple the wagon carrying gold.
+        - step: Macartney murders four mill men during a staged robbery at the assay office.
+        - step: He kills Thompson after capturing him and forces him to write a false letter.
+        - step: Dunn and Collins hide in secret tunnels to assist Macartney.
+        - step: Nick Stretton discovers the secret tunnels and Thompson's messages.
+        - step: Macartney is confronted and killed after his plot is exposed.
+    outcome:
+      result: >-
+        Macartney (Dick Hutton) is exposed as the murderer and criminal mastermind, and order is
+        restored with the mine and Paulette safe.
+  false_assumption:
+    statement: Paulette Brown is guilty of theft and involved in the murders.
+    type: identity
+    why_it_seems_reasonable: >-
+      Paulette's secret identity as Tatiana Paulina Valenka and her mysterious behavior suggest
+      guilt. The sealed gold boxes and her secret meetings with a man in the dark add suspicion.
+    what_it_hides: >-
+      It hides the fact that Macartney is the true culprit manipulating events and that Paulette is
+      a victim trying to protect herself and Dudley.
+  false_solution:
+    accused_suspect: Billy Jones
+    supporting_points:
+      - Billy Jones was found near Thompson's body and had a suspicious demeanor.
+      - Dudley Wilbraham accused him of possible murder.
+      - Billy Jones was fired suddenly and mysteriously.
+      - He had no alibi for the time of Thompson's death.
+    the_one_flaw: >-
+      Billy Jones was incapable of the complex conspiracy and had no motive to kill Thompson or
+      Dudley.
+    refuted_in_chapter: 13
+  red_herrings:
+    - id: paulette_brown_identity
+      description: >-
+        Paulette Brown's real identity as Tatiana Paulina Valenka and her connection to a stolen
+        emerald necklace.
+      points_at_suspect: Paulette Brown
+      innocent_explanation: She was protecting herself from Macartney's threats and was not involved in theft or murder.
+      resolved_in_chapter: 10
+    - id: dunn_and_collins_death
+      description: Dunn and Collins were believed dead and suspected of conspiracy.
+      points_at_suspect: Dunn and Collins
+      innocent_explanation: They were alive and hiding in secret tunnels, working against Macartney.
+      resolved_in_chapter: 16
+  closed_circle:
+    suspects:
+      - Nick Stretton
+      - Dudley Wilbraham
+      - Paulette Brown (Tatiana Paulina Valenka)
+      - Macartney (Dick Hutton)
+      - Marcia Wilbraham
+      - Collins
+      - Dunn
+      - Baker
+      - Charliet
+      - Thompson (William D. Thompson)
+    rationale: >-
+      All key characters are present at La Chance or Skunk's Misery with limited access to the mine
+      and surrounding bush, forming a closed circle of suspects and witnesses.
+  constraint_space:
+    time:
+      anchors:
+        - Thompson's letter dated before his death
+        - Dudley's disappearance and death timeline
+        - Collins and Dunn's disappearance and reappearance
+        - Macartney's arrival and activities
+      windows:
+        - Night of the staged robbery at assay office
+        - Night of Dudley's death in the bush
+        - Time of crossing Lac Tremblant
+        - Time of Thompson's murder
+    access:
+      actors:
+        - Macartney
+        - Nick Stretton
+        - Paulette Brown
+        - Dunn
+        - Collins
+        - Baker
+        - Charliet
+      objects:
+        - La Chance mine
+        - Assay office
+        - Skunk's Misery lean-to and tunnels
+        - Caraquet road
+        - Lac Tremblant lake and ice
+    social:
+      trust_channels:
+        - Nick Stretton and Paulette's trust
+        - Collins and Dunn's secret alliance
+        - Baker's loyalty to Dudley
+        - Charliet's role as cook and ally
+      authority_sources:
+        - Dudley Wilbraham as mine owner
+        - Macartney as mine superintendent
+        - Local posse and informal leadership by Nick Stretton
+  inference_path:
+    steps:
+      - observation: Thompson's letter had a hidden message inside the envelope, whose warning was crucial.
+        correction: The message was a warning about Macartney's true identity and danger.
+        effect: Revealed Macartney as the murderer and criminal mastermind.
+        required_evidence:
+          - >-
+            Thompson's letter with hidden pencil scrawl inside envelope, whose warning was
+            orchestrated to reach Nick Stretton
+          - Thompson's playing cards with secret writing about Macartney's chance to cause harm
+        reader_observable: true
+      - observation: Wolf bait was found in the wagon and on the road, showing a chance for wolves to attack.
+        correction: Macartney used wolf bait to lure wolves to attack Dudley.
+        effect: Showed Macartney's involvement in Dudley's death.
+        required_evidence:
+          - Broken bottle of wolf bait in wagon, orchestrated by Macartney
+          - Dead wolf with throat cut near corduroy road, whose presence was caused by bait
+        reader_observable: true
+      - observation: >-
+          Four mill men were found dead in the assay office, whose deaths were orchestrated to
+          eliminate witnesses.
+        correction: Macartney staged a robbery and killed them to eliminate witnesses.
+        effect: Confirmed Macartney's violent methods to secure control.
+        required_evidence:
+          - Dead mill men with gunshot wounds in assay office, whose deaths were caused by Macartney
+          - >-
+            Macartney's empty revolver and slashed doorpost, orchestrated as part of the staged
+            robbery
+        reader_observable: true
+      - observation: >-
+          Dunn and Collins were believed dead but reappeared alive, whose disappearance was
+          orchestrated by Macartney.
+        correction: They were hiding in secret tunnels and allied with Macartney.
+        effect: Revealed complicity of Dunn and Collins in the conspiracy.
+        required_evidence:
+          - Secret tunnels behind Thompson's stope, whose existence was orchestrated for hiding
+          - >-
+            Dunn and Collins' presence in Skunk's Misery den, caused by their alliance with
+            Macartney
+        reader_observable: true
+      - observation: >-
+          Paulette Brown's real name and connection to emerald theft, whose identity was used to
+          cause suspicion.
+        correction: She was innocent and a victim of Macartney's schemes.
+        effect: Cleared Paulette of theft and implicated Macartney.
+        required_evidence:
+          - >-
+            Letter signed Tatiana Paulina Valenka, whose contents were orchestrated to protect
+            Paulette
+          - Van Ruyne's emerald necklace found on Macartney, showing cause for suspicion
+        reader_observable: true
+      - observation: >-
+          Macartney was seen with Marcia Wilbraham and had fainting fits, whose behavior was
+          orchestrated to deflect suspicion.
+        correction: Macartney is Dick Hutton, the criminal mastermind.
+        effect: Identified Macartney as the true culprit behind murders and theft.
+        required_evidence:
+          - >-
+            Thompson's deuce of hearts with message, whose warning was orchestrated to reveal
+            Macartney's identity
+          - Macartney's behavior and fainting episodes, caused by his criminal stress
+        reader_observable: true
+      - observation: >-
+          Macartney's men were ambushed and killed by explosion in Thompson's stope, whose fate was
+          orchestrated by Nick Stretton.
+        correction: Nick Stretton and allies used explosives to trap Macartney's gang.
+        effect: Led to Macartney's downfall and capture.
+        required_evidence:
+          - High explosive placed in Thompson's stope, whose detonation was orchestrated as a trap
+          - Explosion and collapse of tunnel entrance, causing Macartney's gang to be incapacitated
+        reader_observable: true
+  discriminating_test:
+    method: trap
+    design: >-
+      Nick Stretton and his allies set a trap by sealing themselves in Thompson's stope and placing
+      high explosives at the tunnel entrance. They lure Macartney and his gang into the stope and
+      detonate the explosives to incapacitate them. This forces Macartney into a direct
+      confrontation, revealing his identity and guilt.
+    knowledge_revealed: >-
+      The trap exposes Macartney as the murderer and criminal mastermind behind the murders, theft,
+      and sabotage at La Chance mine.
+    pass_condition: >-
+      Macartney and his gang are incapacitated by the explosion and forced into a confrontation
+      where Macartney's identity and crimes are revealed.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given access to all key clues including Thompson's hidden messages, the wolf
+      bait evidence, the sealed gold boxes, and the suspicious behavior of Macartney. The secret
+      tunnels and the identity of Macartney as Dick Hutton are hinted at through multiple
+      observations. The false solution accusing Billy Jones is presented and refuted. The final trap
+      and confession are logically deduced from the gathered evidence.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

@@ -1,0 +1,136 @@
+{
+ "slug": "the_crime_code",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Lionel Hipwell was accused of murder after a shooting in Bloomsbury Square",
+   "anchor": "Man Murdered in Bloomsbury Square. Escape of the Alleged Assassin",
+   "span": "Man Murdered in Bloomsbury Square. Escape of the Alleged Assassin,\" greeted my eyes in bold type.",
+   "ok": true
+  },
+  {
+   "claim": "The victim was shot in the jaw and the bullet penetrated the brain",
+   "anchor": "Examination showed that the dead man had been shot in the jaw",
+   "span": "Examination showed that the dead man had been shot in the jaw, and that the bullet had penetrated the brain.",
+   "ok": true
+  },
+  {
+   "claim": "Hilda Bennett accused Lionel but later denied he was the killer",
+   "anchor": "No, she said decisively. He’s a liar! This is not the man who killed Monkey Dick!",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Lionel fled disguised as a lorry driver to avoid arrest",
+   "anchor": "He begged them to give him a lift, and they did so. On the way the stranger bought the clothes",
+   "span": "He begged them to give him a lift, and they did so. On the way the stranger bought the clothes and overcoat of his companion, so that when he left at Birmingham, he was disguised as a motor-driver.",
+   "ok": true
+  },
+  {
+   "claim": "Lionel was drugged and lost memory for two years",
+   "anchor": "That drug given to me by Lisely Hatten destroyed my self-will",
+   "span": "That drug given to me by Lisely Hatten destroyed my self-will, and rendered me inert, helpless, ignorant of my true existence.",
+   "ok": true
+  },
+  {
+   "claim": "Illona was Lionel’s secret wife and a member of the criminal gang",
+   "anchor": "Elizabeth Mary Illona Patrick, spinster, age 39, of Stafford Road, Notting Hill",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Felix Zuroff is the leader of the criminal gang controlling jewel thieves",
+   "anchor": "Felix Zuroff, the most daring and desperate jewel-thief Europe has ever known",
+   "span": "Felix Zuroff, the most daring and desperate jewel-thief Europe has ever known and whose ramifications ran through the whole Continent, restored Lady Rathgormly's pearls to her, at my suggestion.",
+   "ok": true
+  },
+  {
+   "claim": "Joan Gell was kidnapped by the gang as revenge against her father",
+   "anchor": "She was locked in an upstairs room in a small and dirty house kept by a foreigner, named Dufour",
+   "span": "But, on coming to herself, she found to her horror that she was locked in an upstairs room in a small and dirty house kept by a foreigner, named Dufour, and his wife.",
+   "ok": true
+  },
+  {
+   "claim": "Musical manuscript is a coded message used by the gang",
+   "anchor": "The discovery of the musical code used by the wide-spread gang astounded me",
+   "span": "The discovery of the musical code used by the wide-spread gang astounded me.",
+   "ok": true
+  },
+  {
+   "claim": "Illona betrayed Lionel to the police and committed suicide",
+   "anchor": "Before she could arrest her on suspicion she committed suicide by swallowing prussic acid",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Joan was rescued after police raid and found unconscious",
+   "anchor": "In the centre of a bare, miserable room was a bed, and upon it a female figure. Next second I recognized the pallid, wasted face as that of Joan",
+   "span": "In the centre of a bare, miserable room was a bed, and upon it a female figure. Next second I recognized the pallid, wasted face as that of Joan--_my Joan_!",
+   "ok": true
+  },
+  {
+   "claim": "Felix Zuroff agreed to release Lionel after Illona’s death",
+   "anchor": "Felix Zuroff, the most notorious motor bandit Europe had known, restord Lady Rathgormly’s pearls",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "False accusation that Lionel murdered Monkey Dick was based on misunderstanding",
+   "anchor": "Rodwell was a damned cur! I have since discovered that on the night in question he was on his way to Vine Street Police Station to give me away",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Joan’s disappearance was a reprisal against her father by criminals",
+   "anchor": "It is a case of revenge and retaliation. That is my view",
+   "span": "It is a case of revenge and retaliation. That is my view.",
+   "ok": true
+  },
+  {
+   "claim": "Lisely Hatten spared Lionel’s eyesight despite being gang member",
+   "anchor": "She was then--not now. She ascertained your family connections, as you know, and intended to marry you. To her, you no doubt owe your eyesight",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Roddy Owen fled due to police suspicion but was innocent of murder",
+   "anchor": "If he knows anything he shall be made to divulge it, I assure you, Mr. Hipwell",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Illona sent a warning to Lionel about a blind man",
+   "anchor": "Beware of a trap, and if you meet a blind man, be careful to avoid him",
+   "span": "Beware of a trap, and if you meet a blind man, be careful to avoid him.",
+   "ok": true
+  },
+  {
+   "claim": "Lionel’s official position allowed him to travel widely and access jewels",
+   "anchor": "I held a post at the Foreign Office, a post which, I confess, carried with it short hours and little work",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The pearls were hidden in a hollow book in Lionel’s possession",
+   "anchor": "There it was in black and white to hold in any court of law",
+   "span": "There it was in black and white to hold in any court of law.",
+   "ok": true
+  },
+  {
+   "claim": "The coded musical message warned Lionel of Illona’s betrayal",
+   "anchor": "Illona will betray you to the police. She is coming to London with that object. Beware of her! Trust in me",
+   "span": "_Illona will betray you to the police. She is coming to London with that object. Beware of her! Trust in me.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.120549576,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

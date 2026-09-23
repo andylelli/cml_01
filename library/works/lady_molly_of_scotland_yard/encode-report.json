@@ -1,0 +1,136 @@
+{
+ "slug": "lady_molly_of_scotland_yard",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "The victim was found lying on her face with head in slime",
+   "anchor": "lying on her face, with the lower portion of her body",
+   "span": "Suffice it to say for the present that the unfortunate woman was lying on her face, with the lower portion of her body on the small grass-covered embankment, and her head, arms, and shoulders sunk in the slime of the stagnant water just below.",
+   "ok": true
+  },
+  {
+   "claim": "Mary Nicholls was believed murdered but was alive in hiding",
+   "anchor": "Mary Nicholls arrived here this morning. Detained her at station",
+   "span": "Mary Nicholls arrived here this morning. Detained her at station.",
+   "ok": true
+  },
+  {
+   "claim": "Lord Edbrooke murdered Susan Nicholls who impersonated Mary",
+   "anchor": "It ended with the murder of the blackmailer",
+   "span": "It ended with the murder of the blackmailer.",
+   "ok": true
+  },
+  {
+   "claim": "Mrs. Frewin and Lionel Frewin replaced original miniatures with copies",
+   "anchor": "carefully copied the priceless miniatures and then entrusted them",
+   "span": "You are a clever artist yourself, and you schemed out a plan whereby you carefully copied the priceless miniatures and then entrusted them to your son for sale to the Art Museum at Budapest, where there was but little likelihood of their being seen by anyone who knew they had belonged to your husband.",
+   "ok": true
+  },
+  {
+   "claim": "Mr. Carrthwaite was murdered and framed Cecil Shuttleworth",
+   "anchor": "piece of rough Irish tweed, obviously torn from his assailant’s coat",
+   "span": "He had been found dead in the garden of his villa just outside the town, with a stiletto between his shoulder blades and a piece of rough Irish tweed, obviously torn from his assailant's coat, clutched tightly in his hand.",
+   "ok": true
+  },
+  {
+   "claim": "Lady Molly was assaulted and Mrs. Tadworth was an accomplice",
+   "anchor": "Mrs. Tadworth pinioned and half dead with fear",
+   "span": "118, which had purposely been left on the latch, he was greeted with the sight of Mrs. Tadworth pinioned and half dead with fear, whilst the valuable proofs of his own guilt and young Shuttleworth's innocence had completely disappeared.",
+   "ok": true
+  },
+  {
+   "claim": "Joan Duplessis murdered her servant Roonah to suppress papers",
+   "anchor": "her throat cut. The sight was horrible",
+   "span": "The young man, genuinely alarmed, ran quickly upstairs; he threw open the door leading to Roonah's room, and there, to his horror, he saw the unfortunate woman lying across the small camp-bedstead, with a handkerchief over her nose and mouth, and her throat cut. The sight was horrible.",
+   "ok": true
+  },
+  {
+   "claim": "Jane Turner staged an assault and blackmail scheme alone",
+   "anchor": "She planned and executed it because she was afraid",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Miss Cruikshank impersonated Mrs. Thomas and murdered Mrs. Dunstan",
+   "anchor": "Miss Cruikshank made full confession",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Leonard Marvell disguised as his sister and maid to commit crimes",
+   "anchor": "Leonard was alternately dressed as man or woman",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Mark Culledon was murdered by morphia poisoning in chocolate",
+   "anchor": "The man has been killed by a terrific dose of morphia",
+   "span": "The man has been killed by a terrific dose of morphia--administered, no doubt, in this cup of chocolate,\" he added, pointing to a cup in which there still lingered the cold dregs of the thick beverage.",
+   "ok": true
+  },
+  {
+   "claim": "Lady Irene Culledon wore a large hat only once on murder day",
+   "anchor": "her ladyship came home from the concert--she told me that she would never wear her big hat again",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Philip Baddock and Felkin conspired to murder Steadman and forge will",
+   "anchor": "I was Sir Jeremiah for the space of half an hour",
+   "span": "I was Sir Jeremiah for the space of half an hour, and I think that I played the part splendidly.",
+   "ok": true
+  },
+  {
+   "claim": "Captain Hubert de Mazareen was framed and later pardoned",
+   "anchor": "Captain Hubert de Mazareen obtained His Majesty’s gracious pardon",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Lady Molly secretly married Captain Hubert de Mazareen",
+   "anchor": "Captain Hubert de Mazareen was married to Lady Molly Robertson-Kirk",
+   "span": "4 Captain Hubert de Mazareen was married to Lady Molly Robertson-Kirk by special licence on April 22nd, 1904, at the Church of St.",
+   "ok": true
+  },
+  {
+   "claim": "Felkin threatened Baddock with exposing his crimes",
+   "anchor": "If you marry Philip Baddock, then within six months of your wedding-day you will be a widow",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Lady Molly used a reenactment with hats to identify the murderer",
+   "anchor": "I have two of the waitresses from Mathis’ outside in a cab",
+   "span": "I have two of the waitresses from Mathis' outside in a cab, and I have already spoken to the attendant who served you at Sanchia's, an obscure milliner in a back street near Portland Road.",
+   "ok": true
+  },
+  {
+   "claim": "Lady Irene Culledon died by suicide after exposure",
+   "anchor": "Lady Irene, with a cry of agony, fell senseless in my dear lady’s arms",
+   "span": "Lady Irene, with a cry of agony, fell senseless in my dear lady's arms\" \"Philip Baddock looked defiant, and Felkin taciturn and sulky\" \"'Ask Philip Baddock if my threats are paltry'\" LADY MOLLY OF SCOTLAND YARD I.",
+   "ok": true
+  },
+  {
+   "claim": "Miss Cruikshank was arrested disguised as Mrs. Thomas",
+   "anchor": "Miss Cruikshank was arrested on the warrant for the apprehension of the person known as Mrs. Thomas",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Lady Molly gave up convict de Mazareen to police to save him",
+   "anchor": "He held out his hands for the irons",
+   "span": "He held out his hands for the irons\"] CONTENTS I.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.127680748,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

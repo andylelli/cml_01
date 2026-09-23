@@ -1,0 +1,433 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The Owl Taxi
+    author: Hulbert Footner
+    license: Public domain (first published 1921; author died 1944). Project Gutenberg ebook 57088.
+    era:
+      decade: 1920s
+      realism_constraints:
+        - No modern forensic science such as DNA or advanced ballistics
+        - Telephones and telegrams are in use but not ubiquitous
+        - Private detective work relies on physical surveillance, disguise, and direct confrontation
+    setting:
+      location: New York City, with significant scenes in Managuay and New Orleans
+      institution: >-
+        Local police and private individuals including taxi drivers; also political and diplomatic
+        bodies
+    crime_class:
+      category: murder
+      subtype: political assassination and impersonation
+  cast:
+    - name: Gregory Parr
+      age_range: young adult
+      role_archetype: resourceful and determined young man
+      relationships:
+        - Amy Wilmot
+        - Hickey Meech
+        - Bessie Bickle
+        - Mario Estuban
+      public_persona: new taxi driver
+      private_secret: investigator seeking justice for political murder
+      motive_seed: restore justice and protect Amy
+      motive_strength: strong
+      alibi_window: continuous throughout the narrative
+      access_plausibility: high, as taxi driver and investigator
+      opportunity_channels:
+        - taxi driving
+        - surveillance
+        - disguise
+      behavioral_tells:
+        - persistent
+        - cautious
+        - brave
+      stakes: high, involving political corruption and personal safety
+      evidence_sensitivity:
+        - little black book
+        - disguises
+        - notes and telegrams
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: moderate
+    - name: Hickey Meech (Elmer Fishback)
+      age_range: middle-aged
+      role_archetype: loyal but flawed companion
+      relationships:
+        - Gregory Parr
+        - Bessie Bickle
+      public_persona: taxi driver
+      private_secret: former owner of the cab sold to Greg
+      motive_seed: none
+      motive_strength: none
+      alibi_window: present with Greg
+      access_plausibility: high
+      opportunity_channels:
+        - taxi driving
+      behavioral_tells:
+        - nervous
+        - impulsive
+      stakes: low
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: low
+    - name: Amy Wilmot (Amèlie de Socotra)
+      age_range: young adult
+      role_archetype: disguised noblewoman and victim
+      relationships:
+        - Gregory Parr
+        - Francisco de Socotra
+        - Señora de Socotra
+        - Mario Estuban
+        - Señor Henry Saunders
+      public_persona: disguised as a boy
+      private_secret: niece of murdered Antonio Bareda, daughter of Francisco de Socotra
+      motive_seed: avenge uncle and expose corruption
+      motive_strength: strong
+      alibi_window: mostly under surveillance
+      access_plausibility: limited
+      opportunity_channels:
+        - disguise
+        - secret communication
+      behavioral_tells:
+        - courageous
+        - secretive
+        - determined
+      stakes: very high
+      evidence_sensitivity:
+        - little black book
+        - notes
+        - disguises
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: high
+    - name: Francisco de Socotra
+      age_range: middle-aged
+      role_archetype: villainous political boss
+      relationships:
+        - Amy Wilmot
+        - Señora de Socotra
+        - Abanez
+        - Mario Estuban
+        - Alfieri
+      public_persona: wealthy Managuayan politician
+      private_secret: murderer of Antonio Bareda and political conspirator
+      motive_seed: prevent exposure of corruption
+      motive_strength: strong
+      alibi_window: present in New York during events
+      access_plausibility: high
+      opportunity_channels:
+        - political influence
+        - private residence
+        - taxi
+      behavioral_tells:
+        - arrogant
+        - calculating
+        - ruthless
+      stakes: very high
+      evidence_sensitivity:
+        - little black book
+        - murder weapon
+        - disguises
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Mario Estuban
+      age_range: young adult
+      role_archetype: loyal friend and secretary
+      relationships:
+        - Antonio Bareda
+        - Gregory Parr
+        - Amy Wilmot
+      public_persona: friend and secretary of Antonio Bareda
+      private_secret: knows political secrets and evidence
+      motive_seed: justice for Bareda
+      motive_strength: strong
+      alibi_window: mostly present with Greg
+      access_plausibility: high
+      opportunity_channels:
+        - political knowledge
+        - secretary role
+      behavioral_tells:
+        - determined
+        - knowledgeable
+      stakes: high
+      evidence_sensitivity:
+        - little black book
+        - affidavits
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: moderate
+    - name: De Silva
+      age_range: young adult
+      role_archetype: hired assassin and secretary
+      relationships:
+        - Antonio Bareda
+        - Francisco de Socotra
+      public_persona: secretary to Antonio Bareda
+      private_secret: murderer of Antonio Bareda by poison
+      motive_seed: paid assassin
+      motive_strength: strong
+      alibi_window: present in New York
+      access_plausibility: high
+      opportunity_channels:
+        - secretary access
+        - poison
+      behavioral_tells:
+        - nervous
+        - remorseful
+      stakes: high
+      evidence_sensitivity:
+        - hypodermic needle
+        - poison vial
+        - note
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: low
+    - name: Señor Henry Saunders
+      age_range: young adult
+      role_archetype: wealthy fiancé with divided loyalties
+      relationships:
+        - Amy Wilmot
+        - Francisco de Socotra
+      public_persona: wealthy Managuayan-American
+      private_secret: betrayed Amy's plans to de Socotra
+      motive_seed: loyalty to Francisco de Socotra
+      motive_strength: moderate
+      alibi_window: present in New York
+      access_plausibility: high
+      opportunity_channels:
+        - social access
+        - taxi rides
+      behavioral_tells:
+        - nervous
+        - jealous
+        - deceptive
+      stakes: moderate
+      evidence_sensitivity:
+        - taxi ride
+        - telephone call
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: high
+  culpability:
+    culprit_count: 2
+    culprits:
+      - Francisco de Socotra
+      - De Silva
+  surface_model:
+    narrative:
+      summary: >-
+        Antonio Bareda, a political reformer from Managuay, is found dead in a taxi cab in New York.
+        His niece Amy Wilmot, disguised as a boy, and a young taxi driver Gregory Parr become
+        embroiled in a dangerous political intrigue involving de Socotra, a powerful Managuayan
+        politician who impersonates Bareda to deceive the government.
+    accepted_facts:
+      - Antonio Bareda was found dead in a taxi cab in New York
+      - Francisco de Socotra is a powerful Managuayan politician involved in the case
+      - A little black book containing incriminating evidence is central to the intrigue
+      - Amy Wilmot is the niece of Antonio Bareda and is disguised as a boy
+    inferred_conclusions:
+      - Hickey Meech was responsible for the murder
+      - Señor Henry Saunders was a loyal ally to Amy and Greg
+      - The little black book found was the original incriminating evidence
+  hidden_model:
+    mechanism:
+      description: >-
+        Antonio Bareda was murdered by De Silva, acting under orders from Francisco de Socotra,
+        using a hypodermic needle with poison. De Socotra then impersonated Bareda to mislead
+        political authorities. The original little black book containing evidence was hidden by De
+        Silva in a mattress, while a forged copy was used by de Socotra. Greg Parr and his allies
+        recovered the original book and exposed the conspiracy, leading to de Socotra's downfall.
+      delivery_path:
+        - step: De Silva boards the ship with Bareda and gains his confidence
+        - step: De Silva murders Bareda with a poisoned hypodermic needle in New York
+        - step: De Socotra impersonates Bareda using the forged little black book
+        - step: Greg Parr recovers the original little black book hidden in a mattress
+        - step: Amy Wilmot helps substitute the forged book to deceive de Socotra
+        - step: Greg and allies confront de Socotra and recover the evidence
+        - step: De Socotra dies of heart failure after exposure and confrontation
+    outcome:
+      result: >-
+        Justice is served with the deaths of both Antonio Bareda and Francisco de Socotra, and
+        political reform follows in Managuay.
+  false_assumption:
+    statement: >-
+      The little black book found and recovered early in the investigation was the genuine
+      incriminating evidence.
+    type: identity
+    why_it_seems_reasonable: >-
+      The book was physically similar and contained plausible documents, and was recovered from a
+      trusted source. It was accepted by the protagonists as the key evidence.
+    what_it_hides: >-
+      It was actually a forged copy created by de Socotra's gang to mislead investigators while the
+      original was hidden elsewhere.
+  false_solution:
+    accused_suspect: Hickey Meech (Elmer Fishback)
+    supporting_points:
+      - Hickey sold the cab to Greg just before the body was found
+      - He was evasive about the circumstances of the body
+      - His nervous behavior suggested guilt
+      - He disappeared after the murder
+    the_one_flaw: >-
+      Hickey had no motive or opportunity to commit the murder and was not involved in the political
+      conspiracy
+    refuted_in_chapter: 12
+  red_herrings:
+    - id: señor_henry_saunders
+      description: Amy's wealthy fiancé who is suspected of betraying her to de Socotra.
+      points_at_suspect: His presence with de Socotra and his suspicious behavior suggest possible collusion.
+      innocent_explanation: He acted out of fear and loyalty to protect Amy and was manipulated by de Socotra.
+      resolved_in_chapter: 22
+    - id: de_silva_attempted_suicide
+      description: De Silva's attempted suicide and mysterious behavior cast suspicion on him as a murderer.
+      points_at_suspect: His nervousness and presence at key moments suggest guilt.
+      innocent_explanation: He was a remorseful hired assassin overwhelmed by guilt and fear.
+      resolved_in_chapter: 18
+  closed_circle:
+    suspects:
+      - Francisco de Socotra
+      - De Silva
+      - Hickey Meech (Elmer Fishback)
+      - Señor Henry Saunders
+    rationale: >-
+      The suspects are limited to those with access to the victim and the political motive; others
+      are witnesses or bystanders.
+  constraint_space:
+    time:
+      anchors:
+        - Night of Antonio Bareda's murder
+        - Arrival of the _Allianca_ ship
+        - De Socotra's planned train to Washington
+      windows:
+        - Between landing and train departure
+        - Concert and theater visits
+        - Late night and early morning surveillance
+    access:
+      actors:
+        - Gregory Parr
+        - Hickey Meech
+        - Amy Wilmot
+        - Francisco de Socotra
+        - De Silva
+      objects:
+        - Taxi cab T7011
+        - Little black book
+        - Hotel rooms and apartments
+        - Sanitarium
+        - Ladder for window entry
+    social:
+      trust_channels:
+        - Notes and telegrams exchanged via taxi
+        - Hall-boy Frank
+        - Bessie Bickle's taxi yard
+        - Maid Nina
+      authority_sources:
+        - Local police
+        - Hotel clerks
+        - Doctor Emslie at sanitarium
+        - Undertaker
+  inference_path:
+    steps:
+      - observation: The body of Antonio Bareda was found dead in a taxi cab with no visible wounds.
+        correction: De Silva used a hypodermic needle with poison to kill Bareda silently.
+        effect: The murder method was subtle and left no external marks.
+        required_evidence:
+          - Hypodermic needle found in De Silva's room
+          - Doctor's report on Bareda's body showing no external wounds but symptoms of poisoning
+        reader_observable: true
+      - observation: A little black book was recovered but contained only flattering testimonials.
+        correction: The recovered book was a forged copy; the original was hidden elsewhere.
+        effect: The evidence initially found was misleading.
+        required_evidence:
+          - Estuban's analysis of the book's contents
+          - De Silva's note about hiding the original book
+        reader_observable: true
+      - observation: Francisco de Socotra impersonated Antonio Bareda to mislead political authorities.
+        correction: De Socotra used the forged book to deceive the President and others.
+        effect: The political conspiracy involved impersonation and forgery.
+        required_evidence:
+          - Pa Simmons' surveillance report of de Socotra
+          - Greg's observation of de Socotra carrying the forged book
+        reader_observable: true
+      - observation: Amy Wilmot was disguised as a boy and communicated secretly with Greg.
+        correction: Amy was the niece of Bareda and opposed de Socotra's plans.
+        effect: Amy was a key ally in recovering the evidence and exposing the conspiracy.
+        required_evidence:
+          - Notes exchanged between Amy and Greg
+          - Amy's testimony and actions
+        reader_observable: true
+      - observation: De Silva attempted suicide and was found in a distressed state.
+        correction: De Silva was a remorseful hired assassin who confessed to the murder.
+        effect: De Silva's mental state confirmed his guilt and the murder method.
+        required_evidence:
+          - Doctor's report on De Silva's condition after suicide attempt
+          - Hypodermic needle found in De Silva's room
+        reader_observable: true
+      - observation: De Socotra was confronted and escaped multiple times during the raid.
+        correction: De Socotra's escape delayed justice but he was ultimately cornered.
+        effect: The final confrontation was tense and required coordinated effort.
+        required_evidence:
+          - Greg and Estuban's raid reports
+          - Witness accounts of de Socotra's escape
+        reader_observable: true
+      - observation: De Socotra died suddenly of heart failure after the confrontation.
+        correction: De Socotra's death ended the political threat and allowed reform.
+        effect: The villain's demise resolved the case and restored justice.
+        required_evidence:
+          - Doctor's report on de Socotra's death
+          - Señora de Socotra's statements
+        reader_observable: true
+  discriminating_test:
+    method: reenactment
+    design: >-
+      Gregory Parr and Mario Estuban disguised Greg as a shabby cabman and used the taxi to lure
+      Francisco de Socotra into revealing the little black book. They staged a hold-up and searched
+      his hotel room and headquarters to confirm the presence of the original book and expose the
+      forgery.
+    knowledge_revealed: >-
+      This test revealed the true location of the original little black book and confirmed de
+      Socotra's impersonation and guilt.
+    pass_condition: >-
+      De Socotra is caught with the forged book and the original is found hidden, proving the
+      deception.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given access to all key clues including the discovery of the dead body, the
+      forged and original little black books, the notes and telegrams exchanged, and the
+      observations of the characters. The disguises, surveillance, and political context are clearly
+      described, allowing an attentive reader to deduce the true murderer and the method of the
+      crime. The false solution and red herrings are plausible but contradicted by concrete evidence
+      presented before the final reveal.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

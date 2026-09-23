@@ -1,0 +1,136 @@
+{
+ "slug": "the_yellow_streak",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Hartley Parrish was found dead with a pistol in his hand",
+   "anchor": "Hartley Parrish lay on his back motionless",
+   "span": "He was pointing to the open window, beneath which Hartley Parrish lay on his back motionless.",
+   "ok": true
+  },
+  {
+   "claim": "The library door was locked from the inside",
+   "anchor": "The door was locked",
+   "span": "The door was locked.",
+   "ok": true
+  },
+  {
+   "claim": "Mary Trevert heard a shot fired at about 5:15 PM",
+   "anchor": "Miss Trevert heard the shot fired",
+   "span": "Miss Trevert heard the shot fired at 5.",
+   "ok": true
+  },
+  {
+   "claim": "Bude heard voices in the library shortly before the shot",
+   "anchor": "I heard voices from the library",
+   "span": "I went back to the hall, and just as I opened the green baize door I heard voices from the library .",
+   "ok": true
+  },
+  {
+   "claim": "Parrish’s pistol was missing its silencer at the time of death",
+   "anchor": "there was no sign of the cup",
+   "span": "Parrish's hand, and there was no sign of the cup, sir.",
+   "ok": true
+  },
+  {
+   "claim": "A bullet mark was found on a rose garden pole opposite the library window",
+   "anchor": "a long blaze on the bark on the side of the trunk",
+   "span": "It was a long blaze on the bark on the side of the trunk which had caught his eye.",
+   "ok": true
+  },
+  {
+   "claim": "The letter from Elias van der Spyck & Co. was written in code",
+   "anchor": "letters written on the slatey-blue paper were in code",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The slotted sheet of blue paper was used as a code key",
+   "anchor": "a number of rectangular slits had been cut in the paper",
+   "span": "The curious thing about it was that a number of rectangular slits had been cut in the paper.",
+   "ok": true
+  },
+  {
+   "claim": "Jeekes confessed to the murder in a written statement",
+   "anchor": "Last Statement of Albert Edward Jeekes",
+   "span": "Thus, in Jeekes's round and flowing commercial hand, the document began: Last Statement of Albert Edward Jeekes, made at Rotterdam, this twenty-first Day of January, in the Year of Our Lord One Thousand Nine Hundred and.",
+   "ok": true
+  },
+  {
+   "claim": "Jeekes killed Parrish by shooting him through the open window",
+   "anchor": "I stood close up to the sill. 'Mr. Parrish,' I said",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Parrish fired a silenced shot at Jeekes before being shot",
+   "anchor": "there was a loud, raucous hiss of air",
+   "span": "I saw the pistol he held, but before I could make a movement there was a loud, raucous hiss of air and a bullet whistled past my ear into the darkness of the gardens.",
+   "ok": true
+  },
+  {
+   "claim": "Jeekes staged the scene as a suicide by placing the pistol in Parrish’s hand",
+   "anchor": "I caught the dead man’s hand. It was fat and soft and still warm",
+   "span": "I stood beside the body and I caught the dead man's hand. It was fat and soft and still warm.",
+   "ok": true
+  },
+  {
+   "claim": "Victor Marbran was the mastermind behind the crime and fled",
+   "anchor": "Victor Marbran has gone and left me to meet a shameful death",
+   "span": "Victor Marbran has gone and left me to meet a shameful death.",
+   "ok": true
+  },
+  {
+   "claim": "Robin Greve was suspected due to the butler’s testimony",
+   "anchor": "I thought maybe he had his reasons and I did not feel exactly as how it was my place",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Mary Trevert was engaged to Parrish but had a past with Greve",
+   "anchor": "I’ve promised to marry somebody else",
+   "span": "I've promised to marry somebody else .",
+   "ok": true
+  },
+  {
+   "claim": "The silencer muffled the first shot making it sound like a hiss",
+   "anchor": "there was a sort of hiss, harsh and rather loud, from the room",
+   "span": "Just as I tried the door-it was locked, you know-there was a sort of hiss, harsh and rather loud, from the room .",
+   "ok": true
+  },
+  {
+   "claim": "The murder weapon was a Browning automatic pistol",
+   "anchor": "Browning pistol ammunition",
+   "span": "Browning pistol ammunition,\" observed Humphries; \"it fits the gun he used.",
+   "ok": true
+  },
+  {
+   "claim": "Jeekes was found dead by hanging at Villa Bergendal",
+   "anchor": "the body of Mr. Jeekes dangled from the cross-beam of the door",
+   "span": "Suspended by a strip of coloured stuff, the body of Mr. Jeekes dangled from the cross-beam of the door.",
+   "ok": true
+  },
+  {
+   "claim": "Manderton and others reconstructed the crime scene at Harkings",
+   "anchor": "we will reconstruct the crime in the light of the evidence",
+   "span": "if Inspector Humphries will kindly close the door, we will reconstruct the crime in the light of the evidence we have collected.",
+   "ok": true
+  },
+  {
+   "claim": "Jeekes’s confession reveals the motive and method of the murder",
+   "anchor": "Victor Marbran has abandoned me. He had prepared everything for his flight",
+   "span": "Victor Marbran has abandoned me. He had prepared everything for his flight.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.11301455600000002,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

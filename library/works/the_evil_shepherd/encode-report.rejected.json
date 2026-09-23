@@ -1,0 +1,136 @@
+{
+ "slug": "the_evil_shepherd",
+ "valid": false,
+ "errors": [
+  "CASE.inference_path.steps[6].required_evidence[0] relies on detective-only behavioral shorthand (\"Physical confession letter written and signed by John Walter, describing the murder as he witnessed it, and dated before his death\") — replace it with a concrete pre-test observation, document, timeline fact, physical trace, or access record"
+ ],
+ "spans": [
+  {
+   "claim": "Francis Ledsam succeeded in obtaining the man's acquittal",
+   "anchor": "I succeeded in obtaining the man's acquittal",
+   "span": "If not, you may be interested to know that I succeeded in obtaining the man's acquittal.",
+   "ok": true
+  },
+  {
+   "claim": "Oliver Hilditch was guilty of murder and other crimes",
+   "anchor": "Oliver Hilditch was guilty, Andrew. He murdered the man Jordan",
+   "span": "Oliver Hilditch was guilty, Andrew. He murdered the man Jordan--murdered him in cold blood.",
+   "ok": true
+  },
+  {
+   "claim": "The dagger used to kill was concealed inside a golf putter",
+   "anchor": "the dagger itself is encased in this cotton wool to avoid any rattling",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Oliver Hilditch died from a stab wound inflicted by Sir Timothy Brast",
+   "anchor": "he just drove it in, sir",
+   "span": "Hilditch's hand which held the hilt of the dagger, and and--well, he just drove it in, sir.",
+   "ok": true
+  },
+  {
+   "claim": "John Walter was bribed to keep silent about the murder",
+   "anchor": "I doubled what I had thought of first. 'A thousand pounds, sir,' I said",
+   "span": "I doubled what I had thought of first. 'A thousand pounds, sir,' I said.",
+   "ok": true
+  },
+  {
+   "claim": "Sir Timothy Brast is the father of Margaret Hilditch",
+   "anchor": "Father of Oliver Hilditch's wife",
+   "span": "Father of Oliver Hilditch's wife,” Wilmore observed, “the most munificent patron of boxing in the world, Vice President of the Society for the Prevention of Cruelty to Animals, and self-confessed arch-criminal!",
+   "ok": true
+  },
+  {
+   "claim": "Reginald Wilmore was held captive at The Walled House",
+   "anchor": "My trainer has ideas of his own and this he insists upon it",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Sir Timothy Brast hosts illegal boxing matches at The Walled House",
+   "anchor": "I give prizes here of considerable value for boxing contests",
+   "span": "I give prizes here of considerable value for boxing contests which are conducted under rules of our own.",
+   "ok": true
+  },
+  {
+   "claim": "Sir Timothy Brast predicted a crime near Soto's restaurant",
+   "anchor": "he challenged me to discover the assassin",
+   "span": "' He then went on to prophesy that a crime would be committed close to where we were, within an hour or so, and he challenged me to discover the assassin.",
+   "ok": true
+  },
+  {
+   "claim": "Robert Fairfax was arrested for Victor Bidlake's murder but died after poisoning",
+   "anchor": "Mr. Robert Fairfax here on a charge of wilful murder",
+   "span": "that I have just arrested Mr. Robert Fairfax here on a charge of wilful murder.",
+   "ok": true
+  },
+  {
+   "claim": "Sir Timothy Brast assaulted a carter to save a horse",
+   "anchor": "Sir Timothy, who was looking out of the window, pressed the button of the car",
+   "span": "Suddenly Sir Timothy, who was looking out of the window, pressed the button of the car, which was at once brought to a standstill.",
+   "ok": true
+  },
+  {
+   "claim": "The butler John Walter reveals the truth about the murder in the last chapter",
+   "anchor": "I have a revelation to make with regard to that night",
+   "span": "I have a revelation to make with regard to that night, sir,” the man went on, “which I should like to place in your hands.",
+   "ok": true
+  },
+  {
+   "claim": "Sir Timothy Brast's party includes a deadly fight between two men",
+   "anchor": "These two men have sworn to fight to the death",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The staged fight on the launch is a mock tragedy",
+   "anchor": "The tragedies which are supposed to have taken place on my launch have been just as much mock tragedies",
+   "span": "The tragedies which are supposed to have taken place on my launch have been just as much mock tragedies as last night's, only I have not previously chosen to take the audiences into my confidence.",
+   "ok": true
+  },
+  {
+   "claim": "Shopland is thrown into the river as punishment by Sir Timothy's men",
+   "anchor": "They lifted him off his feet as though he were a baby, and a moment later there was a splash in the water",
+   "span": "They lifted him off his feet as though he were a baby, and a moment later there was a splash in the water.",
+   "ok": true
+  },
+  {
+   "claim": "Francis Ledsam and Margaret Hilditch become engaged",
+   "anchor": "I wish your daughter to become my wife",
+   "span": "I wish your daughter to become my wife.",
+   "ok": true
+  },
+  {
+   "claim": "Sir Timothy Brast admits killing Oliver Hilditch",
+   "anchor": "Yes, I killed him",
+   "span": "Yes, I killed him,” he admitted.",
+   "ok": true
+  },
+  {
+   "claim": "Margaret Hilditch was tricked into marrying Oliver Hilditch",
+   "anchor": "He forged a letter from my father, begging me, if I found it in any way possible, to listen to Oliver Hilditch's proposals",
+   "span": "He forged a letter from my father, begging me, if I found it in any way possible, to listen to Oliver Hilditch's proposals, and hinting guardedly at a very serious financial crisis which it was in his power to avert.",
+   "ok": true
+  },
+  {
+   "claim": "John Walter's confession is bought by Francis Ledsam",
+   "anchor": "I bought these from John Walter the day before yesterday",
+   "span": "I bought these from John Walter the day before yesterday,” he continued.",
+   "ok": true
+  },
+  {
+   "claim": "Sir Timothy Brast's entertainments are not orgies but controlled boxing matches",
+   "anchor": "The superficial part of my entertainment you have seen",
+   "span": "The superficial part of my entertainment you have seen.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.199371668,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": false
+}

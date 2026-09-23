@@ -1,127 +1,136 @@
 {
  "slug": "ashes_to_ashes",
+ "valid": true,
+ "errors": [],
  "spans": [
   {
-   "claim": "Norman Storm saw Leila emerge from the Leicester Building",
-   "anchor": "Leila was going to the city and to this portion of it",
+   "claim": "Leila died from a blow to the head",
+   "anchor": "right temple bone has been crushed in",
+   "span": "The right temple bone has been crushed in, as if with some heavy, blunt instrument!",
+   "ok": true
+  },
+  {
+   "claim": "Blood and a golden hair were found on the golf club driver",
+   "anchor": "smudge of red . . . . a single golden hair",
    "span": "",
    "ok": false
   },
   {
-   "claim": "Leila died from a blow to the head with a golf club driver",
-   "anchor": "the rounded knob, and to the sinister clot of red upon it",
-   "span": "The blow had been delivered with the rounded knob, and to the sinister clot of red upon it there adhered a single golden hair which glinted accusingly in the light.",
-   "ok": true
-  },
-  {
-   "claim": "Storm destroyed the handkerchief stained with Leila's blood",
+   "claim": "Storm destroyed the handkerchief with bloodstains",
    "anchor": "the handkerchief was a mere wisp",
    "span": "The flakes were dropping now like sifting, gray-white down, and the handkerchief was a mere wisp.",
    "ok": true
   },
   {
-   "claim": "Storm planned to conceal the murder as an accident",
-   "anchor": "Mrs. Storm’s death was due to a fracture of the right temporal caused by a fall",
-   "span": "As my colleague, Doctor Carr, had already surmised, Mrs. Storm's death was due to a fracture of the right temporal caused by a fall while suffering an attack of _petit mal_.",
-   "ok": true
-  },
-  {
-   "claim": "Jack Horton disappeared with a large sum of money",
-   "anchor": "John M. Horton, pay clerk for the Mid-Eastern Consolidated Coal Corporation, disappeared",
-   "span": "John M. Horton, pay clerk for the Mid-Eastern Consolidated Coal Corporation, disappeared on the sixth inst.",
-   "ok": true
-  },
-  {
-   "claim": "Horton was murdered by a blow to the head",
-   "anchor": "Jack Horton was found murdered with his head bashed in",
+   "claim": "Leila lied about her whereabouts to conceal a secret purchase",
+   "anchor": "She had been to the city . . . . secret compartment",
    "span": "",
    "ok": false
   },
   {
-   "claim": "The black bag with money and pistol was found at Grand Central Station",
-   "anchor": "The bag with poor old Jack’s hat and a pistol and a lot of old newspapers inside was discovered",
-   "span": "The bag with poor old Jack's hat and a pistol and a lot of old newspapers inside was discovered in the parcel-checking room of the Grand Central Station.",
-   "ok": true
+   "claim": "Storm was swindled by a fake Du Chainat",
+   "anchor": "pseudo Du Chainat . . . . swindler on a rather large scale",
+   "span": "",
+   "ok": false
   },
   {
-   "claim": "Newspapers in the bag had outer sheets missing with Storm’s apartment number",
-   "anchor": "the outer sheets had been removed because they bore the name of the person to whom they had been consigned",
+   "claim": "Jack Horton disappeared with a large sum of money",
+   "anchor": "John M. Horton . . . disappeared . . . with a black leather handbag",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Horton was murdered by a blow to the head",
+   "anchor": "Jack Horton is spread all over the front page",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The black bag with money was found at Grand Central Station",
+   "anchor": "bag with poor old Jack’s hat and a pistol . . . was discovered",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Newspapers with Storm’s apartment number were found in Horton’s bag",
+   "anchor": "outer sheets had been removed because they bore the name of the person",
    "span": "Because those papers weren't bought haphazard at a news-stand; they'd been delivered from day to day by a regular vendor, and the outer sheets had been removed because they bore the name of the person to whom they had been consigned.",
    "ok": true
   },
   {
-   "claim": "Storm was swindled by Maurice du Chainat",
-   "anchor": "He had you down for sixty thousand, and as all the other items on the list were verified",
-   "span": "He had you down for sixty thousand, and as all the other items on the list were verified by the victims themselves I naturally concluded that his plans had gone through in your case.",
-   "ok": true
-  },
-  {
    "claim": "George Holworthy suspects Storm’s guilt",
-   "anchor": "George started back from the table, both hands clutching at the meager hair on his temples",
-   "span": "As the monstrous, almost unbelievable fact was borne in upon him, George started back from the table, both hands clutching at the meager hair on his temples.",
+   "anchor": "Storm could not have learned of her birthday surprise for him",
+   "span": "Storm could not have learned of her birthday surprise for him.",
    "ok": true
   },
   {
-   "claim": "Storm killed Leila out of jealousy and rage",
-   "anchor": "Storm struck, and the small, colorless face with its tantalizing, disdainful curl of the lips vanished",
-   "span": "",
-   "ok": false
-  },
-  {
-   "claim": "Storm killed Horton to get the money",
-   "anchor": "Storm’s hand closed over the head of the heavy cane",
-   "span": "As Horton crossed the threshold Storm's hand closed over the head of the heavy cane, and he drew it out of the stand.",
-   "ok": true
-  },
-  {
-   "claim": "Storm disposed of Horton’s body by throwing it over a wall",
-   "anchor": "heave the body over the wall——Then a swift thought brought beads of sweat out upon his brow",
-   "span": "",
-   "ok": false
-  },
-  {
-   "claim": "Storm hid the money in a valise in his apartment",
-   "anchor": "He had taken the money and stored it in a valise beneath the bed",
-   "span": "",
-   "ok": false
-  },
-  {
-   "claim": "George Holworthy finds newspapers with Storm’s apartment number in Storm’s trunk",
-   "anchor": "On a sudden impulse George picked up the desk blotter and unwrapped it",
-   "span": "On a sudden impulse George picked up the desk blotter and unwrapped it.",
-   "ok": true
-  },
-  {
-   "claim": "Storm’s golf clubs were found in the den",
-   "anchor": "There lay the golf sticks just as he had supposed",
-   "span": "There lay the golf sticks just as he had supposed; and gathering them up he left the den, closing the door behind him, and as he entered the other's eyes traveled to his burden, and a sound very like an oath escaped his lips.",
-   "ok": true
-  },
-  {
-   "claim": "Storm planned to isolate George on the fishing trip to prevent discovery",
-   "anchor": "I want to be just alone with you",
-   "span": "I don't even want to have a guide fussing around; I want to be just alone with you.",
-   "ok": true
-  },
-  {
-   "claim": "George calls the police to arrest Storm",
-   "anchor": "George lifted the receiver",
-   "span": "Slowly, determinedly, George lifted the receiver.",
-   "ok": true
-  },
-  {
-   "claim": "Storm confesses under pressure",
+   "claim": "Storm killed Leila with a golf club driver",
    "anchor": "You killed her with—this!",
    "span": "You killed her with-this!\" George suddenly produced the driver, and Storm shrank away in horror.",
    "ok": true
   },
   {
-   "claim": "Storm is arrested",
-   "anchor": "The scream of an approaching siren cut the stillness",
+   "claim": "Storm killed Jack Horton and stole the money",
+   "anchor": "You killed Jack Horton! His money is here in this valise",
    "span": "",
    "ok": false
+  },
+  {
+   "claim": "Storm staged Leila’s death as an accident",
+   "anchor": "Mrs. Storm’s death was due to a fracture of the right temporal caused by a fall",
+   "span": "As my colleague, Doctor Carr, had already surmised, Mrs. Storm's death was due to a fracture of the right temporal caused by a fall while suffering an attack of _petit mal_.",
+   "ok": true
+  },
+  {
+   "claim": "The policeman saw two men walking near the murder scene",
+   "anchor": "two men passed him going north on the Drive toward that identical spot",
+   "span": "The policeman on the beat reported that two men passed him going north on the Drive toward that identical spot at approximately the hour of the murder.",
+   "ok": true
+  },
+  {
+   "claim": "Horton was killed by a trusted friend",
+   "anchor": "Jack was done in at a single blow by someone he knew and trusted",
+   "span": "Jack was done in at a single blow by someone he knew and trusted, and I say it is a damned shame and outrage!",
+   "ok": true
+  },
+  {
+   "claim": "Storm disposed of the black bag by checking it at the station",
+   "anchor": "I want the bag checked. Take it to the parcel room, will you?",
+   "span": "No, I want the bag checked. Take it to the parcel room, will you?\" \"It'll be a dime, suh,\" the porter announced, taking over the burden nonchalantly.",
+   "ok": true
+  },
+  {
+   "claim": "The bills stolen from Horton were numbered and traceable",
+   "anchor": "their numbers have been flashed all over the United States",
+   "span": "Because their numbers have been flashed all over the United States; the Chief of Police in every big city has been warned to be on the lookout for them, and long before the scoundrels can reach another country, provided they succeed in getting out of this one, the news will have preceded them!",
+   "ok": true
+  },
+  {
+   "claim": "Storm planned to kill George if suspicion arose",
+   "anchor": "I’ve got to go fishing with George!",
+   "span": "_I've got to go fishing with George!_\" Chapter XXV The Final Test When Storm arose in the morning his head still ached in a dull, insistent way; but his energy had returned, and the thought which had been his last before sleep had crystallized into a definite decision.",
+   "ok": true
+  },
+  {
+   "claim": "George discovered the newspapers with the apartment number in Storm’s trunk",
+   "anchor": "On each of them was scrawled a rough circle with Storm’s apartment number",
+   "span": "And on each of them was scrawled a rough circle with Storm's apartment number, \"_One-A_\", within it!",
+   "ok": true
+  },
+  {
+   "claim": "Storm’s golf sticks were the murder weapon",
+   "anchor": "the driver! George picked it up and carried it close to one of the candles",
+   "span": "Not the putter nor the brassie nor the cleek,-the driver! George picked it up and carried it close to one of the candles.",
+   "ok": true
   }
  ],
+ "costGbp": 0.172830828,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
  "verified_by": "corpus-verify.mjs",
- "verified_on": "2026-08-31"
+ "verified_on": "2026-09-23"
 }

@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "Sir Gregory Penne is the Head-Hunter murderer responsible for the decapitations.",
+  "type": "identity",
+  "why_it_seems_reasonable": "Penne’s suspicious behavior, possession of the orangutan Bhag, and his violent past make him a natural suspect. The victims and clues are often found on or near his estate, implicating him.",
+  "what_it_hides": "It conceals the true murderer, Sampson Longvale, who operates independently using a hidden guillotine and manipulates events to frame Penne."
+ },
+ "mechanism_description": "Sampson Longvale, inspired by his ancestor the executioner, is the Head-Hunter who murders victims using a guillotine hidden in caves beneath his house. He lures victims under various pretenses, restrains them with handcuffs, and executes them with the guillotine. The orangutan Bhag is used by Sir Gregory Penne for intimidation and kidnapping but is not the murderer. The murders are concealed by the remote location and the secret cave system.",
+ "discriminating_test": {
+  "method": "trap",
+  "design": "Michael Brixan arranges a sting by sending dummy letters to the Benefactor address and waits for the collection. He then uses the pulley trapdoor in Longvale’s house to capture him and observe his reaction and access to the guillotine. The test reveals Longvale’s guilt by his possession of the guillotine and his attempt to execute Michael.",
+  "knowledge_revealed": "The trap exposes Longvale as the Head-Hunter and murderer, confirming the guillotine as the murder weapon and the cave as the crime scene.",
+  "pass_condition": "Longvale’s capture in the trapdoor and his possession of the guillotine equipment conclusively prove his guilt."
+ },
+ "changed": [],
+ "confidence": "high"
+}

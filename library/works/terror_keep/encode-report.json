@@ -48,13 +48,13 @@
   {
    "claim": "Gas extinguishes matches",
    "anchor": "When I dropped a match it was immediately extinguished",
-   "span": "",
-   "ok": false
+   "span": "Whatever else was used, there is still carbon monoxide in the cutting, for when I dropped a match it was immediately extinguished, and every match I burnt near the ground went out.",
+   "ok": true
   },
   {
    "claim": "Ravini's Luck Rings sent to Reeder",
    "anchor": "They were George Ravini’s Luck Stones",
-   "span": "They were George Ravini’s Luck Stones, and for ten minutes Mr.",
+   "span": "They were George Ravini's Luck Stones, and for ten minutes Mr.",
    "ok": true
   },
   {
@@ -84,7 +84,7 @@
   {
    "claim": "Flack's escape through cave and boat",
    "anchor": "They had descended to the water’s edge by a continuance of the long stairway which led to the roof",
-   "span": "They had descended to the water’s edge by a continuance of the long stairway which led to the roof, and were making for the rocky platform which served as a pier for the craft.",
+   "span": "They had descended to the water's edge by a continuance of the long stairway which led to the roof, and were making for the rocky platform which served as a pier for the craft.",
    "ok": true
   },
   {
@@ -136,5 +136,7 @@
   "encode": "gpt-4.1-mini",
   "sweep": "gpt-4o-mini"
  },
- "case_written": true
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
 }

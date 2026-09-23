@@ -1,0 +1,127 @@
+{
+ "slug": "the_orange_yellow_diamond",
+ "spans": [
+  {
+   "claim": "Daniel Multenius was found dead in his parlour",
+   "anchor": "lay an old man, grey-bearded, venerable--Daniel Multenius",
+   "span": "There, stretched out across the floor, his head lying on the hearthrug, his hands lying inert and nerveless at his sides, lay an old man, grey-bearded, venerable--Daniel Multenius, no doubt.",
+   "ok": true
+  },
+  {
+   "claim": "Lauriston was found with rings similar to those in the pawnshop tray",
+   "anchor": "rings in the tray--and he glanced from the rings to Lauriston's rings",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The rare Spanish manuscript was found in Multenius's parlour",
+   "anchor": "a beautifully bound book, a small quarto in size",
+   "span": "Close by the tray of old rings lay a book--a beautifully bound book, a small quarto in size, with much elaborate gold ornament on the back and side, and gilt clasps holding the heavy leather binding together.",
+   "ok": true
+  },
+  {
+   "claim": "Levendale advertised the lost book but had it in his hand",
+   "anchor": "he was so concerned about the loss that he immediately sent advertisements",
+   "span": "Levendale lost this book in a 'bus, which he left at the corner of Chapel Street, and that he was so concerned about the loss that he immediately sent advertisements off to every morning newspaper in London.",
+   "ok": true
+  },
+  {
+   "claim": "Parslett was poisoned and died mysteriously",
+   "anchor": "he was picked up, dying, in a quiet street off Maida Vale, at twelve o'clock last night, and he died soon afterwards",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Chen Li was found murdered with a knife-thrust in the throat",
+   "anchor": "there's a dead man here! Look for yourself!",
+   "span": "--there's a dead man here! Look for yourself!\" CHAPTER TWENTY-SEVEN THE EMPTY HOUSE Ayscough had manifested a certain restiveness and dislike to the proceedings ever since his companion had induced him to enter the back door of Molteno Lodge--these doings appeared to him informal and irregular.",
+   "ok": true
+  },
+  {
+   "claim": "Platinum solitaire studs were found at the murder scene and eating-house",
+   "anchor": "a solitaire stud, made of platinum, and ornamented with a curious device",
+   "span": "And suddenly his keen eyes saw an object which lay close to the fender, half hidden by a tassel of the hearthrug, and he stooped and picked it up--a solitaire stud, made of platinum, and ornamented with a curious device.",
+   "ok": true
+  },
+  {
+   "claim": "Yada visited the mortuary with the detective's card",
+   "anchor": "a young Japanese medical student, one Yada, that was a friend of those Chinese",
+   "span": "As to who he is--if he's the fellow I gave a card to, he's a young Japanese medical student, one Yada, that was a friend of those Chinese--I called on him tonight, with Rubinstein, to see if we could pick up a bit of information.",
+   "ok": true
+  },
+  {
+   "claim": "Yada escaped after being locked in a room by Melky",
+   "anchor": "Yada had risked his neck, and gone down the water-pipe",
+   "span": "Yada had risked his neck, and gone down the water-pipe.",
+   "ok": true
+  },
+  {
+   "claim": "Levendale and Purvis disappeared and reappeared disguised",
+   "anchor": "Levendale, a sheaf of morning papers in his hand, was a vastly different Levendale",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The stolen diamond and money were hidden in Chen Li's pigtail",
+   "anchor": "he showed them a carefully-coiled mass of black hair, wound round and round the back of the head",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Melky Rubinstein tricked Yada and recovered the stolen diamond and money",
+   "anchor": "Melky went through his prisoner's pockets in a knowing and skilful fashion",
+   "span": "And while he laughed Melky went through his prisoner's pockets in a knowing and skilful fashion, and when he had found what he expected to find, he made his helpers lock Yada up again, and taking them downstairs to the parlour laid his discoveries on the table before them and Zillah.",
+   "ok": true
+  },
+  {
+   "claim": "The murder was committed to cover the theft of the diamond",
+   "anchor": "he saw the flash of a knife in the moonlight--he heard a muffled cry",
+   "span": "He saw the flash of a knife in the moonlight--he heard a muffled cry, and startled groan--and saw Chen Li pitch forward and lie evidently lifeless, where he fell.",
+   "ok": true
+  },
+  {
+   "claim": "The police raid on Pilmansey's Tea Rooms uncovered the opium den",
+   "anchor": "there is a secret opium den at Pilmansey's, though nobody knows of it but a few frequenters",
+   "span": "Policeman, and the rest of you generally, there is a secret opium den at Pilmansey's, though nobody knows of it but a few frequenters.",
+   "ok": true
+  },
+  {
+   "claim": "Chang Li was in an opium stupor and unable to assist",
+   "anchor": "He has been here--like that--several days",
+   "span": "He has been here--like that--several days,\" he said.",
+   "ok": true
+  },
+  {
+   "claim": "The false assumption that Lauriston was the murderer",
+   "anchor": "The police are now dead certain that young Lauriston's story is false",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The platinum marks on the rings are trade marks from the same maker",
+   "anchor": "inside the two rings which young Lauriston says are his, are certain private marks",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The rare book was brought to the pawnshop by Levendale himself",
+   "anchor": "he had the book in his hand when he left the omnibus",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The poison used on Parslett was subtle and secret",
+   "anchor": "I believe him to have been poisoned--in a most subtle and cunning fashion",
+   "span": "I believe him to have been poisoned--in a most subtle and cunning fashion.",
+   "ok": true
+  },
+  {
+   "claim": "Yada's confession and the recovery of the diamond and money",
+   "anchor": "he told a strange tale--and all the stranger because... he was willing to confess that for a few days he had been a successful thief",
+   "span": "",
+   "ok": false
+  }
+ ],
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

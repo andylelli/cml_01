@@ -1,0 +1,448 @@
+{
+ "decade": "1890s",
+ "realism_constraints": [
+  "No modern forensic DNA or electronic surveillance available",
+  "Travel and communication limited to trains, telegrams, and letters",
+  "Medical knowledge includes poisons like hydrocyanic acid but no advanced toxicology"
+ ],
+ "location": "Wrychester, England, centered around the Cathedral Close and Paradise",
+ "institution": "Wrychester Police, with involvement of New Scotland Yard detective",
+ "crime_category": "murder",
+ "crime_subtype": "hidden revenge and secret inheritance",
+ "cast": [
+  {
+   "name": "Dr. Mark Ransford",
+   "age_range": "40-50",
+   "role_archetype": "guardian with a hidden past",
+   "role": "detective",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "respected medical practitioner and guardian",
+   "private_secret": "knows true parentage of Mary and Dick and the real murderers",
+   "motive_seed": "protect his wards and seek justice",
+   "motive_strength": "strong",
+   "alibi_window": "present at various times, including away on council business",
+   "access_plausibility": "high",
+   "stakes": "high - reputation, guardianship, justice",
+   "moral_complexity": "high",
+   "relationships": [
+    "Mary Bewery (ward)",
+    "Dick Bewery (ward)"
+   ],
+   "opportunity_channels": [
+    "access to Collishaw's house",
+    "presence near Cathedral"
+   ],
+   "behavioral_tells": [
+    "agitation at discovery",
+    "vehement denial of guilt"
+   ],
+   "evidence_sensitivity": [
+    "handwriting on pills",
+    "presence at key times"
+   ]
+  },
+  {
+   "name": "Mary Bewery",
+   "age_range": "19-20",
+   "role_archetype": "ward seeking truth",
+   "role": "witness",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "young woman under guardianship",
+   "private_secret": "daughter of John Brake (John Braden)",
+   "motive_seed": "desire to know her true parentage",
+   "motive_strength": "moderate",
+   "alibi_window": "mostly at home or golf club",
+   "access_plausibility": "low",
+   "stakes": "personal identity and family honor",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Dick Bewery (brother)",
+    "Dr. Mark Ransford (guardian)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "steady composure under pressure"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Dick Bewery",
+   "age_range": "17",
+   "role_archetype": "observant youth",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "schoolboy ward",
+   "private_secret": "son of John Brake",
+   "motive_seed": "curiosity",
+   "motive_strength": "none",
+   "alibi_window": "at school or home",
+   "access_plausibility": "low",
+   "stakes": "family safety",
+   "moral_complexity": "low",
+   "relationships": [
+    "Mary Bewery (sister)",
+    "Dr. Mark Ransford (guardian)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "eager to share information"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Pemberton Bryce",
+   "age_range": "28-30",
+   "role_archetype": "scheming ex-assistant",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "former assistant doctor",
+   "private_secret": "manipulates suspicions to gain power and marry Mary",
+   "motive_seed": "ambition and desire for Mary Bewery",
+   "motive_strength": "strong",
+   "alibi_window": "present in town, active in investigations",
+   "access_plausibility": "high",
+   "stakes": "personal gain and control",
+   "moral_complexity": "high",
+   "relationships": [
+    "Mary Bewery (object of desire)",
+    "Dr. Mark Ransford (former employer)"
+   ],
+   "opportunity_channels": [
+    "access to Collishaw's pills",
+    "presence at crime scenes"
+   ],
+   "behavioral_tells": [
+    "cynical, secretive, manipulative"
+   ],
+   "evidence_sensitivity": [
+    "gold withdrawal",
+    "possession of scrap of paper"
+   ]
+  },
+  {
+   "name": "Mr. Stephen Folliot (Falkiner Wraye)",
+   "age_range": "50-60",
+   "role_archetype": "wealthy rose grower and villain",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "wealthy resident and rose grower",
+   "private_secret": "real identity as Falkiner Wraye, involved in murder and robbery",
+   "motive_seed": "conceal past crimes and maintain power",
+   "motive_strength": "strong",
+   "alibi_window": "at home or garden",
+   "access_plausibility": "high",
+   "stakes": "freedom and reputation",
+   "moral_complexity": "high",
+   "relationships": [
+    "Sackville Bonham (stepson)",
+    "Glassdale (acquaintance)"
+   ],
+   "opportunity_channels": [
+    "access to Collishaw's poisoning",
+    "influence over Flood"
+   ],
+   "behavioral_tells": [
+    "calm, authoritative, secretive"
+   ],
+   "evidence_sensitivity": [
+    "possession of revolver",
+    "presence at well-house"
+   ]
+  },
+  {
+   "name": "Fladgate (Flood)",
+   "age_range": "40-50",
+   "role_archetype": "verger and accomplice",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "verger at Cathedral",
+   "private_secret": "partner in crime with Folliot",
+   "motive_seed": "protect self and Folliot",
+   "motive_strength": "strong",
+   "alibi_window": "at home or Cathedral",
+   "access_plausibility": "high",
+   "stakes": "freedom and reputation",
+   "moral_complexity": "high",
+   "relationships": [
+    "Mr. Stephen Folliot (partner)"
+   ],
+   "opportunity_channels": [
+    "presence at gallery",
+    "involvement in Braden's death"
+   ],
+   "behavioral_tells": [
+    "nervous, evasive"
+   ],
+   "evidence_sensitivity": []
+  }
+ ],
+ "culprits": [
+  "Pemberton Bryce",
+  "Mr. Stephen Folliot (Falkiner Wraye)"
+ ],
+ "surface_summary": "John Braden, a mysterious stranger, is found dead after falling from a cathedral gallery. Suspicion falls on Dr. Mark Ransford, guardian to two wards with unknown parentage. A series of deaths and secret investigations reveal a complex web of past betrayals and hidden identities.",
+ "accepted_facts": [
+  "John Braden was found dead at the foot of St. Wrytha's Stair",
+  "Braden had no papers on him but carried a scrap of Latin directions",
+  "Collishaw, a mason's labourer, was poisoned by hydrocyanic acid",
+  "The Saxonsteade jewels were found buried in Paradise"
+ ],
+ "inferred_conclusions": [
+  "Dr. Ransford murdered John Braden by throwing him from the gallery",
+  "Collishaw was poisoned by Dr. Ransford to silence him",
+  "John Braden came to Wrychester seeking revenge on Ransford"
+ ],
+ "mechanism_description": "John Brake, under the alias John Braden, died accidentally after a struggle with Flood (Fladgate) in the cathedral gallery, where he was thrown through an open doorway. Wraye (Mr. Folliot) and Flood were the true villains who had deceived Brake and later silenced Collishaw by poisoning him. Bryce was manipulating suspicions but was not the murderer.",
+ "delivery_path": [
+  "Brake arrives in Wrychester under the name John Braden",
+  "Brake meets Flood in the cathedral gallery; a struggle ensues",
+  "Brake accidentally falls through the open doorway to his death",
+  "Collishaw witnesses the event and knows incriminating details",
+  "Wraye poisons Collishaw to prevent him from speaking",
+  "Wraye and Flood conceal their identities and past crimes",
+  "Police uncover the jewel robbery secret and arrest Flood"
+ ],
+ "outcome_result": "The true culprits, Wraye (Folliot) and Flood (Fladgate), are exposed and arrested, while Dr. Ransford is exonerated and the mystery of John Brake's death is revealed as accidental.",
+ "false_assumption": {
+  "statement": "Dr. Ransford deliberately murdered John Braden by throwing him from the cathedral gallery.",
+  "type": "behavioral",
+  "why_it_seems_reasonable": "Ransford was seen agitated and pale near the time of Braden's death, and rumors connected him to the victim. The suspicious deaths and poisonings around him further fueled police suspicion.",
+  "what_it_hides": "The assumption ignores the presence and actions of Wraye and Flood, who were the actual perpetrators. It also overlooks the accidental nature of Braden's fall during a struggle."
+ },
+ "false_solution": {
+  "accused_suspect": "Dr. Mark Ransford",
+  "supporting_points": [
+   "Ransford was seen leaving the cathedral porch looking pale and agitated",
+   "Rumors and gossip linked him to the victim",
+   "He had access to the victim and the crime scenes",
+   "He was found in possession of pills linked to the poisoning"
+  ],
+  "the_one_flaw": "Ransford had no motive to kill and was unaware of the true culprits; the evidence against him was circumstantial and manipulated by Bryce.",
+  "refuted_in_chapter": 27
+ },
+ "red_herrings": [
+  {
+   "id": "pemberton_bryce_schemes",
+   "description": "Bryce's manipulations and false accusations against Ransford mislead the investigation.",
+   "points_at_suspect": "Dr. Mark Ransford",
+   "innocent_explanation": "Bryce acted out of personal ambition and desire to marry Mary, not as the murderer.",
+   "resolved_in_chapter": 27
+  },
+  {
+   "id": "varners_hand_witness",
+   "description": "Varner's testimony about seeing a gentleman's hand throwing Braden is questioned and doubted.",
+   "points_at_suspect": "Dr. Mark Ransford",
+   "innocent_explanation": "The hand was likely Braden's own in a struggle or fall, not an assailant's.",
+   "resolved_in_chapter": 27
+  }
+ ],
+ "closed_circle": {
+  "suspects": [
+   "Dr. Mark Ransford",
+   "Pemberton Bryce",
+   "Mr. Stephen Folliot (Falkiner Wraye)",
+   "Fladgate (Flood)"
+  ],
+  "rationale": "All had opportunity and connection to the victim and crime scenes, with motives and suspicious behavior; others were witnesses or unrelated."
+ },
+ "constraint_space": {
+  "time_anchors": [
+   "Braden's arrival at Mitre Hotel evening before death",
+   "Braden's death around 10 am",
+   "Collishaw's poisoning shortly before discovery",
+   "Bryce's gold withdrawal two days before Collishaw's death"
+  ],
+  "time_windows": [
+   "Braden's two-hour absence from Mitre Hotel evening",
+   "Collishaw working from 9 am to past 11 am"
+  ],
+  "access_actors": [
+   "Dr. Mark Ransford",
+   "Pemberton Bryce",
+   "Mr. Stephen Folliot (Falkiner Wraye)",
+   "Fladgate (Flood)"
+  ],
+  "access_objects": [
+   "Collishaw's pill box",
+   "Braden's scrap of paper",
+   "Cathedral gallery and doorway",
+   "Paradise enclosure"
+  ],
+  "trust_channels": [
+   "Bryce's secret information sharing",
+   "Glassdale's confidences",
+   "Police informants and witnesses"
+  ],
+  "authority_sources": [
+   "Wrychester Police",
+   "New Scotland Yard Detective-Sergeant Jettison",
+   "Coroner's inquest"
+  ]
+ },
+ "inference_path": [
+  {
+   "observation": "Varner saw a gentleman's hand throw Braden from the gallery",
+   "correction": "The hand was likely Braden's own during a struggle or fall",
+   "effect": "Discredits direct murder accusation against Ransford",
+   "required_evidence": [
+    "Varner's witness statement describing the hand and fall",
+    "Flood's confession of accidental struggle leading to fall"
+   ]
+  },
+  {
+   "observation": "Collishaw was poisoned by hydrocyanic acid",
+   "correction": "Poison was administered via a coated pill, not the tin bottle",
+   "effect": "Points to a medical man with access as the poisoner",
+   "required_evidence": [
+    "Post-mortem report by Dr. Coates and Dr. Everest",
+    "Box of pills with Ransford's handwriting"
+   ]
+  },
+  {
+   "observation": "Bryce withdrew fifty pounds in gold shortly before Collishaw's death",
+   "correction": "The gold was not hush-money but payment for information or other purpose",
+   "effect": "Bryce's innocence in poisoning is supported; suggests complex motives",
+   "required_evidence": [
+    "Bank withdrawal records",
+    "Friendly Society deposit book showing Collishaw's fifty pounds"
+   ]
+  },
+  {
+   "observation": "Braden had no papers on him except a scrap of Latin directions",
+   "correction": "The directions led to the hiding place of the Saxonsteade jewels",
+   "effect": "Reveals motive for Braden's visit and murder",
+   "required_evidence": [
+    "Scrap of paper found in Braden's purse",
+    "Discovery of jewels buried in Paradise"
+   ]
+  },
+  {
+   "observation": "Wraye and Flood were unknown to the police initially",
+   "correction": "They were identified as Mr. Folliot and Fladgate, involved in robbery and murder",
+   "effect": "Identifies true culprits behind the crimes",
+   "required_evidence": [
+    "Glassdale's testimony identifying Wraye and Flood",
+    "Flood's confession and arrest"
+   ]
+  },
+  {
+   "observation": "Ransford was agitated and suspected of murder",
+   "correction": "Ransford was protecting the children and seeking justice",
+   "effect": "Exonerates Ransford and clarifies his role",
+   "required_evidence": [
+    "Ransford's testimony and explanation to police",
+    "Confession of Flood and discovery of jewels"
+   ]
+  },
+  {
+   "observation": "Bryce was manipulating suspicions and withholding evidence",
+   "correction": "Bryce's motives were personal ambition, not murder",
+   "effect": "Bryce is a schemer but not the murderer",
+   "required_evidence": [
+    "Bryce's interactions with Mary Bewery",
+    "Bryce's gold withdrawal and lack of direct involvement in murders"
+   ]
+  }
+ ],
+ "discriminating_test": {
+  "method": "constraint_proof",
+  "design": "Investigate the timeline and locations of key suspects during the time of Braden's death and Collishaw's poisoning. Verify presence or absence at critical moments using witness statements and access records. Confirm the identity of the man who struggled with Braden in the gallery and the source of the poison administered to Collishaw.",
+  "knowledge_revealed": "This test reveals that Ransford was not present at the time of the murder struggle, that Flood was the man who struggled with Braden, and that Wraye (Folliot) administered the poison to Collishaw.",
+  "pass_condition": "Establishing Flood's presence at the gallery during Braden's death and proving that the poison was administered via a pill only accessible to a medical professional other than Ransford."
+ },
+ "fair_play_explanation": "The reader is given all necessary clues including witness statements, timelines, and character motives. The scrap of paper with Latin directions, the discovery of the jewels, the poison type, and the identities of Wraye and Flood are all presented before the solution. The false accusation against Ransford is clearly shown to be based on circumstantial evidence and misinterpretation, allowing the attentive reader to deduce the true culprits.",
+ "anchors": [
+  {
+   "claim": "John Braden was found dead at the foot of St. Wrytha's Stair",
+   "anchor": "a man flung through that doorway, forty feet above"
+  },
+  {
+   "claim": "Braden had no papers on him but carried a scrap of Latin directions",
+   "anchor": "a scrap of paper folded curiously, after the fashion of the cocked-hat missives"
+  },
+  {
+   "claim": "Collishaw was poisoned by hydrocyanic acid",
+   "anchor": "Poisoned! Hydrocyanic acid!"
+  },
+  {
+   "claim": "The Saxonsteade jewels were found buried in Paradise",
+   "anchor": "the whole lot! have been discovered in Paradise yonder"
+  },
+  {
+   "claim": "Varner saw a gentleman's hand throw Braden from the gallery",
+   "anchor": "He saw a white shirt cuff and a bit of a black sleeve"
+  },
+  {
+   "claim": "Wraye is the real identity of Mr. Stephen Folliot",
+   "anchor": "Falkiner Wraye and Stephen Folliot were one and the same person"
+  },
+  {
+   "claim": "Flood is the real identity of Fladgate, the verger",
+   "anchor": "The man Flood, is also a well-known man to you. Fladgate!"
+  },
+  {
+   "claim": "Braden died accidentally after a struggle with Flood",
+   "anchor": "he'd no sooner recognized me than he attacked me, seizing me by the arm"
+  },
+  {
+   "claim": "Wraye poisoned Collishaw to silence him",
+   "anchor": "Wraye was found to be responsible for Collishaw's poisoning"
+  },
+  {
+   "claim": "Bryce withdrew fifty pounds in gold shortly before Collishaw's death",
+   "anchor": "a certain Wrychester man drew fifty pounds in gold at his bank"
+  },
+  {
+   "claim": "Bryce manipulated suspicions to gain power and marry Mary",
+   "anchor": "I want to marry his daughter"
+  },
+  {
+   "claim": "Ransford was exonerated and revealed the full truth",
+   "anchor": "The man whom you've heard of as John Braden, was, in reality, John Brake—your father"
+  },
+  {
+   "claim": "The scrap of paper led to the discovery of the hidden jewels",
+   "anchor": "the master-mason put in his hand and drew forth a small parcel"
+  },
+  {
+   "claim": "False accusation against Ransford was based on circumstantial evidence",
+   "anchor": "Ransford was seen leaving the west porch of the Cathedral, looking as if he had just been very much upset"
+  },
+  {
+   "claim": "Bryce was scheming but not the murderer",
+   "anchor": "Bryce was playing a deep game"
+  },
+  {
+   "claim": "Varner's testimony was a red herring",
+   "anchor": "Varner persists in sticking to what he's said all along"
+  },
+  {
+   "claim": "The poison was administered via a pill, not the tin bottle",
+   "anchor": "That box was in Collishaw's waistcoat pocket"
+  },
+  {
+   "claim": "Wraye and Flood were the true villains",
+   "anchor": "Wraye and Flood were one and the same person as Folliot and Fladgate"
+  },
+  {
+   "claim": "The jewel robbery secret motivated the murders",
+   "anchor": "the great jewel robbery which took place at the Duke of Saxonsteade's"
+  },
+  {
+   "claim": "The police investigation was complicated by multiple suspects and false leads",
+   "anchor": "Never been better puzzled in all my time"
+  }
+ ]
+}

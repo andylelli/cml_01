@@ -1,0 +1,420 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: Mystery Ranch
+    author: Arthur Chapman
+    license: Public domain (first published 1921; author died 1935). Project Gutenberg ebook 30989.
+    era:
+      decade: 1920s
+      realism_constraints:
+        - No advanced forensic technology like DNA or modern ballistics
+        - Limited communication means, mostly telegrams and telephones
+        - Law enforcement relies heavily on physical tracking and witness testimony
+    setting:
+      location: Indian reservation near White Lodge, Northwestern United States
+      institution: Indian agency police and local county sheriff's office
+    crime_class:
+      category: murder
+      subtype: identity substitution and staged murder to mislead suspicion
+  cast:
+    - name: Walter Lowell
+      age_range: 30-40
+      role_archetype: dedicated government official and investigator
+      relationships:
+        - Helen Ervin (ally and love interest)
+        - Plenty Buffalo (assistant)
+      public_persona: Indian agent working for justice
+      private_secret: deeply involved in unraveling the case
+      motive_seed: justice and protection of innocent
+      motive_strength: strong
+      alibi_window: present throughout investigation
+      access_plausibility: high
+      opportunity_channels:
+        - official investigation
+        - access to reservation and crime scenes
+      behavioral_tells:
+        - persistent re-examination of evidence
+        - protective of Helen
+      stakes: high, justice for wrongly accused
+      evidence_sensitivity:
+        - discovery of horse brand imprint
+        - recovered letter
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: high
+    - name: Plenty Buffalo
+      age_range: 40-50
+      role_archetype: loyal and skilled Indian police chief
+      relationships:
+        - Walter Lowell (colleague)
+      public_persona: chief of Indian police
+      private_secret: trusted aide to Lowell
+      motive_seed: law enforcement
+      motive_strength: strong
+      alibi_window: present at investigation scenes
+      access_plausibility: high
+      opportunity_channels:
+        - police duties
+      behavioral_tells:
+        - cautious in statements
+      stakes: community safety
+      evidence_sensitivity:
+        - trail tracking
+        - witnessing rescue
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+    - name: Edward B. Sargent (Willis Morgan)
+      age_range: 50-60
+      role_archetype: reclusive inventor with a dark past
+      relationships:
+        - Helen Ervin (stepdaughter)
+        - Wong (servant)
+      public_persona: Willis Morgan, recluse and 'squaw professor'
+      private_secret: actually Edward B. Sargent who killed his brother
+      motive_seed: self-defense and protecting stepdaughter
+      motive_strength: strong
+      alibi_window: present at ranch and crime scene
+      access_plausibility: high
+      opportunity_channels:
+        - ranch access
+        - knowledge of area
+      behavioral_tells:
+        - cold voice
+        - book censorship
+      stakes: freedom and protection of family
+      evidence_sensitivity:
+        - horse brand imprint
+        - confession
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Helen Ervin
+      age_range: 18-22
+      role_archetype: young woman caught in family and criminal intrigue
+      relationships:
+        - Walter Lowell (ally and love interest)
+        - Willis Morgan/Edward Sargent (stepfather/uncle)
+      public_persona: stepdaughter of Willis Morgan
+      private_secret: knows about Talpers's crimes and family secrets
+      motive_seed: self-preservation and justice
+      motive_strength: moderate
+      alibi_window: present at ranch and during kidnapping
+      access_plausibility: high
+      opportunity_channels:
+        - ranch residence
+      behavioral_tells:
+        - nervousness under threat
+        - courageous resistance
+      stakes: personal safety and family honor
+      evidence_sensitivity:
+        - letter to Sargent
+        - knowledge of stolen money
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: moderate
+    - name: Bill Talpers
+      age_range: 50-60
+      role_archetype: corrupt trader and postmaster
+      relationships:
+        - Jim McFann (partner)
+        - Helen Ervin (blackmail target)
+      public_persona: storekeeper and postmaster
+      private_secret: bootlegger and thief involved in murder cover-up
+      motive_seed: greed and self-preservation
+      motive_strength: strong
+      alibi_window: present at store and murder scene
+      access_plausibility: high
+      opportunity_channels:
+        - store and reservation line
+      behavioral_tells:
+        - arrogance
+        - threatening behavior
+      stakes: freedom and control of illicit trade
+      evidence_sensitivity:
+        - stolen letter
+        - stolen money
+        - watch from victim
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Jim McFann
+      age_range: 30-40
+      role_archetype: half-breed bootlegger and reluctant accomplice
+      relationships:
+        - Bill Talpers (partner and victim)
+        - Fire Bear (associate)
+      public_persona: bootlegger and outlaw
+      private_secret: manipulated by Talpers, kills Talpers in self-defense
+      motive_seed: fear and survival
+      motive_strength: moderate
+      alibi_window: present at murder scene and later camp
+      access_plausibility: high
+      opportunity_channels:
+        - reservation and hills
+      behavioral_tells:
+        - rage
+        - fear of lynching
+      stakes: freedom and survival
+      evidence_sensitivity:
+        - presence at crime scene
+        - possession of stolen watch and money
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: Fire Bear
+      age_range: 25-35
+      role_archetype: young Indian leader and scapegoat
+      relationships:
+        - Jim McFann (associate)
+        - Walter Lowell (protector)
+      public_persona: medicine man and leader
+      private_secret: tuberculosis patient, falsely accused
+      motive_seed: leadership and survival
+      motive_strength: none
+      alibi_window: present at camp and during rescue
+      access_plausibility: high
+      opportunity_channels:
+        - reservation and camp
+      behavioral_tells:
+        - calmness under pressure
+      stakes: life and freedom
+      evidence_sensitivity:
+        - trail evidence
+        - testimony
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: low
+  culpability:
+    culprit_count: 2
+    culprits:
+      - Edward B. Sargent (Willis Morgan)
+      - Bill Talpers
+  surface_model:
+    narrative:
+      summary: >-
+        A man is found murdered, staked down on the prairie near an Indian reservation, with
+        suspicion falling on local Indians and a half-breed bootlegger. The investigation reveals
+        complex relationships, a kidnapping, and a second murder, with public opinion heavily biased
+        against the Indians.
+    accepted_facts:
+      - Edward B. Sargent was found murdered and staked down on the prairie
+      - Fire Bear and Jim McFann were arrested for the murder
+      - Bill Talpers was found to have stolen money and valuables from the victim
+      - Jim McFann killed Bill Talpers in a dispute over stolen money
+    inferred_conclusions:
+      - Fire Bear and Jim McFann were guilty of the first murder
+      - Bill Talpers was the murderer of Edward B. Sargent
+      - The Indians were responsible for the murder to cause trouble
+  hidden_model:
+    mechanism:
+      description: >-
+        Edward B. Sargent killed his twin brother Willis Morgan in self-defense during a
+        confrontation on the Dollar Sign road. To mislead suspicion, Sargent staged the murder scene
+        by staking down his brother's body and planting evidence to implicate the Indians. He
+        assumed Morgan's identity to protect his stepdaughter and himself. Bill Talpers, involved in
+        bootlegging and theft, was later killed by Jim McFann after Talpers double-crossed him.
+      delivery_path:
+        - step: Sargent confronts Morgan on the Dollar Sign road
+        - step: Sargent shoots Morgan with a sawed-off shotgun, killing him
+        - step: >-
+            Sargent stages the murder scene by tying Morgan's body to tent stakes using the victim's
+            own rope
+        - step: Sargent obliterates tracks except for the horse brand imprint in the mud
+        - step: Sargent assumes Morgan's identity and returns to the ranch
+        - step: Talpers robs Morgan's body and hides stolen money and watch
+        - step: McFann discovers Talpers's betrayal, kills Talpers in a fight
+    outcome:
+      result: >-
+        Edward B. Sargent confesses to the murder, clearing Fire Bear and Jim McFann, and is
+        acquitted.
+  false_assumption:
+    statement: The Indians and Jim McFann were guilty of the murder on the Dollar Sign road.
+    type: identity
+    why_it_seems_reasonable: >-
+      The victim was found staked down in a manner associated with Indian practices, and Indian pony
+      tracks were abundant at the scene. Fire Bear and McFann were near the scene and had suspicious
+      behavior.
+    what_it_hides: >-
+      It hides the fact that the victim and the supposed murderer were actually twin brothers, and
+      the murder was a staged act by Edward B. Sargent to mislead suspicion onto the Indians.
+  false_solution:
+    accused_suspect: Fire Bear
+    supporting_points:
+      - Fire Bear was found near the scene with a group of Indians
+      - He was released on his word to appear for trial, unusual leniency
+      - Public opinion and local authorities strongly suspected him
+      - His religious ceremonies and dancing were seen as suspicious
+    the_one_flaw: >-
+      Fire Bear was not present at the time of the murder and had no motive; his presence was
+      circumstantial and he was acquitted.
+    refuted_in_chapter: 16
+  red_herrings:
+    - id: bill_talpers_letter
+      description: >-
+        Bill Talpers held a letter from Helen Ervin warning of danger, which he used to blackmail
+        her.
+      points_at_suspect: Helen Ervin
+      innocent_explanation: Talpers used the letter to manipulate Helen but was himself involved in criminal activities.
+      resolved_in_chapter: 12
+    - id: jim_mcfann_escape
+      description: Jim McFann's jail escape and subsequent hiding raised suspicion of his guilt.
+      points_at_suspect: Jim McFann
+      innocent_explanation: >-
+        McFann escaped due to fear of lynching and was manipulated by Talpers; he was innocent of
+        the first murder.
+      resolved_in_chapter: 14
+  closed_circle:
+    suspects:
+      - Edward B. Sargent (Willis Morgan)
+      - Bill Talpers
+      - Jim McFann
+      - Fire Bear
+    rationale: >-
+      The suspects were limited to those with access to the reservation and the crime scene, and
+      with motives connected to the victim and local conflicts.
+  constraint_space:
+    time:
+      anchors:
+        - Day of murder on the Dollar Sign road
+        - Day of Talpers's murder
+        - Trial dates for Fire Bear and Jim McFann
+      windows:
+        - Murder occurred early morning after rain the previous night
+        - Talpers's murder occurred after the first trial
+        - Helen's kidnapping lasted a few days before rescue
+    access:
+      actors:
+        - Edward B. Sargent (Willis Morgan)
+        - Bill Talpers
+        - Jim McFann
+        - Fire Bear
+        - Walter Lowell
+      objects:
+        - Old white horse with Greek Letter brand
+        - Tent stakes and rawhide lariat
+        - Sawed-off shotgun
+        - Victim's automobile and camping equipment
+        - Letter from Helen Ervin
+    social:
+      trust_channels:
+        - Indian police loyalty to Walter Lowell
+        - Helen's trust in Walter Lowell
+        - Talpers's manipulation of Jim McFann
+      authority_sources:
+        - Judge Garford's court rulings
+        - Sheriff Tom Redmond's law enforcement
+        - Indian agent Walter Lowell's jurisdiction
+  inference_path:
+    steps:
+      - observation: The victim was staked down with his own tent stakes and rawhide lariat cut into pieces.
+        correction: The murder was staged to look like an Indian attack.
+        effect: Suspicion on Indians is questioned.
+        required_evidence:
+          - Examination of tent stakes and rope pieces from the victim's camping gear
+          - Witness statement of Jim McFann about finding the body and rope
+        reader_observable: true
+      - observation: Indian pony tracks and moccasined footprints surround the murder scene.
+        correction: Tracks could have been made after the murder to mislead investigators.
+        effect: The timing and relevance of tracks are uncertain.
+        required_evidence:
+          - Trail analysis by Plenty Buffalo
+          - Weather and ground condition report on mud and dust
+        reader_observable: true
+      - observation: >-
+          Bill Talpers possessed a letter from Helen warning of danger and held stolen money and
+          watch from the victim.
+        correction: Talpers was involved in theft and had motive to silence Helen.
+        effect: Talpers is implicated as a suspect.
+        required_evidence:
+          - Recovered letter mailed by Helen Ervin
+          - Stolen money and watch found in Talpers's possession
+        reader_observable: true
+      - observation: Jim McFann killed Bill Talpers after discovering Talpers's betrayal.
+        correction: McFann acted in self-defense and was manipulated by Talpers.
+        effect: McFann's guilt in the first murder is doubtful.
+        required_evidence:
+          - Testimony of Jim McFann at trial
+          - Witness accounts of Talpers and McFann's dispute
+        reader_observable: true
+      - observation: >-
+          Old white horse with Greek Letter brand rolled in mud near murder scene, leaving branded
+          shoulder imprint.
+        correction: The horse belonged to the murderer, linking him to the scene.
+        effect: Identifies the murderer as the rider of the white horse.
+        required_evidence:
+          - Physical imprint of Greek Letter brand on horse's shoulder in mud
+          - Witness statement of Walter Lowell about horse brand
+        reader_observable: true
+      - observation: Edward B. Sargent and Willis Morgan were twin brothers with a history of conflict.
+        correction: Sargent killed Morgan and assumed his identity.
+        effect: Reveals true identity of murderer and victim.
+        required_evidence:
+          - Letter from Helen Ervin describing family relationship and twin brothers
+          - Helen Ervin's testimony about family history
+        reader_observable: true
+      - observation: >-
+          Talpers and McFann conspired in bootlegging and theft, with Talpers double-crossing
+          McFann.
+        correction: Talpers's death was caused by McFann in a fight over stolen money.
+        effect: Second murder explained as fallout from criminal partnership.
+        required_evidence:
+          - Testimony of Jim McFann
+          - Physical evidence of stolen money and watch
+        reader_observable: true
+  discriminating_test:
+    method: reenactment
+    design: >-
+      Walter Lowell revisits the murder scene and identifies the Greek Letter brand imprint in the
+      mud where the horse rolled. He then confronts Edward B. Sargent at the ranch with this
+      evidence, reconstructing the timeline and movements on the day of the murder. The reenactment
+      focuses on the horse's presence and the brand imprint as the key to linking the murderer to
+      the scene.
+    knowledge_revealed: >-
+      The reenactment reveals that the murderer rode the old white horse bearing the Greek Letter
+      brand, which only Edward B. Sargent (posing as Willis Morgan) could have done. This disproves
+      the assumption that Indians or others committed the murder.
+    pass_condition: >-
+      Identification of the Greek Letter brand imprint on the horse's shoulder in the mud at the
+      murder scene, matching the horse at the ranch, conclusively links the murderer to Sargent.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given detailed descriptions of the murder scene, including the staking down of
+      the victim, the presence of Indian tracks, and the old white horse with the Greek Letter
+      brand. The letter from Helen and the testimony of Jim McFann provide clues about Talpers's
+      involvement and the true sequence of events. The key clue—the horse's brand imprint in the
+      mud—is described clearly, allowing attentive readers to deduce the murderer's identity. The
+      confession in the final chapter confirms the solution without introducing new, hidden
+      evidence.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

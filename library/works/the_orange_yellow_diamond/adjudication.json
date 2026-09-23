@@ -1,0 +1,19 @@
+{
+ "false_assumption": {
+  "statement": "Andrew Lauriston stole the rings and murdered Daniel Multenius.",
+  "type": "behavioral",
+  "why_it_seems_reasonable": "Lauriston was found alone at the crime scene with rings similar to those in the pawnshop tray, and he was financially desperate. The police and public naturally suspect him given these facts.",
+  "what_it_hides": "It conceals the involvement of Mori Yada, who committed the theft and murder while framing Lauriston by exploiting the similarity of the rings and Lauriston's presence."
+ },
+ "mechanism_description": "Mori Yada, a Japanese medical student, stole the orange-yellow diamond and banknotes from Daniel Multenius. He hid the diamond in the pigtail of Chen Li, one of the Chinese tenants, whom he later murdered to cover his crime. Yada attempted to escape but was caught by Melky Rubinstein, recovering the stolen property and clearing Lauriston of suspicion.",
+ "discriminating_test": {
+  "method": "trap",
+  "design": "Melky Rubinstein tricks Mori Yada into a locked room after Yada attempts to escape with the diamond and money. Melky recovers the stolen items from Yada, confirming Yada's guilt and clearing Lauriston.",
+  "knowledge_revealed": "The recovery of the stolen diamond and money from Mori Yada, and his failed escape, confirm the true culprit and clear Lauriston of suspicion.",
+  "pass_condition": "The stolen diamond and money are found in Mori Yada's possession after Melky locks him in the room and Yada is apprehended."
+ },
+ "changed": [
+  "discriminating_test"
+ ],
+ "confidence": "high"
+}

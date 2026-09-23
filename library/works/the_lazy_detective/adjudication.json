@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "Penelope Noelson was initially assumed to be the principal thief and accomplice.",
+  "type": "identity",
+  "why_it_seems_reasonable": "She was caught delivering a forged cheque and tried to bribe the detective, which suggested guilt. Her photograph was found in Larry Hughes' possession, linking her to the crime.",
+  "what_it_hides": "Her involvement was coerced and she was primarily a victim of abduction and blackmail, not a willing participant."
+ },
+ "mechanism_description": "Larry Hughes orchestrated the burglary by using Stebbins to gain inside information and make wax impressions of keys. The stolen goods were hidden in a secret tunnel at 'Mope's Bottom' on the Romney Marshes. Hughes used blackmail and abduction to control witnesses and accomplices, including forcing Penelope Noelson's silence by abduction and intending to marry her to prevent testimony.",
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "Detectives recreated the burglary by using wax impressions of keys and tested access to Streetly House without forced entry. They also examined the secret tunnel at 'Mope's Bottom' to confirm it as the storage site for stolen goods. The test involved verifying the opening of steel doors and the transport route of the loot.",
+  "knowledge_revealed": "The test confirmed the method of entry using duplicate keys and the existence of a secret tunnel used to hide stolen property, directly linking Larry Hughes to the crime.",
+  "pass_condition": "Successful opening of doors with duplicate keys and discovery of stolen goods in the tunnel."
+ },
+ "changed": [],
+ "confidence": "high"
+}

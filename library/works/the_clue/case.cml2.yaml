@@ -1,0 +1,420 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The Clue
+    author: Carolyn Wells
+    license: Public domain (first published 1909; author died 1942). Project Gutenberg ebook 54869.
+    era:
+      decade: 1900s
+      realism_constraints:
+        - No modern forensic technology such as DNA or advanced fingerprinting
+        - Electric lighting and telephones are available in the house
+        - Police and coroner investigations follow early 20th century legal procedures
+    setting:
+      location: Van Norman mansion, Mapleton, New Jersey
+      institution: Coroner's inquest and local police with Detective Fairbanks and later Fleming Stone
+    crime_class:
+      category: murder
+      subtype: locked house murder via cellar ash-chute
+  cast:
+    - name: Madeleine Van Norman
+      age_range: 20-25
+      role_archetype: beautiful heiress and social leader
+      relationships:
+        - Schuyler Carleton (fiancé)
+        - Tom Willard (cousin)
+      public_persona: haughty, imperious, admired
+      private_secret: craving tender love, unhappy over fiancé's affection
+      motive_seed: none
+      motive_strength: none
+      alibi_window: n/a
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: heiress to fortune and mansion
+      evidence_sensitivity: []
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: female
+      role: victim
+      moral_complexity: moderate
+    - name: Schuyler Carleton
+      age_range: 25-30
+      role_archetype: handsome but emotionally reserved fiancé
+      relationships:
+        - Madeleine Van Norman (fiancée)
+        - Dorothy Burt (lover)
+        - Tom Willard (rival)
+      public_persona: polite, cold, reserved
+      private_secret: loves Dorothy Burt, not Madeleine
+      motive_seed: possible jealousy and conflicted feelings
+      motive_strength: weak
+      alibi_window: present at home until late evening, entered mansion at 11:15 pm
+      access_plausibility: has latch-key, entered house legitimately
+      opportunity_channels:
+        - latch-key entry
+      behavioral_tells:
+        - refusal to disclose errand
+        - nervousness
+        - stony calm
+      stakes: marriage and social standing
+      evidence_sensitivity:
+        - time discrepancy of entry
+        - presence at crime scene
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: strong
+    - name: Tom Willard
+      age_range: 30-35
+      role_archetype: scapegrace cousin and engineer
+      relationships:
+        - Madeleine Van Norman (cousin and love interest)
+        - Schuyler Carleton (rival)
+      public_persona: jovial, good-natured, quick-tempered
+      private_secret: desperate love for Madeleine, financial motives
+      motive_seed: love jealousy and inheritance
+      motive_strength: strong
+      alibi_window: left house at 10 pm, no alibi after
+      access_plausibility: entered via cellar window and ash-chute
+      opportunity_channels:
+        - cellar window
+        - ash-chute
+      behavioral_tells:
+        - temper flare-up
+        - confession
+        - suicide after murder
+      stakes: inheritance of fortune and mansion
+      evidence_sensitivity:
+        - cachou found in drawing-room
+        - entry via ash-chute
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: strong
+    - name: Cicely Dupuy
+      age_range: 20-25
+      role_archetype: private secretary, jealous lover
+      relationships:
+        - Madeleine Van Norman (employer)
+        - Schuyler Carleton (object of affection)
+      public_persona: loyal secretary, emotional
+      private_secret: secret love for Carleton, wrote fake note
+      motive_seed: jealousy
+      motive_strength: moderate
+      alibi_window: last seen with Madeleine before death
+      access_plausibility: in house, but no evidence of murder
+      opportunity_channels:
+        - access to writing desk and dagger
+      behavioral_tells:
+        - fainting
+        - evasiveness
+        - attempt to retrieve note
+      stakes: emotional attachment
+      evidence_sensitivity:
+        - handwriting similarity
+        - false note
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: female
+      role: suspect
+      moral_complexity: moderate
+    - name: Miss Morton
+      age_range: 50-60
+      role_archetype: old friend and inheritor
+      relationships:
+        - Madeleine Van Norman (friend)
+        - Tom Willard (heir)
+      public_persona: imperious, self-assured
+      private_secret: burned letters and papers
+      motive_seed: inheritance
+      motive_strength: weak
+      alibi_window: in house, no direct evidence
+      access_plausibility: full access as house mistress
+      opportunity_channels:
+        - access to papers and rooms
+      behavioral_tells:
+        - evasiveness
+        - denial of burning papers
+      stakes: inheritance of mansion and money
+      evidence_sensitivity:
+        - burned will
+        - letters
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: female
+      role: suspect
+      moral_complexity: moderate
+    - name: Kitty French
+      age_range: 20-25
+      role_archetype: bridesmaid and amateur sleuth
+      relationships:
+        - Madeleine Van Norman (friend)
+        - Rob Fessenden (confidante)
+      public_persona: sweet, intuitive
+      private_secret: none
+      motive_seed: none
+      motive_strength: none
+      alibi_window: present in house
+      access_plausibility: guest
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: friendship and justice
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: low
+    - name: Rob Fessenden
+      age_range: 25-30
+      role_archetype: lawyer and amateur detective
+      relationships:
+        - Schuyler Carleton (friend)
+        - Kitty French (confidante)
+      public_persona: friendly, cultured
+      private_secret: none
+      motive_seed: justice
+      motive_strength: strong
+      alibi_window: n/a
+      access_plausibility: investigator
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: truth and justice
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: low
+  culpability:
+    culprit_count: 1
+    culprits:
+      - Tom Willard
+  surface_model:
+    narrative:
+      summary: >-
+        Madeleine Van Norman is found stabbed in her library with a Venetian dagger and a note
+        suggesting suicide. The house is locked and secure, and suspicion falls on her fiancé
+        Schuyler Carleton, but inconsistencies in evidence and testimonies raise doubts.
+    accepted_facts:
+      - Madeleine Van Norman was found dead with a dagger wound in the library.
+      - A written note implying suicide was found but later proven to be written by Cicely Dupuy.
+      - >-
+        The house was securely locked with no signs of forced entry except the front door with a
+        latch-key.
+      - Schuyler Carleton entered the house shortly before the alarm was raised.
+    inferred_conclusions:
+      - Madeleine killed herself due to unhappiness over her fiancé's lack of love.
+      - Schuyler Carleton murdered Madeleine out of jealousy and love for another woman.
+      - The murderer was an outside burglar who entered through a window.
+  hidden_model:
+    mechanism:
+      description: >-
+        Tom Willard entered the house through a cellar window and climbed up the ash-chute in the
+        drawing-room fireplace to the library. There, in a fit of rage during a quarrel with
+        Madeleine, he stabbed her with the Venetian dagger. He then left the same way, leaving the
+        house locked and undisturbed. The note was a forgery by Cicely Dupuy to suggest suicide.
+      delivery_path:
+        - step: Tom Willard leaves the Van Norman house at 10 pm to stay at the Mapleton Inn.
+        - step: >-
+            He returns secretly by climbing through the cellar window and ascending the ash-chute in
+            the fireplace.
+        - step: Tom confronts Madeleine in the library and quarrels with her about her engagement.
+        - step: In a sudden rage, Tom stabs Madeleine with the Venetian dagger, killing her instantly.
+        - step: >-
+            He drops the dagger and leaves the room, descending back through the ash-chute and
+            cellar window.
+        - step: >-
+            Schuyler Carleton arrives at the house at 11:15 pm, unaware of the murder until he finds
+            Madeleine.
+        - step: Cicely Dupuy writes a false note to suggest suicide and later attempts to retrieve it.
+    outcome:
+      result: Tom Willard confesses to the murder and dies from a self-inflicted wound.
+  false_assumption:
+    statement: The note found on the table was a dying confession written by Madeleine Van Norman herself.
+    type: behavioral
+    why_it_seems_reasonable: >-
+      The note was in handwriting very similar to Madeleine's and was found beside her body,
+      suggesting she wrote it just before dying. The presence of the note and the nature of the
+      wound led many to believe it was a suicide.
+    what_it_hides: >-
+      The note was actually written by Cicely Dupuy days earlier and planted to mislead
+      investigators. This false assumption obscured the fact that Madeleine was murdered by another
+      person.
+  false_solution:
+    accused_suspect: Schuyler Carleton
+    supporting_points:
+      - He was the fiancé and had a motive related to love and jealousy.
+      - He entered the house shortly before the alarm was raised.
+      - He refused to disclose his errand or activities during the critical time.
+      - His demeanor was nervous and evasive during questioning.
+    the_one_flaw: >-
+      He had a credible alibi for the time of the murder and no physical evidence linked him to the
+      crime scene.
+    refuted_in_chapter: 24
+  red_herrings:
+    - id: cicely_dupuy_jealous_secretary
+      description: >-
+        Cicely Dupuy wrote the false note and showed suspicious behavior, including fainting and
+        evasiveness.
+      points_at_suspect: Cicely Dupuy
+      innocent_explanation: >-
+        Her actions stemmed from her secret love for Carleton and fear of incriminating him, not
+        guilt in the murder.
+      resolved_in_chapter: 21
+    - id: miss_morton_burned_papers
+      description: >-
+        Miss Morton secretly burned papers found in Madeleine's desk, raising suspicions about her
+        motives.
+      points_at_suspect: Miss Morton
+      innocent_explanation: >-
+        She burned old letters related to a past quarrel with Richard Van Norman and not any
+        evidence related to the murder.
+      resolved_in_chapter: 22
+  closed_circle:
+    suspects:
+      - Schuyler Carleton
+      - Tom Willard
+      - Cicely Dupuy
+      - Miss Morton
+    rationale: >-
+      The murder had to be committed by someone inside the locked house during a narrow time window,
+      limiting suspects to household members and guests present.
+  constraint_space:
+    time:
+      anchors:
+        - 10:00 pm Tom leaves house
+        - 11:15 pm Carleton enters house
+        - 11:30 pm Carleton cries for help
+      windows:
+        - Between 10:30 pm and 11:30 pm murder occurs
+    access:
+      actors:
+        - Tom Willard
+        - Schuyler Carleton
+        - Cicely Dupuy
+        - Miss Morton
+      objects:
+        - Venetian dagger
+        - ash-chute in fireplace
+        - cellar window
+        - latch-key
+    social:
+      trust_channels:
+        - Housekeeper Mrs. Markham
+        - Servants
+        - Coroner Benson
+        - Detective Fairbanks
+      authority_sources:
+        - Coroner's inquest
+        - Detective Fairbanks
+        - Fleming Stone
+  inference_path:
+    steps:
+      - observation: The note was written with a soft pencil unlike the hard pencil on the library table.
+        correction: The note was not written at the library table on the night of the murder.
+        effect: The note's status as a dying confession is questioned.
+        required_evidence:
+          - >-
+            The soft pencil found in Cicely Dupuy's desk, which was not present in the library on
+            the night of the murder
+          - >-
+            Handwriting comparison between note and Cicely Dupuy's writing, showing a match in slant
+            and pressure
+        reader_observable: true
+      - observation: No blood stains on Madeleine's right hand despite blood on dagger handle.
+        correction: Madeleine could not have held the dagger when it was stained with blood.
+        effect: The theory of suicide is undermined.
+        required_evidence:
+          - Examination of Madeleine's hands for blood stains, showing they are clean
+          - Examination of dagger for blood stains, with blood on the handle
+        reader_observable: true
+      - observation: Schuyler Carleton entered the house at 11:15 pm but called for help at 11:30 pm.
+        correction: There is a 15-minute unexplained interval in Carleton's timeline.
+        effect: Suspicion falls on Carleton due to unexplained time gap.
+        required_evidence:
+          - >-
+            Mr. Hunt's testimony about time of Carleton's entry, stating 'exactly quarter after
+            eleven'
+          - Carleton's own testimony about time of entry and alarm, confirming the 15-minute gap
+        reader_observable: true
+      - observation: A cachou was found on the drawing-room floor, uncommon in Mapleton.
+        correction: The cachou likely dropped by the murderer during entry or exit.
+        effect: Links Tom Willard to the crime scene as he possessed such cachous.
+        required_evidence:
+          - >-
+            Testimony of Mapleton Inn landlord about cachous found in Willard's room and their
+            rarity
+          - Location of cachou found in Van Norman house, specifically the drawing-room floor
+        reader_observable: true
+      - observation: The house was securely locked with bolts and no forced entry signs.
+        correction: The murderer must have entered and exited through an unconventional route.
+        effect: Focus shifts to cellar window and ash-chute as entry/exit points.
+        required_evidence:
+          - Butler Harris's testimony about locks and bolts being fastened on all doors and windows
+          - >-
+            Fleming Stone's discovery of ash-chute opening in fireplace, showing it could be used
+            for entry
+        reader_observable: true
+      - observation: The ash-chute opening is only 9.5 by 13.5 inches, seemingly too small for a large man.
+        correction: An experienced engineer like Tom Willard could squeeze through it.
+        effect: Tom Willard's physical ability and occupation make him a plausible suspect.
+        required_evidence:
+          - >-
+            Measurement of ash-chute opening, recorded as nine and one-half inches by thirteen and
+            one-half inches
+          - >-
+            Testimony about Tom Willard's engineering experience and ability to fit through small
+            spaces, as described by his former colleagues
+        reader_observable: true
+      - observation: Tom Willard confessed to the murder and then fatally wounded himself.
+        correction: The confession confirms the true mechanism and identity of the murderer.
+        effect: Case is solved with Tom Willard as the culprit.
+        required_evidence:
+          - >-
+            The dagger found beside Tom Willard, stained with his and Madeleine's blood and matching
+            the wound
+          - Medical confirmation of Tom Willard's fatal wound, as recorded by Coroner Benson
+        reader_observable: true
+  discriminating_test:
+    method: constraint_proof
+    design: >-
+      Fleming Stone examined the locked house and discovered the ash-chute in the fireplace as a
+      secret entry and exit route. He measured the opening and confirmed that only someone with Tom
+      Willard's engineering skills could have used it. The presence of a rare cachou in the
+      drawing-room linked the suspect to the scene. This physical constraint proof eliminated other
+      suspects who lacked access or ability.
+    knowledge_revealed: >-
+      The murderer entered and exited through the cellar window and ash-chute, bypassing locked
+      doors and windows, proving the impossibility of other suspects' involvement.
+    pass_condition: >-
+      Verification that the ash-chute opening matches the physical capability of the suspect and
+      that no other entry was possible.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given all necessary clues: the note's handwriting and pencil discrepancy, the
+      absence of blood on the victim's hands, the locked house with no forced entry, the testimony
+      about the time of entry and alarm, the discovery of the cachou, and the ash-chute as a secret
+      passage. The suspect's occupation and physical ability are also revealed. These facts allow
+      the attentive reader to deduce the true murderer before the confession.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

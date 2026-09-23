@@ -1,0 +1,127 @@
+{
+ "slug": "the_hand_of_power",
+ "spans": [
+  {
+   "claim": "Betty Carew was forced to work in a shop window advertising a desk",
+   "anchor": "a window of one of the stores in the thoroughfare has been fitted up like a study",
+   "span": "A window of one of the stores in the thoroughfare has been fitted up like a study, and at a table-desk sits an extraordinarily pretty girl with hair of a most amazing red.",
+   "ok": true
+  },
+  {
+   "claim": "Brother John was murdered in the street after investigating the Proud Sons of Ragousa",
+   "anchor": "Shot dead… and in the street, too!",
+   "span": "Shot dead… and in the street, too! Just a _plop!",
+   "ok": true
+  },
+  {
+   "claim": "Dr. Joshua Laffin is head of the Twenty-Third Degree of the Proud Sons of Ragousa",
+   "anchor": "The Grand Master of the Twenty-Third Degree is Joshua Laffin",
+   "span": "The kick comes from the Twenty-Third Degree--and the Grand Master of the Twenty-Third Degree is Joshua Laffin, Doctor of Medicines!",
+   "ok": true
+  },
+  {
+   "claim": "Clive Lowbridge is the true Grand Prior and murderer of Brother John",
+   "anchor": "the new Grand Prior was Lowbridge",
+   "span": "No, sir, the new Grand Prior was Lowbridge.",
+   "ok": true
+  },
+  {
+   "claim": "The ocean liner Escorial was hijacked by a gang including Laffin and Lowbridge",
+   "anchor": "The _Escorial_ was by far the most luxurious vessel that ever rode the Atlantic",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Bill Holbrook infiltrated the wireless cabin and sent a radio message",
+   "anchor": "I tapped off the message: '_Escorial_ in the hands of gangsters. Position roughly 64 north, 45 west'",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Dr. Laffin was killed by Harvey Hale during the hijacking",
+   "anchor": "Laffin fell on to his knees, swayed for a second, and Hale struck for the third time",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Clive Lowbridge was arrested for murder",
+   "anchor": "I am taking you into custody on the charge of wilfully murdering your cousin",
+   "span": "I am taking you into custody on the charge of wilfully murdering your cousin, Cyril Francis Lowbridge, by administering poison.",
+   "ok": true
+  },
+  {
+   "claim": "The ship was heading into Arctic waters and was stopped",
+   "anchor": "The _Escorial_ had steamed considerably over seven hundred miles northward",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The hijackers planned to abandon the ship and escape with the loot",
+   "anchor": "The _Thomas Inland_ is one of the new fast",
+   "span": "The _Thomas Inland_ is one of the new fast.",
+   "ok": true
+  },
+  {
+   "claim": "The Proud Sons of Ragousa run a lottery with secret drawings",
+   "anchor": "Hundreds of thousands of metal-rimmed tickets, on each of which is written the official number of a member, are placed in a barrel and turned",
+   "span": "Hundreds of thousands of metal-rimmed tickets, on each of which is written the official number of a member, are placed in a barrel and turned.",
+   "ok": true
+  },
+  {
+   "claim": "Toby Marsh was secretly controlling the ship from within",
+   "anchor": "The man in control of this ship at the moment is an old friend of yours, one Toby Marsh",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The fake radio message was used to disarm passengers",
+   "anchor": "No such order has been issued by my department. Sullivan Act applies within the frontiers of the United States",
+   "span": "No such order has been issued by my department. Sullivan Act applies within the frontiers of the United States.",
+   "ok": true
+  },
+  {
+   "claim": "The poisoned water was used to incapacitate Inspector Bullott",
+   "anchor": "This unfortunate animal took two sips, and that is the result",
+   "span": "This unfortunate animal took two sips, and that is the result.",
+   "ok": true
+  },
+  {
+   "claim": "The Twenty-Third Degree is filled with criminals and scum",
+   "anchor": "The scum of the earth, there isn’t a riverside thief that hasn’t been initiated",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The Proud Sons of Ragousa have a secret book with society secrets",
+   "anchor": "It is a book that has the ritual and system of the Ragousas written down to the last dot",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The hijackers used the stolen tanker Thomas Inland to resupply oil",
+   "anchor": "The _Thomas Inland_ was met by the stolen tanker at Bilboa",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The ship was held hostage by the gang with armed guards",
+   "anchor": "There are machine-guns covering the deck hands’ quarters, guards on the provision store",
+   "span": "There are machine-guns covering the deck hands' quarters, guards on the provision store--everywhere, except where there's passengers to see them.",
+   "ok": true
+  },
+  {
+   "claim": "The final assault on the wireless cabin exposed the hijackers",
+   "anchor": "He dragged Betty into the cover of the cabin, and when Stone had followed, the reporter shut the door and pushed the bolts",
+   "span": "He dragged Betty into the cover of the cabin, and when Stone had followed, the reporter shut the door and pushed the bolts.",
+   "ok": true
+  },
+  {
+   "claim": "The warships arrived to rescue the passengers and arrest the criminals",
+   "anchor": "The _Sussex_ was running on a parallel course, edging closer",
+   "span": "The _Sussex_ was running on a parallel course, edging closer and closer to the liner.",
+   "ok": true
+  }
+ ],
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

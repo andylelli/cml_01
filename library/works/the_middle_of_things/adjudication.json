@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "Langton Hyde was the murderer who killed Ashton for robbery.",
+  "type": "identity",
+  "why_it_seems_reasonable": "Hyde was seen fleeing the scene with one of the victim's rings and was found in possession of a knife matching the murder weapon. The circumstantial evidence strongly pointed to him.",
+  "what_it_hides": "It conceals the involvement of the real murderer, Dr. Cortelyon, and the conspiracy to frame Hyde, as well as the true motive related to secret papers and inheritance."
+ },
+ "mechanism_description": "Dr. Cortelyon, motivated by greed for the secret papers and wealth, murdered John Ashton by stabbing him in the back in a narrow passage. Mrs. Killenhall acted as his accomplice, assisting in the conspiracy and attempting to defraud Miss Wickham. They planted evidence to implicate Langton Hyde, who was innocent and unwittingly involved.",
+ "discriminating_test": {
+  "method": "trap",
+  "design": "The claimant was brought before solicitors who knew the real Lord Marketstoke and the missing finger detail. They observed the claimant's hand to see if the middle finger was missing and examined his knowledge of family history and documents. The test revealed the claimant's recent finger amputation inconsistent with the historical injury, exposing him as an impostor.",
+  "knowledge_revealed": "The claimant's physical and documentary evidence did not match the real Lord Marketstoke, proving he was a fraud used by the real murderer to mislead the investigation.",
+  "pass_condition": "The claimant must have the middle finger of his right hand missing with a recent scar; failure to meet this condition exposes imposture."
+ },
+ "changed": [],
+ "confidence": "high"
+}

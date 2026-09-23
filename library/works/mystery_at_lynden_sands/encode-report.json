@@ -1,0 +1,127 @@
+{
+ "slug": "mystery_at_lynden_sands",
+ "spans": [
+  {
+   "claim": "Peter Hay was found dead with marks on his wrists",
+   "anchor": "marks on the body that made him suspicious",
+   "span": "Then he noticed some marks on the body that made him suspicious, and he says he won't give a death certificate.",
+   "ok": true
+  },
+  {
+   "claim": "The silver knick-knacks were found in Peter Hay's drawer",
+   "anchor": "drawer held more than a little money—some silver articles",
+   "span": "Wendover, leaning forward, saw that the drawer held more than a little money-some silver articles were in it as well.",
+   "ok": true
+  },
+  {
+   "claim": "Miss Fordingbridge identified the claimant as Derek",
+   "anchor": "Miss Fordingbridge identifies the claimant",
+   "span": "The claimant, Staveley, and Miss Fordingbridge would be in the one, since Staveley was living at the cottage and Miss Fordingbridge identifies the claimant.",
+   "ok": true
+  },
+  {
+   "claim": "The claimant's face was horribly disfigured",
+   "anchor": "he's horribly disfigured, poor boy",
+   "span": "Paul, he's horribly disfigured, poor boy.",
+   "ok": true
+  },
+  {
+   "claim": "Cressida Fleetwood was found with the murder weapon",
+   "anchor": "pistol in the pocket of the woman Fleetwood's golf-blazer",
+   "span": "And I found this pistol in the pocket of the woman Fleetwood's golf-blazer which was hanging on her peg in the lady golfers' dressing-room.",
+   "ok": true
+  },
+  {
+   "claim": "The watch on Staveley's wrist stopped at 11:19",
+   "anchor": "It's stopped at 11.19",
+   "span": "It's stopped at 11.19,\" Armadale pointed out.",
+   "ok": true
+  },
+  {
+   "claim": "A cartridge-case was found on the beach near Neptune's Seat",
+   "anchor": "discharged cartridge",
+   "span": "That yellow thing was the brass case of a discharged cartridge.",
+   "ok": true
+  },
+  {
+   "claim": "Mme. Laurent-Desrousseaux's footprints were smaller than her shoe size",
+   "anchor": "a No. 4 shoe can make an impression smaller than itself",
+   "span": "Now do you see that a No. 4 shoe can make an impression smaller than itself if you happen to be walking in sand or mud?",
+   "ok": true
+  },
+  {
+   "claim": "Paul Fordingbridge's footprints vanish near the wreck",
+   "anchor": "Where's the rest of Fordingbridge's track? It simply stops short",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The gang used chloroform and carried Cressida captive",
+   "anchor": "clapped it over Fordingbridge's mouth from behind",
+   "span": "and that he clapped it over Fordingbridge's mouth from behind; and then, once he was unconscious, they both carried him down to a boat.",
+   "ok": true
+  },
+  {
+   "claim": "The hypodermic syringe was filled with tap water, not poison",
+   "anchor": "There was nothing in the syringe",
+   "span": "But there was nothing in the syringe.",
+   "ok": true
+  },
+  {
+   "claim": "The faceless man threatened Cressida with hydrophobia",
+   "anchor": "You get bitten by a mad dog",
+   "span": "You get bitten by a mad dog.",
+   "ok": true
+  },
+  {
+   "claim": "The gang was captured after a shootout at Flatt's cottage",
+   "anchor": "Hands up!",
+   "span": "Hands up!\" A scuffle, two shots, a cry of pain, and the fall of a heavy body to the floor; more sounds of rapid movement in the room; a voice shouting directions; another shot, outside the house-all these impinged on her consciousness without her grasping exactly what had happened.",
+   "ok": true
+  },
+  {
+   "claim": "The quicksand trapped one of the gang members",
+   "anchor": "the hunted car was now running on a line which would bring it between the old wreck and the edge of the incoming tide",
+   "span": "The hunted car was now running on a line which would bring it between the old wreck and the edge of the incoming tide; and on the hard sands it was making tremendous speed.",
+   "ok": true
+  },
+  {
+   "claim": "Sir Clinton explained the 'Père François' trick to carry off Paul Fordingbridge",
+   "anchor": "le coup du Père François",
+   "span": "Then, from behind the hull, Aird stole out and did _le coup du Père François_.",
+   "ok": true
+  },
+  {
+   "claim": "The diary was stolen and used to fabricate evidence",
+   "anchor": "Derek Fordingbridge's diary",
+   "span": "The real thing the thief had wanted was Derek Fordingbridge's diary.",
+   "ok": true
+  },
+  {
+   "claim": "The card-index was used to prepare the claimant's story",
+   "anchor": "card-index, with everything entered up in chronological order",
+   "span": "And there's their card-index, with everything entered up in chronological order-every bit of information they could collect about the Foxhills crowd from any source whatever.",
+   "ok": true
+  },
+  {
+   "claim": "The final solution was revealed in the last chapter",
+   "anchor": "The Threads in the Case",
+   "span": "Laurent-Desrousseaux's Evidence XII The Fordingbridge Mystery XIII Cressida's Narrative XIV The Telegram XV The Method of Coercion XVI The Man-Hunt on the Beach XVII The Threads in the Case Chapter I The Death at Foxhills Paul Fordingbridge, with a faintly reproachful glance at his sister, interrupted his study of the financial page of _The Times_ and put the paper down on his knee.",
+   "ok": true
+  },
+  {
+   "claim": "The false solution accused Cressida Fleetwood of murder",
+   "anchor": "That's my case stated. I think there's enough in it to apply for a warrant against the woman as principal",
+   "span": "That's my case stated. I think there's enough in it to apply for a warrant against the woman as principal and young Fleetwood as accessory.",
+   "ok": true
+  },
+  {
+   "claim": "The rain started after the Fleetwoods left the shore",
+   "anchor": "It was after the automobile had started to return to the hotel",
+   "span": "It was after the automobile had started to return to the hotel-a few minutes only after that.",
+   "ok": true
+  }
+ ],
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

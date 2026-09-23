@@ -24,8 +24,8 @@
   {
    "claim": "Judge Wilton had a cigar stump in his pocket at the crime scene",
    "anchor": "he had had in that pocket a cigar stump wet from his saliva",
-   "span": "",
-   "ok": false
+   "span": "He had had in that pocket a cigar stump wet from his saliva.",
+   "ok": true
   },
   {
    "claim": "Wilton fabricated an alibi and tried to appear innocent",
@@ -54,8 +54,8 @@
   {
    "claim": "Wilton made the dagger from a bed slat with matching grooves",
    "anchor": "the handle of the dagger matches the wood of the slat I've just mentioned",
-   "span": "",
-   "ok": false
+   "span": "The handle of the dagger matches the wood of the slat I've just mentioned.",
+   "ok": true
   },
   {
    "claim": "Wilton killed Mildred Brace out of fear of exposure and financial motives",
@@ -124,5 +124,7 @@
   "encode": "gpt-4.1-mini",
   "sweep": "gpt-4o-mini"
  },
- "case_written": true
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
 }

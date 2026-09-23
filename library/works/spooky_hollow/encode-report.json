@@ -1,0 +1,121 @@
+{
+ "slug": "spooky_hollow",
+ "spans": [
+  {
+   "claim": "Anne Vincent was found dead in her locked bedroom",
+   "anchor": "Miss Vincent is dead! She has been killed.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The murder weapon was a long-bladed knife stabbing the heart",
+   "anchor": "She was stabbed with some sort of dagger or long-bladed knife.",
+   "span": "She was stabbed with some sort of dagger or long-bladed knife.\" \"Carving-knife?",
+   "ok": true
+  },
+  {
+   "claim": "The door to Anne Vincent's room was locked from the inside",
+   "anchor": "Door locked on the inside.",
+   "span": "door locked on the inside.\" \"Windows?",
+   "ok": true
+  },
+  {
+   "claim": "Henry Johnson disappeared mysteriously after the murder",
+   "anchor": "He is not here, certainly, but I can’t think it is a mysterious disappearance.",
+   "span": "He is not here, certainly, but I can't think it is a mysterious disappearance. He may have gone for a very early morning walk, and met with some untoward accident.",
+   "ok": true
+  },
+  {
+   "claim": "The Wild Harp is a mechanical hoax created by Vincent and Mellish",
+   "anchor": "He rigged up that thing merely for the amusement and bewilderment of my friends and my servants.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The umbrella monogram initials are J.H., not H.J.",
+   "anchor": "The H is a trifle larger. Monograms are invariably made with the initial of the surname larger.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "John Haydock used the alias Henry Johnson",
+   "anchor": "John Haydock was a Chicago broker, was mysteriously missing.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Homer Vincent murdered John Haydock by pushing him into the swamp",
+   "anchor": "I pushed him in. He struggled like fury,—flinging his arms about.",
+   "span": "We strolled in the garden, went down to inspect Spooky Hollow, and-I pushed him in. He struggled like fury,-flinging his arms about. You know the more they struggle, the quicker they sink.",
+   "ok": true
+  },
+  {
+   "claim": "Homer Vincent murdered Anne Vincent to conceal Rosemary's birth secret",
+   "anchor": "I did kill John Haydock, because he knew the secret of my niece’s birth.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The stolen ruby was hidden in a secret panel in Vincent's room",
+   "anchor": "I have found,—first, Miss Vincent’s ruby, now Miss Rosemary’s property.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Vincent administered extra sleeping drops to Anne Vincent",
+   "anchor": "You gave her extra sleeping drops to be sure of her sleeping late in the morning.",
+   "span": "You gave her extra sleeping drops to be sure of her sleeping late in the morning. When they couldn't waken her, you broke through the door, rushed in, and bending over the living woman, stabbed her to the heart, and with the protection of her long, heavy bed-curtains, you were able to draw out the knife unseen.",
+   "ok": true
+  },
+  {
+   "claim": "Vincent stabbed Anne Vincent after breaking into her locked room",
+   "anchor": "You bent over the living woman, stabbed her to the heart.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Vincent disposed of the murder weapon in the swamp",
+   "anchor": "The knife you probably threw into the quicksand.",
+   "span": "The knife you probably threw into the quicksand. Also, you stole her ruby!",
+   "ok": true
+  },
+  {
+   "claim": "The cigarette-holder was found near the swamp",
+   "anchor": "That cigarette-holder was found on the east lawn.",
+   "span": "And, you remember, that cigarette-holder was found on the east lawn.\" \"What's that got to do with it?",
+   "ok": true
+  },
+  {
+   "claim": "Mellish operated the Wild Harp mechanism",
+   "anchor": "I found out who plays that Spook Harp, and as I just felt sure, it’s none other than Friend Butler.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Fibsy tested the swamp and confirmed it is a deadly morass",
+   "anchor": "I pushed that in. It went down in the quicksand of that swamp in less time than it takes to tell it!",
+   "span": "I bought a whole pig of the butcher, as big a one as I could manage, and I pushed that in. It went down in the quicksand of that swamp in less time than it takes to tell it! The muck is all dark-brown and quivering.",
+   "ok": true
+  },
+  {
+   "claim": "Vincent's footprints found on planking near swamp",
+   "anchor": "Those are Mr. Vincent’s prints.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Haydock's diary reveals his love for Rosemary and reason for visit",
+   "anchor": "He had never outgrown the infatuation that he felt for her.",
+   "span": "He was eight or ten years older than the girl, but he had never outgrown the infatuation that he felt for her. He determined to work hard and earn a fortune, and when this was accomplished, he proposed to go in search of Rosemary and try to win her for his own.",
+   "ok": true
+  },
+  {
+   "claim": "Vincent's secret panels contain hidden papers and ruby",
+   "anchor": "The tiniest speck of a pinhead knob, when pressed sideways, opens a third concealed recess.",
+   "span": "",
+   "ok": false
+  }
+ ],
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

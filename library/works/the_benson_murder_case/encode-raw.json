@@ -1,0 +1,606 @@
+{
+ "decade": "1920s",
+ "realism_constraints": [
+  "No advanced forensic DNA or electronic surveillance available",
+  "Firearms technology limited to revolvers and early semi-automatic pistols",
+  "Communication primarily by telephone and face-to-face interviews"
+ ],
+ "location": "New York City, primarily West Forty-eighth Street and surrounding areas",
+ "institution": "District Attorney's Office of New York County",
+ "crime_category": "murder",
+ "crime_subtype": "fratricide with planted evidence",
+ "cast": [
+  {
+   "name": "Philo Vance",
+   "age_range": "30-40",
+   "role_archetype": "amateur detective and psychological analyst",
+   "role": "detective",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "cultured art connoisseur and dilettante",
+   "private_secret": "master of psychological deduction",
+   "motive_seed": "intellectual curiosity",
+   "motive_strength": "weak",
+   "alibi_window": "n/a",
+   "access_plausibility": "n/a",
+   "stakes": "intellectual reputation",
+   "moral_complexity": "low",
+   "relationships": [],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "use of monocle when alert",
+    "flippant but incisive speech"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "John F.-X. Markham",
+   "age_range": "40-50",
+   "role_archetype": "incorruptible district attorney",
+   "role": "institution",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "serious, conventional legal authority",
+   "private_secret": "deep respect for Vance's intellect",
+   "motive_seed": "justice and duty",
+   "motive_strength": "strong",
+   "alibi_window": "n/a",
+   "access_plausibility": "n/a",
+   "stakes": "legal and social order",
+   "moral_complexity": "moderate",
+   "relationships": [],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "stern demeanor",
+    "reluctance to accept psychological methods"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Alvin H. Benson",
+   "age_range": "50-60",
+   "role_archetype": "victim, Wall Street broker, man-about-town",
+   "role": "victim",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "popular, reckless gambler and socialite",
+   "private_secret": "used underhand methods with women and business",
+   "motive_seed": "n/a",
+   "motive_strength": "none",
+   "alibi_window": "n/a",
+   "access_plausibility": "n/a",
+   "stakes": "life",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "brother to Major Anthony Benson",
+    "dinner companion to Muriel St. Clair"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "wore toupee",
+    "semi-negligé attire when killed"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Major Anthony Benson",
+   "age_range": "50-60",
+   "role_archetype": "brother of victim, gambler, desperate man",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "sedate, conventional, respected",
+   "private_secret": "financial desperation, embezzlement, fratricide",
+   "motive_seed": "financial ruin, desire to cover losses",
+   "motive_strength": "strong",
+   "alibi_window": "claimed to be home all night but left briefly",
+   "access_plausibility": "high, lived in same building",
+   "stakes": "freedom, financial survival",
+   "moral_complexity": "high",
+   "relationships": [
+    "brother to Alvin H. Benson",
+    "disliked Leander Pfyfe",
+    "had tense relations with Muriel St. Clair"
+   ],
+   "opportunity_channels": [
+    "access to house key",
+    "knowledge of house layout"
+   ],
+   "behavioral_tells": [
+    "violent outburst when cornered",
+    "attempted to mislead investigators"
+   ],
+   "evidence_sensitivity": [
+    "gun found in his apartment",
+    "jewels hidden in his apartment",
+    "forged check motive"
+   ]
+  },
+  {
+   "name": "Mrs. Anna Platz",
+   "age_range": "50-60",
+   "role_archetype": "housekeeper, protective mother",
+   "role": "suspect",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "eligible",
+   "public_persona": "loyal housekeeper",
+   "private_secret": "mother of Elsie Hoffman, protective of her",
+   "motive_seed": "protect daughter from suspicion",
+   "motive_strength": "weak",
+   "alibi_window": "at home all night",
+   "access_plausibility": "high, lived in house",
+   "stakes": "daughter's reputation",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "mother to Elsie Hoffman",
+    "employed by Alvin Benson"
+   ],
+   "opportunity_channels": [
+    "access to house and keys"
+   ],
+   "behavioral_tells": [
+    "evasiveness about visitors",
+    "fear when daughter implicated"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Muriel St. Clair",
+   "age_range": "20-30",
+   "role_archetype": "young singer, dinner companion",
+   "role": "suspect",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "exotic, poised singer",
+   "private_secret": "financial troubles, disliked victim",
+   "motive_seed": "resentment towards Alvin Benson",
+   "motive_strength": "moderate",
+   "alibi_window": "left dinner at midnight, arrived home after 1 am",
+   "access_plausibility": "low, no evidence of presence at murder time",
+   "stakes": "reputation, freedom",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "fiancée to Captain Philip Leacock",
+    "dined with Alvin Benson"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "cold, distant demeanor",
+    "evasiveness in questioning"
+   ],
+   "evidence_sensitivity": [
+    "gloves and handbag found at crime scene"
+   ]
+  },
+  {
+   "name": "Leander Pfyfe",
+   "age_range": "40-50",
+   "role_archetype": "idle gambler, friend of victim",
+   "role": "suspect",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "eligible",
+   "public_persona": "elegant, waster",
+   "private_secret": "financial troubles, forged check",
+   "motive_seed": "financial desperation",
+   "motive_strength": "moderate",
+   "alibi_window": "claimed to be away but actually in city",
+   "access_plausibility": "medium",
+   "stakes": "freedom, financial security",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "friend to Alvin Benson",
+    "husband to Mrs. Paula Banning"
+   ],
+   "opportunity_channels": [
+    "car seen near crime scene"
+   ],
+   "behavioral_tells": [
+    "evasiveness about whereabouts",
+    "attempted to implicate others"
+   ],
+   "evidence_sensitivity": [
+    "forged check and confession",
+    "car ownership"
+   ]
+  },
+  {
+   "name": "Mrs. Paula Banning",
+   "age_range": "40-50",
+   "role_archetype": "mistress of Pfyfe, sentimental woman",
+   "role": "suspect",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "eligible",
+   "public_persona": "flamboyant widow",
+   "private_secret": "lent jewels as security",
+   "motive_seed": "protect Pfyfe",
+   "motive_strength": "weak",
+   "alibi_window": "claimed Pfyfe was not in city",
+   "access_plausibility": "low",
+   "stakes": "reputation, relationship",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "lover of Leander Pfyfe"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "evasiveness about Pfyfe’s presence"
+   ],
+   "evidence_sensitivity": [
+    "jewels lent as security"
+   ]
+  },
+  {
+   "name": "Captain Philip Leacock",
+   "age_range": "30-40",
+   "role_archetype": "army officer, fiancé, hot-headed",
+   "role": "suspect",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "eligible",
+   "public_persona": "serious, chivalrous soldier",
+   "private_secret": "lost gun, threatened victim",
+   "motive_seed": "jealousy over fiancée",
+   "motive_strength": "moderate",
+   "alibi_window": "claimed at home but left briefly",
+   "access_plausibility": "medium",
+   "stakes": "freedom, honor",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "fiancé to Muriel St. Clair"
+   ],
+   "opportunity_channels": [
+    "access to gun",
+    "presence near crime scene"
+   ],
+   "behavioral_tells": [
+    "nervousness under questioning",
+    "confession later recanted"
+   ],
+   "evidence_sensitivity": [
+    "confession",
+    "gun ownership and disposal"
+   ]
+  },
+  {
+   "name": "Elsie Hoffman",
+   "age_range": "20-30",
+   "role_archetype": "secretary, daughter of housekeeper",
+   "role": "witness",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "capable secretary",
+   "private_secret": "daughter of housekeeper, aware of family tensions",
+   "motive_seed": "n/a",
+   "motive_strength": "none",
+   "alibi_window": "no alibi for night of murder",
+   "access_plausibility": "medium",
+   "stakes": "job, family",
+   "moral_complexity": "low",
+   "relationships": [
+    "daughter to Mrs. Anna Platz"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "eavesdropped on arguments"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Colonel Bigsby Ostrander",
+   "age_range": "60-70",
+   "role_archetype": "retired army officer, social acquaintance",
+   "role": "suspect",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "eligible",
+   "public_persona": "pompous socialite",
+   "private_secret": "disliked Major Benson",
+   "motive_seed": "resentment over financial losses",
+   "motive_strength": "weak",
+   "alibi_window": "at theatre during murder",
+   "access_plausibility": "low",
+   "stakes": "reputation",
+   "moral_complexity": "low",
+   "relationships": [
+    "acquaintance of Benson brothers"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "talkative but vague"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "William H. Moriarty",
+   "age_range": "25-35",
+   "role_archetype": "alderman, political figure",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "young politician",
+   "private_secret": "n/a",
+   "motive_seed": "n/a",
+   "motive_strength": "none",
+   "alibi_window": "at theatre during murder",
+   "access_plausibility": "low",
+   "stakes": "political career",
+   "moral_complexity": "low",
+   "relationships": [
+    "acquaintance of Colonel Ostrander"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": []
+  }
+ ],
+ "culprits": [
+  "Major Anthony Benson"
+ ],
+ "surface_summary": "Alvin H. Benson, a Wall Street broker, is found shot in his home under mysterious circumstances. The investigation initially points suspicion at his dinner companion, Muriel St. Clair, and her fiancé, Captain Leacock, but the case is complicated by multiple suspects and conflicting alibis.",
+ "accepted_facts": [
+  "Alvin Benson was shot through the forehead in his living-room.",
+  "His house was securely locked with barred windows and only the front door accessible.",
+  "Muriel St. Clair's gloves and handbag were found at the crime scene.",
+  "Captain Leacock confessed to the murder but his confession was inconsistent and later doubted."
+ ],
+ "inferred_conclusions": [
+  "Muriel St. Clair was the murderer due to her personal items at the scene.",
+  "Captain Leacock was guilty based on his confession and motive of jealousy.",
+  "Leander Pfyfe was involved in the murder due to his suspicious presence and forged check."
+ ],
+ "mechanism_description": "Major Anthony Benson, motivated by financial desperation and the desire to obtain jewels and securities held by his brother Alvin, planned and executed the murder. He entered Alvin’s house by tapping on the window, was admitted without Alvin’s toupee and false teeth, shot him at close range aiming deliberately at the forehead, then turned off the lights and left. He planted evidence to implicate others, including the dinner companion and Captain Leacock, but psychological analysis and alibi investigation revealed his guilt.",
+ "delivery_path": [
+  "Major Benson learned Alvin’s schedule and that he would be home alone at midnight.",
+  "He tapped on the barred window and was admitted by Alvin without disguise.",
+  "He shot Alvin through the forehead from about five and a half feet away.",
+  "He turned off the lights and left the house before the housekeeper could hear.",
+  "He hid the jewels taken from Alvin’s safe in his own apartment.",
+  "He created false alibis and planted evidence to implicate Captain Leacock and others.",
+  "Investigators uncovered inconsistencies in alibis and found the hidden jewels and gun."
+ ],
+ "outcome_result": "Major Anthony Benson was indicted and convicted for the murder of his brother Alvin H. Benson.",
+ "false_assumption": {
+  "statement": "The presence of Muriel St. Clair’s gloves and handbag at the crime scene proves she was the murderer.",
+  "type": "identity",
+  "why_it_seems_reasonable": "The personal items were found in the victim’s living-room and she was known to have dined with him that night. It is natural to suspect someone whose belongings are at the scene.",
+  "what_it_hides": "It hides the fact that the victim himself brought her belongings home and that the real murderer planted these items to mislead the investigation."
+ },
+ "false_solution": {
+  "accused_suspect": "Captain Philip Leacock",
+  "supporting_points": [
+   "He threatened Alvin Benson over his attentions to Muriel St. Clair.",
+   "He confessed to the murder, providing a detailed but inconsistent account.",
+   "He was seen near the crime scene at the relevant time.",
+   "He disposed of the murder weapon by throwing it into the river."
+  ],
+  "the_one_flaw": "His confession was full of contradictions and physical impossibilities, and psychological analysis showed he was unlikely to have committed the crime.",
+  "refuted_in_chapter": 19
+ },
+ "red_herrings": [
+  {
+   "id": "muriel_st_clair_gloves_and_handbag",
+   "description": "Gloves and handbag of Muriel St. Clair found at the crime scene suggest her presence and guilt.",
+   "points_at_suspect": "Muriel St. Clair",
+   "innocent_explanation": "Alvin Benson brought her belongings home after she left, and the items were planted to mislead.",
+   "resolved_in_chapter": 20
+  },
+  {
+   "id": "leander_pfyfe_grey_cadillac",
+   "description": "Leander Pfyfe’s grey Cadillac was seen parked near the victim’s house on the night of the murder.",
+   "points_at_suspect": "Leander Pfyfe",
+   "innocent_explanation": "Pfyfe was in the city but had no involvement in the murder; he tried to mislead the investigation due to personal motives.",
+   "resolved_in_chapter": 13
+  }
+ ],
+ "closed_circle": {
+  "suspects": [
+   "Major Anthony Benson",
+   "Captain Philip Leacock",
+   "Muriel St. Clair",
+   "Leander Pfyfe",
+   "Mrs. Anna Platz",
+   "Colonel Bigsby Ostrander",
+   "Mrs. Paula Banning"
+  ],
+  "rationale": "All had motive, opportunity, or suspicious behavior connected to the murder, and the investigation focused on this limited group."
+ },
+ "constraint_space": {
+  "time_anchors": [
+   "midnight to 1 a.m. on June 13-14",
+   "arrival of Major Benson at 11 p.m.",
+   "theatre attendance times of Colonel Ostrander and Moriarty"
+  ],
+  "time_windows": [
+   "Muriel St. Clair left dinner at midnight",
+   "Captain Leacock left home shortly after midnight",
+   "Major Benson’s absence from apartment around midnight"
+  ],
+  "access_actors": [
+   "Major Anthony Benson",
+   "Alvin H. Benson",
+   "Mrs. Anna Platz",
+   "Captain Philip Leacock"
+  ],
+  "access_objects": [
+   "front door key",
+   "window with iron grille",
+   "secret drawer in center-table",
+   "safe in office"
+  ],
+  "trust_channels": [
+   "housekeeper’s testimony",
+   "secretary’s eavesdropping",
+   "friends’ alibis"
+  ],
+  "authority_sources": [
+   "District Attorney’s office",
+   "Police Department of New York City",
+   "Chief Medical Examiner",
+   "Fire-arms expert Captain Hagedorn"
+  ]
+ },
+ "inference_path": [
+  {
+   "observation": "Muriel St. Clair’s gloves and handbag found at the crime scene",
+   "correction": "Victim brought them home after she left",
+   "effect": "Muriel’s presence at murder time is disproved",
+   "required_evidence": [
+    "Housekeeper Mrs. Platz’s testimony about tea visit",
+    "Muriel St. Clair’s own account of losing gloves and handbag"
+   ]
+  },
+  {
+   "observation": "Captain Leacock confessed to the murder",
+   "correction": "Confession contained contradictions and physical impossibilities",
+   "effect": "Leacock’s guilt is doubted",
+   "required_evidence": [
+    "Discrepancies in confession about light switch and attire",
+    "Psychological profile of Leacock inconsistent with crime method"
+   ]
+  },
+  {
+   "observation": "Leander Pfyfe’s grey Cadillac seen near crime scene",
+   "correction": "Pfyfe was in city but had no direct involvement",
+   "effect": "Pfyfe’s presence is suspicious but not proof of guilt",
+   "required_evidence": [
+    "Garage records showing car parked",
+    "Pfyfe’s statements and alibi"
+   ]
+  },
+  {
+   "observation": "Major Benson’s alibi claimed by elevator boy",
+   "correction": "Major left apartment briefly without being seen",
+   "effect": "Major’s alibi is broken",
+   "required_evidence": [
+    "Elevator boy Jack Prisco’s testimony",
+    "Testimony of Theodore Montagu seeing man matching Major’s description"
+   ]
+  },
+  {
+   "observation": "Jewels missing from victim’s house",
+   "correction": "Jewels found hidden in Major Benson’s apartment",
+   "effect": "Major had motive and took valuables",
+   "required_evidence": [
+    "Discovery of jewel case in Major’s locked humidor",
+    "Testimony of Paula Banning about lending jewels"
+   ]
+  },
+  {
+   "observation": "Gun found in Major Benson’s apartment matches murder weapon",
+   "correction": "Gun recently cleaned and fully loaded, consistent with murder weapon",
+   "effect": "Major had access and used the murder weapon",
+   "required_evidence": [
+    "Captain Hagedorn’s expert examination of gun and bullet",
+    "Dust patterns on gun and holster in Major’s apartment"
+   ]
+  },
+  {
+   "observation": "Major Benson’s behavior and psychological profile match crime characteristics",
+   "correction": "Crime planned and executed with coolness and precision",
+   "effect": "Major identified as murderer by psychological analysis",
+   "required_evidence": [
+    "Vance’s psychological deductions",
+    "Testimonies of friends and alibis disproving others"
+   ]
+  }
+ ],
+ "discriminating_test": {
+  "method": "constraint_proof",
+  "design": "Investigators verify the alibi of Major Benson by checking the testimony of the elevator boy and other witnesses, and inspect the Major’s apartment for the murder weapon and stolen jewels. The presence of the gun and jewels in the Major’s locked apartment, combined with the broken alibi, confirms his opportunity and means.",
+  "knowledge_revealed": "The test reveals that Major Benson’s alibi is false and that he possessed the murder weapon and stolen jewels, proving his guilt.",
+  "pass_condition": "Physical evidence of the gun and jewels in Major Benson’s apartment and credible witness testimony disproving his alibi."
+ },
+ "fair_play_explanation": "The reader is given detailed descriptions of the crime scene, the suspects’ alibis, and the physical evidence such as the gun, jewels, and personal items. Psychological insights and inconsistencies in confessions are presented openly. The locked-room nature of the crime and the timing constraints are clearly outlined, allowing attentive readers to deduce the murderer’s identity by analyzing the alibis and motives.",
+ "anchors": [
+  {
+   "claim": "Alvin Benson was shot through the forehead from in front",
+   "anchor": "He had been shot through the forehead from in front"
+  },
+  {
+   "claim": "The bullet passed through the head and struck the woodwork",
+   "anchor": "Bullet passed completely through the skull. Exit wound in the left occipital region—base of skull"
+  },
+  {
+   "claim": "The gun used was a forty-five army Colt automatic",
+   "anchor": "A forty-five army bullet—Colt automatic"
+  },
+  {
+   "claim": "The shot was fired from about five feet six inches away",
+   "anchor": "measured a distance of five feet and six inches"
+  },
+  {
+   "claim": "The murderer’s height was about five feet ten inches",
+   "anchor": "The distance was four feet, eight and a half inches"
+  },
+  {
+   "claim": "Muriel St. Clair’s gloves and handbag were found at the crime scene",
+   "anchor": "the gloves she wore at dinner, and the hand-bag she carried with her, were both found on the mantel"
+  },
+  {
+   "claim": "Captain Leacock confessed to the murder but his confession was inconsistent",
+   "anchor": "I went to 87 West Forty-eighth Street, and entered the house by the front door"
+  },
+  {
+   "claim": "Leander Pfyfe’s grey Cadillac was found in a garage near the crime scene",
+   "anchor": "We’ve found the grey Cadillac, sir"
+  },
+  {
+   "claim": "Major Benson’s alibi was disproved by witness testimony",
+   "anchor": "Montagu came in at two-thirty"
+  },
+  {
+   "claim": "Jewels were found hidden in Major Benson’s locked humidor",
+   "anchor": "There, on the upper shelf, in plain view, lay an army belt with a bulging holster"
+  },
+  {
+   "claim": "The murder weapon was found in Major Benson’s apartment recently cleaned",
+   "anchor": "Even the inside of the barrel is immaculate"
+  },
+  {
+   "claim": "Major Benson was angry and violent when confronted with evidence",
+   "anchor": "He swung round on him hotly"
+  },
+  {
+   "claim": "The housekeeper Mrs. Platz was afraid to implicate her daughter",
+   "anchor": "You were afraid I thought it was Miss Hoffman"
+  },
+  {
+   "claim": "The victim was without his toupee and false teeth when shot",
+   "anchor": "Benson must have worn false hair"
+  },
+  {
+   "claim": "Major Benson was admitted by tapping on the window",
+   "anchor": "The person who shot Benson obtained admittance that way"
+  },
+  {
+   "claim": "The jewels were left on the table when Alvin went out to dinner",
+   "anchor": "There was a small blue box of jewellery sitting on the table"
+  },
+  {
+   "claim": "Captain Leacock’s confession was legally worthless",
+   "anchor": "This document isn’t at all legal"
+  },
+  {
+   "claim": "The murder was planned to implicate Captain Leacock",
+   "anchor": "The crime was planned so as to cast suspicion on the Captain"
+  },
+  {
+   "claim": "Major Benson was convicted on circumstantial evidence",
+   "anchor": "Major Anthony Benson was indicted for the murder of his brother"
+  },
+  {
+   "claim": "Philo Vance used psychological analysis to identify the murderer",
+   "anchor": "The crime was a perfect psychological expression of his character"
+  }
+ ]
+}

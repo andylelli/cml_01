@@ -1,0 +1,127 @@
+{
+ "slug": "the_benson_murder_case",
+ "spans": [
+  {
+   "claim": "Alvin Benson was shot through the forehead from in front",
+   "anchor": "He had been shot through the forehead from in front",
+   "span": "He had been shot through the forehead from in front; and the small circular bullet mark was now almost black as a result of the coagulation of the blood.",
+   "ok": true
+  },
+  {
+   "claim": "The bullet passed through the head and struck the woodwork",
+   "anchor": "Bullet passed completely through the skull. Exit wound in the left occipital region—base of skull",
+   "span": "Bullet passed completely through the skull. Exit wound in the left occipital region-base of skull,-you found the bullet, didn't you?",
+   "ok": true
+  },
+  {
+   "claim": "The gun used was a forty-five army Colt automatic",
+   "anchor": "A forty-five army bullet—Colt automatic",
+   "span": "A forty-five army bullet-Colt automatic.",
+   "ok": true
+  },
+  {
+   "claim": "The shot was fired from about five feet six inches away",
+   "anchor": "measured a distance of five feet and six inches",
+   "span": "Next he took up the tape-measure and, extending the string through the hole, measured a distance of five feet and six inches along it, starting at the point which corresponded to the location of Benson's forehead as he sat in the chair.",
+   "ok": true
+  },
+  {
+   "claim": "The murderer’s height was about five feet ten inches",
+   "anchor": "The distance was four feet, eight and a half inches",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Muriel St. Clair’s gloves and handbag were found at the crime scene",
+   "anchor": "the gloves she wore at dinner, and the hand-bag she carried with her, were both found on the mantel",
+   "span": "As you know, the gloves she wore at dinner, and the hand-bag she carried with her, were both found on the mantel in Benson's living-room.",
+   "ok": true
+  },
+  {
+   "claim": "Captain Leacock confessed to the murder but his confession was inconsistent",
+   "anchor": "I went to 87 West Forty-eighth Street, and entered the house by the front door",
+   "span": "You dictated: 'I went to 87 West Forty-eighth Street, and entered the house by the front door.",
+   "ok": true
+  },
+  {
+   "claim": "Leander Pfyfe’s grey Cadillac was found in a garage near the crime scene",
+   "anchor": "We’ve found the grey Cadillac, sir",
+   "span": "We've found the grey Cadillac, sir; and Sergeant Heath thought you might want to know about it right away.",
+   "ok": true
+  },
+  {
+   "claim": "Major Benson’s alibi was disproved by witness testimony",
+   "anchor": "Montagu came in at two-thirty",
+   "span": "Montagu came in at two-thirty?",
+   "ok": true
+  },
+  {
+   "claim": "Jewels were found hidden in Major Benson’s locked humidor",
+   "anchor": "There, on the upper shelf, in plain view, lay an army belt with a bulging holster",
+   "span": "There, on the upper shelf, in plain view, lay an army belt with a bulging holster.",
+   "ok": true
+  },
+  {
+   "claim": "The murder weapon was found in Major Benson’s apartment recently cleaned",
+   "anchor": "Even the inside of the barrel is immaculate",
+   "span": "Even the inside of the barrel is immaculate.",
+   "ok": true
+  },
+  {
+   "claim": "Major Benson was angry and violent when confronted with evidence",
+   "anchor": "He swung round on him hotly",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The housekeeper Mrs. Platz was afraid to implicate her daughter",
+   "anchor": "You were afraid I thought it was Miss Hoffman",
+   "span": "You were afraid I thought it was Miss Hoffman.",
+   "ok": true
+  },
+  {
+   "claim": "The victim was without his toupee and false teeth when shot",
+   "anchor": "Benson must have worn false hair",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Major Benson was admitted by tapping on the window",
+   "anchor": "The person who shot Benson obtained admittance that way",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The jewels were left on the table when Alvin went out to dinner",
+   "anchor": "There was a small blue box of jewellery sitting on the table",
+   "span": "there was a small blue box of jewellery sitting on the table.",
+   "ok": true
+  },
+  {
+   "claim": "Captain Leacock’s confession was legally worthless",
+   "anchor": "This document isn’t at all legal",
+   "span": "this document isn't at all legal.",
+   "ok": true
+  },
+  {
+   "claim": "The murder was planned to implicate Captain Leacock",
+   "anchor": "The crime was planned so as to cast suspicion on the Captain",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Major Benson was convicted on circumstantial evidence",
+   "anchor": "Major Anthony Benson was indicted for the murder of his brother",
+   "span": "Before a week had passed, Major Anthony Benson was indicted for the murder of his brother.",
+   "ok": true
+  },
+  {
+   "claim": "Philo Vance used psychological analysis to identify the murderer",
+   "anchor": "The crime was a perfect psychological expression of his character",
+   "span": "",
+   "ok": false
+  }
+ ],
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

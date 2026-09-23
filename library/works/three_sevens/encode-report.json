@@ -1,0 +1,130 @@
+{
+ "slug": "three_sevens",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Craig was in the punishment cell with a cat wearing a collar of steel saws",
+   "anchor": "The cat was wearing a collar, all right. It was a collar of five fine steel saws.",
+   "span": "The cat was wearing a collar, all right. It was a collar of five fine steel saws. There was one good thing about this club of darkness to which Craig had been elected against his will.",
+   "ok": true
+  },
+  {
+   "claim": "Craig subdued the guards and took control of the prison",
+   "anchor": "Craig stood there for a full three seconds surveying them in that stark and white-washed room flooded with raw, artificial light.",
+   "span": "Craig stood there for a full three seconds surveying them in that stark and white-washed room flooded with raw, artificial light. Then one of the guards, glancing in his direction, started to move or speak.",
+   "ok": true
+  },
+  {
+   "claim": "Craig escaped San Pedro Prison disguised in a guard's uniform",
+   "anchor": "Craig had on the guard’s uniform--not much of a disguise in his own unclipped and unshaven state, but it would have to do.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Joan Gracie secretly aids Craig and believes in his innocence",
+   "anchor": "She was very human--very feminine, too, although dressed in riding clothes--short skirt, spurred boots.",
+   "span": "She was very human--very feminine, too, although dressed in riding clothes--short skirt, spurred boots. But her hair was down her back, in a single, heavy schoolgirl tress.",
+   "ok": true
+  },
+  {
+   "claim": "Count Wolf is a notorious criminal and antagonist",
+   "anchor": "He was the man who was lithe and graceful, who might have been handsome, in a darksome way, if it hadn’t been for the snarl on his face.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Craig confronts Count Wolf at the Marebello residence",
+   "anchor": "Craig was alone as he strolled into the big room where the dancers were.",
+   "span": "Craig was alone as he strolled into the big room where the dancers were. There were a dozen couples on the floor.",
+   "ok": true
+  },
+  {
+   "claim": "Count Wolf escapes shackles and fights Craig on elevator shaft",
+   "anchor": "The count had made a violent movement. He had not only wrenched himself free.",
+   "span": "The count had made a violent movement. He had not only wrenched himself free. By some amazing trick of suppleness and strength he had succeeded in getting himself free from those fine, strong shackles on his wrists.",
+   "ok": true
+  },
+  {
+   "claim": "Craig returns with Count Wolf and other fugitives to law enforcement",
+   "anchor": "Craig, with the black mass of the count at his side, watched the dial, watched the count, watched the flickering lights and shadows.",
+   "span": "Craig, with the black mass of the count at his side, watched the dial, watched the count, watched the flickering lights and shadows. He was like a man who had been under water, was under water still, but who feels himself rushing up to air and safety.",
+   "ok": true
+  },
+  {
+   "claim": "False assumption that Craig is guilty of the original murder",
+   "anchor": "I am innocent! I’m innocent myself and you--you----",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Samuel Green is a suspect due to his grudge against Craig",
+   "anchor": "Samuel Green, the ex-warden of San Pedro, who seeks revenge on Craig.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Harry, the Goose, is a red herring suspect",
+   "anchor": "Harry, the Goose, had about as much chance to plead his case as a rat among terriers.",
+   "span": "In the midst of all this, Harry, the Goose, had about as much chance to plead his case as a rat among terriers. But the Zabrewski group was sullen.",
+   "ok": true
+  },
+  {
+   "claim": "Craig’s red ledger lists dangerous fugitives he must capture",
+   "anchor": "The signature of Joan Gracie looked up at him, as she had written it, linked with his own.",
+   "span": "---- The signature of Joan Gracie looked up at him, as she had written it, linked with his own. He kissed the place where her hand had rested.",
+   "ok": true
+  },
+  {
+   "claim": "Craig’s prison break involved saws smuggled by Solly Wells",
+   "anchor": "The saws came from Solly Wells,” whispered some one from the other end of the cellar.",
+   "span": "The saws came from Solly Wells,\" whispered some one from the other end of the cellar. \"Solly's in the hospital, expectin' to croak.",
+   "ok": true
+  },
+  {
+   "claim": "Craig’s alliance with Eddie Yarmouth and Jim Bartow",
+   "anchor": "It was from cell No. 6, the last in the row, that Craig got most of his counsel.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Craig’s final capture of Count Wolf is witnessed by Joan Gracie",
+   "anchor": "Joan Gracie had been the last to run to the door, although her interest had been the greatest.",
+   "span": "Joan Gracie had been the last to run to the door, although her interest had been the greatest. As a matter of fact, she was all but overcome.",
+   "ok": true
+  },
+  {
+   "claim": "Craig’s innocence is proven by Amy Beekman and Brewster’s confession",
+   "anchor": "She told how she had met Mr. Beekman, and gave a flitting glimpse of their romance.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Craig’s cooperation with district attorney Colonel Bird and editor Courtney",
+   "anchor": "Mr. Courtney has told me about you. I dare say things will turn out nicely.",
+   "span": "Mr. Courtney has told me about you. I dare say things will turn out nicely. Has he told you about political conditions here in the county?",
+   "ok": true
+  },
+  {
+   "claim": "Craig’s strategic use of political reform and media to trap criminals",
+   "anchor": "Then, let us suppose that my men should accomplish the arrest without the cognizance of the police.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Craig’s physical and mental endurance during the elevator shaft struggle",
+   "anchor": "Craig clung to the top of the car with iron hooks that had been his fingers.",
+   "span": "And, there for a moment, Craig clung to the top of the car with iron hooks that had been his fingers. For the count was trying to thrust him over and down, and Craig didn't want to go.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.0513284488,
+ "models": {
+  "map": "gpt-4o-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

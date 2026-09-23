@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "The murderer escaped through the locked kitchen door or window.",
+  "type": "spatial",
+  "why_it_seems_reasonable": "The studio was locked from inside and the window was high and inaccessible, so the only apparent exit was the kitchen door. Witnesses saw no one leave, making it seem impossible for the murderer to escape.",
+  "what_it_hides": "The murderer used a lay figure as a decoy outside the window and disguised himself inside the studio, allowing him to escape unnoticed through the hallway when others were distracted."
+ },
+ "mechanism_description": "The murderer, Tricot, disguised himself by placing a lay figure dressed in clothes on the window ledge to simulate a person inside the studio. He then took the place of the figure inside the studio, committing the murder of Harry Horton by stabbing him with a knife. After the murder, the murderer restored the lay figure to its place and escaped unnoticed. The torn cotton from the lay figure and disturbed clothing proved the deception.",
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "Moira and the police examined the lay figure and the studio, noting the disturbed clothing and torn cotton. They tested the window catch and the position of the lay figure on the ledge. Witnesses were questioned about the man with a limp and the timing of arrivals and departures. The torn cotton piece was matched to the lay figure, proving it had been moved outside. This reenactment demonstrated the impossibility of escape through doors or window and the use of the lay figure as a decoy.",
+  "knowledge_revealed": "The reenactment revealed that the murderer disguised himself by using the lay figure as a decoy outside the window and took its place inside to commit the murder, escaping unnoticed.",
+  "pass_condition": "Physical evidence of the torn cotton matching the lay figure and witness testimony confirming the presence of the murderer disguised as the lay figure."
+ },
+ "changed": [],
+ "confidence": "high"
+}

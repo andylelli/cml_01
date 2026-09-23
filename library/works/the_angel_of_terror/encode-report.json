@@ -1,0 +1,130 @@
+{
+ "slug": "the_angel_of_terror",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "James Meredith was found dead with a revolver in his right hand and a bullet wound in his left temple",
+   "anchor": "A bullet had entered just below the left temple, and there was a mark of powder near the face",
+   "span": "A bullet had entered just below the left temple, and there was a mark of powder near the face.",
+   "ok": true
+  },
+  {
+   "claim": "Jean Briggerland's testimony was crucial in Meredith's conviction",
+   "anchor": "The evidence of Miss Briggerland that you had threatened this poor young man",
+   "span": "The evidence of Miss Briggerland that you had threatened this poor young man, and that you left her presence in a temper, is unshaken.",
+   "ok": true
+  },
+  {
+   "claim": "Meredith escaped from a nursing home and married Lydia Beale",
+   "anchor": "He escaped from the nursing home last night and at this particular moment is in this house",
+   "span": "He escaped from the nursing home last night and at this particular moment is in this house.",
+   "ok": true
+  },
+  {
+   "claim": "Jean Briggerland and her father conspired against Lydia Meredith",
+   "anchor": "I am as anxious as you are to get to the bottom of this dreadful tragedy",
+   "span": "I am as anxious as you are to get to the bottom of this dreadful tragedy.",
+   "ok": true
+  },
+  {
+   "claim": "François Mordon forged Lydia Meredith's signature and drew money from her bank",
+   "anchor": "I have returned from London and have confessed to Madame Meredith that I have forged her name and have drawn £100,000 from her bank",
+   "span": "_I have returned from London and have confessed to Madame Meredith that I have forged her name and have drawn £100,000 from her bank.",
+   "ok": true
+  },
+  {
+   "claim": "Mr. Briggerland murdered François Mordon",
+   "anchor": "Mr. Briggerland, it seemed, had some other object in life than the regeneration of the criminal classes",
+   "span": "Chapter XII Mr. Briggerland, it seemed, had some other object in life than the regeneration of the criminal classes.",
+   "ok": true
+  },
+  {
+   "claim": "Lydia Meredith's bed was soaked with peroxide to disinfect it after infection",
+   "anchor": "Her bed's sopping... They must have poured buckets of water over it, and used up all Mrs. Cole-Mortimer's peroxide",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Jack Glover disguised himself as old Jaggs to protect Lydia Meredith",
+   "anchor": "I have not left Monte Carlo since Lydia Meredith arrived",
+   "span": "that I am Jack Glover, and that I have not left Monte Carlo since Lydia Meredith arrived.",
+   "ok": true
+  },
+  {
+   "claim": "The forged letter was part of a story dictated by Jean Briggerland",
+   "anchor": "The story! Mademoiselle Briggerland told me she was writing a story, and I remember she said she had writer's cramp",
+   "span": "The story! Mademoiselle Briggerland told me she was writing a story, and I remember she said she had writer's cramp.",
+   "ok": true
+  },
+  {
+   "claim": "Jean Briggerland burnt the manuscript of her story to hide evidence",
+   "anchor": "She carried the paper to a remote corner of the grounds and burnt it sheet by sheet",
+   "span": "The remainder, including all that part of the story she had written on the previous night, she made into a bundle, and when Lydia had gone off with Marcus Stepney to swim, she carried the paper to a remote corner of the grounds and burnt it sheet by sheet.",
+   "ok": true
+  },
+  {
+   "claim": "Mr. Briggerland was arrested for the murder of François Mordon",
+   "anchor": "I have a warrant from the Préfect of the Alpes Maritimes for your arrest",
+   "span": "M'sieur Briggerland, I have a warrant from the Préfect of the Alpes Maritimes for your arrest.",
+   "ok": true
+  },
+  {
+   "claim": "Lydia Meredith was attacked and thrown into the sea but rescued by Marcus Stepney",
+   "anchor": "The bullet ripped her hat from her head, and she flung up her hands, thinking she had been struck",
+   "span": "The bullet ripped her hat from her head, and she flung up her hands, thinking she had been struck.",
+   "ok": true
+  },
+  {
+   "claim": "Marcus Stepney and Jean Briggerland fled by motor-launch to escape arrest",
+   "anchor": "The _Jungle Queen_ had called at Malaga, had provisioned, refilled, and put out to sea again",
+   "span": "Briggerland had undergone his preliminary examination, when a wire came through from the Spanish police that a motor-boat answering the description of the _Jungle Queen_ had called at Malaga, had provisioned, refilled, and put out to sea again, before the police authorities, who had a description of the pair, had time to investigate.",
+   "ok": true
+  },
+  {
+   "claim": "Jean Briggerland met Muley Hafiz, the Moorish Pretender",
+   "anchor": "He might have been a European; his complexion was fair, though his eyebrows and eyes were jet black",
+   "span": "He might have been a European; his complexion was fair, though his eyebrows and eyes were jet black, as also was the tiny beard and moustache he wore.",
+   "ok": true
+  },
+  {
+   "claim": "Jean Briggerland planned to marry François Mordon",
+   "anchor": "François and I are going to be married next week",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Jack Glover exposed the conspiracy and protected Lydia Meredith",
+   "anchor": "I have sufficient evidence to secure the arrest of your father, and possibly yourself",
+   "span": "I have sufficient evidence to secure the arrest of your father, and possibly yourself.",
+   "ok": true
+  },
+  {
+   "claim": "The shooting at San Remo was committed by Mr. Briggerland, not Mordon",
+   "anchor": "You think that all these time she has been trying to kill me? She has used everybody, even me",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The forged cheque was presented in London and honored",
+   "anchor": "This cheque is in order. Please honour",
+   "span": "This cheque is in order. Please honour.",
+   "ok": true
+  },
+  {
+   "claim": "The conspiracy involved multiple attempts on Lydia Meredith's life",
+   "anchor": "I not only suggest it, but I state positively that there have been four attempts on your life in the past fortnight",
+   "span": "I not only suggest it, but I state positively that there have been four attempts on your life in the past fortnight,\" he said calmly.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.08863826464999999,
+ "models": {
+  "map": "gpt-4o-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

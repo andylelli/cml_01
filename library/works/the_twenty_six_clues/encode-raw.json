@@ -3,586 +3,473 @@
  "realism_constraints": [
   "No modern forensic DNA analysis available",
   "Telephones and automobiles exist but are limited in use",
-  "Scientific instruments like microscopes and early polygraphs are used"
+  "Scientific instruments like microscopes and early polygraphs can be used"
  ],
- "location": "New York City and New Orleans",
- "institution": "New York Police Department, Homicide Bureau",
+ "location": "New York City, including Norwood and Jarvis residences and Atlantic City",
+ "institution": "New York Police Department, Inspector Druet's Homicide Bureau",
  "crime_category": "murder",
  "crime_subtype": "blackmail murder with staged suicide",
  "cast": [
   {
    "name": "Wade Terhune",
-   "age_range": "50-60",
+   "age_range": "50s-60s",
    "role_archetype": "celebrated scientific criminalist",
    "role": "detective",
    "gender": "male",
    "culpability": "innocent",
    "culprit_eligibility": "ineligible",
    "public_persona": "greatest living master of scientific criminal investigation",
-   "private_secret": "sometimes arrogant and dismissive of others' theories",
-   "motive_seed": "none",
-   "motive_strength": "none",
-   "alibi_window": "always present at investigations",
+   "private_secret": "overconfident in his own theory",
+   "motive_seed": "professional pride",
+   "motive_strength": "weak",
+   "alibi_window": "always present at key events",
    "access_plausibility": "high",
    "stakes": "professional reputation",
    "moral_complexity": "low",
    "relationships": [],
    "opportunity_channels": [],
    "behavioral_tells": [
-    "dismissive of others' ideas"
+    "dismissive of alternative theories"
    ],
-   "evidence_sensitivity": []
+   "evidence_sensitivity": [
+    "phonograph record",
+    "scientific apparatus"
+   ]
   },
   {
    "name": "Calvin Norwood",
-   "age_range": "60-70",
+   "age_range": "60s-70s",
    "role_archetype": "eccentric amateur criminologist and museum owner",
    "role": "witness",
    "gender": "male",
    "culpability": "innocent",
    "culprit_eligibility": "ineligible",
-   "public_persona": "collector of crime relics",
-   "private_secret": "deeply affected by the murder of Evelyn Jarvis",
-   "motive_seed": "none",
-   "motive_strength": "none",
-   "alibi_window": "present at museum and investigation",
+   "public_persona": "host and collector of crime relics",
+   "private_secret": "knows more about the wallet and letters than he admits",
+   "motive_seed": "protecting reputation and friends",
+   "motive_strength": "moderate",
+   "alibi_window": "often absent during key events",
    "access_plausibility": "high",
-   "stakes": "personal grief and reputation",
+   "stakes": "personal and professional reputation",
    "moral_complexity": "moderate",
    "relationships": [
-    "Uncle to Joan Norwood",
-    "Friend to Evelyn Jarvis"
+    "Joan Norwood (niece)"
    ],
-   "opportunity_channels": [],
+   "opportunity_channels": [
+    "museum access"
+   ],
    "behavioral_tells": [
-    "emotional",
-    "indignant"
+    "evasiveness about wallet"
    ],
    "evidence_sensitivity": [
-    "museum relics",
-    "missing wallet"
-   ]
-  },
-  {
-   "name": "Timothy McCarty",
-   "age_range": "40-50",
-   "role_archetype": "ex-police detective, practical investigator",
-   "role": "detective",
-   "gender": "male",
-   "culpability": "innocent",
-   "culprit_eligibility": "ineligible",
-   "public_persona": "retired detective",
-   "private_secret": "deep personal interest in case",
-   "motive_seed": "personal satisfaction",
-   "motive_strength": "moderate",
-   "alibi_window": "always present or reachable",
-   "access_plausibility": "high",
-   "stakes": "personal vindication and justice",
-   "moral_complexity": "low",
-   "relationships": [
-    "Friend to Dennis Riordan"
-   ],
-   "opportunity_channels": [],
-   "behavioral_tells": [
-    "persistent",
-    "methodical"
-   ],
-   "evidence_sensitivity": [
+    "wallet",
     "letters",
-    "typewriter paper",
-    "shears"
+    "museum"
    ]
-  },
-  {
-   "name": "Dennis Riordan",
-   "age_range": "30-40",
-   "role_archetype": "city fireman, friend and assistant",
-   "role": "witness",
-   "gender": "male",
-   "culpability": "innocent",
-   "culprit_eligibility": "ineligible",
-   "public_persona": "fireman",
-   "private_secret": "none",
-   "motive_seed": "none",
-   "motive_strength": "none",
-   "alibi_window": "present with McCarty",
-   "access_plausibility": "high",
-   "stakes": "friendship and justice",
-   "moral_complexity": "low",
-   "relationships": [
-    "Friend to McCarty"
-   ],
-   "opportunity_channels": [],
-   "behavioral_tells": [
-    "skeptical",
-    "loyal"
-   ],
-   "evidence_sensitivity": []
   },
   {
    "name": "Oliver Jarvis",
-   "age_range": "30-40",
-   "role_archetype": "grief-stricken husband, suspect",
+   "age_range": "early 30s",
+   "role_archetype": "grieving husband and suspect",
    "role": "suspect",
    "gender": "male",
    "culpability": "unknown",
    "culprit_eligibility": "eligible",
-   "public_persona": "wealthy husband",
-   "private_secret": "financial troubles, possible motive",
+   "public_persona": "devoted husband, wealthy",
+   "private_secret": "financial troubles and quarrel with wife",
    "motive_seed": "financial desperation",
-   "motive_strength": "moderate",
-   "alibi_window": "partial alibi with gaps",
+   "motive_strength": "strong",
+   "alibi_window": "uncertain between 3:00 and 6:00 pm",
    "access_plausibility": "high",
-   "stakes": "inheritance and reputation",
-   "moral_complexity": "moderate",
+   "stakes": "freedom and reputation",
+   "moral_complexity": "high",
    "relationships": [
-    "Husband to Evelyn Jarvis"
+    "Evelyn Jarvis (wife)"
    ],
    "opportunity_channels": [
-    "access to house and museum"
+    "house key",
+    "museum access"
    ],
    "behavioral_tells": [
-    "emotional",
+    "nervousness",
     "inconsistent alibi"
    ],
    "evidence_sensitivity": [
     "glove",
-    "financial records"
+    "alibi",
+    "safe deposit records"
    ]
   },
   {
    "name": "Evelyn Jarvis (née Beaudet)",
    "age_range": "late 20s",
-   "role_archetype": "victim, society leader",
+   "role_archetype": "victim, society woman with secret",
    "role": "victim",
    "gender": "female",
    "culpability": "innocent",
    "culprit_eligibility": "ineligible",
-   "public_persona": "beloved social worker",
-   "private_secret": "secret past and blackmail victim",
-   "motive_seed": "none",
+   "public_persona": "beloved social worker and wife",
+   "private_secret": "past elopement and blackmail victim",
+   "motive_seed": "fear of exposure",
    "motive_strength": "none",
-   "alibi_window": "dead between 5-6 pm",
+   "alibi_window": "dead between 5 and 6 pm",
    "access_plausibility": "n/a",
    "stakes": "life",
    "moral_complexity": "low",
    "relationships": [
-    "Wife to Oliver Jarvis",
-    "Friend to Joan Norwood"
+    "Oliver Jarvis (husband)",
+    "Joan Norwood (friend)"
    ],
    "opportunity_channels": [],
    "behavioral_tells": [],
    "evidence_sensitivity": [
     "letters",
     "cake",
-    "fingerprints"
+    "blackmail notes"
    ]
   },
   {
    "name": "Victor Marchal",
    "age_range": "20s",
-   "role_archetype": "blind secretary, secret witness",
+   "role_archetype": "blind French secretary, tragic figure",
    "role": "witness",
    "gender": "male",
    "culpability": "innocent",
-   "culprit_eligibility": "locked",
-   "public_persona": "blind French officer",
-   "private_secret": "harbors knowledge of murderer",
-   "motive_seed": "none",
-   "motive_strength": "none",
-   "alibi_window": "present in museum",
-   "access_plausibility": "high",
-   "stakes": "life and truth",
-   "moral_complexity": "high",
-   "relationships": [
-    "Secretary to Calvin Norwood"
-   ],
-   "opportunity_channels": [],
-   "behavioral_tells": [
-    "nervous",
-    "restrained"
-   ],
-   "evidence_sensitivity": [
-    "signed statement"
-   ]
-  },
-  {
-   "name": "Eric Vivaseur (alias Leonidas Hoyos)",
-   "age_range": "40s",
-   "role_archetype": "culprit, blackmailer, murderer",
-   "role": "culprit",
-   "gender": "male",
-   "culpability": "guilty",
-   "culprit_eligibility": "eligible",
-   "public_persona": "English gentleman, fiancé to Joan Norwood",
-   "private_secret": "real identity as Leonidas Hoyos, murderer",
-   "motive_seed": "fear of exposure and financial gain",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "blind war veteran and secretary",
+   "private_secret": "harbored knowledge of the murderer's identity",
+   "motive_seed": "love for Evelyn, desire to protect her",
    "motive_strength": "strong",
-   "alibi_window": "unknown",
+   "alibi_window": "at home during murder",
    "access_plausibility": "high",
-   "stakes": "freedom, money, secret",
+   "stakes": "life",
    "moral_complexity": "high",
    "relationships": [
-    "Fiancé to Joan Norwood"
+    "Calvin Norwood (employer)",
+    "Evelyn Jarvis (admired)"
    ],
    "opportunity_channels": [
-    "access to museum and houses"
+    "museum access"
    ],
    "behavioral_tells": [
-    "nervous",
-    "angry",
-    "deceptive"
+    "nervousness",
+    "delirium"
    ],
    "evidence_sensitivity": [
-    "letters",
-    "wallet",
-    "signature"
+    "signed confession",
+    "typewriter",
+    "phonograph record"
    ]
   },
   {
-   "name": "Joan Norwood",
-   "age_range": "20s",
-   "role_archetype": "friend of victim, concerned niece",
+   "name": "Dennis Riordan",
+   "age_range": "30s-40s",
+   "role_archetype": "fireman and friend of McCarty",
+   "role": "bystander",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "city fireman",
+   "private_secret": "none",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "n/a",
+   "access_plausibility": "low",
+   "stakes": "none",
+   "moral_complexity": "low",
+   "relationships": [
+    "Timothy McCarty (friend)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Kate Stricker",
+   "age_range": "middle-aged",
+   "role_archetype": "former stewardess, reluctant witness",
    "role": "witness",
    "gender": "female",
    "culpability": "innocent",
    "culprit_eligibility": "ineligible",
-   "public_persona": "niece of Calvin Norwood",
-   "private_secret": "engaged to Vivaseur",
-   "motive_seed": "none",
-   "motive_strength": "none",
-   "alibi_window": "present at times",
-   "access_plausibility": "high",
-   "stakes": "friendship and justice",
-   "moral_complexity": "low",
-   "relationships": [
-    "Niece to Calvin Norwood",
-    "Fiancée to Eric Vivaseur"
-   ],
+   "public_persona": "ex-stewardess, now with money",
+   "private_secret": "guarded knowledge of letters and Hoyos",
+   "motive_seed": "fear and self-preservation",
+   "motive_strength": "moderate",
+   "alibi_window": "varied",
+   "access_plausibility": "low",
+   "stakes": "freedom",
+   "moral_complexity": "moderate",
+   "relationships": [],
    "opportunity_channels": [],
    "behavioral_tells": [
-    "worried",
-    "emotional"
-   ],
-   "evidence_sensitivity": []
-  },
-  {
-   "name": "Margot",
-   "age_range": "20s",
-   "role_archetype": "maid, reluctant witness",
-   "role": "suspect",
-   "gender": "female",
-   "culpability": "unknown",
-   "culprit_eligibility": "eligible",
-   "public_persona": "devoted maid",
-   "private_secret": "knows more than she admits",
-   "motive_seed": "loyalty to employer",
-   "motive_strength": "weak",
-   "alibi_window": "present at times",
-   "access_plausibility": "high",
-   "stakes": "self-preservation",
-   "moral_complexity": "moderate",
-   "relationships": [
-    "Maid to Evelyn Jarvis"
-   ],
-   "opportunity_channels": [
-    "access to house"
-   ],
-   "behavioral_tells": [
     "evasiveness",
-    "emotional"
+    "denial"
    ],
-   "evidence_sensitivity": []
-  },
-  {
-   "name": "Etta Barney",
-   "age_range": "20s",
-   "role_archetype": "housemaid, reluctant witness",
-   "role": "suspect",
-   "gender": "female",
-   "culpability": "unknown",
-   "culprit_eligibility": "eligible",
-   "public_persona": "housemaid with toothache",
-   "private_secret": "knows about dressing-room disturbance",
-   "motive_seed": "resentment",
-   "motive_strength": "weak",
-   "alibi_window": "present at times",
-   "access_plausibility": "high",
-   "stakes": "avoid suspicion",
-   "moral_complexity": "moderate",
-   "relationships": [
-    "Housemaid to Jarvis household",
-    "Sister to Dick"
-   ],
-   "opportunity_channels": [
-    "access to house"
-   ],
-   "behavioral_tells": [
-    "evasiveness",
-    "fearful"
-   ],
-   "evidence_sensitivity": []
+   "evidence_sensitivity": [
+    "letters",
+    "wallet"
+   ]
   }
  ],
  "culprits": [
-  "Eric Vivaseur (alias Leonidas Hoyos)"
+  "Leonidas Hoyos (alias Eric Vivaseur)"
  ],
- "surface_summary": "Evelyn Jarvis is found strangled in a crime museum, with evidence suggesting she was blackmailed. The investigation reveals a missing wallet linked to a decade-old murder, and suspicion falls on various household members and acquaintances. A blind secretary's suicide and a scientific experiment point to a complex web of secrets and deception.",
+ "surface_summary": "Mrs. Evelyn Jarvis is found strangled in a crime museum, her body brought there mysteriously. The investigation reveals blackmail involving mysterious letters and a missing wallet tied to a decade-old murder, with suspicion falling on various acquaintances.",
  "accepted_facts": [
-  "Evelyn Jarvis was murdered and her body placed in the Norwood crime museum",
+  "Evelyn Jarvis was murdered and found in Norwood's crime museum",
   "She was being blackmailed with letters made of macaroni paste",
-  "A wallet containing letters related to a past murder disappeared from the museum",
-  "Victor Marchal, the blind secretary, died by apparent suicide but left a statement"
+  "A wallet containing letters related to a ten-year-old murder disappeared from the museum",
+  "Victor Marchal, the blind secretary, died by apparent suicide but left a signed confession"
  ],
  "inferred_conclusions": [
   "Captain Marchal was the murderer driven by unrequited love",
-  "Oliver Jarvis killed his wife due to financial troubles",
-  "The murder occurred in Evelyn's own house"
+  "Oliver Jarvis killed his wife out of financial desperation",
+  "The murder occurred in Evelyn's own home"
  ],
- "mechanism_description": "Leonidas Hoyos, under the alias Eric Vivaseur, killed Evelyn Jarvis to prevent exposure of their past and to recover letters that blackmailed her. He broke into the Norwood museum using a spider tool to pick the lock, confronted Evelyn who came to retrieve the letters, and strangled her. Later, he murdered Victor Marchal who had discovered the truth and staged his death as a suicide by firing two shots, one blank, to mislead investigators.",
+ "mechanism_description": "Leonidas Hoyos, presumed dead for ten years, was the blackmailer who threatened Evelyn Jarvis. He killed her in the Norwood museum when she came to retrieve incriminating letters he had hidden. Victor Marchal overheard the crime and was murdered by Hoyos to silence him, but left a hidden signed statement that led to Hoyos' identification and capture.",
  "delivery_path": [
-  "Hoyos obtains a key to the Norwood museum and picks the lock with a spider",
-  "Evelyn Jarvis climbs the ladder and enters the museum to retrieve the letters",
-  "Hoyos confronts and strangles Evelyn to silence her",
-  "Victor Marchal overhears the confrontation and suspects Hoyos",
-  "Hoyos kills Marchal by shooting him twice, one shot being a blank to fake suicide",
-  "Hoyos rearranges the scene to mislead investigators",
-  "Hoyos escapes with the wallet containing the letters"
+  "Hoyos lured Evelyn to the museum where he was hiding",
+  "A struggle ensued and Hoyos strangled Evelyn",
+  "Victor Marchal overheard the murder and wrote a secret confession",
+  "Hoyos killed Marchal to prevent exposure",
+  "Marchal's confession was hidden in the typewriter drawer",
+  "McCarty decoded the confession using a microscope",
+  "The group confronted Hoyos leading to his capture"
  ],
- "outcome_result": "Eric Vivaseur (Leonidas Hoyos) is revealed as the murderer and blackmailer, responsible for both Evelyn Jarvis' and Victor Marchal's deaths.",
+ "outcome_result": "Leonidas Hoyos is identified as the murderer and brought to justice.",
  "false_assumption": {
-  "statement": "Captain Marchal, the blind secretary, was the murderer motivated by unrequited love.",
+  "statement": "Captain Marchal killed Evelyn Jarvis out of jealous passion.",
   "type": "behavioral",
-  "why_it_seems_reasonable": "The physiological test showed Captain Marchal's emotional reactions to the reconstructed murder scene, and his delirious mutterings suggested knowledge of the crime. His close presence at the crime scene and his nervous behavior made him a plausible suspect.",
-  "what_it_hides": "It obscures the real culprit's identity and the fact that Marchal was a victim who had discovered the truth and was silenced before he could expose the murderer."
+  "why_it_seems_reasonable": "Marchal's nervous behavior and physiological reactions during Terhune's experiment suggested guilt. His close presence at the crime scene and emotional turmoil supported this view.",
+  "what_it_hides": "It obscures the true culprit, Hoyos, who manipulated the situation and killed Marchal to silence him. Marchal was a victim, not the perpetrator."
  },
  "false_solution": {
-  "accused_suspect": "Victor Marchal",
+  "accused_suspect": "Captain Marchal",
   "supporting_points": [
-   "Physiological test indicating emotional reactions",
-   "Delirious mutterings referencing the murder",
-   "Presence in the museum at the time of the crime",
-   "Terhune's scientific reconstruction implicating him"
+   "Physiological responses during Terhune's séance",
+   "His presence in the museum at the time of murder",
+   "His nervous and constrained behavior",
+   "Terhune's scientific theory and reconstruction"
   ],
-  "the_one_flaw": "Marchal was actually a victim who was murdered by the real culprit to prevent exposure.",
+  "the_one_flaw": "Ignored evidence of Hoyos' presence and Marchal's protective actions; failed to account for the staged suicide and missing bullet.",
   "refuted_in_chapter": 23
  },
  "red_herrings": [
   {
    "id": "oliver_jarvis_financial_troubles",
-   "description": "Oliver Jarvis had financial difficulties and an inconsistent alibi, making him a prime suspect.",
+   "description": "Oliver Jarvis' financial losses and inconsistent alibi suggested motive and opportunity.",
    "points_at_suspect": "Oliver Jarvis",
-   "innocent_explanation": "His financial troubles and alibi gaps were unrelated to the murder; he was grief-stricken and not the killer.",
+   "innocent_explanation": "His financial troubles were real but unrelated to the murder; he was grieving and not involved.",
    "resolved_in_chapter": 23
   },
   {
-   "id": "margot_maid_loyalty",
-   "description": "Margot, the maid, claimed the dressing-room was undisturbed at a time it was known to be ransacked, raising suspicion.",
+   "id": "margot_maid_behavior",
+   "description": "Margot's insistence that the dressing-room was undisturbed and her suspicious behavior raised doubts.",
    "points_at_suspect": "Margot",
-   "innocent_explanation": "Margot was loyal and truthful; the room was ransacked after her last visit, and she tried to protect her mistress's reputation.",
-   "resolved_in_chapter": 20
+   "innocent_explanation": "Margot was loyal and truthful; the dressing-room was ransacked after her last visit.",
+   "resolved_in_chapter": 14
   }
  ],
  "closed_circle": {
   "suspects": [
-   "Victor Marchal",
    "Oliver Jarvis",
-   "Eric Vivaseur (alias Leonidas Hoyos)",
-   "Margot",
-   "Etta Barney"
+   "Victor Marchal",
+   "Leonidas Hoyos (alias Eric Vivaseur)",
+   "Calvin Norwood",
+   "Kate Stricker"
   ],
-  "rationale": "The suspects are limited to those with access to the houses and museum, with motives and opportunity, forming a closed circle of possible perpetrators."
+  "rationale": "All had access to the museum and motive or opportunity, but only Hoyos had the secret past connection and means to commit the murder."
  },
  "constraint_space": {
   "time_anchors": [
-   "Evelyn Jarvis was killed between 5 and 6 pm",
-   "Margot entered the dressing-room at 6:30 pm",
-   "Oliver Jarvis had an unaccounted time between 3 and 6 pm",
-   "Victor Marchal was alone in the museum during the murder",
-   "Captain Marchal died after Evelyn's murder"
+   "murder between 5 and 6 pm",
+   "letters sold to Norwood three days before murder",
+   "wallet last seen at 3 pm Friday",
+   "Marchal's death on Saturday night"
   ],
   "time_windows": [
-   "Afternoon to early evening for the murder",
-   "Evening for the discovery of the body",
-   "Late night for Marchal's death"
+   "Oliver Jarvis' unexplained absence between 3 and 6 pm",
+   "Margot's errand between 4 and 6:30 pm",
+   "Marchal alone in house afternoon of murder"
   ],
   "access_actors": [
-   "Oliver Jarvis",
-   "Evelyn Jarvis",
-   "Victor Marchal",
-   "Eric Vivaseur",
-   "Margot",
-   "Etta Barney"
+   "Oliver Jarvis (keys to house and museum)",
+   "Victor Marchal (museum key)",
+   "Leonidas Hoyos (secret entry with spider)",
+   "Margot (maid, limited access)"
   ],
   "access_objects": [
-   "Museum door with Yale lock",
-   "Ladder to museum window",
-   "Dressing-room door and safe",
-   "Museum windows and cases"
+   "museum door and windows",
+   "ladder to museum window",
+   "Norwood house and Jarvis house back yards",
+   "safe in dressing-room"
   ],
   "trust_channels": [
-   "Household staff",
-   "Family and friends",
-   "Police and investigators"
+   "Margot's loyalty to Evelyn",
+   "Etta Barney's reluctant confession",
+   "Billings' butler testimony",
+   "Inspector Druet's authority"
   ],
   "authority_sources": [
    "Inspector Druet",
-   "Wade Terhune",
-   "Calvin Norwood"
+   "Wade Terhune (scientific expert)",
+   "Calvin Norwood (museum owner)",
+   "Chief Medical Examiner"
   ]
  },
  "inference_path": [
   {
    "observation": "The museum door had fine scratches around the keyhole",
-   "correction": "The door was picked open with a spider tool",
-   "effect": "The murderer had a key or tool to enter the museum without forced entry",
+   "correction": "The door was opened with a spider lockpick",
+   "effect": "Indicates forced entry by someone with lockpicking skill",
    "required_evidence": [
-    "Fine scratches around the keyhole of the museum door",
-    "Witness statement of Victor Marchal being alone in the museum"
+    "Close-up photograph of scratches around museum door keyhole",
+    "Witness statement of Victor Marchal about museum door being locked"
    ]
   },
   {
-   "observation": "A glove was found wedged on the ladder to the museum window",
-   "correction": "The murderer dropped the glove while climbing the ladder",
-   "effect": "The murderer entered the museum via the ladder and window",
+   "observation": "A single glove was found wedged on the ladder to the museum window",
+   "correction": "The glove belonged to the murderer who wore gloves to avoid fingerprints",
+   "effect": "Identifies presence of intruder climbing ladder",
    "required_evidence": [
-    "Brown chauffeur's glove with oil stains found on ladder",
-    "Ladder positioned against museum window"
+    "Physical glove with oil and grease stains found on ladder",
+    "Inventory of Oliver Jarvis' motoring gloves including matching pair"
    ]
   },
   {
-   "observation": "Evelyn Jarvis was dressed differently in the museum than last seen",
-   "correction": "She changed clothes before going to the museum",
-   "effect": "Evelyn went to the museum voluntarily to retrieve something",
+   "observation": "Evelyn's dressing-room was ransacked but Margot claimed it was undisturbed at 8 pm",
+   "correction": "The ransacking occurred after Margot's last visit, possibly by Oliver Jarvis' brother",
+   "effect": "Suggests staging and attempts to mislead investigators",
    "required_evidence": [
-    "Description of Evelyn's clothing at home and in museum",
-    "Margot's testimony about Evelyn's movements"
+    "Margot's testimony about dressing-room condition at 8 pm",
+    "Etta Barney's confession about letting in her brother Dick"
    ]
   },
   {
-   "observation": "Victor Marchal's suicide had two shots fired but only one bullet entered",
-   "correction": "Marchal was murdered with a staged suicide",
-   "effect": "The murderer tried to fake Marchal's death to cover the crime",
+   "observation": "Victor Marchal wrote a signed statement but the typewriter ribbon was broken",
+   "correction": "The statement was invisible to the naked eye but detectable by microscope",
+   "effect": "Provides direct evidence implicating the murderer",
    "required_evidence": [
-    "Powder marks on Marchal's clothing",
-    "Library shears with lead marks"
+    "Signed paper with indentations from typewriter keys",
+    "Microscopic analysis of paper showing hidden text"
    ]
   },
   {
-   "observation": "The letters made of macaroni paste were missing from the wallet",
-   "correction": "The murderer took the wallet and letters",
-   "effect": "The letters were the motive for the murder",
+   "observation": "Two shots were fired from Marchal's pistol but only one bullet entered the body",
+   "correction": "The second shot was a blank fired to simulate suicide",
+   "effect": "Shows murder was staged to look like suicide",
    "required_evidence": [
-    "Missing wallet from Norwood's museum",
-    "Testimony of Kate Stricker selling letters"
+    "Ballistics report on pistol and cartridge shells",
+    "Position of furniture and powder marks in library"
    ]
   },
   {
-   "observation": "Captain Marchal's signed statement was typed but invisible to naked eye",
-   "correction": "Marchal tried to leave a secret message before his death",
-   "effect": "Marchal knew the murderer's identity and tried to expose him",
+   "observation": "The blackmail letters were made of macaroni paste and referenced the 26th of each month",
+   "correction": "The 26th refers to the date of the original murder of Hoyos",
+   "effect": "Connects blackmail to past crime and Hoyos' identity",
    "required_evidence": [
-    "Microscopic analysis of Marchal's signature paper",
-    "Marchal's signed statement"
+    "Macaroni paste letters found in Mrs. Jarvis' possession",
+    "Coroner's inquest records of Hoyos' death on 26th May"
    ]
   },
   {
-   "observation": "Eric Vivaseur is actually Leonidas Hoyos, the man from the past murder",
-   "correction": "Vivaseur is the blackmailer and murderer",
-   "effect": "The true culprit is Vivaseur/Hoyos",
+   "observation": "Kate Stricker sold the letters to Norwood but denies knowledge of murder",
+   "correction": "She was innocent but aware of the letters' significance",
+   "effect": "Exonerates Kate and focuses suspicion on Hoyos",
    "required_evidence": [
-    "Kate Stricker's identification of Vivaseur as Hoyos",
-    "Blackmail letters and cake marked 'Noel'"
+    "Kate Stricker's testimony",
+    "Billings' butler statement about Kate's visit"
    ]
   }
  ],
  "discriminating_test": {
-  "method": "reenactment",
-  "design": "McCarty gathers all key persons in his rooms and recounts the full story of the past and present crimes, revealing the connections and evidence. The presence and reactions of the accused, Eric Vivaseur, are observed to confirm his guilt. The test uses the signed statement of Victor Marchal and the recovered evidence to confront the culprit.",
-  "knowledge_revealed": "The test reveals the true identity of the murderer and his motive, exposing the deception and clearing innocent suspects.",
-  "pass_condition": "The culprit's presence and inability to refute the evidence confirms his guilt without relying on confessions or behavioral cues."
+  "method": "trap",
+  "design": "McCarty arranged a gathering of all key persons at his rooms, including police and witnesses, to confront the murderer with the evidence and provoke a reaction. The test relied on psychological pressure and the presence of incriminating items to elicit confession or reveal guilt.",
+  "knowledge_revealed": "The test revealed the identity of the murderer as Leonidas Hoyos by his reaction and the corroboration of Victor Marchal's signed confession.",
+  "pass_condition": "The murderer reveals himself by involuntary behavior or confession under the pressure of the assembled evidence and witnesses."
  },
- "fair_play_explanation": "The reader is provided with all key clues including the blackmail letters, the missing wallet, the glove on the ladder, the physiological test results, and the signed statement of Victor Marchal. The story includes multiple perspectives and red herrings, but the true culprit's identity and motive are logically deducible from the assembled evidence and timeline. The final reenactment consolidates these clues, allowing an attentive reader to solve the case.",
+ "fair_play_explanation": "The reader is given all essential clues including the blackmail letters, the missing wallet, the glove on the ladder, the broken typewriter ribbon, and Victor Marchal's signed confession. The narrative provides detailed timelines, alibis, and character motives. The scientific experiment and physiological tests offer insight into suspects' reactions. The solution is logically deduced from these facts, allowing an attentive reader to solve the case.",
  "anchors": [
   {
-   "claim": "Evelyn Jarvis was found strangled in the crime museum",
-   "anchor": "stretched upon the table lay no skeleton but the rounded life-like form"
+   "claim": "Evelyn Jarvis was found strangled in Norwood's crime museum",
+   "anchor": "Stretched upon the table lay no skeleton but the rounded life-like form of a young woman"
   },
   {
-   "claim": "The scarf knotted about Evelyn's throat was the murder weapon",
-   "anchor": "the blue scarf which had been knotted so ruthlessly about her slender throat"
+   "claim": "The scarf knotted about Evelyn's throat was navy blue",
+   "anchor": "the scarf so cruelly knotted about the slender throat was of navy blue"
   },
   {
-   "claim": "The museum door was locked with a Yale lock",
-   "anchor": "small, flat key of the Yale patent and held it out"
+   "claim": "A single long strand of black hair was caught on the museum window",
+   "anchor": "a long, curling strand of glossy, jet-black hair"
   },
   {
-   "claim": "A glove was found wedged on the ladder to the museum window",
-   "anchor": "a limp, crumpled, brown object which he smoothed into a semblance of shape. \"A glove!\""
+   "claim": "A glove was found wedged behind the first rung of the ladder",
+   "anchor": "he reached down and drew forth a limp, crumpled, brown object which he smoothed into a semblance of shape. \"A glove!\""
   },
   {
-   "claim": "Evelyn was blackmailed with letters made of macaroni paste",
-   "anchor": "communications of macaroni paste!"
+   "claim": "The blackmail letters were made of macaroni paste",
+   "anchor": "the words are formed by letters of the alphabet made of Italian paste"
   },
   {
-   "claim": "The blackmail letters demanded money under the rose bush on the 26th",
-   "anchor": "'Does lady forget date of next Sat. night? 5000 under rose bush yard then or all told.'"
+   "claim": "The blackmail letters demanded money on the 26th of each month",
+   "anchor": "'Lady can and will,' '1,000 under bush 26 each month small price safety.'"
   },
   {
    "claim": "Victor Marchal was found dead with a pistol and signs of struggle",
    "anchor": "he was lying dead on the floor over there in the corner behind the table, with his own French army pistol in his hand"
   },
   {
-   "claim": "Two shots were fired at Victor Marchal but only one bullet entered",
-   "anchor": "Two shots were fired, but only one entered the body"
+   "claim": "Two shots were fired from Marchal's pistol but only one bullet entered",
+   "anchor": "Two shots were fired, but only one entered the body; the other--the first--must have gone wild"
   },
   {
-   "claim": "Victor Marchal left a signed statement revealing the murderer's identity",
-   "anchor": "Signed, \"Victor Marchal\""
+   "claim": "Victor Marchal left a signed confession hidden in the typewriter drawer",
+   "anchor": "a sheet of blank typewriter paper with a signature scrawled half-way down the page and the Inspector regarded it with raised eyebrows. The signature, in a straggling, uncertain hand, was that of Victor Marchal"
   },
   {
-   "claim": "Eric Vivaseur is actually Leonidas Hoyos, the murderer",
-   "anchor": "Leonidas Hoyos, alias Eric Vivaseur"
+   "claim": "The confession was typed without a ribbon, leaving indentations only",
+   "anchor": "the ribbon on the typewriter was broken by the fall and no writing appeared on the papers at all but just his signature"
   },
   {
-   "claim": "Kate Stricker sold the blackmail letters to Norwood",
-   "anchor": "I'm Kate Stricker. I was stewardess on _The Muette_ and I sold the letters to Mr. Norwood."
+   "claim": "Leonidas Hoyos was the blackmailer and murderer",
+   "anchor": "I know who killed Madame Jarvis. He knows that I know and he will kill me also. I heard them there in the museum and the voice of her murderer is the voice of him who calls himself Eric Vivaseur!"
   },
   {
-   "claim": "The murder was motivated by fear of exposure and blackmail",
-   "anchor": "He killed her to prevent exposure of their past and to recover letters that blackmailed her."
+   "claim": "Kate Stricker was stewardess on the yacht and sold the letters",
+   "anchor": "I'm Kate Stricker. I was stewardess on The Muette and I sold the letters to Mr. Norwood"
   },
   {
-   "claim": "The murderer staged Victor Marchal's death as a suicide",
-   "anchor": "He shot him twice, one shot being a blank to fake suicide."
+   "claim": "The murder was staged to look like a suicide with a blank cartridge",
+   "anchor": "He extracted the second cartridge shell from the pistol and putting it back in the pistol he went up close to where Marchal was lying and fired a second shot--a blank one--directly into the wound"
   },
   {
-   "claim": "The ladder to the museum window was used for ingress and egress",
-   "anchor": "A short ladder has been placed against the house, its upper end resting upon the ledge of the window."
+   "claim": "The blackmail was connected to a murder on the 26th of May ten years ago",
+   "anchor": "On the twenty-sixth of the month, in the late afternoon, Hoyos had come aboard"
   },
   {
-   "claim": "The museum door was picked open with a spider tool",
-   "anchor": "there were some little fine scratches around the keyhole; I'd seen the like when I was on the force in more than one housebreaking case"
+   "claim": "Evelyn Jarvis was blackmailed to keep secret her past marriage to Hoyos",
+   "anchor": "Mrs. Jarvis was being blackmailed, and 'twas far from being a joke!"
   },
   {
-   "claim": "The blackmail letters were hidden in a wallet",
-   "anchor": "a worn black wallet has come into my possession which contains the only tangible clue"
+   "claim": "The glove found on the ladder belonged to Oliver Jarvis",
+   "anchor": "I found the second one this afternoon, among Oliver Jarvis' motoring togs"
   },
   {
-   "claim": "The cake marked 'Noel' was a secret message to Evelyn",
-   "anchor": "a huge, circular, frosted cake, its top elaborately iced in the highest perfection of the confectioner's art."
+   "claim": "Margot claimed the dressing-room was undisturbed at 8 pm",
+   "anchor": "she swore that Madame's apartments were quite as usual when last I entered them, before eight o'clock"
   },
   {
-   "claim": "The physiological test showed Captain Marchal's emotional reactions",
-   "anchor": "The moisture excretions here are abnormally profuse from the start and quickly reached the maximum"
+   "claim": "Etta Barney confessed to letting her brother into the house to ransack the dressing-room",
+   "anchor": "Dick came at nine, and I was waiting for him up at the front door. I let him in quiet and then all at once a different feeling came over me and I begged him to give it up and go away"
   },
   {
-   "claim": "The false assumption that Captain Marchal was the murderer",
-   "anchor": "Captain Marchal is the murderer of Mrs. Jarvis."
+   "claim": "The blackmail letters were hidden in a wallet sold to Norwood",
+   "anchor": "the wallet with a couple of letters inside disappeared from the museum"
   },
   {
-   "claim": "The discriminating test was a reenactment of the murder scene",
-   "anchor": "I will ask you all to seat yourselves and take hold of this wire with your right hands on the bulbs."
+   "claim": "The cake marked 'Noel' was a secret reminder to Evelyn",
+   "anchor": "a big cake with 'Noel' on it in sugar; she didn't know who sent it but she nearly passed away"
   }
  ]
 }

@@ -14,7 +14,7 @@
 # `the_second_key` was retired: author "original", licence CC-BY, not a real novel — and the third
 # most-cited nearest neighbour across 32 archived audits.
 #
-# derived: 34   derived_unverified: 5   legacy: 7   total: 46
+# derived: 41   derived_unverified: 5   legacy: 6   total: 52
 - id: a_jury_of_her_peers
   corpus: seed
   axis: behavioral
@@ -54,6 +54,32 @@
     culminating in Dia
   source: library/works/dark_power/case.cml2.yaml
   provenance: derived
+- id: diana_of_kara_kara
+  corpus: seed
+  axis: identity
+  mechanism_family: impersonation
+  false_assumption_pattern: the_dead_is_who_they_appear
+  discriminating_test_shape: timetable_contradiction
+  inference_shape: reveal_true_identity
+  premise: >-
+    A man named Gordon Selsbury is impersonated by a criminal known as Double Dan, who, with the
+    help of a female accomplice, attempts to rob him by accessing his safe. The household is thrown
+    into confus
+  source: library/works/diana_of_kara_kara/case.cml2.yaml
+  provenance: derived
+- id: dorcas_dene_detective
+  corpus: seed
+  axis: behavioral
+  mechanism_family: staged_scene
+  false_assumption_pattern: the_husband_committed_the_murder
+  discriminating_test_shape: reconstruction
+  inference_shape: reconstruct_true_killer_identity
+  premise: >-
+    The case appears to be a straightforward murder of Mrs. Hannaford, with her husband Mr.
+    Hannaford as the prime suspect. Suspicious characters like Flash George and mysterious banknotes
+    linked to the v
+  source: library/works/dorcas_dene_detective/case.cml2.yaml
+  provenance: derived
 - id: dorcas_dene_detective_78210
   corpus: seed
   axis: behavioral
@@ -92,6 +118,19 @@
     match left near the missing item. Despite locked doors and difficult access, valuable pieces
     vanish with
   source: library/works/martin_hewitt_investigator/case.cml2.yaml
+  provenance: derived
+- id: no_clue
+  corpus: seed
+  axis: identity
+  mechanism_family: staged_scene
+  false_assumption_pattern: the_discoverer_is_the_murderer
+  discriminating_test_shape: timetable_contradiction
+  inference_shape: reconstruct_true_sequence_of_events
+  premise: >-
+    Mildred Brace is found murdered on the lawn of Sloanehurst. Suspicion falls on several people
+    including Berne Webster and Eugene Russell, while the family and local authorities struggle to
+    uncover the
+  source: library/works/no_clue/case.cml2.yaml
   provenance: derived
 - id: room_13
   corpus: seed
@@ -183,6 +222,19 @@
     communications from him through a medium. Meanwhile, Gilbert Blair, a friend, was mysteriously
     poisoned, an
   source: library/works/the_come_back/case.cml2.yaml
+  provenance: derived
+- id: the_corbin_necklace
+  corpus: seed
+  axis: identity
+  mechanism_family: substituted_body
+  false_assumption_pattern: the_object_is_the_original
+  discriminating_test_shape: reconstruction
+  inference_shape: reveal_object_substitution
+  premise: >-
+    The Corbin family is thrown into turmoil when the famous family necklace is reported stolen from
+    a supposedly locked safe. An imitation necklace is returned mysteriously, and suspicions arise
+    among fa
+  source: library/works/the_corbin_necklace/case.cml2.yaml
   provenance: derived
 - id: the_curse_of_the_reckaviles
   corpus: seed
@@ -392,6 +444,19 @@
     when a key wit
   source: library/works/the_mystery_of_a_hansom_cab/case.cml2.yaml
   provenance: derived
+- id: the_mystery_of_the_yellow_room
+  corpus: seed
+  axis: spatial
+  mechanism_family: locked_room_key
+  false_assumption_pattern: locked_room_means_no_entry
+  discriminating_test_shape: behavioral_tell
+  inference_shape: reframe_access_at_discovery
+  premise: >-
+    Mademoiselle Stangerson was attacked in a locked and bolted room, with no apparent way for the
+    assailant to escape. The footprints, bloodstains, and physical evidence suggested a mysterious
+    disappeara
+  source: library/works/the_mystery_of_the_yellow_room/case.cml2.yaml
+  provenance: derived
 - id: the_problem_of_cell_13
   corpus: seed
   axis: behavioral
@@ -417,6 +482,19 @@
     The company directors, including Phipps and Dredlinton, face public outrage over their wheat
     speculation.
   source: library/works/the_profiteers/case.cml2.yaml
+  provenance: derived
+- id: the_red_thumb_mark
+  corpus: seed
+  axis: identity
+  mechanism_family: alibi_fabrication
+  false_assumption_pattern: a_fingerprint_proves_physical_presence
+  discriminating_test_shape: behavioral_tell
+  inference_shape: demonstrate_forgery_of_evidence
+  premise: >-
+    Reuben Hornby is accused of stealing diamonds from his uncle's safe, with a bloody thumbprint
+    found inside identified as his. The evidence seems overwhelming, and the police and prosecution
+    are confid
+  source: library/works/the_red_thumb_mark/case.cml2.yaml
   provenance: derived
 - id: the_secret_of_father_brown
   corpus: seed
@@ -522,6 +600,19 @@
     while suspic
   source: library/works/the_valley_of_fear/case.cml2.yaml
   provenance: derived
+- id: the_wisdom_of_father_brown
+  corpus: seed
+  axis: identity
+  mechanism_family: staged_scene
+  false_assumption_pattern: the_body_was_killed_by_another
+  discriminating_test_shape: timetable_contradiction
+  inference_shape: reconstruct_true_cause_of_death
+  premise: >-
+    The case appears to be a straightforward murder of Sir Claude Champion, found stabbed with a
+    sword in a romantic setting, with his rival John Boulnois as the prime suspect. The victim was
+    jealous and 
+  source: library/works/the_wisdom_of_father_brown/case.cml2.yaml
+  provenance: derived
 - id: the_moonstone
   corpus: seed
   axis: epistemic
@@ -561,16 +652,6 @@
   inference_shape: debunk_supernatural
   premise: A 'spectral' hound is a real dog painted with phosphorus.
   source: examples/the_hound_of_the_baskervilles_cml2.zip
-  provenance: legacy_hand_authored
-- id: the_mystery_of_the_yellow_room
-  corpus: seed
-  axis: spatial
-  mechanism_family: locked_room_timing
-  false_assumption_pattern: attack_occurred_when_cry_was_heard
-  discriminating_test_shape: timetable_contradiction
-  inference_shape: decouple_attack_from_discovery
-  premise: The victim was wounded earlier and collapsed later, faking an impossible sealed-room attack.
-  source: examples/the_mystery_of_the_yellow_room_cml2.yaml
   provenance: legacy_hand_authored
 - id: the_leavenworth_case
   corpus: seed

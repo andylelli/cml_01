@@ -1,0 +1,136 @@
+{
+ "slug": "in_the_mayor_s_parlour",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Mayor John Wallingford was found dead in the Mayor's Parlour",
+   "anchor": "found Wallingford lying across his desk, dead",
+   "span": "He detailed the particulars of his own coming to the town on the evening of the murder, and told how he and Bunning, going upstairs to the Mayor's Parlour, had found Wallingford lying across his desk, dead.",
+   "ok": true
+  },
+  {
+   "claim": "The murder weapon was a rapier found behind the bookcase",
+   "anchor": "long, thin, highly polished rapier",
+   "span": "And with a jerk of his wrist he drew from the brown paper a long, thin, highly polished rapier, the highly burnished steel of which was dulled along half its length, as if it had been first dimmed and then hastily rubbed.",
+   "ok": true
+  },
+  {
+   "claim": "A blood-stained cambric handkerchief was found partially burnt on the hearth",
+   "anchor": "blood-stained, charred, cambric pocket-handkerchief",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Dr. Wellesley admitted the handkerchief was his",
+   "anchor": "that is certainly part of a handkerchief of mine",
+   "span": "that is certainly part of a handkerchief of mine.",
+   "ok": true
+  },
+  {
+   "claim": "Dr. Wellesley was absent from his surgery for nineteen minutes",
+   "anchor": "he went out of the surgery... half-past seven to eleven minutes to eight",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Secret passage exists between St. Lawrence tower and Moot Hall",
+   "anchor": "secret passage through the apparently solid arch in St. Lawrence Lane",
+   "span": "Pellery, comes to this--there is a secret passage through the apparently solid arch in St. Lawrence Lane which leads direct from the middle chamber in St.",
+   "ok": true
+  },
+  {
+   "claim": "Krevin Crood obtained keys to St. Lawrence church and used secret passage",
+   "anchor": "I called at Spizey's cottage in St. Lawrence churchyard and got the keys",
+   "span": "About seven o'clock of the evening on which Wallingford was murdered, I called at Spizey's cottage in St. Lawrence churchyard and got the keys of the church from him, on the excuse that I wanted to copy an inscription.",
+   "ok": true
+  },
+  {
+   "claim": "Krevin overheard quarrel between Wallingford and Mrs. Saumarez",
+   "anchor": "Wallingford was not alone. He had a woman with him",
+   "span": "Wallingford was not alone. He had a woman with him.",
+   "ok": true
+  },
+  {
+   "claim": "Mrs. Saumarez stabbed Wallingford with the rapier",
+   "anchor": "she had snatched up that rapier and run him through",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Krevin Crood wiped blood with handkerchief and burned it partially",
+   "anchor": "I pulled out my handkerchief... and threw the handkerchief in the fire",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Krevin Crood took Wallingford's papers and memorandum book",
+   "anchor": "I took up a mass of papers and a memorandum book which Wallingford had laid down",
+   "span": "Then I took up a mass of papers and a memorandum book which Wallingford had laid down--and went away by the passage.",
+   "ok": true
+  },
+  {
+   "claim": "Typewritten threatening letter was typed on Simon Crood's machine",
+   "anchor": "the broken letters... all on Uncle Simon's machine",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Louisa Speck identified the handkerchief as the one missing from Mallett's drawer",
+   "anchor": "I noticed then that the handkerchief had gone",
+   "span": "I noticed then that the handkerchief had gone.",
+   "ok": true
+  },
+  {
+   "claim": "Krevin Crood confessed the truth in court",
+   "anchor": "I did not kill Wallingford, and accordingly my brother could not be an accessory",
+   "span": "The police, as usual, are absolutely and entirely at fault--I did not kill Wallingford, and accordingly my brother could not be an accessory to what I did not do and never had the remotest intention of doing.",
+   "ok": true
+  },
+  {
+   "claim": "Mrs. Saumarez is the actual murderer",
+   "anchor": "Who was she, then? ... Mrs. Saumarez!",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The memorandum book with Wallingford's notes was found at Krevin Crood's lodgings",
+   "anchor": "I there found in an old writing-case... papers in the handwriting of the late Mayor",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The Local Government Board inquiry was a farce manipulated by Town Trustees",
+   "anchor": "I have resigned my appointment... I know the financial affairs of the borough are rotten-ripe",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Mrs. Mallett fled town due to her husband's affair with Mrs. Saumarez",
+   "anchor": "Mrs. Mallett has left her husband",
+   "span": "Now, to begin with, I suppose you have both heard--it's pretty well known through the town, I understand--that Mrs. Mallett has left her husband?",
+   "ok": true
+  },
+  {
+   "claim": "The secret passage door panel slides back easily",
+   "anchor": "The panelling... slides back, and gives access to a passage",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Krevin Crood used the secret passage to enter the Mayor's Parlour",
+   "anchor": "I slipped open the panel, and crossed over to the Moot Hall",
+   "span": "",
+   "ok": false
+  }
+ ],
+ "costGbp": 0.07931284000000001,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

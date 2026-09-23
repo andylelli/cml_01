@@ -18,8 +18,8 @@
   {
    "claim": "Madame Picardet is an accomplice of Colonel Clay",
    "anchor": "she and they spoke to you about him",
-   "span": "",
-   "ok": false
+   "span": "She and they spoke to you about him, and aroused your curiosity.",
+   "ok": true
   },
   {
    "claim": "The forged cheque was signed by Sir Charles Vandrift",
@@ -102,8 +102,8 @@
   {
    "claim": "The fake diamonds were used as a lure in the swindle",
    "anchor": "They were only paste--very wonderful paste",
-   "span": "",
-   "ok": false
+   "span": "But it turned out, when they came to be examined by experts, they were only paste--very wonderful paste; it is supposed they had even imposed upon Tippoo himself, so fine is the imitation.",
+   "ok": true
   },
   {
    "claim": "Colonel Clay's letter admits partial remorse but continues deception",
@@ -132,5 +132,5 @@
  },
  "case_written": true,
  "verified_by": "corpus-verify.mjs",
- "verified_on": "2026-08-31"
+ "verified_on": "2026-09-23"
 }

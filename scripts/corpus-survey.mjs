@@ -31,6 +31,7 @@
  *   uk green  iff  author_death_year + 70 < CURRENT_YEAR      (2026 -> died <= 1955)
  *   us green  iff  first_publication_year + 95 < CURRENT_YEAR (2026 -> published <= 1930)
  *   verdict   green iff both, amber iff one, red otherwise
+ *   green_by_bound: us side met only through the death+5 upper bound - reported apart (A_103 B60)
  *
  * **A missing year is RED.** Unknown is not permission (§10.2). This matters more here than it did in
  * §15: a catalogue sweep surfaces anonymous works, anthologies and pseudonyms carrying no death year
@@ -156,9 +157,11 @@ function authorFacts(authors) {
   const authored = list.filter((x) => !ROLE_TAG.test(x));
   if (authored.length !== 1) return null;
 
-  const m = authored[0].match(/^(.*?),\s*(\d{3,4})\??\s*-\s*(\d{3,4})\??\s*$/);
+  // A_103 B56: Gutenberg writes an unknown birth as "Tracy, Virginia, -1946"; the regex required a birth
+  // year, so the death year was lost and the row dropped as `no_death_year` - MEASURED 3 UK-green rows.
+  const m = authored[0].match(/^(.*?),\s*(\d{3,4})?\??\s*-\s*(\d{3,4})\??\s*$/);
   if (!m) return { name: authored[0], birth: null, death: null };
-  return { name: m[1].trim(), birth: Number(m[2]), death: Number(m[3]) };
+  return { name: m[1].trim(), birth: m[2] ? Number(m[2]) : null, death: Number(m[3]) };
 }
 
 /** "Surname, First" -> "First Surname", the shape the thirteen existing provenance files use. */
@@ -413,7 +416,15 @@ const isVerse = (r) => (r.subjects || []).concat(r.bookshelves || [])
 const juvenile = shortlist.filter((r) => r.clearance.verdict !== "red" && isJuvenile(r));
 const usable = (r) => !isTranslation(r) && !isJuvenile(r) && !isVerse(r);
 const translated = shortlist.filter((r) => r.clearance.verdict !== "red" && isTranslation(r));
-const green = shortlist.filter((r) => r.clearance.verdict === "green" && usable(r));
+/**
+ * A_103 B60: `clearance()` substitutes `author_death_year + 5` for a missing publication year and
+ * called the result green; `corpus-acquire.mjs` and `corpus-clearance-check.mjs` implement no such
+ * bound and refuse the row. MEASURED 30 of 349 "green" candidates were dead on arrival at
+ * `--from-candidates`. They are their own bucket now, so the headline count is what acquire will take;
+ * the bound itself stays a survey estimate, never a verdict a text is held under.
+ */
+const green = shortlist.filter((r) => r.clearance.verdict === "green" && r.clearance.us_basis === "first_publication_year" && usable(r));
+const greenByBound = shortlist.filter((r) => r.clearance.verdict === "green" && r.clearance.us_basis !== "first_publication_year" && usable(r));
 const amber = shortlist.filter((r) => r.clearance.verdict === "amber" && usable(r));
 const red = shortlist.filter((r) => r.clearance.verdict === "red");
 green.sort((a, b) => b.genre_score - a.genre_score || (b.first_publication_year - a.first_publication_year));
@@ -423,12 +434,12 @@ writeFileSync(OUT, JSON.stringify({
   source: { catalogue: CATALOG_URL, years: "https://openlibrary.org/search.json" },
   rule: "uk: death+70 < year; us: pub+95 < year; missing year = red (A_77 §8.1/§10.2)",
   current_year: YEAR,
-  stats: { ...stats, shortlist: shortlist.length, green: green.length, amber: amber.length, red: red.length, translated: translated.length, juvenile: juvenile.length },
+  stats: { ...stats, shortlist: shortlist.length, green: green.length, green_by_bound: greenByBound.length, amber: amber.length, red: red.length, translated: translated.length, juvenile: juvenile.length },
   held: [...heldSlugs],
-  green, amber, red, translated, juvenile,
+  green, green_by_bound: greenByBound, amber, red, translated, juvenile,
 }, null, 1));
 
-console.log(`\nGREEN ${green.length}   AMBER ${amber.length}   RED ${red.length}   TRANSLATED ${translated.length}   JUVENILE ${juvenile.length}`);
+console.log(`\nGREEN ${green.length}   GREEN-BY-BOUND (no publication year; acquire will refuse until one is found) ${greenByBound.length}   AMBER ${amber.length}   RED ${red.length}   TRANSLATED ${translated.length}   JUVENILE ${juvenile.length}`);
 const byEra = {};
 for (const r of green) byEra[r.era] = (byEra[r.era] || 0) + 1;
 console.log("green by era:", byEra);

@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "The deaths were caused by an escaped black mamba snake biting the victims.",
+  "type": "identity",
+  "why_it_seems_reasonable": "Victims showed puncture wounds typical of snake bites and the presence of a deadly escaped black mamba was reported in London. Eyewitnesses and medical opinions initially supported snake bite as cause of death.",
+  "what_it_hides": "The actual cause was a sophisticated murder method using frozen venom darts delivered via cigarette holders, not a real snake attack."
+ },
+ "mechanism_description": "Dr. Oberzohn extracted venom from various deadly snakes and blended them to create a potent poison. He then froze the venom into tiny ice darts, which were concealed inside hollow metal cigarette holders used as blowpipes by his assassins. When blown, the darts melted upon contact, delivering lethal venom without leaving physical evidence, making the deaths appear as natural snake bites.",
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "The detectives recreated the venom delivery by using the hollow metal cigarette holders and frozen venom darts found in Oberzohn’s laboratory. They demonstrated that the darts could be blown from the holders, melt upon contact, and deliver lethal venom without leaving physical evidence. This reenactment was conducted under observation to confirm the feasibility of the murder method.",
+  "knowledge_revealed": "This test revealed that the murders were not caused by a real snake but by a sophisticated artificial venom delivery system using frozen darts.",
+  "pass_condition": "The darts must be shown to penetrate skin and deliver venom effectively while melting completely, leaving no trace of a dart."
+ },
+ "changed": [],
+ "confidence": "high"
+}

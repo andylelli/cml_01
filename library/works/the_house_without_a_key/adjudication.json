@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "The murder was committed by Jim Egan, the hotel proprietor, due to his secret dealings and silence.",
+  "type": "identity",
+  "why_it_seems_reasonable": "Egan was the last person to see Dan alive and had a financial motive. His refusal to disclose the nature of his business with Dan raised suspicion. The presence of a Corsican cigarette stub near the crime scene, linked to Egan, supported this theory.",
+  "what_it_hides": "It hides the fact that the Corsican cigarette evidence was later disproven to implicate Egan, and that the real murderer was Harry Jennison who had a stronger motive and opportunity."
+ },
+ "mechanism_description": "Harry Jennison, motivated by his desire to marry Barbara Winterslip and inherit her father's fortune, swam ashore from the anchored ship President Tyler during the night. He approached Dan Winterslip's lanai quietly, stabbed him through the heart with a knife, and fled back to the ship to establish an alibi. The wristwatch with the damaged numeral two was a key piece of evidence linking him to the crime.",
+ "discriminating_test": {
+  "method": "trap",
+  "design": "The police arranged to observe the taxi driver Okuda and the license plate of his car. They also monitored the sale and resale of the wristwatch with the damaged numeral two. By tracing the watch's movement and observing Okuda's wrist, they confirmed the watch was worn by a man with a larger wrist, implicating Jennison. This trap forced the culprit to reveal himself by his possession of the watch.",
+  "knowledge_revealed": "The watch with the damaged numeral two was the key physical evidence linking the murderer to the crime scene and disproving alibis.",
+  "pass_condition": "Identification of the watch on the suspect's wrist and matching the damaged numeral two confirms the suspect's presence at the crime scene."
+ },
+ "changed": [],
+ "confidence": "high"
+}

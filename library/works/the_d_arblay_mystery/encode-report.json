@@ -1,0 +1,136 @@
+{
+ "slug": "the_d_arblay_mystery",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "The body was found in the pond with a needle puncture in the back",
+   "anchor": "needle-puncture was in the back, just below the left shoulder-blade",
+   "span": "The needle-puncture was in the back, just below the left shoulder-blade.",
+   "ok": true
+  },
+  {
+   "claim": "The cause of death was aconitine poisoning",
+   "anchor": "The cause of death was aconitine poisoning",
+   "span": "The cause of death was aconitine poisoning.",
+   "ok": true
+  },
+  {
+   "claim": "An ancient coin found in the pond was an electrotype made by D’Arblay",
+   "anchor": "the electrotype guinea that was found in the pond was made by Julius D’Arblay",
+   "span": "There is now no possible doubt that the electrotype guinea that was found in the pond was made by Julius D'Arblay.",
+   "ok": true
+  },
+  {
+   "claim": "Bendelow was declared dead and cremated, but the coffin was empty",
+   "anchor": "the coffin which was buried at Mr. Crile’s funeral must have been an empty coffin",
+   "span": "It followed that the coffin which was buried at Mr. Crile's funeral must have been an empty coffin.",
+   "ok": true
+  },
+  {
+   "claim": "Two elderly spinsters identified the wax mask as Bendelow’s face",
+   "anchor": "they sprang back with a shriek. “Oh, it’s Mr. Bendelow!”",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Marion D’Arblay was attacked by a man matching the description of Morris",
+   "anchor": "He had a moustache with turned-up ends and a beard; a rather short beard",
+   "span": "I could see a shock of hair sticking out from under his hat, and he had a moustache with turned-up ends and a beard; a rather short beard.",
+   "ok": true
+  },
+  {
+   "claim": "The murderer searched the studio and broke a plaster mould",
+   "anchor": "the things are all in disorder and one of the moulds is broken",
+   "span": "The things are all in disorder and one of the moulds is broken.",
+   "ok": true
+  },
+  {
+   "claim": "The police arrested a man with a red nose and different appearance",
+   "anchor": "the fugitive rushed out, wild-eyed and terrified, his white face contrasting most singularly with his vividly-red nose",
+   "span": "Following three rapid pistol-shots there came a brief interval; then, suddenly, the door of a house farther down the street burst open and the fugitive rushed out, wild-eyed and terrified, his white face contrasting most singularly with his vividly-red nose.",
+   "ok": true
+  },
+  {
+   "claim": "The wax mask was used to fake Bendelow’s death in the coffin with an inspection window",
+   "anchor": "The wax mask was placed over the face; the jaw-bandage and the skull cap adjusted to hide the place where the wax face joined the real face",
+   "span": "The wax mask was placed over the face; the jaw-bandage and the skull cap adjusted to hide the place where the wax face joined the real face; and the two spinsters were brought up to see Mr.",
+   "ok": true
+  },
+  {
+   "claim": "The wax mask was made by Julius D’Arblay",
+   "anchor": "this man Morris had dealings with the victim and the wax mask was made by Julius D’Arblay",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The photograph of the wax mask was recognized by witnesses",
+   "anchor": "that photograph was instantly recognized, without any sort of suggestion",
+   "span": "As you know, that photograph was instantly recognized, without any sort of suggestion.",
+   "ok": true
+  },
+  {
+   "claim": "The exhumed coffin was empty and contained a sack of sawdust",
+   "anchor": "in place of the mortal remains of the late Jonathan Crile, was a portly sack oozing sawdust",
+   "span": "For in place of the mortal remains of the late Jonathan Crile, was a portly sack oozing sawdust from a hole in its side, through which coyly peeped a length of thick lead pipe.",
+   "ok": true
+  },
+  {
+   "claim": "The real Bendelow was alive and disguised as Morris",
+   "anchor": "the face that I saw was not the face that I had expected to see... this is Morris",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The murder was committed to silence D’Arblay who possessed incriminating evidence",
+   "anchor": "Julius D’Arblay must be got rid of. Here, then, was an amply sufficient motive for the murder",
+   "span": "Therefore Julius D'Arblay must be got rid of. Here, then, was an amply sufficient motive for the murder.",
+   "ok": true
+  },
+  {
+   "claim": "The murderer attempted to kill Marion to prevent exposure",
+   "anchor": "he came to look for some incriminating object and tried to kill Marion",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The police arrested the disguised Bendelow after coordinated surveillance",
+   "anchor": "the man was caught after a chase and shots fired, and was identified as Morris",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The wax mask was altered with clay to resemble the assailant",
+   "anchor": "we built up on Morris’s mask a nose of the shape described and slightly thickened the brows",
+   "span": "First, with a pinch of clay, we built up on Morris's mask a nose of the shape described and slightly thickened the brows.",
+   "ok": true
+  },
+  {
+   "claim": "The two death certificates and funerals were fraudulent",
+   "anchor": "two death certificates, in different names, and two corresponding burial orders, had been obtained",
+   "span": "This fact, with the further facts that they had died of virtually the same disease and within a day or two of the same date, left no reasonable doubt that we were really dealing with one man, who had died and for whom two death certificates, in different names, and two corresponding burial orders, had been obtained.",
+   "ok": true
+  },
+  {
+   "claim": "The wax mask was used to deceive witnesses and officials",
+   "anchor": "the two ladies were brought up to see Mr. Bendelow in his coffin. They looked in through the window, and, of course, saw the wax mask of Bendelow",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The murder was a crime of expediency, not revenge",
+   "anchor": "The hypothesis of revenge could not be explored... The hypothesis of expediency was the more probable one",
+   "span": "",
+   "ok": false
+  }
+ ],
+ "costGbp": 0.12362962800000002,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

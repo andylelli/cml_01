@@ -1,0 +1,368 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The Sleuth of St. James's Square
+    author: Melville Davisson Post
+    license: Public domain (first published 1920; author died 1930). Project Gutenberg ebook 2861.
+    era:
+      decade: early 1900s
+      realism_constraints:
+        - No advanced forensic DNA analysis or modern electronic surveillance
+        - Limited rapid communication; telegraph and letters are primary
+        - Transportation mainly by horse, early motor vehicles, and ships
+    setting:
+      location: >-
+        England, primarily London and surrounding areas including Berkshires, Park Lane, and the
+        West Highlands
+      institution: Scotland Yard Criminal Investigation Department
+    crime_class:
+      category: murder
+      subtype: forged will and staged murder to cover inheritance fraud
+  cast:
+    - name: Sir Henry Marquis
+      age_range: 50-60
+      role_archetype: experienced chief investigator
+      relationships: []
+      public_persona: Chief of Criminal Investigation Department of Scotland Yard
+      private_secret: keen intuitive investigator with deep knowledge of criminal methods
+      motive_seed: justice and truth
+      motive_strength: strong
+      alibi_window: always on duty
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells:
+        - ironical smile
+        - drawling Oxford voice
+      stakes: high - solving complex crimes
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: low
+    - name: Mr. Anthony Gosford
+      age_range: 40-50
+      role_archetype: ambitious opportunist lawyer
+      relationships:
+        - Peyton Marshall (victim)
+        - Young Marshall (son)
+      public_persona: Englishman claiming bequest in Marshall's will
+      private_secret: forged will to claim inheritance
+      motive_seed: greed
+      motive_strength: strong
+      alibi_window: present at Marshall's deathbed
+      access_plausibility: high
+      opportunity_channels:
+        - access to will
+        - presence at deathbed
+      behavioral_tells:
+        - supercilious, ironical smile
+        - dismissive manner
+      stakes: large inheritance
+      evidence_sensitivity:
+        - altered will document
+        - chemical reagent test on ink
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: Young Marshall
+      age_range: under 20
+      role_archetype: innocent heir
+      relationships:
+        - Peyton Marshall (father)
+        - Anthony Gosford (antagonist)
+      public_persona: son of Peyton Marshall
+      private_secret: believes in father's original will
+      motive_seed: inheritance
+      motive_strength: moderate
+      alibi_window: present during events
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells:
+        - defiant
+        - trusting
+      stakes: inheritance
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+    - name: Mrs. Butler
+      age_range: 40-50
+      role_archetype: loyal spouse
+      relationships:
+        - Butler (suspect)
+      public_persona: wife of the butler accused of murder
+      private_secret: knows husband is innocent
+      motive_seed: protect husband
+      motive_strength: strong
+      alibi_window: present at home
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells:
+        - nervous
+        - accurate memory
+      stakes: husband's freedom
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: low
+    - name: Mr. Percy Thompson
+      age_range: 40-50
+      role_archetype: nephew and antagonist
+      relationships:
+        - Mr. Marsh (victim)
+        - Butler (accused)
+      public_persona: nephew of the murdered man
+      private_secret: murdered to gain inheritance
+      motive_seed: greed and inheritance
+      motive_strength: strong
+      alibi_window: present at crime scene
+      access_plausibility: high
+      opportunity_channels:
+        - access to house
+        - knowledge of victim's habits
+      behavioral_tells:
+        - left-handedness
+        - nervousness
+      stakes: inheritance
+      evidence_sensitivity:
+        - left-handed wound analysis
+        - glove drop evidence
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: moderate
+    - name: Mr. Arthur Meadows (Karl Holweg Leibnich)
+      age_range: 45-55
+      role_archetype: clever impostor
+      relationships:
+        - Sir Henry Marquis (ally)
+        - Lady Mary (associate)
+      public_persona: American bagman and motorist
+      private_secret: famous criminologist undercover
+      motive_seed: investigation
+      motive_strength: strong
+      alibi_window: present at crime scene
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells:
+        - silent
+        - observant
+      stakes: justice
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: high
+  culpability:
+    culprit_count: 1
+    culprits:
+      - Mr. Percy Thompson
+  surface_model:
+    narrative:
+      summary: >-
+        A butler is accused of murdering his employer after a robbery of a large sum of money.
+        Circumstantial evidence and expert testimony point to the butler's guilt, but a young woman
+        and a detective uncover inconsistencies suggesting a more complex plot involving a forged
+        will and a left-handed murderer.
+    accepted_facts:
+      - The victim, Mr. Marsh, was found stabbed in the left shoulder.
+      - The butler was present at the time and had no alibi.
+      - A large sum of money was taken from the victim's desk.
+      - Mr. Percy Thompson, the victim's nephew, is left-handed.
+    inferred_conclusions:
+      - The butler committed the murder during a robbery.
+      - The footprints and blood evidence are genuine and indicate the crime scene.
+      - Mr. Percy Thompson is innocent and only interested in the inheritance.
+  hidden_model:
+    mechanism:
+      description: >-
+        Mr. Percy Thompson, the left-handed nephew, murdered Mr. Marsh by stabbing him in the left
+        shoulder while the victim sat at his desk. The butler was framed by circumstantial evidence,
+        including a forged will and planted money. The left-handedness of the wound and the dropped
+        glove reveal the true culprit.
+      delivery_path:
+        - step: Thompson enters the victim's library quietly from the butler's pantry.
+        - step: He approaches the victim from behind, holding the knife in his left hand.
+        - step: He delivers a single fatal stab to the left shoulder.
+        - step: He steals the money from the desk drawer using an ice-pick.
+        - step: He plants evidence to implicate the butler, including prying open the drawer.
+        - step: The butler is arrested based on circumstantial evidence.
+        - step: The young woman and detective expose the inconsistencies and prove Thompson's guilt.
+    outcome:
+      result: Mr. Percy Thompson is exposed as the murderer and the butler is exonerated.
+  false_assumption:
+    statement: The butler was guilty of the murder because he was found at the scene with no alibi.
+    type: behavioral
+    why_it_seems_reasonable: >-
+      The butler was the only servant present and had opportunity; circumstantial evidence and the
+      forged will pointed to his guilt. The victim's nephew had no apparent motive or suspicious
+      behavior.
+    what_it_hides: >-
+      It hides the fact that the nephew was left-handed and the wound matches this, and that the
+      butler was framed with planted evidence.
+  false_solution:
+    accused_suspect: Butler
+    supporting_points:
+      - Presence at the crime scene with no alibi
+      - Drawer pried open with an ice-pick from the butler's pantry
+      - Strong circumstantial evidence and expert testimony
+      - Prosecutor's confident case against the butler
+    the_one_flaw: >-
+      The wound's position and handedness do not match the butler, and planted evidence was
+      fabricated.
+    refuted_in_chapter: 13
+  red_herrings:
+    - id: forged_will
+      description: >-
+        The will was altered from 30,000 to 50,000 dollars favoring Gosford, suggesting a motive for
+        forgery.
+      points_at_suspect: Anthony Gosford
+      innocent_explanation: The will was forged by Gosford to claim more inheritance, unrelated to the murder itself.
+      resolved_in_chapter: 7
+    - id: fake_footprints
+      description: Bloody footprints found at Benton Court were claimed to be of a barefoot assassin.
+      points_at_suspect: Professional criminal group
+      innocent_explanation: The footprints were fabricated using a hand to mislead investigators.
+      resolved_in_chapter: 4
+  closed_circle:
+    suspects:
+      - Butler
+      - Mr. Percy Thompson
+      - Mr. Anthony Gosford
+      - Mr. Arthur Meadows (Karl Holweg Leibnich)
+      - Young Marshall
+    rationale: >-
+      The suspects are limited to those with access to the victim and knowledge of the will and
+      inheritance; no outsiders had opportunity or motive.
+  constraint_space:
+    time:
+      anchors:
+        - morning of the third of February
+        - evening before the murder
+        - court trial dates
+      windows:
+        - butler's usual absence from 8pm to 7am
+        - presence of nephew at crime scene
+    access:
+      actors:
+        - butler
+        - nephew
+        - Anthony Gosford
+        - young Marshall
+      objects:
+        - victim's library
+        - desk drawer
+        - will document
+        - menu card drawing
+    social:
+      trust_channels:
+        - court testimony
+        - expert analysis
+        - detective's observations
+      authority_sources:
+        - judge
+        - Scotland Yard
+        - court-appointed experts
+  inference_path:
+    steps:
+      - observation: The stab wound is on the left side of the victim's neck and shoulder.
+        correction: Only a left-handed person could have delivered such a wound from the victim's position.
+        effect: This excludes the butler, who is right-handed, as the murderer.
+        required_evidence:
+          - Medical report detailing the position and angle of the stab wound
+          - Witness testimony about the victim's seating and room layout
+        reader_observable: true
+      - observation: >-
+          The butler was found at the scene with no alibi and the drawer was forced open with an
+          ice-pick from his pantry.
+        correction: The forced drawer and presence are circumstantial and could be staged.
+        effect: The butler's guilt is questionable; evidence may have been planted.
+        required_evidence:
+          - Analysis of the drawer forcing marks
+          - Butler's testimony and alibi verification
+        reader_observable: true
+      - observation: A glove was dropped and picked up by Mr. Percy Thompson, who is left-handed.
+        correction: The glove drop indicates the presence and involvement of Thompson.
+        effect: Thompson's presence at the scene is confirmed and suspicious.
+        required_evidence:
+          - Witness statement about the glove drop
+          - Physical glove with matching fingerprints
+        reader_observable: true
+      - observation: The will was altered from 30,000 to 50,000 dollars favoring Gosford.
+        correction: Chemical reagent test revealed the alteration was recent and forged.
+        effect: Gosford forged the will to claim a larger inheritance.
+        required_evidence:
+          - Chemical reagent test results on the will document
+          - Expert handwriting analysis
+        reader_observable: true
+      - observation: The butler's attorney withdrew from the case citing loss of confidence.
+        correction: The withdrawal was due to pressure and manipulation by Gosford.
+        effect: The defense was compromised, affecting the trial's fairness.
+        required_evidence:
+          - Attorney's statements and court transcripts
+          - Correspondence indicating external pressure
+        reader_observable: true
+      - observation: >-
+          The young woman presents a detailed drawing of the crime scene and points out
+          inconsistencies.
+        correction: Her observations reveal the true sequence of events and the murderer's identity.
+        effect: The court reconsiders the evidence and suspects Thompson.
+        required_evidence:
+          - Drawing on the menu card showing room layout
+          - Courtroom testimony of the young woman
+        reader_observable: true
+      - observation: Thompson is left-handed and the wound matches left-handed attack.
+        correction: This physical evidence directly implicates Thompson as the murderer.
+        effect: Thompson is identified as the true culprit.
+        required_evidence:
+          - Medical wound analysis
+          - Witness testimony about Thompson's handedness
+        reader_observable: true
+  discriminating_test:
+    method: constraint_proof
+    design: >-
+      Recreate the crime scene with the victim seated at the desk and the suspect approaching from
+      the butler's pantry. Test which hand can deliver a fatal stab to the left shoulder as found.
+      Examine the glove drop and the position of the drawer forcing marks to verify if the butler
+      could have committed the crime or if it was staged.
+    knowledge_revealed: >-
+      The test reveals that only a left-handed person could have made the wound, excluding the
+      butler. It also shows the forced drawer marks are consistent with the impact of the victim's
+      body and not forced entry, indicating staging.
+    pass_condition: >-
+      The stab wound can only be replicated by a left-handed attacker from the butler's pantry side,
+      and the drawer forcing marks cannot be duplicated by the butler's tools or actions.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given detailed descriptions of the crime scene, the wound, the room layout, and
+      the suspects' handedness. The drawing on the menu card and the testimony about the glove drop
+      are presented before the solution. The chemical analysis of the will and the inconsistencies
+      in the footprints and blood stains are also disclosed. These clues allow an attentive reader
+      to deduce the true culprit.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

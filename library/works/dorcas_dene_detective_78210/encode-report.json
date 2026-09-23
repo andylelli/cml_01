@@ -48,8 +48,8 @@
   {
    "claim": "Anarchists' secret meeting discussing hostage and execution reprieve",
    "anchor": "Our brave comrades shall not die--we may even compel the Government to set them secretly at liberty",
-   "span": "",
-   "ok": false
+   "span": "our brave comrades shall not die--we may even compel the Government to set them secretly at liberty.",
+   "ok": true
   },
   {
    "claim": "Zelie Vossche is maid to Countess Elstein and sister to Jean Vossche",
@@ -124,5 +124,7 @@
   "encode": "gpt-4.1-mini",
   "sweep": "gpt-4o-mini"
  },
- "case_written": true
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
 }

@@ -1,0 +1,136 @@
+{
+ "slug": "tangled_trails",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "James Cunningham was found dead with a bullet hole in the forehead",
+   "anchor": "There was a small hole in the center of the forehead",
+   "span": "There was a small hole in the center of the forehead through which a bullet had crashed.",
+   "ok": true
+  },
+  {
+   "claim": "The victim was tied to a chair and chloroformed before being shot",
+   "anchor": "His wrists were tied with ropes to the arms of the chair. A towel, passed round his throat, fastened the body to the back of the chair",
+   "span": "His wrists were tied with ropes to the arms of the chair. A towel, passed round his throat, fastened the body to the back of the chair and propped up the head.",
+   "ok": true
+  },
+  {
+   "claim": "Wild Rose's glove was found at the crime scene",
+   "anchor": "It was a small riding-gauntlet with a device of a rose embroidered on the wrist",
+   "span": "It was a small riding-gauntlet with a device of a rose embroidered on the wrist.",
+   "ok": true
+  },
+  {
+   "claim": "Kirby Lane was seen entering and leaving the apartment by witnesses",
+   "anchor": "A young man, a stranger to them, powerfully built and dressed like a prosperous ranchman, had knocked on their door",
+   "span": "They had told him that a young man, a stranger to them, powerfully built and dressed like a prosperous ranchman, had knocked on their door about 9.",
+   "ok": true
+  },
+  {
+   "claim": "Cass Hull threatened James Cunningham and was seen in the apartment",
+   "anchor": "He was standin' on the fire escape of the Wyndham across the alley",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "James Cunningham, Jr. secretly married Phyllis Harriman",
+   "anchor": "James Cunningham and Phyllis Harriman had been united in marriage at Golden",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "James Cunningham, Jr. lost the Japanese papers that might have cleared the case",
+   "anchor": "The sheets of paper with the Japanese writing have been lost",
+   "span": "The sheets of paper with the Japanese writing have been lost.",
+   "ok": true
+  },
+  {
+   "claim": "Horikawa was found dead, tied up in a neighboring apartment",
+   "anchor": "On the bed, fully dressed, his legs stretched in front of him and his feet crossed, was the missing man Horikawa",
+   "span": "On the bed, fully dressed, his legs stretched in front of him and his feet crossed, was the missing man Horikawa.",
+   "ok": true
+  },
+  {
+   "claim": "Shibo Horikawa attempted to murder Kirby Lane",
+   "anchor": "A lifted foot struck an empty soap box with a clatter to wake the seven sleepers",
+   "span": "A lifted foot struck an empty soap box with a clatter to wake the seven sleepers.",
+   "ok": true
+  },
+  {
+   "claim": "Shibo Horikawa confessed to the murders",
+   "anchor": "I killum both--Cunnin'lam and Horikawa",
+   "span": "I killum both--Cunnin'lam and Horikawa.",
+   "ok": true
+  },
+  {
+   "claim": "Mrs. Hull admitted returning to the apartment to untie James Cunningham",
+   "anchor": "Mrs. Hull admitted, under pressure, that she returned to my uncle's apartment again to release him from the chair",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Cass Hull confessed to knocking out James Cunningham with a gun",
+   "anchor": "Cunningham reached for a drawer an' started to pull out an automatic gun. Knowin' him, I was scared. I beat him to it an' lammed him one over the head with my gun",
+   "span": "Cunningham reached for a drawer an' started to pull out an automatic gun. Knowin' him, I was scared. I beat him to it an' lammed him one over the head with my gun.",
+   "ok": true
+  },
+  {
+   "claim": "Olson saw the murder from the fire escape and cut the clothesline to enter",
+   "anchor": "I went back to the fire escape, fixed up some kind of a lariat, an' flung the loop over an abutment stickin' from the wall of the Paradox",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "James Cunningham, Jr. was present at the apartment during the murder",
+   "anchor": "James in Apt.",
+   "span": "James in Apt. 9.",
+   "ok": true
+  },
+  {
+   "claim": "Jack Cunningham and Phyllis Harriman were present shortly after James Jr.",
+   "anchor": "Jack and Phyllis in Apt.",
+   "span": "Jack and Phyllis in Apt. 9.",
+   "ok": true
+  },
+  {
+   "claim": "Wild Rose was in the apartment shortly before Kirby Lane",
+   "anchor": "Wild Rose in rooms.",
+   "span": "Wild Rose in rooms. 10.",
+   "ok": true
+  },
+  {
+   "claim": "Kirby Lane arrived at the apartment at 10:00",
+   "anchor": "I reach rooms.",
+   "span": "I reach rooms. 10.",
+   "ok": true
+  },
+  {
+   "claim": "Shibo Horikawa killed James Cunningham, Sr. by chloroforming and shooting",
+   "anchor": "He reached across his body for the automatic and sent a bullet into the brain of the man bound to the chair",
+   "span": "He reached across his body for the automatic and sent a bullet into the brain of the man bound to the chair.",
+   "ok": true
+  },
+  {
+   "claim": "Shibo Horikawa killed Horikawa to silence him",
+   "anchor": "He killed Horikawa because he knew he could not trust him",
+   "span": "He killed Horikawa because he knew he could not trust him.",
+   "ok": true
+  },
+  {
+   "claim": "Shibo Horikawa was arrested and confessed",
+   "anchor": "Officers led him away",
+   "span": "Officers led him away.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.12349122000000001,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

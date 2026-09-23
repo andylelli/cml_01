@@ -6,8 +6,8 @@
   {
    "claim": "Madeleine Bellamy was found dead in the gardener’s cottage",
    "anchor": "stretched out on the floor before him was a young woman in a white lace evening gown",
-   "span": "",
-   "ok": false
+   "span": "Stretched out on the floor before him was a young woman in a white lace evening gown.",
+   "ok": true
   },
   {
    "claim": "The cause of death was a stab wound to the heart",
@@ -126,5 +126,5 @@
  },
  "case_written": true,
  "verified_by": "corpus-verify.mjs",
- "verified_on": "2026-08-31"
+ "verified_on": "2026-09-23"
 }

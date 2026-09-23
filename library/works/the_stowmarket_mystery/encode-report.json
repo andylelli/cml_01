@@ -1,0 +1,136 @@
+{
+ "slug": "the_stowmarket_mystery",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Sir Alan Hume-Frazer was found dead outside the library window",
+   "anchor": "found his young master stretched on the turf at the side of the drive",
+   "span": "To his dismay he found his young master stretched on the turf at the side of the drive, thirty feet from the house.",
+   "ok": true
+  },
+  {
+   "claim": "David Hume-Frazer was asleep in the library at 1 a.m.",
+   "anchor": "Mr. David Hume-Frazer was curled up in an arm-chair asleep",
+   "span": "Mr. David Hume-Frazer was curled up in an arm-chair asleep, or rather dozing, for he stirred a little when the man put some coal in the grate.",
+   "ok": true
+  },
+  {
+   "claim": "The Japanese Ko-Katana was the murder weapon",
+   "anchor": "The dagger-like attachment to your Japanese sword had been driven into his breast up to the hilt",
+   "span": "The dagger-like attachment to your Japanese sword had been driven into his breast up to the hilt, actually splitting his heart.",
+   "ok": true
+  },
+  {
+   "claim": "The drawer in Sir Alan's writing desk was forcibly opened",
+   "anchor": "a small drawer in Sir Alan's writing-table had been wrenched open whilst you were alone in the room",
+   "span": "Then, again, a small drawer in Sir Alan's writing-table had been wrenched open whilst you were alone in the room.",
+   "ok": true
+  },
+  {
+   "claim": "A man resembling David was seen near Beechcroft at night",
+   "anchor": "a man was running at top speed, with the labouring breath of one unaccustomed to the exercise",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Numagawa Jiro identified the Japanese motto on the Ko-Katana",
+   "anchor": "I have nothing to tell. I told the police all that they asked me",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Mrs. Jiro dressed in male attire to warn Ooma",
+   "anchor": "Mrs. Jiro forthwith seated herself to listen to the conclave",
+   "span": "Mrs. Jiro forthwith seated herself to listen to the conclave.",
+   "ok": true
+  },
+  {
+   "claim": "Ooma sent Jiro to Ipswich to watch the trial",
+   "anchor": "He sent Jiro to Ipswich to attend Mr. David's second trial",
+   "span": "He sent Jiro to Ipswich to attend Mr. David's second trial when the first missed fire.",
+   "ok": true
+  },
+  {
+   "claim": "Robert Hume-Frazer was attacked and nearly killed in London",
+   "anchor": "Mr. Robert Hume-Frazer quitted his hotel for a stroll in the West End, and narrowly escaped being run over in Whitehall",
+   "span": "Early in the morning, Mr. Robert Hume-Frazer quitted his hotel for a stroll in the West End, and narrowly escaped being run over in Whitehall.",
+   "ok": true
+  },
+  {
+   "claim": "Ooma killed Giovanni Capella by throwing him from a train",
+   "anchor": "I took the little man and cracked his neck. Then I flung him over the bridge",
+   "span": "I looked out of the window and saw that we were coming to a viaduct over a stream between deep cliffs, so I took the little man and cracked his neck. Then I flung him over the bridge.",
+   "ok": true
+  },
+  {
+   "claim": "Ooma barricaded himself in the library and was confronted",
+   "anchor": "Ooma barricaded by the table, the others ready to defeat any stratagem he might endeavour to put in force",
+   "span": "Thus, in a segment of a circle, the five enclosed the one against the wall--Ooma barricaded by the table, the others ready to defeat any stratagem he might endeavour to put in force.",
+   "ok": true
+  },
+  {
+   "claim": "Ooma injected himself with snake poison during arrest",
+   "anchor": "He folded his arms and looked at them. A change came over his face",
+   "span": "He folded his arms and looked at them. A change came over his face.",
+   "ok": true
+  },
+  {
+   "claim": "The family secret involved Margaret's illegitimate birth",
+   "anchor": "I am a nameless outcast. My mother was not Alan's mother",
+   "span": "In the eyes of the law I am a nameless outcast. My mother was not Alan's mother.",
+   "ok": true
+  },
+  {
+   "claim": "The typewritten anonymous letter was written by Ooma via Jiro",
+   "anchor": "The letter which I made Jiro write for me. He wrote it badly",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The stationmaster saw a third David Hume on New Year's Eve",
+   "anchor": "I fancied I saw Mr. David leave the London train due here at 12.15 midday",
+   "span": "On the morning of December 31, I fancied I saw Mr. David leave the London train due here at 12.15 midday.",
+   "ok": true
+  },
+  {
+   "claim": "Ooma is a Japanese descendant of the original David Hume",
+   "anchor": "I am his lawful descendant. I came to England and resolved to be an Englishman",
+   "span": "I am his lawful descendant. I came to England and resolved to be an Englishman.",
+   "ok": true
+  },
+  {
+   "claim": "The Ko-Katana bore a Japanese motto linked to Ooma's family",
+   "anchor": "Beneath the rust on the blade he thought he could distinguish some Japanese characters",
+   "span": "Beneath the rust on the blade he thought he could distinguish some Japanese characters in the quaint pictorial script adapted by that singular people from the Chinese system of writing.",
+   "ok": true
+  },
+  {
+   "claim": "Ooma confessed to the murders before dying",
+   "anchor": "I killed Capella. It was a mistake. Everything is a mistake",
+   "span": "I killed Capella. It was a mistake. Everything is a mistake.",
+   "ok": true
+  },
+  {
+   "claim": "The library window was the scene of the murder",
+   "anchor": "Beechroft would pass into the possession of David, and Helen and he, who were to be married in October, would settle down in the house after their honeymoon",
+   "span": "Beechroft would pass into the possession of David, and Helen and he, who were to be married in October, would settle down in the house after their honeymoon.",
+   "ok": true
+  },
+  {
+   "claim": "The typewriter used for anonymous letters was disposed by Jiro",
+   "anchor": "I have sold it again, and I am going to buy another",
+   "span": "",
+   "ok": false
+  }
+ ],
+ "costGbp": 0.114593292,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

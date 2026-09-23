@@ -1,0 +1,136 @@
+{
+ "slug": "the_clue_of_the_new_pin",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Jesse Trasmere was murdered in the locked vault",
+   "anchor": "It was horrible,” he shuddered. “As fast as I could I ran up the stairs into the street",
+   "span": "It was horrible,\" he shuddered. \"As fast as I could I ran up the stairs into the street, intending to call a policeman and I saw you.",
+   "ok": true
+  },
+  {
+   "claim": "The vault door was locked from outside with the key found on the table inside",
+   "anchor": "the key was locked upon him and the key returned to the table",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "A new pin was found in the passage after the first murder",
+   "anchor": "Then it was that he saw the new pin",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "A second new pin was found inside the vault after the second murder",
+   "anchor": "and on the table, in the exact centre, was the key of the vault",
+   "span": "Wellington Brown was lying face downward in the centre of the room, blood was flowing from under him, _and on the table, in the exact centre, was the key of the vault_!",
+   "ok": true
+  },
+  {
+   "claim": "Walters was making a duplicate key but it was unfinished",
+   "anchor": "Clamped to the edge of the table was a small vice and scattered about were a number of files and other tools",
+   "span": "Clamped to the edge of the table was a small vice and scattered about were a number of files and other tools.",
+   "ok": true
+  },
+  {
+   "claim": "Walters received a telegram warning police were coming",
+   "anchor": "Remember 17th July, 1913. Newcastle police coming for you at three o’clock",
+   "span": "Remember 17th July, 1913. Newcastle police coming for you at three o'clock.",
+   "ok": true
+  },
+  {
+   "claim": "Yeh Ling was with Wellington Brown at the time of the murder",
+   "anchor": "If the murder was committed on Saturday afternoon, then I certainly was with the man called Wellington Brown",
+   "span": "If the murder was committed on Saturday afternoon, then I certainly was with the man called Wellington Brown, but whom we called The Drinker or the Unemployed One, at that hour.",
+   "ok": true
+  },
+  {
+   "claim": "Rex Lander faked his trip abroad and stayed nearby",
+   "anchor": "I didn’t go any farther than the mouth of the river",
+   "span": "I didn't go any farther than the mouth of the river,\" he said.",
+   "ok": true
+  },
+  {
+   "claim": "Rex Lander confessed to the murders and demonstrated the thread and pin trick",
+   "anchor": "He stuck the point of the pin in the centre of the table, and pulled at it by the thread he had fastened",
+   "span": "Presently, he stuck the point of the pin in the centre of the table, and pulled at it by the thread he had fastened.",
+   "ok": true
+  },
+  {
+   "claim": "The will was forged by Rex Lander",
+   "anchor": "Mr. Trasmere could not read or write English!",
+   "span": "Mr. Trasmere could not read or write English!\" The full significance of the simple statement came more quickly to Carver than to Tab.",
+   "ok": true
+  },
+  {
+   "claim": "Ursula Ardfern was secretary to Jesse Trasmere and kept jewels for him",
+   "anchor": "She used to come from the theatre every night, and sometimes he would keep her there as late as two o’clock",
+   "span": "She used to come from the theatre every night, and sometimes he would keep her there as late as two o'clock.",
+   "ok": true
+  },
+  {
+   "claim": "The police dismissed the duplicate key and secret passage theories",
+   "anchor": "I am satisfied that no duplicate key was used",
+   "span": "I am satisfied that no duplicate key was used.",
+   "ok": true
+  },
+  {
+   "claim": "Rex Lander was mad but sane enough to plan the murders",
+   "anchor": "You are just the maddest thing that ever lived",
+   "span": "You are just the maddest thing that ever lived,\" said Tab inflexibly.",
+   "ok": true
+  },
+  {
+   "claim": "Rex Lander was trapped in the vault and died after setting fire to Mayfield",
+   "anchor": "Mayfield was on fire",
+   "span": "Mayfield was on fire.",
+   "ok": true
+  },
+  {
+   "claim": "Yeh Ling knew the murderer but protected reasons for silence",
+   "anchor": "I know the murderer. I could lay my hands upon him without the slightest difficulty",
+   "span": "I know the murderer. I could lay my hands upon him without the slightest difficulty.",
+   "ok": true
+  },
+  {
+   "claim": "The thread and pin trick explained the locked vault mystery",
+   "anchor": "He pulled at it by the thread he had fastened",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The false solution accused Walters based on his criminal record and duplicate key",
+   "anchor": "Walters was making a key",
+   "span": "Then friend Walters was making a key,\" said Carver.",
+   "ok": true
+  },
+  {
+   "claim": "The red herring of Wellington Brown's guilt was resolved by Yeh Ling's testimony",
+   "anchor": "If the murder was committed on Saturday afternoon, then I certainly was with the man called Wellington Brown",
+   "span": "If the murder was committed on Saturday afternoon, then I certainly was with the man called Wellington Brown, but whom we called The Drinker or the Unemployed One, at that hour.",
+   "ok": true
+  },
+  {
+   "claim": "The red herring of a secret passage was disproved by builders and locksmiths",
+   "anchor": "No, Yeh Ling, you must get that idea out of your head",
+   "span": "No, Yeh Ling, you must get that idea out of your head.",
+   "ok": true
+  },
+  {
+   "claim": "The discriminating test was the reenactment of the thread and pin trick",
+   "anchor": "He stuck the point of the pin in the centre of the table, and pulled at it by the thread he had fastened",
+   "span": "Presently, he stuck the point of the pin in the centre of the table, and pulled at it by the thread he had fastened.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.11367626,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

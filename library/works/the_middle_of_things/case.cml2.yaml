@@ -1,0 +1,414 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The Middle of Things
+    author: J. S. (Joseph Smith) Fletcher
+    license: Public domain (first published 1922; author died 1935). Project Gutenberg ebook 9902.
+    era:
+      decade: 1920s
+      realism_constraints:
+        - No modern forensic DNA analysis or electronic surveillance
+        - Communication limited to telegraph, telephone, and personal visits
+        - Travel and investigation constrained by physical presence and transportation of the era
+    setting:
+      location: >-
+        London, primarily Markendale Square and surrounding districts including Whitechapel and
+        Marketstoke
+      institution: >-
+        Metropolitan Police Service, including Detective Inspector Drillford and legal institutions
+        such as Crawle, Pawle and Rattenbury; Carless and Driver; Methley and Woodlesford solicitors
+    crime_class:
+      category: murder
+      subtype: murder for possession of secret papers
+  cast:
+    - name: Richard Viner
+      age_range: 30-40
+      role_archetype: young gentleman and amateur investigator
+      relationships:
+        - Miss Bethia Penkridge (aunt)
+        - Langton Hyde (schoolmate)
+        - Miss Wickham (neighbor)
+      public_persona: young gentleman and neighbor
+      private_secret: keen interest in solving the mystery
+      motive_seed: justice for Hyde and truth
+      motive_strength: strong
+      alibi_window: present throughout investigation
+      access_plausibility: high
+      opportunity_channels:
+        - presence at crime scene discovery
+        - access to victim's house
+      behavioral_tells:
+        - persistent in investigation
+        - sympathetic to Hyde
+      stakes: clearing Hyde and solving murder
+      evidence_sensitivity:
+        - found body
+        - observed fleeing man
+        - discovered clues
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: moderate
+    - name: Miss Bethia Penkridge
+      age_range: 60-75
+      role_archetype: shrewd maiden aunt and mystery enthusiast
+      relationships:
+        - Richard Viner (nephew)
+      public_persona: model housekeeper and reader
+      private_secret: acute perception and detective insight
+      motive_seed: love of mysteries and justice
+      motive_strength: moderate
+      alibi_window: present at home
+      access_plausibility: high
+      opportunity_channels:
+        - investigative visits
+        - consultation with stationer
+      behavioral_tells:
+        - sharp observation
+        - quick deduction
+      stakes: helping nephew and justice
+      evidence_sensitivity:
+        - discovered typewriter clue
+        - prompted police action
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: low
+    - name: Langton Hyde (Edward Cave, Nugent Starr)
+      age_range: 30-40
+      role_archetype: impoverished actor, accused
+      relationships:
+        - Richard Viner (schoolmate)
+        - Mrs. Killenhall (accomplice of real culprit)
+      public_persona: accused murderer
+      private_secret: innocent, victim of conspiracy
+      motive_seed: survival and clearing name
+      motive_strength: strong
+      alibi_window: night of murder in shed
+      access_plausibility: medium
+      opportunity_channels:
+        - presence near crime scene
+        - found ring on ground
+      behavioral_tells:
+        - starving
+        - nervous but truthful
+      stakes: life and freedom
+      evidence_sensitivity:
+        - found with ring
+        - denied murder
+        - claimed innocence
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: Miss Avice Wickham
+      age_range: 18-25
+      role_archetype: ward and rightful heiress
+      relationships:
+        - John Ashton (guardian)
+        - Mrs. Killenhall (chaperon, accomplice)
+      public_persona: young ward of Ashton
+      private_secret: true Countess of Ellingham
+      motive_seed: inheritance and identity
+      motive_strength: none
+      alibi_window: present during investigation
+      access_plausibility: high
+      opportunity_channels:
+        - access to Ashton's house
+      behavioral_tells:
+        - calm but puzzled
+      stakes: title and fortune
+      evidence_sensitivity:
+        - identity papers
+        - bank check incident
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: low
+    - name: John Ashton
+      age_range: 60-65
+      role_archetype: mysterious wealthy man, victim
+      relationships:
+        - Miss Wickham (ward)
+        - Dr. Cortelyon (acquaintance, murderer)
+      public_persona: wealthy Australian settler
+      private_secret: holder of secret papers
+      motive_seed: protect secret and ward
+      motive_strength: none
+      alibi_window: killed at night in passage
+      access_plausibility: n/a
+      opportunity_channels:
+        - n/a
+      behavioral_tells:
+        - reserved
+        - secretive
+      stakes: life
+      evidence_sensitivity:
+        - papers found in cabinet
+        - diamond missing
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: low
+    - name: Mrs. Killenhall (Mrs. Killerby)
+      age_range: 50-60
+      role_archetype: companion and accomplice
+      relationships:
+        - Miss Wickham (ward)
+        - Dr. Cortelyon (partner)
+      public_persona: chaperon to Miss Wickham
+      private_secret: accomplice in murder and fraud
+      motive_seed: financial gain
+      motive_strength: strong
+      alibi_window: present at suspicious times
+      access_plausibility: high
+      opportunity_channels:
+        - access to house and victim
+      behavioral_tells:
+        - calm under pressure
+        - deceptive
+      stakes: money and freedom
+      evidence_sensitivity:
+        - found with stolen money
+        - letters linking to Cortelyon
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: female
+      role: culprit
+      moral_complexity: high
+    - name: Dr. Cortelyon (Dr. Martincole)
+      age_range: 50-60
+      role_archetype: doctor and mastermind murderer
+      relationships:
+        - Mrs. Killenhall (accomplice)
+        - John Ashton (victim)
+      public_persona: respectable doctor
+      private_secret: murderer and conspirator
+      motive_seed: gain possession of secret papers and wealth
+      motive_strength: strong
+      alibi_window: present near crime scene
+      access_plausibility: high
+      opportunity_channels:
+        - access to victim's house and papers
+      behavioral_tells:
+        - calm demeanor
+        - secretive
+      stakes: wealth and power
+      evidence_sensitivity:
+        - found with stolen diamond and papers
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+  culpability:
+    culprit_count: 2
+    culprits:
+      - Dr. Cortelyon (Dr. Martincole)
+      - Mrs. Killenhall (Mrs. Killerby)
+  surface_model:
+    narrative:
+      summary: >-
+        John Ashton, a wealthy man recently settled in London, is found murdered in a narrow
+        passage. Langton Hyde, an impoverished actor, is arrested for the crime after being seen
+        fleeing the scene with one of Ashton's rings. However, a complex investigation reveals a
+        secret involving the Ellingham title and estates, leading to the uncovering of imposture and
+        conspiracy.
+    accepted_facts:
+      - John Ashton was murdered in Lonsdale Passage, stabbed through the heart.
+      - Langton Hyde was seen fleeing the scene and found with one of Ashton's rings.
+      - Ashton possessed secret papers relating to the Ellingham title and estates.
+      - Miss Wickham is Ashton's ward and heir to his fortune.
+    inferred_conclusions:
+      - Langton Hyde was the murderer motivated by robbery.
+      - The murder was a simple robbery gone wrong.
+      - Mrs. Killenhall and Dr. Cortelyon were innocent parties.
+  hidden_model:
+    mechanism:
+      description: >-
+        Dr. Cortelyon, motivated by greed for the secret papers and wealth, murdered John Ashton by
+        stabbing him in the back in a narrow passage. Mrs. Killenhall acted as his accomplice,
+        assisting in the conspiracy and attempting to defraud Miss Wickham. They planted evidence to
+        implicate Langton Hyde, who was innocent and unwittingly involved.
+      delivery_path:
+        - step: Dr. Cortelyon awaited Ashton in the passage, knowing his habits.
+        - step: He stabbed Ashton swiftly with a keen-edged weapon through the heart.
+        - step: The body was placed in the passage to be discovered.
+        - step: Mrs. Killenhall and Cortelyon removed important papers and valuables.
+        - step: They planted some papers and valuables with Langton Hyde to frame him.
+        - step: Hyde found the ring and fled, unaware of the murder details.
+        - step: The conspirators attempted to manipulate the inheritance and cover their tracks.
+    outcome:
+      result: >-
+        Dr. Cortelyon and Mrs. Killenhall are arrested and charged with the murder of John Ashton,
+        clearing Langton Hyde and restoring Miss Wickham's rightful inheritance.
+  false_assumption:
+    statement: Langton Hyde was the murderer who killed Ashton for robbery.
+    type: identity
+    why_it_seems_reasonable: >-
+      Hyde was seen fleeing the scene with one of the victim's rings and was found in possession of
+      a knife matching the murder weapon. The circumstantial evidence strongly pointed to him.
+    what_it_hides: >-
+      It conceals the involvement of the real murderer, Dr. Cortelyon, and the conspiracy to frame
+      Hyde, as well as the true motive related to secret papers and inheritance.
+  false_solution:
+    accused_suspect: Langton Hyde (Edward Cave, Nugent Starr)
+    supporting_points:
+      - Seen running away from the murder scene
+      - Found with one of Ashton's diamond rings
+      - Possessed a knife similar to the murder weapon
+      - Confessed to picking up the ring near the body
+    the_one_flaw: >-
+      Hyde had no motive to kill and was starving, making it unlikely he committed the murder;
+      planted evidence was used to implicate him.
+    refuted_in_chapter: 28
+  red_herrings:
+    - id: diamond_ring_pawn
+      description: Hyde's attempt to pawn a diamond ring taken from the victim was used as evidence of guilt.
+      points_at_suspect: Langton Hyde
+      innocent_explanation: >-
+        Hyde was starving and desperate, unaware of the ring's true value and innocence of the
+        murder.
+      resolved_in_chapter: 22
+    - id: claimant_lord_marketstoke
+      description: >-
+        A man claiming to be the missing Lord Marketstoke appeared with documents stolen from
+        Ashton, confusing the inheritance issue.
+      points_at_suspect: The claimant (Edward Cave)
+      innocent_explanation: The claimant was a cat's-paw used by the real murderer to mislead the investigation.
+      resolved_in_chapter: 23
+  closed_circle:
+    suspects:
+      - Langton Hyde (Edward Cave, Nugent Starr)
+      - Mrs. Killenhall (Mrs. Killerby)
+      - Dr. Cortelyon (Dr. Martincole)
+    rationale: >-
+      The suspects were limited to those with access to Ashton and motive related to the secret
+      papers and inheritance; others were excluded by alibis or lack of opportunity.
+  constraint_space:
+    time:
+      anchors:
+        - Night of November 22, murder discovered shortly after 10 pm
+        - Hyde seen fleeing immediately after murder
+        - Hyde's pawn attempt on November 23 morning
+        - Inquest and court proceedings within days after murder
+      windows:
+        - Murder occurred within minutes in the passage
+        - Hyde's presence in shed overnight
+        - Meetings and visits by suspects during investigation
+    access:
+      actors:
+        - Dr. Cortelyon had access to Ashton's house and passage
+        - Mrs. Killenhall had access as companion and chaperon
+        - Hyde had access to passage but no key or house access
+      objects:
+        - Ashton's papers and valuables
+        - Victim's house and passage
+        - Pawnshop for ring
+    social:
+      trust_channels:
+        - Miss Penkridge's communication with Bigglesforth
+        - Solicitors' offices and legal correspondence
+        - Police and detective cooperation
+      authority_sources:
+        - Metropolitan Police Inspector Drillford
+        - Solicitors Pawle, Carless, Methley
+        - Coroner's inquest and magistrate's court
+  inference_path:
+    steps:
+      - observation: Hyde was seen fleeing the passage with a ring
+        correction: Hyde only picked up the ring after the murder
+        effect: Hyde is likely innocent of murder
+        required_evidence:
+          - Viner's witness statement of seeing Hyde flee
+          - Hyde's testimony at magistrate's court
+        reader_observable: true
+      - observation: Valuables found in shed where Hyde stayed
+        correction: Valuables were planted to frame Hyde
+        effect: Real murderer is someone else
+        required_evidence:
+          - Papers with chemical smell wrapping found in shed
+          - Hyde's lack of money and starvation
+        reader_observable: true
+      - observation: Claimant produces documents proving identity
+        correction: Documents were stolen from Ashton and used in conspiracy
+        effect: Claimant is a cat's-paw
+        required_evidence:
+          - Methley and Woodlesford's solicitor testimony
+          - Mr. Cave's inconsistent story and missing finger
+        reader_observable: true
+      - observation: Miss Penkridge identifies typewriter and stationery clues
+        correction: Dr. Cortelyon owns the defective typewriter and stationery
+        effect: Cortelyon is linked to forged documents and conspiracy
+        required_evidence:
+          - Bigglesforth's testimony about Cortelyon's stationery and typewriter
+          - Typewritten letter with defective letter 'o'
+        reader_observable: true
+      - observation: Mrs. Killenhall cashed a check for ten thousand pounds
+        correction: She defrauded Miss Wickham using a blank check
+        effect: Mrs. Killenhall is involved in criminal conspiracy
+        required_evidence:
+          - Bank manager's statement of check cashing
+          - Miss Wickham's testimony about usual check amounts
+        reader_observable: true
+      - observation: >-
+          Dr. Cortelyon found with stolen diamond, ring, and papers; evidence of secret motive,
+          greed, and conspiracy for wealth
+        correction: He is the murderer and mastermind, motivated by greed for secret papers and wealth
+        effect: Cortelyon is the true culprit
+        required_evidence:
+          - Police seizure of items from Cortelyon's possession
+          - Letters and documents showing Cortelyon's secret motive, greed, and desire for wealth
+        reader_observable: true
+      - observation: Claimant's missing finger was recently amputated
+        correction: Finger removal was a deliberate attempt to imitate real Lord Marketstoke
+        effect: Claimant is an impostor
+        required_evidence:
+          - Portlethwaite's medical observation of finger scar
+          - Historical record of Lord Marketstoke's missing finger
+        reader_observable: true
+  discriminating_test:
+    method: trap
+    design: >-
+      The claimant was brought before solicitors who knew the real Lord Marketstoke and the missing
+      finger detail. They observed the claimant's hand to see if the middle finger was missing and
+      examined his knowledge of family history and documents. The test revealed the claimant's
+      recent finger amputation inconsistent with the historical injury, exposing him as an impostor.
+    knowledge_revealed: >-
+      The claimant's physical and documentary evidence did not match the real Lord Marketstoke,
+      proving he was a fraud used by the real murderer to mislead the investigation.
+    pass_condition: >-
+      The claimant must have the middle finger of his right hand missing with a recent scar; failure
+      to meet this condition exposes imposture.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given detailed descriptions of characters, their movements, and the evidence
+      found, including the defective typewriter letter, the missing finger detail, and the
+      suspicious behavior of Mrs. Killenhall and Dr. Cortelyon. Clues such as the chemical-smelling
+      papers and the planted valuables are presented openly. The involvement of the claimant as a
+      cat's-paw is hinted through inconsistencies and the legal scrutiny. The reader could have
+      solved the case by piecing together these clues and questioning the motives behind the planted
+      evidence.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

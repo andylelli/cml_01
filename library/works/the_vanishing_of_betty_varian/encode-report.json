@@ -1,0 +1,136 @@
+{
+ "slug": "the_vanishing_of_betty_varian",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Frederick Varian was found shot dead in the hall",
+   "anchor": "Mr Frederick Varian sprawled at full length on the floor of the hall",
+   "span": "But this question needed no answer, for as they mounted the steps of the verandah and neared the open front door, they were confronted by the sight of Mr Frederick Varian sprawled at full length on the floor of the hall.",
+   "ok": true
+  },
+  {
+   "claim": "Betty Varian disappeared after returning alone for her camera",
+   "anchor": "She was gone so long, that we wondered",
+   "span": "She was gone so long, that we wondered,-and then, her father went to hurry her up.",
+   "ok": true
+  },
+  {
+   "claim": "No secret passage found in the house after thorough search",
+   "anchor": "there isn’t any foot of space left unaccounted for on these papers",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Yellow satin pillow found on kitchen floor, out of place",
+   "anchor": "yellow satin cushion in the middle of the kitchen floor",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Green stain found on dead maid’s hand",
+   "anchor": "dark green streak, of some sort, that spread entirely across the palm",
+   "span": "It showed a dark green streak, of some sort, that spread entirely across the palm.",
+   "ok": true
+  },
+  {
+   "claim": "Lawrence North disappeared from locked house with signs of struggle",
+   "anchor": "Lawrence North had disappeared! His room showed signs of a struggle",
+   "span": "And the next morning they found that Lawrence North had disappeared! His room showed signs of a struggle.",
+   "ok": true
+  },
+  {
+   "claim": "Ransom letters signed 'Step' demand money for Betty’s return",
+   "anchor": "signed “Step.” and Minna read it with a look of utter perplexity",
+   "span": "This brief message was signed \"Step.\" and Minna read it with a look of utter perplexity.",
+   "ok": true
+  },
+  {
+   "claim": "Pennington Wise discovers secret tunnel connecting well and cave",
+   "anchor": "he found there was an aperture large enough to permit a man’s body to pass through",
+   "span": "When all that were loose had been either pulled out or pushed in, he found there was an aperture large enough to permit a man's body to pass through, and without hesitation, he scrambled through it.",
+   "ok": true
+  },
+  {
+   "claim": "Betty was abducted through the kitchen and cellar using secret passage",
+   "anchor": "Betty was carried through the kitchen where the pillow fell",
+   "span": "What we know is, that Betty was carried through the kitchen where the pillow fell,-still holding one of her hair-pins, probably caught during the struggle,-and she was carried down the cellar stairs.",
+   "ok": true
+  },
+  {
+   "claim": "Martha was murdered by strangulation after discovering attempted robbery",
+   "anchor": "he ruthlessly strangled the poor thing to death",
+   "span": "And he was spied upon and discovered by the maid, Martha, so that he ruthlessly strangled the poor thing to death, rather than face exposure.",
+   "ok": true
+  },
+  {
+   "claim": "Lawrence North staged his own kidnapping to mislead investigators",
+   "anchor": "North began to feel that my suspicions were beginning to turn in his direction",
+   "span": "You see, at that time, North began to feel that my suspicions were beginning to turn in his direction, and he thought by pretending to be abducted himself, he would argue a bold and wicked kidnapper again at work.",
+   "ok": true
+  },
+  {
+   "claim": "Trap set by Wise to catch intruder at cellar door",
+   "anchor": "short-barreled shotgun which was mounted on an improvised gun carriage",
+   "span": "It consisted of a short-barreled shotgun which was mounted on an improvised gun carriage, made of a strong packing box.",
+   "ok": true
+  },
+  {
+   "claim": "Lawrence North is wounded by the trap and confesses before dying",
+   "anchor": "Lawrence North! ... He received the full charge in the abdomen",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Betty Varian was not biological daughter of Frederick Varian",
+   "anchor": "Betty was really kidnapped. That those letters you have received are from the abductors",
+   "span": "He's discovered, at least to his own conviction, that Betty was really kidnapped. That those letters you have received are from the abductors and that through them we must hope to trace Betty's present whereabouts.",
+   "ok": true
+  },
+  {
+   "claim": "The secret of Betty’s birth was a substitution at birth with Mrs Curtis’ child",
+   "anchor": "the lovely Curtis child for the dead Varian baby",
+   "span": "It was Nurse Black who thought of the plan of substituting the lovely Curtis child for the dead Varian baby, and we proposed it to Mr Varian.",
+   "ok": true
+  },
+  {
+   "claim": "Betty was found alive in captivity in Vermont",
+   "anchor": "Pretty Betty ... ran straight into Granniss’ arms",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Betty was abducted by two men including Lawrence North",
+   "anchor": "North held Betty while the other man, who was Joe Mills, fought Frederick Varian",
+   "span": "North held Betty while the other man, who was Joe Mills, fought Frederick Varian, and, in the struggle, shot him.",
+   "ok": true
+  },
+  {
+   "claim": "Betty’s string of beads broke during abduction struggle",
+   "anchor": "her string of beads broke, and were scattered about",
+   "span": "During this trip her string of beads broke, and were scattered about.",
+   "ok": true
+  },
+  {
+   "claim": "Betty tried to communicate by lip-reading in a moving picture crowd",
+   "anchor": "she was sure she said, “I am Betty Varian,—I am Betty Varian.”",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Lawrence North was the blackmailer signing letters 'Step'",
+   "anchor": "‘Step’ was short for Stepfather!",
+   "span": "",
+   "ok": false
+  }
+ ],
+ "costGbp": 0.05126243639999999,
+ "models": {
+  "map": "gpt-4o-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

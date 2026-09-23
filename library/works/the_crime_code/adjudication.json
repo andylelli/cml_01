@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "Lionel Hipwell was the murderer of Monkey Dick.",
+  "type": "behavioral",
+  "why_it_seems_reasonable": "Lionel fled the scene immediately after the shooting and was described by witnesses, making him the prime suspect. The victim was a known criminal, and Lionel’s flight suggested guilt.",
+  "what_it_hides": "The shooting was accidental during self-defense, and the victim shot himself. Lionel’s flight was due to fear of wrongful accusation and scandal, not guilt."
+ },
+ "mechanism_description": "The murder of Monkey Dick was accidental during a struggle in self-defense when he attacked Lionel. Lionel was drugged and manipulated by the criminal gang led by Felix Zuroff, which used him as an expert jewel thief under the guise of his official duties. Joan Gell was kidnapped by the gang as revenge against her father, the prosecutor. Illona, Lionel’s secret wife and gang member, acted out of jealousy and to maintain control over Lionel. Ultimately, the gang’s internal conflicts and police investigations led to the rescue of Joan and the death of Illona by suicide.",
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "Reenact the struggle in Bloomsbury Square with the same participants and setting to observe the shooting dynamics and verify if the victim could have shot himself accidentally during the altercation.",
+  "knowledge_revealed": "Confirms that Monkey Dick’s death was accidental and self-inflicted during the struggle, exonerating Lionel from intentional murder.",
+  "pass_condition": "The reenactment shows the victim’s gun discharges accidentally during the scuffle without intentional aim at Lionel."
+ },
+ "changed": [],
+ "confidence": "high"
+}

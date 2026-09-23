@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "David Hume-Frazer was guilty of murdering his cousin Sir Alan.",
+  "type": "identity",
+  "why_it_seems_reasonable": "David was found asleep in the library at the time of the murder and had a known family dispute with Sir Alan. Witnesses and circumstantial evidence pointed to him.",
+  "what_it_hides": "The existence of a third man, Ooma, who resembled David and committed the murder while David was asleep."
+ },
+ "mechanism_description": "Mr. Ooma, a Japanese descendant of the original David Hume, committed the murder of Sir Alan Hume-Frazer to obtain incriminating family documents that could be used for blackmail. He used the Ko-Katana sword to kill Sir Alan after forcing open the drawer to steal the papers. Later, Ooma also killed Giovanni Capella to prevent interference. Ooma was ultimately confronted and died after injecting himself with snake poison during his arrest.",
+ "discriminating_test": {
+  "method": "trap",
+  "design": "A controlled confrontation at Beechcroft is arranged where Ooma is cornered in the library. The room is secured, and Ooma is challenged to surrender. The presence of the hypodermic syringe and the Ko-Katana sword are confirmed. The suspects are observed for reactions and attempts to escape or attack.",
+  "knowledge_revealed": "This test reveals Ooma's identity as the murderer through his possession of the murder weapon and his violent reaction. It also confirms his intent to kill the cousins and his use of poison.",
+  "pass_condition": "The suspect is caught in possession of the murder weapon and cannot escape or resist arrest without revealing guilt."
+ },
+ "changed": [],
+ "confidence": "high"
+}

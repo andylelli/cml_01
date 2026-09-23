@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "The peace proposals bearing the signatures of the Kaiser, Chancellor, and Hindenburg are authentic and represent the German Socialist Party’s true position.",
+  "type": "identity",
+  "why_it_seems_reasonable": "The documents are presented with official-looking signatures and come through trusted channels within the Labour Council. The correspondence is consistent with known Socialist contacts.",
+  "what_it_hides": "The signatures are forged, and the documents are part of a German militarist plot to deceive and manipulate British Labour and government into a premature armistice."
+ },
+ "mechanism_description": "Nicholas Fenn, secretly bribed by German militarists, fabricated and manipulated the peace proposals to deceive the Labour Council and the British government. He destroyed original communications and forged letters to create a false impression of German Socialist strength. The plot aimed to force a premature armistice under false pretenses, benefiting German war aims.",
+ "discriminating_test": {
+  "method": "constraint_proof",
+  "design": "The Council reviews original communications from Freistner to verify authenticity. They compare signatures and cross-check with known handwriting samples and trusted witnesses. The test also involves verifying Fenn’s financial records to detect bribery.",
+  "knowledge_revealed": "This test reveals that the original letters have been destroyed, the signatures are forged, and Fenn has been bribed by German agents.",
+  "pass_condition": "The originals cannot be produced and financial records show unexplained large deposits from German sources."
+ },
+ "changed": [],
+ "confidence": "high"
+}

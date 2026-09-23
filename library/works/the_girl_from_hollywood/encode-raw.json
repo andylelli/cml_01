@@ -1,0 +1,484 @@
+{
+ "decade": "1920s",
+ "realism_constraints": [
+  "No forensic DNA or modern forensic science available",
+  "Communication limited to telephones and telegrams, no mobile phones or internet",
+  "Law enforcement procedures include grand juries and preliminary hearings but no modern surveillance technology"
+ ],
+ "location": "Rancho del Ganado, California foothills and Hollywood",
+ "institution": "United States Federal Grand Jury and local law enforcement",
+ "crime_category": "murder",
+ "crime_subtype": "framing by narcotics gang and mistaken identity",
+ "cast": [
+  {
+   "name": "Custer Pennington",
+   "age_range": "30s",
+   "role_archetype": "honorable scion of a ranching family",
+   "role": "victim",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "eligible",
+   "public_persona": "rancher and family man",
+   "private_secret": "struggles with drinking, secretly loved Shannon",
+   "motive_seed": "jealousy and protection of Shannon",
+   "motive_strength": "strong",
+   "alibi_window": "night of murder, claimed to be in room but unproven",
+   "access_plausibility": "high",
+   "stakes": "high, facing death penalty",
+   "moral_complexity": "high",
+   "relationships": [
+    "Eva Pennington (sister)",
+    "Colonel Pennington (father)",
+    "Shannon Burke (lover)",
+    "Guy Evans (friend)"
+   ],
+   "opportunity_channels": [
+    "riding to Jackknife Cañon",
+    "access to pistol"
+   ],
+   "behavioral_tells": [
+    "drinking relapse",
+    "anger and jealousy toward Shannon"
+   ],
+   "evidence_sensitivity": [
+    "missing horseshoe found at crime scene",
+    "gun found in room"
+   ]
+  },
+  {
+   "name": "Shannon Burke (Gaza de Lure)",
+   "age_range": "20s",
+   "role_archetype": "fallen actress and addict turned redeemed",
+   "role": "witness",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "friend and guest of Pennington family",
+   "private_secret": "former narcotics addict and peddler, past with Wilson Crumb",
+   "motive_seed": "love for Custer and desire to protect him",
+   "motive_strength": "strong",
+   "alibi_window": "night of murder, no direct alibi",
+   "access_plausibility": "medium",
+   "stakes": "high, risking reputation and friendship",
+   "moral_complexity": "high",
+   "relationships": [
+    "Custer Pennington (lover)",
+    "Eva Pennington (friend)",
+    "Wilson Crumb (ex-lover)"
+   ],
+   "opportunity_channels": [
+    "visited crime scene early morning",
+    "had motive to kill Crumb"
+   ],
+   "behavioral_tells": [
+    "nervous strain during trial",
+    "attempted to obliterate tracks"
+   ],
+   "evidence_sensitivity": [
+    "seen sweeping trail near crime scene",
+    "confession of killing Crumb"
+   ]
+  },
+  {
+   "name": "Guy Thackeray Evans",
+   "age_range": "20s",
+   "role_archetype": "weak-willed youth drawn into crime",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "aspiring author, fiancé to Eva",
+   "private_secret": "bootlegger and murderer of Wilson Crumb",
+   "motive_seed": "revenge for sister Grace’s downfall and death",
+   "motive_strength": "strong",
+   "alibi_window": "night of murder, no alibi",
+   "access_plausibility": "high",
+   "stakes": "high, mental collapse and risk of imprisonment",
+   "moral_complexity": "high",
+   "relationships": [
+    "Eva Pennington (fiancée)",
+    "Grace Evans (sister, deceased)",
+    "Custer Pennington (friend and victim of framing)"
+   ],
+   "opportunity_channels": [
+    "rode to Crumb’s camp and shot him"
+   ],
+   "behavioral_tells": [
+    "mental breakdown",
+    "confession to Shannon and Custer"
+   ],
+   "evidence_sensitivity": [
+    "confession",
+    "recollection triggered by photo of Eva"
+   ]
+  },
+  {
+   "name": "Eva Pennington",
+   "age_range": "late teens",
+   "role_archetype": "innocent sister",
+   "role": "bystander",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "daughter of Pennington family",
+   "private_secret": "attempted suicide due to family disgrace",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "not applicable",
+   "access_plausibility": "none",
+   "stakes": "emotional",
+   "moral_complexity": "low",
+   "relationships": [
+    "Custer Pennington (brother)",
+    "Guy Evans (fiancé)",
+    "Shannon Burke (friend)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Colonel Custer Pennington",
+   "age_range": "50s",
+   "role_archetype": "patriarch",
+   "role": "bystander",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "ranch owner and father",
+   "private_secret": "deep love and pride for family",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "not applicable",
+   "access_plausibility": "none",
+   "stakes": "emotional",
+   "moral_complexity": "low",
+   "relationships": [
+    "Custer Pennington (son)",
+    "Eva Pennington (daughter)",
+    "Mrs. Pennington (wife)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Wilson Crumb",
+   "age_range": "40s",
+   "role_archetype": "villainous actor-director and drug peddler",
+   "role": "victim",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "actor-director",
+   "private_secret": "drug addict and narcotics trafficker",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "victim",
+   "access_plausibility": "n/a",
+   "stakes": "high",
+   "moral_complexity": "high",
+   "relationships": [
+    "Gaza de Lure (ex-lover)",
+    "Grace Evans (victim of abuse)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "drug addiction",
+    "manipulative behavior"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Slick Allen",
+   "age_range": "30s-40s",
+   "role_archetype": "criminal bootlegger and narcotics peddler",
+   "role": "suspect",
+   "gender": "male",
+   "culpability": "unknown",
+   "culprit_eligibility": "eligible",
+   "public_persona": "ranch hand",
+   "private_secret": "drug dealer and criminal",
+   "motive_seed": "revenge and greed",
+   "motive_strength": "moderate",
+   "alibi_window": "unknown",
+   "access_plausibility": "high",
+   "stakes": "high",
+   "moral_complexity": "high",
+   "relationships": [
+    "Guy Evans (associate)",
+    "Wilson Crumb (associate)"
+   ],
+   "opportunity_channels": [
+    "knowledge of bootlegging operations"
+   ],
+   "behavioral_tells": [
+    "threats to Guy and Custer"
+   ],
+   "evidence_sensitivity": []
+  }
+ ],
+ "culprits": [
+  "Guy Thackeray Evans"
+ ],
+ "surface_summary": "Custer Pennington is arrested and convicted for the murder of Wilson Crumb, a narcotics peddler and actor-director. Shannon Burke, a former addict and friend of the Penningtons, is also charged but later acquitted. The case appears straightforward with circumstantial evidence pointing to Custer, but underlying criminal activities and family secrets complicate the truth.",
+ "accepted_facts": [
+  "Wilson Crumb was found dead with a gunshot wound.",
+  "Custer Pennington was found near the crime scene with the victim’s horseshoe.",
+  "Shannon Burke had a past association with Crumb and was seen erasing tracks near the body.",
+  "Guy Evans was involved in bootlegging stolen whisky and had motive against Crumb."
+ ],
+ "inferred_conclusions": [
+  "Custer Pennington was the murderer motivated by jealousy and love.",
+  "Shannon Burke was an accomplice or accessory to the murder.",
+  "Guy Evans was innocent and uninvolved in the murder."
+ ],
+ "mechanism_description": "Guy Evans killed Wilson Crumb in revenge for Crumb’s role in the downfall and death of his sister Grace. Evans rode to Crumb’s camp, confronted him, and shot him. To divert suspicion, Slick Allen planted evidence implicating Custer Pennington by placing the horse’s missing shoe under the body and misleading authorities. Shannon Burke, unaware of the full truth, initially tried to protect Custer by erasing tracks.",
+ "delivery_path": [
+  "Guy Evans learns of Crumb’s abuse and death of his sister Grace.",
+  "Evans obtains a pistol and rides to Crumb’s camp in Jackknife Cañon.",
+  "Evans confronts and shoots Crumb during a nighttime encounter.",
+  "Evans hides the pistol and rides away to avoid suspicion.",
+  "Slick Allen, fearing exposure, plants Custer Pennington’s horseshoe at the crime scene.",
+  "Authorities arrest Custer based on circumstantial evidence and planted clues.",
+  "Shannon Burke attempts to erase tracks, unknowingly complicating the investigation."
+ ],
+ "outcome_result": "Guy Evans confesses to the murder, exonerating Custer Pennington, who is released before execution.",
+ "false_assumption": {
+  "statement": "Custer Pennington was the murderer because he was found near the crime scene with incriminating evidence.",
+  "type": "identity",
+  "why_it_seems_reasonable": "Custer was found with the victim’s horseshoe and had no solid alibi, and circumstantial evidence and witness testimony pointed to him. The prosecution presented a coherent narrative of jealousy and opportunity.",
+  "what_it_hides": "It hides the fact that the real murderer was Guy Evans, who had motive and opportunity, and that the evidence was planted by a third party to frame Custer."
+ },
+ "false_solution": {
+  "accused_suspect": "Custer Pennington",
+  "supporting_points": [
+   "Found near the crime scene with the victim’s horseshoe under the body",
+   "Had a pistol matching the murder weapon in his room",
+   "Was seen riding near the victim’s camp on the night of the murder",
+   "Had a motive of jealousy and love for Shannon Burke"
+  ],
+  "the_one_flaw": "The evidence was circumstantial and some was planted by a criminal associate to frame him.",
+  "refuted_in_chapter": 34
+ },
+ "red_herrings": [
+  {
+   "id": "shannon_burke_suspicious_behavior",
+   "description": "Shannon Burke was seen sweeping the trail near the murder scene and had a past with the victim.",
+   "points_at_suspect": "Shannon Burke",
+   "innocent_explanation": "She was trying to erase tracks to protect Custer, not to hide her own guilt.",
+   "resolved_in_chapter": 34
+  },
+  {
+   "id": "slick_allen_threats_and_criminality",
+   "description": "Slick Allen’s threats and criminal background suggested he might have committed the murder or framed others.",
+   "points_at_suspect": "Slick Allen",
+   "innocent_explanation": "Allen was involved in narcotics and bootlegging but did not commit the murder; he planted evidence to protect himself.",
+   "resolved_in_chapter": 34
+  }
+ ],
+ "closed_circle": {
+  "suspects": [
+   "Custer Pennington",
+   "Shannon Burke (Gaza de Lure)",
+   "Guy Thackeray Evans",
+   "Slick Allen"
+  ],
+  "rationale": "The suspects were limited to those with access to the victim and motive: Custer for jealousy, Shannon for association, Guy for revenge, and Allen for criminal self-protection."
+ },
+ "constraint_space": {
+  "time_anchors": [
+   "Friday nights when the burros come down",
+   "Night of murder (Saturday night)",
+   "Early morning after murder (5 a.m.)",
+   "Trial and conviction period",
+   "Execution date"
+  ],
+  "time_windows": [
+   "Night of murder until early morning",
+   "Friday night burro runs",
+   "Daytime rides and activities",
+   "Trial and sentencing dates"
+  ],
+  "access_actors": [
+   "Custer Pennington",
+   "Guy Evans",
+   "Shannon Burke",
+   "Slick Allen",
+   "Bartolo (Mexican gang member)"
+  ],
+  "access_objects": [
+   "Wilson Crumb’s bungalow",
+   "Burro pack train",
+   "Pennington ranch and stables",
+   "Trail through Jackknife Cañon",
+   "Pistol used in murder"
+  ],
+  "trust_channels": [
+   "Friendship between Custer and Guy",
+   "Family trust in Shannon",
+   "Criminal trust between Allen and Evans",
+   "Information from Mexican gang"
+  ],
+  "authority_sources": [
+   "United States marshal and deputies",
+   "District attorney",
+   "Court and grand jury",
+   "Doctors Baldwin and Carruthers"
+  ]
+ },
+ "inference_path": [
+  {
+   "observation": "Missing horseshoe found under Crumb’s body matched Custer’s horse shoes",
+   "correction": "Allen admitted to planting the horseshoe to frame Custer",
+   "effect": "Discredits direct physical evidence against Custer",
+   "required_evidence": [
+    "Testimony of Slick Allen admitting planting the horseshoe",
+    "Physical horseshoe recovered from crime scene"
+   ]
+  },
+  {
+   "observation": "Shannon Burke was seen sweeping the trail near the crime scene",
+   "correction": "She was trying to erase tracks to protect Custer, not hide her own guilt",
+   "effect": "Explains suspicious behavior without implicating her in murder",
+   "required_evidence": [
+    "Witness statement of camp flunky seeing Shannon sweeping",
+    "Shannon’s testimony about her actions"
+   ]
+  },
+  {
+   "observation": "Guy Evans had motive and was involved in bootlegging stolen whisky",
+   "correction": "Guy’s confession revealed he killed Crumb in revenge for his sister’s death",
+   "effect": "Identifies true murderer and motive",
+   "required_evidence": [
+    "Guy Evans’s confession to Shannon and Custer",
+    "Testimony about Grace Evans’s death and Crumb’s role"
+   ]
+  },
+  {
+   "observation": "Custer was found with a pistol matching the murder weapon",
+   "correction": "No evidence Shannon ever possessed such a pistol; Guy killed Crumb",
+   "effect": "Weakens prosecution’s motive and weapon evidence against Custer",
+   "required_evidence": [
+    "Testimony of Japanese servant about Shannon’s lack of pistol",
+    "Ballistics evidence linking bullet to pistol found in Custer’s room"
+   ]
+  },
+  {
+   "observation": "Shannon’s testimony about killing Crumb was inconsistent with physical evidence",
+   "correction": "She confessed to killing Crumb to protect Custer but did not have the murder weapon",
+   "effect": "Suggests false confession to shield Custer",
+   "required_evidence": [
+    "Shannon’s testimony",
+    "Ballistics and witness testimony about murder weapon"
+   ]
+  },
+  {
+   "observation": "Allen’s sudden change of heart and testimony supporting Shannon",
+   "correction": "Allen is Shannon’s father and sought to protect her and implicate Custer",
+   "effect": "Explains motive behind framing and evidence planting",
+   "required_evidence": [
+    "Allen’s testimony and confession",
+    "District attorney’s office investigation"
+   ]
+  },
+  {
+   "observation": "Bartolo’s threats to Shannon and involvement in narcotics gang",
+   "correction": "Bartolo coerced Shannon to protect Custer and himself from exposure",
+   "effect": "Shows criminal gang’s role in framing and intimidation",
+   "required_evidence": [
+    "Shannon’s testimony about Bartolo’s threats",
+    "Mexican gang’s activities and Allen’s statements"
+   ]
+  }
+ ],
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "Reenact the movements of the horses and riders on the night of the murder, including the timing of the pack train and the location of the murder. Compare the horseshoes and tracks found at the scene with those of the Pennington horses and the burros. Verify the presence or absence of the murder weapon with each suspect.",
+  "knowledge_revealed": "This test reveals who had physical access to the crime scene at the time of the murder and whose horseshoes and tracks match those found. It also clarifies who could have carried the murder weapon.",
+  "pass_condition": "The reenactment confirms that only Guy Evans’s movements and horse tracks align with the murder scene and timing, and that the murder weapon was not in Shannon’s possession."
+ },
+ "fair_play_explanation": "The reader is given detailed descriptions of the characters’ movements, the timing of the pack train, and the physical evidence such as horseshoes and tracks. Shannon’s suspicious behavior and Allen’s threats are presented with plausible innocent explanations. The confession of Guy Evans and the planting of evidence by Allen are foreshadowed through dialogue and character interactions. Careful attention to these clues allows the reader to deduce the true culprit and the framing scheme.",
+ "anchors": [
+  {
+   "claim": "The victim was found lying on his back with a gunshot wound",
+   "anchor": "body lying under the big tree there"
+  },
+  {
+   "claim": "The missing horseshoe found at the crime scene belonged to the Apache",
+   "anchor": "horseshoe that had lain underneath the body"
+  },
+  {
+   "claim": "Guy Evans confessed to killing Wilson Crumb",
+   "anchor": "Guy who killed Wilson Crumb"
+  },
+  {
+   "claim": "Shannon Burke was seen sweeping the trail near the murder scene",
+   "anchor": "girl dragging the branch of a tree after her"
+  },
+  {
+   "claim": "Slick Allen planted the horseshoe to frame Custer Pennington",
+   "anchor": "I can tell one of his shoes in a million"
+  },
+  {
+   "claim": "Custer Pennington was arrested with the murder weapon found in his room",
+   "anchor": "gun found in his room"
+  },
+  {
+   "claim": "Shannon Burke confessed to killing Crumb to protect Custer",
+   "anchor": "I rode up there and shot him"
+  },
+  {
+   "claim": "Allen is Shannon Burke’s father and turned state’s evidence",
+   "anchor": "Allen told me this morning, in the district attorney’s office, what it was"
+  },
+  {
+   "claim": "Bartolo threatened Shannon to keep her silent",
+   "anchor": "You better off up here alongside Gracial"
+  },
+  {
+   "claim": "Custer Pennington and Shannon Burke were arrested for murder",
+   "anchor": "warrant here for your arrest"
+  },
+  {
+   "claim": "Eva Pennington attempted suicide due to family disgrace",
+   "anchor": "My little girl, my little girl! Why did you do it?"
+  },
+  {
+   "claim": "Custer Pennington was sentenced to death",
+   "anchor": "Custer Pennington was to pay the death penalty"
+  },
+  {
+   "claim": "Governor granted a stay of execution based on new evidence",
+   "anchor": "The Governor has granted a stay of execution"
+  },
+  {
+   "claim": "Guy Evans confessed and was the true murderer",
+   "anchor": "Guy who killed Wilson Crumb"
+  },
+  {
+   "claim": "Wilson Crumb was a drug addict and trafficker",
+   "anchor": "Wilson Crumb, the famous actor-director"
+  },
+  {
+   "claim": "Shannon Burke destroyed her narcotics paraphernalia",
+   "anchor": "she emptied its contents into the lavatory"
+  },
+  {
+   "claim": "Custer Pennington and Shannon Burke declared innocent of murder",
+   "anchor": "jury returned a verdict in accordance with the public opinion"
+  },
+  {
+   "claim": "The murder weapon was a forty-five caliber pistol",
+   "anchor": "forty-five-caliber pistol"
+  },
+  {
+   "claim": "Shannon Burke was seen erasing tracks on the morning after the murder",
+   "anchor": "dragging the branch of a tree after her"
+  },
+  {
+   "claim": "Custer Pennington loved Shannon Burke",
+   "anchor": "I love you! I had to tell you"
+  }
+ ]
+}

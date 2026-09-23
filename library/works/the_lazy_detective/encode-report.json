@@ -1,0 +1,136 @@
+{
+ "slug": "the_lazy_detective",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "The burglary at Streetly House was discovered at eleven o'clock in the morning",
+   "anchor": "discovered one of the exhibition rooms, at eleven o'clock in the morning",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Penelope Noelson gave a hundred pound note to the detective",
+   "anchor": "Why did you give me a hundred pound note this morning?",
+   "span": "Why did you give me a hundred pound note this morning?\" Her eyes widened, and as she wheeled to face him her hands groped for the support of a chair.",
+   "ok": true
+  },
+  {
+   "claim": "Larry Hughes is suspected as the mastermind behind the burglary",
+   "anchor": "Nice look-out for us, an' the Yard not throwing any flowers our way as it is.",
+   "span": "Nice look-out for us, an' the Yard not throwing any flowers our way as it is.\" \"You said it, Bill,\" agreed Labar, rising, and pulling down his shirt sleeves.",
+   "ok": true
+  },
+  {
+   "claim": "Larry Hughes denies knowing Penelope Noelson initially",
+   "anchor": "I've never heard of the lady,",
+   "span": "I've never heard of the lady,\" said Larry easily, and rising, strolled to the mantel, and placed one arm upon it.",
+   "ok": true
+  },
+  {
+   "claim": "Larry Hughes threatens the detective with a gun",
+   "anchor": "The blue barrel of an automatic stared at Labar",
+   "span": "The blue barrel of an automatic stared at Labar, and Hughes' finger was tensed on the trigger.",
+   "ok": true
+  },
+  {
+   "claim": "Penelope Noelson was abducted by Larry Hughes",
+   "anchor": "She shouted, but before I could reach them they were gone.",
+   "span": "She shouted, but before I could reach them they were gone. That's all, sir.",
+   "ok": true
+  },
+  {
+   "claim": "Adèle Gertstein forged her husband's signature on a cheque",
+   "anchor": "She forged her husband's name to a cheque",
+   "span": "She forged her husband's name to a cheque--a silly thing to do because the forgery was bound to become known.",
+   "ok": true
+  },
+  {
+   "claim": "Larry Hughes uses a secret tunnel to hide stolen goods",
+   "anchor": "There is a secret panel in this room.",
+   "span": "There is a secret panel in this room. But as you see you started at the wrong end.",
+   "ok": true
+  },
+  {
+   "claim": "The secret tunnel leads to the coast near Romney Marshes",
+   "anchor": "They had reached a widening of several yards in the tunnel",
+   "span": "In a little they had reached a widening of several yards in the tunnel, which formed a sort of room, dimly lit by an oil lamp.",
+   "ok": true
+  },
+  {
+   "claim": "Larry Hughes escapes through the tunnel and is later captured on a train",
+   "anchor": "Larry Hughes was holding back Penelope with one hand while he faced about",
+   "span": "In the corner of the compartment farthest from him Larry Hughes was holding back Penelope with one hand while he faced about with a snarl of rage at the intruder.",
+   "ok": true
+  },
+  {
+   "claim": "Larry Hughes offers a bribe to the detective",
+   "anchor": "I'll give you fifteen thousand pounds and call it quits.",
+   "span": "I'll give you fifteen thousand pounds and call it quits.\" It was a tremendous offer, far beyond any sum that a police officer whatever his position might hope to attain by legitimate means.",
+   "ok": true
+  },
+  {
+   "claim": "Larry Hughes is finally arrested and sentenced",
+   "anchor": "imposition of a sentence of twenty years penal servitude upon Larry Hughes",
+   "span": "The reader of these pages will know more closely than most of those who heard the trial how the information was acquired that led to the imposition of a sentence of twenty years penal servitude upon Larry Hughes, and terms varying from ten years downwards upon the rest of his gang.",
+   "ok": true
+  },
+  {
+   "claim": "Solly Gertstein dies of heart failure upon learning of his wife's arrest",
+   "anchor": "Great Financier Dies of Heart Failure on Learning of his Wife's Arrest.",
+   "span": "Great Financier Dies of Heart Failure on Learning of his Wife's Arrest. \"A tragic episode was added to this great feat of Scotland Yard on the receipt of the news in London last night.",
+   "ok": true
+  },
+  {
+   "claim": "Stebbins was used to make wax impressions of keys",
+   "anchor": "He was given some instructions on the art of taking wax impressions of keys.",
+   "span": "After a few days, a man whom Stebbins did not know, was introduced to him and he was given some instructions on the art of taking wax impressions of keys. He was to use his ingenuity to get an impression of every key that he could lay his hands upon, particularly of one of a small back door that was rarely used.",
+   "ok": true
+  },
+  {
+   "claim": "Billy Bungey is shot and killed during a police encounter",
+   "anchor": "one of the Kent men has pretty well blown Billy Bungey's head off with a shot gun.",
+   "span": "We were too late to do anything ourselves, but one of the Kent men has pretty well blown Billy Bungey's head off with a shot gun. Billy's as dead a man as ever you saw.",
+   "ok": true
+  },
+  {
+   "claim": "Penelope Noelson and Harry Labar become engaged",
+   "anchor": "Thus Labar's betrothal was ratified.",
+   "span": "Thus Labar's betrothal was ratified. In spite of his gibes at himself he settled down to his new job at Scotland Yard with some prospect of success, partly because Winter had his eye on him, partly because the work that came his way was of a congenial type.",
+   "ok": true
+  },
+  {
+   "claim": "Larry Hughes admits he was undone by his involvement with Penelope",
+   "anchor": "I made a fool of myself over a woman.",
+   "span": "_ In other words I made a fool of myself over a woman.\" His glance rested for a moment on Penelope's face.",
+   "ok": true
+  },
+  {
+   "claim": "Larry Hughes is captured after a struggle on a train",
+   "anchor": "Larry was in the shemozzle, but there were only two constables and he plugged the one who laid Billy out.",
+   "span": "Larry was in the shemozzle, but there were only two constables and he plugged the one who laid Billy out. The other gave him both barrels but he doubts if he so much as winged him.",
+   "ok": true
+  },
+  {
+   "claim": "The secret tunnel was equipped with steel doors and storage boxes",
+   "anchor": "The walls of the tunnel room were lined with strong steel boxes",
+   "span": "The walls of the tunnel room were lined with strong steel boxes, the majority of which were unlocked.",
+   "ok": true
+  },
+  {
+   "claim": "Larry Hughes' gang was captured except for Larry and Billy Bungey",
+   "anchor": "every one of the gang who had been at 'Mope's Bottom,' except Larry and Billy Bungey, was safely in custody.",
+   "span": "",
+   "ok": false
+  }
+ ],
+ "costGbp": 0.11393000800000001,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

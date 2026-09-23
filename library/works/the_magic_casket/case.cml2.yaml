@@ -1,0 +1,847 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The magic casket
+    author: R. Austin (Richard Austin) Freeman
+    license: Public domain (first published 1927; author died 1943). Project Gutenberg ebook 76919.
+    era:
+      decade: 1910s
+      realism_constraints:
+        - No forensic DNA analysis available
+        - Limited chemical analysis for poisons and blood
+        - Communication by telegram and letters, no electronic devices
+    setting:
+      location: London and surrounding areas, England
+      institution: Scotland Yard and local police departments
+    crime_class:
+      category: murder
+      subtype: hidden message and staged evidence
+  cast:
+    - name: Dr. Thorndyke
+      age_range: 40-60
+      role_archetype: medical expert and investigator
+      relationships: []
+      public_persona: respected medical jurist
+      private_secret: keen observer with scientific methods
+      motive_seed: dedication to justice
+      motive_strength: strong
+      alibi_window: always present
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: professional reputation and justice
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: low
+    - name: Mr. Jervis
+      age_range: 30-50
+      role_archetype: assistant and narrator
+      relationships:
+        - Dr. Thorndyke
+      public_persona: loyal assistant
+      private_secret: curious and observant
+      motive_seed: supporting Thorndyke
+      motive_strength: none
+      alibi_window: always present
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: professional loyalty
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+    - name: Miss Mabel Bonney
+      age_range: 30-40
+      role_archetype: victim of theft and intimidation
+      relationships:
+        - Harold Bonney
+        - Mr. Brodribb
+      public_persona: gentlewoman and art collector
+      private_secret: haunted by Japanese pursuers
+      motive_seed: protecting valuable pearls
+      motive_strength: moderate
+      alibi_window: present during incidents
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: financial ruin
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: victim
+      moral_complexity: low
+    - name: Mr. Brodribb
+      age_range: 60-80
+      role_archetype: solicitor and executor
+      relationships:
+        - Miss Mabel Bonney
+      public_persona: jovial old solicitor
+      private_secret: concerned for Miss Bonney
+      motive_seed: professional duty
+      motive_strength: none
+      alibi_window: present
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: legal responsibility
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+    - name: Uyenishi
+      age_range: 30-50
+      role_archetype: suspect and metal-worker
+      relationships: []
+      public_persona: Japanese metal-worker
+      private_secret: member of criminal gang
+      motive_seed: theft of pearls
+      motive_strength: strong
+      alibi_window: escaped and later imprisoned
+      access_plausibility: high
+      opportunity_channels:
+        - office safe access
+      behavioral_tells:
+        - fled when pursued
+      stakes: freedom and criminal enterprise
+      evidence_sensitivity:
+        - magic casket with secret message
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: moderate
+    - name: Mr. Francis Burnham
+      age_range: 40-60
+      role_archetype: victim, anti-suffrage man
+      relationships: []
+      public_persona: bank manager and anti-suffrage
+      private_secret: carrying large sum of money
+      motive_seed: political opposition
+      motive_strength: none
+      alibi_window: dead at time of train journey
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: life
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: low
+    - name: Miss Isabel Dalby
+      age_range: 30-40
+      role_archetype: suffragist, accused
+      relationships:
+        - Mr. Cadmus Bawley
+      public_persona: militant suffragist
+      private_secret: innocent of murder
+      motive_seed: political activism
+      motive_strength: none
+      alibi_window: accounted for
+      access_plausibility: low
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: freedom
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: suspect
+      moral_complexity: low
+    - name: Mr. Payne (alias Shenstone)
+      age_range: 30-50
+      role_archetype: impostor and murderer
+      relationships:
+        - Mr. Thorpe (alias Pinder)
+      public_persona: assistant cashier, impostor
+      private_secret: murderer of Burnham
+      motive_seed: revenge and theft
+      motive_strength: strong
+      alibi_window: fled and died
+      access_plausibility: high
+      opportunity_channels:
+        - train compartment
+      behavioral_tells:
+        - fled ship, suicide
+      stakes: freedom and money
+      evidence_sensitivity:
+        - secret message in letter
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Mr. Thorpe (alias Pinder)
+      age_range: 30-50
+      role_archetype: suspect and impostor
+      relationships:
+        - Mr. Payne (alias Shenstone)
+      public_persona: suspect in Burnham murder
+      private_secret: innocent, framed
+      motive_seed: none
+      motive_strength: none
+      alibi_window: on ship
+      access_plausibility: medium
+      opportunity_channels: []
+      behavioral_tells:
+        - nervousness, flight
+      stakes: freedom
+      evidence_sensitivity: []
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: low
+    - name: Mr. Giles Herrington
+      age_range: 60-80
+      role_archetype: victim, cantankerous man
+      relationships:
+        - Mr. Godfrey Herrington
+      public_persona: lawyer and executor
+      private_secret: blackmailed
+      motive_seed: family dispute
+      motive_strength: none
+      alibi_window: dead at discovery
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: life
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: low
+    - name: Mr. Godfrey Herrington
+      age_range: 30-50
+      role_archetype: nephew and suspect
+      relationships:
+        - Mr. Giles Herrington
+      public_persona: ne’er-do-well nephew
+      private_secret: possibly involved in struggle
+      motive_seed: financial disputes
+      motive_strength: moderate
+      alibi_window: unknown
+      access_plausibility: medium
+      opportunity_channels:
+        - chambers
+      behavioral_tells: []
+      stakes: freedom
+      evidence_sensitivity: []
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: medium
+    - name: Robert Bruce (Kwaku Mensah)
+      age_range: 30-50
+      role_archetype: witness and survivor
+      relationships: []
+      public_persona: ship’s cook’s mate
+      private_secret: eyewitness to Riggs death
+      motive_seed: none
+      motive_strength: none
+      alibi_window: present at scene
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: life
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+    - name: Joseph Riggs
+      age_range: 50-70
+      role_archetype: victim, miserly uncle
+      relationships:
+        - Robert Fletcher
+      public_persona: miser and uncle
+      private_secret: violent temper
+      motive_seed: family dispute
+      motive_strength: none
+      alibi_window: dead at discovery
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: life
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: low
+    - name: Robert Fletcher
+      age_range: 20-40
+      role_archetype: accused nephew
+      relationships:
+        - Joseph Riggs
+        - Miss Lilian Markham
+      public_persona: engaged man, accused
+      private_secret: innocent of murder
+      motive_seed: inheritance
+      motive_strength: moderate
+      alibi_window: unknown
+      access_plausibility: medium
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: freedom and life
+      evidence_sensitivity: []
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: medium
+    - name: Miss Millicent Fawcett
+      age_range: 30-40
+      role_archetype: murder victim, charitable lady
+      relationships:
+        - William Ponting
+        - Frederick Barnett
+        - James Barnett
+        - Mrs. Barnett
+      public_persona: charitable and independent
+      private_secret: threatened by step-brother
+      motive_seed: inheritance dispute
+      motive_strength: none
+      alibi_window: dead at discovery
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: life
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: victim
+      moral_complexity: low
+    - name: William Ponting
+      age_range: 35-50
+      role_archetype: step-brother and suspect
+      relationships:
+        - Miss Millicent Fawcett
+        - Frederick Barnett
+        - James Barnett
+        - Mrs. Barnett
+      public_persona: troublesome step-brother
+      private_secret: threatened victim
+      motive_seed: inheritance grievance
+      motive_strength: moderate
+      alibi_window: alibi confirmed
+      access_plausibility: medium
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: freedom
+      evidence_sensitivity: []
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: medium
+    - name: Frederick Barnett
+      age_range: 30-50
+      role_archetype: murderer and singer
+      relationships:
+        - James Barnett
+        - Mrs. Barnett
+        - Miss Millicent Fawcett
+      public_persona: variety stage singer
+      private_secret: murderer of Millicent Fawcett
+      motive_seed: inheritance
+      motive_strength: strong
+      alibi_window: false alibi
+      access_plausibility: high
+      opportunity_channels:
+        - house
+      behavioral_tells:
+        - injured right hand
+      stakes: freedom
+      evidence_sensitivity:
+        - animal hairs
+        - footprint cast
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: James Barnett
+      age_range: 30-50
+      role_archetype: accomplice and musician
+      relationships:
+        - Frederick Barnett
+        - Mrs. Barnett
+        - Miss Millicent Fawcett
+      public_persona: musician and accomplice
+      private_secret: held victim’s arms during murder
+      motive_seed: inheritance
+      motive_strength: strong
+      alibi_window: false alibi
+      access_plausibility: high
+      opportunity_channels:
+        - house
+      behavioral_tells:
+        - covered with animal hairs
+      stakes: freedom
+      evidence_sensitivity:
+        - footprint cast
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Mrs. Barnett
+      age_range: 30-50
+      role_archetype: accessory and wife
+      relationships:
+        - Frederick Barnett
+        - James Barnett
+        - Miss Millicent Fawcett
+      public_persona: wife and accessory
+      private_secret: operated phonograph for false alibi
+      motive_seed: inheritance
+      motive_strength: moderate
+      alibi_window: false alibi
+      access_plausibility: high
+      opportunity_channels:
+        - house
+      behavioral_tells: []
+      stakes: freedom
+      evidence_sensitivity: []
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: female
+      role: suspect
+      moral_complexity: medium
+    - name: George Chapman
+      age_range: 30-50
+      role_archetype: accused and jeweller’s agent
+      relationships:
+        - Rebecca Mings
+        - Gamble
+      public_persona: jeweller’s agent
+      private_secret: innocent of murder
+      motive_seed: none
+      motive_strength: none
+      alibi_window: imprisoned falsely
+      access_plausibility: medium
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: freedom
+      evidence_sensitivity: []
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: low
+    - name: Rebecca Mings (Mrs. Murchison)
+      age_range: 30-40
+      role_archetype: missing woman and conspirator
+      relationships:
+        - George Chapman
+        - Gamble
+      public_persona: missing woman
+      private_secret: faked death and framed Chapman
+      motive_seed: escape and concealment
+      motive_strength: strong
+      alibi_window: missing
+      access_plausibility: high
+      opportunity_channels:
+        - luggage-room
+        - house
+      behavioral_tells: []
+      stakes: freedom
+      evidence_sensitivity:
+        - post-mortem tattooing
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: female
+      role: culprit
+      moral_complexity: high
+    - name: Gamble
+      age_range: 30-50
+      role_archetype: intimate and conspirator
+      relationships:
+        - Rebecca Mings
+      public_persona: former dealer in Maori heads
+      private_secret: involved in faking death
+      motive_seed: concealment
+      motive_strength: strong
+      alibi_window: missing
+      access_plausibility: high
+      opportunity_channels:
+        - house
+      behavioral_tells: []
+      stakes: freedom
+      evidence_sensitivity:
+        - post-mortem tattooing
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Mr. Wilfred Pedley
+      age_range: 30-50
+      role_archetype: brother and client
+      relationships:
+        - Cyrus Pedley
+      public_persona: brother of deceased
+      private_secret: concerned for justice
+      motive_seed: family loyalty
+      motive_strength: none
+      alibi_window: present
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: justice
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+    - name: Cyrus Pedley
+      age_range: 40-50
+      role_archetype: victim, government employee
+      relationships:
+        - Wilfred Pedley
+      public_persona: Foreign Office employee
+      private_secret: possibly a spy
+      motive_seed: exposure of revolutionaries
+      motive_strength: strong
+      alibi_window: dead at discovery
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: life
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: medium
+    - name: Mr. James Manford
+      age_range: 40-60
+      role_archetype: victim, businessman
+      relationships:
+        - Stephan Bilsky
+        - Mrs. Manford
+      public_persona: factory owner
+      private_secret: financial troubles
+      motive_seed: insurance and debts
+      motive_strength: none
+      alibi_window: dead at explosion
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: life
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: low
+    - name: Stephan Bilsky
+      age_range: 40-60
+      role_archetype: victim, Russian dealer
+      relationships:
+        - James Manford
+      public_persona: Russian dealer
+      private_secret: involved in shady deals
+      motive_seed: unknown
+      motive_strength: none
+      alibi_window: dead at explosion
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: life
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: low
+    - name: Mr. Elliott
+      age_range: 40-60
+      role_archetype: lender and suspect
+      relationships:
+        - Mrs. Manford
+      public_persona: lender
+      private_secret: possibly involved in fraud
+      motive_seed: financial interest
+      motive_strength: moderate
+      alibi_window: present
+      access_plausibility: medium
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: money
+      evidence_sensitivity: []
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: medium
+    - name: Mrs. Manford
+      age_range: 40-60
+      role_archetype: widow and client
+      relationships:
+        - James Manford
+        - Mr. Herdman
+      public_persona: widow
+      private_secret: financially vulnerable
+      motive_seed: insurance claim
+      motive_strength: none
+      alibi_window: present
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: financial security
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: low
+    - name: Mr. Herdman
+      age_range: 40-60
+      role_archetype: solicitor
+      relationships:
+        - Mrs. Manford
+      public_persona: solicitor
+      private_secret: professional duty
+      motive_seed: legal representation
+      motive_strength: none
+      alibi_window: present
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: professional reputation
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+  culpability:
+    culprit_count: 2
+    culprits:
+      - Uyenishi
+      - Mr. Payne (alias Shenstone)
+  surface_model:
+    narrative:
+      summary: >-
+        The cases appear as a series of complex murders and suspicious deaths involving theft,
+        forged documents, and political intrigue. Each case presents circumstantial evidence
+        pointing to various suspects, but the true mechanisms often involve clever deception and
+        hidden clues. Thorndyke uses scientific observation and deduction to unravel the mysteries
+        behind each crime.
+    accepted_facts:
+      - Harold Bonney was murdered and pearls stolen from his office safe.
+      - >-
+        Jonathan Ingle was declared dead and cremated, but suspicions arose about the authenticity
+        of his death.
+      - >-
+        Francis Burnham was found murdered in a train compartment with suffragist letters planted to
+        implicate Miss Dalby.
+      - Cyrus Pedley was found drowned in a ditch with no signs of struggle on the bank.
+    inferred_conclusions:
+      - Uyenishi was the murderer who escaped and was later imprisoned.
+      - Jonathan Ingle died of natural causes and was cremated legitimately.
+      - Miss Dalby committed the murder of Burnham motivated by political reasons.
+  hidden_model:
+    mechanism:
+      description: >-
+        The magic casket contained a secret message etched on a Japanese magic mirror revealing the
+        hiding place of the stolen pearls. Uyenishi hid the pearls in a disused pump in Jockey’s
+        Fields. The pearls were recovered by Thorndyke after interpreting the secret message. The
+        other cases involve forged death certificates, planted evidence, and misdirection, with
+        Thorndyke uncovering the truth through scientific and observational methods.
+      delivery_path:
+        - step: Uyenishi created a magic casket with a secret etched message on the mirror bottom.
+        - step: He fled after stealing pearls and hid them in a pump in Jockey’s Fields.
+        - step: The casket was passed to Miss Bonney as a memento after Uyenishi’s death.
+        - step: Thorndyke examined the casket, discovered the secret message by reflecting light.
+        - step: He interpreted the message to locate the pearls hidden in the pump.
+        - step: Miss Bonney retrieved the pearls with Thorndyke’s assistance.
+        - step: Police intervened to prevent the thieves from reclaiming the pearls.
+    outcome:
+      result: >-
+        The stolen pearls were recovered, the true culprits identified, and justice was served in
+        all cases.
+  false_assumption:
+    statement: Jonathan Ingle died naturally and was cremated with proper certificates.
+    type: identity
+    why_it_seems_reasonable: >-
+      The death certificates were signed by doctors and the body was cremated, which usually
+      confirms death. The insurance company accepted the death as genuine.
+    what_it_hides: >-
+      The body cremated was not human but butcher’s meat, and the death certificates were forged to
+      fake Ingle’s death and cover up fraud.
+  false_solution:
+    accused_suspect: Miss Isabel Dalby
+    supporting_points:
+      - A suffragist letter was found in the murder compartment.
+      - Miss Dalby was seen carrying a similar bag to the one found empty.
+      - Circumstantial evidence suggested she was near the crime scene.
+      - She was arrested and charged with the murder.
+    the_one_flaw: The letter was planted by the real murderer to frame her, and she had a solid alibi.
+    refuted_in_chapter: 3
+  red_herrings:
+    - id: suspicious_japanese_followers
+      description: Japanese men shadowing Miss Bonney and attempting to recover the magic casket.
+      points_at_suspect: Uyenishi and his confederates
+      innocent_explanation: They were after the casket for the secret message, not directly involved in the murder.
+      resolved_in_chapter: 1
+    - id: barnett_family_alibi
+      description: The noisy practice of the Barnetts and the phonograph alibi for Millicent Fawcett’s murder.
+      points_at_suspect: William Ponting and the Barnetts
+      innocent_explanation: Ponting’s alibi was genuine, but the Barnetts used a phonograph to create a false alibi.
+      resolved_in_chapter: 5
+  closed_circle:
+    suspects:
+      - Miss Isabel Dalby
+      - Mr. Payne (alias Shenstone)
+      - Mr. Thorpe (alias Pinder)
+      - Frederick Barnett
+      - James Barnett
+      - Mrs. Barnett
+    rationale: >-
+      The suspects were all present on the ship or at the crime scene with limited access, and the
+      evidence pointed to a small group involved in the murder and framing.
+  constraint_space:
+    time:
+      anchors:
+        - Night of November, 8pm to midnight
+        - Day of Ingle’s supposed death and cremation
+        - Train journey time between London and Holmwood
+        - Time of Millicent Fawcett’s murder around 9pm
+        - Time of Herrington’s death between 9pm and midnight
+      windows:
+        - Miss Dalby’s train journey and alibi times
+        - Barnetts’ practice time and alibi
+        - Uyenishi’s escape and death
+        - Blood presence time in Riggs’s house
+    access:
+      actors:
+        - Uyenishi to the office safe
+        - Burnham’s train compartment
+        - Barnetts’ flat
+        - Chapman’s luggage-room
+        - Herrington’s chambers
+        - Riggs’s house
+      objects:
+        - Office safe key
+        - Train compartments
+        - Phonograph
+        - Luggage-room boxes
+        - Locked cupboards and drawers
+        - Doors and windows of crime scenes
+    social:
+      trust_channels:
+        - Medical certificates
+        - Police witness statements
+        - Letters and telegrams
+        - Testimony of servants and porters
+      authority_sources:
+        - Scotland Yard
+        - Local police
+        - Coroners and inquests
+        - Medical experts
+  inference_path:
+    steps:
+      - observation: The magic casket’s bottom is a Japanese magic mirror with an etched design.
+        correction: The design is a secret message etched invisibly on the mirror’s reflective surface.
+        effect: The message reveals the hiding place of the stolen pearls.
+        required_evidence:
+          - The magic casket with the mirror bottom
+          - Photograph of the reflected light showing Japanese characters
+        reader_observable: true
+      - observation: Jonathan Ingle’s cremated ashes contain no human bones or teeth.
+        correction: The ashes are mostly butcher’s mutton legs preserved with formalin.
+        effect: Ingle’s death was faked using a dummy body to commit fraud.
+        required_evidence:
+          - Analysis of cremation ashes
+          - Undertaker’s statement about the body not being seen
+        reader_observable: true
+      - observation: A suffragist letter is found in the murder compartment of Burnham.
+        correction: The letter was planted by the real murderer to frame Miss Dalby.
+        effect: Miss Dalby’s guilt is a false assumption.
+        required_evidence:
+          - Duplicated circular letters with secret messages
+          - Secret message revealing the real murderer’s plan
+        reader_observable: true
+      - observation: Duck-weed species in ditch where Cyrus Pedley’s body was found differs from drowning site.
+        correction: Pedley was drowned elsewhere and his body transported to mislead investigators.
+        effect: The death is a murder, not suicide or accident.
+        required_evidence:
+          - Botanical analysis of duck-weed species
+          - Footprints and tire tracks near the ditch
+        reader_observable: true
+      - observation: Millicent Fawcett’s wounds and blood stains inconsistent with suicide.
+        correction: She was murdered by Frederick Barnett with assistance from James Barnett and Mrs. Barnett.
+        effect: The Barnetts’ false alibi is exposed by the phonograph recording.
+        required_evidence:
+          - Cast of distinctive footprint
+          - Phonograph cylinder with recorded practice
+        reader_observable: true
+      - observation: Tattoo on dismembered arm found in Chapman’s box matches Rebecca Mings.
+        correction: The tattoo was applied post-mortem to fake identity; the box was swapped.
+        effect: Chapman is innocent; Mings and Gamble conspired to fake death and frame him.
+        required_evidence:
+          - Microscopic examination of tattoo marks
+          - Lock and sales records of luggage boxes
+        reader_observable: true
+      - observation: Blood in Joseph Riggs’s hall is not his nor Robert Fletcher’s.
+        correction: Blood belongs to a negro with filariasis and elephantiasis, who was present at the time.
+        effect: Riggs died by suicide; the negro’s testimony confirms this.
+        required_evidence:
+          - Microscopic examination of blood samples
+          - Testimony of Robert Bruce (Kwaku Mensah)
+        reader_observable: true
+  discriminating_test:
+    method: constraint_proof
+    design: >-
+      Thorndyke examined the magic casket under strong light to reveal the secret etched message. He
+      then visited the pump in Jockey’s Fields to check for the hidden pearls. The presence of the
+      pearls in the pump confirmed the secret message’s accuracy and the location of the stolen
+      pearls.
+    knowledge_revealed: >-
+      The test revealed that the pearls were hidden in the pump as indicated by the secret message
+      on the magic mirror bottom of the casket.
+    pass_condition: The pearls must be physically found inside the pump at Jockey’s Fields.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given the secret message on the magic casket and the explanation of the Japanese
+      magic mirror’s properties. The clues about the pearls’ hiding place are present but require
+      understanding of the mirror’s optical effect and the significance of the words. The presence
+      of the pump in Jockey’s Fields and the suspicious behavior of the suspects are detailed,
+      allowing the reader to deduce the hiding place of the pearls. The scientific explanation and
+      the physical search provide a fair chance to solve the mystery.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

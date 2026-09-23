@@ -1,0 +1,414 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The trouble at Pinelands
+    author: Ernest M. Poate
+    license: Public domain (first published 1922; author died 1935). Project Gutenberg ebook 78103.
+    era:
+      decade: 1920s
+      realism_constraints:
+        - No advanced forensic technology like DNA or modern ballistics
+        - Limited police procedural methods; reliance on witness testimony and physical evidence
+        - Communication by telephone and telegrams available but no electronic surveillance
+    setting:
+      location: Pinelands, North Carolina
+      institution: Carabas County Sheriff's Office and local courts
+    crime_class:
+      category: murder
+      subtype: hysterical somnambulistic shooting
+  cast:
+    - name: George Uhlman
+      age_range: 60s
+      role_archetype: elderly family guardian
+      relationships:
+        - Lewis Parker (nephew)
+        - Dorothy McGregor (niece)
+      public_persona: kindly old uncle and caretaker
+      private_secret: n/a
+      motive_seed: n/a
+      motive_strength: none
+      alibi_window: present throughout the events
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: family honor and nephew's fate
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+    - name: Lewis Parker
+      age_range: mid 20s
+      role_archetype: young doctor and fiancé
+      relationships:
+        - Dorothy McGregor (fiancée/wife)
+        - George Uhlman (uncle)
+      public_persona: dedicated young physician
+      private_secret: hot temper and frustration with older doctor
+      motive_seed: anger at Doctor Gaskell
+      motive_strength: moderate
+      alibi_window: present at the scene at 5 am
+      access_plausibility: high
+      opportunity_channels:
+        - access to shotgun
+        - presence at crime scene
+      behavioral_tells:
+        - nervousness
+        - shock after shooting
+      stakes: freedom and future with Dorothy
+      evidence_sensitivity:
+        - shotgun found at scene
+        - witness testimony of shooting
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: Dorothy McGregor
+      age_range: early 20s
+      role_archetype: young bride and caretaker
+      relationships:
+        - Lewis Parker (fiancé/husband)
+        - Aunt Mary McGregor (aunt)
+      public_persona: loving fiancée and daughter
+      private_secret: doubts about Aunt Mary
+      motive_seed: n/a
+      motive_strength: none
+      alibi_window: present at Fort House
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells:
+        - emotional distress
+        - fear of Poltergeist
+      stakes: husband's freedom and wedding
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: low
+    - name: Aunt Mary McGregor
+      age_range: 70s
+      role_archetype: paralyzed invalid with secret
+      relationships:
+        - Dorothy McGregor (niece)
+        - Miss Christie (nurse)
+      public_persona: sweet, patient invalid
+      private_secret: hysterical somnambulist and murderer
+      motive_seed: insult by Doctor Gaskell
+      motive_strength: strong
+      alibi_window: claimed paralysis but was active at night
+      access_plausibility: high
+      opportunity_channels:
+        - access to shotgun
+        - nighttime mobility
+      behavioral_tells:
+        - mood swings
+        - ghostly disturbances
+      stakes: preserving secret and dignity
+      evidence_sensitivity:
+        - confession
+        - witnesses seeing her walk
+        - shotgun firing
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: female
+      role: culprit
+      moral_complexity: high
+    - name: Miss Christie (Anne Christie)
+      age_range: early 20s
+      role_archetype: sleepy nurse with hidden past
+      relationships:
+        - Aunt Mary McGregor (patient)
+        - Doctor Somers (friend)
+      public_persona: somnolent nurse
+      private_secret: mountain girl fleeing abusive stepfather
+      motive_seed: fear of stepfather
+      motive_strength: none
+      alibi_window: present at Fort House
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells:
+        - sleepiness
+        - emotional changes
+      stakes: personal safety
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: moderate
+    - name: Doctor Floyd Somers
+      age_range: late 30s
+      role_archetype: medico-legal expert and best man
+      relationships:
+        - Lewis Parker (friend)
+        - Anne Christie (love interest)
+      public_persona: brusque, sarcastic medico-legal expert
+      private_secret: struggles with alcohol
+      motive_seed: professional duty
+      motive_strength: none
+      alibi_window: present throughout investigation
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells:
+        - drunkenness
+        - sharp intellect
+      stakes: friend's freedom and justice
+      evidence_sensitivity:
+        - observation of Aunt Mary
+        - investigation notes
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: moderate
+    - name: Rufe Wakefield
+      age_range: 40s
+      role_archetype: inept but well-meaning constable
+      relationships:
+        - Lewis Parker (suspect)
+      public_persona: boastful constable
+      private_secret: likes to drink
+      motive_seed: professional duty
+      motive_strength: none
+      alibi_window: present at crime scene
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells:
+        - bragging
+        - nervousness
+      stakes: law enforcement
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+  culpability:
+    culprit_count: 1
+    culprits:
+      - Aunt Mary McGregor
+  surface_model:
+    narrative:
+      summary: >-
+        Doctor Gaskell is found shot dead near Fort House, with Lewis Parker standing nearby holding
+        a shotgun. Lewis is arrested for the murder, but strange ghostly disturbances and a
+        mysterious Poltergeist haunt the household, complicating the case.
+    accepted_facts:
+      - Doctor Gaskell was killed by a shotgun blast near Fort House.
+      - Lewis Parker was found at the scene with a shotgun and was arrested.
+      - Aunt Mary McGregor is paralyzed and confined to a wheelchair.
+      - A Poltergeist has been causing disturbances in Fort House for about a year.
+    inferred_conclusions:
+      - Lewis Parker intentionally killed Doctor Gaskell in a fit of anger.
+      - The Poltergeist is a supernatural entity responsible for the disturbances.
+      - Aunt Mary is an innocent invalid with no involvement in the murder.
+  hidden_model:
+    mechanism:
+      description: >-
+        Aunt Mary McGregor, though paralyzed by hysteria, was able to walk during somnambulistic
+        episodes and was the 'Poltergeist' causing disturbances. She shot Doctor Gaskell in a fit of
+        rage after he insulted her, and her paralysis and ghostly antics were a cover for her
+        secret; she died accidentally shooting herself with a faulty shotgun.
+      delivery_path:
+        - step: Aunt Mary experiences hysterical somnambulism and leaves her bed at night.
+        - step: She takes the shotgun from the back porch, loading it despite her supposed paralysis.
+        - step: She encounters Doctor Gaskell in the bushes and shoots him after he insults her.
+        - step: She cleans the shotgun and returns it to the porch, then goes back to bed.
+        - step: >-
+            Her paralysis returns, and she continues to act as the Poltergeist, causing
+            disturbances.
+        - step: >-
+            She attempts to kill Doctor Somers later but accidentally shoots herself due to the
+            faulty gun.
+        - step: >-
+            Her secret is revealed after Somers and witnesses catch her walking and firing the
+            shotgun.
+    outcome:
+      result: >-
+        Aunt Mary McGregor is revealed as the murderer and dies accidentally from her own shotgun;
+        Lewis Parker is exonerated and freed.
+  false_assumption:
+    statement: Lewis Parker accidentally shot Doctor Gaskell while hunting quail at dawn.
+    type: temporal
+    why_it_seems_reasonable: >-
+      Lewis was found at the scene with a shotgun shortly after the shot was fired, and he claimed
+      to have stumbled and accidentally discharged the weapon. Witnesses heard the shot and saw
+      Lewis nearby, making the timeline plausible.
+    what_it_hides: >-
+      The actual murder occurred earlier by Aunt Mary during her somnambulistic episode, and Lewis
+      arrived after the fact, accidentally firing the gun later.
+  false_solution:
+    accused_suspect: Lewis Parker
+    supporting_points:
+      - Lewis was found standing over the body with the shotgun.
+      - He had a known angry quarrel with Doctor Gaskell.
+      - The shotgun shells matched the shot extracted from the body.
+      - Witnesses heard the gunshot and saw Lewis nearby.
+    the_one_flaw: >-
+      The timeline and physical evidence do not prove Lewis was the shooter at the time of death;
+      the body was already dead and cold when he fired.
+    refuted_in_chapter: 33
+  red_herrings:
+    - id: ralph_satterfield_bootlegger
+      description: >-
+        Ralph Satterfield, a bootlegger and enemy of Gaskell, is suspected due to his grudge and
+        involvement with moonshine.
+      points_at_suspect: His threats against Gaskell and leadership of a lynch mob suggest motive and opportunity.
+      innocent_explanation: >-
+        Though involved in illicit liquor trade, he did not kill Gaskell and was intimidated into
+        silence.
+      resolved_in_chapter: 28
+    - id: roaring_lafe_rutledge
+      description: >-
+        Roaring Lafe Rutledge, a feared mountain moonshiner, is suspected of killing Gaskell due to
+        threats and violent reputation.
+      points_at_suspect: >-
+        He threatened Gaskell and was found with the bootleggers; his presence near the crime scene
+        is suspicious.
+      innocent_explanation: >-
+        He admitted intent but claimed he did not shoot Gaskell and was captured before he could
+        harm anyone.
+      resolved_in_chapter: 28
+  closed_circle:
+    suspects:
+      - Lewis Parker
+      - Aunt Mary McGregor
+      - Ralph Satterfield
+      - Roaring Lafe Rutledge
+    rationale: >-
+      These individuals had motive, opportunity, and presence near the crime scene; investigation
+      focused on them exclusively.
+  constraint_space:
+    time:
+      anchors:
+        - 5:00 AM shooting time
+        - 4:00 AM Satterfield's departure
+        - Dawn light conditions
+      windows:
+        - Between 4:00 and 5:00 AM for murder
+        - Lewis's arrival at 5:00 AM
+    access:
+      actors:
+        - Aunt Mary McGregor
+        - Lewis Parker
+        - Ralph Satterfield
+        - Roaring Lafe Rutledge
+      objects:
+        - Peter McGregor's shotgun
+        - Doctor Gaskell's medicine bag
+    social:
+      trust_channels:
+        - Miss Christie's nurse testimony
+        - George Uhlman's eyewitness account
+        - Doctor Somers' medico-legal expertise
+      authority_sources:
+        - Sheriff Redden
+        - Coroner Burgess
+        - District Attorney Toby Vanbrugh
+  inference_path:
+    steps:
+      - observation: Lewis was found shooting near the dead body at 5:00 AM.
+        correction: The body was already cold and dead before Lewis fired.
+        effect: Lewis could not have been the murderer at the time of death.
+        required_evidence:
+          - George Uhlman's witness statement of body temperature and time
+          - Coroner Burgess' autopsy report on time of death
+        reader_observable: true
+      - observation: Aunt Mary is paralyzed and confined to a wheelchair.
+        correction: She was seen walking and moving about at night.
+        effect: Her paralysis is hysterical and intermittent.
+        required_evidence:
+          - George Uhlman and Doctor Somers' eyewitness accounts of Aunt Mary walking
+          - Miss Christie's testimony about Aunt Mary's nighttime activity
+        reader_observable: true
+      - observation: Poltergeist disturbances are supernatural.
+        correction: The disturbances are caused by Aunt Mary during somnambulistic episodes.
+        effect: The ghostly phenomena have a human origin.
+        required_evidence:
+          - Doctor Somers' observation of Aunt Mary acting as Poltergeist
+          - Physical evidence of broken dishes and stolen items
+        reader_observable: true
+      - observation: >-
+          Ralph Satterfield is hostile and involved in bootlegging, and was seen outside the house
+          imitating a whistle to provoke a reaction from the residents.
+        correction: He is intimidated and not the murderer.
+        effect: Satterfield is a red herring.
+        required_evidence:
+          - >-
+            Revenue agent's report on bootlegging operations and Satterfield's presence outside the
+            house
+          - >-
+            Witness statement describing Satterfield imitating a quail's whistle to provoke Aunt
+            Mary
+        reader_observable: true
+      - observation: >-
+          Roaring Lafe Rutledge threatened Gaskell and was near the scene, and was observed outside
+          the house attempting to provoke a confrontation.
+        correction: He did not shoot Gaskell but was the leader of bootleggers.
+        effect: Rutledge is a suspect but not the murderer.
+        required_evidence:
+          - Government raid and arrest records showing Rutledge's presence outside the house
+          - Witness statement describing Rutledge's attempt to provoke Gaskell with a whistle
+        reader_observable: true
+      - observation: >-
+          Aunt Mary fired a shotgun at the quail near her window after being provoked by an
+          imitation whistle from outside.
+        correction: She shot Doctor Gaskell earlier in a fit of rage.
+        effect: Aunt Mary is the murderer.
+        required_evidence:
+          - >-
+            Doctor Somers and George Uhlman's eyewitness accounts of Aunt Mary firing the shotgun
+            after being provoked by the quail whistle imitation
+          - Physical examination of the shotgun showing it was recently fired
+        reader_observable: true
+      - observation: >-
+          Aunt Mary died from a shotgun wound to the temple after being provoked by an imitation
+          quail whistle outside her window.
+        correction: The gun malfunctioned and caused accidental self-inflicted death.
+        effect: Her death was accidental during an attempted second shooting.
+        required_evidence:
+          - >-
+            Doctor Somers' medical examination of Aunt Mary after the accidental shooting provoked
+            by the whistle
+          - >-
+            Physical examination of the shotgun revealing the malfunction that caused the fatal
+            wound
+        reader_observable: true
+  discriminating_test:
+    method: trap
+    design: >-
+      Doctor Somers imitates the quail's whistle outside Aunt Mary's window to provoke a reaction.
+      Observers watch for Aunt Mary to leave her bed and retrieve the shotgun, confirming her
+      somnambulistic activity and involvement in the disturbances.
+    knowledge_revealed: >-
+      This test reveals Aunt Mary's ability to move and act despite her supposed paralysis, linking
+      her to the Poltergeist phenomena and the murder.
+    pass_condition: Aunt Mary is observed leaving her bed and firing the shotgun at the quail imitation.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given all necessary clues: the timeline discrepancies, Aunt Mary's inconsistent
+      paralysis, the Poltergeist disturbances, and the testimonies of witnesses including the nurse
+      and Doctor Somers. The false solution is presented clearly, and the true culprit's confession
+      and the physical evidence are foreshadowed. The reader could deduce the somnambulistic
+      shooting by Aunt Mary by carefully analyzing the timeline and the nature of the disturbances.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

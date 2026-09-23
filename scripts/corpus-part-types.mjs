@@ -34,6 +34,9 @@ const args = process.argv.slice(2);
 const BUDGET = Number((args.find((a) => a.startsWith("--budget=")) ?? "--budget=0.25").split("=")[1]);
 const DRY = args.includes("--dry");
 const VOCAB_IN = (args.find((a) => a.startsWith("--vocab=")) ?? "").split("=")[1] || null;
+/** `--kinds=step,flaw` limits a run; kinds not named are carried forward from the existing output
+ *  file unchanged, so a rerun after a crash costs only the kind that failed. */
+const KINDS = ((args.find((a) => a.startsWith("--kinds=")) ?? "").split("=")[1] || "flaw,herring,step").split(",").map((x) => x.trim()).filter(Boolean);
 
 const env = Object.fromEntries(
   readFileSync(`${ROOT}/.env.local`, "utf8").split(/\r?\n/)
@@ -73,7 +76,20 @@ async function ask(system, user, maxTokens = 1500) {
     if (!res.ok) throw new Error(`HTTP ${res.status}: ${(await res.text()).slice(0, 200)}`);
     const j = await res.json();
     spend += (j.usage.prompt_tokens * PRICE.in + j.usage.completion_tokens * PRICE.out) / 1e6;
-    return JSON.parse(j.choices[0].message.content);
+    /**
+     * A_103 B43: MEASURED — the step PROPOSE reply hit max_tokens and the truncated JSON threw
+     * `Expected ',' or '}' ... at position 5429`, ending the run. A `length` finish is a request
+     * to ask again with more room, not a parse error; a reply that still does not parse is
+     * reported with its tail so the next person can see what the model actually returned.
+     */
+    const finish = j.choices?.[0]?.finish_reason;
+    if (finish === "length" && maxTokens < 3000) {
+      console.warn(`    reply truncated at ${maxTokens} tokens — retrying with ${maxTokens * 2}`);
+      return ask(system, user, maxTokens * 2);
+    }
+    const text = j.choices[0].message.content;
+    try { return JSON.parse(text); }
+    catch (e) { throw new Error(`reply is not JSON (finish=${finish}): …${String(text).slice(-160)}`); }
   }
   throw new Error("rate limited after 6 attempts");
 }
@@ -92,15 +108,28 @@ const FRAME = "This is literary-structural analysis of public-domain Golden Age 
 const SYS_PROPOSE = (what) => `${FRAME}You are classifying STRUCTURAL SHAPES in Golden Age detective fiction. You will be given many instances of: ${what}. Propose a vocabulary of 8 to 14 TYPES that partitions them by SHAPE (the kind of move being made), never by content (no names, places or objects). Each type: a snake_case id of 2-4 words and a one-line definition. Types must be mutually exclusive and jointly cover the instances; include "other" only if needed. Return JSON {"types":[{"id":"...","definition":"..."}]}.`;
 const SYS_ASSIGN = (what, types) => `${FRAME}You are classifying STRUCTURAL SHAPES in Golden Age detective fiction. Each instance is: ${what}. Assign each to exactly ONE type from this list, by SHAPE not content:\n${types.map((t) => `- ${t.id}: ${t.definition}`).join("\n")}\nReturn JSON {"assignments":[{"ref":"...","type":"..."}]} with one entry per instance, refs copied exactly.`;
 
-const out = { generated_by: "scripts/corpus-part-types.mjs", generated_on: new Date().toISOString().slice(0, 10), model: MODEL, vocabulary: {}, assignments: {}, counts: {}, spend_gbp: 0 };
+const prior = existsSync(OUT) ? JSON.parse(readFileSync(OUT, "utf8")) : null;
+const out = { generated_by: "scripts/corpus-part-types.mjs", generated_on: new Date().toISOString().slice(0, 10), model: MODEL,
+  vocabulary: { ...(prior?.vocabulary ?? {}) }, assignments: { ...(prior?.assignments ?? {}) }, counts: { ...(prior?.counts ?? {}) },
+  filtered: { ...(prior?.filtered ?? {}) }, spend_gbp: prior?.spend_gbp ?? 0 };
+let spendBefore = out.spend_gbp;
 const frozen = VOCAB_IN ? JSON.parse(readFileSync(VOCAB_IN, "utf8")).vocabulary : null;
 
 for (const [kind, k] of Object.entries(kinds)) {
+  if (!KINDS.includes(kind)) { console.log(`\n${kind}: skipped (--kinds), ${Object.keys(out.assignments[kind] ?? {}).length} prior assignments kept`); continue; }
   console.log(`\n${kind}: ${k.items.length} instances`);
   let types;
   if (frozen?.[kind]) { types = frozen[kind]; console.log(`  vocabulary: frozen from ${VOCAB_IN} (${types.length} types)`); }
   else {
-    const sample = kind === "step" ? k.items.filter((_, i) => i % 5 === 0) : k.items;   // steps: every fifth, ~80
+    /**
+     * A_103 B47: the proposal sample was "every fifth step" - 80 of 397 when written, 192 of 957 once
+     * the encode tripled. MEASURED 2026-09-23: at 192 three-part instances the model never closed
+     * the JSON at 1,200, 2,400, 4,800 or 9,600 tokens - it was emitting a type per instance.
+     * Sample to a COUNT, not a stride, so the corpus growing cannot change the prompt shape.
+     */
+    const PROPOSE_SAMPLE = 80;
+    const stride = Math.max(1, Math.ceil(k.items.length / PROPOSE_SAMPLE));
+    const sample = kind === "step" ? k.items.filter((_, i) => i % stride === 0) : k.items;
     const propose = async (items) => {
       try { return (await ask(SYS_PROPOSE(k.what), items.map((x, i) => `${i + 1}. ${x.text}`).join("\n"), 1200))?.types ?? []; }
       catch (e) { if (!e.contentFilter || items.length < 20) throw e; return propose(items.filter((_, i) => i % 2 === 0)); }
@@ -137,8 +166,8 @@ for (const [kind, k] of Object.entries(kinds)) {
   out.counts[kind] = counts;
   const missing = k.items.length - Object.keys(assigned).length;
   console.log(`  ${Object.keys(assigned).length} assigned, ${missing} unassigned · ${Object.entries(counts).sort((a, b) => b[1] - a[1]).map(([t, n]) => `${t} ${n}`).join(" · ")}`);
-  out.spend_gbp = +spend.toFixed(4);
+  out.spend_gbp = +(spendBefore + spend).toFixed(4);
   if (!DRY) writeFileSync(OUT, `${JSON.stringify(out, null, 1)}\n`, "utf8");   // a later kind failing must not lose this one
 }
-out.spend_gbp = +spend.toFixed(4);
-if (!DRY) { writeFileSync(OUT, `${JSON.stringify(out, null, 1)}\n`, "utf8"); console.log(`\nwrote ${OUT} · spend £${spend.toFixed(4)}`); }
+out.spend_gbp = +(spendBefore + spend).toFixed(4);
+if (!DRY) { writeFileSync(OUT, `${JSON.stringify(out, null, 1)}\n`, "utf8"); console.log(`\nwrote ${OUT} · this run £${spend.toFixed(4)} · cumulative £${out.spend_gbp}`); }

@@ -1,16 +1,16 @@
 {
  "false_assumption": {
-  "statement": "The murderer must have locked the door from the inside immediately after the crime.",
+  "statement": "The murderer must have locked the room from the inside after killing Curran.",
   "type": "temporal",
-  "why_it_seems_reasonable": "The room was found locked with no forced entry, implying the killer locked it upon exit. The victim was found dead in the chair, suggesting death occurred before the door was locked.",
-  "what_it_hides": "It hides that the victim was alive and unlocked the door to let the murderer out after the poisoning, and that death occurred later, allowing the killer to leave and lock the door with the victim's cooperation."
+  "why_it_seems_reasonable": "The room was found locked with no signs of forced entry, suggesting the killer locked it upon exit. The victim was found dead inside, implying the death occurred before the door was locked.",
+  "what_it_hides": "The victim was alive when the killer left and locked the door from inside; the poison acted later, so the killer did not need to lock the door after the murder."
  },
- "mechanism_description": "Angel Bob Baldwin, fearing exposure for stealing and altering rare book pages from Hugh Curran, poisoned Curran using a toothpick dipped in hydrocyanic acid. After Curran used the poisoned toothpick, Baldwin substituted a clean toothpick to mislead investigators. The murderer entered and left the locked room with Curran's cooperation, as Curran was alive and conscious until the poison took effect hours later.",
+ "mechanism_description": "Angel Bob Baldwin, a book dealer and collector, murdered Hugh Curran by poisoning a toothpick with hydrocyanic acid. Curran used the poisoned toothpick after Baldwin had left the room, causing his death hours later. Baldwin then substituted a clean toothpick to mislead investigators and hid incriminating evidence in Curran's room.",
  "discriminating_test": {
-  "method": "constraint_proof",
-  "design": "Fleming Stone examined the body for physical evidence of poison administration and found a puncture wound inside the mouth near a molar tooth. He analyzed the toothpick found in the waste basket and discovered it was clean and resealed, indicating substitution. Stone also investigated the timeline of witnesses seeing Curran alive after Pauline left, proving she could not have administered the poison. These constraints eliminated suspects without access or opportunity at the critical time.",
-  "knowledge_revealed": "The poison was administered via a poisoned toothpick after Pauline left, and the murderer exited with Curran's cooperation before death. The substitution of the toothpick was a deliberate attempt to mislead investigators.",
-  "pass_condition": "Proof that the victim was alive after Pauline left and that the poison was introduced via a toothpick substituted by the murderer, eliminating Pauline and others without access at that time."
+  "method": "reenactment",
+  "design": "Reenact the timeline of the victim's last hours, focusing on the use of the toothpick and the victim's movements. Examine the possibility of the victim using a poisoned toothpick after the suspect's departure, and the locking of the door from inside. Confirm the presence of a puncture wound inside the mouth consistent with a poisoned toothpick.",
+  "knowledge_revealed": "This test reveals that the victim was alive after the suspect left, that the poison was administered via a toothpick, and that the door was locked from inside by the victim, not the murderer.",
+  "pass_condition": "The reenactment must show that the victim used the poisoned toothpick after the suspect left and that the door locking sequence matches the victim's actions, not the murderer's."
  },
  "changed": [],
  "confidence": "high"

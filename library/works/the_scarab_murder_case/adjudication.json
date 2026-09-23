@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "Dr. Bliss was the sole murderer and acted without any accomplices or interference.",
+  "type": "identity",
+  "why_it_seems_reasonable": "All direct evidence such as fingerprints, footprints, and planted items pointed to Bliss, and he was found with incriminating items and attempted escape. The opium in his coffee suggested he was drugged and innocent.",
+  "what_it_hides": "It conceals the involvement of Anûpu Hani who ultimately killed Bliss, and the fact that Bliss’s evidence was deliberately planted to implicate himself and frame Salveter."
+ },
+ "mechanism_description": "Dr. Bliss murdered Benjamin H. Kyle by striking him from behind with a heavy mace, then arranged the scene by placing the statue of Sakhmet as a death trap and planting his own scarab pin and financial report near the body to implicate himself. He drugged his coffee with opium to create an alibi. Later, Anûpu Hani killed Bliss to end the plot, carefully avoiding leaving evidence.",
+ "discriminating_test": {
+  "method": "trap",
+  "design": "Vance reconstructed the death trap by placing the statue of Sakhmet precariously balanced on a pencil wedge on the cabinet edge with the curtain partially drawn and the loose brass ring under the statue’s base. Pulling the curtain caused the statue to topple exactly where Kyle’s head had been, demonstrating the plausibility of the staged death trap.",
+  "knowledge_revealed": "The test showed that the statue could fall and kill someone standing in front of the cabinet, supporting the theory that the trap was staged after the murder to mislead investigators.",
+  "pass_condition": "The statue must topple and land precisely on the spot corresponding to Kyle’s head position, confirming the trap’s feasibility."
+ },
+ "changed": [],
+ "confidence": "high"
+}

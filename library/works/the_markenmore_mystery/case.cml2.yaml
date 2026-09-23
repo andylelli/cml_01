@@ -1,0 +1,594 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The Markenmore Mystery
+    author: J. S. (Joseph Smith) Fletcher
+    license: Public domain (first published 1922; author died 1935). Project Gutenberg ebook 59818.
+    era:
+      decade: 1910s
+      realism_constraints:
+        - >-
+          No forensic DNA or modern ballistics; identification relies on witness testimony and
+          physical evidence like pistols and rings
+        - >-
+          Communication and travel limited to trains, telegrams, and walking; no mobile phones or
+          instant communication
+        - >-
+          Social conventions and class distinctions strongly influence behavior and investigation;
+          legal procedures involve coroners' inquests and solicitors
+    setting:
+      location: Markenmore Court and surrounding village near Selcaster, England
+      institution: Local police with involvement of New Scotland Yard CID and the Coroner's inquest
+    crime_class:
+      category: murder
+      subtype: murder for trade secret and money
+  cast:
+    - name: Guy Markenmore
+      age_range: mid-30s
+      role_archetype: wealthy stock exchange member with secret past
+      relationships:
+        - Harry Markenmore (brother)
+        - Valencia Markenmore (sister)
+        - Myra Halliwell (secret wife)
+        - Mrs. Tretheroe (former love interest)
+      public_persona: wealthy, shrewd businessman
+      private_secret: secret marriage and son with Myra Halliwell
+      motive_seed: none
+      motive_strength: none
+      alibi_window: last seen alive around 3:15 am Tuesday morning
+      access_plausibility: n/a
+      opportunity_channels:
+        - walking on downs
+        - meeting at Sceptre Inn
+      behavioral_tells:
+        - open and candid
+        - talkative
+      stakes: high - life and secret formula
+      evidence_sensitivity:
+        - rings
+        - money
+        - secret formula papers
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: moderate
+    - name: Harry Markenmore
+      age_range: early 20s
+      role_archetype: estate manager, younger brother
+      relationships:
+        - Guy Markenmore (brother)
+        - Valencia Markenmore (sister)
+        - Poppy Wrenne (secret wife)
+        - Mrs. Braxfield (mother-in-law)
+      public_persona: responsible steward and family member
+      private_secret: secretly married to Poppy Wrenne
+      motive_seed: inheritance
+      motive_strength: weak
+      alibi_window: with father at Markenmore Court during murder time
+      access_plausibility: no access to murder scene at time of death
+      opportunity_channels:
+        - estate management
+        - family relations
+      behavioral_tells:
+        - temperamental
+        - defensive
+      stakes: inheritance and family position
+      evidence_sensitivity:
+        - automatic pistol sold to him
+        - alibi from butler
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: Mrs. Braxfield (formerly Mrs. Wrenne)
+      age_range: mid-40s to 50s
+      role_archetype: ambitious mother-in-law, former innkeeper
+      relationships:
+        - Harry Markenmore (son-in-law)
+        - Poppy Wrenne (daughter)
+        - Guy Markenmore (victim, family)
+      public_persona: respectable housekeeper and mother
+      private_secret: ambition for daughter to be Lady Markenmore
+      motive_seed: family advancement
+      motive_strength: strong
+      alibi_window: seen near Markenmore Hollow early morning
+      access_plausibility: access to pistol and location near murder scene
+      opportunity_channels:
+        - use of pistol to scare foxes
+        - presence near murder site
+      behavioral_tells:
+        - defiant
+        - secretive
+        - angry
+      stakes: daughter's social status and family position
+      evidence_sensitivity:
+        - automatic pistol found in badger hole
+        - contradictory testimony about sightings
+      culprit_eligibility: eligible
+      culpability: unknown
+      gender: female
+      role: suspect
+      moral_complexity: high
+    - name: John Harborough
+      age_range: mid-30s to 40s
+      role_archetype: wealthy friend, former rival
+      relationships:
+        - Mrs. Tretheroe (former love interest)
+        - Guy Markenmore (rival)
+      public_persona: wealthy banker, calm and imperturbable
+      private_secret: past enmity with Guy Markenmore
+      motive_seed: jealousy
+      motive_strength: weak
+      alibi_window: seen near Woodland Cottage at 4:10 am
+      access_plausibility: walking on downs
+      opportunity_channels:
+        - early morning walk
+        - threatening letter
+      behavioral_tells:
+        - calm under accusation
+        - denies seeing victim
+      stakes: reputation
+      evidence_sensitivity:
+        - letter threatening to kill Guy
+        - witness testimony placing him near scene
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: Mrs. Veronica Tretheroe (née Leighton)
+      age_range: mid-30s to 40s
+      role_archetype: wealthy widow, former love interest
+      relationships:
+        - Guy Markenmore (former lover)
+        - John Harborough (former lover)
+      public_persona: wealthy widow with house-party
+      private_secret: possible manipulator, conceals some facts
+      motive_seed: jealousy and love affairs
+      motive_strength: weak
+      alibi_window: at Dower House during murder
+      access_plausibility: no access to murder scene
+      opportunity_channels:
+        - house-party
+        - secret meetings
+      behavioral_tells:
+        - accuses Harborough
+        - conceals knowledge of secret marriage
+      stakes: reputation and social standing
+      evidence_sensitivity:
+        - rings
+        - testimony about meetings
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: high
+    - name: Charles Grimsdale
+      age_range: 40s to 50s
+      role_archetype: innkeeper, local observer
+      relationships:
+        - Guy Markenmore (guest)
+        - Baron von Eckhardstein (guest)
+      public_persona: landlord of Sceptre Inn
+      private_secret: knows more than he admits
+      motive_seed: none
+      motive_strength: none
+      alibi_window: present at Sceptre Inn all night
+      access_plausibility: n/a
+      opportunity_channels:
+        - observes guests
+        - testifies at inquest
+      behavioral_tells:
+        - knows about pipe
+        - withholds some info
+      stakes: reputation
+      evidence_sensitivity:
+        - pipe
+        - five-pound note
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+    - name: Jim Roper
+      age_range: 30s to 40s
+      role_archetype: woodman, spurned lover
+      relationships:
+        - Myra Halliwell (former fiancée)
+        - Daffy Halliwell (sister of Myra)
+      public_persona: reclusive woodman
+      private_secret: brooding over lost love
+      motive_seed: revenge
+      motive_strength: moderate
+      alibi_window: unknown
+      access_plausibility: knows woods well
+      opportunity_channels:
+        - woods near Markenmore Hollow
+      behavioral_tells:
+        - brooding
+        - threatening
+      stakes: personal revenge
+      evidence_sensitivity:
+        - ring taken from victim
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: high
+    - name: Baron von Eckhardstein
+      age_range: 50s
+      role_archetype: wealthy foreign financier, mysterious guest
+      relationships:
+        - Mrs. Tretheroe (hostess)
+        - Edward Lansbury (acquaintance)
+      public_persona: Austrian financier, guest at Dower House
+      private_secret: disappeared mysteriously
+      motive_seed: business interests
+      motive_strength: weak
+      alibi_window: last seen leaving Dower House early morning
+      access_plausibility: access to Sceptre Inn and Dower House
+      opportunity_channels:
+        - midnight walks
+        - business meetings
+      behavioral_tells:
+        - secretive
+        - absconded
+      stakes: business investment
+      evidence_sensitivity:
+        - pipe found at Sceptre
+        - disappearance
+      culprit_eligibility: ineligible
+      culpability: unknown
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: Edward Lansbury
+      age_range: 40s to 50s
+      role_archetype: financier, business acquaintance
+      relationships:
+        - Guy Markenmore
+        - Baron von Eckhardstein
+      public_persona: financier with business in London and New York
+      private_secret: knows about secret business deal
+      motive_seed: none
+      motive_strength: none
+      alibi_window: at Sceptre Inn until 3:15 am
+      access_plausibility: access to Sceptre Inn
+      opportunity_channels:
+        - business meetings
+      behavioral_tells:
+        - cooperative
+      stakes: business interests
+      evidence_sensitivity:
+        - money given to Markenmore
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+    - name: Eustace Spindler
+      age_range: 30s to 40s
+      role_archetype: chemist's assistant, inventor
+      relationships:
+        - Guy Markenmore
+        - Professor Sir Thomas Hodges-Wilkins
+      public_persona: assistant chemist with valuable dye formula
+      private_secret: inventor of valuable secret formula
+      motive_seed: financial gain
+      motive_strength: none
+      alibi_window: unknown
+      access_plausibility: n/a
+      opportunity_channels:
+        - business dealings
+      behavioral_tells:
+        - concerned about formula
+      stakes: secret formula
+      evidence_sensitivity:
+        - secret formula papers
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+    - name: Professor Sir Thomas Hodges-Wilkins
+      age_range: 50s to 60s
+      role_archetype: scientist, expert chemist
+      relationships:
+        - Eustace Spindler
+        - Guy Markenmore
+        - Mr. Carter (assistant)
+      public_persona: Cambridge professor of chemistry
+      private_secret: knows value of secret formula
+      motive_seed: none
+      motive_strength: none
+      alibi_window: unknown
+      access_plausibility: n/a
+      opportunity_channels:
+        - scientific evaluation
+      behavioral_tells:
+        - confident
+        - authoritative
+      stakes: scientific reputation
+      evidence_sensitivity:
+        - expert opinion letter
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+    - name: Mr. Carter
+      age_range: 30s to 40s
+      role_archetype: assistant to professor, secretive
+      relationships:
+        - Professor Sir Thomas Hodges-Wilkins (employer)
+        - Guy Markenmore (victim)
+      public_persona: assistant on holiday, unknown to locals
+      private_secret: murderer of Guy Markenmore to steal formula and money
+      motive_seed: greed for formula and money
+      motive_strength: strong
+      alibi_window: present at Markenmore Hollow at time of murder
+      access_plausibility: access via knowledge of formula and victim's movements
+      opportunity_channels:
+        - travel with victim
+        - knowledge of formula
+      behavioral_tells:
+        - secretive
+        - deceptive
+      stakes: financial gain and secret possession
+      evidence_sensitivity:
+        - papers and money found on body
+        - presence at murder scene
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+  culpability:
+    culprit_count: 1
+    culprits:
+      - Mr. Carter
+  surface_model:
+    narrative:
+      summary: >-
+        Guy Markenmore, a wealthy man with a secret past, is found murdered near Markenmore Hollow
+        on the same morning his father dies. Suspicion falls on various family members and
+        acquaintances, including Mrs. Braxfield and John Harborough, amid a backdrop of secret
+        marriages, financial dealings, and mysterious visitors.
+    accepted_facts:
+      - Guy Markenmore was found shot dead near Markenmore Hollow early morning
+      - Sir Anthony Markenmore died in his sleep the same morning
+      - >-
+        Guy Markenmore had three thousand pounds in banknotes and secret formula papers on him the
+        night before
+      - An automatic pistol sold to Harry Markenmore was found discarded near the murder scene
+    inferred_conclusions:
+      - Mrs. Braxfield shot Guy Markenmore to advance her daughter's social position
+      - John Harborough killed Guy Markenmore out of jealousy over Mrs. Tretheroe
+      - The murder was a robbery gone wrong targeting Guy Markenmore's money
+  hidden_model:
+    mechanism:
+      description: >-
+        Mr. Carter, assistant to Professor Sir Thomas Hodges-Wilkins, murdered Guy Markenmore to
+        obtain a valuable chemical formula and three thousand pounds in cash. He followed
+        Markenmore, who trusted him, and killed him at Markenmore Hollow, then attempted to conceal
+        his involvement by posing as a tourist and later dying from a fall while evading capture.
+        The discovery of the formula and money on Carter's body revealed the truth.
+      delivery_path:
+        - step: Carter received the secret formula papers from the professor for delivery to Markenmore
+        - step: Carter traveled to London and handed the papers to Markenmore, gaining his confidence
+        - step: Carter accompanied Markenmore to Markenmore Court and the surrounding area
+        - step: Carter lay in wait and murdered Markenmore at Markenmore Hollow around 4 am
+        - step: Carter fled the scene and later appeared at the Sceptre Inn as a tourist
+        - step: Carter died from a fall in the Devil’s Grip ravine while evading capture
+        - step: Police discovered Carter’s body with the formula and money, confirming his guilt
+    outcome:
+      result: >-
+        Mr. Carter is identified posthumously as the murderer of Guy Markenmore through the
+        discovery of the secret formula and money on his body.
+  false_assumption:
+    statement: >-
+      Mrs. Braxfield saw John Harborough near Markenmore Hollow from her bedroom window at the time
+      of the murder.
+    type: spatial
+    why_it_seems_reasonable: >-
+      Mrs. Braxfield testified confidently at the inquest about seeing Harborough, and her long
+      service and familiarity with the area lent credibility. Witnesses and villagers accepted her
+      statement as fact.
+    what_it_hides: >-
+      The actual location from which Mrs. Braxfield saw the man was a spinney near Markenmore
+      Hollow, not her bedroom window, and the man she saw was likely Baron von Eckhardstein, not
+      Harborough.
+  false_solution:
+    accused_suspect: Mrs. Braxfield
+    supporting_points:
+      - She was seen near Markenmore Hollow early morning
+      - She admitted to using an automatic pistol to scare foxes
+      - The automatic pistol found near the murder scene was identified as hers
+      - She was highly ambitious for her daughter to become Lady Markenmore
+    the_one_flaw: >-
+      Mrs. Braxfield had no motive to murder and denied firing the pistol at the victim; evidence
+      showed she was not at the murder scene at the time of death.
+    refuted_in_chapter: 22
+  red_herrings:
+    - id: mrs_braxfield_fox_shooter
+      description: >-
+        Mrs. Braxfield’s use of an automatic pistol to scare foxes near Markenmore Hollow suggested
+        she could have used it to kill Guy Markenmore.
+      points_at_suspect: Mrs. Braxfield
+      innocent_explanation: >-
+        She used the pistol only to scare foxes and threw it away after the murder out of
+        nervousness.
+      resolved_in_chapter: 22
+    - id: john_harborough_jealous_rival
+      description: >-
+        John Harborough was accused by Mrs. Tretheroe of murdering Guy Markenmore out of jealousy,
+        supported by a threatening letter he wrote years earlier.
+      points_at_suspect: John Harborough
+      innocent_explanation: >-
+        Harborough had an alibi and denied seeing Guy Markenmore at the time of the murder; he had
+        lost his anger years before.
+      resolved_in_chapter: 21
+  closed_circle:
+    suspects:
+      - Mrs. Braxfield
+      - John Harborough
+      - Baron von Eckhardstein
+      - Edward Lansbury
+      - Mr. Carter
+      - Harry Markenmore
+    rationale: >-
+      All these individuals had opportunity and some motive, were present in the area around the
+      time of the murder, and were investigated thoroughly by police and detectives.
+  constraint_space:
+    time:
+      anchors:
+        - Guy Markenmore left Markenmore Court at about 10:30 pm Monday night
+        - Guy Markenmore was murdered around 4:00 am Tuesday morning
+        - Sir Anthony Markenmore died early Tuesday morning
+        - Mrs. Braxfield seen near Markenmore Hollow around 4:00 am
+        - John Harborough seen near Woodland Cottage at 4:10 am
+        - Three men seen leaving Sceptre Inn at 3:15 am Tuesday morning
+      windows:
+        - Markenmore Hollow murder occurred between 3:30 am and 4:30 am
+        - Supper meeting at Sceptre Inn from 11:00 pm to 3:15 am
+        - Mrs. Braxfield’s fox shooting early morning hours
+        - Von Eckhardstein’s disappearance early Tuesday morning
+    access:
+      actors:
+        - Mr. Carter (assistant to professor)
+        - Guy Markenmore
+        - Baron von Eckhardstein
+        - Edward Lansbury
+        - Mrs. Braxfield
+        - John Harborough
+        - Harry Markenmore
+      objects:
+        - Markenmore Court
+        - Sceptre Inn
+        - Dower House
+        - Markenmore Hollow
+        - Deep Lane
+        - Woodland Cottage
+        - Mitbourne Station
+    social:
+      trust_channels:
+        - Professor Sir Thomas Hodges-Wilkins to Mr. Carter
+        - Guy Markenmore to Mr. Carter
+        - Guy Markenmore to Edward Lansbury
+        - Mrs. Braxfield to Harry Markenmore
+        - Mrs. Tretheroe to her guests
+      authority_sources:
+        - Coroner’s inquest
+        - Chief Constable
+        - Detective-Sergeant Blick
+        - Solicitors Chilford and Crewe
+        - Professor Sir Thomas Hodges-Wilkins
+  inference_path:
+    steps:
+      - observation: >-
+          Mrs. Braxfield testified seeing John Harborough near Markenmore Hollow from her bedroom
+          window
+        correction: >-
+          Physical geography and witness testimony show she could not see that spot from her window
+          but from a spinney nearby
+        effect: >-
+          Mrs. Braxfield’s testimony about seeing Harborough is unreliable and may confuse suspect
+          identity
+        required_evidence:
+          - Ordnance Map showing Woodland Cottage and Markenmore Hollow with intervening hill
+          - Mrs. Braxfield’s inquest testimony and later police interview
+        reader_observable: true
+      - observation: An automatic pistol was found in a badger hole near Deep Lane
+        correction: >-
+          The pistol was identified as sold to Harry Markenmore but was used by Mrs. Braxfield to
+          scare foxes and later discarded
+        effect: Suspicion on Mrs. Braxfield for murder based on pistol possession is weakened
+        required_evidence:
+          - Gunsmith’s sales record of pistol to Harry Markenmore
+          - Mrs. Braxfield’s admission and police interview
+        reader_observable: true
+      - observation: >-
+          Guy Markenmore had three thousand pounds in cash and secret formula papers on him the
+          night before murder
+        correction: >-
+          The secret formula was highly valuable and motive for murder was to obtain it along with
+          the money
+        effect: >-
+          Murder motive shifts from simple robbery or family jealousy to acquisition of valuable
+          trade secret
+        required_evidence:
+          - Testimony of Eustace Spindler about formula and price
+          - Professor Sir Thomas Hodges-Wilkins expert opinion letter
+        reader_observable: true
+      - observation: Two men were with Guy Markenmore at the Sceptre Inn late Monday night
+        correction: One was Edward Lansbury, the other Baron von Eckhardstein, neither suspected of murder
+        effect: Focus shifts away from these men as culprits
+        required_evidence:
+          - Testimony of Charles Grimsdale, landlord of Sceptre Inn
+          - Edward Lansbury’s and Baron von Eckhardstein’s accounts
+        reader_observable: true
+      - observation: John Harborough had threatened to kill Guy Markenmore years ago
+        correction: Harborough’s anger had cooled and he had an alibi at time of murder
+        effect: Harborough is cleared as suspect
+        required_evidence:
+          - Harborough’s testimony at inquest
+          - Witness Elizabeth Braxfield’s statement of seeing Harborough at 4:10 am
+        reader_observable: true
+      - observation: Jim Roper threatened Guy Markenmore and had motive for revenge
+        correction: Roper denies involvement and is unlikely to conceal a successful revenge
+        effect: Roper is considered innocent but possibly knowledgeable
+        required_evidence:
+          - Daffy Halliwell’s testimony about Roper
+          - Roper’s own statements to Blick and Professor
+        reader_observable: true
+      - observation: Mr. Carter was seen with Guy Markenmore and later died from a fall
+        correction: >-
+          Carter was the murderer who killed Markenmore for formula and money and died accidentally
+          while evading capture
+        effect: Carter identified as the true culprit
+        required_evidence:
+          - Discovery of Carter’s body with formula and money
+          - Professor Sir Thomas Hodges-Wilkins and Blick’s analysis
+        reader_observable: true
+  discriminating_test:
+    method: constraint_proof
+    design: >-
+      Investigators verify alibis and presence of suspects at key times by cross-referencing witness
+      statements, physical geography, and sales records of the pistol. They confirm Mrs. Braxfield’s
+      presence near Markenmore Hollow and her use of the pistol, but also confirm Harry Markenmore’s
+      alibi at his father’s bedside. They trace the secret formula delivery and the presence of
+      Carter at the scene.
+    knowledge_revealed: >-
+      This test reveals who had opportunity and access to the murder scene and the secret formula,
+      and who could not have committed the crime due to alibi or lack of access.
+    pass_condition: >-
+      The suspect must be physically present at Markenmore Hollow at the time of murder and have
+      access to the murder weapon and motive; others with alibis or no access are excluded.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is provided with detailed witness testimonies, physical evidence such as the
+      pistol, rings, and money, and the timeline of events. The presence of multiple suspects with
+      motives and alibis invites careful analysis. The discovery of the secret formula and its value
+      is clearly explained, allowing the reader to deduce that the murderer must have had knowledge
+      of it. The final revelation is supported by evidence introduced earlier, such as the discovery
+      of Carter’s body with the formula and money, making the solution fair and solvable.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

@@ -1,0 +1,121 @@
+{
+ "slug": "the_valley_of_ghosts",
+ "spans": [
+  {
+   "claim": "Stella Nelson was seen at the post office with a ring on her engagement finger",
+   "anchor": "a ring on the engagement finger; a gold ring with little emeralds",
+   "span": "She raised her hand, and he saw a ring on the engagement finger; a gold ring with little emeralds, or they may have been sapphires-no, they were emeralds.",
+   "ok": true
+  },
+  {
+   "claim": "Darius Merrivan was found murdered with a gunshot wound and powder burns",
+   "anchor": "He had been shot at close quarters, for there was a blackening of powder upon his white waistcoat",
+   "span": "He had been shot at close quarters, for there was a blackening of powder upon his white waistcoat.",
+   "ok": true
+  },
+  {
+   "claim": "A letter threatening Merrivan was found on his desk",
+   "anchor": "I have given you a chance. You have failed me. You must bear the consequence",
+   "span": "I have given you a chance. You have failed me. You must bear the consequence.",
+   "ok": true
+  },
+  {
+   "claim": "A woman’s voice was heard by the butler in Merrivan’s house",
+   "anchor": "The butler had admitted nobody, and yet, coming downstairs half an hour after Mr. Merrivan had told him to go to bed, he heard the sound of voices, and one of those voices was a woman’s",
+   "span": "The butler had admitted nobody, and yet, coming downstairs half an hour after Mr. Merrivan had told him to go to bed, he heard the sound of voices, and one of those voices was a woman's.",
+   "ok": true
+  },
+  {
+   "claim": "The emerald ring found in the garden belonged to Stella Nelson",
+   "anchor": "It was Stella Nelson’s ring. He had seen it on her engagement finger in the post office",
+   "span": "It was Stella Nelson's ring. He had seen it on her engagement finger in the post office, and had felt a momentary pang of disappointment, the pang that all men feel when they see a pretty woman is not for them.",
+   "ok": true
+  },
+  {
+   "claim": "Arthur Wilmot possessed a stolen marriage certificate and forged bills",
+   "anchor": "He locked the door of his room when he got in, pulled down the blinds, and switched on the lights. Then he emptied the contents of his pocket",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Abraham Selim and Darius Merrivan are the same person",
+   "anchor": "Abraham Selim and Merrivan were one and the same person",
+   "span": "Abraham Selim and Merrivan were one and the same person, and the threatening letter which he had thought had been received by Merrivan had really been written by him.",
+   "ok": true
+  },
+  {
+   "claim": "Mr. Boyd Salter was seen sleepwalking and reenacting the murder",
+   "anchor": "He was asleep. Andrew had known that when he heard the slurred, harsh voice",
+   "span": "He was asleep. Andrew had known that when he heard the slurred, harsh voice.",
+   "ok": true
+  },
+  {
+   "claim": "Salter died accidentally from a trap gun set in the park",
+   "anchor": "There was a crash. Mrs. Crafton-Bonsor had fallen to the floor in a dead faint",
+   "span": "There was a crash. Mrs. Crafton-Bonsor had fallen to the floor in a dead faint.",
+   "ok": true
+  },
+  {
+   "claim": "Scottie was injured by a gunshot wound during a burglary",
+   "anchor": "Scottie hurt himself. He didn’t want to go to a doctor, and, you see, I had a nursing course",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Mrs. Crafton-Bonsor confessed her past and marriage to John Severn",
+   "anchor": "My name is Mirabel Hilda Crafton-Bonsor. I am not sure whether that was my late husband’s real name",
+   "span": "My name is Mirabel Hilda Crafton-Bonsor. I am not sure whether that was my late husband's real name.",
+   "ok": true
+  },
+  {
+   "claim": "The forged bills were signed by Kenneth Nelson and accepted by Merrivan",
+   "anchor": "Two forged bills drawn by Mr. Nelson in favour of Abraham Selim and accepted by my uncle",
+   "span": "Two forged bills drawn by Mr. Nelson in favour of Abraham Selim and accepted by my uncle.",
+   "ok": true
+  },
+  {
+   "claim": "The marriage certificate was stolen from Wilmot’s safe",
+   "anchor": "The marriage certificate is gone!",
+   "span": "The marriage certificate is gone!\" It happened that at that moment Andy turned his head toward the door.",
+   "ok": true
+  },
+  {
+   "claim": "The gamekeeper was the murderer disguised",
+   "anchor": "He was a gamekeeper. Which of the bunch I couldn’t swear to",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The letter threatening Merrivan was written by Merrivan himself",
+   "anchor": "The threatening letter which he had thought had been received by Merrivan had really been written by him",
+   "span": "Abraham Selim and Merrivan were one and the same person, and the threatening letter which he had thought had been received by Merrivan had really been written by him.",
+   "ok": true
+  },
+  {
+   "claim": "Scottie was reformed and helped the investigation",
+   "anchor": "Scottie was a reformed character. I believe he is posing for Mr. Nelson",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Arthur Wilmot’s secret profession was a milliner named Flora",
+   "anchor": "Arthur Wilmot; he is, in fact, Flora. He has three stores in town",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The forged bills were destroyed in the fireplace",
+   "anchor": "There was in the fireplace when the police came upon the spot a heap of burnt paper",
+   "span": "There was in the fireplace when the police came upon the spot a heap of burnt paper, and it is clear that the murderer had ransacked the safe in search of these papers and had burnt them before he made his escape.",
+   "ok": true
+  },
+  {
+   "claim": "The final ghost is laid with Salter’s death",
+   "anchor": "The last ghost is laid",
+   "span": "The last ghost is laid.",
+   "ok": true
+  }
+ ],
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

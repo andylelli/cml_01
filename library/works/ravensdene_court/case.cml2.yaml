@@ -1,0 +1,407 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: Ravensdene Court
+    author: J. S. (Joseph Smith) Fletcher
+    license: Public domain (first published 1920; author died 1935). Project Gutenberg ebook 26324.
+    era:
+      decade: 1910s
+      realism_constraints:
+        - No modern forensic DNA or electronic surveillance
+        - Limited police communication and travel speed
+        - Use of telegrams and early photography for evidence
+    setting:
+      location: Northumbrian coast, England; also Devonport, Saltash, Blyth, Hull
+      institution: Local police with assistance from Devonport police and detective Scarterfield
+    crime_class:
+      category: murder
+      subtype: murder for possession of stolen monastic treasure
+  cast:
+    - name: Leonard Middlebrook
+      age_range: 30-40
+      role_archetype: expert in old books and documents, amateur investigator
+      relationships:
+        - Miss Marcia Raven (ally)
+      public_persona: book expert and narrator
+      private_secret: curious and cautious about the case
+      motive_seed: solve the mystery
+      motive_strength: strong
+      alibi_window: present throughout investigation
+      access_plausibility: high
+      opportunity_channels:
+        - investigative access
+      behavioral_tells:
+        - curiosity
+        - caution
+      stakes: personal safety and justice
+      evidence_sensitivity:
+        - tobacco-box photograph
+        - handkerchief
+        - documents
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: low
+    - name: Miss Marcia Raven
+      age_range: 18-22
+      role_archetype: young niece, curious and brave
+      relationships:
+        - Francis Raven (uncle)
+        - Leonard Middlebrook (ally)
+      public_persona: host's niece, interested in mystery
+      private_secret: brave and resourceful
+      motive_seed: help solve mystery and protect self
+      motive_strength: moderate
+      alibi_window: present throughout investigation
+      access_plausibility: high
+      opportunity_channels:
+        - presence at crime scenes
+      behavioral_tells:
+        - curiosity
+        - courage
+      stakes: personal safety
+      evidence_sensitivity:
+        - observations on tobacco-box
+        - interaction with Baxter
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: low
+    - name: Francis Raven
+      age_range: 50-60
+      role_archetype: nervous host, recently returned from India
+      relationships:
+        - Miss Marcia Raven (niece)
+      public_persona: owner of Ravensdene Court
+      private_secret: nervous about murders near his property
+      motive_seed: protect family and property
+      motive_strength: weak
+      alibi_window: present at Ravensdene Court
+      access_plausibility: high
+      opportunity_channels:
+        - property owner
+      behavioral_tells:
+        - nervousness
+        - concern
+      stakes: family safety
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: bystander
+      moral_complexity: low
+    - name: Netherfield Baxter
+      age_range: 35-45
+      role_archetype: charismatic criminal, adventurer
+      relationships:
+        - Frenchman (accomplice)
+        - Chinese crew (accomplices)
+      public_persona: gentleman, yachtsman
+      private_secret: thief of monastic treasure, involved in murders
+      motive_seed: recover stolen treasure and profit
+      motive_strength: strong
+      alibi_window: present at crime scenes
+      access_plausibility: high
+      opportunity_channels:
+        - ownership of yacht
+        - knowledge of treasure location
+      behavioral_tells:
+        - candid, vain, cunning
+      stakes: wealth and freedom
+      evidence_sensitivity:
+        - tobacco-box
+        - handkerchief
+        - monastic treasure
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Frenchman (Vicomte)
+      age_range: 35-45
+      role_archetype: accomplice, adventurer
+      relationships:
+        - Netherfield Baxter (accomplice)
+      public_persona: French nobleman
+      private_secret: partner in crime with Baxter
+      motive_seed: profit from stolen treasure
+      motive_strength: strong
+      alibi_window: present at crime scenes
+      access_plausibility: high
+      opportunity_channels:
+        - crew of yacht
+      behavioral_tells:
+        - polite, refined
+      stakes: wealth and freedom
+      evidence_sensitivity:
+        - handkerchief
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Lo Chuh Fen
+      age_range: 30-40
+      role_archetype: Chinese cook, conspirator
+      relationships:
+        - Chinese crew
+        - Netherfield Baxter
+      public_persona: Chinese cook
+      private_secret: involved in murders and conspiracy
+      motive_seed: gain from treasure
+      motive_strength: strong
+      alibi_window: present at crime scenes
+      access_plausibility: high
+      opportunity_channels:
+        - crew of yacht
+      behavioral_tells:
+        - subtle, dangerous
+      stakes: wealth and survival
+      evidence_sensitivity:
+        - body-belt
+        - monastic treasure
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Wing
+      age_range: 30-40
+      role_archetype: Chinese servant, double agent
+      relationships:
+        - Dr. Lorrimore (master)
+        - Lo Chuh Fen (fellow conspirator)
+      public_persona: Chinese servant and cook
+      private_secret: infiltrated conspirators, acted to save captives
+      motive_seed: justice and loyalty to master
+      motive_strength: strong
+      alibi_window: present at crime scenes
+      access_plausibility: high
+      opportunity_channels:
+        - crew of yacht
+      behavioral_tells:
+        - subtle, resourceful
+      stakes: life and justice
+      evidence_sensitivity:
+        - silk cap
+        - monastic treasure
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+  culpability:
+    culprit_count: 2
+    culprits:
+      - Netherfield Baxter
+      - Frenchman (Vicomte)
+  surface_model:
+    narrative:
+      summary: >-
+        Two brothers, Salter and Noah Quick, are found murdered hundreds of miles apart, each
+        carrying money and valuables untouched but having been searched. A mysterious tobacco-box
+        with cryptic scratches and a blood-stained handkerchief are key clues. The investigation
+        uncovers a stolen monastic treasure hidden on the Northumbrian coast and a gang including
+        Netherfield Baxter, a Frenchman, and Chinese accomplices seeking to recover it.
+    accepted_facts:
+      - Salter and Noah Quick were murdered on the same night at distant locations
+      - Both men carried money and valuables that were not stolen
+      - A tobacco-box with cryptic scratches was found on Salter Quick
+      - Netherfield Baxter and accomplices bought a yacht and sought the treasure
+    inferred_conclusions:
+      - The murders were committed by the same individual
+      - The tobacco-box scratches directly reveal the treasure's exact location
+      - The murderer was not among the known conspirators
+  hidden_model:
+    mechanism:
+      description: >-
+        The murders were committed by members of a criminal gang seeking stolen monastic treasure
+        hidden near the graves of the de Knaythevilles on the Northumbrian coast. The Quicks were
+        killed because they possessed rubies and pearls from the treasure. The gang included
+        Netherfield Baxter, a Frenchman, and Chinese accomplices. Internal betrayal among the
+        Chinese crew led to a deadly fight aboard their yacht, resulting in multiple deaths and the
+        escape of Wing, who helped the captives.
+      delivery_path:
+        - step: >-
+            Netherfield Baxter and accomplices steal monastic treasure and hide it near de
+            Knaytheville graves
+        - step: Noah and Salter Quick come into possession of rubies and pearls from the treasure
+        - step: The gang tracks and murders the Quicks to obtain the jewels
+        - step: >-
+            Mr. Cazalette discovers clues including the tobacco-box scratches and blood-stained
+            handkerchief
+        - step: The gang steals the tobacco-box and pocket-book to conceal evidence
+        - step: Wing infiltrates the gang to protect captives and gather intelligence
+        - step: A mutiny among the Chinese crew leads to a deadly fight and the destruction of the yacht
+    outcome:
+      result: >-
+        The gang is destroyed in a fight aboard their yacht, the treasure is recovered, and the
+        surviving conspirator Wing is found wounded but alive.
+  false_assumption:
+    statement: >-
+      The murders were committed by a single unknown man who followed Salter Quick to the
+      Northumbrian coast.
+    type: identity
+    why_it_seems_reasonable: >-
+      The simultaneous murders and the presence of two sets of footprints at Salter Quick's murder
+      scene suggest a single assailant. The initial suspicion falls on a mysterious man seen asking
+      about Netherfield graves.
+    what_it_hides: >-
+      It obscures the fact that multiple conspirators from a gang were involved, and that the
+      murders were coordinated but carried out by different individuals with different motives.
+  false_solution:
+    accused_suspect: The man who met Salter Quick at the inn (James Beeman's stranger)
+    supporting_points:
+      - He was seen asking about Netherfield graves near the time of the murder
+      - He was a stranger to the area and seemed suspicious
+      - The footprints suggested a light-footed person, possibly a woman or this man
+    the_one_flaw: He was not seen again and had no motive or opportunity to commit the murders
+    refuted_in_chapter: 11
+  red_herrings:
+    - id: woman_as_murderer
+      description: >-
+        Locals believed the light footprints at Salter Quick's murder scene were made by a woman,
+        suggesting a female murderer.
+      points_at_suspect: A woman with light footsteps
+      innocent_explanation: >-
+        The light footprints were actually made by one of the male conspirators wearing light-soled
+        boots.
+      resolved_in_chapter: 7
+    - id: mr_cazalette_suspicion
+      description: >-
+        Mr. Cazalette's secretive behavior with the blood-stained handkerchief and tobacco-box led
+        to suspicion he might be involved.
+      points_at_suspect: Mr. Cazalette's odd actions and possession of clues
+      innocent_explanation: >-
+        He was investigating the case out of curiosity and lost his pocket-book to thieves; he was
+        not involved in the murders.
+      resolved_in_chapter: 9
+  closed_circle:
+    suspects:
+      - Netherfield Baxter
+      - Frenchman (Vicomte)
+      - Lo Chuh Fen
+      - Wing
+    rationale: >-
+      The suspects are limited to the known conspirators who bought the yacht, had access to the
+      treasure, and were present at the crime scenes; no other plausible suspects appear.
+  constraint_space:
+    time:
+      anchors:
+        - March 8, 1912 - Leonard Middlebrook arrives at Ravensdene Court
+        - March 9, 1912 - Salter Quick murdered
+        - March 10, 1912 - Noah Quick murdered
+        - April 23, 1912 - Scarterfield writes from Blyth
+      windows:
+        - Night of March 9-10 for Salter Quick's murder
+        - Night of March 9-10 for Noah Quick's murder
+        - Three weeks before arrival at Hull for yacht purchase
+    access:
+      actors:
+        - Netherfield Baxter
+        - Frenchman (Vicomte)
+        - Lo Chuh Fen
+        - Wing
+      objects:
+        - Yacht Blanchflower
+        - Monastic treasure chests
+        - Tobacco-box
+        - Pocket-book
+    social:
+      trust_channels:
+        - Mr. Cazalette's photographic investigation
+        - Police inspector and detective Scarterfield
+        - Dr. Lorrimore and his servant Wing
+      authority_sources:
+        - Local police
+        - Devonport police
+        - Detective Scarterfield
+        - Coroner's inquest
+  inference_path:
+    steps:
+      - observation: Salter Quick was murdered but his money and valuables were untouched.
+        correction: The motive was not robbery but possession of a secret or treasure.
+        effect: Focus shifts to secret or hidden valuables as motive.
+        required_evidence:
+          - Police report on Salter Quick's body showing money and valuables present
+          - Inspection of Salter Quick's clothing showing pockets turned out
+        reader_observable: true
+      - observation: Tobacco-box lid had cryptic scratches.
+        correction: The scratches represent a map or plan related to the treasure.
+        effect: Leads to investigation of monastic treasure and its location.
+        required_evidence:
+          - Photograph of tobacco-box lid with scratches
+          - Mr. Cazalette's notes and enlargements of the photograph
+        reader_observable: true
+      - observation: No Netherfield graves exist near Ravensdene Court.
+        correction: The name Netherfield was confused with de Knaythville, the actual ancestral name.
+        effect: Search focuses on ruins and graves of de Knaythville family.
+        required_evidence:
+          - Local parish records and history books
+          - Inscription on tombstone of Humphrey de Knaythville
+        reader_observable: true
+      - observation: Two men, Baxter and Frenchman, bought a yacht and sailed north.
+        correction: They intended to recover the hidden treasure near Ravensdene Court.
+        effect: Yacht and crew become suspects and focus of police search.
+        required_evidence:
+          - Ship broker Jallanby's testimony about yacht purchase
+          - Yacht Blanchflower found at Northumbrian coast
+        reader_observable: true
+      - observation: A fight and multiple deaths occurred aboard the yacht.
+        correction: Internal betrayal among conspirators led to deadly mutiny.
+        effect: Identifies multiple culprits and explains deaths aboard yacht.
+        required_evidence:
+          - Eyewitness accounts of fight and deaths on yacht
+          - Bodies found aboard yacht including Baxter and Chinese crew
+        reader_observable: true
+      - observation: Wing, Dr. Lorrimore's servant, was missing from the yacht.
+        correction: Wing escaped wounded and sought help, acting against conspirators.
+        effect: Wing is revealed as a double agent aiding captives.
+        required_evidence:
+          - Silk cap identified as Wing's
+          - Wing found wounded at Dr. Lorrimore's house
+        reader_observable: true
+      - observation: Rubies and pearls were found with Wing after escape.
+        correction: These jewels were the motive for the murders of the Quicks.
+        effect: Confirms treasure as central to the murders and conspiracy.
+        required_evidence:
+          - Statement of diamond merchant Baubenheimer
+          - Jewels recovered from Wing after rescue
+        reader_observable: true
+  discriminating_test:
+    method: trap
+    design: >-
+      Wing is allowed to escape from the yacht and is tracked to Dr. Lorrimore's house where he is
+      found wounded but alive. The presence of the silk cap and recovered jewels confirm his
+      identity and role. The test reveals whether Wing is a conspirator or a double agent.
+    knowledge_revealed: >-
+      Wing was the fourth Chinaman on the yacht, escaped after a mutiny, and acted to protect the
+      captives and expose the conspirators.
+    pass_condition: Wing is found alive with the silk cap and jewels, confirming his identity and innocence.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given all essential clues: the tobacco-box with scratches, the blood-stained
+      handkerchief, the inventories of the monastic treasure, the testimonies of witnesses like
+      Solomon Fish and James Beeman, and the detective's investigations. The presence of the yacht,
+      the crew, and the mutiny are all described. The reader can deduce the motive, the
+      conspirators, and the sequence of events leading to the murders and the final confrontation.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

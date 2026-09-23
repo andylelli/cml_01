@@ -66,8 +66,8 @@
   {
    "claim": "Prince Michael was innocent of the murders of police officers",
    "anchor": "This man, Hooker Wilson, as soon as he had put his head in at that window, killed his two comrades",
-   "span": "",
-   "ok": false
+   "span": "that this man, Hooker Wilson, as soon as he had put his head in at that window, killed his two comrades who had put their heads in at the other windows, by firing across the empty room.",
+   "ok": true
   },
   {
    "claim": "The relic was stolen using a magnet on a string through a hole in the floor",
@@ -130,5 +130,7 @@
   "encode": "gpt-4.1-mini",
   "sweep": "gpt-4o-mini"
  },
- "case_written": true
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
 }

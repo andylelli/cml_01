@@ -1,0 +1,507 @@
+{
+ "decade": "1900s",
+ "realism_constraints": [
+  "No modern forensic science or DNA analysis available",
+  "Communication by telegram and postal letters only",
+  "Travel by train and horse-drawn carriages, early motor cars"
+ ],
+ "location": "Barford and Normandale Grange, Yorkshire, England",
+ "institution": "Eldrick & Pascoe, Solicitors; local police including Detective-Sergeant Prydale",
+ "crime_category": "murder",
+ "crime_subtype": "murder to conceal blackmail over a forged will",
+ "cast": [
+  {
+   "name": "Linford Pratt",
+   "age_range": "28-35",
+   "role_archetype": "ambitious and unscrupulous clerk",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "clever, polite solicitor's clerk turned agent",
+   "private_secret": "stole the will, murdered Parrawhite, blackmailed Mrs. Mallathorpe",
+   "motive_seed": "gain control of Mallathorpe estate and wealth",
+   "motive_strength": "strong",
+   "alibi_window": "none",
+   "access_plausibility": "high",
+   "stakes": "high personal gain and power",
+   "moral_complexity": "high",
+   "relationships": [
+    "Mrs. Mallathorpe (cousin)",
+    "James Parrawhite (enemy and victim)",
+    "Esther Mawson (accomplice)"
+   ],
+   "opportunity_channels": [
+    "access to Eldrick & Pascoe office",
+    "knowledge of legal documents"
+   ],
+   "behavioral_tells": [
+    "calm under pressure",
+    "manipulative",
+    "vain"
+   ],
+   "evidence_sensitivity": [
+    "possession of will",
+    "presence at crime scenes",
+    "power of attorney documents"
+   ]
+  },
+  {
+   "name": "James Parrawhite",
+   "age_range": "30-40",
+   "role_archetype": "dissolute former clerk and blackmailer",
+   "role": "victim",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "disliked, gambler, thief",
+   "private_secret": "knew Pratt's secret and threatened him",
+   "motive_seed": "extort money from Pratt",
+   "motive_strength": "strong",
+   "alibi_window": "none",
+   "access_plausibility": "high",
+   "stakes": "money and survival",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Linford Pratt (enemy)"
+   ],
+   "opportunity_channels": [
+    "presence in Eldrick & Pascoe office"
+   ],
+   "behavioral_tells": [
+    "threatening",
+    "confident"
+   ],
+   "evidence_sensitivity": [
+    "body found weighted in quarry pit",
+    "last seen with Pratt"
+   ]
+  },
+  {
+   "name": "Mrs. Ann Mallathorpe",
+   "age_range": "50-60",
+   "role_archetype": "shrewd, controlling widow",
+   "role": "suspect",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "business-like matriarch",
+   "private_secret": "tried to recover will to protect family",
+   "motive_seed": "protect family's claim to estate",
+   "motive_strength": "strong",
+   "alibi_window": "none",
+   "access_plausibility": "high",
+   "stakes": "family wealth and power",
+   "moral_complexity": "high",
+   "relationships": [
+    "Harper Mallathorpe (son, deceased)",
+    "Nesta Mallathorpe (daughter)",
+    "Linford Pratt (blackmailer)"
+   ],
+   "opportunity_channels": [
+    "control of estate",
+    "access to servants"
+   ],
+   "behavioral_tells": [
+    "secretive",
+    "fearful",
+    "calculating"
+   ],
+   "evidence_sensitivity": [
+    "power of attorney documents",
+    "letter to Pratt"
+   ]
+  },
+  {
+   "name": "Nesta Mallathorpe",
+   "age_range": "20-30",
+   "role_archetype": "strong-willed heiress",
+   "role": "witness",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "attractive, concerned niece",
+   "private_secret": "suspects Pratt's wrongdoing",
+   "motive_seed": "protect family estate",
+   "motive_strength": "moderate",
+   "alibi_window": "none",
+   "access_plausibility": "high",
+   "stakes": "inheritance and family honor",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Mrs. Mallathorpe (mother)",
+    "Harper Mallathorpe (brother, deceased)",
+    "Linford Pratt (antagonist)",
+    "Bartle Collingwood (friend and suitor)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "determined",
+    "angry",
+    "persistent"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Bartle Collingwood",
+   "age_range": "25-35",
+   "role_archetype": "young barrister and investigator",
+   "role": "detective",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "promising barrister",
+   "private_secret": "investigating Pratt and the will",
+   "motive_seed": "seek justice and protect Nesta",
+   "motive_strength": "strong",
+   "alibi_window": "none",
+   "access_plausibility": "high",
+   "stakes": "truth and justice",
+   "moral_complexity": "low",
+   "relationships": [
+    "Antony Bartle (grandfather, deceased)",
+    "Nesta Mallathorpe (friend and love interest)",
+    "Linford Pratt (suspect)"
+   ],
+   "opportunity_channels": [
+    "legal knowledge",
+    "access to Eldrick & Pascoe"
+   ],
+   "behavioral_tells": [
+    "observant",
+    "persistent",
+    "cautious"
+   ],
+   "evidence_sensitivity": [
+    "witness statements",
+    "legal documents"
+   ]
+  },
+  {
+   "name": "Charles Eldrick",
+   "age_range": "50-60",
+   "role_archetype": "senior solicitor",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "experienced solicitor",
+   "private_secret": "aware of Pratt's schemes",
+   "motive_seed": "professional duty",
+   "motive_strength": "moderate",
+   "alibi_window": "none",
+   "access_plausibility": "high",
+   "stakes": "professional reputation",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Linford Pratt (former clerk)",
+    "Bartle Collingwood (client)"
+   ],
+   "opportunity_channels": [
+    "legal knowledge",
+    "office access"
+   ],
+   "behavioral_tells": [
+    "unsuspicious",
+    "trusting"
+   ],
+   "evidence_sensitivity": [
+    "legal documents",
+    "advertisements"
+   ]
+  },
+  {
+   "name": "Gerald Byner",
+   "age_range": "30-40",
+   "role_archetype": "inquiry agent",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "professional inquiry agent",
+   "private_secret": "investigating Parrawhite and Pratt",
+   "motive_seed": "professional duty",
+   "motive_strength": "moderate",
+   "alibi_window": "none",
+   "access_plausibility": "high",
+   "stakes": "successful investigation",
+   "moral_complexity": "low",
+   "relationships": [
+    "Charles Eldrick (client)",
+    "Detective-Sergeant Prydale (colleague)"
+   ],
+   "opportunity_channels": [
+    "investigative skills"
+   ],
+   "behavioral_tells": [
+    "calm",
+    "methodical"
+   ],
+   "evidence_sensitivity": [
+    "witness statements",
+    "advertisements"
+   ]
+  }
+ ],
+ "culprits": [
+  "Linford Pratt"
+ ],
+ "surface_summary": "Linford Pratt, a solicitor's clerk, is found to have stolen a will that would disinherit the Mallathorpe family. He blackmails Mrs. Mallathorpe and murders James Parrawhite, who threatens to expose him. The body of Parrawhite is found weighted in a quarry pit, and Pratt's schemes unravel leading to his death.",
+ "accepted_facts": [
+  "John Mallathorpe died intestate in a chimney accident",
+  "A will was discovered by Antony Bartle and stolen by Pratt",
+  "Parrawhite disappeared after threatening Pratt and was later found dead",
+  "Mrs. Mallathorpe gave Pratt power of attorney over her affairs"
+ ],
+ "inferred_conclusions": [
+  "Parrawhite fled to America to escape prosecution",
+  "Mrs. Mallathorpe intended to kill Pratt by luring him to the dangerous bridge",
+  "Pratt was honest and only sought to protect Mrs. Mallathorpe's interests"
+ ],
+ "mechanism_description": "Pratt stole the will from the dead Antony Bartle's pocket after Bartle's sudden death in the solicitor's office. Parrawhite, who witnessed the theft and sought to blackmail Pratt, was murdered by Pratt in a disused quarry and his body weighted with scrap iron and dumped in a water-filled pit. Pratt then used the will to blackmail Mrs. Mallathorpe and gain control over her affairs.",
+ "delivery_path": [
+  "Antony Bartle finds the will in a book and goes to Eldrick & Pascoe's office",
+  "Bartle dies suddenly in the office; Pratt takes the will from his pocket",
+  "Parrawhite witnesses the theft and threatens Pratt",
+  "Pratt murders Parrawhite in the quarry and disposes of his body weighted with scrap iron",
+  "Pratt uses the will to blackmail Mrs. Mallathorpe and obtains power of attorney",
+  "Investigation into Parrawhite's disappearance leads to discovery of his body",
+  "Pratt is confronted and ultimately commits suicide when cornered"
+ ],
+ "outcome_result": "The duplicate will is found, Pratt's crimes are exposed, and the Mallathorpe estate is secured for Nesta Mallathorpe.",
+ "false_assumption": {
+  "statement": "Parrawhite escaped to America and is alive, avoiding capture.",
+  "type": "temporal",
+  "why_it_seems_reasonable": "Murgatroyd's telegram claimed Parrawhite left for America, and no immediate evidence of foul play was known. Pratt's scheme to fake Parrawhite's departure was plausible given the era's limited communication.",
+  "what_it_hides": "It conceals that Parrawhite was actually murdered by Pratt and his body disposed of locally to prevent exposure."
+ },
+ "false_solution": {
+  "accused_suspect": "Mrs. Ann Mallathorpe",
+  "supporting_points": [
+   "Mrs. Mallathorpe was found near the scene of her son's death and appeared frightened",
+   "She had motive to suppress the will to keep the estate",
+   "She locked the foot-bridge gates and wrote a suspicious letter to Pratt",
+   "Local gossip and suspicion pointed to her involvement"
+  ],
+  "the_one_flaw": "No concrete evidence linked her to the murder or theft; the will was stolen by Pratt and Parrawhite was killed by Pratt to silence him.",
+  "refuted_in_chapter": 21
+ },
+ "red_herrings": [
+  {
+   "id": "foot_bridge_danger",
+   "description": "The old foot-bridge was in dangerous condition and locked by Mrs. Mallathorpe, suggesting a possible murder trap.",
+   "points_at_suspect": "Mrs. Ann Mallathorpe",
+   "innocent_explanation": "Mrs. Mallathorpe intended to have the bridge repaired and locked it for safety; the collapse was accidental.",
+   "resolved_in_chapter": 23
+  },
+  {
+   "id": "murgatroyd_shipping_passage",
+   "description": "Murgatroyd's telegram claimed Parrawhite left for America, implying he escaped.",
+   "points_at_suspect": "James Parrawhite",
+   "innocent_explanation": "The telegram was a fabrication arranged by Pratt to fake Parrawhite's escape and cover up the murder.",
+   "resolved_in_chapter": 23
+  }
+ ],
+ "closed_circle": {
+  "suspects": [
+   "Linford Pratt",
+   "Mrs. Ann Mallathorpe",
+   "James Parrawhite",
+   "Nesta Mallathorpe",
+   "Bartle Collingwood",
+   "Charles Eldrick",
+   "Gerald Byner"
+  ],
+  "rationale": "The suspects are limited to those with access to the will, motive, and opportunity within the small community of Barford and Normandale Grange."
+ },
+ "constraint_space": {
+  "time_anchors": [
+   "Antony Bartle's death evening",
+   "Parrawhite's murder night",
+   "Harper Mallathorpe's death Saturday afternoon",
+   "Pratt's flight morning after discovery"
+  ],
+  "time_windows": [
+   "Bartle alone with Pratt for short time",
+   "Parrawhite and Pratt meeting in quarry at night",
+   "Pratt's presence at Eldrick's office morning after",
+   "Mrs. Mallathorpe's illness and visits"
+  ],
+  "access_actors": [
+   "Linford Pratt",
+   "James Parrawhite",
+   "Mrs. Mallathorpe",
+   "Esther Mawson"
+  ],
+  "access_objects": [
+   "John Mallathorpe's will",
+   "Eldrick's office desk",
+   "Quarry pit",
+   "Power of attorney documents"
+  ],
+  "trust_channels": [
+   "Mrs. Mallathorpe and Pratt's business dealings",
+   "Esther Mawson as intermediary",
+   "Eldrick & Pascoe solicitors' office"
+  ],
+  "authority_sources": [
+   "Eldrick & Pascoe solicitors",
+   "Local police and Detective-Sergeant Prydale",
+   "Inquiry agents Halstead & Byner"
+  ]
+ },
+ "inference_path": [
+  {
+   "observation": "Antony Bartle died suddenly after showing Pratt a paper",
+   "correction": "Bartle died before revealing the paper to others",
+   "effect": "Pratt had exclusive access to the will",
+   "required_evidence": [
+    "Shop-boy Jabey Naylor's witness statement about Bartle's last afternoon",
+    "Pratt's testimony at the inquest"
+   ]
+  },
+  {
+   "observation": "Parrawhite threatened Pratt about the will",
+   "correction": "Parrawhite was murdered to silence him",
+   "effect": "Pratt eliminated a threat",
+   "required_evidence": [
+    "Pickard's testimony about Parrawhite's last visit",
+    "Discovery of Parrawhite's weighted body in quarry pit"
+   ]
+  },
+  {
+   "observation": "Murgatroyd's telegram claimed Parrawhite emigrated",
+   "correction": "Telegram was fabricated to fake Parrawhite's escape",
+   "effect": "Misled investigators about Parrawhite's fate",
+   "required_evidence": [
+    "Murgatroyd's shop records and testimony",
+    "Byner's investigation of shipping records"
+   ]
+  },
+  {
+   "observation": "Mrs. Mallathorpe locked the foot-bridge gates and wrote to Pratt",
+   "correction": "She intended to have the bridge repaired and warned Pratt",
+   "effect": "No murder attempt by Mrs. Mallathorpe",
+   "required_evidence": [
+    "Hoskins the woodman's testimony about warning Mrs. Mallathorpe",
+    "Estate carpenter's statement about bridge condition"
+   ]
+  },
+  {
+   "observation": "Pratt held power of attorney and controlled Mrs. Mallathorpe's affairs",
+   "correction": "Pratt used blackmail and forged documents to gain control",
+   "effect": "Pratt exploited Mrs. Mallathorpe's fear",
+   "required_evidence": [
+    "Power of attorney documents",
+    "Esther Mawson's confession and recovered papers"
+   ]
+  },
+  {
+   "observation": "Duplicate will found in John Mallathorpe's clothes",
+   "correction": "Duplicate will invalidates Pratt's blackmail",
+   "effect": "Restores rightful inheritance to Mallathorpe family",
+   "required_evidence": [
+    "Mrs. Gaukrodger's discovery of duplicate will",
+    "Cobcroft's testimony about will signing before chimney accident"
+   ]
+  },
+  {
+   "observation": "Pratt found dead in locked room with revolver wound",
+   "correction": "Pratt committed suicide to avoid arrest",
+   "effect": "Culprit removed from scene, case closed",
+   "required_evidence": [
+    "Police report on Pratt's death",
+    "Esther Mawson's account of drugging Pratt"
+   ]
+  }
+ ],
+ "discriminating_test": {
+  "method": "trap",
+  "design": "Investigators advertise for Parrawhite to lure Pratt into revealing knowledge or presence. They monitor Pratt's reactions to the advertisements and his contacts with known associates. Simultaneously, they search the quarry pit for Parrawhite's body, using local knowledge and assistance from retired quarry owner Shepherd.",
+  "knowledge_revealed": "The test reveals Pratt's guilt by his nervousness and flight after the advertisements, and the discovery of Parrawhite's body confirms murder.",
+  "pass_condition": "Discovery of Parrawhite's body in the quarry pit and Pratt's disappearance from his office confirm the mechanism and identify the culprit."
+ },
+ "fair_play_explanation": "The reader is given all key facts: the discovery of the will, the suspicious death of Parrawhite, the forged telegram, and the locked-room nature of Pratt's death. Witness statements, documents, and timelines are provided to deduce the sequence of events. The false assumption about Parrawhite's escape is presented but contradicted by physical evidence. The puzzle of the duplicate will and Pratt's motives are clearly laid out for the reader to solve.",
+ "anchors": [
+  {
+   "claim": "Antony Bartle died suddenly in Eldrick's office",
+   "anchor": "he just sat down, laid his head back, and died"
+  },
+  {
+   "claim": "Pratt stole the will from Bartle's pocket",
+   "anchor": "he unbuttoned Antony Bartle's coat, and drew a folded paper from the inner pocket"
+  },
+  {
+   "claim": "Parrawhite threatened Pratt about the will",
+   "anchor": "I heard everything, I tell you!--and saw everything"
+  },
+  {
+   "claim": "Parrawhite was murdered and body weighted with iron",
+   "anchor": "He fetched a quantity of the iron, fastened it to the dead man's clothing"
+  },
+  {
+   "claim": "Mrs. Mallathorpe locked the dangerous foot-bridge gates",
+   "anchor": "she herself went back to the foot-bridge and secured its wicket gates at both ends"
+  },
+  {
+   "claim": "Murgatroyd booked a passage for Parrawhite to America",
+   "anchor": "he booked him his passage, for which he paid you whatever it was"
+  },
+  {
+   "claim": "Duplicate will found in John Mallathorpe's clothes",
+   "anchor": "I saw them, and I thought I'd see what they were. And this was one"
+  },
+  {
+   "claim": "Pratt obtained power of attorney from Mrs. Mallathorpe",
+   "anchor": "Mrs. Mallathorpe has put him in charge of her affairs"
+  },
+  {
+   "claim": "Pratt murdered Parrawhite to silence him",
+   "anchor": "Pratt murdered Parrawhite on the night of November twenty-third last"
+  },
+  {
+   "claim": "Pratt committed suicide when cornered",
+   "anchor": "And now, without the least hesitation, he drew it out and sent one of its bullets through his brain"
+  },
+  {
+   "claim": "Esther Mawson drugged Pratt and stole documents",
+   "anchor": "I drugged him. There's something afoot--something gone wrong with his schemes"
+  },
+  {
+   "claim": "Mrs. Mallathorpe burned the will",
+   "anchor": "she tore them into fragments and flung the fragments in the fire"
+  },
+  {
+   "claim": "Mrs. Gaukrodger found the duplicate will",
+   "anchor": "I cut the envelope open, and drew the paper out, and I saw at once it was Mr. John Mallathorpe's will"
+  },
+  {
+   "claim": "Pratt used forged telegram to fake Parrawhite's escape",
+   "anchor": "I want you, tomorrow morning, early, to send a telegram to these people"
+  },
+  {
+   "claim": "Police found Parrawhite's body in the quarry pit",
+   "anchor": "Parrawhite's body has been found"
+  },
+  {
+   "claim": "Pratt fled after seeing police at Murgatroyd's",
+   "anchor": "he never came out, and finally my man made an excuse and asked for him there"
+  },
+  {
+   "claim": "Pratt blackmailed Mrs. Mallathorpe with the will",
+   "anchor": "Pratt held power of attorney and controlled Mrs. Mallathorpe's affairs"
+  },
+  {
+   "claim": "The will disposes estate away from Mallathorpe family",
+   "anchor": "he left everything he possessed to the town of Barford for an educational trust"
+  },
+  {
+   "claim": "Pratt's death ends the case",
+   "anchor": "Pratt's dead body, with a revolver wound, was found in the old part of the house"
+  },
+  {
+   "claim": "The false telegram misled investigators",
+   "anchor": "he wired to Halstead & Byner to say that he booked Parrawhite to New York last November"
+  }
+ ]
+}

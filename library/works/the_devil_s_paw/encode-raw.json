@@ -1,0 +1,468 @@
+{
+ "decade": "1910s",
+ "realism_constraints": [
+  "No advanced electronic surveillance or forensic technology beyond basic telegraph and cipher decoding",
+  "Limited motor vehicle use, mostly early models with mechanical issues",
+  "Political and social structures dominated by aristocracy, emerging Labour movements, and wartime government secrecy"
+ ],
+ "location": "England, primarily Norfolk marshes and London",
+ "institution": "Council of Labour (a secretive Labour executive council)",
+ "crime_category": "fraud",
+ "crime_subtype": "political deception and espionage manipulation",
+ "cast": [
+  {
+   "name": "Julian Orden (Paul Fiske)",
+   "age_range": "30-40",
+   "role_archetype": "idealistic aristocrat turned Labour sympathizer and secret writer",
+   "role": "detective",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "young barrister, censor, and journalist",
+   "private_secret": "author of influential anonymous Labour articles",
+   "motive_seed": "desire to end war and promote peace",
+   "motive_strength": "strong",
+   "alibi_window": "present throughout the narrative, no direct involvement in crime",
+   "access_plausibility": "high",
+   "stakes": "high, personal and national",
+   "moral_complexity": "high",
+   "relationships": [
+    "Catherine Abbeway",
+    "Miles Furley",
+    "The Bishop",
+    "Nicholas Fenn"
+   ],
+   "opportunity_channels": [
+    "access to secret documents",
+    "political connections"
+   ],
+   "behavioral_tells": [
+    "stubbornness",
+    "idealism",
+    "reluctance to trust Fenn"
+   ],
+   "evidence_sensitivity": [
+    "letter from British Review editor",
+    "packet of peace proposals"
+   ]
+  },
+  {
+   "name": "Catherine Abbeway",
+   "age_range": "20-30",
+   "role_archetype": "half-Russian social activist and intermediary",
+   "role": "witness",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "aristocratic social reformer",
+   "private_secret": "involved in secret communications with German Socialists",
+   "motive_seed": "humanitarian desire for peace",
+   "motive_strength": "strong",
+   "alibi_window": "present at key events, no direct crime",
+   "access_plausibility": "high",
+   "stakes": "high, personal and political",
+   "moral_complexity": "high",
+   "relationships": [
+    "Julian Orden",
+    "Nicholas Fenn",
+    "The Bishop"
+   ],
+   "opportunity_channels": [
+    "access to secret documents",
+    "social connections"
+   ],
+   "behavioral_tells": [
+    "passionate",
+    "sometimes manipulative",
+    "loyal"
+   ],
+   "evidence_sensitivity": [
+    "packet of peace proposals",
+    "letter from General Geroldberg"
+   ]
+  },
+  {
+   "name": "Nicholas Fenn",
+   "age_range": "40-50",
+   "role_archetype": "ambitious Labour secretary and secret service head",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "Labour MP and union secretary",
+   "private_secret": "traitor accepting German money and manipulating peace proposals",
+   "motive_seed": "personal gain and political power",
+   "motive_strength": "strong",
+   "alibi_window": "present at council meetings and secret dealings",
+   "access_plausibility": "high",
+   "stakes": "high, personal and political",
+   "moral_complexity": "high",
+   "relationships": [
+    "Bright",
+    "Catherine Abbeway",
+    "Miles Furley"
+   ],
+   "opportunity_channels": [
+    "control of secret communications",
+    "access to documents"
+   ],
+   "behavioral_tells": [
+    "nervousness",
+    "manipulative",
+    "secretive"
+   ],
+   "evidence_sensitivity": [
+    "bank book",
+    "destroyed original letters",
+    "letters from Freistner"
+   ]
+  },
+  {
+   "name": "Miles Furley",
+   "age_range": "40-50",
+   "role_archetype": "staunch Labour MP and friend to Julian",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "Labour MP and secret service operative",
+   "private_secret": "involved in secret communications but loyal",
+   "motive_seed": "patriotism and peace",
+   "motive_strength": "strong",
+   "alibi_window": "present at key events",
+   "access_plausibility": "high",
+   "stakes": "high, political",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Julian Orden",
+    "Nicholas Fenn",
+    "The Bishop"
+   ],
+   "opportunity_channels": [
+    "secret service duties"
+   ],
+   "behavioral_tells": [
+    "taciturn",
+    "loyal",
+    "pragmatic"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "The Bishop",
+   "age_range": "60-70",
+   "role_archetype": "religious leader and Labour sympathizer",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "religious figure and Labour supporter",
+   "private_secret": "secretly involved in Labour Council",
+   "motive_seed": "peace and social justice",
+   "motive_strength": "strong",
+   "alibi_window": "present throughout",
+   "access_plausibility": "high",
+   "stakes": "high, moral and political",
+   "moral_complexity": "high",
+   "relationships": [
+    "Julian Orden",
+    "Catherine Abbeway",
+    "Miles Furley"
+   ],
+   "opportunity_channels": [
+    "council meetings"
+   ],
+   "behavioral_tells": [
+    "dignified",
+    "earnest",
+    "persuasive"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Bright",
+   "age_range": "40-50",
+   "role_archetype": "scientist and secret service operative",
+   "role": "suspect",
+   "gender": "male",
+   "culpability": "unknown",
+   "culprit_eligibility": "eligible",
+   "public_persona": "chemist and scientist",
+   "private_secret": "involved in secret service and gas experiments",
+   "motive_seed": "scientific ambition and political influence",
+   "motive_strength": "moderate",
+   "alibi_window": "present at secret service activities",
+   "access_plausibility": "high",
+   "stakes": "moderate",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Nicholas Fenn"
+   ],
+   "opportunity_channels": [
+    "secret service laboratory"
+   ],
+   "behavioral_tells": [
+    "impatient",
+    "abrasive"
+   ],
+   "evidence_sensitivity": []
+  }
+ ],
+ "culprits": [
+  "Nicholas Fenn"
+ ],
+ "surface_summary": "A secret Labour Council receives peace proposals allegedly signed by German leaders, threatening a general strike to force an armistice. Julian Orden, secretly the influential writer Paul Fiske, is chosen as their envoy to the Prime Minister. Suspicion arises about the authenticity of the proposals and the loyalty of Nicholas Fenn.",
+ "accepted_facts": [
+  "A packet containing peace proposals from German Socialists was intercepted.",
+  "Nicholas Fenn is the secretary of the Labour Council and involved in secret communications.",
+  "Julian Orden is the anonymous writer Paul Fiske and a member of the Labour Council.",
+  "The peace proposals bear the signatures of the Kaiser, Chancellor, and Hindenburg."
+ ],
+ "inferred_conclusions": [
+  "The peace proposals are genuine and represent the will of the German people.",
+  "Nicholas Fenn is a loyal and honest representative of the Labour cause.",
+  "The Labour Council’s threat of a general strike will force the government to accept the armistice."
+ ],
+ "mechanism_description": "Nicholas Fenn, secretly bribed by German militarists, fabricated and manipulated the peace proposals to deceive the Labour Council and the British government. He destroyed original communications and forged letters to create a false impression of German Socialist strength. The plot aimed to force a premature armistice under false pretenses, benefiting German war aims.",
+ "delivery_path": [
+  "Fenn initiates secret correspondence with Freistner, a German Socialist.",
+  "Freistner is imprisoned and unable to communicate; Fenn destroys original letters.",
+  "Fenn fabricates communications and peace proposals bearing forged signatures.",
+  "The false documents are delivered to the Labour Council via Catherine Abbeway.",
+  "The Council prepares to use the proposals to force an armistice.",
+  "Catherine discovers the deception through a neutral diplomat and informs Julian.",
+  "Julian exposes Fenn’s fraud to the Council, preventing the premature armistice."
+ ],
+ "outcome_result": "The Labour Council rejects the false peace proposals, averts a premature armistice, and commits to continuing the war until a genuine victory.",
+ "false_assumption": {
+  "statement": "The peace proposals bearing the signatures of the Kaiser, Chancellor, and Hindenburg are authentic and represent the German Socialist Party’s true position.",
+  "type": "identity",
+  "why_it_seems_reasonable": "The documents are presented with official-looking signatures and come through trusted channels within the Labour Council. The correspondence is consistent with known Socialist contacts.",
+  "what_it_hides": "The signatures are forged, and the documents are part of a German militarist plot to deceive and manipulate British Labour and government into a premature armistice."
+ },
+ "false_solution": {
+  "accused_suspect": "Nicholas Fenn",
+  "supporting_points": [
+   "Fenn is the secretary of the Labour Council and controls secret communications.",
+   "He claims to have received letters from Freistner and has destroyed originals.",
+   "He advocates immediate action based on the proposals.",
+   "He is exposed as having received German money."
+  ],
+  "the_one_flaw": "Fenn’s claims of ongoing communication with Freistner are false; Freistner is imprisoned and cannot send letters.",
+  "refuted_in_chapter": 21
+ },
+ "red_herrings": [
+  {
+   "id": "catherine_abbeway_suspicion",
+   "description": "Catherine Abbeway is suspected of being a German spy due to her secretive behavior and possession of the packet.",
+   "points_at_suspect": "Catherine’s possession of the packet and secret movements",
+   "innocent_explanation": "She is a dedicated peace activist working for the Labour cause and is not a spy.",
+   "resolved_in_chapter": 13
+  },
+  {
+   "id": "bright_gas_experiments",
+   "description": "Bright’s possession of poisonous gases and his role in incapacitating Julian raise suspicion of malicious intent.",
+   "points_at_suspect": "Bright’s control over Julian and use of gas",
+   "innocent_explanation": "Bright and Fenn acted under Council orders to secure the packet, not to kill Julian.",
+   "resolved_in_chapter": 13
+  }
+ ],
+ "closed_circle": {
+  "suspects": [
+   "Nicholas Fenn",
+   "Bright",
+   "Miles Furley",
+   "Julian Orden",
+   "Catherine Abbeway",
+   "The Bishop"
+  ],
+  "rationale": "The secretive nature of the Labour Council and the limited number of key players involved in the peace proposal negotiations form a closed group with no outside suspects."
+ },
+ "constraint_space": {
+  "time_anchors": [
+   "night of the intercepted communication",
+   "Council meeting evening",
+   "Prime Minister meeting evening"
+  ],
+  "time_windows": [
+   "Julian’s absence from rooms after Thursday evening",
+   "Council’s telegram dispatch at 8am next day"
+  ],
+  "access_actors": [
+   "Nicholas Fenn",
+   "Bright",
+   "Catherine Abbeway",
+   "Julian Orden"
+  ],
+  "access_objects": [
+   "packet of peace proposals",
+   "letters from Freistner",
+   "bank book",
+   "typewritten letters"
+  ],
+  "trust_channels": [
+   "Labour Council meetings",
+   "secret service communications",
+   "personal relationships"
+  ],
+  "authority_sources": [
+   "Labour Council",
+   "Prime Minister",
+   "German Socialist Party via Freistner"
+  ]
+ },
+ "inference_path": [
+  {
+   "observation": "The peace proposals bear signatures of the Kaiser, Chancellor, and Hindenburg.",
+   "correction": "These signatures are forged as revealed by the letter from General Geroldberg.",
+   "effect": "The authenticity of the peace proposals is disproved.",
+   "required_evidence": [
+    "Letter from General Geroldberg to Catherine Abbeway",
+    "The peace proposals packet found in Julian’s possession"
+   ]
+  },
+  {
+   "observation": "Nicholas Fenn claims ongoing communication with Freistner.",
+   "correction": "Freistner is imprisoned and unable to send letters for weeks.",
+   "effect": "Fenn’s claims of communication are false.",
+   "required_evidence": [
+    "Council testimony about Freistner’s imprisonment",
+    "Fenn’s destroyed original letters"
+   ]
+  },
+  {
+   "observation": "Fenn has a bank book showing large deposits from German sources.",
+   "correction": "Fenn is financially compromised and likely bribed.",
+   "effect": "Fenn’s loyalty is suspect.",
+   "required_evidence": [
+    "Fenn’s bank book presented at Council meeting",
+    "Testimony from Catherine and Julian about Fenn’s behavior"
+   ]
+  },
+  {
+   "observation": "The telegrams threatening a general strike are prepared for dispatch.",
+   "correction": "The telegrams are halted after exposure of the fraud.",
+   "effect": "The premature armistice is averted.",
+   "required_evidence": [
+    "Council meeting minutes ordering telegram halt",
+    "Julian’s meeting with the Prime Minister"
+   ]
+  },
+  {
+   "observation": "Julian Orden is chosen as the Labour Council’s envoy.",
+   "correction": "Julian’s identity as Paul Fiske and his sincerity are confirmed.",
+   "effect": "Julian gains authority to negotiate peace legitimately.",
+   "required_evidence": [
+    "Letter from British Review editor to Julian",
+    "Council vote results for envoy selection"
+   ]
+  },
+  {
+   "observation": "The Prime Minister refuses the peace proposals.",
+   "correction": "The government insists on victory before peace.",
+   "effect": "The war continues despite Labour Council’s demands.",
+   "required_evidence": [
+    "Prime Minister’s speech to Labour Council",
+    "Council meeting records"
+   ]
+  },
+  {
+   "observation": "Catherine Abbeway’s behavior is secretive and suspicious.",
+   "correction": "She is a committed peace activist, not a spy.",
+   "effect": "Her innocence is established.",
+   "required_evidence": [
+    "Testimony from Julian and the Bishop",
+    "Catherine’s actions to expose Fenn"
+   ]
+  }
+ ],
+ "discriminating_test": {
+  "method": "constraint_proof",
+  "design": "The Council reviews original communications from Freistner to verify authenticity. They compare signatures and cross-check with known handwriting samples and trusted witnesses. The test also involves verifying Fenn’s financial records to detect bribery.",
+  "knowledge_revealed": "This test reveals that the original letters have been destroyed, the signatures are forged, and Fenn has been bribed by German agents.",
+  "pass_condition": "The originals cannot be produced and financial records show unexplained large deposits from German sources."
+ },
+ "fair_play_explanation": "The reader is given access to all key documents, letters, and witness statements before the final revelation. The suspicious behavior of Nicholas Fenn, the destruction of original letters, and Catherine’s warnings are all presented. The false peace proposals and their dubious signatures are described in detail, allowing the reader to deduce the deception.",
+ "anchors": [
+  {
+   "claim": "The packet contains peace terms formulated by the Socialist and Labour parties of Germany",
+   "anchor": "that packet which is responsible for your incarceration here"
+  },
+  {
+   "claim": "The peace proposals bear the signatures of the Kaiser, the Chancellor and Hindenburg",
+   "anchor": "the three great men of Germany, whose signatures are attached to that document"
+  },
+  {
+   "claim": "Nicholas Fenn is the secretary of the Labour Council and involved in secret communications",
+   "anchor": "Nicholas Fenn, the Labour M.P.?"
+  },
+  {
+   "claim": "Julian Orden is the anonymous writer Paul Fiske",
+   "anchor": "Julian Orden comes here as the representative of the new Labour Council"
+  },
+  {
+   "claim": "Fenn claims to have received letters from Freistner and has destroyed originals",
+   "anchor": "I never keep a communication from Freistner. I have told you so before"
+  },
+  {
+   "claim": "Fenn has received German money and is bribed",
+   "anchor": "Nicholas Fenn has had a hundred thousand pounds of German money within the last few months"
+  },
+  {
+   "claim": "The originals of Freistner’s communications have been destroyed",
+   "anchor": "It seems that the originals of most of Freistner’s communications have been destroyed"
+  },
+  {
+   "claim": "Julian Orden was incapacitated by gas and held by Fenn and Bright",
+   "anchor": "He has spent the intervening period, until three o’clock this afternoon, in a small laboratory"
+  },
+  {
+   "claim": "The Labour Council threatens a general strike if the armistice is refused",
+   "anchor": "Those twenty will unanimously proclaim a general strike, if you should refuse the proposed armistice"
+  },
+  {
+   "claim": "The Prime Minister refuses the peace proposals citing dishonour",
+   "anchor": "I cannot ask for the armistice you suggest"
+  },
+  {
+   "claim": "Catherine Abbeway warns Julian of the deception and presents proof",
+   "anchor": "Thank God we are in time to stop them!"
+  },
+  {
+   "claim": "Fenn collapses when accused of lying and bribery",
+   "anchor": "Fenn sprang to his feet. He had all the appearance of a man about to make a vigorous and exhaustive defence"
+  },
+  {
+   "claim": "Julian Orden is elected as the Labour Council’s envoy",
+   "anchor": "Mr. Julian Orden, better known to you all under the name of ‘Paul Fiske’, has been chosen"
+  },
+  {
+   "claim": "The Council destroys all traces of the deception to protect the cause",
+   "anchor": "It rests with every one of you to destroy all the traces of what might have happened"
+  },
+  {
+   "claim": "The Baron Hellman is a German agent involved in the plot",
+   "anchor": "There was a young foreigner, some weeks ago, a Baron Hellman"
+  },
+  {
+   "claim": "The peace proposals are a cunning German plot to deceive the Allies",
+   "anchor": "The supposed strength of the Socialist Party in Germany is an utter sham"
+  },
+  {
+   "claim": "The Labour Council’s power to paralyse industry is real and threatening",
+   "anchor": "Within a few hours to paralyse industrial England, to keep her ships idle in the docks"
+  },
+  {
+   "claim": "Fenn’s financial records reveal his betrayal",
+   "anchor": "Your bank book, as you only received your last instalment from Germany this week"
+  },
+  {
+   "claim": "The Prime Minister warns of the consequences of the Labour Council’s threat",
+   "anchor": "If you carry out your threat, you plunge this country into revolution"
+  },
+  {
+   "claim": "Julian Orden and Catherine Abbeway become engaged",
+   "anchor": "I think that during these last few days we have forgotten to be human"
+  }
+ ]
+}

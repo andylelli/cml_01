@@ -1,0 +1,19 @@
+{
+ "false_assumption": {
+  "statement": "John Horbury absconded with the securities and jewels and caused Frederick Hollis's death.",
+  "type": "identity",
+  "why_it_seems_reasonable": "Horbury's disappearance coincides with the missing valuables and Hollis's death, and the Chestermarkes' refusal to cooperate suggests guilt. The housekeeper's flight also implies complicity.",
+  "what_it_hides": "It hides the fact that the Chestermarkes themselves orchestrated the thefts and murders, imprisoning Horbury to force his compliance."
+ },
+ "mechanism_description": "Joseph Chestermarke, in collusion with his uncle Gabriel (alias Godwin Markham), ran a secret money-lending business and had stolen securities and jewels. When Frederick Hollis came to expose them, Joseph killed him by pushing him into a lead mine and imprisoned Horbury, who had discovered their secret, in a sound-proof room, coercing him to sign over securities. The mystery unravels after Neale's rescue and Horbury's testimony.",
+ "discriminating_test": {
+  "method": "trap",
+  "design": "Detectives present the incomplete cheque to the Chestermarkes and observe their reactions. They also shadow Gabriel Chestermarke in London to confirm his double identity as Godwin Markham. The test reveals the secret money-lending business and the partners' involvement.",
+  "knowledge_revealed": "Gabriel Chestermarke is Godwin Markham, the money-lender, and Joseph is his accomplice. Their secret business and motive for murder are exposed.",
+  "pass_condition": "Chestermarkes' recognition and reaction to the cheque and their confirmed double identity."
+ },
+ "changed": [
+  "false_assumption.type"
+ ],
+ "confidence": "high"
+}

@@ -12,7 +12,7 @@
   {
    "claim": "Two voices were heard arguing before the murder",
    "anchor": "they distinctly heard Reckavile say ‘Never, never, only over my dead body!’ The other replied ‘I only want justice and my right.’",
-   "span": "He says they distinctly heard Reckavile say ‘Never, never, only over my dead body!’ The other replied ‘I only want justice and my right.’ They seemed to be angry.",
+   "span": "He says they distinctly heard Reckavile say 'Never, never, only over my dead body!' The other replied 'I only want justice and my right.' They seemed to be angry.",
    "ok": true
   },
   {
@@ -36,7 +36,7 @@
   {
    "claim": "Giles confessed to the murder",
    "anchor": "You asked just now who killed Lord Reckavile—I did",
-   "span": "You asked just now who killed Lord Reckavile—I did.",
+   "span": "You asked just now who killed Lord Reckavile-I did.",
    "ok": true
   },
   {
@@ -60,8 +60,8 @@
   {
    "claim": "Halley was disguised as the old Lord Reckavile to protect himself",
    "anchor": "Being as you know, an actor, I had no difficulty in disguising myself as old Reckavile",
-   "span": "",
-   "ok": false
+   "span": "I came first by myself, and when hiding in the house came across some old costumes, and wigs, and being as you know, an actor, I had no difficulty in disguising myself as old Reckavile.",
+   "ok": true
   },
   {
    "claim": "The false solution accused Halley of the murder",
@@ -90,7 +90,7 @@
   {
    "claim": "Giles committed suicide by poison after confessing",
    "anchor": "No, you fools, he’s taken poison",
-   "span": "No, you fools, he’s taken poison,” and Sinclair rushed round the table, and forced open the grim jaws, but it was too late, and with a heavy groan the old man collapsed.",
+   "span": "No, you fools, he's taken poison,\" and Sinclair rushed round the table, and forced open the grim jaws, but it was too late, and with a heavy groan the old man collapsed.",
    "ok": true
   },
   {
@@ -102,8 +102,8 @@
   {
    "claim": "The Curse was a family superstition but had no bearing on the murder",
    "anchor": "We do not live in the age of witches and magic, there was only one man who could have had access to Reckavile",
-   "span": "",
-   "ok": false
+   "span": "You see from the very first I saw clearly that, as we do not live in the age of witches and magic, there was only one man who could have had access to Reckavile, and that was old Giles, however much the problem was surrounded with difficulties.",
+   "ok": true
   },
   {
    "claim": "The murder weapon was an old dagger with a thin blade",
@@ -114,8 +114,8 @@
   {
    "claim": "The victim was stabbed from the back, penetrating the heart",
    "anchor": "The blade driven in between the ribs from the back, and had penetrated the heart",
-   "span": "",
-   "ok": false
+   "span": "The waistcoat had been torn back, and the blade driven in between the ribs from the back, and had penetrated the heart.",
+   "ok": true
   },
   {
    "claim": "The dictaphone recording contained the quarrel between Reckavile and the other",
@@ -130,5 +130,7 @@
   "encode": "gpt-4.1-mini",
   "sweep": "gpt-4o-mini"
  },
- "case_written": true
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
 }

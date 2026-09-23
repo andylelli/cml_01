@@ -1,0 +1,136 @@
+{
+ "slug": "the_dangerous_game",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Seton Darville is a popular English novelist and secret service chief",
+   "anchor": "Charles Seton Darville. In every bookshop and bookstall",
+   "span": "The thick-set Englishman, smiling and care-free, was one of the most popular of English novelists, whose name was known in every country throughout the world, Charles Seton Darville. In every bookshop and bookstall on the five continents his works were sold, for they were translated into many languages, even into Arabic and Chinese.",
+   "ok": true
+  },
+  {
+   "claim": "Joan Caborn is involved in espionage and deception",
+   "anchor": "Joan Caborn, whom he had first met at winter sports",
+   "span": "He was puzzled by Joan Caborn, whom he had first met at winter sports at Wengen, in Switzerland, the previous winter.",
+   "ok": true
+  },
+  {
+   "claim": "George Caborn is a foreign-born businessman and spy",
+   "anchor": "George Caborn, the woman’s husband. Though he bore an English name",
+   "span": "He was George Caborn, the woman's husband. Though he bore an English name he was undoubtedly a Southerner, but that was explained by the fact that his grandfather had been an English merchant who had settled in Athens.",
+   "ok": true
+  },
+  {
+   "claim": "Darville suspects Joan and George Caborn of a desperate errand",
+   "anchor": "They are over here on a very desperate errand",
+   "span": "They are over here on a very desperate errand, so we must find them, and defeat their activities.",
+   "ok": true
+  },
+  {
+   "claim": "Darville disables the electrical detonators on the explosives",
+   "anchor": "He gummed those little discs of paper upon the electrical terminals",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Explosives were attached to the Forth Bridge in rubber hot-water bottles",
+   "anchor": "rubber hot-water bottles filled to their utmost capacity",
+   "span": "In the center of the bed in the back room of the first floor lay four new rubber hot-water bottles filled to their utmost capacity.",
+   "ok": true
+  },
+  {
+   "claim": "A motor boat carrying the saboteurs explodes after a gunfight",
+   "anchor": "there was a bright red flash, and an explosion so terrific",
+   "span": "Suddenly the crackle of a machine-gun mounted on the pursuing boat was heard, and the next moment, from the first boat, there was a bright red flash, and an explosion so terrific that more than twenty houses on the shore of the firth were wrecked, happily without any loss of life.",
+   "ok": true
+  },
+  {
+   "claim": "Edris Temperley is secretly engaged to Karl Weiss",
+   "anchor": "Edris, though pretending to be his, had engaged herself to Karl",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Karl Weiss is offered a secret mission to Russia by the British Secret Service",
+   "anchor": "Karl Weiss presented himself at a certain room in the War Office",
+   "span": "THE TRAP At ten o'clock on Thursday morning Karl Weiss presented himself at a certain room in the War Office, as he had been requested by letter, and there found a grave, gray-haired official awaiting him.",
+   "ok": true
+  },
+  {
+   "claim": "Darville orders interception and copying of Edris and Karl’s correspondence",
+   "anchor": "I want all outgoing and incoming correspondence examined, copied",
+   "span": "Make a note that I want all outgoing and incoming correspondence examined, copied, and sent to me of two persons.",
+   "ok": true
+  },
+  {
+   "claim": "Edris writes affectionate letters to Karl Weiss while deceiving Darville",
+   "anchor": "Edris’s letter breathed an undying devotion",
+   "span": "Edris's letter breathed an undying devotion, and told her lover that, to her delight, Darville was leaving Stagsden.",
+   "ok": true
+  },
+  {
+   "claim": "Darville confronts Edris with her betrayal and engagement to Karl",
+   "anchor": "You are lying to me--deceived me until this very moment!",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Karl Weiss threatens Darville and asserts his claim on Edris",
+   "anchor": "He placed his hand upon his hip-pocket, where he had his automatic pistol",
+   "span": "he said threateningly, and he placed his hand upon his hip-pocket, where he had his automatic pistol, in order to frighten her.",
+   "ok": true
+  },
+  {
+   "claim": "Darville arranges a trap by employing Karl Weiss on a secret mission",
+   "anchor": "We shall find some way out, Forbes. We’ve never been beaten yet",
+   "span": "We shall find some way out, Forbes. We've never been beaten yet.",
+   "ok": true
+  },
+  {
+   "claim": "Karl Weiss accepts the mission and leaves England",
+   "anchor": "his proposed mission was canceled, his services not being required",
+   "span": "That same afternoon, while Edris and Darville were in the train returning to Stagsden, Karl Weiss received a letter, delivered by messenger, informing him with regret that the matter referred to at his interview had been satisfactorily cleared up, and, such being the circumstances, his proposed mission was canceled, his services not being required.",
+   "ok": true
+  },
+  {
+   "claim": "Edris and Darville reconcile after her confession and remorse",
+   "anchor": "I have discarded him, Seti, and I have returned to you",
+   "span": "I have discarded him, Seti, and I have returned to you, if--if I dare face you again.",
+   "ok": true
+  },
+  {
+   "claim": "The sabotage plot is foiled and the Caborns are killed",
+   "anchor": "the plotters themselves have lost their lives in their desperate attempt",
+   "span": "Through the vigilance of the authorities the gigantic bridge has been saved from destruction, though the plotters themselves have lost their lives in their desperate attempt to put the bridge in readiness for destruction at any moment.",
+   "ok": true
+  },
+  {
+   "claim": "Darville’s dual nature as a novelist and secret service chief",
+   "anchor": "Seton Darville possessed two separate and distinct personalities",
+   "span": "Seton Darville possessed two separate and distinct personalities.",
+   "ok": true
+  },
+  {
+   "claim": "Joan Caborn’s sudden departure was a ruse without a telegram",
+   "anchor": "There has been no telegram to-day, monsieur",
+   "span": "There has been no telegram to-day, monsieur,\" replied the man with the crossed keys upon the lapels of his black velvet-collared coat, speaking with an Italian accent.",
+   "ok": true
+  },
+  {
+   "claim": "Darville’s secret service intercepts letters to uncover the plot",
+   "anchor": "The correspondence of that person living in Longridge Road is copied",
+   "span": "Just take a note that the correspondence of that person living in Longridge Road is copied as from to-day until I withdraw the order.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.07452386000000001,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

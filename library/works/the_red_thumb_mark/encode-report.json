@@ -60,8 +60,8 @@
   {
    "claim": "Thorndyke demonstrated the possibility of forging thumbprints using stamps",
    "anchor": "by means of a stamp, either of indiarubber or, more probably, of chromicized gelatine",
-   "span": "",
-   "ok": false
+   "span": "By means of a stamp, either of indiarubber or, more probably, of chromicized gelatine.",
+   "ok": true
   },
   {
    "claim": "Thorndyke prepared a test sheet with genuine and forged prints",
@@ -108,8 +108,8 @@
   {
    "claim": "The 'Thumbograph' was taken and returned secretly during Mrs. Hornby's absence",
    "anchor": "somebody must have taken it out and put it back while we were away",
-   "span": "",
-   "ok": false
+   "span": "' Somebody must have taken it out and put it back while we were away.",
+   "ok": true
   }
  ],
  "costGbp": 0.07269737999999999,
@@ -120,5 +120,5 @@
  },
  "case_written": true,
  "verified_by": "corpus-verify.mjs",
- "verified_on": "2026-08-31"
+ "verified_on": "2026-09-23"
 }

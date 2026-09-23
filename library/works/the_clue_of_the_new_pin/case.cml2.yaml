@@ -1,0 +1,428 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The clue of the new pin
+    author: Edgar Wallace
+    license: Public domain (first published 1923; author died 1932). Project Gutenberg ebook 70882.
+    era:
+      decade: 1910s
+      realism_constraints:
+        - No advanced forensic DNA analysis available
+        - Limited police communication technology, reliant on telegrams and telephone
+        - Locked-room mysteries must rely on mechanical or physical means, no electronic locks
+    setting:
+      location: Mayfield house and Hertford area, England
+      institution: Local police force led by Inspector Carver
+    crime_class:
+      category: murder
+      subtype: locked vault murder with key returned on table by thread and pin trick
+  cast:
+    - name: Tab Holland
+      age_range: mid 20s
+      role_archetype: young newspaper reporter
+      relationships:
+        - friend of Rex Lander
+        - acquaintance of Ursula Ardfern
+        - ally of Inspector Carver
+      public_persona: dedicated crime reporter
+      private_secret: none
+      motive_seed: none
+      motive_strength: none
+      alibi_window: present throughout investigation
+      access_plausibility: high
+      opportunity_channels:
+        - investigative access to crime scenes
+      behavioral_tells:
+        - persistent curiosity
+        - keen observation
+      stakes: professional reputation
+      evidence_sensitivity:
+        - found pins
+        - vault key
+        - witness statements
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: low
+    - name: Jesse Trasmere
+      age_range: 60-70
+      role_archetype: wealthy miserly uncle
+      relationships:
+        - uncle of Rex Lander
+        - employer of Walters
+        - business partner of Yeh Ling
+      public_persona: reclusive rich man
+      private_secret: secret vault with valuables
+      motive_seed: none
+      motive_strength: none
+      alibi_window: murdered in vault afternoon of Saturday
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells:
+        - paranoia
+        - strict house rules
+      stakes: life
+      evidence_sensitivity:
+        - vault key
+        - bloodstains
+        - jewel case
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: moderate
+    - name: Rex Lander
+      age_range: early 20s
+      role_archetype: lazy young heir and architect
+      relationships:
+        - nephew of Jesse Trasmere
+        - friend of Tab Holland
+        - admirer and suitor of Ursula Ardfern
+      public_persona: wealthy nephew and friend of Tab
+      private_secret: murderer of Jesse Trasmere and Wellington Brown
+      motive_seed: inheritance and love for Ursula Ardfern
+      motive_strength: strong
+      alibi_window: faked trip abroad, actually in town
+      access_plausibility: high
+      opportunity_channels:
+        - access to vault key
+        - knowledge of house layout
+      behavioral_tells:
+        - vanity
+        - jealousy
+        - madness
+      stakes: inheritance, love
+      evidence_sensitivity:
+        - confession letter
+        - thread and pin trick
+        - forged will
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Ursula Ardfern
+      age_range: young adult
+      role_archetype: successful actress and secretary
+      relationships:
+        - secretary to Jesse Trasmere
+        - love interest of Rex Lander
+        - friend of Tab Holland
+      public_persona: famous actress
+      private_secret: secretary to Jesse Trasmere, had troubled past
+      motive_seed: none
+      motive_strength: none
+      alibi_window: varied, often at theatre or country cottage
+      access_plausibility: medium
+      opportunity_channels:
+        - access to vault via Trasmere
+      behavioral_tells:
+        - nervousness
+        - secretiveness
+      stakes: reputation, safety
+      evidence_sensitivity:
+        - jewel case
+        - letters
+        - confession of indirect responsibility
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: suspect
+      moral_complexity: moderate
+    - name: Walter Felling (Walters)
+      age_range: middle-aged
+      role_archetype: convicted thief and valet
+      relationships:
+        - servant to Jesse Trasmere
+        - acquaintance of Rex Lander
+      public_persona: servant with criminal record
+      private_secret: had been making a duplicate key
+      motive_seed: theft
+      motive_strength: moderate
+      alibi_window: absent at time of murder
+      access_plausibility: high
+      opportunity_channels:
+        - access to house and vault key
+      behavioral_tells:
+        - fear
+        - flight
+      stakes: freedom
+      evidence_sensitivity:
+        - unfinished key
+        - telegram
+        - statement
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: low
+    - name: Wellington Brown
+      age_range: 50-60
+      role_archetype: drunken former partner and secretary
+      relationships:
+        - former partner of Jesse Trasmere
+        - known to Yeh Ling
+      public_persona: disreputable ex-partner
+      private_secret: had been kept on allowance by Trasmere
+      motive_seed: resentment
+      motive_strength: weak
+      alibi_window: with Yeh Ling at time of murder
+      access_plausibility: medium
+      opportunity_channels:
+        - access to house denied
+      behavioral_tells:
+        - intoxication
+        - threats
+      stakes: revenge
+      evidence_sensitivity:
+        - gloves found
+        - witness testimony
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: Yeh Ling
+      age_range: middle-aged
+      role_archetype: educated Chinese restaurant proprietor and friend
+      relationships:
+        - friend of Jesse Trasmere
+        - guardian of Ursula Ardfern
+        - knows Rex Lander
+      public_persona: reserved restaurant owner
+      private_secret: knows murderer but protects reasons
+      motive_seed: honor and loyalty
+      motive_strength: strong
+      alibi_window: present with Wellington Brown at murder time
+      access_plausibility: medium
+      opportunity_channels:
+        - access to Mayfield and documents
+      behavioral_tells:
+        - calm
+        - reserved
+      stakes: honor, friendship
+      evidence_sensitivity:
+        - documents
+        - confession of knowledge
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: high
+  culpability:
+    culprit_count: 1
+    culprits:
+      - Rex Lander
+  surface_model:
+    narrative:
+      summary: >-
+        Jesse Trasmere is found murdered in his locked vault with the key returned on the table. The
+        vault also contains stolen jewels belonging to Ursula Ardfern. Suspicion falls on Walters
+        and Wellington Brown, but the mystery of how the vault was locked from outside remains
+        unsolved.
+    accepted_facts:
+      - Jesse Trasmere was shot in the back inside a locked vault
+      - The vault door was locked from the outside and the key was found on the table inside
+      - Ursula Ardfern's stolen jewel-case was found in the vault
+      - Rex Lander was abroad but actually stayed nearby and had motive
+    inferred_conclusions:
+      - Walters was the murderer because he was making a duplicate key
+      - Wellington Brown was guilty due to his threats and presence near the house
+      - The vault had a secret passage allowing the murderer to escape
+  hidden_model:
+    mechanism:
+      description: >-
+        Rex Lander murdered his uncle Jesse Trasmere inside the vault. He used a thread and pin
+        trick to lock the vault door from outside while leaving the key on the table inside. He tied
+        the key to a thread passed through the ventilator holes, pulled the door shut and locked it,
+        then pulled the key back inside and released the pin, leaving the key on the table to create
+        the illusion that the vault was locked from inside with the key left behind.
+      delivery_path:
+        - step: Rex Lander obtains the key from his uncle's neck after shooting him
+        - step: He attaches a thread and pin to the key
+        - step: He passes the thread through the ventilator holes in the vault door
+        - step: He closes and locks the vault door from outside
+        - step: He pulls the thread to bring the key back inside the vault
+        - step: He releases the pin, leaving the key on the table inside
+        - step: He escapes, leaving the vault locked with the key inside
+    outcome:
+      result: >-
+        Rex Lander is exposed as the murderer and dies trapped in the vault after attempting to kill
+        Tab Holland.
+  false_assumption:
+    statement: >-
+      The vault must have a secret passage or duplicate key to explain the locked door with the key
+      inside.
+    type: spatial
+    why_it_seems_reasonable: >-
+      The vault is heavily constructed with no visible entrances except the locked door, and the key
+      was found inside, making it seem impossible for the murderer to have escaped without a secret
+      route. The presence of an unfinished duplicate key and the locked door reinforce this belief.
+    what_it_hides: >-
+      It hides the clever mechanical trick using a thread and pin to pull the key back inside after
+      locking the door from outside, negating the need for any secret passage or duplicate key.
+  false_solution:
+    accused_suspect: Walter Felling (Walters)
+    supporting_points:
+      - Walters was making a duplicate key for the vault
+      - He had motive due to theft
+      - He fled after receiving a telegram warning of police arrival
+      - His gloves were found near the vault
+    the_one_flaw: Walters was under arrest at the time of the murder and could not have committed it
+    refuted_in_chapter: 39
+  red_herrings:
+    - id: wellington_brown_threats
+      description: >-
+        Wellington Brown, a drunken former partner, threatened Jesse Trasmere and was suspected due
+        to his hostile behavior and gloves found near the vault.
+      points_at_suspect: Wellington Brown
+      innocent_explanation: Yeh Ling confirmed Brown was with him at the time of the murder, providing an alibi.
+      resolved_in_chapter: 26
+    - id: secret_passage_theory
+      description: >-
+        The theory that a secret passage or hidden entrance allowed the murderer to enter and exit
+        the locked vault.
+      points_at_suspect: Unknown murderer with secret access
+      innocent_explanation: >-
+        No secret passage existed; the locked door and key were manipulated by a thread and pin
+        trick.
+      resolved_in_chapter: 39
+  closed_circle:
+    suspects:
+      - Walter Felling (Walters)
+      - Wellington Brown
+      - Rex Lander
+    rationale: >-
+      Only these three had access to the vault and motive; Walters and Brown were accounted for or
+      alibied, leaving Rex Lander as the only eligible suspect.
+  constraint_space:
+    time:
+      anchors:
+        - Saturday afternoon murder time
+        - Telegram delivered at 2:55 pm to Walters
+        - Rex Lander's supposed trip abroad dates
+        - Second murder at Mayfield vault night
+      windows:
+        - Walters' departure after telegram
+        - Rex Lander's presence in town during murder
+        - Ursula Ardfern's theatre and country visits
+    access:
+      actors:
+        - Rex Lander
+        - Walter Felling (Walters)
+        - Wellington Brown
+        - Ursula Ardfern
+        - Yeh Ling
+      objects:
+        - Vault key
+        - Thread and pin
+        - Duplicate key in progress
+        - Jewel case
+    social:
+      trust_channels:
+        - Yeh Ling's testimony
+        - Walters' statement
+        - Ursula Ardfern's confession
+        - Witness statements from Mr. Stott and Eline
+      authority_sources:
+        - Inspector Carver
+        - Coroner's jury
+        - Police locksmith expert
+        - News editor Jacques
+  inference_path:
+    steps:
+      - observation: The vault door was locked from outside with the key found on the table inside.
+        correction: The key was pulled back inside after locking using a thread and pin trick.
+        effect: Explains how the vault could be locked with the key inside without secret passages.
+        required_evidence:
+          - The new pin found in the passage and inside the vault
+          - >-
+            Physical evidence of thread residue or marks near the ventilator holes and the key's
+            position on the table
+        reader_observable: true
+      - observation: Walters was making a duplicate key and fled after receiving a telegram.
+        correction: Walters was innocent of murder and fled due to police threat.
+        effect: Removes Walters as the murderer suspect.
+        required_evidence:
+          - Telegram delivered to Walters at 2:55 pm
+          - Walters' statement denying murder and describing his actions
+        reader_observable: true
+      - observation: Wellington Brown threatened Trasmere and was found dead in the vault later.
+        correction: Yeh Ling confirmed Brown was with him at the time of the murder, providing an alibi.
+        effect: Exonerates Wellington Brown from murder suspicion.
+        required_evidence:
+          - Yeh Ling's testimony about Brown's whereabouts
+          - Witness statements placing Brown away from the vault at murder time
+        reader_observable: true
+      - observation: Ursula Ardfern's jewel-case was found in the vault.
+        correction: Ursula was secretary to Trasmere and kept jewels there for safekeeping.
+        effect: Explains presence of jewels without implicating Ursula in murder.
+        required_evidence:
+          - Ursula Ardfern's written correspondence with Trasmere regarding jewel storage
+          - Police inventory of jewel-case and vault contents
+        reader_observable: true
+      - observation: Rex Lander claimed to be abroad during murder.
+        correction: Rex faked trip abroad using a steward to send messages, stayed nearby.
+        effect: Places Rex at scene with opportunity and motive.
+        required_evidence:
+          - Rex Lander's letter and ring sent from Italy
+          - Witness accounts and telegrams contradicting Rex's alibi
+        reader_observable: true
+      - observation: The will was in Jesse Trasmere's handwriting.
+        correction: The will was forged by Rex Lander who could write English but Trasmere could not.
+        effect: Shows Rex's motive to secure inheritance by forgery.
+        required_evidence:
+          - Ursula Ardfern's statement about Trasmere's illiteracy in English
+          - Police analysis of will and letters
+        reader_observable: true
+      - observation: The vault was locked and no secret entrance found.
+        correction: The locking mechanism was manipulated by Rex using the thread and pin trick.
+        effect: Solves the locked-room mystery conclusively.
+        required_evidence:
+          - >-
+            Physical evidence of thread residue or marks near the ventilator holes and the key's
+            position on the table
+          - The new pin found in the passage and inside the vault
+        reader_observable: true
+  discriminating_test:
+    method: reenactment
+    design: >-
+      Rex Lander demonstrated the use of a thread and pin to pull the key back inside the locked
+      vault through the ventilator holes, reproducing the exact conditions of the crime scene. The
+      test involved locking the vault door from outside, threading the key on a cotton thread
+      through the ventilator, pulling it back to the table, and releasing the pin to leave the key
+      in place.
+    knowledge_revealed: >-
+      This reenactment revealed the mechanical possibility of locking the vault door from outside
+      while leaving the key on the table inside, disproving the need for secret passages or
+      duplicate keys.
+    pass_condition: >-
+      Successful demonstration of the key being pulled inside and left on the table through the
+      ventilator holes without unlocking the door from inside.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is provided with all necessary clues including the discovery of the new pins, the
+      unfinished duplicate key, the telegram to Walters, and Rex Lander's suspicious behavior and
+      forged will. The presence of the thread and pin is hinted at by the pins found and the locked
+      door with the key inside. The confession and demonstration by Rex Lander confirm the
+      mechanism, which the reader could deduce by piecing together the physical evidence and
+      timelines.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

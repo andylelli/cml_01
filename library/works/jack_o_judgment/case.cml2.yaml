@@ -1,0 +1,430 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: Jack O' Judgment
+    author: Edgar Wallace
+    license: Public domain (first published 1921; author died 1932). Project Gutenberg ebook 24767.
+    era:
+      decade: 1910s
+      realism_constraints:
+        - No advanced forensic DNA or fingerprint technology available
+        - Limited telecommunications, no electronic surveillance except primitive microphones
+        - Travel by train, ship, and early airplanes; no modern digital records
+    setting:
+      location: London, England, with scenes in Yorkshire and South America
+      institution: Criminal Intelligence Department, Scotland Yard
+    crime_class:
+      category: fraud
+      subtype: blackmail and property fraud with covert surveillance
+  cast:
+    - name: Colonel Dan Boundary
+      age_range: 60s
+      role_archetype: criminal mastermind and gang leader
+      relationships:
+        - Pinto Silva
+        - Swell Crewe
+        - Solomon White
+        - Lollie Marsh
+        - Maisie White
+      public_persona: wealthy businessman and property owner
+      private_secret: leader of a blackmail and fraud gang
+      motive_seed: greed and power
+      motive_strength: strong
+      alibi_window: none
+      access_plausibility: high
+      opportunity_channels:
+        - control of gang
+        - access to properties and documents
+      behavioral_tells:
+        - arrogance
+        - threatening behavior
+        - cunning
+      stakes: high
+      evidence_sensitivity:
+        - microphone devices in flat
+        - forged documents
+        - bank accounts
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Sir Stanley Belcom (Jack o' Judgment)
+      age_range: 60s
+      role_archetype: secret avenger and undercover chief
+      relationships:
+        - Stafford King
+        - Snow Gregory (son)
+      public_persona: First Commissioner of Criminal Intelligence
+      private_secret: Jack o' Judgment, avenger of his son's death
+      motive_seed: revenge for son's murder
+      motive_strength: strong
+      alibi_window: present at Scotland Yard and various locations
+      access_plausibility: high
+      opportunity_channels:
+        - access to police resources
+        - covert operations
+      behavioral_tells:
+        - calm, authoritative
+        - secretive
+      stakes: high
+      evidence_sensitivity:
+        - microphone surveillance
+        - masked appearances
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: high
+    - name: Stafford King
+      age_range: 30s
+      role_archetype: dedicated police chief
+      relationships:
+        - Sir Stanley Belcom
+        - Maisie White
+      public_persona: Chief of Criminal Intelligence Department
+      private_secret: investigator of Boundary Gang
+      motive_seed: justice
+      motive_strength: strong
+      alibi_window: present at Scotland Yard and crime scenes
+      access_plausibility: high
+      opportunity_channels:
+        - police authority
+        - investigative powers
+      behavioral_tells:
+        - serious
+        - persistent
+      stakes: high
+      evidence_sensitivity:
+        - witness statements
+        - arrest records
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: moderate
+    - name: Maisie White
+      age_range: 20s
+      role_archetype: innocent victim and undercover avenger
+      relationships:
+        - Solomon White
+        - Stafford King
+        - Lollie Marsh
+      public_persona: stage performer
+      private_secret: daughter of Solomon White, impersonates Jack o' Judgment
+      motive_seed: clear father's name
+      motive_strength: strong
+      alibi_window: varied
+      access_plausibility: moderate
+      opportunity_channels:
+        - stage performances
+        - disguises
+      behavioral_tells:
+        - mimicry
+        - courage
+      stakes: high
+      evidence_sensitivity:
+        - disguise costume
+        - witness accounts
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: high
+    - name: Pinto Silva
+      age_range: 30s
+      role_archetype: gang member and blackmailer
+      relationships:
+        - Colonel Dan Boundary
+        - Lady Sybil Crotin
+      public_persona: Portuguese businessman and theatre owner
+      private_secret: forger and blackmailer
+      motive_seed: greed
+      motive_strength: strong
+      alibi_window: none
+      access_plausibility: high
+      opportunity_channels:
+        - theatre ownership
+        - forgery equipment
+      behavioral_tells:
+        - nervousness
+        - anger
+      stakes: high
+      evidence_sensitivity:
+        - counterfeit money
+        - forgery tools
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: moderate
+    - name: Swell Crewe
+      age_range: 40s
+      role_archetype: gang member with doubts
+      relationships:
+        - Colonel Dan Boundary
+        - Lollie Marsh
+      public_persona: gang member
+      private_secret: considering quitting gang
+      motive_seed: self-preservation
+      motive_strength: moderate
+      alibi_window: none
+      access_plausibility: high
+      opportunity_channels:
+        - gang operations
+      behavioral_tells:
+        - reluctance
+        - conflict
+      stakes: moderate
+      evidence_sensitivity: []
+      culprit_eligibility: eligible
+      culpability: unknown
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: Lollie Marsh
+      age_range: 20s
+      role_archetype: gang member turned informant
+      relationships:
+        - Colonel Dan Boundary
+        - Swell Crewe
+        - Stafford King
+      public_persona: gang decoy and spy
+      private_secret: communicates with police, plans escape
+      motive_seed: self-preservation and desire for freedom
+      motive_strength: strong
+      alibi_window: none
+      access_plausibility: high
+      opportunity_channels:
+        - gang espionage
+        - police contacts
+      behavioral_tells:
+        - nervousness
+        - duplicity
+      stakes: high
+      evidence_sensitivity: []
+      culprit_eligibility: eligible
+      culpability: unknown
+      gender: female
+      role: suspect
+      moral_complexity: high
+  culpability:
+    culprit_count: 2
+    culprits:
+      - Colonel Dan Boundary
+      - Pinto Silva
+  surface_model:
+    narrative:
+      summary: >-
+        The Boundary Gang, led by Colonel Dan Boundary, is a powerful criminal organisation involved
+        in blackmail and fraud. A mysterious figure known as Jack o' Judgment sends threatening
+        messages and disrupts the gang's operations, while the police struggle to gather evidence
+        and make arrests.
+    accepted_facts:
+      - Snow Gregory was murdered and found with a Jack of Clubs playing card.
+      - Colonel Dan Boundary leads a criminal gang involved in blackmail and fraud.
+      - Jack o' Judgment is a mysterious figure who opposes the gang.
+      - >-
+        Maisie White is the daughter of Solomon White and is involved in efforts to clear her
+        father's name.
+    inferred_conclusions:
+      - Jack o' Judgment is a man working alone.
+      - Maisie White is Jack o' Judgment.
+      - Colonel Dan Boundary is innocent of the crimes charged.
+  hidden_model:
+    mechanism:
+      description: >-
+        Jack o' Judgment is Sir Stanley Belcom, the First Commissioner of Criminal Intelligence, who
+        secretly avenged the death of his son Snow Gregory by dismantling the Boundary Gang through
+        covert surveillance using microphones and direct action. The colonel faked his death but was
+        ultimately confronted and killed by Jack o' Judgment.
+      delivery_path:
+        - step: >-
+            Jack o' Judgment installs microphones in Colonel Boundary's flat to monitor
+            conversations.
+        - step: He uses a gramophone voice to imitate Jack o' Judgment and confuse the gang.
+        - step: Jack o' Judgment systematically disrupts the gang's operations, leading to arrests.
+        - step: Maisie White impersonates Jack o' Judgment to gather evidence against the gang.
+        - step: The gang members attempt to flee or cover tracks, but are captured or neutralized.
+        - step: Colonel Boundary fakes his death by setting fire to his flat.
+        - step: Jack o' Judgment tracks down and kills the colonel, revealing his identity.
+    outcome:
+      result: >-
+        The Boundary Gang is dismantled, Colonel Dan Boundary is killed, and Jack o' Judgment is
+        revealed to be Sir Stanley Belcom.
+  false_assumption:
+    statement: Maisie White is the real Jack o' Judgment.
+    type: identity
+    why_it_seems_reasonable: >-
+      Maisie White impersonates Jack o' Judgment and is seen in the costume, and she is involved in
+      actions against the gang. The police and some characters believe she is Jack o' Judgment.
+    what_it_hides: >-
+      The real Jack o' Judgment is Sir Stanley Belcom, who operates covertly and independently,
+      using technology and police resources unknown to others.
+  false_solution:
+    accused_suspect: Maisie White
+    supporting_points:
+      - She wears the Jack o' Judgment costume and mimics the voice.
+      - She is seen at key moments where Jack o' Judgment appears.
+      - She has motive to clear her father's name and fight the gang.
+    the_one_flaw: >-
+      Jack o' Judgment was physically present elsewhere at the same times, and the voice was
+      revealed to be a gramophone recording controlled remotely.
+    refuted_in_chapter: 39
+  red_herrings:
+    - id: maisie_white_as_jack_o_judgment
+      description: Maisie White impersonates Jack o' Judgment and is suspected to be the mysterious avenger.
+      points_at_suspect: Maisie White
+      innocent_explanation: >-
+        She uses the disguise to protect herself and to gather evidence against the gang, but is not
+        the real Jack o' Judgment.
+      resolved_in_chapter: 39
+    - id: raoul_phillopolis_french_assassin
+      description: >-
+        Raoul Pontarlier, a Frenchman, is suspected of being the murderer of Solomon White and
+        linked to Jack o' Judgment.
+      points_at_suspect: Raoul Pontarlier
+      innocent_explanation: >-
+        Raoul was hired by the gang and killed by Jack o' Judgment as part of the gang's
+        destruction.
+      resolved_in_chapter: 18
+  closed_circle:
+    suspects:
+      - Colonel Dan Boundary
+      - Pinto Silva
+      - Swell Crewe
+      - Lollie Marsh
+      - Maisie White
+    rationale: >-
+      The suspects are limited to members of the Boundary Gang and their close associates, all of
+      whom had motive and opportunity, and the investigation focuses on their interactions and
+      betrayals.
+  constraint_space:
+    time:
+      anchors:
+        - Murder of Snow Gregory three months before the main events
+        - Arrest of Pinto Silva after Huddersfield trip
+        - Flight of Lollie Marsh and Crewe by aeroplane
+        - Death of Colonel Boundary after faked death and fire
+      windows:
+        - Days and nights around the abduction and rescue of Maisie White
+        - Meetings of the gang and police surveillance
+        - Period of gang's decline and arrests
+    access:
+      actors:
+        - Colonel Dan Boundary
+        - Pinto Silva
+        - Sir Stanley Belcom
+        - Stafford King
+        - Lollie Marsh
+      objects:
+        - Microphone devices in Boundary's flat
+        - Gramophone voice recording equipment
+        - Bank accounts and forged documents
+        - Aeroplane for escape
+        - Disguise costume of Jack o' Judgment
+    social:
+      trust_channels:
+        - Gang members' loyalty and betrayals
+        - Police informants and undercover agents
+        - Letters and secret communications
+      authority_sources:
+        - Criminal Intelligence Department
+        - First Commissioner Sir Stanley Belcom
+        - Police warrants and arrests
+  inference_path:
+    steps:
+      - observation: Maisie White impersonates Jack o' Judgment and is seen at key locations.
+        correction: Jack o' Judgment's voice is a gramophone recording controlled remotely.
+        effect: Maisie is not the real Jack o' Judgment but a decoy.
+        required_evidence:
+          - Discovered microphone and gramophone voice equipment in Boundary's flat
+          - Witness statement of colonel and gang members about the voice
+        reader_observable: true
+      - observation: Raoul Pontarlier is found dead with a playing card and suspected of murder.
+        correction: Raoul was hired by the gang and executed by Jack o' Judgment.
+        effect: Raoul is a victim, not the culprit.
+        required_evidence:
+          - Police report of Raoul's death and hanging
+          - >-
+            First Commissioner of Criminal Intelligence's official report on Raoul's involvement
+            with the criminal gang
+        reader_observable: true
+      - observation: Colonel Boundary is reported dead in a fire.
+        correction: Colonel Boundary faked his death and escaped disguised as a carpenter.
+        effect: Colonel Boundary is still at large initially.
+        required_evidence:
+          - Police search and report of body not matching colonel
+          - >-
+            Intelligence report from Criminal Intelligence Department on colonel's escape as
+            carpenter
+        reader_observable: true
+      - observation: Jack o' Judgment appears at colonel's lodgings and kills him.
+        correction: Jack o' Judgment is Sir Stanley Belcom, avenging his son's death.
+        effect: The gang leader is eliminated by the secret avenger.
+        required_evidence:
+          - Discovery of First Commissioner's presence at the scene and matching physical evidence
+          - >-
+            Criminal Intelligence Department's timeline of Jack o' Judgment's actions and colonel's
+            death
+        reader_observable: true
+      - observation: Pinto Silva is arrested for forgery and blackmail.
+        correction: Evidence planted by Jack o' Judgment to dismantle the gang.
+        effect: Pinto is convicted and gang further weakened.
+        required_evidence:
+          - Police seizure of counterfeit money and forgery tools
+          - Testimony of police officers and witnesses
+        reader_observable: true
+      - observation: Lollie Marsh plans to escape with Crewe by aeroplane.
+        correction: They successfully flee to South America to avoid prosecution.
+        effect: Some gang members evade capture.
+        required_evidence:
+          - Witness statement of aviator Cartwright
+          - Report of aeroplane sighting over Finisterre
+        reader_observable: true
+      - observation: Maisie White returns from captivity and refuses to reveal details.
+        correction: She was rescued by Jack o' Judgment and promised secrecy.
+        effect: Maisie aids police but protects Jack's identity.
+        required_evidence:
+          - Maisie White's testimony
+          - Police reports of rescue operation
+        reader_observable: true
+  discriminating_test:
+    method: constraint_proof
+    design: >-
+      Investigators locate and identify the microphone and gramophone voice equipment hidden in the
+      colonel's flat and offices beneath. By disabling the devices and comparing the timing of Jack
+      o' Judgment's appearances with the physical presence of suspects, they prove that the voice
+      was mechanically transmitted and that Maisie White could not be the real Jack o' Judgment.
+    knowledge_revealed: >-
+      This test reveals that the mysterious voice was a recording controlled remotely, disproving
+      the theory that Maisie White was Jack o' Judgment.
+    pass_condition: >-
+      Discovery and disabling of the microphone and gramophone equipment in the colonel's flat and
+      offices, and verification that Jack o' Judgment's voice was transmitted through these devices.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given detailed descriptions of the gang members, their motives, and the
+      mysterious Jack o' Judgment's appearances. Clues such as the microphone devices, the
+      gramophone voice, and the presence of Sir Stanley Belcom at key moments are presented. The
+      false assumption that Maisie White is Jack o' Judgment is challenged by evidence accessible to
+      the reader, allowing deduction of the true identity. The narrative includes red herrings and
+      misdirections but provides all necessary facts for a careful reader to solve the mystery.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

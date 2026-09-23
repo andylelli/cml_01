@@ -1,0 +1,136 @@
+{
+ "slug": "annihilation",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "The valet Hughes was found dead with no visible marks but poisoned",
+   "anchor": "he was breathing his last and the end came as I lifted his head",
+   "span": "When me and a friend of mine got to him he was breathing his last and the end came as I lifted his head to my knee.",
+   "ok": true
+  },
+  {
+   "claim": "The key-ring tag indicated Number Four, New Queen’s Mall",
+   "anchor": "a small, thin, much-worn disk of some dull metal, one side of which bore the single numeral ‘4,’",
+   "span": "Lieutenant Taggart spoke with an air of triumph as he separated the keys of all shapes and sizes on the ring to disclose a small, thin, much-worn disk of some dull metal, one side of which bore the single numeral '4,' and the reverse three letters in old English script:-'N.",
+   "ok": true
+  },
+  {
+   "claim": "Hughes was poisoned with physostigmine, powdered Calabar bean",
+   "anchor": "It was physostigmine, the medical examiner called it; powdered Calabar bean",
+   "span": "It was physostigmine, the medical examiner called it; powdered Calabar bean.",
+   "ok": true
+  },
+  {
+   "claim": "Horace Goddard disappeared mysteriously from the Mall",
+   "anchor": "Horace vanished in thin air this afternoon",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Lucette died from inhalation of a deadly poison gas",
+   "anchor": "This woman has been killed by the inhalation of some gas, some poisonous fumes",
+   "span": "This woman has been killed by the inhalation of some gas, some poisonous fumes, but of what nature I am unable to determine,\" he announced, gazing from Orbit to the inspector with keen incisiveness.",
+   "ok": true
+  },
+  {
+   "claim": "Orbit was chloroformed but it was a ruse to fake unconsciousness",
+   "anchor": "The cloth used was a towel from my own bathroom; it’s evident that the fellow was familiar with the house",
+   "span": "The cloth used was a towel from my own bathroom; it's evident that the fellow was familiar with the house and knew his way about; but how he got in that side door leading from the card-room, if Ching Lee really bolted it as usual the night before-?",
+   "ok": true
+  },
+  {
+   "claim": "A revolver trap was set to kill McCarty in Orbit’s house",
+   "anchor": "the cord wound around the trigger of the other and drew it from the cradle",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Orbit planned his own annihilation by hydrofluoric acid",
+   "anchor": "That vat is lined with lead, sir; nothing else but lead could hold that stuff",
+   "span": "That vat is lined with lead, sir; nothing else but lead could hold that stuff for it eats everything away as if it hadn't even been!",
+   "ok": true
+  },
+  {
+   "claim": "The poison gas was delivered via toy balloons",
+   "anchor": "I picked this up it was blue, as blue as that second one we broke",
+   "span": "When I picked this up it was blue, as blue as that second one we broke, and look at it now!",
+   "ok": true
+  },
+  {
+   "claim": "Diary entries revealed Orbit’s motives and methods",
+   "anchor": "I succeeded in making it to-day from the formula and tried it on the white kitten",
+   "span": "-'I succeeded in making it to-day from the formula and tried it on the white kitten from next door.",
+   "ok": true
+  },
+  {
+   "claim": "Orbit poisoned Hughes by giving him a drink with Calabar bean",
+   "anchor": "I mixed some bitters together with a dash of absinthe... added two grains of the powdered bean and put it in an old tonic bottle",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Horace was drugged with luminal in milk and buried under coal",
+   "anchor": "I coaxed the boy up to my sitting-room, induced him to drink a glass of milk in which I dropped two miraculous grains of luminal",
+   "span": "I coaxed the boy up to my sitting-room, induced him to drink a glass of milk in which I dropped two miraculous grains of luminal, and then I went and telephoned the coal-dealer.",
+   "ok": true
+  },
+  {
+   "claim": "Orbit’s final confession letter was addressed to McCarty",
+   "anchor": "I bequeath it to you for your further information and in most sincere admiration",
+   "span": "I bequeath it to you for your further information and in most sincere admiration, for where I go I may take nothing material with me, although I shall not leave my body behind.",
+   "ok": true
+  },
+  {
+   "claim": "Orbit’s family lineage included criminals known as the Jessups",
+   "anchor": "His grandmother on his mother’s side was the daughter of old Gideon Jessups who was hung down South for highway robbery and murder",
+   "span": "His grandmother on his mother's side was the daughter of old Gideon Jessups who was hung down South for highway robbery and murder; another of his daughters died insane and two of his sons were convicts-but there's no use going into it all.",
+   "ok": true
+  },
+  {
+   "claim": "Orbit’s chloroform attack was a staged deception",
+   "anchor": "I pretended to chloroform myself, hoping to hear from their conversation",
+   "span": "I pretended to chloroform myself, hoping to hear from their conversation why they had come and how strong were their suspicions against me, but the man McCarty opened my windows and hurried his associate away.",
+   "ok": true
+  },
+  {
+   "claim": "Orbit’s laboratory contained hydrofluoric acid and poison gas apparatus",
+   "anchor": "a great round tank of some metal higher than one’s head",
+   "span": "On the floor is a great round tank of some metal higher than one's head!",
+   "ok": true
+  },
+  {
+   "claim": "Orbit’s suicide destroyed his body by hydrofluoric acid",
+   "anchor": "That vat is lined with lead, sir; nothing else but lead could hold that stuff",
+   "span": "That vat is lined with lead, sir; nothing else but lead could hold that stuff for it eats everything away as if it hadn't even been!",
+   "ok": true
+  },
+  {
+   "claim": "The poison gas formula was stolen from a government chemist",
+   "anchor": "the formula for the poison gas had disappeared",
+   "span": "Last night Hinton Sherard, the man responsible for the safety of that folio of secret documents, blew his brains out; the formula for the poison gas had disappeared.",
+   "ok": true
+  },
+  {
+   "claim": "The murders and disappearance were all orchestrated by Orbit",
+   "anchor": "I arrest you, Henry Orbit, for the murders of Alfred Hughes, Horace Goddard and Lucette Guerin",
+   "span": "I arrest you, Henry Orbit, for the murders of Alfred Hughes, Horace Goddard and Lucette Guerin!",
+   "ok": true
+  },
+  {
+   "claim": "The poison gas was a secret weapon developed during the war",
+   "anchor": "a new poison gas had been invented, deadlier than anything yet tried",
+   "span": "I don't know whether you recall reading about it or not after all this time, but during the last months of the war a report went out from the Capital that a new poison gas had been invented, deadlier than anything yet tried.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.129094532,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

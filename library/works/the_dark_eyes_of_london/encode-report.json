@@ -1,0 +1,136 @@
+{
+ "slug": "the_dark_eyes_of_london",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Gordon Stuart was found drowned with his legs in the water",
+   "anchor": "lying on the steps with his legs in the water",
+   "span": "When he was discovered, he was lying on the steps with his legs in the water, his body being clear--and,\" he added slowly, \"the tide was still rising.",
+   "ok": true
+  },
+  {
+   "claim": "The secret will was written inside the shirt in indelible pencil",
+   "anchor": "written on the inside were three lines",
+   "span": "Written on the inside were three lines, and it was the indelible pencil markings which had soaked through that had caused the speckly appearance of the front of the shirt.",
+   "ok": true
+  },
+  {
+   "claim": "The Braille message was found on a strip of brown paper",
+   "anchor": "There are some words here written in Braille",
+   "span": "There are some words here written in Braille, the language of the blind,\" she said, and again her fingers went over the surface, pausing now and again with a puzzled frown on her face.",
+   "ok": true
+  },
+  {
+   "claim": "Diana Ward is the secret heiress Clarissa Stuart",
+   "anchor": "Clarissa is the other twin daughter",
+   "span": "Clarissa is the other twin daughter.",
+   "ok": true
+  },
+  {
+   "claim": "John Dearborn is not blind but an impostor",
+   "anchor": "John Dearborn is no more blind than you or I",
+   "span": "And John Dearborn is no more blind than you or I!",
+   "ok": true
+  },
+  {
+   "claim": "The death chamber is a sealed room with water pumped in",
+   "anchor": "the operating room of the ‘Dark Eyes’",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "David Judd faked his death and assumed the identity of John Dearborn",
+   "anchor": "David Judd, dead and buried, is rollicking round London in a taxicab",
+   "span": "Who said this is not an age of miracles, when the blind can see as John Dearborn sees, and David Judd, dead and buried, is rollicking round London in a taxicab?",
+   "ok": true
+  },
+  {
+   "claim": "Flash Fred is innocent and was manipulated by the gang",
+   "anchor": "I am not pinched",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The Judd brothers orchestrated the murder and insurance fraud",
+   "anchor": "My brother David and I--and this you will understand--were on the most affectionate terms",
+   "span": "My brother David and I--and this you will understand--were on the most affectionate terms from our early childhood.",
+   "ok": true
+  },
+  {
+   "claim": "The House of Death mansion was built for the murder and concealment",
+   "anchor": "the House of Death, a specially built mansion with a water-filled death chamber",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Blind Jake was the violent enforcer for the Judd brothers",
+   "anchor": "Blind Jake was the boss of the three",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Emma Ward was the charwoman who knew the truth about Clarissa",
+   "anchor": "Emma Ward, the charwoman of the boarding house",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Larry Holt was trapped in the death chamber but escaped",
+   "anchor": "Larry sat on the iron bedstead of the cell",
+   "span": "IN THE TRAP Larry sat on the iron bedstead of the cell, his aching head between his hands.",
+   "ok": true
+  },
+  {
+   "claim": "Dr. Judd confessed the entire criminal scheme in prison",
+   "anchor": "My brother David and I--and this you will understand--were on the most affectionate terms",
+   "span": "My brother David and I--and this you will understand--were on the most affectionate terms from our early childhood.",
+   "ok": true
+  },
+  {
+   "claim": "The Judd brothers planned to drown Larry Holt in the death chamber",
+   "anchor": "When I have finished with him, I shall drown him",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Diana Ward was abducted but escaped and helped solve the case",
+   "anchor": "Diana Ward had strolled to the farther end of the dormitory",
+   "span": "WHAT HAPPENED TO DIANA Diana Ward had strolled to the farther end of the dormitory and was feeling the texture of the rough sheets.",
+   "ok": true
+  },
+  {
+   "claim": "The false assumption was that Stuart died by suicide",
+   "anchor": "It is believed to be a case of suicide",
+   "span": "It is believed to be a case of suicide.",
+   "ok": true
+  },
+  {
+   "claim": "The false solution accused Flash Fred of murder",
+   "anchor": "For carrying concealed weapons, you’re pinched, Fred",
+   "span": "For carrying concealed weapons, you're pinched, Fred.",
+   "ok": true
+  },
+  {
+   "claim": "The discriminating test involved examining the death chamber and secret passages",
+   "anchor": "He opened the door on the right and found himself in a large and beautifully furnished salon",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The final outcome was the arrest and death of the Judd brothers",
+   "anchor": "Then, without another word, he crashed to the floor, dead",
+   "span": "Then, without another word, he crashed to the floor, dead.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.11877650000000001,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

@@ -1,0 +1,443 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: Lady Molly of Scotland Yard
+    author: Orczy, Emmuska Orczy, Baroness
+    license: Public domain (first published 1910; author died 1947). Project Gutenberg ebook 72581.
+    era:
+      decade: 1900s
+      realism_constraints:
+        - No advanced forensic DNA analysis or modern forensic technology available
+        - Communication limited to telegraph, letters, and in-person testimony
+        - >-
+          Travel and surveillance constrained by early 20th century transportation and policing
+          methods
+    setting:
+      location: England and parts of Europe (Kent, Brighton, London, Brittany, Sicily, Budapest, Carlisle)
+      institution: Scotland Yard
+    crime_class:
+      category: murder
+      subtype: disguised identity and forged will fraud
+  cast:
+    - name: Lady Molly Robertson-Kirk
+      age_range: 30-40
+      role_archetype: intuitive and resourceful female detective
+      relationships:
+        - Captain Hubert de Mazareen (husband)
+      public_persona: respected Scotland Yard detective
+      private_secret: secretly married to convicted Captain Hubert de Mazareen
+      motive_seed: justice and love
+      motive_strength: strong
+      alibi_window: always present at investigations
+      access_plausibility: high
+      opportunity_channels:
+        - official investigations
+        - undercover disguises
+      behavioral_tells:
+        - keen intuition
+        - calm under pressure
+      stakes: high - solving complex cases and protecting loved ones
+      evidence_sensitivity:
+        - confessions
+        - documents
+        - witness statements
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: detective
+      moral_complexity: high
+    - name: Mary Granard
+      age_range: 20-30
+      role_archetype: loyal assistant and confidante
+      relationships:
+        - Lady Molly Robertson-Kirk (employer)
+      public_persona: Lady Molly's maid and secretary
+      private_secret: aware of Lady Molly's secret marriage
+      motive_seed: loyalty
+      motive_strength: strong
+      alibi_window: always with Lady Molly
+      access_plausibility: high
+      opportunity_channels:
+        - accompanying Lady Molly
+      behavioral_tells:
+        - observant
+        - supportive
+      stakes: medium
+      evidence_sensitivity:
+        - letters
+        - witness accounts
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: low
+    - name: Captain Hubert de Mazareen
+      age_range: 30-40
+      role_archetype: wrongly accused nobleman
+      relationships:
+        - Lady Molly Robertson-Kirk (wife)
+        - Philip Baddock (rival)
+      public_persona: convicted murderer and escaped convict
+      private_secret: secretly married to Lady Molly
+      motive_seed: love and innocence
+      motive_strength: none
+      alibi_window: uncertain during murder
+      access_plausibility: medium
+      opportunity_channels:
+        - last seen with victim
+        - presence at crime scene
+      behavioral_tells:
+        - silent about whereabouts
+      stakes: life
+      evidence_sensitivity:
+        - murder weapon
+        - witness testimony
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: high
+    - name: Mr. Philip Baddock
+      age_range: 30-50
+      role_archetype: villainous relative and conspirator
+      relationships:
+        - Captain Hubert de Mazareen (nephew and rival)
+        - Mr. Felkin (accomplice)
+      public_persona: wealthy magnate and rival heir
+      private_secret: murderer and forger
+      motive_seed: inheritance and power
+      motive_strength: strong
+      alibi_window: present at key events
+      access_plausibility: high
+      opportunity_channels:
+        - manipulation of wills
+        - murder and cover-up
+      behavioral_tells:
+        - defiant
+        - jealous
+      stakes: high - fortune and status
+      evidence_sensitivity:
+        - forged will
+        - confession documents
+        - murder weapon
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Mr. Felkin
+      age_range: 30-50
+      role_archetype: accomplice and nurse
+      relationships:
+        - Philip Baddock (friend and partner)
+        - Captain Hubert de Mazareen (enemy)
+      public_persona: nurse and agent
+      private_secret: murder accomplice and forger
+      motive_seed: loyalty and greed
+      motive_strength: moderate
+      alibi_window: present at crime scenes
+      access_plausibility: high
+      opportunity_channels:
+        - access to crime scenes
+        - forgery and concealment
+      behavioral_tells:
+        - taciturn
+        - sulky
+      stakes: medium
+      evidence_sensitivity:
+        - confession
+        - forgery evidence
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Lady Irene Culledon
+      age_range: 20-30
+      role_archetype: jealous widow and murderer
+      relationships:
+        - Mark Culledon (husband, victim)
+      public_persona: young widow
+      private_secret: murderer of husband
+      motive_seed: jealousy and inheritance
+      motive_strength: strong
+      alibi_window: uncertain
+      access_plausibility: high
+      opportunity_channels:
+        - access to victim
+        - poisoning
+      behavioral_tells:
+        - defiant
+        - collapsed after exposure
+      stakes: high
+      evidence_sensitivity:
+        - hat identification
+        - medical testimony
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: female
+      role: culprit
+      moral_complexity: high
+    - name: Miss Cruikshank (Mrs. Thomas)
+      age_range: 20-30
+      role_archetype: secretive servant and murderer
+      relationships:
+        - Mrs. Dunstan (victim)
+        - David Athol (lover)
+      public_persona: quiet secretary and lady-help
+      private_secret: murderer of Mrs. Dunstan
+      motive_seed: greed and blackmail
+      motive_strength: strong
+      alibi_window: present in house
+      access_plausibility: high
+      opportunity_channels:
+        - impersonation
+        - access to victim's room
+      behavioral_tells:
+        - defiant
+        - confessed under pressure
+      stakes: medium
+      evidence_sensitivity:
+        - confession
+        - disguise clothes
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: female
+      role: culprit
+      moral_complexity: moderate
+  culpability:
+    culprit_count: 2
+    culprits:
+      - Mr. Philip Baddock
+      - Mr. Felkin
+  surface_model:
+    narrative:
+      summary: >-
+        The cases appear as a series of complex murders and disappearances involving high society
+        and servants, with multiple suspects and conflicting testimonies. Lady Molly Robertson-Kirk,
+        a female detective at Scotland Yard, investigates each case using intuition and undercover
+        work. The public and police initially accept various theories, but the truth is revealed
+        through Lady Molly's persistent efforts.
+    accepted_facts:
+      - Captain Hubert de Mazareen was convicted of murdering Mr. Steadman.
+      - Mr. Philip Baddock had motives related to inheritance and was involved in forgery.
+      - Lady Irene Culledon was present at the time of her husband's death and had a large hat.
+      - Miss Cruikshank impersonated a charwoman and was involved in Mrs. Dunstan's murder.
+    inferred_conclusions:
+      - Captain Hubert de Mazareen was guilty of murder.
+      - Lady Irene Culledon was innocent and merely a grieving widow.
+      - Miss Cruikshank was a loyal servant falsely accused.
+  hidden_model:
+    mechanism:
+      description: >-
+        Philip Baddock and Felkin orchestrated the murder of Mr. Steadman to secure a forged will
+        favoring Baddock, using a staged breakdown and a planted murder weapon to implicate Captain
+        de Mazareen. Lady Irene Culledon poisoned her husband Mark Culledon with morphia in a public
+        café to prevent scandal and secure inheritance. Miss Cruikshank murdered Mrs. Dunstan by
+        impersonating a charwoman and using a bag of sand to incapacitate her before asphyxiation,
+        motivated by greed and blackmail.
+      delivery_path:
+        - step: Philip Baddock and Felkin forged a will in a darkened room with Mr. Steadman.
+        - step: They sabotaged the car to force Mr. Steadman to walk through the woods.
+        - step: Felkin murdered Mr. Steadman with a stick and planted the weapon near the body.
+        - step: >-
+            Captain de Mazareen was framed by being last seen with Mr. Steadman and carrying the
+            stick.
+        - step: >-
+            Lady Irene Culledon administered morphia in chocolate at Mathis’ café and left the
+            victim unattended.
+        - step: >-
+            Miss Cruikshank disguised herself as a charwoman, incapacitated Mrs. Dunstan with a blow
+            from a bag of sand, and asphyxiated her with gas.
+        - step: >-
+            Lady Molly uncovered the truth through disguise, interrogation, and gathering of
+            physical evidence.
+    outcome:
+      result: >-
+        The true culprits were exposed, Captain Hubert de Mazareen was pardoned, and justice was
+        served through Lady Molly’s investigations.
+  false_assumption:
+    statement: Captain Hubert de Mazareen was guilty of murdering Mr. Steadman.
+    type: identity
+    why_it_seems_reasonable: >-
+      He was the last person seen with the victim and was found with the murder weapon. The
+      circumstantial evidence and his silence about his whereabouts made him the prime suspect.
+    what_it_hides: >-
+      The actual murder was committed by Philip Baddock and Felkin who cleverly framed de Mazareen
+      using forged documents and planted evidence.
+  false_solution:
+    accused_suspect: Captain Hubert de Mazareen
+    supporting_points:
+      - He was last seen with the victim before the murder.
+      - The murder weapon was identified as his property.
+      - He had no alibi for the time of the murder.
+      - There was circumstantial evidence of motive related to inheritance.
+    the_one_flaw: >-
+      The evidence was planted and the forged will was the true motive behind the murder,
+      implicating others.
+    refuted_in_chapter: 11
+  red_herrings:
+    - id: lady_irene_culledon_innocence
+      description: >-
+        Lady Irene Culledon appeared as a grieving widow and was initially suspected due to her
+        presence and the large hat worn at the crime scene.
+      points_at_suspect: Lady Irene Culledon
+      innocent_explanation: >-
+        She was motivated by jealousy and inheritance but did not commit the murder; her large hat
+        was a misidentification factor.
+      resolved_in_chapter: 10
+    - id: miss_cruikshank_as_victim
+      description: >-
+        Miss Cruikshank was seen as a loyal servant and victim of circumstances, but her behavior
+        was suspicious.
+      points_at_suspect: Miss Cruikshank
+      innocent_explanation: She was actually the murderer, using disguise and blackmail to cover her crime.
+      resolved_in_chapter: 8
+  closed_circle:
+    suspects:
+      - Captain Hubert de Mazareen
+      - Mr. Philip Baddock
+      - Mr. Felkin
+      - Lady Irene Culledon
+      - Miss Cruikshank (Mrs. Thomas)
+    rationale: >-
+      All suspects had access, motive, and opportunity; the investigation focused on these
+      individuals due to their relationships with victims and involvement in the events.
+  constraint_space:
+    time:
+      anchors:
+        - December 24th-25th, 1903 (Major Ceely murder)
+        - February 5th, 1907 (Mary Nicholls body found)
+        - April 1904 (Mr. Steadman murder)
+        - January 23rd, 1907 (Mary Nicholls disappearance)
+        - September 20th (Brittany will opening)
+      windows:
+        - Night of January 23rd for Mary Nicholls disappearance
+        - Christmas Eve night for Major Ceely murder
+        - Evening of April 1904 for Mr. Steadman murder
+        - Afternoon of Mark Culledon murder
+        - Early morning hours for Mrs. Dunstan murder
+    access:
+      actors:
+        - House servants
+        - Family members
+        - Visitors
+        - Detectives
+      objects:
+        - Elkhorn Woods
+        - Ash Court grounds
+        - Appledore Castle
+        - Eaton Terrace house
+        - Mathis’ café
+    social:
+      trust_channels:
+        - Servants’ testimonies
+        - Family confidences
+        - Legal documents
+        - Witness statements
+      authority_sources:
+        - Scotland Yard
+        - Local police
+        - Coroner
+        - Medical officers
+  inference_path:
+    steps:
+      - observation: >-
+          Captain Hubert de Mazareen was last seen with Mr. Steadman and carried a stick found near
+          the murder scene.
+        correction: The stick was planted by Felkin, who also cut his own hand to stain it.
+        effect: De Mazareen was framed for the murder.
+        required_evidence:
+          - Testimony of chauffeur George Taylor about car breakdown and walking through woods
+          - >-
+            Physical examination of the stick showing blood not matching the victim and presence of
+            Felkin's fingerprints
+        reader_observable: true
+      - observation: >-
+          Lady Irene Culledon wore a large hat similar to the one described by witnesses at Mathis’
+          café.
+        correction: The hat was specially ordered and worn only once on the day of the murder.
+        effect: Identified Lady Irene as the woman in the big hat and murderer.
+        required_evidence:
+          - Testimony of maid about hat order and wearing
+          - Waitresses’ identification and contradictory statements about the hat
+        reader_observable: true
+      - observation: Miss Cruikshank was a loyal servant and victim of circumstances.
+        correction: She impersonated Mrs. Thomas and murdered Mrs. Dunstan using a bag of sand and gas.
+        effect: Revealed Miss Cruikshank as the murderer.
+        required_evidence:
+          - Discovery of disguise clothes in coal cellar belonging to Mrs. Thomas
+          - Bag of sand with traces matching those found at the murder scene
+        reader_observable: true
+      - observation: Mr. Philip Baddock was a wealthy relative with motive for murder.
+        correction: He conspired with Felkin to forge a will and murder Mr. Steadman.
+        effect: Exposed Baddock as mastermind behind Steadman’s murder.
+        required_evidence:
+          - Forged will and related documents found in Baddock's study
+          - Handwriting analysis of the forged will compared to Baddock and Felkin
+        reader_observable: true
+      - observation: Mary Nicholls was murdered at Ash Court.
+        correction: >-
+          Her sister Susan was the actual victim, impersonating Mary to meet Lord Edbrooke, who
+          murdered Susan.
+        effect: Changed victim identity and revealed motive of blackmail and murder.
+        required_evidence:
+          - Identification records showing Susan's features and clothing at time of death
+          - Letter from Susan to Mary arranging the meeting with Lord Edbrooke
+        reader_observable: true
+      - observation: Jane Turner was assaulted by an elderly woman and a man.
+        correction: >-
+          Jane Turner alone staged the assault and blackmail scheme to extort money from the
+          Countess of Hohengebirg.
+        effect: Revealed Jane Turner as sole perpetrator of the assault and blackmail.
+        required_evidence:
+          - Letter from Jane Turner to the Countess demanding money and threatening exposure
+          - Medical examination report showing self-inflicted wounds inconsistent with her story
+        reader_observable: true
+      - observation: Leonard Marvell disappeared mysteriously.
+        correction: >-
+          Leonard disguised himself as his sister Olive and maid Rosie Campbell to commit robberies
+          and evade capture.
+        effect: Explained disappearance and criminal activities as a disguise scheme.
+        required_evidence:
+          - Witness statements about contradictory sightings of Olive and Rosie on the same day
+          - Lady Molly’s undercover observation and note exchanges revealing Leonard's disguise
+        reader_observable: true
+  discriminating_test:
+    method: reenactment
+    design: >-
+      Lady Molly arranged for the maids of Lady Irene Culledon to wear large hats, including the one
+      worn on the murder day, and paraded them before the Mathis’ café waitress who identified the
+      mysterious woman. This test aimed to confirm if the waitress could reliably identify the
+      murderer by the hat and stature.
+    knowledge_revealed: >-
+      The waitress’s identification of the hat and wearer confirmed Lady Irene Culledon as the woman
+      in the big hat and the murderer of Mark Culledon.
+    pass_condition: >-
+      The waitress consistently identifies the same hat and wearer among several candidates,
+      eliminating doubt about the murderer’s identity.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given detailed descriptions of characters, their motives, and timelines. Lady
+      Molly’s intuitive deductions are based on clues such as the unique large hat, forged
+      documents, and contradictory witness statements, all presented in the narrative. The disguised
+      identities and planted evidence are foreshadowed through inconsistencies and testimonies,
+      allowing an attentive reader to piece together the true culprits and their methods.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

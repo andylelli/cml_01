@@ -1,0 +1,136 @@
+{
+ "slug": "the_crystal_claw",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Thelma Audley wore a crystal claw pendant sent from Pekin",
+   "anchor": "the extraordinary pendant which Mrs. Audley wore on her bosom",
+   "span": "Feng, I could plainly see, had no eyes for the dress: his attention was concentrated on the extraordinary pendant which Mrs. Audley wore on her bosom, suspended from a thin platinum chain round her neck.",
+   "ok": true
+  },
+  {
+   "claim": "Stanley Audley disappeared after receiving a telegram at Mürren",
+   "anchor": "he received a telegram recalling him to London",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Stanley Audley and Philip Graydon exchanged identities",
+   "anchor": "the man I knew as Stanley Audley is none other than the man you know as Graydon",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "A locked room was found empty with signs of burning and forged notes",
+   "anchor": "the room was empty... the key was still there... ashes of something",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Forged banknotes were found among Stanley Audley's possessions",
+   "anchor": "three notes for fifty pounds each, obviously quite new",
+   "span": "There were three notes for fifty pounds each, obviously quite new.",
+   "ok": true
+  },
+  {
+   "claim": "Rex Yelverton was drugged and left a forged suicide note",
+   "anchor": "a note addressed to the Coroner, apologizing for your act",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Thelma Audley disappeared after receiving a telegram and burned it",
+   "anchor": "on receipt of the telegram, apparently burned it by applying a match",
+   "span": "Audley, on receipt of the telegram, apparently burned it by applying a match, as the tinder was found in the fireplace of her bedroom.",
+   "ok": true
+  },
+  {
+   "claim": "Rex Yelverton was attacked by a man posing as a commercial traveler",
+   "anchor": "the man from Bradford... gave you a drugged cigarette",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Rex and Thelma were trapped in a house with a petrol-filled balloon",
+   "anchor": "the fragile yellow balloon to expand to bursting point",
+   "span": "Only that fatal candle flickered as gradually its heat was causing the fragile yellow balloon to expand to bursting point.",
+   "ok": true
+  },
+  {
+   "claim": "Stanley Audley died from burns after rescuing Thelma",
+   "anchor": "Stanley Audley is dead... he died three days later in the hospital",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Hartley Humphreys was the mastermind behind the plot and committed suicide",
+   "anchor": "he shot himself there when the detectives went to arrest him",
+   "span": "I can't tell you the full story yet--you are not well enough--but he was traced from the house in Hampstead to some rooms he had in secret in Earl's Court Road and he shot himself there when the detectives went to arrest him.",
+   "ok": true
+  },
+  {
+   "claim": "Dr. Feng was secretly protecting Rex and Thelma",
+   "anchor": "you and Thelma have to thank the Crystal Claw for the fact that you are alive today",
+   "span": "you and Thelma have to thank the Crystal Claw for the fact that you are alive today.",
+   "ok": true
+  },
+  {
+   "claim": "The forged notes were part of a South American forgery gang",
+   "anchor": "a quantity of spurious five and fifty-pound Bank of England notes",
+   "span": "The manager told me that all banks here and abroad had been warned about six months ago that a quantity of spurious five and fifty-pound Bank of England notes were in circulation.",
+   "ok": true
+  },
+  {
+   "claim": "The locked door could be opened from outside with pliers",
+   "anchor": "it was easy, I found, to turn the key from the outside with a pair of pliers",
+   "span": "The end of the key projected beyond the surface of the door and as the lock was well-oiled and went very easily, it was easy, I found, to turn the key from the outside with a pair of pliers.",
+   "ok": true
+  },
+  {
+   "claim": "Thelma and Stanley secretly met at Dr. Feng's house",
+   "anchor": "she and her husband called upon Doctor Feng",
+   "span": "But one very curious fact I've discovered is that a few days ago she and her husband called upon Doctor Feng.",
+   "ok": true
+  },
+  {
+   "claim": "Threatening letters were sent to Rex to stop his investigation",
+   "anchor": "You have formed a friendship with Mrs. Thelma Audley. I warn you",
+   "span": "You have formed a friendship with Mrs. Thelma Audley. I warn you that such friendship, if continued, will be at the cost of your own life.",
+   "ok": true
+  },
+  {
+   "claim": "Harold Ruthen was involved in the forgery gang but not the murderer",
+   "anchor": "Harold Ruthen was arrested at the Pavilion Hotel in Boulogne",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The crystal claw is a talisman of the Thu-tseng society",
+   "anchor": "The crystal claw is the badge or sign of the Thu-tseng",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The fire at Heathermoor Gardens was a murder attempt by arson",
+   "anchor": "the balloon split apart. A blaze of flame momentarily lit up the room",
+   "span": "The balloon split apart. A blaze of flame momentarily lit up the room and in its lurid glow I caught a glimpse of Thelma.",
+   "ok": true
+  },
+  {
+   "claim": "Rex Yelverton was saved by Dr. Feng and hospital doctors",
+   "anchor": "You owe your life to Doctor Denbury’s efforts",
+   "span": "You owe your life to Doctor Denbury's efforts.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.1419106941,
+ "models": {
+  "map": "gpt-4o-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

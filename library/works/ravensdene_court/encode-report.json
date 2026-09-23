@@ -1,0 +1,136 @@
+{
+ "slug": "ravensdene_court",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Salter Quick was found murdered on the beach with money untouched",
+   "anchor": "his money and his watch are untouched",
+   "span": "His money and his watch are untouched.",
+   "ok": true
+  },
+  {
+   "claim": "The tobacco-box lid had cryptic scratches",
+   "anchor": "scratched into it with the point of a nail",
+   "span": "There's been something--a design, a plan, something of that sort, anyway--scratched into it with the point of a nail, or a knife.",
+   "ok": true
+  },
+  {
+   "claim": "Mr. Cazalette found a blood-stained handkerchief near the murder scene",
+   "anchor": "a crumpled, crushed-up lump of linen",
+   "span": "And there, thrust right in amongst the yew, I saw something white, a crumpled, crushed-up lump of linen, perhaps a man's full-sized pocket-handkerchief, whereon I could make out, even in that obscurity (and nothing in the way of hedges can be thicker or darker than one of old, carefully-trimmed yew) brown stains and red stains, as if from contact with soil or clay in one case, with blood in the other.",
+   "ok": true
+  },
+  {
+   "claim": "No Netherfield graves exist near Ravensdene Court",
+   "anchor": "there isn't such a name in any churchyard of these parts",
+   "span": "There isn't such a name in any churchyard of these parts.",
+   "ok": true
+  },
+  {
+   "claim": "Netherfield Baxter was a known figure in Blyth and disappeared suddenly",
+   "anchor": "Netherfield Baxter was just about on his last legs",
+   "span": "Middlebrook--Netherfield Baxter was just about on his last legs--he was, in fact, living from hand to mouth.",
+   "ok": true
+  },
+  {
+   "claim": "The stolen monastic treasure was hidden near the ruins of an ancient church",
+   "anchor": "the ruins beneath whose walls we had come face to face",
+   "span": "Without doubt we were in the hands of Netherfield Baxter and his gang; without doubt this was the craft which they had bought from the Hull ship broker; without doubt the reason of its presence on this lonely stretch of the coast lay in the proceedings amongst the ruins beneath whose walls we had come face to face with our captors.",
+   "ok": true
+  },
+  {
+   "claim": "The inscription on the tombstone identifies Humphrey de Knaythville",
+   "anchor": "Hic jacet dominus ... Humfrey de Knaythville",
+   "span": "Presently I made out at any rate several words and figures: _Hic jacet dominus ... Humfrey de Knaythville .",
+   "ok": true
+  },
+  {
+   "claim": "Netherfield Baxter and accomplices bought a yacht named Blanchflower",
+   "anchor": "the name of the vessel is the _Blanchflower_",
+   "span": "and the name of the vessel is the _Blanchflower_.",
+   "ok": true
+  },
+  {
+   "claim": "Baxter and Frenchman kidnapped Middlebrook and Miss Raven",
+   "anchor": "we were here by sheer accident. Exploring the wood",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "A mutiny among the Chinese crew led to a deadly fight on the yacht",
+   "anchor": "the vessel's more like a slaughter-house than a ship",
+   "span": "The vessel's more like a slaughter-house than a ship!",
+   "ok": true
+  },
+  {
+   "claim": "Wing escaped wounded from the yacht",
+   "anchor": "he pulled something out and shoved it into my hand",
+   "span": "--just before he fainted the last time, he managed to fumble amongst his clothing with his right hand and he pulled something out and shoved it into my hand with a word or two.",
+   "ok": true
+  },
+  {
+   "claim": "Wing was found wounded at Dr. Lorrimore's house",
+   "anchor": "Wing, propped up against a bank of earth",
+   "span": "The bystanders moved as we hurried up, and then we caught glimpses of towels and water and hastily-improvised bandages and smelt brandy, and saw, in the midst of all this Wing, propped up against a bank of earth, his eyes closed, and over his yellow face a queer grey-white pallor.",
+   "ok": true
+  },
+  {
+   "claim": "The pearls and rubies were the motive for the murders",
+   "anchor": "two magnificent rubies--worth no end of money",
+   "span": "Noah and Salter Quick were then in possession of two magnificent rubies--worth no end of money!",
+   "ok": true
+  },
+  {
+   "claim": "The tobacco-box and pocket-book were stolen to conceal evidence",
+   "anchor": "they, in all likelihood, abstracted the tobacco-box",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The police destroyer intercepted the yacht",
+   "anchor": "the long, low-lying hulk of a vessel--a dark, sinister-looking thing",
+   "span": "And with equal suddenness there shot round the edge of the southern extremity of the cove, outlining itself against the red sky in the distance the long, low-lying hulk of a vessel--a dark, sinister-looking thing which I recognised at once as a torpedo-destroyer.",
+   "ok": true
+  },
+  {
+   "claim": "The yacht was set on fire during the mutiny",
+   "anchor": "the yawl's on fire",
+   "span": "The yawl's on fire!",
+   "ok": true
+  },
+  {
+   "claim": "The dead on the yacht included Baxter and the Frenchman",
+   "anchor": "the man lying dead there is the Baxter we heard of",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The pearls and rubies were recovered from Wing",
+   "anchor": "he pulled something out and shoved it into my hand",
+   "span": "--just before he fainted the last time, he managed to fumble amongst his clothing with his right hand and he pulled something out and shoved it into my hand with a word or two.",
+   "ok": true
+  },
+  {
+   "claim": "The detective Scarterfield is in charge of the investigation",
+   "anchor": "This is Mr. Scarterfield--from the police at Devonport",
+   "span": "This is Mr. Scarterfield--from the police at Devonport.",
+   "ok": true
+  },
+  {
+   "claim": "The handkerchief found near the murder scene belonged to the Frenchman",
+   "anchor": "That handkerchief belongs to my French friend",
+   "span": "That handkerchief belongs to my French friend,\" said Baxter.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.08338797600000002,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

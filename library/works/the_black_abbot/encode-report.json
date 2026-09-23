@@ -1,0 +1,136 @@
+{
+ "slug": "the_black_abbot",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Thomas was found dead wearing the Black Abbot costume",
+   "anchor": "lying on the grass, the dead body of a man dressed in the habit of the famous Black Abbot",
+   "span": "They were horrified to discover, lying on the grass, the dead body of a man dressed in the habit of the famous Black Abbot.",
+   "ok": true
+  },
+  {
+   "claim": "Lord Chelford’s room showed signs of a violent struggle",
+   "anchor": "terrible scene met the eyes of the police officers. The room was in confusion; mirrors and furniture were smashed",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Leslie Gwyn broke off her engagement and was later kidnapped",
+   "anchor": "I have already written to Harry, breaking off my engagement",
+   "span": "I have already written to Harry, breaking off my engagement,\" she answered him.",
+   "ok": true
+  },
+  {
+   "claim": "Arthur Gwyn had forged bills and fled abroad",
+   "anchor": "I have handed my resignation to Mr. Gwyn, and intend to devote my time to the development of my private affairs",
+   "span": "I have handed my resignation to Mr. Gwyn, and intend to devote my time to the development of my private affairs.",
+   "ok": true
+  },
+  {
+   "claim": "Fabrian Gilder proposed to Leslie Gwyn and sought financial gain",
+   "anchor": "I have asked Miss Gwyn to be my wife",
+   "span": "I have asked Miss Gwyn to be my wife.",
+   "ok": true
+  },
+  {
+   "claim": "Dick Alford was seen near crime scenes and had the Black Abbot costume",
+   "anchor": "In that bag was the robe of the Black Abbot, well worn, often used",
+   "span": "In that bag was the robe of the Black Abbot, well worn, often used!",
+   "ok": true
+  },
+  {
+   "claim": "The treasure is hidden beneath the dry riverbed with shingle covering",
+   "anchor": "the old Lord Chelford who hid his treasure chose the bed of the river. It was a year of drought, the river was quite dry",
+   "span": "The Diary told us as plainly as anything could that the old Lord Chelford who hid his treasure chose the bed of the river. It was a year of drought, the river was quite dry, and probably he found a deep hole in its bed, hid the gold and covered it with shingle that would not wash away.",
+   "ok": true
+  },
+  {
+   "claim": "Dick Alford impersonated the Black Abbot to protect his brother",
+   "anchor": "I was the Black Abbot. My brother was terrified of the Abbot and would never go out if there was a rumour",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The underground vault beneath the Abbey is where Harry was hidden",
+   "anchor": "They were lying at full length beneath the laurel bushes wait and then crawled painfully and carefully back to the road",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The ladder marks and open library window indicate forced entry",
+   "anchor": "The ladder was lying parallel with the gravel drive, and Puttler examined it rung by rung",
+   "span": "The ladder was lying parallel with the gravel drive, and Puttler examined it rung by rung.",
+   "ok": true
+  },
+  {
+   "claim": "The Black Abbot costume was found in Dick Alford’s car after a near accident",
+   "anchor": "His car, white with dust, sped up the drive and came to a halt in the wide space before the porch",
+   "span": "His car, white with dust, sped up the drive and came to a halt in the wide space before the porch.",
+   "ok": true
+  },
+  {
+   "claim": "The letter box was tampered with preventing Leslie’s letter from being sent",
+   "anchor": "the box had been tampered with. He couldn’t get in his key, so the letters that had been posted between six and ten have not yet been collected",
+   "span": "Because our roundsman reported that the box had been tampered with. He couldn't get in his key, so the letters that had been posted between six and ten have not yet been collected.",
+   "ok": true
+  },
+  {
+   "claim": "Harry Alford was imprisoned in the underground vault beneath the Abbey",
+   "anchor": "He was lying in a recess carved from the solid rock, and left and right ran a narrow passage streaming with water",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The treasure chest contained the elixir of life flask, not gold bars",
+   "anchor": "Inside was what appeared to be a bundle of discoloured cloth. He lifted it out. There was a long flask containing a colourless fluid",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Dick Alford and Detective Puttler found the secret passage and attempted rescue",
+   "anchor": "Dick dropped through to the rocky floor just as the table slid into its place",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The false solution accused Arthur Gwyn of murder due to financial motives",
+   "anchor": "Arthur Gwyn had forged bills and fled abroad",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Fabrian Gilder’s aggressive behavior and financial dealings mislead suspicion",
+   "anchor": "Fabrian Gilder, sometime head clerk to the firm of Gwyn & Gwyn, and now a gentleman of leisure",
+   "span": "Fabrian Gilder, sometime head clerk to the firm of Gwyn & Gwyn, and now a gentleman of leisure, was in one sense a hard man.",
+   "ok": true
+  },
+  {
+   "claim": "Thomas was an ex-convict footman involved in theft and spying",
+   "anchor": "Thomas, the footman, saw Dick go into his room and close the door, and he breathed more freely",
+   "span": "Thomas, the footman, saw Dick go into his room and close the door, and he breathed more freely.",
+   "ok": true
+  },
+  {
+   "claim": "The Black Abbot legend is a cover for Dick Alford’s protective disguise",
+   "anchor": "The man whom the villagers feared and whom they call the Black Abbot, is really Harry. I was a very silent Black Abbot",
+   "span": "The man whom the villagers feared and whom they call the Black Abbot, is really Harry. I was a very silent Black Abbot,\" he smiled faintly, \"and I had no other purpose than to keep Harry indoors.",
+   "ok": true
+  },
+  {
+   "claim": "The treasure was hidden under the riverbed and covered with shingle",
+   "anchor": "The old Lord Chelford who hid his treasure chose the bed of the river. It was a year of drought",
+   "span": "The Diary told us as plainly as anything could that the old Lord Chelford who hid his treasure chose the bed of the river. It was a year of drought, the river was quite dry, and probably he found a deep hole in its bed, hid the gold and covered it with shingle that would not wash away.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.13329638400000002,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

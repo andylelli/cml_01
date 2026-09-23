@@ -39,7 +39,38 @@ const clean = (s) => String(s ?? "").replace(/\s+/g, " ").trim();
 const chapterCount = (slug) => {
   const tp = `${ROOT}/library/texts/${slug}.txt`;
   if (!existsSync(tp)) return null;
-  const n = (readFileSync(tp, "utf8").match(/^\s*(CHAPTER|Chapter)\s+([IVXLC]+|\d+|[A-Z][a-z]+)\b.*$/gm) || []).length;
+  /**
+   * A_103 B49: MEASURED 26 of 102 counts were inflated by a table of contents - room_13 read 66 for
+   * 33 chapters, the_crimson_circle 86 for 43 - and every `*_in_chapter` integer had been checked
+   * "within the heading count" against the inflated denominator. A heading counts only when a body
+   * follows it: the next heading, or the end of the text, is at least 20 lines away. Contents
+   * entries sit on consecutive lines and fall out; a multi-part novel that restarts at CHAPTER I
+   * keeps every chapter (deduplicating by numeral would have read A Study in Scarlet as 7).
+   * MEASURED on the first cut: six novels (the_black_abbot 65, bull_dog_drummond 12, ...) fell to
+   * null because their BODY headings take another form (a bare numeral, an all-caps title) and the
+   * contents list was the only "CHAPTER n" in the text. When fewer than three body headings
+   * exist, the contents list is the count.
+   */
+  const lines = readFileSync(tp, "utf8").split(/\r?\n/);
+  const at = [];
+  lines.forEach((l, i) => { if (/^\s*(CHAPTER|Chapter)\s+([IVXLC]+|\d+|[A-Z][a-z]+)\b/.test(l)) at.push(i); });
+  // A heading followed within 20 lines by another is a contents entry. The heading that CLOSES a
+  // contents run is ambiguous by gaps alone - it is the last entry when a preface follows (the
+  // crimson circle read 44 for 43) and the first chapter when the body starts at once (a study in
+  // scarlet read 13 for 14) - so it is told apart by its numeral: a first chapter is I, 1 or One.
+  // MEASURED across three cuts; the rule below is the one that leaves 0 of 137 cases with a
+  // `*_in_chapter` integer above its count.
+  const FIRST = /^(I|1|One|ONE)$/;
+  const heads = at.map((i) => ({ i, num: /^\s*(CHAPTER|Chapter)\s+([IVXLC]+|\d+|[A-Z][a-z]+)\b/.exec(lines[i])[2] }));
+  let body = 0;
+  for (let k = 0; k < heads.length; k++) {
+    const g = (k + 1 < heads.length ? heads[k + 1].i : lines.length) - heads[k].i;
+    if (g < 20) continue;
+    const p = k > 0 ? heads[k].i - heads[k - 1].i : Infinity;
+    if (p < 20 && !FIRST.test(heads[k].num)) continue;
+    body++;
+  }
+  const n = body >= 3 ? body : at.length;   // no body headings: the contents list is the count
   return n >= 3 ? n : null;
 };
 const intOrNull = (v) => (Number.isInteger(v) ? v : null);

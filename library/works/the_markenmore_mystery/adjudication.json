@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "Mrs. Braxfield saw John Harborough near Markenmore Hollow from her bedroom window at the time of the murder.",
+  "type": "spatial",
+  "why_it_seems_reasonable": "Mrs. Braxfield testified confidently at the inquest about seeing Harborough, and her long service and familiarity with the area lent credibility. Witnesses and villagers accepted her statement as fact.",
+  "what_it_hides": "The actual location from which Mrs. Braxfield saw the man was a spinney near Markenmore Hollow, not her bedroom window, and the man she saw was likely Baron von Eckhardstein, not Harborough."
+ },
+ "mechanism_description": "Mr. Carter, assistant to Professor Sir Thomas Hodges-Wilkins, murdered Guy Markenmore to obtain a valuable chemical formula and three thousand pounds in cash. He followed Markenmore, who trusted him, and killed him at Markenmore Hollow, then attempted to conceal his involvement by posing as a tourist and later dying from a fall while evading capture. The discovery of the formula and money on Carter's body revealed the truth.",
+ "discriminating_test": {
+  "method": "constraint_proof",
+  "design": "Investigators verify alibis and presence of suspects at key times by cross-referencing witness statements, physical geography, and sales records of the pistol. They confirm Mrs. Braxfield’s presence near Markenmore Hollow and her use of the pistol, but also confirm Harry Markenmore’s alibi at his father’s bedside. They trace the secret formula delivery and the presence of Carter at the scene.",
+  "knowledge_revealed": "This test reveals who had opportunity and access to the murder scene and the secret formula, and who could not have committed the crime due to alibi or lack of access.",
+  "pass_condition": "The suspect must be physically present at Markenmore Hollow at the time of murder and have access to the murder weapon and motive; others with alibis or no access are excluded."
+ },
+ "changed": [],
+ "confidence": "high"
+}

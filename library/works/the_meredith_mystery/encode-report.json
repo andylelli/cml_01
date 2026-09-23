@@ -24,19 +24,19 @@
   {
    "claim": "Anne Meredith was seen in the victim's bedroom late at night",
    "anchor": "Anne was up and about at the time of her uncle’s murder",
-   "span": "Meredith said nothing to connect Anne with the crime, but it did prove that Anne was up and about at the time of her uncle’s murder.",
+   "span": "Meredith said nothing to connect Anne with the crime, but it did prove that Anne was up and about at the time of her uncle's murder.",
    "ok": true
   },
   {
    "claim": "The parrot repeated a phrase implicating Anne",
    "anchor": "Anne—I’ve caught you—you devil!",
-   "span": "Anne—I’ve caught you—you devil!” CHAPTER V THE INQUEST The opening and closing of doors and the murmur of distant voices came fitfully to David Curtis as he sat near the window of his bedroom, his head propped against his hand and his sightless eyes turned toward the view over the hills to the National Capital.",
+   "span": "Anne-I've caught you-you devil!\" CHAPTER V THE INQUEST The opening and closing of doors and the murmur of distant voices came fitfully to David Curtis as he sat near the window of his bedroom, his head propped against his hand and his sightless eyes turned toward the view over the hills to the National Capital.",
    "ok": true
   },
   {
    "claim": "The duplicate Yale key was found in Meredith's safe deposit box",
    "anchor": "The box was empty except for this key",
-   "span": "The box was empty except for this key,” and he laid it in Curtis’ hand.",
+   "span": "The box was empty except for this key,\" and he laid it in Curtis' hand.",
    "ok": true
   },
   {
@@ -60,7 +60,7 @@
   {
    "claim": "The scalpel was found in a fern box inconsistent with suicide theory",
    "anchor": "I found the monkey in the grove of trees down beyond",
-   "span": "I found the monkey in the grove of trees down beyond, where you suggested he might be, sir,” he said.",
+   "span": "I found the monkey in the grove of trees down beyond, where you suggested he might be, sir,\" he said.",
    "ok": true
   },
   {
@@ -72,26 +72,26 @@
   {
    "claim": "Mrs. Meredith secretly took the missing documents",
    "anchor": "I took the prenuptial agreement, Anne, that I might safeguard your interests",
-   "span": "I took the prenuptial agreement, Anne, that I might safeguard your interests—” Anne turned deadly white.",
+   "span": "I took the prenuptial agreement, Anne, that I might safeguard your interests-\" Anne turned deadly white.",
    "ok": true
   },
   {
    "claim": "The reenactment disproved the suicide theory",
    "anchor": "The scalpel fell directly into this box",
-   "span": "The scalpel fell directly into this box,” laying his hand upon it.",
+   "span": "The scalpel fell directly into this box,\" laying his hand upon it.",
    "ok": true
   },
   {
    "claim": "Armstrong fled after being confronted with evidence",
    "anchor": "He stood staring stupidly at a pair of handcuffs dangling from his wrists",
-   "span": "",
-   "ok": false
+   "span": "A minute more and he stood staring stupidly at a pair of handcuffs dangling from his wrists.",
+   "ok": true
   },
   {
    "claim": "The monkey's paw was severed to free it from Curtis' grasp",
    "anchor": "A severed hand in his grasp",
-   "span": "",
-   "ok": false
+   "span": "A piercing scream of such anguished intensity that it chilled the blood in the hearer's veins rang through the night, and echoed and reechoed in Curtis' ears as he staggered to his knees-a severed hand in his grasp.",
+   "ok": true
   },
   {
    "claim": "Curtis discovered a secret compartment with money and documents",
@@ -108,13 +108,13 @@
   {
    "claim": "Hollister found the inventory sheet with a clipped corner",
    "anchor": "That notation reads: ‘Contents of safe deposit box belongs to.’",
-   "span": "That notation reads: ‘Contents of safe deposit box belongs to.’” He folded the paper and replaced it in his wallet.",
+   "span": "That notation reads: 'Contents of safe deposit box belongs to.'\" He folded the paper and replaced it in his wallet.",
    "ok": true
   },
   {
    "claim": "Curtis was blind but used his other senses to investigate",
    "anchor": "Since my blindness my fingers have been my eyes",
-   "span": "Since my blindness my fingers have been my eyes,” replied Curtis.",
+   "span": "Since my blindness my fingers have been my eyes,\" replied Curtis.",
    "ok": true
   },
   {
@@ -130,5 +130,7 @@
   "encode": "gpt-4.1-mini",
   "sweep": "gpt-4o-mini"
  },
- "case_written": true
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
 }

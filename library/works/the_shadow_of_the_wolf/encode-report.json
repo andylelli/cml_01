@@ -1,0 +1,136 @@
+{
+ "slug": "the_shadow_of_the_wolf",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Purcell was murdered by Varney during the yacht voyage",
+   "anchor": "Varney stooped forward, steadying himself with a hand on the little windlass, and softly drawing forth the revolver",
+   "span": "With scarcely a moment's hesitation, Varney stooped forward, steadying himself with a hand on the little windlass, and softly drawing forth the revolver, pointed it at the back of Purcell's head at the spot where the back seam of his sou'wester met the brim.",
+   "ok": true
+  },
+  {
+   "claim": "Purcell's body was weighted and thrown overboard",
+   "anchor": "He passed the length of rope that he had cut off twice round Purcell’s body, hauled it tight and secured it with a knot",
+   "span": "He passed the length of rope that he had cut off twice round Purcell's body, hauled it tight and secured it with a knot.",
+   "ok": true
+  },
+  {
+   "claim": "Blood stain and hand print found on the yacht's sail",
+   "anchor": "What was this on the creamy, duck sail? A pool of blood and a gory imprint of his own hand",
+   "span": "But what was this on the creamy, duck sail? A pool of blood and a gory imprint of his own hand!",
+   "ok": true
+  },
+  {
+   "claim": "Varney forged letters to conceal Purcell's death",
+   "anchor": "He drew forth his pipe and pouch and half unconsciously, with a dexterity born of long practice, rolled a cigarette",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The forged letter was posted from Woodbridge but was a forgery",
+   "anchor": "The inference is suggested that this letter has never been through the post",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The cork button with marine worm tube came from Purcell's coat",
+   "anchor": "A small, flat cork, evidently from a zoologist’s collecting-bottle, for it has a label stuck on it with the inscription ‘marine worms’",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The marine worm tube is composed of phonolite fragments from Wolf Rock",
+   "anchor": "The material of this one seems to be all alike",
+   "span": "The material of this one seems to be all alike.",
+   "ok": true
+  },
+  {
+   "claim": "Missing ballast weight and cut rope from the yacht",
+   "anchor": "There are only twenty-three in that row",
+   "span": "There are only twenty-three in that row,\" said Thorndyke.",
+   "ok": true
+  },
+  {
+   "claim": "Blood stain on sail is a carefully washed blood stain",
+   "anchor": "This is a blood stain; and a very carefully washed blood stain",
+   "span": "You understand the meaning of this reaction, Rodney; this is a blood stain; and a very carefully washed blood stain.",
+   "ok": true
+  },
+  {
+   "claim": "Hand print on sail matches Varney's maimed finger",
+   "anchor": "The dreadful significance of this apparition and the uncanny and mysterious manner of its emergence",
+   "span": "The dreadful significance of this apparition and the uncanny and mysterious manner of its emergence from the white surface produced a most profound impression on all the observers, but especially on Rodney, who stared at it with an expression of the utmost horror, but spoke not a word.",
+   "ok": true
+  },
+  {
+   "claim": "Varney's presence on the search boat near Wolf Rock",
+   "anchor": "God! exclaimed Phillip. It’s Varney! Sheer off, skipper! Don’t let him come alongside",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Purcell's death is conclusively proven by recovered remains",
+   "anchor": "The dreadful burden, in its entirety, was never hauled on board. As it reached the surface, Tregenna stopped hauling and held the rope steady",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Skull with bullet hole found with Purcell's hat",
+   "anchor": "A skull—with a great, jagged hole above the brows—that looked up at them beneath the peak of the sou’wester",
+   "span": "As it reached the surface, Tregenna stopped hauling and held the rope steady; and for a sensible time all eyes were fixed upon a skull-with a great, jagged hole above the brows-that looked up at them beneath the peak of the sou'wester, through the web of spunyarn, like the face of some phantom warrior looking out through the bars of his helmet.",
+   "ok": true
+  },
+  {
+   "claim": "Varney cleaned and reloaded the revolver after firing",
+   "anchor": "The barrel is quite clean and so is one chamber, but the other five chambers are extremely foul",
+   "span": "The barrel is quite clean and so is one chamber, but the other five chambers are extremely foul.",
+   "ok": true
+  },
+  {
+   "claim": "Varney's fabricated sightings and letters misled the investigation",
+   "anchor": "The report of Purcell’s voyage from Falmouth to Ipswich was certainly untrue",
+   "span": "Again, the report of Purcell's voyage from Falmouth to Ipswich was certainly untrue.",
+   "ok": true
+  },
+  {
+   "claim": "Varney's forged letter was lithographically produced",
+   "anchor": "The post-marks had been made when the envelope was empty",
+   "span": "In this case, too, the post-marks had been made when the envelope was empty; a curious oversight on the part of Varney, in view of the care and ingenuity otherwise displayed.",
+   "ok": true
+  },
+  {
+   "claim": "The letter was addressed to Penfield in a forged hand",
+   "anchor": "The name “Penfield” on the envelope to the same name in the letter was a perfect facsimile",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Varney's maimed finger is distinctive and identifiable",
+   "anchor": "The third finger, which was represented by a round spot at some two thirds of its length",
+   "span": "Instantly the blue spots began to elongate; fresh spots and patches appeared, and as they ran together there sprang out of the blank surface the clear impression of a hand-a left hand, complete in all its details excepting the third finger, which was represented by a round spot at some two thirds of its length.",
+   "ok": true
+  },
+  {
+   "claim": "Purcell's disappearance was sudden and unexplained",
+   "anchor": "Purcell had been, in effect, a blackmailer and that Varney had been his victim",
+   "span": "The hypothesis was that Purcell had been, in effect, a blackmailer and that Varney had been his victim.",
+   "ok": true
+  },
+  {
+   "claim": "Varney's motive was to free himself from Purcell's domination",
+   "anchor": "The instant Varney had got rid of Purcell, he had proceeded to get rid of the paper blanks",
+   "span": "The instant Varney had got rid of Purcell, he had proceeded to get rid of the paper blanks by sending them to Mr.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.121989904,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

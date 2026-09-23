@@ -1,0 +1,136 @@
+{
+ "slug": "the_house_without_a_key",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Dan Winterslip was stabbed to death on his lanai",
+   "anchor": "Dan Winterslip was found dead on the lanai",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Miss Minerva saw the luminous dial of a watch at about 1:20 AM",
+   "anchor": "luminous dial of a watch, and as she stared at it",
+   "span": "For not five feet away she saw the luminous dial of a watch, and as she stared at it with frightened eyes, it moved.",
+   "ok": true
+  },
+  {
+   "claim": "The wristwatch had an illuminated dial with the numeral two damaged",
+   "anchor": "The figure 2 was very dim--practically obliterated",
+   "span": "The figure 2 was very dim--practically obliterated.",
+   "ok": true
+  },
+  {
+   "claim": "Jim Egan was the last person to see Dan Winterslip alive",
+   "anchor": "You were the last person to see him alive",
+   "span": "You were the last person to see him alive,\" Hallet answered.",
+   "ok": true
+  },
+  {
+   "claim": "A Corsican cigarette stub was found near the crime scene",
+   "anchor": "One-half cigarette, incompletely consumed",
+   "span": "One-half cigarette, incompletely consumed,\" he announced.",
+   "ok": true
+  },
+  {
+   "claim": "Tobacco analysis showed different tobacco types in cigarettes",
+   "anchor": "Cigarette from Brade's tin and little brother from Egan's case are of identical contents",
+   "span": "Cigarette from Brade's tin and little brother from Egan's case are of identical contents, both being of Turkish tobacco.",
+   "ok": true
+  },
+  {
+   "claim": "Thomas Macan Brade claimed to be wronged by Dan Winterslip",
+   "anchor": "Mr. Thomas Macan Brade, of Calcutta",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Harry Jennison was on the ship but swam ashore during the night",
+   "anchor": "You didn't need that ladder when you left the vessel--perhaps you went overboard",
+   "span": "You didn't need that ladder when you left the vessel--perhaps you went overboard while the _President Tyler_ was still moving.",
+   "ok": true
+  },
+  {
+   "claim": "Jennison's wristwatch was found and linked to the crime",
+   "anchor": "This watch, perhaps?",
+   "span": "This watch, perhaps?\" Jennison regarded it stonily.",
+   "ok": true
+  },
+  {
+   "claim": "Jennison attempted suicide with an empty gun",
+   "anchor": "Jennison put the muzzle of the pistol to his forehead and pulled the trigger",
+   "span": "Jennison put the muzzle of the pistol to his forehead and pulled the trigger.",
+   "ok": true
+  },
+  {
+   "claim": "Captain Arthur Temple Cope disliked Dan Winterslip",
+   "anchor": "Isn't it damnable how the wicked thrive?",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Jim Egan had a secret business relationship with Dan Winterslip",
+   "anchor": "Egan is still my choice",
+   "span": "Egan is still my choice.",
+   "ok": true
+  },
+  {
+   "claim": "The ohia wood box was stolen from Dan Winterslip's San Francisco house",
+   "anchor": "An ohia wood box, bound with copper--the initials T. M. B.",
+   "span": "An ohia wood box, bound with copper--the initials T. M. B. \"We will unlatch it,\" said Chan.",
+   "ok": true
+  },
+  {
+   "claim": "Dick Kaohla was involved in the theft of the ohia wood box",
+   "anchor": "Dick Kaohla here is waiting",
+   "span": "Dick Kaohla here is waiting.",
+   "ok": true
+  },
+  {
+   "claim": "The quartermaster was drunk on duty the night of the murder",
+   "anchor": "The quartermaster appeared to be under the influence of liquor",
+   "span": "The quartermaster appeared to be under the influence of liquor.",
+   "ok": true
+  },
+  {
+   "claim": "Jennison gave the quartermaster a bottle of liquor to incapacitate him",
+   "anchor": "He slips me a little bottle and says, this will help you pass the time",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Bowker was bribed by Jennison with money",
+   "anchor": "Bowker came in, and he had a big fat envelope that he wanted to deposit",
+   "span": "Bowker came in, and he had a big fat envelope that he wanted to deposit in the purser's safe.",
+   "ok": true
+  },
+  {
+   "claim": "Jennison swam ashore and stabbed Dan Winterslip",
+   "anchor": "He was barefooted, and all in black--black pants and shirt",
+   "span": "He was barefooted, and all in black--black pants and shirt.",
+   "ok": true
+  },
+  {
+   "claim": "Jennison's wristwatch was the key evidence",
+   "anchor": "The watch with an illuminated dial on which the figure two was almost obliterated",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Jennison confessed by attempting suicide",
+   "anchor": "That's my confession, and not a word spoken",
+   "span": "That's my confession, and not a word spoken.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.12829568400000002,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

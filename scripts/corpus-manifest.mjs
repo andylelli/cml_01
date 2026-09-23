@@ -39,6 +39,14 @@ import yaml from "js-yaml";
 
 const ROOT = "C:/CML";
 const WORKS = `${ROOT}/library/works`;
+/**
+ * A_103 B53: `encoding: "verified"` meant "has case.cml2.yaml". The evidence gate's verdict lives in
+ * `.verification.json` and the manifest never read it - MEASURED 17 works listed `verified` that the
+ * gate had FAILED and the loader skips. The manifest now says what the loader does.
+ */
+const VERIFICATION = existsSync(`${WORKS}/.verification.json`)
+  ? (JSON.parse(readFileSync(`${WORKS}/.verification.json`, "utf8")).works ?? {})
+  : {};
 const TEXTS = `${ROOT}/library/texts`;
 const OUT = `${ROOT}/library/manifest.json`;
 const CHECK = process.argv.includes("--check");
@@ -81,7 +89,7 @@ for (const slug of readdirSync(WORKS).sort()) {
      * `verified` outranks `legacy` because that is the order `loadSeedCMLFiles` reads them in, and an
      * index that ordered them differently from the loader would be the next thing to drift.
      */
-    encoding: hasCase ? "verified" : hasLegacy ? "legacy" : "none",
+    encoding: hasCase ? (VERIFICATION[slug] === "failed" ? "failed" : "verified") : hasLegacy ? "legacy" : "none",
     text: hasText ? { words: p.source?.words ?? null, bytes: statSync(textPath).size } : null,
     source: p.source?.ebook_id ? { host: p.source.host ?? null, ebook_id: p.source.ebook_id } : null,
     fingerprint,
@@ -105,6 +113,7 @@ const manifest = {
     with_text: works.filter((w) => w.text).length,
     encoded_verified: works.filter((w) => w.encoding === "verified").length,
     encoded_legacy: works.filter((w) => w.encoding === "legacy").length,
+    encoded_failed: works.filter((w) => w.encoding === "failed").length,
     awaiting_encode: works.filter((w) => w.encoding === "none").length,
     words: works.reduce((a, w) => a + (w.text?.words ?? 0), 0),
   },
@@ -134,7 +143,7 @@ if (CHECK) {
 writeFileSync(OUT, rendered, "utf8");
 console.log(`wrote ${OUT}`);
 console.log(`  ${manifest.totals.works} works · ${manifest.totals.with_text} with text · `
-  + `${manifest.totals.encoded_verified} verified + ${manifest.totals.encoded_legacy} legacy encodings · `
+  + `${manifest.totals.encoded_verified} verified + ${manifest.totals.encoded_legacy} legacy encodings (+ ${manifest.totals.encoded_failed} failed the gate) · `
   + `${manifest.totals.awaiting_encode} awaiting encode`);
 console.log(`  clearance: ${JSON.stringify(manifest.clearance)}`);
 console.log(`  axis:      ${JSON.stringify(manifest.axis)}`);

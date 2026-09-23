@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "The woman seen leaving Merrivan's house at eleven o'clock was Stella Nelson and she was involved in the murder.",
+  "type": "identity",
+  "why_it_seems_reasonable": "Dr. Macleod testified seeing a woman leave Merrivan's house at that time, and circumstantial evidence like Stella's ring and scarf were found near the crime scene. The press and some investigators accepted this as strong evidence.",
+  "what_it_hides": "The woman seen was actually a servant of Mr. Sheppard, not Stella. Dr. Macleod had fabricated the story to protect Stella, and the real murderer was Mr. Boyd Salter, whose sleepwalking and disguise misled investigators."
+ },
+ "mechanism_description": "Mr. Boyd Salter, whose real name was John Aldayn Severn, killed Darius Merrivan (also known as Abraham Selim) to protect his inheritance and family reputation. Salter, suffering from sleepwalking and mental instability, committed the murders and attempted to cover his tracks by burning incriminating documents and impersonating a gamekeeper. The forged bills and secret marriage certificate were central to the motive, and Salter's guilt was revealed through careful investigation and his own sleepwalking confession.",
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "Detective Macleod waits in Merrivan's empty room at night with the window unbolted. When the sleepwalking suspect enters through the window and reenacts the crime scene, Macleod confronts him and observes his behavior and identity. The suspect's actions and possession of the murder weapon confirm his guilt.",
+  "knowledge_revealed": "The test reveals that Mr. Boyd Salter is the murderer, acting under sleepwalking episodes and disguise.",
+  "pass_condition": "The suspect enters the room through the unbolted window and behaves as the murderer did, confirming opportunity and identity."
+ },
+ "changed": [],
+ "confidence": "high"
+}

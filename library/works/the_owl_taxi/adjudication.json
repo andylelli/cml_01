@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "The little black book found and recovered early in the investigation was the genuine incriminating evidence.",
+  "type": "identity",
+  "why_it_seems_reasonable": "The book was physically similar and contained plausible documents, and was recovered from a trusted source. It was accepted by the protagonists as the key evidence.",
+  "what_it_hides": "It was actually a forged copy created by de Socotra's gang to mislead investigators while the original was hidden elsewhere."
+ },
+ "mechanism_description": "Antonio Bareda was murdered by De Silva, acting under orders from Francisco de Socotra, using a hypodermic needle with poison. De Socotra then impersonated Bareda to mislead political authorities. The original little black book containing evidence was hidden by De Silva in a mattress, while a forged copy was used by de Socotra. Greg Parr and his allies recovered the original book and exposed the conspiracy, leading to de Socotra's downfall.",
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "Gregory Parr and Mario Estuban disguised Greg as a shabby cabman and used the taxi to lure Francisco de Socotra into revealing the little black book. They staged a hold-up and searched his hotel room and headquarters to confirm the presence of the original book and expose the forgery.",
+  "knowledge_revealed": "This test revealed the true location of the original little black book and confirmed de Socotra's impersonation and guilt.",
+  "pass_condition": "De Socotra is caught with the forged book and the original is found hidden, proving the deception."
+ },
+ "changed": [],
+ "confidence": "high"
+}

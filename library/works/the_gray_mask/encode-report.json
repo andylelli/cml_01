@@ -1,0 +1,244 @@
+{
+ "slug": "the_gray_mask",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Garth was assigned to investigate the gray mask case",
+   "anchor": "Garth is shown a gray mask",
+   "span": "GARTH IS SHOWN A GRAY MASK II.",
+   "ok": true
+  },
+  {
+   "claim": "Simmons wore a gray mask to hide his scarred face",
+   "anchor": "He had a scar on his neck",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Nora was found in a flashy dress at the gang's hideout",
+   "anchor": "Nora's blazing, painted face",
+   "span": "The leader, grasping the youth's elbow, shoved him to one side, and Garth, his view unobstructed now, gazed incredulously at Nora's blazing, painted face.",
+   "ok": true
+  },
+  {
+   "claim": "George killed the cop with a knife",
+   "anchor": "lying on his back, with his throat cut",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Randall was kidnapped and hidden in a stone building",
+   "anchor": "Hidden among the undergrowth at some distance",
+   "span": "Hidden among the undergrowth at some distance from the house stood a small, partly ruined stone building, used once, from the water flowing nearby, as a spring house.",
+   "ok": true
+  },
+  {
+   "claim": "Randall was found hiding, arrested for murder",
+   "anchor": "Dr. Randall! I've plenty of help near",
+   "span": "Dr. Randall! I've plenty of help near.",
+   "ok": true
+  },
+  {
+   "claim": "The butler Thompson witnessed the shooting",
+   "anchor": "I got to the door just in time to see her shoot him",
+   "span": "I got to the door just in time to see her shoot him.",
+   "ok": true
+  },
+  {
+   "claim": "Nora infiltrated the drug traffic disguised as a crone",
+   "anchor": "her grace and beauty transformed by an inspired ingenuity into the bent lines and the haggard distortion of a crone",
+   "span": "So he watched her leave, her grace and beauty transformed by an inspired ingenuity into the bent lines and the haggard distortion of a crone.",
+   "ok": true
+  },
+  {
+   "claim": "The veiled woman appeared and disappeared through locked doors",
+   "anchor": "this visitor had every appearance of walking through a locked door",
+   "span": "this visitor had every appearance of walking through a locked door.",
+   "ok": true
+  },
+  {
+   "claim": "Brown, the private detective, was attacked and died",
+   "anchor": "The veiled woman! Oh, my God! The veiled woman!",
+   "span": "The veiled woman! Oh, my God! The veiled woman!\" Garth's nerves tightened.",
+   "ok": true
+  },
+  {
+   "claim": "The Oriental shop was a meeting place for conspirators",
+   "anchor": "The figure of a man, at first quite motionless, like an image in a somber and guarded temple",
+   "span": "On this divan, seated cross-legged, was the figure of a man, at first quite motionless, like an image in a somber and guarded temple.",
+   "ok": true
+  },
+  {
+   "claim": "A dictaphone was used for secret communication",
+   "anchor": "There was a dictaphone hidden beneath the bed",
+   "span": "There was a dictaphone hidden beneath the bed with which he had probably communicated with those outside the house for days.",
+   "ok": true
+  },
+  {
+   "claim": "Nora disguised herself as the veiled woman to trap the gang",
+   "anchor": "She slipped on the white gown she had brought and draped the white veil over her face",
+   "span": "In silence and with determination she slipped on the white gown she had brought and draped the white veil over her face.",
+   "ok": true
+  },
+  {
+   "claim": "Slim and George kidnapped Nora and threatened Garth",
+   "anchor": "Slim and George are loose on the town",
+   "span": "Do you know, Garth, that Slim and George are loose on the town?",
+   "ok": true
+  },
+  {
+   "claim": "Garth was bound and threatened with acid",
+   "anchor": "Pure vitriol!",
+   "span": "Pure vitriol!\" He bent closer.",
+   "ok": true
+  },
+  {
+   "claim": "Nora arranged a staged train wreck to save Garth",
+   "anchor": "I persuaded them in New York to furnish an illusion of the beginnings of a wreck",
+   "span": "I persuaded them in New York to furnish an illusion of the beginnings of a wreck.",
+   "ok": true
+  },
+  {
+   "claim": "Mrs. Taylor murdered her husband and tried to cover it up",
+   "anchor": "I did kill him. He kept me locked up for more than two months",
+   "span": "I did kill him. He kept me locked up for more than two months, because I didn't love him.",
+   "ok": true
+  },
+  {
+   "claim": "Reed was involved in the murder out of love for Mrs. Taylor",
+   "anchor": "I've loved her very deeply and for a long time",
+   "span": "In any case I would have done anything to help her over the next day or two, for you must understand I've loved her very deeply and for a long time--\" Garth turned away, because he didn't care to see the man's tears.",
+   "ok": true
+  },
+  {
+   "claim": "The black gown was hidden under the mattress",
+   "anchor": "The black cloth fell in folds to the floor",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The old lady pretended senility to mislead investigators",
+   "anchor": "My daughter's coming home this afternoon. That's why I'm so happy",
+   "span": "My daughter's coming home this afternoon. That's why I'm so happy.",
+   "ok": true
+  },
+  {
+   "claim": "McDonald's daughter was the hidden woman in the house",
+   "anchor": "The woman you saw is McDonald's daughter",
+   "span": "The woman you saw is McDonald's daughter.",
+   "ok": true
+  },
+  {
+   "claim": "Slim and George planned to kill Garth with acid",
+   "anchor": "I'll pay old scores while I can",
+   "span": "I'll pay old scores while I can.",
+   "ok": true
+  },
+  {
+   "claim": "Nora bargained for Garth's release",
+   "anchor": "You promise, Jim? I'll do what you wish, Nora",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The acid was replaced by water during a staged train accident",
+   "anchor": "She had not conquered her emotion. He opened the window and emptied the bottle",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The gang was captured after the staged train accident",
+   "anchor": "The two condemned men struggling in the grasp of the detectives",
+   "span": "He could not grasp the fact that he still read through a blur the tense unbelief of Nora's face, and saw vaguely the two condemned men struggling in the grasp of the detectives who fastened upon their unwilling wrists gleaming handcuffs.",
+   "ok": true
+  },
+  {
+   "claim": "Nora was kidnapped by Slim and George",
+   "anchor": "As the inspector's daughter had stepped to the sidewalk, the men had sprung upon her",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Garth followed a trail of fur dropped by Nora",
+   "anchor": "He lifted a tiny tuft of fur which had nestled, almost hidden, in the dust of the gutter",
+   "span": "He lifted a tiny tuft of fur which had nestled, almost hidden, in the dust of the gutter.",
+   "ok": true
+  },
+  {
+   "claim": "The gang hid Nora in a warehouse cellar connected to a saloon",
+   "anchor": "They lifted that cellar door and went down",
+   "span": "They lifted that cellar door and went down.",
+   "ok": true
+  },
+  {
+   "claim": "Garth found secret passages and hidden doors in Alsop's house",
+   "anchor": "He glanced at the wall. It was about what he had hoped",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The veiled woman was the housekeeper working for the gang",
+   "anchor": "Across a wide dining-room he saw a woman, slender and middle-aged. Her attitude was of flight",
+   "span": "Across a wide dining-room he saw a woman, slender and middle-aged. Her attitude was of flight.",
+   "ok": true
+  },
+  {
+   "claim": "Brown, Marvin, and Alsop were attacked by the gang",
+   "anchor": "Brown screamed incoherently with a diminishing power",
+   "span": "But Brown screamed incoherently with a diminishing power.",
+   "ok": true
+  },
+  {
+   "claim": "The veiled woman was killed by Nora during the raid",
+   "anchor": "The veiled woman! Dead!",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Taylor's death was murder disguised as suicide",
+   "anchor": "Don't think it's suicide. I've been killed--",
+   "span": "Don't think it's suicide. I've been killed--\" There was no more.",
+   "ok": true
+  },
+  {
+   "claim": "Reed tried to destroy evidence and was arrested",
+   "anchor": "He had tried in Mrs. Taylor's service to recover and destroy the tell-tale black gown",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "McDonald's daughter attacked McDonald to keep him silent",
+   "anchor": "McDonald was stabbed out there a few minutes ago",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Slim and George escaped custody and planned to kill Nora",
+   "anchor": "Slim and George are loose on the town",
+   "span": "Do you know, Garth, that Slim and George are loose on the town?",
+   "ok": true
+  },
+  {
+   "claim": "Garth was bound and gagged with acid threat during escape",
+   "anchor": "Slim took his own handkerchief and borrowed George's. With the two he improvised a gag",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Nora disguised herself as a crone to infiltrate the drug traffic",
+   "anchor": "her grace and beauty transformed by an inspired ingenuity into the bent lines and the haggard distortion of a crone",
+   "span": "So he watched her leave, her grace and beauty transformed by an inspired ingenuity into the bent lines and the haggard distortion of a crone.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.051704488800000004,
+ "models": {
+  "map": "gpt-4o-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

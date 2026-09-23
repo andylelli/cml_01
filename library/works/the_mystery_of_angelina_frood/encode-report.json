@@ -1,0 +1,136 @@
+{
+ "slug": "the_mystery_of_angelina_frood",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Angelina Frood was last seen alive on the 26th of April",
+   "anchor": "On the 26th of April last Mrs. Frood is known to have been alive",
+   "span": "On the 26th of April last Mrs. Frood is known to have been alive.",
+   "ok": true
+  },
+  {
+   "claim": "A skeleton dressed in Angelina's clothes was found buried in the city wall",
+   "anchor": "a dead body was buried in the wall",
+   "span": "On the night that she disappeared, or on the next night, a dead body was buried in the wall.",
+   "ok": true
+  },
+  {
+   "claim": "Nicholas Frood died before Angelina's disappearance",
+   "anchor": "he was found dead in a meadow, close to a hedge, on the morning of the 26th",
+   "span": "He may have over-dosed himself with cocaine; but at any rate, he was found dead in a meadow, close to a hedge, on the morning of the 26th.",
+   "ok": true
+  },
+  {
+   "claim": "Mr. Bundy is actually Angelina Frood in disguise",
+   "anchor": "Mr. Bundy was a woman",
+   "span": "The _prima facie_ evidence, then, suggested that Mr. Bundy was a woman.",
+   "ok": true
+  },
+  {
+   "claim": "Fingerprints on household objects match Angelina Frood",
+   "anchor": "a complete set of beautiful finger-prints",
+   "span": "But this was not the only piece of luck, for we found that Angelina had taken a drink from the bedroom tumbler and water-bottle before going out, and had left on them a complete set of beautiful finger-prints, of which I secured a number of admirable photographs.",
+   "ok": true
+  },
+  {
+   "claim": "Photographic comparison confirms Mr. Bundy and Angelina Frood are the same person",
+   "anchor": "the identity was complete",
+   "span": "And now the identity was complete.",
+   "ok": true
+  },
+  {
+   "claim": "Quicklime preserves bodies by drying, not destroying",
+   "anchor": "quick-lime has no such properties. On the contrary, it has a strongly preservative effect",
+   "span": "Quick-lime has no such properties. On the contrary, it has a strongly preservative effect on organic matter.",
+   "ok": true
+  },
+  {
+   "claim": "The key to the city wall gate disappeared on the day of Angelina's disappearance",
+   "anchor": "the key disappeared during the morning of the 26th of April",
+   "span": "the key disappeared during the morning of the 26th of April and Mrs.",
+   "ok": true
+  },
+  {
+   "claim": "Clues were found progressively up the river and lane, suggesting deliberate planting",
+   "anchor": "the series of circles, joined by a connecting line, proceeded directly from near Sun Pier",
+   "span": "The series of circles, joined by a connecting line, proceeded directly from near Sun Pier, Chatham, along the shore, and up Black Boy-lane to the gate of the waste ground, and across it to the wall.",
+   "ok": true
+  },
+  {
+   "claim": "The skeleton in the wall is not Angelina Frood's",
+   "anchor": "I can swear positively that they are not the remains of Angelina Frood",
+   "span": "I can swear positively that they are not the remains of Angelina Frood.",
+   "ok": true
+  },
+  {
+   "claim": "Nicholas Frood's body was found at St. Barnabas mortuary",
+   "anchor": "It is Nicholas Frood!",
+   "span": "It is Nicholas Frood!\" \"Are you sure?",
+   "ok": true
+  },
+  {
+   "claim": "Angelina Frood purchased an ancient skeleton to fake her death",
+   "anchor": "Bought of Oscar Hammerstein, Dealer in Human and Comparative Osteology",
+   "span": "It is dated the 19th of April, and reads: 'Bought of Oscar Hammerstein, Dealer in Human and Comparative Osteology, Great St.",
+   "ok": true
+  },
+  {
+   "claim": "Mr. Bundy wore an eye-glass as part of the disguise",
+   "anchor": "the eye-glass was the disturbing factor",
+   "span": "The eye-glass was the disturbing factor, though it showed very little, and Bundy managed it so skilfully that it hardly affected the shape of the eye and the set of the brow.",
+   "ok": true
+  },
+  {
+   "claim": "The brooch was painted in the composite photograph to provoke Mr. Bundy's curiosity",
+   "anchor": "Mrs. Anstey to paint in a brooch of a characteristic design",
+   "span": "I asked Mrs. Anstey to paint in a brooch of a characteristic design.",
+   "ok": true
+  },
+  {
+   "claim": "The inquest jury initially believed the skeleton was Angelina Frood's",
+   "anchor": "the jury feel that it is impossible to doubt that the remains found in the wall are the remains of Angelina Frood",
+   "span": "On these facts, the jury feel that it is impossible to doubt that the remains found in the wall are the remains of Angelina Frood.",
+   "ok": true
+  },
+  {
+   "claim": "Angelina Frood appeared at the inquest disguised as Mr. Bundy",
+   "anchor": "This is not a joke? You affirm seriously that you are Angelina Frood?",
+   "span": "This is not a joke? You affirm seriously that you are Angelina Frood?\" \"Yes; I am Angelina Frood,\" was the reply.",
+   "ok": true
+  },
+  {
+   "claim": "The body in the wall was an ancient skeleton, not a recent corpse",
+   "anchor": "Some of the teeth--the original ones--show more wear than one expects to find in a modern skull",
+   "span": "Some of the teeth--the original ones--show more wear than one expects to find in a modern skull.",
+   "ok": true
+  },
+  {
+   "claim": "Nicholas Frood died from cocaine overdose before Angelina's disappearance",
+   "anchor": "he was found dead in a meadow, close to a hedge, on the morning of the 26th",
+   "span": "He may have over-dosed himself with cocaine; but at any rate, he was found dead in a meadow, close to a hedge, on the morning of the 26th.",
+   "ok": true
+  },
+  {
+   "claim": "The disappearance was faked to escape an abusive husband",
+   "anchor": "I decided to disappear completely and for good, and start life afresh in a new place and under a new name",
+   "span": "So I decided to disappear completely and for good, and start life afresh in a new place and under a new name.",
+   "ok": true
+  },
+  {
+   "claim": "The deception was maintained by using adjoining houses with a connecting passage",
+   "anchor": "both houses had a side door opening into the passage-way, and both doors were fitted with Yale latches",
+   "span": "Both houses had a side door opening into the passage-way, and both doors were fitted with Yale latches which looked as if they were opened with the same key.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.08998732000000001,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

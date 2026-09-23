@@ -1,0 +1,136 @@
+{
+ "slug": "the_wolves_and_the_lamb",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Richard Shrewsbury inherited three hundred thousand pounds",
+   "anchor": "Three Hundred Thousand Pounds! And in the hand of an inexperienced youngster",
+   "span": "Three Hundred Thousand Pounds! And in the hand of an inexperienced youngster of twenty-one.",
+   "ok": true
+  },
+  {
+   "claim": "Mrs. Walsingham stole the real diamond necklace from Leverton’s safe",
+   "anchor": "I took it from Mr. Leverton’s safe--certainly",
+   "span": "I took it from Mr. Leverton's safe--certainly,\" she answered.",
+   "ok": true
+  },
+  {
+   "claim": "A perfect paste duplicate was substituted for the real necklace",
+   "anchor": "a perfect facsimile",
+   "span": "What wasn't easy was to get a duplicate made--a duplicate of such good workmanship as to the setting, and such fine paste as to the stones, as to be a perfect facsimile.",
+   "ok": true
+  },
+  {
+   "claim": "Burgoyne’s necklace was found to be paste by jeweller Levanter",
+   "anchor": "these are not diamonds",
+   "span": "I said, Captain Burgoyne, that these are not diamonds,\" he repeated.",
+   "ok": true
+  },
+  {
+   "claim": "Mrs. Walsingham pawned the real necklace for a loan",
+   "anchor": "I want to pay you the interest on that loan",
+   "span": "I want to pay you the interest on that loan, Mr.",
+   "ok": true
+  },
+  {
+   "claim": "Sydney Werrick was shot dead in Mrs. Walsingham’s flat",
+   "anchor": "The man had been shot through the heart",
+   "span": "It was then found that the man had been shot through the heart, and that death must have been instantaneous.",
+   "ok": true
+  },
+  {
+   "claim": "Mrs. Walsingham fled disguised as a nun",
+   "anchor": "she must have gone out in a nun’s dress",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "William Kedgin aided Mrs. Walsingham’s escape and stole valuables",
+   "anchor": "Kedgin’s work, of course",
+   "span": "Kedgin's work, of course,\" observed Skarratt, \"but he couldn't carry these things away with him now, you know, sir.",
+   "ok": true
+  },
+  {
+   "claim": "Carsdale controlled Shrewsbury’s investments and securities",
+   "anchor": "he produced to them a written order from you authorizing them",
+   "span": "He produced to them a written order from you authorizing them to deliver up whatever securities of yours we held.",
+   "ok": true
+  },
+  {
+   "claim": "Frances Leverton holds proof of Carsdale’s fraud",
+   "anchor": "Miss Leverton has brought to light certain matters",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The false accusation that Carsdale shot Werrick is refuted",
+   "anchor": "the police-surgeon who was on the spot is positive that Werrick had then been dead half an hour",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The trap to expose Mrs. Walsingham involved showing her the paste necklace",
+   "anchor": "Mrs. Walsingham had appeared at the theatre in a necklace",
+   "span": "He listened in silence while Blair gave Frances a crisp and clear account of the happenings of the previous evening--how that Mrs. Walsingham had appeared at the theatre in a necklace; how that at supper she had been induced to take it off and to let him examine it as a historical curiosity; how that he, an expert in precious stones, had known at once that it was formed of genuine and valuable diamonds.",
+   "ok": true
+  },
+  {
+   "claim": "Mrs. Walsingham signed a confession admitting theft of the necklace",
+   "anchor": "I will sign that",
+   "span": "I will sign that,\" she said.",
+   "ok": true
+  },
+  {
+   "claim": "Mrs. Walsingham shot Werrick in self-defense",
+   "anchor": "she shot him on the spur of the moment",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Mrs. Walsingham’s flight was aided by Kedgin",
+   "anchor": "Kedgin helped this woman to get away",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Kedgin murdered Mrs. Walsingham to cover his theft",
+   "anchor": "the body of the woman upon whom he had turned",
+   "span": "He foresaw no possibility of its being entered at once, of the immediate discovery of the body of the woman upon whom he had turned as he led her down the dark stairs, and accordingly believed that he had a clear and a serviceable start of the hounds of Justice which would sooner or later be let loose on his track.",
+   "ok": true
+  },
+  {
+   "claim": "Carsdale planned to flee with Mrs. Walsingham but was detained",
+   "anchor": "he was also in possession of two first-class tickets for passage to Buenos Aires",
+   "span": "It is said that upon Carsdale there were found certain securities valued at two hundred thousand pounds, and that he was also in possession of two first-class tickets for passage to Buenos Aires, available by the Royal Mail Steam Packet Company's steamer which leaves Southampton this morning.",
+   "ok": true
+  },
+  {
+   "claim": "Richard Shrewsbury discovered the truth about the necklace and conspirators",
+   "anchor": "I know you. Now, why didn’t you tell me all this in London?",
+   "span": "I know you. Now, why didn't you tell me all this in London? Why get me over here?",
+   "ok": true
+  },
+  {
+   "claim": "Inspector Skarratt investigated and confirmed key facts",
+   "anchor": "Inspector Skarratt did not believe for one moment that John Carsdale had had anything to do with the actual killing",
+   "span": "Inspector Skarratt did not believe for one moment that John Carsdale had had anything to do with the actual killing of Sydney Werrick.",
+   "ok": true
+  },
+  {
+   "claim": "Mrs. Walsingham was found hiding in Shrewsbury’s flat disguised as a nun",
+   "anchor": "a woman dressed like a nun or a Sister of Mercy",
+   "span": "",
+   "ok": false
+  }
+ ],
+ "costGbp": 0.13329670000000002,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

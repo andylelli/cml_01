@@ -1,0 +1,526 @@
+{
+ "decade": "1920s",
+ "realism_constraints": [
+  "No modern digital technology; communication relies on telegraph, telephone, and wireless radio",
+  "Police procedures include physical surveillance, raids, and use of informers; forensic science is limited",
+  "Transportation includes cars, motor-cycles, trains; no air travel or electronic tracking"
+ ],
+ "location": "London and surrounding English countryside (Horsham, Gloucester, Bath, etc.)",
+ "institution": "Scotland Yard and Public Prosecutor's Department",
+ "crime_category": "murder",
+ "crime_subtype": "criminal mastermind's secret society and framing",
+ "cast": [
+  {
+   "name": "Richard Gordon",
+   "age_range": "30-40",
+   "role_archetype": "young, idealistic public official",
+   "role": "detective",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "Assistant Director of Prosecutions",
+   "private_secret": "in love with Ella Bennett",
+   "motive_seed": "justice and love",
+   "motive_strength": "strong",
+   "alibi_window": "throughout",
+   "access_plausibility": "high",
+   "stakes": "high",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Ella Bennett (love interest)",
+    "John Bennett (acquaintance)"
+   ],
+   "opportunity_channels": [
+    "official investigations",
+    "police operations"
+   ],
+   "behavioral_tells": [
+    "persistent",
+    "observant",
+    "cautious"
+   ],
+   "evidence_sensitivity": [
+    "photographs",
+    "wireless messages",
+    "tattoo marks"
+   ]
+  },
+  {
+   "name": "Ella Bennett",
+   "age_range": "20-25",
+   "role_archetype": "innocent young woman caught in intrigue",
+   "role": "witness",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "daughter of John Bennett",
+   "private_secret": "used to mimic voices, involved unwittingly",
+   "motive_seed": "protect brother",
+   "motive_strength": "strong",
+   "alibi_window": "varies",
+   "access_plausibility": "medium",
+   "stakes": "very high",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "John Bennett (father)",
+    "Ray Bennett (brother)",
+    "Richard Gordon (love interest)"
+   ],
+   "opportunity_channels": [
+    "family home",
+    "wireless telephone"
+   ],
+   "behavioral_tells": [
+    "fearful",
+    "resolute"
+   ],
+   "evidence_sensitivity": [
+    "wireless voice recordings",
+    "tattoo marks"
+   ]
+  },
+  {
+   "name": "Ray Bennett",
+   "age_range": "20-25",
+   "role_archetype": "young man with secret double life",
+   "role": "victim",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "clerk at Maitlands Consolidated",
+   "private_secret": "secret agent for Frogs, framed for murder",
+   "motive_seed": "ambition, survival",
+   "motive_strength": "moderate",
+   "alibi_window": "varies",
+   "access_plausibility": "medium",
+   "stakes": "very high",
+   "moral_complexity": "high",
+   "relationships": [
+    "Ella Bennett (sister)",
+    "John Bennett (father)",
+    "Lola Bassano (acquaintance)"
+   ],
+   "opportunity_channels": [
+    "office",
+    "social clubs"
+   ],
+   "behavioral_tells": [
+    "defiant",
+    "reckless"
+   ],
+   "evidence_sensitivity": [
+    "tattoo marks",
+    "wireless messages",
+    "photographs"
+   ]
+  },
+  {
+   "name": "John Bennett",
+   "age_range": "60-70",
+   "role_archetype": "mysterious father with secret past",
+   "role": "suspect",
+   "gender": "male",
+   "culpability": "unknown",
+   "culprit_eligibility": "eligible",
+   "public_persona": "amateur photographer",
+   "private_secret": "hangman, involved in criminal acts",
+   "motive_seed": "family protection",
+   "motive_strength": "strong",
+   "alibi_window": "varies",
+   "access_plausibility": "high",
+   "stakes": "very high",
+   "moral_complexity": "high",
+   "relationships": [
+    "Ella Bennett (daughter)",
+    "Ray Bennett (son)"
+   ],
+   "opportunity_channels": [
+    "family home",
+    "travel"
+   ],
+   "behavioral_tells": [
+    "secretive",
+    "stoic"
+   ],
+   "evidence_sensitivity": [
+    "tattoo marks",
+    "photographs",
+    "press cuttings"
+   ]
+  },
+  {
+   "name": "Philo Johnson",
+   "age_range": "50-60",
+   "role_archetype": "loyal secretary and philosopher",
+   "role": "suspect",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "secretary to Ezra Maitland",
+   "private_secret": "real Frog and mastermind",
+   "motive_seed": "power and control",
+   "motive_strength": "strong",
+   "alibi_window": "varies",
+   "access_plausibility": "very high",
+   "stakes": "very high",
+   "moral_complexity": "high",
+   "relationships": [
+    "Ezra Maitland (employer)",
+    "Ella Bennett (acquaintance)"
+   ],
+   "opportunity_channels": [
+    "office",
+    "secret communications"
+   ],
+   "behavioral_tells": [
+    "calm",
+    "philosophical",
+    "secretive"
+   ],
+   "evidence_sensitivity": [
+    "tattoo marks",
+    "wireless messages",
+    "documents"
+   ]
+  },
+  {
+   "name": "Joshua Broad (Saul Morris)",
+   "age_range": "40-50",
+   "role_archetype": "criminal mastermind disguised as American",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "American key-ring peddler",
+   "private_secret": "real Frog and leader of the Fellowship",
+   "motive_seed": "criminal empire and control",
+   "motive_strength": "strong",
+   "alibi_window": "varies",
+   "access_plausibility": "very high",
+   "stakes": "very high",
+   "moral_complexity": "high",
+   "relationships": [
+    "Philo Johnson (associate)",
+    "Ella Bennett (target)"
+   ],
+   "opportunity_channels": [
+    "secret meetings",
+    "wireless broadcasts"
+   ],
+   "behavioral_tells": [
+    "calm",
+    "manipulative",
+    "philosophical"
+   ],
+   "evidence_sensitivity": [
+    "tattoo marks",
+    "wireless messages",
+    "documents"
+   ]
+  },
+  {
+   "name": "Sergeant Elk",
+   "age_range": "50-60",
+   "role_archetype": "grizzled, experienced detective",
+   "role": "detective",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "Scotland Yard detective",
+   "private_secret": "none",
+   "motive_seed": "law enforcement",
+   "motive_strength": "strong",
+   "alibi_window": "throughout",
+   "access_plausibility": "high",
+   "stakes": "high",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Richard Gordon (partner)",
+    "Joshua Broad (acquaintance)"
+   ],
+   "opportunity_channels": [
+    "police investigations"
+   ],
+   "behavioral_tells": [
+    "gruff",
+    "persistent",
+    "observant"
+   ],
+   "evidence_sensitivity": [
+    "tattoo marks",
+    "wireless messages",
+    "documents"
+   ]
+  }
+ ],
+ "culprits": [
+  "Joshua Broad (Saul Morris)",
+  "Philo Johnson"
+ ],
+ "surface_summary": "A secret society called the Frogs is responsible for a series of crimes including murder and theft. Ray Bennett, a young clerk, is framed and sentenced to death, while the true mastermind remains hidden. The investigation uncovers a complex web of deception involving wealthy financiers and criminal operatives.",
+ "accepted_facts": [
+  "Ray Bennett is under sentence of death for murder.",
+  "The Frogs are a criminal organization with a secret leader.",
+  "Ezra Maitland and his sister were murdered.",
+  "Joshua Broad is an American peddler with mysterious connections."
+ ],
+ "inferred_conclusions": [
+  "Ray Bennett is guilty of murder.",
+  "Ella Bennett is involved with the Frogs.",
+  "Ezra Maitland is the Frog leader."
+ ],
+ "mechanism_description": "Joshua Broad, the real Frog and criminal mastermind, controlled the Fellowship of the Frog using Philo Johnson as his front. They orchestrated crimes and framed Ray Bennett to protect their operations. The murder of Ezra Maitland was part of their scheme to maintain control and eliminate threats. The organization used secret wireless broadcasts and tattoos for communication and identification.",
+ "delivery_path": [
+  "Joshua Broad established control over the Frogs using Philo Johnson as a front.",
+  "The Frogs committed crimes including burglary, murder, and blackmail.",
+  "Ray Bennett was recruited and later framed to divert suspicion.",
+  "Ezra Maitland was used as a figurehead and later murdered to silence him.",
+  "Wireless broadcasts were used to communicate orders and warnings.",
+  "Detectives infiltrated the organization and captured key members.",
+  "Joshua Broad killed Harry Lyme (the Frog) and revealed himself as the mastermind."
+ ],
+ "outcome_result": "Joshua Broad (Saul Morris) is revealed as the Frog and mastermind behind the crimes, leading to the dismantling of the Fellowship of the Frog.",
+ "false_assumption": {
+  "statement": "Ray Bennett is guilty of murder and the primary criminal.",
+  "type": "identity",
+  "why_it_seems_reasonable": "Ray Bennett was found under sentence of death with circumstantial evidence and was involved with suspicious characters. His behavior and associations suggested guilt.",
+  "what_it_hides": "The true mastermind was Joshua Broad, who orchestrated the framing and crimes from behind the scenes, using others as scapegoats."
+ },
+ "false_solution": {
+  "accused_suspect": "John Bennett",
+  "supporting_points": [
+   "John Bennett’s suspicious absences coincided with burglaries.",
+   "He was found near crime scenes and had a mysterious past.",
+   "He was seen interacting with key suspects and had a secretive nature.",
+   "His role as executioner suggested a dark side."
+  ],
+  "the_one_flaw": "John Bennett was not the mastermind and was manipulated by the real Frog; evidence against him was circumstantial and misinterpreted.",
+  "refuted_in_chapter": 42
+ },
+ "red_herrings": [
+  {
+   "id": "john_bennett_suspicious_absences",
+   "description": "John Bennett’s frequent unexplained absences coinciding with burglaries suggested he was involved in the crimes.",
+   "points_at_suspect": "John Bennett",
+   "innocent_explanation": "His absences were unrelated to the crimes and he was not the Frog; he was a victim of circumstance and manipulation.",
+   "resolved_in_chapter": 42
+  },
+  {
+   "id": "ella_bennett_wireless_voice",
+   "description": "Wireless broadcasts with a voice resembling Ella Bennett’s suggested she was involved with the Frogs.",
+   "points_at_suspect": "Ella Bennett",
+   "innocent_explanation": "The voice was an imitation by Lola Bassano, a Frog operative; Ella was innocent and used as a cover.",
+   "resolved_in_chapter": 40
+  }
+ ],
+ "closed_circle": {
+  "suspects": [
+   "John Bennett",
+   "Philo Johnson",
+   "Joshua Broad (Saul Morris)",
+   "Balder",
+   "Hagn",
+   "Lola Bassano",
+   "Lew Brady"
+  ],
+  "rationale": "All suspects are connected to the Frogs organization and involved in the criminal activities; the circle is closed by their mutual knowledge and interactions."
+ },
+ "constraint_space": {
+  "time_anchors": [
+   "Saturday night to Sunday morning (burglary)",
+   "Wednesday morning at 3:01 a.m. (wireless broadcast)",
+   "Execution scheduled Wednesday at 8 a.m.",
+   "Raid at Heron’s Club at 1:15 a.m.",
+   "Explosion at headquarters early morning"
+  ],
+  "time_windows": [
+   "Ray Bennett’s absences",
+   "Maitland’s visits to Horsham",
+   "Wireless broadcasts timing",
+   "Police raids and arrests"
+  ],
+  "access_actors": [
+   "Joshua Broad",
+   "Philo Johnson",
+   "Balder",
+   "Hagn",
+   "Lola Bassano",
+   "Lew Brady",
+   "John Bennett"
+  ],
+  "access_objects": [
+   "Wireless telephone",
+   "Tattoo marks",
+   "Safe at Lord Farmley’s",
+   "Motor cars and motor-cycles",
+   "Secret rooms and huts"
+  ],
+  "trust_channels": [
+   "Frog tattoo identification",
+   "Wireless coded messages",
+   "Secret meetings",
+   "Personal relationships"
+  ],
+  "authority_sources": [
+   "Scotland Yard",
+   "Public Prosecutor’s Department",
+   "Home Office",
+   "Secretary of State",
+   "King’s reprieve"
+  ]
+ },
+ "inference_path": [
+  {
+   "observation": "Wireless broadcast contained a voice resembling Ella Bennett",
+   "correction": "Voice was an imitation by Lola Bassano",
+   "effect": "Ella Bennett is innocent of broadcasting Frog messages",
+   "required_evidence": [
+    "Wireless telephone message recorded at Caverley House",
+    "Witness statement of Lola Bassano about voice imitation"
+   ]
+  },
+  {
+   "observation": "Ray Bennett was sentenced to death for murder",
+   "correction": "Ray was framed by the Frogs and is innocent",
+   "effect": "Ray Bennett is a victim, not the culprit",
+   "required_evidence": [
+    "Motion picture showing the actual murder by another man",
+    "Governor’s and Sheriff’s testimony at Gloucester Prison"
+   ]
+  },
+  {
+   "observation": "John Bennett’s absences coincide with burglaries",
+   "correction": "Absences unrelated; John Bennett is not the Frog",
+   "effect": "John Bennett is not the criminal mastermind",
+   "required_evidence": [
+    "Alibi statements from policemen at Dorking and Kingbridge",
+    "John Bennett’s photographic hobby and travel records"
+   ]
+  },
+  {
+   "observation": "Balder’s escape and bomb attack on police office",
+   "correction": "Balder is a high-ranking Frog operative, but not the leader",
+   "effect": "Balder is an agent, not the mastermind",
+   "required_evidence": [
+    "Balder’s arrest and confession",
+    "Explosion damage and police reports"
+   ]
+  },
+  {
+   "observation": "Tattoo marks on left wrist identify Frogs",
+   "correction": "Some high-ranking Frogs are unmarked",
+   "effect": "Identification by tattoo is incomplete",
+   "required_evidence": [
+    "Notes and orders signed by Number Seven",
+    "Observation of unmarked suspects like Philo Johnson"
+   ]
+  },
+  {
+   "observation": "Joshua Broad is a harmless American peddler",
+   "correction": "Joshua Broad is Saul Morris, the Frog mastermind",
+   "effect": "Broad is the real culprit",
+   "required_evidence": [
+    "Confession of Joshua Broad as Saul Morris",
+    "Evidence of Broad’s control over the Frogs"
+   ]
+  },
+  {
+   "observation": "Maitland is a miserly, eccentric millionaire",
+   "correction": "Maitland is a front man for the Frogs",
+   "effect": "Maitland is a figurehead, not the leader",
+   "required_evidence": [
+    "Maitland’s double life and secret meetings",
+    "Johnson’s testimony and will leaving estate to Johnson"
+   ]
+  }
+ ],
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "A motion picture film was obtained showing the actual murder of Lew Brady by a man other than Ray Bennett. The film was shown to witnesses and officials to confirm the innocence of Ray Bennett and identify the true murderer. This test used visual evidence to distinguish the real killer from the framed suspect.",
+  "knowledge_revealed": "The film revealed that Ray Bennett was not the murderer and that the crime was orchestrated by the Frogs to frame him.",
+  "pass_condition": "The suspect shown in the film committing the murder is not Ray Bennett, disproving his guilt."
+ },
+ "fair_play_explanation": "The reader is provided with detailed accounts of the characters' movements, the timing of events, and the presence of key evidence such as wireless messages, tattoos, and the motion picture film. Clues about the true identity of the Frog and the framing of Ray Bennett are given through dialogue and observations. The false assumptions about Ray and John Bennett are challenged by alibis and contradictory evidence. The final confession and unmasking of Joshua Broad as the Frog are foreshadowed, allowing an attentive reader to solve the mystery.",
+ "anchors": [
+  {
+   "claim": "Ray Bennett is under sentence of death",
+   "anchor": "under sentence of death in Gloucester Gaol"
+  },
+  {
+   "claim": "The Frog is identified by a tattoo on the left wrist",
+   "anchor": "tattooed left wrist"
+  },
+  {
+   "claim": "Wireless broadcasts are used to communicate Frog messages",
+   "anchor": "wireless telephone message"
+  },
+  {
+   "claim": "Joshua Broad is the real Frog and mastermind",
+   "anchor": "My name, as you rightly surmised, Mr. Elk, is Saul Morris"
+  },
+  {
+   "claim": "Philo Johnson is the real head of Maitlands Consolidated",
+   "anchor": "Philo Johnson, the real head of the business"
+  },
+  {
+   "claim": "John Bennett is the executioner who hanged Ray Bennett",
+   "anchor": "John Bennett was the hangman"
+  },
+  {
+   "claim": "Motion picture film shows the true murderer",
+   "anchor": "picture which showed in the foreground a stretch of grey"
+  },
+  {
+   "claim": "Balder is Frog Number Seven and a key operative",
+   "anchor": "you’ll take a little walk with me—I want you, Number Seven"
+  },
+  {
+   "claim": "Maitland and his sister were murdered",
+   "anchor": "Ezra Maitland lay half on the bed, his legs dragging over the side"
+  },
+  {
+   "claim": "The Frogs use secret wireless broadcasts",
+   "anchor": "All Frogs listen. Mills is dead. Number Seven finished him"
+  },
+  {
+   "claim": "Ella Bennett’s voice was imitated by Lola Bassano",
+   "anchor": "It was her voice, of course. I had no idea she had been on the stage"
+  },
+  {
+   "claim": "Ray Bennett was framed by the Frogs",
+   "anchor": "Ray Bennett is a Frog"
+  },
+  {
+   "claim": "The Frogs tattoo is always on the left wrist",
+   "anchor": "The frog is always on the left wrist"
+  },
+  {
+   "claim": "Joshua Broad killed Harry Lyme, the Frog",
+   "anchor": "Joshua Broad, I call you to witness that I killed this man"
+  },
+  {
+   "claim": "The Frogs’ safe-breaking is masterful and leaves no trace",
+   "anchor": "no finger-prints, no ugly holes blown into the safe"
+  },
+  {
+   "claim": "Mills was poisoned with cyanide while guarded",
+   "anchor": "cyanide of potassium, he said. The man is dead"
+  },
+  {
+   "claim": "The Frogs use elaborate disguises and false identities",
+   "anchor": "Balder, that redoubtable No. 7, who was the right hand and the left hand of the terrible Frog"
+  },
+  {
+   "claim": "The Frogs’ organization is hierarchical with numbered members",
+   "anchor": "Frog Number One works through ‘Seven’"
+  },
+  {
+   "claim": "The reprieve for Ray Bennett was delayed by sabotage",
+   "anchor": "All wires to Gloucester are cut. The trunk wire has been cut in three places"
+  },
+  {
+   "claim": "The Frog threatened Ella Bennett to force her marriage",
+   "anchor": "I will give you the life of your brother, who is lying in Gloucester Gaol under sentence of death"
+  }
+ ]
+}

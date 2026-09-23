@@ -1,5 +1,5 @@
 {
- "totalGbp": 7.778139652050001,
+ "totalGbp": 19.61031265424999,
  "runs": [
   {
    "slug": "the_big_bow_mystery",
@@ -474,6 +474,600 @@
    "costGbp": 0.0913,
    "valid": true,
    "spans": "14/20"
+  },
+  {
+   "slug": "the_clue",
+   "costGbp": 0.0947,
+   "valid": true,
+   "spans": "16/20"
+  },
+  {
+   "slug": "the_scarab_murder_case",
+   "costGbp": 0.1347,
+   "valid": true,
+   "spans": "14/20"
+  },
+  {
+   "slug": "the_sleuth_of_st_james_s_square",
+   "costGbp": 0.0787,
+   "valid": true,
+   "spans": "10/19"
+  },
+  {
+   "slug": "the_twenty_six_clues",
+   "costGbp": 0.2254,
+   "valid": false,
+   "spans": "14/20"
+  },
+  {
+   "slug": "lady_molly_of_scotland_yard",
+   "costGbp": 0.1277,
+   "valid": true,
+   "spans": "13/20"
+  },
+  {
+   "slug": "the_benson_murder_case",
+   "costGbp": 0.2354,
+   "valid": false,
+   "spans": "17/20"
+  },
+  {
+   "slug": "the_bishop_murder_case",
+   "costGbp": 0.1771,
+   "valid": true,
+   "spans": "16/20"
+  },
+  {
+   "slug": "the_greene_murder_case",
+   "costGbp": 0.1487,
+   "valid": true,
+   "spans": "15/19"
+  },
+  {
+   "slug": "mystery_ranch",
+   "costGbp": 0.0844,
+   "valid": true,
+   "spans": "15/20"
+  },
+  {
+   "slug": "aaron_rodd_diviner",
+   "costGbp": 0.0982,
+   "valid": true,
+   "spans": "14/20"
+  },
+  {
+   "slug": "the_mystery_of_the_sycamore",
+   "costGbp": 0.1775,
+   "valid": false,
+   "spans": "16/20"
+  },
+  {
+   "slug": "the_haunted_house",
+   "costGbp": 0.0506,
+   "valid": true,
+   "spans": "13/20"
+  },
+  {
+   "slug": "jacob_s_ladder",
+   "costGbp": 0.051,
+   "valid": true,
+   "spans": "15/20"
+  },
+  {
+   "slug": "the_angel_of_terror",
+   "costGbp": 0.0886,
+   "valid": true,
+   "spans": "14/19"
+  },
+  {
+   "slug": "the_vanishing_of_betty_varian",
+   "costGbp": 0.0513,
+   "valid": true,
+   "spans": "14/20"
+  },
+  {
+   "slug": "malcolm_sage_detective",
+   "costGbp": 0.09,
+   "valid": true,
+   "spans": "13/20"
+  },
+  {
+   "slug": "the_devil_s_paw",
+   "costGbp": 0.0874,
+   "valid": true,
+   "spans": "14/20"
+  },
+  {
+   "slug": "the_crystal_claw",
+   "costGbp": 0.1419,
+   "valid": true,
+   "spans": "11/20"
+  },
+  {
+   "slug": "the_avenger",
+   "costGbp": 0.0925,
+   "valid": true,
+   "spans": "14/20"
+  },
+  {
+   "slug": "the_crimson_circle",
+   "costGbp": 0.092,
+   "valid": true,
+   "spans": "15/19"
+  },
+  {
+   "slug": "three_sevens",
+   "costGbp": 0.0513,
+   "valid": true,
+   "spans": "12/19"
+  },
+  {
+   "slug": "the_gray_mask",
+   "costGbp": 0.0517,
+   "valid": true,
+   "spans": "23/38"
+  },
+  {
+   "slug": "the_stowmarket_mystery",
+   "costGbp": 0.1146,
+   "valid": true,
+   "spans": "16/20"
+  },
+  {
+   "slug": "the_dangerfield_talisman",
+   "costGbp": 0.1311,
+   "valid": true,
+   "spans": "16/20"
+  },
+  {
+   "slug": "gunman_s_bluff",
+   "costGbp": 0.1106,
+   "valid": true,
+   "spans": "13/20"
+  },
+  {
+   "slug": "the_blue_scarab",
+   "costGbp": 0.1755,
+   "valid": false,
+   "spans": "7/20"
+  },
+  {
+   "slug": "tangled_trails",
+   "costGbp": 0.1235,
+   "valid": true,
+   "spans": "15/20"
+  },
+  {
+   "slug": "the_crow_s_inn_tragedy",
+   "costGbp": 0.1263,
+   "valid": true,
+   "spans": "10/20"
+  },
+  {
+   "slug": "the_yellow_streak",
+   "costGbp": 0.113,
+   "valid": true,
+   "spans": "17/20"
+  },
+  {
+   "slug": "red_aces",
+   "costGbp": 0.1129,
+   "valid": false,
+   "spans": "aborted"
+  },
+  {
+   "slug": "spooky_hollow",
+   "costGbp": 0.0716,
+   "valid": false,
+   "spans": "aborted"
+  },
+  {
+   "slug": "the_la_chance_mine_mystery",
+   "costGbp": 0.123,
+   "valid": true,
+   "spans": "10/19"
+  },
+  {
+   "slug": "the_valley_of_ghosts",
+   "costGbp": 0.1171,
+   "valid": false,
+   "spans": "aborted"
+  },
+  {
+   "slug": "the_dark_eyes_of_london",
+   "costGbp": 0.1188,
+   "valid": true,
+   "spans": "12/20"
+  },
+  {
+   "slug": "the_clue_of_the_new_pin",
+   "costGbp": 0.1137,
+   "valid": true,
+   "spans": "15/20"
+  },
+  {
+   "slug": "the_lazy_detective",
+   "costGbp": 0.1139,
+   "valid": true,
+   "spans": "16/20"
+  },
+  {
+   "slug": "the_chestermarke_instinct",
+   "costGbp": 0.0769,
+   "valid": true,
+   "spans": "14/20"
+  },
+  {
+   "slug": "the_talleyrand_maxim",
+   "costGbp": 0.1207,
+   "valid": true,
+   "spans": "13/20"
+  },
+  {
+   "slug": "tragedy_at_ravensthorpe",
+   "costGbp": 0.1288,
+   "valid": true,
+   "spans": "11/20"
+  },
+  {
+   "slug": "the_sting",
+   "costGbp": 0.1152,
+   "valid": true,
+   "spans": "17/20"
+  },
+  {
+   "slug": "the_dangerous_game",
+   "costGbp": 0.0745,
+   "valid": true,
+   "spans": "15/20"
+  },
+  {
+   "slug": "jack_o_judgment",
+   "costGbp": 0.1137,
+   "valid": true,
+   "spans": "17/20"
+  },
+  {
+   "slug": "in_the_mayor_s_parlour",
+   "costGbp": 0.0793,
+   "valid": true,
+   "spans": "10/20"
+  },
+  {
+   "slug": "the_charing_cross_mystery",
+   "costGbp": 0.082,
+   "valid": true,
+   "spans": "13/20"
+  },
+  {
+   "slug": "the_middle_of_things",
+   "costGbp": 0.1191,
+   "valid": true,
+   "spans": "16/20"
+  },
+  {
+   "slug": "the_evil_shepherd",
+   "costGbp": 0.1994,
+   "valid": false,
+   "spans": "17/20"
+  },
+  {
+   "slug": "the_crime_code",
+   "costGbp": 0.1205,
+   "valid": true,
+   "spans": "11/20"
+  },
+  {
+   "slug": "the_orange_yellow_diamond",
+   "costGbp": 0.1254,
+   "valid": false,
+   "spans": "aborted"
+  },
+  {
+   "slug": "the_trouble_at_pinelands",
+   "costGbp": 0.1214,
+   "valid": true,
+   "spans": "16/20"
+  },
+  {
+   "slug": "the_paradise_mystery",
+   "costGbp": 0.1191,
+   "valid": true,
+   "spans": "11/20"
+  },
+  {
+   "slug": "this_house_to_let_51307",
+   "costGbp": 0.116,
+   "valid": true,
+   "spans": "13/20"
+  },
+  {
+   "slug": "this_house_to_let",
+   "costGbp": 0.0771,
+   "valid": false,
+   "spans": "aborted"
+  },
+  {
+   "slug": "tales_of_terror_and_mystery",
+   "costGbp": 0.184,
+   "valid": false,
+   "spans": "15/19"
+  },
+  {
+   "slug": "dead_men_s_money",
+   "costGbp": 0.1219,
+   "valid": true,
+   "spans": "19/20"
+  },
+  {
+   "slug": "the_club_of_masks",
+   "costGbp": 0.0756,
+   "valid": true,
+   "spans": "7/19"
+  },
+  {
+   "slug": "ramshackle_house",
+   "costGbp": 0.0787,
+   "valid": true,
+   "spans": "10/20"
+  },
+  {
+   "slug": "the_four_stragglers",
+   "costGbp": 0.1218,
+   "valid": true,
+   "spans": "12/20"
+  },
+  {
+   "slug": "the_magic_casket",
+   "costGbp": 0.087,
+   "valid": true,
+   "spans": "17/19"
+  },
+  {
+   "slug": "find_the_woman",
+   "costGbp": 0.0353,
+   "valid": false,
+   "spans": "aborted"
+  },
+  {
+   "slug": "the_porcelain_mask",
+   "costGbp": 0.0827,
+   "valid": false,
+   "spans": "aborted"
+  },
+  {
+   "slug": "the_mystery_of_31_new_inn",
+   "costGbp": 0.1196,
+   "valid": true,
+   "spans": "10/20"
+  },
+  {
+   "slug": "the_shadow_of_the_wolf",
+   "costGbp": 0.122,
+   "valid": true,
+   "spans": "8/20"
+  },
+  {
+   "slug": "the_film_mystery",
+   "costGbp": 0.1205,
+   "valid": true,
+   "spans": "10/20"
+  },
+  {
+   "slug": "the_owl_taxi",
+   "costGbp": 0.1221,
+   "valid": true,
+   "spans": "12/20"
+  },
+  {
+   "slug": "murder_in_the_maze",
+   "costGbp": 0.1197,
+   "valid": true,
+   "spans": "15/19"
+  },
+  {
+   "slug": "the_markenmore_mystery",
+   "costGbp": 0.0883,
+   "valid": true,
+   "spans": "12/20"
+  },
+  {
+   "slug": "the_man_in_the_dark",
+   "costGbp": 0.1246,
+   "valid": true,
+   "spans": "13/19"
+  },
+  {
+   "slug": "stolen_idols",
+   "costGbp": 0.1587,
+   "valid": true,
+   "spans": "8/20"
+  },
+  {
+   "slug": "nobody_s_man",
+   "costGbp": 0.0783,
+   "valid": true,
+   "spans": "15/20"
+  },
+  {
+   "slug": "ravensdene_court",
+   "costGbp": 0.0834,
+   "valid": true,
+   "spans": "13/20"
+  },
+  {
+   "slug": "poison_shadows",
+   "costGbp": 0.1261,
+   "valid": true,
+   "spans": "14/20"
+  },
+  {
+   "slug": "bull_dog_drummond",
+   "costGbp": 0.1278,
+   "valid": true,
+   "spans": "14/20"
+  },
+  {
+   "slug": "mademoiselle_of_monte_carlo",
+   "costGbp": 0.2148,
+   "valid": false,
+   "spans": "16/20"
+  },
+  {
+   "slug": "the_rat_trap",
+   "costGbp": 0.1167,
+   "valid": true,
+   "spans": "12/20"
+  },
+  {
+   "slug": "the_d_arblay_mystery",
+   "costGbp": 0.1236,
+   "valid": true,
+   "spans": "11/20"
+  },
+  {
+   "slug": "the_draycott_murder_mystery",
+   "costGbp": 0.125,
+   "valid": true,
+   "spans": "15/19"
+  },
+  {
+   "slug": "the_house_without_a_key",
+   "costGbp": 0.1283,
+   "valid": true,
+   "spans": "15/20"
+  },
+  {
+   "slug": "the_case_book_of_sherlock_holmes",
+   "costGbp": 0.1264,
+   "valid": true,
+   "spans": "16/20"
+  },
+  {
+   "slug": "the_benson_murder_case",
+   "costGbp": 0.2342,
+   "valid": false,
+   "spans": "12/20"
+  },
+  {
+   "slug": "footprints",
+   "costGbp": 0.127,
+   "valid": true,
+   "spans": "11/20"
+  },
+  {
+   "slug": "mystery_at_lynden_sands",
+   "costGbp": 0.1917,
+   "valid": false,
+   "spans": "aborted"
+  },
+  {
+   "slug": "the_wolves_and_the_lamb",
+   "costGbp": 0.1333,
+   "valid": true,
+   "spans": "12/20"
+  },
+  {
+   "slug": "the_stretton_street_affair",
+   "costGbp": 0.126,
+   "valid": true,
+   "spans": "17/20"
+  },
+  {
+   "slug": "the_story_of_ivy",
+   "costGbp": 0.1322,
+   "valid": true,
+   "spans": "16/19"
+  },
+  {
+   "slug": "annihilation",
+   "costGbp": 0.1291,
+   "valid": true,
+   "spans": "17/20"
+  },
+  {
+   "slug": "the_desert_moon_mystery",
+   "costGbp": 0.129,
+   "valid": true,
+   "spans": "14/20"
+  },
+  {
+   "slug": "as_a_thief_in_the_night",
+   "costGbp": 0.0847,
+   "valid": true,
+   "spans": "9/20"
+  },
+  {
+   "slug": "the_black_abbot",
+   "costGbp": 0.1333,
+   "valid": true,
+   "spans": "12/20"
+  },
+  {
+   "slug": "the_mystery_of_angelina_frood",
+   "costGbp": 0.09,
+   "valid": true,
+   "spans": "16/20"
+  },
+  {
+   "slug": "the_three_just_men",
+   "costGbp": 0.1311,
+   "valid": true,
+   "spans": "11/20"
+  },
+  {
+   "slug": "the_eyes_of_max_carrados",
+   "costGbp": 0.0953,
+   "valid": true,
+   "spans": "8/19"
+  },
+  {
+   "slug": "the_house_of_the_arrow",
+   "costGbp": 0.1794,
+   "valid": true,
+   "spans": "14/22"
+  },
+  {
+   "slug": "the_girl_from_hollywood",
+   "costGbp": 0.1362,
+   "valid": true,
+   "spans": "17/20"
+  },
+  {
+   "slug": "the_barge_of_haunted_lives",
+   "costGbp": 0.1383,
+   "valid": false,
+   "spans": "aborted"
+  },
+  {
+   "slug": "ashes_to_ashes",
+   "costGbp": 0.1728,
+   "valid": true,
+   "spans": "12/20"
+  },
+  {
+   "slug": "the_splendid_outcast",
+   "costGbp": 0.1414,
+   "valid": true,
+   "spans": "11/20"
+  },
+  {
+   "slug": "the_fellowship_of_the_frog",
+   "costGbp": 0.14,
+   "valid": true,
+   "spans": "11/20"
+  },
+  {
+   "slug": "the_hand_of_power",
+   "costGbp": 0.1442,
+   "valid": false,
+   "spans": "aborted"
+  },
+  {
+   "slug": "unravelled_knots",
+   "costGbp": 0.1443,
+   "valid": true,
+   "spans": "17/20"
   }
  ]
 }

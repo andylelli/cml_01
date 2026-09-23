@@ -1,0 +1,428 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The haunted house
+    author: Hilaire Belloc
+    license: Public domain (first published 1927; author died 1953). Project Gutenberg ebook 79269.
+    era:
+      decade: 1910s
+      realism_constraints:
+        - No advanced forensic technology like DNA or modern forensics
+        - Communication limited to telephone and letters, no instant electronic communication
+        - Social class and inheritance laws strongly influence property and family dynamics
+    setting:
+      location: Rackham Catchings, Sussex, England
+      institution: Local police force with Detective Mr. Pretherton involved
+    crime_class:
+      category: fraud
+      subtype: property acquisition by psychological manipulation and deception
+  cast:
+    - name: John Maple
+      age_range: early 20s
+      role_archetype: young determined heir with dual life
+      relationships:
+        - Bo
+        - Aunt Hilda
+        - Corton
+      public_persona: performing ventriloquist and dog trainer
+      private_secret: mastermind behind the ghost haunting and psychological manipulation
+      motive_seed: to reclaim family estate Rackham
+      motive_strength: strong
+      alibi_window: present at Rackham during haunting events
+      access_plausibility: high
+      opportunity_channels:
+        - access to house keys
+        - knowledge of estate
+        - ventriloquism skill
+      behavioral_tells:
+        - calm under pressure
+        - strategic planning
+        - dual identity
+      stakes: regaining family estate and financial security
+      evidence_sensitivity:
+        - letters to Aunt Hilda
+        - ghost costume
+        - key to locked room
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Bo (Isabeau Hellup)
+      age_range: early 20s
+      role_archetype: wealthy heiress and co-conspirator
+      relationships:
+        - John Maple
+        - Lord Hellup
+      public_persona: daughter of wealthy American peer
+      private_secret: co-conspirator in haunting scheme
+      motive_seed: support John Maple to reclaim Rackham
+      motive_strength: strong
+      alibi_window: present at Rackham during haunting events
+      access_plausibility: high
+      opportunity_channels:
+        - access to house
+        - knowledge of social circles
+      behavioral_tells:
+        - confident
+        - strategic
+        - manipulative
+      stakes: influence and alliance with John Maple
+      evidence_sensitivity:
+        - ghost costume preparation
+        - communications with John
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: female
+      role: culprit
+      moral_complexity: moderate
+    - name: Hilda Maple
+      age_range: around 50
+      role_archetype: aunt and reluctant estate holder
+      relationships:
+        - John Maple
+        - William Maple (deceased husband)
+        - Corton
+      public_persona: widow managing Rackham Catchings
+      private_secret: financially desperate, forced to sell estate
+      motive_seed: financial ruin and debt pressure
+      motive_strength: strong
+      alibi_window: present at Rackham during events
+      access_plausibility: high
+      opportunity_channels:
+        - control of estate
+        - access to house and staff
+      behavioral_tells:
+        - anxious
+        - determined
+        - prideful
+      stakes: loss of family estate
+      evidence_sensitivity:
+        - financial documents
+        - letters from John
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: victim
+      moral_complexity: high
+    - name: Lord Mere de Beaurivage (George Huggins)
+      age_range: around 60
+      role_archetype: wealthy peer and potential buyer
+      relationships:
+        - Amathea de Beaurivage
+        - Hilda Maple
+      public_persona: newly elevated peer with business acumen
+      private_secret: fearful and superstitious about ghost
+      motive_seed: interest in purchasing Rackham
+      motive_strength: moderate
+      alibi_window: present at Rackham during haunting
+      access_plausibility: high
+      opportunity_channels:
+        - access to estate
+        - social influence
+      behavioral_tells:
+        - nervous
+        - superstitious
+        - easily frightened
+      stakes: acquisition of estate
+      evidence_sensitivity:
+        - medical condition
+        - presence during haunting
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: Lord Hellup (Hamilcar Hellup)
+      age_range: around 60
+      role_archetype: wealthy American peer and potential buyer
+      relationships:
+        - Bo
+        - Hilda Maple
+      public_persona: successful businessman and peer
+      private_secret: reluctant to buy, influenced by daughter
+      motive_seed: interest in estate but cautious
+      motive_strength: weak
+      alibi_window: present at Rackham during events
+      access_plausibility: high
+      opportunity_channels:
+        - access to estate
+        - social influence
+      behavioral_tells:
+        - calm
+        - pragmatic
+        - reserved
+      stakes: potential acquisition
+      evidence_sensitivity:
+        - letters
+        - presence during haunting
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: low
+    - name: Lord Hambourne
+      age_range: mid 30s
+      role_archetype: academic skeptic and peer
+      relationships:
+        - Hilda Maple
+        - Amathea de Beaurivage
+      public_persona: Professor of Psychology and peer
+      private_secret: skeptical but nervous about haunting
+      motive_seed: interest in psychology and social status
+      motive_strength: none
+      alibi_window: present at Rackham during events
+      access_plausibility: high
+      opportunity_channels:
+        - access to estate
+      behavioral_tells:
+        - nervous
+        - talkative
+        - academic
+      stakes: academic reputation
+      evidence_sensitivity:
+        - presence during haunting
+        - telephone records
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+    - name: Corton
+      age_range: 60s
+      role_archetype: loyal butler
+      relationships:
+        - John Maple
+        - Hilda Maple
+      public_persona: faithful servant
+      private_secret: aware of household tensions and ghost story
+      motive_seed: loyalty to family
+      motive_strength: none
+      alibi_window: present at Rackham during events
+      access_plausibility: high
+      opportunity_channels:
+        - access to all parts of house
+      behavioral_tells:
+        - respectful
+        - nervous during haunting
+      stakes: preserving household order
+      evidence_sensitivity:
+        - statements about ghost
+        - knowledge of keys
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+  culpability:
+    culprit_count: 2
+    culprits:
+      - John Maple
+      - Bo (Isabeau Hellup)
+  surface_model:
+    narrative:
+      summary: >-
+        The estate of Rackham Catchings is the subject of a fierce bidding war among wealthy peers
+        and family members. A ghostly apparition appears, terrifying one of the bidders and
+        disrupting the sale, while the rightful heir, John Maple, and his ally Bo orchestrate the
+        haunting to regain the estate.
+    accepted_facts:
+      - Hilda Maple legally owns Rackham Catchings but is financially pressured to sell.
+      - John Maple is the rightful heir but lacks the funds to reclaim the estate.
+      - A ghostly figure appears in the house, frightening Lord Mere de Beaurivage.
+      - >-
+        Multiple wealthy bidders, including Lord Hellup and Lord Mere de Beaurivage, are interested
+        in purchasing the estate.
+    inferred_conclusions:
+      - The ghost is a supernatural entity protecting the estate.
+      - Lord Mere de Beaurivage is being haunted due to his unworthiness.
+      - The haunting is an act of revenge by a disgruntled servant.
+  hidden_model:
+    mechanism:
+      description: >-
+        John Maple and Bo Hellup fabricate a ghostly apparition using a black cloak, a sword, and a
+        large ruff to simulate a headless figure. They use John's ventriloquism skills to produce
+        ghostly voices and sounds, frightening Lord Mere de Beaurivage and the household staff. This
+        psychological manipulation disrupts the sale and pressures Hilda Maple to accept John's
+        offer.
+      delivery_path:
+        - step: John and Bo prepare the ghost costume and rehearse the ventriloquism.
+        - step: John uses ventriloquism to create ghostly voices heard by Lord Mere and staff.
+        - step: John appears as the headless ghost in the patient’s bedroom, frightening Lord Mere.
+        - step: The household staff become terrified and protest, increasing the ghost’s credibility.
+        - step: The ghost story is publicized through a staged photograph and press involvement.
+        - step: The haunting causes the wealthy bidders to withdraw or hesitate.
+        - step: Hilda Maple, pressured by events, agrees to sell the estate to John.
+    outcome:
+      result: >-
+        John Maple successfully reclaims Rackham Catchings by using a staged haunting to frighten
+        off rival bidders and force a sale.
+  false_assumption:
+    statement: The ghost haunting Rackham Catchings is a genuine supernatural phenomenon.
+    type: behavioral
+    why_it_seems_reasonable: >-
+      Multiple witnesses, including Lord Mere de Beaurivage and household staff, report seeing and
+      hearing the ghost. The timing of the apparition coincides with the anniversary of a historical
+      murder, lending credibility.
+    what_it_hides: >-
+      The ghost is a deliberate fabrication by John Maple and Bo Hellup using ventriloquism and
+      costume to manipulate the bidders and staff.
+  false_solution:
+    accused_suspect: Lord Mere de Beaurivage
+    supporting_points:
+      - Lord Mere was visibly frightened and disturbed by the ghost.
+      - He had the motive to disrupt the sale to gain the estate cheaply.
+      - His presence at the scene coincided with the haunting events.
+    the_one_flaw: >-
+      Lord Mere was himself a victim of the haunting and lacked the means or opportunity to
+      fabricate it.
+    refuted_in_chapter: 15
+  red_herrings:
+    - id: lord_hambourne_psychology_expert
+      description: >-
+        Lord Hambourne, a psychology professor, is suspicious of the ghost and tries to rationalize
+        it as hypnosis or suggestion.
+      points_at_suspect: John Maple, due to his ventriloquism and theatrical skills.
+      innocent_explanation: >-
+        Lord Hambourne is merely an academic skeptic who unintentionally draws attention to the
+        ghost but is not involved.
+      resolved_in_chapter: 16
+    - id: household_staff_fear
+      description: >-
+        The household staff, including Corton and Mrs. Fry, are terrified and claim supernatural
+        occurrences.
+      points_at_suspect: A disgruntled servant or supernatural force.
+      innocent_explanation: Their fear is induced by John and Bo’s staged haunting and psychological manipulation.
+      resolved_in_chapter: 15
+  closed_circle:
+    suspects:
+      - John Maple
+      - Bo (Isabeau Hellup)
+      - Hilda Maple
+      - Lord Mere de Beaurivage
+      - Lord Hellup
+      - Lord Hambourne
+      - Corton
+    rationale: >-
+      All key players are present at Rackham during the haunting weekend, with access and motives
+      related to the estate and the ghost story.
+  constraint_space:
+    time:
+      anchors:
+        - Sunday afternoon to Monday morning of the haunting weekend
+        - Evening of the ghost appearance
+        - Morning after the ghost incident
+      windows:
+        - John’s presence in the house during the ghost sightings
+        - Bo’s availability to assist in the haunting
+        - Guests’ arrival and departure times
+    access:
+      actors:
+        - John Maple
+        - Bo (Isabeau Hellup)
+        - Corton
+      objects:
+        - Key to the locked side room
+        - Ghost costume (cloak, sword, ruff)
+        - Letters and documents related to the estate
+    social:
+      trust_channels:
+        - John’s relationship with Corton
+        - Bo’s influence over her father Lord Hellup
+        - Hilda’s trust in John and Bo
+      authority_sources:
+        - Legal ownership documents held by Hilda Maple
+        - Will of William Maple
+        - Social status of the peers involved
+  inference_path:
+    steps:
+      - observation: Lord Mere de Beaurivage is terrified by a headless ghost figure in his bedroom.
+        correction: >-
+          The figure is John Maple in costume, using a cloak, sword, and ruff to simulate a headless
+          apparition.
+        effect: Discredits Lord Mere’s composure and frightens him, disrupting his purchase plans.
+        required_evidence:
+          - Description of the ghost costume prepared by Bo and John
+          - Witness statement of John entering the side room dressed as the ghost
+        reader_observable: true
+      - observation: Household staff report supernatural noises and sightings, refusing to stay in the house.
+        correction: John uses ventriloquism to produce ghostly voices and sounds heard by staff.
+        effect: Increases the credibility of the haunting and pressures Hilda to act.
+        required_evidence:
+          - Testimony of Corton about hearing voices
+          - John’s ventriloquism demonstration on the ship and at Rackham
+        reader_observable: true
+      - observation: The ghost story is publicized with photographs and press coverage.
+        correction: Bo arranges for a photographer (Columbus) to take staged photos of the ghost figure.
+        effect: Spreads fear and ruins the market for Rackham, forcing a sale.
+        required_evidence:
+          - Photograph of the ghost figure on the tripod
+          - Press clipping from The Howl newspaper
+        reader_observable: true
+      - observation: Lord Hellup and Lord Hambourne show nervousness and interest in the ghost.
+        correction: Their reactions are manipulated by John and Bo’s staged haunting and social maneuvering.
+        effect: Weakens rival bidders’ resolve and supports John’s claim.
+        required_evidence:
+          - Statements of Lord Hellup about the ghost and his reluctance to buy
+          - Lord Hambourne’s telephone calls to the press
+        reader_observable: true
+      - observation: Hilda Maple is pressured to sell the estate at a reduced price.
+        correction: The psychological pressure from the haunting and public scandal forces her hand.
+        effect: Allows John to finalize the purchase and reclaim Rackham.
+        required_evidence:
+          - Signed documents of sale from Hilda to John
+          - Financial records showing Hilda’s debts and pressures
+        reader_observable: true
+      - observation: Lord Mere de Beaurivage suffers a health crisis after ghost sighting.
+        correction: The crisis is induced by fear from the staged ghost, not supernatural causes.
+        effect: Removes a major rival from the bidding.
+        required_evidence:
+          - Medical reports of Lord Mere’s condition
+          - Witness accounts of his reaction to the ghost
+        reader_observable: true
+      - observation: Detective Pretherton is present but unable to prevent disturbances.
+        correction: Pretherton is misled and chased off by the dog Lovey-Lad, manipulated by Bo.
+        effect: Prevents official interference with the haunting scheme.
+        required_evidence:
+          - Statement of Pretherton about being chased by Lovey-Lad
+          - Bo’s instructions to the dog during the incident
+        reader_observable: true
+  discriminating_test:
+    method: reenactment
+    design: >-
+      John Maple dons the ghost costume and re-enacts the apparition in the patient’s bedroom while
+      witnesses observe. The ventriloquism and costume are demonstrated to show how the ghostly
+      voices and figure were fabricated. The test includes showing the key to the locked side room
+      and the timing of the appearances.
+    knowledge_revealed: >-
+      This reenactment reveals that the ghost was a human fabrication using ventriloquism and
+      costume, not a supernatural entity.
+    pass_condition: >-
+      The witnesses confirm that the ghost’s appearance and voices can be fully explained by the
+      reenactment without any supernatural involvement.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given detailed descriptions of John Maple’s ventriloquism talent and his dual
+      life, the preparation of the ghost costume, and the timing of the ghost appearances. The
+      presence of keys and access to the locked rooms is established. The psychological state of the
+      witnesses and their reactions are described, allowing the reader to deduce the staged nature
+      of the haunting. The involvement of Bo and the staged press coverage are also presented
+      openly.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

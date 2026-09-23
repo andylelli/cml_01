@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "Eileen Quentin is complicit in her husband's criminal activities.",
+  "type": "identity",
+  "why_it_seems_reasonable": "Eileen is seen as the wife of Quentin and present during suspicious events, leading to assumptions of complicity. Her warnings to Aylmer about Quentin's schemes suggest insider knowledge.",
+  "what_it_hides": "Eileen is actually an innocent victim trapped in a false marriage and unaware of the full extent of Quentin's crimes."
+ },
+ "mechanism_description": "Richard Quentin used a rare tropical poison applied to a pillow-case to simulate heart disease and murder Sir Charles Reeks. He planned to use the same method to kill Cyrus J. Whitefield after defrauding him of money. Quentin's criminal network included associates who helped him conceal his activities. The crime was uncovered through fingerprint evidence and toxicological analysis.",
+ "discriminating_test": {
+  "method": "trap",
+  "design": "Aylmer obtains a duplicate key to Quentin's room and replaces the pillow-case with an identical one. He sends the original for toxicological analysis to confirm the presence of poison. Meanwhile, Whitefield is instructed to bolt his door to prevent unauthorized entry. Observing Quentin's behavior for attempts to enter Whitefield's room tests the hypothesis of poisoning via the pillow.",
+  "knowledge_revealed": "The test reveals Quentin's intent to poison Whitefield using the pillow-case and confirms the use of a rare poison.",
+  "pass_condition": "Quentin attempts to enter Whitefield's room to remove evidence, confirming his guilt."
+ },
+ "changed": [],
+ "confidence": "high"
+}

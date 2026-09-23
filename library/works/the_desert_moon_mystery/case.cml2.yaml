@@ -1,0 +1,434 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The Desert Moon mystery
+    author: Kay Cleaver Strahan
+    license: Public domain (first published 1928; author died 1941). Project Gutenberg ebook 75436.
+    era:
+      decade: 1920s
+      realism_constraints:
+        - No forensic DNA or modern forensic science available
+        - Limited police procedural methods; reliance on observation and deduction
+        - Communication mostly by telegram and telephone; no digital records
+    setting:
+      location: Desert Moon Ranch, northeastern Nevada
+      institution: Private investigation led by crime analyst Lynn MacDonald
+    crime_class:
+      category: murder
+      subtype: identity impersonation and staged alibi
+  cast:
+    - name: Mary Magin
+      age_range: 50s-60s
+      role_archetype: loyal housekeeper and narrator
+      relationships:
+        - Sam Stanley (employer)
+        - Danny Canneziano (friend)
+      public_persona: faithful cook and housekeeper
+      private_secret: knows many household secrets and suspicions
+      motive_seed: none
+      motive_strength: none
+      alibi_window: always present in kitchen
+      access_plausibility: high
+      opportunity_channels:
+        - kitchen access
+        - house knowledge
+      behavioral_tells:
+        - curiosity
+        - protectiveness
+      stakes: loyalty to household and truth
+      evidence_sensitivity:
+        - pipe ashes on bag
+        - key in pocket
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: moderate
+    - name: Sam Stanley
+      age_range: 60s
+      role_archetype: wealthy ranch owner, patriarch
+      relationships:
+        - John Stanley (adopted son)
+        - Danny Canneziano (fiancée of John)
+      public_persona: honest, kind, respected ranch owner
+      private_secret: deeply troubled by murders and suspicions
+      motive_seed: none
+      motive_strength: none
+      alibi_window: present at ranch, various times
+      access_plausibility: high
+      opportunity_channels:
+        - ranch access
+        - authority over household
+      behavioral_tells:
+        - protectiveness
+        - anger
+        - determination
+      stakes: family honor and safety
+      evidence_sensitivity:
+        - pipe ashes
+        - locked attic door
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: strong
+    - name: Danielle Canneziano
+      age_range: '24'
+      role_archetype: innocent twin sister, fiancée
+      relationships:
+        - Gabrielle Canneziano (twin sister)
+        - John Stanley (fiancé)
+      public_persona: sweet, gentle, engaged to John
+      private_secret: harbors secrets about family and sister
+      motive_seed: none
+      motive_strength: none
+      alibi_window: present in living room during key times
+      access_plausibility: high
+      opportunity_channels:
+        - house access
+      behavioral_tells:
+        - fear
+        - reluctance to reveal truth
+      stakes: life and reputation
+      evidence_sensitivity:
+        - last note from Gabrielle
+        - code letter
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: victim
+      moral_complexity: strong
+    - name: Gabrielle Canneziano
+      age_range: '24'
+      role_archetype: culprit, impostor twin
+      relationships:
+        - Danielle Canneziano (victim twin)
+        - John Stanley (object of desire)
+      public_persona: vivacious, manipulative, twin sister
+      private_secret: murdered sister and assumed her identity
+      motive_seed: greed, revenge, desire for control
+      motive_strength: strong
+      alibi_window: manipulated alibis and impersonation
+      access_plausibility: high
+      opportunity_channels:
+        - house access
+        - disguise and impersonation
+      behavioral_tells:
+        - loud clothes
+        - false laughter
+        - manipulation
+      stakes: inheritance and power
+      evidence_sensitivity:
+        - pipe ashes on bag
+        - tatting shuttle
+        - code letter
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: female
+      role: culprit
+      moral_complexity: strong
+    - name: John Stanley
+      age_range: '25'
+      role_archetype: handsome, loyal son and fiancé
+      relationships:
+        - Danielle Canneziano (fiancée)
+        - Sam Stanley (adoptive father)
+      public_persona: loyal, bashful, engaged to Danielle
+      private_secret: struggles with suspicions and family tensions
+      motive_seed: inheritance
+      motive_strength: weak
+      alibi_window: absent during key times
+      access_plausibility: high
+      opportunity_channels:
+        - ranch access
+        - car and road access
+      behavioral_tells:
+        - nervous ticks
+        - evasiveness
+      stakes: inheritance and love
+      evidence_sensitivity:
+        - tire tracks
+        - alibi inconsistencies
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: Mrs. Ollie Ricker
+      age_range: 50s-60s
+      role_archetype: silent nurse and caretaker
+      relationships:
+        - Martha Stanley (charge)
+        - Hubert Hand (lover)
+      public_persona: quiet, patient caretaker
+      private_secret: harbors jealousy and dark past
+      motive_seed: jealousy
+      motive_strength: weak
+      alibi_window: present in living room
+      access_plausibility: high
+      opportunity_channels:
+        - house access
+      behavioral_tells:
+        - silence
+        - threats
+      stakes: family stability
+      evidence_sensitivity:
+        - tatting shuttle
+        - key in pocket
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: moderate
+    - name: Hubert Hand
+      age_range: 30s-40s
+      role_archetype: assistant ranch manager, ex-convict
+      relationships:
+        - Mrs. Ollie Ricker (lover)
+        - Sam Stanley (employer)
+      public_persona: clever, egotistic
+      private_secret: criminal past, possible grudges
+      motive_seed: resentment
+      motive_strength: weak
+      alibi_window: uncertain during key hour
+      access_plausibility: high
+      opportunity_channels:
+        - ranch access
+      behavioral_tells:
+        - mocking
+        - confessions
+      stakes: reputation and freedom
+      evidence_sensitivity:
+        - alibi gaps
+        - destroyed notes
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+  culpability:
+    culprit_count: 1
+    culprits:
+      - Gabrielle Canneziano
+  surface_model:
+    narrative:
+      summary: >-
+        Gabrielle Canneziano is found strangled in the attic of Desert Moon Ranch. Suspicion falls
+        on various household members, including her twin sister Danielle, her fiancé John Stanley,
+        and others. A mysterious code letter, a suicide note from Chadwick Caufield, and a series of
+        false clues complicate the investigation.
+    accepted_facts:
+      - Gabrielle Canneziano was strangled to death on the attic stairway
+      - Chadwick Caufield committed suicide shortly after the murder
+      - A mysterious code letter was received by Gabrielle before her death
+      - Gabrielle and Danielle Canneziano are identical twins who came to live at the ranch
+    inferred_conclusions:
+      - John Stanley is the murderer due to suspicious alibi and behavior
+      - Mrs. Ollie Ricker killed Gabrielle out of jealousy
+      - Chadwick Caufield was involved in the murder and killed himself out of guilt
+  hidden_model:
+    mechanism:
+      description: >-
+        Gabrielle Canneziano murdered her twin sister Danielle by strangulation and assumed her
+        identity to gain control of the family fortune and eliminate rivals. She also killed her
+        father Daniel Canneziano and poisoned Martha Stanley; Chadwick Caufield helped conceal the
+        crimes and committed suicide, while the household was deceived by Gabrielle's impersonation
+        of Danielle.
+      delivery_path:
+        - step: Gabrielle and Danielle switch clothes and identities in the attic
+        - step: Gabrielle strangles Danielle on the attic stairs using a jiu-jitsu hold
+        - step: Gabrielle impersonates Danielle and deceives the household
+        - step: Gabrielle kills her father Daniel Canneziano in his room
+        - step: Gabrielle poisons Martha Stanley with poison hidden in a charm bracelet
+        - step: Chadwick Caufield assists Gabrielle in covering up the crimes
+        - step: Chadwick Caufield commits suicide to protect Gabrielle
+    outcome:
+      result: Gabrielle Canneziano is revealed as the murderer and impostor, leading to her suicide.
+  false_assumption:
+    statement: >-
+      The victim was murdered on the attic stairway and no one outside the household could have
+      committed the crime.
+    type: identity
+    why_it_seems_reasonable: >-
+      The body was found on the attic stairway with death clutch signs, and the household members
+      had alibis for the time of death. The locked attic door and lack of evidence of outside entry
+      reinforced this belief.
+    what_it_hides: >-
+      Gabrielle's impersonation of Danielle allowed her to commit the murder and assume Danielle's
+      identity, misleading everyone about who was actually killed and who remained in the household.
+  false_solution:
+    accused_suspect: John Stanley
+    supporting_points:
+      - John had an uncertain alibi and was absent for an unusually long time
+      - He acted nervously and evasively upon return
+      - Suspicious tire tracks and excuses for delay
+      - Hubert Hand accused John during the session
+    the_one_flaw: >-
+      John's alibi was supported by multiple witnesses and physical evidence, and he lacked motive
+      strong enough to commit the murder
+    refuted_in_chapter: 61
+  red_herrings:
+    - id: chadwick_caufield_suicide
+      description: Chadwick Caufield's suicide and confession note suggest guilt in Gabrielle's murder.
+      points_at_suspect: Chadwick Caufield
+      innocent_explanation: >-
+        Chadwick killed himself out of despair and to protect others involved, not because he was
+        the murderer.
+      resolved_in_chapter: 61
+    - id: mrs_ollie_ricker_accusation
+      description: Mrs. Ollie Ricker accuses Danielle of the murder based on instinct and jealousy.
+      points_at_suspect: Danielle Canneziano
+      innocent_explanation: >-
+        Danielle was innocent and had no opportunity; Mrs. Ricker's accusation was driven by
+        jealousy and fear.
+      resolved_in_chapter: 61
+  closed_circle:
+    suspects:
+      - Mary Magin
+      - Sam Stanley
+      - Danielle Canneziano
+      - Gabrielle Canneziano
+      - John Stanley
+      - Mrs. Ollie Ricker
+      - Hubert Hand
+    rationale: >-
+      All suspects were present at the ranch with no possibility of outside interference during the
+      time of the murder, and the locked attic door created a closed circle of suspects.
+  constraint_space:
+    time:
+      anchors:
+        - 4:00 PM - Gabrielle seen alive walking through the living room
+        - 5:00-6:00 PM - Household members accounted for in living room and barn
+        - 8:00 PM - Gabrielle's body discovered in attic
+      windows:
+        - Between 4:00 PM and 8:00 PM - time of Gabrielle's murder
+        - Between 5:00 PM and 6:00 PM - critical hour with uncertain alibis
+    access:
+      actors:
+        - Gabrielle Canneziano
+        - John Stanley
+        - Sam Stanley
+        - Mrs. Ollie Ricker
+        - Hubert Hand
+        - Mary Magin
+      objects:
+        - Attic stairway
+        - Back stairway
+        - Beaded bag
+        - Key to attic door
+        - Pipe ashes
+        - Tatting shuttle
+    social:
+      trust_channels:
+        - Household relationships and alibis
+        - Handwriting analysis
+        - Witness testimonies
+        - Physical evidence at crime scenes
+      authority_sources:
+        - Sam Stanley as ranch owner
+        - Lynn MacDonald as crime analyst
+        - Coroner and sheriff
+        - Handwriting experts
+  inference_path:
+    steps:
+      - observation: >-
+          Pipe ashes found on Gabrielle's beaded bag and carpet; careful observation of the
+          suspects' movement in and out of the living room was noted.
+        correction: Mary Magin cleaned the ashes to hide evidence
+        effect: Initial suspicion on Sam Stanley due to pipe ashes
+        required_evidence:
+          - Beaded bag with pipe ashes found at crime scene
+          - Mary Magin's witness statement about cleaning ashes
+        reader_observable: true
+      - observation: >-
+          Gabrielle and Danielle are identical twins but act very differently; observant witnesses
+          noted subtle differences in the suspects' movement and behavior.
+        correction: Gabrielle impersonated Danielle after murdering her
+        effect: Confusion about identity and alibis
+        required_evidence:
+          - Gabrielle's note to Danielle about fear and death
+          - Witnesses noting differences in behavior and dress
+        reader_observable: true
+      - observation: >-
+          John Stanley's alibi is weak due to long absence and tire changes; observant household
+          members tracked his movement and reaction upon return.
+        correction: John's alibi is supported by witnesses and physical evidence
+        effect: Suspicion on John is refuted
+        required_evidence:
+          - Witness statements confirming John's whereabouts
+          - Physical evidence of tire patch and car location
+        reader_observable: true
+      - observation: >-
+          Chadwick Caufield's suicide note confesses to murder; observant analysis of his movement
+          and reaction before death raised doubts.
+        correction: Chadwick killed himself to protect others, not guilty
+        effect: Initial false conclusion of Chadwick's guilt
+        required_evidence:
+          - Handwriting analysis of Chadwick's note
+          - Witness testimonies of Chadwick's behavior and alibis
+        reader_observable: true
+      - observation: >-
+          Key to attic door found in Mary Magin's pocket; observant witnesses tracked suspects'
+          movement and reaction regarding the key.
+        correction: Key was planted to mislead investigation
+        effect: Suspicion on household members increased
+        required_evidence:
+          - Description of key as old pass key, not attic key
+          - Observations of suspects' movement and reaction when the key was discovered
+        reader_observable: true
+      - observation: >-
+          Gabrielle's note to Danny and code letter indicate fear and secrets; observant reading of
+          the code and suspects' movement around the letter revealed hidden motives.
+        correction: Gabrielle was involved in criminal activities and planned murders
+        effect: Motive and plan for murder uncovered
+        required_evidence:
+          - Code letter deciphered by Lynn MacDonald
+          - Gabrielle's note to Danny found at crime scene
+        reader_observable: true
+      - observation: >-
+          Gabrielle found dead with bruises on throat and signs of strangulation; observant
+          witnesses described the suspects' movement and reaction at the scene.
+        correction: Gabrielle committed suicide after confessing to murders
+        effect: Final resolution of case
+        required_evidence:
+          - Witness statement of Gabrielle's last conversation with John
+          - Physical evidence of self-inflicted gunshot wound
+        reader_observable: true
+  discriminating_test:
+    method: trap
+    design: >-
+      Miss MacDonald sets a trap by locking the house and observing the suspects' movements and
+      reactions, while secretly monitoring the attic and key locations. She uses the known habits
+      and access points of the suspects to detect any attempt to enter or leave the attic or to
+      tamper with evidence.
+    knowledge_revealed: >-
+      The trap reveals that only Gabrielle could have accessed the attic and manipulated the
+      evidence, confirming her guilt and identity impersonation.
+    pass_condition: >-
+      Detection of unauthorized movement or evidence tampering in the attic area during the trap
+      period.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given detailed descriptions of the characters, their motives, and their
+      movements, as well as physical clues such as the pipe ashes, the key, the code letter, and the
+      twin sisters' contrasting personalities. The presence of false leads and red herrings is
+      balanced by the availability of concrete evidence and logical deductions that allow the
+      attentive reader to solve the case alongside the detective.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

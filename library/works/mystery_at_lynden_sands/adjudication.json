@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "Cressida Fleetwood was the murderer of Nicholas Staveley, acting out of fear and anger.",
+  "type": "behavioral",
+  "why_it_seems_reasonable": "She was found with the murder weapon and had motive related to Staveley. Witness testimony and circumstantial evidence pointed to her presence at the crime scene.",
+  "what_it_hides": "The actual murder was committed by the gang members to secure the estate, and Cressida was coerced and innocent of the crime."
+ },
+ "mechanism_description": "The crime was orchestrated by a gang including the claimant impersonating Derek Fordingbridge, Billingford, Simon Aird, and the faceless man. They aimed to secure the Foxhills estate by eliminating witnesses such as Peter Hay and Nicholas Staveley and coercing family members like Cressida. Paul Fordingbridge was involved in financial malversation and was kidnapped by the gang. The murders were premeditated to remove obstacles to the claimant's inheritance, with the final capture of the criminals resolving the case.",
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "Recreate the tide and footprint conditions on the beach to verify timing of tracks and cartridge-case locations. Measure the length and depth of footprints and compare with shoe sizes and gait of suspects. Test the ejector mechanism of the pistol to confirm cartridge-case landing position.",
+  "knowledge_revealed": "This test reveals the impossibility of the Fleetwoods firing the fatal shot and confirms the timing and presence of the gang members at the crime scene.",
+  "pass_condition": "The cartridge-case location and footprint timings must match the reconstructed tide and ejector mechanics, eliminating suspects who cannot fit the timeline or physical evidence."
+ },
+ "changed": [],
+ "confidence": "high"
+}

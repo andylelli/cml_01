@@ -26,6 +26,7 @@ const LEDGER = `${ROOT}/library/.encode-ledger.json`;
 const SRC = `${ROOT}/library/texts`;
 
 const BUDGET = Number((process.argv.find((a) => a.startsWith("--budget=")) ?? "--budget=5").split("=")[1]);
+if (!Number.isFinite(BUDGET) || process.argv.includes("--budget")) { console.error("usage: corpus-encode-all.mjs [--budget=5.00] [--only=slug,...]   (a bare --budget or a non-numeric value is refused - NaN would disable the guard; A_103 B59)"); process.exit(2); }
 const only = (process.argv.find((a) => a.startsWith("--only=")) ?? "").split("=")[1];
 
 const ALL = readdirSync(`${ROOT}/library/works`)

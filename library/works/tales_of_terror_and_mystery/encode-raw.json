@@ -1,0 +1,437 @@
+{
+ "decade": "1890s",
+ "realism_constraints": [
+  "No advanced forensic DNA analysis available",
+  "Limited rapid communication, telegraph and letters used",
+  "No modern surveillance or electronic tracking"
+ ],
+ "location": "England, specifically Liverpool and surrounding areas",
+ "institution": "London and West Coast Railway Company and local police",
+ "crime_category": "disappearance",
+ "crime_subtype": "vanishing of a special train by diversion and concealment",
+ "cast": [
+  {
+   "name": "Monsieur Louis Caratal",
+   "age_range": "middle-aged",
+   "role_archetype": "wealthy financier and political agent",
+   "role": "victim",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "anxious traveler rushing to Paris",
+   "private_secret": "carrying damaging documents",
+   "motive_seed": "urgent political mission",
+   "motive_strength": "strong",
+   "alibi_window": "on the missing special train",
+   "access_plausibility": "high",
+   "stakes": "life and political scandal",
+   "moral_complexity": "moderate",
+   "relationships": [],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Eduardo Gomez",
+   "age_range": "adult",
+   "role_archetype": "violent protector and companion",
+   "role": "victim",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "loyal guard to Caratal",
+   "private_secret": "violent reputation",
+   "motive_seed": "protect Caratal and documents",
+   "motive_strength": "strong",
+   "alibi_window": "on the missing special train",
+   "access_plausibility": "high",
+   "stakes": "life",
+   "moral_complexity": "low",
+   "relationships": [
+    "Monsieur Louis Caratal"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "James McPherson",
+   "age_range": "adult",
+   "role_archetype": "railway guard, secretly bribed",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "trustworthy railway guard",
+   "private_secret": "bribed accomplice in train disappearance",
+   "motive_seed": "financial gain",
+   "motive_strength": "moderate",
+   "alibi_window": "on the missing special train",
+   "access_plausibility": "high",
+   "stakes": "money and freedom",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Eduardo Gomez",
+    "Monsieur Louis Caratal"
+   ],
+   "opportunity_channels": [
+    "train guard duties"
+   ],
+   "behavioral_tells": [
+    "wrote letter to wife revealing secrets"
+   ],
+   "evidence_sensitivity": [
+    "letter to wife",
+    "presence on train"
+   ]
+  },
+  {
+   "name": "William Smith",
+   "age_range": "adult",
+   "role_archetype": "stoker, bribed accomplice",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "new railway stoker",
+   "private_secret": "bribed to assist in train diversion",
+   "motive_seed": "financial gain",
+   "motive_strength": "moderate",
+   "alibi_window": "on the missing special train",
+   "access_plausibility": "high",
+   "stakes": "money and freedom",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "James McPherson"
+   ],
+   "opportunity_channels": [
+    "engine room access"
+   ],
+   "behavioral_tells": [],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "John Slater",
+   "age_range": "adult",
+   "role_archetype": "engine-driver, obstinate and dangerous",
+   "role": "victim",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "engine-driver",
+   "private_secret": "refused to be bribed",
+   "motive_seed": "professional integrity",
+   "motive_strength": "strong",
+   "alibi_window": "on the missing special train",
+   "access_plausibility": "high",
+   "stakes": "life",
+   "moral_complexity": "low",
+   "relationships": [
+    "James McPherson",
+    "William Smith"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Herbert de Lernac",
+   "age_range": "adult",
+   "role_archetype": "criminal mastermind",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "arch-criminal under sentence of death",
+   "private_secret": "orchestrated train disappearance",
+   "motive_seed": "political and financial interests",
+   "motive_strength": "strong",
+   "alibi_window": "confession after the fact",
+   "access_plausibility": "high",
+   "stakes": "power and money",
+   "moral_complexity": "high",
+   "relationships": [
+    "James McPherson",
+    "William Smith"
+   ],
+   "opportunity_channels": [
+    "criminal network"
+   ],
+   "behavioral_tells": [],
+   "evidence_sensitivity": [
+    "confession",
+    "railway records"
+   ]
+  },
+  {
+   "name": "Mr. Bland",
+   "age_range": "adult",
+   "role_archetype": "railway superintendent",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "railway official",
+   "private_secret": "none",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "present during investigation",
+   "access_plausibility": "high",
+   "stakes": "professional reputation",
+   "moral_complexity": "low",
+   "relationships": [],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": []
+  }
+ ],
+ "culprits": [
+  "James McPherson",
+  "William Smith",
+  "Herbert de Lernac"
+ ],
+ "surface_summary": "A special train carrying Monsieur Caratal and his companion mysteriously vanished between Kenyon Junction and Barton Moss. The engine-driver was found dead nearby, but no trace of the train or passengers was discovered, baffling investigators and the public alike.",
+ "accepted_facts": [
+  "The special train left Liverpool on time and was seen passing several stations.",
+  "The engine-driver John Slater was found dead with head injuries near the line.",
+  "No trace of the train or its carriages was found on the railway line.",
+  "A letter from the missing guard James McPherson was received from New York."
+ ],
+ "inferred_conclusions": [
+  "The train ran off the rails and crashed unnoticed.",
+  "The train was submerged in a nearby canal.",
+  "The train was destroyed by a novel explosive device."
+ ],
+ "mechanism_description": "The special train was secretly diverted onto an abandoned side line connected to an unused mine shaft. The train was run at high speed into the shaft, causing it to crash and be destroyed. The conspirators removed all evidence by dismantling the temporary rails and covering the shaft, effectively making the train vanish without a trace.",
+ "delivery_path": [
+  "Preparation of a side line by laying temporary rails to the abandoned Heartsease mine.",
+  "Bribing of railway staff including the guard and stoker to assist in the plan.",
+  "The special train is switched onto the side line without the passengers noticing.",
+  "The train is driven at full speed into the mine shaft, crashing and destroying it.",
+  "The conspirators remove the temporary rails and cover the mine shaft to conceal the wreckage.",
+  "The guard and stoker escape before the crash, while the engine-driver is killed during the attempt to chloroform him.",
+  "The conspirators disperse and cover their tracks, including sending a false letter from the guard."
+ ],
+ "outcome_result": "The special train and its passengers disappeared without a trace, with the true cause revealed only by the confession of Herbert de Lernac years later.",
+ "false_assumption": {
+  "statement": "The train must have derailed or crashed somewhere visible along the main line.",
+  "type": "spatial",
+  "why_it_seems_reasonable": "The train was seen passing stations and the engine-driver was found dead nearby, suggesting an accident on the main line. No other plausible location was known for the disappearance.",
+  "what_it_hides": "The train was diverted onto a hidden abandoned side line and destroyed in a concealed mine shaft, making it invisible to observers on the main line."
+ },
+ "false_solution": {
+  "accused_suspect": "James McPherson",
+  "supporting_points": [
+   "He was found to have written a letter to his wife revealing secrets.",
+   "He was the guard on the missing special train.",
+   "His behavior was suspicious and he fled to America.",
+   "He was bribed by conspirators to assist in the crime."
+  ],
+  "the_one_flaw": "He was only an accomplice and not the mastermind; the real plan was orchestrated by Herbert de Lernac.",
+  "refuted_in_chapter": 7
+ },
+ "red_herrings": [
+  {
+   "id": "train_crash_canal_theory",
+   "description": "The suggestion that the train ran off the rails and sank in the nearby canal.",
+   "points_at_suspect": "railway staff negligence",
+   "innocent_explanation": "The canal was too shallow to conceal the train and no wreckage was found there.",
+   "resolved_in_chapter": 7
+  },
+  {
+   "id": "explosive_destruction_theory",
+   "description": "The theory that a novel explosive device destroyed the train completely.",
+   "points_at_suspect": "unknown saboteurs or conspirators",
+   "innocent_explanation": "The metals of the train remained undamaged and no explosion evidence was found.",
+   "resolved_in_chapter": 7
+  }
+ ],
+ "closed_circle": {
+  "suspects": [
+   "James McPherson",
+   "William Smith",
+   "John Slater",
+   "Herbert de Lernac"
+  ],
+  "rationale": "All had access to the train and were involved in its operation; the conspiracy required insiders to divert and destroy the train."
+ },
+ "constraint_space": {
+  "time_anchors": [
+   "4:31 pm departure from Liverpool",
+   "5:00 pm passing Kenyon Junction",
+   "6:50 pm arrival at Rugby"
+  ],
+  "time_windows": [
+   "Train must disappear between Kenyon Junction and Barton Moss"
+  ],
+  "access_actors": [
+   "James McPherson",
+   "William Smith",
+   "Herbert de Lernac",
+   "railway workers"
+  ],
+  "access_objects": [
+   "special train",
+   "side line rails",
+   "mine shaft"
+  ],
+  "trust_channels": [
+   "bribed railway staff",
+   "confidential communications"
+  ],
+  "authority_sources": [
+   "railway company",
+   "police investigation"
+  ]
+ },
+ "inference_path": [
+  {
+   "observation": "No special train passed Barton Moss station.",
+   "correction": "The train must have left the main line before Barton Moss.",
+   "effect": "Focus on possible side lines between Kenyon Junction and Barton Moss.",
+   "required_evidence": [
+    "Telegram from Barton Moss station denying special train passage",
+    "Railway maps showing side lines in the area"
+   ]
+  },
+  {
+   "observation": "The line between Kenyon Junction and Barton Moss has no siding.",
+   "correction": "Investigate abandoned or disconnected side lines nearby.",
+   "effect": "Consider possibility of temporary rails laid on abandoned lines.",
+   "required_evidence": [
+    "Inspection reports of abandoned side lines",
+    "Statements from railway workers about temporary rails"
+   ]
+  },
+  {
+   "observation": "The engine-driver John Slater was found dead near the line.",
+   "correction": "He was likely incapacitated during the diversion.",
+   "effect": "Suggest foul play involving driver to enable train diversion.",
+   "required_evidence": [
+    "Autopsy report of John Slater",
+    "Witness statements about driver behavior"
+   ]
+  },
+  {
+   "observation": "Guard James McPherson wrote a letter from New York.",
+   "correction": "He fled after the crime, indicating involvement.",
+   "effect": "Identify him as an accomplice or conspirator.",
+   "required_evidence": [
+    "Letter from James McPherson to his wife",
+    "Railway employment and travel records"
+   ]
+  },
+  {
+   "observation": "Temporary rails were laid to connect the side line to the main line.",
+   "correction": "The train could be diverted onto the abandoned line.",
+   "effect": "Train disappearance explained by diversion and crash in mine shaft.",
+   "required_evidence": [
+    "Physical evidence of rails and points",
+    "Statements from conspirators or workers"
+   ]
+  },
+  {
+   "observation": "The train was not seen by workers on the Perseverance Colliery line.",
+   "correction": "Train passed through quickly or unnoticed due to speed and location.",
+   "effect": "Supports theory of diversion onto hidden side line.",
+   "required_evidence": [
+    "Testimonies from colliery workers",
+    "Railway traffic logs"
+   ]
+  },
+  {
+   "observation": "Confession of Herbert de Lernac detailing the plan.",
+   "correction": "Confession confirms the diversion and destruction of the train.",
+   "effect": "Final confirmation of the true mechanism of the crime.",
+   "required_evidence": [
+    "Herbert de Lernac's confession document",
+    "Corroborating railway and police records"
+   ]
+  }
+ ],
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "Reconstruct the diversion by laying temporary rails on the abandoned side line and running a test train to observe if it can be diverted unnoticed. Observe the visibility from the main line and the reaction of workers along the side line.",
+  "knowledge_revealed": "This test reveals the feasibility of diverting a train onto the abandoned line without detection and the possibility of the train disappearing into the mine shaft.",
+  "pass_condition": "The test train must be successfully diverted onto the side line and reach the mine shaft without being seen or stopped by workers on the main line."
+ },
+ "fair_play_explanation": "The reader is provided with detailed information about the railway lines, the timing of the train's passage, the existence of abandoned side lines, and the suspicious behavior of railway staff. The confession and the telegrams give clues that the train was diverted. The physical impossibility of the train being on the main line after Barton Moss invites the reader to consider hidden tracks and sabotage. The presence of bribed staff and the discovery of the engine-driver's body provide further hints. All these clues are available before the solution is revealed.",
+ "anchors": [
+  {
+   "claim": "The special train left Liverpool at 4:31 pm",
+   "anchor": "At 4:31 exactly by the station clock the special train"
+  },
+  {
+   "claim": "The engine-driver John Slater was found dead near the line",
+   "anchor": "the dead body of John Slater, driver of the special train"
+  },
+  {
+   "claim": "No trace of the missing train was found on the railway line",
+   "anchor": "there is no trace of the missing train"
+  },
+  {
+   "claim": "James McPherson wrote a letter from New York after the disappearance",
+   "anchor": "receipt by Mrs. McPherson of a letter from her husband"
+  },
+  {
+   "claim": "The train was diverted onto an abandoned side line",
+   "anchor": "the special has gone wrong between Kenyon Junction and Barton Moss"
+  },
+  {
+   "claim": "Temporary rails were laid to connect the side line to the main line",
+   "anchor": "We had only to replace a few rails to connect it once more"
+  },
+  {
+   "claim": "The train crashed into the abandoned Heartsease mine shaft",
+   "anchor": "the buffers of the engine struck the other lip of the shaft"
+  },
+  {
+   "claim": "The conspirators removed the temporary rails and covered the shaft",
+   "anchor": "our little band of workers at the other end had already ripped up the rails"
+  },
+  {
+   "claim": "The engine-driver was not bribed and resisted the plan",
+   "anchor": "John Slater, the engine-driver, had been approached, but had been found to be obstinate"
+  },
+  {
+   "claim": "The guard and stoker were bribed accomplices",
+   "anchor": "two out of the three servants of the company were really in our employ"
+  },
+  {
+   "claim": "Herbert de Lernac confessed to orchestrating the disappearance",
+   "anchor": "The confession of Herbert de Lernac, now lying under sentence of death"
+  },
+  {
+   "claim": "The false assumption was that the train crashed on the main line",
+   "anchor": "The special must have run off the metals"
+  },
+  {
+   "claim": "The canal theory was disproved by the canal's insufficient depth",
+   "anchor": "This suggestion was thrown out of court by the published depth of the canal"
+  },
+  {
+   "claim": "The explosive theory was disproved by the intact metals",
+   "anchor": "The obvious absurdity of supposing that the whole train might be blown to dust"
+  },
+  {
+   "claim": "The train was seen passing Kenyon Junction but not Barton Moss",
+   "anchor": "It is quite certain that she passed here, and that she did not arrive at Barton Moss"
+  },
+  {
+   "claim": "The conspirators planned for the driver to be chloroformed",
+   "anchor": "Smith, the stoker, should chloroform John Slater, the driver"
+  },
+  {
+   "claim": "The driver fell off the engine and died, a flaw in the plan",
+   "anchor": "Slater in his struggles fell off the engine, and though fortune was with us so far that he broke his neck"
+  },
+  {
+   "claim": "The train was diverted onto the abandoned Heartsease mine line",
+   "anchor": "our special train upon the small line two kilometres, or rather more than one mile, in length"
+  },
+  {
+   "claim": "The train was destroyed in the mine shaft with a loud crash and steam",
+   "anchor": "Then something gave way in the middle, and the whole mass of green iron, smoking coals, brass fittings"
+  }
+ ]
+}

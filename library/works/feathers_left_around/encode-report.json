@@ -1,0 +1,127 @@
+{
+ "slug": "feathers_left_around",
+ "spans": [
+  {
+   "claim": "Hugh Curran died of hydrocyanic acid poisoning",
+   "anchor": "this man died of poison,--Hydrocyanic acid",
+   "span": "yes, this man died of poison,--Hydrocyanic acid.",
+   "ok": true
+  },
+  {
+   "claim": "The room was locked from the inside with no forced entry",
+   "anchor": "the room was locked and there’s no bottle or paper to be found",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Poison was administered via a toothpick",
+   "anchor": "the instrument of death, for I could find no other",
+   "span": "At any rate I did conclude that the instrument of death, for I could find no other.",
+   "ok": true
+  },
+  {
+   "claim": "Angel Bob Baldwin gave Curran the toothpick",
+   "anchor": "Mr. Baldwin had given Curran that Club toothpick",
+   "span": "Of course, I knew that Mr. Baldwin had given Curran that Club toothpick, and it seemed a clever deduction.",
+   "ok": true
+  },
+  {
+   "claim": "The poisoned toothpick was replaced with a clean one",
+   "anchor": "he adroitly substituted a clean one for the other",
+   "span": "Baldwin is the clever criminal, he is the ingenious book thief,--it was he who provided the poisoned toothpick, and after it had done its work, he adroitly substituted a clean one for the other and placed it in Curran's waste-basket.",
+   "ok": true
+  },
+  {
+   "claim": "Pauline Fuller is the divorced wife of Hugh Curran",
+   "anchor": "Miss Fuller is the divorced wife of Hugh Curran",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Pauline took Curran’s watch and hid it in her desk",
+   "anchor": "I found Hugh Curran’s watch hidden in a locked desk",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Pauline fled the house after the murder",
+   "anchor": "Pauline Fuller has disappeared",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Ned Knox was jealous but innocent",
+   "anchor": "Ned Knox was the one who advocated shooting",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Anna Knox was seen on the balcony with Curran",
+   "anchor": "Mrs. Knox,--I know her well. She had on a bee-yooutiful gown",
+   "span": "yes, sir, it was Mrs. Knox,--I know her well. She had on a bee-yooutiful gown,--dressing-gown,--what they call negglegy, you know.",
+   "ok": true
+  },
+  {
+   "claim": "The missing catalogue page was from 'Gammer Gurton’s Needle'",
+   "anchor": "the catalogue that contained ‘The Needle’",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Baldwin bought the missing page at auction",
+   "anchor": "the page went to the other bidder",
+   "span": "At last the agent kept on against one other only, and finally as two hundred was overbid, Fibsy's agent ceased, and the page went to the other bidder.",
+   "ok": true
+  },
+  {
+   "claim": "Baldwin committed suicide after exposure",
+   "anchor": "he popped something into his mouth and swallowed it",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Fleming Stone discovered the puncture wound in Curran’s jaw",
+   "anchor": "a small puncture in the jaw of the dead man",
+   "span": "That is a small puncture in the jaw of the dead man, through which, there can be no doubt, the poison was introduced into his system.",
+   "ok": true
+  },
+  {
+   "claim": "The poison was hydrocyanic acid applied via toothpick",
+   "anchor": "poisoned toothpick dipped in hydrocyanic acid",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The door was locked from inside by the victim",
+   "anchor": "Mr. Curran let him out",
+   "span": "Mr. Curran let him out.",
+   "ok": true
+  },
+  {
+   "claim": "Pauline Fuller visited Curran’s room to retrieve her picture",
+   "anchor": "I went to his room at two o’clock",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Pauline Fuller did not kill Curran",
+   "anchor": "No, I didn’t kill him,--though I confess there was murder in my heart",
+   "span": "No, I didn't kill him,--though I confess there was murder in my heart.",
+   "ok": true
+  },
+  {
+   "claim": "Fibsy McGuire used radio broadcasts to locate Pauline",
+   "anchor": "I got a chap I know to write a song about the ‘Valentine a waitin’ for Pauline’",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Valentine Loft forgives Pauline and marries her",
+   "anchor": "We’re going to be married in a few minutes",
+   "span": "We're going to be married in a few minutes,\" Loft replied, kissing her in the exuberance of his happiness.",
+   "ok": true
+  }
+ ],
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

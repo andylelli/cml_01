@@ -1,0 +1,127 @@
+{
+ "slug": "the_porcelain_mask",
+ "spans": [
+  {
+   "claim": "Helen Gilmore was found shot with the door open and a gun beside her",
+   "anchor": "Helen Gilmore lay in a half-reclining posture on a wicker couch",
+   "span": "Helen Gilmore lay in a half-reclining posture on a wicker couch.",
+   "ok": true
+  },
+  {
+   "claim": "The gun was an automatic pistol found beside the victim",
+   "anchor": "On the floor, beneath the outflung fingers of one hand, there was an automatic pistol",
+   "span": "On the floor, beneath the outflung fingers of one hand, there was an automatic pistol.",
+   "ok": true
+  },
+  {
+   "claim": "The door to Helen's room was found open at the time of the shooting",
+   "anchor": "The door of her room is open--her light is burning",
+   "span": "The door of her room is open--her light is burning!",
+   "ok": true
+  },
+  {
+   "claim": "A scream was heard before the gunshot",
+   "anchor": "There came to their ears the sound of a terrified scream",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Kirklan Gilmore and the butler were downstairs when the shot was fired",
+   "anchor": "Mr. Gilmore and I rushed directly upstairs when the shot was fired",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Fingerprints on the window glass matched Don Haskins",
+   "anchor": "Clear and distinct there were the prints of a man's fingers--on the inside of the glass",
+   "span": "Clear and distinct there were the prints of a man's fingers--on the inside of the glass.",
+   "ok": true
+  },
+  {
+   "claim": "The murder gun was identified as Sergeant Tish's police automatic",
+   "anchor": "This is my gun! Here's a little place chipped off one of the butt plates",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Don Haskins was found hiding in the storeroom on the third floor",
+   "anchor": "Don Haskins leaned tensely against the wall of the storeroom on the third floor",
+   "span": "CHAPTER XXIII THE TRAPPED RAT With the breath wheezing noisily through his parted lips, which were twisted back so that his clenched teeth were bared, Don Haskins leaned tensely against the wall of the storeroom on the third floor of the Gilmore house.",
+   "ok": true
+  },
+  {
+   "claim": "A broken porcelain vase was found shattered in the victim's room",
+   "anchor": "Several other pieces like the one which he held in his fingers",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Pieces of candle tallow were found scattered on the floor",
+   "anchor": "A bit of whitish substance which, as he picked it up from where it had been crushed flat into the rug",
+   "span": "Near the table, however, he did find something that he had overlooked until now; it was a bit of whitish substance which, as he picked it up from where it had been crushed flat into the rug, was moderately soft between his fingers.",
+   "ok": true
+  },
+  {
+   "claim": "A black hairpin belonging to Joan Sheridan was found in the victim's room",
+   "anchor": "Black hairpin! The dead woman's hair is blond",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Kirklan Gilmore staged a loud explosion as an alibi",
+   "anchor": "He took the black porcelain vase as his alibi, put gunpowder into it and tamped it in with candle tallow",
+   "span": "He took the black porcelain vase as his alibi, put gunpowder into it and tamped it in with candle tallow, made a sort of firecracker.",
+   "ok": true
+  },
+  {
+   "claim": "Kirklan Gilmore accidentally shot his wife during a struggle",
+   "anchor": "I attempted to take it from her by force. I couldn't control myself",
+   "span": "I told her to put down the gun, and when she did not, I did a very foolish thing; I attempted to take it from her by force. I couldn't control myself.",
+   "ok": true
+  },
+  {
+   "claim": "Joan Sheridan found Helen alive after the shooting and tried to help her",
+   "anchor": "I opened the door and went in. I switched on the lights, bent over her",
+   "span": "I opened the door and went in. I switched on the lights, bent over her; that must have been when the hairpin fell from my hair, and I got the blood on my sleeve.",
+   "ok": true
+  },
+  {
+   "claim": "The explosion was timed to occur while Kirklan was downstairs with the butler",
+   "anchor": "I went out of the house, but returned almost immediately and rang the bell",
+   "span": "I went out of the house, but returned almost immediately and rang the bell.",
+   "ok": true
+  },
+  {
+   "claim": "The butler heard a door slam upstairs after the shot",
+   "anchor": "While we were mounting the steps, sir, we both heard a sound that seemed to be the slamming of a door",
+   "span": "While we were mounting the steps, sir, we both heard a sound that seemed to be the slamming of a door.",
+   "ok": true
+  },
+  {
+   "claim": "Don Haskins was the legal husband and a crook who blackmailed Helen",
+   "anchor": "She was Haskins' wife--his legal wife",
+   "span": "She was Haskins' wife--his legal wife.",
+   "ok": true
+  },
+  {
+   "claim": "Don Haskins was shot and died after a shootout with police",
+   "anchor": "Don Haskins was breathing heavily, his eyes closed, his hands clenched",
+   "span": "Don Haskins was breathing heavily, his eyes closed, his hands clenched.",
+   "ok": true
+  },
+  {
+   "claim": "The black specks in the candle tallow were burned gunpowder",
+   "anchor": "Those black specks in the tallow that have been worrying me all morning, were burned gunpowder",
+   "span": "Those black specks in the tallow that have been worrying me all morning, were burned gunpowder.",
+   "ok": true
+  },
+  {
+   "claim": "Joan Sheridan tried to clean bloodstains from her gown after the murder",
+   "anchor": "The odor of a cleaning fluid, chloroform, can still be detected",
+   "span": "I just took it out of her closet a minute ago; the odor of a cleaning fluid, chloroform, can still be detected.",
+   "ok": true
+  }
+ ],
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

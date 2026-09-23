@@ -42,8 +42,8 @@
   {
    "claim": "The poker was found near the victim with blood on it",
    "anchor": "Near him a poker with the black end glistening",
-   "span": "",
-   "ok": false
+   "span": "Angus Baird was lying on his own floor, dead, with his gray hairs glued together by his blood; near him a poker with the black end glistening; in a corner his desk, ransacked, littered.",
+   "ok": true
   },
   {
    "claim": "Inspector Mackenzie is a persistent detective from Scotland Yard",
@@ -84,8 +84,8 @@
   {
    "claim": "The murder weapon was a poker",
    "anchor": "Near him a poker with the black end glistening",
-   "span": "",
-   "ok": false
+   "span": "Angus Baird was lying on his own floor, dead, with his gray hairs glued together by his blood; near him a poker with the black end glistening; in a corner his desk, ransacked, littered.",
+   "ok": true
   },
   {
    "claim": "Rutter is remorseful and ready to confess",
@@ -108,8 +108,8 @@
   {
    "claim": "The timeline of events is crucial to solving the case",
    "anchor": "The clocks began striking twelve",
-   "span": "",
-   "ok": false
+   "span": "I remember, however, that we were on a dark footpath between woods and fields when the clocks began striking twelve.",
+   "ok": true
   },
   {
    "claim": "Raffles is a master of planning and deception",
@@ -132,5 +132,5 @@
  },
  "case_written": true,
  "verified_by": "corpus-verify.mjs",
- "verified_on": "2026-08-31"
+ "verified_on": "2026-09-23"
 }

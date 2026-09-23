@@ -1,0 +1,130 @@
+{
+ "slug": "the_magic_casket",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "The magic casket contained a secret message etched on the mirror bottom",
+   "anchor": "the inside of the bottom is covered with elaborate decoration",
+   "span": "there is another anomalous feature; the inside of the bottom is covered with elaborate decoration--just the place where decoration is most inappropriate, since it would be covered up by the contents of the casket.",
+   "ok": true
+  },
+  {
+   "claim": "The secret message on the magic mirror revealed the hiding place of the pearls",
+   "anchor": "On the bright oval patch on the paper could be seen the shadowy",
+   "span": "On the bright oval patch on the paper could be seen the shadowy, but quite distinct, forms of five words in the Japanese character.",
+   "ok": true
+  },
+  {
+   "claim": "Jonathan Ingle’s cremated ashes contained no human bones but butcher’s meat",
+   "anchor": "there is not a sign of a human bone in the whole collection",
+   "span": "that there is not a sign of a human bone in the whole collection.",
+   "ok": true
+  },
+  {
+   "claim": "A suffragist letter was planted in the murder compartment to frame Miss Dalby",
+   "anchor": "One was a small pocket-handkerchief, the other a sheet of notepaper",
+   "span": "One was a small pocket-handkerchief, the other a sheet of notepaper.",
+   "ok": true
+  },
+  {
+   "claim": "Duck-weed species showed Pedley was drowned elsewhere and body moved",
+   "anchor": "The duck-weed in this ditch is, of course, the Greater Duck-weed",
+   "span": "The duck-weed in this ditch is, of course, the Greater Duck-weed?",
+   "ok": true
+  },
+  {
+   "claim": "Millicent Fawcett was murdered by Frederick Barnett with help from others",
+   "anchor": "I accuse these three persons of being concerned in the murder of Miss Millicent Fawcett",
+   "span": "I accuse these three persons of being concerned in the murder of Miss Millicent Fawcett; Frederick Barnett as the principal who actually committed the murder, James Barnett as having aided him by holding the arms of the deceased, and Mrs.",
+   "ok": true
+  },
+  {
+   "claim": "Tattoo on arm was applied post-mortem to fake identity",
+   "anchor": "The mark that you saw was a post-mortem tattoo-mark",
+   "span": "The mark that you saw was a post-mortem tattoo-mark.",
+   "ok": true
+  },
+  {
+   "claim": "Blood in Joseph Riggs’s hall was from a negro with filariasis",
+   "anchor": "the person whose blood was found in the hall suffered from the parasitic disease known as filariasis",
+   "span": "that the person whose blood was found in the hall suffered from the parasitic disease known as filariasis.",
+   "ok": true
+  },
+  {
+   "claim": "The pearls were hidden in the pump in Jockey’s Fields",
+   "anchor": "Slowly she withdrew her hand, and as it came out of the slit it dragged something after it",
+   "span": "Slowly she withdrew her hand, and as it came out of the slit it dragged something after it.",
+   "ok": true
+  },
+  {
+   "claim": "The forged death certificates and cremation were part of a fraud to fake Ingle’s death",
+   "anchor": "The presence of five legs of mutton and the absence of a single recognizable fragment of a human skeleton",
+   "span": "The presence of five legs of mutton and the absence of a single recognizable fragment of a human skeleton, together with the forged certificates, gives us a pretty conclusive case.",
+   "ok": true
+  },
+  {
+   "claim": "The suffragist letter was duplicated and contained secret messages",
+   "anchor": "The possible presence of a secret message thus became of vital evidential importance",
+   "span": "The possible presence of a secret message thus became of vital evidential importance; for if it could be shown that this letter was addressed to some person other than Miss Dalby, that would dispose of the only evidence connecting her with the crime.",
+   "ok": true
+  },
+  {
+   "claim": "The blood in the hall was shed after 9pm and not from the deceased or suspect",
+   "anchor": "Hence it is certain that the blood found in the hall was not the blood of either of these two persons",
+   "span": "Hence it is certain that the blood found in the hall was not the blood of either of these two persons.",
+   "ok": true
+  },
+  {
+   "claim": "The Barnetts used a phonograph to create a false alibi",
+   "anchor": "There stood Thorndyke with the red table-cover at his feet, and at his side, on the small table, a massively-constructed phonograph",
+   "span": "There stood Thorndyke with the red table-cover at his feet, and at his side, on the small table, a massively-constructed phonograph of the kind used in offices for dictating letters, but fitted with a convoluted metal horn in place of the rubber ear-tubes.",
+   "ok": true
+  },
+  {
+   "claim": "The tattooed arm found in the box was not Rebecca Mings’s living arm",
+   "anchor": "Tattoo-marks are made, as you know, of course, by painting Indian ink on the skin and pricking it in with fine needles",
+   "span": "Tattoo-marks are made, as you know, of course, by painting Indian ink on the skin and pricking it in with fine needles.",
+   "ok": true
+  },
+  {
+   "claim": "The blood in the hall was from a negro with elephantiasis",
+   "anchor": "The leg which is swollen is probably the left",
+   "span": "The leg which is swollen is probably the left.",
+   "ok": true
+  },
+  {
+   "claim": "The elephant’s tail was stolen and found in Herrington’s chambers",
+   "anchor": "I charge this man, James Manford, with the murder of Stephan Bilsky",
+   "span": "I charge this man, James Manford, with the murder of Stephan Bilsky.",
+   "ok": true
+  },
+  {
+   "claim": "The blood in the hall was not from the deceased or suspect but from a third person",
+   "anchor": "I ascertained definitely that the blood in the hall was neither that of the deceased nor that of Robert Fletcher",
+   "span": "I ascertained definitely that the blood in the hall was neither that of the deceased nor that of Robert Fletcher.",
+   "ok": true
+  },
+  {
+   "claim": "The explosion and fire were arranged to cover a murder",
+   "anchor": "The destruction of a body which had been already burnt",
+   "span": "The appearance suggested the destruction of a body which had been already burnt; and this suggestion was emphasized by the curiously unequal distribution of the charring.",
+   "ok": true
+  },
+  {
+   "claim": "Bilsky was murdered by Manford who faked his own death",
+   "anchor": "The corpse was not the corpse of Manford and was presumably that of Bilsky",
+   "span": "",
+   "ok": false
+  }
+ ],
+ "costGbp": 0.086994484,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

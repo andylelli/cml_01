@@ -6,8 +6,8 @@
   {
    "claim": "Sanford Embury was found dead in his locked bedroom",
    "anchor": "he’s dead, and no doctors can help that!",
-   "span": "",
-   "ok": false
+   "span": "He's dead, and no doctors can help that! Oh, Alvord, can't you make them let San alone?",
+   "ok": true
   },
   {
    "claim": "The poison was administered through the ear",
@@ -18,7 +18,7 @@
   {
    "claim": "Medicine dropper containing henbane found in bathroom",
    "anchor": "By means of this,” Driscoll declared. “This fluid is henbane",
-   "span": "By means of this,” Driscoll declared. “This fluid is henbane--that is the commercial name of it--known to the profession, however, as hyoscyamus or hyoscyamine.",
+   "span": "By means of this,\" Driscoll declared. \"This fluid is henbane--that is the commercial name of it--known to the profession, however, as hyoscyamus or hyoscyamine.",
    "ok": true
   },
   {
@@ -36,19 +36,19 @@
   {
    "claim": "Aunt Abby Ames claimed to see victim's spirit and tasted raspberry jam",
    "anchor": "I tasted raspberry jam.”",
-   "span": "But, anyway, I bit at him, and so I bit at the woolen sleeve--it was unmistakable--and on it I tasted raspberry jam.” “What!",
+   "span": "But, anyway, I bit at him, and so I bit at the woolen sleeve--it was unmistakable--and on it I tasted raspberry jam.\" \"What!",
    "ok": true
   },
   {
    "claim": "Raspberry jam jar found on window sill of nearby apartment",
    "anchor": "there on the pantry window-sill sat what was unmistakably a jam jar!",
-   "span": "And to the boy’s astonished and delighted eyes, there on the pantry window-sill sat what was unmistakably a jam jar! So far, so good.",
+   "span": "And to the boy's astonished and delighted eyes, there on the pantry window-sill sat what was unmistakably a jam jar! So far, so good.",
    "ok": true
   },
   {
    "claim": "Alvord Hendricks had an alibi in Boston",
    "anchor": "He was in Boston from the afternoon of the day before Mr. Embury’s death",
-   "span": "He was in Boston from the afternoon of the day before Mr. Embury’s death until noon of the next day.",
+   "span": "He was in Boston from the afternoon of the day before Mr. Embury's death until noon of the next day.",
    "ok": true
   },
   {
@@ -102,7 +102,7 @@
   {
    "claim": "Alvord Hendricks bought hyoscyamine for earache treatment",
    "anchor": "Alvord Hendricks bought some hyoscyamine, on a doctor’s prescription, about a month ago",
-   "span": "So Terence McGuire learned that Alvord Hendricks bought some hyoscyamine, on a doctor’s prescription, about a month ago--the same to be used to relieve a serious case of earache.",
+   "span": "So Terence McGuire learned that Alvord Hendricks bought some hyoscyamine, on a doctor's prescription, about a month ago--the same to be used to relieve a serious case of earache.",
    "ok": true
   },
   {
@@ -130,5 +130,7 @@
   "encode": "gpt-4.1-mini",
   "sweep": "gpt-4o-mini"
  },
- "case_written": true
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
 }

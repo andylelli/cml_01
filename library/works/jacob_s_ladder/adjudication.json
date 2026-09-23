@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "Jacob Pratt is naive and easily fooled by Montague and Hartwell's scheme.",
+  "type": "behavioral",
+  "why_it_seems_reasonable": "Jacob is portrayed as a newly wealthy man unfamiliar with high finance and surrounded by suspicious characters, making it plausible he could be duped. His initial trust and social naivety support this belief.",
+  "what_it_hides": "Jacob is actually shrewd and anticipates the fraud, setting traps and using allies to outwit the criminals, demonstrating his competence and control."
+ },
+ "mechanism_description": "Montague and Hartwell orchestrated a fraudulent scheme involving the sale of a worthless property under the guise of a valuable one, using false documents and social influence to deceive investors. They kidnapped Jacob Pratt to extort a large sum by coercing him to sign an open cheque. Jacob, with the help of friends and his own foresight, anticipated their moves, set traps such as marking his cheque, and ultimately exposed the fraud and secured his financial interests.",
+ "discriminating_test": {
+  "method": "constraint_proof",
+  "design": "Jacob arranges with his bank that any cheque bearing his signature with two dots underneath is invalid. During the kidnapping, he signs an open cheque with these marks. The bank refuses payment on presentation, exposing the extortion attempt. Additionally, Lord Felixstowe investigates the supposed illness of Jacob's brother by visiting the doctor's address, proving the impersonation.",
+  "knowledge_revealed": "The invalid cheque proves the extortion is fraudulent and the kidnapping is a ploy. The doctor's absence reveals the impersonation and stock market fraud.",
+  "pass_condition": "The bank's refusal to honor the marked cheque and the discovery that the doctor is an impostor conclusively prove the criminal scheme."
+ },
+ "changed": [],
+ "confidence": "high"
+}

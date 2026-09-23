@@ -1,0 +1,410 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: Poison shadows
+    author: William Le Queux
+    license: Public domain (first published 1927; author died 1927). Project Gutenberg ebook 77378.
+    era:
+      decade: 1920s
+      realism_constraints:
+        - No modern forensic toxicology could detect the secret time-poison ipoh gadong.
+        - Communication by telegram and telephone was common but slow compared to modern standards.
+        - >-
+          Travel by train and automobile was prevalent; international travel by ocean liner was
+          routine.
+    setting:
+      location: >-
+        England, primarily Hampton Court and London; also scenes in Switzerland and the French
+        Riviera
+      institution: Scotland Yard Criminal Investigation Department
+    crime_class:
+      category: murder
+      subtype: secret time-poisoning by invisible ink and contaminated mahogany splinters
+  cast:
+    - name: Sibell Dare
+      age_range: early 20s
+      role_archetype: young heiress and victim of conspiracy
+      relationships:
+        - Brinsley Otway (lover)
+        - Gordon Routh (guardian)
+        - Etta Wyndcliffe (aunt)
+        - Gussie Gretton (suitor)
+      public_persona: rich heiress compelled to live in the Guest House
+      private_secret: determined to uncover the mystery of the house's evil influence
+      motive_seed: inheritance and love for Brinsley Otway
+      motive_strength: none
+      alibi_window: throughout the story, present at various locations
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells:
+        - innocent but determined
+        - naive about conspiracies
+      stakes: high - her life and fortune
+      evidence_sensitivity: []
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: female
+      role: victim
+      moral_complexity: low
+    - name: Brinsley Otway
+      age_range: late 20s to early 30s
+      role_archetype: young doctor and lover
+      relationships:
+        - Sibell Dare (lover)
+        - Gussie Gretton (rival)
+        - Moyna Lascelles (friend)
+        - Jack Cranston (friend)
+      public_persona: hard-working suburban doctor
+      private_secret: deeply in love with Sibell, suspicious of conspiracies
+      motive_seed: love and protection of Sibell
+      motive_strength: none
+      alibi_window: present at various locations, including Guest House and abroad
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells:
+        - trusting
+        - susceptible to jealousy
+      stakes: high - love and life
+      evidence_sensitivity: []
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: low
+    - name: John Dare (alias Bettinson, Pearson, 'The Chameleon')
+      age_range: elderly
+      role_archetype: criminal lunatic and culprit
+      relationships:
+        - Henry Dare (brother, deceased)
+        - Etta Wyndcliffe (accomplice)
+        - Albert Ashe (accomplice)
+      public_persona: collector of antiques, mysterious visitor
+      private_secret: possessor and user of secret time-poison ipoh gadong
+      motive_seed: revenge and possession of the Guest House
+      motive_strength: strong
+      alibi_window: nighttime intrusions at the Guest House
+      access_plausibility: high - secret cellar exit
+      opportunity_channels:
+        - secret cellar exit
+        - nighttime visits
+      behavioral_tells:
+        - wears gloves and slippers at night
+        - uses green light
+        - uttered incantations
+      stakes: high - control of property and elimination of rivals
+      evidence_sensitivity:
+        - fountain pen with poisoned ink
+        - mahogany splinters from banister
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Etta Wyndcliffe
+      age_range: early 30s
+      role_archetype: society adventuress and conspirator
+      relationships:
+        - Sibell Dare (niece)
+        - Albert Ashe (accomplice)
+        - Rupert Kimball (former lover)
+        - Gordon Routh (associate)
+      public_persona: Countess, aunt to Sibell, chaperon
+      private_secret: schemer seeking financial gain by breaking Sibell's engagement
+      motive_seed: money and commission from Sibell's marriage
+      motive_strength: strong
+      alibi_window: present in London and abroad at various times
+      access_plausibility: moderate
+      opportunity_channels:
+        - social influence
+        - introducing Kimball to Guest House
+      behavioral_tells:
+        - greedy
+        - manipulative
+        - fearful of exposure
+      stakes: high - financial gain
+      evidence_sensitivity: []
+      culprit_eligibility: locked
+      culpability: unknown
+      gender: female
+      role: suspect
+      moral_complexity: high
+    - name: Albert Ashe
+      age_range: middle-aged
+      role_archetype: ex-butler and conspirator
+      relationships:
+        - Etta Wyndcliffe (accomplice)
+        - John Dare (associate)
+        - Sibell Dare (employer)
+      public_persona: former butler to Lady Wyndcliffe
+      private_secret: accomplice in schemes to separate Sibell and Otway
+      motive_seed: personal gain and survival
+      motive_strength: moderate
+      alibi_window: present in London and abroad
+      access_plausibility: high
+      opportunity_channels:
+        - introducing Kimball to Guest House
+        - managing conspiracies
+      behavioral_tells:
+        - arrogant
+        - scheming
+        - fearful of the poison
+      stakes: moderate
+      evidence_sensitivity: []
+      culprit_eligibility: locked
+      culpability: unknown
+      gender: male
+      role: suspect
+      moral_complexity: high
+    - name: Gordon Routh
+      age_range: elderly
+      role_archetype: guardian and gambler
+      relationships:
+        - Sibell Dare (ward)
+        - Etta Wyndcliffe (associate)
+        - Gussie Gretton (associate)
+      public_persona: ward's guardian and gambler
+      private_secret: involved in schemes to profit from Sibell's marriage
+      motive_seed: financial gain
+      motive_strength: moderate
+      alibi_window: present at Cookham and London
+      access_plausibility: moderate
+      opportunity_channels: []
+      behavioral_tells:
+        - optimistic gambler
+        - schemer
+      stakes: moderate
+      evidence_sensitivity: []
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: moderate
+  culpability:
+    culprit_count: 1
+    culprits:
+      - John Dare (alias Bettinson, Pearson, 'The Chameleon')
+  surface_model:
+    narrative:
+      summary: >-
+        The Guest House at Hampton Court is reputedly cursed, with mysterious illnesses and deaths
+        among men who enter. Sibell Dare inherits the house and faces sinister plots to separate her
+        from her lover, Brinsley Otway, amid strange occurrences and suspicious characters.
+    accepted_facts:
+      - >-
+        Several men who entered the Guest House suffered sudden heart attacks or mysterious
+        illnesses.
+      - The house had been closed for thirty years and recently reopened for Sibell Dare to live in.
+      - >-
+        A mysterious old man named Bettinson visited the house and was seen uttering strange
+        incantations.
+      - >-
+        Sibell Dare's engagement to Brinsley Otway was sabotaged by a conspiracy involving her aunt
+        and others.
+    inferred_conclusions:
+      - The mysterious illnesses were caused by a supernatural curse or evil spirits.
+      - Women were immune to the curse because of their nature or protective charms.
+      - The deaths were coincidental and due to natural heart disease.
+  hidden_model:
+    mechanism:
+      description: >-
+        John Dare, a criminal lunatic known as 'The Chameleon,' used a secret time-poison called
+        ipoh gadong, applied via poisoned ink in a fountain pen and splinters of mahogany on the
+        banister. He infected victims by pricking them imperceptibly, causing delayed fatal heart
+        disease. His secret cellar exit allowed him to enter the house undetected at night.
+      delivery_path:
+        - step: John Dare enters the Guest House at night through a secret cellar exit.
+        - step: He carries a green light and wears gloves and slippers to avoid detection.
+        - step: >-
+            He fills a fountain pen with poisoned ink (ipoh gadong) and contaminates the pen and the
+            mahogany banister.
+        - step: >-
+            Victims touch the poisoned pen or the banister, receiving imperceptible pricks or
+            contact with the poison.
+        - step: The poison acts as a time-delayed toxin causing heart failure days or weeks later.
+        - step: >-
+            John Dare is confronted and struggles with the police, fatally stabbing himself
+            accidentally.
+        - step: The poisoned objects are analyzed, confirming the presence of the secret poison.
+    outcome:
+      result: >-
+        John Dare is caught and dies, the secret poison is discovered, and Sibell and Otway
+        reconcile and live safely in the Guest House.
+  false_assumption:
+    statement: The mysterious illnesses and deaths were caused by a supernatural curse or evil spirits.
+    type: behavioral
+    why_it_seems_reasonable: >-
+      The house had a long history of sudden deaths and eerie phenomena, and witnesses reported
+      strange lights and incantations. The pattern of male victims and the mysterious green light
+      supported the idea of a curse.
+    what_it_hides: >-
+      It conceals the human agency and the use of a secret poison by John Dare, diverting suspicion
+      from a rational explanation to superstition.
+  false_solution:
+    accused_suspect: Gussie Gretton
+    supporting_points:
+      - He was seen with Sibell at odd hours and was jealous of Otway.
+      - He had a motive to marry Sibell and gain her fortune.
+      - His behavior was suspicious and he had opportunity to influence events.
+      - He was involved in the social circle conspiring against Sibell and Otway.
+    the_one_flaw: He had no access to the secret poison or means to cause the mysterious heart attacks.
+    refuted_in_chapter: 32
+  red_herrings:
+    - id: etta_wyndcliffe
+      description: >-
+        Etta Wyndcliffe, Sibell's aunt, is a scheming society adventuress pushing for Sibell to
+        marry Gussie Gretton for financial gain.
+      points_at_suspect: Gussie Gretton
+      innocent_explanation: >-
+        Etta is motivated by money and social climbing but does not have the means or knowledge to
+        commit the poisonings.
+      resolved_in_chapter: 32
+    - id: green_light
+      description: >-
+        The mysterious green light seen in the Guest House windows at night is believed to be
+        supernatural or a ghostly sign.
+      points_at_suspect: Supernatural forces or unknown intruder
+      innocent_explanation: The green light was used by John Dare as a signal and cover for his nocturnal activities.
+      resolved_in_chapter: 32
+  closed_circle:
+    suspects:
+      - John Dare (alias Bettinson, Pearson, 'The Chameleon')
+      - Etta Wyndcliffe
+      - Albert Ashe
+      - Gussie Gretton
+      - Brinsley Otway
+      - Sibell Dare
+      - Gordon Routh
+    rationale: >-
+      The suspects are limited to those with access to the Guest House, motive, and opportunity,
+      including family, associates, and the mysterious visitor Bettinson.
+  constraint_space:
+    time:
+      anchors:
+        - Nighttime visits by John Dare
+        - Daytime presence of Sibell and others
+        - Auction days at the Guest House
+        - Winter sports season in Switzerland
+        - Travel dates between England, Switzerland, and the Riviera
+      windows:
+        - Night hours when Dare entered the house
+        - Daytime when Sibell and Otway were together
+        - Auction and renovation period at the Guest House
+    access:
+      actors:
+        - John Dare
+        - Sibell Dare
+        - Etta Wyndcliffe
+        - Albert Ashe
+        - Gordon Routh
+        - Gussie Gretton
+        - Brinsley Otway
+      objects:
+        - Secret cellar exit
+        - Fountain pen
+        - Mahogany banister
+        - Guest House rooms
+        - Auctioned furniture
+    social:
+      trust_channels:
+        - Sibell's trust in Otway
+        - Etta's influence over Sibell and Gussie
+        - Ashe's role as butler and conspirator
+        - Police trust in Charlesworth and Budd
+      authority_sources:
+        - Scotland Yard CID
+        - Paris Sûreté
+        - Home Office pathologist
+        - Coroner's inquest
+  inference_path:
+    steps:
+      - observation: Several men suffered sudden heart attacks after visiting the Guest House.
+        correction: These were not natural or coincidental but caused by a hidden agent.
+        effect: Focus shifts to a deliberate cause of death.
+        required_evidence:
+          - Medical reports of heart attacks with no prior symptoms
+          - Witness statements of men visiting the Guest House before illness
+        reader_observable: true
+      - observation: No woman visiting the house suffered illness.
+        correction: The poison or mechanism selectively affected men.
+        effect: Suggests a contact or behavioral difference in exposure.
+        required_evidence:
+          - Records of visitors and their health outcomes
+          - Analysis of contact points like furniture and objects
+        reader_observable: true
+      - observation: A mysterious old man named Bettinson was seen uttering incantations in the house.
+        correction: He was the criminal lunatic John Dare using disguises.
+        effect: Identifies the suspect and his modus operandi.
+        required_evidence:
+          - Witness statement of Farmer describing Bettinson's behavior
+          - Police identification of Dare as Bettinson
+        reader_observable: true
+      - observation: A fountain pen and mahogany splinters were found contaminated with poison.
+        correction: These were the delivery mechanisms for the secret poison.
+        effect: Reveals the method of poisoning.
+        required_evidence:
+          - Home Office pathologist's analysis of pen and splinters
+          - Forensic examination of the banister and pen
+        reader_observable: true
+      - observation: John Dare had a secret cellar exit to the house.
+        correction: He used this to enter and exit undetected at night.
+        effect: Explains how the culprit accessed the house despite security.
+        required_evidence:
+          - Discovery of cellar exit behind wine bins
+          - Surveillance and police reports of Dare's movements
+        reader_observable: true
+      - observation: >-
+          Charlesworth and Budd, aided by Sibell's servants, kept a night vigil in the Guest House
+          to catch the intruder.
+        correction: >-
+          The vigil revealed the intruder was John Dare, who was caught contaminating the pen and
+          banister while wearing gloves and slippers.
+        effect: >-
+          The method and identity of the intruder were exposed by the servants' and police's
+          vigilance.
+        required_evidence:
+          - Servants' and police statements describing the vigil and the intruder's actions
+          - Physical evidence of gloves, slippers, and green light found during the catch
+        reader_observable: true
+      - observation: John Dare dies after stabbing himself during arrest.
+        correction: His death ends the series of poisonings and reveals the truth.
+        effect: Case closure and resolution.
+        required_evidence:
+          - Police arrest report
+          - Autopsy and toxicology reports
+        reader_observable: true
+  discriminating_test:
+    method: reenactment
+    design: >-
+      The police and Sibell's servants keep a night vigil in the Guest House to catch the intruder.
+      They observe the green light and the intruder's use of gloves and slippers, and catch him
+      contaminating the fountain pen and banister with poison. The test replicates the conditions
+      under which the poison is delivered.
+    knowledge_revealed: >-
+      This reveals the identity of the intruder, his method of poisoning, and the secret cellar exit
+      he uses to enter the house.
+    pass_condition: The intruder is caught in the act of contaminating objects with poison and cannot escape.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given detailed descriptions of the mysterious green light, the strange
+      illnesses, the presence of the old man Bettinson, and the poisoned pen and mahogany splinters.
+      The clues about the secret cellar exit and the selective effect on men are present. The social
+      conspiracies and suspicious characters are fully described. The reader could deduce the use of
+      a secret poison and the identity of the culprit by careful attention to these details.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

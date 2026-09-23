@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "The skeleton found in the city wall is the actual body of Angelina Frood.",
+  "type": "identity",
+  "why_it_seems_reasonable": "The skeleton was found dressed in Angelina's clothes and jewelry, and the disappearance of Angelina coincided with the discovery. The presence of personal effects and the skeleton's location strongly suggested it was her body.",
+  "what_it_hides": "It conceals that the skeleton was an ancient specimen purchased and planted by Angelina herself to fake her death, while she lived disguised as Mr. Bundy."
+ },
+ "mechanism_description": "Angelina Frood faked her disappearance and death by purchasing an ancient skeleton from a dealer and dressing it in her clothes to bury it in the city wall, creating the illusion of her death. She disguised herself as Mr. Bundy, a man with feminine features, to live undetected in Rochester. The real Nicholas Frood died earlier from a cocaine overdose, removing him from suspicion. Dr. Thorndyke uncovered the deception through photographic comparison, fingerprint analysis, and forensic evidence.",
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "Dr. Thorndyke and Dr. Strangeways visited Angelina's house to powder and photograph fingerprints on objects she had touched, including a tumbler and water bottle. They compared these prints with those found on photographs of Mr. Bundy, revealing identity. Photographic composites were created to compare facial features of Bundy and Angelina, confirming they were the same person.",
+  "knowledge_revealed": "The test revealed that Mr. Bundy was actually Angelina Frood in disguise, proving the personation and faked death.",
+  "pass_condition": "Matching fingerprints and photographic facial features conclusively demonstrate the identity of Mr. Bundy as Angelina Frood."
+ },
+ "changed": [],
+ "confidence": "high"
+}

@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "The murders and disappearance were unrelated and caused by different criminals.",
+  "type": "identity",
+  "why_it_seems_reasonable": "The victims belonged to different households and the crimes appeared distinct in method and timing. The presence of multiple suspects and unrelated motives suggested separate culprits.",
+  "what_it_hides": "It conceals that all crimes were orchestrated by a single mastermind, Henry Orbit, who used his household access and knowledge to commit multiple murders and a kidnapping."
+ },
+ "mechanism_description": "Henry Orbit, descended from a criminal lineage, deliberately poisoned his valet Hughes with Calabar bean dissolved in a drink and sent him on an errand to a distant part of town where he collapsed and died. He then drugged Horace Goddard with luminal in milk, carried him to his cellar, and buried him under coal. Lucette was murdered by poison gas released from a toy balloon filled with a secret formula gas. Orbit planned his own annihilation using hydrofluoric acid but was discovered and cornered.",
+ "discriminating_test": {
+  "method": "trap",
+  "design": "McCarty and Dennis set a trap by purchasing and testing toy balloons from the local vendor, checking for poison gas presence by observing color changes and testing gas release. They also monitored the balloons for suspicious handling and disappearance to confirm the delivery method of poison gas.",
+  "knowledge_revealed": "This test revealed that the poison gas was delivered via toy balloons filled with a deadly gas that changed color and decomposed over time, confirming the murder method used on Lucette.",
+  "pass_condition": "Detection of color change and decomposition in the balloon rubber, and confirmation that the balloons contained poison gas."
+ },
+ "changed": [],
+ "confidence": "high"
+}

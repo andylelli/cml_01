@@ -1,0 +1,136 @@
+{
+ "slug": "the_rat_trap",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Quentin was a man of means and leisure but also a criminal",
+   "anchor": "He was a man of means who spent the greater part of his life in travel",
+   "span": "All we knew was that he was a man of means who spent the greater part of his life in travel.",
+   "ok": true
+  },
+  {
+   "claim": "Eileen is not legally married to Quentin",
+   "anchor": "Richard Quentin is not my husband; we are not man and wife",
+   "span": "But Richard Quentin is not my husband; we are not man and wife.",
+   "ok": true
+  },
+  {
+   "claim": "Quentin tried to borrow money from Aylmer",
+   "anchor": "If he makes any suggestion of this kind to you, you will firmly decline",
+   "span": "I want you to promise me that if he makes any suggestion of this kind to you, you will firmly decline for any reason you may think fit to invent.",
+   "ok": true
+  },
+  {
+   "claim": "Quentin's butler Dicks was involved in criminal activities",
+   "anchor": "That very respectable butler, Dicks, was, no doubt, another member of the gang",
+   "span": "That very respectable butler, Dicks, was, no doubt, another member of the gang, at any rate acted for Quentin in some useful capacity.",
+   "ok": true
+  },
+  {
+   "claim": "Ramon was a known criminal associate of Quentin",
+   "anchor": "He obtained a situation as clerk in a City house, and six months later was discharged for the embezzlement",
+   "span": "He obtained a situation as clerk in a City house, and six months later was discharged for the embezzlement of small sums.",
+   "ok": true
+  },
+  {
+   "claim": "Quentin's fingerprints found on dispatch-box linked him to crime",
+   "anchor": "They were exact. The finger-prints on the tumbler coincided in every detail",
+   "span": "They were exact. The finger-prints on the tumbler coincided in every detail with the finger-prints on the bag which had belonged to Sir Charles Reeks.",
+   "ok": true
+  },
+  {
+   "claim": "Quentin used a rare poison on the pillow-case to murder",
+   "anchor": "That pillow-case was sprinkled with a little-known but most powerful poison",
+   "span": "That pillow-case was sprinkled with a little-known but most powerful poison.",
+   "ok": true
+  },
+  {
+   "claim": "Quentin attempted to poison Whitefield similarly",
+   "anchor": "Equally certain that this miscreant intended to remove Whitefield, by the same means",
+   "span": "Equally certain that this miscreant intended to remove Whitefield, by the same means.",
+   "ok": true
+  },
+  {
+   "claim": "Quentin committed suicide upon arrest",
+   "anchor": "Quick as lightning he whipped out the pistol, put the muzzle to his head, and fired with instantaneous and fatal effect",
+   "span": "Quick as lightning he whipped out the pistol, put the muzzle to his head, and fired with instantaneous and fatal effect.",
+   "ok": true
+  },
+  {
+   "claim": "Eileen was unaware of Quentin's criminal plans",
+   "anchor": "I would stake my life on it she is",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Martyn was not involved in the murder",
+   "anchor": "I tell you I am not going to take part or lot in it. I never have approved of this kind of thing",
+   "span": "These were the words: 'I tell you I am not going to take part or lot in it. I never have approved of this kind of thing.",
+   "ok": true
+  },
+  {
+   "claim": "Quentin's financial schemes were a motive",
+   "anchor": "He was getting anxious about his wife when anything happened to him",
+   "span": "He was getting anxious about his wife when anything happened to him.",
+   "ok": true
+  },
+  {
+   "claim": "Quentin's sudden departure from Hampstead",
+   "anchor": "He was always very impulsive. When he once got an idea in his head, he would carry it out",
+   "span": "But he was always very impulsive. When he once got an idea in his head, he would carry it out, as it seemed, without stopping to think.",
+   "ok": true
+  },
+  {
+   "claim": "Quentin's heavy drinking and temperament",
+   "anchor": "He was also a heavy drinker. In the daytime, the whisky decanter was never far from his elbow",
+   "span": "Well, there's no harm in that, but he was also a heavy drinker. In the daytime, the whisky decanter was never far from his elbow, and at dinner he used to consume a great deal of wine.",
+   "ok": true
+  },
+  {
+   "claim": "Quentin's attempt to get the receipt from Whitefield's room",
+   "anchor": "Simply to get hold of the receipt he had given you, and destroy it",
+   "span": "Simply to get hold of the receipt he had given you, and destroy it.",
+   "ok": true
+  },
+  {
+   "claim": "Quentin's plan was foiled by Aylmer's intervention",
+   "anchor": "I went into your room last night, removed your pillow-case",
+   "span": "I went into your room last night, removed your pillow-case, which I replaced with one similar in appearance, and sent it to my friend Dumont, one of the greatest toxicologists in Europe, for analysis.",
+   "ok": true
+  },
+  {
+   "claim": "Quentin was the leader of a hotel robbery gang",
+   "anchor": "He was one of the chiefs of a big gang who carried on their depredations in the various capitals of Europe",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The jewel robbery at Ostend was engineered by Quentin",
+   "anchor": "There has so far been no robbery during his sojourn here, but there certainly was one at the hotel in Ostend",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Quentin used Eileen's jewelry theft as a diversion",
+   "anchor": "That was a clever touch of his, having some of his wife’s jewellery stolen at the same time",
+   "span": "That was a clever touch of his, having some of his wife's jewellery stolen at the same time, not the best of her collection, you remember.",
+   "ok": true
+  },
+  {
+   "claim": "Quentin's real name was Sanderson",
+   "anchor": "His real name is Sanderson, he was a man of good education",
+   "span": "But his real name is Sanderson, he was a man of good education, and, I believe, of decent family.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.1166909,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

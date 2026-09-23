@@ -1,0 +1,463 @@
+{
+ "decade": "1920s",
+ "realism_constraints": [
+  "No forensic detection of arrow poison due to its trace-free nature",
+  "Telephones and telegrams are in use for communication",
+  "Locked rooms and secret passages can be physically accessed and searched"
+ ],
+ "location": "Dijon, France",
+ "institution": "Sûreté of Paris and local Dijon police",
+ "crime_category": "murder",
+ "crime_subtype": "poison arrow murder concealed by anonymous letters and blackmail",
+ "cast": [
+  {
+   "name": "Jim Frobisher",
+   "age_range": "20-30",
+   "role_archetype": "young, inexperienced but earnest solicitor",
+   "role": "detective",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "junior partner at Frobisher & Haslitt",
+   "private_secret": "none",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "throughout investigation",
+   "access_plausibility": "full access to investigation and locations",
+   "stakes": "professional reputation and client welfare",
+   "moral_complexity": "low",
+   "relationships": [
+    "Betty Harlowe (client)",
+    "Hanaud (colleague)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Betty Harlowe",
+   "age_range": "20-25",
+   "role_archetype": "young heiress, accused, emotionally complex",
+   "role": "suspect",
+   "gender": "female",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "innocent niece and adopted daughter",
+   "private_secret": "murderer and blackmailer",
+   "motive_seed": "inheritance and desire for power",
+   "motive_strength": "strong",
+   "alibi_window": "at ball from 9pm to after 1am",
+   "access_plausibility": "full access to house and secret passage",
+   "stakes": "inheritance, freedom, reputation",
+   "moral_complexity": "high",
+   "relationships": [
+    "Ann Upcott (friend and accomplice)",
+    "Francine Rollard (maid and accomplice)",
+    "Boris Waberski (blackmailer and conspirator)"
+   ],
+   "opportunity_channels": [
+    "secret passage",
+    "maid's assistance",
+    "possession of poison arrow"
+   ],
+   "behavioral_tells": [
+    "petulance",
+    "hatred of blackmailer",
+    "calculated cruelty"
+   ],
+   "evidence_sensitivity": [
+    "anonymous letters",
+    "poison arrow pen-holder",
+    "missing pearl necklace"
+   ]
+  },
+  {
+   "name": "Ann Upcott",
+   "age_range": "20-25",
+   "role_archetype": "paid companion, secretive, victim and conspirator",
+   "role": "culprit",
+   "gender": "female",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "innocent companion and friend",
+   "private_secret": "accomplice in murder and blackmail",
+   "motive_seed": "poverty and loyalty to Betty",
+   "motive_strength": "moderate",
+   "alibi_window": "at home during murder, later abducted and escaped",
+   "access_plausibility": "full access to house and secret passage",
+   "stakes": "freedom, survival",
+   "moral_complexity": "high",
+   "relationships": [
+    "Betty Harlowe (friend and leader)",
+    "Boris Waberski (introducer and conspirator)"
+   ],
+   "opportunity_channels": [
+    "secret passage",
+    "possession of poison arrow pen-holder"
+   ],
+   "behavioral_tells": [
+    "fear",
+    "acting terror",
+    "confession under pressure"
+   ],
+   "evidence_sensitivity": [
+    "anonymous letters",
+    "poison arrow pen-holder"
+   ]
+  },
+  {
+   "name": "Francine Rollard",
+   "age_range": "20-30",
+   "role_archetype": "maid, timid but complicit",
+   "role": "culprit",
+   "gender": "female",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "loyal maid",
+   "private_secret": "accomplice in murder",
+   "motive_seed": "fear and loyalty",
+   "motive_strength": "weak",
+   "alibi_window": "present in house during murder",
+   "access_plausibility": "full access to house",
+   "stakes": "freedom",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Betty Harlowe (mistress)",
+    "Ann Upcott (accomplice)"
+   ],
+   "opportunity_channels": [
+    "presence in house",
+    "participation in murder reenactment"
+   ],
+   "behavioral_tells": [
+    "fear of police",
+    "reluctance in reenactment"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Boris Waberski",
+   "age_range": "40-50",
+   "role_archetype": "blackmailer, disgruntled relative",
+   "role": "suspect",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "eligible",
+   "public_persona": "blackmailer and accuser",
+   "private_secret": "no direct involvement in murder",
+   "motive_seed": "financial gain",
+   "motive_strength": "moderate",
+   "alibi_window": "away fishing during murder",
+   "access_plausibility": "had latch-key but away",
+   "stakes": "money",
+   "moral_complexity": "low",
+   "relationships": [
+    "Betty Harlowe (accused)",
+    "Ann Upcott (associate)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "extravagant",
+    "emotional",
+    "false accusation"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Hanaud",
+   "age_range": "40-60",
+   "role_archetype": "experienced, eccentric detective",
+   "role": "detective",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "Sûreté detective",
+   "private_secret": "none",
+   "motive_seed": "justice",
+   "motive_strength": "strong",
+   "alibi_window": "throughout investigation",
+   "access_plausibility": "full access",
+   "stakes": "truth and justice",
+   "moral_complexity": "medium",
+   "relationships": [
+    "Jim Frobisher (colleague)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "eccentricity",
+    "theatricality",
+    "persistence"
+   ],
+   "evidence_sensitivity": []
+  }
+ ],
+ "culprits": [
+  "Betty Harlowe",
+  "Ann Upcott",
+  "Francine Rollard"
+ ],
+ "surface_summary": "Mrs. Harlowe's death is initially thought natural but soon suspected as murder by poison. Betty Harlowe is accused, but her alibi at a ball seems strong. The investigation uncovers anonymous letters, a secret passage, and a missing pearl necklace, with suspicion falling on Betty's friend Ann Upcott and maid Francine Rollard.",
+ "accepted_facts": [
+  "Mrs. Harlowe died on the night of April 27th",
+  "Betty Harlowe was at a ball from 9pm to after 1am",
+  "No poison trace was found in Mrs. Harlowe's body",
+  "A poison arrow head was found hidden as a pen-holder"
+ ],
+ "inferred_conclusions": [
+  "Betty Harlowe is innocent due to her alibi",
+  "Boris Waberski is the murderer due to motive and accusation",
+  "Ann Upcott is innocent and a victim of suspicion"
+ ],
+ "mechanism_description": "Mrs. Harlowe was murdered by poison administered via a rare African arrow-poison. Betty Harlowe, with the help of her maid Francine Rollard, used the secret passage to access the victim and applied the poison using the arrow head disguised as a pen-holder. Ann Upcott was complicit in the conspiracy but was ultimately abducted and escaped. The crime was uncovered through investigation of the secret passage, timing, and discovery of the arrow head and missing pearl necklace.",
+ "delivery_path": [
+  "Betty Harlowe and Francine Rollard prepared the poison arrow and hypodermic needle",
+  "On the night of April 27th, Mrs. Harlowe unlocked the secret passage to the treasure-room",
+  "Betty and Francine entered via the secret passage and administered the poison",
+  "Ann Upcott was present but unaware of the murder details, later abducted to prevent disclosure",
+  "The arrow head was hidden in a pen-holder in Ann Upcott's room",
+  "The pearl necklace was stolen to provide motive and misdirect suspicion",
+  "Jean Cladel, the herbalist who prepared the poison solution, was murdered to silence him"
+ ],
+ "outcome_result": "Betty Harlowe, Ann Upcott, and Francine Rollard are arrested and charged with the murder of Mrs. Harlowe.",
+ "false_assumption": {
+  "statement": "Betty Harlowe's alibi at the ball proves her innocence of the murder.",
+  "type": "temporal",
+  "why_it_seems_reasonable": "Betty was seen at a public ball from 9pm to after 1am, which covers the time of the murder. Witnesses and a clock confirm her presence away from the crime scene.",
+  "what_it_hides": "The murder was committed earlier in the night before Betty left for the ball, using a secret passage and accomplices, allowing her to establish an alibi while the crime was committed."
+ },
+ "false_solution": {
+  "accused_suspect": "Boris Waberski",
+  "supporting_points": [
+   "He accused Betty Harlowe of poisoning Mrs. Harlowe",
+   "He had a financial motive as a disgruntled relative expecting inheritance",
+   "He was seen near the herbalist's shop where poison was obtained",
+   "He was absent during the murder, suggesting opportunity for a frame-up"
+  ],
+  "the_one_flaw": "He was away fishing during the time of the murder and had no access to the victim",
+  "refuted_in_chapter": 7
+ },
+ "red_herrings": [
+  {
+   "id": "boris_waberski_accusation",
+   "description": "Boris Waberski accuses Betty Harlowe of poisoning Mrs. Harlowe and demands money.",
+   "points_at_suspect": "Betty Harlowe",
+   "innocent_explanation": "Boris is a blackmailer motivated by greed and spite, with no actual involvement in the murder.",
+   "resolved_in_chapter": 7
+  },
+  {
+   "id": "ann_upcott_night_story",
+   "description": "Ann Upcott claims to have heard a struggle and a whisper 'That will do now' on the night of the murder.",
+   "points_at_suspect": "Ann Upcott",
+   "innocent_explanation": "Ann's story is partly true but she was manipulated and coerced; she is an accomplice but not the primary murderer.",
+   "resolved_in_chapter": 10
+  }
+ ],
+ "closed_circle": {
+  "suspects": [
+   "Betty Harlowe",
+   "Ann Upcott",
+   "Francine Rollard",
+   "Boris Waberski",
+   "Jeanne Baudin"
+  ],
+  "rationale": "All had access to the house and potential motives; others were excluded by alibis or lack of opportunity."
+ },
+ "constraint_space": {
+  "time_anchors": [
+   "Night of April 27th, murder time around half-past ten",
+   "Betty at ball from 9pm to after 1am",
+   "Jean Cladel murdered late at night",
+   "Ann Upcott's escape planned for night of Madame Le Vay's ball"
+  ],
+  "time_windows": [
+   "Murder committed before Betty left for ball",
+   "Arrow hidden after murder before investigation",
+   "Ann Upcott abducted after murder to prevent disclosure"
+  ],
+  "access_actors": [
+   "Betty Harlowe",
+   "Ann Upcott",
+   "Francine Rollard",
+   "Boris Waberski"
+  ],
+  "access_objects": [
+   "Secret passage between Maison Grenelle and Hôtel de Brebizart",
+   "Locked cabinet in treasure-room",
+   "Poison arrow pen-holder",
+   "Pearl necklace"
+  ],
+  "trust_channels": [
+   "Letters between Simon Harlowe and Mrs. Harlowe",
+   "Anonymous letters signed 'The Scourge'",
+   "Letters from Boris Waberski"
+  ],
+  "authority_sources": [
+   "Examining Magistrate of Dijon",
+   "Sûreté of Paris",
+   "Commissary Girardot",
+   "Notary Monsieur Bex"
+  ]
+ },
+ "inference_path": [
+  {
+   "observation": "Betty Harlowe was at a ball from 9pm to after 1am",
+   "correction": "Murder occurred before 9pm",
+   "effect": "Betty's alibi does not exclude her guilt",
+   "required_evidence": [
+    "Ann Upcott's statement of hearing struggle and whisper at half-past ten",
+    "Clock on marquetry cabinet showing half-past ten"
+   ]
+  },
+  {
+   "observation": "No poison trace found in Mrs. Harlowe's body",
+   "correction": "Arrow poison leaves no trace",
+   "effect": "Poisoning by arrow poison is plausible despite negative autopsy",
+   "required_evidence": [
+    "Treatise on Strophanthus Hispidus describing arrow poison",
+    "Discovery of poison arrow head with pen-holder disguise"
+   ]
+  },
+  {
+   "observation": "Anonymous letters accuse Betty and demand money",
+   "correction": "Letters are part of blackmail scheme by Betty and accomplices",
+   "effect": "Letters are a cover for murder and extortion",
+   "required_evidence": [
+    "Typed letters from Corona machine found in treasure-room",
+    "Blackmail letters signed 'The Scourge'"
+   ]
+  },
+  {
+   "observation": "Secret passage exists between Maison Grenelle and Hôtel de Brebizart",
+   "correction": "Murderers used secret passage to commit crime and hide evidence",
+   "effect": "Access to victim and concealment of evidence explained",
+   "required_evidence": [
+    "Discovery of secret passage in locked cabinet",
+    "Historical records of passage construction"
+   ]
+  },
+  {
+   "observation": "Pearl necklace missing from jewel-case",
+   "correction": "Necklace stolen to provide motive and misdirect suspicion",
+   "effect": "Motive for murder and theft established",
+   "required_evidence": [
+    "Jewel-case found unlocked with necklace missing",
+    "Recovered pearl necklace found in matchbox"
+   ]
+  },
+  {
+   "observation": "Jean Cladel found murdered with stab wound",
+   "correction": "Cladel murdered to silence him about poison preparation",
+   "effect": "Eliminates witness and links herbalist to poison",
+   "required_evidence": [
+    "Body of Jean Cladel found in back room",
+    "Medical report of stab wound and time of death"
+   ]
+  },
+  {
+   "observation": "Arrow head found disguised as pen-holder",
+   "correction": "Arrow used as hypodermic needle for poison injection",
+   "effect": "Confirms murder weapon and method",
+   "required_evidence": [
+    "Pen-holder with arrow head found in Ann Upcott's room",
+    "Hanaud's experiment reenacting whisper and light switch"
+   ]
+  }
+ ],
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "Hanaud stages a reenactment of the murder scene with Francine Rollard and Betty Harlowe in the bedroom and treasure-room, replicating Ann Upcott's account of the whisper 'That will do now' and the light switch. The test aims to observe reactions and verify the plausibility of the murder method and presence of suspects.",
+  "knowledge_revealed": "The reenactment confirms the position of the murderer and the use of the whisper, but fails to break Francine's silence, indicating her fear rather than guilt. It also reveals Betty's readiness to use poison on herself, confirming her guilt and desperation.",
+  "pass_condition": "Successful reenactment matches Ann Upcott's story and reveals behavioral tells that distinguish the guilty parties."
+ },
+ "fair_play_explanation": "The reader is given all essential clues: the timing of the murder, the secret passage, the missing pearl necklace, the poison arrow and its unique properties, the anonymous letters, and the alibis of suspects. The detective's reasoning and the reenactment provide a logical path to identify the murderers. The false accusation against Boris Waberski and the misleading alibi of Betty Harlowe serve as deliberate misdirections, but the reader can solve the case by carefully analyzing the timeline, access, and evidence.",
+ "anchors": [
+  {
+   "claim": "Mrs. Harlowe died a natural death on the night of April 27th",
+   "anchor": "Mrs. Harlowe died, so far as we know, quite peacefully in her bed during the night"
+  },
+  {
+   "claim": "Betty Harlowe was at a ball from 9pm to after 1am",
+   "anchor": "Mademoiselle was dancing with her friends on this night when she is supposed to be committing the most monstrous of crimes"
+  },
+  {
+   "claim": "No trace of poison was found in Mrs. Harlowe's body",
+   "anchor": "no more morphia was discovered in it than one sleeping-dose would explain and no trace at all of any other poison"
+  },
+  {
+   "claim": "The poison arrow head was found disguised as a pen-holder",
+   "anchor": "There it was--the slender, pencil-like shaft expanding into a slight bulb where the fingers held it, and the nib inserted into the tiny cleft made for the stem of the iron dart"
+  },
+  {
+   "claim": "Betty Harlowe and Francine Rollard administered the poison",
+   "anchor": "Betty Harlowe stretched out upon the bed to represent Madame, and Francine whispering 'That will do now'"
+  },
+  {
+   "claim": "Ann Upcott was abducted to prevent her revealing the truth",
+   "anchor": "Ann Upcott was bound hand and foot and brought here"
+  },
+  {
+   "claim": "Jean Cladel was murdered to silence him",
+   "anchor": "Jean Cladel has been murdered--cruelly"
+  },
+  {
+   "claim": "The secret passage connects Maison Grenelle and Hôtel de Brebizart",
+   "anchor": "a secret passage in that age of secret passages"
+  },
+  {
+   "claim": "The clock on the marquetry cabinet was moved to mislead",
+   "anchor": "the clock was not upon the mantelshelf but upon the marquetry cabinet"
+  },
+  {
+   "claim": "The pearl necklace was stolen to provide motive",
+   "anchor": "A pearl necklace ... had disappeared"
+  },
+  {
+   "claim": "Boris Waberski's accusation was a false lead",
+   "anchor": "Boris Waberski ... declared that Betty Harlowe did wilfully give to her adoptive mother an overdose of a narcotic"
+  },
+  {
+   "claim": "Anonymous letters were typed on a Corona machine",
+   "anchor": "the letters were typed upon a Corona machine"
+  },
+  {
+   "claim": "Hanaud replaced the Treatise on Strophanthus on the bookshelf",
+   "anchor": "I replace the book about the arrows on the bookshelf in its obvious place"
+  },
+  {
+   "claim": "Betty Harlowe sent a telegram to London about Hanaud's involvement",
+   "anchor": "The telegram sent to my firm by Miss Harlowe on Monday"
+  },
+  {
+   "claim": "Ann Upcott's story of the night is partly true but adapted",
+   "anchor": "Ann Upcott is left alone after Mademoiselle Harlowe's departure to Monsieur de Pouillac's Ball"
+  },
+  {
+   "claim": "The poison arrow was used as a hypodermic needle",
+   "anchor": "the head of the arrow-shaft should be the pen-holder with which I have written this memorandum"
+  },
+  {
+   "claim": "The secret passage was used to move between houses",
+   "anchor": "the secret passage was lost ... Simon Harlowe ... restored the passage"
+  },
+  {
+   "claim": "The murder was committed at half-past ten",
+   "anchor": "the hour was half-past ten"
+  },
+  {
+   "claim": "The missing pearl necklace was found hidden in a matchbox",
+   "anchor": "a string of pearls perfectly graded in size"
+  },
+  {
+   "claim": "Jean Cladel was admitted by a friend and murdered",
+   "anchor": "He was admitted as a friend or a client"
+  },
+  {
+   "claim": "Betty Harlowe was the mastermind behind the murder and blackmail",
+   "anchor": "Betty Harlowe had prepared to divert suspicion from herself upon Ann Upcott"
+  },
+  {
+   "claim": "The facade of Notre Dame symbolizes Ann Upcott's guilt",
+   "anchor": "That, Monsieur Frobisher, is what I sent you out to see"
+  }
+ ]
+}

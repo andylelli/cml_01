@@ -2,15 +2,15 @@
  "false_assumption": {
   "statement": "The Indians and Jim McFann were guilty of the murder on the Dollar Sign road.",
   "type": "identity",
-  "why_it_seems_reasonable": "The presence of Indian pony tracks and moccasin prints around the body, combined with local prejudice and circumstantial evidence, made the Indians and McFann prime suspects. The staking down of the body suggested an Indian ritual, reinforcing this belief.",
-  "what_it_hides": "It conceals the fact that the real murderer was Edward B. Sargent, who staged the scene to frame the Indians and impersonated his twin brother to evade suspicion."
+  "why_it_seems_reasonable": "The victim was found staked down in a manner associated with Indian practices, and Indian pony tracks were abundant at the scene. Fire Bear and McFann were near the scene and had suspicious behavior.",
+  "what_it_hides": "It hides the fact that the victim and the supposed murderer were actually twin brothers, and the murder was a staged act by Edward B. Sargent to mislead suspicion onto the Indians."
  },
- "mechanism_description": "Edward B. Sargent killed his twin brother Willis Morgan in self-defense during a confrontation on the Dollar Sign road. To cover up the crime, Sargent staged the body of Morgan, tying it with the victim's own tent stakes and rope to suggest an Indian attack. He impersonated Morgan to maintain the deception. Bill Talpers, involved in bootlegging and theft, robbed the body and was later killed by Jim McFann after being double-crossed.",
+ "mechanism_description": "Edward B. Sargent killed his twin brother Willis Morgan in self-defense during a confrontation on the Dollar Sign road. To mislead suspicion, Sargent staged the murder scene by staking down his brother's body and planting evidence to implicate the Indians. He assumed Morgan's identity to protect his stepdaughter and himself. Bill Talpers, involved in bootlegging and theft, was later killed by Jim McFann after Talpers double-crossed him.",
  "discriminating_test": {
-  "method": "constraint_proof",
-  "design": "Examine the mud imprint near the murder scene for the Greek letter brand matching the old white horse at the ranch. Confirm the presence of the branded horse at the time of murder to link the rider to the crime. Cross-reference witness statements about the horse and rider's presence.",
-  "knowledge_revealed": "The branded horse's imprint proves that the murderer was the rider of the horse, who was impersonating Willis Morgan.",
-  "pass_condition": "Presence of the Greek letter brand imprint in mud at the murder scene matching the old white horse proves the rider's identity and implicates Edward B. Sargent."
+  "method": "reenactment",
+  "design": "Walter Lowell revisits the murder scene and identifies the Greek Letter brand imprint in the mud where the horse rolled. He then confronts Edward B. Sargent at the ranch with this evidence, reconstructing the timeline and movements on the day of the murder. The reenactment focuses on the horse's presence and the brand imprint as the key to linking the murderer to the scene.",
+  "knowledge_revealed": "The reenactment reveals that the murderer rode the old white horse bearing the Greek Letter brand, which only Edward B. Sargent (posing as Willis Morgan) could have done. This disproves the assumption that Indians or others committed the murder.",
+  "pass_condition": "Identification of the Greek Letter brand imprint on the horse's shoulder in the mud at the murder scene, matching the horse at the ranch, conclusively links the murderer to Sargent."
  },
  "changed": [],
  "confidence": "high"

@@ -1,0 +1,613 @@
+{
+ "decade": "1920s",
+ "realism_constraints": [
+  "No modern electronic surveillance or forensic DNA analysis available",
+  "Use of chloroform and rubber gloves known but limited to physical evidence",
+  "Travel and communication limited to trains, telegrams, and in-person visits"
+ ],
+ "location": "London, England",
+ "institution": "Scotland Yard",
+ "crime_category": "murder",
+ "crime_subtype": "disguise and impersonation to commit murder and theft",
+ "cast": [
+  {
+   "name": "Luke Bechcombe",
+   "age_range": "50-60",
+   "role_archetype": "victim, respected solicitor",
+   "role": "victim",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "head of Bechcombe and Turner law firm",
+   "private_secret": "had discovered emeralds were substituted with paste",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "n/a",
+   "access_plausibility": "n/a",
+   "stakes": "high",
+   "moral_complexity": "low",
+   "relationships": [
+    "Mrs. Madeline Bechcombe (wife)",
+    "Rev. James Collyer (brother-in-law)",
+    "Anthony Collyer (nephew)",
+    "Cecily Frances Hoyle (secretary)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Rev. James Collyer",
+   "age_range": "60-70",
+   "role_archetype": "worried clergyman, family patriarch",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "rector of Wexbridge",
+   "private_secret": "had nervous breakdown after murder",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "n/a",
+   "access_plausibility": "n/a",
+   "stakes": "moderate",
+   "moral_complexity": "low",
+   "relationships": [
+    "Luke Bechcombe (brother-in-law)",
+    "Anthony Collyer (son)",
+    "Aubrey Todmarsh (nephew)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Anthony (Tony) Collyer",
+   "age_range": "25-35",
+   "role_archetype": "war veteran, troubled heir, suspect",
+   "role": "suspect",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "eligible",
+   "public_persona": "nephew of victim, engaged to secretary",
+   "private_secret": "struggles with debts and reputation",
+   "motive_seed": "inheritance",
+   "motive_strength": "moderate",
+   "alibi_window": "around time of murder, wandering looking for Field of Rest",
+   "access_plausibility": "high",
+   "stakes": "high",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Rev. James Collyer (father)",
+    "Cecily Frances Hoyle (fiancée)",
+    "Luke Bechcombe (uncle)"
+   ],
+   "opportunity_channels": [
+    "office visit",
+    "private door access"
+   ],
+   "behavioral_tells": [
+    "irritability",
+    "defensiveness"
+   ],
+   "evidence_sensitivity": [
+    "absence of gloves when last seen"
+   ]
+  },
+  {
+   "name": "Cecily Frances Hoyle",
+   "age_range": "20-30",
+   "role_archetype": "secretary, innocent woman under suspicion",
+   "role": "witness",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "secretary to Luke Bechcombe",
+   "private_secret": "daughter of Dr. James Hoyle, not related to Thompson",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "present at office before and after murder",
+   "access_plausibility": "high",
+   "stakes": "moderate",
+   "moral_complexity": "low",
+   "relationships": [
+    "Anthony Collyer (fiancé)",
+    "Luke Bechcombe (employer)"
+   ],
+   "opportunity_channels": [
+    "office access via private door"
+   ],
+   "behavioral_tells": [
+    "fear",
+    "nervousness"
+   ],
+   "evidence_sensitivity": [
+    "photograph found in Thompson's room"
+   ]
+  },
+  {
+   "name": "Aubrey Todmarsh",
+   "age_range": "30-40",
+   "role_archetype": "community leader, conscientious objector, secret culprit",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "head of the Confraternity of St. Philip",
+   "private_secret": "murderer of Luke Bechcombe, impersonator",
+   "motive_seed": "financial gain from diamonds",
+   "motive_strength": "strong",
+   "alibi_window": "uncertain, but present at community events",
+   "access_plausibility": "high",
+   "stakes": "very high",
+   "moral_complexity": "high",
+   "relationships": [
+    "Rev. James Collyer (uncle)",
+    "Mrs. Phillimore (fiancée)",
+    "Hopkins (right-hand man)"
+   ],
+   "opportunity_channels": [
+    "office access",
+    "disguise and chloroform use"
+   ],
+   "behavioral_tells": [
+    "nervousness",
+    "strained expressions"
+   ],
+   "evidence_sensitivity": [
+    "long thumb and short forefinger distinctive feature"
+   ]
+  },
+  {
+   "name": "Mrs. Madeline Bechcombe",
+   "age_range": "50-60",
+   "role_archetype": "grieving widow, emotional",
+   "role": "bystander",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "widow of Luke Bechcombe",
+   "private_secret": "obsessed with suspicion of Mrs. Carnthwacke",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "n/a",
+   "access_plausibility": "n/a",
+   "stakes": "high",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Luke Bechcombe (husband)",
+    "Rev. James Collyer (brother-in-law)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "hysteria",
+    "obsession"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Amos Thompson (alias Samuel Horsingforth, John Frederick Hoyle)",
+   "age_range": "40-50",
+   "role_archetype": "managing clerk, embezzler, fugitive",
+   "role": "suspect",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "eligible",
+   "public_persona": "managing clerk at Bechcombe and Turner",
+   "private_secret": "embezzler, assumed false identities",
+   "motive_seed": "financial gain",
+   "motive_strength": "strong",
+   "alibi_window": "absent at time of murder",
+   "access_plausibility": "high",
+   "stakes": "high",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Cecily Frances Hoyle (adopted daughter)"
+   ],
+   "opportunity_channels": [
+    "office access"
+   ],
+   "behavioral_tells": [
+    "secretive",
+    "absent"
+   ],
+   "evidence_sensitivity": [
+    "photograph of Cecily found in his room"
+   ]
+  },
+  {
+   "name": "Mrs. Cyril B. Carnthwacke (formerly Bella Laymond)",
+   "age_range": "40-50",
+   "role_archetype": "rich American widow, victim of assault",
+   "role": "witness",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "wealthy widow, former stage star",
+   "private_secret": "secretly selling diamonds, blackmailed",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "present at office around time of murder",
+   "access_plausibility": "medium",
+   "stakes": "high",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Cyril B. Carnthwacke (husband)"
+   ],
+   "opportunity_channels": [
+    "office visit"
+   ],
+   "behavioral_tells": [
+    "fear",
+    "anxiety"
+   ],
+   "evidence_sensitivity": [
+    "white glove found at crime scene"
+   ]
+  },
+  {
+   "name": "Cyril B. Carnthwacke",
+   "age_range": "40-50",
+   "role_archetype": "wealthy American husband",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "wealthy American millionaire",
+   "private_secret": "aware of wife's gambling and blackmail",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "n/a",
+   "access_plausibility": "n/a",
+   "stakes": "moderate",
+   "moral_complexity": "low",
+   "relationships": [
+    "Mrs. Carnthwacke (wife)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "John Steadman",
+   "age_range": "50-60",
+   "role_archetype": "barrister, criminologist, family cousin",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "lawyer and criminologist",
+   "private_secret": "skeptical but supportive of investigation",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "n/a",
+   "access_plausibility": "n/a",
+   "stakes": "moderate",
+   "moral_complexity": "low",
+   "relationships": [
+    "Luke Bechcombe (cousin)",
+    "Rev. James Collyer",
+    "Anthony Collyer",
+    "Aubrey Todmarsh"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "calm",
+    "analytical"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Inspector Furnival",
+   "age_range": "40-50",
+   "role_archetype": "experienced detective",
+   "role": "detective",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "Scotland Yard inspector",
+   "private_secret": "dedicated to catching the Yellow Dog",
+   "motive_seed": "justice",
+   "motive_strength": "strong",
+   "alibi_window": "n/a",
+   "access_plausibility": "n/a",
+   "stakes": "high",
+   "moral_complexity": "low",
+   "relationships": [],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "keen",
+    "persistent"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Hopkins",
+   "age_range": "30-40",
+   "role_archetype": "trusted community member, wrongfully accused",
+   "role": "suspect",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "eligible",
+   "public_persona": "right-hand man to Aubrey Todmarsh",
+   "private_secret": "arrested for burglary but innocent",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "arrested at time of burglary",
+   "access_plausibility": "medium",
+   "stakes": "moderate",
+   "moral_complexity": "low",
+   "relationships": [
+    "Aubrey Todmarsh (leader)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "fish-like mouth movement"
+   ],
+   "evidence_sensitivity": []
+  }
+ ],
+ "culprits": [
+  "Aubrey Todmarsh"
+ ],
+ "surface_summary": "Luke Bechcombe, a solicitor, is found strangled in his office with signs of chloroform use and a lady's white glove nearby. Suspicion falls on several characters including his nephew Tony Collyer, the missing managing clerk Amos Thompson, and a mysterious woman who left the glove. The case involves stolen diamonds, impersonation, and a secretive criminal gang known as the Yellow Gang.",
+ "accepted_facts": [
+  "Luke Bechcombe was murdered by strangulation with chloroform involved",
+  "A white lady's glove was found at the crime scene",
+  "Amos Thompson, the managing clerk, disappeared after the murder",
+  "Mrs. Carnthwacke was attacked in an attempt to silence her as a witness"
+ ],
+ "inferred_conclusions": [
+  "Amos Thompson was the murderer trying to escape justice",
+  "The woman who left the glove was the killer or an accomplice",
+  "Tony Collyer had the strongest motive and opportunity to kill his uncle"
+ ],
+ "mechanism_description": "Aubrey Todmarsh disguised himself as Luke Bechcombe using a false beard and chloroform to incapacitate the victim. He strangled Bechcombe silently wearing rubber gloves to avoid leaving fingerprints. Todmarsh then impersonated Bechcombe to receive Mrs. Carnthwacke's diamonds. His distinctive hand with a long thumb and short forefinger was noticed by Mrs. Carnthwacke, leading to his identification and arrest.",
+ "delivery_path": [
+  "Todmarsh learned of Mrs. Carnthwacke's secret diamond delivery to Bechcombe",
+  "He prepared disguise including false beard and rubber gloves",
+  "He used chloroform to stupefy Bechcombe upon meeting him",
+  "Todmarsh strangled Bechcombe to death silently",
+  "He impersonated Bechcombe to receive the diamonds",
+  "Mrs. Carnthwacke noticed the murderer's distinctive hands",
+  "Police arrested Todmarsh after gathering evidence and witness testimony"
+ ],
+ "outcome_result": "Aubrey Todmarsh is arrested and confesses to the murder and theft, ending the Yellow Dog's reign.",
+ "false_assumption": {
+  "statement": "The murder occurred around twelve o'clock and Bechcombe was dead before Mrs. Carnthwacke's visit.",
+  "type": "temporal",
+  "why_it_seems_reasonable": "Doctors estimated time of death around noon and Mrs. Carnthwacke claimed to see Bechcombe alive after that time, seeming contradictory. The victim's secretary also heard movement in the office after noon.",
+  "what_it_hides": "The murder actually happened earlier with Todmarsh impersonating Bechcombe during Mrs. Carnthwacke's visit, explaining the conflicting testimonies."
+ },
+ "false_solution": {
+  "accused_suspect": "Amos Thompson",
+  "supporting_points": [
+   "Thompson was the managing clerk with access to the office",
+   "He disappeared after the murder, suggesting guilt",
+   "His room contained a photograph of Cecily Hoyle, linking him to the victim",
+   "Public and police suspicion focused on him due to embezzlement"
+  ],
+  "the_one_flaw": "Thompson was not present at the time of murder and lacked the distinctive hand features identified by Mrs. Carnthwacke",
+  "refuted_in_chapter": 24
+ },
+ "red_herrings": [
+  {
+   "id": "mrs_carnthwacke_suspicion",
+   "description": "Mrs. Carnthwacke was suspected of involvement due to her secret diamond sale and the white glove found at the scene.",
+   "points_at_suspect": "Mrs. Carnthwacke",
+   "innocent_explanation": "She was a victim of an assault by the real murderer to silence her as a witness.",
+   "resolved_in_chapter": 23
+  },
+  {
+   "id": "anthony_collyer_suspicion",
+   "description": "Tony Collyer was suspected due to his inheritance motive and presence near the crime scene.",
+   "points_at_suspect": "Anthony Collyer",
+   "innocent_explanation": "He had no gloves at the time and lacked premeditation; his alibi was supported by witnesses.",
+   "resolved_in_chapter": 24
+  }
+ ],
+ "closed_circle": {
+  "suspects": [
+   "Anthony (Tony) Collyer",
+   "Amos Thompson (alias Samuel Horsingforth, John Frederick Hoyle)",
+   "Aubrey Todmarsh",
+   "Mrs. Carnthwacke",
+   "Hopkins"
+  ],
+  "rationale": "All had access or motive, but investigation and evidence confined the likely culprit to these individuals."
+ },
+ "constraint_space": {
+  "time_anchors": [
+   "around twelve o'clock murder time",
+   "Mrs. Carnthwacke's visit about half past twelve",
+   "Cecily Hoyle's lunch return after half past one"
+  ],
+  "time_windows": [
+   "Bechcombe's office open morning hours",
+   "Thompson's disappearance after noon",
+   "Community House events during investigation"
+  ],
+  "access_actors": [
+   "Luke Bechcombe",
+   "Amos Thompson",
+   "Anthony Collyer",
+   "Aubrey Todmarsh",
+   "Mrs. Carnthwacke",
+   "Cecily Hoyle"
+  ],
+  "access_objects": [
+   "Bechcombe's private office",
+   "emerald cross and diamonds",
+   "white glove",
+   "safe cupboard"
+  ],
+  "trust_channels": [
+   "Mrs. Carnthwacke's testimony",
+   "Hopkins's loyalty",
+   "Brunton's overheard conversation",
+   "Inspector Furnival's investigation"
+  ],
+  "authority_sources": [
+   "Scotland Yard",
+   "medical examiner",
+   "court inquest",
+   "legal counsel John Steadman"
+  ]
+ },
+ "inference_path": [
+  {
+   "observation": "Mrs. Carnthwacke saw a man with distinctive hands and an unpleasant voice at the office",
+   "correction": "The man was not Luke Bechcombe but an impersonator",
+   "effect": "The murder occurred before her visit, contradicting her timeline",
+   "required_evidence": [
+    "Mrs. Carnthwacke's detailed testimony about the man's hands and voice",
+    "Comparison of portraits of Luke Bechcombe and the man she saw"
+   ]
+  },
+  {
+   "observation": "White lady's glove found at the crime scene",
+   "correction": "The glove belonged to Mrs. Carnthwacke but the killer's fingers were too large for it",
+   "effect": "The glove was planted or dropped by an accomplice or the killer to mislead",
+   "required_evidence": [
+    "Fingerprint expert report on glove and murderer's prints",
+    "Mrs. Carnthwacke's admission of glove ownership"
+   ]
+  },
+  {
+   "observation": "Amos Thompson disappeared after the murder and was suspected",
+   "correction": "Thompson was innocent of murder but guilty of embezzlement and fled",
+   "effect": "Focus shifts from murder to financial crime and imposture",
+   "required_evidence": [
+    "Discovery of Thompson's multiple aliases and false identity",
+    "Photograph of Cecily Hoyle found in Thompson's room"
+   ]
+  },
+  {
+   "observation": "Cecily Hoyle heard movement in the office after the estimated time of death",
+   "correction": "The movement was of the murderer impersonating Bechcombe",
+   "effect": "Murder time adjusted earlier, and Cecily's testimony implicates the impersonator",
+   "required_evidence": [
+    "Cecily Hoyle's testimony about sounds and timing",
+    "Medical examiner's time of death estimate"
+   ]
+  },
+  {
+   "observation": "Aubrey Todmarsh was a conscientious objector and community leader",
+   "correction": "Todmarsh was the murderer using disguise and chloroform",
+   "effect": "Motive and opportunity align with Todmarsh, overturning previous suspicions",
+   "required_evidence": [
+    "Mrs. Carnthwacke's identification of distinctive hands",
+    "Hopkins's testimony and arrest",
+    "Todmarsh's nervous behavior and possession of chloroform and gloves"
+   ]
+  },
+  {
+   "observation": "The Yellow Gang is involved in multiple jewel thefts",
+   "correction": "Todmarsh is the Yellow Dog, the gang leader and murderer",
+   "effect": "The criminal network is exposed and linked to the murder",
+   "required_evidence": [
+    "Police raid on Yellow Gang headquarters",
+    "Todmarsh's arrest and confession"
+   ]
+  },
+  {
+   "observation": "Inspector Furnival and Steadman were captured by the Yellow Gang",
+   "correction": "They escaped using a secret window and a knife with a note",
+   "effect": "Police regain advantage and capture Todmarsh",
+   "required_evidence": [
+    "Note slipped under prison door",
+    "Escape through barred window",
+    "Police patrol arrival after gunshots"
+   ]
+  }
+ ],
+ "discriminating_test": {
+  "method": "trap",
+  "design": "Inspector Furnival and John Steadman infiltrate the Yellow Gang's headquarters disguised in yellow dominoes and masks. They are captured and restrained in a bare room with barred windows. A secret note with instructions and a knife is slipped under the door, enabling their escape through the barred window into the river where police patrols await. This trap tests the gang's security and confirms the identity of the Yellow Dog.",
+  "knowledge_revealed": "The test reveals the location and inner workings of the Yellow Gang's hideout and confirms the identity of its leader, Aubrey Todmarsh.",
+  "pass_condition": "Successful escape from captivity and subsequent police raid on the gang's headquarters leading to Todmarsh's arrest."
+ },
+ "fair_play_explanation": "The reader is given detailed testimonies from witnesses including Mrs. Carnthwacke and Cecily Hoyle, descriptions of the murder scene, and the distinctive physical trait of the murderer's hands. The false alibis and red herrings such as the missing clerk and Tony Collyer are clearly presented. Clues like the photograph in Thompson's room and the glove's fingerprint analysis are available for deduction. The final trap and confession confirm the solution, which the reader could have inferred by careful attention to timing, physical evidence, and character motives.",
+ "anchors": [
+  {
+   "claim": "The victim was found strangled in his office",
+   "anchor": "Mr. Bechcombe has been murdered—strangled!"
+  },
+  {
+   "claim": "A lady's white glove was found at the crime scene",
+   "anchor": "white glove was found beside the writing-table"
+  },
+  {
+   "claim": "Mrs. Carnthwacke was the owner of the white glove",
+   "anchor": "It was my glove. I left it there!"
+  },
+  {
+   "claim": "Mrs. Carnthwacke saw a man with distinctive hands and voice",
+   "anchor": "I saw that though they were nice hands, well shaped and carefully manicured, they had one curious defect"
+  },
+  {
+   "claim": "The murderer wore rubber gloves to avoid fingerprints",
+   "anchor": "The murderer wore those thin rubber gloves"
+  },
+  {
+   "claim": "Chloroform was used to stupefy the victim",
+   "anchor": "There was a sweet sickly smell that seemed to emanate from the body"
+  },
+  {
+   "claim": "Amos Thompson disappeared after the murder",
+   "anchor": "Thompson's disappearance was becoming more and more of an enigma"
+  },
+  {
+   "claim": "Photograph of Cecily Hoyle found in Thompson's room",
+   "anchor": "I found it in Amos Thompson's room in Brooklyn Terrace"
+  },
+  {
+   "claim": "Mrs. Carnthwacke was attacked to silence her as a witness",
+   "anchor": "Mrs. Carnthwacke was murderously assaulted this morning in her own carriage"
+  },
+  {
+   "claim": "Aubrey Todmarsh is the murderer and the Yellow Dog",
+   "anchor": "Aubrey William Todmarsh, alias the Yellow Dog, I arrest you"
+  },
+  {
+   "claim": "The murderer impersonated Luke Bechcombe",
+   "anchor": "He meant to impersonate him and get Mrs. Carnthwacke's diamonds"
+  },
+  {
+   "claim": "Distinctive hand with long thumb and short forefinger",
+   "anchor": "the thumb was unusually long, and the first—don't you call it the index finger?—was very short"
+  },
+  {
+   "claim": "Inspector Furnival and Steadman were captured by the Yellow Gang",
+   "anchor": "The arms of his chair seemed to contract and lengthen; he felt himself gripped in a vice"
+  },
+  {
+   "claim": "A secret note and knife enabled their escape",
+   "anchor": "The blade of a knife that was coming through, a short, sharp blade"
+  },
+  {
+   "claim": "Escape through barred window into the river",
+   "anchor": "The bars would move upwards in their groove, easily enough"
+  },
+  {
+   "claim": "Police patrol rescued the inspector and Steadman",
+   "anchor": "The police patrol from the motor-launch down the river!"
+  },
+  {
+   "claim": "The Yellow Gang's hideout was raided and found empty",
+   "anchor": "Not a sign of any other living creature was to be seen"
+  },
+  {
+   "claim": "The staircase was movable and concealed the Yellow Room",
+   "anchor": "The whole staircase is movable, Mr. Steadman"
+  },
+  {
+   "claim": "Hopkins was the key to escaping the Yellow Gang",
+   "anchor": "Hopkins's wife acts as housekeeper to the Yellow Gang"
+  },
+  {
+   "claim": "Todmarsh confessed to the murder and attempted suicide",
+   "anchor": "Cyanide of potassium. You would have been dead if it had been"
+  }
+ ]
+}

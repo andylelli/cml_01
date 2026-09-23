@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "The dead man found in Number 10 Cathcart Square was Reginald Davis who committed suicide.",
+  "type": "identity",
+  "why_it_seems_reasonable": "The body bore a strong resemblance to Reginald Davis and letters addressed to him were found on the body. His sister Caroline Masters identified the body as her brother, and a forged suicide letter was found, supporting the suicide theory.",
+  "what_it_hides": "The actual victim was Major Hugh Murchison, murdered and disguised as Davis. The letters and identification were planted to mislead the investigation and protect the real Reginald Davis, who was alive."
+ },
+ "mechanism_description": "Major Hugh Murchison was lured to the empty house in Cathcart Square by Norah Burton, who had arranged for the caretaker to be absent. She and George Burton then murdered Murchison by drugging and cutting his throat, staging the scene to appear as a suicide by planting a razor in his hand and forging letters in the name of Reginald Davis. The body was misidentified as Davis, who was actually alive and in hiding.",
+ "discriminating_test": {
+  "method": "constraint_proof",
+  "design": "Surveillance of Mrs Spencer and George Dutton's meetings in City restaurants and Eaton Place to confirm clandestine financial exchanges. Exhumation and forensic identification of the body in Cathcart Square to establish true identity. Handwriting analysis of letters found on the body to detect forgery.",
+  "knowledge_revealed": "Confirms that Mrs Spencer is Norah Burton, George Dutton is George Burton, and the dead man is Major Hugh Murchison, not Reginald Davis.",
+  "pass_condition": "Observation of multiple secret meetings with money exchange between Mrs Spencer and George Dutton, and positive identification of exhumed body as Murchison."
+ },
+ "changed": [],
+ "confidence": "high"
+}

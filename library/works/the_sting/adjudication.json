@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "Frank Gough's quarrel and motive made him the obvious murderer.",
+  "type": "behavioral",
+  "why_it_seems_reasonable": "Frank had a heated argument with Jack and stood to gain inheritance. Witnesses heard quarrelling voices and Frank was found alone after the incident.",
+  "what_it_hides": "The quarrel was reconciliatory and unrelated to the murder. The real murderer was Laidlaw, who used secret passages and poison, unknown to most."
+ },
+ "mechanism_description": "Dr. Laidlaw murdered Jack Evenden by striking him with a padded blow to the head and simultaneously injecting a deadly muscarin alkaloid poison into his brain. Laidlaw used the secret passages to access the Prior's Room undetected. Lady Evenden was under Laidlaw's mental control and unaware of the full truth. Laidlaw's motive was to eliminate Jack, who opposed him, and maintain control over the family.",
+ "discriminating_test": {
+  "method": "trap",
+  "design": "Mr. Benson arranges to kidnap Dr. Laidlaw when he next visits the Prior's Tower, using trusted men to ambush him in the secret crypt. Chloroform is used to subdue Laidlaw and bring him to a remote farm for interrogation. The trap tests Laidlaw's presence and intentions, confirming his guilt and involvement.",
+  "knowledge_revealed": "The trap reveals Laidlaw's attempt to evade capture and his violent tendencies, confirming his role as the murderer and blackmailer.",
+  "pass_condition": "Successful capture of Laidlaw at the secret passage entrance without alerting him beforehand."
+ },
+ "changed": [],
+ "confidence": "high"
+}

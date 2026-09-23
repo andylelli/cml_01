@@ -1,0 +1,477 @@
+{
+ "decade": "1920s",
+ "realism_constraints": [
+  "No modern forensic DNA or electronic surveillance available",
+  "Travel by steamship and train are common and relatively fast",
+  "Private detectives and police rely on witness testimony and physical evidence"
+ ],
+ "location": "Market Ballaston, Norfolk, England",
+ "institution": "Norfolk County Police, Scotland Yard, private detective agency Watts and Fielding",
+ "crime_category": "murder",
+ "crime_subtype": "murder disguised as burglary to conceal suicide",
+ "cast": [
+  {
+   "name": "Gregory Ballaston",
+   "age_range": "30-40",
+   "role_archetype": "young adventurer and heir",
+   "role": "suspect",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "eligible",
+   "public_persona": "reckless gambler and adventurer",
+   "private_secret": "haunted by superstition and guilt over Images",
+   "motive_seed": "financial desperation and desire to save family estate",
+   "motive_strength": "moderate",
+   "alibi_window": "night of murder unclear",
+   "access_plausibility": "has key to library door",
+   "stakes": "family fortune and freedom",
+   "moral_complexity": "high",
+   "relationships": [
+    "Sir Bertram Ballaston (father)",
+    "Henry Ballaston (uncle)",
+    "Claire Endacott (love interest)"
+   ],
+   "opportunity_channels": [
+    "library door key",
+    "access to Great House"
+   ],
+   "behavioral_tells": [
+    "nervousness around Image",
+    "attempted to throw Image overboard"
+   ],
+   "evidence_sensitivity": [
+    "presence at Great House",
+    "possession of Image"
+   ]
+  },
+  {
+   "name": "Sir Bertram Ballaston",
+   "age_range": "60-70",
+   "role_archetype": "elderly family patriarch",
+   "role": "bystander",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "impoverished baronet and gambler",
+   "private_secret": "desperate to save family estate",
+   "motive_seed": "financial ruin",
+   "motive_strength": "weak",
+   "alibi_window": "present at Hall during murder",
+   "access_plausibility": "resident",
+   "stakes": "family estate",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Gregory Ballaston (son)",
+    "Henry Ballaston (brother)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Henry Ballaston",
+   "age_range": "50-60",
+   "role_archetype": "austere uncle and custodian",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "reserved family member and custodian of treasures",
+   "private_secret": "murdered Ralph Endacott and stole manuscripts",
+   "motive_seed": "desire to control treasure and family estate",
+   "motive_strength": "strong",
+   "alibi_window": "present at Hall during murder",
+   "access_plausibility": "resident with access to study",
+   "stakes": "family fortune and control",
+   "moral_complexity": "high",
+   "relationships": [
+    "Sir Bertram Ballaston (brother)",
+    "Gregory Ballaston (nephew)"
+   ],
+   "opportunity_channels": [
+    "library door key",
+    "knowledge of house"
+   ],
+   "behavioral_tells": [
+    "false confession to burglary",
+    "secretly took manuscripts and Image"
+   ],
+   "evidence_sensitivity": [
+    "letters in safe",
+    "empty manuscript coffer"
+   ]
+  },
+  {
+   "name": "Ralph Endacott",
+   "age_range": "60-70",
+   "role_archetype": "scholar and victim",
+   "role": "victim",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "oriental scholar and partner in Johnson and Company",
+   "private_secret": "had translated manuscript revealing treasure location",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "murdered at Great House",
+   "access_plausibility": "resident",
+   "stakes": "life",
+   "moral_complexity": "low",
+   "relationships": [
+    "Claire Endacott (niece)",
+    "Henry Ballaston (murderer)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": [
+    "letter to niece",
+    "manuscripts"
+   ]
+  },
+  {
+   "name": "Claire Endacott",
+   "age_range": "20-25",
+   "role_archetype": "young niece and love interest",
+   "role": "witness",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "charming young woman",
+   "private_secret": "holds key to safe with manuscript",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "present at Great House",
+   "access_plausibility": "resident",
+   "stakes": "family fortune and love",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Ralph Endacott (uncle)",
+    "Gregory Ballaston (love interest)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "protective of Gregory",
+    "holds safe key"
+   ],
+   "evidence_sensitivity": [
+    "letter from uncle",
+    "safe key"
+   ]
+  },
+  {
+   "name": "Peter Johnson (Wu Ling)",
+   "age_range": "40-50",
+   "role_archetype": "mysterious trader and partner",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "new tenant of Great House",
+   "private_secret": "former Chinese trader and partner in Johnson and Company",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "present at Great House",
+   "access_plausibility": "resident",
+   "stakes": "business interests",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Ralph Endacott (partner)",
+    "Gregory Ballaston (acquaintance)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "watching Great House at night"
+   ],
+   "evidence_sensitivity": [
+    "witness statement",
+    "presence at burglary"
+   ]
+  },
+  {
+   "name": "Mr. Fielding",
+   "age_range": "30-40",
+   "role_archetype": "private detective",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "retired schoolmaster",
+   "private_secret": "private detective watching Great House",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "present at Great House",
+   "access_plausibility": "observer",
+   "stakes": "professional duty",
+   "moral_complexity": "low",
+   "relationships": [
+    "Peter Johnson (employer)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "observed suspect leaving Great House"
+   ],
+   "evidence_sensitivity": [
+    "witness statement"
+   ]
+  }
+ ],
+ "culprits": [
+  "Henry Ballaston"
+ ],
+ "surface_summary": "Ralph Endacott is found shot dead in his study at the Great House, initially suspected murdered. A burglary occurs shortly after, stealing Chinese manuscripts linked to two wooden Images believed to contain hidden treasure. Suspicion falls on Gregory Ballaston, who had possession of one Image, but the truth is more complex.",
+ "accepted_facts": [
+  "Ralph Endacott was found shot through the head in his study",
+  "Two wooden Images called the Body and the Soul contain hidden jewels",
+  "Gregory Ballaston possessed one Image and risked his life to obtain it",
+  "Henry Ballaston confessed to burglary and initially to murder"
+ ],
+ "inferred_conclusions": [
+  "Gregory Ballaston murdered Ralph Endacott to gain the treasure",
+  "The burglary was committed by Gregory to cover his tracks",
+  "The Images are worthless and the treasure is a myth"
+ ],
+ "mechanism_description": "Ralph Endacott committed suicide after translating the manuscript revealing the treasure's location. Henry Ballaston, motivated by control and family interests, confessed to the burglary and initially to the murder to protect Gregory. The treasure was hidden inside the two Images, which were reunited and opened to reveal the jewels.",
+ "delivery_path": [
+  "Ralph Endacott translates manuscript revealing treasure location",
+  "Endacott decides to end his life and writes a letter to Claire",
+  "Henry Ballaston confronts Endacott and shoots him",
+  "Henry steals the other Image and manuscripts to control the treasure",
+  "Henry confesses burglary and falsely claims Gregory's guilt",
+  "Manuscripts are recovered from safe by Claire and Mr. Johnson",
+  "Images are reunited and treasure revealed"
+ ],
+ "outcome_result": "Ralph Endacott's death is ruled suicide; Henry Ballaston confesses to burglary and false murder accusation; the treasure is found within the reunited Images.",
+ "false_assumption": {
+  "statement": "Gregory Ballaston murdered Ralph Endacott to gain the treasure.",
+  "type": "identity",
+  "why_it_seems_reasonable": "Gregory had motive due to financial desperation and was found with one of the Images; he had suspicious behavior and was seen near the crime scene. The police and witnesses believed his key was used to enter the study.",
+  "what_it_hides": "It hides the fact that Ralph Endacott committed suicide and that Henry Ballaston was the actual murderer who staged the burglary and false accusation."
+ },
+ "false_solution": {
+  "accused_suspect": "Gregory Ballaston",
+  "supporting_points": [
+   "Gregory possessed one of the Images",
+   "Gregory had financial motive",
+   "Gregory had access to the library door key",
+   "Witnesses saw someone leave the Hall near the time of the burglary"
+  ],
+  "the_one_flaw": "The actual murderer was Henry Ballaston who confessed and provided evidence of his actions",
+  "refuted_in_chapter": 14
+ },
+ "red_herrings": [
+  {
+   "id": "peter_johnson_wu_ling_identity",
+   "description": "Peter Johnson is suspected to be Wu Ling, the Chinese trader involved in the original theft and rescue.",
+   "points_at_suspect": "Peter Johnson",
+   "innocent_explanation": "Peter Johnson is the same man but now living as a European; he is not involved in the murder or burglary.",
+   "resolved_in_chapter": 12
+  },
+  {
+   "id": "gregory_ballaston_suspicious_behavior",
+   "description": "Gregory's nervousness, attempts to throw away the Image, and strained relations with Claire suggest guilt.",
+   "points_at_suspect": "Gregory Ballaston",
+   "innocent_explanation": "Gregory was under superstition-induced stress and not responsible for the murder or burglary.",
+   "resolved_in_chapter": 14
+  }
+ ],
+ "closed_circle": {
+  "suspects": [
+   "Gregory Ballaston",
+   "Henry Ballaston",
+   "Peter Johnson (Wu Ling)",
+   "Mr. Fielding"
+  ],
+  "rationale": "The suspects are limited to family members and close associates with access to the Great House and knowledge of the Images and manuscripts."
+ },
+ "constraint_space": {
+  "time_anchors": [
+   "night of June 30th, year of murder",
+   "night of July 28th, night of burglary",
+   "morning after burglary",
+   "afternoon of Henry Ballaston's confession",
+   "evening of Ralph Endacott's death"
+  ],
+  "time_windows": [
+   "3:00 to 4:00 am burglary and murder time",
+   "afternoon and evening of confession and discovery"
+  ],
+  "access_actors": [
+   "Gregory Ballaston",
+   "Henry Ballaston",
+   "Peter Johnson",
+   "Mr. Fielding"
+  ],
+  "access_objects": [
+   "library door key",
+   "steel-clamped coffer",
+   "Chinese manuscripts",
+   "wooden Images"
+  ],
+  "trust_channels": [
+   "private detective Fielding's witness statement",
+   "Major Holmes and Inspector Cloutson police investigation",
+   "letters and manuscripts from Ralph Endacott",
+   "confession of Henry Ballaston"
+  ],
+  "authority_sources": [
+   "Norfolk County Police",
+   "Scotland Yard",
+   "British Museum experts",
+   "Johnson and Company firm"
+  ]
+ },
+ "inference_path": [
+  {
+   "observation": "Ralph Endacott found shot in study with revolver nearby",
+   "correction": "Death was suicide, not murder",
+   "effect": "Removes Gregory as murderer",
+   "required_evidence": [
+    "Letter from Ralph Endacott to Claire Endacott",
+    "Doctor's statement of Endacott's terminal illness"
+   ]
+  },
+  {
+   "observation": "Manuscripts stolen in burglary after murder",
+   "correction": "Burglary was to obtain manuscripts, not random theft",
+   "effect": "Focuses suspicion on those who want manuscripts",
+   "required_evidence": [
+    "Empty steel-clamped coffer in library",
+    "Witness statement of private detective Fielding"
+   ]
+  },
+  {
+   "observation": "Henry Ballaston confessed to burglary",
+   "correction": "He also murdered Ralph Endacott",
+   "effect": "Shifts culpability from Gregory to Henry",
+   "required_evidence": [
+    "Henry Ballaston's confession letter and statements",
+    "Evidence of Henry's presence at crime scene"
+   ]
+  },
+  {
+   "observation": "Gregory Ballaston possessed one Image",
+   "correction": "He did not have motive or opportunity for murder",
+   "effect": "Clears Gregory of murder charge",
+   "required_evidence": [
+    "Witness testimony of Gregory's whereabouts",
+    "Henry Ballaston's admission of guilt"
+   ]
+  },
+  {
+   "observation": "Two Images contain treasure",
+   "correction": "Images must be reunited to access treasure",
+   "effect": "Explains motive for possession and conflict",
+   "required_evidence": [
+    "Manuscript translation by Ralph Endacott",
+    "Demonstration of opening mechanism of Images"
+   ]
+  },
+  {
+   "observation": "Private detective Fielding saw man leave Hall before burglary",
+   "correction": "Man was Henry Ballaston, not Gregory",
+   "effect": "Identifies true burglar",
+   "required_evidence": [
+    "Fielding's witness statement",
+    "Henry Ballaston's confession"
+   ]
+  },
+  {
+   "observation": "Letter found in safe addressed to Claire Endacott",
+   "correction": "Letter reveals truth of suicide and treasure location",
+   "effect": "Resolves mystery and clears suspects",
+   "required_evidence": [
+    "Letter from Ralph Endacott",
+    "Safe key worn by Claire Endacott"
+   ]
+  }
+ ],
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "The test involves reenacting the opening of the two Images using the instructions found in the manuscript and letter. The Images are manipulated by pressing the eyes and ears in sequence to reveal hidden compartments and jewels. This reenactment proves the existence of the treasure and confirms the authenticity of the manuscripts.",
+  "knowledge_revealed": "The test reveals the mechanism to open the Images and the presence of the treasure inside, confirming the manuscript's instructions and the letter's truth.",
+  "pass_condition": "Successful opening of both Images and discovery of jewels inside without damage."
+ },
+ "fair_play_explanation": "The reader is given access to all necessary clues including the letter from Ralph Endacott, Henry Ballaston's confession, witness statements from the private detective and police, and the knowledge of the two Images and manuscripts. The false assumption about Gregory's guilt is presented but contradicted by evidence. The mechanism to open the Images is explained and can be deduced from the manuscript and letter. The narrative provides sufficient information for a careful reader to solve the mystery.",
+ "anchors": [
+  {
+   "claim": "Ralph Endacott was found shot through the head",
+   "anchor": "shot right through the head"
+  },
+  {
+   "claim": "Two wooden Images called the Body and the Soul contain hidden jewels",
+   "anchor": "the Body and the Soul"
+  },
+  {
+   "claim": "Gregory Ballaston possessed one Image and risked his life to obtain it",
+   "anchor": "Gregory Ballaston brought one of the Images home"
+  },
+  {
+   "claim": "Henry Ballaston confessed to burglary and initially to murder",
+   "anchor": "Henry Ballaston confesses to the murder and burglary"
+  },
+  {
+   "claim": "Ralph Endacott committed suicide after translating the manuscript",
+   "anchor": "Ralph Endacott shot himself"
+  },
+  {
+   "claim": "Letter from Ralph Endacott reveals treasure location and his death",
+   "anchor": "I shall end it to-night"
+  },
+  {
+   "claim": "Henry Ballaston stole manuscripts and the other Image",
+   "anchor": "I purloined the manuscripts"
+  },
+  {
+   "claim": "Private detective Fielding witnessed a man leaving the Hall before burglary",
+   "anchor": "some one was seen to leave the Hall"
+  },
+  {
+   "claim": "Peter Johnson is Wu Ling in disguise, a Chinese trader and partner",
+   "anchor": "Peter Johnson (Wu Ling in disguise)"
+  },
+  {
+   "claim": "Gregory Ballaston tried to throw the Image overboard but it was returned",
+   "anchor": "I tried to throw the damned thing overboard, but it was caught"
+  },
+  {
+   "claim": "The burglary was to steal manuscripts from the safe",
+   "anchor": "the box containing her uncle's manuscripts was broken open"
+  },
+  {
+   "claim": "The two Images are opened by pressing eyes and ears in sequence",
+   "anchor": "You press the right eye of the Body and press at the same time the inner lobe of the left ear"
+  },
+  {
+   "claim": "The jewels are revealed inside the Images after opening",
+   "anchor": "a stream of what seemed to be red and crystal and green fire came out"
+  },
+  {
+   "claim": "Henry Ballaston falsely accused Gregory to protect him",
+   "anchor": "I never doubted for a moment that my nephew Gregory was guilty"
+  },
+  {
+   "claim": "Gregory Ballaston is innocent of murder",
+   "anchor": "Before God, I didn't! I thought it was you"
+  },
+  {
+   "claim": "The police investigation initially suspects Gregory",
+   "anchor": "Inspector Cloutson here has a warrant for your arrest"
+  },
+  {
+   "claim": "Henry Ballaston confesses to shooting Ralph Endacott",
+   "anchor": "I shot him and secured the other Image"
+  },
+  {
+   "claim": "The manuscripts contain instructions to open the Images",
+   "anchor": "a translation of a document which will tell you how to obtain the treasure"
+  },
+  {
+   "claim": "The letter from Ralph Endacott is found in the safe by Claire",
+   "anchor": "That key of yours has solved something which has puzzled me"
+  },
+  {
+   "claim": "The murder was suicide and the burglary was staged",
+   "anchor": "Ralph Endacott shot himself"
+  }
+ ]
+}

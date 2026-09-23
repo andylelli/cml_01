@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "The dead man in Cathcart Square was Reginald Davis who committed suicide out of fear of capture.",
+  "type": "identity",
+  "why_it_seems_reasonable": "The body was found with letters addressed to Reginald Davis and identified by his sister, supported by a forged suicide note. The victim's resemblance to Davis reinforced this belief.",
+  "what_it_hides": "The victim was actually Major Hugh Murchison, murdered and disguised as Davis to mislead the police. The identification was a deliberate deception by the culprits."
+ },
+ "mechanism_description": "Norah Burton and George Burton murdered Major Hugh Murchison to prevent him from exposing their criminal past. They used the victim's resemblance to Reginald Davis to forge letters and stage the murder as Davis's suicide. They gained entry to the empty house by breaking a window pane and incapacitated Murchison before killing him and placing the razor in his hand to simulate suicide.",
+ "discriminating_test": {
+  "method": "constraint_proof",
+  "design": "Detectives monitor Norah Burton and George Dutton's movements and meetings, verifying if they can meet only under conditions consistent with conspiracy. They also verify the caretaker's absence and window break timing to confirm access. The exhumed body is identified by multiple witnesses to confirm victim identity.",
+  "knowledge_revealed": "The test reveals that Norah and George had opportunity and motive, and that the victim was Major Murchison, not Reginald Davis.",
+  "pass_condition": "Identification of the exhumed body as Major Murchison and confirmed clandestine meetings between Norah and George prove their guilt."
+ },
+ "changed": [],
+ "confidence": "high"
+}

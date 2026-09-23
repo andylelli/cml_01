@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "The initial assumption was that an outside burglar committed the murders.",
+  "type": "identity",
+  "why_it_seems_reasonable": "Footprints were found outside the house, and no forced entry was evident, suggesting an intruder. The family’s internal conflicts seemed insufficient to explain the crimes.",
+  "what_it_hides": "The footprints were deliberately fabricated by Ada to mislead investigators, and the murderer was a family member with intimate knowledge of the house."
+ },
+ "mechanism_description": "Ada Greene, the adopted youngest daughter and daughter of the cook and a criminally insane father, meticulously planned and executed the murders and attempted poisonings to inherit the Greene fortune and eliminate her family. She used criminal techniques learned from Tobias Greene’s criminology library, including faked footprints, self-inflicted wounds, secret passageways between rooms for murder, and staged alibis. Ultimately, after her exposure, she committed suicide.",
+ "discriminating_test": {
+  "method": "trap",
+  "design": "Vance arranged for a nurse and detective to watch the galoshes and library key closely. When the galoshes disappeared, the nurse signaled immediately, allowing police to catch Ada attempting to flee with a revolver. This trap tested who had access and motive to use the galoshes and key.",
+  "knowledge_revealed": "The disappearance of the galoshes and Ada’s attempt to escape with the revolver revealed her as the murderer.",
+  "pass_condition": "The suspect is caught in possession of the revolver and cannot explain the disappearance of the galoshes."
+ },
+ "changed": [],
+ "confidence": "high"
+}

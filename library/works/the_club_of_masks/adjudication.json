@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "Lady Violet Bredwardine was the murderer because she wore the Zenobia costume and was seen with Dr. Weathered.",
+  "type": "identity",
+  "why_it_seems_reasonable": "Lady Violet’s costume was traced to her and she was known to be a patient of Dr. Weathered, with motive suggested by jealousy and blackmail. Witnesses and the accuser Sarah Neobard implicated her.",
+  "what_it_hides": "The real murderer was Madame Bonnell who used the costume and impersonation to mislead, and Lady Violet had a solid alibi being out of London at the time."
+ },
+ "mechanism_description": "Madame Bonnell, the proprietress of the Domino Club, murdered Dr. Weathered by poisoning him with upasine, a rare and deadly drug stolen from Mrs. Amelia Baker. She used her position to administer the poison during the masked dance, exploiting the victim's trust and the club's secrecy. She attempted to frame others and cover her tracks but was ultimately exposed by the investigation.",
+ "discriminating_test": {
+  "method": "constraint_proof",
+  "design": "Investigators verify Lady Violet’s alibi by confirming her presence at Tyberton Castle during the murder night through train records and servant testimony about the costume’s location. Simultaneously, fingerprint comparison and chemical analysis of poison samples are conducted to link the real poison to Madame Bonnell. The test eliminates suspects who could not have been present or lacked access to the poison.",
+  "knowledge_revealed": "The test confirms Lady Violet’s absence from the crime scene and Madame Bonnell’s possession of the rare poison and her fingerprint match with a wanted criminal.",
+  "pass_condition": "Confirmed alibi for Lady Violet and positive fingerprint and poison evidence against Madame Bonnell."
+ },
+ "changed": [],
+ "confidence": "high"
+}

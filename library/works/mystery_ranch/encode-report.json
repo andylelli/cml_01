@@ -1,0 +1,136 @@
+{
+ "slug": "mystery_ranch",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "The victim was staked down with his own tent stakes and rope",
+   "anchor": "ropes were fastened to tent-stakes driven into the prairie",
+   "span": "These ropes were fastened to tent-stakes driven into the prairie.",
+   "ok": true
+  },
+  {
+   "claim": "Indian pony tracks and moccasined footprints were found around the body",
+   "anchor": "pony tracks--all Injun",
+   "span": "Look at them pony tracks--all Injun.",
+   "ok": true
+  },
+  {
+   "claim": "The victim was shot with a sawed-off shotgun",
+   "anchor": "Buckshot, from a sawed-off shotgun probably",
+   "span": "Buckshot, from a sawed-off shotgun probably,\" said the agent, shuddering.",
+   "ok": true
+  },
+  {
+   "claim": "The victim was Edward B. Sargent of St. Louis",
+   "anchor": "indicating that the victim was Edward B. Sargent, of St. Louis",
+   "span": "Papers were found in the pockets indicating that the victim was Edward B. Sargent, of St. Louis.",
+   "ok": true
+  },
+  {
+   "claim": "Helen Ervin is the stepdaughter of Willis Morgan",
+   "anchor": "From your affectionate stepfather, Willis Morgan",
+   "span": "From your affectionate stepfather, Willis Morgan.",
+   "ok": true
+  },
+  {
+   "claim": "Bill Talpers held up a letter from Helen warning of danger",
+   "anchor": "Bill Talpers, store-keeper and postmaster, held up the letter",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Jim McFann escaped jail fearing lynching",
+   "anchor": "Jim McFann has broken jail",
+   "span": "Tom Redmond has telephoned over that Jim McFann has broken jail.",
+   "ok": true
+  },
+  {
+   "claim": "Talpers was killed by Jim McFann over stolen money",
+   "anchor": "Jim McFann, a half-breed, is the slayer of Bill Talpers",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The old white horse bore the Greek Letter brand",
+   "anchor": "bearing the impression of the Greek Letter brand",
+   "span": "Yet there in the mud, and visible to-day, was made the imprint of your horse's shoulder, _bearing the impression of the Greek Letter brand_!",
+   "ok": true
+  },
+  {
+   "claim": "Edward B. Sargent confessed to killing his brother Willis Morgan",
+   "anchor": "I committed the murder, much as you have explained it",
+   "span": "I committed the murder, much as you have explained it, but I did not ride the white horse to the hill.",
+   "ok": true
+  },
+  {
+   "claim": "Jim McFann testified that Talpers was at the murder scene first",
+   "anchor": "There was another man by the body when I came there looking for my rope",
+   "span": "There was another man by the body when I came there looking for my rope.",
+   "ok": true
+  },
+  {
+   "claim": "The letter from Helen was recovered from Talpers's safe by a safecracker",
+   "anchor": "Red Egan was working professionally upon the safe in Bill Talpers's store",
+   "span": "Three quarters of an hour later Red Egan was working professionally upon the safe in Bill Talpers's store.",
+   "ok": true
+  },
+  {
+   "claim": "Fire Bear was released on his word to appear for trial",
+   "anchor": "Fire Bear accepted the news with outward indifference",
+   "span": "Fire Bear accepted the news with outward indifference.",
+   "ok": true
+  },
+  {
+   "claim": "The jury found Fire Bear and Jim McFann not guilty of the first murder",
+   "anchor": "Not guilty! was the word that was passed to those outside the building",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Talpers tried to blackmail Helen with the letter",
+   "anchor": "If you don't say it, I'll have to give that letter over to the authorities",
+   "span": "If you don't say it, I'll have to give that letter over to the authorities at White Lodge.",
+   "ok": true
+  },
+  {
+   "claim": "The murder was staged to implicate the Indians",
+   "anchor": "to throw suspicion on the Indians",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The horse brand imprint in the mud was the key evidence",
+   "anchor": "the Greek letter brand still shows in the mud where the horse rolled",
+   "span": "The Greek letter brand still shows in the mud where the horse rolled on the day of the murder on the Dollar Sign hill.",
+   "ok": true
+  },
+  {
+   "claim": "Edward B. Sargent assumed his brother's identity after killing him",
+   "anchor": "I am Edward Sargent. Morgan was the man whom I killed",
+   "span": "I am Edward Sargent. Morgan was the man whom I killed and staked down on the prairie!",
+   "ok": true
+  },
+  {
+   "claim": "Helen Ervin destroyed the letter to protect herself",
+   "anchor": "Here Helen tore it in small pieces and tossed them high in the air",
+   "span": "Here Helen tore it in small pieces and tossed them high in the air, the breeze carrying them about the yard like snow.",
+   "ok": true
+  },
+  {
+   "claim": "Jim McFann killed Talpers after discovering his betrayal",
+   "anchor": "I killed him. It was better that he should die",
+   "span": "When he tried to shoot me, I killed him. It was better that he should die.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.0843793628,
+ "models": {
+  "map": "gpt-4o-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

@@ -1,0 +1,136 @@
+{
+ "slug": "stolen_idols",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Ralph Endacott was found shot through the head",
+   "anchor": "shot right through the head",
+   "span": "Shot right through the head, that's what happened to him.",
+   "ok": true
+  },
+  {
+   "claim": "Two wooden Images called the Body and the Soul contain hidden jewels",
+   "anchor": "the Body and the Soul",
+   "span": "They are called the Body and the Soul.",
+   "ok": true
+  },
+  {
+   "claim": "Gregory Ballaston possessed one Image and risked his life to obtain it",
+   "anchor": "Gregory Ballaston brought one of the Images home",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Henry Ballaston confessed to burglary and initially to murder",
+   "anchor": "Henry Ballaston confesses to the murder and burglary",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Ralph Endacott committed suicide after translating the manuscript",
+   "anchor": "Ralph Endacott shot himself",
+   "span": "Ralph Endacott shot himself.",
+   "ok": true
+  },
+  {
+   "claim": "Letter from Ralph Endacott reveals treasure location and his death",
+   "anchor": "I shall end it to-night",
+   "span": "I shall end it to-night.",
+   "ok": true
+  },
+  {
+   "claim": "Henry Ballaston stole manuscripts and the other Image",
+   "anchor": "I purloined the manuscripts",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Private detective Fielding witnessed a man leaving the Hall before burglary",
+   "anchor": "some one was seen to leave the Hall",
+   "span": "that at about three o'clock this morning--that is to say twenty minutes or so before the burglary at the Great House was committed--some one was seen to leave the Hall, cross the park and enter the Great House, or, at any rate, to disappear in that neighbourhood.",
+   "ok": true
+  },
+  {
+   "claim": "Peter Johnson is Wu Ling in disguise, a Chinese trader and partner",
+   "anchor": "Peter Johnson (Wu Ling in disguise)",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Gregory Ballaston tried to throw the Image overboard but it was returned",
+   "anchor": "I tried to throw the damned thing overboard, but it was caught",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The burglary was to steal manuscripts from the safe",
+   "anchor": "the box containing her uncle's manuscripts was broken open",
+   "span": "The box containing her uncle's manuscripts was broken open and the manuscripts themselves have disappeared.",
+   "ok": true
+  },
+  {
+   "claim": "The two Images are opened by pressing eyes and ears in sequence",
+   "anchor": "You press the right eye of the Body and press at the same time the inner lobe of the left ear",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The jewels are revealed inside the Images after opening",
+   "anchor": "a stream of what seemed to be red and crystal and green fire came out",
+   "span": "Suddenly the right eye opened and a stream of what seemed to be red and crystal and green fire came out and discharged itself upon the tablecloth.",
+   "ok": true
+  },
+  {
+   "claim": "Henry Ballaston falsely accused Gregory to protect him",
+   "anchor": "I never doubted for a moment that my nephew Gregory was guilty",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Gregory Ballaston is innocent of murder",
+   "anchor": "Before God, I didn't! I thought it was you",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The police investigation initially suspects Gregory",
+   "anchor": "Inspector Cloutson here has a warrant for your arrest",
+   "span": "Gregory Ballaston, I am sorry to tell you that Inspector Cloutson here has a warrant for your arrest.",
+   "ok": true
+  },
+  {
+   "claim": "Henry Ballaston confesses to shooting Ralph Endacott",
+   "anchor": "I shot him and secured the other Image",
+   "span": "I shot him and secured the other Image, but could find no trace of the manuscript.",
+   "ok": true
+  },
+  {
+   "claim": "The manuscripts contain instructions to open the Images",
+   "anchor": "a translation of a document which will tell you how to obtain the treasure",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The letter from Ralph Endacott is found in the safe by Claire",
+   "anchor": "That key of yours has solved something which has puzzled me",
+   "span": "that key of yours has solved something which has puzzled me for a very long time.",
+   "ok": true
+  },
+  {
+   "claim": "The murder was suicide and the burglary was staged",
+   "anchor": "Ralph Endacott shot himself",
+   "span": "Ralph Endacott shot himself.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.158707524,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

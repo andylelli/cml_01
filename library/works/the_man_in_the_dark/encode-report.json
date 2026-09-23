@@ -1,0 +1,130 @@
+{
+ "slug": "the_man_in_the_dark",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Ponsonby Paget was found dead with a stab wound in his study",
+   "anchor": "Ponsonby Paget lay on the floor near his writing-table",
+   "span": "Ponsonby Paget lay on the floor near his writing-table.",
+   "ok": true
+  },
+  {
+   "claim": "A walking-stick was found beneath an overturned table at the crime scene",
+   "anchor": "Green, who had been poking delicately about among the wreckage of furniture, pulled out a walking-stick from beneath an overturned table",
+   "span": "Green, who had been poking delicately about among the wreckage of furniture, pulled out a walking-stick from beneath an overturned table.",
+   "ok": true
+  },
+  {
+   "claim": "The walking-stick belonged to Alexander David Kinloch",
+   "anchor": "It was Kinloch's stick. It was the stick the policeman had handed back to him",
+   "span": "It was Kinloch's stick. It was the stick the policeman had handed back to him on my doorstep a few hours earlier.",
+   "ok": true
+  },
+  {
+   "claim": "Kinloch was blind and used the walking-stick to feel his way",
+   "anchor": "A blind man and his stick are inseparable",
+   "span": "A blind man and his stick are inseparable, and I had seen him with it lying across his knees all the time he had been in my study.",
+   "ok": true
+  },
+  {
+   "claim": "Sir Stephen Wye had a strong motive to kill Ponsonby Paget",
+   "anchor": "Wye, of course, went to see Paget about it, and there learned that Paget had acquired certain information about him which if published would wreck his political ambitions",
+   "span": "Wye, of course, went to see Paget about it, and there learned that Paget had acquired certain information about him which if published would wreck his political ambitions.",
+   "ok": true
+  },
+  {
+   "claim": "The murderer left no footprints but car tracks with embedded cartridge",
+   "anchor": "That is why I want a copy of this drawing to be sent out to all your local correspondents",
+   "span": "That is why I want a copy of this drawing to be sent out to all your local correspondents.",
+   "ok": true
+  },
+  {
+   "claim": "Kinloch was forcibly removed from the murder scene",
+   "anchor": "He was carried off by some one--oh, yes--by some one who may very well have been unaware he was blind",
+   "span": "He was carried off by some one--oh, yes--by some one who may very well have been unaware he was blind, and who supposed the blind man would be certain to know him at sight.",
+   "ok": true
+  },
+  {
+   "claim": "Lady Wye fainted near Kinloch and was emotionally involved",
+   "anchor": "The breakdown was at once so utter and so unexpected that it amazed Kinloch",
+   "span": "CHAPTER III The breakdown was at once so utter and so unexpected that it amazed Kinloch.",
+   "ok": true
+  },
+  {
+   "claim": "Kinloch regained sight after surgery",
+   "anchor": "The operation for corneitis was performed by Sir Donald Fyffe in Edinburgh, and one week later Kinloch got his first glimpse of the light again",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Fingerprints on the broken glass do not match Dick Hollins",
+   "anchor": "Those I took from Kinloch do not coincide with those found on the glass",
+   "span": "Those I took from Kinloch do not coincide with those found on the glass.",
+   "ok": true
+  },
+  {
+   "claim": "Dick Hollins was a red herring suspect",
+   "anchor": "That, I should think, is the first time a man's finger-prints have been taken from him without his knowledge",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Kinloch was found sitting in Enderby Gardens reading Braille",
+   "anchor": "He was sitting against the railings on a short three-legged camp-stool, the usual large volume on his knees",
+   "span": "He was sitting against the railings on a short three-legged camp-stool, the usual large volume on his knees.",
+   "ok": true
+  },
+  {
+   "claim": "The murderer is Sir Stephen Wye",
+   "anchor": "Wye was our man right enough",
+   "span": "Wye was our man right enough,\" Snargrove agreed.",
+   "ok": true
+  },
+  {
+   "claim": "The murder was committed by an expert with a knife",
+   "anchor": "The hand that sent that knife to the heart was expert--accustomed to the use of it",
+   "span": "I'll tell you this, Green, the hand that sent that knife to the heart was expert--accustomed to the use of it.",
+   "ok": true
+  },
+  {
+   "claim": "The room was lit during the murder",
+   "anchor": "You are forgetting the mirror. He would hardly take out a mirror in darkness",
+   "span": "You are forgetting the mirror. He would hardly take out a mirror in darkness.",
+   "ok": true
+  },
+  {
+   "claim": "The false assumption that the murderer was lame is refuted",
+   "anchor": "The walking-stick alone might have told me nothing without those marks on the wall",
+   "span": "the walking-stick alone might have told me nothing without those marks on the wall.",
+   "ok": true
+  },
+  {
+   "claim": "The trap to catch the murderer involves Kinloch waiting in public",
+   "anchor": "He will wait in some road or street he has heard her mention more than once, wait for her to come along",
+   "span": "He will wait in some road or street he has heard her mention more than once, wait for her to come along.",
+   "ok": true
+  },
+  {
+   "claim": "The murderer tried to escape by car but crashed over a cliff",
+   "anchor": "The car struck a projecting spur of the cliff and, passing on with one head-light out, left behind it a cloud of white dust",
+   "span": "Then something white loomed up below and the car struck a projecting spur of the cliff and, passing on with one head-light out, left behind it a cloud of white dust.",
+   "ok": true
+  },
+  {
+   "claim": "Kinloch was rescued after the car crash",
+   "anchor": "I was in the car or how he got into it. But when we were hunting among the wreckage after the body had been removed, some one noticed him lying half-way down the cliff",
+   "span": "",
+   "ok": false
+  }
+ ],
+ "costGbp": 0.12460101200000001,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

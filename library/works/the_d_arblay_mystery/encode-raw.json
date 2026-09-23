@@ -1,0 +1,495 @@
+{
+ "decade": "1920s",
+ "realism_constraints": [
+  "No modern forensic DNA analysis or electronic surveillance",
+  "Medical and police procedures based on physical evidence and witness testimony",
+  "Communication and travel limited to pre-digital means, e.g. letters, telegrams, trams"
+ ],
+ "location": "London, England, including Highgate, Hornsey, Hoxton, and Inner Temple",
+ "institution": "Criminal Investigation Department (C.I.D.) and Dr. John Thorndyke's private investigation",
+ "crime_category": "murder",
+ "crime_subtype": "fraudulent death and identity substitution by wax mask",
+ "cast": [
+  {
+   "name": "Stephen Gray",
+   "age_range": "25-35",
+   "role_archetype": "young medical practitioner and narrator",
+   "role": "detective",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "young medical doctor",
+   "private_secret": "investigating the murder",
+   "motive_seed": "friendship and justice for Marion D’Arblay",
+   "motive_strength": "strong",
+   "alibi_window": "present throughout investigation",
+   "access_plausibility": "high",
+   "stakes": "personal safety and justice",
+   "moral_complexity": "low",
+   "relationships": [
+    "Marion D’Arblay (friend)",
+    "Dr. John Thorndyke (mentor)"
+   ],
+   "opportunity_channels": [
+    "medical visits",
+    "studio visits"
+   ],
+   "behavioral_tells": [
+    "persistent investigation",
+    "protective of Marion"
+   ],
+   "evidence_sensitivity": [
+    "body examination",
+    "wax mask",
+    "photographs"
+   ]
+  },
+  {
+   "name": "Marion D’Arblay",
+   "age_range": "20-30",
+   "role_archetype": "bereaved daughter and wax worker",
+   "role": "witness",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "artist and daughter of victim",
+   "private_secret": "knows about wax-work and mask",
+   "motive_seed": "seek justice for father",
+   "motive_strength": "strong",
+   "alibi_window": "present at studio and home",
+   "access_plausibility": "high",
+   "stakes": "personal safety and family legacy",
+   "moral_complexity": "low",
+   "relationships": [
+    "Julius D’Arblay (father)",
+    "Stephen Gray (friend)"
+   ],
+   "opportunity_channels": [
+    "studio",
+    "home"
+   ],
+   "behavioral_tells": [
+    "fearful after attack",
+    "determined to continue work"
+   ],
+   "evidence_sensitivity": [
+    "wax mask",
+    "photograph identification"
+   ]
+  },
+  {
+   "name": "Julius D’Arblay",
+   "age_range": "50-60",
+   "role_archetype": "victim, sculptor and modeller",
+   "role": "victim",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "respected artist",
+   "private_secret": "made wax mask used in fraud",
+   "motive_seed": "none (victim)",
+   "motive_strength": "none",
+   "alibi_window": "deceased",
+   "access_plausibility": "n/a",
+   "stakes": "life",
+   "moral_complexity": "none",
+   "relationships": [
+    "Marion D’Arblay (daughter)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": [
+    "wax mask",
+    "body"
+   ]
+  },
+  {
+   "name": "Miss Boler (Arabella)",
+   "age_range": "60-75",
+   "role_archetype": "loyal servant and protector",
+   "role": "witness",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "servant and friend",
+   "private_secret": "protective and vengeful",
+   "motive_seed": "loyalty to Marion and Julius",
+   "motive_strength": "moderate",
+   "alibi_window": "present at Ivy Cottage",
+   "access_plausibility": "high",
+   "stakes": "family safety",
+   "moral_complexity": "low",
+   "relationships": [
+    "Marion D’Arblay (ward)"
+   ],
+   "opportunity_channels": [
+    "home"
+   ],
+   "behavioral_tells": [
+    "fierce loyalty",
+    "protective actions"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Inspector Follett",
+   "age_range": "40-55",
+   "role_archetype": "police investigator",
+   "role": "suspect",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "police inspector",
+   "private_secret": "keen investigator",
+   "motive_seed": "justice",
+   "motive_strength": "strong",
+   "alibi_window": "on duty",
+   "access_plausibility": "high",
+   "stakes": "case resolution",
+   "moral_complexity": "low",
+   "relationships": [
+    "Stephen Gray (contact)"
+   ],
+   "opportunity_channels": [
+    "police work"
+   ],
+   "behavioral_tells": [
+    "diligent",
+    "methodical"
+   ],
+   "evidence_sensitivity": [
+    "coin",
+    "button",
+    "pencil-case"
+   ]
+  },
+  {
+   "name": "Mr. Simon Bendelow (alias Morris)",
+   "age_range": "50-60",
+   "role_archetype": "professional criminal and murderer",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "cancer patient, dealer in antiques",
+   "private_secret": "murderer, faked death using wax mask",
+   "motive_seed": "avoid capture and secure safety",
+   "motive_strength": "strong",
+   "alibi_window": "pretended dead, cremated",
+   "access_plausibility": "high",
+   "stakes": "freedom and life",
+   "moral_complexity": "high",
+   "relationships": [
+    "Mrs. Morris (wife)"
+   ],
+   "opportunity_channels": [
+    "studio",
+    "house",
+    "canal area"
+   ],
+   "behavioral_tells": [
+    "secretive",
+    "violent",
+    "resourceful"
+   ],
+   "evidence_sensitivity": [
+    "wax mask",
+    "photograph",
+    "false death"
+   ]
+  },
+  {
+   "name": "Mrs. Morris (Sarah Elizabeth Morris)",
+   "age_range": "45-60",
+   "role_archetype": "executrix and accomplice",
+   "role": "suspect",
+   "gender": "female",
+   "culpability": "unknown",
+   "culprit_eligibility": "eligible",
+   "public_persona": "wife and executrix",
+   "private_secret": "involved in deception",
+   "motive_seed": "protect husband and estate",
+   "motive_strength": "moderate",
+   "alibi_window": "at home",
+   "access_plausibility": "high",
+   "stakes": "inheritance and safety",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Simon Bendelow (husband)"
+   ],
+   "opportunity_channels": [
+    "house"
+   ],
+   "behavioral_tells": [
+    "gruff",
+    "efficient"
+   ],
+   "evidence_sensitivity": [
+    "will",
+    "cremation certificate"
+   ]
+  }
+ ],
+ "culprits": [
+  "Mr. Simon Bendelow (alias Morris)"
+ ],
+ "surface_summary": "Julius D’Arblay is found dead in a pond, apparently drowned, but later discovered to have been murdered by aconitine poisoning via hypodermic injection. Suspicion falls on a mysterious man connected to a stolen unique coin and a wax mask. The investigation reveals a complex plot involving faked deaths, identity substitution, and a criminal masquerading as the deceased.",
+ "accepted_facts": [
+  "Julius D’Arblay was murdered by aconitine poisoning administered with a hypodermic syringe.",
+  "Simon Bendelow was believed dead but was actually alive and faked his death using a wax mask.",
+  "The unique electrotype coin found in the pond was made by Julius D’Arblay.",
+  "The cremation of Bendelow was a fraud involving a wax mask and an empty coffin."
+ ],
+ "inferred_conclusions": [
+  "The man who attacked Marion D’Arblay was not the murderer but an unrelated assailant.",
+  "The death certificates and funerals of Bendelow and Crile were legitimate and truthful.",
+  "The police had correctly identified Bendelow and Crile as dead and unrelated to the ongoing threat."
+ ],
+ "mechanism_description": "Simon Bendelow, a professional criminal, faked his death by commissioning Julius D’Arblay to make a wax mask of his face. After murdering D’Arblay to silence him, Bendelow substituted the wax mask over a corpse in a coffin with an inspection window and staged a cremation to create false evidence of his death. He then lived under an alias, continuing his criminal activities until Thorndyke’s investigation uncovered the deception and led to his arrest.",
+ "delivery_path": [
+  "Bendelow commissions D’Arblay to make a wax mask of his face.",
+  "Bendelow murders D’Arblay to prevent exposure of the mask.",
+  "Bendelow substitutes the wax mask over a corpse in a coffin with an inspection window.",
+  "The coffin is presented to witnesses and cremated to fake Bendelow’s death.",
+  "Bendelow assumes a new identity and continues criminal activities.",
+  "Thorndyke discovers the wax mask and connects it to Bendelow.",
+  "Police arrest Bendelow after coordinated surveillance and evidence gathering."
+ ],
+ "outcome_result": "Simon Bendelow is arrested and exposed as the murderer and fraudster behind the elaborate deception.",
+ "false_assumption": {
+  "statement": "The two men, Bendelow and Crile, were both dead and buried as stated in official records.",
+  "type": "identity",
+  "why_it_seems_reasonable": "Death certificates and funerals were officially recorded and witnessed by multiple parties, including doctors and acquaintances. The presence of cremation and burial records provides strong documentary evidence supporting their deaths.",
+  "what_it_hides": "One of the men, Bendelow, faked his death using a wax mask and an empty coffin, allowing him to evade capture and continue his criminal activities."
+ },
+ "false_solution": {
+  "accused_suspect": "Mr. Morris",
+  "supporting_points": [
+   "Morris was identified by a plaster mask found at the studio.",
+   "He was seen following Dr. Gray and was suspected of suspicious activities.",
+   "His shop contained unusual and decayed antiques suggesting illicit dealings.",
+   "He was connected to the victim through the wax mask."
+  ],
+  "the_one_flaw": "Morris was actually Simon Bendelow in disguise, using the alias to conceal his identity.",
+  "refuted_in_chapter": 19
+ },
+ "red_herrings": [
+  {
+   "id": "brake_wire_sabotage",
+   "description": "The deliberate cutting of Marion D’Arblay’s bicycle brake wire suggested a malicious attempt on her life.",
+   "points_at_suspect": "An unknown local saboteur or mentally defective adult",
+   "innocent_explanation": "The act was a crude attempt by the murderer to intimidate or harm Marion but was not directly linked to the murder itself.",
+   "resolved_in_chapter": 10
+  },
+  {
+   "id": "derrick_fall_incident",
+   "description": "The falling derrick on the canal tow-path that caused Dr. Gray to fall into the water appeared to be an accident or sabotage.",
+   "points_at_suspect": "Mr. Morris or an unknown assailant near the canal",
+   "innocent_explanation": "The derrick fell due to a poorly secured rope slipping off the cleat, likely accidental rather than intentional sabotage.",
+   "resolved_in_chapter": 9
+  }
+ ],
+ "closed_circle": {
+  "suspects": [
+   "Mr. Simon Bendelow (alias Morris)",
+   "Mrs. Morris (Sarah Elizabeth Morris)",
+   "Mr. Morris",
+   "Inspector Follett",
+   "Miss Boler (Arabella)",
+   "Stephen Gray",
+   "Marion D’Arblay"
+  ],
+  "rationale": "The suspects are limited to those with direct connection to the victim, the wax mask, and the forged death, all residing or operating within the London area and connected through the investigation."
+ },
+ "constraint_space": {
+  "time_anchors": [
+   "Death of Julius D’Arblay on the morning found",
+   "Death of Bendelow and Crile within days of each other",
+   "Appointment times for medical visits",
+   "Time of attempted murder on Marion D’Arblay"
+  ],
+  "time_windows": [
+   "Intervals between murders and cremation",
+   "Periods of surveillance and watch over Marion",
+   "Times of police stakeouts and arrests"
+  ],
+  "access_actors": [
+   "Simon Bendelow (alias Morris)",
+   "Mrs. Morris",
+   "Stephen Gray",
+   "Marion D’Arblay",
+   "Police officers"
+  ],
+  "access_objects": [
+   "Julius D’Arblay’s studio",
+   "Morris’ house with two street frontages",
+   "Canal tow-path and wharf",
+   "Coffin with inspection window"
+  ],
+  "trust_channels": [
+   "Medical certificates and death records",
+   "Witness testimony of spinsters and family",
+   "Police reports and inquest findings"
+  ],
+  "authority_sources": [
+   "Coroner’s inquest",
+   "Criminal Investigation Department",
+   "Dr. John Thorndyke’s expertise",
+   "Home Office exhumation license"
+  ]
+ },
+ "inference_path": [
+  {
+   "observation": "The body found in the pond had a needle puncture in the back and died of aconitine poisoning.",
+   "correction": "Death was homicide, not drowning or suicide.",
+   "effect": "The case is murder, not accident or natural causes.",
+   "required_evidence": [
+    "Medical witness testimony at the inquest",
+    "Post-mortem examination report"
+   ]
+  },
+  {
+   "observation": "An ancient coin found in the pond was an electrotype made by Julius D’Arblay.",
+   "correction": "The coin links the victim to a forgery operation.",
+   "effect": "Motive may involve fraudulent coin production.",
+   "required_evidence": [
+    "Wax impressions of the coin",
+    "British Museum expert testimony"
+   ]
+  },
+  {
+   "observation": "Simon Bendelow was declared dead and cremated, but the coffin was later found empty.",
+   "correction": "Bendelow faked his death using a wax mask and an empty coffin.",
+   "effect": "Bendelow is alive and the prime suspect.",
+   "required_evidence": [
+    "Exhumation report",
+    "Wax mask found in D’Arblay’s studio"
+   ]
+  },
+  {
+   "observation": "Two elderly spinsters identified the wax mask as Bendelow’s face.",
+   "correction": "The mask was used to fake Bendelow’s death.",
+   "effect": "Confirms the identity of the wax mask and the deception.",
+   "required_evidence": [
+    "Interview with Miss Dewsnep and Miss Bonington",
+    "Photograph of wax mask"
+   ]
+  },
+  {
+   "observation": "Marion D’Arblay was attacked by a man matching the description of Morris.",
+   "correction": "Morris is actually Bendelow in disguise using make-up and a wax mask.",
+   "effect": "The attacker and murderer are the same person.",
+   "required_evidence": [
+    "Description of assailant by Marion",
+    "Wax mask and make-up demonstration"
+   ]
+  },
+  {
+   "observation": "The murder victim’s studio was ransacked and a plaster mould was broken.",
+   "correction": "The murderer searched for the wax mask mould to destroy evidence.",
+   "effect": "Motive for murder was to conceal the fraudulent death.",
+   "required_evidence": [
+    "Studio inspection report",
+    "List of missing or disturbed moulds"
+   ]
+  },
+  {
+   "observation": "The police arrested a man with a red nose and different appearance than expected.",
+   "correction": "The arrested man was the disguised Bendelow using make-up and a wax mask.",
+   "effect": "The true murderer was caught despite disguise.",
+   "required_evidence": [
+    "Police surveillance reports",
+    "Identification by Stephen Gray"
+   ]
+  }
+ ],
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "A wax mask was made from the plaster mould of Morris’ face and altered with clay to resemble the assailant’s description. A photograph was taken and shown to the witnesses to test recognition without suggestion. The mask was also used in a coffin with an inspection window to simulate Bendelow’s death.",
+  "knowledge_revealed": "The test revealed that the assailant was indeed Morris (Bendelow) disguised with make-up and that the wax mask was used to fake the cremation death.",
+  "pass_condition": "Witnesses must positively identify the wax mask as the face of the assailant and Bendelow, confirming the deception."
+ },
+ "fair_play_explanation": "The reader is given detailed descriptions of the characters, the wax masks, the unique coin, and the suspicious circumstances surrounding the deaths and cremation. The clues about the wax mask’s existence, the forged coin, and the suspicious behavior of Morris are all presented openly. The reader could deduce the use of a wax mask to fake Bendelow’s death and the motive for murdering D’Arblay to conceal the fraud.",
+ "anchors": [
+  {
+   "claim": "The body was found in the pond with a needle puncture in the back",
+   "anchor": "needle-puncture was in the back, just below the left shoulder-blade"
+  },
+  {
+   "claim": "The cause of death was aconitine poisoning",
+   "anchor": "The cause of death was aconitine poisoning"
+  },
+  {
+   "claim": "An ancient coin found in the pond was an electrotype made by D’Arblay",
+   "anchor": "the electrotype guinea that was found in the pond was made by Julius D’Arblay"
+  },
+  {
+   "claim": "Bendelow was declared dead and cremated, but the coffin was empty",
+   "anchor": "the coffin which was buried at Mr. Crile’s funeral must have been an empty coffin"
+  },
+  {
+   "claim": "Two elderly spinsters identified the wax mask as Bendelow’s face",
+   "anchor": "they sprang back with a shriek. “Oh, it’s Mr. Bendelow!”"
+  },
+  {
+   "claim": "Marion D’Arblay was attacked by a man matching the description of Morris",
+   "anchor": "He had a moustache with turned-up ends and a beard; a rather short beard"
+  },
+  {
+   "claim": "The murderer searched the studio and broke a plaster mould",
+   "anchor": "the things are all in disorder and one of the moulds is broken"
+  },
+  {
+   "claim": "The police arrested a man with a red nose and different appearance",
+   "anchor": "the fugitive rushed out, wild-eyed and terrified, his white face contrasting most singularly with his vividly-red nose"
+  },
+  {
+   "claim": "The wax mask was used to fake Bendelow’s death in the coffin with an inspection window",
+   "anchor": "The wax mask was placed over the face; the jaw-bandage and the skull cap adjusted to hide the place where the wax face joined the real face"
+  },
+  {
+   "claim": "The wax mask was made by Julius D’Arblay",
+   "anchor": "this man Morris had dealings with the victim and the wax mask was made by Julius D’Arblay"
+  },
+  {
+   "claim": "The photograph of the wax mask was recognized by witnesses",
+   "anchor": "that photograph was instantly recognized, without any sort of suggestion"
+  },
+  {
+   "claim": "The exhumed coffin was empty and contained a sack of sawdust",
+   "anchor": "in place of the mortal remains of the late Jonathan Crile, was a portly sack oozing sawdust"
+  },
+  {
+   "claim": "The real Bendelow was alive and disguised as Morris",
+   "anchor": "the face that I saw was not the face that I had expected to see... this is Morris"
+  },
+  {
+   "claim": "The murder was committed to silence D’Arblay who possessed incriminating evidence",
+   "anchor": "Julius D’Arblay must be got rid of. Here, then, was an amply sufficient motive for the murder"
+  },
+  {
+   "claim": "The murderer attempted to kill Marion to prevent exposure",
+   "anchor": "he came to look for some incriminating object and tried to kill Marion"
+  },
+  {
+   "claim": "The police arrested the disguised Bendelow after coordinated surveillance",
+   "anchor": "the man was caught after a chase and shots fired, and was identified as Morris"
+  },
+  {
+   "claim": "The wax mask was altered with clay to resemble the assailant",
+   "anchor": "we built up on Morris’s mask a nose of the shape described and slightly thickened the brows"
+  },
+  {
+   "claim": "The two death certificates and funerals were fraudulent",
+   "anchor": "two death certificates, in different names, and two corresponding burial orders, had been obtained"
+  },
+  {
+   "claim": "The wax mask was used to deceive witnesses and officials",
+   "anchor": "the two ladies were brought up to see Mr. Bendelow in his coffin. They looked in through the window, and, of course, saw the wax mask of Bendelow"
+  },
+  {
+   "claim": "The murder was a crime of expediency, not revenge",
+   "anchor": "The hypothesis of revenge could not be explored... The hypothesis of expediency was the more probable one"
+  }
+ ]
+}

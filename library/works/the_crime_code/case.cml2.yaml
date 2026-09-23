@@ -1,0 +1,438 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The crime code
+    author: William Le Queux
+    license: Public domain (first published 1928; author died 1927). Project Gutenberg ebook 78372.
+    era:
+      decade: 1920s
+      realism_constraints:
+        - No advanced forensic DNA analysis available
+        - Communication primarily via telegrams, letters, and telephone
+        - Travel by train and motor vehicles common but slower than modern times
+    setting:
+      location: London, England, with scenes in Rome, Lausanne, and other European cities
+      institution: Scotland Yard (Metropolitan Police), Foreign Office
+    crime_class:
+      category: murder
+      subtype: criminal gang revenge and deception
+  cast:
+    - name: Lionel Hipwell
+      age_range: 30-40
+      role_archetype: disguised gentleman caught in criminal intrigue
+      relationships:
+        - Joan Gell (fiancée)
+        - Illona (secret wife)
+        - Felix Zuroff (gang leader)
+        - Lisely Hatten (enemy/friend)
+      public_persona: King’s Foreign Service Messenger, son of a Deputy-Lieutenant and MP
+      private_secret: Unwittingly involved in a criminal gang, expert jewel thief under drug influence
+      motive_seed: self-preservation and love for Joan
+      motive_strength: strong
+      alibi_window: varies, often disguised and traveling
+      access_plausibility: high, due to official position and social connections
+      opportunity_channels:
+        - official travel
+        - social events
+        - criminal gang activities
+      behavioral_tells:
+        - fear of exposure
+        - conflicted loyalty
+        - attempts to clear name
+      stakes: high, including freedom, reputation, and love
+      evidence_sensitivity:
+        - bank pass-book
+        - letters from Illona
+        - jewelry in hollow book
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: high
+    - name: Joan Gell
+      age_range: 20-30
+      role_archetype: innocent victim and beloved fiancée
+      relationships:
+        - Lionel Hipwell (fiancé)
+        - John Gell (father)
+      public_persona: daughter of famous King’s Counsel
+      private_secret: kidnapped and held captive by criminal gang
+      motive_seed: love for Lionel and victim of gang revenge
+      motive_strength: none
+      alibi_window: missing during disappearance
+      access_plausibility: none during captivity
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: life and freedom
+      evidence_sensitivity: []
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: female
+      role: victim
+      moral_complexity: low
+    - name: Illona (Elizabeth Mary Illona Patrick)
+      age_range: 35-45
+      role_archetype: secret wife, criminal gang member, antagonist
+      relationships:
+        - Lionel Hipwell (husband)
+        - Felix Zuroff (gang leader)
+        - Lisely Hatten (enemy)
+      public_persona: unknown to society, secret wife of Lionel
+      private_secret: member of criminal gang, jealous and vengeful
+      motive_seed: jealousy and criminal loyalty
+      motive_strength: strong
+      alibi_window: often in hiding
+      access_plausibility: high within gang and to Lionel
+      opportunity_channels:
+        - criminal gang activities
+        - social manipulation
+      behavioral_tells:
+        - jealousy
+        - deception
+        - betrayal
+      stakes: gang loyalty, personal vengeance
+      evidence_sensitivity:
+        - marriage certificate
+        - letters
+        - suicide by prussic acid
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: female
+      role: culprit
+      moral_complexity: high
+    - name: Lisely Hatten (Angela Ugostini, the Little Countess)
+      age_range: 20-30
+      role_archetype: criminal gang member, double agent
+      relationships:
+        - Lionel Hipwell (friend/enemy)
+        - Felix Zuroff (gang leader)
+        - Illona (enemy)
+      public_persona: typist and social butterfly
+      private_secret: member of criminal gang, initially friend then enemy of Lionel
+      motive_seed: gang loyalty, personal animosity
+      motive_strength: moderate
+      alibi_window: present in London and Rome
+      access_plausibility: high
+      opportunity_channels:
+        - criminal gang activities
+        - social manipulation
+      behavioral_tells:
+        - suspicion
+        - betrayal
+        - manipulation
+      stakes: gang success, personal power
+      evidence_sensitivity:
+        - letters
+        - musical cipher
+        - gang meetings
+      culprit_eligibility: eligible
+      culpability: unknown
+      gender: female
+      role: suspect
+      moral_complexity: high
+    - name: John Gell
+      age_range: 50-60
+      role_archetype: famous King’s Counsel, father of victim
+      relationships:
+        - Joan Gell (daughter)
+        - Lionel Hipwell (fiancé of daughter)
+      public_persona: prominent barrister and politician
+      private_secret: political enemy of Lionel’s father
+      motive_seed: protect daughter and family honor
+      motive_strength: strong
+      alibi_window: present in London
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells:
+        - anxiety
+        - determination
+      stakes: family safety and justice
+      evidence_sensitivity: []
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: moderate
+    - name: Felix Zuroff (Nicholas Sarasti, His Excellency)
+      age_range: 40-50
+      role_archetype: criminal gang leader
+      relationships:
+        - Illona (associate)
+        - Lisely Hatten (right hand)
+        - Lionel Hipwell (agent)
+      public_persona: unknown, lives in disguise
+      private_secret: mastermind of international jewel-thief gang
+      motive_seed: profit and control
+      motive_strength: strong
+      alibi_window: often abroad
+      access_plausibility: high within gang
+      opportunity_channels:
+        - gang operations
+        - criminal planning
+      behavioral_tells:
+        - commanding
+        - calculating
+      stakes: criminal empire
+      evidence_sensitivity:
+        - musical cipher
+        - gang communications
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Roddy Owen
+      age_range: 30-40
+      role_archetype: associate of criminals, missing person
+      relationships:
+        - Lisely Hatten (friend)
+        - Joan Gell (acquaintance)
+      public_persona: young man-about-town
+      private_secret: associate of criminal gang, missing after murder
+      motive_seed: fear and self-preservation
+      motive_strength: moderate
+      alibi_window: missing
+      access_plausibility: high
+      opportunity_channels:
+        - criminal gang activities
+      behavioral_tells:
+        - flight
+        - secrecy
+      stakes: freedom and survival
+      evidence_sensitivity:
+        - police surveillance
+        - witness statements
+      culprit_eligibility: eligible
+      culpability: unknown
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+  culpability:
+    culprit_count: 2
+    culprits:
+      - Illona (Elizabeth Mary Illona Patrick)
+      - Felix Zuroff (Nicholas Sarasti, His Excellency)
+  surface_model:
+    narrative:
+      summary: >-
+        Lionel Hipwell is accused of murdering a criminal known as Monkey Dick after a violent
+        altercation in Bloomsbury Square. He flees and disguises himself but becomes entangled with
+        a criminal gang led by Felix Zuroff, involving secret marriages, jewel thefts, and the
+        disappearance of his fiancée Joan Gell. The case appears to be a complex web of deception,
+        revenge, and criminal conspiracy.
+    accepted_facts:
+      - Monkey Dick was shot dead in Bloomsbury Square during a struggle.
+      - Lionel Hipwell fled the scene and was sought by the police.
+      - Joan Gell disappeared after receiving a mysterious message.
+      - Illona was legally married to Lionel Hipwell and involved in criminal activities.
+    inferred_conclusions:
+      - Lionel Hipwell deliberately murdered Monkey Dick.
+      - Joan Gell willingly ran away with Roddy Owen.
+      - Illona was a loyal wife protecting Lionel from harm.
+  hidden_model:
+    mechanism:
+      description: >-
+        The murder of Monkey Dick was accidental during a struggle in self-defense when he attacked
+        Lionel. Lionel was drugged and manipulated by the criminal gang led by Felix Zuroff, which
+        used him as an expert jewel thief under the guise of his official duties. Joan Gell was
+        kidnapped by the gang as revenge against her father, the prosecutor. Illona, Lionel’s secret
+        wife and gang member, acted out of jealousy and to maintain control over Lionel. Ultimately,
+        the gang’s internal conflicts and police investigations led to the rescue of Joan and the
+        death of Illona by suicide.
+      delivery_path:
+        - step: >-
+            Monkey Dick attacks Lionel in Bloomsbury Square; during struggle, Monkey Dick shoots
+            himself.
+        - step: >-
+            Lionel flees and disguises himself, unknowingly becoming involved with Felix Zuroff’s
+            gang.
+        - step: Lionel is drugged by Lisely Hatten, causing memory loss and criminal behavior.
+        - step: Joan Gell is decoyed away by a forged message and held captive by gang associates.
+        - step: Illona, Lionel’s secret wife and gang member, manipulates and threatens Lionel.
+        - step: Police track down gang members leading to the discovery and rescue of Joan.
+        - step: Illona commits suicide when police close in; Felix Zuroff agrees to release Lionel.
+    outcome:
+      result: >-
+        Illona dies by suicide, Joan is rescued, Lionel is freed from the gang’s control, and he
+        reunites with Joan.
+  false_assumption:
+    statement: Lionel Hipwell was the murderer of Monkey Dick.
+    type: behavioral
+    why_it_seems_reasonable: >-
+      Lionel fled the scene immediately after the shooting and was described by witnesses, making
+      him the prime suspect. The victim was a known criminal, and Lionel’s flight suggested guilt.
+    what_it_hides: >-
+      The shooting was accidental during self-defense, and the victim shot himself. Lionel’s flight
+      was due to fear of wrongful accusation and scandal, not guilt.
+  false_solution:
+    accused_suspect: Lionel Hipwell
+    supporting_points:
+      - He was seen fleeing the scene shortly after the shooting.
+      - The victim was shot with a pistol found near Lionel.
+      - A woman accused Lionel of killing her lover.
+      - Lionel’s distinctive clothing matched the description given to police.
+    the_one_flaw: >-
+      The shooting was accidental and self-inflicted during a struggle; Lionel was acting in
+      self-defense.
+    refuted_in_chapter: 29
+  red_herrings:
+    - id: lisely_hatten_suspicion
+      description: >-
+        Lisely Hatten initially appears as a friend but later accuses Lionel of spying and attempts
+        to blind him.
+      points_at_suspect: Lionel Hipwell
+      innocent_explanation: >-
+        Lisely was a member of the criminal gang suspicious of Lionel but ultimately spared his
+        eyesight and sent warnings.
+      resolved_in_chapter: 29
+    - id: rodgy_owen_disappearance
+      description: >-
+        Roddy Owen’s disappearance and association with criminals suggest he might be involved in
+        Joan’s disappearance.
+      points_at_suspect: Roddy Owen
+      innocent_explanation: Roddy fled due to fear of police suspicion but was not responsible for Joan’s kidnapping.
+      resolved_in_chapter: 29
+  closed_circle:
+    suspects:
+      - Lionel Hipwell
+      - Illona (Elizabeth Mary Illona Patrick)
+      - Felix Zuroff (Nicholas Sarasti, His Excellency)
+      - Lisely Hatten (Angela Ugostini, the Little Countess)
+      - Roddy Owen
+      - Dufour
+      - Booth (Old Tom)
+    rationale: >-
+      All suspects are connected through the criminal gang and the events surrounding the murder,
+      kidnapping, and jewel thefts. The investigation confines itself to this group due to their
+      known associations and actions.
+  constraint_space:
+    time:
+      anchors:
+        - Night of November 12, murder of Monkey Dick
+        - Joan’s disappearance evening
+        - Illona’s suicide after police raid
+        - Trial dates of gang members
+        - Lionel’s travels between London, Rome, Lausanne
+      windows:
+        - Interval between murder and police search
+        - Period of Lionel’s unconsciousness and memory loss
+        - Duration of Joan’s captivity
+        - Gang’s planned jewel theft operations
+    access:
+      actors:
+        - Lionel Hipwell
+        - Illona
+        - Lisely Hatten
+        - Felix Zuroff
+        - Roddy Owen
+        - Dufour
+        - Booth
+      objects:
+        - Lionel’s rooms in Sackville Street
+        - House in Camberwell
+        - Harrington Court apartment
+        - House in Sheen Lane
+        - Jewel cases and pearls
+        - Musical cipher documents
+    social:
+      trust_channels:
+        - Letters and telegrams
+        - Verbal messages via intermediaries
+        - Musical cipher for secret communication
+        - Personal meetings under disguise
+      authority_sources:
+        - Scotland Yard
+        - Foreign Office
+        - King’s Counsel John Gell
+        - Felix Zuroff as gang leader
+  inference_path:
+    steps:
+      - observation: Hilda Bennett accuses Lionel of murder but later denies he is the killer
+        correction: She was lying to protect herself and the gang
+        effect: Lionel’s innocence in the murder is plausible
+        required_evidence:
+          - >-
+            Police report of Hilda Bennett’s contradictory statements regarding the attack on Monkey
+            Dick
+          - Witness testimony of the struggle in Bloomsbury Square involving Monkey Dick and Lionel
+        reader_observable: true
+      - observation: Lionel’s sudden disappearance and disguise as a lorry driver
+        correction: He fled to avoid wrongful arrest and scandal
+        effect: Flight is due to fear, not guilt
+        required_evidence:
+          - Statements from lorry drivers who aided Lionel after the attack
+          - Newspaper descriptions and police alerts about the monkey murder case
+        reader_observable: true
+      - observation: Joan Gell disappears after receiving a message purportedly from Lionel
+        correction: Message was forged by gang to lure her away
+        effect: Joan’s disappearance is a kidnapping, not voluntary
+        required_evidence:
+          - Maid’s testimony about Joan’s reaction to the forged message mentioning Monkey Dick
+          - Taxi driver’s statement on Joan’s movements on the night of the monkey incident
+        reader_observable: true
+      - observation: Musical manuscript sent to Lionel appears meaningless
+        correction: It is a coded message using a musical cipher
+        effect: Gang uses sophisticated secret communication
+        required_evidence:
+          - Musical cipher key found with pearls in Lionel’s possession
+          - Deciphered message warning about Illona and the monkey attack
+        reader_observable: true
+      - observation: Illona warns Lionel about a blind man and betrays him to police
+        correction: Illona is jealous and betrays Lionel to gain control
+        effect: Illona is an antagonist within the gang
+        required_evidence:
+          - Letters from Illona referencing the monkey and the accidental shooting
+          - Police search warrant and reports mentioning self-defense claims
+        reader_observable: true
+      - observation: Felix Zuroff controls the gang and holds Lionel’s fate
+        correction: Zuroff eventually agrees to release Lionel after Illona’s death
+        effect: Gang leader’s power is decisive in resolution
+        required_evidence:
+          - Meeting between Lionel and Zuroff in Lausanne discussing the accidental monkey shooting
+          - Written agreement of silence and release referencing self-defense
+        reader_observable: true
+      - observation: Joan is found ill and unconscious in a house after police raid
+        correction: She was held captive by gang members as revenge
+        effect: Joan’s rescue confirms gang’s role in her disappearance
+        required_evidence:
+          - Police raid reports and witness statements about the monkey case
+          - Joan’s own testimony after recovery describing the attack and accidental shooting
+        reader_observable: true
+  discriminating_test:
+    method: reenactment
+    design: >-
+      Reenact the struggle in Bloomsbury Square with the same participants and setting to observe
+      the shooting dynamics and verify if the victim could have shot himself accidentally during the
+      altercation and attack.
+    knowledge_revealed: >-
+      Confirms that Monkey Dick’s death was accidental and self-inflicted during the struggle and
+      attack, exonerating Lionel from intentional murder and supporting the self-defense claim.
+    pass_condition: >-
+      The reenactment shows the victim’s gun discharges accidentally during the scuffle and attack
+      without intentional aim at Lionel, supporting the self-defense scenario.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given detailed descriptions of the murder scene, the characters’ movements, and
+      the contradictory statements of witnesses. The coded musical manuscript and the secret
+      messages are presented with their cipher key. The motives and relationships among characters
+      are clearly outlined, allowing the reader to deduce the true sequence of events. The false
+      accusation against Lionel is explicitly shown to be based on misinterpretation and deception,
+      enabling a careful reader to solve the mystery.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

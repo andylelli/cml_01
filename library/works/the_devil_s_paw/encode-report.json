@@ -1,0 +1,136 @@
+{
+ "slug": "the_devil_s_paw",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "The packet contains peace terms formulated by the Socialist and Labour parties of Germany",
+   "anchor": "that packet which is responsible for your incarceration here",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The peace proposals bear the signatures of the Kaiser, the Chancellor and Hindenburg",
+   "anchor": "the three great men of Germany, whose signatures are attached to that document",
+   "span": "by the three great men of Germany, whose signatures are attached to that document--the Kaiser, the Chancellor and Hindenburg.",
+   "ok": true
+  },
+  {
+   "claim": "Nicholas Fenn is the secretary of the Labour Council and involved in secret communications",
+   "anchor": "Nicholas Fenn, the Labour M.P.?",
+   "span": "Nicholas Fenn, the Labour M.P.?\" \"That's the fellow.",
+   "ok": true
+  },
+  {
+   "claim": "Julian Orden is the anonymous writer Paul Fiske",
+   "anchor": "Julian Orden comes here as the representative of the new Labour Council",
+   "span": "to learn that our friend Julian Orden comes here as the representative of the new Labour Council.",
+   "ok": true
+  },
+  {
+   "claim": "Fenn claims to have received letters from Freistner and has destroyed originals",
+   "anchor": "I never keep a communication from Freistner. I have told you so before",
+   "span": "I never keep a communication from Freistner. I have told you so before.",
+   "ok": true
+  },
+  {
+   "claim": "Fenn has received German money and is bribed",
+   "anchor": "Nicholas Fenn has had a hundred thousand pounds of German money within the last few months",
+   "span": "Nicholas Fenn has had a hundred thousand pounds of German money within the last few months,\" she replied.",
+   "ok": true
+  },
+  {
+   "claim": "The originals of Freistner’s communications have been destroyed",
+   "anchor": "It seems that the originals of most of Freistner’s communications have been destroyed",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Julian Orden was incapacitated by gas and held by Fenn and Bright",
+   "anchor": "He has spent the intervening period, until three o’clock this afternoon, in a small laboratory",
+   "span": "He has spent the intervening period, until three o'clock this afternoon, in a small laboratory attached to the premises.",
+   "ok": true
+  },
+  {
+   "claim": "The Labour Council threatens a general strike if the armistice is refused",
+   "anchor": "Those twenty will unanimously proclaim a general strike, if you should refuse the proposed armistice",
+   "span": "Those twenty will unanimously proclaim a general strike, if you should refuse the proposed armistice.",
+   "ok": true
+  },
+  {
+   "claim": "The Prime Minister refuses the peace proposals citing dishonour",
+   "anchor": "I cannot ask for the armistice you suggest",
+   "span": "I cannot ask for the armistice you suggest.",
+   "ok": true
+  },
+  {
+   "claim": "Catherine Abbeway warns Julian of the deception and presents proof",
+   "anchor": "Thank God we are in time to stop them!",
+   "span": "Thank God we are in time to stop them!\" Julian looked at her for a moment, utterly incredulous.",
+   "ok": true
+  },
+  {
+   "claim": "Fenn collapses when accused of lying and bribery",
+   "anchor": "Fenn sprang to his feet. He had all the appearance of a man about to make a vigorous and exhaustive defence",
+   "span": "Fenn sprang to his feet. He had all the appearance of a man about to make a vigorous and exhaustive defence.",
+   "ok": true
+  },
+  {
+   "claim": "Julian Orden is elected as the Labour Council’s envoy",
+   "anchor": "Mr. Julian Orden, better known to you all under the name of ‘Paul Fiske’, has been chosen",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The Council destroys all traces of the deception to protect the cause",
+   "anchor": "It rests with every one of you to destroy all the traces of what might have happened",
+   "span": "It rests with every one of you to destroy all the traces of what might have happened.",
+   "ok": true
+  },
+  {
+   "claim": "The Baron Hellman is a German agent involved in the plot",
+   "anchor": "There was a young foreigner, some weeks ago, a Baron Hellman",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The peace proposals are a cunning German plot to deceive the Allies",
+   "anchor": "The supposed strength of the Socialist Party in Germany is an utter sham",
+   "span": "The supposed strength of the Socialist Party in Germany is an utter sham.",
+   "ok": true
+  },
+  {
+   "claim": "The Labour Council’s power to paralyse industry is real and threatening",
+   "anchor": "Within a few hours to paralyse industrial England, to keep her ships idle in the docks",
+   "span": "Under their fingers grew the more amplified mandates which, following upon the bombshell of the already prepared telegrams, were within a few hours to paralyse industrial England, to keep her ships idle in the docks, her trains motionless upon the rails, her mines silent, her forges cold, her great factories empty.",
+   "ok": true
+  },
+  {
+   "claim": "Fenn’s financial records reveal his betrayal",
+   "anchor": "Your bank book, as you only received your last instalment from Germany this week",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The Prime Minister warns of the consequences of the Labour Council’s threat",
+   "anchor": "If you carry out your threat, you plunge this country into revolution",
+   "span": "If you carry out your threat, you plunge this country into revolution, you dishonour us in the face of our Allies; you will go through the rest of your lives, every one of you, with a guilt upon your souls, a stain upon your consciences, which nothing will ever obliterate.",
+   "ok": true
+  },
+  {
+   "claim": "Julian Orden and Catherine Abbeway become engaged",
+   "anchor": "I think that during these last few days we have forgotten to be human",
+   "span": "I think that during these last few days we have forgotten to be human, and it might help us--for after all, you know, we are engaged!",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.08735680169999999,
+ "models": {
+  "map": "gpt-4o-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

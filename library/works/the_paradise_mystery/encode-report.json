@@ -1,0 +1,136 @@
+{
+ "slug": "the_paradise_mystery",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "John Braden was found dead at the foot of St. Wrytha's Stair",
+   "anchor": "a man flung through that doorway, forty feet above",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Braden had no papers on him but carried a scrap of Latin directions",
+   "anchor": "a scrap of paper folded curiously, after the fashion of the cocked-hat missives",
+   "span": "But he found a purse, full of money--banknotes, gold, silver--and in one of its compartments a scrap of paper folded curiously, after the fashion of the cocked-hat missives of another age in which envelopes had not been invented.",
+   "ok": true
+  },
+  {
+   "claim": "Collishaw was poisoned by hydrocyanic acid",
+   "anchor": "Poisoned! Hydrocyanic acid!",
+   "span": "Poisoned! Hydrocyanic acid!\" CHAPTER XIII.",
+   "ok": true
+  },
+  {
+   "claim": "The Saxonsteade jewels were found buried in Paradise",
+   "anchor": "the whole lot! have been discovered in Paradise yonder",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Varner saw a gentleman's hand throw Braden from the gallery",
+   "anchor": "He saw a white shirt cuff and a bit of a black sleeve",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Wraye is the real identity of Mr. Stephen Folliot",
+   "anchor": "Falkiner Wraye and Stephen Folliot were one and the same person",
+   "span": "I may as well tell you that Falkiner Wraye and Stephen Folliot were one and the same person.",
+   "ok": true
+  },
+  {
+   "claim": "Flood is the real identity of Fladgate, the verger",
+   "anchor": "The man Flood, is also a well-known man to you. Fladgate!",
+   "span": "the man Flood, is also a well-known man to you. Fladgate!\" Mitchington started, evidently more astonished than by the first news.",
+   "ok": true
+  },
+  {
+   "claim": "Braden died accidentally after a struggle with Flood",
+   "anchor": "he'd no sooner recognized me than he attacked me, seizing me by the arm",
+   "span": "--he'd no sooner recognized me than he attacked me, seizing me by the arm.",
+   "ok": true
+  },
+  {
+   "claim": "Wraye poisoned Collishaw to silence him",
+   "anchor": "Wraye was found to be responsible for Collishaw's poisoning",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Bryce withdrew fifty pounds in gold shortly before Collishaw's death",
+   "anchor": "a certain Wrychester man drew fifty pounds in gold at his bank",
+   "span": "On the day previous to that on which Collishaw handed that fifty pounds to Stebbing, a certain Wrychester man drew fifty pounds in gold at his bank.",
+   "ok": true
+  },
+  {
+   "claim": "Bryce manipulated suspicions to gain power and marry Mary",
+   "anchor": "I want to marry his daughter",
+   "span": "I want to marry his daughter.",
+   "ok": true
+  },
+  {
+   "claim": "Ransford was exonerated and revealed the full truth",
+   "anchor": "The man whom you've heard of as John Braden, was, in reality, John Brake—your father",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The scrap of paper led to the discovery of the hidden jewels",
+   "anchor": "the master-mason put in his hand and drew forth a small parcel",
+   "span": "A few vigorous applications of the trowel, a few lumps of earth cast out of the cavity, and the master-mason put in his hand and drew forth a small parcel, which in the light of the lamp held close to it by Mitchington looked to be done up in coarse sacking, secured by great blotches of black sealing wax.",
+   "ok": true
+  },
+  {
+   "claim": "False accusation against Ransford was based on circumstantial evidence",
+   "anchor": "Ransford was seen leaving the west porch of the Cathedral, looking as if he had just been very much upset",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Bryce was scheming but not the murderer",
+   "anchor": "Bryce was playing a deep game",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Varner's testimony was a red herring",
+   "anchor": "Varner persists in sticking to what he's said all along",
+   "span": "Varner persists in sticking to what he's said all along.",
+   "ok": true
+  },
+  {
+   "claim": "The poison was administered via a pill, not the tin bottle",
+   "anchor": "That box was in Collishaw's waistcoat pocket",
+   "span": "That box was in Collishaw's waistcoat pocket,\" said Mitchington.",
+   "ok": true
+  },
+  {
+   "claim": "Wraye and Flood were the true villains",
+   "anchor": "Wraye and Flood were one and the same person as Folliot and Fladgate",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The jewel robbery secret motivated the murders",
+   "anchor": "the great jewel robbery which took place at the Duke of Saxonsteade's",
+   "span": "I dare say you've heard of the great jewel robbery which took place at the Duke of Saxonsteade's some years ago, which has been a mystery to this very day?",
+   "ok": true
+  },
+  {
+   "claim": "The police investigation was complicated by multiple suspects and false leads",
+   "anchor": "Never been better puzzled in all my time",
+   "span": "Never been better puzzled in all my time!",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.119060584,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

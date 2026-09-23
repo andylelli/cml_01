@@ -1,0 +1,598 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: Tragedy at Ravensthorpe
+    author: J. J. Connington
+    license: Public domain (first published 1927; author died 1947). Project Gutenberg ebook 75407.
+    era:
+      decade: 1920s
+      realism_constraints:
+        - No advanced forensic DNA analysis available
+        - Limited telecommunications, mainly telephone and telegraph
+        - Lock-picking and mechanical listening devices possible but primitive
+    setting:
+      location: Ravensthorpe estate, England
+      institution: County Police, led by Chief Constable Sir Clinton Driffield
+    crime_class:
+      category: murder
+      subtype: complex theft and murder with staged burglary and secret passage escape
+  cast:
+    - name: Sir Clinton Driffield
+      age_range: 50s
+      role_archetype: experienced, methodical police chief
+      relationships: []
+      public_persona: Chief Constable, official investigator
+      private_secret: keen observer of family dynamics and secrets
+      motive_seed: justice and solving the case
+      motive_strength: strong
+      alibi_window: entire investigation period
+      access_plausibility: full access to estate and investigation sites
+      opportunity_channels: []
+      behavioral_tells:
+        - calm, analytical, occasionally cryptic
+      stakes: professional reputation and justice
+      evidence_sensitivity:
+        - fingerprint analysis
+        - witness statements
+        - physical evidence
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: low
+    - name: Cecil Chacewater
+      age_range: early 20s
+      role_archetype: resentful younger brother, family insider
+      relationships:
+        - Maurice Chacewater (brother)
+        - Joan Chacewater (sister)
+        - Una Rainhill (second cousin)
+      public_persona: family member, somewhat bitter
+      private_secret: harbors resentment against Maurice
+      motive_seed: family inheritance and romantic rivalry
+      motive_strength: moderate
+      alibi_window: present during investigation
+      access_plausibility: full access to estate
+      opportunity_channels:
+        - family knowledge
+        - access to secret passages
+      behavioral_tells:
+        - hostile to Maurice
+        - sometimes evasive
+      stakes: family standing and inheritance
+      evidence_sensitivity:
+        - arrival time discrepancy
+        - knowledge of secret passage
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: Maurice Chacewater
+      age_range: mid 20s
+      role_archetype: elder brother, agoraphobic, victim
+      relationships:
+        - Cecil Chacewater (brother)
+        - Joan Chacewater (sister)
+        - Una Rainhill (second cousin)
+      public_persona: head of family, reclusive
+      private_secret: suffered severe agoraphobia leading to suicide
+      motive_seed: mental illness
+      motive_strength: strong (for suicide)
+      alibi_window: disappeared before murder
+      access_plausibility: full access to estate
+      opportunity_channels:
+        - secret passages
+        - family estate
+      behavioral_tells:
+        - withdrawn
+        - ill at ease
+        - avoids open spaces
+      stakes: family estate and personal peace
+      evidence_sensitivity:
+        - body location in secret chamber
+        - fingerprints on murder weapon
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: high
+    - name: Joan Chacewater
+      age_range: about 21
+      role_archetype: young woman, family member, engaged
+      relationships:
+        - Cecil Chacewater (brother)
+        - Maurice Chacewater (brother)
+        - Michael Clifton (fiancé)
+        - Una Rainhill (second cousin)
+      public_persona: family member, social organizer
+      private_secret: engaged to Michael Clifton
+      motive_seed: family loyalty
+      motive_strength: none
+      alibi_window: present during events
+      access_plausibility: full access to estate
+      opportunity_channels: []
+      behavioral_tells:
+        - curious
+        - observant
+      stakes: family reputation
+      evidence_sensitivity:
+        - witness to conversations
+        - presence at key events
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: low
+    - name: Foxton 'Foxy' Polegate
+      age_range: 20s
+      role_archetype: neighbor, amateur prankster
+      relationships:
+        - Cecil Chacewater (friend)
+        - Una Rainhill (acquaintance)
+      public_persona: friendly neighbor, jokester
+      private_secret: involved in prank theft
+      motive_seed: mischief and sport
+      motive_strength: weak
+      alibi_window: present during events
+      access_plausibility: access to museum
+      opportunity_channels:
+        - museum access
+        - knowledge of medallions
+      behavioral_tells:
+        - evasive
+        - nervous
+      stakes: social standing
+      evidence_sensitivity:
+        - presence at museum
+        - handling of medallions
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: low
+    - name: Michael Clifton
+      age_range: 20s
+      role_archetype: fiancé, athletic and practical
+      relationships:
+        - Joan Chacewater (fiancée)
+      public_persona: family friend and fiancé
+      private_secret: concerned for Joan and family
+      motive_seed: none
+      motive_strength: none
+      alibi_window: present during events
+      access_plausibility: full access to estate
+      opportunity_channels: []
+      behavioral_tells:
+        - observant
+        - athletic
+      stakes: family welfare
+      evidence_sensitivity:
+        - witness to chase
+        - presence at key events
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+    - name: Thomas Marden
+      age_range: 30s
+      role_archetype: valet, violent temper
+      relationships:
+        - J. B. Foss (employer)
+        - Joe Brackley (confederate)
+      public_persona: valet to Foss
+      private_secret: murdered Foss and later killed
+      motive_seed: power struggle and greed
+      motive_strength: strong
+      alibi_window: present at murder scene
+      access_plausibility: full access to museum and Foss
+      opportunity_channels:
+        - museum access
+        - knowledge of safe and medallions
+      behavioral_tells:
+        - violent
+        - deceptive
+      stakes: control and profit from medallions
+      evidence_sensitivity:
+        - cut hand
+        - fingerprints
+        - presence at murder
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: J. B. Foss (Thomas Pailton, alias Cocoa Tom)
+      age_range: 50s
+      role_archetype: confidence trickster, American agent
+      relationships:
+        - Thomas Marden (valet)
+        - Joe Brackley (confederate)
+      public_persona: agent for Kessock
+      private_secret: fraudulent dealings, involved in medallion theft
+      motive_seed: personal gain
+      motive_strength: strong
+      alibi_window: present at masked ball and murder scene
+      access_plausibility: full access to museum and medallions
+      opportunity_channels:
+        - museum access
+        - knowledge of medallions and safe
+      behavioral_tells:
+        - nervous
+        - tactless
+      stakes: profit from medallions
+      evidence_sensitivity:
+        - fingerprints on pistol
+        - presence at museum
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Joe Brackley (Stephen Racks)
+      age_range: 30s
+      role_archetype: chauffeur, mastermind
+      relationships:
+        - Thomas Marden (confederate)
+        - J. B. Foss (employer)
+      public_persona: chauffeur to Foss
+      private_secret: mastermind of gang, planned murders and theft
+      motive_seed: greed and control
+      motive_strength: strong
+      alibi_window: present during events
+      access_plausibility: full access to estate and museum
+      opportunity_channels:
+        - museum access
+        - knowledge of safe and medallions
+      behavioral_tells:
+        - calculating
+        - deceptive
+      stakes: profit and freedom
+      evidence_sensitivity:
+        - presence at museum
+        - involvement in murder
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Una Rainhill
+      age_range: late teens to early 20s
+      role_archetype: second cousin, family member
+      relationships:
+        - Cecil Chacewater (acquaintance)
+        - Joan Chacewater (cousin)
+      public_persona: family guest
+      private_secret: none
+      motive_seed: none
+      motive_strength: none
+      alibi_window: present during events
+      access_plausibility: access to estate
+      opportunity_channels: []
+      behavioral_tells:
+        - helpful
+        - cooperative
+      stakes: family loyalty
+      evidence_sensitivity:
+        - witness to switch operation
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: low
+    - name: Inspector Armadale
+      age_range: 40s
+      role_archetype: police inspector, subordinate
+      relationships:
+        - Sir Clinton Driffield (superior)
+      public_persona: police inspector assisting Sir Clinton
+      private_secret: sometimes skeptical, sometimes impressed
+      motive_seed: professional duty
+      motive_strength: strong
+      alibi_window: entire investigation period
+      access_plausibility: full access to investigation sites
+      opportunity_channels: []
+      behavioral_tells:
+        - skeptical
+        - methodical
+      stakes: professional reputation
+      evidence_sensitivity:
+        - fingerprint analysis
+        - witness statements
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+    - name: Mold
+      age_range: 50s
+      role_archetype: head keeper
+      relationships:
+        - Chacewater family
+      public_persona: trusted head keeper
+      private_secret: none
+      motive_seed: none
+      motive_strength: none
+      alibi_window: present during events
+      access_plausibility: full access to estate
+      opportunity_channels: []
+      behavioral_tells:
+        - loyal
+        - observant
+      stakes: job security
+      evidence_sensitivity:
+        - witness to shots and sounds
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+    - name: Jennie Hitchin
+      age_range: child
+      role_archetype: local child witness
+      relationships: []
+      public_persona: child on estate
+      private_secret: none
+      motive_seed: none
+      motive_strength: none
+      alibi_window: present during events
+      access_plausibility: access to woods
+      opportunity_channels: []
+      behavioral_tells:
+        - nervous
+      stakes: none
+      evidence_sensitivity:
+        - sighting of 'Black Man'
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: low
+    - name: Old Groby
+      age_range: elderly
+      role_archetype: village drunkard witness
+      relationships: []
+      public_persona: local drunkard
+      private_secret: none
+      motive_seed: none
+      motive_strength: none
+      alibi_window: present during events
+      access_plausibility: access to woods
+      opportunity_channels: []
+      behavioral_tells:
+        - unreliable
+      stakes: none
+      evidence_sensitivity:
+        - sighting of 'White Man'
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+  culpability:
+    culprit_count: 2
+    culprits:
+      - Thomas Marden
+      - J. B. Foss (Thomas Pailton, alias Cocoa Tom)
+  surface_model:
+    narrative:
+      summary: >-
+        A theft of valuable Medusa Medallions and their replicas occurs during a masked ball at
+        Ravensthorpe. The apparent culprit escapes after a mysterious chase, and later the American
+        agent Foss is found murdered. Suspicion falls on various family members and associates, with
+        complex family tensions and secret passages complicating the investigation.
+    accepted_facts:
+      - The Medusa Medallions and their electrotype replicas were stolen during the masked ball.
+      - Foss, the American agent, was murdered in the museum with a Japanese Muramasa sword.
+      - >-
+        Maurice Chacewater disappeared mysteriously and was later found dead in a secret underground
+        chamber.
+      - A man disguised as a living statue escaped capture by diving into the lake.
+    inferred_conclusions:
+      - Foxton Polegate was the mastermind behind the theft and murder.
+      - Maurice Chacewater was responsible for the theft and murder.
+      - The man in white was an outsider unrelated to the family or staff.
+  hidden_model:
+    mechanism:
+      description: >-
+        The theft of the replicas was a deliberate ruse to mislead the family and police while the
+        real medallions were secretly substituted and later removed by the gang. The gang consisted
+        of Foss, Marden, and Brackley, with Brackley as the mastermind who murdered Foss and Marden
+        to cover their tracks. Maurice Chacewater, suffering from agoraphobia, committed suicide in
+        a secret underground chamber. The living statue disguise was used by Brackley to escape
+        capture during the second burglary attempt.
+      delivery_path:
+        - step: Foss overhears the plan for a fake burglary and uses it to his advantage.
+        - step: >-
+            During the masked ball, the replicas are stolen while the real medallions are secretly
+            substituted.
+        - step: Foss attempts to secure the real medallions but is murdered by Marden during a quarrel.
+        - step: Marden injures himself to create an alibi and raises the alarm.
+        - step: >-
+            Brackley plans and executes a second burglary using the living statue disguise to
+            escape.
+        - step: >-
+            Maurice, overwhelmed by agoraphobia, retreats to a secret underground chamber and
+            commits suicide.
+        - step: The police uncover the secret passages and unravel the gang’s scheme.
+    outcome:
+      result: >-
+        The gang is exposed, Maurice’s suicide is understood, and the stolen medallions are
+        recovered, resolving the complex case.
+  false_assumption:
+    statement: The man in white was an innocent outsider unrelated to the family or staff.
+    type: identity
+    why_it_seems_reasonable: >-
+      The man in white was seen fleeing the scene and was chased by many, suggesting an unknown
+      intruder. The disguise and confusion during the chase made it plausible that he was an
+      outsider.
+    what_it_hides: >-
+      It conceals that the man in white was actually Joe Brackley, a member of the gang using a
+      disguise to evade capture and continue the theft.
+  false_solution:
+    accused_suspect: Foxton 'Foxy' Polegate
+    supporting_points:
+      - Polegate planned the practical joke that led to the theft.
+      - He was near the museum during the theft and had opportunity.
+      - He was evasive about his actions and whereabouts.
+      - He was suspected by Inspector Armadale based on circumstantial evidence.
+    the_one_flaw: >-
+      Polegate handed over the real medallions promptly and had no motive or evidence linking him to
+      the murders or the real theft.
+    refuted_in_chapter: 15
+  red_herrings:
+    - id: cecil_chacewater_resentment
+      description: >-
+        Cecil’s bitter resentment towards Maurice and his hostile attitude suggested he might have
+        motive for foul play.
+      points_at_suspect: Cecil Chacewater
+      innocent_explanation: >-
+        Cecil’s resentment was personal and did not extend to criminal actions; he was not involved
+        in the theft or murders.
+      resolved_in_chapter: 15
+    - id: maurice_chacewater_pierrot_costume
+      description: >-
+        Maurice was found in a white Pierrot costume and was suspected of being the man in white
+        involved in the theft.
+      points_at_suspect: Maurice Chacewater
+      innocent_explanation: >-
+        Maurice was suffering from agoraphobia and ultimately committed suicide; he was not involved
+        in the theft or murders.
+      resolved_in_chapter: 15
+  closed_circle:
+    suspects:
+      - Thomas Marden
+      - J. B. Foss (Thomas Pailton, alias Cocoa Tom)
+      - Joe Brackley (Stephen Racks)
+      - Foxton 'Foxy' Polegate
+      - Cecil Chacewater
+      - Maurice Chacewater
+    rationale: >-
+      All suspects were present at Ravensthorpe during the events, had access to the museum and
+      medallions, and were connected by family or employment ties, forming a closed circle with no
+      outsiders involved.
+  constraint_space:
+    time:
+      anchors:
+        - 11:40 pm - Una pulls main switch
+        - 11:45 pm - lights go out and theft occurs
+        - Midnight - unmasking of guests
+        - 1:00 am - Sir Clinton arrives at Ravensthorpe for secret investigation
+      windows:
+        - Between 11:40 pm and midnight for the staged theft
+        - Night of the masked ball for all key events
+    access:
+      actors:
+        - Cecil Chacewater
+        - Maurice Chacewater
+        - Foxton Polegate
+        - Thomas Marden
+        - Joe Brackley
+        - J. B. Foss
+      objects:
+        - Museum
+        - Safe with combination lock
+        - Secret passages
+        - Fairy Houses
+        - Terrace and lake
+    social:
+      trust_channels:
+        - Family trust in Maurice for safekeeping medallions
+        - Keeper Mold’s reliability
+        - Police trust in Sir Clinton’s leadership
+      authority_sources:
+        - Sir Clinton Driffield as Chief Constable
+        - Inspector Armadale as police subordinate
+        - Family authority of Maurice over estate
+  inference_path:
+    steps:
+      - observation: Only the replicas and not the real medallions were initially stolen.
+        correction: The theft of replicas was a deliberate misdirection.
+        effect: The real medallions were secretly substituted and later removed.
+        required_evidence:
+          - Examination of medallions with drilled holes distinguishing real from replicas
+          - Inventory logbook showing the sequence of medallion removals and substitutions
+        reader_observable: true
+      - observation: Morden’s hand was cut and wrapped in a handkerchief.
+        correction: The injury was self-inflicted to create an alibi.
+        effect: Morden’s story about the murder scene is partially fabricated.
+        required_evidence:
+          - Blood patterns on the floor and glass case
+          - Morden’s inconsistent testimony and fingerprint analysis
+        reader_observable: true
+      - observation: Maurice disappeared mysteriously and was found dead in a secret chamber.
+        correction: Maurice committed suicide due to agoraphobia.
+        effect: His disappearance was not a murder or escape but self-inflicted.
+        required_evidence:
+          - Discovery of secret passage and underground chamber
+          - Medical and behavioral evidence of agoraphobia
+        reader_observable: true
+      - observation: A man in white costume escaped capture by diving into the lake.
+        correction: The man was Brackley using a living statue disguise.
+        effect: The escape was a planned trick to evade police.
+        required_evidence:
+          - Witnesses’ description of living statue movement
+          - Recovery of white costume and injuries on Brackley
+        reader_observable: true
+      - observation: Foss was murdered with a Japanese sword bearing Maurice’s fingerprints.
+        correction: Maurice handled the sword but did not kill Foss; Marden killed Foss.
+        effect: Morden is the murderer, using the sword and framing Maurice.
+        required_evidence:
+          - Fingerprint analysis on sword and pistol
+          - Marden’s presence and behavior at murder scene
+        reader_observable: true
+      - observation: The otophone was used to pick the safe lock.
+        correction: The gang planned a second burglary to retrieve the real medallions.
+        effect: The otophone was a tool for the gang’s burglary attempt.
+        required_evidence:
+          - Otophone device and its use in opening the safe
+          - Guard’s testimony and police surveillance
+        reader_observable: true
+      - observation: Cecil claimed to arrive by first train but was found to have been present earlier.
+        correction: Cecil lied about his arrival to conceal knowledge of secret passages.
+        effect: Cecil knew about family secrets but was not involved in crimes.
+        required_evidence:
+          - Telephone records and train schedules
+          - Sir Clinton’s map and secret passage discovery
+        reader_observable: true
+  discriminating_test:
+    method: trap
+    design: >-
+      Sir Clinton arranges a secret night watch with police and family members to observe the museum
+      safe and the terrace. They use an otophone to listen for lock manipulation and watch for any
+      suspicious activity. The guard is removed to lure the culprit into attempting a second
+      burglary, allowing police to catch him in the act.
+    knowledge_revealed: >-
+      The test reveals the identity of the burglar as Joe Brackley, who attempts the burglary
+      disguised as a living statue and is caught escaping.
+    pass_condition: >-
+      The burglar is physically observed manipulating the safe lock and attempting to escape, and
+      the otophone records the sounds of the lock being picked during the police stakeout.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given detailed descriptions of the characters, their motives, and the sequence
+      of events, including the plan for the fake burglary and the presence of replicas alongside the
+      real medallions. Clues such as the secret passages, the otophone device, and the peculiar
+      pockets in Foss’s clothing are all presented. The puzzle of the man in white and the living
+      statue disguise is described, allowing attentive readers to deduce the true mechanism.
+      Fingerprint evidence and inconsistencies in alibis are also disclosed before the solution is
+      revealed.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

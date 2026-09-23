@@ -1,0 +1,136 @@
+{
+ "slug": "jack_o_judgment",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Snow Gregory was found dead with a Jack of Clubs playing card",
+   "anchor": "a playing card--the Jack of Clubs",
+   "span": "When they got him to the mortuary and searched his clothes they found nothing except a little tin box of white powder which proved to be cocaine, and a playing card--the Jack of Clubs!",
+   "ok": true
+  },
+  {
+   "claim": "Colonel Boundary received threatening cards signed Jack o' Judgment",
+   "anchor": "a soiled and stained playing card, the Knave of Clubs",
+   "span": "It was not a letter at all--as it proved--but a soiled and stained playing card, the Knave of Clubs.",
+   "ok": true
+  },
+  {
+   "claim": "Olaf Hanson was the chief witness and was poisoned in court",
+   "anchor": "the witness is dead",
+   "span": "that the witness is dead.",
+   "ok": true
+  },
+  {
+   "claim": "Maisie White impersonated Jack o' Judgment to gather evidence",
+   "anchor": "she put out her hand and laid it on his",
+   "span": "She did not know what impelled her to do the thing, but she put out her hand and laid it on his.",
+   "ok": true
+  },
+  {
+   "claim": "Jack o' Judgment used microphones and a gramophone voice",
+   "anchor": "Detectaphones!",
+   "span": "Detectaphones!\" He took Pinto's knife from his hand and prised one of the discs loose.",
+   "ok": true
+  },
+  {
+   "claim": "Pinto Silva was arrested for forgery and blackmail",
+   "anchor": "Pinto Silva to-night--we only just heard of it",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Colonel Boundary faked his death and escaped disguised as a carpenter",
+   "anchor": "A stoutish, grey-haired man descended from a third-class carriage",
+   "span": "CHAPTER XXXIX JACK O' JUDGMENT REVEALED A stoutish, grey-haired man descended from a third-class carriage at Chatham Station and inquired of a porter the way to the dockyard.",
+   "ok": true
+  },
+  {
+   "claim": "Jack o' Judgment is Sir Stanley Belcom, the First Commissioner",
+   "anchor": "Sir Stanley Belcom! Sir Stanley!",
+   "span": "Sir Stanley Belcom! Sir Stanley!\" he softly whispered.",
+   "ok": true
+  },
+  {
+   "claim": "The colonel's flat was destroyed by fire set by Jack o' Judgment",
+   "anchor": "Albemarle Place was blocked with fire engines",
+   "span": "Half an hour later, Albemarle Place was blocked with fire engines and a dozen hoses were playing in vain upon the roaring furnace behind the gutted walls of Colonel Dan Boundary's residence.",
+   "ok": true
+  },
+  {
+   "claim": "The gang's money was destroyed by acid in the bank safe",
+   "anchor": "a box filled with a very strong acid",
+   "span": "The second package was a box filled with a very strong acid,\" said the colonel.",
+   "ok": true
+  },
+  {
+   "claim": "Lollie Marsh and Crewe escaped by aeroplane to South America",
+   "anchor": "an aeroplane passed over Finisterre yesterday afternoon",
+   "span": "To satisfy myself in regard to Crewe, I telegraphed to an Englishman at Finisterre, who is a good friend of mine and who lives in a wild and isolated spot somewhere near the lighthouse, and he sent me back a message to the effect that an aeroplane passed over Finisterre yesterday afternoon soon after lunch time.",
+   "ok": true
+  },
+  {
+   "claim": "Maisie White returned from captivity and refused to reveal details",
+   "anchor": "She was, of course, detained and held prisoner somewhere",
+   "span": "She was, of course, detained and held prisoner somewhere, and last night--she will not give me any details--she was carried from the house where she had been kept prisoner.",
+   "ok": true
+  },
+  {
+   "claim": "The colonel's voice was transmitted from a hidden office beneath",
+   "anchor": "a private office which was simply furnished and had in one corner what appeared to be a telephone box",
+   "span": "Inside this was a private office which was simply furnished and had in one corner what appeared to be a telephone box.",
+   "ok": true
+  },
+  {
+   "claim": "Pinto Silva was caught with counterfeit money and forgery tools",
+   "anchor": "a thick pad of counterfeit money on one corner of the table",
+   "span": "There was a thick pad of counterfeit money on one corner of the table, held down by a paper weight; little bottles of acids were scattered about, and near the table was a small lever press, so small that a man might carry it in a corner of his handbag.",
+   "ok": true
+  },
+  {
+   "claim": "Colonel Boundary killed his former butler who betrayed him",
+   "anchor": "He had the sense to see that nothing could be done for the dying man",
+   "span": "He had the sense to see that nothing could be done for the dying man, however, and that a change of position would probably hasten the end.",
+   "ok": true
+  },
+  {
+   "claim": "Sir Stanley Belcom confessed to being Jack o' Judgment before dying",
+   "anchor": "Poor old Jack o' Judgment! This is going to be a first-class scandal",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The gang was dismantled and the culprits arrested or fled",
+   "anchor": "The Boundary Gang is dismantled, Colonel Dan Boundary is killed",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Maisie White and Stafford King are romantically involved",
+   "anchor": "He took her unresisting hand in his",
+   "span": "He took her unresisting hand in his, and under the cover of the tablecloth held it tight.",
+   "ok": true
+  },
+  {
+   "claim": "The false assumption that Maisie White is Jack o' Judgment is refuted",
+   "anchor": "I do not believe for one moment that you are Jack o' Judgment",
+   "span": "Now, I'm telling you before we go any further that I do not believe for one moment that you are Jack o' Judgment.",
+   "ok": true
+  },
+  {
+   "claim": "Jack o' Judgment used a gramophone voice to confuse the gang",
+   "anchor": "it was a gramophone voice",
+   "span": "Of course, it was a gramophone voice.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.113697116,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

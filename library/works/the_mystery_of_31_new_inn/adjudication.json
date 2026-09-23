@@ -1,16 +1,16 @@
 {
  "false_assumption": {
-  "statement": "The second will was genuine and executed by Jeffrey Blackmore himself.",
+  "statement": "The second will was genuine and executed by Jeffrey Blackmore himself in the presence of witnesses.",
   "type": "identity",
-  "why_it_seems_reasonable": "The will was signed in the presence of two unimpeachable witnesses who swore to the signatures and contents, and the body found was identified as Jeffrey Blackmore's. This gave the appearance of authenticity and legality.",
-  "what_it_hides": "It conceals the fact that John Blackmore impersonated Jeffrey and forged the will, while the real Jeffrey was secretly confined and poisoned elsewhere."
+  "why_it_seems_reasonable": "The will was signed and witnessed by two men who swore to its authenticity and recognized the signatures and finger-marks. The body found was identified as Jeffrey Blackmore, supporting the assumption.",
+  "what_it_hides": "It hides the fact that the person who signed the will was an impersonator, John Blackmore, and that Jeffrey was secretly confined and poisoned elsewhere."
  },
- "mechanism_description": "John Blackmore impersonated his brother Jeffrey Blackmore, who was secretly confined and chronically poisoned in a house in Kennington Lane to enable John to inherit Jeffrey's estate by forging a second will. The man known as Mr. Graves was actually Jeffrey Blackmore, and the murder was orchestrated by John Blackmore and his accomplice Mrs. Schallibaum; their capture was secured by Thorndyke's investigation.",
+ "mechanism_description": "John Blackmore impersonated his brother Jeffrey at New Inn while Jeffrey was secretly confined and chronically poisoned at another location. John forged the second will to benefit himself and murdered Jeffrey by administering morphine poisoning over time. The accomplice Mrs. Schallibaum aided in the deception and disguise, including the use of peculiar spectacles and controlled squint to avoid identification.",
  "discriminating_test": {
-  "method": "constraint_proof",
-  "design": "Thorndyke uses compass bearings and timing to plot the carriage route to the secret house, then visits the location to verify the presence of the house and its features, including the covered way and new macadam patch. He locks the gate to detect any unauthorized entry, confirming the presence or absence of suspects.",
-  "knowledge_revealed": "This test confirms the exact location of the secret house and the presence of only authorized persons with keys, narrowing down suspects and confirming the concealment of Jeffrey Blackmore.",
-  "pass_condition": "The house is located at the plotted position with locked gates and no unknown persons entering during the observation period."
+  "method": "reenactment",
+  "design": "Recreate the carriage journey using the compass and timing method to locate the secret house precisely. Then gain access to the house and observe the presence of massive bolts, concealed windows, and other security measures. Compare the spectacles fragments with known prescriptions to identify the wearer. Finally, test the sugar lump for poison to confirm the attempt on Dr. Jervis.",
+  "knowledge_revealed": "This test confirms the exact location of the secret house, the imprisonment of Jeffrey Blackmore, the disguise and identity of John Blackmore as Mr. Weiss, and the criminal poisoning attempts.",
+  "pass_condition": "The secret house is located at the precise coordinates from the compass notes, the spectacles match the unique prescription of Jeffrey Blackmore, and the sugar contains aconitine poison."
  },
  "changed": [],
  "confidence": "high"

@@ -1,0 +1,136 @@
+{
+ "slug": "malcolm_sage_detective",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Geoffrey Challoner was found dead in the locked library",
+   "anchor": "We found Challoner seated at his table dead, shot through the head.",
+   "span": "We found Challoner seated at his table dead, shot through the head. He had an automatic pistol in his hand.",
+   "ok": true
+  },
+  {
+   "claim": "The library door was locked on the inside with key in position",
+   "anchor": "The door had been locked _on the inside_, and the key was in position.",
+   "span": "The door had been locked _on the inside_, and the key was in position. It was unlocked by Peters when he went into the hall to telephone.",
+   "ok": true
+  },
+  {
+   "claim": "The butler Peters discovered the body and locked the door",
+   "anchor": "I locked the door; here is the key,\" he said, producing it from his jacket pocket.",
+   "span": "I locked the door; here is the key,\" he said, producing it from his jacket pocket. \"I told him to allow no one into the room.",
+   "ok": true
+  },
+  {
+   "claim": "The marks of the cord were clearly defined and reflected in the mirror",
+   "anchor": "The marks of the cord were clearly defined and reflected in the mirror.",
+   "span": "The marks of the cord were clearly defined and reflected in the mirror. Had the key not been touched, it would have helped.",
+   "ok": true
+  },
+  {
+   "claim": "Peters was wanted for forgery and had a criminal past",
+   "anchor": "We've been on the look-out for him for more than a year,\" said Inspector Wensdale.",
+   "span": "We've been on the look-out for him for more than a year,\" said Inspector Wensdale. \"The New York police are rather interested in him about a forgery stunt that took place there some time ago.",
+   "ok": true
+  },
+  {
+   "claim": "Professor McMurray was found dead with a battered head",
+   "anchor": "He was found dead in his laboratory, his head fearfully battered in by some blunt instrument.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Sir Jasper Chambers was the last to see McMurray alive",
+   "anchor": "You were the last to see him alive, I understand.",
+   "span": "You were the last to see him alive, I understand.\" Malcolm Sage picked up his fountain-pen and began an elaborate stipple design of a serpent upon the blotting-pad.",
+   "ok": true
+  },
+  {
+   "claim": "The murderer was left-handed and had medical knowledge",
+   "anchor": "The poker marks suggest a left-handed man. The wound in the head proves it.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Sir Jasper Chambers confessed to killing McMurray to prevent chaos",
+   "anchor": "I had to choose between myself and the welfare of the race, and I chose the race.",
+   "span": "I had to choose between myself and the welfare of the race, and I chose the race. I did not come forward to save the man condemned for the crime, as I regarded my life of more value to the community than his.",
+   "ok": true
+  },
+  {
+   "claim": "Lady Glanedale staged a burglary to claim insurance",
+   "anchor": "Lady Glanedale confessed the fraud she had sought to practise upon the Corporation.",
+   "span": "In it Lady Glanedale confessed the fraud she had sought to practise upon the Corporation. \"A very unpleasant business,\" he repeated.",
+   "ok": true
+  },
+  {
+   "claim": "Footprints at Lady Glanedale's window were made before rain",
+   "anchor": "On these leaves were drops of rain just as they had fallen.",
+   "span": "In two cases leaves had been trodden into the footprints; yet on these leaves were drops of rain just as they had fallen.\" The hands seemed to draw the leaves and indicate the spots of water as if they had been blood.",
+   "ok": true
+  },
+  {
+   "claim": "Anonymous letters were written on Olympic Script paper",
+   "anchor": "One peculiarity of the letters was that all were written upon the same paper, known as \"Olympic Script.\"",
+   "span": "One peculiarity of the letters was that all were written upon the same paper, known as \"Olympic Script.\" This was supplied locally to a number of people in the neighbourhood, among others, the vicar, the curate, and the schoolmaster.",
+   "ok": true
+  },
+  {
+   "claim": "Secret ink was revealed by heating the letters",
+   "anchor": "There in the centre of the page, in bluish-coloured letters, which had not been there when the paper was smoothed out, appeared the words",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Charley Burns disappeared before a major fight",
+   "anchor": "That morning at six o'clock, when Alf Pond, Burns's trainer, had entered his room to warn him that it was time to get up, he found it unoccupied.",
+   "span": "That morning at six o'clock, when Alf Pond, Burns's trainer, had entered his room to warn him that it was time to get up, he found it unoccupied. At first he thought that Burns had gone down before him; but immediately his eye fell on the bed, and he saw that it had not been slept in, he became alarmed.",
+   "ok": true
+  },
+  {
+   "claim": "Malcolm Sage deduced the kidnappers by footprints and cigar",
+   "anchor": "Behind that clump of rhododendrons, there is written a whole history. The marks of boots, or shoes, with very high heels suggests a woman.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Malcolm Sage used photography to simulate shooting angles",
+   "anchor": "You shoot me through the right temple, approaching from behind.",
+   "span": "You shoot me through the right temple, approaching from behind. Grip my head as if you expected me to resist.",
+   "ok": true
+  },
+  {
+   "claim": "The butler Peters had marks on his door from practicing the lock trick",
+   "anchor": "I found that of one room, which I after discovered to be Peters', was heavily scored at the bottom.",
+   "span": "examined all the other doors in the house, and I found that of one room, which I after discovered to be Peters', was heavily scored at the bottom. He had evidently practised fairly extensively before putting the plan into operation.",
+   "ok": true
+  },
+  {
+   "claim": "The electric light was off when the body was found",
+   "anchor": "Did you happen to notice if the electric light was on when you entered the library? No, it was not.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The pistol was held unnaturally in the victim's hand",
+   "anchor": "The position of the head on the table, and the way in which the hand was holding the pistol, not to speak of the curve of the arm, were unnatural.",
+   "span": "Apart from all this, the position of the head on the table, and the way in which the hand was holding the pistol, not to speak of the curve of the arm, were unnatural. You get some idea of this from the photograph that Dawkins took of me, although I could only simulate death by relaxing the muscles.",
+   "ok": true
+  },
+  {
+   "claim": "The murderer was careful to avoid leaving fingerprints",
+   "anchor": "I can then identify those of any stranger that I may find.",
+   "span": "I can then identify those of any stranger that I may find.\" Sir James nodded.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.090020342,
+ "models": {
+  "map": "gpt-4o-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

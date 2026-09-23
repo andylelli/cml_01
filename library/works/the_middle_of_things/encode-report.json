@@ -1,0 +1,136 @@
+{
+ "slug": "the_middle_of_things",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "The victim was stabbed clean through the heart",
+   "anchor": "stabbed clean through the heart",
+   "span": "He's been stabbed clean through the heart.",
+   "ok": true
+  },
+  {
+   "claim": "Langton Hyde was seen running away from the passage",
+   "anchor": "running away as fast as he can from the scene",
+   "span": "A certain man is seen--by you, as it happens--running away as fast as he can from the scene of the murder.",
+   "ok": true
+  },
+  {
+   "claim": "Hyde was found with one of Ashton's diamond rings",
+   "anchor": "this chap, who won't give his name, went into the pawnbroker's shop",
+   "span": "This morning, about ten o'clock, this chap, who won't give his name, went into the pawnbroker's shop in Edgware Road, and asked for a loan on a diamond ring which he produced.",
+   "ok": true
+  },
+  {
+   "claim": "Hyde carried a knife matching the murder weapon",
+   "anchor": "a knife was found in his hip-pocket which, in the opinion of the divisional surgeon, would have caused the wound",
+   "span": "Finally, the police proved that on searching the prisoner after his arrest, a knife was found in his hip-pocket which, in the opinion of the divisional surgeon, would have caused the wound found in the dead man's body.",
+   "ok": true
+  },
+  {
+   "claim": "Miss Penkridge discovered the defective letter in the typewritten note",
+   "anchor": "the letter is broken, imperfect; the top left-hand curve has been chipped off",
+   "span": "Now, notice--the letter is broken, imperfect; the top left-hand curve has been chipped off.",
+   "ok": true
+  },
+  {
+   "claim": "Bigglesforth supplied stationery to Dr. Cortelyon",
+   "anchor": "Bigglesforth, when he'd got to know the main features of the case, was willing enough to help",
+   "span": "Bigglesforth, when he'd got to know the main features of the case, was willing enough to help, and your aunt immediately brought him round here to see me.",
+   "ok": true
+  },
+  {
+   "claim": "Mrs. Killenhall cashed a check for ten thousand pounds",
+   "anchor": "She was as plausible, and all that--and really, you know, Miss Wickham, we know her very well",
+   "span": "She was as plausible, and all that--and really, you know, Miss Wickham, we know her very well--and, in addition to that, you have a very large balance lying here.",
+   "ok": true
+  },
+  {
+   "claim": "Dr. Cortelyon was found with stolen diamond, ring, and papers",
+   "anchor": "On Cortelyon we'd a big find! That diamond that Ashton used to carry about, the other ring that Ashton was wearing",
+   "span": "And on Cortelyon we'd a big find! That diamond that Ashton used to carry about, the other ring that Ashton was wearing when he was murdered, and--perhaps most important of all--certain papers which he'd no doubt taken from Ashton's body.",
+   "ok": true
+  },
+  {
+   "claim": "The claimant's middle finger was recently amputated",
+   "anchor": "the middle finger of the man's right hand was missing",
+   "span": "For the middle finger of the man's right hand was missing!",
+   "ok": true
+  },
+  {
+   "claim": "The claimant admitted the papers were stolen from him and recently regained",
+   "anchor": "these papers and documents are of a very convincing nature",
+   "span": "these papers and documents are of a very convincing nature.",
+   "ok": true
+  },
+  {
+   "claim": "The letter instructing Mr. Cave to meet at Speke Monument",
+   "anchor": "If you wish to recover the papers and letters which were lost by you when you went into hospital at Wirra-Worra, Bendigo, thirty-two years ago",
+   "span": "There is no address and no date, and it says this: 'If you wish to recover the papers and letters which were lost by you when you went into hospital at Wirra-Worra, Bendigo, thirty-two years ago, be at the Speke Monument in Kensington Gardens at five o'clock this afternoon.",
+   "ok": true
+  },
+  {
+   "claim": "Hyde's testimony that he saw the muffled man leaving the passage",
+   "anchor": "I saw such a man with Ashton in Paris",
+   "span": "I saw such a man with Ashton in Paris,\" answered Mr.",
+   "ok": true
+  },
+  {
+   "claim": "Drillford's confession that Dr. Cortelyon is the murderer",
+   "anchor": "I only hope he's not one of those chaps who are so clever that they can secrete poison to the very last moment",
+   "span": "and I only hope he's not one of those chaps who are so clever that they can secrete poison to the very last moment and then cheat the gallows, for now that I know as much as I do, I should say he's as pretty a specimen of the accomplished scoundrel as ever put on fine clothes.",
+   "ok": true
+  },
+  {
+   "claim": "The secret papers were the motive for the murder",
+   "anchor": "he was murdered for the sake of those papers which we now know were produced to Methley and Woodlesford",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Mrs. Killenhall and Cave were accomplices",
+   "anchor": "Mrs. Killenhall and Cave at once denounced Cortelyon as the mainspring",
+   "span": "Mrs. Killenhall and Cave at once denounced Cortelyon as the mainspring, and the woman, who's a regular coward, got me aside and offered to turn King's evidence, and whispered that Cortelyon actually killed Ashton himself, unaided, as he let him out of his back door into Lonsdale Passage!",
+   "ok": true
+  },
+  {
+   "claim": "Miss Wickham is the rightful Countess of Ellingham",
+   "anchor": "that girl's the rightful holder of the title",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The diamond was worth fifty or sixty thousand pounds",
+   "anchor": "a diamond worth fifty thousand pounds",
+   "span": "You mean to tell me that Ashton was walking about London with a diamond worth fifty thousand pounds in his pocket?",
+   "ok": true
+  },
+  {
+   "claim": "Hyde was starving and had no money",
+   "anchor": "he was starving when he went to the pawnbrokers",
+   "span": "But--he was starving when he went to the pawnbrokers!",
+   "ok": true
+  },
+  {
+   "claim": "The planted valuables were wrapped in chemical-smelling paper",
+   "anchor": "those papers have at some time been used to wrap some strong-smelling drug",
+   "span": "Those papers have at some time been used to wrap some strong-smelling drug.",
+   "ok": true
+  },
+  {
+   "claim": "The claimant was brought before solicitors who knew the real Lord Marketstoke",
+   "anchor": "the middle finger of the man's right hand was missing",
+   "span": "For the middle finger of the man's right hand was missing!",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.119126312,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

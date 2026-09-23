@@ -1,0 +1,136 @@
+{
+ "slug": "the_three_just_men",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "The black mamba was reported escaped and blamed for mysterious deaths",
+   "anchor": "The black mamba, most deadly of all the African snakes, had escaped",
+   "span": "The black mamba, most deadly of all the African snakes, had escaped from the Zoo one cold and foggy night in March.",
+   "ok": true
+  },
+  {
+   "claim": "Mirabelle Leicester took the laboratory secretary job to be close to Oberzohn",
+   "anchor": "Mirabelle Leicester took a job as laboratory assistant",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Montague Newton died suddenly at the theatre with snake bite wounds",
+   "anchor": "Montague Newton turned his head sideways, caught a fleeting glimpse",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Oberzohn’s laboratory contained venom extraction and freezing equipment",
+   "anchor": "There was a small electrical furnace which was the centre of many",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Venom was frozen into tiny darts for murder",
+   "anchor": "The venom was slightly diluted with water and enough to kill a dozen people was poured into a tiny mould and frozen",
+   "span": "The venom was slightly diluted with water and enough to kill a dozen people was poured into a tiny mould and frozen.",
+   "ok": true
+  },
+  {
+   "claim": "Frozen venom darts were concealed in cigarette holders used as blowpipes",
+   "anchor": "The cigarette holders that were carried by Gurther and the other assassin, Pfeiffer, were blowpipes",
+   "span": "The cigarette holders that were carried by Gurther and the other assassin, Pfeiffer, were blowpipes, the cigarette a hollow metal fake.",
+   "ok": true
+  },
+  {
+   "claim": "Victims died from venom injected by melting ice darts, leaving no trace",
+   "anchor": "All that did not enter the skin melted before there could be any examination by the police",
+   "span": "And, of course, all that did not enter the skin melted before there could be any examination by the police.",
+   "ok": true
+  },
+  {
+   "claim": "Braille letters revealed the gold concession renewal deadline",
+   "anchor": "The letter was dated “July 21st, 1912,” and bore, in the lower left-hand corner, the seal of the Portuguese Colonial Office",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Oberzohn planned to marry Mirabelle to secure the gold concession",
+   "anchor": "He had a special licence to marry, and had been duly registered",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Elijah Washington survived venom dart attack and is immune to snake venom",
+   "anchor": "I’m snake-proof—been bitten ever since I was five",
+   "span": "I'm snake-proof-been bitten ever since I was five.",
+   "ok": true
+  },
+  {
+   "claim": "Oberzohn died from his own venom darts during the final confrontation",
+   "anchor": "He lifted it to his lips and blew. None saw the two tiny icicles fly",
+   "span": "He lifted it to his lips and blew. None saw the two tiny icicles fly.",
+   "ok": true
+  },
+  {
+   "claim": "The police and detectives staged a siege and raid on Oberzohn’s house",
+   "anchor": "The siege of a house in the New Cross area",
+   "span": "The late editions of the morning newspapers had a heavily head-lined paragraph about the siege of a house in the New Cross area, and when the first reporters arrived a fringe of sightseers had already gathered at every police barrier.",
+   "ok": true
+  },
+  {
+   "claim": "The snake-room contained many deadly snakes used for venom extraction",
+   "anchor": "There were cobras, puff-adders, two rattlesnakes",
+   "span": "There were cobras, puff-adders, two rattlesnakes, seemingly dead, but, as he guessed, asleep; there was a South American _fer-de-lance_, that most unpleasant representative of his species; there were little coral snakes, and, in one long box, a whole nest of queer little things that looked like tiny yellow lobsters, but which he knew as scorpions.",
+   "ok": true
+  },
+  {
+   "claim": "Oberzohn threatened to kill Mirabelle by releasing snakes during the siege",
+   "anchor": "If this approaches beyond the wire fence, I shall place the woman Leicester in the home of the snakes",
+   "span": "If this approaches beyond the wire fence, I shall place the woman Leicester in the home of the snakes, and there I will bind her and release my little friends to avenge me.",
+   "ok": true
+  },
+  {
+   "claim": "The frozen venom dart mechanism was discovered in Oberzohn’s laboratory",
+   "anchor": "I found the mould in your laboratory, Herr Doktor",
+   "span": "The holder is an insulated chamber that holds two small icy splinters-I found the mould in your laboratory, Herr Doktor.",
+   "ok": true
+  },
+  {
+   "claim": "The frozen venom dart method explains the absence of physical darts",
+   "anchor": "That is why you never found darts such as the bushmen use",
+   "span": "That is why you never found darts such as the bushmen use, slithers of bamboo, thorns from trees.",
+   "ok": true
+  },
+  {
+   "claim": "The gold concession renewal was successfully applied for by Mirabelle",
+   "anchor": "The renewal has already been applied for and granted",
+   "span": "The renewal has already been applied for and granted.",
+   "ok": true
+  },
+  {
+   "claim": "The false assumption that the snake was real hid the true murder method",
+   "anchor": "The snake! He killed a man to-night on the Thames Embankment",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Montague Newton was a suspect but actually a victim",
+   "anchor": "Monty Newton turned his head sideways, caught a fleeting glimpse",
+   "span": "Monty Newton turned his head sideways, caught a fleeting glimpse of the man he hated-hated worse than he hated Leon Gonsalez-and then called harshly for his servant.",
+   "ok": true
+  },
+  {
+   "claim": "Joan Newton was a reluctant accomplice coerced by Monty and Oberzohn",
+   "anchor": "Joan was with him most of the time; and whether she posed as his niece or daughter",
+   "span": "",
+   "ok": false
+  }
+ ],
+ "costGbp": 0.131139368,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

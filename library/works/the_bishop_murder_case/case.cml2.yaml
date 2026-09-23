@@ -1,0 +1,446 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The Bishop Murder Case
+    author: S. S. Van Dine
+    license: Public domain (first published 1929; author died 1939). Project Gutenberg ebook 75157.
+    era:
+      decade: 1920s
+      realism_constraints:
+        - No forensic DNA or modern forensic technology available
+        - Telephones and typewriters are in use and can be traced
+        - Police rely on witness statements, alibis, and physical evidence like fingerprints
+    setting:
+      location: New York City, primarily around West 75th and 76th Streets near Riverside Drive
+      institution: >-
+        New York County District Attorney's Office and the Homicide Bureau of the Police Department
+        of New York City
+    crime_class:
+      category: murder
+      subtype: mathematically themed multiple murders with nursery rhyme motifs
+  cast:
+    - name: Philo Vance
+      age_range: 40-50
+      role_archetype: cultured intellectual and amateur investigator
+      relationships: []
+      public_persona: unofficial investigator and friend of the District Attorney
+      private_secret: keen insight into abnormal psychology and mathematics
+      motive_seed: none
+      motive_strength: none
+      alibi_window: always present
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells:
+        - keen observation
+        - psychological insight
+      stakes: solve the case
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: high
+    - name: John F.-X. Markham
+      age_range: 50-60
+      role_archetype: official law enforcement authority
+      relationships: []
+      public_persona: District Attorney of New York County
+      private_secret: relies heavily on Vance's insights
+      motive_seed: none
+      motive_strength: none
+      alibi_window: always present
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells:
+        - legal pragmatism
+        - frustration with case progress
+      stakes: justice and public order
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: moderate
+    - name: Ernest Heath
+      age_range: 40-50
+      role_archetype: dedicated police sergeant
+      relationships: []
+      public_persona: Sergeant of the Homicide Bureau
+      private_secret: skeptical of easy confessions
+      motive_seed: none
+      motive_strength: none
+      alibi_window: always present
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells:
+        - dogged persistence
+        - skepticism
+      stakes: solve the case
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: moderate
+    - name: Professor Bertrand Dillard
+      age_range: 60-70
+      role_archetype: brilliant but jealous physicist
+      relationships:
+        - Belle Dillard (niece)
+        - Sigurd Arnesson (adopted son)
+      public_persona: renowned physicist and former university professor
+      private_secret: murderer motivated by jealousy and intellectual rivalry
+      motive_seed: jealousy of adopted son and loss of intellectual status
+      motive_strength: strong
+      alibi_window: present at house during murders
+      access_plausibility: high
+      opportunity_channels:
+        - access to house and grounds
+        - knowledge of family routines
+      behavioral_tells:
+        - hostility to Arnesson
+        - attempted framing of Arnesson
+      stakes: destroy adopted son and keep niece
+      evidence_sensitivity:
+        - typewriter found in attic
+        - cyanide lab in attic
+        - black bishop chess piece
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Belle Dillard
+      age_range: 25-30
+      role_archetype: young woman caught in family drama
+      relationships:
+        - Professor Bertrand Dillard (uncle)
+        - Sigurd Arnesson (fiancée)
+      public_persona: niece of Professor Dillard, archery club organizer
+      private_secret: in love with Arnesson, unaware of true murderer
+      motive_seed: none
+      motive_strength: none
+      alibi_window: at tennis courts or theater
+      access_plausibility: high
+      opportunity_channels:
+        - key to Drukker house
+      behavioral_tells:
+        - protective of family
+        - emotional distress
+      stakes: personal safety and love
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: moderate
+    - name: Sigurd Arnesson
+      age_range: 40-45
+      role_archetype: adopted son, associate professor, intellectual
+      relationships:
+        - Professor Bertrand Dillard (adoptive father)
+        - Belle Dillard (fiancée)
+      public_persona: associate professor of mathematics, protégé of Dillard
+      private_secret: victim of framing and jealousy
+      motive_seed: none
+      motive_strength: none
+      alibi_window: at university or theater
+      access_plausibility: high
+      opportunity_channels:
+        - access to house and grounds
+      behavioral_tells:
+        - cynical attitude
+        - intellectual detachment
+      stakes: clear name, protect Belle
+      evidence_sensitivity: []
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: Adolph Drukker
+      age_range: 30-40
+      role_archetype: crippled scientist with mental instability
+      relationships:
+        - Mrs. Otto Drukker (mother)
+      public_persona: scientist and author, hunchback
+      private_secret: mentally unstable, victim of murder
+      motive_seed: none
+      motive_strength: none
+      alibi_window: varied, but was murdered
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: victim
+      evidence_sensitivity: []
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: low
+  culpability:
+    culprit_count: 1
+    culprits:
+      - Professor Bertrand Dillard
+  surface_model:
+    narrative:
+      summary: >-
+        A series of bizarre murders occur around the Dillard household, each linked to nursery
+        rhymes and mathematical motifs. The police initially suspect a rival archer, Sperling, who
+        confesses but is doubted. The case deepens with further murders, cryptic notes signed 'The
+        Bishop,' and a kidnapping.
+    accepted_facts:
+      - Joseph Cochrane Robin was killed with an arrow on the archery range.
+      - Raymond Sperling confessed to Robin's murder but was doubted and held without indictment.
+      - >-
+        John E. Sprigg was shot in Riverside Park and found dead with a mathematical formula on a
+        scrap of paper.
+      - >-
+        Professor Bertrand Dillard and his household were intimately connected to the victims and
+        the crime scenes.
+    inferred_conclusions:
+      - Sperling was the murderer of Robin due to jealousy over Belle Dillard.
+      - Adolph Drukker was involved in the murders due to his mental instability.
+      - Pardee committed suicide due to guilt over the murders.
+  hidden_model:
+    mechanism:
+      description: >-
+        Professor Bertrand Dillard, motivated by jealousy and intellectual rivalry against his
+        adopted son Sigurd Arnesson, committed the murders of Robin, Sprigg, and Drukker, and
+        orchestrated the abduction of Madeleine Moffat. He staged the murders with nursery rhyme
+        motifs and attempted to frame Arnesson. Dillard used his knowledge of the household and
+        access to commit the crimes and left cryptic notes signed 'The Bishop.' When confronted, he
+        committed suicide by poisoning.
+      delivery_path:
+        - step: >-
+            Dillard struck Robin in the archery-room, killed him with an arrow, and staged the
+            scene.
+        - step: He placed the tensor formula on Sprigg's body to implicate Arnesson.
+        - step: Dillard murdered Drukker by striking him and pushing him off a wall.
+        - step: He sent threatening notes signed 'The Bishop' to the press.
+        - step: He abducted Madeleine Moffat, locking her in a closet to frighten the household.
+        - step: When suspicion closed in, Dillard poisoned himself to avoid arrest.
+    outcome:
+      result: >-
+        Professor Bertrand Dillard is revealed as the murderer and commits suicide, ending the
+        Bishop murder case.
+  false_assumption:
+    statement: Raymond Sperling's confession to killing Cock Robin is genuine and he is the murderer.
+    type: behavioral
+    why_it_seems_reasonable: >-
+      Sperling confessed voluntarily and was the last person seen with Robin before his death. His
+      name meaning 'sparrow' fits the nursery rhyme motif.
+    what_it_hides: >-
+      The confession was a false admission under emotional pressure, and the real murderer was
+      someone else with deeper motives and access.
+  false_solution:
+    accused_suspect: Raymond Sperling
+    supporting_points:
+      - Sperling confessed to the murder.
+      - He was jealous of Robin and had a quarrel with him.
+      - He was the last person seen with Robin.
+      - His name means 'sparrow,' matching the nursery rhyme.
+    the_one_flaw: >-
+      The confession was too easy and inconsistent with physical evidence and psychological
+      analysis.
+    refuted_in_chapter: 7
+  red_herrings:
+    - id: adolph_drukker_mental_instability
+      description: >-
+        Adolph Drukker, a hunchbacked scientist with mental instability, is suspected due to his
+        erratic behavior and proximity to the crimes.
+      points_at_suspect: His presence near crime scenes and strange conduct.
+      innocent_explanation: He was a victim and had no motive or opportunity; his behavior was due to illness.
+      resolved_in_chapter: 24
+    - id: missing_32_revolver
+      description: A .32 revolver goes missing and is later returned, suggesting a possible weapon and suspect.
+      points_at_suspect: The revolver was linked to the shooting of Sprigg and was missing from the household.
+      innocent_explanation: The revolver was taken and returned by the murderer to mislead investigators.
+      resolved_in_chapter: 14
+  closed_circle:
+    suspects:
+      - Professor Bertrand Dillard
+      - Sigurd Arnesson
+      - Belle Dillard
+      - Adolph Drukker
+      - John Pardee
+      - Raymond Sperling
+      - Pyne
+      - Beedle
+      - Mrs. Otto Drukker
+    rationale: >-
+      All persons with access to the Dillard household and knowledge of the victims and events were
+      investigated, and no outsiders had plausible opportunity or motive.
+  constraint_space:
+    time:
+      anchors:
+        - April 2, 1929, 11:15 am to 11:40 am (time of Robin's murder)
+        - April 11, 1929, 7:30 pm to 1:19 am (Pardee-Rubinstein chess game)
+        - April 16, 1929, about 10 pm (Drukker's death)
+        - April 25, 1929, afternoon (discovery of typewriter and note-book)
+        - April 26, 1929, morning (final confrontation and Dillard's suicide)
+      windows:
+        - Robin was killed between Sperling's departure and Professor Dillard's discovery
+        - Sprigg was shot early morning before 8 am
+        - Drukker was killed around 10 pm
+        - Pardee's suicide occurred around midnight
+        - Madeleine Moffat was abducted late afternoon
+    access:
+      actors:
+        - Professor Bertrand Dillard
+        - Sigurd Arnesson
+        - Belle Dillard
+        - Adolph Drukker
+        - John Pardee
+        - Raymond Sperling
+        - Pyne
+        - Beedle
+        - Mrs. Otto Drukker
+      objects:
+        - archery range and room
+        - Dillard house
+        - Drukker house
+        - alleyway door with key
+        - rear door of Drukker house
+        - attic and closets
+        - typewriter and note-book
+        - bow and arrow
+        - revolver
+    social:
+      trust_channels:
+        - family relationships
+        - servants' testimonies
+        - alibis from witnesses
+        - police surveillance
+      authority_sources:
+        - District Attorney John F.-X. Markham
+        - Sergeant Ernest Heath
+        - Chief Medical Examiner Dr. Emanuel Doremus
+        - Professor Bertrand Dillard
+        - Philo Vance (unofficial investigator)
+  inference_path:
+    steps:
+      - observation: >-
+          Sperling confessed to killing Robin with a bow and arrow, but his attempt to reveal guilt
+          was motivated by emotional distress rather than fact.
+        correction: >-
+          Confession was too easy and inconsistent with physical evidence; the attempt to confirm
+          guilt failed.
+        effect: Sperling is innocent; suspicion shifts to someone with more knowledge and a deeper motive.
+        required_evidence:
+          - >-
+            Typewritten Bishop notes with intimate details of the crime and a failed attempt to
+            confirm guilt
+          - Bow and arrow found at the scene with no blood or tissue traces matching Robin's wound
+        reader_observable: true
+      - observation: >-
+          Riemann-Christoffel tensor formula found on Sprigg's body, suggesting a mathematical
+          motivation and intellectual rivalry among suspects.
+        correction: >-
+          Formula is known to advanced mathematicians, linking the crime to mathematicians with
+          jealousy or rivalry.
+        effect: Focus on suspects with mathematical background and possible jealousy or rivalry as motive.
+        required_evidence:
+          - Sprigg's body with formula scrap and evidence of intellectual rivalry
+          - Knowledge of tensor formula by Drukker, Arnesson, Pardee, and Dillard
+        reader_observable: true
+      - observation: >-
+          Black bishop chess piece left at Mrs. Drukker's door at midnight, an attempt to reveal the
+          murderer's symbolic signature and guilt.
+        correction: >-
+          Symbolic signature linking the murderer to chess and Arnesson, but also to Dillard's
+          attempt to reveal guilt through misdirection.
+        effect: >-
+          Arnesson becomes a suspect due to possession of chess set, but the attempt to confirm
+          guilt is misdirected.
+        required_evidence:
+          - Mrs. Drukker's testimony of midnight visit and the attempt to reveal guilt
+          - Missing black bishop from Arnesson's chess set, but Dillard also had access
+        reader_observable: true
+      - observation: >-
+          Pardee's suicide in the archery room was staged as an attempt to reveal guilt and close
+          the case.
+        correction: >-
+          Suicide staged by murderer to mislead investigation; the attempt to confirm guilt was a
+          red herring.
+        effect: Pardee is victim, not culprit; the real murderer remains hidden.
+        required_evidence:
+          - House of cards on table and note suggesting guilt
+          - Pardee's emotional state and chess obsession, but no concrete motive
+        reader_observable: true
+      - observation: >-
+          Typewriter and Drukker's note-book found in attic, hidden by the murderer in an attempt to
+          conceal and later reveal guilt.
+        correction: >-
+          Murderer hid evidence in attic to delay discovery, but the attempt to reveal guilt through
+          Bishop notes ultimately backfired.
+        effect: >-
+          Proof of murderer's identity and connection to household, and an attempt to confirm guilt
+          through planted evidence.
+        required_evidence:
+          - Typewriter with Bishop notes and attempt to reveal guilt
+          - Drukker's stolen note-book with references to jealousy and rivalry
+        reader_observable: true
+      - observation: >-
+          Child Madeleine Moffat abducted and found locked in Drukker house closet, an attempt to
+          motivate fear and reveal guilt through nursery rhyme motifs.
+        correction: >-
+          Murderer used child as part of nursery rhyme motif and to implicate Arnesson, but the
+          attempt to confirm guilt was staged.
+        effect: >-
+          Final proof of murderer's identity, motive of jealousy and rivalry, and an attempt to
+          reveal guilt through psychological manipulation.
+        required_evidence:
+          - Child's identification of abductor and description of the attempt to frighten her
+          - Bishop notes referencing nursery rhymes and attempt to reveal guilt
+        reader_observable: true
+      - observation: >-
+          Professor Dillard's suicide by cyanide poisoning was an attempt to reveal guilt and end
+          the case, motivated by jealousy and intellectual rivalry.
+        correction: >-
+          Murderer committed suicide when cornered, revealing guilt and confirming the motive of
+          jealousy and rivalry.
+        effect: Case closed with confession by death and confirmation of guilt, jealousy, and rivalry.
+        required_evidence:
+          - Cyanide lab in attic and evidence of suicide as an attempt to reveal guilt
+          - Switching of wine glasses during final meeting, confirming guilt and motive
+        reader_observable: true
+  discriminating_test:
+    method: trap
+    design: >-
+      Investigators staged a confrontation with Professor Dillard, feigning suspicion of Arnesson
+      and implying weak evidence. Vance deliberately switched wine glasses to test if Dillard would
+      poison Arnesson's glass, revealing his guilt. The presence of cyanide lab and the switching of
+      glasses were key to exposing the murderer.
+    knowledge_revealed: >-
+      The test revealed that Dillard attempted to poison Arnesson, confirming his guilt and
+      desperation.
+    pass_condition: >-
+      Detection of cyanide poisoning attempt by observing which glass was poisoned and linking it to
+      Dillard's actions.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given all necessary clues including the timing of murders, alibis, the
+      significance of nursery rhymes, the mathematical formula linking suspects, and the symbolic
+      use of the black bishop chess piece. The discovery of the typewriter and note-book in the
+      attic, the child’s identification, and the psychological analysis of suspects provide a fair
+      basis for deducing the true culprit. The false confession and misleading evidence are clearly
+      presented as red herrings.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

@@ -1,0 +1,512 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: Aaron Rodd, Diviner
+    author: E. Phillips (Edward Phillips) Oppenheim
+    license: Public domain (first published 1920; author died 1946). Project Gutenberg ebook 51076.
+    era:
+      decade: 1920s
+      realism_constraints:
+        - No advanced forensic DNA analysis available
+        - Communication limited to telephones and telegrams
+        - Surveillance and police work rely on physical observation and informants
+    setting:
+      location: London, England
+      institution: Scotland Yard
+    crime_class:
+      category: theft
+      subtype: disguised jewel smuggling and recovery
+  cast:
+    - name: Aaron Rodd
+      age_range: 30-40
+      role_archetype: reluctant lawyer turned adventurer
+      relationships:
+        - Harvey Grimm (friend and partner)
+        - Henriette Brinnen (love interest)
+        - Paul Brodie (detective acquaintance)
+      public_persona: shy, awkward lawyer without a practice
+      private_secret: involved in jewel smuggling and recovery
+      motive_seed: desire to protect Henriette and end the criminal life
+      motive_strength: strong
+      alibi_window: present during key events, often under surveillance
+      access_plausibility: high
+      opportunity_channels:
+        - legal office
+        - social meetings
+        - jewel transactions
+      behavioral_tells:
+        - hesitation
+        - anxiety over Henriette's safety
+      stakes: personal safety and love
+      evidence_sensitivity:
+        - presence at jewel exchanges
+        - interactions with suspects
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: high
+    - name: Harvey Grimm (Ed. Levy)
+      age_range: 40-50
+      role_archetype: cunning adventurer and jewel expert
+      relationships:
+        - Aaron Rodd (partner)
+        - Rosa Letchowiski (flirtation)
+        - Abraham Letchowiski (employer)
+      public_persona: capitalist and jeweler's assistant
+      private_secret: mastermind behind jewel smuggling and disguise
+      motive_seed: financial gain and survival
+      motive_strength: strong
+      alibi_window: often absent or providing false alibis
+      access_plausibility: high
+      opportunity_channels:
+        - jewelry workshop
+        - social venues
+        - hotel rooms
+      behavioral_tells:
+        - nervousness
+        - careful concealment of jewels
+      stakes: freedom and money
+      evidence_sensitivity:
+        - tools for cutting jewels
+        - presence at theft scenes
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Henriette Brinnen
+      age_range: 20-25
+      role_archetype: young aristocratic jewel smuggler
+      relationships:
+        - Leopold Brinnen (brother)
+        - Aaron Rodd (love interest)
+      public_persona: refugee and lady-in-waiting
+      private_secret: involved in smuggling and hiding jewels
+      motive_seed: family loyalty and survival
+      motive_strength: moderate
+      alibi_window: present at social events and jewel exchanges
+      access_plausibility: high
+      opportunity_channels:
+        - hotel
+        - social gatherings
+      behavioral_tells:
+        - fear and anxiety
+        - courage under pressure
+      stakes: family safety and freedom
+      evidence_sensitivity:
+        - possession of jewels
+        - communications with brother
+      culprit_eligibility: eligible
+      culpability: unknown
+      gender: female
+      role: suspect
+      moral_complexity: moderate
+    - name: Leopold Brinnen
+      age_range: 25-35
+      role_archetype: military officer and jewel smuggler
+      relationships:
+        - Henriette Brinnen (sister)
+        - Harvey Grimm (business partner)
+      public_persona: Belgian army captain
+      private_secret: involved in smuggling and jewel disposal
+      motive_seed: family protection and financial need
+      motive_strength: moderate
+      alibi_window: present at hotel and social events
+      access_plausibility: high
+      opportunity_channels:
+        - hotel
+        - jewel transactions
+      behavioral_tells:
+        - calmness
+        - strategic thinking
+      stakes: family legacy and safety
+      evidence_sensitivity:
+        - possession of jewels
+        - communications with Grimm
+      culprit_eligibility: eligible
+      culpability: unknown
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: Paul Brodie
+      age_range: 40-50
+      role_archetype: amateur investigating
+      relationships:
+        - Harvey Grimm (antagonist)
+        - Aaron Rodd (acquaintance)
+      public_persona: detective and investigator
+      private_secret: frustrated by failures and suspicions
+      motive_seed: justice and capture of Jeremiah Sands
+      motive_strength: strong
+      alibi_window: present at many key scenes
+      access_plausibility: high
+      opportunity_channels:
+        - police investigations
+        - surveillance
+      behavioral_tells:
+        - overzealousness
+        - blunders
+      stakes: professional reputation
+      evidence_sensitivity:
+        - presence at crime scenes
+        - searches conducted
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: Rosa Letchowiski
+      age_range: 20-25
+      role_archetype: jeweler's granddaughter and flirt
+      relationships:
+        - Harvey Grimm (lover)
+        - Abraham Letchowiski (grandfather)
+      public_persona: working woman in jewelry workshop
+      private_secret: involved with Harvey Grimm
+      motive_seed: ambition and affection
+      motive_strength: weak
+      alibi_window: present in jewelry shop and social outings
+      access_plausibility: high
+      opportunity_channels:
+        - jewelry shop
+        - cinema outings
+      behavioral_tells:
+        - flirtatiousness
+        - impatience
+      stakes: future security
+      evidence_sensitivity:
+        - presence at workshop
+        - interactions with Grimm
+      culprit_eligibility: eligible
+      culpability: unknown
+      gender: female
+      role: suspect
+      moral_complexity: moderate
+    - name: Abraham Letchowiski
+      age_range: 70-80
+      role_archetype: elderly jeweler
+      relationships:
+        - Rosa Letchowiski (granddaughter)
+        - Harvey Grimm (assistant)
+      public_persona: honest jeweler
+      private_secret: unaware of illicit activities in workshop
+      motive_seed: family legacy
+      motive_strength: none
+      alibi_window: present in shop and home
+      access_plausibility: high
+      opportunity_channels:
+        - jewelry shop
+      behavioral_tells:
+        - naivety
+        - concern for business
+      stakes: reputation and family
+      evidence_sensitivity:
+        - shop searches
+        - interactions with police
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: bystander
+      moral_complexity: low
+  culpability:
+    culprit_count: 1
+    culprits:
+      - Harvey Grimm (Ed. Levy)
+  surface_model:
+    narrative:
+      summary: >-
+        A complex jewel theft and smuggling case unfolds in London involving a stolen necklace,
+        multiple parties with ambiguous loyalties, and a series of deceptions. The police and
+        amateur detectives pursue the criminals, but the true mastermind cleverly conceals the
+        jewels and manipulates events.
+    accepted_facts:
+      - Madame de Borria's necklace was stolen from her hotel room.
+      - Harvey Grimm was found in possession of a necklace similar to the stolen one.
+      - Paul Brodie is an amateur detective pursuing Jeremiah Sands, a notorious jewel thief.
+      - The jewels have been recut and disguised to avoid detection.
+    inferred_conclusions:
+      - Harvey Grimm is the outright thief who stole the necklace from Madame de Borria.
+      - Jeremiah Sands is currently in London and directly involved in the theft.
+      - Henriette Brinnen is an innocent victim caught in the criminal activities.
+  hidden_model:
+    mechanism:
+      description: >-
+        Harvey Grimm, under the alias Ed. Levy, acted as the skilled artisan who secretly recut and
+        disguised the stolen jewels to prevent their identification. The Brinnen family pretended to
+        be criminals to protect the true ownership of the jewels, using the theft narrative as a
+        cover. Grimm cleverly concealed the genuine necklace separate from the fake one to mislead
+        the police and orchestrated the recovery and sale of the jewels while evading capture.
+      delivery_path:
+        - step: The Brinnen family brought the jewels to Harvey Grimm for recutting and disposal.
+        - step: Grimm mixed the recut jewels with common jewelry in the workshop to hide them.
+        - step: A fake necklace was presented to the police while the real one was kept hidden.
+        - step: Grimm used disguises and false alibis to avoid suspicion and detection.
+        - step: The police arrested Grimm on suspicion but lacked conclusive evidence.
+        - step: The Brinnen family testified to the jewels' true ownership and secret disposal.
+        - step: Grimm was released after the case was resolved and the jewels returned.
+    outcome:
+      result: >-
+        Harvey Grimm is revealed as the mastermind behind the jewel smuggling and is ultimately
+        exonerated when the true ownership and purpose of the jewels are disclosed.
+  false_assumption:
+    statement: Harvey Grimm was the thief who stole Madame de Borria's necklace.
+    type: identity
+    why_it_seems_reasonable: >-
+      Grimm was found in possession of a necklace similar to the stolen one and was caught with
+      tools for cutting jewels, making him appear guilty. The police and detective Brodie strongly
+      suspected him.
+    what_it_hides: >-
+      The necklace Grimm had was entrusted to him for secret disposal by the rightful owners, the
+      Brinnen family, who pretended to be criminals to protect the jewels. Grimm was acting under
+      their instructions, not as a thief.
+  false_solution:
+    accused_suspect: Paul Brodie
+    supporting_points:
+      - Brodie was suspiciously present at many key scenes.
+      - He aggressively pursued the suspects and made arrests.
+      - His overzealousness and blunders suggested possible ulterior motives.
+      - He was suspected of being involved in the theft or cover-up.
+    the_one_flaw: Brodie lacked concrete evidence and was repeatedly outwitted by Grimm and the Brinnen family.
+    refuted_in_chapter: 9
+  red_herrings:
+    - id: yellow_eye_diamond
+      description: >-
+        The appearance of the Yellow Eye diamond worn publicly by a stage performer suggested
+        reckless exposure of stolen jewels.
+      points_at_suspect: Leopold Brinnen
+      innocent_explanation: >-
+        The diamond was swapped with a worthless replica to mislead the police and protect the real
+        jewel.
+      resolved_in_chapter: 8
+    - id: jack_lovejoy_spy
+      description: >-
+        Jack Lovejoy, an American actor with German ties, was suspected of espionage and involvement
+        in the jewel theft.
+      points_at_suspect: Jack Lovejoy
+      innocent_explanation: >-
+        Lovejoy was under surveillance but was not involved in the jewel smuggling; he was expelled
+        from the country for espionage unrelated to the theft.
+      resolved_in_chapter: 7
+  closed_circle:
+    suspects:
+      - Aaron Rodd
+      - Harvey Grimm (Ed. Levy)
+      - Henriette Brinnen
+      - Leopold Brinnen
+      - Paul Brodie
+      - Rosa Letchowiski
+      - Abraham Letchowiski
+    rationale: >-
+      All principal characters are connected through the jewel smuggling and theft, with no
+      outsiders implicated; the mystery revolves around their interactions and movements within
+      London.
+  constraint_space:
+    time:
+      anchors:
+        - The theft occurred shortly before Madame de Borria's discovery at the Milan Hotel
+        - Harvey Grimm's nine-day absence before returning to London
+        - The luncheon meeting at the Milan at 1:15 pm
+        - The boxing match at half-past nine
+        - The arrest and court appearances in the final chapters
+      windows:
+        - Afternoon meetings and jewel exchanges
+        - Evening social events and surveillance
+        - Nighttime raids and escapes
+        - Daytime police investigations
+    access:
+      actors:
+        - Harvey Grimm
+        - Aaron Rodd
+        - Henriette Brinnen
+        - Leopold Brinnen
+        - Paul Brodie
+        - Rosa Letchowiski
+        - Abraham Letchowiski
+      objects:
+        - Jewelry workshop
+        - Milan Hotel rooms
+        - Aaron Rodd's office
+        - Public houses and boxing venues
+        - Northumberland Court flat
+        - Police station
+        - Theater and stage rooms
+    social:
+      trust_channels:
+        - Legal confidences between clients and Aaron Rodd
+        - Partnership and friendship between Aaron Rodd and Harvey Grimm
+        - Family loyalty among the Brinnen siblings
+        - Social introductions and meetings arranged by Harvey Grimm
+      authority_sources:
+        - Scotland Yard police
+        - Inspector Ditchwater
+        - Magistrate's court
+        - Home Office and Secret Service
+        - Military officers and naval commanders
+  inference_path:
+    steps:
+      - observation: >-
+          Harvey Grimm was found with a necklace similar to the stolen one and was observed to
+          handle both the real and fake necklaces in different locations, allowing the possibility
+          to verify the presence of each.
+        correction: >-
+          The necklace was a fake switched with the real one, and the handling of the genuine
+          necklace was carefully concealed.
+        effect: >-
+          Grimm's apparent guilt is questioned, and the need to verify which necklace was present at
+          each location is established.
+        required_evidence:
+          - >-
+            The imitation necklace seized at police headquarters and the access record showing its
+            chain of custody versus the real necklace's absence from police evidence.
+          - >-
+            Harvey Grimm's explanation of the necklace switch under the handkerchief, and the
+            physical trace of the real necklace found in his possession during the search at the
+            hotel.
+        reader_observable: true
+      - observation: >-
+          Paul Brodie aggressively pursued suspects and made arrests, but his efforts failed to
+          reveal or possess the real necklace, and he could not verify its presence at any time.
+        correction: >-
+          Brodie lacked solid evidence and made blunders, failing to reveal or possess the genuine
+          jewels, and his authority was questioned.
+        effect: >-
+          Brodie is suspected but not proven guilty, and his inability to verify or reveal the true
+          jewels' presence undermines his case.
+        required_evidence:
+          - >-
+            Brodie's failed arrest of Harvey Grimm in the workshop, with no recovery of the real
+            necklace or ability to verify its presence.
+          - >-
+            Inspector Ditchwater's skepticism about Brodie's suspicions, as recorded in the
+            administrative report on the failed recovery.
+        reader_observable: true
+      - observation: >-
+          Henriette Brinnen was seen with the jewels and involved in meetings, but was never
+          observed to possess or handle the real necklace versus the fake one, and her role as
+          protector was only revealed later.
+        correction: >-
+          She is part of the family protecting the jewels, and her opportunity to entrust or possess
+          the real necklace was limited by surveillance.
+        effect: >-
+          Henriette is a suspect but likely innocent, and her lack of opportunity to handle or
+          entrust the real necklace is significant.
+        required_evidence:
+          - >-
+            The timeline of Henriette's movements showing she was under observation and could not
+            possess or entrust the real necklace during the key window.
+          - >-
+            Leopold Brinnen's testimony about the jewels' secret disposal, which reveals Henriette's
+            limited involvement in handling the real necklace.
+        reader_observable: true
+      - observation: >-
+          The Yellow Eye diamond appeared on stage worn by Mademoiselle Larilly, but its presence
+          could be verified as a worthless replica, and the handling of the real diamond was never
+          observed.
+        correction: >-
+          The diamond was swapped with a worthless replica, and the opportunity to possess or reveal
+          the real jewel was denied to the public.
+        effect: >-
+          The public display was a deliberate misdirection, and the ability to verify the real
+          diamond's presence was prevented.
+        required_evidence:
+          - >-
+            Brodie's examination of the yellow stone as worthless crystal, with a physical trace
+            confirming its lack of value.
+          - >-
+            Leopold Brinnen's explanation of the swap, including the access record of the diamond's
+            handling before the performance.
+        reader_observable: true
+      - observation: >-
+          Jack Lovejoy's suspicious behavior and German connections led to surveillance, but he was
+          never observed to possess, handle, or reveal the real jewels, nor could his presence be
+          verified at the theft scene.
+        correction: >-
+          Lovejoy was involved in espionage but not jewel theft, and his opportunity to possess or
+          entrust the jewels was non-existent.
+        effect: >-
+          Lovejoy is a red herring in the jewel case, and the lack of evidence of his presence or
+          handling of the jewels eliminates him as a suspect.
+        required_evidence:
+          - >-
+            Cresswell's report to the Home Office about Lovejoy's movements, showing no access to
+            the jewels or opportunity to possess them.
+          - >-
+            Lovejoy's expulsion order from the country, which records his absence during the
+            critical window for handling the jewels.
+        reader_observable: true
+      - observation: >-
+          Harvey Grimm was seen working in a jewelry workshop with tools, and was observed to handle
+          and possess the real necklace versus the fake one, allowing the possibility to verify his
+          role as protector or thief.
+        correction: >-
+          Grimm was recutting stolen jewels to disguise them, and his opportunity to possess,
+          handle, and entrust the real necklace was unique among the suspects.
+        effect: >-
+          Grimm is the mastermind behind the jewel smuggling, and the ability to verify his
+          possession and handling of the real necklace is key to revealing his role as protector.
+        required_evidence:
+          - >-
+            Rosa Letchowiski's report of Grimm's workshop activities, including the handling and
+            recutting of the real necklace.
+          - >-
+            Brodie's arrest attempt and Grimm's escape, with the access record showing Grimm's
+            possession of the real necklace at the time.
+        reader_observable: true
+      - observation: >-
+          The Brinnen family claimed to be criminals and involved in theft, but their opportunity to
+          possess, reveal, or entrust the real necklace was limited, and their role as protectors
+          was only revealed in court.
+        correction: >-
+          They pretended to be criminals to protect the jewels' true ownership, and the opportunity
+          to possess or entrust the real necklace was orchestrated to mislead the authorities.
+        effect: >-
+          The jewels are legally theirs, and the theft is a cover; the ability to verify, reveal,
+          and possess the real necklace is central to the resolution.
+        required_evidence:
+          - >-
+            Leopold Brinnen's court testimony about the jewels' history, which reveals the family's
+            orchestrated possession and entrusting of the real necklace.
+          - >-
+            Belgian Minister's confirmation of the jewels' provenance, verifying the family's legal
+            right to possess and protect the jewels.
+        reader_observable: true
+  discriminating_test:
+    method: constraint_proof
+    design: >-
+      The test involves verifying the presence and handling of the real necklace versus the fake one
+      in controlled environments, including police custody and hotel rooms. By tracking the
+      necklace's location and comparing it with suspects' movements and alibis, the investigators
+      can prove who had access to the genuine jewels and who only possessed replicas.
+    knowledge_revealed: >-
+      This test reveals that Harvey Grimm was entrusted with the real necklace and only possessed
+      the fake one when confronted by the police, proving his role as a protector rather than a
+      thief.
+    pass_condition: >-
+      The real necklace is found in Grimm's possession separate from the fake one held by the
+      police, confirming his innocence of theft and his role in the secret disposal.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given detailed accounts of the characters' movements, interactions, and the
+      jewels' descriptions. Clues such as the switch of necklaces, the presence of tools for
+      recutting jewels, and the testimonies of the Brinnen family are all presented. The false
+      assumptions about Grimm's guilt and Brodie's suspicions are explicitly challenged, allowing
+      attentive readers to deduce the true mechanism of the jewel smuggling and recovery.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

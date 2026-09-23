@@ -1,0 +1,348 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The eyes of Max Carrados
+    author: Ernest Bramah
+    license: Public domain (first published 1923; author died 1942). Project Gutenberg ebook 77788.
+    era:
+      decade: 1920s
+      realism_constraints:
+        - No advanced forensic DNA or electronic surveillance technology
+        - Limited rapid communication, reliance on telegrams and letters
+        - Transportation mainly by train, horse-drawn vehicles, early motor cars
+    setting:
+      location: England, various locations including London, Rutlandshire, Cliffhurst, Netherhempsfield
+      institution: Private inquiry agents and police (Scotland Yard), Home Office
+    crime_class:
+      category: fraud
+      subtype: the Virginiola book theft and recovery scheme
+  cast:
+    - name: Max Carrados
+      age_range: middle-aged to elderly
+      role_archetype: blind amateur criminologist with exceptional senses
+      relationships:
+        - Louis Carlyle
+        - Parkinson
+        - Inspector Beedel
+      public_persona: blind gentleman with wide interests and social connections
+      private_secret: exceptional observational and deductive abilities despite blindness
+      motive_seed: intellectual curiosity and sense of justice
+      motive_strength: none
+      alibi_window: always present
+      access_plausibility: not applicable
+      opportunity_channels: []
+      behavioral_tells:
+        - calm, methodical, insightful
+      stakes: solving complex mysteries
+      evidence_sensitivity:
+        - touch, smell, hearing
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: low
+    - name: Louis Carlyle
+      age_range: middle-aged
+      role_archetype: private inquiry agent, friend and assistant to Carrados
+      relationships:
+        - Max Carrados
+        - Mrs Bellmark
+      public_persona: private detective
+      private_secret: former solicitor with a past indiscretion
+      motive_seed: professional interest
+      motive_strength: none
+      alibi_window: present with Carrados
+      access_plausibility: not applicable
+      opportunity_channels: []
+      behavioral_tells:
+        - confident, sometimes complacent
+      stakes: professional reputation
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+    - name: Mr Marrable
+      age_range: middle-aged
+      role_archetype: amateur art and antique dealer
+      relationships:
+        - Max Carrados
+      public_persona: knowledgeable dealer
+      private_secret: keen on rare books and antiques
+      motive_seed: commercial interest
+      motive_strength: weak
+      alibi_window: present at auction
+      access_plausibility: high
+      opportunity_channels:
+        - auction
+      behavioral_tells:
+        - curious, somewhat suspicious
+      stakes: financial gain
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+    - name: Mr Powis
+      age_range: middle-aged
+      role_archetype: Welsh antiquarian bookseller
+      relationships:
+        - Mr Ing
+        - Mr Chatton
+      public_persona: respectable dealer
+      private_secret: involved unknowingly in the book recovery
+      motive_seed: business interest
+      motive_strength: weak
+      alibi_window: present at auction and after
+      access_plausibility: high
+      opportunity_channels:
+        - book trade
+      behavioral_tells:
+        - defensive, anxious
+      stakes: reputation and business
+      evidence_sensitivity: []
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: low
+    - name: Mr Chatton
+      age_range: young adult
+      role_archetype: secretary/librarian to Sir Roland Chargrave
+      relationships:
+        - Sir Roland Chargrave
+        - Mr Powis
+      public_persona: docile, conscientious secretary
+      private_secret: orchestrated the theft and recovery of the Virginiola
+      motive_seed: financial need and deception
+      motive_strength: strong
+      alibi_window: present at library and sale
+      access_plausibility: high
+      opportunity_channels:
+        - library access
+        - book sale manipulation
+      behavioral_tells:
+        - rueful, brooding, secretive
+      stakes: money and avoiding prosecution
+      evidence_sensitivity: []
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: moderate
+    - name: Sir Roland Chargrave
+      age_range: middle-aged to elderly
+      role_archetype: baronet with valuable library
+      relationships:
+        - Mr Chatton
+      public_persona: wealthy landowner
+      private_secret: unaware of the theft scheme
+      motive_seed: none
+      motive_strength: none
+      alibi_window: present at estate
+      access_plausibility: not applicable
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: loss of valuable book
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: low
+  culpability:
+    culprit_count: 1
+    culprits:
+      - Mr Chatton
+  surface_model:
+    narrative:
+      summary: >-
+        A valuable rare book, the Virginiola, is stolen from a private library and sold at auction
+        as an imperfect copy. The book mysteriously disappears after the sale, leading to suspicion
+        and investigation involving dealers and the library secretary.
+    accepted_facts:
+      - The Virginiola book was sold at auction as an imperfect copy
+      - The book was misdelivered to a purchaser who took it away
+      - A second copy of the Virginiola was held by a bookseller Mr Powis
+      - The secretary Mr Chatton had access to both copies and the library
+    inferred_conclusions:
+      - The purchaser who took the book away was the thief
+      - Mr Powis knowingly dealt in stolen property
+      - The book was lost due to clerical error at the auction house
+  hidden_model:
+    mechanism:
+      description: >-
+        Mr Chatton, the secretary, secretly sold the original Virginiola before the library sale and
+        then arranged to recover the stolen book by manipulating the auction and delivery notes. He
+        temporarily removed identifying pages to disguise the book and returned it to the bookseller
+        Mr Powis to avoid suspicion.
+      delivery_path:
+        - step: Mr Chatton sells the original Virginiola secretly before the auction
+        - step: He sends a list of books including the Virginiola to the auction house
+        - step: The auction house mistakenly delivers the stolen book to a purchaser
+        - step: The purchaser unknowingly takes the stolen book away
+        - step: Mr Chatton arranges for the stolen book to be returned to Mr Powis
+        - step: The identifying pages are replaced and the book is disguised
+        - step: Mr Powis holds the book as legitimate property, unaware of the theft
+    outcome:
+      result: The stolen Virginiola is recovered and the secretary Mr Chatton is exposed as the culprit.
+  false_assumption:
+    statement: The purchaser who took the book away at auction was the thief.
+    type: identity
+    why_it_seems_reasonable: >-
+      The purchaser physically took possession of the book and disappeared with it, making him the
+      obvious suspect. The auction house's delivery note supported this assumption.
+    what_it_hides: >-
+      It hides the fact that the secretary orchestrated the theft and recovery, using the purchaser
+      as an unwitting pawn.
+  false_solution:
+    accused_suspect: Mr Powis
+    supporting_points:
+      - Mr Powis had possession of a copy of the Virginiola
+      - He was reluctant to show a receipt for the book
+      - His name was connected with a stolen copy
+      - He was suspected due to the timing of the book's return
+    the_one_flaw: Mr Powis was unaware of the theft and acted in good faith
+    refuted_in_chapter: 1
+  red_herrings:
+    - id: mysterious_purchaser
+      description: The large man who bought the lot at auction and took away the book
+      points_at_suspect: He physically took the book and disappeared
+      innocent_explanation: He was an unwitting purchaser who received the stolen book due to a delivery note error
+      resolved_in_chapter: 1
+    - id: rumors_about_powis
+      description: Suspicion around Mr Powis due to rumors and his reluctance to produce a receipt
+      points_at_suspect: His behavior suggested guilt and involvement
+      innocent_explanation: >-
+        He was a legitimate bookseller who was the victim of a malicious rumor and the secretary's
+        scheme
+      resolved_in_chapter: 1
+  closed_circle:
+    suspects:
+      - Mr Powis
+      - Mr Chatton
+      - Mr Marrable
+      - Mr Dillworthy
+    rationale: >-
+      Only these individuals had access to the book, the library, or the auction house during the
+      relevant times, and the delivery notes and auction records limited the circle.
+  constraint_space:
+    time:
+      anchors:
+        - auction day Wednesday
+        - book returned Friday
+        - letter dated May 15th
+      windows:
+        - auction duration
+        - delivery note issuance
+        - book recovery period
+    access:
+      actors:
+        - Mr Chatton
+        - Mr Powis
+        - auction staff
+        - purchaser
+      objects:
+        - Virginiola book
+        - delivery notes
+        - auction catalogue
+    social:
+      trust_channels:
+        - auction house records
+        - dealer communications
+        - letter correspondence
+      authority_sources:
+        - auctioneer Mr Ing
+        - library owner Sir Roland Chargrave
+        - police authorities
+  inference_path:
+    steps:
+      - observation: The delivery note was incorrectly filled out as Lot 191 instead of Lot 91
+        correction: The purchaser took away the wrong lot
+        effect: The stolen book was mistakenly delivered to the purchaser
+        required_evidence:
+          - Delivery note showing Lot 191 instead of Lot 91
+          - Auction house clerk testimony about delivery note filling
+        reader_observable: true
+      - observation: Mr Powis had a copy of the Virginiola returned to him
+        correction: The returned book was the stolen one
+        effect: The stolen book was recovered and disguised
+        required_evidence:
+          - Mr Powis's statement about receiving the book back
+          - Physical examination of the book showing replaced pages
+        reader_observable: true
+      - observation: Mr Chatton had sent lists to dealers and arranged approvals
+        correction: He orchestrated the theft and recovery
+        effect: Mr Chatton is the mastermind behind the scheme
+        required_evidence:
+          - Correspondence from Mr Chatton to dealers
+          - Testimony about Mr Chatton's financial difficulties
+        reader_observable: true
+      - observation: The missing pages on the auction copy matched those in Mr Powis's copy
+        correction: Pages were temporarily removed and replaced
+        effect: The stolen book was disguised to avoid detection
+        required_evidence:
+          - Physical comparison of pages between copies
+          - Expert testimony on book binding and restoration
+        reader_observable: true
+      - observation: Mr Chatton had access to the library and the books
+        correction: He had opportunity to steal and manipulate the books
+        effect: Opportunity for the crime is established
+        required_evidence:
+          - Library access records
+          - Witness statements about Mr Chatton's movements
+        reader_observable: true
+      - observation: No evidence of forced entry or other suspects
+        correction: The crime was an inside job
+        effect: Focus on library staff and dealers
+        required_evidence:
+          - Security reports of the library
+          - Testimony from other library staff
+        reader_observable: true
+      - observation: Mr Powis was reluctant to produce a receipt
+        correction: He feared suspicion but was innocent
+        effect: Mr Powis is cleared as a suspect
+        required_evidence:
+          - Mr Powis's explanation of the missing receipt
+          - Confirmation of legitimate purchase from Mr Winch
+        reader_observable: true
+  discriminating_test:
+    method: constraint_proof
+    design: >-
+      Investigators verify the delivery notes and auction records to confirm the lot numbers and
+      purchasers. They compare the physical copies of the Virginiola held by Mr Powis and the
+      auction house to detect any alterations or missing pages. They also examine library access
+      logs and correspondences to establish who had opportunity to manipulate the books.
+    knowledge_revealed: >-
+      This test reveals that the stolen book was sold before the auction and then recovered and
+      disguised by the secretary, Mr Chatton.
+    pass_condition: >-
+      Confirmation that the auction delivery note was falsified and that the book held by Mr Powis
+      matches the stolen copy with replaced pages.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given detailed descriptions of the auction, the delivery notes, the booksellers
+      involved, and the secretary's suspicious behavior. The physical evidence of missing and
+      replaced pages is described, and the timing of events is clear. The false assumption about the
+      purchaser is explicitly presented and can be questioned. The clues about Mr Chatton's
+      financial motives and access are available for deduction.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

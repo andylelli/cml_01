@@ -1,0 +1,130 @@
+{
+ "slug": "the_eyes_of_max_carrados",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "The auctioneer announced Lot 191 as imperfect and sold it",
+   "anchor": "Lot 191 is imperfect and is sold not subject to return",
+   "span": "Lot 191 is imperfect and is sold not subject to return; a very desirable volume all the same.",
+   "ok": true
+  },
+  {
+   "claim": "The delivery note was mistakenly filled as Lot 191 instead of Lot 91",
+   "anchor": "sale clerk, in the stress of his duties, inadvertently filled in the delivery note as Lot 191",
+   "span": "My sale clerk, in the stress of his duties, inadvertently filled in the delivery note as Lot 191.",
+   "ok": true
+  },
+  {
+   "claim": "Mr Powis received back the Virginiola book with formal regrets",
+   "anchor": "the book was returned to me this morning",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Mr Chatton wrote to dealers pretending to buy a copy for collation",
+   "anchor": "I wrote to a few dealers, rather, I am afraid, giving them the impression that we wished to buy a copy",
+   "span": "So I wrote to a few dealers, rather, I am afraid, giving them the impression that we wished to buy a copy.",
+   "ok": true
+  },
+  {
+   "claim": "Mr Chatton secretly sold the original Virginiola before the auction",
+   "anchor": "he had already sold the Virginiola himself only a week before",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The stolen book was disguised by removing and replacing pages",
+   "anchor": "the abstracted sheet was cunningly replaced, probably certain erasable marks that had been put in for fuller disguise were removed",
+   "span": "The _Virginiola_ was recovered; the abstracted sheet was cunningly replaced, probably certain erasable marks that had been put in for fuller disguise were removed, and Mr Powis received back his property with formal regrets.",
+   "ok": true
+  },
+  {
+   "claim": "Mr Powis did not have a receipt for the book because it was paid by cheque initialed to bearer",
+   "anchor": "I was making out a cheque when he reminded me that his right hand was useless and asked me to initial it to ‘bearer.’ That is why I come to have no receipt",
+   "span": "I was making out a cheque when he reminded me that his right hand was useless and asked me to initial it to 'bearer.' That is why I come to have no receipt.",
+   "ok": true
+  },
+  {
+   "claim": "The purchaser took away the wrong lot due to delivery note error",
+   "anchor": "Another purchaser bought certain lots. Among them was Lot 91. My sale clerk... inadvertently filled in the delivery note as Lot 191",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Mr Chatton’s motive was financial need and deception",
+   "anchor": "he had expenses. Perhaps he had fallen into the hands of the Jews; perhaps it was the Jewesses",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The auction house was slow to turn the case over to the police",
+   "anchor": "you will find more profit in investigating farther afield",
+   "span": "Unless one of your people happens to come forward with a real clue, Mr Ing, I venture to predict that you will find more profit in investigating farther afield.",
+   "ok": true
+  },
+  {
+   "claim": "Mr Marrable was interested in the Virginiola and its market value",
+   "anchor": "I should certainly like to land the Virginiola",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The stolen book was sold as imperfect to reduce suspicion",
+   "anchor": "if at the sale it was discovered to be imperfect in an important detail then it might realise only a fraction of that sum",
+   "span": "Now the _Virginiola_ had been valued at £300 by old Sir Vernon, but if at the sale it was discovered to be imperfect in an important detail then it might realise only a fraction of that sum.",
+   "ok": true
+  },
+  {
+   "claim": "Mr Powis was worried about rumors affecting his business",
+   "anchor": "My name has been connected with a stolen copy and buyers are very shy",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Mr Chatton’s scheme involved buying back the book before the sale",
+   "anchor": "The first thing was to get back the Virginiola a little before the sale",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Mr Chatton’s plan failed because the market value had risen",
+   "anchor": "What he had not taken into account was the enormous rise in the value of this class of work",
+   "span": "What he had not taken into account was the enormous rise in the value of this class of work.",
+   "ok": true
+  },
+  {
+   "claim": "The secretary’s scheme was speculative and left no evidence",
+   "anchor": "Chatton... did not leave behind him one solitary shred of evidence that would stand before a jury",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Mr Carrados advised the auction house to verify the stolen book’s status",
+   "anchor": "I would suggest that we eliminate Mr Dillworthy... What remains?",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The purchaser’s buying pattern was suspicious but not conclusive",
+   "anchor": "Mr Dillworthy bought 91 at a good price. After that he did nothing until 191 had passed. Then he secured four lots of cheap books",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The purchaser declined to write his name on the back of a banknote",
+   "anchor": "He held out a bank-note... I gave him a pen... He handed me the pen back and said: ‘Thanks; after all, I’ll leave it as it is.’",
+   "span": "",
+   "ok": false
+  }
+ ],
+ "costGbp": 0.09529422400000001,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

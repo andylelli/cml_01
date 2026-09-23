@@ -1,0 +1,19 @@
+{
+ "false_assumption": {
+  "statement": "Miss Kitty Winter was solely responsible for the vitriol attack and the burglary was a spontaneous act.",
+  "type": "behavioral",
+  "why_it_seems_reasonable": "Miss Winter openly admits her hatred and involvement, and the attack was public and violent. The burglary appeared opportunistic during the attack.",
+  "what_it_hides": "The burglary was a carefully planned operation coordinated with Holmes and Watson, and the attack was part of a larger strategy to obtain the diary and prevent the marriage."
+ },
+ "mechanism_description": "Baron Gruner's incriminating 'lust diary' was stolen during a staged burglary orchestrated by Holmes and Miss Kitty Winter, who attacked Gruner to distract him. Mrs. Amberley conspired with Dr. Ray Ernest to steal Josiah Amberley's savings and elope, using a duplicate key to access the strong-room. Holmes's injuries were part of a ruse to mislead Gruner and facilitate the recovery of the diary.",
+ "discriminating_test": {
+  "method": "Holmes and his agents coordinate to recover stolen items and expose the culprits by tracing the use of the duplicate key and the timing of the burglary.",
+  "design": "Holmes reconstructs the sequence of events by comparing the access logs of the strong-room, the presence of Mrs. Amberley and Dr. Ray Ernest, and the recovery of the stolen items. He demonstrates that only someone with intimate knowledge and a duplicate key could have committed the theft.",
+  "knowledge_revealed": "This reconstruction proves Mrs. Amberley's involvement and the premeditated nature of the theft, eliminating the possibility of Josiah Amberley being complicit or the crime being opportunistic.",
+  "pass_condition": "The access logs and physical evidence confirm Mrs. Amberley's use of the duplicate key and her presence at the scene, verifying her guilt."
+ },
+ "changed": [
+  "discriminating_test"
+ ],
+ "confidence": "high"
+}

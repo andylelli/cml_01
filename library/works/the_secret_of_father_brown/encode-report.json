@@ -18,8 +18,8 @@
   {
    "claim": "Osric Orm lingered in the garden for two hours without entering the house",
    "anchor": "he had certainly had the time to commit six murders",
-   "span": "",
-   "ok": false
+   "span": "He had certainly had the time to commit six murders, and might almost have committed them for want of something to do; for he could give no coherent account of what he was doing.",
+   "ok": true
   },
   {
    "claim": "Michael Flood entered the garden irregularly and was found near the victim",
@@ -36,8 +36,8 @@
   {
    "claim": "The broken mirror was caused by a bullet, not a struggle",
    "anchor": "a bullet broke the mirror",
-   "span": "",
-   "ok": false
+   "span": "A bullet broke the mirror,\" answered Father Brown gravely; \"a bullet fired by the criminal.",
+   "ok": true
   },
   {
    "claim": "The Master of the Mountain was suspected of stealing a ruby",
@@ -96,8 +96,8 @@
   {
    "claim": "The false solution accused Osric Orm of murder",
    "anchor": "the trial of Osric Orm for the murder of Sir Humphrey Gwynne",
-   "span": "",
-   "ok": false
+   "span": "The trial of Osric Orm for the murder of Sir Humphrey Gwynne, which filled the newspapers for so many weeks, really turned entirely on the same crux as that little talk under the lamp-post, when the grey-green dawn was breaking about the dark streets and gardens.",
+   "ok": true
   },
   {
    "claim": "John Bankes was the real culprit behind the jewel theft and murder",
@@ -120,8 +120,8 @@
   {
    "claim": "The worst crime in the world was patricide disguised by the son",
    "anchor": "he killed his father",
-   "span": "",
-   "ok": false
+   "span": "He killed his father,\" answered the priest.",
+   "ok": true
   }
  ],
  "costGbp": 0.0481892495,
@@ -132,5 +132,5 @@
  },
  "case_written": true,
  "verified_by": "corpus-verify.mjs",
- "verified_on": "2026-08-31"
+ "verified_on": "2026-09-23"
 }

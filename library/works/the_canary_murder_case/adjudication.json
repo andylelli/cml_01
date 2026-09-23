@@ -1,17 +1,19 @@
 {
  "false_assumption": {
-  "statement": "The side door was bolted from the inside all night, making entry or exit impossible.",
+  "statement": "The side door was bolted all night and could not have been unbolted and rebolted without detection.",
   "type": "spatial",
-  "why_it_seems_reasonable": "The janitor and witnesses confirmed the door was bolted, and no one was seen entering or leaving through it. The telephone operators on duty also denied any unauthorized passage.",
-  "what_it_hides": "The door was manipulated by a mechanical device operated from outside, allowing the murderer to enter and exit without being seen and then rebolt the door, creating a false impression of security."
+  "why_it_seems_reasonable": "The janitor and witnesses testified the door was bolted early and remained so, and no one was seen entering or leaving through it. The telephone operators also confirmed no unauthorized passage.",
+  "what_it_hides": "It hides the possibility that the murderer used a mechanical device to unbolt and rebolt the door silently and remotely, allowing secret entry and exit."
  },
- "mechanism_description": "Kenneth Spotswoode planned and executed the murder to prevent Margaret Odell from ruining his life through blackmail. He staged the crime to appear as a burglary, using a phonograph record to fake screams heard by witnesses. He manipulated the side door bolt using a string and tweezers device to create an alibi, and killed Tony Skeel, who had witnessed the murder and attempted to blackmail him.",
+ "mechanism_description": "Kenneth Spotswoode murdered Margaret Odell to prevent her from ruining his life through blackmail. He staged the crime to appear as a professional burglary, using a phonograph record to fake screams heard by the telephone operator. He manipulated the locked side door with a string and tweezers device to create an alibi, hiding his presence and movements, but was ultimately exposed by Philo Vance’s psychological deductions and demonstration.",
  "discriminating_test": {
-  "method": "reenactment",
-  "design": "Vance demonstrated the side door manipulation by using tweezers tied to a string to unbolt and rebolt the door from outside without being seen. The phonograph record was played to simulate screams and calls for help timed to the murder. A staged poker game was used to analyze psychological traits of suspects.",
-  "knowledge_revealed": "The test revealed how the murderer could enter and exit undetected, create a mechanical alibi, and the psychological profile matching the true culprit.",
-  "pass_condition": "Successful unlocking and relocking of the side door by mechanical means without detection, and psychological behavior consistent with the murderer during the poker game."
+  "method": "trap",
+  "design": "Vance invited the main suspects to a poker game to observe their psychological traits and risk-taking behavior. Spotswoode’s daring bluff and high-stakes betting revealed a personality consistent with the murderer’s profile, while others were eliminated by their more cautious or inconsistent play.",
+  "knowledge_revealed": "The test revealed Spotswoode’s supreme self-confidence and willingness to risk everything, matching the psychological profile of the killer.",
+  "pass_condition": "The suspect’s betting behavior must demonstrate calculated risk-taking and bluffing consistent with the murderer's psychological profile, distinguishing him from more cautious suspects."
  },
- "changed": [],
+ "changed": [
+  "false_assumption.type"
+ ],
  "confidence": "high"
 }

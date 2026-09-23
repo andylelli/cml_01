@@ -1,0 +1,601 @@
+{
+ "decade": "1920s",
+ "realism_constraints": [
+  "No advanced forensic DNA analysis available",
+  "Electric lighting and telephones are in use",
+  "Police rely on fingerprinting, ballistic analysis, and witness testimony"
+ ],
+ "location": "Greene mansion, New York City",
+ "institution": "New York County District Attorney's Office and Police Department",
+ "crime_category": "murder",
+ "crime_subtype": "locked-room style family mass murder with staged alibis and false clues",
+ "cast": [
+  {
+   "name": "Philo Vance",
+   "age_range": "30s",
+   "role_archetype": "amateur detective, intellectual aristocrat",
+   "role": "detective",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "young social aristocrat and amateur detective",
+   "private_secret": "none",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "N/A",
+   "access_plausibility": "N/A",
+   "stakes": "solve the case",
+   "moral_complexity": "low",
+   "relationships": [],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "John F.-X. Markham",
+   "age_range": "50s",
+   "role_archetype": "District Attorney, official authority",
+   "role": "institutional authority",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "District Attorney of New York County",
+   "private_secret": "none",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "N/A",
+   "access_plausibility": "N/A",
+   "stakes": "justice and case resolution",
+   "moral_complexity": "low",
+   "relationships": [],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Mrs. Tobias Greene",
+   "age_range": "65-70",
+   "role_archetype": "paralyzed matriarch, victim of poisoning",
+   "role": "victim",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "helpless paralytic mistress of the mansion",
+   "private_secret": "harbors hatred for children",
+   "motive_seed": "resentment and cruelty",
+   "motive_strength": "weak",
+   "alibi_window": "confined to bed",
+   "access_plausibility": "impossible to move legs",
+   "stakes": "inheritance control",
+   "moral_complexity": "high",
+   "relationships": [
+    "mother of Julia, Chester, Sibella, Rex, Ada"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "complaining, nagging"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Julia Greene",
+   "age_range": "early 40s",
+   "role_archetype": "eldest daughter, first murder victim",
+   "role": "victim",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "housekeeper, strict",
+   "private_secret": "unknown",
+   "motive_seed": "family tensions",
+   "motive_strength": "none",
+   "alibi_window": "killed in bed",
+   "access_plausibility": "N/A",
+   "stakes": "inheritance",
+   "moral_complexity": "low",
+   "relationships": [
+    "eldest daughter of Mrs. Greene"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "look of horror at death"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Chester Greene",
+   "age_range": "around 40",
+   "role_archetype": "elder son, second murder victim",
+   "role": "victim",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "pampered idler, nervous",
+   "private_secret": "unknown",
+   "motive_seed": "family tensions",
+   "motive_strength": "none",
+   "alibi_window": "killed in his room",
+   "access_plausibility": "N/A",
+   "stakes": "inheritance",
+   "moral_complexity": "low",
+   "relationships": [
+    "son of Mrs. Greene"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "look of horror at death"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Sibella Greene",
+   "age_range": "late 20s",
+   "role_archetype": "daughter, secret wife of Von Blon, suspect",
+   "role": "suspect",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "eligible",
+   "public_persona": "cold, arrogant, socially poised",
+   "private_secret": "secretly married to Dr. Von Blon",
+   "motive_seed": "jealousy, inheritance",
+   "motive_strength": "moderate",
+   "alibi_window": "away in Atlantic City during some crimes",
+   "access_plausibility": "high",
+   "stakes": "inheritance",
+   "moral_complexity": "high",
+   "relationships": [
+    "daughter of Mrs. Greene",
+    "secret wife of Dr. Von Blon"
+   ],
+   "opportunity_channels": [
+    "access to house",
+    "relationship with doctor"
+   ],
+   "behavioral_tells": [
+    "accuses Ada",
+    "flippant attitude"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Ada Greene",
+   "age_range": "early 20s",
+   "role_archetype": "adopted youngest daughter, murderer",
+   "role": "culprit",
+   "gender": "female",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "quiet, patient, caring",
+   "private_secret": "daughter of criminally insane father, secretly murderous",
+   "motive_seed": "hatred, jealousy, desire for freedom and inheritance",
+   "motive_strength": "strong",
+   "alibi_window": "varied, including staged alibis",
+   "access_plausibility": "high",
+   "stakes": "inheritance, freedom, love",
+   "moral_complexity": "high",
+   "relationships": [
+    "adopted daughter of Mrs. Greene and Tobias Greene",
+    "daughter of Gertrude Mannheim and Adolph Mannheim",
+    "jealous of Sibella and Von Blon"
+   ],
+   "opportunity_channels": [
+    "access to house",
+    "knowledge of secret passage",
+    "possession of revolver",
+    "library key"
+   ],
+   "behavioral_tells": [
+    "acted sick",
+    "fabricated stories",
+    "used criminal techniques"
+   ],
+   "evidence_sensitivity": [
+    "galoshes footprints",
+    "missing revolver",
+    "library books on crime",
+    "poisons"
+   ]
+  },
+  {
+   "name": "Dr. Arthur Von Blon",
+   "age_range": "40s",
+   "role_archetype": "family physician, secret husband of Sibella",
+   "role": "suspect",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "eligible",
+   "public_persona": "suave, professional doctor",
+   "private_secret": "secretly married to Sibella",
+   "motive_seed": "love for Sibella",
+   "motive_strength": "weak",
+   "alibi_window": "present in house during some crimes",
+   "access_plausibility": "high",
+   "stakes": "family and professional reputation",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "family physician",
+    "secret husband of Sibella"
+   ],
+   "opportunity_channels": [
+    "access to house",
+    "medicine case"
+   ],
+   "behavioral_tells": [
+    "nervousness over missing poisons",
+    "close to Sibella"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Gertrude Mannheim",
+   "age_range": "mid 40s",
+   "role_archetype": "cook, mother of Ada",
+   "role": "witness",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "stolid, phlegmatic cook",
+   "private_secret": "mother of Ada, hides truth",
+   "motive_seed": "protect Ada",
+   "motive_strength": "moderate",
+   "alibi_window": "mostly in kitchen",
+   "access_plausibility": "high",
+   "stakes": "daughter's welfare",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "mother of Ada"
+   ],
+   "opportunity_channels": [
+    "access to house"
+   ],
+   "behavioral_tells": [
+    "defensive",
+    "fearful"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Sproot",
+   "age_range": "old",
+   "role_archetype": "butler, loyal servant",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "loyal, obsequious butler",
+   "private_secret": "knows more than admits",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "in house",
+   "access_plausibility": "high",
+   "stakes": "employment",
+   "moral_complexity": "low",
+   "relationships": [
+    "servant to Greene family"
+   ],
+   "opportunity_channels": [
+    "access to house"
+   ],
+   "behavioral_tells": [
+    "imperturbable"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Hemming",
+   "age_range": "older maid",
+   "role_archetype": "religious fanatic maid",
+   "role": "witness",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "pious, judgmental maid",
+   "private_secret": "none",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "in house",
+   "access_plausibility": "high",
+   "stakes": "employment",
+   "moral_complexity": "low",
+   "relationships": [
+    "servant to Greene family"
+   ],
+   "opportunity_channels": [
+    "access to house"
+   ],
+   "behavioral_tells": [
+    "religious pronouncements"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Barton",
+   "age_range": "younger maid",
+   "role_archetype": "flighty maid",
+   "role": "witness",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "flighty, coquettish maid",
+   "private_secret": "none",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "left house after second tragedy",
+   "access_plausibility": "high",
+   "stakes": "employment",
+   "moral_complexity": "low",
+   "relationships": [
+    "servant to Greene family"
+   ],
+   "opportunity_channels": [
+    "access to house"
+   ],
+   "behavioral_tells": [
+    "fearful, gossiping"
+   ],
+   "evidence_sensitivity": []
+  }
+ ],
+ "culprits": [
+  "Ada Greene"
+ ],
+ "surface_summary": "The Greene family suffers a series of brutal murders and attempted murders within their mansion, initially attributed to an outside burglar. The police find mysterious footprints, missing weapons, and poisoned victims, but no clear suspect. Suspicion falls on family members amid a backdrop of hatred and secrets.",
+ "accepted_facts": [
+  "Julia Greene was shot in her locked bedroom at night.",
+  "Ada Greene was shot but survived and later poisoned.",
+  "Chester and Rex Greene were murdered with the same revolver.",
+  "Footprints and other clues were deliberately staged to mislead investigators."
+ ],
+ "inferred_conclusions": [
+  "The murders were committed by an unknown outside burglar.",
+  "Mrs. Greene was faking her paralysis and responsible for the crimes.",
+  "Sibella Greene was the murderer, motivated by jealousy and love."
+ ],
+ "mechanism_description": "Ada Greene, the adopted youngest daughter and daughter of the cook and a criminally insane father, meticulously planned and executed the murders and attempted poisonings to inherit the Greene fortune and eliminate her family. She used criminal techniques learned from Tobias Greene’s criminology library, including faked footprints, self-inflicted wounds, secret passageways between rooms for murder, and staged alibis. Ultimately, after her exposure, she committed suicide.",
+ "delivery_path": [
+  "Ada obtained the missing revolver and duplicated footprints using Chester’s galoshes.",
+  "She shot Julia in her locked bedroom, then shot herself in the back to fake an attack.",
+  "Ada used a secret passage between her room and Rex’s to murder Rex with a rigged gun.",
+  "She staged footprints and false clues to implicate an outside intruder.",
+  "Ada poisoned herself with morphine to simulate victimhood and used Sibella’s dog to raise alarm.",
+  "She poisoned Mrs. Greene with strychnine to remove suspicion and secure inheritance.",
+  "Ada attempted to kill Sibella by running her over a cliff but was apprehended."
+ ],
+ "outcome_result": "Ada Greene was captured and revealed as the murderer, ending the Greene family tragedy.",
+ "false_assumption": {
+  "statement": "The initial assumption was that an outside burglar committed the murders.",
+  "type": "identity",
+  "why_it_seems_reasonable": "Footprints were found outside the house, and no forced entry was evident, suggesting an intruder. The family’s internal conflicts seemed insufficient to explain the crimes.",
+  "what_it_hides": "The footprints were deliberately fabricated by Ada to mislead investigators, and the murderer was a family member with intimate knowledge of the house."
+ },
+ "false_solution": {
+  "accused_suspect": "Sibella Greene",
+  "supporting_points": [
+   "Sibella openly accused Ada of the shootings.",
+   "She was secretly married to Dr. Von Blon, giving a possible motive.",
+   "She left town during the investigation, raising suspicion.",
+   "Her attitude was cold and arrogant, suggesting guilt."
+  ],
+  "the_one_flaw": "Sibella was away during key crimes and had no opportunity to commit them.",
+  "refuted_in_chapter": 26
+ },
+ "red_herrings": [
+  {
+   "id": "missing_revolver",
+   "description": "The disappearance of Chester Greene’s revolver suggested an outside thief or family member hiding it.",
+   "points_at_suspect": "Ada Greene and Rex Greene",
+   "innocent_explanation": "Ada used the revolver in the murders and hid it; Rex was fearful but innocent.",
+   "resolved_in_chapter": 26
+  },
+  {
+   "id": "mrs_greene_paralysis",
+   "description": "Mrs. Greene’s apparent paralysis was suspected to be faked, implying possible involvement.",
+   "points_at_suspect": "Mrs. Greene",
+   "innocent_explanation": "Medical examination proved her paralysis was organic and she could not have committed the crimes.",
+   "resolved_in_chapter": 21
+  }
+ ],
+ "closed_circle": {
+  "suspects": [
+   "Ada Greene",
+   "Sibella Greene",
+   "Dr. Arthur Von Blon",
+   "Mrs. Tobias Greene",
+   "Chester Greene",
+   "Rex Greene",
+   "Julia Greene"
+  ],
+  "rationale": "All suspects were members of the Greene household or closely connected, with no evidence of outside involvement; the house was locked and guarded."
+ },
+ "constraint_space": {
+  "time_anchors": [
+   "November 8, 11:30 PM - Julia shot",
+   "November 12, 11:30 PM - Chester shot",
+   "November 28, 11:20 AM - Rex shot",
+   "December 2, morning - Ada poisoned",
+   "December 3, early morning - Mrs. Greene poisoned"
+  ],
+  "time_windows": [
+   "Interval between shots in Julia and Ada’s rooms",
+   "Period of snowfalls and thaw affecting footprints",
+   "Times when servants were in rooms or absent"
+  ],
+  "access_actors": [
+   "Ada Greene",
+   "Sibella Greene",
+   "Dr. Von Blon",
+   "Sproot (butler)",
+   "Hemming (maid)",
+   "Cook (Gertrude Mannheim)"
+  ],
+  "access_objects": [
+   "Revolver",
+   "Galoshes",
+   "Library key",
+   "Poison tablets",
+   "Secret passage between Ada’s and Rex’s rooms"
+  ],
+  "trust_channels": [
+   "Family relationships",
+   "Servants’ loyalty",
+   "Doctor-patient confidentiality"
+  ],
+  "authority_sources": [
+   "District Attorney Markham",
+   "Sergeant Heath",
+   "Chief Inspector O’Brien",
+   "Medical Examiner Doremus",
+   "Police experts Jerym and Dubois"
+  ]
+ },
+ "inference_path": [
+  {
+   "observation": "Footprints in snow were large and made by galoshes.",
+   "correction": "Galoshes found in linen-closet matched footprints.",
+   "effect": "Footprints were fabricated by someone inside the house.",
+   "required_evidence": [
+    "Manila envelope with footprint measurements and patterns",
+    "Testimony of Sergeant Heath about galoshes found in linen-closet"
+   ]
+  },
+  {
+   "observation": "Mrs. Greene was seen walking in the hall at night.",
+   "correction": "Medical examination showed Mrs. Greene was paralyzed and could not walk.",
+   "effect": "Ada or another person impersonated Mrs. Greene to mislead witnesses.",
+   "required_evidence": [
+    "Medical Examiner Doremus’s autopsy report on Mrs. Greene’s paralysis",
+    "Ada Greene’s testimony about seeing figure in shawl"
+   ]
+  },
+  {
+   "observation": "Ada was shot in the back and found unconscious.",
+   "correction": "Ada shot herself in the back to fake an attack.",
+   "effect": "Ada staged her own victimhood to divert suspicion.",
+   "required_evidence": [
+    "Ada’s testimony about the shooting",
+    "Gross’s criminal cases describing self-inflicted wounds"
+   ]
+  },
+  {
+   "observation": "Rex was shot in his room with no one hearing the shot upstairs.",
+   "correction": "Ada used a secret passage and rigged gun in a hidden panel to kill Rex.",
+   "effect": "Murder was committed remotely and silently, explaining lack of witnesses.",
+   "required_evidence": [
+    "Description of secret passage between Ada’s and Rex’s rooms",
+    "Gross’s handbook on self-shooting mechanisms"
+   ]
+  },
+  {
+   "observation": "Morphine and strychnine disappeared from Dr. Von Blon’s medicine case.",
+   "correction": "Ada stole the poisons to attempt to kill family members.",
+   "effect": "Poisoning was part of Ada’s plan to eliminate family.",
+   "required_evidence": [
+    "Testimony of Dr. Von Blon about missing drugs",
+    "Medical reports of Ada’s poisoning and Mrs. Greene’s death"
+   ]
+  },
+  {
+   "observation": "Ada was found poisoned but survived due to prompt medical aid.",
+   "correction": "Ada’s poisoning attempt failed but confirmed her guilt.",
+   "effect": "Ada’s attempt to kill herself and others was exposed.",
+   "required_evidence": [
+    "Doctor Drumm’s report on Ada’s poisoning and treatment",
+    "Nurse O’Brien’s testimony about bouillon cup and timing"
+   ]
+  },
+  {
+   "observation": "Sibella and Ada left the house together in Von Blon’s car.",
+   "correction": "Ada attempted to murder Sibella by running her over a cliff.",
+   "effect": "Ada’s final murderous act was foiled and she was captured.",
+   "required_evidence": [
+    "Testimony of Sproot about car departure",
+    "Police eyewitness account of Ada’s capture"
+   ]
+  }
+ ],
+ "discriminating_test": {
+  "method": "trap",
+  "design": "Vance arranged for a nurse and detective to watch the galoshes and library key closely. When the galoshes disappeared, the nurse signaled immediately, allowing police to catch Ada attempting to flee with a revolver. This trap tested who had access and motive to use the galoshes and key.",
+  "knowledge_revealed": "The disappearance of the galoshes and Ada’s attempt to escape with the revolver revealed her as the murderer.",
+  "pass_condition": "The suspect is caught in possession of the revolver and cannot explain the disappearance of the galoshes."
+ },
+ "fair_play_explanation": "The reader is given detailed descriptions of the family relationships, the layout of the house including the secret passage, the missing revolver, the footprints, and the poisoning attempts. Ada’s suspicious behavior, the library books on criminology, and the inconsistencies in alibis are all presented. The key to the solution lies in understanding the significance of the footprints, the secret passage, and the criminal techniques Ada learned from the library, all of which are explicitly described.",
+ "anchors": [
+  {
+   "claim": "The Greene mansion was the scene of the murders",
+   "anchor": "The Greene mansion, New York, as it appeared at the time"
+  },
+  {
+   "claim": "Philo Vance is the amateur detective who solved the case",
+   "anchor": "I have chosen to call him Philo Vance"
+  },
+  {
+   "claim": "Julia Greene was shot in her locked bedroom",
+   "anchor": "Julia is killed by a contact shot, fired from the front"
+  },
+  {
+   "claim": "Ada Greene was shot from behind and survived",
+   "anchor": "Ada is shot from behind, also by a contact shot. She recovers"
+  },
+  {
+   "claim": "Chester Greene was murdered in his bedroom",
+   "anchor": "Chester is murdered by a contact shot fired from a .32 revolver"
+  },
+  {
+   "claim": "Rex Greene was murdered in his bedroom with no sign of struggle",
+   "anchor": "Rex is shot in the forehead with a .32 revolver"
+  },
+  {
+   "claim": "Ada Greene is the culprit who planned and executed the murders",
+   "anchor": "Ada had copied every act of hers, every method, every device"
+  },
+  {
+   "claim": "Ada used criminal techniques from Tobias Greene’s criminology library",
+   "anchor": "Ada had copied every act of hers, every method, every device, every detail, from its pages"
+  },
+  {
+   "claim": "Ada faked her own shooting to mislead investigators",
+   "anchor": "Ada shot herself in the back to fake an attack"
+  },
+  {
+   "claim": "Ada used a secret passage between her room and Rex’s to murder Rex",
+   "anchor": "an aperture was made between the two rooms, running from one of the panels in Ada’s mantel to the corresponding panel in Rex’s mantel"
+  },
+  {
+   "claim": "Ada fabricated footprints using Chester’s galoshes",
+   "anchor": "the galoshes weren’t there when your sleuths were looking for the revolver"
+  },
+  {
+   "claim": "Mrs. Greene was paralyzed and could not have walked",
+   "anchor": "Mrs. Greene’s leg muscles had wasted away—gone plumb flabby"
+  },
+  {
+   "claim": "Ada poisoned herself and others using stolen morphine and strychnine",
+   "anchor": "Ada took the morphine and strychnine from Von Blon’s case"
+  },
+  {
+   "claim": "Ada attempted to kill Sibella by running her over a cliff",
+   "anchor": "Ada had run her over the precipice in the machine"
+  },
+  {
+   "claim": "The revolver was rigged to fire through a secret panel to kill Rex",
+   "anchor": "the revolver, being on a hair-trigger, would discharge straight along the shaft and inevitably kill any one looking into the opening"
+  },
+  {
+   "claim": "Ada’s gun was disposed of by hanging it out the window with a cord",
+   "anchor": "the revolver was drawn over the sill and disappeared in the drift of soft snow on the balcony steps"
+  },
+  {
+   "claim": "Ada’s story about the cryptic diagram was fabricated to mislead",
+   "anchor": "the paper in the hall was a pure fabrication"
+  },
+  {
+   "claim": "Ada was captured after attempting to shoot Vance",
+   "anchor": "Ada, frustrated in her attempt to shoot him, hurled herself upon him"
+  },
+  {
+   "claim": "Mrs. Greene’s death was by strychnine poisoning administered by Ada",
+   "anchor": "Mrs. Greene died in convulsions as a result of strychnine-poisoning"
+  }
+ ]
+}

@@ -1,0 +1,136 @@
+{
+ "slug": "mademoiselle_of_monte_carlo",
+ "valid": false,
+ "errors": [
+  "CASE.inference_path.steps[1].required_evidence[0] relies on detective-only behavioral shorthand (\"Timeline of events at Villa Amette showing Mademoiselle's attempted confession and the exact time of the shooting\") — replace it with a concrete pre-test observation, document, timeline fact, physical trace, or access record"
+ ],
+ "spans": [
+  {
+   "claim": "Mademoiselle was shot from outside the open window",
+   "anchor": "someone from outside shot her through the open glass door",
+   "span": "She was about to tell me something--to answer a question I had put to her--when someone from outside shot her through the open glass door.",
+   "ok": true
+  },
+  {
+   "claim": "Hugh Henfrey was present at the shooting but did not see the assailant",
+   "anchor": "I saw nothing. The shot startled me, and, seeing her staggering, I rushed to her",
+   "span": "I saw nothing. The shot startled me, and, seeing her staggering, I rushed to her.",
+   "ok": true
+  },
+  {
+   "claim": "Henfrey senior was poisoned by hypodermic needle at the nape of the neck",
+   "anchor": "Howell, suddenly noticing me, told me roughly to clear out, as I was not wanted. I demanded to know what had happened, but I was told that it did not concern me. My idea was that Mr. Henfrey had been drugged",
+   "span": "Howell, suddenly noticing me, told me roughly to clear out, as I was not wanted. I demanded to know what had happened, but I was told that it did not concern me. My idea was that Mr. Henfrey had been drugged, for he was still alive and apparently dazed.",
+   "ok": true
+  },
+  {
+   "claim": "Charles Benton and Hamilton Shaw conspired to murder Henfrey senior",
+   "anchor": "Benton, the blackguard, was your father’s friend at Woodthorpe. With a man named Howell, known also as Shaw, he prepared a will which your father signed unconsciously",
+   "span": "Benton, the blackguard, was your father’s friend at Woodthorpe. With a man named Howell, known also as Shaw, he prepared a will which your father signed unconsciously, and which provided that in the event of his death you should be cut off from almost every benefit if you did not marry Louise Lambert, Benton’s adopted daughter.",
+   "ok": true
+  },
+  {
+   "claim": "The forged will required Hugh to marry Louise Lambert to inherit",
+   "anchor": "which provided that in the event of his death you should be cut off from almost every benefit if you did not marry Louise Lambert",
+   "span": "With a man named Howell, known also as Shaw, he prepared a will which your father signed unconsciously, and which provided that in the event of his death you should be cut off from almost every benefit if you did not marry Louise Lambert, Benton’s adopted daughter.",
+   "ok": true
+  },
+  {
+   "claim": "Shaw shot Mademoiselle to silence her",
+   "anchor": "He no doubt recognized Mr. Henfrey, who was also there, as the son of the man whom he had murdered, watched him, and followed him up to my villa. He suspected that Mr. Henfrey’s object was to face me and demand an explanation",
+   "span": "He no doubt recognized Mr. Henfrey, who was also there, as the son of the man whom he had murdered, watched him, and followed him up to my villa. He suspected that Mr. Henfrey’s object was to face me and demand an explanation.",
+   "ok": true
+  },
+  {
+   "claim": "Giulio Cataldi was loyal but silent due to fear",
+   "anchor": "Cataldi’s attitude annoyed the master criminal. For three days he remained in Nice with Hugh, at great risk of recognition and arrest",
+   "span": "Cataldi’s attitude annoyed the master criminal. For three days he remained in Nice with Hugh, at great risk of recognition and arrest.",
+   "ok": true
+  },
+  {
+   "claim": "The Sparrow is a criminal mastermind who aids the innocent",
+   "anchor": "I and certain of my friends make war upon Society--and more especially upon those who have profiteered upon those brave fellows who laid down their lives for us in the war",
+   "span": "It is true that I and certain of my friends make war upon Society--and more especially upon those who have profiteered upon those brave fellows who laid down their lives for us in the war.",
+   "ok": true
+  },
+  {
+   "claim": "Hugh Henfrey was aided by The Sparrow to evade arrest",
+   "anchor": "I ordered your rescue from that ugly situation in Monte Carlo. You and Miss Ranscomb no doubt believed the tall man who went to the ball at Nice as a cavalier to be myself",
+   "span": "I ordered your rescue from that ugly situation in Monte Carlo. You and Miss Ranscomb no doubt believed the tall man who went to the ball at Nice as a cavalier to be myself.",
+   "ok": true
+  },
+  {
+   "claim": "Hamilton Shaw died resisting arrest after shooting a gendarme",
+   "anchor": "The arrest took place at midnight, but Howell, on being cornered in his bedroom, showed fight, and raising an automatic pistol, which he had under his pillow, shot and wounded one of the gendarmes",
+   "span": "The arrest took place at midnight, but Howell, on being cornered in his bedroom, showed fight, and raising an automatic pistol, which he had under his pillow, shot and wounded one of the gendarmes.",
+   "ok": true
+  },
+  {
+   "claim": "Dorise Ranscomb doubted Hugh due to his concealment and association with Louise",
+   "anchor": "I refuse to be deceived any longer, I have discovered that you are now a fellow-guest with the girl Louise",
+   "span": "I refuse to be deceived any longer, I have discovered that you are now a fellow-guest with the girl Louise, to whom you introduced me.",
+   "ok": true
+  },
+  {
+   "claim": "The forged will was prepared by Howell and witnessed by his manservants",
+   "anchor": "Howell himself let it out to me. They were careful that you should not know. At the time I was in London with Franklyn and Benton over the jewels of that ship-owner’s wife",
+   "span": "Howell himself let it out to me. They were careful that you should not know. At the time I was in London with Franklyn and Benton over the jewels of that ship-owner’s wife, I forget her name--the affair in Carlton House Terrace.",
+   "ok": true
+  },
+  {
+   "claim": "The police suspected Cataldi but he refused to incriminate himself",
+   "anchor": "I tell you I know nothing. Why do you come here and disturb me?",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The Sparrow suspects a traitor in the organization",
+   "anchor": "They are playing me false! I’m certain of it--quite certain! But, Gad! If they do I’ll be even with them!",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The conspiracy was to force Hugh to marry Louise and then eliminate him",
+   "anchor": "Benton and Howell had agreed to kill Mr. Henfrey, compel his son to marry Louise, and then get Hugh out of the world by one or other of their devilish schemes",
+   "span": "Benton and Howell had agreed to kill Mr. Henfrey, compel his son to marry Louise, and then get Hugh out of the world by one or other of their devilish schemes.",
+   "ok": true
+  },
+  {
+   "claim": "Mademoiselle of Monte Carlo was about to reveal the truth when shot",
+   "anchor": "She was about to tell me something--to answer a question I had put to her--when someone from outside shot her",
+   "span": "She was about to tell me something--to answer a question I had put to her--when someone from outside shot her through the open glass door.",
+   "ok": true
+  },
+  {
+   "claim": "Hugh Henfrey fled to avoid wrongful arrest",
+   "anchor": "I am compelled to keep away from you until such time that we can prove his innocence",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The forged will was signed under false pretenses",
+   "anchor": "Benton, his friend, introduced us. Naturally I had no knowledge of the plot which Benton and Howell had formed",
+   "span": "Now I happened to be in London, and on one of your father’s visits to town, Benton, his friend, introduced us. Naturally I had no knowledge of the plot which Benton and Howell had formed, and finding your father a very agreeable gentleman, I invited him to the furnished flat I had taken at Queen’s Gate.",
+   "ok": true
+  },
+  {
+   "claim": "The police suspect Hugh Henfrey of attempted murder",
+   "anchor": "The police believe that you went to the Villa Amette and murdered Mademoiselle out of revenge",
+   "span": "The police believe that you went to the Villa Amette and murdered Mademoiselle out of revenge.",
+   "ok": true
+  },
+  {
+   "claim": "The Sparrow's organization is widespread and powerful",
+   "anchor": "His organization is simply wonderful. Those who are innocent I protect, those who are traitors I condemn",
+   "span": "",
+   "ok": false
+  }
+ ],
+ "costGbp": 0.21476466000000002,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": false
+}

@@ -2,40 +2,40 @@
  "slug": "the_twenty_six_clues",
  "spans": [
   {
-   "claim": "Evelyn Jarvis was found strangled in the crime museum",
-   "anchor": "stretched upon the table lay no skeleton but the rounded life-like form",
-   "span": "",
-   "ok": false
-  },
-  {
-   "claim": "The scarf knotted about Evelyn's throat was the murder weapon",
-   "anchor": "the blue scarf which had been knotted so ruthlessly about her slender throat",
-   "span": "It would seem almost that she slept until her face was seen and then the distorted swollen features, the staring eyes and blackened, protruding tongue revealed the hideous truth no less surely than the blue scarf which had been knotted so ruthlessly about her slender throat as to seem almost embedded in the flesh.",
+   "claim": "Evelyn Jarvis was found strangled in Norwood's crime museum",
+   "anchor": "Stretched upon the table lay no skeleton but the rounded life-like form of a young woman",
+   "span": "Stretched upon the table lay no skeleton but the rounded life-like form of a young woman in all the opulent curves of budding maturity.",
    "ok": true
   },
   {
-   "claim": "The museum door was locked with a Yale lock",
-   "anchor": "small, flat key of the Yale patent and held it out",
-   "span": "He produced a small, flat key of the Yale patent and held it out.",
+   "claim": "The scarf knotted about Evelyn's throat was navy blue",
+   "anchor": "the scarf so cruelly knotted about the slender throat was of navy blue",
+   "span": "The body lying in the museum had been clad in a plain gown of dark plum-colored silk with a low rolling collar and cuffs of soft white and the scarf so cruelly knotted about the slender throat was of navy blue.",
    "ok": true
   },
   {
-   "claim": "A glove was found wedged on the ladder to the museum window",
-   "anchor": "a limp, crumpled, brown object which he smoothed into a semblance of shape. \"A glove!\"",
+   "claim": "A single long strand of black hair was caught on the museum window",
+   "anchor": "a long, curling strand of glossy, jet-black hair",
+   "span": "From between the thumb and forefinger dangled a long, curling strand of glossy, jet-black hair.",
+   "ok": true
+  },
+  {
+   "claim": "A glove was found wedged behind the first rung of the ladder",
+   "anchor": "he reached down and drew forth a limp, crumpled, brown object which he smoothed into a semblance of shape. \"A glove!\"",
    "span": "Leaning from the window where the two ends of the ladder protruded above the sill he reached down and drew forth a limp, crumpled, brown object which he smoothed into a semblance of shape. \"A glove!\" McCarty marveled.",
    "ok": true
   },
   {
-   "claim": "Evelyn was blackmailed with letters made of macaroni paste",
-   "anchor": "communications of macaroni paste!",
-   "span": "",
-   "ok": false
+   "claim": "The blackmail letters were made of macaroni paste",
+   "anchor": "the words are formed by letters of the alphabet made of Italian paste",
+   "span": "The words are formed by letters of the alphabet made of Italian paste, which have been glued to the paper.",
+   "ok": true
   },
   {
-   "claim": "The blackmail letters demanded money under the rose bush on the 26th",
-   "anchor": "'Does lady forget date of next Sat. night? 5000 under rose bush yard then or all told.'",
-   "span": "'Does lady forget date of next Sat. night? 5000 under rose bush yard then or all told.'--Humph!",
-   "ok": true
+   "claim": "The blackmail letters demanded money on the 26th of each month",
+   "anchor": "'Lady can and will,' '1,000 under bush 26 each month small price safety.'",
+   "span": "",
+   "ok": false
   },
   {
    "claim": "Victor Marchal was found dead with a pistol and signs of struggle",
@@ -44,84 +44,84 @@
    "ok": false
   },
   {
-   "claim": "Two shots were fired at Victor Marchal but only one bullet entered",
-   "anchor": "Two shots were fired, but only one entered the body",
+   "claim": "Two shots were fired from Marchal's pistol but only one bullet entered",
+   "anchor": "Two shots were fired, but only one entered the body; the other--the first--must have gone wild",
    "span": "Two shots were fired, but only one entered the body; the other--the first--must have gone wild.",
    "ok": true
   },
   {
-   "claim": "Victor Marchal left a signed statement revealing the murderer's identity",
-   "anchor": "Signed, \"Victor Marchal\"",
+   "claim": "Victor Marchal left a signed confession hidden in the typewriter drawer",
+   "anchor": "a sheet of blank typewriter paper with a signature scrawled half-way down the page and the Inspector regarded it with raised eyebrows. The signature, in a straggling, uncertain hand, was that of Victor Marchal",
+   "span": "The object of his scrutiny was apparently a sheet of blank typewriter paper with a signature scrawled half-way down the page and the Inspector regarded it with raised eyebrows. The signature, in a straggling, uncertain hand, was that of Victor Marchal.",
+   "ok": true
+  },
+  {
+   "claim": "The confession was typed without a ribbon, leaving indentations only",
+   "anchor": "the ribbon on the typewriter was broken by the fall and no writing appeared on the papers at all but just his signature",
    "span": "",
    "ok": false
   },
   {
-   "claim": "Eric Vivaseur is actually Leonidas Hoyos, the murderer",
-   "anchor": "Leonidas Hoyos, alias Eric Vivaseur",
+   "claim": "Leonidas Hoyos was the blackmailer and murderer",
+   "anchor": "I know who killed Madame Jarvis. He knows that I know and he will kill me also. I heard them there in the museum and the voice of her murderer is the voice of him who calls himself Eric Vivaseur!",
+   "span": "I know who killed Madame Jarvis. He knows that I know and he will kill me also. I heard them there in the museum and the voice of her murderer is the voice of him who calls himself Eric Vivaseur!\" \"It's a lie!",
+   "ok": true
+  },
+  {
+   "claim": "Kate Stricker was stewardess on the yacht and sold the letters",
+   "anchor": "I'm Kate Stricker. I was stewardess on The Muette and I sold the letters to Mr. Norwood",
    "span": "",
    "ok": false
   },
   {
-   "claim": "Kate Stricker sold the blackmail letters to Norwood",
-   "anchor": "I'm Kate Stricker. I was stewardess on _The Muette_ and I sold the letters to Mr. Norwood.",
-   "span": "I'm Kate Stricker. I was stewardess on _The Muette_ and I sold the letters to Mr. Norwood.\" Slowly, inexorably she raised her arm and pointed to the cowering, cringing figure before her.",
-   "ok": true
-  },
-  {
-   "claim": "The murder was motivated by fear of exposure and blackmail",
-   "anchor": "He killed her to prevent exposure of their past and to recover letters that blackmailed her.",
+   "claim": "The murder was staged to look like a suicide with a blank cartridge",
+   "anchor": "He extracted the second cartridge shell from the pistol and putting it back in the pistol he went up close to where Marchal was lying and fired a second shot--a blank one--directly into the wound",
    "span": "",
    "ok": false
   },
   {
-   "claim": "The murderer staged Victor Marchal's death as a suicide",
-   "anchor": "He shot him twice, one shot being a blank to fake suicide.",
+   "claim": "The blackmail was connected to a murder on the 26th of May ten years ago",
+   "anchor": "On the twenty-sixth of the month, in the late afternoon, Hoyos had come aboard",
+   "span": "On the twenty-sixth of the month, in the late afternoon, Hoyos had come aboard, ordered dinner for two and sent the dingey back to the wharf to meet his guest.",
+   "ok": true
+  },
+  {
+   "claim": "Evelyn Jarvis was blackmailed to keep secret her past marriage to Hoyos",
+   "anchor": "Mrs. Jarvis was being blackmailed, and 'twas far from being a joke!",
+   "span": "I'm afraid there's no doubt of it that Mrs. Jarvis was being blackmailed, and 'twas far from being a joke!\" \"But on what score?",
+   "ok": true
+  },
+  {
+   "claim": "The glove found on the ladder belonged to Oliver Jarvis",
+   "anchor": "I found the second one this afternoon, among Oliver Jarvis' motoring togs",
+   "span": "I found the second one this afternoon, among Oliver Jarvis' motoring togs, in his own room!",
+   "ok": true
+  },
+  {
+   "claim": "Margot claimed the dressing-room was undisturbed at 8 pm",
+   "anchor": "she swore that Madame's apartments were quite as usual when last I entered them, before eight o'clock",
    "span": "",
    "ok": false
   },
   {
-   "claim": "The ladder to the museum window was used for ingress and egress",
-   "anchor": "A short ladder has been placed against the house, its upper end resting upon the ledge of the window.",
-   "span": "A short ladder has been placed against the house, its upper end resting upon the ledge of the window.\" \"The ladder!",
+   "claim": "Etta Barney confessed to letting her brother into the house to ransack the dressing-room",
+   "anchor": "Dick came at nine, and I was waiting for him up at the front door. I let him in quiet and then all at once a different feeling came over me and I begged him to give it up and go away",
+   "span": "Dick came at nine, and I was waiting for him up at the front door. I let him in quiet and then all at once a different feeling came over me and I begged him to give it up and go away; I saw 'twas wrong, what we had planned.",
    "ok": true
   },
   {
-   "claim": "The museum door was picked open with a spider tool",
-   "anchor": "there were some little fine scratches around the keyhole; I'd seen the like when I was on the force in more than one housebreaking case",
+   "claim": "The blackmail letters were hidden in a wallet sold to Norwood",
+   "anchor": "the wallet with a couple of letters inside disappeared from the museum",
    "span": "",
    "ok": false
   },
   {
-   "claim": "The blackmail letters were hidden in a wallet",
-   "anchor": "a worn black wallet has come into my possession which contains the only tangible clue",
-   "span": "For instance, within the last few days a worn black wallet has come into my possession which contains the only tangible clue to a mystery which aroused and baffled the city ten years ago.",
-   "ok": true
-  },
-  {
-   "claim": "The cake marked 'Noel' was a secret message to Evelyn",
-   "anchor": "a huge, circular, frosted cake, its top elaborately iced in the highest perfection of the confectioner's art.",
-   "span": "There, banked in wads of soft, white oiled paper, he beheld a huge, circular, frosted cake, its top elaborately iced in the highest perfection of the confectioner's art. \"A birthday cake!",
-   "ok": true
-  },
-  {
-   "claim": "The physiological test showed Captain Marchal's emotional reactions",
-   "anchor": "The moisture excretions here are abnormally profuse from the start and quickly reached the maximum",
-   "span": "The moisture excretions here are abnormally profuse from the start and quickly reached the maximum, but since the increase was steady and not in spurts it indicates general nervousness rather than the effect of emotional reaction.",
-   "ok": true
-  },
-  {
-   "claim": "The false assumption that Captain Marchal was the murderer",
-   "anchor": "Captain Marchal is the murderer of Mrs. Jarvis.",
-   "span": "Captain Marchal is the murderer of Mrs. Jarvis.\" CHAPTER XII \"BACK FROM THE DEAD\" \"I've had enough and to spare of the workings of science!",
-   "ok": true
-  },
-  {
-   "claim": "The discriminating test was a reenactment of the murder scene",
-   "anchor": "I will ask you all to seat yourselves and take hold of this wire with your right hands on the bulbs.",
-   "span": "When the others come I will ask you all to seat yourselves and take hold of this wire with your right hands on the bulbs. You will then be blindfolded and listen to a brief résumé of the case.",
+   "claim": "The cake marked 'Noel' was a secret reminder to Evelyn",
+   "anchor": "a big cake with 'Noel' on it in sugar; she didn't know who sent it but she nearly passed away",
+   "span": "Jarvis received a gift of a big cake with 'Noel' on it in sugar; she didn't know who sent it but she nearly passed away, for she knew that someone from out of the past had spotted her and her secret would never be safe again.",
    "ok": true
   }
  ],
  "verified_by": "corpus-verify.mjs",
- "verified_on": "2026-08-31"
+ "verified_on": "2026-09-23"
 }

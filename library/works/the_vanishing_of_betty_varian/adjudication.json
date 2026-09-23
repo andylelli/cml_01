@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "Betty Varian killed her father and then disappeared by hiding or suicide.",
+  "type": "behavioral",
+  "why_it_seems_reasonable": "Betty was missing and her father was found shot with no weapon present, and no other suspects were immediately evident. The locked and secured house suggested no intruder could have entered or left.",
+  "what_it_hides": "It conceals the existence of a secret natural tunnel used by the real culprit to enter and exit, and the fact that Betty was kidnapped rather than a perpetrator."
+ },
+ "mechanism_description": "The criminal, Lawrence North, used a concealed natural tunnel and old well connecting the sea to the cellar of Headland House to enter and exit undetected. He kidnapped Betty Varian by ambushing her in the hall when she returned for her camera, using a yellow pillow to stifle her cries and carrying her through the kitchen and cellar to the tunnel. He killed Frederick Varian during a struggle when the father interrupted the abduction. North also murdered the maid Martha who discovered his attempt to rob the safe and later staged his own disappearance to mislead investigators.",
+ "discriminating_test": {
+  "method": "trap",
+  "design": "Pennington Wise sets a shotgun trap triggered by the opening of the cellar door in the kitchen, the known exit point of the secret passage. The trap is concealed and tested to ensure it fires only when the door is opened, allowing the capture of the intruder without alerting others prematurely.",
+  "knowledge_revealed": "The trap confirms the intruder’s use of the secret passage and identifies Lawrence North as the criminal when he triggers the trap and is wounded.",
+  "pass_condition": "The trap is triggered by the opening of the cellar door, firing the shotgun and incapacitating the intruder."
+ },
+ "changed": [],
+ "confidence": "high"
+}

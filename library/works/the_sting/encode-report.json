@@ -1,0 +1,136 @@
+{
+ "slug": "the_sting",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Sir Michael Evenden was blackmailed by Dr. Laidlaw",
+   "anchor": "blackmailer of Sir Michael",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Jack Evenden was found dead in the Prior's Room",
+   "anchor": "lying on the floor in his pyjamas",
+   "span": "The butler and a footman visited the Prior's Room immediately, and there, lying on the floor in his pyjamas, his body twisted and contorted, was the young master of Evenden.",
+   "ok": true
+  },
+  {
+   "claim": "Traces of deadly muscarin alkaloid poison found in Jack's brain",
+   "anchor": "traces were found in the brain of a curious and little-known, but absolutely deadly, muscarin alkaloid",
+   "span": "Traces were found in the brain of a curious and little-known, but absolutely deadly, muscarin alkaloid.",
+   "ok": true
+  },
+  {
+   "claim": "Frank Gough and Jack had a quarrel the night before the murder",
+   "anchor": "voices was Mr. Jack and Mr. Frank",
+   "span": "Well, the voices was Mr. Jack and Mr. Frank,\" Thomason declared, gasping in his horror.",
+   "ok": true
+  },
+  {
+   "claim": "Dr. Laidlaw was seen entering the Prior's Tower via secret passages",
+   "anchor": "Dr. Laidlaw entered the same passage",
+   "span": "Now, you probably know far more about him than I do--I don't know--but this much I can tell you: on the night when Sir John Evenden was murdered, Dr. Laidlaw entered the same passage that you entered to-night.",
+   "ok": true
+  },
+  {
+   "claim": "Lady Evenden was under mental control by Dr. Laidlaw",
+   "anchor": "Laidlaw has an absolute control of her",
+   "span": "Laidlaw has an absolute control of her.",
+   "ok": true
+  },
+  {
+   "claim": "Mr. Benson kidnapped Dr. Laidlaw to extract a confession",
+   "anchor": "I’m going to kidnap the murdering little pest",
+   "span": "Very well then, I'm going to kidnap the murdering little pest to-night, if he comes, in the tower, and I'm going to remove him to a nice quiet place where he can make statements with great facility and where he can practise his murdering tricks on the rats--a fine breed they are there, too.",
+   "ok": true
+  },
+  {
+   "claim": "Dr. Laidlaw attempted to murder Mr. Benson",
+   "anchor": "he came to murder me",
+   "span": "I've got that little devil, Laidlaw--he came to murder me.",
+   "ok": true
+  },
+  {
+   "claim": "Lady Evenden died from muscarin alkaloid poison",
+   "anchor": "she is quite dead",
+   "span": "she is quite dead.",
+   "ok": true
+  },
+  {
+   "claim": "Brenda Trenchard was secretly married to Jack Evenden",
+   "anchor": "I am Lady Evenden, and Sir John Evenden is in the car outside with his nurse",
+   "span": "I am Lady Evenden, and Sir John Evenden is in the car outside with his nurse.",
+   "ok": true
+  },
+  {
+   "claim": "Frank Gough was acquitted of the murder charge",
+   "anchor": "Not guilty",
+   "span": "Not guilty,\" there were resounding cheers in the court.",
+   "ok": true
+  },
+  {
+   "claim": "The blow and poison were simultaneous causes of death",
+   "anchor": "the blow was simultaneous with death",
+   "span": "But, again by the look of the head at the time, I judged that the blow was simultaneous with death.",
+   "ok": true
+  },
+  {
+   "claim": "Secret passages connect the Prior’s Room and Tower",
+   "anchor": "secret passages which communicate with the Prior’s Room",
+   "span": "Laidlaw was seen by credible witnesses to visit the Prior's Tower, and that by means of secret passages which communicate with the Prior's Room--the scene of the murder.",
+   "ok": true
+  },
+  {
+   "claim": "Jill Kilby was present in the Prior’s Tower on the night of the murder",
+   "anchor": "Jill followed. She got as far as the wardrobe, then she came down again--terrified",
+   "span": "When Laidlaw and Lady Evenden disappeared up the staircase to the Prior's Room, Jill followed. She got as far as the wardrobe, then she came down again--terrified.",
+   "ok": true
+  },
+  {
+   "claim": "Frank Gough had a genuine reconciliation with Jack before the murder",
+   "anchor": "The reconciliation was very real and complete",
+   "span": "The reconciliation was very real and complete.",
+   "ok": true
+  },
+  {
+   "claim": "Dr. Laidlaw used the secret passages to access the Prior’s Room",
+   "anchor": "I had used it often when visiting Lady Evenden privately",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Lady Evenden refused to disclose information about the murder",
+   "anchor": "I cannot tell",
+   "span": "I cannot tell.",
+   "ok": true
+  },
+  {
+   "claim": "Mr. Benson and Sir Courtney Caldecott inspected the Prior’s Room and secret passages",
+   "anchor": "They went back through the farmyard to the kitchen, and through to the room where Laidlaw was sitting anxiously",
+   "span": "They went back through the farmyard to the kitchen, and through to the room where Laidlaw was sitting anxiously awaiting his fate.",
+   "ok": true
+  },
+  {
+   "claim": "Dr. Laidlaw confessed under duress at Swinerigmire farm",
+   "anchor": "I will tell--I will tell",
+   "span": "I will tell--I will tell.",
+   "ok": true
+  },
+  {
+   "claim": "Lady Evenden was poisoned with the same deadly substance",
+   "anchor": "she had obtained from Laidlaw this poison",
+   "span": "Now, she had obtained from Laidlaw this poison--why, we shall never know.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.11521644400000002,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

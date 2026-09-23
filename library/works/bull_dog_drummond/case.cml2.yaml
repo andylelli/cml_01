@@ -1,0 +1,459 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: Bull-dog Drummond
+    author: H. C. (Herman Cyril) McNeile
+    license: Public domain (first published 1920; author died 1937). Project Gutenberg ebook 49935.
+    era:
+      decade: 1920s
+      realism_constraints:
+        - No modern forensic DNA analysis or electronic surveillance
+        - Limited rapid long-distance communication; telegraphs and telephones used
+        - >-
+          Firearms and physical violence common; chemical drugs and poisons known but limited
+          detection
+    setting:
+      location: England, primarily Godalming and London, with scenes in Paris and Belfast
+      institution: >-
+        Private investigation led by Captain Hugh Drummond with assistance from friends and American
+        detective Jerome K. Green
+    crime_class:
+      category: fraud
+      subtype: mastermind syndicalist revolution plot
+  cast:
+    - name: Captain Hugh Drummond
+      age_range: 30-40
+      role_archetype: resourceful ex-military gentleman adventurer
+      relationships:
+        - Phyllis Benton (fiancée)
+        - James Denny (servant)
+        - Peter Darrell (friend)
+        - Algy Longworth (friend)
+        - Toby Sinclair (friend)
+        - Ted Jerningham (friend)
+        - Jerry Seymour (friend)
+        - Jerome K. Green (American detective)
+      public_persona: demobilised officer seeking excitement
+      private_secret: skilled in stealth and combat
+      motive_seed: justice and protection of country
+      motive_strength: strong
+      alibi_window: present throughout investigation
+      access_plausibility: high
+      opportunity_channels:
+        - direct investigation
+        - infiltration
+        - physical confrontation
+      behavioral_tells:
+        - persistent
+        - courageous
+        - strategic thinker
+      stakes: high national security and personal safety
+      evidence_sensitivity:
+        - letters
+        - ledger
+        - safe
+        - chemical traces
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: moderate
+    - name: Phyllis Benton
+      age_range: 20-30
+      role_archetype: damsel in distress and informant
+      relationships:
+        - Mr. Benton (father)
+        - Captain Hugh Drummond (fiancé)
+      public_persona: young woman seeking help
+      private_secret: knows about criminal activities next door
+      motive_seed: protect her father
+      motive_strength: strong
+      alibi_window: present at The Larches
+      access_plausibility: high
+      opportunity_channels:
+        - communication with Drummond
+      behavioral_tells:
+        - fearful
+        - trusting
+      stakes: family safety
+      evidence_sensitivity:
+        - letters
+        - observations of The Elms
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: low
+    - name: Carl Peterson (Comte de Guy)
+      age_range: 40-50
+      role_archetype: master criminal mastermind
+      relationships:
+        - Irma Peterson (daughter)
+        - Henry Lakington (associate)
+        - Hiram C. Potts (targeted millionaire)
+      public_persona: suave international financier and criminal leader
+      private_secret: leader of syndicalist revolution plot and criminal gang
+      motive_seed: power and wealth through revolution
+      motive_strength: strong
+      alibi_window: present at The Elms and Paris
+      access_plausibility: high
+      opportunity_channels:
+        - criminal network
+        - financial influence
+        - violent coercion
+      behavioral_tells:
+        - calm
+        - calculating
+        - ruthless
+      stakes: national upheaval and personal gain
+      evidence_sensitivity:
+        - ledger
+        - letters
+        - safe
+        - confessions
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Henry Lakington
+      age_range: 40-50
+      role_archetype: master criminal and enforcer
+      relationships:
+        - Carl Peterson (associate)
+        - Irma Peterson (associate)
+      public_persona: art collector and scientist
+      private_secret: criminal enforcer and participant in theft and torture
+      motive_seed: criminal enterprise and personal power
+      motive_strength: strong
+      alibi_window: present at The Elms and Laidley Towers
+      access_plausibility: high
+      opportunity_channels:
+        - physical violence
+        - chemical torture
+        - theft
+      behavioral_tells:
+        - cruel
+        - impatient
+        - violent
+      stakes: criminal success and survival
+      evidence_sensitivity:
+        - injuries
+        - chemical bath
+        - pearls theft
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Irma Peterson
+      age_range: 20-30
+      role_archetype: complicit daughter and accomplice
+      relationships:
+        - Carl Peterson (father)
+        - Henry Lakington (associate)
+      public_persona: indifferent and fashionable
+      private_secret: involved in criminal activities and theft
+      motive_seed: family loyalty and personal gain
+      motive_strength: moderate
+      alibi_window: present at The Elms and social events
+      access_plausibility: high
+      opportunity_channels:
+        - access to pearls
+        - social manipulation
+      behavioral_tells:
+        - mocking
+        - disinterested
+      stakes: family survival and wealth
+      evidence_sensitivity:
+        - pearls substitution
+        - presence at theft
+      culprit_eligibility: eligible
+      culpability: unknown
+      gender: female
+      role: suspect
+      moral_complexity: moderate
+    - name: Hiram C. Potts
+      age_range: 50-60
+      role_archetype: victim millionaire
+      relationships:
+        - Mr. Granger (secretary, murdered)
+      public_persona: American millionaire shipping magnate
+      private_secret: drugged and coerced
+      motive_seed: none
+      motive_strength: none
+      alibi_window: held captive at The Elms and Goring
+      access_plausibility: low
+      opportunity_channels: []
+      behavioral_tells:
+        - dazed
+        - drugged
+      stakes: personal freedom and safety
+      evidence_sensitivity:
+        - drug effects
+        - signatures coerced
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: none
+    - name: Jerome K. Green
+      age_range: 40-50
+      role_archetype: American investigating
+      relationships:
+        - Captain Hugh Drummond (ally)
+      public_persona: U.S. police detective
+      private_secret: ally of Drummond
+      motive_seed: law enforcement
+      motive_strength: strong
+      alibi_window: present in Paris and London
+      access_plausibility: high
+      opportunity_channels:
+        - investigation
+      behavioral_tells:
+        - observant
+        - pragmatic
+      stakes: justice
+      evidence_sensitivity:
+        - ledger
+        - safe opening
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+  culpability:
+    culprit_count: 2
+    culprits:
+      - Carl Peterson (Comte de Guy)
+      - Henry Lakington
+  surface_model:
+    narrative:
+      summary: >-
+        Captain Hugh Drummond is drawn into a complex criminal conspiracy involving international
+        financiers and revolutionaries. The American millionaire Hiram C. Potts is kidnapped and
+        drugged, while a plot to incite a syndicalist revolution in England unfolds with thefts and
+        murders. Drummond infiltrates the gang, rescues Potts, and confronts the masterminds.
+    accepted_facts:
+      - Hiram C. Potts was kidnapped and drugged at The Elms
+      - Mr. Granger, Potts’s secretary, was murdered in Belfast
+      - Carl Peterson is the leader of the criminal gang disguised as Comte de Guy
+      - Henry Lakington is a dangerous criminal and associate of Peterson
+    inferred_conclusions:
+      - The revolutionaries alone are responsible for the plot
+      - Irma Peterson is the mastermind behind the conspiracy
+      - The pearls theft was a simple burglary unrelated to the revolution
+  hidden_model:
+    mechanism:
+      description: >-
+        Carl Peterson masterminded a vast criminal conspiracy to incite a syndicalist revolution in
+        England, financed by international capitalists including Hocking, Steinemann, and von Gratz,
+        using revolutionary agitators as tools. Drummond infiltrated and dismantled the gang by
+        rescuing Potts, exposing the plot through the ledger, and capturing Peterson and his
+        associates, though Peterson escaped at the end.
+      delivery_path:
+        - step: Peterson arranges a dinner with international financiers to secure funding
+        - step: Potts is kidnapped and drugged to coerce his support
+        - step: Lakington and Peterson use torture and intimidation to enforce compliance
+        - step: Drummond infiltrates The Elms and rescues Potts
+        - step: Drummond uncovers the ledger detailing the revolutionary plot and funding
+        - step: Drummond captures Lakington and disrupts the criminal operations
+        - step: Peterson is confronted and arrested but manages to escape
+    outcome:
+      result: >-
+        The criminal conspiracy is exposed and dismantled, with Lakington dead and Peterson escaping
+        to be pursued.
+  false_assumption:
+    statement: The revolutionaries alone are the masterminds behind the plot.
+    type: identity
+    why_it_seems_reasonable: >-
+      The presence of Bolshevik and anarchist agitators and their radical speeches suggest they lead
+      the conspiracy. Their violent rhetoric and revolutionary zeal make them appear as the primary
+      threat.
+    what_it_hides: >-
+      It conceals the financial and organizational control exerted by Peterson and international
+      capitalists who manipulate the revolutionaries as tools for their own ends.
+  false_solution:
+    accused_suspect: Irma Peterson
+    supporting_points:
+      - Irma’s presence at key events and social gatherings
+      - Her involvement in the pearls theft
+      - Her apparent indifference and mocking behavior
+      - Suspicion cast by her ambiguous identity
+    the_one_flaw: Lack of direct evidence of masterminding or control; she acts under her father’s direction.
+    refuted_in_chapter: 12
+  red_herrings:
+    - id: the_intimidated_rabbit
+      description: A nervous, spectacled man among the gang who appears timid and fearful.
+      points_at_suspect: He is suspected of being a weak link or informant.
+      innocent_explanation: He is simply a minor revolutionary agitator with no real power.
+      resolved_in_chapter: 12
+    - id: the_indian_entertainer
+      description: >-
+        Ram Dar, an Indian entertainer at Laidley Towers, suspected of involvement in the pearls
+        theft.
+      points_at_suspect: His mysterious behavior and presence at the theft event.
+      innocent_explanation: He is actually Henry Lakington in disguise, part of the criminal plot.
+      resolved_in_chapter: 11
+  closed_circle:
+    suspects:
+      - Carl Peterson (Comte de Guy)
+      - Henry Lakington
+      - Irma Peterson
+      - Vallance Nestor
+      - John Crofter
+      - Victor Terrance
+      - Ditchling, Charles
+    rationale: >-
+      All suspects are members or associates of the criminal syndicate involved in the revolutionary
+      plot, with access to the key locations and means to execute the crimes.
+  constraint_space:
+    time:
+      anchors:
+        - Dinner at Hôtel Nationale in Berne
+        - Murder of Mr. Granger in Belfast
+        - Drugging and captivity of Hiram C. Potts
+        - Meeting at Laidley Towers
+        - Final confrontation at The Elms
+      windows:
+        - Nighttime at The Elms for rescue and infiltration
+        - Daytime meetings and social events
+        - Early morning assault and capture
+    access:
+      actors:
+        - Carl Peterson
+        - Henry Lakington
+        - Irma Peterson
+        - Captain Hugh Drummond
+        - Peter Darrell
+        - Algy Longworth
+        - Toby Sinclair
+        - Ted Jerningham
+        - Jerome K. Green
+      objects:
+        - The Elms house
+        - The Larches house
+        - Safe containing ledger
+        - Chinese cabinets
+        - Bath with chemical liquid
+        - Cars and aeroplane
+    social:
+      trust_channels:
+        - Letters and telegrams
+        - Personal introductions
+        - Secret signals (e.g., smoke signals)
+        - Verbal communication
+      authority_sources:
+        - Captain Hugh Drummond’s military experience
+        - Jerome K. Green’s police authority
+        - Peterson’s criminal leadership
+        - Lakington’s scientific knowledge
+  inference_path:
+    steps:
+      - observation: >-
+          Hiram C. Potts is drugged and dazed but physically unharmed; he is kept secure by the gang
+          to detain him as a known suspect in their plot.
+        correction: Potts was deliberately incapacitated to coerce his cooperation.
+        effect: Confirms kidnapping and coercion rather than accidental illness.
+        required_evidence:
+          - >-
+            Doctor’s diagnosis of drug effects on Potts, confirming he was secure and detained by
+            the gang
+          - >-
+            Potts’s incoherent statements about his captivity and being a known suspect to the
+            criminals
+        reader_observable: true
+      - observation: >-
+          Ledger found in safe details payments to revolutionaries and financiers; the safe was kept
+          secure and only accessible to trusted gang members.
+        correction: The ledger is a record of a coordinated conspiracy involving multiple parties.
+        effect: Reveals the scale and organization of the plot.
+        required_evidence:
+          - Ledger recovered from safe at The Elms, which was previously secure
+          - Entries showing payments to named individuals, known to be suspects
+        reader_observable: true
+      - observation: >-
+          Irma Peterson is present at social events with high society and is known to be a suspect
+          due to her proximity to the pearls theft.
+        correction: Irma uses social access to facilitate criminal activities.
+        effect: Shows her role as accomplice but not mastermind.
+        required_evidence:
+          - Witness statements of Irma’s presence at Laidley Towers, where she was a known suspect
+          - Observation of pearls substitution during the secure event
+        reader_observable: true
+      - observation: >-
+          Lakington uses chemical baths and torture devices to secure information and detain
+          victims.
+        correction: Lakington is the enforcer and torturer within the gang.
+        effect: Identifies his role in maintaining control and fear.
+        required_evidence:
+          - Injuries on Potts and others, caused while they were detained
+          - Observation of chemical bath and torture instruments used to secure compliance
+        reader_observable: true
+      - observation: >-
+          Peterson’s calm demeanor and control over gang; he is the known leader and keeps the
+          operation secure.
+        correction: Peterson is the mastermind directing the conspiracy.
+        effect: Focuses investigation on Peterson as primary culprit.
+        required_evidence:
+          - Peterson’s leadership at meetings where suspects are detained
+          - His presence at key events and control of ledger, which he keeps secure
+        reader_observable: true
+      - observation: >-
+          Murder of Mr. Granger in Belfast with mutilation to prevent ID; the gang detains and
+          eliminates known threats to their security.
+        correction: Granger was killed to prevent exposure of the conspiracy.
+        effect: Shows the gang’s willingness to murder to protect their plot.
+        required_evidence:
+          - Police reports on Granger’s murder, identifying him as a known suspect to the gang
+          - Newspaper accounts of mutilation and motive to secure the conspiracy
+        reader_observable: true
+      - observation: >-
+          Peterson and Irma escape at the end despite capture of others; the remaining suspects are
+          detained but Peterson is not securely held.
+        correction: Peterson remains at large, continuing threat.
+        effect: Leaves open possibility of future conflict.
+        required_evidence:
+          - Final chapter’s account of Peterson’s escape from secure detention
+          - Witness statements of Peterson’s disappearance while other suspects were detained
+        reader_observable: true
+  discriminating_test:
+    method: constraint_proof
+    design: >-
+      Drummond and allies secure The Elms and detain all known suspects except Peterson. They open
+      the safe using gelignite to access the ledger, proving the conspiracy’s extent. The test
+      involves verifying the ledger’s authenticity and the presence of suspects at key locations
+      during the crimes.
+    knowledge_revealed: >-
+      The ledger confirms Peterson’s role as mastermind and the involvement of financiers and
+      revolutionaries. The safe’s opening demonstrates the gang’s criminal activities and the extent
+      of their network.
+    pass_condition: >-
+      The ledger is found intact in the safe, and suspects are accounted for at the time of the
+      crimes, eliminating alternative theories.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given access to all key evidence including letters, the ledger, witness
+      statements, and observations of characters’ behavior. The clues about the criminal network,
+      the role of Peterson and Lakington, and the nature of the plot are presented openly. The false
+      solution involving Irma is clearly refuted in the final chapters. The reader could solve the
+      case by piecing together the connections between the ledger, the kidnappings, and the
+      revolutionary activities.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

@@ -1,0 +1,136 @@
+{
+ "slug": "the_owl_taxi",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "The body of a man of middle age, plump rather than corpulent",
+   "anchor": "the body of a man of middle age, plump rather than corpulent",
+   "span": "It was the body of a man of middle age, plump rather than corpulent.",
+   "ok": true
+  },
+  {
+   "claim": "The little black book was bound in black seal leather",
+   "anchor": "little black book containing incriminating evidence",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "De Socotra was registered under the name Antonio Bareda",
+   "anchor": "He wrote himself down as Antonio Bareda of Santiago de Managuay",
+   "span": "He wrote himself down as Antonio Bareda of Santiago de Managuay.",
+   "ok": true
+  },
+  {
+   "claim": "The body was cremated despite suspicions",
+   "anchor": "My instructions are to have the body cremated without delay",
+   "span": "My instructions are to have the body cremated without delay.",
+   "ok": true
+  },
+  {
+   "claim": "Greg disguises himself as a shabby cabman",
+   "anchor": "Estuban, white-faced and grim, told his tale",
+   "span": "In the little hall-room at Bessie Bickle's Estuban, white-faced and grim, told his tale.",
+   "ok": true
+  },
+  {
+   "claim": "De Silva confesses to the murder by poison",
+   "anchor": "I killed him! Oh God, how I hate myself! ...",
+   "span": "And I killed him! Oh God, how I hate myself! ... \"When we got to New York I was in no shape to carry out my job.",
+   "ok": true
+  },
+  {
+   "claim": "The little black book recovered was a forgery",
+   "anchor": "This is an impudent substitute manufactured out of whole cloth",
+   "span": "This is an impudent substitute manufactured out of whole cloth!",
+   "ok": true
+  },
+  {
+   "claim": "De Socotra impersonates Bareda to deceive the President",
+   "anchor": "He intends to impersonate Bareda when he sees the President",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Amy Wilmot is disguised as a boy to avoid detection",
+   "anchor": "She had to repeat her question. 'That's your cab there?'",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Greg and Amy rescue the little black book from the piano",
+   "anchor": "The little black book was dropped in the top of the piano",
+   "span": "The little black book was dropped in the top of the piano, and fell down behind the sounding-board.",
+   "ok": true
+  },
+  {
+   "claim": "De Socotra orders Amy to be put in a sanitarium",
+   "anchor": "He wants the address of a private madhouse",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Greg breaks into de Socotra's headquarters to recover the book",
+   "anchor": "He flung open the door as softly as he could",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "De Socotra escapes through the roof scuttle",
+   "anchor": "There was a ladder leading to a scuttle in the roof",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "De Silva dies but leaves a note revealing the book's location",
+   "anchor": "I slit the mattress and hid the book in the stuffing",
+   "span": "I slit the mattress and hid the book in the stuffing.",
+   "ok": true
+  },
+  {
+   "claim": "De Socotra is confronted with the evidence and dies of heart failure",
+   "anchor": "Francisco de Socotra had been found dead in his bed",
+   "span": "Francisco de Socotra had been found dead in his bed.",
+   "ok": true
+  },
+  {
+   "claim": "The political reform follows the deaths of Bareda and de Socotra",
+   "anchor": "A new election was called",
+   "span": "Parr made certain representations that resulted in the hasty resignation of the President and his entire government, and a new election was called.",
+   "ok": true
+  },
+  {
+   "claim": "Gregory Parr becomes the United States minister to Managuay",
+   "anchor": "Gregory Parr appointed in his place",
+   "span": "Then it became known that the United States minister, a well-meaning, weak soul, who had been an involuntary tool in the hands of the exploiters of Managuay, had been recalled, and one Gregory Parr appointed in his place.",
+   "ok": true
+  },
+  {
+   "claim": "Amy Wilmot reveals her true identity and leads the fight",
+   "anchor": "My real name is Amy Wilmot",
+   "span": "My real name is Amy Wilmot.",
+   "ok": true
+  },
+  {
+   "claim": "De Silva used a hypodermic needle with curare to kill Bareda",
+   "anchor": "There was curare in it. What the San Blas Indians dip their arrow-points in",
+   "span": "There was curare in it. What the San Blas Indians dip their arrow-points in.",
+   "ok": true
+  },
+  {
+   "claim": "The forged little black book contains flattering testimonials",
+   "anchor": "Testimonials of respect to His Excellency; addresses of felicitation",
+   "span": "testimonials of respect to His Excellency; addresses of felicitation from public bodies of every class in Managuay; the Santiago Chamber of Commerce; the Planters' Association; The Rubber-Gatherers' Union!",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.12207332800000001,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

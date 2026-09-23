@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "Lewis Parker accidentally shot Doctor Gaskell while hunting quail at dawn.",
+  "type": "temporal",
+  "why_it_seems_reasonable": "Lewis was found at the scene with a shotgun shortly after the shot was fired, and he claimed to have stumbled and accidentally discharged the weapon. Witnesses heard the shot and saw Lewis nearby, making the timeline plausible.",
+  "what_it_hides": "The actual murder occurred earlier by Aunt Mary during her somnambulistic episode, and Lewis arrived after the fact, accidentally firing the gun later."
+ },
+ "mechanism_description": "Aunt Mary McGregor, though paralyzed by hysteria, was able to walk during somnambulistic episodes and was the 'Poltergeist' causing disturbances. She shot Doctor Gaskell in a fit of rage after he insulted her, and her paralysis and ghostly antics were a cover for her secret; she died accidentally shooting herself with a faulty shotgun.",
+ "discriminating_test": {
+  "method": "trap",
+  "design": "Doctor Somers imitates the quail's whistle outside Aunt Mary's window to provoke a reaction. Observers watch for Aunt Mary to leave her bed and retrieve the shotgun, confirming her somnambulistic activity and involvement in the disturbances.",
+  "knowledge_revealed": "This test reveals Aunt Mary's ability to move and act despite her supposed paralysis, linking her to the Poltergeist phenomena and the murder.",
+  "pass_condition": "Aunt Mary is observed leaving her bed and firing the shotgun at the quail imitation."
+ },
+ "changed": [],
+ "confidence": "high"
+}

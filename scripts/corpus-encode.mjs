@@ -2,7 +2,7 @@
 /**
  * A_77 Phase 2 — the encode harness.
  *
- *   node scripts/corpus-encode.mjs <slug> [--text <path>] [--budget 5.00]
+ *   node scripts/corpus-encode.mjs <slug> [--text=<path>] [--budget=5.00]
  *
  * ── WHY THIS EXISTS ──────────────────────────────────────────────────────────────────────────────
  *
@@ -73,6 +73,13 @@ const args = process.argv.slice(2);
 const slug = args[0];
 const BUDGET = Number((args.find((a) => a.startsWith("--budget=")) ?? "--budget=5").split("=")[1]);
 if (!slug) { console.error("usage: corpus-encode.mjs <slug> [--budget=5]"); process.exit(2); }
+// A_103 B59: the header advertised `--budget 5.00` and `--text <path>`; only the `=` forms are parsed, so
+// the space forms fell back to the defaults silently, and `--budget=abc` made NaN, which no comparison
+// ever exceeds - a budget guard that was off. A bare flag or a non-number is now a usage error.
+if (!Number.isFinite(BUDGET) || args.includes("--budget") || args.includes("--text")) {
+  console.error("usage: corpus-encode.mjs <slug> [--text=<path>] [--budget=5.00]   (flags take '='; a bare --budget/--text or a non-numeric budget is refused)");
+  process.exit(2);
+}
 
 /**
  * A_97: this defaulted to a scratchpad directory belonging to a session that no longer exists, so
@@ -87,6 +94,7 @@ const textPath = (args.find((a) => a.startsWith("--text=")) ?? "").split("=")[1]
 const loadLedger = () => (existsSync(LEDGER) ? JSON.parse(readFileSync(LEDGER, "utf8")) : { totalGbp: 0, runs: [] });
 const ledger = loadLedger();
 let runCost = 0;
+let banked = false;   // A_103 B55: the exit handler tested "any ledger row for this slug" - true for every re-encode, so a re-encode that crashed was never charged
 const spend = (model, usage) => {
   const p = PRICE[model];
   const c = (usage.prompt_tokens * p.in + usage.completion_tokens * p.out) / 1e6;
@@ -235,7 +243,7 @@ const { buildCml } = await import("file:///C:/CML/scripts/lib-build-cml.mjs");
 // ── run ──────────────────────────────────────────────────────────────────────────────────────────
 process.on("exit", () => {
   // A crash mid-run has still cost money. Bank it, or the next run's budget guard is lying.
-  if (runCost > 0 && !ledger.runs.some((r) => r.slug === slug)) {
+  if (runCost > 0 && !banked) {
     const l = loadLedger();
     l.totalGbp += runCost;
     l.runs.push({ slug, costGbp: Number(runCost.toFixed(4)), valid: false, spans: "aborted" });
@@ -387,6 +395,13 @@ ${JSON.stringify(judgement, null, 1)}` },
   }
 }
 
+/**
+ * A_103 B54: adjudication and repair mutate `data` in memory and the raw persisted above was never
+ * rewritten - MEASURED 17 of 132 raws differ from the case beside them (7 mechanisms, 11 false
+ * assumptions, 2 victims), and `corpus-repair.mjs` works FROM the raw. Persist what was adjudicated.
+ */
+writeFileSync(`${dir}/encode-raw.json`, JSON.stringify(data, null, 1), "utf8");
+
 // build + gate
 const cml = buildCml(data, { title: prov.title, author: prov.author, license: `Public domain (first published ${prov.first_publication_year}; author died ${prov.author_death_year}). Project Gutenberg ebook ${prov.source.ebook_id}.` });
 const { validateCml } = await import(`file://${ROOT}/packages/cml/dist/validator.js`);
@@ -416,6 +431,7 @@ for (let attempt = 1; attempt <= 3 && !v.valid; attempt++) {
   try { data = JSON.parse(fix); } catch { break; }
   v = validateCml(buildCml(data, { title: prov.title, author: prov.author, license: cml.CASE.meta.license }));
 }
+writeFileSync(`${dir}/encode-raw.json`, JSON.stringify(data, null, 1), "utf8");   // A_103 B54: and after repair
 const finalCml = buildCml(data, { title: prov.title, author: prov.author, license: cml.CASE.meta.license });
 v = validateCml(finalCml);
 
@@ -446,11 +462,20 @@ const src = N(text);
  */
 const NORM = (t) => t.replace(/[\u2018\u2019]/g, "'").replace(/[\u201C\u201D]/g, '"').replace(/[\u2013\u2014]/g, "-");
 const srcN = NORM(src);
+const srcL = srcN.toLowerCase();
+const foldable = srcL.length === srcN.length;   // a fold that changes length would break the offsets
 const spans = (data.anchors ?? data.spans ?? []).map((a) => {
   const anchor = typeof a === "string" ? a : (a.anchor ?? a.span ?? "");
   const claim = typeof a === "string" ? "" : (a.claim ?? "");
   const needle = NORM(N(anchor));
-  const at = needle.length > 0 ? srcN.indexOf(needle) : -1;
+  /**
+   * A_103 B50: MEASURED over 150 report+text pairs - 224 of 1,022 recorded misses were the anchor
+   * with one letter's case changed (218 of them sentence-initial), and 8 of the 17 works the gate had
+   * FAILED pass once the match is case-folded. Exact first, folded second; the span is still sliced
+   * from the source, so what is extracted stays verbatim.
+   */
+  const exact = needle.length > 0 ? srcN.indexOf(needle) : -1;
+  const at = exact >= 0 ? exact : (foldable && needle.length > 0 ? srcL.indexOf(needle.toLowerCase()) : -1);
   if (at < 0) return { claim, anchor, span: "", ok: false };
   // expand to sentence bounds around the anchor
   let lo = at, hi = at + needle.length;
@@ -466,7 +491,11 @@ const victim = (data.cast ?? []).find((c) => c.role === "victim");
 if (victim) {
   const surname = String(victim.name).split(/\s+/).pop();
   const mech = `${data.mechanism_description ?? ""} ${data.surface_summary ?? ""} ${data.crime_subtype ?? ""}`;
-  if (surname.length > 2 && !new RegExp(surname, "i").test(mech)) {
+  // A_103 B51: the contract asks for "Real Name (Alias)"; `Edwards)` threw Unmatched ')' AFTER three
+  // paid passes and before the case, report and ledger row were written - MEASURED 11 encodes lost
+  // in the 2026-09-18 batch, 12 of 150 raws throw. Escape it.
+  const safe = surname.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  if (surname.length > 2 && !new RegExp(safe, "i").test(mech)) {
     console.log(` WARNING     : victim "${victim.name}" is never named in the mechanism or summary — check the role assignment`);
   }
 }
@@ -493,5 +522,6 @@ writeFileSync(`${dir}/encode-report${v.valid ? "" : ".rejected"}.json`, JSON.str
 ledger.totalGbp += runCost;
 ledger.runs.push({ slug, costGbp: Number(runCost.toFixed(4)), valid: v.valid, spans: `${passed}/${spans.length}` });
 writeFileSync(LEDGER, JSON.stringify(ledger, null, 1), "utf8");
+banked = true;
 process.exitCode = v.valid ? 0 : 5;
 console.log(` ledger      : £${ledger.totalGbp.toFixed(4)} of £${BUDGET.toFixed(2)}`);

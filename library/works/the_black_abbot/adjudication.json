@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "The Black Abbot is a supernatural ghost haunting Fossaway Manor.",
+  "type": "identity",
+  "why_it_seems_reasonable": "The Black Abbot legend is well-known and sightings are reported by villagers, creating a strong local superstition. The eerie appearances and strange noises reinforce the ghostly interpretation.",
+  "what_it_hides": "It conceals the fact that the Black Abbot is a disguise used by Dick Alford to manage his brother’s madness and control the estate’s secrets."
+ },
+ "mechanism_description": "Dick Alford impersonated the Black Abbot to keep his mentally ill brother Harry confined and safe within the estate. Harry, suffering from madness, had hidden himself in the underground vaults beneath the Abbey. The murder of Thomas occurred as a consequence of his attempt to steal from the estate, and the kidnapping of Leslie was orchestrated by Harry in his unstable state. The treasure was hidden in the dry riverbed beneath the Abbey, and the various crimes were linked to attempts to find it.",
+ "discriminating_test": {
+  "method": "constraint_proof",
+  "design": "Investigators examine the timing and location of the Black Abbot sightings and Thomas’s murder, comparing them with Dick Alford’s known whereabouts and access to the costume. They also verify the physical possibility of Harry’s confinement in the underground vault and the secret passages. The test includes checking the ladder marks, library window status, and the presence of the Black Abbot costume in Dick’s possession.",
+  "knowledge_revealed": "This test reveals that only Dick Alford could have been the Black Abbot, as he had the opportunity, motive, and means to impersonate the ghost and control the estate’s secrets.",
+  "pass_condition": "The presence of the Black Abbot costume in Dick’s car and the impossibility of others accessing the costume or vault at the relevant times conclusively prove Dick’s role."
+ },
+ "changed": [],
+ "confidence": "high"
+}

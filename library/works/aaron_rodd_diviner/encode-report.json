@@ -1,0 +1,136 @@
+{
+ "slug": "aaron_rodd_diviner",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "The necklace was stolen from Madame de Borria's hotel room",
+   "anchor": "My husband--he is murdered! ... and my jewels--they are all stolen!",
+   "span": "My husband--he is murdered! ... and my jewels--they are all stolen! The police, do you hear?",
+   "ok": true
+  },
+  {
+   "claim": "Harvey Grimm was found with a necklace similar to the stolen one",
+   "anchor": "The necklace is mine, or rather it is entrusted to me for sale.",
+   "span": "The necklace is mine, or rather it is entrusted to me for sale. I am well aware that it does not resemble yours, which I have often seen and admired.",
+   "ok": true
+  },
+  {
+   "claim": "Paul Brodie is an amateur detective pursuing Jeremiah Sands",
+   "anchor": "the sleuthhound of Europe, the greatest living detective.",
+   "span": "the sleuthhound of Europe, the greatest living detective.\" Aaron Rodd sat for a moment motionless, the cigar slipped from his fingers on to the plate.",
+   "ok": true
+  },
+  {
+   "claim": "The jewels have been recut and disguised to avoid detection",
+   "anchor": "I have broken up and cut into different shapes nearly a hundred thousand pounds' worth of diamonds.",
+   "span": "I have broken up and cut into different shapes nearly a hundred thousand pounds' worth of diamonds. I have actually handled nearly eighty thousand pounds in money.",
+   "ok": true
+  },
+  {
+   "claim": "The fake necklace was presented to the police",
+   "anchor": "They've got the imitation one at police head-quarters and they aren't feeling particularly pleased with themselves.",
+   "span": "They've got the imitation one at police head-quarters and they aren't feeling particularly pleased with themselves. That fellow Brodie is about the bummest detective who ever crossed the Atlantic.",
+   "ok": true
+  },
+  {
+   "claim": "Harvey Grimm used disguises and false alibis",
+   "anchor": "I was Edward Levy there, and there isn't one of them except the old man who knew otherwise.",
+   "span": "I was Edward Levy there, and there isn't one of them except the old man who knew otherwise. Brodie himself never recognised me.",
+   "ok": true
+  },
+  {
+   "claim": "The Brinnen family pretended to be criminals to protect the jewels",
+   "anchor": "We were extremely anxious that no one should know whose jewels these really were.",
+   "span": "You see, we were extremely anxious that no one should know whose jewels these really were. The one way to ensure absolute secrecy was to dispose of them as stolen property.",
+   "ok": true
+  },
+  {
+   "claim": "The Yellow Eye diamond was swapped with a worthless replica",
+   "anchor": "The bauble which you are wearing is a worthless piece of yellow crystal, worth, perhaps, twenty pounds.",
+   "span": "The bauble which you are wearing is a worthless piece of yellow crystal, worth, perhaps, twenty pounds. I was deceived--as was, perhaps, the young lady over yonder,\" he added with a little ironical bow--\"by a wonderful resemblance.",
+   "ok": true
+  },
+  {
+   "claim": "Jack Lovejoy was suspected of espionage but not jewel theft",
+   "anchor": "He has refused three parts within the last month, on some pretext or another, because he is better occupied.",
+   "span": "I also know that while, if you speak to him, he will tell you that he is out of a job, that the war has played the deuce with musical comedy, he has refused three parts within the last month, on some pretext or another, because he is better occupied.\" Stephen Cresswell sat up in his place.",
+   "ok": true
+  },
+  {
+   "claim": "Harvey Grimm was arrested but later exonerated",
+   "anchor": "The case for the prosecution is withdrawn, your Worship.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Leopold Brinnen testified to the jewels' true ownership",
+   "anchor": "The De Floge collection of diamonds is famous, I believe I may say, throughout the world.",
+   "span": "The De Floge collection of diamonds is famous, I believe I may say, throughout the world. They were the subject, at the time of the outbreak of the war, of a lawsuit between the German branch of the De Floge family and my own.",
+   "ok": true
+  },
+  {
+   "claim": "Aaron Rodd rescued Henriette from abduction",
+   "anchor": "I was one of them. The master and I were picked up by an English destroyer.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The jewels were secretly disposed of as stolen property",
+   "anchor": "The one way to ensure absolute secrecy was to dispose of them as stolen property.",
+   "span": "The one way to ensure absolute secrecy was to dispose of them as stolen property. That is what we did, and I must say that under the circumstances, Mr.",
+   "ok": true
+  },
+  {
+   "claim": "Harvey Grimm concealed the real necklace separate from the fake one",
+   "anchor": "I knew these rooms would be searched. Fortunately, he chose the left-hand pocket of my overcoat instead of the right.",
+   "span": "I knew these rooms would be searched. Fortunately, he chose the left-hand pocket of my overcoat instead of the right.\" \"What are you going to do with it?",
+   "ok": true
+  },
+  {
+   "claim": "Paul Brodie's suspicions were misplaced",
+   "anchor": "I tell you, sir, that Jeremiah Sands is more than a genius.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The police searched the jewelry workshop and arrested Grimm",
+   "anchor": "I arrest you on the charge of breaking up stolen diamonds.",
+   "span": "I arrest you on the charge of breaking up stolen diamonds. I have a constable in the room outside.",
+   "ok": true
+  },
+  {
+   "claim": "Harvey Grimm escaped from police custody",
+   "anchor": "He threw off his overall and caught up his coat and overcoat.",
+   "span": "Then he threw off his overall and caught up his coat and overcoat. \"You're a clever fellow, Paul Brodie,\" he said to the writhing figure upon the floor.",
+   "ok": true
+  },
+  {
+   "claim": "The Brinnen family and Grimm planned the jewel smuggling",
+   "anchor": "I engaged him recently to recut and, if possible, to present to me in an altered form a variety of precious stones.",
+   "span": "I engaged him recently to recut and, if possible, to present to me in an altered form a variety of precious stones.\" \"May I ask your reason for this?",
+   "ok": true
+  },
+  {
+   "claim": "The necklace with the rose diamond was recovered and returned",
+   "anchor": "Madame my wife will wear her necklace to-night and once more rejoice.",
+   "span": "Madame my wife will wear her necklace to-night and once more rejoice. I shall have that thousand pounds in my pocket which is so necessary for a man like myself in this your great city of gallantry and happiness.",
+   "ok": true
+  },
+  {
+   "claim": "The jewels' true ownership was revealed in court",
+   "anchor": "The Belgian Minister was called and promptly took his place in the witness-box.",
+   "span": "The Belgian Minister was called and promptly took his place in the witness-box. Asked if he knew the last witness, his reply was comprehensive.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.09815858625000001,
+ "models": {
+  "map": "gpt-4o-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

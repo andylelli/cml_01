@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "The purchaser who took the book away at auction was the thief.",
+  "type": "identity",
+  "why_it_seems_reasonable": "The purchaser physically took possession of the book and disappeared with it, making him the obvious suspect. The auction house's delivery note supported this assumption.",
+  "what_it_hides": "It hides the fact that the secretary orchestrated the theft and recovery, using the purchaser as an unwitting pawn."
+ },
+ "mechanism_description": "Mr Chatton, the secretary, secretly sold the original Virginiola before the library sale and then arranged to recover the stolen book by manipulating the auction and delivery notes. He temporarily removed identifying pages to disguise the book and returned it to the bookseller Mr Powis to avoid suspicion.",
+ "discriminating_test": {
+  "method": "constraint_proof",
+  "design": "Investigators verify the delivery notes and auction records to confirm the lot numbers and purchasers. They compare the physical copies of the Virginiola held by Mr Powis and the auction house to detect any alterations or missing pages. They also examine library access logs and correspondences to establish who had opportunity to manipulate the books.",
+  "knowledge_revealed": "This test reveals that the stolen book was sold before the auction and then recovered and disguised by the secretary, Mr Chatton.",
+  "pass_condition": "Confirmation that the auction delivery note was falsified and that the book held by Mr Powis matches the stolen copy with replaced pages."
+ },
+ "changed": [],
+ "confidence": "high"
+}

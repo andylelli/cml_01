@@ -2,29 +2,29 @@
  "decade": "1920s",
  "realism_constraints": [
   "No advanced forensic DNA analysis available",
-  "Limited chemical analysis for poisons but hydrocyanic acid detection possible",
-  "Locked room mysteries rely on mechanical or social trickery, not modern electronic surveillance"
+  "Limited telecommunications, mainly telephone and telegraph",
+  "Poisoning methods limited to chemical substances available in the era"
  ],
  "location": "Valhalla, a small estate in Westchester County, New York",
- "institution": "Local police with Detective Kinney; private investigation by Fleming Stone",
+ "institution": "Local police led by Detective Kinney; private investigation by Fleming Stone",
  "crime_category": "murder",
- "crime_subtype": "poisoned toothpick in a locked room",
+ "crime_subtype": "poisoned toothpick trick",
  "cast": [
   {
    "name": "Valentine Loft",
    "age_range": "30-40",
-   "role_archetype": "wealthy, rational host and devoted fiancé",
+   "role_archetype": "wealthy, intellectual host and devoted fiancé",
    "role": "suspect",
    "gender": "male",
    "culpability": "innocent",
    "culprit_eligibility": "eligible",
-   "public_persona": "calm, tolerant, and a man of the world",
-   "private_secret": "deep love for Pauline despite her past",
+   "public_persona": "courteous, genial, and tolerant host",
+   "private_secret": "deep love and unwavering faith in Pauline despite her past",
    "motive_seed": "jealousy or protecting Pauline",
    "motive_strength": "weak",
-   "alibi_window": "all night in his suite",
+   "alibi_window": "all night in his rooms",
    "access_plausibility": "high",
-   "stakes": "protecting fiancée and household reputation",
+   "stakes": "high, as he wants to protect Pauline",
    "moral_complexity": "high",
    "relationships": [
     "Pauline Fuller (fiancée)",
@@ -33,79 +33,75 @@
     "Roly Mears (friend)"
    ],
    "opportunity_channels": [
-    "access to all rooms",
-    "knowledge of house and keys"
+    "access to house and rooms",
+    "knowledge of household"
    ],
    "behavioral_tells": [
-    "defensive about Pauline",
-    "plans to confess falsely to protect her"
+    "defense of Pauline",
+    "plans to confess to protect her"
    ],
    "evidence_sensitivity": [
-    "found watch in Pauline's room",
-    "knows about toothpick substitution"
+    "possession of skeleton key",
+    "knowledge of house layout"
    ]
   },
   {
    "name": "Pauline Fuller",
    "age_range": "20-30",
-   "role_archetype": "beautiful, secretive bride-to-be with a troubled past",
+   "role_archetype": "beautiful, secretive fiancée with a troubled past",
    "role": "suspect",
    "gender": "female",
    "culpability": "innocent",
    "culprit_eligibility": "eligible",
-   "public_persona": "gracious, calm, and dignified",
+   "public_persona": "gracious, calm, and charming",
    "private_secret": "divorced wife of Hugh Curran (Hugh Dwyer), concealed past",
-   "motive_seed": "fear of exposure, protecting secret",
+   "motive_seed": "fear of exposure",
    "motive_strength": "moderate",
-   "alibi_window": "in Curran's room around 2 a.m., left before death",
+   "alibi_window": "seen alive after 2 a.m., left Curran's room alive",
    "access_plausibility": "high",
-   "stakes": "reputation, love, freedom",
+   "stakes": "very high, risking reputation and love",
    "moral_complexity": "high",
    "relationships": [
     "Valentine Loft (fiancé/husband)",
-    "Hugh Curran (ex-husband)",
-    "Mary Malden (friend)"
+    "Hugh Curran (ex-husband)"
    ],
    "opportunity_channels": [
     "access to Curran's room",
-    "knowledge of household"
+    "knowledge of poison method"
    ],
    "behavioral_tells": [
-    "cried alone, fled house",
-    "hid watch in locked desk"
+    "nervousness",
+    "flight from house"
    ],
    "evidence_sensitivity": [
-    "watch with her picture found in her locked desk"
+    "possession of Curran's watch",
+    "presence in Curran's room"
    ]
   },
   {
    "name": "Hugh Curran (Hugh Dwyer)",
-   "age_range": "50-60",
-   "role_archetype": "victim, author with a secretive past",
+   "age_range": "40-50",
+   "role_archetype": "victim, author with a secret past",
    "role": "victim",
    "gender": "male",
    "culpability": "innocent",
    "culprit_eligibility": "locked",
    "public_persona": "celebrated detective story author",
-   "private_secret": "divorced from Pauline Fuller, real name Hugh Dwyer",
+   "private_secret": "divorced from Pauline Fuller",
    "motive_seed": "n/a",
    "motive_strength": "none",
-   "alibi_window": "dead by early morning",
+   "alibi_window": "n/a",
    "access_plausibility": "n/a",
-   "stakes": "life",
+   "stakes": "n/a",
    "moral_complexity": "n/a",
    "relationships": [
-    "Pauline Fuller (ex-wife)",
-    "Angel Bob Baldwin (book dealer)"
+    "Pauline Fuller (ex-wife)"
    ],
    "opportunity_channels": [],
-   "behavioral_tells": [
-    "tormented Pauline",
-    "threatened to expose Baldwin"
-   ],
+   "behavioral_tells": [],
    "evidence_sensitivity": [
     "puncture wound in jaw",
-    "poisoned toothpick"
+    "poison odor on lips"
    ]
   },
   {
@@ -117,57 +113,55 @@
    "culpability": "guilty",
    "culprit_eligibility": "eligible",
    "public_persona": "amiable, knowledgeable book dealer",
-   "private_secret": "stole and doctored rare book pages, murdered Curran",
-   "motive_seed": "fear of exposure for book theft",
+   "private_secret": "book thief and murderer",
+   "motive_seed": "greed for rare books",
    "motive_strength": "strong",
    "alibi_window": "in Loft's room after 1 a.m.",
    "access_plausibility": "high",
-   "stakes": "freedom, reputation, financial gain",
+   "stakes": "high, financial gain and avoiding exposure",
    "moral_complexity": "moderate",
    "relationships": [
     "Valentine Loft (friend)",
     "Hugh Curran (client and victim)"
    ],
    "opportunity_channels": [
-    "access to poison in photographic outfit",
-    "knowledge of house"
+    "access to Curran's room",
+    "photographic equipment with poison"
    ],
    "behavioral_tells": [
-    "quarrelled with Curran about a needle",
-    "nervousness at mention of 'Rosalie'"
+    "nervousness when watch found",
+    "attempted suicide"
    ],
    "evidence_sensitivity": [
-    "toothpick paper resealed",
-    "photographed book pages",
-    "poison in photographic outfit"
+    "poisoned toothpick",
+    "photographed stolen book pages"
    ]
   },
   {
    "name": "Ned Knox",
    "age_range": "30-40",
-   "role_archetype": "jealous husband, impulsive friend",
+   "role_archetype": "jealous husband, friend",
    "role": "suspect",
    "gender": "male",
    "culpability": "innocent",
    "culprit_eligibility": "eligible",
-   "public_persona": "jealous, impulsive husband",
+   "public_persona": "impulsive, jealous husband",
    "private_secret": "jealousy of Anna's flirtations",
-   "motive_seed": "jealous rage",
-   "motive_strength": "weak",
+   "motive_seed": "jealousy",
+   "motive_strength": "moderate",
    "alibi_window": "in own room after 1 a.m.",
-   "access_plausibility": "moderate",
-   "stakes": "marriage, reputation",
+   "access_plausibility": "medium",
+   "stakes": "medium",
    "moral_complexity": "moderate",
    "relationships": [
     "Anna Knox (wife)",
     "Valentine Loft (friend)"
    ],
    "opportunity_channels": [
-    "access to house",
-    "knowledge of household"
+    "access to house"
    ],
    "behavioral_tells": [
-    "tried to implicate Baldwin",
+    "accuses others",
     "jealous outbursts"
    ],
    "evidence_sensitivity": []
@@ -175,19 +169,19 @@
   {
    "name": "Anna Knox",
    "age_range": "30-40",
-   "role_archetype": "flirtatious wife, socialite",
-   "role": "suspect",
+   "role_archetype": "flirtatious wife, witness",
+   "role": "witness",
    "gender": "female",
    "culpability": "innocent",
-   "culprit_eligibility": "eligible",
-   "public_persona": "flirt, charming, coquettish",
-   "private_secret": "flirtations with Curran",
-   "motive_seed": "social advantage",
-   "motive_strength": "weak",
-   "alibi_window": "on balcony around 1 a.m.",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "flirtatious, charming",
+   "private_secret": "flirtation with Curran",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "on balcony after midnight",
    "access_plausibility": "high",
-   "stakes": "marriage, reputation",
-   "moral_complexity": "moderate",
+   "stakes": "low",
+   "moral_complexity": "low",
    "relationships": [
     "Ned Knox (husband)",
     "Hugh Curran (flirtation)"
@@ -196,7 +190,6 @@
     "access to balcony and rooms"
    ],
    "behavioral_tells": [
-    "denies balcony visit",
     "manipulates detective Kinney"
    ],
    "evidence_sensitivity": []
@@ -208,14 +201,14 @@
    "role": "suspect",
    "gender": "male",
    "culpability": "innocent",
-   "culprit_eligibility": "eligible",
-   "public_persona": "enthusiastic, inquisitive",
-   "private_secret": "none significant",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "enthusiastic amateur sleuth",
+   "private_secret": "none",
    "motive_seed": "none",
    "motive_strength": "none",
-   "alibi_window": "in own room",
-   "access_plausibility": "low",
-   "stakes": "curiosity",
+   "alibi_window": "in house all night",
+   "access_plausibility": "medium",
+   "stakes": "low",
    "moral_complexity": "low",
    "relationships": [
     "Valentine Loft (friend)",
@@ -223,32 +216,7 @@
    ],
    "opportunity_channels": [],
    "behavioral_tells": [
-    "quick to suspect others"
-   ],
-   "evidence_sensitivity": []
-  },
-  {
-   "name": "Hetty Dwyer",
-   "age_range": "40-50",
-   "role_archetype": "victim's sister, suspicious spinster",
-   "role": "suspect",
-   "gender": "female",
-   "culpability": "innocent",
-   "culprit_eligibility": "ineligible",
-   "public_persona": "sharp, accusatory, determined",
-   "private_secret": "suspects Loft and Pauline",
-   "motive_seed": "seek justice for brother",
-   "motive_strength": "moderate",
-   "alibi_window": "present at house",
-   "access_plausibility": "low",
-   "stakes": "family honor",
-   "moral_complexity": "moderate",
-   "relationships": [
-    "Hugh Curran (brother)"
-   ],
-   "opportunity_channels": [],
-   "behavioral_tells": [
-    "accuses Loft and Pauline openly"
+    "speculates widely"
    ],
    "evidence_sensitivity": []
   }
@@ -256,59 +224,58 @@
  "culprits": [
   "Angel Bob Baldwin"
  ],
- "surface_summary": "Hugh Curran, a celebrated author, is found dead in a locked room at a country estate. The death is caused by poison, and suspicion falls on several guests, especially Pauline Fuller, who is revealed to be Curran's divorced wife and has fled. The mystery revolves around how the murderer entered and left the locked room and the motive behind the crime.",
+ "surface_summary": "Hugh Curran, a celebrated author, is found dead in a locked room at Valentine Loft's estate. The death appears to be caused by poison, with no clear indication of how the murderer entered or exited the locked room. Suspicion falls on various guests, especially Pauline Fuller, who is revealed to be Curran's divorced wife and has fled the scene.",
  "accepted_facts": [
-  "Hugh Curran died of hydrocyanic acid poisoning.",
-  "The room was locked from the inside with no sign of forced entry.",
+  "Hugh Curran died from prussic (hydrocyanic) acid poisoning.",
+  "The room was locked from the inside with no signs of forced entry.",
   "Pauline Fuller is the divorced wife of Hugh Curran and had concealed this fact.",
-  "A poisoned toothpick was the murder weapon, but no trace of poison was found on the toothpick in the waste basket."
+  "A poisoned toothpick was found to be the murder weapon."
  ],
  "inferred_conclusions": [
-  "Pauline Fuller killed Hugh Curran to hide her past.",
-  "Ned Knox killed Curran out of jealous rage.",
-  "Angel Bob Baldwin was innocent and only a book dealer."
+  "Pauline Fuller poisoned Hugh Curran to protect her secret.",
+  "Ned Knox killed Curran out of jealousy over Anna's flirtations.",
+  "Angel Bob Baldwin was innocent and only a friend of the victim."
  ],
- "mechanism_description": "Angel Bob Baldwin, fearing exposure for stealing and altering rare book pages from Hugh Curran, poisoned Curran using a toothpick dipped in hydrocyanic acid. After Curran used the poisoned toothpick, Baldwin substituted a clean toothpick to mislead investigators. The murderer entered and left the locked room with Curran's cooperation, as Curran was alive and conscious until the poison took effect hours later.",
+ "mechanism_description": "Angel Bob Baldwin, a book dealer and collector, murdered Hugh Curran by poisoning a toothpick with hydrocyanic acid. Curran used the poisoned toothpick after Baldwin had left the room, causing his death hours later. Baldwin then substituted a clean toothpick to mislead investigators and hid incriminating evidence in Curran's room.",
  "delivery_path": [
   "Baldwin prepared a toothpick dipped in hydrocyanic acid.",
-  "He gave the toothpick to Curran during dinner.",
-  "Curran used the poisoned toothpick after Pauline left his room.",
-  "Baldwin substituted the poisoned toothpick with a clean one and disposed of the evidence.",
-  "Curran died hours later from the poison introduced via the toothpick.",
-  "The murderer exited the locked room with Curran's permission before death.",
-  "Baldwin attempted to cover his tracks by hiding the watch in Pauline's locked desk."
+  "He gave the poisoned toothpick to Curran during a late-night visit.",
+  "Curran used the poisoned toothpick while eating nuts, ingesting the poison.",
+  "Baldwin replaced the poisoned toothpick with a clean one in the wastebasket.",
+  "Curran died hours later from the poison's effects.",
+  "The room remained locked from inside as Curran was alive when Baldwin left.",
+  "Baldwin attempted suicide after being confronted but was unsuccessful."
  ],
- "outcome_result": "Angel Bob Baldwin is revealed as the murderer and dies by suicide after being confronted.",
+ "outcome_result": "Angel Bob Baldwin is revealed as the murderer and dies by suicide after his guilt is exposed.",
  "false_assumption": {
-  "statement": "The murderer must have locked the door from the inside immediately after the crime.",
+  "statement": "The murderer must have locked the room from the inside after killing Curran.",
   "type": "temporal",
-  "why_it_seems_reasonable": "The room was found locked with no forced entry, implying the killer locked it upon exit. The victim was found dead in the chair, suggesting death occurred before the door was locked.",
-  "what_it_hides": "It hides that the victim was alive and unlocked the door to let the murderer out after the poisoning, and that death occurred later, allowing the killer to leave and lock the door with the victim's cooperation."
+  "why_it_seems_reasonable": "The room was found locked with no signs of forced entry, suggesting the killer locked it upon exit. The victim was found dead inside, implying the death occurred before the door was locked.",
+  "what_it_hides": "The victim was alive when the killer left and locked the door from inside; the poison acted later, so the killer did not need to lock the door after the murder."
  },
  "false_solution": {
   "accused_suspect": "Ned Knox",
   "supporting_points": [
-   "Ned's jealousy of Anna Knox and Curran's flirtation with her.",
-   "Ned was heard arguing about a needle and poison.",
-   "Ned had no solid alibi at the time of death.",
-   "Ned was suspected by several guests and the police."
+   "Ned Knox was jealous of Anna Knox's flirtations with Curran.",
+   "He was overheard arguing about a needle, suggesting possible poisoning.",
+   "He had opportunity to access Curran's room late at night."
   ],
-  "the_one_flaw": "Ned had no access to the poison and was accounted for after 1 a.m.; the timing and method did not fit his opportunity.",
+  "the_one_flaw": "No evidence of motive strong enough and no proof he had access to poison; alibis and witness statements cleared him.",
   "refuted_in_chapter": 18
  },
  "red_herrings": [
   {
    "id": "anna_knox_balcony_flirtation",
-   "description": "Anna Knox was seen on the balcony with Hugh Curran late at night, suggesting a motive for Ned Knox.",
+   "description": "Anna Knox was seen flirting with Hugh Curran on the balcony late at night.",
    "points_at_suspect": "Ned Knox",
-   "innocent_explanation": "Anna's flirtation was innocent and unrelated to the murder; Ned's jealousy did not lead to murder.",
-   "resolved_in_chapter": 7
+   "innocent_explanation": "Anna's flirtation was innocent and did not lead to murder; Ned Knox was jealous but did not commit the crime.",
+   "resolved_in_chapter": 18
   },
   {
-   "id": "pauline_fuller_watch_hidden",
-   "description": "Pauline Fuller was found to have Hugh Curran's watch hidden in her locked desk, implying guilt.",
+   "id": "pauline_fuller_hidden_watch",
+   "description": "Pauline Fuller was found to have Curran's watch hidden in her locked desk.",
    "points_at_suspect": "Pauline Fuller",
-   "innocent_explanation": "Pauline took the watch to hide evidence of her past and fled out of fear, not guilt.",
+   "innocent_explanation": "Pauline took the watch during a confrontation but did not kill Curran; the watch was planted to implicate her.",
    "resolved_in_chapter": 18
   }
  ],
@@ -319,197 +286,196 @@
    "Angel Bob Baldwin",
    "Ned Knox",
    "Anna Knox",
-   "Roly Mears",
-   "Hetty Dwyer"
+   "Roly Mears"
   ],
-  "rationale": "All were present at the estate during the murder, had potential motives or opportunity, and no outsider could have entered or left the locked room undetected."
+  "rationale": "All were present at the estate during the murder, had potential motives or opportunity, and no outsider could have entered due to locked room and secured windows."
  },
  "constraint_space": {
   "time_anchors": [
    "2:30 a.m. Mr. Meredith hears door open",
    "4-5 a.m. estimated time of death",
    "Midnight to 1 a.m. Baldwin with Curran",
-   "After 2 a.m. Pauline visits Curran's room",
-   "Morning discovery of body"
+   "After 2 a.m. Pauline seen leaving Curran's room"
   ],
   "time_windows": [
-   "Poison administered between 2:30 and 5 a.m.",
-   "Baldwin's presence in Loft's room after 1 a.m.",
-   "Pauline's absence after 2 a.m."
+   "Poison administered between 2:30 and 4 a.m.",
+   "Baldwin leaves Curran's room before 1 a.m.",
+   "Pauline leaves Curran's room after 2 a.m."
   ],
   "access_actors": [
-   "Guests and servants with access to Curran's room",
-   "Baldwin with access to photographic poisons",
-   "Pauline with access to Curran's room"
+   "Angel Bob Baldwin",
+   "Pauline Fuller",
+   "Valentine Loft",
+   "Ned Knox"
   ],
   "access_objects": [
-   "Toothpick from Country Club packet",
-   "Photographic outfit containing poison",
-   "Locked desk in Pauline's room"
+   "Locked bedroom door",
+   "Windows with six-inch ventilation openings",
+   "Skeleton key to door lock"
   ],
   "trust_channels": [
    "Valentine Loft trusts Pauline",
-   "Detective Kinney trusts servants' testimony",
-   "Guests trust Loft's leadership"
+   "Detective Kinney trusts witness statements",
+   "Fleming Stone trusts Loft's information"
   ],
   "authority_sources": [
-   "Local police with Detective Kinney",
-   "Doctor Gilvray as medical examiner",
-   "Fleming Stone as private detective"
+   "Local police led by Detective Kinney",
+   "Doctor Gilvray medical examiner",
+   "Private detective Fleming Stone"
   ]
  },
  "inference_path": [
   {
-   "observation": "No poison found in stomach despite hydrocyanic acid on lips",
-   "correction": "Poison was introduced in a way that did not involve swallowing liquid",
-   "effect": "Suggests poison was applied locally in mouth",
+   "observation": "No poison container found in Curran's room",
+   "correction": "Poison was administered in a way that left no container",
+   "effect": "Suicide theory weakened; murder more likely",
    "required_evidence": [
-    "Doctor Gilvray's autopsy report noting absence of poison in stomach",
-    "Observation of cyanotic face and froth on lips"
+    "Doctor Gilvray's autopsy report noting no container",
+    "Absence of vial or paper in the room"
    ]
   },
   {
-   "observation": "Toothpick found in waste basket was clean and resealed",
-   "correction": "Poisoned toothpick was substituted with a clean one after use",
-   "effect": "Murderer attempted to mislead investigators",
+   "observation": "Room was locked from inside with no forced entry",
+   "correction": "Victim was alive when killer left and locked door from inside",
+   "effect": "Killer did not exit after murder; death occurred later",
    "required_evidence": [
-    "Toothpick paper showing signs of being unsealed and resealed",
-    "Baldwin's admission of disposing toothpick"
+    "Mr. Meredith's witness statement of door opening at 2:30 a.m.",
+    "Time of death estimated at 4-5 a.m."
    ]
   },
   {
-   "observation": "Pauline's watch with her picture found hidden in her locked desk",
-   "correction": "Watch was planted to implicate Pauline",
-   "effect": "Pauline is likely innocent of murder",
+   "observation": "Poison odor on victim's lips but none in stomach",
+   "correction": "Poison introduced in mouth but not swallowed fully",
+   "effect": "Suggests poison applied via toothpick or similar instrument",
    "required_evidence": [
-    "Detective Kinney's report on watch discovery",
-    "Loft's and Pauline's statements denying knowledge"
+    "Doctor Gilvray's autopsy findings",
+    "Discovery of puncture wound inside victim's mouth"
    ]
   },
   {
-   "observation": "Baldwin had motive related to book theft and was last to see Curran alive",
-   "correction": "Baldwin is prime suspect",
-   "effect": "Focus shifts to Baldwin as murderer",
+   "observation": "Poisoned toothpick found in wastebasket replaced by clean one",
+   "correction": "Murderer substituted clean toothpick to mislead investigation",
+   "effect": "Identifies method and implicates someone with access to toothpicks",
    "required_evidence": [
-    "Miss Dwyer's testimony about book theft motive",
-    "Baldwin's quarrel with Curran over 'the needle'"
+    "Toothpick paper showing resealing",
+    "Witness testimony about toothpick usage"
    ]
   },
   {
-   "observation": "Puncture wound found inside Curran's mouth near molar tooth",
-   "correction": "Poison administered via poisoned toothpick",
-   "effect": "Confirms method of murder",
+   "observation": "Missing catalogue page of rare book 'Gammer Gurton’s Needle'",
+   "correction": "Murder motive linked to book theft and counterfeit",
+   "effect": "Points to book dealer as suspect",
    "required_evidence": [
-    "Fleming Stone's examination of body",
-    "Expert chemist's confirmation of poison delivery"
+    "Book auction catalogue missing page",
+    "Miss Dwyer's testimony about rare book"
    ]
   },
   {
-   "observation": "Curran alive after Pauline left his room",
-   "correction": "Murder occurred after Pauline's departure",
-   "effect": "Pauline's alibi for time of death is valid",
+   "observation": "Angel Bob Baldwin bought missing page at auction",
+   "correction": "Baldwin involved in theft and had motive to kill Curran",
+   "effect": "Baldwin identified as culprit",
    "required_evidence": [
-    "Witness statements of Curran alive after 2 a.m.",
-    "Pauline's own testimony"
+    "Auction records",
+    "Baldwin's possession of photographic equipment"
    ]
   },
   {
-   "observation": "Baldwin swallowed poison after confession",
-   "correction": "Baldwin committed suicide to avoid trial",
-   "effect": "Case closed with Baldwin's guilt confirmed",
+   "observation": "Baldwin attempts suicide after exposure",
+   "correction": "Confession by action confirms guilt",
+   "effect": "Case closed with Baldwin's death",
    "required_evidence": [
-    "Baldwin's suicide act witnessed by Loft and others",
-    "Stone's confrontation with Baldwin"
+    "Witnesses to Baldwin's suicide attempt",
+    "Stone's final report"
    ]
   }
  ],
  "discriminating_test": {
-  "method": "constraint_proof",
-  "design": "Fleming Stone examined the body for physical evidence of poison administration and found a puncture wound inside the mouth near a molar tooth. He analyzed the toothpick found in the waste basket and discovered it was clean and resealed, indicating substitution. Stone also investigated the timeline of witnesses seeing Curran alive after Pauline left, proving she could not have administered the poison. These constraints eliminated suspects without access or opportunity at the critical time.",
-  "knowledge_revealed": "The poison was administered via a poisoned toothpick after Pauline left, and the murderer exited with Curran's cooperation before death. The substitution of the toothpick was a deliberate attempt to mislead investigators.",
-  "pass_condition": "Proof that the victim was alive after Pauline left and that the poison was introduced via a toothpick substituted by the murderer, eliminating Pauline and others without access at that time."
+  "method": "reenactment",
+  "design": "Reenact the timeline of the victim's last hours, focusing on the use of the toothpick and the victim's movements. Examine the possibility of the victim using a poisoned toothpick after the suspect's departure, and the locking of the door from inside. Confirm the presence of a puncture wound inside the mouth consistent with a poisoned toothpick.",
+  "knowledge_revealed": "This test reveals that the victim was alive after the suspect left, that the poison was administered via a toothpick, and that the door was locked from inside by the victim, not the murderer.",
+  "pass_condition": "The reenactment must show that the victim used the poisoned toothpick after the suspect left and that the door locking sequence matches the victim's actions, not the murderer's."
  },
- "fair_play_explanation": "The reader is given all necessary clues: the timeline of events, the locked room conditions, the presence and substitution of the toothpick, and the motives of the suspects. The discovery of the puncture wound and the poisoned toothpick are explicitly described. The false assumptions about Pauline's guilt and Ned Knox's jealousy are presented but refuted by evidence. The detective's reasoning is transparent, allowing an attentive reader to deduce Baldwin's guilt.",
+ "fair_play_explanation": "The reader is given all necessary clues: the locked room, the presence of a poisoned toothpick, the victim's relationship with Pauline and Baldwin, and the missing catalogue page. The discussions about the methods of murder, the discovery of the watch in Pauline's room, and the timeline of events provide sufficient information to deduce the true method and culprit. The false assumptions and red herrings are clearly presented and later refuted, allowing attentive readers to solve the mystery.",
  "anchors": [
   {
-   "claim": "The victim was poisoned with hydrocyanic acid",
+   "claim": "Hugh Curran died of hydrocyanic acid poisoning",
    "anchor": "this man died of poison,--Hydrocyanic acid"
   },
   {
-   "claim": "The room was locked from the inside",
-   "anchor": "the room was locked"
+   "claim": "The room was locked from the inside with no forced entry",
+   "anchor": "the room was locked and there’s no bottle or paper to be found"
+  },
+  {
+   "claim": "Poison was administered via a toothpick",
+   "anchor": "the instrument of death, for I could find no other"
+  },
+  {
+   "claim": "Angel Bob Baldwin gave Curran the toothpick",
+   "anchor": "Mr. Baldwin had given Curran that Club toothpick"
+  },
+  {
+   "claim": "The poisoned toothpick was replaced with a clean one",
+   "anchor": "he adroitly substituted a clean one for the other"
   },
   {
    "claim": "Pauline Fuller is the divorced wife of Hugh Curran",
-   "anchor": "Pauline Fuller is my fiancée, my deeply beloved bride-to-be"
+   "anchor": "Miss Fuller is the divorced wife of Hugh Curran"
   },
   {
-   "claim": "A toothpick was found in the waste basket",
-   "anchor": "there was one there,--a Country Club one"
-  },
-  {
-   "claim": "The toothpick paper was unsealed and resealed",
-   "anchor": "it has been unsealed and sealed up again"
-  },
-  {
-   "claim": "A puncture wound was found inside the victim's mouth",
-   "anchor": "a small puncture in the jaw of the dead man"
-  },
-  {
-   "claim": "The poison was administered via a poisoned toothpick",
-   "anchor": "I deduced a poisoned toothpick"
-  },
-  {
-   "claim": "Baldwin was the murderer and committed suicide",
-   "anchor": "Bob popped something into his mouth and swallowed it"
-  },
-  {
-   "claim": "Pauline hid the victim's watch in her locked desk",
-   "anchor": "I found Hugh Curran’s watch hidden in a locked desk in Miss Fuller’s room"
-  },
-  {
-   "claim": "Curran was alive after Pauline left his room",
-   "anchor": "he was alive at least an hour and a half after your departure"
-  },
-  {
-   "claim": "Baldwin had motive related to book theft",
-   "anchor": "the man who killed Mr. Curran was actuated by some circumstance connected with Mr. Curran’s collection of books"
-  },
-  {
-   "claim": "The missing book pages were stolen and photographed by Baldwin",
-   "anchor": "he photographed the pages, and put them in the Curran copy"
-  },
-  {
-   "claim": "The murderer left the room with Curran's cooperation",
-   "anchor": "Mr. Curran let him out"
+   "claim": "Pauline took Curran’s watch and hid it in her desk",
+   "anchor": "I found Hugh Curran’s watch hidden in a locked desk"
   },
   {
    "claim": "Pauline fled the house after the murder",
    "anchor": "Pauline Fuller has disappeared"
   },
   {
-   "claim": "The false assumption that the murderer locked the door immediately",
-   "anchor": "the room was locked from the inside"
+   "claim": "Ned Knox was jealous but innocent",
+   "anchor": "Ned Knox was the one who advocated shooting"
   },
   {
-   "claim": "The red herring of Anna's balcony flirtation",
-   "anchor": "Mrs. Knox on the balcony"
+   "claim": "Anna Knox was seen on the balcony with Curran",
+   "anchor": "Mrs. Knox,--I know her well. She had on a bee-yooutiful gown"
   },
   {
-   "claim": "The red herring of Pauline's watch hidden in her desk",
-   "anchor": "watch hidden in a locked desk in Miss Fuller’s room"
+   "claim": "The missing catalogue page was from 'Gammer Gurton’s Needle'",
+   "anchor": "the catalogue that contained ‘The Needle’"
   },
   {
-   "claim": "The discriminating test was the discovery of the puncture wound and toothpick substitution",
-   "anchor": "a small puncture in the jaw of the dead man, through which, there can be no doubt, the poison was introduced"
+   "claim": "Baldwin bought the missing page at auction",
+   "anchor": "the page went to the other bidder"
   },
   {
-   "claim": "The motive was Baldwin's fear of exposure for book theft",
-   "anchor": "Mr. Baldwin bought it for him, and he photographed the pages"
+   "claim": "Baldwin committed suicide after exposure",
+   "anchor": "he popped something into his mouth and swallowed it"
   },
   {
-   "claim": "The victim was poisoned after Pauline left, eliminating her as murderer",
-   "anchor": "he was alive at least an hour and a half after your departure"
+   "claim": "Fleming Stone discovered the puncture wound in Curran’s jaw",
+   "anchor": "a small puncture in the jaw of the dead man"
+  },
+  {
+   "claim": "The poison was hydrocyanic acid applied via toothpick",
+   "anchor": "poisoned toothpick dipped in hydrocyanic acid"
+  },
+  {
+   "claim": "The door was locked from inside by the victim",
+   "anchor": "Mr. Curran let him out"
+  },
+  {
+   "claim": "Pauline Fuller visited Curran’s room to retrieve her picture",
+   "anchor": "I went to his room at two o’clock"
+  },
+  {
+   "claim": "Pauline Fuller did not kill Curran",
+   "anchor": "No, I didn’t kill him,--though I confess there was murder in my heart"
+  },
+  {
+   "claim": "Fibsy McGuire used radio broadcasts to locate Pauline",
+   "anchor": "I got a chap I know to write a song about the ‘Valentine a waitin’ for Pauline’"
+  },
+  {
+   "claim": "Valentine Loft forgives Pauline and marries her",
+   "anchor": "We’re going to be married in a few minutes"
   }
  ]
 }

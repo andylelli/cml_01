@@ -1,0 +1,136 @@
+{
+ "slug": "the_clue",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Madeleine Van Norman was found dead with a dagger wound in the library",
+   "anchor": "Madeleine Van Norman, seated in a chair at the library table",
+   "span": "What they saw was Madeleine Van Norman, seated in a chair at the library table.",
+   "ok": true
+  },
+  {
+   "claim": "A written note implying suicide was found but later proven to be written by Cicely Dupuy",
+   "anchor": "I am wholly miserable, and unless the clouds lift I must end my life",
+   "span": "Immediately he read it aloud: I am wholly miserable, and unless the clouds lift I must end my life.",
+   "ok": true
+  },
+  {
+   "claim": "The house was securely locked with no signs of forced entry except the front door with a latch-key",
+   "anchor": "There are strong bolts to doors and windows",
+   "span": "There are strong bolts to doors and windows?",
+   "ok": true
+  },
+  {
+   "claim": "Schuyler Carleton entered the house at quarter after eleven",
+   "anchor": "I heard the sound of a latch-key and I heard the front door open at exactly quarter after eleven",
+   "span": "I heard the sound of a latch-key and I heard the front door open at exactly quarter after eleven.",
+   "ok": true
+  },
+  {
+   "claim": "No blood stains on Madeleine's right hand despite blood on dagger handle",
+   "anchor": "there is absolutely no trace of blood on the right hand of the body of Miss Van Norman",
+   "span": "Although the dagger, which you may see still lying on the table, has several blood-stains on its handle, there is absolutely no trace of blood on the right hand of the body of Miss Van Norman.",
+   "ok": true
+  },
+  {
+   "claim": "The note was written with a soft pencil unlike the hard pencil on the library table",
+   "anchor": "The letters, as you see, are formed of heavy black marks which were made with a very soft pencil",
+   "span": "The letters, as you see, are formed of heavy black marks which were made with a very soft pencil, such as is designated by 2 B or BB.",
+   "ok": true
+  },
+  {
+   "claim": "Cicely Dupuy wrote the false note and showed suspicious behavior",
+   "anchor": "I did write that paper, and it was the confession of my heart",
+   "span": "I did write that paper, and it was the confession of my heart.",
+   "ok": true
+  },
+  {
+   "claim": "Tom Willard left the house at 10 pm and returned secretly",
+   "anchor": "I went away from this house about ten o’clock",
+   "span": "I went away from this house about ten o'clock, taking with me a suit-case full of clothes.",
+   "ok": true
+  },
+  {
+   "claim": "A cachou was found on the drawing-room floor, uncommon in Mapleton",
+   "anchor": "I found next morning on the drawing-room floor a cachou",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Fleming Stone discovered the ash-chute in the fireplace as a secret entry",
+   "anchor": "Here is where the assassin entered. He came up through this hole in the fireplace",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The ash-chute opening measures nine and one-half inches by thirteen and one-half inches",
+   "anchor": "the oval opening measured exactly nine and one-half inches by thirteen and one-half inches",
+   "span": "Although the rectangular plate was several inches larger each way, the oval opening measured exactly nine and one-half inches by thirteen and one-half inches.",
+   "ok": true
+  },
+  {
+   "claim": "Tom Willard confessed to the murder and then fatally wounded himself",
+   "anchor": "I picked up the dagger and told her what I was about to do, being fully determined to stab her and then myself",
+   "span": "I picked up the dagger and told her what I was about to do, being fully determined to stab her and then myself.",
+   "ok": true
+  },
+  {
+   "claim": "Miss Morton burned letters found in Madeleine's desk",
+   "anchor": "she took them to my room and burned them without reading them",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Schuyler Carleton refused to disclose his errand and timeline",
+   "anchor": "I decline to say",
+   "span": "I decline to say.",
+   "ok": true
+  },
+  {
+   "claim": "Cicely Dupuy fled the house fearing interrogation",
+   "anchor": "Miss Dupuy was gone away. On the train, with luggage",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The note was not written at the library table on the night of the murder",
+   "anchor": "it is not the pencil which was used to write that message",
+   "span": "A few marks made by it upon a bit of paper will convince you at once that it is not the pencil which was used to write that message.",
+   "ok": true
+  },
+  {
+   "claim": "The murderer entered and exited through the cellar window and ash-chute",
+   "anchor": "He climbed up through the ash-chute in the drawing-room fireplace",
+   "span": "He climbed up through the ash-chute in the drawing-room fireplace.",
+   "ok": true
+  },
+  {
+   "claim": "Tom Willard had the physical ability and knowledge to use the ash-chute",
+   "anchor": "he could go through a much smaller man-hole than another workman who weighed only one hundred and sixty pounds",
+   "span": "He told me that he could go through a much smaller man-hole than another workman who weighed only one hundred and sixty pounds, simply because he knew how.",
+   "ok": true
+  },
+  {
+   "claim": "The cachou found in the drawing-room links Tom Willard to the crime scene",
+   "anchor": "Mr. Willard is or has been an expert engineer, and for many years held such a position",
+   "span": "I discovered to-day that Mr. Willard is or has been an expert engineer, and for many years held such a position in a large factory right here in Mapleton.",
+   "ok": true
+  },
+  {
+   "claim": "Tom Willard's confession reveals the true murderer and method",
+   "anchor": "I drove the dagger home to her heart. She died without a sound",
+   "span": "This threw me into a frenzy, and with one thrust I drove the dagger home to her heart. She died without a sound, and I pulled out the dagger to turn it upon myself.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.0947126576,
+ "models": {
+  "map": "gpt-4o-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

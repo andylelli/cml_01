@@ -1,0 +1,454 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: Dead Men's Money
+    author: J. S. (Joseph Smith) Fletcher
+    license: Public domain (first published 1920; author died 1935). Project Gutenberg ebook 12239.
+    era:
+      decade: 1920s
+      realism_constraints:
+        - No modern forensic DNA analysis available
+        - Communication by telegram and letters only
+        - Transportation by bicycle, train, and early motor cars
+    setting:
+      location: Berwick-upon-Tweed and surrounding areas including Hathercleugh House
+      institution: Local police including Sergeant Chisholm and Superintendent Murray
+    crime_class:
+      category: murder
+      subtype: impostor murder and concealment
+  cast:
+    - name: Hugh Moneylaws
+      age_range: 19-25
+      role_archetype: young solicitor's clerk and amateur investigator
+      relationships:
+        - Maisie Dunlop (sweetheart)
+        - Mr. Lindsey (employer)
+      public_persona: respectable clerk
+      private_secret: knows secret meeting details and suspects Sir Gilbert
+      motive_seed: none
+      motive_strength: none
+      alibi_window: present throughout investigation
+      access_plausibility: high
+      opportunity_channels:
+        - access to Sir Gilbert's household as steward
+      behavioral_tells:
+        - keeps secrets to protect others
+      stakes: personal safety and rescue of Maisie
+      evidence_sensitivity:
+        - witness statement of cross-roads meeting
+        - telegram to Mr. Lindsey
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: moderate
+    - name: Sir Gilbert Carstairs (impostor Dr. Francis Meekin)
+      age_range: 50-60
+      role_archetype: impostor, murderer, aristocrat by deception
+      relationships:
+        - Lady Carstairs (wife)
+        - Hollins (butler, accomplice)
+      public_persona: seventh baronet of Hathercleugh
+      private_secret: impostor who murdered to conceal identity
+      motive_seed: concealment of true identity and past
+      motive_strength: strong
+      alibi_window: absent during key events, flees after attempted murder
+      access_plausibility: high
+      opportunity_channels:
+        - access to Hathercleugh House and grounds
+      behavioral_tells:
+        - uses map to navigate local area
+        - attempts to drown Moneylaws
+      stakes: maintain false identity and estate
+      evidence_sensitivity:
+        - signature on will
+        - handwriting on letter
+        - presence at murder scenes
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: strong
+    - name: Maisie Dunlop
+      age_range: 17-20
+      role_archetype: sweetheart and victim of captivity
+      relationships:
+        - Hugh Moneylaws (sweetheart)
+        - Andrew Dunlop (father)
+      public_persona: local grocer's daughter
+      private_secret: held captive by Meekin and Hollins
+      motive_seed: none
+      motive_strength: none
+      alibi_window: imprisoned in turret
+      access_plausibility: low
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: personal safety
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: victim
+      moral_complexity: none
+    - name: Abel Crone
+      age_range: 40-60
+      role_archetype: marine-store dealer, blackmailer suspect
+      relationships:
+        - Nance Maguire (housekeeper)
+      public_persona: local shopkeeper
+      private_secret: knew secrets about Meekin
+      motive_seed: blackmail
+      motive_strength: moderate
+      alibi_window: killed before last events
+      access_plausibility: medium
+      opportunity_channels:
+        - access to local knowledge
+      behavioral_tells:
+        - gossipy, threatening
+      stakes: money and secrets
+      evidence_sensitivity:
+        - body with wounds
+        - purse found on John Carter
+      culprit_eligibility: ineligible
+      culpability: guilty
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: Nance Maguire
+      age_range: 40-60
+      role_archetype: loyal housekeeper and avenger
+      relationships:
+        - Abel Crone (employer, victim)
+      public_persona: Irish housekeeper
+      private_secret: killed Hollins in revenge for Crone
+      motive_seed: revenge
+      motive_strength: strong
+      alibi_window: present at murder scene
+      access_plausibility: high
+      opportunity_channels:
+        - access to Hathercleugh grounds
+      behavioral_tells:
+        - angry, determined
+      stakes: justice for Crone
+      evidence_sensitivity:
+        - witness testimony
+        - presence at murder
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: female
+      role: culprit
+      moral_complexity: strong
+    - name: Mr. Lindsey
+      age_range: 50-65
+      role_archetype: solicitor and advisor
+      relationships:
+        - Hugh Moneylaws (clerk)
+      public_persona: solicitor
+      private_secret: knows much of the case
+      motive_seed: justice
+      motive_strength: moderate
+      alibi_window: present throughout
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: justice and truth
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: moderate
+    - name: John Carter
+      age_range: 30-50
+      role_archetype: accused laborer
+      relationships: []
+      public_persona: navvy and drifter
+      private_secret: stole purse but did not kill
+      motive_seed: survival
+      motive_strength: weak
+      alibi_window: found near Crone's body
+      access_plausibility: medium
+      opportunity_channels: []
+      behavioral_tells:
+        - drunkenness
+      stakes: freedom
+      evidence_sensitivity:
+        - possession of Crone's purse
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: weak
+  culpability:
+    culprit_count: 2
+    culprits:
+      - Sir Gilbert Carstairs (impostor Dr. Francis Meekin)
+      - Nance Maguire
+  surface_model:
+    narrative:
+      summary: >-
+        A mysterious lodger, James Gilverthwaite, dies suddenly, and a man named John Phillips is
+        found murdered nearby. Suspicion falls on Sir Gilbert Carstairs, who is later revealed to be
+        an impostor involved in multiple murders and concealment of identity. Maisie Dunlop, the
+        detective's sweetheart, is held captive but eventually rescued.
+    accepted_facts:
+      - James Gilverthwaite was a mysterious lodger who died suddenly
+      - John Phillips was found murdered near the meeting place
+      - Sir Gilbert Carstairs appeared at the inquest and was seen near the murder scene
+      - Maisie Dunlop was missing and later found captive at Hathercleugh
+    inferred_conclusions:
+      - The murders were committed by unknown tourists following Phillips
+      - Sir Gilbert Carstairs was innocent and a victim of circumstance
+      - The disappearance of Maisie Dunlop was unrelated to the murders
+  hidden_model:
+    mechanism:
+      description: >-
+        Dr. Francis Meekin impersonated Sir Gilbert Carstairs to claim the estate. He murdered John
+        Phillips and Abel Crone to conceal his identity and secrets related to the Carstairs family.
+        He attempted to kill Hugh Moneylaws to silence him, but was ultimately killed by Nance
+        Maguire in revenge for Crone's murder, while Maisie Dunlop was held captive by Meekin and
+        his butler Hollins at Hathercleugh.
+      delivery_path:
+        - step: Meekin assumes identity of Sir Gilbert Carstairs after the real Gilbert's disappearance
+        - step: Meekin murders John Phillips who had knowledge threatening his secret
+        - step: Meekin murders Abel Crone who knew too much and threatened exposure
+        - step: Meekin imprisons Maisie Dunlop to prevent her revealing information
+        - step: Meekin attempts to murder Hugh Moneylaws to silence him
+        - step: Nance Maguire kills Hollins, the butler and accomplice of Meekin
+        - step: Nance Maguire kills Meekin by drowning in the river Till
+    outcome:
+      result: >-
+        The impostor Dr. Francis Meekin is killed by Nance Maguire, and Maisie Dunlop is rescued,
+        while the true heir Gavin Smeaton is recognized as the rightful owner of the Carstairs
+        estate.
+  false_assumption:
+    statement: >-
+      Sir Gilbert Carstairs was innocent and the murders were committed by unknown tourists
+      following Phillips.
+    type: identity
+    why_it_seems_reasonable: >-
+      Sir Gilbert appeared at the inquest and was seen near the murder scene, and the police had a
+      theory of robbery by tourists. The presence of strangers and the discovery of the handbag
+      suggested a robbery motive.
+    what_it_hides: >-
+      It hides the fact that the man posing as Sir Gilbert was an impostor and the actual murderer,
+      who killed to conceal his identity and secrets.
+  false_solution:
+    accused_suspect: John Carter
+    supporting_points:
+      - Found with Abel Crone's purse in his possession
+      - Admitted to taking the purse from Crone's body
+      - Had no alibi for the time of Crone's murder
+      - Police and magistrates inclined to commit him for murder
+    the_one_flaw: >-
+      John Carter admitted to stealing the purse but denied killing Crone, and evidence later showed
+      Nance Maguire killed Hollins and Meekin was the true murderer.
+    refuted_in_chapter: 34
+  red_herrings:
+    - id: night_poachers
+      description: Suspicion that Phillips and Crone were killed by a gang of salmon poachers.
+      points_at_suspect: Sir Gilbert Carstairs
+      innocent_explanation: >-
+        The poaching theory was a cover story suggested by Sir Gilbert and accepted by police but
+        unrelated to the murders.
+      resolved_in_chapter: 14
+    - id: tourist_strangers
+      description: >-
+        Two men traveling from Peebles were suspected of following Phillips and committing the
+        murder for robbery.
+      points_at_suspect: Unknown tourists
+      innocent_explanation: >-
+        The tourists were unrelated strangers; the real murderer was Meekin impersonating Sir
+        Gilbert.
+      resolved_in_chapter: 15
+  closed_circle:
+    suspects:
+      - Sir Gilbert Carstairs (impostor Dr. Francis Meekin)
+      - Abel Crone
+      - John Carter
+      - Nance Maguire
+      - Hollins
+    rationale: >-
+      All suspects are connected to the Carstairs estate and the murders; the circle is closed by
+      the presence of the impostor, his accomplice, the blackmailer, the accused thief, and the
+      loyal housekeeper.
+  constraint_space:
+    time:
+      anchors:
+        - 11:00 PM meeting at old ruin
+        - Murder of John Phillips shortly after 11 PM
+        - Death of James Gilverthwaite shortly after 11 PM
+        - Disappearance of Maisie Dunlop after previous evening
+        - Discovery of Hollins's body early morning
+      windows:
+        - Night of the murder and subsequent day
+        - 48 hours after Moneylaws abandoned at sea
+        - Two weeks from initial lodger arrival
+    access:
+      actors:
+        - Sir Gilbert Carstairs (Meekin)
+        - Hollins (butler)
+        - Nance Maguire (housekeeper)
+        - Hugh Moneylaws (steward)
+        - Abel Crone (marine-store dealer)
+      objects:
+        - Hathercleugh House and grounds
+        - Old tower and turret
+        - James Gilverthwaite's chest
+        - Boxes of gold and valuables
+        - Sir Gilbert's yacht
+    social:
+      trust_channels:
+        - Mr. Lindsey's solicitor office
+        - Police Sergeant Chisholm
+        - Mr. Gavin Smeaton's business office
+        - Mrs. Hanson's kinship claim
+      authority_sources:
+        - Local police superintendent Murray
+        - Coroner's inquest
+        - Mr. Lindsey as solicitor
+        - Mr. Portlethorpe as family solicitor
+  inference_path:
+    steps:
+      - observation: >-
+          Hugh Moneylaws saw a man with two missing fingers holding a map at the cross-roads near
+          the murder scene and later revealed this to the police, helping to limit the suspect pool.
+        correction: >-
+          That man was Sir Gilbert Carstairs, who claimed to be a local but was unfamiliar with the
+          area, which was confirmed by witness statements and documents.
+        effect: >-
+          Suspicion arises that Sir Gilbert is not who he claims, and the evidence reveals a
+          discrepancy in his identity.
+        required_evidence:
+          - >-
+            Witness statement of Hugh Moneylaws about the man with missing fingers and map, as
+            recorded in the police document
+          - >-
+            Sir Gilbert Carstairs' unfamiliarity with local geography, confirmed by his need for a
+            map and inability to answer local questions
+        reader_observable: true
+      - observation: >-
+          John Phillips had a letter and money from Panama and was murdered carrying a bag with
+          cash; police reveal that the timeline limits who could have committed the murder.
+        correction: >-
+          Phillips was involved with Gilverthwaite and Meekin in a secret related to the Carstairs
+          family, as confirmed by documents found in Gilverthwaite's chest.
+        effect: >-
+          Motive for murder is linked to secret knowledge, not robbery, and the evidence confirms
+          the connection.
+        required_evidence:
+          - >-
+            Bank records of Phillips' transactions in Peebles, which reveal his recent movements and
+            limit the time window for the crime
+          - >-
+            Gilverthwaite's chest and will witnessed by Phillips, a document confirming the
+            connection
+        reader_observable: true
+      - observation: >-
+          Abel Crone was found drowned with wounds suggesting foul play, and the police revealed
+          that the wounds limited the possible suspects.
+        correction: >-
+          Crone was murdered because he knew too much about Meekin's imposture, as confirmed by
+          Nance Maguire's testimony and supporting documents.
+        effect: Crone's death is connected to the main conspiracy, and the evidence confirms the motive.
+        required_evidence:
+          - Medical testimony about Crone's cause of death, a document confirming foul play
+          - >-
+            Nance Maguire's testimony and presence at the murder scene, which reveals her
+            involvement
+        reader_observable: true
+      - observation: >-
+          Sir Gilbert Carstairs offered Hugh Moneylaws a stewardship and then tried to drown him;
+          Moneylaws later revealed this attempt to the authorities, limiting Meekin's ability to act
+          openly.
+        correction: >-
+          Meekin, posing as Sir Gilbert, tried to silence Moneylaws who knew too much, as confirmed
+          by the yacht incident and supporting documents.
+        effect: Moneylaws becomes a target for murder, and the evidence confirms Meekin's guilt.
+        required_evidence:
+          - Moneylaws' testimony about the yacht incident, a document recorded by the police
+          - Police reports of the yacht found empty at Largo, which reveal Meekin's escape route
+        reader_observable: true
+      - observation: >-
+          Lady Carstairs disappeared suddenly and valuables were missing from Hathercleugh; police
+          documents reveal the timeline and limit the suspects.
+        correction: >-
+          Lady Carstairs fled to avoid implication in Meekin's crimes, as confirmed by Hollins'
+          testimony and supporting documents.
+        effect: The couple split to avoid capture, and the evidence confirms their flight.
+        required_evidence:
+          - >-
+            Butler Hollins' testimony about Lady Carstairs' departure, a document confirming her
+            movements
+          - >-
+            Police investigation of missing valuables, which reveals the timing and limits the
+            suspect pool
+        reader_observable: true
+      - observation: >-
+          Handwriting on a letter matches Michael Carstairs' signature on Gilverthwaite's will;
+          handwriting experts reveal the match and confirm the document's authenticity.
+        correction: >-
+          Michael Carstairs was married secretly and had a son Gavin Smeaton, as confirmed by parish
+          records and handwriting comparison documents.
+        effect: >-
+          Gavin Smeaton is the rightful heir to the Carstairs estate, and the evidence confirms his
+          identity.
+        required_evidence:
+          - >-
+            Parish register of Michael Carstairs' marriage, a document confirming the family
+            connection
+          - >-
+            Comparison of handwriting samples, which reveals the match and confirms the will's
+            authenticity
+        reader_observable: true
+      - observation: >-
+          Nance Maguire killed Hollins and Meekin in the woods near the murder scene; her confession
+          and witness statements reveal the sequence of events and confirm her motive.
+        correction: >-
+          She avenged Crone's murder and ended Meekin's imposture, as confirmed by the discovery of
+          Meekin's body and supporting documents.
+        effect: The true culprit is eliminated, and the evidence confirms the resolution.
+        required_evidence:
+          - Witness testimony of Nance Maguire's attack, a document recorded by the police
+          - Discovery of Meekin's body in the river Till, which reveals the final outcome
+        reader_observable: true
+  discriminating_test:
+    method: constraint_proof
+    design: >-
+      Reenact the movements and access routes of Sir Gilbert Carstairs (Meekin) and compare his
+      knowledge of local geography with that of the real Carstairs family. Examine handwriting
+      samples of the will witness and the letter found in Gilverthwaite's chest to confirm identity.
+      Verify the timeline of disappearance and presence at murder scenes through witness statements
+      and physical evidence such as the yacht and clothing found at Hathercleugh.
+    knowledge_revealed: >-
+      This test reveals that the man claiming to be Sir Gilbert Carstairs is an impostor with
+      limited local knowledge and forged documents, confirming Meekin's identity and guilt.
+    pass_condition: >-
+      The impostor fails to demonstrate authentic local knowledge and handwriting comparison
+      confirms forgery, eliminating him as the true Sir Gilbert Carstairs.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given detailed accounts of characters' movements, witness statements, and
+      physical evidence such as the chest, letters, and handwriting samples. The impostor's
+      unfamiliarity with local geography and the signature on the will are clearly described. The
+      presence of the butler and housekeeper, their suspicious behavior, and the discovery of the
+      bodies provide clues. The reader could have deduced the imposture and motive by careful
+      attention to these details.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

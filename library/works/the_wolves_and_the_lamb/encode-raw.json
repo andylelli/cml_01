@@ -1,0 +1,491 @@
+{
+ "decade": "1900s",
+ "realism_constraints": [
+  "No modern forensic DNA analysis or electronic surveillance",
+  "Communication limited to letters, telegrams, and telephone",
+  "Travel by train, horse-drawn vehicles, early motor cars, and steamships"
+ ],
+ "location": "London, England",
+ "institution": "New Scotland Yard",
+ "crime_category": "theft",
+ "crime_subtype": "diamond necklace substitution and financial fraud",
+ "cast": [
+  {
+   "name": "John Carsdale",
+   "age_range": "40-50",
+   "role_archetype": "cunning financial agent",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "respectable financial agent and partner of Leverton",
+   "private_secret": "defrauded Barclay Leverton and conspired to steal necklace",
+   "motive_seed": "greed and control over Shrewsbury's fortune",
+   "motive_strength": "strong",
+   "alibi_window": "present at various offices and restaurants during key times",
+   "access_plausibility": "high",
+   "stakes": "large financial gain and escape",
+   "moral_complexity": "high",
+   "relationships": [
+    "Mrs. Sylvie Walsingham (cousin and co-conspirator)",
+    "Richard Shrewsbury (client)"
+   ],
+   "opportunity_channels": [
+    "access to Leverton's office and safe",
+    "control over Shrewsbury's investments"
+   ],
+   "behavioral_tells": [
+    "evasiveness",
+    "planning escape",
+    "manipulative"
+   ],
+   "evidence_sensitivity": [
+    "signed financial documents",
+    "presence at crime scene"
+   ]
+  },
+  {
+   "name": "Mrs. Sylvie Walsingham (Mrs. Werrick)",
+   "age_range": "30-40",
+   "role_archetype": "clever and manipulative woman",
+   "role": "culprit",
+   "gender": "female",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "secretary to Leverton & Carsdale, engaged to Shrewsbury",
+   "private_secret": "stole real diamond necklace, substituted paste duplicate, pawned real",
+   "motive_seed": "financial gain and social advancement",
+   "motive_strength": "strong",
+   "alibi_window": "present in London flats, absent at time of murder",
+   "access_plausibility": "high",
+   "stakes": "marriage to Shrewsbury and financial security",
+   "moral_complexity": "high",
+   "relationships": [
+    "John Carsdale (cousin and co-conspirator)",
+    "Sydney Werrick (legal husband, deceased)",
+    "Richard Shrewsbury (fiancé)"
+   ],
+   "opportunity_channels": [
+    "access to Leverton's safe",
+    "pawnshop dealings"
+   ],
+   "behavioral_tells": [
+    "wearing real necklace to display guilt",
+    "attempted flight in disguise"
+   ],
+   "evidence_sensitivity": [
+    "signed confession",
+    "pawnshop records",
+    "theft of necklace"
+   ]
+  },
+  {
+   "name": "Richard Shrewsbury",
+   "age_range": "21-25",
+   "role_archetype": "naive wealthy heir",
+   "role": "victim",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "young heir with fortune",
+   "private_secret": "naive about London and finance",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "various social engagements",
+   "access_plausibility": "none",
+   "stakes": "loss of fortune and betrayal",
+   "moral_complexity": "low",
+   "relationships": [
+    "Mrs. Sylvie Walsingham (fiancée)",
+    "John Carsdale (financial agent)",
+    "Captain Ralph Burgoyne (friend)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "trusting",
+    "easily deceived"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Captain Ralph Burgoyne",
+   "age_range": "40-50",
+   "role_archetype": "honest explorer and friend",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "famous explorer",
+   "private_secret": "none",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "various public engagements",
+   "access_plausibility": "none",
+   "stakes": "recover necklace and protect Shrewsbury",
+   "moral_complexity": "low",
+   "relationships": [
+    "Richard Shrewsbury (friend)",
+    "Mrs. Sylvie Walsingham (adversary)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "suspicious of conspirators"
+   ],
+   "evidence_sensitivity": [
+    "necklace valuation",
+    "witness to transactions"
+   ]
+  },
+  {
+   "name": "Frances Leverton",
+   "age_range": "19-25",
+   "role_archetype": "businesslike heiress",
+   "role": "witness",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "daughter of Barclay Leverton, managing estate",
+   "private_secret": "holds proof of Carsdale's fraud",
+   "motive_seed": "protect family estate",
+   "motive_strength": "moderate",
+   "alibi_window": "present at solicitor's office and home",
+   "access_plausibility": "none",
+   "stakes": "family reputation and estate",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Barclay Leverton (father, deceased)",
+    "Mr. Septimus Winch (solicitor)",
+    "Richard Shrewsbury (acquaintance)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "stern and businesslike",
+    "investigative"
+   ],
+   "evidence_sensitivity": [
+    "legal documents",
+    "proof of fraud"
+   ]
+  },
+  {
+   "name": "Sydney Werrick (Syd Werrick)",
+   "age_range": "30-40",
+   "role_archetype": "disreputable husband",
+   "role": "victim",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "absent husband presumed dead",
+   "private_secret": "criminal past, forgery conviction",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "present at murder scene",
+   "access_plausibility": "high",
+   "stakes": "life",
+   "moral_complexity": "low",
+   "relationships": [
+    "Mrs. Sylvie Walsingham (wife)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "threatening presence"
+   ],
+   "evidence_sensitivity": [
+    "body at crime scene",
+    "gunshot wound"
+   ]
+  },
+  {
+   "name": "William Kedgin",
+   "age_range": "30-40",
+   "role_archetype": "valet with dubious loyalty",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "loyal valet to Shrewsbury",
+   "private_secret": "aided Walsingham's escape and stole valuables",
+   "motive_seed": "greed and self-preservation",
+   "motive_strength": "strong",
+   "alibi_window": "present at Shrewsbury's flat",
+   "access_plausibility": "high",
+   "stakes": "financial gain and escape",
+   "moral_complexity": "high",
+   "relationships": [
+    "Richard Shrewsbury (employer)",
+    "Mrs. Sylvie Walsingham (accomplice)"
+   ],
+   "opportunity_channels": [
+    "access to Shrewsbury's flat and valuables"
+   ],
+   "behavioral_tells": [
+    "nervousness",
+    "secretive"
+   ],
+   "evidence_sensitivity": [
+    "missing valuables",
+    "presence at empty house"
+   ]
+  }
+ ],
+ "culprits": [
+  "Mrs. Sylvie Walsingham (Mrs. Werrick)",
+  "John Carsdale",
+  "William Kedgin"
+ ],
+ "surface_summary": "A wealthy young heir, Richard Shrewsbury, is deceived by his financial agent Carsdale and Mrs. Walsingham, who steal a valuable diamond necklace by substituting a paste duplicate. The real necklace is pawned, and suspicions arise when the explorer Burgoyne discovers the fraud. The situation escalates to murder when Sydney Werrick, Mrs. Walsingham's legal husband, is shot dead, and she flees disguised as a nun.",
+ "accepted_facts": [
+  "Richard Shrewsbury inherited a large fortune and entrusted it to Carsdale.",
+  "A diamond necklace was pawned and a paste duplicate was given to Burgoyne.",
+  "Sydney Werrick was found shot dead in Mrs. Walsingham's flat.",
+  "Mrs. Walsingham fled the scene disguised as a nun and later hid in Shrewsbury's flat."
+ ],
+ "inferred_conclusions": [
+  "Carsdale killed Sydney Werrick to cover up the theft.",
+  "Mrs. Walsingham acted alone in the necklace substitution and murder.",
+  "Richard Shrewsbury was complicit in the theft and deception."
+ ],
+ "mechanism_description": "Mrs. Walsingham stole the genuine diamond necklace from Barclay Leverton’s safe and substituted a perfect paste duplicate. She pawned the real necklace to secure a loan. She and Carsdale conspired to defraud Richard Shrewsbury by controlling his investments and deceiving him about the necklace. Sydney Werrick was shot by Mrs. Walsingham in self-defense during a confrontation, after which she fled disguised. William Kedgin, Shrewsbury’s valet, aided her escape and stole valuables from Shrewsbury’s flat before killing Mrs. Walsingham to cover his tracks.",
+ "delivery_path": [
+  "Mrs. Walsingham accesses Leverton’s private safe and steals the real necklace.",
+  "She commissions a perfect paste duplicate and places it in the safe.",
+  "The real necklace is pawned to Mr. Wiertz for a loan.",
+  "Mrs. Walsingham and Carsdale manipulate Richard Shrewsbury’s finances and social life.",
+  "Sydney Werrick confronts Mrs. Walsingham and is shot by her in self-defense.",
+  "Mrs. Walsingham flees disguised as a nun and hides in Shrewsbury’s flat.",
+  "William Kedgin assists her escape, steals valuables, and murders Mrs. Walsingham."
+ ],
+ "outcome_result": "The theft and fraud are uncovered, Mrs. Walsingham is killed by Kedgin, who is then pursued, and Carsdale is arrested but later released; Shrewsbury recovers his fortune with the help of Burgoyne and Frances Leverton.",
+ "false_assumption": {
+  "statement": "John Carsdale killed Sydney Werrick during a confrontation at Mrs. Walsingham’s flat.",
+  "type": "identity",
+  "why_it_seems_reasonable": "Sophie Guyner, the maid, accuses Carsdale of shooting Werrick, and he is found standing over the body with a revolver. The police initially detain Carsdale based on this testimony and the suspicious circumstances.",
+  "what_it_hides": "The actual shooter was Mrs. Walsingham acting in self-defense, and Carsdale arrived after the shooting. The maid’s accusation is driven by fear and confusion, and the revolver had been discharged earlier."
+ },
+ "false_solution": {
+  "accused_suspect": "John Carsdale",
+  "supporting_points": [
+   "Found standing over the dead body with a revolver in hand.",
+   "Maid’s accusation that he shot Sydney Werrick.",
+   "Had motive to remove Werrick as a threat to Mrs. Walsingham and himself.",
+   "Was preparing to flee the country with Mrs. Walsingham."
+  ],
+  "the_one_flaw": "Medical evidence and timelines prove Werrick was dead before Carsdale arrived; the revolver was not recently fired by him.",
+  "refuted_in_chapter": 32
+ },
+ "red_herrings": [
+  {
+   "id": "sandy_kinahan_death",
+   "description": "Sandy Kinahan was reported dead in Nevada, which was used to mislead Mrs. Walsingham and Carsdale.",
+   "points_at_suspect": "Mrs. Walsingham and Carsdale, as they believed the threat was gone.",
+   "innocent_explanation": "Kinahan was alive and returned to London, complicating the situation but not directly involved in the theft or murder.",
+   "resolved_in_chapter": 22
+  },
+  {
+   "id": "frances_leverton_suspicion",
+   "description": "Frances Leverton’s stern attitude and investigation suggested she might be involved in the theft or fraud.",
+   "points_at_suspect": "John Carsdale and Mrs. Walsingham, as Frances was hostile to them and had motive.",
+   "innocent_explanation": "Frances was acting to protect her father’s estate and uncover the truth, not to commit any crime.",
+   "resolved_in_chapter": 38
+  }
+ ],
+ "closed_circle": {
+  "suspects": [
+   "John Carsdale",
+   "Mrs. Sylvie Walsingham (Mrs. Werrick)",
+   "William Kedgin"
+  ],
+  "rationale": "Only these three had access to the safe, opportunity to manipulate Shrewsbury’s fortune, and motive to commit theft and related crimes. Others were either innocent or lacked opportunity."
+ },
+ "constraint_space": {
+  "time_anchors": [
+   "Leverton’s death morning",
+   "Evening of Sydney Werrick’s murder",
+   "Richard Shrewsbury’s trip to Paris"
+  ],
+  "time_windows": [
+   "Mrs. Walsingham’s presence in flat before and after murder",
+   "Carsdale’s office hours and outings",
+   "Kedgin’s presence at Shrewsbury’s flat"
+  ],
+  "access_actors": [
+   "Mrs. Walsingham",
+   "John Carsdale",
+   "William Kedgin",
+   "Frances Leverton",
+   "Mr. Septimus Winch"
+  ],
+  "access_objects": [
+   "Leverton’s private safe",
+   "Pawnshop",
+   "Shrewsbury’s flat",
+   "Marengo Mansions flat",
+   "Jewelry cases"
+  ],
+  "trust_channels": [
+   "Richard’s trust in Carsdale",
+   "Mrs. Walsingham’s influence over Richard",
+   "Frances Leverton’s legal authority",
+   "Captain Burgoyne’s friendship"
+  ],
+  "authority_sources": [
+   "Mr. Septimus Winch (solicitor and executor)",
+   "Inspector Skarratt (police)",
+   "Frances Leverton (estate representative)"
+  ]
+ },
+ "inference_path": [
+  {
+   "observation": "Burgoyne’s necklace was valued as paste by jeweller Levanter.",
+   "correction": "The necklace given to Burgoyne was a perfect paste duplicate.",
+   "effect": "Suspected theft and substitution of the real necklace.",
+   "required_evidence": [
+    "Mr. Levanter’s valuation report of the necklace",
+    "Captain Burgoyne’s testimony of the necklace’s authenticity"
+   ]
+  },
+  {
+   "observation": "Mrs. Walsingham pawned a diamond necklace for a small loan.",
+   "correction": "The pawned necklace was the real one stolen from Leverton’s safe.",
+   "effect": "Mrs. Walsingham is implicated in the theft.",
+   "required_evidence": [
+    "Pawnshop records of the necklace",
+    "Mrs. Walsingham’s admission of possession"
+   ]
+  },
+  {
+   "observation": "Sydney Werrick was found shot dead in Mrs. Walsingham’s flat.",
+   "correction": "Mrs. Walsingham shot Werrick in self-defense during a confrontation.",
+   "effect": "Murder was not premeditated by Carsdale or others.",
+   "required_evidence": [
+    "Police surgeon’s report on time of death",
+    "Carsdale’s testimony of arrival after shooting"
+   ]
+  },
+  {
+   "observation": "Mrs. Walsingham fled disguised as a nun and hid in Shrewsbury’s flat.",
+   "correction": "She attempted to escape detection but was aided by Kedgin.",
+   "effect": "Kedgin’s involvement in aiding escape and theft is suspected.",
+   "required_evidence": [
+    "Witness reports of nun disguise",
+    "Kedgin’s suspicious behavior and missing valuables"
+   ]
+  },
+  {
+   "observation": "Valuables and jewelry disappeared from Shrewsbury’s flat.",
+   "correction": "Kedgin stole valuables to finance escape and cover tracks.",
+   "effect": "Kedgin is a secondary culprit and murderer of Mrs. Walsingham.",
+   "required_evidence": [
+    "Inventory of missing items",
+    "Discovery of Mrs. Walsingham’s body in empty house"
+   ]
+  },
+  {
+   "observation": "Carsdale possessed securities and tickets for flight.",
+   "correction": "Carsdale planned to flee with Mrs. Walsingham but was detained.",
+   "effect": "Carsdale’s fraud and flight plans are confirmed.",
+   "required_evidence": [
+    "Bank records of securities withdrawal",
+    "Tickets for Southampton steamer found on Carsdale"
+   ]
+  },
+  {
+   "observation": "Frances Leverton holds proof of Carsdale’s fraud.",
+   "correction": "Legal pressure from Winch and Leverton’s estate forces Carsdale’s surrender.",
+   "effect": "Carsdale loses control over Shrewsbury’s fortune.",
+   "required_evidence": [
+    "Legal documents proving fraud",
+    "Mr. Winch’s confrontation with Carsdale"
+   ]
+  }
+ ],
+ "discriminating_test": {
+  "method": "trap",
+  "design": "A private supper-party is arranged where Mrs. Walsingham is persuaded to wear the real diamond necklace while Burgoyne and Blair observe. Blair, an expert in precious stones, examines the necklace to confirm its authenticity. The necklace is then secretly swapped with the paste duplicate held by Mrs. Walsingham, exposing her possession of the real necklace.",
+  "knowledge_revealed": "This test reveals that Mrs. Walsingham possesses the genuine necklace, confirming her guilt in the theft and substitution.",
+  "pass_condition": "Mrs. Walsingham is found wearing the real necklace during the supper, which is then swapped with the fake, proving her possession of the stolen item."
+ },
+ "fair_play_explanation": "The reader is given access to all key facts: the letter from Shrewsbury, the pawnshop transactions, the jeweller’s valuation, the testimonies of Burgoyne and Frances Leverton, and the movements of Carsdale and Mrs. Walsingham. The substitution of the necklace and the financial manipulations are clearly described. The murder and escape are witnessed and reported. The reader can deduce the involvement of Mrs. Walsingham and Carsdale by connecting these clues. The false accusation against Carsdale is presented and later refuted, guiding the reader to the true solution.",
+ "anchors": [
+  {
+   "claim": "Richard Shrewsbury inherited three hundred thousand pounds",
+   "anchor": "Three Hundred Thousand Pounds! And in the hand of an inexperienced youngster"
+  },
+  {
+   "claim": "Mrs. Walsingham stole the real diamond necklace from Leverton’s safe",
+   "anchor": "I took it from Mr. Leverton’s safe--certainly"
+  },
+  {
+   "claim": "A perfect paste duplicate was substituted for the real necklace",
+   "anchor": "a perfect facsimile"
+  },
+  {
+   "claim": "Burgoyne’s necklace was found to be paste by jeweller Levanter",
+   "anchor": "these are not diamonds"
+  },
+  {
+   "claim": "Mrs. Walsingham pawned the real necklace for a loan",
+   "anchor": "I want to pay you the interest on that loan"
+  },
+  {
+   "claim": "Sydney Werrick was shot dead in Mrs. Walsingham’s flat",
+   "anchor": "The man had been shot through the heart"
+  },
+  {
+   "claim": "Mrs. Walsingham fled disguised as a nun",
+   "anchor": "she must have gone out in a nun’s dress"
+  },
+  {
+   "claim": "William Kedgin aided Mrs. Walsingham’s escape and stole valuables",
+   "anchor": "Kedgin’s work, of course"
+  },
+  {
+   "claim": "Carsdale controlled Shrewsbury’s investments and securities",
+   "anchor": "he produced to them a written order from you authorizing them"
+  },
+  {
+   "claim": "Frances Leverton holds proof of Carsdale’s fraud",
+   "anchor": "Miss Leverton has brought to light certain matters"
+  },
+  {
+   "claim": "The false accusation that Carsdale shot Werrick is refuted",
+   "anchor": "the police-surgeon who was on the spot is positive that Werrick had then been dead half an hour"
+  },
+  {
+   "claim": "The trap to expose Mrs. Walsingham involved showing her the paste necklace",
+   "anchor": "Mrs. Walsingham had appeared at the theatre in a necklace"
+  },
+  {
+   "claim": "Mrs. Walsingham signed a confession admitting theft of the necklace",
+   "anchor": "I will sign that"
+  },
+  {
+   "claim": "Mrs. Walsingham shot Werrick in self-defense",
+   "anchor": "she shot him on the spur of the moment"
+  },
+  {
+   "claim": "Mrs. Walsingham’s flight was aided by Kedgin",
+   "anchor": "Kedgin helped this woman to get away"
+  },
+  {
+   "claim": "Kedgin murdered Mrs. Walsingham to cover his theft",
+   "anchor": "the body of the woman upon whom he had turned"
+  },
+  {
+   "claim": "Carsdale planned to flee with Mrs. Walsingham but was detained",
+   "anchor": "he was also in possession of two first-class tickets for passage to Buenos Aires"
+  },
+  {
+   "claim": "Richard Shrewsbury discovered the truth about the necklace and conspirators",
+   "anchor": "I know you. Now, why didn’t you tell me all this in London?"
+  },
+  {
+   "claim": "Inspector Skarratt investigated and confirmed key facts",
+   "anchor": "Inspector Skarratt did not believe for one moment that John Carsdale had had anything to do with the actual killing"
+  },
+  {
+   "claim": "Mrs. Walsingham was found hiding in Shrewsbury’s flat disguised as a nun",
+   "anchor": "a woman dressed like a nun or a Sister of Mercy"
+  }
+ ]
+}

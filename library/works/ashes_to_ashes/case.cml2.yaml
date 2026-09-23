@@ -1,0 +1,415 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: Ashes to ashes
+    author: Isabel Ostrander
+    license: Public domain (first published 1919; author died 1924). Project Gutenberg ebook 73155.
+    era:
+      decade: 1910s
+      realism_constraints:
+        - No forensic DNA or advanced chemical analysis available
+        - Communication limited to telephone and telegraph; no digital records
+        - Transportation by train, automobile, and ship; no air travel
+    setting:
+      location: New York City and Greenlea, suburban area
+      institution: Police Department, Bureau of Missing Persons, Mammoth Trust Company
+    crime_class:
+      category: murder
+      subtype: murder disguised as accident with staged evidence
+  cast:
+    - name: Norman Storm
+      age_range: 40s
+      role_archetype: aristocratic man with financial troubles and dark secret
+      relationships:
+        - Leila Storm (wife, victim)
+        - George Holworthy (friend)
+        - Jack Horton (acquaintance, victim)
+      public_persona: trust company official, grieving widower
+      private_secret: murdered his wife and later Jack Horton for money
+      motive_seed: jealousy, financial desperation
+      motive_strength: strong
+      alibi_window: night of Leila's death and night of Horton's murder
+      access_plausibility: high
+      opportunity_channels:
+        - home den
+        - Greenlea property
+        - Grand Central Station
+      behavioral_tells:
+        - nervousness
+        - stoic calm
+        - self-control
+        - exultation in crime
+      stakes: freedom, financial security
+      evidence_sensitivity:
+        - driver with blood and hair
+        - golf sticks
+        - valise with money
+        - newspapers with apartment number
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Leila Storm
+      age_range: late 20s
+      role_archetype: faithful wife, victim of murder
+      relationships:
+        - Norman Storm (husband, culprit)
+      public_persona: loyal wife, kind and charitable
+      private_secret: secretly purchased land as birthday surprise
+      motive_seed: none
+      motive_strength: none
+      alibi_window: night of death
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: life
+      evidence_sensitivity:
+        - injury on right temple
+        - blood on driver and fender
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: female
+      role: victim
+      moral_complexity: none
+    - name: George Holworthy
+      age_range: 40s-50s
+      role_archetype: loyal but slow-witted friend
+      relationships:
+        - Norman Storm (friend, culprit)
+      public_persona: friend and confidant
+      private_secret: suspects something but unaware of truth
+      motive_seed: loyalty
+      motive_strength: none
+      alibi_window: present during investigation
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells:
+        - persistent curiosity
+        - slow realization
+      stakes: friendship
+      evidence_sensitivity:
+        - newspapers with apartment number
+        - description of suspects
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+    - name: Jack Horton (John M. Horton)
+      age_range: about 40
+      role_archetype: paymaster, victim of murder
+      relationships:
+        - Norman Storm (acquaintance, culprit)
+        - Eugenia Saulsbury (friend)
+      public_persona: trusted paymaster
+      private_secret: carried large sum of money
+      motive_seed: none
+      motive_strength: none
+      alibi_window: night of disappearance and murder
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: life, money
+      evidence_sensitivity:
+        - black bag with money
+        - injury to head
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: none
+    - name: Millard
+      age_range: middle-aged
+      role_archetype: gossip and minor character
+      relationships:
+        - Norman Storm (acquaintance)
+      public_persona: gossip
+      private_secret: none
+      motive_seed: none
+      motive_strength: none
+      alibi_window: present during investigation
+      access_plausibility: medium
+      opportunity_channels: []
+      behavioral_tells:
+        - talkative
+        - eager to share information
+      stakes: social standing
+      evidence_sensitivity:
+        - newspaper reports
+        - police information
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+    - name: Richard E. Brewster
+      age_range: 30s-40s
+      role_archetype: insurance broker, husband in scandal
+      relationships:
+        - Julie Brewster (wife)
+      public_persona: businessman
+      private_secret: wife's flirtation troubles
+      motive_seed: jealousy
+      motive_strength: weak
+      alibi_window: night of Leila's death
+      access_plausibility: medium
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: marriage
+      evidence_sensitivity: []
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: Julie Brewster
+      age_range: 20s-30s
+      role_archetype: young woman involved in flirtation scandal
+      relationships:
+        - Richard E. Brewster (husband)
+      public_persona: wife of Richard Brewster
+      private_secret: flirtation with Ted Mattison
+      motive_seed: youthful indiscretion
+      motive_strength: weak
+      alibi_window: day of Leila's secret trip
+      access_plausibility: low
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: marriage
+      evidence_sensitivity: []
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: moderate
+  culpability:
+    culprit_count: 1
+    culprits:
+      - Norman Storm
+  surface_model:
+    narrative:
+      summary: >-
+        Norman Storm appears as a grief-stricken widower whose wife Leila died from an apparent
+        accident. Later, Jack Horton, a paymaster carrying a large sum of money, disappears
+        mysteriously. The police investigate but find no clear leads, while Storm plans a fishing
+        trip with his friend George Holworthy.
+    accepted_facts:
+      - Leila Storm died from a blow to the head, apparently accidental
+      - Jack Horton disappeared with a large sum of money and was later found murdered
+      - The black bag containing money was found at Grand Central Station
+      - Norman Storm was seen near the Leicester Building and had motive for jealousy
+    inferred_conclusions:
+      - Leila’s death was purely accidental due to a fainting spell
+      - Jack Horton was killed by unknown assailants unrelated to Storm
+      - Storm was an innocent victim of circumstance and grief
+  hidden_model:
+    mechanism:
+      description: >-
+        Norman Storm, driven by jealousy and financial desperation, killed his wife Leila with a
+        blow from a golf club driver after suspecting her of infidelity with Richard Brewster.
+        Later, to recover from a swindle and secure his escape, Storm murdered Jack Horton, the
+        paymaster carrying a large sum of money, and concealed the crime through careful planning
+        and deception, but was ultimately exposed by his friend George Holworthy's investigation.
+      delivery_path:
+        - step: Storm discovers Leila’s secret trip and suspects infidelity
+        - step: In a rage, Storm kills Leila with a golf club driver in his den
+        - step: Storm stages the scene to appear as an accident and destroys evidence
+        - step: Storm is swindled by a fake Du Chainat and loses his capital
+        - step: Storm meets Jack Horton, learns of the money he carries, and plans murder
+        - step: Storm kills Horton with a heavy cane on a secluded path and hides the body
+        - step: Storm disposes of Horton’s black bag by checking it at Grand Central Station
+    outcome:
+      result: Storm is finally confronted and exposed by George Holworthy and arrested.
+  false_assumption:
+    statement: Leila Storm’s death was an accidental fall caused by a fainting spell.
+    type: behavioral
+    why_it_seems_reasonable: >-
+      The victim had a known medical condition (petit mal) that could cause fainting and accidental
+      injury. The staged scene and medical testimony supported this theory.
+    what_it_hides: >-
+      It conceals the fact that Norman Storm deliberately murdered Leila in a jealous rage using a
+      golf club driver.
+  false_solution:
+    accused_suspect: Richard E. Brewster
+    supporting_points:
+      - Brewster’s wife was involved in a flirtation scandal
+      - Brewster visited Leila Storm secretly the night before her death
+      - Storm’s jealousy was directed at Brewster as the supposed rival
+      - Brewster’s presence at the house was suspicious
+    the_one_flaw: >-
+      No direct evidence linked Brewster to the murder, and his alibi and motives were disproved by
+      the discovery of Storm’s guilt.
+    refuted_in_chapter: 27
+  red_herrings:
+    - id: du_chainat_swindle
+      description: The swindle by the fake Du Chainat that defrauded Storm of his capital.
+      points_at_suspect: Storm’s financial desperation and possible motive for crime.
+      innocent_explanation: Storm was a victim of the swindle, not the perpetrator.
+      resolved_in_chapter: 12
+    - id: ferndale_inn_luncheon
+      description: Leila’s false claim of having lunched at the Ferndale Inn with Julie Brewster.
+      points_at_suspect: Leila’s possible infidelity and secret meetings.
+      innocent_explanation: Leila lied to protect Julie Brewster’s reputation, not to conceal her own guilt.
+      resolved_in_chapter: 8
+  closed_circle:
+    suspects:
+      - Norman Storm
+      - Richard E. Brewster
+      - Jack Horton
+    rationale: >-
+      The key figures involved in the deaths and disappearance are limited to Storm, Brewster, and
+      Horton, with Storm having the opportunity and motive to commit both murders.
+  constraint_space:
+    time:
+      anchors:
+        - night of Leila’s death
+        - night of Horton’s disappearance
+        - morning after Leila’s death
+        - discovery of Horton’s body
+      windows:
+        - Storm’s late arrival home
+        - Horton’s train arrival time
+        - time between Horton’s arrival and murder
+    access:
+      actors:
+        - Storm
+        - Horton
+        - George Holworthy
+        - Millard
+        - policeman on the Drive
+      objects:
+        - driver golf club
+        - black bag with money
+        - valise with money
+        - golf cap
+        - cane with heavy head
+    social:
+      trust_channels:
+        - George Holworthy’s loyalty
+        - Millard’s gossip
+        - Dr. Carr’s medical opinion
+      authority_sources:
+        - Police Department
+        - Bureau of Missing Persons
+        - Medical Examiner Dr. Bellowes
+  inference_path:
+    steps:
+      - observation: >-
+          Leila’s body found with crushed right temple and blood on golf club driver, which was
+          arranged to look like an accident.
+        correction: The injury was inflicted deliberately with the driver, not accidental fall.
+        effect: Leads to suspicion of murder rather than accident.
+        required_evidence:
+          - Blood smudge and golden hair on the golf club driver, which was arranged at the scene
+          - Medical examination report by Dr. Bellowes verifying the nature of the wound
+        reader_observable: true
+      - observation: >-
+          Storm’s nervous and controlled behavior after Leila’s death, including his possession of
+          the valise and his attempts to keep it unattended.
+        correction: His calmness masks guilt and calculation.
+        effect: Suggests he is hiding something.
+        required_evidence:
+          - Storm’s actions destroying evidence (handkerchief ashes) and arranging his belongings
+          - Testimony of servants and Dr. Carr verifying Storm's movements
+        reader_observable: true
+      - observation: >-
+          Storm’s sudden financial recovery after Du Chainat swindle, and his possession of bills
+          with suspicious serial numbers.
+        correction: Storm obtained money by other means.
+        effect: Points to Horton’s disappearance and money.
+        required_evidence:
+          - Newspaper reports of Du Chainat swindle and Storm's attempt to recover funds
+          - >-
+            Storm’s meeting with Jack Horton and verification of the serial numbers of bills in his
+            possession
+        reader_observable: true
+      - observation: >-
+          Horton disappeared with black bag containing $112,552.84, and Storm was seen with a
+          similar valise.
+        correction: Horton was murdered for the money.
+        effect: Murder motive established.
+        required_evidence:
+          - >-
+            Discovery of Horton’s body with head injury and the black bag arranged to appear
+            unattended at Grand Central Station
+          - >-
+            Access record verifying Storm's presence at Grand Central Station when the bag was
+            checked
+        reader_observable: true
+      - observation: >-
+          Newspapers found in Horton’s bag missing outer sheets with Storm’s apartment number, and
+          Storm attempted to conceal their origin.
+        correction: Storm’s apartment was the source of the newspapers.
+        effect: Links Horton’s murder to Storm.
+        required_evidence:
+          - >-
+            Newspapers with apartment number One-A found in Horton’s bag, arranged to hide their
+            source
+          - Matching newspapers found in Storm’s trunk, verified by George
+        reader_observable: true
+      - observation: >-
+          George Holworthy’s theory that Horton was killed by a trusted friend, and Storm's attempt
+          to avoid verification of his alibi.
+        correction: Storm fits the description and motive.
+        effect: Identifies Storm as the murderer.
+        required_evidence:
+          - Policeman’s description of two men on the Drive and Storm’s attempt to avoid being seen
+          - Storm’s presence near Grand Central Station and apartment, verified by access records
+        reader_observable: true
+      - observation: >-
+          Storm’s insistence on taking pistol and golf sticks on fishing trip, and his attempt to
+          arrange the valise and golf sticks to be left unattended, with opportunity to attempt
+          concealment.
+        correction: >-
+          Storm plans to eliminate George if suspicion arises and attempts to conceal incriminating
+          items.
+        effect: Shows Storm’s intent to cover his tracks and attempt to hide evidence.
+        required_evidence:
+          - >-
+            Storm’s loaded pistol found by George and the arrangement of the valise and golf sticks
+            during the trip
+          - >-
+            Storm’s behavior during packing and trip preparations, including his attempt to verify
+            that no one was watching before moving the valise
+        reader_observable: true
+  discriminating_test:
+    method: trap
+    design: >-
+      During the fishing trip, George arranges for the valise and golf sticks to be left unattended
+      in Storm's presence and verifies whether Storm attempts to move or conceal incriminating
+      items. George also checks the serial numbers of the bills in Storm's possession against the
+      list of stolen bills from Horton, using the opportunity to compare them without Storm's
+      knowledge.
+    knowledge_revealed: >-
+      Storm is found in possession of bills with serial numbers matching those stolen from Horton,
+      and attempts to hide the valise when left alone, confirming his guilt.
+    pass_condition: >-
+      If the bills in Storm's valise match the stolen serial numbers and Storm attempts to conceal
+      the valise when unobserved, his guilt is proven.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given all the clues necessary to solve the case: Storm’s suspicious behavior,
+      the inconsistencies in Leila’s story, the discovery of the newspapers with the apartment
+      number, the description of the two men on the Drive, and the connection between Storm and
+      Horton. The false assumption of accident and the red herrings of the Du Chainat swindle and
+      Brewster’s scandal mislead but do not conceal the truth. Careful attention to the timeline,
+      character motives, and physical evidence allows the reader to deduce Storm’s guilt.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

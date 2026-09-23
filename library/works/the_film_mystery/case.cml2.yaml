@@ -1,0 +1,443 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The Film Mystery
+    author: Arthur B. (Arthur Benjamin) Reeve
+    license: Public domain (first published 1921; author died 1936). Project Gutenberg ebook 5270.
+    era:
+      decade: 1910s
+      realism_constraints:
+        - No advanced forensic DNA analysis available
+        - Chemical poisons and toxins known but detection limited to chemical tests
+        - Film technology limited to black-and-white silent films with physical negatives
+    setting:
+      location: Tarrytown and New York City, USA
+      institution: District Attorney's Office of Westchester County and Manton Pictures studio
+    crime_class:
+      category: murder
+      subtype: needle poisoned with snake venom hidden in curtains
+  cast:
+    - name: Craig Kennedy
+      age_range: 40-50
+      role_archetype: scientific detective
+      relationships: []
+      public_persona: renowned scientific detective
+      private_secret: none
+      motive_seed: none
+      motive_strength: none
+      alibi_window: always present
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: professional reputation and justice
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: low
+    - name: Walter Jameson
+      age_range: 30-40
+      role_archetype: narrator and reporter
+      relationships: []
+      public_persona: newspaper man
+      private_secret: none
+      motive_seed: none
+      motive_strength: none
+      alibi_window: always present
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: professional interest
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+    - name: Stella Lamar
+      age_range: 20-30
+      role_archetype: film star and victim
+      relationships:
+        - Lawrence Millard (ex-husband)
+        - Lloyd Manton (manager)
+        - Jack Gordon (fiancé)
+        - Merle Shirley (actor)
+        - Marilyn Loring (actress)
+      public_persona: beloved film star
+      private_secret: had complicated personal relationships
+      motive_seed: none
+      motive_strength: none
+      alibi_window: dead at crime time
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: life
+      evidence_sensitivity: []
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: female
+      role: victim
+      moral_complexity: low
+    - name: Lawrence Millard
+      age_range: 40-50
+      role_archetype: author and scenario writer, jealous ex-husband
+      relationships:
+        - Stella Lamar (ex-wife)
+        - Enid Faye (friend)
+      public_persona: scenario writer
+      private_secret: jealousy and financial motives
+      motive_seed: jealousy and financial ruin
+      motive_strength: strong
+      alibi_window: present at studio
+      access_plausibility: high
+      opportunity_channels:
+        - access to studio and Phelps's house
+        - knowledge of poisons
+      behavioral_tells:
+        - nervousness
+        - malicious manipulation
+      stakes: revenge and financial gain
+      evidence_sensitivity:
+        - blood on portieres matching his
+        - antivenin in blood
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Lloyd Manton
+      age_range: 40-50
+      role_archetype: film producer and promoter
+      relationships:
+        - Stella Lamar (star under contract)
+        - Enid Faye (new star)
+      public_persona: businessman and promoter
+      private_secret: financial troubles and schemes
+      motive_seed: financial gain and company control
+      motive_strength: moderate
+      alibi_window: present at studio
+      access_plausibility: high
+      opportunity_channels:
+        - access to studio and offices
+      behavioral_tells:
+        - nervousness
+        - evasiveness
+      stakes: financial and business success
+      evidence_sensitivity: []
+      culprit_eligibility: eligible
+      culpability: unknown
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: Merle Shirley
+      age_range: 30-40
+      role_archetype: actor with fiery temper
+      relationships:
+        - Marilyn Loring (fiancée)
+        - Stella Lamar (former lover)
+      public_persona: actor
+      private_secret: anger and jealousy
+      motive_seed: jealousy over Stella Lamar
+      motive_strength: weak
+      alibi_window: present at studio
+      access_plausibility: high
+      opportunity_channels:
+        - access to studio
+      behavioral_tells:
+        - overacting
+        - emotional outbursts
+      stakes: personal pride and love
+      evidence_sensitivity: []
+      culprit_eligibility: eligible
+      culpability: unknown
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: Marilyn Loring
+      age_range: 20-30
+      role_archetype: actress, jealous fiancée
+      relationships:
+        - Merle Shirley (fiancé)
+        - Stella Lamar (rival)
+      public_persona: actress known as 'vamp'
+      private_secret: jealousy and fear for Shirley
+      motive_seed: jealousy and protection
+      motive_strength: weak
+      alibi_window: present at studio
+      access_plausibility: high
+      opportunity_channels:
+        - access to studio
+      behavioral_tells:
+        - nervousness
+        - emotional outbursts
+      stakes: love and loyalty
+      evidence_sensitivity: []
+      culprit_eligibility: eligible
+      culpability: unknown
+      gender: female
+      role: suspect
+      moral_complexity: moderate
+    - name: Emery Phelps
+      age_range: 40-50
+      role_archetype: banker and house owner
+      relationships:
+        - Lloyd Manton (business associate)
+      public_persona: banker and financial backer
+      private_secret: financial desperation and animosity
+      motive_seed: financial pressure and resentment
+      motive_strength: moderate
+      alibi_window: present at house and studio
+      access_plausibility: high
+      opportunity_channels:
+        - access to house and studio
+      behavioral_tells:
+        - hostility
+        - impatience
+      stakes: financial and social status
+      evidence_sensitivity: []
+      culprit_eligibility: eligible
+      culpability: unknown
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: Stanley Werner
+      age_range: 30-40
+      role_archetype: film director and drug addict
+      relationships:
+        - Manton Pictures staff
+      public_persona: director
+      private_secret: drug addiction
+      motive_seed: none
+      motive_strength: none
+      alibi_window: dead at crime time
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells:
+        - nervousness
+        - drug use
+      stakes: life
+      evidence_sensitivity: []
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: low
+  culpability:
+    culprit_count: 1
+    culprits:
+      - Lawrence Millard
+  surface_model:
+    narrative:
+      summary: >-
+        Stella Lamar, a popular film star, suddenly collapses and dies during filming at a country
+        house. The director Werner later dies mysteriously during a banquet scene. Suspicion falls
+        on multiple people connected to the film company, with mysterious poisons and sabotage
+        complicating the case.
+    accepted_facts:
+      - Stella Lamar died suddenly during filming in the library at Emery Phelps's house.
+      - A tiny scratch on Stella's arm was the cause of death.
+      - Stanley Werner, the director, died from poisoning during a banquet scene.
+      - An incendiary fire destroyed the film negatives in the studio vault.
+    inferred_conclusions:
+      - Werner was the murderer and drug addict responsible for the deaths.
+      - Merle Shirley was guilty due to his anger and jealousy.
+      - Lloyd Manton was deliberately wrecking the company and responsible for the murders.
+  hidden_model:
+    mechanism:
+      description: >-
+        Lawrence Millard poisoned Stella Lamar by placing a needle coated with snake venom in the
+        library curtains, which pricked her arm during filming. He inoculated himself with antivenin
+        to avoid death from the venom. To silence the director Werner, who suspected him, Millard
+        poisoned him with botulin toxin in a glass of wine during a banquet scene. Millard also
+        attempted to destroy evidence by setting fire to the film vault.
+      delivery_path:
+        - step: Millard prepared a hypodermic needle coated with rattlesnake venom.
+        - step: >-
+            He inserted the needle into the heavy silk curtains in the library at a height and
+            position calculated to prick Stella's arm when she moved the curtains during filming.
+        - step: Stella was pricked by the needle during the scene and died from the venom.
+        - step: Millard inoculated himself with antivenin serum to protect against accidental poisoning.
+        - step: >-
+            Werner discovered clues implicating Millard and was poisoned with botulin toxin in his
+            wine glass during a banquet scene.
+        - step: >-
+            Millard planted misleading evidence such as a cigarette case and ampulla to implicate
+            others.
+        - step: Millard set fire to the film vault to destroy incriminating negatives.
+    outcome:
+      result: Lawrence Millard is exposed as the murderer through scientific evidence and arrested.
+  false_assumption:
+    statement: Stanley Werner, the nervous drug-addicted director, was the murderer.
+    type: identity
+    why_it_seems_reasonable: >-
+      Werner was nervous, had access to the victim, and possessed hypodermic needles and drugs,
+      which suggested capability and opportunity. His erratic behavior and drug addiction made him a
+      plausible suspect.
+    what_it_hides: >-
+      It hides the fact that Werner was actually a victim who discovered the murderer and was
+      poisoned to silence him. His drug use was unrelated to the murders.
+  false_solution:
+    accused_suspect: Stanley Werner
+    supporting_points:
+      - Werner was nervous and acted suspiciously during questioning.
+      - He had hypodermic needles and was a known drug addict.
+      - He was present at the scenes of the crimes and had opportunity.
+      - He was the second man seen at the house break-in.
+    the_one_flaw: Werner was himself poisoned with a different toxin and was trying to expose the real murderer.
+    refuted_in_chapter: 32
+  red_herrings:
+    - id: werner_drug_addiction
+      description: Werner's drug addiction and possession of hypodermic needles suggested guilt.
+      points_at_suspect: Stanley Werner
+      innocent_explanation: >-
+        Werner was a drug addict but was innocent of murder; he was a victim and tried to uncover
+        the truth.
+      resolved_in_chapter: 32
+    - id: manton_financial_motives
+      description: >-
+        Lloyd Manton's financial troubles and business schemes suggested he might have motive to
+        kill.
+      points_at_suspect: Lloyd Manton
+      innocent_explanation: >-
+        Manton was involved in financial schemes but had no direct involvement in the murders; his
+        behavior was business-driven, not criminal.
+      resolved_in_chapter: 32
+  closed_circle:
+    suspects:
+      - Lloyd Manton
+      - Lawrence Millard
+      - Emery Phelps
+      - Jack Gordon
+      - Merle Shirley
+      - Marilyn Loring
+      - Enid Faye
+    rationale: >-
+      All were present at the studio or house, had possible motives or opportunity, and were
+      investigated thoroughly, forming a closed circle of suspects.
+  constraint_space:
+    time:
+      anchors:
+        - Time of Stella's death during filming of scene 13
+        - Time of Werner's death during banquet scene
+        - Time of fire in film vault four days after Stella's death
+        - Time of attempted murder on Shirley during ballroom scene
+      windows:
+        - Between arrival at Phelps's house and filming of scene 13
+        - During banquet scene filming
+        - During fire outbreak in vault
+        - During ballroom scene filming
+    access:
+      actors:
+        - Lawrence Millard
+        - Lloyd Manton
+        - Emery Phelps
+        - Stanley Werner
+        - Jack Gordon
+        - Merle Shirley
+        - Marilyn Loring
+        - Enid Faye
+      objects:
+        - Library curtains
+        - Hypodermic needle
+        - Wine glass at banquet
+        - Film vault
+        - Studio washroom towel
+    social:
+      trust_channels:
+        - Studio staff cooperation
+        - District attorney Mackay
+        - Craig Kennedy's scientific authority
+      authority_sources:
+        - District Attorney's Office
+        - Castleton Institute (scientific expertise)
+        - Studio management
+  inference_path:
+    steps:
+      - observation: Tiny scratch on Stella Lamar's arm with faint blood and poison stains on curtains
+        correction: The scratch was caused by a needle hidden in the curtains, not a natural cause
+        effect: Identifies method of poisoning
+        required_evidence:
+          - Piece of heavy silk cut from portieres with two microscopic holes and blood stains
+          - Microscopic examination of the scratch on Stella's arm
+        reader_observable: true
+      - observation: Blood spots on towel found in studio washroom with antivenin traces
+        correction: The towel was used to wipe a needle after inoculation with antivenin
+        effect: Links suspect to needle and poison
+        required_evidence:
+          - Chemical analysis of towel spots showing antivenin
+          - Blood smear matching suspect's blood
+        reader_observable: true
+      - observation: Werner died suddenly with symptoms of food poisoning
+        correction: Werner was poisoned with botulin toxin in his wine glass
+        effect: Second murder by poison
+        required_evidence:
+          - Broken stem of wine glass with toxin residue
+          - Film footage of banquet scene showing Werner drinking wine
+        reader_observable: true
+      - observation: Fire destroyed film negatives in vault
+        correction: Fire was incendiary, caused by phosphorus bomb to destroy evidence
+        effect: Attempt to cover up murder evidence
+        required_evidence:
+          - Chemical analysis of fire cause and phosphorus residues
+          - Recovered piece of negative film showing snake venom scenes
+        reader_observable: true
+      - observation: Shirley collapsed during ballroom scene after drinking poison
+        correction: Attempted murder with belladonna to simulate suicide
+        effect: Third attempt on life linked to murders
+        required_evidence:
+          - Film footage of Shirley drinking poison
+          - Medical treatment with physostigmin antidote
+        reader_observable: true
+      - observation: Fibers of impregnated towel found on suspect's fingernail files and pocket knives
+        correction: Suspect handled the towel impregnated with chemical and itching salve
+        effect: Direct evidence linking suspect to towel and crime
+        required_evidence:
+          - Microscopic examination of fingernail files and knives
+          - Chemical analysis of towel fibers
+        reader_observable: true
+      - observation: Blood samples from suspects show presence of antivenin in one individual
+        correction: That individual inoculated himself against snake venom
+        effect: Identifies the murderer
+        required_evidence:
+          - Blood smear analysis showing antivenin presence
+          - Matching blood type to blood on portieres
+        reader_observable: true
+  discriminating_test:
+    method: constraint_proof
+    design: >-
+      Analyze blood samples from all suspects for the presence of antivenin, matching it to the
+      individual who handled the poisoned needle and towel. Correlate this scientific evidence with
+      fiber traces found on fingernail files and pocket knives to confirm the culprit.
+    knowledge_revealed: >-
+      The test reveals the identity of the murderer through the presence of antivenin in their blood
+      and direct fiber evidence linking them to the crime.
+    pass_condition: >-
+      Identification of the suspect whose blood contains antivenin and whose personal items have
+      fibers matching the impregnated towel.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given detailed descriptions of the crime scenes, the tiny scratch, the presence
+      of the needle in the curtains, the chemical analysis of the towel and blood, and the motives
+      and opportunities of all suspects. The scientific detective's reasoning is presented clearly,
+      allowing the reader to deduce the murderer by connecting the clues about the needle, venom,
+      antivenin, and the staged poisonings. The false suspicion of Werner is also clearly shown and
+      refuted.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

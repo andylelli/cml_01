@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "The murderer was a lame man who used the walking-stick found at the scene.",
+  "type": "behavioral",
+  "why_it_seems_reasonable": "The walking-stick showed wear consistent with a lame man, and the murderer was believed to have left it behind. The police and inspector Snargrove logically inferred the murderer must be lame.",
+  "what_it_hides": "The walking-stick actually belonged to Kinloch, the blind man, who used it to feel his way. The murderer was not lame and did not use the stick."
+ },
+ "mechanism_description": "Sir Stephen Wye murdered Ponsonby Paget to prevent exposure of his political ambitions. Kinloch, a blind war veteran, was an unintended witness and was forcibly taken away by accomplices. The murderer staged an alibi and left misleading clues, but the distinctive wear on the walking-stick and other subtle evidence led to his identification.",
+ "discriminating_test": {
+  "method": "trap",
+  "design": "Kinloch is placed in a public garden in London where he is expected to wait for the woman to come to him. Multiple watchers are placed around to observe any visitors. The test relies on the woman's need to contact Kinloch and the assumption she will come to the known location. The presence of watchers and the timing of visits are carefully controlled.",
+  "knowledge_revealed": "The test reveals the woman's identity and confirms Kinloch's location, allowing the police to capture the murderer and accomplices.",
+  "pass_condition": "The woman visits Kinloch at the designated location, confirming her involvement and enabling arrest."
+ },
+ "changed": [],
+ "confidence": "high"
+}

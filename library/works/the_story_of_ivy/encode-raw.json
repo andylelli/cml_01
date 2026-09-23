@@ -1,0 +1,484 @@
+{
+ "decade": "1920s",
+ "realism_constraints": [
+  "No modern forensic DNA or chemical analysis beyond basic toxicology",
+  "Limited telecommunications, telegraph and telephone used but tapped lines feared",
+  "Legal procedures include inquests, post-mortems, and trials at Old Bailey with jury"
+ ],
+ "location": "London, England, including Duke of Kent Mansion, Ferry Place, and Dieppe, France",
+ "institution": "Scotland Yard Criminal Investigation Department",
+ "crime_category": "murder",
+ "crime_subtype": "arsenic poisoning concealed by social manipulation",
+ "cast": [
+  {
+   "name": "Ivy Lexton",
+   "age_range": "mid-20s",
+   "role_archetype": "beautiful, restless wife with secret motives",
+   "role": "culprit",
+   "gender": "female",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "charming, popular socialite and devoted wife",
+   "private_secret": "secretly poisoned her husband to gain freedom and wealth",
+   "motive_seed": "desire for money and freedom to marry Miles Rushworth",
+   "motive_strength": "strong",
+   "alibi_window": "often out at night, but present with husband shortly before death",
+   "access_plausibility": "high, had access to arsenic in Gretorex’s surgery",
+   "stakes": "high, risked exposure and loss of future with Rushworth",
+   "moral_complexity": "high, manipulative and selfish but outwardly charming",
+   "relationships": [
+    "Jervis Lexton (husband, victim)",
+    "Miles Rushworth (lover, future husband)",
+    "Roger Gretorex (secret lover, accused)",
+    "Nurse Bradfield (nurse, witness)",
+    "Mrs. Huntley (charwoman, witness)"
+   ],
+   "opportunity_channels": [
+    "Visits to Gretorex’s surgery alone",
+    "Control over husband’s food and drink",
+    "Social outings providing cover for absence"
+   ],
+   "behavioral_tells": [
+    "Feigns innocence and distress",
+    "Volunteers damaging information about Gretorex’s love",
+    "Avoids direct answers about visits to Ferry Place"
+   ],
+   "evidence_sensitivity": [
+    "Love letters to Gretorex",
+    "Presence alone with arsenic jar",
+    "Bolster bag with poison traces",
+    "Financial transactions from Rushworth"
+   ]
+  },
+  {
+   "name": "Jervis Lexton",
+   "age_range": "late 20s to early 30s",
+   "role_archetype": "idle, extravagant husband and victim",
+   "role": "victim",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "easy-going, good-natured husband",
+   "private_secret": "financially ruined and ill",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "ill and mostly confined to flat",
+   "access_plausibility": "n/a",
+   "stakes": "life",
+   "moral_complexity": "low",
+   "relationships": [
+    "Ivy Lexton (wife, culprit)",
+    "Roger Gretorex (friend, accused)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Roger Gretorex",
+   "age_range": "late 20s",
+   "role_archetype": "poor doctor, secret lover, wrongfully accused",
+   "role": "suspect",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "eligible",
+   "public_persona": "devoted lover and friend",
+   "private_secret": "loves Ivy but innocent of murder",
+   "motive_seed": "love for Ivy",
+   "motive_strength": "strong",
+   "alibi_window": "seen with victim shortly before death",
+   "access_plausibility": "had arsenic in surgery but no motive to kill",
+   "stakes": "life and honor",
+   "moral_complexity": "high, devoted but socially awkward",
+   "relationships": [
+    "Ivy Lexton (secret lover)",
+    "Jervis Lexton (friend, victim)",
+    "Mrs. Gretorex (mother, supporter)",
+    "Enid Dent (friend, companion)"
+   ],
+   "opportunity_channels": [
+    "Access to arsenic in surgery",
+    "Visits to victim"
+   ],
+   "behavioral_tells": [
+    "Refuses to testify",
+    "Shows distress and love for Ivy"
+   ],
+   "evidence_sensitivity": [
+    "Arsenic jar in surgery",
+    "Love letters from Ivy",
+    "Last to see victim alive"
+   ]
+  },
+  {
+   "name": "Miles Rushworth",
+   "age_range": "mid-30s",
+   "role_archetype": "wealthy admirer and future husband",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "rich, kind, and respectable",
+   "private_secret": "loves Ivy but unaware of her crime",
+   "motive_seed": "love and generosity",
+   "motive_strength": "none",
+   "alibi_window": "away in South Africa during key events",
+   "access_plausibility": "none",
+   "stakes": "reputation and love",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Ivy Lexton (lover, future wife)",
+    "Jervis Lexton (employer of victim)",
+    "Bella Dale (sister’s friend)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "Protective of Ivy",
+    "Arranges escape plan"
+   ],
+   "evidence_sensitivity": [
+    "Cables to and from Ivy",
+    "Financial support to Ivy"
+   ]
+  },
+  {
+   "name": "Nurse Bradfield",
+   "age_range": "middle-aged",
+   "role_archetype": "kind nurse and witness",
+   "role": "witness",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "loyal and caring nurse",
+   "private_secret": "suspects foul play but fears consequences",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "always tending victim",
+   "access_plausibility": "n/a",
+   "stakes": "truth and justice",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Jervis Lexton (patient)",
+    "Ivy Lexton (employer’s wife)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "Fearful under cross-examination",
+    "Protective of Ivy"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Mrs. Huntley",
+   "age_range": "elderly",
+   "role_archetype": "charwoman and reluctant witness",
+   "role": "witness",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "loyal servant",
+   "private_secret": "knows truth but initially sworn to silence",
+   "motive_seed": "loyalty and fear",
+   "motive_strength": "none",
+   "alibi_window": "present at key moment",
+   "access_plausibility": "access to surgery",
+   "stakes": "honor and conscience",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Roger Gretorex (employer)",
+    "Ivy Lexton (visitor to surgery)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "Reluctant to speak",
+    "Breaks oath to reveal truth"
+   ],
+   "evidence_sensitivity": [
+    "Statutory declaration",
+    "Love letters found and pieced together"
+   ]
+  },
+  {
+   "name": "Enid Dent",
+   "age_range": "early 20s",
+   "role_archetype": "devoted friend and investigator",
+   "role": "witness",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "quiet companion",
+   "private_secret": "determined to uncover truth",
+   "motive_seed": "loyalty to Roger Gretorex",
+   "motive_strength": "moderate",
+   "alibi_window": "present during investigation",
+   "access_plausibility": "n/a",
+   "stakes": "justice for Roger",
+   "moral_complexity": "low",
+   "relationships": [
+    "Roger Gretorex (friend)",
+    "Mrs. Gretorex (employer)",
+    "Mrs. Huntley (interviewer)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "Persistent in seeking evidence",
+    "Confronts Ivy Lexton"
+   ],
+   "evidence_sensitivity": []
+  }
+ ],
+ "culprits": [
+  "Ivy Lexton"
+ ],
+ "surface_summary": "Jervis Lexton dies mysteriously after a prolonged illness, with arsenic poisoning suspected. Roger Gretorex, a devoted doctor and secret lover of Ivy Lexton, is arrested and convicted for the murder. Ivy appears as a grieving widow and chief witness, while a wealthy admirer, Miles Rushworth, supports her.",
+ "accepted_facts": [
+  "Jervis Lexton died of arsenic poisoning",
+  "Roger Gretorex was the last person to see Jervis alive besides nurse and cook",
+  "Ivy Lexton was often absent but was with Jervis shortly before his death",
+  "Roger Gretorex was convicted of murder and sentenced to death"
+ ],
+ "inferred_conclusions": [
+  "Roger Gretorex poisoned Jervis out of jealous love",
+  "Ivy Lexton was an innocent victim of Roger’s crime",
+  "No other person had motive or opportunity to commit the murder"
+ ],
+ "mechanism_description": "Ivy Lexton secretly obtained arsenic from Roger Gretorex’s surgery and administered it to her husband, Jervis Lexton, in his drinks and food over a period of time. She concealed her guilt by maintaining appearances and manipulating others, including providing false alibis and misleading witnesses. The evidence against Roger Gretorex was circumstantial and exploited by the prosecution, but new evidence from Mrs. Huntley and love letters revealed Ivy’s guilt, leading to a reprieve for Gretorex.",
+ "delivery_path": [
+  "Ivy visits Gretorex’s surgery alone and accesses arsenic jar",
+  "She secretly takes arsenic powder and mixes it into Jervis’s drinks",
+  "Jervis falls ill with symptoms consistent with arsenic poisoning",
+  "Ivy maintains social appearances and misleads investigators about her visits",
+  "Roger Gretorex is arrested based on circumstantial evidence and love letters",
+  "Mrs. Huntley reveals she saw Ivy alone with arsenic in the surgery",
+  "Love letters and new evidence lead to Gretorex’s reprieve and Ivy’s exposure"
+ ],
+ "outcome_result": "Ivy Lexton is revealed as the true murderer, and Roger Gretorex is reprieved from execution.",
+ "false_assumption": {
+  "statement": "Roger Gretorex was the murderer because he was the last to see Jervis alive and had access to arsenic.",
+  "type": "identity",
+  "why_it_seems_reasonable": "Gretorex’s close relationship with Ivy and Jervis, his possession of arsenic, and his presence at the victim’s side made him the prime suspect. The prosecution’s narrative and the circumstantial evidence strongly pointed to him.",
+  "what_it_hides": "It obscures Ivy Lexton’s secret access to the poison and her motive to kill her husband to gain freedom and wealth. It also hides the manipulation and falsehoods Ivy used to frame Gretorex."
+ },
+ "false_solution": {
+  "accused_suspect": "Roger Gretorex",
+  "supporting_points": [
+   "He was the last person to see Jervis Lexton alive besides nurse and cook",
+   "He had arsenic in his surgery and was familiar with poisons",
+   "He was passionately in love with Ivy Lexton",
+   "He refused to testify, which was seen as an admission of guilt"
+  ],
+  "the_one_flaw": "No direct evidence linked him to the administration of arsenic, and new evidence showed Ivy’s secret visits and possession of poison.",
+  "refuted_in_chapter": 21
+ },
+ "red_herrings": [
+  {
+   "id": "roger_gretorex_love_and_access",
+   "description": "Roger Gretorex’s love for Ivy and his access to arsenic made him the obvious suspect.",
+   "points_at_suspect": "Roger Gretorex",
+   "innocent_explanation": "Though he loved Ivy and had arsenic, he had no motive to kill Jervis and was unaware of Ivy’s poisoning.",
+   "resolved_in_chapter": 21
+  },
+  {
+   "id": "miles_rushworth_as_secret_lover",
+   "description": "Rumors and suspicions about Miles Rushworth being Ivy’s secret lover and possible murderer.",
+   "points_at_suspect": "Miles Rushworth",
+   "innocent_explanation": "Miles Rushworth was wealthy, kind, and away in South Africa during the crime, with no opportunity or motive.",
+   "resolved_in_chapter": 22
+  }
+ ],
+ "closed_circle": {
+  "suspects": [
+   "Ivy Lexton",
+   "Roger Gretorex",
+   "Miles Rushworth"
+  ],
+  "rationale": "The investigation focused on the three main men in Ivy’s life and her, as they had motive, opportunity, or access to the victim and poison. Other characters had no plausible connection to the crime."
+ },
+ "constraint_space": {
+  "time_anchors": [
+   "Jervis Lexton’s illness starting early November",
+   "Jervis Lexton’s death on November 16",
+   "Roger Gretorex’s last visit to victim on day of death",
+   "Trial and conviction of Roger Gretorex",
+   "Reprieve issued just before execution date"
+  ],
+  "time_windows": [
+   "Ivy’s visits to Gretorex’s surgery in early summer",
+   "Ivy’s presence with Jervis shortly before death",
+   "Roger Gretorex’s absence from town during key poisoning period"
+  ],
+  "access_actors": [
+   "Ivy Lexton",
+   "Roger Gretorex",
+   "Nurse Bradfield",
+   "Mrs. Huntley"
+  ],
+  "access_objects": [
+   "Jar of arsenic in Gretorex’s surgery",
+   "Victim’s drinks and food",
+   "Bolster bag containing poison powder"
+  ],
+  "trust_channels": [
+   "Ivy’s charm and social standing",
+   "Roger’s love and devotion",
+   "Nurse Bradfield’s trust in Ivy",
+   "Mrs. Huntley’s oath of silence"
+  ],
+  "authority_sources": [
+   "Scotland Yard CID",
+   "Dr. Berwick and Dr. Lancaster (medical authorities)",
+   "Old Bailey court and Judge Mayhew",
+   "Home Secretary Sir Edward Law"
+  ]
+ },
+ "inference_path": [
+  {
+   "observation": "Roger Gretorex was the last to see Jervis alive and had arsenic in his surgery",
+   "correction": "Ivy Lexton was seen alone in the surgery with the arsenic jar",
+   "effect": "Shifts suspicion from Gretorex to Ivy",
+   "required_evidence": [
+    "Mrs. Huntley’s sworn statement describing Ivy alone with arsenic jar",
+    "Nurse Bradfield’s testimony about visitors and Ivy’s absences"
+   ]
+  },
+  {
+   "observation": "Ivy Lexton claimed to have visited Gretorex only once with a friend",
+   "correction": "Mrs. Huntley and love letters prove Ivy visited multiple times alone",
+   "effect": "Reveals Ivy’s secret access and opportunity",
+   "required_evidence": [
+    "Two love letters from Ivy to Roger Gretorex pieced together",
+    "Mrs. Huntley’s statutory declaration"
+   ]
+  },
+  {
+   "observation": "Roger Gretorex was convicted based on circumstantial evidence and love motive",
+   "correction": "New evidence shows Ivy’s motive and access to poison",
+   "effect": "Undermines prosecution case against Gretorex",
+   "required_evidence": [
+    "Love letters from Ivy to Roger",
+    "Mrs. Huntley’s testimony and statutory declaration"
+   ]
+  },
+  {
+   "observation": "Ivy Lexton appeared as a grieving widow and chief witness",
+   "correction": "Ivy’s behavior was manipulative and calculated",
+   "effect": "Suggests Ivy’s guilt and ability to deceive",
+   "required_evidence": [
+    "Ivy’s admissions during interrogation and trial",
+    "Observations of her social behavior and financial dealings"
+   ]
+  },
+  {
+   "observation": "Miles Rushworth was a wealthy admirer with no apparent motive",
+   "correction": "Rushworth’s cables and financial support show his involvement but innocence",
+   "effect": "Rushworth is a witness and protector, not a culprit",
+   "required_evidence": [
+    "Miles Rushworth’s telegrams and cables",
+    "Testimony of his whereabouts during crime"
+   ]
+  },
+  {
+   "observation": "Post-mortem revealed arsenic poisoning but no direct evidence of administration",
+   "correction": "Ivy’s secret visits and possession of poison establish method",
+   "effect": "Completes the chain of evidence against Ivy",
+   "required_evidence": [
+    "Mrs. Huntley’s statement of seeing Ivy with arsenic",
+    "Bolster bag with poison traces found in Ivy’s possession"
+   ]
+  },
+  {
+   "observation": "Roger Gretorex refused to testify",
+   "correction": "He suspected Ivy’s guilt and protected her",
+   "effect": "Explains Gretorex’s silence and supports his innocence",
+   "required_evidence": [
+    "Roger Gretorex’s letter to Ivy",
+    "Testimony of Mrs. Gretorex and Enid Dent"
+   ]
+  }
+ ],
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "Recreate the scene in Gretorex’s surgery where Mrs. Huntley saw Ivy alone with the arsenic jar. Mrs. Huntley identifies Ivy’s position and the presence of the poison. The test confirms Ivy’s opportunity to administer poison without witnesses.",
+  "knowledge_revealed": "Confirms Ivy’s access to arsenic and opportunity to poison her husband secretly.",
+  "pass_condition": "Witness testimony and physical layout prove Ivy was alone with arsenic at critical time."
+ },
+ "fair_play_explanation": "The reader is given access to all key characters, their motives, and movements. The presence of arsenic in Gretorex’s surgery and Ivy’s visits are described. Mrs. Huntley’s testimony and the love letters are introduced before the solution. The false accusation of Gretorex is presented and later refuted. The clues about Ivy’s secret access and motive are available for deduction.",
+ "anchors": [
+  {
+   "claim": "Jervis Lexton died from arsenic poisoning",
+   "anchor": "death was due to a large dose of arsenic"
+  },
+  {
+   "claim": "Roger Gretorex was the last person to see Jervis alive besides nurse and cook",
+   "anchor": "you, Dr. Gretorex, were the last person, apart from herself and, I believe, the cook, who saw him alive"
+  },
+  {
+   "claim": "Ivy Lexton was alone in the surgery with the arsenic jar",
+   "anchor": "Mrs. Huntley is ready to swear that she once found Mrs. Lexton alone in the surgery here, with a jar labelled arsenic standing on the table before her"
+  },
+  {
+   "claim": "Ivy Lexton wrote love letters to Roger Gretorex",
+   "anchor": "two love-letters Mrs. Lexton wrote to the doctor"
+  },
+  {
+   "claim": "Roger Gretorex was convicted of murder",
+   "anchor": "Roger Kingston Gretorex, you stand convicted of wilful murder"
+  },
+  {
+   "claim": "Ivy Lexton was the chief witness for the Crown",
+   "anchor": "Ivy Lexton stepped, with short, dainty steps into the witness-box"
+  },
+  {
+   "claim": "Ivy Lexton was often absent but was with Jervis shortly before his death",
+   "anchor": "Mrs. Lexton had been with her husband alone on that last afternoon of his life"
+  },
+  {
+   "claim": "Miles Rushworth was a wealthy admirer and future husband",
+   "anchor": "Miles Rushworth was standing in the centre of the room"
+  },
+  {
+   "claim": "Mrs. Huntley initially swore to keep secret Ivy’s visits to the surgery",
+   "anchor": "he tore them up in little pieces, and---- You pieced them together"
+  },
+  {
+   "claim": "Ivy Lexton manipulated others to conceal her guilt",
+   "anchor": "she had, as a matter of fact, so completely deceived"
+  },
+  {
+   "claim": "Roger Gretorex refused to testify to protect Ivy",
+   "anchor": "the fact that Gretorex had refused to go into the witness-box"
+  },
+  {
+   "claim": "New evidence led to reprieve of Roger Gretorex",
+   "anchor": "important new evidence was laid before the Home Secretary yesterday"
+  },
+  {
+   "claim": "Ivy Lexton’s bolster bag contained poison traces",
+   "anchor": "a few grains of what looked like kitchen salt clung to the white leather sides"
+  },
+  {
+   "claim": "Ivy Lexton’s letters to Roger Gretorex were found and pieced together",
+   "anchor": "Mrs. Huntley’s statutory declaration. Each letter proposed a meeting at Ferry Place"
+  },
+  {
+   "claim": "Ivy Lexton was arrested after new evidence",
+   "anchor": "You are to be arrested to-morrow morning on the charge of having caused the death of your husband by poison"
+  },
+  {
+   "claim": "Ivy Lexton committed perjury during the trial",
+   "anchor": "They prove that Mrs. Lexton has committed gross perjury"
+  },
+  {
+   "claim": "Ivy Lexton’s motive was to gain freedom and wealth",
+   "anchor": "she had, as a matter of fact, so completely deceived him"
+  },
+  {
+   "claim": "Ivy Lexton died by falling down the lift shaft",
+   "anchor": "her little feet stepped through into the void"
+  },
+  {
+   "claim": "Ivy Lexton’s death ended the case",
+   "anchor": "Poor, pretty, pleasant-spoken “Ivy,” as he, in the company of thousands of other men of all ages, conditions, and kinds, had fallen into the way of secretly calling her--she had brought bad luck on everybody who came in touch with her"
+  }
+ ]
+}

@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "Daniel Craig is guilty of the murder for which he was imprisoned.",
+  "type": "identity",
+  "why_it_seems_reasonable": "Craig was convicted in a court of law and served time in prison, which normally implies guilt. The narrative initially presents him as a dangerous convict and leader of a prison revolt.",
+  "what_it_hides": "It conceals the truth that Craig was innocent and that the real murderer was Brewster, the ex-warden's son. This false assumption misdirects suspicion away from the true culprit and obscures Craig's motivations."
+ },
+ "mechanism_description": "Craig orchestrated a prison break using saws smuggled in by allies and took control of the prison temporarily. After escape, he systematically tracked and captured dangerous fugitives he had freed, using a combination of underworld contacts, law enforcement cooperation, and strategic planning. The final capture of Count Wolf involved a physical confrontation in a private residence, followed by a perilous elevator shaft struggle.",
+ "discriminating_test": {
+  "method": "constraint_proof",
+  "design": "Craig arranged a meeting with Count Wolf at a private residence under controlled conditions, with police and district attorney ready to intervene. The test was to see if Wolf would come alone and be captured without external interference. The presence of trusted allies and the timing ensured no escape routes were available.",
+  "knowledge_revealed": "This test revealed Wolf’s true identity and confirmed Craig’s ability to capture him despite his cunning and strength.",
+  "pass_condition": "Wolf is physically captured and restrained without escape or outside interference."
+ },
+ "changed": [],
+ "confidence": "high"
+}

@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "Captain Hubert de Mazareen was guilty of murdering Mr. Steadman.",
+  "type": "identity",
+  "why_it_seems_reasonable": "He was the last person seen with the victim and was found with the murder weapon. The circumstantial evidence and his silence about his whereabouts made him the prime suspect.",
+  "what_it_hides": "The actual murder was committed by Philip Baddock and Felkin who cleverly framed de Mazareen using forged documents and planted evidence."
+ },
+ "mechanism_description": "Philip Baddock and Felkin orchestrated the murder of Mr. Steadman to secure a forged will favoring Baddock, using a staged breakdown and a planted murder weapon to implicate Captain de Mazareen. Lady Irene Culledon poisoned her husband Mark Culledon with morphia in a public café to prevent scandal and secure inheritance. Miss Cruikshank murdered Mrs. Dunstan by impersonating a charwoman and using a bag of sand to incapacitate her before asphyxiation, motivated by greed and blackmail.",
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "Lady Molly arranged for the maids of Lady Irene Culledon to wear large hats, including the one worn on the murder day, and paraded them before the Mathis’ café waitress who identified the mysterious woman. This test aimed to confirm if the waitress could reliably identify the murderer by the hat and stature.",
+  "knowledge_revealed": "The waitress’s identification of the hat and wearer confirmed Lady Irene Culledon as the woman in the big hat and the murderer of Mark Culledon.",
+  "pass_condition": "The waitress consistently identifies the same hat and wearer among several candidates, eliminating doubt about the murderer’s identity."
+ },
+ "changed": [],
+ "confidence": "high"
+}

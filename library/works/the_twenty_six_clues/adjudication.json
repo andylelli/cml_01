@@ -1,19 +1,19 @@
 {
  "false_assumption": {
-  "statement": "Captain Marchal, the blind secretary, was the murderer motivated by unrequited love.",
-  "type": "identity",
-  "why_it_seems_reasonable": "The physiological test showed Captain Marchal's emotional reactions to the reconstructed murder scene, and his delirious mutterings suggested knowledge of the crime. His close presence at the crime scene and his nervous behavior made him a plausible suspect.",
-  "what_it_hides": "It obscures the real culprit's identity and the fact that Marchal was a victim who had discovered the truth and was silenced before he could expose the murderer."
+  "statement": "Captain Marchal killed Evelyn Jarvis out of jealous passion.",
+  "type": "behavioral",
+  "why_it_seems_reasonable": "Marchal's nervous behavior and physiological reactions during Terhune's experiment suggested guilt. His close presence at the crime scene and emotional turmoil supported this view.",
+  "what_it_hides": "It obscures the true culprit, Hoyos, who manipulated the situation and killed Marchal to silence him. Marchal was a victim, not the perpetrator."
  },
- "mechanism_description": "Leonidas Hoyos, under the alias Eric Vivaseur, killed Evelyn Jarvis to prevent exposure of their past and to recover letters that blackmailed her. He broke into the Norwood museum using a spider tool to pick the lock, confronted Evelyn who came to retrieve the letters, and strangled her. Later, he murdered Victor Marchal who had discovered the truth and staged his death as a suicide by firing two shots, one blank, to mislead investigators.",
+ "mechanism_description": "Leonidas Hoyos, presumed dead for ten years, was the blackmailer who threatened Evelyn Jarvis. He killed her in the Norwood museum when she came to retrieve incriminating letters he had hidden. Victor Marchal overheard the crime and was murdered by Hoyos to silence him, but left a hidden signed statement that led to Hoyos' identification and capture.",
  "discriminating_test": {
-  "method": "reenactment",
-  "design": "McCarty gathers all key persons in his rooms and recounts the full story of the past and present crimes, revealing the connections and evidence. The presence and reactions of the accused, Eric Vivaseur, are observed to confirm his guilt. The test uses the signed statement of Victor Marchal and the recovered evidence to confront the culprit.",
-  "knowledge_revealed": "The test reveals the true identity of the murderer and his motive, exposing the deception and clearing innocent suspects.",
-  "pass_condition": "The culprit's presence and inability to refute the evidence confirms his guilt without relying on confessions or behavioral cues."
+  "method": "physical evidence examination",
+  "design": "McCarty used a microscope to examine the typewriter ribbon and drawer, revealing Victor Marchal's hidden signed statement. The test involved presenting this physical evidence to the assembled group, including police and witnesses, to directly implicate Hoyos without relying on psychological pressure or confession.",
+  "knowledge_revealed": "The test revealed the identity of the murderer as Leonidas Hoyos by the presence of Marchal's hidden confession, which named Hoyos as the killer.",
+  "pass_condition": "The signed statement hidden by Victor Marchal is found and verified to implicate Hoyos as the murderer."
  },
  "changed": [
-  "false_assumption.type"
+  "discriminating_test"
  ],
  "confidence": "high"
 }

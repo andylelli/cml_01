@@ -48,8 +48,8 @@
   {
    "claim": "The discriminating test is the darkness trap",
    "anchor": "Suddenly and instantly the room was plunged into absolute darkness",
-   "span": "",
-   "ok": false
+   "span": "and suddenly and instantly the room was plunged into absolute darkness.",
+   "ok": true
   },
   {
    "claim": "The evidence of the burned-out wire in the distributing box",
@@ -96,8 +96,8 @@
   {
    "claim": "The use of disguises to avoid recognition",
    "anchor": "He appeared at 'The Safe' in twelve different characters",
-   "span": "",
-   "ok": false
+   "span": "Spreading over those months he appeared at 'The Safe' in twelve different characters and rented twelve safes of different sizes.",
+   "ok": true
   },
   {
    "claim": "The forged coins scheme involving Madame Ferraja",
@@ -120,5 +120,5 @@
  },
  "case_written": true,
  "verified_by": "corpus-verify.mjs",
- "verified_on": "2026-08-31"
+ "verified_on": "2026-09-23"
 }

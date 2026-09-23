@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "The murders were committed by a single unknown man who followed Salter Quick to the Northumbrian coast.",
+  "type": "identity",
+  "why_it_seems_reasonable": "The simultaneous murders and the presence of two sets of footprints at Salter Quick's murder scene suggest a single assailant. The initial suspicion falls on a mysterious man seen asking about Netherfield graves.",
+  "what_it_hides": "It obscures the fact that multiple conspirators from a gang were involved, and that the murders were coordinated but carried out by different individuals with different motives."
+ },
+ "mechanism_description": "The murders were committed by members of a criminal gang seeking stolen monastic treasure hidden near the graves of the de Knaythevilles on the Northumbrian coast. The Quicks were killed because they possessed rubies and pearls from the treasure. The gang included Netherfield Baxter, a Frenchman, and Chinese accomplices. Internal betrayal among the Chinese crew led to a deadly fight aboard their yacht, resulting in multiple deaths and the escape of Wing, who helped the captives.",
+ "discriminating_test": {
+  "method": "trap",
+  "design": "Wing is allowed to escape from the yacht and is tracked to Dr. Lorrimore's house where he is found wounded but alive. The presence of the silk cap and recovered jewels confirm his identity and role. The test reveals whether Wing is a conspirator or a double agent.",
+  "knowledge_revealed": "Wing was the fourth Chinaman on the yacht, escaped after a mutiny, and acted to protect the captives and expose the conspirators.",
+  "pass_condition": "Wing is found alive with the silk cap and jewels, confirming his identity and innocence."
+ },
+ "changed": [],
+ "confidence": "high"
+}

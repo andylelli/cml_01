@@ -1,0 +1,136 @@
+{
+ "slug": "the_fellowship_of_the_frog",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Ray Bennett is under sentence of death",
+   "anchor": "under sentence of death in Gloucester Gaol",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The Frog is identified by a tattoo on the left wrist",
+   "anchor": "tattooed left wrist",
+   "span": "14 frog tattooed left wrist.",
+   "ok": true
+  },
+  {
+   "claim": "Wireless broadcasts are used to communicate Frog messages",
+   "anchor": "wireless telephone message",
+   "span": "We picked up a wireless telephone message in the night, and I'm under the impression that it was your daughter's voice I heard.",
+   "ok": true
+  },
+  {
+   "claim": "Joshua Broad is the real Frog and mastermind",
+   "anchor": "My name, as you rightly surmised, Mr. Elk, is Saul Morris",
+   "span": "My name, as you rightly surmised, Mr. Elk, is Saul Morris.",
+   "ok": true
+  },
+  {
+   "claim": "Philo Johnson is the real head of Maitlands Consolidated",
+   "anchor": "Philo Johnson, the real head of the business",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "John Bennett is the executioner who hanged Ray Bennett",
+   "anchor": "John Bennett was the hangman",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Motion picture film shows the true murderer",
+   "anchor": "picture which showed in the foreground a stretch of grey",
+   "span": "There was a click, and the room went black; and then there was shown on the screen a picture which showed in the foreground a stretch of grey, sandy soil, and the dark opening of a burrow, out of which peeped a queer-looking animal.",
+   "ok": true
+  },
+  {
+   "claim": "Balder is Frog Number Seven and a key operative",
+   "anchor": "you’ll take a little walk with me—I want you, Number Seven",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Maitland and his sister were murdered",
+   "anchor": "Ezra Maitland lay half on the bed, his legs dragging over the side",
+   "span": "Ezra Maitland lay half on the bed, his legs dragging over the side.",
+   "ok": true
+  },
+  {
+   "claim": "The Frogs use secret wireless broadcasts",
+   "anchor": "All Frogs listen. Mills is dead. Number Seven finished him",
+   "span": "_All Frogs listen. Mills is dead. Number Seven finished him this morning.",
+   "ok": true
+  },
+  {
+   "claim": "Ella Bennett’s voice was imitated by Lola Bassano",
+   "anchor": "It was her voice, of course. I had no idea she had been on the stage",
+   "span": "It was her voice, of course. I had no idea she had been on the stage-is her father in this business?",
+   "ok": true
+  },
+  {
+   "claim": "Ray Bennett was framed by the Frogs",
+   "anchor": "Ray Bennett is a Frog",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The Frogs tattoo is always on the left wrist",
+   "anchor": "The frog is always on the left wrist",
+   "span": "The frog is always on the left wrist, always a little lob-sided, and there is always one small blob tattooed underneath,\" he said.",
+   "ok": true
+  },
+  {
+   "claim": "Joshua Broad killed Harry Lyme, the Frog",
+   "anchor": "Joshua Broad, I call you to witness that I killed this man",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The Frogs’ safe-breaking is masterful and leaves no trace",
+   "anchor": "no finger-prints, no ugly holes blown into the safe",
+   "span": "No finger-prints, no ugly holes blown into the safe, everything neat and beautifully done.",
+   "ok": true
+  },
+  {
+   "claim": "Mills was poisoned with cyanide while guarded",
+   "anchor": "cyanide of potassium, he said. The man is dead",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The Frogs use elaborate disguises and false identities",
+   "anchor": "Balder, that redoubtable No. 7, who was the right hand and the left hand of the terrible Frog",
+   "span": "7 were hustled away, and in the last car travelled Acting-Sergeant Balder, that redoubtable No. 7, who was the right hand and the left hand of the terrible Frog.",
+   "ok": true
+  },
+  {
+   "claim": "The Frogs’ organization is hierarchical with numbered members",
+   "anchor": "Frog Number One works through ‘Seven’",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The reprieve for Ray Bennett was delayed by sabotage",
+   "anchor": "All wires to Gloucester are cut. The trunk wire has been cut in three places",
+   "span": "All wires to Gloucester are cut. The trunk wire has been cut in three places; the connection with Birmingham, which runs in an earthenware pipe underground, has been blown up, also in three places.",
+   "ok": true
+  },
+  {
+   "claim": "The Frog threatened Ella Bennett to force her marriage",
+   "anchor": "I will give you the life of your brother, who is lying in Gloucester Gaol under sentence of death",
+   "span": "I will give you the life of your brother, who is lying in Gloucester Gaol under sentence of death!",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.139994004,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

@@ -1,0 +1,136 @@
+{
+ "slug": "poison_shadows",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Sibell Dare inherits the Guest House and must live there",
+   "anchor": "your Uncle Henry has died in Brisbane, and has left you the whole of his fortune",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The Guest House has a history of mysterious deaths",
+   "anchor": "certain curious phenomena were observed there during the eighteenth century",
+   "span": "The house was built in 1541 for the reception of visitors who could not be entertained in the Royal Palace, but tradition has it--and the facts have been recorded by the archæologists Emberley and Wright--that certain curious phenomena were observed there during the eighteenth century.",
+   "ok": true
+  },
+  {
+   "claim": "Mr. Gray suffers a sudden heart attack in the Guest House",
+   "anchor": "he was seized by an inexplicable faintness, and, staggering across the room, sank into an old arm-chair",
+   "span": "Then of a sudden, before anyone could approach him, he was seized by an inexplicable faintness, and, staggering across the room, sank into an old arm-chair upholstered in faded crimson velvet.",
+   "ok": true
+  },
+  {
+   "claim": "Police Constable Askew sees a mysterious green light in the Guest House window",
+   "anchor": "I saw an indistinct green light. For the moment I thought I was dreaming",
+   "span": "I saw an indistinct green light. For the moment I thought I was dreaming, for no light had ever been seen in the house before.",
+   "ok": true
+  },
+  {
+   "claim": "Brinsley Otway suffers a sudden heart attack after visiting the Guest House",
+   "anchor": "he was suddenly attacked. He could hardly speak",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The peaches sent to Otway are not poisoned",
+   "anchor": "The peaches you brought this morning show no sign whatever of contamination",
+   "span": "The peaches you brought this morning show no sign whatever of contamination,\" declared the shrunken little man in a black coat which seemed several sizes too large for him.",
+   "ok": true
+  },
+  {
+   "claim": "Etta Wyndcliffe conspires to separate Sibell and Otway",
+   "anchor": "We must have funds at any cost. And I’ve so far worked the cards so that he is madly in love with her",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Albert Ashe is the ex-butler and conspirator",
+   "anchor": "Ashe, the discreet, obsequious butler, a clean-shaven man",
+   "span": "In the dim light Ashe, the discreet, obsequious butler, a clean-shaven man whose hair was edged with silver, moved silently in the shadows of the luxuriously-furnished room, and served them with that soft voice and deftness characteristic of the perfect family retainer.",
+   "ok": true
+  },
+  {
+   "claim": "John Dare uses a secret cellar exit to enter the Guest House",
+   "anchor": "The door of this they found ajar, and, with Budd, they struggled past a number of well-filled bins of old port and sherry to an exit which consisted of a rotting wooden lattice",
+   "span": "The door of this they found ajar, and, with Budd, they struggled past a number of well-filled bins of old port and sherry to an exit which consisted of a rotting wooden lattice covered by brambles.",
+   "ok": true
+  },
+  {
+   "claim": "John Dare contaminates the fountain pen with poison",
+   "anchor": "he carefully unscrewed the cap. It was a self-filler of unusual type. Taking from his pocket a small phial of some liquid, which appeared to be ink, he inserted the nib of the pen and quickly filled it",
+   "span": "Then, selecting her fountain-pen from the silver tray of the handsome inkstand, he carefully unscrewed the cap. It was a self-filler of unusual type. Taking from his pocket a small phial of some liquid, which appeared to be ink, he inserted the nib of the pen and quickly filled it.",
+   "ok": true
+  },
+  {
+   "claim": "John Dare contaminates the mahogany banister with poison",
+   "anchor": "he carefully scraping or picking the handsome carved mahogany post which held the heavy balustrade",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "John Dare dies after stabbing himself during arrest",
+   "anchor": "Charlesworth, in his efforts to obtain possession of it, drew his hand so close to the prisoner’s neck that the point of the blade entered just beneath his right jaw",
+   "span": "Then, of a sudden, Charlesworth, in his efforts to obtain possession of it, drew his hand so close to the prisoner's neck that the point of the blade entered just beneath his right jaw.",
+   "ok": true
+  },
+  {
+   "claim": "The poison is a secret time-poison called ipoh gadong",
+   "anchor": "the secret of the old Bomor Enche Jalal of Kelentan. I brought the ingredients to England with me",
+   "span": "I alone hold the secret of the old Bomor Enche Jalal of Kelentan. I brought the ingredients to England with me.",
+   "ok": true
+  },
+  {
+   "claim": "Women are immune because they wear gloves and touch nothing contaminated",
+   "anchor": "had touched nothing which the midnight intruder, with his green lamp, had with his satanic cunning arranged; for they wore gloves",
+   "span": "They had touched nothing which the midnight intruder, with his green lamp, had with his satanic cunning arranged; for they wore gloves!",
+   "ok": true
+  },
+  {
+   "claim": "The conspiracy to separate Sibell and Otway involves Etta and Ashe",
+   "anchor": "Etta Wyndcliffe had secretly been introduced by Ashe to John Dare",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Gussie Gretton is a false suspect motivated by money",
+   "anchor": "Gussie Gretton, to whom Sibell wrote telling him of the tragic dénouement of the incident of the ring",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The mysterious green light is used by John Dare during his nocturnal visits",
+   "anchor": "they saw a small, dull-green light moving very slowly, until it stopped at the head of the stairs",
+   "span": "was Budd's whispered reply, and, opening the well-oiled door, they both crept in their socks out into the hall, where, at the top of the staircase, they saw a small, dull-green light moving very slowly, until it stopped at the head of the stairs.",
+   "ok": true
+  },
+  {
+   "claim": "Charlesworth and Budd keep a night vigil to catch the intruder",
+   "anchor": "Charlesworth and the smart chauffeur, Budd, were seated together in complete darkness in the long dining-room",
+   "span": "THE MONKEY-GOD Early one stormy morning, about two o'clock, when the rain beat upon the window-panes, Charlesworth and the smart chauffeur, Budd, were seated together in complete darkness in the long dining-room.",
+   "ok": true
+  },
+  {
+   "claim": "The auction sale of the Guest House contents proceeds amid rumors of a curse",
+   "anchor": "After a recent auction sale, in which the whole antique contents were cleared at enormous prices",
+   "span": "After a recent auction sale, in which the whole antique contents were cleared at enormous prices, a firm of decorators--Messrs.",
+   "ok": true
+  },
+  {
+   "claim": "The telegraph boy suffers a sudden fit at the Guest House",
+   "anchor": "a poor little chap--a telegraph boy! ’E fell down the steps, and they say ’e’s dead",
+   "span": "Why, a poor little chap--a telegraph boy! 'E fell down the steps, and they say 'e's dead!",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.12605872,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

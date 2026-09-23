@@ -1,0 +1,136 @@
+{
+ "slug": "the_case_book_of_sherlock_holmes",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Baron Gruner is attacked with vitriol by Miss Kitty Winter",
+   "anchor": "Some had climbed through the window and others had rushed out",
+   "span": "Some had climbed through the window and others had rushed out on to the lawn, but it was dark and it had begun to rain.",
+   "ok": true
+  },
+  {
+   "claim": "The lust diary is a key piece of evidence to break off the marriage",
+   "anchor": "Here is the book the woman talked of",
+   "span": "Here is the book the woman talked of.",
+   "ok": true
+  },
+  {
+   "claim": "Holmes was seriously injured in an attack",
+   "anchor": "A crimson patch had soaked through the white linen compress",
+   "span": "A crimson patch had soaked through the white linen compress.",
+   "ok": true
+  },
+  {
+   "claim": "Josiah Amberley's wife eloped with Dr. Ray Ernest taking his savings",
+   "anchor": "The couple went off together last week--destination untraced",
+   "span": "The couple went off together last week--destination untraced.",
+   "ok": true
+  },
+  {
+   "claim": "Miss Kitty Winter's testimony reveals Gruner's cruelty",
+   "anchor": "I am his last mistress. I am one of a hundred",
+   "span": "'I'll tell you who I am,' she cried, springing out of her chair, her mouth all twisted with passion--'I am his last mistress. I am one of a hundred that he has tempted and used and ruined and thrown into the refuse heap, as he will you also.",
+   "ok": true
+  },
+  {
+   "claim": "Holmes uses a wax effigy to trap Count Sylvius",
+   "anchor": "The impassive head and the collar of the dressing-gown",
+   "span": "Then he gave a violent start as he saw the impassive head and the collar of the dressing-gown which projected above the arm-chair in the window.",
+   "ok": true
+  },
+  {
+   "claim": "Miss Dunbar is falsely accused of murder",
+   "anchor": "A revolver with one discharged chamber and a calibre",
+   "span": "A revolver with one discharged chamber and a calibre which corresponded with the bullet was found on the floor of her wardrobe.",
+   "ok": true
+  },
+  {
+   "claim": "The chip on the stonework of Thor Bridge is a crucial clue",
+   "anchor": "There was a distinct chip on the ledge",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Holmes's reenactment with the revolver proves the murder weapon's trajectory",
+   "anchor": "It had hardly gone before Holmes was kneeling beside the stonework",
+   "span": "It had hardly gone before Holmes was kneeling beside the stonework, and a joyous cry showed that he had found what he expected.",
+   "ok": true
+  },
+  {
+   "claim": "Professor Presbury's strange behavior is linked to a serum from Prague",
+   "anchor": "Since your esteemed visit I have thought much of your case",
+   "span": "Since your esteemed visit I have thought much of your case, and though in your circumstances there are some special reasons for the treatment, I would none the less enjoin caution, as my results have shown that it is not without danger of a kind.",
+   "ok": true
+  },
+  {
+   "claim": "The Lion's Mane jellyfish caused Fitzroy McPherson's death",
+   "anchor": "Cyanea Capillata is the miscreant's full name",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Mrs. Ronder was attacked by the lion after her husband's murder",
+   "anchor": "Ronder lay, with the back of his head crushed in",
+   "span": "Ronder lay, with the back of his head crushed in and deep claw-marks across his scalp, some ten yards from the cage, which was open.",
+   "ok": true
+  },
+  {
+   "claim": "Sir Robert Norberton faked his sister's death to protect his estate",
+   "anchor": "We opened such a coffin, removed the contents, and placed her",
+   "span": "We opened such a coffin, removed the contents, and placed her as you have seen her.",
+   "ok": true
+  },
+  {
+   "claim": "Josiah Amberley was murdered by gas in his strong-room",
+   "anchor": "The pipe runs out into the strong-room, as you can see",
+   "span": "The pipe runs out into the strong-room, as you can see, and ends in that plaster rose in the centre of the ceiling, where it is concealed by the ornamentation.",
+   "ok": true
+  },
+  {
+   "claim": "The bodies were concealed in a disused well covered by a dog kennel",
+   "anchor": "Try your luck there",
+   "span": "Try your luck there.",
+   "ok": true
+  },
+  {
+   "claim": "Holmes and Inspector MacKinnon collaborated to solve the Amberley case",
+   "anchor": "I can usually get my essentials without leaving this room",
+   "span": "Thanks to the telephone and the help of the Yard, I can usually get my essentials without leaving this room.",
+   "ok": true
+  },
+  {
+   "claim": "The false telegram from the vicar was a forgery",
+   "anchor": "There is only one vicarage, sir, and only one vicar",
+   "span": "There is only one vicarage, sir, and only one vicar, and this wire is a scandalous forgery, the origin of which shall certainly be investigated by the police.",
+   "ok": true
+  },
+  {
+   "claim": "The lust diary was kept in a locked brown leather book",
+   "anchor": "A brown leather book with a lock, and his arms in gold",
+   "span": "It's a book he has--a brown leather book with a lock, and his arms in gold on the outside.",
+   "ok": true
+  },
+  {
+   "claim": "Holmes's disguise as Dr. Hill Barton was crucial to gaining access",
+   "anchor": "You will call upon Baron Gruner. I know something of his habits",
+   "span": "You will call upon Baron Gruner. I know something of his habits, and at half-past eight he would probably be disengaged.",
+   "ok": true
+  },
+  {
+   "claim": "Miss Kitty Winter was sent away for her safety after the attack",
+   "anchor": "Tell Shinwell Johnson to get that girl out of the way",
+   "span": "Tell Shinwell Johnson to get that girl out of the way.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.126407268,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

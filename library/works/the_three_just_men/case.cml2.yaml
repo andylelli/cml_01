@@ -1,0 +1,418 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The Three Just Men
+    author: Edgar Wallace
+    license: Public domain (first published 1929; author died 1932). Project Gutenberg ebook 69790.
+    era:
+      decade: 1910s
+      realism_constraints:
+        - No advanced forensic DNA or electronic surveillance
+        - Limited rapid communication, mostly telegraph and telephone
+        - No modern chemical analysis beyond basic chemistry and freezing
+    setting:
+      location: London and Gloucestershire, England
+      institution: Scotland Yard and the private Triangle Detective Agency
+    crime_class:
+      category: murder
+      subtype: frozen snake venom darts concealed in cigarette holders
+  cast:
+    - name: Mirabelle Leicester
+      age_range: young adult
+      role_archetype: innocent heiress
+      relationships:
+        - Aunt Alma Goddard
+        - Joan Newton
+        - Montague Newton
+      public_persona: laboratory secretary, daughter of deceased astronomer
+      private_secret: heir to a valuable gold concession in Angola
+      motive_seed: none
+      motive_strength: none
+      alibi_window: N/A
+      access_plausibility: low
+      opportunity_channels: []
+      behavioral_tells:
+        - cheerful despite captivity
+        - calm under pressure
+      stakes: high personal and financial stakes
+      evidence_sensitivity:
+        - signed blank note-paper for lease renewal
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: female
+      role: victim
+      moral_complexity: low
+    - name: Dr. Eruc Oberzohn
+      age_range: middle-aged to elderly
+      role_archetype: villainous scientist and businessman
+      relationships:
+        - Montague Newton
+        - Gurther
+        - Pfeiffer
+        - Cuccini
+      public_persona: Swedish businessman and scientist
+      private_secret: mastermind behind murders using frozen venom darts
+      motive_seed: financial desperation and greed for gold concession
+      motive_strength: strong
+      alibi_window: N/A
+      access_plausibility: high
+      opportunity_channels:
+        - laboratory
+        - factory
+        - underground vault
+      behavioral_tells:
+        - obsessive about timing and control
+        - calm under siege
+      stakes: immense financial gain
+      evidence_sensitivity:
+        - laboratory apparatus
+        - graphite moulds
+        - frozen venom darts
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: George Manfred
+      age_range: middle-aged
+      role_archetype: private detective leader
+      relationships:
+        - Leon Gonsalez
+        - Poiccart
+        - Inspector Meadows
+      public_persona: head of Triangle Detective Agency
+      private_secret: dedicated to justice beyond law
+      motive_seed: justice
+      motive_strength: strong
+      alibi_window: N/A
+      access_plausibility: high
+      opportunity_channels:
+        - investigation
+        - surveillance
+      behavioral_tells:
+        - calm and methodical
+        - strategic thinker
+      stakes: justice and safety of Mirabelle
+      evidence_sensitivity:
+        - letters in Braille
+        - gold statuette
+        - safe contents
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: high
+    - name: Leon Gonsalez
+      age_range: middle-aged
+      role_archetype: skilled operative and strategist
+      relationships:
+        - George Manfred
+        - Poiccart
+        - Elijah Washington
+      public_persona: chauffeur and member of the Three Just Men
+      private_secret: mastermind of the plan to expose Oberzohn
+      motive_seed: justice and protection
+      motive_strength: strong
+      alibi_window: N/A
+      access_plausibility: high
+      opportunity_channels:
+        - investigation
+        - surveillance
+        - direct action
+      behavioral_tells:
+        - humorous but deadly serious
+        - resourceful
+      stakes: justice and safety of Mirabelle
+      evidence_sensitivity:
+        - frozen venom dart mould
+        - letters
+        - safe contents
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: high
+    - name: Montague (Monty) Newton
+      age_range: young adult to middle-aged
+      role_archetype: fop and gambler with dark side
+      relationships:
+        - Joan Newton
+        - Dr. Oberzohn
+      public_persona: stockbroker, society man
+      private_secret: involved in Oberzohn’s schemes, fiancé of Joan
+      motive_seed: financial gain
+      motive_strength: moderate
+      alibi_window: at theatre during murder
+      access_plausibility: moderate
+      opportunity_channels:
+        - social events
+        - factory
+      behavioral_tells:
+        - nervousness
+        - anger
+        - fear of Just Men
+      stakes: financial and social
+      evidence_sensitivity: []
+      culprit_eligibility: eligible
+      culpability: unknown
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: Joan Newton (Jane Smith)
+      age_range: young adult
+      role_archetype: society girl and reluctant accomplice
+      relationships:
+        - Montague Newton
+        - Mirabelle Leicester
+      public_persona: Monty’s sister, socialite
+      private_secret: involved in Oberzohn’s plot to detain Mirabelle
+      motive_seed: loyalty to Monty
+      motive_strength: weak
+      alibi_window: at theatre and factory
+      access_plausibility: moderate
+      opportunity_channels:
+        - social events
+        - factory
+      behavioral_tells:
+        - nervousness
+        - fear
+        - guilt
+      stakes: personal safety and loyalty
+      evidence_sensitivity: []
+      culprit_eligibility: eligible
+      culpability: unknown
+      gender: female
+      role: suspect
+      moral_complexity: moderate
+    - name: Elijah Washington
+      age_range: middle-aged
+      role_archetype: snake expert and ally
+      relationships:
+        - Leon Gonsalez
+        - George Manfred
+      public_persona: American snake expert
+      private_secret: immune to snake venom, key to exposing method
+      motive_seed: justice and survival
+      motive_strength: strong
+      alibi_window: N/A
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells:
+        - brave
+        - knowledgeable
+      stakes: life and justice
+      evidence_sensitivity:
+        - snake venom effects
+        - venom treatment
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+  culpability:
+    culprit_count: 1
+    culprits:
+      - Dr. Eruc Oberzohn
+  surface_model:
+    narrative:
+      summary: >-
+        A series of mysterious deaths in London are attributed to a deadly escaped snake, the black
+        mamba. Mirabelle Leicester, heir to a valuable gold concession, is kidnapped and held
+        captive by Dr. Oberzohn and his gang, who use a novel method of murder involving frozen
+        snake venom darts concealed in cigarette holders. The Three Just Men and their allies
+        investigate to uncover the truth.
+    accepted_facts:
+      - Victims died from snake bites with no physical evidence of a snake or dart
+      - Mirabelle Leicester is heir to a gold concession in Angola
+      - Dr. Oberzohn and his gang are involved in criminal activities
+      - Montague Newton died suddenly at a theatre from a snake bite
+    inferred_conclusions:
+      - The snake is a real escaped black mamba responsible for the murders
+      - Montague Newton was killed by the snake accidentally
+      - Mirabelle Leicester’s kidnapping is unrelated to the murders
+  hidden_model:
+    mechanism:
+      description: >-
+        Dr. Oberzohn extracted venom from various deadly snakes and blended them to create a potent
+        poison. He then froze the venom into tiny ice darts, which were concealed inside hollow
+        metal cigarette holders used as blowpipes by his assassins. When blown, the darts melted
+        upon contact, delivering lethal venom without leaving physical evidence, making the deaths
+        appear as natural snake bites.
+      delivery_path:
+        - step: Venom extracted from snakes and blended by Oberzohn
+        - step: Venom diluted and poured into microscopic moulds
+        - step: Venom frozen into tiny ice darts
+        - step: Darts concealed inside hollow metal cigarette holders
+        - step: Assassins used cigarette holders as blowpipes to deliver darts
+        - step: Darts melted upon contact, injecting venom without trace
+        - step: Victims died from venomous bites with no physical dart evidence
+    outcome:
+      result: >-
+        Dr. Oberzohn’s plot is exposed, he dies from his own venom darts, and Mirabelle’s gold
+        concession is secured.
+  false_assumption:
+    statement: The deaths were caused by an escaped black mamba snake biting the victims.
+    type: identity
+    why_it_seems_reasonable: >-
+      Victims showed puncture wounds typical of snake bites and the presence of a deadly escaped
+      black mamba was reported in London. Eyewitnesses and medical opinions initially supported
+      snake bite as cause of death.
+    what_it_hides: >-
+      The actual cause was a sophisticated murder method using frozen venom darts delivered via
+      cigarette holders, not a real snake attack.
+  false_solution:
+    accused_suspect: Montague (Monty) Newton
+    supporting_points:
+      - Monty was present at key locations and had motive for financial gain
+      - He was involved in suspicious activities and had conflicts with investigators
+      - His sudden death at the theatre seemed suspicious
+      - He had opportunity to harm Mirabelle and others
+    the_one_flaw: Montague Newton was actually a victim of the venom dart assassination, not the perpetrator.
+    refuted_in_chapter: 34
+  red_herrings:
+    - id: montague_newton_suspicious_behaviour
+      description: Montague Newton’s gambling losses and erratic behavior suggest possible guilt.
+      points_at_suspect: Montague (Monty) Newton
+      innocent_explanation: Montague was manipulated and ultimately killed by Oberzohn’s gang.
+      resolved_in_chapter: 27
+    - id: joan_newton_loyalty_conflict
+      description: Joan Newton’s role as Monty’s sister and her involvement in the plot raise suspicion.
+      points_at_suspect: Joan Newton (Jane Smith)
+      innocent_explanation: Joan was coerced and fearful, acting under duress without true culpability.
+      resolved_in_chapter: 30
+  closed_circle:
+    suspects:
+      - Dr. Eruc Oberzohn
+      - Montague (Monty) Newton
+      - Joan Newton (Jane Smith)
+      - Gurther
+      - Pfeiffer
+      - Cuccini
+    rationale: >-
+      All suspects are connected to Oberzohn’s criminal enterprise and had access to the victims and
+      means to commit the murders.
+  constraint_space:
+    time:
+      anchors:
+        - June 14, 1912 - deadline for concession renewal
+        - Night of the Arts Ball
+        - Arrival of Elijah Washington in Lisbon
+      windows:
+        - Period between deaths of victims
+        - Five days before concession renewal deadline
+        - Duration of siege at Oberzohn’s house
+    access:
+      actors:
+        - Dr. Eruc Oberzohn
+        - Gurther
+        - Pfeiffer
+        - Cuccini
+        - Montague (Monty) Newton
+      objects:
+        - Laboratory
+        - Factory cellar
+        - Underground vault
+        - Cigarette holders
+        - Frozen venom darts
+    social:
+      trust_channels:
+        - Letters in Braille
+        - Telegram communications
+        - Private detective agency
+        - Police cooperation
+      authority_sources:
+        - Scotland Yard
+        - Triangle Detective Agency
+        - Portuguese Colonial Office
+        - Police Inspector Meadows
+  inference_path:
+    steps:
+      - observation: Victims showed puncture wounds typical of snake bites but no snake or dart was found.
+        correction: The wounds were caused by tiny venom darts that melted after delivery.
+        effect: Disproves natural snake attack theory.
+        required_evidence:
+          - Search of crime scenes showing no physical darts
+          - Laboratory discovery of frozen venom dart moulds
+        reader_observable: true
+      - observation: Mirabelle Leicester was brought into Oberzohn’s laboratory under suspicious circumstances.
+        correction: She was targeted due to her inheritance of a valuable gold concession.
+        effect: Establishes motive for Oberzohn’s actions.
+        required_evidence:
+          - Letters and telegrams about concession renewal
+          - Barberton’s letter describing gold find
+        reader_observable: true
+      - observation: Montague Newton died suddenly at the theatre with snake bite wounds.
+        correction: He was assassinated using the same venom dart method.
+        effect: Shows Monty was a victim, not culprit.
+        required_evidence:
+          - Medical examination of Monty’s wounds
+          - Witness accounts of theatre events
+        reader_observable: true
+      - observation: Oberzohn’s factory and house contained many deadly snakes and venom extraction equipment.
+        correction: Oberzohn used these to produce the venom for the darts.
+        effect: Links Oberzohn to the murder weapon.
+        required_evidence:
+          - Discovery of venom extraction apparatus
+          - Frozen venom darts moulds found in laboratory
+        reader_observable: true
+      - observation: Letters in Braille and documents reveal the gold concession’s value and renewal deadline.
+        correction: Oberzohn’s motive was to prevent renewal by detaining Mirabelle.
+        effect: Confirms financial motive.
+        required_evidence:
+          - Braille letters from Barberton
+          - Official concession renewal documents
+        reader_observable: true
+      - observation: Elijah Washington survived a venom dart attack and is immune to snake venom.
+        correction: His survival disproves natural snake bite and supports artificial venom use.
+        effect: Supports venom dart theory.
+        required_evidence:
+          - Washington’s medical records
+          - Witness testimony of attack
+        reader_observable: true
+      - observation: Oberzohn was found dead with symptoms of venom dart poisoning.
+        correction: He was killed by his own venom darts during the final confrontation.
+        effect: Ends Oberzohn’s threat and confirms method.
+        required_evidence:
+          - Autopsy report
+          - Discovery of venom dart cigarette holder
+        reader_observable: true
+  discriminating_test:
+    method: reenactment
+    design: >-
+      The detectives recreated the venom delivery by using the hollow metal cigarette holders and
+      frozen venom darts found in Oberzohn’s laboratory. They demonstrated that the darts could be
+      blown from the holders, melt upon contact, and deliver lethal venom without leaving physical
+      evidence. This reenactment was conducted under observation to confirm the feasibility of the
+      murder method.
+    knowledge_revealed: >-
+      This test revealed that the murders were not caused by a real snake but by a sophisticated
+      artificial venom delivery system using frozen darts.
+    pass_condition: >-
+      The darts must be shown to penetrate skin and deliver venom effectively while melting
+      completely, leaving no trace of a dart.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given detailed descriptions of the victims’ wounds, the laboratory equipment,
+      and the suspicious behavior of Oberzohn and his gang. Clues such as the absence of physical
+      darts, the presence of venom extraction apparatus, and the Braille letters about the gold
+      concession are all presented. The method of frozen venom darts is hinted at through the
+      discovery of moulds and the explanation of venom freezing. The reader could deduce the
+      mechanism by connecting these clues logically.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

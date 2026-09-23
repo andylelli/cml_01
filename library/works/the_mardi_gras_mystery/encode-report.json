@@ -114,8 +114,8 @@
   {
    "claim": "The Midnight Masquer's loot was returned to the owners",
    "anchor": "A number of people have received back property this afternoon--loot the bandit had taken.",
-   "span": "",
-   "ok": false
+   "span": "It seems that a number of people have received back property this afternoon--loot the bandit had taken. It came by mail, special delivery.",
+   "ok": true
   },
   {
    "claim": "Ben Chacherre tries to frame Hammond for murder",
@@ -130,5 +130,7 @@
   "encode": "gpt-4.1-mini",
   "sweep": "gpt-4o-mini"
  },
- "case_written": true
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
 }

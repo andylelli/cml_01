@@ -1,0 +1,395 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: Malcolm Sage, Detective
+    author: Herbert George Jenkins
+    license: Public domain (first published 1921; author died 1923). Project Gutenberg ebook 28084.
+    era:
+      decade: 1910s
+      realism_constraints:
+        - No modern forensic DNA analysis available
+        - Telephones and motor cars exist but are not ubiquitous
+        - Police rely on fingerprints, photography, and logical deduction
+    setting:
+      location: England, various locations including London, Surrey, Hampshire, Essex
+      institution: Malcolm Sage Detective Bureau
+    crime_class:
+      category: murder
+      subtype: locked-room shooting with forged suicide
+  cast:
+    - name: Malcolm Sage
+      age_range: 40-60
+      role_archetype: analytical private detective
+      relationships: []
+      public_persona: respected detective with keen analytical skills
+      private_secret: uses photography and logical deduction extensively
+      motive_seed: none
+      motive_strength: none
+      alibi_window: always present at investigation scenes
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells:
+        - restless hands when thinking
+        - keen observational skills
+      stakes: professional reputation and justice
+      evidence_sensitivity:
+        - photographs of crime scenes
+        - fingerprints
+        - physical traces
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: low
+    - name: Sir James Walton
+      age_range: 60-70
+      role_archetype: loyal friend and former chief of staff
+      relationships:
+        - Geoffrey Challoner (victim)
+      public_persona: respected elder statesman
+      private_secret: close friend of victim Geoffrey Challoner
+      motive_seed: none
+      motive_strength: none
+      alibi_window: present at crime scene discovery
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: justice for friend
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+    - name: Peters
+      age_range: 40-50
+      role_archetype: butler with criminal past
+      relationships:
+        - Geoffrey Challoner (victim)
+      public_persona: trustworthy butler
+      private_secret: forger and murderer
+      motive_seed: financial gain and concealment of forgery
+      motive_strength: strong
+      alibi_window: present at crime scene and locked room
+      access_plausibility: high
+      opportunity_channels:
+        - access to library
+        - knowledge of locks
+      behavioral_tells:
+        - nervousness
+        - practice marks on doors
+      stakes: avoid arrest and punishment
+      evidence_sensitivity:
+        - fingerprints
+        - marks on door bottom
+        - photographs of body and keys
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: moderate
+    - name: Richard Dane
+      age_range: 20-30
+      role_archetype: nephew with contentious relationship
+      relationships:
+        - Geoffrey Challoner (victim, uncle)
+      public_persona: nervous young man
+      private_secret: engaged to a secretary against uncle's wishes
+      motive_seed: disinheritance threat
+      motive_strength: moderate
+      alibi_window: uncertain late night
+      access_plausibility: medium
+      opportunity_channels:
+        - access to house
+      behavioral_tells:
+        - nervous twitching
+      stakes: inheritance
+      evidence_sensitivity: []
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: Sir Jasper Chambers
+      age_range: 60-70
+      role_archetype: philanthropist with secret motive
+      relationships:
+        - Professor James McMurray (victim)
+      public_persona: respected humanitarian and friend of victim
+      private_secret: killed to prevent serum revelation
+      motive_seed: prevent societal chaos from serum discovery
+      motive_strength: strong
+      alibi_window: present at laboratory before murder
+      access_plausibility: high
+      opportunity_channels:
+        - access to laboratory
+      behavioral_tells:
+        - left-handed
+        - smokes specific tobacco
+      stakes: societal welfare vs personal friendship
+      evidence_sensitivity:
+        - pipe
+        - tobacco
+        - marmalade dislike
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Lady Glanedale
+      age_range: 40-50
+      role_archetype: fraudulent victim
+      relationships:
+        - Robert Glanedale (stepson)
+      public_persona: socialite victim of burglary
+      private_secret: staged robbery to claim insurance
+      motive_seed: financial gain
+      motive_strength: strong
+      alibi_window: present at home during staged crime
+      access_plausibility: high
+      opportunity_channels:
+        - access to safe and jewels
+      behavioral_tells:
+        - rehearsed story
+        - contradictory actions
+      stakes: insurance money
+      evidence_sensitivity:
+        - footprints
+        - water-pipe marks
+        - jewel list
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: female
+      role: culprit
+      moral_complexity: moderate
+    - name: Gladys Norman
+      age_range: 20-30
+      role_archetype: loyal secretary
+      relationships:
+        - Malcolm Sage (detective)
+      public_persona: devoted secretary
+      private_secret: admiration and affection for Sage
+      motive_seed: none
+      motive_strength: none
+      alibi_window: always at bureau
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: professional loyalty
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: low
+  culpability:
+    culprit_count: 2
+    culprits:
+      - Peters
+      - Sir Jasper Chambers
+  surface_model:
+    narrative:
+      summary: >-
+        The case initially appears as a locked-room suicide of Geoffrey Challoner, with no apparent
+        motive and impossible entry. Later, a mysterious murder of Professor McMurray with a
+        rejuvenated body and a missing document puzzles the police. Finally, a staged burglary by
+        Lady Glanedale and the disappearance of boxer Charley Burns add complexity to the
+        detective's investigations.
+    accepted_facts:
+      - Geoffrey Challoner was found shot in a locked library with the door locked from inside
+      - Professor McMurray was found dead with a battered head and appeared younger
+      - Lady Glanedale reported a burglary with stolen jewels and footprints outside her window
+      - Charley Burns disappeared before a major fight and was later found held captive
+    inferred_conclusions:
+      - Challoner committed suicide due to family disputes
+      - The tramp arrested for McMurray's murder was the killer
+      - The burglaries and cattle-maimings were unrelated isolated crimes
+  hidden_model:
+    mechanism:
+      description: >-
+        Peters, the butler, forged cheques and murdered Geoffrey Challoner by shooting him from
+        behind, then locked the door using a string and pencil trick to simulate suicide. Sir Jasper
+        Chambers killed Professor McMurray to prevent the serum's revelation, staging the scene to
+        mislead investigators. Lady Glanedale faked a burglary to claim insurance money, creating
+        false footprints and staging the scene.
+      delivery_path:
+        - step: Peters practiced locking doors with string and pencil to simulate locked-room
+        - step: Peters shot Challoner from behind while he was absorbed in his passbook
+        - step: Peters replaced passbook to hide forgery evidence
+        - step: >-
+            Sir Jasper Chambers entered McMurray's lab by appointment and killed him with a
+            left-handed blow
+        - step: Sir Jasper staged forced entry and destroyed evidence including manuscripts
+        - step: Lady Glanedale created false footprints and staged burglary to claim insurance
+        - step: Malcolm Sage used photography, fingerprints, and logical deduction to uncover the truth
+    outcome:
+      result: >-
+        Malcolm Sage exposes Peters as the murderer of Challoner, Sir Jasper Chambers as McMurray's
+        killer, and Lady Glanedale as a fraudster, restoring justice.
+  false_assumption:
+    statement: Geoffrey Challoner's death was a straightforward suicide due to family quarrel.
+    type: behavioral
+    why_it_seems_reasonable: >-
+      The locked door and presence of a pistol in Challoner's hand suggest suicide, and the family
+      dispute provides a plausible motive. The police and doctor initially confirm the suicide
+      verdict.
+    what_it_hides: >-
+      It conceals the fact that the door was locked from outside using a string and pencil trick by
+      Peters, who murdered Challoner to cover up forgery.
+  false_solution:
+    accused_suspect: Richard Dane
+    supporting_points:
+      - He had a quarrel with his uncle and was threatened with disinheritance
+      - He returned late at night and was nervous
+      - He had motive to cause distress to Challoner
+      - He was present in the house at the relevant time
+    the_one_flaw: >-
+      He lacked the opportunity and means to commit the murder in a locked room, and no evidence
+      linked him directly to the crime.
+    refuted_in_chapter: 3
+  red_herrings:
+    - id: richard_dane_nervousness
+      description: Richard Dane's nervous behavior and family quarrel suggest guilt.
+      points_at_suspect: Richard Dane
+      innocent_explanation: His nervousness was due to stress over his engagement and family disputes, not guilt.
+      resolved_in_chapter: 3
+    - id: tramp_mcmurray_murder
+      description: A tramp was arrested for McMurray's murder based on possession of the watch and bloodstains.
+      points_at_suspect: Tramp
+      innocent_explanation: >-
+        The tramp found the watch and was wrongly accused; the real murderer was Sir Jasper
+        Chambers.
+      resolved_in_chapter: 11
+  closed_circle:
+    suspects:
+      - Peters
+      - Richard Dane
+      - Sir James Walton
+      - Sir Jasper Chambers
+      - Lady Glanedale
+    rationale: >-
+      All had access to the crime scenes and potential motives; the locked-room nature and forensic
+      evidence narrowed suspects to those with opportunity and means.
+  constraint_space:
+    time:
+      anchors:
+        - Half-past seven in the morning when body was found
+        - Evening of previous day when quarrel occurred
+        - Tuesday night for McMurray's murder
+        - Early morning of burglary at Lady Glanedale's
+      windows:
+        - Between 10 pm and midnight for Challoner's murder
+        - Between dinner and next morning for McMurray's murder
+        - Around 1 am for Lady Glanedale's burglary
+        - Day before fight for Burns's disappearance
+    access:
+      actors:
+        - Peters (butler)
+        - Richard Dane (nephew)
+        - Sir Jasper Chambers (friend)
+        - Lady Glanedale (resident)
+      objects:
+        - Library door and windows
+        - Laboratory door and wicket
+        - Safe and jewel cases
+        - Cars and bicycles at The Towers
+    social:
+      trust_channels:
+        - Butler's testimony
+        - Fingerprints and photography
+        - Handwriting experts
+        - Witness statements
+      authority_sources:
+        - Scotland Yard inspectors
+        - Medical doctors
+        - Insurance company assessors
+        - Malcolm Sage's detective authority
+  inference_path:
+    steps:
+      - observation: The library door was locked from inside with key in place
+        correction: A string and pencil trick was used to lock the door from outside
+        effect: Shows the locked-room was faked
+        required_evidence:
+          - Marks of string on the bottom edge of the library door
+          - Photograph showing reflection of cord marks under the door
+        reader_observable: true
+      - observation: Challoner's hand held the pistol unnaturally with second joint on trigger
+        correction: Murderer shot him from behind, causing unnatural hand position
+        effect: Indicates murder, not suicide
+        required_evidence:
+          - Photograph of Malcolm Sage simulating shooting from behind
+          - Photograph of the wound showing abrasion consistent with head jerk
+        reader_observable: true
+      - observation: Professor McMurray's body appeared younger than his age
+        correction: Serum experiment caused rejuvenation, motive for murder
+        effect: Suggests scientific breakthrough and motive
+        required_evidence:
+          - Press-cutting of article 'The Dangers of Longevity'
+          - Safe contents and dummy packet
+        reader_observable: true
+      - observation: Missing document replaced by blank sheets identical in number and quality
+        correction: Theft was planned by someone knowing document's arrival and contents
+        effect: Narrows suspect to insiders
+        required_evidence:
+          - Safe contents and dummy packet
+          - Note from Sir Lyster Grayne about document placement
+        reader_observable: true
+      - observation: Footprints and marks on water-pipe at Lady Glanedale's window
+        correction: Footprints made before rain, inconsistent with story
+        effect: Indicates staged burglary
+        required_evidence:
+          - Measurements of footprints and stride length
+          - Rain drops on leaves inside footprints
+        reader_observable: true
+      - observation: Anonymous letters written on Olympic Script paper
+        correction: Secret ink revealed by heating letters
+        effect: Identifies letter writer
+        required_evidence:
+          - Letters sealed by vicar and opened with metal plate and flame
+          - Handwriting analysis of letters and sermons
+        reader_observable: true
+      - observation: Charley Burns disappeared before fight
+        correction: Kidnapped by well-dressed men with damaged nose and umbrella
+        effect: Reveals motive and suspects
+        required_evidence:
+          - Footprints and marks near rhododendrons
+          - Cigar with red and gold band found at scene
+        reader_observable: true
+  discriminating_test:
+    method: reenactment
+    design: >-
+      Malcolm Sage reenacted the shooting position and examined the locked door with a mirror and
+      torch to detect marks of the string and pencil trick. He also measured footprints and marks at
+      Lady Glanedale's house, and heated letters to reveal secret ink.
+    knowledge_revealed: >-
+      The reenactment revealed that the locked door was manipulated from outside, the footprints
+      were inconsistent with the story, and the letters contained secret ink identifying the true
+      writer.
+    pass_condition: >-
+      Physical evidence such as string marks under the door and secret ink appearing on heated
+      letters must be observable and consistent with the reenactment.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given detailed descriptions of the locked door, the position of the body and
+      keys, the marks on the door bottom, and the photographs taken. The secret of the string and
+      pencil trick is explained and illustrated. The inconsistencies in footprints and the secret
+      ink in letters are presented with sufficient clues. The reader could deduce the true culprit
+      by careful attention to these details and logical reasoning.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

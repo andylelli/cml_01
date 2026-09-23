@@ -1,0 +1,136 @@
+{
+ "slug": "the_desert_moon_mystery",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Gabrielle Canneziano was strangled to death on the attic stairway",
+   "anchor": "lying in a huddle of pink wrap. Her hat had fallen off",
+   "span": "About half way up the steps, Gaby was lying in a huddle of pink wrap. Her hat had fallen off.",
+   "ok": true
+  },
+  {
+   "claim": "Chadwick Caufield committed suicide shortly after the murder",
+   "anchor": "He walked out and shot himself, through the head",
+   "span": "He walked out and shot himself, through the head.",
+   "ok": true
+  },
+  {
+   "claim": "Gabrielle and Danielle Canneziano are identical twins who came to live at the ranch",
+   "anchor": "Gabrielle and Danielle, the two girls had been on the ranch",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Gabrielle wrote a note to Danielle expressing fear of being murdered",
+   "anchor": "If you ever read this, I shall be dead—murdered",
+   "span": "Danny dear: If you ever read this, I shall be dead-murdered.",
+   "ok": true
+  },
+  {
+   "claim": "Pipe ashes found on Gabrielle's beaded bag and carpet",
+   "anchor": "burned tobacco and the ashes from Sam’s pipe",
+   "span": "Dropped all over the bright beaded bag, lying there, were the burned tobacco and the ashes from Sam's pipe.",
+   "ok": true
+  },
+  {
+   "claim": "Mary Magin cleaned the pipe ashes from the bag and carpet",
+   "anchor": "I shook them from the bag to the carpet. I brushed them",
+   "span": "I shook them from the bag to the carpet. I brushed them from the carpet into my handkerchief.",
+   "ok": true
+  },
+  {
+   "claim": "The key to the attic door was missing and later found blackened in the fireplace ashes",
+   "anchor": "I believe that it is the missing key to the attic door",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Gabrielle impersonated Danielle after murdering her",
+   "anchor": "I at once made up my mind to kill Danielle, the little fool, and take her place",
+   "span": "and found myself penniless and planless on a Nevada ranch, I at once made up my mind to kill Danielle, the little fool, and take her place.",
+   "ok": true
+  },
+  {
+   "claim": "John Stanley had an alibi supported by witnesses and physical evidence",
+   "anchor": "He had two bum excuses. First, tire trouble. That would be a better excuse",
+   "span": "He had two bum excuses. First, tire trouble. That would be a better excuse, if the car wasn't standing in the garage right now with the same tires on it that he started out with.",
+   "ok": true
+  },
+  {
+   "claim": "Chadwick Caufield left a false confession to shield others",
+   "anchor": "That poor boy is as innocent of any connection with the murder as I am",
+   "span": "That poor boy is as innocent of any connection with the murder as I am.",
+   "ok": true
+  },
+  {
+   "claim": "Mrs. Ollie Ricker confessed to killing Gabrielle",
+   "anchor": "I killed her. The guilt is entirely mine",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Gabrielle killed her father Daniel Canneziano",
+   "anchor": "I got rid of that cur, Canneziano, not because I was afraid of him",
+   "span": "I got rid of that cur, Canneziano, not because I was afraid of him, but because he tried to double cross me.",
+   "ok": true
+  },
+  {
+   "claim": "Gabrielle poisoned Martha Stanley with poison hidden in a charm bracelet",
+   "anchor": "This bangle thing opens. I think we can be certain that the poison she took came out of it",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Gabrielle committed suicide after confessing to the murders",
+   "anchor": "Gabrielle Canneziano, lying on the couch. Over her breast was a widening spot of color",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The code letter was a simple substitution cipher typed on a typewriter",
+   "anchor": "The keys on typewriters, with a standard keyboard, are arranged",
+   "span": "The keys on typewriters, with a standard keyboard, are arranged, you know, for the touch system of writing: a, s, d, f, g, so on.",
+   "ok": true
+  },
+  {
+   "claim": "Gabrielle's note to Danny was written in the same handwriting as the inscription on the photograph",
+   "anchor": "The note to Danielle Canneziano, and the writing on the photograph were done by the same person",
+   "span": "the note to Danielle Canneziano, and the writing on the photograph were done by the same person.",
+   "ok": true
+  },
+  {
+   "claim": "Gabrielle's impersonation deceived the household for a generous period of time",
+   "anchor": "how one girl, by changing her clothes and by washing her face, could turn a houseful of supposedly sensible people into a packet of blithering, bat-blind fools",
+   "span": "CHAPTER LXI Epilogue Sam says, bitterly, that the only thing I need to explain is the one thing that can ever be explained: how one girl, by changing her clothes and by washing her face, could turn a houseful of supposedly sensible people into a packet of blithering, bat-blind fools for a generous period of time.",
+   "ok": true
+  },
+  {
+   "claim": "John Stanley loved Danielle and did not believe she was guilty",
+   "anchor": "John had never recognized, much less admitted to himself, that there was the slightest similarity between the two girls",
+   "span": "John had never recognized, much less admitted to himself, that there was the slightest similarity between the two girls.",
+   "ok": true
+  },
+  {
+   "claim": "Chadwick Caufield helped conceal the crimes and committed suicide",
+   "anchor": "When he saw what had happened, and when he realized that the girl whom he had worshipped was a murderer, he killed himself",
+   "span": "When he saw what had happened, and when he realized that the girl whom he had worshipped was a murderer, he killed himself.",
+   "ok": true
+  },
+  {
+   "claim": "Miss MacDonald is the crime analyst who solves the case",
+   "anchor": "I have to ask each of you not to talk to me about the case",
+   "span": "I have to ask each of you not to talk to me about the case.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.129045552,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

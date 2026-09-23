@@ -1,0 +1,419 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: Three sevens
+    author: Perley Poore Sheehan
+    license: Public domain (first published 1927; author died 1943). Project Gutenberg ebook 78011.
+    era:
+      decade: 1920s
+      realism_constraints:
+        - No advanced forensic technology like DNA or modern ballistics
+        - Communication limited to telephone, telegraph, and physical mail
+        - Prison security relies on physical locks, guards, and manual oversight
+    setting:
+      location: San Pedro Prison and surrounding towns in the United States
+      institution: San Pedro Prison and local law enforcement including district attorney's office
+    crime_class:
+      category: disappearance
+      subtype: prison break and recapture
+  cast:
+    - name: Daniel Craig (Thomas Masters, Three Sevens)
+      age_range: 30-40
+      role_archetype: wrongly accused noble outlaw
+      relationships:
+        - Joan Gracie (ally and love interest)
+        - Major Gracie (friend and warden)
+        - Eddie Yarmouth (ally)
+        - Joan's Aunt Katherine (protector)
+      public_persona: escaped convict and leader of prison revolt
+      private_secret: innocent of original murder charge, seeking justice
+      motive_seed: clear his name and repay debts to society
+      motive_strength: strong
+      alibi_window: throughout the story, mostly outside prison after escape
+      access_plausibility: high
+      opportunity_channels:
+        - prison escape
+        - underworld contacts
+        - political reform movement
+      behavioral_tells:
+        - calm under pressure
+        - strategic thinker
+        - charismatic leader
+      stakes: high - freedom, justice, and survival
+      evidence_sensitivity:
+        - red ledger
+        - letters to Joan
+        - prison records
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: high
+    - name: Joan Gracie
+      age_range: 18-25
+      role_archetype: loyal daughter and reformist
+      relationships:
+        - Daniel Craig (ally and love interest)
+        - Major Gracie (father)
+        - Aunt Katherine (guardian)
+      public_persona: warden's daughter and secretary
+      private_secret: secretly aids Craig and believes in his innocence
+      motive_seed: help Craig and reform prison system
+      motive_strength: strong
+      alibi_window: present at prison and later in Fairhaven
+      access_plausibility: high
+      opportunity_channels:
+        - prison office
+        - family influence
+      behavioral_tells:
+        - compassionate
+        - determined
+        - trusting
+      stakes: personal safety and family honor
+      evidence_sensitivity:
+        - letters from Craig
+        - red ledger
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: moderate
+    - name: Major Jerome Gracie
+      age_range: 50-60
+      role_archetype: honest reformist warden
+      relationships:
+        - Joan Gracie (daughter)
+        - Daniel Craig (ally)
+      public_persona: new warden of San Pedro Prison
+      private_secret: supports reform and Craig's cause
+      motive_seed: improve prison and uphold justice
+      motive_strength: strong
+      alibi_window: mostly at prison and Fairhaven
+      access_plausibility: high
+      opportunity_channels:
+        - warden's authority
+      behavioral_tells:
+        - calm
+        - authoritative
+        - supportive
+      stakes: institutional reform and family safety
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: moderate
+    - name: Samuel Green
+      age_range: 50-60
+      role_archetype: disgraced ex-warden and antagonist
+      relationships:
+        - Amy Beekman (daughter)
+        - Brewster (son)
+      public_persona: former warden of San Pedro
+      private_secret: seeks revenge on Craig
+      motive_seed: resentment and loss of position
+      motive_strength: moderate
+      alibi_window: present at prison and with posse
+      access_plausibility: high
+      opportunity_channels:
+        - warden's knowledge
+        - posse leadership
+      behavioral_tells:
+        - resentful
+        - aggressive
+        - vindictive
+      stakes: personal revenge and reputation
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: unknown
+      gender: male
+      role: suspect
+      moral_complexity: high
+    - name: Count Wolf (Edwardo Cortinnys y Ottero)
+      age_range: 40-50
+      role_archetype: notorious criminal and antagonist
+      relationships:
+        - Max (associate)
+        - Marebello (ally)
+      public_persona: international thief and swindler
+      private_secret: plots vengeance and criminal acts
+      motive_seed: revenge and self-preservation
+      motive_strength: strong
+      alibi_window: various criminal hideouts
+      access_plausibility: high
+      opportunity_channels:
+        - criminal network
+        - secret meetings
+      behavioral_tells:
+        - cunning
+        - violent
+        - calculating
+      stakes: freedom and criminal empire
+      evidence_sensitivity:
+        - shackles
+        - elevator fight traces
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Trick O’Ray
+      age_range: 30-40
+      role_archetype: safe blower and criminal
+      relationships:
+        - Violet (associate)
+      public_persona: safe blower and thief
+      private_secret: involved in criminal plots
+      motive_seed: profit
+      motive_strength: moderate
+      alibi_window: various hideouts
+      access_plausibility: high
+      opportunity_channels:
+        - criminal contacts
+      behavioral_tells:
+        - eager
+        - volatile
+      stakes: freedom and money
+      evidence_sensitivity: []
+      culprit_eligibility: eligible
+      culpability: unknown
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: Ben Jarvis
+      age_range: 30-40
+      role_archetype: violent criminal and highwayman
+      relationships:
+        - Violet (associate)
+      public_persona: highwayman and outlaw
+      private_secret: involved in violent crimes
+      motive_seed: greed and survival
+      motive_strength: moderate
+      alibi_window: various hideouts
+      access_plausibility: high
+      opportunity_channels:
+        - criminal network
+      behavioral_tells:
+        - calm
+        - ruthless
+      stakes: freedom and loot
+      evidence_sensitivity: []
+      culprit_eligibility: eligible
+      culpability: unknown
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+  culpability:
+    culprit_count: 1
+    culprits:
+      - Count Wolf (Edwardo Cortinnys y Ottero)
+  surface_model:
+    narrative:
+      summary: >-
+        Daniel Craig, an escaped convict known as Three Sevens, leads a prison revolt and escapes
+        San Pedro Prison. He vows to repay his debts by capturing dangerous fugitives he
+        inadvertently freed, while being pursued by law enforcement and a vengeful ex-warden. The
+        story culminates in a dramatic confrontation with Count Wolf, a notorious criminal.
+    accepted_facts:
+      - Daniel Craig escaped from San Pedro Prison and led a revolt
+      - Craig is innocent of the original murder charge
+      - Count Wolf is a dangerous criminal and antagonist
+      - Craig is working with law enforcement to capture other fugitives
+    inferred_conclusions:
+      - Craig is guilty of the original murder
+      - Joan Gracie is conspiring with criminals
+      - Ex-Warden Green is loyal and just
+  hidden_model:
+    mechanism:
+      description: >-
+        Craig orchestrated a prison break using saws smuggled in by allies and took control of the
+        prison temporarily. After escape, he systematically tracked and captured dangerous fugitives
+        he had freed, using a combination of underworld contacts, law enforcement cooperation, and
+        strategic planning. The final capture of Count Wolf involved a physical confrontation in a
+        private residence, followed by a perilous elevator shaft struggle.
+      delivery_path:
+        - step: Saws were smuggled to Craig in the punishment cell to cut through the iron door
+        - step: Craig subdued the guards and took control of the prison
+        - step: Craig escaped with the help of allies and assumed a new identity
+        - step: He gathered information and allies to track fugitives
+        - step: Craig confronted and captured Count Wolf at the Marebello residence
+        - step: A struggle ensued on the elevator shaft, ending with Count Wolf's capture
+        - step: Craig returned the captured criminals to law enforcement
+    outcome:
+      result: >-
+        Daniel Craig successfully captures Count Wolf and other fugitives, clearing his name and
+        fulfilling his promise to repay his debts to society.
+  false_assumption:
+    statement: Daniel Craig is guilty of the murder for which he was imprisoned.
+    type: identity
+    why_it_seems_reasonable: >-
+      Craig was convicted in a court of law and served time in prison, which normally implies guilt.
+      The narrative initially presents him as a dangerous convict and leader of a prison revolt.
+    what_it_hides: >-
+      It conceals the truth that Craig was innocent and that the real murderer was Brewster, the
+      ex-warden's son. This false assumption misdirects suspicion away from the true culprit and
+      obscures Craig's motivations.
+  false_solution:
+    accused_suspect: Samuel Green
+    supporting_points:
+      - Green was the disgraced ex-warden seeking revenge
+      - He organized a posse to capture Craig
+      - He had motive to frame Craig
+      - He was present at key moments of pursuit
+    the_one_flaw: >-
+      Green lacked concrete evidence and was ultimately revealed to be misled by his own biases and
+      family secrets.
+    refuted_in_chapter: 25
+  red_herrings:
+    - id: ex_warden_revenge
+      description: >-
+        Samuel Green's vendetta against Craig and his suspicious behavior suggest he might be the
+        mastermind behind the chaos.
+      points_at_suspect: Samuel Green
+      innocent_explanation: >-
+        Green acted out of personal resentment but was not involved in the original murder or the
+        prison break; he was manipulated by his own emotions and family issues.
+      resolved_in_chapter: 25
+    - id: harry_the_goose_loyalty
+      description: >-
+        Harry, the Goose, initially appears threatening and untrustworthy, possibly a traitor or
+        accomplice to the criminals.
+      points_at_suspect: Harry Gosse
+      innocent_explanation: >-
+        Harry is a cowardly and self-interested man but ultimately is captured and controlled by
+        Craig, posing no real threat to the investigation.
+      resolved_in_chapter: 18
+  closed_circle:
+    suspects:
+      - Daniel Craig (Thomas Masters, Three Sevens)
+      - Samuel Green
+      - Count Wolf (Edwardo Cortinnys y Ottero)
+      - Trick O’Ray
+      - Ben Jarvis
+      - Harry Gosse
+    rationale: >-
+      All suspects are connected to the prison break and subsequent criminal activities, with
+      limited access and opportunity. The circle is closed by the known fugitives and prison
+      officials involved.
+  constraint_space:
+    time:
+      anchors:
+        - Lincoln’s Birthday holiday
+        - Saturday night pinochle game
+        - Train No. 93 passing at 13 minutes past midnight
+        - Eleven thirty and midnight times during final capture
+      windows:
+        - Night guard rounds
+        - Daylight hours for public and political activities
+        - Election campaign period
+    access:
+      actors:
+        - Prison guards
+        - Prison inmates
+        - Law enforcement officers
+        - Craig and his allies
+      objects:
+        - Iron cell doors
+        - Saws
+        - Prison uniforms
+        - Elevator and stairways
+        - Telephones and telegraph
+    social:
+      trust_channels:
+        - Oaths among prisoners
+        - Political reformers
+        - Newspaper editor Courtney
+        - District attorney’s office
+      authority_sources:
+        - Major Gracie as warden
+        - District attorney Colonel Bird
+        - Newspaper editor Courtney
+        - Law enforcement and police
+  inference_path:
+    steps:
+      - observation: Craig was found in the punishment cell with saws and a cat wearing a collar of steel saws.
+        correction: The saws were smuggled in to aid his escape, not for self-harm.
+        effect: Confirmed the planned prison break and Craig’s leadership role.
+        required_evidence:
+          - Description of the steel saw collar on the cat
+          - Whispered instructions from Jim Bartow to Craig
+        reader_observable: true
+      - observation: Craig subdued the guards and took control of the prison.
+        correction: Craig used stealth and surprise, not brute force alone.
+        effect: Showed Craig’s strategic mind and ability to command.
+        required_evidence:
+          - Narrative of Craig’s capture of guards
+          - Eddie Yarmouth’s assistance
+        reader_observable: true
+      - observation: Craig escaped and assumed a new identity outside prison.
+        correction: Craig’s escape was aided by allies and disguises.
+        effect: Allowed Craig to operate freely and gather information.
+        required_evidence:
+          - Craig’s use of guard’s uniform
+          - Joan Gracie’s aid and letters
+        reader_observable: true
+      - observation: Craig systematically tracked fugitives using underworld contacts.
+        correction: Craig combined criminal knowledge with law enforcement cooperation.
+        effect: Enabled him to capture dangerous criminals effectively.
+        required_evidence:
+          - Craig’s meetings with Artie the lawyer and district attorney
+          - Information from Mr. Sanders and others
+        reader_observable: true
+      - observation: Count Wolf was captured at Marebello’s residence.
+        correction: Craig used a bluff and physical confrontation to subdue Wolf.
+        effect: Final capture of the main antagonist.
+        required_evidence:
+          - Description of the ballroom and confrontation
+          - Craig’s slap and subsequent fight
+        reader_observable: true
+      - observation: Count Wolf escaped shackles and fled down elevator shaft.
+        correction: Craig pursued and fought Wolf on top of elevator car.
+        effect: Demonstrated Craig’s determination and physical prowess.
+        required_evidence:
+          - Elevator shaft struggle description
+          - Witnesses’ reactions and sounds
+        reader_observable: true
+      - observation: Craig returned with Wolf and other fugitives to law enforcement.
+        correction: Craig coordinated with district attorney and newspaper editor for arrests.
+        effect: Closure of the case and restoration of order.
+        required_evidence:
+          - Courtney’s newspaper office preparations
+          - Major Gracie and Colonel Bird’s involvement
+        reader_observable: true
+  discriminating_test:
+    method: constraint_proof
+    design: >-
+      Craig arranged a meeting with Count Wolf at a private residence under controlled conditions,
+      with police and district attorney ready to intervene. The test was to see if Wolf would come
+      alone and be captured without external interference. The presence of trusted allies and the
+      timing ensured no escape routes were available.
+    knowledge_revealed: >-
+      This test revealed Wolf’s true identity and confirmed Craig’s ability to capture him despite
+      his cunning and strength.
+    pass_condition: Wolf is physically captured and restrained without escape or outside interference.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given detailed descriptions of the prison break, the smuggling of saws, and
+      Craig’s strategic planning. The identities and motives of key characters are clearly
+      presented, including the innocence of Craig and the guilt of Count Wolf. Clues such as the red
+      ledger, the letters, and the elevator struggle are all described before the solution is
+      revealed. The false assumptions and red herrings are explicitly shown and later refuted,
+      allowing an attentive reader to deduce the true culprit and mechanism.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

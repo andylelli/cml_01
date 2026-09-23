@@ -1,0 +1,655 @@
+{
+ "decade": "1920s",
+ "realism_constraints": [
+  "No forensic DNA or advanced fingerprint databases available",
+  "Limited forensic technology, relying on physical evidence and witness testimony",
+  "Communication by telegram and telephone but no electronic surveillance"
+ ],
+ "location": "Lynden Sands, England",
+ "institution": "Local police force with involvement of chief constable Sir Clinton Driffield and Inspector Armadale",
+ "crime_category": "murder",
+ "crime_subtype": "impostor inheritance scheme with multiple murders and coercion",
+ "cast": [
+  {
+   "name": "Paul Fordingbridge",
+   "age_range": "60-70",
+   "role_archetype": "reserved family trustee with possible financial malversation",
+   "role": "suspect",
+   "gender": "male",
+   "culpability": "unknown",
+   "culprit_eligibility": "eligible",
+   "public_persona": "family elder managing estate",
+   "private_secret": "involved in financial malversation and possibly kidnapping",
+   "motive_seed": "protect estate and conceal malversations",
+   "motive_strength": "strong",
+   "alibi_window": "unknown",
+   "access_plausibility": "high",
+   "stakes": "inheritance and control of Foxhills estate",
+   "moral_complexity": "high",
+   "relationships": [
+    "Miss Fordingbridge (Julia \"Jay\")",
+    "Cressida Fleetwood",
+    "Derek Fordingbridge (claimant)"
+   ],
+   "opportunity_channels": [
+    "power of attorney",
+    "access to Foxhills"
+   ],
+   "behavioral_tells": [
+    "detached demeanor",
+    "irritation at family matters"
+   ],
+   "evidence_sensitivity": [
+    "power of attorney documents",
+    "financial records"
+   ]
+  },
+  {
+   "name": "Miss Fordingbridge (Julia \"Jay\")",
+   "age_range": "50-60",
+   "role_archetype": "spiritualist family member convinced of nephew's survival",
+   "role": "witness",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "family member and spiritualist",
+   "private_secret": "holds firm belief in Derek's survival",
+   "motive_seed": "emotional attachment to nephew",
+   "motive_strength": "none",
+   "alibi_window": "present at hotel",
+   "access_plausibility": "low",
+   "stakes": "family unity and truth",
+   "moral_complexity": "low",
+   "relationships": [
+    "Paul Fordingbridge",
+    "Derek Fordingbridge"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "spiritualist beliefs",
+    "emotional"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Derek Fordingbridge (claimant)",
+   "age_range": "30-40",
+   "role_archetype": "mutilated impostor claiming inheritance",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "missing nephew returned",
+   "private_secret": "impostor with criminal gang",
+   "motive_seed": "inherit Foxhills estate",
+   "motive_strength": "strong",
+   "alibi_window": "variable",
+   "access_plausibility": "high",
+   "stakes": "inheritance and wealth",
+   "moral_complexity": "high",
+   "relationships": [
+    "Billingford",
+    "Simon Aird",
+    "faceless man",
+    "Paul Fordingbridge"
+   ],
+   "opportunity_channels": [
+    "access to Foxhills",
+    "criminal network"
+   ],
+   "behavioral_tells": [
+    "disfigured face",
+    "avoids public exposure"
+   ],
+   "evidence_sensitivity": [
+    "diary theft",
+    "footprints on sands"
+   ]
+  },
+  {
+   "name": "Cressida Fleetwood (née Fordingbridge)",
+   "age_range": "25-35",
+   "role_archetype": "family member caught between loyalties and coercion",
+   "role": "victim",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "hotel guest and wife of Stanley Fleetwood",
+   "private_secret": "held captive and coerced by gang",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "present at hotel and injured",
+   "access_plausibility": "low",
+   "stakes": "personal safety and family estate",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Stanley Fleetwood",
+    "Paul Fordingbridge",
+    "Derek Fordingbridge (claimant)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "fear and apprehension",
+    "strained demeanor"
+   ],
+   "evidence_sensitivity": [
+    "golfing shoes",
+    "pistol in blazer pocket"
+   ]
+  },
+  {
+   "name": "Stanley Fleetwood",
+   "age_range": "30-40",
+   "role_archetype": "injured husband and suspect under pressure",
+   "role": "suspect",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "hotel guest with injured leg",
+   "private_secret": "protecting wife, possibly fearful",
+   "motive_seed": "none",
+   "motive_strength": "weak",
+   "alibi_window": "injured at time of murder",
+   "access_plausibility": "low",
+   "stakes": "family safety",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Cressida Fleetwood",
+    "Paul Fordingbridge"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "defensive",
+    "avoids incriminating statements"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Sir Clinton Driffield",
+   "age_range": "50-60",
+   "role_archetype": "chief constable and lead investigator",
+   "role": "detective",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "chief constable on holiday",
+   "private_secret": "keen investigator with strategic mind",
+   "motive_seed": "justice",
+   "motive_strength": "strong",
+   "alibi_window": "present throughout investigation",
+   "access_plausibility": "high",
+   "stakes": "solving the case",
+   "moral_complexity": "low",
+   "relationships": [
+    "Inspector Armadale",
+    "Mr. Wendover"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "observant",
+    "strategic"
+   ],
+   "evidence_sensitivity": [
+    "footprint casts",
+    "cartridge-case",
+    "diary"
+   ]
+  },
+  {
+   "name": "Inspector Armadale",
+   "age_range": "40-50",
+   "role_archetype": "police inspector, zealous but sometimes rash",
+   "role": "detective",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "police inspector",
+   "private_secret": "sometimes overconfident in theories",
+   "motive_seed": "justice",
+   "motive_strength": "strong",
+   "alibi_window": "present throughout investigation",
+   "access_plausibility": "high",
+   "stakes": "case resolution",
+   "moral_complexity": "low",
+   "relationships": [
+    "Sir Clinton Driffield",
+    "Mr. Wendover"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "zealous",
+    "sometimes tactless"
+   ],
+   "evidence_sensitivity": [
+    "wax shoe casts",
+    "fingerprints",
+    "pistol"
+   ]
+  },
+  {
+   "name": "Mr. Wendover",
+   "age_range": "50-60",
+   "role_archetype": "amateur detective and skeptic",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "justice of the peace and amateur sleuth",
+   "private_secret": "sympathetic to suspects, critical of police",
+   "motive_seed": "truth and fairness",
+   "motive_strength": "strong",
+   "alibi_window": "present throughout investigation",
+   "access_plausibility": "high",
+   "stakes": "justice and truth",
+   "moral_complexity": "low",
+   "relationships": [
+    "Sir Clinton Driffield",
+    "Inspector Armadale"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "critical",
+    "observant"
+   ],
+   "evidence_sensitivity": [
+    "footprint measurements",
+    "witness statements"
+   ]
+  },
+  {
+   "name": "Mme. Laurent-Desrousseaux (Aline Pascal)",
+   "age_range": "30-40",
+   "role_archetype": "Frenchwoman, witness with ambiguous role",
+   "role": "witness",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "hotel guest and former acquaintance of Staveley",
+   "private_secret": "had past relationship with Staveley",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "present at hotel and beach",
+   "access_plausibility": "medium",
+   "stakes": "personal safety",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Nicholas Staveley",
+    "Sir Clinton Driffield"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "nervous",
+    "cooperative"
+   ],
+   "evidence_sensitivity": [
+    "footprint size",
+    "testimony about night events"
+   ]
+  },
+  {
+   "name": "James Billingford",
+   "age_range": "30-40",
+   "role_archetype": "commission agent, accomplice and murderer",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "visitor and commission agent",
+   "private_secret": "criminal accomplice and murderer",
+   "motive_seed": "gain from criminal scheme",
+   "motive_strength": "strong",
+   "alibi_window": "variable",
+   "access_plausibility": "high",
+   "stakes": "criminal gain and survival",
+   "moral_complexity": "high",
+   "relationships": [
+    "Derek Fordingbridge (claimant)",
+    "Simon Aird",
+    "faceless man"
+   ],
+   "opportunity_channels": [
+    "access to Flatt's cottage",
+    "criminal network"
+   ],
+   "behavioral_tells": [
+    "forced jauntiness",
+    "evasiveness"
+   ],
+   "evidence_sensitivity": [
+    "footprints",
+    "confession"
+   ]
+  },
+  {
+   "name": "Simon Aird",
+   "age_range": "40-50",
+   "role_archetype": "ex-valet, accomplice and murderer",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "former valet, dismissed",
+   "private_secret": "criminal accomplice and murderer",
+   "motive_seed": "criminal gain and loyalty to gang",
+   "motive_strength": "strong",
+   "alibi_window": "variable",
+   "access_plausibility": "high",
+   "stakes": "criminal gain and survival",
+   "moral_complexity": "high",
+   "relationships": [
+    "Derek Fordingbridge (claimant)",
+    "James Billingford",
+    "faceless man"
+   ],
+   "opportunity_channels": [
+    "access to Foxhills",
+    "criminal network"
+   ],
+   "behavioral_tells": [
+    "callousness",
+    "mocking demeanor"
+   ],
+   "evidence_sensitivity": [
+    "confession",
+    "footprints"
+   ]
+  },
+  {
+   "name": "The faceless man",
+   "age_range": "40-50",
+   "role_archetype": "mutilated impostor and mastermind murderer",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "claimant with disfigured face",
+   "private_secret": "mastermind of murders and coercion",
+   "motive_seed": "inheritance and elimination of rivals",
+   "motive_strength": "strong",
+   "alibi_window": "variable",
+   "access_plausibility": "high",
+   "stakes": "inheritance and power",
+   "moral_complexity": "high",
+   "relationships": [
+    "Derek Fordingbridge (claimant)",
+    "James Billingford",
+    "Simon Aird"
+   ],
+   "opportunity_channels": [
+    "criminal network",
+    "access to Foxhills"
+   ],
+   "behavioral_tells": [
+    "menacing",
+    "cold"
+   ],
+   "evidence_sensitivity": [
+    "confession",
+    "footprints"
+   ]
+  }
+ ],
+ "culprits": [
+  "Derek Fordingbridge (claimant)",
+  "James Billingford",
+  "Simon Aird",
+  "The faceless man"
+ ],
+ "surface_summary": "A series of murders and mysterious events surround the Foxhills estate and the return of the missing nephew Derek Fordingbridge, who is severely disfigured. Suspicion falls on various family members and acquaintances, including the Fleetwoods and a Frenchwoman, as the police investigate deaths, thefts, and disappearances. The case appears to involve blackmail, imposture, and inheritance disputes.",
+ "accepted_facts": [
+  "Peter Hay, the caretaker, was found dead with suspicious wrist marks.",
+  "Nicholas Staveley was murdered on Neptune's Seat, shot through the heart.",
+  "Derek Fordingbridge, the claimant to the estate, is severely disfigured and missing fingers.",
+  "Cressida Fleetwood was found with the murder weapon and had motive related to Staveley."
+ ],
+ "inferred_conclusions": [
+  "Cressida Fleetwood murdered Staveley in a fit of rage and fear.",
+  "Stanley Fleetwood was an accessory to the murder and tried to cover it up.",
+  "Mme. Laurent-Desrousseaux was the mysterious woman with the neat shoe and possibly the murderer."
+ ],
+ "mechanism_description": "The crime was orchestrated by a gang including the claimant impersonating Derek Fordingbridge, Billingford, Simon Aird, and the faceless man. They aimed to secure the Foxhills estate by eliminating witnesses such as Peter Hay and Nicholas Staveley and coercing family members like Cressida. Paul Fordingbridge was involved in financial malversation and was kidnapped by the gang. The murders were premeditated to remove obstacles to the claimant's inheritance, with the final capture of the criminals resolving the case.",
+ "delivery_path": [
+  "The gang planned to impersonate Derek Fordingbridge to claim the estate.",
+  "Peter Hay was murdered to silence a potential witness.",
+  "Nicholas Staveley was killed to prevent blackmail and remove a threat.",
+  "Cressida Fleetwood was kidnapped and coerced into compliance with threats.",
+  "Paul Fordingbridge was kidnapped to prevent interference and hide malversation.",
+  "The gang used deception, including stolen diaries and false evidence, to mislead investigators.",
+  "The police investigation, led by Sir Clinton Driffield, uncovered the truth and apprehended the culprits."
+ ],
+ "outcome_result": "The criminal gang was captured, the impostor claimant exposed, and the estate's rightful succession secured.",
+ "false_assumption": {
+  "statement": "Cressida Fleetwood was the murderer of Nicholas Staveley, acting out of fear and anger.",
+  "type": "behavioral",
+  "why_it_seems_reasonable": "She was found with the murder weapon and had motive related to Staveley. Witness testimony and circumstantial evidence pointed to her presence at the crime scene.",
+  "what_it_hides": "The actual murder was committed by the gang members to secure the estate, and Cressida was coerced and innocent of the crime."
+ },
+ "false_solution": {
+  "accused_suspect": "Cressida Fleetwood",
+  "supporting_points": [
+   "Her golf shoes matched footprints at the crime scene.",
+   "The murder weapon was found in her blazer pocket.",
+   "She had motive due to Staveley's blackmail attempts.",
+   "Witness Mme. Laurent-Desrousseaux testified to seeing her at the scene."
+  ],
+  "the_one_flaw": "The timing of the shots and the wet clothes evidence showed she could not have fired the fatal shot.",
+  "refuted_in_chapter": 17
+ },
+ "red_herrings": [
+  {
+   "id": "cressida_fleetwood_murderer",
+   "description": "Cressida Fleetwood was suspected of murdering Staveley due to circumstantial evidence and witness testimony.",
+   "points_at_suspect": "Her presence at the crime scene, possession of the pistol, and motive.",
+   "innocent_explanation": "She was coerced and innocent; the murder was committed by the gang to secure the estate.",
+   "resolved_in_chapter": 17
+  },
+  {
+   "id": "mme_laurent_desrousseaux_suspect",
+   "description": "Mme. Laurent-Desrousseaux was suspected due to her presence at the scene and ambiguous testimony.",
+   "points_at_suspect": "Footprint size matched the neat shoe prints; she had a past relationship with Staveley.",
+   "innocent_explanation": "Her footprints were smaller impressions caused by walking in sand; she was not involved in the murder.",
+   "resolved_in_chapter": 17
+  }
+ ],
+ "closed_circle": {
+  "suspects": [
+   "Paul Fordingbridge",
+   "Derek Fordingbridge (claimant)",
+   "James Billingford",
+   "Simon Aird",
+   "The faceless man",
+   "Cressida Fleetwood",
+   "Stanley Fleetwood"
+  ],
+  "rationale": "All suspects were connected to the Foxhills estate and involved in the events surrounding the murders and disappearances, with no outsiders implicated."
+ },
+ "constraint_space": {
+  "time_anchors": [
+   "11:19 p.m. watch stopped",
+   "Midnight less five minutes arrival of Mme. Laurent-Desrousseaux at hotel",
+   "Rain started after Fleetwoods left shore",
+   "Tide timings for footprints and tracks"
+  ],
+  "time_windows": [
+   "Between dew-fall and bedtime for Peter Hay's death",
+   "Between 11 p.m. and midnight for Staveley's murder",
+   "Late night for Paul Fordingbridge's disappearance"
+  ],
+  "access_actors": [
+   "Paul Fordingbridge with power of attorney",
+   "Peter Hay as caretaker with keys",
+   "Gang members with access to Foxhills and Flatt's cottage"
+  ],
+  "access_objects": [
+   "Keys to Foxhills",
+   "Diary volumes",
+   "Silver knick-knacks",
+   "Pistol and ammunition"
+  ],
+  "trust_channels": [
+   "Miss Fordingbridge's identification of Derek",
+   "Mme. Laurent-Desrousseaux's testimony",
+   "Billingford's statements",
+   "Inspector Armadale's evidence gathering"
+  ],
+  "authority_sources": [
+   "Sir Clinton Driffield as chief constable",
+   "Inspector Armadale as police investigator",
+   "Mr. Calder as family lawyer"
+  ]
+ },
+ "inference_path": [
+  {
+   "observation": "Marks on Peter Hay's wrists inconsistent with gate-bars",
+   "correction": "Marks caused by tight cloth strips, not accidental fall",
+   "effect": "Indicates Peter Hay was tied up forcibly",
+   "required_evidence": [
+    "Dr. Rafford's observation of faint marks on both wrists",
+    "Inspection of gate-bars showing rounded edges"
+   ]
+  },
+  {
+   "observation": "Silver knick-knacks found in Peter Hay's drawer with no fingerprints",
+   "correction": "Silver was planted to mislead investigators",
+   "effect": "Suggests staged burglary to cover real motive",
+   "required_evidence": [
+    "Constable Sapcote's report on silver items",
+    "Lack of fingerprints on silver despite careful handling"
+   ]
+  },
+  {
+   "observation": "Footprints of woman with neat shoes on beach",
+   "correction": "Footprint size smaller due to walking in sand and gait differences",
+   "effect": "Mme. Laurent-Desrousseaux's footprints match prints despite shoe size mismatch",
+   "required_evidence": [
+    "Tape-measure measurements of footprints",
+    "Mme. Laurent-Desrousseaux's shoe size and gait analysis"
+   ]
+  },
+  {
+   "observation": "Watch stopped at 11:19 p.m. with unbroken glass",
+   "correction": "Watch stopped due to fall before shooting",
+   "effect": "Shot that killed Staveley was fired after watch stopped",
+   "required_evidence": [
+    "Inspection of watch and broken glass fragments",
+    "Cressida's and Mme. Laurent-Desrousseaux's testimonies about rain and coat"
+   ]
+  },
+  {
+   "observation": "Cartridge-case found on beach near rock",
+   "correction": "Shot fired from rock, ejecting cartridge-case there",
+   "effect": "Eliminates Fleetwood as shooter from groyne",
+   "required_evidence": [
+    "Cargill's discovery of cartridge-case",
+    "Analysis of ejector mechanism and cartridge-case location"
+   ]
+  },
+  {
+   "observation": "Paul Fordingbridge's footprints vanish near wreck",
+   "correction": "He was carried off by accomplice using 'Père François' trick",
+   "effect": "Explains disappearance without struggle or additional tracks",
+   "required_evidence": [
+    "Footprint analysis showing deep, parallel prints",
+    "Testimony about chloroform and carrying"
+   ]
+  },
+  {
+   "observation": "Cressida Fleetwood found with pistol and golf shoes",
+   "correction": "She was coerced and innocent; pistol planted",
+   "effect": "Exonerates Cressida from murder charge",
+   "required_evidence": [
+    "Sir Clinton's discovery of empty hypodermic with tap water",
+    "Confession and capture of gang members"
+   ]
+  }
+ ],
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "Recreate the tide and footprint conditions on the beach to verify timing of tracks and cartridge-case locations. Measure the length and depth of footprints and compare with shoe sizes and gait of suspects. Test the ejector mechanism of the pistol to confirm cartridge-case landing position.",
+  "knowledge_revealed": "This test reveals the impossibility of the Fleetwoods firing the fatal shot and confirms the timing and presence of the gang members at the crime scene.",
+  "pass_condition": "The cartridge-case location and footprint timings must match the reconstructed tide and ejector mechanics, eliminating suspects who cannot fit the timeline or physical evidence."
+ },
+ "fair_play_explanation": "The reader is provided with detailed descriptions of footprints, timings, witness testimonies, and physical evidence such as the pistol, cartridge-cases, and diary. The subtle clues about gait differences, the timing of the rain, and the stopped watch are all presented before the solution. The false solution is explicitly given and refuted, allowing attentive readers to deduce the true mechanism.",
+ "anchors": [
+  {
+   "claim": "Peter Hay was found dead with marks on his wrists",
+   "anchor": "marks on the body that made him suspicious"
+  },
+  {
+   "claim": "The silver knick-knacks were found in Peter Hay's drawer",
+   "anchor": "drawer held more than a little money—some silver articles"
+  },
+  {
+   "claim": "Miss Fordingbridge identified the claimant as Derek",
+   "anchor": "Miss Fordingbridge identifies the claimant"
+  },
+  {
+   "claim": "The claimant's face was horribly disfigured",
+   "anchor": "he's horribly disfigured, poor boy"
+  },
+  {
+   "claim": "Cressida Fleetwood was found with the murder weapon",
+   "anchor": "pistol in the pocket of the woman Fleetwood's golf-blazer"
+  },
+  {
+   "claim": "The watch on Staveley's wrist stopped at 11:19",
+   "anchor": "It's stopped at 11.19"
+  },
+  {
+   "claim": "A cartridge-case was found on the beach near Neptune's Seat",
+   "anchor": "discharged cartridge"
+  },
+  {
+   "claim": "Mme. Laurent-Desrousseaux's footprints were smaller than her shoe size",
+   "anchor": "a No. 4 shoe can make an impression smaller than itself"
+  },
+  {
+   "claim": "Paul Fordingbridge's footprints vanish near the wreck",
+   "anchor": "Where's the rest of Fordingbridge's track? It simply stops short"
+  },
+  {
+   "claim": "The gang used chloroform and carried Cressida captive",
+   "anchor": "clapped it over Fordingbridge's mouth from behind"
+  },
+  {
+   "claim": "The hypodermic syringe was filled with tap water, not poison",
+   "anchor": "There was nothing in the syringe"
+  },
+  {
+   "claim": "The faceless man threatened Cressida with hydrophobia",
+   "anchor": "You get bitten by a mad dog"
+  },
+  {
+   "claim": "The gang was captured after a shootout at Flatt's cottage",
+   "anchor": "Hands up!"
+  },
+  {
+   "claim": "The quicksand trapped one of the gang members",
+   "anchor": "the hunted car was now running on a line which would bring it between the old wreck and the edge of the incoming tide"
+  },
+  {
+   "claim": "Sir Clinton explained the 'Père François' trick to carry off Paul Fordingbridge",
+   "anchor": "le coup du Père François"
+  },
+  {
+   "claim": "The diary was stolen and used to fabricate evidence",
+   "anchor": "Derek Fordingbridge's diary"
+  },
+  {
+   "claim": "The card-index was used to prepare the claimant's story",
+   "anchor": "card-index, with everything entered up in chronological order"
+  },
+  {
+   "claim": "The final solution was revealed in the last chapter",
+   "anchor": "The Threads in the Case"
+  },
+  {
+   "claim": "The false solution accused Cressida Fleetwood of murder",
+   "anchor": "That's my case stated. I think there's enough in it to apply for a warrant against the woman as principal"
+  },
+  {
+   "claim": "The rain started after the Fleetwoods left the shore",
+   "anchor": "It was after the automobile had started to return to the hotel"
+  }
+ ]
+}

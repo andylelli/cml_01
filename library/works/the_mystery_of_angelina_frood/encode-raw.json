@@ -1,0 +1,466 @@
+{
+ "decade": "1920s",
+ "realism_constraints": [
+  "No advanced forensic DNA analysis available",
+  "Photography and fingerprinting are established investigative tools",
+  "Quicklime is commonly believed to destroy bodies but actually preserves them"
+ ],
+ "location": "Rochester, England",
+ "institution": "Local police under Sergeant Cobbledick, assisted by Dr. John Thorndyke",
+ "crime_category": "disappearance",
+ "crime_subtype": "false death by skeleton substitution",
+ "cast": [
+  {
+   "name": "Dr. John Strangeways",
+   "age_range": "40-50",
+   "role_archetype": "young doctor and narrator",
+   "role": "detective",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "medical practitioner",
+   "private_secret": "deep affection for Angelina Frood",
+   "motive_seed": "n/a",
+   "motive_strength": "none",
+   "alibi_window": "always present in Rochester",
+   "access_plausibility": "high",
+   "stakes": "professional and personal",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Angelina Frood (patient and friend)",
+    "Sergeant Cobbledick",
+    "Dr. Thorndyke",
+    "Mr. Bundy"
+   ],
+   "opportunity_channels": [
+    "medical visits",
+    "local investigations"
+   ],
+   "behavioral_tells": [
+    "keen observation",
+    "emotional attachment"
+   ],
+   "evidence_sensitivity": [
+    "fingerprints on tumbler and bottle",
+    "photographs of Angelina and Bundy"
+   ]
+  },
+  {
+   "name": "Angelina Frood (Peter \"Jimmy\" Bundy)",
+   "age_range": "25-30",
+   "role_archetype": "resourceful woman in disguise",
+   "role": "culprit",
+   "gender": "female",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "landlady and patient",
+   "private_secret": "disguised as Mr. Bundy, faked death using skeleton",
+   "motive_seed": "escape abusive husband and start anew",
+   "motive_strength": "strong",
+   "alibi_window": "present in Rochester disguised",
+   "access_plausibility": "high",
+   "stakes": "freedom and safety",
+   "moral_complexity": "high",
+   "relationships": [
+    "Nicholas Frood (husband)",
+    "Dr. Strangeways",
+    "Mr. Japp",
+    "Mrs. Gillow"
+   ],
+   "opportunity_channels": [
+    "adjacent houses with connecting passage",
+    "theatrical contacts"
+   ],
+   "behavioral_tells": [
+    "careful disguise",
+    "manipulation of clues"
+   ],
+   "evidence_sensitivity": [
+    "photographic comparison",
+    "fingerprints",
+    "bill for skeleton purchase"
+   ]
+  },
+  {
+   "name": "Nicholas Frood",
+   "age_range": "40-50",
+   "role_archetype": "degenerate husband and drug addict",
+   "role": "victim",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "husband, disreputable",
+   "private_secret": "drug addiction and violent tendencies",
+   "motive_seed": "n/a",
+   "motive_strength": "none",
+   "alibi_window": "dead before wife's disappearance",
+   "access_plausibility": "n/a",
+   "stakes": "life",
+   "moral_complexity": "low",
+   "relationships": [
+    "Angelina Frood (wife)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "emotional instability"
+   ],
+   "evidence_sensitivity": [
+    "clubbed fingers",
+    "death at Horwell"
+   ]
+  },
+  {
+   "name": "Mr. Japp",
+   "age_range": "50-60",
+   "role_archetype": "senior partner and relative",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "architect and surveyor",
+   "private_secret": "knows family secrets",
+   "motive_seed": "n/a",
+   "motive_strength": "none",
+   "alibi_window": "always in Rochester",
+   "access_plausibility": "high",
+   "stakes": "professional reputation",
+   "moral_complexity": "low",
+   "relationships": [
+    "Angelina Frood (relative)",
+    "Mr. Bundy"
+   ],
+   "opportunity_channels": [
+    "office access"
+   ],
+   "behavioral_tells": [
+    "reserved"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Sergeant Cobbledick",
+   "age_range": "40-50",
+   "role_archetype": "police investigator",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "police sergeant",
+   "private_secret": "keen but limited by evidence",
+   "motive_seed": "n/a",
+   "motive_strength": "none",
+   "alibi_window": "always in Rochester",
+   "access_plausibility": "high",
+   "stakes": "career advancement",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Dr. Strangeways",
+    "Mr. Bundy",
+    "Dr. Thorndyke"
+   ],
+   "opportunity_channels": [
+    "police investigations"
+   ],
+   "behavioral_tells": [
+    "persistent",
+    "respectful"
+   ],
+   "evidence_sensitivity": [
+    "brooch",
+    "buttons",
+    "hat-pin",
+    "key"
+   ]
+  },
+  {
+   "name": "Mrs. Gillow",
+   "age_range": "50-60",
+   "role_archetype": "landlady and witness",
+   "role": "witness",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "landlady",
+   "private_secret": "sympathetic to Angelina",
+   "motive_seed": "n/a",
+   "motive_strength": "none",
+   "alibi_window": "always in Rochester",
+   "access_plausibility": "high",
+   "stakes": "reputation",
+   "moral_complexity": "low",
+   "relationships": [
+    "Angelina Frood"
+   ],
+   "opportunity_channels": [
+    "house access"
+   ],
+   "behavioral_tells": [
+    "concerned"
+   ],
+   "evidence_sensitivity": []
+  }
+ ],
+ "culprits": [
+  "Angelina Frood (Peter \"Jimmy\" Bundy)"
+ ],
+ "surface_summary": "Angelina Frood mysteriously disappears, and a skeleton dressed in her clothes is found buried in a city wall. The police suspect murder, but the body is unrecognizable and the husband is missing. A disguised figure named Mr. Bundy appears, complicating the investigation.",
+ "accepted_facts": [
+  "Angelina Frood disappeared on the night of April 26th",
+  "A skeleton dressed in her clothes was found buried in the city wall",
+  "Nicholas Frood, her husband, died earlier and was identified posthumously",
+  "Mr. Bundy is a person who appeared in Rochester shortly after Angelina's disappearance"
+ ],
+ "inferred_conclusions": [
+  "The skeleton is Angelina Frood's body",
+  "Nicholas Frood is the prime suspect for murder",
+  "Mr. Bundy is an unrelated man impersonating someone else"
+ ],
+ "mechanism_description": "Angelina Frood faked her disappearance and death by purchasing an ancient skeleton from a dealer and dressing it in her clothes to bury it in the city wall, creating the illusion of her death. She disguised herself as Mr. Bundy, a man with feminine features, to live undetected in Rochester. The real Nicholas Frood died earlier from a cocaine overdose, removing him from suspicion. Dr. Thorndyke uncovered the deception through photographic comparison, fingerprint analysis, and forensic evidence.",
+ "delivery_path": [
+  "Angelina buys an ancient female skeleton from a dealer in London",
+  "She dresses the skeleton in her own clothes and accessories",
+  "The skeleton is buried in a prepared patch of the city wall",
+  "Angelina disguises herself as Mr. Bundy with a wig, makeup, and male clothing",
+  "She maintains the disguise while interacting with acquaintances and investigators",
+  "Dr. Thorndyke obtains photographs and fingerprints to compare Bundy and Angelina",
+  "The deception is revealed at the inquest when Angelina appears in person"
+ ],
+ "outcome_result": "Angelina Frood is revealed to be alive and disguised as Mr. Bundy, having faked her death with a skeleton, and the real Nicholas Frood was already dead.",
+ "false_assumption": {
+  "statement": "The skeleton found in the city wall is the actual body of Angelina Frood.",
+  "type": "identity",
+  "why_it_seems_reasonable": "The skeleton was found dressed in Angelina's clothes and jewelry, and the disappearance of Angelina coincided with the discovery. The presence of personal effects and the skeleton's location strongly suggested it was her body.",
+  "what_it_hides": "It conceals that the skeleton was an ancient specimen purchased and planted by Angelina herself to fake her death, while she lived disguised as Mr. Bundy."
+ },
+ "false_solution": {
+  "accused_suspect": "Nicholas Frood",
+  "supporting_points": [
+   "He was known to be violent and addicted to drugs",
+   "He was searching for Angelina and had threatened her life",
+   "He carried a sheath-knife and had a motive of jealousy",
+   "He disappeared suspiciously around the time of Angelina's disappearance"
+  ],
+  "the_one_flaw": "Nicholas Frood died before Angelina's disappearance and could not have committed the crime.",
+  "refuted_in_chapter": 19
+ },
+ "red_herrings": [
+  {
+   "id": "mole_man_pawned_brooch",
+   "description": "A man with a mole on his nose pawned Angelina's brooch, suggesting a suspicious character.",
+   "points_at_suspect": "An unknown local man possibly involved in the crime",
+   "innocent_explanation": "The man likely found the brooch and pawned it without involvement in the crime.",
+   "resolved_in_chapter": 14
+  },
+  {
+   "id": "lost_gate_key",
+   "description": "The disappearance of the gate key to the city wall patch where the skeleton was found.",
+   "points_at_suspect": "Someone with access to the wall area, possibly the murderer",
+   "innocent_explanation": "The key was lost or taken as a prank and thrown over the fence, unrelated to the crime.",
+   "resolved_in_chapter": 14
+  }
+ ],
+ "closed_circle": {
+  "suspects": [
+   "Angelina Frood (Peter \"Jimmy\" Bundy)",
+   "Nicholas Frood",
+   "Mr. Japp",
+   "Sergeant Cobbledick",
+   "Mrs. Gillow",
+   "Dr. John Strangeways",
+   "Mr. Bundy"
+  ],
+  "rationale": "All key persons connected to the disappearance and investigation were local and had access or motive; no outsiders were involved."
+ },
+ "constraint_space": {
+  "time_anchors": [
+   "April 26th disappearance",
+   "June 20th hat-pin found",
+   "July 14th lane discoveries",
+   "July 20th wall opened"
+  ],
+  "time_windows": [
+   "Night of April 26th to early May for disappearance and planting skeleton",
+   "Three months until July for body preservation and discovery"
+  ],
+  "access_actors": [
+   "Angelina Frood",
+   "Mr. Bundy",
+   "workmen repairing city wall",
+   "Sergeant Cobbledick",
+   "Mr. Japp",
+   "Mrs. Gillow"
+  ],
+  "access_objects": [
+   "City wall patch",
+   "adjacent houses with connecting passage",
+   "gate key",
+   "skeleton",
+   "photographs",
+   "fingerprint objects"
+  ],
+  "trust_channels": [
+   "Dr. Strangeways' medical visits",
+   "Mr. Japp and Bundy partnership",
+   "Mrs. Gillow's landlady role"
+  ],
+  "authority_sources": [
+   "Police Sergeant Cobbledick",
+   "Dr. John Thorndyke medico-legal expertise",
+   "Coroner's inquest"
+  ]
+ },
+ "inference_path": [
+  {
+   "observation": "Skeleton found buried in city wall with personal effects of Angelina Frood",
+   "correction": "The skeleton was ancient and purchased, not Angelina's real body",
+   "effect": "Disproves that Angelina is dead and body in wall is hers",
+   "required_evidence": [
+    "Bill from Oscar Hammerstein for purchase of skeleton dated April 19th",
+    "Photographic comparison of Mr. Bundy and Angelina Frood"
+   ]
+  },
+  {
+   "observation": "Mr. Bundy appears as a man with masculine clothing and manner",
+   "correction": "Mr. Bundy is actually Angelina Frood in disguise",
+   "effect": "Explains the presence of 'Mr. Bundy' and faked disappearance",
+   "required_evidence": [
+    "Fingerprints on tumbler and bottle matching Angelina Frood",
+    "Photographic composites and expert testimony by Dr. Thorndyke"
+   ]
+  },
+  {
+   "observation": "Nicholas Frood is missing and suspected of murder",
+   "correction": "Nicholas Frood died earlier from cocaine overdose",
+   "effect": "Removes Nicholas Frood as suspect in Angelina's disappearance",
+   "required_evidence": [
+    "Identification of Nicholas Frood's body at St. Barnabas hospital",
+    "Witness testimony of landlady and Dr. Strangeways"
+   ]
+  },
+  {
+   "observation": "Quicklime burial believed to destroy bodies",
+   "correction": "Quicklime preserves bodies by drying, not destroying",
+   "effect": "Skeleton in wall could not be recent and is not Angelina's",
+   "required_evidence": [
+    "Experiments by Mr. A. Lucas and Dr. Thorndyke on quicklime effects",
+    "Expert testimony at inquest"
+   ]
+  },
+  {
+   "observation": "Clues found progressively up the river and lane",
+   "correction": "Clues were deliberately planted to mislead investigators",
+   "effect": "Supports theory of staged disappearance and deception",
+   "required_evidence": [
+    "Map of find locations from brooch to gate key",
+    "Testimony of Sergeant Cobbledick and Dr. Thorndyke"
+   ]
+  },
+  {
+   "observation": "Fingerprints on household objects match Angelina Frood",
+   "correction": "Confirms that Angelina was present in the house disguised",
+   "effect": "Supports identity of Mr. Bundy as Angelina Frood",
+   "required_evidence": [
+    "Photographs of fingerprints on tumbler, bottle, and kitchen objects",
+    "Expert analysis by Dr. Thorndyke"
+   ]
+  },
+  {
+   "observation": "Mr. Bundy and Angelina Frood never seen together",
+   "correction": "They are the same person using disguise and deception",
+   "effect": "Explains how the deception was maintained",
+   "required_evidence": [
+    "Testimony of Dr. Strangeways and photographic evidence",
+    "Expert testimony on disguise and personation"
+   ]
+  }
+ ],
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "Dr. Thorndyke and Dr. Strangeways visited Angelina's house to powder and photograph fingerprints on objects she had touched, including a tumbler and water bottle. They compared these prints with those found on photographs of Mr. Bundy, revealing identity. Photographic composites were created to compare facial features of Bundy and Angelina, confirming they were the same person.",
+  "knowledge_revealed": "The test revealed that Mr. Bundy was actually Angelina Frood in disguise, proving the personation and faked death.",
+  "pass_condition": "Matching fingerprints and photographic facial features conclusively demonstrate the identity of Mr. Bundy as Angelina Frood."
+ },
+ "fair_play_explanation": "The reader is provided with detailed descriptions of the characters, their appearances, and behaviors, including the physical peculiarities of Mr. Bundy and Angelina Frood. The narrative includes detailed accounts of the photographic and fingerprint evidence, as well as the discovery of the skeleton and the key. The clues are all presented openly, allowing an attentive reader to deduce the deception and the true identity of Mr. Bundy before the final reveal.",
+ "anchors": [
+  {
+   "claim": "Angelina Frood was last seen alive on the 26th of April",
+   "anchor": "On the 26th of April last Mrs. Frood is known to have been alive"
+  },
+  {
+   "claim": "A skeleton dressed in Angelina's clothes was found buried in the city wall",
+   "anchor": "a dead body was buried in the wall"
+  },
+  {
+   "claim": "Nicholas Frood died before Angelina's disappearance",
+   "anchor": "he was found dead in a meadow, close to a hedge, on the morning of the 26th"
+  },
+  {
+   "claim": "Mr. Bundy is actually Angelina Frood in disguise",
+   "anchor": "Mr. Bundy was a woman"
+  },
+  {
+   "claim": "Fingerprints on household objects match Angelina Frood",
+   "anchor": "a complete set of beautiful finger-prints"
+  },
+  {
+   "claim": "Photographic comparison confirms Mr. Bundy and Angelina Frood are the same person",
+   "anchor": "the identity was complete"
+  },
+  {
+   "claim": "Quicklime preserves bodies by drying, not destroying",
+   "anchor": "quick-lime has no such properties. On the contrary, it has a strongly preservative effect"
+  },
+  {
+   "claim": "The key to the city wall gate disappeared on the day of Angelina's disappearance",
+   "anchor": "the key disappeared during the morning of the 26th of April"
+  },
+  {
+   "claim": "Clues were found progressively up the river and lane, suggesting deliberate planting",
+   "anchor": "the series of circles, joined by a connecting line, proceeded directly from near Sun Pier"
+  },
+  {
+   "claim": "The skeleton in the wall is not Angelina Frood's",
+   "anchor": "I can swear positively that they are not the remains of Angelina Frood"
+  },
+  {
+   "claim": "Nicholas Frood's body was found at St. Barnabas mortuary",
+   "anchor": "It is Nicholas Frood!"
+  },
+  {
+   "claim": "Angelina Frood purchased an ancient skeleton to fake her death",
+   "anchor": "Bought of Oscar Hammerstein, Dealer in Human and Comparative Osteology"
+  },
+  {
+   "claim": "Mr. Bundy wore an eye-glass as part of the disguise",
+   "anchor": "the eye-glass was the disturbing factor"
+  },
+  {
+   "claim": "The brooch was painted in the composite photograph to provoke Mr. Bundy's curiosity",
+   "anchor": "Mrs. Anstey to paint in a brooch of a characteristic design"
+  },
+  {
+   "claim": "The inquest jury initially believed the skeleton was Angelina Frood's",
+   "anchor": "the jury feel that it is impossible to doubt that the remains found in the wall are the remains of Angelina Frood"
+  },
+  {
+   "claim": "Angelina Frood appeared at the inquest disguised as Mr. Bundy",
+   "anchor": "This is not a joke? You affirm seriously that you are Angelina Frood?"
+  },
+  {
+   "claim": "The body in the wall was an ancient skeleton, not a recent corpse",
+   "anchor": "Some of the teeth--the original ones--show more wear than one expects to find in a modern skull"
+  },
+  {
+   "claim": "Nicholas Frood died from cocaine overdose before Angelina's disappearance",
+   "anchor": "he was found dead in a meadow, close to a hedge, on the morning of the 26th"
+  },
+  {
+   "claim": "The disappearance was faked to escape an abusive husband",
+   "anchor": "I decided to disappear completely and for good, and start life afresh in a new place and under a new name"
+  },
+  {
+   "claim": "The deception was maintained by using adjoining houses with a connecting passage",
+   "anchor": "both houses had a side door opening into the passage-way, and both doors were fitted with Yale latches"
+  }
+ ]
+}

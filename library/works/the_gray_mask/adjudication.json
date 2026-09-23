@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "The veiled woman is a supernatural ghost who can pass through locked doors.",
+  "type": "behavioral",
+  "why_it_seems_reasonable": "Multiple witnesses report seeing a woman in white appearing and disappearing mysteriously, and the locked rooms seem impenetrable. The strange moans and cries add to the supernatural impression.",
+  "what_it_hides": "The veiled woman is a human criminal using secret passages and disguises, and the supernatural elements are deliberate deceptions to mislead investigators."
+ },
+ "mechanism_description": "The veiled woman was actually the housekeeper working for the criminal gang led by Slim and George. She used disguises and secret passages to enter locked rooms and steal or sabotage. The murders were committed to cover up the conspiracy against Alsop and to eliminate threats. The ghostly appearances were tricks involving hidden doors and accomplices.",
+ "discriminating_test": {
+  "method": "trap",
+  "design": "Nora disguises herself as the veiled woman and waits at the locked door with a bomb. Garth hides nearby to ambush the real veiled woman when she arrives to take the bomb. Police surround the house to arrest the gang members once the trap is sprung.",
+  "knowledge_revealed": "This test reveals that the veiled woman is a human criminal using disguises and secret passages, not a supernatural ghost.",
+  "pass_condition": "The real veiled woman is caught attempting to take the bomb, confirming her identity and method."
+ },
+ "changed": [],
+ "confidence": "high"
+}

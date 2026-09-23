@@ -3,119 +3,125 @@
  "spans": [
   {
    "claim": "Margaret Odell was strangled in her apartment",
-   "anchor": "the girl’s strangled body",
-   "span": "And yet, huddled on the great silken davenport in her living-room lay the girl's strangled body, giving the lie to so grotesque a conclusion.",
+   "anchor": "Margaret Odell was found strangled this morning",
+   "span": "Margaret Odell was found strangled this morning,\" amended Markham brusquely.",
    "ok": true
   },
   {
-   "claim": "The side door was bolted on the inside all night",
-   "anchor": "the side door to the building was bolted on the inside",
+   "claim": "The side door was bolted from the inside all night",
+   "anchor": "side door to this building; and when that door is bolted nobody can get into the house",
    "span": "",
    "ok": false
   },
   {
-   "claim": "Fingerprints of Tony Skeel were found in the apartment",
-   "anchor": "finger-prints of Skeel",
-   "span": "-We've got some finger-prints of Skeel, which might have been made late Monday afternoon.",
-   "ok": true
-  },
-  {
-   "claim": "Jessup was the telephone operator who saw no one enter or leave",
-   "anchor": "Jessup, the night telephone operator then on duty",
-   "span": "She had called at once to Jessup, the night telephone operator then on duty, who, after one glance into the living-room, had notified the police.",
-   "ok": true
-  },
-  {
-   "claim": "Kenneth Spotswoode had a verified alibi at the Stuyvesant Club",
-   "anchor": "Judge Redfern, who saw him descend from the taxi",
-   "span": "Judge Redfern, who saw him descend from the taxi, insisted on his coming up-stairs and playing poker with some men who were waiting in the Judge's rooms for him.",
-   "ok": true
-  },
-  {
-   "claim": "The jewel-case was forced open with a steel chisel",
-   "anchor": "the steel chisel was found",
+   "claim": "Tony Skeel’s fingerprints were found in the apartment",
+   "anchor": "finger-prints on it, and the guy who made it was standing right behind the dame",
    "span": "",
    "ok": false
   },
   {
-   "claim": "The phonograph record was used to fake screams heard by witnesses",
-   "anchor": "phonograph record to fake screams",
+   "claim": "Phonograph record was used to fake screams",
+   "anchor": "phonograph record to fake screams heard by a telephone operator",
    "span": "",
    "ok": false
   },
   {
-   "claim": "The side door was manipulated by a string and tweezers device",
+   "claim": "Tweezers and string device used to manipulate door bolt",
    "anchor": "tiny pair of tweezers to the end of which was tied a piece of purple twine",
    "span": "] He took from his pocket a tiny pair of tweezers to the end of which was tied a piece of purple twine about four feet long.",
    "ok": true
   },
   {
-   "claim": "Tony Skeel was hiding in the clothes-press during the murder",
-   "anchor": "Skeel was hiding in the clothes-press",
-   "span": "",
-   "ok": false
-  },
-  {
-   "claim": "Jessup was arrested and found to be an impostor named Benton",
-   "anchor": "His real moniker is Benton",
-   "span": "",
-   "ok": false
-  },
-  {
-   "claim": "Spotswoode confessed to the murder and explained his motive",
-   "anchor": "I arrest you for the murder of Margaret Odell",
-   "span": "I arrest you for the murder of Margaret Odell.",
+   "claim": "Jessup (Benton) was falsely accused and had criminal past",
+   "anchor": "His name ain’t Jessup at all. The William part is all right, but his real moniker is Benton",
+   "span": "His name ain't Jessup at all. The William part is all right, but his real moniker is Benton.",
    "ok": true
   },
   {
-   "claim": "Spotswoode staged the burglary to cover the murder",
-   "anchor": "he proceeded to wreck the apartment in order to give the effect of a professional burglary",
-   "span": "",
-   "ok": false
+   "claim": "Cleaver fabricated an alibi with a speeding summons",
+   "anchor": "Why did you tell me you were in Boonton Monday night?",
+   "span": "First: why did you tell me you were in Boonton Monday night?\" Cleaver apparently had expected the question.",
+   "ok": true
   },
   {
-   "claim": "Spotswoode used the phonograph record to create an alibi",
-   "anchor": "he placed the record on the machine, set it going, and calmly walked out",
+   "claim": "Doctor Lindquist was jealous and threatened Odell",
+   "anchor": "I threatened her with a revolver",
+   "span": "But if your information is as accurate as you would have me believe, you are aware that I threatened her with a revolver.",
+   "ok": true
+  },
+  {
+   "claim": "Spotswoode played poker bluff revealing psychological profile",
+   "anchor": "Not one player in a thousand would have wagered the limit",
+   "span": "Spotswoode says, not one player in a thousand would have wagered the limit without having filled his straight-flush, knowing I had a pat hand.",
+   "ok": true
+  },
+  {
+   "claim": "Phonograph record was placed to play screams after murder",
+   "anchor": "He placed the record on the machine, set it going, and calmly walked out",
    "span": "When this had been done, he placed the record on the machine, set it going, and calmly walked out.",
    "ok": true
   },
   {
-   "claim": "Spotswoode killed Tony Skeel to silence him",
-   "anchor": "he strangled him like he did Odell",
-   "span": "",
-   "ok": false
+   "claim": "Jewelry was discarded in trash to fake burglary",
+   "anchor": "I wrapped it in one of the club newspapers and threw it in a waste-bin near the Flatiron Building",
+   "span": "I wrapped it in one of the club newspapers and threw it in a waste-bin near the Flatiron Building.",
+   "ok": true
   },
   {
-   "claim": "Vance demonstrated the mechanical unlocking and relocking of the side door",
-   "anchor": "he turned them at a very slight angle to the left and then ran the twine under the door",
+   "claim": "Spotswoode confessed to murder and motive",
+   "anchor": "I strangled him, and I would have done it before",
+   "span": "Yes, I strangled him, and I would have done it before, only the opportunity did not offer.",
+   "ok": true
+  },
+  {
+   "claim": "Vance’s demonstration of door bolt mechanism",
+   "anchor": "Placing the tweezers over the vertical bolt-handle, he turned them at a very slight angle",
    "span": "Placing the tweezers over the vertical bolt-handle, he turned them at a very slight angle to the left and then ran the twine under the door so that about a foot of it projected over the sill.",
    "ok": true
   },
   {
-   "claim": "The poker game revealed psychological traits matching the murderer",
-   "anchor": "the most remarkable bluff ever made in a game of poker",
-   "span": "It was probably the most remarkable bluff ever made in a game of poker.",
+   "claim": "Jessup (Benton) could not have unbolted door without detection",
+   "anchor": "Nobody but Jessup coulda opened that side door and locked it again—nobody",
+   "span": "Markham, nobody but Jessup coulda opened that side door and locked it again-nobody.",
    "ok": true
   },
   {
-   "claim": "The phonograph record was the key evidence that exposed Spotswoode",
-   "anchor": "The Beethoven Andante",
+   "claim": "Skeel was hiding in the clothes-press closet during murder",
+   "anchor": "Skeel was hiding in the clothes-press at some time during the fatal evening",
    "span": "",
    "ok": false
   },
   {
-   "claim": "Jessup could not have manipulated the door as Vance demonstrated",
-   "anchor": "I know that it was Skeel, and not Jessup, who unbolted that door",
-   "span": "I know that it was Skeel, and not Jessup, who unbolted that door before the crime, and rebolted it afterward.",
+   "claim": "Phonograph record label was altered by Spotswoode",
+   "anchor": "He brought the lady several new records that night, and concealed this one among them",
+   "span": "He brought the lady several new records that night, and concealed this one among them.",
    "ok": true
   },
   {
-   "claim": "Spotswoode committed suicide after arrest",
-   "anchor": "He’s shot himself",
-   "span": "He's shot himself!",
+   "claim": "Jessup quit job suddenly before murder",
+   "anchor": "Jessup lived on Second Avenue, right around the corner from Skeel!",
+   "span": "Then I got my first good news: Jessup lived on Second Avenue, right around the corner from Skeel! I picked up a coupla men from the local station, and went to his house.",
+   "ok": true
+  },
+  {
+   "claim": "Cleaver heard a man scream 'Oh, my God!'",
+   "anchor": "Well, as near as I could make out, they were: ‘Oh, my God! Oh, my God!’",
+   "span": "Well, as near as I could make out, they were: 'Oh, my God! Oh, my God!'-repeated two or three times.",
+   "ok": true
+  },
+  {
+   "claim": "Spotswoode’s suicide after arrest",
+   "anchor": "He’s shot himself!",
+   "span": "He's shot himself!\" \"Fancy that,\" said Vance.",
+   "ok": true
+  },
+  {
+   "claim": "Vance’s poker game with suspects",
+   "anchor": "The hand was a jack-pot, and there was a small fortune in chips already on the table",
+   "span": "The hand was a jack-pot, and there was a small fortune in chips already on the table.",
    "ok": true
   }
  ],
  "verified_by": "corpus-verify.mjs",
- "verified_on": "2026-08-31"
+ "verified_on": "2026-09-23"
 }

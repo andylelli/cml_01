@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "The train must have derailed or crashed somewhere visible along the main line.",
+  "type": "spatial",
+  "why_it_seems_reasonable": "The train was seen passing stations and the engine-driver was found dead nearby, suggesting an accident on the main line. No other plausible location was known for the disappearance.",
+  "what_it_hides": "The train was diverted onto a hidden abandoned side line and destroyed in a concealed mine shaft, making it invisible to observers on the main line."
+ },
+ "mechanism_description": "The special train was secretly diverted onto an abandoned side line connected to an unused mine shaft. The train was run at high speed into the shaft, causing it to crash and be destroyed. The conspirators removed all evidence by dismantling the temporary rails and covering the shaft, effectively making the train vanish without a trace.",
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "Reconstruct the diversion by laying temporary rails on the abandoned side line and running a test train to observe if it can be diverted unnoticed. Observe the visibility from the main line and the reaction of workers along the side line.",
+  "knowledge_revealed": "This test reveals the feasibility of diverting a train onto the abandoned line without detection and the possibility of the train disappearing into the mine shaft.",
+  "pass_condition": "The test train must be successfully diverted onto the side line and reach the mine shaft without being seen or stopped by workers on the main line."
+ },
+ "changed": [],
+ "confidence": "high"
+}

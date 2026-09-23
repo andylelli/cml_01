@@ -1,0 +1,439 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The Black Abbot
+    author: Edgar Wallace
+    license: Public domain (first published 1927; author died 1932). Project Gutenberg ebook 75643.
+    era:
+      decade: 1920s
+      realism_constraints:
+        - No modern forensic DNA or electronic surveillance available
+        - Limited rapid communication, mostly telephone and postal services
+        - Transportation by motorcars and early airplanes but no helicopters or advanced vehicles
+    setting:
+      location: Fossaway Manor and Chelfordbury, Sussex, England
+      institution: Scotland Yard (Detective Sergeant Puttler)
+    crime_class:
+      category: murder
+      subtype: imprisonment and murder in hidden vault
+  cast:
+    - name: Harry Alford, eighteenth Earl of Chelford
+      age_range: 30s
+      role_archetype: nervous aristocrat with mental illness
+      relationships:
+        - Dick Alford (brother)
+        - Leslie Gwyn (fiancée)
+      public_persona: restless, obsessed with treasure and Black Abbot legend
+      private_secret: mentally ill, imprisoned himself in underground vault
+      motive_seed: fear of death, obsession with elixir of life
+      motive_strength: strong
+      alibi_window: none
+      access_plausibility: high
+      opportunity_channels:
+        - underground vault
+        - Abbey ruins
+      behavioral_tells:
+        - nervousness
+        - paranoia
+        - obsession with treasure
+      stakes: life and sanity
+      evidence_sensitivity:
+        - patent medicines in room
+        - blood and struggle signs in room
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: victim
+      moral_complexity: high
+    - name: Dick Alford
+      age_range: 30s
+      role_archetype: practical second son, estate manager, protector
+      relationships:
+        - Harry Alford (brother)
+        - Leslie Gwyn (friend)
+      public_persona: businesslike, skeptical of ghosts, protective
+      private_secret: impersonated Black Abbot to protect brother
+      motive_seed: protect brother, control estate
+      motive_strength: strong
+      alibi_window: present at manor, known movements
+      access_plausibility: high
+      opportunity_channels:
+        - Black Abbot disguise
+        - estate grounds
+      behavioral_tells:
+        - sternness
+        - secretiveness
+        - careful planning
+      stakes: family honor, estate control
+      evidence_sensitivity:
+        - Black Abbot costume found
+        - ladder marks
+        - library window open
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Leslie Gwyn
+      age_range: 20s
+      role_archetype: fiancée, innocent caught in family drama
+      relationships:
+        - Harry Alford (fiancé)
+        - Dick Alford (friend)
+        - Mary Wenner (guest)
+      public_persona: engaged to Harry, wealthy heiress
+      private_secret: broke off engagement, involved in rescue attempts
+      motive_seed: love and loyalty
+      motive_strength: none
+      alibi_window: mostly at manor
+      access_plausibility: high
+      opportunity_channels:
+        - Abbey ruins
+        - underground vault
+      behavioral_tells:
+        - nervousness
+        - courage under pressure
+      stakes: personal safety, family honor
+      evidence_sensitivity:
+        - ladder marks
+        - rifle cartridges
+        - letter to Gilder
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: low
+    - name: Arthur Gwyn
+      age_range: 30s-40s
+      role_archetype: lawyer, financially troubled, antagonist
+      relationships:
+        - Leslie Gwyn (sister)
+        - Fabrian Gilder (head clerk)
+      public_persona: dandified lawyer, managing estate affairs
+      private_secret: embezzled funds, fled abroad
+      motive_seed: financial desperation
+      motive_strength: moderate
+      alibi_window: absent during critical times
+      access_plausibility: moderate
+      opportunity_channels:
+        - estate offices
+        - Abbey ruins
+      behavioral_tells:
+        - evasiveness
+        - nervousness
+        - injured eye
+      stakes: financial ruin, reputation
+      evidence_sensitivity:
+        - forged bills
+        - missing securities
+        - letter of resignation
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: high
+    - name: Fabrian Gilder
+      age_range: 50s
+      role_archetype: head clerk, bookmaker, antagonist suitor
+      relationships:
+        - Arthur Gwyn (former employer)
+        - Leslie Gwyn (suitor)
+        - Mary Wenner (associate)
+      public_persona: wealthy, ambitious, suitor to Leslie
+      private_secret: manipulative, involved in estate intrigues
+      motive_seed: love and financial gain
+      motive_strength: moderate
+      alibi_window: present at various locations
+      access_plausibility: high
+      opportunity_channels:
+        - estate offices
+        - Abbey ruins
+        - cottage at Red Farm
+      behavioral_tells:
+        - calm under pressure
+        - scheming
+      stakes: marriage, money
+      evidence_sensitivity:
+        - letter with invisible ink
+        - check forgery
+        - resignation note
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: high
+    - name: Mary Wenner
+      age_range: 20s-30s
+      role_archetype: former secretary, adaptable, informant
+      relationships:
+        - Harry Alford (employer)
+        - Fabrian Gilder (associate)
+        - Leslie Gwyn (guest)
+      public_persona: former secretary, socially adaptable
+      private_secret: knows treasure secrets, involved in intrigues
+      motive_seed: self-preservation, loyalty
+      motive_strength: weak
+      alibi_window: mostly at manor or London flat
+      access_plausibility: high
+      opportunity_channels:
+        - estate
+        - London flat
+      behavioral_tells:
+        - nervousness
+        - adaptability
+      stakes: personal safety
+      evidence_sensitivity:
+        - letter with invisible ink
+        - knowledge of treasure location
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: moderate
+    - name: Thomas (Thomas Luck)
+      age_range: 30s-40s
+      role_archetype: ex-convict footman, thief, victim
+      relationships:
+        - Fabrian Gilder (correspondent)
+        - Dick Alford (employer)
+      public_persona: footman, dismissed for theft
+      private_secret: involved in spying and theft
+      motive_seed: greed
+      motive_strength: moderate
+      alibi_window: none
+      access_plausibility: high
+      opportunity_channels:
+        - library
+        - estate grounds
+      behavioral_tells:
+        - secretive
+        - nervous
+      stakes: freedom, money
+      evidence_sensitivity:
+        - Black Abbot costume
+        - tools for theft
+        - letter to Gilder
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: low
+  culpability:
+    culprit_count: 1
+    culprits:
+      - Dick Alford
+  surface_model:
+    narrative:
+      summary: >-
+        The mysterious Black Abbot ghost haunts Fossaway Manor, culminating in the murder of Thomas,
+        the footman disguised as the Abbot. Lord Chelford disappears after a violent struggle in his
+        room, and his fiancée Leslie Gwyn is kidnapped. The estate is embroiled in financial
+        troubles, secret treasure hunts, and complex personal relationships.
+    accepted_facts:
+      - Thomas was found dead in the Black Abbot costume in the grounds.
+      - Lord Chelford’s room showed signs of a violent struggle and he disappeared.
+      - Leslie Gwyn broke off her engagement and was later kidnapped.
+      - The Chelford treasure and the Black Abbot legend are central to the mystery.
+    inferred_conclusions:
+      - The Black Abbot is a supernatural ghost haunting the manor.
+      - Arthur Gwyn is responsible for the murder and disappearance due to financial motives.
+      - Dick Alford is innocent and only trying to protect the estate.
+  hidden_model:
+    mechanism:
+      description: >-
+        Dick Alford impersonated the Black Abbot to keep his mentally ill brother Harry confined and
+        safe within the estate. Harry, suffering from madness, had hidden himself in the underground
+        vaults beneath the Abbey. The murder of Thomas occurred as a consequence of his attempt to
+        steal from the estate, and the kidnapping of Leslie was orchestrated by Harry in his
+        unstable state. The treasure was hidden in the dry riverbed beneath the Abbey, and the
+        various crimes were linked to attempts to find it.
+      delivery_path:
+        - step: Dick Alford adopts the Black Abbot disguise to control the legend and protect Harry.
+        - step: Harry hides himself in the underground vaults beneath the Abbey.
+        - step: Thomas, the ex-convict footman, attempts theft and is murdered during the act.
+        - step: Leslie Gwyn is kidnapped by Harry to keep her away and protect secrets.
+        - step: >-
+            Dick and Detective Puttler investigate, uncovering the hidden vault and Harry’s
+            condition.
+        - step: The treasure is located beneath the dry riverbed, confirming the legend.
+        - step: Harry’s madness and desperation culminate in the final confrontation and rescue.
+    outcome:
+      result: >-
+        Dick Alford is revealed as the Black Abbot, having protected his brother Harry and resolved
+        the mystery of the treasure and crimes.
+  false_assumption:
+    statement: The Black Abbot is a supernatural ghost haunting Fossaway Manor.
+    type: identity
+    why_it_seems_reasonable: >-
+      The Black Abbot legend is well-known and sightings are reported by villagers, creating a
+      strong local superstition. The eerie appearances and strange noises reinforce the ghostly
+      interpretation.
+    what_it_hides: >-
+      It conceals the fact that the Black Abbot is a disguise used by Dick Alford to manage his
+      brother’s madness and control the estate’s secrets.
+  false_solution:
+    accused_suspect: Arthur Gwyn
+    supporting_points:
+      - Arthur’s financial troubles and forged bills suggest motive.
+      - His sudden departure abroad raises suspicion.
+      - He had access to the estate and knowledge of the treasure.
+      - His quarrel with Fabrian Gilder and injury imply involvement.
+    the_one_flaw: Arthur’s absence during key events and lack of direct evidence linking him to the crimes.
+    refuted_in_chapter: 64
+  red_herrings:
+    - id: fabrian_gilder_schemes
+      description: >-
+        Fabrian Gilder’s aggressive pursuit of Leslie Gwyn and his financial manipulations suggest
+        he might be behind the crimes.
+      points_at_suspect: Gilder’s purchase of Red Farm, his proposal to Leslie, and his knowledge of the treasure.
+      innocent_explanation: >-
+        Gilder’s actions are motivated by love and financial interest but he is not involved in the
+        murders or kidnappings.
+      resolved_in_chapter: 64
+    - id: thomas_the_footman
+      description: >-
+        Thomas’s criminal past and suspicious behavior make him a prime suspect in the theft and
+        murder.
+      points_at_suspect: His dismissal, possession of stolen money, and presence near crime scenes.
+      innocent_explanation: >-
+        Thomas was a victim, killed during his attempt to steal, not the mastermind behind the
+        crimes.
+      resolved_in_chapter: 40
+  closed_circle:
+    suspects:
+      - Dick Alford
+      - Arthur Gwyn
+      - Fabrian Gilder
+      - Thomas
+      - Harry Alford
+    rationale: >-
+      All had motive, opportunity, and access to the estate and its secrets, and were closely
+      connected to the victim and events.
+  constraint_space:
+    time:
+      anchors:
+        - Night of Thomas’s murder and Black Abbot sightings
+        - Early morning struggle and disappearance of Harry
+        - Leslie’s letter posting and kidnapping
+        - Arrival and investigations by Detective Puttler
+      windows:
+        - Thomas’s murder occurred between 11 PM and 2 AM
+        - Harry’s disappearance around 1:45 AM
+        - Leslie’s letter posted at 10 PM
+        - Gilder’s visits and resignations over several days
+    access:
+      actors:
+        - Dick Alford
+        - Arthur Gwyn
+        - Fabrian Gilder
+        - Thomas
+        - Harry Alford
+      objects:
+        - Library windows
+        - Abbey ruins and underground vault
+        - Black Abbot costume
+        - Letters and documents
+        - Estate grounds and gates
+    social:
+      trust_channels:
+        - Letters and agreements
+        - Personal relationships
+        - Legal authority and power of attorney
+        - Detective Puttler’s investigations
+      authority_sources:
+        - Scotland Yard
+        - Estate ownership and management
+        - Legal documents and wills
+        - Police and local magistrates
+  inference_path:
+    steps:
+      - observation: Thomas was found dead wearing the Black Abbot costume.
+        correction: The Black Abbot is a disguise used by a living person, not a ghost.
+        effect: Focus shifts to identifying who impersonated the Black Abbot.
+        required_evidence:
+          - Black Abbot costume found in Thomas’s possession
+          - Witness statement of maid seeing figure in costume
+        reader_observable: true
+      - observation: Lord Chelford’s room showed signs of struggle and was locked from inside.
+        correction: The struggle was caused by Harry’s madness and escape attempt.
+        effect: Harry becomes a prime suspect for disappearance and related crimes.
+        required_evidence:
+          - Alice Barter’s witness statement of sounds at 1:45 AM
+          - Broken door panel and open window with blood traces
+        reader_observable: true
+      - observation: Leslie Gwyn broke off engagement and was later kidnapped.
+        correction: Leslie’s kidnapping was orchestrated by Harry to protect secrets.
+        effect: Harry’s mental state and motives are central to the case.
+        required_evidence:
+          - Leslie’s letter to Gilder
+          - Witness accounts of Leslie’s disappearance and ladder marks
+        reader_observable: true
+      - observation: Arthur Gwyn had forged bills and fled abroad.
+        correction: Arthur’s financial troubles are real but unrelated to murders.
+        effect: Arthur is cleared of murder suspicion but remains a suspect for fraud.
+        required_evidence:
+          - Forgery documents and resignation letter
+          - Interview with Arthur Gwyn and Gilder
+        reader_observable: true
+      - observation: Gilder aggressively pursues Leslie and has financial motives.
+        correction: Gilder’s actions are motivated by love and money but not murder.
+        effect: Gilder is a red herring, distracting from the real culprit.
+        required_evidence:
+          - Gilder’s letter with invisible ink
+          - Witness accounts of Gilder’s movements and proposal
+        reader_observable: true
+      - observation: Dick Alford was seen near crime scenes and had the Black Abbot costume.
+        correction: Dick impersonated the Black Abbot to protect his brother Harry.
+        effect: Dick is revealed as the mastermind behind the disguise and protector.
+        required_evidence:
+          - Bag with Black Abbot costume found in Dick’s car
+          - Physical timeline showing Dick's presence at key locations during Black Abbot sightings
+        reader_observable: true
+      - observation: The treasure is hidden beneath the dry riverbed with shingle covering.
+        correction: The treasure’s location explains the underground vault and secret passages.
+        effect: The treasure hunt is the root cause of the crimes and madness.
+        required_evidence:
+          - Diary references to chesil and drought
+          - Discovery of treasure chest and elixir flask in underground vault
+        reader_observable: true
+  discriminating_test:
+    method: constraint_proof
+    design: >-
+      Investigators examine the timing and location of the Black Abbot sightings and Thomas’s
+      murder, comparing them with Dick Alford’s known whereabouts and access to the costume. They
+      also verify the physical possibility of Harry’s confinement in the underground vault and the
+      secret passages. The test includes checking the ladder marks, library window status, and the
+      presence of the Black Abbot costume in Dick’s possession.
+    knowledge_revealed: >-
+      This test reveals that only Dick Alford could have been the Black Abbot, as he had the
+      opportunity, motive, and means to impersonate the ghost and control the estate’s secrets.
+    pass_condition: >-
+      The presence of the Black Abbot costume in Dick’s car and the impossibility of others
+      accessing the costume or vault at the relevant times conclusively prove Dick’s role.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given detailed accounts of characters’ movements, motives, and relationships, as
+      well as physical evidence such as the Black Abbot costume, ladder marks, and the underground
+      vault. The diary and letters provide clues about the treasure’s location and the family’s
+      secrets. The false solution accusing Arthur Gwyn is presented with supporting evidence but
+      contains flaws that attentive readers can detect. The final confession and explanation by Dick
+      Alford clarify the true mechanism, allowing readers to solve the mystery with the information
+      provided.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

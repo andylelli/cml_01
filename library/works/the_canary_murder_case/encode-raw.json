@@ -1,14 +1,14 @@
 {
  "decade": "1920s",
  "realism_constraints": [
-  "No advanced forensic DNA analysis available",
-  "Phonograph records and mechanical devices known and used",
-  "Legal procedures require direct evidence and alibi verification"
+  "No electronic surveillance or forensic DNA analysis available",
+  "Phonograph records and mechanical devices like tweezers and string could be used",
+  "Police relied on fingerprinting, witness testimony, and psychological deduction"
  ],
- "location": "New York City, apartment building at 184 West 71st Street",
- "institution": "District Attorney’s office of New York County and New York Police Department",
+ "location": "New York City, 184 West 71st Street apartment building",
+ "institution": "New York Police Department Homicide Bureau and District Attorney’s Office",
  "crime_category": "murder",
- "crime_subtype": "locked-room style strangulation with mechanical alibi",
+ "crime_subtype": "locked-room style strangulation with staged burglary and phonograph alibi",
  "cast": [
   {
    "name": "Philo Vance",
@@ -18,13 +18,13 @@
    "gender": "male",
    "culpability": "innocent",
    "culprit_eligibility": "ineligible",
-   "public_persona": "aloof, cynical intellectual",
-   "private_secret": "keen analytical mind and detective skill",
+   "public_persona": "cynical, aloof social aristocrat",
+   "private_secret": "keen analytical mind and detective skills",
    "motive_seed": "none",
    "motive_strength": "none",
    "alibi_window": "n/a",
    "access_plausibility": "n/a",
-   "stakes": "justice and truth",
+   "stakes": "intellectual satisfaction and justice",
    "moral_complexity": "low",
    "relationships": [],
    "opportunity_channels": [],
@@ -34,18 +34,18 @@
   {
    "name": "John F.-X. Markham",
    "age_range": "50-60",
-   "role_archetype": "District Attorney, legal authority",
-   "role": "institution",
+   "role_archetype": "District Attorney, legal pragmatist",
+   "role": "institutional lead investigator",
    "gender": "male",
    "culpability": "innocent",
    "culprit_eligibility": "ineligible",
-   "public_persona": "stern, efficient prosecutor",
-   "private_secret": "reluctant to accept unorthodox methods",
-   "motive_seed": "uphold law and order",
-   "motive_strength": "strong",
+   "public_persona": "stern, efficient public official",
+   "private_secret": "relies heavily on legal evidence and procedure",
+   "motive_seed": "none",
+   "motive_strength": "none",
    "alibi_window": "n/a",
    "access_plausibility": "n/a",
-   "stakes": "legal justice",
+   "stakes": "justice and public reputation",
    "moral_complexity": "low",
    "relationships": [],
    "opportunity_channels": [],
@@ -55,13 +55,13 @@
   {
    "name": "Margaret Odell (The “Canary”)",
    "age_range": "20-30",
-   "role_archetype": "victim, Broadway beauty and blackmailing courtesan",
+   "role_archetype": "victim, Broadway beauty and ex-Follies girl",
    "role": "victim",
    "gender": "female",
    "culpability": "innocent",
    "culprit_eligibility": "locked",
-   "public_persona": "famous Broadway beauty",
-   "private_secret": "blackmailed several men",
+   "public_persona": "famous socialite and entertainer",
+   "private_secret": "blackmailer of several men",
    "motive_seed": "none",
    "motive_strength": "none",
    "alibi_window": "n/a",
@@ -69,12 +69,11 @@
    "stakes": "life",
    "moral_complexity": "moderate",
    "relationships": [
-    "Kenneth Spotswoode",
-    "Tony Skeel",
     "Charles Cleaver",
+    "Kenneth Spotswoode",
     "Louis Mannix",
     "Dr. Ambroise Lindquist",
-    "Alys La Fosse"
+    "Tony Skeel"
    ],
    "opportunity_channels": [],
    "behavioral_tells": [],
@@ -88,13 +87,13 @@
    "gender": "female",
    "culpability": "innocent",
    "culprit_eligibility": "ineligible",
-   "public_persona": "capable maid",
-   "private_secret": "aware of blackmail threats",
+   "public_persona": "capable, calm maid",
+   "private_secret": "aware of threats to Odell",
    "motive_seed": "none",
    "motive_strength": "none",
-   "alibi_window": "early morning",
-   "access_plausibility": "high",
-   "stakes": "employment and safety",
+   "alibi_window": "left apartment before murder",
+   "access_plausibility": "had key but left early",
+   "stakes": "personal safety",
    "moral_complexity": "low",
    "relationships": [
     "Margaret Odell"
@@ -106,17 +105,17 @@
   {
    "name": "Charles Cleaver",
    "age_range": "40-50",
-   "role_archetype": "man-about-town, gambler, blackmail victim",
+   "role_archetype": "man-about-town, former politician, suspect",
    "role": "suspect",
    "gender": "male",
    "culpability": "innocent",
    "culprit_eligibility": "eligible",
    "public_persona": "politician and gambler",
-   "private_secret": "blackmailed by victim",
-   "motive_seed": "fear of exposure and blackmail",
+   "private_secret": "blackmailed by Odell, lied about alibi",
+   "motive_seed": "resentment and blackmail",
    "motive_strength": "moderate",
-   "alibi_window": "disputed",
-   "access_plausibility": "high",
+   "alibi_window": "questionable, claimed out of town",
+   "access_plausibility": "had opportunity to enter apartment",
    "stakes": "reputation and freedom",
    "moral_complexity": "moderate",
    "relationships": [
@@ -133,58 +132,58 @@
     "contradictory alibi"
    ],
    "evidence_sensitivity": [
-    "letters from victim",
+    "letters taken from apartment",
     "speeding summons"
    ]
   },
   {
    "name": "Kenneth Spotswoode",
    "age_range": "40-50",
-   "role_archetype": "manufacturer, victim’s escort, ultimate culprit",
+   "role_archetype": "manufacturer, social aristocrat, culprit",
    "role": "culprit",
    "gender": "male",
    "culpability": "guilty",
    "culprit_eligibility": "eligible",
-   "public_persona": "respectable socialite",
-   "private_secret": "blackmailed and threatened by victim",
+   "public_persona": "respectable gentleman",
+   "private_secret": "murdered Odell to prevent blackmail",
    "motive_seed": "fear of ruin and blackmail",
    "motive_strength": "strong",
-   "alibi_window": "verified alibi during murder time",
-   "access_plausibility": "high",
-   "stakes": "family, reputation, freedom",
+   "alibi_window": "at club playing poker after murder",
+   "access_plausibility": "had key and access to apartment",
+   "stakes": "family reputation and social standing",
    "moral_complexity": "high",
    "relationships": [
     "Margaret Odell",
-    "Tony Skeel",
     "Judge Redfern"
    ],
    "opportunity_channels": [
-    "side door with mechanical trick",
+    "side door with tweezers and string trick",
     "front door"
    ],
    "behavioral_tells": [
-    "calculated risk-taking",
-    "psychological bluffing"
+    "high self-confidence",
+    "psychological daring"
    ],
    "evidence_sensitivity": [
     "phonograph record",
+    "jewel-case",
     "tweezers and string device"
    ]
   },
   {
    "name": "Tony Skeel",
    "age_range": "30-40",
-   "role_archetype": "professional burglar, witness, blackmailer, victim",
-   "role": "suspect",
+   "role_archetype": "ex-convict, burglar, witness, victim",
+   "role": "victim",
    "gender": "male",
    "culpability": "innocent",
-   "culprit_eligibility": "eligible",
-   "public_persona": "ex-convict and burglar",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "professional burglar",
    "private_secret": "knew murderer, blackmailed him",
-   "motive_seed": "financial gain",
+   "motive_seed": "money and self-preservation",
    "motive_strength": "moderate",
-   "alibi_window": "uncertain",
-   "access_plausibility": "high",
+   "alibi_window": "hiding in closet during murder",
+   "access_plausibility": "had key to apartment",
    "stakes": "life and freedom",
    "moral_complexity": "moderate",
    "relationships": [
@@ -192,64 +191,33 @@
     "Kenneth Spotswoode"
    ],
    "opportunity_channels": [
-    "side door",
     "clothes-press hiding"
    ],
    "behavioral_tells": [
-    "silence about knowledge",
-    "fear"
+    "fear and silence"
    ],
    "evidence_sensitivity": [
     "fingerprints",
-    "black document-box"
-   ]
-  },
-  {
-   "name": "William Elmer Jessup (Benton)",
-   "age_range": "30-40",
-   "role_archetype": "telephone operator, impostor, murderer",
-   "role": "culprit",
-   "gender": "male",
-   "culpability": "guilty",
-   "culprit_eligibility": "eligible",
-   "public_persona": "telephone operator",
-   "private_secret": "criminal past, real name Benton",
-   "motive_seed": "jealousy and love for victim",
-   "motive_strength": "strong",
-   "alibi_window": "no alibi for murder time",
-   "access_plausibility": "high",
-   "stakes": "freedom",
-   "moral_complexity": "moderate",
-   "relationships": [
-    "Margaret Odell",
-    "Tony Skeel"
-   ],
-   "opportunity_channels": [
-    "side door manipulation"
-   ],
-   "behavioral_tells": [
-    "nervousness when questioned about feelings"
-   ],
-   "evidence_sensitivity": [
-    "fingerprints",
-    "key to side door"
+    "steel chisel",
+    "phonograph record",
+    "tweezers and string"
    ]
   },
   {
    "name": "Louis Mannix",
    "age_range": "40-50",
-   "role_archetype": "fur importer, possible blackmail victim",
+   "role_archetype": "fur importer, suspect",
    "role": "suspect",
    "gender": "male",
    "culpability": "innocent",
    "culprit_eligibility": "eligible",
    "public_persona": "wealthy businessman",
-   "private_secret": "secretive about relations with victim",
-   "motive_seed": "fear of blackmail exposure",
+   "private_secret": "secretive about alibi and relations",
+   "motive_seed": "possible blackmail victim",
    "motive_strength": "weak",
-   "alibi_window": "disputed",
-   "access_plausibility": "high",
-   "stakes": "reputation and business",
+   "alibi_window": "uncertain, claimed with fur model",
+   "access_plausibility": "had access via side door",
+   "stakes": "business reputation",
    "moral_complexity": "moderate",
    "relationships": [
     "Margaret Odell",
@@ -257,315 +225,337 @@
     "Charles Cleaver"
    ],
    "opportunity_channels": [
-    "side door",
-    "apartment 2"
+    "side door"
    ],
    "behavioral_tells": [
     "evasiveness",
-    "denial of blackmail"
+    "contradictory statements"
    ],
    "evidence_sensitivity": []
   },
   {
    "name": "Dr. Ambroise Lindquist",
    "age_range": "40-50",
-   "role_archetype": "neurologist, jealous suitor",
+   "role_archetype": "neurologist, suspect",
    "role": "suspect",
    "gender": "male",
    "culpability": "innocent",
    "culprit_eligibility": "eligible",
-   "public_persona": "respected physician",
-   "private_secret": "infatuated and jealous, threatened victim",
+   "public_persona": "fashionable doctor",
+   "private_secret": "jealous and infatuated, threatened Odell",
    "motive_seed": "jealousy",
-   "motive_strength": "moderate",
-   "alibi_window": "hospitalized at murder time",
-   "access_plausibility": "low",
+   "motive_strength": "weak",
+   "alibi_window": "hospitalized during second murder",
+   "access_plausibility": "had access to apartment",
    "stakes": "reputation",
    "moral_complexity": "high",
    "relationships": [
     "Margaret Odell"
    ],
-   "opportunity_channels": [],
+   "opportunity_channels": [
+    "side door"
+   ],
    "behavioral_tells": [
-    "nervous outburst when questioned"
+    "irascibility",
+    "nervous breakdown"
    ],
    "evidence_sensitivity": []
   },
   {
-   "name": "Alys La Fosse",
-   "age_range": "20-30",
-   "role_archetype": "musical-comedy actress, friend and confidante",
-   "role": "witness",
-   "gender": "female",
+   "name": "William Elmer Jessup (Benton)",
+   "age_range": "30-40",
+   "role_archetype": "telephone operator, false accused",
+   "role": "culprit",
+   "gender": "male",
    "culpability": "innocent",
-   "culprit_eligibility": "ineligible",
-   "public_persona": "actress",
-   "private_secret": "engaged to Mannix, protective of him",
-   "motive_seed": "none",
-   "motive_strength": "none",
-   "alibi_window": "Monday night",
-   "access_plausibility": "n/a",
-   "stakes": "personal safety",
-   "moral_complexity": "low",
+   "culprit_eligibility": "eligible",
+   "public_persona": "reliable telephone operator",
+   "private_secret": "ex-convict with criminal past",
+   "motive_seed": "infatuation with Odell",
+   "motive_strength": "weak",
+   "alibi_window": "quit job before murder",
+   "access_plausibility": "had key to side door",
+   "stakes": "freedom",
+   "moral_complexity": "moderate",
    "relationships": [
     "Margaret Odell",
-    "Louis Mannix"
+    "Tony Skeel"
    ],
-   "opportunity_channels": [],
-   "behavioral_tells": [],
-   "evidence_sensitivity": []
+   "opportunity_channels": [
+    "side door"
+   ],
+   "behavioral_tells": [
+    "nervousness",
+    "red face when questioned"
+   ],
+   "evidence_sensitivity": [
+    "fingerprints on closet door",
+    "key to side door"
+   ]
   }
  ],
  "culprits": [
-  "Kenneth Spotswoode",
-  "William Elmer Jessup (Benton)"
+  "Kenneth Spotswoode"
  ],
- "surface_summary": "Margaret Odell, a Broadway beauty known as the Canary, was strangled in her apartment during a supposed burglary. The side door was bolted from the inside, and no one was seen entering or leaving except her escort, Kenneth Spotswoode, who had a solid alibi. Fingerprints of Tony Skeel, a burglar, were found, and suspicion initially fell on him and Jessup, a telephone operator.",
+ "surface_summary": "Margaret Odell, a famous Broadway beauty known as the Canary, was strangled in her locked apartment which appeared ransacked as if by a professional burglar. The side door was bolted from the inside, and no one was seen entering or leaving, creating a baffling locked-room mystery. Several suspects with motives and alibis were investigated, including a burglar who was later found strangled himself.",
  "accepted_facts": [
-  "Margaret Odell was strangled in her apartment late at night.",
-  "The side door to the building was bolted from the inside all night.",
-  "Tony Skeel’s fingerprints were found in the apartment and he had a criminal record.",
-  "Kenneth Spotswoode had a verified alibi during the time of the murder."
+  "Margaret Odell was strangled in her apartment late at night",
+  "The side door to the building was bolted from the inside all night",
+  "Tony Skeel’s fingerprints were found in the apartment and he had a key",
+  "A phonograph record was used to fake screams heard by the telephone operator"
  ],
  "inferred_conclusions": [
-  "Tony Skeel was the murderer acting alone.",
-  "The side door was never unlocked during the night of the murder.",
-  "Kenneth Spotswoode was innocent due to his alibi."
+  "Tony Skeel was the murderer because of his fingerprints and criminal record",
+  "William Elmer Jessup (Benton) was guilty due to his access and nervousness",
+  "The crime was a simple burglary gone wrong"
  ],
- "mechanism_description": "Kenneth Spotswoode planned and executed the murder to prevent Margaret Odell from ruining his life through blackmail. He staged the crime to appear as a burglary, using a phonograph record to fake screams heard by witnesses. He manipulated the side door bolt using a string and tweezers device to create an alibi, and killed Tony Skeel, who had witnessed the murder and attempted to blackmail him.",
+ "mechanism_description": "Kenneth Spotswoode murdered Margaret Odell to prevent her from ruining his life through blackmail. He staged the crime to appear as a professional burglary, using a phonograph record to fake screams heard by the telephone operator. He manipulated the locked side door with a string and tweezers device to create an alibi, hiding his presence and movements, but was ultimately exposed by Philo Vance’s psychological deductions and demonstration.",
  "delivery_path": [
-  "Spotswoode unbolted the side door using a string and tweezers device to enter unnoticed.",
-  "He hid in the apartment until the victim and her escort arrived.",
-  "He strangled Margaret Odell while Tony Skeel hid in the clothes-press.",
-  "Spotswoode staged a burglary by ransacking the apartment and removing jewelry.",
-  "He set a phonograph record with screams to play after leaving to fake a call for help.",
-  "He rebolted the side door using the string and tweezers device to create an alibi.",
-  "He killed Tony Skeel later to silence him and prevent blackmail."
+  "Spotswoode unbolted the side door from outside using tweezers and string",
+  "He entered the apartment quietly before Odell and her escort returned",
+  "Hid in the clothes-press while Odell and Spotswoode’s escort were present",
+  "Strangled Odell after the escort left and staged the burglary scene",
+  "Set the phonograph record with screams to play after leaving",
+  "Rebolted the side door from inside using the tweezers and string",
+  "Left the apartment and established an alibi by going to the club"
  ],
- "outcome_result": "Kenneth Spotswoode is arrested for the murder of Margaret Odell and subsequently commits suicide.",
+ "outcome_result": "Kenneth Spotswoode was arrested for the murder of Margaret Odell and subsequently committed suicide.",
  "false_assumption": {
-  "statement": "The side door was bolted from the inside all night, making entry or exit impossible.",
-  "type": "spatial",
-  "why_it_seems_reasonable": "The janitor and witnesses confirmed the door was bolted, and no one was seen entering or leaving through it. The telephone operators on duty also denied any unauthorized passage.",
-  "what_it_hides": "The door was manipulated by a mechanical device operated from outside, allowing the murderer to enter and exit without being seen and then rebolt the door, creating a false impression of security."
+  "statement": "The side door was bolted all night and could not have been unbolted and rebolted without detection.",
+  "type": "behavioral",
+  "why_it_seems_reasonable": "The janitor and witnesses testified the door was bolted early and remained so, and no one was seen entering or leaving through it. The telephone operators also confirmed no unauthorized passage.",
+  "what_it_hides": "It hides the possibility that the murderer used a mechanical device to unbolt and rebolt the door silently and remotely, allowing secret entry and exit."
  },
  "false_solution": {
   "accused_suspect": "William Elmer Jessup (Benton)",
   "supporting_points": [
-   "Jessup was the only person who could have unlocked and rebolted the side door.",
-   "He had a motive of jealousy and love for the victim.",
-   "His fingerprints were found in the apartment.",
-   "He was caught trying to pawn stolen jewelry."
+   "His fingerprints were found on the closet door and table",
+   "He had a key to the side door",
+   "He suddenly quit his job and planned to flee",
+   "He had a criminal record and motive due to infatuation"
   ],
-  "the_one_flaw": "The mechanical device used by Spotswoode allowed him to manipulate the side door without Jessup’s involvement, and Jessup had no opportunity to commit the murder.",
+  "the_one_flaw": "He could not have unbolted and rebolted the side door without detection, and the physical and psychological evidence did not fit him as the murderer.",
   "refuted_in_chapter": 26
  },
  "red_herrings": [
   {
-   "id": "tony_skeel_the_burglar",
-   "description": "Tony Skeel, a known burglar with fingerprints in the apartment, was suspected of the murder and robbery.",
-   "points_at_suspect": "His criminal record and presence in the apartment during the murder time.",
-   "innocent_explanation": "He was hiding in the clothes-press and witnessed the murder but did not commit it; he was later killed by the real murderer to silence him.",
-   "resolved_in_chapter": 26
+   "id": "charles_cleaver_blackmail",
+   "description": "Charles Cleaver was blackmailed by Odell and had a suspicious alibi involving a speeding summons from another town.",
+   "points_at_suspect": "Cleaver",
+   "innocent_explanation": "Cleaver fabricated the alibi and was not present at the time of the murder; his involvement was limited to blackmail and personal grievances.",
+   "resolved_in_chapter": 21
   },
   {
-   "id": "doctor_ambroise_lindquist_the_jealous_physician",
-   "description": "Dr. Lindquist was infatuated and jealous of the victim and threatened her, making him a suspect.",
-   "points_at_suspect": "His threats and unstable behavior suggested possible motive.",
-   "innocent_explanation": "He had a solid alibi being hospitalized during the murder and was not physically capable of committing the crime.",
-   "resolved_in_chapter": 24
+   "id": "doctor_lindquist_jealousy",
+   "description": "Doctor Lindquist was infatuated and jealous of Odell, threatened her, and had a weak alibi.",
+   "points_at_suspect": "Dr. Ambroise Lindquist",
+   "innocent_explanation": "Lindquist was hospitalized during the second murder and his alibi was confirmed; his threats were emotional outbursts without murderous intent.",
+   "resolved_in_chapter": 20
   }
  ],
  "closed_circle": {
   "suspects": [
-   "Louis Mannix",
    "Charles Cleaver",
-   "Dr. Ambroise Lindquist",
-   "Kenneth Spotswoode"
+   "Kenneth Spotswoode",
+   "Louis Mannix",
+   "Dr. Ambroise Lindquist"
   ],
-  "rationale": "These four men were the only ones intimately connected with the victim and had motives or opportunity; others were excluded by alibis or lack of connection."
+  "rationale": "These four men were the only intimate acquaintances of Margaret Odell with potential motives and opportunity, forming the complete set of plausible suspects."
  },
  "constraint_space": {
   "time_anchors": [
-   "Monday night between 11 p.m. and midnight",
-   "Escort’s departure at 11:30 p.m.",
-   "Skeel’s death between 10 p.m. and midnight",
-   "Phonograph screams timed to about 11:35 p.m."
+   "Monday night between 10 p.m. and midnight",
+   "Half past eleven when Odell was last seen alive",
+   "Five minutes to twelve when Cleaver was seen leaving",
+   "Ten minutes to twelve when the phone call was made"
   ],
   "time_windows": [
-   "Escort with victim from 11 p.m. to 11:30 p.m.",
-   "Skeel hiding in closet after 11:30 p.m.",
-   "Murder occurring between 11:30 p.m. and midnight"
+   "Odell and Spotswoode returned at about 11 p.m.",
+   "Skeel hid in closet during Odell’s return and murder",
+   "Spotswoode left apartment at about 11:35 p.m.",
+   "Poker game at club until 3 a.m."
   ],
   "access_actors": [
    "Kenneth Spotswoode",
    "Tony Skeel",
-   "William Elmer Jessup (Benton)"
+   "William Elmer Jessup (Benton)",
+   "Charles Cleaver",
+   "Louis Mannix"
   ],
   "access_objects": [
-   "Side door with bolt and mechanical device",
+   "Side door with bolt and tweezers-string device",
    "Front door",
-   "Clothes-press closet"
+   "Clothes-press closet with key",
+   "Jewel-case with steel chisel",
+   "Phonograph with record"
   ],
   "trust_channels": [
    "Telephone operators Jessup and Spively",
    "Maid Amy Gibson",
-   "Janitor"
+   "Janitor",
+   "Judge Redfern",
+   "Landlady of Skeel"
   ],
   "authority_sources": [
    "District Attorney John F.-X. Markham",
    "Sergeant Ernest Heath",
-   "Inspector Conrad Brenner"
+   "Medical Examiner Dr. Doremus",
+   "Deputy-Inspector Conrad Brenner",
+   "Captain Dubois and Detective Bellamy (fingerprint experts)"
   ]
  },
  "inference_path": [
   {
-   "observation": "Side door was bolted on the inside all night according to janitor and police.",
-   "correction": "Side door was manipulated by a mechanical device operated from outside.",
-   "effect": "Allowed murderer to enter and exit unnoticed, creating false alibi.",
+   "observation": "Side door was bolted from inside all night according to janitor and police",
+   "correction": "Vance demonstrated that the door could be unbolted and rebolted from outside using tweezers and string",
+   "effect": "Allowed secret entry and exit, disproving the locked-door alibi",
    "required_evidence": [
-    "Testimony of janitor about bolting the side door at 6 p.m.",
-    "Vance’s demonstration with tweezers and string device at side door"
+    "Tweezers with purple twine found in Skeel’s waistcoat pocket",
+    "Demonstration of door bolt manipulation at Odell apartment"
    ]
   },
   {
-   "observation": "Phonograph record played screams and calls for help after escort left.",
-   "correction": "Record was pre-recorded by Spotswoode to fake screams and calls.",
-   "effect": "Created alibi for Spotswoode and misled witnesses.",
+   "observation": "Screams heard by telephone operator Jessup at about 11:35 p.m.",
+   "correction": "Screams were phonograph recordings played by Spotswoode to fake a live disturbance",
+   "effect": "Phonograph record created false alibi and misled investigators",
    "required_evidence": [
-    "Phonograph record found in victim’s apartment",
-    "Vance’s analysis of record timing and mechanism"
+    "Phonograph record of screams found in Odell apartment",
+    "Jessup’s testimony about timing of screams and calls"
    ]
   },
   {
-   "observation": "Fingerprints of Tony Skeel found in apartment.",
-   "correction": "Skeel was hiding in the clothes-press and witnessed the murder.",
-   "effect": "Skeel was a witness, not the murderer.",
+   "observation": "Tony Skeel’s fingerprints found in apartment and he had a key",
+   "correction": "Skeel was hiding in the clothes-press closet during the murder and was a terrified witness, not the murderer",
+   "effect": "Skeel’s presence explained fingerprints but exonerated him from murder",
    "required_evidence": [
-    "Fingerprints on table and closet door knob",
-    "Skeel’s testimony and behavior under questioning"
+    "Fingerprints on closet door knob matching Skeel",
+    "Skeel’s alibi and behavior during interrogation"
    ]
   },
   {
-   "observation": "Jessup was the only one who could unlock and rebolt the side door.",
-   "correction": "Jessup was an impostor and not involved in the murder; door manipulation was by Skeel.",
-   "effect": "Jessup’s arrest was a false solution.",
+   "observation": "Cleaver had a speeding summons from Boonton as alibi",
+   "correction": "Traffic officer who issued summons identified a different man, indicating Cleaver’s alibi was fabricated",
+   "effect": "Cleaver’s alibi was false, increasing suspicion but not proving guilt",
    "required_evidence": [
-    "Jessup’s real identity as Benton with criminal record",
-    "Jessup’s sudden quitting and arrest"
+    "Traffic officer Phipps’s testimony and description",
+    "Cleaver’s inconsistent statements about whereabouts"
    ]
   },
   {
-   "observation": "Spotswoode had a solid alibi playing poker until 3 a.m.",
-   "correction": "Spotswoode’s alibi was fabricated; he committed the murder and arranged the alibi.",
-   "effect": "Spotswoode is the true murderer despite apparent alibi.",
+   "observation": "Spotswoode had an alibi playing poker until 3 a.m.",
+   "correction": "Vance’s psychological poker test showed Spotswoode’s high self-confidence and risk-taking matched the murderer’s profile",
+   "effect": "Psychological evidence implicated Spotswoode despite physical alibi",
    "required_evidence": [
-    "Poker game with manipulated hands",
-    "Psychological analysis of Spotswoode’s behavior during poker"
+    "Poker game with Spotswoode, Vance, Cleaver, Allen, and Markham",
+    "Vance’s analysis of betting behavior and bluff"
    ]
   },
   {
-   "observation": "Victim’s gown was torn and jewelry stolen in a typical burglary manner.",
-   "correction": "The burglary was staged by Spotswoode to disguise the murder motive.",
-   "effect": "Robbery was a cover-up for murder.",
+   "observation": "Phonograph record played screams after murder",
+   "correction": "Spotswoode prepared the record to create an alibi and mislead witnesses",
+   "effect": "Demonstrated premeditation and deception by Spotswoode",
    "required_evidence": [
-    "Condition of jewel-case and poker used to fake forced entry",
-    "Testimony of maid and witnesses about apartment disorder"
+    "Phonograph and record found in Odell apartment",
+    "Spotswoode’s workshop and musical knowledge"
    ]
   },
   {
-   "observation": "Skeel was blackmailing Spotswoode and was later murdered.",
-   "correction": "Spotswoode killed Skeel to silence him and cover up the crime.",
-   "effect": "Murder extended to eliminate witness.",
+   "observation": "Jewelry found in trash can across town",
+   "correction": "Spotswoode discarded the jewelry to fake burglary and mislead police",
+   "effect": "Further evidence of Spotswoode’s attempt to stage the crime",
    "required_evidence": [
-    "Skeel’s death by strangulation",
-    "Spotswoode’s confession and circumstances of Skeel’s murder"
+    "Jewelry recovered by street-cleaner Potts",
+    "Mannix’s knowledge of jewelry and Furriers’ Club newspapers"
    ]
   }
  ],
  "discriminating_test": {
-  "method": "reenactment",
-  "design": "Vance demonstrated the side door manipulation by using tweezers tied to a string to unbolt and rebolt the door from outside without being seen. The phonograph record was played to simulate screams and calls for help timed to the murder. A staged poker game was used to analyze psychological traits of suspects.",
-  "knowledge_revealed": "The test revealed how the murderer could enter and exit undetected, create a mechanical alibi, and the psychological profile matching the true culprit.",
-  "pass_condition": "Successful unlocking and relocking of the side door by mechanical means without detection, and psychological behavior consistent with the murderer during the poker game."
+  "method": "trap",
+  "design": "Vance invited the main suspects to a poker game to observe their psychological traits and risk-taking behavior. Spotswoode’s daring bluff and high-stakes betting revealed a personality consistent with the murderer’s profile, while others were eliminated by their more cautious or inconsistent play.",
+  "knowledge_revealed": "The test revealed Spotswoode’s supreme self-confidence and willingness to risk everything, matching the psychological profile of the killer.",
+  "pass_condition": "The suspect’s betting behavior must demonstrate calculated risk-taking and bluffing consistent with the murderer's psychological profile, distinguishing him from more cautious suspects."
  },
- "fair_play_explanation": "The reader is provided with all physical evidence, witness testimonies, and the layout of the apartment, including the side door and the clothes-press. The presence of the phonograph record and its timing is described in detail. The psychological profiles and alibis of suspects are fully explored. The mechanical device used to manipulate the door is demonstrated before the solution is revealed, allowing the attentive reader to deduce the method and suspect.",
+ "fair_play_explanation": "The reader is given detailed descriptions of the apartment layout, the locked side door, the phonograph record, the suspects’ alibis and motives, and the psychological profiles. Clues such as the tweezers and string device, the phonograph record, and the poker game are all presented before the solution. The reader could deduce the mechanism of the door bolt trick and suspect Spotswoode’s psychological profile as the key to the crime.",
  "anchors": [
   {
    "claim": "Margaret Odell was strangled in her apartment",
-   "anchor": "the girl’s strangled body"
+   "anchor": "Margaret Odell was found strangled this morning"
   },
   {
-   "claim": "The side door was bolted on the inside all night",
-   "anchor": "the side door to the building was bolted on the inside"
+   "claim": "The side door was bolted from the inside all night",
+   "anchor": "side door to this building; and when that door is bolted nobody can get into the house"
   },
   {
-   "claim": "Fingerprints of Tony Skeel were found in the apartment",
-   "anchor": "finger-prints of Skeel"
+   "claim": "Tony Skeel’s fingerprints were found in the apartment",
+   "anchor": "finger-prints on it, and the guy who made it was standing right behind the dame"
   },
   {
-   "claim": "Jessup was the telephone operator who saw no one enter or leave",
-   "anchor": "Jessup, the night telephone operator then on duty"
+   "claim": "Phonograph record was used to fake screams",
+   "anchor": "phonograph record to fake screams heard by a telephone operator"
   },
   {
-   "claim": "Kenneth Spotswoode had a verified alibi at the Stuyvesant Club",
-   "anchor": "Judge Redfern, who saw him descend from the taxi"
-  },
-  {
-   "claim": "The jewel-case was forced open with a steel chisel",
-   "anchor": "the steel chisel was found"
-  },
-  {
-   "claim": "The phonograph record was used to fake screams heard by witnesses",
-   "anchor": "phonograph record to fake screams"
-  },
-  {
-   "claim": "The side door was manipulated by a string and tweezers device",
+   "claim": "Tweezers and string device used to manipulate door bolt",
    "anchor": "tiny pair of tweezers to the end of which was tied a piece of purple twine"
   },
   {
-   "claim": "Tony Skeel was hiding in the clothes-press during the murder",
-   "anchor": "Skeel was hiding in the clothes-press"
+   "claim": "Jessup (Benton) was falsely accused and had criminal past",
+   "anchor": "His name ain’t Jessup at all. The William part is all right, but his real moniker is Benton"
   },
   {
-   "claim": "Jessup was arrested and found to be an impostor named Benton",
-   "anchor": "His real moniker is Benton"
+   "claim": "Cleaver fabricated an alibi with a speeding summons",
+   "anchor": "Why did you tell me you were in Boonton Monday night?"
   },
   {
-   "claim": "Spotswoode confessed to the murder and explained his motive",
-   "anchor": "I arrest you for the murder of Margaret Odell"
+   "claim": "Doctor Lindquist was jealous and threatened Odell",
+   "anchor": "I threatened her with a revolver"
   },
   {
-   "claim": "Spotswoode staged the burglary to cover the murder",
-   "anchor": "he proceeded to wreck the apartment in order to give the effect of a professional burglary"
+   "claim": "Spotswoode played poker bluff revealing psychological profile",
+   "anchor": "Not one player in a thousand would have wagered the limit"
   },
   {
-   "claim": "Spotswoode used the phonograph record to create an alibi",
-   "anchor": "he placed the record on the machine, set it going, and calmly walked out"
+   "claim": "Phonograph record was placed to play screams after murder",
+   "anchor": "He placed the record on the machine, set it going, and calmly walked out"
   },
   {
-   "claim": "Spotswoode killed Tony Skeel to silence him",
-   "anchor": "he strangled him like he did Odell"
+   "claim": "Jewelry was discarded in trash to fake burglary",
+   "anchor": "I wrapped it in one of the club newspapers and threw it in a waste-bin near the Flatiron Building"
   },
   {
-   "claim": "Vance demonstrated the mechanical unlocking and relocking of the side door",
-   "anchor": "he turned them at a very slight angle to the left and then ran the twine under the door"
+   "claim": "Spotswoode confessed to murder and motive",
+   "anchor": "I strangled him, and I would have done it before"
   },
   {
-   "claim": "The poker game revealed psychological traits matching the murderer",
-   "anchor": "the most remarkable bluff ever made in a game of poker"
+   "claim": "Vance’s demonstration of door bolt mechanism",
+   "anchor": "Placing the tweezers over the vertical bolt-handle, he turned them at a very slight angle"
   },
   {
-   "claim": "The phonograph record was the key evidence that exposed Spotswoode",
-   "anchor": "The Beethoven Andante"
+   "claim": "Jessup (Benton) could not have unbolted door without detection",
+   "anchor": "Nobody but Jessup coulda opened that side door and locked it again—nobody"
   },
   {
-   "claim": "Jessup could not have manipulated the door as Vance demonstrated",
-   "anchor": "I know that it was Skeel, and not Jessup, who unbolted that door"
+   "claim": "Skeel was hiding in the clothes-press closet during murder",
+   "anchor": "Skeel was hiding in the clothes-press at some time during the fatal evening"
   },
   {
-   "claim": "Spotswoode committed suicide after arrest",
-   "anchor": "He’s shot himself"
+   "claim": "Phonograph record label was altered by Spotswoode",
+   "anchor": "He brought the lady several new records that night, and concealed this one among them"
+  },
+  {
+   "claim": "Jessup quit job suddenly before murder",
+   "anchor": "Jessup lived on Second Avenue, right around the corner from Skeel!"
+  },
+  {
+   "claim": "Cleaver heard a man scream 'Oh, my God!'",
+   "anchor": "Well, as near as I could make out, they were: ‘Oh, my God! Oh, my God!’"
+  },
+  {
+   "claim": "Spotswoode’s suicide after arrest",
+   "anchor": "He’s shot himself!"
+  },
+  {
+   "claim": "Vance’s poker game with suspects",
+   "anchor": "The hand was a jack-pot, and there was a small fortune in chips already on the table"
   }
  ]
 }

@@ -72,8 +72,8 @@
   {
    "claim": "The parrot dropped the match near the stolen item as a deliberate clue",
    "anchor": "the match was an article well chosen for its purpose",
-   "span": "",
-   "ok": false
+   "span": "The match was an article well chosen for its purpose, as being a not altogether unlikely thing to find on a dressing-table, and, if noticed, likely to lead to the wrong conclusions adopted by the official detective.",
+   "ok": true
   },
   {
    "claim": "The parrot's beak marks matched the indentations on the used match",
@@ -114,8 +114,8 @@
   {
    "claim": "Lloyd confessed to the thefts after being confronted",
    "anchor": "He'll confess. Of that I'm sure. I know the sort of man",
-   "span": "",
-   "ok": false
+   "span": "There will be no trouble about evidence; he'll confess. Of that I'm sure. I know the sort of man.",
+   "ok": true
   },
   {
    "claim": "The parrot was trained to keep quiet while carrying stolen items",
@@ -132,5 +132,5 @@
  },
  "case_written": true,
  "verified_by": "corpus-verify.mjs",
- "verified_on": "2026-08-31"
+ "verified_on": "2026-09-23"
 }

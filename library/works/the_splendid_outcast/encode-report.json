@@ -1,0 +1,136 @@
+{
+ "slug": "the_splendid_outcast",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Jim Horton was impersonating his twin brother Harry",
+   "anchor": "I changed uniforms with--with another fellow in the dark",
+   "span": "I changed uniforms with--with another fellow in the dark,\" he finished uneasily.",
+   "ok": true
+  },
+  {
+   "claim": "Harry Horton was found murdered in the studio",
+   "anchor": "lying on his back, with his throat cut",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The studio door and kitchen door were locked from inside",
+   "anchor": "the door into the kitchen was locked, the key was in the door",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The window was open but led to a blank wall",
+   "anchor": "the window was sixty feet from the stone flagging below",
+   "span": "The door to the sleeping apartments was locked, the key on the outside, the window was sixty feet from the stone flagging below.",
+   "ok": true
+  },
+  {
+   "claim": "A lay figure dressed in clothes was found in the studio",
+   "anchor": "the lay figure in its old costume, felt hat and draperies",
+   "span": "The chairs, the rugs, the hangings, had suddenly become merely a background for the body lying among them, a part of it, linked in a horrible conspiracy of silence, Moira's plain furniture, her easel, which still bore the placid portrait of the indomitable Parisienne who had refused to be a _froussarde_; the arm chair by the fireplace in which Moira had sat, the table from which they had supped; the lay figure in its old costume, felt hat and draperies; the couch by the window; the brass bowl on the mantel, full of Moira's brushes--all of them spoke so eloquently of her.",
+   "ok": true
+  },
+  {
+   "claim": "The lay figure's clothing was disturbed and a piece of cotton was torn",
+   "anchor": "a small tear in the cotton cloth on the outside of the right calf",
+   "span": "But she had fallen on her knees before it and didn't even hear him, for she suddenly bent forward with a little cry and put her finger into a small tear in the cotton cloth on the outside of the right calf.",
+   "ok": true
+  },
+  {
+   "claim": "The torn cotton piece matched the lay figure's covering",
+   "anchor": "the torn piece was of the same material as the cotton skin of the lay figure",
+   "span": "The torn piece was of the same material as the cotton skin of the lay figure, soiled upon one side and clean upon the other.",
+   "ok": true
+  },
+  {
+   "claim": "The murderer disguised himself as the lay figure",
+   "anchor": "he had put on the old skirt and bolero jacket, and slouch hat",
+   "span": "He had put on the old skirt and bolero jacket, and slouch hat, and about his shoulders was the gray drapery.",
+   "ok": true
+  },
+  {
+   "claim": "The murderer was identified as Tricot",
+   "anchor": "the man who had emerged from the room in the hallway was Monsieur Tricot",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Barry Quinlevin orchestrated the blackmail and hired Tricot",
+   "anchor": "I was paid five thousand francs by Monsieur Quinlevin",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Jim Horton and Piquette Morin discovered the body and raised alarm",
+   "anchor": "Jim Horton, after several minutes, broke in the door",
+   "span": "And weapon in hand, Jim Horton, after several minutes, broke in the door.",
+   "ok": true
+  },
+  {
+   "claim": "Moira Quinlevin sent a message to Jim Horton to come to the studio",
+   "anchor": "Shall be alone Rue de Tavennes to-night eight. Forgive and don't fail. MOIRA.",
+   "span": "Shall be alone Rue de Tavennes to-night eight. Forgive and don't fail. MOIRA.\" He read the lines over and over, Piquette helping him to translate, and stood a moment as though transfixed by its significance.",
+   "ok": true
+  },
+  {
+   "claim": "Jim Horton was arrested and interrogated for the murder",
+   "anchor": "Monsieur Matthieu, the Commissaire de Police, again entered the cell",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Moira Quinlevin discovered the deception involving the lay figure",
+   "anchor": "the lay figure has been moved from its iron bracket",
+   "span": "The lay figure has been moved from its iron bracket----\" \"And even so, what----?",
+   "ok": true
+  },
+  {
+   "claim": "The torn cotton was found hanging from the gutter outside the window",
+   "anchor": "the small piece of torn cotton cloth from her pocket",
+   "span": "And she produced the small piece of torn cotton cloth from her pocket.",
+   "ok": true
+  },
+  {
+   "claim": "The murderer escaped by hiding and blending with the crowd",
+   "anchor": "he had mingled with the crowd and was gone",
+   "span": "Then, Messieurs, in a moment he had mingled with the crowd and was gone.",
+   "ok": true
+  },
+  {
+   "claim": "Tricot confessed to the murder",
+   "anchor": "I did it---- I've confessed",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Barry Quinlevin escaped capture",
+   "anchor": "Quinlevin's clever house of cards had toppled and fallen",
+   "span": "Quinlevin's clever house of cards had toppled and fallen.",
+   "ok": true
+  },
+  {
+   "claim": "Jim Horton was released after evidence cleared him",
+   "anchor": "You are now free, Monsieur Horton--Madame Morin",
+   "span": "You are now free, Monsieur Horton--Madame Morin, I thank you both, in the name of Justice, for your indulgence and apologize for the inconvenience that has been caused you.",
+   "ok": true
+  },
+  {
+   "claim": "Moira and Jim Horton reconciled after the case",
+   "anchor": "Their glances met and a gentle flush stole along the pallor of Moira's face",
+   "span": "Their glances met and a gentle flush stole along the pallor of Moira's face, suddenly flooding it from brow to chin.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.141396096,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

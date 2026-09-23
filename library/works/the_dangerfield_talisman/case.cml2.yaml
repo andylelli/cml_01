@@ -1,0 +1,634 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The Dangerfield Talisman
+    author: J. J. Connington
+    license: Public domain (first published 1926; author died 1947). Project Gutenberg ebook 73753.
+    era:
+      decade: 1920s
+      realism_constraints:
+        - No modern forensic DNA or electronic surveillance available
+        - Mechanical and manual locks and safes are common
+        - Social norms restrict police involvement in private estate matters
+    setting:
+      location: Friocksheim estate, England
+      institution: Private investigation by guests and estate family
+    crime_class:
+      category: theft
+      subtype: replica substitution and secret safe concealment
+  cast:
+    - name: Rollo Dangerfield
+      age_range: elderly
+      role_archetype: estate owner and patriarch
+      relationships:
+        - Eric Dangerfield (nephew)
+        - Helga Dangerfield (daughter)
+      public_persona: calm, courteous host
+      private_secret: knows the Dangerfield Secret and replica scheme
+      motive_seed: protect family legacy
+      motive_strength: strong
+      alibi_window: always present at estate
+      access_plausibility: full access
+      opportunity_channels:
+        - estate rooms
+        - Corinthian's Room
+      behavioral_tells:
+        - calm indifference to theft
+        - protective of family secrets
+      stakes: high family reputation and estate credit
+      evidence_sensitivity:
+        - fingerprints on replica
+        - knowledge of secret safe
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: bystander
+      moral_complexity: high
+    - name: Eileen Cressage
+      age_range: young adult
+      role_archetype: guest in financial trouble
+      relationships:
+        - Mrs. Brent (friend)
+        - Douglas Fairmile (friend)
+      public_persona: honest, nervous guest
+      private_secret: keeps promise of secrecy about gambling debts
+      motive_seed: financial desperation
+      motive_strength: weak
+      alibi_window: out of room at suspicious times
+      access_plausibility: guest access to rooms
+      opportunity_channels:
+        - house corridors
+        - Corinthian's Room vicinity
+      behavioral_tells:
+        - nervousness
+        - over-straightness
+      stakes: reputation and financial survival
+      evidence_sensitivity:
+        - presence near hiding place
+        - promise to Mrs. Brent
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: moderate
+    - name: Conway Westenhanger
+      age_range: middle-aged
+      role_archetype: engineer and amateur detective
+      relationships:
+        - Douglas Fairmile (friend)
+        - Eileen Cressage (ally)
+      public_persona: logical, methodical investigator
+      private_secret: none
+      motive_seed: curiosity and justice
+      motive_strength: none
+      alibi_window: not present during theft
+      access_plausibility: guest access
+      opportunity_channels:
+        - Corinthian's Room
+        - estate grounds
+      behavioral_tells:
+        - careful observation
+        - logical deduction
+      stakes: solving the mystery
+      evidence_sensitivity:
+        - chessboard lock
+        - left-handedness clue
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: low
+    - name: Douglas Fairmile
+      age_range: middle-aged
+      role_archetype: wealthy guest and friend
+      relationships:
+        - Conway Westenhanger (friend)
+        - Eileen Cressage (acquaintance)
+      public_persona: cheerful, sociable
+      private_secret: none
+      motive_seed: none
+      motive_strength: none
+      alibi_window: present at tennis and bridge
+      access_plausibility: guest access
+      opportunity_channels:
+        - estate grounds
+        - Corinthian's Room vicinity
+      behavioral_tells:
+        - lighthearted
+        - supportive of Westenhanger
+      stakes: friendship and social harmony
+      evidence_sensitivity:
+        - right-handedness demonstration
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+    - name: Mrs. Caistor Scorton
+      age_range: middle-aged
+      role_archetype: wealthy kleptomaniac guest
+      relationships:
+        - Morchard (bridge partner)
+        - Freddie Stickney (antagonist)
+      public_persona: stern, wealthy widow
+      private_secret: kleptomania
+      motive_seed: compulsion to steal glittering objects
+      motive_strength: strong
+      alibi_window: present in house, seen hiding stolen goods
+      access_plausibility: guest access to rooms and grounds
+      opportunity_channels:
+        - house corridors
+        - Pool area hiding spot
+      behavioral_tells:
+        - fear and bewilderment when confronted
+      stakes: personal compulsion, social standing
+      evidence_sensitivity:
+        - fingerprints on replica
+        - hidden stolen items in tree hollow
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: female
+      role: culprit
+      moral_complexity: high
+    - name: Eric Dangerfield
+      age_range: young adult
+      role_archetype: heir and left-handed family member
+      relationships:
+        - Rollo Dangerfield (uncle)
+        - Helga Dangerfield (cousin)
+      public_persona: ne’er-do-well nephew
+      private_secret: knows Dangerfield Secret
+      motive_seed: financial difficulties
+      motive_strength: moderate
+      alibi_window: absent during key times due to injury
+      access_plausibility: full access
+      opportunity_channels:
+        - estate rooms
+        - Corinthian's Room vicinity
+      behavioral_tells:
+        - left-handedness
+        - injury limiting movement
+      stakes: family estate and reputation
+      evidence_sensitivity:
+        - writing note to Morchard
+        - presence on watch
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: bystander
+      moral_complexity: moderate
+    - name: Mrs. Brent
+      age_range: elderly
+      role_archetype: friend and collector
+      relationships:
+        - Eileen Cressage (friend)
+      public_persona: wealthy, somewhat irritable
+      private_secret: sensitive to storms
+      motive_seed: none
+      motive_strength: none
+      alibi_window: absent during theft, on yacht
+      access_plausibility: guest access
+      opportunity_channels:
+        - estate grounds
+        - Pool vicinity
+      behavioral_tells:
+        - nervousness during storm
+      stakes: social standing
+      evidence_sensitivity:
+        - missing wrist-watch
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: low
+    - name: Mr. Wraxall
+      age_range: middle-aged
+      role_archetype: American collector and guest
+      relationships:
+        - Rollo Dangerfield (host)
+      public_persona: calm, polite collector
+      private_secret: keen interest in Talisman
+      motive_seed: desire to acquire Talisman
+      motive_strength: moderate
+      alibi_window: accounts for night activities
+      access_plausibility: guest access
+      opportunity_channels:
+        - estate grounds
+        - Corinthian's Room vicinity
+      behavioral_tells:
+        - careful alibi
+        - left-handedness disproved
+      stakes: personal collection
+      evidence_sensitivity:
+        - nighttime watch
+        - fountain pen usage
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: Freddie Stickney
+      age_range: middle-aged
+      role_archetype: meddlesome amateur investigating
+      relationships:
+        - Mrs. Caistor Scorton (ally)
+      public_persona: nosy, irritating guest
+      private_secret: financial difficulties
+      motive_seed: money troubles
+      motive_strength: weak
+      alibi_window: up and about during theft
+      access_plausibility: guest access
+      opportunity_channels:
+        - estate rooms
+        - Corinthian's Room vicinity
+      behavioral_tells:
+        - prying behavior
+        - inferences that discredit others
+      stakes: reputation
+      evidence_sensitivity:
+        - presence at key times
+        - lack of alibi
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: Helga Dangerfield
+      age_range: young adult
+      role_archetype: sleepwalking daughter
+      relationships:
+        - Rollo Dangerfield (father)
+        - Eric Dangerfield (cousin)
+      public_persona: engaged, graceful daughter
+      private_secret: somnambulism
+      motive_seed: none
+      motive_strength: none
+      alibi_window: sleepwalking episodes
+      access_plausibility: full access
+      opportunity_channels:
+        - estate rooms
+      behavioral_tells:
+        - sleepwalking
+        - unaware movements
+      stakes: family reputation
+      evidence_sensitivity:
+        - presence near Corinthian's Room at night
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: bystander
+      moral_complexity: low
+    - name: Morchard
+      age_range: middle-aged
+      role_archetype: persistent suitor and guest
+      relationships:
+        - Eileen Cressage (interest)
+      public_persona: persistent, wealthy guest
+      private_secret: interest in Eileen
+      motive_seed: none
+      motive_strength: none
+      alibi_window: accounts for night
+      access_plausibility: guest access
+      opportunity_channels:
+        - estate rooms
+      behavioral_tells:
+        - calculating gaze
+      stakes: social standing
+      evidence_sensitivity:
+        - presence during key times
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: low
+    - name: Cynthia Pennard
+      age_range: young adult
+      role_archetype: fair-haired guest and bridge player
+      relationships:
+        - Douglas Fairmile (friend)
+        - Nina Lindale (friend)
+      public_persona: calm, friendly
+      private_secret: none
+      motive_seed: none
+      motive_strength: none
+      alibi_window: with Nina during storm
+      access_plausibility: guest access
+      opportunity_channels:
+        - estate grounds
+      behavioral_tells:
+        - supportive of Eileen
+      stakes: social harmony
+      evidence_sensitivity:
+        - presence with Nina during storm
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: low
+    - name: Nina Lindale
+      age_range: young adult
+      role_archetype: nervous guest
+      relationships:
+        - Cynthia Pennard (friend)
+        - Eileen Cressage (acquaintance)
+      public_persona: nervous, timid
+      private_secret: fear of thunder
+      motive_seed: none
+      motive_strength: none
+      alibi_window: with Cynthia during storm
+      access_plausibility: guest access
+      opportunity_channels:
+        - estate grounds
+      behavioral_tells:
+        - nervousness during storm
+      stakes: personal safety
+      evidence_sensitivity:
+        - presence with Cynthia during storm
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: low
+    - name: Mrs. Dangerfield
+      age_range: elderly
+      role_archetype: hostess
+      relationships:
+        - Rollo Dangerfield (husband)
+        - Helga Dangerfield (daughter)
+      public_persona: polite hostess
+      private_secret: none
+      motive_seed: none
+      motive_strength: none
+      alibi_window: present at estate
+      access_plausibility: full access
+      opportunity_channels:
+        - estate rooms
+      behavioral_tells:
+        - dislikes heat
+      stakes: family reputation
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: bystander
+      moral_complexity: low
+    - name: Mrs. Tuxford
+      age_range: middle-aged
+      role_archetype: doctor’s wife and bridge player
+      relationships:
+        - doctor (husband)
+      public_persona: shy, modest
+      private_secret: none
+      motive_seed: none
+      motive_strength: none
+      alibi_window: present at estate
+      access_plausibility: guest access
+      opportunity_channels:
+        - estate rooms
+      behavioral_tells: []
+      stakes: social standing
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: low
+    - name: Doctor (unnamed)
+      age_range: middle-aged
+      role_archetype: local doctor
+      relationships:
+        - Mrs. Tuxford (wife)
+      public_persona: kind, professional
+      private_secret: none
+      motive_seed: none
+      motive_strength: none
+      alibi_window: present at estate
+      access_plausibility: guest access
+      opportunity_channels:
+        - estate rooms
+      behavioral_tells: []
+      stakes: professional reputation
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+  culpability:
+    culprit_count: 1
+    culprits:
+      - Mrs. Caistor Scorton
+  surface_model:
+    narrative:
+      summary: >-
+        The Dangerfield Talisman, a valuable family heirloom, disappears from its open cabinet at
+        the Friocksheim estate. Suspicion falls on various guests and family members, with tensions
+        rising as the Talisman mysteriously returns days later. The case appears to be a theft by a
+        left-handed individual with a complex motive.
+    accepted_facts:
+      - The Talisman was missing from its cabinet one morning.
+      - The cabinet doors were found in a state indicating a left-handed person opened it.
+      - A replica of the Talisman was used for display, while the real one was hidden.
+      - Mrs. Caistor Scorton was seen retrieving stolen items from a hiding place.
+    inferred_conclusions:
+      - Eileen Cressage was the thief due to her suspicious night movements.
+      - Eric Dangerfield was the culprit because he was left-handed and had financial troubles.
+      - The Talisman was stolen by an outsider who managed to bypass the alarms.
+  hidden_model:
+    mechanism:
+      description: >-
+        The real Dangerfield Talisman was never removed from the estate but hidden in a secret safe
+        deposit behind a panel in the Corinthian’s Room, secured by a mechanical chessboard lock
+        devised by the grandfather. The displayed Talisman was a replica used to maintain the
+        estate’s credit. Mrs. Caistor Scorton, a kleptomaniac, stole the replica and hid it in a
+        hollow tree by the Pool, unaware of the real Talisman’s secret location. The replica was
+        later returned to the cabinet to mislead the guests.
+      delivery_path:
+        - step: The Corinthian’s Room has a chessboard floor with holes for iron chess pieces.
+        - step: >-
+            The grandfather devised a mechanical lock activated by placing knights in a specific
+            sequence.
+        - step: Behind the tapestry in the room is a secret panel concealing a safe deposit.
+        - step: The real Talisman and valuable jewels are stored in this secret safe.
+        - step: Mrs. Caistor Scorton steals the replica Talisman from the cabinet.
+        - step: She hides the replica and other stolen items in a hollow tree near the Pool.
+        - step: >-
+            The Dangerfields and Westenhanger use the chessboard lock to access and recover the real
+            Talisman.
+    outcome:
+      result: >-
+        Mrs. Caistor Scorton is revealed as the kleptomaniac who stole the replica, while the real
+        Talisman was safely hidden all along.
+  false_assumption:
+    statement: The Talisman was stolen by a left-handed thief who had full knowledge of the estate.
+    type: identity
+    why_it_seems_reasonable: >-
+      The cabinet doors were opened in a way indicating a left-handed person, and Eric Dangerfield,
+      a left-hander with financial troubles, was suspected. The theft coincided with suspicious
+      night movements of several guests.
+    what_it_hides: >-
+      The left-handedness clue only applies to the replica theft, not the real Talisman, which was
+      never taken. The real theft was a kleptomaniac stealing the replica without knowledge of the
+      secret safe.
+  false_solution:
+    accused_suspect: Eric Dangerfield
+    supporting_points:
+      - He is left-handed, matching the cabinet door opening.
+      - He had financial difficulties and motive.
+      - He was wandering the house at suspicious times.
+      - He was seen writing a note and paying debts after the theft.
+    the_one_flaw: >-
+      Old Rollo Dangerfield’s firm assertion that Eric did not take the Talisman and the discovery
+      of the secret safe containing the real Talisman.
+    refuted_in_chapter: 15
+  red_herrings:
+    - id: eileen_cressage_night_wandering
+      description: >-
+        Eileen Cressage was seen wandering the house at night and switching on her light, suggesting
+        suspicious behavior.
+      points_at_suspect: Eileen Cressage
+      innocent_explanation: >-
+        She was visiting Mrs. Brent to discuss her gambling debts and was cleared by Mrs. Brent’s
+        testimony.
+      resolved_in_chapter: 11
+    - id: freddie_stickney_amateur_detective
+      description: >-
+        Freddie Stickney’s meddling and insinuations caused suspicion to fall on many guests,
+        including himself.
+      points_at_suspect: Freddie Stickney
+      innocent_explanation: >-
+        He was merely an amateur detective with poor evidence and no motive; his presence was
+        disruptive but not criminal.
+      resolved_in_chapter: 15
+  closed_circle:
+    suspects:
+      - Mrs. Caistor Scorton
+      - Eric Dangerfield
+      - Freddie Stickney
+      - Mr. Wraxall
+      - Morchard
+    rationale: >-
+      Servants were locked out after 11:30 pm, no external entry was possible due to alarms, and all
+      guests were accounted for, leaving only the house guests as possible suspects.
+  constraint_space:
+    time:
+      anchors:
+        - quarter past twelve (Mrs. Caistor Scorton sees Eileen)
+        - half past twelve (storm breaks)
+        - about one o'clock (Douglas sees Talisman in place)
+        - twenty minutes to three (Freddie fixes blind and sees light)
+      windows:
+        - Night of the storm, between midnight and 3 am
+        - Morning after the storm until breakfast
+    access:
+      actors:
+        - Guests
+        - Servants (locked out after 11:30 pm)
+        - Butler (key holder)
+      objects:
+        - Corinthian’s Room cabinet
+        - Secret safe behind tapestry
+        - Hollow tree by the Pool
+    social:
+      trust_channels:
+        - Rollo Dangerfield’s word on servants’ honesty
+        - Eileen Cressage’s promise to Mrs. Brent
+        - Eric Dangerfield’s assurance of innocence
+      authority_sources:
+        - Rollo Dangerfield as estate owner
+        - Westenhanger as investigator
+        - Mrs. Brent as trusted friend
+  inference_path:
+    steps:
+      - observation: >-
+          The cabinet doors were found with the left-hand door open, indicating a left-handed person
+          opened it.
+        correction: Eileen and Douglas are right-handed; the thief must be left-handed or ambidextrous.
+        effect: Narrows suspect list to left-handed or ambidextrous individuals.
+        required_evidence:
+          - Observation of cabinet door positions in Corinthian’s Room
+          - Eileen’s and Douglas’s hand preference demonstrated by match and cigarette handling
+        reader_observable: true
+      - observation: Mrs. Caistor Scorton was seen carrying stolen items from a hollow tree near the Pool.
+        correction: She is the one who stole the replica Talisman and other items.
+        effect: Identifies Mrs. Caistor Scorton as the thief of the replica.
+        required_evidence:
+          - Witness statement of Eileen and Westenhanger observing Mrs. Caistor Scorton at the Pool
+          - Physical retrieval of stolen items from tree hollow
+        reader_observable: true
+      - observation: The real Talisman was missing from the cabinet but later returned.
+        correction: The displayed Talisman was a replica; the real one was hidden in a secret safe.
+        effect: Reveals the theft was of the replica, not the real Talisman.
+        required_evidence:
+          - Discovery of secret safe behind tapestry in Corinthian’s Room
+          - Rollo Dangerfield’s explanation of replica use
+        reader_observable: true
+      - observation: The chessboard on the floor has holes with plugs and iron chess pieces with spikes.
+        correction: The chessboard acts as a mechanical combination lock for the secret safe.
+        effect: Explains the security mechanism protecting the real Talisman.
+        required_evidence:
+          - Physical examination of chessboard holes and iron pieces
+          - Westenhanger’s reenactment of knight moves on chessboard
+        reader_observable: true
+      - observation: The leather disc with twine is warped and has been wetted and dried.
+        correction: It is a child’s toy 'sucker' used as a vacuum grip to open the secret panel.
+        effect: Explains how the secret panel is opened without visible handles.
+        required_evidence:
+          - Examination of leather disc and demonstration with water and twine
+          - Westenhanger’s use of disc to open secret panel
+        reader_observable: true
+      - observation: Mrs. Caistor Scorton’s fingerprints are on the replica Talisman.
+        correction: She stole the replica due to kleptomania, not for financial gain.
+        effect: Confirms her guilt and explains her motive as compulsion.
+        required_evidence:
+          - Fingerprint analysis on replica Talisman
+          - Physical retrieval of stolen items from tree hollow
+        reader_observable: true
+      - observation: The real Talisman and valuable jewels were found in the secret safe.
+        correction: >-
+          The Dangerfield Secret was the use of a replica to protect the real Talisman and estate
+          credit.
+        effect: Resolves the mystery and clears innocent suspects.
+        required_evidence:
+          - Recovery of real Talisman and jewels from secret safe
+          - Rollo Dangerfield’s detailed explanation of the Dangerfield Secret
+        reader_observable: true
+  discriminating_test:
+    method: reenactment
+    design: >-
+      Westenhanger blindfolds Eileen and Douglas separately and asks them to open the cabinet doors
+      naturally. Both open the right-hand door, indicating right-handedness. The left-hand door was
+      found open, indicating a left-handed thief. This test reveals the handedness of the thief
+      without alerting suspects.
+    knowledge_revealed: >-
+      The thief was left-handed or used the left hand to open the cabinet, narrowing the suspect
+      list.
+    pass_condition: >-
+      The test passes if both right-handed participants open the right-hand door, confirming the
+      left-hand door was opened by a left-handed person.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given detailed accounts of each character’s movements and behaviors, including
+      the left-handedness clue and the presence of a replica Talisman. The mechanical chessboard
+      lock and secret safe are described, allowing the reader to deduce the hiding place. The key
+      observations about Mrs. Caistor Scorton’s behavior and the recovery of stolen items are
+      presented openly. The puzzle is solvable by careful attention to these clues and logical
+      deduction.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

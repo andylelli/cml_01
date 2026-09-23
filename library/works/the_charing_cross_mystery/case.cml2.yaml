@@ -1,0 +1,391 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The Charing Cross Mystery
+    author: J. S. (Joseph Smith) Fletcher
+    license: Public domain (first published 1923; author died 1935). Project Gutenberg ebook 59893.
+    era:
+      decade: 1920s
+      realism_constraints:
+        - No modern forensic DNA analysis or electronic surveillance
+        - Communication relies on telegrams, letters, and telephone calls
+        - Transportation includes trains, taxis, and early motor cars
+    setting:
+      location: London and Sellithwaite, Yorkshire, England
+      institution: Sellithwaite Police and London Metropolitan Police
+    crime_class:
+      category: murder
+      subtype: poisoning with delayed effect
+  cast:
+    - name: Robert Hannaford
+      age_range: 60-65
+      role_archetype: retired police superintendent and inventor
+      relationships:
+        - Rhona Hannaford (granddaughter)
+      public_persona: retired superintendent, inventor of ink formula
+      private_secret: had a secret ink formula in a sealed packet
+      motive_seed: had a valuable secret worth a fortune
+      motive_strength: none
+      alibi_window: died suddenly on train near Charing Cross
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells:
+        - carried stained fingers from chemical work
+      stakes: his invention and secret
+      evidence_sensitivity: []
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: low
+    - name: Rhona Hannaford (Miss Featherstone)
+      age_range: 20-30
+      role_archetype: granddaughter and secretary
+      relationships:
+        - Robert Hannaford (grandfather)
+        - Lady Riversreade
+        - Hetherwick
+      public_persona: granddaughter of victim, secretary to Lady Riversreade
+      private_secret: acted as spy for investigation
+      motive_seed: family loyalty and justice
+      motive_strength: strong
+      alibi_window: kidnapped but later freed
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: family safety and inheritance
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: moderate
+    - name: Hetherwick
+      age_range: 30-40
+      role_archetype: young barrister with investigative interest
+      relationships:
+        - Rhona Hannaford
+      public_persona: barrister
+      private_secret: investigating the murder
+      motive_seed: professional curiosity and justice
+      motive_strength: strong
+      alibi_window: n/a
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: solving the case
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: low
+    - name: Dr. Cyprian Baseverie
+      age_range: 40-50
+      role_archetype: impostor, blackmailer, and murderer
+      relationships:
+        - Charles Ambrose (partner)
+      public_persona: medical man, director at Vivian's Night Club
+      private_secret: criminal, blackmailer, murderer
+      motive_seed: financial gain through blackmail and theft
+      motive_strength: strong
+      alibi_window: present at various locations but elusive
+      access_plausibility: high
+      opportunity_channels:
+        - Vivian's Night Club
+        - laboratory in Westminster
+        - Safe Deposit
+      behavioral_tells:
+        - stained fingers
+        - furtive behavior
+      stakes: money, secret formula, jewels
+      evidence_sensitivity:
+        - medicine bottle labels
+        - stationer's paper
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Charles Ambrose (alias Charles Andrews)
+      age_range: 40-50
+      role_archetype: medical man, partner in crime
+      relationships:
+        - Dr. Cyprian Baseverie (partner)
+      public_persona: medical man, police surgeon, struck off medical register
+      private_secret: criminal, murderer
+      motive_seed: financial gain through invention theft and murder
+      motive_strength: strong
+      alibi_window: disappeared, found dead in laboratory
+      access_plausibility: high
+      opportunity_channels:
+        - laboratory in Westminster
+        - Safe Deposit
+      behavioral_tells:
+        - stained fingers
+        - disguise by shaving beard
+      stakes: secret formula, money
+      evidence_sensitivity:
+        - medicine bottle
+        - telegram
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Major Penteney
+      age_range: 50-60
+      role_archetype: retired army man, protector
+      relationships:
+        - Lady Riversreade
+      public_persona: Major, solicitor partner
+      private_secret: protector of Lady Riversreade
+      motive_seed: loyalty and justice
+      motive_strength: moderate
+      alibi_window: present at Riversreade Court
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: safety of Lady Riversreade and Madame Listorelle
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+    - name: Lady Riversreade
+      age_range: 40-50
+      role_archetype: wealthy widow, twin sister
+      relationships:
+        - Madame Listorelle (twin sister)
+        - Major Penteney
+      public_persona: rich widow, founder of Home for wounded officers
+      private_secret: twin sister of Madame Listorelle, possible blackmail target
+      motive_seed: family safety
+      motive_strength: moderate
+      alibi_window: present at Riversreade Court
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells:
+        - wears black velvet band to cover tattoo
+      stakes: family and reputation
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: moderate
+  culpability:
+    culprit_count: 2
+    culprits:
+      - Dr. Cyprian Baseverie
+      - Charles Ambrose (alias Charles Andrews)
+  surface_model:
+    narrative:
+      summary: >-
+        Robert Hannaford, a retired police superintendent and inventor, dies suddenly on a London
+        train. Suspicion falls on two men who were with him shortly before his death and who
+        subsequently disappear; a mysterious sealed packet containing a valuable ink formula is
+        missing. The investigation uncovers a web of blackmail, kidnapping, and murder involving
+        Lady Riversreade and her twin sister Madame Listorelle.
+    accepted_facts:
+      - Robert Hannaford was poisoned and died suddenly on a train near Charing Cross.
+      - >-
+        Two men, Ambrose and Baseverie, were with Hannaford shortly before his death and later
+        disappeared.
+      - >-
+        Hannaford possessed a sealed packet containing a secret ink formula which went missing after
+        his death.
+      - >-
+        Lady Riversreade and Madame Listorelle are twin sisters, and Madame Listorelle was targeted
+        for her jewels.
+    inferred_conclusions:
+      - Lady Riversreade was the woman Hannaford referred to and was involved in the murder.
+      - The man with stained fingers who fled at Charing Cross was innocent or unrelated.
+      - The kidnapping was a random act unrelated to the murder or blackmail.
+  hidden_model:
+    mechanism:
+      description: >-
+        Charles Ambrose and Dr. Cyprian Baseverie, partners and criminals, poisoned Robert Hannaford
+        using a subtle poison with delayed effect to gain possession of his secret ink formula and
+        to blackmail Lady Riversreade and Madame Listorelle. They also poisoned James Granett, an
+        acquaintance of Hannaford, to eliminate witnesses. The kidnappings and blackmail attempts
+        were part of their scheme to extort money and secure the jewels. Baseverie was arrested at
+        Waterloo, while Ambrose was found dead in a laboratory, poisoned by Baseverie.
+      delivery_path:
+        - step: Hannaford meets Ambrose at Victoria Station and is taken to a laboratory in Westminster.
+        - step: Hannaford is poisoned there with a delayed-acting poison.
+        - step: Hannaford returns to the laboratory with Granett, who is also poisoned.
+        - step: Ambrose and Baseverie attempt to blackmail Lady Riversreade and Madame Listorelle.
+        - step: They kidnap Madame Listorelle and Rhona Hannaford to force ransom for jewels.
+        - step: Baseverie flees to Southampton to collect jewels sent by Madame Listorelle.
+        - step: Police track and arrest Baseverie at Waterloo; Ambrose is found dead in the laboratory.
+    outcome:
+      result: >-
+        Baseverie is arrested for murder and blackmail, Ambrose is found dead, and the kidnapped
+        women are rescued safely.
+  false_assumption:
+    statement: Lady Riversreade was the woman Hannaford referred to and was involved in the murder.
+    type: identity
+    why_it_seems_reasonable: >-
+      The portrait Hannaford cut out resembled Lady Riversreade and she wore a distinctive black
+      velvet band. Witnesses saw a woman matching her description at key locations.
+    what_it_hides: >-
+      The portrait was actually of Lady Riversreade's twin sister, Madame Listorelle, who was the
+      real figure involved in the blackmail and kidnapping plot.
+  false_solution:
+    accused_suspect: Lady Riversreade
+    supporting_points:
+      - She was seen at Vivian's Night Club and other suspicious locations.
+      - She wore a black velvet band covering a tattoo matching the description.
+      - She was upset by Baseverie's visits and involved in the reward advertisement.
+      - Her name was connected to the blackmail and kidnapping.
+    the_one_flaw: >-
+      Lady Riversreade was innocent and had a twin sister, Madame Listorelle, who was the actual
+      person involved.
+    refuted_in_chapter: 16
+  red_herrings:
+    - id: man_with_stained_fingers
+      description: >-
+        The shabby man with stained fingers who fled at Charing Cross was suspected of poisoning
+        Hannaford.
+      points_at_suspect: He was with Hannaford and fled immediately after his death.
+      innocent_explanation: He was James Granett, an acquaintance of Hannaford who was also poisoned and died later.
+      resolved_in_chapter: 9
+    - id: lady_riversreade_double
+      description: Lady Riversreade was thought to be the woman in the portrait and involved in the crime.
+      points_at_suspect: She matched the portrait and wore a distinctive tattoo cover.
+      innocent_explanation: >-
+        The portrait was actually of her twin sister, Madame Listorelle, who was the true figure
+        involved.
+      resolved_in_chapter: 16
+  closed_circle:
+    suspects:
+      - Dr. Cyprian Baseverie
+      - Charles Ambrose (alias Charles Andrews)
+    rationale: >-
+      Both men were closely connected to Hannaford, had access to him and his secret, were involved
+      in blackmail and kidnapping, and had the opportunity and motive to poison Hannaford and
+      Granett.
+  constraint_space:
+    time:
+      anchors:
+        - Hannaford's death around 1:15 a.m. on March 19th
+        - Granett's death a few days later
+        - Baseverie's visits to Lady Riversreade on Fridays
+        - Kidnapping occurred in the morning after Lady Riversreade's return
+      windows:
+        - Two to three hours between Hannaford meeting Ambrose and his death
+        - Baseverie's disappearance and reappearance at Southampton
+        - Safe Deposit opening hours at 10 a.m.
+    access:
+      actors:
+        - Ambrose and Baseverie
+        - Lady Riversreade and Madame Listorelle
+        - Rhona Hannaford
+        - Police investigators
+      objects:
+        - Sealed packet with ink formula
+        - Diamond necklace and jewels
+        - Medicine bottle with poison
+        - Safe Deposit box
+    social:
+      trust_channels:
+        - Letters and telegrams
+        - Police and solicitor communications
+        - Witness testimonies
+      authority_sources:
+        - Police Inspector Matherfield
+        - Solicitors Penteney, Blenkinsop & Penteney
+        - General Medical Council
+  inference_path:
+    steps:
+      - observation: Hannaford died suddenly on the train after meeting two men.
+        correction: He was poisoned with a delayed-acting poison administered hours earlier.
+        effect: Focus shifts to the men who met him earlier and their access to poison.
+        required_evidence:
+          - Post-mortem report confirming poisoning
+          - Witness testimony of Hannaford's meeting with Ambrose and Baseverie
+        reader_observable: true
+      - observation: A man with stained fingers fled the scene immediately.
+        correction: He was James Granett, also poisoned and later found dead.
+        effect: Granett is a victim, not a suspect.
+        required_evidence:
+          - Identification of Granett's body
+          - Letters linking Granett to Sellithwaite
+        reader_observable: true
+      - observation: Lady Riversreade was seen at suspicious locations and wore a black velvet band.
+        correction: Lady Riversreade has a twin sister, Madame Listorelle, who is the woman involved.
+        effect: The suspect identity shifts from Lady Riversreade to Madame Listorelle.
+        required_evidence:
+          - Police solicitor's revelation of twin sisters
+          - Tattoo description matching both sisters
+        reader_observable: true
+      - observation: Baseverie visited Lady Riversreade and was involved in blackmail.
+        correction: Baseverie and Ambrose are partners in crime, involved in poisoning and kidnapping.
+        effect: Both men become prime suspects with motive and opportunity.
+        required_evidence:
+          - Medical directory records of Ambrose and Baseverie
+          - Witness accounts of their presence at key locations
+        reader_observable: true
+      - observation: Ambrose found dead in laboratory with signs of poisoning.
+        correction: Baseverie likely poisoned Ambrose to cover tracks.
+        effect: Ambrose's death confirms internal conflict among culprits.
+        required_evidence:
+          - Discovery of Ambrose's body
+          - Medicine bottle linked to Ambrose
+        reader_observable: true
+      - observation: Kidnapping of Madame Listorelle and Rhona Hannaford occurred.
+        correction: Kidnapping was to extort jewels and enforce blackmail.
+        effect: Criminal scheme involves multiple crimes beyond murder.
+        required_evidence:
+          - Witness testimony of car and kidnappers
+          - Lord Morradale's information on jewels
+        reader_observable: true
+      - observation: Baseverie arrested at Waterloo with jewels and money.
+        correction: Police trap based on postal delivery of jewels and surveillance.
+        effect: Culprit apprehended and case resolved.
+        required_evidence:
+          - Police surveillance at Southampton and Waterloo
+          - Arrest records and recovered jewels
+        reader_observable: true
+  discriminating_test:
+    method: trap
+    design: >-
+      Police arrange for the jewels to be sent by express delivery to Southampton. They watch the
+      post office and track the person who collects the parcel, following him to apprehend the
+      criminals. Meanwhile, surveillance at key locations and arrests at train stations confirm the
+      culprits' identities and movements.
+    knowledge_revealed: >-
+      The test reveals the identity and location of the kidnappers and blackmailers, confirming
+      their guilt and recovering stolen property.
+    pass_condition: >-
+      Successful interception and arrest of the person collecting the parcel at Southampton post
+      office.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is provided with detailed descriptions of the suspects, their movements, and the
+      evidence such as the torn labels on the medicine bottle, the telegram from Ambrose, and the
+      distinctive tattoo covered by a black velvet band. The dual identity of Lady Riversreade and
+      Madame Listorelle is hinted through portraits and witness accounts. The involvement of Ambrose
+      and Baseverie is established through medical directories and witness testimonies. The clues
+      about the laboratory, the poisoned tonic, and the kidnapping are all accessible to the reader,
+      allowing deduction of the true culprits and their methods.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

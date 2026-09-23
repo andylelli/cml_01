@@ -1,0 +1,127 @@
+{
+ "slug": "red_aces",
+ "spans": [
+  {
+   "claim": "The victim was found dead with a brutal injury",
+   "anchor": "dead man on a snowy road",
+   "span": "Now here was death, violent and hideous--a dead man on a snowy road… a man who had telephoned to him two hours before, begging him to leave a party and come to him, though the snow had begun to fall all over again.",
+   "ok": true
+  },
+  {
+   "claim": "Constable Verity was found shot dead near Wentford’s body",
+   "anchor": "body of Constable Verity on the Beaconsfield side",
+   "span": "The mystery was still further complicated in the earlier hours of the dawn, when a cow-boy, on his way to work, discovered the dead body of Constable Verity on the Beaconsfield side of the lane where Mr.",
+   "ok": true
+  },
+  {
+   "claim": "Two aces of playing cards were pinned to Wentford’s door",
+   "anchor": "the ace of diamonds and the ace of hearts",
+   "span": "On the table before him were two playing cards, the ace of diamonds and the ace of hearts.",
+   "ok": true
+  },
+  {
+   "claim": "Kenneth McKay had blood on his shirt cuff",
+   "anchor": "That is blood on your shirt cuff",
+   "span": "That is blood on your shirt cuff, isn't it?",
+   "ok": true
+  },
+  {
+   "claim": "The forged cheque was cashed by Kenneth McKay",
+   "anchor": "six hundred pounds was paid over the counter",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Machfield and Lamontaine were involved in a cardsharp scheme",
+   "anchor": "Lamontaine reported that everything was in trim",
+   "span": "It was very necessary that arrangements should be hurried on before the merchant left the South of France, and a fortnight after the preliminaries, Lamontaine reported that everything was in trim, that he had secured the co-operation of his comrades, and it was decided that the coup should be brought off on the Friday night.",
+   "ok": true
+  },
+  {
+   "claim": "Lamontaine murdered Constable Verity and impersonated him",
+   "anchor": "Lamontaine was already wearing the uniform of a police constable",
+   "span": "Lamontaine was already wearing the uniform of a police constable, and, mounting the horse, he rode on to Wentford's house.",
+   "ok": true
+  },
+  {
+   "claim": "Wentford was murdered inside his house after opening to disguised Lamontaine",
+   "anchor": "The old man saw him through the window, and, suspecting nothing, got down and opened the door",
+   "span": "The old man saw him through the window, and, suspecting nothing, got down and opened the door.",
+   "ok": true
+  },
+  {
+   "claim": "The body was moved and placed by the roadside to mislead discovery",
+   "anchor": "The body was dropped by the side of the road",
+   "span": "The body was dropped by the side of the road, and the constable took his place on the horse's back.",
+   "ok": true
+  },
+  {
+   "claim": "The forged cheque was part of a plan to frame Kenneth McKay",
+   "anchor": "Two hundred pounds was sent anonymously to the younger McKay by Machfield",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Machfield and Lamontaine were caught and executed",
+   "anchor": "Rufus John Machfield and Antonio Lamontaine (sentence: death, C.C.C.) executed at Wandsworth Prison",
+   "span": "Rufus John Machfield and Antonio Lamontaine (sentence: death, C.C.C.) executed at Wandsworth Prison, April 17th.",
+   "ok": true
+  },
+  {
+   "claim": "Margot Lynn was not present during the murder",
+   "anchor": "She was not here when the crime was committed",
+   "span": "She was not here when the crime was committed--in fact, she arrived some time after.",
+   "ok": true
+  },
+  {
+   "claim": "Reeder’s criminal mind allowed him to reconstruct the crime",
+   "anchor": "I was able, owing to my peculiar mind, to reconstruct the crime",
+   "span": "That gave me my first clue, and I was able, owing to my peculiar mind, to reconstruct the crime as it had been committed.",
+   "ok": true
+  },
+  {
+   "claim": "The false assumption that McKay was the murderer",
+   "anchor": "McKay forged and uttered the note, and to cover up his crime killed Wentford",
+   "span": "McKay forged and uttered the note, and to cover up his crime killed Wentford.",
+   "ok": true
+  },
+  {
+   "claim": "The planted evidence against McKay was a deliberate misdirection",
+   "anchor": "The money was traced to me from some anonymous source",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The playing cards were removed from the pack and pinned to the door",
+   "anchor": "You will find the two aces missing from this pack",
+   "span": "You will find the two aces missing from this pack.",
+   "ok": true
+  },
+  {
+   "claim": "The murderers planned the crime carefully including the timing and disguises",
+   "anchor": "He studied police methods, even got information as to the times on which the beat was patrolled",
+   "span": "He knew that the only man admitted to the house was the mounted policeman who patrolled that part of the country, so he studied police methods, even got information as to the times on which the beat was patrolled, and on the night of the murder, soon after it was dark, he travelled down to Beaconsfield by car through the storm, accompanied by Machfield.",
+   "ok": true
+  },
+  {
+   "claim": "The murderers killed Verity to impersonate him and gain access",
+   "anchor": "At seven-thirty he was ruthlessly murdered by a man who stepped out of his concealment",
+   "span": "At seven-thirty he was ruthlessly murdered by a man who stepped out of his concealment and shot him point-blank through the heart.",
+   "ok": true
+  },
+  {
+   "claim": "The staged crime scene included blood on the horse and planted evidence",
+   "anchor": "The animal was smothered with the blood of the murdered man",
+   "span": "The animal was smothered with the blood of the murdered man, and the clerk of Mr.",
+   "ok": true
+  },
+  {
+   "claim": "The false solution accusing McKay was refuted in the final chapter",
+   "anchor": "Rufus John Machfield and Antonio Lamontaine ... executed at Wandsworth Prison",
+   "span": "",
+   "ok": false
+  }
+ ],
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

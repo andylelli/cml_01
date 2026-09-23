@@ -1,0 +1,393 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The Chestermarke Instinct
+    author: J. S. (Joseph Smith) Fletcher
+    license: Public domain (first published 1921; author died 1935). Project Gutenberg ebook 27965.
+    era:
+      decade: 1910s
+      realism_constraints:
+        - No modern forensic DNA analysis or electronic surveillance
+        - Communication limited to telephone, telegraph, and physical mail
+        - Transportation by train, horse-drawn vehicles, and early motor cars
+    setting:
+      location: Scarnham, a small English market town and its surroundings
+      institution: Scarnham Police, New Scotland Yard detectives
+    crime_class:
+      category: murder
+      subtype: secret imprisonment and coercion to sign securities
+  cast:
+    - name: Wallington Neale
+      age_range: 20s
+      role_archetype: discontented bank clerk and loyal friend
+      relationships:
+        - John Horbury (guardian)
+        - Betty Fosdyke (friend)
+      public_persona: bank clerk
+      private_secret: dislikes banking and Chestermarkes
+      motive_seed: none
+      motive_strength: none
+      alibi_window: present in town during events
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells:
+        - dislikes Chestermarkes
+        - observant
+      stakes: personal safety and justice
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+    - name: John Horbury
+      age_range: middle-aged
+      role_archetype: honest bank manager and victim
+      relationships:
+        - Wallington Neale (ward)
+        - Betty Fosdyke (niece)
+      public_persona: bank manager
+      private_secret: discovered Chestermarkes' secret money-lending and theft
+      motive_seed: expose corruption
+      motive_strength: strong
+      alibi_window: missing from Saturday evening
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells:
+        - precise
+        - systematic
+      stakes: freedom and reputation
+      evidence_sensitivity: []
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: high
+    - name: Gabriel Chestermarke (Godwin Markham)
+      age_range: middle-aged to older
+      role_archetype: senior partner, secretive and ruthless banker
+      relationships:
+        - Joseph Chestermarke (nephew, partner)
+      public_persona: banker and senior partner
+      private_secret: runs secret money-lending business as Godwin Markham
+      motive_seed: financial gain and concealment
+      motive_strength: strong
+      alibi_window: often in London or Scarnham
+      access_plausibility: high
+      opportunity_channels:
+        - bank
+        - money-lending office
+        - laboratory
+      behavioral_tells:
+        - cold, impassive demeanor
+        - secretive
+      stakes: wealth and reputation
+      evidence_sensitivity: []
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Joseph Chestermarke
+      age_range: around 30
+      role_archetype: junior partner, unscrupulous and violent
+      relationships:
+        - Gabriel Chestermarke (uncle)
+      public_persona: junior partner, slovenly
+      private_secret: colludes in theft and imprisonment
+      motive_seed: financial gain and escape
+      motive_strength: strong
+      alibi_window: present at bank and house until disappearance
+      access_plausibility: high
+      opportunity_channels:
+        - bank
+        - house
+        - laboratory
+      behavioral_tells:
+        - sneering
+        - contemptuous
+        - violent tendencies
+      stakes: wealth and freedom
+      evidence_sensitivity: []
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Betty Fosdyke
+      age_range: early 20s
+      role_archetype: determined niece and investigator
+      relationships:
+        - John Horbury (uncle)
+        - Wallington Neale (friend)
+      public_persona: wealthy brewery proprietor
+      private_secret: none
+      motive_seed: find her missing uncle
+      motive_strength: strong
+      alibi_window: present in town
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells:
+        - assertive
+        - impatient
+      stakes: family and justice
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: low
+    - name: Frederick Hollis
+      age_range: middle-aged
+      role_archetype: missing London solicitor, victim
+      relationships:
+        - Leonard Hollis (brother)
+      public_persona: solicitor
+      private_secret: carrying incomplete cheque for 10,000 pounds
+      motive_seed: settle money-lending debt
+      motive_strength: moderate
+      alibi_window: missing after Saturday evening
+      access_plausibility: low
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: life
+      evidence_sensitivity: []
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: low
+    - name: Mrs. Carswell
+      age_range: 30s to 40s
+      role_archetype: housekeeper, secretive accomplice
+      relationships:
+        - John Horbury (employer)
+        - Joseph Chestermarke (accomplice)
+      public_persona: housekeeper
+      private_secret: collusion with Joseph Chestermarke
+      motive_seed: self-preservation or gain
+      motive_strength: moderate
+      alibi_window: disappeared suddenly
+      access_plausibility: high
+      opportunity_channels:
+        - house
+        - bank-house
+      behavioral_tells:
+        - fearful
+        - secretive
+      stakes: freedom
+      evidence_sensitivity: []
+      culprit_eligibility: eligible
+      culpability: unknown
+      gender: female
+      role: suspect
+      moral_complexity: moderate
+  culpability:
+    culprit_count: 2
+    culprits:
+      - Gabriel Chestermarke (Godwin Markham)
+      - Joseph Chestermarke
+  surface_model:
+    narrative:
+      summary: >-
+        John Horbury, the bank manager, disappears along with valuable securities and jewels.
+        Frederick Hollis, a London solicitor, is found dead in a lead mine, and suspicion falls on
+        Horbury. The Chestermarke partners deny knowledge and refuse cooperation, while the
+        housekeeper disappears mysteriously.
+    accepted_facts:
+      - John Horbury is missing since Saturday evening
+      - Valuable securities and jewels deposited with Horbury are missing
+      - Frederick Hollis was found dead at the bottom of a lead mine
+      - Gabriel and Joseph Chestermarke run the bank and refuse to cooperate fully
+    inferred_conclusions:
+      - Horbury absconded with the securities and jewels
+      - Hollis died by accident falling into the lead mine
+      - Mrs. Carswell fled because she was innocent and frightened
+  hidden_model:
+    mechanism:
+      description: >-
+        Joseph Chestermarke, in collusion with his uncle Gabriel (alias Godwin Markham), ran a
+        secret money-lending business and had stolen securities and jewels. When Frederick Hollis
+        came to expose them, Joseph killed him by pushing him into a lead mine and imprisoned
+        Horbury, who had discovered their secret, in a sound-proof room, coercing him to sign over
+        securities. The mystery unravels after Neale's rescue and Horbury's testimony.
+      delivery_path:
+        - step: Joseph Chestermarke steals securities and jewels from the bank
+        - step: Frederick Hollis arrives to confront or negotiate with the Chestermarkes
+        - step: Joseph lures Hollis to Ellersdeane Hollow and pushes him into a lead mine
+        - step: Horbury discovers the secret and is imprisoned by Joseph in a sound-proof room
+        - step: Joseph coerces Horbury to sign over securities
+        - step: Neale is trapped but later rescued after the laboratory explosion
+        - step: Horbury reveals the truth at the hospital
+    outcome:
+      result: >-
+        The Chestermarkes are exposed as thieves and murderers, Horbury is rescued and cleared, and
+        the stolen securities and jewels are recovered.
+  false_assumption:
+    statement: John Horbury absconded with the securities and jewels and caused Frederick Hollis's death.
+    type: identity
+    why_it_seems_reasonable: >-
+      Horbury's disappearance coincides with the missing valuables and Hollis's death, and the
+      Chestermarkes' refusal to cooperate suggests guilt. The housekeeper's flight also implies
+      complicity.
+    what_it_hides: >-
+      It hides the fact that the Chestermarkes themselves orchestrated the thefts and murders,
+      imprisoning Horbury to force his compliance.
+  false_solution:
+    accused_suspect: John Horbury
+    supporting_points:
+      - Horbury disappeared with the keys and valuables
+      - He was last seen leaving the bank-house
+      - The Chestermarkes claim securities are missing and Horbury is responsible
+      - The housekeeper fled after Horbury's disappearance
+    the_one_flaw: Horbury was actually imprisoned and coerced by Joseph Chestermarke and was innocent
+    refuted_in_chapter: 31
+  red_herrings:
+    - id: mrs_carswell_disappearance
+      description: >-
+        Mrs. Carswell, the housekeeper, disappears suddenly after a conversation with Joseph
+        Chestermarke.
+      points_at_suspect: John Horbury or Joseph Chestermarke
+      innocent_explanation: She fled to avoid being implicated but was an accomplice of Joseph Chestermarke.
+      resolved_in_chapter: 12
+    - id: frederick_hollis_accident
+      description: >-
+        Frederick Hollis's death is initially thought to be an accident from falling into a lead
+        mine.
+      points_at_suspect: Accidental death or Horbury's involvement
+      innocent_explanation: Hollis was murdered by Joseph Chestermarke by being pushed into the mine.
+      resolved_in_chapter: 31
+  closed_circle:
+    suspects:
+      - Gabriel Chestermarke (Godwin Markham)
+      - Joseph Chestermarke
+      - Mrs. Carswell
+      - John Horbury
+    rationale: >-
+      The mystery is confined to the bank partners, their housekeeper, and the missing manager, all
+      connected by the bank and the secret money-lending business.
+  constraint_space:
+    time:
+      anchors:
+        - Saturday evening disappearance of Horbury
+        - Saturday night meeting of Horbury and Hollis
+        - Sunday discovery of Hollis's body
+      windows:
+        - Horbury missing from Saturday evening onward
+        - Joseph Chestermarke present at bank until 10am Monday
+        - Explosion at laboratory on evening after imprisonment
+    access:
+      actors:
+        - Joseph Chestermarke
+        - Gabriel Chestermarke
+        - Mrs. Carswell
+        - Wallington Neale
+      objects:
+        - Bank strong room
+        - Horbury's house and laboratory
+        - Lead mine shaft
+        - Sound-proof room in laboratory
+    social:
+      trust_channels:
+        - Neale's testimony
+        - Betty Fosdyke's investigations
+        - Police superintendent Polke
+        - Detective-Sergeant Starmidge
+      authority_sources:
+        - Police search warrant
+        - Coroner's inquest
+        - London Scotland Yard detectives
+  inference_path:
+    steps:
+      - observation: >-
+          Mrs. Pratt overhears a telephone call at the Station Hotel involving a meeting along the
+          river bank.
+        correction: The telephone conversation was with Joseph Chestermarke, not Horbury.
+        effect: Shifts suspicion from Horbury to Joseph Chestermarke.
+        required_evidence:
+          - Mrs. Pratt's witness statement about the telephone call
+          - Joseph Chestermarke's presence at the bank and house
+        reader_observable: true
+      - observation: Frederick Hollis is found dead at the bottom of a lead mine.
+        correction: >-
+          Medical examination shows no signs of struggle; death likely from fall but poisoning
+          suspected.
+        effect: Raises possibility of murder disguised as accident.
+        required_evidence:
+          - Medical report on Hollis's body
+          - Autopsy report including toxicology
+        reader_observable: true
+      - observation: Gabriel Chestermarke shows recognition upon seeing Hollis's body.
+        correction: Gabriel knows Hollis and is lying about ignorance.
+        effect: Gabriel's involvement is suspected.
+        required_evidence:
+          - Witness observation of Gabriel's reaction
+          - Gabriel's later behavior and flight
+        reader_observable: true
+      - observation: An incomplete cheque for ten thousand pounds is found on Hollis.
+        correction: >-
+          Cheque is linked to Mrs. Helen Lester and money-lending business run by Gabriel
+          Chestermarke as Godwin Markham.
+        effect: Connects Chestermarkes to money-lending and motive for murder.
+        required_evidence:
+          - Cheque found on Hollis
+          - Bank records from Vanderkiste, Mullineau & Co.
+          - Mrs. Lester's testimony
+        reader_observable: true
+      - observation: Joseph Chestermarke disappears suddenly after the explosion.
+        correction: Joseph was involved in the explosion and attempted to kill Neale and conceal Horbury.
+        effect: Joseph is a prime suspect for murder and imprisonment.
+        required_evidence:
+          - Explosion site investigation
+          - Witnesses seeing Joseph's movements
+          - Neale's imprisonment and rescue
+        reader_observable: true
+      - observation: Neale is trapped in Joseph's laboratory and hears Horbury chained inside.
+        correction: Horbury is imprisoned and coerced to sign over securities.
+        effect: Horbury is victim, not culprit.
+        required_evidence:
+          - Neale's testimony
+          - Horbury's testimony after rescue
+        reader_observable: true
+      - observation: Gabriel Chestermarke confronts Joseph in the laboratory before the explosion.
+        correction: Gabriel accuses Joseph of theft and murder, indicating internal conflict.
+        effect: Both partners are implicated in crime.
+        required_evidence:
+          - Witnesses to confrontation
+          - Joseph's behavior and possession of revolver
+        reader_observable: true
+  discriminating_test:
+    method: trap
+    design: >-
+      Detectives present the incomplete cheque to the Chestermarkes and observe their reactions.
+      They also shadow Gabriel Chestermarke in London to confirm his double identity as Godwin
+      Markham. The test reveals the secret money-lending business and the partners' involvement.
+    knowledge_revealed: >-
+      Gabriel Chestermarke is Godwin Markham, the money-lender, and Joseph is his accomplice. Their
+      secret business and motive for murder are exposed.
+    pass_condition: Chestermarkes' recognition and reaction to the cheque and their confirmed double identity.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given all necessary clues: the telephone call overheard by Mrs. Pratt, the
+      discovery of the pipe near Ellersdeane Tower, the incomplete cheque, the suspicious behavior
+      of the Chestermarkes, and the imprisonment of Horbury. The logic of the secret money-lending
+      business and the motive for murder are clearly presented. The reader could deduce the culprits
+      by connecting these facts and questioning the partners' denials.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

@@ -1,0 +1,136 @@
+{
+ "slug": "footprints",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "The victim was shot in bed with a .38 caliber bullet",
+   "anchor": "Death was caused by an intrathoracic hemorrhage, due to a bullet shot into the left chest",
+   "span": "Death was caused by an intrathoracic hemorrhage, due to a bullet shot into the left chest.",
+   "ok": true
+  },
+  {
+   "claim": "No footprints were found outside the house after the murder",
+   "anchor": "Nowhere near a window, nowhere near a door, was there a footprint nor a break in the snow",
+   "span": "Nowhere near a window, nowhere near a door, was there a footprint nor a break in the snow of any kind.",
+   "ok": true
+  },
+  {
+   "claim": "Family members were locked in their rooms with keys collected",
+   "anchor": "Irene found seven keys in my brother’s room, and used one key to unlock each door",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Neal Quilter was locked in his room at the time of the murder",
+   "anchor": "Lucy came running into my room in her nightgown, screaming my name",
+   "span": "At about the second bang, Lucy came running into my room in her nightgown, screaming my name, and what was it, and that her door was locked.",
+   "ok": true
+  },
+  {
+   "claim": "The rope hanging from the window was covered with snow and unused",
+   "anchor": "The rope was covered with snow, and there was not a handprint in the snow on the window sill",
+   "span": "But the rope was covered with snow, and there was not a handprint in the snow on the window sill, nor a footprint in the new snow on the roof.",
+   "ok": true
+  },
+  {
+   "claim": "Olympe’s revolver was a .32 Colt’s and was unloaded",
+   "anchor": "It was Uncle Phineas’s old .32 Colt’s. I broke it. The chambers were all empty",
+   "span": "It was Uncle Phineas's old .32 Colt's. I broke it. The chambers were all empty; so it could not have been either harmful or useful.",
+   "ok": true
+  },
+  {
+   "claim": "The murder weapon was a .38 caliber Colt’s",
+   "anchor": "The bullet, which Dr. Joe had removed from Father’s body, had been fired from a .38 Colt’s of fairly recent make",
+   "span": "I told her then what I should have told her in the beginning, and what she had had no opportunity to know without being told, since she was not at the inquest: That the bullet, which Dr. Joe had removed from Father's body, had been fired from a .38 Colt's of fairly recent make.",
+   "ok": true
+  },
+  {
+   "claim": "Dr. Joseph Elm confessed to assisting in the murder",
+   "anchor": "I killed Dick. That’s a damn lie! And you know it! Take it easy, boy, if you can. I’m sorry",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The victim was terminally ill with cancer",
+   "anchor": "Your father’s ailment was cancer. He knew it, and I knew it",
+   "span": "You see, my boy, your father's ailment was cancer. He knew it, and I knew it.",
+   "ok": true
+  },
+  {
+   "claim": "The victim planned his own death to look like murder",
+   "anchor": "Dick planned alone, and we planned together. By Gad, Neal, but we tried",
+   "span": "Well, Dick planned alone, and we planned together. By Gad, Neal, but we tried.",
+   "ok": true
+  },
+  {
+   "claim": "The victim’s last words mentioned a red mask",
+   "anchor": "He said, quite distinctly, “Red mask.” There was no shaking her certainty about that",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The red mask was found in Olympe’s room",
+   "anchor": "Lying on the floor, directly beneath the open cupola window, was a mask, large enough to cover a man’s entire face, cut roughly out of bright red satin",
+   "span": "Lying on the floor, directly beneath the open cupola window, was a mask, large enough to cover a man's entire face, cut roughly out of bright red satin.",
+   "ok": true
+  },
+  {
+   "claim": "Neal Quilter suffered amnesia about the murder",
+   "anchor": "I am swearing to you that, for the past two years or more, until about half an hour ago, I have thought exactly the same thing about myself",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Neal Quilter’s letters contain clues to the truth",
+   "anchor": "Lucy’s second letter to you makes the first track. Maybe it would take a crime analyst to discover it",
+   "span": "Lucy's second letter to you makes the first track. Maybe it would take a crime analyst to discover it; but, in the third letter, the path starts off, good and deep, and follows straight along through Neal's last letter to you-not a misstep, not a detour, not a doubt.",
+   "ok": true
+  },
+  {
+   "claim": "The family’s insurance policy had lapsed but was paid by Dr. Elm",
+   "anchor": "I made that last payment, he said, and sat down",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The family dog Whatof was chained at the front door",
+   "anchor": "We have kept Whatof chained by the front door and Keeper chained by the back door",
+   "span": "We have kept Whatof chained by the front door and Keeper chained by the back door.",
+   "ok": true
+  },
+  {
+   "claim": "The inquest jury returned a verdict of death by person unknown",
+   "anchor": "Died on the night of October eighth, from the results of a gunshot wound inflicted by person or persons unknown",
+   "span": "Two hours and ten minutes, Jude, while we hung around waiting, before they brought in their verdict: Died on the night of October eighth, from the results of a gunshot wound inflicted by person or persons unknown.",
+   "ok": true
+  },
+  {
+   "claim": "The victim’s bed was moved slightly",
+   "anchor": "The bed had been moved three or four inches at the foot—pulled along over the carpet",
+   "span": "The bed had been moved three or four inches at the foot-pulled along over the carpet, I mean, as if some fairly hefty weight had been tugging on it.",
+   "ok": true
+  },
+  {
+   "claim": "Irene Quilter was locked out of her room and slept on the sofa",
+   "anchor": "She found that the door was locked. She turned around and sneaked straight downstairs again, and fixed herself a bed, with Indian blankets, on the sofa",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The victim’s window was open with a rope tied to the bed",
+   "anchor": "The window was wide open from the bottom. There was a thick rope hanging over the sill and out of it",
+   "span": "The window was wide open from the bottom. There was a thick rope hanging over the sill and out of it.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.127046852,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

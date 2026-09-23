@@ -1,0 +1,136 @@
+{
+ "slug": "nobody_s_man",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Anthony Palliser disappeared after a quarrel with Tallente",
+   "anchor": "he walked out into the night and disappeared",
+   "span": "In the language of the novelists, he walked out into the night and disappeared.",
+   "ok": true
+  },
+  {
+   "claim": "A political manuscript was stolen from Tallente's safe",
+   "anchor": "I have been robbed of papers",
+   "span": "I have been robbed of papers,\" Tallente said quietly, \"which in the wrong hands might ruin me.",
+   "ok": true
+  },
+  {
+   "claim": "Miller visited Palliser and offered money",
+   "anchor": "he came back and said something to Mr. Palliser about three thousand pounds",
+   "span": "After I had let him out, he came back and said something to Mr. Palliser about three thousand pounds, and Mr.",
+   "ok": true
+  },
+  {
+   "claim": "Tallente struck Palliser and he fell over the cliff",
+   "anchor": "I struck him on the chin and he went backwards, through that piece of rotten paling",
+   "span": "I struck him on the chin and he went backwards, through that piece of rotten paling, you know, Robert--\" \"I know, sir,\" the man interrupted, with a little moan.",
+   "ok": true
+  },
+  {
+   "claim": "Palliser's body was never found despite search",
+   "anchor": "There was nothing there",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Miller bought the stolen manuscript from Palliser",
+   "anchor": "Miller must have bought the manuscript from Palliser",
+   "span": "Miller must have bought the manuscript from Palliser,\" he said, \"when he knew what sort of an offer Dartrey was going to make to me and realised how it would affect him.",
+   "ok": true
+  },
+  {
+   "claim": "The stolen article was written by Tallente but never published",
+   "anchor": "the signed manuscript of that article has been offered to him",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Miller opposed Tallente's leadership and threatened party unity",
+   "anchor": "I decline to serve under Tallente",
+   "span": "Once and for all, I decline to serve under Tallente, and I warn you that if you put him forward, if you go so far, even, as to give him a seat in the Cabinet of the Government it is your job to form, you will disunite the party and bring calamity upon us.",
+   "ok": true
+  },
+  {
+   "claim": "Tallente publicly exposed Miller's conspiracy in the House",
+   "anchor": "he poured out his scorn upon his enemy till the latter, white as a sheet, rose to demand the protection of the Speaker",
+   "span": "He threw caution to the winds, and though repeatedly and gravely called to order, he poured out his scorn upon his enemy till the latter, white as a sheet, rose to demand the protection of the Speaker.",
+   "ok": true
+  },
+  {
+   "claim": "Tallente and Jane Partington develop a romantic relationship",
+   "anchor": "Jane had never before in my life altered my scheme of clothes to please any man",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Tallente's wife Stella conspired with Palliser and Miller",
+   "anchor": "She admitted...I suppose I was",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Tallente refused a peerage offered by the Prime Minister",
+   "anchor": "If I understand that it is your intention to offer me a peerage, let us have no misunderstanding about the matter. It is refused",
+   "span": "If I understand that it is your intention to offer me a peerage, let us have no misunderstanding about the matter. It is refused, absolutely and finally.",
+   "ok": true
+  },
+  {
+   "claim": "Miller's political tactics included buying stolen documents",
+   "anchor": "You used five thousand pounds of secret service money to gratify a private spite",
+   "span": "You used five thousand pounds of secret service money to gratify a private spite.",
+   "ok": true
+  },
+  {
+   "claim": "The political manuscript was published to undermine Tallente",
+   "anchor": "The article is in type now. It won't be out for a day or two",
+   "span": "The article is in type now. It won't be out for a day or two.",
+   "ok": true
+  },
+  {
+   "claim": "Tallente's article attacked trades unions during the war",
+   "anchor": "I attacked the trades unions for their colossal and fiendish selfishness when the Empire was tottering",
+   "span": "I attacked the trades unions for their colossal and fiendish selfishness when the Empire was tottering.",
+   "ok": true
+  },
+  {
+   "claim": "Tallente and Dartrey formed a compact against Miller",
+   "anchor": "I shall stand by you, Tallente, even if it puts us back a year or so",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Miller was defeated in the union vote, losing influence",
+   "anchor": "They've chucked Miller. Saunderson's in by five votes",
+   "span": "They've chucked Miller. Saunderson's in by five votes.",
+   "ok": true
+  },
+  {
+   "claim": "Horlock resigned after losing vote of confidence",
+   "anchor": "Horlock crumbled to pieces",
+   "span": "Horlock crumbled to pieces.",
+   "ok": true
+  },
+  {
+   "claim": "Tallente and Jane reconcile and plan to marry",
+   "anchor": "I am engaged to marry you",
+   "span": "I am engaged to marry you.",
+   "ok": true
+  },
+  {
+   "claim": "Tallente's political career is saved by exposing Miller",
+   "anchor": "We won by forty votes. Horlock brought me here",
+   "span": "We won by forty votes. Horlock brought me here.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.078281416,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "The khaki tunic found in the victim's hand belonged to Arthur Clarke and proved his guilt.",
+  "type": "identity",
+  "why_it_seems_reasonable": "The tunic was found in the victim's hand and Arthur admitted ownership of it. The torn piece matched the cloth in her hand, suggesting a struggle.",
+  "what_it_hides": "The tunic was an old garment of Arthur's, too small for him, planted deliberately by the real murderer to frame Arthur."
+ },
+ "mechanism_description": "Lord Foremeere murdered Mary Clarke to prevent blackmail over compromising letters. He entered the house unnoticed, killed Mary by gas poisoning after stunning her with a blow to the head, and planted the khaki tunic with the key to the locked parlour door to implicate Arthur Clarke. He concealed his wet clothes to fake an alibi but was later found dead by accidental shooting.",
+ "discriminating_test": {
+  "method": "constraint_proof",
+  "design": "Reenact the timing and physical fitting of the khaki tunic on Arthur Clarke, and verify the presence and condition of Lord Foremeere's wet clothes at the time of the murder. Confirm the locked parlour door key's location and the timeline of Arthur's alibi with multiple witnesses.",
+  "knowledge_revealed": "This test reveals that Arthur Clarke could not have worn the tunic at the time, and Lord Foremeere's wet clothes and movements contradict his alibi, confirming his guilt.",
+  "pass_condition": "Arthur Clarke cannot physically wear the tunic at the time of murder, and Lord Foremeere's wet clothes are confirmed to be concealed and linked to the murder timeline."
+ },
+ "changed": [],
+ "confidence": "high"
+}

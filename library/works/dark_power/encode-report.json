@@ -12,7 +12,7 @@
   {
    "claim": "Aunt Emma is the manipulative aunt and culprit",
    "anchor": "Aunt Emma",
-   "span": "Well, your Aunt Emma--her idea was--perhaps you’d come to us--act as her secretary, with the usual financial arrangement, y’know.",
+   "span": "Well, your Aunt Emma--her idea was--perhaps you'd come to us--act as her secretary, with the usual financial arrangement, y'know.",
    "ok": true
   },
   {
@@ -60,7 +60,7 @@
   {
    "claim": "Miles's remorse and confession",
    "anchor": "I didn’t mean to do that!",
-   "span": "I swear I had no idea of--of _that_--when I left the house… But when I saw him… Di, I didn’t mean to do that! I swear I didn’t!",
+   "span": "I swear I had no idea of--of _that_--when I left the house… But when I saw him… Di, I didn't mean to do that! I swear I didn't!",
    "ok": true
   },
   {
@@ -72,13 +72,13 @@
   {
    "claim": "Aunt Emma's plan to secure inheritance via will",
    "anchor": "I’ll make a will. And you promise to tell me",
-   "span": "I’ll make a will. And you promise to tell me, as soon as I’ve done that?",
+   "span": "I'll make a will. And you promise to tell me, as soon as I've done that?",
    "ok": true
   },
   {
    "claim": "Doctor Coat and Mr. Purvis are deceived by Aunt Emma",
    "anchor": "Doctor Coat’s benevolent and stupid face",
-   "span": "said Aunt Emma, and turning on her heel, walked into Uncle Rufus’s room just as Doctor Coat’s benevolent and stupid face appeared at the head of the stairs.",
+   "span": "said Aunt Emma, and turning on her heel, walked into Uncle Rufus's room just as Doctor Coat's benevolent and stupid face appeared at the head of the stairs.",
    "ok": true
   },
   {
@@ -102,7 +102,7 @@
   {
    "claim": "The final rescue and revelation of the truth",
    "anchor": "It’s over! We’re all sorry for the terrible things",
-   "span": "It’s over! We’re all sorry for the terrible things that have happened--but they’re done.",
+   "span": "It's over! We're all sorry for the terrible things that have happened--but they're done.",
    "ok": true
   },
   {
@@ -114,7 +114,7 @@
   {
    "claim": "The forged will signed by Diana",
    "anchor": "This is my last will and testament",
-   "span": "This is my last will and testament,” said Di.",
+   "span": "This is my last will and testament,\" said Di.",
    "ok": true
   },
   {
@@ -130,5 +130,7 @@
   "encode": "gpt-4.1-mini",
   "sweep": "gpt-4o-mini"
  },
- "case_written": true
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
 }

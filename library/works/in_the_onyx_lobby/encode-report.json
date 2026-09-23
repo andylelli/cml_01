@@ -18,13 +18,13 @@
   {
    "claim": "Bob Moore took Mr Vail up in the elevator at the time of the murder",
    "anchor": "I took him up in the elevator to his floor",
-   "span": "—and I took him up in the elevator to his floor, and when I came down, Mr Binney was there just as you see him now,—only, he was still alive.",
+   "span": "-and I took him up in the elevator to his floor, and when I came down, Mr Binney was there just as you see him now,-only, he was still alive.",
    "ok": true
   },
   {
    "claim": "The paper-cutter missing from Miss Prall’s library set was found at the crime scene",
    "anchor": "paper-cutter belonging to a set of writing implements on Miss Prall’s library table",
-   "span": "this is the paper-cutter belonging to a set of writing implements on Miss Prall’s library table; and I have just come from there, and I noticed that, though the sheath of this was up there, the paper-cutter was missing!",
+   "span": "this is the paper-cutter belonging to a set of writing implements on Miss Prall's library table; and I have just come from there, and I noticed that, though the sheath of this was up there, the paper-cutter was missing!",
    "ok": true
   },
   {
@@ -36,13 +36,13 @@
   {
    "claim": "Mrs Everett was seen in the hall fully dressed at the time of the murder",
    "anchor": "she was seen fully dressed, as she had been in the evening",
-   "span": "",
-   "ok": false
+   "span": "She was seen fully dressed, as she had been in the evening.",
+   "ok": true
   },
   {
    "claim": "Letitia Prall expressed willingness to kill Sir Herbert if sure not caught",
    "anchor": "If I was sure I wouldn’t get caught, I’d kill him myself",
-   "span": "She was wishing it so hard that I myself heard her say, ‘If I was sure I wouldn’t get caught, I’d kill him myself!",
+   "span": "She was wishing it so hard that I myself heard her say, 'If I was sure I wouldn't get caught, I'd kill him myself!",
    "ok": true
   },
   {
@@ -54,7 +54,7 @@
   {
    "claim": "The initial letter 'T' was written on the wall, not the paper",
    "anchor": "The part on the wall is one letter,—the initial letter of what he wrote",
-   "span": "The part on the wall is one letter,—the initial letter of what he wrote——” “What was it?",
+   "span": "The part on the wall is one letter,-the initial letter of what he wrote--\" \"What was it?",
    "ok": true
   },
   {
@@ -78,13 +78,13 @@
   {
    "claim": "Molly lied about seeing a veiled woman and later admitted seeing a man",
    "anchor": "I know I did, but I—I made a mistake. It was sorta dark, you know",
-   "span": "I know I did, but I—I made a mistake. It was sorta dark, you know.",
+   "span": "I know I did, but I-I made a mistake. It was sorta dark, you know.",
    "ok": true
   },
   {
    "claim": "Molly was married under duress to keep her silent",
    "anchor": "He married you in an extremity of fear",
-   "span": "He married you in an extremity of fear,—fear that you would tell of his visit to the room,—now, who could it be, Penny?",
+   "span": "He married you in an extremity of fear,-fear that you would tell of his visit to the room,-now, who could it be, Penny?",
    "ok": true
   },
   {
@@ -96,7 +96,7 @@
   {
    "claim": "Sir Herbert Binney was found dying with a pencil dropping from his fingers",
    "anchor": "the pencil dropped from Sir Herbert’s fingers just as he fell back dead",
-   "span": "he said, the pencil dropped from Sir Herbert’s fingers just as he fell back dead——” “Oh, no, he didn’t say that!",
+   "span": "he said, the pencil dropped from Sir Herbert's fingers just as he fell back dead--\" \"Oh, no, he didn't say that!",
    "ok": true
   },
   {
@@ -108,13 +108,13 @@
   {
    "claim": "Vail was seen lurking in the halls at the time of the murder",
    "anchor": "I caught sight of a woman with a shawl over her head",
-   "span": "But I went down farther and I caught sight of a woman with a shawl over her head——” “What kind of a shawl?",
+   "span": "But I went down farther and I caught sight of a woman with a shawl over her head--\" \"What kind of a shawl?",
    "ok": true
   },
   {
    "claim": "Dorcas Everett was in the hall about midnight, not at the time of the murder",
    "anchor": "I was in the hall about midnight to,—to meet somebody",
-   "span": "I was in the hall about midnight to,—to meet somebody.",
+   "span": "I was in the hall about midnight to,-to meet somebody.",
    "ok": true
   },
   {
@@ -130,5 +130,7 @@
   "encode": "gpt-4.1-mini",
   "sweep": "gpt-4o-mini"
  },
- "case_written": true
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
 }

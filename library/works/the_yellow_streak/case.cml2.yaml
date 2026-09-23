@@ -1,0 +1,418 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The Yellow Streak
+    author: Valentine Williams
+    license: Public domain (first published 1922; author died 1946). Project Gutenberg ebook 9974.
+    era:
+      decade: 1920s
+      realism_constraints:
+        - No forensic DNA or modern ballistics; reliance on physical evidence and witness testimony
+        - >-
+          Communication by telephone and telegrams is possible but slower and less reliable than
+          today
+        - >-
+          International travel possible by train, boat, and early air service but with passport and
+          visa controls
+    setting:
+      location: Harkings, English country house; also London and Rotterdam
+      institution: Scotland Yard and local police; also Foreign Office and Secret Service involvement
+    crime_class:
+      category: murder
+      subtype: murder disguised as suicide with silenced pistol shot
+  cast:
+    - name: Hartley Parrish
+      age_range: middle-aged
+      role_archetype: wealthy businessman with a secret past
+      relationships:
+        - Mary Trevert (fiancée)
+        - Jeekes (secretary)
+        - Victor Marbran (associate and enemy)
+      public_persona: successful industrialist and social climber
+      private_secret: mastermind of blockade-running syndicate
+      motive_seed: threatening coded letter and blackmail
+      motive_strength: strong
+      alibi_window: none (victim)
+      access_plausibility: n/a
+      opportunity_channels:
+        - library at Harkings
+      behavioral_tells:
+        - fear of gun (yellow streak)
+      stakes: life and fortune
+      evidence_sensitivity:
+        - fingerprints on window
+        - presence of silencer on pistol
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: high
+    - name: Robin Greve
+      age_range: young adult
+      role_archetype: barrister and amateur investigator
+      relationships:
+        - Mary Trevert (love interest)
+        - Hartley Parrish (rival)
+      public_persona: friend of Mary Trevert and guest at Harkings
+      private_secret: none
+      motive_seed: suspected by others due to confrontation with Parrish
+      motive_strength: none
+      alibi_window: at home or walking outside at time of murder
+      access_plausibility: possible but denied
+      opportunity_channels:
+        - library corridor
+        - grounds
+      behavioral_tells:
+        - denies visiting Parrish after lunch
+      stakes: reputation and love of Mary
+      evidence_sensitivity:
+        - butler's testimony about voices
+        - lack of footprints
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: Mary Trevert
+      age_range: young adult
+      role_archetype: fiancée of victim, conflicted woman
+      relationships:
+        - Hartley Parrish (fiancé)
+        - Robin Greve (former love)
+      public_persona: engaged to Parrish, daughter of Lady Margaret
+      private_secret: previously engaged to Robin Greve
+      motive_seed: none
+      motive_strength: none
+      alibi_window: present at Harkings, heard shot
+      access_plausibility: n/a
+      opportunity_channels: []
+      behavioral_tells:
+        - fear and suspicion
+        - protective of Robin
+      stakes: inheritance and reputation
+      evidence_sensitivity:
+        - heard shot and hiss before it
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: high
+    - name: Albert Edward Jeekes
+      age_range: 35-50
+      role_archetype: secretary and reluctant accomplice
+      relationships:
+        - Hartley Parrish (employer)
+        - Victor Marbran (master)
+      public_persona: loyal secretary to Parrish
+      private_secret: spy for Victor Marbran, murderer
+      motive_seed: financial ruin and pressure from Marbran
+      motive_strength: strong
+      alibi_window: present at crime scene
+      access_plausibility: high
+      opportunity_channels:
+        - library window entry
+      behavioral_tells:
+        - nervousness
+        - false statements
+      stakes: life and freedom
+      evidence_sensitivity:
+        - confession letter
+        - missing silencer
+        - matching pistol
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Victor Marbran
+      age_range: middle-aged
+      role_archetype: antagonist and criminal mastermind
+      relationships:
+        - Hartley Parrish (rival)
+        - Albert Jeekes (agent)
+      public_persona: associate of Parrish, businessman
+      private_secret: leader of blockade-running syndicate, instigator
+      motive_seed: envy and financial dispute
+      motive_strength: strong
+      alibi_window: absent at time of murder
+      access_plausibility: possible
+      opportunity_channels:
+        - foreign locations
+      behavioral_tells:
+        - fled after murder
+      stakes: profit and freedom
+      evidence_sensitivity:
+        - letters
+        - flight from justice
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: suspect
+      moral_complexity: high
+    - name: Bude
+      age_range: older adult
+      role_archetype: butler and reluctant witness
+      relationships:
+        - Hartley Parrish (employer)
+        - Robin Greve (guest)
+      public_persona: faithful butler
+      private_secret: knows more than he admits
+      motive_seed: loyalty
+      motive_strength: none
+      alibi_window: present in house
+      access_plausibility: high
+      opportunity_channels:
+        - house corridors
+      behavioral_tells:
+        - hesitation
+        - withholding information
+      stakes: household order
+      evidence_sensitivity:
+        - heard voices
+        - testimony about library door
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: moderate
+    - name: Horace Trevert
+      age_range: young adult
+      role_archetype: soldier and protective brother
+      relationships:
+        - Mary Trevert (sister)
+        - Hartley Parrish (fiancé)
+      public_persona: Mary's brother, soldier
+      private_secret: none
+      motive_seed: none
+      motive_strength: none
+      alibi_window: present at house
+      access_plausibility: high
+      opportunity_channels:
+        - library window entry
+      behavioral_tells: []
+      stakes: family honor
+      evidence_sensitivity:
+        - fingerprints on window
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+  culpability:
+    culprit_count: 1
+    culprits:
+      - Albert Edward Jeekes
+  surface_model:
+    narrative:
+      summary: >-
+        Hartley Parrish is found dead in his locked library with a pistol in hand, apparently a
+        suicide. Voices were heard in the library shortly before the shot, and a mysterious letter
+        from a Rotterdam firm suggests blackmail. Suspicion falls on Robin Greve, who denies
+        visiting Parrish, but the truth is obscured by conflicting testimonies and missing evidence.
+    accepted_facts:
+      - Hartley Parrish was found dead with a pistol in his hand in a locked library.
+      - A shot was heard by Mary Trevert at about 5:15 PM.
+      - Bude the butler heard voices in the library shortly before the shot.
+      - A letter on slatey-blue paper from Elias van der Spyck & Co. was found on Parrish’s desk.
+    inferred_conclusions:
+      - Robin Greve visited Parrish and had a heated argument with him.
+      - Parrish committed suicide due to business worries and nervous condition.
+      - The shot heard was the only shot fired and was self-inflicted.
+  hidden_model:
+    mechanism:
+      description: >-
+        Albert Edward Jeekes, acting under orders from Victor Marbran, confronted Hartley Parrish at
+        the open library window with a pistol identical to Parrish’s. Parrish fired a silenced shot
+        at Jeekes, who returned fire with a loud shot that killed Parrish. Jeekes then staged the
+        scene as a suicide by placing Parrish’s pistol without the silencer in his hand and closing
+        the window. He escaped through the window, taking care to avoid leaving marks, and later
+        confessed before dying by suicide.
+      delivery_path:
+        - step: Jeekes approaches Parrish at the open library window with a Browning pistol.
+        - step: Parrish fires a silenced shot at Jeekes, missing him.
+        - step: Jeekes fires a loud shot that kills Parrish instantly.
+        - step: Jeekes places Parrish’s pistol without the silencer in Parrish’s hand.
+        - step: Jeekes closes the window to simulate a suicide scene.
+        - step: Jeekes escapes through the window, avoiding leaving footprints or marks.
+        - step: Jeekes later writes a confession and kills himself.
+    outcome:
+      result: >-
+        Jeekes is revealed as the murderer acting under Marbran’s orders and confesses before dying
+        by suicide.
+  false_assumption:
+    statement: The death of Hartley Parrish was a straightforward suicide caused by business worries.
+    type: behavioral
+    why_it_seems_reasonable: >-
+      Parrish was found with a pistol in his hand and medical evidence indicated instantaneous death
+      by a gunshot to the heart. The presence of a threatening letter and his nervous condition
+      suggested a motive for suicide.
+    what_it_hides: >-
+      It conceals the fact that Parrish was murdered by Jeekes who used a silenced shot and staged
+      the scene to look like suicide, misleading the police and witnesses.
+  false_solution:
+    accused_suspect: Robin Greve
+    supporting_points:
+      - Bude testified hearing voices in the library shortly after Greve passed him.
+      - Greve had a known rivalry and confrontation with Parrish over Mary Trevert.
+      - Greve was unaccounted for during the time of the murder and had opportunity.
+      - Greve’s denial of visiting Parrish was contradicted by servants’ testimony.
+    the_one_flaw: >-
+      Greve had a solid alibi and no physical evidence linked him to the murder; the voices heard
+      were misattributed and the real culprit was Jeekes.
+    refuted_in_chapter: 28
+  red_herrings:
+    - id: robin_greve_suspected
+      description: >-
+        Robin Greve is suspected due to his argument with Parrish and the butler hearing voices
+        after he passed.
+      points_at_suspect: Robin Greve
+      innocent_explanation: >-
+        Greve did not enter the library and the voices were from Jeekes and Parrish during the
+        murder.
+      resolved_in_chapter: 28
+    - id: mary_trevert_engagement
+      description: >-
+        Mary Trevert’s engagement to Parrish and her previous relationship with Greve create
+        suspicion and emotional motives.
+      points_at_suspect: Mary Trevert and Robin Greve
+      innocent_explanation: >-
+        Mary was a witness and had no motive or opportunity; Greve was innocent and wrongly
+        suspected.
+      resolved_in_chapter: 28
+  closed_circle:
+    suspects:
+      - Robin Greve
+      - Albert Edward Jeekes
+      - Victor Marbran
+      - Horace Trevert
+      - Bude
+      - Mary Trevert
+    rationale: >-
+      All had access to Harkings and potential motives or opportunity, but investigation and
+      evidence narrowed the culprit to Jeekes acting under Marbran’s orders.
+  constraint_space:
+    time:
+      anchors:
+        - 5:00 PM tea gong
+        - 5:10 PM Greve passes Bude
+        - 5:12 PM Bude hears voices
+        - 5:15 PM shot heard by Mary Trevert
+        - 5:18 PM alarm raised
+      windows:
+        - Greve’s stroll 5:10-5:13
+        - Voices heard 5:12
+        - Shot fired 5:15
+    access:
+      actors:
+        - Robin Greve
+        - Albert Edward Jeekes
+        - Horace Trevert
+        - Bude
+      objects:
+        - library door (locked from inside)
+        - library window (open)
+        - garden door
+        - pistol with and without silencer
+    social:
+      trust_channels:
+        - Bude’s testimony
+        - Mary Trevert’s hearing
+        - Jeekes’s confession
+        - Herr Schulz’s assistance
+      authority_sources:
+        - Inspector Humphries
+        - Detective-Inspector Manderton
+        - Dutch police Commissary Boomjes
+        - Mr. Bardy solicitor
+  inference_path:
+    steps:
+      - observation: Bude hears voices in the locked library shortly after Greve passes.
+        correction: Voices were between Parrish and Jeekes, not Greve.
+        effect: Greve’s presence in the library is disproved.
+        required_evidence:
+          - Bude’s witness statement about hearing voices
+          - Horace Trevert’s testimony about entering through the window
+        reader_observable: true
+      - observation: Only one shot was heard by Mary Trevert.
+        correction: Two shots were fired; one silenced, one loud.
+        effect: Implies presence of two pistols and a struggle.
+        required_evidence:
+          - Mary Trevert’s testimony about hearing a hiss before the shot
+          - Bullet mark on rosery tree indicating a shot fired from window
+        reader_observable: true
+      - observation: Parrish’s pistol found without silencer in his hand.
+        correction: Silencer was removed by murderer to disguise the loud shot.
+        effect: Murder staged as suicide using Parrish’s pistol.
+        required_evidence:
+          - Jay’s testimony about missing silencer
+          - Silencer found in the shrubbery outside the library window
+        reader_observable: true
+      - observation: Jeekes was in London and then in Rotterdam following Mary.
+        correction: Jeekes was spying and acting under Marbran’s orders.
+        effect: Jeekes had motive and opportunity to murder Parrish.
+        required_evidence:
+          - Telegram from Rotterdam police confirming Jeekes’s presence at Villa Bergendal
+          - Manderton’s investigation and telegram about pistol purchase
+        reader_observable: true
+      - observation: Letter from Elias van der Spyck & Co. found on Parrish’s desk.
+        correction: Letter was coded blackmail threatening Parrish’s life.
+        effect: Provides motive for murder.
+        required_evidence:
+          - Decoded letter using slotted sheet
+          - Dulkinghorn’s expert analysis
+        reader_observable: true
+      - observation: Jeekes found dead by hanging at Villa Bergendal.
+        correction: Jeekes committed suicide after confessing murder.
+        effect: Confession confirms murder and clears others.
+        required_evidence:
+          - Jeekes’s last statement
+          - Manderton’s and Dutch police’s discovery of body
+        reader_observable: true
+      - observation: Marbran fled the country after murder.
+        correction: Marbran was the mastermind but escaped justice.
+        effect: Only Jeekes was caught and confessed.
+        required_evidence:
+          - Manderton’s testimony about Marbran’s flight
+          - Ticket stubs and passport records showing Marbran’s departure
+        reader_observable: true
+  discriminating_test:
+    method: reenactment
+    design: >-
+      Reconstruct the murder scene at Harkings library with the window open and the silencer removed
+      from the pistol. Test whether the sounds of two shots, one silenced and one loud, can be heard
+      and whether the murderer could have escaped through the window without leaving marks. Confirm
+      the presence of two pistols of identical caliber and the timing of voices and shots.
+    knowledge_revealed: >-
+      This test reveals that two shots were fired, the silenced shot first by Parrish, then the loud
+      shot by the murderer, and that the murderer escaped through the open window, staging the scene
+      as suicide.
+    pass_condition: >-
+      The test passes if the timing and acoustic conditions match witness testimonies and physical
+      evidence, and if the escape through the window is plausible without leaving footprints or
+      marks.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given all essential clues: the locked library door, the open window, the missing
+      silencer, the coded letter, the testimony of Bude and Mary Trevert, and the discovery of the
+      bullet mark on the rosery tree. The conflicting testimonies and the presence of two pistols
+      are highlighted. The confession letter is foreshadowed and the decoding of the letter is
+      explained. The reader can deduce the murder disguised as suicide by analyzing the timing of
+      the shots and the physical evidence.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

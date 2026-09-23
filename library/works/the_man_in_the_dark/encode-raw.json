@@ -1,0 +1,539 @@
+{
+ "decade": "1920s",
+ "realism_constraints": [
+  "No modern forensic DNA analysis available",
+  "Limited police communication and surveillance technology",
+  "Blindness can be treated surgically but recovery is slow and uncertain"
+ ],
+ "location": "Ealing, London and surrounding English countryside including Sussex and Kent",
+ "institution": "New Scotland Yard and private enquiry agent Francis McNab",
+ "crime_category": "murder",
+ "crime_subtype": "murder concealed by removal of blind witness",
+ "cast": [
+  {
+   "name": "Alexander David Kinloch",
+   "age_range": "30s",
+   "role_archetype": "wounded war veteran and innocent blind man",
+   "role": "victim",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "disreputable, destitute blind man",
+   "private_secret": "recently regained sight after surgery",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "unknown, unconscious during murder",
+   "access_plausibility": "high, was present at murder scene",
+   "stakes": "high, life endangered",
+   "moral_complexity": "low",
+   "relationships": [
+    "Dr. Peter Dunn",
+    "Stella (Lady Wye)"
+   ],
+   "opportunity_channels": [
+    "presence at murder scene"
+   ],
+   "behavioral_tells": [
+    "blindness disguise",
+    "mental alertness despite blindness"
+   ],
+   "evidence_sensitivity": [
+    "walking-stick wear",
+    "fingerprints",
+    "presence at murder scene"
+   ]
+  },
+  {
+   "name": "Dr. Peter Dunn",
+   "age_range": "40s-50s",
+   "role_archetype": "old friend and doctor",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "medical general practitioner",
+   "private_secret": "aware of Kinloch's condition and involvement",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "present at Kinloch's recovery",
+   "access_plausibility": "high",
+   "stakes": "moderate, professional and personal concern",
+   "moral_complexity": "low",
+   "relationships": [
+    "Alexander David Kinloch"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Ponsonby Paget",
+   "age_range": "middle-aged",
+   "role_archetype": "popular journalist and murder victim",
+   "role": "victim",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "editor and parliamentarian",
+   "private_secret": "exposed enemies through journalism",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "murdered at home",
+   "access_plausibility": "high",
+   "stakes": "high, life lost",
+   "moral_complexity": "low",
+   "relationships": [
+    "Lady Wye (Stella)",
+    "Sir Stephen Wye"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Francis McNab",
+   "age_range": "40s",
+   "role_archetype": "private enquiry agent, clever and tenacious",
+   "role": "detective",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "private detective",
+   "private_secret": "deeply involved in investigation",
+   "motive_seed": "justice",
+   "motive_strength": "strong",
+   "alibi_window": "throughout investigation",
+   "access_plausibility": "high",
+   "stakes": "high, solving the case",
+   "moral_complexity": "low",
+   "relationships": [
+    "Godfrey Chance",
+    "Inspector Snargrove",
+    "Dr. Peter Dunn"
+   ],
+   "opportunity_channels": [
+    "investigation access"
+   ],
+   "behavioral_tells": [
+    "logical reasoning",
+    "persistence"
+   ],
+   "evidence_sensitivity": [
+    "walking-stick wear",
+    "fingerprints",
+    "wisp of hair",
+    "paint marks"
+   ]
+  },
+  {
+   "name": "Godfrey Chance",
+   "age_range": "young adult",
+   "role_archetype": "journalist and narrator",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "journalist",
+   "private_secret": "assistant to McNab",
+   "motive_seed": "truth and career",
+   "motive_strength": "moderate",
+   "alibi_window": "throughout investigation",
+   "access_plausibility": "high",
+   "stakes": "moderate",
+   "moral_complexity": "low",
+   "relationships": [
+    "Francis McNab",
+    "Dr. Peter Dunn"
+   ],
+   "opportunity_channels": [
+    "investigation access"
+   ],
+   "behavioral_tells": [],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Stella (Lady Wye)",
+   "age_range": "young adult to middle-aged",
+   "role_archetype": "woman with secret, connected to murderer and Kinloch",
+   "role": "suspect",
+   "gender": "female",
+   "culpability": "unknown",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "Lady Wye, wife of Sir Stephen Wye",
+   "private_secret": "involved in concealment and protection",
+   "motive_seed": "protect husband and herself",
+   "motive_strength": "strong",
+   "alibi_window": "uncertain",
+   "access_plausibility": "high",
+   "stakes": "high, reputation and safety",
+   "moral_complexity": "high",
+   "relationships": [
+    "Sir Stephen Wye",
+    "Alexander David Kinloch"
+   ],
+   "opportunity_channels": [
+    "access to Kinloch",
+    "car transport"
+   ],
+   "behavioral_tells": [
+    "fainting",
+    "emotional breakdown",
+    "protective behavior"
+   ],
+   "evidence_sensitivity": [
+    "presence at hideout",
+    "interaction with Kinloch"
+   ]
+  },
+  {
+   "name": "Sir Stephen Wye",
+   "age_range": "mid 30s to 40s",
+   "role_archetype": "politician and murderer",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "politician with ambitions",
+   "private_secret": "murdered Ponsonby Paget to protect ambitions",
+   "motive_seed": "fear of exposure",
+   "motive_strength": "strong",
+   "alibi_window": "claimed alibi at home",
+   "access_plausibility": "high",
+   "stakes": "high, political career and freedom",
+   "moral_complexity": "high",
+   "relationships": [
+    "Stella (Lady Wye)",
+    "Ponsonby Paget"
+   ],
+   "opportunity_channels": [
+    "access to victim's house"
+   ],
+   "behavioral_tells": [
+    "nervousness",
+    "contradictory alibi"
+   ],
+   "evidence_sensitivity": [
+    "walking-stick wear",
+    "fingerprints",
+    "hair wisp"
+   ]
+  },
+  {
+   "name": "Inspector Snargrove",
+   "age_range": "50s",
+   "role_archetype": "official police detective",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "Scotland Yard inspector",
+   "private_secret": "disagrees with McNab's theory",
+   "motive_seed": "solve the case",
+   "motive_strength": "strong",
+   "alibi_window": "throughout investigation",
+   "access_plausibility": "high",
+   "stakes": "high",
+   "moral_complexity": "low",
+   "relationships": [
+    "Francis McNab",
+    "James Brown"
+   ],
+   "opportunity_channels": [
+    "official investigation"
+   ],
+   "behavioral_tells": [
+    "logical but sometimes flawed reasoning"
+   ],
+   "evidence_sensitivity": [
+    "walking-stick",
+    "fingerprints",
+    "paint marks"
+   ]
+  },
+  {
+   "name": "James Brown",
+   "age_range": "50s",
+   "role_archetype": "butler and witness",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "butler at Ponsonby Paget's house",
+   "private_secret": "aware of late visitors",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "present at house",
+   "access_plausibility": "high",
+   "stakes": "low",
+   "moral_complexity": "low",
+   "relationships": [
+    "Ponsonby Paget"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": []
+  }
+ ],
+ "culprits": [
+  "Sir Stephen Wye"
+ ],
+ "surface_summary": "Ponsonby Paget, a popular journalist, is found murdered in his Ealing home. A blind man, Alexander David Kinloch, is an unintended witness and is taken away by unknown parties. The investigation by private agent McNab and journalist Chance uncovers clues pointing to a high-society murderer with political motives.",
+ "accepted_facts": [
+  "Ponsonby Paget was murdered in his study at Ealing on January 15th.",
+  "A blind man named Alexander David Kinloch was present at the scene and was removed forcibly.",
+  "A walking-stick with distinctive wear was found at the crime scene.",
+  "Sir Stephen Wye had a strong motive to kill Paget to protect his political ambitions."
+ ],
+ "inferred_conclusions": [
+  "The murderer was a lame man using the walking-stick.",
+  "Kinloch was the murderer because of his presence and the walking-stick.",
+  "The room was in darkness during the murder."
+ ],
+ "mechanism_description": "Sir Stephen Wye murdered Ponsonby Paget to prevent exposure of his political ambitions. Kinloch, a blind war veteran, was an unintended witness and was forcibly taken away by accomplices. The murderer staged an alibi and left misleading clues, but the distinctive wear on the walking-stick and other subtle evidence led to his identification.",
+ "delivery_path": [
+  "Murderer enters the study through the French window while victim waits.",
+  "A struggle ensues; victim is stabbed with an expert upward thrust.",
+  "Kinloch stumbles in accidentally and is attacked but spared due to blindness.",
+  "Kinloch is knocked unconscious and removed from the scene by accomplices.",
+  "Murderer returns to stage alibi and hides evidence.",
+  "Kinloch recovers and is hidden in a remote village with a woman.",
+  "Detective McNab uses clues like walking-stick wear and dialect to locate Kinloch and identify the murderer."
+ ],
+ "outcome_result": "Sir Stephen Wye is identified as the murderer and the case is solved through the investigation of Kinloch's presence and the walking-stick evidence.",
+ "false_assumption": {
+  "statement": "The murderer was a lame man who used the walking-stick found at the scene.",
+  "type": "behavioral",
+  "why_it_seems_reasonable": "The walking-stick showed wear consistent with a lame man, and the murderer was believed to have left it behind. The police and inspector Snargrove logically inferred the murderer must be lame.",
+  "what_it_hides": "The walking-stick actually belonged to Kinloch, the blind man, who used it to feel his way. The murderer was not lame and did not use the stick."
+ },
+ "false_solution": {
+  "accused_suspect": "Alexander David Kinloch",
+  "supporting_points": [
+   "Walking-stick found at the scene matched Kinloch's.",
+   "Bloodstains and fingerprints could be attributed to Kinloch.",
+   "Kinloch was present at the murder scene and fled.",
+   "Kinloch had no alibi and was found in suspicious circumstances."
+  ],
+  "the_one_flaw": "Kinloch was blind and incapable of the expert stabbing; the walking-stick belonged to him and not the murderer.",
+  "refuted_in_chapter": 13
+ },
+ "red_herrings": [
+  {
+   "id": "dick_hollins_impostor",
+   "description": "Dick Hollins, a blind man reading in Enderby Gardens, was suspected to be Kinloch but was an impostor.",
+   "points_at_suspect": "Dick Hollins was thought to be the blind man involved in the case.",
+   "innocent_explanation": "Dick Hollins was a genuine blind man unrelated to the murder or Kinloch.",
+   "resolved_in_chapter": 16
+  },
+  {
+   "id": "lady_wye_fainting",
+   "description": "Lady Wye's fainting and emotional breakdown suggested guilt or involvement in the murder.",
+   "points_at_suspect": "Her behavior indicated she might be hiding something or involved.",
+   "innocent_explanation": "Her distress was due to fear and protective feelings for Kinloch and the situation, not guilt.",
+   "resolved_in_chapter": 13
+  }
+ ],
+ "closed_circle": {
+  "suspects": [
+   "Sir Stephen Wye",
+   "Alexander David Kinloch",
+   "Stella (Lady Wye)",
+   "James Brown",
+   "Francis McNab",
+   "Dr. Peter Dunn",
+   "Godfrey Chance",
+   "Inspector Snargrove"
+  ],
+  "rationale": "All key characters are connected by the murder scene, investigation, or concealment, with no unknown outsiders involved."
+ },
+ "constraint_space": {
+  "time_anchors": [
+   "January 15th, night of murder",
+   "January 22nd, morning tide heard by Kinloch",
+   "March 22nd, last known shelter date",
+   "April 3rd, Dr. Dunn leaves for Gart",
+   "April 26th, last meeting with Kinloch"
+  ],
+  "time_windows": [
+   "Murder occurred late night January 15th",
+   "Kinloch hidden from January 15th to March 22nd",
+   "Investigation active from January to April"
+  ],
+  "access_actors": [
+   "Sir Stephen Wye",
+   "Lady Wye",
+   "Alexander David Kinloch",
+   "Francis McNab",
+   "Inspector Snargrove"
+  ],
+  "access_objects": [
+   "Ponsonby Paget's house",
+   "walking-stick",
+   "car 'Plain Jane'",
+   "Selwyn & Smith offices",
+   "Stelling Minnis village house"
+  ],
+  "trust_channels": [
+   "Dr. Dunn's medical testimony",
+   "James Brown's butler testimony",
+   "Mrs. Spedding's gossip",
+   "Constable Howley's witness account"
+  ],
+  "authority_sources": [
+   "New Scotland Yard",
+   "Private enquiry agent Francis McNab",
+   "Dr. Peter Dunn",
+   "Inspector Snargrove"
+  ]
+ },
+ "inference_path": [
+  {
+   "observation": "Walking-stick found at murder scene had wear across heel, not sides",
+   "correction": "Walking-stick wear indicates use in darkness, consistent with blind man's use",
+   "effect": "Murderer not lame; walking-stick belongs to Kinloch",
+   "required_evidence": [
+    "Walking-stick with sole bevelled across heel",
+    "Dr. Dunn's testimony on Kinloch's blindness and use of stick"
+   ]
+  },
+  {
+   "observation": "Fingerprints on broken glass at scene",
+   "correction": "Fingerprints do not match suspect Dick Hollins, who was a red herring",
+   "effect": "Fingerprints likely belong to murderer, not Kinloch or Hollins",
+   "required_evidence": [
+    "Fingerprint analysis from Scotland Yard",
+    "Comparison of fingerprints taken from Dick Hollins"
+   ]
+  },
+  {
+   "observation": "Kinloch was blind but later regained sight",
+   "correction": "Murderers unaware of Kinloch's regained sight, increasing his danger",
+   "effect": "Kinloch becomes a threat to murderer and target for elimination",
+   "required_evidence": [
+    "Dr. Dunn's statement on Kinloch's eye operation",
+    "McNab's report of Kinloch's regained sight"
+   ]
+  },
+  {
+   "observation": "Lady Wye fainted near Kinloch and was emotionally involved",
+   "correction": "Lady Wye is protecting Kinloch and involved in concealment",
+   "effect": "Lady Wye is an accomplice but not the murderer",
+   "required_evidence": [
+    "Constable Howley's witness statement",
+    "Mrs. Spedding's gossip and observations"
+   ]
+  },
+  {
+   "observation": "Sir Stephen Wye had an alibi of being at home",
+   "correction": "Alibi was staged; he left house secretly to commit murder",
+   "effect": "Sir Stephen Wye is the murderer despite alibi",
+   "required_evidence": [
+    "Butler James Brown's testimony",
+    "Inspector Snargrove's investigation of alibi"
+   ]
+  },
+  {
+   "observation": "Murderer left no footprints on brick path but car tracks with embedded cartridge",
+   "correction": "Murderer escaped by car with solid rubber tyres, no hoof marks",
+   "effect": "Car tracks help locate murderer's escape route",
+   "required_evidence": [
+    "McNab's observation of wheel marks on driveway",
+    "Brass cap of cartridge embedded in tyre tread"
+   ]
+  },
+  {
+   "observation": "Kinloch was forcibly removed from murder scene",
+   "correction": "Kinloch was taken to remote village to hide him",
+   "effect": "Kinloch's location discovered through dialect and local names",
+   "required_evidence": [
+    "Mrs. Spedding's gossip about local names",
+    "Kinloch's recognition of dialect words and place names"
+   ]
+  }
+ ],
+ "discriminating_test": {
+  "method": "trap",
+  "design": "Kinloch is placed in a public garden in London where he is expected to wait for the woman to come to him. Multiple watchers are placed around to observe any visitors. The test relies on the woman's need to contact Kinloch and the assumption she will come to the known location. The presence of watchers and the timing of visits are carefully controlled.",
+  "knowledge_revealed": "The test reveals the woman's identity and confirms Kinloch's location, allowing the police to capture the murderer and accomplices.",
+  "pass_condition": "The woman visits Kinloch at the designated location, confirming her involvement and enabling arrest."
+ },
+ "fair_play_explanation": "The reader is given detailed descriptions of the walking-stick wear, the fingerprints, the dialect clues, and the timeline of events. The false assumption about the walking-stick belonging to a lame man is explicitly challenged by McNab's logical analysis. The presence of Kinloch at the scene and his blindness are well established. The clues about the village and the woman's involvement are provided through Mrs. Spedding's gossip and Kinloch's observations. The reader could deduce the murderer's identity by piecing together these clues and rejecting the false assumption about the walking-stick.",
+ "anchors": [
+  {
+   "claim": "Ponsonby Paget was found dead with a stab wound in his study",
+   "anchor": "Ponsonby Paget lay on the floor near his writing-table"
+  },
+  {
+   "claim": "A walking-stick was found beneath an overturned table at the crime scene",
+   "anchor": "Green, who had been poking delicately about among the wreckage of furniture, pulled out a walking-stick from beneath an overturned table"
+  },
+  {
+   "claim": "The walking-stick belonged to Alexander David Kinloch",
+   "anchor": "It was Kinloch's stick. It was the stick the policeman had handed back to him"
+  },
+  {
+   "claim": "Kinloch was blind and used the walking-stick to feel his way",
+   "anchor": "A blind man and his stick are inseparable"
+  },
+  {
+   "claim": "Sir Stephen Wye had a strong motive to kill Ponsonby Paget",
+   "anchor": "Wye, of course, went to see Paget about it, and there learned that Paget had acquired certain information about him which if published would wreck his political ambitions"
+  },
+  {
+   "claim": "The murderer left no footprints but car tracks with embedded cartridge",
+   "anchor": "That is why I want a copy of this drawing to be sent out to all your local correspondents"
+  },
+  {
+   "claim": "Kinloch was forcibly removed from the murder scene",
+   "anchor": "He was carried off by some one--oh, yes--by some one who may very well have been unaware he was blind"
+  },
+  {
+   "claim": "Lady Wye fainted near Kinloch and was emotionally involved",
+   "anchor": "The breakdown was at once so utter and so unexpected that it amazed Kinloch"
+  },
+  {
+   "claim": "Kinloch regained sight after surgery",
+   "anchor": "The operation for corneitis was performed by Sir Donald Fyffe in Edinburgh, and one week later Kinloch got his first glimpse of the light again"
+  },
+  {
+   "claim": "Fingerprints on the broken glass do not match Dick Hollins",
+   "anchor": "Those I took from Kinloch do not coincide with those found on the glass"
+  },
+  {
+   "claim": "Dick Hollins was a red herring suspect",
+   "anchor": "That, I should think, is the first time a man's finger-prints have been taken from him without his knowledge"
+  },
+  {
+   "claim": "Kinloch was found sitting in Enderby Gardens reading Braille",
+   "anchor": "He was sitting against the railings on a short three-legged camp-stool, the usual large volume on his knees"
+  },
+  {
+   "claim": "The murderer is Sir Stephen Wye",
+   "anchor": "Wye was our man right enough"
+  },
+  {
+   "claim": "The murder was committed by an expert with a knife",
+   "anchor": "The hand that sent that knife to the heart was expert--accustomed to the use of it"
+  },
+  {
+   "claim": "The room was lit during the murder",
+   "anchor": "You are forgetting the mirror. He would hardly take out a mirror in darkness"
+  },
+  {
+   "claim": "The false assumption that the murderer was lame is refuted",
+   "anchor": "The walking-stick alone might have told me nothing without those marks on the wall"
+  },
+  {
+   "claim": "The trap to catch the murderer involves Kinloch waiting in public",
+   "anchor": "He will wait in some road or street he has heard her mention more than once, wait for her to come along"
+  },
+  {
+   "claim": "The murderer tried to escape by car but crashed over a cliff",
+   "anchor": "The car struck a projecting spur of the cliff and, passing on with one head-light out, left behind it a cloud of white dust"
+  },
+  {
+   "claim": "Kinloch was rescued after the car crash",
+   "anchor": "I was in the car or how he got into it. But when we were hunting among the wreckage after the body had been removed, some one noticed him lying half-way down the cliff"
+  }
+ ]
+}

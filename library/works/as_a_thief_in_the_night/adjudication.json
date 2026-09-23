@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "The arsenic poisoning was administered through the medicine bottle alone.",
+  "type": "behavioral",
+  "why_it_seems_reasonable": "Witnesses observed the medicine bottle and its contents, and arsenic was found in the medicine after death. It was logical to assume the poison was administered orally via medicine.",
+  "what_it_hides": "It obscures the actual mechanism of poisoning via arsenic-laced candles emitting vapors and dust, which was not initially suspected or tested."
+ },
+ "mechanism_description": "Barbara Monkhouse prepared and supplied poisoned stearine candles charged with arsenic powder. These candles, used by Harold and Stella, emitted arsenic vapors and dust, causing chronic poisoning. Scientific evidence from arsenic deposits on wallpaper, soot, candle wax, and hair analysis conclusively proved the poisoning method and Barbara's guilt.",
+ "discriminating_test": {
+  "method": "constraint_proof",
+  "design": "Thorndyke examined the house and collected samples of wallpaper, soot, candle wax, and hair. He correlated Barbara's absences with the timing of poisonings using diary entries and hair X-rays. The presence of arsenic in candle wax and environmental samples proved the poisoning medium. The test relied on scientific analysis and timing constraints to exclude other suspects.",
+  "knowledge_revealed": "The test revealed that arsenic poisoning was administered via poisoned stearine candles supplied by Barbara during her absences, not through medicine or food.",
+  "pass_condition": "Detection of arsenic in candle wax trimmings, wallpaper, soot, and hair samples matching Barbara's absence periods conclusively proves the poisoning method and implicates Barbara."
+ },
+ "changed": [],
+ "confidence": "high"
+}

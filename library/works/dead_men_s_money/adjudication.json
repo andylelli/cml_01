@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "Sir Gilbert Carstairs was innocent and the murders were committed by unknown tourists following Phillips.",
+  "type": "identity",
+  "why_it_seems_reasonable": "Sir Gilbert appeared at the inquest and was seen near the murder scene, and the police had a theory of robbery by tourists. The presence of strangers and the discovery of the handbag suggested a robbery motive.",
+  "what_it_hides": "It hides the fact that the man posing as Sir Gilbert was an impostor and the actual murderer, who killed to conceal his identity and secrets."
+ },
+ "mechanism_description": "Dr. Francis Meekin impersonated Sir Gilbert Carstairs to claim the estate. He murdered John Phillips and Abel Crone to conceal his identity and secrets related to the Carstairs family. He attempted to kill Hugh Moneylaws to silence him, but was ultimately killed by Nance Maguire in revenge for Crone's murder, while Maisie Dunlop was held captive by Meekin and his butler Hollins at Hathercleugh.",
+ "discriminating_test": {
+  "method": "constraint_proof",
+  "design": "Reenact the movements and access routes of Sir Gilbert Carstairs (Meekin) and compare his knowledge of local geography with that of the real Carstairs family. Examine handwriting samples of the will witness and the letter found in Gilverthwaite's chest to confirm identity. Verify the timeline of disappearance and presence at murder scenes through witness statements and physical evidence such as the yacht and clothing found at Hathercleugh.",
+  "knowledge_revealed": "This test reveals that the man claiming to be Sir Gilbert Carstairs is an impostor with limited local knowledge and forged documents, confirming Meekin's identity and guilt.",
+  "pass_condition": "The impostor fails to demonstrate authentic local knowledge and handwriting comparison confirms forgery, eliminating him as the true Sir Gilbert Carstairs."
+ },
+ "changed": [],
+ "confidence": "high"
+}

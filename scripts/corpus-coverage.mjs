@@ -71,6 +71,7 @@ const report = {
   with_text: works.filter((w) => w.text).length,
   encoded: works.filter((w) => w.encoded).length,
   awaiting_encode: works.filter((w) => w.text && !w.encoded).map((w) => w.slug),
+  encoded_unclassified: works.filter((w) => w.encoded && !w.axis).length,   // A_103 B58
   axis: Object.fromEntries(Object.entries(AXIS_TARGET).map(([a, t]) => [a, { have: axes[a] || 0, target: t, gap: Math.max(0, t - (axes[a] || 0)) }])),
   family: Object.fromEntries(FAMILIES.map((f) => [f, { have: fams[f] || 0, target: FAMILY_TARGET, gap: Math.max(0, FAMILY_TARGET - (fams[f] || 0)) }])),
 };
@@ -79,6 +80,9 @@ if (JSON_OUT) { console.log(JSON.stringify(report, null, 1)); process.exit(0); }
 
 console.log(`library: ${report.works} works · ${report.with_text} with text · ${report.encoded} encoded`);
 console.log(`awaiting encode: ${report.awaiting_encode.length}`);
+// A_103 B58: MEASURED 137 encoded above a gap table summing to 56 - the other 81 had no fingerprint yet.
+// The closing line prescribed paid encodes for what is a free classify step.
+if (report.encoded_unclassified) console.log(`encoded but NOT YET CLASSIFIED: ${report.encoded_unclassified} - the table below counts only classified works; run corpus-derive + corpus-classify before reading its gap as an encode gap`);
 console.log("\naxis                have  target  gap");
 for (const [a, r] of Object.entries(report.axis)) {
   console.log(`  ${a.padEnd(18)}${String(r.have).padStart(4)}${String(r.target).padStart(8)}${String(r.gap).padStart(5)}${r.gap ? "  <-" : ""}`);

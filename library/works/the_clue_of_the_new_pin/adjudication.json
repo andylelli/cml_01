@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "The vault must have a secret passage or duplicate key to explain the locked door with the key inside.",
+  "type": "spatial",
+  "why_it_seems_reasonable": "The vault is heavily constructed with no visible entrances except the locked door, and the key was found inside, making it seem impossible for the murderer to have escaped without a secret route. The presence of an unfinished duplicate key and the locked door reinforce this belief.",
+  "what_it_hides": "It hides the clever mechanical trick using a thread and pin to pull the key back inside after locking the door from outside, negating the need for any secret passage or duplicate key."
+ },
+ "mechanism_description": "Rex Lander murdered his uncle Jesse Trasmere inside the vault. He used a thread and pin trick to lock the vault door from outside while leaving the key on the table inside. He tied the key to a thread passed through the ventilator holes, pulled the door shut and locked it, then pulled the key back inside and released the pin, leaving the key on the table to create the illusion that the vault was locked from inside with the key left behind.",
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "Rex Lander demonstrated the use of a thread and pin to pull the key back inside the locked vault through the ventilator holes, reproducing the exact conditions of the crime scene. The test involved locking the vault door from outside, threading the key on a cotton thread through the ventilator, pulling it back to the table, and releasing the pin to leave the key in place.",
+  "knowledge_revealed": "This reenactment revealed the mechanical possibility of locking the vault door from outside while leaving the key on the table inside, disproving the need for secret passages or duplicate keys.",
+  "pass_condition": "Successful demonstration of the key being pulled inside and left on the table through the ventilator holes without unlocking the door from inside."
+ },
+ "changed": [],
+ "confidence": "high"
+}

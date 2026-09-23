@@ -1,162 +1,208 @@
 {
  "decade": "1900s",
  "realism_constraints": [
-  "No modern forensic DNA or electronic surveillance",
-  "Medical knowledge includes morphine poisoning and early sleeping sickness",
-  "Travel by horse-drawn carriage and early electric trains"
+  "No modern forensic DNA analysis or electronic surveillance",
+  "Medical knowledge includes morphine poisoning and sleeping sickness but limited understanding",
+  "Communication and travel limited to horse-drawn carriages, early railways, and telegrams"
  ],
- "location": "London, specifically Kennington Lane and New Inn",
+ "location": "London, specifically New Inn and Kennington Lane",
  "institution": "Scotland Yard Criminal Investigation Department",
  "crime_category": "murder",
- "crime_subtype": "chronic poisoning and identity impersonation",
+ "crime_subtype": "chronic poisoning and impersonation to forge a will",
  "cast": [
+  {
+   "name": "John Thorndyke",
+   "age_range": "40-60",
+   "role_archetype": "legal and medical expert investigator",
+   "role": "detective",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "eminent barrister and medical jurist",
+   "private_secret": "keen investigator of complex cases",
+   "motive_seed": "professional duty",
+   "motive_strength": "strong",
+   "alibi_window": "always present in London",
+   "access_plausibility": "high",
+   "stakes": "justice and truth",
+   "moral_complexity": "low",
+   "relationships": [],
+   "opportunity_channels": [
+    "legal access",
+    "medical knowledge"
+   ],
+   "behavioral_tells": [
+    "methodical",
+    "observant",
+    "patient"
+   ],
+   "evidence_sensitivity": [
+    "photographs of signatures",
+    "spectacles fragments"
+   ]
+  },
   {
    "name": "Dr. Jervis",
    "age_range": "30-40",
-   "role_archetype": "medical practitioner and investigator",
-   "role": "detective",
+   "role_archetype": "medical practitioner and narrator",
+   "role": "witness",
    "gender": "male",
    "culpability": "innocent",
    "culprit_eligibility": "ineligible",
-   "public_persona": "general practitioner",
-   "private_secret": "investigating suspicious poisoning and will case",
+   "public_persona": "locum tenens doctor",
+   "private_secret": "assistant to Thorndyke",
    "motive_seed": "professional duty and curiosity",
    "motive_strength": "moderate",
-   "alibi_window": "present throughout investigation",
+   "alibi_window": "present in London",
    "access_plausibility": "high",
-   "stakes": "professional reputation and justice",
-   "moral_complexity": "low",
-   "relationships": [],
-   "opportunity_channels": [],
-   "behavioral_tells": [],
-   "evidence_sensitivity": []
-  },
-  {
-   "name": "John Thorndyke",
-   "age_range": "40-50",
-   "role_archetype": "legal and medical jurist, master detective",
-   "role": "detective",
-   "gender": "male",
-   "culpability": "innocent",
-   "culprit_eligibility": "ineligible",
-   "public_persona": "barrister and medical jurist",
-   "private_secret": "leading the investigation",
-   "motive_seed": "professional challenge and justice",
-   "motive_strength": "strong",
-   "alibi_window": "present throughout investigation",
-   "access_plausibility": "high",
-   "stakes": "justice and legal integrity",
+   "stakes": "personal safety and justice",
    "moral_complexity": "low",
    "relationships": [
-    "Dr. Jervis",
-    "Polton"
+    "John Thorndyke"
    ],
-   "opportunity_channels": [],
-   "behavioral_tells": [],
-   "evidence_sensitivity": []
+   "opportunity_channels": [
+    "medical visits"
+   ],
+   "behavioral_tells": [
+    "curious",
+    "cautious"
+   ],
+   "evidence_sensitivity": [
+    "notebook with compass bearings",
+    "lump of sugar with poison"
+   ]
   },
   {
    "name": "Mr. H. Weiss",
    "age_range": "50-60",
-   "role_archetype": "disguised conspirator and poisoner",
+   "role_archetype": "disguised villain and poisoner",
    "role": "culprit",
    "gender": "male",
    "culpability": "guilty",
    "culprit_eligibility": "eligible",
-   "public_persona": "German tenant and medical pretender",
-   "private_secret": "disguised identity as John Blackmore, administering poison",
-   "motive_seed": "inheritance fraud and murder",
+   "public_persona": "German gentleman with suspicious behavior",
+   "private_secret": "John Blackmore in disguise, administering poison",
+   "motive_seed": "inheritance and fraud",
    "motive_strength": "strong",
-   "alibi_window": "present at Kennington Lane house",
+   "alibi_window": "present at secret house",
    "access_plausibility": "high",
-   "stakes": "inheritance and freedom",
+   "stakes": "large inheritance",
    "moral_complexity": "high",
    "relationships": [
     "Mrs. Schallibaum",
     "John Blackmore"
    ],
    "opportunity_channels": [
-    "closed carriage",
-    "disguise",
-    "chronic poisoning"
+    "secret house",
+    "closed carriage"
    ],
    "behavioral_tells": [
-    "German accent",
-    "red nose",
-    "spectacles with unique lenses"
+    "secretive",
+    "cautious",
+    "disguised"
+   ],
+   "evidence_sensitivity": [
+    "peculiar spectacles",
+    "letter from Johann Schnitzler"
+   ]
+  },
+  {
+   "name": "John Blackmore",
+   "age_range": "50-60",
+   "role_archetype": "culprit and impersonator",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "elder brother of Jeffrey, stockbroker and actor",
+   "private_secret": "impersonated Jeffrey, forged will, imprisoned and poisoned him",
+   "motive_seed": "inheritance",
+   "motive_strength": "strong",
+   "alibi_window": "present at New Inn disguised as Jeffrey",
+   "access_plausibility": "high",
+   "stakes": "inheritance and freedom",
+   "moral_complexity": "high",
+   "relationships": [
+    "Jeffrey Blackmore",
+    "Mr. H. Weiss",
+    "Mrs. Schallibaum"
+   ],
+   "opportunity_channels": [
+    "New Inn chambers",
+    "disguise and acting skills"
+   ],
+   "behavioral_tells": [
+    "disguised",
+    "secretive",
+    "manipulative"
    ],
    "evidence_sensitivity": [
     "spectacles fragments",
-    "compass track chart",
-    "poison antidotes"
+    "signature changes",
+    "cabman testimonies"
+   ]
+  },
+  {
+   "name": "Jeffrey Blackmore",
+   "age_range": "50-60",
+   "role_archetype": "victim, opium smoker, scholar",
+   "role": "victim",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "Oriental scholar and pensioner",
+   "private_secret": "imprisoned and chronically poisoned",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "confined at secret house",
+   "access_plausibility": "none",
+   "stakes": "life and inheritance",
+   "moral_complexity": "low",
+   "relationships": [
+    "John Blackmore",
+    "Stephen Blackmore"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "opium addiction",
+    "blindness"
+   ],
+   "evidence_sensitivity": [
+    "tremulous iris",
+    "signature changes"
    ]
   },
   {
    "name": "Mrs. Schallibaum",
    "age_range": "30-40",
-   "role_archetype": "accomplice and housekeeper",
+   "role_archetype": "housekeeper and accomplice",
    "role": "culprit",
    "gender": "female",
    "culpability": "guilty",
    "culprit_eligibility": "eligible",
-   "public_persona": "trustworthy housekeeper",
-   "private_secret": "accomplice in imprisonment and poisoning",
+   "public_persona": "German housekeeper with squint",
+   "private_secret": "disguised accomplice aiding John Blackmore",
    "motive_seed": "loyalty and gain",
    "motive_strength": "moderate",
-   "alibi_window": "present at Kennington Lane house",
+   "alibi_window": "present at secret house and elsewhere in disguise",
    "access_plausibility": "high",
    "stakes": "freedom and money",
-   "moral_complexity": "high",
+   "moral_complexity": "moderate",
    "relationships": [
     "Mr. H. Weiss",
     "John Blackmore"
    ],
    "opportunity_channels": [
-    "disguise",
-    "housekeeper duties",
-    "poison administration"
+    "secret house",
+    "disguise"
    ],
    "behavioral_tells": [
-    "disappearing squint",
-    "German accent",
+    "controllable squint",
     "nervous behavior"
    ],
    "evidence_sensitivity": [
-    "beads",
-    "poisoned sugar",
-    "disguise materials"
-   ]
-  },
-  {
-   "name": "Jeffrey Blackmore (Mr. Graves)",
-   "age_range": "50-60",
-   "role_archetype": "victim, Oriental scholar, opium smoker",
-   "role": "victim",
-   "gender": "male",
-   "culpability": "innocent",
-   "culprit_eligibility": "locked",
-   "public_persona": "reclusive scholar",
-   "private_secret": "imprisoned and chronically poisoned",
-   "motive_seed": "none",
-   "motive_strength": "none",
-   "alibi_window": "confined in Kennington Lane",
-   "access_plausibility": "none",
-   "stakes": "life",
-   "moral_complexity": "low",
-   "relationships": [
-    "Stephen Blackmore",
-    "John Blackmore"
-   ],
-   "opportunity_channels": [],
-   "behavioral_tells": [
-    "opium habit",
-    "tremulous iris",
-    "partial blindness"
-   ],
-   "evidence_sensitivity": [
-    "spectacles",
-    "opium pipe",
-    "morphine traces"
+    "beads found in victim's room",
+    "disguise observations"
    ]
   },
   {
@@ -167,7 +213,7 @@
    "gender": "male",
    "culpability": "innocent",
    "culprit_eligibility": "ineligible",
-   "public_persona": "nephew and client",
+   "public_persona": "nephew and sole legatee of Jeffrey",
    "private_secret": "none",
    "motive_seed": "inheritance",
    "motive_strength": "weak",
@@ -181,48 +227,11 @@
     "Mr. Marchmont"
    ],
    "opportunity_channels": [],
-   "behavioral_tells": [],
-   "evidence_sensitivity": []
-  },
-  {
-   "name": "John Blackmore",
-   "age_range": "50-60",
-   "role_archetype": "actor, stockbroker, suspected forger and murderer",
-   "role": "culprit",
-   "gender": "male",
-   "culpability": "guilty",
-   "culprit_eligibility": "eligible",
-   "public_persona": "stockbroker and actor",
-   "private_secret": "forged will, impersonated brother, imprisoned Jeffrey",
-   "motive_seed": "inheritance",
-   "motive_strength": "strong",
-   "alibi_window": "present at New Inn",
-   "access_plausibility": "high",
-   "stakes": "inheritance and freedom",
-   "moral_complexity": "high",
-   "relationships": [
-    "Mr. H. Weiss",
-    "Mrs. Schallibaum",
-    "Jeffrey Blackmore",
-    "Stephen Blackmore"
-   ],
-   "opportunity_channels": [
-    "disguise",
-    "impersonation",
-    "forgery",
-    "imprisonment",
-    "chronic poisoning"
-   ],
    "behavioral_tells": [
-    "beard and moustache",
-    "actor's skill",
-    "disguise as brother"
+    "trusting",
+    "concerned"
    ],
-   "evidence_sensitivity": [
-    "forged will",
-    "disguised spectacles",
-    "imprisonment fastenings"
-   ]
+   "evidence_sensitivity": []
   }
  ],
  "culprits": [
@@ -230,59 +239,59 @@
   "Mr. H. Weiss",
   "Mrs. Schallibaum"
  ],
- "surface_summary": "A mysterious patient suffering from morphine poisoning is secretly confined in a house in Kennington Lane. A forged will benefits John Blackmore, who impersonates his brother Jeffrey Blackmore, the victim. The investigation uncovers a conspiracy involving chronic poisoning, imprisonment, and identity fraud.",
+ "surface_summary": "A mysterious patient suffering from morphine poisoning is secretly confined while his brother impersonates him to execute a forged will. The victim's death appears natural or suicidal, but suspicions arise about foul play and forgery. The investigation uncovers a complex scheme of impersonation, chronic poisoning, and deception.",
  "accepted_facts": [
-  "Jeffrey Blackmore died and left a will favoring Stephen Blackmore",
-  "A second will was found, favoring John Blackmore, but was legally valid",
-  "Jeffrey Blackmore was addicted to opium and had poor eyesight",
-  "Mr. Weiss was a tenant in Kennington Lane with a housekeeper Mrs. Schallibaum"
+  "Jeffrey Blackmore executed a second will that favored his brother John Blackmore",
+  "Jeffrey Blackmore was found dead in his chambers at New Inn",
+  "A mysterious patient named Mr. Graves was suffering from morphine poisoning",
+  "Mr. H. Weiss was involved in secretive and suspicious activities related to Mr. Graves"
  ],
  "inferred_conclusions": [
-  "The second will was genuine and reflected Jeffrey's true intentions",
-  "Mr. Weiss was an innocent tenant unrelated to the will dispute",
-  "Jeffrey Blackmore died by suicide as indicated by the porter"
+  "The second will was genuine and executed by Jeffrey Blackmore himself",
+  "Mr. Graves and Jeffrey Blackmore were different persons with no connection",
+  "Mr. Weiss was an innocent caretaker concerned for Mr. Graves"
  ],
- "mechanism_description": "John Blackmore impersonated his brother Jeffrey Blackmore, who was secretly confined and chronically poisoned in a house in Kennington Lane to enable John to inherit Jeffrey's estate by forging a second will. The man known as Mr. Graves was actually Jeffrey Blackmore, and the murder was orchestrated by John Blackmore and his accomplice Mrs. Schallibaum; their capture was secured by Thorndyke's investigation.",
+ "mechanism_description": "John Blackmore impersonated his brother Jeffrey at New Inn while Jeffrey was secretly confined and chronically poisoned at another location. John forged the second will to benefit himself and murdered Jeffrey by administering morphine poisoning over time. The accomplice Mrs. Schallibaum aided in the deception and disguise, including the use of peculiar spectacles and controlled squint to avoid identification.",
  "delivery_path": [
-  "John Blackmore impersonates Jeffrey Blackmore at New Inn",
-  "Jeffrey Blackmore is secretly confined and chronically poisoned in Kennington Lane",
-  "A forged second will is executed by John Blackmore posing as Jeffrey",
-  "Dr. Jervis is called to treat the morphine-poisoned patient Mr. Graves",
-  "Thorndyke analyzes compass bearings to locate the secret house",
-  "Investigation reveals disguises, imprisonment fastenings, and unique spectacles",
-  "Police arrest John Blackmore and Mrs. Schallibaum after evidence is gathered"
+  "John Blackmore assumes the identity of Jeffrey Blackmore at New Inn",
+  "Jeffrey Blackmore is secretly confined and chronically poisoned with morphine",
+  "John Blackmore forges a second will favoring himself as executor and residuary legatee",
+  "Mr. H. Weiss acts as John Blackmore's disguise and accomplice, using peculiar spectacles",
+  "Mrs. Schallibaum assists in concealment and surveillance, employing a controllable squint",
+  "The victim's death is staged as suicide with the body found at New Inn",
+  "The forged will is presented as genuine, supported by false witnesses and signatures"
  ],
- "outcome_result": "John Blackmore and Mrs. Schallibaum are arrested and charged with the murder and forgery, while Jeffrey Blackmore is identified as the secret prisoner.",
+ "outcome_result": "John Blackmore and his accomplices are exposed as the forgers and murderers, and the forged will is invalidated.",
  "false_assumption": {
-  "statement": "The second will was genuine and executed by Jeffrey Blackmore himself.",
+  "statement": "The second will was genuine and executed by Jeffrey Blackmore himself in the presence of witnesses.",
   "type": "identity",
-  "why_it_seems_reasonable": "The will was signed in the presence of two unimpeachable witnesses who swore to the signatures and contents, and the body found was identified as Jeffrey Blackmore's. This gave the appearance of authenticity and legality.",
-  "what_it_hides": "It conceals the fact that John Blackmore impersonated Jeffrey and forged the will, while the real Jeffrey was secretly confined and poisoned elsewhere."
+  "why_it_seems_reasonable": "The will was signed and witnessed by two men who swore to its authenticity and recognized the signatures and finger-marks. The body found was identified as Jeffrey Blackmore, supporting the assumption.",
+  "what_it_hides": "It hides the fact that the person who signed the will was an impersonator, John Blackmore, and that Jeffrey was secretly confined and poisoned elsewhere."
  },
  "false_solution": {
   "accused_suspect": "Mr. H. Weiss",
   "supporting_points": [
-   "He was the tenant of the suspicious house in Kennington Lane",
-   "He administered morphine poisoning to Mr. Graves",
-   "He used a closed carriage and elaborate secrecy",
-   "He had a motive related to the patient's condition"
+   "He was suspicious and secretive",
+   "He administered morphine to Mr. Graves",
+   "He used a closed carriage to conceal the patient's location",
+   "He had a motive to protect the patient"
   ],
-  "the_one_flaw": "He was actually John Blackmore in disguise, and the real Weiss was not involved.",
+  "the_one_flaw": "He was actually John Blackmore in disguise, and the true culprit behind the murder and forgery.",
   "refuted_in_chapter": 16
  },
  "red_herrings": [
   {
-   "id": "mrs_schallibaum_disguise",
-   "description": "Mrs. Schallibaum's changing appearance and squint suggested she was a different person.",
+   "id": "mrs_schallibaum_squint",
+   "description": "Mrs. Schallibaum's controllable squint suggested she was disguising her identity.",
    "points_at_suspect": "Mrs. Schallibaum",
-   "innocent_explanation": "Her squint could be controlled and her appearance altered by makeup and disguise.",
-   "resolved_in_chapter": 16
+   "innocent_explanation": "Her squint was a natural condition she could control voluntarily.",
+   "resolved_in_chapter": 9
   },
   {
    "id": "sleeping_sickness_diagnosis",
-   "description": "The suggestion that the patient suffered from sleeping sickness rather than morphine poisoning.",
-   "points_at_suspect": "Mr. Weiss",
-   "innocent_explanation": "The symptoms matched morphine poisoning and were confirmed by antidotes; sleeping sickness was unlikely.",
+   "description": "The patient's symptoms were initially suspected to be sleeping sickness.",
+   "points_at_suspect": "Mr. Weiss and Mr. Graves",
+   "innocent_explanation": "The symptoms were actually due to morphine poisoning, not sleeping sickness.",
    "resolved_in_chapter": 3
   }
  ],
@@ -292,192 +301,197 @@
    "John Blackmore",
    "Mrs. Schallibaum"
   ],
-  "rationale": "Only these three had access to the patient and means to administer poison, and were connected to the suspicious house and forged will."
+  "rationale": "Only these three had access to the patient and means to administer poison; others were either absent or lacked opportunity."
  },
  "constraint_space": {
   "time_anchors": [
-   "12 November (second will date)",
-   "14 March (Jeffrey last seen alive)",
-   "15 March (body discovered)"
+   "Twelfth of November last year (second will execution)",
+   "Twelfth of March (Mrs. Wilson's death)",
+   "Fourteenth of March (Jeffrey Blackmore last seen alive)",
+   "Fifteenth of March (Jeffrey Blackmore's body found)",
+   "Dates of compass bearings during carriage rides"
   ],
   "time_windows": [
-   "September to March (period of signature change and poisoning)",
-   "Evenings and nights (patient's stupor and poisoning)"
+   "Period between November and March for chronic poisoning",
+   "Night of fourteenth to fifteenth March for murder",
+   "Visits of Dr. Jervis to secret house"
   ],
   "access_actors": [
+   "John Blackmore",
    "Mr. H. Weiss",
    "Mrs. Schallibaum",
-   "John Blackmore"
+   "Dr. Jervis"
   ],
   "access_objects": [
-   "Kennington Lane house",
    "New Inn chambers",
-   "closed carriage"
+   "Secret house in Kennington Lane",
+   "Closed carriage",
+   "Will documents",
+   "Spectacles"
   ],
   "trust_channels": [
-   "porter's testimony",
-   "witnesses to will",
-   "bank manager's signature analysis"
+   "Porter at New Inn",
+   "Cabmen Wilkins and Ridley",
+   "Mr. Marchmont and Mr. Winwood (solicitors)"
   ],
   "authority_sources": [
-   "Scotland Yard",
-   "medical experts",
-   "legal solicitors"
+   "Scotland Yard Superintendent Miller",
+   "Medical experts Dr. Jervis and John Thorndyke",
+   "Bank partner Mr. Britton"
   ]
  },
  "inference_path": [
   {
-   "observation": "The patient Mr. Graves showed symptoms of morphine poisoning with no needle marks.",
-   "correction": "Morphine was administered orally or by other means, not self-administered.",
-   "effect": "Indicates poisoning by a third party.",
+   "observation": "The cuneiform inscription photograph was hung upside down in Jeffrey Blackmore's chambers.",
+   "correction": "The tenant of the chambers was not Jeffrey Blackmore but an impersonator.",
+   "effect": "Raises suspicion that the will signed there may be forged.",
    "required_evidence": [
-    "Physical examination notes of Mr. Graves",
-    "Absence of hypodermic needle marks on patient's arms and legs"
+    "Photograph of the cuneiform inscription in the chambers",
+    "Testimony of Stephen Blackmore about his uncle's expertise"
    ]
   },
   {
-   "observation": "Compass bearings and timing from carriage rides to secret house.",
-   "correction": "Plotting bearings on map locates the house in Kennington Lane.",
-   "effect": "Identifies the secret location of the patient.",
+   "observation": "The patient Mr. Graves had symptoms of morphine poisoning and a tremulous iris in the right eye.",
+   "correction": "Mr. Graves is identified as Jeffrey Blackmore, who was secretly confined and poisoned.",
+   "effect": "Establishes identity of victim and suggests foul play.",
    "required_evidence": [
-    "Notebook with compass bearings and timestamps",
-    "Ordnance map of Kennington area"
+    "Medical examination notes by Dr. Jervis",
+    "Optician's and oculist's letters describing Jeffrey's spectacles and eye condition"
    ]
   },
   {
-   "observation": "Spectacles found in Kennington Lane house match those prescribed to Jeffrey Blackmore.",
-   "correction": "Confirms patient Mr. Graves is Jeffrey Blackmore.",
-   "effect": "Identifies the secret prisoner as Jeffrey Blackmore.",
+   "observation": "The signatures on cheques and wills show abrupt changes but consistent personal character.",
+   "correction": "The changes correspond to intermittent opium use and possible forgery by a relative.",
+   "effect": "Supports theory of impersonation and forgery by John Blackmore.",
    "required_evidence": [
-    "Fragments of spectacles from Kennington Lane",
-    "Optician's and oculist's letters describing Jeffrey Blackmore's glasses"
+    "Photographs of signatures",
+    "Expert opinion by bank partner Mr. Britton"
    ]
   },
   {
-   "observation": "Second will executed in presence of witnesses and signed by 'Jeffrey Blackmore'.",
-   "correction": "John Blackmore impersonated Jeffrey to execute forged will.",
-   "effect": "Second will is a forgery.",
+   "observation": "Pieces of peculiar spectacles and Japanese brush found in New Inn chambers.",
+   "correction": "These items link John Blackmore (tenant of New Inn) and Mr. Weiss (disguised identity).",
+   "effect": "Supports that Weiss and John Blackmore are the same person.",
    "required_evidence": [
-    "Photograph of the cuneiform inscription hung upside down",
-    "Cabman's testimony of a woman accompanying a man to New Inn",
-    "Disguise and makeup materials found in Kennington Lane house"
+    "Fragments of spectacles recovered from New Inn",
+    "Description of Mr. Weiss's spectacles by Dr. Jervis"
    ]
   },
   {
-   "observation": "John Blackmore was known to be an actor and stockbroker with motive.",
-   "correction": "He had skills and opportunity to impersonate his brother and forge documents.",
-   "effect": "Identifies John Blackmore as the principal culprit.",
+   "observation": "Cabman Wilkins testifies to a man and woman arriving at New Inn on the night of Jeffrey's death.",
+   "correction": "The woman was Jeffrey Blackmore disguised, the man was John Blackmore impersonating Jeffrey.",
+   "effect": "Explains presence of two persons and supports impersonation theory.",
    "required_evidence": [
-    "Statements about John Blackmore's profession and character",
-    "Evidence of disguise and impersonation"
+    "Signed statement of cabman Samuel Wilkins",
+    "Description of the woman and man by Wilkins"
    ]
   },
   {
-   "observation": "Mrs. Schallibaum's presence and behavior in Kennington Lane house.",
-   "correction": "She was accomplice in imprisonment and poisoning.",
-   "effect": "Identifies her as an accessory to the crime.",
+   "observation": "Lump of sugar in tea contained aconitine poison.",
+   "correction": "Mrs. Schallibaum attempted to poison Dr. Jervis to prevent investigation.",
+   "effect": "Confirms active criminal intent and danger to investigators.",
    "required_evidence": [
-    "Cabman's description of a woman with veil and bead fringe",
-    "Observation of Mrs. Schallibaum's squint and disguise"
+    "Chemical analysis of lump of sugar",
+    "Observation of Mrs. Schallibaum's behavior in tea shop"
    ]
   },
   {
-   "observation": "Poisoned sugar found in tea intended for Dr. Jervis.",
-   "correction": "Attempted poisoning to prevent investigation.",
-   "effect": "Shows desperation and danger from culprits.",
+   "observation": "John Blackmore and Mr. Weiss never seen together; both have similar disguises and spectacles.",
+   "correction": "They are the same person using disguise to impersonate Jeffrey Blackmore.",
+   "effect": "Identifies the main culprit and explains the deception.",
    "required_evidence": [
-    "Sample of sugar tested positive for aconitine",
-    "Incident at tea-shop with Mrs. Schallibaum"
+    "Comparison of spectacles fragments",
+    "Witness observations of Mr. Weiss and coachman"
    ]
   }
  ],
  "discriminating_test": {
-  "method": "constraint_proof",
-  "design": "Thorndyke uses compass bearings and timing to plot the carriage route to the secret house, then visits the location to verify the presence of the house and its features, including the covered way and new macadam patch. He locks the gate to detect any unauthorized entry, confirming the presence or absence of suspects.",
-  "knowledge_revealed": "This test confirms the exact location of the secret house and the presence of only authorized persons with keys, narrowing down suspects and confirming the concealment of Jeffrey Blackmore.",
-  "pass_condition": "The house is located at the plotted position with locked gates and no unknown persons entering during the observation period."
+  "method": "reenactment",
+  "design": "Recreate the carriage journey using the compass and timing method to locate the secret house precisely. Then gain access to the house and observe the presence of massive bolts, concealed windows, and other security measures. Compare the spectacles fragments with known prescriptions to identify the wearer. Finally, test the sugar lump for poison to confirm the attempt on Dr. Jervis.",
+  "knowledge_revealed": "This test confirms the exact location of the secret house, the imprisonment of Jeffrey Blackmore, the disguise and identity of John Blackmore as Mr. Weiss, and the criminal poisoning attempts.",
+  "pass_condition": "The secret house is located at the precise coordinates from the compass notes, the spectacles match the unique prescription of Jeffrey Blackmore, and the sugar contains aconitine poison."
  },
- "fair_play_explanation": "The reader is given all necessary clues including the compass bearings, the peculiar spectacles, the inverted cuneiform inscription, the cabmen's testimonies, and the suspicious behavior of Mr. Weiss and Mrs. Schallibaum. The method of plotting the secret house's location is explained in detail, allowing the reader to deduce the concealment and impersonation. The subtle hints about the disguise and the identity of the victim and impostor are all present before the final explanation.",
+ "fair_play_explanation": "The reader is provided with detailed observations, compass notes, witness statements, and descriptions of the spectacles and signatures. The peculiarities of the spectacles and the inverted inscription are highlighted. The suspicious behavior of Mr. Weiss and Mrs. Schallibaum, as well as the cabman testimonies, are all presented openly. The reader could deduce the impersonation and poisoning scheme by connecting these clues.",
  "anchors": [
   {
-   "claim": "Mr. Graves was suffering from morphine poisoning",
-   "anchor": "clear and typical case of opium or morphine poisoning"
+   "claim": "The patient had a tremulous iris indicating dislocation of the lens",
+   "anchor": "the patient had, in fact, what is known as a tremulous iris"
   },
   {
-   "claim": "The secret house was located by compass bearings and timing",
+   "claim": "The carriage journey was recorded with compass bearings and timings",
    "anchor": "I made the first entry in the little book"
   },
   {
-   "claim": "The cuneiform inscription was hung upside down",
-   "anchor": "the photograph is upside down"
+   "claim": "The cuneiform inscription photograph was hung upside down",
+   "anchor": "that photograph is really upside down"
   },
   {
-   "claim": "The second will was executed by a person impersonating Jeffrey Blackmore",
-   "anchor": "the second will is a forgery"
+   "claim": "The second will was executed in the presence of witnesses who recognized signatures",
+   "anchor": "the two men accordingly read the document, and, when Mr. Jeffrey had signed it"
   },
   {
-   "claim": "John Blackmore was the tenant of New Inn and the man known as Mr. Weiss",
+   "claim": "The signatures on cheques show abrupt change in style",
+   "anchor": "there was a change in the character of the signatures"
+  },
+  {
+   "claim": "The spectacles found at New Inn match Jeffrey Blackmore's unique prescription",
+   "anchor": "the spectacles found by us at Kennington Lane were undoubtedly Jeffrey's"
+  },
+  {
+   "claim": "The cabman Wilkins saw a man and woman arrive at New Inn on the night of Jeffrey's death",
+   "anchor": "I saw a gentleman and a lady coming out"
+  },
+  {
+   "claim": "Mrs. Schallibaum was seen with a controllable squint and in disguise",
+   "anchor": "she suddenly squinted--squinted horribly"
+  },
+  {
+   "claim": "The sugar lump contained aconitine poison",
+   "anchor": "I was immediately aware of a peculiar tingling sensation accompanied by a feeling of numbness"
+  },
+  {
+   "claim": "The secret house was located by plotting compass bearings and timings",
+   "anchor": "we located the house to which he had been called"
+  },
+  {
+   "claim": "The bedroom doors and windows had massive bolts and bars for imprisonment",
+   "anchor": "these bars were fixed and padlocked and the bolts were shot"
+  },
+  {
+   "claim": "The broken spectacles had a concave cylindrical lens for the left eye",
+   "anchor": "the left eye-glass is a concave cylindrical lens of some sort"
+  },
+  {
+   "claim": "John Blackmore impersonated Jeffrey Blackmore at New Inn",
    "anchor": "the overwhelming probability is that Weiss and the tenant of New Inn were one and the same person"
   },
   {
    "claim": "Jeffrey Blackmore was secretly confined and chronically poisoned",
-   "anchor": "there was evidently a conspiracy to murder him"
+   "anchor": "Jeffrey Blackmore was a prisoner in the house in Kennington Lane"
   },
   {
-   "claim": "Mrs. Schallibaum was an accomplice in the crime",
-   "anchor": "she was an accessory; my business was with the principal"
+   "claim": "The forged will was signed by John Blackmore impersonating Jeffrey",
+   "anchor": "the will was not signed by Jeffrey Blackmore; that is to say, it was a forgery"
   },
   {
-   "claim": "The spectacles found matched those prescribed to Jeffrey Blackmore",
-   "anchor": "Mr. Cuxton's description is identical with mine"
+   "claim": "The accomplice Mrs. Schallibaum attempted to poison Dr. Jervis",
+   "anchor": "the lump of sugar contained a very large dose of the poison"
   },
   {
-   "claim": "The cabman Wilkins identified the man and woman arriving at New Inn",
-   "anchor": "I saw a gentleman and a lady coming out"
+   "claim": "The cabman Ridley saw a man and woman at Kennington Lane before going to New Inn",
+   "anchor": "a lady and gentleman came from the direction in which she had gone"
   },
   {
-   "claim": "The sugar given to Dr. Jervis was poisoned with aconitine",
-   "anchor": "I was immediately aware of a peculiar tingling sensation"
+   "claim": "The porter at New Inn was deceived by the impersonation",
+   "anchor": "the porter came out across the square with me"
   },
   {
-   "claim": "The house was secured with massive bolts and bars",
-   "anchor": "massive fastenings would be almost enough to settle them"
+   "claim": "The letter addressed to Mr. H. Weiss came from Johann Schnitzler in Darmstadt",
+   "anchor": "Herrn Dr. H. Weiss"
   },
   {
-   "claim": "The body found was identified as Jeffrey Blackmore",
-   "anchor": "I found the body of a man between fifty and sixty years of age"
-  },
-  {
-   "claim": "The second will was signed in the presence of two witnesses",
-   "anchor": "the two men accordingly read the document, and, when Mr. Jeffrey had signed it"
-  },
-  {
-   "claim": "The porter was deceived by the impersonation",
-   "anchor": "he assumed that the dead man is Mr. Blackmore"
-  },
-  {
-   "claim": "The patient Mr. Graves was actually Jeffrey Blackmore",
-   "anchor": "the sick man, Graves, was Jeffrey Blackmore"
-  },
-  {
-   "claim": "John Blackmore impersonated his brother and forged the will",
-   "anchor": "the man Weiss was also John Blackmore"
-  },
-  {
-   "claim": "The murder was orchestrated by John Blackmore and Mrs. Schallibaum",
-   "anchor": "the capture was secured by Thorndyke's investigation"
-  },
-  {
-   "claim": "The false assumption was that the second will was genuine",
-   "anchor": "the second will is a forgery"
-  },
-  {
-   "claim": "The red herring of sleeping sickness was disproved",
-   "anchor": "the symptoms are not those of sleeping sickness"
-  },
-  {
-   "claim": "The red herring of Mrs. Schallibaum's identity was resolved",
-   "anchor": "she had a divergent squint of the left eye"
+   "claim": "The second will was unnecessary and introduced ambiguity favoring John Blackmore",
+   "anchor": "It was perfectly unnecessary. It contained no new matter; it expressed no changed intentions"
   }
  ]
 }

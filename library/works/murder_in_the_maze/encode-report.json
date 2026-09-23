@@ -1,0 +1,130 @@
+{
+ "slug": "murder_in_the_maze",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Neville Shandon was last seen with papers before entering the Maze",
+   "anchor": "Neville Shandon looked into the room. He had some papers in his hand.",
+   "span": "While he was doing this, Neville Shandon looked into the room. He had some papers in his hand. Seeing us engaged, he went away again.",
+   "ok": true
+  },
+  {
+   "claim": "Roger Shandon’s body was found in one center of the Maze",
+   "anchor": "There’s a body here, at any rate,” he said, going forward as he spoke. “It’s Roger Shandon.",
+   "span": "There's a body here, at any rate,\" he said, going forward as he spoke. \"It's Roger Shandon.\" \"Roger!",
+   "ok": true
+  },
+  {
+   "claim": "Neville Shandon’s body was found in the other center of the Maze",
+   "anchor": "This is Neville Shandon, true enough,” the secretary reported.",
+   "span": "This is Neville Shandon, true enough,\" the secretary reported. The identification had taken longer, since the body lay on its face.",
+   "ok": true
+  },
+  {
+   "claim": "The murder weapon was poisoned air-gun darts",
+   "anchor": "Some darts here. Skene found them at the foot of the hedge.",
+   "span": "Some darts here. Skene found them at the foot of the hedge. Lid of a tin box was lying beside them as well.",
+   "ok": true
+  },
+  {
+   "claim": "The poison was identified as curare",
+   "anchor": "I’m pretty sure of it. I’ve used it a lot and I feel fairly safe in saying that.",
+   "span": "I'm pretty sure of it. I've used it a lot and I feel fairly safe in saying that. Of course, if you want me to swear to it, that's a different matter.",
+   "ok": true
+  },
+  {
+   "claim": "Ernest Shandon had a nail in his boot and a weak alibi",
+   "anchor": "I’ve been walking miles with a nail in my boot.",
+   "span": "I've been walking miles with a nail in my boot.\" Stenness stepped into the breach once more and explained the state of affairs.",
+   "ok": true
+  },
+  {
+   "claim": "A black silk thread was found in the Maze as a clue",
+   "anchor": "There’s a bit of black thread lying on the ground.",
+   "span": "There's a bit of black thread lying on the ground.\" They stooped over it and examined the fibre.",
+   "ok": true
+  },
+  {
+   "claim": "Ernest Shandon’s cigar-case was found in the Maze",
+   "anchor": "Wendover’s eye was at once caught by a sparkle from the grass near one of the chairs. He stepped across and picked up a silver cigar-case.",
+   "span": "They entered the tiny enclosure of Helen's Bower, and Wendover's eye was at once caught by a sparkle from the grass near one of the chairs. He stepped across and picked up a silver cigar-case. Sir Clinton held out his hand for it and glanced at the outside.",
+   "ok": true
+  },
+  {
+   "claim": "Ernest Shandon’s alibi was contradicted by bicycle sightings",
+   "anchor": "At 4.20 he came upon Ernest squatting by the roadside, about a mile along the public road.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The forged cheque was missing a counterfoil",
+   "anchor": "The counterfoil of the last missing cheque had been cut out of the book.",
+   "span": "The counterfoil of the last missing cheque had been cut out of the book. I'd never have noticed it if it hadn't been that I was looking at the numbers.",
+   "ok": true
+  },
+  {
+   "claim": "Ivor Stenness confessed to forging the cheque",
+   "anchor": "I forged his signature, destroyed the cancelled cheque, cut the counterfoil out of the cheque-book, and cashed the forged cheque.",
+   "span": "I forged his signature, destroyed the cancelled cheque, cut the counterfoil out of the cheque-book, and cashed the forged cheque. Nobody suspected anything.",
+   "ok": true
+  },
+  {
+   "claim": "Ernest Shandon staged an attack on himself",
+   "anchor": "He boldly faked up an attack on himself next.",
+   "span": "So he boldly faked up an attack on himself next. Then, if still another attempt was made, who would suspect the poor victim who had nearly lost his life just a few days earlier?",
+   "ok": true
+  },
+  {
+   "claim": "Ernest Shandon used the Maze and bicycle to commit the murders and escape",
+   "anchor": "He got to the Maze, went in to his loophole commanding Helen’s Bower.",
+   "span": "He got to the Maze, went in to his loophole commanding Helen's Bower. There he saw someone whom he took to be Neville Shandon.",
+   "ok": true
+  },
+  {
+   "claim": "Ernest Shandon committed suicide in the Maze",
+   "anchor": "He’s lying on the ground in Helen’s Bower. I couldn’t see very clearly; but from the way he’s lying, I think he’s done for.",
+   "span": "He's lying on the ground in Helen's Bower. I couldn't see very clearly; but from the way he's lying, I think he's done for.\" \"Well,\" said Sir Clinton, \"I'd better get into the Maze and make sure of things.",
+   "ok": true
+  },
+  {
+   "claim": "The murderer’s trail stopped at the road after the river bank",
+   "anchor": "When he reached the road, his trail stopped short.",
+   "span": "And when he reached the road, his trail stopped short.\" \"Yes,\" Wendover interjected, \"you talked a lot of rot about the murderer getting into his private aeroplane and flying away, I remember.",
+   "ok": true
+  },
+  {
+   "claim": "The air-gun was found hidden in the rhododendrons",
+   "anchor": "I found it in that clump of rhododendrons out there.",
+   "span": "I found it in that clump of rhododendrons out there. It had been jammed right into the middle of the bushes; that's why it took so long to find.",
+   "ok": true
+  },
+  {
+   "claim": "Sylvia Hawkhurst was attacked by a poisoned dart during bridge",
+   "anchor": "Then, as she mechanically brought her hand down again on to the table, Wendover saw a spurt of blood from her right wrist, and, at its source, the brown feathering of one of the poisoned darts embedded in her white skin.",
+   "span": "Then, as she mechanically brought her hand down again on to the table, Wendover saw a spurt of blood from her right wrist, and, at its source, the brown feathering of one of the poisoned darts embedded in her white skin. For an instant the group around the bridge-table was stricken into immobility, while the blood jetted from Sylvia's wrist and stained the cards across which her hand had fallen.",
+   "ok": true
+  },
+  {
+   "claim": "Ernest Shandon knew the position of the loophole used to kill Roger",
+   "anchor": "He knew the position of the loophole through which Roger Shandon was shot.",
+   "span": "And then he let out that he knew the position of the loophole through which Roger Shandon was shot. Speaking of his mythical assailant he said: 'He was at the same loophole as he'd used when he killed Roger.",
+   "ok": true
+  },
+  {
+   "claim": "Sir Clinton used burning sulphur to force Ernest out of the Maze",
+   "anchor": "He bent his efforts to infusing at least a semblance of harmony into the company, but it was not a very successful attempt.",
+   "span": "He bent his efforts to infusing at least a semblance of harmony into the company, but it was not a very successful attempt. Sylvia seconded him to the best of her ability; but Arthur still maintained his suspicious attitude; and Ardsley seemed disinclined to emerge from his state of unfriendly neutrality.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.119693216,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

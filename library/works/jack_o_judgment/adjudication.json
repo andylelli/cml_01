@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "Maisie White is the real Jack o' Judgment.",
+  "type": "identity",
+  "why_it_seems_reasonable": "Maisie White impersonates Jack o' Judgment and is seen in the costume, and she is involved in actions against the gang. The police and some characters believe she is Jack o' Judgment.",
+  "what_it_hides": "The real Jack o' Judgment is Sir Stanley Belcom, who operates covertly and independently, using technology and police resources unknown to others."
+ },
+ "mechanism_description": "Jack o' Judgment is Sir Stanley Belcom, the First Commissioner of Criminal Intelligence, who secretly avenged the death of his son Snow Gregory by dismantling the Boundary Gang through covert surveillance using microphones and direct action. The colonel faked his death but was ultimately confronted and killed by Jack o' Judgment.",
+ "discriminating_test": {
+  "method": "constraint_proof",
+  "design": "Investigators locate and identify the microphone and gramophone voice equipment hidden in the colonel's flat and offices beneath. By disabling the devices and comparing the timing of Jack o' Judgment's appearances with the physical presence of suspects, they prove that the voice was mechanically transmitted and that Maisie White could not be the real Jack o' Judgment.",
+  "knowledge_revealed": "This test reveals that the mysterious voice was a recording controlled remotely, disproving the theory that Maisie White was Jack o' Judgment.",
+  "pass_condition": "Discovery and disabling of the microphone and gramophone equipment in the colonel's flat and offices, and verification that Jack o' Judgment's voice was transmitted through these devices."
+ },
+ "changed": [],
+ "confidence": "high"
+}

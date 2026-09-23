@@ -20,8 +20,8 @@
   {
    "claim": "The window of The Yellow Room looks out in such a way that the park wall prevented my at once reaching the window",
    "anchor": "The window of The Yellow Room looks out in such a way",
-   "span": "",
-   "ok": false
+   "span": "'The inspiration was that the window of The Yellow Room looks out in such a way that the park wall, which abuts on the pavilion, prevented my at once reaching the window.",
+   "ok": true
   },
   {
    "claim": "The murderer was wounded in the hand by Mademoiselle Stangerson’s revolver",
@@ -50,8 +50,8 @@
   {
    "claim": "The keeper was stabbed in the heart with a knife",
    "anchor": "the man you believe to have been shot was killed by the stab of a knife",
-   "span": "",
-   "ok": false
+   "span": "The man you believe to have been shot was killed by the stab of a knife in his heart!",
+   "ok": true
   },
   {
    "claim": "Mademoiselle Stangerson poured a narcotic into her father’s glass",
@@ -116,8 +116,8 @@
   {
    "claim": "The murderer climbed the wall and escaped via the terrace",
    "anchor": "he climbed the wall, sprang onto the terrace",
-   "span": "",
-   "ok": false
+   "span": "He climbed the wall, sprang onto the terrace, and, while we were engaged with the keeper's body, reached the gallery by the window.",
+   "ok": true
   },
   {
    "claim": "The murderer was drugged to fake illness",
@@ -133,5 +133,5 @@
   "sweep": "gpt-4o-mini"
  },
  "verified_by": "corpus-verify.mjs",
- "verified_on": "2026-08-31"
+ "verified_on": "2026-09-23"
 }

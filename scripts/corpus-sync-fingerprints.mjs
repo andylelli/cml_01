@@ -132,7 +132,10 @@ const verifyWork = (slug) => {
     // point — if it postdates the case, the case was not built from it.
     const staleCase =
       existsSync(rawPath) && statSync(rawPath).mtimeMs > statSync(casePath).mtimeMs + 1000;
-    if (report.case_written === false || staleCase) {
+    // A_103 B57: a report that says `case_written: true` describes THIS case; the raw beside it may be a
+    // later REJECTED attempt (those reports go to `.rejected.json`), so the mtime test applies only to
+    // reports that do not say. Latent today (0 of 6 candidates), certain on the next rejected re-encode.
+    if (report.case_written === false || (report.case_written === undefined && staleCase)) {
       return { state: "failed", detail: "evidence on disk describes a REJECTED re-encode, not the case beside it" };
     }
   }
@@ -178,22 +181,32 @@ const legacyById = new Map(legacyRows.map((e) => [e.id, e]));
 
 const derived = [];
 const demoted = [];
+const ungated = [];   // A_103 B52: cased works with no fingerprint yet - gated, recorded, not in the ledger
 const notes = [];
 
 for (const slug of readdirSync(WORKS).sort()) {
   const fp = `${WORKS}/${slug}/fingerprint.yaml`;
-  if (!existsSync(fp) || !existsSync(`${WORKS}/${slug}/case.cml2.yaml`)) continue;
+  if (!existsSync(`${WORKS}/${slug}/case.cml2.yaml`)) continue;
 
-  const entry = yaml.load(readFileSync(fp, "utf8"))[0];
+  /**
+   * A_103 B52: the gate ran only on works that ALSO had a fingerprint. MEASURED: 81 cased works had
+   * none (encoded, not yet classified); 28 of them fail the published rule; none of the 28 was in
+   * `.verification.json`, and the exemplar loader skips only `failed` - so it served them to Agent 3.
+   * The gate now runs on every case. The fingerprint is needed only for the ledger row.
+   */
   const { state, detail } = verifyWork(slug);
-
   if (state === "failed") {
     const fallback = legacyById.get(slug);
     demoted.push({ slug, detail, fellBackToLegacy: Boolean(fallback) });
     notes.push(`  ${slug}: DEMOTED — ${detail}${fallback ? "; legacy row kept" : "; NO legacy row, entry omitted"}`);
     continue; // legacy row (if any) is added below, from the baseline
   }
+  if (!existsSync(fp)) {
+    ungated.push([slug, state === "verified" ? "derived" : "derived_unverified"]);
+    continue; // no fingerprint yet: gated above, no ledger row until classify
+  }
 
+  const entry = yaml.load(readFileSync(fp, "utf8"))[0];
   entry.provenance = state === "verified" ? "derived" : "derived_unverified";
   derived.push(entry);
   notes.push(`  ${slug}: ${entry.provenance} — ${detail}`);
@@ -216,6 +229,7 @@ const manifest = {
   },
   works: Object.fromEntries([
     ...derived.map((e) => [e.id, e.provenance]),
+    ...ungated,
     ...demoted.map((d) => [d.slug, "failed"]),
   ]),
 };

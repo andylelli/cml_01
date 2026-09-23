@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "Geoffrey Challoner's death was a straightforward suicide due to family quarrel.",
+  "type": "behavioral",
+  "why_it_seems_reasonable": "The locked door and presence of a pistol in Challoner's hand suggest suicide, and the family dispute provides a plausible motive. The police and doctor initially confirm the suicide verdict.",
+  "what_it_hides": "It conceals the fact that the door was locked from outside using a string and pencil trick by Peters, who murdered Challoner to cover up forgery."
+ },
+ "mechanism_description": "Peters, the butler, forged cheques and murdered Geoffrey Challoner by shooting him from behind, then locked the door using a string and pencil trick to simulate suicide. Sir Jasper Chambers killed Professor McMurray to prevent the serum's revelation, staging the scene to mislead investigators. Lady Glanedale faked a burglary to claim insurance money, creating false footprints and staging the scene.",
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "Malcolm Sage reenacted the shooting position and examined the locked door with a mirror and torch to detect marks of the string and pencil trick. He also measured footprints and marks at Lady Glanedale's house, and heated letters to reveal secret ink.",
+  "knowledge_revealed": "The reenactment revealed that the locked door was manipulated from outside, the footprints were inconsistent with the story, and the letters contained secret ink identifying the true writer.",
+  "pass_condition": "Physical evidence such as string marks under the door and secret ink appearing on heated letters must be observable and consistent with the reenactment."
+ },
+ "changed": [],
+ "confidence": "high"
+}

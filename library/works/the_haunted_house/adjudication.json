@@ -1,16 +1,16 @@
 {
  "false_assumption": {
-  "statement": "The ghost haunting is a genuine supernatural phenomenon affecting the household.",
-  "type": "identity",
-  "why_it_seems_reasonable": "Multiple witnesses, including Lord Mere de Beaurivage, report seeing and hearing the ghost. The detailed description and timing of the apparition align with the anniversary of a historical murder, lending credibility.",
-  "what_it_hides": "It conceals the fact that the ghost is a human impersonation by John Maple using a costume and ventriloquism to manipulate the buyers and household."
+  "statement": "The ghost haunting Rackham Catchings is a genuine supernatural phenomenon.",
+  "type": "behavioral",
+  "why_it_seems_reasonable": "Multiple witnesses, including Lord Mere de Beaurivage and household staff, report seeing and hearing the ghost. The timing of the apparition coincides with the anniversary of a historical murder, lending credibility.",
+  "what_it_hides": "The ghost is a deliberate fabrication by John Maple and Bo Hellup using ventriloquism and costume to manipulate the bidders and staff."
  },
- "mechanism_description": "John Maple and Bo Hellup orchestrated the ghost haunting to frighten Lord Mere de Beaurivage and disrupt the sale negotiations. John disguised himself in a black cloak with a ruff and sword, entering the locked side room adjacent to Lord Mere’s bedroom to create the apparition. They used ventriloquism and household accomplices to spread ghostly noises and sightings, manipulating the household and buyers.",
+ "mechanism_description": "John Maple and Bo Hellup fabricate a ghostly apparition using a black cloak, a sword, and a large ruff to simulate a headless figure. They use John's ventriloquism skills to produce ghostly voices and sounds, frightening Lord Mere de Beaurivage and the household staff. This psychological manipulation disrupts the sale and pressures Hilda Maple to accept John's offer.",
  "discriminating_test": {
   "method": "reenactment",
-  "design": "Recreate the ghost apparition using the cloak, ruff, and sword in the locked side room adjacent to Lord Mere’s bedroom. Use ventriloquism to produce ghostly voices and observe reactions of a test subject placed in the bedroom. Confirm if the ghost can be produced by a human impersonator with these props and access.",
-  "knowledge_revealed": "This test reveals that the ghost is a human impersonation using costume and ventriloquism, not a supernatural entity.",
-  "pass_condition": "The test subject perceives the ghostly apparition and voices as in the original haunting, confirming the mechanism."
+  "design": "John Maple dons the ghost costume and re-enacts the apparition in the patient’s bedroom while witnesses observe. The ventriloquism and costume are demonstrated to show how the ghostly voices and figure were fabricated. The test includes showing the key to the locked side room and the timing of the appearances.",
+  "knowledge_revealed": "This reenactment reveals that the ghost was a human fabrication using ventriloquism and costume, not a supernatural entity.",
+  "pass_condition": "The witnesses confirm that the ghost’s appearance and voices can be fully explained by the reenactment without any supernatural involvement."
  },
  "changed": [],
  "confidence": "high"

@@ -72,7 +72,7 @@
   {
    "claim": "Joe Richards arrived home after midnight with unexplained time gap",
    "anchor": "he reached this house about twenty minutes past one",
-   "span": "This: according to Major Richards, he reached this house about twenty minutes past one o’clock in the morning and he was last seen in the club a little before midnight.",
+   "span": "This: according to Major Richards, he reached this house about twenty minutes past one o'clock in the morning and he was last seen in the club a little before midnight.",
    "ok": true
   },
   {
@@ -84,13 +84,13 @@
   {
    "claim": "Polly Davis was seen leaving the library at the time of murder",
    "anchor": "she was seen leaving the library",
-   "span": "Polly knew he would be here Tuesday night, witness her presence in the house at midnight; she supplied him with the combination of my safe; she was seen leaving the library at the very time he must have been murdered, and his body was found lying near the _open_ safe--” “Hold on, she may have been here and all that,” John broke in with rough vehemence, “but some one else may have killed Austin even in her presence--” “Then why has she not told the police?",
+   "span": "Polly knew he would be here Tuesday night, witness her presence in the house at midnight; she supplied him with the combination of my safe; she was seen leaving the library at the very time he must have been murdered, and his body was found lying near the _open_ safe--\" \"Hold on, she may have been here and all that,\" John broke in with rough vehemence, \"but some one else may have killed Austin even in her presence--\" \"Then why has she not told the police?",
    "ok": true
   },
   {
    "claim": "The safe was found open without forced entry",
    "anchor": "The lock’s not been forced",
-   "span": "The lock’s not been forced,” he muttered.",
+   "span": "The lock's not been forced,\" he muttered.",
    "ok": true
   },
   {
@@ -108,7 +108,7 @@
   {
    "claim": "The locket contained a compromising letter",
    "anchor": "a letter of a foolish, indiscreet girl",
-   "span": "This is a letter of a foolish, indiscreet girl, longing for a little attention, a little of this world’s fun,” she said soberly.",
+   "span": "This is a letter of a foolish, indiscreet girl, longing for a little attention, a little of this world's fun,\" she said soberly.",
    "ok": true
   },
   {
@@ -130,5 +130,7 @@
   "encode": "gpt-4.1-mini",
   "sweep": "gpt-4o-mini"
  },
- "case_written": true
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
 }

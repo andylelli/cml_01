@@ -1,0 +1,136 @@
+{
+ "slug": "the_girl_from_hollywood",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "The victim was found lying on his back with a gunshot wound",
+   "anchor": "body lying under the big tree there",
+   "span": "I rode early this morning, and as I came into Sycamore over El Camino Largo I saw his body lying under the big tree there.",
+   "ok": true
+  },
+  {
+   "claim": "The missing horseshoe found at the crime scene belonged to the Apache",
+   "anchor": "horseshoe that had lain underneath the body",
+   "span": "When the body was finally lifted from its resting place, and placed in the ambulance that had been brought from Los Angeles, one of the detectives picked up a horseshoe that had lain underneath the body.",
+   "ok": true
+  },
+  {
+   "claim": "Guy Evans confessed to killing Wilson Crumb",
+   "anchor": "Guy who killed Wilson Crumb",
+   "span": "It was Guy who killed Wilson Crumb.",
+   "ok": true
+  },
+  {
+   "claim": "Shannon Burke was seen sweeping the trail near the murder scene",
+   "anchor": "girl dragging the branch of a tree after her",
+   "span": "About five o'clock this morning I seen a girl dragging the branch of a tree after her, and sweeping along the road below here.",
+   "ok": true
+  },
+  {
+   "claim": "Slick Allen planted the horseshoe to frame Custer Pennington",
+   "anchor": "I can tell one of his shoes in a million",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Custer Pennington was arrested with the murder weapon found in his room",
+   "anchor": "gun found in his room",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Shannon Burke confessed to killing Crumb to protect Custer",
+   "anchor": "I rode up there and shot him",
+   "span": "I rode up there and shot him.",
+   "ok": true
+  },
+  {
+   "claim": "Allen is Shannon Burke’s father and turned state’s evidence",
+   "anchor": "Allen told me this morning, in the district attorney’s office, what it was",
+   "span": "Allen told me this morning, in the district attorney's office, what it was that had kindled to life the spark of good in him.",
+   "ok": true
+  },
+  {
+   "claim": "Bartolo threatened Shannon to keep her silent",
+   "anchor": "You better off up here alongside Gracial",
+   "span": "You better off up here alongside Gracial!",
+   "ok": true
+  },
+  {
+   "claim": "Custer Pennington and Shannon Burke were arrested for murder",
+   "anchor": "warrant here for your arrest",
+   "span": "I have a warrant here for your arrest.",
+   "ok": true
+  },
+  {
+   "claim": "Eva Pennington attempted suicide due to family disgrace",
+   "anchor": "My little girl, my little girl! Why did you do it?",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Custer Pennington was sentenced to death",
+   "anchor": "Custer Pennington was to pay the death penalty",
+   "span": "When the judge announced the sentence, and they realized that Custer Pennington was to pay the death penalty, although it had been almost a foregone conclusion, the shock left them numb and cold.",
+   "ok": true
+  },
+  {
+   "claim": "Governor granted a stay of execution based on new evidence",
+   "anchor": "The Governor has granted a stay of execution",
+   "span": "The Governor has granted a stay of execution.",
+   "ok": true
+  },
+  {
+   "claim": "Guy Evans confessed and was the true murderer",
+   "anchor": "Guy who killed Wilson Crumb",
+   "span": "It was Guy who killed Wilson Crumb.",
+   "ok": true
+  },
+  {
+   "claim": "Wilson Crumb was a drug addict and trafficker",
+   "anchor": "Wilson Crumb, the famous actor-director",
+   "span": "Never heard of Wilson Crumb, the famous actor-director?",
+   "ok": true
+  },
+  {
+   "claim": "Shannon Burke destroyed her narcotics paraphernalia",
+   "anchor": "she emptied its contents into the lavatory",
+   "span": "she said aloud, as she emptied its contents into the lavatory.",
+   "ok": true
+  },
+  {
+   "claim": "Custer Pennington and Shannon Burke declared innocent of murder",
+   "anchor": "jury returned a verdict in accordance with the public opinion",
+   "span": "And so there was no great surprise when, several hours later, the jury returned a verdict in accordance with the public opinion of Los Angeles--where, owing to the fact that murder juries are not isolated, such cases are tried largely by the newspapers and the public.",
+   "ok": true
+  },
+  {
+   "claim": "The murder weapon was a forty-five caliber pistol",
+   "anchor": "forty-five-caliber pistol",
+   "span": "It was brought out, however, that Crumb died from the effects of a wound inflicted by a forty-five-caliber pistol, that Custer Pennington possessed such a weapon, and that at the time of his arrest it had been found in its holster, with its cartridge belt, thrown carelessly upon his bed.",
+   "ok": true
+  },
+  {
+   "claim": "Shannon Burke was seen erasing tracks on the morning after the murder",
+   "anchor": "dragging the branch of a tree after her",
+   "span": "About five o'clock this morning I seen a girl dragging the branch of a tree after her, and sweeping along the road below here.",
+   "ok": true
+  },
+  {
+   "claim": "Custer Pennington loved Shannon Burke",
+   "anchor": "I love you! I had to tell you",
+   "span": "I knew you didn't love me; but, oh, Shannon, I love you! I had to tell you.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.136228548,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

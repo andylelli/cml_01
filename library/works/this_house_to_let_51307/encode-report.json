@@ -1,0 +1,136 @@
+{
+ "slug": "this_house_to_let_51307",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "The body was found with a deep gash in his throat and a razor in his hand",
+   "anchor": "a deep gash in his throat, in his stiffened hand a razor",
+   "span": "In a small dressing-room, leading off the bedroom which fronted the square, they found a gruesome sight--the lifeless body of a man, comparatively young, somewhere about thirty-five or so, a deep gash in his throat, in his stiffened hand a razor.",
+   "ok": true
+  },
+  {
+   "claim": "Letters addressed to Reginald Davis were found on the dead man",
+   "anchor": "found three letters addressed to Reginald Davis",
+   "span": "On the body of the dead man in Cathcart Square, the two constables had found three letters addressed to Reginald Davis.",
+   "ok": true
+  },
+  {
+   "claim": "Caroline Masters identified the body as her brother Reginald Davis",
+   "anchor": "identified the body as that of her brother, Reginald Davis",
+   "span": "A tall, handsome young woman, giving the name of Caroline Masters, had been to the mortuary, and identified the body as that of her brother, Reginald Davis.",
+   "ok": true
+  },
+  {
+   "claim": "Norah Burton invited Hugh Murchison to her house",
+   "anchor": "If you cared to come up to Rosemount one afternoon, I am sure my brother would be pleased to see you",
+   "span": "If you cared to come up to Rosemount one afternoon, I am sure my brother would be pleased to see you.",
+   "ok": true
+  },
+  {
+   "claim": "George Burton was arrested for forgery at Rosemount",
+   "anchor": "two big men, Davidson and his colleague, advanced towards Burton",
+   "span": "The drawing-room door was flung open, and the two big men, Davidson and his colleague, advanced towards Burton who was standing in the middle of the room.",
+   "ok": true
+  },
+  {
+   "claim": "Jack Pomfret married Norah Burton secretly",
+   "anchor": "Jack Pomfret is the husband of a few short hours",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Jack Pomfret committed suicide after the arrest",
+   "anchor": "he shot himself in the small hours of the morning",
+   "span": "Pomfret out of the house, and he shot himself in the small hours of the morning.",
+   "ok": true
+  },
+  {
+   "claim": "Stella Keane is Norah Burton under a new identity",
+   "anchor": "Mrs. Spencer has camouflaged herself very well, but beyond doubt she is Norah Burton",
+   "span": "Mrs. Spencer has camouflaged herself very well, but beyond doubt she is Norah Burton.",
+   "ok": true
+  },
+  {
+   "claim": "George Dutton is George Burton, the forger",
+   "anchor": "George Dutton, the keeper of the obscure little bucket-shop in the City, was the same George Burton",
+   "span": "There followed further entries, relating his interview with Bryant, the confirmation by the detective that Stella Keane was Norah Burton, that George Dutton, the keeper of the obscure little bucket-shop in the City, was the same George Burton who had been arrested at Blank-field on a charge of forgery, and who, thanks to one of the cleverest advocates at the criminal bar, had got off with a very light sentence.",
+   "ok": true
+  },
+  {
+   "claim": "Major Hugh Murchison was the actual victim, not Reginald Davis",
+   "anchor": "the exhumed body was pronounced by half-a-dozen people, including Guy Spencer, to be that of the Major",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The victim kept a diary detailing events leading to his murder",
+   "anchor": "a diary, bound in red leather, a small volume as to the size of the page, but very bulky",
+   "span": "But they did find one priceless thing, and that was a diary, bound in red leather, a small volume as to the size of the page, but very bulky.",
+   "ok": true
+  },
+  {
+   "claim": "Norah and George murdered Murchison and staged the death as Davis's suicide",
+   "anchor": "the pair, Norah Burton and the scoundrel brother, cousin or life-long lover, had gone to their judgment",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Norah and George committed suicide to avoid arrest",
+   "anchor": "Norah Burton, and the man who had been so long associated with her... had gone to their judgment",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Caretaker Miles had a credible alibi",
+   "anchor": "Miles's explanation, delivered in the somewhat halting way of his class, bore the ring of truth",
+   "span": "Miles's explanation, delivered in the somewhat halting way of his class, bore the ring of truth.",
+   "ok": true
+  },
+  {
+   "claim": "Detective Bryant identified Norah and George as the culprits",
+   "anchor": "I have been very close to the interesting pair. Mrs. Spencer... is Norah Burton",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Detective surveillance showed clandestine meetings and envelope exchanges",
+   "anchor": "I saw Mrs. Spencer slip an envelope into his hand",
+   "span": "For on the last two occasions when I followed them in, and sat at a table where I could observe them, I saw Mrs. Spencer slip an envelope into his hand.",
+   "ok": true
+  },
+  {
+   "claim": "Reginald Davis was falsely accused and later cleared",
+   "anchor": "A man lying under sentence of death for a brutal murder... had confessed to the crime",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Caroline Masters swore a false identification to protect her brother",
+   "anchor": "she swore it was you, and gave you a new lease of life",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Iris Deane had an alibi for the time of the murder",
+   "anchor": "Johnny Lascelles motored me there and drove me back",
+   "span": "Johnny Lascelles motored me there and drove me back.",
+   "ok": true
+  },
+  {
+   "claim": "The false assumption that the death was a suicide by Reginald Davis",
+   "anchor": "The verdict was recorded. Mrs. Masters was complimented on the way in which she had given her evidence",
+   "span": "The verdict was recorded. Mrs. Masters was complimented on the way in which she had given her evidence.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.116032356,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "The murders were committed by an outsider or a lunatic with no clear motive.",
+  "type": "identity",
+  "why_it_seems_reasonable": "The complexity of the Maze and the unusual method of murder suggest a stranger or a mentally unstable person. The presence of multiple suspects with questionable behavior supports this.",
+  "what_it_hides": "It conceals the fact that the murderer was a family member with intimate knowledge and a strong financial motive."
+ },
+ "mechanism_description": "Ernest Shandon, motivated by greed and to cover up his forgery of Roger’s cheques, used poisoned air-gun darts filled with curare to kill his brothers in the Maze. He prepared the scene by cutting loopholes in the hedges and staged attacks on himself to divert suspicion. After the murders, he fled using a hidden bicycle and eventually committed suicide when trapped by police.",
+ "discriminating_test": {
+  "method": "constraint_proof",
+  "design": "Police sealed all Maze entrances after Ernest entered, preventing escape. They spread burning sulphur to suffocate him and forced him to surrender or perish. Armed men covered all exits and waited for any attempt to flee.",
+  "knowledge_revealed": "This test proved that the murderer was inside the Maze and could not escape, confirming Ernest Shandon’s presence and guilt.",
+  "pass_condition": "The suspect cannot leave the Maze without being captured or killed, proving his identity as the murderer."
+ },
+ "changed": [],
+ "confidence": "high"
+}

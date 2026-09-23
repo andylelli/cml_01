@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "John Leslie was guilty of the murder because he was found with the victim and owned the revolver.",
+  "type": "identity",
+  "why_it_seems_reasonable": "Leslie was the first to find the body, had the murder weapon registered to him, and had no strong alibi. The circumstantial evidence pointed strongly to him.",
+  "what_it_hides": "The real murderer was Sir Edward Kean who planted evidence to frame Leslie and had a strong motive to kill Mrs. Draycott to protect his secret."
+ },
+ "mechanism_description": "Sir Edward Kean arranged to meet Mrs. Draycott at John Leslie's farm under the pretense of handing over money to stop her blackmail. He drove her there in a car, staged the meeting, and shot her with a revolver he carried. He planted evidence to implicate Leslie but was ultimately exposed by the investigation.",
+ "discriminating_test": {
+  "method": "constraint_proof",
+  "design": "Investigate the timeline and travel records of Sir Edward Kean, Dr. Gregg, and John Leslie on the night of the murder. Verify the car hire and garage records, train tickets, and witness statements about their locations and movements. Confirm the presence of the car at the farm and the timing of the murder by cross-referencing the tramp’s and carter’s testimonies.",
+  "knowledge_revealed": "This test reveals that Kean’s alibi is false and that he had the opportunity to commit the murder, while Gregg’s alibi is solid and Leslie’s movements are consistent with innocence.",
+  "pass_condition": "The suspect’s timeline and access to the murder scene must be impossible to reconcile with the murder time, eliminating innocent suspects and confirming the culprit."
+ },
+ "changed": [],
+ "confidence": "high"
+}

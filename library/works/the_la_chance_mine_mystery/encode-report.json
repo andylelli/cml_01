@@ -1,0 +1,130 @@
+{
+ "slug": "the_la_chance_mine_mystery",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Nick Stretton returns to La Chance mine and meets Paulette Brown",
+   "anchor": "I opened the shack door and went in,--and in the bare passage I jerked up taut",
+   "span": "I opened the shack door and went in,--and in the bare passage I jerked up taut.",
+   "ok": true
+  },
+  {
+   "claim": "Paulette Brown seals the gold boxes to prevent substitution",
+   "anchor": "On each box, just as I had expected even before I heard Paulette Brown say she had marked them, was a tiny seal in blue wax",
+   "span": "For on each box, just as I had expected even before I heard Paulette Brown say she had marked them, was a tiny seal in blue wax!",
+   "ok": true
+  },
+  {
+   "claim": "Wolf bait is used to lure wolves to attack Dudley Wilbraham",
+   "anchor": "That same wolf bait had been put in my wagon by somebody,--and the human cry out of the swamp at Paulette's shot suddenly repeated itself in my ears",
+   "span": "That same wolf bait had been put in my wagon by somebody,--and the human cry out of the swamp at Paulette's shot suddenly repeated itself in my ears.",
+   "ok": true
+  },
+  {
+   "claim": "Thompson's letter contains a hidden warning inside the envelope",
+   "anchor": "Take care, Macartney! Gold, life, everything--in danger!",
+   "span": "'Take care, Macartney! Gold, life, everything--in danger!'\" he read out blankly.",
+   "ok": true
+  },
+  {
+   "claim": "Macartney is revealed as Dick Hutton, the criminal mastermind",
+   "anchor": "For the written message on Thompson's lost card was plain. Macartney was--Hutton!",
+   "span": "CHAPTER XIII A DEAD MAN'S MESSENGER For the written message on Thompson's lost card was plain. Macartney was--Hutton! And Hutton's gang were just the new, rough men Macartney had dribbled in to the La Chance mine!",
+   "ok": true
+  },
+  {
+   "claim": "Four mill men are murdered in the assay office during a staged robbery",
+   "anchor": "They were decent men too, for they were the last of our own lot,--and it smote me like a hammer that they might have been alive still if I had not interfered with Paulette that night and kept her from meeting Hutton",
+   "span": "They were decent men too, for they were the last of our own lot,--and it smote me like a hammer that they might have been alive still if I had not interfered with Paulette that night and kept her from meeting Hutton.",
+   "ok": true
+  },
+  {
+   "claim": "Dunn and Collins are alive and hiding in secret tunnels",
+   "anchor": "I saw Dunn and Collins! Saw Dunn's stubbly fair hair, clipped close till it stood on end",
+   "span": "A match rasped, flared in my eyes, and I saw Dunn and Collins! Saw Dunn's stubbly fair hair, clipped close till it stood on end, as it had on the skull I'd said a prayer over and buried; saw Collins standing on the long shank bones I knew I had buried in the bush!",
+   "ok": true
+  },
+  {
+   "claim": "Macartney uses wolf dope and sabotage to control the mine",
+   "anchor": "I knew about Macartney's wolf dope business long ago, and do you suppose _this_",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Paulette Brown is actually Tatiana Paulina Valenka",
+   "anchor": "The signature she wrote as plainly as I write it now was not Paulette Brown. It was Tatiana Paulina",
+   "span": "For the signature she wrote as plainly as I write it now was not Paulette Brown. It was Tatiana Paulina--that \"queer Christian name, half Russian too,\" of the dancing circus-rider, that no one had ever mentioned,--_Tatiana Paulina Valenka_!",
+   "ok": true
+  },
+  {
+   "claim": "Macartney kills Dudley Wilbraham using wolf bait and ambush",
+   "anchor": "They got Mr. Wilbraham, and--they damn nearly got me!",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Nick Stretton and allies use explosives to trap Macartney's gang",
+   "anchor": "I heard the fuse burn smooth as a dream, and Collins nudged me with fierce satisfaction",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Macartney is killed after his crimes are exposed",
+   "anchor": "Macartney only stood there, looking so much as usual that I guessed he must have rested outside the mouth of our burrow before he wormed down to tackle me",
+   "span": "But Macartney only stood there, looking so much as usual that I guessed he must have rested outside the mouth of our burrow before he wormed down to tackle me.",
+   "ok": true
+  },
+  {
+   "claim": "Billy Jones is falsely accused of murder",
+   "anchor": "Not a day went by that three or four of them did not come for their time",
+   "span": "Not a day went by that three or four of them did not come for their time, chiefly rockmen and teamsters,--for we had no ore chute at La Chance.",
+   "ok": true
+  },
+  {
+   "claim": "Marcia Wilbraham betrays Paulette and helps Macartney",
+   "anchor": "Marcia flung herself on him as if she had only just realized him",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Nick Stretton and Paulette escape across Lac Tremblant on snowshoes",
+   "anchor": "I led my dream girl out on it. I would have given half my life for a rope",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Thompson's boy provides key testimony about the murder",
+   "anchor": "You? What's the matter with you? Brace up; it's only me!",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Macartney's gang is defeated and the mine is saved",
+   "anchor": "An abandoned picket has a way of knowing when the game is up, and Macartney's men had cleared out on the double",
+   "span": "An abandoned picket has a way of knowing when the game is up, and Macartney's men had cleared out on the double, even before Charliet's first rifle bullet missed them.",
+   "ok": true
+  },
+  {
+   "claim": "Paulette and Nick Stretton confess their love",
+   "anchor": "I knew the dark hollows and the tear marks under her eyes were for Dudley, not for me",
+   "span": "I knew the dark hollows and the tear marks under her eyes were for Dudley, not for me.",
+   "ok": true
+  },
+  {
+   "claim": "Thompson's playing cards contain a secret message",
+   "anchor": "For God's sake search my cards--my cards--my cards",
+   "span": "",
+   "ok": false
+  }
+ ],
+ "costGbp": 0.123009004,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

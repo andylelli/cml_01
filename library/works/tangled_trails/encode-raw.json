@@ -1,0 +1,627 @@
+{
+ "decade": "1920s",
+ "realism_constraints": [
+  "No forensic DNA or modern forensic science available",
+  "Communication by telephone and telegraph is common but limited",
+  "Firearms are revolvers and automatics, no advanced ballistics analysis"
+ ],
+ "location": "Denver, Colorado",
+ "institution": "Denver Police Department",
+ "crime_category": "murder",
+ "crime_subtype": "murder by chloroform and shooting",
+ "cast": [
+  {
+   "name": "Kirby Lane",
+   "age_range": "25-35",
+   "role_archetype": "rugged outdoorsman, loyal friend, amateur detective",
+   "role": "detective",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "rough rider and cattleman",
+   "private_secret": "investigating his uncle's murder",
+   "motive_seed": "clear his own name and find the real killer",
+   "motive_strength": "strong",
+   "alibi_window": "present throughout investigation",
+   "access_plausibility": "high",
+   "stakes": "high",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Uncle James Cunningham",
+    "Wild Rose",
+    "Cole Sanborn",
+    "Esther McLean"
+   ],
+   "opportunity_channels": [
+    "access to crime scene after murder"
+   ],
+   "behavioral_tells": [
+    "persistent",
+    "courageous",
+    "patient"
+   ],
+   "evidence_sensitivity": [
+    "glove found at crime scene",
+    "presence at crime scene"
+   ]
+  },
+  {
+   "name": "James Cunningham, Sr.",
+   "age_range": "55-65",
+   "role_archetype": "wealthy, ruthless land and mining promoter",
+   "role": "victim",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "wealthy, powerful businessman",
+   "private_secret": "secretly married to Esther McLean",
+   "motive_seed": "n/a",
+   "motive_strength": "none",
+   "alibi_window": "dead at time of crime",
+   "access_plausibility": "n/a",
+   "stakes": "high",
+   "moral_complexity": "high",
+   "relationships": [
+    "Kirby Lane (nephew)",
+    "Esther McLean (secret wife)",
+    "James Cunningham, Jr. (nephew)",
+    "Jack Cunningham (nephew)",
+    "Phyllis Harriman (fiancee)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "ruthless",
+    "cynical"
+   ],
+   "evidence_sensitivity": [
+    "murder scene",
+    "chloroform odor"
+   ]
+  },
+  {
+   "name": "Wild Rose (Rose McLean)",
+   "age_range": "18-25",
+   "role_archetype": "passionate, loyal young woman, bronco rider",
+   "role": "suspect",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "champion bronco rider",
+   "private_secret": "protecting her sister Esther",
+   "motive_seed": "anger at James Cunningham for wronging her sister",
+   "motive_strength": "moderate",
+   "alibi_window": "hospital and traveling",
+   "access_plausibility": "low",
+   "stakes": "high",
+   "moral_complexity": "high",
+   "relationships": [
+    "Esther McLean (sister)",
+    "Kirby Lane (friend)",
+    "Cole Sanborn (friend)"
+   ],
+   "opportunity_channels": [
+    "present at crime scene briefly"
+   ],
+   "behavioral_tells": [
+    "defiant",
+    "passionate"
+   ],
+   "evidence_sensitivity": [
+    "glove found at crime scene"
+   ]
+  },
+  {
+   "name": "Esther McLean",
+   "age_range": "18-25",
+   "role_archetype": "young stenographer, victim of seduction",
+   "role": "witness",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "young woman in trouble",
+   "private_secret": "secretly married to James Cunningham, Sr.",
+   "motive_seed": "n/a",
+   "motive_strength": "none",
+   "alibi_window": "disappeared temporarily",
+   "access_plausibility": "low",
+   "stakes": "high",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Wild Rose (sister)",
+    "James Cunningham, Sr. (secret husband)",
+    "Cole Sanborn (fiance)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "nervous",
+    "dependent"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "James Cunningham, Jr.",
+   "age_range": "30-40",
+   "role_archetype": "slick oil broker, ambitious nephew",
+   "role": "suspect",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "businessman, fiance of Phyllis Harriman",
+   "private_secret": "secretly married Phyllis Harriman, conspired to kill uncle",
+   "motive_seed": "inheritance, jealousy, concealment of secret marriage",
+   "motive_strength": "strong",
+   "alibi_window": "present at crime scene",
+   "access_plausibility": "high",
+   "stakes": "very high",
+   "moral_complexity": "high",
+   "relationships": [
+    "Phyllis Harriman (wife)",
+    "Jack Cunningham (brother)",
+    "James Cunningham, Sr. (uncle, victim)"
+   ],
+   "opportunity_channels": [
+    "access to apartment",
+    "knowledge of uncle's schedule"
+   ],
+   "behavioral_tells": [
+    "nervousness",
+    "evasiveness"
+   ],
+   "evidence_sensitivity": [
+    "lost Japanese papers",
+    "presence at crime scene",
+    "attempted murder of Kirby Lane"
+   ]
+  },
+  {
+   "name": "Jack Cunningham",
+   "age_range": "25-35",
+   "role_archetype": "young, dapper, loyal brother",
+   "role": "suspect",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "businessman, brother of James Jr.",
+   "private_secret": "knows about James's guilt, protects him",
+   "motive_seed": "family loyalty",
+   "motive_strength": "moderate",
+   "alibi_window": "present at Golden during key times",
+   "access_plausibility": "medium",
+   "stakes": "moderate",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "James Cunningham, Jr. (brother)",
+    "Phyllis Harriman (sister-in-law)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "defensive",
+    "protective"
+   ],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Cass Hull",
+   "age_range": "50-60",
+   "role_archetype": "fat, aggressive land agent",
+   "role": "suspect",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "land agent, involved in Dry Valley project",
+   "private_secret": "threatened uncle, involved in murder",
+   "motive_seed": "financial dispute, revenge",
+   "motive_strength": "strong",
+   "alibi_window": "present at crime scene",
+   "access_plausibility": "high",
+   "stakes": "high",
+   "moral_complexity": "high",
+   "relationships": [
+    "Mrs. Hull (wife)",
+    "James Cunningham, Sr. (victim)"
+   ],
+   "opportunity_channels": [
+    "access to apartment"
+   ],
+   "behavioral_tells": [
+    "fearful",
+    "evasive"
+   ],
+   "evidence_sensitivity": [
+    "presence at crime scene",
+    "confession"
+   ]
+  },
+  {
+   "name": "Mrs. Hull",
+   "age_range": "50-60",
+   "role_archetype": "harsh, forbidding woman",
+   "role": "suspect",
+   "gender": "female",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "wife of Cass Hull",
+   "private_secret": "involved in murder conspiracy",
+   "motive_seed": "protect husband, financial gain",
+   "motive_strength": "strong",
+   "alibi_window": "present at crime scene",
+   "access_plausibility": "high",
+   "stakes": "high",
+   "moral_complexity": "high",
+   "relationships": [
+    "Cass Hull (husband)"
+   ],
+   "opportunity_channels": [
+    "access to apartment"
+   ],
+   "behavioral_tells": [
+    "defiant",
+    "fearful"
+   ],
+   "evidence_sensitivity": [
+    "presence at crime scene",
+    "confession"
+   ]
+  },
+  {
+   "name": "Oscar Olson",
+   "age_range": "40-50",
+   "role_archetype": "Scandinavian farmer, bitter enemy",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "Dry Valley farmer",
+   "private_secret": "knows more than he admits",
+   "motive_seed": "hatred of Cunningham and Hull",
+   "motive_strength": "weak",
+   "alibi_window": "present in Denver",
+   "access_plausibility": "medium",
+   "stakes": "moderate",
+   "moral_complexity": "moderate",
+   "relationships": [],
+   "opportunity_channels": [
+    "observed events from fire escape"
+   ],
+   "behavioral_tells": [
+    "suspicious",
+    "cautious"
+   ],
+   "evidence_sensitivity": [
+    "presence near crime scene"
+   ]
+  },
+  {
+   "name": "Shibo Horikawa (Shibo)",
+   "age_range": "40-50",
+   "role_archetype": "Japanese janitor and valet",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "servant",
+   "private_secret": "murderer of James Cunningham, Sr. and Horikawa",
+   "motive_seed": "self-preservation, fear of exposure",
+   "motive_strength": "strong",
+   "alibi_window": "present at crime scene",
+   "access_plausibility": "very high",
+   "stakes": "very high",
+   "moral_complexity": "high",
+   "relationships": [
+    "Horikawa (fellow valet, victim)"
+   ],
+   "opportunity_channels": [
+    "access to apartment",
+    "knowledge of household"
+   ],
+   "behavioral_tells": [
+    "calm",
+    "calculating"
+   ],
+   "evidence_sensitivity": [
+    "confession",
+    "attempted murder of Kirby Lane",
+    "possession of murder weapon"
+   ]
+  },
+  {
+   "name": "Phyllis Harriman",
+   "age_range": "25-35",
+   "role_archetype": "charming socialite, secret wife of James Jr.",
+   "role": "suspect",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "fiancee of James Cunningham, Jr.",
+   "private_secret": "secretly married to James Cunningham, Jr.",
+   "motive_seed": "protect family reputation",
+   "motive_strength": "weak",
+   "alibi_window": "present at crime scene",
+   "access_plausibility": "medium",
+   "stakes": "moderate",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "James Cunningham, Jr. (husband)",
+    "Jack Cunningham (brother-in-law)"
+   ],
+   "opportunity_channels": [
+    "access to apartment"
+   ],
+   "behavioral_tells": [
+    "nervous",
+    "evasiveness"
+   ],
+   "evidence_sensitivity": [
+    "presence at crime scene"
+   ]
+  }
+ ],
+ "culprits": [
+  "Shibo Horikawa (Shibo)"
+ ],
+ "surface_summary": "James Cunningham, Sr. is found murdered in his apartment, tied to a chair and shot. Suspicion falls on several family members and associates, including his nephews and a land agent, with conflicting testimonies and secret marriages complicating the case.",
+ "accepted_facts": [
+  "James Cunningham, Sr. was found dead with a bullet wound to the head",
+  "He was tied to a chair and chloroformed before being shot",
+  "Several people were seen entering or leaving the apartment around the time of the murder",
+  "A large sum of money was withdrawn from the bank the day of the murder and went missing"
+ ],
+ "inferred_conclusions": [
+  "Kirby Lane was the murderer because he was seen entering and leaving the apartment",
+  "Cass Hull killed James Cunningham in a fit of rage during a dispute",
+  "James Cunningham, Jr. killed his uncle to inherit the fortune"
+ ],
+ "mechanism_description": "Shibo Horikawa, the Japanese valet, killed James Cunningham, Sr. by chloroforming him, tying him to a chair, and then shooting him at close range. He also killed Horikawa to silence him. Shibo acted out of self-preservation after Cunningham discovered his plan to steal money and frame others.",
+ "delivery_path": [
+  "Shibo chloroformed James Cunningham, Sr. and tied him to a chair",
+  "Shibo shot Cunningham at close range with an automatic pistol",
+  "Shibo and Horikawa fled through the window to the fire escape",
+  "Horikawa hid in a neighboring apartment, supplied with newspapers and food by Shibo",
+  "Shibo killed Horikawa to prevent him from revealing the truth",
+  "Shibo attempted to murder Kirby Lane to prevent exposure",
+  "Shibo was captured and confessed to the murders"
+ ],
+ "outcome_result": "Shibo Horikawa is arrested and confesses to the murders of James Cunningham, Sr. and Horikawa.",
+ "false_assumption": {
+  "statement": "Wild Rose McLean was the murderer because her glove was found at the crime scene.",
+  "type": "identity",
+  "why_it_seems_reasonable": "The glove with a rose embroidery was found at the scene, and Wild Rose was known to be present in the apartment shortly before the murder. Her passionate anger towards James Cunningham also provided a plausible motive.",
+  "what_it_hides": "The glove was left inadvertently and taken by Kirby Lane, and Wild Rose was not capable of the complex murder involving chloroform and tying up the victim."
+ },
+ "false_solution": {
+  "accused_suspect": "Kirby Lane",
+  "supporting_points": [
+   "He was seen entering and leaving the apartment by witnesses",
+   "He fled by the fire escape to avoid suspicion",
+   "His glove was found at the crime scene",
+   "He had a motive of family resentment"
+  ],
+  "the_one_flaw": "He was not capable of the murder and was protecting Wild Rose and Esther; evidence later proved his innocence.",
+  "refuted_in_chapter": 41
+ },
+ "red_herrings": [
+  {
+   "id": "cass_hull_blackmail_and_murder",
+   "description": "Cass Hull was suspected due to his threats and presence at the crime scene, and his wife’s aggressive behavior.",
+   "points_at_suspect": "Cass Hull",
+   "innocent_explanation": "Hull was involved in a quarrel but did not commit the murder; he was scared and tried to flee.",
+   "resolved_in_chapter": 37
+  },
+  {
+   "id": "james_cunningham_jr_secret_marriage_and_motive",
+   "description": "James Cunningham, Jr.'s secret marriage to Phyllis Harriman and his motive to inherit the fortune made him a prime suspect.",
+   "points_at_suspect": "James Cunningham, Jr.",
+   "innocent_explanation": "Though guilty of deception and conspiracy, he did not physically commit the murder; the valet Shibo was the actual killer.",
+   "resolved_in_chapter": 41
+  }
+ ],
+ "closed_circle": {
+  "suspects": [
+   "Kirby Lane",
+   "Cass Hull",
+   "Mrs. Hull",
+   "James Cunningham, Jr.",
+   "Jack Cunningham",
+   "Shibo Horikawa",
+   "Phyllis Harriman",
+   "Oscar Olson",
+   "Wild Rose (Rose McLean)"
+  ],
+  "rationale": "All these individuals had access to the apartment and motives related to the victim; the investigation focused on them exclusively."
+ },
+ "constraint_space": {
+  "time_anchors": [
+   "8.45 - Uncle James leaves City Club",
+   "8.55 - Uncle James reaches apartment",
+   "9.10-9.30 - Hulls in apartment",
+   "9.40-9.53 - James Cunningham, Jr. in apartment",
+   "9.44-9.50 - Jack Cunningham and Phyllis Harriman in apartment",
+   "9.55-10.05 - Wild Rose in apartment",
+   "10.00 - Kirby Lane arrives at apartment"
+  ],
+  "time_windows": [
+   "Murder occurred between 9.30 and 9.50 pm",
+   "Shibo killed Horikawa about a day before discovery"
+  ],
+  "access_actors": [
+   "Kirby Lane",
+   "Hull couple",
+   "James Cunningham, Jr.",
+   "Jack Cunningham",
+   "Phyllis Harriman",
+   "Wild Rose",
+   "Shibo Horikawa",
+   "Oscar Olson"
+  ],
+  "access_objects": [
+   "Paradox Apartments apartment 12",
+   "Fire escape",
+   "Window between Paradox and Wyndham",
+   "Safe in James Cunningham's office"
+  ],
+  "trust_channels": [
+   "Family relationships",
+   "Employment of Shibo as valet and janitor",
+   "Friendship between Kirby Lane and Wild Rose"
+  ],
+  "authority_sources": [
+   "Denver Police Department",
+   "Coroner's inquest",
+   "Reverend Nicodemus Rankin (marriage officiant)"
+  ]
+ },
+ "inference_path": [
+  {
+   "observation": "Glove with rose embroidery found at crime scene",
+   "correction": "Glove belonged to Wild Rose but was taken by Kirby Lane",
+   "effect": "Wild Rose initially suspected but later cleared",
+   "required_evidence": [
+    "Wild Rose's testimony about glove",
+    "Kirby Lane's account of glove possession"
+   ]
+  },
+  {
+   "observation": "Mrs. Hull and Cass Hull lied about time they saw Kirby",
+   "correction": "They shifted time to implicate Kirby Lane",
+   "effect": "Suspicion on Hulls increased",
+   "required_evidence": [
+    "Testimony of Mrs. Hull and Cass Hull at inquest",
+    "Kirby Lane's watch time records"
+   ]
+  },
+  {
+   "observation": "Secret marriage certificate of James Cunningham, Jr. and Phyllis Harriman",
+   "correction": "Marriage was concealed to protect estate interests",
+   "effect": "Motive for murder to secure inheritance",
+   "required_evidence": [
+    "Marriage certificate from Golden",
+    "Testimony of Reverend Rankin and family"
+   ]
+  },
+  {
+   "observation": "Japanese papers lost by James Cunningham, Jr.",
+   "correction": "Papers contained confession by Horikawa",
+   "effect": "Link to valet Shibo as murderer",
+   "required_evidence": [
+    "Lost papers report",
+    "Translation of Japanese confession"
+   ]
+  },
+  {
+   "observation": "Horikawa found dead, tied up in neighboring apartment",
+   "correction": "Horikawa was killed to silence him",
+   "effect": "Murder conspiracy deeper than first thought",
+   "required_evidence": [
+    "Discovery of Horikawa's body",
+    "Confession translation"
+   ]
+  },
+  {
+   "observation": "Attempted murder of Kirby Lane by masked assailant",
+   "correction": "Assailant identified as Shibo Horikawa",
+   "effect": "Confirms Shibo as murderer",
+   "required_evidence": [
+    "Attack at Denmark Building",
+    "Shoes and bandanna evidence"
+   ]
+  },
+  {
+   "observation": "Confession of Shibo Horikawa",
+   "correction": "Shibo admits to killing James Cunningham, Sr. and Horikawa",
+   "effect": "Case solved with Shibo as culprit",
+   "required_evidence": [
+    "Shibo's confession",
+    "Physical evidence linking Shibo"
+   ]
+  }
+ ],
+ "discriminating_test": {
+  "method": "constraint_proof",
+  "design": "Reconstruct the timeline of arrivals and departures at the apartment using witness testimonies and physical evidence such as glove presence, time on watches, and presence on fire escape. Verify the presence of suspects in the apartment during the critical murder window and check for contradictions in alibis and testimonies.",
+  "knowledge_revealed": "This test reveals who had the opportunity to commit the murder within the narrow time window and who was lying about their presence or actions.",
+  "pass_condition": "The suspect must be proven to have been present in the apartment during the murder time window with no credible alibi and with access to the murder method."
+ },
+ "fair_play_explanation": "The reader is given detailed timelines, witness testimonies, and physical evidence such as the glove, the note, and the Japanese confession. The presence and movements of all suspects are described, including their motives and alibis. The false solution accusing Kirby Lane is presented and refuted, allowing the reader to deduce the real culprit by careful analysis of the timeline and motives.",
+ "anchors": [
+  {
+   "claim": "James Cunningham was found dead with a bullet hole in the forehead",
+   "anchor": "There was a small hole in the center of the forehead"
+  },
+  {
+   "claim": "The victim was tied to a chair and chloroformed before being shot",
+   "anchor": "His wrists were tied with ropes to the arms of the chair. A towel, passed round his throat, fastened the body to the back of the chair"
+  },
+  {
+   "claim": "Wild Rose's glove was found at the crime scene",
+   "anchor": "It was a small riding-gauntlet with a device of a rose embroidered on the wrist"
+  },
+  {
+   "claim": "Kirby Lane was seen entering and leaving the apartment by witnesses",
+   "anchor": "A young man, a stranger to them, powerfully built and dressed like a prosperous ranchman, had knocked on their door"
+  },
+  {
+   "claim": "Cass Hull threatened James Cunningham and was seen in the apartment",
+   "anchor": "He was standin' on the fire escape of the Wyndham across the alley"
+  },
+  {
+   "claim": "James Cunningham, Jr. secretly married Phyllis Harriman",
+   "anchor": "James Cunningham and Phyllis Harriman had been united in marriage at Golden"
+  },
+  {
+   "claim": "James Cunningham, Jr. lost the Japanese papers that might have cleared the case",
+   "anchor": "The sheets of paper with the Japanese writing have been lost"
+  },
+  {
+   "claim": "Horikawa was found dead, tied up in a neighboring apartment",
+   "anchor": "On the bed, fully dressed, his legs stretched in front of him and his feet crossed, was the missing man Horikawa"
+  },
+  {
+   "claim": "Shibo Horikawa attempted to murder Kirby Lane",
+   "anchor": "A lifted foot struck an empty soap box with a clatter to wake the seven sleepers"
+  },
+  {
+   "claim": "Shibo Horikawa confessed to the murders",
+   "anchor": "I killum both--Cunnin'lam and Horikawa"
+  },
+  {
+   "claim": "Mrs. Hull admitted returning to the apartment to untie James Cunningham",
+   "anchor": "Mrs. Hull admitted, under pressure, that she returned to my uncle's apartment again to release him from the chair"
+  },
+  {
+   "claim": "Cass Hull confessed to knocking out James Cunningham with a gun",
+   "anchor": "Cunningham reached for a drawer an' started to pull out an automatic gun. Knowin' him, I was scared. I beat him to it an' lammed him one over the head with my gun"
+  },
+  {
+   "claim": "Olson saw the murder from the fire escape and cut the clothesline to enter",
+   "anchor": "I went back to the fire escape, fixed up some kind of a lariat, an' flung the loop over an abutment stickin' from the wall of the Paradox"
+  },
+  {
+   "claim": "James Cunningham, Jr. was present at the apartment during the murder",
+   "anchor": "James in Apt."
+  },
+  {
+   "claim": "Jack Cunningham and Phyllis Harriman were present shortly after James Jr.",
+   "anchor": "Jack and Phyllis in Apt."
+  },
+  {
+   "claim": "Wild Rose was in the apartment shortly before Kirby Lane",
+   "anchor": "Wild Rose in rooms."
+  },
+  {
+   "claim": "Kirby Lane arrived at the apartment at 10:00",
+   "anchor": "I reach rooms."
+  },
+  {
+   "claim": "Shibo Horikawa killed James Cunningham, Sr. by chloroforming and shooting",
+   "anchor": "He reached across his body for the automatic and sent a bullet into the brain of the man bound to the chair"
+  },
+  {
+   "claim": "Shibo Horikawa killed Horikawa to silence him",
+   "anchor": "He killed Horikawa because he knew he could not trust him"
+  },
+  {
+   "claim": "Shibo Horikawa was arrested and confessed",
+   "anchor": "Officers led him away"
+  }
+ ]
+}

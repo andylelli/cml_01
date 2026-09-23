@@ -114,8 +114,8 @@
   {
    "claim": "Mr. Manley refuses to help find the murderer",
    "anchor": "If I could help you in any way to discover the criminal, I wouldn't",
-   "span": "",
-   "ok": false
+   "span": "Look here: the trenches knock a good deal of the nonsense out of one, and I tell you frankly that if I could help you in any way to discover the criminal, I wouldn't.",
+   "ok": true
   },
   {
    "claim": "The forged letter was written with different ink than the body of the letter",
@@ -130,5 +130,7 @@
   "encode": "gpt-4.1-mini",
   "sweep": "gpt-4o-mini"
  },
- "case_written": true
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
 }

@@ -18,8 +18,8 @@
   {
    "claim": "Gilbert is nervous and absent-minded on his wedding night",
    "anchor": "He was nervous, she had noticed his hand shaking",
-   "span": "",
-   "ok": false
+   "span": "Now that she recalled the circumstances, she remembered that Gilbert had been terribly distrait that night; he was nervous, she had noticed his hand shaking, and had remarked to her mother upon his extraordinary absent-mindedness.",
+   "ok": true
   },
   {
    "claim": "The 'Melody in F' is linked to a cancer diagnosis message",
@@ -30,7 +30,7 @@
   {
    "claim": "George Wallis is a notorious burglar under police surveillance",
    "anchor": "George Wallis, that most notorious of burglars",
-   "span": "said George Wallis, that most notorious of burglars, “and at the hands of an expert, I beg you to believe.",
+   "span": "said George Wallis, that most notorious of burglars, \"and at the hands of an expert, I beg you to believe.",
    "ok": true
   },
   {
@@ -48,7 +48,7 @@
   {
    "claim": "Gilbert secretly robs the gang's safe to recover stolen goods",
    "anchor": "I have taken ten thousand sovereigns in bullion and in French banknotes",
-   "span": "’ I want to say to you: ‘I have taken ten thousand sovereigns in bullion and in French banknotes from your store, here is that amount for yourself, here is a similar amount which is to be restored to the people from whom it was taken.",
+   "span": "' I want to say to you: 'I have taken ten thousand sovereigns in bullion and in French banknotes from your store, here is that amount for yourself, here is a similar amount which is to be restored to the people from whom it was taken.",
    "ok": true
   },
   {
@@ -60,7 +60,7 @@
   {
    "claim": "Gilbert is locked in the gang's safe room as a captive",
    "anchor": "Put up your hands, Mr. Gilbert Standerton",
-   "span": "Put up your hands, Mr. Gilbert Standerton,” said George.",
+   "span": "Put up your hands, Mr. Gilbert Standerton,\" said George.",
    "ok": true
   },
   {
@@ -90,7 +90,7 @@
   {
    "claim": "Gilbert's resignation from the Foreign Office to pursue his plan",
    "anchor": "I have given up the Foreign Office work",
-   "span": "I have given up the Foreign Office work,” he said quietly.",
+   "span": "I have given up the Foreign Office work,\" he said quietly.",
    "ok": true
   },
   {
@@ -102,7 +102,7 @@
   {
    "claim": "Wallis threatens Gilbert with a revolver in the safe room",
    "anchor": "Put up your hands, Mr. Gilbert Standerton",
-   "span": "Put up your hands, Mr. Gilbert Standerton,” said George.",
+   "span": "Put up your hands, Mr. Gilbert Standerton,\" said George.",
    "ok": true
   },
   {
@@ -130,5 +130,7 @@
   "encode": "gpt-4.1-mini",
   "sweep": "gpt-4o-mini"
  },
- "case_written": true
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
 }

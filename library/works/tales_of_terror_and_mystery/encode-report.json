@@ -1,0 +1,121 @@
+{
+ "slug": "tales_of_terror_and_mystery",
+ "spans": [
+  {
+   "claim": "The special train left Liverpool at 4:31 pm",
+   "anchor": "At 4:31 exactly by the station clock the special train",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The engine-driver John Slater was found dead near the line",
+   "anchor": "the dead body of John Slater, driver of the special train",
+   "span": "Regret to report that the dead body of John Slater, driver of the special train, has just been found among the gorse bushes at a point two and a quarter miles from the Junction.",
+   "ok": true
+  },
+  {
+   "claim": "No trace of the missing train was found on the railway line",
+   "anchor": "there is no trace of the missing train",
+   "span": "Ground has now been carefully examined, and there is no trace of the missing train.",
+   "ok": true
+  },
+  {
+   "claim": "James McPherson wrote a letter from New York after the disappearance",
+   "anchor": "receipt by Mrs. McPherson of a letter from her husband",
+   "span": "This was nothing less than the receipt by Mrs. McPherson of a letter from her husband, James McPherson, who had been the guard on the missing train.",
+   "ok": true
+  },
+  {
+   "claim": "The train was diverted onto an abandoned side line",
+   "anchor": "the special has gone wrong between Kenyon Junction and Barton Moss",
+   "span": "The special has gone wrong between Kenyon Junction and Barton Moss.",
+   "ok": true
+  },
+  {
+   "claim": "Temporary rails were laid to connect the side line to the main line",
+   "anchor": "We had only to replace a few rails to connect it once more",
+   "span": "We had only to replace a few rails to connect it once more.",
+   "ok": true
+  },
+  {
+   "claim": "The train crashed into the abandoned Heartsease mine shaft",
+   "anchor": "the buffers of the engine struck the other lip of the shaft",
+   "span": "Fortunately, however, it fell short, and the buffers of the engine struck the other lip of the shaft with a tremendous crash.",
+   "ok": true
+  },
+  {
+   "claim": "The conspirators removed the temporary rails and covered the shaft",
+   "anchor": "our little band of workers at the other end had already ripped up the rails",
+   "span": "Our little band of workers at the other end had already ripped up the rails and disconnected the side line, replacing everything as it had been before.",
+   "ok": true
+  },
+  {
+   "claim": "The engine-driver was not bribed and resisted the plan",
+   "anchor": "John Slater, the engine-driver, had been approached, but had been found to be obstinate",
+   "span": "John Slater, the engine-driver, had been approached, but had been found to be obstinate and dangerous, so we desisted.",
+   "ok": true
+  },
+  {
+   "claim": "The guard and stoker were bribed accomplices",
+   "anchor": "two out of the three servants of the company were really in our employ",
+   "span": "On that special train you will understand that two out of the three servants of the company were really in our employ, at a price which would make them independent for a lifetime.",
+   "ok": true
+  },
+  {
+   "claim": "Herbert de Lernac confessed to orchestrating the disappearance",
+   "anchor": "The confession of Herbert de Lernac, now lying under sentence of death",
+   "span": "Tales of Mystery The Lost Special The confession of Herbert de Lernac, now lying under sentence of death at Marseilles, has thrown a light upon one of the most inexplicable crimes of the century--an incident which is, I believe, absolutely unprecedented in the criminal annals of any country: Although there is a reluctance to discuss the matter in official circles, and little information has been given to the Press, there are still indications that the statement of this arch-criminal is corroborated by the facts, and that we have at last found a solution for a most astounding business.",
+   "ok": true
+  },
+  {
+   "claim": "The false assumption was that the train crashed on the main line",
+   "anchor": "The special must have run off the metals",
+   "span": "The special must have run off the metals.",
+   "ok": true
+  },
+  {
+   "claim": "The canal theory was disproved by the canal's insufficient depth",
+   "anchor": "This suggestion was thrown out of court by the published depth of the canal",
+   "span": "This suggestion was thrown out of court by the published depth of the canal, which was entirely insufficient to conceal so large an object.",
+   "ok": true
+  },
+  {
+   "claim": "The explosive theory was disproved by the intact metals",
+   "anchor": "The obvious absurdity of supposing that the whole train might be blown to dust",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The train was seen passing Kenyon Junction but not Barton Moss",
+   "anchor": "It is quite certain that she passed here, and that she did not arrive at Barton Moss",
+   "span": "It is quite certain that she passed here, and that she did not arrive at Barton Moss.",
+   "ok": true
+  },
+  {
+   "claim": "The conspirators planned for the driver to be chloroformed",
+   "anchor": "Smith, the stoker, should chloroform John Slater, the driver",
+   "span": "Our plan had been that Smith, the stoker, should chloroform John Slater, the driver, so that he should vanish with the others.",
+   "ok": true
+  },
+  {
+   "claim": "The driver fell off the engine and died, a flaw in the plan",
+   "anchor": "Slater in his struggles fell off the engine, and though fortune was with us so far that he broke his neck",
+   "span": "Our stoker did his business so clumsily that Slater in his struggles fell off the engine, and though fortune was with us so far that he broke his neck in the fall, still he remained as a blot upon that which would otherwise have been one of those complete masterpieces which are only to be contemplated in silent admiration.",
+   "ok": true
+  },
+  {
+   "claim": "The train was diverted onto the abandoned Heartsease mine line",
+   "anchor": "our special train upon the small line two kilometres, or rather more than one mile, in length",
+   "span": "But now I have got our special train upon the small line two kilometres, or rather more than one mile, in length, which leads, or rather used to lead, to the abandoned Heartsease mine, once one of the largest coal mines in England.",
+   "ok": true
+  },
+  {
+   "claim": "The train was destroyed in the mine shaft with a loud crash and steam",
+   "anchor": "Then something gave way in the middle, and the whole mass of green iron, smoking coals, brass fittings",
+   "span": "Then something gave way in the middle, and the whole mass of green iron, smoking coals, brass fittings, wheels, wood-work, and cushions all crumbled together and crashed down into the mine.",
+   "ok": true
+  }
+ ],
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

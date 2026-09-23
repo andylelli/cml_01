@@ -84,8 +84,8 @@
   {
    "claim": "Wingate controls the house and servants to maintain captivity",
    "anchor": "Your servants don't seem in a great hurry to answer that bell",
-   "span": "",
-   "ok": false
+   "span": "your servants don't seem in a great hurry to answer that bell.",
+   "ok": true
   },
   {
    "claim": "The coded cable reveals the secret wheat shipment",
@@ -130,5 +130,7 @@
   "encode": "gpt-4.1-mini",
   "sweep": "gpt-4o-mini"
  },
- "case_written": true
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
 }

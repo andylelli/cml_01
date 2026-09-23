@@ -1,0 +1,427 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The Stretton Street Affair
+    author: William Le Queux
+    license: Public domain (first published 1922; author died 1927). Project Gutenberg ebook 27147.
+    era:
+      decade: 1920s
+      realism_constraints:
+        - Poisons like orosin were newly discovered and undetectable by standard post-mortem tests
+        - >-
+          International travel by train and early passenger airplanes was common but slower than
+          modern times
+        - >-
+          Police investigations relied on physical surveillance, telegrams, and informants without
+          modern forensics
+    setting:
+      location: London, with significant events in Florence, Madrid, Amsterdam, Montauban, and Lyons
+      institution: >-
+        Metropolitan Police (Scotland Yard), Spanish Police (Señor Rivero), Dutch Police, French
+        Police
+    crime_class:
+      category: murder
+      subtype: secret poisoning with undetectable poison orosin
+  cast:
+    - name: Hugh Garfield
+      age_range: 20-30
+      role_archetype: young engineer and amateur investigator
+      relationships:
+        - Harry Hambledon (friend)
+        - Gabrielle Tennison (love interest)
+      public_persona: electrical engineer and war veteran
+      private_secret: forged death certificate under duress
+      motive_seed: desire to uncover truth and protect Gabrielle
+      motive_strength: strong
+      alibi_window: present throughout investigation
+      access_plausibility: high
+      opportunity_channels:
+        - investigative travel
+        - social contacts
+      behavioral_tells:
+        - persistent inquiry
+        - cautious trust
+      stakes: high personal risk and justice for victims
+      evidence_sensitivity:
+        - bank notes bribe
+        - forged death certificate
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: moderate
+    - name: Oswald De Gex
+      age_range: 40-50
+      role_archetype: wealthy international financier and criminal mastermind
+      relationships:
+        - Gaston Suzor (agent)
+        - Doctor Moroni (accomplice)
+        - Mateo Sanz (hireling)
+        - Gabrielle Engledue (victim)
+      public_persona: philanthropist and financier
+      private_secret: mastermind behind murders and poisonings
+      motive_seed: inheritance and financial gain
+      motive_strength: strong
+      alibi_window: present at key locations but denies knowledge
+      access_plausibility: high
+      opportunity_channels:
+        - private residence
+        - social influence
+      behavioral_tells:
+        - denial
+        - evasiveness
+        - fear of exposure
+      stakes: immense wealth and freedom
+      evidence_sensitivity:
+        - bribe money
+        - association with criminals
+        - possession of orosin
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Gabrielle Tennison (Engledue)
+      age_range: 20-25
+      role_archetype: victim, young woman with lost memory
+      relationships:
+        - Mrs. Tennison (mother)
+        - Hugh Garfield (lover)
+      public_persona: young woman with mental illness
+      private_secret: survivor of poisoning, memory loss
+      motive_seed: inheritance as Count de Chamartin's daughter
+      motive_strength: none
+      alibi_window: absent during key events
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells:
+        - memory lapses
+        - obsession with 'red, green and gold'
+      stakes: life and sanity
+      evidence_sensitivity:
+        - mental state
+        - presence at poisoning
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: victim
+      moral_complexity: none
+    - name: Harry Hambledon
+      age_range: 20-30
+      role_archetype: loyal friend and solicitor
+      relationships:
+        - Hugh Garfield (friend)
+        - Norah Peyton (fiancée)
+      public_persona: solicitor
+      private_secret: aware of conspiracy
+      motive_seed: friendship and justice
+      motive_strength: moderate
+      alibi_window: present in London
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells:
+        - vigilant
+        - supportive
+      stakes: friend's safety
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+    - name: Gaston Suzor
+      age_range: 40-50
+      role_archetype: secret agent and accomplice
+      relationships:
+        - Oswald De Gex (master)
+        - Gabrielle Tennison (monitored)
+      public_persona: French banker
+      private_secret: agent of De Gex and conspirator
+      motive_seed: loyalty and payment
+      motive_strength: strong
+      alibi_window: present in multiple cities
+      access_plausibility: high
+      opportunity_channels:
+        - telegrams
+        - secret meetings
+      behavioral_tells:
+        - evasiveness
+        - secretive
+      stakes: freedom and money
+      evidence_sensitivity:
+        - telegram records
+        - secret meetings
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: suspect
+      moral_complexity: high
+    - name: Doctor Moroni
+      age_range: 40-50
+      role_archetype: corrupt doctor and poisoner
+      relationships:
+        - Oswald De Gex (master)
+        - Gabrielle Tennison (victim)
+      public_persona: Italian doctor
+      private_secret: prepared and administered orosin
+      motive_seed: financial gain and loyalty
+      motive_strength: strong
+      alibi_window: present at key poisonings
+      access_plausibility: high
+      opportunity_channels:
+        - medical access
+        - secret meetings
+      behavioral_tells:
+        - sinister demeanor
+        - secretive
+      stakes: freedom and money
+      evidence_sensitivity:
+        - possession of orosin
+        - presence at poisonings
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Mateo Sanz
+      age_range: 40-50
+      role_archetype: motor-bandit and hired assassin
+      relationships:
+        - Oswald De Gex (master)
+        - Despujol (associate)
+      public_persona: criminal and bandit
+      private_secret: committed murders for De Gex
+      motive_seed: payment and loyalty
+      motive_strength: strong
+      alibi_window: present at key crimes
+      access_plausibility: high
+      opportunity_channels:
+        - criminal acts
+        - secret meetings
+      behavioral_tells:
+        - defiant
+        - dangerous
+      stakes: freedom and money
+      evidence_sensitivity:
+        - arrest records
+        - photographs
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: low
+  culpability:
+    culprit_count: 2
+    culprits:
+      - Oswald De Gex
+      - Doctor Moroni
+  surface_model:
+    narrative:
+      summary: >-
+        Hugh Garfield is drugged and manipulated into certifying the death of Gabrielle Engledue,
+        who later appears alive but mentally impaired. Investigation reveals a complex conspiracy
+        involving a wealthy financier, Oswald De Gex, his accomplices, and hired assassins using a
+        secret poison to eliminate rivals and inheritances.
+    accepted_facts:
+      - Gabrielle Engledue was declared dead and cremated based on a forged certificate
+      - Hugh Garfield was drugged and lost memory after visiting De Gex's house
+      - Oswald De Gex is a wealthy financier with suspicious associates
+      - The poison orosin is a newly discovered, undetectable, and deadly substance
+    inferred_conclusions:
+      - Gabrielle Engledue was truly dead and the girl seen alive was an imposter
+      - Oswald De Gex was innocent and the deaths were natural
+      - Hugh Garfield was hallucinating and the conspiracy was imagined
+  hidden_model:
+    mechanism:
+      description: >-
+        Oswald De Gex, motivated by inheritance, conspired to poison Gabrielle Engledue with orosin,
+        a subtle and deadly poison prepared by Doctor Moroni. He also drugged Hugh Garfield to forge
+        a death certificate to cover up the murder. Hired assassins Mateo Sanz and Despujol executed
+        further attempts to eliminate threats. The poison was administered via contaminated objects
+        and drinks, causing memory loss, mental impairment, or death.
+      delivery_path:
+        - step: De Gex arranges secret meeting and invites victims to his house
+        - step: Doctor Moroni prepares orosin and administers it in coffee and other means
+        - step: Garfield is drugged and coerced into forging a death certificate
+        - step: Gabrielle Engledue is poisoned and declared dead, body cremated
+        - step: Hugh Garfield recovers and investigates the conspiracy
+        - step: Assassins Sanz and Despujol attempt further attacks using orosin
+        - step: Police surveillance leads to arrests and exposure of the conspiracy
+    outcome:
+      result: >-
+        Oswald De Gex is arrested for murder but commits suicide before trial; his accomplices are
+        arrested or remain fugitives; Gabrielle Tennison recovers her memory and marries Hugh
+        Garfield.
+  false_assumption:
+    statement: Gabrielle Engledue was dead and the girl seen alive was a different person or imposter.
+    type: identity
+    why_it_seems_reasonable: >-
+      The official death certificate and cremation record support the belief she was dead. The girl
+      seen alive exhibited severe mental impairment and memory loss, suggesting she could not be the
+      same person.
+    what_it_hides: >-
+      It conceals the fact that the girl seen alive is indeed Gabrielle Engledue, who was poisoned
+      but survived with mental impairment caused by orosin.
+  false_solution:
+    accused_suspect: Mateo Sanz
+    supporting_points:
+      - He was a notorious criminal and assassin
+      - He was seen visiting De Gex and involved in plots
+      - He attempted to kill Hugh Garfield with poisoned pins
+      - He fled when police approached
+    the_one_flaw: Sanz was a hired assassin acting under De Gex's orders, not the mastermind behind the murders
+    refuted_in_chapter: 28
+  red_herrings:
+    - id: gaston_suzor
+      description: >-
+        Gaston Suzor, posing as a French banker, is suspected of being a conspirator but his exact
+        role is unclear.
+      points_at_suspect: Oswald De Gex and his network
+      innocent_explanation: Suzor is an agent of De Gex, but not the direct murderer or poisoner.
+      resolved_in_chapter: 28
+    - id: rodriquez_despujol
+      description: >-
+        Rodriquez Despujol, a notorious Spanish criminal and assassin, is implicated in the murders
+        and attempts on Garfield's life.
+      points_at_suspect: Direct perpetrator of attacks and poisonings
+      innocent_explanation: Despujol is a hired assassin working for De Gex, not the mastermind.
+      resolved_in_chapter: 28
+  closed_circle:
+    suspects:
+      - Oswald De Gex
+      - Doctor Moroni
+      - Mateo Sanz
+      - Gaston Suzor
+    rationale: >-
+      All suspects are closely connected to the victim and the crime scenes, with no external
+      unknown parties involved.
+  constraint_space:
+    time:
+      anchors:
+        - Night of November 7th
+        - Arrival of telegrams in Madrid
+        - Appointment at Hôtel Luxembourg on Monday noon
+      windows:
+        - Evening dinners at Stretton Street
+        - Visits of assassins between November and following year
+        - Gabrielle's disappearance and recovery period
+    access:
+      actors:
+        - Oswald De Gex
+        - Doctor Moroni
+        - Mateo Sanz
+        - Horton (servant)
+        - Gabrielle Engledue
+        - Hugh Garfield
+      objects:
+        - Coffee cups
+        - Gloves with razor blade
+        - Carpet pins
+        - Death certificate
+        - Telegram messages
+    social:
+      trust_channels:
+        - De Gex's invitations
+        - Doctor Moroni's medical authority
+        - Servants' loyalty
+        - Police surveillance
+      authority_sources:
+        - Metropolitan Police
+        - Spanish Police
+        - Dutch Police
+        - French Police
+        - Medical experts
+  inference_path:
+    steps:
+      - observation: Hugh Garfield was drugged and lost memory after visiting De Gex's house
+        correction: The drug was orosin administered in coffee and atmosphere
+        effect: Garfield was manipulated into forging a death certificate
+        required_evidence:
+          - Five thousand pounds bribe notes found in Garfield's possession
+          - Witness testimony of Garfield's symptoms and loss of consciousness
+        reader_observable: true
+      - observation: Gabrielle Engledue was declared dead and cremated
+        correction: Gabrielle was poisoned but survived with mental impairment
+        effect: The death certificate was forged to cover up the crime
+        required_evidence:
+          - Somerset House death register entry
+          - Gabrielle Tennison's mental condition and testimony
+        reader_observable: true
+      - observation: Oswald De Gex denies knowledge of Gabrielle Engledue
+        correction: De Gex is the mastermind behind the poisoning and murder
+        effect: De Gex attempts to mislead investigators and cover his tracks
+        required_evidence:
+          - >-
+            Intercepted telegrams showing De Gex's communication with suspects about Gabrielle's
+            movement
+          - Testimonies of servants and associates regarding De Gex's instructions and evasions
+        reader_observable: true
+      - observation: Dead bandit Despujol and motor-bandit Sanz are associates of De Gex
+        correction: They are hired assassins executing De Gex's orders
+        effect: They attempt to eliminate threats using orosin and other means
+        required_evidence:
+          - Police surveillance reports tracking suspects' movement to and from crime scenes
+          - >-
+            Arrest records and confessions detailing communication between Sanz, Despujol, and De
+            Gex
+        reader_observable: true
+      - observation: Baron van Veltrup died suddenly with heart failure diagnosis
+        correction: He was secretly poisoned with orosin via infected glove
+        effect: His death was a murder to benefit De Gex financially
+        required_evidence:
+          - Valet's testimony about the Baron's last movements and visitors
+          - Exhumation and toxicological analysis of glove fragments
+        reader_observable: true
+      - observation: Sample cake of toilet soap contained sharp steel points
+        correction: Steel points were impregnated with orosin to poison victim
+        effect: Another assassination attempt on Garfield was foiled
+        required_evidence:
+          - Chemical analysis by Professor Vega of the soap and steel points
+          - Discovery of soap sample sent to Garfield's address
+        reader_observable: true
+      - observation: Gabrielle Tennison recovered memory after treatment by Professor Gourbeil
+        correction: Orosin poisoning effects can be partially reversed in rare cases
+        effect: Gabrielle is able to testify and reveal the conspiracy
+        required_evidence:
+          - Medical reports from Lyons detailing Gabrielle's recovery
+          - Gabrielle's own testimony about her memory and identity
+        reader_observable: true
+  discriminating_test:
+    method: constraint_proof
+    design: >-
+      Surveillance and interception of suspects' movements and communications to confirm their
+      identities and connections. Chemical analysis of physical evidence such as carpet pins and
+      glove fragments to detect orosin. Cross-referencing death records and testimonies to establish
+      timeline and victim identities.
+    knowledge_revealed: >-
+      This test reveals the true identities of the criminals, the use of orosin as poison, and the
+      conspiracy to murder Gabrielle Engledue and others for financial gain.
+    pass_condition: >-
+      Identification and arrest of suspects based on surveillance and incontrovertible chemical
+      evidence of orosin poisoning.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given detailed accounts of the characters' movements, the discovery of orosin
+      and its effects, the forged death certificate, and the suspicious behavior of De Gex and his
+      associates. Clues such as the mysterious 'red, green and gold' shawl, the presence of carpet
+      pins, and the involvement of known criminals are all presented. The reader could deduce the
+      conspiracy by connecting these facts and understanding the motive of inheritance and financial
+      gain.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

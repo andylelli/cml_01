@@ -1,16 +1,16 @@
 {
  "false_assumption": {
-  "statement": "Leila Storm died accidentally from a fainting spell and fall.",
+  "statement": "Leila Storm’s death was an accidental fall caused by a fainting spell.",
   "type": "behavioral",
-  "why_it_seems_reasonable": "The presence of a medical condition (petit mal) and the apparent accidental injuries support this theory. The staged scene and lack of immediate suspicion reinforce the belief.",
-  "what_it_hides": "It conceals the fact that Leila was deliberately murdered by her husband with a golf club driver."
+  "why_it_seems_reasonable": "The victim had a known medical condition (petit mal) that could cause fainting and accidental injury. The staged scene and medical testimony supported this theory.",
+  "what_it_hides": "It conceals the fact that Norman Storm deliberately murdered Leila in a jealous rage using a golf club driver."
  },
- "mechanism_description": "Norman Storm, driven by jealousy and financial desperation, murdered his wife Leila by striking her with a golf club driver after suspecting her of infidelity. Later, to recover from financial ruin caused by a swindler, Storm killed Jack Horton, the paymaster carrying a large sum of money, by hitting him on the back of the head with a heavy cane. Storm then concealed Horton's body by throwing it over a wall and secretly took possession of the money, which he hid in his apartment before planning to escape.",
+ "mechanism_description": "Norman Storm, driven by jealousy and financial desperation, killed his wife Leila with a blow from a golf club driver after suspecting her of infidelity with Richard Brewster. Later, to recover from a swindle and secure his escape, Storm murdered Jack Horton, the paymaster carrying a large sum of money, and concealed the crime through careful planning and deception, but was ultimately exposed by his friend George Holworthy's investigation.",
  "discriminating_test": {
   "method": "trap",
-  "design": "Storm arranges a fishing trip with George in a remote lodge without guides or outsiders. He observes George's reactions and probes his knowledge of the case, testing if George suspects him. The isolation removes external influences and forces George to reveal any suspicions or knowledge.",
-  "knowledge_revealed": "George's behavior and responses reveal whether he has pieced together the truth about Storm's guilt.",
-  "pass_condition": "George fails to reveal any suspicion or knowledge of Storm’s crimes during the trip, confirming Storm’s control over the situation."
+  "design": "During the fishing trip, George observes Storm’s behavior closely and tests his reactions to questions about the murders and money. The isolation allows George to detect inconsistencies and nervousness. The presence of the loaded pistol and Storm’s insistence on carrying the valise are monitored.",
+  "knowledge_revealed": "Storm’s guilt and intent to kill George if discovered are revealed by his reactions and possession of incriminating items.",
+  "pass_condition": "Storm fails to maintain composure and reveals knowledge only the murderer would have."
  },
  "changed": [],
  "confidence": "high"

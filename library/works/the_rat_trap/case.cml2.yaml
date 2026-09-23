@@ -1,0 +1,399 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The rat trap
+    author: William Le Queux
+    license: Public domain (first published 1928; author died 1927). Project Gutenberg ebook 77737.
+    era:
+      decade: 1930s
+      realism_constraints:
+        - No advanced forensic DNA analysis available
+        - Fingerprinting is established and usable
+        - Poisoning methods known but toxicology limited to expert analysis
+    setting:
+      location: Continental Europe (Ostend, London, Nice, Sherehaven)
+      institution: Local police and private inquiry agents
+    crime_class:
+      category: murder
+      subtype: poisoning by rare tropical toxin
+  cast:
+    - name: Frank Aylmer
+      age_range: 30s
+      role_archetype: romantic gentleman with criminology hobby
+      relationships:
+        - Claude Peyton (friend)
+        - Eileen Quentin (lover)
+        - Cyrus J. Whitefield (acquaintance)
+      public_persona: idle gentleman of means
+      private_secret: deeply in love with Eileen Quentin
+      motive_seed: protect Eileen and uncover truth
+      motive_strength: strong
+      alibi_window: present throughout investigation
+      access_plausibility: high
+      opportunity_channels:
+        - access to Quentin's room via duplicate key
+      behavioral_tells:
+        - persistent investigation
+        - careful observation
+      stakes: personal love and justice
+      evidence_sensitivity:
+        - fingerprint analysis
+        - toxicological report
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: high
+    - name: Claude Peyton
+      age_range: early 20s
+      role_archetype: practical young stockbroker and friend
+      relationships:
+        - Frank Aylmer (friend)
+        - Lily Murcheson (fiancée)
+      public_persona: young stock exchange partner
+      private_secret: observant and cautious
+      motive_seed: concern for friend Aylmer
+      motive_strength: weak
+      alibi_window: present in London
+      access_plausibility: medium
+      opportunity_channels: []
+      behavioral_tells:
+        - sharp observer
+        - reserved
+      stakes: friendship and social standing
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+    - name: Eileen Quentin
+      age_range: early 20s
+      role_archetype: beautiful young woman trapped in false marriage
+      relationships:
+        - Richard Quentin (false husband)
+        - Frank Aylmer (lover)
+      public_persona: Mrs. Quentin, wife of Richard Quentin
+      private_secret: not legally married, in love with Aylmer
+      motive_seed: desire for freedom and love
+      motive_strength: none
+      alibi_window: present during events
+      access_plausibility: medium
+      opportunity_channels: []
+      behavioral_tells:
+        - emotional distress
+        - secretive
+      stakes: personal freedom and love
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: victim
+      moral_complexity: high
+    - name: Richard Quentin (Sanderson)
+      age_range: mid 40s
+      role_archetype: smooth-spoken criminal and adventurer
+      relationships:
+        - Eileen Quentin (false wife)
+        - Martyn (friend)
+        - Dicks (butler)
+        - Ramon (associate)
+      public_persona: gentleman of means, recluse
+      private_secret: hotel rat, criminal mastermind, poisoner
+      motive_seed: financial gain and concealment
+      motive_strength: strong
+      alibi_window: present at crime scenes
+      access_plausibility: high
+      opportunity_channels:
+        - access to victim's belongings and rooms
+      behavioral_tells:
+        - persistent financial schemes
+        - heavy drinking
+        - secretive
+      stakes: freedom, money, concealment of crimes
+      evidence_sensitivity:
+        - fingerprints on dispatch-box
+        - toxicological evidence
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Martyn
+      age_range: mid 30s
+      role_archetype: rough, cynical friend with ambiguous loyalties
+      relationships:
+        - Richard Quentin (friend)
+        - Eileen Quentin (acquaintance)
+      public_persona: friend of Quentin
+      private_secret: possibly involved in criminal activities
+      motive_seed: unknown, possibly self-preservation
+      motive_strength: moderate
+      alibi_window: present at key moments
+      access_plausibility: medium
+      opportunity_channels:
+        - access to Quentin's study
+      behavioral_tells:
+        - rudeness
+        - evasiveness
+      stakes: freedom
+      evidence_sensitivity: []
+      culprit_eligibility: eligible
+      culpability: unknown
+      gender: male
+      role: suspect
+      moral_complexity: medium
+    - name: Dicks
+      age_range: middle-aged
+      role_archetype: faithful butler with secret criminal ties
+      relationships:
+        - Richard Quentin (employer)
+        - Ramon (associate)
+      public_persona: respectable butler
+      private_secret: associate of criminal gang
+      motive_seed: loyalty and financial gain
+      motive_strength: moderate
+      alibi_window: present at crime scenes
+      access_plausibility: high
+      opportunity_channels:
+        - access to house and rooms
+      behavioral_tells:
+        - secretive
+        - loyal
+      stakes: freedom
+      evidence_sensitivity: []
+      culprit_eligibility: eligible
+      culpability: unknown
+      gender: male
+      role: suspect
+      moral_complexity: medium
+    - name: Cyrus J. Whitefield
+      age_range: 60s
+      role_archetype: wealthy American millionaire, target
+      relationships:
+        - Eileen Quentin (admired)
+      public_persona: successful businessman
+      private_secret: admiration for Eileen Quentin
+      motive_seed: none
+      motive_strength: none
+      alibi_window: present throughout
+      access_plausibility: medium
+      opportunity_channels: []
+      behavioral_tells:
+        - boisterous
+        - generous
+      stakes: life and money
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+  culpability:
+    culprit_count: 1
+    culprits:
+      - Richard Quentin (Sanderson)
+  surface_model:
+    narrative:
+      summary: >-
+        Richard Quentin, a seemingly respectable man, is suspected of criminal activities involving
+        hotel robberies and financial schemes. The disappearance of the Quentins and a daring jewel
+        robbery at a hotel raise suspicions. Frank Aylmer investigates and uncovers a plot involving
+        poisoning and fraud.
+    accepted_facts:
+      - Sir Charles Reeks died suddenly of apparent heart disease
+      - Richard Quentin and Eileen live as husband and wife but are not legally married
+      - Quentin is involved with known criminals Ramon and Dicks
+      - Quentin attempted to borrow money from Aylmer and successfully borrowed from Whitefield
+    inferred_conclusions:
+      - Eileen is complicit in Quentin's crimes
+      - Martyn is the mastermind behind the criminal activities
+      - Quentin is innocent and a victim of circumstance
+  hidden_model:
+    mechanism:
+      description: >-
+        Richard Quentin used a rare tropical poison applied to a pillow-case to simulate heart
+        disease and murder Sir Charles Reeks. He planned to use the same method to kill Cyrus J.
+        Whitefield after defrauding him of money. Quentin's criminal network included associates who
+        helped him conceal his activities. The crime was uncovered through fingerprint evidence and
+        toxicological analysis.
+      delivery_path:
+        - step: Quentin obtains rare poison from knowledge gained abroad
+        - step: He applies poison to pillow-case in victim's room
+        - step: Victim inhales poison during sleep, causing symptoms mimicking heart disease
+        - step: Quentin steals money from victim, destroys evidence
+        - step: Quentin attempts to repeat the act on Whitefield
+        - step: Aylmer collects fingerprint evidence from Quentin's belongings
+        - step: Toxicologist confirms presence of poison on pillow-case
+    outcome:
+      result: Quentin commits suicide upon arrest after his crimes are exposed, preventing further harm.
+  false_assumption:
+    statement: Eileen Quentin is complicit in her husband's criminal activities.
+    type: identity
+    why_it_seems_reasonable: >-
+      Eileen is seen as the wife of Quentin and present during suspicious events, leading to
+      assumptions of complicity. Her warnings to Aylmer about Quentin's schemes suggest insider
+      knowledge.
+    what_it_hides: >-
+      Eileen is actually an innocent victim trapped in a false marriage and unaware of the full
+      extent of Quentin's crimes.
+  false_solution:
+    accused_suspect: Martyn
+    supporting_points:
+      - Martyn shows hostility and rudeness towards Eileen
+      - He is seen in secretive meetings with Quentin and Dicks
+      - He abruptly leaves the group before the final events
+      - His suspicious behavior suggests possible involvement
+    the_one_flaw: >-
+      No concrete evidence links Martyn directly to the poisoning or theft; he is more a reluctant
+      associate than mastermind.
+    refuted_in_chapter: 22
+  red_herrings:
+    - id: martyn_suspicious_behavior
+      description: >-
+        Martyn's rudeness and secretive meetings with Quentin and Dicks suggest he may be the
+        criminal mastermind.
+      points_at_suspect: Martyn
+      innocent_explanation: >-
+        Martyn is a cynical friend with questionable past but not directly involved in the murder or
+        poisoning.
+      resolved_in_chapter: 22
+    - id: eileen_complicity
+      description: >-
+        Eileen's knowledge of Quentin's schemes and her mysterious behavior imply she is complicit
+        in the crimes.
+      points_at_suspect: Eileen Quentin
+      innocent_explanation: Eileen is a victim of Quentin's deception and unaware of his criminal activities.
+      resolved_in_chapter: 22
+  closed_circle:
+    suspects:
+      - Richard Quentin (Sanderson)
+      - Martyn
+      - Dicks
+      - Eileen Quentin
+    rationale: >-
+      The suspects are limited to the household and close associates involved in the hotel and
+      financial activities, with no outsiders implicated.
+  constraint_space:
+    time:
+      anchors:
+        - Sir Charles Reeks's death at Biarritz
+        - Quentin's stay at Ostend hotel
+        - Departure from Hampstead house
+        - Arrival at Nice hotel
+        - Whitefield's loan to Quentin
+      windows:
+        - Quentin's presence at crime scenes
+        - Aylmer's visits and observations
+        - Whitefield's stay at Nice
+        - Quentin's suicide timing
+    access:
+      actors:
+        - Richard Quentin
+        - Dicks
+        - Martyn
+        - Frank Aylmer
+      objects:
+        - Quentin's bedroom
+        - Victim's pillow-case
+        - Dispatch-box
+        - Whitefield's room
+    social:
+      trust_channels:
+        - Eileen's confidences to Aylmer
+        - Quentin's promise to Eileen
+        - Duberry's investigations
+        - Whitefield's trust in Quentin
+      authority_sources:
+        - Local police
+        - Monsieur Paillot (French police agent)
+        - Monsieur Dumont (toxicologist)
+        - Private Inquiry Agent Duberry
+  inference_path:
+    steps:
+      - observation: Fingerprints on dispatch-box match Quentin's
+        correction: Quentin tampered with victim's belongings
+        effect: Links Quentin to victim and crime scene
+        required_evidence:
+          - Fingerprint analysis of dispatch-box
+          - Quentin's fingerprints from tumbler in his room
+        reader_observable: true
+      - observation: Quentin tried to borrow money from Aylmer and Whitefield
+        correction: Quentin was in financial difficulty and scheming
+        effect: Motive for crime is financial gain
+        required_evidence:
+          - Quentin's proposals to Aylmer and Whitefield
+          - Whitefield's receipt for loan
+        reader_observable: true
+      - observation: Quentin's pillow-case contained rare poison
+        correction: Poisoning was method of murder
+        effect: Explains sudden heart disease deaths
+        required_evidence:
+          - Toxicological report from Monsieur Dumont
+          - Analysis of pillow-case from Whitefield's room
+        reader_observable: true
+      - observation: Eileen is not legally married to Quentin
+        correction: Eileen is innocent and a victim
+        effect: Removes suspicion of her complicity
+        required_evidence:
+          - Marriage records search
+          - Eileen's written statement describing her relationship with Quentin
+        reader_observable: true
+      - observation: Quentin and Dicks associate with Ramon, a known criminal
+        correction: Quentin is part of a criminal gang
+        effect: Establishes criminal background and network
+        required_evidence:
+          - Duberry and Webber's surveillance reports
+          - Police records on Ramon
+        reader_observable: true
+      - observation: Martyn abruptly leaves the group and is evasive
+        correction: Martyn is not directly involved in murder
+        effect: Focus shifts to Quentin as culprit
+        required_evidence:
+          - Martyn's statements and movements
+          - Lack of evidence linking Martyn to poisoning
+        reader_observable: true
+      - observation: Quentin commits suicide upon arrest
+        correction: Confession by act of suicide
+        effect: Confirms guilt and ends investigation
+        required_evidence:
+          - Police report of Quentin's death
+          - Monsieur Paillot's testimony
+        reader_observable: true
+  discriminating_test:
+    method: trap
+    design: >-
+      Aylmer obtains a duplicate key to Quentin's room and replaces the pillow-case with an
+      identical one. He sends the original for toxicological analysis to confirm the presence of
+      poison. Meanwhile, Whitefield is instructed to bolt his door to prevent unauthorized entry.
+      Observing Quentin's behavior for attempts to enter Whitefield's room tests the hypothesis of
+      poisoning via the pillow.
+    knowledge_revealed: >-
+      The test reveals Quentin's intent to poison Whitefield using the pillow-case and confirms the
+      use of a rare poison.
+    pass_condition: Quentin attempts to enter Whitefield's room to remove evidence, confirming his guilt.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given access to all key observations, including the suspicious behavior of
+      Quentin, the fingerprint evidence, and the toxicological analysis. The clues about the false
+      marriage and Eileen's innocence are explicitly stated. The method of poisoning is hinted
+      through the symptoms and the presence of the pillow-case. The duplicate key and the timing of
+      events are described, allowing the reader to deduce the mechanism before the final reveal.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

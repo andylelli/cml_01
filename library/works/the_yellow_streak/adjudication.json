@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "The death of Hartley Parrish was a straightforward suicide caused by business worries.",
+  "type": "behavioral",
+  "why_it_seems_reasonable": "Parrish was found with a pistol in his hand and medical evidence indicated instantaneous death by a gunshot to the heart. The presence of a threatening letter and his nervous condition suggested a motive for suicide.",
+  "what_it_hides": "It conceals the fact that Parrish was murdered by Jeekes who used a silenced shot and staged the scene to look like suicide, misleading the police and witnesses."
+ },
+ "mechanism_description": "Albert Edward Jeekes, acting under orders from Victor Marbran, confronted Hartley Parrish at the open library window with a pistol identical to Parrish’s. Parrish fired a silenced shot at Jeekes, who returned fire with a loud shot that killed Parrish. Jeekes then staged the scene as a suicide by placing Parrish’s pistol without the silencer in his hand and closing the window. He escaped through the window, taking care to avoid leaving marks, and later confessed before dying by suicide.",
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "Reconstruct the murder scene at Harkings library with the window open and the silencer removed from the pistol. Test whether the sounds of two shots, one silenced and one loud, can be heard and whether the murderer could have escaped through the window without leaving marks. Confirm the presence of two pistols of identical caliber and the timing of voices and shots.",
+  "knowledge_revealed": "This test reveals that two shots were fired, the silenced shot first by Parrish, then the loud shot by the murderer, and that the murderer escaped through the open window, staging the scene as suicide.",
+  "pass_condition": "The test passes if the timing and acoustic conditions match witness testimonies and physical evidence, and if the escape through the window is plausible without leaving footprints or marks."
+ },
+ "changed": [],
+ "confidence": "high"
+}

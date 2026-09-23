@@ -1,0 +1,136 @@
+{
+ "slug": "the_avenger",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "The victim’s head was found sliced neatly from his body",
+   "anchor": "the unfortunate Elmer’s head, sliced neatly from his body",
+   "span": "We found the box, and of course we found the unfortunate Elmer's head, sliced neatly from his body,\" said Staines.",
+   "ok": true
+  },
+  {
+   "claim": "The typewritten notes were made on an old Kost machine",
+   "anchor": "extraordinary alignment which the experts are unanimous in ascribing to a very old and out-of-date Kost machine",
+   "span": "In every case you have the half-obliterated 'u,' the faint 'g,' and the extraordinary alignment which the experts are unanimous in ascribing to a very old and out-of-date Kost machine.",
+   "ok": true
+  },
+  {
+   "claim": "Adele Leamington was abducted by Bhag the orangutan",
+   "anchor": "a great hairy arm and a hand closed like a vice on her wrist",
+   "span": "She was closing the other when, out of the darkness below, reached a great hairy arm and a hand closed like a vice on her wrist.",
+   "ok": true
+  },
+  {
+   "claim": "Lawley Foss’s head was found on Chobham Common",
+   "anchor": "It was the head of Lawley Foss",
+   "span": "It was the head of Lawley Foss.",
+   "ok": true
+  },
+  {
+   "claim": "Sir Gregory Penne owns the orangutan Bhag",
+   "anchor": "Bhag is my shield against all trouble",
+   "span": "Bhag is my shield against all trouble.",
+   "ok": true
+  },
+  {
+   "claim": "Bhag can use a sword and was trained by Penne",
+   "anchor": "Bhag could do all the Malayan exercises with the sword",
+   "span": "Do you know that Bhag could do all the Malayan exercises with the sword!",
+   "ok": true
+  },
+  {
+   "claim": "A white circular disc was placed on Adele’s window",
+   "anchor": "a circular disc of paper. It was pasted on the outside of the window",
+   "span": "And then, for the first time, she saw, on the centre of one of the small panes, a circular disc of paper. It was pasted on the outside of the window, and at first she was about to pull it off, when she guessed that it might be some indicator placed by Knebworth to mark an exact position that he required for the morning picture-taking.",
+   "ok": true
+  },
+  {
+   "claim": "The guillotine was found in the caves beneath Dower House",
+   "anchor": "A GUILLOTINE! Standing in the middle of the cave, its high framework lifted starkly",
+   "span": "A GUILLOTINE! Standing in the middle of the cave, its high framework lifted starkly.",
+   "ok": true
+  },
+  {
+   "claim": "Sampson Longvale is the Head-Hunter murderer",
+   "anchor": "Your great-uncle was Sanson, otherwise Longval, hereditary executioner of France",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Longvale captured Michael Brixan using handcuffs and a trapdoor",
+   "anchor": "There was a click, and, exerting all his strength, he tried to pull his other hand away",
+   "span": "He felt the touch of cold steel on his wrists, there was a click, and, exerting all his strength, he tried to pull his other hand away.",
+   "ok": true
+  },
+  {
+   "claim": "Bhag escaped captivity and returned wounded",
+   "anchor": "That was Bhag! His tawny hair was white with dust, his face was powdered grotesquely",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Adele Leamington fell into the caves and found human bones",
+   "anchor": "The floor was littered with queer white sticks. There were thousands of them",
+   "span": "And here the floor was littered with queer white sticks. There were thousands of them, of every conceivable shape and size.",
+   "ok": true
+  },
+  {
+   "claim": "Longvale executed victims using the guillotine",
+   "anchor": "Bhag jerked the handle that controlled the knife",
+   "span": "he said, and at that moment Bhag jerked the handle that controlled the knife.",
+   "ok": true
+  },
+  {
+   "claim": "The false solution accused Sir Gregory Penne",
+   "anchor": "Penne is the Head-Hunter, of course",
+   "span": "Penne is the Head-Hunter, of course,\" the Inspector went on.",
+   "ok": true
+  },
+  {
+   "claim": "The mysterious letters were collected by a mad old woman",
+   "anchor": "She was a stranger to each neighbourhood, by the way; and from what shopkeepers have told Scotland Yard, she seemed to be a little off her head",
+   "span": "She was a stranger to each neighbourhood, by the way; and from what shopkeepers have told Scotland Yard, she seemed to be a little off her head, for she was in the habit of mumbling and talking to herself.",
+   "ok": true
+  },
+  {
+   "claim": "The broken handcuff link was found near the crime scene",
+   "anchor": "It’s the central link of a handcuff, the link that has the swivel",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Michael Brixan disguised himself to trap the Head-Hunter",
+   "anchor": "I’ve deceived everybody, including myself",
+   "span": "I've deceived everybody, including myself,\" said Michael savagely.",
+   "ok": true
+  },
+  {
+   "claim": "The guillotine was nicknamed 'The Widow'",
+   "anchor": "‘The Widow’! He touched the frame lovingly",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The final confrontation and execution of Longvale",
+   "anchor": "Bhag jerked the handle that controlled the knife",
+   "span": "he said, and at that moment Bhag jerked the handle that controlled the knife.",
+   "ok": true
+  },
+  {
+   "claim": "Adele Leamington survived and was rescued",
+   "anchor": "It was she! He twisted over on to his knees and staggered upright",
+   "span": "It was she! He twisted over on to his knees and staggered upright.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.09246598845000001,
+ "models": {
+  "map": "gpt-4o-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

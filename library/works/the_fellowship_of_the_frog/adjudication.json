@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "Ray Bennett is guilty of murder and the primary criminal.",
+  "type": "identity",
+  "why_it_seems_reasonable": "Ray Bennett was found under sentence of death with circumstantial evidence and was involved with suspicious characters. His behavior and associations suggested guilt.",
+  "what_it_hides": "The true mastermind was Joshua Broad, who orchestrated the framing and crimes from behind the scenes, using others as scapegoats."
+ },
+ "mechanism_description": "Joshua Broad, the real Frog and criminal mastermind, controlled the Fellowship of the Frog using Philo Johnson as his front. They orchestrated crimes and framed Ray Bennett to protect their operations. The murder of Ezra Maitland was part of their scheme to maintain control and eliminate threats. The organization used secret wireless broadcasts and tattoos for communication and identification.",
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "A motion picture film was obtained showing the actual murder of Lew Brady by a man other than Ray Bennett. The film was shown to witnesses and officials to confirm the innocence of Ray Bennett and identify the true murderer. This test used visual evidence to distinguish the real killer from the framed suspect.",
+  "knowledge_revealed": "The film revealed that Ray Bennett was not the murderer and that the crime was orchestrated by the Frogs to frame him.",
+  "pass_condition": "The suspect shown in the film committing the murder is not Ray Bennett, disproving his guilt."
+ },
+ "changed": [],
+ "confidence": "high"
+}

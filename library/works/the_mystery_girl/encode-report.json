@@ -6,7 +6,7 @@
   {
    "claim": "John Waring was found dead in his study with a stab wound",
    "anchor": "Doctor Waring—as you see him now",
-   "span": "I broke in at that glass door, being unable to get in any other way, and I found Doctor Waring—as you see him now.",
+   "span": "I broke in at that glass door, being unable to get in any other way, and I found Doctor Waring-as you see him now.",
    "ok": true
   },
   {
@@ -30,13 +30,13 @@
   {
    "claim": "Anita Austin's fingerprints and dress button imprints were found on a chair in the study",
    "anchor": "finger prints on the chair",
-   "span": "Lockwood, fresh finger prints on the chair which stood near Doctor Waring’s desk.",
+   "span": "Lockwood, fresh finger prints on the chair which stood near Doctor Waring's desk.",
    "ok": true
   },
   {
    "claim": "Nogi, the Japanese servant, disappeared after the death",
    "anchor": "Nogi is gone",
-   "span": "Nogi is gone—he cannot be questioned.",
+   "span": "Nogi is gone-he cannot be questioned.",
    "ok": true
   },
   {
@@ -48,7 +48,7 @@
   {
    "claim": "A red circular mark was found on Waring's forehead",
    "anchor": "There was a red circle on Waring’s forehead",
-   "span": "There was a red circle on Waring’s forehead, that looked as if it had been put there of some purpose.",
+   "span": "There was a red circle on Waring's forehead, that looked as if it had been put there of some purpose.",
    "ok": true
   },
   {
@@ -84,7 +84,7 @@
   {
    "claim": "Waring gave Anita money and a ruby pin as gifts",
    "anchor": "He gave me the money, for he was afraid I hadn’t sufficient cash",
-   "span": "He gave me the money, for he was afraid I hadn’t sufficient cash with me, and he gave me the ruby pin, saying I must keep it forever as my father’s first gift to me.",
+   "span": "He gave me the money, for he was afraid I hadn't sufficient cash with me, and he gave me the ruby pin, saying I must keep it forever as my father's first gift to me.",
    "ok": true
   },
   {
@@ -96,13 +96,13 @@
   {
    "claim": "Nogi witnessed the death and fled",
    "anchor": "I was afraid, and I ran away—fast",
-   "span": "I was afraid, and I ran away—fast.",
+   "span": "I was afraid, and I ran away-fast.",
    "ok": true
   },
   {
    "claim": "Lockwood loved Anita and tried to protect her",
    "anchor": "I love you, I believe in you and I want you",
-   "span": "I know you are in no way guiltily connected with this crime—if you are mixed up with it, it is through force of circumstances, and anyway, I don’t care who or what you are—I love you, I believe in you and I want you.",
+   "span": "I know you are in no way guiltily connected with this crime-if you are mixed up with it, it is through force of circumstances, and anyway, I don't care who or what you are-I love you, I believe in you and I want you.",
    "ok": true
   },
   {
@@ -114,7 +114,7 @@
   {
    "claim": "The red ring mark was caused by resting on the telephone",
    "anchor": "he rested his head on the instrument",
-   "span": "Without doubt, Doctor Waring was telephoning—or perhaps was answering a call and he rested his head on the instrument.",
+   "span": "Without doubt, Doctor Waring was telephoning-or perhaps was answering a call and he rested his head on the instrument.",
    "ok": true
   },
   {
@@ -130,5 +130,7 @@
   "encode": "gpt-4.1-mini",
   "sweep": "gpt-4o-mini"
  },
- "case_written": true
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
 }

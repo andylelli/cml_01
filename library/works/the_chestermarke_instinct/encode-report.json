@@ -1,0 +1,136 @@
+{
+ "slug": "the_chestermarke_instinct",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "John Horbury is missing since Saturday evening",
+   "anchor": "Mr. Horbury is not at home",
+   "span": "Mr. Horbury is not at home,\" he answered.",
+   "ok": true
+  },
+  {
+   "claim": "Valuable securities and jewels are missing",
+   "anchor": "some of our most valuable securities",
+   "span": "And so are some of our most valuable securities.",
+   "ok": true
+  },
+  {
+   "claim": "Frederick Hollis was found dead in a lead mine",
+   "anchor": "found the body this morning",
+   "span": "We found the body this morning--not two hours ago.",
+   "ok": true
+  },
+  {
+   "claim": "Gabriel Chestermarke is the senior partner of the bank",
+   "anchor": "Mr. Gabriel Chestermarke, senior proprietor",
+   "span": "Now they looked towards Middlegate--a street which led into the open country, in the direction of Ellersdeane, where Mr. Gabriel Chestermarke, senior proprietor of the bank, resided.",
+   "ok": true
+  },
+  {
+   "claim": "Joseph Chestermarke is the junior partner and nephew",
+   "anchor": "Mr. Joseph Chestermarke, a man of apparently thirty years",
+   "span": "Mr. Joseph Chestermarke, a man of apparently thirty years of age, was tall and loose of figure, easy of demeanour, and a little untidy in his dress.",
+   "ok": true
+  },
+  {
+   "claim": "Mrs. Carswell is the housekeeper who disappears",
+   "anchor": "Mrs. Carswell has disappeared",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Detective-Sergeant Starmidge is from New Scotland Yard",
+   "anchor": "Detective-Sergeant Starmidge, of the Criminal Investigation Department",
+   "span": "Allow me--Detective-Sergeant Starmidge, of the Criminal Investigation Department.",
+   "ok": true
+  },
+  {
+   "claim": "Frederick Hollis came to Scarnham and used the telephone",
+   "anchor": "a strange gentleman walked across from the station",
+   "span": "30 got in, and therefore you might say at the outside twenty minutes to six, a strange gentleman walked across from the station to our hotel, which is, as you're all well aware, exactly opposite.",
+   "ok": true
+  },
+  {
+   "claim": "A pipe belonging to Horbury was found near Ellersdeane Tower",
+   "anchor": "I found that, last night, gathering dry sticks",
+   "span": "I found that, last night, gathering dry sticks,\" he said.",
+   "ok": true
+  },
+  {
+   "claim": "The incomplete cheque for ten thousand pounds was found on Hollis",
+   "anchor": "a cheque for ten thousand pounds",
+   "span": "Hollis called here himself with a cheque for ten thousand pounds which he paid into his account, explaining to me that it had been handed to him for a special purpose, and that he should draw a cheque for his own against it, for the same amount, very shortly.",
+   "ok": true
+  },
+  {
+   "claim": "Gabriel Chestermarke has a double identity as Godwin Markham",
+   "anchor": "Gabriel Chestermarke is Godwin Markham",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Joseph Chestermarke imprisons Horbury in a sound-proof room",
+   "anchor": "he was chained like a dog",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Explosion destroys Joseph Chestermarke's laboratory",
+   "anchor": "The laboratory was a mass of shapeless wreckage",
+   "span": "The laboratory was a mass of shapeless wreckage.",
+   "ok": true
+  },
+  {
+   "claim": "Horbury is rescued alive from imprisonment",
+   "anchor": "Horbury for their first interview",
+   "span": "CHAPTER XXXI THE PRISONER SPEAKS It was not until a week later that Neale, with a bandaged head and one arm in a sling, and Betty Fosdyke, inexpressibly thankful that the recent terrible catastrophe had at any rate brought relief in its train, were allowed to visit Horbury for their first interview of more than a few minutes' duration.",
+   "ok": true
+  },
+  {
+   "claim": "Joseph Chestermarke is found dead after the explosion",
+   "anchor": "They took out what was to be found of Joseph Chestermarke",
+   "span": "They took out what was to be found of Joseph Chestermarke at that particular spot, and went on to search for the rest of him, and for anything else.",
+   "ok": true
+  },
+  {
+   "claim": "Gabriel Chestermarke accuses Joseph of theft and murder",
+   "anchor": "Thief and liar and murderer",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The sparrows are drugged by poisoned bread",
+   "anchor": "the sparrows were not dead but they were very fast asleep",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "James Livesey witnesses Horbury and Hollis entering the Warren",
+   "anchor": "he saw Mr. John Horbury accompanied by a stranger",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The inquest is adjourned for further evidence",
+   "anchor": "The inquest was further adjourned",
+   "span": "The inquest was further adjourned at the close of this afternoon's proceedings.",
+   "ok": true
+  },
+  {
+   "claim": "Gabriel Chestermarke and Joseph Chestermarke leave the Warren together",
+   "anchor": "Mr. Joseph Chestermarke had dined at the Warren at seven o'clock",
+   "span": "Mr. Joseph Chestermarke had dined at the Warren at seven o'clock, and at half-past eight he and his uncle left the house together.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.076915664,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

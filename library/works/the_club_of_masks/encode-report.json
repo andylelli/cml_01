@@ -1,0 +1,130 @@
+{
+ "slug": "the_club_of_masks",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Dr. Weathered was found dead in the Domino Club wearing an Inquisitor costume",
+   "anchor": "Within the curtains, stretched at full length on a low divan, was a figure attired as an Inquisitor",
+   "span": "Within the curtains, stretched at full length on a low divan, was a figure attired as an Inquisitor.",
+   "ok": true
+  },
+  {
+   "claim": "The victim carried opium pellets in his waistcoat pocket",
+   "anchor": "he extracted a silver matchbox from the waistcoat, and opened it... two pellets the size of small peas",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The safe at Dr. Weathered’s house was found open with keys left inside",
+   "anchor": "The door of the safe standing wide open. The key was in the keyhole, with the whole bunch, including the latchkey, dangling from it",
+   "span": "There the first sight that met their eyes was the door of the safe standing wide open. The key was in the keyhole, with the whole bunch, including the latchkey, dangling from it.",
+   "ok": true
+  },
+  {
+   "claim": "Lady Violet Bredwardine’s name appeared in the club’s members list and appointment book",
+   "anchor": "Lady Violet Bredwardine... was also one of Weathered’s patients, which means that she may have been in his power",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Lady Violet had a solid alibi being at Tyberton Castle during the murder",
+   "anchor": "Lady Violet Bredwardine is down in Herefordshire at her father’s seat, Tyberton Castle. She left London for the Castle the day before yesterday",
+   "span": "You can tell Sir Frank that Lady Violet Bredwardine is down in Herefordshire at her father's seat, Tyberton Castle. She left London for the Castle the day before yesterday by the noon train, so that she can't have been present at the Domino Club.",
+   "ok": true
+  },
+  {
+   "claim": "The rare poison upasine was identified as the cause of death",
+   "anchor": "There is one drug known to me which does in fact produce appearances exactly like those we have seen... I have called it upasine",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Madame Bonnell was the proprietor of the Domino Club and had access to the victim",
+   "anchor": "Madame Bonnell, the proprietress of the club... She had obviously employed her time since the discovery of this particular mischance in making the best of her personal appearance",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Madame Bonnell’s bottle contained harmless powder, not the real poison",
+   "anchor": "The powder now in this bottle is a harmless mixture of charcoal and common salt",
+   "span": "The powder now in this bottle is a harmless mixture of charcoal and common salt.",
+   "ok": true
+  },
+  {
+   "claim": "Madame Bonnell’s fingerprint matched a wanted criminal in France",
+   "anchor": "You have dyed your hair, Leonie Marchand, since I saw you last, but you haven’t changed your finger-print",
+   "span": "You have dyed your hair, Leonie Marchand, since I saw you last, but you haven't changed your finger-print, you know.",
+   "ok": true
+  },
+  {
+   "claim": "The poison bottle was stolen from Mrs. Amelia Baker’s house",
+   "anchor": "The bottle is gone!... The bottle of upasine was not there",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Mrs. Neobard secretly took the poison bottle from her husband’s house",
+   "anchor": "I took a bunch of all the keys I could find in the house... almost the first key I tried opened the chiffonier and there stood the bottle",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The blackmail advertisement was placed by a solicitor with false names",
+   "anchor": "The names in the advertisement are bogus ones... The man’s real name is Stillman",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Dr. Cassilis disguised himself as Zenobia to meet Dr. Weathered",
+   "anchor": "I had to disguise myself in a costume with which he was familiar... the Zenobia helmet",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Sarah Neobard accused Lady Violet of poisoning Dr. Weathered",
+   "anchor": "I saw her drop something into his cup",
+   "span": "_I saw her drop something into his cup.",
+   "ok": true
+  },
+  {
+   "claim": "Lady Violet lent her costume to Dr. Cassilis",
+   "anchor": "She lent me the Zenobia costume",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Dr. Weathered was a blackmailer who kept secret letters from patients",
+   "anchor": "The doctor’s case-book that was missing, the book containing the secrets of the women",
+   "span": "It was the doctor's case-book that was missing, the book containing the secrets of the women.",
+   "ok": true
+  },
+  {
+   "claim": "The rare poison upasine causes skin to look like parchment",
+   "anchor": "the whole surface of the skin was corrugated by tiny wrinkles, so that it presented the appearance of a mummy dried by the embalmer",
+   "span": "The grayness I had remarked had grown deeper, and the whole surface of the skin was corrugated by tiny wrinkles, so that it presented the appearance of a mummy dried by the embalmer.",
+   "ok": true
+  },
+  {
+   "claim": "Madame Bonnell bribed the waiter Gerard to watch Dr. Weathered’s drinks",
+   "anchor": "your continued hints made Gerard watchful, and on the fatal night he did see something dropped in the doctor’s cup",
+   "span": "What really happened was that your continued hints made Gerard watchful, and on the fatal night he did see something dropped in the doctor's cup by a dancer whom he described correctly.",
+   "ok": true
+  },
+  {
+   "claim": "The murder was motivated by Madame Bonnell’s desire to protect her position and extort money",
+   "anchor": "She was ready to help me on her own terms. I undertook to transfer the whole property in the Domino Club to her on my husband’s death",
+   "span": "",
+   "ok": false
+  }
+ ],
+ "costGbp": 0.07557550800000001,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

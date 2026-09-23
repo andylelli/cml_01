@@ -1,0 +1,136 @@
+{
+ "slug": "the_charing_cross_mystery",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Robert Hannaford died suddenly in an Underground Railway train",
+   "anchor": "died suddenly in an Underground Railway train",
+   "span": "Whereas Robert Hannaford, formerly Superintendent of Police at Sellithwaite, Yorkshire, died suddenly in an Underground Railway train, near Charing Cross (Embankment) Station about 1.",
+   "ok": true
+  },
+  {
+   "claim": "Hannaford was poisoned by some drug administered hours before death",
+   "anchor": "he was poisoned by some drug or other",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The man with stained fingers was James Granett, also poisoned",
+   "anchor": "the man who had been to see him. Appleyard identified the dead man",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Hannaford cut out a portrait of a woman from a newspaper",
+   "anchor": "cut a photograph out of some illustrated paper",
+   "span": "When we were coming to town the other day I saw him cut a photograph out of some illustrated paper he was reading in the train, and put it away in his pocket-book--in a pocket-book, I ought to say, for he had two or three pocket-books.",
+   "ok": true
+  },
+  {
+   "claim": "The portrait was of Madame Anita Listorelle, twin sister of Lady Riversreade",
+   "anchor": "Madame Anita Listorelle",
+   "span": "He started again as he read it--_Madame Anita Listorelle_.",
+   "ok": true
+  },
+  {
+   "claim": "Lady Riversreade and Madame Listorelle are twin sisters",
+   "anchor": "Lady Riversreade and Madame Listorelle are, I repeat, twin sisters",
+   "span": "Lady Riversreade and Madame Listorelle are, I repeat, twin sisters.",
+   "ok": true
+  },
+  {
+   "claim": "Baseverie visited Lady Riversreade twice and was unwelcome",
+   "anchor": "Lady Riversreade has lately been visited--twice--by a man who called himself Dr. Cyprian Baseverie",
+   "span": "'Miss Featherstone,' Rhona went on--'I believe you're aware that Lady Riversreade has lately been visited--twice--by a man who called himself Dr. Cyprian Baseverie?",
+   "ok": true
+  },
+  {
+   "claim": "Baseverie is not a registered medical man and convicted of fraud",
+   "anchor": "Convicted of fraud at Central Criminal Court, 1917, and struck off Register",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Ambrose is a medical man struck off the register for unprofessional conduct",
+   "anchor": "Struck off Register by General Medical Council for unprofessional conduct, 1918",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Ambrose met Hannaford at Victoria Station on the night of the murder",
+   "anchor": "Ambrose was the man that met Hannaford at Victoria",
+   "span": "Ambrose was the man that met Hannaford at Victoria, the tall, muffled-up man that Ledbitter saw!",
+   "ok": true
+  },
+  {
+   "claim": "Ambrose was found dead in a laboratory, poisoned",
+   "anchor": "he and Hetherwick looked in. It had been fitted up as a bed-sitting-room",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Baseverie was arrested at Waterloo with the jewels and money",
+   "anchor": "dramatic arrest of Baseverie at Waterloo",
+   "span": "Winding up, of course, with the dramatic arrest of Baseverie at Waterloo!",
+   "ok": true
+  },
+  {
+   "claim": "The sealed packet containing the ink formula was stolen and sold by Baseverie",
+   "anchor": "formula for the ink",
+   "span": "That's the formula for the ink!",
+   "ok": true
+  },
+  {
+   "claim": "The formula was sold to Culthwaite and Houseover for ten thousand pounds",
+   "anchor": "we gave this man Baring or Baseverie ten thousand pounds for it",
+   "span": "We gave this man Baring or Baseverie ten thousand pounds for it, but----\" \"But you really believe it to be worth more, eh?",
+   "ok": true
+  },
+  {
+   "claim": "The poison was administered in a tonic bottle supplied by chemist Macpherson",
+   "anchor": "I made up the tonic that was in that bottle",
+   "span": "And I'll shorten matters by telling you, at once--I made up the tonic that was in that bottle!",
+   "ok": true
+  },
+  {
+   "claim": "The kidnapping of Madame Listorelle and Rhona Hannaford occurred at Riversreade Court",
+   "anchor": "they were carried off as they crossed from the Court to the Home",
+   "span": "Lady Riversreade says they were carried off as they crossed from the Court to the Home--she's heard something of a big car with strange men in it.",
+   "ok": true
+  },
+  {
+   "claim": "The kidnappers used a light-colored car with a driver in green livery",
+   "anchor": "light-coloured car with two men in it, driven by a man who wore a dark-green livery",
+   "span": "A light-coloured car with two men in it, driven by a man who wore a dark-green livery with gold lace on it!",
+   "ok": true
+  },
+  {
+   "claim": "The two women were held captive in a locked room with barred windows",
+   "anchor": "fitted with a new patent lock, key outside... window morticed inside and fitted with iron bars outside",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The false assumption that Lady Riversreade was Mrs. Whittingham is refuted",
+   "anchor": "Lady Riversreade is not the woman who was known as Mrs. Whittingham",
+   "span": "Lady Riversreade is not the woman who was known as Mrs. Whittingham at Sellithwaite ten years ago, nor did Hannaford believe that she was either!",
+   "ok": true
+  },
+  {
+   "claim": "The false solution accusing Lady Riversreade is refuted in chapter 16",
+   "anchor": "Lady Riversreade is not Mrs. Whittingham. Hannaford did not think she was Mrs. Whittingham",
+   "span": "Lady Riversreade is not Mrs. Whittingham. Hannaford did not think she was Mrs. Whittingham.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.08200674,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

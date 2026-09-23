@@ -1,0 +1,394 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: As a thief in the night
+    author: R. Austin (Richard Austin) Freeman
+    license: Public domain (first published 1928; author died 1943). Project Gutenberg ebook 72782.
+    era:
+      decade: 1920s
+      realism_constraints:
+        - Arsenic poisoning detectable by chemical tests such as Reinsch's test
+        - X-ray imaging available for non-invasive examination of objects
+        - Legal procedures require evidence from post mortem and inquests for murder trials
+    setting:
+      location: London, England, primarily Hilborough Square, Kensington and Highgate Cemetery
+      institution: Coroner's Court and Metropolitan Police CID
+    crime_class:
+      category: murder
+      subtype: chronic arsenic poisoning via poisoned stearine candles
+  cast:
+    - name: Rupert Mayfield
+      age_range: 30-40
+      role_archetype: loyal friend and legal advisor
+      relationships:
+        - Barbara Monkhouse
+        - Thorndyke
+        - Madeline Norris
+        - Wallingford
+        - Stella Keene
+      public_persona: barrister and family friend
+      private_secret: deeply involved in investigation and emotionally conflicted
+      motive_seed: none
+      motive_strength: none
+      alibi_window: present throughout investigation
+      access_plausibility: no access to poison
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: high, as friend and executor
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: high, torn between loyalty and justice
+    - name: Barbara Monkhouse
+      age_range: 30-40
+      role_archetype: calculating wife and murderer
+      relationships:
+        - Harold Monkhouse
+        - Rupert Mayfield
+        - Stella Keene
+        - Madeline Norris
+        - Anthony Wallingford
+      public_persona: widow and political activist
+      private_secret: murdered husband and step-sister by arsenic poisoning
+      motive_seed: love for Rupert Mayfield and desire to remove obstacles
+      motive_strength: strong
+      alibi_window: absent during poisonings
+      access_plausibility: high, supplied poisoned candles
+      opportunity_channels:
+        - supplied poisoned stearine candles
+      behavioral_tells:
+        - sent infernal machine to Thorndyke
+        - suicide by morphine injection
+      stakes: inheritance and personal freedom
+      evidence_sensitivity:
+        - arsenic on wallpaper
+        - arsenic in candle wax
+        - arsenic in hair
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: female
+      role: culprit
+      moral_complexity: high, driven by passion and desperation
+    - name: Harold Monkhouse
+      age_range: 50-60
+      role_archetype: victim, chronic invalid
+      relationships:
+        - Barbara Monkhouse
+        - Amos Monkhouse
+        - Anthony Wallingford
+        - Madeline Norris
+      public_persona: invalid husband
+      private_secret: victim of chronic arsenic poisoning
+      motive_seed: none
+      motive_strength: none
+      alibi_window: deceased
+      access_plausibility: none
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: life
+      evidence_sensitivity: []
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: none
+    - name: Stella Keene
+      age_range: 16-20
+      role_archetype: victim, consumptive step-sister
+      relationships:
+        - Barbara Monkhouse
+        - Rupert Mayfield
+      public_persona: sickly step-sister
+      private_secret: victim of chronic arsenic poisoning
+      motive_seed: none
+      motive_strength: none
+      alibi_window: deceased
+      access_plausibility: none
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: life
+      evidence_sensitivity: []
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: female
+      role: victim
+      moral_complexity: none
+    - name: Anthony Wallingford
+      age_range: 30-40
+      role_archetype: nervous secretary, suspect
+      relationships:
+        - Barbara Monkhouse
+        - Rupert Mayfield
+        - Madeline Norris
+      public_persona: secretary to Harold Monkhouse
+      private_secret: fraudulent possession of cocaine and morphine
+      motive_seed: possible jealousy
+      motive_strength: weak
+      alibi_window: present in house
+      access_plausibility: high
+      opportunity_channels:
+        - access to medicine and household
+      behavioral_tells:
+        - nervousness
+        - delusions of being watched
+      stakes: inheritance
+      evidence_sensitivity:
+        - possession of illegal drugs
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+    - name: Madeline Norris
+      age_range: 25-35
+      role_archetype: kind house guest and cook, suspect
+      relationships:
+        - Barbara Monkhouse
+        - Rupert Mayfield
+        - Anthony Wallingford
+      public_persona: teacher and cook
+      private_secret: under observation, owns pistol matching infernal machine
+      motive_seed: none
+      motive_strength: none
+      alibi_window: present in house
+      access_plausibility: high
+      opportunity_channels:
+        - prepared food
+        - access to household
+      behavioral_tells:
+        - nervousness
+        - under surveillance
+      stakes: inheritance
+      evidence_sensitivity:
+        - possession of pistol and matching knitting wool
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: female
+      role: suspect
+      moral_complexity: low
+    - name: Reverend Amos Monkhouse
+      age_range: 50-60
+      role_archetype: concerned brother and clergyman
+      relationships:
+        - Harold Monkhouse
+        - Barbara Monkhouse
+        - Rupert Mayfield
+      public_persona: clergyman
+      private_secret: dissatisfied with medical care
+      motive_seed: none
+      motive_strength: none
+      alibi_window: present during illness
+      access_plausibility: low
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: family reputation
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+  culpability:
+    culprit_count: 1
+    culprits:
+      - Barbara Monkhouse
+  surface_model:
+    narrative:
+      summary: >-
+        Harold Monkhouse, a chronic invalid, dies unexpectedly from arsenic poisoning. An inquest
+        reveals suspicious circumstances but no clear culprit, with suspicion falling on several
+        household members. The mystery deepens with the discovery of arsenic in medicine and food,
+        and strange surveillance of suspects.
+    accepted_facts:
+      - Harold Monkhouse died from arsenic poisoning
+      - Arsenic was found in the medicine bottle after death but not before
+      - Barbara Monkhouse was absent during the poisonings
+      - Stella Keene also suffered arsenic poisoning and died
+    inferred_conclusions:
+      - The poison was administered via medicine by someone in the household
+      - Anthony Wallingford was the likely murderer due to access and suspicious behavior
+      - Madeline Norris was involved due to possession of a matching pistol and knitting wool
+  hidden_model:
+    mechanism:
+      description: >-
+        Barbara Monkhouse prepared and supplied poisoned stearine candles charged with arsenic
+        powder. These candles, used by Harold and Stella, emitted arsenic vapors and dust, causing
+        chronic poisoning. Scientific evidence from arsenic deposits on wallpaper, soot, candle wax,
+        and hair analysis conclusively proved the poisoning method and Barbara's guilt.
+      delivery_path:
+        - step: Barbara prepared stearine candles using a candle-mould and powdered arsenic
+        - step: She supplied these poisoned candles to the household before her absences
+        - step: The candles were used by Harold and Stella, releasing arsenic vapors and dust
+        - step: Arsenic accumulated in the victims' bodies causing chronic poisoning
+        - step: False clues were created by adding arsenic to medicine bottles after death
+        - step: Scientific analysis of wallpaper, soot, candle wax, and hair confirmed arsenic poisoning
+        - step: Barbara's letter confessed to the murders and she committed suicide
+    outcome:
+      result: >-
+        Barbara Monkhouse is revealed as the murderer through chronic arsenic poisoning via poisoned
+        candles and commits suicide before arrest.
+  false_assumption:
+    statement: The arsenic poisoning was administered through the medicine bottle alone.
+    type: behavioral
+    why_it_seems_reasonable: >-
+      Witnesses observed the medicine bottle and its contents, and arsenic was found in the medicine
+      after death. It was logical to assume the poison was administered orally via medicine.
+    what_it_hides: >-
+      It obscures the actual mechanism of poisoning via arsenic-laced candles emitting vapors and
+      dust, which was not initially suspected or tested.
+  false_solution:
+    accused_suspect: Anthony Wallingford
+    supporting_points:
+      - He possessed illegal drugs (cocaine and morphine)
+      - He behaved nervously and was under surveillance
+      - He had access to the medicine and household
+      - He was jealous and had a possible motive
+    the_one_flaw: >-
+      No positive evidence linked him to the arsenic poisoning, and the actual poison was
+      administered via candles supplied by Barbara.
+    refuted_in_chapter: 18
+  red_herrings:
+    - id: wallingford_drug_possession
+      description: >-
+        Wallingford's possession of cocaine and morphine suggested illicit activity and possible
+        motive.
+      points_at_suspect: Anthony Wallingford
+      innocent_explanation: He obtained drugs fraudulently but had no involvement in the arsenic poisoning.
+      resolved_in_chapter: 12
+    - id: infernal_machine_parcel
+      description: >-
+        A crude booby-trap parcel containing a pistol and powder was sent to Thorndyke, implying a
+        threat.
+      points_at_suspect: Madeline Norris
+      innocent_explanation: The parcel was sent by Barbara to mislead suspicion onto Madeline and Wallingford.
+      resolved_in_chapter: 14
+  closed_circle:
+    suspects:
+      - Barbara Monkhouse
+      - Madeline Norris
+      - Anthony Wallingford
+      - Rupert Mayfield
+      - Reverend Amos Monkhouse
+    rationale: >-
+      All had access to the victim and household, but only Barbara had the opportunity and motive
+      consistent with the poisoning timeline and evidence.
+  constraint_space:
+    time:
+      anchors:
+        - Barbara's absences from home
+        - Dates of Stella's relapses
+        - Dates of Harold's poisoning episodes
+      windows:
+        - Periods when Barbara was away
+        - Times medicine was administered
+        - Times candles were used at night
+    access:
+      actors:
+        - Barbara Monkhouse
+        - Madeline Norris
+        - Anthony Wallingford
+      objects:
+        - Medicine bottles
+        - Stearine candles
+        - Household food
+    social:
+      trust_channels:
+        - Household servants
+        - Medical professionals
+        - Family friends
+      authority_sources:
+        - Coroner's Court
+        - Metropolitan Police CID
+        - Home Office authorization for exhumation
+  inference_path:
+    steps:
+      - observation: Arsenic found in deceased's body and medicine bottle after death
+        correction: Medicine bottle did not contain arsenic before death
+        effect: Poisoning likely administered by another medium
+        required_evidence:
+          - Testimony of Miss Norris examining medicine bottle at 6 p.m.
+          - Chemical analysis report of medicine bottle contents after death
+        reader_observable: true
+      - observation: Symptoms and post mortem suggest mixed poisoning, possibly inhaled arsenic
+        correction: Poisoning not solely by ingestion
+        effect: Consider alternative poisoning routes such as inhalation or skin absorption
+        required_evidence:
+          - Medical testimony describing symptoms and organ conditions
+          - Post mortem report indicating arsenic distribution
+        reader_observable: true
+      - observation: Periods of poisoning coincide with Barbara's absences
+        correction: Poisoning administered during Barbara's absence
+        effect: Poisoner must have method to act while absent
+        required_evidence:
+          - Diary entries of Barbara's travel dates
+          - Charts correlating Barbara's absences with victim's relapses
+        reader_observable: true
+      - observation: Arsenic crystals found on bedroom wallpaper and soot from Barbara's chimney
+        correction: Arsenic introduced into room environment
+        effect: Supports theory of arsenic vapor or dust exposure
+        required_evidence:
+          - Chemical analysis of wallpaper samples
+          - Chemical analysis of chimney soot
+        reader_observable: true
+      - observation: Poisoned stearine candles can emit arsenic vapors and dust
+        correction: Candles are effective poisoning medium
+        effect: Candles supplied by Barbara could be the poison delivery method
+        required_evidence:
+          - Scientific literature on arsenic vapor from candles
+          - Analysis of candle wax trimmings showing arsenic content
+        reader_observable: true
+      - observation: X-ray imaging of Stella's hair shows arsenic deposits at intervals
+        correction: Hair growth rate allows dating of arsenic exposure
+        effect: Confirms timing of poisonings matching Barbara's absences
+        required_evidence:
+          - X-ray photograph of hair tress
+          - Chart correlating arsenic bands with dates
+        reader_observable: true
+      - observation: Barbara's letter confession and suicide
+        correction: Confession confirms guilt and method
+        effect: Case conclusively solved with Barbara as culprit
+        required_evidence:
+          - Barbara's farewell letter to Rupert Mayfield
+          - Superintendent Miller's report on Barbara's death
+        reader_observable: true
+  discriminating_test:
+    method: constraint_proof
+    design: >-
+      Thorndyke examined the house and collected samples of wallpaper, soot, candle wax, and hair.
+      He correlated Barbara's absences with the timing of poisonings using diary entries and hair
+      X-rays. The presence of arsenic in candle wax and environmental samples proved the poisoning
+      medium. The test relied on scientific analysis and timing constraints to exclude other
+      suspects.
+    knowledge_revealed: >-
+      The test revealed that arsenic poisoning was administered via poisoned stearine candles
+      supplied by Barbara during her absences, not through medicine or food.
+    pass_condition: >-
+      Detection of arsenic in candle wax trimmings, wallpaper, soot, and hair samples matching
+      Barbara's absence periods conclusively proves the poisoning method and implicates Barbara.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is provided with detailed depositions, medical testimony, and diary entries that
+      correlate Barbara's absences with the victim's relapses. Scientific evidence such as arsenic
+      detection in wallpaper, soot, and hair is described. The presence of poisoned candles is
+      hinted at through candle descriptions and environmental arsenic. The final proof is based on
+      these clues, all accessible to the attentive reader.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

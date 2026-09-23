@@ -1,0 +1,136 @@
+{
+ "slug": "the_stretton_street_affair",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Hugh Garfield was drugged by a subtle odour of pot-pourri",
+   "anchor": "that subtle odour of pot-pourri",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Gabrielle Engledue was declared dead and cremated",
+   "anchor": "Gabrielle Engledue, single, aged twenty-one, of unknown parentage, had died",
+   "span": "At first my efforts were in vain, but at last I discovered what I sought, namely an entry that a young woman named Gabrielle Engledue, single, aged twenty-one, of unknown parentage, had died of heart trouble at No.",
+   "ok": true
+  },
+  {
+   "claim": "Oswald De Gex denied knowledge of Gabrielle Engledue",
+   "anchor": "I know no lady of that name",
+   "span": "I know no lady of that name.",
+   "ok": true
+  },
+  {
+   "claim": "Gabrielle Tennison exhibited obsession with the colours red, green and gold",
+   "anchor": "red, green and gold! red, green and gold!",
+   "span": "Red, green and gold! Red, green and gold!\" I confess that I went about my business in a low-spirited, despairing mood.",
+   "ok": true
+  },
+  {
+   "claim": "The poison orosin was detected on carpet pins",
+   "anchor": "each of the points of those three pins, left there",
+   "span": "Because each of the points of those three pins, left there as though by accident by some upholsterer employed by the hotel, was impregnated by one of the most deadly of all newly-discovered poisons.",
+   "ok": true
+  },
+  {
+   "claim": "Mateo Sanz was identified as a dangerous criminal",
+   "anchor": "Mateo Sanz, the motor-bandit",
+   "span": "Why, it is Mateo Sanz, the motor-bandit.",
+   "ok": true
+  },
+  {
+   "claim": "Rodriquez Despujol was a notorious assassin and criminal",
+   "anchor": "Rodriquez Despujol, one of the most dangerous criminals",
+   "span": "He is not Salavera, but Rodriquez Despujol, one of the most dangerous criminals in Spain!",
+   "ok": true
+  },
+  {
+   "claim": "Oswald De Gex met secretly with Despujol and Moroni",
+   "anchor": "Despujol is with your great English financier, Señor De Gex",
+   "span": "Despujol is with your great English financier, Señor De Gex!",
+   "ok": true
+  },
+  {
+   "claim": "Baron van Veltrup died suddenly after meeting a mysterious visitor",
+   "anchor": "he staggered and fell just outside the gate, and expired",
+   "span": "On arrival at his house facing Vondel Park, he dressed, ate his dinner alone, and was about to re-enter his car to drive to the Park Schouwburg, where opera was being given that night, when he staggered and fell just outside the gate, and expired in a few moments.",
+   "ok": true
+  },
+  {
+   "claim": "A scrap of razor blade impregnated with orosin was found in the Baron's glove",
+   "anchor": "a tiny piece of steel which tumbled out upon the table",
+   "span": "The exterior presented nothing out of the ordinary, but on turning it inside out, I found in the index finger a tiny piece of steel which tumbled out upon the table.",
+   "ok": true
+  },
+  {
+   "claim": "Hugh Garfield was bribed with bank notes to forge a death certificate",
+   "anchor": "he handed me the bundle of notes",
+   "span": "When I had written and signed the certificate, he handed me the bundle of notes.",
+   "ok": true
+  },
+  {
+   "claim": "Gabrielle Tennison recovered memory after treatment by Professor Gourbeil",
+   "anchor": "I can recollect everything now! All the past has come back to me",
+   "span": "I can recollect everything now! All the past has come back to me, thanks to the old Professor.",
+   "ok": true
+  },
+  {
+   "claim": "Oswald De Gex was arrested for murder and committed suicide",
+   "anchor": "I hold a warrant for your arrest on the charge of the wilful murder",
+   "span": "I hold a warrant for your arrest on the charge of the wilful murder of Gabrielle Engledue on the seventh of November last,\" said the Superintendent.",
+   "ok": true
+  },
+  {
+   "claim": "Mateo Sanz confessed to working for De Gex and sending poisoned soap",
+   "anchor": "We have both done his dirty work--and Moroni assisted him",
+   "span": "We have both done his dirty work--and Moroni assisted him.",
+   "ok": true
+  },
+  {
+   "claim": "Doctor Moroni prepared and administered the poison orosin",
+   "anchor": "Moroni was the laboratory assistant of the late Professor Orosi",
+   "span": "that Moroni was the laboratory assistant of the late Professor Orosi, the discoverer of the drug.",
+   "ok": true
+  },
+  {
+   "claim": "The forged death certificate was signed by Hugh Garfield",
+   "anchor": "I was induced to give a death certificate that had enabled the body of an unknown girl to be cremated",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Gabrielle Engledue was the daughter of Count de Chamartin and heir to his fortune",
+   "anchor": "the fortune was to go to his trusted partner, your English financier, Mr. Oswald De Gex",
+   "span": "Apparently he made a will leaving the whole of his fortune to his daughter by his first wife--save for a small annuity to his second wife--and according to the will, on the death of his daughter the fortune was to go to his trusted partner, your English financier, Mr. Oswald De Gex.",
+   "ok": true
+  },
+  {
+   "claim": "The mysterious visitor at The Hague was described as a red-faced man with round spectacles",
+   "anchor": "a man with a red face and a dark moustache",
+   "span": "As I reflected upon all the details as related to me by the valet, Folcker, I suddenly recollected that the Baron's strange visitor, the man who must have placed that sharp scrap of razor-blade within his glove at the moment when the unsuspicious victim had gone outside to speak with his servant, was described as a man with a red face and a dark moustache.",
+   "ok": true
+  },
+  {
+   "claim": "The soap sent to Garfield contained razor clippings treated with orosin",
+   "anchor": "a tablet of dark-brown toilet-soap bearing the name of a well-known firm",
+   "span": "Within was a tablet of dark-brown toilet-soap bearing the name of a well-known firm of manufacturers.",
+   "ok": true
+  },
+  {
+   "claim": "Gabrielle Tennison was poisoned but survived with mental impairment",
+   "anchor": "she was found wandering on the road between London and Portsmouth",
+   "span": "When she was found wandering on the road between London and Portsmouth her memory was a blank.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.126037232,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

@@ -1,0 +1,136 @@
+{
+ "slug": "the_bishop_murder_case",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "The victim was Joseph Cochrane Robin, killed with an arrow",
+   "anchor": "Robin lying on his back with an arrow-shaft protruding from his breast",
+   "span": "I had been there about five minutes, I should say, when I chanced to look down on the archery range; and to my horrified amazement I saw Robin lying on his back with an arrow-shaft protruding from his breast.",
+   "ok": true
+  },
+  {
+   "claim": "The murder weapon was a hunting arrow taken from the panel",
+   "anchor": "missing hunting arrow from the panel",
+   "span": "Why, then, the missing hunting arrow from the panel?",
+   "ok": true
+  },
+  {
+   "claim": "Sperling confessed to the murder but was doubted",
+   "anchor": "Sperling’s eyes seemed to start from his head",
+   "span": "Sperling's eyes seemed to start from his head.",
+   "ok": true
+  },
+  {
+   "claim": "The typewritten note signed 'THE BISHOP' linked the crimes",
+   "anchor": "THE BISHOP",
+   "span": "And in the lower right-hand corner-the place of the signature-were the two words, in capitals: THE BISHOP.",
+   "ok": true
+  },
+  {
+   "claim": "The Riemann-Christoffel tensor formula was found on Sprigg’s body",
+   "anchor": "It contained part of a typewritten mathematical formula",
+   "span": "It contained part of a typewritten mathematical formula, with the lambda, the equals and the infinity sign marked in with pencil.",
+   "ok": true
+  },
+  {
+   "claim": "Mrs. Drukker screamed at the time of Robin’s death",
+   "anchor": "Mrs. Drukker denied having screamed",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "A black bishop chess piece was left at Mrs. Drukker’s door",
+   "anchor": "there lay a small chessman—ebony black",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The missing .32 revolver was returned to the tool-chest",
+   "anchor": "there it lay—in plain sight—beside the other pistol",
+   "span": "And there it lay-in plain sight-beside the other pistol!",
+   "ok": true
+  },
+  {
+   "claim": "Pardee committed suicide in the archery-room",
+   "anchor": "His head and shoulders had fallen forward over the table",
+   "span": "His head and shoulders had fallen forward over the table; and his right arm hung at his side, the fingers still clutching an automatic pistol.",
+   "ok": true
+  },
+  {
+   "claim": "Professor Dillard was the murderer and committed suicide",
+   "anchor": "The “suicide” of Professor Dillard terminated the famous Bishop murder case",
+   "span": "The \"suicide\" of Professor Dillard terminated the famous Bishop murder case, and automatically cleared Pardee's reputation of all suspicion.",
+   "ok": true
+  },
+  {
+   "claim": "The child Madeleine Moffat was abducted and found locked in a closet",
+   "anchor": "she had been locked in the hall-closet on the top floor",
+   "span": "She had been locked in the hall-closet on the top floor of the Drukker house.",
+   "ok": true
+  },
+  {
+   "claim": "The typewriter and Drukker’s note-book were found in the attic",
+   "anchor": "In the suit-case was an old Corona typewriter",
+   "span": "In the suit-case was an old Corona typewriter.",
+   "ok": true
+  },
+  {
+   "claim": "The murderer tried to poison Arnesson with cyanide",
+   "anchor": "some one had been distilling hydrocyanic acid from potassium ferrocyanide",
+   "span": "When I was searching the attic this morning I discovered a little wall-closet in which some one had been distilling hydrocyanic acid from potassium ferrocyanide.",
+   "ok": true
+  },
+  {
+   "claim": "Vance switched the wine glasses to trap the murderer",
+   "anchor": "why, when you hopped up and pointed at that plate on the mantel, did you switch Arnesson’s and the old gent’s glasses",
+   "span": "Vance, but what I would like to know is: why, when you hopped up and pointed at that plate on the mantel, did you switch Arnesson's and the old gent's glasses?",
+   "ok": true
+  },
+  {
+   "claim": "The motive was jealousy and intellectual rivalry",
+   "anchor": "A colossal hate grew up in him for his foster son",
+   "span": "A colossal hate grew up in him for his foster son; Arnesson became in his eyes a kind of monster whom he himself, like Frankenstein, had created, and who was now rising to destroy him.",
+   "ok": true
+  },
+  {
+   "claim": "The murders were planned with nursery rhyme motifs",
+   "anchor": "The Mother-Goose motif was probably suggested to him",
+   "span": "The Mother-Goose motif was probably suggested to him when he heard Arnesson jestingly tell Robin to beware of an arrow from Sperling's bow.",
+   "ok": true
+  },
+  {
+   "claim": "The black bishop chess piece symbolized Pardee’s nemesis",
+   "anchor": "The black bishop is the symbol of his sorrow",
+   "span": "The black bishop is the symbol of his sorrow.",
+   "ok": true
+  },
+  {
+   "claim": "The final confrontation forced the murderer’s suicide",
+   "anchor": "He prepared for a swift and painless death when he distilled his cyanide",
+   "span": "He prepared for a swift and painless death when he distilled his cyanide.",
+   "ok": true
+  },
+  {
+   "claim": "The case was solved by psychological and logical analysis",
+   "anchor": "The Bishop murders were the acts of a mathematician whose values had become abstract and incommensurable",
+   "span": "The moment I saw it I sensed its sinister significance; and it substantiated my theory that the Bishop murders were the acts of a mathematician whose values had become abstract and incommensurable.",
+   "ok": true
+  },
+  {
+   "claim": "The false confession and misleading evidence were deliberate",
+   "anchor": "That spurious suicide, Sergeant, was the professor’s most fantastic joke",
+   "span": "That spurious suicide, Sergeant, was the professor's most fantastic joke.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.1770548,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

@@ -19,8 +19,8 @@
   {
    "claim": "Cause of death was shotgun blast to the head",
    "anchor": "He had received the whole charge in the face, blowing his head almost to pieces",
-   "span": "",
-   "ok": false
+   "span": "It was clear that this had been fired at close range and that he had received the whole charge in the face, blowing his head almost to pieces.",
+   "ok": true
   },
   {
    "claim": "The culprit is Boss McGinty",
@@ -79,8 +79,8 @@
   {
    "claim": "The missing dumb-bell was used as a weight",
    "anchor": "This bundle, weighted with a dumb-bell",
-   "span": "",
-   "ok": false
+   "span": "Barker-this bundle, weighted with a dumb-bell, which you have just raised from the bottom of the moat.",
+   "ok": true
   },
   {
    "claim": "The assassin was killed inside the manor",
@@ -138,5 +138,5 @@
   "sweep": "gpt-4o-mini"
  },
  "verified_by": "corpus-verify.mjs",
- "verified_on": "2026-08-31"
+ "verified_on": "2026-09-23"
 }

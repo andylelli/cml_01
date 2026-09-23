@@ -1,0 +1,462 @@
+{
+ "decade": "1920s",
+ "realism_constraints": [
+  "No modern forensic DNA or electronic surveillance available",
+  "Poisoning by rare toxins like curare is plausible but requires expert knowledge",
+  "Communication by telephone and motor cars exist but are limited in speed and reach"
+ ],
+ "location": "Whistlefield estate and its Maze, England",
+ "institution": "Local police led by Chief Constable Sir Clinton Driffield",
+ "crime_category": "murder",
+ "crime_subtype": "poisoned air-gun darts in a maze",
+ "cast": [
+  {
+   "name": "Neville Shandon",
+   "age_range": "50s",
+   "role_archetype": "brutal and domineering barrister",
+   "role": "victim",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "respected barrister",
+   "private_secret": "leading prosecution against Hackleton",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "murdered in Maze around 3:52 pm",
+   "access_plausibility": "victim",
+   "stakes": "high - life",
+   "moral_complexity": "none",
+   "relationships": [
+    "Roger Shandon (twin brother)",
+    "Ernest Shandon (brother)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Roger Shandon",
+   "age_range": "50s",
+   "role_archetype": "wealthy landowner with shady past",
+   "role": "victim",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "wealthy estate owner",
+   "private_secret": "had pot of curare in museum",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "murdered in Maze shortly before Neville",
+   "access_plausibility": "victim",
+   "stakes": "high - life",
+   "moral_complexity": "none",
+   "relationships": [
+    "Neville Shandon (twin brother)",
+    "Ernest Shandon (brother)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Ernest Shandon",
+   "age_range": "40s",
+   "role_archetype": "lazy, weak-eyed parasite brother",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "inefficient, cowardly brother",
+   "private_secret": "forged cheques, planned and committed murders",
+   "motive_seed": "greed and covering forgery",
+   "motive_strength": "strong",
+   "alibi_window": "no alibi at time of murders, attacked later",
+   "access_plausibility": "had access to house, museum, and Maze",
+   "stakes": "high - inheritance and money",
+   "moral_complexity": "high - selfishness and callousness",
+   "relationships": [
+    "Neville Shandon (brother)",
+    "Roger Shandon (brother)",
+    "Sylvia Hawkhurst (niece)",
+    "Arthur Hawkhurst (nephew)"
+   ],
+   "opportunity_channels": [
+    "bicycle hidden near East Gate",
+    "knowledge of Maze",
+    "access to curare pot"
+   ],
+   "behavioral_tells": [
+    "nail in boot",
+    "fearful demeanor",
+    "attempted to fake attack on himself"
+   ],
+   "evidence_sensitivity": [
+    "cigar-case found in Maze",
+    "black thread clue",
+    "missing cheque counterfoil"
+   ]
+  },
+  {
+   "name": "Arthur Hawkhurst",
+   "age_range": "early 20s",
+   "role_archetype": "moody nephew with encephalitis lethargica history",
+   "role": "suspect",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "eligible",
+   "public_persona": "piano-playing invalid nephew",
+   "private_secret": "volatile temper, possible mental instability",
+   "motive_seed": "none",
+   "motive_strength": "weak",
+   "alibi_window": "claimed to be shooting rabbits in spinney",
+   "access_plausibility": "knows Maze well, owns air-guns",
+   "stakes": "moderate - family ties",
+   "moral_complexity": "moderate - mental health issues",
+   "relationships": [
+    "Sylvia Hawkhurst (sister)",
+    "Ernest Shandon (uncle)"
+   ],
+   "opportunity_channels": [
+    "knowledge of Maze",
+    "access to air-guns"
+   ],
+   "behavioral_tells": [
+    "temper outbursts",
+    "snapped at family"
+   ],
+   "evidence_sensitivity": [
+    "air-gun found in rhododendrons"
+   ]
+  },
+  {
+   "name": "Sylvia Hawkhurst",
+   "age_range": "early 20s",
+   "role_archetype": "popular niece and housekeeper",
+   "role": "victim (attempted murder)",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "well-liked and capable housekeeper",
+   "private_secret": "none",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "at shops and friends during murders",
+   "access_plausibility": "victim",
+   "stakes": "high - life",
+   "moral_complexity": "none",
+   "relationships": [
+    "Arthur Hawkhurst (brother)",
+    "Ernest Shandon (uncle)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Ivor Stenness",
+   "age_range": "30s-40s",
+   "role_archetype": "efficient private secretary",
+   "role": "suspect",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "efficient and discreet secretary",
+   "private_secret": "forged cheques, embezzlement, love for Sylvia",
+   "motive_seed": "financial gain, love",
+   "motive_strength": "moderate",
+   "alibi_window": "at house during murders",
+   "access_plausibility": "had access to safe and papers",
+   "stakes": "high - money and love",
+   "moral_complexity": "high - conflicted conscience",
+   "relationships": [
+    "Roger Shandon (employer)",
+    "Sylvia Hawkhurst (love interest)"
+   ],
+   "opportunity_channels": [
+    "access to cheque-books and safe"
+   ],
+   "behavioral_tells": [
+    "anxious demeanor",
+    "confession of forgery"
+   ],
+   "evidence_sensitivity": [
+    "missing cheque counterfoil",
+    "forged cheque",
+    "money in safe"
+   ]
+  },
+  {
+   "name": "Sir Clinton Driffield",
+   "age_range": "mid 30s",
+   "role_archetype": "Chief Constable, astute investigator",
+   "role": "detective",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "professional police chief",
+   "private_secret": "kept some investigative details secret",
+   "motive_seed": "justice",
+   "motive_strength": "strong",
+   "alibi_window": "investigating throughout",
+   "access_plausibility": "investigator",
+   "stakes": "high - case resolution",
+   "moral_complexity": "moderate - uses unorthodox methods",
+   "relationships": [],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": []
+  }
+ ],
+ "culprits": [
+  "Ernest Shandon"
+ ],
+ "surface_summary": "Two brothers, Neville and Roger Shandon, are found murdered in the complex Whistlefield Maze, killed by poisoned air-gun darts. The crime scene shows signs of premeditation with loopholes cut in the hedges and darts scattered about. Suspicion falls on various family members and associates, with a forged cheque and a burglary adding complexity.",
+ "accepted_facts": [
+  "Both Neville and Roger Shandon were killed by poisoned air-gun darts in the Maze.",
+  "The murderer had intimate knowledge of the Maze and used loopholes cut in the hedges.",
+  "A burglary occurred at Neville Shandon’s room, searching for documents related to the Hackleton case.",
+  "Ernest Shandon was attacked later but survived and had a suspicious alibi involving a nail in his boot."
+ ],
+ "inferred_conclusions": [
+  "The murders were committed by an outsider hired by Hackleton to stop Neville’s prosecution.",
+  "The double murder was a case of mistaken identity between the twin brothers.",
+  "Arthur Hawkhurst, due to his mental instability and access to air-guns, was the likely murderer."
+ ],
+ "mechanism_description": "Ernest Shandon, motivated by greed and to cover up his forgery of Roger’s cheques, used poisoned air-gun darts filled with curare to kill his brothers in the Maze. He prepared the scene by cutting loopholes in the hedges and staged attacks on himself to divert suspicion. After the murders, he fled using a hidden bicycle and eventually committed suicide when trapped by police.",
+ "delivery_path": [
+  "Ernest hid a bicycle and air-gun near the East Gate plantation.",
+  "He entered the Maze via a loophole and shot Roger Shandon from behind, mistaking him initially.",
+  "He then shot Neville Shandon from the front, who cried out before dying.",
+  "Ernest fled the Maze, discarded the air-gun in the river, and hid the bicycle.",
+  "He staged an attack on himself to mislead investigators.",
+  "Police tracked Ernest down, sealed the Maze exits, and used burning sulphur fumes to force him out.",
+  "Ernest committed suicide in the Maze when cornered."
+ ],
+ "outcome_result": "Ernest Shandon is revealed as the murderer and dies by suicide in the Maze when surrounded by police.",
+ "false_assumption": {
+  "statement": "The murders were committed by an outsider or a lunatic with no clear motive.",
+  "type": "identity",
+  "why_it_seems_reasonable": "The complexity of the Maze and the unusual method of murder suggest a stranger or a mentally unstable person. The presence of multiple suspects with questionable behavior supports this.",
+  "what_it_hides": "It conceals the fact that the murderer was a family member with intimate knowledge and a strong financial motive."
+ },
+ "false_solution": {
+  "accused_suspect": "Howard Torrance",
+  "supporting_points": [
+   "He was in the Maze at the time of the murders.",
+   "He proposed the game in the Maze to Vera Forrest, giving him an excuse to be there.",
+   "He had access to the Maze and could have hidden the air-gun beforehand.",
+   "He was suspected due to the lack of an air-gun found on him."
+  ],
+  "the_one_flaw": "No motive was established for Torrance, and he was accounted for during later attacks.",
+  "refuted_in_chapter": 18
+ },
+ "red_herrings": [
+  {
+   "id": "arthur_hawkhurst_mental_instability",
+   "description": "Arthur Hawkhurst’s history of encephalitis lethargica and erratic behavior suggested he might be the murderer.",
+   "points_at_suspect": "Arthur Hawkhurst",
+   "innocent_explanation": "Arthur was moody and temperamental but had no motive and was accounted for during the attacks.",
+   "resolved_in_chapter": 18
+  },
+  {
+   "id": "timothy_costock_blackmailer",
+   "description": "Timothy Costock, a known blackmailer with a pistol, was found lurking near the Maze.",
+   "points_at_suspect": "Timothy Costock",
+   "innocent_explanation": "Costock was in the area by coincidence and had no air-gun or curare; he was detained but not charged.",
+   "resolved_in_chapter": 18
+  }
+ ],
+ "closed_circle": {
+  "suspects": [
+   "Ernest Shandon",
+   "Arthur Hawkhurst",
+   "Ivor Stenness",
+   "Howard Torrance",
+   "Sylvia Hawkhurst",
+   "Timothy Costock"
+  ],
+  "rationale": "All suspects were accounted for in terms of presence and opportunity, except Ernest Shandon, whose alibi was weak and who had motive and access to the poison and weapon."
+ },
+ "constraint_space": {
+  "time_anchors": [
+   "3:25 pm Neville last seen",
+   "3:30 pm Roger last seen",
+   "3:52 pm Neville’s body found",
+   "4:42 pm Miss Forrest returns to house",
+   "6:30 am Ernest enters Maze for final siege"
+  ],
+  "time_windows": [
+   "3:37 pm earliest Neville could enter Maze",
+   "3:42 pm earliest Roger could enter Maze",
+   "3:52 to 4:00 pm murders occurred"
+  ],
+  "access_actors": [
+   "Ernest Shandon (bicycle, air-gun, Maze)",
+   "Arthur Hawkhurst (air-guns, Maze)",
+   "Ivor Stenness (house, safe, documents)"
+  ],
+  "access_objects": [
+   "Pot of curare in museum",
+   "Air-gun darts and air-guns",
+   "Safe and cheque-books"
+  ],
+  "trust_channels": [
+   "Stenness trusted with safe key",
+   "Ernest’s trust in bicycle and air-gun hiding places"
+  ],
+  "authority_sources": [
+   "Chief Constable Sir Clinton Driffield",
+   "Dr. Ardsley (toxicologist)"
+  ]
+ },
+ "inference_path": [
+  {
+   "observation": "Two brothers killed by poisoned air-gun darts in Maze centers",
+   "correction": "One was shot from behind, the other from front or side",
+   "effect": "Suggests murderer knew victims and made a mistake with first shot",
+   "required_evidence": [
+    "Bodies of Roger and Neville Shandon with dart wounds",
+    "Positions of bodies in Maze centers"
+   ]
+  },
+  {
+   "observation": "Box of darts found spilled near Roger’s shooting loophole",
+   "correction": "Murderer dropped darts in haste and intended to retrieve them",
+   "effect": "Indicates murderer was in a hurry and possibly disturbed",
+   "required_evidence": [
+    "Tin box lid and darts found at hedge roots",
+    "Witness statements about sounds in Maze"
+   ]
+  },
+  {
+   "observation": "Black silk thread found in Maze after hint about Ariadne’s clue",
+   "correction": "Thread was a deliberate false clue planted by murderer",
+   "effect": "Suggests murderer tried to mislead investigators to think outsider",
+   "required_evidence": [
+    "Black thread specimen found tangled in hedge",
+    "Timing of thread appearance after suggestion"
+   ]
+  },
+  {
+   "observation": "Ernest Shandon’s alibi involves nail in boot and being seen on road",
+   "correction": "Alibi only covers part of time; bicycle use explains presence in Maze",
+   "effect": "Ernest could have been in Maze at murder time despite alibi",
+   "required_evidence": [
+    "Postman’s statement of seeing Ernest by roadside",
+    "Location of bicycle and air-gun hidden near East Gate"
+   ]
+  },
+  {
+   "observation": "Forged cheque missing counterfoil found among Roger’s papers",
+   "correction": "Forgery motive links Ernest to financial gain and need to silence Roger",
+   "effect": "Provides strong motive for Ernest to commit murders",
+   "required_evidence": [
+    "Cheque-book with missing counterfoil",
+    "Stenness confession of forgery"
+   ]
+  },
+  {
+   "observation": "Ernest attacked in Maze but survived, claims attacker unknown",
+   "correction": "Attack was staged by Ernest to divert suspicion",
+   "effect": "Shows Ernest’s cunning and attempt to mislead investigation",
+   "required_evidence": [
+    "Ernest’s inconsistent statements",
+    "No evidence of real attacker"
+   ]
+  },
+  {
+   "observation": "Ernest trapped in Maze and refuses to surrender",
+   "correction": "Police use burning sulphur fumes to force him out",
+   "effect": "Leads to Ernest’s suicide, confirming guilt",
+   "required_evidence": [
+    "Police reports of Maze siege",
+    "Ernest’s body found with self-inflicted gunshot"
+   ]
+  }
+ ],
+ "discriminating_test": {
+  "method": "constraint_proof",
+  "design": "Police sealed all Maze entrances after Ernest entered, preventing escape. They spread burning sulphur to suffocate him and forced him to surrender or perish. Armed men covered all exits and waited for any attempt to flee.",
+  "knowledge_revealed": "This test proved that the murderer was inside the Maze and could not escape, confirming Ernest Shandon’s presence and guilt.",
+  "pass_condition": "The suspect cannot leave the Maze without being captured or killed, proving his identity as the murderer."
+ },
+ "fair_play_explanation": "The reader is given detailed descriptions of the Maze, the timing of events, the location of the bodies, and the discovery of clues such as the black thread and the spilled darts. The alibis and motives of all suspects are explored, and the forged cheque is revealed. The final solution is logically deduced by elimination and timing, all information being available before the confession.",
+ "anchors": [
+  {
+   "claim": "Neville Shandon was last seen with papers before entering the Maze",
+   "anchor": "Neville Shandon looked into the room. He had some papers in his hand."
+  },
+  {
+   "claim": "Roger Shandon’s body was found in one center of the Maze",
+   "anchor": "There’s a body here, at any rate,” he said, going forward as he spoke. “It’s Roger Shandon."
+  },
+  {
+   "claim": "Neville Shandon’s body was found in the other center of the Maze",
+   "anchor": "This is Neville Shandon, true enough,” the secretary reported."
+  },
+  {
+   "claim": "The murder weapon was poisoned air-gun darts",
+   "anchor": "Some darts here. Skene found them at the foot of the hedge."
+  },
+  {
+   "claim": "The poison was identified as curare",
+   "anchor": "I’m pretty sure of it. I’ve used it a lot and I feel fairly safe in saying that."
+  },
+  {
+   "claim": "Ernest Shandon had a nail in his boot and a weak alibi",
+   "anchor": "I’ve been walking miles with a nail in my boot."
+  },
+  {
+   "claim": "A black silk thread was found in the Maze as a clue",
+   "anchor": "There’s a bit of black thread lying on the ground."
+  },
+  {
+   "claim": "Ernest Shandon’s cigar-case was found in the Maze",
+   "anchor": "Wendover’s eye was at once caught by a sparkle from the grass near one of the chairs. He stepped across and picked up a silver cigar-case."
+  },
+  {
+   "claim": "Ernest Shandon’s alibi was contradicted by bicycle sightings",
+   "anchor": "At 4.20 he came upon Ernest squatting by the roadside, about a mile along the public road."
+  },
+  {
+   "claim": "The forged cheque was missing a counterfoil",
+   "anchor": "The counterfoil of the last missing cheque had been cut out of the book."
+  },
+  {
+   "claim": "Ivor Stenness confessed to forging the cheque",
+   "anchor": "I forged his signature, destroyed the cancelled cheque, cut the counterfoil out of the cheque-book, and cashed the forged cheque."
+  },
+  {
+   "claim": "Ernest Shandon staged an attack on himself",
+   "anchor": "He boldly faked up an attack on himself next."
+  },
+  {
+   "claim": "Ernest Shandon used the Maze and bicycle to commit the murders and escape",
+   "anchor": "He got to the Maze, went in to his loophole commanding Helen’s Bower."
+  },
+  {
+   "claim": "Ernest Shandon committed suicide in the Maze",
+   "anchor": "He’s lying on the ground in Helen’s Bower. I couldn’t see very clearly; but from the way he’s lying, I think he’s done for."
+  },
+  {
+   "claim": "The murderer’s trail stopped at the road after the river bank",
+   "anchor": "When he reached the road, his trail stopped short."
+  },
+  {
+   "claim": "The air-gun was found hidden in the rhododendrons",
+   "anchor": "I found it in that clump of rhododendrons out there."
+  },
+  {
+   "claim": "Sylvia Hawkhurst was attacked by a poisoned dart during bridge",
+   "anchor": "Then, as she mechanically brought her hand down again on to the table, Wendover saw a spurt of blood from her right wrist, and, at its source, the brown feathering of one of the poisoned darts embedded in her white skin."
+  },
+  {
+   "claim": "Ernest Shandon knew the position of the loophole used to kill Roger",
+   "anchor": "He knew the position of the loophole through which Roger Shandon was shot."
+  },
+  {
+   "claim": "Sir Clinton used burning sulphur to force Ernest out of the Maze",
+   "anchor": "He bent his efforts to infusing at least a semblance of harmony into the company, but it was not a very successful attempt."
+  }
+ ]
+}

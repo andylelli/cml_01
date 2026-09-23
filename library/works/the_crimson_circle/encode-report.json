@@ -1,0 +1,130 @@
+{
+ "slug": "the_crimson_circle",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "The victim was James Beardmore, shot in the wood",
+   "anchor": "found Jim Beardmore lying on his face, and he was quite dead",
+   "span": "Twenty paces along the woodland path they found Jim Beardmore lying on his face, and he was quite dead, and even as Jack was staring down at his father with horrified eyes, a girl emerged from the wood at the farther end, and stopping only long enough to wipe with a handful of grass something that was red from her hands, she flew along the shadow of the hedge which divided the Froyant estate.",
+   "ok": true
+  },
+  {
+   "claim": "Thalia Drummond was arrested for theft of a golden Buddha",
+   "anchor": "I charge her with theft. You shall go to prison for this",
+   "span": "I charge her with theft. You shall go to prison for this.",
+   "ok": true
+  },
+  {
+   "claim": "Felix Marl showed panic and fear near the crime scene",
+   "anchor": "the stout Mr. Marl emitted a frightened squeal and leapt back",
+   "span": "They were nearing the house when suddenly and for no obvious reason the stout Mr. Marl emitted a frightened squeal and leapt back.",
+   "ok": true
+  },
+  {
+   "claim": "Marl’s pointed patent boots were found to have chalk dust",
+   "anchor": "there is dust on them, and the ground has been wet for the last week",
+   "span": "there is dust on them, and the ground has been wet for the last week.",
+   "ok": true
+  },
+  {
+   "claim": "Marl was murdered by poison gas bubbles blown into his room",
+   "anchor": "They blew bubbles. The end of this cylinder was first dipped into the soap solution",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "‘Flush’ Barnet broke into Marl’s house but found no money",
+   "anchor": "He opened the safe--that was easy--and I found the envelope, but it had no papers",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Harvey Froyant was murdered with a knife and a gauntlet glove",
+   "anchor": "Harvey Froyant was dead. The handle of a knife projected from his left breast",
+   "span": "Harvey Froyant was dead. The handle of a knife projected from his left breast, a knife with a steel cup-like guard.",
+   "ok": true
+  },
+  {
+   "claim": "Thalia Drummond’s footprints were found in Froyant’s garden",
+   "anchor": "Here is a recent footprint, and a woman’s!",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Derrick Yale was chloroformed and handcuffed in his office",
+   "anchor": "Stretched upon the ground, his wrists fastened with handcuffs, his ankles strapped",
+   "span": "Stretched upon the ground, his wrists fastened with handcuffs, his ankles strapped, and a towel over his face lay the prostrate figure of Derrick Yale.",
+   "ok": true
+  },
+  {
+   "claim": "Thalia Drummond escaped from Holloway prison mysteriously",
+   "anchor": "At six o’clock when the cell door was opened, Drummond was missing",
+   "span": "At six o'clock when the cell door was opened, Drummond was missing.",
+   "ok": true
+  },
+  {
+   "claim": "Derrick Yale is the Crimson Circle leader with a red birthmark",
+   "anchor": "Red, blood-red, as though it were painted by human agency, a circle of crimson ran about the throat of Derrick Yale",
+   "span": "Red, blood-red, as though it were painted by human agency, a circle of crimson ran about the throat of Derrick Yale.",
+   "ok": true
+  },
+  {
+   "claim": "Thalia Drummond is Derrick Yale’s daughter and accomplice",
+   "anchor": "Thalia Drummond Parr, that is my name",
+   "span": "Thalia Drummond Parr, that is my name.",
+   "ok": true
+  },
+  {
+   "claim": "Yale murdered Froyant using a concealed knife and glove",
+   "anchor": "On the hand was a motor-driver’s gauntlet, and in that hand was the knife that slew Froyant",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Marl was killed because he recognized Yale and posed a threat",
+   "anchor": "Marl was eventually destroyed, the murderer employing perhaps the most ingenious method",
+   "span": "More unfortunate still, Marl recognised Lightman when he met him in England, and this is the reason why Marl was eventually destroyed, the murderer employing perhaps the most ingenious method that has ever been used by a homicidal criminal.",
+   "ok": true
+  },
+  {
+   "claim": "Yale faked his own chloroform attack to divert suspicion",
+   "anchor": "Yale handcuffed, strapped and chloroformed himself after he had put the money in an envelope",
+   "span": "Yale handcuffed, strapped and chloroformed himself after he had put the money in an envelope and dropped it down the letter-chute--it was addressed to his private residence.",
+   "ok": true
+  },
+  {
+   "claim": "Thalia Drummond stabbed Raphael Willings but saved his life",
+   "anchor": "Near by the curtain Raphael Willings lay on his face, three inches of Assyrian dagger in his shoulder",
+   "span": "Near by the curtain Raphael Willings lay on his face, three inches of Assyrian dagger in his shoulder, and standing by him, staring down at him was a white-faced girl.",
+   "ok": true
+  },
+  {
+   "claim": "The Crimson Circle’s organization is highly secretive and compartmentalized",
+   "anchor": "You have a hundred comrades, none of whom will ever be known to you",
+   "span": "You have a hundred comrades, none of whom will ever be known to you, none of whom will ever know you.",
+   "ok": true
+  },
+  {
+   "claim": "The Crimson Circle sent threatening letters demanding money",
+   "anchor": "You will pay this in notes to a messenger I will send in response",
+   "span": "You will pay this in notes to a messenger I will send in response to an advertisement in the 'Tribune' within the next twenty-four hours, stating the exact hour convenient to you.",
+   "ok": true
+  },
+  {
+   "claim": "Thalia Drummond was used to gather intelligence on government ministers",
+   "anchor": "I wish you to know this man thoroughly and discover what are his little weaknesses",
+   "span": "I wish you to know this man thoroughly and discover what are his little weaknesses.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.09200390955,
+ "models": {
+  "map": "gpt-4o-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

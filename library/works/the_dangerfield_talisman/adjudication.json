@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "The Talisman was stolen by a left-handed thief who had full knowledge of the estate.",
+  "type": "identity",
+  "why_it_seems_reasonable": "The cabinet doors were opened in a way indicating a left-handed person, and Eric Dangerfield, a left-hander with financial troubles, was suspected. The theft coincided with suspicious night movements of several guests.",
+  "what_it_hides": "The left-handedness clue only applies to the replica theft, not the real Talisman, which was never taken. The real theft was a kleptomaniac stealing the replica without knowledge of the secret safe."
+ },
+ "mechanism_description": "The real Dangerfield Talisman was never removed from the estate but hidden in a secret safe deposit behind a panel in the Corinthian’s Room, secured by a mechanical chessboard lock devised by the grandfather. The displayed Talisman was a replica used to maintain the estate’s credit. Mrs. Caistor Scorton, a kleptomaniac, stole the replica and hid it in a hollow tree by the Pool, unaware of the real Talisman’s secret location. The replica was later returned to the cabinet to mislead the guests.",
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "Westenhanger blindfolds Eileen and Douglas separately and asks them to open the cabinet doors naturally. Both open the right-hand door, indicating right-handedness. The left-hand door was found open, indicating a left-handed thief. This test reveals the handedness of the thief without alerting suspects.",
+  "knowledge_revealed": "The thief was left-handed or used the left hand to open the cabinet, narrowing the suspect list.",
+  "pass_condition": "The test passes if both right-handed participants open the right-hand door, confirming the left-hand door was opened by a left-handed person."
+ },
+ "changed": [],
+ "confidence": "high"
+}

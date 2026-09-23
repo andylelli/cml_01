@@ -12,7 +12,7 @@
   {
    "claim": "The emerald pendant matches Lady Raytham’s necklace",
    "anchor": "the pendant on the chain she had seen that evening glittering",
-   "span": "It was the pendant on the chain she had seen that evening glittering on Lady Raytham’s neck!",
+   "span": "It was the pendant on the chain she had seen that evening glittering on Lady Raytham's neck!",
    "ok": true
   },
   {
@@ -30,13 +30,13 @@
   {
    "claim": "Druze was shot at close range with an automatic pistol",
    "anchor": "Druze has been shot three times; that’s rather a queer thing",
-   "span": "Druze has been shot three times; that’s rather a queer thing, and he has been shot through the heart!",
+   "span": "Druze has been shot three times; that's rather a queer thing, and he has been shot through the heart!",
    "ok": true
   },
   {
    "claim": "Druze had a gunpowder burn on the back of her hand",
    "anchor": "a big black-powder burn at the base of her right thumb",
-   "span": "There’s a big black-powder burn at the base of her right thumb, that is to say on the back of her hand.",
+   "span": "There's a big black-powder burn at the base of her right thumb, that is to say on the back of her hand.",
    "ok": true
   },
   {
@@ -90,7 +90,7 @@
   {
    "claim": "The forged will disinherited Peter Dawlish",
    "anchor": "The will was proved six weeks ago. They can do nothing now",
-   "span": "The will was proved six weeks ago. They can do nothing now, but they nag and nag and I’m getting tired of it all.",
+   "span": "The will was proved six weeks ago. They can do nothing now, but they nag and nag and I'm getting tired of it all.",
    "ok": true
   },
   {
@@ -102,7 +102,7 @@
   {
    "claim": "Druze was killed during a struggle with Anita Bellini",
    "anchor": "Anita, who was the stronger of the two, snatched the chain from her",
-   "span": "Anita, who was the stronger of the two, snatched the chain from her sister’s hands, never expecting that the woman, infuriated with drink and anger, carried a pistol.",
+   "span": "Anita, who was the stronger of the two, snatched the chain from her sister's hands, never expecting that the woman, infuriated with drink and anger, carried a pistol.",
    "ok": true
   },
   {
@@ -120,7 +120,7 @@
   {
    "claim": "Leslie Maughan’s reenactment proved Druze fired the gun",
    "anchor": "I was firing an automatic this morning to see what would happen",
-   "span": "I was firing an automatic this morning to see what would happen, and I’ve got exactly the same mark as she has.",
+   "span": "I was firing an automatic this morning to see what would happen, and I've got exactly the same mark as she has.",
    "ok": true
   }
  ],
@@ -130,5 +130,7 @@
   "encode": "gpt-4.1-mini",
   "sweep": "gpt-4o-mini"
  },
- "case_written": true
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
 }

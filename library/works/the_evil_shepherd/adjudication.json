@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "Margaret Hilditch killed her husband out of hatred and resentment.",
+  "type": "behavioral",
+  "why_it_seems_reasonable": "Margaret's cold demeanor and her own admission of hatred towards Oliver Hilditch suggest motive. The timing of the murder after their troubled marriage supports suspicion.",
+  "what_it_hides": "It conceals the true murderer, Sir Timothy Brast, who had opportunity and motive, and the butler's secret witnessing of the crime."
+ },
+ "mechanism_description": "Sir Timothy Brast murdered Oliver Hilditch by stabbing him with a concealed dagger during a private confrontation, witnessed secretly by the butler John Walter who was bribed to keep silent. The murder was disguised as a suicide. Reginald Wilmore was held captive at Sir Timothy's estate to be used as an unwilling participant in a staged boxing match for entertainment.",
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "A private reenactment of the murder scene is arranged where the butler's testimony is tested by observing the timing and access of Sir Timothy entering the house and the use of the concealed dagger. The presence of the butler in the pantry and his ability to witness the murder through the folding doors is verified.",
+  "knowledge_revealed": "This reenactment confirms that only Sir Timothy could have committed the murder as described and that the butler's account is credible.",
+  "pass_condition": "The reenactment must show that the butler could see and hear the murder and that Sir Timothy had the opportunity to commit it without interruption."
+ },
+ "changed": [],
+ "confidence": "high"
+}

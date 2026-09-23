@@ -1,0 +1,136 @@
+{
+ "slug": "jacob_s_ladder",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Jacob Pratt has recently become wealthy from oil investments",
+   "anchor": "I cabled you this morning to prepare for good news",
+   "span": "My dear Jacob, I cabled you this morning to prepare for good news, so don't get heart failure when you receive this letter.",
+   "ok": true
+  },
+  {
+   "claim": "Jacob presents letters proving his wealth and credit",
+   "anchor": "letters, folded them up, and was ready",
+   "span": "Whilst he waited for the train, Jacob read again the wonderful letters, folded them up, and was ready, with an air of anticipation, when the little train with its reversed engine came puffing around the curve and brought its few antiquated and smoke-encrusted carriages to a standstill.",
+   "ok": true
+  },
+  {
+   "claim": "Montague and Littleham propose a land and water company scheme",
+   "anchor": "Mr. Dane Montague, my name is",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Jacob inspects the Cropstone Wood Estate",
+   "anchor": "I will inspect the property this afternoon",
+   "span": "I will inspect the property this afternoon,\" Jacob announced.",
+   "ok": true
+  },
+  {
+   "claim": "Jacob buys the water company outright",
+   "anchor": "I am now the sole owner of the Cropstone Wood, Water and Electric Light Company",
+   "span": "I am now the sole owner of the Cropstone Wood, Water and Electric Light Company and the Cropstone Wood Estates.",
+   "ok": true
+  },
+  {
+   "claim": "Jacob is kidnapped and forced to sign a ransom cheque",
+   "anchor": "You are going to sign an open cheque for five thousand pounds",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Jacob arranges a trap with his bank for the ransom cheque",
+   "anchor": "I told them exactly what to do if any open cheque were presented",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Lord Felixstowe warns Jacob of the criminal plot",
+   "anchor": "Keep your weather eye open, Jacob",
+   "span": "Keep your weather eye open, Jacob.",
+   "ok": true
+  },
+  {
+   "claim": "Jacob is imprisoned at Kelsoton Castle",
+   "anchor": "you enter now upon a new phase of your stay at Kelsoton",
+   "span": "you enter now upon a new phase of your stay at Kelsoton Castle.",
+   "ok": true
+  },
+  {
+   "claim": "Lady Mary aids Jacob by supplying food and a revolver",
+   "anchor": "I'm sending you up some nails and string",
+   "span": "I'm sending you up some nails and string.",
+   "ok": true
+  },
+  {
+   "claim": "Jacob defeats the Glasgow Daisy sent to intimidate him",
+   "anchor": "The Glasgow Daisy grinned again",
+   "span": "The Glasgow Daisy grinned again, until his face seemed all freckles and flashing white teeth.",
+   "ok": true
+  },
+  {
+   "claim": "Jacob escapes imprisonment with Lord Felixstowe's help",
+   "anchor": "there were hasty steps upon the stone stairs and the door with its iron grating was unlocked",
+   "span": "A moment later there were hasty steps upon the stone stairs and the door with its iron grating was unlocked.",
+   "ok": true
+  },
+  {
+   "claim": "Jacob travels to New York to assist his ill brother",
+   "anchor": "I am your brother's secretary",
+   "span": "I am your brother's secretary.",
+   "ok": true
+  },
+  {
+   "claim": "Jacob discovers the impersonation and fraud in New York",
+   "anchor": "Doctor Bardolf is here",
+   "span": "Doctor Bardolf is here.",
+   "ok": true
+  },
+  {
+   "claim": "Lord Felixstowe exposes the impostor doctor and secretary",
+   "anchor": "I just toddled round to Number 1001 West Fifty-seventh Street",
+   "span": "Fact is, I just toddled round to Number 1001 West Fifty-seventh Street this morning, and I've been having a chat with Doctor Bardolf.",
+   "ok": true
+  },
+  {
+   "claim": "Jacob recovers his brother's fortune and exposes the fraud",
+   "anchor": "Your brother Jacob gets a cable over in England",
+   "span": "Your brother Jacob gets a cable over in England, sent by Morse here, to say that you are dangerously ill.",
+   "ok": true
+  },
+  {
+   "claim": "Jacob's financial and personal troubles are resolved",
+   "anchor": "Jacob and Lord Felixstowe stood side by side on the deck",
+   "span": "CHAPTER XXVIII Jacob and Lord Felixstowe stood side by side on the deck of a homeward-bound steamer, a few weeks later, watching the pilot come out from Plymouth Harbour.",
+   "ok": true
+  },
+  {
+   "claim": "Jacob's desire for companionship remains unfulfilled",
+   "anchor": "he still lived and was alone",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Jacob's final acceptance of reality and new friendship",
+   "anchor": "Jacob rose to his feet. The girl's look of disappointment",
+   "span": "Jacob rose to his feet. The girl's look of disappointment was so ingenuous that he turned back to her.",
+   "ok": true
+  },
+  {
+   "claim": "Jacob's brother Samuel is well and the fraudsters are arrested",
+   "anchor": "Jacob felt a little dazed. You haven't been ill at all then",
+   "span": "",
+   "ok": false
+  }
+ ],
+ "costGbp": 0.0510212968,
+ "models": {
+  "map": "gpt-4o-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

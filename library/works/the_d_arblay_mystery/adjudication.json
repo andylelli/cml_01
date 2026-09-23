@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "The two men, Bendelow and Crile, were both dead and buried as stated in official records.",
+  "type": "identity",
+  "why_it_seems_reasonable": "Death certificates and funerals were officially recorded and witnessed by multiple parties, including doctors and acquaintances. The presence of cremation and burial records provides strong documentary evidence supporting their deaths.",
+  "what_it_hides": "One of the men, Bendelow, faked his death using a wax mask and an empty coffin, allowing him to evade capture and continue his criminal activities."
+ },
+ "mechanism_description": "Simon Bendelow, a professional criminal, faked his death by commissioning Julius D’Arblay to make a wax mask of his face. After murdering D’Arblay to silence him, Bendelow substituted the wax mask over a corpse in a coffin with an inspection window and staged a cremation to create false evidence of his death. He then lived under an alias, continuing his criminal activities until Thorndyke’s investigation uncovered the deception and led to his arrest.",
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "A wax mask was made from the plaster mould of Morris’ face and altered with clay to resemble the assailant’s description. A photograph was taken and shown to the witnesses to test recognition without suggestion. The mask was also used in a coffin with an inspection window to simulate Bendelow’s death.",
+  "knowledge_revealed": "The test revealed that the assailant was indeed Morris (Bendelow) disguised with make-up and that the wax mask was used to fake the cremation death.",
+  "pass_condition": "Witnesses must positively identify the wax mask as the face of the assailant and Bendelow, confirming the deception."
+ },
+ "changed": [],
+ "confidence": "high"
+}

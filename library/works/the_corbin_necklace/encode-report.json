@@ -12,25 +12,25 @@
   {
    "claim": "Judy laughed oddly when the necklace was found missing",
    "anchor": "She laughed as if it was something that didn’t matter",
-   "span": "She laughed as if it was something that didn’t matter very much, but was rather funny.",
+   "span": "She laughed as if it was something that didn't matter very much, but was rather funny.",
    "ok": true
   },
   {
    "claim": "Victoria pawned the real necklace and had an imitation made",
    "anchor": "Mother had had an imitation necklace made then",
-   "span": "",
-   "ok": false
+   "span": "You see, about a year ago, Gran had given her the necklace to take to town to the jeweler to be cleaned and restrung, and mother had had an imitation necklace made then.",
+   "ok": true
   },
   {
    "claim": "Punch saw a man in pajamas with a tear in the leg",
    "anchor": "The legs of these pajamas crossed this patch he saw them",
-   "span": "",
-   "ok": false
+   "span": "As the legs of these pajamas crossed this patch he saw them very plainly.",
+   "ok": true
   },
   {
    "claim": "Raglan was hiding in the trunk closet",
    "anchor": "He’s in the trunk closet",
-   "span": "He’s in the trunk closet.",
+   "span": "He's in the trunk closet.",
    "ok": true
   },
   {
@@ -48,8 +48,8 @@
   {
    "claim": "Judy and Bill eloped and planned a secret marriage",
    "anchor": "They’re going to be married now",
-   "span": "",
-   "ok": false
+   "span": "So they're going to be married now.",
+   "ok": true
   },
   {
    "claim": "Bruce Applebury accused Bill Grant of theft",
@@ -60,13 +60,13 @@
   {
    "claim": "Mr. Smith’s expert opinion on the necklace and thief",
    "anchor": "Mr. Smith pulled up an easy chair for himself",
-   "span": "When he’d made me comfortable and gone away, Mr. Smith pulled up an easy chair for himself and lighted a cigar.",
+   "span": "When he'd made me comfortable and gone away, Mr. Smith pulled up an easy chair for himself and lighted a cigar.",
    "ok": true
   },
   {
    "claim": "Punch’s theory about the pajamas and thief",
    "anchor": "Punch’s ghost, the man in pajamas",
-   "span": "Punch’s ghost, the man in pajamas.",
+   "span": "Punch's ghost, the man in pajamas.",
    "ok": true
   },
   {
@@ -78,19 +78,19 @@
   {
    "claim": "Victoria’s motive was financial desperation",
    "anchor": "She’d tried to raise the money to get it back",
-   "span": "She’d tried to raise the money to get it back and she couldn’t.",
+   "span": "She'd tried to raise the money to get it back and she couldn't.",
    "ok": true
   },
   {
    "claim": "Judy’s secret letter was hidden in a Chinese vase",
    "anchor": "She pushed her letter down inside",
-   "span": "",
-   "ok": false
+   "span": "Then her hand darted out to a narrow-necked Chinese vase which stood on the table beside her, and she pushed her letter down inside.",
+   "ok": true
   },
   {
    "claim": "Punch kept the imitation necklace hidden in his pocket",
    "anchor": "I didn’t forget to change it when I changed my clothes",
-   "span": "I didn’t forget to change it when I changed my clothes,” he told me, “and I bolted my door and hung my coat on the door-knob.",
+   "span": "I didn't forget to change it when I changed my clothes,\" he told me, \"and I bolted my door and hung my coat on the door-knob.",
    "ok": true
   },
   {
@@ -130,5 +130,7 @@
   "encode": "gpt-4.1-mini",
   "sweep": "gpt-4o-mini"
  },
- "case_written": true
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
 }

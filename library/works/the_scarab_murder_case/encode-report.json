@@ -1,0 +1,136 @@
+{
+ "slug": "the_scarab_murder_case",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Benjamin H. Kyle was found dead with a fractured skull",
+   "anchor": "Kyle was lying on his face, his legs slightly drawn up",
+   "span": "Kyle was lying on his face, his legs slightly drawn up under him, and his arms reaching out and encircling the feet of a life-sized statue in the corner.",
+   "ok": true
+  },
+  {
+   "claim": "The statue of Sakhmet was the murder weapon",
+   "anchor": "That diorite statue, which killed Kyle, is Sakhmet",
+   "span": "… That diorite statue, which killed Kyle, is Sakhmet, the Egyptian goddess of vengeance--the destroying element.",
+   "ok": true
+  },
+  {
+   "claim": "The scarab pin belonged to Dr. Bliss and was found near the body",
+   "anchor": "That scarf-pin is the property of Doctor Bliss",
+   "span": "That scarf-pin is the property of Doctor Bliss.",
+   "ok": true
+  },
+  {
+   "claim": "Bliss’s fingerprints were found on the statue of Sakhmet",
+   "anchor": "Those are my finger-prints on that statue",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Bliss’s tennis shoe made bloody footprints at the scene",
+   "anchor": "I found that shoe in the study, Mr. Markham",
+   "span": "I found that shoe in the study, Mr. Markham,\" Heath was saying.",
+   "ok": true
+  },
+  {
+   "claim": "Opium was found in the bottom of Bliss’s coffee cup",
+   "anchor": "There’s a slightly acrid odor here",
+   "span": "There's a slightly acrid odor here,\" he remarked.",
+   "ok": true
+  },
+  {
+   "claim": "The curtain of the cabinet was only half drawn with a loose ring",
+   "anchor": "the curtain of this cabinet is only half drawn",
+   "span": "that the curtain of this cabinet is only half drawn.",
+   "ok": true
+  },
+  {
+   "claim": "Vance’s experiment showed the statue could fall and kill",
+   "anchor": "the statue stood leaning toward us, perilously balanced",
+   "span": "He took his hands away, and the statue stood leaning toward us, perilously balanced.",
+   "ok": true
+  },
+  {
+   "claim": "Salveter wrote a letter in Egyptian hieroglyphs",
+   "anchor": "I was writing a letter in Egyptian hieroglyphics",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The forged letter was torn up and thrown in Bliss’s waste-basket",
+   "anchor": "I picked up two torn pieces of yellow paper",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Scarlett was attacked and hidden in the sarcophagus",
+   "anchor": "Scarlett’s face was cyanosed, due to insufficient oxygenation",
+   "span": "Scarlett's face was cyanosed, due to insufficient oxygenation of the blood; his eyes were set in a fixed bulging stare; and there was a crust formation of blood at his nostrils.",
+   "ok": true
+  },
+  {
+   "claim": "Bliss attempted to escape to Canada after the murder",
+   "anchor": "He drew out everything he had in the bank",
+   "span": "He drew out everything he had in the bank--got it in twenties, fifties and hundreds--and then took a taxi.",
+   "ok": true
+  },
+  {
+   "claim": "A golden dagger was thrown at Bliss’s bed but missed",
+   "anchor": "the blade was driven into the headboard just above the pillow",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The dagger sheath was found hidden in Salveter’s room",
+   "anchor": "Here, effendi, is the sheath of the royal dagger",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Bliss was killed by the falling statue of Anûbis",
+   "anchor": "Bliss lay sprawled face downward in a pool of blood",
+   "span": "In the corner opposite, in almost the exact place where we had found Kyle's body the preceding day, Bliss lay sprawled face downward in a pool of blood.",
+   "ok": true
+  },
+  {
+   "claim": "The statue of Anûbis had broken ankles",
+   "anchor": "the ankles are very slender, and the statue is made of limestone",
+   "span": "the ankles are very slender, and the statue is made of limestone--a rather fragile substance.",
+   "ok": true
+  },
+  {
+   "claim": "Hani killed Bliss to end the murderous plot",
+   "anchor": "He equipped himself with a mace from the museum and struck Bliss",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Bliss planted evidence to implicate Salveter",
+   "anchor": "Bliss put the sheath in Salveter’s room, and then threw the dagger",
+   "span": "Y' see, Markham, Bliss put the sheath in Salveter's room, and then threw the dagger into the headboard of his bed.",
+   "ok": true
+  },
+  {
+   "claim": "The forged letter was intended to frame Salveter",
+   "anchor": "the forged letter would, when it appeared, give us evidence against Bliss",
+   "span": "But since I had the original, I believed that the forged letter would, when it appeared, give us evidence against Bliss.",
+   "ok": true
+  },
+  {
+   "claim": "Vance warned Scarlett to keep away from the Bliss house",
+   "anchor": "I’d keep away from the Bliss house for the time being",
+   "span": "And I say, Scarlett; if I were you I'd keep away from the Bliss house for the time being.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.134725968,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

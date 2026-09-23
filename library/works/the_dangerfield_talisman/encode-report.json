@@ -1,0 +1,136 @@
+{
+ "slug": "the_dangerfield_talisman",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "The Dangerfield Talisman is kept under a bell of tinted glass",
+   "anchor": "a bell of faintly tinted glass, under which lay",
+   "span": "As they came near it, they saw within the case a bell of faintly tinted glass, under which lay, on a velvet bed, an ancient ornament.",
+   "ok": true
+  },
+  {
+   "claim": "The Talisman is too heavy for modern tastes",
+   "anchor": "It’s very heavy for an ornament—something over a pound",
+   "span": "It's very heavy for an ornament-something over a pound, I believe,\" he went on, as his guests drew nearer to look closely at the jewel.",
+   "ok": true
+  },
+  {
+   "claim": "The Corinthian’s Room has a chessboard floor with holes",
+   "anchor": "the black and white marble squares in the centre of the floor",
+   "span": "He moved forward and pushed aside some rugs with his foot, so that the black and white marble squares in the centre of the floor were cleared.",
+   "ok": true
+  },
+  {
+   "claim": "Each chess piece has a spike fitting into holes in the board",
+   "anchor": "There’s a spike on the foot of each piece, fitting into a hole",
+   "span": "There's a spike on the foot of each piece, fitting into a hole in the shelf-the spike that goes into the hole in the chess-board, so that the piece can't be accidentally knocked over.",
+   "ok": true
+  },
+  {
+   "claim": "The grandfather’s death was caused by a duel",
+   "anchor": "My grandfather was shot in the head—killed instantly",
+   "span": "My grandfather was shot in the head-killed instantly.",
+   "ok": true
+  },
+  {
+   "claim": "The document shows a chess position and biblical texts",
+   "anchor": "At the top of the sheet were two lines of handwriting",
+   "span": "At the top of the sheet were two lines of handwriting: Nox Nocti Indicat Scientiam.",
+   "ok": true
+  },
+  {
+   "claim": "The Talisman is never moved from its place",
+   "anchor": "The Talisman is never moved from its place by day or night",
+   "span": "The Talisman is never moved from its place by day or night.",
+   "ok": true
+  },
+  {
+   "claim": "The cabinet doors have simple spring catches",
+   "anchor": "The other door stood half-open, and he noticed that it had no lock but only an ordinary spring-catch",
+   "span": "The other door stood half-open, and he noticed that it had no lock but only an ordinary spring-catch.",
+   "ok": true
+  },
+  {
+   "claim": "The left-hand door of the cabinet was open after theft",
+   "anchor": "the left-hand door’s been open all the time—just as the thief left it",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Eileen and Douglas are right-handed",
+   "anchor": "You made your right hand in an awkward attitude",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Mrs. Caistor Scorton was seen taking stolen items from a tree hollow",
+   "anchor": "She’s taken something from the hole. . . . It’s very small. . . .",
+   "span": "She's taken something from the hole. . . . It's very small. . . . I can hardly make it out.",
+   "ok": true
+  },
+  {
+   "claim": "The real Talisman was hidden in a secret safe behind a panel",
+   "anchor": "a large piece of the panel came forward, evidently the end of a drawer",
+   "span": "A slow, steady pull on the twine completed the work, and a large piece of the panel came forward, evidently the end of a drawer fitting back into the wall of the room.",
+   "ok": true
+  },
+  {
+   "claim": "The chessboard lock requires four knight moves in sequence",
+   "anchor": "the four levers must be depressed in that particular sequence",
+   "span": "The whole secret of the thing is that the four levers must be depressed in that particular sequence.",
+   "ok": true
+  },
+  {
+   "claim": "The leather disc is a child’s toy used as a vacuum sucker",
+   "anchor": "The water acts as a seal. That’s right. Now I pull vertically upwards on the twine",
+   "span": "The water acts as a seal. That's right. Now I pull vertically upwards on the twine.",
+   "ok": true
+  },
+  {
+   "claim": "Mrs. Caistor Scorton’s fingerprints are on the replica",
+   "anchor": "It’s no use bluffing, Mrs. Scorton. Your finger-prints are on the Talisman",
+   "span": "It's no use bluffing, Mrs. Scorton. Your finger-prints are on the Talisman.",
+   "ok": true
+  },
+  {
+   "claim": "The replica was stolen and hidden, the real Talisman kept safe",
+   "anchor": "The real Talisman, Mr. Dangerfield!",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The Dangerfield Secret involves the use of a replica to protect the real Talisman",
+   "anchor": "He started the Dangerfield Secret as we have known it",
+   "span": "He started the Dangerfield Secret as we have known it.",
+   "ok": true
+  },
+  {
+   "claim": "The Talisman was returned to the cabinet to mislead suspects",
+   "anchor": "Once we were sure of our effect, we brought the Talisman home again",
+   "span": "Once we were sure of our effect, we brought the Talisman home again.",
+   "ok": true
+  },
+  {
+   "claim": "The theft was by Mrs. Caistor Scorton, a kleptomaniac",
+   "anchor": "I took it, then. I couldn’t help it. I’m a kleptomaniac",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "The chessboard lock mechanism was devised by the grandfather",
+   "anchor": "Your grandfather was more of a mechanic than you gave him credit for",
+   "span": "Your grandfather was more of a mechanic than you gave him credit for.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.13111156,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

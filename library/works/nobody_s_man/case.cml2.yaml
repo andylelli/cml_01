@@ -1,0 +1,411 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: Nobody's Man
+    author: E. Phillips (Edward Phillips) Oppenheim
+    license: Public domain (first published 1921; author died 1946). Project Gutenberg ebook 17356.
+    era:
+      decade: 1920s
+      realism_constraints:
+        - No modern forensic technology like DNA or advanced forensics
+        - Communication limited to telephone, telegram, and in-person visits
+        - Political and social structures reflect post-WWI British society
+    setting:
+      location: Devonshire, England; London
+      institution: Democratic Party and House of Commons
+    crime_class:
+      category: disappearance
+      subtype: theft and political blackmail
+  cast:
+    - name: Andrew Tallente
+      age_range: 40-55
+      role_archetype: disillusioned politician and idealist
+      relationships:
+        - Jane Partington
+        - Stella Tallente
+        - Anthony Palliser
+        - Stephen Dartrey
+        - Nora Miall
+        - James Miller
+      public_persona: politician and leader of the Democratic Party
+      private_secret: married but separated, secretly engaged to Jane
+      motive_seed: political ambition and personal redemption
+      motive_strength: strong
+      alibi_window: present in House of Commons and London
+      access_plausibility: high
+      opportunity_channels:
+        - access to safe
+        - political connections
+      behavioral_tells:
+        - calm under pressure
+        - strategic thinker
+      stakes: high political career and personal reputation
+      evidence_sensitivity:
+        - missing political manuscript
+        - letters forged by Palliser
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: high
+    - name: Anthony Palliser
+      age_range: 30-40
+      role_archetype: secretary and traitor
+      relationships:
+        - Andrew Tallente
+        - Stella Tallente
+        - James Miller
+      public_persona: secretary to Tallente
+      private_secret: stole political manuscript, conspired with Stella and Miller
+      motive_seed: financial gain and political intrigue
+      motive_strength: strong
+      alibi_window: disappeared after confrontation
+      access_plausibility: high
+      opportunity_channels:
+        - access to safe
+        - political contacts
+      behavioral_tells:
+        - secretive
+        - financially motivated
+      stakes: personal safety and gain
+      evidence_sensitivity:
+        - missing manuscript
+        - letters forged
+      culprit_eligibility: locked
+      culpability: guilty
+      gender: male
+      role: victim
+      moral_complexity: moderate
+    - name: Stella Tallente
+      age_range: 40-55
+      role_archetype: ambitious estranged wife
+      relationships:
+        - Andrew Tallente
+        - Anthony Palliser
+        - James Miller
+      public_persona: socialite and wife of Tallente
+      private_secret: conspired with Palliser and Miller for political gain
+      motive_seed: ambition and financial gain
+      motive_strength: moderate
+      alibi_window: present at Manor
+      access_plausibility: medium
+      opportunity_channels:
+        - access to Manor and safe
+      behavioral_tells:
+        - nervousness
+        - manipulative
+      stakes: social status and wealth
+      evidence_sensitivity:
+        - knowledge of manuscript theft
+      culprit_eligibility: ineligible
+      culpability: unknown
+      gender: female
+      role: suspect
+      moral_complexity: high
+    - name: James Miller
+      age_range: 40-55
+      role_archetype: political opponent and conspirator
+      relationships:
+        - Andrew Tallente
+        - Anthony Palliser
+        - Stella Tallente
+        - Stephen Dartrey
+      public_persona: Democrat M.P., political adversary
+      private_secret: bought stolen manuscript, plotted against Tallente
+      motive_seed: political power and blackmail
+      motive_strength: strong
+      alibi_window: present in London and Devonshire
+      access_plausibility: high
+      opportunity_channels:
+        - political contacts
+        - access to Palliser
+      behavioral_tells:
+        - aggressive
+        - manipulative
+      stakes: political influence and power
+      evidence_sensitivity:
+        - payment to Palliser
+        - possession of manuscript
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Jane Partington
+      age_range: 25-35
+      role_archetype: independent landowner and love interest
+      relationships:
+        - Andrew Tallente
+        - Lady Alice Mountgarron
+        - Lionel Segerson
+      public_persona: wealthy landowner and social figure
+      private_secret: secretly engaged to Tallente
+      motive_seed: personal affection and social ideals
+      motive_strength: none
+      alibi_window: present at Woolhanger and London
+      access_plausibility: low
+      opportunity_channels: []
+      behavioral_tells:
+        - reserved
+        - independent
+      stakes: personal happiness
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: moderate
+    - name: Stephen Dartrey
+      age_range: 50-60
+      role_archetype: idealistic party leader
+      relationships:
+        - Andrew Tallente
+        - Nora Miall
+        - James Miller
+      public_persona: leader of the Democratic Party
+      private_secret: married to Nora Miall
+      motive_seed: political idealism
+      motive_strength: none
+      alibi_window: present in London
+      access_plausibility: low
+      opportunity_channels: []
+      behavioral_tells:
+        - dreamer
+        - philosophical
+      stakes: political success
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: high
+    - name: Nora Miall
+      age_range: 20-30
+      role_archetype: political associate and love interest
+      relationships:
+        - Stephen Dartrey
+        - Andrew Tallente
+        - James Miller
+      public_persona: political associate of Tallente and Dartrey
+      private_secret: in love with Dartrey
+      motive_seed: personal affection
+      motive_strength: none
+      alibi_window: present in London
+      access_plausibility: low
+      opportunity_channels: []
+      behavioral_tells:
+        - sympathetic
+        - intelligent
+      stakes: personal happiness
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: moderate
+  culpability:
+    culprit_count: 2
+    culprits:
+      - James Miller
+      - Anthony Palliser
+  surface_model:
+    narrative:
+      summary: >-
+        The Honourable Anthony Palliser, secretary to Andrew Tallente, disappears mysteriously after
+        a quarrel and theft of important political papers. Tallente faces political ruin as a stolen
+        article he wrote years ago is published to undermine him, with Miller implicated in the
+        conspiracy.
+    accepted_facts:
+      - Anthony Palliser disappeared after leaving Tallente's service abruptly.
+      - A political manuscript was stolen from Tallente's safe.
+      - James Miller visited Palliser and paid him money shortly before Palliser's disappearance.
+      - Tallente lost his parliamentary seat due to political intrigue involving Miller.
+    inferred_conclusions:
+      - Palliser was murdered by Tallente to cover up the theft.
+      - Miller acted alone in stealing the manuscript and orchestrating Palliser's disappearance.
+      - Tallente accepted a peerage and abandoned his political ambitions.
+  hidden_model:
+    mechanism:
+      description: >-
+        Anthony Palliser betrayed Tallente by stealing a political manuscript and conspiring with
+        Tallente's estranged wife Stella and political opponent Miller. After a quarrel with
+        Tallente, Palliser disappeared, likely falling over a cliff. Miller bought the stolen
+        manuscript to use it for political blackmail against Tallente, aiming to undermine his
+        position and leadership.
+      delivery_path:
+        - step: Palliser steals a political manuscript from Tallente's safe using his key.
+        - step: Palliser conspires with Stella Tallente and Miller to leverage the manuscript.
+        - step: Miller visits Palliser and offers payment for the manuscript.
+        - step: Palliser and Tallente have a quarrel; Tallente strikes Palliser near a cliff.
+        - step: Palliser falls over the cliff and disappears; body never found.
+        - step: Miller uses the stolen manuscript to blackmail and politically undermine Tallente.
+        - step: The manuscript is published by a newspaper to damage Tallente's reputation.
+    outcome:
+      result: >-
+        Tallente overcomes political attacks, exposes Miller's conspiracy, and secures leadership of
+        the Democratic Party with Jane Partington as his partner.
+  false_assumption:
+    statement: Palliser was murdered by Tallente to conceal the theft.
+    type: behavioral
+    why_it_seems_reasonable: >-
+      Tallente admitted to striking Palliser and Palliser disappeared mysteriously after the
+      quarrel. The missing body and stolen manuscript suggest foul play.
+    what_it_hides: >-
+      Palliser's disappearance was accidental or voluntary after the quarrel, and the real culprit
+      in the theft and blackmail was Miller.
+  false_solution:
+    accused_suspect: Andrew Tallente
+    supporting_points:
+      - Tallente admitted to a physical altercation with Palliser.
+      - Palliser disappeared immediately after the quarrel.
+      - Tallente had access to the safe and motive to protect his reputation.
+      - The missing manuscript was stolen from Tallente's safe.
+    the_one_flaw: >-
+      No evidence of murder or concealment by Tallente; Palliser's body was never found and Miller
+      was implicated in the theft and blackmail.
+    refuted_in_chapter: 15
+  red_herrings:
+    - id: stella_tallente_ambition
+      description: >-
+        Stella Tallente's cold and ambitious behavior suggests she might have conspired to harm
+        Palliser or Tallente.
+      points_at_suspect: Stella Tallente
+      innocent_explanation: She conspired with Palliser and Miller but did not directly cause Palliser's disappearance.
+      resolved_in_chapter: 13
+    - id: political_intrigue_miller
+      description: >-
+        James Miller's political rivalry and suspicious visits to Palliser suggest he orchestrated
+        the theft and disappearance.
+      points_at_suspect: James Miller
+      innocent_explanation: >-
+        Miller is indeed the culprit behind the theft and blackmail, but not responsible for
+        Palliser's disappearance directly.
+      resolved_in_chapter: 15
+  closed_circle:
+    suspects:
+      - Andrew Tallente
+      - Anthony Palliser
+      - Stella Tallente
+      - James Miller
+    rationale: >-
+      These four had direct access, motive, and opportunity related to the theft and disappearance;
+      others are witnesses or bystanders.
+  constraint_space:
+    time:
+      anchors:
+        - Tuesday night of Tallente's return
+        - publication date of article
+        - date of Palliser's disappearance
+      windows:
+        - Palliser's last known presence at Manor
+        - Miller's visits to Palliser
+        - Tallente's political engagements
+    access:
+      actors:
+        - Anthony Palliser
+        - James Miller
+        - Stella Tallente
+        - Andrew Tallente
+      objects:
+        - Tallente's safe
+        - political manuscript
+        - letters forged by Palliser
+    social:
+      trust_channels:
+        - Tallente and Palliser's professional relationship
+        - political party alliances
+        - family ties
+      authority_sources:
+        - Scotland Yard
+        - House of Commons
+        - Democratic Party leadership
+  inference_path:
+    steps:
+      - observation: Anthony Palliser disappeared suddenly after a quarrel with Tallente.
+        correction: Disappearance was likely accidental or voluntary, not murder.
+        effect: Tallente's guilt for murder is questioned.
+        required_evidence:
+          - Testimony of Robert about Palliser's last movements
+          - Inspection of cliff and search for body
+        reader_observable: true
+      - observation: Political manuscript was stolen from Tallente's safe.
+        correction: Palliser had access but sold it to Miller.
+        effect: Miller becomes prime suspect for theft and blackmail.
+        required_evidence:
+          - Robert's statement about Miller's visit and payment
+          - Letters and documents showing forged correspondence
+        reader_observable: true
+      - observation: Miller visited Palliser and offered money.
+        correction: Miller used the manuscript to blackmail Tallente.
+        effect: Miller's motive and opportunity for political sabotage established.
+        required_evidence:
+          - Payment records or witness statements of Miller's visit
+          - Publication of stolen article
+        reader_observable: true
+      - observation: Tallente was offered a peerage but refused.
+        correction: Peerage offer was part of political maneuvering.
+        effect: Tallente's political position is independent of peerage.
+        required_evidence:
+          - Correspondence between Tallente and Prime Minister Horlock
+          - Statements from Horlock about peerage offer
+        reader_observable: true
+      - observation: Miller opposed Tallente's leadership in Democratic Party.
+        correction: Miller's opposition was motivated by personal ambition and class prejudice.
+        effect: Political conflict within party clarified.
+        required_evidence:
+          - Meeting minutes of Democratic Party
+          - Statements by Dartrey and Miller
+        reader_observable: true
+      - observation: Publication of Tallente's article threatens his political career.
+        correction: Article was written years ago and never published; its use is political sabotage.
+        effect: Political blackmail plot exposed.
+        required_evidence:
+          - Proof of article manuscript existence
+          - Editor Greening's statements about publication
+        reader_observable: true
+      - observation: Tallente and Jane Partington develop a romantic relationship.
+        correction: Their relationship is genuine and affects Tallente's personal motivations.
+        effect: Personal stakes in political struggle increase.
+        required_evidence:
+          - Letters and visits between Tallente and Jane
+          - Witness statements from social gatherings
+        reader_observable: true
+  discriminating_test:
+    method: constraint_proof
+    design: >-
+      Reconstruct the timeline of Palliser's last known movements and Miller's visits using servant
+      testimonies and travel records. Verify the presence of the manuscript in Miller's possession
+      before publication. Confirm the impossibility of Tallente's involvement in Palliser's
+      disappearance by physical search of the cliff and witness accounts.
+    knowledge_revealed: >-
+      This test reveals that Palliser disappeared independently after a quarrel, Miller obtained the
+      manuscript through Palliser, and Tallente was not involved in any murder.
+    pass_condition: >-
+      Evidence confirms Palliser's disappearance was accidental or voluntary and manuscript theft
+      was orchestrated by Miller.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is provided with detailed accounts of character movements, political motives, and
+      physical evidence such as the missing manuscript and Palliser's disappearance. The narrative
+      includes contradictory theories and red herrings, but all clues necessary to deduce Miller's
+      role in the theft and blackmail, and Palliser's accidental disappearance, are present. The
+      political context and character relationships are clearly outlined, allowing the attentive
+      reader to piece together the true mechanism.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

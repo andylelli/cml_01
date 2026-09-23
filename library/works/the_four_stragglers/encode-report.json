@@ -1,0 +1,136 @@
+{
+ "slug": "the_four_stragglers",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Sir Harris Greaves was stabbed in his bed",
+   "anchor": "stabbed in his bed",
+   "span": "According to the published accounts, Sir Harris was stabbed in his bed, presumably during the early morning hours, though no sound was heard, and the crime wasn't discovered until his man went to take Sir Harris his tea at the usual hour this morning.",
+   "ok": true
+  },
+  {
+   "claim": "Captain Francis Newcombe was last to speak with Sir Harris",
+   "anchor": "last one as had any conversation with Sir Harris",
+   "span": "You are the last one as had any conversation with Sir Harris before he was murdered.",
+   "ok": true
+  },
+  {
+   "claim": "Paul Cremarre was found dead under the boathouse",
+   "anchor": "Paul Cremarre found here on the island, whether dead or alive",
+   "span": "Paul Cremarre found here on the island, whether dead or alive, was what mattered--it meant that the menace, that hellish nightmare of the \"unknown,\" that had been hanging over him, Shadow Varne, was gone now--that the way was clear ahead--a fortune here--America once more an \"open sesame\"--riches, luxury, all he had builded for, his again to take at his leisure without fear now of any interference from any source.",
+   "ok": true
+  },
+  {
+   "claim": "Paul Cremarre's body had marks consistent with octopus attack",
+   "anchor": "His face and throat were covered with round, purplish blotches",
+   "span": "His face and throat were covered with round, purplish blotches, and the man was absolutely mangled.",
+   "ok": true
+  },
+  {
+   "claim": "Captain Francis Newcombe is Shadow Varne, the criminal mastermind",
+   "anchor": "Shadow Varne!  Shadow Varne!  Ha, ha!",
+   "span": "Shadow Varne! Shadow Varne! Ha, ha! Ha, ha!",
+   "ok": true
+  },
+  {
+   "claim": "The money is hidden in a tide-locked vault under the boathouse",
+   "anchor": "The time-lock of the sea",
+   "span": "VI THE WRITING ON THE WALL BOOK II: THE ISLE OF PREY I THE SPELL OF THE MOONBEAMS II THE VOICE IN THE NIGHT III THE MAD MILLIONAIRE IV THE UNKNOWN V THE GUTTER-SNIPE VI THE MAN IN THE MASK VII THE FIGHT VIII THE MESSAGE BOOK III: THE PENALTY I THE WHITE SHIRT SLEEVE II THE BRONZE KEY III THE WARP AND THE WOOF IV THE TIME-LOCK OF THE SEA PROLOGUE: THE FOUR OF THEM THE FOUR STRAGGLERS PROLOGUE THE FOUR OF THEM The crash of guns.",
+   "ok": true
+  },
+  {
+   "claim": "The vault door is a concrete block swinging open at low tide",
+   "anchor": "The movable block swung back and inward from its upper edge",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Captain Francis Newcombe kills Runnells by locking him in the vault",
+   "anchor": "The minutes passed.  The candle flickered and went out.",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Captain Francis Newcombe escapes with the money by swimming ashore",
+   "anchor": "They stepped out on the shore.",
+   "span": "Presently they stepped out on the shore. Captain Francis Newcombe stared up and down the beach, as he seated himself on the sand and began to pull on his boots.",
+   "ok": true
+  },
+  {
+   "claim": "Polly Wickes' true parentage is concealed by Newcombe",
+   "anchor": "Polly's papers which is God's truth",
+   "span": "Polly's papers which is God's truth, Mrs.",
+   "ok": true
+  },
+  {
+   "claim": "Runnells made a threatening telephone call to Polly",
+   "anchor": "Some one is playing a cruel hoax; or it is the work of an unhinged mind",
+   "span": "Either some one is playing a cruel hoax; or it is the work of an unhinged mind, an irrational act, a phase of insanity that--\" \"Guardy!",
+   "ok": true
+  },
+  {
+   "claim": "The masked man on the island was not Newcombe but another criminal",
+   "anchor": "The man who had worn the mask was gone now",
+   "span": "The man who had worn the mask was gone now--naturally.",
+   "ok": true
+  },
+  {
+   "claim": "Old Mr. Marlin was mentally ill and obsessed with his money",
+   "anchor": "Mr. Marlin is dead.  Locke's eyes half closed",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Paul Cremarre attempted to steal the money but was killed by an octopus",
+   "anchor": "The reason I know this is because I saw the creature",
+   "span": "The reason I know this is because I saw the creature--the tide was higher, of course, when I found the body--come back and carry off its prey.",
+   "ok": true
+  },
+  {
+   "claim": "Captain Francis Newcombe was seen near the old man's hut at 3 AM",
+   "anchor": "I saw you coming from that direction at three o'clock this morning",
+   "span": "I saw you coming from that direction at three o'clock this morning.",
+   "ok": true
+  },
+  {
+   "claim": "Captain Francis Newcombe's attempt to find the money was unsuccessful",
+   "anchor": "Newcombe was the one who had been on the wrong scent",
+   "span": "It meant that Newcombe was the one who had been tricked by the old madman's cunning, which could never have happened if Newcombe had not been stealthily trying to find the hidden money; it simply meant that Newcombe was the one who had been on the wrong scent--and that some one else had been on the right one!",
+   "ok": true
+  },
+  {
+   "claim": "Captain Francis Newcombe's identity as Shadow Varne was known to Locke",
+   "anchor": "I am the fourth straggler",
+   "span": "I am the fourth straggler.",
+   "ok": true
+  },
+  {
+   "claim": "Captain Francis Newcombe arranged to leave the island with Runnells and luggage",
+   "anchor": "Your baggage has been searched--so has Runnells'",
+   "span": "Your baggage has been searched--so has Runnells'.",
+   "ok": true
+  },
+  {
+   "claim": "Captain Francis Newcombe is forced to leave to avoid exposure",
+   "anchor": "You are going out of her life never to contaminate it again",
+   "span": "But you are going out of her life never to contaminate it again.",
+   "ok": true
+  },
+  {
+   "claim": "Captain Francis Newcombe's plan is foiled by Locke's intervention",
+   "anchor": "You are clever--but your cleverness will do you no good here",
+   "span": "",
+   "ok": false
+  }
+ ],
+ "costGbp": 0.121811996,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

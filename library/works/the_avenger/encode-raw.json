@@ -1,0 +1,500 @@
+{
+ "decade": "1920s",
+ "realism_constraints": [
+  "No advanced forensic DNA or fingerprint analysis available",
+  "Communication limited to telephone and postal mail, no mobile phones or internet",
+  "Transportation by motor cars and motorcycles, but no modern surveillance technology"
+ ],
+ "location": "Chichester and surrounding Sussex countryside, England",
+ "institution": "Foreign Office Intelligence Department",
+ "crime_category": "murder",
+ "crime_subtype": "execution by guillotine in hidden cave",
+ "cast": [
+  {
+   "name": "Michael Brixan",
+   "age_range": "30-40",
+   "role_archetype": "clever government agent",
+   "role": "detective",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "Foreign Office Intelligence agent",
+   "private_secret": "deeply involved in Head-Hunter case",
+   "motive_seed": "justice and protection of Adele",
+   "motive_strength": "strong",
+   "alibi_window": "present throughout investigation",
+   "access_plausibility": "high",
+   "stakes": "high",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Adele Leamington (interest)"
+   ],
+   "opportunity_channels": [
+    "investigative access"
+   ],
+   "behavioral_tells": [
+    "persistent",
+    "analytical"
+   ],
+   "evidence_sensitivity": [
+    "typewritten notes",
+    "physical evidence"
+   ]
+  },
+  {
+   "name": "Adele Leamington",
+   "age_range": "20-30",
+   "role_archetype": "innocent young actress",
+   "role": "victim",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "extra and rising film star",
+   "private_secret": "target of abduction and danger",
+   "motive_seed": "survival",
+   "motive_strength": "strong",
+   "alibi_window": "present at studio and abducted",
+   "access_plausibility": "medium",
+   "stakes": "very high",
+   "moral_complexity": "low",
+   "relationships": [
+    "Michael Brixan (friend)"
+   ],
+   "opportunity_channels": [
+    "studio",
+    "Griff Towers"
+   ],
+   "behavioral_tells": [
+    "nervous",
+    "determined"
+   ],
+   "evidence_sensitivity": [
+    "missing cloak",
+    "handcuff fragment"
+   ]
+  },
+  {
+   "name": "Sir Gregory Penne",
+   "age_range": "50-60",
+   "role_archetype": "wealthy baronet with dark past",
+   "role": "suspect",
+   "gender": "male",
+   "culpability": "unknown",
+   "culprit_eligibility": "eligible",
+   "public_persona": "eccentric rich man and film studio patron",
+   "private_secret": "involved in murders and abductions",
+   "motive_seed": "fear of exposure and control",
+   "motive_strength": "strong",
+   "alibi_window": "present at Griff Towers",
+   "access_plausibility": "high",
+   "stakes": "very high",
+   "moral_complexity": "high",
+   "relationships": [
+    "Stella Mendoza (former friend)",
+    "Bhag (orangutan servant)"
+   ],
+   "opportunity_channels": [
+    "Griff Towers",
+    "studio influence"
+   ],
+   "behavioral_tells": [
+    "brutal",
+    "cowardly",
+    "manipulative"
+   ],
+   "evidence_sensitivity": [
+    "bloodstained sword",
+    "missing sword",
+    "handcuffs"
+   ]
+  },
+  {
+   "name": "Sampson Longvale",
+   "age_range": "70-80",
+   "role_archetype": "eccentric old gentleman with secret identity",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "wealthy recluse and former doctor",
+   "private_secret": "the Head-Hunter murderer and executioner",
+   "motive_seed": "obsession with ancestor and justice",
+   "motive_strength": "strong",
+   "alibi_window": "present at Dower House",
+   "access_plausibility": "high",
+   "stakes": "very high",
+   "moral_complexity": "very high",
+   "relationships": [
+    "Michael Brixan (detective adversary)"
+   ],
+   "opportunity_channels": [
+    "Dower House",
+    "caves"
+   ],
+   "behavioral_tells": [
+    "polite",
+    "calm",
+    "deceptive"
+   ],
+   "evidence_sensitivity": [
+    "guillotine",
+    "letters",
+    "trapdoor"
+   ]
+  },
+  {
+   "name": "Lawley Foss",
+   "age_range": "40-50",
+   "role_archetype": "disgruntled scenario editor",
+   "role": "victim",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "scenario editor",
+   "private_secret": "blackmailer of the Head-Hunter",
+   "motive_seed": "money",
+   "motive_strength": "moderate",
+   "alibi_window": "last seen at Griff Towers",
+   "access_plausibility": "medium",
+   "stakes": "high",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Stella Mendoza (acquaintance)"
+   ],
+   "opportunity_channels": [
+    "studio",
+    "Griff Towers"
+   ],
+   "behavioral_tells": [
+    "nervous",
+    "suspicious"
+   ],
+   "evidence_sensitivity": [
+    "head found on Chobham Common"
+   ]
+  },
+  {
+   "name": "Stella Mendoza",
+   "age_range": "30-40",
+   "role_archetype": "temperamental film star",
+   "role": "suspect",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "leading lady",
+   "private_secret": "financially involved with Penne",
+   "motive_seed": "ambition and money",
+   "motive_strength": "weak",
+   "alibi_window": "present at Griff Towers",
+   "access_plausibility": "medium",
+   "stakes": "medium",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Sir Gregory Penne (former friend)",
+    "Adele Leamington (rival)"
+   ],
+   "opportunity_channels": [
+    "studio",
+    "Griff Towers"
+   ],
+   "behavioral_tells": [
+    "angry",
+    "manipulative"
+   ],
+   "evidence_sensitivity": [
+    "diamond ring",
+    "car"
+   ]
+  },
+  {
+   "name": "Reggie Connolly",
+   "age_range": "30-40",
+   "role_archetype": "disgruntled leading man",
+   "role": "bystander",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "leading man actor",
+   "private_secret": "jealous and insecure",
+   "motive_seed": "professional jealousy",
+   "motive_strength": "weak",
+   "alibi_window": "present at studio",
+   "access_plausibility": "low",
+   "stakes": "low",
+   "moral_complexity": "low",
+   "relationships": [
+    "Adele Leamington (co-star)",
+    "Jack Knebworth (director)"
+   ],
+   "opportunity_channels": [
+    "studio"
+   ],
+   "behavioral_tells": [
+    "complaining",
+    "jealous"
+   ],
+   "evidence_sensitivity": []
+  }
+ ],
+ "culprits": [
+  "Sampson Longvale"
+ ],
+ "surface_summary": "A series of gruesome murders involving decapitations are linked to a mysterious figure called the Head-Hunter. The investigation leads to a wealthy baronet, Sir Gregory Penne, and his trained orangutan Bhag, but the true culprit is a seemingly benign old gentleman, Sampson Longvale, who uses a hidden guillotine in caves beneath his house to execute victims.",
+ "accepted_facts": [
+  "Victims are found decapitated with notes typed on an old typewriter",
+  "Sir Gregory Penne owns an orangutan named Bhag who is trained and dangerous",
+  "Lawley Foss was blackmailing the Head-Hunter and was murdered",
+  "Adele Leamington was abducted and held prisoner at Griff Towers"
+ ],
+ "inferred_conclusions": [
+  "Sir Gregory Penne is the Head-Hunter murderer",
+  "Bhag the orangutan is responsible for the killings",
+  "Stella Mendoza is involved in the murders"
+ ],
+ "mechanism_description": "Sampson Longvale, inspired by his ancestor the executioner, is the Head-Hunter who murders victims using a guillotine hidden in caves beneath his house. He lures victims under various pretenses, restrains them with handcuffs, and executes them with the guillotine. The orangutan Bhag is used by Sir Gregory Penne for intimidation and kidnapping but is not the murderer. The murders are concealed by the remote location and the secret cave system.",
+ "delivery_path": [
+  "Longvale receives letters from victims seeking help",
+  "Victims are brought to Dower House and restrained",
+  "Longvale uses the guillotine in the cave to execute victims",
+  "Heads are sent with typewritten notes from the Head-Hunter’s typewriter",
+  "Bhag and Penne are used as red herrings to mislead investigators",
+  "Adele Leamington is abducted but escapes into the caves",
+  "Michael Brixan uncovers the cave, guillotine, and Longvale’s identity"
+ ],
+ "outcome_result": "Sampson Longvale is revealed as the Head-Hunter murderer and dies by his own guillotine, while Sir Gregory Penne is imprisoned for related crimes.",
+ "false_assumption": {
+  "statement": "Sir Gregory Penne is the Head-Hunter murderer responsible for the decapitations.",
+  "type": "identity",
+  "why_it_seems_reasonable": "Penne’s suspicious behavior, possession of the orangutan Bhag, and his violent past make him a natural suspect. The victims and clues are often found on or near his estate, implicating him.",
+  "what_it_hides": "It conceals the true murderer, Sampson Longvale, who operates independently using a hidden guillotine and manipulates events to frame Penne."
+ },
+ "false_solution": {
+  "accused_suspect": "Sir Gregory Penne",
+  "supporting_points": [
+   "He owns the dangerous orangutan Bhag involved in abductions",
+   "He has a violent and suspicious past including assault",
+   "Bloodstained sword and missing sword found in his house",
+   "He was present at Griff Towers during key events"
+  ],
+  "the_one_flaw": "He lacks the direct evidence and means to perform the guillotine executions in the hidden caves",
+  "refuted_in_chapter": 41
+ },
+ "red_herrings": [
+  {
+   "id": "bhag_the_orangutan",
+   "description": "Bhag, the trained orangutan servant of Sir Gregory Penne, is suspected of involvement in the crimes due to his intelligence and violent behavior.",
+   "points_at_suspect": "Sir Gregory Penne",
+   "innocent_explanation": "Bhag is used by Penne for intimidation and kidnapping but is not capable of planning or committing the murders.",
+   "resolved_in_chapter": 41
+  },
+  {
+   "id": "lawley_foss_blackmailer",
+   "description": "Lawley Foss, the scenario editor, is suspected due to his blackmail attempts against the Head-Hunter.",
+   "points_at_suspect": "Sampson Longvale",
+   "innocent_explanation": "Foss was a victim who was murdered to silence his blackmail, not the perpetrator.",
+   "resolved_in_chapter": 23
+  }
+ ],
+ "closed_circle": {
+  "suspects": [
+   "Sir Gregory Penne",
+   "Sampson Longvale",
+   "Stella Mendoza",
+   "Lawley Foss",
+   "Michael Brixan",
+   "Adele Leamington",
+   "Reggie Connolly"
+  ],
+  "rationale": "The suspects are limited to the film studio company, the wealthy baronet and his associates, and the old gentleman Longvale, all of whom have access to the locations and potential motives."
+ },
+ "constraint_space": {
+  "time_anchors": [
+   "Between eleven o’clock and three in the morning for Foss’s murder",
+   "Night and early morning hours for abductions and attacks",
+   "Daytime scenes at Griff Towers and studio"
+  ],
+  "time_windows": [
+   "Foss last seen alive at eleven pm",
+   "Adele abducted at night and escapes next day",
+   "Letters sent and collected on specific days"
+  ],
+  "access_actors": [
+   "Sampson Longvale (Dower House and caves)",
+   "Sir Gregory Penne (Griff Towers and orangutan)",
+   "Michael Brixan (investigator)",
+   "Adele Leamington (studio and Griff Towers)"
+  ],
+  "access_objects": [
+   "Typewriter used for notes",
+   "Guillotine in cave",
+   "Handcuffs",
+   "Lanterns in cave",
+   "Motor cars and motorcycles"
+  ],
+  "trust_channels": [
+   "Letters sent to Benefactor box",
+   "Police and Foreign Office cooperation",
+   "Studio company members’ statements"
+  ],
+  "authority_sources": [
+   "Foreign Office Intelligence Department",
+   "Scotland Yard",
+   "Local police",
+   "Studio director Jack Knebworth"
+  ]
+ },
+ "inference_path": [
+  {
+   "observation": "Typewritten notes with peculiar alignment found at crime scenes",
+   "correction": "Notes typed on an old Kost machine used only by the murderer",
+   "effect": "Focus on finding the owner of the typewriter",
+   "required_evidence": [
+    "Typewritten sheet found among studio scripts",
+    "Expert testimony on typewriter peculiarities"
+   ]
+  },
+  {
+   "observation": "Bhag the orangutan attempts to abduct Adele",
+   "correction": "Bhag is trained by Penne but acts under his orders, not independently",
+   "effect": "Bhag is a tool, not the murderer",
+   "required_evidence": [
+    "Witness account of Bhag’s behavior",
+    "Penne’s admission of training Bhag"
+   ]
+  },
+  {
+   "observation": "Lawley Foss blackmailing the Head-Hunter",
+   "correction": "Foss is a victim eliminated to silence him",
+   "effect": "Foss is not the murderer",
+   "required_evidence": [
+    "Foss’s head found on Chobham Common",
+    "Foss’s financial troubles and blackmail attempts"
+   ]
+  },
+  {
+   "observation": "Sir Gregory Penne’s suspicious behavior and bloodstained sword",
+   "correction": "Penne killed a man in self-defense and concealed the body",
+   "effect": "Penne is involved in crimes but not the Head-Hunter",
+   "required_evidence": [
+    "Bloodstained sword found in Penne’s house",
+    "Penne’s confession of killing a man in Borneo"
+   ]
+  },
+  {
+   "observation": "Old man Longvale’s eccentric behavior and knowledge of medicine",
+   "correction": "Longvale is the Head-Hunter and murderer",
+   "effect": "Focus shifts to Longvale as the true culprit",
+   "required_evidence": [
+    "Longvale’s possession of guillotine and secret cave",
+    "Confession and final confrontation"
+   ]
+  },
+  {
+   "observation": "Adele’s escape into the caves and discovery of guillotine",
+   "correction": "The caves are the murder site and hiding place",
+   "effect": "Confirms Longvale’s method and location",
+   "required_evidence": [
+    "Adele’s lantern and discovery of bones in caves",
+    "Guillotine found in cave"
+   ]
+  },
+  {
+   "observation": "Longvale restrains and prepares Michael for execution",
+   "correction": "Longvale’s capture and death by his own guillotine",
+   "effect": "Resolution of the case",
+   "required_evidence": [
+    "Trapdoor and pulley mechanism in Dower House",
+    "Execution scene witnessed by Michael"
+   ]
+  }
+ ],
+ "discriminating_test": {
+  "method": "trap",
+  "design": "Michael Brixan arranges a sting by sending dummy letters to the Benefactor address and waits for the collection. He then uses the pulley trapdoor in Longvale’s house to capture him and observe his reaction and access to the guillotine. The test reveals Longvale’s guilt by his possession of the guillotine and his attempt to execute Michael.",
+  "knowledge_revealed": "The trap exposes Longvale as the Head-Hunter and murderer, confirming the guillotine as the murder weapon and the cave as the crime scene.",
+  "pass_condition": "Longvale’s capture in the trapdoor and his possession of the guillotine equipment conclusively prove his guilt."
+ },
+ "fair_play_explanation": "The reader is given access to all key clues: the peculiar typewritten notes, the presence of the guillotine and caves, the suspicious behavior of suspects, and the discovery of the handcuff fragment and butyl chloride. The narrative provides detailed observations and witness statements that allow deduction of the true murderer. The false solution implicates Penne, but inconsistencies and the final confession reveal the truth, enabling a careful reader to solve the mystery.",
+ "anchors": [
+  {
+   "claim": "The victim’s head was found sliced neatly from his body",
+   "anchor": "the unfortunate Elmer’s head, sliced neatly from his body"
+  },
+  {
+   "claim": "The typewritten notes were made on an old Kost machine",
+   "anchor": "extraordinary alignment which the experts are unanimous in ascribing to a very old and out-of-date Kost machine"
+  },
+  {
+   "claim": "Adele Leamington was abducted by Bhag the orangutan",
+   "anchor": "a great hairy arm and a hand closed like a vice on her wrist"
+  },
+  {
+   "claim": "Lawley Foss’s head was found on Chobham Common",
+   "anchor": "It was the head of Lawley Foss"
+  },
+  {
+   "claim": "Sir Gregory Penne owns the orangutan Bhag",
+   "anchor": "Bhag is my shield against all trouble"
+  },
+  {
+   "claim": "Bhag can use a sword and was trained by Penne",
+   "anchor": "Bhag could do all the Malayan exercises with the sword"
+  },
+  {
+   "claim": "A white circular disc was placed on Adele’s window",
+   "anchor": "a circular disc of paper. It was pasted on the outside of the window"
+  },
+  {
+   "claim": "The guillotine was found in the caves beneath Dower House",
+   "anchor": "A GUILLOTINE! Standing in the middle of the cave, its high framework lifted starkly"
+  },
+  {
+   "claim": "Sampson Longvale is the Head-Hunter murderer",
+   "anchor": "Your great-uncle was Sanson, otherwise Longval, hereditary executioner of France"
+  },
+  {
+   "claim": "Longvale captured Michael Brixan using handcuffs and a trapdoor",
+   "anchor": "There was a click, and, exerting all his strength, he tried to pull his other hand away"
+  },
+  {
+   "claim": "Bhag escaped captivity and returned wounded",
+   "anchor": "That was Bhag! His tawny hair was white with dust, his face was powdered grotesquely"
+  },
+  {
+   "claim": "Adele Leamington fell into the caves and found human bones",
+   "anchor": "The floor was littered with queer white sticks. There were thousands of them"
+  },
+  {
+   "claim": "Longvale executed victims using the guillotine",
+   "anchor": "Bhag jerked the handle that controlled the knife"
+  },
+  {
+   "claim": "The false solution accused Sir Gregory Penne",
+   "anchor": "Penne is the Head-Hunter, of course"
+  },
+  {
+   "claim": "The mysterious letters were collected by a mad old woman",
+   "anchor": "She was a stranger to each neighbourhood, by the way; and from what shopkeepers have told Scotland Yard, she seemed to be a little off her head"
+  },
+  {
+   "claim": "The broken handcuff link was found near the crime scene",
+   "anchor": "It’s the central link of a handcuff, the link that has the swivel"
+  },
+  {
+   "claim": "Michael Brixan disguised himself to trap the Head-Hunter",
+   "anchor": "I’ve deceived everybody, including myself"
+  },
+  {
+   "claim": "The guillotine was nicknamed 'The Widow'",
+   "anchor": "‘The Widow’! He touched the frame lovingly"
+  },
+  {
+   "claim": "The final confrontation and execution of Longvale",
+   "anchor": "Bhag jerked the handle that controlled the knife"
+  },
+  {
+   "claim": "Adele Leamington survived and was rescued",
+   "anchor": "It was she! He twisted over on to his knees and staggered upright"
+  }
+ ]
+}

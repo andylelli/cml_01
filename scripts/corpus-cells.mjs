@@ -91,9 +91,16 @@ const runs = Array.isArray(ledger) ? ledger : (ledger.shipped ?? []);
 const famOf = (r) => r.mechanismFamily ?? r.mechanism_family ?? r.fingerprint?.mechanism_family;
 const axisOf = (r) => r.axis ?? r.primaryAxis ?? r.fingerprint?.axis;
 const ours = new Map();
+/**
+ * A_103 B34: a ledger family outside the schema enum (`unclassified` x3, MEASURED) made a key no
+ * cell owns. It was counted under `ledger_runs_with_family` and displayed nowhere - 3 of 37. Such
+ * values are excluded from the map and named in `inputs.ledger_family_out_of_enum`.
+ */
+const ledgerOutOfEnum = {};
 for (const r of runs) {
   const a = axisOf(r); const f = famOf(r);
   if (!a || !f || !AXES.includes(a)) continue;
+  if (!FAMILIES.includes(f)) { ledgerOutOfEnum[f] = (ledgerOutOfEnum[f] ?? 0) + 1; continue; }
   ours.set(cellKey(a, f), (ours.get(cellKey(a, f)) ?? 0) + 1);
 }
 
@@ -211,7 +218,7 @@ const map = {
         + "naming one is not addressable as an instruction to Agent 3.",
     },
   },
-  inputs: { canon_fingerprints: seeds.length, ledger_runs: runs.length, ledger_runs_with_family: [...ours.values()].reduce((a, b) => a + b, 0) },
+  inputs: { canon_fingerprints: seeds.length, ledger_runs: runs.length, ledger_runs_with_family: [...ours.values()].reduce((a, b) => a + b, 0), ledger_family_out_of_enum: ledgerOutOfEnum },
   tiers: tally,
   richness: {
     observed_cells: Sobs,
@@ -248,6 +255,7 @@ mkdirSync(OUT_DIR, { recursive: true });
 writeFileSync(OUT, rendered, "utf8");
 console.log(`wrote ${OUT}`);
 console.log(`  space: ${AXES.length} axes x ${FAMILIES.length} families = ${all.length} cells`);
+if (Object.keys(ledgerOutOfEnum).length) console.log(`  ledger families outside the enum, excluded: ${JSON.stringify(ledgerOutOfEnum)}`);
 console.log(`  tiers: ${Object.entries(tally).map(([k, v]) => `${k} ${v}`).join(" · ")}`);
 console.log(`  richness: ${Sobs} observed · Chao1 ${chao1.toFixed(0)} [${(Sobs + f0 / K).toFixed(0)}, ${(Sobs + f0 * K).toFixed(0)}]`);
 console.log(`  to 80% of reachable: +${map.richness.encodes_for_80pct} encodes · to 90%: +${map.richness.encodes_for_90pct}`);

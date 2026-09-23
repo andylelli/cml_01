@@ -1,0 +1,497 @@
+{
+ "decade": "1920s",
+ "realism_constraints": [
+  "No advanced electronic surveillance beyond telegraph and telephone",
+  "Travel by train and ship is common and relatively fast",
+  "Secret service and espionage rely on human agents and coded messages"
+ ],
+ "location": "England and Switzerland, mainly London, Edinburgh, and Wengen",
+ "institution": "British Secret Service and Special Branch of Scotland Yard",
+ "crime_category": "fraud",
+ "crime_subtype": "espionage and betrayal by double agents",
+ "cast": [
+  {
+   "name": "Charles Seton Darville",
+   "age_range": "50-60",
+   "role_archetype": "experienced secret service chief and popular novelist",
+   "role": "detective",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "popular English novelist and cosmopolitan traveler",
+   "private_secret": "head of British Secret Service with vast influence",
+   "motive_seed": "protect national security and personal betrayal",
+   "motive_strength": "strong",
+   "alibi_window": "continuous presence in London and travels documented",
+   "access_plausibility": "high",
+   "stakes": "national security and personal love betrayal",
+   "moral_complexity": "high",
+   "relationships": [
+    "Edris Temperley (lover)",
+    "Karl Weiss (friend turned rival)",
+    "Joan Caborn (enemy agent)"
+   ],
+   "opportunity_channels": [
+    "secret service resources",
+    "personal investigation"
+   ],
+   "behavioral_tells": [
+    "dual personality",
+    "secretive",
+    "relentless"
+   ],
+   "evidence_sensitivity": [
+    "letters intercepted",
+    "surveillance reports"
+   ]
+  },
+  {
+   "name": "Joan Caborn",
+   "age_range": "30-40",
+   "role_archetype": "enemy agent and wife of George Caborn",
+   "role": "culprit",
+   "gender": "female",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "wife of businessman, traveler",
+   "private_secret": "German-American spy involved in sabotage",
+   "motive_seed": "espionage and sabotage",
+   "motive_strength": "strong",
+   "alibi_window": "varied, elusive",
+   "access_plausibility": "high",
+   "stakes": "success of enemy sabotage plot",
+   "moral_complexity": "high",
+   "relationships": [
+    "George Caborn (husband)",
+    "Seton Darville (enemy)"
+   ],
+   "opportunity_channels": [
+    "travel",
+    "secret communications"
+   ],
+   "behavioral_tells": [
+    "elusiveness",
+    "deception"
+   ],
+   "evidence_sensitivity": [
+    "letters",
+    "telegram records"
+   ]
+  },
+  {
+   "name": "George Caborn",
+   "age_range": "35-45",
+   "role_archetype": "foreign-born businessman and spy",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "Greek-born businessman",
+   "private_secret": "enemy agent involved in sabotage",
+   "motive_seed": "espionage and sabotage",
+   "motive_strength": "strong",
+   "alibi_window": "varied, often traveling",
+   "access_plausibility": "high",
+   "stakes": "enemy success",
+   "moral_complexity": "high",
+   "relationships": [
+    "Joan Caborn (wife)"
+   ],
+   "opportunity_channels": [
+    "travel",
+    "contacts"
+   ],
+   "behavioral_tells": [
+    "neglect of wife",
+    "association with Madame Texardis"
+   ],
+   "evidence_sensitivity": [
+    "telegram records",
+    "surveillance"
+   ]
+  },
+  {
+   "name": "Edris Temperley",
+   "age_range": "20-30",
+   "role_archetype": "young English sportswoman and love interest",
+   "role": "victim",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "English sportswoman and socialite",
+   "private_secret": "betrays Seton Darville by infatuation with Karl Weiss",
+   "motive_seed": "youthful infatuation and deception",
+   "motive_strength": "moderate",
+   "alibi_window": "present at Wengen and Interlaken",
+   "access_plausibility": "high",
+   "stakes": "love and personal betrayal",
+   "moral_complexity": "high",
+   "relationships": [
+    "Seton Darville (lover)",
+    "Karl Weiss (lover)"
+   ],
+   "opportunity_channels": [
+    "social events",
+    "travel"
+   ],
+   "behavioral_tells": [
+    "flirtation",
+    "deception"
+   ],
+   "evidence_sensitivity": [
+    "letters",
+    "witness statements"
+   ]
+  },
+  {
+   "name": "Karl Weiss",
+   "age_range": "30-40",
+   "role_archetype": "Swiss friend, secret agent, and rival lover",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "Swiss climber and secret agent",
+   "private_secret": "betrays Seton Darville, engaged to Edris",
+   "motive_seed": "jealousy, ambition, espionage",
+   "motive_strength": "strong",
+   "alibi_window": "present in Switzerland and London",
+   "access_plausibility": "high",
+   "stakes": "personal gain and espionage",
+   "moral_complexity": "high",
+   "relationships": [
+    "Edris Temperley (lover)",
+    "Seton Darville (friend turned rival)"
+   ],
+   "opportunity_channels": [
+    "travel",
+    "secret service appointment"
+   ],
+   "behavioral_tells": [
+    "arrogance",
+    "threats",
+    "flirtation"
+   ],
+   "evidence_sensitivity": [
+    "letters",
+    "surveillance reports"
+   ]
+  },
+  {
+   "name": "Alexander Paton",
+   "age_range": "40-50",
+   "role_archetype": "Special Branch inspector",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "Scotland Yard officer",
+   "private_secret": "loyal agent assisting Darville",
+   "motive_seed": "duty",
+   "motive_strength": "none",
+   "alibi_window": "present in London",
+   "access_plausibility": "high",
+   "stakes": "law enforcement",
+   "moral_complexity": "low",
+   "relationships": [
+    "Seton Darville (ally)"
+   ],
+   "opportunity_channels": [
+    "official surveillance"
+   ],
+   "behavioral_tells": [
+    "professional diligence"
+   ],
+   "evidence_sensitivity": [
+    "surveillance logs"
+   ]
+  },
+  {
+   "name": "Bennett",
+   "age_range": "50-60",
+   "role_archetype": "ex-naval secretary and loyal assistant",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "secretary",
+   "private_secret": "trusted aide in secret service",
+   "motive_seed": "duty",
+   "motive_strength": "none",
+   "alibi_window": "present in London",
+   "access_plausibility": "high",
+   "stakes": "supporting Darville",
+   "moral_complexity": "low",
+   "relationships": [
+    "Seton Darville (employer)"
+   ],
+   "opportunity_channels": [
+    "office work"
+   ],
+   "behavioral_tells": [
+    "loyalty"
+   ],
+   "evidence_sensitivity": [
+    "documents"
+   ]
+  }
+ ],
+ "culprits": [
+  "Joan Caborn",
+  "George Caborn",
+  "Karl Weiss"
+ ],
+ "surface_summary": "A secret service chief, Seton Darville, uncovers a plot by the Caborns to sabotage the Forth Bridge using explosives hidden in hot-water bottles. Meanwhile, his love interest, Edris Temperley, is secretly engaged to his friend and rival Karl Weiss, who is also involved in espionage. The case appears to be a mix of espionage, betrayal, and personal deception.",
+ "accepted_facts": [
+  "Joan and George Caborn are enemy agents plotting sabotage",
+  "Explosives were found attached to the Forth Bridge",
+  "Edris Temperley is engaged to Karl Weiss while pretending to love Darville",
+  "Karl Weiss has been offered a secret mission to Russia by the British Secret Service"
+ ],
+ "inferred_conclusions": [
+  "Edris truly loves Karl Weiss and has betrayed Darville willingly",
+  "The Caborns planned to destroy the Forth Bridge successfully",
+  "Karl Weiss is a loyal friend to Darville and not a threat"
+ ],
+ "mechanism_description": "The Caborns attempted to destroy the Forth Bridge by attaching liquid explosives concealed in rubber hot-water bottles connected to electrical detonators. Seton Darville secretly disabled the detonators by placing paper discs under the electrical terminals, preventing the circuit from completing. Meanwhile, Darville orchestrated a trap by offering Karl Weiss a secret mission to Russia, effectively removing him as a rival and neutralizing the espionage threat.",
+ "delivery_path": [
+  "Caborns place explosive-filled hot-water bottles on bridge piers",
+  "Electrical detonators connected to the explosives are prepared",
+  "Darville secretly visits the Caborns' house and disables detonators by blocking electrical contacts",
+  "Authorities monitor and intercept the Caborns as they attempt to flee by motor boat",
+  "A gunfight ensues and the explosives detonate prematurely, destroying the boat",
+  "Darville arranges for Karl Weiss to be employed on a secret mission to Russia",
+  "Karl Weiss departs, removing the espionage threat from England"
+ ],
+ "outcome_result": "The Forth Bridge is saved from destruction, the Caborns are killed, and Karl Weiss is sent on a secret mission to Russia, ending the espionage threat.",
+ "false_assumption": {
+  "statement": "Edris Temperley truly loves Seton Darville and is faithful to him.",
+  "type": "behavioral",
+  "why_it_seems_reasonable": "Edris repeatedly professes love and affection to Darville, and publicly behaves as his devoted lover. Her actions and words create a convincing appearance of loyalty.",
+  "what_it_hides": "Edris is secretly engaged to Karl Weiss and deceives Darville with false professions of love, betraying him emotionally and romantically."
+ },
+ "false_solution": {
+  "accused_suspect": "Edris Temperley",
+  "supporting_points": [
+   "She is seen frequently with Karl Weiss, raising suspicion",
+   "Her letters to Karl reveal engagement and affection",
+   "Darville's jealousy and suspicions point to her betrayal",
+   "Her behavior is inconsistent and evasive"
+  ],
+  "the_one_flaw": "Edris is a victim of Karl Weiss's manipulation and her actions are influenced by his coercion and fascination, not solely by her own volition",
+  "refuted_in_chapter": 28
+ },
+ "red_herrings": [
+  {
+   "id": "joan_caborn_telegram",
+   "description": "Joan Caborn's sudden departure from Corfu with a telegram claiming urgent business",
+   "points_at_suspect": "Joan Caborn",
+   "innocent_explanation": "The telegram was fabricated to mislead pursuers and cover her espionage activities",
+   "resolved_in_chapter": 6
+  },
+  {
+   "id": "karl_weiss_charm",
+   "description": "Karl Weiss's charm and apparent friendship with Darville and Edris",
+   "points_at_suspect": "Karl Weiss",
+   "innocent_explanation": "His charm masks his true intentions as a rival and enemy agent",
+   "resolved_in_chapter": 27
+  }
+ ],
+ "closed_circle": {
+  "suspects": [
+   "Joan Caborn",
+   "George Caborn",
+   "Karl Weiss",
+   "Edris Temperley"
+  ],
+  "rationale": "All suspects are closely connected by relationships and movements, with no outsiders involved; the espionage and sabotage plot is contained within this group."
+ },
+ "constraint_space": {
+  "time_anchors": [
+   "midnight explosion under Forth Bridge",
+   "Karl Weiss's arrival in London on Wednesday",
+   "Edris's letters dated daily"
+  ],
+  "time_windows": [
+   "Caborns' presence at Strathnairn Road house",
+   "Edris and Karl's meetings in Switzerland and London"
+  ],
+  "access_actors": [
+   "Seton Darville",
+   "Alexander Paton",
+   "Bennett",
+   "Karl Weiss",
+   "Edris Temperley"
+  ],
+  "access_objects": [
+   "rubber hot-water bottles",
+   "electrical detonators",
+   "letters",
+   "telegram records"
+  ],
+  "trust_channels": [
+   "secret service communications",
+   "postal correspondence",
+   "personal meetings"
+  ],
+  "authority_sources": [
+   "British Secret Service",
+   "Special Branch Scotland Yard",
+   "Prime Minister's office"
+  ]
+ },
+ "inference_path": [
+  {
+   "observation": "Explosives found attached to Forth Bridge piers with electrical terminals",
+   "correction": "Terminals could be disabled by blocking electrical contact",
+   "effect": "Explosives would not detonate as planned",
+   "required_evidence": [
+    "Hot-water bottles with electrical terminals found in Caborns' house",
+    "Paper discs glued under electrical terminal caps discovered by Darville"
+   ]
+  },
+  {
+   "observation": "Joan Caborn left Corfu suddenly claiming urgent telegram",
+   "correction": "No telegram was received at hotel concierge",
+   "effect": "Departure was a ruse to mislead pursuers",
+   "required_evidence": [
+    "Concierge's telegram register showing no telegram for Caborn",
+    "Surveillance reports of Caborns' movements"
+   ]
+  },
+  {
+   "observation": "Edris Temperley professes love to Darville but is often with Karl Weiss",
+   "correction": "Edris is secretly engaged to Karl Weiss and deceives Darville",
+   "effect": "Darville's trust in Edris is misplaced",
+   "required_evidence": [
+    "Love letters from Edris to Karl Weiss intercepted and photographed",
+    "Surveillance reports of Edris and Karl's affectionate behavior"
+   ]
+  },
+  {
+   "observation": "Karl Weiss accepted secret mission to Russia from British Secret Service",
+   "correction": "Mission is a trap to remove Karl from England",
+   "effect": "Karl is neutralized as a threat",
+   "required_evidence": [
+    "Official appointment letter to Karl Weiss",
+    "Correspondence ordering Karl's mission and cancellation letter"
+   ]
+  },
+  {
+   "observation": "Caborns attempted to flee by motor boat after attaching explosives",
+   "correction": "Authorities intercepted and engaged them in gunfight",
+   "effect": "Boat exploded prematurely, killing Caborns",
+   "required_evidence": [
+    "Witness statements of gunfight and explosion",
+    "Reports of motor boat wreckage and no survivors"
+   ]
+  },
+  {
+   "observation": "Edris's letters to Karl contain disparaging remarks about Darville",
+   "correction": "Edris's affection for Darville is false or coerced",
+   "effect": "Emotional betrayal confirmed",
+   "required_evidence": [
+    "Photographed letters with insults to Darville",
+    "Surveillance reports of Edris's secret meetings with Karl"
+   ]
+  },
+  {
+   "observation": "Darville's secret service intercepts and monitors correspondence",
+   "correction": "Enables him to uncover betrayal and espionage plot",
+   "effect": "Darville gains advantage and sets trap",
+   "required_evidence": [
+    "Orders to copy and photograph correspondence",
+    "Reports from Bennett and Forbes on intercepted letters"
+   ]
+  }
+ ],
+ "discriminating_test": {
+  "method": "constraint_proof",
+  "design": "Darville disables the electrical detonators by placing paper discs under the brass screw caps of the terminals, preventing the circuit from completing. The test is to observe if the explosives detonate when the circuit is triggered. If no detonation occurs, the sabotage attempt is foiled and the mechanism is proven.",
+  "knowledge_revealed": "This test reveals that the explosives cannot be detonated remotely due to the disabled electrical contacts, confirming the sabotage was neutralized.",
+  "pass_condition": "The explosives fail to detonate when the circuit is activated, proving the sabotage mechanism was disabled."
+ },
+ "fair_play_explanation": "The reader is given detailed descriptions of the explosives, the electrical terminals, and Darville's secret visit to the Caborns' house where he disables the detonators. The intercepted letters and surveillance reports provide clues to the true relationships and betrayals. The narrative includes Darville's suspicions and actions, allowing attentive readers to piece together the espionage plot and the mechanism of sabotage before the final reveal.",
+ "anchors": [
+  {
+   "claim": "Seton Darville is a popular English novelist and secret service chief",
+   "anchor": "Charles Seton Darville. In every bookshop and bookstall"
+  },
+  {
+   "claim": "Joan Caborn is involved in espionage and deception",
+   "anchor": "Joan Caborn, whom he had first met at winter sports"
+  },
+  {
+   "claim": "George Caborn is a foreign-born businessman and spy",
+   "anchor": "George Caborn, the woman’s husband. Though he bore an English name"
+  },
+  {
+   "claim": "Darville suspects Joan and George Caborn of a desperate errand",
+   "anchor": "They are over here on a very desperate errand"
+  },
+  {
+   "claim": "Darville disables the electrical detonators on the explosives",
+   "anchor": "He gummed those little discs of paper upon the electrical terminals"
+  },
+  {
+   "claim": "Explosives were attached to the Forth Bridge in rubber hot-water bottles",
+   "anchor": "rubber hot-water bottles filled to their utmost capacity"
+  },
+  {
+   "claim": "A motor boat carrying the saboteurs explodes after a gunfight",
+   "anchor": "there was a bright red flash, and an explosion so terrific"
+  },
+  {
+   "claim": "Edris Temperley is secretly engaged to Karl Weiss",
+   "anchor": "Edris, though pretending to be his, had engaged herself to Karl"
+  },
+  {
+   "claim": "Karl Weiss is offered a secret mission to Russia by the British Secret Service",
+   "anchor": "Karl Weiss presented himself at a certain room in the War Office"
+  },
+  {
+   "claim": "Darville orders interception and copying of Edris and Karl’s correspondence",
+   "anchor": "I want all outgoing and incoming correspondence examined, copied"
+  },
+  {
+   "claim": "Edris writes affectionate letters to Karl Weiss while deceiving Darville",
+   "anchor": "Edris’s letter breathed an undying devotion"
+  },
+  {
+   "claim": "Darville confronts Edris with her betrayal and engagement to Karl",
+   "anchor": "You are lying to me--deceived me until this very moment!"
+  },
+  {
+   "claim": "Karl Weiss threatens Darville and asserts his claim on Edris",
+   "anchor": "He placed his hand upon his hip-pocket, where he had his automatic pistol"
+  },
+  {
+   "claim": "Darville arranges a trap by employing Karl Weiss on a secret mission",
+   "anchor": "We shall find some way out, Forbes. We’ve never been beaten yet"
+  },
+  {
+   "claim": "Karl Weiss accepts the mission and leaves England",
+   "anchor": "his proposed mission was canceled, his services not being required"
+  },
+  {
+   "claim": "Edris and Darville reconcile after her confession and remorse",
+   "anchor": "I have discarded him, Seti, and I have returned to you"
+  },
+  {
+   "claim": "The sabotage plot is foiled and the Caborns are killed",
+   "anchor": "the plotters themselves have lost their lives in their desperate attempt"
+  },
+  {
+   "claim": "Darville’s dual nature as a novelist and secret service chief",
+   "anchor": "Seton Darville possessed two separate and distinct personalities"
+  },
+  {
+   "claim": "Joan Caborn’s sudden departure was a ruse without a telegram",
+   "anchor": "There has been no telegram to-day, monsieur"
+  },
+  {
+   "claim": "Darville’s secret service intercepts letters to uncover the plot",
+   "anchor": "The correspondence of that person living in Longridge Road is copied"
+  }
+ ]
+}

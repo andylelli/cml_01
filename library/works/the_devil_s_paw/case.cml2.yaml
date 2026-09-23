@@ -1,0 +1,395 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The Devil's Paw
+    author: E. Phillips (Edward Phillips) Oppenheim
+    license: Public domain (first published 1920; author died 1946). Project Gutenberg ebook 2767.
+    era:
+      decade: 1910s
+      realism_constraints:
+        - >-
+          No advanced electronic surveillance or forensic technology beyond basic telegraph and
+          cipher decoding
+        - Limited motor vehicle use, mostly early models with mechanical issues
+        - >-
+          Political and social structures dominated by aristocracy, emerging Labour movements, and
+          wartime government secrecy
+    setting:
+      location: England, primarily Norfolk marshes and London
+      institution: Council of Labour (a secretive Labour executive council)
+    crime_class:
+      category: fraud
+      subtype: political deception and espionage manipulation
+  cast:
+    - name: Julian Orden (Paul Fiske)
+      age_range: 30-40
+      role_archetype: idealistic aristocrat turned Labour sympathizer and secret writer
+      relationships:
+        - Catherine Abbeway
+        - Miles Furley
+        - The Bishop
+        - Nicholas Fenn
+      public_persona: young barrister, censor, and journalist
+      private_secret: author of influential anonymous Labour articles
+      motive_seed: desire to end war and promote peace
+      motive_strength: strong
+      alibi_window: present throughout the narrative, no direct involvement in crime
+      access_plausibility: high
+      opportunity_channels:
+        - access to secret documents
+        - political connections
+      behavioral_tells:
+        - stubbornness
+        - idealism
+        - reluctance to trust Fenn
+      stakes: high, personal and national
+      evidence_sensitivity:
+        - letter from British Review editor
+        - packet of peace proposals
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: high
+    - name: Catherine Abbeway
+      age_range: 20-30
+      role_archetype: half-Russian social activist and intermediary
+      relationships:
+        - Julian Orden
+        - Nicholas Fenn
+        - The Bishop
+      public_persona: aristocratic social reformer
+      private_secret: involved in secret communications with German Socialists
+      motive_seed: humanitarian desire for peace
+      motive_strength: strong
+      alibi_window: present at key events, no direct crime
+      access_plausibility: high
+      opportunity_channels:
+        - access to secret documents
+        - social connections
+      behavioral_tells:
+        - passionate
+        - sometimes manipulative
+        - loyal
+      stakes: high, personal and political
+      evidence_sensitivity:
+        - packet of peace proposals
+        - letter from General Geroldberg
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: high
+    - name: Nicholas Fenn
+      age_range: 40-50
+      role_archetype: ambitious Labour secretary and secret service head
+      relationships:
+        - Bright
+        - Catherine Abbeway
+        - Miles Furley
+      public_persona: Labour MP and union secretary
+      private_secret: traitor accepting German money and manipulating peace proposals
+      motive_seed: personal gain and political power
+      motive_strength: strong
+      alibi_window: present at council meetings and secret dealings
+      access_plausibility: high
+      opportunity_channels:
+        - control of secret communications
+        - access to documents
+      behavioral_tells:
+        - nervousness
+        - manipulative
+        - secretive
+      stakes: high, personal and political
+      evidence_sensitivity:
+        - bank book
+        - destroyed original letters
+        - letters from Freistner
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Miles Furley
+      age_range: 40-50
+      role_archetype: staunch Labour MP and friend to Julian
+      relationships:
+        - Julian Orden
+        - Nicholas Fenn
+        - The Bishop
+      public_persona: Labour MP and secret service operative
+      private_secret: involved in secret communications but loyal
+      motive_seed: patriotism and peace
+      motive_strength: strong
+      alibi_window: present at key events
+      access_plausibility: high
+      opportunity_channels:
+        - secret service duties
+      behavioral_tells:
+        - taciturn
+        - loyal
+        - pragmatic
+      stakes: high, political
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: moderate
+    - name: The Bishop
+      age_range: 60-70
+      role_archetype: religious leader and Labour sympathizer
+      relationships:
+        - Julian Orden
+        - Catherine Abbeway
+        - Miles Furley
+      public_persona: religious figure and Labour supporter
+      private_secret: secretly involved in Labour Council
+      motive_seed: peace and social justice
+      motive_strength: strong
+      alibi_window: present throughout
+      access_plausibility: high
+      opportunity_channels:
+        - council meetings
+      behavioral_tells:
+        - dignified
+        - earnest
+        - persuasive
+      stakes: high, moral and political
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: high
+    - name: Bright
+      age_range: 40-50
+      role_archetype: scientist and secret service operative
+      relationships:
+        - Nicholas Fenn
+      public_persona: chemist and scientist
+      private_secret: involved in secret service and gas experiments
+      motive_seed: scientific ambition and political influence
+      motive_strength: moderate
+      alibi_window: present at secret service activities
+      access_plausibility: high
+      opportunity_channels:
+        - secret service laboratory
+      behavioral_tells:
+        - impatient
+        - abrasive
+      stakes: moderate
+      evidence_sensitivity: []
+      culprit_eligibility: eligible
+      culpability: unknown
+      gender: male
+      role: suspect
+      moral_complexity: moderate
+  culpability:
+    culprit_count: 1
+    culprits:
+      - Nicholas Fenn
+  surface_model:
+    narrative:
+      summary: >-
+        A secret Labour Council receives peace proposals allegedly signed by German leaders,
+        threatening a general strike to force an armistice. Julian Orden, secretly the influential
+        writer Paul Fiske, is chosen as their envoy to the Prime Minister. Suspicion arises about
+        the authenticity of the proposals and the loyalty of Nicholas Fenn.
+    accepted_facts:
+      - A packet containing peace proposals from German Socialists was intercepted.
+      - Nicholas Fenn is the secretary of the Labour Council and involved in secret communications.
+      - Julian Orden is the anonymous writer Paul Fiske and a member of the Labour Council.
+      - The peace proposals bear the signatures of the Kaiser, Chancellor, and Hindenburg.
+    inferred_conclusions:
+      - The peace proposals are genuine and represent the will of the German people.
+      - Nicholas Fenn is a loyal and honest representative of the Labour cause.
+      - >-
+        The Labour Council’s threat of a general strike will force the government to accept the
+        armistice.
+  hidden_model:
+    mechanism:
+      description: >-
+        Nicholas Fenn, secretly bribed by German militarists, fabricated and manipulated the peace
+        proposals to deceive the Labour Council and the British government. He destroyed original
+        communications and forged letters to create a false impression of German Socialist strength.
+        The plot aimed to force a premature armistice under false pretenses, benefiting German war
+        aims.
+      delivery_path:
+        - step: Fenn initiates secret correspondence with Freistner, a German Socialist.
+        - step: Freistner is imprisoned and unable to communicate; Fenn destroys original letters.
+        - step: Fenn fabricates communications and peace proposals bearing forged signatures.
+        - step: The false documents are delivered to the Labour Council via Catherine Abbeway.
+        - step: The Council prepares to use the proposals to force an armistice.
+        - step: Catherine discovers the deception through a neutral diplomat and informs Julian.
+        - step: Julian exposes Fenn’s fraud to the Council, preventing the premature armistice.
+    outcome:
+      result: >-
+        The Labour Council rejects the false peace proposals, averts a premature armistice, and
+        commits to continuing the war until a genuine victory.
+  false_assumption:
+    statement: >-
+      The peace proposals bearing the signatures of the Kaiser, Chancellor, and Hindenburg are
+      authentic and represent the German Socialist Party’s true position.
+    type: identity
+    why_it_seems_reasonable: >-
+      The documents are presented with official-looking signatures and come through trusted channels
+      within the Labour Council. The correspondence is consistent with known Socialist contacts.
+    what_it_hides: >-
+      The signatures are forged, and the documents are part of a German militarist plot to deceive
+      and manipulate British Labour and government into a premature armistice.
+  false_solution:
+    accused_suspect: Bright
+    supporting_points:
+      - >-
+        Bright’s possession of poisonous gases and his role in incapacitating Julian raise
+        suspicion.
+      - Bright is closely associated with Fenn and has access to secret documents.
+      - Bright’s abrasive and secretive behavior makes him appear untrustworthy.
+      - He was present at key moments when the packet changed hands.
+    the_one_flaw: >-
+      Bright acted under Council orders to secure the packet and had no motive or opportunity to
+      fabricate the peace proposals.
+    refuted_in_chapter: 21
+  red_herrings:
+    - id: catherine_abbeway_suspicion
+      description: >-
+        Catherine Abbeway is suspected of being a German spy due to her secretive behavior and
+        possession of the packet.
+      points_at_suspect: Catherine’s possession of the packet and secret movements
+      innocent_explanation: She is a dedicated peace activist working for the Labour cause and is not a spy.
+      resolved_in_chapter: 13
+    - id: bright_gas_experiments
+      description: >-
+        Bright’s possession of poisonous gases and his role in incapacitating Julian raise suspicion
+        of malicious intent.
+      points_at_suspect: Bright’s control over Julian and use of gas
+      innocent_explanation: Bright and Fenn acted under Council orders to secure the packet, not to kill Julian.
+      resolved_in_chapter: 13
+  closed_circle:
+    suspects:
+      - Nicholas Fenn
+      - Bright
+      - Miles Furley
+      - Julian Orden
+      - Catherine Abbeway
+      - The Bishop
+    rationale: >-
+      The secretive nature of the Labour Council and the limited number of key players involved in
+      the peace proposal negotiations form a closed group with no outside suspects.
+  constraint_space:
+    time:
+      anchors:
+        - night of the intercepted communication
+        - Council meeting evening
+        - Prime Minister meeting evening
+      windows:
+        - Julian’s absence from rooms after Thursday evening
+        - Council’s telegram dispatch at 8am next day
+    access:
+      actors:
+        - Nicholas Fenn
+        - Bright
+        - Catherine Abbeway
+        - Julian Orden
+      objects:
+        - packet of peace proposals
+        - letters from Freistner
+        - bank book
+        - typewritten letters
+    social:
+      trust_channels:
+        - Labour Council meetings
+        - secret service communications
+        - personal relationships
+      authority_sources:
+        - Labour Council
+        - Prime Minister
+        - German Socialist Party via Freistner
+  inference_path:
+    steps:
+      - observation: The peace proposals bear signatures of the Kaiser, Chancellor, and Hindenburg.
+        correction: These signatures are forged as revealed by the letter from General Geroldberg.
+        effect: The authenticity of the peace proposals is disproved.
+        required_evidence:
+          - Letter from General Geroldberg to Catherine Abbeway
+          - The peace proposals packet found in Julian’s possession
+        reader_observable: true
+      - observation: Nicholas Fenn claims ongoing communication with Freistner.
+        correction: Freistner is imprisoned and unable to send letters for weeks.
+        effect: Fenn’s claims of communication are false.
+        required_evidence:
+          - Council testimony about Freistner’s imprisonment
+          - Fenn’s destroyed original letters
+        reader_observable: true
+      - observation: Fenn has a bank book showing large deposits from German sources.
+        correction: Fenn is financially compromised and likely bribed.
+        effect: Fenn’s loyalty is suspect.
+        required_evidence:
+          - Fenn’s bank book presented at Council meeting
+          - Testimony from Catherine and Julian about Fenn’s behavior
+        reader_observable: true
+      - observation: The telegrams threatening a general strike are prepared for dispatch.
+        correction: The telegrams are halted after exposure of the fraud.
+        effect: The premature armistice is averted.
+        required_evidence:
+          - Council meeting minutes ordering telegram halt
+          - Julian’s meeting with the Prime Minister
+        reader_observable: true
+      - observation: Julian Orden is chosen as the Labour Council’s envoy.
+        correction: Julian’s identity as Paul Fiske and his sincerity are confirmed.
+        effect: Julian gains authority to negotiate peace legitimately.
+        required_evidence:
+          - Letter from British Review editor to Julian
+          - Council vote results for envoy selection
+        reader_observable: true
+      - observation: The Prime Minister refuses the peace proposals.
+        correction: The government insists on victory before peace.
+        effect: The war continues despite Labour Council’s demands.
+        required_evidence:
+          - Prime Minister’s speech to Labour Council
+          - Council meeting records
+        reader_observable: true
+      - observation: Catherine Abbeway’s behavior is secretive and suspicious.
+        correction: She is a committed peace activist, not a spy.
+        effect: Her innocence is established.
+        required_evidence:
+          - Testimony from Julian and the Bishop
+          - Catherine’s actions to expose Fenn
+        reader_observable: true
+  discriminating_test:
+    method: constraint_proof
+    design: >-
+      The Council reviews original communications from Freistner to verify authenticity. They
+      compare signatures and cross-check with known handwriting samples and trusted witnesses. The
+      test also involves verifying Fenn’s financial records to detect bribery.
+    knowledge_revealed: >-
+      This test reveals that the original letters have been destroyed, the signatures are forged,
+      and Fenn has been bribed by German agents.
+    pass_condition: >-
+      The originals cannot be produced and financial records show unexplained large deposits from
+      German sources.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given access to all key documents, letters, and witness statements before the
+      final revelation. The suspicious behavior of Nicholas Fenn, the destruction of original
+      letters, and Catherine’s warnings are all presented. The false peace proposals and their
+      dubious signatures are described in detail, allowing the reader to deduce the deception.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

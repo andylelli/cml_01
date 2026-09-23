@@ -1,0 +1,136 @@
+{
+ "slug": "unravelled_knots",
+ "valid": true,
+ "errors": [],
+ "spans": [
+  {
+   "claim": "Mary Clarke lying full-length on the floor",
+   "anchor": "the body of Miss Clarke lying full-length on the floor",
+   "span": "You will remember that when the police broke open the door of the parlour, the first thing they saw was the body of Miss Clarke lying full-length on the floor.",
+   "ok": true
+  },
+  {
+   "claim": "Death caused by gas poisoning",
+   "anchor": "she actually died of gas poisoning",
+   "span": "Medical evidence went to prove that the deceased had first been struck on the back of the head by some heavy instrument, a weighted stick or something of the sort, which had no doubt stunned her, but she actually died of gas poisoning, which she inhaled in large quantities while she was half-conscious.",
+   "ok": true
+  },
+  {
+   "claim": "Piece of khaki cloth found in victim's hand",
+   "anchor": "in the tightly-clenched hand of the murdered woman was found the small piece of khaki cloth",
+   "span": "And I will leave you to guess the importance of this fact--in the tightly-clenched hand of the murdered woman was found the small piece of khaki cloth which corresponded to a hair's-breadth with the missing bit in the sleeve of the tunic.",
+   "ok": true
+  },
+  {
+   "claim": "Khaki tunic found in Arthur Clarke's room",
+   "anchor": "an old khaki tunic stuffed away at the bottom of a drawer",
+   "span": "By evening it had transpired that in Arthur Clarke's room at Hardacres, the detectives had found an old khaki tunic stuffed away at the bottom of a drawer, and in the pocket of the tunic the key of the locked parlour door.",
+   "ok": true
+  },
+  {
+   "claim": "Tunic too small for Arthur Clarke",
+   "anchor": "Arthur Clarke was a rather heavy, full-grown, broad-shouldered man, the khaki tunic would only fit a slim lad of eighteen",
+   "span": "Arthur Clarke was a rather heavy, full-grown, broad-shouldered man, the khaki tunic would only fit a slim lad of eighteen.",
+   "ok": true
+  },
+  {
+   "claim": "April St. Jude's testimony about Arthur's visit",
+   "anchor": "her ladyship said so.  The clock had just struck half-past five when I succeeded in ridding myself of him",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Lord Foremeere seen with wet clothes",
+   "anchor": "see when and how he finally disposes of a wet coat, a dripping hat and soaked boots",
+   "span": "and see when and how he finally disposes of a wet coat, a dripping hat and soaked boots, which he has succeeded in keeping concealed somewhere in the smoking-room, away from the prying eyes even of his own valet.",
+   "ok": true
+  },
+  {
+   "claim": "Lord Foremeere's accidental death by shooting",
+   "anchor": "his finger must accidentally have touched the trigger; anyway, according to the valet's story, there was a sudden explosion",
+   "span": "His lordship, it seems, was looking straight down the barrel and his finger must accidentally have touched the trigger; anyway, according to the valet's story, there was a sudden explosion, and Lord Foremeere fell shot right between the eyes.",
+   "ok": true
+  },
+  {
+   "claim": "Key of locked parlour door found in tunic pocket",
+   "anchor": "after locking the parlour door, he put the key in the pocket of the tunic",
+   "span": "Finally, after locking the parlour door, he put the key in the pocket of the tunic and stuffed the latter in the bottom of a drawer.",
+   "ok": true
+  },
+  {
+   "claim": "Arthur Clarke's alibi confirmed by hotel staff",
+   "anchor": "Mr. Clarke was back at the hotel soon after seven o'clock",
+   "span": "Now we had already learned from both the hall-porter and the head waiter at the Deanery that Mr. Clarke was back at the hotel soon after seven o'clock, that he had his dinner in the restaurant at half-past, and that after spending an hour or so in the lounge after dinner, he went up to his room, and did not go out again until the following morning.",
+   "ok": true
+  },
+  {
+   "claim": "Lady Foremeere's testimony about Arthur Clarke",
+   "anchor": "her ladyship stood up and disposed her exquisite sable cape about her shoulders and then swore to tell the whole truth",
+   "span": "",
+   "ok": false
+  },
+  {
+   "claim": "Arthur Clarke's initial inconsistent statement",
+   "anchor": "Arthur Clarke, when first questioned by the police, had made a somewhat lame statement",
+   "span": "To begin with, it appears that Arthur Clarke, when first questioned by the police, had made a somewhat lame statement.",
+   "ok": true
+  },
+  {
+   "claim": "Public suspects Lady Foremeere",
+   "anchor": "the public has thrown out an erroneous conjecture.  'It was Lady Foremeere,' they say, 'who killed Miss Clarke.'",
+   "span": "I say 'almost' because I know who killed Miss Clarke, even though the public has thrown out an erroneous conjecture. 'It was Lady Foremeere,' they say, 'who killed Miss Clarke.' But at once comes the question: 'How could she?",
+   "ok": true
+  },
+  {
+   "claim": "Police break open parlour door and find victim",
+   "anchor": "when the police broke open the door of the parlour, the first thing they saw was the body of Miss Clarke",
+   "span": "You will remember that when the police broke open the door of the parlour, the first thing they saw was the body of Miss Clarke lying full-length on the floor.",
+   "ok": true
+  },
+  {
+   "claim": "Lord Foremeere's wet clothes carried by constable",
+   "anchor": "one of the constables was carrying a coat and a hat, which Spinks knew were old ones belonging to his lordship",
+   "span": "And Spinks, the butler, who subsequently let the three men out, noticed that one of the constables was carrying a coat and a hat, which Spinks knew were old ones belonging to his lordship.",
+   "ok": true
+  },
+  {
+   "claim": "Arthur Clarke tries on khaki tunic and it does not fit",
+   "anchor": "Arthur Clarke was made to try on the khaki tunic, and he could not even get his arms into the sleeves",
+   "span": "Arthur Clarke was made to try on the khaki tunic, and he could not even get his arms into the sleeves.",
+   "ok": true
+  },
+  {
+   "claim": "Victim was struck on the back of the head",
+   "anchor": "Medical evidence went to prove that the deceased had first been struck on the back of the head by some heavy instrument",
+   "span": "Medical evidence went to prove that the deceased had first been struck on the back of the head by some heavy instrument, a weighted stick or something of the sort, which had no doubt stunned her, but she actually died of gas poisoning, which she inhaled in large quantities while she was half-conscious.",
+   "ok": true
+  },
+  {
+   "claim": "Victim's bed had not been slept in",
+   "anchor": "The bed had not been slept in",
+   "span": "It was empty, and the bed had not been slept in.",
+   "ok": true
+  },
+  {
+   "claim": "Victim found suffocated by gas with windows latched",
+   "anchor": "The one window had been carefully latched, and the thick curtains closely drawn together",
+   "span": "The one window had been carefully latched, and the thick curtains closely drawn together; the chimney had been stuffed up with newspaper and paper had been thrust into every aperture so as to exclude the slightest possible breath of air.",
+   "ok": true
+  },
+  {
+   "claim": "Key was not in the lock of the parlour door",
+   "anchor": "the key was not in the lock",
+   "span": "The door was, as usual, locked on the outside, but, contrary to precedent, the key was not in the lock; thinking it had dropped out, the girl searched for it, but in vain, and at one moment, when she moved the small mat which stood before the door of the locked room, she at once became aware of an over-powering smell of gas.",
+   "ok": true
+  }
+ ],
+ "costGbp": 0.14433110400000002,
+ "models": {
+  "map": "gpt-4.1-mini",
+  "encode": "gpt-4.1-mini",
+  "sweep": "gpt-4o-mini"
+ },
+ "case_written": true,
+ "verified_by": "corpus-verify.mjs",
+ "verified_on": "2026-09-23"
+}

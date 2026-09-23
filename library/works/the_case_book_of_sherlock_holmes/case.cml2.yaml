@@ -1,0 +1,442 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The case-book of Sherlock Holmes
+    author: Arthur Conan Doyle
+    license: Public domain (first published 1927; author died 1930). Project Gutenberg ebook 69700.
+    era:
+      decade: 1900s
+      realism_constraints:
+        - No advanced forensic DNA analysis available
+        - Limited police investigative technology, reliance on observation and deduction
+        - Communication via telegrams and letters, no electronic surveillance
+    setting:
+      location: England, various including London, Sussex, Hampshire, Bedfordshire, Berkshire
+      institution: Sherlock Holmes's private detective agency and local police forces
+    crime_class:
+      category: murder
+      subtype: ingenious concealment and framing
+  cast:
+    - name: Sherlock Holmes
+      age_range: 40-50
+      role_archetype: famous private detective
+      relationships: []
+      public_persona: brilliant and eccentric detective
+      private_secret: keen observer with deep knowledge of crime
+      motive_seed: justice and intellectual challenge
+      motive_strength: strong
+      alibi_window: always present at investigation scenes
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells:
+        - methodical observation
+        - disguises
+        - deductive reasoning
+      stakes: solving complex crimes
+      evidence_sensitivity:
+        - letters
+        - physical traces
+        - witness statements
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: high
+    - name: Dr. John H. Watson
+      age_range: 40-50
+      role_archetype: medical doctor and loyal companion
+      relationships:
+        - Sherlock Holmes
+      public_persona: Holmes's friend and biographer
+      private_secret: medical expertise and observer
+      motive_seed: friendship and justice
+      motive_strength: strong
+      alibi_window: usually present with Holmes
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells:
+        - medical insight
+        - narration
+      stakes: supporting Holmes and truth
+      evidence_sensitivity:
+        - medical reports
+        - witness accounts
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+    - name: Baron Adelbert Gruner
+      age_range: 40-50
+      role_archetype: wealthy, dangerous aristocrat with a murderous past
+      relationships:
+        - Violet de Merville
+        - Miss Kitty Winter
+      public_persona: charming and cultured nobleman
+      private_secret: murderer and womanizer
+      motive_seed: maintain reputation and marriage
+      motive_strength: strong
+      alibi_window: present at home during burglary
+      access_plausibility: high
+      opportunity_channels:
+        - home study
+        - inner study
+      behavioral_tells:
+        - waxed moustache tips
+        - silky voice
+      stakes: marriage and freedom
+      evidence_sensitivity:
+        - lust diary
+        - photographs
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Miss Kitty Winter
+      age_range: 20-30
+      role_archetype: wronged former mistress with fierce hatred
+      relationships:
+        - Baron Adelbert Gruner
+      public_persona: fallen woman
+      private_secret: victim of Gruner's cruelty
+      motive_seed: revenge
+      motive_strength: strong
+      alibi_window: with Holmes during burglary
+      access_plausibility: high
+      opportunity_channels:
+        - home study
+      behavioral_tells:
+        - fierce energy
+        - hatred
+      stakes: justice
+      evidence_sensitivity:
+        - vitriol attack
+        - testimony
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: moderate
+    - name: Violet de Merville
+      age_range: 20-30
+      role_archetype: innocent, obsessed young woman
+      relationships:
+        - Baron Adelbert Gruner
+        - General de Merville
+      public_persona: wealthy heiress
+      private_secret: madly in love with Gruner
+      motive_seed: love
+      motive_strength: strong
+      alibi_window: at home
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells:
+        - aloofness
+        - fanaticism
+      stakes: marriage and reputation
+      evidence_sensitivity: []
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: victim
+      moral_complexity: low
+    - name: Josiah Amberley
+      age_range: 60-70
+      role_archetype: retired colourman, betrayed and ruined
+      relationships:
+        - Mrs. Amberley
+        - Dr. Ray Ernest
+      public_persona: miserly retired businessman
+      private_secret: betrayed by wife and doctor
+      motive_seed: recover stolen property
+      motive_strength: strong
+      alibi_window: at home during theft
+      access_plausibility: high
+      opportunity_channels: []
+      behavioral_tells:
+        - melancholy
+        - paranoia
+      stakes: life savings
+      evidence_sensitivity:
+        - strong-room
+        - stolen securities
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: moderate
+    - name: Mrs. Amberley
+      age_range: 40-50
+      role_archetype: faithless wife and thief
+      relationships:
+        - Josiah Amberley
+        - Dr. Ray Ernest
+      public_persona: respectable wife
+      private_secret: eloped with doctor, stole money
+      motive_seed: greed and love affair
+      motive_strength: strong
+      alibi_window: absent during theft
+      access_plausibility: high
+      opportunity_channels:
+        - strong-room access
+      behavioral_tells:
+        - secretive
+        - deceptive
+      stakes: financial gain
+      evidence_sensitivity:
+        - deed-box
+        - cash and securities
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: female
+      role: culprit
+      moral_complexity: high
+  culpability:
+    culprit_count: 2
+    culprits:
+      - Baron Adelbert Gruner
+      - Mrs. Amberley
+  surface_model:
+    narrative:
+      summary: >-
+        The case appears as a series of complex crimes involving murder, betrayal, and deception
+        among the British upper class and their associates. Initial evidence points to obvious
+        suspects, but the true mechanisms involve subtle framing and concealed motives.
+    accepted_facts:
+      - Baron Gruner is a known murderer with a dangerous reputation.
+      - Miss Kitty Winter attacked Baron Gruner with vitriol.
+      - Josiah Amberley's wife eloped with Dr. Ray Ernest taking his savings.
+      - Sherlock Holmes was seriously assaulted but survived.
+    inferred_conclusions:
+      - Miss Kitty Winter was the sole culprit behind the vitriol attack.
+      - Josiah Amberley was complicit in the theft of his own property.
+      - Baron Gruner's marriage was prevented solely by public scandal.
+  hidden_model:
+    mechanism:
+      description: >-
+        Baron Gruner's incriminating 'lust diary' was stolen during a staged burglary orchestrated
+        by Holmes and Miss Kitty Winter, who attacked Gruner to distract him. Mrs. Amberley
+        conspired with Dr. Ray Ernest to steal Josiah Amberley's savings and elope, using a
+        duplicate key to access the strong-room. Holmes's injuries were part of a ruse to mislead
+        Gruner and facilitate the recovery of the diary.
+      delivery_path:
+        - step: Holmes receives a delicate case involving Baron Gruner's impending marriage.
+        - step: >-
+            Holmes sends Dr. Watson disguised as a doctor with a valuable Ming saucer to Gruner's
+            home.
+        - step: >-
+            During Watson's visit, Holmes and Miss Kitty Winter execute a burglary to steal the lust
+            diary.
+        - step: Miss Kitty Winter attacks Baron Gruner with vitriol to incapacitate him.
+        - step: Holmes exaggerates his injuries to mislead Gruner about his recovery.
+        - step: >-
+            Mrs. Amberley uses a duplicate key to access Josiah Amberley's strong-room and steals
+            valuables.
+        - step: Holmes and his agents coordinate to recover stolen items and expose the culprits.
+    outcome:
+      result: >-
+        The marriage between Baron Gruner and Violet de Merville is prevented, and the culprits are
+        exposed and brought to justice.
+  false_assumption:
+    statement: >-
+      Miss Kitty Winter was solely responsible for the vitriol attack and the burglary was a
+      spontaneous act.
+    type: behavioral
+    why_it_seems_reasonable: >-
+      Miss Winter openly admits her hatred and involvement, and the attack was public and violent.
+      The burglary appeared opportunistic during the attack.
+    what_it_hides: >-
+      The burglary was a carefully planned operation coordinated with Holmes and Watson, and the
+      attack was part of a larger strategy to obtain the diary and prevent the marriage.
+  false_solution:
+    accused_suspect: Miss Kitty Winter
+    supporting_points:
+      - She was seen attacking Baron Gruner with vitriol.
+      - She openly expressed hatred and desire for revenge.
+      - Her presence at the scene was undeniable.
+      - She was tried and sentenced for the attack.
+    the_one_flaw: >-
+      The burglary and theft of the diary were orchestrated by Holmes and Watson, and Miss Winter
+      acted under their direction rather than independently.
+    refuted_in_chapter: 1
+  red_herrings:
+    - id: steve_dixie_intimidation
+      description: Steve Dixie, a bruiser, threatens Holmes to deter him from investigating.
+      points_at_suspect: Barney Stockdale's gang
+      innocent_explanation: >-
+        Steve Dixie is a blustering but harmless thug used to intimidate but not capable of serious
+        crime.
+      resolved_in_chapter: 4
+    - id: ian_murdoch_suspicion
+      description: Ian Murdoch, a taciturn mathematical coach, is suspected of the scourging murder.
+      points_at_suspect: Ian Murdoch
+      innocent_explanation: >-
+        Murdoch was a friend of the victim and was himself a victim of the mysterious sea creature's
+        sting.
+      resolved_in_chapter: 9
+  closed_circle:
+    suspects:
+      - Baron Adelbert Gruner
+      - Miss Kitty Winter
+      - Mrs. Amberley
+      - Dr. Ray Ernest
+      - Josiah Amberley
+    rationale: >-
+      All suspects had access to the crime scenes, motives related to personal gain or revenge, and
+      were under surveillance or investigation by Holmes and the police.
+  constraint_space:
+    time:
+      anchors:
+        - September 3, 1902
+        - January 1903
+        - July 2, 1902
+        - October 3, 1906
+        - November 19, 1907
+      windows:
+        - Holmes's injury recovery period
+        - Nighttime burglary at Gruner's house
+        - Theatre attendance by Josiah Amberley
+        - Intervals of Professor Presbury's strange behavior
+    access:
+      actors:
+        - Holmes
+        - Watson
+        - Miss Kitty Winter
+        - Mrs. Amberley
+        - Dr. Ray Ernest
+      objects:
+        - Baron Gruner's inner study
+        - Josiah Amberley's strong-room
+        - Holmes's private rooms
+        - Professor Presbury's box
+    social:
+      trust_channels:
+        - Shinwell Johnson's underworld contacts
+        - Langdale Pike's gossip network
+        - Inspector MacKinnon's police reports
+      authority_sources:
+        - Scotland Yard
+        - Local police constables
+        - Medical experts like Sir Leslie Oakshott
+  inference_path:
+    steps:
+      - observation: Miss Kitty Winter claims knowledge of a locked brown leather book with gold arms.
+        correction: Holmes obtains the book during a staged burglary.
+        effect: The book is used as a weapon to break off the marriage.
+        required_evidence:
+          - >-
+            Miss Winter's testimony about the book, including her description of its lock and arms,
+            and her knowledge of its existence, which is later corroborated by Holmes's recovery of
+            the object during the burglary event.
+          - >-
+            Holmes's report of the burglary and recovery of the book, including the sequence of
+            access to Gruner's study, the reconstruction of the event by Holmes and Watson, and the
+            physical evidence of the book itself.
+        reader_observable: true
+      - observation: Baron Gruner shows suspicion and anger during Watson's visit.
+        correction: Watson's knowledge of Chinese pottery distracts Gruner.
+        effect: Holmes gains time to act and recover the diary.
+        required_evidence:
+          - >-
+            Watson's letter to Gruner arranging the visit and referencing the Ming saucer, which
+            establishes the temporal anchor for the event sequence.
+          - >-
+            Holmes's account of the visit, including the access record of Watson's presence and the
+            opportunity channel created for the burglary.
+        reader_observable: true
+      - observation: Josiah Amberley reports theft and disappearance of wife and doctor.
+        correction: Mrs. Amberley and Dr. Ernest conspired to steal and elope.
+        effect: Amberley's savings are stolen, and the culprits flee.
+        required_evidence:
+          - >-
+            Amberley's testimony describing the sequence of events, the timing of the theft, and the
+            access to the strong-room.
+          - >-
+            Police reports of theft, including the reconstruction of the event, the access record of
+            the strong-room, and the elimination of Amberley as a suspect.
+        reader_observable: true
+      - observation: Holmes is attacked and seriously injured.
+        correction: The attack was orchestrated to mislead Gruner.
+        effect: Gruner underestimates Holmes's recovery and plans.
+        required_evidence:
+          - >-
+            Medical reports by Sir Leslie Oakshott, documenting the timing and sequence of Holmes's
+            injuries and recovery.
+          - >-
+            Holmes's own account of the attack, including the reconstruction of the event and the
+            premeditated nature of the ruse.
+        reader_observable: true
+      - observation: Violet de Merville refuses to believe accusations against Gruner.
+        correction: The lust diary reveals Gruner's true nature.
+        effect: Violet breaks off the engagement.
+        required_evidence:
+          - >-
+            The lust diary itself, as a concrete object recovered during the burglary event, and its
+            contents reconstructing Gruner's involvement in past crimes.
+          - >-
+            Newspaper announcement of broken engagement, providing a temporal anchor and confirming
+            the outcome of the sequence.
+        reader_observable: true
+      - observation: Miss Kitty Winter is sentenced for vitriol attack.
+        correction: Her sentence is mitigated due to extenuating circumstances.
+        effect: She remains a key witness but not the sole culprit.
+        required_evidence:
+          - >-
+            Court records of trial, documenting the sequence of legal events and the reconstruction
+            of her involvement.
+          - >-
+            Holmes's explanation of the case, including the elimination of Miss Winter as the sole
+            perpetrator and the premeditated coordination with Holmes.
+        reader_observable: true
+      - observation: Holmes and Inspector MacKinnon cooperate to recover stolen securities.
+        correction: Holmes's burglary and investigation reveal the hiding place.
+        effect: Amberley's property is recovered and culprits arrested.
+        required_evidence:
+          - >-
+            Holmes's burglary report, detailing the reconstruction of the event, the access sequence
+            to the hiding place, and the elimination of alternative suspects.
+          - >-
+            Police recovery records, including the access record of the strong-room, the involvement
+            of Mrs. Amberley, and the premeditated nature of the theft.
+        reader_observable: true
+  discriminating_test:
+    method: constraint_proof
+    design: >-
+      Holmes reconstructs the sequence of events by comparing the access logs of the strong-room,
+      the presence of Mrs. Amberley and Dr. Ray Ernest, and the recovery of the stolen items. He
+      demonstrates that only someone with intimate knowledge and a duplicate key could have
+      committed the theft, eliminating other suspects by reconstructing the event timeline and
+      access records.
+    knowledge_revealed: >-
+      This reconstruction proves Mrs. Amberley's involvement and the premeditated nature of the
+      theft, eliminating the possibility of Josiah Amberley being complicit or the crime being
+      opportunistic.
+    pass_condition: >-
+      The access logs and physical evidence confirm Mrs. Amberley's use of the duplicate key and her
+      presence at the scene, verifying her guilt.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is provided with detailed descriptions of the crime scenes, physical evidence such
+      as the lust diary, the vitriol attack, and the locked strong-room. Holmes's deductions are
+      based on observable facts and logical reasoning. Clues such as the presence of the diary, the
+      timing of events, and the behavior of suspects are all presented transparently, allowing an
+      attentive reader to solve the case.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

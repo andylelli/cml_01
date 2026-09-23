@@ -1,0 +1,478 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: Jacob's Ladder
+    author: E. Phillips (Edward Phillips) Oppenheim
+    license: Public domain (first published 1921; author died 1946). Project Gutenberg ebook 32732.
+    era:
+      decade: 1920s
+      realism_constraints:
+        - No modern forensic technology such as DNA analysis or electronic surveillance
+        - Communication limited to letters, telegrams, and face-to-face meetings
+        - Transportation by train, motor-car, and ship with no air travel
+    setting:
+      location: England and New York City
+      institution: Private investigation by Jacob Pratt and associates
+    crime_class:
+      category: fraud
+      subtype: financial swindle involving false property sale and stock market manipulation
+  cast:
+    - name: Jacob Pratt
+      age_range: 30s-40s
+      role_archetype: wealthy businessman and amateur detective
+      relationships:
+        - Richard Dauncey
+        - Sybil Bultiwell
+        - Lord Felixstowe
+        - Lady Mary Felixstowe
+      public_persona: recently wealthy oil millionaire
+      private_secret: sensitive and sentimental man with a desire for genuine companionship
+      motive_seed: desire to protect his fortune and expose fraud
+      motive_strength: strong
+      alibi_window: throughout the narrative
+      access_plausibility: high
+      opportunity_channels:
+        - business dealings
+        - social events
+        - property inspections
+      behavioral_tells:
+        - careful observation
+        - strategic patience
+        - sentimental restraint
+      stakes: high financial and personal stakes
+      evidence_sensitivity:
+        - letters from brother
+        - stockbroker statements
+        - bank cheques
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: moderate
+    - name: Sybil Bultiwell
+      age_range: 20s-30s
+      role_archetype: disaffected young woman, victim of financial ruin
+      relationships:
+        - Jacob Pratt
+        - Mrs. Bultiwell
+        - Lord Felixstowe
+        - Lady Mary Felixstowe
+      public_persona: governess and secretary, daughter of bankrupt merchant
+      private_secret: resentful and distrustful of Jacob Pratt
+      motive_seed: financial desperation and resentment
+      motive_strength: moderate
+      alibi_window: varied, present at key social and criminal scenes
+      access_plausibility: high
+      opportunity_channels:
+        - social gatherings
+        - criminal extortion scheme
+      behavioral_tells:
+        - icy reserve
+        - defiant attitude
+        - involvement in extortion
+      stakes: personal financial survival and reputation
+      evidence_sensitivity:
+        - signed cheque
+        - letters
+        - presence at kidnapping
+      culprit_eligibility: eligible
+      culpability: unknown
+      gender: female
+      role: victim
+      moral_complexity: high
+    - name: Dane Montague
+      age_range: 40s-50s
+      role_archetype: financier and swindler
+      relationships:
+        - Joe Hartwell
+        - Philip Mason
+        - Lord Delchester
+        - Mr. Littleham
+      public_persona: respectable financier and businessman
+      private_secret: mastermind of fraudulent schemes
+      motive_seed: financial gain through deception
+      motive_strength: strong
+      alibi_window: present at key meetings and social events
+      access_plausibility: high
+      opportunity_channels:
+        - business dealings
+        - property sales
+        - stock market manipulation
+      behavioral_tells:
+        - nervousness
+        - evasiveness
+        - overconfidence
+      stakes: financial profit and social standing
+      evidence_sensitivity:
+        - fraudulent contracts
+        - false undertakings
+        - witness testimony
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: low
+    - name: Joe Hartwell
+      age_range: 30s-40s
+      role_archetype: American adventurer and accomplice
+      relationships:
+        - Dane Montague
+        - Philip Mason
+        - Sybil Bultiwell
+      public_persona: smooth-shaven, stalwart American
+      private_secret: criminal accomplice in extortion and fraud
+      motive_seed: financial gain and revenge
+      motive_strength: strong
+      alibi_window: present at criminal acts
+      access_plausibility: high
+      opportunity_channels:
+        - criminal extortion
+        - fraudulent schemes
+      behavioral_tells:
+        - threatening behavior
+        - drugging victim
+        - violence
+      stakes: financial gain and criminal success
+      evidence_sensitivity:
+        - kidnapping scene
+        - signed cheque
+        - witness accounts
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: low
+    - name: Philip Mason
+      age_range: 30s-40s
+      role_archetype: man about town and accomplice
+      relationships:
+        - Dane Montague
+        - Joe Hartwell
+        - Sybil Bultiwell
+      public_persona: well-known man about town
+      private_secret: involved in schemes against Jacob Pratt
+      motive_seed: financial gain
+      motive_strength: moderate
+      alibi_window: present at conspiratorial meetings
+      access_plausibility: high
+      opportunity_channels:
+        - social manipulation
+        - criminal schemes
+      behavioral_tells:
+        - dissipated appearance
+        - anger at Pratt
+      stakes: financial gain
+      evidence_sensitivity:
+        - witness testimony
+        - presence at extortion
+      culprit_eligibility: eligible
+      culpability: unknown
+      gender: male
+      role: suspect
+      moral_complexity: low
+    - name: Lord Felixstowe
+      age_range: 20s
+      role_archetype: young nobleman and friend
+      relationships:
+        - Jacob Pratt
+        - Lady Mary Felixstowe
+        - Dane Montague
+      public_persona: carefree young aristocrat
+      private_secret: loyal friend to Jacob Pratt
+      motive_seed: friendship and protection
+      motive_strength: strong
+      alibi_window: present at key events
+      access_plausibility: high
+      opportunity_channels:
+        - social events
+        - intervention in schemes
+      behavioral_tells:
+        - loyalty
+        - courage
+        - intervention
+      stakes: friendship and social standing
+      evidence_sensitivity:
+        - witness statements
+        - intervention accounts
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: male
+      role: witness
+      moral_complexity: low
+    - name: Lady Mary Felixstowe
+      age_range: 20s
+      role_archetype: young lady of society and friend
+      relationships:
+        - Jacob Pratt
+        - Lord Felixstowe
+        - Sybil Bultiwell
+      public_persona: attractive young lady of aristocracy
+      private_secret: sympathetic to Jacob Pratt
+      motive_seed: friendship and social duty
+      motive_strength: moderate
+      alibi_window: present at key social events
+      access_plausibility: high
+      opportunity_channels:
+        - social gatherings
+        - aid to Jacob
+      behavioral_tells:
+        - kindness
+        - courage
+        - intervention
+      stakes: family reputation and friendship
+      evidence_sensitivity:
+        - witness accounts
+        - aid to Jacob
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: low
+    - name: Mrs. Bultiwell
+      age_range: 50s
+      role_archetype: displaced matriarch
+      relationships:
+        - Sybil Bultiwell
+        - Jacob Pratt
+      public_persona: mother of Sybil Bultiwell
+      private_secret: resentful of Jacob Pratt
+      motive_seed: financial desperation
+      motive_strength: weak
+      alibi_window: present at estate and social events
+      access_plausibility: high
+      opportunity_channels:
+        - social events
+      behavioral_tells:
+        - resentment
+        - complaints about estate
+      stakes: family survival
+      evidence_sensitivity: []
+      culprit_eligibility: eligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: moderate
+  culpability:
+    culprit_count: 2
+    culprits:
+      - Dane Montague
+      - Joe Hartwell
+  surface_model:
+    narrative:
+      summary: >-
+        Jacob Pratt, a newly wealthy man, becomes involved in a fraudulent land and water company
+        scheme orchestrated by Dane Montague and Joe Hartwell. They attempt to extort money from him
+        and others by deception and kidnapping, but with the help of friends and his own cleverness,
+        Jacob exposes their plot and recovers his losses.
+    accepted_facts:
+      - Jacob Pratt has recently come into great wealth from oil investments.
+      - >-
+        Dane Montague and Joe Hartwell propose a land development scheme requiring Jacob's
+        investment.
+      - Jacob is kidnapped and extorted for money by Montague, Hartwell, and Sybil Bultiwell.
+      - Jacob's brother Samuel is seriously ill in New York, requiring Jacob's urgent presence.
+    inferred_conclusions:
+      - Jacob Pratt is naive and easily duped by Montague and Hartwell.
+      - Sybil Bultiwell is an innocent victim forced into the extortion scheme.
+      - Montague and Hartwell's scheme is legitimate and based on genuine property sales.
+  hidden_model:
+    mechanism:
+      description: >-
+        Montague and Hartwell orchestrated a fraudulent scheme involving the sale of a worthless
+        property under the guise of a valuable one, using false documents and social influence to
+        deceive investors. They kidnapped Jacob Pratt to extort a large sum by coercing him to sign
+        an open cheque. Jacob, with the help of friends and his own foresight, anticipated their
+        moves, set traps such as marking his cheque, and ultimately exposed the fraud and secured
+        his financial interests.
+      delivery_path:
+        - step: Montague and Hartwell present a land and water company investment scheme to Jacob Pratt.
+        - step: Jacob inspects the property and agrees to finance the purchase.
+        - step: Montague and Hartwell secretly plan to extort Jacob by kidnapping him.
+        - step: Jacob is drugged and tied up, forced to sign an open cheque for ransom.
+        - step: Jacob had prearranged a trap with his bank to invalidate the cheque.
+        - step: Lord Felixstowe and Lady Mary intervene to rescue Jacob and expose the criminals.
+        - step: Jacob takes over the water company, nullifying Montague and Hartwell's scheme.
+    outcome:
+      result: >-
+        Jacob Pratt exposes the fraudulent scheme, rescues himself from extortion, and restores his
+        financial and personal standing.
+  false_assumption:
+    statement: Jacob Pratt is naive and easily fooled by Montague and Hartwell's scheme.
+    type: behavioral
+    why_it_seems_reasonable: >-
+      Jacob is portrayed as a newly wealthy man unfamiliar with high finance and surrounded by
+      suspicious characters, making it plausible he could be duped. His initial trust and social
+      naivety support this belief.
+    what_it_hides: >-
+      Jacob is actually shrewd and anticipates the fraud, setting traps and using allies to outwit
+      the criminals, demonstrating his competence and control.
+  false_solution:
+    accused_suspect: Sybil Bultiwell
+    supporting_points:
+      - She is present at the kidnapping and extortion scenes.
+      - She endorses the ransom cheque.
+      - She is involved in the criminal negotiations.
+      - Her resentment and behavior suggest complicity.
+    the_one_flaw: >-
+      Sybil acts under duress and is a pawn in Montague and Hartwell's scheme, not the mastermind or
+      willing culprit.
+    refuted_in_chapter: 13
+  red_herrings:
+    - id: sybil_bultiwell_involvement
+      description: Sybil Bultiwell appears to be a willing participant in the extortion of Jacob Pratt.
+      points_at_suspect: Sybil Bultiwell
+      innocent_explanation: >-
+        She is coerced and acts under pressure from Montague and Hartwell, seeking only her share of
+        the extorted money.
+      resolved_in_chapter: 13
+    - id: lord_felixstowe_suspicion
+      description: >-
+        Lord Felixstowe is suspected of being involved in the schemes against Jacob Pratt due to his
+        social connections.
+      points_at_suspect: Lord Felixstowe
+      innocent_explanation: He is a loyal friend who warns Jacob and helps foil the criminals' plans.
+      resolved_in_chapter: 21
+  closed_circle:
+    suspects:
+      - Dane Montague
+      - Joe Hartwell
+      - Philip Mason
+      - Sybil Bultiwell
+    rationale: >-
+      All suspects are connected through the fraudulent land and water company scheme and extortion
+      plot, with Montague and Hartwell as masterminds, Mason as an accomplice, and Sybil as a
+      coerced participant.
+  constraint_space:
+    time:
+      anchors:
+        - Jacob's inspection of the Cropstone Wood Estate
+        - Signing of the land purchase agreement
+        - Jacob's kidnapping and ransom demand
+        - Jacob's rescue by Lord Felixstowe
+        - Jacob's departure for New York
+      windows:
+        - Forty-eight hours to provide purchase money
+        - Banks closing at four o'clock for cheque validity
+        - Daily visits and supply of food during imprisonment
+    access:
+      actors:
+        - Jacob Pratt
+        - Dane Montague
+        - Joe Hartwell
+        - Sybil Bultiwell
+        - Lord Felixstowe
+        - Lady Mary Felixstowe
+      objects:
+        - Cropstone Wood Estate
+        - Cropstone Wood Water and Electric Light Company
+        - Empress Music Hall documents
+        - Ransom cheque book
+        - Kelsoton Castle tower
+    social:
+      trust_channels:
+        - Letters from Jacob's brother
+        - Legal documents and undertakings
+        - Social introductions and invitations
+        - Bank and stockbroker communications
+      authority_sources:
+        - Bank of England credit confirmation
+        - Legal opinion from solicitors Danesworthy & Bryan
+        - Doctor Bardolf's medical authority
+        - Marquis of Delchester's social authority
+  inference_path:
+    steps:
+      - observation: >-
+          Jacob receives letters confirming his sudden wealth from his brother and the Bank of
+          England.
+        correction: Jacob's wealth is legitimate and sufficient to finance investments.
+        effect: Jacob is motivated to invest in the Cropstone Wood Estate.
+        required_evidence:
+          - Letter from Sam Pratt at Ritz-Carlton Hotel, New York
+          - Letter from Bank of England confirming credit
+        reader_observable: true
+      - observation: Montague and Littleham propose a land and water company investment scheme.
+        correction: The scheme involves a secret option on the water company not disclosed to Jacob.
+        effect: Jacob suspects foul play and investigates further.
+        required_evidence:
+          - Architect's plan of Cropstone Wood Estate
+          - Conversation with Mark Wiseman, local lawyer
+        reader_observable: true
+      - observation: Jacob buys the land and water company outright, thwarting Montague and Littleham's plan.
+        correction: Montague and Littleham intended to profit from the water company separately.
+        effect: Jacob gains control and foils their scheme.
+        required_evidence:
+          - Signed purchase agreement for Cropstone Wood Water and Electric Light Company
+          - Montague and Littleham's reaction after sale
+        reader_observable: true
+      - observation: Jacob is kidnapped and forced to sign an open cheque for ransom.
+        correction: Jacob anticipated this and arranged with his bank to invalidate the cheque if altered.
+        effect: Jacob uses the trap to capture the criminals.
+        required_evidence:
+          - Signed open cheque with special marks
+          - Witness statement of kidnapping and ransom demand
+        reader_observable: true
+      - observation: Lord Felixstowe and Lady Mary intervene to rescue Jacob.
+        correction: Their timely arrival and actions prevent the criminals' escape.
+        effect: Jacob is freed and the criminals are exposed.
+        required_evidence:
+          - Lady Mary's boat arrival and supply of provisions
+          - Lord Felixstowe's confrontation with Montague and Hartwell
+        reader_observable: true
+      - observation: Jacob travels to New York to assist his ill brother.
+        correction: >-
+          Jacob discovers a fraudulent scheme by Morse and Worstead to impersonate his brother's
+          illness and manipulate stock markets.
+        effect: Jacob exposes the fraud and restores his brother's affairs.
+        required_evidence:
+          - Meeting with fake Doctor Bardolf and secretary Morse
+          - Stockbroker statements and legal documents
+        reader_observable: true
+      - observation: Lord Felixstowe uncovers the impersonation and fraud in New York.
+        correction: >-
+          Felixstowe's investigation reveals the deception and leads to the arrest of Morse and
+          Worstead.
+        effect: Jacob's brother's reputation and fortune are saved.
+        required_evidence:
+          - Felixstowe's visit to Doctor Bardolf's address
+          - Confrontation with Morse and Worstead
+        reader_observable: true
+  discriminating_test:
+    method: constraint_proof
+    design: >-
+      Jacob arranges with his bank that any cheque bearing his signature with two dots underneath is
+      invalid. During the kidnapping, he signs an open cheque with these marks. The bank refuses
+      payment on presentation, exposing the extortion attempt. Additionally, Lord Felixstowe
+      investigates the supposed illness of Jacob's brother by visiting the doctor's address, proving
+      the impersonation.
+    knowledge_revealed: >-
+      The invalid cheque proves the extortion is fraudulent and the kidnapping is a ploy. The
+      doctor's absence reveals the impersonation and stock market fraud.
+    pass_condition: >-
+      The bank's refusal to honor the marked cheque and the discovery that the doctor is an impostor
+      conclusively prove the criminal scheme.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is given access to all letters, documents, and social interactions that reveal the
+      fraudulent nature of the property and water company scheme. Jacob's prearranged bank trap and
+      the suspicious behavior of Montague and Hartwell are clearly described. The impersonation of
+      the doctor and the secretary's suspicious actions are foreshadowed. The intervention of Lord
+      Felixstowe and Lady Mary provides additional clues. Thus, an attentive reader could deduce the
+      true nature of the fraud and the criminals' identities.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

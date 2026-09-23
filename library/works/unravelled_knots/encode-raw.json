@@ -1,0 +1,464 @@
+{
+ "decade": "1920s",
+ "realism_constraints": [
+  "No modern forensic DNA or electronic surveillance available",
+  "Travel and communication limited to trains, telegrams, and letters",
+  "Social class distinctions strongly influence behavior and investigation"
+ ],
+ "location": "England and some parts of France",
+ "institution": "Local police and Scotland Yard",
+ "crime_category": "murder",
+ "crime_subtype": "disguised murder with staged evidence",
+ "cast": [
+  {
+   "name": "Mary Clarke",
+   "age_range": "middle-aged",
+   "role_archetype": "quiet, solitary woman",
+   "role": "victim",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "quiet poultry farmer",
+   "private_secret": "held compromising letters",
+   "motive_seed": "blackmail over letters",
+   "motive_strength": "strong",
+   "alibi_window": "none",
+   "access_plausibility": "none",
+   "stakes": "life",
+   "moral_complexity": "none",
+   "relationships": [
+    "Arthur Clarke (brother)",
+    "Lord Foremeere (landlord)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": [
+    "gas poisoning",
+    "khaki tunic piece"
+   ]
+  },
+  {
+   "name": "Arthur Clarke",
+   "age_range": "young adult",
+   "role_archetype": "ex-officer, suspected but innocent",
+   "role": "suspect",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "shiftless ex-officer",
+   "private_secret": "had old khaki tunic",
+   "motive_seed": "love and money",
+   "motive_strength": "moderate",
+   "alibi_window": "3:30 pm to 7 pm",
+   "access_plausibility": "low",
+   "stakes": "freedom",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Mary Clarke (sister)",
+    "April St. Jude (love interest)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": [
+    "khaki tunic",
+    "key in tunic pocket"
+   ]
+  },
+  {
+   "name": "Lord Foremeere",
+   "age_range": "middle-aged",
+   "role_archetype": "aristocrat, murderer",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "aristocrat, respected",
+   "private_secret": "murdered Mary Clarke",
+   "motive_seed": "protect wife from blackmail",
+   "motive_strength": "strong",
+   "alibi_window": "unknown but suspicious",
+   "access_plausibility": "high",
+   "stakes": "reputation and marriage",
+   "moral_complexity": "strong",
+   "relationships": [
+    "Mary Clarke (victim)",
+    "Lady Foremeere (wife)",
+    "April St. Jude (daughter)"
+   ],
+   "opportunity_channels": [
+    "smoking-room access",
+    "concealed wet clothes"
+   ],
+   "behavioral_tells": [
+    "concealing wet coat and boots"
+   ],
+   "evidence_sensitivity": [
+    "wet coat",
+    "dripping hat",
+    "soaked boots"
+   ]
+  },
+  {
+   "name": "April St. Jude",
+   "age_range": "young adult",
+   "role_archetype": "society beauty, love interest",
+   "role": "witness",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "aristocratic daughter",
+   "private_secret": "in love with Arthur Clarke",
+   "motive_seed": "protect Arthur",
+   "motive_strength": "weak",
+   "alibi_window": "present at party until 7 pm",
+   "access_plausibility": "none",
+   "stakes": "love and reputation",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "Arthur Clarke (love interest)",
+    "Lord Foremeere (father)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "hysterical reaction to tunic"
+   ],
+   "evidence_sensitivity": [
+    "testimony about Arthur's presence"
+   ]
+  },
+  {
+   "name": "Emily Baker",
+   "age_range": "young adult",
+   "role_archetype": "servant, key witness",
+   "role": "witness",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "loyal housemaid",
+   "private_secret": "discovered body",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "morning of death",
+   "access_plausibility": "high",
+   "stakes": "truth",
+   "moral_complexity": "none",
+   "relationships": [
+    "Mary Clarke (employer)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": [
+    "smell of gas",
+    "locked parlour door"
+   ]
+  },
+  {
+   "name": "Mr. Markham",
+   "age_range": "middle-aged",
+   "role_archetype": "solicitor, defender",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "leading solicitor",
+   "private_secret": "legal advisor to Arthur",
+   "motive_seed": "professional duty",
+   "motive_strength": "none",
+   "alibi_window": "none",
+   "access_plausibility": "none",
+   "stakes": "justice",
+   "moral_complexity": "none",
+   "relationships": [
+    "Arthur Clarke (client)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Spinks",
+   "age_range": "middle-aged",
+   "role_archetype": "butler, minor witness",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "loyal servant",
+   "private_secret": "observed Lord Foremeere's movements",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "evening of murder",
+   "access_plausibility": "high",
+   "stakes": "truth",
+   "moral_complexity": "none",
+   "relationships": [
+    "Lord Foremeere (employer)"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": [
+    "coat and hat carried by constable"
+   ]
+  }
+ ],
+ "culprits": [
+  "Lord Foremeere"
+ ],
+ "surface_summary": "Mary Clarke was found dead in a locked parlour, suffocated by gas. The evidence seemed to implicate her brother Arthur Clarke, especially a khaki tunic with a missing piece found in her hand, but Arthur was cleared when the tunic was proven too small for him. Suspicion then fell on Lord Foremeere, who died accidentally shortly after.",
+ "accepted_facts": [
+  "Mary Clarke was murdered by gas poisoning in a locked room",
+  "A piece of khaki cloth matching a tunic was found in the victim's hand",
+  "Arthur Clarke owned the khaki tunic but it was too small for him",
+  "Lord Foremeere died accidentally shortly after the murder"
+ ],
+ "inferred_conclusions": [
+  "Arthur Clarke was the murderer due to motive and evidence",
+  "April St. Jude was protecting Arthur by lying about his alibi",
+  "The murder was a crime of passion by Arthur Clarke"
+ ],
+ "mechanism_description": "Lord Foremeere murdered Mary Clarke to prevent blackmail over compromising letters. He entered the house unnoticed, killed Mary by gas poisoning after stunning her with a blow to the head, and planted the khaki tunic with the key to the locked parlour door to implicate Arthur Clarke. He concealed his wet clothes to fake an alibi but was later found dead by accidental shooting.",
+ "delivery_path": [
+  "Lord Foremeere overhears conversation about compromising letters",
+  "He visits Hardacres and stuns Mary Clarke with a heavy instrument",
+  "He locks the parlour door from inside and turns on the gas",
+  "He places a torn khaki tunic with the key in the victim's hand",
+  "He hides his wet coat, hat, and boots in the smoking-room",
+  "He leaves the house pretending to come from outside at 7 pm",
+  "He is later accidentally shot and dies"
+ ],
+ "outcome_result": "Arthur Clarke is exonerated and Lord Foremeere is revealed as the murderer, who dies accidentally soon after.",
+ "false_assumption": {
+  "statement": "The khaki tunic found in the victim's hand belonged to Arthur Clarke and proved his guilt.",
+  "type": "identity",
+  "why_it_seems_reasonable": "The tunic was found in the victim's hand and Arthur admitted ownership of it. The torn piece matched the cloth in her hand, suggesting a struggle.",
+  "what_it_hides": "The tunic was an old garment of Arthur's, too small for him, planted deliberately by the real murderer to frame Arthur."
+ },
+ "false_solution": {
+  "accused_suspect": "Arthur Clarke",
+  "supporting_points": [
+   "The torn khaki tunic with the key was found in the victim's hand",
+   "Arthur had motive related to love and money",
+   "Witnesses initially placed Arthur near the scene",
+   "Arthur's initial inconsistent statements raised suspicion"
+  ],
+  "the_one_flaw": "The tunic was too small for Arthur and was an old school tunic, not the one he wore recently",
+  "refuted_in_chapter": 4
+ },
+ "red_herrings": [
+  {
+   "id": "april_st_jude_alibi",
+   "description": "April St. Jude's contradictory testimony about Arthur Clarke's departure time created confusion about his alibi.",
+   "points_at_suspect": "Arthur Clarke",
+   "innocent_explanation": "April was trying to protect Arthur out of love and was mistaken about the time.",
+   "resolved_in_chapter": 4
+  },
+  {
+   "id": "wet_clothes_concealment",
+   "description": "Lord Foremeere's wet coat, hat, and boots hidden in the smoking-room suggested suspicious behavior.",
+   "points_at_suspect": "Lord Foremeere",
+   "innocent_explanation": "Concealment was to fake an alibi and mislead investigators about his movements.",
+   "resolved_in_chapter": 4
+  }
+ ],
+ "closed_circle": {
+  "suspects": [
+   "Arthur Clarke",
+   "Lord Foremeere",
+   "April St. Jude",
+   "Emily Baker",
+   "Mr. Markham",
+   "Spinks"
+  ],
+  "rationale": "The suspects are limited to those with access to the house and motive; servants and legal advisors are witnesses; Arthur and Lord Foremeere are the main suspects."
+ },
+ "constraint_space": {
+  "time_anchors": [
+   "half-past five previous evening",
+   "close on seven o'clock evening",
+   "next morning at eight"
+  ],
+  "time_windows": [
+   "Arthur's presence at Meere Court 3:30-7 pm",
+   "Lady Foremeere's interview 5:30-6 pm",
+   "Lord Foremeere's movements around 7 pm"
+  ],
+  "access_actors": [
+   "Lord Foremeere",
+   "Arthur Clarke",
+   "Emily Baker",
+   "April St. Jude",
+   "Spinks"
+  ],
+  "access_objects": [
+   "parlour door",
+   "khaki tunic",
+   "gas chandelier",
+   "smoking-room",
+   "wet coat and boots"
+  ],
+  "trust_channels": [
+   "Lady Foremeere's testimony",
+   "Arthur Clarke's statements",
+   "Spinks the butler's confirmation"
+  ],
+  "authority_sources": [
+   "coroner's inquest",
+   "police investigation",
+   "court verdict"
+  ]
+ },
+ "inference_path": [
+  {
+   "observation": "Khaki tunic found in victim's hand with torn sleeve matching cloth piece",
+   "correction": "Tunic is too small for Arthur Clarke and is an old school tunic",
+   "effect": "Arthur Clarke cannot have worn the tunic at the time of murder",
+   "required_evidence": [
+    "Testimony of April St. Jude about Arthur's size and tunic fitting",
+    "Physical examination of the khaki tunic showing size discrepancy"
+   ]
+  },
+  {
+   "observation": "Lord Foremeere seen coming out of smoking-room at 7 pm with wet clothes",
+   "correction": "Wet clothes indicate he had been outside or involved in the murder scene",
+   "effect": "Lord Foremeere's alibi is suspicious and he had opportunity",
+   "required_evidence": [
+    "Butler Spinks's testimony about carrying Lord Foremeere's coat and hat",
+    "Observation of wet boots and clothes by witnesses"
+   ]
+  },
+  {
+   "observation": "Victim died of gas poisoning in locked room",
+   "correction": "Victim was stunned by a blow before gas was turned on",
+   "effect": "Murder was premeditated and staged to look like suicide",
+   "required_evidence": [
+    "Medical evidence of blow to back of head",
+    "Locked parlour door with key hidden in tunic pocket"
+   ]
+  },
+  {
+   "observation": "Arthur Clarke claimed to be at Meere Court until 7 pm",
+   "correction": "Conflicting testimonies about Arthur's departure time",
+   "effect": "Arthur's alibi is uncertain but supported by Lady Foremeere",
+   "required_evidence": [
+    "Lady Foremeere's sworn testimony about Arthur's visit",
+    "Servants' statements about party timing"
+   ]
+  },
+  {
+   "observation": "Key to locked parlour door found in tunic pocket",
+   "correction": "Key was planted to implicate Arthur Clarke",
+   "effect": "Evidence is fabricated to mislead investigation",
+   "required_evidence": [
+    "Location of tunic in Arthur's room drawer",
+    "Physical impossibility of Arthur wearing tunic at time"
+   ]
+  },
+  {
+   "observation": "Lord Foremeere died accidentally by shooting himself",
+   "correction": "His death prevented further investigation",
+   "effect": "Murderer escapes justice but truth revealed posthumously",
+   "required_evidence": [
+    "Valet's testimony about accidental shooting",
+    "Police visit to Meere Court with coat and hat"
+   ]
+  },
+  {
+   "observation": "Public suspects Lady Foremeere as murderer",
+   "correction": "No evidence supports Lady Foremeere's guilt",
+   "effect": "Focus shifts to Lord Foremeere as true culprit",
+   "required_evidence": [
+    "Lady Foremeere's testimony and alibi",
+    "Lack of motive or opportunity for Lady Foremeere"
+   ]
+  }
+ ],
+ "discriminating_test": {
+  "method": "constraint_proof",
+  "design": "Reenact the timing and physical fitting of the khaki tunic on Arthur Clarke, and verify the presence and condition of Lord Foremeere's wet clothes at the time of the murder. Confirm the locked parlour door key's location and the timeline of Arthur's alibi with multiple witnesses.",
+  "knowledge_revealed": "This test reveals that Arthur Clarke could not have worn the tunic at the time, and Lord Foremeere's wet clothes and movements contradict his alibi, confirming his guilt.",
+  "pass_condition": "Arthur Clarke cannot physically wear the tunic at the time of murder, and Lord Foremeere's wet clothes are confirmed to be concealed and linked to the murder timeline."
+ },
+ "fair_play_explanation": "The reader is given detailed descriptions of the khaki tunic's size and condition, Arthur Clarke's physical build, and the timeline of events including witness testimonies. The contradictory alibis and the presence of the key in the tunic pocket are highlighted. The concealment of Lord Foremeere's wet clothes is mentioned, allowing the reader to deduce the real culprit by logical elimination and timing.",
+ "anchors": [
+  {
+   "claim": "Mary Clarke lying full-length on the floor",
+   "anchor": "the body of Miss Clarke lying full-length on the floor"
+  },
+  {
+   "claim": "Death caused by gas poisoning",
+   "anchor": "she actually died of gas poisoning"
+  },
+  {
+   "claim": "Piece of khaki cloth found in victim's hand",
+   "anchor": "in the tightly-clenched hand of the murdered woman was found the small piece of khaki cloth"
+  },
+  {
+   "claim": "Khaki tunic found in Arthur Clarke's room",
+   "anchor": "an old khaki tunic stuffed away at the bottom of a drawer"
+  },
+  {
+   "claim": "Tunic too small for Arthur Clarke",
+   "anchor": "Arthur Clarke was a rather heavy, full-grown, broad-shouldered man, the khaki tunic would only fit a slim lad of eighteen"
+  },
+  {
+   "claim": "April St. Jude's testimony about Arthur's visit",
+   "anchor": "her ladyship said so.  The clock had just struck half-past five when I succeeded in ridding myself of him"
+  },
+  {
+   "claim": "Lord Foremeere seen with wet clothes",
+   "anchor": "see when and how he finally disposes of a wet coat, a dripping hat and soaked boots"
+  },
+  {
+   "claim": "Lord Foremeere's accidental death by shooting",
+   "anchor": "his finger must accidentally have touched the trigger; anyway, according to the valet's story, there was a sudden explosion"
+  },
+  {
+   "claim": "Key of locked parlour door found in tunic pocket",
+   "anchor": "after locking the parlour door, he put the key in the pocket of the tunic"
+  },
+  {
+   "claim": "Arthur Clarke's alibi confirmed by hotel staff",
+   "anchor": "Mr. Clarke was back at the hotel soon after seven o'clock"
+  },
+  {
+   "claim": "Lady Foremeere's testimony about Arthur Clarke",
+   "anchor": "her ladyship stood up and disposed her exquisite sable cape about her shoulders and then swore to tell the whole truth"
+  },
+  {
+   "claim": "Arthur Clarke's initial inconsistent statement",
+   "anchor": "Arthur Clarke, when first questioned by the police, had made a somewhat lame statement"
+  },
+  {
+   "claim": "Public suspects Lady Foremeere",
+   "anchor": "the public has thrown out an erroneous conjecture.  'It was Lady Foremeere,' they say, 'who killed Miss Clarke.'"
+  },
+  {
+   "claim": "Police break open parlour door and find victim",
+   "anchor": "when the police broke open the door of the parlour, the first thing they saw was the body of Miss Clarke"
+  },
+  {
+   "claim": "Lord Foremeere's wet clothes carried by constable",
+   "anchor": "one of the constables was carrying a coat and a hat, which Spinks knew were old ones belonging to his lordship"
+  },
+  {
+   "claim": "Arthur Clarke tries on khaki tunic and it does not fit",
+   "anchor": "Arthur Clarke was made to try on the khaki tunic, and he could not even get his arms into the sleeves"
+  },
+  {
+   "claim": "Victim was struck on the back of the head",
+   "anchor": "Medical evidence went to prove that the deceased had first been struck on the back of the head by some heavy instrument"
+  },
+  {
+   "claim": "Victim's bed had not been slept in",
+   "anchor": "The bed had not been slept in"
+  },
+  {
+   "claim": "Victim found suffocated by gas with windows latched",
+   "anchor": "The one window had been carefully latched, and the thick curtains closely drawn together"
+  },
+  {
+   "claim": "Key was not in the lock of the parlour door",
+   "anchor": "the key was not in the lock"
+  }
+ ]
+}

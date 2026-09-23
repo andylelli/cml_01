@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "The butler was guilty of the murder because he was found at the scene with no alibi.",
+  "type": "behavioral",
+  "why_it_seems_reasonable": "The butler was the only servant present and had opportunity; circumstantial evidence and the forged will pointed to his guilt. The victim's nephew had no apparent motive or suspicious behavior.",
+  "what_it_hides": "It hides the fact that the nephew was left-handed and the wound matches this, and that the butler was framed with planted evidence."
+ },
+ "mechanism_description": "Mr. Percy Thompson, the left-handed nephew, murdered Mr. Marsh by stabbing him in the left shoulder while the victim sat at his desk. The butler was framed by circumstantial evidence, including a forged will and planted money. The left-handedness of the wound and the dropped glove reveal the true culprit.",
+ "discriminating_test": {
+  "method": "constraint_proof",
+  "design": "Recreate the crime scene with the victim seated at the desk and the suspect approaching from the butler's pantry. Test which hand can deliver a fatal stab to the left shoulder as found. Examine the glove drop and the position of the drawer forcing marks to verify if the butler could have committed the crime or if it was staged.",
+  "knowledge_revealed": "The test reveals that only a left-handed person could have made the wound, excluding the butler. It also shows the forced drawer marks are consistent with the impact of the victim's body and not forced entry, indicating staging.",
+  "pass_condition": "The stab wound can only be replicated by a left-handed attacker from the butler's pantry side, and the drawer forcing marks cannot be duplicated by the butler's tools or actions."
+ },
+ "changed": [],
+ "confidence": "high"
+}

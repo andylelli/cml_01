@@ -1,0 +1,17 @@
+{
+ "false_assumption": {
+  "statement": "Betty Harlowe's alibi at the ball proves her innocence of the murder.",
+  "type": "temporal",
+  "why_it_seems_reasonable": "Betty was seen at a public ball from 9pm to after 1am, which covers the time of the murder. Witnesses and a clock confirm her presence away from the crime scene.",
+  "what_it_hides": "The murder was committed earlier in the night before Betty left for the ball, using a secret passage and accomplices, allowing her to establish an alibi while the crime was committed."
+ },
+ "mechanism_description": "Mrs. Harlowe was murdered by poison administered via a rare African arrow-poison. Betty Harlowe, with the help of her maid Francine Rollard, used the secret passage to access the victim and applied the poison using the arrow head disguised as a pen-holder. Ann Upcott was complicit in the conspiracy but was ultimately abducted and escaped. The crime was uncovered through investigation of the secret passage, timing, and discovery of the arrow head and missing pearl necklace.",
+ "discriminating_test": {
+  "method": "reenactment",
+  "design": "Hanaud stages a reenactment of the murder scene with Francine Rollard and Betty Harlowe in the bedroom and treasure-room, replicating Ann Upcott's account of the whisper 'That will do now' and the light switch. The test aims to observe reactions and verify the plausibility of the murder method and presence of suspects.",
+  "knowledge_revealed": "The reenactment confirms the position of the murderer and the use of the whisper, but fails to break Francine's silence, indicating her fear rather than guilt. It also reveals Betty's readiness to use poison on herself, confirming her guilt and desperation.",
+  "pass_condition": "Successful reenactment matches Ann Upcott's story and reveals behavioral tells that distinguish the guilty parties."
+ },
+ "changed": [],
+ "confidence": "high"
+}

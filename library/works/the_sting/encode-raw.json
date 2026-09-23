@@ -1,0 +1,481 @@
+{
+ "decade": "1920s",
+ "realism_constraints": [
+  "No modern forensic DNA analysis available",
+  "Limited police procedural methods relying on witness testimony and physical evidence",
+  "Psychoanalysis and hypnotism known but not fully understood or accepted"
+ ],
+ "location": "Evenden Priory, Norfolk, England",
+ "institution": "Norfolk Police and Norwich Assizes Court",
+ "crime_category": "murder",
+ "crime_subtype": "poison and blow to the head in locked room",
+ "cast": [
+  {
+   "name": "Sir Michael Evenden",
+   "age_range": "60-70",
+   "role_archetype": "ailing baronet and victim's father",
+   "role": "victim",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "respected baronet with heart condition",
+   "private_secret": "financial troubles and blackmail victim",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "dead before Jack's murder",
+   "access_plausibility": "ineligible",
+   "stakes": "inheritance and family legacy",
+   "moral_complexity": "low",
+   "relationships": [
+    "husband of Lady Evenden",
+    "father of Jack Evenden and Frank Gough"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Jack Evenden",
+   "age_range": "20-30",
+   "role_archetype": "heir and victim",
+   "role": "victim",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "naval lieutenant and heir",
+   "private_secret": "secretly married to Brenda Trenchard",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "murdered in Prior's Room",
+   "access_plausibility": "ineligible",
+   "stakes": "inheritance and family honor",
+   "moral_complexity": "low",
+   "relationships": [
+    "son of Sir Michael Evenden",
+    "step-son of Lady Evenden",
+    "brother of Frank Gough",
+    "husband of Brenda Trenchard"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [],
+   "evidence_sensitivity": []
+  },
+  {
+   "name": "Frank Gough",
+   "age_range": "20-30",
+   "role_archetype": "stepbrother and accused",
+   "role": "suspect",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "eligible",
+   "public_persona": "law student and heir presumptive",
+   "private_secret": "resentful of Jack and Jill Kilby",
+   "motive_seed": "inheritance",
+   "motive_strength": "moderate",
+   "alibi_window": "late evening, alone after quarrel",
+   "access_plausibility": "high",
+   "stakes": "inheritance and reputation",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "step-son of Lady Evenden",
+    "step-brother of Jack Evenden",
+    "suitor of Jill Kilby"
+   ],
+   "opportunity_channels": [
+    "access to Prior's Room"
+   ],
+   "behavioral_tells": [
+    "resentment",
+    "quarrel with Jack"
+   ],
+   "evidence_sensitivity": [
+    "presence at Prior's Room",
+    "quarrel with Jack"
+   ]
+  },
+  {
+   "name": "Lady Evenden (Margaret Evenden)",
+   "age_range": "40-50",
+   "role_archetype": "grieving widow with secret",
+   "role": "witness",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "devoted wife and mother",
+   "private_secret": "mental control by Dr. Laidlaw, past scandal",
+   "motive_seed": "protect family and self",
+   "motive_strength": "weak",
+   "alibi_window": "present at Prior's Tower during murder",
+   "access_plausibility": "high",
+   "stakes": "family reputation and sanity",
+   "moral_complexity": "high",
+   "relationships": [
+    "wife of Sir Michael Evenden",
+    "step-mother of Jack and Frank",
+    "controlled by Dr. Laidlaw"
+   ],
+   "opportunity_channels": [
+    "access to Prior's Tower"
+   ],
+   "behavioral_tells": [
+    "mental instability",
+    "fear of Laidlaw"
+   ],
+   "evidence_sensitivity": [
+    "presence at crime scene",
+    "mental state"
+   ]
+  },
+  {
+   "name": "Dr. Laidlaw",
+   "age_range": "40-60",
+   "role_archetype": "blackmailer and murderer",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "disreputable doctor and blackmailer",
+   "private_secret": "murderer of Jack Evenden, controlled Lady Evenden",
+   "motive_seed": "blackmail and control",
+   "motive_strength": "strong",
+   "alibi_window": "present at Prior's Tower and Room",
+   "access_plausibility": "high",
+   "stakes": "money and power",
+   "moral_complexity": "high",
+   "relationships": [
+    "blackmailer of Sir Michael Evenden",
+    "controller of Lady Evenden"
+   ],
+   "opportunity_channels": [
+    "secret passages to Prior's Room"
+   ],
+   "behavioral_tells": [
+    "violent tendencies",
+    "attempted murder of Mr. Benson"
+   ],
+   "evidence_sensitivity": [
+    "presence at crime scene",
+    "possession of poison"
+   ]
+  },
+  {
+   "name": "Jill Kilby",
+   "age_range": "20-30",
+   "role_archetype": "companion and secret fiancée",
+   "role": "witness",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "companion to Lady Evenden",
+   "private_secret": "secretly engaged to Dr. Wilfred Barlow",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "present at Prior's Tower",
+   "access_plausibility": "high",
+   "stakes": "loyalty and love",
+   "moral_complexity": "low",
+   "relationships": [
+    "companion to Lady Evenden",
+    "fiancée of Wilfred Barlow"
+   ],
+   "opportunity_channels": [
+    "access to Prior's Tower"
+   ],
+   "behavioral_tells": [
+    "secret meetings",
+    "fear and loyalty"
+   ],
+   "evidence_sensitivity": [
+    "presence at crime scene"
+   ]
+  },
+  {
+   "name": "Wilfred Barlow",
+   "age_range": "20-30",
+   "role_archetype": "young surgeon and investigator",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "ineligible",
+   "public_persona": "young surgeon",
+   "private_secret": "knows more than he reveals",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "present during investigation",
+   "access_plausibility": "high",
+   "stakes": "truth and justice",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "fiancé of Jill Kilby",
+    "ally of Mr. Benson"
+   ],
+   "opportunity_channels": [
+    "access to Prior's Tower"
+   ],
+   "behavioral_tells": [
+    "secretiveness",
+    "protectiveness"
+   ],
+   "evidence_sensitivity": [
+    "knowledge of secret passages"
+   ]
+  }
+ ],
+ "culprits": [
+  "Dr. Laidlaw"
+ ],
+ "surface_summary": "Jack Evenden is found murdered in the locked Prior's Room at Evenden Priory, with a blow to the head and traces of poison. Frank Gough, his stepbrother, is arrested based on a quarrel and motive related to inheritance. The case involves secret passages, mysterious women, and a blackmailing doctor with a sinister hold over Lady Evenden.",
+ "accepted_facts": [
+  "Jack Evenden was found dead in the Prior's Room with a head injury.",
+  "Traces of a deadly muscarin alkaloid poison were found in Jack's brain.",
+  "Frank Gough and Jack had a quarrel the night before the murder.",
+  "Dr. Laidlaw was seen entering the Prior's Tower via secret passages on the night of the murder."
+ ],
+ "inferred_conclusions": [
+  "Frank Gough murdered Jack out of jealousy and to secure inheritance.",
+  "Lady Evenden was complicit in the murder due to mental instability and control by Laidlaw.",
+  "Dr. Laidlaw was an innocent party who only blackmailed but did not kill."
+ ],
+ "mechanism_description": "Dr. Laidlaw murdered Jack Evenden by striking him with a padded blow to the head and simultaneously injecting a deadly muscarin alkaloid poison into his brain. Laidlaw used the secret passages to access the Prior's Room undetected. Lady Evenden was under Laidlaw's mental control and unaware of the full truth. Laidlaw's motive was to eliminate Jack, who opposed him, and maintain control over the family.",
+ "delivery_path": [
+  "Laidlaw and Lady Evenden met in the Prior's Tower via secret passages.",
+  "Laidlaw administered a sedative draught to Lady Evenden to keep her subdued.",
+  "Jack Evenden was in the Prior's Room, possibly after a reconciliation with Frank.",
+  "Laidlaw entered the Prior's Room unseen, struck Jack with a padded instrument.",
+  "Immediately after the blow, Laidlaw injected the deadly poison into Jack's brain.",
+  "Laidlaw fled through the secret passages before discovery.",
+  "Laidlaw attempted to cover his tracks and maintain control over Lady Evenden."
+ ],
+ "outcome_result": "Frank Gough was acquitted, and Dr. Laidlaw's guilt was revealed after his kidnapping and confession, but Lady Evenden died under mysterious circumstances before full disclosure.",
+ "false_assumption": {
+  "statement": "Frank Gough's quarrel and motive made him the obvious murderer.",
+  "type": "behavioral",
+  "why_it_seems_reasonable": "Frank had a heated argument with Jack and stood to gain inheritance. Witnesses heard quarrelling voices and Frank was found alone after the incident.",
+  "what_it_hides": "The quarrel was reconciliatory and unrelated to the murder. The real murderer was Laidlaw, who used secret passages and poison, unknown to most."
+ },
+ "false_solution": {
+  "accused_suspect": "Frank Gough",
+  "supporting_points": [
+   "He had a quarrel with Jack Evenden the night before the murder.",
+   "He had a motive related to inheritance and family disputes.",
+   "Witnesses heard voices of Frank and Jack arguing.",
+   "Frank was found alone after the quarrel and before the murder discovery."
+  ],
+  "the_one_flaw": "The quarrel was followed by a genuine reconciliation, and Frank lacked opportunity and knowledge of the secret passages used by the real murderer.",
+  "refuted_in_chapter": 15
+ },
+ "red_herrings": [
+  {
+   "id": "lady_evenden_mental_instability",
+   "description": "Lady Evenden's mental instability and secret meetings with Dr. Laidlaw suggest she might be involved in the murder.",
+   "points_at_suspect": "Lady Evenden",
+   "innocent_explanation": "Lady Evenden was under mental control and drug influence by Laidlaw, unaware of the murder details and not involved in the killing.",
+   "resolved_in_chapter": 16
+  },
+  {
+   "id": "mysterious_woman_in_prior_tower",
+   "description": "A mysterious woman was seen in the Prior's Tower on the night of the murder, suggesting a possible accomplice or alternative suspect.",
+   "points_at_suspect": "Unknown woman, possibly Lady Evenden or Jill Kilby",
+   "innocent_explanation": "The woman was Jill Kilby, Lady Evenden's companion, who was present but innocent and frightened; no evidence linked her to the murder.",
+   "resolved_in_chapter": 16
+  }
+ ],
+ "closed_circle": {
+  "suspects": [
+   "Frank Gough",
+   "Dr. Laidlaw",
+   "Lady Evenden",
+   "Jill Kilby"
+  ],
+  "rationale": "The suspects were limited to family members and close associates with access to the Priory and knowledge of secret passages; no outsiders had plausible access."
+ },
+ "constraint_space": {
+  "time_anchors": [
+   "Jack's death occurred approximately eight hours before discovery",
+   "Quarrel between Frank and Jack around 9-10 PM",
+   "Sir Michael died shortly before Jack's murder"
+  ],
+  "time_windows": [
+   "Night of the murder, between 10 PM and early morning",
+   "Frank's alibi during car trouble and dinner alone",
+   "Laidlaw's secret visits to Prior's Tower at night"
+  ],
+  "access_actors": [
+   "Dr. Laidlaw",
+   "Lady Evenden",
+   "Jill Kilby",
+   "Frank Gough",
+   "Jack Evenden"
+  ],
+  "access_objects": [
+   "Secret passages to Prior's Tower and Room",
+   "Prior's Room door and key",
+   "Hypodermic syringe with poison"
+  ],
+  "trust_channels": [
+   "Lady Evenden's trust in Dr. Laidlaw",
+   "Mr. Benson's trust in Wilfred Barlow",
+   "Wilfred Barlow and Jill Kilby's secret engagement"
+  ],
+  "authority_sources": [
+   "Norfolk Police",
+   "Norwich Assizes Court",
+   "Mr. Christopher Benson, family solicitor",
+   "Mr. Rushton Tring, psycho-analyst"
+  ]
+ },
+ "inference_path": [
+  {
+   "observation": "Traces of muscarin alkaloid poison found in Jack's brain",
+   "correction": "Death caused by poison injection simultaneous with head injury",
+   "effect": "Murder involved medical knowledge and deliberate poisoning",
+   "required_evidence": [
+    "Report of Sir Werner Scatterhyde, Home Office analyst",
+    "Medical testimony on poison effects and timing"
+   ]
+  },
+  {
+   "observation": "Dr. Laidlaw seen entering Prior's Tower via secret passages",
+   "correction": "Laidlaw had opportunity to commit murder unseen",
+   "effect": "Laidlaw is a prime suspect with access",
+   "required_evidence": [
+    "Witness statements of secret passage usage",
+    "Mr. Benson's discovery of secret passages"
+   ]
+  },
+  {
+   "observation": "Lady Evenden's mental instability and secret meetings with Laidlaw",
+   "correction": "Lady Evenden under mental control, unreliable witness",
+   "effect": "Her testimony about the murder is compromised",
+   "required_evidence": [
+    "Mr. Rushton Tring's psycho-analyst report",
+    "Wilfred Barlow's observations of Lady Evenden"
+   ]
+  },
+  {
+   "observation": "Frank Gough had a quarrel with Jack and was alone after",
+   "correction": "Quarrel was reconciliatory and unrelated to murder",
+   "effect": "Frank's motive and opportunity are weakened",
+   "required_evidence": [
+    "Frank's testimony about reconciliation",
+    "Roberto's and Thomason's witness statements"
+   ]
+  },
+  {
+   "observation": "Laidlaw attempted to murder Mr. Benson and was later kidnapped",
+   "correction": "Laidlaw is dangerous and likely guilty",
+   "effect": "Confession and evidence can be extracted",
+   "required_evidence": [
+    "Mr. Benson's testimony of attack",
+    "Laidlaw's confession at Swinerigmire farm"
+   ]
+  },
+  {
+   "observation": "Lady Evenden died from muscarin alkaloid poison",
+   "correction": "She was poisoned with the same substance, likely by herself",
+   "effect": "Her death ends her control and reveals the truth",
+   "required_evidence": [
+    "Mr. Rushton Tring's analysis of poison",
+    "Discovery of hypodermic cylinder in Lady Evenden's room"
+   ]
+  },
+  {
+   "observation": "Brenda Trenchard claims marriage to Jack and reveals kidnapping",
+   "correction": "Jack was married and murdered after the marriage",
+   "effect": "New heir emerges, complicating inheritance",
+   "required_evidence": [
+    "Marriage certificate and testimony of Brenda Trenchard",
+    "Brenda's detailed account of kidnapping and imprisonment"
+   ]
+  }
+ ],
+ "discriminating_test": {
+  "method": "trap",
+  "design": "Mr. Benson arranges to kidnap Dr. Laidlaw when he next visits the Prior's Tower, using trusted men to ambush him in the secret crypt. Chloroform is used to subdue Laidlaw and bring him to a remote farm for interrogation. The trap tests Laidlaw's presence and intentions, confirming his guilt and involvement.",
+  "knowledge_revealed": "The trap reveals Laidlaw's attempt to evade capture and his violent tendencies, confirming his role as the murderer and blackmailer.",
+  "pass_condition": "Successful capture of Laidlaw at the secret passage entrance without alerting him beforehand."
+ },
+ "fair_play_explanation": "The reader is given detailed accounts of the secret passages, witness statements, and the presence of poison in the victim's brain. Clues about Laidlaw's blackmail, his visits to Lady Evenden, and his violent behavior are presented. The mental control of Lady Evenden and the secret marriage of Jack are also disclosed. The reader could deduce Laidlaw's guilt by connecting the poison, secret access, and motive.",
+ "anchors": [
+  {
+   "claim": "Sir Michael Evenden was blackmailed by Dr. Laidlaw",
+   "anchor": "blackmailer of Sir Michael"
+  },
+  {
+   "claim": "Jack Evenden was found dead in the Prior's Room",
+   "anchor": "lying on the floor in his pyjamas"
+  },
+  {
+   "claim": "Traces of deadly muscarin alkaloid poison found in Jack's brain",
+   "anchor": "traces were found in the brain of a curious and little-known, but absolutely deadly, muscarin alkaloid"
+  },
+  {
+   "claim": "Frank Gough and Jack had a quarrel the night before the murder",
+   "anchor": "voices was Mr. Jack and Mr. Frank"
+  },
+  {
+   "claim": "Dr. Laidlaw was seen entering the Prior's Tower via secret passages",
+   "anchor": "Dr. Laidlaw entered the same passage"
+  },
+  {
+   "claim": "Lady Evenden was under mental control by Dr. Laidlaw",
+   "anchor": "Laidlaw has an absolute control of her"
+  },
+  {
+   "claim": "Mr. Benson kidnapped Dr. Laidlaw to extract a confession",
+   "anchor": "I’m going to kidnap the murdering little pest"
+  },
+  {
+   "claim": "Dr. Laidlaw attempted to murder Mr. Benson",
+   "anchor": "he came to murder me"
+  },
+  {
+   "claim": "Lady Evenden died from muscarin alkaloid poison",
+   "anchor": "she is quite dead"
+  },
+  {
+   "claim": "Brenda Trenchard was secretly married to Jack Evenden",
+   "anchor": "I am Lady Evenden, and Sir John Evenden is in the car outside with his nurse"
+  },
+  {
+   "claim": "Frank Gough was acquitted of the murder charge",
+   "anchor": "Not guilty"
+  },
+  {
+   "claim": "The blow and poison were simultaneous causes of death",
+   "anchor": "the blow was simultaneous with death"
+  },
+  {
+   "claim": "Secret passages connect the Prior’s Room and Tower",
+   "anchor": "secret passages which communicate with the Prior’s Room"
+  },
+  {
+   "claim": "Jill Kilby was present in the Prior’s Tower on the night of the murder",
+   "anchor": "Jill followed. She got as far as the wardrobe, then she came down again--terrified"
+  },
+  {
+   "claim": "Frank Gough had a genuine reconciliation with Jack before the murder",
+   "anchor": "The reconciliation was very real and complete"
+  },
+  {
+   "claim": "Dr. Laidlaw used the secret passages to access the Prior’s Room",
+   "anchor": "I had used it often when visiting Lady Evenden privately"
+  },
+  {
+   "claim": "Lady Evenden refused to disclose information about the murder",
+   "anchor": "I cannot tell"
+  },
+  {
+   "claim": "Mr. Benson and Sir Courtney Caldecott inspected the Prior’s Room and secret passages",
+   "anchor": "They went back through the farmyard to the kitchen, and through to the room where Laidlaw was sitting anxiously"
+  },
+  {
+   "claim": "Dr. Laidlaw confessed under duress at Swinerigmire farm",
+   "anchor": "I will tell--I will tell"
+  },
+  {
+   "claim": "Lady Evenden was poisoned with the same deadly substance",
+   "anchor": "she had obtained from Laidlaw this poison"
+  }
+ ]
+}

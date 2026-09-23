@@ -84,8 +84,8 @@
   {
    "claim": "The barmaid’s story about the gentleman with the sovereign is a red herring",
    "anchor": "The eccentric old gent she talks about was only a harmless luny",
-   "span": "",
-   "ok": false
+   "span": "Well, she's said all she knew, and it's as clear as daylight to me that the eccentric old gent she talks about was only a harmless luny.",
+   "ok": true
   },
   {
    "claim": "The special investigator publishes footprint evidence",
@@ -96,8 +96,8 @@
   {
    "claim": "Mrs. Bunting attends the inquest and hears witness testimonies",
    "anchor": "The coroner—a clever-looking gentleman, though not so old as Mrs. Bunting thought he ought to have been",
-   "span": "",
-   "ok": false
+   "span": "And then, amid a silence so absolute that the slightest rustle could be heard through the court, the coroner-a clever-looking gentleman, though not so old as Mrs. Bunting thought he ought to have been to occupy so important a position on so important a day-gave a little history, as it were, of the terrible and mysterious Avenger crimes.",
+   "ok": true
   },
   {
    "claim": "Mr. Cannot claims to have met the murderer but is dismissed",
@@ -132,5 +132,5 @@
  },
  "case_written": true,
  "verified_by": "corpus-verify.mjs",
- "verified_on": "2026-08-31"
+ "verified_on": "2026-09-23"
 }

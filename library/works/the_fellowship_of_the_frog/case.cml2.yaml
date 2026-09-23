@@ -1,0 +1,497 @@
+CML_VERSION: 2
+CASE:
+  meta:
+    title: The Fellowship of the Frog
+    author: Edgar Wallace
+    license: Public domain (first published 1923; author died 1932). Project Gutenberg ebook 69789.
+    era:
+      decade: 1920s
+      realism_constraints:
+        - >-
+          No modern digital technology; communication relies on telegraph, telephone, and wireless
+          radio
+        - >-
+          Police procedures include physical surveillance, raids, and use of informers; forensic
+          science is limited
+        - Transportation includes cars, motor-cycles, trains; no air travel or electronic tracking
+    setting:
+      location: London and surrounding English countryside (Horsham, Gloucester, Bath, etc.)
+      institution: Scotland Yard and Public Prosecutor's Department
+    crime_class:
+      category: murder
+      subtype: criminal mastermind's secret society and framing
+  cast:
+    - name: Richard Gordon
+      age_range: 30-40
+      role_archetype: young, idealistic public official
+      relationships:
+        - Ella Bennett (love interest)
+        - John Bennett (acquaintance)
+      public_persona: Assistant Director of Prosecutions
+      private_secret: in love with Ella Bennett
+      motive_seed: justice and love
+      motive_strength: strong
+      alibi_window: throughout
+      access_plausibility: high
+      opportunity_channels:
+        - official investigations
+        - police operations
+      behavioral_tells:
+        - persistent
+        - observant
+        - cautious
+      stakes: high
+      evidence_sensitivity:
+        - photographs
+        - wireless messages
+        - tattoo marks
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: moderate
+    - name: Ella Bennett
+      age_range: 20-25
+      role_archetype: innocent young woman caught in intrigue
+      relationships:
+        - John Bennett (father)
+        - Ray Bennett (brother)
+        - Richard Gordon (love interest)
+      public_persona: daughter of John Bennett
+      private_secret: used to mimic voices, involved unwittingly
+      motive_seed: protect brother
+      motive_strength: strong
+      alibi_window: varies
+      access_plausibility: medium
+      opportunity_channels:
+        - family home
+        - wireless telephone
+      behavioral_tells:
+        - fearful
+        - resolute
+      stakes: very high
+      evidence_sensitivity:
+        - wireless voice recordings
+        - tattoo marks
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: female
+      role: witness
+      moral_complexity: moderate
+    - name: Ray Bennett
+      age_range: 20-25
+      role_archetype: young man with secret double life
+      relationships:
+        - Ella Bennett (sister)
+        - John Bennett (father)
+        - Lola Bassano (acquaintance)
+      public_persona: clerk at Maitlands Consolidated
+      private_secret: secret agent for Frogs, framed for murder
+      motive_seed: ambition, survival
+      motive_strength: moderate
+      alibi_window: varies
+      access_plausibility: medium
+      opportunity_channels:
+        - office
+        - social clubs
+      behavioral_tells:
+        - defiant
+        - reckless
+      stakes: very high
+      evidence_sensitivity:
+        - tattoo marks
+        - wireless messages
+        - photographs
+      culprit_eligibility: locked
+      culpability: innocent
+      gender: male
+      role: victim
+      moral_complexity: high
+    - name: John Bennett
+      age_range: 60-70
+      role_archetype: mysterious father with secret past
+      relationships:
+        - Ella Bennett (daughter)
+        - Ray Bennett (son)
+      public_persona: amateur photographer
+      private_secret: hangman, involved in criminal acts
+      motive_seed: family protection
+      motive_strength: strong
+      alibi_window: varies
+      access_plausibility: high
+      opportunity_channels:
+        - family home
+        - travel
+      behavioral_tells:
+        - secretive
+        - stoic
+      stakes: very high
+      evidence_sensitivity:
+        - tattoo marks
+        - photographs
+        - press cuttings
+      culprit_eligibility: eligible
+      culpability: unknown
+      gender: male
+      role: suspect
+      moral_complexity: high
+    - name: Philo Johnson
+      age_range: 50-60
+      role_archetype: loyal secretary and philosopher
+      relationships:
+        - Ezra Maitland (employer)
+        - Ella Bennett (acquaintance)
+      public_persona: secretary to Ezra Maitland
+      private_secret: real Frog and mastermind
+      motive_seed: power and control
+      motive_strength: strong
+      alibi_window: varies
+      access_plausibility: very high
+      opportunity_channels:
+        - office
+        - secret communications
+      behavioral_tells:
+        - calm
+        - philosophical
+        - secretive
+      stakes: very high
+      evidence_sensitivity:
+        - tattoo marks
+        - wireless messages
+        - documents
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: suspect
+      moral_complexity: high
+    - name: Joshua Broad (Saul Morris)
+      age_range: 40-50
+      role_archetype: criminal mastermind disguised as American
+      relationships:
+        - Philo Johnson (associate)
+        - Ella Bennett (target)
+      public_persona: American key-ring peddler
+      private_secret: real Frog and leader of the Fellowship
+      motive_seed: criminal empire and control
+      motive_strength: strong
+      alibi_window: varies
+      access_plausibility: very high
+      opportunity_channels:
+        - secret meetings
+        - wireless broadcasts
+      behavioral_tells:
+        - calm
+        - manipulative
+        - philosophical
+      stakes: very high
+      evidence_sensitivity:
+        - tattoo marks
+        - wireless messages
+        - documents
+      culprit_eligibility: eligible
+      culpability: guilty
+      gender: male
+      role: culprit
+      moral_complexity: high
+    - name: Sergeant Elk
+      age_range: 50-60
+      role_archetype: grizzled, experienced detective
+      relationships:
+        - Richard Gordon (partner)
+        - Joshua Broad (acquaintance)
+      public_persona: Scotland Yard detective
+      private_secret: none
+      motive_seed: law enforcement
+      motive_strength: strong
+      alibi_window: throughout
+      access_plausibility: high
+      opportunity_channels:
+        - police investigations
+      behavioral_tells:
+        - gruff
+        - persistent
+        - observant
+      stakes: high
+      evidence_sensitivity:
+        - tattoo marks
+        - wireless messages
+        - documents
+      culprit_eligibility: ineligible
+      culpability: innocent
+      gender: male
+      role: detective
+      moral_complexity: moderate
+  culpability:
+    culprit_count: 2
+    culprits:
+      - Joshua Broad (Saul Morris)
+      - Philo Johnson
+  surface_model:
+    narrative:
+      summary: >-
+        A secret society called the Frogs is responsible for a series of crimes including murder and
+        theft. Ray Bennett, a young clerk, is framed and sentenced to death, while the true
+        mastermind remains hidden. The investigation uncovers a complex web of deception involving
+        wealthy financiers and criminal operatives.
+    accepted_facts:
+      - Ray Bennett is under sentence of death for murder.
+      - The Frogs are a criminal organization with a secret leader.
+      - Ezra Maitland and his sister were murdered.
+      - Joshua Broad is an American peddler with mysterious connections.
+    inferred_conclusions:
+      - Ray Bennett is guilty of murder.
+      - Ella Bennett is involved with the Frogs.
+      - Ezra Maitland is the Frog leader.
+  hidden_model:
+    mechanism:
+      description: >-
+        Joshua Broad, the real Frog and criminal mastermind, controlled the Fellowship of the Frog
+        using Philo Johnson as his front. They orchestrated crimes and framed Ray Bennett to protect
+        their operations. The murder of Ezra Maitland was part of their scheme to maintain control
+        and eliminate threats. The organization used secret wireless broadcasts and tattoos for
+        communication and identification.
+      delivery_path:
+        - step: Joshua Broad established control over the Frogs using Philo Johnson as a front.
+        - step: The Frogs committed crimes including burglary, murder, and blackmail.
+        - step: Ray Bennett was recruited and later framed to divert suspicion.
+        - step: Ezra Maitland was used as a figurehead and later murdered to silence him.
+        - step: Wireless broadcasts were used to communicate orders and warnings.
+        - step: Detectives infiltrated the organization and captured key members.
+        - step: Joshua Broad killed Harry Lyme (the Frog) and revealed himself as the mastermind.
+    outcome:
+      result: >-
+        Joshua Broad (Saul Morris) is revealed as the Frog and mastermind behind the crimes, leading
+        to the dismantling of the Fellowship of the Frog.
+  false_assumption:
+    statement: Ray Bennett is guilty of murder and the primary criminal.
+    type: identity
+    why_it_seems_reasonable: >-
+      Ray Bennett was found under sentence of death with circumstantial evidence and was involved
+      with suspicious characters. His behavior and associations suggested guilt.
+    what_it_hides: >-
+      The true mastermind was Joshua Broad, who orchestrated the framing and crimes from behind the
+      scenes, using others as scapegoats.
+  false_solution:
+    accused_suspect: John Bennett
+    supporting_points:
+      - John Bennett’s suspicious absences coincided with burglaries.
+      - He was found near crime scenes and had a mysterious past.
+      - He was seen interacting with key suspects and had a secretive nature.
+      - His role as executioner suggested a dark side.
+    the_one_flaw: >-
+      John Bennett was not the mastermind and was manipulated by the real Frog; evidence against him
+      was circumstantial and misinterpreted.
+    refuted_in_chapter: 42
+  red_herrings:
+    - id: john_bennett_suspicious_absences
+      description: >-
+        John Bennett’s frequent unexplained absences coinciding with burglaries suggested he was
+        involved in the crimes.
+      points_at_suspect: John Bennett
+      innocent_explanation: >-
+        His absences were unrelated to the crimes and he was not the Frog; he was a victim of
+        circumstance and manipulation.
+      resolved_in_chapter: 42
+    - id: ella_bennett_wireless_voice
+      description: >-
+        Wireless broadcasts with a voice resembling Ella Bennett’s suggested she was involved with
+        the Frogs.
+      points_at_suspect: Ella Bennett
+      innocent_explanation: >-
+        The voice was an imitation by Lola Bassano, a Frog operative; Ella was innocent and used as
+        a cover.
+      resolved_in_chapter: 40
+  closed_circle:
+    suspects:
+      - John Bennett
+      - Philo Johnson
+      - Joshua Broad (Saul Morris)
+      - Balder
+      - Hagn
+      - Lola Bassano
+      - Lew Brady
+    rationale: >-
+      All suspects are connected to the Frogs organization and involved in the criminal activities;
+      the circle is closed by their mutual knowledge and interactions.
+  constraint_space:
+    time:
+      anchors:
+        - Saturday night to Sunday morning (burglary)
+        - Wednesday morning at 3:01 a.m. (wireless broadcast)
+        - Execution scheduled Wednesday at 8 a.m.
+        - Raid at Heron’s Club at 1:15 a.m.
+        - Explosion at headquarters early morning
+      windows:
+        - Ray Bennett’s absences
+        - Maitland’s visits to Horsham
+        - Wireless broadcasts timing
+        - Police raids and arrests
+    access:
+      actors:
+        - Joshua Broad
+        - Philo Johnson
+        - Balder
+        - Hagn
+        - Lola Bassano
+        - Lew Brady
+        - John Bennett
+      objects:
+        - Wireless telephone
+        - Tattoo marks
+        - Safe at Lord Farmley’s
+        - Motor cars and motor-cycles
+        - Secret rooms and huts
+    social:
+      trust_channels:
+        - Frog tattoo identification
+        - Wireless coded messages
+        - Secret meetings
+        - Personal relationships
+      authority_sources:
+        - Scotland Yard
+        - Public Prosecutor’s Department
+        - Home Office
+        - Secretary of State
+        - King’s reprieve
+  inference_path:
+    steps:
+      - observation: >-
+          Wireless broadcast contained a voice resembling Ella Bennett and appeared to reveal a new
+          crime.
+        correction: >-
+          Voice was an imitation by Lola Bassano, and the broadcast was orchestrated to mislead
+          investigators.
+        effect: >-
+          Ella Bennett is innocent of broadcasting Frog messages and the crime was staged to create
+          confusion.
+        required_evidence:
+          - >-
+            Wireless telephone message recorded at Caverley House, which was analyzed for voice
+            characteristics and revealed the imitation.
+          - >-
+            Witness statement of Lola Bassano about voice imitation and her role in the broadcast to
+            orchestrate the deception.
+        reader_observable: true
+      - observation: Ray Bennett was sentenced to death for murder and widely believed to be the murderer.
+        correction: >-
+          Ray was framed by the Frogs and is innocent; the real murderer orchestrated the crime to
+          implicate him.
+        effect: Ray Bennett is a victim, not the culprit, and the true murderer remains at large.
+        required_evidence:
+          - >-
+            Motion picture showing the actual murder by another man, revealing the orchestrated
+            nature of the crime.
+          - >-
+            Governor’s and Sheriff’s testimony at Gloucester Prison about Ray's conduct and
+            timeline, which does not match the murderer's.
+        reader_observable: true
+      - observation: John Bennett’s absences coincide with burglaries and he is suspected to be the murderer.
+        correction: >-
+          Absences unrelated; John Bennett is not the Frog or murderer, and his actions were
+          orchestrated by others.
+        effect: John Bennett is not the criminal mastermind or murderer; suspicion was misdirected.
+        required_evidence:
+          - >-
+            Alibi statements from policemen at Dorking and Kingbridge confirming John Bennett's
+            whereabouts during the crimes.
+          - >-
+            John Bennett’s photographic hobby and travel records, which reveal no connection to the
+            orchestrated crimes.
+        reader_observable: true
+      - observation: >-
+          Balder’s escape and bomb attack on police office seemed to reveal him as the murderer and
+          orchestrator.
+        correction: >-
+          Balder is a high-ranking Frog operative, but not the leader or murderer; his actions were
+          orchestrated by the real mastermind.
+        effect: Balder is an agent, not the mastermind or murderer; the true orchestrator remains hidden.
+        required_evidence:
+          - >-
+            Explosion damage and police reports documenting Balder’s actions but not linking him to
+            the murderer's identity.
+          - >-
+            Recovered wireless messages between Balder and the Frog, revealing he was following
+            orders and not orchestrating the crime.
+        reader_observable: true
+      - observation: Tattoo marks on left wrist identify Frogs and are believed to reveal the murderer.
+        correction: >-
+          Some high-ranking Frogs are unmarked; the murderer and orchestrator concealed their
+          identity.
+        effect: >-
+          Identification by tattoo is incomplete; the real murderer and orchestrator could evade
+          detection.
+        required_evidence:
+          - >-
+            Notes and orders signed by Number Seven, showing orchestrated crimes by unmarked
+            members.
+          - >-
+            Observation of unmarked suspects like Philo Johnson, who played a role in orchestrating
+            the crimes.
+        reader_observable: true
+      - observation: >-
+          Joshua Broad is a harmless American peddler and not suspected as the murderer or
+          orchestrator.
+        correction: >-
+          Joshua Broad is Saul Morris, the Frog mastermind and murderer, who orchestrated the crimes
+          and framed others.
+        effect: Broad is the real culprit; the orchestrator and murderer are revealed.
+        required_evidence:
+          - >-
+            Evidence of Broad’s control over the Frogs, including intercepted wireless messages
+            revealing his role as orchestrator and murderer.
+          - >-
+            A timeline of Broad's movements matching the orchestrated crimes and the murderer's
+            presence at key events.
+        reader_observable: true
+      - observation: >-
+          Maitland is a miserly, eccentric millionaire and suspected to be the murderer or
+          orchestrator.
+        correction: Maitland is a front man for the Frogs; the real murderer and orchestrator is someone else.
+        effect: Maitland is a figurehead, not the leader, murderer, or orchestrator.
+        required_evidence:
+          - >-
+            Maitland’s double life and secret meetings, which show he was manipulated by the
+            orchestrator.
+          - >-
+            Johnson’s testimony and will leaving estate to Johnson, revealing Maitland's lack of
+            control over the crimes.
+        reader_observable: true
+  discriminating_test:
+    method: reenactment
+    design: >-
+      A motion picture film was obtained showing the actual murder of Lew Brady by a man other than
+      Ray Bennett. The film was shown to witnesses and officials to confirm the innocence of Ray
+      Bennett and identify the true murderer. This test used visual evidence to distinguish the real
+      killer from the framed suspect and revealed how the crime was orchestrated.
+    knowledge_revealed: >-
+      The film revealed that Ray Bennett was not the murderer and that the crime was orchestrated by
+      the Frogs to frame him.
+    pass_condition: >-
+      The suspect shown in the film committing the murder is not Ray Bennett, disproving his guilt
+      and revealing the orchestrator.
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >-
+      The reader is provided with detailed accounts of the characters' movements, the timing of
+      events, and the presence of key evidence such as wireless messages, tattoos, and the motion
+      picture film. Clues about the true identity of the Frog and the framing of Ray Bennett are
+      given through dialogue and observations. The false assumptions about Ray and John Bennett are
+      challenged by alibis and contradictory evidence. The final confession and unmasking of Joshua
+      Broad as the Frog are foreshadowed, allowing an attentive reader to solve the mystery.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 5
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: mid_act3
+      must_reference_inference_step: true

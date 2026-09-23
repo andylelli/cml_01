@@ -1,0 +1,491 @@
+{
+ "decade": "1920s",
+ "realism_constraints": [
+  "No forensic DNA or advanced ballistics analysis available",
+  "Telephones and automobiles exist but are not ubiquitous",
+  "Travel by train and car is common but slower than modern times"
+ ],
+ "location": "North of England, village of Keys and surrounding countryside",
+ "institution": "Local police (Sergeant Brace and Constable Gunnet), legal system with barrister Sir Edward Kean",
+ "crime_category": "murder",
+ "crime_subtype": "blackmail murder disguised as a frame-up",
+ "cast": [
+  {
+   "name": "John Leslie",
+   "age_range": "30-40",
+   "role_archetype": "young farmer, fiancé under suspicion",
+   "role": "victim",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "eligible",
+   "public_persona": "hardworking, honest farmer",
+   "private_secret": "none",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "5pm to 8pm on night of murder",
+   "access_plausibility": "high",
+   "stakes": "high - facing trial and death penalty",
+   "moral_complexity": "low",
+   "relationships": [
+    "engaged to Cynthia Bell",
+    "friend of Hatter Fayre"
+   ],
+   "opportunity_channels": [
+    "farmhouse access",
+    "revolver owner"
+   ],
+   "behavioral_tells": [
+    "nervous but truthful demeanor"
+   ],
+   "evidence_sensitivity": [
+    "revolver found in his drawer",
+    "empty chamber in revolver"
+   ]
+  },
+  {
+   "name": "Mrs. Draycott (Christina Mary Draycott, née Baxter, formerly Allen)",
+   "age_range": "50-60",
+   "role_archetype": "blackmailing woman with a shady past",
+   "role": "victim",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "expensively dressed, socially connected",
+   "private_secret": "blackmailing Sir Edward Kean over Sybil's first husband",
+   "motive_seed": "blackmail",
+   "motive_strength": "strong",
+   "alibi_window": "murdered around 6:30pm",
+   "access_plausibility": "high",
+   "stakes": "high - involved in blackmail",
+   "moral_complexity": "high",
+   "relationships": [
+    "sister of Miss Allen",
+    "enemy of Sir Edward Kean"
+   ],
+   "opportunity_channels": [
+    "met at farm with Kean",
+    "car ride to farm"
+   ],
+   "behavioral_tells": [
+    "curiosity about Dr. Gregg",
+    "avoided meeting him"
+   ],
+   "evidence_sensitivity": [
+    "blood stain on blotter",
+    "brown sequins from dress in car"
+   ]
+  },
+  {
+   "name": "Sir Edward Kean",
+   "age_range": "50-60",
+   "role_archetype": "brilliant barrister, husband with secret",
+   "role": "culprit",
+   "gender": "male",
+   "culpability": "guilty",
+   "culprit_eligibility": "eligible",
+   "public_persona": "respected barrister, devoted husband",
+   "private_secret": "killed Mrs. Draycott to protect secret of Sybil's first husband",
+   "motive_seed": "protecting wife and secret",
+   "motive_strength": "strong",
+   "alibi_window": "left farm around 6:30pm, caught train at Whitbury",
+   "access_plausibility": "high",
+   "stakes": "very high - career and marriage at risk",
+   "moral_complexity": "very high",
+   "relationships": [
+    "husband of Lady Sybil Kean",
+    "enemy of Mrs. Draycott"
+   ],
+   "opportunity_channels": [
+    "car to farm",
+    "access to revolver"
+   ],
+   "behavioral_tells": [
+    "cold detachment",
+    "shielding others"
+   ],
+   "evidence_sensitivity": [
+    "Red Dwarf pen",
+    "photograph of insane first husband"
+   ]
+  },
+  {
+   "name": "Lady Sybil Kean",
+   "age_range": "40-50",
+   "role_archetype": "invalid wife with secret knowledge",
+   "role": "witness",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "frail, devoted wife",
+   "private_secret": "knows first husband Gerald Lee is alive but insane",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "at Staveley, ill",
+   "access_plausibility": "none",
+   "stakes": "high - health and marriage",
+   "moral_complexity": "high",
+   "relationships": [
+    "wife of Sir Edward Kean",
+    "knows secret about Gerald Lee"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "second-sight feeling about Leslie's innocence"
+   ],
+   "evidence_sensitivity": [
+    "letter to Fayre",
+    "illness episodes"
+   ]
+  },
+  {
+   "name": "Hatter Fayre (Allen Fayre)",
+   "age_range": "50-60",
+   "role_archetype": "family adviser, amateur detective",
+   "role": "witness",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "kindly, thorough investigator",
+   "private_secret": "knows secret about Kean and Sybil",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "present at various times",
+   "access_plausibility": "high",
+   "stakes": "high - friendship and justice",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "friend of Cynthia and John Leslie",
+    "friend of Sir Edward Kean"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "persistent investigation",
+    "sympathetic demeanor"
+   ],
+   "evidence_sensitivity": [
+    "letters from Sybil",
+    "photograph of Gerald Lee"
+   ]
+  },
+  {
+   "name": "Miss Allen",
+   "age_range": "50-60",
+   "role_archetype": "spinster sister of victim, skeptical but helpful",
+   "role": "witness",
+   "gender": "female",
+   "culpability": "innocent",
+   "culprit_eligibility": "locked",
+   "public_persona": "down-to-earth, practical",
+   "private_secret": "dislikes her sister, has some knowledge of her past",
+   "motive_seed": "none",
+   "motive_strength": "none",
+   "alibi_window": "at home during murder",
+   "access_plausibility": "none",
+   "stakes": "moderate - family reputation",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "sister of Mrs. Draycott",
+    "friend of Cynthia Bell"
+   ],
+   "opportunity_channels": [],
+   "behavioral_tells": [
+    "frankness",
+    "practicality"
+   ],
+   "evidence_sensitivity": [
+    "letters and photographs from sister"
+   ]
+  },
+  {
+   "name": "Dr. Gregg",
+   "age_range": "40-50",
+   "role_archetype": "local doctor, suspicious but ultimately innocent",
+   "role": "suspect",
+   "gender": "male",
+   "culpability": "innocent",
+   "culprit_eligibility": "eligible",
+   "public_persona": "brusque, skilled doctor",
+   "private_secret": "concealed past connection with victim",
+   "motive_seed": "resentment",
+   "motive_strength": "weak",
+   "alibi_window": "at Hammond’s farm 7pm to 9pm",
+   "access_plausibility": "moderate",
+   "stakes": "moderate",
+   "moral_complexity": "moderate",
+   "relationships": [
+    "friend of Baxter",
+    "knows victim"
+   ],
+   "opportunity_channels": [
+    "car hire and movement"
+   ],
+   "behavioral_tells": [
+    "hostile to investigation",
+    "evasiveness"
+   ],
+   "evidence_sensitivity": [
+    "garage records",
+    "letter from Baxter"
+   ]
+  }
+ ],
+ "culprits": [
+  "Sir Edward Kean"
+ ],
+ "surface_summary": "Mrs. Draycott is found shot in John Leslie's farmhouse, and Leslie is arrested based on circumstantial evidence including his revolver. The case involves a mysterious car, a tramp witness, and a complex web of relationships including blackmail and secrets involving Sir Edward Kean and his wife Sybil.",
+ "accepted_facts": [
+  "Mrs. Draycott was shot in the temple at close range around 6:30pm.",
+  "John Leslie found the body and was away on a long walk during the murder time.",
+  "A car with a broken number plate was seen arriving and leaving the farm.",
+  "Sir Edward Kean had a secret involving Sybil Kean's first husband, Gerald Lee."
+ ],
+ "inferred_conclusions": [
+  "John Leslie was the murderer due to opportunity and possession of the revolver.",
+  "Dr. Gregg was involved in the murder because of his suspicious behavior and knowledge.",
+  "The tramp was lying about his whereabouts and involvement in the crime."
+ ],
+ "mechanism_description": "Sir Edward Kean arranged to meet Mrs. Draycott at John Leslie's farm under the pretense of handing over money to stop her blackmail. He drove her there in a car, staged the meeting, and shot her with a revolver he carried. He planted evidence to implicate Leslie but was ultimately exposed by the investigation.",
+ "delivery_path": [
+  "Kean drove from London to Whitbury and garaged his car under the alias 'Page'.",
+  "He took a train to Staveley Grange and later returned to Whitbury to pick up the car.",
+  "Kean met Mrs. Draycott at the corner of Greycross lane and drove her to Leslie's farm.",
+  "At the farm, Kean handed over a bundle of notes, then shot Mrs. Draycott with his revolver.",
+  "He left the scene, leaving the door open and the Red Dwarf pen dropped near the gate.",
+  "Kean returned the car to the garage, broke the number plate, and created a false trail.",
+  "The police arrested Leslie based on planted evidence, but the truth was uncovered by Fayre and others."
+ ],
+ "outcome_result": "Sir Edward Kean confessed to the murder and died by suicide after the trial verdict.",
+ "false_assumption": {
+  "statement": "John Leslie was guilty of the murder because he was found with the victim and owned the revolver.",
+  "type": "identity",
+  "why_it_seems_reasonable": "Leslie was the first to find the body, had the murder weapon registered to him, and had no strong alibi. The circumstantial evidence pointed strongly to him.",
+  "what_it_hides": "The real murderer was Sir Edward Kean who planted evidence to frame Leslie and had a strong motive to kill Mrs. Draycott to protect his secret."
+ },
+ "false_solution": {
+  "accused_suspect": "John Leslie",
+  "supporting_points": [
+   "Leslie was found at the scene with the victim's body.",
+   "The revolver used was his and had a discharged chamber.",
+   "He had no witnesses to fully confirm his alibi during the murder time.",
+   "He behaved nervously and was arrested by the police."
+  ],
+  "the_one_flaw": "Leslie had no motive and the evidence was planted by the real culprit.",
+  "refuted_in_chapter": 25
+ },
+ "red_herrings": [
+  {
+   "id": "dr_gregg_suspicious_behavior",
+   "description": "Dr. Gregg's evasive answers and hostility raised suspicion he might be involved in the murder.",
+   "points_at_suspect": "Dr. Gregg",
+   "innocent_explanation": "Gregg had a past connection with the victim and was protecting personal secrets, but was innocent of the murder.",
+   "resolved_in_chapter": 24
+  },
+  {
+   "id": "the_tramp_witness",
+   "description": "The tramp sleeping in the barn and his vague testimony suggested he might have seen or committed the crime.",
+   "points_at_suspect": "The tramp",
+   "innocent_explanation": "The tramp was scared and suspicious of police, but had no involvement in the murder and was cleared.",
+   "resolved_in_chapter": 16
+  }
+ ],
+ "closed_circle": {
+  "suspects": [
+   "John Leslie",
+   "Sir Edward Kean",
+   "Dr. Gregg",
+   "Miss Allen",
+   "The tramp"
+  ],
+  "rationale": "The suspects are limited to those with access to the farm, motive, or opportunity, and are all known to the investigators and readers."
+ },
+ "constraint_space": {
+  "time_anchors": [
+   "6:30pm murder time",
+   "5:30pm car hire by Gregg",
+   "7:00pm arrival at Hammond’s farm",
+   "8:00pm Leslie returns to farm",
+   "Train times between Whitbury and London"
+  ],
+  "time_windows": [
+   "Leslie’s walk from 5pm to 8pm",
+   "Kean’s travel and car use between 5pm and 7pm",
+   "Gregg’s presence at Hammond’s farm 7pm to 9pm"
+  ],
+  "access_actors": [
+   "Sir Edward Kean",
+   "John Leslie",
+   "Mrs. Draycott",
+   "Dr. Gregg",
+   "The tramp"
+  ],
+  "access_objects": [
+   "Leslie’s farmhouse",
+   "Revolver in Leslie’s drawer",
+   "Car garaged at Whitbury",
+   "Red Dwarf pen",
+   "Brown sequins from victim’s dress"
+  ],
+  "trust_channels": [
+   "Letters and photographs from Mrs. Draycott",
+   "Testimony of Miss Allen",
+   "Statements from tramp and carter",
+   "Medical testimony from Dr. Gregg"
+  ],
+  "authority_sources": [
+   "Police Sergeant Brace",
+   "Coroner’s inquest",
+   "Legal counsel Sir Edward Kean",
+   "Judge and jury at trial"
+  ]
+ },
+ "inference_path": [
+  {
+   "observation": "Mrs. Draycott was found shot in Leslie’s sitting-room with no sign of struggle.",
+   "correction": "The murder was premeditated and staged to implicate Leslie.",
+   "effect": "Leslie’s innocence becomes plausible despite circumstantial evidence.",
+   "required_evidence": [
+    "Blood stain on blotter and victim’s clothing",
+    "Testimony of Leslie and police about the scene"
+   ]
+  },
+  {
+   "observation": "A car with a broken number plate was seen arriving and leaving the farm.",
+   "correction": "The car was garaged and driven by Sir Edward Kean under an alias.",
+   "effect": "Kean’s presence at the farm is established despite his alibi.",
+   "required_evidence": [
+    "Garage records at Whitbury and Carlisle",
+    "Witness statements describing the driver’s hands and clothing"
+   ]
+  },
+  {
+   "observation": "Dr. Gregg denied knowing Mrs. Draycott but behaved suspiciously.",
+   "correction": "Gregg knew her but concealed the connection to protect others.",
+   "effect": "Gregg is cleared as a suspect but remains a key witness.",
+   "required_evidence": [
+    "Letters found in Gregg’s desk",
+    "Testimony from Mrs. Benson about hospital acquaintances"
+   ]
+  },
+  {
+   "observation": "The tramp’s testimony was vague and he was under suspicion.",
+   "correction": "The tramp was scared and hiding minor theft but not involved in murder.",
+   "effect": "Tramp is cleared, focusing suspicion elsewhere.",
+   "required_evidence": [
+    "Interview with tramp in hospital",
+    "Statement from Mrs. Doggett about lost purse"
+   ]
+  },
+  {
+   "observation": "Sir Edward Kean’s alibi involved train travel but he was caught driving a car.",
+   "correction": "Kean faked his alibi by driving to Whitbury and taking a train later.",
+   "effect": "Kean’s opportunity and presence at the farm are confirmed.",
+   "required_evidence": [
+    "Train ticket records",
+    "Testimony from chauffeur Blake and garage staff"
+   ]
+  },
+  {
+   "observation": "Red Dwarf pen found near farm did not belong to Leslie.",
+   "correction": "Pen belonged to Sybil Kean and was dropped by Kean during murder.",
+   "effect": "Presence of a third party at the scene is confirmed.",
+   "required_evidence": [
+    "Pen found in Leslie’s drawer with mud stain",
+    "Sybil Kean’s letter describing the pen"
+   ]
+  },
+  {
+   "observation": "Photograph of insane Gerald Lee found among victim’s papers.",
+   "correction": "Kean was blackmailed by Mrs. Draycott over the secret of Lee’s survival.",
+   "effect": "Strong motive for Kean to commit murder is established.",
+   "required_evidence": [
+    "Snapshot from State Lunatic Asylum",
+    "Kean’s confession manuscript"
+   ]
+  }
+ ],
+ "discriminating_test": {
+  "method": "constraint_proof",
+  "design": "Investigate the timeline and travel records of Sir Edward Kean, Dr. Gregg, and John Leslie on the night of the murder. Verify the car hire and garage records, train tickets, and witness statements about their locations and movements. Confirm the presence of the car at the farm and the timing of the murder by cross-referencing the tramp’s and carter’s testimonies.",
+  "knowledge_revealed": "This test reveals that Kean’s alibi is false and that he had the opportunity to commit the murder, while Gregg’s alibi is solid and Leslie’s movements are consistent with innocence.",
+  "pass_condition": "The suspect’s timeline and access to the murder scene must be impossible to reconcile with the murder time, eliminating innocent suspects and confirming the culprit."
+ },
+ "fair_play_explanation": "The reader is given detailed accounts of the suspects’ movements, the discovery of physical evidence like the Red Dwarf pen and the revolver, and witness testimonies. The clues about Kean’s false alibi, the blackmail motive, and the presence of the car are all presented openly. The deception lies in the framing of Leslie and the concealment of Kean’s motive, which the attentive reader can piece together from the timeline and evidence.",
+ "anchors": [
+  {
+   "claim": "Mrs. Draycott was found shot in the temple at close range",
+   "anchor": "a wound in the temple from which the blood had already ceased to flow"
+  },
+  {
+   "claim": "John Leslie found the body in his sitting-room",
+   "anchor": "I say, Gunnet, I want you up at the farm. Something’s happened."
+  },
+  {
+   "claim": "The front door was open and the latch undamaged",
+   "anchor": "The front door of the house stood open and, with each gust of wind, it swung with a heavy thud"
+  },
+  {
+   "claim": "Leslie’s revolver was found with one chamber discharged",
+   "anchor": "In a drawer in Mr. Leslie’s bedroom I found a Webley Service revolver, one chamber of which had been discharged"
+  },
+  {
+   "claim": "The murder weapon bullet matches Leslie’s revolver",
+   "anchor": "Does it correspond with those used in the weapon you found at the farm? It does."
+  },
+  {
+   "claim": "A car with a broken number plate was seen near the farm",
+   "anchor": "There was a car went out on the evening of the twenty-third, at about six o’clock"
+  },
+  {
+   "claim": "Kean drove the car under the alias 'Page'",
+   "anchor": "Page was the name I gave when I garaged the car at Whitbury"
+  },
+  {
+   "claim": "Kean met Mrs. Draycott and shot her at Leslie’s farm",
+   "anchor": "I put it to her that she would have to count the notes in my presence before I could undertake to hand them over to her"
+  },
+  {
+   "claim": "Kean planted the Red Dwarf pen dropped near the gate",
+   "anchor": "I found the pen almost immediately. It took him but a second to find the entry he needed."
+  },
+  {
+   "claim": "Sybil Kean knew the secret of her first husband’s survival",
+   "anchor": "I’ve known it for the last six years. As a matter of fact, I fetched him from Germany myself and placed him in an asylum in Dorset."
+  },
+  {
+   "claim": "Kean confessed to the murder to Fayre",
+   "anchor": "I made up my mind to kill Mrs. Draycott."
+  },
+  {
+   "claim": "Kean died by suicide after the confession",
+   "anchor": "Sir Edward, sir. He shot himself just after you left."
+  },
+  {
+   "claim": "The tramp was innocent and scared of police",
+   "anchor": "I ain’t got no luck, I ’aven’t. Never ’ad!"
+  },
+  {
+   "claim": "Dr. Gregg was innocent and had a solid alibi",
+   "anchor": "I was going through when a boy ran out of one of the cottages and yelled something at me."
+  },
+  {
+   "claim": "Leslie was acquitted after the truth was revealed",
+   "anchor": "John Leslie was never out of her mind in these days and, though it would seem that the worst had happened, she lived in hourly dread of some further attack on her fortitude."
+  },
+  {
+   "claim": "Kean’s false alibi was exposed by train and garage records",
+   "anchor": "He was held up at York for driving without side-lights."
+  },
+  {
+   "claim": "Mrs. Draycott was blackmailing Kean over Sybil’s first husband",
+   "anchor": "She had only to threaten to go with the story to Sybil and she had me absolutely at her mercy."
+  },
+  {
+   "claim": "The murder was staged to implicate Leslie",
+   "anchor": "I put it to her that she would have to count the notes in my presence before I could undertake to hand them over to her and that, in view of the size of the payment, I had no intention of making it without a receipt."
+  },
+  {
+   "claim": "Kean broke the number plate to cover his tracks",
+   "anchor": "I broke it myself as a precaution. I had it replaced and the mudguard mended in Carlisle."
+  }
+ ]
+}
