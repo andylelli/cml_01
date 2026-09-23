@@ -2867,3 +2867,33 @@ see the note there and A_101 §10.
 
 
 
+
+---
+
+## §32 THE CASE NOW PROVES THE ACT — A_102, built and measured, not yet in a book
+
+**A_102's finding:** 48 of 56 archived cases (86%) prove the culprit was PRESENT and never that they
+struck the blow. The external reader named exactly that in **four consecutive reads**, and `clues` is
+the project's lowest-scoring category at 6.38 against 7.19–8.19 elsewhere.
+
+**Built (29112e75):** the MEANS-LINK requirement at Agent 3, as four literal string shapes — who kept
+the implement, who could reach where it was kept, what its taking disturbed, and where the obvious
+evidence points. **0 of 3 → 6 of 8**, none resting on a fingerprint, over 14 harness cases at
+**$0.155 total**.
+
+**The transferable result, and the cleanest measurement of the compliance law this project has:**
+drafts 2 and 3 asked for the SAME facts. Asked in prose, two slots were obeyed **0 of 3** and **1 of
+3**; given a literal shape with slots, **4 of 4** and **4 of 4**. A qualifier written beside the shape
+is dropped even when it is the requirement's whole point. **Give a requirement a shape, not an
+argument.**
+
+**The prohibition failed for a fourth time** (A_101 §15 was the third). "Do NOT make it a fingerprint"
+produced a fingerprint 3 of 3. Assigning the fingerprint a job — it belongs to an innocent and becomes
+one of the two red herrings the case already owes — was obeyed 3 of 3.
+
+**NOT SETTLED, and it is the next thing to buy.** Agent 3 sits above nine stages. Whether Agent 5
+surfaces the new trace, the outline places it, and Agent 9's reveal rests on it is **untested**, and no
+number of harness cases can answer it. **Next: a full paid run on a fresh seed (~£1.15) and a read**,
+which is A_102 §4's step 4 and now has its justification. The prediction to check is narrow and the
+reader has stated it four times: the reveal names a physical fact connecting the culprit to the means
+of death, and the read does not repeat *"does not fully prove the murder in a satisfying, physical way"*.
