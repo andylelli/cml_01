@@ -313,7 +313,7 @@ separated from their defaulted voice, so a read of either settles nothing about 
 |---|---|---|---|---|
 | 1 | the reveal structure | **built** | this commit | on all three read books: the reveal chapter ("Clearing the Innocent") is untitled and told it is where the culprit is named; the aftermath keeps a title only if it does not announce a reveal (A's and C's lose theirs, B's is kept); the aftermath opens once the case is closed and mentions the proof in one clause or not at all; the test chapter ends on its result; the reveal adds the culprit's own answer; the brief's law is clean |
 | 2 | register no lower than 0.058 in the composite | **built** | this commit | replayed over the nine saved drafts: composites below the floor fall by 1.0–3.6, **no choice changes** — those were decided on contract fitness |
-| 3 | one controlled pair on A, then a read | **run — awaiting the read** | `resume-1790183007808`, £0.29 | see §13 |
+| 3 | one controlled pair on A, then a read | **done — read 82** | `resume-1790183007808`, £0.29 | §13, §14 |
 | 4–6 | voice parameters, ledger guard, blind read | not started | — | — |
 
 ---
@@ -349,5 +349,97 @@ said 3+ times (18 sightings) to one ("fact first" ×4).
 | **speech-open share** | 0.174 | 0.266 | **0.279** |
 | long-sentence share | 0.028 | 0.055 | 0.045 |
 
-**Next:** the read. The comparison is v1 77 and the previous v2 80, on the same case.
+**The read came back at 82** — §14.
 
+---
+
+## §14 THE READ: 82 — THE BEST THIS CASE HAS HAD, AND THE FIRST READ THAT IS NOT AN INJECTOR AUDIT
+
+`stories/story_20260923-1806/chatgpt-review.txt`, merged to the ledger (68 rows). **MEASURED.**
+
+### §14.1 THE SAME CASE, THREE TIMES
+
+| category | v1 (77) | v2 first (80) | **v2 now (82)** |
+|---|---|---|---|
+| premise | 8 | 8 | 8 |
+| opening hook | 7 | 7 | **8** |
+| plot structure | 7 | 7 | **8** |
+| character clarity | 7 | **8** | 8 |
+| dialogue | 7 | 7 | 7 |
+| atmosphere | 8 | 8 | 8 |
+| clues | 5 | **6** | **7** |
+| pacing | 7 | 7 | **8** |
+| ending | 6 | **7** | 7 |
+| prose | 6 | **7** | 7 |
+| **headline** | **77** | **80** | **82** |
+
+**Nothing fell at any step.** 82 beats 71% of all v1 reads and half of September's. The reader's
+opening line: *"a clearer, more polished compass draft than the previous one, and the opening is much
+better because Montague is already dead when the story begins"* — the victim-as-body fix (`461512bd`),
+named by the reader as the improvement.
+
+### §14.2 THE INJECTOR AUDIT IS OVER
+
+CLAUDE.md: *"When a read names no injector, the injector audit is over. Until then a read is an
+injector audit and should be scored as one, not as evidence about prose quality."*
+
+This read names **eight** phrases as "generated or accidental". **None is ours.** Checked against the
+brief's asks and every contract template phrase: *"For no reason at all"* (×5), *"The truth remained
+elusive"*, *"The evidence was mounting"*, *"The result was undeniable"*, *"The silence lingered"*,
+*"The room held its breath"*, *"The truth is in the details"*, *"There's always more beneath the
+surface"* — all the model's own filler, none in any prompt this pipeline writes. **MEASURED.**
+
+Every v2 injector the previous reads named is gone from this one: no "flat answer", no "six words or
+fewer", no "unmeant joke", no "delivered a speech", no chapter titled "The Culprit Revealed", no
+"settled outcome", and no victim alive and dead in one scene. **This is the first read in the
+project's history that is evidence about the prose and not about the wiring.**
+
+It also updates A_84, which found **11 of 11** reviewer-named "generated lines" were Agent 9
+templates. Here it is **0 of 8**. The next lever for that class is the prose-polish instruction, not
+another scrubber ([[prose-polish-is-llm-line-edit-pass]]).
+
+### §14.3 BOTH RISKS FLAGGED BEFORE THE READ, CONFIRMED
+
+§13 named two things for the read to settle. It settled both, against us:
+
+- **The accusation is the operation's own words.** Ending 7/10: *"Nora's confession is weak and almost
+  jokey."*
+- **Nora's answer is built on her catchphrase.** The reader quotes *"Torque says otherwise, but I
+  can't argue the proof"* and calls it *"a bit too cute for a murder confession"*.
+
+So the reveal fix worked structurally and not yet dramatically: the culprit answers, and what she says
+is too light for the moment. The reader's own remedy is a motive line —*"He would have ruined me. Not
+for justice. For sport."* **The operation asks for an answer; it does not ask for what the answer must
+carry.** That is the next £0 change, and it is the same compliance law as every one before it: name a
+countable thing (the culprit's reason, in her own words, before she is taken away) and it arrives.
+
+### §14.4 WHAT THE READER ASKS FOR NEXT, AND WHOSE IT IS
+
+| ask | whose |
+|---|---|
+| a precise sightline rule: tilted compass → beach, level compass → office door | **upstream** — the mechanism's physics (Agents 3/3b) |
+| one physical clue tying Nora to the paperweight (oil, fibre, the drawer key) | **upstream** — Agent 5's decisive clue |
+| a confession that carries a motive | **v2** — §14.3 |
+| fewer repeated phrases | **mixed** — catchphrases fell 5 lines → 1 ("Fact first" ×4); the eight new ones are the model's filler |
+
+Chapter 10 the reader now calls *"the best ending of the compass versions"*: *"It does not repeat the
+whole proof. It shows absences, changed jobs, financial control, reputation, objects left behind, and
+routine returning."* That is the aftermath fix, working, in the reader's words.
+
+### §14.5 STATUS AFTER FOUR READS
+
+v2's four reads: **80, 80, 82, 84 — mean 81.5**, against v1's September mean of 80.8. Still not a
+measurable difference in the headline (`rubric-cannot-rank-two-books`: under ~7 marks is unmeasured).
+What IS established, on this case, is a **monotone climb across three reads of one contract with no
+category falling** — and the reasons for each step are named by the reader and traceable to a commit.
+
+**The ceiling the reader keeps naming is upstream.** Twice now: *"the compass/ledger trick is
+interesting, yet it still does not fully prove the murder in a satisfying, physical way"*, and clues
+sits at 7/10 while everything around it reaches 8. A_101's remaining recommendations are unchanged,
+and one is added:
+
+| # | next | cost |
+|---|---|---|
+| 1 | the confession carries the motive, as a countable operation | £0 |
+| 2 | the decisive clue must tie the culprit to the weapon, not only to the opportunity — Agent 5 | £0 to design |
+| 3 | then a pair, and a read | ~£0.30 + a read |

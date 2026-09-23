@@ -672,6 +672,42 @@
     "externalOffset": 8
   },
   {
+    "bundleId": "read-20260923-1806",
+    "storyPath": "stories/story_20260923-1806/resumed_resume_1790183007808.md",
+    "readPath": "stories/story_20260923-1806/chatgpt-review.txt",
+    "externalFinal": 82,
+    "externalCategories": {
+      "premise": 8,
+      "opening_hook": 8,
+      "plot_structure": 8,
+      "character_clarity": 8,
+      "dialogue": 7,
+      "atmosphere": 8,
+      "clues": 7,
+      "pacing": 8,
+      "ending": 7,
+      "prose": 7
+    },
+    "externalNotes": {
+      "premise": "Tilted compass plus altered ledger is distinctive.",
+      "opening_hook": "Much cleaner: body first, weapon, office, clock, suspects.",
+      "plot_structure": "Better than prior compass drafts; the path to Nora is clearer.",
+      "character_clarity": "Bertram, Nora, Gwendolyn, Harriet, Theodora are readable.",
+      "dialogue": "Good dry exchanges, though catchphrases still repeat.",
+      "atmosphere": "Dunes, salt air, office, racing hotel, ledgers — cohesive.",
+      "clues": "Improved, but the compass still needs a precise sightline proof.",
+      "pacing": "Moves better than earlier versions; less clutter.",
+      "ending": "Clean enough, but Nora’s confession is weak and almost jokey.",
+      "prose": "Several strong passages, but some generated/scaffold phrases remain.",
+      "character_life": "Best character texture of the compass versions."
+    },
+    "externalSupplementary": {
+      "character_life": 8
+    },
+    "externalCategorySum": 76,
+    "externalOffset": 6
+  },
+  {
     "bundleId": "read-20260724-1347",
     "storyPath": "stories/_archive/story_20260724-1347/the_manor_clock_s_silent_betrayal.md",
     "readPath": "stories/_archive/story_20260724-1347/chatgpt-review.txt",
