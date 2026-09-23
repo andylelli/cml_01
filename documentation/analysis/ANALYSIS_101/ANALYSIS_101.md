@@ -543,8 +543,54 @@ the right instrument for an upstream prompt change, and it cost pennies to overt
 
 | # | next | cost | state |
 |---|---|---|---|
-| 1 | the confession carries its reason (v2) | £0 | **built** — §14.6, untested on a book |
+| 1 | the confession carries its reason (v2) | £0 | **built and TESTED** — §16, the line landed |
 | 2 | ~~the weapon-link clue slot in Agent 5~~ | — | **withdrawn — §15.1** |
 | 2a | Agent 3 authors a trace on the means of death in `constraint_space.physical.traces` | £0 to build, needs a full run to test | not started |
 | 2b | check `sourceInCML` against the text at that path | £0 | not started |
 | 3 | a prose pair on A for fix 1, then a read | ~£0.30 + a read | next |
+
+---
+
+## §16 THE CONFESSION PAIR · 2026-09-23 · £0.27 · `resume-1790187240831`
+
+One lever from the book that read 82: the reveal operation now asks the culprit's answer to carry her
+reason. Ships, 10 chapters, 7,425 words.
+
+**The fix landed.** Chapter 9, verbatim:
+
+> *"He was going to ruin me—expose everything I'd worked for, take my career and my name and leave
+> nothing but wreckage behind. I couldn't let him."*
+
+against the 82 book's *"Torque says otherwise, but I can't argue the proof"* — the line the read called
+*"a bit too cute for a murder confession"*, ending 7/10. The motive is in the bible and **not** in the
+brief, so this is the model writing her reason, not repeating ours. **MEASURED.**
+
+| | v1 | v2 (read 80) | v2 (read 82) | v2 now |
+|---|---|---|---|---|
+| words | 8,965 | 9,551 | 7,404 | 7,425 |
+| register | 0.0552 | 0.0251 | 0.0218 | 0.0246 |
+| **speech-open share** | 0.174 | 0.266 | 0.279 | **0.322** |
+| wit /10k | 15.6 | 38.7 | 48.6 | 63.3 |
+| catchphrase lines said 3+ times | — | 5 | 1 | 1 |
+
+### §16.1 TWO THINGS THE SCORING SCRIPT GOT WRONG, BOTH MINE
+
+- **"Nora answers": scored 0, twice now.** Her line is attributed by the sentence *before* the quote
+  (*"her voice quiet but edged with bitterness"*), and the check wants a `said`-tag inside the quoted
+  sentence. Both runs were read by hand; both had the answer. **A probe failure, recorded as one.**
+- **"named again in chapter 10": scored a failure** on *"Nora Quayle, silent, was led away by the
+  constable"* — because `namesAsCulprit` counts an arrest, by design. That is the aftermath the reader
+  **praised** in the 82 book (*"Nora escorted out"*). The gate is right to count it; my prediction was
+  wrong to forbid it.
+
+### §16.2 LENGTH IS NOT TRACKING THE MARK
+
+Three runs have now come in under the contract's 7,500 floor, and the floor is looking like the wrong
+instrument: **the 9,551-word book read 80 and the 7,404-word book read 82.** `book_short` is a
+ranking failure in the selector (A_101 §13), so it is actively steering away from the length that has
+so far read best. **Not acted on — n=2 either way** — but it should be settled before the floor is
+trusted, and it is free to settle from the ledger once more books are read.
+
+**And wit is now 63.3 per 10k against the sharp band's target of 41.** The reader has scored humour
+7/10 on every v2 book with the note *"repeated phrases reduce freshness"*. More wit is not obviously
+better; this is the next thing likely to be over-driven.
