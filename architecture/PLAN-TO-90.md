@@ -1904,6 +1904,16 @@ Four defects were found by measurement during the build, each before a run could
    ever received. It was invisible to the ledger, to A_99's own arithmetic and to the selector's
    calibration.
 
+> **CORRECTION, 2026-09-23 (A_101 §10).** The file holds three reads of **two** books, not three reads
+> of one. 79 and 82 are reads of a ballet-intermission book whose drafts live in `story_20260911-2112`
+> and `story_20260912-1507`; **87 is an as-written read of the Lockwood book in this folder**
+> (`canary_1789232316543` — the manuscript's mtime equals its generation time, so not "after
+> repairs"). The 87 is real and belongs to this book, so the arithmetic below stands; and taking the
+> FIRST read had paired the Lockwood manuscript with the ballet book's 79, so W1 corrected a
+> MISPAIRING — which strengthens the rho change rather than weakening it. `story_20260724-1747` has
+> the same shape. The ledger is right on both by the owner's habit of pasting the newest read last,
+> not by a check (A_101 §9, recommendation 5).
+
 **§12.1's arithmetic is superseded by A_99 §9.1.** Best-ever-in-every-category is **87, not 85**;
 opening hook and character clarity have each had a 9 (both on that book); the categories never given
 a 9 are **three, not five** — prose, dialogue, pacing. Best-everywhere plus the reader's offset now
@@ -2823,6 +2833,29 @@ Not settled, by construction: a mark. Three books are ready — `resume-17900990
 77), `resume-1790099847162` (C, against 87), `resume-1790099653544` (B, unread v1). The next spend is
 a read, and C is the sharpest test this project can set: the highest mark it has ever received,
 against a v2 arm with a tenth of its register rate.
+
+---
+
+## 31. A_101 — v2 AGAINST v1, THE FIRST EXTERNAL READS · 2026-09-23 · £0
+
+The three v2 reads (A 80, B 84, C 80; mean 81.3) against v1's September mean of 80.8: **no measurable
+change in the headline.** The controlled pair moved 77 → 80, gaining exactly on clues, ending, prose
+and character. The uncontrolled pair (C, voice parameters defaulted) fell 87 → 80.
+
+The finding that reorders the board: **the register calibration does not transfer to v2.** Refitted on
+55 v1 reads it predicts v2's books at 88.6 / 87.6 / 90.1; they read 80 / 84 / 80. No v1 book has
+register as low as v2's highest. v2 drives register down directly and the causes of the mark did not
+move with it — and register is the composite's heaviest weight.
+
+The reads are still injector audits: four named injectors were v2's own and are fixed (`461512bd`);
+the one v2-specific defect still open is the reveal smeared across chapters 8–10 by v2's roles fighting
+the outline's titles, the aftermath contract restating the exposure, and the reveal sentence complied
+with literally. **Recommendations, in order (A_101 §9):** fix the reveal structure (£0), clamp register
+in the composite at the calibrated floor (£0), then one controlled matched pair on A and a read.
+
+**Correction on record:** §21's "three reads of one book, 87 after repairs" is wrong in description —
+see the note there and A_101 §10.
+
 
 
 

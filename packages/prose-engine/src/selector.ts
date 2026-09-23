@@ -36,11 +36,16 @@
  * ── AND THE FIRST RUN OF THIS SCRIPT DID NOT, FOR A REASON WORTH KEEPING ─────────────────────────
  *
  * It reported register at -0.454 and the composite at 0.524, and the bar was recorded as missed. The
- * cause was not the instruments: `story_20260912-1815/chatgpt-review.txt` holds THREE reads of one
- * book — 79, 82 and 87 after repairs — and both this script and `external-read-ledger.mjs` took the
- * FIRST. The highest external mark this project has ever received was invisible to every consumer of
- * the ledger, and it was suppressing the measured agreement of every instrument at once. Fixed at the
- * ledger (W1) and imported here rather than re-implemented, so the two cannot drift apart again.
+ * cause was not the instruments: `story_20260912-1815/chatgpt-review.txt` holds THREE reads of TWO
+ * books — 79 and 82 of a ballet-intermission book filed there by mistake, then 87, an as-written read
+ * of the Lockwood book the folder actually holds — and both this script and
+ * `external-read-ledger.mjs` took the FIRST, pairing the Lockwood manuscript with another book's
+ * score. (The first version of this comment said "three reads of one book, 87 after repairs"; A_101
+ * §10 corrected it.) Fixed at the ledger (W1) and imported here rather than re-implemented.
+ *
+ * AND A_101 §4, 2026-09-23: refitted on 55 v1 reads, register predicts v2's books at 88-90 and they
+ * read 80-84. v2's register (0.012-0.034) is below every v1 book's (min 0.058), so these weights are
+ * being used outside the range they were fitted on.
  *
  * ── AND THE WEIGHTS ARE THE ONES WRITTEN DOWN FIRST ──────────────────────────────────────────────
  *

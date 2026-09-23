@@ -560,6 +560,17 @@ then **87 after repairs** — and every consumer of the ledger took the first. S
 mark this project has ever received was invisible to the ledger, to §0 and §1 of this document, and
 to the selector's calibration.
 
+> **CORRECTION, 2026-09-23 (A_101 §10).** The file holds three reads of **two** books, not three reads
+> of one. 79 and 82 are reads of a ballet-intermission book whose drafts live in `story_20260911-2112`
+> and `story_20260912-1507`; **87 is an as-written read of the Lockwood book in this folder**
+> (`canary_1789232316543` — the manuscript's mtime equals its generation time, so not "after
+> repairs"). The 87 is real and belongs to this book, so the arithmetic below stands; and taking the
+> FIRST read had paired the Lockwood manuscript with the ballet book's 79, so W1 corrected a
+> MISPAIRING — which strengthens the rho change rather than weakening it. `story_20260724-1747` has
+> the same shape. The ledger is right on both by the owner's habit of pasting the newest read last,
+> not by a check (A_101 §9, recommendation 5).
+
+
 | | as recorded in §1–§2 | corrected |
 |---|---|---|
 | best external read ever | 86 (twice) | **87** |

@@ -1,0 +1,18 @@
+{
+  "seed": null,
+  "runId": "mystery-1789497521865",
+  "projectId": "canary_1789497521861",
+  "primaryAxis": "authority",
+  "storyAngle": "a cathedral choir school",
+  "targetLength": "short",
+  "eraPreference": "1950s",
+  "locationPreset": "CountryHouse",
+  "castNames": [
+    "Edith Penhale",
+    "Leonard Nettleship",
+    "Millicent Ashcombe",
+    "Agatha Innes",
+    "Violet Radcliffe"
+  ],
+  "generatedAt": "2026-09-15T19:01:56.226Z"
+}

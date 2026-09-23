@@ -1,0 +1,151 @@
+This is mid-tier rather than upper-tier. The compass idea is distinctive, and the seaside speed-trial setting has flavour, but the mystery logic is muddier than the choir-school watch story or the brewery shadow story. The draft has a good clue object — the tilted compass — but the actual murder cover-up is not yet clean enough.
+
+I’d score it around 77/100.
+
+The roles are:
+
+Investigator: Bertram Norbury
+Victim: Montague Gaunt
+Culprit: Nora Quayle
+False suspects: Gwendolyn Vance, Harriet Kestrel, Theodora Lachlan
+Murder method: blow to the head with heavy paperweight
+Cover-up mechanism: Nora relies on the judge’s habitually tilted compass reading and altered ledger entries to create a false bearing/location theory; the true bearing is 10° east of north, but the tilted reading gives 25° east of north
+Key clues: scuffed compass casing, habitual tilt, fifteen-degree bearing gap, judge’s sworn bearing, fresh nine-o’clock ledger entries, Nora’s ledger access, financial mismanagement threat, paperweight, witnesses placing Nora near the office
+Motive: Montague Gaunt threatened to expose Nora’s financial mismanagement and past failure connected to her racing ambitions
+
+Area	Mark	Notes
+Premise / concept	8/10	Tilted-compass deception is fresher than another clock trick.
+Opening hook	7/10	Body, paperweight, compass, ledger — solid but slightly abstract.
+Plot structure	7/10	The narrowing toward Nora is readable, but the false solution and real solution blur.
+Character clarity	7/10	Roles are mostly clear, though Nora as first-scene witness/culprit needs firmer handling.
+Dialogue	7/10	Some dry wit works, but several “answer was four/six words” scaffold lines intrude.
+Atmosphere / setting	8/10	Dunes, fog, petrol, hotel office, speed trial — distinctive and useful.
+Mystery clues / evidence logic	5/10	Compass clue is interesting, but it does not yet prove murder opportunity/location cleanly.
+Pacing	7/10	Moves steadily, but repeats compass/ledger suspicion often.
+Ending / reveal	6/10	The reveal explains the trick, then repeats the proof after the confession.
+Prose / polish	6/10	Good imagery mixed with obvious scaffold/template leakage.
+Character Life / Relationship Richness	6/10	Some traits are present, but most characters still function mainly as alibi holders.
+Humour / Wit	6/10	Detectable dry wit, especially Bertram/Nora/Theodora, but uneven and sometimes mechanical.
+What works
+
+The best thing is the tilted compass clue. The judge’s sworn bearing says 25° east of north, but when Bertram holds the compass flat, it reads 10° east of north. That is a neat physical discrepancy, and the worn/scuffed edge gives the reader a fair clue that the judge habitually held it at an angle.
+
+The setting also has promise. The hotel office, dunes, fog, petrol smell, speed trials, engine noise, ledgers, and compass all belong to the same world. It feels less generic than many hotel drafts.
+
+The Chapter 8 test is the strongest scene: Bertram levels and tilts the compass in front of everyone, showing that the same object can produce the false 25° bearing when handled the judge’s habitual way. That is a proper visible demonstration.
+
+Main issue: the compass does not yet prove the murder
+
+The compass proves that the judge’s bearing was unreliable or manipulable. But the story never makes fully clear why that matters to the murder.
+
+A bearing from where to where? Who was supposedly placed at 25° east of north? How did that bearing create or destroy an alibi? How does 10° instead of 25° specifically point to Nora rather than Gwendolyn? The story says the reading “placed the suspect” somewhere, but the physical geography is vague.
+
+You need a clean spatial rule:
+
+From the judge’s office window, 25° east of north points to the lounge path, where Gwendolyn was seen.
+But the true level bearing, 10° east of north, points to the garage path, where Nora had access.
+Nora knew the judge always tilted the compass, so she wrote the ledger to match the false 25° bearing.
+
+That would make the compass decisive.
+
+The ledger and compass need to connect better
+
+Right now, the ledger entries are fresh and suspicious, and the compass bearing is wrong. But the relationship between them is not sharp enough.
+
+Make the ledger record a bearing-based alibi:
+
+9:00 — Judge Gaunt notes “figure at 25° E.N.E., lounge path.”
+
+Then Bertram proves:
+
+When the compass is held level, the same sightline is 10°, not 25°.
+The 25° note could only have been written by someone copying the judge’s tilted habit after the fact.
+
+That would make the altered ledger and compass one unified mechanism instead of two parallel clues.
+
+Character Life / Relationship Richness: 6/10
+
+This is weaker than the choir-school and brewery drafts.
+
+Nora has some life: garage work, failed racing ambitions, precision obsession, technical pride, financial mismanagement, and resentment toward Montague. That is good.
+
+Harriet has a promising background too: she wants to reclaim dignity after a false accusation, and in Chapter 10 she takes over the ledger. That could be emotionally strong.
+
+But Gwendolyn and Theodora are thin. They mostly exist to state alibis. Theodora has “lifelong vigilance” and inheritance caution, but it feels pasted in rather than dramatized. Gwendolyn’s emotional stake is especially unclear.
+
+To raise this score, give each false suspect one non-alibi moment: a private worry, a social tie to Montague, a rivalry with Nora, or a reason the speed trial matters to them.
+
+Humour / Wit: 6/10
+
+There is detectable humour, but it is uneven.
+
+The best line is Bertram’s:
+
+“If justice were always this heavy, the courts would need stronger desks.”
+
+That fits the paperweight clue and Bertram’s dry temperament. It is a proper detective quip.
+
+Nora also has a decent line:
+
+“If you’re hoping for a confession from a fountain pen, you’ll be disappointed.”
+
+That works because it shows her technical defensiveness and wit under pressure.
+
+Theodora’s repeated “That would be unfortunate” has a nice deadpan quality, but it appears too often and starts to feel generated rather than characterful.
+
+The humour should be more varied:
+
+Bertram: dry legal/investigative understatement.
+Nora: technical sarcasm.
+Harriet: blunt working-class practicality.
+Theodora: aristocratic deadpan.
+Gwendolyn: corporate/social polish with a sting.
+
+Chapter 8 repeats after confession
+
+The demonstration works at first: compass level vs tilted, 10° vs 25°, ledger ink, Nora’s access, motive. But after that, Bertram restates the two competing theories, runs through the proof again, and then Nora confesses.
+
+You could cut a lot. End the proof faster:
+
+“The judge’s bearing was not wrong,” Bertram said. “It was copied. Whoever wrote it knew how he tilted the compass, but not what the level reading would show.”
+
+Then accusation.
+
+Chapter 9 is the biggest structural problem
+
+Chapter 9 starts as clearance, but then it reverts to investigation mode. It even says:
+
+“Motives circled in the sand at his feet, but the workings of the crime slipped from his grasp.”
+
+That is wrong after Chapter 8, because Nora has confessed and the mechanism has been exposed.
+
+Chapter 9 should not contain unresolved investigation language. It should only do emotional/social aftermath for the cleared suspects.
+
+Chapter 10 is better, but still repeats the quip
+
+Chapter 10 is mostly aftermath: Nora is gone, Harriet takes over the books, Gwendolyn gives up the ledger, Theodora remains guarded, and the hotel routine resumes. That is the right mode.
+
+But the “stronger desks” joke appears again. It was good once; repeating it weakens it. Keep it in Chapter 3 or Chapter 8, not Chapter 10.
+
+Scaffold/prose issues to remove
+
+These lines feel generated or broken:
+
+“Bertram Norbury’s question had been longer, but Harriet Kestrel’s answer was six words.”
+“Nora Quayle’s answer was four words.”
+“The investigation pivoted toward its next revelation.”
+“Nobody in the room could unsee what had just happened.”
+“However the moment was turned over…”
+“You; searching for blame…”
+“Bertram norbury’s gaze”
+“shadowed places” typo.
+
+The “answer was six words/four words” scaffolding appears multiple times and should be removed entirely.
+
+Overall
+
+This has a fresh clue object and a nice seaside mechanical world, but the puzzle needs a clearer spatial/alibi function. The compass should not just be “wrong by fifteen degrees”; it should point to one path/person falsely and another path/person truly.
+
+As written: 77/100.
+
+With a precise bearing map, a unified ledger-compass mechanism, Chapter 9 rewritten as aftermath only, and richer false-suspect lives, this could reach 84–86/100.

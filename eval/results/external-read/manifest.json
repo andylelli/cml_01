@@ -1,5 +1,45 @@
 [
   {
+    "bundleId": "read-20260912-1815",
+    "storyPath": "stories/story_20260912-1815/the_clock_s_false_hour_at_lockwood_estate.md",
+    "readPath": "stories/story_20260912-1815/chatgpt-review.txt",
+    "externalFinal": 87,
+    "externalEarlierReads": [
+      79,
+      82
+    ],
+    "externalCategories": {
+      "premise": 9,
+      "opening_hook": 9,
+      "plot_structure": 8,
+      "character_clarity": 9,
+      "dialogue": 8,
+      "atmosphere": 9,
+      "clues": 8,
+      "pacing": 8,
+      "ending": 8,
+      "prose": 8
+    },
+    "externalNotes": {
+      "premise": "Classic clock deception, but the “striking train vs clock face” distinction is strong.",
+      "opening_hook": "Body, stopped watch, candlestick, false clock hour — immediate and clear.",
+      "plot_structure": "Good progression from contradiction to suspects to mechanism to aftermath.",
+      "character_clarity": "Roles are stable and readable.",
+      "dialogue": "Ambrose, Percival, Frances, Josephine, Ottoline all have distinct social tones.",
+      "atmosphere": "Lockwood Estate, rain, canal gates, clock room, old wood — very effective.",
+      "clues": "Mostly strong; one timing explanation still needs tightening.",
+      "pacing": "Controlled, though Ch. 4 repeats Ch. 2/3 material.",
+      "ending": "Much better: Ch. 10 is proper aftermath.",
+      "prose": "More mature prose; still a few generated artifacts.",
+      "character_life": "Stronger than usual: estate hierarchy, routines, resentment, class pressure, canal work, social masks."
+    },
+    "externalSupplementary": {
+      "character_life": 8
+    },
+    "externalCategorySum": 84,
+    "externalOffset": 3
+  },
+  {
     "bundleId": "2026-08-06-2255-weighted-pendulum",
     "storyPath": "stories/_archive/story_20260806-2255/the_weighted_pendulum_deception.md",
     "runFolder": "run_20260806-2134_mystery",
@@ -353,6 +393,42 @@
     "externalOffset": 6
   },
   {
+    "bundleId": "read-20260922-1857",
+    "storyPath": "stories/story_20260922-1857/resumed_resume_1790099653544.md",
+    "readPath": "stories/story_20260922-1857/chatgpt-review.txt",
+    "externalFinal": 84,
+    "externalCategories": {
+      "premise": 8,
+      "opening_hook": 8,
+      "plot_structure": 8,
+      "character_clarity": 8,
+      "dialogue": 8,
+      "atmosphere": 8,
+      "clues": 8,
+      "pacing": 8,
+      "ending": 7,
+      "prose": 7
+    },
+    "externalNotes": {
+      "premise": "Classic official-clock vs private-watch contradiction; solid and fair.",
+      "opening_hook": "Body, candlestick, pocket watch, hall clock discrepancy — clear immediately.",
+      "plot_structure": "Strong progression, but final chapters overlap.",
+      "character_clarity": "Edith, Agatha, Millicent, Violet, Leonard are all readable.",
+      "dialogue": "Violet/Millicent exchanges have bite; Edith’s dry control works.",
+      "atmosphere": "Choir school, manor hall, ledger, keys, clock tower, music memory — cohesive.",
+      "clues": "The proof chain is clear, though the clock mechanism could be a bit more physical.",
+      "pacing": "Good middle; ending compresses accusation/clearance/aftermath awkwardly.",
+      "ending": "Strong final mood, but reveal happens more than once.",
+      "prose": "Better than many drafts, but still some repeated generated phrases.",
+      "character_life": "Stronger than average: music, debts, rejection, institutional pressure, Leonard’s kindness."
+    },
+    "externalSupplementary": {
+      "character_life": 8
+    },
+    "externalCategorySum": 78,
+    "externalOffset": 6
+  },
+  {
     "bundleId": "read-20260904-1711",
     "storyPath": "stories/story_20260904-1711/the_silent_signal_in_the_starlight_theatre.md",
     "readPath": "stories/story_20260904-1711/chatgpt-review.txt",
@@ -560,42 +636,45 @@
     "externalOffset": 7
   },
   {
-    "bundleId": "read-20260724-1347",
-    "storyPath": "stories/_archive/story_20260724-1347/the_manor_clock_s_silent_betrayal.md",
-    "readPath": "stories/_archive/story_20260724-1347/chatgpt-review.txt",
-    "externalFinal": 81,
+    "bundleId": "read-20260912-1507",
+    "storyPath": "stories/story_20260912-1507/resumed_resume_1789214912816.md",
+    "readPath": "stories/story_20260912-1507/chatgpt-review.txt",
+    "externalFinal": 82,
     "externalCategories": {
-      "premise": 9,
-      "opening_hook": 8,
+      "premise": 8,
+      "opening_hook": 7,
       "plot_structure": 8,
       "character_clarity": 8,
       "dialogue": 7,
-      "atmosphere": 9,
-      "clues": 8,
+      "atmosphere": 8,
+      "clues": 6,
       "pacing": 8,
-      "ending": 8,
-      "prose": 6
+      "ending": 7,
+      "prose": 7
     },
     "externalNotes": {
-      "premise": "Grandfather clock as false alibi engine fits the manor mystery perfectly.",
-      "opening_hook": "Body at the foot of the clock, blood, dagger, note, and clock oddity make a strong opening.",
-      "plot_structure": "Discovery → mechanical discrepancies → motives → alibi testing → false Annabelle suspicion → clock test → Fenwick reveal works well.",
-      "character_clarity": "Roles are much clearer than in many earlier drafts.",
-      "dialogue": "Harcourt’s dry voice works; suspects have usable personalities.",
-      "atmosphere": "Winter manor, ledgers, servants, stables, kitchen, clock room, firelight — very strong fit.",
-      "clues": "The mechanical clue chain is strong, though the exact time displacement needs cleaning.",
-      "pacing": "The investigation narrows logically and the final test has good momentum.",
-      "ending": "Fenwick confession, motive, method, and final cufflink clue are all clear.",
-      "prose": "Mostly solid, but still has generated-note phrasing and some repetition."
+      "premise": "Silent choreography as false alibi is good and setting-specific.",
+      "opening_hook": "Body, baton, gramophone log, fog, suspects — strong but crowded.",
+      "plot_structure": "Better than prior version; final trap now has real action.",
+      "character_clarity": "Roles are stable and readable.",
+      "dialogue": "Harriet and Julian have some bite; Nora’s voice is controlled.",
+      "atmosphere": "Atlantic liner, foghorns, rehearsal room, rosin, brass, portholes — good mood.",
+      "clues": "Improved mechanism, but timing still doesn’t fully add up.",
+      "pacing": "Cleaner than the previous version, especially Ch. 8.",
+      "ending": "Good confession, but Ch. 9/10 still recap too much.",
+      "prose": "Fewer scaffold artifacts than before, but several remain.",
+      "character_life": "Stronger company tension, but Gwendolyn/Bertram history still needs more specificity."
     },
-    "externalCategorySum": 79,
-    "externalOffset": 2,
-    "externalSupplementary": {}
+    "externalSupplementary": {
+      "character_life": 7
+    },
+    "externalCategorySum": 74,
+    "externalOffset": 8
   },
   {
-    "bundleId": "read-20260724-1747",
-    "storyPath": "stories/_archive/story_20260724-1747/the_bell_tower_s_last_chime.md",
-    "readPath": "stories/_archive/story_20260724-1747/chatgpt-review.txt",
+    "bundleId": "read-20260724-1347",
+    "storyPath": "stories/_archive/story_20260724-1347/the_manor_clock_s_silent_betrayal.md",
+    "readPath": "stories/_archive/story_20260724-1347/chatgpt-review.txt",
     "externalFinal": 81,
     "externalCategories": {
       "premise": 9,
@@ -831,6 +910,150 @@
     "externalSupplementary": {}
   },
   {
+    "bundleId": "read-20260913-1806",
+    "storyPath": "stories/story_20260913-1806/resumed_resume_1789318568962.md",
+    "readPath": "stories/story_20260913-1806/chatgpt-review.txt",
+    "externalFinal": 80,
+    "externalCategories": {
+      "premise": 8,
+      "opening_hook": 8,
+      "plot_structure": 7,
+      "character_clarity": 8,
+      "dialogue": 7,
+      "atmosphere": 8,
+      "clues": 6,
+      "pacing": 7,
+      "ending": 6,
+      "prose": 6
+    },
+    "externalNotes": {
+      "premise": "Mirror/facade illusion in a theatre alley is strong in theory.",
+      "opening_hook": "Body, letter opener, alley seam, mirror, false length — good immediate mystery.",
+      "plot_structure": "Clear narrowing toward Adela, but several chapters repeat the same facade clues.",
+      "character_clarity": "Roles are readable; Rosalind as journalist/investigator works.",
+      "dialogue": "Prudence, Marguerite, and Henrietta have decent voices.",
+      "atmosphere": "Bradford-on-Avon, theatre alley, fog, gas lamps, coal smoke, chestnuts — good texture.",
+      "clues": "The mirror clue is promising, but the murder-use of the illusion is not fully proved.",
+      "pacing": "Moves steadily, but Ch. 3–8 circle the same mirror/panel information.",
+      "ending": "Reveal is understandable but too blunt; Ch. 10 falls back into alibi recap.",
+      "prose": "Some good atmosphere, but still has template/scaffold language.",
+      "character_life": "Better than basic, but relationships are less alive than the brewery draft."
+    },
+    "externalSupplementary": {
+      "character_life": 7
+    },
+    "externalCategorySum": 71,
+    "externalOffset": 9
+  },
+  {
+    "bundleId": "read-20260922-1848",
+    "storyPath": "stories/story_20260922-1848/resumed_resume_1790099060243.md",
+    "readPath": "stories/story_20260922-1848/chatgpt-review.txt",
+    "externalFinal": 80,
+    "externalCategories": {
+      "premise": 8,
+      "opening_hook": 7,
+      "plot_structure": 7,
+      "character_clarity": 8,
+      "dialogue": 7,
+      "atmosphere": 8,
+      "clues": 6,
+      "pacing": 7,
+      "ending": 7,
+      "prose": 7
+    },
+    "externalNotes": {
+      "premise": "Tilted compass + ledger fraud is distinctive.",
+      "opening_hook": "Strong setting and object clues, but the body discovery is temporally confusing.",
+      "plot_structure": "Better progression than the earlier compass version, but still repetitive.",
+      "character_clarity": "Bertram, Nora, Gwendolyn, Harriet, Theodora are readable.",
+      "dialogue": "Some good dry exchanges, but repeated catchphrases weaken it.",
+      "atmosphere": "Coastal hotel, dunes, brass, wind, speed trials — good texture.",
+      "clues": "Improved, but the compass still does not prove the murder tightly enough.",
+      "pacing": "Reasonable, though Chapters 6–9 repeat the same deductions.",
+      "ending": "Good aftermath, but accusation is under-supported and confession is absent/soft.",
+      "prose": "Better sensory writing, but some scaffold leakage remains.",
+      "character_life": "Better than previous compass version; Nora, Gwendolyn, Harriet, Theodora have more life."
+    },
+    "externalSupplementary": {
+      "character_life": 7
+    },
+    "externalCategorySum": 72,
+    "externalOffset": 8
+  },
+  {
+    "bundleId": "read-20260922-1900",
+    "storyPath": "stories/story_20260922-1900/resumed_resume_1790099847162.md",
+    "readPath": "stories/story_20260922-1900/chatgpt-review.txt",
+    "externalFinal": 80,
+    "externalCategories": {
+      "premise": 8,
+      "opening_hook": 8,
+      "plot_structure": 7,
+      "character_clarity": 8,
+      "dialogue": 7,
+      "atmosphere": 8,
+      "clues": 8,
+      "pacing": 7,
+      "ending": 6,
+      "prose": 6
+    },
+    "externalNotes": {
+      "premise": "Classic clock-mechanism murder trick; familiar but workable.",
+      "opening_hook": "Body, candlestick, stopped watch, wrong clock time — clear setup.",
+      "plot_structure": "Good clue progression, but final chapters repeat and mislabel the reveal.",
+      "character_clarity": "Roles are readable; Ottoline is clearly the mechanism suspect.",
+      "dialogue": "Some nice dry exchanges, but also repeated “speech/flat answer/six words” scaffolding.",
+      "atmosphere": "Lockwood, manor clocks, canal, beeswax, brass, lilies — good country-house texture.",
+      "clues": "The clock-test proof works better than many recent drafts.",
+      "pacing": "Middle moves steadily; Chapter 9/10 structure weakens the finish.",
+      "ending": "Reveal occurs twice; Chapter 10 should be aftermath only.",
+      "prose": "Better than the mannequin-shadow draft, but still has generator scaffolding.",
+      "character_life": "Some personalities, but not enough life outside the clock puzzle."
+    },
+    "externalSupplementary": {
+      "character_life": 6
+    },
+    "externalCategorySum": 73,
+    "externalOffset": 7
+  },
+  {
+    "bundleId": "read-20260724-1747",
+    "storyPath": "stories/_archive/story_20260724-1747/the_bell_tower_s_last_chime.md",
+    "readPath": "stories/_archive/story_20260724-1747/chatgpt-review.txt",
+    "externalFinal": 79,
+    "externalCategories": {
+      "premise": 8,
+      "opening_hook": 8,
+      "plot_structure": 8,
+      "character_clarity": 7,
+      "dialogue": 7,
+      "atmosphere": 9,
+      "clues": 7,
+      "pacing": 8,
+      "ending": 8,
+      "prose": 6
+    },
+    "externalNotes": {
+      "premise": "Bell tower, delayed chime, muffling pad, and echo chamber make a distinctive mystery device.",
+      "opening_hook": "Body beside the choir bell, clapper, leather pad, stopped clock — strong visual setup.",
+      "plot_structure": "Discovery → chime contradiction → interviews → alibi checks → false timeline → bell test → Charles reveal works well.",
+      "character_clarity": "Roles are mostly clear, though some names/relationships blur slightly.",
+      "dialogue": "Havers has a good measured style; Margaret and Radcliffe add useful wit.",
+      "atmosphere": "Bell tower, spring mist, old stone, stopped clock, manor rituals — very strong.",
+      "clues": "The clue chain is good, but the exact sound-delay mechanism needs clearer physics.",
+      "pacing": "The investigation narrows steadily and the final test has momentum.",
+      "ending": "Charles’s confession and the test-based reveal are satisfying.",
+      "prose": "Still has prompt leakage and some repeated/awkward generated phrasing."
+    },
+    "externalCategorySum": 76,
+    "externalOffset": 3,
+    "externalSupplementary": {},
+    "externalEarlierReads": [
+      81
+    ]
+  },
+  {
     "bundleId": "read-20260826-1708",
     "storyPath": "stories/story_20260826-1708/the_elevator_cage_enigma.md",
     "readPath": "stories/story_20260826-1708/chatgpt-review.txt",
@@ -898,6 +1121,42 @@
     },
     "externalCategorySum": 74,
     "externalOffset": 5
+  },
+  {
+    "bundleId": "read-20260911-2112",
+    "storyPath": "stories/story_20260911-2112/the_silent_crescendo_on_the_atlantic.md",
+    "readPath": "stories/story_20260911-2112/chatgpt-review.txt",
+    "externalFinal": 79,
+    "externalCategories": {
+      "premise": 8,
+      "opening_hook": 7,
+      "plot_structure": 7,
+      "character_clarity": 8,
+      "dialogue": 7,
+      "atmosphere": 8,
+      "clues": 5,
+      "pacing": 7,
+      "ending": 7,
+      "prose": 6
+    },
+    "externalNotes": {
+      "premise": "Silent intermission as alibi illusion is promising and setting-specific.",
+      "opening_hook": "Body, baton, gramophone log, fog, suspects — good material, but busy.",
+      "plot_structure": "Investigation path is readable, but the evidence repeats and timing contradicts itself.",
+      "character_clarity": "Roles are mostly stable and clear.",
+      "dialogue": "Harriet and Julian have decent wit; Gwendolyn’s authority voice works.",
+      "atmosphere": "Atlantic liner, foghorn, rehearsal room, gaslight, maple floor — strong mood.",
+      "clues": "Core idea is good, but the time math and movement window are confused.",
+      "pacing": "Smooth enough, though Chapters 3–6 circle the same evidence.",
+      "ending": "Confession works, but the proof is too explanatory.",
+      "prose": "Better than the hotel-ledger draft, but still has obvious generated phrasing.",
+      "character_life": "Ballet-company politics and professional rivalry help, but relationships are still thin."
+    },
+    "externalSupplementary": {
+      "character_life": 7
+    },
+    "externalCategorySum": 70,
+    "externalOffset": 9
   },
   {
     "bundleId": "probe-1-clockwork-deception",
@@ -1113,6 +1372,42 @@
     },
     "externalCategorySum": 66,
     "externalOffset": 11
+  },
+  {
+    "bundleId": "read-20260916-1814",
+    "storyPath": "stories/story_20260916-1814/the_judge_s_tilt_a_seaside_hotel_deception.md",
+    "readPath": "stories/story_20260916-1814/chatgpt-review.txt",
+    "externalFinal": 77,
+    "externalCategories": {
+      "premise": 8,
+      "opening_hook": 7,
+      "plot_structure": 7,
+      "character_clarity": 7,
+      "dialogue": 7,
+      "atmosphere": 8,
+      "clues": 5,
+      "pacing": 7,
+      "ending": 6,
+      "prose": 6
+    },
+    "externalNotes": {
+      "premise": "Tilted-compass deception is fresher than another clock trick.",
+      "opening_hook": "Body, paperweight, compass, ledger — solid but slightly abstract.",
+      "plot_structure": "The narrowing toward Nora is readable, but the false solution and real solution blur.",
+      "character_clarity": "Roles are mostly clear, though Nora as first-scene witness/culprit needs firmer handling.",
+      "dialogue": "Some dry wit works, but several “answer was four/six words” scaffold lines intrude.",
+      "atmosphere": "Dunes, fog, petrol, hotel office, speed trial — distinctive and useful.",
+      "clues": "Compass clue is interesting, but it does not yet prove murder opportunity/location cleanly.",
+      "pacing": "Moves steadily, but repeats compass/ledger suspicion often.",
+      "ending": "The reveal explains the trick, then repeats the proof after the confession.",
+      "prose": "Good imagery mixed with obvious scaffold/template leakage.",
+      "character_life": "Some traits are present, but most characters still function mainly as alibi holders."
+    },
+    "externalSupplementary": {
+      "character_life": 6
+    },
+    "externalCategorySum": 68,
+    "externalOffset": 9
   },
   {
     "bundleId": "s0-4-identity",
@@ -1991,6 +2286,15 @@
     },
     "externalCategorySum": 45,
     "externalOffset": 3,
+    "externalSupplementary": {}
+  },
+  {
+    "bundleId": "read-20260915-2001",
+    "storyPath": "stories/story_20260915-2001/the_rector_s_unimpeachable_word_a_choir_school_c.md",
+    "readPath": "stories/story_20260915-2001/chatgpt-review-humour.txt",
+    "externalFinal": null,
+    "externalCategories": {},
+    "externalNotes": {},
     "externalSupplementary": {}
   }
 ]

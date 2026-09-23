@@ -279,9 +279,9 @@ describe("the calibration is what the script measured", () => {
 
   it("records that the composite beats register alone AND clears the design's bar", () => {
     // The first calibration reported 0.524 against a bar of 0.55 and was recorded as a miss. The
-    // cause was a ledger defect, not the instruments: one review file holds three reads of one book
-    // (79, 82, 87) and every consumer took the first, which suppressed the measured agreement of
-    // every instrument at once. W1 fixed it; this is the corrected figure.
+    // cause was a ledger defect, not the instruments: one review file holds three reads of TWO books
+    // (79 and 82 of another book, then 87 of the folder's own) and every consumer took the first,
+    // pairing a manuscript with another book's score. W1 fixed it; this is the corrected figure.
     expect(CALIBRATION_RHO.composite).toBeGreaterThan(CALIBRATION_RHO.registerAlone);
     expect(CALIBRATION_RHO.composite).toBeGreaterThanOrEqual(CALIBRATION_RHO.designBar);
   });

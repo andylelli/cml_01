@@ -1,0 +1,136 @@
+This is better than the earlier compass draft, but still not as strong as the choir-school watch story. The prose and atmosphere are improved, Nora has more personality, and the compass demonstration is clearer. The remaining problem is the same core issue: the compass trick still does not fully lock to the murder method and timing strongly enough.
+I’d score it around 80/100.
+The roles are:
+Investigator: Bertram Norbury
+Victim: Montague Gaunt
+Culprit: Nora Quayle
+False suspects: Gwendolyn Vance, Harriet Kestrel, Theodora Lachlan
+Murder method: blow to the head with heavy brass paperweight
+Cover-up mechanism: Nora alters ledger entries and exploits the judge’s habitually tilted compass reading, creating a false bearing/alibi by shifting a location by 15 degrees
+Key clues: bloodied paperweight, ledger entries with mismatched ink, altered timing entries, Nora’s access to ledger/office, tilted compass giving a 15-degree error, judge’s bearing, brass key, Nora’s knowledge of the compass defect, blackmail letter from Gaunt
+Motive: Montague threatened to expose Nora’s misconduct in the books, which would ruin her position
+
+Area	Mark	Notes
+Premise / concept	8/10	Tilted compass + ledger fraud is distinctive.
+Opening hook	7/10	Strong setting and object clues, but the body discovery is temporally confusing.
+Plot structure	7/10	Better progression than the earlier compass version, but still repetitive.
+Character clarity	8/10	Bertram, Nora, Gwendolyn, Harriet, Theodora are readable.
+Dialogue	7/10	Some good dry exchanges, but repeated catchphrases weaken it.
+Atmosphere / setting	8/10	Coastal hotel, dunes, brass, wind, speed trials — good texture.
+Mystery clues / evidence logic	6/10	Improved, but the compass still does not prove the murder tightly enough.
+Pacing	7/10	Reasonable, though Chapters 6–9 repeat the same deductions.
+Ending / reveal	7/10	Good aftermath, but accusation is under-supported and confession is absent/soft.
+Prose / polish	7/10	Better sensory writing, but some scaffold leakage remains.
+Character Life / Relationship Richness	7/10	Better than previous compass version; Nora, Gwendolyn, Harriet, Theodora have more life.
+Humour / Wit	7/10	Good dry lines, especially Nora/Bertram, but repeated slogans flatten the wit.
+
+
+What works
+The compass idea is clearer here than in the earlier version. The story now explicitly shows that when the compass is held level, the bearing is true, but when tilted as the judge habitually held it, the reading shifts by 15 degrees. That gives the case a proper physical demonstration.   Pasted markdown
+The ledger evidence is also more usable. The fresh ink, mismatched handwriting, altered timing entries, and post-facto correction all point toward someone rewriting the record. That makes the ledger feel like evidence rather than just atmosphere.   Pasted markdown
+Nora is stronger as a character this time. “Torque says otherwise” is overused, but her mechanical worldview, spanner, oil, ledger access, and resentment over misconduct allegations give her a defined shape.   Pasted markdown
+Main issue: the compass still does not clearly prove murder opportunity
+The reveal says the tilted compass is enough to move a person “from the office to the beach — on paper.” That is a good sentence, but the story still needs a precise map of why that matters.   Pasted markdown
+Right now the reader understands:
+compass tilted = 15-degree error
+ledger altered = false times
+Nora knew both
+therefore Nora is guilty
+
+But the missing middle is:
+What exact false location did the compass create?
+Who did the judge think he saw?
+Where was Nora actually standing?
+How did the 15-degree error protect her?
+How does that place her near the office/paperweight at the murder moment?
+
+Use a clean spatial rule:
+From the judge’s window, the tilted compass reading placed Nora on the beach path, safely away from the office.
+Held level, the same sightline points to the service door beside the hotel office.
+The judge did not see Nora on the beach; he saw her leaving the office after killing Gaunt.
+That would make the compass decisive.
+Opening continuity is confusing
+Chapter 1 begins with Montague alive, speaking and holding the paperweight. Then within the same scene he is suddenly slumped dead, and Gwendolyn is calmly serving tea beside the bloodied paperweight. The transition is too abrupt.   Pasted markdown
+It reads almost like two scene versions got spliced together: one before the murder and one after. Fix by choosing one.
+Better:
+Open after the death:
+Montague Gaunt lay behind the desk, one hand still near the brass globe paperweight.
+Nora Quayle stood by the window, oil on her sleeve, saying only, “Torque says otherwise.”
+Or:
+Open before the death, then end Chapter 1 with the discovery later.
+But do not have Montague alive and dead inside the same continuous moment without a clear time jump.
+Character Life / Relationship Richness: 7/10
+This is improved. Nora has professional pride and a history of being blamed for others’ mistakes. Gwendolyn has old estate collapse and hotel responsibility. Harriet has staff sharpness and an implied life cleaning up after richer people. Theodora has inheritance anxiety and polished social control.   Pasted markdown
+Chapter 10 is especially better than the reveal because it gives each character a little life after suspicion: Gwendolyn writes to the board, Harriet drinks cocoa, Theodora protects her reputation, Bertram relaxes, and Nora leaves under escort.   Pasted markdown
+But the false suspects still need more non-alibi material earlier. Gwendolyn, Harriet, and Theodora mostly exist to be cleared. Give each one a real personal scene before Chapter 8.
+Humour / Wit: 7/10
+The humour is decent, mostly dry and occupational.
+Good:
+“All that trouble for a gadget that can't tell east from breakfast.”
+
+That is funny and fits Nora’s practical impatience.   Pasted markdown
+Good Bertram/Nora exchange:
+“At least the radiator's reliable.”
+“More than the accounts, it seems.”
+
+That is small, character-based, and not overplayed.   Pasted markdown
+The problem is repetition. These phrases recur too often:
+“Fact first.”
+“Torque says otherwise.”
+“As it must be.”
+“If only they knew.”
+“That would be unfortunate.”
+
+Catchphrases can define voice, but here they become labels. Use each once or twice, not every chapter.
+Chapter 8 demonstration is good but under-dramatized
+The best bit is Nora physically tilting the compass and showing the needle shift. Keep that.   Pasted markdown
+But the demonstration should be tied to a real window/sightline:
+Bertram placed the compass on the judge’s windowsill.
+“Show us the beach bearing,” he said.
+Nora tilted it as the judge always had.
+The needle settled where the ledger said it should.
+
+Then Bertram levelled the case.
+
+The line no longer crossed the beach. It ran straight to the office door.
+That would give the reader a visual “aha” moment.
+Chapter 9 reveal is too thin
+Chapter 9 declares Nora guilty, but it does not contain enough emotional or evidentiary force. It lists the compass, ledger, and alibis, then says Nora killed Gaunt.   Pasted markdown
+It needs either:
+a confession from Nora, or
+a final physical link between Nora and the paperweight, or
+a specific ledger entry only Nora could have forged, or
+a sightline demonstration proving she left the office at the murder time.
+
+Right now the leap from “Nora had access and knowledge” to “Nora killed him” is plausible but not fully satisfying.
+Add:
+The brass key in Nora’s pocket opened the office drawer where the paperweight had been kept.
+The oil on the paperweight matched the machine oil used on her spanner.
+The altered ledger line was written with the garage fountain pen, not the office pen.
+One of those would lock her to the weapon or post-crime staging.
+Chapter 10 is actually good
+The final chapter is mostly aftermath, and that is a plus. It does not spend too long re-explaining the evidence. It shows the hotel resuming: evidence collected, Gwendolyn writing to the board, Harriet with cocoa, Theodora leaving, Nora escorted out, Bertram drinking tea.   Pasted markdown
+The memory of Montague helping a child with a kite is a good humanizing touch. It makes him more than just “the victim who threatened people.”   Pasted markdown
+Keep that kind of victim-life memory.
+Scaffold/prose issues to remove
+Big ones:
+“his fingers drummed restlessly against the blotter as he leaned over the broad desk, fingers drumming restlessly against the blotter” — duplicated phrase.
+“She took in the room. She took in the room…” — duplicated phrase.
+“Bertram folded his notebook…” inside quoted/narrative confusion.
+“the final name remained unspoken” immediately before the field is narrowed.
+“The test had revealed the truth” — tell-y.
+repeated chapter-ending abstractions: “truth waited,” “evidence waited,” “secrets of the sea,” “world resumed.”
+
+Also, the first chapter needs a clean time jump or rewrite, because Montague is alive, then dead, with no clear transition.   Pasted markdown
+Fastest fixes
+1. Rewrite Chapter 1 as a clean post-body-discovery scene.
+2. Add a map/sightline rule: tilted compass points to beach; level compass points to office/service door.
+3. Tie Nora physically to the murder weapon or forged ledger with one decisive clue.
+4. Give Nora a clearer confession or breakdown.
+5. Reduce catchphrases by 70%.
+6. Give Gwendolyn, Harriet, and Theodora one human scene each before the reveal.
+7. Keep Chapter 10’s aftermath structure.
+Overall
+This is the best compass version so far: better atmosphere, better Nora, better final aftermath, and a clearer compass demonstration. But the puzzle still needs one decisive bridge between bearing error and murder opportunity.
+As written: 80/100.
+With a precise sightline map, cleaner opening, one weapon/ledger lock, and less catchphrase repetition, this could reach 86–88/100.
