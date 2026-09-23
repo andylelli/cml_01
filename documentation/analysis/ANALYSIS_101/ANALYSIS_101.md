@@ -313,5 +313,41 @@ separated from their defaulted voice, so a read of either settles nothing about 
 |---|---|---|---|---|
 | 1 | the reveal structure | **built** | this commit | on all three read books: the reveal chapter ("Clearing the Innocent") is untitled and told it is where the culprit is named; the aftermath keeps a title only if it does not announce a reveal (A's and C's lose theirs, B's is kept); the aftermath opens once the case is closed and mentions the proof in one clause or not at all; the test chapter ends on its result; the reveal adds the culprit's own answer; the brief's law is clean |
 | 2 | register no lower than 0.058 in the composite | **built** | this commit | replayed over the nine saved drafts: composites below the floor fall by 1.0–3.6, **no choice changes** — those were decided on contract fitness |
-| 3 | one controlled pair on A, then a read | **next** | — | budget £0.50 |
+| 3 | one controlled pair on A, then a read | **run — awaiting the read** | `resume-1790183007808`, £0.29 | see §13 |
 | 4–6 | voice parameters, ledger guard, blind read | not started | — | — |
+
+---
+
+## §13 THE CONTROLLED PAIR, RUN · 2026-09-23 · £0.29 · `resume-1790183007808`
+
+Seed 50862, `PROSE_V2_DRAFTS=3`, with `461512bd` and `3f41049e`; upstream byte-identical. The book is
+`stories/story_20260923-1806/`. Six predictions were stated before the run:
+
+| # | prediction | verdict | evidence |
+|---|---|---|---|
+| 1 | chapters 9 and 10 carry the writer's own titles | **HELD** | "The Shape of the Truth" / "Dunes Resuming Their Silence" |
+| 2 | chapter 9 names Nora, and Nora answers in her own words | **HELD** | Bertram: *"Nora Quayle killed Montague Gaunt"*; Nora: *"Torque says otherwise, but I can't argue the proof."* — the scripted check scored 0 because her name sits in the sentence before the quote; read by hand |
+| 3 | chapter 8 does not name her; chapter 10 does not name her again | **HELD** | `namesAsCulprit` false on both |
+| 4 | no instruction echoes; no victim among the living in chapter 1 | **HELD** | 0 echoes; the victim does not speak in chapter 1 |
+| 5 | ships at ≥ 7,500 words | **FAILED on length** | ships, no stop, **7,404 words**: all three drafts were short (7,380 / 7,234 / 7,129) |
+| 6 | cost ≤ £0.45 | **HELD** | £0.29 |
+
+**The selector passed over the highest composite, correctly.** Draft 3 scored 29.72 and draft 2 23.60,
+but drafts 1 and 3 both dropped `clue_mechanism_visibility_core`, the compass casing that the
+mechanism rests on. Draft 2 was the only one to carry it. **MEASURED**, from the checkpoint.
+
+**Two things for the read to settle, both INFERRED:** the accusation is the operation's own words,
+verbatim (the model copies what it is given); and Nora's answer is built on her catchphrase, which a
+reader may take as a callback or as the tic again. The catchphrases themselves fell from five lines
+said 3+ times (18 sightings) to one ("fact first" ×4).
+
+| instrument | v1 | v2, previous A (read 80) | v2, this run |
+|---|---|---|---|
+| words | 8,965 | 9,551 | 7,404 |
+| register | 0.0552 | 0.0251 | 0.0218 |
+| repetition /10k | 96.0 | 7.1 | 5.2 |
+| **speech-open share** | 0.174 | 0.266 | **0.279** |
+| long-sentence share | 0.028 | 0.055 | 0.045 |
+
+**Next:** the read. The comparison is v1 77 and the previous v2 80, on the same case.
+
