@@ -594,3 +594,67 @@ trusted, and it is free to settle from the ledger once more books are read.
 **And wit is now 63.3 per 10k against the sharp band's target of 41.** The reader has scored humour
 7/10 on every v2 book with the note *"repeated phrases reduce freshness"*. More wit is not obviously
 better; this is the next thing likely to be over-driven.
+
+---
+
+## §17 CHECKING `sourceInCML` AGAINST ITS PATH — MEASURED, AND RECOMMENDED AGAINST AS A GATE
+
+§15.2 listed this as free and worth closing. It was measured before being built, and **the
+recommendation is not to build it as a gate.** £0, 1,231 archived clues.
+
+### §17.1 THE HOLE IS REAL AND IS NOW CONFIRMED IN CODE
+
+`validateSourcePath` (`apps/worker/src/jobs/agents/agent5-run.ts:508`) checks exactly two things: the
+path matches an allowed pattern, and the path RESOLVES. **It never compares the clue to the text at
+that path.** **MEASURED**, by reading the function.
+
+### §17.2 BUT A CONTENT CHECK IS NOT SPECIFIC ENOUGH TO GATE ON
+
+Comparing each clue's content words against the text at the path it cites:
+
+| | |
+|---|---|
+| clues carrying a `sourceInCML` | 1,231 |
+| paths that do not resolve | **0** |
+| resolve, but share ZERO content word | **284 (23%)** |
+| share exactly one | 198 (16%) |
+
+23% is not most, so B1's "off switch with extra steps" does not strictly apply — but a gate driving
+retries costs +2.43 register points on the retried chapter, and **the 23% is not one thing.** By path
+family it separates completely:
+
+| zero-overlap | family | what it means |
+|---|---|---|
+| **100%** | `CASE.cast[].access_plausibility` (29) | the field holds an ENUM — "high", "medium", "N/A". Never prose. A clue can never share a word with it |
+| 44% | `CASE.cast[].evidence_sensitivity[]` (117) | mixed |
+| 38% | `CASE.inference_path.steps[].required_evidence[]` (264) | mixed |
+| 25% | `CASE.cast[].alibi_window` (209) | mixed, and contains the real defect — §16.3 |
+| **0%** | `CASE.inference_path.steps[].correction` (246) | clean |
+| **0%** | `CASE.discriminating_test.evidence_clues[]` (49) | clean |
+
+So zero-overlap conflates three unlike things: a clue that contradicts what it cites, a clue that
+refers to the same fact in different words, and **a citation pointing at a field that contains no
+evidence at all**. Gating on it would abort or retry on all three. **Recommended against.**
+
+### §17.3 THE DEFECT INSIDE IT IS SHARPER THAN THE CHECK, AND WORTH BUILDING INSTEAD
+
+The clues that matter are not merely unrelated to what they cite — **they contradict it**:
+
+| the clue says | the path it cites holds |
+|---|---|
+| *"Annabelle Marwood was seen by multiple household members in the garden…"* | *"Claims to be in her room from quarter past four to six"* |
+| *"Eliminates Annabelle Marwood because her alibi is corroborated by garden staff"* | *"Claims to be in her room from quarter past four to six"* |
+| *"Margaret Cox's presence is corroborated by servants' statements…"* | *"Claimed to be in the servant's hall from quarter past four to quarter to six"* |
+
+A clue that **clears a suspect** on a corroboration the case does not contain, at a location the case
+contradicts, is the clearance family again ([[a67-fix1-suspect-closure-landed]]) reached by a new
+route. That is checkable without a word-overlap heuristic: an eliminating clue citing an
+`alibi_window` must not name a different place from the one the window states. **Designed, not built.**
+
+### §17.4 AND ONE FREE FIX THAT IS NOT A GATE
+
+`packages/clue-spec/src/derive.ts:181` deterministically cites `CASE.cast[idx].access_plausibility`
+as the source for a derived culprit-direct clue. That field is a rating, not evidence. **29 clues in
+the archive carry a citation that supports nothing by construction**, and no LLM invented them — we
+did. The citation should point at the cast member's access evidence, not at the rating of it.
+
