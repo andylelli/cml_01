@@ -46,16 +46,18 @@ const N = (s) => String(s).replace(/\s+/g, " ").trim();
 const NORM = (t) => t.replace(/[\u2018\u2019]/g, "'").replace(/[\u201C\u201D]/g, '"').replace(/[\u2013\u2014]/g, "-");
 
 /** Slug -> cached text filename, where the two disagree. */
-const TEXT_ALIAS = {
-  the_fenchurch_street_mystery: "fenchurch_street",
-  a_jury_of_her_peers: "jury_of_her_peers",
-  the_case_of_oscar_brodski: "oscar_brodski",
-};
+/**
+ * A_103 B29: there is no alias. `TEXT_ALIAS` mapped three slugs to text files named
+ * `fenchurch_street.txt`, `jury_of_her_peers.txt`, `oscar_brodski.txt` - names from the August
+ * scratchpad. MEASURED 2026-09-23: zero of the three exist in `library/texts/`, where every text is
+ * keyed by its full slug, so those works reported "source text not cached" on every run of this
+ * script and could never be re-verified. Same family as the four dead scratchpad defaults (A_97).
+ */
 
 const rows = [];
 for (const slug of readdirSync(WORKS).sort()) {
   const rawPath = `${WORKS}/${slug}/encode-raw.json`;
-  const textPath = `${SRC}/${TEXT_ALIAS[slug] ?? slug}.txt`;
+  const textPath = `${SRC}/${slug}.txt`;
   if (!existsSync(rawPath)) {
     rows.push({ slug, state: "no encode-raw.json — cannot recompute" });
     continue;

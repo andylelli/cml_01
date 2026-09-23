@@ -88,6 +88,18 @@ describe("A_98 — one source of truth for the seed corpus", () => {
     }
   });
 
+  /** A_103 B5: a hint ending in a separator must resolve to the same corpus. The regex that stripped
+   *  it lost its backslash twice; this pins the Windows shape that exposed it. */
+  it("resolves a hint with a trailing backslash or slash", () => {
+    const { root, works } = makeLibrary();
+    try {
+      const n = loadSeedCMLFiles(works).length;
+      expect(n).toBeGreaterThan(0);
+      expect(loadSeedCMLFiles(works + "\\").length).toBe(n);
+      expect(loadSeedCMLFiles(works + "/").length).toBe(n);
+    } finally { rmSync(root, { recursive: true, force: true }); }
+  });
+
   /** A work with no encoding contributes nothing — it has a text and a provenance, not a case. */
   it("skips works that have no encoding at all", () => {
     const { root, works } = makeLibrary();

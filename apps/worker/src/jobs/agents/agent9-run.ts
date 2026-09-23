@@ -8780,7 +8780,8 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   ctx.validationReport = validationReport;
 
   /**
-   * A_79 Phase D — THE ANTI-COPY GATE. Flag `PROSE_ANTI_COPY_GATE`, default OFF.
+   * A_79 Phase D — THE ANTI-COPY GATE. Flag `PROSE_ANTI_COPY_GATE`, default OFF in code and ON in
+   * `.env.local` since 2026-09 (A_103 B24: this line said "default OFF" while every live run had it on).
    *
    * Last thing in the function, and deliberately AFTER the final re-validation, because everything
    * above it can still write prose. `applyStandardPostProcessingChain` runs deterministic injectors
@@ -8792,8 +8793,10 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
    * manuscript somebody needs to read in order to find out how source prose reached a prompt;
    * destroying the evidence to enforce the rule would be the worst of both.
    *
-   * MEASURED: zero false positives over 204 archived manuscripts at n=10 (see
-   * `packages/prose-guard/src/anti-copy.ts` for the table). So if this fires, it is real.
+   * MEASURED: zero false positives over 229 archived manuscripts at n=11 against the 165-work corpus
+   * (A_97 §11; the earlier 204-at-n=10 figure was measured against 12 works and n=10 is no longer
+   * clean at this corpus size — see `DEFAULT_N` in `packages/prose-guard/src/anti-copy.ts`). So if
+   * this fires, it is real.
    */
   const copied = (prose.chapters ?? []).flatMap((c: any, i: number) =>
     detectCopiedProse((c?.paragraphs ?? []).join(" ")).map((h) => `ch${i + 1}: ${h}`),

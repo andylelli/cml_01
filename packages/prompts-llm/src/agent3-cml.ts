@@ -41,6 +41,7 @@ import {
   selectRelevantPatterns,
   formatPatternsForPrompt,
   seedSelectionKey,
+  libraryRoot,
 } from "./utils/seed-loader.js";
 import { join } from "path";
 import { classifyDeathMethod, type DeathMethodKind } from "./shared/death-method-patterns.js";
@@ -361,7 +362,7 @@ export function buildCMLPrompt(inputs: CMLPromptInputs, examplesDir?: string): P
       try {
         const cmlFiles = loadSeedCMLFiles(examplesDir);
         const patterns = extractStructuralPatterns(cmlFiles);
-        const relevantPatterns = selectRelevantPatterns(patterns, inputs.primaryAxis, 3, seedPrefs);
+        const relevantPatterns = selectRelevantPatterns(patterns, inputs.primaryAxis, 3, seedPrefs, libraryRoot(examplesDir));
         seedPatternsText = formatPatternsForPrompt(relevantPatterns);
         seedPatternsTextCache.set(seedCacheKey, seedPatternsText);
       } catch (error) {

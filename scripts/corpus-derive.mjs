@@ -34,6 +34,7 @@ const DEVICE_FAMILY = {
   secret_will_inheritance: "authority", information_leak: "authority",
   staged_scene: "spatial_routing", hidden_accomplice: "behavioral",
   disguised_natural_agent: "behavioral", unconscious_act: "behavioral",
+  role_invisibility: "behavioral", investigative_blind_spot: "behavioral",   // A_103 B2
 };
 
 /** Which mechanism family a case belongs to, inferred from its own mechanism text. The keys are the
@@ -104,13 +105,19 @@ if (skipped.length) {
 }
 
 const rows = [];
+const defaulted = [];
 for (const slug of slugs) {
   const dir = `${WORKS}/${slug}`;
   const C = yaml.load(readFileSync(`${dir}/case.cml2.yaml`, "utf8")).CASE;
   const prov = existsSync(`${dir}/provenance.yaml`) ? yaml.load(readFileSync(`${dir}/provenance.yaml`, "utf8")) : {};
 
   const mechText = `${C.hidden_model?.mechanism?.description ?? ""} ${C.meta?.crime_class?.subtype ?? ""} ${C.false_assumption?.statement ?? ""}`;
-  const family = (FAMILY_RULES.find(([re]) => re.test(mechText)) ?? [null, "staged_scene"])[1];
+  const matchedRule = FAMILY_RULES.find(([re]) => re.test(mechText));
+  // A_103 B15: MEASURED 24 of 137 cases match NO rule and were silently filed as `staged_scene`,
+  // inflating the second-largest family. The default stays (the fingerprint schema requires a value)
+  // but it is now named per work and counted, so `corpus-classify.mjs` is visibly mandatory.
+  const family = matchedRule ? matchedRule[1] : "staged_scene";
+  if (!matchedRule) defaulted.push(slug);
 
   // ── fingerprint ────────────────────────────────────────────────────────────
   const fp = {
@@ -119,7 +126,10 @@ for (const slug of slugs) {
     axis: C.false_assumption.type,
     mechanism_family: family,
     false_assumption_pattern: tokenise(C.false_assumption.statement).slice(0, 60),
-    discriminating_test_shape: TEST_SHAPE[C.discriminating_test?.method] ?? "physical_trace",
+    // A_103 B16: an absent method fell to `physical_trace`, the one shape the map cannot otherwise
+    // reach — so a broken encode would have read as the rarest form. `reconstruction` is the modal
+    // value and the honest default; the real fix is a method on every case.
+    discriminating_test_shape: TEST_SHAPE[C.discriminating_test?.method] ?? "reconstruction",
     inference_shape: tokenise(C.inference_path?.steps?.at(-1)?.effect ?? "resolve_the_case"),
     premise: String(C.surface_model?.narrative?.summary ?? "").replace(/\s+/g, " ").trim().slice(0, 200),
     source: `library/works/${slug}/case.cml2.yaml`,
@@ -183,5 +193,7 @@ for (const slug of slugs) {
   });
 }
 console.table(rows);
+if (defaulted.length) console.log(`
+${defaulted.length} work(s) matched no family rule and defaulted to staged_scene — run corpus-classify.mjs on them: ${defaulted.slice(0, 8).join(", ")}${defaulted.length > 8 ? " …" : ""}`);
 console.log("\nTODO fields are deliberate: title, principleType and feasibility.requires/forbids");
 console.log("do not derive from a case file (A_78 §9.1). They are cheap LLM calls on a SHORT input.");

@@ -74,8 +74,18 @@ type SampleFile = { id: string; file: string; state: "verified" | "legacy"; titl
 const readProvenanceTitle = async (slug: string): Promise<string | null> => {
   try {
     const raw = await fs.readFile(path.join(libraryWorksDir, slug, "provenance.yaml"), "utf-8");
-    const m = raw.match(/^title:[ 	]*"?(.+?)"?[ 	]*$/m);
-    return m ? m[1] : null;
+    const m = raw.match(/^title:[ 	]*(.+?)[ 	]*$/m);
+    if (!m) return null;
+    /**
+     * A_103 B3: `corpus-acquire.mjs` writes the title as a JSON string, so a quoted title is stored
+     * with YAML escapes — `"The \"Canary\" murder case"`. MEASURED: the previous regex kept the
+     * backslashes and the Archive listed *The \"Canary\" murder case*. A double-quoted YAML scalar is
+     * JSON-compatible for the escapes acquire emits (`\"` and `\`), so JSON.parse is the correct
+     * decoder here; a bare or single-quoted title falls through unchanged.
+     */
+    const v = m[1];
+    if (v.startsWith('"') && v.endsWith('"')) { try { return JSON.parse(v) as string; } catch { /* fall through */ } }
+    return v.replace(/^'(.*)'$/, "$1");
   } catch {
     return null;
   }

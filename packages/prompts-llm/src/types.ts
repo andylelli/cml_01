@@ -66,6 +66,8 @@ export interface CMLPromptInputs {
     divergeFrom: string[];
     areas: string[];
     avoidancePatterns: string[];
+    /** A_100 C1 — the morph/skeleton source whose worked example must be among the exemplars. */
+    skeletonSourceSlug?: string;
   };
   
   // Context

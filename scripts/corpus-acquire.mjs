@@ -44,6 +44,19 @@ const flag = (name, def = undefined) => {
   return args[i + 1] && !args[i + 1].startsWith("--") ? args[i + 1] : true;
 };
 const DRY = args.includes("--dry-run");
+/**
+ * A_103 B7/B9: a numeric flag with no value. `flag()` returns `true` for a bare `--top`, and
+ * `Number(true)` is 1 — MEASURED: `--from-candidates --top --dry-run` silently selected ONE row. And
+ * `--id 1 --title x` with no years produced `uk(d.NaN)=red` as its refusal reason. Both are the
+ * caller's mistake and both must be said so, not absorbed into a number that happens to parse.
+ */
+const numFlag = (name, def) => {
+  const v = flag(name, def);
+  if (v === def) return def;
+  const n = Number(v);
+  if (v === true || !Number.isFinite(n)) { console.error(`! --${name} needs a numeric value (got ${v === true ? "nothing" : JSON.stringify(v)})`); process.exit(2); }
+  return n;
+};
 
 function clearance(death, pub) {
   const uk = Number.isInteger(death) && death + 70 < YEAR;
@@ -171,8 +184,8 @@ if (args.includes("--curated")) {
     || b.genre_score - a.genre_score);
 } else if (args.includes("--from-candidates")) {
   const cand = JSON.parse(readFileSync(`${ROOT}/library/candidates.json`, "utf8"));
-  const minGenre = Number(flag("min-genre", 2));
-  const top = Number(flag("top", 1e9));
+  const minGenre = numFlag("min-genre", 2);
+  const top = numFlag("top", 1e9);
   rows = cand.green.filter((r) => r.genre_score >= minGenre).slice(0, top);
 } else if (flag("ids")) {
   const cand = existsSync(`${ROOT}/library/candidates.json`)
@@ -184,12 +197,14 @@ if (args.includes("--curated")) {
     rows.push(hit);
   }
 } else if (flag("id")) {
+  const death = numFlag("death", null), pub = numFlag("pub", null);
+  if (!Number.isInteger(death) || !Number.isInteger(pub)) { console.error("! --id needs --death YYYY and --pub YYYY — unknown is not permission (A_77 §10.2)"); process.exit(2); }
   rows = [{
-    id: Number(flag("id")),
+    id: numFlag("id", null),
     title: String(flag("title") || `ebook ${flag("id")}`),
     author: String(flag("author") || "Unknown"),
-    author_death_year: Number(flag("death")),
-    first_publication_year: Number(flag("pub")),
+    author_death_year: death,
+    first_publication_year: pub,
     slug: flag("slug") ? String(flag("slug")) : slugify(String(flag("title") || `ebook_${flag("id")}`)),
     genre_score: 9,
   }];
@@ -234,4 +249,6 @@ process.stdout.write("\n");
 console.log(`acquired ${report.acquired.length}  skipped(present) ${report.skipped.length}  refused(clearance) ${report.refused.length}  failed ${report.failed.length}`);
 for (const f of report.failed) console.log(`  FAILED  ${f.slug} (${f.id}): ${f.why}`);
 for (const f of report.refused) console.log(`  REFUSED ${f.slug} (${f.id}): ${f.verdict} — ${f.why}`);
-writeFileSync(`${ROOT}/library/.acquire-report.json`, JSON.stringify(report, null, 1));
+// A_103 B8: MEASURED — a --dry-run overwrote the real report, and a waiter that read it declared
+// 136 works "acquired" before one byte had been downloaded. Dry output goes to its own file.
+writeFileSync(`${ROOT}/library/.acquire-report${DRY ? ".dry" : ""}.json`, JSON.stringify(report, null, 1));

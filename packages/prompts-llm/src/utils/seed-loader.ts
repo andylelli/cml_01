@@ -54,7 +54,16 @@ const failedWorks = (root: string): Set<string> => {
  * `<workspace>/examples`; that directory no longer exists (A_98) and the callers were not all worth
  * changing, so a path that is not itself a `works` directory is treated as a sibling hint.
  */
-const libraryRoot = (hint: string): string => {
+/**
+ * A_103 B4: the root the loader last resolved. `selectRelevantPatterns` needs the works directory
+ * to read evidence, and its production caller (agent3-cml.ts) did not pass one - so it fell to
+ * `libraryRoot("")` = `../library/works` RELATIVE TO CWD. MEASURED from `C:\\`: every evidence read
+ * failed, every score was 0, and the ranked pick was alphabetical again. The flag was on and did
+ * nothing - the allowlist defect reintroduced by the fix for it. Remembering the root the corpus
+ * was loaded from closes that path; agent3-cml.ts now also passes it explicitly.
+ */
+let lastLibraryRoot: string | null = null;
+export const libraryRoot = (hint: string): string => {
   const override = String(process.env.SEED_CORPUS_LIBRARY_DIR ?? "").trim();
   if (override) return override;
   /**
@@ -66,7 +75,11 @@ const libraryRoot = (hint: string): string => {
    * which is exactly the kind of silent empty list A_98 exists to stop. Caught by the test below it,
    * not by reading.
    */
-  const trimmed = hint.replace(/[\/]+$/, "");
+  // A_103 B5: a loop, not a character class. `/[\\/]+$/` lost its backslash between editor and
+  // disk TWICE (A_98, then here), leaving `[\/]`, which strips forward slashes only. MEASURED: a
+  // Windows path ending in a backslash then failed the basename test and the loader returned 0 cases.
+  let trimmed = hint;
+  while (trimmed.endsWith("/") || trimmed.endsWith("\\")) trimmed = trimmed.slice(0, -1);
   if (basename(trimmed) === "works" && basename(dirname(trimmed)) === "library") return trimmed;
   return join(hint, "..", "library", "works");
 };
@@ -74,6 +87,7 @@ const libraryRoot = (hint: string): string => {
 const loadLibraryWorks = (hint: string): any[] => {
   const root = libraryRoot(hint);
   if (!existsSync(root)) return [];
+  lastLibraryRoot = root;
   const failed = failedWorks(root);
   const out: any[] = [];
   for (const slug of readdirSync(root).sort()) {
@@ -224,16 +238,69 @@ export function extractStructuralPatterns(cmlFiles: any[]): SeedPattern[] {
   });
 }
 
+/**
+ * A_100 A1 — RANKED selection, behind `SEED_SELECTION_RANKED` (default off).
+ *
+ * MEASURED 2026-09-18: with the flag off this function is `filter(axis).slice(0, 3)`, and the pool
+ * is read in `readdirSync().sort()` order — so for `identity`, which has 19 encoded cases, every run
+ * Agent 3 has ever made saw *Dark Power*, *In the Onyx Lobby* and *Room 13*, the alphabetically first
+ * three. Sixteen of nineteen — including *The Memoirs of Sherlock Holmes*, the best-verified encode in
+ * the library at 19/19 anchors — have never reached a prompt. That is the third instance of one
+ * defect: A_79 §14.3 found and fixed it in the device library and in `buildNoveltyConstraints`.
+ * **A constant order in front of a fixed-size cut is not a tiebreak; it is a silent allowlist.**
+ *
+ * Ranked: score = anchor coverage (encode-report.json, `spans[].ok`) + verification state
+ * (.verification.json: `derived` 1, `derived_unverified` 0.5) + an optional preference for a
+ * pattern whose gene shares the caller's `prefer` dimension. `id` is the FINAL tiebreak only.
+ * Flag off is byte-identical to the old slice, and the first test pins that.
+ */
+export interface SeedSelectionPrefs {
+  /** A slug that must be included if present on the axis (the morph's source, A_100 C1). */
+  mustInclude?: string;
+}
+
+const rankedSelectionEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.SEED_SELECTION_RANKED ?? "").trim());
+
+/** Resolve the library works root from the loader's hint, as `loadLibraryWorks` does. */
+const evidenceFor = (id: string, worksRoot: string): { coverage: number; state: string } => {
+  let coverage = 0;
+  let state = "unknown";
+  try {
+    const rep = JSON.parse(readFileSync(join(worksRoot, id, "encode-report.json"), "utf-8")) as { spans?: Array<{ ok?: boolean }> };
+    const spans = rep.spans ?? [];
+    coverage = spans.length ? spans.filter((s) => s.ok).length / spans.length : 0;
+  } catch { /* no report: coverage 0 */ }
+  try {
+    const v = JSON.parse(readFileSync(join(worksRoot, ".verification.json"), "utf-8")) as { works?: Record<string, string> };
+    state = v.works?.[id] ?? "unknown";
+  } catch { /* no manifest: unknown */ }
+  return { coverage, state };
+};
+
+/** The stable key a caller's memo must include when it caches a ranked selection (agent3-cml.ts). */
+export const seedSelectionKey = (prefs?: SeedSelectionPrefs): string =>
+  rankedSelectionEnabled() ? `ranked:${prefs?.mustInclude ?? ""}` : "slice";
+
 export function selectRelevantPatterns(
   patterns: SeedPattern[],
   targetAxis: string,
-  maxPatterns = 3
+  maxPatterns = 3,
+  prefs?: SeedSelectionPrefs,
+  worksRoot?: string,
 ): SeedPattern[] {
-  // Filter to same axis
-  const sameAxis = patterns.filter(p => p.axis === targetAxis);
-  
-  // Take up to maxPatterns
-  return sameAxis.slice(0, maxPatterns);
+  const sameAxis = patterns.filter((p) => p.axis === targetAxis);
+  if (!rankedSelectionEnabled()) return sameAxis.slice(0, maxPatterns);
+
+  const root = worksRoot ?? lastLibraryRoot ?? libraryRoot("");
+  const stateScore: Record<string, number> = { derived: 1, derived_unverified: 0.5 };
+  const scored = sameAxis.map((p) => {
+    const ev = evidenceFor(p.id, root);
+    const must = prefs?.mustInclude && p.id === prefs.mustInclude ? 10 : 0;
+    return { p, score: must + ev.coverage + (stateScore[ev.state] ?? 0) };
+  });
+  scored.sort((a, b) => b.score - a.score || a.p.id.localeCompare(b.p.id));
+  return scored.slice(0, maxPatterns).map((s) => s.p);
 }
 
 export function formatPatternsForPrompt(patterns: SeedPattern[]): string {

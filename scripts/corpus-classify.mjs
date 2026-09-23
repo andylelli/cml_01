@@ -36,10 +36,14 @@ const KEY = env.AZURE_OPENAI_API_KEY;
 const VER = env.AZURE_OPENAI_API_VERSION || "2024-10-21";
 const PRICE = { in: 1.58, out: 6.32 };
 
-const FAMILIES = ["locked_room_key", "locked_room_timing", "alibi_fabrication", "impersonation",
-  "substituted_body", "poison_delayed", "poison_substitution", "staged_scene", "unconscious_act",
-  "disguised_natural_agent", "hidden_accomplice", "information_leak", "recorded_presence",
-  "secret_will_inheritance"];
+/**
+ * A_103 B1: read from the schema, never restated. MEASURED 2026-09-23: this was a 14-entry literal
+ * against a 16-entry schema — `role_invisibility` and `investigative_blind_spot` could never be
+ * assigned by this script, and WP-003/WP-004 reported their zero attestation as a fact about the
+ * genre. It was a fact about this list. Fourth instance of the restated-fact defect.
+ */
+const FAMILIES = yaml.load(readFileSync(`${ROOT}/schema/novelty_fingerprint.schema.yaml`, "utf8"))
+  .properties.mechanism_family.enum;
 const DEVICE_FAMILY = {
   locked_room_key: "spatial_routing", locked_room_timing: "timing", alibi_fabrication: "timing",
   poison_delayed: "timing", poison_substitution: "timing", recorded_presence: "timing",
@@ -47,6 +51,7 @@ const DEVICE_FAMILY = {
   secret_will_inheritance: "authority", information_leak: "authority",
   staged_scene: "spatial_routing", hidden_accomplice: "behavioral",
   disguised_natural_agent: "behavioral", unconscious_act: "behavioral",
+  role_invisibility: "behavioral", investigative_blind_spot: "behavioral",   // A_103 B2
 };
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -116,6 +121,9 @@ ${JSON.stringify(brief, null, 1)}` },
 
   // fingerprint: correct the family
   const fpPath = `${dir}/fingerprint.yaml`;
+  // A_103 B41: without a fingerprint there is nothing to correct — say so, because the paid call
+  // has already been made and silence here reads as success.
+  if (!existsSync(fpPath)) console.log(`  ${slug}: NO fingerprint.yaml — run corpus-derive.mjs first; classification not applied`);
   if (existsSync(fpPath)) {
     const fp = yaml.load(readFileSync(fpPath, "utf8"));
     const was = fp[0].mechanism_family;

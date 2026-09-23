@@ -30,7 +30,16 @@ const only = (process.argv.find((a) => a.startsWith("--only=")) ?? "").split("="
 
 const ALL = readdirSync(`${ROOT}/library/works`)
   .filter((s) => existsSync(`${ROOT}/library/works/${s}/provenance.yaml`));
-const queue = (only ? only.split(",") : ALL)
+const requested = only ? only.split(",").map((s) => s.trim()).filter(Boolean) : ALL;
+// A_103 B27: MEASURED — `--only=no_such_work` printed "queue (0)" and exited clean. A typo in a
+// paid batch must be loud: name every requested slug that is not a work with a text.
+if (only) {
+  const unknown = requested.filter((s) => !existsSync(`${SRC}/${s}.txt`));
+  if (unknown.length) console.warn(`! --only names ${unknown.length} slug(s) with no text on disk: ${unknown.join(", ")}`);
+  const done = requested.filter((s) => existsSync(`${ROOT}/library/works/${s}/case.cml2.yaml`));
+  if (done.length) console.warn(`  (${done.length} already encoded, skipped: ${done.slice(0, 5).join(", ")}${done.length > 5 ? " …" : ""})`);
+}
+const queue = requested
   .filter((s) => existsSync(`${SRC}/${s}.txt`))
   .filter((s) => !existsSync(`${ROOT}/library/works/${s}/case.cml2.yaml`))
   .map((s) => ({ slug: s, words: readFileSync(`${SRC}/${s}.txt`, "utf8").split(/\s+/).length }))

@@ -70,8 +70,10 @@
     "corpus:coverage": "node scripts/corpus-coverage.mjs",
     "corpus:clearance": "node scripts/corpus-clearance-check.mjs",
     "corpus:manifest": "node scripts/corpus-manifest.mjs",
-    "corpus:check": "node scripts/corpus-clearance-check.mjs && node scripts/corpus-manifest.mjs --check && node scripts/corpus-cells.mjs --check",
-    "corpus:cells": "node scripts/corpus-cells.mjs"
+    "corpus:check": "node scripts/corpus-clearance-check.mjs && node scripts/corpus-manifest.mjs --check && node scripts/corpus-cells.mjs --check && node scripts/corpus-parts.mjs --check",
+    "corpus:cells": "node scripts/corpus-cells.mjs",
+    "corpus:parts": "node scripts/corpus-parts.mjs",
+    "corpus:part-types": "node scripts/corpus-part-types.mjs"
   },
   "devDependencies": {
     "typescript": "^5.5.4"
