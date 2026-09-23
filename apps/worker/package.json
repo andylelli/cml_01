@@ -31,7 +31,9 @@
     "dev": "node --max-old-space-size=6144 dist/index.js",
     "test": "vitest run",
     "harness:agent5:direct": "npm run build && node dist/harness/agent5-direct-llm-check-harness.js",
-    "harness:agent5:direct:help": "npm run build && node dist/harness/agent5-direct-llm-check-harness.js --help"
+    "harness:agent5:direct:help": "npm run build && node dist/harness/agent5-direct-llm-check-harness.js --help",
+    "harness:agent3:direct": "npm run build && node dist/harness/agent3-direct-llm-check-harness.js",
+    "harness:agent3:direct:help": "npm run build && node dist/harness/agent3-direct-llm-check-harness.js --help"
   },
   "dependencies": {
     "dotenv": "*",

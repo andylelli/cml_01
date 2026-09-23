@@ -343,7 +343,12 @@ export function checkLockedFactTimeAlignment(ctx: OrchestratorContext): string[]
   return findings;
 }
 
-function buildCmlGenerationRequest(ctx: OrchestratorContext, noveltyConstraints: any) {
+/**
+ * Exported for `harness:agent3:direct`. The harness must build the SAME request production does —
+ * a copy would test a prompt nobody runs, which is the divergence trap this repo has paid for
+ * repeatedly (`restated-facts-must-be-generated-and-checked`).
+ */
+export function buildCmlGenerationRequest(ctx: OrchestratorContext, noveltyConstraints: any) {
   const setting = ctx.setting!;
   const cast = ctx.cast!;
   const backgroundContext = ctx.backgroundContext!;

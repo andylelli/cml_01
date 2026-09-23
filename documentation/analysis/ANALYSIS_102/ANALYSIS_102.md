@@ -110,7 +110,7 @@ has no such harness**, and it is the stage with the most expensive failures.
 
 | step | cost |
 |---|---|
-| 1. build `harness:agent3:direct` — one CML from one set of inputs, no pipeline | £0 to build, pennies a call |
+| 1. build `harness:agent3:direct` — one CML from one set of inputs, no pipeline | **DONE — §6**, £0.008 a case |
 | 2. iterate the requirement against it until the case connects the culprit to the act **and** the test still needs the discriminating step | pennies |
 | 3. re-measure `proves-what.mjs` over the generated cases: the 15% should move | £0 |
 | 4. **then** a full paid run on a fresh seed, and a read | ~£1.15 + a read |
@@ -143,3 +143,46 @@ resume that already said it.
   prove the act that there is no comparison group. **The only way to test it is to make the case
   connect the culprit to the act and read the result** — which is §4's plan, and this is now its
   strongest justification.
+
+---
+
+## §6 THE AGENT 3 HARNESS — BUILT, AND IT REPRODUCES THE DEFECT ON FRESH CASES
+
+`npm run -w @cml/worker harness:agent3:direct -- --project <projectId>` generates ONE case from a
+project's real persisted `setting`, `cast`, `background_context` and `hard_logic_devices`, with no
+pipeline around it.
+
+**It reuses production rather than copying it.** The request comes from `buildCmlGenerationRequest`,
+the same function `agent3-run` calls, now exported; `generateCML` does the call, the normalisation and
+the validation. A harness with its own input builder would test a prompt nobody runs —
+[[restated-facts-must-be-generated-and-checked]], which this repo has paid for four times.
+
+**It reports A_102's classification of the case it just made**, so the number a fix has to move is
+printed by the instrument that makes the change, not by a separate script that can drift.
+
+### §6.1 THE BASELINE
+
+Three runs against seed 50862's upstream, **$0.011 / $0.011 / $0.010 — about £0.008 a case**, ~50s each:
+
+| run | culprit it chose | death method it chose | classification |
+|---|---|---|---|
+| 1 | Harriet Kestrel | stabbed with a dagger | **PRESENCE ONLY** |
+| 2 | Harriet Kestrel | stabbed with a dagger | **PRESENCE ONLY** |
+| 3 | Theodora Lachlan | stabbed with a stiletto knife | **PRESENCE ONLY** |
+
+**3 of 3 — MEASURED, on cases generated today.** §0's 85% was computed over an archive that could in
+principle have been produced by older prompts; this is the current prompt, run three times, producing
+the same defect each time. Each case's discriminating test proves the compass can be tilted; none
+connects the person holding the knife to the knife.
+
+It also shows Agent 3's variance from identical inputs: same setting, same cast, three runs, two
+different culprits and two different murder weapons. Any A/B on this stage needs several cases per
+arm, and at £0.008 each that is affordable.
+
+### §6.2 WHAT THIS CHANGES ABOUT THE PLAN
+
+§4's step 1 is done. Steps 2 and 3 are now a loop costing **under a penny per iteration** against a
+stage whose failures previously cost £1.15 to observe. The requirement in §3 can be drafted, run ten
+times, measured, and redrafted, before any book is written.
+
+**The rate to beat is 0 of 3.**
