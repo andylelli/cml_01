@@ -2933,3 +2933,11 @@ the qualifier on it dropped, as the compliance law predicts. One case at n=8 is 
 makes the collision a sequence: exactly TWO weapon-first traces, the innocent's mark first, the
 culprit's disturbance last. The batch was interrupted by a Windows restart at 04:21 and completed
 afterwards; nothing in the pipeline failed.
+
+**§32 UPDATE 4 (A_102 §9.6).** Draft 7 — exactly TWO weapon-first traces, innocent's mark first,
+culprit's disturbance last — **8 of 8, collision 0 of 8.** And the content thinned: the place slot
+survived in 2 of 8, six traces read "fresh handling marks — culprit", one is the culprit's
+fingerprints on the weapon, one smuggled the clock into the weapon's trace. The (d) shape sits above
+(c) with no place slot and the model harmonised (c) to it. **Goodhart on the classifier: 8 of 8 is the
+number, the case is not 8 of 8 better — do not cite it alone.** Draft 8 gives (d) the place slot too
+and drops "print" from it; then the loop stops, because the next question is a book.

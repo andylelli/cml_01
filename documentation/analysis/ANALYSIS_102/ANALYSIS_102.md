@@ -514,3 +514,46 @@ has been obeyed every time it was tried. The classifier already scores every wea
 fine.
 
 Draft 6 cost $0.088 for eight completed cases; the interrupted request may have been billed.
+
+### §9.6 DRAFT 7 — TWO WEAPON-FIRST TRACES IN A FIXED ORDER — 8 of 8, AND THE CONTENT THINNED
+
+Draft 7: *"constraint_space.physical.traces carries exactly TWO entries that begin with the murder
+weapon's name, in this order: FIRST the innocent's handling mark from (d), LAST this disturbance with
+the culprit's full name in its final slot"*, and (d) given its own shape,
+`"<weapon>: <print, smudge or handling mark> — <innocent>"`. Eight cases, same fixture.
+
+**8 of 8 PROVES THE ACT. The collision is 0 of 8. MEASURED.** Every case carries both traces in the
+stated order, and no case puts the culprit on the clock. A count of two simple things with fixed
+positions was obeyed eight times out of eight, which is the strongest compliance this block has had.
+
+**And the thing the number stands for got worse.** Read, not scored:
+
+| case | the culprit's trace | place slot | kind |
+|---|---|---|---|
+| 1 | *"fresh blood and handling mark — Percival Thorne"* | none | assertion |
+| 2 | *"deep scratch and blood traces — Percival Thorne"* | none | assertion |
+| 3 | *"fresh fingerprints and smudge matching Percival Thorne in servant's quarters"* | yes | **the culprit's fingerprints on the weapon** — the case-closing kind (§3) |
+| 4 | *"fresh handling marks indicating disturbance — Percival Thorne"* | none | assertion |
+| 5 | *"fresh handling marks inconsistent with Percival's pattern — Frances Orme"* | none | assertion |
+| 6 | *"smudge and fresh blood stains in manor room — Percival Thorne"* | yes | disturbance |
+| 7 | *"fresh scratch marks and repositioned detent lever in manor clock — Percival Thorne"* | wrong | **the clock, inside the weapon's trace** |
+| 8 | *"fresh handling scratch and repositioning marks — Percival Thorne"* | none | assertion |
+
+Drafts 5 and 6 produced *"missing from desk and found in lock-keeper's cottage drawer"*, *"displaced
+sheath in proprietor's office"*, *"scratch on handle found in garden shed"* — a disturbance, in a
+place. Draft 7 produced *"fresh handling marks"* six times. **The place slot survived in 2 of 8.**
+
+**The mechanism is visible:** the (d) shape sits immediately above (c) and has no place slot. The
+model wrote (c) in the same form as (d) — parallel construction — and the place went with it. Two
+adjacent shapes converge on the simpler one. *"Print"* in (d)'s slot also licensed fingerprints on the
+weapon, and case 3 gave the culprit's.
+
+**This is Goodhart on the instrument.** The classifier asks whether a weapon trace names the culprit
+and cannot tell *"fresh handling marks — Percival"* from *"found in the cottage drawer — Percival"*.
+8 of 8 is the number; the case is not 8 of 8 better. **Recorded so that the number is not cited alone.**
+
+**Draft 8, the last in this loop:** give (d) the same place slot as (c), so the parallel construction
+keeps the place; and take *"print"* out of its slot. Then stop iterating, whatever the number — the
+next question is a book, and the harness cannot answer it.
+
+Draft 7 cost $0.088.
