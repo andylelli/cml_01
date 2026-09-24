@@ -8,6 +8,7 @@ import type { NarrativeOutline } from "../agent7-narrative.js";
 import type { ClueDistributionResult } from "../agent5-clues.js";
 import type { ProseChapter, ChapterRequirementLedgerEntry } from "./types.js";
 import { surfaceSpecKeyTerms } from "./clue-validation.js";
+import { provesTheAct } from "../agent3-means-link.js";
 
 /**
  * Canonical framing for any place that injects `discriminating_test.design` into a
@@ -86,6 +87,46 @@ export function validateChecklistRequirements(caseData: CaseData): string {
  * Provides explicit checkbox requirements for late chapters (past 70% of story) where the test should appear.
  * Breaks down complex multi-step reasoning into concrete requirements.
  */
+/**
+ * A_107 — split a weapon-first means-link trace ("<weapon>: <finding> — <culprit>", Agent 3 rule 8b)
+ * into its parts, so the confrontation checklist can ask for the link without quoting a span long
+ * enough to be copied and then rejected by the verbatim-copy gate. Undefined when the shape is absent.
+ */
+export const splitMeansLinkTrace = (
+  trace: string | undefined,
+): { weapon: string; finding: string; culprit: string } | undefined => {
+  const t = String(trace ?? "").trim();
+  const colon = t.indexOf(":");
+  const dash = Math.max(t.lastIndexOf(" \u2014 "), t.lastIndexOf(" - "), t.lastIndexOf(" \u2013 "));
+  if (colon <= 0 || dash <= colon) return undefined;
+  const weapon = t.slice(0, colon).trim();
+  const finding = t.slice(colon + 1, dash).trim().replace(/[.;,]+$/, "");
+  const culprit = t.slice(dash + 3).trim().replace(/^by\s+/i, "").replace(/[.;,]+$/, "");
+  if (!weapon || !finding || !culprit) return undefined;
+  return { weapon: weapon.charAt(0).toLowerCase() + weapon.slice(1), finding, culprit };
+};
+
+/**
+ * A_107 — the name and the reason, stated for the discriminating-test chapter. The same operation as
+ * v2's `revealOperation` (prose-engine/brief.ts): a count of simple things the model obeys — one
+ * sentence with the culprit's name and a verb of killing, then the culprit's own answer, which carries
+ * the reason. Empty when the case names no culprit.
+ */
+export const buildNameAndReasonLines = (cmlCase: any): string => {
+  const culprits: string[] = (cmlCase?.culpability?.culprits ?? []).map((n: unknown) => String(n ?? '').trim()).filter(Boolean);
+  if (culprits.length === 0) return '';
+  const victimMember = (cmlCase?.cast ?? []).find((c: any) =>
+    isVictimArchetype(String(c?.role_archetype ?? c?.roleArchetype ?? c?.role ?? '').toLowerCase()));
+  const culprit = culprits.join(', ');
+  const victim = String(victimMember?.name ?? '').trim() || 'the victim';
+  return (
+    `☐ **The Name and the Reason**\n` +
+    `  ☐ One sentence, spoken aloud by the investigator, states as settled fact that ${culprit} killed ${victim}: the culprit's name and a verb of killing in the same sentence.\n` +
+    `  ☐ Then ${culprit} answers, in their own words on the page, and what ${culprit} says is the reason: what ${victim} was going to do to them, or what they stood to lose.\n` +
+    `\n`
+  );
+};
+
 export function buildDiscriminatingTestChecklist(
   caseData: CaseData, 
   chapterRange: string, 
@@ -221,6 +262,25 @@ export function buildDiscriminatingTestChecklist(
     checklist += `\n`;
   }
   
+  // A_107 — the weapon in the culprit's hand, AT the confrontation. The read book's only reveal-time
+  // sentence tying the culprit to the knife was item eight of a proof list in the chapter AFTER the
+  // confession — the list the reader asked us to cut. The knife clue was never among evidence_clues.
+  const meansLink = splitMeansLinkTrace(provesTheAct(cmlCase).linkingTraces[0]);
+  if (meansLink) {
+    checklist += `☐ **The Weapon in the Culprit's Hand**\n`;
+    checklist += `  ☐ Before anyone admits anything, the investigator connects ${meansLink.culprit} to the ${meansLink.weapon} aloud, by what was found: ${meansLink.finding}. In the investigator's own words, as part of the confrontation — never saved for a later chapter.\n`;
+    checklist += `\n`;
+  }
+  // A_107 — the name and the reason. On seed 18179 the fixes that cleared the injector's line and
+  // chapter 9's list left a book that never named the killer; the reveal contract cannot reach this
+  // chapter, so the operation is stated here.
+  checklist += buildNameAndReasonLines(cmlCase);
+  // A_107 — the 86 read: "was the clock wound backward by 55 minutes, or was the chime delay the main
+  // trick?" When the concealment leaves two physical signs, one sentence says which does which.
+  checklist += `☐ **One Sentence for the Mechanism**\n`;
+  checklist += `  ☐ If the concealment left more than one physical sign, the investigator says once, in one sentence, which sign produced the false reading and which sign only betrays that someone tampered with it.\n`;
+  checklist += `\n`;
+
   // Detective reasoning requirements
   checklist += `☐ **Detective Reasoning**\n`;
   checklist += `  ☐ Detective explicitly states the test logic\n`;

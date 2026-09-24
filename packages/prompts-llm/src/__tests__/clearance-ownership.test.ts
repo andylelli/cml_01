@@ -144,3 +144,45 @@ describe('the flag is read at call time', () => {
     expect(isClearanceOwnershipEnabled({ AGENT9_CLEARANCE_OWNERSHIP: 'true' } as never)).toBe(true);
   });
 });
+
+// A_107 — the 86 read of seed 18179: chapter 9 re-cleared every suspect after chapter 8's confession.
+describe('no chapter after the reveal owns a clearance', () => {
+  // The real act 3 of seed 18179's outline.
+  const OUTLINE_18179 = [
+    { act: 1, sceneNumber: 1, beat: 'gathering', title: 'Discovery' },
+    { act: 1, sceneNumber: 2, beat: 'crime', title: 'Conflicting Times' },
+    { act: 1, sceneNumber: 3, beat: 'first_enquiries', title: 'The Pocket Watch' },
+    { act: 2, sceneNumber: 4, beat: 'motives', title: 'Minute Hand Scratches' },
+    { act: 2, sceneNumber: 5, beat: 'alibis', title: 'Knife and Barn Evidence' },
+    { act: 2, sceneNumber: 6, beat: 'false_solution', title: 'Timed Winding Reenactment' },
+    { act: 2, sceneNumber: 7, beat: 'secrets', title: 'Alibis Confirmed and Contradicted' },
+    { act: 3, sceneNumber: 8, beat: 'final_trap', title: 'Discriminating Test' },
+    { act: 3, sceneNumber: 9, beat: 'revelation', title: 'Suspect Clearances' },
+    { act: 3, sceneNumber: 10, beat: 'revelation', title: 'Culprit Revealed and Aftermath' },
+  ];
+  const REFS = [
+    { suspect_name: 'Adela Bellamy', act_number: 3, scene_number: 5 },
+    { suspect_name: 'Marguerite Ashgrove', act_number: 3, scene_number: 5 },
+  ];
+
+  it('bars chapter 9 even though its title signals clearing, and gives the clearance to the trap chapter', () => {
+    const o = resolveClearanceOwnership({ clearanceScenes: REFS, allOutlineScenes: OUTLINE_18179 });
+    expect(o.vetoed.has(9)).toBe(true);
+    expect(o.vetoed.has(10)).toBe(true);
+    expect(o.suspectsByScene.has(9)).toBe(false);
+    for (const e of o.entries) expect(e.ownerSceneNumber).toBe(8);
+  });
+
+  it('walks back across acts rather than leave a suspect unowned when the reveal is in act 2', () => {
+    const early = OUTLINE_18179.map((s) => (s.sceneNumber === 6 ? { ...s, beat: 'final_trap' } : s.sceneNumber === 8 ? { ...s, beat: 'revelation' } : s));
+    const o = resolveClearanceOwnership({ clearanceScenes: REFS, allOutlineScenes: early });
+    for (const n of [7, 8, 9, 10]) expect(o.vetoed.has(n)).toBe(true);
+    for (const e of o.entries) expect(e.ownerSceneNumber).toBe(6);
+  });
+
+  it('leaves an outline without beats exactly as before: only the final chapter is barred', () => {
+    const o = resolveClearanceOwnership({ clearanceScenes: CLEARANCE_SCENES, allOutlineScenes: OUTLINE });
+    expect([...o.vetoed]).toEqual([10]);
+  });
+});
+

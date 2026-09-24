@@ -5269,7 +5269,16 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       },
       batchCommitRecord?: BatchCommitRecord,
     ) => {
-      checkpointedChapters.push(...(Array.isArray(batchChapters) ? batchChapters : []));
+      // A_106 — place each chapter at ITS position, never append. Identical for a normal run (the next
+      // chapter is always the next position); correct for a one-chapter redo, which used to append the
+      // rewritten chapter after the ten it had loaded, so the checkpoint grew to 16 chapters and every
+      // later redo silently rebuilt on the ORIGINAL chapters (the loader keeps the first sceneCount).
+      {
+        const startIndex = Math.max(0, Number(batchStart) - 1);
+        (Array.isArray(batchChapters) ? batchChapters : []).forEach((chapter: any, offset: number) => {
+          checkpointedChapters[startIndex + offset] = chapter;
+        });
+      }
       pendingTextureAtomIds = Array.isArray(usedTextureAtomIds) ? usedTextureAtomIds : [];
       const nsdBefore = {
         clues_revealed_to_reader: [...narrativeState.cluesRevealedToReader],

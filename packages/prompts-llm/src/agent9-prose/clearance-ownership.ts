@@ -56,6 +56,8 @@
  * `suspect_closure_missing` run-killer.
  */
 
+import { resolveRevealChapter } from "@cml/story-geometry";
+
 export interface ClearanceOwnershipEntry {
   /** The suspect as named in the CML. */
   suspectName: string;
@@ -129,6 +131,34 @@ export const resolveClearanceOwnership = (args: {
     );
   }
 
+  /**
+   * A_107 — INVARIANT 2, WIDENED: EVERY chapter after the reveal is aftermath, not only the last.
+   *
+   * The 86 read of seed 18179: "Chapter 8 already accuses Gerald and gets him to confess. Then
+   * Chapter 9 repeats the suspect clearances and walks the evidence again in a numbered list." Scene 9
+   * was titled "Suspect Clearances", the SIGNAL preference below chose it, and only the final chapter
+   * was barred — so a chapter after the confession was ordered to re-clear everyone. The geometry had
+   * already labelled it "aftermath". The reveal is found by story-geometry's own resolver over the
+   * outline both callers share, so the prompt and the deterministic repair cannot disagree.
+   *
+   * This REVERSES the preference recorded below for a later "Clearing the Innocent" chapter over
+   * "The Final Trap": when the trap precedes it, that chapter is aftermath, and the reader has now
+   * named the result as the book's main structural weakness. Outlines without beats resolve the
+   * reveal to the last chapter, so they are unaffected.
+   */
+  const revealPosition = resolveRevealChapter(allSorted as any[]);
+  const revealScene = allSorted[revealPosition - 1];
+  if (revealScene && revealPosition < allSorted.length) {
+    const revealNumber = Number(revealScene.sceneNumber);
+    for (const later of allSorted) {
+      const n = Number(later.sceneNumber);
+      if (n > revealNumber && !vetoed.has(n)) {
+        vetoed.add(n);
+        notes.push(`chapter ${n} vetoed as a clearance owner — it follows the reveal in chapter ${revealNumber}`);
+      }
+    }
+  }
+
   /** CML refs grouped by act, so ordinal position can be computed per act. */
   const refsByAct = new Map<number, any[]>();
   for (const ref of clearanceScenes) {
@@ -195,6 +225,14 @@ export const resolveClearanceOwnership = (args: {
         reason = owner
           ? `act ${act} ordinal ${ordinal + 1} was vetoed or absent — moved back to the last eligible chapter in the act`
           : `no eligible chapter in act ${act}`;
+        // A_107: with every post-reveal chapter barred, a whole act can be ineligible. Walk back to
+        // the last eligible chapter in the BOOK rather than leave the suspect unowned — earlier is
+        // always safe (closure is validated over the whole manuscript); unowned is a missing clearance.
+        if (!owner) {
+          const anyEligible = allSorted.filter((s) => !vetoed.has(Number(s.sceneNumber)));
+          owner = anyEligible[anyEligible.length - 1];
+          if (owner) reason = `act ${act} has no eligible chapter — moved back to the last eligible chapter in the book`;
+        }
       }
 
       const ownerSceneNumber = owner ? Number(owner.sceneNumber) : null;

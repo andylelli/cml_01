@@ -3022,3 +3022,16 @@ paragraph (repetition 48.6 → 16.0). **The residual is upstream:** the unbalanc
 chapter 8 into a fallback in two of three redos, the fallback path applies the DT patch unchecked, and
 one fallback lost the knife sentence. Next lever: a deterministic end-of-paragraph quote repair in
 place of that retry loop. The read book (86) remains seed 18179's best artefact.
+
+**§32 UPDATE 13 — the reveal after the 86 (A_106, A_107).** The fallback chapters were caused by the
+post-pass polish dropping quotation marks with no boundary check on its own acceptance; fixed with one
+shared function (10 of 10 on the real outputs). The knife link lived only in the chapter-9 list the
+reader wanted cut; the confrontation checklist now requires it, and it lands there before the
+admission. Chapter 9 was ordered to re-clear because clearance ownership barred only the final chapter;
+every chapter after the geometry's reveal is now barred. Removing the injector's line and chapter 9's
+list left a book that never named the killer; the confrontation now carries v2's reveal operation, and
+the last redo names him, links him to the knife and gives the reason, with chapter 9 as fallout and
+repetition at 8.5 per 10k. **Not readable yet**: a first-draft retry inserted the DT injector's
+paragraphs and the regen cleared one of three. The redo also corrupted its own checkpoint (fixed), and
+resume reports overwrite each other (not fixed). All of this is on the v1 writer; the recent paid runs
+never switched v2 on.
