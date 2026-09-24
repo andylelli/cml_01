@@ -747,3 +747,54 @@ Agent 3 links and uses; Agent 5 carries the weapon into the clue layer. Agents 7
 re-measured and the reveal has not been re-read; a third run is what measures them. The read block
 is unchanged: locked-fact enforcement puts the verbatim clock phrase in every chapter prompt
 (A_104 §1), and that has to move before a reader sees any of this.
+
+
+---
+
+## §12 THE THIRD PAID RUN — SEED 18179. ALL THREE TESTABLE PREDICTIONS PASSED
+
+| | |
+|---|---|
+| run id | `mystery-1790251239840` (second launch; the first, `mystery-1790250322380`, died at the novelty gate — A_104 §5) |
+| project id | `canary_1790251239837` |
+| seed | 18179 · temporal · mechanical clock tampering · Village 1920s dark · amateur detective · **classic** narrative · humour classic · 7 cast · angle: an ornithologist's bird sanctuary |
+| cost | **$1.198**, plus roughly a tenth of a book for the lost first launch |
+| status | warning |
+| release gate | warning — `geometry unaccounted_time`, four clock readings nothing in the case accounts for |
+| rubric (shadow) | **71 / 100**, raw 75 — the highest since 18 September; capped for *"mechanism explained too early"* |
+| ship-check | repetition **22.8 per 10k — Normal** (median 17.3); chapter 1 fell to a completion fallback on unbalanced quotation marks; premature disclosure flagged in chapter 2 |
+| words | 13,150 |
+
+### §12.1 EVERY PREDICTION
+
+| # | prediction | result |
+|---|---|---|
+| 1 | the log says PROVES THE ACT and names the step that uses the trace | **PASSED** — *"birdwatcher's knife: fresh handling marks and smudges found in barn — Gerald Thorne"*, `[used by inference step 4]`; the innocent's glove smudge in the garden shed, as designed |
+| 2 | the culprit-direct clue names the weapon and cites the trace path | **PASSED** — cites `constraint_space.physical.traces[1]`; observable *"Fresh handling marks and smudges on the birdwatcher's knife in the barn match Gerald Thorne"*; the repair **appended** its two phrases to `pointsTo` instead of overwriting |
+| 3 | the reveal rests on a physical fact tying culprit to weapon | **PASSED** — planted in chapter 5, *"Knife and Barn Evidence"*, and the reveal's eighth point: *"the birdwatcher's knife: last disturbed in the barn, bearing fresh handling marks that match Gerald Thorne's grip"*. No confession line carries the act |
+| 4 | repetition below the resumed book's 5.9× | **PASSED on the instrument** — 22.8, normal; see §12.2 for what the instrument cannot see |
+
+**The chain A_102 was written for runs end to end for the first time: Agent 3 authors the link and
+uses it, Agent 5 carries it with its weapon, the outline plants it mid-book, the reveal rests on it.**
+MEASURED on one book. Whether a reader then stops saying the trick does not prove the murder
+physically is still the read, and this book cannot go to a reader yet: chapter 1 is a fallback chapter.
+
+### §12.2 WHAT THE REPETITION INSTRUMENT CANNOT SEE
+
+The ship-check counts repeated **six-word** spans. This run's locked values are three words —
+*"quarter past ten"*, *"twenty minutes past nine"* — and they appear **15 and 13 times**, three
+chapters carrying three each. The locked-once block asked for one statement per chapter where the
+fact is evidence; that was not achieved here, and the instrument said Normal because the phrases are
+short. Seed 6325's *"at half past seven at night"* was six words and registered. **So 22.8 is a true
+number about six-word spans and not evidence that the once-per-chapter instruction held.** The honest
+comparison is the phrase count: 10 on 6325, 7 on its resume, 13–15 here on a book a third longer.
+
+### §12.3 WHAT NOW STANDS BETWEEN THIS BOOK AND A READER
+
+- **Chapter 1 is a fallback**, on a boundary-integrity failure (unbalanced quotation marks) after three
+  attempts. No chapter-level redo exists: `RESUME_REDO=prose` re-runs all ten chapters, and the
+  checkpoint path keeps completed chapters, fallback included. A one-chapter redo is the cheapest
+  instrument this project does not have.
+- Chapter 2 names the culprit's guilt early (ship-check, measure only), and four clock readings are
+  unaccounted for by the case (release-gate warning).
+- Agent 6's blind-reader gate was skipped on content filtering for the third run running.

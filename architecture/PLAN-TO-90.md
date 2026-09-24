@@ -2980,3 +2980,14 @@ clue descriptions in the chapter obligation block are copied verbatim into prose
 rejects the copy, retries exhaust, and chapter 1 fell to fallback on exactly that. Next lever: show a
 clue's on-page `observable` to the writer, never its analytic description with the clock time in it.
 The rubric moved six points on one prose re-run against identical upstream — the instrument again.
+
+**§32 UPDATE 9 — third paid run, seed 18179 (A_102 §12, A_104 §5–§6).** `mystery-1790251239840`,
+$1.20, rubric **71** (highest since 18 September), status warning, gate warning. **All three testable
+predictions passed**: the log said PROVES THE ACT `[used by inference step 4]`; the culprit-direct
+clue cites `traces[1]` and names the knife; the reveal's eighth point is the knife's handling marks in
+the barn matching the culprit's grip, planted in chapter 5, no confession carrying the act. The chain
+A_102 was written for ran end to end for the first time. Repetition **22.8 per 10k, Normal** — with
+the caveat that the instrument counts six-word spans and this run's three-word locked values still
+appear 13–15 times. **Not readable yet**: chapter 1 is a fallback (unbalanced quotation marks) and
+there is no one-chapter redo; building one is the next item, because it is what separates a read
+from a £1.20 re-run. The first launch died at the novelty gate on a self-match (fixed, d368cee5).

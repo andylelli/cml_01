@@ -170,3 +170,22 @@ Two smaller things from the same log. Agent 3's first attempt was truncated at t
 so this is not new with the longer block, but it is a cost worth watching. And the prompt recorder
 could not open `documentation/prompts/actual/README.md` for one second at 12:49 — two writers in the
 same second; the file was writable a minute later.
+
+
+---
+
+## §6 THE FULL RUN AFTER THE LOCKED-ONCE BLOCK — 22.8 PER 10K, NORMAL, WITH ONE CAVEAT
+
+Seed 18179, `mystery-1790251239840` (A_102 §12): **repetition 22.8 per 10k against the 17.3 median —
+Normal.** The three books before it: 75.2, 151.7, and 102.6 on the resume. **MEASURED.**
+
+**The caveat is the instrument.** It counts six-word spans. This run's locked values are three words
+(*"quarter past ten"* ×15, *"twenty minutes past nine"* ×13, three chapters with three each), so the
+once-per-chapter instruction did not hold here and the metric could not see it. On seed 6325 the value
+was six words and it registered. The 22.8 is true about six-word spans; it is not proof that the block
+achieved once-per-chapter. What did move: the six-word locked phrase (§1) and the clue-text copies
+(§4.2) are gone from the worst-span list, which is empty of locked values for the first time.
+
+The book is still not readable: chapter 1 fell to a completion fallback on unbalanced quotation marks
+after three attempts, and there is no one-chapter redo. That instrument is the next thing to build,
+because it is what separates a read from a £1.20 re-run.
