@@ -637,7 +637,7 @@ Before finalizing, run a silent checklist:
 - if the concealment fakes a time: apparent_time_of_death sits inside a culprit alibi window, actual_time_of_death sits in a culprit gap, and the two differ
 - all required top-level keys present
 - 3-5 inference steps with required_evidence in each
-- the MURDER WEAPON (death_method's object, not the concealment device) has a stated keeper, a stated place it was kept with two or more suspects able to reach it, and exactly TWO traces beginning with the weapon's name, each naming a place: the innocent's mark FIRST, the culprit's disturbance LAST
+- the MURDER WEAPON (death_method's object, not the concealment device) has a stated keeper, a stated place it was kept with two or more suspects able to reach it, exactly TWO traces beginning with the weapon's name, each naming a place (the innocent's mark FIRST, the culprit's disturbance LAST), and one inference step whose observation is that last trace word for word
 - discriminating_test uses only previously exposed evidence
 - false_solution accuses an innocent suspect and has exactly one flaw
 - at least two red_herrings, each with an innocent_explanation
@@ -908,9 +908,12 @@ ${hardLogicDeviceText}
       and it is also one of the two required red_herrings, with its innocent_explanation. The
       weapon's own surface carries misdirection, never the answer; the answer is the LAST trace, (c),
       which names what the weapon's TAKING disturbed, in its own place.
-   ONE inference step lists (b) and (c) in its required_evidence. That step's effect NARROWS the pool
-   to the reachable names from (b); two or more suspects survive it and the culprit is among them. A
-   step whose effect is the culprit's name has put the answer before the discriminating test.
+   e. THE STEP THAT USES IT — one entry in inference_path.steps, in this shape:
+        observation: "<the (c) trace, word for word>"
+        correction: "<what the reader may conclude from (c) together with (b)>"
+        effect: "Narrows the pool to <the reachable names from (b), two or more, the culprit among them>"
+        required_evidence: ["<the (b) entry, word for word>", "<the (c) trace, word for word>"]
+        reader_observable: true
 9. Create discriminating test appropriate for ${inputs.primaryAxis} axis, following these HARD RULES:
    a. DESIGN ORDER: Write all inference_path steps FIRST (progressively revealing the mechanism). Design the discriminating test LAST, based only on what those steps already establish.
    b. NO NEW FACTS IN THE TEST: Every mechanical, physical, or causal detail the test exploits MUST already appear as required_evidence in at least one prior inference step. If your test relies on "clock spring tension" or "premeditated purchase" — that exact evidence must be in an earlier step's required_evidence and marked reader_observable: true.

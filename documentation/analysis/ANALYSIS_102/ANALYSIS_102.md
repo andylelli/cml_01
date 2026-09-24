@@ -680,3 +680,70 @@ does not carry it either. Neither was visible from the harness, which scores the
 Settled: the block reaches production, the case links, the log says so at minute five, and the link
 is lost at Agent 5 and unused by Agent 3's inference path. Not settled: whether a book whose reveal
 rests on the trace reads better — that needs §10.3 built and a third run, and no run before then.
+
+
+---
+
+## §11 THE TWO FIXES FROM §10.3, BUILT AND MEASURED — AND A THIRD HOLE IN AN INSTRUMENT
+
+**2026-09-24, £0.10.** Both fixes are shape-and-source changes; both were measured on the same
+artefacts that showed the failure.
+
+### §11.1 AGENT 3 — THE STEP THAT USES THE TRACE IS A SHAPE NOW
+
+The block's closing sentence (*"ONE inference step lists (b) and (c) in its required_evidence…"*)
+became entry (e), a YAML-shaped step whose `observation` is the (c) trace word for word and whose
+`effect` is *"Narrows the pool to <the reachable names from (b)>"*. The classifier learned to score
+USE: `usedInInferencePath` is true when a linking trace appears, normalised, in some step's
+observation or required_evidence, and the verdict line says `[used by inference step N]` or
+`[NOT USED by any inference step]` — in the harness and in the run log alike.
+
+| | linked | used by a step |
+|---|---|---|
+| draft 8, re-scored offline (8 cases) | 8 of 8 | **0 of 8** |
+| seed 6325, the paid run | 1 of 1 | 0 of 1 |
+| draft 8 + step shape (4 cases) | 4 of 4 | **4 of 4** — steps 3, 3, 4, 4 |
+
+**MEASURED.** The paid run's failure reproduces on the fixture at 0 of 8 and the shape moves it to
+4 of 4. The three tests pinning it use seed 6325's own traces.
+
+### §11.2 AGENT 5 — THE CULPRIT-DIRECT SLOT SOURCES FROM THE WEAPON-FIRST TRACE
+
+`buildStrictDirectCulpritClue` now runs `provesTheAct` on the case; when a weapon-first trace names
+the culprit, that trace's path is the FIRST allowed source, the weapon phrase (*"heavy iron poker"*)
+is a required phrase, and the prompt shows the trace as the observable to write. The five restated
+inline types became one `StrictDirectCulpritClue`.
+
+**And the phrasing repair no longer overwrites.** It used to replace the whole clue with *"Direct
+evidence ties X to the mechanism access point…"* whenever any required phrase was missing — on seed
+61062 that erased a clue that had named the weapon. It now overwrites only when the culprit's name is
+absent, and then restates the trace; a missing phrase is appended to `pointsTo`.
+
+| | cites | names the weapon |
+|---|---|---|
+| seed 6325, the paid run | `cast[2].evidence_sensitivity[0]` ("forge tools") | no |
+| harness, contract rebuilt from the same CML, run 1 | `constraint_space.physical.traces[1]` | **yes** — *"At Julian Carrick's forge, the heavy iron poker is found with disturbed dust and repositioned among tools"* |
+| harness, run 2 | `constraint_space.physical.traces[1]` | **yes** |
+
+**2 of 2 against 0 of 1. MEASURED**, on the frozen case, £0.02.
+
+### §11.3 THE HARNESS HAD NEVER SENT THE CONTRACT
+
+The first two harness runs produced **no culprit-direct clue at all**, and the reason is an instrument
+defect of the A_103 B68/B69 family: production passes the strict structural contract to the prompt as
+`strictContract` (`agent5-run.ts:3642`); the harness passed only `fairPlayFeedback`. The block that
+carries the culprit-direct slot, the required ID→source mappings and the late slot **never reached
+the model from the harness** — including in A_101 §15's three runs, which therefore measured the
+retry-feedback path, not the first-attempt contract. The harness now builds the contract with
+production's own exported `buildStrictPromptFeedback`; `--noStrict` opts out.
+
+Third time in this document that "same as production" held for the inputs that were easy to see and
+not for the one that shapes the prompt most. **When a harness claims to run production's prompt,
+diff the two prompts once.**
+
+### §11.4 STATE
+
+Agent 3 links and uses; Agent 5 carries the weapon into the clue layer. Agents 7 and 9 have not been
+re-measured and the reveal has not been re-read; a third run is what measures them. The read block
+is unchanged: locked-fact enforcement puts the verbatim clock phrase in every chapter prompt
+(A_104 §1), and that has to move before a reader sees any of this.

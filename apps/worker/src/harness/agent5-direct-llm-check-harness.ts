@@ -15,6 +15,7 @@ import {
   recomputeCoverageSnapshotForAgent6,
 } from "../jobs/agents/agent5-run.js";
 import { applyClueGuardrails } from "../jobs/agents/shared.js";
+import { buildStrictPromptFeedback } from "../jobs/agents/agent5-run.js";
 
 type CliArgs = {
   cmlPath: string;
@@ -27,6 +28,7 @@ type CliArgs = {
   projectId: string;
   promptFilePath?: string;
   fairPlayFeedbackPath?: string;
+  noStrict?: boolean;
   outputPath?: string;
   strictCmlValidation: boolean;
 };
@@ -148,6 +150,7 @@ const printUsage = (): void => {
       "  --projectId <id>                     Default: harness-project",
       "  --promptFile <path>                  Optional markdown file containing Message 1/2/3 blocks",
       "  --fairPlayFeedback <path>            Optional JSON file used as fairPlayFeedback input",
+      "  --noStrict                           Do NOT build the strict structural contract from the CML (production always does; A_102 §10.3)",
       "  --out <path>                         Optional output JSON path",
       "  --allowInvalidCml                    Continue even if validateCml fails",
       "  --help                               Show this help",
@@ -206,6 +209,7 @@ const parseArgs = (argv: string[]): CliArgs => {
     projectId: getArg("--projectId") ?? "harness-project",
     promptFilePath: getArg("--promptFile"),
     fairPlayFeedbackPath: getArg("--fairPlayFeedback"),
+    noStrict: process.argv.includes("--noStrict"),
     outputPath: getArg("--out"),
     strictCmlValidation: !argv.includes("--allowInvalidCml"),
   };
@@ -443,6 +447,11 @@ async function main(): Promise<void> {
       clueDensity: args.clueDensity,
       redHerringBudget: args.redHerringBudget,
       fairPlayFeedback,
+      // Production passes the strict structural contract on every first attempt
+      // (agent5-run.ts, `strictContract: strictPromptFeedbackBase`). Without it the culprit-direct
+      // slot, the required ID->source mappings and the late slot never reach the model, and a
+      // harness run measures a prompt nobody runs (A_102 §10.3). Built by production's own builder.
+      strictContract: args.noStrict ? undefined : buildStrictPromptFeedback(cmlPayload as CaseData),
       runId: args.runId,
       projectId: args.projectId,
     } as ClueExtractionInputs);

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { instrumentWords, orphanedMeansLinkTraces, provesTheAct, textNamesAnyOf } from "../agent3-means-link.ts";
+import { instrumentWords, orphanedMeansLinkTraces, provesTheAct, stepUsingTrace, textNamesAnyOf } from "../agent3-means-link.ts";
 
 // A_102 §8 — the paid run on seed 61062, reduced to the four traces and the two names that mattered.
 // death_method was a ceremonial letter opener; the concealment was a tampered lounge clock. Agent 3
@@ -89,3 +89,51 @@ describe("orphanedMeansLinkTraces — the slot filled with a name normalization 
     expect(orphaned).not.toContain("Smudged fingerprints on clock face near hour hand — Neville Underhill");
   });
 });
+
+describe("stepUsingTrace — authored and unused is the failure the harness could not see (A_102 §10.2)", () => {
+  // Seed 6325, reduced: the case linked and no inference step used the trace.
+  const seed6325 = {
+    death_method: "struck with a heavy iron poker",
+    culpability: { culprits: ["Julian Carrick"] },
+    discriminating_test: { design: "", knowledge_revealed: "", pass_condition: "The pawnbroker's clock strikes twice at half past seven while the church clock strikes once" },
+    constraint_space: {
+      physical: {
+        traces: [
+          "heavy iron poker: glove smudge found in pawnbroker's shop — Lavinia Yardley",
+          "heavy iron poker: disturbed dust and repositioned tool found in Julian Carrick's forge — Julian Carrick",
+        ],
+      },
+    },
+    inference_path: {
+      steps: [
+        { observation: "The pledge book contains timestamps backdated by fifteen minutes", required_evidence: ["ink drying patterns"] },
+        { observation: "The clock strikes twice", required_evidence: ["secondary cam on the strike train"] },
+      ],
+    },
+  };
+
+  it("reports the seed 6325 case as linked but NOT USED", () => {
+    const v = provesTheAct(seed6325);
+    expect(v.verdict).toBe("PROVES THE ACT");
+    expect(v.usedInInferencePath).toBe(false);
+    expect(v.detail).toContain("NOT USED by any inference step");
+  });
+
+  it("finds the step when its observation is the trace, ignoring quotes, case and spacing", () => {
+    const used = {
+      ...seed6325,
+      inference_path: { steps: [seed6325.inference_path.steps[0], { observation: "“Heavy iron poker: disturbed dust and repositioned tool found in Julian Carrick's forge — Julian Carrick”", required_evidence: [] }] },
+    };
+    expect(stepUsingTrace(used, provesTheAct(used).linkingTraces)).toBe(2);
+    expect(provesTheAct(used).detail).toContain("[used by inference step 2]");
+  });
+
+  it("finds the step when the trace sits in required_evidence", () => {
+    const used = {
+      ...seed6325,
+      inference_path: { steps: [{ observation: "Dust in the forge", required_evidence: ["heavy iron poker: disturbed dust and repositioned tool found in Julian Carrick's forge — Julian Carrick"] }] },
+    };
+    expect(provesTheAct(used).usedByStep).toBe(1);
+  });
+});
+

@@ -7,12 +7,33 @@
  */
 
 import { isChronologyEnabled as isA90ChronologyEnabled, deriveCaseChronology, findUnanchoredClockValues, summariseChronology } from "@cml/cml";
-import { extractClues } from "@cml/prompts-llm";
+import { extractClues, provesTheAct } from "@cml/prompts-llm";
 import type { ClueDistributionResult } from "@cml/prompts-llm";
 import type { CaseData } from "@cml/cml";
 // ONE clock parser. This file used to keep a private third copy; see parseFactClockMinutes.
 import { parseClockTime } from "@cml/cml";
 import type { PhaseScore } from "@cml/story-validation";
+/**
+ * The culprit-direct slot contract. `weaponTrace` / `weaponPhrase` are set when the case carries a
+ * weapon-first trace naming the culprit (Agent 3 rule 8b, A_102): the slot then sources from that
+ * trace and must name the weapon, so the link authored upstream reaches the clue layer intact
+ * (A_102 §10.2 — on seed 6325 it did not).
+ */
+type StrictDirectCulpritClue = {
+  id: string;
+  culpritName: string;
+  allowedSourcePaths: string[];
+  requiredPhrases: string[];
+  weaponTrace?: string;
+  weaponPhrase?: string;
+};
+
+/** "struck with a heavy iron poker" -> "heavy iron poker". */
+const weaponPhraseOf = (deathMethod: string): string | undefined => {
+  const m = / with (?:a |an |the )?(.+)$/i.exec(String(deathMethod ?? "").trim());
+  return m ? m[1].trim().replace(/[.;]+$/, "") : undefined;
+};
+
 import {
   type OrchestratorContext,
   type ClueGuardrailIssue,
@@ -62,7 +83,7 @@ type StrictPromptFeedbackPayload = {
   requiredIdToSourceMappings: Array<{ id: string; sourceInCML: string }>;
   requiredStepCoverageFloors: Array<{ step: number; requireContradiction: boolean; requireMapped: boolean }>;
   requiredLateClueSlot?: { id: string; placement: "late"; criticality: "optional" | "supporting" };
-  requiredDirectCulpritClue?: { id: string; culpritName: string; allowedSourcePaths: string[]; requiredPhrases: string[] };
+  requiredDirectCulpritClue?: StrictDirectCulpritClue;
 };
 
 /**
@@ -692,7 +713,7 @@ const buildStrictLateClueSlot = (cml: CaseData): { id: string; placement: "late"
 const buildStrictDirectCulpritClue = (
   cml: CaseData,
   strictSourcePaths: string[],
-): { id: string; culpritName: string; allowedSourcePaths: string[]; requiredPhrases: string[] } | undefined => {
+): StrictDirectCulpritClue | undefined => {
   const caseBlock = getCaseBlock(cml);
   const culprits = Array.isArray(caseBlock?.culpability?.culprits)
     ? caseBlock.culpability.culprits.map((name: any) => String(name ?? "").trim()).filter(Boolean)
@@ -703,6 +724,21 @@ const buildStrictDirectCulpritClue = (
   const cast = Array.isArray(caseBlock?.cast) ? caseBlock.cast : [];
   const castIndex = cast.findIndex((entry: any) => String(entry?.name ?? "").trim() === culpritName);
   const allowedSourcePaths: string[] = [];
+
+  // A_102 §10.2: the slot used to source from cast[].evidence_sensitivity — bare nouns — and the
+  // murder weapon never entered the clue layer. When the case carries a weapon-first trace naming the
+  // culprit, that trace is the FIRST allowed source and its weapon is a required phrase.
+  const link = provesTheAct(caseBlock);
+  const traces: string[] = Array.isArray(caseBlock?.constraint_space?.physical?.traces)
+    ? caseBlock.constraint_space.physical.traces.map((t: any) => String(t ?? ""))
+    : [];
+  const weaponTrace = link.linkingTraces[0];
+  const weaponTraceIndex = weaponTrace ? traces.indexOf(weaponTrace) : -1;
+  if (weaponTraceIndex >= 0) {
+    const tracePath = `CASE.constraint_space.physical.traces[${weaponTraceIndex}]`;
+    if (strictSourcePaths.includes(tracePath)) allowedSourcePaths.push(tracePath);
+  }
+  const weaponPhrase = weaponTraceIndex >= 0 ? weaponPhraseOf(String(caseBlock?.death_method ?? "")) : undefined;
 
   if (castIndex >= 0) {
     const castPaths = [
@@ -729,14 +765,16 @@ const buildStrictDirectCulpritClue = (
     id: `clue_culprit_direct_${toClueIdSlug(culpritName)}`,
     culpritName,
     allowedSourcePaths: [...new Set(allowedSourcePaths)].slice(0, 8),
-    requiredPhrases: [culpritName, "direct evidence", "means and opportunity", "no other eligible suspect"],
+    requiredPhrases: [culpritName, ...(weaponPhrase ? [weaponPhrase] : []), "direct evidence", "means and opportunity", "no other eligible suspect"],
+    weaponTrace: weaponTraceIndex >= 0 ? weaponTrace : undefined,
+    weaponPhrase,
   };
 };
 
 const buildStrictIdToSourceMappings = (
   cml: CaseData,
   strictSourcePaths: string[],
-  requiredDirectCulpritClue?: { id: string; culpritName: string; allowedSourcePaths: string[]; requiredPhrases: string[] },
+  requiredDirectCulpritClue?: StrictDirectCulpritClue,
 ): Array<{ id: string; sourceInCML: string }> => {
   const caseBlock = getCaseBlock(cml);
   const mappings: Array<{ id: string; sourceInCML: string }> = [];
@@ -902,7 +940,7 @@ const applyStrictIdToSourceMappingRepairs = (
 const ensureStrictDirectCulpritClue = (
   cml: CaseData,
   clues: ClueDistributionResult,
-  requiredDirectCulpritClue?: { id: string; culpritName: string; allowedSourcePaths: string[]; requiredPhrases: string[] },
+  requiredDirectCulpritClue?: StrictDirectCulpritClue,
 ): string[] => {
   if (!requiredDirectCulpritClue) return [];
 
@@ -1001,10 +1039,20 @@ const ensureStrictDirectCulpritClue = (
 
   const clueText = `${String(clue?.description ?? "")} ${String(clue?.pointsTo ?? "")}`;
   const missingPhrases = requiredDirectCulpritClue.requiredPhrases.filter((phrase) => !clueText.toLowerCase().includes(String(phrase).toLowerCase()));
-  if (!nameAppearsInText(culpritName, clueText) || missingPhrases.length > 0) {
-    clue.description = `Direct evidence ties ${culpritName} to the mechanism access point before the discriminating test and excludes competing suspect timelines.`;
-    clue.pointsTo = `This direct evidence shows ${culpritName} had means and opportunity, narrowing the solution uniquely toward the culprit. ${nonCulpritClause}`;
+  if (!nameAppearsInText(culpritName, clueText)) {
+    // A_102 §10.2: the old template said "the mechanism access point" and erased the weapon from the
+    // one clue that carried it. When the case has a weapon-first trace, the repair restates THAT.
+    const weapon = requiredDirectCulpritClue.weaponPhrase;
+    clue.description = requiredDirectCulpritClue.weaponTrace
+      ? `${requiredDirectCulpritClue.weaponTrace}. Direct evidence ties ${culpritName} to the ${weapon ?? "murder weapon"} before the discriminating test and excludes competing suspect timelines.`
+      : `Direct evidence ties ${culpritName} to the mechanism access point before the discriminating test and excludes competing suspect timelines.`;
+    clue.pointsTo = `This direct evidence shows ${culpritName} had means and opportunity${weapon ? ` with the ${weapon}` : ""}, narrowing the solution uniquely toward the culprit. ${nonCulpritClause}`;
     repairs.push(`strict direct culprit phrasing repair: ${requiredDirectCulpritClue.id}`);
+  } else if (missingPhrases.length > 0) {
+    // Append what is missing; never overwrite a clue that already names the culprit. Overwriting is
+    // how a weapon-bearing observable became "the mechanism access point" (A_102 §10.2).
+    clue.pointsTo = `${String(clue?.pointsTo ?? "").trim()} ${culpritName}: ${missingPhrases.join(", ")}.`.trim();
+    repairs.push(`strict direct culprit phrasing repair (appended ${missingPhrases.length} phrase(s)): ${requiredDirectCulpritClue.id}`);
   }
 
   return repairs;
@@ -1155,7 +1203,7 @@ const checkStrictIdToSourceMappings = (
 
 const checkStrictDirectCulpritClue = (
   clues: ClueDistributionResult,
-  requiredDirectCulpritClue?: { id: string; culpritName: string; allowedSourcePaths: string[]; requiredPhrases: string[] },
+  requiredDirectCulpritClue?: StrictDirectCulpritClue,
 ): ClueGuardrailIssue[] => {
   if (!requiredDirectCulpritClue) return [];
 

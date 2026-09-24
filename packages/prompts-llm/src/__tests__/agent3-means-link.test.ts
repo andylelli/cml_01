@@ -78,8 +78,11 @@ ${built.user}`;
     expect(prompt).toContain('"<the murder weapon, in death_method\'s own words> — kept by');
   });
 
-  it("requires the step that uses the link to narrow the pool rather than name the culprit", () => {
-    expect(prompt).toContain("NARROWS the pool");
-    expect(prompt).toMatch(/effect is the culprit's name has put the answer before the discriminating test/);
+  it("gives the inference step that uses the link a shape whose observation IS the trace (A_102 §10.2)", () => {
+    // Seed 6325: the trace was authored and no step used it; the sentence asking for one sat beside
+    // the shapes and was dropped. The step is now a shape too.
+    expect(prompt).toContain('observation: "<the (c) trace, word for word>"');
+    expect(prompt).toContain('effect: "Narrows the pool to');
+    expect(prompt).toContain('required_evidence: ["<the (b) entry, word for word>", "<the (c) trace, word for word>"]');
   });
 });

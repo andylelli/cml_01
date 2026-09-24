@@ -36,7 +36,7 @@ export interface ClueExtractionInputs {
     requiredIdToSourceMappings?: Array<{ id: string; sourceInCML: string }>;
     requiredStepCoverageFloors?: Array<{ step: number; requireContradiction: boolean; requireMapped: boolean }>;
     requiredLateClueSlot?: { id: string; placement: "late"; criticality: "optional" | "supporting" };
-    requiredDirectCulpritClue?: { id: string; culpritName: string; allowedSourcePaths: string[]; requiredPhrases: string[] };
+    requiredDirectCulpritClue?: { id: string; culpritName: string; allowedSourcePaths: string[]; requiredPhrases: string[]; weaponTrace?: string; weaponPhrase?: string };
   };
   runId?: string;
   projectId?: string;
@@ -57,7 +57,7 @@ export interface ClueExtractionInputs {
     requiredIdToSourceMappings?: Array<{ id: string; sourceInCML: string }>;
     requiredStepCoverageFloors?: Array<{ step: number; requireContradiction: boolean; requireMapped: boolean }>;
     requiredLateClueSlot?: { id: string; placement: "late"; criticality: "optional" | "supporting" };
-    requiredDirectCulpritClue?: { id: string; culpritName: string; allowedSourcePaths: string[]; requiredPhrases: string[] };
+    requiredDirectCulpritClue?: { id: string; culpritName: string; allowedSourcePaths: string[]; requiredPhrases: string[]; weaponTrace?: string; weaponPhrase?: string };
   };
 }
 
@@ -100,7 +100,10 @@ function buildStrictContractBlock(sc: ClueExtractionInputs["strictContract"]): s
   if (dc?.id) {
     lines.push(`    • DIRECT CULPRIT CLUE: id="${dc.id}" — observable evidence tying ${dc.culpritName} uniquely to the crime` +
       (dc.allowedSourcePaths?.length ? ` (source from: ${dc.allowedSourcePaths.slice(0, 6).join(", ")})` : "") +
-      (dc.requiredPhrases?.length ? `; the pointsTo must include: ${dc.requiredPhrases.slice(0, 6).join(", ")}` : ""));
+      (dc.requiredPhrases?.length ? `; the pointsTo must include: ${dc.requiredPhrases.slice(0, 6).join(", ")}` : "") +
+      // A_102 §10.2: when the case carries a weapon-first trace naming the culprit, the observable IS
+      // that trace. Sourcing this slot from the cast entry lost the weapon on seed 6325.
+      (dc.weaponTrace ? `; the observable IS this trace, in the case's own words: "${dc.weaponTrace}"` : ""));
   }
   const ls = sc.requiredLateClueSlot;
   if (ls?.id) {

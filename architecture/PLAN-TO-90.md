@@ -2962,3 +2962,13 @@ own inference path never used the trace either — the sentence asking for that 
 night" enforced verbatim across six chapters, plus a chapter-2 fallback. **Next, before any run:** give
 the inference step a shape (Agent 3), and source the culprit-direct slot from the weapon-first trace
 (Agent 5); both testable on the harnesses. Then a third run.
+
+**§32 UPDATE 7 (A_102 §11) — both §10.3 fixes built and measured, £0.10.** Agent 3: the inference
+step is a shape whose observation IS the trace; use went from **0 of 8** (draft 8 re-scored) to
+**4 of 4**, and the classifier now says `[used by inference step N]` in the run log. Agent 5: the
+culprit-direct slot sources from the weapon-first trace and requires the weapon phrase, and the repair
+appends instead of overwriting; on the frozen 6325 case the clue went from citing `evidence_sensitivity`
+with no weapon to citing `traces[1]` and naming the poker, **2 of 2**. Found on the way: the Agent 5
+harness had never passed the strict contract to the prompt (production does), so A_101 §15's three
+runs measured the retry path; fixed with production's own builder. Not re-measured: Agents 7 and 9.
+Still blocking a read: the locked-fact phrase in every chapter prompt (A_104 §1).

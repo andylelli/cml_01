@@ -31,7 +31,29 @@ export interface MeansLinkVerdict {
   weaponTracesNamingNobody: string[];
   /** Traces that name the culprit but not the weapon — surfaced for a person to adjudicate. */
   culpritTracesWithoutWeapon: string[];
+  /** A linking trace appears, word for word, in some inference step's observation or required_evidence. */
+  usedInInferencePath: boolean;
+  /** 1-based index of that step, when used. */
+  usedByStep?: number;
 }
+
+const norm = (t: unknown): string => String(t ?? "").toLowerCase().replace(/[“”"'‘’]/g, "").replace(/\s+/g, " ").trim();
+
+/**
+ * Which inference step (1-based) carries one of the linking traces, in its observation or its
+ * required_evidence — or undefined when none does. A_102 §10.2: authored and unused is the failure
+ * the harness could not see.
+ */
+export const stepUsingTrace = (caseBlock: any, linkingTraces: string[]): number | undefined => {
+  const steps: any[] = Array.isArray(caseBlock?.inference_path?.steps) ? caseBlock.inference_path.steps : [];
+  const targets = linkingTraces.map(norm).filter((t) => t.length > 0);
+  if (targets.length === 0) return undefined;
+  for (let i = 0; i < steps.length; i += 1) {
+    const fields: string[] = [norm(steps[i]?.observation), ...(Array.isArray(steps[i]?.required_evidence) ? steps[i].required_evidence.map(norm) : [])];
+    if (fields.some((f) => f.length > 0 && targets.some((t) => f.includes(t) || t.includes(f)))) return i + 1;
+  }
+  return undefined;
+};
 
 const STOP = new Set(["with", "were", "from", "into", "that", "this", "used", "been", "some", "their"]);
 const TITLES = new Set(["mr", "mrs", "miss", "ms", "dr", "sir", "lady", "lord", "the"]);
@@ -72,7 +94,7 @@ export const textNamesAnyOf = (text: string, names: string[]): boolean =>
   names.some((c) => text.includes(c) || nameTokens(c).some((w) => wordReCase(w).test(text)));
 
 export const provesTheAct = (caseBlock: any): MeansLinkVerdict => {
-  const empty = { linkingTraces: [] as string[], weaponTracesNamingNobody: [] as string[], culpritTracesWithoutWeapon: [] as string[] };
+  const empty = { linkingTraces: [] as string[], weaponTracesNamingNobody: [] as string[], culpritTracesWithoutWeapon: [] as string[], usedInInferencePath: false };
   const dm = String(caseBlock?.death_method ?? "").trim();
   if (!dm) return { verdict: "UNKNOWN", detail: "the case records no death_method", ...empty };
   const words = instrumentWords(dm);
@@ -107,13 +129,17 @@ export const provesTheAct = (caseBlock: any): MeansLinkVerdict => {
     culpritTracesWithoutWeapon.length > 0
       ? `\n    NAMES THE CULPRIT, no weapon noun — adjudicate: ${q(culpritTracesWithoutWeapon)}`
       : "";
-  const out = { linkingTraces, weaponTracesNamingNobody, culpritTracesWithoutWeapon };
+  const usedByStep = stepUsingTrace(caseBlock, linkingTraces);
+  const out = { linkingTraces, weaponTracesNamingNobody, culpritTracesWithoutWeapon, usedInInferencePath: usedByStep !== undefined, usedByStep };
 
   if (has(testText)) return { verdict: "PROVES THE ACT", detail: "the discriminating test names the means of death", ...out };
   if (linkingTraces.length > 0) {
+    // A_102 §10.2: a trace the inference path never touches reaches the clue layer without its
+    // object. Say so beside the verdict, in the harness and in the run log alike.
+    const use = usedByStep !== undefined ? `  [used by inference step ${usedByStep}]` : "  [NOT USED by any inference step]";
     return {
       verdict: "PROVES THE ACT",
-      detail: q(linkingTraces) + (weaponTracesNamingNobody.length > 0 ? `  [also on the weapon, naming nobody: ${q(weaponTracesNamingNobody)}]` : ""),
+      detail: q(linkingTraces) + use + (weaponTracesNamingNobody.length > 0 ? `  [also on the weapon, naming nobody: ${q(weaponTracesNamingNobody)}]` : ""),
       ...out,
     };
   }
