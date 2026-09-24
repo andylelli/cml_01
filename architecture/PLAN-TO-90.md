@@ -2914,3 +2914,15 @@ and the means-link slot was left naming an innocent — **nothing checks the nam
 the culprit**. Full account in A_102 §8. **Do not buy a second run** until the block names the weapon
 rather than referring to it, the culprit-in-slot check is wired in, and the harness is re-run on an
 upstream whose mechanism and weapon are distinct objects.
+
+
+**§32 UPDATE 2 — the fix, on a fixture that can fail (A_102 §9).** A_103 found the harness had run
+every A_102 case on the wrong axis with no theme; corrected. Seed 61062's upstream is gone from the
+store, so the fixture is `canary_1789232316543` (seed 81042, chiming clock, blade weapons), with its
+own theme. **Baseline 0 of 4** — every case filled the shape with the clock, reproducing §8.2.
+**Draft 5 — name both objects, weapon first in every slot — 4 of 8** (3 unambiguous), $0.14. The
+residual failure is a collision: (c) and (d) both produce a "<weapon>: … — <name>" entry, and when
+the model writes one it gives it to the innocent and puts the culprit on the clock. Draft 6 turns
+that into a count. **The pipeline now runs the classifier** in normalization and logs
+`[A_102 means-link] <verdict>` on every case, with an ORPHANED note when a reassigned culprit leaves
+a shape-filled trace naming an innocent. Still not settled: whether any of it survives to a book.

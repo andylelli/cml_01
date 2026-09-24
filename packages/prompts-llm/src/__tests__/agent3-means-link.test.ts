@@ -66,6 +66,18 @@ ${built.user}`;
     expect(prompt).toContain("red_herrings");
   });
 
+  it("names both objects and puts the murder weapon in the first slot of every shape (A_102 §8.2)", () => {
+    // The paid run on seed 61062: death_method was a letter opener, the concealment a lounge clock,
+    // and every shape was filled in about the CLOCK. "The implement named in death_method" was a
+    // reference the model bound to the object the case is really about.
+    expect(prompt).toContain("THE MURDER WEAPON is the object death_method names");
+    expect(prompt).toContain("THE CONCEALMENT DEVICE is whatever hidden_model.mechanism tampers with");
+    expect(prompt).toContain("this case's mechanism families: clockwork tampering");
+    expect(prompt).toContain("fills none of these four entries");
+    expect(prompt).toContain('"<the murder weapon, in death_method\'s own words>: <what was found> in');
+    expect(prompt).toContain('"<the murder weapon, in death_method\'s own words> — kept by');
+  });
+
   it("requires the step that uses the link to narrow the pool rather than name the culprit", () => {
     expect(prompt).toContain("NARROWS the pool");
     expect(prompt).toMatch(/effect is the culprit's name has put the answer before the discriminating test/);

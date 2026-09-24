@@ -38,7 +38,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 import dotenv from "dotenv";
 import { AzureOpenAIClient, LLMLogger, type LogLevel } from "@cml/llm-client";
-import { generateCML } from "@cml/prompts-llm";
+import { generateCML, provesTheAct as provesTheActShared } from "@cml/prompts-llm";
 
 import { buildCmlGenerationRequest } from "../jobs/agents/agent3-run.js";
 import { deriveHardLogicDirectives, mergeHardLogicDirectives, normalizePrimaryAxis } from "../jobs/agents/shared.js";
@@ -134,86 +134,11 @@ const latestArtifact = (rows: any[], projectId: string, type: string): any => {
  * when the physical traces or a culprit-linked fact do. Presence, access and knowledge do not count —
  * that is the whole distinction.
  */
-export const provesTheAct = (caseBlock: any): { verdict: string; detail: string } => {
-  const dm = String(caseBlock?.death_method ?? "").trim();
-  if (!dm) return { verdict: "UNKNOWN", detail: "the case records no death_method" };
-  // The INSTRUMENT, not the verb. death_method reads "<verb> with a <instrument>", and the verb
-  // ("stabbed") appears in every sentence that describes the murder — including ones that prove only
-  // presence. Matching it made the probe agree with anything. Take what follows " with ".
-  const STOP = new Set(["with", "were", "from", "into", "that", "this", "used", "been", "some", "their"]);
-  const instrument = / with /i.test(dm) ? dm.split(/ with /i).slice(1).join(" ") : "";
-  const words = instrument
-    .toLowerCase()
-    .replace(/[^a-z\s]/g, " ")
-    .split(/\s+/)
-    .filter((w) => w.length > 3 && !STOP.has(w));
-  if (words.length === 0) {
-    // No named instrument (strangled, smothered, pushed). Nothing to match on; the case can still
-    // link by a trace that names the culprit, which the caller sees below via namesCulprit alone.
-    return { verdict: "UNKNOWN", detail: `death_method names no instrument to trace: "${dm}"` };
-  }
-
-  // A_103 B71: raw substring matching read "rope" in "proper", "iron" in "environment" and "Eve" in
-  // "Everard" as PROVES THE ACT (MEASURED, three fixtures). Whole words only, on both matchers.
-  const escapeRe = (w: string): string => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const wordRe = (w: string): RegExp => new RegExp(`\\b${escapeRe(w)}\\b`, "i");
-  const has = (text: string): boolean => words.some((w) => wordRe(w).test(text));
-  const dt = caseBlock?.discriminating_test ?? {};
-  const testText = `${dt.design ?? ""} ${dt.knowledge_revealed ?? ""} ${dt.pass_condition ?? ""}`;
-  const traces: string[] = Array.isArray(caseBlock?.constraint_space?.physical?.traces)
-    ? caseBlock.constraint_space.physical.traces.map(String)
-    : [];
-  const culprits: string[] = Array.isArray(caseBlock?.culpability?.culprits)
-    ? caseBlock.culpability.culprits.map(String)
-    : [];
-  // Match ANY name token of the culprit, not just the surname: a trace reading "traces to
-  // Gwendolyn" names the culprit as surely as one reading "Vance". Titles are not names.
-  const TITLES = new Set(["mr", "mrs", "miss", "ms", "dr", "sir", "lady", "lord", "the"]);
-  const nameTokens = (c: string): string[] =>
-    c
-      .split(/[\s.,]+/)
-      .map((w) => w.trim())
-      .filter((w) => w.length >= 3 && !TITLES.has(w.toLowerCase()));
-  const namesCulprit = (t: string): boolean =>
-    culprits.some((c) => t.includes(c) || nameTokens(c).some((w) => new RegExp(`\\b${escapeRe(w)}\\b`).test(t)));
-
-  if (has(testText)) return { verdict: "PROVES THE ACT", detail: `the discriminating test names the means of death` };
-
-  // EVERY trace that touches the means of death, not the first one. A case can carry a forensic
-  // trace pointing at an innocent AND a provenance trace naming the culprit; stopping at the first
-  // reported the weaker of the two and hid the one the requirement was written to produce.
-  const weaponTraces = traces.filter((t) => has(t));
-  const linking = weaponTraces.filter((t) => namesCulprit(t));
-  if (linking.length > 0) {
-    const others = weaponTraces.filter((t) => !namesCulprit(t));
-    return {
-      verdict: "PROVES THE ACT",
-      detail:
-        `${linking.map((t) => `"${t}"`).join("; ")}` +
-        (others.length > 0 ? `  [also on the weapon, naming nobody: ${others.map((t) => `"${t}"`).join("; ")}]` : ""),
-    };
-  }
-  // Traces that name the culprit without repeating a noun of death_method. The requirement asks for
-  // what the implement's TAKING disturbed, which frequently sits somewhere the implement is not
-  // ("blood on her clothing", "scratches on the box it came from"); demanding the weapon noun scored
-  // one such case PRESENCE ONLY. The verdict stays conservative; these are surfaced to be read.
-  const culpritTraces = traces.filter((t) => namesCulprit(t) && !has(t));
-  const adjudicate =
-    culpritTraces.length > 0
-      ? `\n    NAMES THE CULPRIT, no weapon noun — adjudicate: ${culpritTraces.map((t) => `"${t}"`).join("; ")}`
-      : "";
-
-  if (weaponTraces.length > 0) {
-    return {
-      verdict: "TRACE ONLY",
-      detail: `${weaponTraces.map((t) => `"${t}"`).join("; ")} — none names a culprit${adjudicate}`,
-    };
-  }
-  return {
-    verdict: "PRESENCE ONLY",
-    detail: `nothing connects ${culprits.join(", ") || "the culprit"} to "${dm}" — pass_condition: "${String(dt.pass_condition ?? "").slice(0, 110)}"${adjudicate}`,
-  };
-};
+// The classifier lives in @cml/prompts-llm (agent3-means-link.ts) and is the SAME function
+// production normalization runs on every case. It used to be defined here, and only here, which is
+// how the paid run on seed 61062 shipped a means-link trace naming an innocent with nothing noticing
+// (A_102 §8.3). Re-exported so `--classify` and the report keep working unchanged.
+export const provesTheAct = provesTheActShared;
 
 const main = async (): Promise<void> => {
   dotenv.config({ path: path.join(workerRoot, ".env.local") });

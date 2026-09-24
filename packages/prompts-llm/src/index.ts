@@ -6,6 +6,8 @@ export { refineSetting } from "./agent1-setting.js";
 export { designCast } from "./agent2-cast.js";
 export { checkCast, summarizeCastCheck } from "./agent2-cast-checker.js";
 export { buildCMLPrompt, generateCML } from "./agent3-cml.js";
+export { provesTheAct, orphanedMeansLinkTraces, instrumentWords, nameTokens, textNamesAnyOf } from "./agent3-means-link.js";
+export type { MeansLinkVerdict } from "./agent3-means-link.js";
 export { buildRevisionPrompt, reviseCml } from "./agent4-revision.js";
 export {
   patchCmlNode,

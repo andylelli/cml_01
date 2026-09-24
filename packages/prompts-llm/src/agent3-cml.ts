@@ -46,6 +46,7 @@ import {
 import { join } from "path";
 import { classifyDeathMethod, type DeathMethodKind } from "./shared/death-method-patterns.js";
 
+import { orphanedMeansLinkTraces, provesTheAct } from "./agent3-means-link.js";
 // L1 (ANALYSIS_48 T1.1): map a crime classification to a physical manner of death, used as the
 // fallback when the model didn't author CASE.death_method. Mirrors DEATH_METHOD_CANON in
 // agent9-prose/prompt-builder and DEATH_METHOD_TOKENS in rubric-score/facts (kept local to avoid a
@@ -636,7 +637,7 @@ Before finalizing, run a silent checklist:
 - if the concealment fakes a time: apparent_time_of_death sits inside a culprit alibi window, actual_time_of_death sits in a culprit gap, and the two differ
 - all required top-level keys present
 - 3-5 inference steps with required_evidence in each
-- the implement named in death_method has a stated keeper, a stated place it was kept with two or more suspects able to reach it, and one trace naming the culprit in what its taking disturbed; prints on the implement itself belong to an innocent
+- the MURDER WEAPON (death_method's object, not the concealment device) has a stated keeper, a stated place it was kept with two or more suspects able to reach it, and one trace that names the weapon first and the culprit last; prints on the weapon itself belong to an innocent
 - discriminating_test uses only previously exposed evidence
 - false_solution accuses an innocent suspect and has exactly one flaw
 - at least two red_herrings, each with an innocent_explanation
@@ -878,22 +879,28 @@ ${hardLogicDeviceText}
 8b. THE MEANS-LINK — the case must connect the culprit to the ACT, not only to the scene.
    A broken alibi puts the culprit in the room. It never shows whose hand did it, and a reveal that
    asserts the killing on opportunity alone is the single most common failure of these cases.
-   death_method names an implement. That implement has a history, and the case states it. Write all
-   FOUR of the following, each in the shape given:
+   This case has TWO objects, and the four entries below are about ONE of them:
+     - THE MURDER WEAPON is the object death_method names: the thing that entered the victim's body
+       or stopped their breath. Every entry below names it in its first slot.
+     - THE CONCEALMENT DEVICE is whatever hidden_model.mechanism tampers with${inputs.mechanismFamilies.length > 0 ? ` (this case's mechanism families: ${inputs.mechanismFamilies.join(", ")})` : ""} —
+       the clock, ledger, compass or instrument made to lie about WHEN or WHERE. Its tampering
+       evidence has its own home: hidden_model, and the means-discriminator of rule 9h. It is not
+       the murder weapon and fills none of these four entries.
+   Write all FOUR of the following, each in the shape given:
    a. WHOSE IT WAS — one entry in constraint_space.access.objects, in this shape:
-        "<the implement named in death_method> — kept by <cast member's full name>, in <where it was kept>, because <their ordinary reason for having it>"
+        "<the murder weapon, in death_method's own words> — kept by <cast member's full name>, in <where it was kept>, because <their ordinary reason for having it>"
    b. WHO COULD REACH IT — one entry in constraint_space.access.permissions, in this shape:
-        "<where it was kept> — reachable by <the culprit's full name> and <one or more other suspect names>; not by <at least one suspect name>"
+        "<where the murder weapon was kept> — reachable by <the culprit's full name> and <one or more other suspect names>; not by <at least one suspect name>"
    c. WHAT ITS TAKING DISTURBED — one entry in constraint_space.physical.traces, in this shape:
-        "<what was found> in <a room or place this case already names> — <culprit's full name>"
-      What was found is the mark left when the implement was taken, carried or put back: something
-      out of its place, something missing from where it belonged, something refastened or repacked by
-      another hand, or matter off the implement carried onto the culprit's clothing, luggage or room.
-      The place slot holds a room or location from the setting, so this trace sits somewhere the
-      implement was not when the victim died.
-   d. WHERE THE OBVIOUS EVIDENCE POINTS — any print, smudge or handling mark found ON the implement
-      belongs to an INNOCENT suspect and is written up as one of the two required red_herrings with
-      its innocent_explanation. The implement's own surface carries misdirection, never the answer.
+        "<the murder weapon, in death_method's own words>: <what was found> in <a room or place this case already names> — <culprit's full name>"
+      What was found is the mark left when the murder weapon was taken, carried or put back:
+      something out of its place, something missing from where it belonged, something refastened or
+      repacked by another hand, or matter off the weapon carried onto the culprit's clothing, luggage
+      or room. The place slot holds a room or location from the setting, so this trace sits somewhere
+      the weapon was not when the victim died.
+   d. WHERE THE OBVIOUS EVIDENCE POINTS — any print, smudge or handling mark found ON the murder
+      weapon belongs to an INNOCENT suspect and is written up as one of the two required red_herrings
+      with its innocent_explanation. The weapon's own surface carries misdirection, never the answer.
    ONE inference step lists (b) and (c) in its required_evidence. That step's effect NARROWS the pool
    to the reachable names from (b); two or more suspects survive it and the culprit is among them. A
    step whose effect is the culprit's name has put the answer before the discriminating test.
@@ -1297,6 +1304,26 @@ export async function generateCML(
 
     const constraintSpace = ensureObject(caseBlock.constraint_space);
     caseBlock.constraint_space = constraintSpace;
+
+    // A_102 §8 — does the case connect the culprit to the ACT? The only copy of this check lived in
+    // the harness, and the paid run on seed 61062 shipped a means-link trace naming a suspect the
+    // same case marks innocent with nothing noticing. NOTE ONLY: no retry, no abort — a gate that
+    // drives retries costs +2.43 register points on the retried chapter (B1). The run log carries it
+    // under this label so a paid run is judged by the instrument that scored the harness.
+    {
+      const meansLink = provesTheAct(caseBlock);
+      normalizationNotes.push(`[A_102 means-link] ${meansLink.verdict}: ${meansLink.detail.replace(/\s+/g, " ")}`);
+      if (validCulprits.length === 0) {
+        const orphaned = orphanedMeansLinkTraces(caseBlock, rawCulprits.map(String), normalizedCulprits);
+        if (orphaned.length > 0) {
+          normalizationNotes.push(
+            `[A_102 means-link] ORPHANED: normalization reassigned the culprit to "${normalizedCulprits[0]}" but ` +
+              `${orphaned.length} trace(s) still name the model's original culprit: ` +
+              `${orphaned.map((t) => `"${t}"`).join("; ")}. Those traces now point at an innocent.`,
+          );
+        }
+      }
+    }
     const constraintTime = ensureObject(constraintSpace.time);
     constraintSpace.time = constraintTime;
     constraintTime.anchors = ensureArray(constraintTime.anchors);

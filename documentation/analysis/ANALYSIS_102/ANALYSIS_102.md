@@ -404,3 +404,77 @@ mechanism and weapon differ**, which seed 50862's does not sufficiently.
   holds only clean runs, which is a biased sample and is [[archived-data-encodes-the-bug]] in its
   cheapest form.
 
+
+
+---
+
+## §9 THE FIX, MEASURED ON A FIXTURE THAT CAN FAIL — 0 of 4 TO 4 of 8, £0.11
+
+**2026-09-24.** Two corrections to the instrument before any number: A_103 B68/B69 found the harness
+had built every §6/§7 request on `temporal` with no theme, against an `authority` project; it now
+reads the CML's `false_assumption.type` and REQUIRES `--theme`. And §8.2's failure needs a fixture
+where the concealment device and the weapon are different objects, which seed 50862's compass-and-
+dagger upstream is not. Seed 61062's upstream would have been ideal and is gone from both stores
+(the A_103 session rewrote `data/store.json` at 23:46; the run report holds no payloads).
+
+**Fixture:** `canary_1789232316543`, seed 81042 — temporal, a chiming clock made to strike at the
+wrong hour, theme copied from its run-params. Every case Agent 3 wrote against it chose a blade.
+
+### §9.1 THE BASELINE REPRODUCES §8.2 — 0 of 4
+
+Draft 4 prompt, four cases. **Every one filled the (c) shape with the clock**: *"Faint scratch on
+manor clock striking lever — Percival Thorne"*, *"Displaced clock detent lever in clock room —
+Josephine Rutherford"*. The weapon trace, where there was one, named an innocent. **0 of 4 link the
+culprit to the weapon. MEASURED.** So the fixture can show the failure, which is the property a
+fixture has to have before a fix measured on it means anything.
+
+### §9.2 DRAFT 5 — NAME BOTH OBJECTS, WEAPON FIRST IN EVERY SLOT — 4 of 8
+
+§8.2's diagnosis was that *"the implement named in death_method"* is a reference the model binds to
+the object the case is about. Draft 5 names both objects, gives the device's evidence its existing
+home (hidden_model, rule 9h), and puts the weapon's name in the FIRST slot of every shape.
+
+| case | weapon | verdict | the (c)-shaped trace |
+|---|---|---|---|
+| 1 | kitchen carving knife | **PROVES THE ACT** | *"Kitchen carving knife: blood smudge found in manor sitting room — Percival Thorne"* |
+| 2 | silver letter opener | TRACE ONLY | weapon → Josephine (innocent); *"Clock striking lever: faint scratch… — Percival Thorne"* |
+| 3 | small dagger | TRACE ONLY | weapon → Josephine; *"Manor clock striking lever: … — Percival Thorne"* |
+| 4 | letter opener | TRACE ONLY | weapon → Josephine, and "prints wiped clean"; clock → Percival |
+| 5 | silver letter opener | **PROVES THE ACT** | *"Silver letter opener: faint smudges of mud found on handle in manor study — Percival Thorne"* |
+| 6 | antique dagger | **PROVES THE ACT** (weak) | *"Antique dagger: faint smudge of Josephine Rutherford's glove on handle… — Percival Thorne"* |
+| 7 | kitchen carving knife | TRACE ONLY | *"Mark of knife taken from kitchen noted in kitchen storage"* — no name, no place |
+| 8 | silver letter opener | **PROVES THE ACT** | *"Silver letter opener: faint smudge of estate dust found in Percival Thorne's office"* |
+
+**4 of 8 by the classifier; 3 of 8 unambiguous. MEASURED.** Case 6 is the (d) red herring with the
+culprit's name appended to satisfy the shape; its content points at the innocent. Counted by the
+instrument, not by me.
+
+**What draft 5 fixed:** the weapon's name now opens the trace in 7 of 8 (the reference is gone). **What
+it did not fix:** in cases 2, 3 and 4 the clock still takes the (c) slot — the model writes the shape
+twice, once for the weapon with the innocent's name and once for the clock with the culprit's. The
+sentence *"fills none of these four entries"* is a prohibition and behaved like one
+([[a-prohibition-does-not-steer-this-model]]).
+
+### §9.3 THE RESIDUAL FAILURE IS A COLLISION BETWEEN (c) AND (d)
+
+Both (c) and (d) produce an entry of the form *"<weapon>: <mark> … — <name>"*. (d) says the print on
+the weapon belongs to an innocent; (c) says the disturbance names the culprit. When the model writes
+ONE weapon entry it gives it to the innocent — obeying (d) — and then needs somewhere to put the
+culprit, and the clock is there. The fix is a COUNT, which this model obeys: exactly one trace begins
+with the weapon's name and its last slot is the culprit; the (d) print is not a trace at all and lives
+only in `red_herrings`, which already has the fields for it. **Draft 6, below.**
+
+### §9.4 THE PIPELINE NOW RUNS THE CHECK
+
+`provesTheAct` moved to `packages/prompts-llm/src/agent3-means-link.ts`; the harness imports it and
+normalization runs it after `constraint_space` is settled, pushing `[A_102 means-link] <verdict>` into
+the notes that reach the run log. **Every one of the 8 cases shows the line. MEASURED.** When
+normalization reassigns the culprit, `orphanedMeansLinkTraces` reports any shape-filled trace still
+naming the model's original — the exact §8.3 defect, pinned in `agent3-means-link-check.test.ts` with
+the seed 61062 traces. Note only: no retry, no abort (B1).
+
+| | |
+|---|---|
+| baseline, 4 cases | $0.044 |
+| draft 5, 8 cases (one took two attempts) | $0.098 |
+| **total** | **$0.142, about £0.11** |
