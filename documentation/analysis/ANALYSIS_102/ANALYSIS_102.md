@@ -478,3 +478,39 @@ the seed 61062 traces. Note only: no retry, no abort (B1).
 | baseline, 4 cases | $0.044 |
 | draft 5, 8 cases (one took two attempts) | $0.098 |
 | **total** | **$0.142, about £0.11** |
+
+### §9.5 DRAFT 6 — A COUNT WITH A QUALIFIER ON IT — 5 of 8, AND THE COLLISION DID NOT MOVE
+
+Draft 6 added one sentence to (c): *"This is the ONLY entry in constraint_space.physical.traces that
+begins with the murder weapon's name, and its last slot is the culprit."* Eight cases, same fixture.
+The batch was cut in half by a Windows restart at 04:21 (three restarts in six minutes, from the
+System log; the harness's third request was in flight and its log simply stops) and completed later.
+
+| case | verdict | the weapon-first trace(s) |
+|---|---|---|
+| 1 | **PROVES** | scratch marks in manor study — Percival Thorne |
+| 2 | TRACE ONLY | weapon → Frances Orme; clock striking lever → Percival Thorne |
+| 3 | **PROVES** | *"missing from desk and found in lock-keeper's cottage drawer — Percival Thorne"* |
+| 4 | **PROVES** | scratch on handle found in garden shed — Percival Thorne |
+| 5 | **PROVES** (weak) | *"clean cut marks on victim's body — Josephine Rutherford"* — a mark on the body, culprit's name appended |
+| 6 | TRACE ONLY | two weapon traces, both innocents; clock → Percival |
+| 7 | TRACE ONLY | weapon → Josephine; clock → Percival |
+| 8 | **PROVES** | scratch on blade handle in servants' quarters — Percival Thorne |
+
+**5 of 8 by the classifier, 4 unambiguous; the collision is 3 of 8, exactly as in draft 5. MEASURED.**
+5 of 8 against 4 of 8 is one case at n=8 and is not an effect.
+
+**What it settled:** the count was obeyed and the qualifier on it was dropped. In every miss there is
+ONE weapon-first trace, as asked — and it ends with the innocent. *"Its last slot is the culprit"* rode
+on the counted thing and went the way [[prompts-move-operations-not-statistics]] says it goes. The
+sentence sending (d) to `red_herrings` was also ignored in 2 of 8, which wrote the innocent's print
+into `traces` anyway.
+
+**Draft 7 therefore stops fighting the habit.** The model wants to write the innocent's mark on the
+weapon as a trace; let it, and make the culprit's disturbance a SECOND weapon-first trace in a fixed
+order: *"exactly TWO entries begin with the murder weapon's name — first the innocent's handling mark,
+last the culprit's disturbance."* A count of two simple things with fixed positions is the form that
+has been obeyed every time it was tried. The classifier already scores every weapon trace, so two is
+fine.
+
+Draft 6 cost $0.088 for eight completed cases; the interrupted request may have been billed.

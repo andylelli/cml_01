@@ -2926,3 +2926,10 @@ the model writes one it gives it to the innocent and puts the culprit on the clo
 that into a count. **The pipeline now runs the classifier** in normalization and logs
 `[A_102 means-link] <verdict>` on every case, with an ORPHANED note when a reassigned culprit leaves
 a shape-filled trace naming an innocent. Still not settled: whether any of it survives to a book.
+
+**§32 UPDATE 3 (A_102 §9.5).** Draft 6 — "exactly one weapon-first trace, its last slot the culprit"
+— **5 of 8**, 4 unambiguous, and the (c)/(d) collision unchanged at 3 of 8: the count was obeyed and
+the qualifier on it dropped, as the compliance law predicts. One case at n=8 is not an effect. Draft 7
+makes the collision a sequence: exactly TWO weapon-first traces, the innocent's mark first, the
+culprit's disturbance last. The batch was interrupted by a Windows restart at 04:21 and completed
+afterwards; nothing in the pipeline failed.

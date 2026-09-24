@@ -637,7 +637,7 @@ Before finalizing, run a silent checklist:
 - if the concealment fakes a time: apparent_time_of_death sits inside a culprit alibi window, actual_time_of_death sits in a culprit gap, and the two differ
 - all required top-level keys present
 - 3-5 inference steps with required_evidence in each
-- the MURDER WEAPON (death_method's object, not the concealment device) has a stated keeper, a stated place it was kept with two or more suspects able to reach it, and one trace that names the weapon first and the culprit last; prints on the weapon itself belong to an innocent
+- the MURDER WEAPON (death_method's object, not the concealment device) has a stated keeper, a stated place it was kept with two or more suspects able to reach it, and EXACTLY ONE trace beginning with the weapon's name, ending with the culprit's; the innocent's print on the weapon is a red_herring, not a trace
 - discriminating_test uses only previously exposed evidence
 - false_solution accuses an innocent suspect and has exactly one flaw
 - at least two red_herrings, each with an innocent_explanation
@@ -897,10 +897,13 @@ ${hardLogicDeviceText}
       something out of its place, something missing from where it belonged, something refastened or
       repacked by another hand, or matter off the weapon carried onto the culprit's clothing, luggage
       or room. The place slot holds a room or location from the setting, so this trace sits somewhere
-      the weapon was not when the victim died.
+      the weapon was not when the victim died. This is the ONLY entry in
+      constraint_space.physical.traces that begins with the murder weapon's name, and its last slot
+      is the culprit.
    d. WHERE THE OBVIOUS EVIDENCE POINTS — any print, smudge or handling mark found ON the murder
-      weapon belongs to an INNOCENT suspect and is written up as one of the two required red_herrings
-      with its innocent_explanation. The weapon's own surface carries misdirection, never the answer.
+      weapon belongs to an INNOCENT suspect and is written as one of the two required red_herrings:
+      its description, its points_at_suspect, and its innocent_explanation. That is the whole of its
+      home. The weapon's own surface carries misdirection, never the answer.
    ONE inference step lists (b) and (c) in its required_evidence. That step's effect NARROWS the pool
    to the reachable names from (b); two or more suspects survive it and the culprit is among them. A
    step whose effect is the culprit's name has put the answer before the discriminating test.
