@@ -51,6 +51,8 @@ import {
 } from "@cml/prose-engine";
 import { humourBand } from "@cml/prompts-llm";
 import type { ChatCapableClient } from "@cml/llm-client";
+import { isContentFilterRefusal } from "@cml/llm-client";
+import { isFilterSoftenEnabled, softenViolentWording, SOFTENED_NOTE } from "./filter-soften.js";
 
 import type { OrchestratorContext } from "../shared.js";
 import { hashContract, emptyCheckpoint, readCheckpoint, recordSegment, writeCheckpoint, type V2Checkpoint } from "./checkpoint.js";
@@ -102,22 +104,38 @@ const chat = async (
   role: ResolvedRole,
   args: { system: string; user: string; maxTokens: number; label: string; ctx: OrchestratorContext },
 ): Promise<string> => {
-  const response = await role.client.chat({
-    messages: [
-      { role: "system", content: args.system },
-      { role: "user", content: args.user },
-    ],
-    ...(role.model ? { model: role.model } : {}),
-    ...(role.supportsTemperature ? { temperature: 0.7 } : {}),
-    maxTokens: args.maxTokens,
-    logContext: {
-      runId: ctxRunId(args.ctx),
-      projectId: args.ctx.projectId ?? "",
-      agent: args.label,
-      retryAttempt: 1,
-    },
-  });
-  return String(response?.content ?? "");
+  const send = async (system: string, user: string, retryAttempt: number) =>
+    role.client.chat({
+      messages: [
+        { role: "system", content: system },
+        { role: "user", content: user },
+      ],
+      ...(role.model ? { model: role.model } : {}),
+      ...(role.supportsTemperature ? { temperature: 0.7 } : {}),
+      maxTokens: args.maxTokens,
+      logContext: {
+        runId: ctxRunId(args.ctx),
+        projectId: args.ctx.projectId ?? "",
+        agent: args.label,
+        retryAttempt,
+      },
+    });
+  try {
+    const response = await send(args.system, args.user, 1);
+    return String(response?.content ?? "");
+  } catch (error) {
+    // A_108 — one softened retry on a content-filter refusal only (see filter-soften.ts). Any other
+    // error, or a refusal with the flag off, propagates exactly as before.
+    if (!isFilterSoftenEnabled() || !isContentFilterRefusal(error)) throw error;
+    const system = softenViolentWording(args.system);
+    const user = softenViolentWording(args.user);
+    args.ctx.warnings.push(
+      `[Agent 9 v2] ${args.label}: content filter refused the prompt — retrying once with ` +
+        `${system.replaced + user.replaced} graphic word(s) softened (A_108)`,
+    );
+    const response = await send(`${SOFTENED_NOTE}\n\n${system.text}`, user.text, 2);
+    return String(response?.content ?? "");
+  }
 };
 
 const ctxRunId = (ctx: OrchestratorContext): string => String(ctx.runId ?? "");

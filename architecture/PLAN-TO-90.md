@@ -3035,3 +3035,12 @@ repetition at 8.5 per 10k. **Not readable yet**: a first-draft retry inserted th
 paragraphs and the regen cleared one of three. The redo also corrupted its own checkpoint (fixed), and
 resume reports overwrite each other (not fixed). All of this is on the v1 writer; the recent paid runs
 never switched v2 on.
+
+**§32 UPDATE 14 — v1 against v2 on one case (A_108).** Matched pair on seed 23403, spatial, a fencing-foil
+stabbing: v1 full run, then the same project's prose re-run with `PROSE_ENGINE=v2`. v2's first attempt
+wrote nothing — Azure's content filter refused all three drafts (violence: medium) on a case v1 wrote
+without a refusal; a flag-gated softened retry (`AGENT9_V2_FILTER_SOFTEN`) got it through. Before the
+reads: v1 12,652 words, names the killer and gives his reason, weapon linked at the reveal; v2 8,044
+words, last three chapters 414–676 words, never names the killer (its own gate says so). v1 repeats
+more. The reads decide the prose; on structure v1 is ahead. Also found on the way: the sanitizer was
+deleting unterminated sentence tails and pushing 6.8% of chapter drafts to odd quote counts (A_106 §5).
