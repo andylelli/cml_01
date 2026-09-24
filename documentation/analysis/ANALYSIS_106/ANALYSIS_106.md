@@ -72,3 +72,30 @@ it prevents fallbacks at the book level needs more runs than one.
   fails it. None of the 19 drafts above used that convention; if one does, this is the next defect.
 - That fallbacks are gone. One other retry happened on the guard's redo, for a reason other than
   quotes, and was recovered by the retry.
+
+## §5 THE SANITIZER WAS DELETING PROSE — THE SECOND CAUSE OF THE FALLBACK CHAPTERS
+
+Arm A of the engine comparison (seed 23403, `mystery-1790272530598`) fell back on chapter 6 with the
+quote guard in place. Both of the model's chapter-6 drafts were balanced (78, 70); the polish's INPUT
+already had 77. The step between was `sanitizeGeneratedChapter`, and inside it
+`stripInternalAuditPhrasing`: its sentence splitter required a terminator followed by at most one
+closing mark and whitespace, so text after the last terminator was silently dropped. Here it deleted
+an interrupted speech — *"…question the value of polite society altogether—”"* — with its closing
+quote. **Run on the real draft, the function turns 78 quotes into 77. MEASURED.**
+
+Over every chapter draft in `logs/llm.jsonl`:
+
+| | before | after the fix |
+|---|---|---|
+| drafts / runs | 132 / 18 | 132 / 18 |
+| paragraphs losing text with no audit phrase in them | 15 (178 words) | **0** |
+| chapters turned from even to odd quotes | **9 (6.8%)** | **0** |
+
+Every one of those nine was a chapter the boundary gate then failed and retried for a fault the
+sanitizer made; one of them was arm A's fallback. The deleted tails are interrupted speech ("If you'd
+like to see them—”") and quotes closing on two marks (`minutes.'"`). **Fix:** A_88's construction,
+which fixed the same defect in `splitParagraphForStructure` and missed this sibling — repeatable
+closing marks and an unterminated-tail alternative. Audit sentences are still removed; four tests.
+
+With §2–§3, the two known causes of the quote-gate fallbacks — the polish dropping marks and the
+sanitizer deleting tails — are both closed.

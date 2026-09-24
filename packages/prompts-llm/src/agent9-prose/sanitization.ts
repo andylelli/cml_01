@@ -74,7 +74,13 @@ export function stripInternalAuditPhrasing(text: string): string {
   const normalized = String(text ?? "").replace(/\s+/g, " ").trim();
   if (!normalized) return "";
 
-  const sentenceParts = normalized.match(/[^.!?]+[.!?]+['""\u2019\u201d]?(?:\s+|$)/g) ?? [normalized];
+  // A_106 §5 — the splitter must keep EVERY character. It required a terminator followed by at most
+  // one closing mark and whitespace, so an unterminated tail ("…society altogether—\u201d") and a
+  // double close (`.'"`) matched nothing and were DROPPED — 9 of 132 chapter drafts turned from even
+  // to odd quotes, failed the boundary gate and were retried, one to a fallback. A_88 fixed the same
+  // construction in splitParagraphForStructure; this is that fix: repeatable closing marks, and a
+  // tail alternative for text with no terminator. Audit sentences still match and are removed.
+  const sentenceParts = normalized.match(/[^.!?]+[.!?]+["'\u2019\u201d\u00bb)\]]*\s*|[^.!?]+$/g) ?? [normalized];
   const cleaned = sentenceParts
     .map((part) => part.trim())
     .filter((part) => part.length > 0 && !INTERNAL_AUDIT_LEAK_PATTERNS.some((re) => re.test(part)));
