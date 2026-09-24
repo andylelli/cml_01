@@ -104,6 +104,37 @@ export const shannonEntropy = (values: string[]): number => {
   return entropy;
 };
 
+/**
+ * A_106 — the boundary-integrity findings for one chapter: an odd count of double quotation marks
+ * across the chapter, or a fused apostrophe token ("word'paused"). ONE definition, two callers: the
+ * batch lint, which forces a retry, and the post-pass polish's own candidate validation. The polish
+ * used to be accepted without this check and then fail the batch lint — MEASURED on seed 18179, where
+ * the polish turned chapter 8's 52 and 48 quotation marks into 53 and 47, and both chapters fell back.
+ */
+export const findBoundaryIntegrityFindings = (paragraphs: readonly string[]): string[] => {
+  const chapterText = paragraphs.join('\n');
+  if (!chapterText) return [];
+  const findings: string[] = [];
+
+  const quoteCount = (chapterText.match(/["\u201c\u201d]/g) ?? []).length;
+  if (quoteCount % 2 !== 0) {
+    findings.push('unbalanced quotation marks');
+  }
+
+  const ALLOWED_APOSTROPHE_SUFFIXES = new Set(['s', 'd', 'll', 're', 've', 'm', 't', 'em']);
+  const MALFORMED_APOSTROPHE_RE = /\b([A-Za-z]{3,})'([A-Za-z]{2,})\b/g;
+  let malformedMatch: RegExpExecArray | null;
+  while ((malformedMatch = MALFORMED_APOSTROPHE_RE.exec(chapterText)) !== null) {
+    const left = malformedMatch[1] ?? '';
+    const right = malformedMatch[2] ?? '';
+    if (ALLOWED_APOSTROPHE_SUFFIXES.has(right.toLowerCase())) continue;
+    if (/^[A-Z]/.test(left) || /^[A-Z]/.test(right)) continue;
+    findings.push(`malformed apostrophe token "${malformedMatch[0]}"`);
+    break;
+  }
+  return findings;
+};
+
 export const lintBatchProse = (
   batchChapters: ProseChapter[],
   priorChapters: ProseChapter[],
@@ -818,46 +849,18 @@ export const lintBatchProse = (
   // from common mystery words). Archetype contracts are enforced via prompt injection only.
 
   if (boundaryIntegrityGateEnabled) {
-    const ALLOWED_APOSTROPHE_SUFFIXES = new Set(['s', 'd', 'll', 're', 've', 'm', 't', 'em']);
-    const MALFORMED_APOSTROPHE_RE = /\b([A-Za-z]{3,})'([A-Za-z]{2,})\b/g;
-
+    // A_106: the check itself is `findBoundaryIntegrityFindings`, shared with the post-pass polish.
     for (let chapterIndex = 0; chapterIndex < batchChapters.length; chapterIndex += 1) {
       const chapter = batchChapters[chapterIndex];
-      const chapterText = (chapter.paragraphs ?? []).join('\n');
-      if (!chapterText) continue;
-
+      const findings = findBoundaryIntegrityFindings(chapter.paragraphs ?? []);
+      if (findings.length === 0) continue;
       const chapterNumber = chapterOffset + priorChapters.length + chapterIndex + 1;
-      const findings: string[] = [];
-
-      const quoteCount = (chapterText.match(/["\u201c\u201d]/g) ?? []).length;
-      if (quoteCount % 2 !== 0) {
-        findings.push('unbalanced quotation marks');
-      }
-
-      let malformedToken: string | undefined;
-      let malformedMatch: RegExpExecArray | null;
-      while ((malformedMatch = MALFORMED_APOSTROPHE_RE.exec(chapterText)) !== null) {
-        const left = malformedMatch[1] ?? '';
-        const right = malformedMatch[2] ?? '';
-        const rightLower = right.toLowerCase();
-        if (ALLOWED_APOSTROPHE_SUFFIXES.has(rightLower)) continue;
-        if (/^[A-Z]/.test(left) || /^[A-Z]/.test(right)) continue;
-        malformedToken = malformedMatch[0];
-        break;
-      }
-
-      if (malformedToken) {
-        findings.push(`malformed apostrophe token "${malformedToken}"`);
-      }
-
-      if (findings.length > 0) {
-        issues.push({
-          type: 'boundary_integrity',
-          message:
-            `Boundary integrity failure in chapter ${chapterNumber}: ${findings.join('; ')}. ` +
-            'Repair punctuation boundaries before commit (balanced quotes, valid contractions/possessives only).',
-        });
-      }
+      issues.push({
+        type: 'boundary_integrity',
+        message:
+          `Boundary integrity failure in chapter ${chapterNumber}: ${findings.join('; ')}. ` +
+          'Repair punctuation boundaries before commit (balanced quotes, valid contractions/possessives only).',
+      });
     }
   }
 

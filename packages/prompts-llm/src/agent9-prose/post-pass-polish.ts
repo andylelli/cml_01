@@ -263,6 +263,9 @@ export const buildPostPassPolishPrompt = (args: {
   lines.push("- Keep the same title unless there is a minor punctuation or capitalization cleanup.");
   lines.push("- Return EVERY paragraph, edited or not, in its original order.");
   lines.push("- Preserve the narrative voice, period register, and atmosphere — this is a line-edit, not a re-voicing.");
+  // A_106: a count the model can obey. The polish dropped a quotation mark on two of three chapter-8
+  // redos of seed 18179 and converted curly quotes to straight ones in others.
+  lines.push("- Every paragraph you return contains exactly as many quotation marks as the paragraph you were given, in the same style (curly stays curly). When you rewrite a line of dialogue, it opens and closes in the same paragraph.");
   lines.push("- Before returning, reread your version once as a reader who does not know the plot. If any");
   lines.push("  sentence still reads as assembled rather than written, fix it and reread again.");
   return lines.join("\n");

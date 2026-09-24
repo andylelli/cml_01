@@ -87,6 +87,7 @@ import {
   toNgrams,
   jaccardSimilarity,
   lintBatchProse,
+  findBoundaryIntegrityFindings,
   MONTH_TO_SEASON,
   deriveTemporalSeasonLock,
   getSeasonAllowList,
@@ -3602,6 +3603,17 @@ export async function generateProse(
                   polishedCandidate = sanitizeGeneratedChapter(polishedCandidate, castNames);
                   const polishedEvaluation = evaluateCandidate(polishedCandidate, false);
                   const polishedErrors = [...polishedEvaluation.hardErrors];
+                  // A_106 — the polish is an LLM rewrite and drops quotation marks. This validator did
+                  // not run the boundary check, so a polish that unbalanced the quotes was ACCEPTED
+                  // here and then failed the batch lint below, forcing a retry of a chapter the model
+                  // had written correctly (seed 18179: chapter 8, two redos in three, both to a
+                  // fallback). Same function as the batch lint; the existing salvage/rollback does
+                  // the rest, so a quote-dropping polish is reverted rather than shipped or retried.
+                  if (rolloutFlags.boundary_integrity_gate_enabled) {
+                    for (const finding of findBoundaryIntegrityFindings(polishedCandidate.paragraphs ?? [])) {
+                      polishedErrors.push(`Boundary integrity (post-pass polish): ${finding}`);
+                    }
+                  }
                   if (chapterNumber > 1) {
                     const retryVictimName = resolveVictimName(inputs.cast);
                     if (retryVictimName) {
