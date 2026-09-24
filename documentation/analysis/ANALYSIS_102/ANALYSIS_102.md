@@ -608,3 +608,75 @@ whether a reader then stops saying the trick *"does not fully prove the murder i
 physical way"*. That is a full run (~£1.15) and a read. With the block at 8 of 8 on a fixture that can
 fail, and the pipeline now logging `[A_102 means-link]` on every case so the run's own log will say
 whether the case linked before a word of prose is written, it is the right next spend.
+
+
+---
+
+## §10 THE SECOND PAID RUN — SEED 6325. THE CASE LINKED; THE LINK DIED ONE STAGE DOWN
+
+| | |
+|---|---|
+| run id | `mystery-1790236126588` |
+| project id | `canary_1790236126586` |
+| seed | 6325, humour pinned to classic (`--seed 6325 --axis temporal --humour classic --force`; the original sharp-humour draw is preserved beside it) |
+| parameters | temporal · chiming clock struck at the wrong hour · Village 1920s classic · amateur detective · **modern narrative (drawn three times, not pinnable)** · 5 cast · angle: a pawnbroker's shop and its pledge book |
+| cost | **$1.165** |
+| status | warning |
+| release gate | warning — `geometry unaccounted_time`, two clock readings nothing in the case accounts for |
+| rubric (shadow) | **70/100**, against 65 on seed 61062 |
+| ship-check | repetition **151.7 per 10k against a median of 17.3 — 8.8× — WORTH A LOOK**; chapter 2 fell to a completion fallback after three attempts |
+
+**The book is not going to a reader**, on two rules at once: a fallback chapter, and a ship-check that
+says so. Both are recorded below because they are findings of their own.
+
+### §10.1 EVERY PREDICTION
+
+| # | prediction | result |
+|---|---|---|
+| 1 | the run log carries a means-link verdict of PROVES THE ACT at Agent 3 | **PASSED** — *"heavy iron poker: disturbed dust and repositioned tool found in Julian Carrick's forge — Julian Carrick"*, with the glove smudge assigned to Lavinia Yardley. The case obeyed all four shapes, including a keeper for the poker and a reach list naming the culprit |
+| 2 | Agent 5 turns the trace into a clue | **PARTIAL** — `clue_culprit_direct_julian_carrick` carries the forge dust and repositioned tools, mid-placed and essential, with the glove mark as a red herring and its innocent explanation two clues later. **The weapon is gone from it**: *"Dust disturbance and repositioned tools… indicating recent tampering"* |
+| 3 | the reveal names a physical fact tying the culprit to the means of death | **FAILED** — the reveal's ninth point: *"the disturbed dust and repositioned tools established Julian Carrick's unique access and involvement in tampering with the clock."* The poker reaches the culprit in one sentence in chapters 8–10, and it is the confession |
+| 4 | the read stops naming the complaint | **UNTESTABLE** |
+
+### §10.2 WHERE THE POKER BECAME THE CLOCK — TWO STAGES, BOTH NAMED
+
+**At Agent 3, the trace was authored and never used.** The block's last sentence — *"ONE inference step
+lists (b) and (c) in its required_evidence"* — sits beside the four shapes, in prose, and behaved like
+every sentence beside a shape has behaved in this document: no step's observation is the trace, and
+the discriminating test is the clock and the alibi. §9's harness measured the trace and never
+measured its use. **MEASURED** from the persisted CML.
+
+**At Agent 5, the clue was sourced from the wrong field.** `clue_culprit_direct_julian_carrick` cites
+`CASE.cast[2].evidence_sensitivity[0]`, which holds the bare noun *"forge tools"*, not the trace path.
+The culprit-direct slot derives from the cast entry, and the weapon binding — which lives only in the
+trace's first slot — never entered the clue layer. From there Agent 7 used the forge as an alibi
+location (*"forge attendance from seven ten to seven forty five"*) and Agent 9 finished the drift.
+
+So §4's step 4 answered the question it was bought to answer, and the answer is that **the link
+survives to Agent 5 as a fact and loses its object there**, and that Agent 3's own inference path
+does not carry it either. Neither was visible from the harness, which scores the trace.
+
+### §10.3 THE TWO FIXES THIS BUYS, BOTH CHEAP AND BOTH TESTABLE WITHOUT A BOOK
+
+1. **Agent 3: the inference step gets a shape, not a sentence.** One step whose `observation` IS the
+   (c) trace, verbatim, with an `effect` in the narrowing form. Testable on `harness:agent3:direct`
+   by comparing a step's observation to the trace — a check the harness does not yet make.
+2. **Agent 5: the culprit-direct slot sources from the (c) trace when one exists.** The trace is
+   identifiable by shape — weapon-first, culprit-last, in `constraint_space.physical.traces` — and
+   the slot should cite that path and keep its first slot. Testable on `harness:agent5:direct`
+   against this run's frozen CML by checking that the culprit-direct clue names the weapon.
+
+### §10.4 TWO FINDINGS THAT ARE NOT ABOUT THE MEANS-LINK
+
+- **The repetition is the locked-fact phrase.** *"at half past seven at night"* appears **ten times across
+  six chapters**; the locked-fact gate warns *"Agent 9 will enforce via prose generation"*, and it did,
+  verbatim. That is 8.8× the median on its own and it is book-wide, so a chapter-2 resume would not
+  clear the read block. Locked-fact enforcement needs to accept a paraphrase of a clock time.
+- **Agent 6's blind-reader gate was skipped again** on content filtering — the second run in a row
+  with one fewer check than its summary shows.
+
+### §10.5 WHAT IS AND IS NOT SETTLED
+
+Settled: the block reaches production, the case links, the log says so at minute five, and the link
+is lost at Agent 5 and unused by Agent 3's inference path. Not settled: whether a book whose reveal
+rests on the trace reads better — that needs §10.3 built and a third run, and no run before then.

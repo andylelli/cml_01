@@ -2950,3 +2950,15 @@ transferable findings in §9.8: name the object; a count is obeyed and its quali
 shapes converge on the simpler one; the instrument is satisfied by the thinnest content that fits.
 **Next spend: a full run (~£1.15) and a read.** The run's own log now says `[A_102 means-link]
 <verdict>` before any prose exists, so prediction 1 is checked at minute five, not at the read.
+
+**§32 UPDATE 6 — second paid run, seed 6325 (A_102 §10).** `mystery-1790236126588`, $1.165, rubric
+70 (was 65), status warning, release gate warning. **Prediction 1 passed**: the log said PROVES THE ACT
+at Agent 3, with the poker's keeper, the reach list and the forge trace all in shape. **Prediction 2
+partial**: Agent 5 surfaced the forge dust as the culprit-direct clue and lost the weapon, because the
+slot cites `cast[].evidence_sensitivity` ("forge tools"), not the trace. **Prediction 3 failed**: the
+reveal binds the dust to the clock; the poker reaches the culprit only in his confession. Agent 3's
+own inference path never used the trace either — the sentence asking for that sat beside the shapes.
+**Unreadable**: repetition 8.8× the median, ten of them the locked-fact phrase "at half past seven at
+night" enforced verbatim across six chapters, plus a chapter-2 fallback. **Next, before any run:** give
+the inference step a shape (Agent 3), and source the culprit-direct slot from the weapon-first trace
+(Agent 5); both testable on the harnesses. Then a third run.
