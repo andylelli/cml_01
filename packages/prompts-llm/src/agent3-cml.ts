@@ -637,7 +637,7 @@ Before finalizing, run a silent checklist:
 - if the concealment fakes a time: apparent_time_of_death sits inside a culprit alibi window, actual_time_of_death sits in a culprit gap, and the two differ
 - all required top-level keys present
 - 3-5 inference steps with required_evidence in each
-- the MURDER WEAPON (death_method's object, not the concealment device) has a stated keeper, a stated place it was kept with two or more suspects able to reach it, and exactly TWO traces beginning with the weapon's name: the innocent's mark FIRST, the culprit's disturbance LAST
+- the MURDER WEAPON (death_method's object, not the concealment device) has a stated keeper, a stated place it was kept with two or more suspects able to reach it, and exactly TWO traces beginning with the weapon's name, each naming a place: the innocent's mark FIRST, the culprit's disturbance LAST
 - discriminating_test uses only previously exposed evidence
 - false_solution accuses an innocent suspect and has exactly one flaw
 - at least two red_herrings, each with an innocent_explanation
@@ -901,12 +901,13 @@ ${hardLogicDeviceText}
       constraint_space.physical.traces carries exactly TWO entries that begin with the murder weapon's
       name, in this order: FIRST the innocent's handling mark from (d) below, LAST this disturbance
       with the culprit's full name in its final slot.
-   d. WHERE THE OBVIOUS EVIDENCE POINTS — the print, smudge or handling mark found ON the murder
-      weapon belongs to an INNOCENT suspect. It is the FIRST of the two weapon-first traces, in this
-      shape:
-        "<the murder weapon, in death_method's own words>: <print, smudge or handling mark> — <innocent suspect's full name>"
+   d. WHERE THE OBVIOUS EVIDENCE POINTS — the smudge, glove mark or handling mark found ON the
+      murder weapon belongs to an INNOCENT suspect. It is the FIRST of the two weapon-first traces,
+      in this shape:
+        "<the murder weapon, in death_method's own words>: <smudge, glove mark or handling mark> found in <a room or place this case already names> — <innocent suspect's full name>"
       and it is also one of the two required red_herrings, with its innocent_explanation. The
-      weapon's own surface carries misdirection, never the answer; the answer is the LAST trace, (c).
+      weapon's own surface carries misdirection, never the answer; the answer is the LAST trace, (c),
+      which names what the weapon's TAKING disturbed, in its own place.
    ONE inference step lists (b) and (c) in its required_evidence. That step's effect NARROWS the pool
    to the reachable names from (b); two or more suspects survive it and the culprit is among them. A
    step whose effect is the culprit's name has put the answer before the discriminating test.

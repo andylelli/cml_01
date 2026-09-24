@@ -557,3 +557,54 @@ keeps the place; and take *"print"* out of its slot. Then stop iterating, whatev
 next question is a book, and the harness cannot answer it.
 
 Draft 7 cost $0.088.
+
+### §9.7 DRAFT 8 — (d) CARRIES THE PLACE SLOT — 8 of 8, PLACE 8 of 8, AND THE LOOP STOPS HERE
+
+Two changes to (d): the same place slot as (c), and no *"print"* in its slot. Eight cases, same fixture.
+
+| case | the culprit's trace | place | kind |
+|---|---|---|---|
+| 1 | *"fresh handling disturbance found in servants' quarters — Percival Thorne"* | yes | generic |
+| 2 | *"fresh scratch marks found on handle in gardener's shed — Percival Thorne"* | yes | **concrete** |
+| 3 | *"handling disturbance found in billiard room — Percival Thorne"* | yes | generic |
+| 4 | *"fresh handling marks found in manor kitchen — Percival Thorne"* | yes | generic |
+| 5 | *"fresh handling marks and blood smudge found in kitchen drawer — Percival Thorne"* | yes | **concrete** |
+| 6 | *"disturbance found in lock-keeper's cottage — Percival Thorne"* | yes | generic |
+| 7 | *"fresh handling marks found on desk drawer in manor study — Percival Thorne"* | yes | **concrete** |
+| 8 | *"fresh handling disturbance found in lock-keeper's cottage — Percival Thorne"* | yes | generic |
+
+**8 of 8 PROVES THE ACT; collision 0 of 8; place slot 8 of 8; culprit's prints on the weapon 0 of 8;
+the clock inside a weapon trace 0 of 8; every innocent's mark a glove smudge with a place. MEASURED.**
+The parallel-construction mechanism from §9.6 ran in reverse: once (d) carried a place, (c) kept its
+own. **Not fixed, and not attempted further:** 5 of 8 culprit traces say *"handling marks"* or
+*"disturbance"* — the shape is filled with the vaguest mark that satisfies it. The two-slot form
+guarantees a place and a name; it does not guarantee a scratch on a handle. That is prose quality,
+and the harness cannot score it.
+
+### §9.8 THE LOOP, END TO END
+
+| arm | change | links | collision | place | notes |
+|---|---|---|---|---|---|
+| baseline (draft 4) | — | **0 of 4** | 4 of 4 | — | every shape filled with the clock |
+| draft 5 | name both objects, weapon first | 4 of 8 | 3 of 8 | 4 of 5 | 3 unambiguous |
+| draft 6 | "only one, ending with the culprit" | 5 of 8 | 3 of 8 | 4 of 5 | count kept, qualifier dropped |
+| draft 7 | exactly two, innocent first, culprit last | **8 of 8** | **0 of 8** | 2 of 8 | content thinned; one culprit print |
+| draft 8 | (d) carries the place slot, no "print" | **8 of 8** | **0 of 8** | **8 of 8** | 5 of 8 generic wording |
+
+**36 harness cases, about $0.41 — roughly £0.32 — against a stage whose failures cost £1.15 each to
+observe.** Four findings that transfer:
+
+1. **Name the object; a reference binds to whatever the case is about** (§8.2, §9.1–§9.2).
+2. **A count of simple things with fixed positions is obeyed; a qualifier on a counted thing is
+   dropped** (§9.5), even when the qualifier is the point.
+3. **Adjacent shapes converge on the simpler one** (§9.6–§9.7). Two templates side by side must carry
+   the same slots, or the richer one loses its extra slot.
+4. **The instrument is satisfied by the thinnest content that fits it** (§9.6). 8 of 8 is a number about
+   the shape. Read the cases.
+
+**What is NOT settled, and the only thing worth paying for next:** whether the trace survives nine
+stages into a book — Agent 5 surfacing it, the outline placing it, the reveal resting on it — and
+whether a reader then stops saying the trick *"does not fully prove the murder in a satisfying,
+physical way"*. That is a full run (~£1.15) and a read. With the block at 8 of 8 on a fixture that can
+fail, and the pipeline now logging `[A_102 means-link]` on every case so the run's own log will say
+whether the case linked before a word of prose is written, it is the right next spend.

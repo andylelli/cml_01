@@ -2941,3 +2941,12 @@ fingerprints on the weapon, one smuggled the clock into the weapon's trace. The 
 (c) with no place slot and the model harmonised (c) to it. **Goodhart on the classifier: 8 of 8 is the
 number, the case is not 8 of 8 better — do not cite it alone.** Draft 8 gives (d) the place slot too
 and drops "print" from it; then the loop stops, because the next question is a book.
+
+**§32 UPDATE 5 (A_102 §9.7–§9.8) — the loop is closed.** Draft 8 — (d) carries the place slot, no
+"print" — **8 of 8, collision 0 of 8, place 8 of 8**, no culprit prints, no clock in a weapon trace.
+Residue: 5 of 8 culprit traces say "handling marks", which the harness cannot score. End to end:
+baseline 0 of 4 → 4 of 8 → 5 of 8 → 8 of 8 (thin) → 8 of 8 (with place), 36 cases, ~£0.32. Four
+transferable findings in §9.8: name the object; a count is obeyed and its qualifier dropped; adjacent
+shapes converge on the simpler one; the instrument is satisfied by the thinnest content that fits.
+**Next spend: a full run (~£1.15) and a read.** The run's own log now says `[A_102 means-link]
+<verdict>` before any prose exists, so prediction 1 is checked at minute five, not at the read.
