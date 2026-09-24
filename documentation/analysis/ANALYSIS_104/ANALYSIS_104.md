@@ -67,7 +67,7 @@ no single-chapter resume clears it.
 The fix belongs to locked-fact enforcement, not to prose: state the locked value verbatim in the
 chapters whose contract references it, and accept a paraphrase of a clock time elsewhere. Its gate,
 `parseClockTime`, has a closed vocabulary ([[x38-blind-because-parser-could-not-read-its-own-clock]]),
-so the paraphrase has to be one it can read. **Designed, not built.**
+so the paraphrase has to be one it can read. **Built — §4.** Verbatim once where a fact is evidence, a referent elsewhere, scoped by the validator's own `appearsInChapters`; the referents carry no numeral, so the parser never meets them.
 
 ---
 
@@ -86,8 +86,8 @@ so the paraphrase has to be one it can read. **Designed, not built.**
 
 1. Stop reading the shadow rubric against external reads. Compare like with like: rubric to rubric,
    read to read.
-2. Fix locked-fact enforcement so a clock time may be paraphrased outside the chapters that need it
-   verbatim. That is what stands between the current books and a reader.
+2. ~~Fix locked-fact enforcement~~ Built (§4): a third of the repetition. What now stands between the
+   current books and a reader is clue text copied verbatim from the chapter obligation block (§4.2).
 3. Then read one, and compare it to September's reads.
 
 
@@ -142,3 +142,31 @@ next item, not this one.
 The resumed book's rubric fell to 64 with a new cap, *"reveal uses evidence not planted earlier →
 ending ≤ 5"*. One prose re-run against identical upstream moved the shadow rubric six points on
 prose variance alone — [[rubric-cannot-rank-two-books]], measured again, free.
+
+
+---
+
+## §5 THE NOVELTY AUDIT SCORED THE CANDIDATE AGAINST ITSELF AND BLOCKED THE RUN
+
+**2026-09-24.** Seed 18179's first launch (`mystery-1790250322380`) died four minutes in, before any
+prose: *"Binding gate: Agent 8 novelty audit is blocking (status: warning)."*
+
+The audit's own JSON said `status: "pass"`, nearest seed *The Clue of the Twisted Candle* at 0.58,
+`violations: []`. Its `similarityScores` carried four rows: three real seeds at 0.58, 0.40, 0.38 — and
+**a fourth titled *The Pendulum's False Toll at Blackwater Sanctuary* at 1.00, which is the generated
+mystery's own title.** The model had scored the candidate against itself and then, sensibly, ignored
+that row in its verdict. The code did not: it recomputes the maximum over the whole list, found 1.00
+against a 0.90 threshold, set `fail`, shadow mode downgraded it to `warning`, and the binding gate
+blocked on the warning. **MEASURED**, from the response record and `agent8-novelty.ts`.
+
+**Fix:** rows titled as the generated mystery, or naming no supplied seed when seed titles are known,
+are dropped before the maximum, and each dropped title is written into the audit's warnings. The
+filter is a pure exported helper, `dropSelfAndUnknownSeeds`, pinned by four tests including the
+exact four rows above. Cost of the lost launch: Agents 1–3b, the skeleton judge and one audit — no
+prose, so roughly a tenth of a book.
+
+Two smaller things from the same log. Agent 3's first attempt was truncated at the completion limit
+(*"no closing brace"*) and the retry succeeded; seed 61062 also needed two attempts, seed 6325 one,
+so this is not new with the longer block, but it is a cost worth watching. And the prompt recorder
+could not open `documentation/prompts/actual/README.md` for one second at 12:49 — two writers in the
+same second; the file was writable a minute later.

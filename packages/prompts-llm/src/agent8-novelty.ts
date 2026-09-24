@@ -334,6 +334,32 @@ Be specific about what similarities exist and whether they violate novelty princ
 // Main Audit Function
 // ============================================================================
 
+
+const normTitle = (t: unknown): string => String(t ?? "").toLowerCase().replace(/['’]/g, "").replace(/[^a-z0-9]+/g, " ").trim();
+
+/**
+ * A_105 — keep only similarity rows that can be about a supplied seed. A row titled as the generated
+ * mystery is the model scoring the candidate against itself (1.00 by construction); a row naming no
+ * supplied seed, when seed titles are known, is an invention. Pure, so the case is pinned by a test.
+ */
+export const dropSelfAndUnknownSeeds = <T extends { seedTitle?: string }>(
+  scores: T[],
+  seedTitles: string[],
+  generatedTitle: string,
+): { kept: T[]; dropped: string[] } => {
+  const self = normTitle(generatedTitle);
+  const known = new Set(seedTitles.map(normTitle).filter((t) => t.length > 0));
+  const kept: T[] = [];
+  const dropped: string[] = [];
+  for (const row of scores) {
+    const t = normTitle(row.seedTitle);
+    const isSelf = self.length > 0 && t === self;
+    const unknown = known.size > 0 && t.length > 0 && !known.has(t);
+    if (isSelf || unknown) dropped.push(String(row.seedTitle ?? "")); else kept.push(row);
+  }
+  return { kept, dropped };
+};
+
 export async function auditNovelty(
   client: AzureOpenAIClient,
   inputs: NoveltyAuditInputs
@@ -392,7 +418,23 @@ export async function auditNovelty(
       : config.thresholds.similarity_threshold_default;
   const failThreshold = Math.min(1, similarityThreshold + config.thresholds.fail_delta);
 
-  const normalizedScores = noveltyData.similarityScores.map((score) => {
+  // A_105: the model can echo the GENERATED mystery back as a "seed" at 1.00 (seed 18179 did, and
+  // the binding gate blocked the run on it). Its own verdict ignored that row; the maximum below did
+  // not. Drop self-titled rows, and rows naming no supplied seed when seed titles are known.
+  const dropped = dropSelfAndUnknownSeeds(
+    noveltyData.similarityScores,
+    inputs.seedCMLs.map((c: any) => String(c?.CASE?.meta?.title ?? "")),
+    String((inputs.generatedCML as any)?.CASE?.meta?.title ?? ""),
+  );
+  const keptScores = dropped.kept.length > 0 ? dropped.kept : noveltyData.similarityScores;
+  if (dropped.dropped.length > 0) {
+    noveltyData.warnings = [
+      ...dropped.dropped.map((t) => `Novelty audit: ignored a similarity row titled "${t}" — the generated mystery itself, or no supplied seed`),
+      ...(Array.isArray(noveltyData.warnings) ? noveltyData.warnings : []),
+    ];
+  }
+
+  const normalizedScores = keptScores.map((score) => {
     const normalized: SimilarityScore = {
       ...score,
       overallSimilarity: clamp(score.overallSimilarity),
