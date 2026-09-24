@@ -283,6 +283,11 @@ export function buildDiscriminatingTestChecklist(
 
   // Detective reasoning requirements
   checklist += `☐ **Detective Reasoning**\n`;
+  // A_107 — the operation the DT-validity gate checks, asked for directly. On seed 18179 the draft set
+  // the readings against each other without the word "theory" or any of "result", "observation",
+  // "proves", "rules out" — so the gate failed on the model's only draft and the deterministic patch
+  // inserted the three paragraphs the 86 reader quoted back. The words are the scene's own job.
+  checklist += `  ☐ In one line of dialogue the investigator names the theory everyone in the room believed; in another, the result of the test that disproves it. Say "theory" and "result" in those lines.\n`;
   checklist += `  ☐ Detective explicitly states the test logic\n`;
   checklist += `  ☐ Show step-by-step deduction process\n`;
   checklist += `  ☐ Connect test results to innocence/guilt determination\n`;

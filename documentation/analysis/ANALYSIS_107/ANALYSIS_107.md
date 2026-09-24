@@ -127,3 +127,32 @@ confusion the reader named. **Partial, not fixed.**
 - **Resume run reports overwrite each other.** Every resume on the same day writes
   `run_<date>_resume-1.json`, so a redo's report is lost at the next redo. The numbers here were read
   immediately after each run. Not fixed; a provenance gap for anyone reading later.
+
+## §7 THE INJECTOR'S TRIGGER, FOUND AND STOPPED
+
+**The flag alone did not do it.** `AGENT9_DT_THEORY_VOCABULARY` (A_76 §17, measured 1 of 28 → 17 of 28
+and never switched on) was set in `.env.local`, and the next chapter-8 redo still got the injector's
+three paragraphs. Checking that redo's own drafts against the validity check: the model's only draft
+passed the **theory** half with the flag on and failed the **proof** half — none of "result",
+"observation", "proves", "rules out", "would prove". The patch was inserted before the polish, on the
+first draft, and the regen cleared one of three. **MEASURED** from the draft in `logs/llm.jsonl`.
+
+**Fix — the operation, not a longer list.** Growing the proof vocabulary would be the closed-list
+shape again ([[closed-vocabulary-deciding-a-pass]]). The confrontation checklist now asks for what the
+gate checks, as the scene's own job: *"In one line of dialogue the investigator names the theory
+everyone in the room believed; in another, the result of the test that disproves it. Say 'theory' and
+'result' in those lines."* The flag stays on for the theory half.
+
+**Measured** on a chapter-8 redo (`resume-1790268532166`): **injector lines in the book: 0**, no
+scaffold regen fired at all, rubric **75** with no scaffold cap, repetition **9.3 per 10k**, no
+fallback. Chapter 8 says "theory" and "result", names the killer — *"Gerald, you killed Dr. Ivor
+Jardine"* — and ties him to the knife, spoken to him: *"You were the last to handle the birdwatcher's
+knife… The fresh smudges found in the barn match your grip, not Adela's."* Chapter 9 has no list.
+
+**This book is fit to read** by the project's rules — no fallback chapter, no WORTH A LOOK, no
+injector lines: `stories/story_20260924-1751/resumed_resume_1790268532166.md`. It carries every fix
+from A_102 §13 onward on the 86 book's case. One oddity for a reader: chapter 8's dialogue is in single
+quotes while the rest of the book uses double.
+
+(The knife sentences were first missed by my probe again: the chapter's single-quote dialogue defeated
+its sentence splitter. Found by reading the chapter's weapon sentences directly.)

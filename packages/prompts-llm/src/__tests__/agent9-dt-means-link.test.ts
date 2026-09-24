@@ -49,3 +49,13 @@ describe("buildNameAndReasonLines", () => {
   });
 });
 
+// A_107 — the DT-validity gate needs a competing-reading word and a proof word; the injector fired when
+// the draft had neither. The checklist asks for both as the scene's own operation.
+import { buildDiscriminatingTestChecklist } from "../agent9-prose/discriminating.ts";
+describe("the confrontation checklist asks for the theory and the result", () => {
+  it("names both words in one operation", () => {
+    const text = buildDiscriminatingTestChecklist.toString();
+    expect(text).toContain('Say "theory" and "result" in those lines.');
+  });
+});
+
