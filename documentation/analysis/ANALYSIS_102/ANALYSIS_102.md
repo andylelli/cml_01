@@ -912,3 +912,69 @@ go, the rule stated without them. Neither is built.
 reach 90–92."* That is the reader's estimate of their own suggestions, as it was at 86–91 in §5, and
 it settles nothing about the mark ([[rubric-cannot-rank-two-books]]). What is settled is the thing
 this document set out to settle: **the case now proves the act, and the reader saw it.**
+
+
+---
+
+## §15 THE FIVE LINES — DETECTED, THEN CLEARED, THEN BOUNDED. THREE CHAPTER-8 REDOS, £0.30
+
+**2026-09-24.** §14.2 named five scaffold lines that are ours. Both fix classes are built, and each
+was measured on a one-chapter redo of chapter 8 of the seed 18179 book, where the injector had fired.
+
+### §15.1 THE TWO PROMPT SPECIMENS — REMOVED
+
+*"as brief as the fading light"* was quoted in the short-answer rule at three sites in
+`obligation-block.ts` as a measured past failure; *"the evidence was mounting"* headed rule 10's list
+of bad sentences in `prompt-builder.ts`. Both rules keep their operation and lose their specimens; a
+test pins the absence, and the A_95 test that had pinned the specimen's **presence** now pins its
+absence. A phrase shown to this model is a phrase it writes — the fourth measured occurrence
+([[a-prohibition-does-not-steer-this-model]]).
+
+### §15.2 THE THREE INJECTOR LINES — THE DETECTOR, THEN THE REGEN
+
+The discriminating-test residue injector (`deterministic-repair.ts:497–513`) fires when the reveal
+chapter fails the DT-marker gate after its retries; A_82 rewrote its wording, and the scaffold
+detector's two A2 signatures still matched only the wording A_82 replaced. So the existing
+scaffold regen — the model-first rewrite that dramatizes injector text — never saw the new lines, and
+they shipped verbatim for the third read. Five A2b signatures for the current wording went into the
+one list the detector, the regen, the floor and the ship-check share.
+
+| chapter-8 redo | what happened | A2/A2b lines left | ch8 words | repetition /10k | rubric |
+|---|---|---|---|---|---|
+| **1** — signatures only (`resume-1790262863971`) | ch8 fell to a fallback on unbalanced quotes; the injector fired; the detector caught both paragraphs; the regen ran and **did not clear them** — *"regen did not improve the targeted property"*; the ship-check reported the residual and **capped the rubric honestly** | 1 | 1,414 | 22.1 | **65**, prose ≤ 4 |
+| **2** — regen instruction given a SHAPE, quoting nothing (`resume-1790263346166`) | no fallback; the regen **dramatized all three paragraphs**; *"none in any chapter"*; the knife link kept | **0** | **1,806** | **48.6** | 72 |
+| **3** — the shape bounded to ONE paragraph per flagged paragraph (`resume-1790263695602`) | ch8 fell to a fallback on unbalanced quotes again; the injector fired through the fallback path; the regen cleared one paragraph and **echoed two** across its two attempts; the ship-check capped honestly; **the fallback chapter also lost the knife sentence** | 2 | **1,400** | **16.0** | 65, prose ≤ 4 |
+
+**Redo 1 settled why the regen failed:** the instruction ended *"Flagged: <the fragments>"*, and the
+model wrote the fragments again — the echo A_64 §2 F3 had already recorded on a different defect.
+**Redo 2 settled that a shape with nothing to copy clears them**, and showed the cost of the shape as
+written: *"two or three paragraphs"* applied by a paragraph-scoped pass to three consecutive flagged
+paragraphs staged the test three times. Within chapter 8 alone, 81 six-word spans repeated — *"a chime
+that was faint and late"* ×3, *"that's exactly what the servants described"* ×3 — and the chapter grew
+by 392 words. The bound is one paragraph in, one out, no longer than the original, one physical step.
+
+**What redo 1 also bought, for nothing:** the ship-check now sees this family. A book carrying these
+lines is capped at prose ≤ 4 and says so, where seed 18179's original run shipped them at 71 and the
+reader found them.
+
+### §15.3 WHERE THIS LEAVES THE FIVE LINES, AND WHAT THE THIRD REDO SAYS
+
+**The two prompt specimens are gone**, measured absent from every prompt the writer sees. **The three
+injector lines are detected every time, gated honestly every time, and cleared when the regen's
+rewrite avoids the signature** — three of three paragraphs on redo 2, one of three on redo 3, at two
+attempts each. The bound held: redo 3's chapter 8 is 1,400 words with two repeated spans, and the book
+sits at 16.0 per 10k, under the median.
+
+**What the third redo settles is that the residual is not this fix's to finish.** Chapter 8 fell to a
+completion fallback on *unbalanced quotation marks* in two of three redos, as chapter 1 had on the
+original run and as the reader found in chapter 9. That gate exhausts three attempts, the fallback
+path then applies the discriminating-test patch to a chapter the gate never re-checks, and a fallback
+chapter carries whatever the merged draft happened to hold — redo 3's lost the knife sentence the
+reveal depends on. A gate that turns a chapter into a fallback in two of three tries is the B1 shape,
+and it is producing both the injector's paragraphs and the books this project cannot read. **Next lever:**
+a deterministic repair for an unbalanced quotation mark at paragraph end in place of the retry loop,
+measured on chapter-8 redos of this same book. Designed, not built.
+
+The read book, `story_20260924-1445` (86), remains the best artefact of seed 18179; redo 2 has the
+lines cleared and the link kept at the cost of a bloated chapter; redo 3 is bounded and a fallback.
+

@@ -1142,3 +1142,29 @@ describe("dual-value at SHIP scope — the 7.2 'enabled and silent' split-brain"
     expect(onUnresolved).toHaveBeenCalled();
   });
 });
+
+describe("A_102 §14.2 — the discriminating-test residue regen quotes nothing", () => {
+  const dtDefect = {
+    chapter: 8,
+    paragraphIndex: 17,
+    kind: "scaffold_not_prose" as const,
+    detail: "Nobody in the room could unsee what had just happened. However the moment was turned over, only one account still fit what they had all just watched. | Frances Underhill set out one competing theory against the other",
+    obligationRef: "scaffold_ch8_p17",
+    severity: "hard" as const,
+  };
+
+  it("gives the DT family a shaped in-scene instruction with no fragment to echo", () => {
+    const text = instructionForDefect(dtDefect as any);
+    expect(text).toContain("performs the decisive test in front of the suspects");
+    expect(text).toContain("ONE paragraph, no longer than it");
+    expect(text).not.toContain("unsee");
+    expect(text).not.toContain("competing theory");
+    expect(text).not.toContain("Flagged:");
+  });
+
+  it("leaves every other scaffold family on the existing instruction", () => {
+    const other = { ...dtDefect, detail: "the trail bent toward the study" };
+    expect(instructionForDefect(other as any)).toContain("Flagged:");
+  });
+});
+

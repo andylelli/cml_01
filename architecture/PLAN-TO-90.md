@@ -3012,3 +3012,13 @@ lines the reader quoted are ours — three from the discriminating-test residue 
 prompt text and reproduced. Next levers, in order: those five lines; the chapter-9 proof list after
 the confession; one sentence relating the 55-minute shift to the 6-second chime. The reader's
 90–92 is their estimate of their own suggestions, not a measurement.
+
+**§32 UPDATE 12 — the five lines (A_102 §15), £0.30 over three chapter-8 redos.** The two prompt
+specimens are removed and pinned absent. The three injector lines are now in the shared signature
+list, so the detector, the model-first regen, the floor and the ship-check all see them: cleared 3 of 3
+paragraphs on one redo and 1 of 3 on another, capped honestly (prose ≤ 4) when they survive, where the
+original run shipped them silently at 71. The regen's shape is bounded to one paragraph per flagged
+paragraph (repetition 48.6 → 16.0). **The residual is upstream:** the unbalanced-quotation gate turned
+chapter 8 into a fallback in two of three redos, the fallback path applies the DT patch unchecked, and
+one fallback lost the knife sentence. Next lever: a deterministic end-of-paragraph quote repair in
+place of that retry loop. The read book (86) remains seed 18179's best artefact.

@@ -109,6 +109,25 @@ export function instructionForDefect(defect: ProseDefect): string {
       if (defect.detail.toLowerCase().includes(A1_EARLY_CLUE_LEAD)) {
         return `Rewrite the flagged sentence(s) so the investigator PRIVATELY notices or examines the evidence inside the ongoing scene, preserving the underlying fact(s). Do NOT stage the investigator announcing conclusions or presenting the case to assembled listeners, and do NOT summarize what is known. Detail: ${defect.detail}`;
       }
+      // A_102 §14.2 — the discriminating-test residue (A2/A2b: "set out one competing theory…",
+      // "could unsee what had just happened", "the moment was turned over"). Quoted back by three
+      // reads. On the chapter-8 redo of seed 18179 the regen fired on exactly these paragraphs and
+      // did not clear them: the instruction below ends by quoting the fragments, and the model wrote
+      // them again (A_67; A_64 §2 F3 recorded the same echo). This family gets a SHAPE and no quote:
+      // what the scene must contain, stated as things that happen, with nothing to copy.
+      if (detectScaffoldNotProse(defect.detail).some((h) => h.rule.startsWith("A2"))) {
+        // Bounded to ONE paragraph per flagged paragraph: the pass is paragraph-scoped, and "two or
+        // three paragraphs" applied to each of three flagged paragraphs staged the test three times
+        // (chapter 8: 1,414 → 1,806 words, repetition 22 → 48.6 per 10k on the second redo).
+        return (
+          `Replace the flagged paragraph with ONE paragraph, no longer than it, of the same moment written as a ` +
+          `scene: the investigator performs the decisive test in front of the suspects. This paragraph shows one ` +
+          `physical step of that test as it happens — the object the investigator handles, what is done to it, and ` +
+          `what the people in the room see — and may end on one line of dialogue from a suspect who watched. Every ` +
+          `sentence has a person or an object as its subject. Do not restage a step the surrounding paragraphs ` +
+          `already show. The paragraph being replaced is machine text; nothing in it is to be reused.`
+        );
+      }
       // A_64 §2 F3: "preserving the underlying fact. Detail: <fragment>" read to the model as "keep
       // this wording" — dv_clock_off's regen echoed the flagged sentence back verbatim. Make the
       // replace-the-wording contract explicit; the fragments are machine-inserted template text.
