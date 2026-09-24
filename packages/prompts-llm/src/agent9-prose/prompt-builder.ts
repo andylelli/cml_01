@@ -2373,7 +2373,7 @@ ${victimIdentityRule}`;
        * abstraction rule through the retry loop would cost more abstraction than the rule removes.
        * The instruction is free; a gate is not.
        */
-      '10. NO ABSTRACT NOUN AS THE SUBJECT OF A LINKING VERB: Sentences of the form "The evidence was mounting", "The contradiction was immediate", "The tension was palpable", "The silence was heavy" state a conclusion the reader cannot see. Rewrite every one so the SUBJECT is a person or a physical object and the VERB is something that happens — not "The evidence was damning" but "The abrasion marks ran against the winding direction". This is the most common abstraction this pipeline produces and the one item in this list that is mechanically checkable, so leave none behind.';
+      '10. NO ABSTRACT NOUN AS THE SUBJECT OF A LINKING VERB: find every sentence whose grammatical subject is an abstraction (evidence, contradiction, tension, silence, truth, weight, atmosphere, mood, meaning) and whose verb is a form of "to be", "seem", "remain", "hang" or "settle" followed by an adjective or participle. Each states a conclusion the reader cannot see. Rewrite every one so the SUBJECT is a named person or a physical object and the VERB is an event that happens to it. No specimen is given here on purpose: a sentence shown to you is a sentence you write. This is the most common abstraction this pipeline produces and the one item in this list that is mechanically checkable, so leave none behind.';
   }
 
   const judgedOnBlock = buildJudgedOnBlock(isRubricInPromptEnabled());

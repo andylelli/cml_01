@@ -2892,3 +2892,18 @@ describe("geometry contract blocks", () => {
     });
   });
 });
+
+describe("A_102 §14.2 — no quoted specimen of bad prose reaches the writer", () => {
+  // The seed 18179 read quoted "the evidence was mounting" and "as brief as the fading light" back
+  // at us; both were NEGATIVE EXAMPLES inside prompt text. A phrase shown to the model is written by it.
+  it("rule 10 and the short-answer rule survive without their specimens", () => {
+    const p = buildProsePrompt({ ...baseInputs, writingGuides: { craft: "craft guide" } } as any, [baseScene], 1, []); // rule 10 is emitted only with the craft guide loaded, as production loads it
+    const all = p.messages.map((m: any) => String(m.content)).join("\n");
+    expect(all).toContain("NO ABSTRACT NOUN AS THE SUBJECT OF A LINKING VERB");
+    expect(all).not.toContain("The evidence was mounting");
+    expect(all).not.toContain("The tension was palpable");
+    expect(all).not.toContain("as brief as the fading light");
+    expect(all).not.toContain("Four words, final");
+  });
+});
+

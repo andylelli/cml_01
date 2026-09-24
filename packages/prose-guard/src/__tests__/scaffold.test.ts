@@ -213,3 +213,28 @@ describe("scaffold — the pipeline narrating itself (X40)", () => {
     expect(hits[0]!.rule).toMatch(/^X40:/);
   });
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// A_102 §14.2 — the DT residue wording after A_82's rewrite, quoted back by the seed 18179 read
+// ─────────────────────────────────────────────────────────────────────────────
+describe("detectScaffoldNotProse — the rewritten discriminating-test residue (A2b)", () => {
+  // verbatim from stories/story_20260924-1445 chapter 8, as the reader quoted them
+  const theory = "Frances Underhill set out one competing theory against the other, so everyone could weigh them side by side.";
+  const unsee = "Nobody in the room could unsee what had just happened. However the moment was turned over, only one account still fit what they had all just watched.";
+  const tail = "That left Gerald Thorne as the only person whose story still needed the discredited theory to be true.";
+
+  it("fires on each of the three lines the reader quoted", () => {
+    expect(detectScaffoldNotProse(theory).map((h) => h.rule)).toContain("A2b:competing_theory_against");
+    const u = detectScaffoldNotProse(unsee).map((h) => h.rule);
+    expect(u).toContain("A2b:could_unsee");
+    expect(u).toContain("A2b:moment_turned_over");
+    expect(u).toContain("A2b:one_account_still_fit");
+    expect(detectScaffoldNotProse(tail).map((h) => h.rule)).toContain("A2b:discredited_theory_true");
+  });
+
+  it("stays silent on prose that argues the same point in a character's own words", () => {
+    const clean = "Frances laid the pocket watch beside the clock face. \"One of these is lying,\" she said, \"and it is not the one that stopped.\" Gerald did not look at either.";
+    expect(detectScaffoldNotProse(clean)).toEqual([]);
+  });
+});
+

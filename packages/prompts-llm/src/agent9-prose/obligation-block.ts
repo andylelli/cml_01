@@ -348,12 +348,12 @@ export const buildOwnedShapeLines = (
       `savagery", "understatement", "sardonic", "flat", "her answer was flat" or "the retort landed" as ` +
       `description. The register is in the words a character says; it is never labelled by the narrator. ` +
       `Nor may the narrator remark that an answer was short, final, brief or unelaborated — not in ANY wording, ` +
-      `including one not listed here. MEASURED on run 50862: "Four words, final." and "She did not elaborate." ` +
-      `were both banned and the model wrote "her answer as brief as the fading light" seven times instead. ` +
+      `including one not listed here. MEASURED on run 50862: banning two such remarks by name produced a ` +
+      `third one seven times; that is why no specimen is quoted here — a phrase shown to you is a phrase you write. ` +
       `AND NEVER STATE A WORD COUNT. The numbers in this instruction are for you, not for the page: no ` +
       `"her answer was six words", no "his reply came in four words", and no character who says "Six ` +
-      `words". MEASURED on run 50862, which wrote the banned phrase "She did not elaborate" TEN times, ` +
-      `"as brief as" seven times, a word count six times, and gave one character the line "Six words." ` +
+      `words". MEASURED on run 50862, which described short answers as short ten times, compared them to ` +
+      `fading light seven times, counted their words six times, and put a word count in a character's mouth. ` +
       `So, positively: the sentence after a short answer must be what SOMEBODY ELSE DOES — a movement, an ` +
       `object handled, a look away, the next question. Never a description of the answer, and never a ` +
       `count of it.`,
@@ -370,8 +370,8 @@ export const buildWitShapeLines = (): string[] => [
   `  - NEVER NAME A REGISTER OR A SHAPE IN NARRATION. Do not write "deadpan", "dry wit", "polite ` +
     `savagery", "understatement", "sardonic", "flat", "her answer was flat" or "the retort landed" as ` +
     `description. The register is in the words a character says; it is never labelled by the narrator. ` +
-    `Nor may the narrator remark that an answer was short, final, brief or unelaborated — no "Four words, ` +
-    `final.", no "She did not elaborate." The shortness is the line; it is never pointed at.`,
+    `Nor may the narrator remark that an answer was short, final, brief or unelaborated, in any wording. ` +
+    `The shortness is the line; it is never pointed at.`,
 ];
 
 /**

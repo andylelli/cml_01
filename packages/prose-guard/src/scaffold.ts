@@ -41,6 +41,16 @@ const SEED_SIGNATURES: Array<{ rule: string; re: RegExp }> = [
   // A2 — discriminating-test scaffold (deterministic-repair.ts:375)
   { rule: "A2:two_competing_readings", re: /\bset out the two competing readings\b/i },
   { rule: "A2:ran_test_in_full_view", re: /\bran that test in full view\b/i },
+  // A_102 §14.2 — the DT residue wording AFTER A_82 §12.15's rewrite (deterministic-repair.ts:497–513).
+  // The reader of seed 18179 quoted all three back; the two A2 rules above match only the wording
+  // that rewrite replaced, so the regen never saw these and they shipped verbatim — the third read
+  // to quote this family (A_81 §13, A_82 §14.3). Same list, so detector, regen, floor and ship-check
+  // learn them together.
+  { rule: "A2b:competing_theory_against", re: /\bset out one competing theory against the other\b/i },
+  { rule: "A2b:could_unsee", re: /\bcould unsee what had just happened\b/i },
+  { rule: "A2b:moment_turned_over", re: /\bthe moment was turned over\b/i },
+  { rule: "A2b:one_account_still_fit", re: /\bonly one account still fit what they had all just watched\b/i },
+  { rule: "A2b:discredited_theory_true", re: /\bstill needed the discredited theory to be true\b/i },
   // A3 — clearance patch (deterministic-repair.ts:487)
   // A_65 probe-#1 external read: "Dr. Mallory Finch's movements elsewhere" EVADED this regex —
   // the char class excluded '.', and honorifics carry one, blinding detector, regen, floor, and

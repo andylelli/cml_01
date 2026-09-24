@@ -109,7 +109,11 @@ describe("each shape is owned by a register", () => {
     const lines = buildOwnedShapeLines(CAST, 1).join("\n");
     expect(lines).toContain("not in ANY wording");
     expect(lines).toContain("what SOMEBODY ELSE DOES");
-    expect(lines).toContain("as brief as the fading light");
+    // A_102 §14.2: this line used to pin the specimen's PRESENCE. The seed 18179 read quoted "as brief
+    // as the fading light" back at us — a phrase shown to the model is a phrase it writes — so the
+    // rule keeps its operation and loses its specimen, and the test pins the absence.
+    expect(lines).not.toContain("as brief as the fading light");
+    expect(lines).not.toContain("She did not elaborate");
   });
 
   it("and it adds the differentiation the reader asked for", () => {
