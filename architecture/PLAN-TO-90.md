@@ -2972,3 +2972,11 @@ with no weapon to citing `traces[1]` and naming the poker, **2 of 2**. Found on 
 harness had never passed the strict contract to the prompt (production does), so A_101 §15's three
 runs measured the retry path; fixed with production's own builder. Not re-measured: Agents 7 and 9.
 Still blocking a read: the locked-fact phrase in every chapter prompt (A_104 §1).
+
+**§32 UPDATE 8 (A_104 §4) — locked-once built, measured as a matched pair on the 6325 book, ~£0.27.**
+Repetition 151.7 → 102.6 per 10k (8.8× → 5.9× median); the locked phrase 10 → 7; the background
+scoping reached 16 of 19 chapter prompts. Still WORTH A LOOK, and the residue has a different owner:
+clue descriptions in the chapter obligation block are copied verbatim into prose, an existing gate
+rejects the copy, retries exhaust, and chapter 1 fell to fallback on exactly that. Next lever: show a
+clue's on-page `observable` to the writer, never its analytic description with the clock time in it.
+The rubric moved six points on one prose re-run against identical upstream — the instrument again.

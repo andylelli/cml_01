@@ -1727,7 +1727,60 @@ describe("Agent 9 prompt hardening fixes", () => {
     // block is emitted.
     const prompt = buildProsePrompt(baseInputs, [baseScene], 1, []);
     expect(prompt.messages[0].content).toContain("NON-NEGOTIABLE CHAPTER OBLIGATIONS — LOCKED EVIDENCE VALUES");
-    expect(prompt.messages[0].content).toContain("it MUST use the exact phrase shown");
+    // A_104 §1: "every time ... MUST use the exact phrase" put the locked clock phrase in all 18
+    // chapter prompts of seed 6325 and ten times on the page. It is now verbatim ONCE, then a referent.
+    expect(prompt.messages[0].content).toContain("ONCE in this chapter");
+    expect(prompt.messages[0].content).toContain("uses a referent in place of the reading");
+    expect(prompt.messages[0].content).not.toContain("Every time this chapter describes");
+  });
+
+  describe("A_104 §1 — locked values are evidence in some chapters and background in the rest", () => {
+    // Ten scenes, so chapters 1 and 3 are not the discriminating-test batch (where every value is
+    // evidence by design); baseInputs' one-scene outline makes every chapter that batch.
+    const scoped = {
+      ...baseInputs,
+      outline: { ...baseInputs.outline, totalScenes: 10 },
+      // and no discriminating_test_scene ref, whose regex match on the base scene's text would make
+      // every batch the discriminating one regardless of chapter number.
+      caseData: {
+        ...(baseInputs as any).caseData,
+        CASE: {
+          ...(baseInputs as any).caseData.CASE,
+          prose_requirements: { ...((baseInputs as any).caseData.CASE.prose_requirements ?? {}), discriminating_test_scene: undefined },
+        },
+      },
+      lockedFacts: [
+        { id: "lf_clock", description: "mantel clock reading", value: "thirteen minutes to midnight", appearsInChapters: ["3"] },
+        { id: "lf_poison", description: "poison dose", value: "three drops", appearsInChapters: ["2"] },
+      ],
+    };
+    const text = (p: any) => p.messages.map((m: any) => String(m.content)).join("\n");
+
+    it("states a fact verbatim, once, in the chapter where it is evidence", () => {
+      const p = buildProsePrompt(scoped as any, [baseScene], 3, []);
+      const dev = text(p);
+      expect(dev).toContain('"thirteen minutes to midnight"');
+      expect(dev).toContain("ONCE in this chapter");
+      // the other fact is background here
+      expect(dev).toContain("LOCKED VALUES THAT ARE EVIDENCE IN OTHER CHAPTERS");
+      expect(dev).toMatch(/[^\n]*evidence in chapter 2[^\n]*the figure in question/);
+    });
+
+    it("gives a chapter where the fact is background a referent, not the reading, in the verbatim list", () => {
+      const p = buildProsePrompt(scoped as any, [baseScene], 1, []);
+      const dev = text(p);
+      const verbatim = dev.slice(dev.indexOf("LOCKED EVIDENCE VALUES"), dev.indexOf("LOCKED VALUES THAT ARE EVIDENCE IN OTHER CHAPTERS"));
+      expect(verbatim).not.toContain("Locked values:\n  - mantel clock reading");
+      expect(dev).toMatch(/[^\n]*evidence in chapter 3[^\n]*the hour the clock gave/);
+    });
+
+    it("treats every fact as evidence when none carries chapter scoping (old behaviour minus 'every time')", () => {
+      const p = buildProsePrompt(baseInputs, [baseScene], 1, []);
+      const dev = text(p);
+      expect(dev).toContain('"thirteen minutes to midnight"');
+      expect(dev).toContain('"three drops"');
+      expect(dev).not.toContain("LOCKED VALUES THAT ARE EVIDENCE IN OTHER CHAPTERS");
+    });
   });
 
   it("A_57 D2 — emits the single-contradiction contract when a staged/true time pair is locked", () => {

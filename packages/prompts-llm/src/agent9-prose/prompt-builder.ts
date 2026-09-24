@@ -2171,7 +2171,25 @@ ${victimIdentityRule}`;
     // "convey the meaning in your own words" so the model writes a clean, grammatical observation.
     const atomicFacts = inputs.lockedFacts.filter(f => isAtomicLockedFactValue(String(f.value ?? '')));
     const descriptiveFacts = inputs.lockedFacts.filter(f => !isAtomicLockedFactValue(String(f.value ?? '')));
-    const factLines = atomicFacts
+    // A_104 §1 — VERBATIM ONCE, WHERE IT IS EVIDENCE. Seed 6325 carried "at half past seven at night"
+    // ten times across six chapters (8.8x the repetition median) because this block told all 18
+    // chapter prompts to use the exact phrase "every time" the value was mentioned. The validator
+    // requires the value only in a fact's introduction chapter(s) — `appearsInChapters`, annotated by
+    // agent9-run from the outline's cluesRevealed — and the regen fires only when the value is absent
+    // from the whole book. So the SAME scoping decides, per chapter, which facts are evidence here
+    // (stated verbatim once, then by a referent) and which are background (referent only). A fact
+    // with no scoping at all is treated as evidence everywhere, which is the old behaviour minus
+    // "every time"; the discriminating-test batch is where every value is evidence.
+    const chapterNumbersHere = new Set<number>();
+    for (let c = chapterStart; c <= chapterEnd; c += 1) chapterNumbersHere.add(c);
+    const factAppearsHere = (f: { appearsInChapters?: string[] }): boolean =>
+      Array.isArray(f.appearsInChapters) && f.appearsInChapters.some(c => chapterNumbersHere.has(Number(c)));
+    const anyScoped = atomicFacts.some(f => Array.isArray(f.appearsInChapters) && f.appearsInChapters.length > 0);
+    const evidenceFacts = atomicFacts.filter(f => isDiscriminatingTestBatch || !anyScoped || factAppearsHere(f) || !Array.isArray(f.appearsInChapters) || f.appearsInChapters.length === 0);
+    const backgroundFacts = atomicFacts.filter(f => !evidenceFacts.includes(f));
+    const referentFor = (f: { value?: string }): string =>
+      (isWordFormTimeValue(String(f.value ?? '')) ? '"the hour the clock gave", "the earlier reading" or "the false hour"' : '"the figure in question"');
+    const factLines = evidenceFacts
       .map(f => {
         // A_72 C2: the label the writer sees is derived from the fact id, not its description.
         let line = `  - ${lockedFactLabel(f)}: "${f.value}"`;
@@ -2204,7 +2222,7 @@ ${victimIdentityRule}`;
     // was built for `findDiscriminatingContradictionPair`'s 2-value pairing and was sitting there
     // unused for the 3+ case this whole time. Reused, not rebuilt.
     const dimensionGroups = new Map<string, typeof atomicFacts>();
-    for (const f of atomicFacts) {
+    for (const f of evidenceFacts) {
       const dim = lockedFactDimension(String(f.value ?? ''));
       if (!dim) continue;
       const list = dimensionGroups.get(dim) ?? [];
@@ -2220,8 +2238,8 @@ ${victimIdentityRule}`;
           return `\n\nMULTIPLE ${noun.toUpperCase()} VALUES ARE LOCKED IN THIS CASE (${facts.length} ${noun} measurements above). At least once, in whichever chapter first brings two or more of them together, state PLAINLY which specific reading, device, or position each value belongs to — before or as you give the value. Do not let two locked ${noun} values sit near each other in the prose with nothing to tell a reader which one is which; that reads as a single measurement contradicting itself rather than as several honest, distinct readings.`;
         })()
       : '';
-    const verbatimBlock = atomicFacts.length > 0
-      ? `\n\nNON-NEGOTIABLE CHAPTER OBLIGATIONS — LOCKED EVIDENCE VALUES (VERBATIM REQUIRED):\nThe following measured values (times, amounts, measurements) are absolute ground truth. Every time this chapter describes, mentions, or alludes to one — no matter how briefly — it MUST use the exact phrase shown below, character for character. NO paraphrase, approximation, rounding, or synonym is permitted.\n\nFAILURE EXAMPLE: if the locked value is "at thirteen minutes to midnight" and you write "just before midnight" or "around midnight" — that is a HARD FAIL. You must write "at thirteen minutes to midnight". Equally, if the locked value is written in words, such as "ten minutes past eleven", and you convert it to figure-based clock notation — that is also a HARD FAIL. Words stay as words; figure forms are forbidden for word-phrased facts.\n\nCRITICAL — WORD-PHRASED VALUES: If the canonical value is written out in words (e.g. a time like "ten minutes past eleven", or an amount like "forty minutes"), reproduce those exact words. DO NOT convert to figure-based time notation, twenty-four-hour format, or any other numeric shorthand. Correct: "ten minutes past eleven". WRONG: figure-based clock notation or numeric shorthand.\n\nLocked values:\n${factLines}\n\nIf a value has no relevance to this chapter, omit it. But the moment you reference the underlying evidence, only the exact phrase above is acceptable.${multiClockNote}`
+    const verbatimBlock = evidenceFacts.length > 0
+      ? `\n\nNON-NEGOTIABLE CHAPTER OBLIGATIONS — LOCKED EVIDENCE VALUES (VERBATIM REQUIRED):\nThe following measured values (times, amounts, measurements) are absolute ground truth, and this chapter is where they are given as evidence. State each one in its exact phrase, character for character, ONCE in this chapter — at the moment the evidence is given. Every later mention in this chapter uses a referent in place of the reading: for a clock time, "the hour the clock gave", "the earlier reading" or "the false hour"; for a measurement, "the figure in question". When the value IS stated, NO paraphrase, approximation, rounding, or synonym is permitted.\n\nFAILURE EXAMPLE: if the locked value is "at thirteen minutes to midnight" and you write "just before midnight" or "around midnight" — that is a HARD FAIL. You must write "at thirteen minutes to midnight". Equally, if the locked value is written in words, such as "ten minutes past eleven", and you convert it to figure-based clock notation — that is also a HARD FAIL. Words stay as words; figure forms are forbidden for word-phrased facts.\n\nCRITICAL — WORD-PHRASED VALUES: If the canonical value is written out in words (e.g. a time like "ten minutes past eleven", or an amount like "forty minutes"), reproduce those exact words. DO NOT convert to figure-based time notation, twenty-four-hour format, or any other numeric shorthand. Correct: "ten minutes past eleven". WRONG: figure-based clock notation or numeric shorthand.\n\nLocked values:\n${factLines}\n\nIf a value has no relevance to this chapter, omit it. The one place it is stated, only the exact phrase above is acceptable; everywhere else in the chapter, the referent.${multiClockNote}`
       : '';
     const descriptiveBlock = descriptiveFacts.length > 0
       ? `\n\nEVIDENCE TO CONVEY IN YOUR OWN WORDS (NOT verbatim): weave each of these descriptive facts into the chapter as a COMPLETE, GRAMMATICAL observation by a character — surface the MEANING, never copy the phrasing word-for-word, and NEVER splice two evidence phrases together with an apostrophe or run two clauses together without a sentence break. If a fact has no relevance to this chapter, omit it.\n${descriptiveFacts.map(f => `  - ${lockedFactLabel(f)}: ${f.value}`).join('\n')}`
@@ -2230,7 +2248,7 @@ ${victimIdentityRule}`;
     // pair of the discriminating clue, a chapter that states BOTH as flat parallel truths reads as a clue
     // that "contradicts itself" (ChatGPT's biggest problem on run 09168377). Require them to surface AS ONE
     // contrast, never two standalone statements. The values stay verbatim (they are in the block above).
-    const contradictionPair = findDiscriminatingContradictionPair(atomicFacts);
+    const contradictionPair = findDiscriminatingContradictionPair(evidenceFacts);
     // A_58 review: the pair is returned in registry order, which does NOT tell us which value is the
     // staged appearance vs the true state — so the instruction must stay order-neutral (a hardcoded
     // "the watch read VALUES[0], yet … VALUES[1]" example could invert staged/true). Let the model infer
@@ -2238,9 +2256,16 @@ ${victimIdentityRule}`;
     const contradictionBlock = contradictionPair
       ? `\n\n⚠ CENTRAL CONTRADICTION (the heart of the mystery): the two locked values "${contradictionPair.values[0]}" and "${contradictionPair.values[1]}" are NOT two separate facts — they are ONE contradiction (one is a staged appearance, the other the true state; the evidence determines which). If this chapter references both, you MUST present them AS A SINGLE CONTRAST joined by a contrast connective (but / yet / however / could only / whereas) — e.g. "the watch showed the one time, yet the evidence proved it could only have been the other" — making clear which reading is the appearance and which is the truth. NEVER state them as two flat, side-by-side truths — that makes the central clue read as if it contradicts itself.`
       : '';
-    const directionBlock = buildClockDirectionBlock(atomicFacts);
+    const directionBlock = buildClockDirectionBlock(evidenceFacts);
+    // A_104 §1 — background facts: evidence in other chapters. A referent here, never the reading.
+    // An assignment rather than a prohibition, because a prohibition does not steer this model.
+    const backgroundBlock = backgroundFacts.length > 0
+      ? `\n\nLOCKED VALUES THAT ARE EVIDENCE IN OTHER CHAPTERS: in this chapter each is referred to by a referent only — the clock reading itself is stated in the chapter where it is evidence.\n${backgroundFacts
+          .map(f => `  - ${lockedFactLabel(f)} (evidence in chapter${(f.appearsInChapters ?? []).length === 1 ? '' : 's'} ${(f.appearsInChapters ?? []).join(', ')}): refer to it here as ${referentFor(f)}`)
+          .join('\n')}`
+      : '';
 
-    lockedFactsBlock = verbatimBlock + descriptiveBlock + contradictionBlock + directionBlock;
+    lockedFactsBlock = verbatimBlock + backgroundBlock + descriptiveBlock + contradictionBlock + directionBlock;
   }
 
   // Build NSD block (narrative state document) — style register and fact history

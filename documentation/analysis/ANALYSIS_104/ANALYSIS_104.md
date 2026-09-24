@@ -89,3 +89,56 @@ so the paraphrase has to be one it can read. **Designed, not built.**
 2. Fix locked-fact enforcement so a clock time may be paraphrased outside the chapters that need it
    verbatim. That is what stands between the current books and a reader.
 3. Then read one, and compare it to September's reads.
+
+
+---
+
+## §4 THE LOCKED-ONCE BLOCK — BUILT, AND MEASURED AS A MATCHED PAIR ON THE 6325 BOOK
+
+**2026-09-24, about £0.27** (`RESUME_REDO=prose`, `resume-1790249201029`, byte-identical upstream).
+
+**What changed.** The locked-values block in the chapter prompt said *"every time this chapter
+describes, mentions, or alludes to one … it MUST use the exact phrase."* It now says: state each
+value in its exact phrase **once**, where the evidence is given, and use a referent after that. Facts
+whose `appearsInChapters` — the same scoping the validator uses — fall outside the chapter are
+rendered as **background**: a referent only, the reading belongs to the chapters where it is evidence.
+The contradiction and direction blocks, which restated both values verbatim in every chapter, are built
+from the evidence-here facts only. A fact with no scoping is evidence everywhere (the old behaviour
+minus "every time"); the discriminating-test batch is where every value is evidence.
+
+### §4.1 THE PAIR
+
+| | original run | prose resumed with the block |
+|---|---|---|
+| repetition, 6-word spans per 10k | **151.7** (8.8× median) | **102.6** (5.9× median) |
+| *"at half past seven at night"* | 10, across ch 1, 2, 3, 5, 8, 9 | 7, across ch 2, 3, 4, 5, 8 |
+| chapter prompts carrying the background block | 0 of 18 | **16 of 19** |
+| chapter prompts carrying the once-wording | 0 of 18 | 10 of 19 |
+| fallback chapters | ch 2 | ch 1, ch 2 |
+| shadow rubric | 70 | 64, capped |
+
+**A third of the repetition gone; the phrase down from ten to seven; still WORTH A LOOK. MEASURED.**
+
+### §4.2 WHERE THE SEVEN COME FROM, AND IT IS NOT THIS BLOCK
+
+The scoping reached the prompts — sixteen of nineteen said background — and five of the seven
+surviving occurrences sit in chapters whose prompt said background. The worst-span list names the
+carrier: *"seven ten to seven forty five"* ×7 (an alibi window), *"and the threat posed by outsiders"*
+×7, *"the importance of the pledge book"* — **clue descriptions and thematic lines embedded in the
+chapter's obligation block, copied into prose verbatim.** Chapter 1's fallback says so in its own
+words: *"a clue/test description was copied verbatim into the prose (13 consecutive words from
+'Witnesses report hearing the pawnbroker's clock strike the hour twice …')"*. That clue carries the
+clock phrase. An existing gate rejects the copy, three retries exhaust, and the chapter falls back —
+a B1 loop with a fallback at the end of it.
+
+So the locked-fact source is fixed and the remaining repetition has a different owner: **the clue
+text shown to the writer**, which is copied ([[a67…]] — an illustrative phrase in a prompt is
+reproduced verbatim) and then gated. The lever is what the chapter obligation block shows for a clue —
+its on-page `observable`, never its analytic description with the clock time in it — and that is the
+next item, not this one.
+
+### §4.3 ALSO ON THE RECORD
+
+The resumed book's rubric fell to 64 with a new cap, *"reveal uses evidence not planted earlier →
+ending ≤ 5"*. One prose re-run against identical upstream moved the shadow rubric six points on
+prose variance alone — [[rubric-cannot-rank-two-books]], measured again, free.
