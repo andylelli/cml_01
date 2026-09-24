@@ -167,7 +167,11 @@ const loadAgent9ResumeCheckpoint = (
     const parsed = JSON.parse(readFileSync(checkpointPath, "utf8")) as Agent9ResumeCheckpoint;
     if (!parsed || parsed.version !== 1) return null;
     if (typeof parsed.runId !== "string" || parsed.runId.length === 0) return null;
-    if (parsed.runId !== expectedRunId) return null;
+    // A_106: a one-chapter redo runs under a NEW runId against the ORIGINAL run's checkpoint. Under
+    // the redo env the runId mismatch is accepted (and reported by the caller); otherwise it is the
+    // fixture-drift guard it always was.
+    const redoRequested = Number(process.env.AGENT9_REDO_CHAPTER ?? "") > 0;
+    if (parsed.runId !== expectedRunId && !redoRequested) return null;
     if (!Array.isArray(parsed.completedChapters)) return null;
     if (!parsed.narrativeState || typeof parsed.narrativeState !== "object") return null;
     return parsed;
@@ -4877,7 +4881,8 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       cluesRevealedToReader: [...(loadedCheckpoint.narrativeState.cluesRevealedToReader ?? [])],
     };
     ctx.warnings.push(
-      `Agent 9 resume: loaded ${loadedCheckpoint.completedChapters.length} checkpointed chapter(s) from ${checkpointPath}.`,
+      `Agent 9 resume: loaded ${loadedCheckpoint.completedChapters.length} checkpointed chapter(s) from ${checkpointPath}` +
+        (loadedCheckpoint.runId !== runId ? ` (written by run ${loadedCheckpoint.runId}; accepted for AGENT9_REDO_CHAPTER=${process.env.AGENT9_REDO_CHAPTER})` : "") + ".",
     );
   } else if (resumeEnabled) {
     ctx.warnings.push(

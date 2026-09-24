@@ -187,6 +187,7 @@ async function main(): Promise<void> {
     );
   }
   const runId = `resume-${Date.now()}`;
+  const redoChapter = Number(process.env.AGENT9_REDO_CHAPTER ?? "") || 0;
   const inputs: MysteryGenerationInputs = {
     ...(spec as Partial<MysteryGenerationInputs>),
     theme: (spec.theme as string) || "A classic murder mystery",
@@ -196,7 +197,19 @@ async function main(): Promise<void> {
     projectId,
     resumeFromRunId: originalRunId || projectId,
     resumeArtifacts: bundle,
+    // A_106 — ONE-CHAPTER REDO. With AGENT9_REDO_CHAPTER=N, the run is handed the project's Agent 9
+    // checkpoint (the resume never passed one, so a resumed prose stage always started from scratch);
+    // generate.ts then keeps chapters 1..N-1 and N+1..end and writes N again.
+    ...(redoChapter
+      ? {
+          agent9CheckpointPath: join(workspaceRoot, "apps", "worker", "logs", `agent9-checkpoint-${projectId}.json`),
+          resumeAgent9FromCheckpoint: true,
+        }
+      : {}),
   };
+  if (redoChapter) {
+    console.log(`[resume-run] REDO CHAPTER: ${redoChapter} — chapters before it stand, chapters after it are kept from the checkpoint, only chapter ${redoChapter} is written again.`);
+  }
 
   if (dry) {
     console.log(

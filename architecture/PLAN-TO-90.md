@@ -2991,3 +2991,13 @@ the caveat that the instrument counts six-word spans and this run's three-word l
 appear 13–15 times. **Not readable yet**: chapter 1 is a fallback (unbalanced quotation marks) and
 there is no one-chapter redo; building one is the next item, because it is what separates a read
 from a £1.20 re-run. The first launch died at the novelty gate on a self-match (fixed, d368cee5).
+
+**§32 UPDATE 10 — the one-chapter redo (A_102 §13).** `RESUME_REDO=prose AGENT9_REDO_CHAPTER=N`
+keeps chapters before N, rewrites N, keeps those after it, and reruns every post-pass and ship-check
+over the whole book. First use: chapter 1 of seed 18179, written in one attempt with every quotation
+balanced; chapters 3–5 byte-identical, 2 and 6–10 nudged by the post-passes (0–11 words); repetition
+23.5 per 10k normal; rubric 72. **The seed 18179 book is fit to read by this project's rules for the
+first time since the v2 reads** — `stories/story_20260924-1445/resumed_resume_1790257434755.md`.
+The read's prediction, stated by the reader four times before this work: the review no longer says
+the trick fails to prove the murder physically. Failed prediction on record: kept chapters were not
+byte-identical, the post-passes touch them; a kept-only post-pass option would close that.

@@ -168,6 +168,23 @@ import type {
 // batchSize)` in the scene-batch loop — and has never called it. Removed rather than left standing
 // as a second, unused statement of the batching rule.
 
+
+/**
+ * A_106 — the one-chapter redo plan. Pure so it can be pinned by a test.
+ * Active only when the env names a chapter the checkpoint actually holds; then chapters before it
+ * stand (prefixLength), it is written again, and those after it are kept by the caller.
+ */
+export const planChapterRedo = (
+  resumedCount: number,
+  sceneCount: number,
+  env: string | undefined,
+): { active: boolean; chapter: number; prefixLength: number } => {
+  const chapter = Number(String(env ?? "").trim());
+  const active =
+    Number.isInteger(chapter) && chapter >= 1 && chapter <= sceneCount && resumedCount >= chapter;
+  return active ? { active, chapter, prefixLength: chapter - 1 } : { active: false, chapter: 0, prefixLength: resumedCount };
+};
+
 export function extractAndStripUsedAssets(rawResponse: string): {
   prose: string;
   usedAssetIds: string[];
@@ -2244,8 +2261,17 @@ export async function generateProse(
         .slice(0, sceneCount)
     : [];
   
-  const chapters: ProseChapter[] = [...resumedChapters];
-  const chapterSummaries: ChapterSummary[] = resumedChapters.map((chapter, idx) =>
+  // A_106 — ONE-CHAPTER REDO. With AGENT9_REDO_CHAPTER=N and a checkpoint holding chapter N,
+  // chapters 1..N-1 stand as the prefix, N is written again, N+1..end are kept and spliced back
+  // after the loop. Read at call time (ADR-0004).
+  const redo = planChapterRedo(resumedChapters.length, sceneCount, process.env.AGENT9_REDO_CHAPTER);
+  const keptAfterRedo: ProseChapter[] = redo.active ? resumedChapters.slice(redo.chapter) : [];
+  const prefixChapters: ProseChapter[] = redo.active ? resumedChapters.slice(0, redo.prefixLength) : resumedChapters;
+  if (redo.active) {
+    console.warn(`[Agent 9] REDO chapter ${redo.chapter}: ${redo.prefixLength} chapter(s) stand before it, ${keptAfterRedo.length} kept after it, one written again.`);
+  }
+  const chapters: ProseChapter[] = [...prefixChapters];
+  const chapterSummaries: ChapterSummary[] = prefixChapters.map((chapter, idx) =>
     extractChapterSummary(chapter, idx + 1, (inputs.cast as any)?.characters?.map((c: any) => c?.name).filter(Boolean) ?? []),
   );
   const chapterValidationHistory: Array<{ chapterNumber: number; attempt: number; errors: string[] }> = [];
@@ -2333,7 +2359,7 @@ export async function generateProse(
   let underflowExpansionAttempts = 0;
   let underflowExpansionRecovered = 0;
   let underflowExpansionFailed = 0;
-  const chapterWordCounts: Array<{ chapter: number; words: number }> = resumedChapters.map((chapter, idx) => ({
+  const chapterWordCounts: Array<{ chapter: number; words: number }> = prefixChapters.map((chapter, idx) => ({
     chapter: idx + 1,
     words: countWords((chapter.paragraphs ?? []).join(' ')),
   }));
@@ -2453,7 +2479,9 @@ export async function generateProse(
   // Generate and validate scenes in configurable batches.
   // When batchSize=1 (default) this processes one chapter per LLM call;
   // higher values group multiple scenes into a single call for throughput gains.
-  for (let batchStart = chapters.length; batchStart < scenes.length; batchStart += batchSize) {
+  // A_106: a redo writes only the batch that holds chapter N.
+  const generationStop = redo.active ? Math.min(scenes.length, redo.chapter) : scenes.length;
+  for (let batchStart = chapters.length; batchStart < generationStop; batchStart += batchSize) {
     const batchScenes = scenes.slice(batchStart, batchStart + batchSize);
     const chapterStart = batchStart + 1;
     const chapterEnd = batchStart + batchScenes.length;
@@ -4877,6 +4905,19 @@ export async function generateProse(
     if (!batchSuccess) {
       throw new Error(`Failed to generate chapter${batchScenes.length > 1 ? 's' : ''} ${batchLabel} after all attempts`);
     }
+  }
+
+  // A_106: the kept chapters after a redo rejoin the book here, before every post-pass and ship-check
+  // sees the whole manuscript. Summaries and word counts for them are rebuilt from the text.
+  if (redo.active && keptAfterRedo.length > 0) {
+    const castNamesForSummary = (inputs.cast as any)?.characters?.map((c: any) => c?.name).filter(Boolean) ?? [];
+    for (const kept of keptAfterRedo) {
+      const n = chapters.length + 1;
+      chapters.push(kept);
+      chapterSummaries.push(extractChapterSummary(kept, n, castNamesForSummary));
+      chapterWordCounts.push({ chapter: n, words: kept.paragraphs.join(' ').split(/\s+/).filter(Boolean).length });
+    }
+    console.warn(`[Agent 9] REDO chapter ${redo.chapter}: ${keptAfterRedo.length} kept chapter(s) rejoined; manuscript is ${chapters.length} chapters.`);
   }
 
   // A_65b Ph4 — locked values and injector fragments are MANDATED repetitions, not repair

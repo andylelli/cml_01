@@ -798,3 +798,50 @@ comparison is the phrase count: 10 on 6325, 7 on its resume, 13–15 here on a b
 - Chapter 2 names the culprit's guilt early (ship-check, measure only), and four clock readings are
   unaccounted for by the case (release-gate warning).
 - Agent 6's blind-reader gate was skipped on content filtering for the third run running.
+
+
+---
+
+## §13 THE ONE-CHAPTER REDO — BUILT, AND THE SEED 18179 BOOK IS FIT TO READ
+
+**2026-09-24.** Every book this month that was fit to read in every other respect was held back by one
+fallback chapter, and the only instrument rewrote all ten. `RESUME_REDO=prose AGENT9_REDO_CHAPTER=N`
+now rewrites one.
+
+**How it works.** The prompt layer's resume model is a prefix: the checkpoint's chapters stand as 1..k
+and generation continues from k+1. A redo of N is that model with three edits: the resume script hands
+the project's Agent 9 checkpoint to the run (a resumed prose stage had never received one, so it always
+started from scratch); the checkpoint loader accepts the original run's checkpoint under the redo env
+(a resume has a new run id); and `generate.ts` keeps 1..N−1 as the prefix, caps the loop at N, and
+splices N+1..end back in before the post-passes and ship-checks, which then see the whole book.
+`planChapterRedo` is pure and pinned by three tests.
+
+### §13.1 FIRST USE — CHAPTER 1 OF SEED 18179
+
+| | original run | after the redo |
+|---|---|---|
+| chapter 1 | completion fallback after 3 attempts (unbalanced quotation marks) | **written in one attempt**, 11 paragraphs, every quotation balanced |
+| chapters 3, 4, 5 | — | **byte-identical** |
+| chapters 2, 6, 7, 8, 9, 10 | — | edited by the post-passes, 0–11 words apart |
+| repetition | 22.8 per 10k | 23.5 per 10k, normal |
+| shadow rubric | 71 | 72 |
+| words | 13,150 | 12,678 |
+| means-link | untouched: the case, the clue and the reveal are the same artefacts |
+
+**Fit to read by this project's rules for the first time since the v2 reads:** no fallback chapter,
+no WORTH A LOOK. The release gate still warns on four unaccounted clock readings; that is a warning,
+not a block. Cost: one chapter's generation and the post-passes over ten — under £0.15, not itemised.
+
+**The prediction that failed:** *"chapters 2 to 10 come back byte-identical."* Three did; six carry
+small post-pass edits, because the atmosphere repair and polish run over the rejoined manuscript, as
+designed. For a read that is nothing. For a strict matched pair on one chapter it is a confound, and a
+`AGENT9_REDO_POSTPASS=kept-only` option would remove it. Not built; not needed for this read.
+
+### §13.2 THE READ
+
+Manuscript: `stories/story_20260924-1445/resumed_resume_1790257434755.md`. The read is the standard
+external one: the manuscript pasted to the reader with the usual rubric, the reply saved as
+`chatgpt-review.txt` beside the manuscript, and `node scripts/external-read-ledger.mjs --write` to
+ingest it. **The prediction to check, stated four times by the reader before any of this work:** the
+review does not say the trick fails to prove the murder in a satisfying, physical way. Secondary: the
+`clues` mark, the project's lowest category at a September mean of 6.38, moves.
