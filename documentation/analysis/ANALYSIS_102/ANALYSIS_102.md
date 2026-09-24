@@ -845,3 +845,70 @@ external one: the manuscript pasted to the reader with the usual rubric, the rep
 ingest it. **The prediction to check, stated four times by the reader before any of this work:** the
 review does not say the trick fails to prove the murder in a satisfying, physical way. Secondary: the
 `clues` mark, the project's lowest category at a September mean of 6.38, moves.
+
+
+---
+
+## §14 THE READ — 86, AND THE COMPLAINT THIS DOCUMENT WAS WRITTEN FOR IS GONE
+
+**2026-09-24.** Seed 18179, chapter 1 redone (§13), read externally. **86 / 100** — the second-highest
+September read and one under the project's best ever (87). Ledger row `story_20260924-1445`.
+
+| category | mark | | category | mark |
+|---|---|---|---|---|
+| premise | 8 | | mystery clues / evidence logic | **8** |
+| opening hook | 8 | | pacing | 8 |
+| plot structure | 8 | | ending / reveal | 8 |
+| character clarity | 8 | | prose / polish | 7 |
+| dialogue | 8 | | character life / relationships | 8 |
+| atmosphere / setting | **9** | | humour / wit | 8 |
+
+### §14.1 THE PREDICTION, AND THE CATEGORY
+
+**The reader does not say the trick fails to prove the murder physically.** Four consecutive earlier
+reads did. This one says the opposite: *"The clock clue is also physically stronger than in several
+earlier drafts,"* and lists *"knife smudges matching Gerald's handling"* among the key clues. The one
+clock note left is which of two clock ideas explains the shift — a 55-minute rewind or a six-second
+chime delay — and asks for *"one cleaner sentence"*, not for physical proof. **Prediction passed.**
+
+**`clues` scored 8**, against a September mean of 6.38 and a v2 ceiling of 7 (§1). It is the category
+this document said was capped by presence-not-act, and it moved by the amount the reader's own
+ceiling estimate implied.
+
+The shadow rubric said 72; the read said 86; the offset is 14, inside A_104's measured band of 7–17.
+
+### §14.2 THE INJECTOR AUDIT — 5 OF 10 NAMED LINES ARE OURS, AND THE AUDIT IS NOT OVER
+
+CLAUDE.md: until a read names no injector, a read is an injector audit. This one names ten scaffold
+lines; the code was grepped for each:
+
+| line the reader quoted | where it lives |
+|---|---|
+| *"set out one competing theory against the other"* | `agent9-prose/deterministic-repair.ts:497` — the DT residue injector |
+| *"Nobody in the room could unsee what had just happened"* | `deterministic-repair.ts:512–513`, same injector |
+| *"However the moment was turned over"* | same |
+| *"answer as brief as the fading light"* | `obligation-block.ts:352` — quoted in PROMPT TEXT as a past failure |
+| *"the evidence was mounting"* | `prompt-builder.ts:2376` — quoted as a NEGATIVE EXAMPLE in rule 10 |
+| *"walk the evidence"*, *"room held its breath"*, *"weight of truth settling"*, *"pattern remained elusive"*, *"final connection remained just out of reach"* | not in the code — the model's own |
+
+**MEASURED.** Two fix classes, both known: the discriminating-test residue injector's paragraphs are
+being quoted back for the THIRD read (A_81 §13, A_82 §14.3, now) — the wording was rewritten once and
+it still reads as machine text, so the fix is to stop shipping a deterministic paragraph and insert it
+by LLM regen the way locked facts now are; and **a phrase quoted in a prompt as something not to
+write is written** ([[a-prohibition-does-not-steer-this-model]], A_67) — both quoted examples should
+go, the rule stated without them. Neither is built.
+
+### §14.3 THE READER'S FASTEST FIXES, MAPPED
+
+| the reader asks for | the lever |
+|---|---|
+| one clean sentence relating the 55-minute shift to the 6-second chime | A_82 §14.4's three-or-more-same-dimension clarity, which fires only at 3+ values; this case has two of different dimensions |
+| cut chapter 9's *"First, second, third…"* proof list after chapter 8's confession | the reveal contract's enumerated proof — the same list §12.1 used as evidence that the link reached the reveal; it did, and the reader wants it once |
+| seed Gerald's motive earlier with a personal scene | craft; the motive plant lands on scene 7 by the motive-plant-before-reveal rule |
+| remove the scaffold phrases | §14.2 |
+| a missing closing quotation mark in chapter 9 | present in the original run too — a boundary-integrity slip in a kept chapter, not the redo's |
+
+*"With Chapter 9 trimmed, the clock logic clarified, and Gerald's motive seeded earlier, this could
+reach 90–92."* That is the reader's estimate of their own suggestions, as it was at 86–91 in §5, and
+it settles nothing about the mark ([[rubric-cannot-rank-two-books]]). What is settled is the thing
+this document set out to settle: **the case now proves the act, and the reader saw it.**

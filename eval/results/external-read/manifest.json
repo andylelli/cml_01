@@ -1,8 +1,8 @@
 [
   {
     "bundleId": "read-20260912-1815",
-    "storyPath": "stories/story_20260912-1815/the_clock_s_false_hour_at_lockwood_estate.md",
-    "readPath": "stories/story_20260912-1815/chatgpt-review.txt",
+    "storyPath": "stories/_archive/story_20260912-1815/the_clock_s_false_hour_at_lockwood_estate.md",
+    "readPath": "stories/_archive/story_20260912-1815/chatgpt-review.txt",
     "externalFinal": 87,
     "externalEarlierReads": [
       79,
@@ -81,8 +81,8 @@
   },
   {
     "bundleId": "read-20260817-2209",
-    "storyPath": "stories/story_20260817-2209/the_reversed_pendulum_at_seacliff_hotel.md",
-    "readPath": "stories/story_20260817-2209/chatgpt.txt",
+    "storyPath": "stories/_archive/story_20260817-2209/the_reversed_pendulum_at_seacliff_hotel.md",
+    "readPath": "stories/_archive/story_20260817-2209/chatgpt.txt",
     "externalFinal": 86,
     "externalCategories": {
       "premise": 9,
@@ -113,9 +113,45 @@
     "externalSupplementary": {}
   },
   {
+    "bundleId": "read-20260924-1445",
+    "storyPath": "stories/story_20260924-1445/resumed_resume_1790257434755.md",
+    "readPath": "stories/story_20260924-1445/chatgpt-review.txt",
+    "externalFinal": 86,
+    "externalCategories": {
+      "premise": 8,
+      "opening_hook": 8,
+      "plot_structure": 8,
+      "character_clarity": 8,
+      "dialogue": 8,
+      "atmosphere": 9,
+      "clues": 8,
+      "pacing": 8,
+      "ending": 8,
+      "prose": 7
+    },
+    "externalNotes": {
+      "premise": "Strong manor clock vs pocket watch contradiction.",
+      "opening_hook": "Body, knife, pocket watch, grand clock, delayed chime — very clear mystery setup.",
+      "plot_structure": "Good progression: clock contradiction → watch → scratches → knife/barn → reenactment → clearances → confession → aftermath.",
+      "character_clarity": "Frances, Gerald, Adela, Marguerite, Ottoline, Cecil are readable.",
+      "dialogue": "Marguerite and Frances have strong dry voices.",
+      "atmosphere": "Rain, sanctuary, manor, clock room, barn, aviary — cohesive and evocative.",
+      "clues": "Stronger than most, though the exact clock mechanism needs one clearer formulation.",
+      "pacing": "Moves well; Chapter 9 still repeats too much after Chapter 8.",
+      "ending": "Confession works; aftermath is unusually good.",
+      "prose": "Atmospheric, but still has some scaffold phrases and proof-list repetition.",
+      "character_life": "The sanctuary and its people feel alive beyond the murder."
+    },
+    "externalSupplementary": {
+      "character_life": 8
+    },
+    "externalCategorySum": 80,
+    "externalOffset": 6
+  },
+  {
     "bundleId": "read-20260823-2038",
-    "storyPath": "stories/story_20260823-2038/the_hourglass_deception_at_cliffside_bluffs.md",
-    "readPath": "stories/story_20260823-2038/chatgpt-review.txt",
+    "storyPath": "stories/_archive/story_20260823-2038/the_hourglass_deception_at_cliffside_bluffs.md",
+    "readPath": "stories/_archive/story_20260823-2038/chatgpt-review.txt",
     "externalFinal": 85,
     "externalCategories": {
       "premise": 9,
@@ -147,8 +183,8 @@
   },
   {
     "bundleId": "read-20260828-2301",
-    "storyPath": "stories/story_20260828-2301/the_lantern_s_false_hour_a_seaside_hotel_mystery.md",
-    "readPath": "stories/story_20260828-2301/chatgpt-review.txt",
+    "storyPath": "stories/_archive/story_20260828-2301/the_lantern_s_false_hour_a_seaside_hotel_mystery.md",
+    "readPath": "stories/_archive/story_20260828-2301/chatgpt-review.txt",
     "externalFinal": 85,
     "externalCategories": {
       "premise": 9,
@@ -180,8 +216,8 @@
   },
   {
     "bundleId": "read-20260905-1242",
-    "storyPath": "stories/story_20260905-1242/the_harvest_festival_mistaken_identity.md",
-    "readPath": "stories/story_20260905-1242/chatgpt-review.txt",
+    "storyPath": "stories/_archive/story_20260905-1242/the_harvest_festival_mistaken_identity.md",
+    "readPath": "stories/_archive/story_20260905-1242/chatgpt-review.txt",
     "externalFinal": 85,
     "externalCategories": {
       "premise": 9,
@@ -213,6 +249,42 @@
     },
     "externalCategorySum": 80,
     "externalOffset": 5
+  },
+  {
+    "bundleId": "read-20260923-1916",
+    "storyPath": "stories/story_20260923-1916/resumed_resume_1790187240831.md",
+    "readPath": "stories/story_20260923-1916/chatgpt-review.txt",
+    "externalFinal": 85,
+    "externalCategories": {
+      "premise": 8,
+      "opening_hook": 8,
+      "plot_structure": 8,
+      "character_clarity": 8,
+      "dialogue": 8,
+      "atmosphere": 8,
+      "clues": 8,
+      "pacing": 8,
+      "ending": 8,
+      "prose": 7
+    },
+    "externalNotes": {
+      "premise": "Compass-bearing alibi plus ledger fraud is distinctive.",
+      "opening_hook": "Strong body scene; weapon, hair, grease-smudge, motive hints all appear early.",
+      "plot_structure": "Cleaner progression than earlier compass drafts.",
+      "character_clarity": "Nora, Bertram, Gwendolyn, Harriet, Theodora are all readable.",
+      "dialogue": "Less repetitive; Nora and Harriet have better bite.",
+      "atmosphere": "Seaside hotel, dunes, ledgers, speed-trial culture all cohere.",
+      "clues": "Much improved, though the compass sightline still needs one explicit map moment.",
+      "pacing": "Good forward movement; fewer repeated clue loops.",
+      "ending": "Nora’s confession finally has emotional force.",
+      "prose": "Stronger, but still has a few generated patterns and odd lines.",
+      "character_life": "Good aftermath and better emotional context for Nora/Gwendolyn/Harriet."
+    },
+    "externalSupplementary": {
+      "character_life": 8
+    },
+    "externalCategorySum": 79,
+    "externalOffset": 6
   },
   {
     "bundleId": "2026-08-06-2230-pendulum-secret-chime",
@@ -256,8 +328,8 @@
   },
   {
     "bundleId": "read-20260814-2033",
-    "storyPath": "stories/story_20260814-2033/the_frozen_hour_at_coastview_hotel.md",
-    "readPath": "stories/story_20260814-2033/chatgpt-review.txt",
+    "storyPath": "stories/_archive/story_20260814-2033/the_frozen_hour_at_coastview_hotel.md",
+    "readPath": "stories/_archive/story_20260814-2033/chatgpt-review.txt",
     "externalFinal": 84,
     "externalCategories": {
       "premise": 8,
@@ -289,8 +361,8 @@
   },
   {
     "bundleId": "read-20260829-1041",
-    "storyPath": "stories/story_20260829-1041/the_reception_clock_conspiracy.md",
-    "readPath": "stories/story_20260829-1041/chatgpt-review.txt",
+    "storyPath": "stories/_archive/story_20260829-1041/the_reception_clock_conspiracy.md",
+    "readPath": "stories/_archive/story_20260829-1041/chatgpt-review.txt",
     "externalFinal": 84,
     "externalCategories": {
       "premise": 8,
@@ -322,8 +394,8 @@
   },
   {
     "bundleId": "read-20260902-1846",
-    "storyPath": "stories/story_20260902-1846/the_dialed_back_hour_hand_a_seaside_hotel_myster.md",
-    "readPath": "stories/story_20260902-1846/chatgpt-review.txt",
+    "storyPath": "stories/_archive/story_20260902-1846/the_dialed_back_hour_hand_a_seaside_hotel_myster.md",
+    "readPath": "stories/_archive/story_20260902-1846/chatgpt-review.txt",
     "externalFinal": 84,
     "externalCategories": {
       "premise": 9,
@@ -358,8 +430,8 @@
   },
   {
     "bundleId": "read-20260911-1701",
-    "storyPath": "stories/story_20260911-1701/the_painted_shadow_at_mistlecombe.md",
-    "readPath": "stories/story_20260911-1701/chatgpt-review.txt",
+    "storyPath": "stories/_archive/story_20260911-1701/the_painted_shadow_at_mistlecombe.md",
+    "readPath": "stories/_archive/story_20260911-1701/chatgpt-review.txt",
     "externalFinal": 84,
     "externalCategories": {
       "premise": 9,
@@ -430,8 +502,8 @@
   },
   {
     "bundleId": "read-20260904-1711",
-    "storyPath": "stories/story_20260904-1711/the_silent_signal_in_the_starlight_theatre.md",
-    "readPath": "stories/story_20260904-1711/chatgpt-review.txt",
+    "storyPath": "stories/_archive/story_20260904-1711/the_silent_signal_in_the_starlight_theatre.md",
+    "readPath": "stories/_archive/story_20260904-1711/chatgpt-review.txt",
     "externalFinal": 83,
     "externalCategories": {
       "premise": 8,
@@ -466,8 +538,8 @@
   },
   {
     "bundleId": "read-20260825-1838",
-    "storyPath": "stories/story_20260825-1838/the_case_of_the_rewound_lobby_clock.md",
-    "readPath": "stories/story_20260825-1838/chatgpt-review.txt",
+    "storyPath": "stories/_archive/story_20260825-1838/the_case_of_the_rewound_lobby_clock.md",
+    "readPath": "stories/_archive/story_20260825-1838/chatgpt-review.txt",
     "externalFinal": 82,
     "externalCategories": {
       "premise": 8,
@@ -499,8 +571,8 @@
   },
   {
     "bundleId": "read-20260826-1753",
-    "storyPath": "stories/story_20260826-1753/the_canary_s_slippers_a_seaside_hotel_identity_m.md",
-    "readPath": "stories/story_20260826-1753/chatgpt-review.txt",
+    "storyPath": "stories/_archive/story_20260826-1753/the_canary_s_slippers_a_seaside_hotel_identity_m.md",
+    "readPath": "stories/_archive/story_20260826-1753/chatgpt-review.txt",
     "externalFinal": 82,
     "externalCategories": {
       "premise": 9,
@@ -532,8 +604,8 @@
   },
   {
     "bundleId": "read-20260830-1850",
-    "storyPath": "stories/story_20260830-1850/the_bluffside_reset_a_seaside_hotel_mystery.md",
-    "readPath": "stories/story_20260830-1850/chatgpt-review.txt",
+    "storyPath": "stories/_archive/story_20260830-1850/the_bluffside_reset_a_seaside_hotel_mystery.md",
+    "readPath": "stories/_archive/story_20260830-1850/chatgpt-review.txt",
     "externalFinal": 82,
     "externalCategories": {
       "premise": 8,
@@ -565,8 +637,8 @@
   },
   {
     "bundleId": "read-20260901-2241",
-    "storyPath": "stories/story_20260901-2241/the_seaside_veranda_clock_shift.md",
-    "readPath": "stories/story_20260901-2241/chatgpt-review.txt",
+    "storyPath": "stories/_archive/story_20260901-2241/the_seaside_veranda_clock_shift.md",
+    "readPath": "stories/_archive/story_20260901-2241/chatgpt-review.txt",
     "externalFinal": 82,
     "externalCategories": {
       "premise": 8,
@@ -601,8 +673,8 @@
   },
   {
     "bundleId": "read-20260904-2035",
-    "storyPath": "stories/story_20260904-2035/the_director_s_false_cue_an_authority_s_deceptio.md",
-    "readPath": "stories/story_20260904-2035/chatgpt-review.txt",
+    "storyPath": "stories/_archive/story_20260904-2035/the_director_s_false_cue_an_authority_s_deceptio.md",
+    "readPath": "stories/_archive/story_20260904-2035/chatgpt-review.txt",
     "externalFinal": 82,
     "externalCategories": {
       "premise": 8,
@@ -637,8 +709,8 @@
   },
   {
     "bundleId": "read-20260912-1507",
-    "storyPath": "stories/story_20260912-1507/resumed_resume_1789214912816.md",
-    "readPath": "stories/story_20260912-1507/chatgpt-review.txt",
+    "storyPath": "stories/_archive/story_20260912-1507/resumed_resume_1789214912816.md",
+    "readPath": "stories/_archive/story_20260912-1507/chatgpt-review.txt",
     "externalFinal": 82,
     "externalCategories": {
       "premise": 8,
@@ -742,8 +814,8 @@
   },
   {
     "bundleId": "read-20260819-2047",
-    "storyPath": "stories/story_20260819-2047/the_delayed_strike_at_cliffhaven_hotel.md",
-    "readPath": "stories/story_20260819-2047/chatgpt-review.txt",
+    "storyPath": "stories/_archive/story_20260819-2047/the_delayed_strike_at_cliffhaven_hotel.md",
+    "readPath": "stories/_archive/story_20260819-2047/chatgpt-review.txt",
     "externalFinal": 81,
     "externalCategories": {
       "premise": 8,
@@ -775,8 +847,8 @@
   },
   {
     "bundleId": "read-20260823-1715",
-    "storyPath": "stories/story_20260823-1715/the_rising_tide_at_cliffhaven.md",
-    "readPath": "stories/story_20260823-1715/chatgpt-text.txt",
+    "storyPath": "stories/_archive/story_20260823-1715/the_rising_tide_at_cliffhaven.md",
+    "readPath": "stories/_archive/story_20260823-1715/chatgpt-text.txt",
     "externalFinal": 81,
     "externalCategories": {
       "premise": 9,
@@ -808,8 +880,8 @@
   },
   {
     "bundleId": "read-20260827-2019",
-    "storyPath": "stories/story_20260827-2019/resumed_resume_1787857532491.md",
-    "readPath": "stories/story_20260827-2019/chatgpt-review.txt",
+    "storyPath": "stories/_archive/story_20260827-2019/resumed_resume_1787857532491.md",
+    "readPath": "stories/_archive/story_20260827-2019/chatgpt-review.txt",
     "externalFinal": 81,
     "externalCategories": {
       "premise": 8,
@@ -914,8 +986,8 @@
   },
   {
     "bundleId": "read-20260825-2102",
-    "storyPath": "stories/story_20260825-2102/the_thirty_minute_error_a_seaside_hotel_clockwor.md",
-    "readPath": "stories/story_20260825-2102/chatgpt-review.txt",
+    "storyPath": "stories/_archive/story_20260825-2102/the_thirty_minute_error_a_seaside_hotel_clockwor.md",
+    "readPath": "stories/_archive/story_20260825-2102/chatgpt-review.txt",
     "externalFinal": 80,
     "externalCategories": {
       "premise": 8,
@@ -947,8 +1019,8 @@
   },
   {
     "bundleId": "read-20260913-1806",
-    "storyPath": "stories/story_20260913-1806/resumed_resume_1789318568962.md",
-    "readPath": "stories/story_20260913-1806/chatgpt-review.txt",
+    "storyPath": "stories/_archive/story_20260913-1806/resumed_resume_1789318568962.md",
+    "readPath": "stories/_archive/story_20260913-1806/chatgpt-review.txt",
     "externalFinal": 80,
     "externalCategories": {
       "premise": 8,
@@ -1091,8 +1163,8 @@
   },
   {
     "bundleId": "read-20260826-1708",
-    "storyPath": "stories/story_20260826-1708/the_elevator_cage_enigma.md",
-    "readPath": "stories/story_20260826-1708/chatgpt-review.txt",
+    "storyPath": "stories/_archive/story_20260826-1708/the_elevator_cage_enigma.md",
+    "readPath": "stories/_archive/story_20260826-1708/chatgpt-review.txt",
     "externalFinal": 79,
     "externalCategories": {
       "premise": 9,
@@ -1124,8 +1196,8 @@
   },
   {
     "bundleId": "read-20260901-2136",
-    "storyPath": "stories/story_20260901-2136/the_chime_of_deceit_a_seaside_hotel_mystery.md",
-    "readPath": "stories/story_20260901-2136/chatgpt-review.txt",
+    "storyPath": "stories/_archive/story_20260901-2136/the_chime_of_deceit_a_seaside_hotel_mystery.md",
+    "readPath": "stories/_archive/story_20260901-2136/chatgpt-review.txt",
     "externalFinal": 79,
     "externalCategories": {
       "premise": 8,
@@ -1160,8 +1232,8 @@
   },
   {
     "bundleId": "read-20260911-2112",
-    "storyPath": "stories/story_20260911-2112/the_silent_crescendo_on_the_atlantic.md",
-    "readPath": "stories/story_20260911-2112/chatgpt-review.txt",
+    "storyPath": "stories/_archive/story_20260911-2112/the_silent_crescendo_on_the_atlantic.md",
+    "readPath": "stories/_archive/story_20260911-2112/chatgpt-review.txt",
     "externalFinal": 79,
     "externalCategories": {
       "premise": 8,
@@ -1237,8 +1309,8 @@
   },
   {
     "bundleId": "read-20260815-2027",
-    "storyPath": "stories/story_20260815-2027/the_pendulum_s_secret.md",
-    "readPath": "stories/story_20260815-2027/chatgpt-review.txt",
+    "storyPath": "stories/_archive/story_20260815-2027/the_pendulum_s_secret.md",
+    "readPath": "stories/_archive/story_20260815-2027/chatgpt-review.txt",
     "externalFinal": 78,
     "externalCategories": {
       "premise": 8,
@@ -1270,8 +1342,8 @@
   },
   {
     "bundleId": "read-20260903-0738",
-    "storyPath": "stories/story_20260903-0738/the_spotlight_deception_at_the_grand_marquee.md",
-    "readPath": "stories/story_20260903-0738/chatgpt-review.txt",
+    "storyPath": "stories/_archive/story_20260903-0738/the_spotlight_deception_at_the_grand_marquee.md",
+    "readPath": "stories/_archive/story_20260903-0738/chatgpt-review.txt",
     "externalFinal": 78,
     "externalCategories": {
       "premise": 8,
@@ -1306,8 +1378,8 @@
   },
   {
     "bundleId": "read-20260908-1829",
-    "storyPath": "stories/story_20260908-1829/resumed_resume_1788887717941.md",
-    "readPath": "stories/story_20260908-1829/chatgpt-review.txt",
+    "storyPath": "stories/_archive/story_20260908-1829/resumed_resume_1788887717941.md",
+    "readPath": "stories/_archive/story_20260908-1829/chatgpt-review.txt",
     "externalFinal": 78,
     "externalCategories": {
       "premise": 7,
@@ -1342,8 +1414,8 @@
   },
   {
     "bundleId": "read-20260827-2005",
-    "storyPath": "stories/story_20260827-2005/resumed_resume_1787856628157.md",
-    "readPath": "stories/story_20260827-2005/chatgpt-review.txt",
+    "storyPath": "stories/_archive/story_20260827-2005/resumed_resume_1787856628157.md",
+    "readPath": "stories/_archive/story_20260827-2005/chatgpt-review.txt",
     "externalFinal": 77,
     "externalCategories": {
       "premise": 8,
@@ -1375,8 +1447,8 @@
   },
   {
     "bundleId": "read-20260903-2136",
-    "storyPath": "stories/story_20260903-2136/the_conductor_s_silent_baton_an_authority_s_dece.md",
-    "readPath": "stories/story_20260903-2136/chatgpt-review.txt",
+    "storyPath": "stories/_archive/story_20260903-2136/the_conductor_s_silent_baton_an_authority_s_dece.md",
+    "readPath": "stories/_archive/story_20260903-2136/chatgpt-review.txt",
     "externalFinal": 77,
     "externalCategories": {
       "premise": 8,
@@ -1411,8 +1483,8 @@
   },
   {
     "bundleId": "read-20260916-1814",
-    "storyPath": "stories/story_20260916-1814/the_judge_s_tilt_a_seaside_hotel_deception.md",
-    "readPath": "stories/story_20260916-1814/chatgpt-review.txt",
+    "storyPath": "stories/_archive/story_20260916-1814/the_judge_s_tilt_a_seaside_hotel_deception.md",
+    "readPath": "stories/_archive/story_20260916-1814/chatgpt-review.txt",
     "externalFinal": 77,
     "externalCategories": {
       "premise": 8,
@@ -1554,8 +1626,8 @@
   },
   {
     "bundleId": "read-20260903-1907",
-    "storyPath": "stories/story_20260903-1907/the_stage_manager_s_false_call.md",
-    "readPath": "stories/story_20260903-1907/chatgpt-review.txt",
+    "storyPath": "stories/_archive/story_20260903-1907/the_stage_manager_s_false_call.md",
+    "readPath": "stories/_archive/story_20260903-1907/chatgpt-review.txt",
     "externalFinal": 76,
     "externalCategories": {
       "premise": 8,
@@ -1664,8 +1736,8 @@
   },
   {
     "bundleId": "read-20260831-2025",
-    "storyPath": "stories/story_20260831-2025/the_backshifted_hour_a_seaside_hotel_mystery.md",
-    "readPath": "stories/story_20260831-2025/chatgpt-review.txt",
+    "storyPath": "stories/_archive/story_20260831-2025/the_backshifted_hour_a_seaside_hotel_mystery.md",
+    "readPath": "stories/_archive/story_20260831-2025/chatgpt-review.txt",
     "externalFinal": 74,
     "externalCategories": {
       "premise": 7,
@@ -2326,8 +2398,8 @@
   },
   {
     "bundleId": "read-20260915-2001",
-    "storyPath": "stories/story_20260915-2001/the_rector_s_unimpeachable_word_a_choir_school_c.md",
-    "readPath": "stories/story_20260915-2001/chatgpt-review-humour.txt",
+    "storyPath": "stories/_archive/story_20260915-2001/the_rector_s_unimpeachable_word_a_choir_school_c.md",
+    "readPath": "stories/_archive/story_20260915-2001/chatgpt-review-humour.txt",
     "externalFinal": null,
     "externalCategories": {},
     "externalNotes": {},

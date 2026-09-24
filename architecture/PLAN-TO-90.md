@@ -3001,3 +3001,14 @@ first time since the v2 reads** — `stories/story_20260924-1445/resumed_resume_
 The read's prediction, stated by the reader four times before this work: the review no longer says
 the trick fails to prove the murder physically. Failed prediction on record: kept chapters were not
 byte-identical, the post-passes touch them; a kept-only post-pass option would close that.
+
+**§32 UPDATE 11 — the read (A_102 §14). 86 / 100.** Seed 18179 with chapter 1 redone: the
+second-highest September read, one under the project's best. **The four-read complaint is gone** —
+*"the clock clue is also physically stronger than in several earlier drafts"*, knife smudges among the
+key clues — and **`clues` scored 8** against a September mean of 6.38 and a v2 ceiling of 7. Shadow
+rubric 72 → read 86, offset 14, inside A_104's band. The injector audit is not over: 5 of 10 scaffold
+lines the reader quoted are ours — three from the discriminating-test residue injector
+(`deterministic-repair.ts`, quoted back for the third read) and two negative examples quoted in
+prompt text and reproduced. Next levers, in order: those five lines; the chapter-9 proof list after
+the confession; one sentence relating the 55-minute shift to the 6-second chime. The reader's
+90–92 is their estimate of their own suggestions, not a measurement.
