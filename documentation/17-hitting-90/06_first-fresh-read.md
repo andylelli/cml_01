@@ -200,3 +200,24 @@ document's code reverted to `a22e69f0` (MEASURED 2026-09-25): `apps/worker` runt
 depend on process cwd"); `prompts-llm` clearance-trim ("mirrored sources are byte-identical to
 story-geometry accept.ts"); `story-validation` fixed-seed-benchmark replay and report-invariants replay.
 None is in a package this work touches.
+
+---
+
+## 7. Second review — reading the 69 whole (2026-09-25), findings not yet built
+
+MEASURED unless marked. Book counts compare the 69 against pair 3 (88) and pair 2 (85), same engine.
+
+| id | finding | evidence | general? |
+|---|---|---|---|
+| R1 | **The test is asked for twice.** When the test and the reveal are different chapters, the reveal chapter's contract repeats "the test is applied on the page to X first and to Y second" (`contract.ts:484`, role `discriminating_test` OR `reveal`). The 69 performs the boot test in ch 8 and again in ch 9 | golden contracts: `testSubjects` on ch 8 AND 9 in 4 of 4; pair 3 had test = reveal, so never exercised it; "twice/redundant" in 18 of 71 reviews | yes — every case with test ≠ reveal |
+| R2 | **Clues that name the culprit are scheduled before the test.** The 69: "the duplicate study key was recently found with Leonard Pike" in ch 4 | golden contracts: clue observables naming the culprit owned by ch 4–7 in 4 of 4, the test at 8; "guess/obvious/too early/gives away" in 22 of 71 reviews | yes — Agent 5 placement; needs a paid harness |
+| R3 | **The humour move is narrated as a label.** "her humor at her own expense" ×5, "the plain truth" ×5, "less than the moment deserved" ×3, "keeping his face straight", "the one small absurd thing" | 69: 15; 88: 0; 85: 1 | yes — the `humourMove` text is the same for every book |
+| R4 | **Chapters close on a summary of the investigation.** "The investigation pressed on, each detail—…—drawing the group closer to the truth" | 69: "investigation pressed on" 6, "closer to the truth" 5, "weight/imprint of routine" 8; 88 and 85: 0 each | the shape is general; its size on the 69 is not (below) |
+| R5 | **The culprit is the investigator's assistant.** Pike demonstrates the lock, reads the dust and the ink in ch 1–8 | read; unmeasured elsewhere | INFERRED general: nothing in the contract says who surfaces a clue |
+| R6 | **Clearances restated.** Margot's "nine o'clock to ten o'clock, sixty minutes" in ch 2, 5, 7, 8; Sir Edmund's financial papers ch 5, 6 ×2 | read | INFERRED general |
+
+**The size question — ASSUMED, settle from the laptop logs.** R3 and R4 are 0 on two books from the same
+engine and near-identical brief, and 15–19 on the 69. The 69 came from the website; pairs 2 and 3 from
+the CLI resume. Whether both read the same `.env.local` (`PROSE_ENGINE`, `PROSE_V2_WRITER`,
+`PROSE_V2_SEGMENT_CHAPTERS`, `AGENT9_V2_FILTER_SOFTEN`) is not visible in the repository. Check
+`logs/llm-prompts-full.jsonl` for run 98dec72a: the writer's agent label and model, and the segment count.
