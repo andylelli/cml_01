@@ -284,7 +284,11 @@ export const renderSceneContract = (contract: BookContract, chapter: number): st
       `  ${TEMPLATE.opensAfterClose}; the proof belongs to chapter ${contract.roles.reveal}, and here it is mentioned in one clause or not at all.`,
     );
     if (scene.aftermath.survivors.length > 0) {
-      lines.push(`  Two survivors with one concrete change each: ${scene.aftermath.survivors.join(", ")}.`);
+      // 17-hitting-90 §06 F8: was "Two survivors with one concrete change each", printed on run
+      // 98dec72a as "the survivors changed in concrete ways". The act, with the names in it.
+      const names = scene.aftermath.survivors;
+      const who = names.length === 1 ? `${names[0]} does` : `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]} each do`;
+      lines.push(`  ${who} one thing on the page that they could not have done before the arrest.`);
     }
     if (scene.aftermath.consequenceFor) lines.push(`  Whose life this shows changed: ${scene.aftermath.consequenceFor}.`);
     if (scene.aftermath.repairTarget) lines.push(`  One thing outside a person put right: ${scene.aftermath.repairTarget}.`);

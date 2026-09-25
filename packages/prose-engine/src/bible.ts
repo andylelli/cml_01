@@ -146,6 +146,33 @@ const caseSection = (caseBlock: Record<string, unknown>, core: ContractCore): st
   return lines;
 };
 
+/**
+ * 17-hitting-90 §06 F9 — the stock line, owned by one chapter.
+ *
+ * It read "Says, in their own way: <tic>" in the bible every chapter call sees, and nothing owned it.
+ * Written one chapter a call (P1.1), a line available to every call is a line said in every chapter:
+ * run 98dec72a said "that's the way of things" x5, "cut to the chase" x5 and "Order, Mr. Wentworth
+ * insists" x3, and the reader called them "assigned catchphrases". WP-001 §4.3 at the scale of a
+ * character. Clues are owned the same way ("shown once, in the chapter named").
+ *
+ * The chapter is one the character is on the page in, never the reveal (A_101 §14.3: a confession
+ * built from the culprit's catchphrase was "too cute") nor the aftermath, and the least loaded so the
+ * lines spread. The dead speak only in the scene set before the death, if there is one.
+ */
+const stockLineChapter = (name: string, core: ContractCore, load: Map<number, number>): number | null => {
+  if (name === core.fairPlay.victim) {
+    return core.scenes.find((s) => s.wound?.victim === name)?.chapter ?? null;
+  }
+  const candidates = core.scenes
+    .filter((s) => s.present.includes(name))
+    .map((s) => s.chapter)
+    .filter((c) => c !== core.roles.reveal && c !== core.roles.aftermath);
+  if (candidates.length === 0) return null;
+  const chosen = [...candidates].sort((a, b) => (load.get(a) ?? 0) - (load.get(b) ?? 0) || a - b)[0]!;
+  load.set(chosen, (load.get(chosen) ?? 0) + 1);
+  return chosen;
+};
+
 const castSection = (
   caseBlock: Record<string, unknown>,
   input: ContractInput,
@@ -155,6 +182,7 @@ const castSection = (
   const profiles = asArray(input.profiles?.profiles);
   const profileByName = new Map(profiles.map((p) => [field(p, "name"), p as Record<string, unknown>]));
   const lines: string[] = [];
+  const stockLineLoad = new Map<number, number>();
   for (const member of cast) {
     const name = field(member, "name");
     if (!name) continue;
@@ -178,7 +206,10 @@ const castSection = (
     const mannerisms = field(profile, "speechMannerisms");
     if (mannerisms) bits.push(`  Speech: ${mannerisms}`);
     const tic = field(profile, "signatureTic");
-    if (tic) bits.push(`  Says, in their own way: ${tic}`);
+    if (tic) {
+      const owner = stockLineChapter(name, core, stockLineLoad);
+      if (owner !== null) bits.push(`  Says this once in the book, in chapter ${owner}: ${tic}`);
+    }
     // A_96 F9 — the TRAIT clause only. The cause is withheld on purpose: run 50862 narrated the whole
     // formative incident as a label seven times, because the whole of it was in the prompt.
     const trait = core.scenes.find((s) => s.beats.depth?.name === name)?.beats.depth?.trait;

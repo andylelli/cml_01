@@ -84,6 +84,57 @@ export const instructionPhrases = (
   return [...out];
 };
 
+/**
+ * A crude stem: enough to make "carries"/"carried", "needs"/"needed" and "resuming"/"resumed" the
+ * same word, which is all an echo needs. Not a linguistic claim — the probe is the corpus (§06 F7).
+ */
+export const stem = (word: string): string => {
+  let t = word.toLowerCase().replace(/['’]s$/, "");
+  if (t.length > 4 && /(?:ies|ied)$/.test(t)) t = `${t.slice(0, -3)}y`;
+  else if (t.length > 5 && t.endsWith("ing")) t = t.slice(0, -3);
+  else if (t.length > 4 && t.endsWith("ed")) t = t.slice(0, -2);
+  else if (t.length > 4 && t.endsWith("es") && !/(?:ss|us|is)es$/.test(t)) t = t.slice(0, -2);
+  else if (t.length > 3 && t.endsWith("s") && !/(?:ss|us|is)$/.test(t)) t = t.slice(0, -1);
+  if (t.length > 4 && t.endsWith("e")) t = t.slice(0, -1);
+  return t;
+};
+
+const contentStems = (text: string, cast: ReadonlySet<string> = new Set()): string[] =>
+  words(text)
+    .filter((w) => !STOP.has(w))
+    .map((w) => (cast.has(w) ? "\u0000" : stem(w)));
+
+/** How many content words in a row, stemmed, make an echo: two is ordinary English, three is ours. */
+export const STEM_ECHO_LENGTH = 3;
+
+/**
+ * The INFLECTED echo. The verbatim phrases miss our wording when the writer changes its tense: the
+ * brief's "carries nothing the plot needs" came back three times on run 98dec72a as "carried nothing
+ * the plot needed", and "the place resuming ordinary use" as "the study resumed its ordinary use".
+ * So each instruction line also contributes every run of three content words, stemmed; a run that
+ * crosses a cast name, or that the case text also contains, is not ours.
+ */
+export const instructionStemGrams = (
+  lines: ReadonlyArray<string>,
+  castNames: ReadonlyArray<string>,
+  caseText: string,
+): string[] => {
+  const cast = new Set(castNames.flatMap(words));
+  const caseStems = ` ${contentStems(caseText).join(" ")} `;
+  const out = new Set<string>();
+  for (const line of lines) {
+    const s = contentStems(line, cast);
+    for (let i = 0; i + STEM_ECHO_LENGTH <= s.length; i += 1) {
+      const gram = s.slice(i, i + STEM_ECHO_LENGTH);
+      if (gram.includes("\u0000")) continue;
+      const joined = gram.join(" ");
+      if (caseStems.includes(` ${joined} `)) continue;
+      out.add(joined);
+    }
+  }
+  return [...out];
+};
+
 export interface EchoHit {
   chapter: number;
   phrase: string;
@@ -94,6 +145,7 @@ export interface EchoHit {
 export const findInstructionEchoes = (
   chapters: ReadonlyMap<number, ProseChapterLike>,
   phrases: ReadonlyArray<string>,
+  stemGrams: ReadonlyArray<string> = [],
 ): EchoHit[] => {
   const hits: EchoHit[] = [];
   const book = [...chapters.values()].map((c) => (c.paragraphs ?? []).join(" ")).join(" ").toLowerCase();
@@ -115,6 +167,21 @@ export const findInstructionEchoes = (
       const sentence = splitSentences(body).find((s) => re.test(s.toLowerCase())) ?? body.slice(0, 120);
       hits.push({ chapter, phrase, sentence });
       taken.push(phrase);
+    }
+    if (stemGrams.length > 0) {
+      const grams = new Set(stemGrams);
+      const flagged = new Set(hits.filter((h) => h.chapter === chapter).map((h) => h.sentence));
+      for (const sentence of splitSentences(body)) {
+        if (flagged.has(sentence)) continue; // a verbatim echo already names this sentence
+        const s = contentStems(sentence);
+        for (let i = 0; i + STEM_ECHO_LENGTH <= s.length; i += 1) {
+          const gram = s.slice(i, i + STEM_ECHO_LENGTH).join(" ");
+          if (!grams.has(gram)) continue;
+          hits.push({ chapter, phrase: `~${gram}`, sentence });
+          flagged.add(sentence);
+          break;
+        }
+      }
     }
   }
   return hits;

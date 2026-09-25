@@ -16,8 +16,10 @@ export const TEMPLATE = {
   shownAsAction: "shown as an action and never explained",
   referNotStage: "refer to it, do not stage it again",
   readerCanUse: "A reader must be able to use, from this chapter",
-  veryShortAnswer: "the very short answer",
-  shortReplyToLongSpeech: "the short reply to a long speech",
+  // 17-hitting-90 §06 F8: were "the very short answer" and "the short reply to a long speech", and
+  // came back as "Evelyn's answer was brief", "Sir Edmund's reply was short" (run 98dec72a, x6).
+  veryShortAnswer: "the reply of four words or fewer",
+  shortReplyToLongSpeech: "the reply of six words or fewer to somebody else's twenty-five",
   funnierThanMeant: "the line that is funnier than its speaker meant",
   twoExchanges: "Two exchanges this chapter",
 } as const;

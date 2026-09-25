@@ -4,13 +4,20 @@
  * Every known-positive below is a line from that manuscript, verbatim. Every known-negative is the
  * shape the same checker must leave alone, so a fix for one book cannot become a filter on all of them.
  */
+import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
 import { describe, expect, it } from "vitest";
 
+import { buildBookContract } from "../book-contract.js";
 import { buildContractCore } from "../contract.js";
+import { TEMPLATE } from "../contract-phrases.js";
 import { anchorFindings, collectCheckerFindings } from "../findings.js";
 import { applyEditList, buildGuards } from "../edits.js";
 import { indexChapters } from "../chapter-index.js";
 import { splitSentences } from "../sentences.js";
+import { findInstructionEchoes, instructionStemGrams, stem } from "../instruction-echo.js";
 import type { Finding, ProseChapterLike } from "../types.js";
 
 const core = buildContractCore({
@@ -176,5 +183,105 @@ describe("the edit guard against a splice that repeats its neighbour", () => {
     expect(three.filter((v) => v.startsWith("noNewDuplicate"))).toHaveLength(1);
     expect(two.filter((v) => !three.includes(v))).toEqual([]);
     expect(one.filter((v) => v.startsWith("noNewDuplicate"))).toEqual([]);
+  });
+});
+
+describe("our own instruction, printed in another tense", () => {
+  // Two brief lines as they stood when run 98dec72a was written (brief.ts, 2026-09-25).
+  const lines = [
+    "One paragraph in each chapter is there for its own sake: a detail, a gesture or an exchange that carries nothing the plot needs.",
+    "Chapter 10 opens on the first ordinary thing that happens once the case is closed, and ends on the place resuming ordinary use.",
+  ];
+  const echoes = (sentences: string[], caseText = ""): string[] => {
+    const grams = instructionStemGrams(lines, ["Edmund Fairfax"], caseText);
+    const map = new Map([[1, chapter(sentences)]]);
+    return findInstructionEchoes(map, [], grams).map((h) => h.phrase);
+  };
+
+  it("KNOWN-POSITIVE: the three 'carried nothing the plot needed' lines and 'resumed its ordinary use' (were 0 of 4)", () => {
+    expect(
+      echoes([
+        "Sir Edmund Fairfax closed the ledger, his hand lingering on its cover—a gesture that carried nothing the plot needed, only the patience of an owner.",
+        "The study resumed its ordinary use, the fire burning low, the evidence stored.",
+      ]),
+    ).toEqual(["~carry plot need", "~resum ordinary use"]);
+  });
+
+  it("ordinary English that shares two of the words is not an echo", () => {
+    expect(echoes(["She needed nothing from the plot of land behind the church.", "The ordinary use of the room was for cards."])).toEqual([]);
+  });
+
+  it("wording the case itself uses is the case's, not ours", () => {
+    expect(echoes(["The study resumed its ordinary use."], "the manor resumed ordinary use after the war")).toEqual([]);
+  });
+
+  it("the stem joins the tenses the writer changes and nothing more", () => {
+    expect(["carries", "carried", "carry"].map(stem)).toEqual(["carry", "carry", "carry"]);
+    expect(["needs", "needed", "resuming", "resumed", "changes", "change"].map(stem)).toEqual([
+      "need", "need", "resum", "resum", "chang", "chang",
+    ]);
+    expect(stem("glass")).toBe("glass");
+  });
+});
+
+describe("the brief names no property the narrator has already printed from it", () => {
+  // Each of these came back as narration on a read book: "spoke at length" (pair 3 x7, 98dec72a x7),
+  // "carried nothing the plot needed" x3, "the survivors changed in concrete ways", "Evelyn's answer
+  // was brief", "Sir Edmund's reply was short", "The confrontation ended in the scene".
+  const PRINTED = /\b(?:at length|the plot|survivors?|concrete change|very short answer|short reply|long speech|in the scene)\b/i;
+  const golden = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "..", "eval", "golden");
+  const bundles = existsSync(golden) ? readdirSync(golden).filter((f) => f.startsWith("bundle-")) : [];
+
+  it.each(bundles)("%s: no brief line carries one", (file) => {
+    const a = JSON.parse(readFileSync(join(golden, file), "utf8")).artifacts;
+    const contract = buildBookContract({
+      cml: a.cml ?? {},
+      clues: a.clues ?? null,
+      outline: a.outline?.narrative ?? a.outline,
+      cast: a.cast?.cast ?? a.cast,
+      profiles: a.character_profiles ?? null,
+      world: a.world_document,
+      locations: a.location_profiles,
+      temporal: a.temporal_context,
+      setting: a.setting,
+      lockedFacts: a.hard_logic_devices?.devices?.[0]?.lockedFacts ?? [],
+      humourLevel: "classic",
+    });
+    expect(contract.brief.asks.map((ask) => ask.line).filter((line) => PRINTED.test(line))).toEqual([]);
+    expect(contract.brief.asks.some((ask) => ask.section === "shapes")).toBe(true);
+    expect(Object.values(TEMPLATE).filter((phrase) => PRINTED.test(phrase))).toEqual([]);
+  });
+});
+
+describe("each stock line is owned by one chapter", () => {
+  const golden = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "..", "eval", "golden");
+  const bundles = existsSync(golden) ? readdirSync(golden).filter((f) => f.startsWith("bundle-")) : [];
+
+  it.each(bundles)("%s: one chapter each, the character on the page, never the reveal or the aftermath", (file) => {
+    const a = JSON.parse(readFileSync(join(golden, file), "utf8")).artifacts;
+    const contract = buildBookContract({
+      cml: a.cml ?? {},
+      clues: a.clues ?? null,
+      outline: a.outline?.narrative ?? a.outline,
+      cast: a.cast?.cast ?? a.cast,
+      profiles: a.character_profiles ?? null,
+      humourLevel: "classic",
+    });
+    const text = contract.bible.text;
+    expect(text).not.toContain("Says, in their own way");
+    const owned = [...text.matchAll(/Says this once in the book, in chapter (\d+):/g)].map((m) => Number(m[1]));
+    // The dead speak only in the scene set before the death (P2.1), when the case has one.
+    const woundChapter = contract.scenes.find((s) => s.wound?.victim === contract.fairPlay.victim)?.chapter;
+    const withTic = (a.character_profiles?.profiles ?? []).filter(
+      (p: { signatureTic?: string; name?: string }) => p.signatureTic && (p.name !== contract.fairPlay.victim || woundChapter !== undefined),
+    );
+    expect(owned.length).toBe(withTic.length);
+    for (const c of owned) {
+      expect([contract.roles.reveal, contract.roles.aftermath]).not.toContain(c);
+    }
+    // Spread: no chapter carries more stock lines than it must.
+    const perChapter = new Map<number, number>();
+    for (const c of owned) perChapter.set(c, (perChapter.get(c) ?? 0) + 1);
+    expect(Math.max(...perChapter.values())).toBeLessThanOrEqual(Math.ceil(owned.length / (contract.scenes.length - 2)) + 1);
   });
 });

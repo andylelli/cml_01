@@ -109,7 +109,8 @@ export const revealOperation = (core: ContractCore): string => {
     // each with its own slot, both bound to the case the bible already states.
     `Then ${culprit} speaks twice, in their own words on the page: one line says what ${victim} was about to do to them; ` +
     `one line names what that would have cost them — a person, a position or a place, said by its name. ` +
-    `The chapter closes in the scene.`
+    // Run 98dec72a: "The confrontation ended in the scene, the truth spoken aloud". Said as a thing seen.
+    `The chapter ends with everybody still in the room.`
   );
 };
 
@@ -172,17 +173,21 @@ export const buildBrief = (input: BriefInput): Brief => {
     );
     // The moves keep their counts and lose their NAMES: "flat answer" and "short retort" were on the
     // page of two read books, and "delivered a speech" on a third, straight from these lines.
+    // 17-hitting-90 §06 F8: the counts live on the QUOTED TEXT, and no property of the line is named.
+    // "speaks at length" came back as "spoke at length" x7 on pair 3 and x7 on run 98dec72a; the
+    // contract's "short reply" and "very short answer" as "Sir Edmund's reply was short" and
+    // "Evelyn's answer was brief" x6. The narrator reports whatever property the brief names.
     add(
       "shapes",
-      "The first exchange: the named character answers a question in four words or fewer, and the next sentence moves on.",
+      "The first exchange: somebody asks the named character a question, and the named character's reply, inside its quotation marks, is four words or fewer. The next sentence moves on.",
     );
     add(
       "shapes",
-      "The second exchange: somebody speaks at length, twenty-five words or more, written in full because it is half the joke, and the named character answers in six words or fewer.",
+      "The second exchange: somebody else's line runs to twenty-five words or more, every word of it written out, because it is half the joke; the named character's reply to it, inside its quotation marks, is six words or fewer.",
     );
     add(
       "shapes",
-      "The sentence after a short answer is what somebody ELSE does: a movement, an object handled, a look away, the next question. The shortness stays in the line itself.",
+      "The sentence after either reply is what somebody ELSE does: a movement, an object handled, a look away, the next question. The shortness stays inside the quotation marks.",
     );
   }
 
@@ -201,9 +206,12 @@ export const buildBrief = (input: BriefInput): Brief => {
   );
   add("page", "At least four sentences in each chapter run past thirty words, because the thought they carry is that long.");
   add("page", "At least three em-dashes in each chapter, where a sentence turns on itself.");
+  // WP-001 O5, stated as the act. It read "…a detail, a gesture or an exchange that carries nothing
+  // the plot needs", and run 98dec72a printed the purpose three times: "a gesture that carried nothing
+  // the plot needed". The reason for an operation is ours; the writer is given only the operation.
   add(
     "page",
-    "One paragraph in each chapter is there for its own sake: a detail, a gesture or an exchange that carries nothing the plot needs.",
+    "One paragraph in each chapter follows one person through something of their own — a habit, a possession, a letter, a piece of work — that no other paragraph in the book comes back to.",
   );
   add(
     "page",
@@ -235,9 +243,17 @@ export const buildBrief = (input: BriefInput): Brief => {
   add("tests", mechanismOperation(core));
   if (core.roles.aftermath !== null) {
     const aftermath = core.scenes.find((s) => s.chapter === core.roles.aftermath)?.aftermath;
+    // 17-hitting-90 §06 F8: acts, each with a person and a thing. The categories ("two named survivors
+    // one concrete change each", "the place resuming ordinary use") came back on run 98dec72a as the
+    // chapter's closing summary: "the survivors changed in concrete ways", "the study resumed its
+    // ordinary use".
+    const dead = core.fairPlay.victim || "the dead";
     add(
       "tests",
-      `Chapter ${core.roles.aftermath} opens on the first ordinary thing that happens once the case is closed, mentions the proof in one clause or not at all, gives two named survivors one concrete change each, carries one memory of the dead that is nothing to do with how they died, and ends on the place resuming ordinary use.`,
+      `Chapter ${core.roles.aftermath} opens on the first ordinary thing somebody does once the arrest is made, and the proof comes up in one clause or not at all. ` +
+        `Two named people each do one thing, on the page, that they could not have done before the arrest. ` +
+        `Somebody handles a thing that belonged to ${dead} and remembers ${dead} using it on an ordinary day. ` +
+        `The last paragraph is somebody at the everyday work of the place.`,
     );
     if (aftermath?.repairTarget) {
       add("tests", `Chapter ${core.roles.aftermath} also shows one thing outside a person put right: ${aftermath.repairTarget}.`);

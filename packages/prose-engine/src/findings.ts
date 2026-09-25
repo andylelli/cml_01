@@ -38,7 +38,7 @@ import {
 import { extractClockValues } from "@cml/cml";
 
 import { indexChapters } from "./chapter-index.js";
-import { findCatchphrases, findInstructionEchoes, instructionPhrases } from "./instruction-echo.js";
+import { findCatchphrases, findInstructionEchoes, instructionPhrases, instructionStemGrams } from "./instruction-echo.js";
 import { splitSentences } from "./sentences.js";
 import { checkHardGates } from "./selector.js";
 import type {
@@ -345,8 +345,12 @@ export const collectCheckerFindings = (
   if (options.instructionLines && options.instructionLines.length > 0) {
     const castNames = [...new Set([...core.scenes.flatMap((s) => s.present), ...core.fairPlay.culprits, core.fairPlay.victim])];
     const phrases = instructionPhrases(options.instructionLines, castNames, options.caseText ?? "");
-    for (const hit of findInstructionEchoes(byChapter, phrases)) {
-      out.push(finding("scaffold_token", hit.chapter, hit.sentence, `"${hit.phrase}" is the brief's wording, not the book's`));
+    const grams = instructionStemGrams(options.instructionLines, castNames, options.caseText ?? "");
+    for (const hit of findInstructionEchoes(byChapter, phrases, grams)) {
+      const note = hit.phrase.startsWith("~")
+        ? `"${hit.phrase.slice(1)}" is the brief's wording in another tense — an instruction printed, not the book`
+        : `"${hit.phrase}" is the brief's wording, not the book's`;
+      out.push(finding("scaffold_token", hit.chapter, hit.sentence, note));
     }
   }
 

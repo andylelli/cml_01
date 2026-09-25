@@ -96,15 +96,15 @@ half past eleven."*
 
 | id | item | status | commit | evidence |
 |---|---|---|---|---|
-| F1 | one abbreviation-aware sentence splitter for the checkers (`sentences.ts`) | built | (this commit) | "Order, Mr. Wentworth insists" ×3: 0 → found. The draft selector keeps its own splitter: its instruments are calibrated on it |
-| F2 | a checker quote under eight words is widened by its neighbours, not discarded | built | (this commit) | the 69: discarded 5 → 0; corpus: 195 → 0 |
-| F3 | `copied_sentence` reports a repeat inside one chapter | built | (this commit) | the 69: 0 → 3 of 3; pair 3: 0 → 0; corpus: 40 of 227 books carry one (mostly v1 injector lines) |
-| F4 | a catchphrase said with an address added counts as the same line | built | (this commit) | "Let's cut to the chase, Inspector" joins "Let's cut to the chase"; two different lines sharing words stay apart (test) |
-| F5 | `operation_narrated` reads "answered with four words" | built | (this commit) | the 69: ×2, was unmatched |
-| F6 | edit guard `noNewDuplicate`, as a violation per duplicated sentence | built | (this commit) | the ch-4 splice shape is reverted; a repair, even partial, is never a new violation (test) |
-| F7 | the echo checker tolerates inflection | not started | | |
-| F8 | the brief states acts, not purposes: O5, the aftermath, the wit shapes | not started | | |
-| F9 | each stock line owned by one chapter | not started | | |
+| F1 | one abbreviation-aware sentence splitter for the checkers (`sentences.ts`) | built | 48819b8e | "Order, Mr. Wentworth insists" ×3: 0 → found. The draft selector keeps its own splitter: its instruments are calibrated on it |
+| F2 | a checker quote under eight words is widened by its neighbours, not discarded | built | 48819b8e | the 69: discarded 5 → 0; corpus: 195 → 0 |
+| F3 | `copied_sentence` reports a repeat inside one chapter | built | 48819b8e | the 69: 0 → 3 of 3; pair 3: 0 → 0; corpus: 40 of 227 books carry one (mostly v1 injector lines) |
+| F4 | a catchphrase said with an address added counts as the same line | built | 48819b8e | "Let's cut to the chase, Inspector" joins "Let's cut to the chase"; two different lines sharing words stay apart (test) |
+| F5 | `operation_narrated` reads "answered with four words" | built | 48819b8e | the 69: ×2, was unmatched |
+| F6 | edit guard `noNewDuplicate`, as a violation per duplicated sentence | built | 48819b8e | the ch-4 splice shape is reverted; a repair, even partial, is never a new violation (test) |
+| F7 | the echo checker tolerates inflection: three stemmed content words in a row from one instruction line | built | (this commit) | the 69: 0 → 4 of 4 ("carried nothing the plot needed" ×3, "resumed its ordinary use"); v1-era books (never saw the brief): 9 hits in 5 of 200, all grams of the foreign golden case's own clock values — a run excludes its own case text |
+| F8 | the brief and the chapter contract state acts, not purposes: O5, the aftermath, the wit shapes, "closes in the scene" | built | (this commit) | the sources, MEASURED: "speaks at length" → "spoke at length" ×7 (pair 3 ×7 too); contract "the short reply to a long speech is Sir Edmund's" → "Sir Edmund's reply was short"; "the very short answer is Evelyn's" → "Evelyn's answer was brief". Test: no brief line or template phrase carries a property a book has printed — fails 4 of 4 on the old brief. **Prediction for the next v2 book:** `operation_narrated` before edits ≤ 3 (the 69: 17); `scaffold_token` "plot"/"concrete"/"ordinary use" 0 |
+| F9 | each stock line owned by one chapter the character is on the page in, never the reveal or aftermath | built | (this commit) | golden contracts: 7 lines over chapters 1–6. **Prediction:** no stock line said more than twice (the 69: 5, 5, 3) |
 | F10 | a clue put on the page as an act; a checker for a clue recited as dialogue | not started | | |
 | F11 | compound discriminating tests against the read, over the whole ledger | not started | | |
 | F12 | the read ledger by axis and by fresh/resume | not started | | |
