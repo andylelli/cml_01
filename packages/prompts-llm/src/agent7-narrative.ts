@@ -203,6 +203,7 @@ You work from the CML's logical structure (inference path, constraint space) and
 3. Develop characters and relationships
 4. Support the false assumption until the discriminating test
 5. Lead to a satisfying revelation and denouement
+6. Title every scene with an object, a place or an hour that appears in that scene — two to four words. The beat descriptions above are notes to you; the printed chapter title is the scene's own thing. (57 of 58 archived outlines titled a scene after the trap "Revelation" or "Clearing the Innocent", and the readers named both.)
 
 Your output is a JSON scene outline that prose generators can use to write the full story.`;
 
@@ -829,7 +830,7 @@ Return a JSON object:
         {
           "sceneNumber": 1,
           "act": 1,
-          "title": "Discovery",
+          "title": "[an object, a place or an hour from this scene, two to four words]",
           "setting": {
             "location": "${exampleLocation}",
             "timeOfDay": "Morning after the murder",

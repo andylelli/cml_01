@@ -47,6 +47,7 @@ import { join } from "path";
 import { classifyDeathMethod, type DeathMethodKind } from "./shared/death-method-patterns.js";
 
 import { orphanedMeansLinkTraces, provesTheAct } from "./agent3-means-link.js";
+import { actWindowNote, deathMethodWoundSiteNote } from "./agent3-case-shape-notes.js";
 // L1 (ANALYSIS_48 T1.1): map a crime classification to a physical manner of death, used as the
 // fallback when the model didn't author CASE.death_method. Mirrors DEATH_METHOD_CANON in
 // agent9-prose/prompt-builder and DEATH_METHOD_TOKENS in rubric-score/facts (kept local to avoid a
@@ -611,7 +612,7 @@ Micro-exemplars:
 - Strong discriminating test design: "Comparing the porter log with the forged timetable and reset clock proves Hartwell's claimed arrival is impossible."
 
 GOLDEN AGE GENRE STRUCTURES (required — these make the case a fair-play mystery, not a bare logic puzzle):
-- death_method: the PHYSICAL manner of death — HOW the victim was killed (e.g. "stabbed with a letter opener", "poisoned with arsenic", "struck with a fire iron", "strangled", "shot"). This MUST be a bodily killing action and MUST be DISTINCT from the concealment mechanism: the clock/timeline/alibi trick goes in hidden_model.mechanism, NEVER here. The reveal has to state how the victim DIED, not only how the crime was hidden — a case that explains only the concealment fails the fair-play contract and is rejected by the rubric's weak-murder-method gate.
+- death_method: the PHYSICAL manner of death — HOW the victim was killed (e.g. "stabbed with a letter opener", "poisoned with arsenic", "struck with a fire iron", "strangled", "shot"), and for a stabbing, a shot or a blow, WHERE on the body, in the shape "<verb> with <weapon>, to the <chest | throat | neck | heart | back | skull | temple>" — a place one such wound kills, because the prose will describe the body and two readers of one book stopped on a foil wound to the arm. This MUST be a bodily killing action and MUST be DISTINCT from the concealment mechanism: the clock/timeline/alibi trick goes in hidden_model.mechanism, NEVER here. The reveal has to state how the victim DIED, not only how the crime was hidden — a case that explains only the concealment fails the fair-play contract and is rejected by the rubric's weak-murder-method gate.
 - false_solution: a CONVINCING but WRONG solution accusing an INNOCENT suspect, with a chain of supporting_points, and exactly one flaw (the_one_flaw) the detective later notices. The accused_suspect MUST NOT be the real culprit.
 - red_herrings: at least TWO misleading details. Each MUST have an innocent_explanation that resolves it — never leave a suspicious detail unexplained. Each red herring MUST misdirect TOWARD an INNOCENT suspect (ideally the false_solution's accused) and AWAY from the real culprit — a "red herring" that points at the actual culprit adds no misdirection and is wrong. Red herrings should be plausible and meaningful, not random.
 - motive: the culprit's motive must be specific and human, NOT a generic "financial desperation / inheritance / money troubles" cliché on its own (the #1 novelty-failure pattern). If money is involved, anchor it to a concrete, particular stake (a specific secret, relationship, reputation, or obligation) that makes THIS culprit's choice feel inevitable.${isDatedMotiveEnabled() ? `
@@ -632,7 +633,8 @@ GOLDEN AGE GENRE STRUCTURES (required — these make the case a fair-play myster
 - The reader must be able to reach the true solution from clues shown before the reveal; the detective must not rely on a confession or secret knowledge.
 
 Before finalizing, run a silent checklist:
-- death_method names a PHYSICAL manner of death (stabbed/poisoned/struck/strangled/shot), distinct from the concealment mechanism
+- death_method names a PHYSICAL manner of death (stabbed/poisoned/struck/strangled/shot), distinct from the concealment mechanism, and for a wound the place on the body that it kills
+- constraint_space.time.windows carries ONE entry about the act, with two ends on the clock: "<the earliest moment the killer could reach the victim> to <the latest moment they could leave> — the murder"
 - if the concealment creates a false time or reading, it tampers with a genuinely resettable instrument (clock/watch/chime/bell/log), NOT a reading fixed by an external driver (sundial/shadow, thermometer, tide, candle) which cannot be time-shifted by cooling/warping/moving it
 - if the concealment fakes a time: apparent_time_of_death sits inside a culprit alibi window, actual_time_of_death sits in a culprit gap, and the two differ
 - all required top-level keys present
@@ -670,7 +672,7 @@ CASE:
     crime_class:
       category: "murder"
       subtype: ""
-  death_method: ""  # REQUIRED — physical manner of death (stabbed/poisoned/struck/strangled/shot): HOW the victim died, NOT the concealment trick
+  death_method: ""  # REQUIRED — physical manner of death (stabbed/poisoned/struck/strangled/shot): HOW the victim died, NOT the concealment trick; for a wound, add ", to the <chest|throat|neck|heart|back|skull>"
   cast:
     - name: ""
       age_range: ""
@@ -734,7 +736,7 @@ CASE:
   constraint_space:
     time:
       anchors: []
-      windows: []
+      windows: []  # one entry is the act itself: "<earliest the killer could reach the victim> to <latest they could leave> — the murder"; the rest are alibis
       contradictions: []${opportunityWindowLines()}
     access:
       actors: []
@@ -1323,6 +1325,10 @@ export async function generateCML(
     {
       const meansLink = provesTheAct(caseBlock);
       normalizationNotes.push(`[A_102 means-link] ${meansLink.verdict}: ${meansLink.detail.replace(/\s+/g, " ")}`);
+      // 17-hitting-90 P3.1 / P3.2 — two more shapes the readers asked the case for, as notes only.
+      for (const note of [deathMethodWoundSiteNote(caseBlock.death_method), actWindowNote(caseBlock)]) {
+        if (note) normalizationNotes.push(note);
+      }
       if (validCulprits.length === 0) {
         const orphaned = orphanedMeansLinkTraces(caseBlock, rawCulprits.map(String), normalizedCulprits);
         if (orphaned.length > 0) {

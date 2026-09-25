@@ -29,7 +29,7 @@ those words. **The fixes they named are the plan.**
 | W6 | **The proof must land on the culprit** | 1 of 4, and the decisive one on the pair | R4 *"the reenactment uses the wrong person"*; R3 *"Desmond's successful ascent"* praised | clues, ending | v2 test brief | v2 | P1.2 |
 | W7 | **The fatal wound is not where it kills** | 2 of 2 on seed 23403 | R3 *"If the foil killed her, the wound should be chest/neck"*; R4 *"A fatal upper-arm puncture is possible only with major artery detail"* | clues | Agent 3 case (`death_method`) | both | P3.1 |
 | W8 | **A clue spells out the plan** | 1 of 4 | R4 *"The instructions spell out every detail… That is almost too much"* | clues | Agent 5 clues | both | P3.3 |
-| W9 | **A clock rendered as nonsense** — "twenty minutes past three-five" | 1 of 4 — **4 times** in R3, **0** in R4 on the same case | R3 *"this should be 3:25"* | prose, clues | a v1 clock-to-words step — source not yet traced | v1 | P3.5 |
+| W9 | **A clock rendered as nonsense** — "twenty minutes past three-five" | 1 of 4 — **4 times** in R3, **0** in R4 on the same case | R3 *"this should be 3:25"* | prose, clues | INFERRED: v1's time-form rewrite substituting inside a longer clock phrase ("three twenty-five" → "twenty minutes past three-five"); the renderer itself is correct; 0 in v2 | v1 | P3.5 (deferred: v1-only) |
 | W10 | **An access mechanism never stated once plainly** — how the key relocks the window | 1 of 4 | R3 *"it should be stated once in simple terms"* | clues | reveal brief (mechanism sentence) | both | P1.4 |
 | W11 | A speech attributed to the wrong character | 1 of 4 | R1 *"Fix the attribution error in Chapter 6"* | prose | writer | v1 | watch |
 

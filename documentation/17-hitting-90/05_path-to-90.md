@@ -108,11 +108,11 @@ as a strength.
 
 | item | owner | how measured |
 |---|---|---|
-| P3.1 the fatal wound where it kills | Agent 3 `death_method` | Agent 3 harness over 5 cases: 0 fatal wounds to a limb without a named artery |
-| P3.2 the opportunity as a window | Agent 3 / 2d temporal | harness: every opportunity time carries an opening and a closing value |
+| P3.1 the fatal wound where it kills | Agent 3 `death_method` | Agent 3 harness over 5 cases: 0 fatal wounds to a limb without a named artery — **built 2026-09-25** as a shape (`"<verb> with <weapon>, to the <chest…>"`) plus a normalisation note `[17-hitting-90 P3.1]`; harness run pending |
+| P3.2 the opportunity as a window | Agent 3 / 2d temporal | harness: every opportunity time carries an opening and a closing value — **built 2026-09-25**; MEASURED 49 of 67 archived cases already had one; the note `[17-hitting-90 P3.2]` names the rest |
 | P3.3 no clue spells out the plan | Agent 5 | harness: no single clue names both the access route and the weapon |
-| P3.4 no post-reveal scene titled as clearing or revelation | Agent 7 | outline harness: 0 of 5 |
-| P3.5 "twenty minutes past three-five" | trace the step that renders 3:25 this way (v1 book, 4 times; v2 book, 0) | a unit test pinning 3:25 |
+| P3.4 no post-reveal scene titled as clearing or revelation | Agent 7 | outline harness: 0 of 5 — **built 2026-09-25**: every scene titled with an object, a place or an hour from the scene; the format example's `"Discovery"` (copied verbatim as arm B's chapter 1 title) replaced by a slot. MEASURED before: 57 of 58 |
+| P3.5 "twenty minutes past three-five" | trace the step that renders 3:25 this way (v1 book, 4 times; v2 book, 0) | **deferred**: the renderer is correct; INFERRED a v1 rewrite pass substituting inside a longer clock phrase; v1-only and v1 is no longer the engine |
 
 These ride on the phase-2 fresh run, so one run tests both phases.
 

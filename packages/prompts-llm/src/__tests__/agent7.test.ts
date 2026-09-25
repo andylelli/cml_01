@@ -486,3 +486,13 @@ describe("Agent 7: Narrative Formatter - Prompt Building", () => {
     expect(prompt.user).toContain("Locked room mystery established");
   });
 });
+
+describe("17-hitting-90 P3.4 — a scene title is the scene's own thing", () => {
+  it("asks for an object, a place or an hour, and the format example no longer shows a title to copy", () => {
+    const prompt = buildNarrativePrompt({ caseData: mockCaseData, clues: mockClues });
+    const all = `${prompt.system}\n${prompt.developer}\n${prompt.user}`;
+    expect(all).toContain("Title every scene with an object, a place or an hour that appears in that scene");
+    expect(all).toContain('"title": "[an object, a place or an hour from this scene, two to four words]"');
+    expect(all).not.toContain('"title": "Discovery"');
+  });
+});

@@ -70,11 +70,11 @@ One row per item. **Status** is one of: not started · built · measured · read
 | P2.4 | one chapter spent away from the drawing room | not started | | WP-001 §5.4 |
 | P2.5 | O4 em-dashes: asked for 3 a chapter, 0 on the saved page in both engines — find where they go | fixed | (this commit) | the save path folded `—` to `-` since 2026-07-04; 72 read manuscripts affected (`03` §4) |
 | P2.6 | O6 — divergent candidates at one unforced choice (the tic field), measured at £0 | not started | | WP-001 §8 |
-| P3.1 | the fatal wound placed where it kills | not started | | 2 of 2 reads on seed 23403 |
-| P3.2 | an opportunity stated as a window with two ends | not started | | 3 of 3 recent reads |
+| P3.1 | the fatal wound placed where it kills | built — prompt shape + note; harness measurement pending | (this commit) | seed 23403's case said "stabbed with a fencing foil" and a clue said "torn sleeve"; both engines wrote an arm wound from the sleeve |
+| P3.2 | an opportunity stated as a window with two ends | built — prompt shape + note | (this commit) | MEASURED: 18 of 67 archived cases carry no window about the act; seed 23403 had one, so its reads' complaint is P1.4's |
 | P3.3 | no clue spells out the plan | not started | | A_108 v2 read |
-| P3.4 | no post-reveal outline scene titled as clearing or revelation | not started | | A_107 §2, A_108 |
-| P3.5 | "twenty minutes past three-five" — trace the clock-to-words step | not started | | 4 times in the v1 book, 0 in v2 |
+| P3.4 | no post-reveal outline scene titled as clearing or revelation | built — Agent 7 title shape; format example no longer shows a title | (this commit) | MEASURED: 57 of 58 archived outlines title a scene after the trap with a reveal or clearing word; v2 also withholds them at render (P1.7) |
+| P3.5 | "twenty minutes past three-five" — trace the clock-to-words step | deferred — v1-only, and v1 is no longer the engine | | `renderClockWords(15:25)` is correct ("twenty-five minutes past three"); INFERRED: v1's time-form rewrite substituted "twenty minutes past three" for "three twenty" inside "three twenty-five"; 0 occurrences in either v2 book |
 | P4.1 | v2's editor pass targets the register lines readers quote | not started | | |
 | P4.2 | our own labels ("polite savagery") never reach the writer as quotable text | not started | | MEASURED: the label is in the profile and brief 12 times; the reader quoted it |
 | P4.3 | no catchphrase shared across characters | not started | | A_108 v1 read |

@@ -65,3 +65,34 @@ describe("agent3 cml death_method (ANALYSIS_48 T1.1)", () => {
     expect(deriveDeathMethodFromCrimeClass("time-masked manor murder", "murder")).toBe("");
   });
 });
+
+describe("17-hitting-90 P3.1 / P3.2 — the case shapes the readers asked for", () => {
+  const input = {
+    decade: "1920s",
+    location: "a seaside hotel",
+    institution: "fencing academy",
+    tone: "dark",
+    weather: "fog",
+    socialStructure: "masters and pupils",
+    theme: "a room that appears sealed but is not",
+    primaryAxis: "spatial" as const,
+    castSize: 4,
+    castNames: ["Katherine Quayle", "Hector Gaunt", "Desmond Kestrel", "Montague Norbury"],
+    detectiveType: "police",
+    victimArchetype: "academy founder",
+    complexityLevel: "moderate" as const,
+    mechanismFamilies: ["locked room"],
+    runId: "run-test",
+    projectId: "proj-test",
+  };
+  // The YAML skeleton is emitted only into the merged system message (Azure has no developer role).
+  const all = () => buildCMLPrompt(input).messages.map((m) => String(m.content)).join("\n");
+  it("death_method asks for the place on the body a wound kills, as a shape", () => {
+    expect(all()).toContain('"<verb> with <weapon>, to the <chest | throat | neck | heart | back | skull | temple>"');
+    expect(all()).toContain('for a wound, add ", to the <chest|throat|neck|heart|back|skull>"');
+  });
+  it("the time windows ask for one entry that is the act itself, with two ends", () => {
+    expect(all()).toContain("to <the latest moment they could leave> — the murder");
+    expect(all()).toContain("windows: []  # one entry is the act itself");
+  });
+});
