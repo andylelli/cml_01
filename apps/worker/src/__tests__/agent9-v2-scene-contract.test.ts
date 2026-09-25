@@ -8,7 +8,7 @@
 import { describe, expect, it } from "vitest";
 import { buildBookContract } from "@cml/prose-engine";
 
-import { renderSceneContract } from "../jobs/agents/agent9-v2/run.js";
+import { isFalseLeadEnabled, renderSceneContract } from "../jobs/agents/agent9-v2/run.js";
 
 const contract = buildBookContract({
   cml: {
@@ -252,5 +252,65 @@ describe("17-hitting-90 P2.1 — the wound chapter is told to stage a scene befo
     expect(text).not.toMatch(/found dead; on the page as the body/);
     // and no other chapter stages it
     for (const chapter of [1, 3, 4, 5]) expect(renderSceneContract(five, chapter)).not.toMatch(/set before the death/);
+  });
+});
+
+describe("A_109 step 6 — the false solution argued before it is refuted (PROSE_V2_FALSE_LEAD)", () => {
+  const input = (falseLead: boolean) => ({
+    cml: {
+      CASE: {
+        culpability: { culprits: ["Leonard Pike"] },
+        cast: [
+          { name: "Leonard Pike", role_archetype: "suspect" },
+          { name: "Charles Wentworth", role_archetype: "suspect" },
+          { name: "Gerald Harcourt", role_archetype: "detective" },
+          { name: "Beatrice Langley", role_archetype: "victim" },
+        ],
+        false_solution: { accused_suspect: "Charles Wentworth", supporting_points: ["Charles Wentworth was seen at the ladder at ten.", "His gloves were wet."], the_one_flaw: "The ladder was moved after ten." },
+        prose_requirements: { suspect_clearance_scenes: [{ suspect_name: "Charles Wentworth", clearance_method: "the ferryman's log" }] },
+      },
+    },
+    clues: { clues: [] },
+    outline: {
+      acts: [
+        {
+          scenes: ["gathering", "crime", "first_enquiries", "motives", "alibis", "false_solution", "final_trap", "revelation"].map((beat, i) => ({
+            sceneNumber: i + 1,
+            beat,
+            title: `Chapter ${i + 1}`,
+            characters: ["Gerald Harcourt", "Charles Wentworth"],
+            setting: { location: "the house" },
+          })),
+        },
+      ],
+    },
+    cast: { characters: [{ name: "Leonard Pike" }, { name: "Charles Wentworth" }, { name: "Gerald Harcourt" }] },
+    profiles: null,
+    humourLevel: "classic",
+    falseLead,
+  });
+
+  it("ON: each point is asked for once, in its own chapter; the false-solution chapter argues from them and clears the accused", () => {
+    const on = buildBookContract(input(true));
+    const all = on.scenes.map((s) => renderSceneContract(on, s.chapter)).join("\n");
+    expect(all.match(/Found or said here, and taken as pointing at Charles Wentworth: Charles Wentworth was seen at the ladder at ten\./g)).toHaveLength(1);
+    expect(all.match(/Found or said here, and taken as pointing at Charles Wentworth: His gloves were wet\./g)).toHaveLength(1);
+    const fsText = renderSceneContract(on, 6);
+    expect(fsText).toMatch(/The case against Charles Wentworth is argued here from what chapters? [\d, and]+ showed, and it breaks here\./);
+    expect(fsText).toMatch(/Charles Wentworth is cleared here — the ferryman's log/);
+    expect(renderSceneContract(on, 5)).not.toMatch(/Charles Wentworth is cleared here/);
+  });
+
+  it("OFF: no point asked for, and the clearance where the case put it", () => {
+    const off = buildBookContract(input(false));
+    const all = off.scenes.map((s) => renderSceneContract(off, s.chapter)).join("\n");
+    expect(all).not.toMatch(/taken as pointing at|is argued here from what/);
+    expect(renderSceneContract(off, 5)).toMatch(/Charles Wentworth is cleared here/);
+  });
+
+  it("the flag is read at call time and is off unless set", () => {
+    expect(isFalseLeadEnabled({})).toBe(false);
+    expect(isFalseLeadEnabled({ PROSE_V2_FALSE_LEAD: "true" })).toBe(true);
+    expect(isFalseLeadEnabled({ PROSE_V2_FALSE_LEAD: "undefined" })).toBe(false);
   });
 });

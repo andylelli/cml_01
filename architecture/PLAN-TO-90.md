@@ -3130,3 +3130,18 @@ ratios from 1.25 to 8 and at clearance strengths 0.05 and 0.3, because in all fo
 but the culprit. Telemetry: one `[A_109 case logic] M2` line at the v2 prose stage under `AGENT3_CASE_LOGIC`;
 archive: `npm run report:case-logic` (the laptop's `data/store.json` — this container holds only the
 golden four with outlines).
+
+**§33 UPDATE 9 — A_109 step 6: the false solution argued before it is refuted (`PROSE_V2_FALSE_LEAD`, off);
+the clue re-scheduling WITHDRAWN.** A FALSE PREMISE first: "culprit obvious" is in **1 of 72** reviews, not
+22 of 71 (UPDATE 3's figure) — the census counted "obvious generated artifacts"; "too early" is the mechanism
+explained early, 6 of 72, all May–June. The timeline complaint re-measures at ~41 of 72, so M1's premise
+stands. What readers DO name: the false solution without evidence behind it, 7 of 72 (11 praise it where
+present). MEASURED on the golden four: its supporting points owned by no chapter, and the accused cleared in
+ch 5, before ch 6 accuses them — 4 of 4. ON: each point owned by one chapter after the crime and before the
+accusation; the clearance moved to the refuting chapter; the false-solution chapter argues from the named
+chapters with the accused on its page. **Withdrawn for harm:** re-owning culprit clues to the test (A_109
+§12) — P1 still leaves one live suspect before it; the variants that pass put 7–8 clues in the test chapter
+and no evidence against the culprit before it. **Withdrawn, premise false:** showing culprit clues without
+their conclusion — its effect in the model is only the constant assumed for it. **Left standing:** Agent 5
+writes 6–8 clues against the culprit and 0 against anyone else, 22 of 26 pre-test culprit observables name
+the culprit — an Agent 5 change, needing a paid harness.

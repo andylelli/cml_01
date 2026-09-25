@@ -114,7 +114,12 @@ export const buildContractInput = (ctx: OrchestratorContext): ContractInput => (
   primaryAxis: ctx.primaryAxis,
   targetLength: ctx.inputs.targetLength,
   proofSteps: isProofStepsEnabled(),
+  falseLead: isFalseLeadEnabled(),
 });
+
+/** A_109 step 6 — the false solution argued before it is refuted. Read at call time (ADR-0004). Default OFF. */
+export const isFalseLeadEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.PROSE_V2_FALSE_LEAD ?? "").trim());
 
 /** A_109 M3 — read at call time (ADR-0004). Default OFF. */
 export const isProofStepsEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
@@ -254,6 +259,15 @@ export const renderSceneContract = (contract: BookContract, chapter: number): st
   for (const withheld of scene.mustNotReveal) {
     if (withheld.what === "culprit") lines.push(`  The culprit is named in chapter ${withheld.until}.`);
     else if (withheld.what === "mechanism") lines.push(`  How the trick worked is shown in chapter ${withheld.until}.`);
+  }
+  // A_109 step 6 (`PROSE_V2_FALSE_LEAD`) — the false solution's points, each owned by one chapter,
+  // and the false-solution chapter told what it argues from. Absent without the flag.
+  for (const lead of scene.falseLeads ?? []) lines.push(`  ${TEMPLATE.falseLeadShown} ${lead.accused}: ${lead.point}`);
+  if (scene.falseCase) {
+    const from = scene.falseCase.shownIn;
+    const list = from.length === 1 ? `chapter ${from[0]}` : `chapters ${from.slice(0, -1).join(", ")} and ${from[from.length - 1]}`;
+    const breaks = scene.falseCase.brokenIn === chapter ? "and it breaks here" : `and it breaks in chapter ${scene.falseCase.brokenIn}`;
+    lines.push(`  The case against ${scene.falseCase.accused} ${TEMPLATE.falseCaseArgued} ${list} showed, ${breaks}.`);
   }
   for (const elimination of scene.eliminationsAllowed) {
     const closure = chapter > contract.roles.reveal;

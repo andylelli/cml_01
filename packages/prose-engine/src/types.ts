@@ -192,6 +192,10 @@ export interface SceneContract {
   proofSteps?: number;
   /** The reveal's own chapter when the test was performed earlier: the chapter it was seen in. */
   testSeenIn?: number;
+  /** A_109 step 6 — the false solution's supporting points this chapter shows (flag `PROSE_V2_FALSE_LEAD`). */
+  falseLeads?: Array<{ accused: string; point: string }>;
+  /** A_109 step 6 — on the false-solution chapter: whom it accuses, from which chapters, broken where. */
+  falseCase?: { accused: string; shownIn: number[]; brokenIn: number };
   words: { preferred: number; floor: number };
 }
 
@@ -298,6 +302,12 @@ export interface ContractInput {
    * in order. The worker sets it from `PROSE_V2_PROOF_STEPS` at call time; absent is today's behaviour.
    */
   proofSteps?: boolean;
+  /**
+   * A_109 step 6 — own the false solution's supporting points before it is argued, and move the
+   * accused's clearance after it (`false-lead.ts`). The worker sets it from `PROSE_V2_FALSE_LEAD` at
+   * call time; absent is today's behaviour.
+   */
+  falseLead?: boolean;
 }
 
 // ── drafting ─────────────────────────────────────────────────────────────────────────────────────

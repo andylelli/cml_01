@@ -8,7 +8,9 @@
  * discriminating test and lets it fall there.
  *
  * MEASURED before this was built: in 4 of 4 golden contracts, clues naming the culprit are owned by
- * chapters 4–7 with the test at 8; "guessed / obvious / gives it away" is in 22 of 71 reviews.
+ * chapters 4–7 with the test at 8. The reviews call the culprit too obvious in 1 of 72 — the rubric has
+ * no misdirection category, and A_95 M6 found the defect lands as "chapters circle the same
+ * information" — so this is a report on the SCHEDULE, not a predictor of the score (A_109 step 6).
  *
  * The likelihoods are deliberately COARSE (ASSUMED): each implicating clue multiplies the odds of the
  * people it implicates by IMPLICATE_RATIO, each clearing clue or clearance multiplies theirs by
@@ -39,6 +41,8 @@ export interface ReaderInput {
   revealChapter: number;
   /** Clues shown before the test without their conclusion (weaker: `WITHHELD_RATIO`). */
   withheld?: ReadonlySet<string>;
+  /** Evidence the contract shows that is not a clue — the false solution's points, owned (A_109 step 6). */
+  leads?: ReadonlyArray<{ chapter: number; implicates: string }>;
   /** Override the likelihood ratios — for the sensitivity check only; the report uses the constants. */
   ratios?: { implicate?: number; withheld?: number; clear?: number };
 }
@@ -84,6 +88,9 @@ export const walkReader = (model: CaseModel, input: ReaderInput): ReaderAnalysis
       const ratio = input.withheld?.has(clue.id) && chapter < input.testChapter ? withheldRatio : implicate;
       for (const n of clue.implicates) if (n in odds) odds[n] = odds[n]! * ratio;
       for (const n of clue.clears) if (n in odds) odds[n] = odds[n]! * clear;
+    }
+    for (const lead of input.leads ?? []) {
+      if (lead.chapter === chapter && lead.implicates in odds) odds[lead.implicates] = odds[lead.implicates]! * implicate;
     }
     for (const [name, at] of input.clearances ?? []) {
       if (at === chapter && name in odds) odds[name] = odds[name]! * clear;

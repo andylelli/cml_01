@@ -31,6 +31,9 @@ export const TEMPLATE = {
   // A_109 M3 — the reveal's walk through THE PROOF.
   proofWalk: "takes the case apart in",
   nameAfterSteps: "The name comes after the last step",
+  // A_109 step 6 — the false solution's points, owned; its chapter, argued from them.
+  falseLeadShown: "Found or said here, and taken as pointing at",
+  falseCaseArgued: "is argued here from what",
 } as const;
 
 /** Every template phrase, for the echo checker. */

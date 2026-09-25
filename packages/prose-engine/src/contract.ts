@@ -53,6 +53,7 @@ import { deriveCaseChronology, renderClockWords } from "@cml/cml";
 
 import { assignChapterRoles } from "./roles.js";
 import { assignTexture } from "./depth.js";
+import { applyFalseLead } from "./false-lead.js";
 import type {
   AftermathJob,
   BeatJobFields,
@@ -587,5 +588,7 @@ export const buildContractCore = (input: ContractInput): ContractCore => {
     const scene = core.scenes.find((s) => s.chapter === chapter);
     if (scene) scene.texture = texture;
   }
+  // A_109 step 6 — after texture, so the flag changes nothing but the false lead and the one clearance.
+  if (input.falseLead) core.notes.push(...applyFalseLead(caseBlock, core));
   return core;
 };

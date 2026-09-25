@@ -128,9 +128,11 @@ const caseSection = (caseBlock: Record<string, unknown>, core: ContractCore): st
     const accused = field(fs, "accused_suspect", "accusedSuspect");
     const flaw = field(fs, "the_one_flaw", "theOneFlaw");
     if (accused) lines.push(`The wrong answer the book argues first: ${accused}.`);
+    // A_109 step 6 — when a chapter owns a point, the bible says which, as it does for clues.
+    const ownedIn = new Map(core.scenes.flatMap((s) => (s.falseLeads ?? []).map((l) => [l.point, s.chapter] as const)));
     for (const point of asArray(fs.supporting_points)) {
       const p = typeof point === "string" ? text(point) : field(point, "point", "description");
-      if (p) lines.push(`  - ${p}`);
+      if (p) lines.push(`  - ${p}${ownedIn.has(p) ? ` — shown in chapter ${ownedIn.get(p)}` : ""}`);
     }
     if (flaw) lines.push(`  The one thing that breaks it: ${flaw}`);
   }

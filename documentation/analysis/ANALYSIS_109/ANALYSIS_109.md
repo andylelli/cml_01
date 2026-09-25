@@ -23,7 +23,7 @@ or **measures upward**. None of them adds a banned-phrase list.
 | # | fault (reviews) | method | stage | resolves | cost |
 |---|---|---|---|---|---|
 | M1 | timeline unclear / contradictory (22) | **Simple Temporal Network**, Floyd–Warshall | after Agent 3, before 5 | contradictions become impossible; one canonical timeline, the act as a window | £0 build, deterministic |
-| M2 | culprit obvious / early (22) | **Bayesian reader model**: posterior over suspects per chapter, entropy schedule | Agent 5 placement | culprit-pointing clues moved behind the test; suspense kept measurable | £0 build; one paid harness |
+| M2 | culprit obvious / early (22 — **CORRECTED: 1 of 72**, see Part III step 6) | **Bayesian reader model**: posterior over suspects per chapter, entropy schedule | Agent 5 placement | culprit-pointing clues moved behind the test; suspense kept measurable | £0 build; one paid harness |
 | M3 | too many mechanisms; list-like reveal (5 + 3) | **Dung argumentation framework** + **minimum hitting set** | Agent 3 check; reveal contract | the smallest proof that eliminates every innocent; the reveal says exactly that | £0 |
 | M4 | geography / route unclear (4) | **reachability graph**, shortest path (BFS) | Agent 2c/7.5 | a route the reader can follow, stated once as a path | £0 |
 | M5 | paraphrased repetition, recaps (64 + 20) | **MinHash / Jaccard shingles**, optionally embeddings | v2 checkers + guard | restated alibis and clue logic caught, not only verbatim copies | £0 |
@@ -67,8 +67,15 @@ name the timeline while the network is consistent: then the fault is presentatio
 
 ## M2 — A reader model: who does the reader suspect after each chapter?
 
-**The fault.** 22 reviews say the culprit is guessable or tied to the evidence early. MEASURED this
-session: in 4 of 4 golden contracts, clues whose observable names the culprit are owned by chapters
+**The fault.** 22 reviews say the culprit is guessable or tied to the evidence early.
+
+> **CORRECTED 2026-09-25 (Part III step 6) — a FALSE PREMISE.** Re-read sentence by sentence, the
+> reviews call the culprit too obvious **once in 72** ("Hale's possession of both masks is almost too
+> obvious", 2026-07-23). The 22 was the probe's: most of its "obvious" hits are "obvious generated
+> artifacts" and "obvious scaffold leakage"; "too early" is the MECHANISM explained early, 6 of 72, all
+> May–June. A_95 M6 had already said why: the rubric has no misdirection category, so the defect lands as
+> "chapters 3–8 circle the same information". What readers DO name is the false solution without
+> evidence behind it — 7 of 72 ask for it, 11 praise it where a book had one. MEASURED (continuing): in 4 of 4 golden contracts, clues whose observable names the culprit are owned by chapters
 4–7, the test at 8. In the 69, "the duplicate study key was recently found with Leonard Pike" is chapter 4.
 
 **The method.** Cheong & Young's Suspenser models suspense as a function of the reader's beliefs about
@@ -411,6 +418,11 @@ H = −Σ p log₂ p. Also record the argmax suspect per chapter.
 2. **False lead:** at the midpoint, the argmax is the false solution's accused, not the culprit.
 3. **Collapse:** after the test, the culprit's posterior ≥ 0.9.
 
+> **WITHDRAWN for harm (Part III step 6).** Simulated on the four golden contracts: re-owning every
+> culprit clue to the test still leaves one live suspect before it (the clearances do the eliminating);
+> the variants that pass move 8–9 items and put 7–8 clues in the test chapter, with no evidence against
+> the culprit before it. What was built instead is the false solution argued before it is refuted.
+
 **The fix, when the floor breaks.** The clue that breaks it is re-owned to the test chapter (the
 contract already moves clue ownership; `mayMention` handles references), or a red herring pointing
 elsewhere is moved into the same chapter. This is a **re-scheduling of existing clues**, not new text,
@@ -545,7 +557,9 @@ project has needed after the fact too often (§06 W1).
 
 Stated now, checked after (CLAUDE.md):
 1. No timeline contradiction named by the reader (M1). Today: 22 of 71 reviews.
-2. The reader does not call the culprit obvious (M2). Today: 22 of 71.
+2. ~~The reader does not call the culprit obvious (M2). Today: 22 of 71.~~ **Replaced (step 6):** the
+   reader does not call the false solution weak, thin, odd or blurred with the real one. Today: 7 of 72
+   ("the false solution would be stronger if one clue genuinely points to her before being overturned").
 3. The reveal is described as landing, not listing (M3).
 4. "Repetitive" or "recap" is not the reader's first complaint (M5).
 5. No catchphrase named as a tag (M6).
@@ -556,6 +570,8 @@ Stated now, checked after (CLAUDE.md):
 
 - **M1 finds almost no inconsistent cases** in the archive: then the timeline complaint is about how the
   prose STATES times, not about the case — move the effort to the reveal's one timeline sentence.
+- **REACHED (step 6), in its first half:** the floor breaks on 4 of 4, and re-scheduling was withdrawn for
+  harm before a fair-play pass was worth paying for. Its conclusion stands — see Part III step 6.
 - **M2's floor breaks on every case and re-scheduling breaks fair play**: then clue placement is not the
   lever; the culprit-pointing clues are too strong in themselves (Agent 5's wording).
 - **M6 diversifies tics and dialogue does not move**: WP-001 §8's result — diversity is not what the
@@ -580,7 +596,7 @@ Telemetry in a run: `AGENT3_CASE_LOGIC=true` in `.env.local`.
 | 3 | M5 recaps — Broder CONTAINMENT, not resemblance: a clue restated past its owner chapter (≥ 60% and ≥ 3 of its stemmed content words), an ALIBI window given again after the chapter that first gave it; test and reveal exempt | built | f40729d1 | the 69: Margot's 9:00–10:00 given in ch 2, 5, 7, 8 — a named person in the sentence was required first and found **0 of 4** ("I was in the kitchen…"), so the key is the window. Keyed on EVERY window it fired on 112 of 228 books and flagged pair 3's tide window 13 times — an off switch; the pipeline tracks only the case's alibi windows. **Exact**, not MinHash: a book is a few hundred sentences. **Guard not built**: the edit guard sees one chapter, a recap is defined against other chapters' facts; the six-word-run guard covers the verbatim splice. Archive line in `report:case-logic` |
 | 4 | M3 — does the case prove itself: Dung grounded extension (culprit proven iff every cover — the false assumption, the culprit's alibi — is defeated by the test or an implicating clue; an innocent nothing clears is a second live suspect; a clearance aimed at the culprit is a contradiction). Report-only (`AGENT3_CASE_LOGIC`). **THE PROOF** — the case's inference path, first sentence of each step — added to the bible, and the reveal asked to walk it in N steps, one sentence each, the name last: flag `PROSE_V2_PROOF_STEPS` (off) | built | 417bb086 | golden: proven 4 of 4, every innocent cleared, no contradiction — **after** the clue reader was fixed: it first read `clue_charles_alibi_conflict` as clearing the culprit and a negated footprint match as implicating; `CaseModel` now reads each clue's own `inference` clause by clause (88 of 88 golden clues carry one) into `clears` / `implicates`. MEASURED: the v2 bible never carried the inference path. **Withdrawn:** the "busy case" count (minimum hitting set) — the case never says which evidence defeats which part of the cover, so the count would be invented. **Found on the way:** two regexes had lost their `\b` to a Python non-raw string (the CLAUDE.md heredoc warning); swept every file changed this session — only this one |
 | 5 | M2 reader model, report-only: a posterior over the suspects walked through the contract's clue OWNERSHIP (the chapter each clue is first shown in) and its stated clearances; entropy per chapter; the culprit as favourite (p ≥ 0.5, strictly ahead) before the test; the false accused leading at the midpoint; resolved at the reveal (≥ 0.9). Likelihoods from `CaseModel`'s clause-read `implicates` / `clears` (×4 / ×0.05). Telemetry line under `AGENT3_CASE_LOGIC`; archive line in `report:case-logic` | built | 87f9c276 | golden: the culprit is the favourite from ch **4** (3 cases) or **5** (1), the test at 8 — **4 of 4, as predicted**; one live suspect from the same chapter; the false accused leads at the midpoint **0 of 4**. **Structural, not the constants'**: unchanged at each of six implicate ratios from 1.25 to 8 and at clear ratios 0.05 and 0.3 — no clue in any of the four implicates anyone but the culprit. Pinned: `a109-case-logic-reader.test.ts` (hand schedules), `fresh-read-checkers.test.ts` (golden), `agent9-v2-dry-run.test.ts` (flag) |
-| 6 | M2 re-scheduling behind a flag | not started | | |
+| 6 | ~~M2 re-scheduling~~ → **the false solution argued before it is refuted**, flag `PROSE_V2_FALSE_LEAD` (off): each of the case's `false_solution.supporting_points` owned by one chapter after the crime and before the false-solution chapter (the accused's own chapters first), asked for as a thing found or said; the accused's clearance moved from before the accusation to the chapter that refutes it (`refuted_in_chapter` when it falls from the false-solution chapter to before the reveal, else the false-solution chapter); that chapter told which chapters it argues from, with the accused on its page; the bible marks each point "shown in chapter N" | built | (this commit) | **Premise corrected:** "culprit obvious" is in **1 of 72** reviews, not 22 of 71 (the census counted "obvious generated artifacts"). **MEASURED defect, golden 4 of 4:** every supporting point unowned; the accused CLEARED IN CHAPTER 5, one chapter before chapter 6 accuses them (the case's own `suspect_clearance_scenes` at the alibis scene; its `refuted_in_chapter` 6); the accused off the false-solution chapter's page in 2 of 4. Readers: 7 of 72 ask for evidence behind the false solution ("a false solution is stronger when it also has a physical clue"), 11 praise it where present; one: "the false solution works, but the wrong people are present". ON, golden: points owned in ch 3–5, clearance 5 → 6, 4 of 4; the reader model makes the accused the favourite for one or two chapters in 2 of 4 — the culprit still leads from ch 4–5 in 4 of 4, because three culprit clues land together in ch 4. **Withdrawn for harm:** re-owning culprit clues to the test (P1 still one live suspect; P2/P3 pile 7–8 clues into the test and leave no culprit evidence before it). **Withdrawn, premise false:** showing culprit clues without their conclusion — its modelled effect is only the ×1.5 assumed for it. **Root cause left standing:** Agent 5 writes 6–8 clues implicating the culprit and 0 implicating anyone else; 22 of 26 pre-test culprit observables name the culprit ("only Charles Montague had the skill and access…" is owned by the false-solution chapter itself) — an Agent 5 change, needing a paid harness. Pinned: `false-lead.test.ts`, `agent9-v2-scene-contract.test.ts` |
 | 7 | M6 verbalized tics behind a flag | not started | | |
 | 8 | M4 route | not started | | |
 | 9 | M8 upward instrument + calibration | not started | | |
