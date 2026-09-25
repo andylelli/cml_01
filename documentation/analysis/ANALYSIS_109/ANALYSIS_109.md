@@ -266,3 +266,292 @@ register rate's.
 8. [Azure OpenAI REST API reference — logit_bias](https://learn.microsoft.com/en-us/AZURE/ai-services/openai/reference); [Using logit bias (OpenAI Help)](https://help.openai.com/en/articles/5247780-using-logit-bias-to-alter-token-probability-with-the-openai-api)
 9. [How do I use logit bias to ban phrases and not just individual tokens?](https://community.openai.com/t/how-do-i-use-logit-bias-to-ban-phrases-and-not-just-individual-tokens/263856)
 10. [MAUVE: Measuring the Gap Between Neural Text and Human Text (NeurIPS 2021)](https://arxiv.org/abs/2102.01454)
+
+---
+---
+
+# PART II — HOW WE BUILD THEM
+
+## 9. What the pipeline already holds — MEASURED on the golden cases
+
+The methods need structured facts. Most exist; two do not.
+
+| need | where it is today | state |
+|---|---|---|
+| time-points and windows | `CASE.constraint_space.time.anchors[]`, `.windows[]`, `.contradictions[]` (strings); parsed by `deriveCaseChronology` (`packages/cml/src/chronology.ts:308`) into `ChronoEvent` / `ChronoInterval` with dials | **present** — M1 reads the parse, not the strings |
+| each suspect's alibi and access | `CASE.cast[].alibi_window`, `.opportunity_channels[]`, `.motive_strength` | present, free text for the window |
+| the proof chain | `CASE.inference_path.steps[]` with `observation`, `correction`, `effect`, `required_evidence[]` | present |
+| what each clue points at | `clues[].pointsTo`, `supportsInferenceStep`, `criticality`, ids like `clue_culprit_direct_*`, `clue_eliminate_*` | present |
+| the false solution | `CASE.false_solution`, `false_assumption`, `red_herrings[]` | present |
+| which chapter owns each clue | the v2 contract (`scenes[].mustSurface`) | present |
+| locations, access rules | `location_profiles.keyLocations[]` with `accessControl` | present |
+| **which location connects to which** | nowhere | **absent** — M4 needs an Agent 2c field |
+| **embeddings, token log-probabilities** | `packages/llm-client` exposes chat only | **absent** — M5 and M6 are specified to run without them; M8 needs one embedding call |
+
+**One shared structure.** M1–M4 all read the same facts. Build them once as a `CaseModel` in a new pure
+package, `packages/case-logic`, with no LLM client, so every method is replayable over the archive for
+£0 (the property `prose-engine` was built for, A_99 §10):
+
+```ts
+interface CaseModel {
+  suspects: Suspect[];            // name, alibi {from,to} in minutes, channels, motive strength
+  culprits: string[]; victim: string;
+  events: TimePoint[];            // from deriveCaseChronology: id, label, dial (minutes), source
+  windows: Interval[];            // from/to TimePoint ids, label
+  clues: ClueFact[];              // id, owner chapter, pointsTo suspect(s), eliminates suspect(s), step
+  steps: InferenceStep[];         // observation → correction → effect, required clue ids
+  places?: Place[]; edges?: Edge[]; // M4, once Agent 2c emits them
+}
+```
+
+`buildCaseModel(cml, clues, contract?)` is the only parser. Every method below is a pure function of it.
+
+---
+
+## 10. M1 — the STN, built
+
+**Module.** `packages/case-logic/src/stn.ts`.
+
+**Encoding.** A special time-point *Z* = midnight of the day. Each event with a dial gives two edges
+Z→e (dial) and e→Z (−dial): it is pinned. Each window "between A and B: X happens" gives X.start, X.end
+with Z→X.start ≤ B, X.start→Z ≤ −A, and X.start→X.end ≥ 0. Each alibi gives the suspect's
+"away" interval. Each ordering the case states ("body discovered after the act") gives an edge of weight 0
+or −1. The false timeline gets its own copy with the false assumption's anchor pinned.
+
+**Algorithm.** Floyd–Warshall on n ≤ 40 points (64,000 steps). Consistent iff every diagonal entry
+d[i][i] ≥ 0. On a negative cycle, walk the predecessor matrix to recover the cycle's edges — each edge
+carries the id of the CML sentence it came from.
+
+**Outputs.**
+1. `consistent: boolean`, and on failure `conflict: { statements: string[] }` — the case's own sentences
+   that cannot all be true.
+2. `minimal: Map<eventId, {earliest, latest}>` — the tightest bounds.
+3. `actWindow: {from, to}` — the act's minimal bounds, which replaces the regex search for an interval
+   "about the act" (P3.2) with a derived one.
+4. `breaksFalseTimeline(testFact)` — adds the discriminating test's result to the FALSE network and
+   reports whether it becomes inconsistent. A test that does not break the false timeline is a case fault.
+
+**Where it plugs in.**
+- **After Agent 3, before Agent 5** (worker `agents/agent3-run.ts` post-validation): an inconsistent
+  network is a CML validation error with the named statements, sent to Agent 4 revision as the repair
+  instruction. Flag `CASE_LOGIC_STN_GATE`, default OFF, registered in `architecture/FLAG-AUDIT.md`.
+  Report-only first (CLAUDE.md: a gate driving retries is costly; measure how often it fires).
+- **In the v2 contract**: `buildChronologyTable` takes the minimal bounds as THE CLOCK; the reveal's
+  `opportunityWindow` takes `actWindow`.
+
+**Tests.** Known-positive: a hand CML with "last seen 10:15" and "killed between 9:50 and 10:05" → a
+negative cycle naming both. Known-negative: the four golden cases → consistent (or, if not, each
+conflict read by hand and recorded). Replay: run over every archived CML (`data/store.json` on the
+laptop) and record the inconsistency rate — **the first number this method produces, before any change
+is made.**
+
+**Effort.** ~300 lines + tests. **Risk.** Free-text times that do not parse are unplaced; the report
+must say how many facts were unplaced, so a "consistent" verdict over half the facts is not believed.
+
+---
+
+## 11. M5 — MinHash near-duplicates, built
+
+**Module.** `packages/prose-engine/src/near-dup.ts` (prose-side, beside the checkers).
+
+**Algorithm.**
+1. Units: sentences (the shared `splitSentences`), narration and speech alike.
+2. Shingles: stemmed content words (the `contentStemsOf` already built for F7), as word 3-shingles.
+   Units under 5 content words are skipped.
+3. MinHash signature of 64 hashes per unit (FNV or murmur32 with 64 seeds — no dependency needed);
+   LSH with 16 bands × 4 rows gives ≈ 50% capture at Jaccard 0.5 and ≈ 99% at 0.8.
+4. Candidate pairs in different paragraphs → exact Jaccard on the shingle sets → keep ≥ 0.5.
+5. **Only case facts count as recaps**: a pair is reported if it shares a clue's key terms
+   (`mustSurface.keyTerms`) or a suspect's alibi window. General near-duplicates are measured, not
+   reported, until the corpus shows their precision.
+
+**Outputs.**
+- Finding `recap` (craft): "chapter 7 restates chapter 5's <clue/alibi>; keep the owner's version
+  (chapter 5), make this a reference in one clause". The owner is the contract's chapter for that fact.
+- Guard `noNewNearDuplicate`: an edit may not raise the chapter's count of pairs ≥ 0.5 with other
+  chapters. Emitted as a violation per pair, the way `noNewDuplicate` is (§06 F6).
+- Ship-check line: near-duplicate pairs per 10k words.
+
+**Tests.** Known-positive: the 69's four statements of Margot's alibi (ch 2, 5, 7, 8) → 3 pairs.
+Known-negative: the 88 (reads "repetition 12.0 per 10k, normal") → recorded count, and a precision read
+of 20 random pairs by hand before the finding goes to the editor.
+
+**Effort.** ~200 lines. **Risk.** Callbacks the author wants; the owned-fact restriction keeps it to
+case facts, where a restatement is always a recap.
+
+---
+
+## 12. M2 — the reader model, built
+
+**Module.** `packages/case-logic/src/reader.ts`.
+
+**Likelihoods, without an LLM.** Each clue gets a row L[c][s] over suspects:
+
+| clue kind (from id, `pointsTo`, observable) | L for the suspect it names | L for others |
+|---|---|---|
+| names the culprit (`clue_culprit_direct_*`, observable contains the name) | 0.8 | 0.2 / (n−1) each, normalised |
+| eliminates *s* (`clue_eliminate_*`, alibi confirmed) | ~0 for *s* | uniform over the rest |
+| red herring toward the false suspect | 0.6 for the false suspect | rest shared |
+| mechanism / time clue that names nobody | uniform (no information) | uniform |
+
+The table is deliberately coarse; its job is to catch "this clue alone points at one person", not to
+simulate a reader.
+
+**Walk.** Prior uniform over suspects (not the detective, not the victim). For chapters 1…N in contract
+order, multiply in each owned clue, normalise, record the posterior and its entropy
+H = −Σ p log₂ p. Also record the argmax suspect per chapter.
+
+**Checks, reported per case.**
+1. **Floor:** H ≥ 1 bit (two live suspects) for every chapter before the test.
+2. **False lead:** at the midpoint, the argmax is the false solution's accused, not the culprit.
+3. **Collapse:** after the test, the culprit's posterior ≥ 0.9.
+
+**The fix, when the floor breaks.** The clue that breaks it is re-owned to the test chapter (the
+contract already moves clue ownership; `mayMention` handles references), or a red herring pointing
+elsewhere is moved into the same chapter. This is a **re-scheduling of existing clues**, not new text,
+so it is £0 at the prose stage. It is a contract-level change in `prose-engine/contract.ts` behind flag
+`PROSE_V2_SUSPENSE_FLOOR` (default OFF).
+
+**Tests.** Known-positive: the four golden contracts — culprit clues owned by ch 4–7 (MEASURED) → the
+floor breaks before ch 8. Known-negative: a hand contract with culprit clues at the test.
+**Paid step.** One Agent 6 fair-play pass on a re-scheduled contract, to confirm moving a clue later does
+not strand an inference step before it is needed.
+
+**Effort.** ~250 lines. **Risk.** Over-delaying clues makes the test feel unearned; the collapse check
+keeps the decisive clue at or before the test.
+
+---
+
+## 13. M3 — the proof core, built
+
+**Module.** `packages/case-logic/src/proof.ts`.
+
+**Framework.** Arguments: `innocent(s)` for each suspect, `guilty(culprit)`, and one argument per clue.
+Attacks: an elimination clue attacks `guilty(s)` for the suspect it clears; a clue that breaks an alibi
+attacks `innocent(s)`; the false assumption attacks the clues that contradict it until the test clue
+attacks it. The grounded extension is computed by the standard fixpoint: start with unattacked arguments,
+repeatedly add every argument all of whose attackers are attacked by the set, until nothing changes.
+
+**Checks.**
+1. `guilty(culprit)` ∈ grounded extension — **the case proves itself**. If not, it is a fair-play fault
+   before prose (Agent 6 checks this by LLM today; this is the exact version).
+2. Every false suspect's `innocent(s)` ∈ grounded extension — **everyone is cleared by something**.
+
+**Minimum hitting set.** Universe: the false explanations (each innocent, the false assumption). Each
+clue covers the explanations it defeats. Smallest cover by brute force over ≤ 20 clues (2²⁰ ≈ 1M subsets,
+milliseconds with pruning) or greedy. The result is the proof core, typically 3–4 clues.
+
+**Outputs.**
+- `busy: number` = |hitting set|; reported to Agent 3/4 and the ledger (the ledger will say whether it
+  predicts the plot mark — the compound-test result says it may not).
+- **The reveal contract** gets `proofCore: {clue, breaks}[]`, rendered as one line per element:
+  "<the thing found> breaks <the false explanation>". The v2 reveal already carries weapon, window and
+  confession (P1.2–P1.5); this adds the order of the proof, which the 74's reader wrote out by hand.
+
+**Tests.** Known-positive: a hand case where the culprit is not grounded (a clue missing) → reported.
+Golden cases → grounded, hitting sets recorded. **Effort.** ~250 lines.
+
+---
+
+## 14. M4 — the route, built
+
+**Schema change (Agent 2c).** `keyLocations[].connectsTo: {name, via, access}[]` — "the study connects
+to the service passage via a baize door, staff only". One field on an existing agent; a prompt addition
+and a harness run (pennies).
+
+**Module.** `packages/case-logic/src/route.ts`. Places as nodes, `connectsTo` as edges, access rules as
+edge labels. BFS from the culprit's alibi place to the scene of the crime and back, allowing a "secret"
+edge only if the mechanism names it.
+
+**Checks.** A path exists; its length in edges fits `actWindow` at an assumed minutes-per-edge; the
+secret edge (if any) is on the path.
+**Output.** The reveal contract gets `route: string[]`, rendered once: "<place> → <place> → <place>".
+**Owner.** Agent 7.5 (`story-geometry`) already owns "the method's physical signature"; the route is its.
+**Effort.** Schema + ~150 lines. **Paid step:** the Agent 2c harness.
+
+---
+
+## 15. M6 — distinct voices, built
+
+**Where.** Agent 2b (character profiles), the `signatureTic` field first — the most countable (WP-001
+§8).
+
+**Call shape (Verbalized Sampling).** One call per cast, asking for five candidate lines per character
+with a probability each, in the existing JSON profile schema extended with `ticCandidates: {line, p}[]`.
+No prohibition list (WP-001 §6.0).
+
+**Selection (no embeddings needed).**
+1. Drop each character's highest-probability candidate — the mode.
+2. Similarity between two lines = Jaccard over character 4-grams (cheap, deterministic). Also score each
+   candidate against the archive's tic census (A_91 §9.2, 377 tics) — a candidate within 0.5 of any
+   archived tic is dropped.
+3. **Greedy k-DPP**: pick one line per character to maximise log det of the kernel
+   K = diag(q) · S · diag(q), where S is the similarity matrix and q the candidate's verbalised
+   probability rescaled to favour the tail. Greedy MAP for a DPP adds, at each step, the candidate with the
+   largest marginal gain in log-determinant — a few lines of linear algebra on a 5×7 matrix.
+4. The chosen line becomes `signatureTic`; the rest are kept in the artifact for audit.
+
+**Measure (£0, before any read).** The template share (tics opening "One must/Let's/Well, isn't/Darling")
+— today 34% (WP-001 §6.1 O3). Prediction: under 10%. Then WP-001 §8's falsification: if tics diversify
+and dialogue stays at 6–7, diversity is not what the reader scores.
+
+**Flag.** `AGENT2B_VERBALIZED_TICS`, default OFF. **Effort.** prompt + ~120 lines. **Cost.** one call's
+extra output tokens.
+
+---
+
+## 16. M8 — the upward instrument, built
+
+**Minimal version first, no embeddings:** per book, compute **distinct-2** and **distinct-3** (unique
+bigrams/trigrams over total), the **p90 sentence length**, and **em-dash and semicolon rates** — the tail
+measures WP-001 §5.2 says carry voice — against the canon corpus's values (A_79 §13). One score:
+the mean absolute z-distance from canon across these, lower is better.
+
+**MAUVE version:** needs an embedding endpoint added to `llm-client` (Azure OpenAI offers one); embed 500
+paragraphs of the book and 500 of canon, quantise with k-means (k ≈ 50), compute the divergence frontier.
+~£0.02 per book.
+
+**Calibration before use (CLAUDE.md).** Correlate each against the external-read ledger with
+`words >= 8000`. It is adopted only if |r| exceeds machine-register rate's 0.697 on the same books, and
+only as a screen for prose pairs — never a gate.
+
+---
+
+## 17. Order, dependencies and what each step settles
+
+| step | builds | depends on | cost | settles |
+|---|---|---|---|---|
+| 1 | `case-logic` package, `CaseModel` | — | £0 | the parse every method shares; how many facts are unplaced |
+| 2 | M1 STN, report-only | 1 | £0 | how many archived cases are inconsistent — measured before anything changes |
+| 3 | M5 MinHash recap finding + guard | shared splitter (built) | £0 | recaps per book; precision by hand on 20 pairs |
+| 4 | M3 proof core → reveal contract | 1 | £0 | grounded or not; hitting-set size per case |
+| 5 | M2 reader model, report-only | 1, contract ownership | £0 | how many cases break the entropy floor (golden: 4 of 4 predicted) |
+| 6 | M2 re-scheduling behind flag | 5 | one Agent 6 pass | fair play survives the move |
+| 7 | M6 verbalized tics behind flag | — | pence | template share 34% → < 10% |
+| 8 | M4 route (schema + BFS) | 1, Agent 2c harness | pennies | a stated route per case |
+| 9 | M8 minimal instrument + calibration | the ledger | £0 | whether any upward measure beats register rate |
+| 10 | one read | 2–7 | a run + a read | the bundle, scored by category, on a **fresh behavioural or spatial seed** |
+
+Steps 2, 4 and 5 are **report-only first**: each prints its verdict over the archive before it changes a
+single contract, so the first thing we learn is how often the fault exists — the premise check this
+project has needed after the fact too often (§06 W1).
+
+## 18. Predictions for the read that closes step 10
+
+Stated now, checked after (CLAUDE.md):
+1. No timeline contradiction named by the reader (M1). Today: 22 of 71 reviews.
+2. The reader does not call the culprit obvious (M2). Today: 22 of 71.
+3. The reveal is described as landing, not listing (M3).
+4. "Repetitive" or "recap" is not the reader's first complaint (M5).
+5. No catchphrase named as a tag (M6).
+6. Plot and clues each ≥ 8 — the two marks the case-level methods aim at; with prose held at the 74's
+   level, a headline of 82–86 on a fresh case.
+
+## 19. What would stop this programme
+
+- **M1 finds almost no inconsistent cases** in the archive: then the timeline complaint is about how the
+  prose STATES times, not about the case — move the effort to the reveal's one timeline sentence.
+- **M2's floor breaks on every case and re-scheduling breaks fair play**: then clue placement is not the
+  lever; the culprit-pointing clues are too strong in themselves (Agent 5's wording).
+- **M6 diversifies tics and dialogue does not move**: WP-001 §8's result — diversity is not what the
+  reader scores; stop spending on voice selection.
