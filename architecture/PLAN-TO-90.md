@@ -3044,3 +3044,10 @@ reads: v1 12,652 words, names the killer and gives his reason, weapon linked at 
 words, last three chapters 414–676 words, never names the killer (its own gate says so). v1 repeats
 more. The reads decide the prose; on structure v1 is ahead. Also found on the way: the sanitizer was
 deleting unterminated sentence tails and pushing 6.8% of chapter drafts to odd quote counts (A_106 §5).
+
+**§32 UPDATE 15 — the engine pair read (A_108 §3–§4).** v1 **85**, v2 **84**, one case, same reader.
+Tied on the headline (inside ±3); split by category as predicted — v1 ahead on clues and ending (the
+culprit performs the proof himself), v2 ahead on prose. The prediction that the v2 read would say the
+culprit is never named failed: the reader quoted his confession, and v2's own naming gate was a false
+alarm. Case-level defects shared by both: the tide read as an instant, the wound in the upper arm,
+chapter 9 recapping alibis because the outline titles it "Clearing the Innocent".

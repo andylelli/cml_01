@@ -68,15 +68,62 @@ the reader who did it — the complaint A_102 spent this whole effort removing.
 
 ## §3 THE READS
 
-**Prediction, stated before either read:** v1 scores higher, carried by `ending` and `clues`; the v2 read
-says in some form that the culprit is never named or the reveal is flat, and may credit v2's prose
-economy. A v2 win would mean the reader values the leaner prose over the missing reveal, and would
-overturn the measurements above.
+**Prediction, recorded before either read:** v1 higher, on `ending` and `clues`; the v2 read says the
+culprit is never named; the v2 read may credit leaner prose.
 
-(pending — both manuscripts to the same reader with the same rubric)
+| category | v1 | v2 |
+|---|---|---|
+| premise | 9 | 9 |
+| opening hook | 8 | 8 |
+| plot structure | 8 | 8 |
+| character clarity | 8 | 8 |
+| dialogue | 8 | 8 |
+| atmosphere | 9 | 9 |
+| **clues / evidence logic** | **8** | 7 |
+| pacing | 8 | 8 |
+| **ending / reveal** | **8** | 7 |
+| **prose / polish** | 7 | **8** |
+| character life | 8 | 8 |
+| humour / wit | 8 | 8 |
+| **headline** | **85** | **84** |
+
+**Against the prediction:**
+
+- **v1 higher, on ending and clues — held,** by one mark each. The reader's reason is specific: in v1
+  the culprit himself performs the climb that proves the route; in v2 Bertram does it, which *"proves
+  the method is possible, but not that Desmond could do it."*
+- **v2 credited for prose — held:** *"cleaner, more polished… better dialogue and polish."*
+- **"The v2 read says the culprit is never named" — FAILED.** The reader named Desmond without
+  difficulty and quoted a confession with a motive, *"Had I not acted, she would have ruined me…"*,
+  which my probe missed (no verb of killing) and v2's own final gate also missed. **v2's STOP line
+  was a false alarm for a reader.** The reader's complaint was different: the confession is too brief.
+
+**Shared by both books, so owned by the case, not the engine:** the 3:20 low tide read as an instant
+rather than a window; the fatal wound placed in the upper arm; chapter 9 recapping alibis. That last
+one matters for A_107: v1's chapter 9 carried no mandatory clearance block, yet the reader still saw
+alibi recaps — the outline's own scene 9, titled *"Clearing the Innocent"*, drives them without an
+obligation. The veto removed the order; the title still asks.
+
+**v1's prose losses are the pipeline's register:** *"The truth remained elusive"*, *"The room held its
+breath"*, *"The evidence is complete"*, and *"the six words slicing through his own speech"* — a word
+count in narration, which the short-answer rule forbids in terms.
 
 ## §4 WHICH IS BETTER, AND HOW SURE
 
-(pending) The rule this will be judged by: one read carries about ±3 marks, and no instrument this
-project owns separates two books under about 7 marks apart. A headline gap smaller than that is not a
-winner; the category marks and the defects each reader names decide it, and a tie is a valid answer.
+**Neither, on this pair.** 85 against 84 is inside one read's ±3 marks, and the rule set before the
+reads was that a gap under ~7 marks is not a winner. The categories split exactly as predicted: v1 is
+better at proving the act, v2 is better at sentences.
+
+**The tiebreak is not quality, it is cost and what each needs.**
+
+| | v1 | v2 |
+|---|---|---|
+| prose cost on this case | most of a $1.29 run | about $0.30 |
+| length | 12,652 words | 8,044 words |
+| what it lost marks on | scaffold register spread across the book | one chapter's proof: who performs the test, a two-line confession |
+| robustness | wrote a violent case unaided | needed the content-filter retry to write at all |
+
+**MEASURED on one pair; INFERRED beyond it.** One pair cannot rank two engines, and
+[[rubric-cannot-rank-two-books]] applies to reads too. What this pair does settle: v2 is not worse than
+v1 on the reader's marks, costs a fraction of it, and loses on things that live in one chapter's
+contract; v1 loses on things spread across every chapter.
