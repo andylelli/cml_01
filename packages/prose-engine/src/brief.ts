@@ -28,6 +28,7 @@
 
 import type { Brief, BriefAsk, ContractCore } from "./types.js";
 import { estimateTokens } from "./bible.js";
+import { humourMove } from "./humour-move.js";
 
 export const BRIEF_BUDGET = 1_500;
 
@@ -148,10 +149,11 @@ export const buildBrief = (input: BriefInput): Brief => {
    */
   for (const profile of profiles) {
     const name = text(profile.name);
-    const style = text(profile.humourStyle).replace(/_/g, " ");
+    const style = text(profile.humourStyle);
     const strength = Number(profile.humourLevel ?? 0);
     if (style && style !== "none" && strength > 0) {
-      add("register", `${name} is funny in one way only: ${style}.`);
+      // P4.2: the move, not the label — "polite savagery" came back on the page as a tag.
+      add("register", `${name} is funny in one way only: ${humourMove(style)}.`);
     } else {
       add("register", `${name} is in earnest throughout, and the others' wit lands against that.`);
     }
@@ -245,7 +247,11 @@ export const buildBrief = (input: BriefInput): Brief => {
   for (const chapter of closure) {
     add(
       "tests",
-      `Chapter ${chapter} gives each suspect the arrest has already cleared one human beat — an apology, a thanks, a resentment said aloud, an assumption admitted — and their legal position is settled in a clause.`,
+      // 17-hitting-90, pair 2 (2026-09-25): "settled in a clause" is a qualifier, and the qualifier
+      // dropped — chapter 9 re-cleared all three suspects with their clock values, the complaint 3
+      // of the last 4 reads made. The count of a simple thing: one sentence, the name and the word.
+      `Chapter ${chapter} gives each suspect the arrest has already cleared one human beat — an apology, a thanks, a resentment said aloud, an assumption admitted. ` +
+        `Their legal position is one sentence of the investigator's: the suspect's name and the word "cleared", and the next sentence is what that suspect does with their hands. The clock values belong to chapter ${core.roles.reveal} and were said there.`,
     );
   }
 

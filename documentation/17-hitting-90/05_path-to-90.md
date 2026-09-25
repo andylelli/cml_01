@@ -78,6 +78,13 @@ next.
 **Result (2026-09-25):** predictions 2–4 failed — the taper moved inside each call (`02` P1.1). Pair 2
 is therefore chapter-per-call (`PROSE_V2_SEGMENT_CHAPTERS=1`) plus the reveal package.
 
+**Pair 2 result (2026-09-25, `resume-1790333881166`):** 13,308 words, no taper, every length
+prediction held; the six reveal predictions held (the innocent's attempt is a look, not a climb);
+111 em-dashes on the page; $1.01. Not sent to a reader: my own read found sixteen printed humour
+labels and chapter 9 re-clearing every suspect with clock values — both known causes with fixes
+built the same afternoon. **Pair 3** = pair 2 + P4.1 (abstract-subject finding) + P4.2 (moves, not
+labels) + the closure amendment; it goes to the reader if my own read passes it.
+
 **Pair 2 — the reveal package (P1.2–P1.7).** Bundled: they touch the test, reveal and aftermath
 chapters only, which pair 1 does not change. Predictions, each checkable by reading chapter 8–10:
 1. an innocent suspect attempts the test's physical step and fails; the culprit performs it;

@@ -386,3 +386,33 @@ describe("the editor's prompt and parser", () => {
     expect(line).toMatch(/clockValuesIntact 2/);
   });
 });
+
+describe("17-hitting-90 P4.1 — the abstract subject", () => {
+  const written: ProseChapterLike[] = [
+    chapter([
+      "The room held its breath as the clock struck the half hour and nobody moved.",
+      "Norbury held the door for her and said nothing at all about the letter.",
+      '"The room held its breath, you know," Bertram said, and laughed at his own line.',
+      "The truth remained elusive, and the evidence continued to mount against the wrong man.",
+    ]),
+  ];
+  const findings = collectCheckerFindings(written, core, [1]).filter((f) => f.class === "abstract_subject");
+
+  it("KNOWN-POSITIVE: the room that held its breath and the truth that remained elusive", () => {
+    expect(findings.map((f) => f.quote)).toEqual([
+      "The room held its breath as the clock struck the half hour and nobody moved.",
+      "The truth remained elusive, and the evidence continued to mount against the wrong man.",
+    ]);
+  });
+
+  it("a person as subject, and a line of dialogue, are not findings", () => {
+    expect(findings.some((f) => /Norbury held the door/.test(f.quote))).toBe(false);
+    expect(findings.some((f) => /Bertram said/.test(f.quote))).toBe(false);
+  });
+
+  it("every one is anchored and classed as craft", () => {
+    const { discarded } = anchorFindings(findings, new Map([[1, written[0]!]]));
+    expect(discarded).toEqual([]);
+    expect(findings.every((f) => f.severity === "craft")).toBe(true);
+  });
+});

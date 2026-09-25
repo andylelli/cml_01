@@ -133,3 +133,71 @@ describe("the per-chapter contract carries the operations the book missed", () =
     }
   });
 });
+
+describe("17-hitting-90 — after the reveal, a clearing title fits no chapter", () => {
+  // Five chapters, so a clearance chapter sits BETWEEN the reveal (3) and the aftermath (5), as pair 2's chapter 9 did.
+  const five = buildBookContract({
+    cml: {
+      CASE: {
+        culpability: { culprits: ["Nora Quayle"] },
+        victim: { name: "Montague Gaunt" },
+        cast: [
+          { name: "Nora Quayle", role_archetype: "suspect" },
+          { name: "Bertram Norbury", role_archetype: "detective" },
+          { name: "Montague Gaunt", role_archetype: "victim" },
+        ],
+        hidden_model: { mechanism: { description: "a compass held at a habitual tilt" } },
+        prose_requirements: { clue_to_scene_mapping: [] },
+      },
+    },
+    clues: { clues: [] },
+    outline: {
+      acts: [
+        {
+          scenes: [
+            { sceneNumber: 1, act: 1, beat: "gathering", title: "Arrival", characters: ["Bertram Norbury"], setting: { location: "the office" } },
+            { sceneNumber: 2, act: 1, beat: "investigation", title: "The Dunes", characters: ["Bertram Norbury"], setting: { location: "the dunes" } },
+            { sceneNumber: 3, act: 2, beat: "final_trap", title: "The Test", characters: ["Bertram Norbury"], setting: { location: "the dunes" } },
+            { sceneNumber: 4, act: 3, beat: "alibis", title: "Clearing the Innocent", characters: ["Bertram Norbury"], setting: { location: "the lounge" } },
+            { sceneNumber: 5, act: 3, beat: "revelation", title: "After", characters: ["Bertram Norbury"], setting: { location: "the promenade" } },
+          ],
+        },
+      ],
+    },
+    cast: { characters: [{ name: "Nora Quayle" }, { name: "Bertram Norbury" }, { name: "Montague Gaunt", role_archetype: "victim" }] },
+    profiles: null,
+    world: undefined,
+    locations: undefined,
+    temporal: undefined,
+    setting: undefined,
+    lockedFacts: [],
+    humourLevel: "classic",
+    primaryAxis: undefined,
+    targetLength: "short",
+  });
+  const retitle = (chapter: number, title: string) => ({
+    ...five,
+    scenes: five.scenes.map((s) => (s.chapter === chapter ? { ...s, title } : s)),
+  });
+
+  it("the fixture has a chapter between the reveal and the aftermath", () => {
+    expect(five.roles.reveal).toBe(3);
+    expect(five.roles.aftermath).toBe(5);
+  });
+
+  it("KNOWN-POSITIVE: pair 2's chapter 9 — 'Clearing the Innocent' after the reveal — loses the title", () => {
+    const text = renderSceneContract(five, 4);
+    expect(text).toMatch(/^=== CHAPTER 4 ===$/m);
+    expect(text).toMatch(/Its title is yours: this chapter comes after Nora Quayle was named in chapter 3/);
+    expect(text).not.toContain("Clearing the Innocent");
+  });
+
+  it("KNOWN-NEGATIVE: a clearing title BEFORE the reveal is still the chapter's own", () => {
+    expect(renderSceneContract(retitle(2, "Clearing the Innocent"), 2)).toMatch(/: Clearing the Innocent ===/);
+  });
+
+  it("the closure chapter asks for one sentence per cleared suspect and leaves the clock in the reveal", () => {
+    expect(five.brief.text).toMatch(/the suspect's name and the word "cleared", and the next sentence is what that suspect does with their hands/);
+    expect(five.brief.text).toMatch(/The clock values belong to chapter 3/);
+  });
+});

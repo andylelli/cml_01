@@ -57,13 +57,13 @@ One row per item. **Status** is one of: not started · built · measured · read
 | P0.1 | `PROSE_ENGINE=v2` as the default; v1 left runnable | built | (this commit) | `.env.local`; FLAG-AUDIT row ON |
 | P0.2 | `AGENT9_V2_FILTER_SOFTEN=true` with v2 | built | (this commit) | `.env.local`; FLAG-AUDIT row ON |
 | P0.3 | the ship-check (repetition, scaffold) reads v2 manuscripts | built | (this commit) | `agent9-v2/ship-check.ts`; known-positive test |
-| P1.1 | v2 writes in act-sized calls; late chapters stop tapering | measured: 4-chapter calls move the taper inside each call; chapter-per-call is pair 2 | dae69512 | `02` P1.1, pair 1 `resume-1790332941683` |
+| P1.1 | v2 writes in act-sized calls; late chapters stop tapering | **measured, default set**: one chapter a call — 13,308 words, no chapter under 1,157, no taper; `PROSE_V2_SEGMENT_CHAPTERS=1` in `.env.local` | dae69512, (this commit) | `02` P1.1; pair 1 `resume-1790332941683`, pair 2 `resume-1790333881166` |
 | P1.2 | the discriminating test's decisive result lands on the culprit | built | (this commit) | `testSubjects` on the test and reveal contracts |
 | P1.3 | the weapon link at the confrontation, from the means-link trace | built | (this commit) | `proof` on the reveal contract; `splitMeansLinkTrace` shared |
 | P1.4 | the mechanism in one sentence, as a window not an instant | built | (this commit) | `mechanismOperation`; window from the chronology's interval |
 | P1.5 | the confession carries the reason and one concrete wound | built | (this commit) | `revealOperation`: two counted lines |
 | P1.6 | v2's naming gate reads a confession and second-person address | built | (this commit) | arm B's chapter-8 sentence is the known positive; `stabbed` added |
-| P1.7 | chapters after the reveal carry aftermath titles | built | (this commit) | `revelation` was not `reveal` to the regex; every post-reveal chapter held to the rule |
+| P1.7 | chapters after the reveal carry aftermath titles | built; amended after pair 2 | 800d9403, (this commit) | pair 2: chapter 10 became "The Last Routine"; chapter 9 kept "Clearing the Innocent" and re-cleared all three suspects with clock values — clearing titles now withheld after the reveal too, and the closure line asks for one sentence per suspect |
 | P2.1 | O2 — one first-half scene staging culprit and victim in the grievance | not started | | WP-001 §6.1 |
 | P2.2 | O1 — every suspect's formative incident reaches the page once | not started | | O1 built upstream, v2 uses one |
 | P2.3 | O5 — one element per chapter that does no job, registered high | not started | | |
@@ -75,9 +75,9 @@ One row per item. **Status** is one of: not started · built · measured · read
 | P3.3 | no clue spells out the plan | not started | | A_108 v2 read |
 | P3.4 | no post-reveal outline scene titled as clearing or revelation | built — Agent 7 title shape; format example no longer shows a title | (this commit) | MEASURED: 57 of 58 archived outlines title a scene after the trap with a reveal or clearing word; v2 also withholds them at render (P1.7) |
 | P3.5 | "twenty minutes past three-five" — trace the clock-to-words step | deferred — v1-only, and v1 is no longer the engine | | `renderClockWords(15:25)` is correct ("twenty-five minutes past three"); INFERRED: v1's time-form rewrite substituted "twenty minutes past three" for "three twenty" inside "three twenty-five"; 0 occurrences in either v2 book |
-| P4.1 | v2's editor pass targets the register lines readers quote | not started | | |
-| P4.2 | our own labels ("polite savagery") never reach the writer as quotable text | not started | | MEASURED: the label is in the profile and brief 12 times; the reader quoted it |
+| P4.1 | v2's editor pass targets the register lines readers quote | built | (this commit) | `abstract_subject` finding: a narration sentence whose subject is the room, the silence, the truth, the evidence; known-positive test |
+| P4.2 | our own labels ("polite savagery") never reach the writer as quotable text | built | (this commit) | MEASURED on pair 2 (before the fix): 16 humour labels printed in the book — polite savagery 5, deadpan 6, dry wit 3, observational humour 2. `humourMove` describes the move; the label is in no prompt |
 | P4.3 | no catchphrase shared across characters | not started | | A_108 v1 read |
 | P4.4 | one instrument that points up (WP-001 §6.2) | not started | | |
 
-**Next item:** pair 2 — chapter-per-call plus the reveal package — then its read.
+**Next item:** pair 3 — pair 2 plus P4.1/P4.2 and the closure amendment — my own read, then the external read.

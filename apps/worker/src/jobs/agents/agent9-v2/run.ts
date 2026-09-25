@@ -40,6 +40,7 @@ import {
   priorChapters,
   revealOperation,
   mechanismOperation,
+  humourMove,
   scoreDraft,
   writerFormatInstruction,
   type BookContract,
@@ -191,7 +192,9 @@ export const renderSceneContract = (contract: BookContract, chapter: number): st
     scene.role === "reveal"
       ? REVEAL_TITLE.test(scene.title) && !CLEARING_TITLE.test(scene.title)
       : scene.role === "aftermath" || chapter > contract.roles.reveal
-        ? !REVEAL_TITLE.test(scene.title)
+        // Pair 2 (2026-09-25): "Clearing the Innocent" shown on chapter 9 produced three clearance
+        // speeches with clock values. After the reveal, a clearing title fits no chapter either.
+        ? !REVEAL_TITLE.test(scene.title) && !CLEARING_TITLE.test(scene.title)
         : true;
   lines.push(titleFits && scene.title ? `=== CHAPTER ${chapter}: ${scene.title} ===` : `=== CHAPTER ${chapter} ===`);
   if (!titleFits) {
@@ -249,7 +252,7 @@ export const renderSceneContract = (contract: BookContract, chapter: number): st
     if (owner("short_retort")) parts.push(`${TEMPLATE.shortReplyToLongSpeech} is ${owner("short_retort")}'s`);
     if (owner("unmeant_joke")) parts.push(`${TEMPLATE.funnierThanMeant} is ${owner("unmeant_joke")}'s`);
     lines.push(
-      `  ${TEMPLATE.twoExchanges}, carried by ${scene.beats.wit.name} (${scene.beats.wit.style.replace(/_/g, " ")})` +
+      `  ${TEMPLATE.twoExchanges}, carried by ${scene.beats.wit.name}, who ${humourMove(scene.beats.wit.style)}` +
         (parts.length > 0 ? `: ${parts.join("; ")}.` : "."),
     );
   }

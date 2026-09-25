@@ -390,6 +390,13 @@ export const FINDING_CLASSES = [
   "victim_alive",
   "scaffold_token",
   "register_sentence",
+  /**
+   * 17-hitting-90 P4.1 — a narration sentence whose subject is a room, a silence, the truth or the
+   * evidence. Four of four recent reads quoted this family ("The room held its breath", "the truth
+   * remained elusive", "the evidence continued to mount"); the register score does not always reach
+   * it, and the repair is one shape: a named person as the subject, doing something.
+   */
+  "abstract_subject",
   "repeat_passage",
   "copied_sentence",
   "clearance_after_reveal",

@@ -46,6 +46,34 @@ sits in every scene contract, so a per-chapter ask is not the lever either.
 taper — bundled with the reveal package as pair 2. The two are measured by counts that do not
 overlap: words per chapter for the segmenting, the six reveal predictions for the package.
 
+**MEASURED 2026-09-25 — pair 2 (`resume-1790333881166`, $1.01 for the prose stage):** one chapter a
+call, ten calls. Words by chapter **1205 1255 1576 1157 1340 1529 1289 1342 1415 1200 = 13,308** —
+no taper, no chapter under 1,157; v1 on the same case wrote 12,652. Speech-opening paragraphs 87
+(arm B 45; chapters 7–10: 22 against the predicted 12); sentences over thirty words 74 (arm B 38);
+em-dashes on the saved page 111 (arm B 0, the fold removed). Repetition 9.5 per 10k, normal. All
+30 writer calls were refused once and passed softened. **Every length prediction held. The taper was
+position within a call, and one chapter a call puts every chapter first.** The cost of the prose
+stage rose from ~$0.45 to ~$1.01 — v2's cost advantage over v1 is mostly gone; what it bought is
+5,000 words and the brief's per-chapter asks honoured in every chapter. `PROSE_V2_SEGMENT_CHAPTERS=1`
+is the default from this commit.
+
+**The reveal package on pair 2, read by me (chapter 8):** the foil sentence — *"found in her room
+with fresh stains and distinct handling marks, but those marks match precisely the grip of Desmond
+Kestrel's gloved hand"*; the mechanism with both clock values — *"between twenty minutes past three
+and half past three, the only window when the way was open"*; *"Desmond Kestrel killed Katherine
+Quayle"*; two confession lines (the executorship she was about to remove; losing the Academy).
+Desmond performs the climb; Hector sizes the drop and declines it with his alibi — the innocent's
+attempt is a look, not a climb. Chapter 10 is "The Last Routine". Predictions 1–6 held, the first of
+them partly.
+
+**What pair 2 also showed, read by me (chapters 8–10):** sixteen humour LABELS printed as narration
+(*"polite savagery brightening his tone"*, *"dry wit failing him"*, *"deadpan as ever"*) — P4.2, built
+after the launch; the wit operations narrated as they are performed (*"the answer clipped to four
+words"*, *"spoke at length"* ×4, *"the line minimal but final"*); *"battered"* twenty times; chapter 9
+re-clearing all three suspects with their clock values under the shown title "Clearing the
+Innocent" — the clearing title is now withheld after the reveal and the closure line asks for one
+sentence per suspect. Pair 3 carries those fixes before any reader sees the book.
+
 Also MEASURED on pair 1: all nine writer calls were refused once and passed softened; the selector
 chose the shortest draft in 2 of 3 segments (3099 over 3938 and 3877; 1737 over 1950 and 1983), but
 over all eight v2 segments on record it chose the longest in 5 — not systematic.

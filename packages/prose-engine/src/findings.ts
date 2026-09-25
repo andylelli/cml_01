@@ -49,6 +49,14 @@ import type {
 } from "./types.js";
 import { FINDING_CLASSES } from "./types.js";
 
+/**
+ * 17-hitting-90 P4.1 — the sentence-initial abstraction as grammatical subject, followed by its verb.
+ * "The room held its breath", "The truth remained elusive", "The evidence continued to mount", "A
+ * silence fell", "The air was thick". Sentence-initial only, so "He watched the room" is untouched.
+ */
+const ABSTRACT_SUBJECT =
+  /^(?:(?:the|a|an)\s+)?(?:room|silence|hush|quiet|stillness|truth|evidence|proof|air|tension|atmosphere|pattern|answer|question|moment|weight|case|facts?|mystery|mood|darkness|night)\s+(?:itself\s+)?(?:was|were|had|has|held|hung|fell|settled|grew|lay|remained|seemed|continued|began|pressed|closed|thickened|deepened|gathered|shifted|stretched|refused|would|could)\b/i;
+
 /** How each class is treated by the edit loop: round 1 takes everything, round 2 only the first two. */
 export const SEVERITY: Record<FindingClass, FindingSeverity> = {
   reveal_unnamed: "fairplay",
@@ -75,6 +83,7 @@ export const SEVERITY: Record<FindingClass, FindingSeverity> = {
   victim_alive: "defect",
   scaffold_token: "defect",
   register_sentence: "craft",
+  abstract_subject: "craft",
   repeat_passage: "craft",
   catchphrase_repeated: "craft",
   copied_sentence: "defect",
@@ -292,6 +301,18 @@ export const collectCheckerFindings = (
         finding("repeat_passage", chapter, sentenceContaining(body, [worst.span]), `this book has used this run of words ${worst.count} times`),
       );
       reported += 1;
+    }
+  }
+
+  // 3b. 17-hitting-90 P4.1 — the sentence whose subject is the room, the silence, the truth or the
+  // evidence. The family every one of the last four reads quoted; the repair is a person as subject.
+  for (const [chapter, written] of byChapter) {
+    const body = bodyOf(written);
+    for (const sentence of sentencesOf(body)) {
+      if (/["“]/.test(sentence)) continue; // narration only
+      if (sentence.split(/\s+/).length < 5) continue;
+      if (!ABSTRACT_SUBJECT.test(sentence)) continue;
+      out.push(finding("abstract_subject", chapter, sentence, "the subject is a thing nobody can see act; give the sentence a named person doing something"));
     }
   }
 

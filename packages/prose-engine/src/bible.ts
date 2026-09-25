@@ -33,6 +33,7 @@
  */
 
 import type { Bible, BibleSectionKey, ContractCore, ContractInput } from "./types.js";
+import { humourMove } from "./humour-move.js";
 
 /**
  * The same arithmetic as v1's `estimateTokenCount` (`prompt-builder.ts:1496`), deliberately
@@ -171,7 +172,8 @@ const castSection = (
     if (stakes) bits.push(`  Stands to lose: ${stakes}`);
     const style = field(profile, "humourStyle");
     const level = Number((profile as Record<string, unknown> | undefined)?.humourLevel ?? 0);
-    if (style && style !== "none" && level > 0) bits.push(`  Humour: ${style.replace(/_/g, " ")}`);
+    // P4.2: the move, not the label — the label was printed twelve times and the reader quoted it.
+    if (style && style !== "none" && level > 0) bits.push(`  Humour: ${humourMove(style)}`);
     else if (style === "none") bits.push("  Humour: plays it straight, and is the contrast the others land against");
     const mannerisms = field(profile, "speechMannerisms");
     if (mannerisms) bits.push(`  Speech: ${mannerisms}`);
