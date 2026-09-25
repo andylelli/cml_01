@@ -76,7 +76,7 @@ One row per item. **Status** is one of: not started · built · measured · read
 | P3.4 | no post-reveal outline scene titled as clearing or revelation | not started | | A_107 §2, A_108 |
 | P3.5 | "twenty minutes past three-five" — trace the clock-to-words step | not started | | 4 times in the v1 book, 0 in v2 |
 | P4.1 | v2's editor pass targets the register lines readers quote | not started | | |
-| P4.2 | our own labels ("polite savagery") never reach the writer as quotable text | not started | | A_108 v2 read |
+| P4.2 | our own labels ("polite savagery") never reach the writer as quotable text | not started | | MEASURED: the label is in the profile and brief 12 times; the reader quoted it |
 | P4.3 | no catchphrase shared across characters | not started | | A_108 v1 read |
 | P4.4 | one instrument that points up (WP-001 §6.2) | not started | | |
 

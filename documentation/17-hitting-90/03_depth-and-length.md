@@ -37,6 +37,12 @@ and then dropped.
 | **O6** | **Verbalized sampling at unforced choices.** Emit *k* candidates with probabilities and select. | first at the tic field — the cheapest place, £0 to measure against the existing tic census | Agent 2b | not built |
 | **§6.2** | **An instrument that points up.** | register conformance per story, or PMI / token entropy on the manuscript | measurement only | not built |
 
+**Where the length comes from — a correction to the framing.** The ask was to raise chapter length
+*by* introducing depth. The measurement says most of the missing length is not missing depth: it is
+the one-call taper (§1), and segmenting recovers it with no new material. Depth adds about a scene
+and a paragraph a chapter. Both are worth building — the readers asked for O2 five times — but depth
+is built for its own sake, and length is mostly P1.1.
+
 **Why these lengthen the book honestly:** each is a scene or a paragraph that has a reason to exist
 and was not in the brief before. **INFERRED** word yield, stated as a prediction, not a target (a
 target is a statistic, and this model ignores those):

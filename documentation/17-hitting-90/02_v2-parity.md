@@ -20,15 +20,17 @@ The four A_101 v2 books show the same slope, ending in the 350–650 range.
 
 **MEASURED cause, in part.** `planSegments` (`packages/prose-engine/src/segments.ts:57`) writes the
 whole book in ONE call when its estimate fits inside 80% of the writer's 32,768-token cap. A ten-chapter
-book at ~1,000 words × 1.45 tokens is ~14,500 — so it always fits, and the log for arm B shows a single
-segment `S0`. The brief asks for "at least 12 paragraphs of four sentences in each chapter"
+book at ~1,000 words × 1.45 tokens is ~14,500 — so it always fits. **MEASURED: 17 of 17 v2 runs in the
+prompt log wrote in one segment, `S0`.** No flag exists to force act-sized calls; P1.1 builds one. The brief asks for "at least 12 paragraphs of four sentences in each chapter"
 (`brief.ts:239`); one call honours that early and compresses as it goes.
 
 **INFERRED:** the taper is the model spending its sense of the whole on the opening. v1, which writes
 chapter by chapter, has no taper.
 
 **Lever:** write in act-sized segments always — `CHAPTERS_PER_ACT_SEGMENT = 4`, three calls for a
-ten-chapter book — behind a flag. Each segment gets the prior chapters' summaries (`priorChapters`
+ten-chapter book — behind a new flag. **The risk it carries:** the one-call design was chosen for
+whole-book coherence (A_99 §10.5); if segmenting costs the prose 8, that is the first stopping
+condition in `05` §4. Each segment gets the prior chapters' summaries (`priorChapters`
 already exists). **Prediction:** the last three chapters' mean rises from 519 words to over 850, and
 the book from 8,044 to over 10,000, with the same brief. One v2 prose pair, ~£0.30, settles it.
 
