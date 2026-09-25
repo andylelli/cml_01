@@ -2045,6 +2045,20 @@
       "discrimDesign": "A controlled comparison of dust disturbance patterns on the dig site ladder combined with an observation of the true delivery times of letters proves that the person at the dig site ladder was not Charles Wentworth but Leonard Pike impersonating him. The test compares the footprint sizes and dust layers with servant testimony and delivery servant logs, exposing the identity deception and linking Leonard Pike conclusively to the murder.",
       "premise": "At Ashford Manor, amidst the tensions of an archaeological dig and rigid post-war social hierarchies, Dr. Beatrice Langley is found strangled with a silk scarf. The initial assumption points to Evelyn Marsh due to a forged letter and suspicious behavior, but a deeper investigation reveals a cunning identity deception involving impersonation and forged credentials. Only through unraveling the physical impossibilities of simultaneous presence and uncovering forged passes and letters can the true murderer, Leonard Pike, be exposed.",
       "mechanismFamily": "alibi_fabrication"
+    },
+    {
+      "id": "resume-1790356483365",
+      "title": "The Shadows of Ashford Manor",
+      "era": "1940s",
+      "location": "Ashford Manor",
+      "crimeSubtype": "strangled with scarf",
+      "deathMethod": "strangled with a silk scarf, to the neck",
+      "axis": "identity",
+      "falseAssumption": "The person seen at the dig site ladder entrance by the servant was Charles Wentworth himself, providing his alibi.",
+      "discrimMethod": "constraint_proof",
+      "discrimDesign": "A controlled comparison of dust disturbance patterns on the dig site ladder combined with an observation of the true delivery times of letters proves that the person at the dig site ladder was not Charles Wentworth but Leonard Pike impersonating him. The test compares the footprint sizes and dust layers with servant testimony and delivery servant logs, exposing the identity deception and linking Leonard Pike conclusively to the murder.",
+      "premise": "At Ashford Manor, amidst the tensions of an archaeological dig and rigid post-war social hierarchies, Dr. Beatrice Langley is found strangled with a silk scarf. The initial assumption points to Evelyn Marsh due to a forged letter and suspicious behavior, but a deeper investigation reveals a cunning identity deception involving impersonation and forged credentials. Only through unraveling the physical impossibilities of simultaneous presence and uncovering forged passes and letters can the true murderer, Leonard Pike, be exposed.",
+      "mechanismFamily": "alibi_fabrication"
     }
   ]
 }
