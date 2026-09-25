@@ -221,3 +221,14 @@ engine and near-identical brief, and 15–19 on the 69. The 69 came from the web
 the CLI resume. Whether both read the same `.env.local` (`PROSE_ENGINE`, `PROSE_V2_WRITER`,
 `PROSE_V2_SEGMENT_CHAPTERS`, `AGENT9_V2_FILTER_SOFTEN`) is not visible in the repository. Check
 `logs/llm-prompts-full.jsonl` for run 98dec72a: the writer's agent label and model, and the segment count.
+
+### 7.1 STATUS of the second review
+
+| id | status | commit | evidence |
+|---|---|---|---|
+| R1 | built — the test belongs to the test chapter (else the reveal); the reveal contract says the result "was watched in chapter N … spoken of as already seen" | (this commit) | golden: carriers 8+9 → 8 in 4 of 4 (test) |
+| R2 | deferred to the matched pair — Agent 5 placement, needs a paid harness | | prediction for the re-run: note the first chapter in which the culprit is tied to the means |
+| R3 | built — `humour_move_narrated` (craft), one pattern per move | (this commit) | the 69: 10; pair 3: 0; pair 2: 1; all 227 books: 13 in 4. Word pairs were tried first and flagged "the strain on his face" — 127 hits in 87 books — withdrawn |
+| R4 | built — `summary_ending` (craft): last paragraph all narration, an "each detail—…—" inventory or "the investigation pressed on" / "closer to the truth" | (this commit) | the 69: 5 of 10 chapters; other books 0–2; corpus 46 in 34 of 227 |
+| R5 | built — the bible names who finds a clue: "the investigator or anyone present except <culprit>" | (this commit) | golden: 4 of 4 carry it. **Prediction:** on the re-run the culprit surfaces ≤ 1 clue (the 69: most of ch 1–8) |
+| R6 | not built — alibis restated across chapters; the clearance lines already say where each is cleared, and the new copy/echo checkers cover verbatim restatement. Measure on the re-run first | | |

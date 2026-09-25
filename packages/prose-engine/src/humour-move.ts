@@ -27,3 +27,39 @@ export const humourMove = (style: unknown): string => {
 
 /** Every move, for the echo finder: none of these should come back as prose either. */
 export const HUMOUR_MOVE_PHRASES: ReadonlyArray<string> = Object.values(MOVES);
+
+/**
+ * 17-hitting-90 §06 R3 — the move, narrated. The premise above ("words no sentence of prose would
+ * carry") was false on run 98dec72a: "her humor at her own expense" x5, "the plain truth everyone else
+ * had avoided", "less than the moment deserved", "keeping his face straight", "the cruellest thing in
+ * the room" — 15 in one book, against 0 on pair 3 and 1 on pair 2. The narrator names the move instead
+ * of letting the line perform it.
+ *
+ * A narration sentence (outside quotation marks) carrying two of one move's distinctive words, each
+ * matched on its first five letters so "cruel"/"cruellest" and "courteous"/"courtesy" meet.
+ */
+/** Each move's distinctive words as five-letter prefixes, written out: the list is fixed and short. */
+/**
+ * Each move's core, as one pattern: its own phrase, or two of its words within a short span. Word
+ * pairs alone were measured first and read ordinary prose as a label on the older books — "the strain
+ * on his face", "caught … face", "no more, no less … the gap" (47 of the first 127 corpus hits).
+ */
+const MOVE_SIGNATURES: Record<string, RegExp> = {
+  understatement: /\b(?:less than|gap between)\b.{0,60}\bdeserv/i,
+  dry_wit: /\bstraight face\b|\bface straight\b/i,
+  polite_savagery: /\bcruel\w*\b.{0,60}\b(?:courte|polite)|\b(?:courte|polite)\w*\b.{0,60}\bcruel/i,
+  self_deprecating: /\b(?:at (?:his|her|their) own expense|joke at (?:his|her|their) own)\b/i,
+  observational: /\bsmall absurd\b|\babsurd thing\b/i,
+  deadpan: /\babsurd\b.{0,60}\bweather\b/i,
+  sardonic: /\bmock\w*\b.{0,60}\bcaught\b/i,
+  blunt: /\bplain (?:thing|truth)\b.{0,60}\bavoid/i,
+};
+
+/** The move a narration sentence names, or null. */
+export const narratedMove = (sentence: string): string | null => {
+  const narration = sentence.replace(/["“][^"“”]*(?:["”]|$)/g, " ").replace(/^[^"“]*["”]/, " ");
+  for (const [style, signature] of Object.entries(MOVE_SIGNATURES)) {
+    if (signature.test(narration)) return MOVES[style]!;
+  }
+  return null;
+};

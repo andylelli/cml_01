@@ -284,8 +284,12 @@ const cluesSection = (core: ContractCore): string[] => {
     // 17-hitting-90 §06 F10. It read "…as something somebody sees, finds or says", and an observable
     // written as a conclusion can only be SAID: run 98dec72a put 23 of them in somebody's mouth as a
     // report to the investigator (pair 3: 2). The finding is an act; the reading of it comes after.
+    // §06 R5: run 98dec72a gave the culprit the finding of the evidence against him — Pike worked the
+    // lock, read the dust and the ink, chapters 1–8. Who finds is now named as a set, positively.
+    const culprits = core.fairPlay.culprits.filter(Boolean);
+    const finder = culprits.length > 0 ? `the investigator or anyone present except ${culprits.join(" and ")}` : "a named person";
     lines.unshift(
-      "Each is put on the page once, in the chapter named, by a named person doing the thing that finds it — looking, handling, measuring, reading a record, or hearing a witness — and what they make of it comes after, in their own words:",
+      `Each is put on the page once, in the chapter named, by ${finder}, doing the thing that finds it — looking, handling, measuring, reading a record, or hearing a witness — and what they make of it comes after, in their own words:`,
     );
   }
   return lines;

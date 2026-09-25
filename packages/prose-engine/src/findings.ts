@@ -39,6 +39,7 @@ import { extractClockValues } from "@cml/cml";
 
 import { indexChapters } from "./chapter-index.js";
 import { contentStemsOf, findCatchphrases, findInstructionEchoes, instructionPhrases, instructionStemGrams } from "./instruction-echo.js";
+import { narratedMove } from "./humour-move.js";
 import { splitSentences } from "./sentences.js";
 import { checkHardGates } from "./selector.js";
 import type {
@@ -98,6 +99,8 @@ export const SEVERITY: Record<FindingClass, FindingSeverity> = {
   repeat_passage: "craft",
   catchphrase_repeated: "craft",
   clue_recited: "craft",
+  humour_move_narrated: "craft",
+  summary_ending: "craft",
   copied_sentence: "defect",
   clearance_after_reveal: "defect",
   reveal_residue_in_aftermath: "defect",
@@ -133,6 +136,9 @@ const spokenSpans = (paragraph: string): string[] => {
   }
   return text.split('"').filter((_, i) => i % 2 === 1).map((q) => q.trim()).filter(Boolean);
 };
+
+const SUMMARY_ENDING =
+  /\b(?:each|every) (?:detail|object|clue|item)s?\s*(?:touched\s*)?[—-]|\bthe (?:investigation|inquiry) (?:pressed|continued|went|moved|advanced|drew)\b|\bcloser to the truth\b/i;
 
 /** A spoken line carrying this share of a clue's content words, and at least this many, recites it. */
 export const CLUE_RECITED_SHARE = 0.7;
@@ -385,6 +391,28 @@ export const collectCheckerFindings = (
         ),
       );
     }
+  }
+
+  // 3e. 17-hitting-90 §06 R3 — the humour move, named by the narrator instead of performed.
+  for (const [chapter, written] of byChapter) {
+    for (const sentence of sentencesOf(bodyOf(written))) {
+      if (/^["\u201c]/.test(sentence)) continue;
+      const move = narratedMove(sentence);
+      if (!move) continue;
+      out.push(finding("humour_move_narrated", chapter, sentence, `the narration names the move ("${move}") instead of letting the line perform it; cut the naming and keep the line`));
+    }
+  }
+
+  // 3f. 17-hitting-90 §06 R4 — the chapter that ends by summing itself up. Run 98dec72a closed eight
+  // of ten chapters on "The investigation pressed on, each detail—…—drawing the group closer to the
+  // truth"; pairs 2 and 3 closed none that way. The last paragraph, all narration, inventorying
+  // "each detail/object/clue" or pointing at the investigation or the truth.
+  for (const [chapter, written] of byChapter) {
+    const paragraphs = (written.paragraphs ?? []).map(normalise).filter(Boolean);
+    const last = paragraphs[paragraphs.length - 1];
+    if (!last || /["\u201c\u201d]/.test(last)) continue;
+    if (!SUMMARY_ENDING.test(last)) continue;
+    out.push(finding("summary_ending", chapter, sentencesOf(last)[0] ?? last, "the chapter ends by summarising itself; end on the last thing somebody does or says"));
   }
 
   // 6. our own instructions, come back as prose (the reads of 2026-09-22 named five such phrases).

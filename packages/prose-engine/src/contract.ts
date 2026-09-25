@@ -480,9 +480,15 @@ export const buildContractCore = (input: ContractInput): ContractCore => {
     }
 
     // ── 17-hitting-90 P1.2–P1.4: the reveal package, on the chapters that carry it ─────────────────
-    if (role === "discriminating_test" || role === "reveal") {
+    // The test is performed ONCE, in the test's own chapter; the reveal carries it only when it is also
+    // the test chapter. It read `role === "discriminating_test" || role === "reveal"`, so with the test
+    // at 8 and the reveal at 9 both contracts asked for it — 4 of 4 golden cases — and run 98dec72a
+    // performed the boot test in chapter 8 and again in chapter 9 (17-hitting-90 §06 R1).
+    const testChapter = roles.discriminatingTest ?? roles.reveal;
+    if (chapter === testChapter) {
       if (culprits.length > 0 && testInnocent) contract.testSubjects = { innocent: testInnocent, culprit: culprits.join(", ") };
     }
+    if (role === "reveal" && testChapter !== chapter) contract.testSeenIn = testChapter;
     if (role === "reveal") {
       if (proof) contract.proof = proof;
       if (opportunityWindow) contract.opportunityWindow = opportunityWindow;

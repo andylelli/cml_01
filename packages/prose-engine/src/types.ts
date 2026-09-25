@@ -186,6 +186,8 @@ export interface SceneContract {
    * shape in the same chapter, so the staging does not name the culprit by itself.
    */
   wound?: { victim: string; culprit: string; accused?: string };
+  /** The reveal's own chapter when the test was performed earlier: the chapter it was seen in. */
+  testSeenIn?: number;
   words: { preferred: number; floor: number };
 }
 
@@ -432,6 +434,8 @@ export const FINDING_CLASSES = [
   // checker — a quoted line said three or more times (the reads of 2026-09-22)
   "catchphrase_repeated",
   "clue_recited",
+  "humour_move_narrated",
+  "summary_ending",
 ] as const;
 
 export type FindingClass = (typeof FINDING_CLASSES)[number];

@@ -339,3 +339,85 @@ describe("a clue surfaced in the narration BETWEEN two speeches is not a recital
     expect(found).toEqual([]);
   });
 });
+
+describe("§06 R1, R5 — the test is performed once; the culprit does not find the clues", () => {
+  const golden = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "..", "eval", "golden");
+  const bundles = existsSync(golden) ? readdirSync(golden).filter((f) => f.startsWith("bundle-")) : [];
+  const load = (file: string) => {
+    const a = JSON.parse(readFileSync(join(golden, file), "utf8")).artifacts;
+    return buildBookContract({
+      cml: a.cml ?? {},
+      clues: a.clues ?? null,
+      outline: a.outline?.narrative ?? a.outline,
+      cast: a.cast?.cast ?? a.cast,
+      profiles: a.character_profiles ?? null,
+      humourLevel: "classic",
+    });
+  };
+
+  it.each(bundles)("%s: one chapter carries the test; the reveal refers back to it (was 8 AND 9 in 4 of 4)", (file) => {
+    const contract = load(file);
+    const carriers = contract.scenes.filter((s) => s.testSubjects).map((s) => s.chapter);
+    const testChapter = contract.roles.discriminatingTest ?? contract.roles.reveal;
+    expect(carriers).toEqual([testChapter]);
+    const reveal = contract.scenes.find((s) => s.chapter === contract.roles.reveal)!;
+    expect(reveal.testSeenIn).toBe(testChapter === contract.roles.reveal ? undefined : testChapter);
+  });
+
+  it.each(bundles)("%s: the clue list names who finds them, and it is not the culprit", (file) => {
+    const contract = load(file);
+    const culprit = contract.fairPlay.culprits[0]!;
+    expect(contract.bible.text).toContain(`anyone present except ${culprit}`);
+  });
+});
+
+describe("§06 R3 — the humour move named by the narrator", () => {
+  const moves = (paragraphs: string[]): Finding[] => checkerFindings([chapter(paragraphs)], "humour_move_narrated");
+
+  it("KNOWN-POSITIVE: run 98dec72a's labels", () => {
+    expect(
+      moves([
+        "Charles Wentworth stepped closer. Harcourt noted the phrase, marking it in his mind as the cruellest thing in the room, dressed in perfect politeness.",
+        "Evelyn Marsh poured another cup of tea, her humor at her own expense softening the tension.",
+        "Margot Ellsworth spoke, her voice ringing with the plain truth everyone else had avoided.",
+        "His hand lingered on its frame, the gap between his words and what the moment deserved a reminder of the estate's long winters.",
+      ]),
+    ).toHaveLength(4);
+  });
+
+  it("the corpus's false positives, and the move performed in a line, are not findings", () => {
+    expect(
+      moves([
+        "He stepped aside, the strain on his face betraying both frustration and fear.",
+        "Eleanor straightened, her face composed but her hands betraying a slight tremor.",
+        "He measured the gap once more—six inches, no more, no less.",
+        `"I'm the plain one, and I'll say the thing nobody here will," Margot said, and nobody answered her.`,
+      ]),
+    ).toEqual([]);
+  });
+});
+
+describe("§06 R4 — the chapter that ends by summing itself up", () => {
+  it("KNOWN-POSITIVE: run 98dec72a's chapter endings", () => {
+    const hits = checkerFindings(
+      [
+        chapter([`"Time matters," Harcourt said.`, "The investigation pressed on, each detail—scarf, smudge, glove mark, ledger—drawing the group closer to the truth hidden within Ashford Manor."]),
+        chapter([`"No," Evelyn said.`, "The study held its secrets close, each detail—footprints, dust, bruising—waiting for the careful hands of Inspector Harcourt."]),
+      ],
+      "summary_ending",
+    );
+    expect(hits.map((h) => h.chapter)).toEqual([1, 2]);
+  });
+
+  it("a chapter that ends on somebody doing something, or on speech, is not one", () => {
+    expect(
+      checkerFindings(
+        [
+          chapter(["Harcourt set the key on the tray.", "As Montague Norbury closed the door behind them, the body remained where it lay, her hand still atop an unopened letter."]),
+          chapter(["Harcourt waited.", `"Every detail matters," he said, "and the investigation pressed on without me."`]),
+        ],
+        "summary_ending",
+      ),
+    ).toEqual([]);
+  });
+});

@@ -3088,3 +3088,10 @@ most of a clue's own words is a `clue_recited` finding. **Withdrawn:** capping a
 — compound discriminating tests read 74.3 (n=3) against 77.5 (n=25), inside ±3, and "overloaded" is in
 5 of 71 reviews against repetition's 64. Next paid step (not launched): `RESUME_REDO=prose` on run
 98dec72a with five on-page predictions, then a fresh behavioural or spatial seed.
+
+**§33 UPDATE 3 — reading the 69 whole (`17-hitting-90/06` §7).** A code fault shared by every case
+whose test and reveal are different chapters: both contracts asked for the test, and the 69 performed
+it twice (golden: 4 of 4) — the test now has one owner. The humour move and the summary ending are
+now findings (the 69: 10 and 5; pair 3: 0 and 0); the bible says the culprit does not find the clues.
+Deferred to the matched pair: clues naming the culprit are scheduled in chapters 4–7, before the test,
+in 4 of 4 golden cases ("guessed/obvious" in 22 of 71 reviews).

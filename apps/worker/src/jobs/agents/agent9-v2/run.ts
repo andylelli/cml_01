@@ -309,6 +309,9 @@ export const renderSceneContract = (contract: BookContract, chapter: number): st
         `and the two results differ: the result that incriminates falls on ${scene.testSubjects.culprit}, and everybody present sees it fall.`,
     );
   }
+  if (scene.testSeenIn) {
+    lines.push(`  The test's result was watched in chapter ${scene.testSeenIn}; here it is spoken of as already seen, and the chapter's work is the naming.`);
+  }
   if (scene.role === "reveal") {
     if (scene.proof) {
       lines.push(
