@@ -3102,3 +3102,9 @@ sensory variants, access rules), period (physical constraints as friction), inne
 and stake, never the culprit's) and shared histories are now each owned by one chapter's contract and
 asked for as an act; nothing new enters the bible, and an owned history leaves it. Profile paragraphs
 withdrawn: they re-word the case and carry the labels P4.2 removed.
+
+**§33 UPDATE 5 — ANALYSIS_109's formal checks, built report-only (steps 1–2).** One parse of the case
+(`@cml/cml` `case-logic/`) and a Simple Temporal Network over every time statement: consistency, the
+act's window derived from all of them, and whether each innocent's alibi covers it. MEASURED on the
+golden cases before any change: 2 of 8 judged innocents' alibis cover the murder window. Telemetry flag
+`AGENT3_CASE_LOGIC`; archive probe `npm run report:case-logic`.

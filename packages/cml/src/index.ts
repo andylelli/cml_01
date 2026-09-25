@@ -209,3 +209,7 @@ export type {
   UnanchoredClockValue,
   UnplacedDuration,
 } from "./chronology.js";
+
+// ANALYSIS_109 — formal checks over one parse of the case (M1 timeline network, M2 reader model,
+// M3 proof core, M4 route). Pure; report-only until each earns a flag.
+export * from "./case-logic/index.js";

@@ -9,7 +9,8 @@
 import { generateCML, auditNovelty, findUnplantedDiscriminatingClues } from "@cml/prompts-llm";
 import { createSkeletonExtractor, judgeNovelty, loadReferenceCorpus } from "@cml/novelty";
 import { checkTemporalClosure, isTemporalClosureCheckEnabled,
-  deriveCaseTimeline, summariseCaseTimeline, isCaseTimelineEnabled } from "@cml/cml";
+  deriveCaseTimeline, summariseCaseTimeline, isCaseTimelineEnabled,
+  analyseTimeline, buildCaseModel, isCaseLogicEnabled, summariseTimeline } from "@cml/cml";
 import {
   checkChronologyCoherence, deriveCaseChronology, findUnanchoredClockValues, isAlibiPlanEnabled,
   isChronologyEnabled, renderCaseTimes, renderPlannedCulpritAlibi, summariseChronology,
@@ -969,6 +970,24 @@ export async function runAgent3(ctx: OrchestratorContext): Promise<void> {
 
   extendLockedFactRegistryWithCaseFacts(ctx);
   reportTemporalClosure(ctx);
+  reportCaseLogic(ctx);
+}
+
+/**
+ * ANALYSIS_109 — the formal checks over one parse of the case, as telemetry (flag
+ * `AGENT3_CASE_LOGIC`, default OFF). M1: every time statement in one temporal network — consistency,
+ * the act's derived window, and whether each innocent's alibi covers it. MEASURED on the golden cases
+ * before this was wired: most innocents' alibis in 4 of 4 do not cover the stated murder window.
+ */
+function reportCaseLogic(ctx: OrchestratorContext): void {
+  if (!isCaseLogicEnabled()) return;
+  try {
+    const model = buildCaseModel({ cml: ctx.cml, clues: ctx.clues, lockedFacts: (ctx.lockedFactRegistry ?? []) as never });
+    ctx.warnings.push(`[A_109 case logic] M1 ${summariseTimeline(analyseTimeline(model), model)}`);
+  } catch (err) {
+    // A measurement must never cost a run.
+    ctx.warnings.push(`[A_109 case logic] could not run: ${(err as Error).message}`);
+  }
 }
 
 /**

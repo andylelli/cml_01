@@ -555,3 +555,33 @@ Stated now, checked after (CLAUDE.md):
   lever; the culprit-pointing clues are too strong in themselves (Agent 5's wording).
 - **M6 diversifies tics and dialogue does not move**: WP-001 §8's result — diversity is not what the
   reader scores; stop spending on voice selection.
+
+---
+---
+
+# PART III — STATUS (the build, 2026-09-25)
+
+**Where it lives.** Not a new workspace package: `packages/cml/src/case-logic/`, exported from
+`@cml/cml`. A new workspace needs `npm install` on the laptop to link it, and `start-app.bat` only
+installs when `node_modules` is missing; `@cml/cml` already owns the chronology these checks read.
+
+**How to see the archive's numbers (laptop):** `npm run build:all`, then `npm run report:case-logic`.
+Telemetry in a run: `AGENT3_CASE_LOGIC=true` in `.env.local`.
+
+| step | item | status | commit | evidence |
+|---|---|---|---|---|
+| 1 | `CaseModel` — one parse: suspects by identifying name tokens, clue kind (points / eliminates / neutral) by stated rules, inference steps, chronology | built | (this commit) | golden: three Langleys and two Winthropes resolved by first-name tokens |
+| 2 | M1 STN (Floyd–Warshall, negative-cycle naming) + the act's derived window + **innocents' alibi coverage** — report-only | built | (this commit) | golden: consistent 4 of 4; act derivable 3 of 4 (eb1251aa states only claims); innocents covering the act **2 of 8** (5 partial, 1 none). Telemetry flag `AGENT3_CASE_LOGIC`; archive script |
+| 3 | M5 recaps | not started | | |
+| 4 | M3 proof core | not started | | |
+| 5 | M2 reader model, report-only | not started | | |
+| 6 | M2 re-scheduling behind a flag | not started | | |
+| 7 | M6 verbalized tics behind a flag | not started | | |
+| 8 | M4 route | not started | | |
+| 9 | M8 upward instrument + calibration | not started | | |
+
+**New finding from step 2, before anything changed:** the golden cases' alibis mostly do not cover
+their own murder windows. An alibi that ends before the act begins clears nobody, and the prose presents
+it as a clearance — run 98dec72a's Margot (9:00–10:00, murder 10:10–10:45) is the same fault. This is the
+first candidate for a CASE fix (Agent 3: an innocent's alibi window must contain the act window), to be
+sized on the archive before it is built.
