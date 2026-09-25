@@ -290,10 +290,11 @@ export const renderSceneContract = (contract: BookContract, chapter: number): st
       // 17-hitting-90 §06 F8: was "Two survivors with one concrete change each", printed on run
       // 98dec72a as "the survivors changed in concrete ways". The act, with the names in it.
       const names = scene.aftermath.survivors;
-      const who = names.length === 1 ? `${names[0]} does` : `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]} each do`;
-      lines.push(`  ${who} one thing on the page that they could not have done before the arrest.`);
+      const who = names.length === 1 ? `${names[0]} is` : `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]} are each`;
+      lines.push(`  ${who} seen taking up something the case had stopped.`);
     }
-    if (scene.aftermath.consequenceFor) lines.push(`  Whose life this shows changed: ${scene.aftermath.consequenceFor}.`);
+    // "Whose life this shows changed" printed on the 74 as "The consequence for him was immediate".
+    if (scene.aftermath.consequenceFor) lines.push(`  ${scene.aftermath.consequenceFor} is the first of them we see.`);
     if (scene.aftermath.repairTarget) lines.push(`  One thing outside a person put right: ${scene.aftermath.repairTarget}.`);
   }
   /**

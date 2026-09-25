@@ -229,7 +229,7 @@ describe("the brief names no property the narrator has already printed from it",
   // Each of these came back as narration on a read book: "spoke at length" (pair 3 x7, 98dec72a x7),
   // "carried nothing the plot needed" x3, "the survivors changed in concrete ways", "Evelyn's answer
   // was brief", "Sir Edmund's reply was short", "The confrontation ended in the scene".
-  const PRINTED = /\b(?:at length|the plot|survivors?|concrete change|very short answer|short reply|long speech|in the scene)\b/i;
+  const PRINTED = /\b(?:at length|the plot|survivors?|concrete change|very short answer|short reply|long speech|in the scene|could not have|before the arrest|last paragraph|consequence|shows? changed)\b/i;
   const golden = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "..", "eval", "golden");
   const bundles = existsSync(golden) ? readdirSync(golden).filter((f) => f.startsWith("bundle-")) : [];
 
