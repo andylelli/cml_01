@@ -14,6 +14,7 @@ This folder holds the plan and its status. Evidence behind every claim is labell
 | `03_depth-and-length.md` | why v2 books run short, and how WP-001's depth operations lengthen them without padding |
 | `04_review-weaknesses.md` | every weakness the recent readers named, how often, which mark it costs, and who owns it |
 | `05_path-to-90.md` | the arithmetic by category, the phased plan, and how each phase is measured |
+| `06_first-fresh-read.md` | the first fresh v2 book read 69: why, what the checkers missed, and the £0 fixes — holistic to every axis |
 
 ---
 
@@ -81,4 +82,7 @@ One row per item. **Status** is one of: not started · built · measured · read
 | P4.3 | no catchphrase shared across characters | deferred — needs speaker attribution the checkers do not have; `catchphrase_repeated` covers the recurring-tag half (10 found and sent to the editor on pair 2) | — | A_108 v1 read; the v2 read's tags were one character's, not shared |
 | P4.4 | one instrument that points up (WP-001 §6.2) | deferred — the LLM client returns no token log-probabilities (0 sites in `packages/llm-client/src`), so the PMI candidate needs client work first; register conformance per story remains the other candidate | — | decide after the pair-3 read shows where the marks sit |
 
-**Next item:** the external read of pair 3 — `stories/story_20260925-1240/resumed_resume_1790335377015.md` — with the predictions in `05` §2.
+**Pair 3 read 88** (the best this project has had) and **the first fresh v2 run read 69** — see `06`, which
+carries its own STATUS table for the £0 fixes that read produced.
+
+**Previous next item (done):** the external read of pair 3 — `stories/story_20260925-1240/resumed_resume_1790335377015.md` — with the predictions in `05` §2.

@@ -3066,3 +3066,14 @@ WP-001 (O2 the staged wound, O5 one element doing no job) supplies the rest of t
 arithmetic, MEASURED over 70 reads:** the offset shrinks to +3 at the top of the ledger, so a 90 needs
 a category sum of 86–87 — plot, character, clues and ending at 9 in one book. Each has been given a 9
 before; no book has had all four.
+
+**§33 UPDATE 1 — pair 3 read 88; the first fresh v2 book read 69 (`17-hitting-90/06`).** The 88 is
+the ninth read in a row of seed 23403, the case v2 was chosen and tuned on; the 69 (run 98dec72a,
+identity axis) is v2's first new case. MEASURED causes, every one general to all axes: our own brief
+lines printed as prose ("carried nothing the plot needed" ×3, "spoke at length" ×7); stock lines given
+to every chapter call and repeated ×3–5; clue observables written as conclusions and recited to the
+investigator (23 lines, pair 3: 2); three passages repeated inside one chapter. The checkers missed them
+through four general faults — short quotes discarded at anchoring, a splitter that ends sentences at
+"Mr.", a copy check that looked only across chapters, and verbatim-only echo matching — fixed with a
+duplicate edit guard. Rule adopted: no change is fitted to one story; every checker ships with a
+known-negative.

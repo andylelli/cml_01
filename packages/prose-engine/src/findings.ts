@@ -39,6 +39,7 @@ import { extractClockValues } from "@cml/cml";
 
 import { indexChapters } from "./chapter-index.js";
 import { findCatchphrases, findInstructionEchoes, instructionPhrases } from "./instruction-echo.js";
+import { splitSentences } from "./sentences.js";
 import { checkHardGates } from "./selector.js";
 import type {
   ContractCore,
@@ -62,8 +63,9 @@ const ABSTRACT_SUBJECT =
  * report of a line's length or of the exchange's number, which is the contract's wording coming
  * back as prose (A_67), not a thing a character says.
  */
+// Run 98dec72a: "Harcourt answered with four words." twice — the count said with "with", not "in".
 const OPERATION_NARRATED =
-  /\b(?:spoke|said|replied|answered|continued|went on|addressed [^.!?]{0,30}|speech)\s+at length\b|\bat length,\s+(?:his|her|their)\b|\bin (?:two|three|four|five|six) words\b|\b(?:answer|reply|response|line)\s+(?:came|was|arrived)\s+(?:in\s+)?(?:brief|short|clipped|minimal|curt|a single word|\w+ words)\b|\bclipped to (?:two|three|four|five) words\b|\b(?:first|second) exchange\b|\bthe line (?:minimal|brief) but\b|\bas brief as it was\b/i;
+  /\b(?:spoke|said|replied|answered|continued|went on|addressed [^.!?]{0,30}|speech)\s+at length\b|\bat length,\s+(?:his|her|their)\b|\bin (?:two|three|four|five|six) words\b|\b(?:answered|replied|responded|said|spoke)\s+(?:only\s+)?with\s+(?:a single word|one word|(?:two|three|four|five|six) words)\b|\b(?:answer|reply|response|line)\s+(?:came|was|arrived)\s+(?:in\s+)?(?:brief|short|clipped|minimal|curt|a single word|\w+ words)\b|\bclipped to (?:two|three|four|five) words\b|\b(?:first|second) exchange\b|\bthe line (?:minimal|brief) but\b|\bas brief as it was\b/i;
 
 /** How each class is treated by the edit loop: round 1 takes everything, round 2 only the first two. */
 export const SEVERITY: Record<FindingClass, FindingSeverity> = {
@@ -116,8 +118,7 @@ const normalise = (text: string): string => String(text ?? "").replace(/\s+/g, "
 const bodyOf = (chapter: ProseChapterLike | undefined): string =>
   normalise((chapter?.paragraphs ?? []).join(" "));
 
-const sentencesOf = (text: string): string[] =>
-  text.split(/(?<=[.!?])\s+/).map((s) => s.trim()).filter((s) => s.length > 0);
+const sentencesOf = (text: string): string[] => splitSentences(text);
 
 /** Enough words that a quote identifies one place in the chapter and can be found again. */
 export const MIN_QUOTE_WORDS = 8;
@@ -278,7 +279,10 @@ export const collectCheckerFindings = (
     }
   }
 
-  // 4. a sentence that appears in two chapters (A_90 §12: 16 of 24 copies came from the chapter before).
+  // 4. a sentence that appears twice (A_90 §12: 16 of 24 copies came from the chapter before).
+  // The same chapter counts too. The first fresh v2 book (run 98dec72a) carried three passages
+  // twice inside one chapter, one of them a speech restarted mid-paragraph with a stray quotation
+  // mark, and this check looked only ACROSS chapters, so none was reported. MEASURED: 0 of 3.
   const sentenceHome = new Map<string, number>();
   for (const chapter of order) {
     const body = bodyOf(byChapter.get(chapter));
@@ -287,8 +291,9 @@ export const collectCheckerFindings = (
       const key = sentence.toLowerCase();
       const home = sentenceHome.get(key);
       if (home === undefined) sentenceHome.set(key, chapter);
-      else if (home !== chapter) {
-        out.push(finding("copied_sentence", chapter, sentence, `also in chapter ${home}, word for word`));
+      else {
+        const where = home === chapter ? "earlier in this chapter" : `also in chapter ${home}`;
+        out.push(finding("copied_sentence", chapter, sentence, `${where}, word for word`));
       }
     }
   }
@@ -373,7 +378,32 @@ export const collectCheckerFindings = (
     }
   }
 
-  return out;
+  return out.map((f) => widenQuote(f, bodyOf(byChapter.get(f.chapter))));
+};
+
+/**
+ * A checker's quote is exact by construction, so when the sentence it matched is too short to anchor,
+ * the quote grows by its neighbours until it is long enough — the finding is not thrown away.
+ *
+ * Anchoring discards any quote under `MIN_QUOTE_WORDS`, which is right for the critic (a short quote
+ * may be a paraphrase) and wrong for a checker. MEASURED on run 98dec72a: five `operation_narrated`
+ * hits — "Evelyn's answer was brief.", "Sir Edmund's reply was short." — were found and then
+ * discarded, and the book went to the reader with all five; over the 227 saved books, 45 of that
+ * class and 141 `abstract_subject` hits were lost the same way.
+ */
+const widenQuote = (f: Finding, body: string): Finding => {
+  const count = (s: string): number => s.split(/\s+/).filter(Boolean).length;
+  if (!body || count(f.quote) >= MIN_QUOTE_WORDS) return f;
+  const sentences = sentencesOf(body);
+  const at = sentences.findIndex((s) => normalise(s).includes(f.quote));
+  if (at < 0) return f;
+  let first = at;
+  let last = at;
+  const span = (): string => normalise(sentences.slice(first, last + 1).join(" "));
+  while (count(span()) < MIN_QUOTE_WORDS && last + 1 < sentences.length) last += 1;
+  while (count(span()) < MIN_QUOTE_WORDS && first > 0) first -= 1;
+  const quote = span();
+  return body.includes(quote) ? { ...f, quote } : f;
 };
 
 // ── the critic ───────────────────────────────────────────────────────────────────────────────────

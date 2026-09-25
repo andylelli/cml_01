@@ -22,6 +22,7 @@
  * unfortunate" 4, "as it must be" 3, "if only they knew" 3. On B it caught "agatha's answer was
  * flat" — the flat-answer label leaking as narration, which is checker 1's job too.
  */
+import { splitSentences } from "./sentences.js";
 import type { ProseChapterLike } from "./types.js";
 
 /**
@@ -111,7 +112,7 @@ export const findInstructionEchoes = (
       if (taken.some((t) => t.includes(phrase))) continue; // a longer echo already covers it
       const re = new RegExp(`\\b${escape(phrase).replace(/\s+/g, "\\s+")}\\b`);
       if (!re.test(lower)) continue;
-      const sentence = body.split(/(?<=[.!?])\s+/).find((s) => re.test(s.toLowerCase())) ?? body.slice(0, 120);
+      const sentence = splitSentences(body).find((s) => re.test(s.toLowerCase())) ?? body.slice(0, 120);
       hits.push({ chapter, phrase, sentence });
       taken.push(phrase);
     }
@@ -139,16 +140,28 @@ export const findCatchphrases = (
   const sightings: Array<{ chapter: number; key: string; sentence: string }> = [];
   for (const [chapter, written] of ordered) {
     const body = (written.paragraphs ?? []).join(" ").replace(/\s+/g, " ");
-    const sentences = body.split(/(?<=[.!?])\s+/);
+    const sentences = splitSentences(body);
     for (const sentence of sentences) {
       for (const m of sentence.matchAll(/[\u201c"]([^\u201c\u201d"]{4,60})[\u201d"]/g)) {
         const w = words(m[1] ?? "");
         if (w.length < 2 || w.length > 6) continue;
-        const key = w.join(" ");
-        totals.set(key, (totals.get(key) ?? 0) + 1);
-        sightings.push({ chapter, key, sentence });
+        sightings.push({ chapter, key: w.join(" "), sentence });
       }
     }
+  }
+  // A saying that only adds an address to a line already said is the same line: run 98dec72a had
+  // "Let's cut to the chase," twice and "Let's cut to the chase, Inspector," once, and counted two.
+  const keys = [...new Set(sightings.map((s) => s.key))];
+  const canonical = new Map<string, string>();
+  for (const key of keys) {
+    const base = keys
+      .filter((k) => k !== key && k.split(" ").length >= 3 && key.startsWith(`${k} `))
+      .sort((a, b) => a.length - b.length)[0];
+    canonical.set(key, base ?? key);
+  }
+  for (const s of sightings) {
+    s.key = canonical.get(s.key) ?? s.key;
+    totals.set(s.key, (totals.get(s.key) ?? 0) + 1);
   }
   const hits: CatchphraseHit[] = [];
   const seen = new Map<string, number>();

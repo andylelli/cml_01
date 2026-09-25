@@ -475,6 +475,7 @@ export type GuardName =
   | "clueCoverageNotWorse"
   | "noNewScaffold"
   | "noMalformedSplice"
+  | "noNewDuplicate"
   | "registerNotWorse"
   | "lengthWithin";
 

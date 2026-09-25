@@ -25,6 +25,9 @@
  *                         evidence and the book came back with two rubric caps.
  *   noNewScaffold         the ratchet: an edit that introduces a template is the next complaint.
  *   noMalformedSplice     A_96 F4: "You; searching for blame in the shadowed places".
+ *   noNewDuplicate        run 98dec72a: a speech closed, then restarted word for word after a stray
+ *                         quotation mark in the same paragraph. A replacement that restates the
+ *                         text beside it raises names, clue terms and length, so no other guard fell.
  *   registerNotWorse      register is the only validated predictor; an edit may not spend it.
  *   lengthWithin          A_94 §6: a wording read as a diet took the book 17% shorter.
  */
@@ -34,6 +37,7 @@ import type { Validator } from "@cml/prose-guard";
 import { extractClockValues } from "@cml/cml";
 
 import { bookRegisterRate } from "./findings.js";
+import { splitSentences } from "./sentences.js";
 import type { EditList, EditOutcome, Finding, GuardName, ProseChapterLike, SceneContract } from "./types.js";
 
 const normalise = (text: string): string => String(text ?? "").replace(/\s+/g, " ").trim();
@@ -69,6 +73,17 @@ const MALFORMED_PATTERNS: ReadonlyArray<RegExp> = [
   /\b(?:his|her|its|their|my|our|your)\s+(?:he|she|it|they|we|i|you)\b/i,
   /\s,|\s\.|\(\s*\)/,
 ];
+
+/** Sentences of eight words or more that occur more than once in the chapter, with their counts. */
+const duplicatedSentences = (body: string): Map<string, number> => {
+  const seen = new Map<string, number>();
+  for (const sentence of splitSentences(normalise(body))) {
+    if (sentence.split(/\s+/).length < 8) continue;
+    const key = sentence.toLowerCase();
+    seen.set(key, (seen.get(key) ?? 0) + 1);
+  }
+  return new Map([...seen].filter(([, count]) => count > 1));
+};
 
 const SCAFFOLD_RE =
   /\b(clue_[a-z0-9_]+|act_?\d+|scene_?\d+|prose_requirements|hidden_model|locked[_ ]fact|validator|contract)\b/i;
@@ -107,6 +122,7 @@ export const measureGuards = (
     ),
     noNewScaffold: -(body.match(new RegExp(SCAFFOLD_RE.source, "gi")) ?? []).length,
     noMalformedSplice: -MALFORMED_PATTERNS.filter((re) => re.test(body)).length,
+    noNewDuplicate: -[...duplicatedSentences(body).values()].reduce((n, c) => n + (c - 1), 0),
     registerNotWorse: -Math.round(bookRegisterRate([chapter]) * 1_000),
     lengthWithin: wordCount(chapter),
   };
@@ -120,6 +136,7 @@ const NEVER_FALL: GuardName[] = [
   "clueCoverageNotWorse",
   "noNewScaffold",
   "noMalformedSplice",
+  "noNewDuplicate",
   "registerNotWorse",
 ];
 
@@ -133,6 +150,12 @@ export const buildGuards = (context: GuardContext): { validator: Validator<Prose
     const violations: string[] = [];
     if (measures.noNewScaffold < 0) violations.push("noNewScaffold");
     if (measures.noMalformedSplice < 0) violations.push("noMalformedSplice");
+    // A VIOLATION per duplicated sentence, not only a score: the score is a sum, and a splice that
+    // repeats a sentence with a name in it raises `castNamesIntact` by exactly what it takes from
+    // this guard. One string per sentence, so a repair removes a string and a new copy adds one.
+    for (const key of duplicatedSentences(bodyOf(chapter)).keys()) {
+      violations.push(`noNewDuplicate: "${key.slice(0, 60)}"`);
+    }
     for (const value of context.lockedValues) {
       if (!bodyOf(chapter).includes(value)) violations.push(`lockedValuesIntact: "${value}" absent`);
     }
