@@ -27,7 +27,9 @@ export const deathMethodWoundSiteNote = (deathMethod: unknown): string | undefin
   return `[17-hitting-90 P3.1] death_method names a wound and no place on the body that it kills: "${dm}"`;
 };
 
-const ACT_WINDOW = /\b(murder|the act|killing|death|entry|opportunit|access)\b/i;
+// Widened 2026-09-25 after the harness: seed 18179's window read "earliest to latest time victim could be
+// killed" and the first form knew "killing" and not "killed" — a note that fired on the probe, not the case.
+const ACT_WINDOW = /\b(murder\w*|the act|kill\w*|death|die[sd]?|dying|entry|opportunit\w*|access|victim)\b/i;
 const TWO_ENDS = /\b(to|until|till|through|and)\b|[-–—]/;
 
 /** The window about the act, if the case states one with two ends. */

@@ -406,6 +406,13 @@ export const FINDING_CLASSES = [
    * it, and the repair is one shape: a named person as the subject, doing something.
    */
   "abstract_subject",
+  /**
+   * 17-hitting-90, pair 3 (2026-09-25) — the wit operation narrated as it is performed: "spoke at
+   * length" ×7, "Desmond's answer came in four words", "Montague's first exchange was a question".
+   * The contract asks for a short answer and a long speech; the writer announces the count. The
+   * reader lists exactly this family as scaffold (*"six words slicing through his own speech"*).
+   */
+  "operation_narrated",
   "repeat_passage",
   "copied_sentence",
   "clearance_after_reveal",

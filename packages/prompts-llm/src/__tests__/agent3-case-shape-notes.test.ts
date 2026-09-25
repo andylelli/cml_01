@@ -39,6 +39,12 @@ describe("P3.2 — the opportunity as a window with two ends", () => {
     expect(actWindowOf(alibisOnly)).toBeUndefined();
     expect(actWindowNote(alibisOnly)).toMatch(/no window about the act/);
   });
+  it("KNOWN-POSITIVE from the harness: 'earliest to latest time victim could be killed' is the act's window", () => {
+    const h = { constraint_space: { time: { windows: ["9:10 to 9:30 — earliest to latest time victim could be killed", "9:00 to 9:30 in barn — Gerald Thorne's alibi"] } } };
+    expect(actWindowOf(h)).toMatch(/could be killed/);
+    expect(actWindowNote(h)).toBeUndefined();
+  });
+
   it("a window about the act with one end is not a window", () => {
     expect(actWindowOf({ constraint_space: { time: { windows: ["the murder at half past three"] } } })).toBeUndefined();
   });

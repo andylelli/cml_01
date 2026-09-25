@@ -36,7 +36,8 @@ print("operations narrated:", {k: v for k, v in nar.items() if v}, "total", sum(
 
 CLOCK = re.compile(r"\b(?:half past|quarter (?:past|to)|(?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|twenty|twenty-five|\d{1,2}) (?:minutes? )?(?:past|to) (?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)|\b(?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve) (?:fifty|forty|twenty|ten|five)\b|\d{1,2}:\d{2})", re.I)
 cl = chs[closure - 1] if len(chs) >= closure else ""
-print(f"closure ch{closure}: clock values {len(CLOCK.findall(cl))}, 'cleared' {len(re.findall(r'\\bcleared\\b', cl, re.I))}, words {len(cl.split())}")
+CLEARED = re.compile(r"\bcleared\b", re.I)  # the first form doubled the backslash inside an f-string and counted 0 on a chapter that said it three times
+print(f"closure ch{closure}: clock values {len(CLOCK.findall(cl))}, 'cleared' {len(CLEARED.findall(cl))}, words {len(cl.split())}")
 
 rv = chs[reveal - 1] if len(chs) >= reveal else ""
 checks = {

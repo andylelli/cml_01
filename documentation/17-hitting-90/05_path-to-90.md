@@ -85,6 +85,22 @@ labels and chapter 9 re-clearing every suspect with clock values — both known 
 built the same afternoon. **Pair 3** = pair 2 + P4.1 (abstract-subject finding) + P4.2 (moves, not
 labels) + the closure amendment; it goes to the reader if my own read passes it.
 
+**Pair 3 result (2026-09-25, `resume-1790335377015`, ~$1.0):** 13,701 words, no chapter under 1,164;
+humour labels 16 → 1 (ordinary English about the victim); chapter 9 clock values 4 → 0 and
+"Hector Gaunt, cleared." / "Neville Lachlan, cleared." / "Bertram Vance, cleared."; abstract-subject
+sentences 6 → 1; em-dashes 132; repetition 12.0 per 10k, normal; 30 refusals softened, 0 unusable.
+Chapter 8, read: Hector enters the cave and fails, Desmond performs the route; the foil sentence
+with the marks and his grip; "Desmond Kestrel killed Katherine Quayle"; two confession lines (the
+will; "the position — Quayle Academy, in its entirety"); the ten-minute window with both values.
+Six of six. **Goes to the reader.** What the reader will still find, predicted: "spoke at length" ×7
+and "answer came in four words" (the wit operation narrated — the `operation_narrated` finder is
+built for the next book); a bloodied sleeve in chapter 1 with the wound's place unstated (the case
+was generated before P3.1); six clock values off THE CLOCK's table; chapter 9 titled "The Lie
+Unravelled" by the writer. **Prediction for the read:** headline 86–89; clues 8 or 9 and ending 8 or
+9 (v2 had 7 and 7); prose holds at 8; dialogue 8; the reader praises the failed attempt before the
+successful one and the aftermath photograph. A headline under 84 or clues under 8 overturns the
+reveal package.
+
 **Pair 2 — the reveal package (P1.2–P1.7).** Bundled: they touch the test, reveal and aftermath
 chapters only, which pair 1 does not change. Predictions, each checkable by reading chapter 8–10:
 1. an innocent suspect attempts the test's physical step and fails; the culprit performs it;
@@ -145,6 +161,8 @@ These ride on the phase-2 fresh run, so one run tests both phases.
 | phase 2 + 3 | 1 prose pair + 1 fresh run + harnesses, ~£1.50 | 1 |
 | phase 4 | 1 prose pair, ~£0.25 | 1 |
 | **total** | **about £2.25 in runs** | **3 reads** |
+
+**Actuals, 2026-09-25:** pair 1 $0.45, pair 2 $1.01, pair 3 ~$1.0 — about $2.5 in runs for phases 0–4's builds, before the first read; chapter-per-call doubled the price of a v2 pair.
 
 Every paid run is announced with its full parameters before it launches (CLAUDE.md), and every
 prediction above is reported afterwards, including the ones that fail.

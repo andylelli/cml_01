@@ -57,6 +57,14 @@ import { FINDING_CLASSES } from "./types.js";
 const ABSTRACT_SUBJECT =
   /^(?:(?:the|a|an)\s+)?(?:room|silence|hush|quiet|stillness|truth|evidence|proof|air|tension|atmosphere|pattern|answer|question|moment|weight|case|facts?|mystery|mood|darkness|night)\s+(?:itself\s+)?(?:was|were|had|has|held|hung|fell|settled|grew|lay|remained|seemed|continued|began|pressed|closed|thickened|deepened|gathered|shifted|stretched|refused|would|could)\b/i;
 
+/**
+ * 17-hitting-90 — the announced shape. Narration only in effect: every form here is a narrator's
+ * report of a line's length or of the exchange's number, which is the contract's wording coming
+ * back as prose (A_67), not a thing a character says.
+ */
+const OPERATION_NARRATED =
+  /\b(?:spoke|said|replied|answered|continued|went on|addressed [^.!?]{0,30}|speech)\s+at length\b|\bat length,\s+(?:his|her|their)\b|\bin (?:two|three|four|five|six) words\b|\b(?:answer|reply|response|line)\s+(?:came|was|arrived)\s+(?:in\s+)?(?:brief|short|clipped|minimal|curt|a single word|\w+ words)\b|\bclipped to (?:two|three|four|five) words\b|\b(?:first|second) exchange\b|\bthe line (?:minimal|brief) but\b|\bas brief as it was\b/i;
+
 /** How each class is treated by the edit loop: round 1 takes everything, round 2 only the first two. */
 export const SEVERITY: Record<FindingClass, FindingSeverity> = {
   reveal_unnamed: "fairplay",
@@ -84,6 +92,7 @@ export const SEVERITY: Record<FindingClass, FindingSeverity> = {
   scaffold_token: "defect",
   register_sentence: "craft",
   abstract_subject: "craft",
+  operation_narrated: "craft",
   repeat_passage: "craft",
   catchphrase_repeated: "craft",
   copied_sentence: "defect",
@@ -313,6 +322,17 @@ export const collectCheckerFindings = (
       if (sentence.split(/\s+/).length < 5) continue;
       if (!ABSTRACT_SUBJECT.test(sentence)) continue;
       out.push(finding("abstract_subject", chapter, sentence, "the subject is a thing nobody can see act; give the sentence a named person doing something"));
+    }
+  }
+
+  // 3c. 17-hitting-90 — the operation narrated as it is performed. Pair 3 said "spoke at length"
+  // seven times and "answer came in four words" once: the count the contract asked for, printed.
+  for (const [chapter, written] of byChapter) {
+    const body = bodyOf(written);
+    for (const sentence of sentencesOf(body)) {
+      if (/^["“]/.test(sentence)) continue; // a character may say "at length"; the narrator may not announce it
+      if (!OPERATION_NARRATED.test(sentence)) continue;
+      out.push(finding("operation_narrated", chapter, sentence, "the narration announces the shape of the line instead of letting the line have it; cut the announcement and keep the line"));
     }
   }
 

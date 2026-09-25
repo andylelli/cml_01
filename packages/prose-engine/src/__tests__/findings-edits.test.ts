@@ -416,3 +416,32 @@ describe("17-hitting-90 P4.1 — the abstract subject", () => {
     expect(findings.every((f) => f.severity === "craft")).toBe(true);
   });
 });
+
+describe("17-hitting-90 — the operation narrated as it is performed", () => {
+  const written: ProseChapterLike[] = [
+    chapter([
+      "Bertram Vance, who had watched the ritual with a half-smile, spoke at length, his voice pitched for all to hear.",
+      // Each on its own sentence, ending without a closing quote: the sentence splitter reads `."` as one run.
+      "Desmond's answer came in four words, and they were the last he gave that day.",
+      "Montague's first exchange was a question to Desmond, quiet, almost rhetorical.",
+      "Desmond's response was as brief as it was unflinching, and Bertram heard it as a verdict.",
+      "Hector looked at the sea for a long time and said nothing about the will.",
+      "\"I could talk at length about tides,\" Bertram said, \"but I shan't.\"",
+    ]),
+  ];
+  const findings = collectCheckerFindings(written, core, [1]).filter((f) => f.class === "operation_narrated");
+
+  it("KNOWN-POSITIVE: pair 3's four announcements are found", () => {
+    expect(findings.map((f) => f.quote.slice(0, 30))).toEqual([
+      "Bertram Vance, who had watched",
+      "Desmond's answer came in four ",
+      "Montague's first exchange was ",
+      "Desmond's response was as brie",
+    ]);
+  });
+
+  it("a long look, and a character who SAYS 'at length', are not findings", () => {
+    expect(findings.some((f) => /looked at the sea/.test(f.quote))).toBe(false);
+    expect(findings.some((f) => /talk at length about tides/.test(f.quote))).toBe(false);
+  });
+});
