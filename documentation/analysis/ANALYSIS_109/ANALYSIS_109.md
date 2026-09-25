@@ -570,8 +570,8 @@ Telemetry in a run: `AGENT3_CASE_LOGIC=true` in `.env.local`.
 
 | step | item | status | commit | evidence |
 |---|---|---|---|---|
-| 1 | `CaseModel` — one parse: suspects by identifying name tokens, clue kind (points / eliminates / neutral) by stated rules, inference steps, chronology | built | (this commit) | golden: three Langleys and two Winthropes resolved by first-name tokens |
-| 2 | M1 STN (Floyd–Warshall, negative-cycle naming) + the act's derived window + **innocents' alibi coverage** — report-only | built | (this commit) | golden: consistent 4 of 4; act derivable 3 of 4 (eb1251aa states only claims); innocents covering the act **2 of 8** (5 partial, 1 none). Telemetry flag `AGENT3_CASE_LOGIC`; archive script |
+| 1 | `CaseModel` — one parse: suspects by identifying name tokens, clue kind (points / eliminates / neutral) by stated rules, inference steps, chronology | built | d003b882 | golden: three Langleys and two Winthropes resolved by first-name tokens |
+| 2 | M1 STN (Floyd–Warshall, negative-cycle naming) + the act's derived window + **innocents' alibi coverage** — report-only | built | d003b882 | golden: consistent 4 of 4; act derivable 3 of 4 (eb1251aa states only claims); innocents covering the act **2 of 8** (5 partial, 1 none). Telemetry flag `AGENT3_CASE_LOGIC`; archive script |
 | 3 | M5 recaps | not started | | |
 | 4 | M3 proof core | not started | | |
 | 5 | M2 reader model, report-only | not started | | |
