@@ -72,7 +72,18 @@ Every one of these is an unforced choice, which is WP-001's definition of person
 item because it is the only one the readers have asked for by name. **INFERRED** from the reads;
 **MEASURED** that no v2 or v1 contract asks for it.
 
-## §4 The em-dash question — a claim about a probe until checked
+## §4 The em-dash question — RESOLVED: the save path deleted them
+
+**MEASURED 2026-09-25.** Pair 1's drafts carry 15–45 em-dashes each, its final checkpoint chapters
+81, its saved manuscript **0**. `save-readable-story.ts` and `story-output.ts` folded `–` and `—` to a
+bare `-` (`.replace(/[–—]/g, "-")`, since 2026-07-04, commit e25ab708), so *"paused — then"* reached
+the reader as *"paused-then"*. **All 72 read manuscripts since July went out this way**, both
+engine-pair books included. The fold is removed. The em-dash operation was working; its output was
+deleted at the last step — WP-001 §4.2's shape, one layer down. Corollary: the selector's em-dash
+instrument (ρ +0.222) was calibrated on folded text, and the calibration's *"read 0.000 on all 49
+books"* was this fold.
+
+The paragraph below is the state before the trace, kept as the record of a probe claim:
 
 Both books carry **zero** em-dashes on the saved page. `brief.ts:167` records drafts on 2026-09-19
 arriving at **6–8** a chapter when asked for three. So either this run's drafts ignored the ask, or

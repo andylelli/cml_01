@@ -12,6 +12,11 @@ vi.mock("@cml/prompts-llm", () => ({
   reviseCml: vi.fn(),
   // A_56 5-A: shared.ts applyClueGuardrails now imports this; stub as a no-op (no collisions).
   checkPointsToDistinctness: () => ({ ok: true, collisions: [] }),
+  // 17-hitting-90 P1.3: @cml/prose-engine's contract now reads the means-link trace through these;
+  // the module graph reaches them from here. Stubbed as "no trace", which is what a case without
+  // A_102's trace carries.
+  provesTheAct: () => ({ verdict: "UNKNOWN", detail: "", linkingTraces: [], weaponTracesNamingNobody: [], culpritTracesWithoutWeapon: [], usedInInferencePath: false, usedByStep: undefined }),
+  splitMeansLinkTrace: () => undefined,
 }));
 
 vi.mock("@cml/story-validation", () => ({

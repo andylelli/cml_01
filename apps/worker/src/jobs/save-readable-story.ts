@@ -30,7 +30,10 @@ const normText = (value: unknown): string => {
     .replace(/[‘’]/g, "'")
     .replace(/[“”]/g, '"')
     .replace(/…/g, "...")
-    .replace(/[–—]/g, "-")
+    // 17-hitting-90 P2.5, MEASURED 2026-09-25: this line used to fold `–` and `—` to a bare `-`, so
+    // "paused — then" reached the reader as "paused-then". Pair 1's drafts carried 15–45 em-dashes
+    // each, the final chapters 81, the saved manuscript 0 — and so did all 72 read manuscripts since
+    // 2026-07-04. The dash is prose; it stays.
     .trim();
 };
 

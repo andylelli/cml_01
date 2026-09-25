@@ -39,8 +39,23 @@ export const namesAsCulprit = (text: string, culprit: string): boolean => {
   const name = `(?:${escape(culprit)}|${escape(surname)})`;
 
   /** Doing the deed, named directly. */
-  const didIt =
-    `${name}[^.!?]{0,80}\\b(?:killed|murdered|poisoned|strangled|struck|is the (?:killer|murderer|culprit)|did it)\\b`;
+  /**
+   * 17-hitting-90 P1.6. The verb list had no "stabbed" — the arm-B case was a stabbing — which is the
+   * `guilt-marker-has-no-blunt-force-verb` shape again. The verbs of killing this pipeline's
+   * `death_method` field has produced are all here now.
+   */
+  const killVerb =
+    `(?:killed|murdered|poisoned|strangled|throttled|struck|stabbed|shot|drowned|smothered|suffocated|bludgeoned|pushed|cut)`;
+  const didIt = `${name}[^.!?]{0,80}\\b(?:${killVerb}|is the (?:killer|murderer|culprit)|did it)\\b`;
+  /**
+   * The accusation to the culprit's face, by name: *"Desmond Kestrel, you alone could have used the
+   * cave's secret window"*. v2's gate read arm B's chapter 8 as naming nobody and stopped the book
+   * for a reader who then named Desmond without hesitation (A_108 §3). "You" after the name, then a
+   * verb of killing or the words that make only one person able, inside the sentence.
+   */
+  const youAccused =
+    `${name}[^.!?]{0,40}\\byou\\b[^.!?]{0,80}\\b(?:${killVerb}|alone could|only you|no one else could|nobody else could)\\b` +
+    `|${name}[^.!?]{0,40}\\byou\\b[^.!?]{0,20}\\b(?:were|are) the (?:killer|murderer|one)\\b`;
   /** "the murderer was X" — the deed first, the name second. */
   const wasThem = `\\b(?:killer|murderer|culprit) (?:is|was)[^.!?]{0,20}${name}`;
   /**
@@ -83,5 +98,5 @@ export const namesAsCulprit = (text: string, culprit: string): boolean => {
     `${name}[^.!?]{0,60}\\b(?:was arrested|were arrested|taken into custody|led away|charged with (?:the )?(?:murder|killing|crime))\\b` +
     `|\\b(?:arrest(?:ed)?|collect|take into custody)\\b[^.!?]{0,30}${name}[^.!?]{0,40}\\b(?:constable|police|inspector|sergeant|custody)\\b`;
 
-  return new RegExp([didIt, wasThem, authored, attributed, confessed, responsible, arrested].join("|"), "i").test(text);
+  return new RegExp([didIt, youAccused, wasThem, authored, attributed, confessed, responsible, arrested].join("|"), "i").test(text);
 };

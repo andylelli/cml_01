@@ -39,6 +39,7 @@ import {
   planSegments,
   priorChapters,
   revealOperation,
+  mechanismOperation,
   scoreDraft,
   writerFormatInstruction,
   type BookContract,
@@ -181,12 +182,15 @@ export const renderSceneContract = (contract: BookContract, chapter: number): st
    * writer would have copied onto the page (A_67); it never ran.
    */
   const culpritNames = contract.fairPlay.culprits.join(", ") || "the culprit";
-  const REVEAL_TITLE = /\b(reveal|unmask|culprit|confess|expos|confront|accus|guilt|verdict|truth)/i;
+  // 17-hitting-90 P1.7: "revelation" is not "reveal" to a regex, and the arm-B book shipped chapter 10
+  // as "The Revelation" a chapter after the reveal (the reader: "the revelation already happened").
+  // Any chapter after the reveal is held to the aftermath's rule.
+  const REVEAL_TITLE = /\b(reveal|revelation|unmask|culprit|confess|expos|confront|accus|guilt|verdict|truth|solution|unveil)/i;
   const CLEARING_TITLE = /\b(clear|innocent|alibi|eliminat)/i;
   const titleFits =
     scene.role === "reveal"
       ? REVEAL_TITLE.test(scene.title) && !CLEARING_TITLE.test(scene.title)
-      : scene.role === "aftermath"
+      : scene.role === "aftermath" || chapter > contract.roles.reveal
         ? !REVEAL_TITLE.test(scene.title)
         : true;
   lines.push(titleFits && scene.title ? `=== CHAPTER ${chapter}: ${scene.title} ===` : `=== CHAPTER ${chapter} ===`);
@@ -270,7 +274,26 @@ export const renderSceneContract = (contract: BookContract, chapter: number): st
    * thousand tokens behind it and this contract directly in front. Em-dashes proved the brief is
    * read; these two are the ones that need saying twice.
    */
-  if (scene.role === "reveal") lines.push(`  ${revealOperation(contract)}`);
+  /**
+   * 17-hitting-90 P1.2–P1.4 — the reveal package, said where the writing happens. Each is a shape
+   * with the case's own slots; none quotes the case text (A_67: what is shown is copied).
+   */
+  if (scene.testSubjects) {
+    lines.push(
+      `  The test is applied on the page to ${scene.testSubjects.innocent} first and to ${scene.testSubjects.culprit} second, ` +
+        `and the two results differ: the result that incriminates falls on ${scene.testSubjects.culprit}, and everybody present sees it fall.`,
+    );
+  }
+  if (scene.role === "reveal") {
+    if (scene.proof) {
+      lines.push(
+        `  At the confrontation the person who worked it out names the ${scene.proof.weapon}, says what was found on it — ${scene.proof.finding} — ` +
+          `and says in the same sentence whose hand that puts it in: ${scene.proof.culprit}'s.`,
+      );
+    }
+    lines.push(`  ${revealOperation(contract)}`);
+    lines.push(`  ${mechanismOperation(contract)}`);
+  }
   lines.push(
     `  At least ${fullParagraphs(scene.words.preferred)} paragraphs here run to four sentences or more, for about ${scene.words.preferred} words.`,
   );

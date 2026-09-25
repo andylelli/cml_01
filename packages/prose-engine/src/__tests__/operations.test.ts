@@ -75,15 +75,16 @@ describe("the reveal and the test, after A_101 §6", () => {
   it("the reveal gains the culprit's answer and keeps its countable sentence", () => {
     const line = revealOperation(core);
     expect(line).toMatch(/Nora Quayle killed/);
-    expect(line).toMatch(/Then Nora Quayle answers, in their own words on the page/);
+    expect(line).toMatch(/Then Nora Quayle speaks twice, in their own words on the page/);
   });
 
-  it("A_101 §14.3: the answer must carry the reason, not the evidence and not a joke", () => {
+  it("A_101 §14.3 → 17-hitting-90 P1.5: the answer is two counted lines, each carrying a slot of the reason", () => {
     // The read scored the ending 7/10 — the answer arrived and was "a bit too cute for a murder
-    // confession". The operation now names what the answer carries.
+    // confession". "Answers … and what they say is the reason" then produced silence on arm B of
+    // the engine pair and "too brief" on its read; one answer is one thing, and the qualifier drops.
     const line = revealOperation(core);
-    expect(line).toMatch(/what Nora Quayle says is the reason/);
-    expect(line).toMatch(/what Montague Gaunt was going to do to them, or what they stood to lose/);
+    expect(line).toMatch(/one line says what Montague Gaunt was about to do to them/);
+    expect(line).toMatch(/one line names what that would have cost them — a person, a position or a place/);
     // and it stays POSITIVE: the brief's own law rejects a prohibition, including one of ours — the
     // first wording was "never the evidence, and never a joke" and this test failed on it.
     expect(briefLawViolations(buildBrief({ core, humourLevel: "classic" }))).toEqual([]);

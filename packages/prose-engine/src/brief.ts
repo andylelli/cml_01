@@ -102,9 +102,32 @@ export const revealOperation = (core: ContractCore): string => {
     // on the page word for word.
     // Positive only: "never the evidence, and never a joke" was the first wording and the brief's own
     // law rejected it as a prohibition — the law working on the hand that wrote it.
-    `Then ${culprit} answers, in their own words on the page, and what ${culprit} says is the reason: ` +
-    `what ${victim} was going to do to them, or what they stood to lose. ` +
+    // 17-hitting-90 P1.5. "Answers … and what they say is the reason" produced silence on arm B —
+    // *"Desmond's eyes flickered, but he made no reply"* — and on the read "too brief". One answer is
+    // one thing; the model does the counted thing and drops the qualifier (A_102 §7). So: two lines,
+    // each with its own slot, both bound to the case the bible already states.
+    `Then ${culprit} speaks twice, in their own words on the page: one line says what ${victim} was about to do to them; ` +
+    `one line names what that would have cost them — a person, a position or a place, said by its name. ` +
     `The chapter closes in the scene.`
+  );
+};
+
+/**
+ * 17-hitting-90 P1.4 — the mechanism in one sentence, and the opportunity as a window.
+ *
+ * Four of four recent reads asked for this in the same words: *"the clock mechanism needs one clean
+ * explanatory sentence"*; *"We treated low tide as a single moment instead of a window."* The
+ * mechanism itself is in the bible; this asks for the sentence as a shape and, when the chronology
+ * carries an interval, names the two values it must contain.
+ */
+export const mechanismOperation = (core: ContractCore): string => {
+  const reveal = core.scenes.find((s) => s.chapter === core.roles.reveal);
+  const window = reveal?.opportunityWindow;
+  return (
+    `Chapter ${core.roles.reveal} carries one sentence, spoken aloud, that says how the killer reached the victim and got away — the route and the means, in one sentence.` +
+    (window
+      ? ` The chance to do it was a window, not an instant: that sentence, or the one after it, gives both ends from THE CLOCK — ${window.value} — as the time it opened and the time it closed.`
+      : "")
   );
 };
 
@@ -207,6 +230,7 @@ export const buildBrief = (input: BriefInput): Brief => {
     );
   }
   add("tests", revealOperation(core));
+  add("tests", mechanismOperation(core));
   if (core.roles.aftermath !== null) {
     const aftermath = core.scenes.find((s) => s.chapter === core.roles.aftermath)?.aftermath;
     add(

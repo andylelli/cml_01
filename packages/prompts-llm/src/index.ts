@@ -90,6 +90,8 @@ export {
   selectThemeCoherentPrimary,
 } from "./agent3b-hard-logic-devices.js";
 export { findUnplantedDiscriminatingClues } from "./agent3-discriminating-planting.js";
+// 17-hitting-90 P1.3 — v2 reads the same means-link trace v1 does; one splitter, two callers.
+export { splitMeansLinkTrace } from "./agent9-prose/discriminating.js";
 export type { UnplantedDiscriminatingClues } from "./agent3-discriminating-planting.js";
 export {
   AGENT3B_PLAUSIBILITY_FLOOR,

@@ -34,8 +34,21 @@ condition in `05` §4. Each segment gets the prior chapters' summaries (`priorCh
 already exists). **Prediction:** the last three chapters' mean rises from 519 words to over 850, and
 the book from 8,044 to over 10,000, with the same brief. One v2 prose pair, ~£0.30, settles it.
 
-If segmenting alone does not lift the end, the fallback is per-chapter paragraph counts in each
-chapter's own brief line, not the book-level sentence.
+**MEASURED 2026-09-25 — pair 1 (`resume-1790332941683`, about $0.45):** three calls of four
+chapters. Words by chapter **1003 1012 869 803 | 983 880 734 554 | 1022 755** — each call starts near
+1,000 and falls, and chapter 9, first of its call with eight chapters of context behind it, is the
+longest chapter in the book. Book 8,615 (arm B 8,044); chapters 8–10 mean 777 (predicted over 850);
+speech openings in chapters 7–10: 7 (predicted at least 12). **Predictions 2–4 failed. The taper is a
+property of position within a call, not of the call's length.** The per-chapter paragraph line already
+sits in every scene contract, so a per-chapter ask is not the lever either.
+
+**Next:** one chapter per call — `PROSE_V2_SEGMENT_CHAPTERS=1`, v1's unit, which v1 shows does not
+taper — bundled with the reveal package as pair 2. The two are measured by counts that do not
+overlap: words per chapter for the segmenting, the six reveal predictions for the package.
+
+Also MEASURED on pair 1: all nine writer calls were refused once and passed softened; the selector
+chose the shortest draft in 2 of 3 segments (3099 over 3938 and 3877; 1737 over 1950 and 1983), but
+over all eight v2 segments on record it chose the longest in 5 — not systematic.
 
 ## P1.2 — The proof lands on the wrong person
 

@@ -21,7 +21,7 @@ export const normalizeStoryText = (s: unknown): string =>
     .replace(/[‘’]/g, "'")
     .replace(/[“”]/g, '"')
     .replace(/…/g, "...")
-    .replace(/[–—]/g, "-")
+    // 17-hitting-90 P2.5: dashes are prose, not quote style — see save-readable-story.ts.
     .trim();
 
 /**

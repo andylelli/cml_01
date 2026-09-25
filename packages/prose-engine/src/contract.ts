@@ -46,6 +46,8 @@ import {
   UNDERSTATED_STYLES,
   SHARP_STYLES,
   type BeatCandidate,
+  provesTheAct,
+  splitMeansLinkTrace,
 } from "@cml/prompts-llm";
 import { deriveCaseChronology, renderClockWords } from "@cml/cml";
 
@@ -298,6 +300,37 @@ export const buildContractCore = (input: ContractInput): ContractCore => {
 
   const decisive = decisiveClueIds(caseBlock, clues);
   const clearanceByChapter = distributeClearances(caseBlock, roles.clearances, roles.reveal, roles.aftermath);
+
+  /**
+   * 17-hitting-90 P1.2–P1.4 — the reveal package, computed once from the case.
+   *
+   * The innocent the test is first applied to: the first suspect the case clears who is not a
+   * culprit, else the first living cast member who is neither culprit nor investigator. The proof:
+   * the case's own weapon-first trace naming the culprit (A_102's means-link), split into weapon,
+   * finding and name so the contract can ask for the sentence as a shape and never paste the trace.
+   * The window: the chronology's interval row about the act, else its first interval — both ends
+   * already spelled the way THE CLOCK spells them.
+   */
+  const culpritSet = new Set(culprits);
+  const investigatorRe = /detective|investigator|inspector|sleuth|police|constable|sergeant/;
+  const clearedSuspects = asArray((caseBlock.prose_requirements as Record<string, unknown> | undefined)?.suspect_clearance_scenes)
+    .map((e) => String((e as { suspect_name?: unknown })?.suspect_name ?? "").trim())
+    .filter((n) => n && !culpritSet.has(n) && n !== victim);
+  const livingSuspects = cast
+    .filter((c) => !investigatorRe.test(roleTextOf(c)))
+    .map(nameOf)
+    .filter((n) => n && !culpritSet.has(n) && n !== victim);
+  const testInnocent = clearedSuspects[0] ?? livingSuspects[0] ?? "";
+  const proof = (() => {
+    try {
+      return splitMeansLinkTrace(provesTheAct(caseBlock).linkingTraces[0]);
+    } catch {
+      return undefined;
+    }
+  })();
+  const intervals = chronology.rows.filter((r) => r.kind === "interval");
+  const opportunityWindow =
+    intervals.find((r) => /murder|entry|the act|opportunit|window|access/i.test(r.label)) ?? intervals[0];
   const band = humourBand(input.humourLevel);
   const castNames = cast.map(nameOf).filter(Boolean);
 
@@ -430,6 +463,15 @@ export const buildContractCore = (input: ContractInput): ContractCore => {
     }
     if (depthCandidate?.name && String(depthCandidate.formativeIncident ?? "").trim()) {
       contract.beats.depth = { name: depthCandidate.name, trait: traitOnly(depthCandidate.formativeIncident) };
+    }
+
+    // ── 17-hitting-90 P1.2–P1.4: the reveal package, on the chapters that carry it ─────────────────
+    if (role === "discriminating_test" || role === "reveal") {
+      if (culprits.length > 0 && testInnocent) contract.testSubjects = { innocent: testInnocent, culprit: culprits.join(", ") };
+    }
+    if (role === "reveal") {
+      if (proof) contract.proof = proof;
+      if (opportunityWindow) contract.opportunityWindow = opportunityWindow;
     }
 
     if (role === "aftermath") {

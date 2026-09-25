@@ -57,18 +57,18 @@ One row per item. **Status** is one of: not started · built · measured · read
 | P0.1 | `PROSE_ENGINE=v2` as the default; v1 left runnable | built | (this commit) | `.env.local`; FLAG-AUDIT row ON |
 | P0.2 | `AGENT9_V2_FILTER_SOFTEN=true` with v2 | built | (this commit) | `.env.local`; FLAG-AUDIT row ON |
 | P0.3 | the ship-check (repetition, scaffold) reads v2 manuscripts | built | (this commit) | `agent9-v2/ship-check.ts`; known-positive test |
-| P1.1 | v2 writes in act-sized calls; late chapters stop tapering | built, pair 1 running | (this commit) | `PROSE_V2_SEGMENT_CHAPTERS`; plan in the checkpoint hash |
-| P1.2 | the discriminating test's decisive result lands on the culprit | not started | | |
-| P1.3 | the weapon link at the confrontation, from the means-link trace | not started | | v1 version built 3d9e4756 |
-| P1.4 | the mechanism in one sentence, as a window not an instant | not started | | v1 version partial (A_107 §5) |
-| P1.5 | the confession carries the reason and one concrete wound | not started | | |
-| P1.6 | v2's naming gate reads a confession and second-person address | not started | | false alarm A_108 §3 |
-| P1.7 | chapters after the reveal carry aftermath titles | not started | | |
+| P1.1 | v2 writes in act-sized calls; late chapters stop tapering | measured: 4-chapter calls move the taper inside each call; chapter-per-call is pair 2 | dae69512 | `02` P1.1, pair 1 `resume-1790332941683` |
+| P1.2 | the discriminating test's decisive result lands on the culprit | built | (this commit) | `testSubjects` on the test and reveal contracts |
+| P1.3 | the weapon link at the confrontation, from the means-link trace | built | (this commit) | `proof` on the reveal contract; `splitMeansLinkTrace` shared |
+| P1.4 | the mechanism in one sentence, as a window not an instant | built | (this commit) | `mechanismOperation`; window from the chronology's interval |
+| P1.5 | the confession carries the reason and one concrete wound | built | (this commit) | `revealOperation`: two counted lines |
+| P1.6 | v2's naming gate reads a confession and second-person address | built | (this commit) | arm B's chapter-8 sentence is the known positive; `stabbed` added |
+| P1.7 | chapters after the reveal carry aftermath titles | built | (this commit) | `revelation` was not `reveal` to the regex; every post-reveal chapter held to the rule |
 | P2.1 | O2 — one first-half scene staging culprit and victim in the grievance | not started | | WP-001 §6.1 |
 | P2.2 | O1 — every suspect's formative incident reaches the page once | not started | | O1 built upstream, v2 uses one |
 | P2.3 | O5 — one element per chapter that does no job, registered high | not started | | |
 | P2.4 | one chapter spent away from the drawing room | not started | | WP-001 §5.4 |
-| P2.5 | O4 em-dashes: asked for 3 a chapter, 0 on the saved page in both engines — find where they go | not started | | probe item, `03` §4; O4 long sentences and speech openings are already in v2's brief |
+| P2.5 | O4 em-dashes: asked for 3 a chapter, 0 on the saved page in both engines — find where they go | fixed | (this commit) | the save path folded `—` to `-` since 2026-07-04; 72 read manuscripts affected (`03` §4) |
 | P2.6 | O6 — divergent candidates at one unforced choice (the tic field), measured at £0 | not started | | WP-001 §8 |
 | P3.1 | the fatal wound placed where it kills | not started | | 2 of 2 reads on seed 23403 |
 | P3.2 | an opportunity stated as a window with two ends | not started | | 3 of 3 recent reads |
@@ -80,4 +80,4 @@ One row per item. **Status** is one of: not started · built · measured · read
 | P4.3 | no catchphrase shared across characters | not started | | A_108 v1 read |
 | P4.4 | one instrument that points up (WP-001 §6.2) | not started | | |
 
-**Next item:** P1.1 pair-1 measurement, then P1.2–P1.7.
+**Next item:** pair 2 — chapter-per-call plus the reveal package — then its read.

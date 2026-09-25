@@ -106,7 +106,8 @@ describe("what the reads of 2026-09-22 found in the contract", () => {
 
   it("the reveal asks for the culprit's own answer on the page", () => {
     const text = renderSceneContract(contract, contract.roles.reveal);
-    expect(text).toMatch(/Then Nora Quayle answers, in their own words on the page/);
+    // 17-hitting-90 P1.5: two counted lines, each with a slot — "answers … the reason" produced silence.
+    expect(text).toMatch(/Then Nora Quayle speaks twice, in their own words on the page/);
   });
 });
 

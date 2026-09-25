@@ -75,6 +75,9 @@ paragraphs in chapters 7–10 **at least 12** (arm B: 3); the book **over 10,000
 If the late chapters still taper, the one-call book was not the cause and the per-chapter brief line is
 next.
 
+**Result (2026-09-25):** predictions 2–4 failed — the taper moved inside each call (`02` P1.1). Pair 2
+is therefore chapter-per-call (`PROSE_V2_SEGMENT_CHAPTERS=1`) plus the reveal package.
+
 **Pair 2 — the reveal package (P1.2–P1.7).** Bundled: they touch the test, reveal and aftermath
 chapters only, which pair 1 does not change. Predictions, each checkable by reading chapter 8–10:
 1. an innocent suspect attempts the test's physical step and fails; the culprit performs it;

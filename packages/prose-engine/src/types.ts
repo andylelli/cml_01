@@ -160,6 +160,23 @@ export interface SceneContract {
     relationship?: RelationshipBeat;
   };
   aftermath?: AftermathJob;
+  /**
+   * 17-hitting-90 P1.2 — the test is applied to an innocent and to the culprit, in that order, and the
+   * incriminating result falls on the culprit. The v2 read of seed 23403: *"the reenactment uses the
+   * wrong person… That proves the method is possible, but not that Desmond could do it."*
+   */
+  testSubjects?: { innocent: string; culprit: string };
+  /**
+   * 17-hitting-90 P1.3 — the weapon, what was found on it, and whose it was: the case's own means-link
+   * trace (A_102), split. v1 carries this at the confrontation; v2 laid the weapon out "as evidence".
+   */
+  proof?: { weapon: string; finding: string; culprit: string };
+  /**
+   * 17-hitting-90 P1.4 — the opportunity as a window with two ends on THE CLOCK, for the reveal's one
+   * mechanism sentence. Four of four recent reads asked for it: *"We treated low tide as a single
+   * moment instead of a window."*
+   */
+  opportunityWindow?: { value: string; label: string };
   words: { preferred: number; floor: number };
 }
 
