@@ -112,7 +112,12 @@ export const buildContractInput = (ctx: OrchestratorContext): ContractInput => (
   humourLevel: (ctx.inputs as { humourLevel?: string }).humourLevel,
   primaryAxis: ctx.primaryAxis,
   targetLength: ctx.inputs.targetLength,
+  proofSteps: isProofStepsEnabled(),
 });
+
+/** A_109 M3 — read at call time (ADR-0004). Default OFF. */
+export const isProofStepsEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.PROSE_V2_PROOF_STEPS ?? "").trim());
 
 const chat = async (
   role: ResolvedRole,
@@ -312,6 +317,12 @@ export const renderSceneContract = (contract: BookContract, chapter: number): st
     lines.push(
       `  The test is applied on the page to ${scene.testSubjects.innocent} first and to ${scene.testSubjects.culprit} second, ` +
         `and the two results differ: the result that incriminates falls on ${scene.testSubjects.culprit}, and everybody present sees it fall.`,
+    );
+  }
+  if (scene.proofSteps) {
+    // A_109 M3 — the reveal walks THE PROOF in order, one sentence a step, and only then names.
+    lines.push(
+      `  The person who worked it out ${TEMPLATE.proofWalk} ${scene.proofSteps} steps, in the order THE PROOF gives them, one sentence each: what was found, and what it rules out. ${TEMPLATE.nameAfterSteps}.`,
     );
   }
   if (scene.testSeenIn) {

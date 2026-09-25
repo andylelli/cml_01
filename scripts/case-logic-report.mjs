@@ -65,6 +65,11 @@ for (const { id, artifacts } of cases) {
     if (i.coverage === "partial") tally.partial += 1;
   }
   console.log(`${String(id).slice(0, 13).padEnd(13)}  M1 ${cml.summariseTimeline(t, model)}`);
+  const proof = cml.analyseProof(model, { clearedByScene: cml.clearedBySceneOf(artifacts.cml) });
+  if (!proof.culpritProven) tally.unproven = (tally.unproven ?? 0) + 1;
+  if (proof.uncleared.length) tally.uncleared = (tally.uncleared ?? 0) + 1;
+  if (proof.culpritCleared.length) tally.culpritCleared = (tally.culpritCleared ?? 0) + 1;
+  console.log(`${"".padEnd(13)}  M3 ${cml.summariseProof(proof)}`);
 
   // M5 — recaps in the book this case produced, when the archive holds its prose and outline.
   const prose = artifacts.prose;
@@ -95,4 +100,5 @@ console.log(`cases ${tally.cases} · timeline inconsistent ${tally.inconsistent}
 console.log(
   `innocents with a judged alibi ${tally.innocents}: cover the act ${tally.covering}, partly ${tally.partial}, not at all ${tally.none}`,
 );
+console.log(`proof: culprit not proven ${tally.unproven ?? 0} · an innocent left uncleared ${tally.uncleared ?? 0} · the culprit cleared ${tally.culpritCleared ?? 0}`);
 if (tally.books) console.log(`books with prose ${tally.books}: recaps ${tally.recaps} (${(tally.recaps / tally.books).toFixed(1)} a book)`);

@@ -173,6 +173,30 @@ const stockLineChapter = (name: string, core: ContractCore, load: Map<number, nu
   return chosen;
 };
 
+/**
+ * A_109 M3 — THE PROOF, the case's own inference path, in its order. The bible never carried it: the
+ * writer had the answer and the clues but not the chain between them, and the reveal came out as an
+ * inventory ("the reveal is list-like", "the accusation jumps from scarf, pass, dust, key to Pike").
+ * Each step: what was found, and what it shows — first sentence of each, so nothing is a paragraph.
+ */
+const proofLines = (caseBlock: Record<string, unknown>): string[] => {
+  const steps = asArray((caseBlock.inference_path as Record<string, unknown> | undefined)?.steps);
+  const first = (value: unknown): string => {
+    const t = text(value);
+    const m = t.match(/^.{12,240}?[.!?](?=\s|$)/);
+    return (m ? m[0] : t).trim();
+  };
+  const lines = steps
+    .map((step, i) => {
+      const s = step as Record<string, unknown>;
+      const found = first(s.observation);
+      const shows = first(s.effect || s.correction);
+      return found ? `  ${i + 1}. ${found}${shows ? ` It shows: ${shows}` : ""}` : "";
+    })
+    .filter(Boolean);
+  return lines.length > 0 ? ["THE PROOF, in the order the case builds it:", ...lines] : [];
+};
+
 const castSection = (
   caseBlock: Record<string, unknown>,
   input: ContractInput,
@@ -334,7 +358,7 @@ export const buildBible = (input: ContractInput, core: ContractCore): Bible => {
   })();
 
   const built: Array<{ key: BibleSectionKey; lines: string[] }> = [
-    { key: "case", lines: caseSection(caseBlock, core) },
+    { key: "case", lines: [...caseSection(caseBlock, core), ...(input.proofSteps ? proofLines(caseBlock) : [])] },
     { key: "cast", lines: castSection(caseBlock, input, core) },
     { key: "world", lines: worldSection(input) },
     { key: "chronology", lines: chronologySection(core, input.lockedFacts ?? []) },

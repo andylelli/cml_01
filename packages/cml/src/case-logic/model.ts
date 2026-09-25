@@ -35,6 +35,10 @@ export interface ClueFact {
   text: string;
   /** Suspects the clue names (never the victim or the investigator). */
   names: string[];
+  /** Suspects the clue clears, and suspects it implicates — one clue can do both. */
+  clears: string[];
+  implicates: string[];
+  /** The summary: `points` if it implicates anyone, `eliminates` if it only clears, else `neutral`. */
   kind: ClueKind;
   /** `supportsInferenceStep`, when the clue declares it (1-based, as Agent 5 writes it). */
   step: number | null;
@@ -106,20 +110,52 @@ export const namesIn = (value: string, people: ReadonlyArray<{ name: string; ide
 };
 
 /**
- * RULES for a clue's kind, in order:
- * 1. An id that says so: `eliminat`, `alibi`, `clear`, `exclude` → eliminates; `culprit`,
- *    `premeditation`, `unique`, `possession`, `tool`, `means` → points.
- * 2. Wording that corroborates a whereabouts ("confirm", "corroborate", "attest", "place … in",
- *    "accounted for") without "only" → eliminates. "Records confirm ONLY Charles had the skill"
- *    is an implication, not an alibi.
- * 3. Otherwise a clue that names a suspect points at them; one that names nobody is neutral.
+ * WHAT A CLUE DOES, read first from the case's own statement of it.
+ *
+ * Agent 5 writes an `inference` for every clue (88 of 88 golden clues) and it usually says the effect
+ * outright: "Eliminates Margaret Hensley and narrows the solution toward Charles Montague";
+ * "Annabelle Marwood cannot be the culprit, focusing suspicion on Charles Fenwick". One clue can clear
+ * one person and implicate another, so the inference is read CLAUSE BY CLAUSE, and each clause assigns
+ * the people it names to `clears` or `implicates`.
+ *
+ * Only a clue whose inference names nobody's fate falls back to the wording rules, which were measured
+ * wrong on golden eb1251aa before the inference was used: `clue_charles_alibi_conflict` ("witnesses
+ * place Charles Pembroke near the sundial … conflicting with his alibi") read as clearing the culprit;
+ * "footprints … lack moisture traces matching Eleanor Fairchild's shoes" read as pointing at her.
  */
+const CLEARS = /\b(?:eliminat\w*|exclud\w*|clears?|cleared|rules? out|ruled out|cannot be|could not have|lacked (?:the )?(?:opportunity|means|access)|had no (?:opportunity|means|access)|innocen\w*|alibi (?:holds|stands|confirmed)|was not present)\b/i;
+const IMPLICATES = /\b(?:only|ties|tied|implicat\w*|identif\w*|narrows?|narrowing|focus\w*|suspicion on|motive|premeditat\w*|present near|presence near|involvement|guilt\w*|culprit|murderer|responsible|means and|had the (?:means|skill|opportunity)|at the (?:scene|crime)|with opportunity|opportunity to|shortly (?:before|after) the murder)\b/i;
+const BREAKS = /\b(?:conflict\w*|contradict\w*|inconsisten\w*|breaks?|broken|false|lie[sd]?|gap|disprov\w*)\b/i;
+const NEGATED_MATCH = /\b(?:lack|lacks|lacking|no|not|never|without|absence of)\b[^.]{0,50}\bmatch/i;
+const CORROBORATES = /\b(?:confirm|corroborat|attest|verif|exclud|accounted|places?|placing|placed|was seen (?:in|at))\w*/i;
 const ELIMINATES_ID = /eliminat|alibi|clear|exclud/i;
 const POINTS_ID = /culprit|premeditation|unique|possession|tool|means|motive/i;
-const CORROBORATES = /\b(?:confirm|corroborat|attest|verif|exclud|accounted|places?|placing|placed|was seen (?:in|at))\w*/i;
 
-const classify = (id: string, body: string, named: string[]): ClueKind => {
+type People = ReadonlyArray<{ name: string; identifying: string[] }>;
+
+/** Clause by clause: who the inference clears and who it implicates. */
+export const readInference = (inference: string, people: People): { clears: string[]; implicates: string[] } => {
+  const clears = new Set<string>();
+  const implicates = new Set<string>();
+  const clauses = inference.split(/;|\.\s|,\s*(?=(?:and |which |narrow|focus|leaving|pointing|so ))|\band (?=narrow|focus|point|leav)/i);
+  for (const clause of clauses) {
+    const named = namesIn(clause, people);
+    if (named.length === 0) continue;
+    if (CLEARS.test(clause) && !BREAKS.test(clause)) named.forEach((n) => clears.add(n));
+    else if (IMPLICATES.test(clause) || BREAKS.test(clause)) named.forEach((n) => implicates.add(n));
+  }
+  return { clears: [...clears], implicates: [...implicates].filter((n) => !clears.has(n)) };
+};
+
+/** The fallback, for a clue whose inference names nobody's fate: rules over id and wording. */
+const classifyByWording = (id: string, body: string, named: string[]): ClueKind => {
   if (named.length === 0) return "neutral";
+  if (NEGATED_MATCH.test(body)) return "eliminates";
+  if (BREAKS.test(id) || BREAKS.test(body)) return "points";
+  // Seen AT the scene is opportunity, however it is corroborated: golden eb1251aa's `clue_staff_witness`
+  // ("staff recall seeing Charles Pembroke near the garden gates shortly before the murder") read as a
+  // clearance of the culprit because its description says "confirms".
+  if (IMPLICATES.test(body)) return "points";
   if (ELIMINATES_ID.test(id)) return "eliminates";
   if (POINTS_ID.test(id)) return "points";
   if (CORROBORATES.test(body) && !/\bonly\b/i.test(body)) return "eliminates";
@@ -166,11 +202,21 @@ export const buildCaseModel = (input: CaseModelInput): CaseModel => {
     const body = [c.observable, c.description, c.pointsTo].map(text).filter(Boolean).join(" ");
     const named = namesIn(body, suspects);
     const step = Number(c.supportsInferenceStep);
+    const read = readInference(text(c.inference), suspects);
+    let clears = read.clears;
+    let implicates = read.implicates;
+    if (clears.length === 0 && implicates.length === 0) {
+      const kind = classifyByWording(id, body, named);
+      if (kind === "eliminates") clears = named;
+      if (kind === "points") implicates = named;
+    }
     return {
       id,
       text: text(c.observable) || text(c.description),
-      names: named,
-      kind: classify(id, body, named),
+      names: [...new Set([...named, ...clears, ...implicates])],
+      clears,
+      implicates,
+      kind: clears.length > 0 && implicates.length === 0 ? "eliminates" : implicates.length > 0 ? "points" : "neutral",
       step: Number.isFinite(step) && step > 0 ? step : null,
       criticality: text(c.criticality),
     };

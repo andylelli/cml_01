@@ -188,6 +188,8 @@ export interface SceneContract {
   wound?: { victim: string; culprit: string; accused?: string };
   /** §07 — depth material owned by this chapter (`depth.ts`). */
   texture?: Texture;
+  /** A_109 M3 — on the reveal, the number of proof steps it walks in order (flag `PROSE_V2_PROOF_STEPS`). */
+  proofSteps?: number;
   /** The reveal's own chapter when the test was performed earlier: the chapter it was seen in. */
   testSeenIn?: number;
   words: { preferred: number; floor: number };
@@ -291,6 +293,11 @@ export interface ContractInput {
   wordTargets?: { chapters: number; min: number; max: number; chapterIdeal: number };
   /** WP-002 K3 — phase 3. Absent is `household`, which is today's behaviour. */
   aftermathScope?: AftermathJob["scope"];
+  /**
+   * A_109 M3 — give the writer the case's inference path as THE PROOF, and ask the reveal to walk it
+   * in order. The worker sets it from `PROSE_V2_PROOF_STEPS` at call time; absent is today's behaviour.
+   */
+  proofSteps?: boolean;
 }
 
 // ── drafting ─────────────────────────────────────────────────────────────────────────────────────

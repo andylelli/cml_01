@@ -3113,3 +3113,9 @@ golden cases before any change: 2 of 8 judged innocents' alibis cover the murder
 alibi window given again after the chapter that first gave it, is a `recap` finding (test and reveal
 exempt). The 69's Margot alibi (ch 2, 5, 7, 8) is the known positive. Only the case's alibi windows are
 tracked: keyed on every window, it fired on 112 of 228 books.
+
+**§33 UPDATE 7 — A_109 step 4, does the case prove itself (M3).** A Dung argumentation framework over the
+case: the culprit is proven iff every cover is defeated; an innocent nothing clears, or a clearance aimed at
+the culprit, is reported (telemetry `AGENT3_CASE_LOGIC`). The clue reader now uses each clue's own
+`inference`, clause by clause. MEASURED: the v2 bible never carried the case's inference path; with
+`PROSE_V2_PROOF_STEPS` it carries THE PROOF and the reveal walks it in order, one sentence a step.

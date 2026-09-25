@@ -552,3 +552,35 @@ describe("A_109 M5 — the fact said again in new words", () => {
     expect(recaps(reveal, [margot]).map((h) => h.chapter)).toEqual([5]);
   });
 });
+
+describe("A_109 M3 — THE PROOF in the bible, walked in order at the reveal (flag PROSE_V2_PROOF_STEPS)", () => {
+  const golden = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "..", "eval", "golden");
+  const file = existsSync(golden) ? readdirSync(golden).find((f) => f.startsWith("bundle-")) : undefined;
+  const build = (proofSteps: boolean) => {
+    const a = JSON.parse(readFileSync(join(golden, file!), "utf8")).artifacts;
+    return buildBookContract({
+      cml: a.cml ?? {},
+      clues: a.clues ?? null,
+      outline: a.outline?.narrative ?? a.outline,
+      cast: a.cast?.cast ?? a.cast,
+      profiles: a.character_profiles ?? null,
+      humourLevel: "classic",
+      proofSteps,
+    });
+  };
+
+  it.skipIf(!file)("OFF: no THE PROOF, no step count — today's contract", () => {
+    const contract = build(false);
+    expect(contract.bible.text).not.toContain("THE PROOF");
+    expect(contract.scenes.some((s) => s.proofSteps)).toBe(false);
+  });
+
+  it.skipIf(!file)("ON: THE PROOF lists the case's steps in order, and only the reveal carries their count", () => {
+    const contract = build(true);
+    expect(contract.bible.text).toContain("THE PROOF, in the order the case builds it:");
+    expect(contract.bible.text).toMatch(/\n {2}1\. .+\n {2}2\. /);
+    const carriers = contract.scenes.filter((s) => s.proofSteps);
+    expect(carriers.map((s) => s.chapter)).toEqual([contract.roles.reveal]);
+    expect(carriers[0]!.proofSteps).toBe(4);
+  });
+});

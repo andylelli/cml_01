@@ -10,7 +10,8 @@ import { generateCML, auditNovelty, findUnplantedDiscriminatingClues } from "@cm
 import { createSkeletonExtractor, judgeNovelty, loadReferenceCorpus } from "@cml/novelty";
 import { checkTemporalClosure, isTemporalClosureCheckEnabled,
   deriveCaseTimeline, summariseCaseTimeline, isCaseTimelineEnabled,
-  analyseTimeline, buildCaseModel, isCaseLogicEnabled, summariseTimeline } from "@cml/cml";
+  analyseTimeline, buildCaseModel, isCaseLogicEnabled, summariseTimeline,
+  analyseProof, clearedBySceneOf, summariseProof } from "@cml/cml";
 import {
   checkChronologyCoherence, deriveCaseChronology, findUnanchoredClockValues, isAlibiPlanEnabled,
   isChronologyEnabled, renderCaseTimes, renderPlannedCulpritAlibi, summariseChronology,
@@ -984,6 +985,7 @@ function reportCaseLogic(ctx: OrchestratorContext): void {
   try {
     const model = buildCaseModel({ cml: ctx.cml, clues: ctx.clues, lockedFacts: (ctx.lockedFactRegistry ?? []) as never });
     ctx.warnings.push(`[A_109 case logic] M1 ${summariseTimeline(analyseTimeline(model), model)}`);
+    ctx.warnings.push(`[A_109 case logic] M3 ${summariseProof(analyseProof(model, { clearedByScene: clearedBySceneOf(ctx.cml) }))}`);
   } catch (err) {
     // A measurement must never cost a run.
     ctx.warnings.push(`[A_109 case logic] could not run: ${(err as Error).message}`);

@@ -490,6 +490,10 @@ export const buildContractCore = (input: ContractInput): ContractCore => {
       if (culprits.length > 0 && testInnocent) contract.testSubjects = { innocent: testInnocent, culprit: culprits.join(", ") };
     }
     if (role === "reveal" && testChapter !== chapter) contract.testSeenIn = testChapter;
+    if (role === "reveal" && input.proofSteps) {
+      const steps = asArray((caseBlock.inference_path as Record<string, unknown> | undefined)?.steps).length;
+      if (steps > 0) contract.proofSteps = steps;
+    }
     if (role === "reveal") {
       if (proof) contract.proof = proof;
       if (opportunityWindow) contract.opportunityWindow = opportunityWindow;

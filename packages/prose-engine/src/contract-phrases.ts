@@ -28,6 +28,9 @@ export const TEMPLATE = {
   periodInTheWay: "The period gets in somebody's way here",
   pullsTwoWays: "shows what pulls them two ways",
   neitherNames: "One exchange between them carries it, and neither names it",
+  // A_109 M3 — the reveal's walk through THE PROOF.
+  proofWalk: "takes the case apart in",
+  nameAfterSteps: "The name comes after the last step",
 } as const;
 
 /** Every template phrase, for the echo checker. */
