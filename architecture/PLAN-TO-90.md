@@ -3051,3 +3051,18 @@ culprit performs the proof himself), v2 ahead on prose. The prediction that the 
 culprit is never named failed: the reader quoted his confession, and v2's own naming gate was a false
 alarm. Case-level defects shared by both: the tide read as an instant, the wound in the upper arm,
 chapter 9 recapping alibis because the outline titles it "Clearing the Innocent".
+
+---
+
+## §33 HITTING 90 — v2 AS THE ENGINE, v1 KEPT · 2026-09-25 · £0
+
+The plan from here lives in `documentation/17-hitting-90/`, with its own STATUS table. In one
+paragraph: v2 becomes the engine (`PROSE_ENGINE=v2`, configuration only; v1 unchanged and runnable).
+v2 gains what the engine pair (A_108) showed v1 does better — the proof landing on the culprit, the
+weapon at the confrontation, the mechanism in one sentence, a confession with a reason — and stops
+thinning its late chapters, which the log shows it writes in ONE call (segment `S0`). The speech-
+opening ask decays with the chapter length: 16 12 5 4 2 3 1 1 1 0 by chapter, MEASURED. Depth per
+WP-001 (O2 the staged wound, O5 one element doing no job) supplies the rest of the length. **The
+arithmetic, MEASURED over 70 reads:** the offset shrinks to +3 at the top of the ledger, so a 90 needs
+a category sum of 86–87 — plot, character, clues and ending at 9 in one book. Each has been given a 9
+before; no book has had all four.
