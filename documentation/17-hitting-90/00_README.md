@@ -67,7 +67,7 @@ One row per item. **Status** is one of: not started · built · measured · read
 | P2.1 | O2 — one first-half scene staging culprit and victim in the grievance | built | (this commit) | `wound` on the `motives` chapter (else the first chapter after the crime, ≤ half): a scene set before the death, the grievance said aloud; the false solution's accused gets the same shape so the staging names nobody; all archived cases stage exactly one |
 | P2.2 | O1 — every suspect's formative incident reaches the page once | already in v2 | — | `selectDepthBeat`: one character's trait per chapter, shown as action; not yet counted on a page |
 | P2.3 | O5 — one element per chapter that does no job, registered high | already in v2's brief | — | `brief.ts`: "One paragraph in each chapter is there for its own sake"; v2 has no budgeter, so nothing sheds it; not counted |
-| P2.4 | one chapter spent away from the drawing room | not started | | WP-001 §5.4 |
+| P2.4 | one chapter spent away from the drawing room | deferred — the cause is a deliberate lock, and no reader has asked | — | MEASURED: Agent 7 carries a **Setting Lock** (`agent7-narrative.ts:346`: "All scenes must remain within this setting… Do not move to a different location type"), which is the mechanism behind WP-001 §5.4 (travel 0.01 vs canon 0.34). Lifting it needs the lock's own rationale read first |
 | P2.5 | O4 em-dashes: asked for 3 a chapter, 0 on the saved page in both engines — find where they go | fixed | (this commit) | the save path folded `—` to `-` since 2026-07-04; 72 read manuscripts affected (`03` §4) |
 | P2.6 | O6 — divergent candidates at one unforced choice (the tic field), measured at £0 | not started | | WP-001 §8 |
 | P3.1 | the fatal wound placed where it kills | built — prompt shape + note; harness measurement pending | (this commit) | seed 23403's case said "stabbed with a fencing foil" and a clue said "torn sleeve"; both engines wrote an arm wound from the sleeve |
@@ -78,6 +78,6 @@ One row per item. **Status** is one of: not started · built · measured · read
 | P4.1 | v2's editor pass targets the register lines readers quote | built | (this commit) | `abstract_subject` finding: a narration sentence whose subject is the room, the silence, the truth, the evidence; known-positive test |
 | P4.2 | our own labels ("polite savagery") never reach the writer as quotable text | built | (this commit) | MEASURED on pair 2 (before the fix): 16 humour labels printed in the book — polite savagery 5, deadpan 6, dry wit 3, observational humour 2. `humourMove` describes the move; the label is in no prompt |
 | P4.3 | no catchphrase shared across characters | not started | | A_108 v1 read |
-| P4.4 | one instrument that points up (WP-001 §6.2) | not started | | |
+| P4.4 | one instrument that points up (WP-001 §6.2) | deferred — the LLM client returns no token log-probabilities (0 sites in `packages/llm-client/src`), so the PMI candidate needs client work first; register conformance per story remains the other candidate | — | decide after the pair-3 read shows where the marks sit |
 
 **Next item:** pair 3 — pair 2 plus P4.1/P4.2 and the closure amendment — my own read, then the external read.
