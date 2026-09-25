@@ -22,6 +22,13 @@ describe("the checkpoint hash covers the ask, not only the structure", () => {
     expect(before).not.toBe(after);
   });
 
+  it("17-hitting-90 P1.1 — the same ask under a different segment plan is a different hash", () => {
+    const oneCall = hashContract({ ...structure, prompt: "x", plan: "1-2-3-4-5-6-7-8-9-10" });
+    const threeCalls = hashContract({ ...structure, prompt: "x", plan: "1-2-3-4|5-6-7-8|9-10" });
+    expect(oneCall).not.toBe(threeCalls);
+    expect(hashContract({ ...structure, prompt: "x", plan: "1-2-3-4|5-6-7-8|9-10" })).toBe(threeCalls);
+  });
+
   it("the same ask hashes the same, so a genuinely resumed run still restores", () => {
     const a = hashContract({ ...structure, prompt: "identical" });
     const b = hashContract({ ...structure, prompt: "identical" });

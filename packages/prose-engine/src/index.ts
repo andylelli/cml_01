@@ -26,6 +26,7 @@ export { buildBrief, briefLawViolations, revealOperation, fullParagraphs, BRIEF_
 export type { BriefInput, BriefProfile } from "./brief.js";
 export { buildBookContract } from "./book-contract.js";
 export { planSegments, priorChapters, TOKENS_PER_WORD, CAP_UTILISATION, CHAPTERS_PER_ACT_SEGMENT } from "./segments.js";
+export type { SegmentOptions } from "./segments.js";
 export { parseWriterOutput, writerFormatInstruction, continueInstruction } from "./writer-format.js";
 export type { ParseResult } from "./writer-format.js";
 export {

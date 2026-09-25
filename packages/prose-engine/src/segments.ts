@@ -54,7 +54,20 @@ const chunk = (chapters: number[], size: number): number[][] => {
  * that will not fit any segmentation is written a chapter at a time, which is v1's unit and the
  * worst case rather than the default.
  */
-export const planSegments = (core: ContractCore, maxOutputTokens: number): SegmentPlan => {
+export interface SegmentOptions {
+  /**
+   * Write at most this many chapters per call, whatever the cap would allow.
+   *
+   * 17-hitting-90 P1.1. MEASURED 2026-09-25: every v2 run to date — 17 of 17 in the prompt log —
+   * fitted one call, and every book tapered: 1,244 → 414 words by chapter on seed 23403, with the
+   * brief's per-chapter asks decaying alongside (paragraphs opening on speech 16 12 5 4 2 3 1 1 1 0
+   * against an ask of six). v1, which writes a chapter a call, does not taper. The worker reads this
+   * from `PROSE_V2_SEGMENT_CHAPTERS` at call time; unset, the cap decides as before.
+   */
+  chaptersPerCall?: number;
+}
+
+export const planSegments = (core: ContractCore, maxOutputTokens: number, options: SegmentOptions = {}): SegmentPlan => {
   const chapters = core.scenes.map((s) => s.chapter);
   if (chapters.length === 0) {
     return { kind: "chapters", segments: [], reason: "the contract carries no chapters" };
@@ -65,6 +78,19 @@ export const planSegments = (core: ContractCore, maxOutputTokens: number): Segme
 
   const build = (groups: number[][]): Segment[] =>
     groups.map((group, index) => ({ index, chapters: group, estimatedTokens: estimate(group, core) }));
+
+  const forced = options.chaptersPerCall;
+  if (Number.isInteger(forced) && (forced as number) >= 1 && (forced as number) < chapters.length) {
+    const groups = chunk(chapters, forced as number);
+    if (groups.every((group) => estimate(group, core) <= cap)) {
+      return {
+        kind: forced === 1 ? "chapters" : "acts",
+        segments: build(groups),
+        reason: `${groups.length} segments of up to ${forced} chapters, asked for (PROSE_V2_SEGMENT_CHAPTERS) — the whole book, ~${whole} output tokens, would have fitted one call of ${cap}`,
+      };
+    }
+    // A forced group that exceeds the cap is not honoured; the ladder below decides, as if unset.
+  }
 
   if (whole <= cap) {
     return {

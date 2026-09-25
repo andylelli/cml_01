@@ -44,6 +44,22 @@ describe("the plan", () => {
     expect(plan.reason).toMatch(/whole book/);
   });
 
+  it("17-hitting-90 P1.1 — asked for four chapters a call, a book that fits one call is written in three", () => {
+    const plan = planSegments(core(10, 1_000), 32_768, { chaptersPerCall: 4 });
+    expect(plan.kind).toBe("acts");
+    expect(plan.segments.map((s) => s.chapters)).toEqual([[1, 2, 3, 4], [5, 6, 7, 8], [9, 10]]);
+    expect(priorChapters(plan, 2)).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
+    expect(plan.reason).toMatch(/PROSE_V2_SEGMENT_CHAPTERS/);
+    // One chapter a call is v1's unit and says so.
+    expect(planSegments(core(10, 1_000), 32_768, { chaptersPerCall: 1 }).kind).toBe("chapters");
+    // Unset, zero, or at least the chapter count: the cap decides, as before.
+    for (const chaptersPerCall of [undefined, 0, 10, 12]) {
+      expect(planSegments(core(10, 1_000), 32_768, { chaptersPerCall }).kind).toBe("book");
+    }
+    // A forced group past the cap is not honoured; the ladder decides.
+    expect(planSegments(core(10, 2_000), 4_000, { chaptersPerCall: 4 }).kind).toBe("chapters");
+  });
+
   it("a long book falls to act-sized segments, each with every earlier chapter in context", () => {
     const plan = planSegments(core(30, 2_200), 32_768);
     expect(plan.kind).toBe("acts");

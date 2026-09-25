@@ -54,10 +54,10 @@ One row per item. **Status** is one of: not started · built · measured · read
 
 | id | item | status | commit | evidence |
 |---|---|---|---|---|
-| P0.1 | `PROSE_ENGINE=v2` as the default; v1 left runnable | not started | | |
-| P0.2 | `AGENT9_V2_FILTER_SOFTEN=true` with v2 | not started | | built f42d3985, off by default |
-| P0.3 | the ship-check (repetition, scaffold) reads v2 manuscripts | not started | | needed by the read rule |
-| P1.1 | v2 writes in act-sized calls; late chapters stop tapering | not started | | |
+| P0.1 | `PROSE_ENGINE=v2` as the default; v1 left runnable | built | (this commit) | `.env.local`; FLAG-AUDIT row ON |
+| P0.2 | `AGENT9_V2_FILTER_SOFTEN=true` with v2 | built | (this commit) | `.env.local`; FLAG-AUDIT row ON |
+| P0.3 | the ship-check (repetition, scaffold) reads v2 manuscripts | built | (this commit) | `agent9-v2/ship-check.ts`; known-positive test |
+| P1.1 | v2 writes in act-sized calls; late chapters stop tapering | built, pair 1 running | (this commit) | `PROSE_V2_SEGMENT_CHAPTERS`; plan in the checkpoint hash |
 | P1.2 | the discriminating test's decisive result lands on the culprit | not started | | |
 | P1.3 | the weapon link at the confrontation, from the means-link trace | not started | | v1 version built 3d9e4756 |
 | P1.4 | the mechanism in one sentence, as a window not an instant | not started | | v1 version partial (A_107 §5) |
@@ -80,4 +80,4 @@ One row per item. **Status** is one of: not started · built · measured · read
 | P4.3 | no catchphrase shared across characters | not started | | A_108 v1 read |
 | P4.4 | one instrument that points up (WP-001 §6.2) | not started | | |
 
-**Next item:** P0.1.
+**Next item:** P1.1 pair-1 measurement, then P1.2–P1.7.

@@ -92,10 +92,17 @@ export const hashContract = (input: {
   clueIds: ReadonlyArray<string>;
   /** The writer's whole ask, minus the structure. Optional only for callers that predate it. */
   prompt?: string;
+  /**
+   * The segment plan, as chapter groups. 17-hitting-90 P1.1: drafts written as ONE call must not be
+   * restored under a plan of three — the checkpoint for seed 23403 held a chosen segment 0 covering
+   * all ten chapters, and a resumed run with the same contract and a new plan would have shipped it
+   * as the pair's other arm.
+   */
+  plan?: string;
 }): string => {
   const source =
     `${input.chapters}|${input.reveal}|${input.aftermath ?? "-"}|${[...input.clueIds].sort().join(",")}` +
-    `|${input.prompt ?? ""}`;
+    `|${input.prompt ?? ""}|${input.plan ?? ""}`;
   let hash = 0;
   for (let i = 0; i < source.length; i += 1) {
     hash = (hash << 5) - hash + source.charCodeAt(i);

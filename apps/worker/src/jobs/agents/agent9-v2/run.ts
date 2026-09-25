@@ -53,6 +53,7 @@ import { humourBand } from "@cml/prompts-llm";
 import type { ChatCapableClient } from "@cml/llm-client";
 import { isContentFilterRefusal } from "@cml/llm-client";
 import { isFilterSoftenEnabled, softenViolentWording, SOFTENED_NOTE } from "./filter-soften.js";
+import { v2ShipCheckLines } from "./ship-check.js";
 
 import type { OrchestratorContext } from "../shared.js";
 import { hashContract, emptyCheckpoint, readCheckpoint, recordSegment, writeCheckpoint, type V2Checkpoint } from "./checkpoint.js";
@@ -76,6 +77,15 @@ const maxContinuations = (chaptersInSegment: number): number => chaptersInSegmen
 const draftCount = (): number => {
   const raw = Number((process.env.PROSE_V2_DRAFTS ?? "").trim());
   return Number.isFinite(raw) && raw >= 1 && raw <= 5 ? Math.floor(raw) : 3;
+};
+
+/**
+ * 17-hitting-90 P1.1 — chapters per writer call, read at call time (ADR-0004). Unset: the cap
+ * decides, which has meant one call for every v2 book to date. See `SegmentOptions`.
+ */
+const segmentChaptersPerCall = (): number | undefined => {
+  const raw = Number((process.env.PROSE_V2_SEGMENT_CHAPTERS ?? "").trim());
+  return Number.isInteger(raw) && raw >= 1 ? raw : undefined;
 };
 
 /** `PROSE_V2_DRY=1` builds every prompt and makes no call — §10.13's dry run. */
@@ -303,7 +313,7 @@ export const generateBookV2 = async (ctx: OrchestratorContext): Promise<V2Result
   const critic = resolveRole("critic", azure, telemetryWiring);
   const editor = resolveRole("editor", azure, telemetryWiring);
 
-  const plan = planSegments(contract, writer.maxOutputTokens);
+  const plan = planSegments(contract, writer.maxOutputTokens, { chaptersPerCall: segmentChaptersPerCall() });
   const k = draftCount();
   const band = humourBand((ctx.inputs as { humourLevel?: string }).humourLevel);
 
@@ -312,6 +322,8 @@ export const generateBookV2 = async (ctx: OrchestratorContext): Promise<V2Result
     reveal: contract.roles.reveal,
     aftermath: contract.roles.aftermath,
     clueIds: contract.scenes.flatMap((s) => s.mustSurface.map((m) => m.id)),
+    // The plan is part of the ask: drafts written as one call must not be restored under three (P1.1).
+    plan: plan.segments.map((s) => s.chapters.join("-")).join("|"),
     // The whole ask: a reworded brief or chapter contract must not restore drafts written to the old one.
     prompt: [
       contract.bible.text,
@@ -650,6 +662,8 @@ export const runProseEngineV2 = async (ctx: OrchestratorContext): Promise<void> 
   const started = Date.now();
   const result = await generateBookV2(ctx);
   for (const line of result.telemetry) ctx.warnings.push(line);
+  // 17-hitting-90 P0.3 — the ship-check measures the finished text; the read rule reads it.
+  for (const line of v2ShipCheckLines(result.chapters)) ctx.warnings.push(line);
 
   const castNames = asArray((ctx.cast?.cast as { characters?: unknown[] } | undefined)?.characters)
     .map((c) => String((c as { name?: unknown })?.name ?? "").trim())
