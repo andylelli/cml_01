@@ -287,6 +287,42 @@
     "externalOffset": 6
   },
   {
+    "bundleId": "read-20260924-1923",
+    "storyPath": "stories/story_20260924-1923/resumed_resume_1790274123040.md",
+    "readPath": "stories/story_20260924-1923/chatgpt-review.txt",
+    "externalFinal": 85,
+    "externalCategories": {
+      "premise": 9,
+      "opening_hook": 8,
+      "plot_structure": 8,
+      "character_clarity": 8,
+      "dialogue": 8,
+      "atmosphere": 9,
+      "clues": 8,
+      "pacing": 8,
+      "ending": 8,
+      "prose": 7
+    },
+    "externalNotes": {
+      "premise": "Locked room solved by tidal cave + duplicate key is strong and visual.",
+      "opening_hook": "Body, foil, locked door, exposed cave, tide contradiction — very good setup.",
+      "plot_structure": "Clear progression: room → blueprints → foil/blood → tide chart → hidden key → reenactment.",
+      "character_clarity": "Norbury, Kestrel, Gaunt, Lachlan, Vance are distinct enough.",
+      "dialogue": "Better wit than many drafts; Vance and Lachlan have strong voices.",
+      "atmosphere": "Coastal fog, hotel, fencing salle, tidal cave, rocks — cohesive and memorable.",
+      "clues": "Strong physical mechanism, but time/alibi phrasing needs tightening.",
+      "pacing": "Moves well; Chapters 8–9 still repeat some clearance logic.",
+      "ending": "Reenactment is excellent; confession works.",
+      "prose": "Mostly strong, with some scaffold/awkward generated lines.",
+      "character_life": "Good web of debts, disgrace, academy politics, rivalry, and aftermath."
+    },
+    "externalSupplementary": {
+      "character_life": 8
+    },
+    "externalCategorySum": 81,
+    "externalOffset": 4
+  },
+  {
     "bundleId": "2026-08-06-2230-pendulum-secret-chime",
     "storyPath": "stories/_archive/story_20260806-2230/the_pendulum_s_secret_chime.md",
     "runFolder": "run_20260806-2112_mystery",
@@ -499,6 +535,42 @@
     },
     "externalCategorySum": 78,
     "externalOffset": 6
+  },
+  {
+    "bundleId": "read-20260924-1935",
+    "storyPath": "stories/story_20260924-1935/resumed_resume_1790274659348.md",
+    "readPath": "stories/story_20260924-1935/chatgpt-review.txt",
+    "externalFinal": 84,
+    "externalCategories": {
+      "premise": 9,
+      "opening_hook": 8,
+      "plot_structure": 8,
+      "character_clarity": 8,
+      "dialogue": 8,
+      "atmosphere": 9,
+      "clues": 7,
+      "pacing": 8,
+      "ending": 7,
+      "prose": 8
+    },
+    "externalNotes": {
+      "premise": "Tidal cave + locked room + hollow foil key is very strong.",
+      "opening_hook": "Body, foil, locked room, cave, tide oddity — immediate mystery appeal.",
+      "plot_structure": "Logical clue progression, but final chapters overlap/mislabel slightly.",
+      "character_clarity": "The men are distinct; Bertram is especially vivid.",
+      "dialogue": "Better than average: dry, witty, fencing-themed.",
+      "atmosphere": "Seaside hotel, fog, academy, salle, cave, tide — excellent unity.",
+      "clues": "Good clues, but the reveal demonstration weakens because Bertram, not Desmond, performs it.",
+      "pacing": "Smooth and readable; less drag than many drafts.",
+      "ending": "Chapter 8 exposes Desmond; Chapters 9–10 then partly re-resolve/aftermath.",
+      "prose": "Cleaner prose than many earlier drafts, though some scaffold remains.",
+      "character_life": "Academy history, Gaunt’s disgrace, Neville’s legacy, Katherine’s memory all help."
+    },
+    "externalSupplementary": {
+      "character_life": 8
+    },
+    "externalCategorySum": 80,
+    "externalOffset": 4
   },
   {
     "bundleId": "read-20260904-1711",

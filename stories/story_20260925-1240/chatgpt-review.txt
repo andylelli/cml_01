@@ -1,0 +1,183 @@
+This is the strongest version of the tidal-cave locked-room story so far. It fixes the biggest flaw in the previous version: Desmond himself now demonstrates the route, which makes the final proof much more satisfying. The setting, mechanism, wit, and aftermath are all working. The remaining weaknesses are mostly polish: the timeline phrase “between half past three and twenty minutes past three” appears backward, the fatal wound still needs a clearer anatomical placement, and Chapter 9 repeats some post-reveal business.
+
+I’d score it around 88/100.
+
+The roles are:
+
+Investigator: Montague Norbury
+Victim: Katherine Quayle
+Culprit: Desmond Kestrel
+False suspects: Hector Gaunt, Neville Lachlan, Bertram Vance
+Murder method: thrust with fencing foil
+Cover-up mechanism: Desmond uses the exposed tidal cave, hotel blueprints, duplicate key, and hollow fencing foil to reach Katherine’s locked room through the window during the ten-minute low-tide window
+Key clues: locked room, open/window route seven feet above the shore, exposed coastal cave, low tide 3:20–3:30, foil stains, glove marks matching Desmond, hollow foil, duplicate key, blueprints, Desmond’s legal papers, delayed will registration
+Motive: Katherine was about to register the new will, threatening Desmond’s position, control, and reputation at Quayle Academy
+
+Area	Mark	Notes
+Premise / concept	9/10	Excellent locked-room concept: tide, cave, key, hollow foil.
+Opening hook	8/10	Body, foil, locked room, open window, cave — clear and enticing.
+Plot structure	9/10	Much cleaner: clue build → alibis → motive → reenactment → fallout → aftermath.
+Character clarity	8/10	Montague, Desmond, Hector, Neville, Bertram all have distinct roles and voices.
+Dialogue	8/10	Witty and better integrated than most drafts.
+Atmosphere / setting	9/10	Seaside hotel, academy, tide, cave, fencing world all cohere beautifully.
+Mystery clues / evidence logic	8/10	Strong, though the time phrasing and wound detail need tightening.
+Pacing	8/10	Mostly strong; Chapter 9 could be shorter.
+Ending / reveal	9/10	Desmond’s demonstration finally gives the reveal real force.
+Prose / polish	8/10	Cleaner than many recent versions, with fewer scaffold phrases.
+Character Life / Relationship Richness	8/10	Strong aftermath: academy, trustees, classes, ledgers, changed roles.
+Humour / Wit	8/10	Good dry wit, especially Bertram and Montague.
+What works
+
+The opening is a proper impossible-crime setup. Katherine is dead, the foil is clearly implicated, the door is locked, the window is seven feet above the shore, and the tide has exposed the cave below. The story gives the reader the central question immediately: how did someone enter or leave?
+
+The clue chain is now nicely unified. The tide chart, blueprints, duplicate key, cave route, hollow fencing foil, and glove marks all point to the same solution. That makes this version cleaner than drafts where the mechanism and motive feel like separate puzzles.
+
+The biggest improvement is Chapter 8. Hector fails to make the route work; then Desmond is challenged, reveals the key from the hollow foil, unlocks the concealed window mechanism, climbs out, uses the cave route, and returns. That physically demonstrates both the method and Desmond’s practiced familiarity with it.
+
+Main issue: fix the time phrasing
+
+The intended timing is clear enough:
+
+3:20 — low tide exposes the cave.
+3:20–3:30 — the cave route is usable.
+3:30-ish — Katherine is killed.
+Afterward — the route vanishes as the tide returns.
+
+But Chapter 2 says:
+
+“the murder between half past three and twenty minutes past three”
+
+That is backward. It should always be:
+
+The records put the murder between twenty minutes past three and half past three.
+
+Or, even better:
+
+The cave was accessible from twenty minutes past three until half past three. Within that ten-minute interval, the killer could reach the window, unlock it, strike, and return before the tide closed the route.
+
+That one fix matters because the whole puzzle depends on the precision of the tide window.
+
+The murder wound still needs clarification
+
+The foil is the weapon, and the story says the thrust is single and deep. That is fine. But the opening emphasizes Katherine’s torn/bloodied sleeve and a puncture wound around the arm/side area. The fatal injury should be unmistakable.
+
+Use one of these:
+
+The torn sleeve was not the fatal wound; it was where she had raised her arm too late. The killing thrust had gone beneath the ribs.
+
+Or:
+
+The foil had entered just below the ribs, narrow enough to seem almost delicate, deep enough to stop the heart.
+
+That would remove any doubt about whether an arm wound killed her.
+
+Desmond’s demonstration is now the best part
+
+This version fixes the previous major flaw. Desmond, not Bertram, performs the successful route. That matters because the proof becomes embodied: he knows where the concealed lock is, how the hollow foil releases the key, and how to move through the cave within the time.
+
+The best reveal line is:
+
+“The route was open no longer than ten minutes. That’s all the time required, if you know the mechanism and the way.”
+
+That is exactly the right logic. Keep it.
+
+I’d sharpen Montague’s accusation slightly:
+
+“You have not shown us that the route was possible, Mr. Kestrel. You have shown us that it was familiar.”
+
+That would make the demonstration land even harder.
+
+Character Life / Relationship Richness: 8/10
+
+This is strong. Katherine feels like the centre of a living institution, not only a victim. Her academy, her will, her authority, her photograph, her habits, and her remembered presence shape the whole story.
+
+Hector becomes steward rather than master, which is a good consequence. Neville returns to teaching with deeper patience. Bertram finds reduced bitterness through practical maintenance. Montague’s tremor and desire for quieter evenings give him human texture beyond the detective role.
+
+This aftermath is one of the better recent ones because it shows what changes after the solution, not just who was guilty.
+
+Humour / Wit: 8/10
+
+The humour is strong and mostly character-based.
+
+Good lines:
+
+“Ghosts through the walls, or just the usual beastly ingenuity?”
+“Let’s call it navigation.”
+
+Bertram’s voice is consistently entertaining without completely overwhelming the story:
+
+“A fine mess, but not mine.”
+
+And this is a good dry exchange:
+
+“No more hidden keys, at least for a while.”
+“That would be best.”
+
+The humour is more natural than the earlier catchphrase-heavy drafts. The repeated tags still need trimming:
+
+“As per the documentation”
+“Quite the predicament”
+“Well, that’s a fine mess”
+“The point is well taken”
+
+Use each once, maybe twice.
+
+Chapter 9 is useful but a little soft
+
+Chapter 9 is now more emotional fallout than re-solution, which is good. It shows Desmond in custody, clears Hector/Neville/Bertram, and lets the survivors adjust to the result.
+
+But it could be shorter. Once Chapter 8 has revealed Desmond, Chapter 9 should not need much evidentiary settling. Keep the best moments:
+
+Hector asking what remains.
+Neville asking whether it was worth it.
+Bertram’s “What will you remember?”
+Desmond handing over the documents.
+Katherine’s portrait restored to place.
+
+Cut some of the formal clearance lines unless you want Chapter 9 to be a deliberate courtroom-style closing.
+
+Chapter 10 is the best ending of the tidal drafts
+
+The final chapter works well. It shows the hotel and academy settling back into life: tea, ledgers, classes, trustees, maintenance, sealed evidence, Katherine’s photograph, and the tide returning.
+
+The best thing is that it distributes consequence:
+
+Hector loses status but gains a steward role.
+Neville becomes steadier as a teacher.
+Bertram’s bitterness softens.
+Montague feels lighter.
+Katherine remains as memory rather than just murder.
+
+That is exactly what a Chapter 10 should do.
+
+Scaffold/prose issues to remove
+
+These are the main remaining issues:
+
+“the murder between half past three and twenty minutes past three” — reverse it.
+“a hush fell” / “for a moment no one spoke” appears too often.
+“with finality” style gestures are still a bit frequent.
+“The scene held” feels like stage direction.
+“the truth had finally emerged” is tell-y.
+“The matter of guilt not yet settled but the matter of means grown sharper” is over-abstract.
+
+Also, Chapter 7’s Hector speech is slightly garbled around the will/signature sentence. It begins strongly, but the line “The will was changed: Hector’s signature...” interrupts the quoted speech awkwardly.
+
+Fix it like this:
+
+“The will was changed,” Hector said. “My signature stood beneath Katherine’s on the revised page. I asked Desmond to delay the submission — not because I wanted her dead, but because I still hoped she would forgive me before the ink became law.”
+Fastest fixes
+Correct the time phrase to 3:20 to 3:30, never the reverse.
+Clarify the fatal wound: arm wound defensive, fatal thrust below ribs/heart.
+Add Montague’s line: “You have shown us the route was familiar.”
+Smooth Hector’s Chapter 7 speech about the will.
+Trim repeated catchphrases by 30%.
+Shorten Chapter 9 slightly.
+Keep Chapter 10 mostly as-is; it is working.
+Overall
+
+This is upper-tier now. The tidal cave mechanism is memorable, the reenactment finally implicates the right person, the clue chain is fair, the wit is controlled, and the aftermath has real life. It is stronger than the earlier tidal versions and close to the best Blackmoor Sanctuary clock draft.
+
+As written: 88/100.
+
+With the time phrasing fixed, wound clarified, Hector’s speech smoothed, and Chapter 9 tightened, this could reach 92/100.

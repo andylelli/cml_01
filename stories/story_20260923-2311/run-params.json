@@ -1,0 +1,24 @@
+{
+  "seed": 61062,
+  "runId": "mystery-1790200611969",
+  "projectId": "canary_1790200611967",
+  "primaryAxis": "temporal",
+  "storyAngle": "a brewery dynasty",
+  "targetLength": "short",
+  "eraPreference": "1920s",
+  "locationPreset": "Liner",
+  "tone": "Cozy",
+  "detectiveType": "private",
+  "narrativeStyle": "classic",
+  "humourLevel": "classic",
+  "castSize": 6,
+  "castNames": [
+    "Gerald Ellery",
+    "Dr. Dorothy Merrow",
+    "Ferdinand Jardine",
+    "Katherine Bellamy",
+    "Neville Underhill",
+    "Edmund Carrick"
+  ],
+  "generatedAt": "2026-09-23T22:11:39.594Z"
+}

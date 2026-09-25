@@ -1,0 +1,25 @@
+{
+  "seed": 18179,
+  "runId": "mystery-1790251239840",
+  "projectId": "canary_1790251239837",
+  "primaryAxis": "temporal",
+  "storyAngle": "an ornithologist's bird sanctuary",
+  "targetLength": "short",
+  "eraPreference": "1920s",
+  "locationPreset": "Village",
+  "tone": "Dark",
+  "detectiveType": "amateur",
+  "narrativeStyle": "classic",
+  "humourLevel": "classic",
+  "castSize": 7,
+  "castNames": [
+    "Gerald Thorne",
+    "Dr. Ivor Jardine",
+    "Frances Underhill",
+    "Adela Bellamy",
+    "Marguerite Ashgrove",
+    "Ottoline Orme",
+    "Cecil Rutherford"
+  ],
+  "generatedAt": "2026-09-24T12:19:42.712Z"
+}

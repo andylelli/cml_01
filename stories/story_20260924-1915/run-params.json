@@ -1,0 +1,24 @@
+{
+  "seed": 23403,
+  "runId": "mystery-1790272530598",
+  "projectId": "canary_1790272530595",
+  "primaryAxis": "spatial",
+  "storyAngle": "a fencing academy with a rivalry between its two masters",
+  "targetLength": "short",
+  "eraPreference": "1920s",
+  "locationPreset": "SeasideHotel",
+  "tone": "Dark",
+  "detectiveType": "police",
+  "narrativeStyle": "classic",
+  "humourLevel": "classic",
+  "castSize": 6,
+  "castNames": [
+    "Katherine Quayle",
+    "Hector Gaunt",
+    "Neville Lachlan",
+    "Bertram Vance",
+    "Desmond Kestrel",
+    "Montague Norbury"
+  ],
+  "generatedAt": "2026-09-24T18:15:52.294Z"
+}

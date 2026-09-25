@@ -1,0 +1,174 @@
+This is a cleaner, more polished version of the tidal-cave locked-room draft, but I’d actually score it slightly lower than the previous version because this one loses some mechanical specificity in the reveal. The atmosphere and dialogue are better, Bertram is livelier, and Chapter 10 is smoother — but the locked-room proof is less rigorous because Bertram performs the reenactment instead of Desmond, and the final timing logic is not as clearly pinned.
+
+I’d score it around 84/100.
+
+The roles are:
+
+Investigator: Montague Norbury
+Victim: Katherine Quayle
+Culprit: Desmond Kestrel
+False suspects: Hector Gaunt, Neville Lachlan, Bertram Vance
+Murder method: fencing foil thrust / puncture wound
+Cover-up mechanism: Desmond uses the tidal cave, the low-tide window, the hotel blueprints, and a duplicate key hidden in a hollow fencing foil to enter the locked room through the window
+Key clues: locked room, exposed tidal cave, window seven feet above rocks, low tide at 3:20, death around 3:30, glove marks matching Desmond’s gloves, fresh stains on foil, blueprints, duplicate key, hollow foil, letters detailing cave/foil/key plan
+Motive: Katherine would have exposed Desmond’s legal/financial misconduct connected to Hector Gaunt, ruining Desmond’s livelihood and standing
+
+Area	Mark	Notes
+Premise / concept	9/10	Tidal cave + locked room + hollow foil key is very strong.
+Opening hook	8/10	Body, foil, locked room, cave, tide oddity — immediate mystery appeal.
+Plot structure	8/10	Logical clue progression, but final chapters overlap/mislabel slightly.
+Character clarity	8/10	The men are distinct; Bertram is especially vivid.
+Dialogue	8/10	Better than average: dry, witty, fencing-themed.
+Atmosphere / setting	9/10	Seaside hotel, fog, academy, salle, cave, tide — excellent unity.
+Mystery clues / evidence logic	7/10	Good clues, but the reveal demonstration weakens because Bertram, not Desmond, performs it.
+Pacing	8/10	Smooth and readable; less drag than many drafts.
+Ending / reveal	7/10	Chapter 8 exposes Desmond; Chapters 9–10 then partly re-resolve/aftermath.
+Prose / polish	8/10	Cleaner prose than many earlier drafts, though some scaffold remains.
+Character Life / Relationship Richness	8/10	Academy history, Gaunt’s disgrace, Neville’s legacy, Katherine’s memory all help.
+Humour / Wit	8/10	Strong dry wit, especially Bertram and Hector.
+What works
+
+The locked-room hook is very good. Katherine is found in a sealed hotel room; the foil is stained; the sleeve is punctured; the window is seven feet above the rocks; and the tidal cave is visible when it should not be. That gives the story an immediate “impossible crime” structure.
+
+The clue set is nicely unified. The cave, tide chart, blueprints, hollow foil, duplicate key, glove marks, and fencing-academy setting all belong to the same mechanism. This is stronger than drafts where the clues feel drawn from different mysteries.
+
+The dialogue is livelier than usual. Bertram’s line about asking the cat for an alibi, the “gills and scheduling” joke, and the exchange about fencing with words all give the cast a sharper social texture.
+
+Main issue: the reenactment uses the wrong person
+
+In the previous version, Desmond himself demonstrated the climb, which was much stronger because the proof physically implicated him. In this version, Bertram performs the controlled reenactment: he goes through the cave, climbs to the window, uses the key, and reappears.
+
+That proves the method is possible, but not that Desmond could do it. It also accidentally makes Bertram look more capable than Desmond.
+
+Better:
+
+Desmond should be forced to demonstrate the route.
+
+Bertram can attempt it first and fail or joke his way through part of it.
+Neville cannot attempt it because of his knee.
+Hector cannot manage the climb.
+Then Desmond, cornered by the evidence, performs it cleanly.
+
+That makes the proof visual and personal:
+
+“The route was not merely possible,” Montague said. “It was practised.”
+Time logic: still needs one clean explanation
+
+The story gives two key times:
+
+low tide / cave access: 3:20
+murder window / death: around 3:30
+Hector’s alibi: 2:50 to 3:25
+Neville’s alibi: 3:00 to 3:45
+Bertram’s alibi: 3:10 to 3:40
+
+This can work, but the reveal should say plainly:
+
+The cave did not open for an instant at 3:20. It was usable for several minutes around low tide.
+That gave the killer enough time to leave after 3:20, reach the window by 3:30, kill Katherine, and return before the tide covered the entrance again.
+
+Right now the draft says “only ten minutes” several times, but it does not make the window feel physically exact enough.
+
+The clue chain is good, maybe too direct
+
+Chapter 7 contains a very direct letter:
+
+“The instructions spell out every detail... the use of the tidal cave, the fencing foil, and even the duplicate key.”
+
+That is almost too much. It risks making the final deduction feel obvious before the reenactment.
+
+A subtler version would be better:
+
+The letter should not spell out the murder plan.
+It should mention “the lower route,” “the spare key,” and “timing dependent on the waterline.”
+
+Then Montague still has to interpret it.
+
+Character Life / Relationship Richness: 8/10
+
+This is strong. Katherine is not just a corpse; she is the founder/authority figure of the academy, remembered through her wit, routines, discipline, and influence. Chapter 10 especially improves her presence by recalling how she sliced bread precisely and how her absence remains in every lesson and correction.
+
+Neville has the best emotional arc. His injured knee is both clue and character; he cannot be the climber, but he becomes the person who inherits Katherine’s academy traditions. Hector has disgrace and diminished pride. Bertram has gambling, bravado, and verbal defence mechanisms. Desmond has protocol, documentation, reputation, and legalistic self-protection.
+
+That is a good suspect web.
+
+Humour / Wit: 8/10
+
+The wit is one of the better elements.
+
+Strong lines:
+
+“Shall we ask the cat for an alibi next?”
+
+“So unless our murderer is blessed with gills and a disregard for scheduling...”
+
+“Would you care to confess to omnipresence?” / “No, but I'd pay to see it done.”
+
+These are better than the repeated catchphrases in weaker drafts because they arise from character and situation. Bertram’s theatrical wit is consistent without becoming totally mechanical.
+
+The only issue: some repeated phrases still feel like labels:
+
+“polite savagery”
+“The point is well taken”
+“As per the documentation”
+“Well, that's a fine mess”
+
+Use each once or twice, not as a recurring tag.
+
+Chapter 8 reveal: good, but underpowered
+
+Chapter 8 has the correct ingredients: low tide, cave route, key, hollow foil, climb, window, blueprints, accusation, and Desmond’s motive.
+
+But Desmond’s confession is too brief:
+
+“Had I not acted, she would have ruined me...”
+
+Good start, but it needs one more line naming the emotional/ethical collapse:
+
+“She would have made the papers honest,” Desmond said. “And honest papers would have destroyed me.”
+
+Or:
+
+“I spent my life making other men’s sins look orderly. Katherine was going to make mine visible.”
+
+That would fit his legal/documentary personality.
+
+Chapters 9 and 10: good mood, but odd labeling
+
+Chapter 9 is called Clearing the Innocent, and it works as emotional clearance. It gives Hector an apology, Neville a dignified place, Bertram a rueful line, and Desmond a final legal-facing silence.
+
+Chapter 10 is called The Revelation, but the revelation already happened. Chapter 10 is actually aftermath: supper, music, schedules, Katherine’s memory, Desmond writing, academy routine returning.
+
+Rename:
+
+Chapter 9: Clearing the Innocent — fine.
+Chapter 10: After the Tide or Ordinary Time — better than “The Revelation.”
+
+Scaffold/prose issues to remove
+
+These are the main ones:
+
+“the only thing more dangerous than a locked door is the certainty that no one could possibly come through it” — good idea, but a little over-polished.
+“Desmond’s reply was a mere murmur”
+“The others fell silent, the proof laid bare and the method demonstrated”
+“with finality” repeated gesture
+“order restored, for now”
+“ordinary time” is good once, not as a final abstraction if overexplained.
+
+Also fix the wound clarity. Chapter 1 describes a puncture through the sleeve and stain, but the exact fatal wound is not quite as clearly placed as it should be. The reader needs to know whether the foil pierced the torso, throat, or upper arm. A fatal upper-arm puncture is possible only with major artery detail, which the draft does not provide.
+
+Fastest fixes
+Make Desmond perform the successful climb in Chapter 8, not Bertram.
+Clarify the tide window: 3:20 low tide allows access until about 3:30, not a single instant.
+Make the fatal wound anatomically clearer.
+Make the incriminating letter less absurdly explicit.
+Expand Desmond’s confession by two sharper lines.
+Rename Chapter 10 from The Revelation to After the Tide or Ordinary Time.
+Reduce repeated verbal tags: “point well taken,” “documentation,” “fine mess.”
+Overall
+
+This is a strong locked-room mystery draft with one of the best concepts: a tidal cave, a hollow foil, and a duplicate key. It has better dialogue and polish than the previous version, but the previous version had a stronger final proof because Desmond himself demonstrated the route.
+
+As written: 84/100.
+
+With Desmond made to perform the climb, the tide timing clarified, and the confession sharpened, this could reach 90–91/100.

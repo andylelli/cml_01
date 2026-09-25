@@ -1,0 +1,23 @@
+{
+  "seed": 6325,
+  "runId": "mystery-1790236126588",
+  "projectId": "canary_1790236126586",
+  "primaryAxis": "temporal",
+  "storyAngle": "a pawnbroker's shop and its pledge book",
+  "targetLength": "short",
+  "eraPreference": "1920s",
+  "locationPreset": "Village",
+  "tone": "Classic",
+  "detectiveType": "amateur",
+  "narrativeStyle": "modern",
+  "humourLevel": "classic",
+  "castSize": 5,
+  "castNames": [
+    "Edmund Penhale",
+    "Dr. Percival Fairweather",
+    "Julian Carrick",
+    "Lavinia Yardley",
+    "Clarissa Selwyn"
+  ],
+  "generatedAt": "2026-09-24T08:07:16.666Z"
+}
