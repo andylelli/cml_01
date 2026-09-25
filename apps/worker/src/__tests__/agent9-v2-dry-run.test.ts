@@ -11,7 +11,7 @@
  * claim meets a whole assembled prompt.
  */
 import { afterEach, describe, expect, it } from "vitest";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -74,7 +74,7 @@ const unwrap = (value: unknown, keys: string[]): unknown => {
   return value;
 };
 
-const fakeContext = (): OrchestratorContext => {
+const fakeContext = (source: Record<string, unknown> | null = artifacts): OrchestratorContext => {
   const warnings: string[] = [];
   const errors: string[] = [];
   return {
@@ -94,23 +94,23 @@ const fakeContext = (): OrchestratorContext => {
     workerAppRoot: join(process.cwd(), "logs-test"),
     workspaceRoot: REPO_ROOT,
     primaryAxis: "temporal",
-    cml: artifacts?.cml,
-    clues: artifacts?.clues,
-    narrative: unwrap(artifacts?.outline, ["narrative", "outline"]),
-    cast: { cast: unwrap(artifacts?.cast, ["cast"]) },
-    characterProfiles: artifacts?.character_profiles,
-    worldDocument: artifacts?.world_document,
-    locationProfiles: artifacts?.location_profiles,
-    temporalContext: artifacts?.temporal_context,
-    setting: artifacts?.setting,
+    cml: source?.cml,
+    clues: source?.clues,
+    narrative: unwrap(source?.outline, ["narrative", "outline"]),
+    cast: { cast: unwrap(source?.cast, ["cast"]) },
+    characterProfiles: source?.character_profiles,
+    worldDocument: source?.world_document,
+    locationProfiles: source?.location_profiles,
+    temporalContext: source?.temporal_context,
+    setting: source?.setting,
     lockedFactRegistry: (
-      (artifacts?.hard_logic_devices as { devices?: Array<{ lockedFacts?: unknown[] }> } | undefined)?.devices?.[0]
+      (source?.hard_logic_devices as { devices?: Array<{ lockedFacts?: unknown[] }> } | undefined)?.devices?.[0]
         ?.lockedFacts ?? []
     ),
   } as unknown as OrchestratorContext;
 };
 
-const KEYS = ["PROSE_ENGINE", "PROSE_V2_DRY", "PROSE_V2_WRITER", "PROSE_V2_DRAFTS"] as const;
+const KEYS = ["PROSE_ENGINE", "PROSE_V2_DRY", "PROSE_V2_WRITER", "PROSE_V2_DRAFTS", "AGENT3_CASE_LOGIC"] as const;
 const saved = Object.fromEntries(KEYS.map((k) => [k, process.env[k]]));
 afterEach(() => {
   // `process.env.X = undefined` writes the STRING "undefined", which is how the first cut of this
@@ -226,4 +226,30 @@ describe.skipIf(!artifacts)("the dry run over a real archived project", () => {
     expect(result.telemetry.join("\n")).toMatch(/contract: \d+ chapters, reveal ch\d+/);
     expect(result.telemetry.join("\n")).toMatch(/plan: (book|acts|chapters)/);
   });
+});
+
+/** A golden bundle, for what must run where there is no `data/store.json` (this container, CI). */
+const goldenBundle = ((): Record<string, unknown> | null => {
+  const dir = join(REPO_ROOT, "eval", "golden");
+  const file = existsSync(dir) ? readdirSync(dir).find((f) => f.startsWith("bundle-")) : undefined;
+  return file ? (JSON.parse(readFileSync(join(dir, file), "utf8")) as { artifacts: Record<string, unknown> }).artifacts : null;
+})();
+
+describe.skipIf(!goldenBundle)("the dry run over a golden bundle", () => {
+  it("A_109 M2 — the reader line is reported only with the case-logic flag on, and never costs the run", async () => {
+    process.env.PROSE_ENGINE = "v2";
+    process.env.PROSE_V2_DRY = "1";
+    delete process.env.AGENT3_CASE_LOGIC;
+    const off = fakeContext(goldenBundle);
+    await generateBookV2(off);
+    expect(off.warnings.filter((w) => w.startsWith("[A_109 case logic] M2"))).toEqual([]);
+
+    process.env.AGENT3_CASE_LOGIC = "true";
+    const on = fakeContext(goldenBundle);
+    await generateBookV2(on);
+    const lines = on.warnings.filter((w) => w.startsWith("[A_109 case logic] M2"));
+    expect(lines).toHaveLength(1);
+    expect(lines[0]).toMatch(/reader's uncertainty by chapter \(bits\): [\d. ]+ · /);
+  });
+
 });

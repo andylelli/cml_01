@@ -10,7 +10,10 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
+import { buildCaseModel, walkReader } from "@cml/cml";
+
 import { buildBookContract } from "../book-contract.js";
+import { readerInputOf } from "../reader-input.js";
 import { textureLines } from "../depth.js";
 import { buildContractCore } from "../contract.js";
 import { TEMPLATE } from "../contract-phrases.js";
@@ -582,5 +585,43 @@ describe("A_109 M3 — THE PROOF in the bible, walked in order at the reveal (fl
     const carriers = contract.scenes.filter((s) => s.proofSteps);
     expect(carriers.map((s) => s.chapter)).toEqual([contract.roles.reveal]);
     expect(carriers[0]!.proofSteps).toBe(4);
+  });
+});
+
+describe("A_109 M2 — who the reader suspects after each chapter, as the contract schedules the clues", () => {
+  const golden = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "..", "eval", "golden");
+  const bundles = existsSync(golden) ? readdirSync(golden).filter((f) => f.startsWith("bundle-")) : [];
+  const walks = (ratios?: { implicate: number }) =>
+    bundles.map((file) => {
+      const a = JSON.parse(readFileSync(join(golden, file), "utf8")).artifacts;
+      const contract = buildBookContract({
+        cml: a.cml ?? {},
+        clues: a.clues ?? null,
+        outline: a.outline?.narrative ?? a.outline,
+        cast: a.cast?.cast ?? a.cast,
+        profiles: a.character_profiles ?? null,
+        humourLevel: "classic",
+      });
+      const input = readerInputOf(contract);
+      return { input, reader: walkReader(buildCaseModel({ cml: a.cml, clues: a.clues }), { ...input, ...(ratios ? { ratios } : {}) }) };
+    });
+
+  it.skipIf(bundles.length === 0)("KNOWN-POSITIVE: every golden contract hands the reader the culprit by chapter 5, the test at 8", () => {
+    for (const { input, reader } of walks()) {
+      expect(input.testChapter).toBe(8);
+      expect(reader.culpritLeadsAt).not.toBeNull();
+      expect(reader.culpritLeadsAt!).toBeLessThanOrEqual(5);
+      expect(reader.floorBrokenAt!).toBeLessThanOrEqual(5);
+      expect(reader.falseLeadAtMidpoint).toBe(false);
+      expect(reader.collapsed).toBe(true);
+    }
+  });
+
+  it.skipIf(bundles.length === 0)("the verdict is structural — it holds from a likelihood ratio of 1.5 to 8", () => {
+    for (const implicate of [1.5, 8]) {
+      for (const { input, reader } of walks({ implicate })) {
+        expect(reader.culpritLeadsAt!).toBeLessThan(input.testChapter);
+      }
+    }
   });
 });

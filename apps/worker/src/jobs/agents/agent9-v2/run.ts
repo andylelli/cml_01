@@ -29,6 +29,7 @@ import {
   chooseDraft,
   CONTRACT_TEMPLATE_PHRASES,
   textureLines,
+  readerInputOf,
   TEMPLATE,
   fullParagraphs,
   indexChapters,
@@ -57,7 +58,7 @@ import type { ChatCapableClient } from "@cml/llm-client";
 import { isContentFilterRefusal } from "@cml/llm-client";
 import { isFilterSoftenEnabled, softenViolentWording, SOFTENED_NOTE } from "./filter-soften.js";
 import { v2ShipCheckLines } from "./ship-check.js";
-import { buildCaseModel } from "@cml/cml";
+import { buildCaseModel, isCaseLogicEnabled, summariseReader, walkReader } from "@cml/cml";
 
 import type { OrchestratorContext } from "../shared.js";
 import { hashContract, emptyCheckpoint, readCheckpoint, recordSegment, writeCheckpoint, type V2Checkpoint } from "./checkpoint.js";
@@ -357,6 +358,20 @@ const caseAlibiWindows = (ctx: OrchestratorContext): Array<[number, number]> => 
   }
 };
 
+/**
+ * A_109 M2 — who the reader suspects after each chapter, as this contract schedules the clues. Report
+ * only, behind the case-logic telemetry flag (`AGENT3_CASE_LOGIC`, read at call time). Never throws.
+ */
+const caseReaderLine = (ctx: OrchestratorContext, contract: BookContract): string | null => {
+  if (!isCaseLogicEnabled()) return null;
+  try {
+    const model = buildCaseModel({ cml: ctx.cml, clues: ctx.clues });
+    return `[A_109 case logic] M2 ${summariseReader(walkReader(model, readerInputOf(contract)), model)}`;
+  } catch (error) {
+    return `[A_109 case logic] M2 could not run: ${(error as Error).message}`;
+  }
+};
+
 const WRITER_SYSTEM =
   "You are writing a Golden Age detective novella. Everything true about the case is given to you; " +
   "your work is the prose. Write chapters, in order, in the format the instruction names.";
@@ -376,6 +391,8 @@ export interface V2Result {
 export const generateBookV2 = async (ctx: OrchestratorContext): Promise<V2Result> => {
   const started = Date.now();
   const contract = buildBookContract(buildContractInput(ctx));
+  const readerLine = caseReaderLine(ctx, contract);
+  if (readerLine) ctx.warnings.push(readerLine);
   const azure = ctx.client as unknown as ChatCapableClient;
   /**
    * The alternate provider MUST share the run's logger and cost tracker, or its calls are absent

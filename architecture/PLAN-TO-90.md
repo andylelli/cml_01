@@ -3119,3 +3119,14 @@ case: the culprit is proven iff every cover is defeated; an innocent nothing cle
 the culprit, is reported (telemetry `AGENT3_CASE_LOGIC`). The clue reader now uses each clue's own
 `inference`, clause by clause. MEASURED: the v2 bible never carried the case's inference path; with
 `PROSE_V2_PROOF_STEPS` it carries THE PROOF and the reveal walks it in order, one sentence a step.
+
+**§33 UPDATE 8 — A_109 step 5, who the reader suspects after each chapter (M2), report-only.** A posterior
+over the suspects, walked through the clues in the chapters the contract makes them first shown in, and
+the stated clearances where they land; its Shannon entropy is the reader's doubt. MEASURED on the four
+golden contracts: the culprit is the favourite from chapter 4 (three cases) or 5 (one), the test at 8;
+fewer than two live suspects from the same chapter; the false solution's accused leads at the midpoint in
+**0 of 4**. The verdict is structural, not the constants': it is the same at each of six likelihood
+ratios from 1.25 to 8 and at clearance strengths 0.05 and 0.3, because in all four cases no clue implicates anyone
+but the culprit. Telemetry: one `[A_109 case logic] M2` line at the v2 prose stage under `AGENT3_CASE_LOGIC`;
+archive: `npm run report:case-logic` (the laptop's `data/store.json` — this container holds only the
+golden four with outlines).

@@ -66,3 +66,4 @@ export { humourMove, HUMOUR_MOVE_PHRASES } from "./humour-move.js";
 export { assignTexture, textureLines } from "./depth.js";
 export { findRecaps, RECAP_SHARE, RECAP_MIN_TERMS, OWNER_ALLOWANCE } from "./recaps.js";
 export type { RecapHit } from "./recaps.js";
+export { readerInputOf } from "./reader-input.js";

@@ -71,15 +71,32 @@ for (const { id, artifacts } of cases) {
   if (proof.culpritCleared.length) tally.culpritCleared = (tally.culpritCleared ?? 0) + 1;
   console.log(`${"".padEnd(13)}  M3 ${cml.summariseProof(proof)}`);
 
-  // M5 — recaps in the book this case produced, when the archive holds its prose and outline.
+  // M2 — who the reader suspects after each chapter, as the contract schedules the clues (needs the
+  // outline); M5 — recaps in the book this case produced (needs the prose too).
   const prose = artifacts.prose;
   const outline = unwrap(artifacts.outline, ["narrative", "outline"]);
-  if (proseEngine && prose && Array.isArray(prose.chapters) && outline && Array.isArray(outline.acts)) {
+  let contract = null;
+  if (proseEngine && outline && Array.isArray(outline.acts)) {
     try {
-      const contract = proseEngine.buildBookContract({
+      contract = proseEngine.buildBookContract({
         cml: artifacts.cml, clues: artifacts.clues ?? null, outline, cast: unwrap(artifacts.cast, ["cast"]),
         profiles: artifacts.character_profiles ?? null, humourLevel: "classic",
       });
+    } catch (err) {
+      console.log(`${"".padEnd(13)}  M2/M5 no contract: ${err.message}`);
+    }
+  }
+  if (contract) {
+    const input = proseEngine.readerInputOf(contract);
+    const reader = cml.walkReader(model, input);
+    tally.scheduled = (tally.scheduled ?? 0) + 1;
+    if (reader.floorBrokenAt !== null) tally.floorBroken = (tally.floorBroken ?? 0) + 1;
+    if (reader.culpritLeadsAt !== null) tally.culpritEarly = (tally.culpritEarly ?? 0) + 1;
+    if (reader.falseLeadAtMidpoint) tally.falseLeads = (tally.falseLeads ?? 0) + 1;
+    console.log(`${"".padEnd(13)}  M2 ${cml.summariseReader(reader, model)} (test at ${input.testChapter})`);
+  }
+  if (contract && prose && Array.isArray(prose.chapters)) {
+    try {
       const chrono = model.chronology;
       const dial = new Map(chrono.events.map((e) => [e.id, e.dial]));
       const windows = chrono.intervals.filter((i) => i.id.startsWith("alibi:")).map((i) => [dial.get(i.start), dial.get(i.end)]);
@@ -101,4 +118,9 @@ console.log(
   `innocents with a judged alibi ${tally.innocents}: cover the act ${tally.covering}, partly ${tally.partial}, not at all ${tally.none}`,
 );
 console.log(`proof: culprit not proven ${tally.unproven ?? 0} · an innocent left uncleared ${tally.uncleared ?? 0} · the culprit cleared ${tally.culpritCleared ?? 0}`);
+if (tally.scheduled) {
+  console.log(
+    `reader (M2), ${tally.scheduled} contracts: the culprit the favourite before the test ${tally.culpritEarly ?? 0} · fewer than two live suspects before the test ${tally.floorBroken ?? 0} · the false suspect leading at the midpoint ${tally.falseLeads ?? 0}`,
+  );
+}
 if (tally.books) console.log(`books with prose ${tally.books}: recaps ${tally.recaps} (${(tally.recaps / tally.books).toFixed(1)} a book)`);

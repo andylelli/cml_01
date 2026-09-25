@@ -7,3 +7,5 @@ export type { AlibiCoverage, ClassifiedStatement, Coverage, StatementRole, Timel
 export { isCaseLogicEnabled } from "./flags.js";
 export { analyseProof, clearedBySceneOf, groundedExtension, summariseProof } from "./proof.js";
 export type { ProofAnalysis, ProofInput } from "./proof.js";
+export { CLEAR_RATIO, FLOOR_BITS, IMPLICATE_RATIO, LEAD_P, WITHHELD_RATIO, summariseReader, walkReader } from "./reader.js";
+export type { ReaderAnalysis, ReaderChapter, ReaderInput } from "./reader.js";
