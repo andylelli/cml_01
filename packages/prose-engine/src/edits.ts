@@ -37,7 +37,7 @@ import type { Validator } from "@cml/prose-guard";
 import { extractClockValues } from "@cml/cml";
 
 import { bookRegisterRate } from "./findings.js";
-import { splitSentences } from "./sentences.js";
+import { repeatedRuns, splitSentences } from "./sentences.js";
 import type { EditList, EditOutcome, Finding, GuardName, ProseChapterLike, SceneContract } from "./types.js";
 
 const normalise = (text: string): string => String(text ?? "").replace(/\s+/g, " ").trim();
@@ -81,6 +81,10 @@ const duplicatedSentences = (body: string): Map<string, number> => {
     if (sentence.split(/\s+/).length < 8) continue;
     const key = sentence.toLowerCase();
     seen.set(key, (seen.get(key) ?? 0) + 1);
+  }
+  // §06.8: the near-copies no sentence match sees — a doubled clause, a line said twice.
+  for (const paragraph of body.split(/\n\n/)) {
+    for (const run of repeatedRuns(paragraph)) seen.set(`run: ${run}`, 2);
   }
   return new Map([...seen].filter(([, count]) => count > 1));
 };

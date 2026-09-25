@@ -39,3 +39,23 @@ export const splitSentences = (text: string): string[] => {
   if (tail) out.push(tail);
   return out;
 };
+
+/**
+ * Six-word runs said twice inside ONE paragraph (six catches the restated opening, "she returned to
+ * the ladder base"; over the v2-era books it adds one hit in two, against seven). The matched pair on run 98dec72a (read 74) carried
+ * six, and none was a whole repeated sentence: a clause doubled inside a sentence ("his shoes catching
+ * on the thick Persian carpet …, his shoes catching on …"), a spoken line put at the front of its
+ * paragraph and left in place too, a sentence restated as the next one's opening. A run that is a
+ * clock value is the locked form a time must take, and is left alone.
+ */
+const CLOCK_RUN =
+  /\bo'clock\b|\b(?:half|quarter) (?:past|to)\b|\b(?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|twenty|thirty|forty|fifty)(?:-\w+)? (?:minutes )?(?:past|to) (?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|midnight|noon)\b/;
+export const repeatedRuns = (paragraph: string, size = 6): string[] => {
+  const words = String(paragraph ?? "").toLowerCase().replace(/[^a-z'\s]/g, " ").split(/\s+/).filter(Boolean);
+  const seen = new Map<string, number>();
+  for (let i = 0; i + size <= words.length; i += 1) {
+    const run = words.slice(i, i + size).join(" ");
+    seen.set(run, (seen.get(run) ?? 0) + 1);
+  }
+  return [...seen].filter(([run, n]) => n > 1 && !CLOCK_RUN.test(run)).map(([run]) => run);
+};

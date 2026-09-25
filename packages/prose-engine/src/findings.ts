@@ -40,7 +40,7 @@ import { extractClockValues } from "@cml/cml";
 import { indexChapters } from "./chapter-index.js";
 import { contentStemsOf, findCatchphrases, findInstructionEchoes, instructionPhrases, instructionStemGrams } from "./instruction-echo.js";
 import { narratedMove } from "./humour-move.js";
-import { splitSentences } from "./sentences.js";
+import { repeatedRuns, splitSentences } from "./sentences.js";
 import { checkHardGates } from "./selector.js";
 import type {
   ContractCore,
@@ -319,6 +319,23 @@ export const collectCheckerFindings = (
         const where = home === chapter ? "earlier in this chapter" : `also in chapter ${home}`;
         out.push(finding("copied_sentence", chapter, sentence, `${where}, word for word`));
       }
+    }
+  }
+
+  // 4b. §06.8 — a run of six words said twice inside one paragraph: the doubled clause, the spoken
+  // line copied to the paragraph's front, the sentence restated as the next one's opening.
+  for (const [chapter, written] of byChapter) {
+    for (const paragraph of (written.paragraphs ?? []).map(normalise)) {
+      const runs = repeatedRuns(paragraph);
+      if (runs.length === 0) continue;
+      // A whole sentence said twice is already reported above; one finding per copy.
+      if (out.some((f) => f.class === "copied_sentence" && f.chapter === chapter && paragraph.includes(f.quote))) continue;
+      const second = sentencesOf(paragraph).filter((s) => {
+        const l = s.toLowerCase().replace(/[^a-z'\s]/g, " ").replace(/\s+/g, " ");
+        return runs.some((r) => l.includes(r));
+      });
+      const quote = second.length > 1 ? `${second[0]} ${second[1]}` : second[0] ?? paragraph;
+      out.push(finding("copied_sentence", chapter, paragraph.includes(quote) ? quote : second[0] ?? paragraph, "the same words twice in one paragraph; keep one"));
     }
   }
 

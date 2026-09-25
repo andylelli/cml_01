@@ -202,7 +202,7 @@ export const buildBrief = (input: BriefInput): Brief => {
    */
   add(
     "page",
-    `${openings} paragraphs in each chapter begin with a spoken line: the first character of the paragraph is the opening quotation mark, and the speech comes before any narration.`,
+    `${openings} paragraphs in each chapter begin with a spoken line: the first character of the paragraph is the opening quotation mark, the speech comes before any narration, and the line is said there once.`,
   );
   add("page", "At least four sentences in each chapter run past thirty words, because the thought they carry is that long.");
   add("page", "At least three em-dashes in each chapter, where a sentence turns on itself.");

@@ -269,3 +269,28 @@ curtains, rationing slips and the characters' inner pressures — the material �
 
 **Needed from the laptop:** the new manuscript under `stories/`, so the ten predictions are scored
 by count, not by the reader's summary.
+
+### 8.1 The predictions, counted on the manuscript (`stories/story_20260925-1823`)
+
+| prediction | the 69 | the 74 | verdict |
+|---|---:|---:|---|
+| narrated operations ≤ 3 | 15 | **0** | held |
+| no stock line more than twice | 4 | 3 ("Inspector, if I may") | nearly — "Order, Mr. Wentworth insists" 3 → 2, "that's the way of things" 4 → 0 |
+| clue recited to the investigator ≤ 5 | ~15 of 24 "Inspector," lines | ~2 of 26 | **held; my proxy was wrong** — the 26 are now questions and address ("Inspector, may I sit?") |
+| our brief's words 0 | 5 | 6, all ch 10 | failed — the aftermath rewrite printed; fixed in 475caed2 |
+| duplicated passages 0 | 3 | 6 | **failed** — see below |
+| the test performed once | ch 8 and 9 | once | held |
+| humour moves narrated ≤ 3 | 15 | **0** | held |
+| summary endings ≤ 2 | 18 phrases | **1** | held |
+
+**The duplicates.** All six are copies INSIDE one paragraph and none is a whole repeated sentence of
+8+ words, so neither `copied_sentence` nor the `noNewDuplicate` guard could see them: a clause doubled
+("his shoes catching on the thick Persian carpet …, his shoes catching on …"), a spoken line copied to
+the paragraph's front and left in place ("Why would anyone need a second key?" ×2 — the brief's
+"the first character of the paragraph is the opening quotation mark" met by copying), a sentence restated
+as the next one's opening. Writer or editor is not separable without the checkpoint (INFERRED: the
+front-copy is the writer meeting the speech-opening operation; 3 → 6 on the same case may include
+editor splices, the guard being blind to them). Built (this commit): six-word runs repeated in one
+paragraph are a `copied_sentence` finding and a guard violation; the speech-opening line now says
+"the line is said there once". MEASURED: the 74: 7; the 69: 4; other v2-era books 0–2; clock values
+exempt.
