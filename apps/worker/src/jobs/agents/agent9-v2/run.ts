@@ -28,6 +28,7 @@ import {
   buildTelemetryBlock,
   chooseDraft,
   CONTRACT_TEMPLATE_PHRASES,
+  textureLines,
   TEMPLATE,
   fullParagraphs,
   indexChapters,
@@ -274,6 +275,8 @@ export const renderSceneContract = (contract: BookContract, chapter: number): st
         (parts.length > 0 ? `: ${parts.join("; ")}.` : "."),
     );
   }
+  // 17-hitting-90 §07: place, period, inner life and relationships, owned by this chapter only.
+  for (const line of textureLines(scene.texture)) lines.push(`  ${line}`);
   if (scene.beats.depth) {
     lines.push(`  One thing about ${scene.beats.depth.name}, ${TEMPLATE.shownAsAction}: ${scene.beats.depth.trait}`);
   }

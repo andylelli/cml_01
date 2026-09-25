@@ -86,3 +86,6 @@ One row per item. **Status** is one of: not started · built · measured · read
 carries its own STATUS table for the £0 fixes that read produced.
 
 **Previous next item (done):** the external read of pair 3 — `stories/story_20260925-1240/resumed_resume_1790335377015.md` — with the predictions in `05` §2.
+
+`07_depth-from-what-exists.md` — 12% of upstream depth material reached the writer; each piece of place,
+period, inner life and relationship is now owned by one chapter and asked for as an act.

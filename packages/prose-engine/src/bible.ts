@@ -295,7 +295,12 @@ const cluesSection = (core: ContractCore): string[] => {
   return lines;
 };
 
-const relationshipsSection = (input: ContractInput): string[] => {
+const relationshipsSection = (input: ContractInput, core: ContractCore): string[] => {
+  // §07: a pair whose shared history a chapter owns is given it there, once, and not here as well —
+  // what every chapter call can see, every chapter repeats.
+  const owned = new Set(
+    core.scenes.flatMap((s) => (s.texture?.history ? [`${s.texture.history.a}|${s.texture.history.b}`] : [])),
+  );
   const relationships = input.cast?.relationships as Record<string, unknown> | undefined;
   const pairs = asArray(relationships?.pairs ?? relationships);
   const lines: string[] = [];
@@ -309,7 +314,7 @@ const relationshipsSection = (input: ContractInput): string[] => {
     // A_89 D1 — the relationship is CONTENT, at whatever length it was written. The 40-character cap
     // that used to stand here discarded 747 of 752 of them, median length 100, and what it discarded
     // was the motive-bearing half of every pair.
-    const body = [relationship, history].filter(Boolean).join(" ");
+    const body = [relationship, owned.has(`${a}|${b}`) ? "" : history].filter(Boolean).join(" ");
     lines.push(`  ${a} & ${b}${tension && tension !== "none" ? ` (${tension} tension)` : ""}: ${body}`);
   }
   return lines;
@@ -334,7 +339,7 @@ export const buildBible = (input: ContractInput, core: ContractCore): Bible => {
     { key: "world", lines: worldSection(input) },
     { key: "chronology", lines: chronologySection(core, input.lockedFacts ?? []) },
     { key: "clues", lines: cluesSection(core) },
-    { key: "relationships", lines: relationshipsSection(input) },
+    { key: "relationships", lines: relationshipsSection(input, core) },
   ];
 
   let sections = built

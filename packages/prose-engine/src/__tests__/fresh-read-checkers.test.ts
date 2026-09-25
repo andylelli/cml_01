@@ -11,6 +11,7 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
 import { buildBookContract } from "../book-contract.js";
+import { textureLines } from "../depth.js";
 import { buildContractCore } from "../contract.js";
 import { TEMPLATE } from "../contract-phrases.js";
 import { anchorFindings, collectCheckerFindings } from "../findings.js";
@@ -419,5 +420,57 @@ describe("§06 R4 — the chapter that ends by summing itself up", () => {
         "summary_ending",
       ),
     ).toEqual([]);
+  });
+});
+
+describe("§07 — depth from what the pipeline already wrote, each piece owned by one chapter", () => {
+  const golden = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "..", "eval", "golden");
+  const bundles = existsSync(golden) ? readdirSync(golden).filter((f) => f.startsWith("bundle-")) : [];
+  const load = (file: string) => {
+    const a = JSON.parse(readFileSync(join(golden, file), "utf8")).artifacts;
+    return buildBookContract({
+      cml: a.cml ?? {},
+      clues: a.clues ?? null,
+      outline: a.outline?.narrative ?? a.outline,
+      cast: a.cast?.cast ?? a.cast,
+      profiles: a.character_profiles ?? null,
+      world: a.world_document,
+      locations: a.location_profiles,
+      temporal: a.temporal_context,
+      setting: a.setting,
+      humourLevel: "classic",
+    });
+  };
+
+  it.each(bundles)("%s: most chapters before the reveal carry some; no piece is given twice", (file) => {
+    const contract = load(file);
+    const before = contract.scenes.filter((s) => s.chapter < contract.roles.reveal);
+    expect(before.filter((s) => s.texture && textureLines(s.texture).length > 0).length).toBeGreaterThanOrEqual(before.length - 2);
+    const pieces = contract.scenes.flatMap((s) => [
+      ...(s.texture?.senses ?? []),
+      s.texture?.friction,
+      s.texture?.conflict?.name,
+      s.texture?.history ? `${s.texture.history.a}|${s.texture.history.b}` : undefined,
+      s.texture?.access,
+    ]).filter(Boolean);
+    expect(new Set(pieces).size).toBe(pieces.length);
+  });
+
+  it.each(bundles)("%s: the culprit's inner conflict is never asked for, and none of it is in the bible", (file) => {
+    const contract = load(file);
+    for (const s of contract.scenes) {
+      expect(contract.fairPlay.culprits).not.toContain(s.texture?.conflict?.name);
+      for (const line of textureLines(s.texture)) {
+        const payload = line.split(": ").slice(1).join(": ").slice(0, 40);
+        if (payload.length >= 20) expect(contract.bible.text).not.toContain(payload);
+      }
+    }
+  });
+
+  it.each(bundles)("%s: the reveal and the aftermath carry no conflict, relationship or period friction", (file) => {
+    const contract = load(file);
+    for (const s of contract.scenes.filter((x) => x.chapter >= contract.roles.reveal)) {
+      expect([s.texture?.conflict, s.texture?.history, s.texture?.friction].filter(Boolean)).toEqual([]);
+    }
   });
 });

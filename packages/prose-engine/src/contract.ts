@@ -52,6 +52,7 @@ import {
 import { deriveCaseChronology, renderClockWords } from "@cml/cml";
 
 import { assignChapterRoles } from "./roles.js";
+import { assignTexture } from "./depth.js";
 import type {
   AftermathJob,
   BeatJobFields,
@@ -556,7 +557,7 @@ export const buildContractCore = (input: ContractInput): ContractCore => {
     return contract;
   });
 
-  return {
+  const core: ContractCore = {
     book: { chapters: sceneContracts.length || targets.chapters, words: { min: targets.min, max: targets.max } },
     chronology,
     roles,
@@ -577,4 +578,10 @@ export const buildContractCore = (input: ContractInput): ContractCore => {
         ]
       : notes,
   };
+  // §07: depth from what the pipeline already wrote, each piece owned by one chapter.
+  for (const [chapter, texture] of assignTexture(input, core)) {
+    const scene = core.scenes.find((s) => s.chapter === chapter);
+    if (scene) scene.texture = texture;
+  }
+  return core;
 };

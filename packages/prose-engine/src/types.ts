@@ -186,6 +186,8 @@ export interface SceneContract {
    * shape in the same chapter, so the staging does not name the culprit by itself.
    */
   wound?: { victim: string; culprit: string; accused?: string };
+  /** §07 — depth material owned by this chapter (`depth.ts`). */
+  texture?: Texture;
   /** The reveal's own chapter when the test was performed earlier: the chapter it was seen in. */
   testSeenIn?: number;
   words: { preferred: number; floor: number };
@@ -498,4 +500,13 @@ export interface EditOutcome {
   rolledBack: Partial<Record<GuardName, number>>;
   /** Findings still standing after the round. */
   unresolved: Finding[];
+}
+
+/** §07 — one chapter's share of the place, period, inner life and relationships (`depth.ts`). */
+export interface Texture {
+  senses?: string[];
+  access?: string;
+  friction?: string;
+  conflict?: { name: string; conflict: string; stake?: string };
+  history?: { a: string; b: string; past: string };
 }

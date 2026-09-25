@@ -3095,3 +3095,10 @@ it twice (golden: 4 of 4) — the test now has one owner. The humour move and th
 now findings (the 69: 10 and 5; pair 3: 0 and 0); the bible says the culprit does not find the clues.
 Deferred to the matched pair: clues naming the culprit are scheduled in chapters 4–7, before the test,
 in 4 of 4 golden cases ("guessed/obvious" in 22 of 71 reviews).
+
+**§33 UPDATE 4 — depth from what already exists (`17-hitting-90/07`).** MEASURED: about 12% of the
+~41,000 words of profile, location, era and relationship material reached v2's writer. Place (time-of-day
+sensory variants, access rules), period (physical constraints as friction), inner life (internal conflict
+and stake, never the culprit's) and shared histories are now each owned by one chapter's contract and
+asked for as an act; nothing new enters the bible, and an owned history leaves it. Profile paragraphs
+withdrawn: they re-word the case and carry the labels P4.2 removed.

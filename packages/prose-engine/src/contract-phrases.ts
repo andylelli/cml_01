@@ -22,6 +22,12 @@ export const TEMPLATE = {
   shortReplyToLongSpeech: "the reply of six words or fewer to somebody else's twenty-five",
   funnierThanMeant: "the line that is funnier than its speaker meant",
   twoExchanges: "Two exchanges this chapter",
+  // §07 texture lines — listed so the echo checker catches them coming back as prose.
+  inPassing: "each once and in passing",
+  runsUpAgainst: "which somebody here runs up against",
+  periodInTheWay: "The period gets in somebody's way here",
+  pullsTwoWays: "shows what pulls them two ways",
+  neitherNames: "One exchange between them carries it, and neither names it",
 } as const;
 
 /** Every template phrase, for the echo checker. */

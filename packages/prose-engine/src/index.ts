@@ -63,3 +63,4 @@ export type { GateVerdict } from "./gate.js";
 export { buildTelemetryBlock } from "./telemetry.js";
 export type { RunTelemetry } from "./telemetry.js";
 export { humourMove, HUMOUR_MOVE_PHRASES } from "./humour-move.js";
+export { assignTexture, textureLines } from "./depth.js";
