@@ -246,14 +246,15 @@ export const buildBrief = (input: BriefInput): Brief => {
     // 17-hitting-90 §06 F8: acts, each with a person and a thing. The categories ("two named survivors
     // one concrete change each", "the place resuming ordinary use") came back on run 98dec72a as the
     // chapter's closing summary: "the survivors changed in concrete ways", "the study resumed its
-    // ordinary use".
+    // ordinary use". The second wording printed too, on the 74 (matched pair on 98dec72a): "something
+    // he could not have done before the arrest", "the last paragraph belonged to Evelyn Marsh".
     const dead = core.fairPlay.victim || "the dead";
     add(
       "tests",
       `Chapter ${core.roles.aftermath} opens on the first ordinary thing somebody does once the arrest is made, and the proof comes up in one clause or not at all. ` +
-        `Two named people each do one thing, on the page, that they could not have done before the arrest. ` +
+        `Two named people are each seen taking up something the case had stopped — a door unlocked, a letter sent, a piece of work begun again. ` +
         `Somebody handles a thing that belonged to ${dead} and remembers ${dead} using it on an ordinary day. ` +
-        `The last paragraph is somebody at the everyday work of the place.`,
+        `It ends with somebody at the everyday work of the place.`,
     );
     if (aftermath?.repairTarget) {
       add("tests", `Chapter ${core.roles.aftermath} also shows one thing outside a person put right: ${aftermath.repairTarget}.`);

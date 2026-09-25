@@ -232,3 +232,40 @@ the CLI resume. Whether both read the same `.env.local` (`PROSE_ENGINE`, `PROSE_
 | R4 | built — `summary_ending` (craft): last paragraph all narration, an "each detail—…—" inventory or "the investigation pressed on" / "closer to the truth" | 02b109d1 | the 69: 5 of 10 chapters; other books 0–2; corpus 46 in 34 of 227 |
 | R5 | built — the bible names who finds a clue: "the investigator or anyone present except <culprit>" | 02b109d1 | golden: 4 of 4 carry it. **Prediction:** on the re-run the culprit surfaces ≤ 1 clue (the 69: most of ch 1–8) |
 | R6 | not built — alibis restated across chapters; the clearance lines already say where each is cleared, and the new copy/echo checkers cover verbatim restatement. Measure on the re-run first | | |
+
+---
+
+## 8. The matched pair read 74 (2026-09-25) — +5 on the same case
+
+`RESUME_REDO=prose` on run 98dec72a with §06 F1–F10, R1, R3–R5 and §07. Read **74** against **69**.
+
+| category | 69 | 74 |
+|---|---:|---:|
+| premise | 7 | 7 |
+| opening | 7 | 7 |
+| plot | 5 | 6 |
+| character clarity | 6 | 7 |
+| dialogue | 5 | 6 |
+| atmosphere | 7 | **8** |
+| clues | 6 | 6 |
+| pacing | 5 | 6 |
+| ending | 6 | 7 |
+| prose | 4 | 5 |
+| character life | 6 | 7 |
+| humour | 4 | 6 |
+
+The §07 prediction (+1 atmosphere, +1 character) held on both. The reader credits rain, blackout
+curtains, rationing slips and the characters' inner pressures — the material §07 routed.
+
+**What the reader still names:**
+- **Our aftermath rewrite printed** — "could not have done before the arrest", "the last paragraph
+  belonged to Evelyn Marsh", "The consequence for him was immediate" (from the contract's "Whose life
+  this shows changed"). Rewritten as acts; the phrases are in the regression test. (this commit)
+- **Duplicated sentences, six.** Several are short ("Why would anyone need a second key?", 7 words),
+  under the 8-word floor of the copy checker. Needs the manuscript to measure before changing the floor.
+- **Catchphrases still repeat** — whether F9's ownership held needs the manuscript's counts.
+- **The case**: too many mechanisms, unclear study/ladder geography, timeline. Case-level (Agent 3);
+  the ceiling on this case per the reader is 82–84.
+
+**Needed from the laptop:** the new manuscript under `stories/`, so the ten predictions are scored
+by count, not by the reader's summary.
