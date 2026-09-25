@@ -281,7 +281,12 @@ const cluesSection = (core: ContractCore): string[] => {
     }
   }
   if (lines.length > 0) {
-    lines.unshift("Each is shown once, in the chapter named, as something somebody sees, finds or says:");
+    // 17-hitting-90 §06 F10. It read "…as something somebody sees, finds or says", and an observable
+    // written as a conclusion can only be SAID: run 98dec72a put 23 of them in somebody's mouth as a
+    // report to the investigator (pair 3: 2). The finding is an act; the reading of it comes after.
+    lines.unshift(
+      "Each is put on the page once, in the chapter named, by a named person doing the thing that finds it — looking, handling, measuring, reading a record, or hearing a witness — and what they make of it comes after, in their own words:",
+    );
   }
   return lines;
 };

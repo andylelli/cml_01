@@ -102,12 +102,12 @@ half past eleven."*
 | F4 | a catchphrase said with an address added counts as the same line | built | 48819b8e | "Let's cut to the chase, Inspector" joins "Let's cut to the chase"; two different lines sharing words stay apart (test) |
 | F5 | `operation_narrated` reads "answered with four words" | built | 48819b8e | the 69: ×2, was unmatched |
 | F6 | edit guard `noNewDuplicate`, as a violation per duplicated sentence | built | 48819b8e | the ch-4 splice shape is reverted; a repair, even partial, is never a new violation (test) |
-| F7 | the echo checker tolerates inflection: three stemmed content words in a row from one instruction line | built | (this commit) | the 69: 0 → 4 of 4 ("carried nothing the plot needed" ×3, "resumed its ordinary use"); v1-era books (never saw the brief): 9 hits in 5 of 200, all grams of the foreign golden case's own clock values — a run excludes its own case text |
-| F8 | the brief and the chapter contract state acts, not purposes: O5, the aftermath, the wit shapes, "closes in the scene" | built | (this commit) | the sources, MEASURED: "speaks at length" → "spoke at length" ×7 (pair 3 ×7 too); contract "the short reply to a long speech is Sir Edmund's" → "Sir Edmund's reply was short"; "the very short answer is Evelyn's" → "Evelyn's answer was brief". Test: no brief line or template phrase carries a property a book has printed — fails 4 of 4 on the old brief. **Prediction for the next v2 book:** `operation_narrated` before edits ≤ 3 (the 69: 17); `scaffold_token` "plot"/"concrete"/"ordinary use" 0 |
-| F9 | each stock line owned by one chapter the character is on the page in, never the reveal or aftermath | built | (this commit) | golden contracts: 7 lines over chapters 1–6. **Prediction:** no stock line said more than twice (the 69: 5, 5, 3) |
-| F10 | a clue put on the page as an act; a checker for a clue recited as dialogue | not started | | |
-| F11 | compound discriminating tests against the read, over the whole ledger | not started | | |
-| F12 | the read ledger by axis and by fresh/resume | not started | | |
+| F7 | the echo checker tolerates inflection: three stemmed content words in a row from one instruction line | built | aa0f0d9b | the 69: 0 → 4 of 4 ("carried nothing the plot needed" ×3, "resumed its ordinary use"); v1-era books (never saw the brief): 9 hits in 5 of 200, all grams of the foreign golden case's own clock values — a run excludes its own case text |
+| F8 | the brief and the chapter contract state acts, not purposes: O5, the aftermath, the wit shapes, "closes in the scene" | built | aa0f0d9b | the sources, MEASURED: "speaks at length" → "spoke at length" ×7 (pair 3 ×7 too); contract "the short reply to a long speech is Sir Edmund's" → "Sir Edmund's reply was short"; "the very short answer is Evelyn's" → "Evelyn's answer was brief". Test: no brief line or template phrase carries a property a book has printed — fails 4 of 4 on the old brief. **Prediction for the next v2 book:** `operation_narrated` before edits ≤ 3 (the 69: 17); `scaffold_token` "plot"/"concrete"/"ordinary use" 0 |
+| F9 | each stock line owned by one chapter the character is on the page in, never the reveal or aftermath | built | aa0f0d9b | golden contracts: 7 lines over chapters 1–6. **Prediction:** no stock line said more than twice (the 69: 5, 5, 3) |
+| F10 | a clue put on the page as an act ("by a named person doing the thing that finds it … what they make of it comes after, in their own words"); checker `clue_recited` (craft): a spoken line carrying ≥5 and ≥70% of a clue observable's content words | built | (this commit) | known-positive: the 69's ink line; known-negatives: the same clue found by a person and read aloud in the speaker's own words, and the clue in narration BETWEEN two straight-quoted speeches (the first cut paired quote marks wrongly and would have flagged it). **Fire rate on real books UNMEASURED** — no saved book has its contract here. **Prediction:** on the next v2 book, lines opening by addressing the investigator ≤ 5 (the 69: 23; pair 3: 2) |
+| F11 | compound discriminating tests against the read | measured — **no effect; the case-level change is withdrawn (W1)** | (this commit) | §4.2 |
+| F12 | the read ledger by axis and by fresh/resume | measured | (this commit) | §4.1 |
 
 **Deferred or withdrawn, with the reason:**
 
@@ -115,3 +115,88 @@ half past eleven."*
 |---|---|---|
 | D1 | make every guard exact per guard, not a sum | **would cause harm.** `castNamesIntact` counts name *occurrences*, so an exact rule reverts every deletion of a named sentence — which is the repair `operation_narrated` asks for ("Charles Wentworth spoke at length, his words carefully chosen."). How often the sum lets such repairs through today needs the run log. Only the new duplicate guard is exact (F6) |
 | D2 | skip quoted measurements in the catchphrase checker | MEASURED 106 of 206 corpus hits are quoted clock values or measures, but 2 of 52 on v2-era books; not worth a change |
+| D3 | a checker for the victim given an alibi ("Dr. Langley's alibi is confirmed") | once, in one book. No golden case lists its victim for clearance (4 of 4, MEASURED with the contract's own victim), so the contract did not ask for it; `victim_alive` is a declared class with no producer. Not built on one instance |
+| W1 | **withdrawn:** "cap a case at one main deception" (Agent 3) | my own recommendation from the first reading of the 69. The ledger does not support it: compound tests 74.3 (n=3) against 77.5 (n=25), inside one read's ±3; "overloaded / too many mechanisms" is in 5 of 71 reviews. One reader's complaint about one book is not a system change |
+
+---
+
+## 4. The measurements, over the whole ledger
+
+All from the 71 review files in `stories/`, scores parsed as "NN/100", joined to `data/novelty-ledger.json`
+by the Run ID each book carries; books of 8,000+ words only (CLAUDE.md). 41 of 70 reads join.
+
+### 4.1 What has been read, by axis
+
+| | temporal | authority | identity | spatial | behavioural |
+|---|---:|---:|---:|---:|---:|
+| fresh reads | 12 · mean 76.2 | 8 · 78.4 | 4 · 75.5 | 2 · 81.5 | 2 · 77.0 |
+| resume reads | 4 · 81.0 | 2 · 79.0 | — | 3 · 84.3 | 1 · 82.0 |
+
+The four golden bundles in `eval/golden/` are **all temporal**. Spatial and behavioural still have two
+fresh reads each, against the three CLAUDE.md asks for before a seed is chosen by anything but axis.
+**INFERRED:** a resume scores higher than a fresh run on every axis that has both, because a resumed
+case is one that was already chosen to be worth resuming — which is why a resume can prove a prose
+lever and cannot prove the system.
+
+### 4.2 Does a compound discriminating test cost marks? No measurable effect
+
+A test is compound when its design joins two proofs ("combined with", "together with", "as well as",
+"alongside"…). Fresh reads: **compound 74.3 (n=3), single 77.5 (n=25)**. The gap is inside one read's
+±3 and n=3; CLAUDE.md forbids reporting it as an effect. Longer test designs go with HIGHER marks
+(r = +0.39 with the design's word count, n=28) — concreteness, not simplicity, is what the ledger
+rewards. Withdrawn as a change (W1).
+
+### 4.3 What the readers complain about, over all 71 reviews
+
+| complaint | reviews |
+|---|---:|
+| repetition ("repetit…", "repeated") | 64 |
+| scaffold / meta-text / outline language / "generator" | 34 |
+| catchphrase | 19 |
+| overloaded / too many mechanisms / cluttered | 5 |
+
+F1–F10 aim at the first three. The fourth is the 69's alone in kind.
+
+### 4.4 Where the contract puts the clues — an observation, not acted on
+
+Clues each chapter OWES, from the four golden contracts (MEASURED):
+
+```
+56049d93  2 1 4 2 4 7 1 0 1 0
+6b91b4b1  2 2 2 3 4 6 1 0 0 0
+a5c017a1  3 2 3 3 6 4 0 0 1 0
+eb1251aa  2 1 4 3 4 9 0 0 1 0
+```
+
+Chapter 1 owes two or three, so the 69's crowded opening ("too many clues at once") was the writer
+front-loading past its contract — WP-001 §5.1's over-orientation — not the plan. **INFERRED.** The
+contract's own pile-up is chapter 5–6: six to nine clues in all four cases. That is an outline-stage
+question (Agent 5 placement, Agent 7 scenes) and needs a paid run to test; recorded here so the
+next pacing complaint has somewhere to start.
+
+---
+
+## 5. What the next paid runs should be — not launched
+
+Both need their parameters stated in full before launch (CLAUDE.md), and neither has been started.
+
+1. **The matched pair on the 69's own case:** `RESUME_REDO=prose` on run 98dec72a (~£0.45 by CLAUDE.md;
+   v2 chapter-per-call measured ~$1.0 on pair 3). Same case, byte-identical upstream, the new prose
+   code: this isolates F1–F10 from the case, which a fresh run cannot. **Predictions, each checkable
+   in the checkpoint's findings and on the page before any read:** `operation_narrated` before edits
+   ≤ 3 (was 17); no stock line said more than twice (was 5, 5, 3); lines opening by addressing the
+   investigator ≤ 5 (was 23); "plot" / "concrete" / "ordinary use" from the brief: 0; duplicated
+   passages after edits: 0 (was 3).
+2. **A fresh run on a behavioural or spatial seed** — the axes with the fewest reads — so the next
+   number measures the system and not a case. The read rule stands: the book is read by us first, and
+   never sent with a fallback chapter or a WORTH A LOOK ship-check.
+
+---
+
+## 6. Pre-existing test failures — found, not caused, not fixed here
+
+The full workspace suite (`npm run test --workspaces`) has four failures that reproduce with this
+document's code reverted to `a22e69f0` (MEASURED 2026-09-25): `apps/worker` runtime-paths ("does not
+depend on process cwd"); `prompts-llm` clearance-trim ("mirrored sources are byte-identical to
+story-geometry accept.ts"); `story-validation` fixed-seed-benchmark replay and report-invariants replay.
+None is in a package this work touches.

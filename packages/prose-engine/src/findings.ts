@@ -38,7 +38,7 @@ import {
 import { extractClockValues } from "@cml/cml";
 
 import { indexChapters } from "./chapter-index.js";
-import { findCatchphrases, findInstructionEchoes, instructionPhrases, instructionStemGrams } from "./instruction-echo.js";
+import { contentStemsOf, findCatchphrases, findInstructionEchoes, instructionPhrases, instructionStemGrams } from "./instruction-echo.js";
 import { splitSentences } from "./sentences.js";
 import { checkHardGates } from "./selector.js";
 import type {
@@ -97,6 +97,7 @@ export const SEVERITY: Record<FindingClass, FindingSeverity> = {
   operation_narrated: "craft",
   repeat_passage: "craft",
   catchphrase_repeated: "craft",
+  clue_recited: "craft",
   copied_sentence: "defect",
   clearance_after_reveal: "defect",
   reveal_residue_in_aftermath: "defect",
@@ -119,6 +120,23 @@ const bodyOf = (chapter: ProseChapterLike | undefined): string =>
   normalise((chapter?.paragraphs ?? []).join(" "));
 
 const sentencesOf = (text: string): string[] => splitSentences(text);
+
+/**
+ * What is inside quotation marks in one paragraph, paired IN ORDER. A pattern between any two straight
+ * quotes cannot tell an opening mark from a closing one, and in `"…," Harcourt said, turning the key,
+ * "…"` it captures the narration between the speeches — the narrated clue this brief asks for.
+ */
+const spokenSpans = (paragraph: string): string[] => {
+  const text = normalise(paragraph);
+  if (/[\u201c\u201d]/.test(text)) {
+    return [...text.matchAll(/\u201c([^\u201c\u201d]*)\u201d/g)].map((m) => m[1]!.trim()).filter(Boolean);
+  }
+  return text.split('"').filter((_, i) => i % 2 === 1).map((q) => q.trim()).filter(Boolean);
+};
+
+/** A spoken line carrying this share of a clue's content words, and at least this many, recites it. */
+export const CLUE_RECITED_SHARE = 0.7;
+export const CLUE_RECITED_MIN_WORDS = 5;
 
 /** Enough words that a quote identifies one place in the chapter and can be found again. */
 export const MIN_QUOTE_WORDS = 8;
@@ -338,6 +356,34 @@ export const collectCheckerFindings = (
       if (/^["“]/.test(sentence)) continue; // a character may say "at length"; the narrator may not announce it
       if (!OPERATION_NARRATED.test(sentence)) continue;
       out.push(finding("operation_narrated", chapter, sentence, "the narration announces the shape of the line instead of letting the line have it; cut the announcement and keep the line"));
+    }
+  }
+
+  // 3d. 17-hitting-90 §06 F10 — a clue recited as a report. Run 98dec72a: 23 lines that open by
+  // addressing the investigator and then say a clue's own wording — "Inspector, the ink composition of
+  // forged letter unavailable before half past eleven" — against 2 on pair 3, both real questions.
+  // A line of dialogue that carries most of the clue's own content words IS its observable, spoken.
+  for (const [chapter, written] of byChapter) {
+    const scene = core.scenes.find((s) => s.chapter === chapter);
+    if (!scene || scene.mustSurface.length === 0) continue;
+    const quotes = (written.paragraphs ?? []).flatMap(spokenSpans).filter((q) => q.length >= 20);
+    for (const surface of scene.mustSurface) {
+      const want = [...new Set(contentStemsOf(surface.observable))];
+      if (want.length < CLUE_RECITED_MIN_WORDS) continue;
+      const spoken = quotes.find((q) => {
+        const have = new Set(contentStemsOf(q));
+        const hit = want.filter((w) => have.has(w)).length;
+        return hit >= CLUE_RECITED_MIN_WORDS && hit / want.length >= CLUE_RECITED_SHARE;
+      });
+      if (!spoken) continue;
+      out.push(
+        finding(
+          "clue_recited",
+          chapter,
+          spoken,
+          "a clue is recited as a report; let somebody find or handle the thing on the page, and let the speaker say what they make of it in their own words",
+        ),
+      );
     }
   }
 

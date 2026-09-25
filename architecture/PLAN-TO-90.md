@@ -3077,3 +3077,14 @@ through four general faults — short quotes discarded at anchoring, a splitter 
 "Mr.", a copy check that looked only across chapters, and verbatim-only echo matching — fixed with a
 duplicate edit guard. Rule adopted: no change is fitted to one story; every checker ships with a
 known-negative.
+
+**§33 UPDATE 2 — the brief says the act, and the ledger overturned one of my own fixes (`17-hitting-90/06`
+F7–F12).** Our wording is now caught in another tense (the 69: 0 → 4 of 4; 200 v1-era books: no real
+hit). The brief and chapter contract state acts with a person and a thing — the wit counts sit on the
+quoted text, O5 is "follows one person through something of their own", the aftermath names who does
+what — and a test pins that no brief line names a property a book has printed. Each stock line is
+owned by one chapter. A clue is put on the page by a person finding it; a line of dialogue carrying
+most of a clue's own words is a `clue_recited` finding. **Withdrawn:** capping a case at one deception
+— compound discriminating tests read 74.3 (n=3) against 77.5 (n=25), inside ±3, and "overloaded" is in
+5 of 71 reviews against repetition's 64. Next paid step (not launched): `RESUME_REDO=prose` on run
+98dec72a with five on-page predictions, then a fresh behavioural or spatial seed.

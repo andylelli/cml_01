@@ -431,6 +431,7 @@ export const FINDING_CLASSES = [
   "flat_reveal",
   // checker — a quoted line said three or more times (the reads of 2026-09-22)
   "catchphrase_repeated",
+  "clue_recited",
 ] as const;
 
 export type FindingClass = (typeof FINDING_CLASSES)[number];

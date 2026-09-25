@@ -104,6 +104,9 @@ const contentStems = (text: string, cast: ReadonlySet<string> = new Set()): stri
     .filter((w) => !STOP.has(w))
     .map((w) => (cast.has(w) ? "\u0000" : stem(w)));
 
+/** Content words, stemmed — the vocabulary two texts share once tense and function words are gone. */
+export const contentStemsOf = (text: string): string[] => contentStems(text);
+
 /** How many content words in a row, stemmed, make an echo: two is ordinary English, three is ours. */
 export const STEM_ECHO_LENGTH = 3;
 

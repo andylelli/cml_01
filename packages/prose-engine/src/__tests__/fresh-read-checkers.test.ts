@@ -285,3 +285,57 @@ describe("each stock line is owned by one chapter", () => {
     expect(Math.max(...perChapter.values())).toBeLessThanOrEqual(Math.ceil(owned.length / (contract.scenes.length - 2)) + 1);
   });
 });
+
+describe("a clue recited as a report", () => {
+  // The line is run 98dec72a's, verbatim. Its observable is ASSUMED from the line: the case file is
+  // on the laptop, so the fixture is the shape, not a record.
+  const observable = "Ink composition of forged letter unavailable before half past eleven.";
+  const reciteCore = buildContractCore({
+    cml: { CASE: { culpability: { culprits: ["Leonard Pike"] }, cast: [{ name: "Leonard Pike" }, { name: "Gerald Harcourt" }] } },
+    clues: { clues: [{ id: "clue_ink", observable, criticality: "essential" }] },
+    outline: {
+      acts: [{ scenes: [{ sceneNumber: 1, act: 1, beat: "investigation", title: "A", characters: ["Gerald Harcourt"], setting: { location: "x" }, cluesRevealed: ["clue_ink"] }] }],
+    },
+    cast: { characters: [{ name: "Leonard Pike" }, { name: "Gerald Harcourt" }] },
+    lockedFacts: [],
+  });
+  const recited = (paragraphs: string[]): Finding[] =>
+    collectCheckerFindings([chapter(paragraphs)], reciteCore, [1]).filter((f) => f.class === "clue_recited");
+
+  it("KNOWN-POSITIVE: the observable, said to the investigator", () => {
+    const hits = recited([
+      `"Inspector, the ink composition of forged letter unavailable before half past eleven," Pike said, setting the bottle down beside the blotter.`,
+    ]);
+    expect(hits).toHaveLength(1);
+    expect(hits[0]!.severity).toBe("craft");
+  });
+
+  it("the same clue found by a person, and read aloud in the speaker's own words, is not a recital", () => {
+    expect(
+      recited([
+        "Harcourt tipped the letter to the lamp. The ink had the violet cast of the new stock the stationer delivered at half past eleven, and the signature sat on top of it.",
+        `"Then she signed this after she was dead," Harcourt said. "Which she did not."`,
+      ]),
+    ).toEqual([]);
+  });
+});
+
+describe("a clue surfaced in the narration BETWEEN two speeches is not a recital", () => {
+  const observable = "Ink composition of forged letter unavailable before half past eleven.";
+  const between = buildContractCore({
+    cml: { CASE: { culpability: { culprits: ["Leonard Pike"] }, cast: [{ name: "Leonard Pike" }, { name: "Gerald Harcourt" }] } },
+    clues: { clues: [{ id: "clue_ink", observable, criticality: "essential" }] },
+    outline: {
+      acts: [{ scenes: [{ sceneNumber: 1, act: 1, beat: "investigation", title: "A", characters: ["Gerald Harcourt"], setting: { location: "x" }, cluesRevealed: ["clue_ink"] }] }],
+    },
+    cast: { characters: [{ name: "Leonard Pike" }, { name: "Gerald Harcourt" }] },
+    lockedFacts: [],
+  });
+
+  it("KNOWN-NEGATIVE: straight quotes either side of narration that carries the clue", () => {
+    const paragraph =
+      `"Look at it," Harcourt said, tilting the forged letter so the ink composition showed, a violet unavailable before half past eleven, "and tell me she wrote this."`;
+    const found = collectCheckerFindings([chapter([paragraph])], between, [1]).filter((f) => f.class === "clue_recited");
+    expect(found).toEqual([]);
+  });
+});
