@@ -108,3 +108,4 @@ This folder tracks run-level failure analysis reports and consolidated issue lis
 
 ## Archive
 - See `archive/` for older `ANALYSIS_*` reports.
+- [ANALYSIS_109](./ANALYSIS_109/ANALYSIS_109.md) — formal methods for the recurring faults: STN timeline, Bayesian reader model, argumentation/hitting set, route graph, MinHash, Verbalized Sampling + DPP, logit bias, MAUVE
