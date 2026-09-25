@@ -1,4 +1,4 @@
-export { buildCaseModel, namesIn } from "./model.js";
+export { buildCaseModel, identifyPeople, namesIn } from "./model.js";
 export type { CaseModel, CaseModelInput, ClueFact, ClueKind, StepFact, SuspectFact } from "./model.js";
 export { solveStn } from "./stn.js";
 export type { StnConstraint, StnResult } from "./stn.js";

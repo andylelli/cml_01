@@ -84,6 +84,14 @@ const tokensOf = (name: string): string[] =>
 const words = (value: string): Set<string> =>
   new Set(value.toLowerCase().replace(/[^a-z\s'-]/g, " ").split(/[\s-]+/).filter(Boolean).map((w) => w.replace(/'s$/, "")));
 
+/** Each name with the tokens that identify it within this set of names — for `namesIn`. */
+export const identifyPeople = (names: ReadonlyArray<string>): Array<{ name: string; identifying: string[] }> => {
+  const unique = [...new Set(names.map((n) => String(n ?? "").trim()).filter(Boolean))];
+  const count = new Map<string, number>();
+  for (const name of unique) for (const t of new Set(tokensOf(name))) count.set(t, (count.get(t) ?? 0) + 1);
+  return unique.map((name) => ({ name, identifying: tokensOf(name).filter((t) => count.get(t) === 1) }));
+};
+
 /**
  * The people a text names, by the tokens that identify them. "Charles" names Charles Langley only
  * when no other Charles is in the cast; "Langley" names nobody in a cast of three Langleys (golden

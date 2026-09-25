@@ -438,6 +438,7 @@ export const FINDING_CLASSES = [
   "clue_recited",
   "humour_move_narrated",
   "summary_ending",
+  "recap",
 ] as const;
 
 export type FindingClass = (typeof FINDING_CLASSES)[number];

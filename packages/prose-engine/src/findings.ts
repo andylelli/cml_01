@@ -40,6 +40,7 @@ import { extractClockValues } from "@cml/cml";
 import { indexChapters } from "./chapter-index.js";
 import { contentStemsOf, findCatchphrases, findInstructionEchoes, instructionPhrases, instructionStemGrams } from "./instruction-echo.js";
 import { narratedMove } from "./humour-move.js";
+import { findRecaps } from "./recaps.js";
 import { repeatedRuns, splitSentences } from "./sentences.js";
 import { checkHardGates } from "./selector.js";
 import type {
@@ -101,6 +102,7 @@ export const SEVERITY: Record<FindingClass, FindingSeverity> = {
   clue_recited: "craft",
   humour_move_narrated: "craft",
   summary_ending: "craft",
+  recap: "craft",
   copied_sentence: "defect",
   clearance_after_reveal: "defect",
   reveal_residue_in_aftermath: "defect",
@@ -200,6 +202,8 @@ export interface CheckerOptions {
   instructionLines?: ReadonlyArray<string>;
   /** The bible: anything in it is case vocabulary and is never called an echo. */
   caseText?: string;
+  /** A_109 M5 — the case's alibi windows (dial pairs), so a restated alibi is a `recap`. */
+  alibiWindows?: ReadonlyArray<readonly [number, number]>;
 }
 
 /**
@@ -430,6 +434,14 @@ export const collectCheckerFindings = (
     if (!last || /["\u201c\u201d]/.test(last)) continue;
     if (!SUMMARY_ENDING.test(last)) continue;
     out.push(finding("summary_ending", chapter, sentencesOf(last)[0] ?? last, "the chapter ends by summarising itself; end on the last thing somebody does or says"));
+  }
+
+  // 3g. A_109 M5 — the fact said again in new words: a clue past its owner chapter, an alibi window
+  // given again after the chapter that first gave it. The test and the reveal are exempt.
+  for (const hit of findRecaps(byChapter, core, { windows: options.alibiWindows ?? [] })) {
+    const what = hit.kind === "clue" ? "this clue" : `the alibi ${hit.fact}`;
+    const where = hit.chapter === hit.owner ? "already said twice in this chapter" : `first given in chapter ${hit.owner}`;
+    out.push(finding("recap", hit.chapter, hit.sentence, `${what} is ${where}; say it here in one clause as a reference, or not at all`));
   }
 
   // 6. our own instructions, come back as prose (the reads of 2026-09-22 named five such phrases).

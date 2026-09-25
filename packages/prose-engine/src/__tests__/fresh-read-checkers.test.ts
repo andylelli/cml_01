@@ -502,3 +502,53 @@ describe("§06.8 — the same words twice inside one paragraph (the 74's six)", 
     expect(outcome.rolledBack.noNewDuplicate).toBe(1);
   });
 });
+
+describe("A_109 M5 — the fact said again in new words", () => {
+  const recapCore = buildContractCore({
+    cml: { CASE: { culpability: { culprits: ["Leonard Pike"] }, cast: [{ name: "Leonard Pike" }, { name: "Margot Ellsworth" }, { name: "Gerald Harcourt", role_archetype: "detective" }] } },
+    clues: { clues: [] },
+    outline: {
+      acts: [
+        {
+          scenes: [1, 2, 3, 4, 5].map((n) => ({ sceneNumber: n, act: 1, beat: n === 4 ? "final_trap" : n === 5 ? "revelation" : "investigation", title: `S${n}`, characters: ["Gerald Harcourt", "Margot Ellsworth"], setting: { location: "x" } })),
+        },
+      ],
+    },
+    cast: { characters: [{ name: "Leonard Pike" }, { name: "Margot Ellsworth" }, { name: "Gerald Harcourt" }] },
+    lockedFacts: [],
+  });
+  const margot: [number, number] = [540, 600]; // nine o'clock to ten o'clock
+  const recaps = (chapters: ProseChapterLike[], windows: Array<[number, number]>) =>
+    collectCheckerFindings(chapters, recapCore, chapters.map((_, i) => i + 1), { alibiWindows: windows }).filter((f) => f.class === "recap");
+
+  it("KNOWN-POSITIVE: run 98dec72a's Margot alibi, given in chapter 1 and again in chapters 2 and 3, first person and third", () => {
+    const hits = recaps(
+      [
+        chapter([`Margot glanced toward the dig tent where her own alibi — nine o'clock to ten o'clock — stood, bolstered by witness logs and routine.`]),
+        chapter([`"I was in the kitchen from nine o'clock to ten o'clock — everyone saw me, and the logs confirm it," Margot said.`]),
+        chapter([`Harcourt reviewed the logs as he noted the timings, nine o'clock to ten o'clock, matched by staff testimony for Margot.`]),
+      ],
+      [margot],
+    );
+    expect(hits.map((h) => h.chapter)).toEqual([2, 3]);
+    expect(hits[0]!.note).toContain("first given in chapter 1");
+  });
+
+  it("a window that is not an alibi — the act, the tide — is not tracked; the test/reveal chapter is exempt, the aftermath is not", () => {
+    const tide = [
+      chapter([`The cave was open only from twenty minutes past three to half past three, when the tide was out.`]),
+      chapter([`"Twenty minutes past three to half past three," Norbury said again, tapping the chart.`]),
+    ];
+    expect(recaps(tide, [margot])).toEqual([]);
+    const reveal = [
+      chapter([`Her alibi ran from nine o'clock to ten o'clock, the cook said.`]),
+      chapter([`Harcourt waited.`]),
+      chapter([`Harcourt waited again.`]),
+      chapter([`At the test, the kitchen logs showed nine o'clock to ten o'clock for Margot.`]),
+      chapter([`"From nine o'clock to ten o'clock you were in the kitchen, Margot," Harcourt said at the last.`]),
+    ];
+    // Chapter 4 is the test and the reveal (exempt); chapter 5 is the aftermath, where an alibi said
+    // again is a recap like any other.
+    expect(recaps(reveal, [margot]).map((h) => h.chapter)).toEqual([5]);
+  });
+});

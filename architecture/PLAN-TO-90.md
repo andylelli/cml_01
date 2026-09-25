@@ -3108,3 +3108,8 @@ withdrawn: they re-word the case and carry the labels P4.2 removed.
 act's window derived from all of them, and whether each innocent's alibi covers it. MEASURED on the
 golden cases before any change: 2 of 8 judged innocents' alibis cover the murder window. Telemetry flag
 `AGENT3_CASE_LOGIC`; archive probe `npm run report:case-logic`.
+
+**§33 UPDATE 6 — A_109 step 3, the restated fact (M5).** A clue restated past its owner chapter, or an
+alibi window given again after the chapter that first gave it, is a `recap` finding (test and reveal
+exempt). The 69's Margot alibi (ch 2, 5, 7, 8) is the known positive. Only the case's alibi windows are
+tracked: keyed on every window, it fired on 112 of 228 books.

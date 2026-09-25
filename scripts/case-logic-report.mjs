@@ -65,6 +65,29 @@ for (const { id, artifacts } of cases) {
     if (i.coverage === "partial") tally.partial += 1;
   }
   console.log(`${String(id).slice(0, 13).padEnd(13)}  M1 ${cml.summariseTimeline(t, model)}`);
+
+  // M5 — recaps in the book this case produced, when the archive holds its prose and outline.
+  const prose = artifacts.prose;
+  const outline = unwrap(artifacts.outline, ["narrative", "outline"]);
+  if (proseEngine && prose && Array.isArray(prose.chapters) && outline && Array.isArray(outline.acts)) {
+    try {
+      const contract = proseEngine.buildBookContract({
+        cml: artifacts.cml, clues: artifacts.clues ?? null, outline, cast: unwrap(artifacts.cast, ["cast"]),
+        profiles: artifacts.character_profiles ?? null, humourLevel: "classic",
+      });
+      const chrono = model.chronology;
+      const dial = new Map(chrono.events.map((e) => [e.id, e.dial]));
+      const windows = chrono.intervals.filter((i) => i.id.startsWith("alibi:")).map((i) => [dial.get(i.start), dial.get(i.end)]);
+      const byChapter = new Map(prose.chapters.map((c, i) => [i + 1, { paragraphs: c.paragraphs ?? [] }]));
+      const hits = proseEngine.findRecaps(byChapter, contract, { windows });
+      tally.books = (tally.books ?? 0) + 1;
+      tally.recaps = (tally.recaps ?? 0) + hits.length;
+      const clue = hits.filter((h) => h.kind === "clue").length;
+      console.log(`${"".padEnd(13)}  M5 recaps ${hits.length} (clue ${clue}, alibi ${hits.length - clue})`);
+    } catch (err) {
+      console.log(`${"".padEnd(13)}  M5 could not run: ${err.message}`);
+    }
+  }
 }
 
 console.log("\n── totals ─────────────────────────────────────────────────────────────");
@@ -72,4 +95,4 @@ console.log(`cases ${tally.cases} · timeline inconsistent ${tally.inconsistent}
 console.log(
   `innocents with a judged alibi ${tally.innocents}: cover the act ${tally.covering}, partly ${tally.partial}, not at all ${tally.none}`,
 );
-void proseEngine;
+if (tally.books) console.log(`books with prose ${tally.books}: recaps ${tally.recaps} (${(tally.recaps / tally.books).toFixed(1)} a book)`);

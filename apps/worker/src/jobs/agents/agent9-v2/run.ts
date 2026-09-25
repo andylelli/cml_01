@@ -57,6 +57,7 @@ import type { ChatCapableClient } from "@cml/llm-client";
 import { isContentFilterRefusal } from "@cml/llm-client";
 import { isFilterSoftenEnabled, softenViolentWording, SOFTENED_NOTE } from "./filter-soften.js";
 import { v2ShipCheckLines } from "./ship-check.js";
+import { buildCaseModel } from "@cml/cml";
 
 import type { OrchestratorContext } from "../shared.js";
 import { hashContract, emptyCheckpoint, readCheckpoint, recordSegment, writeCheckpoint, type V2Checkpoint } from "./checkpoint.js";
@@ -332,6 +333,19 @@ export const renderSceneContract = (contract: BookContract, chapter: number): st
   return lines.join("\n");
 };
 
+/** A_109 M5 — the case's alibi windows as dial pairs, for the recap finding. Never throws. */
+const caseAlibiWindows = (ctx: OrchestratorContext): Array<[number, number]> => {
+  try {
+    const chrono = buildCaseModel({ cml: ctx.cml, clues: ctx.clues }).chronology;
+    const dial = new Map(chrono.events.map((e) => [e.id, e.dial] as const));
+    return chrono.intervals
+      .filter((i) => i.id.startsWith("alibi:") && dial.has(i.start) && dial.has(i.end))
+      .map((i) => [dial.get(i.start)!, dial.get(i.end)!]);
+  } catch {
+    return [];
+  }
+};
+
 const WRITER_SYSTEM =
   "You are writing a Golden Age detective novella. Everything true about the case is given to you; " +
   "your work is the prose. Write chapters, in order, in the format the instruction names.";
@@ -586,6 +600,7 @@ export const generateBookV2 = async (ctx: OrchestratorContext): Promise<V2Result
     // Our own instructions, so the checker can catch them coming back as prose.
     instructionLines: [...contract.brief.asks.map((a) => a.line), ...CONTRACT_TEMPLATE_PHRASES],
     caseText: contract.bible.text,
+    alibiWindows: caseAlibiWindows(ctx),
   });
   let criticFindings: Finding[] = [];
   let criticMalformed = 0;
