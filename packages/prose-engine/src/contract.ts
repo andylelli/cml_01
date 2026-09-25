@@ -331,6 +331,20 @@ export const buildContractCore = (input: ContractInput): ContractCore => {
   const intervals = chronology.rows.filter((r) => r.kind === "interval");
   const opportunityWindow =
     intervals.find((r) => /murder|entry|the act|opportunit|window|access/i.test(r.label)) ?? intervals[0];
+
+  /**
+   * 17-hitting-90 P2.1 — where the dramatised wound goes: the `motives` beat if the outline has one
+   * in the first half, else the first chapter after the opening and the crime and no later than the
+   * half-way mark. None if the book is too short to have a first half.
+   */
+  const half = Math.floor(scenes.length / 2);
+  const beatOf = (scene: unknown): string => String((scene as { beat?: unknown })?.beat ?? "").trim();
+  const chapterOf = (scene: unknown, index: number): number => Number((scene as { sceneNumber?: unknown })?.sceneNumber ?? index + 1);
+  const woundChapter =
+    scenes.map((s, i) => ({ chapter: chapterOf(s, i), beat: beatOf(s) })).find((s) => s.beat === "motives" && s.chapter <= half)?.chapter ??
+    scenes.map((s, i) => ({ chapter: chapterOf(s, i), beat: beatOf(s) })).find((s) => s.chapter >= 2 && s.chapter <= half && s.beat !== "crime")?.chapter ??
+    null;
+  const accused = String((caseBlock.false_solution as Record<string, unknown> | undefined)?.accused_suspect ?? "").trim();
   const band = humourBand(input.humourLevel);
   const castNames = cast.map(nameOf).filter(Boolean);
 
@@ -472,6 +486,13 @@ export const buildContractCore = (input: ContractInput): ContractCore => {
     if (role === "reveal") {
       if (proof) contract.proof = proof;
       if (opportunityWindow) contract.opportunityWindow = opportunityWindow;
+    }
+    if (chapter === woundChapter && victim && culprits.length > 0) {
+      contract.wound = {
+        victim,
+        culprit: culprits.join(", "),
+        ...(accused && !culpritSet.has(accused) && accused !== victim ? { accused } : {}),
+      };
     }
 
     if (role === "aftermath") {

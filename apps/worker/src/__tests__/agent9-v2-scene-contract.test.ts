@@ -201,3 +201,56 @@ describe("17-hitting-90 — after the reveal, a clearing title fits no chapter",
     expect(five.brief.text).toMatch(/The clock values belong to chapter 3/);
   });
 });
+
+describe("17-hitting-90 P2.1 — the wound chapter is told to stage a scene before the death", () => {
+  it("KNOWN-POSITIVE: the chapter carrying the wound asks for the victim alive, with the culprit, the grievance said aloud", () => {
+    const five = buildBookContract({
+      cml: {
+        CASE: {
+          culpability: { culprits: ["Nora Quayle"] },
+          victim: { name: "Montague Gaunt" },
+          cast: [
+            { name: "Nora Quayle", role_archetype: "suspect" },
+            { name: "Bertram Norbury", role_archetype: "detective" },
+            { name: "Montague Gaunt", role_archetype: "victim" },
+            { name: "Edith Penhale", role_archetype: "suspect" },
+          ],
+          false_solution: { accused_suspect: "Edith Penhale" },
+          hidden_model: { mechanism: { description: "a compass held at a habitual tilt" } },
+          prose_requirements: { clue_to_scene_mapping: [] },
+        },
+      },
+      clues: { clues: [] },
+      outline: {
+        acts: [
+          {
+            scenes: [
+              { sceneNumber: 1, act: 1, beat: "gathering", title: "Arrival", characters: ["Bertram Norbury"], setting: { location: "the office" } },
+              { sceneNumber: 2, act: 1, beat: "motives", title: "The Dunes", characters: ["Bertram Norbury", "Montague Gaunt"], setting: { location: "the dunes" } },
+              { sceneNumber: 3, act: 2, beat: "final_trap", title: "The Test", characters: ["Bertram Norbury"], setting: { location: "the dunes" } },
+              { sceneNumber: 4, act: 3, beat: "alibis", title: "Lounge", characters: ["Bertram Norbury"], setting: { location: "the lounge" } },
+              { sceneNumber: 5, act: 3, beat: "revelation", title: "After", characters: ["Bertram Norbury"], setting: { location: "the promenade" } },
+            ],
+          },
+        ],
+      },
+      cast: { characters: [{ name: "Nora Quayle" }, { name: "Bertram Norbury" }, { name: "Montague Gaunt", role_archetype: "victim" }, { name: "Edith Penhale" }] },
+      profiles: null,
+      world: undefined,
+      locations: undefined,
+      temporal: undefined,
+      setting: undefined,
+      lockedFacts: [],
+      humourLevel: "classic",
+      primaryAxis: undefined,
+      targetLength: "short",
+    });
+    const text = renderSceneContract(five, 2);
+    expect(text).toMatch(/set before the death, with its own place and hour, played and not remembered: Montague Gaunt alive and in one room with Nora Quayle/);
+    expect(text).toMatch(/A second scene set before the death, the same shape: Montague Gaunt and Edith Penhale/);
+    expect(text).toMatch(/In this chapter's present, Montague Gaunt is dead/);
+    expect(text).not.toMatch(/found dead; on the page as the body/);
+    // and no other chapter stages it
+    for (const chapter of [1, 3, 4, 5]) expect(renderSceneContract(five, chapter)).not.toMatch(/set before the death/);
+  });
+});

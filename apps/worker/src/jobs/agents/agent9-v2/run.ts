@@ -213,8 +213,26 @@ export const renderSceneContract = (contract: BookContract, chapter: number): st
   const victim = contract.fairPlay.victim;
   const living = scene.present.filter((n) => n !== victim);
   if (living.length > 0) lines.push(`  On the page: ${living.join(", ")}.`);
-  if (victim && scene.present.includes(victim)) {
+  if (victim && scene.present.includes(victim) && !scene.wound) {
     lines.push(`  The body: ${victim} — found dead; on the page as the body, as an object handled, and in what others remember.`);
+  }
+  /**
+   * 17-hitting-90 P2.1 — WP-001 O2, the dramatised wound. One scene set before the death, played
+   * as a scene with its own place and hour; the grievance is the one THE CASE states (the bible
+   * carries it — nothing is quoted here, A_67). The false solution's accused gets the same shape,
+   * so the staging alone does not point at the culprit.
+   */
+  if (scene.wound) {
+    lines.push(
+      `  One scene in this chapter is set before the death, with its own place and hour, played and not remembered: ` +
+        `${scene.wound.victim} alive and in one room with ${scene.wound.culprit}, and the thing ${scene.wound.culprit} holds against ${scene.wound.victim} — as THE CASE states it — said aloud by one of them.`,
+    );
+    if (scene.wound.accused) {
+      lines.push(
+        `  A second scene set before the death, the same shape: ${scene.wound.victim} and ${scene.wound.accused}, and what ${scene.wound.accused} holds against ${scene.wound.victim} said aloud.`,
+      );
+    }
+    lines.push(`  In this chapter's present, ${scene.wound.victim} is dead: the body, an object handled, what others remember.`);
   }
   if (scene.location) lines.push(`  Where: ${scene.location}${scene.timeOfDay ? `, ${scene.timeOfDay}` : ""}.`);
   if (scene.timeWindow) lines.push(`  The clock: between ${scene.timeWindow.from} and ${scene.timeWindow.to}.`);

@@ -90,3 +90,27 @@ describe("the naming gate reads the accusation to the culprit's face", () => {
     expect(namesAsCulprit("Kestrel, you will want your gloves back before the session.", "Desmond Kestrel")).toBe(false);
   });
 });
+
+describe("17-hitting-90 P2.1 — the dramatised wound (WP-001 O2)", () => {
+  it("KNOWN-POSITIVE: on the engine-pair case one first-half chapter stages the victim and the culprit before the death", () => {
+    if (!pair) return;
+    const core = buildContractCore(pair.input);
+    const carriers = core.scenes.filter((s) => s.wound);
+    expect(carriers).toHaveLength(1);
+    const scene = carriers[0]!;
+    expect(scene.chapter).toBeGreaterThanOrEqual(2);
+    expect(scene.chapter).toBeLessThanOrEqual(Math.floor(core.scenes.length / 2));
+    expect(scene.wound).toMatchObject({ victim: "Katherine Quayle", culprit: "Desmond Kestrel" });
+    if (scene.wound!.accused) expect(scene.wound!.accused).not.toBe("Desmond Kestrel");
+  });
+
+  it("every archived case with a victim and a culprit stages exactly one wound, never on the reveal or after it", () => {
+    for (const project of completeProjects()) {
+      const core = buildContractCore(project.input);
+      const carriers = core.scenes.filter((s) => s.wound);
+      if (!core.fairPlay.victim || core.fairPlay.culprits.length === 0 || core.scenes.length < 4) continue;
+      expect(carriers.length, project.projectId).toBe(1);
+      expect(carriers[0]!.chapter, project.projectId).toBeLessThan(core.roles.reveal);
+    }
+  });
+});

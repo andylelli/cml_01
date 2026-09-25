@@ -64,9 +64,9 @@ One row per item. **Status** is one of: not started · built · measured · read
 | P1.5 | the confession carries the reason and one concrete wound | built | (this commit) | `revealOperation`: two counted lines |
 | P1.6 | v2's naming gate reads a confession and second-person address | built | (this commit) | arm B's chapter-8 sentence is the known positive; `stabbed` added |
 | P1.7 | chapters after the reveal carry aftermath titles | built; amended after pair 2 | 800d9403, (this commit) | pair 2: chapter 10 became "The Last Routine"; chapter 9 kept "Clearing the Innocent" and re-cleared all three suspects with clock values — clearing titles now withheld after the reveal too, and the closure line asks for one sentence per suspect |
-| P2.1 | O2 — one first-half scene staging culprit and victim in the grievance | not started | | WP-001 §6.1 |
-| P2.2 | O1 — every suspect's formative incident reaches the page once | not started | | O1 built upstream, v2 uses one |
-| P2.3 | O5 — one element per chapter that does no job, registered high | not started | | |
+| P2.1 | O2 — one first-half scene staging culprit and victim in the grievance | built | (this commit) | `wound` on the `motives` chapter (else the first chapter after the crime, ≤ half): a scene set before the death, the grievance said aloud; the false solution's accused gets the same shape so the staging names nobody; all archived cases stage exactly one |
+| P2.2 | O1 — every suspect's formative incident reaches the page once | already in v2 | — | `selectDepthBeat`: one character's trait per chapter, shown as action; not yet counted on a page |
+| P2.3 | O5 — one element per chapter that does no job, registered high | already in v2's brief | — | `brief.ts`: "One paragraph in each chapter is there for its own sake"; v2 has no budgeter, so nothing sheds it; not counted |
 | P2.4 | one chapter spent away from the drawing room | not started | | WP-001 §5.4 |
 | P2.5 | O4 em-dashes: asked for 3 a chapter, 0 on the saved page in both engines — find where they go | fixed | (this commit) | the save path folded `—` to `-` since 2026-07-04; 72 read manuscripts affected (`03` §4) |
 | P2.6 | O6 — divergent candidates at one unforced choice (the tic field), measured at £0 | not started | | WP-001 §8 |

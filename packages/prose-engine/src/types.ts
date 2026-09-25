@@ -177,6 +177,15 @@ export interface SceneContract {
    * moment instead of a window."*
    */
   opportunityWindow?: { value: string; label: string };
+  /**
+   * 17-hitting-90 P2.1 — WP-001 O2, the one dramatised wound: one first-half chapter carries a scene
+   * set before the death in which the victim and the culprit are in one room and the grievance is
+   * said aloud — played, not remembered. Five reads asked for it by name (*"add one scene where
+   * Bertram actively crushes Gwendolyn's work"*, *"give one concrete wound"*, *"add one earlier
+   * personal scene showing Gerald's attachment"*). The false solution's accused gets the same scene
+   * shape in the same chapter, so the staging does not name the culprit by itself.
+   */
+  wound?: { victim: string; culprit: string; accused?: string };
   words: { preferred: number; floor: number };
 }
 
