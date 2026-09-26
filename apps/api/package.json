@@ -10,7 +10,9 @@
     "cors": "^2.8.5",
     "dotenv": "^17.2.4",
     "express": "^4.19.2",
-    "pg": "^8.13.1"
+    "pg": "^8.13.1",
+    "@cml/llm-client": "file:../../packages/llm-client",
+    "@cml/story-validation": "file:../../packages/story-validation"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
