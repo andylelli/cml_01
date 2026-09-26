@@ -3145,3 +3145,7 @@ and no evidence against the culprit before it. **Withdrawn, premise false:** sho
 their conclusion — its effect in the model is only the constant assumed for it. **Left standing:** Agent 5
 writes 6–8 clues against the culprit and 0 against anyone else, 22 of 26 pre-test culprit observables name
 the culprit — an Agent 5 change, needing a paid harness.
+
+**§33 UPDATE 10 — A_109 step 7 (M6 verbalized tics) WITHDRAWN.** Its measure is already met by
+`AGENT2B_TIC_TEMPLATE_BAN` (on since 2026-09-13). Dialogue 6.69 → 7.22 across the ban (n=52 / 9, words ≥ 8000,
+within read noise); catchphrases still named in 4 of 9 after it. The complaint is repetition — F9's lever.
