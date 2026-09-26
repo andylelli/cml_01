@@ -195,4 +195,4 @@ Patterns shared with other agents, for the synthesis.
 | [`data/metrics.md`](data/metrics.md) | Per-file and per-function size, complexity, types, coupling, churn and hotspots for the agent scope | `node documentation/code-review/tools/agent-metrics.mjs --churn` |
 | [`data/metrics-scoring.md`](data/metrics-scoring.md) | The same for the scoring layer | `… agent-metrics.mjs --churn packages/story-validation/src/scoring apps/worker/src/jobs/scoring-adapters` |
 | [`data/export-usage.md`](data/export-usage.md) | Exports with no production user outside their own file (a lower bound) | `node documentation/code-review/tools/export-usage.mjs` |
-| [`data/duplication.md`](data/duplication.md) | Literal clones, by file pair | `npx jscpd@4 --min-tokens 35 --min-lines 5 --format typescript apps/worker/src apps/api/src packages` |
+| [`data/duplication.md`](data/duplication.md) | Literal clones, by file pair | `npx jscpd@4 --min-tokens 35 --min-lines 5 --max-lines 100000 --format typescript apps/worker/src apps/api/src packages` |
