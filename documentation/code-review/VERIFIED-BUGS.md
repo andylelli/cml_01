@@ -4,7 +4,7 @@
 reviewed snapshot (`dd56e8ae`), then looked up on the latest line (`claude/hopeful-babbage-jime9j`,
 444 commits newer) with `git show <ref>:<path> | grep`. No LLM calls, no pipeline runs.
 
-The area reports list about 120 incidental defects between them. This file covers the ~30 with the most
+The area reports list about 120 incidental defects between them. This file covers the 25 with the most
 impact on every run or on the reliability of a number. The rest are in each report's §9, with the
 reviewer's own evidence and confidence.
 
