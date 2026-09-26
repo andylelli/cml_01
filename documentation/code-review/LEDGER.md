@@ -11,8 +11,8 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | | finding | defect | question | all |
 |---|---:|---:|---:|---:|
 | items | 190 | 139 | 72 | 401 |
-| closed | 4 | 11 | 0 | 15 |
-| open | 186 | 128 | 72 | 386 |
+| closed | 4 | 12 | 0 | 16 |
+| open | 186 | 127 | 72 | 385 |
 | **unassigned** | 0 | 0 | 0 | 0 |
 
 ## By CR item
@@ -21,7 +21,7 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 |---|---:|---:|---|
 | CR-02 | 1 | 0 | A9W-19 |
 | CR-03 | 5 | 0 | A9W-15 ORC-07 ORC-D02 ORC-Q02 SCO-12 |
-| CR-04 | 1 | 0 | A1X-D13 |
+| CR-04 | 1 | 1 | A1X-D13 |
 | CR-06 | 22 | 4 | A9G-D04 A5-D01 A5-D02 A7-D03 A7-D06 A7-D10 A34-D01 A34-D14 A1X-D02 A1X-D07 ORC-D03 ORC-D04 ORC-D07 ORC-D10 ORC-D13 SCO-D01 SCO-D02 SCO-D05 SCO-D07 SCO-D09 SCO-D11 SCO-Q06 |
 | CR-07 | 43 | 2 | A9W-D01 A9W-D02 A9W-D03 A9W-D05 A9W-D07 A9W-D08 A9W-D09 A9P-D01 A9P-D03 A9P-D04 A9P-D05 A9P-D06 A9P-D07 A9P-D09 A9P-D11 A9V-D10 A9V-D11 A9R-D04 A9R-D08 A5-D05 A5-Q02 A6-D02 A6-D08 A7-D01 A7-D02 A7-D05 A7-D09 A7-Q05 A34-08 A34-D03 A34-D04 A34-D10 A34-D11 A1X-D01 A1X-D03 A1X-D04 A1X-D11 A1X-Q03 ORC-11 ORC-D01 ORC-D06 ORC-D11 ORC-Q01 |
 | CR-08 | 13 | 0 | A9W-14 A9G-12 A9G-D12 A9P-16 A9V-13 A9R-11 A5-13 A6-05 A6-14 A34-13 A1X-14 ORC-09 SCO-11 |
@@ -504,7 +504,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A1X-D10 |  |  | CR-29 | todo |  | Agent 1 re-roll warning claims "schema repair guardrails" but sends the same prompt |  |
 | A1X-D11 |  |  | CR-07 | todo |  | 2b repair/feedback pairs profile *i* with cast character *i* by index (wrong source if the model reorders) |  |
 | A1X-D12 |  |  | CR-33 | todo |  | Misleading telemetry: 2e derive always says "only backdropSummary differs" (agent2e-run.ts:155); 2d comment says schema errors are errors, code warns… |  |
-| A1X-D13 |  |  | CR-04 | todo |  | prompts-llm imports @cml/story-validation in 27 files without declaring it (workspace hoisting) |  |
+| A1X-D13 |  |  | CR-04 | done | fc6f52c7 | prompts-llm imports @cml/story-validation in 27 files without declaring it (workspace hoisting) | declared; deps:check guards it (7 violations found, 0 left) |
 | A1X-Q01 |  |  | CR-12 | todo |  | Which detective semantics win when unified — head-noun/relational exclusion (@cml/cml), non-police qualifier |  |
 | A1X-Q02 |  |  | CR-18 | todo |  | Should phase scores measure the raw LLM output (today for 1, 2, 2c) or the shipped, post-processed artifact? |  |
 | A1X-Q03 |  |  | CR-07 | todo |  | Enforce the user's castGenders deterministically in Agent 2 (D4)? |  |

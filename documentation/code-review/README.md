@@ -30,7 +30,7 @@ right call, how to route it through ADR-0004 / ADR-0011. **Status: complete.**
 
 ## 0. Tracker
 
-**Progress: 1 / 34** · Last updated 2026-09-26 · `todo` · `wip` · `done` · `👤` owner decision
+**Progress: 3 / 34** · Last updated 2026-09-26 · `todo` · `wip` · `done` · `👤` owner decision
 
 Each item names its headline findings. **[LEDGER.md](LEDGER.md) assigns every one of the 401 items** — 190
 findings, 139 incidental defects, 72 owner questions — to exactly one row here, and carries its status and
@@ -42,10 +42,10 @@ behaviour change, flag + probe per ADR-0004/0011.
 
 | ID | Status | Phase | Task | Findings | Risk | Effort |
 |---|---|---|---|---|---|---|
-| CR-01 | todo | 0 | Run the existing suites in CI; make the 3 environment-specific tests portable | — | R0 | S |
+| CR-01 | done | 0 | Run the existing suites in CI; make the 3 environment-specific tests portable — `.github/workflows/ci.yml`; 4 Linux-only failures fixed; fresh-clone Linux run 5,146 tests green (`b794b376`) | — | R0 | S |
 | CR-02 | todo | 0 | Size/complexity ratchet in `pretest` (no file or function may grow past its baseline) | A9W-19 | R0 | S |
 | CR-03 | todo | 0 | **Record/replay harness**: golden bundle + recorded LLM responses → byte-identical prompts and outputs for `runAgent9`, `generateProse`, `generateMystery` | A9W-15, SCO-12 | R0 | M–L |
-| CR-04 | todo | 0 | Declare the undeclared dependencies (`prompts-llm` → `@cml/story-validation`, `js-yaml`) | A9V, A1X-D13 | R0 | S |
+| CR-04 | done | 0 | Declare the undeclared dependencies (`prompts-llm` → `@cml/story-validation`, `js-yaml`) — 7 found by `npm run deps:check`, all declared; lockfile no longer needs a Font Awesome token (`fc6f52c7`) | A9V, A1X-D13 | R0 | S |
 | CR-05 | done | 1 | Verify the highest-impact bugs on the latest line | [VERIFIED-BUGS.md](VERIFIED-BUGS.md) | — | — |
 | CR-06 | todo | 1 | Fix the verified live bugs that cannot change prose (cost double-count, silent `.catch(()=>{})`, `ENABLE_SCORING=1`, uncapped retries, fair-play weights, thresholds, act-ratio check, flag register, `/s+/g`) | VERIFIED-BUGS #5, 14–18, 20, 22, 23 | R0/R1 | M |
 | CR-07 | 👤 | 1 | Decide the verified live bugs whose fix changes a prompt, a chapter or a run outcome (`cml.CAST`, embargo on worker regens, curly-apostrophe floor, pronoun rule 11, Agent 6.5 feedback, Agent 7/8 case summaries, "Poisoned tea.", victim substring, abort swallow, Azure polish) | VERIFIED-BUGS #1–4, 6–13, 19 | R2 | M |
@@ -107,7 +107,7 @@ whole plan below becomes mechanical.
 | Literal duplication | 3.58% repo-wide ([duplication](data/duplication.md)) — low; the duplication that matters is semantic |
 | Dead code | small: ~360 lines unreferenced; 190 exports used only in their own file ([export usage](data/export-usage.md)) |
 | Growth | agent code 5.7× in six months; `agent9-run.ts` ~+1,000 lines/month to July, and S4's split lost to it ([history](data/history.md)) |
-| Guards | no CI, no linter; ~3,175 tests, 3 fail only on a fresh Linux checkout |
+| Guards | no CI (added by CR-01), no linter; ~3,175 tests, 3 fail only on a fresh Linux checkout |
 | Coupling | the `prompts-llm` barrel is edited in 68% of the commits that touch `agent9-run.ts` |
 
 ## 3. What the twelve areas have in common

@@ -323,7 +323,7 @@ A1X-D09	CR-20	todo
 A1X-D10	CR-29	todo		
 A1X-D11	CR-07	todo		
 A1X-D12	CR-33	todo		
-A1X-D13	CR-04	todo		
+A1X-D13	CR-04	done	fc6f52c7	declared; deps:check guards it (7 violations found, 0 left)
 A1X-Q01	CR-12	todo		
 A1X-Q02	CR-18	todo		
 A1X-Q03	CR-07	todo		
