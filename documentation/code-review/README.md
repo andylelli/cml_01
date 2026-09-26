@@ -32,6 +32,12 @@ right call, how to route it through ADR-0004 / ADR-0011. **Status: complete.**
 
 **Progress: 4 / 34** · Last updated 2026-09-26 · `todo` · `wip` · `done` · `👤` owner decision
 
+**Decision 2026-09-26 (owner) — the v1 prose engine stays runnable for now.** `PROSE_ENGINE=v2` is the
+default since 2026-09-25, so `runAgent9` returns at its first line and the rest of its body plus
+`generateProse` run only under `PROSE_ENGINE=v1`. Until v2 beats v1 on reads: CR-03 records **both**
+engines; CR-26 (decompose v1) waits; v1 takes bug fixes only, no refactors. The v2 engine
+(`agent9-v2/`) was not reviewed and needs its own pass.
+
 Each item names its headline findings. **[LEDGER.md](LEDGER.md) assigns every one of the 401 items** — 190
 findings, 139 incidental defects, 72 owner questions — to exactly one row here, and carries its status and
 commit. It is generated: edit `tools/ledger-state.tsv`, then run `node documentation/code-review/tools/build-ledger.mjs`
@@ -67,7 +73,7 @@ behaviour change, flag + probe per ADR-0004/0011.
 | CR-23 | todo | 4 | One regen runner and one chapter-rewrite engine (wrapper ×10, skeleton ×13, engines ×5) | A9W-06, A9R-01, A9R-05, A9R-06, A7-02 | R1 | L |
 | CR-24 | todo | 5 | Decompose `runAgent7` (8 shared bindings — the cheapest, do first) and `runAgent3/3b` | A7-01, A34-04, A34-12 | R0→R1 | M |
 | CR-25 | todo | 5 | Decompose `runAgent5`, `runAgent6`, `generateMystery` over explicit state | A5-01, A6-01, ORC-01 | R1 | L |
-| CR-26 | todo | 5 | Decompose `generateProse` (74 outer variables) and `runAgent9` (78) — after CR-03 | A9G-01, A9W-01, A9G-05 | R1 | L |
+| CR-26 | todo (waits: v1 kept, bug fixes only) | 5 | Decompose `generateProse` (74 outer variables) and `runAgent9` (78) — after CR-03 | A9G-01, A9W-01, A9G-05 | R1 | L |
 | CR-27 | todo | 5 | Prompt builders and linter as tables: block interface, obligation block, `lintBatchProse` rule table, declarative scorers | A9P-02, A9P-05, A9P-06, A9V-02, SCO-03 | R1 | L |
 | CR-28 | 👤 | 6 | Token budget: cap STORY TO DATE; fix the stale block caps; stop sending facts 2–10× | A9P-03, A9P-04, A9P-07, A9P-08, A9G-16 | R2 | M |
 | CR-29 | 👤 | 6 | Failure-aware retries and polish that respects the validators | A6-02, A6-03, A5-11, A9R-03, A9R-08, A9G-06, A9G-07 | R2 | M |
