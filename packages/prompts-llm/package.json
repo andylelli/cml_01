@@ -19,11 +19,15 @@
     "@cml/story-geometry": "*",
     "dotenv": "^17.2.4",
     "jsonrepair": "^3.13.2",
-    "yaml": "^2.3.4"
+    "yaml": "^2.3.4",
+    "@cml/story-validation": "*",
+    "js-yaml": "^4.1.0"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
     "typescript": "^5.3.3",
-    "vitest": "^1.2.0"
+    "vitest": "^1.2.0",
+    "@types/js-yaml": "^4.0.9",
+    "@cml/rubric-score": "*"
   }
 }

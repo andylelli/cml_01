@@ -25,6 +25,8 @@
     "exp:regen-clue": "node scripts/exp-regen-clue-ab.mjs",
     "exp:regen-clue:analyze": "node scripts/exp-regen-clue-analyze.mjs",
     "flags:check": "node scripts/flag-register-check.mjs",
+    "ledger:check": "node documentation/code-review/tools/build-ledger.mjs --check",
+    "deps:check": "node scripts/workspace-deps-check.mjs",
     "report:case-logic": "node scripts/case-logic-report.mjs",
     "eval": "node scripts/eval-golden.mjs",
     "eval:calibrate": "node scripts/eval-calibrate.mjs",
