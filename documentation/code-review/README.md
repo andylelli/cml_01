@@ -25,7 +25,8 @@ What that means for using these reports:
 | Item | Status |
 |---|---|
 | Baseline: [RUBRIC.md](RUBRIC.md), [tools/](tools/), [data/](data/) | ✅ done |
-| Area reports | ◑ **11 / 12** — area 02 (Agent 9 generation core) not written |
+| Area reports | ◑ **11 / 12** — area 02 (Agent 9 generation core) in progress |
+| [VERIFIED-BUGS.md](VERIFIED-BUGS.md): ~30 highest-impact bugs re-checked, and looked up on the latest line | ✅ done — 23 still live, 2 already fixed |
 | Synthesis: cross-cutting themes, phased roadmap, verification protocol | ⬜ not started |
 
 ## Area reports
