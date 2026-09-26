@@ -23,16 +23,21 @@ right call, how to route it through ADR-0004 / ADR-0011. **Status: complete.**
   **23 still live, 2 fixed**.
 - **Line numbers have shifted**; search for the quoted code, not the line.
 - **The Agent 9 v2 engine was not reviewed.**
-- Execute the plan below on current code, after the branches are consolidated onto `main`.
+- Execute the plan below on current code. The branches are consolidated: `main` contains the live line
+  (2026-09-26). The findings are taken as they stand; no second verification pass is planned.
 
 ---
 
 ## 0. Tracker
 
-**Progress: 1 / 30** · Last updated 2026-09-26 · `todo` · `wip` · `done` · `👤` owner decision
+**Progress: 1 / 34** · Last updated 2026-09-26 · `todo` · `wip` · `done` · `👤` owner decision
 
-Each item names the findings it discharges; the area reports are authoritative on *how*, this table on
-*state*. Risk: **R0** mechanical · **R1** behaviour-preserving, needs a characterisation check · **R2**
+Each item names its headline findings. **[LEDGER.md](LEDGER.md) assigns every one of the 401 items** — 190
+findings, 139 incidental defects, 72 owner questions — to exactly one row here, and carries its status and
+commit. It is generated: edit `tools/ledger-state.tsv`, then run `node documentation/code-review/tools/build-ledger.mjs`
+(`--check` fails on drift or an unassigned item). Standalone §9 defects go to CR-06 (cannot change prose) or
+CR-07 (can). Its decision sheet lists the open questions in CR order. The area reports are authoritative on
+*how*, this table on *state*. Risk: **R0** mechanical · **R1** behaviour-preserving, needs a characterisation check · **R2**
 behaviour change, flag + probe per ADR-0004/0011.
 
 | ID | Status | Phase | Task | Findings | Risk | Effort |
@@ -67,6 +72,10 @@ behaviour change, flag + probe per ADR-0004/0011.
 | CR-28 | 👤 | 6 | Token budget: cap STORY TO DATE; fix the stale block caps; stop sending facts 2–10× | A9P-03, A9P-04, A9P-07, A9P-08, A9G-16 | R2 | M |
 | CR-29 | 👤 | 6 | Failure-aware retries and polish that respects the validators | A6-02, A6-03, A5-11, A9R-03, A9R-08, A9G-06, A9G-07 | R2 | M |
 | CR-30 | 👤 | 6 | Retire or restore: vanity scorers (−3,400), unreachable retry path (−1,050), patch engine (−560), unwired modules (−400) | SCO-01, A9G-03, A34-05, A9P-15 | R2 | S each |
+| CR-31 | todo | 3 | **One body per detector**: floor templates vs the recognisers that should find them; clearance, disclosure, death-method, opening and leak predicates; the vocabulary/regex copies | A9R-02, A9V-03/06/07/08/09/10, A9W-07/09/11, A6-19, ORC-13 | R1→R2 | L |
+| CR-32 | 👤 | 1 | Model routing: an explicit design model silences per-agent overrides; the clue regen runs on the prose tier; Agents 1, 4 and 6 routing | ORC-14, A9R-10, A9G-D02, A1X-D06, A34-D13 | R2 | S |
+| CR-33 | todo | 4 | Per-run telemetry: one run-scoped store instead of module singletons; every floor, repair and fallback counted into the report; concurrent runs | ORC-12, A9R-07, A6-15, A7-11 | R1 | M |
+| CR-34 | 👤 | 6 | Avoidable LLM calls: deterministic checks that could replace a call, re-validation that re-pays semantic fallbacks, independent calls made in sequence | A6-16, A9W-17 | R2 | M |
 
 ---
 
