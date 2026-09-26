@@ -11,15 +11,15 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | | finding | defect | question | all |
 |---|---:|---:|---:|---:|
 | items | 190 | 139 | 72 | 401 |
-| closed | 4 | 12 | 0 | 16 |
-| open | 186 | 127 | 72 | 385 |
+| closed | 5 | 12 | 0 | 17 |
+| open | 185 | 127 | 72 | 384 |
 | **unassigned** | 0 | 0 | 0 | 0 |
 
 ## By CR item
 
 | CR | items | closed | keys |
 |---|---:|---:|---|
-| CR-02 | 1 | 0 | A9W-19 |
+| CR-02 | 1 | 1 | A9W-19 |
 | CR-03 | 5 | 0 | A9W-15 ORC-07 ORC-D02 ORC-Q02 SCO-12 |
 | CR-04 | 1 | 1 | A1X-D13 |
 | CR-06 | 22 | 4 | A9G-D04 A5-D01 A5-D02 A7-D03 A7-D06 A7-D10 A34-D01 A34-D14 A1X-D02 A1X-D07 ORC-D03 ORC-D04 ORC-D07 ORC-D10 ORC-D13 SCO-D01 SCO-D02 SCO-D05 SCO-D07 SCO-D09 SCO-D11 SCO-Q06 |
@@ -153,7 +153,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A9W-16 | P3 | R0/R1 | CR-31 | todo |  | Micro-duplication (regex escape ×18, honorifics ×4, deaths ×3, args ×2) |  |
 | A9W-17 | P3 | R1 | CR-34 | todo |  | Re-validation ×9 re-pays uncached semantic LLM fallbacks |  |
 | A9W-18 | P3 | R1 | **—** | withdrawn |  | O(n²) cumulative chapter scoring — negligible | CPU is not a lever (README §3); negligible against LLM latency |
-| A9W-19 | P2 | R0 | CR-02 | todo |  | Growth guard: size ratchet in pretest |  |
+| A9W-19 | P2 | R0 | CR-02 | done | 72265dfc | Growth guard: size ratchet in pretest | size-ratchet-check in pretest; known-positive probe caught +1 line in runAgent9 |
 | A9W-D01 |  |  | CR-07 | todo |  | Floor writes nonsense for distance values (MEASURED, offline dist probe): classifyFactValue bare-to rule (:1124) → "It was thirty paces to the gate b… |  |
 | A9W-D02 |  |  | CR-07 | todo |  | Curly-apostrophe o'clock facts never floor-injected (MEASURED): the class o['']clock (:1124) holds two ASCII ' (bytes checked); "eleven o’clock" → ge… |  |
 | A9W-D03 |  |  | CR-07 | todo |  | cml.CAST does not exist (MEASURED): precompileStoryContract({castData: cml.CAST}) (:4491) — both archived logs (scratchpad/fourflag-run-20260823.log,… |  |

@@ -30,7 +30,7 @@ right call, how to route it through ADR-0004 / ADR-0011. **Status: complete.**
 
 ## 0. Tracker
 
-**Progress: 3 / 34** · Last updated 2026-09-26 · `todo` · `wip` · `done` · `👤` owner decision
+**Progress: 4 / 34** · Last updated 2026-09-26 · `todo` · `wip` · `done` · `👤` owner decision
 
 Each item names its headline findings. **[LEDGER.md](LEDGER.md) assigns every one of the 401 items** — 190
 findings, 139 incidental defects, 72 owner questions — to exactly one row here, and carries its status and
@@ -43,7 +43,7 @@ behaviour change, flag + probe per ADR-0004/0011.
 | ID | Status | Phase | Task | Findings | Risk | Effort |
 |---|---|---|---|---|---|---|
 | CR-01 | done | 0 | Run the existing suites in CI; make the 3 environment-specific tests portable — `.github/workflows/ci.yml`; 4 Linux-only failures fixed; fresh-clone Linux run 5,146 tests green (`b794b376`) | — | R0 | S |
-| CR-02 | todo | 0 | Size/complexity ratchet in `pretest` (no file or function may grow past its baseline) | A9W-19 | R0 | S |
+| CR-02 | done | 0 | Size/complexity ratchet in `pretest` (no file or function may grow past its baseline) — `npm run size:check`; 13 files > 1,500 code lines and 24 functions > 400 lines tracked; `runAgent9` baseline 4,676 (`72265dfc`) | A9W-19 | R0 | S |
 | CR-03 | todo | 0 | **Record/replay harness**: golden bundle + recorded LLM responses → byte-identical prompts and outputs for `runAgent9`, `generateProse`, `generateMystery` | A9W-15, SCO-12 | R0 | M–L |
 | CR-04 | done | 0 | Declare the undeclared dependencies (`prompts-llm` → `@cml/story-validation`, `js-yaml`) — 7 found by `npm run deps:check`, all declared; lockfile no longer needs a Font Awesome token (`fc6f52c7`) | A9V, A1X-D13 | R0 | S |
 | CR-05 | done | 1 | Verify the highest-impact bugs on the latest line | [VERIFIED-BUGS.md](VERIFIED-BUGS.md) | — | — |
