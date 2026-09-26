@@ -1,3 +1,4 @@
+import { tmpdir } from "node:os";
 import { describe, expect, it } from "vitest";
 import { resolveWorkerRuntimePaths } from "../jobs/runtime-paths.js";
 
@@ -23,7 +24,7 @@ describe("resolveWorkerRuntimePaths", () => {
 
     const originalCwd = process.cwd();
     try {
-      process.chdir("c:/");
+      process.chdir(tmpdir());
       const after = resolveWorkerRuntimePaths(moduleUrl);
       expect(after).toEqual(before);
     } finally {
