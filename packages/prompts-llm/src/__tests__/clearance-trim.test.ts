@@ -36,12 +36,9 @@ describe('the recognisers match the gate that counts them', () => {
     const { readFileSync } = await import('node:fs');
     const { fileURLToPath } = await import('node:url');
     const { dirname, join } = await import('node:path');
-    let dir = dirname(fileURLToPath(import.meta.url));
-    for (let i = 0; i < 8 && !dir.endsWith('CML'); i += 1) {
-      if (readFileSync !== undefined && dir.split(/[\/]/).pop() === 'CML') break;
-      dir = dirname(dir);
-    }
-    const accept = readFileSync(join(dir, 'packages', 'story-geometry', 'src', 'accept.ts'), 'utf8');
+    // src/__tests__ -> packages/: the checkout folder is not always named CML (CI checks out cml_01).
+    const packagesDir = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
+    const accept = readFileSync(join(packagesDir, 'story-geometry', 'src', 'accept.ts'), 'utf8');
     expect(accept).toContain(CLEARANCE_MARKER_MIRROR.source);
     expect(accept).toContain(CLEARANCE_IDIOM_MIRROR.source);
   });

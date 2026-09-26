@@ -2,12 +2,13 @@
  * build:all — compile every backend @cml/* package in dependency order.
  *
  * Why this exists: `npm run -w @cml/worker build` (and `@cml/api build`) only compiles that one
- * package; it does NOT rebuild its dependencies. Several package.json files also under-declare their
- * internal deps (e.g. @cml/prompts-llm imports @cml/story-validation without listing it), so a naive
- * topo-sort from package.json would order wrong. The result was the "stale dist" trap: `npm run dev`
+ * package; it does NOT rebuild its dependencies. The result was the "stale dist" trap: `npm run dev`
  * and `npm run canary:core` silently ran old compiled code, so source-level fixes never took effect.
  *
- * This builds a CURATED, verified leaf-first order so what runs is always what's in source.
+ * This builds a CURATED leaf-first order so what runs is always what's in source. The manifests used to
+ * under-declare their internal deps (@cml/prompts-llm imported @cml/story-validation in 28 files without
+ * listing it); since CR-04 they declare everything, and `npm run deps:check` fails if ORDER stops being a
+ * topological order of the declared graph.
  * (Frontend @cml/web is intentionally excluded — it is not in the generation pipeline.)
  */
 

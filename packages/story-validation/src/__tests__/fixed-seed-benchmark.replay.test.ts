@@ -25,15 +25,8 @@ describe('Fixed-seed prose benchmarks (chapter-level)', () => {
 
   it('matches expected prose totals and chapter score signatures for benchmark seeds', () => {
     for (const benchmark of fixture.benchmarks) {
-      const reportPath = join(
-        here,
-        '..',
-        '..',
-        '..',
-        '..',
-        'validation',
-        `quality-report-${benchmark.run_id}.json`
-      );
+      // The pinned reports live beside the test; the repo's validation/ folder is gitignored.
+      const reportPath = join(here, 'fixtures', `quality-report-${benchmark.run_id}.json`);
 
       const report = readJson(reportPath);
       const prosePhase = (report.phases ?? []).find((phase: any) => phase.agent === 'agent9_prose');

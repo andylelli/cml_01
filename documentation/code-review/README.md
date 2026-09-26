@@ -23,24 +23,35 @@ right call, how to route it through ADR-0004 / ADR-0011. **Status: complete.**
   **23 still live, 2 fixed**.
 - **Line numbers have shifted**; search for the quoted code, not the line.
 - **The Agent 9 v2 engine was not reviewed.**
-- Execute the plan below on current code, after the branches are consolidated onto `main`.
+- Execute the plan below on current code. The branches are consolidated: `main` contains the live line
+  (2026-09-26). The findings are taken as they stand; no second verification pass is planned.
 
 ---
 
 ## 0. Tracker
 
-**Progress: 1 / 30** · Last updated 2026-09-26 · `todo` · `wip` · `done` · `👤` owner decision
+**Progress: 4 / 34** · Last updated 2026-09-26 · `todo` · `wip` · `done` · `👤` owner decision
 
-Each item names the findings it discharges; the area reports are authoritative on *how*, this table on
-*state*. Risk: **R0** mechanical · **R1** behaviour-preserving, needs a characterisation check · **R2**
+**Decision 2026-09-26 (owner) — the v1 prose engine stays runnable for now.** `PROSE_ENGINE=v2` is the
+default since 2026-09-25, so `runAgent9` returns at its first line and the rest of its body plus
+`generateProse` run only under `PROSE_ENGINE=v1`. Until v2 beats v1 on reads: CR-03 records **both**
+engines; CR-26 (decompose v1) waits; v1 takes bug fixes only, no refactors. The v2 engine
+(`agent9-v2/`) was not reviewed and needs its own pass.
+
+Each item names its headline findings. **[LEDGER.md](LEDGER.md) assigns every one of the 401 items** — 190
+findings, 139 incidental defects, 72 owner questions — to exactly one row here, and carries its status and
+commit. It is generated: edit `tools/ledger-state.tsv`, then run `node documentation/code-review/tools/build-ledger.mjs`
+(`--check` fails on drift or an unassigned item). Standalone §9 defects go to CR-06 (cannot change prose) or
+CR-07 (can). Its decision sheet lists the open questions in CR order. The area reports are authoritative on
+*how*, this table on *state*. Risk: **R0** mechanical · **R1** behaviour-preserving, needs a characterisation check · **R2**
 behaviour change, flag + probe per ADR-0004/0011.
 
 | ID | Status | Phase | Task | Findings | Risk | Effort |
 |---|---|---|---|---|---|---|
-| CR-01 | todo | 0 | Run the existing suites in CI; make the 3 environment-specific tests portable | — | R0 | S |
-| CR-02 | todo | 0 | Size/complexity ratchet in `pretest` (no file or function may grow past its baseline) | A9W-19 | R0 | S |
+| CR-01 | done | 0 | Run the existing suites in CI; make the 3 environment-specific tests portable — `.github/workflows/ci.yml`; 4 Linux-only failures fixed; fresh-clone Linux run 5,146 tests green (`b794b376`) | — | R0 | S |
+| CR-02 | done | 0 | Size/complexity ratchet in `pretest` (no file or function may grow past its baseline) — `npm run size:check`; 13 files > 1,500 code lines and 24 functions > 400 lines tracked; `runAgent9` baseline 4,676 (`72265dfc`) | A9W-19 | R0 | S |
 | CR-03 | todo | 0 | **Record/replay harness**: golden bundle + recorded LLM responses → byte-identical prompts and outputs for `runAgent9`, `generateProse`, `generateMystery` | A9W-15, SCO-12 | R0 | M–L |
-| CR-04 | todo | 0 | Declare the undeclared dependencies (`prompts-llm` → `@cml/story-validation`, `js-yaml`) | A9V, A1X-D13 | R0 | S |
+| CR-04 | done | 0 | Declare the undeclared dependencies (`prompts-llm` → `@cml/story-validation`, `js-yaml`) — 7 found by `npm run deps:check`, all declared; lockfile no longer needs a Font Awesome token (`fc6f52c7`) | A9V, A1X-D13 | R0 | S |
 | CR-05 | done | 1 | Verify the highest-impact bugs on the latest line | [VERIFIED-BUGS.md](VERIFIED-BUGS.md) | — | — |
 | CR-06 | todo | 1 | Fix the verified live bugs that cannot change prose (cost double-count, silent `.catch(()=>{})`, `ENABLE_SCORING=1`, uncapped retries, fair-play weights, thresholds, act-ratio check, flag register, `/s+/g`) | VERIFIED-BUGS #5, 14–18, 20, 22, 23 | R0/R1 | M |
 | CR-07 | 👤 | 1 | Decide the verified live bugs whose fix changes a prompt, a chapter or a run outcome (`cml.CAST`, embargo on worker regens, curly-apostrophe floor, pronoun rule 11, Agent 6.5 feedback, Agent 7/8 case summaries, "Poisoned tea.", victim substring, abort swallow, Azure polish) | VERIFIED-BUGS #1–4, 6–13, 19 | R2 | M |
@@ -62,11 +73,15 @@ behaviour change, flag + probe per ADR-0004/0011.
 | CR-23 | todo | 4 | One regen runner and one chapter-rewrite engine (wrapper ×10, skeleton ×13, engines ×5) | A9W-06, A9R-01, A9R-05, A9R-06, A7-02 | R1 | L |
 | CR-24 | todo | 5 | Decompose `runAgent7` (8 shared bindings — the cheapest, do first) and `runAgent3/3b` | A7-01, A34-04, A34-12 | R0→R1 | M |
 | CR-25 | todo | 5 | Decompose `runAgent5`, `runAgent6`, `generateMystery` over explicit state | A5-01, A6-01, ORC-01 | R1 | L |
-| CR-26 | todo | 5 | Decompose `generateProse` (74 outer variables) and `runAgent9` (78) — after CR-03 | A9G-01, A9W-01, A9G-05 | R1 | L |
+| CR-26 | todo (waits: v1 kept, bug fixes only) | 5 | Decompose `generateProse` (74 outer variables) and `runAgent9` (78) — after CR-03 | A9G-01, A9W-01, A9G-05 | R1 | L |
 | CR-27 | todo | 5 | Prompt builders and linter as tables: block interface, obligation block, `lintBatchProse` rule table, declarative scorers | A9P-02, A9P-05, A9P-06, A9V-02, SCO-03 | R1 | L |
 | CR-28 | 👤 | 6 | Token budget: cap STORY TO DATE; fix the stale block caps; stop sending facts 2–10× | A9P-03, A9P-04, A9P-07, A9P-08, A9G-16 | R2 | M |
 | CR-29 | 👤 | 6 | Failure-aware retries and polish that respects the validators | A6-02, A6-03, A5-11, A9R-03, A9R-08, A9G-06, A9G-07 | R2 | M |
 | CR-30 | 👤 | 6 | Retire or restore: vanity scorers (−3,400), unreachable retry path (−1,050), patch engine (−560), unwired modules (−400) | SCO-01, A9G-03, A34-05, A9P-15 | R2 | S each |
+| CR-31 | todo | 3 | **One body per detector**: floor templates vs the recognisers that should find them; clearance, disclosure, death-method, opening and leak predicates; the vocabulary/regex copies | A9R-02, A9V-03/06/07/08/09/10, A9W-07/09/11, A6-19, ORC-13 | R1→R2 | L |
+| CR-32 | 👤 | 1 | Model routing: an explicit design model silences per-agent overrides; the clue regen runs on the prose tier; Agents 1, 4 and 6 routing | ORC-14, A9R-10, A9G-D02, A1X-D06, A34-D13 | R2 | S |
+| CR-33 | todo | 4 | Per-run telemetry: one run-scoped store instead of module singletons; every floor, repair and fallback counted into the report; concurrent runs | ORC-12, A9R-07, A6-15, A7-11 | R1 | M |
+| CR-34 | 👤 | 6 | Avoidable LLM calls: deterministic checks that could replace a call, re-validation that re-pays semantic fallbacks, independent calls made in sequence | A6-16, A9W-17 | R2 | M |
 
 ---
 
@@ -98,7 +113,7 @@ whole plan below becomes mechanical.
 | Literal duplication | 3.58% repo-wide ([duplication](data/duplication.md)) — low; the duplication that matters is semantic |
 | Dead code | small: ~360 lines unreferenced; 190 exports used only in their own file ([export usage](data/export-usage.md)) |
 | Growth | agent code 5.7× in six months; `agent9-run.ts` ~+1,000 lines/month to July, and S4's split lost to it ([history](data/history.md)) |
-| Guards | no CI, no linter; ~3,175 tests, 3 fail only on a fresh Linux checkout |
+| Guards | no CI (added by CR-01), no linter; ~3,175 tests, 3 fail only on a fresh Linux checkout |
 | Coupling | the `prompts-llm` barrel is edited in 68% of the commits that touch `agent9-run.ts` |
 
 ## 3. What the twelve areas have in common
