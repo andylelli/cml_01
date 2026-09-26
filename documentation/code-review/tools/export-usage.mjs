@@ -56,6 +56,7 @@ const parse = (abs) => ts.createSourceFile(abs, readFileSync(abs, "utf8"), ts.Sc
 /** name -> Set(file) over identifiers only; also remember which names each barrel merely re-exports. */
 const users = new Map();
 const reexportOnly = new Map(); // file -> Set(name)
+const identNames = new Map(); // file -> Set(name) used as a real identifier (not only re-exported)
 for (const abs of universe) {
   let sf;
   try {
@@ -75,6 +76,7 @@ for (const abs of universe) {
   };
   visit(sf);
   reexportOnly.set(abs, reexported);
+  identNames.set(abs, names);
   for (const n of names) {
     if (!users.has(n)) users.set(n, new Set());
     users.get(n).add(abs);
@@ -102,7 +104,7 @@ for (const abs of scopeFiles) {
     }
     for (const [name, kind, node] of decls) {
       const others = [...(users.get(name) || [])].filter((f) => f !== abs);
-      const prod = others.filter((f) => !isTest(f) && !(basename(f) === "index.ts" && reexportOnly.get(f)?.has(name)));
+      const prod = others.filter((f) => !isTest(f) && !(basename(f) === "index.ts" && reexportOnly.get(f)?.has(name) && !identNames.get(f)?.has(name)));
       const tests = others.filter(isTest);
       const internalUses = (text.match(new RegExp(`\\b${name.replace(/\$/g, "\\$")}\\b`, "g")) || []).length - 1;
       const loc = sf.getLineAndCharacterOfPosition(node.end).line - sf.getLineAndCharacterOfPosition(node.getStart(sf)).line + 1;
