@@ -11,8 +11,8 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | | finding | defect | question | all |
 |---|---:|---:|---:|---:|
 | items | 190 | 139 | 72 | 401 |
-| closed | 20 | 30 | 0 | 50 |
-| open | 170 | 109 | 72 | 351 |
+| closed | 24 | 30 | 0 | 54 |
+| open | 166 | 109 | 72 | 347 |
 | **unassigned** | 0 | 0 | 0 | 0 |
 
 ## By CR item
@@ -26,7 +26,7 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | CR-07 | 43 | 2 | A9W-D01 A9W-D02 A9W-D03 A9W-D05 A9W-D07 A9W-D08 A9W-D09 A9P-D01 A9P-D03 A9P-D04 A9P-D05 A9P-D06 A9P-D07 A9P-D09 A9P-D11 A9V-D10 A9V-D11 A9R-D04 A9R-D08 A5-D05 A5-Q02 A6-D02 A6-D08 A7-D01 A7-D02 A7-D05 A7-D09 A7-Q05 A34-08 A34-D03 A34-D04 A34-D10 A34-D11 A1X-D01 A1X-D03 A1X-D04 A1X-D11 A1X-Q03 ORC-11 ORC-D01 ORC-D06 ORC-D11 ORC-Q01 |
 | CR-08 | 13 | 13 | A9W-14 A9G-12 A9G-D12 A9P-16 A9V-13 A9R-11 A5-13 A6-05 A6-14 A34-13 A1X-14 ORC-09 SCO-11 |
 | CR-09 | 1 | 0 | A9W-12 |
-| CR-10 | 5 | 0 | A9G-D11 A9V-16 A5-05 A1X-13 ORC-06 |
+| CR-10 | 5 | 4 | A9G-D11 A9V-16 A5-05 A1X-13 ORC-06 |
 | CR-11 | 3 | 0 | A9G-15 A9G-Q03 ORC-10 |
 | CR-12 | 17 | 1 | A9W-04 A9W-D10 A9W-Q04 A9R-04 A9R-09 A9R-D03 A9R-D07 A9R-Q03 A6-07 A6-D03 A6-D04 A6-D07 A34-02 A34-D05 A1X-01 A1X-04 A1X-Q01 |
 | CR-13 | 12 | 0 | A9W-05 A9G-14 A9P-13 A9R-13 A5-04 A6-10 A6-18 A7-03 A7-04 A7-14 ORC-15 SCO-D10 |
@@ -146,7 +146,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A9W-09 | P2 | R1 | CR-31 | todo |  | 7th copy of the opening-grounding vocabulary (X95 missed it) |  |
 | A9W-10 | P2 | R1 (+R2) | CR-23 | todo |  | Pronoun repair: 6 call sites, 4 guard policies, a package twin |  |
 | A9W-11 | P2 | R1 | CR-31 | todo |  | Injector floor chain ×3 with divergent guards, after the "last write" |  |
-| A9W-12 | P2 | R0 | CR-09 | todo |  | Helper layer (3,645 lines) → 12 modules behind re-export shims |  |
+| A9W-12 | P2 | R0 | CR-09 | deferred |  | Helper layer (3,645 lines) → 12 modules behind re-export shims | CR-09 waits: every consumer of the helper layer (agent9-run.ts:1-4096) is below runAgent9's v2 early return, so it is v1-only code; owner decision 2026-09-26: v1 takes bug fixes only, no refactors (same as CR-26) |
 | A9W-13 | P2 | R0 | CR-22 | todo |  | Flag surface has leaked back out of flags.ts |  |
 | A9W-14 | P2 | R0/R1 | CR-08 | done | 3295ad4e 5662ca4c 094de134 | Compiler-proven dead code and a vestigial counter | unused imports/local and buildRewriteAcceptanceValidator (+test) deleted. Deferred: the unreachable namespace abort and proseRewritePassCount are v1-only behaviour (owner 2026-09-26: v1 takes bug fixes only) |
 | A9W-15 | P1 | R0 | CR-03 | done | 1374e38e | No test reaches runAgent9; golden ship-layer test first | ship-layer golden = eval/replay v2-prose fixture, strict MATCH; npm run replay:check in CI |
@@ -201,7 +201,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A9G-D08 |  |  | CR-29 | todo |  | chapterPronRepairCount > 8 && attempt < 4 (2787) is a literal beside the budget: at max 3 the drift gate never relaxes on the final attempt. This is… |  |
 | A9G-D09 |  |  | CR-19 | todo |  | result.cost and BatchCommitRecord.cost undercount. They sum only Agent9-ProseGenerator* labels (4582, clue-validation.ts:412), so the in-loop expansi… |  |
 | A9G-D10 |  |  | CR-26 | todo |  | The exception fallback differs from the exhaustion fallback. It skips chapterValidator and victim-alive, and it does not count leakage residuals (A9G… |  |
-| A9G-D11 |  |  | CR-10 | todo |  | A 4th back-edge exists at narrative-state.ts:46 (A9G-15). *High*. |  |
+| A9G-D11 |  |  | CR-10 | deferred |  | A 4th back-edge exists at narrative-state.ts:46 (A9G-15). *High*. | the narrative-state back-edge matters only for S6 (extracting agent9-prose as a package), an owner question (A9G-Q03, CR-11) |
 | A9G-D12 |  |  | CR-08 | done | bf3fefc9 | index.ts:3 carries a BOM and a double-encoded em-dash ("Barrel â€”"); agent9-prose.ts:1 has a BOM. The fault is cosmetic. | BOMs and mojibake removed |
 | A9G-Q01 |  |  | CR-30 | todo |  | A9G-03: restore the enhanced feedback at attempt 2 (a flag plus a probe) or accept terminal-only and delete ~1,050 lines? |  |
 | A9G-Q02 |  |  | CR-17 | todo |  | Who owns narrative state: the package (proposed) or the worker? And should the three whole-story passes move to the ship layer (A9G-05)? |  |
@@ -268,7 +268,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A9V-13 | P3 | R0 | CR-08 | done | 3295ad4e 094de134 | Dead/vestigial: mapStageModeToCompositionPhase (dead since 2026-06-15), conflictingSeasonPatterns, 9 compiler-flagged unused imports/params, duplicat… | mapStageModeToCompositionPhase + CompositionPhaseKey deleted; conflictingSeasonPatterns already gone; stripAuditLocal -> stripAuditField. Left for CR-31/CR-27: surfaceSpecKeyTerms/composeKeyTermPhrase merge, escapeRegExp copies, discriminating.ts outline param |
 | A9V-14 | P3 | R0 / R2 | CR-20 | todo |  | any at every CML/outline read though typed Scene exists; bare jsonrepair at the prose boundary; 3 ad-hoc JSON fallbacks |  |
 | A9V-15 | P3 | R1 | **—** | withdrawn |  | CPU is negligible: 31 ms mean / 50 ms worst per lint call; ≈1.9 s per 60-call run | CPU is not a lever (README §3); ~2 s per run |
-| A9V-16 | P3 | R0 / R2 | CR-10 | todo |  | Misplaced code: Agent 2c transform, prompt blocks and LLM stages in a "validation" area; validation error string injected into the prose prompt |  |
+| A9V-16 | P3 | R0 / R2 | CR-10 | done | fdd6c939 | Misplaced code: Agent 2c transform, prompt blocks and LLM stages in a "validation" area; validation error string injected into the prose prompt | compileSensoryAtoms -> agent2c-sensory-atoms.ts; dependency already declared (CR-04). NOT built: the discriminating checklist failure text sent AS the prompt block is a v1 prompt change (R2) — owner, with CR-07 |
 | A9V-D01 |  |  | CR-15 | todo |  | A lone *"clue evidence … is absent"* (and *"no resolution event detected"*) classifies as retry class unknown; with a repeat at attempt 2, shouldCont… |  |
 | A9V-D02 |  |  | CR-15 | todo |  | gate_outcomes in the report misattribute 17 of 42 message templates (control-plane leakage → completeness; "verbatim" → locked_fact_word_form) |  |
 | A9V-D03 |  |  | CR-17 | todo |  | Season repairer rewrites "broken spring fragment" → "broken autumn fragment" |  |
@@ -331,7 +331,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A5-02 | P1 | R1 (merge) / R2 (accept path) | CR-16 | todo |  | Source-path vocabulary: 5 bodies, diverged (CASE.death_method) |  |
 | A5-03 | P1 | R1 / R2 | CR-16 | todo |  | Discriminating-evidence namespace: 7 rewriters, 3 scorers, 3 stages, 3 policies |  |
 | A5-04 | P1 | R1 | CR-13 | todo |  | Normalise LLM JSON at the parse boundary + typed case view (removes most any) |  |
-| A5-05 | P1 | R0 | CR-10 | todo |  | Agent 6 imports a runner; clue types sit in an LLM module (fan-in 15) |  |
+| A5-05 | P1 | R0 | CR-10 | done | fdd6c939 | Agent 6 imports a runner; clue types sit in an LLM module (fan-in 15) | contract closure (106 decls) out of agent5-run into agent5-contracts + 6 concern modules; clue types/helpers to prompts-llm leaves. Typed Agent5ContractGateError: A6-09 (CR-16) |
 | A5-06 | P1 | R1 | CR-15 | todo |  | Gate failures are strings; classifier covers 5 of ≥13 throws; Agent 6 regex branches dead |  |
 | A5-07 | P2 | R0/R1 | CR-16 | todo |  | Check/repair pairs re-implement the same predicate (5 pairs) |  |
 | A5-08 | P2 | R1 | CR-16 | todo |  | Synthesised-clue minting: ~7 bodies, 4 timeline builders, 2 direct-culprit synthesizers |  |
@@ -489,7 +489,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A1X-10 | P2 | R2 (R1 fold) | CR-29 | todo |  | Agent 1 repair ladder runs in the wrong order; blind re-roll; duplicated realism fold |  |
 | A1X-11 | P2 | R2 | CR-28 | todo |  | Prompt/token items: 2c rules repeated (13 % of system prompt), 2e double retry feedback, Agent 8 LLM computes overwritten fields |  |
 | A1X-12 | P2 | R1 (R2 edges) | CR-18 | todo |  | Agent 8: threshold/weights in 3 bodies; summariser reads CML-1.x paths (14/14 "Victim: Unknown") |  |
-| A1X-13 | P2 | R0 | CR-10 | todo |  | Type-level cycle agent2-cast ↔ agent2-cast-checker; background artifact typed 3× |  |
+| A1X-13 | P2 | R0 | CR-10 | done | 9232c483 | Type-level cycle agent2-cast ↔ agent2-cast-checker; background artifact typed 3× | leaf agent2-cast-types.ts; checker imports it; cycle gone. BackgroundContextInput alias not done (3 bodies of the background type = CR-13 typed case view) |
 | A1X-14 | P3 | R0/R1 | CR-08 | done | 5662ca4c 3d63527f | Compiler-dead locals, test-only export, 4× simpleHash, 2× LCG, 5 tri-state flag parsers, wrong memo | TENSIONS, location, retriesEnabled, appendRetryFeedback removed; checkCastMemo deleted (fixes A1X-D05). simpleHash/LCG merge deferred: changes seed bytes unless done under a golden test (CR-12) |
 | A1X-15 | P3 | R2 | CR-30 | todo |  | Production-unreachable branches (no-names cast prompt, realism belt, 2c narrative path) |  |
 | A1X-D01 |  |  | CR-07 | todo |  | Agent 2 designates a relational "Friend of the victim" as the victim when role is absent (abort class #10 via substring) |  |
@@ -522,7 +522,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | ORC-03 | P1 | R1 (numbers in the report change) | CR-19 | todo |  | "Cost of a call" has 3 definitions; 16 of 18 accumulation sites add a cumulative total to itself |  |
 | ORC-04 | P1 | R1 | CR-20 | todo |  | JSON boundary: the kit's guardedJsonrepairParse has 0 production callers; 4 ladders, 3 truncation policies → callLlmJson() |  |
 | ORC-05 | P1 | R1 (vocabulary unification R2) | CR-22 | todo |  | 82 env flags read through 8+ parsers with different vocabularies → one typed RunConfig, resolved at run start and snapshotted to the report |  |
-| ORC-06 | P2 | R0 | CR-10 | todo |  | shared.ts is a 7-responsibility grab-bag with fan-in 18 and closes an 18-file type cycle → split |  |
+| ORC-06 | P2 | R0 | CR-10 | done | 9232c483 | shared.ts is a 7-responsibility grab-bag with fan-in 18 and closes an 18-file type cycle → split | shared.ts -> context, premise, clue-guardrails, outline-guardrails, run-utils, stage-runner, novelty-constraints (+ shim); run types -> jobs/run-contract.ts; the 18-file type cycle is gone (agent-metrics: 0 cycles) |
 | ORC-07 | P2 | R1 (replay R2) | CR-03 | done | 0126b92e | Rubric scoring, the context initialiser and prose assembly each exist twice (orchestrator vs agent9-replay.ts) and have drifted | one assembleFullProse (story-output delegates to assembleScoringChapterTexts; dead orchestrator copy deleted); createOrchestratorContext in agents/context.ts used by orchestrator + agent9-replay (cast removed; replay criticalFairPlayRules was an empty set); runRubricScoring moved to rubric-scoring.ts. Replay onto live rubric = ORC-D02, waits on ORC-Q02 |
 | ORC-08 | P2 | R1 → R2 | CR-17 | todo |  | "Arc position of chapter N": 7 bodies, 4 formulas, fed into the same prompt |  |
 | ORC-09 | P2 | R0 | CR-08 | done | 3295ad4e 5662ca4c 094de134 3d63527f | Compiler-proven and grep-proven dead code in scope (11 items) | assembleFullProse (0126b92e), adapted binding, retriesEnabled, GROUNDING_PRINCIPLE, resolveProseModel/BaseModel, migrateNarrativeState, lockedThemeFamilies, orchestrator __testables re-exports. buildAssetLibrary unused params left (signature change across callers, CR-13) |

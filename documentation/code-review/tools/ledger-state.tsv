@@ -10,7 +10,7 @@ A9W-08	CR-17	todo
 A9W-09	CR-31	todo		
 A9W-10	CR-23	todo		
 A9W-11	CR-31	todo		
-A9W-12	CR-09	todo		
+A9W-12	CR-09	deferred		CR-09 waits: every consumer of the helper layer (agent9-run.ts:1-4096) is below runAgent9's v2 early return, so it is v1-only code; owner decision 2026-09-26: v1 takes bug fixes only, no refactors (same as CR-26)
 A9W-13	CR-22	todo		
 A9W-14	CR-08	done	3295ad4e 5662ca4c 094de134	unused imports/local and buildRewriteAcceptanceValidator (+test) deleted. Deferred: the unreachable namespace abort and proseRewritePassCount are v1-only behaviour (owner 2026-09-26: v1 takes bug fixes only)
 A9W-15	CR-03	done	1374e38e	ship-layer golden = eval/replay v2-prose fixture, strict MATCH; npm run replay:check in CI
@@ -60,7 +60,7 @@ A9G-D07	CR-15	todo
 A9G-D08	CR-29	todo		
 A9G-D09	CR-19	todo		
 A9G-D10	CR-26	todo		
-A9G-D11	CR-10	todo		
+A9G-D11	CR-10	deferred		the narrative-state back-edge matters only for S6 (extracting agent9-prose as a package), an owner question (A9G-Q03, CR-11)
 A9G-D12	CR-08	done	bf3fefc9	BOMs and mojibake removed
 A9G-Q01	CR-30	todo		
 A9G-Q02	CR-17	todo		
@@ -117,7 +117,7 @@ A9V-12	CR-15	todo
 A9V-13	CR-08	done	3295ad4e 094de134	mapStageModeToCompositionPhase + CompositionPhaseKey deleted; conflictingSeasonPatterns already gone; stripAuditLocal -> stripAuditField. Left for CR-31/CR-27: surfaceSpecKeyTerms/composeKeyTermPhrase merge, escapeRegExp copies, discriminating.ts outline param
 A9V-14	CR-20	todo		
 A9V-15		withdrawn		CPU is not a lever (README §3); ~2 s per run
-A9V-16	CR-10	todo		
+A9V-16	CR-10	done	fdd6c939	compileSensoryAtoms -> agent2c-sensory-atoms.ts; dependency already declared (CR-04). NOT built: the discriminating checklist failure text sent AS the prompt block is a v1 prompt change (R2) — owner, with CR-07
 A9V-D01	CR-15	todo		
 A9V-D02	CR-15	todo		
 A9V-D03	CR-17	todo		
@@ -170,7 +170,7 @@ A5-01	CR-25	todo
 A5-02	CR-16	todo		
 A5-03	CR-16	todo		
 A5-04	CR-13	todo		
-A5-05	CR-10	todo		
+A5-05	CR-10	done	fdd6c939	contract closure (106 decls) out of agent5-run into agent5-contracts + 6 concern modules; clue types/helpers to prompts-llm leaves. Typed Agent5ContractGateError: A6-09 (CR-16)
 A5-06	CR-15	todo		
 A5-07	CR-16	todo		
 A5-08	CR-16	todo		
@@ -308,7 +308,7 @@ A1X-09	CR-19	todo
 A1X-10	CR-29	todo		
 A1X-11	CR-28	todo		
 A1X-12	CR-18	todo		
-A1X-13	CR-10	todo		
+A1X-13	CR-10	done	9232c483	leaf agent2-cast-types.ts; checker imports it; cycle gone. BackgroundContextInput alias not done (3 bodies of the background type = CR-13 typed case view)
 A1X-14	CR-08	done	5662ca4c 3d63527f	TENSIONS, location, retriesEnabled, appendRetryFeedback removed; checkCastMemo deleted (fixes A1X-D05). simpleHash/LCG merge deferred: changes seed bytes unless done under a golden test (CR-12)
 A1X-15	CR-30	todo		
 A1X-D01	CR-07	todo		
@@ -336,7 +336,7 @@ ORC-02	CR-21	todo
 ORC-03	CR-19	todo		
 ORC-04	CR-20	todo		
 ORC-05	CR-22	todo		
-ORC-06	CR-10	todo		
+ORC-06	CR-10	done	9232c483	shared.ts -> context, premise, clue-guardrails, outline-guardrails, run-utils, stage-runner, novelty-constraints (+ shim); run types -> jobs/run-contract.ts; the 18-file type cycle is gone (agent-metrics: 0 cycles)
 ORC-07	CR-03	done	0126b92e	one assembleFullProse (story-output delegates to assembleScoringChapterTexts; dead orchestrator copy deleted); createOrchestratorContext in agents/context.ts used by orchestrator + agent9-replay (cast removed; replay criticalFairPlayRules was an empty set); runRubricScoring moved to rubric-scoring.ts. Replay onto live rubric = ORC-D02, waits on ORC-Q02
 ORC-08	CR-17	todo		
 ORC-09	CR-08	done	3295ad4e 5662ca4c 094de134 3d63527f	assembleFullProse (0126b92e), adapted binding, retriesEnabled, GROUNDING_PRINCIPLE, resolveProseModel/BaseModel, migrateNarrativeState, lockedThemeFamilies, orchestrator __testables re-exports. buildAssetLibrary unused params left (signature change across callers, CR-13)
