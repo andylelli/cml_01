@@ -30,7 +30,7 @@ right call, how to route it through ADR-0004 / ADR-0011. **Status: complete.**
 
 ## 0. Tracker
 
-**Progress: 5 / 34** · Last updated 2026-09-29 · `todo` · `wip` · `done` · `👤` owner decision
+**Progress: 6 / 34** · Last updated 2026-09-29 · `todo` · `wip` · `done` · `👤` owner decision
 
 **Decision 2026-09-26 (owner) — the v1 prose engine stays runnable for now.** `PROSE_ENGINE=v2` is the
 default since 2026-09-25, so `runAgent9` returns at its first line and the rest of its body plus
@@ -53,7 +53,7 @@ behaviour change, flag + probe per ADR-0004/0011.
 | CR-03 | done | 0 | **Record/replay harness**: golden bundle + recorded LLM responses → byte-identical prompts and outputs for `runAgent9`, `generateProse`, `generateMystery` — [REPLAY.md](REPLAY.md); `npm run replay:check` in CI; Agent 6.5 telemetry nondeterminism fixed behind `AGENT65_OMIT_RUN_TELEMETRY`; 4 fixtures MATCH incl. the full pipeline (Agents 1 → 9, `RESUME_REDO=setting`) with a pinned novelty ledger; SCO-12 golden scoring characterisation in the worker suite (phase bodies → `phase-scoring.ts`); ORC-07 refactor (`0126b92e`); open, owner: ORC-D02/Q02 — the old agent9-replay's own rubric copy (`1374e38e`, `170696cd`, `af585b83`) | A9W-15, SCO-12 | R0 | M–L |
 | CR-04 | done | 0 | Declare the undeclared dependencies (`prompts-llm` → `@cml/story-validation`, `js-yaml`) — 7 found by `npm run deps:check`, all declared; lockfile no longer needs a Font Awesome token (`fc6f52c7`) | A9V, A1X-D13 | R0 | S |
 | CR-05 | done | 1 | Verify the highest-impact bugs on the latest line | [VERIFIED-BUGS.md](VERIFIED-BUGS.md) | — | — |
-| CR-06 | todo | 1 | Fix the verified live bugs that cannot change prose (cost double-count, silent `.catch(()=>{})`, `ENABLE_SCORING=1`, uncapped retries, fair-play weights, thresholds, act-ratio check, flag register, `/s+/g`) | VERIFIED-BUGS #5, 14–18, 20, 22, 23 | R0/R1 | M |
+| CR-06 | done (SCO-D01 waits on 👤 SCO-Q06) | 1 | Fix the verified live bugs that cannot change prose (cost double-count, silent `.catch(()=>{})`, `ENABLE_SCORING=1`, uncapped retries, fair-play weights, thresholds, act-ratio check, flag register, `/s+/g`) — 16 of 17 closed (`dff49644`, `73b7e54c`, `faeb6755`, `ec237e5a`); A7-D10 was already fixed (`9801b481`) | VERIFIED-BUGS #5, 14–18, 20, 22, 23 | R0/R1 | M |
 | CR-07 | 👤 | 1 | Decide the verified live bugs whose fix changes a prompt, a chapter or a run outcome (`cml.CAST`, embargo on worker regens, curly-apostrophe floor, pronoun rule 11, Agent 6.5 feedback, Agent 7/8 case summaries, "Poisoned tea.", victim substring, abort swallow, Azure polish) | VERIFIED-BUGS #1–4, 6–13, 19 | R2 | M |
 | CR-08 | todo | 2 | Delete compiler-proven dead code across the scope | A9W-14, A9G-12, A9V-13, A9R-11, A9P-16, A5-13, A34-13, ORC-09, SCO-11 | R0 | M |
 | CR-09 | todo | 2 | Agent 9 helper layer (3,645 lines) → 12 modules behind re-export shims | A9W-12 | R0 | M |

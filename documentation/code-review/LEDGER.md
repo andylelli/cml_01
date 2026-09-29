@@ -11,8 +11,8 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | | finding | defect | question | all |
 |---|---:|---:|---:|---:|
 | items | 190 | 139 | 72 | 401 |
-| closed | 8 | 12 | 0 | 20 |
-| open | 182 | 127 | 72 | 381 |
+| closed | 8 | 28 | 0 | 36 |
+| open | 182 | 111 | 72 | 365 |
 | **unassigned** | 0 | 0 | 0 | 0 |
 
 ## By CR item
@@ -22,7 +22,7 @@ question (§11). Status: `todo` · `wip` · `done` · `decided` · `deferred` ·
 | CR-02 | 1 | 1 | A9W-19 |
 | CR-03 | 5 | 3 | A9W-15 ORC-07 ORC-D02 ORC-Q02 SCO-12 |
 | CR-04 | 1 | 1 | A1X-D13 |
-| CR-06 | 22 | 4 | A9G-D04 A5-D01 A5-D02 A7-D03 A7-D06 A7-D10 A34-D01 A34-D14 A1X-D02 A1X-D07 ORC-D03 ORC-D04 ORC-D07 ORC-D10 ORC-D13 SCO-D01 SCO-D02 SCO-D05 SCO-D07 SCO-D09 SCO-D11 SCO-Q06 |
+| CR-06 | 22 | 20 | A9G-D04 A5-D01 A5-D02 A7-D03 A7-D06 A7-D10 A34-D01 A34-D14 A1X-D02 A1X-D07 ORC-D03 ORC-D04 ORC-D07 ORC-D10 ORC-D13 SCO-D01 SCO-D02 SCO-D05 SCO-D07 SCO-D09 SCO-D11 SCO-Q06 |
 | CR-07 | 43 | 2 | A9W-D01 A9W-D02 A9W-D03 A9W-D05 A9W-D07 A9W-D08 A9W-D09 A9P-D01 A9P-D03 A9P-D04 A9P-D05 A9P-D06 A9P-D07 A9P-D09 A9P-D11 A9V-D10 A9V-D11 A9R-D04 A9R-D08 A5-D05 A5-Q02 A6-D02 A6-D08 A7-D01 A7-D02 A7-D05 A7-D09 A7-Q05 A34-08 A34-D03 A34-D04 A34-D10 A34-D11 A1X-D01 A1X-D03 A1X-D04 A1X-D11 A1X-Q03 ORC-11 ORC-D01 ORC-D06 ORC-D11 ORC-Q01 |
 | CR-08 | 13 | 0 | A9W-14 A9G-12 A9G-D12 A9P-16 A9V-13 A9R-11 A5-13 A6-05 A6-14 A34-13 A1X-14 ORC-09 SCO-11 |
 | CR-09 | 1 | 0 | A9W-12 |
@@ -194,7 +194,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A9G-D01 |  |  | CR-30 | todo |  | The A_73 §35 threshold change altered live retries without a flag (79524bd6). At max 3, attempt 2 moved from enhanced to terminal feedback, and ~1,05… |  |
 | A9G-D02 |  |  | CR-32 | todo |  | The in-loop clue regen ignores the regen tier. makeRegenFn({ model: inputs.model }) (2741) runs on the generate deployment. The worker fixed its 10 s… |  |
 | A9G-D03 |  |  | CR-17 | todo |  | Deployed atoms and beat history never reach the in-loop prompt. Only the worker's NSD copy is stamped. The in-loop liveNarrativeState gets only the b… |  |
-| A9G-D04 |  |  | CR-06 | todo |  | A throw from onBatchComplete duplicates chapters. Chapters are pushed at 4027 before the awaited callback at 4183. A throw (for example the worker's… |  |
+| A9G-D04 |  |  | CR-06 | done | ec237e5a | A throw from onBatchComplete duplicates chapters. Chapters are pushed at 4027 before the awaited callback at 4183. A throw (for example the worker's… |  |
 | A9G-D05 |  |  | CR-17 | todo |  | The loop and the prompt builder disagree on arc position for 6/10 chapters (A9G-09). *High* that they differ, *medium* that it is unintended. |  |
 | A9G-D06 |  |  | CR-22 | todo |  | Flag parse divergence. AGENT9_REGEN_SUSPECT_ELIM=yes (or TRUE) turns the worker's regen on while generate.ts keeps the deterministic clearance shortc… |  |
 | A9G-D07 |  |  | CR-15 | todo |  | Classifier misroutes (A9G-04). A mechanism leak lands in "CHARACTER NAME ERRORS". Season, verbatim-echo and victim-alive messages classify as protoco… |  |
@@ -345,7 +345,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A5-16 | P3 | R2 | CR-28 | todo |  | Stable prompt text sits after volatile CML text (prefix caching) |  |
 | A5-17 | P3 | — | **—** | withdrawn |  | CPU: memo caches and O(n²) scans are negligible against LLM latency | CPU is not a lever (README §3) |
 | A5-D01 |  |  | CR-06 | done | pre-audit | AM/PM guard dead since 2026-08-21 — HIGH, MEASURED. agent5-run.ts:1971 contains literal 0x08 backspace | fixed on the live line before the audit closed (VERIFIED-BUGS, Fixed) |
-| A5-D02 |  |  | CR-06 | todo |  | Agent 5 cost double-counted — HIGH, INFERRED. extractClues returns the cumulative per-client total |  |
+| A5-D02 |  |  | CR-06 | done | dff49644 | Agent 5 cost double-counted — HIGH, INFERRED. extractClues returns the cumulative per-client total |  |
 | A5-D03 |  |  | CR-16 | todo |  | CASE.death_method prompt-legal, worker-illegal — HIGH, MEASURED (A5-02). |  |
 | A5-D04 |  |  | CR-29 | todo |  | Retries drop lockedFacts and strictContract — HIGH, INFERRED (A5-11). This includes the default-ON |  |
 | A5-D05 |  |  | CR-07 | todo |  | The floor discards P8's suspect backstops, and P8 is not re-run — MEDIUM-HIGH, INFERRED (:3817 then :3868). |  |
@@ -419,14 +419,14 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A7-14 | P3 | R0 | CR-13 | todo |  | Agent 7.5: minor type leaks only; leave structurally as is |  |
 | A7-D01 |  |  | CR-07 | todo |  | Agent 7's case summary is wrong on every CML-2.0 run. It prints "Victim: Unknown" and "Motive: Unknown motive"; the victim-exclusion block names "the… |  |
 | A7-D02 |  |  | CR-07 | todo |  | The schema-repair retry never synthesises missing act purpose (required by the YAML schema), so a retry that omits it hard-aborts at :1929-1932, alth… |  |
-| A7-D03 |  |  | CR-06 | todo |  | Agent-7 cost is double-counted. formatNarrative returns the cumulative per-agent total (agent7-narrative.ts:907, cost-tracker.ts:154); runAgent7 adds… |  |
+| A7-D03 |  |  | CR-06 | done | dff49644 | Agent-7 cost is double-counted. formatNarrative returns the cumulative per-agent total (agent7-narrative.ts:907, cost-tracker.ts:154); runAgent7 adds… |  |
 | A7-D04 |  |  | CR-18 | todo |  | The pacing path never rescores, so the reported agent-7 phase score describes a discarded outline after a pacing retry (4 sites); rescoreNarrative al… |  |
 | A7-D05 |  |  | CR-07 | todo |  | Five of seven outline-adoption routes skip schema validation, so an outline from a scene-count, coverage, pacing or remediation retry reaches Agent 9… |  |
-| A7-D06 |  |  | CR-06 | todo |  | A config inside the clamp bounds can hang the worker. act1_ratio and act2_ratio are each clamped to ≤ 0.8 (generation-params.ts:1147-1148), but their… |  |
+| A7-D06 |  |  | CR-06 | done | faeb6755 | A config inside the clamp bounds can hang the worker. act1_ratio and act2_ratio are each clamped to ≤ 0.8 (generation-params.ts:1147-1148), but their… |  |
 | A7-D07 |  |  | CR-16 | todo |  | Hallucinated clue IDs survive to Agent 9. They pass the pacing gate (raw non-empty count) and are stripped only on the pre-assignment path, which run… |  |
 | A7-D08 |  |  | CR-17 | todo |  | Emotional-register conflict. A7-13: 97/358 prose prompts carry two different registers for the same chapter. |  |
 | A7-D09 |  |  | CR-07 | todo |  | Gate-mode geometry repair may not persist or resume. In AGENT75_GEOMETRY=gate, the outline artifact is persisted (mystery-orchestrator.ts:1563) befor… |  |
-| A7-D10 |  |  | CR-06 | todo |  | Unexpected-field warning noise. narrative_outline.schema.yaml lacks the five Pillar-4 / structured-output fields, so each generates one warning per s… |  |
+| A7-D10 |  |  | CR-06 | done | 9801b481 | Unexpected-field warning noise. narrative_outline.schema.yaml lacks the five Pillar-4 / structured-output fields, so each generates one warning per s… | fixed on the live line 2026-09-08 (after the snapshot): the schema declares all five fields |
 | A7-Q01 |  |  | CR-30 | todo |  | Is the AGENT_PRE9_ENABLE_CONTRACT_RECOVERY=0 mode (deterministic-only / fail-fast) still wanted? It is default ON, the OFF arm is never exercised, an… |  |
 | A7-Q02 |  |  | CR-33 | todo |  | Should S7 be re-scoped from "delete coercion sites" to "consolidate plus per-site counters"? A7-11 argues that four zeros cannot justify deleting the… |  |
 | A7-Q03 |  |  | CR-30 | todo |  | If N6 promotes AGENT7_SCHEDULER_AUTHORITATIVE, @cml/beat-scheduler claims to replace "~700 lines of band-aids" (beat-scheduler/src/index.ts:6-8). Sho… |  |
@@ -464,7 +464,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A34-D11 |  |  | CR-07 | todo |  | A3 prompt contradicts itself on evidence_clues; normaliser defaults contradict the anti-trope list |  |
 | A34-D12 |  |  | CR-29 | todo |  | applyCmlRepairAndRevalidate mutates the CML, then returns the pre-repair validation when revalidation fails (stale errors feed the degrade warnings) |  |
 | A34-D13 |  |  | CR-32 | todo |  | Agent 4 revision and the patch proposer run on the base model; the YAML's 5→3 cut assumes "a capable design model" |  |
-| A34-D14 |  |  | CR-06 | todo |  | FLAG-AUDIT lists AGENT_PRE9_ENABLE_CONTRACT_RECOVERY as default-OFF; it is ON |  |
+| A34-D14 |  |  | CR-06 | done | ec237e5a | FLAG-AUDIT lists AGENT_PRE9_ENABLE_CONTRACT_RECOVERY as default-OFF; it is ON |  |
 | A34-D15 |  |  | CR-19 | todo |  | Patch-path cost (Agent4-Patch) omitted from agent3_cml cost |  |
 | A34-D16 |  |  | CR-14 | todo |  | A3 normaliser drops the schema's canonical role/moral_complexity on every run |  |
 | A34-Q01 |  |  | CR-14 | todo |  | Normaliser defaults (A34-01 step 2): which direction wins for each divergent row? My recommendation: neutral |  |
@@ -493,7 +493,7 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | A1X-14 | P3 | R0/R1 | CR-08 | todo |  | Compiler-dead locals, test-only export, 4× simpleHash, 2× LCG, 5 tri-state flag parsers, wrong memo |  |
 | A1X-15 | P3 | R2 | CR-30 | todo |  | Production-unreachable branches (no-names cast prompt, realism belt, 2c narrative path) |  |
 | A1X-D01 |  |  | CR-07 | todo |  | Agent 2 designates a relational "Friend of the victim" as the victim when role is absent (abort class #10 via substring) |  |
-| A1X-D02 |  |  | CR-06 | todo |  | SENSORY_FALLBACK_ATOMS uses /s+/g; ignoreAtoms is a no-op either way |  |
+| A1X-D02 |  |  | CR-06 | done | ec237e5a | SENSORY_FALLBACK_ATOMS uses /s+/g; ignoreAtoms is a no-op either way |  |
 | A1X-D03 |  |  | CR-07 | todo |  | Agent 8 summariser reads CML-1.x paths: every summary "Victim: Unknown", "Motive: Unknown" |  |
 | A1X-D04 |  |  | CR-07 | todo |  | Agent 2 schema re-roll drops characterGenders (user gender lock); nothing enforces castGenders deterministically (comment at agent2-cast.ts:660-665 c… |  |
 | A1X-D05 |  |  | CR-18 | todo |  | checkCastMemo returns the pre-normalisation check to the AGENT2_CAST_CHECK shadow (same object, mutated in place) when HONEST_SCORERS is on |  |
@@ -535,17 +535,17 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | ORC-16 | P3 | R1 | CR-26 | todo |  | buildAssetLibrary ("call once per run") is built at 3 sites, per batch attempt; 2 of its 4 parameters are never read |  |
 | ORC-D01 |  |  | CR-07 | todo |  | executeAgentWithRetry abort-on-exhaustion never propagates; abortCritical is inert |  |
 | ORC-D02 |  |  | CR-03 | todo |  | Replay rubric uses a different judge model and skips the structural verifiers and noResolution; replay rubric scores are not comparable with live ones | waits on ORC-Q02. Also found: agent9-replay stubs coverageResult as evaluated-no-gaps, which Agent 9 says must read UNEVALUATED (kept, commented) |
-| ORC-D03 |  |  | CR-06 | todo |  | Per-agent costs are over-counted on every retry or regeneration path (cumulative + cumulative); Agent 2 cost is always 0 |  |
-| ORC-D04 |  |  | CR-06 | todo |  | AGENT2B_VOICE_MAX_RETRIES is uncapped: Infinity or a large value makes an unbounded LLM regeneration loop (the "Phase-1 lesson" 3b guards against); t… |  |
+| ORC-D03 |  |  | CR-06 | done | dff49644 | Per-agent costs are over-counted on every retry or regeneration path (cumulative + cumulative); Agent 2 cost is always 0 |  |
+| ORC-D04 |  |  | CR-06 | done | faeb6755 | AGENT2B_VOICE_MAX_RETRIES is uncapped: Infinity or a large value makes an unbounded LLM regeneration loop (the "Phase-1 lesson" 3b guards against); t… |  |
 | ORC-D05 |  |  | CR-17 | todo |  | The tonal-contrast check compares arc labels from two different ladders |  |
 | ORC-D06 |  |  | CR-07 | dup |  | Agent 2's schema-repair re-call drops the caller's castGenders lock | = A1X-D04 |
-| ORC-D07 |  |  | CR-06 | todo |  | ENABLE_SCORING=1 and ENABLE_PROSE_BLIND_READER=1 read as off; AGENT2_CAST_CHECK=no (and 2b/2c/2e) reads as on |  |
+| ORC-D07 |  |  | CR-06 | done | faeb6755 | ENABLE_SCORING=1 and ENABLE_PROSE_BLIND_READER=1 read as off; AGENT2_CAST_CHECK=no (and 2b/2c/2e) reads as on |  |
 | ORC-D08 |  |  | CR-32 | dup |  | Explicit design model silences AGENT3/5/6/7_MODEL and RUBRIC_SCORER_MODEL | = ORC-14 |
 | ORC-D09 |  |  | CR-33 | todo |  | Concurrent API runs share the module counters and overwrite each other's shutdown flush; a timed-out run keeps executing |  |
-| ORC-D10 |  |  | CR-06 | todo |  | The retry-gate guard models NOVELTY_HARD_FAIL but not NOVELTY_MODE=active, which replaced it |  |
+| ORC-D10 |  |  | CR-06 | done | faeb6755 | The retry-gate guard models NOVELTY_HARD_FAIL but not NOVELTY_MODE=active, which replaced it |  |
 | ORC-D11 |  |  | CR-07 | todo |  | name-generator.ts:591-600 "2× weight" is a no-op: the de-duplication removes the duplicates before uniform pickUnique |  |
 | ORC-D12 |  |  | CR-19 | dup |  | Agent 6 perCallCostDelta takes its baseline *after* the first retry call, so the first retry is never charged to the $ retry budget | = A6-D01 |
-| ORC-D13 |  |  | CR-06 | todo |  | Artifact-write failures are swallowed silently, so the resume checkpoint can be missing with no trace in the report |  |
+| ORC-D13 |  |  | CR-06 | done | ec237e5a | Artifact-write failures are swallowed silently, so the resume checkpoint can be missing with no trace in the report |  |
 | ORC-Q01 |  |  | CR-07 | todo |  | ORC-11: should an exhausted scoring retry ever abort (restore the intended behaviour), or should the dead abort be deleted in line with ADR-0003? |  |
 | ORC-Q02 |  |  | CR-03 | todo |  | ORC-07: may the replay harness adopt the live rubric path? Its historical scores become non-comparable with new ones. |  |
 | ORC-Q03 |  |  | CR-20 | todo |  | ORC-04: guard the four unguarded jsonrepair boundaries (2b, 2c, 4, prose)? That is R2: payloads that are repaired today would be refused and retried. |  |
@@ -571,15 +571,15 @@ Answer in `ledger-state.tsv`: set the status to `decided` and put the answer in 
 | SCO-11 | P2 | R0 | CR-08 | todo |  | Dead code: 10 scorer-utils fns, 5 aggregator methods, A/B harness, retry helpers, unused imports/locals |  |
 | SCO-12 | P1 | R0 | CR-03 | done | 6ef90064 | Safety net: 6 scorers at 0% coverage; "fixed-seed benchmark" never runs a scorer; golden bundles unused | phase-scoring-golden.test.ts: 4 bundles x 10 phases x 2 honest arms snapshotted; runner scoring bodies moved to phase-scoring.ts; Agent 9 prose scorer not covered (no prose in bundles) |
 | SCO-13 | P3 | R1 | **—** | withdrawn |  | Clue-evidence matcher ~208 ms/call, O(N²) per-batch series ~2.8 s; existsSync per (clue, paragraph) | CPU is not a lever (README §3); ~2.8 s per run |
-| SCO-D01 |  |  | CR-06 | todo |  | Fair-play diagnostic drift: agent9-run.ts:5260-5263 (40/40/20) vs scorer 35/35/15/15. MEASURED 100 vs 85 on one input. |  |
-| SCO-D02 |  |  | CR-06 | todo |  | HONEST_SCORERS=enforce lowers Agent 3b's pass bar 85→75 while the report shows 85 ('agent3b-hard-logic' is missing from |  |
+| SCO-D01 |  |  | CR-06 | todo |  | Fair-play diagnostic drift: agent9-run.ts:5260-5263 (40/40/20) vs scorer 35/35/15/15. MEASURED 100 vs 85 on one input. | waits on SCO-Q06 (which weighting is canonical); the fix is one body for both, choosing needs the owner |
+| SCO-D02 |  |  | CR-06 | done | ec237e5a | HONEST_SCORERS=enforce lowers Agent 3b's pass bar 85→75 while the report shows 85 ('agent3b-hard-logic' is missing from |  |
 | SCO-D03 |  |  | CR-18 | todo |  | Scorer-local pass rules are silently overridden: agent65 at 72 passes by its own rule (≥70), then fails in the report at 75 |  |
 | SCO-D04 |  |  | CR-18 | todo |  | retry-feedback.ts:54 "partial successes" compares score (0–100) to weight (≤3), so it never renders. :45 hides all minor |  |
-| SCO-D05 |  |  | CR-06 | todo |  | RetryManager backoff off-by-one: recordRetry increments before getBackoffDelay is read (shared.ts:789-791), so the first retry |  |
+| SCO-D05 |  |  | CR-06 | done | dff49644 | RetryManager backoff off-by-one: recordRetry increments before getBackoffDelay is read (shared.ts:789-791), so the first retry |  |
 | SCO-D06 |  |  | CR-18 | todo |  | Prose rescore (agent9-run.ts:4450) omits fallbackTelemetry, so committed-fallback trust caps are dropped after a schema-repair |  |
-| SCO-D07 |  |  | CR-06 | todo |  | checkCompleteness dereferences arrays without a guard (agent2-cast-scorer.ts:395, agent2b…:322, agent2c…:306, |  |
+| SCO-D07 |  |  | CR-06 | done | ec237e5a | checkCompleteness dereferences arrays without a guard (agent2-cast-scorer.ts:395, agent2b…:322, agent2c…:306, |  |
 | SCO-D08 |  |  | CR-18 | todo |  | Agent 1 adapter discards location.description (agent1-scoring-adapter.ts:30). High. |  |
-| SCO-D09 |  |  | CR-06 | todo |  | Doc drift: the README gives the global retry cap as 15 (YAML 18) and prose as "strict 85" (code 80), and says retries are |  |
+| SCO-D09 |  |  | CR-06 | done | ec237e5a | Doc drift: the README gives the global retry cap as 15 (YAML 18) and prose as "strict 85" (code 80), and says retries are |  |
 | SCO-D10 |  |  | CR-13 | todo |  | apps/web/src/components/types.ts:295 mirrors report types by hand: missing in_progress, shipped and |  |
 | SCO-D11 |  |  | CR-06 | dup |  | FLAG-AUDIT Addendum 5 misstates the AGENT_PRE9_ENABLE_CONTRACT_RECOVERY default (§6). High. | = A34-D14 (flag register) |
 | SCO-D12 |  |  | CR-18 | todo |  | Novelty "skipped" is recorded as 100/A and averaged into overall_score (agent3-run.ts ~700); the headline cap mitigates. |  |

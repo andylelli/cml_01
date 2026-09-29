@@ -53,7 +53,7 @@ A9G-17	CR-31	todo
 A9G-D01	CR-30	todo		
 A9G-D02	CR-32	todo		
 A9G-D03	CR-17	todo		
-A9G-D04	CR-06	todo		
+A9G-D04	CR-06	done	ec237e5a	
 A9G-D05	CR-17	todo		
 A9G-D06	CR-22	todo		
 A9G-D07	CR-15	todo		
@@ -184,7 +184,7 @@ A5-15	CR-16	todo
 A5-16	CR-28	todo		
 A5-17		withdrawn		CPU is not a lever (README §3)
 A5-D01	CR-06	done	pre-audit	fixed on the live line before the audit closed (VERIFIED-BUGS, Fixed)
-A5-D02	CR-06	todo		
+A5-D02	CR-06	done	dff49644	
 A5-D03	CR-16	todo		
 A5-D04	CR-29	todo		
 A5-D05	CR-07	todo		
@@ -248,14 +248,14 @@ A7-13	CR-17	todo
 A7-14	CR-13	todo		
 A7-D01	CR-07	todo		
 A7-D02	CR-07	todo		
-A7-D03	CR-06	todo		
+A7-D03	CR-06	done	dff49644	
 A7-D04	CR-18	todo		
 A7-D05	CR-07	todo		
-A7-D06	CR-06	todo		
+A7-D06	CR-06	done	faeb6755	
 A7-D07	CR-16	todo		
 A7-D08	CR-17	todo		
 A7-D09	CR-07	todo		
-A7-D10	CR-06	todo		
+A7-D10	CR-06	done	9801b481	fixed on the live line 2026-09-08 (after the snapshot): the schema declares all five fields
 A7-Q01	CR-30	todo		
 A7-Q02	CR-33	todo		
 A7-Q03	CR-30	todo		
@@ -288,7 +288,7 @@ A34-D10	CR-07	todo
 A34-D11	CR-07	todo		
 A34-D12	CR-29	todo		
 A34-D13	CR-32	todo		
-A34-D14	CR-06	todo		
+A34-D14	CR-06	done	ec237e5a	
 A34-D15	CR-19	todo		
 A34-D16	CR-14	todo		
 A34-Q01	CR-14	todo		
@@ -312,7 +312,7 @@ A1X-13	CR-10	todo
 A1X-14	CR-08	todo		
 A1X-15	CR-30	todo		
 A1X-D01	CR-07	todo		
-A1X-D02	CR-06	todo		
+A1X-D02	CR-06	done	ec237e5a	
 A1X-D03	CR-07	todo		
 A1X-D04	CR-07	todo		
 A1X-D05	CR-18	todo		
@@ -349,17 +349,17 @@ ORC-15	CR-13	todo
 ORC-16	CR-26	todo		
 ORC-D01	CR-07	todo		
 ORC-D02	CR-03	todo		waits on ORC-Q02. Also found: agent9-replay stubs coverageResult as evaluated-no-gaps, which Agent 9 says must read UNEVALUATED (kept, commented)
-ORC-D03	CR-06	todo		
-ORC-D04	CR-06	todo		
+ORC-D03	CR-06	done	dff49644	
+ORC-D04	CR-06	done	faeb6755	
 ORC-D05	CR-17	todo		
 ORC-D06	CR-07	dup		= A1X-D04
-ORC-D07	CR-06	todo		
+ORC-D07	CR-06	done	faeb6755	
 ORC-D08	CR-32	dup		= ORC-14
 ORC-D09	CR-33	todo		
-ORC-D10	CR-06	todo		
+ORC-D10	CR-06	done	faeb6755	
 ORC-D11	CR-07	todo		
 ORC-D12	CR-19	dup		= A6-D01
-ORC-D13	CR-06	todo		
+ORC-D13	CR-06	done	ec237e5a	
 ORC-Q01	CR-07	todo		
 ORC-Q02	CR-03	todo		
 ORC-Q03	CR-20	todo		
@@ -380,15 +380,15 @@ SCO-10	CR-18	todo
 SCO-11	CR-08	todo		
 SCO-12	CR-03	done	6ef90064	phase-scoring-golden.test.ts: 4 bundles x 10 phases x 2 honest arms snapshotted; runner scoring bodies moved to phase-scoring.ts; Agent 9 prose scorer not covered (no prose in bundles)
 SCO-13		withdrawn		CPU is not a lever (README §3); ~2.8 s per run
-SCO-D01	CR-06	todo		
-SCO-D02	CR-06	todo		
+SCO-D01	CR-06	todo		waits on SCO-Q06 (which weighting is canonical); the fix is one body for both, choosing needs the owner
+SCO-D02	CR-06	done	ec237e5a	
 SCO-D03	CR-18	todo		
 SCO-D04	CR-18	todo		
-SCO-D05	CR-06	todo		
+SCO-D05	CR-06	done	dff49644	
 SCO-D06	CR-18	todo		
-SCO-D07	CR-06	todo		
+SCO-D07	CR-06	done	ec237e5a	
 SCO-D08	CR-18	todo		
-SCO-D09	CR-06	todo		
+SCO-D09	CR-06	done	ec237e5a	
 SCO-D10	CR-13	todo		
 SCO-D11	CR-06	dup		= A34-D14 (flag register)
 SCO-D12	CR-18	todo		
