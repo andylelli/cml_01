@@ -10,7 +10,6 @@
     "apps/worker/src/jobs/agents/agent6-run.ts": 2153,
     "apps/worker/src/jobs/agents/agent7-run.ts": 2586,
     "apps/worker/src/jobs/agents/agent9-run.ts": 7237,
-    "apps/worker/src/jobs/mystery-orchestrator.ts": 1545,
     "packages/prompts-llm/src/agent3-cml.ts": 1832,
     "packages/prompts-llm/src/agent9-prose/clue-validation.ts": 1740,
     "packages/prompts-llm/src/agent9-prose/generate.ts": 4261,
