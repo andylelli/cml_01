@@ -1941,7 +1941,7 @@ export async function generateCML(
                   normalizationNotes: [...normalizationNotes],
                   attempt: resolvedMaxAttempts + 1,
                   latencyMs: Date.now() - startTime,
-                  cost: client.getCostTracker().getSummary().byAgent["Agent3-CMLGenerator"] || 0,
+                  cost: (client.getCostTracker().getSummary().byAgent["Agent3-CMLGenerator"] || 0) + (client.getCostTracker().getSummary().byAgent["Agent4-Patch"] || 0), // A34-D15: the patch call's own label, as the revision path adds Agent4-Revision
                   revisedByAgent4: true,
                   revisionDetails: {
                     attempts: patchResult.applied.length,
